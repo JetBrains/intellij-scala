@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
 import com.intellij.codeInsight.template.impl.{TemplateManagerImpl, TemplateState}
 import com.intellij.codeInsight.unwrap.ScopeHighlighter
-import com.intellij.openapi.actionSystem.{DataContext, DataKey}
+import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.impl.StartMarkAction
 import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsScheme}
@@ -17,6 +17,7 @@ import com.intellij.psi.util.PsiTreeUtil.{findElementOfClassAtRange, getChildOfT
 import com.intellij.ui.components.JBList
 import org.jetbrains.annotations.{Nls, TestOnly}
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ValidSmartPointer, executeWriteActionCommand, inWriteAction, invokeLaterInTransaction}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
@@ -26,7 +27,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlo
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.refactoring.ScTypePresentationExt
-import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.IntroduceTypeAlias.ForcedReplaceOccurrenceInInheritors
+import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.OccurrenceData.ReplaceOptions
+import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableHandler.ReplaceTestOptions
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaDirectoryService, ScalaRefactoringUtil}
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -119,11 +121,7 @@ trait IntroduceTypeAlias {
               editor.getSelectionModel.removeSelection()
 
               if (isInplaceAvailable(editor)) {
-                (editor.getDocument, PsiDocumentManager.getInstance(project)) match {
-                  case (document, manager) =>
-                    manager.commitDocument(document)
-                    manager.doPostponedOperationsAndUnblockDocument(document)
-                }
+                editor.getDocument.commit(project)
 
                 maybeTypeAlias.foreach { typeAlias =>
                   editor.getUserData(IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO).addScopeElement(scopeItem)
@@ -417,20 +415,13 @@ trait IntroduceTypeAlias {
   )(implicit project: Project, editor: Editor, dataContext: DataContext): Unit = {
     val scopeItem = mainScope
 
-    val typeName =
-      Option(dataContext.getData(ScalaIntroduceVariableHandler.ForcedDefinitionNameDataKey)).getOrElse(scopeItem.name)
-    val isReplaceOccurrenceInInheritors =
-      Option(dataContext.getData(ForcedReplaceOccurrenceInInheritors)).getOrElse(java.lang.Boolean.FALSE)
-    val isReplaceOccurrenceInCompanionObject =
-      Option(dataContext.getData(ScalaIntroduceVariableHandler.ForcedReplaceCompanionObjOccurrencesKey)).getOrElse(java.lang.Boolean.FALSE)
-    val isReplaceAllUsual =
-      Option(dataContext.getData(ScalaIntroduceVariableHandler.ForcedReplaceAllOccurrencesKey)).getOrElse(java.lang.Boolean.FALSE)
+    val testReplaceOptions = Option(dataContext.getData(ScalaIntroduceVariableHandler.ForcedReplaceTestOptions))
+    val typeName = testReplaceOptions.flatMap(_.definitionName).getOrElse(scopeItem.name)
+    val replaceOptions: ReplaceOptions = testReplaceOptions.map(_.toProductionReplaceOptions).getOrElse(ReplaceOptions.DefaultInTests)
 
     val occurrences = OccurrenceData(
       typeElement = typeElement,
-      isReplaceAllUsual = isReplaceAllUsual,
-      isReplaceOccurrenceInCompanionObject = isReplaceOccurrenceInCompanionObject,
-      isReplaceOccurrenceInInheritors = isReplaceOccurrenceInInheritors,
+      replaceOptions,
       scopeItem = scopeItem,
     )
     runRefactoringForTypes(
@@ -445,8 +436,4 @@ trait IntroduceTypeAlias {
 
 object IntroduceTypeAlias {
   val REVERT_TYPE_ALIAS_INFO: Key[IntroduceTypeAliasData] = new Key("RevertTypeAliasInfo")
-
-  @TestOnly
-  val ForcedReplaceOccurrenceInInheritors: DataKey[java.lang.Boolean] =
-    DataKey.create[java.lang.Boolean]("ForcedReplaceOccurrenceInInheritors")
 }

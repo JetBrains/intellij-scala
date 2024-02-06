@@ -19,6 +19,14 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.ge
 import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 
+/**
+ * @todo ideally we should not create our custom action
+ *       and rely on [[com.intellij.codeInsight.hint.actions.ShowExpressionTypeAction]]<br>
+ *       by implementing [[com.intellij.lang.ExpressionTypeProvider]]
+ *       There was an attempt to do it in 2018 [[https://youtrack.jetbrains.com/issue/SCL-14464]]
+ *       but later the change was reverted for some reasons (see the comments in the YT ticket)
+ *       We might give it another go, we need to review the latest state of the feature in platform to see if it satisfies our needs
+ */
 class ShowTypeInfoAction extends AnAction(
   ScalaBundle.message("type.info.text"),
   ScalaBundle.message("type.info.description"),
@@ -120,13 +128,8 @@ object ShowTypeInfoAction {
     //NOTE: type alias handled here, not inside `org.jetbrains.plugins.scala.extensions.PsiElementExt.ofNamedElement$extension`
     //because it's not directly clear how it will effect other usage places of ofNamedElement
     //(mainly org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterHandler)
-    val scType: Option[ScType] = elem match {
-      case alias: ScTypeAliasDefinition =>
-        alias.aliasedType.toOption.map(subst)
-      case _ =>
-        elem.ofNamedElement(subst)
-    }
-    typeText(scType)
+    val scType = elem.ofNamedElement(subst)
+    scType.map(TypePresentation.withoutAliases)
   }
 
   private[this] def typeText(optType: Option[ScType])

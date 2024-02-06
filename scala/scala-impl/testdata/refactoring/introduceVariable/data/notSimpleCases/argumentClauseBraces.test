@@ -1,5 +1,5 @@
 def outer {
-	def inner(p: String) = println(<begin>p.concat("")<end>)
+	def inner(p: String) = println(<selection>p.concat("")</selection>)
 }
 ------
 def outer {

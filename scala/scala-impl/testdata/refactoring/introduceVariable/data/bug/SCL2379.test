@@ -1,7 +1,7 @@
 object O {
   {
     class T
-    <begin>new T<end>
+    <selection>new T</selection>
   }
 }
 ------

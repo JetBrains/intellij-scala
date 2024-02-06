@@ -24,7 +24,10 @@ abstract class ScalaCompletionTestBase extends ScalaLightCodeInsightFixtureTestC
   import Lookup.REPLACE_SELECT_CHAR
   import ScalaCompletionTestBase._
 
-  protected lazy val scalaCompletionTestFixture: ScalaCompletionTestFixture = new ScalaCompletionTestFixture(DefaultInvocationCount, scalaFixture)
+  protected lazy val scalaCompletionTestFixture: ScalaCompletionTestFixture = new ScalaCompletionTestFixture(
+    scalaFixture,
+    DefaultInvocationCount
+  )
 
   protected override def setUp(): Unit = {
     super.setUp()

@@ -1,10 +1,10 @@
-//name=D
+//### name=D, replaceAll=true
 object My {
   class A {
     def foo(i: Double): Double = 6.0
   }
 
-  val t: <all>Double<end> = 34.0
+  val t: <selection>Double</selection> = 34.0
 
   class B {
     def bar(): Double = 45.0

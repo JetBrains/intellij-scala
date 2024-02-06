@@ -6,15 +6,17 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.psi.PsiManager
 import com.intellij.testFramework.TestActionEvent
 import com.intellij.ui.UiInterceptors
-import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.compiler.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.compiler.actions.internal.compilertrees.CompilerTrees.PhaseWithTreeText
 import org.jetbrains.plugins.scala.compiler.actions.internal.compilertrees.ui.CompilerTreesDialog
+import org.jetbrains.plugins.scala.{CompilationTests, ScalaVersion}
 import org.junit.ComparisonFailure
+import org.junit.experimental.categories.Category
 
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.concurrent.{Await, Promise}
 
+@Category(Array(classOf[CompilationTests]))
 abstract class ShowScalaCompilerTreeActionTestBase extends ScalaCompilerTestBase {
   val WaitForCompileServerTimeout = 30.seconds
 

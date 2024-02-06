@@ -3,7 +3,7 @@ class A {
     for {
       i <- 1 to 10
       if i != 5
-      j = i / (<begin>i - 5<end>)
+      j = i / (<selection>i - 5</selection>)
     } yield j
   }
 }

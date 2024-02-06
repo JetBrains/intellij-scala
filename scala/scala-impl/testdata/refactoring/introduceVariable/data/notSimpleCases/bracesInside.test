@@ -1,6 +1,6 @@
 class A {
   def fii() {
-    <begin>{}<end>
+    <selection>{}</selection>
   }
 }
 -------

@@ -1,7 +1,7 @@
 class a {
   def foo() = {
     1 match {
-      case 1 => <begin>1<end>
+      case 1 => <selection>1</selection>
       case _ => 2
     }
   }

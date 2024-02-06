@@ -1,10 +1,11 @@
+//### replaceAll=true
 object Test {
 
   val x1 = foo(1)
 
   def foo(x: Int) = x + 1
 
-  val x2 = foo(2) + <all>foo(1)<end>
+  val x2 = foo(2) + <selection>foo(1)</selection>
 }
 ------
 object Test {

@@ -1,6 +1,7 @@
+//### replaceAll=true
 class a {
   def foo() = {
-    "Hello, <all>$Bob<end>!"
+    "Hello, <selection>$Bob</selection>!"
     s"$Bob"
   }
 }

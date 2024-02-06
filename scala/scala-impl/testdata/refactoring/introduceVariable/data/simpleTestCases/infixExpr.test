@@ -1,6 +1,6 @@
 class a {
   def foo = {
-    val t = <begin>2 + 2<end>
+    val t = <selection>2 + 2</selection>
     return t
   }
 }

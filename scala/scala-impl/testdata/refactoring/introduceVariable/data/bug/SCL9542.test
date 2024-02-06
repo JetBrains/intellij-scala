@@ -1,5 +1,5 @@
 object Blargle {
-  foo(<begin>""<end>)
+  foo(<selection>""</selection>)
   def foo[T <: String](t: T) = println(t.charAt(0))
 }
 ------

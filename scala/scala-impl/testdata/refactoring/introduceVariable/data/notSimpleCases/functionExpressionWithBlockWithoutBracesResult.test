@@ -1,8 +1,8 @@
 class a {
   def foo = {
-    <begin>(x: Int) =>
+    <selection>(x: Int) =>
       val y = x * x
-      y + 1<end>
+      y + 1</selection>
   }
 }
 ------

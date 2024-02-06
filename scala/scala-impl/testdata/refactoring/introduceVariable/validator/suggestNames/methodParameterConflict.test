@@ -9,7 +9,7 @@ class Indent
 object Test {
   def getChildIndent(parent: ScalaBlock, child: ASTNode): Indent = {
     val node = parent.getNode
-    <begin>node.getTreeParent<end>
+    <selection>node.getTreeParent</selection>
   }
 }
 ------

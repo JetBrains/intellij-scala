@@ -1,7 +1,7 @@
 class A {
-  def foo() = <begin>{
+  def foo() = <selection>{
     2 + 2
-  }<end>
+  }</selection>
 }
 ------
 class A {

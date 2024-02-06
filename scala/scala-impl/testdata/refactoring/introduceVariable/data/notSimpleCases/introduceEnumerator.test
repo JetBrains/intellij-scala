@@ -1,3 +1,3 @@
-for (i <- 1 to 10; j = <begin>10<end> - i) print(j)
+for (i <- 1 to 10; j = <selection>10</selection> - i) print(j)
 -------
 for (i <- 1 to 10; value: Int = 10; j = value - i) print(j)

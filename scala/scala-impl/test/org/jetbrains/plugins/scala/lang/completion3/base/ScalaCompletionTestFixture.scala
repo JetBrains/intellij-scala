@@ -15,8 +15,8 @@ import org.junit.Assert._
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 class ScalaCompletionTestFixture(
+  val scalaFixture: ScalaCodeInsightTestFixture,
   val defaultInvocationCount: Int = 1,
-  val scalaFixture: ScalaCodeInsightTestFixture
 ) extends HelperFixtureEditorOps {
 
   override protected def getFixture: JavaCodeInsightTestFixture = scalaFixture.javaFixture

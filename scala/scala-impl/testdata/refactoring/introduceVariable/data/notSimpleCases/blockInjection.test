@@ -1,6 +1,6 @@
 class A {
   def foo(): Unit = {
-    val s = s"str ${<begin>1 + 2<end>}"
+    val s = s"str ${<selection>1 + 2</selection>}"
   }
 }
 -------

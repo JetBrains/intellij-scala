@@ -1,8 +1,9 @@
+//### replaceAll=true
 class a {
   def foo() = {
     val x: Int => String = {
       case 1 => "1"
-      case 2 => <all>"2"<end>
+      case 2 => <selection>"2"</selection>
       case 3 => "2"
       case _ => "2"
     }

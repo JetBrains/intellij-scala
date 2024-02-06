@@ -1,6 +1,6 @@
 class a {
   def foo {
-    <begin>Array(1, 2)<end>.apply(0)
+    <selection>Array(1, 2)</selection>.apply(0)
   }
 }
 ------

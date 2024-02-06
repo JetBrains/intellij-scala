@@ -1,5 +1,5 @@
 class a {
-  def foo = <begin>2<end>
+  def foo = <selection>2</selection>
 }
 ------
 class a {

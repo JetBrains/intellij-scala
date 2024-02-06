@@ -1,6 +1,6 @@
 //T
 class Super[T] {
-  val t:<begin>T<end> = 435
+  val t:<selection>T</selection> = 435
 }
 ------
 Introduced type alias conflicts with type name: T

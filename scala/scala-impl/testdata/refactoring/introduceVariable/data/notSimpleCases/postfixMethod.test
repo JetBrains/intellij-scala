@@ -1,6 +1,6 @@
 class a {
   def foo = {
-    a <begin>{22; 33}<end>
+    a <selection>{22; 33}</selection>
   }
 }
 ------

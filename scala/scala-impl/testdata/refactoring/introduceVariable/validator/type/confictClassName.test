@@ -1,7 +1,7 @@
 //I
 object My{
   class A{
-    val j:<begin>Int<end> = 23
+    val j:<selection>Int</selection> = 23
   }
 
   class I{

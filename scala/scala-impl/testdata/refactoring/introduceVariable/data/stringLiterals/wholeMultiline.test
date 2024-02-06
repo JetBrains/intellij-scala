@@ -1,7 +1,7 @@
 class a {
   foo(
-    <begin>"""line1
-      |line2""".stripMargin<end>
+    <selection>"""line1
+      |line2""".stripMargin</selection>
   )
 
   def foo(x: String): Unit

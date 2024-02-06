@@ -1,7 +1,7 @@
 class a {
   def foo = {
     if (true) {
-      <begin>2<end>
+      <selection>2</selection>
     }
     val value = 3
   }

@@ -1,10 +1,11 @@
+//### replaceAll=true
 class a {
   object tre {
     def too() = 1
   }
   def foo = {
     tre.too()
-    <all>tre.too<end>
+    <selection>tre.too</selection>
   }
 }
 ------

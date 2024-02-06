@@ -1,6 +1,6 @@
 class s {
   def foo = {
-    <begin>x<end>
+    <selection>x</selection>
   }
   def x(implicit i: Int) = 33
 }

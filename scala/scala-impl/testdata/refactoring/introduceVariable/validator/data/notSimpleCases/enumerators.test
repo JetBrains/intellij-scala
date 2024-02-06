@@ -1,6 +1,6 @@
 class a {
   def foo = {
-    for (value <- 1 to 10; if <begin>true<end>) yield true
+    for (value <- 1 to 10; if <selection>true</selection>) yield true
   }
 }
 -----

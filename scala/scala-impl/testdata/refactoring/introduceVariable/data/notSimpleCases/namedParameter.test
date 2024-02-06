@@ -1,6 +1,6 @@
 case class A(i: Int) {
   def foo() {
-    A(i = <begin>1<end>)
+    A(i = <selection>1</selection>)
   }
 }
 ------

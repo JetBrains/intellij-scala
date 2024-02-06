@@ -1,7 +1,8 @@
+//### replaceAll=true
 class a {
   def foo() = {
     val x = "true"
-    <all>s"Is $x"<end>
+    <selection>s"Is $x"</selection>
 
     if (false) {
       val x = "false"

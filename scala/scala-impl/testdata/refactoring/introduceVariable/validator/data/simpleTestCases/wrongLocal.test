@@ -1,6 +1,6 @@
 class a {
   def foo = {
-    <begin>2<end>
+    <selection>2</selection>
     val value = 3
   }
 }

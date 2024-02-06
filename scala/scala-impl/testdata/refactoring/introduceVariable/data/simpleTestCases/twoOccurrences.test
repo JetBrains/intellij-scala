@@ -1,7 +1,8 @@
+//### replaceAll=true
 class a {
   def foo = {
     2
-    <all>2<end>
+    <selection>2</selection>
   }
 }
 ------

@@ -3,5 +3,5 @@ greetings("Name 1")<caret>
 greetings("Name 2")
 ------
 def greetings(name: String): String = s"Hello, $name"
-val str: String = greetings("Name 1")
+val value: String = greetings("Name 1")
 greetings("Name 2")

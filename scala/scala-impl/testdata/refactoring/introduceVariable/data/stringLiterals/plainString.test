@@ -1,6 +1,6 @@
 class a {
   def foo() = {
-    "Hello, <begin>Bob<end>!"
+    "Hello, <selection>Bob</selection>!"
   }
 }
 ------

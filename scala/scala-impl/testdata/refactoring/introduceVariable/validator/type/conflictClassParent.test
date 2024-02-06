@@ -6,7 +6,7 @@ class A {
   }
 
   class C extends B {
-    val t: <begin>Int<end> = 45
+    val t: <selection>Int</selection> = 45
   }
 
 }

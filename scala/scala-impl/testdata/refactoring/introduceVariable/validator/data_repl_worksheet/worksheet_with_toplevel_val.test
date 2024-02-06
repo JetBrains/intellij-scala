@@ -1,4 +1,4 @@
 val value = 42
-<begin>value<end>
+<selection>value</selection>
 ------
 Introduced variable will conflict with (or may be hidden by) field or method without parameters: value
