@@ -9,4 +9,6 @@ trait ScValueOrVariableDeclaration extends ScValueOrVariable with ScTypedDeclara
   override def declaredElements: Seq[ScTypedDefinition]
 
   override def isAbstract: Boolean = true
+
+  override final def isEffectivelyFinal: Boolean = false
 }

@@ -1073,8 +1073,7 @@ package object extensions {
       }
 
     def isEffectivelyFinal: Boolean = clazz match {
-      case scClass: ScClass => scClass.hasFinalModifier
-      case _: ScObject | _: ScNewTemplateDefinition => true
+      case member: ScMember => member.isEffectivelyFinal
       case synth: ScSyntheticClass if !Seq("AnyRef", "AnyVal").contains(synth.className) => true //wrappers for value types
       case _ =>
         //noinspection ScalaWrongPlatformMethodsUsage

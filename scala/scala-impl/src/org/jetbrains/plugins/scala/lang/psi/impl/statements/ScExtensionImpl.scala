@@ -6,7 +6,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiClass, PsiElement, ResolveState}
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
@@ -82,5 +82,7 @@ class ScExtensionImpl(@Nullable stub: ScExtensionStub, @Nullable node: ASTNode)
   override def namedTag: Option[ScNamedElement] = declaredElements.headOption
 
   override protected def endParent: Option[PsiElement] = extensionBody
+
+  override final def isEffectivelyFinal: Boolean = Option(containingClass).forall(_.isEffectivelyFinal)
 }
 

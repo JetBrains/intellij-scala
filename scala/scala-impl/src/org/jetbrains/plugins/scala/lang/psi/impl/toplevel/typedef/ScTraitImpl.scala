@@ -86,4 +86,6 @@ final class ScTraitImpl(stub: ScTemplateDefinitionStub[ScTrait],
   override def namedTag: Option[ScNamedElement] = Some(this)
 
   override protected def endParent: Option[PsiElement] = extendsBlock.templateBody
+
+  override def isEffectivelyFinal: Boolean = false
 }

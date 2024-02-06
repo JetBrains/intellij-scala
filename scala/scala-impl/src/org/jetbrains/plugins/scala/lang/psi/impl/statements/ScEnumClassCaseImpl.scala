@@ -58,4 +58,6 @@ final class ScEnumClassCaseImpl(
   protected def parentByStub: PsiElement = super.getParentByStub
 
   protected def stubOrPsiParentOfType[E <: PsiElement](aClass: Class[E]): E = super.getStubOrPsiParentOfType(aClass)
+
+  override def isEffectivelyFinal: Boolean = true
 }

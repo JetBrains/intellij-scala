@@ -86,4 +86,6 @@ class ScPrimaryConstructorImpl private(stub: ScPrimaryConstructorStub, node: AST
   override def getDocComment: PsiDocComment = null
 
   override def isDeprecated: Boolean = false
+
+  override final def isEffectivelyFinal: Boolean = true
 }

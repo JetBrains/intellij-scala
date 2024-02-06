@@ -218,4 +218,6 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
   override protected def endParent: Option[PsiElement] = extendsBlock.templateBody
 
   override def isAnonimous: Boolean = extendsBlock.templateBody.nonEmpty
+
+  override def isEffectivelyFinal: Boolean = true
 }

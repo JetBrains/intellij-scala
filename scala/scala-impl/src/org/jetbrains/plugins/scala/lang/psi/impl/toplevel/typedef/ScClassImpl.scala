@@ -182,4 +182,6 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
   override def namedTag: Option[ScNamedElement] = Some(this)
 
   override protected def endParent: Option[PsiElement] = extendsBlock.templateBody
+
+  override def isEffectivelyFinal: Boolean = this.hasFinalModifier
 }

@@ -21,4 +21,6 @@ class ScGivenAliasDefinitionImpl(
   override def toString: String = "ScGivenAliasDefinition: " + ifReadAllowed(name)("")
 
   override protected def keywordTokenType: IElementType = ScalaTokenType.GivenKeyword
+
+  override def isEffectivelyFinal: Boolean = true
 }

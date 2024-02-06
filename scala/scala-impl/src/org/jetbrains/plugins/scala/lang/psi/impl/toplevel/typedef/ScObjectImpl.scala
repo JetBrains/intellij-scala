@@ -68,6 +68,8 @@ class ScObjectImpl(
     case _ => super[ScTypeDefinitionImpl].hasModifierProperty(name)
   }
 
+  override final def isEffectivelyFinal: Boolean = true
+
   override def isObject : Boolean = true
 
   override def isPackageObject: Boolean = byStubOrPsi(_.isPackageObject) {

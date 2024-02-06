@@ -69,4 +69,6 @@ final class ScTypeAliasDefinitionImpl private(stub: ScTypeAliasStub, node: ASTNo
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitTypeAliasDefinition(this)
   }
+
+  override def isEffectivelyFinal: Boolean = true
 }

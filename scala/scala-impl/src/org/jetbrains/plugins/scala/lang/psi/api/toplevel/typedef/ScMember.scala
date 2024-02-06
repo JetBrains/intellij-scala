@@ -6,7 +6,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement, PsiMember, PsiModifier}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.caches.{ModTracker, cached}
-import org.jetbrains.plugins.scala.extensions.{&, ObjectExt, Parent, StubBasedExt}
+import org.jetbrains.plugins.scala.extensions.{&, ObjectExt, Parent, PsiClassExt, PsiModifierListOwnerExt, StubBasedExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameterClause}
@@ -129,6 +129,8 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
     case _: ScPackaging | _: ScFile => true
     case _                          => false
   }
+
+  def isEffectivelyFinal: Boolean
 
   /**
    * @return Some package name in case member is a top level definition<br>

@@ -47,4 +47,6 @@ final class ScEnumImpl(stub: ScTemplateDefinitionStub[ScClass],
   override protected def keywordTokenType: IElementType = ScalaTokenType.EnumKeyword
 
   override def namedTag: Option[ScNamedElement] = Some(this)
+
+  override def isEffectivelyFinal: Boolean = false
 }

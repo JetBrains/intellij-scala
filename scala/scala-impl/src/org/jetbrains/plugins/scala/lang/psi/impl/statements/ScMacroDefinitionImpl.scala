@@ -37,4 +37,6 @@ final class ScMacroDefinitionImpl private[psi](stub: ScFunctionStub[ScMacroDefin
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit =
     visitor.visitMacroDefinition(this)
+
+  override def isEffectivelyFinal: Boolean = true
 }
