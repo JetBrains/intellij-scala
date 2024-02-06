@@ -61,16 +61,17 @@ object ReferencePassedToNlsInspection {
   }
 
   private def resolveToNotNlsAnnotated(element: PsiElement, found: mutable.Set[PsiElement] = mutable.Set.empty): Option[PsiElement] =
-    if (!found.add(element)) None
-    else element match {
-      case ResolvesTo(ref) if evaluatesNotToNls(ref, found) => Some(ref)
+    element match {
+      case ResolvesTo(ref) if evaluatesNotToNls(ref, found) =>
+        Some(ref)
       case invocation: MethodInvocation =>
         invocation.getEffectiveInvokedExpr match {
           case ResolvesTo(ref) if evaluatesNotToNls(ref, found) =>
             Some(ref)
           case _ => None
         }
-      case _ => None
+      case _ =>
+        None
     }
 
   private def evaluatesNotToNls(ref: PsiElement, found: mutable.Set[PsiElement]): Boolean =
