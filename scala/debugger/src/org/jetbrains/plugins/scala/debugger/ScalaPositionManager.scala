@@ -754,17 +754,20 @@ object ScalaPositionManager {
   }
 
   private def positionsOnLineInner(file: ScalaFile, lineNumber: Int): Seq[PsiElement] = {
-    inReadAction {
+    @RequiresReadLock
+    def compute(): Seq[PsiElement] = {
       val document = PsiDocumentManager.getInstance(file.getProject).getDocument(file)
       if (document == null || lineNumber >= document.getLineCount) return Seq.empty
       val startLine = document.getLineStartOffset(lineNumber)
       val endLine = document.getLineEndOffset(lineNumber)
 
+      @RequiresReadLock
       def elementsOnTheLine(file: ScalaFile): Seq[PsiElement] = {
         val builder = ArraySeq.newBuilder[PsiElement]
         var elem = file.findElementAt(startLine)
 
         while (elem != null && elem.getTextOffset <= endLine) {
+          ProgressManager.checkCanceled()
           elem match {
             case ChildOf(_: ScUnitExpr) | ChildOf(ScBlock()) =>
               builder += elem
@@ -778,7 +781,9 @@ object ScalaPositionManager {
         builder.result()
       }
 
+      @RequiresReadLock
       def findParent(element: PsiElement): Option[PsiElement] = {
+        ProgressManager.checkCanceled()
         val parentsOnTheLine = element.withParentsInFile.takeWhile(e => e.getTextOffset > startLine).toIndexedSeq
         val anon = parentsOnTheLine.collectFirst {
           case e if isLambda(e) => e
@@ -793,11 +798,16 @@ object ScalaPositionManager {
           case _ => false
         }
         val maxExpressionPatternOrTypeDef =
-          filteredParents.find(!_.isInstanceOf[ScBlock]).orElse(filteredParents.headOption)
+          filteredParents.find(!_.is[ScBlock]).orElse(filteredParents.headOption)
         Seq(anon, maxExpressionPatternOrTypeDef).flatten.sortBy(_.getTextLength).headOption
       }
+
       elementsOnTheLine(file).flatMap(findParent).distinct
     }
+
+    ReadAction.nonBlocking(() => compute())
+      .expireWhen(() => !file.isValid)
+      .executeSynchronously()
   }
 
   def isLambda(element: PsiElement): Boolean = {
