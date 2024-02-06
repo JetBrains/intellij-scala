@@ -47,9 +47,8 @@ final class ScalaCodeInsightTestFixture(
     configureFromFileText(defaultFileType, fileText)
 
   //TODO 1: do not trim expected text here, trim it at usage place
-  //TODO 2: do not invoke stripMargin here, do it at usage place
   def configureFromFileText(fileType: FileType, fileText: String): PsiFile = {
-    val fileTextPatched = fileTextPatcher(fileText.stripMargin.withNormalizedSeparator.trim)
+    val fileTextPatched = fileTextPatcher(fileText.withNormalizedSeparator.trim)
     val file = javaFixture.configureByText(fileType, fileTextPatched)
     assertNotNull(file)
     file
