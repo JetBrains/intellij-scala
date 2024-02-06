@@ -828,6 +828,9 @@ addCommandAlias("runHighlightingTests", testOnlyCategories(highlightingTests))
 addCommandAlias("runNightlyTests", testOnlyCategories(randomTypingTests))
 addCommandAlias("runFlakyTests", s"testOnly -- --include-categories=$flakyTests")
 
+//it's run during "Package" step on TC
+addCommandAlias("runBundleSortingTests", s"testOnly -- --include-categories=$bundleSortingTests")
+
 val categoriesToExclude = List(
   fileSetTests,
   compilationTests,

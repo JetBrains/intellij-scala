@@ -1,13 +1,16 @@
-package org.jetbrains.plugins.scala
-package internal.bundle
+package org.jetbrains.plugins.scala.internal.bundle
 
 import junit.framework.{Test, TestCase, TestSuite}
+import org.jetbrains.plugins.scala.BundleSortingTests
 import org.jetbrains.plugins.scala.internal.bundle.ScalaBundleSorting._
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
 import org.jetbrains.plugins.scala.util.internal.I18nBundleContent
 import org.jetbrains.plugins.scala.util.internal.I18nBundleContent._
 import org.junit.experimental.categories.Category
 
+/**
+ * @see [[ScalaBundleSorting]]
+ */
 class ScalaBundleSortingTest extends TestCase
 
 object ScalaBundleSortingTest {
@@ -17,7 +20,7 @@ object ScalaBundleSortingTest {
     suite
   }
 
-  @Category(Array(classOf[FileSetTests]))
+  @Category(Array(classOf[BundleSortingTests]))
   final class ActualTest(moduleInfo: ModuleWithBundleInfo) extends TestCase with AssertionMatchers {
 
     this.setName(moduleInfo.bundleAbsolutePath)

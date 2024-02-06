@@ -44,3 +44,8 @@ trait CompletionTests
 trait EditorTests
 
 trait CompilationTests
+
+/**
+ * See [[org.jetbrains.plugins.scala.internal.bundle.ScalaBundleSortingTest]]
+ */
+trait BundleSortingTests
