@@ -160,17 +160,19 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       Right(packageName)
     }
 
-    ReadAction.nonBlocking[Either[Unit, Option[String]]](() => computeClassesPatternsAndPackageName()).executeSynchronously() match {
-      case Left(()) => ju.Collections.emptyList()
-      case Right(packageName) =>
-        val foundWithPattern =
-          if (namePatterns.isEmpty) Nil
-          else filterAllClasses(c => hasLocations(c, position) && namePatterns.exists(_.matches(c)), packageName)
-        val distinctExactClasses = exactClasses.distinct
-        val loadedNestedClasses = getNestedClasses(distinctExactClasses).filter(hasLocations(_, position))
+    ReadAction.nonBlocking[Either[Unit, Option[String]]](() => computeClassesPatternsAndPackageName())
+      .expireWhen(() => debugProcess.getProject.isDisposed)
+      .executeSynchronously() match {
+        case Left(()) => ju.Collections.emptyList()
+        case Right(packageName) =>
+          val foundWithPattern =
+            if (namePatterns.isEmpty) Nil
+            else filterAllClasses(c => hasLocations(c, position) && namePatterns.exists(_.matches(c)), packageName)
+          val distinctExactClasses = exactClasses.distinct
+          val loadedNestedClasses = getNestedClasses(distinctExactClasses).filter(hasLocations(_, position))
 
-        (distinctExactClasses ++ foundWithPattern ++ loadedNestedClasses).distinct.asJava
-    }
+          (distinctExactClasses ++ foundWithPattern ++ loadedNestedClasses).distinct.asJava
+      }
   }
 
   @NotNull
@@ -301,8 +303,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
         val (requestor, qName) = computeRequestorAndQualifiedName(position)
         createClassPrepareRequests(requestor, qName)
       }.asJava
-    })
-    .executeSynchronously()
+    }).expireWhen(() => debugProcess.getProject.isDisposed).executeSynchronously()
   }
 
   private def throwIfNotScalaFile(file: PsiFile): Unit = {
@@ -483,7 +484,9 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       }
     }
 
-    val file = ReadAction.nonBlocking(() => findFile()).executeSynchronously()
+    val file = ReadAction.nonBlocking(() => findFile())
+      .expireWhen(() => debugProcess.getProject.isDisposed)
+      .executeSynchronously()
 
     if (file != null && refType.methods().asScala.exists(isIndyLambda)) {
       isCompiledWithIndyLambdasCache.put(file, true)
