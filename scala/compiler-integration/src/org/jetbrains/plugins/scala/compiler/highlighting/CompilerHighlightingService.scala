@@ -486,7 +486,7 @@ private object CompilerHighlightingService {
   def get(project: Project): CompilerHighlightingService =
     project.getService(classOf[CompilerHighlightingService])
 
-  def platformAutomakeEnabled(project: Project): Boolean =
+  private def platformAutomakeEnabled(project: Project): Boolean =
     CompilerWorkspaceConfiguration.getInstance(project).MAKE_PROJECT_ON_SAVE
 
   sealed trait RequestState
