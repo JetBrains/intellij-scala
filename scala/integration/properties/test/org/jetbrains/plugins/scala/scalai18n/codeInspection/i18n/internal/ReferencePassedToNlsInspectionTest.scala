@@ -315,4 +315,31 @@ class ReferencePassedToNlsInspectionTest extends ScalaInspectionTestBase {
        |}
        |""".stripMargin
   )
+
+  def test_special_methods(): Unit = checkTextHasNoErrors(
+    """
+      |toNls(nls.trim)
+      |toNls(nls.strip())
+      |""".stripMargin
+  )
+
+  def test_special_methods2(): Unit = checkTextHasError(
+    s"""
+      |toNls(${START}nonnls.trim$END)
+      |toNls(${START}nonnls.strip()$END)
+      |""".stripMargin
+  )
+
+  def test_fix_inner(): Unit = testQuickFix(
+    s"""
+       |val ref = nonnls
+       |toNls(ref.trim)
+       |""".stripMargin,
+    """
+      |@Nls
+      |val ref = nonnls
+      |toNls(ref.trim)
+      |""".stripMargin,
+    "Annotate with @Nls"
+  )
 }

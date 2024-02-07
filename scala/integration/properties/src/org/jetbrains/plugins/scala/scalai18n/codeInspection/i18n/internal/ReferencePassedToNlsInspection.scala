@@ -8,13 +8,14 @@ import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
-import com.intellij.psi.{PsiElement, PsiReference}
+import com.intellij.psi.{PsiElement, PsiMethod, PsiReference}
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScConstructorPattern, ScPatternArgumentList}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.MethodInvocation
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.ScalaI18nUtil._
 import org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.internal.ReferencePassedToNlsInspection._
 
@@ -60,8 +61,10 @@ object ReferencePassedToNlsInspection {
       }
   }
 
-  private def resolveToNotNlsAnnotated(element: PsiElement, found: mutable.Set[PsiElement] = mutable.Set.empty): Option[PsiElement] =
+  private def resolveToNotNlsAnnotated(element: PsiElement, found: mutable.Set[PsiElement] = mutable.Set.empty): Option[PsiElement] = {
+    val withinAllowedElement = new WithinAllowedElement(found)
     element match {
+      case withinAllowedElement(result) => result
       case ResolvesTo(ref) if evaluatesNotToNls(ref, found) =>
         Some(ref)
       case invocation: MethodInvocation =>
@@ -73,6 +76,7 @@ object ReferencePassedToNlsInspection {
       case _ =>
         None
     }
+  }
 
   private def evaluatesNotToNls(ref: PsiElement, found: mutable.Set[PsiElement]): Boolean =
     if (!found.add(ref)) false
@@ -87,4 +91,27 @@ object ReferencePassedToNlsInspection {
       case func: ScFunctionDefinition if func.isEffectivelyFinal => func.returnUsages.exists(evaluatesNotToNls(_, found))
       case _ => true
     }
+
+  private class WithinAllowedElement(found: mutable.Set[PsiElement]) {
+    def unapply(psiElement: PsiElement): Option[Option[PsiElement]] = {
+      psiElement match {
+        case invocation: MethodInvocation if isAllowedTarget(invocation.target) =>
+          invocation.thisExpr.map(resolveToNotNlsAnnotated(_, found))
+        case e: ScReferenceExpression if isAllowedTarget(e.bind()) =>
+          e.qualifier.map(resolveToNotNlsAnnotated(_, found))
+        case _ =>
+          None
+      }
+    }
+
+    private def isAllowedTarget(ref: Option[ScalaResolveResult]): Boolean =
+      ref.map(_.element.name).exists(isAllowedMethod)
+
+
+    private val isAllowedMethod: Set[String] = Set(
+      "indent",
+      "trim", "trimRight",
+      "stripMargin", "stripTrailing", "stripLeading", "stripIndent", "stripLineEnd", "strip",
+    )
+  }
 }
