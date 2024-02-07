@@ -9,16 +9,18 @@ import com.intellij.debugger.jdi.{StackFrameProxyImpl, VirtualMachineProxyImpl}
 import com.intellij.debugger.requests.ClassPrepareRequestor
 import com.intellij.debugger.ui.impl.watch.StackFrameDescriptorImpl
 import com.intellij.debugger.{MultiRequestPositionManager, NoDataException, SourcePosition}
+import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileTypes.{FileType, FileTypeRegistry, LanguageFileType}
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbService
-import com.intellij.openapi.util.Ref
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.CachedValueProvider.Result
 import com.intellij.psi.util.{CachedValueProvider, CachedValuesManager, PsiTreeUtil}
 import com.intellij.util.ThreeState
+import com.intellij.util.concurrency.annotations.RequiresReadLock
 import com.intellij.util.containers.ConcurrentIntObjectMap
 import com.intellij.xdebugger.frame.XStackFrame
 import com.sun.jdi._
@@ -105,21 +107,27 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       }
     }
 
+    val possiblePositions = positionsOnLine(file, position.getLine)
     val exactClasses = mutable.ArrayBuffer.empty[ReferenceType]
     val namePatterns = mutable.Set[NamePattern]()
-    var packageName: Option[String] = None
 
-    inReadAction {
-      val possiblePositions = positionsOnLine(file, position.getLine)
+    @RequiresReadLock
+    def computeClassesPatternsAndPackageName(): Either[Unit, Option[String]] = {
+      val packageName = possiblePositions.headOption.flatMap(findPackageName)
 
-      packageName = possiblePositions.headOption.flatMap(findPackageName)
+      val onTheLine = possiblePositions.map { e =>
+        ProgressManager.checkCanceled()
+        findGeneratingClassOrMethodParent(e)
+      }
+      if (onTheLine.isEmpty) return Left(())
 
-      val onTheLine = possiblePositions.map(findGeneratingClassOrMethodParent)
-      if (onTheLine.isEmpty) return ju.Collections.emptyList()
       val nonLambdaParent =
         if (isCompiledWithIndyLambdas(file)) {
           val nonStrictParents = onTheLine.head.withParentsInFile
-          nonStrictParents.find(p => isGenerateNonAnonfunClass(p))
+          nonStrictParents.find { p =>
+            ProgressManager.checkCanceled()
+            isGenerateNonAnonfunClass(p)
+          }
         } else None
 
       def addExactClasses(td: ScTypeDefinition): Unit = {
@@ -134,6 +142,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
           case _ => Nil
         }
         (qName :: additional).foreach { name =>
+          ProgressManager.checkCanceled()
           exactClasses ++= debugProcess.getVirtualMachineProxy.classesByName(name).asScala
         }
       }
@@ -147,15 +156,23 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
           val namePattern = NamePattern.forElement(elem)
           namePatterns ++= Option(namePattern)
       }
+
+      Right(packageName)
     }
 
-    val foundWithPattern =
-      if (namePatterns.isEmpty) Nil
-      else filterAllClasses(c => hasLocations(c, position) && namePatterns.exists(_.matches(c)), packageName)
-    val distinctExactClasses = exactClasses.distinct
-    val loadedNestedClasses = getNestedClasses(distinctExactClasses).filter(hasLocations(_, position))
+    ReadAction.nonBlocking[Either[Unit, Option[String]]](() => computeClassesPatternsAndPackageName())
+      .expireWhen(() => debugProcess.getProject.isDisposed)
+      .executeSynchronously() match {
+        case Left(()) => ju.Collections.emptyList()
+        case Right(packageName) =>
+          val foundWithPattern =
+            if (namePatterns.isEmpty) Nil
+            else filterAllClasses(c => hasLocations(c, position) && namePatterns.exists(_.matches(c)), packageName)
+          val distinctExactClasses = exactClasses.distinct
+          val loadedNestedClasses = getNestedClasses(distinctExactClasses).filter(hasLocations(_, position))
 
-    (distinctExactClasses ++ foundWithPattern ++ loadedNestedClasses).distinct.asJava
+          (distinctExactClasses ++ foundWithPattern ++ loadedNestedClasses).distinct.asJava
+      }
   }
 
   @NotNull
@@ -164,12 +181,9 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     checkForIndyLambdas(refType)
 
     try {
-      inReadAction {
-        val line: Int = position.getLine
-        locationsOfLine(refType, line).asJava
-      }
-    }
-    catch {
+      val line: Int = position.getLine
+      locationsOfLine(refType, line).asJava
+    } catch {
       case _: AbsentInformationException => ju.Collections.emptyList()
     }
   }
@@ -239,57 +253,57 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       }
     }
 
-    def createPrepareRequests(position: SourcePosition): Seq[ClassPrepareRequest] = {
-      val qName = new Ref[String](null)
-      val waitRequestor = new Ref[ClassPrepareRequestor](null)
-      inReadAction {
-        val sourceImage = findReferenceTypeSourceImage(position)
-        val insideMacro: Boolean = isInsideMacro(nonWhitespaceElement(position))
-        sourceImage match {
-          case cl: ScClass if ValueClassType.isValueClass(cl) =>
-            //there are no instances of value classes, methods from companion object are used
-            qName.set(getSpecificNameForDebugger(cl) + "$")
-          case tr: ScTrait if !isLocalClass(tr) =>
-            //to handle both trait methods encoding
-            qName.set(tr.getQualifiedNameForDebugger + "*")
-          case typeDef: ScTypeDefinition if !isLocalOrUnderDelayedInit(typeDef) =>
-            val specificName = getSpecificNameForDebugger(typeDef)
-            qName.set(if (insideMacro) specificName + "*" else specificName)
-          case file: ScalaFile =>
-            //top level member in default package
-            qName.set(topLevelMemberClassName(file, None))
-          case pckg: ScPackaging =>
-            qName.set(topLevelMemberClassName(pckg.getContainingFile, Some(pckg)))
-          case _ =>
-            val name =
-              findEnclosingTypeDefinition match {
-                case Some(td) => Some(td.getQualifiedNameForDebugger + "*")
-                case None =>
-                  findEnclosingPackageOrFile.map {
-                    case Left(pkg) => topLevelMemberClassName(pkg.getContainingFile, Some(pkg))
-                    case Right(file) => topLevelMemberClassName(file, None)
-                  }
-              }
-            name.foreach(qName.set)
-        }
-        // Enclosing type definition is not found
-        if (qName.get == null) {
-          qName.set(SCRIPT_HOLDER_CLASS_NAME + "*")
-        }
-        waitRequestor.set(new ScalaPositionManager.MyClassPrepareRequestor(position, requestor))
+    @RequiresReadLock
+    def computeRequestorAndQualifiedName(position: SourcePosition): (MyClassPrepareRequestor, String) = {
+      var qName: String = null
+      val sourceImage = findReferenceTypeSourceImage(position)
+      val insideMacro: Boolean = isInsideMacro(nonWhitespaceElement(position))
+      sourceImage match {
+        case cl: ScClass if ValueClassType.isValueClass(cl) =>
+          //there are no instances of value classes, methods from companion object are used
+          qName = getSpecificNameForDebugger(cl) + "$"
+        case tr: ScTrait if !isLocalClass(tr) =>
+          //to handle both trait methods encoding
+          qName = tr.getQualifiedNameForDebugger + "*"
+        case typeDef: ScTypeDefinition if !isLocalOrUnderDelayedInit(typeDef) =>
+          val specificName = getSpecificNameForDebugger(typeDef)
+          qName = if (insideMacro) specificName + "*" else specificName
+        case file: ScalaFile =>
+          //top level member in default package
+          qName = topLevelMemberClassName(file, None)
+        case pckg: ScPackaging =>
+          qName = topLevelMemberClassName(pckg.getContainingFile, Some(pckg))
+        case _ =>
+          val name =
+            findEnclosingTypeDefinition match {
+              case Some(td) => Some(td.getQualifiedNameForDebugger + "*")
+              case None =>
+                findEnclosingPackageOrFile.map {
+                  case Left(pkg) => topLevelMemberClassName(pkg.getContainingFile, Some(pkg))
+                  case Right(file) => topLevelMemberClassName(file, None)
+                }
+            }
+          qName = name.orNull
       }
-
-      createClassPrepareRequests(waitRequestor.get, qName.get)
+      // Enclosing type definition is not found
+      if (qName eq null) {
+        qName = SCRIPT_HOLDER_CLASS_NAME + "*"
+      }
+      (new MyClassPrepareRequestor(position, requestor), qName)
     }
 
     val file = position.getFile
     throwIfNotScalaFile(file)
 
-    val possiblePositions = inReadAction {
-      positionsOnLine(file, position.getLine).map(SourcePosition.createFromElement)
-    }
-
-    possiblePositions.flatMap(createPrepareRequests).asJava
+    val onLine = positionsOnLine(file, position.getLine)
+    ReadAction.nonBlocking(() => {
+      onLine.flatMap { e =>
+        ProgressManager.checkCanceled()
+        val position = SourcePosition.createFromElement(e)
+        val (requestor, qName) = computeRequestorAndQualifiedName(position)
+        createClassPrepareRequests(requestor, qName)
+      }.asJava
+    }).expireWhen(() => debugProcess.getProject.isDisposed).executeSynchronously()
   }
 
   private def throwIfNotScalaFile(file: PsiFile): Unit = {
@@ -434,8 +448,10 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     if (refType == null) return null
     if (refTypeToFileCache.contains(refType)) return refTypeToFileCache(refType)
 
+    @RequiresReadLock
     def findFile() = {
       def withDollarTestName(originalQName: String): Option[String] = {
+        ProgressManager.checkCanceled()
         val dollarTestSuffix = "$Test" //See SCL-9340
         if (originalQName.endsWith(dollarTestSuffix)) Some(originalQName)
         else if (originalQName.contains(dollarTestSuffix + "$")) {
@@ -445,14 +461,14 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
         else None
       }
       def topLevelClassName(originalQName: String): String = {
+        ProgressManager.checkCanceled()
         if (originalQName.endsWith(PackageObjectSingletonClassPackageSuffix)) originalQName
         else originalQName.replace(PackageObjectSingletonClassPackageSuffix, ".").takeWhile(_ != '$')
       }
-      def tryToFindClass(name: String) = {
+      def tryToFindClass(name: String): Option[PsiClass] = {
+        ProgressManager.checkCanceled()
         val classes = findClassesByQName(name, debugProcessScope, fallbackToProjectScope = true)
-
-        classes.find(!_.isInstanceOf[ScObject])
-          .orElse(classes.headOption)
+        classes.find(!_.is[ScObject]).orElse(classes.headOption)
       }
 
       val originalQName = NameTransformer.decode(nonLambdaName(refType))
@@ -468,7 +484,10 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       }
     }
 
-    val file = inReadAction(findFile())
+    val file = ReadAction.nonBlocking(() => findFile())
+      .expireWhen(() => debugProcess.getProject.isDisposed)
+      .executeSynchronously()
+
     if (file != null && refType.methods().asScala.exists(isIndyLambda)) {
       isCompiledWithIndyLambdasCache.put(file, true)
     }
@@ -747,17 +766,20 @@ object ScalaPositionManager {
   }
 
   private def positionsOnLineInner(file: ScalaFile, lineNumber: Int): Seq[PsiElement] = {
-    inReadAction {
+    @RequiresReadLock
+    def compute(): Seq[PsiElement] = {
       val document = PsiDocumentManager.getInstance(file.getProject).getDocument(file)
       if (document == null || lineNumber >= document.getLineCount) return Seq.empty
       val startLine = document.getLineStartOffset(lineNumber)
       val endLine = document.getLineEndOffset(lineNumber)
 
+      @RequiresReadLock
       def elementsOnTheLine(file: ScalaFile): Seq[PsiElement] = {
         val builder = ArraySeq.newBuilder[PsiElement]
         var elem = file.findElementAt(startLine)
 
         while (elem != null && elem.getTextOffset <= endLine) {
+          ProgressManager.checkCanceled()
           elem match {
             case ChildOf(_: ScUnitExpr) | ChildOf(ScBlock()) =>
               builder += elem
@@ -771,7 +793,9 @@ object ScalaPositionManager {
         builder.result()
       }
 
+      @RequiresReadLock
       def findParent(element: PsiElement): Option[PsiElement] = {
+        ProgressManager.checkCanceled()
         val parentsOnTheLine = element.withParentsInFile.takeWhile(e => e.getTextOffset > startLine).toIndexedSeq
         val anon = parentsOnTheLine.collectFirst {
           case e if isLambda(e) => e
@@ -786,11 +810,16 @@ object ScalaPositionManager {
           case _ => false
         }
         val maxExpressionPatternOrTypeDef =
-          filteredParents.find(!_.isInstanceOf[ScBlock]).orElse(filteredParents.headOption)
+          filteredParents.find(!_.is[ScBlock]).orElse(filteredParents.headOption)
         Seq(anon, maxExpressionPatternOrTypeDef).flatten.sortBy(_.getTextLength).headOption
       }
+
       elementsOnTheLine(file).flatMap(findParent).distinct
     }
+
+    ReadAction.nonBlocking(() => compute())
+      .expireWhen(() => !file.isValid)
+      .executeSynchronously()
   }
 
   def isLambda(element: PsiElement): Boolean = {
@@ -931,17 +960,21 @@ object ScalaPositionManager {
 
     private def computeClassJVMNameParts(elem: PsiElement): Seq[String] = {
       if (exactName.isDefined) Seq.empty
-      else inReadAction {
-        elem match {
-          case InsideMacro(call) => computeClassJVMNameParts(call.getParent)
-          case _ =>
-            val parts = elem.withParentsInFile.flatMap(partsFor)
-            parts.toSeq.reverse
-        }
+      else {
+        ReadAction.nonBlocking(() => {
+          elem match {
+            case InsideMacro(call) => computeClassJVMNameParts(call.getParent)
+            case _ =>
+              val parts = elem.withParentsInFile.flatMap(partsFor)
+              parts.toSeq.reverse
+          }
+        }).expireWhen(() => !elem.isValid).executeSynchronously()
       }
     }
 
+    @RequiresReadLock
     private def partsFor(elem: PsiElement): Seq[String] = {
+      ProgressManager.checkCanceled()
       elem match {
         case o: ScObject if o.isPackageObject => Seq(PackageObjectSingletonClassName)
         case td: ScTypeDefinition => Seq(ScalaNamesUtil.toJavaName(td.name))
@@ -951,7 +984,9 @@ object ScalaPositionManager {
       }
     }
 
+    @RequiresReadLock
     private def partsForAnonfun(elem: PsiElement): Seq[String] = {
+      ProgressManager.checkCanceled()
       val anonfunCount = ScalaEvaluatorBuilderUtil.anonClassCount(elem)
       val lastParts = Seq.fill(anonfunCount - 1)(Seq("$apply", "$anonfun")).flatten
       val containingClass = findGeneratingClassOrMethodParent(elem.getParent)
