@@ -14,7 +14,7 @@ import java.io.File
 import java.net.URI
 class SbtModuleDataWorkspaceDataServiceTest extends SbtModuleDataServiceTestCase {
 
-  def testSbtModuleWSMEntitiesExistence(): Unit = {
+  def testSbtModuleEntitiesExistence(): Unit = {
     val testProject = new project {
       val buildURI: URI = new File(getProject.getBasePath).toURI
       val c1URI: URI = buildURI.resolve("c1/")
@@ -68,10 +68,10 @@ class SbtModuleDataWorkspaceDataServiceTest extends SbtModuleDataServiceTestCase
 
     importProjectData(testProject)
 
-    checkSbtModuleWSMEntities()
+    checkSbtModuleEntities()
   }
 
-  private def checkSbtModuleWSMEntities(): Unit = {
+  private def checkSbtModuleEntities(): Unit = {
     val project = getProject
     val modules = project.modules.filter(ModuleType.get(_).getName == JavaModuleType.getModuleName)
     assertEquals("The number of modules should be 4", 4, modules.size)
@@ -80,9 +80,9 @@ class SbtModuleDataWorkspaceDataServiceTest extends SbtModuleDataServiceTestCase
     modules.foreach { module =>
       val moduleEntityOpt = storage.resolveOpt(new ModuleId(module.getName))
       moduleEntityOpt.map { entity =>
-        val sbtModuleEntity = SbtUtil.findSbtModuleWSMEntityForModuleEntity(entity, storage)
+        val sbtModuleEntity = SbtUtil.findSbtModuleEntityForModuleEntity(entity, storage)
         sbtModuleEntity.getOrElse {
-          fail(s"There is no SbtModuleWSMEntity associated with module ${module.getName}")
+          fail(s"There is no SbtModuleEntity associated with module ${module.getName}")
         }
       }.getOrElse {
         fail(s"There is no ModuleEntity associated with module ${module.getName}")

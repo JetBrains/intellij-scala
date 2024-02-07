@@ -8,12 +8,12 @@ import java.net.URI
 
 final class SbtSbtBuildModuleUriProvider extends SbtBuildModuleUriProvider {
   override def getBuildModuleUri(module: Module): Option[URI] = {
-    val sbtModuleWSMEntity = SbtUtil.getSbtModuleWSMEntity(module)
-    sbtModuleWSMEntity.map(entity => new URI(entity.getBuildURI))
+    val sbtModuleEntity = SbtUtil.getSbtModuleEntity(module)
+    sbtModuleEntity.map(entity => new URI(entity.getBuildURI))
   }
 
   override def getBuildModuleBaseDirectory(module: Module): Option[File] = {
-    val sbtModuleWSMEntity = SbtUtil.getSbtModuleWSMEntity(module)
-    sbtModuleWSMEntity.map(entity => new File(entity.getBaseDirectory.getPresentableUrl))
+    val sbtModuleEntity = SbtUtil.getSbtModuleEntity(module)
+    sbtModuleEntity.map(entity => new File(entity.getBaseDirectory.getPresentableUrl))
   }
 }

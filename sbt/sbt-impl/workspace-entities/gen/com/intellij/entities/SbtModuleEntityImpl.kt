@@ -3,7 +3,6 @@ package com.intellij.entities
 import com.intellij.platform.workspace.jps.entities.ModuleEntity
 import com.intellij.platform.workspace.storage.EntityInformation
 import com.intellij.platform.workspace.storage.EntitySource
-import com.intellij.platform.workspace.storage.EntityType
 import com.intellij.platform.workspace.storage.GeneratedCodeApiVersion
 import com.intellij.platform.workspace.storage.GeneratedCodeImplVersion
 import com.intellij.platform.workspace.storage.MutableEntityStorage
@@ -23,10 +22,10 @@ import com.intellij.platform.workspace.storage.url.VirtualFileUrl
 
 @GeneratedCodeApiVersion(2)
 @GeneratedCodeImplVersion(3)
-open class SbtModuleWSMEntityImpl(private val dataSource: SbtModuleWSMEntityData) : SbtModuleWSMEntity, WorkspaceEntityBase(dataSource) {
+open class SbtModuleEntityImpl(private val dataSource: SbtModuleEntityData) : SbtModuleEntity, WorkspaceEntityBase(dataSource) {
 
     private companion object {
-        internal val MODULE_CONNECTION_ID: ConnectionId = ConnectionId.create(ModuleEntity::class.java, SbtModuleWSMEntity::class.java, ConnectionId.ConnectionType.ONE_TO_ONE, false)
+        internal val MODULE_CONNECTION_ID: ConnectionId = ConnectionId.create(ModuleEntity::class.java, SbtModuleEntity::class.java, ConnectionId.ConnectionType.ONE_TO_ONE, false)
 
         private val connections = listOf<ConnectionId>(
                 MODULE_CONNECTION_ID,
@@ -66,8 +65,8 @@ open class SbtModuleWSMEntityImpl(private val dataSource: SbtModuleWSMEntityData
     }
 
 
-    class Builder(result: SbtModuleWSMEntityData?) : ModifiableWorkspaceEntityBase<SbtModuleWSMEntity, SbtModuleWSMEntityData>(result), SbtModuleWSMEntity.Builder {
-        constructor() : this(SbtModuleWSMEntityData())
+    class Builder(result: SbtModuleEntityData?) : ModifiableWorkspaceEntityBase<SbtModuleEntity, SbtModuleEntityData>(result), SbtModuleEntity.Builder {
+        constructor() : this(SbtModuleEntityData())
 
         override fun applyToBuilder(builder: MutableEntityStorage) {
             if (this.diff != null) {
@@ -75,7 +74,7 @@ open class SbtModuleWSMEntityImpl(private val dataSource: SbtModuleWSMEntityData
                     this.diff = builder
                     return
                 } else {
-                    error("Entity SbtModuleWSMEntity is already created in a different builder")
+                    error("Entity SbtModuleEntity is already created in a different builder")
                 }
             }
 
@@ -99,21 +98,21 @@ open class SbtModuleWSMEntityImpl(private val dataSource: SbtModuleWSMEntityData
                 error("Field WorkspaceEntity#entitySource should be initialized")
             }
             if (!getEntityData().isSbtModuleIdInitialized()) {
-                error("Field SbtModuleWSMEntity#sbtModuleId should be initialized")
+                error("Field SbtModuleEntity#sbtModuleId should be initialized")
             }
             if (!getEntityData().isBuildURIInitialized()) {
-                error("Field SbtModuleWSMEntity#buildURI should be initialized")
+                error("Field SbtModuleEntity#buildURI should be initialized")
             }
             if (!getEntityData().isBaseDirectoryInitialized()) {
-                error("Field SbtModuleWSMEntity#baseDirectory should be initialized")
+                error("Field SbtModuleEntity#baseDirectory should be initialized")
             }
             if (_diff != null) {
                 if (_diff.extractOneToOneParent<WorkspaceEntityBase>(MODULE_CONNECTION_ID, this) == null) {
-                    error("Field SbtModuleWSMEntity#module should be initialized")
+                    error("Field SbtModuleEntity#module should be initialized")
                 }
             } else {
                 if (this.entityLinks[EntityLink(false, MODULE_CONNECTION_ID)] == null) {
-                    error("Field SbtModuleWSMEntity#module should be initialized")
+                    error("Field SbtModuleEntity#module should be initialized")
                 }
             }
         }
@@ -124,7 +123,7 @@ open class SbtModuleWSMEntityImpl(private val dataSource: SbtModuleWSMEntityData
 
         // Relabeling code, move information from dataSource to this builder
         override fun relabel(dataSource: WorkspaceEntity, parents: Set<WorkspaceEntity>?) {
-            dataSource as SbtModuleWSMEntity
+            dataSource as SbtModuleEntity
             if (this.entitySource != dataSource.entitySource) this.entitySource = dataSource.entitySource
             if (this.sbtModuleId != dataSource.sbtModuleId) this.sbtModuleId = dataSource.sbtModuleId
             if (this.buildURI != dataSource.buildURI) this.buildURI = dataSource.buildURI
@@ -201,11 +200,11 @@ open class SbtModuleWSMEntityImpl(private val dataSource: SbtModuleWSMEntityData
                 changedProperty.add("module")
             }
 
-        override fun getEntityClass(): Class<SbtModuleWSMEntity> = SbtModuleWSMEntity::class.java
+        override fun getEntityClass(): Class<SbtModuleEntity> = SbtModuleEntity::class.java
     }
 }
 
-class SbtModuleWSMEntityData : WorkspaceEntityData<SbtModuleWSMEntity>() {
+class SbtModuleEntityData : WorkspaceEntityData<SbtModuleEntity>() {
     lateinit var sbtModuleId: String
     lateinit var buildURI: String
     lateinit var baseDirectory: VirtualFileUrl
@@ -214,8 +213,8 @@ class SbtModuleWSMEntityData : WorkspaceEntityData<SbtModuleWSMEntity>() {
     internal fun isBuildURIInitialized(): Boolean = ::buildURI.isInitialized
     internal fun isBaseDirectoryInitialized(): Boolean = ::baseDirectory.isInitialized
 
-    override fun wrapAsModifiable(diff: MutableEntityStorage): WorkspaceEntity.Builder<SbtModuleWSMEntity> {
-        val modifiable = SbtModuleWSMEntityImpl.Builder(null)
+    override fun wrapAsModifiable(diff: MutableEntityStorage): WorkspaceEntity.Builder<SbtModuleEntity> {
+        val modifiable = SbtModuleEntityImpl.Builder(null)
         modifiable.diff = diff
         modifiable.snapshot = diff
         modifiable.id = createEntityId()
@@ -223,10 +222,10 @@ class SbtModuleWSMEntityData : WorkspaceEntityData<SbtModuleWSMEntity>() {
     }
 
     @OptIn(EntityStorageInstrumentationApi::class)
-    override fun createEntity(snapshot: EntityStorageInstrumentation): SbtModuleWSMEntity {
+    override fun createEntity(snapshot: EntityStorageInstrumentation): SbtModuleEntity {
         val entityId = createEntityId()
         return snapshot.initializeEntity(entityId) {
-            val entity = SbtModuleWSMEntityImpl(this)
+            val entity = SbtModuleEntityImpl(this)
             entity.snapshot = snapshot
             entity.id = entityId
             entity
@@ -234,11 +233,11 @@ class SbtModuleWSMEntityData : WorkspaceEntityData<SbtModuleWSMEntity>() {
     }
 
     override fun getMetadata(): EntityMetadata {
-        return MetadataStorageImpl.getMetadataByTypeFqn("com.intellij.entities.SbtModuleWSMEntity") as EntityMetadata
+        return MetadataStorageImpl.getMetadataByTypeFqn("com.intellij.entities.SbtModuleEntity") as EntityMetadata
     }
 
     override fun getEntityInterface(): Class<out WorkspaceEntity> {
-        return SbtModuleWSMEntity::class.java
+        return SbtModuleEntity::class.java
     }
 
     override fun serialize(ser: EntityInformation.Serializer) {
@@ -248,7 +247,7 @@ class SbtModuleWSMEntityData : WorkspaceEntityData<SbtModuleWSMEntity>() {
     }
 
     override fun createDetachedEntity(parents: List<WorkspaceEntity>): WorkspaceEntity {
-        return SbtModuleWSMEntity(sbtModuleId, buildURI, baseDirectory, entitySource) {
+        return SbtModuleEntity(sbtModuleId, buildURI, baseDirectory, entitySource) {
             parents.filterIsInstance<ModuleEntity>().singleOrNull()?.let { this.module = it }
         }
     }
@@ -263,7 +262,7 @@ class SbtModuleWSMEntityData : WorkspaceEntityData<SbtModuleWSMEntity>() {
         if (other == null) return false
         if (this.javaClass != other.javaClass) return false
 
-        other as SbtModuleWSMEntityData
+        other as SbtModuleEntityData
 
         if (this.entitySource != other.entitySource) return false
         if (this.sbtModuleId != other.sbtModuleId) return false
@@ -276,7 +275,7 @@ class SbtModuleWSMEntityData : WorkspaceEntityData<SbtModuleWSMEntity>() {
         if (other == null) return false
         if (this.javaClass != other.javaClass) return false
 
-        other as SbtModuleWSMEntityData
+        other as SbtModuleEntityData
 
         if (this.sbtModuleId != other.sbtModuleId) return false
         if (this.buildURI != other.buildURI) return false

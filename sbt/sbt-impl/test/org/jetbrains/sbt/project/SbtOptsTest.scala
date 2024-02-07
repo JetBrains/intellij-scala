@@ -103,11 +103,4 @@ class SbtOptsTest {
     doTest("-d -sbt-dir -dummy", Seq("-d", "-sbt-dir", "-dummy"))
   }
 
-  //REQUIRED UNTIL SBT-IDEA-PLUGIN IS FIXED
-  import org.junit.Assert.assertTrue
-  @Test
-  def dummyFailingTest(): Unit = {
-    assertTrue(false)
-  }
-
 }

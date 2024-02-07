@@ -1,6 +1,6 @@
 package org.jetbrains.sbt
 
-import com.intellij.entities.SbtModuleWSMEntity
+import com.intellij.entities.SbtModuleEntity
 import com.intellij.execution.configurations.ParametersList
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.model.Key
@@ -189,15 +189,15 @@ object SbtUtil {
     sbtProjectDataOpt.exists(_.projectTransitiveDependenciesUsed)
   }
 
-  def getSbtModuleWSMEntity(module: Module): Option[SbtModuleWSMEntity] = {
+  def getSbtModuleEntity(module: Module): Option[SbtModuleEntity] = {
     val project = module.getProject
     val storage = WorkspaceModel.getInstance(project).getCurrentSnapshot
     val moduleEntityOpt = storage.resolveOpt(new ModuleId(module.getName))
-    moduleEntityOpt.flatMap(findSbtModuleWSMEntityForModuleEntity(_, storage))
+    moduleEntityOpt.flatMap(findSbtModuleEntityForModuleEntity(_, storage))
   }
 
-  def findSbtModuleWSMEntityForModuleEntity(moduleEntity: ModuleEntity, storage: EntityStorage): Option[SbtModuleWSMEntity] = {
-    val entities = storage.entities(classOf[SbtModuleWSMEntity]).iterator().asScala.toList
+  def findSbtModuleEntityForModuleEntity(moduleEntity: ModuleEntity, storage: EntityStorage): Option[SbtModuleEntity] = {
+    val entities = storage.entities(classOf[SbtModuleEntity]).iterator().asScala.toList
     entities.find(_.getModule == moduleEntity)
   }
 
