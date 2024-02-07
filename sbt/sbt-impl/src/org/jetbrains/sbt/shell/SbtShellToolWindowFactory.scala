@@ -45,7 +45,7 @@ class SbtShellToolWindowFactory extends ToolWindowFactory with DumbAware {
     toolWindow.setIcon(ToolWindowIconSupplier.getOriginalIcon)
 
     val toolWindowId = toolWindow.asInstanceOf[ToolWindowImpl].getId
-    val actionId = ActivateToolWindowAction.getActionIdForToolWindow(toolWindowId)
+    val actionId = ActivateToolWindowAction.Manager.getActionIdForToolWindow(toolWindowId)
 
     addShortcuts(actionId)
   }
