@@ -391,7 +391,8 @@ lazy val compilerIntegration =
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
       sbtImpl % "test->test;compile->compile",
-      jps
+      jps,
+      bsp
     )
     .settings(
       intellijPlugins ++= Seq(

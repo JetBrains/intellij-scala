@@ -24,7 +24,9 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success}
 
-class BspProjectTaskRunner extends ProjectTaskRunner {
+class BspProjectTaskRunner(arguments: Option[CustomTaskArguments]) extends ProjectTaskRunner {
+
+  def this() = this(None)
 
   override def canRun(projectTask: ProjectTask): Boolean = projectTask match {
     case task: ModuleBuildTask =>
@@ -73,13 +75,15 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
     val targets = targetsAndRebuild.map(_._1)
     val targetsToClean = targetsAndRebuild.filter(_._2).map(_._1)
 
-    // TODO save only documents in affected targets?
-    extensions.invokeAndWait {
-      FileDocumentManager.getInstance().saveAllDocuments()
+    if (arguments.isEmpty) {
+      // TODO save only documents in affected targets?
+      extensions.invokeAndWait {
+        FileDocumentManager.getInstance().saveAllDocuments()
+      }
     }
     val promiseResult = new AsyncPromise[ProjectTaskRunner.Result]
 
-    val bspTask = new BspTask(project, targets, targetsToClean)
+    val bspTask = new BspTask(project, targets, targetsToClean, arguments)
 
     bspTask.resultFuture.onComplete { messages =>
 

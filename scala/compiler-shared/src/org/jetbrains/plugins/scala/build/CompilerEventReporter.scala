@@ -21,6 +21,8 @@ class CompilerEventReporter(project: Project,
 
   private val files = mutable.Set[File]()
 
+  private var hasErrors: Boolean = false
+
   private def publish(kind: MessageKind, @Nls text: String, position: Option[FilePosition]): Unit =
     position.foreach { pos =>
       // com.intellij.build.FilePosition contains 0-based line and column information, PosInfo expects 1-based indices.
@@ -51,14 +53,22 @@ class CompilerEventReporter(project: Project,
   }
   
   override def finish(messages: BuildMessages): Unit = finishFiles()
-  override def finishWithFailure(err: Throwable): Unit = finishFiles()
-  override def finishCanceled(): Unit = finishFiles()
+  override def finishWithFailure(err: Throwable): Unit = {
+    finishFiles()
+    hasErrors = true
+  }
+  override def finishCanceled(): Unit = {
+    finishFiles()
+    hasErrors = true
+  }
 
   override def warning(@Nls message: String, position: Option[FilePosition]): Unit =
     publish(MessageKind.Warning, message, position)
 
-  override def error(@Nls message: String, position: Option[FilePosition]): Unit =
+  override def error(@Nls message: String, position: Option[FilePosition]): Unit = {
     publish(MessageKind.Error, message, position)
+    hasErrors = true
+  }
 
   override def info(@Nls message: String, position: Option[FilePosition]): Unit =
     publish(MessageKind.Info, message, position)
@@ -68,4 +78,5 @@ class CompilerEventReporter(project: Project,
   override def progressTask(eventId: BuildMessages.EventId, total: Long, progress: Long, unit: String, message: String, time: Long): Unit = ()
   override def finishTask(eventId: BuildMessages.EventId, message: String, result: EventResult, time: Long): Unit = ()
 
+  private[scala] def successful: Boolean = !hasErrors
 }

@@ -30,9 +30,15 @@ import scala.util.control.NonFatal
 // TODO: PerformInBackgroundOption is deprecated, ProgressManager.run(Task) is obsolete. See IJPL-384
 class BspTask[T](project: Project,
                  targets: Iterable[BspTarget],
-                 targetsToClean: Iterable[BspTarget]
+                 targetsToClean: Iterable[BspTarget],
+                 arguments: Option[CustomTaskArguments]
                 )
-    extends Task.Backgroundable(project, BspBundle.message("bsp.task.build"), true, PerformInBackgroundOption.ALWAYS_BACKGROUND: @nowarn("cat=deprecation")) {
+    extends Task.Backgroundable(
+      project,
+      arguments.map(_.message).getOrElse(BspBundle.message("bsp.task.build")),
+      true,
+      PerformInBackgroundOption.ALWAYS_BACKGROUND: @nowarn("cat=deprecation")
+    ) {
 
   private val bspTaskId: EventId = BuildMessages.randomEventId
   private val resultPromise: Promise[BuildMessages] = Promise()
@@ -80,11 +86,15 @@ class BspTask[T](project: Project,
   }
 
   override def run(indicator: ProgressIndicator): Unit = {
-    implicit val reporter: BuildReporter = new CompositeReporter(
-      new BuildToolWindowReporter(project, bspTaskId, BspBundle.message("bsp.task.build"), new CancelBuildAction(resultPromise)),
-      new CompilerEventReporter(project, CompilationId.generate()),
-      new IndicatorReporter(indicator)
-    )
+    implicit val reporter: BuildReporter =
+      arguments.map(_.reporter)
+        .getOrElse {
+          new CompositeReporter(
+            new BuildToolWindowReporter(project, bspTaskId, BspBundle.message("bsp.task.build"), new CancelBuildAction(resultPromise)),
+            new CompilerEventReporter(project, CompilationId.generate()),
+            new IndicatorReporter(indicator)
+          )
+        }
 
     val targetByWorkspace = targets.groupBy(_.workspace)
     val targetToCleanByWorkspace = targetsToClean.groupBy(_.workspace)

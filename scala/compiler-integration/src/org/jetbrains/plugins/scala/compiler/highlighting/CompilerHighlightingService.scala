@@ -19,9 +19,13 @@ import com.intellij.openapi.util.ModificationTracker
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.ex.{StatusBarEx, WindowManagerEx}
 import com.intellij.psi.{PsiFile, PsiManager}
+import com.intellij.task.{ProjectTaskContext, ProjectTaskManager}
 import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.ui.UIUtil
+import org.jetbrains.bsp.BspUtil
+import org.jetbrains.bsp.project.{BspProjectTaskRunner, CustomTaskArguments}
 import org.jetbrains.jps.incremental.scala.remote.SourceScope
+import org.jetbrains.plugins.scala.build.CompilerEventReporter
 import org.jetbrains.plugins.scala.caches.cached
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerIntegrationBundle}
 import org.jetbrains.plugins.scala.extensions._
@@ -32,7 +36,7 @@ import org.jetbrains.plugins.scala.util.CompilationId
 
 import java.io.EOFException
 import java.util.concurrent.atomic.AtomicReference
-import java.util.concurrent.{ConcurrentSkipListSet, ScheduledExecutorService, ScheduledFuture}
+import java.util.concurrent.{ConcurrentSkipListSet, ScheduledExecutorService, ScheduledFuture, TimeUnit}
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future, Promise}
 import scala.util.Try
@@ -199,8 +203,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
   }
 
   private def executeIncrementalCompilationRequest(request: CompilationRequest.IncrementalRequest, runDocumentCompiler: Boolean): Unit = {
-    val CompilationRequest.IncrementalRequest(module, sourceScope, virtualFile, _, psiFile, debugReason) = request
-    debug(s"incrementalCompilation: $debugReason")
+    debug(s"incrementalCompilation: ${request.debugReason}")
     performCompilation(delayIndicator = false) { client =>
       val triggerService = TriggerCompilerHighlightingService.get(project)
       val promise = Promise[Unit]()
@@ -210,18 +213,60 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
         // Schedule the rest of the execution of this incremental compilation request on a background thread.
         executeOnPooledThread {
           val computation = Try {
-            IncrementalCompiler.compile(project, module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, client)
-            if (runDocumentCompiler && client.successful) {
-              triggerDocumentCompilationInAllOpenEditors(Some(client))
-            }
-            if (psiFile.is[ScalaFile] && client.successful) {
-              triggerService.enableDocumentCompiler(virtualFile)
+            if (BspUtil.isBspProject(project)) {
+              doBspIncrementalCompilation(request, client, runDocumentCompiler, triggerService)
+            } else {
+              doJpsIncrementalCompilation(request, client, runDocumentCompiler, triggerService)
             }
           }
           promise.complete(computation)
         }
       }
       promise.future
+    }
+  }
+
+  private def doBspIncrementalCompilation(
+    request: CompilationRequest.IncrementalRequest,
+    client: CompilerEventGeneratingClient,
+    runDocumentCompiler: Boolean,
+    triggerService: TriggerCompilerHighlightingService
+  ): Unit = {
+    val CompilationRequest.IncrementalRequest(module, sourceScope, virtualFile, _, psiFile, _) = request
+    val context = new ProjectTaskContext()
+    val representativeModule = module.findRepresentativeModuleForSharedSourceModuleOrSelf
+    val task = ProjectTaskManager.getInstance(project)
+      .createModulesBuildTask(Array(representativeModule), true, true, false, sourceScope == SourceScope.Test)
+    val reporter = new CompilerEventReporter(project, CompilationId.generate())
+    val arguments = CustomTaskArguments(
+      CompilerIntegrationBundle.message("highlighting.compilation"),
+      reporter
+    )
+    val taskRunner = new BspProjectTaskRunner(Some(arguments))
+    val promise = taskRunner.run(project, context, task)
+    promise.blockingGet(1, TimeUnit.DAYS)
+
+    if (runDocumentCompiler && reporter.successful) {
+      triggerDocumentCompilationInAllOpenEditors(Some(client))
+    }
+    if (psiFile.is[ScalaFile] && reporter.successful && client.successful) {
+      triggerService.enableDocumentCompiler(virtualFile)
+    }
+  }
+
+  private def doJpsIncrementalCompilation(
+    request: CompilationRequest.IncrementalRequest,
+    client: CompilerEventGeneratingClient,
+    runDocumentCompiler: Boolean,
+    triggerService: TriggerCompilerHighlightingService
+  ): Unit = {
+    val CompilationRequest.IncrementalRequest(module, sourceScope, virtualFile, _, psiFile, _) = request
+    IncrementalCompiler.compile(project, module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, client)
+    if (runDocumentCompiler && client.successful) {
+      triggerDocumentCompilationInAllOpenEditors(Some(client))
+    }
+    if (psiFile.is[ScalaFile] && client.successful) {
+      triggerService.enableDocumentCompiler(virtualFile)
     }
   }
 
