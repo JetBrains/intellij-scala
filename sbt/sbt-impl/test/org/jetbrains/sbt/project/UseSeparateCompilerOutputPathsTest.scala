@@ -24,9 +24,9 @@ class UseSeparateCompilerOutputPathsTest extends SbtExternalSystemImportingTestL
 
   private val moduleDirectoryMapping: Map[String, String] = Map(
     "separateCompilerOutputPaths" -> "",
-    "module1" -> "module1",
-    "module2" -> "module2",
-    "module3" -> "module3"
+    "separateCompilerOutputPaths.module1" -> "module1",
+    "separateCompilerOutputPaths.module2" -> "module2",
+    "separateCompilerOutputPaths.module3" -> "module3"
   )
 
   private def expectedCompilerOutputPath(moduleName: String, scope: String, hasIdeaPrefix: Boolean): Path = {

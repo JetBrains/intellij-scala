@@ -7,23 +7,17 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.{LanguageLevelModuleExtension, LanguageLevelProjectExtension, ModuleRootModificationUtil}
-import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
+import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.pom.java.LanguageLevel
-import com.intellij.psi.PsiManager
 import com.intellij.testFramework.IdeaTestUtil
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
-import org.jetbrains.jps.model.java.{JavaResourceRootType, JavaSourceRootType}
-import org.jetbrains.jps.model.module.JpsModuleSourceRootType
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.extensions.{RichFile, inWriteAction}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.external.JdkByName
-import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 import org.jetbrains.sbt.Sbt
-import org.jetbrains.sbt.actions.SbtDirectoryCompletionContributor
-import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.settings.SbtSettings
 import org.junit.Assert
 import org.junit.Assert.{assertEquals, assertTrue}
@@ -32,13 +26,13 @@ import org.junit.experimental.categories.Category
 import java.net.URI
 import java.nio.file.Path
 import scala.annotation.nowarn
-import scala.jdk.CollectionConverters.{CollectionHasAsScala, SeqHasAsJava}
+import scala.jdk.CollectionConverters.SeqHasAsJava
 
 // IMPORTANT ! each test that tests the dependencies of the modules should have its counterpart in
 // SbtProjectStructureImportingTest_TransitiveProjectDependenciesEnabled.scala. Before each test performed in this class
 // insertProjectTransitiveDependencies is set to true, so that the functionality of transitive dependencies can be tested
 @Category(Array(classOf[SlowTests]))
-final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabled extends SbtProjectStructureImportingLike {
+final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabledGroupModulesEnabled extends SbtProjectStructureImportingLike {
 
   import ProjectStructureDsl._
 
@@ -72,7 +66,7 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
   //noinspection RedundantDefaultArgument
   def testSimple_Scala3(): Unit = {
     val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibrary("2.13.6") +: ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk("3.0.2")
-    runSimpleTest("simple-scala3", scalaLibraries, ExpectedDirectoryCompletionVariant.DefaultSbtContentRootsScala3)
+    runSimpleTest("simple-scala3", scalaLibraries, DefaultSbtContentRootsScala3)
   }
 
   // note: this test is for the case in which an additional project is linked to the project.
@@ -83,19 +77,19 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
       originalProjectName = "twoLinkedProjects",
       linkedProjectName = "simple",
       ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk("2.13.5"),
-      ExpectedDirectoryCompletionVariant.DefaultSbtContentRootsScala213
+      DefaultSbtContentRootsScala213
     )
   }
 
   def testSimpleDoNotUseCoursier(): Unit = {
     val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkFromIvy("2.12.10")
-    runSimpleTest("simpleDoNotUseCoursier", scalaLibraries, ExpectedDirectoryCompletionVariant.DefaultSbtContentRootsScala212)
+    runSimpleTest("simpleDoNotUseCoursier", scalaLibraries, DefaultSbtContentRootsScala212)
   }
 
   private def runSimpleTest(
     projectName: String,
     expectedScalaLibraries: Seq[library],
-    expectedSbtCompletionVariants: Seq[ExpectedDirectoryCompletionVariant] = ExpectedDirectoryCompletionVariant.DefaultSbtContentRootsScala213
+    expectedSbtCompletionVariants: Seq[ExpectedDirectoryCompletionVariant] = DefaultSbtContentRootsScala213
   ): Unit = {
     runTest(
       new project(projectName) {
@@ -111,7 +105,7 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
             excluded := Seq("target")
             libraryDependencies := expectedScalaLibraries
           },
-          new module(s"$projectName-build") {
+          new module(s"$projectName.$projectName-build") {
             ProjectStructureDsl.sources := Seq("")
             excluded := Seq("project/target", "target")
           }
@@ -139,7 +133,11 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
     expectedSbtCompletionVariants: Seq[ExpectedDirectoryCompletionVariant]
   ): Unit = {
     val linkedSbtProjectPath = generateTestProjectPath(linkedProjectName)
-    linkSbtProject(linkedSbtProjectPath)
+    linkSbtProject(
+      linkedSbtProjectPath,
+      groupProjectsFromSameBuild = true,
+      transitiveProjectDependencies = false
+    )
     runTest(
       new project(ideProjectName) {
         modules := Seq(
@@ -152,7 +150,7 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
             excluded := Seq("target")
             libraryDependencies := expectedScalaLibraries
           },
-          new module(s"$originalProjectName-build") {
+          new module(s"$originalProjectName.$originalProjectName-build") {
             ProjectStructureDsl.sources := Seq("")
             excluded := Seq("project/target", "target")
           },
@@ -165,7 +163,7 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
             excluded := Seq("target")
             libraryDependencies := expectedScalaLibraries
           },
-          new module(s"$linkedProjectName-build") {
+          new module(s"$linkedProjectName.$linkedProjectName-build") {
             ProjectStructureDsl.sources := Seq("")
             excluded := Seq("project/target", "target")
           }
@@ -178,81 +176,6 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
     Seq(linkedProjectBaseDir, originalProjectBaseDir).foreach(assertSbtDirectoryCompletionContributorVariants(_, expectedSbtCompletionVariants))
   }
 
-  private def linkSbtProject(path: String): Unit = {
-    val settings = new SbtProjectSettings
-    settings.jdk = getJdkConfiguredForTestCase.getName
-    settings.setExternalProjectPath(path)
-    // note: it is necessary to set all the required settings that should be in the test, because for a newly linked project, what was set
-    // in #setUp method will not be taken into account
-    settings.setInsertProjectTransitiveDependencies(false)
-    SbtSettings.getInstance(myProject).linkProject(settings)
-  }
-
-  //NOTE: it doesn't test final ordering on UI, see IDEA-306694
-  private def assertSbtDirectoryCompletionContributorVariants(
-    directory: VirtualFile,
-    expectedVariants: Seq[ExpectedDirectoryCompletionVariant]
-  ): Unit = {
-    val psiDirectory = PsiManager.getInstance(myProject).findDirectory(directory)
-    val directoryPath = directory.getPath
-
-    val variants = new SbtDirectoryCompletionContributor().getVariants(psiDirectory).asScala.toSeq
-    val actualVariants = variants.map(v => ExpectedDirectoryCompletionVariant(
-      v.getPath.stripPrefix(directoryPath).stripPrefix("/"),
-      v.getRootType
-    ))
-
-    assertCollectionEquals(
-      "Wrong directory completion contributor variants",
-      expectedVariants,
-      actualVariants
-    )
-  }
-
-  private case class ExpectedDirectoryCompletionVariant(
-    projectRelativePath: String,
-    rootType: JpsModuleSourceRootType[_]
-  )
-
-  private object ExpectedDirectoryCompletionVariant {
-    val DefaultSbtContentRootsScala212: Seq[ExpectedDirectoryCompletionVariant] = Seq(
-      ("src/main/java", JavaSourceRootType.SOURCE),
-      ("src/main/scala", JavaSourceRootType.SOURCE),
-      ("src/main/scala-2", JavaSourceRootType.SOURCE),
-      ("src/main/scala-2.12", JavaSourceRootType.SOURCE),
-      ("src/test/java", JavaSourceRootType.TEST_SOURCE),
-      ("src/test/scala", JavaSourceRootType.TEST_SOURCE),
-      ("src/test/scala-2", JavaSourceRootType.TEST_SOURCE),
-      ("src/test/scala-2.12", JavaSourceRootType.TEST_SOURCE),
-      ("src/main/resources", JavaResourceRootType.RESOURCE),
-      ("src/test/resources", JavaResourceRootType.TEST_RESOURCE),
-    ).map((ExpectedDirectoryCompletionVariant.apply _).tupled)
-
-    val DefaultSbtContentRootsScala213: Seq[ExpectedDirectoryCompletionVariant] = Seq(
-      ("src/main/java", JavaSourceRootType.SOURCE),
-      ("src/main/scala", JavaSourceRootType.SOURCE),
-      ("src/main/scala-2", JavaSourceRootType.SOURCE),
-      ("src/main/scala-2.13", JavaSourceRootType.SOURCE),
-      ("src/test/java", JavaSourceRootType.TEST_SOURCE),
-      ("src/test/scala", JavaSourceRootType.TEST_SOURCE),
-      ("src/test/scala-2", JavaSourceRootType.TEST_SOURCE),
-      ("src/test/scala-2.13", JavaSourceRootType.TEST_SOURCE),
-      ("src/main/resources", JavaResourceRootType.RESOURCE),
-      ("src/test/resources", JavaResourceRootType.TEST_RESOURCE),
-    ).map((ExpectedDirectoryCompletionVariant.apply _).tupled)
-
-    val DefaultSbtContentRootsScala3: Seq[ExpectedDirectoryCompletionVariant] = Seq(
-      ("src/main/java", JavaSourceRootType.SOURCE),
-      ("src/main/scala", JavaSourceRootType.SOURCE),
-      ("src/main/scala-3", JavaSourceRootType.SOURCE),
-      ("src/test/java", JavaSourceRootType.TEST_SOURCE),
-      ("src/test/scala", JavaSourceRootType.TEST_SOURCE),
-      ("src/test/scala-3", JavaSourceRootType.TEST_SOURCE),
-      ("src/main/resources", JavaResourceRootType.RESOURCE),
-      ("src/test/resources", JavaResourceRootType.TEST_RESOURCE),
-    ).map((ExpectedDirectoryCompletionVariant.apply _).tupled)
-  }
-
   def testProjectWithUppercaseName(): Unit = runTest {
     new project("MyProjectWithUppercaseName") {
       lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk("2.13.6")
@@ -262,7 +185,7 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
         new module("MyProjectWithUppercaseName") {
           libraryDependencies ++= scalaLibraries
         },
-        new module("MyProjectWithUppercaseName-build") {
+        new module("MyProjectWithUppercaseName.MyProjectWithUppercaseName-build") {
         }
       )
     }
@@ -270,13 +193,13 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
 
   def testMultiModule(): Unit = runTest(
     new project("multiModule") {
-      lazy val foo: module = new module("foo") {
+      lazy val foo: module = new module("multiModule.foo") {
         moduleDependencies += new dependency(bar) {
           isExported := true
         }
       }
 
-      lazy val bar  = new module("bar")
+      lazy val bar  = new module("multiModule.bar")
       lazy val root = new module("multiModule")
 
       modules := Seq(root, foo, bar)
@@ -312,20 +235,20 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
         moduleDependencies := Nil
       }
 
-      lazy val sharedSourcesModule: module = new module("sharedSources-sources") {
+      lazy val sharedSourcesModule: module = new module("sharedSourcesProject.sharedSources-sources") {
         contentRoots := Seq(getProjectPath + "/shared")
         libraryDependencies := scalaLibraries
         sources := Seq("src/main/scala")
       }
 
-      lazy val foo: module = new module("foo") {
+      lazy val foo: module = new module("sharedSourcesProject.foo") {
         libraryDependencies := scalaLibraries
         moduleDependencies := Seq(
           new dependency(sharedSourcesModule) { isExported := true }
         )
       }
 
-      lazy val bar: module = new module("bar") {
+      lazy val bar: module = new module("sharedSourcesProject.bar") {
         libraryDependencies := scalaLibraries
         moduleDependencies := Seq(
           new dependency(sharedSourcesModule) { isExported := true }
@@ -352,17 +275,17 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
    */
   def testSCL12520(): Unit = runTest(
     new project("scl12520") {
-      val sharedModule: module = new module("p1-sources") {
+      val sharedModule: module = new module("scl12520.p1-sources") {
         contentRoots += getProjectPath + "/p1/shared"
       }
 
-      val jvmModule: module = new module("p1") {
+      val jvmModule: module = new module("scl12520.p1") {
         moduleDependencies += new dependency(sharedModule) { isExported := true }
         contentRoots += getProjectPath + "/p1/jvm"
       }
 
       val rootModule: module = new module("scl12520") {}
-      val rootBuildModule: module = new module("scl12520-build") {}
+      val rootBuildModule: module = new module("scl12520.scl12520-build") {}
 
       modules := Seq(sharedModule, rootModule, rootBuildModule, jvmModule)
     }
@@ -376,22 +299,22 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
     new project("root") {
       val buildURI: URI = getTestProjectDir.getCanonicalFile.toURI
 
-      val rootC1: module = new module("Build C1 Name", Array("Build C1 Name")) {
+      val rootC1: module = new module("Build C1 Name") {
         sbtProjectId := "root"
         sbtBuildURI := buildURI.resolve("c1/")
         moduleDependencies := Seq()
       }
-      val rootC2: module = new module("Build C2 Name", Array("Build C2 Name")) {
+      val rootC2: module = new module("Build C2 Name") {
         sbtProjectId := "root"
         sbtBuildURI := buildURI.resolve("c2/")
         moduleDependencies := Seq()
       }
-      val rootC3: module = new module("suffix2.root", Array("root1")) {
+      val rootC3: module = new module("root~1") {
         sbtProjectId := "root"
         sbtBuildURI := buildURI.resolve("prefix1/prefix2/c3/suffix1/suffix2/")
         moduleDependencies := Seq()
       }
-      val rootC4: module = new module("suffix1.suffix2.root", Array("root2")) {
+      val rootC4: module = new module("root~2") {
         sbtProjectId := "root"
         sbtBuildURI := buildURI.resolve("prefix1/prefix2/c4/suffix1/suffix2/")
         moduleDependencies := Seq()
@@ -408,12 +331,12 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
       }
 
       val modulesFromRoot: Seq[module] = Seq(
-        new module("project1InRootBuild"),
-        new module("project2InRootBuild"),
-        new module("project3InRootBuildWithSameName", Array("same name in root build")),
-        new module("project4InRootBuildWithSameName", Array("same name in root build")),
-        new module("project5InRootBuildWithSameGlobalName", Array("same global name")),
-        new module("project6InRootBuildWithSameGlobalName", Array("same global name")),
+        new module("project1InRootBuild", Array("root")),
+        new module("project2InRootBuild", Array("root")),
+        new module("project3InRootBuildWithSameName", Array("root", "same name in root build")),
+        new module("project4InRootBuildWithSameName", Array("root", "same name in root build")),
+        new module("project5InRootBuildWithSameGlobalName", Array("root", "same global name")),
+        new module("project6InRootBuildWithSameGlobalName", Array("root", "same global name")),
       )
       val modulesFromC1: Seq[module] = Seq(
         rootC1,
@@ -435,21 +358,21 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
       )
       val modulesFromC3: Seq[module] = Seq(
         rootC3,
-        new module("project1InC3", Array("root1")),
-        new module("project2InC3", Array("root1")),
-        new module("project3InC3WithSameName", Array("root1", "same name in c3")),
-        new module("project4InC3WithSameName", Array("root1", "same name in c3")),
-        new module("project5InC3WithSameGlobalName", Array("root1", "same global name")),
-        new module("project6InC3WithSameGlobalName", Array("root1", "same global name")),
+        new module("project1InC3", Array("root~1")),
+        new module("project2InC3", Array("root~1")),
+        new module("project3InC3WithSameName", Array("root~1", "same name in c3")),
+        new module("project4InC3WithSameName", Array("root~1", "same name in c3")),
+        new module("project5InC3WithSameGlobalName", Array("root~1", "same global name")),
+        new module("project6InC3WithSameGlobalName", Array("root~1", "same global name")),
       )
       val modulesFromC4: Seq[module] = Seq(
         rootC4,
-        new module("project1InC4", Array("root2")),
-        new module("project2InC4", Array("root2")),
-        new module("project3InC4WithSameName", Array("root2", "same name in c4")),
-        new module("project4InC4WithSameName", Array("root2", "same name in c4")),
-        new module("project5InC4WithSameGlobalName", Array("root2", "same global name")),
-        new module("project6InC4WithSameGlobalName", Array("root2", "same global name")),
+        new module("project1InC4", Array("root~2")),
+        new module("project2InC4", Array("root~2")),
+        new module("project3InC4WithSameName", Array("root~2", "same name in c4")),
+        new module("project4InC4WithSameName", Array("root~2", "same name in c4")),
+        new module("project5InC4WithSameGlobalName", Array("root~2", "same global name")),
+        new module("project6InC4WithSameGlobalName", Array("root~2", "same global name")),
       )
 
       modules := root +:
@@ -474,10 +397,10 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
           sbtBuildURI := buildURI
           sbtProjectId := "root"
         },
-        new module("SCL-14635-build"),
+        new module("SCL-14635-build", Array("SCL-14635")),
 
         // NOTE: sbtIdeaPlugin also has inner module named `sbt-idea-plugin` (with dashes), but it's separate, non-root module
-        new module("sbtIdeaPlugin", sbtIdeaPluginGroup) {
+        new module("sbtIdeaPlugin") {
           sbtBuildURI := new URI("https://github.com/JetBrains/sbt-idea-plugin.git")
           sbtProjectId := "sbtIdeaPlugin"
         },
@@ -487,13 +410,13 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
         new module("sbt-declarative-visualizer", sbtIdeaPluginGroup),
         new module("sbtIdeaPlugin-build", sbtIdeaPluginGroup),
 
-        new module("sbt-idea-shell", sbtIdeaShellGroup) {
+        new module("sbt-idea-shell") {
           sbtBuildURI := new URI("https://github.com/JetBrains/sbt-idea-shell.git#master")
           sbtProjectId := "root"
         },
         new module("sbt-idea-shell-build", sbtIdeaShellGroup),
 
-        new module("sbt-ide-settings", sbtIdeSettingsGroup) {
+        new module("sbt-ide-settings") {
           sbtBuildURI := new URI("https://github.com/JetBrains/sbt-ide-settings.git")
           sbtProjectId := "sbt-ide-settings"
         },
@@ -505,13 +428,13 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
   def testCrossplatform(): Unit = runTest(
     new project("crossplatform") {
       lazy val root = new module("crossplatform")
-      lazy val crossJS = new module("crossJS", Array("cross"))
-      lazy val crossJVM = new module("crossJVM", Array("cross"))
-      lazy val crossNative = new module("crossNative", Array("cross"))
-      lazy val crossSources = new module("cross-sources", Array("cross"))
-      lazy val jsJvmSources = new module("js-jvm-sources", Array("cross"))
-      lazy val jsNativeSources = new module("js-native-sources", Array("cross"))
-      lazy val jvmNativeSources = new module("jvm-native-sources", Array("cross"))
+      lazy val crossJS = new module("crossJS", Array("crossplatform", "cross"))
+      lazy val crossJVM = new module("crossJVM", Array("crossplatform", "cross"))
+      lazy val crossNative = new module("crossNative", Array("crossplatform", "cross"))
+      lazy val crossSources = new module("cross-sources", Array("crossplatform", "cross"))
+      lazy val jsJvmSources = new module("js-jvm-sources", Array("crossplatform", "cross"))
+      lazy val jsNativeSources = new module("js-native-sources", Array("crossplatform", "cross"))
+      lazy val jvmNativeSources = new module("jvm-native-sources", Array("crossplatform", "cross"))
 
       modules := Seq(root, crossJS, crossJVM, crossNative, crossSources, jsJvmSources, jsNativeSources, jvmNativeSources)
     }
@@ -530,8 +453,9 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
     //sbt can't be run with mock project JDK, so ensure it has normal SDK (configured in base test class)
     setSbtSettingsCustomSdk(getJdkConfiguredForTestCase)
 
+    val projectName = "java-language-level-and-target-byte-code-level"
     try runTest(
-      new project("java-language-level-and-target-byte-code-level") {
+      new project(projectName) {
         // we expect no other options except -source -target --release or --enable-preview in this test
         // these options are specially handled and saved in the dedicated settings, so we don't expect any extra javacOptions
         javacOptions := Nil
@@ -550,39 +474,39 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
 
         // Module naming: `source_target_release`
         // `x` means option is missing
-        val module_x_x_x = moduleX("module_x_x_x", sdkLanguageLevel, null)
+        val module_x_x_x = moduleX(s"$projectName.module_x_x_x", sdkLanguageLevel, null)
 
-        val module_8_8_x   = moduleX("module_8_8_x", LanguageLevel.JDK_1_8, "8")
-        val module_8_11_x  = moduleX("module_8_11_x", LanguageLevel.JDK_1_8, "11")
-        val module_11_8_x  = moduleX("module_11_8_x", LanguageLevel.JDK_11, "8")
-        val module_11_11_x = moduleX("module_11_11_x", LanguageLevel.JDK_11, "11")
+        val module_8_8_x   = moduleX(s"$projectName.module_8_8_x", LanguageLevel.JDK_1_8, "8")
+        val module_8_11_x  = moduleX(s"$projectName.module_8_11_x", LanguageLevel.JDK_1_8, "11")
+        val module_11_8_x  = moduleX(s"$projectName.module_11_8_x", LanguageLevel.JDK_11, "8")
+        val module_11_11_x = moduleX(s"$projectName.module_11_11_x", LanguageLevel.JDK_11, "11")
 
         // no explicit target: javac will use source level by default
-        val module_8_x_x  = moduleX("module_8_x_x", LanguageLevel.JDK_1_8, null)
-        val module_11_x_x = moduleX("module_11_x_x", LanguageLevel.JDK_11, null)
-        val module_14_x_x = moduleX("module_14_x_x", LanguageLevel.JDK_14, null)
-        val module_15_x_x = moduleX("module_15_x_x", LanguageLevel.JDK_15, null)
+        val module_8_x_x  = moduleX(s"$projectName.module_8_x_x", LanguageLevel.JDK_1_8, null)
+        val module_11_x_x = moduleX(s"$projectName.module_11_x_x", LanguageLevel.JDK_11, null)
+        val module_14_x_x = moduleX(s"$projectName.module_14_x_x", LanguageLevel.JDK_14, null)
+        val module_15_x_x = moduleX(s"$projectName.module_15_x_x", LanguageLevel.JDK_15, null)
 
-        val module_x_8_x  = moduleX("module_x_8_x", sdkLanguageLevel, "8")
-        val module_x_11_x = moduleX("module_x_11_x", sdkLanguageLevel, "11")
+        val module_x_8_x  = moduleX(s"$projectName.module_x_8_x", sdkLanguageLevel, "8")
+        val module_x_11_x = moduleX(s"$projectName.module_x_11_x", sdkLanguageLevel, "11")
 
-        val module_x_x_8  = moduleX("module_x_x_8", LanguageLevel.JDK_1_8, "8")
-        val module_x_x_11 = moduleX("module_x_x_11", LanguageLevel.JDK_11, "11")
+        val module_x_x_8  = moduleX(s"$projectName.module_x_x_8", LanguageLevel.JDK_1_8, "8")
+        val module_x_x_11 = moduleX(s"$projectName.module_x_x_11", LanguageLevel.JDK_11, "11")
 
         // Java preview features
         // NOTE: IntelliJ API supports only 2 last preview versions of java language level (in com.intellij.pom.java.LanguageLevel)
         // When a new version of Java releases and IDEA supports it, we should update this test
         //
         // no explicit target: javac will use source level by default
-        val module_8_x_x_preview  = moduleX("module_8_x_x_preview", LanguageLevel.JDK_1_8, null) // no preview for Java 8
-        val module_11_x_x_preview = moduleX("module_11_x_x_preview", LanguageLevel.JDK_11, null) // no preview for Java 11
-        val module_14_x_x_preview = moduleX("module_14_x_x_preview", LanguageLevel.JDK_14, null) // no preview for Java 11
-        val module_20_x_x_preview = moduleX("module_20_x_x_preview", LanguageLevel.JDK_20_PREVIEW, null)
+        val module_8_x_x_preview  = moduleX(s"$projectName.module_8_x_x_preview", LanguageLevel.JDK_1_8, null) // no preview for Java 8
+        val module_11_x_x_preview = moduleX(s"$projectName.module_11_x_x_preview", LanguageLevel.JDK_11, null) // no preview for Java 11
+        val module_14_x_x_preview = moduleX(s"$projectName.module_14_x_x_preview", LanguageLevel.JDK_14, null) // no preview for Java 11
+        val module_20_x_x_preview = moduleX(s"$projectName.module_20_x_x_preview", LanguageLevel.JDK_20_PREVIEW, null)
 
-        val module_x_x_8_preview  = moduleX("module_x_x_8_preview", LanguageLevel.JDK_1_8, "8")
-        val module_x_x_11_preview = moduleX("module_x_x_11_preview", LanguageLevel.JDK_11, "11")
-        val module_x_x_14_preview = moduleX("module_x_x_14_preview", LanguageLevel.JDK_14, "14")
-        val module_x_x_20_preview = moduleX("module_x_x_20_preview", LanguageLevel.JDK_20_PREVIEW, "20")
+        val module_x_x_8_preview  = moduleX(s"$projectName.module_x_x_8_preview", LanguageLevel.JDK_1_8, "8")
+        val module_x_x_11_preview = moduleX(s"$projectName.module_x_x_11_preview", LanguageLevel.JDK_11, "11")
+        val module_x_x_14_preview = moduleX(s"$projectName.module_x_x_14_preview", LanguageLevel.JDK_14, "14")
+        val module_x_x_20_preview = moduleX(s"$projectName.module_x_x_20_preview", LanguageLevel.JDK_20_PREVIEW, "20")
 
         modules := Seq(
           root,
@@ -612,22 +536,24 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
   // SCL-16204, SCL-17597
   @nowarn("cat=deprecation")
   def testJavaLanguageLevelAndTargetByteCodeLevel_NoOptions(): Unit = {
-    val projectLangaugeLevel = SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabled.this.projectJdkLanguageLevel
-
+    val projectLangaugeLevel = SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabledGroupModulesEnabled.this.projectJdkLanguageLevel
+    val projectName = "java-language-level-and-target-byte-code-level-no-options"
     def doRunTest(): Unit = runTest(
-      new project("java-language-level-and-target-byte-code-level-no-options") {
+      new project(projectName) {
         javacOptions := Nil
         javaLanguageLevel := projectLangaugeLevel
         javaTargetBytecodeLevel := null
 
-        def moduleX(name: String, source: LanguageLevel, @Nullable target: String): module = new module(name) {
-          javaLanguageLevel := source
-          javaTargetBytecodeLevel := target
+        val root = new module(s"$projectName") {
+          javaLanguageLevel := projectLangaugeLevel
+          javaTargetBytecodeLevel := null
           javacOptions := Nil
         }
-
-        val root = moduleX("java-language-level-and-target-byte-code-level-no-options", projectLangaugeLevel, null)
-        val module1 = moduleX("module1", projectLangaugeLevel, null)
+        val module1 = new module(s"$projectName.module1") {
+          javaLanguageLevel := projectLangaugeLevel
+          javaTargetBytecodeLevel := null
+          javacOptions := Nil
+        }
 
         modules := Seq(root, module1)
       }
@@ -676,18 +602,21 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
   // TODO: also create test for scalacOptions
 
   //noinspection TypeAnnotation
-  def testJavacOptionsPerModule(): Unit = runTest(
-    new project("javac-options-per-module") {
+  def testJavacOptionsPerModule(): Unit = {
+    val projectName = "javac-options-per-module"
+    runTest(new project(projectName) {
       javacOptions := Nil // no storing project level options
 
-      def moduleX(name: String, expectedJavacOptions: Seq[String]): module = new module(name) {
+      def moduleX(name: String, expectedJavacOptions: Seq[String]): module = new module(s"$projectName.$name") {
         javacOptions := expectedJavacOptions
       }
 
       // TODO: currently IDEA doesn't support more finely-grained scopes,like `in (Compile, compile)
       //  so option root_option_in_compile_compile is not included
       //  IDEA-232043, SCL-11883, SCL-17020
-      val root = moduleX("javac-options-per-module", Seq("root_option", "root_option_in_compile"))
+      val root = new module(projectName) {
+        javacOptions := Seq("root_option", "root_option_in_compile")
+      }
 
       val module1 = moduleX("module1", Seq("module_1_option"))
       val module2 = moduleX("module2", Seq("module_2_option_in_compile"))
@@ -697,7 +626,8 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
         root, module1, module2, module3
       )
     }
-  )
+    )
+  }
 
   def testJavacSpecialOptionsForRootProject(): Unit = {
     runTest(
@@ -705,7 +635,7 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
         // no storing project level options
         javacOptions := Nil
         javaTargetBytecodeLevel := null
-        javaLanguageLevel := SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabled.this.projectJdkLanguageLevel
+        javaLanguageLevel := SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabledGroupModulesEnabled.this.projectJdkLanguageLevel
 
         val root: module = new module("javac-special-options-for-root-project") {
           javaLanguageLevel := LanguageLevel.JDK_1_9
@@ -738,13 +668,13 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
         new module("compile-order-unspecified") {
           compileOrder := CompileOrder.Mixed
         },
-        new module("compile-order-mixed") {
+        new module("compile-order-unspecified.compile-order-mixed") {
           compileOrder := CompileOrder.Mixed
         },
-        new module("compile-order-scala-then-java") {
+        new module("compile-order-unspecified.compile-order-scala-then-java") {
           compileOrder := CompileOrder.ScalaThenJava
         },
-        new module("compile-order-java-then-scala") {
+        new module("compile-order-unspecified.compile-order-java-then-scala") {
           compileOrder := CompileOrder.JavaThenScala
         }
       )
@@ -775,28 +705,147 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
           )
           excluded := Seq("target")
         },
-        new module("SimpleProjectWithGeneratedSources-build") {},
+        new module("SimpleProjectWithGeneratedSources.SimpleProjectWithGeneratedSources-build") {},
       )
     }
   )
 
   def testProjectWithModulesWithSameIdsAndNamesWithDifferentCase(): Unit = runTest(
-    new project("ProjectWithModulesWithSameIdsAndNamesWithDifferentCase") {
+    new project("sameIdsAndNamesWithDifferentCase") {
       modules := Seq(
-        new module ("ProjectWithModulesWithSameIdsAndNamesWithDifferentCase"),
-        new module ("U_MY_MODULE_ID2", Array("same module name")),
-        new module ("U_My_Module_Id1", Array("same module name")),
-        new module ("U_my_module_id", Array("same module name")),
-        new module ("X_MY_MODULE_ID2"),
-        new module ("X_My_Module_Id1"),
-        new module ("X_my_module_id"),
-        new module ("Y_MY_MODULE_Name2"),
-        new module ("Y_My_Module_Name1"),
-        new module ("Y_my_module_name"),
-        new module ("Z_MY_MODULE_Name2"),
-        new module ("Z_My_Module_Name1"),
-        new module ("Z_my_module_name"),
+        new module ("sameIdsAndNamesWithDifferentCase"),
+        new module ("U_MY_MODULE_ID~2", Array("sameIdsAndNamesWithDifferentCase", "same module name")),
+        new module ("U_My_Module_Id~1", Array("sameIdsAndNamesWithDifferentCase","same module name")),
+        new module ("U_my_module_id", Array("sameIdsAndNamesWithDifferentCase","same module name")),
+        new module ("sameIdsAndNamesWithDifferentCase.X_MY_MODULE_ID~2"),
+        new module ("sameIdsAndNamesWithDifferentCase.X_My_Module_Id~1"),
+        new module ("sameIdsAndNamesWithDifferentCase.X_my_module_id"),
+        new module ("sameIdsAndNamesWithDifferentCase.Y_MY_MODULE_Name~2"),
+        new module ("sameIdsAndNamesWithDifferentCase.Y_My_Module_Name~1"),
+        new module ("sameIdsAndNamesWithDifferentCase.Y_my_module_name"),
+        new module ("sameIdsAndNamesWithDifferentCase.Z_MY_MODULE_Name~2"),
+        new module ("sameIdsAndNamesWithDifferentCase.Z_My_Module_Name~1"),
+        new module ("sameIdsAndNamesWithDifferentCase.Z_my_module_name"),
       )
     }
   )
+
+  //corresponds to logic described in org.jetbrains.sbt.project.SbtProjectResolver.generateUniqueModuleInternalNameForRootProject
+  def testMultiBuildProjectWithSpecialCharactersInRootProjectNames(): Unit = runTest(
+    new project("ro//o.t.") {
+      val buildURI: URI = getTestProjectDir.getCanonicalFile.toURI
+
+      val rootC1: module = new module("Build__1_N_ame") {
+        sbtProjectId := "root"
+        sbtBuildURI := buildURI.resolve("c1/")
+        moduleDependencies := Seq()
+      }
+      val root: module = new module("ro__o_t_") {
+        sbtProjectId := "root"
+        sbtBuildURI := buildURI
+        moduleDependencies += new dependency(rootC1) { isExported := true }
+      }
+
+      val modulesRoot: Seq[module] = Seq(
+        root,
+        new module("project1", Array("ro__o_t_")),
+      )
+      val modulesC1: Seq[module] = Seq(
+        rootC1,
+        new module("project1", Array("Build__1_N_ame")),
+      )
+
+      modules := modulesRoot ++ modulesC1
+    }
+  )
+
+  def testSharedSourcesInsideMultiBuildProject(): Unit = runTest(
+      new project("sharedSourcesInsideMultiBuildProject") {
+        lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk("2.13.6")
+        libraries := scalaLibraries
+
+        val buildURI: URI = getTestProjectDir.getCanonicalFile.toURI
+
+        lazy val c1: module = new module("c1") {
+          contentRoots := Seq(getProjectPath + "/c1")
+          sbtProjectId := "c1"
+          sbtBuildURI := buildURI.resolve("c1/")
+          libraryDependencies := scalaLibraries
+        }
+
+        lazy val root: module = new module("sharedSourcesInsideMultiBuildProject") {
+          contentRoots := Seq(getProjectPath)
+          sbtProjectId := "sharedSourcesInsideMultiBuildProject"
+          sbtBuildURI := buildURI
+          libraryDependencies := scalaLibraries
+          moduleDependencies += new dependency(c1) { isExported := true }
+        }
+
+        val sharedSourcesModuleInC1: module = new module("c1-sources", Array("c1")) {
+          libraryDependencies := scalaLibraries
+        }
+        val c1Modules: Seq[module] = Seq(
+          sharedSourcesModuleInC1,
+          new module("foo", Array("c1")) {
+            libraryDependencies := scalaLibraries
+            sbtProjectId := "foo"
+            sbtBuildURI := buildURI.resolve("c1/")
+            moduleDependencies += new dependency(sharedSourcesModuleInC1) { isExported := true }
+
+          },
+          new module("bar", Array("c1")) {
+            libraryDependencies := scalaLibraries
+            sbtProjectId := "bar"
+            sbtBuildURI := buildURI.resolve("c1/")
+            moduleDependencies += new dependency(sharedSourcesModuleInC1) { isExported := true }
+          }
+        )
+
+        modules := c1 +: root +: c1Modules
+      }
+    )
+
+  // SBT guarantees us that project ids inside builds are unique. In IDEA in the internal module name all "/" are replaced with "_" and it could happen that in one build
+  // the name of one project would be e.g. ro/t and the other one would be ro_t and for SBT project ids uniqueness would be maintained but not for IDEA.
+  // In such case we should handle it and append number suffix to one of the module name
+  def testMultiBuildProjectWithTheSameProjectIdFromIDEAPerspective(): Unit = runTest(
+    new project("multiBuildProjectWithTheSameProjectIdFromIDEAPerspective") {
+      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk("2.13.6")
+      libraries := scalaLibraries
+
+      val buildURI: URI = getTestProjectDir.getCanonicalFile.toURI
+
+      lazy val c1: module = new module("c1") {
+        contentRoots := Seq(getProjectPath + "/c1")
+        sbtProjectId := "c1"
+        sbtBuildURI := buildURI.resolve("c1/")
+        libraryDependencies := scalaLibraries
+      }
+
+      lazy val root: module = new module("multiBuildProjectWithTheSameProjectIdFromIDEAPerspective") {
+        contentRoots := Seq(getProjectPath)
+        sbtProjectId := "multiBuildProjectWithTheSameProjectIdFromIDEAPerspective"
+        sbtBuildURI := buildURI
+        libraryDependencies := scalaLibraries
+        moduleDependencies += new dependency(c1) { isExported := true }
+      }
+
+
+      val c1Modules: Seq[module] = Seq(
+        new module("ro_t", Array("c1")) {
+          libraryDependencies := scalaLibraries
+          sbtProjectId := "mod1"
+          sbtBuildURI := buildURI.resolve("c1/")
+        },
+        new module("ro_t~1", Array("c1")) {
+          libraryDependencies := scalaLibraries
+          sbtProjectId := "mod2"
+          sbtBuildURI := buildURI.resolve("c1/")
+        }
+      )
+
+      modules := c1 +: root +: c1Modules
+    }
+  )
+
 }

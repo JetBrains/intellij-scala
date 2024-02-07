@@ -133,9 +133,9 @@ class RebuildProjectOnIncrementalCompilerChangeTest extends ExternalSystemImport
       errorsAndWarnings1.isEmpty
     )
 
-    val module1 = findModule("module1", modules)
-    val module2 = findModule("module2", modules)
-    val module3 = findModule("module3", modules)
+    val module1 = findModule("root.module1", modules)
+    val module2 = findModule("root.module2", modules)
+    val module3 = findModule("root.module3", modules)
 
     val firstClassFiles = List(
       findClassFile("Greeter", module1),

@@ -36,7 +36,12 @@ abstract class SbtEntityData extends AbstractExternalEntityData(SbtProjectSystem
 
 object SbtEntityData {
   def datakey[T](clazz: Class[T],
-                 weight: Int = ProjectKeys.MODULE.getProcessingWeight + 1
+                // note: the weight was changed due to the `SbtNestedModuleData` implementation.
+                // It may happen that, for a given entity `SbtEntityData`, it wants to find its parent dataNode module via a `AbstractModuleDataService.MODULE_KEY` key.
+                // The key `AbstractModuleDataService.MODULE_KEY` is assigned to `SbtNestedModuleData` within the `SbtNestedModuleDataService`
+                 // itself (to be precise this is happening inside `AbstractModuleDataService`, but it is called from `SbtNestedModuleDataService`),
+                 // so it is necessary for this assignment to be made before the rest of the other services.
+                 weight: Int = ProjectKeys.MODULE.getProcessingWeight + 2
                 ): Key[T] = new Key(clazz.getName, weight)
 }
 

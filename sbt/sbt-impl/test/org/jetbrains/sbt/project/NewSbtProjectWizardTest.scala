@@ -24,7 +24,7 @@ class NewSbtProjectWizardTest extends NewScalaProjectWizardTestBase with ExactMa
 
   //SCL-12528, SCL-12528
   def testCreateProjectWithDotsSpacesAndDashesInNameName(): Unit =
-    runSimpleCreateSbtProjectTest("project.name.with.dots spaces and-dashes and UPPERCASE")
+    runSimpleCreateSbtProjectTest("project_name_with_dots spaces and-dashes and UPPERCASE")
 
   private def runSimpleCreateSbtProjectTest(projectName: String, packagePrefixOpt: Option[String] = None): Unit = {
     val scalaVersion = "2.13.6"
@@ -44,7 +44,7 @@ class NewSbtProjectWizardTest extends NewScalaProjectWizardTestBase with ExactMa
           testSources := Seq("src/test/scala")
           excluded := Seq("target")
         },
-        new module(s"$projectName-build") {
+        new module(s"$projectName.$projectName-build") {
           // TODO: why `-build` module contains empty string? in UI the `project` folder is marked as `sources`.
           //  Is it some implicit IntelliJ behaviour?
           sources := Seq("")

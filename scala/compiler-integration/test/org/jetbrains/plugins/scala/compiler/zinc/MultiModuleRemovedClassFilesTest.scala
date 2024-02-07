@@ -84,10 +84,10 @@ class MultiModuleRemovedClassFilesTest extends ExternalSystemImportingTestCase {
     ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType = IncrementalityType.SBT
 
     val modules = ModuleManager.getInstance(myProject).getModules
-    module1 = modules.find(_.getName == "module1").orNull
-    assertNotNull("Could not find module with name 'module1'", module1)
-    module2 = modules.find(_.getName == "module2").orNull
-    assertNotNull("Could not find module with name 'module2'", module2)
+    module1 = modules.find(_.getName == "root.module1").orNull
+    assertNotNull("Could not find module with name 'root.module1'", module1)
+    module2 = modules.find(_.getName == "root.module2").orNull
+    assertNotNull("Could not find module with name 'root.module2'", module2)
     compiler = new CompilerTester(myProject, java.util.Arrays.asList(modules: _*), null, false)
   }
 

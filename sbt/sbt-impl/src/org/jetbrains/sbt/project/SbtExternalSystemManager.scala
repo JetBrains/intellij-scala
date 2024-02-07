@@ -203,7 +203,9 @@ object SbtExternalSystemManager {
         Seq(s"-Xmx$maxHeapSize")
       } else Seq.empty
 
-    val givenOptions = maxHeapOptions ++ userOptions
+    val groupingWithQualifiedNamesEnabled = Seq("-Dgrouping.with.qualified.names.enabled=true")
+
+    val givenOptions = maxHeapOptions ++ groupingWithQualifiedNamesEnabled ++ userOptions
 
     getVmOptions(givenOptions, jreHome)
   }

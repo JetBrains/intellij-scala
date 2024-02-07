@@ -48,12 +48,18 @@ class SbtCrossBuildProjectHighlightingWithGeneratedSourcesTest_TransitiveProject
       excluded := Seq("target")
     }
 
+    class myNonRootModule(name: String, contentRootRelativePaths: Option[Seq[String]] = None) extends myModule(s"$projectName.$name", contentRootRelativePaths) {
+      def this(name: String, contentRootRelativePaths: String) = {
+        this(name, Some(Seq(contentRootRelativePaths)))
+      }
+    }
+
     val expectedProject: project = new project(projectName) {
       val `sbt-crossproject-test-project-with-generated-sources` = new myModule(
         "sbt-crossproject-test-project-with-generated-sources",
         ""
       )
-      val `sbt-crossproject-test-project-with-generated-sources-build` = new myModule(
+      val `sbt-crossproject-test-project-with-generated-sources-build` = new myNonRootModule(
         "sbt-crossproject-test-project-with-generated-sources-build",
         "project"
       ) {
@@ -61,41 +67,41 @@ class SbtCrossBuildProjectHighlightingWithGeneratedSourcesTest_TransitiveProject
         excluded := Seq("target", "project/target")
       }
 
-      val `downstreamPure-sources` = new myModule("downstreamPure-sources", "downstreamPure") {
+      val `downstreamPure-sources` = new myNonRootModule("downstreamPure.downstreamPure-sources", "downstreamPure") {
         sources := Seq("src/main/scala")
       }
-      val `downstreamPureJS` = new myModule("downstreamPureJS", "downstreamPure/.js") {
+      val `downstreamPureJS` = new myNonRootModule("downstreamPure.downstreamPureJS", "downstreamPure/.js") {
         sources := Seq("target/scala-2.13/src_managed/main")
       }
-      val `downstreamPureJVM` = new myModule("downstreamPureJVM", "downstreamPure/.jvm") {
+      val `downstreamPureJVM` = new myNonRootModule("downstreamPure.downstreamPureJVM", "downstreamPure/.jvm") {
         sources := Seq("target/scala-2.13/src_managed/main")
       }
-      val `upstreamPure-sources` = new myModule("upstreamPure-sources", "upstreamPure") {
+      val `upstreamPure-sources` = new myNonRootModule("upstreamPure.upstreamPure-sources", "upstreamPure") {
         sources := Seq("src/main/scala")
       }
-      val `upstreamPureJS` = new myModule("upstreamPureJS", "upstreamPure/.js") {
+      val `upstreamPureJS` = new myNonRootModule("upstreamPure.upstreamPureJS", "upstreamPure/.js") {
         sources := Seq("target/scala-2.13/src_managed/main")
       }
-      val `upstreamPureJVM` = new myModule("upstreamPureJVM", "upstreamPure/.jvm") {
+      val `upstreamPureJVM` = new myNonRootModule("upstreamPure.upstreamPureJVM", "upstreamPure/.jvm") {
         sources := Seq("target/scala-2.13/src_managed/main")
       }
 
-      val `downstreamFull-sources` = new myModule("downstreamFull-sources", "downstreamFull/shared") {
+      val `downstreamFull-sources` = new myNonRootModule("downstreamFull.downstreamFull-sources", "downstreamFull/shared") {
         sources := Seq("src/main/scala")
       }
-      val `downstreamFullJS` = new myModule("downstreamFullJS", "downstreamFull/js") {
+      val `downstreamFullJS` = new myNonRootModule("downstreamFull.downstreamFullJS", "downstreamFull/js") {
         sources := Seq("target/scala-2.13/src_managed/main")
       }
-      val `downstreamFullJVM` = new myModule("downstreamFullJVM", "downstreamFull/jvm") {
+      val `downstreamFullJVM` = new myNonRootModule("downstreamFull.downstreamFullJVM", "downstreamFull/jvm") {
         sources := Seq("target/scala-2.13/src_managed/main")
       }
-      val `upstreamFull-sources` = new myModule("upstreamFull-sources", "upstreamFull/shared") {
+      val `upstreamFull-sources` = new myNonRootModule("upstreamFull.upstreamFull-sources", "upstreamFull/shared") {
         sources := Seq("src/main/scala")
       }
-      val `upstreamFullJS` = new myModule("upstreamFullJS", "upstreamFull/js") {
+      val `upstreamFullJS` = new myNonRootModule("upstreamFull.upstreamFullJS", "upstreamFull/js") {
         sources := Seq("target/scala-2.13/src_managed/main")
       }
-      val `upstreamFullJVM` = new myModule("upstreamFullJVM", "upstreamFull/jvm") {
+      val `upstreamFullJVM` = new myNonRootModule("upstreamFull.upstreamFullJVM", "upstreamFull/jvm") {
         sources := Seq("target/scala-2.13/src_managed/main")
       }
 

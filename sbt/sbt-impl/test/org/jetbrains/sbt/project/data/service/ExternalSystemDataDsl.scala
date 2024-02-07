@@ -1,7 +1,7 @@
 package org.jetbrains.sbt
 package project.data.service
 
-import com.intellij.openapi.externalSystem.model.project.LibraryLevel
+import com.intellij.openapi.externalSystem.model.project.{LibraryLevel, ModuleData}
 import com.intellij.openapi.module.StdModuleTypes
 import org.jetbrains.sbt.project.data._
 
@@ -98,7 +98,7 @@ object ExternalSystemDataDsl {
       node
     }
 
-    private def createModuleDependencies(moduleToNode: Map[module, ModuleNode]): Unit =
+    private def createModuleDependencies(moduleToNode: Map[module, Node[_<:ModuleData]]): Unit =
       moduleToNode.foreach { case (module, moduleNode) =>
         module.getModuleDependencies.foreach { dependency =>
           moduleToNode.get(dependency).foreach { dependencyModuleNode =>
@@ -107,7 +107,7 @@ object ExternalSystemDataDsl {
         }
       }
 
-    private def createLibraryDependencies(moduleToNode: Map[module, ModuleNode], libraryToNode: Map[library, LibraryNode]): Unit =
+    private def createLibraryDependencies(moduleToNode: Map[module, Node[_<:ModuleData]], libraryToNode: Map[library, LibraryNode]): Unit =
       moduleToNode.foreach { case (module, moduleNode) =>
         module.getLibraryDependencies.foreach { dependency =>
           libraryToNode.get(dependency).foreach { libraryNode =>
@@ -127,7 +127,7 @@ object ExternalSystemDataDsl {
   abstract class module {
     val typeId: String
 
-    def build: ModuleNode = {
+    def build: Node[_<:ModuleData] = {
       val node = new ModuleNode(
         typeId,
         attributes.getOrFail(projectId),

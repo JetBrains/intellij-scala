@@ -51,7 +51,8 @@ class SbtProjectWithProjectMatrixAndSourceGenerators_TransitiveProjectDependenci
       //(those attributes, which are not defined are not tested)
 
       //`projectmatrix` sbt plugin uses special generated paths as module content roots
-      contentRoots := contentRootRelativePaths.getOrElse(Seq(s".sbt/matrix/$name")).map(relativeProjectPath)
+      private val contentRootRelativeName = name.split('.').last
+      contentRoots := contentRootRelativePaths.getOrElse(Seq(s".sbt/matrix/$contentRootRelativeName")).map(relativeProjectPath)
       sources := Seq()
       testSources := Seq()
       resources := Seq()
@@ -60,19 +61,25 @@ class SbtProjectWithProjectMatrixAndSourceGenerators_TransitiveProjectDependenci
       excluded := Seq()
     }
 
+    class myNonRootModule(name: String, contentRootRelativePaths: Option[Seq[String]] = None) extends myModule(s"$projectName.$name", contentRootRelativePaths) {
+      def this(name: String, contentRootRelativePaths: String) = {
+        this(name, Some(Seq(contentRootRelativePaths)))
+      }
+    }
+
     val expectedProject: project = new project(projectName) {
       val `sbt-projectmatrix-with-source-generator` = new myModule("sbt-projectmatrix-with-source-generators", "") {
         excluded := Seq("target")
       }
-      val `sbt-projectmatrix-with-source-generators-build` = new myModule("sbt-projectmatrix-with-source-generators-build", "project") {
+      val `sbt-projectmatrix-with-source-generators-build` = new myNonRootModule("sbt-projectmatrix-with-source-generators-build", "project") {
         sources := Seq("")
         excluded := Seq("target", "project/target")
       }
 
-      val `downstream` = new myModule("downstream")
-      val `downstream2_11` = new myModule("downstream2_11")
-      val `downstream2_12` = new myModule("downstream2_12")
-      val `downstream-sources` = new myModule("downstream-sources", "downstream") {
+      val `downstream` = new myNonRootModule("downstream.downstream")
+      val `downstream2_11` = new myNonRootModule("downstream.downstream2_11")
+      val `downstream2_12` = new myNonRootModule("downstream.downstream2_12")
+      val `downstream-sources` = new myNonRootModule("downstream.downstream-sources", "downstream") {
         sources := Seq(
           "src/main/scala",
           "target/jvm-2.13/src_managed/main"
@@ -80,10 +87,10 @@ class SbtProjectWithProjectMatrixAndSourceGenerators_TransitiveProjectDependenci
         excluded := Seq("target")
       }
 
-      val `upstream` = new myModule("upstream")
-      val `upstream2_11` = new myModule("upstream2_11")
-      val `upstream2_12` = new myModule("upstream2_12")
-      val `upstream-sources` = new myModule("upstream-sources", "upstream") {
+      val `upstream` = new myNonRootModule("upstream.upstream")
+      val `upstream2_11` = new myNonRootModule("upstream.upstream2_11")
+      val `upstream2_12` = new myNonRootModule("upstream.upstream2_12")
+      val `upstream-sources` = new myNonRootModule("upstream.upstream-sources", "upstream") {
         sources := Seq(
           "src/main/scala",
           "target/jvm-2.13/src_managed/main"
@@ -91,13 +98,13 @@ class SbtProjectWithProjectMatrixAndSourceGenerators_TransitiveProjectDependenci
         excluded := Seq("target")
       }
 
-      val `downstreamBothPlatforms` = new myModule("downstreamBothPlatforms")
-      val `downstreamBothPlatforms2_11` = new myModule("downstreamBothPlatforms2_11")
-      val `downstreamBothPlatforms2_12` = new myModule("downstreamBothPlatforms2_12")
-      val `downstreamBothPlatformsJS` = new myModule("downstreamBothPlatformsJS")
-      val `downstreamBothPlatformsJS2_11` = new myModule("downstreamBothPlatformsJS2_11")
-      val `downstreamBothPlatformsJS2_12` = new myModule("downstreamBothPlatformsJS2_12")
-      val `downstreamBothPlatforms-sources` = new myModule("downstreamBothPlatforms-sources", "downstreamBothPlatforms") {
+      val `downstreamBothPlatforms` = new myNonRootModule("downstreamBothPlatforms.downstreamBothPlatforms")
+      val `downstreamBothPlatforms2_11` = new myNonRootModule("downstreamBothPlatforms.downstreamBothPlatforms2_11")
+      val `downstreamBothPlatforms2_12` = new myNonRootModule("downstreamBothPlatforms.downstreamBothPlatforms2_12")
+      val `downstreamBothPlatformsJS` = new myNonRootModule("downstreamBothPlatforms.downstreamBothPlatformsJS")
+      val `downstreamBothPlatformsJS2_11` = new myNonRootModule("downstreamBothPlatforms.downstreamBothPlatformsJS2_11")
+      val `downstreamBothPlatformsJS2_12` = new myNonRootModule("downstreamBothPlatforms.downstreamBothPlatformsJS2_12")
+      val `downstreamBothPlatforms-sources` = new myNonRootModule("downstreamBothPlatforms.downstreamBothPlatforms-sources", "downstreamBothPlatforms") {
         sources := Seq(
           "src/main/scala",
           "target/jvm-2.13/src_managed/main"
@@ -105,13 +112,13 @@ class SbtProjectWithProjectMatrixAndSourceGenerators_TransitiveProjectDependenci
         excluded := Seq("target")
       }
 
-      val `upstreamBothPlatforms` = new myModule("upstreamBothPlatforms")
-      val `upstreamBothPlatforms2_11` = new myModule("upstreamBothPlatforms2_11")
-      val `upstreamBothPlatforms2_12` = new myModule("upstreamBothPlatforms2_12")
-      val `upstreamBothPlatformsJS` = new myModule("upstreamBothPlatformsJS")
-      val `upstreamBothPlatformsJS2_11` = new myModule("upstreamBothPlatformsJS2_11")
-      val `upstreamBothPlatformsJS2_12` = new myModule("upstreamBothPlatformsJS2_12")
-      val `upstreamBothPlatforms-sources` = new myModule("upstreamBothPlatforms-sources", "upstreamBothPlatforms") {
+      val `upstreamBothPlatforms` = new myNonRootModule("upstreamBothPlatforms.upstreamBothPlatforms")
+      val `upstreamBothPlatforms2_11` = new myNonRootModule("upstreamBothPlatforms.upstreamBothPlatforms2_11")
+      val `upstreamBothPlatforms2_12` = new myNonRootModule("upstreamBothPlatforms.upstreamBothPlatforms2_12")
+      val `upstreamBothPlatformsJS` = new myNonRootModule("upstreamBothPlatforms.upstreamBothPlatformsJS")
+      val `upstreamBothPlatformsJS2_11` = new myNonRootModule("upstreamBothPlatforms.upstreamBothPlatformsJS2_11")
+      val `upstreamBothPlatformsJS2_12` = new myNonRootModule("upstreamBothPlatforms.upstreamBothPlatformsJS2_12")
+      val `upstreamBothPlatforms-sources` = new myNonRootModule("upstreamBothPlatforms.upstreamBothPlatforms-sources", "upstreamBothPlatforms") {
         sources := Seq(
           "src/main/scala",
           "target/jvm-2.13/src_managed/main"

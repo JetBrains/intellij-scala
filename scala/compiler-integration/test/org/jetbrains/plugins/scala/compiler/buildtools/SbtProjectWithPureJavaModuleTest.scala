@@ -120,10 +120,10 @@ abstract class SbtProjectWithPureJavaModuleTestBase(incrementality: Incrementali
       errorsAndWarnings.isEmpty
     )
 
-    val module1 = modules.find(_.getName == "module1").orNull
-    assertNotNull("Could not find module with name 'module1'", module1)
-    val module2 = modules.find(_.getName == "module2").orNull
-    assertNotNull("Could not find module with name 'module2'", module2)
+    val module1 = modules.find(_.getName == "root.module1").orNull
+    assertNotNull("Could not find module with name 'root.module1'", module1)
+    val module2 = modules.find(_.getName == "root.module2").orNull
+    assertNotNull("Could not find module with name 'root.module2'", module2)
 
     val greeter = compiler.findClassFile("Greeter", module1)
     assertNotNull("Could not find compiled class file Greeter", greeter)

@@ -2,7 +2,7 @@ ThisBuild / version := "0.1.0-SNAPSHOT"
 ThisBuild / scalaVersion := "2.13.12"
 
 lazy val root = project.in(file("."))
-  .settings(name := "ProjectWithModulesWithSameIdsAndNamesWithDifferentCase")
+  .settings(name := "sameIdsAndNamesWithDifferentCase")
 
 lazy val moduleWithSameIdDifferentCase1 = project.withId("X_my_module_id")
 lazy val moduleWithSameIdDifferentCase2 = project.withId("X_My_Module_Id")
