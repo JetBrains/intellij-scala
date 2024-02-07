@@ -205,21 +205,24 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
   private def executeIncrementalCompilationRequest(request: CompilationRequest.IncrementalRequest, runDocumentCompiler: Boolean): Unit = {
     debug(s"incrementalCompilation: ${request.debugReason}")
     performCompilation(delayIndicator = false) { client =>
-      val triggerService = TriggerCompilerHighlightingService.get(project)
       val promise = Promise[Unit]()
       // Documents must be saved on the UI thread, so a thread shift is mandatory in this case.
       invokeLater {
-        triggerService.beforeIncrementalCompilation()
-        // Schedule the rest of the execution of this incremental compilation request on a background thread.
-        executeOnPooledThread {
-          val computation = Try {
-            if (BspUtil.isBspProject(project)) {
-              doBspIncrementalCompilation(request, client, runDocumentCompiler, triggerService)
-            } else {
-              doJpsIncrementalCompilation(request, client, runDocumentCompiler, triggerService)
+        if (!project.isDisposed) {
+          TriggerCompilerHighlightingService.get(project).beforeIncrementalCompilation()
+          // Schedule the rest of the execution of this incremental compilation on a background thread.
+          executeOnPooledThread {
+            val computation = Try {
+              if (!project.isDisposed) {
+                if (BspUtil.isBspProject(project)) {
+                  doBspIncrementalCompilation(request, client, runDocumentCompiler)
+                } else {
+                  doJpsIncrementalCompilation(request, client, runDocumentCompiler)
+                }
+              }
             }
+            promise.complete(computation)
           }
-          promise.complete(computation)
         }
       }
       promise.future
@@ -229,8 +232,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
   private def doBspIncrementalCompilation(
     request: CompilationRequest.IncrementalRequest,
     client: CompilerEventGeneratingClient,
-    runDocumentCompiler: Boolean,
-    triggerService: TriggerCompilerHighlightingService
+    runDocumentCompiler: Boolean
   ): Unit = {
     val CompilationRequest.IncrementalRequest(module, sourceScope, virtualFile, _, psiFile, _) = request
     val context = new ProjectTaskContext()
@@ -249,24 +251,23 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     if (runDocumentCompiler && reporter.successful) {
       triggerDocumentCompilationInAllOpenEditors(Some(client))
     }
-    if (psiFile.is[ScalaFile] && reporter.successful && client.successful) {
-      triggerService.enableDocumentCompiler(virtualFile)
+    if (psiFile.is[ScalaFile] && reporter.successful && client.successful && !project.isDisposed) {
+      TriggerCompilerHighlightingService.get(project).enableDocumentCompiler(virtualFile)
     }
   }
 
   private def doJpsIncrementalCompilation(
     request: CompilationRequest.IncrementalRequest,
     client: CompilerEventGeneratingClient,
-    runDocumentCompiler: Boolean,
-    triggerService: TriggerCompilerHighlightingService
+    runDocumentCompiler: Boolean
   ): Unit = {
     val CompilationRequest.IncrementalRequest(module, sourceScope, virtualFile, _, psiFile, _) = request
     IncrementalCompiler.compile(project, module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, client)
     if (runDocumentCompiler && client.successful) {
       triggerDocumentCompilationInAllOpenEditors(Some(client))
     }
-    if (psiFile.is[ScalaFile] && client.successful) {
-      triggerService.enableDocumentCompiler(virtualFile)
+    if (psiFile.is[ScalaFile] && client.successful && !project.isDisposed) {
+      TriggerCompilerHighlightingService.get(project).enableDocumentCompiler(virtualFile)
     }
   }
 
