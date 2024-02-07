@@ -211,7 +211,7 @@ private class CommandTask(project: Project, command: String, promise: AsyncPromi
     val buildMessages = Await.ready(commandFuture, Duration.Inf).value.get
 
     // build effects
-    refreshRoots(indicator)
+    ExternalSystemVfsUtil.refreshRoots(project, SbtProjectSystem.Id, indicator)
 
     // handle callback
     buildMessages match {
@@ -240,13 +240,6 @@ private class CommandTask(project: Project, command: String, promise: AsyncPromi
     }
 
     collector.compilationFinished()
-  }
-
-  private def refreshRoots(indicator: ProgressIndicator): Unit = {
-    indicator.setText(SbtBundle.message("sbt.shell.synchronizing.output.directories"))
-    ExternalSystemVfsUtil.refreshRoots(project, SbtProjectSystem.Id)
-    //noinspection ScalaExtractStringToBundle
-    indicator.setText("")
   }
 }
 

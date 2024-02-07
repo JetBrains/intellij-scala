@@ -7,7 +7,7 @@ import com.intellij.build.events.impl.{FailureResultImpl, SkippedResultImpl, Suc
 import com.intellij.openapi.progress.{PerformInBackgroundOption, ProcessCanceledException, ProgressIndicator, Task}
 import com.intellij.openapi.project.Project
 import org.eclipse.lsp4j.jsonrpc.ResponseErrorException
-import org.jetbrains.bsp.BspBundle
+import org.jetbrains.bsp.{BSP, BspBundle}
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.project.BspTask.BspTarget
 import org.jetbrains.bsp.protocol.BspJob.CancelCheck
@@ -16,7 +16,7 @@ import org.jetbrains.bsp.protocol.{BspCommunication, BspJob, BspNotifications}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.BuildToolWindowReporter.CancelBuildAction
 import org.jetbrains.plugins.scala.build._
-import org.jetbrains.plugins.scala.util.CompilationId
+import org.jetbrains.plugins.scala.util.{CompilationId, ExternalSystemVfsUtil}
 
 import java.net.URI
 import java.util.concurrent.CompletableFuture
@@ -134,6 +134,7 @@ class BspTask[T](project: Project,
     }
     else reporter.finish(combinedMessages)
 
+    ExternalSystemVfsUtil.refreshRoots(project, BSP.ProjectSystemId, indicator)
     resultPromise.trySuccess(combinedMessages)
   }
 
