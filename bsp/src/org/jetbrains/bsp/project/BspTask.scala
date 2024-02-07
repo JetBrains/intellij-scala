@@ -4,15 +4,15 @@ import ch.epfl.scala.bsp4j
 import ch.epfl.scala.bsp4j._
 import com.intellij.build.FilePosition
 import com.intellij.build.events.impl.{FailureResultImpl, SkippedResultImpl, SuccessResultImpl}
-import com.intellij.openapi.progress.{PerformInBackgroundOption, ProcessCanceledException, ProgressIndicator, Task}
+import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator, Task}
 import com.intellij.openapi.project.Project
 import org.eclipse.lsp4j.jsonrpc.ResponseErrorException
-import org.jetbrains.bsp.{BSP, BspBundle}
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.project.BspTask.BspTarget
 import org.jetbrains.bsp.protocol.BspJob.CancelCheck
 import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, NotificationAggregator, ProcessLogger}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspJob, BspNotifications}
+import org.jetbrains.bsp.{BSP, BspBundle}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.BuildToolWindowReporter.CancelBuildAction
 import org.jetbrains.plugins.scala.build._
@@ -20,14 +20,12 @@ import org.jetbrains.plugins.scala.util.{CompilationId, ExternalSystemVfsUtil}
 
 import java.net.URI
 import java.util.concurrent.CompletableFuture
-import scala.annotation.nowarn
 import scala.collection.mutable
 import scala.concurrent.{Future, Promise}
 import scala.jdk.CollectionConverters._
 import scala.util.Try
 import scala.util.control.NonFatal
 
-// TODO: PerformInBackgroundOption is deprecated, ProgressManager.run(Task) is obsolete. See IJPL-384
 class BspTask[T](project: Project,
                  targets: Iterable[BspTarget],
                  targetsToClean: Iterable[BspTarget],
@@ -36,8 +34,7 @@ class BspTask[T](project: Project,
     extends Task.Backgroundable(
       project,
       arguments.map(_.message).getOrElse(BspBundle.message("bsp.task.build")),
-      true,
-      PerformInBackgroundOption.ALWAYS_BACKGROUND: @nowarn("cat=deprecation")
+      true
     ) {
 
   private val bspTaskId: EventId = BuildMessages.randomEventId
