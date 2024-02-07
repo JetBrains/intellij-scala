@@ -46,7 +46,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.AnonymousFunction._
 import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants._
 import org.jetbrains.plugins.scala.util.TopLevelMembers.{findFileWithTopLevelMembers, topLevelMemberClassName}
@@ -168,12 +167,9 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     checkForIndyLambdas(refType)
 
     try {
-      inReadAction {
-        val line: Int = position.getLine
-        locationsOfLine(refType, line).asJava
-      }
-    }
-    catch {
+      val line: Int = position.getLine
+      locationsOfLine(refType, line).asJava
+    } catch {
       case _: AbsentInformationException => ju.Collections.emptyList()
     }
   }

@@ -4,8 +4,11 @@ import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.engine.{DebugProcess, SyntheticTypeComponentProvider}
 import com.intellij.debugger.jdi.GeneratedLocation
 import com.intellij.debugger.settings.DebuggerSettings
+import com.intellij.openapi.application.ReadAction
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import com.intellij.util.concurrency.annotations.RequiresReadLock
 import com.sun.jdi.{AbsentInformationException, Location, Method, ReferenceType}
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.extensions._
@@ -62,12 +65,17 @@ trait LocationLineManager {
   }
 
   private def checkAndUpdateCaches(refType: ReferenceType): Unit = {
-    if (!seenRefTypes.contains(refType)) inReadAction(computeCustomizedLocationsFor(refType))
+    if (!seenRefTypes.contains(refType)) {
+      ReadAction.nonBlocking[Unit](() => computeCustomizedLocationsFor(refType))
+        .expireWhen(() => debugProcess.getProject.isDisposed)
+        .executeSynchronously()
+    }
   }
 
   private def cacheCustomLine(location: Location, customLine: Int): Unit = location match {
     case _: GeneratedLocation => //don't cache, equals is broken
     case _ =>
+      ProgressManager.checkCanceled()
       customizedLocationsCache.put(location, customLine)
 
       val key = (location.declaringType(), customLine)
@@ -75,11 +83,15 @@ trait LocationLineManager {
       lineToCustomizedLocationCache.update(key, (old :+ location).sortBy(_.codeIndex()))
   }
 
+  @RequiresReadLock
   private def computeCustomizedLocationsFor(refType: ReferenceType): Unit = {
     seenRefTypes += refType
 
     val generatingElem = findElementByReferenceType(refType).orNull
     if (generatingElem == null) return
+
+    ProgressManager.checkCanceled()
+
     val containingFile = generatingElem.getContainingFile
     if (containingFile == null) return
     val document = PsiDocumentManager.getInstance(debugProcess.getProject).getDocument(containingFile)
@@ -103,6 +115,7 @@ trait LocationLineManager {
       }
 
       def shouldPointAtStartLine(location: Location): Boolean = {
+        ProgressManager.checkCanceled()
         if (location.codeIndex() != 0) return false
 
         val lineNumber = ScalaPositionManager.checkedLineNumber(location)
@@ -171,6 +184,8 @@ trait LocationLineManager {
           if (code.nonEmpty) Some(code) else None
         }
 
+        ProgressManager.checkCanceled()
+
         val notCustomizedYet = caseLinesLocations.map(_.filter(!customizedLocationsCache.contains(_)))
         val repeating = notCustomizedYet.filter(_.size > 1)
         val lastLocations = repeating.map(_.last)
@@ -184,6 +199,7 @@ trait LocationLineManager {
         if (bytes.isEmpty) return
 
         val loadLocations = method.allLineLocations().asScala.filter { l =>
+          ProgressManager.checkCanceled()
           readLoadCode(l.codeIndex().toInt, bytecodes) == bytes
         }
         loadLocations.foreach(cacheCustomLine(_, -1))
@@ -202,6 +218,7 @@ trait LocationLineManager {
         val tail: Seq[Location] = filtered.tail
 
         val loadExpressionValueLocations = tail.filter { l =>
+          ProgressManager.checkCanceled()
           readLoadCode(l.codeIndex().toInt, bytecodes).nonEmpty
         }
 
@@ -243,6 +260,7 @@ trait LocationLineManager {
           caseLinesLocations = caseLines.map(locationsOfLine(m, _))
           if caseLinesLocations.exists(_.nonEmpty)
         } {
+          ProgressManager.checkCanceled()
           val flattenCaseLines = caseLinesLocations.flatten
           skipTypeCheckOptimization(m, flattenCaseLines)
           skipGotoLocations(m, flattenCaseLines)
@@ -255,6 +273,7 @@ trait LocationLineManager {
           locations = locationsOfLine(m, line)
           if locations.size > 1
         } {
+          ProgressManager.checkCanceled()
           skipBaseLineExtraLocations(m, locations)
           skipGotoLocations(m, locations)
         }
@@ -266,6 +285,7 @@ trait LocationLineManager {
       allCaseClauses.foreach(customizeFor)
     }
 
+    ProgressManager.checkCanceled()
     customizeLineForConstructors()
     customizeCaseClauses()
   }
