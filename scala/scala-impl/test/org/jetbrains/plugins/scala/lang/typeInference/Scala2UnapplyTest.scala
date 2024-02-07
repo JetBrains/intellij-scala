@@ -268,6 +268,14 @@ object Scala2UnapplyTest extends GeneratedTestSuiteFactory.withHighlightingTest(
       |val A(i, s) = A(???, ???)
       |val _i: Int = i
       |val _s: String = s
+      |""".stripMargin,
+    """
+      |//caseClassNoTupleMembers
+      |case class A(i: Int, s: String)
+      |
+      |val a = A(1, "")
+      |
+      |val x = a._1 // Error
       |""".stripMargin
   ).map(testDataFromCode)
 }

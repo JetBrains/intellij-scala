@@ -183,6 +183,7 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
   private def scala3AccessorMethods(caseClass: ScClass): List[String] = {
     for {
       constr <- caseClass.constructor.toList
+      if caseClass.isInScala3File
       clause <- constr.parameterList.clauses.take(1)
       (param, i)  <- clause.parameters.zipWithIndex
     } yield {
