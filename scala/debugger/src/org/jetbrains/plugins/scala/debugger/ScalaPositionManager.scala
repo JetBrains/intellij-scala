@@ -15,7 +15,6 @@ import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileTypes.{FileType, FileTypeRegistry, LanguageFileType}
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbService
-import com.intellij.openapi.util.Ref
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.CachedValueProvider.Result
@@ -252,63 +251,58 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       }
     }
 
-    def createPrepareRequests(position: SourcePosition): Seq[ClassPrepareRequest] = {
-      val qName = new Ref[String](null)
-      val waitRequestor = new Ref[ClassPrepareRequestor](null)
-      inReadAction {
-        val sourceImage = findReferenceTypeSourceImage(position)
-        val insideMacro: Boolean = isInsideMacro(nonWhitespaceElement(position))
-        sourceImage match {
-          case cl: ScClass if ValueClassType.isValueClass(cl) =>
-            //there are no instances of value classes, methods from companion object are used
-            qName.set(getSpecificNameForDebugger(cl) + "$")
-          case tr: ScTrait if !isLocalClass(tr) =>
-            //to handle both trait methods encoding
-            qName.set(tr.getQualifiedNameForDebugger + "*")
-          case typeDef: ScTypeDefinition if !isLocalOrUnderDelayedInit(typeDef) =>
-            val specificName = getSpecificNameForDebugger(typeDef)
-            qName.set(if (insideMacro) specificName + "*" else specificName)
-          case file: ScalaFile =>
-            //top level member in default package
-            qName.set(topLevelMemberClassName(file, None))
-          case pckg: ScPackaging =>
-            qName.set(topLevelMemberClassName(pckg.getContainingFile, Some(pckg)))
-          case _ =>
-            val name =
-              findEnclosingTypeDefinition match {
-                case Some(td) => Some(td.getQualifiedNameForDebugger + "*")
-                case None =>
-                  findEnclosingPackageOrFile.map {
-                    case Left(pkg) => topLevelMemberClassName(pkg.getContainingFile, Some(pkg))
-                    case Right(file) => topLevelMemberClassName(file, None)
-                  }
-              }
-            name.foreach(qName.set)
-        }
-        // Enclosing type definition is not found
-        if (qName.get == null) {
-          qName.set(SCRIPT_HOLDER_CLASS_NAME + "*")
-        }
-        waitRequestor.set(new ScalaPositionManager.MyClassPrepareRequestor(position, requestor))
+    @RequiresReadLock
+    def computeRequestorAndQualifiedName(position: SourcePosition): (MyClassPrepareRequestor, String) = {
+      var qName: String = null
+      val sourceImage = findReferenceTypeSourceImage(position)
+      val insideMacro: Boolean = isInsideMacro(nonWhitespaceElement(position))
+      sourceImage match {
+        case cl: ScClass if ValueClassType.isValueClass(cl) =>
+          //there are no instances of value classes, methods from companion object are used
+          qName = getSpecificNameForDebugger(cl) + "$"
+        case tr: ScTrait if !isLocalClass(tr) =>
+          //to handle both trait methods encoding
+          qName = tr.getQualifiedNameForDebugger + "*"
+        case typeDef: ScTypeDefinition if !isLocalOrUnderDelayedInit(typeDef) =>
+          val specificName = getSpecificNameForDebugger(typeDef)
+          qName = if (insideMacro) specificName + "*" else specificName
+        case file: ScalaFile =>
+          //top level member in default package
+          qName = topLevelMemberClassName(file, None)
+        case pckg: ScPackaging =>
+          qName = topLevelMemberClassName(pckg.getContainingFile, Some(pckg))
+        case _ =>
+          val name =
+            findEnclosingTypeDefinition match {
+              case Some(td) => Some(td.getQualifiedNameForDebugger + "*")
+              case None =>
+                findEnclosingPackageOrFile.map {
+                  case Left(pkg) => topLevelMemberClassName(pkg.getContainingFile, Some(pkg))
+                  case Right(file) => topLevelMemberClassName(file, None)
+                }
+            }
+          qName = name.orNull
       }
-
-      createClassPrepareRequests(waitRequestor.get, qName.get)
+      // Enclosing type definition is not found
+      if (qName eq null) {
+        qName = SCRIPT_HOLDER_CLASS_NAME + "*"
+      }
+      (new MyClassPrepareRequestor(position, requestor), qName)
     }
 
     val file = position.getFile
     throwIfNotScalaFile(file)
 
     val onLine = positionsOnLine(file, position.getLine)
-    val possiblePositions =
-      ReadAction.nonBlocking(() => {
-        onLine.map { e =>
-          ProgressManager.checkCanceled()
-          SourcePosition.createFromElement(e)
-        }
-      })
-      .executeSynchronously()
-
-    possiblePositions.flatMap(createPrepareRequests).asJava
+    ReadAction.nonBlocking(() => {
+      onLine.flatMap { e =>
+        ProgressManager.checkCanceled()
+        val position = SourcePosition.createFromElement(e)
+        val (requestor, qName) = computeRequestorAndQualifiedName(position)
+        createClassPrepareRequests(requestor, qName)
+      }.asJava
+    })
+    .executeSynchronously()
   }
 
   private def throwIfNotScalaFile(file: PsiFile): Unit = {
