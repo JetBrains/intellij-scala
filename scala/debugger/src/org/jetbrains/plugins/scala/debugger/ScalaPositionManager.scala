@@ -108,21 +108,27 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       }
     }
 
+    val possiblePositions = positionsOnLine(file, position.getLine)
     val exactClasses = mutable.ArrayBuffer.empty[ReferenceType]
     val namePatterns = mutable.Set[NamePattern]()
-    var packageName: Option[String] = None
 
-    inReadAction {
-      val possiblePositions = positionsOnLine(file, position.getLine)
+    @RequiresReadLock
+    def computeClassesPatternsAndPackageName(): Either[Unit, Option[String]] = {
+      val packageName = possiblePositions.headOption.flatMap(findPackageName)
 
-      packageName = possiblePositions.headOption.flatMap(findPackageName)
+      val onTheLine = possiblePositions.map { e =>
+        ProgressManager.checkCanceled()
+        findGeneratingClassOrMethodParent(e)
+      }
+      if (onTheLine.isEmpty) return Left(())
 
-      val onTheLine = possiblePositions.map(findGeneratingClassOrMethodParent)
-      if (onTheLine.isEmpty) return ju.Collections.emptyList()
       val nonLambdaParent =
         if (isCompiledWithIndyLambdas(file)) {
           val nonStrictParents = onTheLine.head.withParentsInFile
-          nonStrictParents.find(p => isGenerateNonAnonfunClass(p))
+          nonStrictParents.find { p =>
+            ProgressManager.checkCanceled()
+            isGenerateNonAnonfunClass(p)
+          }
         } else None
 
       def addExactClasses(td: ScTypeDefinition): Unit = {
@@ -137,6 +143,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
           case _ => Nil
         }
         (qName :: additional).foreach { name =>
+          ProgressManager.checkCanceled()
           exactClasses ++= debugProcess.getVirtualMachineProxy.classesByName(name).asScala
         }
       }
@@ -150,15 +157,21 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
           val namePattern = NamePattern.forElement(elem)
           namePatterns ++= Option(namePattern)
       }
+
+      Right(packageName)
     }
 
-    val foundWithPattern =
-      if (namePatterns.isEmpty) Nil
-      else filterAllClasses(c => hasLocations(c, position) && namePatterns.exists(_.matches(c)), packageName)
-    val distinctExactClasses = exactClasses.distinct
-    val loadedNestedClasses = getNestedClasses(distinctExactClasses).filter(hasLocations(_, position))
+    ReadAction.nonBlocking[Either[Unit, Option[String]]](() => computeClassesPatternsAndPackageName()).executeSynchronously() match {
+      case Left(()) => ju.Collections.emptyList()
+      case Right(packageName) =>
+        val foundWithPattern =
+          if (namePatterns.isEmpty) Nil
+          else filterAllClasses(c => hasLocations(c, position) && namePatterns.exists(_.matches(c)), packageName)
+        val distinctExactClasses = exactClasses.distinct
+        val loadedNestedClasses = getNestedClasses(distinctExactClasses).filter(hasLocations(_, position))
 
-    (distinctExactClasses ++ foundWithPattern ++ loadedNestedClasses).distinct.asJava
+        (distinctExactClasses ++ foundWithPattern ++ loadedNestedClasses).distinct.asJava
+    }
   }
 
   @NotNull
