@@ -102,6 +102,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     extraControls.groupProjectsFromSameBuildCheckBox.setSelected(settings.groupProjectsFromSameBuild)
     extraControls.insertProjectTransitiveDependencies.setSelected(settings.insertProjectTransitiveDependencies)
     extraControls.useSeparateCompilerOutputPaths.setSelected(settings.useSeparateCompilerOutputPaths)
+    extraControls.refreshOutputPathsWarning()
   }
 
   override def updateInitialExtraSettings(): Unit = {
