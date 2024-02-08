@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.lang
 
-import org.jetbrains.plugins.scala.lang.dfa.analysis.{DfaManager, ScalaDfaVisitor}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
-
 package object dfa {
 
   object Messages {
@@ -17,6 +14,16 @@ package object dfa {
        |import java.util
        |import java.lang.Math
        |import scala.math._
+       |
+       |object org {
+       |  object jetbrains {
+       |    object annotations {
+       |      class Nullable extends scala.annotation.StaticAnnotation
+       |    }
+       |  }
+       |}
+       |
+       |import org.jetbrains.annotations.Nullable
        |
        |class OtherClass {
        |  val otherField: Int = 1244

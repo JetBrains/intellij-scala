@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.ArgumentFac
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.ParamToArgMapping.generateParamToArgMapping
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScMethodCall, ScNewTemplateDefinition, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 
 /**
@@ -111,9 +112,15 @@ object InvocationInfo {
     invocationInfo.getOrElse(InvocationInfo(None, Nil, newTemplateDefinition))
   }
 
-  def tryFromImplicitConversion(fun: ScFunction, expr: ScExpression): Option[InvocationInfo] =
+  def tryFromImplicitConversion(fun: ScFunction, expr: ScExpression): Option[InvocationInfo] = {
+    val parameters = fun.syntheticNavigationElement.asOptionOf[ScClass]
+      .filter(_ => fun.isSynthetic && fun.isImplicitConversion)
+      .flatMap(_.constructor)
+      .flatMap(_.clauses)
+      .getOrElse(fun.paramClauses)
+
     for {
-      firstClause <- fun.paramClauses.clauses.headOption
+      firstClause <- parameters.clauses.headOption
       if !firstClause.isImplicit
       params = firstClause.parameters
       if params.size == 1
@@ -122,4 +129,5 @@ object InvocationInfo {
       val arg = Argument.fromArgParamMapping((expr, Parameter(param)))
       InvocationInfo(Some(InvokedElement(fun)), List(List(arg)), place = expr)
     }
+  }
 }

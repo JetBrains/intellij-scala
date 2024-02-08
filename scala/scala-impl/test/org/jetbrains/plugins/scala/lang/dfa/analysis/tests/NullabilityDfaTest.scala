@@ -78,6 +78,17 @@ class NullabilityDfaTest extends ScalaDfaTestBase {
     "x" -> nullableToUnannotatedParam.alwaysMessage
   )
 
+  def test_nullable_implicit_class(): Unit = test(codeFromMethodBody() {
+    """
+      |implicit class TestClass(@Nullable val x: String) {
+      |  def blub(): Unit = ()
+      |}
+      |
+      |val x: String = null
+      |x.blub()
+      |""".stripMargin
+  })()
+
   def test_implicit_conversion(): Unit = test(codeFromMethodBody() {
     """
       |class TestClass(val x: String) {
