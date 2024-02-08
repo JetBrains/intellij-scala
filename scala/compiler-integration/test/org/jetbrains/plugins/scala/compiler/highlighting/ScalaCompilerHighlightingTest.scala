@@ -32,7 +32,7 @@ class ScalaCompilerHighlightingTest_2_13 extends ScalaCompilerHighlightingTestBa
     runTestFunctionLiteral(50)
   }
 
-  private def runTestErrorHighlighting(startOffset: Int): Unit = runTestCase(
+  private def runTestErrorHighlighting(): Unit = runTestCase(
     fileName = "AbstractMethodInClassError.scala",
     content =
       """
@@ -42,16 +42,16 @@ class ScalaCompilerHighlightingTest_2_13 extends ScalaCompilerHighlightingTestBa
         |""".stripMargin,
     expectedResult = expectedResult(ExpectedHighlighting(
       severity = HighlightSeverity.ERROR,
-      range = Some(TextRange.create(startOffset, 55)),
+      range = Some(TextRange.create(7, 33)),
       quickFixDescriptions = Seq.empty,
       msgPrefix = "class AbstractMethodInClassError needs to be abstract"
     ))
   )
 
-  def testErrorHighlighting(): Unit = runTestErrorHighlighting(1)
+  def testErrorHighlighting(): Unit = runTestErrorHighlighting()
 
   def testErrorHighlighting_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
-    runTestErrorHighlighting(7)
+    runTestErrorHighlighting()
   }
 
   private def runTestWrongReturnType(startOffset: Int): Unit = runTestCase(

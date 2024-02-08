@@ -758,7 +758,7 @@ class WorksheetReplIntegration_Scala_2_13_Test
          |def foo: String""".stripMargin
     )
     assertCompilerMessages(editorAndFile.editor)(
-      """Warning:(2, 14) Implicit definition should have explicit type (inferred String)
+      """Warning:(2, 14) Implicit definition should have explicit type (inferred String) [quickfixable]
         |implicit def foo = "42"
         |""".stripMargin
     )
