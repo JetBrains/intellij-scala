@@ -273,7 +273,7 @@ lazy val worksheetReplInterfaceImpl_3_1_2: Project =
 lazy val worksheetReplInterfaceImpl_3_3_0: Project =
   newProject("worksheet-repl-interface-impl_3_3_0", file("scala/worksheet-repl-interface-impls/impl_3_3_0"))
     .dependsOn(worksheetReplInterface)
-    .settings(worksheetReplInterfaceImplCommonSettings("3.3.0"))
+    .settings(worksheetReplInterfaceImplCommonSettings("3.3.1"))
 
 lazy val structureView = newProject("structure-view", file("scala/structure-view"))
   .dependsOn(scalaImpl % "test->test;compile->compile")
