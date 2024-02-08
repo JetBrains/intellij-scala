@@ -4,11 +4,14 @@ import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
+import com.intellij.util.SlowOperations
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettingsProfile}
 import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.plugins.scala.worksheet.WorksheetUtils
 import org.jetbrains.plugins.scala.worksheet.settings.persistent.{WorksheetFilePersistentSettings, WorksheetProjectDefaultPersistentSettings}
+
+import scala.util.Using
 
 /**
  * The class represent worksheet settings which are actually used by the worksheet
@@ -121,7 +124,9 @@ final class WorksheetFileSettings private(
     filePersistentSettings.setRunType(getRunType)
     filePersistentSettings.setInteractive(isInteractive)
     filePersistentSettings.setMakeBeforeRun(isMakeBeforeRun)
-    getModuleName.foreach(filePersistentSettings.setModuleName)
+    Using.resource(SlowOperations.knownIssue("SCL-22095, SCL-22097")) { _ =>
+      getModuleName.foreach(filePersistentSettings.setModuleName)
+    }
     filePersistentSettings.setCompilerProfileName(getCompilerProfileName)
   }
 }

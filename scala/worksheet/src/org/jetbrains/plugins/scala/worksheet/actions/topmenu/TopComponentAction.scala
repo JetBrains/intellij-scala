@@ -27,7 +27,8 @@ trait TopComponentAction extends TopComponentDisplayable with WorksheetAction {
     updatePresentationEnabled(e)
   }
 
-  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
+  // BGT is not allowed (see SCL-22095)
+  override final def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.EDT
 
   override def setEnabled(flag: Boolean): Unit = actionButton.setEnabled(flag)
 
