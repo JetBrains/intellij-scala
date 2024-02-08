@@ -33,7 +33,7 @@ private final class ShowCompilerProfileSettingsButton(
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
   def getActionButton: ActionButton =
-    new ActionButton(this, getTemplatePresentation, ActionPlaces.UNKNOWN, ActionToolbar.DEFAULT_MINIMUM_BUTTON_SIZE)
+    new ActionButton(this, null, ActionPlaces.UNKNOWN, ActionToolbar.DEFAULT_MINIMUM_BUTTON_SIZE)
 
   private def showScalaCompilerSettingsDialog(project: Project, selectedProfile: Option[String]): Boolean =
     ScalaCompilerProfilesPanel.withTemporarySelectedProfile(project, selectedProfile) {
