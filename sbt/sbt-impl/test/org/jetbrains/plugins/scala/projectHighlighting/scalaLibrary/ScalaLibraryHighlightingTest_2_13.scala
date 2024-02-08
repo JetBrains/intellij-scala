@@ -78,8 +78,8 @@ class ScalaLibraryHighlightingTest_2_13 extends ScalaLibraryHighlightingTest {
       ),
       "scala/reflect/Manifest.scala" -> Set(
         (7469, 7477), // Overriding type Int does not conform to base type () => Int
-        (16810, 16818), // Overriding type String does not conform to base type () => String
-        (18464, 18472), // Overriding type Int does not conform to base type () => Int
+        (17052, 17060), // Overriding type String does not conform to base type () => String
+        (18706, 18714), // Overriding type Int does not conform to base type () => Int
       ),
       "scala/runtime/ClassValueCompat.scala" -> Set(
         (503, 522), // Cannot resolve symbol classValueAvailable
