@@ -6,11 +6,13 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiFile, PsiManager}
-import org.jetbrains.plugins.scala.project.{ModuleExt, UserDataHolderExt, UserDataKeys}
+import com.intellij.util.SlowOperations
+import org.jetbrains.plugins.scala.project.{ModuleExt, UserDataKeys}
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 
 import scala.collection.mutable
 import scala.ref.Reference
+import scala.util.Using
 
 @Service(Array(Service.Level.PROJECT))
 final class WorksheetSyntheticModuleService(project: Project) {
@@ -45,7 +47,9 @@ final class WorksheetSyntheticModuleService(project: Project) {
     }
 
   private def syntheticModuleForFile(virtualFile: VirtualFile): Option[WorksheetSyntheticModule] = {
-    val cpModule = WorksheetFileSettings(project, virtualFile).getModule
+    val cpModule = Using.resource(SlowOperations.knownIssue("SCL-22095, SCL-22097")) { _ =>
+      WorksheetFileSettings(project, virtualFile).getModule
+    }
     cpModule.map(syntheticModuleForFile(virtualFile, _))
   }
 
