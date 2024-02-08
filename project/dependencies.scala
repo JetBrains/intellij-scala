@@ -78,7 +78,7 @@ object Dependencies {
   val directories: ModuleID = "dev.dirs" % "directories" % "26"
   // NOTE: current latest version is in https://github.com/unkarjedy/scalatest-finders.git repository
 
-  val jetbrainsAnnotations: ModuleID = "org.jetbrains" % "annotations" % "24.0.1"
+  val jetbrainsAnnotations: ModuleID = "org.jetbrains" % "annotations" % "24.1.0"
 
   //NOTE: JUnit 4 dependency is already available via intellij main jars.
   // It's bundled together with it's transitive dependencies in single junit4.jar (in <sdk_root>/lib folder)
