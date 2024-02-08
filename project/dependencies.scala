@@ -99,7 +99,7 @@ object Dependencies {
   // "scalafmt-dynamic" uses "interface" to resolve and download new versions of scalafmt using Coursier, as the user
   // updates their ".scalafmt.conf" configuration file. In the Scala Plugin for IntelliJ IDEA, we have our own
   // resolution and download mechanism based on ivy. We do not need a dependency on Coursier interface.
-  val scalafmtDynamic = "org.scalameta" %% "scalafmt-dynamic" % "3.7.3" exclude("io.get-coursier", "interface")
+  val scalafmtDynamic = "org.scalameta" %% "scalafmt-dynamic" % "3.7.17" exclude("io.get-coursier", "interface")
   val scalaMetaCore: ModuleID = "org.scalameta" %% "scalameta" % "4.5.13" excludeAll(
     ExclusionRule(organization = "com.thesamet.scalapb"),
     ExclusionRule(organization = "org.scala-lang")
