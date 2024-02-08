@@ -72,6 +72,7 @@ object ILoopWrapperFactoryHandler {
   private final val ILoopWrapper212_13Impl = "ILoopWrapper212_13Impl"
   private final val ILoopWrapper213_0Impl  = "ILoopWrapper213_0Impl"
   private final val ILoopWrapper213Impl    = "ILoopWrapper213Impl"
+  private final val ILoopWrapper213_12Impl = "ILoopWrapper213_12Impl"
   private final val ILoopWrapper300Impl    = "ILoopWrapper300Impl"
   private final val ILoopWrapper312Impl    = "ILoopWrapper312Impl"
   private final val ILoopWrapper330Impl    = "ILoopWrapper330Impl"
@@ -80,7 +81,10 @@ object ILoopWrapperFactoryHandler {
     val versionStr = version.value.presentation
 
     val wrapper = if (versionStr.startsWith("2.13.0")) ILoopWrapper213_0Impl
-    else if (versionStr.startsWith("2.13")) ILoopWrapper213Impl
+    else if (versionStr.startsWith("2.13")) {
+      if (version.value >= Version("2.13.12")) ILoopWrapper213_12Impl
+      else ILoopWrapper213Impl
+    }
     else if (version.isScala3) {
       //TODO: this is basically equivalent to `3.0.0 <= version < 3.1.2,
       //  reuse org.jetbrains.plugins.scala.project.Version

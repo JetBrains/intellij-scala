@@ -185,6 +185,7 @@ lazy val worksheetReplInterfaceImpls: Project =
         worksheetReplInterfaceImpl_2_12_13,
         worksheetReplInterfaceImpl_2_13_0,
         worksheetReplInterfaceImpl_2_13,
+        worksheetReplInterfaceImpl_2_13_12,
         worksheetReplInterfaceImpl_3_0_0,
         worksheetReplInterfaceImpl_3_1_2,
         worksheetReplInterfaceImpl_3_3_0
@@ -253,6 +254,11 @@ lazy val worksheetReplInterfaceImpl_2_13: Project =
   newProject("worksheet-repl-interface-impl_2_13", file("scala/worksheet-repl-interface-impls/impl_2_13"))
     .dependsOn(worksheetReplInterface)
     .settings(worksheetReplInterfaceImplCommonSettings("2.13.11"))
+
+lazy val worksheetReplInterfaceImpl_2_13_12: Project =
+  newProject("worksheet-repl-interface-impl_2_13_12", file("scala/worksheet-repl-interface-impls/impl_2_13_12"))
+    .dependsOn(worksheetReplInterface)
+    .settings(worksheetReplInterfaceImplCommonSettings("2.13.12"))
 
 lazy val worksheetReplInterfaceImpl_3_0_0: Project =
   newProject("worksheet-repl-interface-impl_3_0_0", file("scala/worksheet-repl-interface-impls/impl_3_0_0"))
