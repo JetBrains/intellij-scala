@@ -101,8 +101,12 @@ object Common {
    * ATTENTION: Kotlin modules should be used only in those cases when it is impossible or very hard to extend
    * platform functionality in Scala (due to the inherent requirements of the platform and only for the interop)
    */
-  def newProjectWithKotlin(projectName: String): Project =
-    Common.newProject(projectName)
+  def newProjectWithKotlin(projectName: String, baseOpt: Option[String] = None): Project = {
+    val project = baseOpt match {
+      case Some(base) => newProject(projectName, file(base))
+      case _ => newProject(projectName)
+    }
+    project
       .enablePlugins(KotlinPlugin)
       .settings(
         // NOTE: check community/.idea/libraries/kotlin_stdlib.xml in intellij monorepo when updating intellijVersion
@@ -111,6 +115,7 @@ object Common {
         kotlincJvmTarget := "17",
         kotlinRuntimeProvided := true
       )
+  }
 
   /**
    * Manually build classpath for the JPS module.

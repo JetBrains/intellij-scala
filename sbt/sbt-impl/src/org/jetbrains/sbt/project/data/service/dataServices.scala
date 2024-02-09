@@ -6,11 +6,9 @@ import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsPr
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.project.external.ScalaAbstractProjectDataService
-import org.jetbrains.sbt.project.data.{SbtCommandData, SbtModuleData, SbtSettingData, SbtTaskData}
+import org.jetbrains.sbt.project.data.{SbtCommandData, SbtSettingData, SbtTaskData}
 
 import java.util
-
-class SbtModuleDataService extends DefaultDataService[SbtModuleData, Module](SbtModuleData.Key)
 
 class SbtTaskDataService extends DefaultDataService[SbtTaskData, Module](SbtTaskData.Key)
 
@@ -18,6 +16,10 @@ class SbtSettingDataService extends DefaultDataService[SbtSettingData, Module](S
 
 class SbtCommandDataService extends DefaultDataService[SbtCommandData, Module](SbtCommandData.Key)
 
+
+/**
+ * @note data services for external system entities are required for proper serialization (even if they do not contain any logic)
+ */
 abstract class DefaultDataService[E,I](key: Key[E]) extends ScalaAbstractProjectDataService[E,I](key) {
   override def importData(
     toImport: util.Collection[_ <: DataNode[E]],
