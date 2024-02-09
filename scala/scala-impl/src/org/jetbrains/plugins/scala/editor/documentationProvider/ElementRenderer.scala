@@ -10,8 +10,9 @@ import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.highlighter.{ScalaColorSchemeAnnotator, ScalaSyntaxHighlighterFactory}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScThisReference
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.project.ScalaFeatures
+import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiElementExt, ScalaFeatures}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 import org.jetbrains.plugins.scala.text.ClassPrinter
 
@@ -28,7 +29,7 @@ object ElementRenderer {
     } finally {
       ScalaApplicationSettings.PRECISE_TEXT = false
     }
-    val file = ScalaPsiElementFactory.createScalaFileFromText(text, ScalaFeatures.default)(e.getProject)
+    val file = ScalaPsiElementFactory.createScalaFileFromText(text, e.module.map(_.features).getOrElse(ScalaFeatures.default))(e.getProject)
     file.children.foreach(_.asInstanceOf[ScalaPsiElement].context = e.getContext)
 
     val highlighted = highlight(file, EditorColorsManager.getInstance.getGlobalScheme)
@@ -58,7 +59,9 @@ object ElementRenderer {
   }
 
   private def filter(elements: Seq[(PsiElement, TextAttributes)]): Seq[(PsiElement, TextAttributes)] = {
-    val es = elements.filter(p => p._1.getParent.asOptionOf[ScStableCodeReference].forall(_.getNextSibling == null && p._1.getNextSibling == null))
+    val es = elements
+      .filter(!_._1.getParent.is[ScThisReference])
+      .filter(p => p._1.getParent.asOptionOf[ScStableCodeReference].forall(_.getNextSibling == null && p._1.getNextSibling == null))
     val i = es.map(_._1.getText).indexOfSlice(Seq(" ", "=", " ", "???"))
     if (i == -1) es else es.take(i) ++ es.drop(i + 4)
   }
