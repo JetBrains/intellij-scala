@@ -14,7 +14,6 @@ import com.intellij.openapi.util.{Key, UserDataHolder, UserDataHolderEx}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{LanguageSubstitutors, PsiElement, PsiFile}
 import com.intellij.util.PathsList
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.caches.cachedInUserData
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
@@ -60,12 +59,6 @@ package object project {
     }
 
     def libraryVersion: Option[String] = name.flatMap(LibraryVersion.findFirstIn)
-
-    @ScheduledForRemoval(inVersion = "2022.3")
-    @Deprecated
-    @deprecated("use libraryVersion")
-    @unused
-    def compilerVersion: Option[String] = libraryVersion
 
     def hasRuntimeLibrary: Boolean = name.exists(isRuntimeLibrary)
 

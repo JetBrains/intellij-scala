@@ -4,7 +4,6 @@ import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, Sdk}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.pom.java.LanguageLevel
 import org.apache.commons.codec.digest.DigestUtils
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval
 import org.jetbrains.plugins.scala.extensions.{inReadAction, inWriteAction}
 
 import java.io.File
@@ -41,12 +40,6 @@ object SdkUtils {
       else Option(jdks.max(comparatorToOrdering(sdkType.versionComparator())))
     }
   }
-
-  @deprecated("use mostRecentRegisteredJdk instead")
-  @Deprecated
-  @ScheduledForRemoval(inVersion = "2023.3")
-  def mostRecentJdk: Option[Sdk] =
-    mostRecentRegisteredJdk
 
   def mostRecentRegisteredJdk: Option[Sdk] =
     findMostRecentJdkConfiguredInIde(_ => true)

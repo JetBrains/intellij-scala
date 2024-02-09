@@ -31,7 +31,6 @@ import com.intellij.util.CommonProcessors.CollectUniquesProcessor
 import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.text.CharArrayUtil
 import com.intellij.util.{ArrayFactory, ExceptionUtil, Processor}
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval
 import org.jetbrains.annotations.{Nls, NonNls, Nullable}
 import org.jetbrains.plugins.scala.caches.UserDataHolderDelegator
 import org.jetbrains.plugins.scala.extensions.implementation.iterator._
@@ -40,7 +39,6 @@ import org.jetbrains.plugins.scala.lang.lexer.{ScalaModifier, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isInheritorDeep
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScFieldId}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -460,11 +458,6 @@ package object extensions {
     def either[A, B](right: => B)(left: => A): Either[A, B] = if (b) Right(right) else Left(left)
 
     def seq[A](a: => A): Seq[A] = if (b) Seq(a) else Seq.empty // looks better withing expressions than { if (???) ??? else ??? } block
-
-    @deprecated
-    @Deprecated
-    @ScheduledForRemoval(inVersion = "2023.2")
-    def fold[T](ifTrue: => T, ifFalse: => T): T = if (b) ifTrue else ifFalse
 
     def toInt: Int = if (b) 1 else 0
   }

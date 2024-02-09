@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.projectView
 import com.intellij.ide.projectView.ViewSettings
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtilRt.getNameWithoutExtension
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.clean
@@ -18,11 +17,6 @@ sealed trait FileKind {
 
 object FileKind {
   import org.jetbrains.plugins.scala.extensions._
-
-  @deprecated("Use FileKind.getForFile directly")
-  @Deprecated
-  @ScheduledForRemoval(inVersion = "2023.2")
-  def unapply(file: ScalaFile): Option[FileKind] = getForFile(file)
 
   def getForFile(file: ScalaFile): Option[FileKind] = {
     val fileName = clean(getNameWithoutExtension(file.name))

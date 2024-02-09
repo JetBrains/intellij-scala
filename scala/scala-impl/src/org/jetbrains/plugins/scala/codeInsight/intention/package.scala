@@ -5,18 +5,13 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScBooleanLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-
-import scala.collection.mutable
 
 package object intention {
 
@@ -71,23 +66,6 @@ package object intention {
         }
       }
       Some(doIt)
-    }
-  }
-
-  /**
-    * The usages of this method need to be refactored to remove StringBuilder implementation
-    */
-  @Deprecated(forRemoval = true)
-  @ApiStatus.ScheduledForRemoval(inVersion = "2024.1")
-  def analyzeMethodCallArgs(methodCallArgs: ScArgumentExprList, argsBuilder: mutable.StringBuilder): Unit = {
-    if (methodCallArgs.exprs.length == 1) {
-      methodCallArgs.exprs.head match {
-        case _: ScLiteral | _: ScTuple | _: ScReferenceExpression | _: ScGenericCall | _: ScXmlExpr | _: ScMethodCall =>
-          argsBuilder.replace(argsBuilder.length - 1, argsBuilder.length, "").replace(0, 1, "")
-        case infix: ScInfixExpr if infix.getBaseExpr.is[ScUnderscoreSection] =>
-          argsBuilder.insert(0, "(").append(")")
-        case _ =>
-      }
     }
   }
 
