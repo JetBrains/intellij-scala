@@ -157,7 +157,7 @@ object ScalaColorsSchemeUtils {
     if (hasModifier(method, "static")) DefaultHighlighter.OBJECT_METHOD_CALL else DefaultHighlighter.METHOD_CALL
 
   private def getParentByStub(x: PsiElement): PsiElement = x match {
-    case el: ScalaStubBasedElementImpl[_, _] => el.getParent
+    case el: ScalaStubBasedElementImpl[_, _] => el.getContext
     case _ => x.getContext
   }
 

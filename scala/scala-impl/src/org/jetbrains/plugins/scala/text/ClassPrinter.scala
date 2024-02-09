@@ -12,7 +12,17 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.project.ScalaFeatures.forPsiOrDefault
 
-private class ClassPrinter(isScala3: Boolean) {
+class ClassPrinter(isScala3: Boolean) {
+  def textOf(e: PsiElement): String = e match {
+    case cls: ScTypeDefinition =>
+      val sb = new StringBuilder()
+      printTo(sb, cls)
+      sb.toString
+    case f: ScFunction => textOf(f, "")
+    case v: ScValueOrVariable => textOf(v, "")
+    case t: ScTypeAlias => textOf(t, "")
+  }
+
   def printTo(sb: StringBuilder, cls: ScTypeDefinition): Unit = printTo(sb, cls, "")
 
   private def printTo(sb: StringBuilder, cls: ScTypeDefinition, indent: String): Unit = {
