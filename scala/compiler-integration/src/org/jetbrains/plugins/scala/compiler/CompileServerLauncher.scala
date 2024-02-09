@@ -15,7 +15,7 @@ import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService
 import com.intellij.util.PathUtil
 import com.intellij.util.net.NetUtils
 import org.apache.commons.lang3.StringUtils
-import org.jetbrains.annotations.{ApiStatus, Nls}
+import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.cmdline.ClasspathBootstrap
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -284,17 +284,6 @@ object CompileServerLauncher {
     Try(Files.delete(CompileServerToken.tokenPathForPort(scalaCompileServerSystemDir, freePort)))
 
   // TODO stop server more gracefully
-
-  /**
-   * Signals the Scala Compile Server to stop.
-   *
-   * @note This method is blocking. It should not be called on the UI thread.
-   */
-  @ApiStatus.ScheduledForRemoval(inVersion = "2024.1")
-  @Deprecated(since = "2023.3", forRemoval = true)
-  @deprecated(message = "Use stopServerAndWait or stopServerAndWaitFor", since = "2023.3")
-  def stop(timeoutMs: Long = 0, debugReason: Option[String] = None): Boolean =
-    stopInternal(Some(timeoutMs.millis), debugReason)
 
   /**
    * Stops the Scala Compile Server and waits for the process to exit.
@@ -572,16 +561,6 @@ object CompileServerLauncher {
       if (incrementalCompilerChanged) reasons += "incremental compiler changed"
       reasons.toSeq
     }.getOrElse(Seq.empty)
-  }
-
-  /**
-   * Stops the Scala Compile Server, but doesn't wait for the process to exit.
-   */
-  @ApiStatus.ScheduledForRemoval(inVersion = "2024.1")
-  @Deprecated(since = "2023.3", forRemoval = true)
-  @deprecated(message = "Use stopServerAndWait or stopServerAndWaitFor", since = "2023.3")
-  def ensureServerNotRunning(): Unit = serverStartLock.synchronized {
-    if (running) stopInternal(Some(Duration.Zero), debugReason = Some("ensureServerNotRunning"))
   }
 
   private def findFreePort: Int = {
