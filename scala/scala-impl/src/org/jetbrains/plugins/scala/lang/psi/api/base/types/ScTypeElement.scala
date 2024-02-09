@@ -1,13 +1,12 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base.types
 
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -21,11 +20,6 @@ trait ScTypeElement extends ScalaPsiElement with Typeable {
   }
 
   override def `type`(): TypeResult = getType
-
-  @ScheduledForRemoval(inVersion = "2023.2")
-  @Deprecated
-  @deprecated("use isSingleton")
-  final def singleton: Boolean = isSingleton
 
   def isSingleton: Boolean = false
 
