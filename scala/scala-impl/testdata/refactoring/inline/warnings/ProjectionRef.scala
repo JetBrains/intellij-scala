@@ -1,4 +1,4 @@
-//cannot.inline.notsimple.typealias
+//> expected.error cannot.inline.notsimple.typealias
 class A {
   type S
   type /*caret*/Q = S

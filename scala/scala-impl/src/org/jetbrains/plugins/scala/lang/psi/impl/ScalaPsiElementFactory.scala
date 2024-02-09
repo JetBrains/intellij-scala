@@ -28,6 +28,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.{ScalaPsiBuilder,
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ClassParamClauses
 import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -392,6 +393,14 @@ object ScalaPsiElementFactory {
     ctx: ProjectContext
   ): ScFunction =
     createElementFromText[ScFunction](text, features)
+
+  def createStringLiteralFromText(
+    @NonNls text: String,
+    features:     ScalaFeatures
+  )(implicit
+    context: ProjectContext
+  ): ScStringLiteral =
+    createExpressionFromText(text, features)(context).asInstanceOf[ScStringLiteral]
 
   def createExpressionFromText(
     @NonNls text: String,

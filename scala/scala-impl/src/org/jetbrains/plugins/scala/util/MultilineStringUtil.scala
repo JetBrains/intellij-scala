@@ -40,7 +40,8 @@ object MultilineStringUtil {
   }
 
   def hasStripMarginCall(element: PsiElement): Boolean = {
-    findAllMethodCallsOnMLString(element, "stripMargin").nonEmpty
+    val calls = findAllMethodCallsOnMLString(element, "stripMargin")
+    calls.nonEmpty
   }
 
   /** @return true<br>
@@ -87,15 +88,22 @@ object MultilineStringUtil {
   }
 
   def getMarginChar(element: PsiElement): Char = {
+    val char = detectMarginChar(element)
+    char.getOrElse {
+      val scalaCodeStyle = CodeStyle.getSettings(element.getProject).getCustomSettings(classOf[ScalaCodeStyleSettings])
+      scalaCodeStyle.getMarginChar
+    }
+  }
+
+  def detectMarginChar(element: PsiElement): Option[Char] = {
     val stripMarginCall = findAllMethodCallsOnMLString(element, "stripMargin")
     stripMarginCall match {
       case Seq(Seq(literals.ScCharLiteral(value), _*), _*) => //custom margin char: `"""...""".stripMargin('#')`
-        value
+        Some(value)
       case Seq(Seq(), _*) =>
-        DefaultMarginChar
+        Some(DefaultMarginChar)
       case _ =>
-        val scalaCodeStyle = CodeStyle.getSettings(element.getProject).getCustomSettings(classOf[ScalaCodeStyleSettings])
-        scalaCodeStyle.getMarginChar
+        None
     }
   }
 
@@ -107,15 +115,25 @@ object MultilineStringUtil {
 
     do {
       parent match {
-        case lit: ScLiteral => if (!lit.isMultiLineString) return Seq.empty
+        case lit: ScLiteral =>
+          if (!lit.isMultiLineString)
+            return Seq.empty
         case inf: ScInfixExpr =>
           if (inf.operation.textMatches(methodName)) {
-            if (prevParent != parent.getFirstChild) return calls.result()
+            if (prevParent != parent.getFirstChild)
+              return calls.result()
             calls += Seq(inf.right)
+          }
+        case postfix: ScPostfixExpr =>
+          if (postfix.operation.textMatches(methodName)) {
+            if (prevParent != parent.getFirstChild)
+              return calls.result()
+            calls += Seq.empty
           }
         case call: ScMethodCall =>
           call.getEffectiveInvokedExpr match {
-            case ref: ScReferenceExpression if ref.refName == methodName => calls += call.args.exprs
+            case ref: ScReferenceExpression if ref.refName == methodName =>
+              calls += call.args.exprs
             case _ =>
           }
         case exp: ScReferenceExpression =>
@@ -123,7 +141,8 @@ object MultilineStringUtil {
             calls += Seq.empty
           }
         case _: ScParenthesisedExpr =>
-        case _ => return calls.result()
+        case _ =>
+          return calls.result()
       }
 
       prevParent = parent
@@ -165,9 +184,46 @@ object MultilineStringUtil {
    * @return additional caret offset needed to preserve original caret position relative to surrounding string parts
    */
   def addMarginsAndFormatMLString(literal: ScStringLiteral, document: Document, caretOffset: Int = 0): Int = {
-    val settings = new MultilineStringSettings(literal.getProject)
-    if (!settings.insertMargin) return 0
+    addMarginsAndFormatMLString(literal, document, getMarginChar(literal), caretOffset)
+  }
 
+  /**
+   * @param literal     multiline string literal element that needs margins
+   * @param document    document containing element
+   * @param _marginChar  margin char to use
+   * @param caretOffset current caret offset inside document
+   * @return additional caret offset needed to preserve original caret position relative to surrounding string parts
+   */
+  def addMarginsAndFormatMLString(
+    literal: ScStringLiteral,
+    document: Document,
+    _marginChar: => Char,
+    caretOffset: Int
+  ): Int = {
+    val settings = new MultilineStringSettings(literal.getProject)
+    if (settings.insertMargin)
+      addMarginsAndFormatMLStringWithoutCheck(literal, document, _marginChar, caretOffset, settings)
+    else
+      0
+  }
+
+  def addMarginsAndFormatMLStringWithoutCheck(
+    literal: ScStringLiteral,
+    document: Document,
+    _marginChar: => Char,
+    caretOffset: Int
+  ): Int = {
+    val settings = new MultilineStringSettings(literal.getProject)
+    addMarginsAndFormatMLStringWithoutCheck(literal, document, _marginChar, caretOffset, settings)
+  }
+
+  private def addMarginsAndFormatMLStringWithoutCheck(
+    literal: ScStringLiteral,
+    document: Document,
+    _marginChar: => Char,
+    caretOffset: Int,
+    settings: MultilineStringSettings
+  ): Int = {
     if (!literal.isMultiLineString)
       throw new IllegalStateException(s"Need multiline string literal, but get: ${literal.getText}")
 
@@ -183,8 +239,24 @@ object MultilineStringUtil {
     val startLine = text.substring(startLineOffset, startLineEndOffset)
     val startsOnNewLine = startLine.trim.startsWith(firstMLQuote)
     val multipleLines = endLineNumber != startLineNumber
+
     val needNewLineBefore = settings.quotesOnNewLine && multipleLines && !startsOnNewLine
-    val marginChar = getMarginChar(literal)
+
+    // We don't need to add margin chars to the lines which have a injection with block expression which takes multiple lines
+    val linesWithoutMargins: Set[Int] = literal match {
+      case interpolated: ScInterpolatedStringLiteral =>
+        val blockInjections = interpolated.getInjections.filterByType[ScBlockExpr]
+        blockInjections.flatMap { block =>
+          val range = block.getTextRange
+          val lineStart = document.getLineNumber(range.getStartOffset)
+          val lineEnd = document.getLineNumber(range.getEndOffset)
+
+          //note: if block is not multiline, the lines set will be simply empty
+          (lineStart + 1) to lineEnd
+        }.toSet
+      case _ =>
+        Set.empty
+    }
 
     val quotesIndent = if (needNewLineBefore) {
       val oldIndent = settings.calcIndentSize(text.subSequence(startLineOffset, literalStart))
@@ -193,6 +265,7 @@ object MultilineStringUtil {
       settings.getSmartLength(text.subSequence(startLineOffset, literalStart))
     }
     val marginIndent = quotesIndent + interpolatorPrefixLength(literal) + settings.marginIndent
+    val marginChar = _marginChar
 
     IntentionPreviewUtils.write { () =>
       def insertIndent(lineNumber: Int, indent: Int, marginChar: Option[Char]): Unit = {
@@ -201,10 +274,15 @@ object MultilineStringUtil {
         document.insertString(lineStart, indentStr)
       }
 
-      if (multipleLines)
+      val addStripMarginCall = multipleLines && !hasStripMarginCall(literal)
+      if (addStripMarginCall) {
         insertStripMargin(document, literal, marginChar)
+      }
 
-      for (lineNumber <- startLineNumber + 1 to endLineNumber) {
+      for {
+        lineNumber <- startLineNumber + 1 to endLineNumber
+        if !linesWithoutMargins.contains(lineNumber)
+      } {
         insertIndent(lineNumber, marginIndent, Some(marginChar))
       }
 
@@ -215,13 +293,12 @@ object MultilineStringUtil {
     }
 
     val caretIsAfterNewLine = text.charAt((caretOffset - 1).max(0)) == '\n'
-    val caretShift = if (caretIsAfterNewLine) {
+    val caretShift = if (caretIsAfterNewLine)
       1 + marginIndent // if caret is at new line then indent and margin char will be inserted AFTER caret
-    } else if (caretOffset == literalStart && needNewLineBefore) {
+    else if (caretOffset == literalStart && needNewLineBefore)
       1 + quotesIndent // if caret is at literal start then indent and new line will be inserted AFTER caret
-    } else {
+    else
       0 // otherwise caret will be automatically shifted by document.insertString, no need to fix it
-    }
     caretShift
   }
 

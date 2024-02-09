@@ -2,18 +2,16 @@ package org.jetbrains.plugins.scala.lang.psi.api.expr
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
-import org.jetbrains.plugins.scala.caches.cachedWithRecursionGuard
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker
+import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{MethodValue, isAnonymousExpression}
-import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, InferUtil, ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScIntegerLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes.ParameterType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
+import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, InferUtil, ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
 import org.jetbrains.plugins.scala.lang.psi.light.LightContextFunctionParameter
@@ -23,10 +21,12 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.{Scala_2_11, Scala_2_13}
 import org.jetbrains.plugins.scala.util.SAMUtil
+import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 
 import scala.annotation.tailrec
 
@@ -50,21 +50,50 @@ trait ScExpression extends ScBlockStatement
   protected def innerType: TypeResult =
     Failure(ScalaBundle.message("no.type.inferred", getText))
 
-  /**
-    * Some expression may be replaced only with another one
-    */
   def replaceExpression(expr: ScExpression, removeParenthesis: Boolean): ScExpression = {
-    val oldParent = getParent
-    if (oldParent == null) throw new PsiInvalidElementAccessException(this)
-    if (removeParenthesis && oldParent.is[ScParenthesisedExpr]) {
-      return oldParent.asInstanceOf[ScExpression].replaceExpression(expr, removeParenthesis = true)
+    val parent = getParent
+    if (parent == null) {
+      throw new PsiInvalidElementAccessException(this)
     }
-    val newExpr = if (ScalaPsiUtil.needParentheses(this, expr)) {
-      ScalaPsiElementFactory.createExpressionFromText(expr.getText.parenthesize(), expr)
-    } else expr
-    val parentNode = oldParent.getNode
-    val newNode = newExpr.copy.getNode
-    parentNode.replaceChild(this.getNode, newNode)
+
+    parent match {
+      case parExpr: ScParenthesisedExpr if removeParenthesis =>
+        parExpr.replaceExpression(expr, removeParenthesis)
+      case _ =>
+        replaceExpression(expr)
+    }
+  }
+
+  /**
+   * Replace expression with another one.<br>
+   * The method checks if the new code requires parentheses and inserts them if needed.
+   * It's done to avoid potentially-invalid code
+   *
+   * ATTENTION:
+   * The method makes a copy of `expr`.<br>
+   * Any existing pointers to psi elements form children of `expr` won't point to the actual inserted elements
+   */
+  def replaceExpression(expr: ScExpression): ScExpression = {
+    val parent = getParent
+    if (parent == null) {
+      throw new PsiInvalidElementAccessException(this)
+    }
+
+    val newExpr: PsiElement =
+      if (ScalaPsiUtil.needParentheses(this, expr))
+        ScalaPsiElementFactory.createExpressionFromText(expr.getText.parenthesize(), expr)
+      else
+        expr.copy
+
+    val newNode = newExpr.getNode
+
+    //This does more then low-level ASTNode.replaceChild
+    //For example, it makes sure that if a formatting is required, it's invoked for the inserted node.
+    //This can matter for example if we inline `val value = +5` into expression `1+value`
+    //If we simply replace `value` with `+5` we will get an invalid expression `1++5`
+    //However, `CodeEditUtil.replaceChild` ensures to add extra space and make it `1+ +5`
+    CodeEditUtil.replaceChild(parent.getNode, this.getNode, newNode)
+
     newNode.getPsi.asInstanceOf[ScExpression]
   }
 

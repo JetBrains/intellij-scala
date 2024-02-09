@@ -14,19 +14,26 @@ class InterpolatedStringFormatter(val kind: ScInterpolatedStringLiteral.Kind) ex
       case i: Injection => i.value == "\n"
       case _            => false
     }
-    format(parts, toMultiline)
+    format(parts, toMultiline, enforceInterpolator = false)
   }
 
-  private def format(parts: Seq[StringPart], toMultiline: Boolean): String = {
-    val prefix = {
+  /**
+   * @param enforceInterpolator when true, interpolator will be used even if it's not required
+   */
+  def format(
+    parts: Seq[StringPart],
+    toMultiline: Boolean,
+    enforceInterpolator: Boolean
+  ): String = {
+    val prefix =
       if (!kind.is[ScInterpolatedStringLiteral.Pattern]) {
         val injections = parts.filterByType[Injection]
 
-        if (injections.forall(injectByValue)) ""
+        if (injections.forall(injectByValue) && !enforceInterpolator) ""
         else if (injections.exists(_.isFormattingRequired)) ScInterpolatedStringLiteral.Format.prefix
         else kind.prefix
-      } else kind.prefix
-    }
+      }
+      else kind.prefix
     val content = formatContent(parts, prefix, toMultiline)
     val quote = if (toMultiline) MultilineQuotes else "\""
     s"$prefix$quote$content$quote"

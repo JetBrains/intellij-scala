@@ -1,4 +1,4 @@
-//cannot.inline.used.outside.class
+//> expected.error cannot.inline.used.outside.class
 object X {
   val /*caret*/b = 1
 }

@@ -15,6 +15,7 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
 import com.intellij.testFramework.fixtures.{JavaCodeInsightTestFixture, LightJavaCodeInsightFixtureTestCase}
 import com.intellij.testFramework.{EditorTestUtil, LightProjectDescriptor}
+import org.intellij.lang.annotations.Language
 import org.jetbrains.jps.model.java.JavaSourceRootType
 import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ScalaSDKLoader, SmartJDKLoader, SourcesLoader}
 import org.jetbrains.plugins.scala.extensions.StringExt
@@ -141,6 +142,9 @@ abstract class ScalaLightCodeInsightFixtureTestCase
   protected final def configureFromFileTextWithSomeName(fileType: String, fileText: String): PsiFile = scalaFixture.configureFromFileTextWithSomeName(fileType, fileText)
   protected final def configureFromFileText(fileName: String, fileText: String): PsiFile = scalaFixture.configureFromFileText(fileName, fileText)
   protected final def openEditorAtOffset(startOffset: Int): Editor = scalaFixture.openEditorAtOffset(startOffset)
+
+  protected final def configureScalaFromFileText(@Language("Scala") fileText: String): PsiFile = scalaFixture.configureFromFileText(fileText)
+  protected final def addScalaFileToProject(relativePath: String, @Language("Scala") fileText: String): PsiFile = myFixture.addFileToProject(relativePath, fileText)
   //end section: helper methods
 
   //TODO: consider extracting implementation body to ScalaCodeInsightTestFixture

@@ -1,4 +1,4 @@
-//cannot.inline.stable.reference
+//> expected.error cannot.inline.stable.reference
 val /*caret*/a = 0
 a + a
 1 match {
