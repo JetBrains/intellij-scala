@@ -193,37 +193,33 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
       executeIncrementalCompilationRequest(incrementalRequest, runDocumentCompiler = false)
     }
 
-    performCompilation(delayIndicator = true) { client =>
-      // This function is already running on a background thread.
-      // Since there is no need to shift to any other thread, invoke the worksheet compiler in place
-      // and complete the future.
-      val compilation = Try(WorksheetHighlightingCompiler.compile(file, document, module, client))
-      Future.fromTry(compilation)
+    prepareCompilation {
+      performCompilation(delayIndicator = true) { client =>
+        WorksheetHighlightingCompiler.compile(file, document, module, client)
+      }
     }
   }
 
   private def executeIncrementalCompilationRequest(request: CompilationRequest.IncrementalRequest, runDocumentCompiler: Boolean): Unit = {
     debug(s"incrementalCompilation: ${request.debugReason}")
-    performCompilation(delayIndicator = false) { client =>
+    prepareCompilation {
       val promise = Promise[Unit]()
       // Documents must be saved on the UI thread, so a thread shift is mandatory in this case.
       invokeLater {
-        if (!project.isDisposed) {
-          TriggerCompilerHighlightingService.get(project).beforeIncrementalCompilation()
-          // Schedule the rest of the execution of this incremental compilation on a background thread.
-          executeOnPooledThread {
-            val computation = Try {
-              if (!project.isDisposed) {
-                if (BspUtil.isBspProject(project)) {
-                  doBspIncrementalCompilation(request, client, runDocumentCompiler)
-                } else {
-                  doJpsIncrementalCompilation(request, client, runDocumentCompiler)
-                }
+        val future =
+          if (project.isDisposed) Future.unit
+          else {
+            TriggerCompilerHighlightingService.get(project).beforeIncrementalCompilation()
+            // Perform the rest of the execution of this incremental compilation on a background thread.
+            performCompilation(delayIndicator = false) { client =>
+              if (BspUtil.isBspProject(project)) {
+                doBspIncrementalCompilation(request, client, runDocumentCompiler)
+              } else {
+                doJpsIncrementalCompilation(request, client, runDocumentCompiler)
               }
             }
-            promise.complete(computation)
           }
-        }
+        promise.completeWith(future)
       }
       promise.future
     }
@@ -283,15 +279,11 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     virtualFile: VirtualFile,
     document: Document
   ): Unit = {
-    performCompilation(delayIndicator = true) { client =>
-      // This function is already running on a background thread.
-      // Since there is no need to shift to any other thread, invoke the document compiler in place
-      // and complete the future.
-      val compilation = Try {
+    prepareCompilation {
+      performCompilation(delayIndicator = true) { client =>
         DocumentCompiler.get(project)
           .compile(module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, document, virtualFile, client)
       }
-      Future.fromTry(compilation)
     }
   }
 
@@ -325,46 +317,51 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     }
   }
 
-  private def performCompilation(delayIndicator: Boolean)(compile: CompilerEventGeneratingClient => Future[Unit]): Unit = {
-    saveProjectOnce()
-    CompileServerLauncher.ensureServerRunning(project)
-    var sessionId: String = null
-    val promise = Promise[Unit]()
+  private def prepareCompilation(compile: => Future[Unit]): Unit = {
+    try {
+      saveProjectOnce()
+      CompileServerLauncher.ensureServerRunning(project)
+      val sessionId = CompilationId.generate().toString
+      if (project.isDisposed) return
+      CompilerLock.get(project).lock(sessionId)
+      val future = compile
 
-    val taskMsg = CompilerIntegrationBundle.message("highlighting.compilation")
-    val task = new Task.Backgroundable(project, taskMsg, true) {
-      override def run(indicator: ProgressIndicator): Unit = {
-        if (project.isDisposed) return
-        sessionId = CompilationId.generate().toString
-        CompilerLock.get(project).lock(sessionId)
-        progressIndicator.set(indicator)
-        val client = new CompilerEventGeneratingClient(project, indicator, Log)
-        val future = compile(client)
-        promise.completeWith(future)
+      try Await.result(future, Duration.Inf)
+      finally {
+        progressIndicator.set(null)
+        if (!project.isDisposed) {
+          CompilerLock.get(project).unlock(sessionId)
+        }
       }
-    }
-
-    val indicator = new DeferredShowProgressIndicator(task)
-    ProgressManager.getInstance.runProcessWithProgressAsynchronously(task, indicator)
-    val Duration(length, unit) =
-      if (delayIndicator) ScalaHighlightingMode.compilationTimeoutToShowProgress else 1.second
-    val runnable: Runnable = () => indicator.show()
-    indicatorExecutor.schedule(runnable, length, unit)
-
-    try Await.result(promise.future, Duration.Inf)
-    catch {
+    } catch {
       case _: InterruptedException =>
         // Disposing of the CompilerHighlightingService (on project close) interrupts the compilation through the
         // Java thread interruption mechanism.
       case _: EOFException =>
         // Stopping the Scala Compiler Server can result EOF exceptions to be thrown when trying to read from the
         // byte communication stream.
-    } finally {
-      progressIndicator.set(null)
-      if (!project.isDisposed) {
-        CompilerLock.get(project).unlock(sessionId)
+    }
+  }
+
+  private def performCompilation(delayIndicator: Boolean)(compile: CompilerEventGeneratingClient => Unit): Future[Unit] = {
+    val promise = Promise[Unit]()
+    val taskMsg = CompilerIntegrationBundle.message("highlighting.compilation")
+    val task = new Task.Backgroundable(project, taskMsg, true) {
+      override def run(indicator: ProgressIndicator): Unit = {
+        if (project.isDisposed) return
+        progressIndicator.set(indicator)
+        val client = new CompilerEventGeneratingClient(project, indicator, Log)
+        val result = Try(compile(client))
+        promise.complete(result)
       }
     }
+    val indicator = new DeferredShowProgressIndicator(task)
+    ProgressManager.getInstance().runProcessWithProgressAsynchronously(task, indicator)
+    val Duration(length, unit) =
+      if (delayIndicator) ScalaHighlightingMode.compilationTimeoutToShowProgress else 1.second
+    val runnable: Runnable = () => indicator.show()
+    indicatorExecutor.schedule(runnable, length, unit)
+    promise.future
   }
 
   // SCL-17295
@@ -430,8 +427,8 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
               }
               execute(request)
             } catch {
-              case _: ProcessCanceledException =>
-                // Do not log PCE.
+              case _: ProcessCanceledException | _: InterruptedException =>
+                // Do not log PCE or InterruptedException.
               case NonFatal(t) =>
                 Log.error(s"Execution of compilation request $request failed", t)
             }
