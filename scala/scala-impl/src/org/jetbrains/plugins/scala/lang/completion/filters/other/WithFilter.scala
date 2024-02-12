@@ -17,7 +17,7 @@ final class WithFilter extends ElementFilter {
   override def isAcceptable(element: Object, @Nullable context: PsiElement): Boolean = {
     if (context == null || context.is[PsiComment]) return false
     val leaf = PsiTreeUtil.getDeepestFirst(context)
-    if (leaf == null ||
+    if (
       // do not suggest if there is already a `with` keyword. e.g.:
       // class Test extends Base w<caret> with
       isBeforeWith(leaf) ||

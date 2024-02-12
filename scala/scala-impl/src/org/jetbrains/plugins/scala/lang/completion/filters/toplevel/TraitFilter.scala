@@ -13,14 +13,11 @@ class TraitFilter extends ElementFilter {
     if (context == null || context.is[PsiComment]) return false
     val leaf = PsiTreeUtil.getDeepestFirst(context)
 
-    if (leaf != null) {
-      val parent = leaf.getParent
-      val tuple = ScalaCompletionUtil.getForAll(parent, leaf)
-      if (tuple._1) return tuple._2
-
-      return checkAfterSoftModifier(parent, leaf)
+    val parent = leaf.getParent
+    ScalaCompletionUtil.getForAll(parent, leaf) match {
+      case (true, result) => result
+      case (false, _) => checkAfterSoftModifier(parent, leaf)
     }
-    false
   }
 
   override def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = true

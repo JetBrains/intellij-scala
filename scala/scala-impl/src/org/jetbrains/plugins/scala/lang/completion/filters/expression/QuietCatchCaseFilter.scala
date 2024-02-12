@@ -1,12 +1,10 @@
 package org.jetbrains.plugins.scala.lang.completion.filters.expression
 
 import com.intellij.psi.filters.ElementFilter
-import com.intellij.psi.{PsiComment, PsiElement, PsiErrorElement, PsiWhiteSpace}
-import org.jetbrains
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiComment, PsiElement, PsiErrorElement, PsiWhiteSpace}
 import org.jetbrains.annotations.{NonNls, Nullable}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
-import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.completion.filters.expression.QuietCatchCaseFilter._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScCatchBlock, ScReferenceExpression, ScTry}
@@ -17,7 +15,7 @@ class QuietCatchCaseFilter extends ElementFilter {
     if (context == null || !context.isInScala3File || context.is[PsiComment]) return false
     val leaf = PsiTreeUtil.getDeepestFirst(context)
 
-    if (leaf != null && leaf.getParent.is[ScReferenceExpression] && leaf.getParent.getParent != null) {
+    if (leaf.getParent.is[ScReferenceExpression] && leaf.getParent.getParent != null) {
       leaf.getParent.getParent match {
         case catchBlock: ScCatchBlock if isWithoutParens(catchBlock) =>
           !leaf.nextLeafs
@@ -35,7 +33,9 @@ class QuietCatchCaseFilter extends ElementFilter {
             case _ => false
           }
       }
-    } else false
+    } else {
+      false
+    }
   }
 
   override def isClassAcceptable(hintClass: Class[_]): Boolean = true

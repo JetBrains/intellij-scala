@@ -12,7 +12,6 @@ final class GivenImportSelectorFilter extends ElementFilter {
   override def isAcceptable(element: Any, context: PsiElement): Boolean = {
     if (context == null || !context.isInScala3File || context.is[PsiComment]) return false
     val leaf = PsiTreeUtil.getDeepestFirst(context)
-    if (leaf == null) return false
 
     leaf.getParent match {
       case (ref: ScStableCodeReference) & Parent(_: ScImportExpr) =>

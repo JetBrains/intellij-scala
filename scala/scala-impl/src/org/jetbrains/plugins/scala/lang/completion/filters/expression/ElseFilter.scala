@@ -15,32 +15,31 @@ class ElseFilter extends ElementFilter {
   override def isAcceptable(element: Object, @Nullable context: PsiElement): Boolean = {
     if (context == null || context.is[PsiComment]) return false
     val leaf = PsiTreeUtil.getDeepestFirst(context)
-    if (leaf != null) {
-      var parent = leaf.getParent
-      if (parent.is[ScExpression] && parent.getPrevSibling != null &&
-          parent.getPrevSibling.getPrevSibling != null) {
-        val ifStmt = parent.getPrevSibling match {
-          case x: ScIf => x
-          case x if x.is[PsiWhiteSpace] || x.getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE =>
-            x.getPrevSibling match {
-              case x: ScIf => x
-              case _ => null
-            }
-          case _ => null
-        }
-        var text = ""
-        if (ifStmt == null) {
-          while (parent != null && !parent.is[ScIf]) parent = parent.getParent
-          if (parent == null) return false
-          text = parent.getText
-          text = replaceLiteral(text, " else true")
-        } else {
-          text = ifStmt.getText + " else true"
-        }
-        return checkElseWith(text, context = parent)
+    var parent = leaf.getParent
+    if (parent.is[ScExpression] && parent.getPrevSibling != null &&
+        parent.getPrevSibling.getPrevSibling != null) {
+      val ifStmt = parent.getPrevSibling match {
+        case x: ScIf => x
+        case x if x.is[PsiWhiteSpace] || x.getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE =>
+          x.getPrevSibling match {
+            case x: ScIf => x
+            case _ => null
+          }
+        case _ => null
       }
+      var text = ""
+      if (ifStmt == null) {
+        while (parent != null && !parent.is[ScIf]) parent = parent.getParent
+        if (parent == null) return false
+        text = parent.getText
+        text = replaceLiteral(text, " else true")
+      } else {
+        text = ifStmt.getText + " else true"
+      }
+      checkElseWith(text, context = parent)
+    } else {
+      false
     }
-    false
   }
 
   override def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = true
