@@ -111,6 +111,10 @@ object BspCommunicationService {
     Option(ProjectUtil.guessProjectDir(project))
       .map(_.getCanonicalPath)
 
-  private def updateWidget(): Unit =
-    ApplicationManager.getApplication.getMessageBus.syncPublisher(BspServerWidgetProvider.Topic).updateWidget()
+  private def updateWidget(): Unit = {
+    val application = ApplicationManager.getApplication
+    if (!application.isDisposed) {
+      application.getMessageBus.syncPublisher(BspServerWidgetProvider.Topic).updateWidget()
+    }
+  }
 }
