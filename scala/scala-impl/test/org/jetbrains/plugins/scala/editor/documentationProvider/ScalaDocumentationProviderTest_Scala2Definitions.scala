@@ -323,12 +323,12 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
   def testAnnotation(): Unit = {
     val fileContent =
       s"""
-         |@Source(url = "https://foo.com/")
+         |@scala.io.Source(url = "https://foo.com/")
          |trait ${|}Foo
          |""".stripMargin
 
     val expectedContent =
-      """<span style="color:#808000;">@</span><span style="color:#808000;"><a href="psi_element://scala.Any"><code>Any</code></a></span>(url = <span style="color:#008000;font-weight:bold;">&quot;https://foo.com/&quot;</span>)
+      """<span style="color:#808000;">@</span><span style="color:#808000;"><a href="psi_element://scala.io.Source"><code>Source</code></a></span>(url = <span style="color:#008000;font-weight:bold;">&quot;https://foo.com/&quot;</span>)
         |<span style="color:#000080;font-weight:bold;">trait</span> <span style="color:#000000;">Foo</span>
         |""".stripMargin
 
@@ -337,12 +337,13 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
 
   def testValWithFunctionType(): Unit = {
     val fileContent =
-      s"""
-         |val ${|}f = (x: Int) => x
-         |""".stripMargin
+      s"""class Outer {
+         |  val ${|}f = (x: Int) => x
+         |}""".stripMargin
 
     val expectedContent =
-      """
+      """<a href="psi_element://Outer"><code>Outer</code></a>
+        |
         |<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">f</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span> => <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>
         |""".stripMargin
 
@@ -440,58 +441,62 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
 
   def testPrivateVal(): Unit = {
     val fileContent =
-      s"""
-         |private val ${|}a: Int = 0
-         |""".stripMargin
+      s"""class Outer {
+         |  private val ${|}a: Int = 0
+         |}""".stripMargin
 
     val expectedContent =
-      s"""
+      s"""<a href="psi_element://Outer"><code>Outer</code></a>
+         |
          |<span style="color:#000080;font-weight:bold;">private</span> <span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">a</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>
-         |""".stripMargin.withoutNewLines
+         |""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
   }
 
   def testProtectedVal(): Unit = {
     val fileContent =
-      s"""
-         |protected val ${|}a: Int = 0
-         |""".stripMargin
+      s"""class Outer {
+         |  protected val ${|}a: Int = 0
+         |}""".stripMargin
 
     val expectedContent =
-      s"""
+      s"""<a href="psi_element://Outer"><code>Outer</code></a>
+         |
          |<span style="color:#000080;font-weight:bold;">protected</span> <span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">a</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>
-         |""".stripMargin.withoutNewLines
+         |""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
   }
 
   def testPrivateLazyVal(): Unit = {
     val fileContent =
-      s"""
-         |private lazy val ${|}a: Int = 0
-         |""".stripMargin
+      s"""class Outer {
+         |  private lazy val ${|}a: Int = 0
+         |}""".stripMargin
 
     val expectedContent =
-      s"""
+      s"""<a href="psi_element://Outer"><code>Outer</code></a>
+         |
          |<span style="color:#000080;font-weight:bold;">private</span> <span style="color:#000080;font-weight:bold;">lazy</span> <span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">a</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>
-         |""".stripMargin.withoutNewLines
+         |""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
   }
 
   def testUntupledPrivateVal(): Unit = {
     val fileContent =
-      s"""
-         |val a: Int = 0
-         |val b: String = ""
-         |private val (c, ${|}d) = (a, b)
-         |""".stripMargin
+      s"""class Outer {
+         |  val a: Int = 0
+         |  val b: String = ""
+         |  private val (c, ${|}d) = (a, b)
+         |}""".stripMargin
 
     val expectedContent =
-      s"""
+      s"""<a href="psi_element://Outer"><code>Outer</code></a>
+         |
          |<span style="color:#000080;font-weight:bold;">private</span> <span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">d</span>: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
-         |""".stripMargin.withoutNewLines
+         |""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
   }
