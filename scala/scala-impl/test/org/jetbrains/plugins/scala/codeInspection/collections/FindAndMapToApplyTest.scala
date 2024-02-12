@@ -29,16 +29,19 @@ class FindAndMapToApplyTest extends OperationsOnCollectionInspectionTest {
   def test_with_map_as_val(): Unit = {
     val selected =
       s"""val m = Map("k" -> "5", "v" -> "6")
-          m.${START}find(_._1 == "5").map(_._2)$END"""
+         |m.${START}find(_._1 == "5").map(_._2)$END
+         |""".stripMargin
     checkTextHasError(selected)
 
     val text =
       s"""val m = Map("k" -> "5", "v" -> "6")
-          m.find(_._1 == "5").map(_._2)""".stripMargin
+         |m.find(_._1 == "5").map(_._2)
+         |""".stripMargin
 
     val result =
       s"""val m = Map("k" -> "5", "v" -> "6")
-          m.get("5")""".stripMargin
+         |m.get("5")
+         |""".stripMargin
 
     testQuickFix(text, result, hint)
   }
