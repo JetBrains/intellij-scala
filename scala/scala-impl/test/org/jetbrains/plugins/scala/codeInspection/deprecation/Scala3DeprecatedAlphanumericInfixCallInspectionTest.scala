@@ -70,9 +70,7 @@ object Scala3DeprecatedAlphanumericInfixCallInspectionTestBase {
        |val p = Pair(1, 2)
        |val q = Q(1, 2)
        |
-       |def test() = {
-       |  $fileText
-       |}
+       |$fileText
        |""".stripMargin
 }
 
