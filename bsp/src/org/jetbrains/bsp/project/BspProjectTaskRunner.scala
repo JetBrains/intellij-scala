@@ -8,7 +8,7 @@ import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
 import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil => ES}
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.ModuleType
-import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.progress.{EmptyProgressIndicator, ProgressManager}
 import com.intellij.openapi.project.Project
 import com.intellij.task._
 import org.jetbrains.bsp.data.BspMetadata
@@ -107,8 +107,12 @@ class BspProjectTaskRunner(arguments: Option[CustomTaskArguments]) extends Proje
       }
     }
 
-
-    ProgressManager.getInstance().run(bspTask)
+    val progressManager = ProgressManager.getInstance()
+    if (arguments.nonEmpty) {
+      progressManager.runProcessWithProgressAsynchronously(bspTask, new EmptyProgressIndicator())
+    } else {
+      progressManager.run(bspTask)
+    }
 
     promiseResult
   }
