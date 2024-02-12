@@ -134,7 +134,7 @@ final class ScalaLanguageInjector extends MultiHostInjector {
     if (allStringsAreInterpolated) {
       val languages = for {
         interpolated <- interpolatedLiterals
-        reference <- interpolated.reference
+        reference = interpolated.reference
 
         langId = mapping.get(reference.getText)
         if StringUtils.isNotBlank(langId)

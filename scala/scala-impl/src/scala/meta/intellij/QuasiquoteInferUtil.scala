@@ -75,7 +75,7 @@ object QuasiquoteInferUtil {
       scala.meta.dialects.QuasiquoteTerm(m.Dialect.standards("Scala211"), multiline = true)
     else
       scala.meta.dialects.QuasiquoteTerm(m.Dialect.standards("Scala211"), multiline = false)
-    val prefix = pat.reference.fold(throw new ParseException(null, ScalaMetaBundle.message("failed.to.get.qq.ref.in.pattern", pat.getText)))(_.getText)
+    val prefix = pat.reference.refName
     try {
       val parsed = parseQQExpr(prefix, patternText, qqdialect)
       (parsed match {

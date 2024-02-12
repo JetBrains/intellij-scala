@@ -7,7 +7,7 @@ trait ScInterpolatedStringLiteral extends ScStringLiteral with ScInterpolated {
 
   def kind: ScInterpolatedStringLiteral.Kind
 
-  def reference: Option[ScReferenceExpression]
+  def reference: ScReferenceExpression
 
   def referenceName: String
 
@@ -18,8 +18,8 @@ trait ScInterpolatedStringLiteral extends ScStringLiteral with ScInterpolated {
 
 object ScInterpolatedStringLiteral {
 
-  def unapply(literal: ScInterpolatedStringLiteral): Option[ScReferenceExpression] =
-    literal.reference
+  def unapply(literal: ScInterpolatedStringLiteral): Some[ScReferenceExpression] =
+    Some(literal.reference)
 
   sealed abstract class Kind(val prefix: String)
 

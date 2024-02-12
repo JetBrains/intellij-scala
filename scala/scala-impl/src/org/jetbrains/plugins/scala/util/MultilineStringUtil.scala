@@ -298,7 +298,7 @@ object MultilineStringUtil {
   def contentRange(string: ScLiteral): TextRange =
     string match {
       case interpolated: ScInterpolatedStringLiteral =>
-        val refLength = interpolated.reference.map(_.getTextLength).getOrElse(0)
+        val refLength = interpolated.reference.getTextLength
         val delta = quotesLength(string)
         val rangeWithoutRef = string.getTextRange.shiftStart(refLength)
         rangeWithoutRef.shrink(delta)

@@ -248,7 +248,7 @@ final class ScalaInliner {
 
   private object isInjectionIn {
     def unapply(ref: ScExpression): Option[ScInterpolatedStringLiteral] = ref match {
-      case Parent(literal: ScInterpolatedStringLiteral) if !literal.reference.contains(ref) =>
+      case Parent(literal: ScInterpolatedStringLiteral) if literal.reference != ref =>
         Some(literal)
       case _ =>
         None
@@ -299,11 +299,8 @@ final class ScalaInliner {
     // if we removed the raw interpolator we would get
     //   "Hello \\w MyName"
     // (notice how `\` became escaped
-    val interpolatorName = targetString.reference.map(_.refName)
-    val kind = interpolatorName
-      .map(ScInterpolatedStringLiteral.Kind.fromPrefix)
-      .getOrElse(ScInterpolatedStringLiteral.Standard)
-
+    val interpolatorName = targetString.reference.refName
+    val kind = ScInterpolatedStringLiteral.Kind.fromPrefix(interpolatorName)
     val enforceInterpolator = kind == ScInterpolatedStringLiteral.Raw
 
     val newStringText = InterpolatedStringFormatter(kind).format(

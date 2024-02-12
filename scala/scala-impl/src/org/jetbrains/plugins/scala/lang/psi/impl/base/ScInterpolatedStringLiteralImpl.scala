@@ -38,12 +38,9 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode,
         }
     }
 
-  override def reference: Option[ScReferenceExpression] = getFirstChild match {
-    case reference: ScReferenceExpression => Some(reference)
-    case _ => None
-  }
+  override def reference: ScReferenceExpression = getFirstChild.asInstanceOf[ScReferenceExpression]
 
-  override def referenceName: String = reference.fold("")(_.refName)
+  override def referenceName: String = reference.refName
 
   override def isString: Boolean =
     getNode.getLastChildNode.getElementType == tINTERPOLATED_STRING_END
