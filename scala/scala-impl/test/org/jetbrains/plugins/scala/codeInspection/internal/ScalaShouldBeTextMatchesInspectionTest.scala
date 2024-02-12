@@ -66,7 +66,7 @@ class ScalaShouldBeTextMatchesInspectionTest extends ScalaInspectionTestBase {
     checkTextHasError(s"""$START"str" == psi.getText$END""")
 
     val text = s""" "str" $CARET== psi.getText"""
-    val result = s""" psi.textMatches("str")"""
+    val result = s"""psi.textMatches("str")"""
     testQuickFix(text, result, description)
   }
 

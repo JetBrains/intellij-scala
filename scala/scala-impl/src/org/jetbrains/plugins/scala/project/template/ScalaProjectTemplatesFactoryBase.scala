@@ -7,7 +7,7 @@ import javax.swing.Icon
 
 abstract class ScalaProjectTemplatesFactoryBase extends ProjectTemplatesFactory {
 
-  override def getGroupIcon(group: String): Icon = Icons.SCALA_SMALL_LOGO
+  override def getGroupIcon(group: String): Icon = Icons.SCALA_FILE
 
   override final def getGroups: Array[String] = {
     // Do not show "Scala" group if NPW is enabled

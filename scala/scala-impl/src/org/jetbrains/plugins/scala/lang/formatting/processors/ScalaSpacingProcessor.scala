@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.lexer.{ScalaKeywordTokenType, ScalaToken
 import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -470,9 +471,9 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
 
     leftPsi match {
-      case l: ScLiteral if l.isMultiLineString && rightNode == leftNode =>
+      case l: ScStringLiteral if l.isMultiLineString && rightNode == leftNode =>
         return spacingForMultilineStringPart(l)
-      case Parent(l: ScLiteral) if l.isMultiLineString =>
+      case Parent(l: ScStringLiteral) if l.isMultiLineString =>
         return spacingForMultilineStringPart(l)
       case _ =>
     }
@@ -509,7 +510,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     @tailrec
     def isMultiLineStringCase(psiElem: PsiElement): Boolean = {
       psiElem match {
-        case ml: ScLiteral if ml.isMultiLineString =>
+        case ml: ScStringLiteral if ml.isMultiLineString =>
           val nodeOffset = rightNode.getTextRange.getStartOffset
           val magicCondition = rightTextRange.contains(new TextRange(nodeOffset, nodeOffset + 3))
           val actuallyMultiline = rightBlockString.contains("\n")

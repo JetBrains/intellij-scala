@@ -38,17 +38,14 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode,
         }
     }
 
-  override def reference: Option[ScReferenceExpression] = getFirstChild match {
-    case reference: ScReferenceExpression => Some(reference)
-    case _ => None
-  }
+  override def reference: ScReferenceExpression = getFirstChild.asInstanceOf[ScReferenceExpression]
 
-  override def referenceName: String = reference.fold("")(_.refName)
+  override def referenceName: String = reference.refName
 
-  override def isString: Boolean =
+  override def hasValidClosingQuotes: Boolean =
     getNode.getLastChildNode.getElementType == tINTERPOLATED_STRING_END
 
-  override def isMultiLineString: Boolean = isString && {
+  override def isMultiLineString: Boolean = hasValidClosingQuotes && {
     val next = firstNode.getTreeNext
     next != null && next.getElementType == tINTERPOLATED_MULTILINE_STRING
   }
@@ -60,7 +57,7 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode,
   override def desugaredExpression: Option[(ScReferenceExpression, ScMethodCall)] = cachedInUserData("desugaredExpression", this, BlockModificationTracker(this)) {
     (referenceText, getContext) match {
       case (methodName, context) if context != null &&
-        isString &&
+        hasValidClosingQuotes &&
         isValidIdentifier(methodName) =>
         val quote = endQuote
 

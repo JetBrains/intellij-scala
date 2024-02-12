@@ -10,6 +10,9 @@ import java.util.regex.Pattern
 import scala.io.Source
 
 //noinspection ScalaUnusedSymbol
+/**
+ * @see [[ScalaBundleSortingTest]]
+ */
 object ScalaBundleSorting {
 
   trait ModuleInfoLike {

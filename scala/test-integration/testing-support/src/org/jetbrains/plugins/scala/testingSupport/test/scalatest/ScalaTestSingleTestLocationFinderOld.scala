@@ -4,7 +4,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScInfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
@@ -148,9 +148,9 @@ class ScalaTestSingleTestLocationFinderOld(
                         tp.extractClass match {
                           case Some(psiClass) if psiClass.qualifiedName == "java.lang.String" =>
                             call.argumentExpressions.head match {
-                              case l: ScLiteral if l.isString =>
+                              case l: ScStringLiteral if l.hasValidClosingQuotes =>
                                 failedToCheck = false
-                                middleName += " " + l.getValue.toString
+                                middleName += " " + l.getValue
                               case _ =>
                             }
                           case _ =>
@@ -195,8 +195,8 @@ class ScalaTestSingleTestLocationFinderOld(
 
   private def endUpWithLiteral(literal: ScExpression): Option[String] = {
     literal match {
-      case literal: ScLiteral if literal.isString =>
-        Some(literal.getValue.asInstanceOf[String])
+      case literal: ScStringLiteral if literal.hasValidClosingQuotes =>
+        Some(literal.getValue)
       case _ => None
     }
   }

@@ -57,6 +57,10 @@ trait RevertableChange {
 }
 
 object RevertableChange {
+  def combine(changes: Seq[RevertableChange]): RevertableChange = {
+    changes.foldLeft[RevertableChange](NoOpRevertableChange)(_ |+| _)
+  }
+
   object NoOpRevertableChange extends RevertableChange {
     override def applyChange(): Unit = ()
 

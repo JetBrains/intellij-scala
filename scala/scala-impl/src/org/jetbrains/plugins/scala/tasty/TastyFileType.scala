@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.tasty
 
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.ScalaFileType
 
 import javax.swing.Icon
 
@@ -13,7 +13,8 @@ object TastyFileType extends FileType {
 
   override def getDefaultExtension: String = "tasty"
 
-  override def getIcon: Icon = Icons.SCALA_SMALL_LOGO
+  //simply use the same icon which is used by ScalaFileType
+  override def getIcon: Icon = ScalaFileType.INSTANCE.getIcon
 
   override def isBinary = true
 

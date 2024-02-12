@@ -4,6 +4,7 @@ import com.intellij.openapi.util.text.{LiteralNameSuggester, StringUtil}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenAliasDeclaration
@@ -154,7 +155,7 @@ object NameSuggester {
       enhancedNames(parameters, types)
     case invocation: MethodInvocation =>
       enhancedNames(invocation.matchedParameters, types)
-    case literal: ScLiteral if literal.isString =>
+    case literal: ScStringLiteral if literal.hasValidClosingQuotes =>
       Option(literal.getValue) match {
         case Some(string: String) =>
           val identifierSuggestion = if (isIdentifier(string.toLowerCase)) camelCaseNames(string).headOption else None

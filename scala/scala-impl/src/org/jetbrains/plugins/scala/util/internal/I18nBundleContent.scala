@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.util.internal.I18nBundleContent._
 
 import java.io._
+import java.nio.charset.StandardCharsets
 import java.nio.file.{Path, Paths}
 import scala.io.Source
 
@@ -60,7 +61,7 @@ object I18nBundleContent {
 
   def read(bundlePath: String): I18nBundleContent = {
     val lines = {
-      val source = Source.fromFile(bundlePath)
+      val source = Source.fromFile(bundlePath)(StandardCharsets.ISO_8859_1)
       try source.getLines().toArray
       finally source.close()
     }

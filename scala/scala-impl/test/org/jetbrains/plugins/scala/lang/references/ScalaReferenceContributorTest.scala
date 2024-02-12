@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.util.MultilineStringUtil.{MultilineQuotes => quotes}
 import org.junit.Assert._
 
@@ -46,8 +47,9 @@ class ScalaReferenceContributorTest extends ScalaLightCodeInsightFixtureTestCase
 
     val visitor = new ScalaRecursiveElementVisitor {
       override def visitLiteral(literal: ScLiteral): Unit = {
-        if (literal.isString) {
-          found ++= literal.getReferences
+        literal match {
+          case s: ScStringLiteral if s.hasValidClosingQuotes =>
+            found ++= s.getReferences
         }
         super.visitLiteral(literal)
       }

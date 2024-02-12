@@ -16,9 +16,10 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtInde
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScFunctionalTypeElement, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
@@ -121,7 +122,7 @@ class ScalaBlock(
       case _: ScCaseClause =>
         // used when Enter / Backspace is pressed inside case clause body (not in the trailing space)
         new ChildAttributes(Indent.getNormalIndent, null)
-      case l: ScLiteral if l.isMultiLineString && scalaSettings.supportMultilineString =>
+      case l: ScStringLiteral if l.isMultiLineString && scalaSettings.supportMultilineString =>
         new ChildAttributes(Indent.getSpaceIndent(3, true), null)
       case b: ScBlockExpr if b.resultExpression.exists(_.is[ScFunctionExpr]) || b.caseClauses.isDefined =>
         val indent = {

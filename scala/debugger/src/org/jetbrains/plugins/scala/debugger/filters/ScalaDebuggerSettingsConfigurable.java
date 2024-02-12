@@ -35,10 +35,6 @@ public class ScalaDebuggerSettingsConfigurable implements Configurable {
         return DebuggerBundle.message("scala.debug.caption");
     }
 
-    public Icon getIcon() {
-        return Icons.SCALA_SMALL_LOGO;
-    }
-
     @Override
     public String getHelpTopic() {
         return ScalaWebHelpProvider$.MODULE$.HelpPrefix() + "run-debug-configuration-scala.html";

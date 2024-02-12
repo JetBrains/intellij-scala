@@ -25,9 +25,10 @@ final class StringToMultilineStringIntention extends PsiElementBaseIntentionActi
   override def getFamilyName: String = ScalaCodeInsightBundle.message("family.name.regular.multi.line.string.conversion")
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
-    val maybeText = stringLiteralParent(element).collect {
+    val stringParent = stringLiteralParent(element)
+    val maybeText = stringParent.collect {
       case lit if lit.isMultiLineString => ScalaCodeInsightBundle.message("convert.to.normal.string")
-      case lit if lit.isString => ScalaCodeInsightBundle.message("convert.to.multiline.string")
+      case lit if lit.hasValidClosingQuotes => ScalaCodeInsightBundle.message("convert.to.multiline.string")
     }
 
     maybeText.foreach(setText)
@@ -77,18 +78,20 @@ object StringToMultilineStringIntention {
       }
     }
 
-    def addMargins(literalReplaced0: PsiElement, interpolatorLength: Int, extraCaretOffset: Int): Unit = {
-      val literalReplaced = literalReplaced0 match {
-        case str: ScStringLiteral if str.isMultiLineString => str
-        case _ => return
-      }
+    def addMargins(
+      literalReplaced: ScStringLiteral,
+      interpolatorLength: Int,
+    ): Unit = {
+      if (!literalReplaced.isMultiLineString)
+        return
+
       val caretShiftFromQuoteStart = caretOffset - literalRange.getStartOffset - interpolatorLength
       if (caretShiftFromQuoteStart > 0) {
         val textBeforeCaret = documentText.subSequence(literalRange.getStartOffset, caretOffset)
         val newLinesBeforeCaret = StringUtils.countMatches(textBeforeCaret, "\\n")
         // +2 extra quotes
         // each new line sequence ("\\n") is replaced with a single new line char ('\n') after converting to multiline
-        fixCaretPosition(caretOffset + 2 - newLinesBeforeCaret + extraCaretOffset)
+        fixCaretPosition(caretOffset + 2 - newLinesBeforeCaret)
       }
 
       val caretShift = MultilineStringUtil.addMarginsAndFormatMLString(literalReplaced, document, caretModel.getOffset)
@@ -103,8 +106,8 @@ object StringToMultilineStringIntention {
     val content = InterpolatedStringFormatter.formatContent(parts, prefix, toMultiline = true)
     val newLiteralText = s"$prefix$Quotes$content$Quotes"
     val newLiteral = createExpressionFromText(newLiteralText, literal)
-    val replaced = literal.replace(newLiteral)
-    addMargins(replaced, interpolatorLength = prefix.length, extraCaretOffset = 0)
+    val replaced = literal.replace(newLiteral).asInstanceOf[ScStringLiteral]
+    addMargins(replaced, interpolatorLength = prefix.length)
   }
 
   private def multilineToRegular(literal: ScStringLiteral, editor: Editor): Unit = {

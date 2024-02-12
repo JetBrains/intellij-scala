@@ -84,7 +84,7 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
               descriptors.add(new FoldingDescriptor(node, range))
             case _ =>
           }
-        case p: ScLiteral if p.isMultiLineString =>
+        case p: ScStringLiteral if p.isMultiLineString =>
           descriptors add new FoldingDescriptor(node, nodeTextRange)
         case args: ScArgumentExprList if args.isArgsInParens =>
           descriptors add new FoldingDescriptor(node, nodeTextRange)
@@ -250,7 +250,7 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
       }
 
       node.getPsi match {
-        case literal: ScLiteral if literal.isMultiLineString =>
+        case literal: ScStringLiteral if literal.isMultiLineString =>
           return "\"\"\"...\"\"\""
         case _: ScArgumentExprList =>
           return "(...)"

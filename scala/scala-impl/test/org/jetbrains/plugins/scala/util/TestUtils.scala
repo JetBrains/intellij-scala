@@ -154,7 +154,8 @@ object TestUtils {
    * }}}
    *
    * @param file file which was created from test data which contains comment in the end of the file
-   * @return 1. file content without last comment 2. last comment content as an expected result
+   * @return 1. file content without last comment<br>
+   *         2. last comment content as an expected result
    */
   def extractExpectedResultFromLastComment(file: PsiFile): ExpectedResultFromLastComment = {
     val fileText = file.getText
@@ -162,7 +163,7 @@ object TestUtils {
     val lastComment = file.findElementAt(fileText.length - 1) match {
       case comment: PsiComment => comment
       case element =>
-        fail(s"Last element in the file is expected to be a comment but got: ${element.getClass}").asInstanceOf[Nothing]
+        fail(s"Last element in the file is expected to be a comment but got: ${element.getClass} with text: ${element.getText}").asInstanceOf[Nothing]
     }
 
     val fileTextWithoutLastComment = file.getText.substring(0, lastComment.getTextOffset).trim

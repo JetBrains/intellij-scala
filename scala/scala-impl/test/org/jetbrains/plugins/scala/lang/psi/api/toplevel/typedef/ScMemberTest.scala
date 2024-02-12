@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef
 import com.intellij.psi.PsiNamedElement
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.junit.Assert.{assertEquals, assertTrue, fail}
 
@@ -13,7 +13,7 @@ class ScMemberTest extends ScalaLightCodeInsightFixtureTestCase {
 
   protected def doTestTopLevelQualifier(memberName: String, expectedTopLevelQualifier: Option[String]): Unit = {
     val file = myFixture.getFile
-    assertTrue("can't find scala file in project", file.isInstanceOf[ScalaFile])
+    assertTrue("can't find scala file in project", file.is[ScalaFile])
 
     val member: ScMember = file.breadthFirst()
       .collectFirst { case m: PsiNamedElement with ScMember if m.name == memberName => m }
@@ -21,21 +21,16 @@ class ScMemberTest extends ScalaLightCodeInsightFixtureTestCase {
 
     val topLevelQualifier = member.topLevelQualifier
     val isTopLevel = member.isTopLevel
-    val isLocal = member.isLocal
 
     assertEquals(expectedTopLevelQualifier, topLevelQualifier)
     assertTrue(
       s"""`isTopLevel` should be equal to `topLevelQualifier.nonEmpty`
          |memberName : $memberName
          |isTopLevel        : $isTopLevel
-         |topLevelQualifier : ${topLevelQualifier}
+         |topLevelQualifier : $topLevelQualifier
          |""".stripMargin,
       topLevelQualifier.nonEmpty == isTopLevel
     )
-  }
-
-  protected def addScalaFileToProject(fileText: String): Unit = {
-    myFixture.configureByText("a.scala", fileText)
   }
 
   protected val CommonDefinitions1 =
@@ -77,7 +72,7 @@ class ScMemberTest extends ScalaLightCodeInsightFixtureTestCase {
       |""".stripMargin.trim
 
   def testApiMethods_TopLevelQualifier_WithPackageStatement(): Unit = {
-    addScalaFileToProject(
+    configureScalaFromFileText(
       s"""package org
          |package example
          |
@@ -123,7 +118,7 @@ class ScMemberTest extends ScalaLightCodeInsightFixtureTestCase {
   }
 
   def testApiMethods_TopLevelQualifier_WithoutPackageStatement(): Unit = {
-    addScalaFileToProject(
+    configureScalaFromFileText(
       s"""$CommonDefinitions1
          |""".stripMargin
     )
@@ -144,7 +139,7 @@ class ScMemberTest extends ScalaLightCodeInsightFixtureTestCase {
   }
 
   def testApiMethods_TopLevelQualifier_LocalMembers_WithPackageStatement(): Unit = {
-    addScalaFileToProject(
+    configureScalaFromFileText(
       s"""package org.example
          |
          |object OuterObject {
@@ -186,7 +181,7 @@ class ScMemberTest extends ScalaLightCodeInsightFixtureTestCase {
   }
 
   def testApiMethods_TopLevelQualifier_LocalMembers_WithoutPackageStatement(): Unit = {
-    addScalaFileToProject(
+    configureScalaFromFileText(
       s"""object OuterObject {
          |  $CommonDefinitions1
          |}

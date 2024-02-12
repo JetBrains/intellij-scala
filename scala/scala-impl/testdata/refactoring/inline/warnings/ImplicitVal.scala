@@ -1,4 +1,4 @@
-//cannot.inline.implicit.element
+//> expected.error cannot.inline.implicit.element
 implicit val /*caret*/name: String = ???
 def foo(implicit name: String) = ???
 
