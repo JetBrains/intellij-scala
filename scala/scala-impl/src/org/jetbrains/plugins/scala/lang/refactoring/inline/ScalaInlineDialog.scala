@@ -9,7 +9,7 @@ import com.intellij.refactoring.BaseRefactoringProcessor
 import com.intellij.refactoring.ui.RefactoringDialog
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.NonNullObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 
 import java.awt.BorderLayout

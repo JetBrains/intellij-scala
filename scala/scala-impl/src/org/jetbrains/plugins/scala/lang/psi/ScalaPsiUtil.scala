@@ -177,7 +177,7 @@ object ScalaPsiUtil {
   }
 
   @tailrec
-  def fileContext(psi: PsiElement): PsiFile = {
+  def fileContext(@Nullable psi: PsiElement): PsiFile = {
     if (psi == null) return null
     psi match {
       case f: PsiFile => f
@@ -672,7 +672,7 @@ object ScalaPsiUtil {
     TypeAdjuster.adjustFor(Seq(element), addImports, useTypeAliases)
   }
 
-  def isLineTerminator(element: PsiElement): Boolean =
+  def isLineTerminator(@Nullable element: PsiElement): Boolean =
     element match {
       case _: PsiWhiteSpace => element.textContains('\n')
       case _ => false

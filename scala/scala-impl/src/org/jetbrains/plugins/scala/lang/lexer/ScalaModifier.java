@@ -31,7 +31,10 @@ public enum ScalaModifier {
     }
 
     @Nullable
-    public static ScalaModifier byText(String text) {
+    public static ScalaModifier byText(@Nullable String text) {
+        if (text == null)
+            return null;
+
         for (ScalaModifier modifier: ScalaModifier.values()) {
             if (modifier.text.equals(text))
                 return modifier;

@@ -8,7 +8,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.codeInspection.ScalaAnnotatorQuickFixTestBase.{ExpectedHighlight, TestPrepareResult, checkOffset}
-import org.jetbrains.plugins.scala.extensions.{HighlightInfoExt, ObjectExt, StringExt, executeWriteActionCommand}
+import org.jetbrains.plugins.scala.extensions.{HighlightInfoExt, NonNullObjectExt, StringExt, executeWriteActionCommand}
 import org.jetbrains.plugins.scala.util.MarkersUtils
 import org.jetbrains.plugins.scala.{EditorTests, ScalaFileType}
 import org.junit.Assert.{assertFalse, assertTrue, fail}

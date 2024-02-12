@@ -4,8 +4,7 @@ import com.intellij.psi._
 import com.intellij.psi.filters.ElementFilter
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.{NonNls, Nullable}
-import org.jetbrains.plugins.scala.extensions.ObjectExt
-import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
+import org.jetbrains.plugins.scala.extensions.{NonNullObjectExt, ObjectExt}
 import org.jetbrains.plugins.scala.lang.parser._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
