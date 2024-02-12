@@ -2,24 +2,25 @@ package org.jetbrains.plugins.scala.text
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, PsiClassExt}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScModifierList, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScExtension, ScFunction, ScFunctionDefinition, ScTypeAlias, ScTypeAliasDefinition, ScValue, ScValueOrVariable, ScValueOrVariableDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeBoundsOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScGiven, ScGivenDefinition, ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.project.ScalaFeatures.forPsiOrDefault
 
-class ClassPrinter(isScala3: Boolean) {
+class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ") {
   def textOf(e: PsiElement): String = e match {
     case cls: ScTypeDefinition =>
       val sb = new StringBuilder()
       printTo(sb, cls)
       sb.toString
     case f: ScFunction => textOf(f, "")
-    case v: ScValueOrVariable => textOf(v, "")
+    case v: ScBindingPattern => textOf(v.nameContext.asInstanceOf[ScValueOrVariable], v, "")
     case t: ScTypeAlias => textOf(t, "")
   }
 
@@ -51,13 +52,13 @@ class ClassPrinter(isScala3: Boolean) {
 
     val parents = {
       val superTypes = cls.extendsBlock.templateParents.map(_.superTypes).getOrElse(Seq.empty)
-      if (superTypes.isEmpty) "" else (if (isGiven) (if (isAnonymous && tps.isEmpty && ps.isEmpty) "" else ": ") else " extends ") + superTypes.map(textOf(_, parens = 1)).mkString(if (cls.isScala3 && !isGiven) ", " else " with ")
+      if (superTypes.isEmpty) "" else (if (isGiven) (if (isAnonymous && tps.isEmpty && ps.isEmpty) "" else ": ") else s"${extendsSeparator}extends ") + superTypes.map(textOf(_, parens = 1)).mkString(if (cls.isScala3 && !isGiven) ", " else s"${extendsSeparator}with ")
     }
 
     val derivations = {
       val refs = cls.extendsBlock.derivesClause.map(_.derivedReferences).getOrElse(Seq.empty)
       val fqns = refs.map(_.resolve()).collect { case f: ScTemplateDefinition => "_root_." + f.qualifiedName }
-      if (fqns.isEmpty) "" else " derives " + fqns.mkString(", ")
+      if (fqns.isEmpty) "" else s"${extendsSeparator}derives " + fqns.mkString(", ")
     }
 
     val selfType = cls.selfType.map(t => s" ${cls.selfTypeElement.map(_.name).getOrElse("this")}: " + textOf(t) + " =>").mkString
@@ -75,7 +76,7 @@ class ClassPrinter(isScala3: Boolean) {
       case f: ScFunction =>
         sb ++= textOf(f, indent)
       case v: ScValueOrVariable =>
-        sb ++= textOf(v, indent)
+        sb ++= textOf(v, v.declaredElements.head, indent)
       case t: ScTypeAlias =>
         sb ++= textOf(t, indent)
       case t: ScExtension =>
@@ -144,13 +145,13 @@ class ClassPrinter(isScala3: Boolean) {
     "\n" + indent + "  " + "extension " + tps + clauses + methods
   }
 
-  private def textOf(v: ScValueOrVariable, indent: String): String = {
+  private def textOf(v: ScValueOrVariable, symbol: ScTypedDefinition, indent: String): String = {
     val annotations = v.annotations.map(a => "\n" + indent + "  " + textOf(a)).mkString
     val modifiers = textOf(v.getModifierList)
     val keyword = if (v.isInstanceOf[ScValue]) "val " else "var "
-    val isConstant = !v.hasExplicitType && !v.isAbstract
-    val name = v.declaredNames.head
-    val tpe = if (isConstant) "" else (spaceAfter(name) + ": " + textOf(v.`type`()))
+    val isConstant = (v.hasModifierPropertyScala("final") || v.hasModifierPropertyScala("inline")) && !v.hasExplicitType && !v.isAbstract
+    val name = symbol.name
+    val tpe = if (isConstant) "" else (spaceAfter(name) + ": " + textOf(symbol.`type`()))
     val rhs = if (isConstant) (" = " + v.asInstanceOf[ScValueOrVariableDefinition].expr.map(_.getText).getOrElse("")) else if (!v.isAbstract) " = ???" else ""
     annotations + "\n" + indent + "  " + modifiers + keyword + name + tpe + rhs + "\n"
   }

@@ -8,9 +8,11 @@ import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.highlighter.{ScalaColorSchemeAnnotator, ScalaSyntaxHighlighterFactory}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScThisReference
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScReferenceExpression, ScThisReference}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiElementExt, ScalaFeatures}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
@@ -21,16 +23,16 @@ import scala.jdk.CollectionConverters.ListHasAsScala
 
 // Proof of concept implementation, #SCL-22046
 object ElementRenderer {
-  def toHtml(e: PsiElement): String = {
-    val printer = new ClassPrinter(isScala3 = e.isInScala3File)
+  def toHtml(e: PsiElement, context: PsiElement): String = {
+    val printer = new ClassPrinter(isScala3 = e.isInScala3File, extendsSeparator = "\n")
     val text = try {
       ScalaApplicationSettings.PRECISE_TEXT = true
-      printer.textOf(e).trim
+      printer.textOf(e).split("\n").map(_.trim).mkString("\n")
     } finally {
       ScalaApplicationSettings.PRECISE_TEXT = false
     }
     val file = ScalaPsiElementFactory.createScalaFileFromText(text, e.module.map(_.features).getOrElse(ScalaFeatures.default))(e.getProject)
-    file.children.foreach(_.asInstanceOf[ScalaPsiElement].context = e.getContext)
+    file.children.foreach(_.asInstanceOf[ScalaPsiElement].context = context)
 
     val highlighted = highlight(file, EditorColorsManager.getInstance.getGlobalScheme)
     val filtered = filter(highlighted)
@@ -47,10 +49,11 @@ object ElementRenderer {
         holder.runAnnotatorWithContext(e, annotator)
         holder.asScala.map(it => (TextRange.create(it.getStartOffset, it.getEndOffset), it.getTextAttributes))
       }
-    }).groupMap(_._1)(_._2)
+    })
 
     val leafElementToKeys = elements.filter(_.is[LeafPsiElement]).map { e =>
-      (e, highlighter.getTokenHighlights(e.getNode.getElementType) ++ rangeToKey.getOrElse(e.getTextRange, List.empty))
+      val annotations = rangeToKey.filter(_._1.contains(e.getTextRange)).map(_._2) // TODO Optimize
+      (e, highlighter.getTokenHighlights(e.getNode.getElementType) ++ annotations)
     }
 
     leafElementToKeys.map { case (e, keys) =>
@@ -66,15 +69,20 @@ object ElementRenderer {
     if (i == -1) es else es.take(i) ++ es.drop(i + 4)
   }
 
+  // Customized to match the test cases
   private def toHtml(elements: Seq[(PsiElement, TextAttributes)]): Seq[String] = elements.map { case (e, a) =>
-    val link = if (!e.getParent.isInstanceOf[ScReference]) e.getText else {
-      val path = e.parents.takeWhile(_.is[ScReference]).toSeq.last.getText.stripPrefix("_root_.")
-      s"<a href=\"psi_element://${path}\"><code>${e.getText}</code></a>"
-    }
-    if (a.getForegroundColor == null && a.getFontType == Font.PLAIN) link else {
-      val color = Option(a.getForegroundColor).map(c => "color:" + f"#${c.getRed}%02x${c.getGreen}%02x${c.getBlue}%02x" + ";").mkString
-      val font = if (a.getFontType == Font.BOLD) "font-weight:bold;" else if (a.getFontType == Font.ITALIC) "font-style:italic;" else ""
-      s"<span style=\"$color$font\">" + link + "</span>"
+    val text = e.getText.replaceAll("\"", "&quot;").replaceAll("<", "&lt;").replaceAll("(?<!=)>", "&gt;") // TODO Escape => as well
+
+    if (e.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER && e.getParent.is[ScParameter]) text else { // TODO Highlight parameters
+      val link = {
+        val path = e.parents.takeWhile(_.is[ScReference]).toSeq.lastOption.map(_.getText).filter(_.startsWith("_root_."))
+        path.map(path => s"<a href=\"psi_element://${path.stripPrefix("_root_.")}\"><code>$text</code></a>").getOrElse(text)
+      }
+      if (a.getForegroundColor == null && a.getFontType == Font.PLAIN && !link.startsWith("<a href=")) link else { // TODO Omit style="" for links
+        val color = Option(a.getForegroundColor).map(c => "color:" + f"#${c.getRed}%02x${c.getGreen}%02x${c.getBlue}%02x" + ";").mkString
+        val font = if (a.getFontType == Font.BOLD) "font-weight:bold;" else if (a.getFontType == Font.ITALIC) "font-style:italic;" else ""
+        s"<span style=\"$color$font\">" + link + "</span>"
+      }
     }
   }
 }
