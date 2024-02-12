@@ -11,10 +11,13 @@ import org.jetbrains.plugins.scala.{NlsString, ScalaLanguage}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLibraryType}
 
+/**
+ * See https://www.jetbrains.com/help/idea/adding-support-for-frameworks-and-technologies.html
+ */
 //noinspection TypeAnnotation
 final class ScalaFrameworkType extends FrameworkTypeEx(ScalaLanguage.INSTANCE.getID) {
 
-  override def getIcon = Icons.SCALA_SMALL_LOGO
+  override def getIcon = Icons.SCALA_FILE
 
   override def getPresentableName = NlsString.force(getId)
 

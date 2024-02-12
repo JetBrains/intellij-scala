@@ -33,7 +33,6 @@
               "recursion@14x14.svg": "org/jetbrains/plugins/scala/images/recursion.svg",
               "scalaConsole.svg": "org/jetbrains/plugins/scala/images/scalaConsole.svg",
               "scalaFile.svg": "org/jetbrains/plugins/scala/images/fileScala.svg",
-              "scalaLogo.svg": "org/jetbrains/plugins/scala/images/scalaSmallLogo.svg",
               "scalaScript.svg": "org/jetbrains/plugins/scala/images/scalaScriptIcon.svg",
               "scalaSDK.svg": "org/jetbrains/plugins/scala/images/scalaSdk.svg",
               "scalaTest.svg": "org/jetbrains/plugins/scala/images/scalaTest.svg",

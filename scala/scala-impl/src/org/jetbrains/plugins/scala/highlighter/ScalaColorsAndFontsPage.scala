@@ -160,7 +160,8 @@ class ScalaColorsAndFontsPage extends RainbowColorSettingsPage {
 
   override def getLanguage: ScalaLanguage = ScalaLanguage.INSTANCE
 
-  override def getIcon: Icon = Icons.SCALA_SMALL_LOGO
+  //NOTE: is not used anywhere, see IDEA-345886
+  override def getIcon: Icon = null
 
   override def getAttributeDescriptors: Array[AttributesDescriptor] = ScalaColorsAndFontsPage.ourDescriptors
 
