@@ -25,7 +25,8 @@ final class StringToMultilineStringIntention extends PsiElementBaseIntentionActi
   override def getFamilyName: String = ScalaCodeInsightBundle.message("family.name.regular.multi.line.string.conversion")
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
-    val maybeText = stringLiteralParent(element).collect {
+    val stringParent = stringLiteralParent(element)
+    val maybeText = stringParent.collect {
       case lit if lit.isMultiLineString => ScalaCodeInsightBundle.message("convert.to.normal.string")
       case lit if lit.isString => ScalaCodeInsightBundle.message("convert.to.multiline.string")
     }

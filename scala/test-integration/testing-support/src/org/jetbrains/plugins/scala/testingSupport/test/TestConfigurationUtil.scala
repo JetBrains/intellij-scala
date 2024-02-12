@@ -6,6 +6,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions.{OptionExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScMethodCall, ScParenthesisedExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
@@ -128,15 +129,16 @@ object TestConfigurationUtil {
     }
 
     element match {
+      case literal: ScStringLiteral =>
+        val text = literal.getValue
+        val lineSeparator = literal.getContainingFile.getVirtualFile.getDetectedLineSeparator
+        val result = if (lineSeparator != null && literal.isMultiLineString)
+          StringUtil.convertLineSeparators(text, lineSeparator)
+        else
+          text
+        Some(result)
       case literal: ScLiteral =>
         literal.getValue match {
-          case text: String =>
-            val result = literal.getContainingFile.getVirtualFile.getDetectedLineSeparator match {
-              case newSeparator if newSeparator != null && literal.isMultiLineString =>
-                StringUtil.convertLineSeparators(text, newSeparator)
-              case _ => text
-            }
-            Some(result)
           case symbol: Symbol if allowSymbolLiterals => Some(symbol.name)
           case number: Number => Some(number)
           case character: Character => Some(character)

@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -223,18 +224,18 @@ object ScalaRefactoringUtil {
     }
 
     def partOfStringLiteral(): Option[(ScExpression, ArraySeq[ScType])] = {
-      val lit = PsiTreeUtil.findElementOfClassAtOffset(file, startOffset, classOf[ScLiteral], false)
-      val endLit = PsiTreeUtil.findElementOfClassAtOffset(file, endOffset, classOf[ScLiteral], false)
-      if (lit == null || !lit.isString || lit != endLit) return None
+      val literalStart = PsiTreeUtil.findElementOfClassAtOffset(file, startOffset, classOf[ScStringLiteral], false)
+      val literalEnd = PsiTreeUtil.findElementOfClassAtOffset(file, endOffset, classOf[ScStringLiteral], false)
+      if (literalStart == null || !literalStart.isString || literalStart != literalEnd) return None
 
-      val prefix = lit match {
+      val prefix = literalStart match {
         case intrp: ScInterpolatedStringLiteral if rangeText.contains('$') => intrp.referenceName
         case _ => ""
       }
-      val quote = if (lit.isMultiLineString) "\"\"\"" else "\""
+      val quote = if (literalStart.isMultiLineString) "\"\"\"" else "\""
 
       val text = s"$prefix$quote$rangeText$quote"
-      createExpressionWithContextFromText(text, lit.getContext, lit) match {
+      createExpressionWithContextFromText(text, literalStart.getContext, literalStart) match {
         case newExpr: ScLiteral =>
           val tpe = newExpr.getTypeWithoutImplicits(ignoreBaseType = true).getOrAny
           Some(newExpr, ArraySeq(tpe))
@@ -350,11 +351,12 @@ object ScalaRefactoringUtil {
           case _ => false
         }
         getTextOccurrenceInLiterals(text, enclosingContainer, filter)
-      case lit: ScLiteral if lit.isString =>
+      case lit: ScStringLiteral if lit.isString =>
         val text = lit.getValue.asInstanceOf[String]
         val filter: ScLiteral => Boolean = {
           case _: ScInterpolatedStringLiteral if text.contains('$') => false
-          case l => l.isString
+          case s: ScStringLiteral => s.isString
+          case _ => false
         }
         getTextOccurrenceInLiterals(text, enclosingContainer, filter)
       case _ => getExprOccurrences(element, enclosingContainer).map(_.getTextRange)
@@ -969,7 +971,7 @@ object ScalaRefactoringUtil {
       case _: ScReferencePattern =>
         val textRange = parent.getTextRange
         document.replaceString(textRange.getStartOffset, textRange.getEndOffset, "`" + newString + "`")
-      case literal: ScLiteral =>
+      case literal: ScStringLiteral =>
         val prefix = literal match {
           case interpolatedString: ScInterpolatedStringLiteral => interpolatedString.referenceName
           case _ => ""

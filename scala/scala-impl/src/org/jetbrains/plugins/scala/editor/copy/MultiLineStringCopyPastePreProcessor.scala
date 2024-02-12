@@ -12,7 +12,8 @@ import org.jetbrains.plugins.scala.extensions.{PsiElementExt, childOf, inWriteAc
 import org.jetbrains.plugins.scala.format.WithStrippedMargin
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
 class MultiLineStringCopyPastePreProcessor extends CopyPastePreProcessor {
@@ -93,13 +94,14 @@ object MultiLineStringCopyPastePreProcessor {
 
   private def settings(file: PsiFile): ScalaCodeStyleSettings = ScalaCodeStyleSettings.getInstance(file.getProject)
 
-  private def findMultilineStringParent(element: PsiElement): Option[ScLiteral] = (element match {
-    case literal: ScInterpolatedStringLiteral => Some(literal)
-    case literal: ScLiteral => Some(literal)
-    case _ childOf (literal: ScInterpolatedStringLiteral) => Some(literal)
-    case _ childOf (literal: ScLiteral) => Some(literal)
-    case _ => None
-  }).filter(_.isMultiLineString)
+  private def findMultilineStringParent(element: PsiElement): Option[ScStringLiteral] = {
+    val stringLiteral = element match {
+      case s: ScStringLiteral => Some(s)
+      case _ childOf (s: ScStringLiteral) => Some(s)
+      case _ => None
+    }
+    stringLiteral.filter(_.isMultiLineString)
+  }
 
   private def linePrefix(document: Document, offset: Int): String = {
     val lineStartOffset = document.getLineStartOffset(document.getLineNumber(offset))

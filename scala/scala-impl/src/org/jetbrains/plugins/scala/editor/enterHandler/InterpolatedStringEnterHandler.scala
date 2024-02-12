@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.editor.EditorExt
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.TokenSets
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 
 class InterpolatedStringEnterHandler extends EnterHandlerDelegateAdapter {
   override def preprocessEnter(file: PsiFile, editor: Editor, caretOffset: Ref[Integer], caretAdvance: Ref[Integer],
@@ -35,7 +35,7 @@ class InterpolatedStringEnterHandler extends EnterHandlerDelegateAdapter {
     }
 
     def isMLString(element: PsiElement) = element match {
-      case lit: ScLiteral => lit.isMultiLineString
+      case lit: ScStringLiteral => lit.isMultiLineString
       case _ => false
     }
 

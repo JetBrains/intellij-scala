@@ -6,6 +6,7 @@ package impl
 import com.intellij.codeInsight.template.TemplateActionContext
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.lang.psi.api._
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 
 final class ScalaStringContextType
   extends ScalaFileTemplateContextType.ElementContextType(ScalaCodeInsightBundle.message("element.context.type.string")) {
@@ -18,5 +19,5 @@ object ScalaStringContextType {
 
   private[impl] def isInContext(context: TemplateActionContext)
                                (implicit file: ScalaFile): Boolean =
-    ScalaFileTemplateContextType.isInContext(context, classOf[base.ScLiteral])(_.isString)
+    ScalaFileTemplateContextType.isInContext(context, classOf[ScStringLiteral])(_.isString)
 }

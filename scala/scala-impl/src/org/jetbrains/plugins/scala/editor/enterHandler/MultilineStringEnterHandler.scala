@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.editor.{DocumentExt, EditorExt}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.util.MultilineStringUtil.MultilineQuotes
 import org.jetbrains.plugins.scala.util.{MultilineStringSettings, MultilineStringUtil}
 
@@ -37,7 +38,7 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
     if (element == null) return Result.Continue
 
     val isInMultilineString = element.getParent match {
-      case literal: ScLiteral if literal.isMultiLineString => literal.isMultiLineString
+      case literal: ScStringLiteral => literal.isMultiLineString
       case _ => false
     }
 

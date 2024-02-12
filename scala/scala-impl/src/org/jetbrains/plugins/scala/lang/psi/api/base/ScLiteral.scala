@@ -14,24 +14,6 @@ trait ScLiteral extends ScExpression
 
   override def getValue: V
 
-  // TODO: now when we have ScStringLiteral we can remove isString & isMultilineString
-  def isString: Boolean
-
-  /**
-   * @return true - if the string uses triple quotes<br>
-   *         examples of multiline strings: {{{
-   *           - """text"""
-   *           - s"""text"""
-   *           - """line 1
-   *                |line2"""
-   *           - s"""line 1
-   *                  line2
-   *                  line3"""
-   *         }}}
-   *         false - otherwise
-   */
-  def isMultiLineString: Boolean
-
   def contentRange: TextRange
 
   def contentText: String

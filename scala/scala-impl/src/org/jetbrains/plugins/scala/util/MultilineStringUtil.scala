@@ -109,9 +109,9 @@ object MultilineStringUtil {
 
     do {
       parent match {
-        case lit: ScLiteral =>
-          if (!lit.isMultiLineString)
-            return Seq.empty
+        case s: ScStringLiteral if s.isMultiLineString => //OK
+        case _: ScLiteral =>
+          return Seq.empty
         case inf: ScInfixExpr =>
           if (inf.operation.textMatches(methodName)) {
             if (prevParent != parent.getFirstChild)
@@ -148,7 +148,7 @@ object MultilineStringUtil {
 
   def findParentMLString(element: PsiElement): Option[ScLiteral] = {
     element.withParentsInFile.collect {
-      case lit: ScLiteral if lit.isMultiLineString => lit
+      case lit: ScStringLiteral if lit.isMultiLineString => lit
     }.to(LazyList).headOption
   }
 
@@ -295,21 +295,19 @@ object MultilineStringUtil {
    * @return range of content inside string quotes e.g. for """abc""" returns (3, 6)
    * maybe move to psi?
    */
-  def contentRange(string: ScLiteral): TextRange =
+  def contentRange(string: ScStringLiteral): TextRange =
     string match {
       case interpolated: ScInterpolatedStringLiteral =>
         val refLength = interpolated.reference.getTextLength
         val delta = quotesLength(string)
         val rangeWithoutRef = string.getTextRange.shiftStart(refLength)
         rangeWithoutRef.shrink(delta)
-      case _: ScStringLiteral =>
-        val delta = if(string.isMultiLineString) 3 else 1
-        string.getTextRange.shrink(delta)
       case _ =>
-        string.getTextRange
+        val delta = if (string.isMultiLineString) 3 else 1
+        string.getTextRange.shrink(delta)
     }
 
-  private def quotesLength(string: ScLiteral): Int =
+  private def quotesLength(string: ScStringLiteral): Int =
     if (string.isMultiLineString) 3 else 1
 }
 

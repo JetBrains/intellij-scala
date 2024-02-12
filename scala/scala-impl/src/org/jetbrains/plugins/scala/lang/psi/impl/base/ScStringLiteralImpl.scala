@@ -29,7 +29,7 @@ class ScStringLiteralImpl(node: ASTNode,
     else if (isString) SingleLineQuote
     else ""
 
-  override protected final def toValue(text: String): String = literalElementType match {
+  override protected final def toValue(text: String): String = firstChildElementType match {
     case `tSTRING` =>
       try {
         StringContext.processEscapes(text) // for octal escape sequences
@@ -45,9 +45,13 @@ class ScStringLiteralImpl(node: ASTNode,
   override protected final def wrappedValue(value: String): ScLiteral.Value[String] =
     Value(value)
 
-  override def isString: Boolean = literalElementType != `tWRONG_STRING`
+  override def isString: Boolean = firstChildElementType != `tWRONG_STRING`
 
-  override def isMultiLineString: Boolean = literalElementType == `tMULTILINE_STRING`
+  override def isMultiLineString: Boolean = firstChildElementType == `tMULTILINE_STRING`
+
+  private def firstChildElementType: IElementType = firstNode.getElementType
+
+  protected final def firstNode: ASTNode = getNode.getFirstChildNode
 
   override def isValidHost: Boolean = getValue != null
 
@@ -63,10 +67,6 @@ class ScStringLiteralImpl(node: ASTNode,
     else new ScLiteralEscaper(this)
 
   override def getReferences: Array[PsiReference] = PsiReferenceService.getService.getContributedReferences(this)
-
-  protected final def firstNode: ASTNode = getNode.getFirstChildNode
-
-  private def literalElementType: IElementType = firstNode.getElementType
 }
 
 object ScStringLiteralImpl {

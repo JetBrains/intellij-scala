@@ -6,6 +6,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.light.LightModifierList
 import com.intellij.psi.util.PsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotationsHolder, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -125,8 +126,10 @@ private[light] class ScLightModifierList(scalaElement: ScalaPsiElement,
           case Some(expr) => res + convertExpression(expr)
           case _ => res
         }
-      case l: ScLiteral if !l.isMultiLineString => l.getText
-      case l: ScLiteral => "\"" + StringUtil.escapeStringCharacters(l.getValue.toString) + "\""
+      case s: ScStringLiteral if s.isMultiLineString =>
+        "\"" + StringUtil.escapeStringCharacters(s.getValue) + "\""
+      case l: ScLiteral =>
+        l.getText
       case call: ScMethodCall =>
         if (call.getInvokedExpr.getText.endsWith("Array")) {
           call.args.exprs.map(convertExpression).mkString("{", ", ", "}")
