@@ -33,7 +33,6 @@ public interface Icons {
 
     //SDK configuration
     Icon SCALA_SDK = getIcon("/org/jetbrains/plugins/scala/images/scalaSdk.svg", Icons.class);
-    Icon NO_SCALA_SDK = getIcon("/org/jetbrains/plugins/scala/images/noScalaSdk.svg", Icons.class);
 
     //Toplevel nodes
     Icon CLASS = getIcon("/org/jetbrains/plugins/scala/images/classScala.svg", Icons.class);

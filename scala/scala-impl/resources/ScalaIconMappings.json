@@ -23,7 +23,6 @@
               "lambda.svg": "org/jetbrains/plugins/scala/images/lambda.svg",
               "lightbendLogo.svg": "org/jetbrains/plugins/scala/images/lightbendLogo.svg",
               "multipleTypeDefinitions.svg": "org/jetbrains/plugins/scala/images/multipleTypeDefinitions.svg",
-              "noScalaSDK.svg": "org/jetbrains/plugins/scala/images/noScalaSdk.svg",
               "objectCompanion.svg": "org/jetbrains/plugins/scala/images/objectCompanion.svg",
               "objectCompanionSwapped.svg": "org/jetbrains/plugins/scala/images/objectCompanionSwapped.svg",
               "objectScala.svg": "org/jetbrains/plugins/scala/images/objectScala.svg",
