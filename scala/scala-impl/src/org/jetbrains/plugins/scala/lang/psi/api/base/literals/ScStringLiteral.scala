@@ -11,8 +11,12 @@ trait ScStringLiteral extends ScLiteral
 
   override def isSimpleLiteral: Boolean = true
 
-  //TODO: rename to hasClosingQuotes/isValidString/isCompleteString/isClosedString or something like that?
-  def isString: Boolean
+  /**
+   * @return true - if the string literal has closing quotes<br>
+   *         false - if the string is unclosed (like `"test` or `"""test` or `s"""test""`)<br>
+   *         NOTE: an incomplete string literal without closing quites is still parsed as `ScStringLiteral` instance but with extra error element
+   */
+  def hasValidClosingQuotes: Boolean
 
   /**
    * @return true - if the string uses triple quotes.<br>

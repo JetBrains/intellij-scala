@@ -26,7 +26,7 @@ class ScStringLiteralImpl(node: ASTNode,
 
   override protected def startQuote: String =
     if (isMultiLineString) MultiLineQuote
-    else if (isString) SingleLineQuote
+    else if (hasValidClosingQuotes) SingleLineQuote
     else ""
 
   override protected final def toValue(text: String): String = firstChildElementType match {
@@ -45,7 +45,7 @@ class ScStringLiteralImpl(node: ASTNode,
   override protected final def wrappedValue(value: String): ScLiteral.Value[String] =
     Value(value)
 
-  override def isString: Boolean = firstChildElementType != `tWRONG_STRING`
+  override def hasValidClosingQuotes: Boolean = firstChildElementType != `tWRONG_STRING`
 
   override def isMultiLineString: Boolean = firstChildElementType == `tMULTILINE_STRING`
 

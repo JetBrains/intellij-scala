@@ -28,7 +28,7 @@ final class StringToMultilineStringIntention extends PsiElementBaseIntentionActi
     val stringParent = stringLiteralParent(element)
     val maybeText = stringParent.collect {
       case lit if lit.isMultiLineString => ScalaCodeInsightBundle.message("convert.to.normal.string")
-      case lit if lit.isString => ScalaCodeInsightBundle.message("convert.to.multiline.string")
+      case lit if lit.hasValidClosingQuotes => ScalaCodeInsightBundle.message("convert.to.multiline.string")
     }
 
     maybeText.foreach(setText)

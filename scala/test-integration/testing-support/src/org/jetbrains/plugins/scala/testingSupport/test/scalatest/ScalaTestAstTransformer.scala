@@ -83,7 +83,7 @@ object ScalaTestAstTransformer {
   }
 
   private def getNameFromAnnotLiteral(expr: ScExpression): Option[String] = expr match {
-    case lit: ScStringLiteral if lit.isString => Some(lit.getValue.toString)
+    case lit: ScStringLiteral if lit.hasValidClosingQuotes => Some(lit.getValue.toString)
     case _ => None
   }
 
@@ -165,7 +165,7 @@ object ScalaTestAstTransformer {
   private def getTarget(className: String, element: PsiElement, selected: MethodInvocation): AstNode = {
     val firstChild = element.getFirstChild
     firstChild match {
-      case literal: ScStringLiteral if literal.isString =>
+      case literal: ScStringLiteral if literal.hasValidClosingQuotes =>
         new StToStringTarget(firstChild, className, literal.getValue.toString)
       case invocation: MethodInvocation =>
         getScalaTestMethodInvocation(selected, invocation, Seq.empty, className) match {
@@ -201,7 +201,7 @@ object ScalaTestAstTransformer {
         val target: AstNode = getTarget(containingClassName, current, selected)
 
         val argsAst = arguments.map {
-          case literal: ScStringLiteral if literal.isString =>
+          case literal: ScStringLiteral if literal.hasValidClosingQuotes =>
             new StStringLiteral(literal, containingClassName, literal.getValue.toString)
           case expr =>
             new StToStringTarget(expr, containingClassName, expr.getText)

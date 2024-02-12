@@ -48,7 +48,7 @@ class ScalaReferenceContributorTest extends ScalaLightCodeInsightFixtureTestCase
     val visitor = new ScalaRecursiveElementVisitor {
       override def visitLiteral(literal: ScLiteral): Unit = {
         literal match {
-          case s: ScStringLiteral if s.isString =>
+          case s: ScStringLiteral if s.hasValidClosingQuotes =>
             found ++= s.getReferences
         }
         super.visitLiteral(literal)

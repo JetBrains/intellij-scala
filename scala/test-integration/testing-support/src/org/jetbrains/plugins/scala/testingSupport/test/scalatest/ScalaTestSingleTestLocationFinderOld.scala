@@ -148,7 +148,7 @@ class ScalaTestSingleTestLocationFinderOld(
                         tp.extractClass match {
                           case Some(psiClass) if psiClass.qualifiedName == "java.lang.String" =>
                             call.argumentExpressions.head match {
-                              case l: ScStringLiteral if l.isString =>
+                              case l: ScStringLiteral if l.hasValidClosingQuotes =>
                                 failedToCheck = false
                                 middleName += " " + l.getValue
                               case _ =>
@@ -195,7 +195,7 @@ class ScalaTestSingleTestLocationFinderOld(
 
   private def endUpWithLiteral(literal: ScExpression): Option[String] = {
     literal match {
-      case literal: ScStringLiteral if literal.isString =>
+      case literal: ScStringLiteral if literal.hasValidClosingQuotes =>
         Some(literal.getValue)
       case _ => None
     }

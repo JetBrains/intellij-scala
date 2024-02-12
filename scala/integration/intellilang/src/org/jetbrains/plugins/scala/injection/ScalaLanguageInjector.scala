@@ -96,7 +96,7 @@ final class ScalaLanguageInjector extends MultiHostInjector {
       }.toList.filter(_.is[ScExpression])
 
       val suitable = expressions.forall {
-        case s: ScStringLiteral => s.isString
+        case s: ScStringLiteral => s.hasValidClosingQuotes
         case _: ScInterpolatedPatternPrefix => true
         case _: ScInfixExpr => true
         case r: ScReferenceExpression if r.textMatches("+") => true //string concatenation
@@ -105,7 +105,7 @@ final class ScalaLanguageInjector extends MultiHostInjector {
 
       if (suitable) {
         expressions.filter {
-          case literal: ScStringLiteral => literal.isString
+          case literal: ScStringLiteral => literal.hasValidClosingQuotes
           case _ => false
         }.map {
           _.asInstanceOf[ScStringLiteral]
@@ -213,7 +213,7 @@ final class ScalaLanguageInjector extends MultiHostInjector {
   )(implicit support: ScalaLanguageInjectionSupport, registrar: MultiHostRegistrar): Boolean = {
     val maybeAnnotationOwner: Option[AnnotationOwner] = host match {
       case literal: ScStringLiteral =>
-        if (literal.isString) annotationOwnerForScStringLiteral(literal)
+        if (literal.hasValidClosingQuotes) annotationOwnerForScStringLiteral(literal)
         else None
       case _ =>
         annotationOwnerFor(host) //.orElse(implicitAnnotationOwnerFor(host)) //NOTE: implicit conversion checking (SCL-2599), disabled (performance reasons)

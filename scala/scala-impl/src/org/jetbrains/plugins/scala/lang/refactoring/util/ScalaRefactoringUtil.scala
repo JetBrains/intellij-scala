@@ -226,7 +226,7 @@ object ScalaRefactoringUtil {
     def partOfStringLiteral(): Option[(ScExpression, ArraySeq[ScType])] = {
       val literalStart = PsiTreeUtil.findElementOfClassAtOffset(file, startOffset, classOf[ScStringLiteral], false)
       val literalEnd = PsiTreeUtil.findElementOfClassAtOffset(file, endOffset, classOf[ScStringLiteral], false)
-      if (literalStart == null || !literalStart.isString || literalStart != literalEnd) return None
+      if (literalStart == null || !literalStart.hasValidClosingQuotes || literalStart != literalEnd) return None
 
       val prefix = literalStart match {
         case intrp: ScInterpolatedStringLiteral if rangeText.contains('$') => intrp.referenceName
@@ -351,11 +351,11 @@ object ScalaRefactoringUtil {
           case _ => false
         }
         getTextOccurrenceInLiterals(text, enclosingContainer, filter)
-      case lit: ScStringLiteral if lit.isString =>
+      case lit: ScStringLiteral if lit.hasValidClosingQuotes =>
         val text = lit.getValue.asInstanceOf[String]
         val filter: ScLiteral => Boolean = {
           case _: ScInterpolatedStringLiteral if text.contains('$') => false
-          case s: ScStringLiteral => s.isString
+          case s: ScStringLiteral => s.hasValidClosingQuotes
           case _ => false
         }
         getTextOccurrenceInLiterals(text, enclosingContainer, filter)

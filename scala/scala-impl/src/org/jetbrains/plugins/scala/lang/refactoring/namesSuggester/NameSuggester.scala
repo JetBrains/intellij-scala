@@ -155,7 +155,7 @@ object NameSuggester {
       enhancedNames(parameters, types)
     case invocation: MethodInvocation =>
       enhancedNames(invocation.matchedParameters, types)
-    case literal: ScStringLiteral if literal.isString =>
+    case literal: ScStringLiteral if literal.hasValidClosingQuotes =>
       Option(literal.getValue) match {
         case Some(string: String) =>
           val identifierSuggestion = if (isIdentifier(string.toLowerCase)) camelCaseNames(string).headOption else None

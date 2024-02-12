@@ -19,5 +19,5 @@ object ScalaStringContextType {
 
   private[impl] def isInContext(context: TemplateActionContext)
                                (implicit file: ScalaFile): Boolean =
-    ScalaFileTemplateContextType.isInContext(context, classOf[ScStringLiteral])(_.isString)
+    ScalaFileTemplateContextType.isInContext(context, classOf[ScStringLiteral])(_.hasValidClosingQuotes)
 }

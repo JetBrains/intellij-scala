@@ -44,7 +44,7 @@ private final class InterpolatedStringReferenceProvider extends PsiReferenceProv
 
   override def getReferencesByElement(element: PsiElement, context: ProcessingContext): Array[PsiReference] = element match {
     case _: ScInterpolatedStringLiteral => EMPTY_ARRAY
-    case literal: ScStringLiteral if literal.isString && literal.textContains('$') => // TODO remove this hack
+    case literal: ScStringLiteral if literal.hasValidClosingQuotes && literal.textContains('$') => // TODO remove this hack
       try {
         createExpressionWithContextFromText("s" + literal.getText, literal.getContext) match {
           case interpolated: ScInterpolatedStringLiteral =>

@@ -33,7 +33,7 @@ final class ScalaInjectedStringLiteralManipulator extends AbstractElementManipul
   }
 
   override def getRangeInElement(element: ScStringLiteral): TextRange =
-    if (element.isString)
+    if (element.hasValidClosingQuotes)
       element.contentRange.shiftLeft(element.getTextRange.getStartOffset)
     else
       super.getRangeInElement(element)
