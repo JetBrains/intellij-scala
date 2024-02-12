@@ -29,12 +29,6 @@ object MultilineStringUtil {
   def escapeForRegexp(s: String): String =
     escaper.matcher(s).replaceAll("\\\\$1")
 
-  def inMultilineString(element: PsiElement): Boolean =
-    element.getParent match {
-      case literal: ScLiteral => literal.isMultiLineString
-      case _                  => false
-    }
-
   def hasMarginChars(element: PsiElement, marginChar: String): Boolean = {
     element.getText.replace("\r", "").split(s"\n[ \t]*${escapeForRegexp(marginChar)}").length > 1
   }
@@ -177,12 +171,7 @@ object MultilineStringUtil {
     false
   }
 
-  /**
-   * @param literal     multiline string literal element that needs margins
-   * @param document    document containing element
-   * @param caretOffset current caret offset inside document
-   * @return additional caret offset needed to preserve original caret position relative to surrounding string parts
-   */
+  //TODO: it seems like it only works when the original string literal doesn't have ".stripMargin" call
   def addMarginsAndFormatMLString(literal: ScStringLiteral, document: Document, caretOffset: Int = 0): Int = {
     addMarginsAndFormatMLString(literal, document, getMarginChar(literal), caretOffset)
   }
