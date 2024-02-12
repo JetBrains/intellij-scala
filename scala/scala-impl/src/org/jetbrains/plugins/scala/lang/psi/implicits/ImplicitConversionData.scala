@@ -6,7 +6,7 @@ import com.intellij.psi.{PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.autoImport.GlobalImplicitConversion
 import org.jetbrains.plugins.scala.autoImport.GlobalMember.findGlobalMembers
 import org.jetbrains.plugins.scala.caches.{ModTracker, cachedInUserData}
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiElementExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.{NonNullObjectExt, ObjectExt, PsiClassExt, PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject

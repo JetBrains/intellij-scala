@@ -45,7 +45,7 @@ class ShowTypeInfoAction extends AnAction(
     if (editor == null) return
 
     val file = PsiUtilBase.getPsiFileInEditor(editor, CommonDataKeys.PROJECT.getData(context))
-    if (!file.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) return
+    if (file == null || !file.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) return
 
     ScalaActionUsagesCollector.logTypeInfo(file.getProject)
 

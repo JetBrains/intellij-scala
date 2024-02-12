@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.packagesearch.util
 import com.intellij.openapi.progress.util.ProgressIndicatorUtils
 import com.intellij.psi.PsiElement
 import org.apache.maven.artifact.versioning.ComparableVersion
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, SeqExt}
+import org.jetbrains.plugins.scala.extensions.{NonNullObjectExt, SeqExt}
 import org.jetbrains.plugins.scala.packagesearch.api.PackageSearchApiClient
 import org.jetbrains.plugins.scala.packagesearch.codeInspection.DependencyVersionInspection.{ArtifactIdSuffix, DependencyDescriptor}
 import org.jetbrains.plugins.scala.project.{ProjectExt, ProjectPsiElementExt}

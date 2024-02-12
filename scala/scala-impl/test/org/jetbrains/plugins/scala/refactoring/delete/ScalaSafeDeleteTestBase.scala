@@ -4,7 +4,7 @@ import com.intellij.refactoring.BaseRefactoringProcessor
 import com.intellij.refactoring.listeners.{RefactoringEventData, RefactoringEventListener}
 import com.intellij.refactoring.safeDelete.SafeDeleteHandler
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, StringExt}
+import org.jetbrains.plugins.scala.extensions.{NonNullObjectExt, StringExt}
 import org.jetbrains.plugins.scala.util.Markers
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
 

@@ -18,42 +18,40 @@ class DefinitionsFilter extends ElementFilter {
   override def isAcceptable(element: Object, @Nullable context: PsiElement): Boolean = {
     if (context == null || context.is[PsiComment]) return false
     val leaf = PsiTreeUtil.getDeepestFirst(context)
-    if (leaf != null) {
-      val parent = leaf.getParent
-      parent match {
-        case _: ScClassParameter =>
-          return true
-        case _: ScReferenceExpression if checkAfterSoftModifier(parent, leaf) => return true
-        case _: ScReferenceExpression =>
-        case _ => return false
-      }
-      @tailrec
-      def findParent(p: PsiElement): PsiElement = {
-        if (p == null) return null
-        p.getParent match {
-          case parent@(_: ScDeclarationSequenceHolder |
-                       _: ScCaseClause |
-                       _: ScTemplateBody |
-                       _: ScClassParameter) =>
-            parent match {
-              case clause: ScCaseClause =>
-                clause.funType match {
-                  case Some(elem) => if (leaf.getTextRange.getStartOffset <= elem.getTextRange.getStartOffset) return null
-                  case _ => return null
-                }
-              case _ =>
-            }
-            if (awful(parent, leaf))
-              return p
-            null
-          case _ => findParent(p.getParent)
-        }
-      }
-      val otherParent = findParent(parent)
-      if (otherParent != null && otherParent.getTextRange.getStartOffset == parent.getTextRange.getStartOffset)
+    val parent = leaf.getParent
+    parent match {
+      case _: ScClassParameter =>
         return true
+      case _: ScReferenceExpression if checkAfterSoftModifier(parent, leaf) => return true
+      case _: ScReferenceExpression =>
+      case _ => return false
     }
-    false
+
+    @tailrec
+    @Nullable
+    def findParent(p: PsiElement): PsiElement = {
+      if (p == null) return null
+      p.getParent match {
+        case parent@(_: ScDeclarationSequenceHolder |
+                     _: ScCaseClause |
+                     _: ScTemplateBody |
+                     _: ScClassParameter) =>
+          parent match {
+            case clause: ScCaseClause =>
+              clause.funType match {
+                case Some(elem) => if (leaf.getTextRange.getStartOffset <= elem.getTextRange.getStartOffset) return null
+                case _ => return null
+              }
+            case _ =>
+          }
+          if (awful(parent, leaf))
+            return p
+          null
+        case _ => findParent(p.getParent)
+      }
+    }
+    val otherParent = findParent(parent)
+    otherParent != null && otherParent.getTextRange.getStartOffset == parent.getTextRange.getStartOffset
   }
 
   override def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = {

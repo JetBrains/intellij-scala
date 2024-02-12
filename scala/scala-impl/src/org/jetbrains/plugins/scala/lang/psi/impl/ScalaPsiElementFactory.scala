@@ -1310,23 +1310,23 @@ object ScalaPsiElementFactory {
     }
   }
 
-  def createTypeFromText(@NonNls text: String, context: PsiElement, child: PsiElement): Option[ScType] = {
+  def createTypeFromText(@NonNls text: String, @Nullable context: PsiElement, @Nullable child: PsiElement): Option[ScType] = {
     val typeElement = createTypeElementFromText(text, context, child)
     Option(typeElement).map {
       _.`type`().getOrAny // FIXME this should probably be a None instead of Some(Any)
     }
   }
 
-  def createMethodWithContext(@NonNls text: String, context: PsiElement, child: PsiElement): ScFunction =
+  def createMethodWithContext(@NonNls text: String, @Nullable context: PsiElement, @Nullable child: PsiElement): ScFunction =
     createElementWithContext[ScFunction](text, context, child)(parsingStat.Def.parse(_))
 
-  def createDefinitionWithContext(@NonNls text: String, context: PsiElement, child: PsiElement): ScMember =
+  def createDefinitionWithContext(@NonNls text: String, @Nullable context: PsiElement, @Nullable child: PsiElement): ScMember =
     createElementWithContext[ScMember](text, context, child)(parsingStat.Def.parse(_))
 
-  def createObjectWithContext(@NonNls text: String, context: PsiElement, child: PsiElement): ScObject =
+  def createObjectWithContext(@NonNls text: String, @Nullable context: PsiElement, @Nullable child: PsiElement): ScObject =
     createElementWithContext[ScObject](text, context, child)(TmplDef.parse(_))
 
-  def createTypeDefinitionWithContext(@NonNls text: String, context: PsiElement, child: PsiElement): ScTypeDefinition =
+  def createTypeDefinitionWithContext(@NonNls text: String, @Nullable context: PsiElement, @Nullable child: PsiElement): ScTypeDefinition =
     createElementWithContext[ScTypeDefinition](text, context, child)(TmplDef.parse(_))
 
   def createReferenceFromText(@NonNls text: String, context: PsiElement, child: PsiElement): ScStableCodeReference =
@@ -1340,7 +1340,9 @@ object ScalaPsiElementFactory {
     }
 
   // TODO method should be eliminated eventually
-  def createExpressionWithContextFromText(@NonNls text: String, context: PsiElement, child: PsiElement): ScExpression = {
+  def createExpressionWithContextFromText(@NonNls text: String,
+                                          @Nullable context: PsiElement,
+                                          @Nullable child: PsiElement): ScExpression = {
     val methodCall = createElementWithContext[ScMethodCall](s"foo($text)", context, child)(expressions.Expr.parse(_))
 
     val firstArgument = methodCall.argumentExpressions
@@ -1382,9 +1384,9 @@ object ScalaPsiElementFactory {
   }
 
   def createElementWithContext[E <: ScalaPsiElement : ClassTag](
-    @NonNls text: String,
-    context:      PsiElement,
-    child:        PsiElement
+    @NonNls text:      String,
+    @Nullable context: PsiElement,
+    @Nullable child:   PsiElement
   )(parse:        ScalaPsiBuilder => AnyVal): E = {
     implicit val project: Project = (if (context == null) child else context).getProject
     createElementWithContext[E](text, context, child, ScalaFeatures.forPsiOrDefault(context))(parse)
@@ -1525,11 +1527,11 @@ object ScalaPsiElementFactory {
     createExpressionFromText(s"1$whitespace+ 1", ScalaFeatures.default).findElementAt(1)
 
   def createTypeElementFromText(
-    @NonNls text:  String,
-    context:       PsiElement,
-    child:         PsiElement,
-    isPattern:     Boolean = false,
-    typeVariables: Boolean = false
+    @NonNls text:      String,
+    @Nullable context: PsiElement,
+    @Nullable child:   PsiElement,
+    isPattern:         Boolean = false,
+    typeVariables:     Boolean = false
   ): ScTypeElement =
     createElementWithContext[ScTypeElement](text, context, child)(
       types.ParamType.parseWithoutScParamTypeCreation(

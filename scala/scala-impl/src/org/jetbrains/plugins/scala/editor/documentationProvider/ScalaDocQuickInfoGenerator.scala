@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
-import org.jetbrains.plugins.scala.project.ProjectContext
 import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.editor.documentationProvider.renderers.{ScalaDocTypeRenderer, WithHtmlPsiLink}
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.{NonNullObjectExt, ObjectExt, PsiClassExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{ContextBoundInfo, inNameContext}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -14,7 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenDefinition.DesugaredTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
@@ -22,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotatio
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 // TODO 1: analyze performance and whether rendered info is cached?
 // TODO 2:  (!) quick info on the element itself should lead to "Show find usages" tooltip, no to quick info tooltip

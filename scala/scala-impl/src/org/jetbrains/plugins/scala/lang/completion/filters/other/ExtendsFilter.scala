@@ -16,7 +16,7 @@ final class ExtendsFilter extends ElementFilter {
   override def isAcceptable(element: Object, @Nullable context: PsiElement): Boolean = {
     if (context == null || context.is[PsiComment]) return false
     val leaf = PsiTreeUtil.getDeepestFirst(context)
-    if (leaf == null ||
+    if (
       // do not suggest if there is already an `extends` keyword. e.g.:
       // class Test e<caret> extends
       isBeforeExtends(leaf) ||

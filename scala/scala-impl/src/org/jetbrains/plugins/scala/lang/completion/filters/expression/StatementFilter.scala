@@ -15,23 +15,21 @@ class StatementFilter extends ElementFilter {
   override def isAcceptable(element: Object, @Nullable context: PsiElement): Boolean = {
     if (context == null || context.is[PsiComment]) return false
     val leaf = PsiTreeUtil.getDeepestFirst(context)
-    if (leaf != null) {
-      val parent = leaf.getParent
-      if (parent.is[ScReferenceExpression] &&
-              !parent.getParent.is[ScStableReferencePattern] &&
-              (!parent.getParent.is[ScInfixExpr]) && (parent.getPrevSibling == null ||
-              parent.getPrevSibling.getPrevSibling == null ||
-        (parent.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaElementType.MATCH_STMT ||
-                      !parent.getPrevSibling.getPrevSibling.getLastChild.is[PsiErrorElement]))) {
-        parent.getParent match {
-          case _: ScBlockExpr | _: ScBlock | _: ScTemplateBody => return true
-          case x: ScExpression => return checkReplace(x, "if (true) true")
-          case _ =>
-        }
-        return true
+    val parent = leaf.getParent
+    if (parent.is[ScReferenceExpression] &&
+            !parent.getParent.is[ScStableReferencePattern] &&
+            (!parent.getParent.is[ScInfixExpr]) && (parent.getPrevSibling == null ||
+            parent.getPrevSibling.getPrevSibling == null ||
+      (parent.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaElementType.MATCH_STMT ||
+                    !parent.getPrevSibling.getPrevSibling.getLastChild.is[PsiErrorElement]))) {
+      parent.getParent match {
+        case _: ScBlockExpr | _: ScBlock | _: ScTemplateBody => true
+        case x: ScExpression => checkReplace(x, "if (true) true")
+        case _ => true
       }
+    } else {
+      false
     }
-    false
   }
 
   override def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = {

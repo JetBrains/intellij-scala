@@ -21,7 +21,7 @@ class CaseFilter extends ElementFilter {
     if (context == null || context.is[PsiComment]) return false
     val leaf = PsiTreeUtil.getDeepestFirst(context)
 
-    if (leaf != null && leaf.getParent != null) {
+    if (leaf.getParent != null) {
       val parent =
         if (CaseFilter.isToplevelLeaf(leaf)) leaf.getParent.getParent
         else leaf.getParent

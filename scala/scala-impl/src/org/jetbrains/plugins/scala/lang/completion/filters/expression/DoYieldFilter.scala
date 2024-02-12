@@ -14,7 +14,7 @@ class DoYieldFilter extends ElementFilter {
     if (context == null || !context.isInScala3File || context.is[PsiComment]) return false
     val leaf = PsiTreeUtil.getDeepestFirst(context)
 
-    if (leaf != null && leaf.getParent.is[ScReferenceExpression] && leaf.getParent.getParent != null) {
+    if (leaf.getParent.is[ScReferenceExpression] && leaf.getParent.getParent != null) {
       val parent = leaf.getParent
       val errorBeforeDoYieldStart = parent.prevLeafs.filterNot(_.is[PsiComment, PsiWhiteSpace]).nextOption()
 

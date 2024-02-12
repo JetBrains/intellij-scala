@@ -10,22 +10,19 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 
 class ModifiersFilter extends ElementFilter {
   override def isAcceptable(element: Object, @Nullable context: PsiElement): Boolean = {
-    if (context.is[PsiComment] || element.is[PsiIdentifier]) return false
+    if (context == null || context.is[PsiComment] || element.is[PsiIdentifier]) return false
     val leaf = PsiTreeUtil.getDeepestFirst(context)
 
-    if (leaf != null) {
-      val parent = leaf.getParent
-      parent match {
-        case _: ScClassParameter =>
-          return true
-        case _ =>
-      }
-      val tuple = ScalaCompletionUtil.getForAll(parent, leaf)
-      if (tuple._1) return tuple._2
-
-      return ScalaCompletionUtil.checkAfterSoftModifier(parent, leaf)
+    val parent = leaf.getParent
+    parent match {
+      case _: ScClassParameter =>
+        true
+      case _ =>
+        ScalaCompletionUtil.getForAll(parent, leaf) match {
+          case (true, result) => result
+          case (false, _) => ScalaCompletionUtil.checkAfterSoftModifier(parent, leaf)
+        }
     }
-    false
   }
 
   override def isClassAcceptable(hintClass: java.lang.Class[_]) = true

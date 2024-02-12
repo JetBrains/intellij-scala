@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.project
 import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.util.{Key, Ref}
 import com.intellij.psi.{PsiElement, PsiFile}
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.util.BitMaskStorage
@@ -108,7 +109,7 @@ object ScalaFeatures {
     def serializeToInt: Int = bits
   }
 
-  final case class PsiContextFeatures(psi: PsiElement, delegate: ScalaFeatures) extends ScalaFeatures {
+  final case class PsiContextFeatures(@Nullable psi: PsiElement, delegate: ScalaFeatures) extends ScalaFeatures {
     override val psiContext: Option[PsiElement] = Option(psi)
 
     override def languageLevel: ScalaLanguageLevel               = delegate.languageLevel
@@ -248,7 +249,7 @@ object ScalaFeatures {
     result
   }
 
-  implicit def forPsiOrDefault(psi: PsiElement): ScalaFeatures = {
+  implicit def forPsiOrDefault(@Nullable psi: PsiElement): ScalaFeatures = {
     val delegate =
       if (psi eq null) ScalaFeatures.default
       else             forPsi(psi).getOrElse(default)

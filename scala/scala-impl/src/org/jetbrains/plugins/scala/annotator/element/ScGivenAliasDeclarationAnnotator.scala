@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.annotator.element
 import com.intellij.codeInsight.CodeInsightUtilCore
 import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.codeInsight.intention.{FileModifier, IntentionAction}
-import com.intellij.codeInsight.template.{TemplateBuilderImpl, TemplateManager}
+import com.intellij.codeInsight.template.TemplateBuilderImpl
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
@@ -12,7 +12,7 @@ import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationHolder, TemplateUtils}
 import org.jetbrains.plugins.scala.codeInsight.intention.types.ChooseValueExpression
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.NonNullObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGivenAliasDeclaration, ScGivenAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createPsiElementFromText
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester

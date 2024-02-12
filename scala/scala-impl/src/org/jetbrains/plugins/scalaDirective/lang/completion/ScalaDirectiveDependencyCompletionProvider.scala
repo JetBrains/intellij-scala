@@ -8,7 +8,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.progress.util.ProgressIndicatorUtils
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.LatestScalaVersions
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.NonNullObjectExt
 import org.jetbrains.plugins.scala.lang.completion.positionFromParameters
 import org.jetbrains.plugins.scala.packagesearch.api.PackageSearchApiClient
 import org.jetbrains.plugins.scala.packagesearch.model.ApiPackage
