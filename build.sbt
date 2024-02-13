@@ -60,7 +60,7 @@ lazy val scalaCommunity: sbt.Project =
       pluginXml,
     )
     .settings(
-      ideExcludedDirectories    := Seq(baseDirectory.value / "target", baseDirectory.value / "compilation-cache"),
+      ideExcludedDirectories    := Seq(baseDirectory.value / "target"),
       packageAdditionalProjects := Seq(
         jps,
         compilerJps,
