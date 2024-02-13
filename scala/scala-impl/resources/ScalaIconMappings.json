@@ -21,7 +21,6 @@
               "fieldVariable.svg": "org/jetbrains/plugins/scala/images/fieldVariable.svg",
               "function.svg": "org/jetbrains/plugins/scala/images/function.svg",
               "lambda.svg": "org/jetbrains/plugins/scala/images/lambda.svg",
-              "multipleTypeDefinitions.svg": "org/jetbrains/plugins/scala/images/multipleTypeDefinitions.svg",
               "objectCompanion.svg": "org/jetbrains/plugins/scala/images/objectCompanion.svg",
               "objectCompanionSwapped.svg": "org/jetbrains/plugins/scala/images/objectCompanionSwapped.svg",
               "objectScala.svg": "org/jetbrains/plugins/scala/images/objectScala.svg",
