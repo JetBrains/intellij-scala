@@ -75,7 +75,4 @@ public interface Icons {
     // Highlighting (status bar)
     Icon TYPED = getIcon("/org/jetbrains/plugins/scala/images/typed.svg", Icons.class);
     Icon UNTYPED = getIcon("/org/jetbrains/plugins/scala/images/untyped.svg", Icons.class);
-
-    //TODO: drop as unused?
-    Icon LIGHTBEND_LOGO = getIcon("/org/jetbrains/plugins/scala/images/lightbendLogo.svg", Icons.class);
 }
