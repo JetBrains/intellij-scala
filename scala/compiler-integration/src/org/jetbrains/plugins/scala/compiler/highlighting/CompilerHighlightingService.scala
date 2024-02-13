@@ -39,7 +39,6 @@ import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.{ConcurrentSkipListSet, ScheduledExecutorService, ScheduledFuture, TimeUnit}
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future, Promise}
-import scala.util.Try
 import scala.util.control.NonFatal
 
 @Service(Array(Service.Level.PROJECT))
@@ -321,18 +320,8 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     try {
       saveProjectOnce()
       CompileServerLauncher.ensureServerRunning(project)
-      val sessionId = CompilationId.generate().toString
       if (project.isDisposed) return
-      CompilerLock.get(project).lock(sessionId)
-      val future = compile
-
-      try Await.result(future, Duration.Inf)
-      finally {
-        progressIndicator.set(null)
-        if (!project.isDisposed) {
-          CompilerLock.get(project).unlock(sessionId)
-        }
-      }
+      Await.result(compile, Duration.Inf)
     } catch {
       case _: InterruptedException =>
         // Disposing of the CompilerHighlightingService (on project close) interrupts the compilation through the
@@ -346,15 +335,27 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
   private def performCompilation(delayIndicator: Boolean)(compile: CompilerEventGeneratingClient => Unit): Future[Unit] = {
     val promise = Promise[Unit]()
     val taskMsg = CompilerIntegrationBundle.message("highlighting.compilation")
+
     val task = new Task.Backgroundable(project, taskMsg, true) {
       override def run(indicator: ProgressIndicator): Unit = {
         if (project.isDisposed) return
-        progressIndicator.set(indicator)
-        val client = new CompilerEventGeneratingClient(project, indicator, Log)
-        val result = Try(compile(client))
-        promise.complete(result)
+
+        try {
+          progressIndicator.set(indicator)
+          val client = new CompilerEventGeneratingClient(project, indicator, Log)
+          CompilerLockService.instance(project).withCompilerLock(indicator) {
+            compile(client)
+          }
+          promise.success(())
+        } catch {
+          case t: Throwable =>
+            promise.failure(t)
+        } finally {
+          progressIndicator.set(null)
+        }
       }
     }
+
     val indicator = new DeferredShowProgressIndicator(task)
     ProgressManager.getInstance().runProcessWithProgressAsynchronously(task, indicator)
     val Duration(length, unit) =

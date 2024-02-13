@@ -11,9 +11,6 @@
         <trafficLightRendererContributor implementation="org.jetbrains.plugins.scala.compiler.highlighting.CustomTrafficLightRendererContributor"/>
         <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.compiler.highlighting.EraseCompilerProcessJdkOnce"/>
 
-        <projectService serviceInterface="org.jetbrains.plugins.scala.compiler.highlighting.CompilerLock"
-                        serviceImplementation="org.jetbrains.plugins.scala.compiler.highlighting.CompilerLockImpl"/>
-
         <!--
         Define extra classpath for JPS
         NOTE: there is also Scala Compile Server, it's classpath is defined in
@@ -29,6 +26,7 @@
 
         <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.compiler.EnsureModulesHaveDifferentProdAndTestOutputsTask"/>
 
+        <compiler.isUpToDateCheckConsumer implementation="org.jetbrains.plugins.scala.compiler.highlighting.CompilerHighlightingUpToDateChecker"/>
         <compiler.isUpToDateCheckConsumer implementation="org.jetbrains.plugins.scala.compiler.references.compilation.IsUpToDateChecker"/>
 
         <projectService serviceInterface="org.jetbrains.plugins.scala.compiler.CompileServerClient"
@@ -70,7 +68,7 @@
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.compiler.highlighting.ToggleHighlightingModeListener"/>
         <listener topic="com.intellij.compiler.server.BuildManagerListener"
-                  class="org.jetbrains.plugins.scala.compiler.highlighting.CompilerLockBuildManagerListener"/>
+                  class="org.jetbrains.plugins.scala.compiler.highlighting.CompilerHighlightingBuildManagerListener"/>
         <listener topic="com.intellij.compiler.server.BuildManagerListener"
                   class="org.jetbrains.plugins.scala.compiler.highlighting.AutomakeBuildManagerListener"/>
 
