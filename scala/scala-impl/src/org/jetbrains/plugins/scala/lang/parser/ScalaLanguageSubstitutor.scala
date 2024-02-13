@@ -6,11 +6,13 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.LanguageSubstitutor
 import com.intellij.testFramework.LightVirtualFile
+import com.intellij.util.SlowOperations
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.lang.parser.ScalaLanguageSubstitutor.looksLikeScala3LibSourcesJar
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaFileType, ScalaLanguage}
 
+import scala.util.Using
 import scala.util.matching.Regex
 
 /**
@@ -33,7 +35,9 @@ final class ScalaLanguageSubstitutor extends LanguageSubstitutor {
     val substituted = if (assignedLanguage != null && assignedLanguage.isKindOf(ScalaLanguage.INSTANCE))
       assignedLanguage
     else if (ScalaFileType.INSTANCE.isMyFileType(file)) {
-      val module = ModuleUtilCore.findModuleForFile(file, project)
+      val module = Using.resource(SlowOperations.knownIssue("SCL-21147")) { _ =>
+        ModuleUtilCore.findModuleForFile(file, project)
+      }
       if (module != null && module.hasScala3)
         Scala3Language.INSTANCE
       else if (looksLikeScala3LibSourcesJar(file.getPath))
