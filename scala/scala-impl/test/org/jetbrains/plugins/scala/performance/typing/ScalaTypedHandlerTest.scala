@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.performance.typing
 
-import scala.concurrent.duration.{Duration, DurationInt}
 import scala.language.postfixOps
 
 /**
@@ -8,8 +7,6 @@ import scala.language.postfixOps
  * TODO: unify tests and move to a common package
  */
 class ScalaTypedHandlerTest extends TypingTestWithPerformanceTestBase {
-  implicit val typingTimeout: Duration = 150 milliseconds
-
   override protected def folderPath: String = super.folderPath + "/typedHandler/"
 
   def testCase(): Unit = doFileTest("case _")

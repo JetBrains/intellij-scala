@@ -10,11 +10,10 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.util.TestUtils
 
 import java.io.File
-import scala.concurrent.duration.Duration
 
 abstract class TypingTestWithPerformanceTestBase extends ScalaFixtureTestCase {
 
-  def doFileTest(stringsToType: String*)(implicit timeout: Duration): Unit = {
+  def doFileTest(stringsToType: String*): Unit = {
     val fileName = getTestName(true) + ".scala"
     val filePath = folderPath + fileName
     val ioFile = new File(filePath)
@@ -23,7 +22,7 @@ abstract class TypingTestWithPerformanceTestBase extends ScalaFixtureTestCase {
     doTest(stringsToType)(input, expectedOpt.orNull)
   }
 
-  def doTest(stringsToType: Seq[String])(input: String, expectedOutput: String)(implicit timeout: Duration): Unit = {
+  def doTest(stringsToType: Seq[String])(input: String, expectedOutput: String): Unit = {
     val fileName = getTestName(true) + ".scala"
     val testName = s"TypingTest${getTestName(false)}"
 
@@ -39,14 +38,14 @@ abstract class TypingTestWithPerformanceTestBase extends ScalaFixtureTestCase {
     }
 
     PlatformTestUtil
-      .startPerformanceTest(testName, timeout.toMillis.toInt, testBody)
-      .assertTiming()
+      .newPerformanceTest(testName, testBody)
+      .start()
   }
 
-  def doTest(stringToType: String)(input: String, expected: String)(implicit timeout: Duration): Unit =
+  def doTest(stringToType: String)(input: String, expected: String): Unit =
     doTest(Seq(stringToType))(input, expected)
 
-  def doTest(charsToType: Char*)(input: String, expected: String)(implicit timeout: Duration, d: DummyImplicit): Unit =
+  def doTest(charsToType: Char*)(input: String, expected: String)(implicit d: DummyImplicit): Unit =
     doTest(Seq(charsToType.mkString("")))(input, expected)
 
   protected def folderPath: String = TestUtils.getTestDataPath + "/typing/"
