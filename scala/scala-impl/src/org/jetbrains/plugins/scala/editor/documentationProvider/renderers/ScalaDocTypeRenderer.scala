@@ -216,9 +216,8 @@ private [documentationProvider] class ScalaDocTypeRenderer(
 
   private def projectionTypeText(projType: ScProjectionType): String = {
     val e = projType.actualElement
-    val refName = e.name
     val renderedName = nameRenderer.renderName(e)
-    if (presentableContext.nameResolvesTo(refName, e))
+    if (presentableContext.nameResolvesTo(e.name, e))
       renderedName // if reference can be resolved from the context we do not render any context info
     else {
       lazy val isStaticJavaClass = e match {
@@ -228,27 +227,29 @@ private [documentationProvider] class ScalaDocTypeRenderer(
       lazy val typeTailForProjection = if (checkIfStable(e)) s".$renderedType" else ""
       projType.projected match {
         case ScDesignatorType(pack: PsiPackage) =>
-          s"${nameRenderer.renderNameWithPoint(pack)}.$renderedName"
+          connectIfNotEmpty(nameRenderer.renderNameWithPoint(pack), renderedName)
         case ScDesignatorType(named) if checkIfStable(named) =>
-          s"${nameRenderer.renderNameWithPoint(named)}.$renderedName$typeTailForProjection"
+          connectIfNotEmpty(nameRenderer.renderNameWithPoint(named), s"$renderedName$typeTailForProjection")
         case ScThisType(obj: ScObject) =>
-          s"${nameRenderer.renderNameWithPoint(obj)}.$renderedName$typeTailForProjection"
+          connectIfNotEmpty(nameRenderer.renderNameWithPoint(obj), s"$renderedName$typeTailForProjection")
         case p@ScThisType(_: ScTypeDefinition) if checkIfStable(e) =>
-          s"${render(p)}.$renderedName$typeTailForProjection"
+          connectIfNotEmpty(render(p), s"$renderedName$typeTailForProjection")
         case p: ScProjectionType if checkIfStable(p.actualElement) =>
-          s"${projectionTypeText(p)}.$renderedName$typeTailForProjection"
+          connectIfNotEmpty(projectionTypeText(p), s"$renderedName$typeTailForProjection")
         case StaticJavaClassHolder(clazz) if isStaticJavaClass =>
-          s"${nameRenderer.renderNameWithPoint(clazz)}.$renderedName"
+          connectIfNotEmpty(nameRenderer.renderNameWithPoint(clazz), renderedName)
         case p@(_: ScCompoundType | _: ScExistentialType) =>
-          s"(${render(p)})#$renderedName"
+          connectIfNotEmpty(render(p), renderedName, '#')
         case p =>
           val innerText = render(p)
           if (innerText.endsWith(renderedType)) s"${innerText.stripSuffix("type")}$renderedName"
-          else s"$innerText#$renderedName"
+          else connectIfNotEmpty(innerText, renderedName, '#')
       }
     }
   }
 
+  private def connectIfNotEmpty(prefix: String, suffix: String, connector: Char = '.'): String =
+    if (prefix.nonEmpty) s"$prefix$connector$suffix" else suffix
 }
 
 private [documentationProvider] object ScalaDocTypeRenderer {
