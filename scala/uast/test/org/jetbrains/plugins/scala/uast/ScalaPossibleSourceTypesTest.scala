@@ -6,6 +6,7 @@ import com.intellij.platform.uast.testFramework.common.AllUastTypesKt.allUElemen
 import com.intellij.platform.uast.testFramework.common.PossibleSourceTypesTestBase
 import junit.framework.{Test, TestCase}
 import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase
+import org.jetbrains.plugins.scala.lang.parser.ScalaFileSetParserTestCase
 import org.jetbrains.plugins.scala.lang.psi.uast.withPossibleSourceTypesCheck
 import org.jetbrains.plugins.scala.{ScalaLanguage, ScalaVersion}
 import org.jetbrains.uast._
@@ -15,7 +16,7 @@ import scala.jdk.CollectionConverters.IterableHasAsScala
 class ScalaPossibleSourceTypesTest extends TestCase
 
 object ScalaPossibleSourceTypesTest {
-  def suite(): Test = new ScalaFileSetTestCase("/parser/data") with PossibleSourceTypesTestBase {
+  def suite(): Test = new ScalaFileSetParserTestCase("/parser/data") with PossibleSourceTypesTestBase {
     override protected def getLanguage: Language = ScalaLanguage.INSTANCE
 
     override protected def supportedInScalaVersion(version: ScalaVersion): Boolean =

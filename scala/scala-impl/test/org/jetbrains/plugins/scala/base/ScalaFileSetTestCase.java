@@ -47,7 +47,6 @@ import java.util.stream.Stream;
 
 import static com.intellij.openapi.util.io.FileUtil.loadFileText;
 import static com.intellij.openapi.util.text.StringUtil.*;
-import static com.intellij.psi.impl.DebugUtil.psiToString;
 import static org.junit.Assert.*;
 
 public abstract class ScalaFileSetTestCase extends TestSuite {
@@ -118,17 +117,12 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
         indentOptions.TAB_SIZE = 2;
     }
 
-    // TODO: make this method abstract and reuse implementation using e.g. mixins in parser tests
-    //  this method builds psi tree string and it's only applicable to parser tests
     @NotNull
-    protected String transform(@NotNull String testName,
-                               @NotNull String fileText,
-                               @NotNull Project project) {
-        PsiFile lightFile = createLightFile(fileText, project);
-
-        return psiToString(lightFile, true)
-                .replace(": " + lightFile.getName(), "");
-    }
+    abstract protected String transform(
+            @NotNull String testName,
+            @NotNull String fileText,
+            @NotNull Project project
+    );
 
     @NotNull
     protected String transformExpectedResult(@NotNull String text) {

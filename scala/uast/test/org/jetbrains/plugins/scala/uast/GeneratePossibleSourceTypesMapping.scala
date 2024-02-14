@@ -6,6 +6,7 @@ import com.intellij.platform.uast.testFramework.common.AllUastTypesKt.allUElemen
 import junit.framework.TestResult
 import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.parser.ScalaFileSetParserTestCase
 import org.jetbrains.plugins.scala.lang.psi.uast.withPossibleSourceTypesCheck
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage, ScalaVersion}
@@ -111,7 +112,7 @@ object GeneratePossibleSourceTypesMapping {
     }
 
     @Ignore("for local running only")
-    class GatheringTestSuite(path: String, lang: Language, extensions: String*) extends ScalaFileSetTestCase(path, extensions: _*) {
+    class GatheringTestSuite(path: String, lang: Language, extensions: String*) extends ScalaFileSetParserTestCase(path, extensions: _*) {
 
       override protected def needsSdk(): Boolean = true
 
