@@ -4,12 +4,12 @@ import com.intellij.icons.AllIcons
 import com.intellij.ui.AnimatedIcon
 import com.intellij.ui.roots.ScalableIconComponent
 import com.intellij.util.ui.{AsyncProcessIcon, EmptyIcon}
-import javax.swing.{Icon, JPanel}
 import org.jetbrains.plugins.scala.worksheet.actions.InteractiveStatusDisplay.{createAnimatedIcon, createIconWrapper}
-import org.jetbrains.plugins.scala.worksheet.actions.topmenu.TopComponentDisplayable
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetUiUtils
 
-class InteractiveStatusDisplay extends TopComponentDisplayable {
+import javax.swing.{Icon, JPanel}
+
+class InteractiveStatusDisplay {
 
   private val iconPanel = new JPanel()
 
@@ -18,7 +18,7 @@ class InteractiveStatusDisplay extends TopComponentDisplayable {
   private val successIcon = createAnimatedIcon(AllIcons.General.InspectionsOK)
   private val failureIcon = createAnimatedIcon(AllIcons.General.Error)
 
-  override def init(panel: JPanel): Unit = {
+  def addTo(panel: JPanel): Unit = {
     iconPanel.add(createIconWrapper(EmptyIcon.ICON_18), 0)
     panel.add(iconPanel)
     WorksheetUiUtils.fixUnboundMaxSize(iconPanel)

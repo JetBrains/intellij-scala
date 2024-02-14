@@ -1,14 +1,15 @@
 package org.jetbrains.plugins.scala.worksheet.ui
 
-import org.jetbrains.plugins.scala.extensions.inReadAction
+import com.intellij.openapi.actionSystem.{ActionManager, ActionPlaces, DefaultActionGroup}
 import org.jetbrains.plugins.scala.worksheet.actions.InteractiveStatusDisplay
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.StopWorksheetAction.StoppableProcess
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu._
 import org.jetbrains.plugins.scala.worksheet.bsp.BspWorksheetCompilerExtension
-import org.jetbrains.plugins.scala.worksheet.ui.WorksheetControlPanel._
+import org.jetbrains.plugins.scala.worksheet.ui.WorksheetControlPanel.createSplitter
 
 import java.awt.Dimension
 import javax.swing._
+import scala.util.chaining.scalaUtilChainingOps
 
 // TODO: check if Scala Plugin is unloadable if there are some worksheets with initialized top panel UI
 final class WorksheetControlPanel extends JPanel {
@@ -23,53 +24,37 @@ final class WorksheetControlPanel extends JPanel {
 
   private var runEnabled = false
 
-  init()
-
-  private def init(): Unit = {
+  locally {
     val panel = this
 
     val layout = new BoxLayout(panel, BoxLayout.LINE_AXIS)
     panel.setLayout(layout)
     panel.setAlignmentX(0.0f) //leftmost
 
-    @inline def addSplitter(): Unit =
-      panel.add(createSplitter())
-
-    @inline def addFiller(): Unit = {
-      val lastComponent = panel.getComponent(panel.getComponentCount - 1)
-      lastComponent match {
-        case child: JComponent =>
-          panel.add(createFillerFor(child))
-        case _                 =>
-      }
+    val leftToolbarGroup = new DefaultActionGroup().tap { group =>
+      group.add(runAction)
+      group.add(stopAction)
+      group.add(cleanAction)
+      group.add(copyAction)
+      group.addSeparator()
+      group.add(settingsAction)
+      group.addSeparator()
+      extraActions.foreach(group.add)
     }
+    val leftToolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.EDITOR_TOOLBAR, leftToolbarGroup, true)
+    leftToolbar.setTargetComponent(panel)
 
-    inReadAction {
-      runAction.init(panel)
-      stopAction.init(panel)
-      addFiller()
-      cleanAction.init(panel)
-      addFiller()
-      copyAction.init(panel)
-      addSplitter()
-      settingsAction.init(panel)
-      addSplitter()
-      extraActions.foreach { action =>
-        action.init(panel)
-      }
-      panel.add(Box.createHorizontalGlue())
-      addSplitter()
-      statusDisplay.init(panel)
-      statusDisplay.onSuccessfulCompiling()
+    panel.add(leftToolbar.getComponent)
+    panel.add(Box.createHorizontalGlue())
+    panel.add(createSplitter())
+    statusDisplay.addTo(panel)
 
-      enableRun(hasErrors = false)
-    }
+    enableRun(hasErrors = false)
   }
 
   def enableRun(hasErrors: Boolean): Unit = {
     runEnabled = true
     stopAction.setStoppableProcess(None)
-    updateView()
 
     if (hasErrors) {
       statusDisplay.onFailedCompiling()
@@ -81,16 +66,8 @@ final class WorksheetControlPanel extends JPanel {
   def disableRun(exec: Option[StoppableProcess]): Unit = {
     runEnabled = false
     stopAction.setStoppableProcess(exec)
-    updateView()
 
     statusDisplay.onStartCompiling()
-  }
-
-  private def updateView(): Unit = {
-    stopAction.setEnabled(!runEnabled)
-    stopAction.setVisible(!runEnabled)
-    runAction.setEnabled(runEnabled)
-    runAction.setVisible(runEnabled)
   }
 
   def isRunEnabled: Boolean = runEnabled
@@ -106,18 +83,5 @@ object WorksheetControlPanel {
     val size = new Dimension(separator.getPreferredSize.width, separator.getMaximumSize.height)
     separator.setMaximumSize(size)
     separator
-  }
-
-  private def createFillerFor(comp: JComponent) = {
-    val (baseSize, hh, wh) = calculateDeltas(comp)
-    Box.createRigidArea(new Dimension(wh, baseSize.height + hh))
-  }
-
-  private def calculateDeltas(comp: JComponent) = {
-    val baseSize = comp.getPreferredSize
-    val hh = baseSize.height / 5
-    val wh = baseSize.width / 5
-
-    (baseSize, hh, wh)
   }
 }

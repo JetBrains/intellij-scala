@@ -1,20 +1,14 @@
 package org.jetbrains.plugins.scala.worksheet.actions.topmenu
 
-import com.intellij.openapi.actionSystem.impl.ActionButton
-import com.intellij.openapi.actionSystem.{ActionPlaces, ActionToolbar, ActionUpdateThread, AnAction, AnActionEvent, Presentation}
-import com.intellij.openapi.application.ModalityState
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent}
 import com.intellij.openapi.keymap.{KeymapManager, KeymapUtil}
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.extensions.invokeAndWait
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetAction
-import org.jetbrains.plugins.scala.worksheet.ui.WorksheetUiUtils
 
-import javax.swing.{Icon, JPanel}
+import javax.swing.Icon
 
-trait TopComponentAction extends TopComponentDisplayable with WorksheetAction {
+trait TopComponentAction extends WorksheetAction {
   this: AnAction =>
-
-  private lazy val actionButton: ActionButton = createActionButton
 
   @Nls
   def genericText: String
@@ -25,40 +19,16 @@ trait TopComponentAction extends TopComponentDisplayable with WorksheetAction {
 
   override def update(e: AnActionEvent): Unit = {
     updatePresentationEnabled(e)
+    updateIconAndText(e)
   }
 
-  // BGT is not allowed (see SCL-22095)
-  override final def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.EDT
-
-  override def setEnabled(flag: Boolean): Unit = actionButton.setEnabled(flag)
-
-  override def setVisible(flag: Boolean): Unit = actionButton.setVisible(flag)
-
-  override def init(panel: JPanel): Unit = {
-    val presentation = getTemplatePresentation
-
-    presentation.setIcon(actionIcon)
-    presentation.setText(displayText)
-    WorksheetUiUtils.fixUnboundMaxSize(actionButton)
-
-    invokeAndWait(ModalityState.any()) {
-      panel.add(actionButton)
-      actionButton.setEnabled(true)
-    }
+  protected def updateIconAndText(e: AnActionEvent): Unit = {
+    e.getPresentation.setIcon(actionIcon)
+    e.getPresentation.setText(displayText)
   }
 
-  private def createActionButton: ActionButton = {
-    val presentation = new Presentation
-    presentation.copyFrom(getTemplatePresentation)
-    val button = new ActionButton(
-      this,
-      presentation,
-      ActionPlaces.EDITOR_TOOLBAR,
-      ActionToolbar.DEFAULT_MINIMUM_BUTTON_SIZE
-    )
-    button.setToolTipText(genericText)
-    button
-  }
+  // These actions rely on PSI file and module search that must be executed on BGT
+  override final def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
   private def displayText: String = {
     val shortcutHintText = for {

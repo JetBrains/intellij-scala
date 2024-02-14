@@ -3,8 +3,7 @@ package worksheet
 package actions
 
 import com.intellij.codeInsight.daemon.impl.DaemonCodeAnalyzerEx
-import com.intellij.openapi.actionSystem.AnAction
-import com.intellij.openapi.actionSystem.impl.ActionButton
+import com.intellij.openapi.actionSystem.{ActionToolbar, AnAction}
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.fileEditor._
@@ -157,7 +156,7 @@ object WorksheetFileHook {
     private def loadEvaluationResult(project: Project, file: VirtualFile, editor: EditorEx): Unit = {
       val evaluationResultOpt = WorksheetEditorPrinterFactory.loadWorksheetEvaluation(file)
       evaluationResultOpt.foreach {
-        case (result, ratio) if !result.isEmpty =>
+        case (result, ratio) if result.nonEmpty =>
           val viewer = WorksheetEditorPrinterFactory.createViewer(editor)
           val document = viewer.getDocument
 
@@ -220,8 +219,8 @@ object WorksheetFileHook {
 
     private def notifyButtons(panel: WorksheetControlPanel): Unit =
       panel.getComponents.foreach {
-        case button: ActionButton =>
-          button.addNotify()
+        case toolbar: ActionToolbar =>
+          toolbar.addNotify()
         case _ =>
       }
   }

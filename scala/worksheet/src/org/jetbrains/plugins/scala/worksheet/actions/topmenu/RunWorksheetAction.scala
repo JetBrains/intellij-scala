@@ -5,17 +5,15 @@ import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.keymap.{KeymapManager, KeymapUtil}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.{DumbService, IndexNotReadyException, Project}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.task.{ProjectTaskContext, ProjectTaskManager}
 import org.jetbrains.annotations.{NonNls, TestOnly}
-import org.jetbrains.plugins.scala.actions.ScalaActionUtil
-import org.jetbrains.plugins.scala.extensions.{LoggerExt, ObjectExt, inWriteAction, invokeAndWait, invokeLater}
+import org.jetbrains.plugins.scala.extensions.{LoggerExt, inWriteAction, invokeAndWait, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector
-import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
+import org.jetbrains.plugins.scala.worksheet.actions.{WorksheetActionUtil, WorksheetFileHook}
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult.WorksheetCompilerError
 import org.jetbrains.plugins.scala.worksheet.processor.{WorksheetCompiler, WorksheetEvaluationErrorReporter}
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
@@ -47,19 +45,12 @@ class RunWorksheetAction extends AnAction(
   }
 
   override def update(e: AnActionEvent): Unit = {
-    super.update(e)
-
-    val selectedFile = ScalaActionUtil.getFileFrom(e)
-    val isEnabledAndVisible = selectedFile.exists(_.is[WorksheetFile])
+    val isEnabledAndVisible = WorksheetActionUtil.getWorksheetFileFrom(e)
+      .exists(file => !WorksheetFileHook.isRunning(file.getVirtualFile))
     e.getPresentation.setEnabledAndVisible(isEnabledAndVisible)
 
     if (isEnabledAndVisible) {
-      val shortcuts = KeymapManager.getInstance.getActiveKeymap.getShortcuts(RunWorksheetAction.ShortcutId)
-      if (shortcuts.nonEmpty) {
-        val shortcutText = " (" + KeymapUtil.getShortcutText(shortcuts(0)) + ")"
-        //noinspection ReferencePassedToNls
-        e.getPresentation.setText(genericText + shortcutText)
-      }
+      updateIconAndText(e)
     }
   }
 }

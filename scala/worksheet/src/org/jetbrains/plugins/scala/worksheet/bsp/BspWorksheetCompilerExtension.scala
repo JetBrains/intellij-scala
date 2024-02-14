@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.worksheet.bsp
 
+import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.module.Module
 import org.jetbrains.bsp.BspUtil
 import org.jetbrains.bsp.project.test.environment.BspJvmEnvironment
@@ -16,7 +17,7 @@ private[worksheet] object BspWorksheetCompilerExtension {
     } else None
   }
 
-  def extraWorksheetActions(): Seq[TopComponentAction] = {
+  def extraWorksheetActions(): Seq[TopComponentAction with AnAction] = {
     Seq(new ConfigureBspTargetForWorksheet)
   }
 }
