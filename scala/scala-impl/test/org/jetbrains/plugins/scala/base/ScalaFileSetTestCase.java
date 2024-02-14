@@ -1,18 +1,3 @@
-/*
- * Copyright 2000-2008 JetBrains s.r.o.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.jetbrains.plugins.scala.base;
 
 import com.intellij.application.options.CodeStyle;
@@ -21,12 +6,12 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
-import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
 import com.intellij.util.ThrowableRunnable;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.FileSetTests;
@@ -39,10 +24,7 @@ import scala.collection.immutable.Seq;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
 import java.util.stream.Stream;
 
 import static com.intellij.openapi.util.io.FileUtil.loadFileText;
@@ -57,10 +39,13 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
                 ? pathProperty
                 : getTestDataPath() + path;
 
-        findFiles(new File(customOrPropertyPath))
-                .filter(file -> isTestFile(file, testFileExtensions))
-                .map(this::constructTestCase)
-                .forEach(this::addTest);
+        File directory = new File(customOrPropertyPath);
+        Stream<File> testFiles = FileUtils.listFiles(directory, null, true)
+                .stream()
+                .filter(file -> isTestFile(file, testFileExtensions));
+
+        Stream<Test> testCases = testFiles.map(this::constructTestCase);
+        testCases.forEach(this::addTest);
 
         assertTrue("No tests found", testCount() > 0);
     }
@@ -295,12 +280,12 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
 
     @NotNull
     protected final ScalaCodeStyleSettings getScalaSettings(@NotNull Project project) {
-        return getSettings(project).getCustomSettings(ScalaCodeStyleSettings.class);
+        return CodeStyle.getSettings(project).getCustomSettings(ScalaCodeStyleSettings.class);
     }
 
     @NotNull
     protected final CommonCodeStyleSettings getCommonSettings(@NotNull Project project) {
-        return getSettings(project).getCommonSettings(ScalaLanguage.INSTANCE);
+        return CodeStyle.getSettings(project).getCommonSettings(ScalaLanguage.INSTANCE);
     }
 
     protected final PsiFile createLightFile(@NotNull @NonNls String text,
@@ -312,37 +297,6 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
         );
     }
 
-    @NotNull
-    private static CodeStyleSettings getSettings(@NotNull Project project) {
-        return CodeStyle.getSettings(project);
-    }
-
-    @NotNull
-    private static Stream<File> findFiles(@NotNull File baseFile) {
-        if (baseFile.exists()) {
-            List<File> myFiles = new ArrayList<>();
-            scanForFiles(baseFile, myFiles);
-            return myFiles.stream();
-        } else {
-            return Stream.empty();
-        }
-    }
-
-    @SuppressWarnings({"HardCodedStringLiteral"})
-    private static void scanForFiles(@NotNull File directory,
-                                     @NotNull List<File> accumulator) {
-        // recursively scan for all subdirectories
-        if (directory.isDirectory()) {
-            for (File file : Objects.requireNonNull(directory.listFiles())) {
-                if (file.isDirectory()) {
-                    scanForFiles(file, accumulator);
-                } else {
-                    accumulator.add(file);
-                }
-            }
-        }
-    }
-
     private static boolean isTestFile(@NotNull File file, String[] testFileExtensions) {
         String path = file.getAbsolutePath();
         String name = file.getName();
@@ -351,9 +305,9 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
             testFileExtensions = new String[] { ".test" };
         }
 
-        return !path.contains(".svn") &&
+        return Arrays.stream(testFileExtensions).anyMatch(ext -> endsWith(name, ext)) &&
+                !path.contains(".svn") &&
                 !path.contains(".cvs") &&
-                Arrays.stream(testFileExtensions).anyMatch(ext -> endsWith(name, ext)) &&
                 !startsWithChar(name, '_') &&
                 !"CVS".equals(name);
     }
