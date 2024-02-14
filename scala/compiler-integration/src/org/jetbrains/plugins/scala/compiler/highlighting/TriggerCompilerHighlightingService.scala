@@ -144,11 +144,12 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
   }
 
   def enableDocumentCompiler(virtualFile: VirtualFile): Unit = {
-    if (project.isDisposed || !virtualFile.isValid) return
+    if (project.isDisposed) return
+    DocumentCompiler.get(project).clearOutputDirectories()
+    if (!virtualFile.isValid) return
     val selectedEditor = FileEditorManager.getInstance(project).getSelectedEditor
     if (selectedEditor eq null) return
     if (virtualFile == selectedEditor.getFile) {
-      DocumentCompiler.get(project).clearOutputDirectories()
       documentCompilerAvailable.put(virtualFile, java.lang.Boolean.TRUE)
     }
   }
