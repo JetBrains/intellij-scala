@@ -1177,23 +1177,25 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
 
   def testSealedInheritors(): Unit = {
     val scalaFileText =
-      s"""sealed trait Foo
-         |sealed class Bar
-       """.stripMargin
+      s"""sealed trait SealedScalaTrait
+         |sealed class SealedScalaClass
+         |""".stripMargin
 
     val javaFileText =
-      s"""public class Baz extends Bar implements Foo {
+      s"""public class JavaClass extends SealedScalaClass implements SealedScalaTrait {
          |
-         |  public static Foo createFoo() {
-         |    return new Foo() {};
+         |  public static SealedScalaTrait createFoo() {
+         |    new SealedScalaClass() {};
+         |    new SealedScalaTrait() {};
+         |    return null;
          |  }
-         |}
-       """.stripMargin
+         |}""".stripMargin
 
     assertErrorsTextInJava(scalaFileText, javaFileText, "Baz",
-      """Error("Bar", "'Baz' is not allowed in the sealed hierarchy")
-        |Error("Foo", "'Baz' is not allowed in the sealed hierarchy")
-        |Error("Foo", "Illegal inheritance from sealed trait 'Foo'")
+      """Error(SealedScalaClass,'JavaClass' is not allowed in the sealed hierarchy)
+        |Error(SealedScalaTrait,'JavaClass' is not allowed in the sealed hierarchy)
+        |Error(SealedScalaClass,Anonymous classes must not extend sealed classes)
+        |Error(SealedScalaTrait,Anonymous classes must not extend sealed classes)
         |""".stripMargin)
   }
 
