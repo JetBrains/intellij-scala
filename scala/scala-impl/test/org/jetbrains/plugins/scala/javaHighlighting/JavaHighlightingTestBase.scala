@@ -16,10 +16,17 @@ abstract class JavaHighlightingTestBase extends ScalaHighlightingTestBase {
 
   private var myFilesCreated: Boolean = false
 
-  def errorsFromJavaCode(@Language("JAVA") javaFileText: String, javaClassName: String): List[Message] =
+  def errorsFromJavaCode(
+    @Language("JAVA") javaFileText: String,
+    javaClassName: String
+  ): List[Message] =
     errorsFromJavaCode("", javaFileText, javaClassName)
 
-  def errorsFromJavaCode(@Language("Scala") scalaFileText: String, javaFileText: String, javaClassName: String): List[Message] = {
+  def errorsFromJavaCode(
+    @Language("Scala") scalaFileText: String,
+    @Language("JAVA") javaFileText: String,
+    javaClassName: String
+  ): List[Message] = {
     if (myFilesCreated) throw new AssertionError("Don't add files 2 times in a single test")
 
     myFixture.addFileToProject("dummy.scala", scalaFileText)
@@ -34,6 +41,42 @@ abstract class JavaHighlightingTestBase extends ScalaHighlightingTestBase {
       case highlightInfo if highlightInfo.`type`.getSeverity(null) == HighlightSeverity.ERROR =>
         Error(highlightInfo.getText, highlightInfo.getDescription)
     }
+  }
+
+  protected def assertNoErrorsInJava(
+    @Language("Java") fileText: String,
+    javaClassName: String //TODO: don't make it mandatory?
+  ): Unit = {
+    val actualMessages = errorsFromJavaCode(fileText, javaClassName)
+    assertMessagesTextImpl("", actualMessages)
+  }
+
+  protected def assertNoErrors(
+    @Language("Scala") scalaFileText: String,
+    @Language("JAVA") javaFileText: String,
+    javaClassName: String
+  ): Unit = {
+    val actualMessages = errorsFromJavaCode(scalaFileText, javaFileText, javaClassName)
+    assertMessagesTextImpl("", actualMessages)
+  }
+
+  protected def assertErrorsTextInJava(
+    @Language("JAVA") javaCode: String,
+    javaClassName: String,
+    messagesConcatenated: String,
+  ): Unit = {
+    val actualMessages = errorsFromJavaCode("", javaCode, javaClassName)
+    assertMessagesTextImpl(messagesConcatenated, actualMessages)
+  }
+
+  protected def assertErrorsTextInJava(
+    @Language("Scala") scalaCode: String,
+    @Language("JAVA") javaCode: String,
+    javaClassName: String,
+    messagesConcatenated: String,
+  ): Unit = {
+    val actualMessages = errorsFromJavaCode(scalaCode, javaCode, javaClassName)
+    assertMessagesTextImpl(messagesConcatenated, actualMessages)
   }
 
   protected def assertNoErrorsInKotlin(@Language("kotlin") fileText: String): Unit = {
