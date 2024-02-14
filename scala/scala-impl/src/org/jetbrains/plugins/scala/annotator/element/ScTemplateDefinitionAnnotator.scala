@@ -3,25 +3,23 @@ package org.jetbrains.plugins.scala.annotator.element
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiClass, PsiMethod, PsiModifier, PsiModifierList}
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.{NlsString, ScalaBundle, overrideImplement}
-import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.ErrorAnnotationMessage
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.annotator.quickfix.{ImplementMembersQuickFix, ModifierQuickFix}
 import org.jetbrains.plugins.scala.annotator.template._
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.{&, _}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotationsHolder, ScPrimaryConstructor, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaration, ScEnumCase, ScEnumSingletonCase, ScFunction, ScFunctionDefinition, ScTypeAliasDeclaration}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaration, ScEnumCase, ScEnumSingletonCase, ScFunctionDefinition, ScTypeAliasDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, TypePresentationContext, ValueClassType}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.overrideImplement.{ScMethodMember, ScalaOIUtil, ScalaTypedMember}
-import org.jetbrains.plugins.scala.extensions.&
+import org.jetbrains.plugins.scala.{NlsString, ScalaBundle, overrideImplement}
 
 import scala.util.chaining._
 
@@ -322,9 +320,8 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
           tdef.getContainingFile.getNavigationElement != fileNavigationElement
 
         references.collect {
-          case (range, definition @ ErrorAnnotationMessage(message))
-              if isInDifferentFile(definition) =>
-            (range, message)
+          case (range, td: ScTypeDefinition) if td.isSealed && isInDifferentFile(td) =>
+            (range, NlsString(ScalaBundle.message("illegal.inheritance.from.sealed.kind", kindOf(td, toLowerCase = true), td.name)))
         }.foreach {
           case (range, message) =>
             holder.createErrorAnnotation(range, message.nls)
