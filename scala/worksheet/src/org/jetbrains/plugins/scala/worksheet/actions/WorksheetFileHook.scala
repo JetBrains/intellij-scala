@@ -13,6 +13,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiManager}
 import com.intellij.ui.ClientProperty
+import com.intellij.util.SlowOperations
 import com.intellij.util.concurrency.annotations.RequiresEdt
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.annotations.ApiStatus
@@ -28,6 +29,7 @@ import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterF
 import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetControlPanel, WorksheetDiffSplitters, WorksheetFoldGroup}
 
 import java.{util => ju}
+import scala.util.Using
 import scala.util.control.NonFatal
 
 object WorksheetFileHook {
@@ -203,7 +205,10 @@ object WorksheetFileHook {
 
   final class WorksheetDumbModeListener(project: Project) extends DumbModeListener {
     override def enteredDumbMode(): Unit = {}
-    override def exitDumbMode(): Unit = initializeButtons()
+    override def exitDumbMode(): Unit = {
+      // exitDumbMode event arrives on the EDT, initializeButtons uses file index to get a file
+      Using.resource(SlowOperations.knownIssue("SCL-21147"))(_ => initializeButtons())
+    }
 
     private def initializeButtons(): Unit =
       for {
