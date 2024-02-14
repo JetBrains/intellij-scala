@@ -20,5 +20,3 @@ implicit class Regex(sc: StringContext) {
   case r".*foo$" => ???
   case r""".*foo$""" => ???
 }
------
-<unchanged>

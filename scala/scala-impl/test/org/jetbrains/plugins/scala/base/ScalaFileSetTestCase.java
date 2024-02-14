@@ -35,6 +35,7 @@ import org.jetbrains.plugins.scala.ScalaVersion;
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
 import org.jetbrains.plugins.scala.util.TestUtils;
 import org.junit.experimental.categories.Category;
+import scala.collection.immutable.Seq;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -53,9 +54,9 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
 
     protected ScalaFileSetTestCase(@NotNull @NonNls String path, String... testFileExtensions) {
         String pathProperty = System.getProperty("path");
-        String customOrPropertyPath = pathProperty != null ?
-                pathProperty :
-                getTestDataPath() + path;
+        String customOrPropertyPath = pathProperty != null
+                ? pathProperty
+                : getTestDataPath() + path;
 
         findFiles(new File(customOrPropertyPath))
                 .filter(file -> isTestFile(file, testFileExtensions))
@@ -137,49 +138,25 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
     protected void runTest(@NotNull final String testName0,
                            @NotNull final String content0,
                            @NotNull final Project project) {
-        final List<String> input = new ArrayList<>();
+        Seq<String> input = TestUtils.readInputFromFileText(content0);
 
-        int separatorIndex;
-        // Adding input  before -----
-        String content = content0;
-        while ((separatorIndex = content.indexOf("-----")) >= 0) {
-            input.add(content.substring(0, separatorIndex - 1));
-            content = content.substring(separatorIndex);
-            while (startsWithChar(content, '-') ||
-                    startsWithChar(content, '\n')) {
-                content = content.substring(1);
-            }
-        }
+        //NOTE: if a test file doesn't have a separator, there is a single element in `input`.
+        //In this case, it's expected that the code is not changed in the end
+        final String before = input.head();
+        final String after0 = input.last();
+        final String after = transformExpectedResult(after0.trim());
 
-        // Result - after -----
-        String result = content;
-        while (startsWithChar(result, '-') ||
-                startsWithChar(result, '\n') ||
-                startsWithChar(result, '\r')) {
-            result = result.substring(1);
-        }
+        assertTrue("No data found in source file", input.nonEmpty());
 
-        if (result.trim().equalsIgnoreCase("UNCHANGED_TAG")) {
-            assertEquals("Unchanged expected result expects only 1 input entry", 1, input.size());
-            result = input.get(0);
-        }
-
-        assertFalse("No data found in source file", input.isEmpty());
-        assertNotNull(result);
-
-        final String testName;
         final int dotIdx = testName0.indexOf('.');
-        testName = dotIdx >= 0 ? testName0.substring(0, dotIdx) : testName0;
+        final String testName = dotIdx >= 0 ? testName0.substring(0, dotIdx) : testName0;
 
-        String temp = transform(testName, input.get(0), project);
-        result = transformExpectedResult(result.trim());
-
-        final String transformed = convertLineSeparators(temp).trim();
-
+        //TODO: don't do the trim by default in all tests
+        final String afterActual = transform(testName, before, project).trim();
         if (shouldPass()) {
-            assertEquals(result, transformed);
+            assertEquals(after, afterActual);
         } else {
-            assertNotEquals(result, transformed);
+            assertNotEquals(after, afterActual);
         }
     }
 
@@ -187,7 +164,7 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
         return true;
     }
 
-    @SuppressWarnings("UnconstructableJUnitTestCase")
+    @SuppressWarnings({"UnconstructableJUnitTestCase", "JUnitMalformedDeclaration"})
     @Category({FileSetTests.class})
     private final class NoSdkTestCase extends LightJavaCodeInsightFixtureTestCase {
         private final File testFile;
@@ -247,7 +224,7 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
         }
     }
 
-    @SuppressWarnings("UnconstructableJUnitTestCase")
+    @SuppressWarnings({"UnconstructableJUnitTestCase", "JUnitMalformedDeclaration"})
     @Category({FileSetTests.class})
     private final class ActualTest extends ScalaLightCodeInsightFixtureTestCase {
 
@@ -296,7 +273,7 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
                         getProject()
                 );
             } catch(Throwable error) {
-                // to be able to Ctrl + Click in console to nabigate to test file on failure
+                // to be able to Ctrl + Click in console to navigate to test file on failure
                 // (note, can not work with Android plugin disabled, see IDEA-257969)
                 System.err.println("### Test file: " + myTestFile.getAbsolutePath());
                 throw error;
