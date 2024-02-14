@@ -37,7 +37,7 @@ abstract class ScalaMalformedFormatStringInspectionTestBase extends ScalaInspect
     assert(testFile.exists())
 
     val Seq(code, expectedInspections) =
-      TestUtils.readInput(testFile, null).asScala.toSeq
+      TestUtils.readInput(testFile)
 
     myFixture.configureByText("a.scala", code)
 

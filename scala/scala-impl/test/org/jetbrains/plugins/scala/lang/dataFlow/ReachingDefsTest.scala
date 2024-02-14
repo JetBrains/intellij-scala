@@ -24,8 +24,8 @@ class ReachingDefsTest extends LightJavaCodeInsightFixtureTestCase {
   }
 
   def doTest(): Unit = {
-    val input: java.util.List[String] = TestUtils.readInput(getBasePath + getTestName(true) + ".test")
-    myFixture.configureByText(ScalaFileType.INSTANCE, input.get(0))
+    val Seq(before, after) = TestUtils.readInput(getBasePath + getTestName(true) + ".test")
+    myFixture.configureByText(ScalaFileType.INSTANCE, before)
     val file: ScalaFile = myFixture.getFile.asInstanceOf[ScalaFile]
     val model: SelectionModel = myFixture.getEditor.getSelectionModel
     val start: PsiElement = file.findElementAt(if (model.hasSelection) model.getSelectionStart else 0)
@@ -40,7 +40,7 @@ class ReachingDefsTest extends LightJavaCodeInsightFixtureTestCase {
     val markup: mutable.Map[Instruction, Set[Instruction]] = engine.performDFA
 
     val cf: String = dumpDataFlow(markup)
-    Assert.assertEquals(input.get(1).trim, cf.trim)
+    Assert.assertEquals(after.trim, cf.trim)
   }
 
   protected def dumpDataFlow(markup: mutable.Map[Instruction, Set[Instruction]]): String = {

@@ -3,18 +3,20 @@ package org.jetbrains.plugins.scala.util
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.{Project, ProjectUtil}
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.newvfs.impl.VfsData
 import com.intellij.psi.{PsiComment, PsiFile}
 import com.intellij.testFramework.TestModeFlags
 import com.intellij.testFramework.common.ThreadLeakTracker
+import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.junit.Assert
 import org.junit.Assert.{assertNotNull, fail}
 
 import java.io.{File, IOException}
 import java.net.URISyntaxException
+import java.nio.charset.StandardCharsets
 import java.util
 
 object TestUtils {
@@ -87,37 +89,21 @@ object TestUtils {
     text.substring(0, index) + text.substring(index + END_MARKER.length)
   }
 
-  @throws[IOException]
-  def readInput(filePath: String): util.List[String] = readInput(new File(filePath), null)
+  def readInput(filePath: String): Seq[String] =
+    readInput(new File(filePath))
 
-  @throws[IOException]
-  def readInput(file: File, encoding: String): util.List[String] = {
-    var content = new String(FileUtil.loadFileText(file, encoding))
-    Assert.assertNotNull(content)
-    val input = new util.ArrayList[String]
-    var separatorIndex = 0
-    content = StringUtil.replace(content, "\r", "") // for MACs
+  def readInput(file: File): Seq[String] = {
+    val fileText = FileUtil.loadFile(file, StandardCharsets.UTF_8.toString, true)
+    readInputFromFileText(fileText)
+  }
 
-    // Adding input  before -----
-    separatorIndex = content.indexOf("-----")
-    while (separatorIndex >= 0) {
-      input.add(content.substring(0, separatorIndex - 1))
-      content = content.substring(separatorIndex)
-      while (StringUtil.startsWithChar(content, '-')) {
-        content = content.substring(1)
-      }
-      if (StringUtil.startsWithChar(content, '\n')) {
-        content = content.substring(1)
-      }
-      separatorIndex = content.indexOf("-----")
-    }
-    // Result - after -----
-    if (content.endsWith("\n")) {
-      content = content.substring(0, content.length - 1)
-    }
-    input.add(content)
-    Assert.assertTrue("No data found in source file", input.size > 0)
-    input
+  private val SeparatorRegex = "\n-{5,}\n?".r
+
+  def readInputFromFileText(fileText: String): Seq[String] = {
+    //pass -1 to parse empty content after trailing separator
+    val result = SeparatorRegex.pattern.split(fileText, -1).toSeq
+    Assert.assertTrue("No data found in source file", result.nonEmpty)
+    result
   }
 
   def disableTimerThread(): Unit = {

@@ -21,8 +21,8 @@ class ControlFlowTest extends LightJavaCodeInsightFixtureTestCase {
   }
 
   def doTest(): Unit = {
-    val input: java.util.List[String] = TestUtils.readInput(getBasePath + getTestName(true) + ".test")
-    myFixture.configureByText(ScalaFileType.INSTANCE, input.get(0))
+    val Seq(before, after) = TestUtils.readInput(getBasePath + getTestName(true) + ".test")
+    myFixture.configureByText(ScalaFileType.INSTANCE, before)
     val file: ScalaFile = myFixture.getFile.asInstanceOf[ScalaFile]
     val model: SelectionModel = myFixture.getEditor.getSelectionModel
     val start: PsiElement = file.findElementAt(if (model.hasSelection) model.getSelectionStart else 0)
@@ -30,7 +30,7 @@ class ControlFlowTest extends LightJavaCodeInsightFixtureTestCase {
     val owner: ScControlFlowOwner = PsiTreeUtil.getParentOfType(PsiTreeUtil.findCommonParent(start, end), classOf[ScControlFlowOwner], false)
     val instructions = owner.getControlFlow
     val cf: String = dumpControlFlow(instructions.toSeq)
-    Assert.assertEquals(input.get(1).trim, cf.trim)
+    Assert.assertEquals(after.trim, cf.trim)
   }
 
   protected def dumpControlFlow(instructions: Seq[Instruction]) = instructions.mkString("\n")

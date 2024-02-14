@@ -22,8 +22,8 @@ class ReachingDefinitionsCollectorTest extends ScalaLightCodeInsightFixtureTestC
   }
 
   def readTestData: (String, String) = {
-    val list = TestUtils.readInput(s"$getBasePath${getTestName(true)}.test")
-    (list.get(0), list.get(1))
+    val Seq(before, after) =  TestUtils.readInput(s"$getBasePath${getTestName(true)}.test")
+    (before, after)
   }
 
   def doTest(): Unit = {
