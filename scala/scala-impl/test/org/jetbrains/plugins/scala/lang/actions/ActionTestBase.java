@@ -4,7 +4,6 @@ import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.actionSystem.PlatformCoreDataKeys;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NonNls;
@@ -15,14 +14,9 @@ import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase;
 public abstract class ActionTestBase extends ScalaFileSetTestCase {
 
   protected static final String CARET_MARKER = "<caret>";
-  protected int myOffset;
 
   protected ActionTestBase(@NotNull @NonNls String path) {
     super(path);
-  }
-
-  public static void runAsWriteAction(final Runnable runnable) {
-    ApplicationManager.getApplication().runWriteAction(runnable);
   }
 
   /**
