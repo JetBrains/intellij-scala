@@ -10,6 +10,7 @@ object IntroduceVariableUtils {
   private val ReplaceAllKey = "replaceAll"
   private val ReplaceInCompanionObjectKey = "replaceInCompanionObject"
   private val ReplaceInInheritorsObjectKey = "replaceInInheritors"
+  private val UseInplaceRefactoringKey = "inplace"
 
   def extractNameFromLeadingComment(fileText: String): (String, ReplaceTestOptions) = {
     val lineCommentIndex = fileText.indexOf(TestOptionsCommentPrefix)
@@ -35,6 +36,7 @@ object IntroduceVariableUtils {
       replaceAllOccurrences = attributes.get(ReplaceAllKey).map(_.toBoolean),
       replaceOccurrencesInCompanionObjects = attributes.get(ReplaceInCompanionObjectKey).map(_.toBoolean),
       replaceOccurrencesInInheritors = attributes.get(ReplaceInInheritorsObjectKey).map(_.toBoolean),
+      useInplaceRefactoring = attributes.get(UseInplaceRefactoringKey).map(_.toBoolean),
     )
   }
 

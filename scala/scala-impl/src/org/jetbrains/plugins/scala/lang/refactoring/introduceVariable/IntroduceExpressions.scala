@@ -17,7 +17,7 @@ import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInspection.parentheses.ScalaUnnecessaryParenthesesInspection
 import org.jetbrains.plugins.scala.editor.DocumentExt
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiModifierListOwnerExt, childOf, executeWriteActionCommand, inWriteAction}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiModifierListOwnerExt, childOf, executeWriteActionCommand}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -29,6 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring._
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.OccurrenceData.ReplaceOptions
+import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableHandler.ReplaceTestOptions
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaRefactoringUtil, ScalaVariableValidator, ValidationReporter}
@@ -120,31 +121,42 @@ trait IntroduceExpressions {
   }
 
   private def runInplace(suggestedNames: SuggestedNames, occurrences: OccurrencesInFile)
-                        (implicit project: Project, editor: Editor): Unit = {
+                        (implicit project: Project, editor: Editor, dataContext: DataContext): Unit = {
     import OccurrencesChooser.ReplaceChoice
 
-    val callback: Pass[ReplaceChoice] = (replaceChoice: ReplaceChoice) => {
-      val replaceAll = ReplaceChoice.NO != replaceChoice
+    val testReplaceOptions = Option(dataContext.getData(ScalaIntroduceVariableHandler.ForcedReplaceTestOptions))
+
+    val replaceChoiceCallback: Pass[ReplaceChoice] = (replaceChoice: ReplaceChoice) => {
+      val replaceAll = replaceChoice != ReplaceChoice.NO
 
       executeWriteActionCommand(INTRODUCE_VARIABLE_REFACTORING_NAME) {
         val SuggestedNames(expression, types, names) = suggestedNames
-        val reference: SmartPsiElementPointer[PsiElement] = inWriteAction {
-          val options = IntroduceVariableOptions(names.head, types.head, replaceAll, isVariable = false)
+
+        val options = createOptions(suggestedNames, Some(replaceAll), testReplaceOptions)
+        val pointer: SmartPsiElementPointer[PsiElement] =
           runRefactoringInside(occurrences, expression, options, fromDialogMode = false)
-        }
-        performInplaceRefactoring(reference.getElement, types.headOption, replaceAll, forceInferType(expression), names)
+
+        //if a name is enforced in tests, place it it the beginning of the list and it will be selected automatically
+        val nameEnforcedInTests = testReplaceOptions.flatMap(_.definitionName)
+        val namesUpdated = nameEnforcedInTests.toSeq ++ names
+        performInplaceRefactoring(pointer.getElement, types.headOption, replaceAll, forceInferType(expression), namesUpdated)
       }
     }
 
     val OccurrencesInFile(_, mainRange, occurrences_) = occurrences
     if (occurrences_.isEmpty) {
-      callback.pass(ReplaceChoice.NO)
-    } else {
+      replaceChoiceCallback.pass(ReplaceChoice.NO)
+    }
+    else if (ApplicationManager.getApplication.isUnitTestMode) {
+      val replaceChoice = if (testReplaceOptions.exists(_.replaceAllOccurrences.contains(true))) ReplaceChoice.ALL else ReplaceChoice.NO
+      replaceChoiceCallback.pass(replaceChoice)
+    }
+    else {
       val chooser = new OccurrencesChooser[TextRange](editor) {
         override def getOccurrenceRange(occurrence: TextRange): TextRange = occurrence
       }
 
-      chooser.showChooser(mainRange, ju.Arrays.asList(occurrences_ : _*), callback)
+      chooser.showChooser(mainRange, ju.Arrays.asList(occurrences_ : _*), replaceChoiceCallback)
     }
   }
 
@@ -171,19 +183,30 @@ trait IntroduceExpressions {
   @TestOnly
   private def runWithoutDialog(suggestedNames: SuggestedNames, occurrences: OccurrencesInFile)
                               (implicit project: Project, editor: Editor, dataContext: DataContext): Unit = {
+    val testReplaceOptions = Option(dataContext.getData(ScalaIntroduceVariableHandler.ForcedReplaceTestOptions))
+    val options = createOptions(suggestedNames, None, testReplaceOptions)
+    runRefactoring(occurrences, suggestedNames.expression, options)
+  }
+
+  private def createOptions(
+    suggestedNames: SuggestedNames,
+    replaceAllFromUi: Option[Boolean],
+    testReplaceOptions: Option[ReplaceTestOptions]
+  ): IntroduceVariableOptions = {
     val SuggestedNames(_, types, names) = suggestedNames
 
-    val testReplaceOptions = Option(dataContext.getData(ScalaIntroduceVariableHandler.ForcedReplaceTestOptions))
-    val varName = testReplaceOptions.flatMap(_.definitionName).getOrElse(names.head)
-    val replaceOptions: ReplaceOptions = testReplaceOptions.map(_.toProductionReplaceOptions).getOrElse(ReplaceOptions.DefaultInTests)
+    val varNameActual: String = testReplaceOptions.flatMap(_.definitionName).getOrElse(names.head)
+    val replaceAllActual: Boolean =
+      testReplaceOptions.map(_.toProductionReplaceOptions.replaceAllOccurrences)
+        .orElse(replaceAllFromUi)
+        .getOrElse(ReplaceOptions.DefaultInTests.replaceAllOccurrences)
 
-    val options = IntroduceVariableOptions(
-      varName = varName,
+    IntroduceVariableOptions(
+      varName = varNameActual,
       varType = types.head,
-      replaceAllOccurrences = replaceOptions.replaceAllOccurrences,
+      replaceAllOccurrences = replaceAllActual,
       isVariable = false
     )
-    runRefactoring(occurrences, suggestedNames.expression, options)
   }
 }
 
@@ -210,7 +233,7 @@ object IntroduceExpressions {
                                         maybeType: Option[ScType],
                                         replaceAll: Boolean,
                                         forceType: Boolean,
-                                        suggestedNames: ArraySeq[String])
+                                        suggestedNames: Seq[String])
                                        (implicit project: Project, editor: Editor): Unit = {
     val maybeNamedElement = newDeclaration match {
       case holder: ScDeclaredElementsHolder => holder.declaredElements.headOption
