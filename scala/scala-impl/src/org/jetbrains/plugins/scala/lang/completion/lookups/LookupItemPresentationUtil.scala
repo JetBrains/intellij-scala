@@ -50,7 +50,7 @@ private object LookupItemPresentationUtil {
       new TypeAnnotationRenderer(typeRenderer, ParameterTypeDecorator.DecorateAll),
       textEscaper,
       withMemberModifiers = true,
-      withAnnotations = true
+      withAnnotations = false
     )
 
     def paramsRenderer: ParametersRenderer = new ParametersRenderer(
@@ -101,15 +101,6 @@ private object LookupItemPresentationUtil {
     val list = param.getModifierList
     if (list == null)
       return ""
-    val lastSize = buffer.length
-    for (a <- list.getAnnotations) {
-      if (lastSize != buffer.length) buffer.append(" ")
-      val element = a.getNameReferenceElement
-      if (element != null)
-        buffer.append("@").append(element.getText)
-    }
-    if (lastSize != buffer.length)
-      buffer.append(" ")
     val name = param.name
     if (name != null) {
       buffer.append(name)

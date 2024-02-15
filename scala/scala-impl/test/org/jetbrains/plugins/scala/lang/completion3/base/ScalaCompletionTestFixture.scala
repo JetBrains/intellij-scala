@@ -7,7 +7,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.testFramework.fixtures.JavaCodeInsightTestFixture
 import org.jetbrains.plugins.scala.base.{HelperFixtureEditorOps, ScalaCodeInsightTestFixture}
-import org.jetbrains.plugins.scala.extensions.{StringExt, invokeAndWait}
+import org.jetbrains.plugins.scala.extensions.invokeAndWait
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase.{DefaultInvocationCount, createPresentation}
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestFixture._
 import org.junit.Assert._
@@ -173,7 +173,7 @@ object ScalaCompletionTestFixture {
   private def hasLookupString(lookup: LookupElement, lookupString: String): Boolean =
     lookup.getLookupString == lookupString
 
-  private def lookupItemsDebugText(items: Iterable[LookupElement]): String =
+  private[completion3] def lookupItemsDebugText(items: Iterable[LookupElement]): String =
     items.map(lookupItemDebugText).mkString("\n")
 
   //TODO: unify with hasItemText and show difference in test error message
