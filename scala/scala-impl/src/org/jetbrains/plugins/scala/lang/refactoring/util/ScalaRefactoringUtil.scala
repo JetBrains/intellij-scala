@@ -9,7 +9,7 @@ import com.intellij.openapi.editor.markup._
 import com.intellij.openapi.editor.{Document, Editor, RangeMarker, SelectionModel}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.{JBPopupFactory, JBPopupListener, LightweightWindowEvent}
-import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.openapi.vfs.ReadonlyStatusHandler
 import com.intellij.psi._
 import com.intellij.psi.search.searches.ReferencesSearch
@@ -46,7 +46,7 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 
 import java.awt.Component
 import java.util.Collections
-import java.{util => ju}
+import java.{lang, util => ju}
 import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 import javax.swing.{DefaultListCellRenderer, DefaultListModel, JList, ListCellRenderer}
 import scala.annotation.{nowarn, tailrec}
@@ -827,8 +827,21 @@ object ScalaRefactoringUtil {
     }
   }
 
+  @TestOnly
+  def enableInplaceRefactoringInTests(editor: Editor): Unit = {
+   editor.putUserData(ENABLE_INPLACE_REFACTORING_IN_TESTS, java.lang.Boolean.TRUE)
+  }
+
+  private val ENABLE_INPLACE_REFACTORING_IN_TESTS: Key[lang.Boolean] =
+    Key.create[java.lang.Boolean]("ENABLE_INPLACE_REFACTORING_IN_TESTS")
+
   def isInplaceAvailable(editor: Editor): Boolean =
-    editor.getSettings.isVariableInplaceRenameEnabled && !ApplicationManager.getApplication.isUnitTestMode
+    editor.getSettings.isVariableInplaceRenameEnabled && {
+      if (ApplicationManager.getApplication.isUnitTestMode)
+        editor.getUserData(ENABLE_INPLACE_REFACTORING_IN_TESTS)
+      else
+        true
+    }
 
   def enclosingContainer(parent: PsiElement): PsiElement =
     Option(parent)

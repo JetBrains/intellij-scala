@@ -111,6 +111,7 @@ object ScalaIntroduceVariableHandler {
     replaceAllOccurrences: Option[Boolean] = None,
     replaceOccurrencesInCompanionObjects: Option[Boolean] = None,
     replaceOccurrencesInInheritors: Option[Boolean] = None,
+    useInplaceRefactoring: Option[Boolean] = None,
   ) {
     def toProductionReplaceOptions: ReplaceOptions = {
       val default = ReplaceOptions.DefaultInTests
