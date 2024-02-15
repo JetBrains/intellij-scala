@@ -164,7 +164,19 @@ object CompileServerLauncher {
         } else Nil
         val isScalaCompileServer = s"-D${CompileServerProperties.IsScalaCompileServer}=true"
 
-        val vmOptions: Seq[String] = if (isUnitTestMode && project == null) Seq() else {
+        // Same parameters as the ones provided by the IntelliJ platform to the JPS build process.
+        // See `com.intellij.compiler.server.BuildManager#launchBuildProcess`. We add them directly here, instead of
+        // adding them to the BuildProcessParameterersProvider extension point, because the platform adds them directly
+        // to the JPS process Java command line, and it would lead to duplication.
+        val jnaParameters = sys.props.get("jna.boot.library.path").map { path =>
+          Seq(
+            s"-Djna.boot.library.path=$path",
+            "-Djna.nosys=true",
+            "-Djna.noclasspath=true"
+          )
+        }.getOrElse(Seq.empty)
+
+        val vmOptions = jnaParameters ++ (if (isUnitTestMode && project == null) Seq.empty else {
           // Duplicated --add-opens parameters are inherited from this extension point
           // through ScalaBuildProcessParametersProvider. This filtering also helps to not
           // pass --add-opens parameters to JDK 8 and lower.
@@ -173,7 +185,7 @@ object CompileServerLauncher {
           val extraJvmParameters = CompileServerVmOptionsProvider.implementations.iterator
             .flatMap(_.vmOptionsFor(project)).toSeq
           buildProcessParameters ++ extraJvmParameters
-        }
+        })
 
         // SCL-18193
         val addOpensOptions =
