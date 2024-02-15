@@ -231,7 +231,10 @@ object IntroduceExpressions {
       editor.getScrollingModel.scrollToCaret(ScrollType.MAKE_VISIBLE)
 
       if (isInplaceAvailable(editor)) {
-        editor.getDocument.commit(project)
+        val document = editor.getDocument
+        val manager = PsiDocumentManager.getInstance(project)
+        manager.commitDocument(document)
+        manager.doPostponedOperationsAndUnblockDocument(document)
 
         val introducer = new ScalaInplaceVariableIntroducer(newExpr, maybeType, named, replaceAll, forceType)
         introducer.performInplaceRefactoring(new ju.LinkedHashSet(ju.Arrays.asList(suggestedNames: _*)))
