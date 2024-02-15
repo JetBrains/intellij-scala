@@ -1514,7 +1514,8 @@ object ScalaPsiUtil {
       if (!prevElement.is[PsiWhiteSpace]) {
         parent.addBefore(createWhitespace(element.getManager), element)
       }
-      if (!nextElement.is[PsiWhiteSpace]) {
+      //also check if we are in the end of the file already - then we don't need the extra spaces
+      if (!nextElement.is[PsiWhiteSpace] && nextElement != null) {
         parent.addAfter(createWhitespace(element.getManager), element)
       }
     }

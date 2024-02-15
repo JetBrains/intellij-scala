@@ -80,7 +80,7 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
     val text = s"(${CARET_MARKER}1 + 1)"
     val result = "1 + 1"
     val hint = hintBeginning + " (1 + 1)"
-    testQuickFix(text, result, hint)
+    testQuickFix(text, result, hint, trimExpectedText = false)
   }
 
   def test_2(): Unit = {
@@ -156,7 +156,7 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
     val text = s"val a = (($CARET_MARKER(1)))"
     val result = "val a = 1"
     val hint = hintBeginning + " (((1)))"
-    testQuickFix(text, result, hint)
+    testQuickFix(text, result, hint, trimExpectedText = false)
   }
 
   def test_7(): Unit = {
