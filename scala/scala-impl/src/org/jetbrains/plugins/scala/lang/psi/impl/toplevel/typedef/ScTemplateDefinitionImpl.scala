@@ -415,15 +415,18 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
       templateBody.addChild(createNewLineNode(), beforeNode)
     }
 
-    CodeEditUtil.addChild(templateBody, member.getNode, beforeNode)
+    val memberNode = member.getNode
+    CodeEditUtil.addChild(templateBody, memberNode, beforeNode)
+    // NOTE: beforeNode might be invalidated inside `CodeEditUtil.addChild` after force reformat
+    val newAnchorNode = memberNode.getTreeNext
 
-    if (beforeNode != null) {
+    if (newAnchorNode != null) {
       val newLineNode = createNewLineNode()
-      val anchorIsLineTerminator = isLineTerminator(beforeNode.getPsi)
+      val anchorIsLineTerminator = isLineTerminator(newAnchorNode.getPsi)
       if (anchorIsLineTerminator) {
-        templateBody.replaceChild(beforeNode, newLineNode)
+        templateBody.replaceChild(newAnchorNode, newLineNode)
       } else {
-        templateBody.addChild(newLineNode, beforeNode)
+        templateBody.addChild(newLineNode, newAnchorNode)
       }
     }
 
