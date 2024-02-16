@@ -130,9 +130,13 @@ abstract class JavaCompilerReferencesSearchTestBase(incrementality: Incrementali
     assertNotNull("Could not find module with name 'root'", rootModule)
 
     val projectPath = Path.of(getProjectPath)
-    val greeterSource = VfsUtil.findFile(projectPath.resolve("src/main/java/Greeter.java"), true)
-    val greeterPsiFile = VirtualFileUtil.findPsiFile(greeterSource, myProject)
-    val greeterPsiClass = PsiTreeUtil.findChildOfType(greeterPsiFile, classOf[PsiClass])
+    val greeterPsiClass =
+      Option(VfsUtil.findFile(projectPath.resolve("src/main/java/Greeter.java"), true))
+        .flatMap(source => Option(VirtualFileUtil.findPsiFile(source, myProject)))
+        .flatMap(psiFile => Option(PsiTreeUtil.findChildOfType(psiFile, classOf[PsiClass])))
+        .orNull
+
+    assertNotNull("Could not find the 'Greeter' PsiClass", greeterPsiClass)
 
     val info = compilerReferenceService.getDirectInheritors(
       greeterPsiClass,
