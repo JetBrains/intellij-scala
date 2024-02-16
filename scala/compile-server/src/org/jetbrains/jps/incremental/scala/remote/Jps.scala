@@ -1,6 +1,7 @@
 package org.jetbrains.jps.incremental.scala.remote
 
 import com.intellij.openapi.util.io.{BufferExposingByteArrayOutputStream, FileUtil}
+import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.jps.api.{BuildType, CmdlineProtoUtil, GlobalOptions}
 import org.jetbrains.jps.builders.java.JavaModuleBuildTargetType
 import org.jetbrains.jps.cmdline.{BuildRunner, JpsModelLoaderImpl, ProjectDescriptor}
@@ -15,12 +16,16 @@ import org.jetbrains.plugins.scala.util.ObjectSerialization
 import java.io.{DataOutputStream, File, FileNotFoundException, FileOutputStream}
 import java.nio.file.Path
 import java.util.Collections
+import java.util.concurrent.ConcurrentMap
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.locks.{Lock, ReentrantLock}
 import scala.jdk.CollectionConverters._
 import scala.util.{Try, Using}
 
 private object Jps {
   private val systemRootSet: AtomicBoolean = new AtomicBoolean(false)
+
+  private val projectLock: ConcurrentMap[String, Lock] = ContainerUtil.createConcurrentSoftValueMap()
 
   def compileJpsLogic(command: CompileServerCommand.CompileJps, client: Client, scalaCompileServerSystemDir: Path): Unit = {
     if (systemRootSet.compareAndSet(false, true)) {
@@ -28,59 +33,65 @@ private object Jps {
     }
 
     val CompileServerCommand.CompileJps(projectPath, globalOptionsPath, dataStorageRootPath, moduleName, sourceScope, externalProjectConfig) = command
-    val dataStorageRoot = new File(dataStorageRootPath)
-    val loader = new JpsModelLoaderImpl(projectPath, globalOptionsPath, false, null)
-    val buildRunner = new BuildRunner(loader)
-    buildRunner.setBuilderParams(Map(BuildParameters.BuildTriggeredByCBH -> true.toString).asJava)
-    var compiledFiles = Set.empty[File]
-    val messageHandler = new MessageHandler {
-      override def processMessage(msg: BuildMessage): Unit = msg match {
-        case customMessage: CustomBuilderMessage =>
-          fromCustomMessage(customMessage).foreach {
-            case CompilerEvent.MessageEmitted(_, _, _, msg) => client.message(msg)
-            case CompilerEvent.CompilationFinished(_, _, sources) => compiledFiles ++= sources
-            case _ => ()
-          }
-        case progressMessage: ProgressMessage =>
-          val text = Option(progressMessage.getMessageText).getOrElse("")
-          val done = Option(progressMessage.getDone).filter(_ >= 0.0)
-          client.progress(text, done)
-        case _ =>
-          ()
-      }
-    }
-
-    if (client.isCanceled) return
-
-    val fsState = new BuildFSState(true)
-    val descriptor = withModifiedExternalProjectPath(externalProjectConfig) {
-      buildRunner.load(messageHandler, dataStorageRoot, fsState)
-    }
-
+    val lock = projectLock.computeIfAbsent(dataStorageRootPath, _ => new ReentrantLock())
+    lock.lock()
     try {
-      val buildTargetType = sourceScope match {
-        case SourceScope.Production => JavaModuleBuildTargetType.PRODUCTION
-        case SourceScope.Test => JavaModuleBuildTargetType.TEST
+      val dataStorageRoot = new File(dataStorageRootPath)
+      val loader = new JpsModelLoaderImpl(projectPath, globalOptionsPath, false, null)
+      val buildRunner = new BuildRunner(loader)
+      buildRunner.setBuilderParams(Map(BuildParameters.BuildTriggeredByCBH -> true.toString).asJava)
+      var compiledFiles = Set.empty[File]
+      val messageHandler = new MessageHandler {
+        override def processMessage(msg: BuildMessage): Unit = msg match {
+          case customMessage: CustomBuilderMessage =>
+            fromCustomMessage(customMessage).foreach {
+              case CompilerEvent.MessageEmitted(_, _, _, msg) => client.message(msg)
+              case CompilerEvent.CompilationFinished(_, _, sources) => compiledFiles ++= sources
+              case _ => ()
+            }
+          case progressMessage: ProgressMessage =>
+            val text = Option(progressMessage.getMessageText).getOrElse("")
+            val done = Option(progressMessage.getDone).filter(_ >= 0.0)
+            client.progress(text, done)
+          case _ =>
+            ()
+        }
       }
-
-      val scope =
-        CmdlineProtoUtil.createTargetsScope(buildTargetType.getTypeId, Collections.singletonList(moduleName), false)
 
       if (client.isCanceled) return
 
-      client.compilationStart()
-      buildRunner.runBuild(
-        descriptor,
-        () => client.isCanceled,
-        messageHandler,
-        BuildType.BUILD,
-        Collections.singletonList(scope),
-        true
-      )
+      val fsState = new BuildFSState(true)
+      val descriptor = withModifiedExternalProjectPath(externalProjectConfig) {
+        buildRunner.load(messageHandler, dataStorageRoot, fsState)
+      }
+
+      try {
+        val buildTargetType = sourceScope match {
+          case SourceScope.Production => JavaModuleBuildTargetType.PRODUCTION
+          case SourceScope.Test => JavaModuleBuildTargetType.TEST
+        }
+
+        val scope =
+          CmdlineProtoUtil.createTargetsScope(buildTargetType.getTypeId, Collections.singletonList(moduleName), false)
+
+        if (client.isCanceled) return
+
+        client.compilationStart()
+        buildRunner.runBuild(
+          descriptor,
+          () => client.isCanceled,
+          messageHandler,
+          BuildType.BUILD,
+          Collections.singletonList(scope),
+          true
+        )
+      } finally {
+        // Save the FS state data to disk, so that we do not corrupt the IDEA JPS process expected data.
+        saveData(fsState, descriptor, descriptor.dataManager.getDataPaths.getDataStorageRoot)
+        client.compilationEnd(compiledFiles)
+      }
     } finally {
-      // Save the FS state data to disk, so that we do not corrupt the IDEA JPS process expected data.
-      saveData(fsState, descriptor, descriptor.dataManager.getDataPaths.getDataStorageRoot)
-      client.compilationEnd(compiledFiles)
+      lock.unlock()
     }
   }
 
