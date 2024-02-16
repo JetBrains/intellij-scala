@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.annotator.element.ScForBindingAnnotator.Remov
 import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationBuilder, ScalaAnnotationHolder}
 import org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.RemoveValFromGeneratorIntentionAction
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerator, ScFor, ScGenerator}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerator, ScFor, ScGenerator, ScMethodCall, ScReferenceExpression}
 
 import scala.annotation.nowarn
 import scala.math.Ordering.Implicits._
@@ -98,7 +98,13 @@ object ScForAnnotator extends ElementAnnotator[ScFor] {
 
         if (!foundMonadicError) {
           // TODO decouple
-          desugaredGenerator.callExpr.foreach(ScReferenceAnnotator.qualifierPart(_, typeAware)(delegateHolderFor(generatorToken, session)))
+          desugaredGenerator.callExpr.foreach { e =>
+            ScReferenceAnnotator.qualifierPart(e, typeAware)(delegateHolderFor(generatorToken, session))
+
+            e.qualifier.flatMap(_.asOptionOf[ScMethodCall].map(_.getInvokedExpr).collect { case re: ScReferenceExpression => re }).foreach {
+              ScReferenceAnnotator.qualifierPart(_, typeAware)(delegateHolderFor(generatorToken, session))
+            }
+          }
         }
       }
     }

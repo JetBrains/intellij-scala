@@ -296,7 +296,7 @@ class ForComprehensionHighlightingTest_with_cats_2_12 extends ForComprehensionHi
       """.stripMargin
 
     assertMatches(errorsFromScalaCode(code)){
-      case Error("<-", "Cannot resolve symbol map") :: Error("+", "Cannot resolve symbol +") :: Nil =>
+      case Error("<-", "Cannot resolve symbol withFilter") :: Error("+", "Cannot resolve symbol +") :: Nil =>
     }
   }
 }
