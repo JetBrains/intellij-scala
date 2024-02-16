@@ -156,7 +156,7 @@ object ShowScalaCompilerTreeAction {
     val messages: mutable.Buffer[Client.ClientMsg] = mutable.ArrayBuffer.empty[Client.ClientMsg]
 
     override def message(msg: Client.ClientMsg): Unit = {
-      messages += msg
+      messages += msg.copy(text = msg.text.replace("\r\n", "\n"))
     }
   }
 
