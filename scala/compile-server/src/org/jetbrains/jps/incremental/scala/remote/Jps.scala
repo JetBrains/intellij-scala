@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.util.ObjectSerialization
 
 import java.io.{DataOutputStream, File, FileNotFoundException, FileOutputStream}
 import java.nio.file.Path
+import java.util.Collections
 import java.util.concurrent.atomic.AtomicBoolean
 import scala.jdk.CollectionConverters._
 import scala.util.{Try, Using}
@@ -49,28 +50,31 @@ private object Jps {
       }
     }
 
+    if (client.isCanceled) return
+
     val fsState = new BuildFSState(true)
     val descriptor = withModifiedExternalProjectPath(externalProjectConfig) {
       buildRunner.load(messageHandler, dataStorageRoot, fsState)
     }
 
-    val buildTargetType = sourceScope match {
-      case SourceScope.Production => JavaModuleBuildTargetType.PRODUCTION
-      case SourceScope.Test => JavaModuleBuildTargetType.TEST
-    }
-
-    val scopes = Seq(
-      CmdlineProtoUtil.createTargetsScope(buildTargetType.getTypeId, Seq(moduleName).asJava, false)
-    ).asJava
-
-    client.compilationStart()
     try {
+      val buildTargetType = sourceScope match {
+        case SourceScope.Production => JavaModuleBuildTargetType.PRODUCTION
+        case SourceScope.Test => JavaModuleBuildTargetType.TEST
+      }
+
+      val scope =
+        CmdlineProtoUtil.createTargetsScope(buildTargetType.getTypeId, Collections.singletonList(moduleName), false)
+
+      if (client.isCanceled) return
+
+      client.compilationStart()
       buildRunner.runBuild(
         descriptor,
         () => client.isCanceled,
         messageHandler,
         BuildType.BUILD,
-        scopes,
+        Collections.singletonList(scope),
         true
       )
     } finally {
