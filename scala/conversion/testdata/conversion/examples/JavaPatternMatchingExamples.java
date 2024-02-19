@@ -11,15 +11,6 @@ public class JavaPatternMatchingExamples {
         }
     }
 
-    void example_instanceOf_VariableSimple_InExtraParentheses(Object obj) {
-        if (obj instanceof (String str)) {
-            System.out.println(str.toUpperCase());
-        }
-        if (obj instanceof ((String str))) {
-            System.out.println(str.toUpperCase());
-        }
-    }
-
     void example_instanceOf_UsingVariable(Object obj) {
         if (obj instanceof String s && !s.isEmpty() && !(s.length() == 42)) {
             int length = s.length();
@@ -145,11 +136,6 @@ class JavaPatternMatchingExamples {
   //Java 16
   def example_instanceOf_VariableSimple(obj: AnyRef): Unit = {
     if (obj.isInstanceOf[String]) System.out.println(str.toUpperCase)
-  }
-
-  def example_instanceOf_VariableSimple_InExtraParentheses(obj: AnyRef): Unit = {
-    if (obj.isInstanceOf[]) System.out.println(str.toUpperCase)
-    if (obj.isInstanceOf[]) System.out.println(str.toUpperCase)
   }
 
   def example_instanceOf_UsingVariable(obj: AnyRef): Unit = {

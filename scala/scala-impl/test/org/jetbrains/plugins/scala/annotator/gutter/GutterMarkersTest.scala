@@ -13,6 +13,9 @@ class GutterMarkersTest extends GutterMarkersTestBase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_12
 
+  private def refToTypeMember(cls: String, tpe: String): String =
+    refToMember(cls, tpe, applyStyleForMember = false)
+
   @Test
   def testImplements(): Unit = doTestSingleTooltipAtCaret(
     s"""
@@ -135,7 +138,7 @@ class GutterMarkersTest extends GutterMarkersTestBase {
        |trait Bar extends Foo { override type T <: AnyVal }$caret
    """.stripMargin,
 
-    "Overrides type", refToElement("Foo", "T", "T in Foo")
+    "Overrides type", refToTypeMember("Foo", "T")
   )
 
   @Test
@@ -304,7 +307,7 @@ class GutterMarkersTest extends GutterMarkersTestBase {
        |}
        |""".stripMargin,
 
-    "Overrides type", refToElement("Base", "MyInt", "MyInt in Base")
+    "Overrides type", refToTypeMember("Base", "MyInt")
   )
 
   // SCL-16103

@@ -71,8 +71,6 @@
         <statistics.projectUsagesCollector implementation="org.jetbrains.plugins.scala.statistics.ScalaProjectStateCollector"/>
         <internal.statistic.libraryUsageImportProcessor language="Scala" implementationClass="org.jetbrains.plugins.scala.statistics.ScalaUsageImportProcessor"/>
 
-        <annotator language="JAVA"
-                   implementationClass="org.jetbrains.plugins.scala.annotator.template.SealedJavaInheritance"/>
         <annotator language="Scala"
                    implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaColorSchemeAnnotator"/>
         <annotator language="Scala"

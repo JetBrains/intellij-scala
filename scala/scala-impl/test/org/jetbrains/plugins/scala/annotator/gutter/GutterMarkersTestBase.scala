@@ -5,7 +5,7 @@ import com.intellij.codeInsight.daemon.LineMarkerInfo.LineMarkerGutterIconRender
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
-import org.jetbrains.plugins.scala.extensions.TextRangeExt
+import org.jetbrains.plugins.scala.extensions.{NonNullObjectExt, TextRangeExt}
 import org.jetbrains.plugins.scala.{ScalaBundle, TypecheckerTests}
 import org.junit.Assert
 import org.junit.Assert.{assertEquals, assertTrue, fail}
@@ -35,11 +35,18 @@ abstract class GutterMarkersTestBase extends ScalaFixtureTestCase {
     }
   }
 
-  protected def refToElement(superClass: String, superMethod: String, refText: String): String =
-    s"""<a href="#element/$superClass#$superMethod"><code>$refText</code></a>"""
+  protected def referenceToElement(elementPath: String, refText: String, withStyle: Boolean = true): String = {
+    s"""<code><a href="#element/$elementPath">${refText.pipeIf(withStyle)("""<span style="color:#000000;">""" + _ + "</span>")}</a></code>"""
+  }
 
-  protected def refToClass(className: String): String =
-    s"""<a href="#element/$className"><code>$className</code></a>"""
+  /** E.g.: type member, SAM */
+  protected def refToMember(owner: String, member: String, applyStyleForMember: Boolean): String =
+    referenceToElement(s"$owner#$member", member, withStyle = applyStyleForMember) + " in " + referenceToElement(owner, owner)
+
+  protected def refToElement(superClass: String, superMethod: String, refText: String): String =
+    referenceToElement(s"$superClass#$superMethod", refText)
+
+  protected def refToClass(className: String): String = referenceToElement(className, className)
 
   protected def recursionTooltip(methodName: String, isTailRecursive: Boolean) =
     s"Method '$methodName' is ${if (isTailRecursive) "tail recursive" else "recursive"}"
@@ -122,16 +129,16 @@ abstract class GutterMarkersTestBase extends ScalaFixtureTestCase {
 
       // Used to show in diff view only
       val expectedPartsText = "ONLY TOOLTIP PARTS\n" + guttersDebugText(expectedGuttersSorted)
-      val actualText = "FULL TOOLTIP CONTENT\n" +guttersDebugText(guttersSorted)
+      val actualText = "FULL TOOLTIP CONTENT\n" + guttersDebugText(guttersSorted)
       //assertEquals(expectedPartsText, actualText) // don't directly compare cause
 
       val zipped: Seq[(ExpectedGutterParts, ExpectedGutter)] = expectedGuttersSorted.zipAll(guttersSorted, null, null)
       zipped.foreach {
         case (null, actual) =>
           fail(s"Unexpected gutter found: ${gutterDebugText(actual)}")
-        case (expected, null)  =>
+        case (expected, null) =>
           fail(s"Expected gutter not found: ${gutterDebugText(expected)}")
-        case (expected, actual)  =>
+        case (expected, actual) =>
           // Yes, we compare line and ranges, but if they are not equal we show a more convenient diff view with all gutters debug text
           if (expected.line != actual.line)
             assertEquals(s"Couldn't find gutter at line ${expected.line}", expectedPartsText, actualText)
@@ -172,7 +179,7 @@ abstract class GutterMarkersTestBase extends ScalaFixtureTestCase {
   }
 
   /** @param line 1-based */
-  case class ExpectedGutterParts(line: Int, range: TextRange, tooltipParts: Seq[String])  extends WithRange
+  case class ExpectedGutterParts(line: Int, range: TextRange, tooltipParts: Seq[String]) extends WithRange
   object ExpectedGutterParts {
     def apply(line: Int, range: (Int, Int), tooltipParts: String*): ExpectedGutterParts =
       new ExpectedGutterParts(line, TextRange.create(range._1, range._2), tooltipParts)

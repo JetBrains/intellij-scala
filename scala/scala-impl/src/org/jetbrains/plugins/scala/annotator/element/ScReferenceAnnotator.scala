@@ -55,8 +55,17 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
       qualifier match {
         case None =>
           checkNotQualifiedReferenceElement(element, typeAware)
-        case Some(_) =>
-          checkQualifiedReferenceElement(element, typeAware)
+        case Some(q) => q match {
+          case _: ScDocResolvableCodeReference => // TODO Uniform, fine-grained highlighting, SCL-22154
+            checkQualifiedReferenceElement(element, typeAware)
+          case e: ScExpression
+            if !e.isInstanceOf[ScThisReference] && !e.isInstanceOf[ScSuperReference] &&
+              !e.isInstanceOf[ScUnderscoreSection] && // TODO Highlight underscore rather than remainder, SCL-22148
+              !e.asOptionOf[ScReferenceExpression].exists(_.resolve() != null) && // TODO Highlight expressions of non-inferred type? SCL-22150
+              e.`type`().isLeft => // Don't highlight the remainder if the type of the qualifier is unknown (see SCL-15138, SCL-20431, SCL-22138)
+          case _ =>
+            checkQualifiedReferenceElement(element, typeAware)
+        }
       }
     }
 

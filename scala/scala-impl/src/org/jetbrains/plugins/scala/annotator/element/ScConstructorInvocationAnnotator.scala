@@ -61,8 +61,8 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
       //  a constructorOwner AND also has a constructor! It will not have one in scala 2)
       mayBeConstructor = element.asOptionOf[ScConstructorOwner].flatMap(_.constructor)
       elementShouldHaveBeenConcreteConstructor = mayBeConstructor.isDefined
-      if resolveResult.isAccessible && !elementShouldHaveBeenConcreteConstructor
-    } yield resolveResult
+      accessible = resolveResult.isAccessible && !elementShouldHaveBeenConcreteConstructor
+    } yield resolveResult.copy(isAccessible = accessible) // TODO Resolve should return matching inaccessible constructors, SCL-22156
 
     if (resolved.exists(isConstructorMalformed)) {
       val message = ScalaBundle.message("annotator.error.constructor.has.malformed.definition")
@@ -70,7 +70,7 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
     }
 
     resolved match {
-      case Seq() => holder.createErrorAnnotation(argsElementsTextRange(constrInvocation), ScalaBundle.message("annotator.error.no.constructor.accessible"))
+      case Seq(r) if !r.isAccessible => holder.createErrorAnnotation(argsElementsTextRange(constrInvocation), ScalaBundle.message("annotator.error.no.constructor.accessible"))
       case Seq(r@ScConstructorResolveResult(constr)) if constr.effectiveParameterClauses.length > 1 && !isConstructorMalformed(r) =>
         // if there is only one well-formed, resolved, scala constructor with multiple parameter clauses,
         // check all of these clauses

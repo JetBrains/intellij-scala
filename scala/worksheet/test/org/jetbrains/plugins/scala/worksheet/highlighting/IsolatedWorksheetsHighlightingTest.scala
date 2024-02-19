@@ -47,11 +47,9 @@ class IsolatedWorksheetsHighlightingTest extends ScalaHighlightingTestBase {
        |""".stripMargin
 
   private val expectedMessages = List(
-    "No constructor accessible from here",
     "Cannot resolve symbol ExternalClass",
     "Cannot resolve symbol ExternalTrait",
     "Cannot resolve symbol ExternalObject",
-    "Cannot resolve symbol f",
     "Cannot resolve symbol externalFunction",
     "Cannot resolve symbol externalValue",
     "Cannot resolve symbol externalVariable",

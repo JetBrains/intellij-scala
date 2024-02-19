@@ -53,8 +53,9 @@ class NonServerRunner(project: Project) {
           val mainClassPath = classPathArg(jdk.tools.toSeq ++ CompileServerLauncher.compileServerJars)
           val scalaCompileServerSystemDir = CompileServerLauncher.scalaCompileServerSystemDir
           val jvmParameters = CompileServerLauncher.jvmParameters
+          val jnaParams = CompileServerLauncher.jnaVMOptions
           val java9rtJarParams = CompileServerLauncher.prepareJava9rtJar(jdk)
-          (jdkPath +: "-cp" +: runnerClassPath +: jvmParameters) ++ java9rtJarParams ++
+          (jdkPath +: "-cp" +: runnerClassPath +: jvmParameters) ++ jnaParams ++ java9rtJarParams ++
             (SERVER_CLASS_NAME +: mainClassPath +: scalaCompileServerSystemDir.toString +: argsEncoded)
         }
 

@@ -164,7 +164,7 @@ object CompileServerLauncher {
         } else Nil
         val isScalaCompileServer = s"-D${CompileServerProperties.IsScalaCompileServer}=true"
 
-        val vmOptions: Seq[String] = if (isUnitTestMode && project == null) Seq() else {
+        val vmOptions = if (isUnitTestMode && project == null) Seq.empty else {
           // Duplicated --add-opens parameters are inherited from this extension point
           // through ScalaBuildProcessParametersProvider. This filtering also helps to not
           // pass --add-opens parameters to JDK 8 and lower.
@@ -189,6 +189,7 @@ object CompileServerLauncher {
           jdk.executable.canonicalPath +:
             "-cp" +: nailgunClasspath +:
             userJvmParameters ++:
+            jnaVMOptions ++:
             java9rtJarParams ++:
             shutdownDelayArg ++:
             isScalaCompileServer +:
@@ -404,6 +405,24 @@ object CompileServerLauncher {
 
     xmx ++ otherParams ++ debugAgent
   }
+
+  /**
+   * Same parameters as the ones provided by the IntelliJ platform to the JPS build process.
+   *
+   * The JNA VM options are added directly to the Java command line, instead of being added to the
+   * BuildProcessParameterersProvider extension point, because the platform adds them directly to the JPS process Java
+   * command line, and it would lead to duplication.
+   *
+   * @see [[com.intellij.compiler.server.BuildManager#launchBuildProcess]].
+   */
+  private[scala] def jnaVMOptions: Seq[String] =
+    sys.props.get("jna.boot.library.path").map { path =>
+      Seq(
+        s"-Djna.boot.library.path=$path",
+        "-Djna.nosys=true",
+        "-Djna.noclasspath=true"
+      )
+    }.getOrElse(Seq.empty)
 
   /**
    * A cache to avoid recomputing the `rt.jar` location on every invocation of the `prepareJava9rtJar` method,

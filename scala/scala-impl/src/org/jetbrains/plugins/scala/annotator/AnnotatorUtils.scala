@@ -151,20 +151,6 @@ object AnnotatorUtils {
     }
   }
 
-  // TODO something more reliable
-  object ErrorAnnotationMessage {
-    def unapply(definition: ScTypeDefinition): Option[NlsString] =
-      Option.when(definition.isSealed)(
-        NlsString(
-          ScalaBundle.message(
-            "illegal.inheritance.from.sealed.kind",
-            kindOf(definition, toLowerCase = true),
-            definition.name
-          )
-        )
-      )
-  }
-
   def inSameFile(elem: PsiElement, file: PsiFile): Boolean = {
     elem != null && {
       val vFile1 = elem.getContainingFile.getViewProvider.getVirtualFile
