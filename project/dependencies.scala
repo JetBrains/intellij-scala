@@ -15,7 +15,7 @@ object Versions {
   val zincVersion = "1.9.5"
 
   // ATTENTION: check the comment in CommonUltimate when updating this version
-  val intellijVersion = "233.14015.106"
+  val intellijVersion = "233.14475.28"
 
   def isNightlyIntellijVersion: Boolean = intellijVersion.count(_ == '.') == 1
 
@@ -42,7 +42,7 @@ object Versions {
 
   val java9rtExportVersion: String = "0.1.0"
 
-  val scalaExpressionCompiler: String = "3.1.4"
+  val scalaExpressionCompiler: String = "3.1.6"
 
   object Sbt {
     val binary_0_13 = "0.13"

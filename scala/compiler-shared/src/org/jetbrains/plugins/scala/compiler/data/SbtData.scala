@@ -35,7 +35,9 @@ object SbtData {
           _3_0 = pluginJpsDir.resolve("scala3-sbt-bridge_3.0.jar").toFile,
           _3_1 = pluginJpsDir.resolve("scala3-sbt-bridge_3.1.jar").toFile,
           _3_2 = pluginJpsDir.resolve("scala3-sbt-bridge_3.2.jar").toFile,
-          _3_3 = pluginJpsDir.resolve("scala3-sbt-bridge_3.3.jar").toFile
+          _3_3_old = pluginJpsDir.resolve("scala3-sbt-bridge_3.3_old.jar").toFile,
+          _3_3 = pluginJpsDir.resolve("scala3-sbt-bridge_3.3.jar").toFile,
+          _3_4 = pluginJpsDir.resolve("scala3-sbt-bridge_3.4.jar").toFile
         )
       )
     )
@@ -52,7 +54,7 @@ object SbtData {
   /**
    * Contains already compiled dotty/scala3 compiler bridges.
    */
-  case class Scala3Jars(_3_0: File, _3_1: File, _3_2: File, _3_3: File)
+  case class Scala3Jars(_3_0: File, _3_1: File, _3_2: File, _3_3_old: File, _3_3: File, _3_4: File)
 
   val compilerInterfacesKey = "scala.compiler.interfaces.dir"
 

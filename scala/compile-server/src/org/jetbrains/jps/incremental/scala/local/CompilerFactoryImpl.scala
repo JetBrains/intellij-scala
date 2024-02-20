@@ -167,8 +167,11 @@ object CompilerFactoryImpl {
       compilerBridges.scala3._3_1
     else if (is3_2(scalaVersion))
       compilerBridges.scala3._3_2
-    else if (isLatest3(scalaVersion))
-      compilerBridges.scala3._3_3
+    else if (is3_3(scalaVersion)) {
+      if (scalaVersion.major(3) <= Version("3.3.1")) compilerBridges.scala3._3_3_old
+      else compilerBridges.scala3._3_3
+    } else if (isLatest3(scalaVersion))
+      compilerBridges.scala3._3_4
     else {
       val sourceJar: File =
         if (isBefore_2_11(scalaVersion)) compilerBridges.scala._2_10
@@ -201,6 +204,7 @@ object CompilerFactoryImpl {
   private def is3_0(version: Version): Boolean = version.presentation.startsWith("3.0")
   private def is3_1(version: Version): Boolean = version.presentation.startsWith("3.1")
   private def is3_2(version: Version): Boolean = version.presentation.startsWith("3.2")
+  private def is3_3(version: Version): Boolean = version.presentation.startsWith("3.3")
   private def isLatest3(version: Version): Boolean = version.presentation.startsWith("3.")
 
   private object NullLogger extends Logger {
