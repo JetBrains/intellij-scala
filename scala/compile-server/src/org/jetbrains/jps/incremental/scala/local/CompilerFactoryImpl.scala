@@ -167,9 +167,10 @@ object CompilerFactoryImpl {
       compilerBridges.scala3._3_1
     else if (is3_2(scalaVersion))
       compilerBridges.scala3._3_2
-    else if (isLatest3(scalaVersion))
-      compilerBridges.scala3._3_3
-    else {
+    else if (isLatest3(scalaVersion)) {
+      if (scalaVersion.major(3) <= Version("3.3.1")) compilerBridges.scala3._3_3_old
+      else compilerBridges.scala3._3_3
+    } else {
       val sourceJar: File =
         if (isBefore_2_11(scalaVersion)) compilerBridges.scala._2_10
         else if (isBefore_2_13(scalaVersion)) compilerBridges.scala._2_11
