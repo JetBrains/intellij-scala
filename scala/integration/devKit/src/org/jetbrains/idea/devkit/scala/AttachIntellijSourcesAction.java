@@ -21,6 +21,7 @@ import com.intellij.openapi.roots.ui.configuration.JavaVfsSourceRootDetectionUti
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.registry.Registry;
 import com.intellij.openapi.vfs.*;
+import com.intellij.util.concurrency.annotations.RequiresBackgroundThread;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -67,22 +68,22 @@ public class AttachIntellijSourcesAction extends AnAction {
         LOG.info("Found " + ijLibraries.size() + " IJ libraries without sources");
 
         Optional<VirtualFile> ideaInstallationFolder = application.runReadAction(getLibraryRoot(ijLibraries));
-        if (!ideaInstallationFolder.isPresent()) {
+        if (ideaInstallationFolder.isEmpty()) {
             LOG.info("Couldn't find IDEA installation folder");
             return;
         }
         LOG.info("Found IDEA installation folder at " + ideaInstallationFolder.get());
 
-        Optional<VirtualFile> maybeSourcesZip = ideaInstallationFolder.flatMap(AttachIntellijSourcesAction::findSourcesZip);
-        if (!maybeSourcesZip.isPresent()) {
-            LOG.info("Couldn't find IDEA sources in installation folder: " + ideaInstallationFolder.get());
-            return;
-        }
-
         //noinspection DialogTitleCapitalization
-        new Task.Backgroundable(project, DevkitBundle.message("attaching.idea.sources"), true) {
+        Task.Backgroundable task = new Task.Backgroundable(project, DevkitBundle.message("attaching.idea.sources"), true) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
+                Optional<VirtualFile> maybeSourcesZip = ideaInstallationFolder.flatMap(AttachIntellijSourcesAction::findSourcesZip);
+                if (maybeSourcesZip.isEmpty()) {
+                    LOG.info("Couldn't find IDEA sources in installation folder: " + ideaInstallationFolder.get());
+                    return;
+                }
+
                 LOG.info("Sources archive found: " + maybeSourcesZip.get().getCanonicalPath());
 
                 Collection<VirtualFile> roots = JavaVfsSourceRootDetectionUtil.suggestRoots(maybeSourcesZip.get(), indicator);
@@ -106,7 +107,8 @@ public class AttachIntellijSourcesAction extends AnAction {
                 roots.forEach(file -> model.addRoot(file, OrderRootType.SOURCES));
                 model.commit();
             }
-        }.queue();
+        };
+        task.queue();
     }
 
 
@@ -210,7 +212,11 @@ public class AttachIntellijSourcesAction extends AnAction {
         return path != null && path.contains("tools.jar");
     }
 
+    /**
+     * Requires background thread because VFS traversal will call {@link com.intellij.util.SlowOperations#assertSlowOperationsAreAllowed()}
+     */
     @NotNull
+    @RequiresBackgroundThread
     private static Optional<VirtualFile> findSourcesZip(@NotNull VirtualFile root) {
         VirtualFile[] result = {null};
         try {
