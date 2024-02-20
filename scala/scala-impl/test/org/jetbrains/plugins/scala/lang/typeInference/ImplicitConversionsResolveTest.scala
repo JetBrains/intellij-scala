@@ -62,4 +62,23 @@ class ImplicitConversionsResolveTest extends ScalaLightCodeInsightFixtureTestCas
       |}
       |""".stripMargin
   )
+
+  def testSCL22040(): Unit = checkTextHasNoErrors(
+    """
+      |object Example {
+      |
+      |  class Foo[A](val v: A)
+      |
+      |  class FooConverter[A] extends (A => Foo[A]) {
+      |    override def apply(a: A): Foo[A] = new Foo[A](a)
+      |  }
+      |  implicit def toFooConverter[A]: FooConverter[A] = new FooConverter[A]
+      |
+      |  def fooValue[A](foo: Foo[A]): A = foo.v
+      |
+      |  private val x: Int = fooValue(1)
+      |
+      |}
+      |""".stripMargin
+  )
 }
