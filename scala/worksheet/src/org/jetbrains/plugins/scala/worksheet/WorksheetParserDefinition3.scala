@@ -7,6 +7,9 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
 import org.jetbrains.plugins.scala.lang.parser.{ScalaParser, ScalaParserDefinitionBase}
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubFileElementType
 
+/**
+ * See also [[org.jetbrains.plugins.scala.worksheet.WorksheetParserDefinition]]
+ */
 final class WorksheetParserDefinition3 extends ScalaParserDefinitionBase {
 
   override def createLexer(project: Project) =
