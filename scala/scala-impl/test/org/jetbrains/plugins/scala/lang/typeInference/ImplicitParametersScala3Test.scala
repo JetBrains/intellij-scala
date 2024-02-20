@@ -54,4 +54,48 @@ class ImplicitParametersScala3Test extends ImplicitParametersTestBase {
        |}
        |""".stripMargin
   )
+
+  def testSCL20670(): Unit = checkTextHasNoErrors(
+    s"""
+       |trait CaseClassName[A]:
+       |  def get: String
+       |
+       |object CaseClassName:
+       |  def derived[A](using a: scala.deriving.Mirror.Of[A]): CaseClassName[A] = new CaseClassName[A]:
+       |    def get: String = a.toString
+       |case class CoolClass(i: Int) derives CaseClassName
+       |""".stripMargin
+  )
+
+  def testMirrorOfSealed(): Unit = checkNoImplicitParameterProblems(
+    s"""
+       |sealed trait Foo
+       |case class Bar extends Foo
+       |case object Baz extends Foo
+       |sealed class Qux extends Foo
+       |enum F extends Qux
+       |
+       |object A {
+       |  ${START}implicitly[scala.deriving.Mirror.Of[Foo]]$END
+       |}
+       |""".stripMargin
+  )
+
+  def testMirrorNeg(): Unit = {
+    checkHasErrorAroundCaret(
+      s"""
+         |trait Foo
+         |case class Bar extends Foo
+         |object Test { imp${CARET}licitly[scala.deriving.Mirror.Of[Foo]] }
+         |""".stripMargin
+    )
+
+    checkHasErrorAroundCaret(
+      s"""
+         |sealed trait Foo
+         |class Bar extends Foo
+         |object Test { imp${CARET}licitly[scala.deriving.Mirror.Of[Foo]] }
+         |""".stripMargin
+    )
+  }
 }
