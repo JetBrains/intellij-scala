@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.implicits.ExtensionConversionHelper.{extensionConversionCheck, scala3ExtensionApplicabilityCheck}
+import org.jetbrains.plugins.scala.lang.psi.implicits.ExtensionConversionHelper.extensionConversionCheck
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
 import org.jetbrains.plugins.scala.lang.psi.light.LightContextFunctionParameter
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -861,20 +861,44 @@ class ImplicitCollector(
     }
 
   private def checkWeakConformance(left: ScType, right: ScType): ConstraintsResult = {
-    def function1Arg(scType: ScType): Option[(ScType, ScType)] = scType match {
-      case ParameterizedType(ScDesignatorType(c: PsiClass), args) if args.size == 2 =>
-        if (c.qualifiedName == "scala.Function1") (args.head, args.last).toOption
-        else None
-      case _ => None
+    import SmartSuperTypeUtil.{TraverseSupers, traverseSuperTypes}
+
+    def function1Arg(scType: ScType, strict: Boolean = true): Option[(ScType, ScType)] = {
+      def isFunction1Class(cls: PsiClass): Boolean =
+        cls.qualifiedName == "scala.Function1"
+
+      scType match {
+        case ParameterizedType(ScDesignatorType(c: PsiClass), args)
+          if args.size == 2 && isFunction1Class(c) => (args.head, args.last).toOption
+        case _ =>
+          if (strict) None
+          else {
+            var res: Option[(ScType, ScType)] = None
+
+            traverseSuperTypes(
+              scType,
+              (tpe, cls, _) => (tpe, cls) match {
+                case (ParameterizedType(_, args), cls)
+                  if args.size == 2 && isFunction1Class(cls) =>
+                  res = (args.head, args.last).toOption
+                  TraverseSupers.Stop
+                case _ => TraverseSupers.ProcessParents
+              }
+            )
+
+            res
+          }
+
+      }
     }
 
-    function1Arg(left) match {
+    function1Arg(left, strict = false) match {
       case Some((leftArg, leftRes)) =>
         function1Arg(right) match {
           case Some((rightArg, rightRes)) =>
             rightArg.conforms(leftArg, ConstraintSystem.empty, checkWeak = true) match {
               case cs: ConstraintSystem => leftRes.conforms(rightRes, cs)
-              case left                 => left
+              case left => left
             }
           case _ => ConstraintsResult.Left
         }
