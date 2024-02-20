@@ -221,6 +221,16 @@ object Main {
 
   private val scalaVersionRegex: Regex = s"""$scala3CompilerJarName-(\\d)\\.(\\d+)\\.(\\d+).*\\.jar""".r
 
+  private val scala3StableVersions: Set[String] = Set(
+    "3.0.0", "3.0.1", "3.0.2",
+    "3.1.0", "3.1.1", "3.1.2", "3.1.3",
+    "3.2.0", "3.2.1", "3.2.2",
+    "3.3.0", "3.3.1", "3.3.2",
+    "3.4.0"
+  )
+
+  private val scala3FallbackVersion: String = "3.4.0"
+
   private def evaluateExpressionLogic(args: ExpressionEvaluationArguments): Unit = {
     val ExpressionEvaluationArguments(outDir, classpath, scalacOptions, source, line, expression, localVariableNames, packageName) = args
 
@@ -231,7 +241,7 @@ object Main {
         }
         .collect {
           case scalaVersionRegex(x, y, z) => s"$x.$y.$z"
-        }.getOrElse("3.3.1")
+        }.filter(scala3StableVersions).getOrElse(scala3FallbackVersion)
 
     val (instance, method) = expressionCompilerCache.getOrUpdate(classpath) {
       val path = PathManager.getJarForClass(this.getClass)
