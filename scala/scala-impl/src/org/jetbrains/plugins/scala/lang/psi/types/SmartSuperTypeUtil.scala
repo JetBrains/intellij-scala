@@ -48,8 +48,16 @@ object SmartSuperTypeUtil {
     tpe:     ScType,
     f:       (ScType, PsiClass, ScSubstitutor) => TraverseSupers,
     visited: Set[PsiClass] = Set.empty
-  ): Boolean =
-    tpe.extractClassType.fold(false) { case (cls, subst) => traverseSuperTypes(cls, subst, f, visited) }
+  ): Boolean = {
+    tpe match {
+      case ScCompoundType(comps, _, _) =>
+        comps.foldLeft(false) { case (acc, comp) => acc || traverseSuperTypes(comp, f, visited) }
+      case ScAndType(lhs, rhs) =>
+        traverseSuperTypes(lhs, f, visited) || traverseSuperTypes(rhs, f, visited)
+      case _ =>
+        tpe.extractClassType.fold(false) { case (cls, subst) => traverseSuperTypes(cls, subst, f, visited) }
+    }
+  }
 
   private[psi] def traverseSuperTypes(
     cls:     PsiClass,
@@ -65,7 +73,7 @@ object SmartSuperTypeUtil {
         cls.getSuperTypes.map { tpe =>
           subst(tpe.toScType()(cls)) match {
             case exist: ScExistentialType => exist.quantified
-            case other => other
+            case other                    => other
           }
         }.toSeq
     }
