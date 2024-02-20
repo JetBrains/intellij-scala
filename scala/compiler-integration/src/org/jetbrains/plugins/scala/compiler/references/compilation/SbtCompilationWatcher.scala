@@ -4,11 +4,11 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.{ModuleListener, Project}
 import org.jetbrains.plugins.scala.compiler.CompilerIntegrationBundle
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.compiler.references.ScalaCompilerReferenceService.CompilerIndicesState
-import org.jetbrains.plugins.scala.compiler.references.{TransactionGuard, upToDateCompilerIndexExists}
 import org.jetbrains.plugins.scala.compiler.references.compilation.SbtCompilationListener.ProjectIdentifier
 import org.jetbrains.plugins.scala.compiler.references.compilation.SbtCompilationListener.ProjectIdentifier._
+import org.jetbrains.plugins.scala.compiler.references.{TransactionGuard, upToDateCompilerIndexExists}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.indices.protocol.IdeaIndicesJsonProtocol._
 import org.jetbrains.plugins.scala.indices.protocol.sbt.Locking.FileLockingExt
 import org.jetbrains.plugins.scala.indices.protocol.sbt._
@@ -86,8 +86,11 @@ private[references] class SbtCompilationWatcher(
       // if an sbt project is added to the IDEA model, just nuke the indices
       // since it may possess a compiler state we are unaware of
       // (this is fine since reindexing is relatively cheap with sbt (no rebuild)).
-      override def moduleAdded(project: Project, module: Module): Unit =
-        processEventInTransaction(_.onError(CompilerIntegrationBundle.message("sbt.module.added")))
+      override def modulesAdded(project: Project, modules: java.util.List[_ <: Module]): Unit = {
+        executeOnPooledThread {
+          processEventInTransaction(_.onError(CompilerIntegrationBundle.message("sbt.module.added")))
+        }
+      }
     })
 
     // can be called from multiple threads in case of a parallel compilation of
