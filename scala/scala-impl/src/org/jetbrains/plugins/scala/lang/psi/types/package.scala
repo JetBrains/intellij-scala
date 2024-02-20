@@ -347,6 +347,7 @@ package object types {
           stdType.syntheticClass.flatMap {
             filter(_, ScSubstitutor.empty)
           }
+        case ScCompoundType(Seq(comp), _, _) => extractFrom(comp)
         case ScExistentialType(quantified, _) =>
           extractFrom(quantified, visitedAliases)
         case TypeParameterType.ofPsi(psiTypeParameter) =>
