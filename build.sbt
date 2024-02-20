@@ -725,6 +725,7 @@ lazy val runtimeDependencies = project.in(file("target/tools/runtime-dependencie
       binaryDep("org.scala-lang", "scala3-sbt-bridge", "3.2.2") -> "lib/jps/scala3-sbt-bridge_3.2.jar",
       binaryDep("org.scala-lang", "scala3-sbt-bridge", "3.3.1") -> "lib/jps/scala3-sbt-bridge_3.3_old.jar",
       binaryDep("org.scala-lang", "scala3-sbt-bridge", "3.3.2") -> "lib/jps/scala3-sbt-bridge_3.3.jar",
+      binaryDep("org.scala-lang", "scala3-sbt-bridge", "3.4.0") -> "lib/jps/scala3-sbt-bridge_3.4.jar",
 
       binaryDep("org.scala-sbt.rt", "java9-rt-export", Versions.java9rtExportVersion) -> "java9-rt-export/java9-rt-export.jar",
       binaryDep("ch.epfl.scala", "scala-expression-compiler", "3.3.1", Versions.scalaExpressionCompiler) -> "debugger/scala-expression-compiler_3.3.1.jar",
