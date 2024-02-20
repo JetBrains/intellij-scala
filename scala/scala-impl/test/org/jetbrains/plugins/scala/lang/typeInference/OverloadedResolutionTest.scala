@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
-class OverloadedResolutionWithImplicitParamsTest extends ScalaLightCodeInsightFixtureTestCase {
+class OverloadedResolutionTest extends ScalaLightCodeInsightFixtureTestCase {
   override def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 
   def testSCL17518(): Unit = checkTextHasNoErrors(
@@ -49,5 +49,22 @@ class OverloadedResolutionWithImplicitParamsTest extends ScalaLightCodeInsightFi
       |    future(0.0).whenDone(future(0.0))
       |  }
       |}""".stripMargin
+  )
+
+
+  def testSCL20664(): Unit = checkTextHasNoErrors(
+    """
+      |import Example.foo
+      |
+      |class Example {
+      |  foo("prefix", true)
+      |  foo("prefix", 42)
+      |}
+      |
+      |object Example {
+      |  def foo(prefix: String, boolean: Boolean): String = ???
+      |  private def foo(prefix: String, int: Int): String = ???
+      |}
+      |""".stripMargin
   )
 }
