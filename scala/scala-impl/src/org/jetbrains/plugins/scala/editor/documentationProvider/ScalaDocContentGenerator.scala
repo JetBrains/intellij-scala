@@ -32,7 +32,6 @@ import scala.util.{Failure, Success, Try}
 private class ScalaDocContentGenerator(
   originalComment: ScDocComment,
   macroFinder: MacroFinder,
-  rendered: Boolean
 ) {
 
   import ApplicationManager.{getApplication => application}
