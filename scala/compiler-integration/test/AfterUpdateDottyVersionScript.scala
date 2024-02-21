@@ -236,8 +236,15 @@ object AfterUpdateDottyVersionScript {
       val tempRangeSourceDir = newTempDir().toPath.resolve("pos")
       tempRangeSourceDir.toFile.mkdirs()
 
+      // No help.ranges is generated for the source file help.scala.
+      // https://github.com/lampepfl/dotty/blob/release-3.4.0/tests/pos/help.scala
+      def acceptFile(file: File): Boolean = {
+        val fileName = file.getName.toLowerCase
+        fileName.endsWith(".scala") && fileName != "help.scala"
+      }
+
       var atLeastOneFileProcessed = false
-      for (file <- allFilesIn(srcDir) if file.toString.toLowerCase.endsWith(".scala"))  {
+      for (file <- allFilesIn(srcDir) if acceptFile(file))  {
         val target = dottyParserTestsFailDir + file.toString.substring(srcDir.length).replace(".scala", "++++test")
         val content = readFile(file.toPath)
           .replaceAll("[-]{5,}", "+") // <- some test files have comment lines with dashes which confuse junit
