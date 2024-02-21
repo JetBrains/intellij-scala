@@ -120,6 +120,7 @@ Document tests/pos/t3236/Test.scala
 (12:91..12:92) scala/StringContext#s().
 (13:5..13:11) scala/Predef.assert().
 (13:12..13:13) local1 -> 11:9
+(13:13..13:19) scala/reflect/Selectable#applyDynamic().
 (13:22..13:24) scala/Any#`==`().
 (13:25..13:33) _empty_/Test.check().(expected) -> 10:123
 (13:65..13:66) local1 -> 11:9

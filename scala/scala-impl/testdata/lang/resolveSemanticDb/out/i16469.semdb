@@ -1,0 +1,14 @@
+Document tests/pos/i16469.scala
+(2:23..2:29) scala/Predef.String#
+(3:30..3:36) scala/Predef.String#
+(6:19..6:26) _empty_/Context# -> 1:7
+(7:10..7:13) _empty_/Script#Script$$inline$ctx().
+(7:10..7:13) _empty_/Script#ctx. -> 6:14
+(8:3..8:15) _empty_/Script#normalMethod().
+(9:3..9:15) _empty_/Script#inlineMethod().
+(12:25..12:32) _empty_/Context# -> 1:7
+(12:42..12:48) _empty_/Script# -> 6:7
+(12:49..12:56) _empty_/MyScript#context. -> 12:16
+(13:3..13:15) _empty_/Script#normalMethod().
+(14:3..14:15) _empty_/Script#inlineMethod().
+

@@ -1,5 +1,5 @@
 Document tests/pos/AE-9a131723f09b9f77c99c52b709965e580a61706e.scala
 (1:21..1:36) scala/PartialFunction#
-(1:40..1:43) scala/Int#
+(1:40..1:43) scala/Any#
 (1:60..1:62) local1 -> 1:54
 

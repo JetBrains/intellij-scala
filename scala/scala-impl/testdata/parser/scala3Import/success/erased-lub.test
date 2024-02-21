@@ -1,0 +1,349 @@
+//> using options -language:experimental.erasedDefinitions
+
+// Verify that expressions below perform correct boxings in erasure.
+object Test {
+  def id[T](t: T) = t
+
+  val x = true
+  val one = 1
+
+  { if (x) id(one) else 0 } + 1
+
+  { if (x) new scala.util.Random()}.asInstanceOf[Runnable]
+
+  { x match {
+      case true => id(one)
+      case _ => 0
+    }
+  } + 1
+
+  { try {
+      id(one)
+    } catch {
+      case ex: Exception => 0
+    }
+  }.asInstanceOf[Runnable]
+
+  val arr = Array(id(one), 0)
+
+}
+-----
+ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-language:experimental.erasedDefinitions')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    PsiComment(comment)('// Verify that expressions below perform correct boxings in erasure.')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: id
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('id')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: t
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('t')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: t
+            PsiElement(identifier)('t')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: x
+              PsiElement(identifier)('x')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BooleanLiteral
+            PsiElement(true)('true')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: one
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: one
+              PsiElement(identifier)('one')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('1')
+        PsiWhiteSpace('\n\n  ')
+        InfixExpression
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace(' ')
+            IfStatement
+              PsiElement(if)('if')
+              PsiWhiteSpace(' ')
+              PsiElement(()('(')
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+              PsiElement())(')')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: id
+                  PsiElement(identifier)('id')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: one
+                    PsiElement(identifier)('one')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(else)('else')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('0')
+            PsiWhiteSpace(' ')
+            PsiElement(})('}')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: +
+            PsiElement(identifier)('+')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('1')
+        PsiWhiteSpace('\n\n  ')
+        GenericCall
+          ReferenceExpression: { if (x) new scala.util.Random()}.asInstanceOf
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              IfStatement
+                PsiElement(if)('if')
+                PsiWhiteSpace(' ')
+                PsiElement(()('(')
+                ReferenceExpression: x
+                  PsiElement(identifier)('x')
+                PsiElement())(')')
+                PsiWhiteSpace(' ')
+                ScNewTemplateDefinition: <anonymous>
+                  PsiElement(new)('new')
+                  PsiWhiteSpace(' ')
+                  ExtendsBlock
+                    TemplateParents
+                      ConstructorInvocation
+                        SimpleType: scala.util.Random
+                          CodeReferenceElement: scala.util.Random
+                            CodeReferenceElement: scala.util
+                              CodeReferenceElement: scala
+                                PsiElement(identifier)('scala')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('util')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('Random')
+                        ArgumentList
+                          PsiElement(()('(')
+                          PsiElement())(')')
+              PsiElement(})('}')
+            PsiElement(.)('.')
+            PsiElement(identifier)('asInstanceOf')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: Runnable
+              CodeReferenceElement: Runnable
+                PsiElement(identifier)('Runnable')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        InfixExpression
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace(' ')
+            MatchStatement
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              PsiElement(match)('match')
+              PsiWhiteSpace(' ')
+              PsiElement({)('{')
+              PsiWhiteSpace('\n      ')
+              CaseClauses
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    BooleanLiteral
+                      PsiElement(true)('true')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    MethodCall
+                      ReferenceExpression: id
+                        PsiElement(identifier)('id')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: one
+                          PsiElement(identifier)('one')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n      ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  WildcardPattern
+                    PsiElement(_)('_')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    IntegerLiteral
+                      PsiElement(integer)('0')
+              PsiWhiteSpace('\n    ')
+              PsiElement(})('}')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: +
+            PsiElement(identifier)('+')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('1')
+        PsiWhiteSpace('\n\n  ')
+        GenericCall
+          ReferenceExpression: { try {
+      id(one)
+    } catch {
+      case ex: Exception => 0
+    }
+  }.asInstanceOf
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              TryStatement
+                PsiElement(try)('try')
+                PsiWhiteSpace(' ')
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n      ')
+                  MethodCall
+                    ReferenceExpression: id
+                      PsiElement(identifier)('id')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ReferenceExpression: one
+                        PsiElement(identifier)('one')
+                      PsiElement())(')')
+                  PsiWhiteSpace('\n    ')
+                  PsiElement(})('}')
+                PsiWhiteSpace(' ')
+                CatchBlock
+                  PsiElement(catch)('catch')
+                  PsiWhiteSpace(' ')
+                  BlockExpression
+                    PsiElement({)('{')
+                    PsiWhiteSpace('\n      ')
+                    CaseClauses
+                      CaseClause
+                        PsiElement(case)('case')
+                        PsiWhiteSpace(' ')
+                        Scala3 TypedPattern
+                          ReferencePattern: ex
+                            PsiElement(identifier)('ex')
+                          PsiElement(:)(':')
+                          PsiWhiteSpace(' ')
+                          TypePattern
+                            SimpleType: Exception
+                              CodeReferenceElement: Exception
+                                PsiElement(identifier)('Exception')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        BlockOfExpressions
+                          IntegerLiteral
+                            PsiElement(integer)('0')
+                    PsiWhiteSpace('\n    ')
+                    PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+            PsiElement(.)('.')
+            PsiElement(identifier)('asInstanceOf')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: Runnable
+              CodeReferenceElement: Runnable
+                PsiElement(identifier)('Runnable')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: arr
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: arr
+              PsiElement(identifier)('arr')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: Array
+              PsiElement(identifier)('Array')
+            ArgumentList
+              PsiElement(()('(')
+              MethodCall
+                ReferenceExpression: id
+                  PsiElement(identifier)('id')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: one
+                    PsiElement(identifier)('one')
+                  PsiElement())(')')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('0')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n')
+        PsiElement(})('}')

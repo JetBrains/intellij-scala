@@ -1,0 +1,2151 @@
+//> using options -Ykind-projector
+
+package kind_projector
+
+trait Foo[F[_]]
+trait Qux[F[_, _]]
+trait Baz[F[_], A, B]
+
+trait FooPlus[+F[+_]]
+trait QuxPlus[+F[+_, +_]]
+trait BazPlus[+F[+_], +A, +B]
+
+trait FooMinus[-F[-_]]
+trait QuxMinus[-F[-_, -_]]
+trait BazMinus[-F[-_], -A, -B]
+
+class Bar1 extends Foo[Either[Int, *]]
+class Bar2 extends Foo[Either[*, Int]]
+class Bar3 extends Foo[* => Int]
+class Bar4 extends Foo[Int => *]
+class Bar5 extends Foo[(Int, *, Int)]
+class Bar6 extends Foo[λ[x => Either[Int, x]]]
+class Bar7 extends Qux[λ[(x, y) => Either[y, x]]]
+class Bar8 extends Foo[Baz[Int => *, *, Int]]
+class Bar9 extends Foo[λ[x => Baz[x => *, Int, x]]]
+
+class BarPlus1 extends FooPlus[Either[Int, +*]]
+class BarPlus2 extends FooPlus[Either[+*, Int]]
+class BarPlus3 extends FooPlus[Int => +*]
+class BarPlus4 extends FooPlus[(Int, +*, Int)]
+class BarPlus5 extends FooPlus[λ[`+x` => Either[Int, x]]]
+class BarPlus6 extends QuxPlus[λ[(`+x`, `+y`) => Either[y, x]]]
+class BarPlus7 extends FooPlus[BazPlus[Int => +*, +*, Int]]
+
+class BarMinus1 extends FooMinus[-* => Int]
+
+class VarianceAnnotationIsActuallyIgnored1 extends FooPlus[Either[Int, -*]]
+class VarianceAnnotationIsActuallyIgnored2 extends FooPlus[Either[-*, Int]]
+class VarianceAnnotationIsActuallyIgnored3 extends FooMinus[+* => Int]
+class VarianceAnnotationIsActuallyIgnored4 extends FooPlus[Int => -*]
+class VarianceAnnotationIsActuallyIgnored5 extends FooPlus[(Int, -*, Int)]
+class VarianceAnnotationIsActuallyIgnored6 extends FooPlus[λ[`-x` => Either[Int, x]]]
+class VarianceAnnotationIsActuallyIgnored7 extends QuxPlus[λ[(`-x`, `-y`) => Either[y, x]]]
+class VarianceAnnotationIsActuallyIgnored8 extends FooPlus[BazPlus[Int => -*, -*, Int]]
+class VarianceAnnotationIsActuallyIgnored9 extends Foo[λ[`-x` => BazPlus[x => -*, Int, x]]]
+
+class BackticksAreFine1 extends FooPlus[Either[Int, `-*`]]
+class BackticksAreFine2 extends FooPlus[Either[`-*`, Int]]
+class BackticksAreFine3 extends FooMinus[`+*` => Int]
+class BackticksAreFine4 extends FooPlus[Int => `-*`]
+class BackticksAreFine5 extends FooPlus[(Int, `-*`, Int)]
+class BackticksAreFine6 extends FooPlus[BazPlus[Int => `-*`, `-*`, Int]]
+class BackticksAreFine7 extends Foo[λ[`-x` => BazPlus[x => `-*`, Int, x]]]
+class BackticksAreFine8 extends Foo[λ[`x` => BazPlus[x => `*`, Int, x]]]
+
+// https://github.com/lampepfl/dotty/issues/13141
+// i13141
+object A {
+  class X { type Blah = Int }
+  val * = new X
+  val a: *.Blah = 2
+}
+-----
+ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Ykind-projector')
+  PsiWhiteSpace('\n\n')
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: kind_projector
+      PsiElement(identifier)('kind_projector')
+    PsiWhiteSpace('\n\n')
+    ScTrait: Foo
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Foo')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: F
+          PsiElement(identifier)('F')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: _
+              PsiElement(_)('_')
+            PsiElement(])(']')
+        PsiElement(])(']')
+      ExtendsBlock
+        <empty list>
+    PsiWhiteSpace('\n')
+    ScTrait: Qux
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Qux')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: F
+          PsiElement(identifier)('F')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: _
+              PsiElement(_)('_')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: _
+              PsiElement(_)('_')
+            PsiElement(])(']')
+        PsiElement(])(']')
+      ExtendsBlock
+        <empty list>
+    PsiWhiteSpace('\n')
+    ScTrait: Baz
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Baz')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: F
+          PsiElement(identifier)('F')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: _
+              PsiElement(_)('_')
+            PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeParameter: A
+          PsiElement(identifier)('A')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeParameter: B
+          PsiElement(identifier)('B')
+        PsiElement(])(']')
+      ExtendsBlock
+        <empty list>
+    PsiWhiteSpace('\n\n')
+    ScTrait: FooPlus
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('FooPlus')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: F
+          PsiElement(identifier)('+')
+          PsiElement(identifier)('F')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: _
+              PsiElement(identifier)('+')
+              PsiElement(_)('_')
+            PsiElement(])(']')
+        PsiElement(])(']')
+      ExtendsBlock
+        <empty list>
+    PsiWhiteSpace('\n')
+    ScTrait: QuxPlus
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('QuxPlus')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: F
+          PsiElement(identifier)('+')
+          PsiElement(identifier)('F')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: _
+              PsiElement(identifier)('+')
+              PsiElement(_)('_')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: _
+              PsiElement(identifier)('+')
+              PsiElement(_)('_')
+            PsiElement(])(']')
+        PsiElement(])(']')
+      ExtendsBlock
+        <empty list>
+    PsiWhiteSpace('\n')
+    ScTrait: BazPlus
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('BazPlus')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: F
+          PsiElement(identifier)('+')
+          PsiElement(identifier)('F')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: _
+              PsiElement(identifier)('+')
+              PsiElement(_)('_')
+            PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeParameter: A
+          PsiElement(identifier)('+')
+          PsiElement(identifier)('A')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeParameter: B
+          PsiElement(identifier)('+')
+          PsiElement(identifier)('B')
+        PsiElement(])(']')
+      ExtendsBlock
+        <empty list>
+    PsiWhiteSpace('\n\n')
+    ScTrait: FooMinus
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('FooMinus')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: F
+          PsiElement(identifier)('-')
+          PsiElement(identifier)('F')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: _
+              PsiElement(identifier)('-')
+              PsiElement(_)('_')
+            PsiElement(])(']')
+        PsiElement(])(']')
+      ExtendsBlock
+        <empty list>
+    PsiWhiteSpace('\n')
+    ScTrait: QuxMinus
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('QuxMinus')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: F
+          PsiElement(identifier)('-')
+          PsiElement(identifier)('F')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: _
+              PsiElement(identifier)('-')
+              PsiElement(_)('_')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: _
+              PsiElement(identifier)('-')
+              PsiElement(_)('_')
+            PsiElement(])(']')
+        PsiElement(])(']')
+      ExtendsBlock
+        <empty list>
+    PsiWhiteSpace('\n')
+    ScTrait: BazMinus
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('BazMinus')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: F
+          PsiElement(identifier)('-')
+          PsiElement(identifier)('F')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: _
+              PsiElement(identifier)('-')
+              PsiElement(_)('_')
+            PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeParameter: A
+          PsiElement(identifier)('-')
+          PsiElement(identifier)('A')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeParameter: B
+          PsiElement(identifier)('-')
+          PsiElement(identifier)('B')
+        PsiElement(])(']')
+      ExtendsBlock
+        <empty list>
+    PsiWhiteSpace('\n\n')
+    ScClass: Bar1
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Bar1')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: Foo[Either[Int, *]]
+              SimpleType: Foo
+                CodeReferenceElement: Foo
+                  PsiElement(identifier)('Foo')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: Either[Int, *]
+                  SimpleType: Either
+                    CodeReferenceElement: Either
+                      PsiElement(identifier)('Either')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: *
+                      CodeReferenceElement: *
+                        PsiElement(identifier)('*')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n')
+    ScClass: Bar2
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Bar2')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: Foo[Either[*, Int]]
+              SimpleType: Foo
+                CodeReferenceElement: Foo
+                  PsiElement(identifier)('Foo')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: Either[*, Int]
+                  SimpleType: Either
+                    CodeReferenceElement: Either
+                      PsiElement(identifier)('Either')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: *
+                      CodeReferenceElement: *
+                        PsiElement(identifier)('*')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n')
+    ScClass: Bar3
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Bar3')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: Foo[* => Int]
+              SimpleType: Foo
+                CodeReferenceElement: Foo
+                  PsiElement(identifier)('Foo')
+              TypeArgumentsList
+                PsiElement([)('[')
+                FunctionalType: * => Int
+                  SimpleType: *
+                    CodeReferenceElement: *
+                      PsiElement(identifier)('*')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n')
+    ScClass: Bar4
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Bar4')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: Foo[Int => *]
+              SimpleType: Foo
+                CodeReferenceElement: Foo
+                  PsiElement(identifier)('Foo')
+              TypeArgumentsList
+                PsiElement([)('[')
+                FunctionalType: Int => *
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: *
+                    CodeReferenceElement: *
+                      PsiElement(identifier)('*')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n')
+    ScClass: Bar5
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Bar5')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: Foo[(Int, *, Int)]
+              SimpleType: Foo
+                CodeReferenceElement: Foo
+                  PsiElement(identifier)('Foo')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TupleType: (Int, *, Int)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: *
+                      CodeReferenceElement: *
+                        PsiElement(identifier)('*')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                  PsiElement())(')')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n')
+    ScClass: Bar6
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Bar6')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: Foo[λ[x => Either[Int, x]]]
+              SimpleType: Foo
+                CodeReferenceElement: Foo
+                  PsiElement(identifier)('Foo')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: λ[x => Either[Int, x]]
+                  SimpleType: λ
+                    CodeReferenceElement: λ
+                      PsiElement(identifier)('λ')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    FunctionalType: x => Either[Int, x]
+                      SimpleType: x
+                        CodeReferenceElement: x
+                          PsiElement(identifier)('x')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: Either[Int, x]
+                        SimpleType: Either
+                          CodeReferenceElement: Either
+                            PsiElement(identifier)('Either')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: x
+                            CodeReferenceElement: x
+                              PsiElement(identifier)('x')
+                          PsiElement(])(']')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n')
+    ScClass: Bar7
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Bar7')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: Qux[λ[(x, y) => Either[y, x]]]
+              SimpleType: Qux
+                CodeReferenceElement: Qux
+                  PsiElement(identifier)('Qux')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: λ[(x, y) => Either[y, x]]
+                  SimpleType: λ
+                    CodeReferenceElement: λ
+                      PsiElement(identifier)('λ')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    FunctionalType: (x, y) => Either[y, x]
+                      TupleType: (x, y)
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: x
+                            CodeReferenceElement: x
+                              PsiElement(identifier)('x')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: y
+                            CodeReferenceElement: y
+                              PsiElement(identifier)('y')
+                        PsiElement())(')')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: Either[y, x]
+                        SimpleType: Either
+                          CodeReferenceElement: Either
+                            PsiElement(identifier)('Either')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: y
+                            CodeReferenceElement: y
+                              PsiElement(identifier)('y')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: x
+                            CodeReferenceElement: x
+                              PsiElement(identifier)('x')
+                          PsiElement(])(']')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n')
+    ScClass: Bar8
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Bar8')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: Foo[Baz[Int => *, *, Int]]
+              SimpleType: Foo
+                CodeReferenceElement: Foo
+                  PsiElement(identifier)('Foo')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: Baz[Int => *, *, Int]
+                  SimpleType: Baz
+                    CodeReferenceElement: Baz
+                      PsiElement(identifier)('Baz')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    FunctionalType: Int => *
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      SimpleType: *
+                        CodeReferenceElement: *
+                          PsiElement(identifier)('*')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: *
+                      CodeReferenceElement: *
+                        PsiElement(identifier)('*')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n')
+    ScClass: Bar9
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Bar9')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: Foo[λ[x => Baz[x => *, Int, x]]]
+              SimpleType: Foo
+                CodeReferenceElement: Foo
+                  PsiElement(identifier)('Foo')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: λ[x => Baz[x => *, Int, x]]
+                  SimpleType: λ
+                    CodeReferenceElement: λ
+                      PsiElement(identifier)('λ')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    FunctionalType: x => Baz[x => *, Int, x]
+                      SimpleType: x
+                        CodeReferenceElement: x
+                          PsiElement(identifier)('x')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: Baz[x => *, Int, x]
+                        SimpleType: Baz
+                          CodeReferenceElement: Baz
+                            PsiElement(identifier)('Baz')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          FunctionalType: x => *
+                            SimpleType: x
+                              CodeReferenceElement: x
+                                PsiElement(identifier)('x')
+                            PsiWhiteSpace(' ')
+                            PsiElement(=>)('=>')
+                            PsiWhiteSpace(' ')
+                            SimpleType: *
+                              CodeReferenceElement: *
+                                PsiElement(identifier)('*')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: x
+                            CodeReferenceElement: x
+                              PsiElement(identifier)('x')
+                          PsiElement(])(']')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n\n')
+    ScClass: BarPlus1
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('BarPlus1')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: FooPlus[Either[Int, +*]]
+              SimpleType: FooPlus
+                CodeReferenceElement: FooPlus
+                  PsiElement(identifier)('FooPlus')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: Either[Int, +*]
+                  SimpleType: Either
+                    CodeReferenceElement: Either
+                      PsiElement(identifier)('Either')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: +*
+                      CodeReferenceElement: +*
+                        PsiElement(identifier)('+*')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n')
+    ScClass: BarPlus2
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('BarPlus2')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: FooPlus[Either[+*, Int]]
+              SimpleType: FooPlus
+                CodeReferenceElement: FooPlus
+                  PsiElement(identifier)('FooPlus')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: Either[+*, Int]
+                  SimpleType: Either
+                    CodeReferenceElement: Either
+                      PsiElement(identifier)('Either')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: +*
+                      CodeReferenceElement: +*
+                        PsiElement(identifier)('+*')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n')
+    ScClass: BarPlus3
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('BarPlus3')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: FooPlus[Int => +*]
+              SimpleType: FooPlus
+                CodeReferenceElement: FooPlus
+                  PsiElement(identifier)('FooPlus')
+              TypeArgumentsList
+                PsiElement([)('[')
+                FunctionalType: Int => +*
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: +*
+                    CodeReferenceElement: +*
+                      PsiElement(identifier)('+*')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n')
+    ScClass: BarPlus4
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('BarPlus4')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: FooPlus[(Int, +*, Int)]
+              SimpleType: FooPlus
+                CodeReferenceElement: FooPlus
+                  PsiElement(identifier)('FooPlus')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TupleType: (Int, +*, Int)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: +*
+                      CodeReferenceElement: +*
+                        PsiElement(identifier)('+*')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                  PsiElement())(')')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n')
+    ScClass: BarPlus5
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('BarPlus5')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: FooPlus[λ[`+x` => Either[Int, x]]]
+              SimpleType: FooPlus
+                CodeReferenceElement: FooPlus
+                  PsiElement(identifier)('FooPlus')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: λ[`+x` => Either[Int, x]]
+                  SimpleType: λ
+                    CodeReferenceElement: λ
+                      PsiElement(identifier)('λ')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    FunctionalType: `+x` => Either[Int, x]
+                      SimpleType: `+x`
+                        CodeReferenceElement: `+x`
+                          PsiElement(identifier)('`+x`')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: Either[Int, x]
+                        SimpleType: Either
+                          CodeReferenceElement: Either
+                            PsiElement(identifier)('Either')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: x
+                            CodeReferenceElement: x
+                              PsiElement(identifier)('x')
+                          PsiElement(])(']')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n')
+    ScClass: BarPlus6
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('BarPlus6')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: QuxPlus[λ[(`+x`, `+y`) => Either[y, x]]]
+              SimpleType: QuxPlus
+                CodeReferenceElement: QuxPlus
+                  PsiElement(identifier)('QuxPlus')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: λ[(`+x`, `+y`) => Either[y, x]]
+                  SimpleType: λ
+                    CodeReferenceElement: λ
+                      PsiElement(identifier)('λ')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    FunctionalType: (`+x`, `+y`) => Either[y, x]
+                      TupleType: (`+x`, `+y`)
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: `+x`
+                            CodeReferenceElement: `+x`
+                              PsiElement(identifier)('`+x`')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: `+y`
+                            CodeReferenceElement: `+y`
+                              PsiElement(identifier)('`+y`')
+                        PsiElement())(')')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: Either[y, x]
+                        SimpleType: Either
+                          CodeReferenceElement: Either
+                            PsiElement(identifier)('Either')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: y
+                            CodeReferenceElement: y
+                              PsiElement(identifier)('y')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: x
+                            CodeReferenceElement: x
+                              PsiElement(identifier)('x')
+                          PsiElement(])(']')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n')
+    ScClass: BarPlus7
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('BarPlus7')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: FooPlus[BazPlus[Int => +*, +*, Int]]
+              SimpleType: FooPlus
+                CodeReferenceElement: FooPlus
+                  PsiElement(identifier)('FooPlus')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: BazPlus[Int => +*, +*, Int]
+                  SimpleType: BazPlus
+                    CodeReferenceElement: BazPlus
+                      PsiElement(identifier)('BazPlus')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    FunctionalType: Int => +*
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      SimpleType: +*
+                        CodeReferenceElement: +*
+                          PsiElement(identifier)('+*')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: +*
+                      CodeReferenceElement: +*
+                        PsiElement(identifier)('+*')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n\n')
+    ScClass: BarMinus1
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('BarMinus1')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: FooMinus[-* => Int]
+              SimpleType: FooMinus
+                CodeReferenceElement: FooMinus
+                  PsiElement(identifier)('FooMinus')
+              TypeArgumentsList
+                PsiElement([)('[')
+                FunctionalType: -* => Int
+                  SimpleType: -*
+                    CodeReferenceElement: -*
+                      PsiElement(identifier)('-*')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n\n')
+    ScClass: VarianceAnnotationIsActuallyIgnored1
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('VarianceAnnotationIsActuallyIgnored1')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: FooPlus[Either[Int, -*]]
+              SimpleType: FooPlus
+                CodeReferenceElement: FooPlus
+                  PsiElement(identifier)('FooPlus')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: Either[Int, -*]
+                  SimpleType: Either
+                    CodeReferenceElement: Either
+                      PsiElement(identifier)('Either')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: -*
+                      CodeReferenceElement: -*
+                        PsiElement(identifier)('-*')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n')
+    ScClass: VarianceAnnotationIsActuallyIgnored2
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('VarianceAnnotationIsActuallyIgnored2')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: FooPlus[Either[-*, Int]]
+              SimpleType: FooPlus
+                CodeReferenceElement: FooPlus
+                  PsiElement(identifier)('FooPlus')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: Either[-*, Int]
+                  SimpleType: Either
+                    CodeReferenceElement: Either
+                      PsiElement(identifier)('Either')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: -*
+                      CodeReferenceElement: -*
+                        PsiElement(identifier)('-*')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n')
+    ScClass: VarianceAnnotationIsActuallyIgnored3
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('VarianceAnnotationIsActuallyIgnored3')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: FooMinus[+* => Int]
+              SimpleType: FooMinus
+                CodeReferenceElement: FooMinus
+                  PsiElement(identifier)('FooMinus')
+              TypeArgumentsList
+                PsiElement([)('[')
+                FunctionalType: +* => Int
+                  SimpleType: +*
+                    CodeReferenceElement: +*
+                      PsiElement(identifier)('+*')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n')
+    ScClass: VarianceAnnotationIsActuallyIgnored4
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('VarianceAnnotationIsActuallyIgnored4')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: FooPlus[Int => -*]
+              SimpleType: FooPlus
+                CodeReferenceElement: FooPlus
+                  PsiElement(identifier)('FooPlus')
+              TypeArgumentsList
+                PsiElement([)('[')
+                FunctionalType: Int => -*
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: -*
+                    CodeReferenceElement: -*
+                      PsiElement(identifier)('-*')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n')
+    ScClass: VarianceAnnotationIsActuallyIgnored5
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('VarianceAnnotationIsActuallyIgnored5')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: FooPlus[(Int, -*, Int)]
+              SimpleType: FooPlus
+                CodeReferenceElement: FooPlus
+                  PsiElement(identifier)('FooPlus')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TupleType: (Int, -*, Int)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: -*
+                      CodeReferenceElement: -*
+                        PsiElement(identifier)('-*')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                  PsiElement())(')')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n')
+    ScClass: VarianceAnnotationIsActuallyIgnored6
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('VarianceAnnotationIsActuallyIgnored6')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: FooPlus[λ[`-x` => Either[Int, x]]]
+              SimpleType: FooPlus
+                CodeReferenceElement: FooPlus
+                  PsiElement(identifier)('FooPlus')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: λ[`-x` => Either[Int, x]]
+                  SimpleType: λ
+                    CodeReferenceElement: λ
+                      PsiElement(identifier)('λ')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    FunctionalType: `-x` => Either[Int, x]
+                      SimpleType: `-x`
+                        CodeReferenceElement: `-x`
+                          PsiElement(identifier)('`-x`')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: Either[Int, x]
+                        SimpleType: Either
+                          CodeReferenceElement: Either
+                            PsiElement(identifier)('Either')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: x
+                            CodeReferenceElement: x
+                              PsiElement(identifier)('x')
+                          PsiElement(])(']')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n')
+    ScClass: VarianceAnnotationIsActuallyIgnored7
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('VarianceAnnotationIsActuallyIgnored7')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: QuxPlus[λ[(`-x`, `-y`) => Either[y, x]]]
+              SimpleType: QuxPlus
+                CodeReferenceElement: QuxPlus
+                  PsiElement(identifier)('QuxPlus')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: λ[(`-x`, `-y`) => Either[y, x]]
+                  SimpleType: λ
+                    CodeReferenceElement: λ
+                      PsiElement(identifier)('λ')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    FunctionalType: (`-x`, `-y`) => Either[y, x]
+                      TupleType: (`-x`, `-y`)
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: `-x`
+                            CodeReferenceElement: `-x`
+                              PsiElement(identifier)('`-x`')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: `-y`
+                            CodeReferenceElement: `-y`
+                              PsiElement(identifier)('`-y`')
+                        PsiElement())(')')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: Either[y, x]
+                        SimpleType: Either
+                          CodeReferenceElement: Either
+                            PsiElement(identifier)('Either')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: y
+                            CodeReferenceElement: y
+                              PsiElement(identifier)('y')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: x
+                            CodeReferenceElement: x
+                              PsiElement(identifier)('x')
+                          PsiElement(])(']')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n')
+    ScClass: VarianceAnnotationIsActuallyIgnored8
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('VarianceAnnotationIsActuallyIgnored8')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: FooPlus[BazPlus[Int => -*, -*, Int]]
+              SimpleType: FooPlus
+                CodeReferenceElement: FooPlus
+                  PsiElement(identifier)('FooPlus')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: BazPlus[Int => -*, -*, Int]
+                  SimpleType: BazPlus
+                    CodeReferenceElement: BazPlus
+                      PsiElement(identifier)('BazPlus')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    FunctionalType: Int => -*
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      SimpleType: -*
+                        CodeReferenceElement: -*
+                          PsiElement(identifier)('-*')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: -*
+                      CodeReferenceElement: -*
+                        PsiElement(identifier)('-*')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n')
+    ScClass: VarianceAnnotationIsActuallyIgnored9
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('VarianceAnnotationIsActuallyIgnored9')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: Foo[λ[`-x` => BazPlus[x => -*, Int, x]]]
+              SimpleType: Foo
+                CodeReferenceElement: Foo
+                  PsiElement(identifier)('Foo')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: λ[`-x` => BazPlus[x => -*, Int, x]]
+                  SimpleType: λ
+                    CodeReferenceElement: λ
+                      PsiElement(identifier)('λ')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    FunctionalType: `-x` => BazPlus[x => -*, Int, x]
+                      SimpleType: `-x`
+                        CodeReferenceElement: `-x`
+                          PsiElement(identifier)('`-x`')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: BazPlus[x => -*, Int, x]
+                        SimpleType: BazPlus
+                          CodeReferenceElement: BazPlus
+                            PsiElement(identifier)('BazPlus')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          FunctionalType: x => -*
+                            SimpleType: x
+                              CodeReferenceElement: x
+                                PsiElement(identifier)('x')
+                            PsiWhiteSpace(' ')
+                            PsiElement(=>)('=>')
+                            PsiWhiteSpace(' ')
+                            SimpleType: -*
+                              CodeReferenceElement: -*
+                                PsiElement(identifier)('-*')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: x
+                            CodeReferenceElement: x
+                              PsiElement(identifier)('x')
+                          PsiElement(])(']')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n\n')
+    ScClass: BackticksAreFine1
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('BackticksAreFine1')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: FooPlus[Either[Int, `-*`]]
+              SimpleType: FooPlus
+                CodeReferenceElement: FooPlus
+                  PsiElement(identifier)('FooPlus')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: Either[Int, `-*`]
+                  SimpleType: Either
+                    CodeReferenceElement: Either
+                      PsiElement(identifier)('Either')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: `-*`
+                      CodeReferenceElement: `-*`
+                        PsiElement(identifier)('`-*`')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n')
+    ScClass: BackticksAreFine2
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('BackticksAreFine2')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: FooPlus[Either[`-*`, Int]]
+              SimpleType: FooPlus
+                CodeReferenceElement: FooPlus
+                  PsiElement(identifier)('FooPlus')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: Either[`-*`, Int]
+                  SimpleType: Either
+                    CodeReferenceElement: Either
+                      PsiElement(identifier)('Either')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: `-*`
+                      CodeReferenceElement: `-*`
+                        PsiElement(identifier)('`-*`')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n')
+    ScClass: BackticksAreFine3
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('BackticksAreFine3')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: FooMinus[`+*` => Int]
+              SimpleType: FooMinus
+                CodeReferenceElement: FooMinus
+                  PsiElement(identifier)('FooMinus')
+              TypeArgumentsList
+                PsiElement([)('[')
+                FunctionalType: `+*` => Int
+                  SimpleType: `+*`
+                    CodeReferenceElement: `+*`
+                      PsiElement(identifier)('`+*`')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n')
+    ScClass: BackticksAreFine4
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('BackticksAreFine4')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: FooPlus[Int => `-*`]
+              SimpleType: FooPlus
+                CodeReferenceElement: FooPlus
+                  PsiElement(identifier)('FooPlus')
+              TypeArgumentsList
+                PsiElement([)('[')
+                FunctionalType: Int => `-*`
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: `-*`
+                    CodeReferenceElement: `-*`
+                      PsiElement(identifier)('`-*`')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n')
+    ScClass: BackticksAreFine5
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('BackticksAreFine5')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: FooPlus[(Int, `-*`, Int)]
+              SimpleType: FooPlus
+                CodeReferenceElement: FooPlus
+                  PsiElement(identifier)('FooPlus')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TupleType: (Int, `-*`, Int)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: `-*`
+                      CodeReferenceElement: `-*`
+                        PsiElement(identifier)('`-*`')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                  PsiElement())(')')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n')
+    ScClass: BackticksAreFine6
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('BackticksAreFine6')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: FooPlus[BazPlus[Int => `-*`, `-*`, Int]]
+              SimpleType: FooPlus
+                CodeReferenceElement: FooPlus
+                  PsiElement(identifier)('FooPlus')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: BazPlus[Int => `-*`, `-*`, Int]
+                  SimpleType: BazPlus
+                    CodeReferenceElement: BazPlus
+                      PsiElement(identifier)('BazPlus')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    FunctionalType: Int => `-*`
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      SimpleType: `-*`
+                        CodeReferenceElement: `-*`
+                          PsiElement(identifier)('`-*`')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: `-*`
+                      CodeReferenceElement: `-*`
+                        PsiElement(identifier)('`-*`')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n')
+    ScClass: BackticksAreFine7
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('BackticksAreFine7')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: Foo[λ[`-x` => BazPlus[x => `-*`, Int, x]]]
+              SimpleType: Foo
+                CodeReferenceElement: Foo
+                  PsiElement(identifier)('Foo')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: λ[`-x` => BazPlus[x => `-*`, Int, x]]
+                  SimpleType: λ
+                    CodeReferenceElement: λ
+                      PsiElement(identifier)('λ')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    FunctionalType: `-x` => BazPlus[x => `-*`, Int, x]
+                      SimpleType: `-x`
+                        CodeReferenceElement: `-x`
+                          PsiElement(identifier)('`-x`')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: BazPlus[x => `-*`, Int, x]
+                        SimpleType: BazPlus
+                          CodeReferenceElement: BazPlus
+                            PsiElement(identifier)('BazPlus')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          FunctionalType: x => `-*`
+                            SimpleType: x
+                              CodeReferenceElement: x
+                                PsiElement(identifier)('x')
+                            PsiWhiteSpace(' ')
+                            PsiElement(=>)('=>')
+                            PsiWhiteSpace(' ')
+                            SimpleType: `-*`
+                              CodeReferenceElement: `-*`
+                                PsiElement(identifier)('`-*`')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: x
+                            CodeReferenceElement: x
+                              PsiElement(identifier)('x')
+                          PsiElement(])(']')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n')
+    ScClass: BackticksAreFine8
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('BackticksAreFine8')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: Foo[λ[`x` => BazPlus[x => `*`, Int, x]]]
+              SimpleType: Foo
+                CodeReferenceElement: Foo
+                  PsiElement(identifier)('Foo')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: λ[`x` => BazPlus[x => `*`, Int, x]]
+                  SimpleType: λ
+                    CodeReferenceElement: λ
+                      PsiElement(identifier)('λ')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    FunctionalType: `x` => BazPlus[x => `*`, Int, x]
+                      SimpleType: `x`
+                        CodeReferenceElement: `x`
+                          PsiElement(identifier)('`x`')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: BazPlus[x => `*`, Int, x]
+                        SimpleType: BazPlus
+                          CodeReferenceElement: BazPlus
+                            PsiElement(identifier)('BazPlus')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          FunctionalType: x => `*`
+                            SimpleType: x
+                              CodeReferenceElement: x
+                                PsiElement(identifier)('x')
+                            PsiWhiteSpace(' ')
+                            PsiElement(=>)('=>')
+                            PsiWhiteSpace(' ')
+                            SimpleType: `*`
+                              CodeReferenceElement: `*`
+                                PsiElement(identifier)('`*`')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: x
+                            CodeReferenceElement: x
+                              PsiElement(identifier)('x')
+                          PsiElement(])(']')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+    PsiWhiteSpace('\n\n')
+    ScObject: A
+      PsiComment(comment)('// https://github.com/lampepfl/dotty/issues/13141')
+      PsiWhiteSpace('\n')
+      PsiComment(comment)('// i13141')
+      PsiWhiteSpace('\n')
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('A')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScClass: X
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(class)('class')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('X')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                <empty list>
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace(' ')
+                ScTypeAliasDefinition: Blah
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('Blah')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiWhiteSpace(' ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n  ')
+          ScPatternDefinition: *
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: *
+                PsiElement(identifier)('*')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ScNewTemplateDefinition: <anonymous>
+              PsiElement(new)('new')
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                TemplateParents
+                  ConstructorInvocation
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
+          PsiWhiteSpace('\n  ')
+          ScPatternDefinition: a
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: a
+                PsiElement(identifier)('a')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: *.Blah
+              CodeReferenceElement: *.Blah
+                CodeReferenceElement: *
+                  PsiElement(identifier)('*')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Blah')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('2')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

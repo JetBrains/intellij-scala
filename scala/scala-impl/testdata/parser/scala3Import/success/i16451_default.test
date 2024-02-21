@@ -1,0 +1,382 @@
+//> using options -Werror
+
+import java.lang.reflect.*
+import scala.annotation.tailrec
+
+class Test:
+  @tailrec private def unwrapThrowable(x: Throwable): Throwable = x match {
+    case  _: InvocationTargetException |      // thrown by reflectively invoked method or constructor
+          _: ExceptionInInitializerError |    // thrown when running a static initializer (e.g. a scala module constructor)
+          _: UndeclaredThrowableException |   // invocation on a proxy instance if its invocation handler's `invoke` throws an exception
+          _: ClassNotFoundException |         // no definition for a class instantiated by name
+          _: NoClassDefFoundError             // the definition existed when the executing class was compiled, but can no longer be found
+      if x.getCause != null =>
+      unwrapThrowable(x.getCause)
+    case _ => x
+  }
+
+  private def unwrapHandler[T](pf: PartialFunction[Throwable, T]): PartialFunction[Throwable, T] =
+    pf.compose({ case ex => unwrapThrowable(ex) })
+
+  def test =
+    unwrapHandler({ case ex => throw ex })
+-----
+ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Werror')
+  PsiWhiteSpace('\n\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: java.lang.reflect
+        CodeReferenceElement: java.lang
+          CodeReferenceElement: java
+            PsiElement(identifier)('java')
+          PsiElement(.)('.')
+          PsiElement(identifier)('lang')
+        PsiElement(.)('.')
+        PsiElement(identifier)('reflect')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.annotation.tailrec
+        CodeReferenceElement: scala.annotation
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('annotation')
+        PsiElement(.)('.')
+        PsiElement(identifier)('tailrec')
+  PsiWhiteSpace('\n\n')
+  ScClass: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: unwrapThrowable
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: tailrec
+                    CodeReferenceElement: tailrec
+                      PsiElement(identifier)('tailrec')
+          PsiWhiteSpace(' ')
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('unwrapThrowable')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Throwable
+                    CodeReferenceElement: Throwable
+                      PsiElement(identifier)('Throwable')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Throwable
+            CodeReferenceElement: Throwable
+              PsiElement(identifier)('Throwable')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchStatement
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace('  ')
+                CompositePattern
+                  Scala3 TypedPattern
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    TypePattern
+                      SimpleType: InvocationTargetException
+                        CodeReferenceElement: InvocationTargetException
+                          PsiElement(identifier)('InvocationTargetException')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace('      ')
+                  PsiComment(comment)('// thrown by reflectively invoked method or constructor')
+                  PsiWhiteSpace('\n          ')
+                  Scala3 TypedPattern
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    TypePattern
+                      SimpleType: ExceptionInInitializerError
+                        CodeReferenceElement: ExceptionInInitializerError
+                          PsiElement(identifier)('ExceptionInInitializerError')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace('    ')
+                  PsiComment(comment)('// thrown when running a static initializer (e.g. a scala module constructor)')
+                  PsiWhiteSpace('\n          ')
+                  Scala3 TypedPattern
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    TypePattern
+                      SimpleType: UndeclaredThrowableException
+                        CodeReferenceElement: UndeclaredThrowableException
+                          PsiElement(identifier)('UndeclaredThrowableException')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace('   ')
+                  PsiComment(comment)('// invocation on a proxy instance if its invocation handler's `invoke` throws an exception')
+                  PsiWhiteSpace('\n          ')
+                  Scala3 TypedPattern
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    TypePattern
+                      SimpleType: ClassNotFoundException
+                        CodeReferenceElement: ClassNotFoundException
+                          PsiElement(identifier)('ClassNotFoundException')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('|')
+                  PsiWhiteSpace('         ')
+                  PsiComment(comment)('// no definition for a class instantiated by name')
+                  PsiWhiteSpace('\n          ')
+                  Scala3 TypedPattern
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    TypePattern
+                      SimpleType: NoClassDefFoundError
+                        CodeReferenceElement: NoClassDefFoundError
+                          PsiElement(identifier)('NoClassDefFoundError')
+                PsiWhiteSpace('             ')
+                PsiComment(comment)('// the definition existed when the executing class was compiled, but can no longer be found')
+                PsiWhiteSpace('\n      ')
+                Guard
+                  PsiElement(if)('if')
+                  PsiWhiteSpace(' ')
+                  InfixExpression
+                    ReferenceExpression: x.getCause
+                      ReferenceExpression: x
+                        PsiElement(identifier)('x')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('getCause')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: !=
+                      PsiElement(identifier)('!=')
+                    PsiWhiteSpace(' ')
+                    NullLiteral
+                      PsiElement(null)('null')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace('\n      ')
+                BlockOfExpressions
+                  MethodCall
+                    ReferenceExpression: unwrapThrowable
+                      PsiElement(identifier)('unwrapThrowable')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ReferenceExpression: x.getCause
+                        ReferenceExpression: x
+                          PsiElement(identifier)('x')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('getCause')
+                      PsiElement())(')')
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                WildcardPattern
+                  PsiElement(_)('_')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  ReferenceExpression: x
+                    PsiElement(identifier)('x')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: unwrapHandler
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('unwrapHandler')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: pf
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('pf')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: PartialFunction[Throwable, T]
+                    SimpleType: PartialFunction
+                      CodeReferenceElement: PartialFunction
+                        PsiElement(identifier)('PartialFunction')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: Throwable
+                        CodeReferenceElement: Throwable
+                          PsiElement(identifier)('Throwable')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: PartialFunction[Throwable, T]
+            SimpleType: PartialFunction
+              CodeReferenceElement: PartialFunction
+                PsiElement(identifier)('PartialFunction')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Throwable
+                CodeReferenceElement: Throwable
+                  PsiElement(identifier)('Throwable')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            ReferenceExpression: pf.compose
+              ReferenceExpression: pf
+                PsiElement(identifier)('pf')
+              PsiElement(.)('.')
+              PsiElement(identifier)('compose')
+            ArgumentList
+              PsiElement(()('(')
+              BlockExpression
+                PsiElement({)('{')
+                PsiWhiteSpace(' ')
+                CaseClauses
+                  CaseClause
+                    PsiElement(case)('case')
+                    PsiWhiteSpace(' ')
+                    ReferencePattern: ex
+                      PsiElement(identifier)('ex')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    BlockOfExpressions
+                      MethodCall
+                        ReferenceExpression: unwrapThrowable
+                          PsiElement(identifier)('unwrapThrowable')
+                        ArgumentList
+                          PsiElement(()('(')
+                          ReferenceExpression: ex
+                            PsiElement(identifier)('ex')
+                          PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(})('}')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: test
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('test')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            ReferenceExpression: unwrapHandler
+              PsiElement(identifier)('unwrapHandler')
+            ArgumentList
+              PsiElement(()('(')
+              BlockExpression
+                PsiElement({)('{')
+                PsiWhiteSpace(' ')
+                CaseClauses
+                  CaseClause
+                    PsiElement(case)('case')
+                    PsiWhiteSpace(' ')
+                    ReferencePattern: ex
+                      PsiElement(identifier)('ex')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    BlockOfExpressions
+                      ThrowStatement
+                        PsiElement(throw)('throw')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: ex
+                          PsiElement(identifier)('ex')
+                PsiWhiteSpace(' ')
+                PsiElement(})('}')
+              PsiElement())(')')

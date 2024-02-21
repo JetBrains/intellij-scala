@@ -64,4 +64,5 @@ Document tests/pos/i12211.scala
 (30:48..30:52) scala/Unit#
 (30:57..30:58) _empty_/i12211$package.a. -> 29:5
 (31:9..31:10) _empty_/i12211$package.b. -> 30:5
+(31:10..31:14) _empty_/RelaxedSelectable#applyDynamic(). -> 24:7
 

@@ -1,4 +1,4 @@
-object I0 { val i1: PartialFunction[_, Int] = { case i2 => i2 } }
+object I0 { val i1: PartialFunction[_, Any] = { case i2 => i2 } }
 -----
 ScalaFile
   ScObject: I0
@@ -26,7 +26,7 @@ ScalaFile
               PsiElement(identifier)('i1')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          ParametrizedType: PartialFunction[_, Int]
+          ParametrizedType: PartialFunction[_, Any]
             SimpleType: PartialFunction
               CodeReferenceElement: PartialFunction
                 PsiElement(identifier)('PartialFunction')
@@ -36,9 +36,9 @@ ScalaFile
                 PsiElement(_)('_')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
+              SimpleType: Any
+                CodeReferenceElement: Any
+                  PsiElement(identifier)('Any')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

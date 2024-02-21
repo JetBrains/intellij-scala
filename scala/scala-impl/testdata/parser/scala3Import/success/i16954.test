@@ -1,0 +1,301 @@
+class Test:
+  def test =
+    classOf[Test]
+
+  def blck =
+    class Blck
+    val cls = classOf[Blck]
+    cls
+
+  def expr =
+    class Expr
+    classOf[Expr] // was: "assertion failed: leak: Expr in { [..] }" crash
+
+object Test extends Test:
+  def main(args: Array[String]): Unit =
+    assert(test.getName == "Test",        test.getName)
+    assert(blck.getName == "Test$Blck$1", blck.getName)
+    assert(expr.getName == "Test$Expr$1", expr.getName)
+-----
+ScalaFile
+  ScClass: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: test
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('test')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          GenericCall
+            ReferenceExpression: classOf
+              PsiElement(identifier)('classOf')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Test
+                CodeReferenceElement: Test
+                  PsiElement(identifier)('Test')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: blck
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('blck')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScClass: Blck
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(class)('class')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('Blck')
+              PrimaryConstructor
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                Parameters
+                  <empty list>
+              ExtendsBlock
+                <empty list>
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: cls
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: cls
+                  PsiElement(identifier)('cls')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              GenericCall
+                ReferenceExpression: classOf
+                  PsiElement(identifier)('classOf')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: Blck
+                    CodeReferenceElement: Blck
+                      PsiElement(identifier)('Blck')
+                  PsiElement(])(']')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: cls
+              PsiElement(identifier)('cls')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: expr
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('expr')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScClass: Expr
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(class)('class')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('Expr')
+              PrimaryConstructor
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                Parameters
+                  <empty list>
+              ExtendsBlock
+                <empty list>
+            PsiWhiteSpace('\n    ')
+            GenericCall
+              ReferenceExpression: classOf
+                PsiElement(identifier)('classOf')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: Expr
+                  CodeReferenceElement: Expr
+                    PsiElement(identifier)('Expr')
+                PsiElement(])(']')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// was: "assertion failed: leak: Expr in { [..] }" crash')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Test
+            CodeReferenceElement: Test
+              PsiElement(identifier)('Test')
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: main
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('main')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: args
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('args')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Array[String]
+                    SimpleType: Array
+                      CodeReferenceElement: Array
+                        PsiElement(identifier)('Array')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: assert
+                PsiElement(identifier)('assert')
+              ArgumentList
+                PsiElement(()('(')
+                InfixExpression
+                  ReferenceExpression: test.getName
+                    ReferenceExpression: test
+                      PsiElement(identifier)('test')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('getName')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: ==
+                    PsiElement(identifier)('==')
+                  PsiWhiteSpace(' ')
+                  StringLiteral
+                    PsiElement(string content)('"Test"')
+                PsiElement(,)(',')
+                PsiWhiteSpace('        ')
+                ReferenceExpression: test.getName
+                  ReferenceExpression: test
+                    PsiElement(identifier)('test')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('getName')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: assert
+                PsiElement(identifier)('assert')
+              ArgumentList
+                PsiElement(()('(')
+                InfixExpression
+                  ReferenceExpression: blck.getName
+                    ReferenceExpression: blck
+                      PsiElement(identifier)('blck')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('getName')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: ==
+                    PsiElement(identifier)('==')
+                  PsiWhiteSpace(' ')
+                  StringLiteral
+                    PsiElement(string content)('"Test$Blck$1"')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: blck.getName
+                  ReferenceExpression: blck
+                    PsiElement(identifier)('blck')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('getName')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: assert
+                PsiElement(identifier)('assert')
+              ArgumentList
+                PsiElement(()('(')
+                InfixExpression
+                  ReferenceExpression: expr.getName
+                    ReferenceExpression: expr
+                      PsiElement(identifier)('expr')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('getName')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: ==
+                    PsiElement(identifier)('==')
+                  PsiWhiteSpace(' ')
+                  StringLiteral
+                    PsiElement(string content)('"Test$Expr$1"')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: expr.getName
+                  ReferenceExpression: expr
+                    PsiElement(identifier)('expr')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('getName')
+                PsiElement())(')')

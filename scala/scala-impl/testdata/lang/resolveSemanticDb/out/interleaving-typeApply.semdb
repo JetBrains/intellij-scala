@@ -1,0 +1,75 @@
+Document tests/pos/interleaving-typeApply.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:35) scala/language.experimental.
+(1:36..1:54) scala/language.experimental.clauseInterleaving.
+(5:32..5:35) scala/Predef.`???`().
+(6:21..6:34) scala/DummyImplicit#
+(6:40..6:41) _empty_/typeApply.f1().[T] -> 6:12
+(6:45..6:46) _empty_/typeApply.f1().[T] -> 6:12
+(6:49..6:52) scala/Predef.`???`().
+(7:21..7:34) scala/DummyImplicit#
+(7:42..7:43) _empty_/typeApply.f2().[T] -> 7:12
+(7:47..7:48) _empty_/typeApply.f2().[T] -> 7:12
+(7:51..7:54) scala/Predef.`???`().
+(8:17..8:20) scala/Int#
+(8:28..8:41) scala/DummyImplicit#
+(8:48..8:54) scala/Predef.String#
+(8:59..8:60) _empty_/typeApply.f3().[T] -> 8:12
+(8:64..8:65) _empty_/typeApply.f3().[T] -> 8:12
+(8:68..8:71) scala/Predef.`???`().
+(9:17..9:20) scala/Int#
+(9:28..9:41) scala/DummyImplicit#
+(9:48..9:54) scala/Predef.String#
+(9:57..9:58) _empty_/typeApply.f4().[T] -> 9:12
+(9:62..9:63) _empty_/typeApply.f4().[T] -> 9:12
+(9:66..9:69) scala/Predef.`???`().
+(10:17..10:20) scala/Int#
+(10:28..10:41) scala/DummyImplicit#
+(10:48..10:54) scala/Predef.String#
+(10:81..10:84) scala/Predef.`???`().
+(11:17..11:20) scala/Int#
+(11:28..11:41) scala/DummyImplicit#
+(11:48..11:54) scala/Predef.String#
+(11:83..11:86) scala/Predef.`???`().
+(12:17..12:20) scala/Int#
+(12:28..12:41) scala/DummyImplicit#
+(12:48..12:54) scala/Predef.String#
+(12:63..12:67) scala/Unit#
+(12:70..12:71) _empty_/typeApply.f7().[X] -> 12:58
+(12:75..12:76) _empty_/typeApply.f7().[X] -> 12:58
+(12:79..12:82) scala/Predef.`???`().
+(14:6..14:10) scala/main#
+(15:16..15:21) scala/
+(15:22..15:30) scala/language.
+(15:31..15:43) scala/language.experimental.
+(15:44..15:62) scala/language.experimental.namedTypeArguments.
+(16:9..16:11) _empty_/typeApply.f0(). -> 5:9
+(16:12..16:15) scala/Int#
+(16:17..16:23) scala/Predef.String#
+(17:9..17:11) _empty_/typeApply.f1(). -> 6:9
+(17:12..17:15) scala/Int#
+(17:17..17:23) scala/Predef.String#
+(18:9..18:11) _empty_/typeApply.f2(). -> 7:9
+(18:12..18:15) scala/Int#
+(18:17..18:23) scala/Predef.String#
+(19:9..19:11) _empty_/typeApply.f3(). -> 8:9
+(19:12..19:15) scala/Int#
+(19:17..19:23) scala/Predef.String#
+(20:9..20:11) _empty_/typeApply.f4(). -> 9:9
+(20:12..20:15) scala/Int#
+(20:17..20:23) scala/Predef.String#
+(21:9..21:11) _empty_/typeApply.f5(). -> 10:9
+(21:12..21:15) scala/Int#
+(21:17..21:23) scala/Predef.String#
+(22:9..22:11) _empty_/typeApply.f5(). -> 10:9
+(22:12..22:15) scala/Int#
+(22:17..22:23) scala/Predef.String#
+(22:25..22:29) scala/Unit#
+(23:9..23:11) _empty_/typeApply.f6(). -> 11:9
+(23:12..23:15) scala/Int#
+(23:19..23:23) scala/Unit#
+(24:9..24:11) _empty_/typeApply.f7(). -> 12:9
+(24:12..24:15) scala/Int#
+(24:19..24:23) scala/Unit#
+

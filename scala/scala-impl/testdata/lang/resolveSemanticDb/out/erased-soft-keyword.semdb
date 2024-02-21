@@ -1,0 +1,22 @@
+Document tests/pos/erased-soft-keyword.scala
+(3:11..3:14) scala/Int#
+(3:26..3:29) scala/Int#
+(4:11..4:14) scala/Int#
+(4:24..4:27) scala/Int#
+(5:18..5:21) scala/Int#
+(5:38..5:41) scala/Int#
+(6:11..6:14) scala/Int#
+(6:31..6:34) scala/Int#
+(9:24..9:27) scala/Int#
+(10:22..10:25) scala/Int#
+(11:36..11:39) scala/Int#
+(12:29..12:32) scala/Int#
+(14:22..14:25) scala/Int#
+(16:19..16:22) scala/Int#
+(17:9..17:12) scala/Int#
+(17:16..17:19) scala/Int#
+(18:21..18:24) scala/Int#
+(19:25..19:28) scala/Int#
+(20:18..20:21) scala/Int#
+(20:26..20:29) scala/Int#
+

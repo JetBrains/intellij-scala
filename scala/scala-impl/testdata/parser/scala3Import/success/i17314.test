@@ -1,0 +1,474 @@
+//> using options -Xfatal-warnings -Wunused:all -deprecation -feature
+
+import java.net.URI
+
+object circelike {
+  import scala.compiletime.summonInline
+  import scala.deriving.Mirror
+
+  type Codec[T]
+  type Configuration
+  trait ConfiguredCodec[T]
+  object ConfiguredCodec:
+    inline final def derived[A](using conf: Configuration)(using
+      inline mirror: Mirror.Of[A]
+    ): ConfiguredCodec[A] =
+      new ConfiguredCodec[A]:
+        val codec = summonInline[Codec[URI]] // simplification
+}
+
+object foo {
+  import circelike.{Codec, Configuration}
+
+  given Configuration = ???
+  given Codec[URI] = ???
+}
+
+object bar {
+  import circelike.Codec
+  import circelike.{Configuration, ConfiguredCodec}
+  import foo.{given Configuration, given Codec[URI]}
+
+  case class Operator(url: URI) derives ConfiguredCodec
+}
+-----
+ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Xfatal-warnings')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Wunused:all')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-deprecation')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-feature')
+  PsiWhiteSpace('\n\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: java.net.URI
+        CodeReferenceElement: java.net
+          CodeReferenceElement: java
+            PsiElement(identifier)('java')
+          PsiElement(.)('.')
+          PsiElement(identifier)('net')
+        PsiElement(.)('.')
+        PsiElement(identifier)('URI')
+  PsiWhiteSpace('\n\n')
+  ScObject: circelike
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('circelike')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: scala.compiletime.summonInline
+              CodeReferenceElement: scala.compiletime
+                CodeReferenceElement: scala
+                  PsiElement(identifier)('scala')
+                PsiElement(.)('.')
+                PsiElement(identifier)('compiletime')
+              PsiElement(.)('.')
+              PsiElement(identifier)('summonInline')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: scala.deriving.Mirror
+              CodeReferenceElement: scala.deriving
+                CodeReferenceElement: scala
+                  PsiElement(identifier)('scala')
+                PsiElement(.)('.')
+                PsiElement(identifier)('deriving')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Mirror')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDeclaration: Codec
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Codec')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: Configuration
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Configuration')
+        PsiWhiteSpace('\n  ')
+        ScTrait: ConfiguredCodec
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ConfiguredCodec')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScObject: ConfiguredCodec
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ConfiguredCodec')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement(:)(':')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: derived
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(inline)('inline')
+                  PsiWhiteSpace(' ')
+                  PsiElement(final)('final')
+                PsiWhiteSpace(' ')
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('derived')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: A
+                    PsiElement(identifier)('A')
+                  PsiElement(])(']')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    PsiElement(using)('using')
+                    PsiWhiteSpace(' ')
+                    Parameter: conf
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('conf')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Configuration
+                          CodeReferenceElement: Configuration
+                            PsiElement(identifier)('Configuration')
+                    PsiElement())(')')
+                  ParametersClause
+                    PsiElement(()('(')
+                    PsiElement(using)('using')
+                    PsiWhiteSpace('\n      ')
+                    Parameter: mirror
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        PsiElement(inline)('inline')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('mirror')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        ParametrizedType: Mirror.Of[A]
+                          SimpleType: Mirror.Of
+                            CodeReferenceElement: Mirror.Of
+                              CodeReferenceElement: Mirror
+                                PsiElement(identifier)('Mirror')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('Of')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: A
+                              CodeReferenceElement: A
+                                PsiElement(identifier)('A')
+                            PsiElement(])(']')
+                    PsiWhiteSpace('\n    ')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: ConfiguredCodec[A]
+                  SimpleType: ConfiguredCodec
+                    CodeReferenceElement: ConfiguredCodec
+                      PsiElement(identifier)('ConfiguredCodec')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace('\n      ')
+                ScNewTemplateDefinition: <anonymous>
+                  PsiElement(new)('new')
+                  PsiWhiteSpace(' ')
+                  ExtendsBlock
+                    TemplateParents
+                      ConstructorInvocation
+                        ParametrizedType: ConfiguredCodec[A]
+                          SimpleType: ConfiguredCodec
+                            CodeReferenceElement: ConfiguredCodec
+                              PsiElement(identifier)('ConfiguredCodec')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: A
+                              CodeReferenceElement: A
+                                PsiElement(identifier)('A')
+                            PsiElement(])(']')
+                    ScTemplateBody
+                      PsiElement(:)(':')
+                      PsiWhiteSpace('\n        ')
+                      ScPatternDefinition: codec
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(val)('val')
+                        PsiWhiteSpace(' ')
+                        ListOfPatterns
+                          ReferencePattern: codec
+                            PsiElement(identifier)('codec')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=)('=')
+                        PsiWhiteSpace(' ')
+                        GenericCall
+                          ReferenceExpression: summonInline
+                            PsiElement(identifier)('summonInline')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            ParametrizedType: Codec[URI]
+                              SimpleType: Codec
+                                CodeReferenceElement: Codec
+                                  PsiElement(identifier)('Codec')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                SimpleType: URI
+                                  CodeReferenceElement: URI
+                                    PsiElement(identifier)('URI')
+                                PsiElement(])(']')
+                            PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// simplification')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('foo')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: circelike
+              PsiElement(identifier)('circelike')
+            PsiElement(.)('.')
+            ImportSelectors
+              PsiElement({)('{')
+              ImportSelector
+                CodeReferenceElement: Codec
+                  PsiElement(identifier)('Codec')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ImportSelector
+                CodeReferenceElement: Configuration
+                  PsiElement(identifier)('Configuration')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScGivenAliasDefinition: given_Configuration
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(given)('given')
+          PsiWhiteSpace(' ')
+          SimpleType: Configuration
+            CodeReferenceElement: Configuration
+              PsiElement(identifier)('Configuration')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScGivenAliasDefinition: given_Codec_URI
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(given)('given')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Codec[URI]
+            SimpleType: Codec
+              CodeReferenceElement: Codec
+                PsiElement(identifier)('Codec')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: URI
+                CodeReferenceElement: URI
+                  PsiElement(identifier)('URI')
+              PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: bar
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('bar')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: circelike.Codec
+              CodeReferenceElement: circelike
+                PsiElement(identifier)('circelike')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Codec')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: circelike
+              PsiElement(identifier)('circelike')
+            PsiElement(.)('.')
+            ImportSelectors
+              PsiElement({)('{')
+              ImportSelector
+                CodeReferenceElement: Configuration
+                  PsiElement(identifier)('Configuration')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ImportSelector
+                CodeReferenceElement: ConfiguredCodec
+                  PsiElement(identifier)('ConfiguredCodec')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: foo
+              PsiElement(identifier)('foo')
+            PsiElement(.)('.')
+            ImportSelectors
+              PsiElement({)('{')
+              ImportSelector
+                PsiElement(given)('given')
+                PsiWhiteSpace(' ')
+                SimpleType: Configuration
+                  CodeReferenceElement: Configuration
+                    PsiElement(identifier)('Configuration')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ImportSelector
+                PsiElement(given)('given')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Codec[URI]
+                  SimpleType: Codec
+                    CodeReferenceElement: Codec
+                      PsiElement(identifier)('Codec')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: URI
+                      CodeReferenceElement: URI
+                        PsiElement(identifier)('URI')
+                    PsiElement(])(']')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScClass: Operator
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Operator')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: url
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('url')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: URI
+                      CodeReferenceElement: URI
+                        PsiElement(identifier)('URI')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            DerivesClause
+              PsiElement(derives)('derives')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: ConfiguredCodec
+                PsiElement(identifier)('ConfiguredCodec')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -1,0 +1,15 @@
+Document tests/pos/i10247.scala
+(4:17..4:20) scala/Int#
+(6:4..6:14) scala/deprecated#
+(7:20..7:25) _empty_/Color# -> 4:6
+(9:22..9:27) _empty_/Color# -> 4:6
+(11:22..11:27) _empty_/Color# -> 4:6
+(13:24..13:30) scala/Option#
+(13:31..13:34) scala/Int#
+(14:10..14:13) _empty_/Color.Red. -> 7:8
+(14:17..14:21) scala/None.
+(15:17..15:21) scala/Some.
+(15:22..15:25) _empty_/Color#rgb. -> 4:12
+(21:27..21:30) scala/Predef.Set.
+(21:31..21:34) _empty_/Color.Red. -> 7:8
+

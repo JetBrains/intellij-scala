@@ -1,0 +1,569 @@
+extension (vec: Seq[Int])
+  def iterate[T](body: (() => Int) => T): T =
+    val iterator = vec.iterator
+    body(() => iterator.nextOption().getOrElse(0))
+
+def withSequence[T](n: Int)(body: Seq[Int] => T): T =
+  body((0 to n))
+
+def test =
+
+  withSequence(2):
+    _.iterate: next =>
+      next() + next() + next() + next()
+
+  withSequence(2):
+    _.iterate:
+      next =>
+        next() + next() + next() + next()
+
+  withSequence(2): x =>
+    x.iterate:
+      next =>
+        next() + next() + next() + next()
+
+  withSequence(2): x =>
+    x.iterate: next =>
+      next() + next() + next() + next()
+
+-----
+ScalaFile
+  Extension on Seq[Int]
+    PsiElement(extension)('extension')
+    PsiWhiteSpace(' ')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: vec
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('vec')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Seq[Int]
+              SimpleType: Seq
+                CodeReferenceElement: Seq
+                  PsiElement(identifier)('Seq')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiWhiteSpace('\n  ')
+    ScExtensionBody
+      ScFunctionDefinition: iterate
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(def)('def')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('iterate')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: T
+            PsiElement(identifier)('T')
+          PsiElement(])(']')
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            Parameter: body
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(identifier)('body')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                FunctionalType: (() => Int) => T
+                  TypeInParenthesis: (() => Int)
+                    PsiElement(()('(')
+                    FunctionalType: () => Int
+                      TypeInParenthesis: ()
+                        PsiElement(()('(')
+                        PsiElement())(')')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+            PsiElement())(')')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: T
+          CodeReferenceElement: T
+            PsiElement(identifier)('T')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        BlockExpression
+          PsiWhiteSpace('\n    ')
+          ScPatternDefinition: iterator
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: iterator
+                PsiElement(identifier)('iterator')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: vec.iterator
+              ReferenceExpression: vec
+                PsiElement(identifier)('vec')
+              PsiElement(.)('.')
+              PsiElement(identifier)('iterator')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            ReferenceExpression: body
+              PsiElement(identifier)('body')
+            ArgumentList
+              PsiElement(()('(')
+              FunctionExpression
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: iterator.nextOption().getOrElse
+                    MethodCall
+                      ReferenceExpression: iterator.nextOption
+                        ReferenceExpression: iterator
+                          PsiElement(identifier)('iterator')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('nextOption')
+                      ArgumentList
+                        PsiElement(()('(')
+                        PsiElement())(')')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('getOrElse')
+                  ArgumentList
+                    PsiElement(()('(')
+                    IntegerLiteral
+                      PsiElement(integer)('0')
+                    PsiElement())(')')
+              PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: withSequence
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('withSequence')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: n
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('n')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+        PsiElement())(')')
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: body
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('body')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            FunctionalType: Seq[Int] => T
+              ParametrizedType: Seq[Int]
+                SimpleType: Seq
+                  CodeReferenceElement: Seq
+                    PsiElement(identifier)('Seq')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: T
+      CodeReferenceElement: T
+        PsiElement(identifier)('T')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    MethodCall
+      ReferenceExpression: body
+        PsiElement(identifier)('body')
+      ArgumentList
+        PsiElement(()('(')
+        ExpressionInParenthesis
+          PsiElement(()('(')
+          InfixExpression
+            IntegerLiteral
+              PsiElement(integer)('0')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: to
+              PsiElement(identifier)('to')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: n
+              PsiElement(identifier)('n')
+          PsiElement())(')')
+        PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n\n  ')
+      MethodCall
+        MethodCall
+          ReferenceExpression: withSequence
+            PsiElement(identifier)('withSequence')
+          ArgumentList
+            PsiElement(()('(')
+            IntegerLiteral
+              PsiElement(integer)('2')
+            PsiElement())(')')
+        ArgumentList
+          BlockExpression
+            PsiElement(:)(':')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: _.iterate
+                UnderscoreSection
+                  PsiElement(_)('_')
+                PsiElement(.)('.')
+                PsiElement(identifier)('iterate')
+              ArgumentList
+                BlockExpression
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  FunctionExpression
+                    Parameters
+                      ParametersClause
+                        Parameter: next
+                          PsiElement(identifier)('next')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace('\n      ')
+                    BlockOfExpressions
+                      InfixExpression
+                        InfixExpression
+                          InfixExpression
+                            MethodCall
+                              ReferenceExpression: next
+                                PsiElement(identifier)('next')
+                              ArgumentList
+                                PsiElement(()('(')
+                                PsiElement())(')')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: +
+                              PsiElement(identifier)('+')
+                            PsiWhiteSpace(' ')
+                            MethodCall
+                              ReferenceExpression: next
+                                PsiElement(identifier)('next')
+                              ArgumentList
+                                PsiElement(()('(')
+                                PsiElement())(')')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: +
+                            PsiElement(identifier)('+')
+                          PsiWhiteSpace(' ')
+                          MethodCall
+                            ReferenceExpression: next
+                              PsiElement(identifier)('next')
+                            ArgumentList
+                              PsiElement(()('(')
+                              PsiElement())(')')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: +
+                          PsiElement(identifier)('+')
+                        PsiWhiteSpace(' ')
+                        MethodCall
+                          ReferenceExpression: next
+                            PsiElement(identifier)('next')
+                          ArgumentList
+                            PsiElement(()('(')
+                            PsiElement())(')')
+      PsiWhiteSpace('\n\n  ')
+      MethodCall
+        MethodCall
+          ReferenceExpression: withSequence
+            PsiElement(identifier)('withSequence')
+          ArgumentList
+            PsiElement(()('(')
+            IntegerLiteral
+              PsiElement(integer)('2')
+            PsiElement())(')')
+        ArgumentList
+          BlockExpression
+            PsiElement(:)(':')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: _.iterate
+                UnderscoreSection
+                  PsiElement(_)('_')
+                PsiElement(.)('.')
+                PsiElement(identifier)('iterate')
+              ArgumentList
+                BlockExpression
+                  PsiElement(:)(':')
+                  PsiWhiteSpace('\n      ')
+                  FunctionExpression
+                    Parameters
+                      ParametersClause
+                        Parameter: next
+                          PsiElement(identifier)('next')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace('\n        ')
+                    BlockOfExpressions
+                      InfixExpression
+                        InfixExpression
+                          InfixExpression
+                            MethodCall
+                              ReferenceExpression: next
+                                PsiElement(identifier)('next')
+                              ArgumentList
+                                PsiElement(()('(')
+                                PsiElement())(')')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: +
+                              PsiElement(identifier)('+')
+                            PsiWhiteSpace(' ')
+                            MethodCall
+                              ReferenceExpression: next
+                                PsiElement(identifier)('next')
+                              ArgumentList
+                                PsiElement(()('(')
+                                PsiElement())(')')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: +
+                            PsiElement(identifier)('+')
+                          PsiWhiteSpace(' ')
+                          MethodCall
+                            ReferenceExpression: next
+                              PsiElement(identifier)('next')
+                            ArgumentList
+                              PsiElement(()('(')
+                              PsiElement())(')')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: +
+                          PsiElement(identifier)('+')
+                        PsiWhiteSpace(' ')
+                        MethodCall
+                          ReferenceExpression: next
+                            PsiElement(identifier)('next')
+                          ArgumentList
+                            PsiElement(()('(')
+                            PsiElement())(')')
+      PsiWhiteSpace('\n\n  ')
+      MethodCall
+        MethodCall
+          ReferenceExpression: withSequence
+            PsiElement(identifier)('withSequence')
+          ArgumentList
+            PsiElement(()('(')
+            IntegerLiteral
+              PsiElement(integer)('2')
+            PsiElement())(')')
+        ArgumentList
+          BlockExpression
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            FunctionExpression
+              Parameters
+                ParametersClause
+                  Parameter: x
+                    PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace('\n    ')
+              BlockOfExpressions
+                MethodCall
+                  ReferenceExpression: x.iterate
+                    ReferenceExpression: x
+                      PsiElement(identifier)('x')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('iterate')
+                  ArgumentList
+                    BlockExpression
+                      PsiElement(:)(':')
+                      PsiWhiteSpace('\n      ')
+                      FunctionExpression
+                        Parameters
+                          ParametersClause
+                            Parameter: next
+                              PsiElement(identifier)('next')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace('\n        ')
+                        BlockOfExpressions
+                          InfixExpression
+                            InfixExpression
+                              InfixExpression
+                                MethodCall
+                                  ReferenceExpression: next
+                                    PsiElement(identifier)('next')
+                                  ArgumentList
+                                    PsiElement(()('(')
+                                    PsiElement())(')')
+                                PsiWhiteSpace(' ')
+                                ReferenceExpression: +
+                                  PsiElement(identifier)('+')
+                                PsiWhiteSpace(' ')
+                                MethodCall
+                                  ReferenceExpression: next
+                                    PsiElement(identifier)('next')
+                                  ArgumentList
+                                    PsiElement(()('(')
+                                    PsiElement())(')')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression: +
+                                PsiElement(identifier)('+')
+                              PsiWhiteSpace(' ')
+                              MethodCall
+                                ReferenceExpression: next
+                                  PsiElement(identifier)('next')
+                                ArgumentList
+                                  PsiElement(()('(')
+                                  PsiElement())(')')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: +
+                              PsiElement(identifier)('+')
+                            PsiWhiteSpace(' ')
+                            MethodCall
+                              ReferenceExpression: next
+                                PsiElement(identifier)('next')
+                              ArgumentList
+                                PsiElement(()('(')
+                                PsiElement())(')')
+      PsiWhiteSpace('\n\n  ')
+      MethodCall
+        MethodCall
+          ReferenceExpression: withSequence
+            PsiElement(identifier)('withSequence')
+          ArgumentList
+            PsiElement(()('(')
+            IntegerLiteral
+              PsiElement(integer)('2')
+            PsiElement())(')')
+        ArgumentList
+          BlockExpression
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            FunctionExpression
+              Parameters
+                ParametersClause
+                  Parameter: x
+                    PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace('\n    ')
+              BlockOfExpressions
+                MethodCall
+                  ReferenceExpression: x.iterate
+                    ReferenceExpression: x
+                      PsiElement(identifier)('x')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('iterate')
+                  ArgumentList
+                    BlockExpression
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      FunctionExpression
+                        Parameters
+                          ParametersClause
+                            Parameter: next
+                              PsiElement(identifier)('next')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace('\n      ')
+                        BlockOfExpressions
+                          InfixExpression
+                            InfixExpression
+                              InfixExpression
+                                MethodCall
+                                  ReferenceExpression: next
+                                    PsiElement(identifier)('next')
+                                  ArgumentList
+                                    PsiElement(()('(')
+                                    PsiElement())(')')
+                                PsiWhiteSpace(' ')
+                                ReferenceExpression: +
+                                  PsiElement(identifier)('+')
+                                PsiWhiteSpace(' ')
+                                MethodCall
+                                  ReferenceExpression: next
+                                    PsiElement(identifier)('next')
+                                  ArgumentList
+                                    PsiElement(()('(')
+                                    PsiElement())(')')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression: +
+                                PsiElement(identifier)('+')
+                              PsiWhiteSpace(' ')
+                              MethodCall
+                                ReferenceExpression: next
+                                  PsiElement(identifier)('next')
+                                ArgumentList
+                                  PsiElement(()('(')
+                                  PsiElement())(')')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: +
+                              PsiElement(identifier)('+')
+                            PsiWhiteSpace(' ')
+                            MethodCall
+                              ReferenceExpression: next
+                                PsiElement(identifier)('next')
+                              ArgumentList
+                                PsiElement(()('(')
+                                PsiElement())(')')

@@ -1,0 +1,392 @@
+// https://github.com/lampepfl/dotty/issues/14642
+case object A
+case class B()
+case class C()
+type Union = A.type | B | C
+val a: List[A.type] = ???
+val b: List[B] = ???
+val c: List[C] = ???
+val l1: List[Union] = a ++ b
+val l2: List[Union] =
+  a ++ b ++ c
+val l3: List[Union] =
+  (a: List[
+    Union
+  ]) ++ b ++ c
+val l4: List[Union] = (a: List[Union]) ++ (b ++ c)
+-----
+ScalaFile
+  ScObject: A
+    PsiComment(comment)('// https://github.com/lampepfl/dotty/issues/14642')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScClass: B
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('B')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScClass: C
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('C')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTypeAliasDefinition: Union
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Union')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    InfixType: A.type | B | C
+      InfixType: A.type | B
+        SimpleType: A.type
+          CodeReferenceElement: A
+            PsiElement(identifier)('A')
+          PsiElement(.)('.')
+          PsiElement(type)('type')
+        PsiWhiteSpace(' ')
+        CodeReferenceElement: |
+          PsiElement(identifier)('|')
+        PsiWhiteSpace(' ')
+        SimpleType: B
+          CodeReferenceElement: B
+            PsiElement(identifier)('B')
+      PsiWhiteSpace(' ')
+      CodeReferenceElement: |
+        PsiElement(identifier)('|')
+      PsiWhiteSpace(' ')
+      SimpleType: C
+        CodeReferenceElement: C
+          PsiElement(identifier)('C')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: a
+        PsiElement(identifier)('a')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: List[A.type]
+      SimpleType: List
+        CodeReferenceElement: List
+          PsiElement(identifier)('List')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: A.type
+          CodeReferenceElement: A
+            PsiElement(identifier)('A')
+          PsiElement(.)('.')
+          PsiElement(type)('type')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: b
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: b
+        PsiElement(identifier)('b')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: List[B]
+      SimpleType: List
+        CodeReferenceElement: List
+          PsiElement(identifier)('List')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: B
+          CodeReferenceElement: B
+            PsiElement(identifier)('B')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: c
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: c
+        PsiElement(identifier)('c')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: List[C]
+      SimpleType: List
+        CodeReferenceElement: List
+          PsiElement(identifier)('List')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: C
+          CodeReferenceElement: C
+            PsiElement(identifier)('C')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: l1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: l1
+        PsiElement(identifier)('l1')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: List[Union]
+      SimpleType: List
+        CodeReferenceElement: List
+          PsiElement(identifier)('List')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: Union
+          CodeReferenceElement: Union
+            PsiElement(identifier)('Union')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    InfixExpression
+      ReferenceExpression: a
+        PsiElement(identifier)('a')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: ++
+        PsiElement(identifier)('++')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: b
+        PsiElement(identifier)('b')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: l2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: l2
+        PsiElement(identifier)('l2')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: List[Union]
+      SimpleType: List
+        CodeReferenceElement: List
+          PsiElement(identifier)('List')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: Union
+          CodeReferenceElement: Union
+            PsiElement(identifier)('Union')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    InfixExpression
+      InfixExpression
+        ReferenceExpression: a
+          PsiElement(identifier)('a')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: ++
+          PsiElement(identifier)('++')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: b
+          PsiElement(identifier)('b')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: ++
+        PsiElement(identifier)('++')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: c
+        PsiElement(identifier)('c')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: l3
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: l3
+        PsiElement(identifier)('l3')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: List[Union]
+      SimpleType: List
+        CodeReferenceElement: List
+          PsiElement(identifier)('List')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: Union
+          CodeReferenceElement: Union
+            PsiElement(identifier)('Union')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    InfixExpression
+      InfixExpression
+        ExpressionInParenthesis
+          PsiElement(()('(')
+          TypedExpression
+            ReferenceExpression: a
+              PsiElement(identifier)('a')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParametrizedType: List[
+    Union
+  ]
+              SimpleType: List
+                CodeReferenceElement: List
+                  PsiElement(identifier)('List')
+              TypeArgumentsList
+                PsiElement([)('[')
+                PsiWhiteSpace('\n    ')
+                SimpleType: Union
+                  CodeReferenceElement: Union
+                    PsiElement(identifier)('Union')
+                PsiWhiteSpace('\n  ')
+                PsiElement(])(']')
+          PsiElement())(')')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: ++
+          PsiElement(identifier)('++')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: b
+          PsiElement(identifier)('b')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: ++
+        PsiElement(identifier)('++')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: c
+        PsiElement(identifier)('c')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: l4
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: l4
+        PsiElement(identifier)('l4')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: List[Union]
+      SimpleType: List
+        CodeReferenceElement: List
+          PsiElement(identifier)('List')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: Union
+          CodeReferenceElement: Union
+            PsiElement(identifier)('Union')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    InfixExpression
+      ExpressionInParenthesis
+        PsiElement(()('(')
+        TypedExpression
+          ReferenceExpression: a
+            PsiElement(identifier)('a')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: List[Union]
+            SimpleType: List
+              CodeReferenceElement: List
+                PsiElement(identifier)('List')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Union
+                CodeReferenceElement: Union
+                  PsiElement(identifier)('Union')
+              PsiElement(])(']')
+        PsiElement())(')')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: ++
+        PsiElement(identifier)('++')
+      PsiWhiteSpace(' ')
+      ExpressionInParenthesis
+        PsiElement(()('(')
+        InfixExpression
+          ReferenceExpression: b
+            PsiElement(identifier)('b')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ++
+            PsiElement(identifier)('++')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: c
+            PsiElement(identifier)('c')
+        PsiElement())(')')

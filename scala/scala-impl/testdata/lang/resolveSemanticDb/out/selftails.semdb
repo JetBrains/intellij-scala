@@ -1,0 +1,42 @@
+Document tests/pos/selftails.scala
+(3:9..3:12) net/
+(3:13..3:20) net/liftweb/
+(8:33..8:46) net/liftweb/util/StringHelpers# -> 24:7
+(8:52..8:66) net/liftweb/util/ControlHelpers# -> 25:7
+(14:15..14:20) scala/Array#
+(14:21..14:25) scala/Byte#
+(14:31..14:36) scala/Array#
+(14:37..14:41) scala/Byte#
+(15:15..15:20) scala/Array#
+(15:21..15:25) scala/Byte#
+(15:31..15:36) scala/Array#
+(15:37..15:41) scala/Byte#
+(15:49..15:52) scala/Int#
+(15:59..15:62) scala/Int#
+(15:65..15:72) scala/Boolean#
+(16:11..16:14) local3 -> 15:44
+(16:15..16:17) scala/Int#`==`(+3).
+(16:18..16:21) local4 -> 15:54
+(17:16..17:17) local1 -> 15:12
+(17:18..17:21) local3 -> 15:44
+(17:23..17:25) scala/Byte#`!=`().
+(17:26..17:27) local2 -> 15:28
+(17:28..17:31) local3 -> 15:44
+(18:12..18:14) local5 -> 15:9
+(18:15..18:16) local1 -> 15:12
+(18:19..18:20) local2 -> 15:28
+(18:22..18:25) local3 -> 15:44
+(18:26..18:27) scala/Int#`+`(+4).
+(18:31..18:34) local4 -> 15:54
+(20:5..20:6) net/liftweb/util/BasicTypesHelpers#isEq().(a) -> 14:12
+(20:7..20:13) scala/Array#length().
+(20:14..20:16) scala/Int#`==`(+3).
+(20:17..20:18) net/liftweb/util/BasicTypesHelpers#isEq().(b) -> 14:28
+(20:19..20:25) scala/Array#length().
+(20:26..20:28) scala/Boolean#`&&`().
+(20:29..20:31) local5 -> 15:9
+(20:32..20:33) net/liftweb/util/BasicTypesHelpers#isEq().(a) -> 14:12
+(20:35..20:36) net/liftweb/util/BasicTypesHelpers#isEq().(b) -> 14:28
+(20:41..20:42) net/liftweb/util/BasicTypesHelpers#isEq().(a) -> 14:12
+(20:43..20:49) scala/Array#length().
+

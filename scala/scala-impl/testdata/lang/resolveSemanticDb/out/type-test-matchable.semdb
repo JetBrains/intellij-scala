@@ -1,0 +1,21 @@
+Document tests/pos/type-test-matchable.scala
+(3:8..3:13) scala/
+(3:14..3:22) scala/language.
+(3:23..3:41) scala/language.`future-migration`.
+(4:8..4:13) scala/
+(4:14..4:21) scala/reflect/
+(4:22..4:30) scala/reflect/TypeTest#
+(4:22..4:30) scala/reflect/TypeTest.
+(8:13..8:14) _empty_/Foo#X# -> 7:8
+(9:10..9:11) _empty_/Foo#X# -> 7:8
+(10:9..10:17) scala/reflect/TypeTest#
+(10:18..10:19) _empty_/Foo#X# -> 7:8
+(10:21..10:22) _empty_/Foo#Y# -> 8:8
+(10:26..10:29) scala/Predef.`???`().
+(13:17..13:20) _empty_/Foo# -> 6:7
+(13:23..13:27) scala/Unit#
+(14:5..14:8) _empty_/Test.test().(foo) -> 13:12
+(14:9..14:10) _empty_/Foo#x(). -> 9:7
+(16:15..16:18) _empty_/Test.test().(foo) -> 13:12
+(16:19..16:20) _empty_/Foo#X# -> 7:8
+

@@ -1,0 +1,416 @@
+//> using options -source 3.0-migration
+
+import java.{lang as jl}
+
+final class ConfigSyntax private (name: String, ordinal: Int)
+  extends jl.Enum[ConfigSyntax](name, ordinal)
+
+object ConfigSyntax {
+
+  final val JSON = new ConfigSyntax("JSON", 0)
+  final val CONF = new ConfigSyntax("CONF", 1)
+  final val PROPERTIES = new ConfigSyntax("PROPERTIES", 2)
+
+  private[this] final val _values: Array[ConfigSyntax] =
+    Array(JSON, CONF, PROPERTIES)
+
+  def values: Array[ConfigSyntax] = _values.clone()
+
+  def valueOf(name: String): ConfigSyntax =
+    _values.find(_.name == name).getOrElse {
+      throw new IllegalArgumentException("No enum const ConfigSyntax." + name)
+    }
+}
+-----
+ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-source')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('3.0-migration')
+  PsiWhiteSpace('\n\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: java
+        PsiElement(identifier)('java')
+      PsiElement(.)('.')
+      ImportSelectors
+        PsiElement({)('{')
+        ImportSelector
+          CodeReferenceElement: lang
+            PsiElement(identifier)('lang')
+          PsiWhiteSpace(' ')
+          PsiElement(as)('as')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('jl')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: ConfigSyntax
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(final)('final')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ConfigSyntax')
+    PsiWhiteSpace(' ')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        AccessModifier
+          PsiElement(private)('private')
+      PsiWhiteSpace(' ')
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: name
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('name')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: ordinal
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('ordinal')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement())(')')
+    PsiWhiteSpace('\n  ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: jl.Enum[ConfigSyntax]
+            SimpleType: jl.Enum
+              CodeReferenceElement: jl.Enum
+                CodeReferenceElement: jl
+                  PsiElement(identifier)('jl')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Enum')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: ConfigSyntax
+                CodeReferenceElement: ConfigSyntax
+                  PsiElement(identifier)('ConfigSyntax')
+              PsiElement(])(']')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: name
+              PsiElement(identifier)('name')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: ordinal
+              PsiElement(identifier)('ordinal')
+            PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScObject: ConfigSyntax
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ConfigSyntax')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: JSON
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: JSON
+              PsiElement(identifier)('JSON')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: ConfigSyntax
+                    CodeReferenceElement: ConfigSyntax
+                      PsiElement(identifier)('ConfigSyntax')
+                  ArgumentList
+                    PsiElement(()('(')
+                    StringLiteral
+                      PsiElement(string content)('"JSON"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    IntegerLiteral
+                      PsiElement(integer)('0')
+                    PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: CONF
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: CONF
+              PsiElement(identifier)('CONF')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: ConfigSyntax
+                    CodeReferenceElement: ConfigSyntax
+                      PsiElement(identifier)('ConfigSyntax')
+                  ArgumentList
+                    PsiElement(()('(')
+                    StringLiteral
+                      PsiElement(string content)('"CONF"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    IntegerLiteral
+                      PsiElement(integer)('1')
+                    PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: PROPERTIES
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: PROPERTIES
+              PsiElement(identifier)('PROPERTIES')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: ConfigSyntax
+                    CodeReferenceElement: ConfigSyntax
+                      PsiElement(identifier)('ConfigSyntax')
+                  ArgumentList
+                    PsiElement(()('(')
+                    StringLiteral
+                      PsiElement(string content)('"PROPERTIES"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    IntegerLiteral
+                      PsiElement(integer)('2')
+                    PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: _values
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+              PsiElement([)('[')
+              PsiElement(this)('this')
+              PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(final)('final')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: _values
+              PsiElement(identifier)('_values')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Array[ConfigSyntax]
+            SimpleType: Array
+              CodeReferenceElement: Array
+                PsiElement(identifier)('Array')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: ConfigSyntax
+                CodeReferenceElement: ConfigSyntax
+                  PsiElement(identifier)('ConfigSyntax')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            ReferenceExpression: Array
+              PsiElement(identifier)('Array')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: JSON
+                PsiElement(identifier)('JSON')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: CONF
+                PsiElement(identifier)('CONF')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: PROPERTIES
+                PsiElement(identifier)('PROPERTIES')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: values
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('values')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Array[ConfigSyntax]
+            SimpleType: Array
+              CodeReferenceElement: Array
+                PsiElement(identifier)('Array')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: ConfigSyntax
+                CodeReferenceElement: ConfigSyntax
+                  PsiElement(identifier)('ConfigSyntax')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: _values.clone
+              ReferenceExpression: _values
+                PsiElement(identifier)('_values')
+              PsiElement(.)('.')
+              PsiElement(identifier)('clone')
+            ArgumentList
+              PsiElement(()('(')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: valueOf
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('valueOf')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: name
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('name')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: ConfigSyntax
+            CodeReferenceElement: ConfigSyntax
+              PsiElement(identifier)('ConfigSyntax')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            ReferenceExpression: _values.find(_.name == name).getOrElse
+              MethodCall
+                ReferenceExpression: _values.find
+                  ReferenceExpression: _values
+                    PsiElement(identifier)('_values')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('find')
+                ArgumentList
+                  PsiElement(()('(')
+                  InfixExpression
+                    ReferenceExpression: _.name
+                      UnderscoreSection
+                        PsiElement(_)('_')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('name')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: ==
+                      PsiElement(identifier)('==')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: name
+                      PsiElement(identifier)('name')
+                  PsiElement())(')')
+              PsiElement(.)('.')
+              PsiElement(identifier)('getOrElse')
+            PsiWhiteSpace(' ')
+            ArgumentList
+              BlockExpression
+                PsiElement({)('{')
+                PsiWhiteSpace('\n      ')
+                ThrowStatement
+                  PsiElement(throw)('throw')
+                  PsiWhiteSpace(' ')
+                  ScNewTemplateDefinition: <anonymous>
+                    PsiElement(new)('new')
+                    PsiWhiteSpace(' ')
+                    ExtendsBlock
+                      TemplateParents
+                        ConstructorInvocation
+                          SimpleType: IllegalArgumentException
+                            CodeReferenceElement: IllegalArgumentException
+                              PsiElement(identifier)('IllegalArgumentException')
+                          ArgumentList
+                            PsiElement(()('(')
+                            InfixExpression
+                              StringLiteral
+                                PsiElement(string content)('"No enum const ConfigSyntax."')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression: +
+                                PsiElement(identifier)('+')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression: name
+                                PsiElement(identifier)('name')
+                            PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

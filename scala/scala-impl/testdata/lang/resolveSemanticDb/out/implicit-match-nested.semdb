@@ -17,6 +17,6 @@ Document tests/pos/implicit-match-nested.scala
 (13:15..13:16) _empty_/`implicit-match-nested`.A# -> 4:14
 (15:19..15:20) _empty_/`implicit-match-nested`.B# -> 5:14
 (15:21..15:24) local0 -> 13:17
-(15:29..15:30) local2 -> 15:16
+(15:29..15:30) local1 -> 15:16
 (19:3..19:10) _empty_/`implicit-match-nested`.locateB(). -> 11:26
 

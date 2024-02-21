@@ -1,0 +1,25 @@
+Document tests/pos/erased-lub-2.scala
+(6:16..6:17) _empty_/PF#[A] -> 5:10
+(6:20..6:21) _empty_/PF#[B] -> 5:14
+(10:25..10:28) _empty_/Foo# -> 3:7
+(10:36..10:38) _empty_/PF# -> 5:7
+(10:39..10:41) _empty_/Test.orElse2().[A1] -> 10:15
+(10:43..10:45) _empty_/Test.orElse2().[B1] -> 10:19
+(10:49..10:51) _empty_/PF# -> 5:7
+(10:52..10:54) _empty_/Test.orElse2().[A1] -> 10:15
+(10:56..10:58) _empty_/Test.orElse2().[B1] -> 10:19
+(10:62..10:65) scala/Predef.`???`().
+(12:20..12:22) _empty_/PF# -> 5:7
+(12:23..12:24) _empty_/Test.identity().[E] -> 12:16
+(12:26..12:27) _empty_/Test.identity().[E] -> 12:16
+(12:31..12:34) scala/Predef.`???`().
+(14:12..14:14) _empty_/PF# -> 5:7
+(14:15..14:18) _empty_/Foo# -> 3:7
+(14:20..14:23) _empty_/Foo# -> 3:7
+(14:27..14:30) scala/Predef.`???`().
+(16:16..16:19) _empty_/Foo# -> 3:7
+(16:23..16:30) _empty_/Test.orElse2(). -> 10:7
+(16:31..16:39) _empty_/Test.identity(). -> 12:7
+(16:41..16:46) _empty_/PF#apply(). -> 6:7
+(16:47..16:50) _empty_/Test.bla().(foo) -> 16:11
+

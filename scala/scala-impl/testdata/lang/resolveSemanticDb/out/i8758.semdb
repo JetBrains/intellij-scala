@@ -1,0 +1,14 @@
+Document tests/pos/i8758.scala
+(4:16..4:17) scala/StringContext#s.
+(4:21..4:28) scala/Predef.println(+1).
+(4:38..4:42) local0 -> 4:12
+(4:42..4:43) scala/StringContext#s().
+(5:17..5:18) scala/StringContext#s.
+(5:23..5:30) scala/Predef.println(+1).
+(5:41..5:45) local1 -> 5:12
+(5:45..5:46) scala/StringContext#s().
+(6:15..6:16) scala/StringContext#s.
+(6:21..6:28) scala/Predef.println(+1).
+(6:36..6:39) local2 -> 6:12
+(6:39..6:40) scala/StringContext#s().
+

@@ -11,6 +11,6 @@ Document tests/pos/implicit-match-and-inline-match.scala
 (10:17..10:20) scala/Int#
 (13:20..13:40) _empty_/`implicit-match-and-inline-match`.a.isTheBoxInScopeAnInt(). -> 8:16
 (18:15..18:18) _empty_/`implicit-match-and-inline-match`.Box# -> 4:14
-(19:17..19:18) local2 -> 18:19
+(19:17..19:18) local1 -> 18:19
 (22:20..22:40) _empty_/`implicit-match-and-inline-match`.b.isTheBoxInScopeAnInt(). -> 17:16
 

@@ -1,14 +1,14 @@
 Document tests/pos/nullarify.scala
-(3:12..3:15) scala/Int#
-(5:3..5:10) scala/Predef.println(+1).
-(5:11..5:14) _empty_/Test.foo(). -> 3:7
-(7:17..7:20) scala/Int#
-(7:24..7:25) _empty_/Test.bar().(x) -> 7:11
-(7:26..7:27) scala/Int#`+`(+4).
-(7:28..7:31) _empty_/Test.baz(). -> 9:7
-(7:32..7:33) _empty_/Test.bar().(x) -> 7:11
+(5:12..5:15) scala/Int#
+(7:3..7:10) scala/Predef.println(+1).
+(7:11..7:14) _empty_/Test.foo(). -> 5:7
 (9:17..9:20) scala/Int#
-(9:24..9:25) _empty_/Test.baz().(y) -> 9:11
-(11:3..11:6) _empty_/Test.bar(). -> 7:7
-(11:7..11:10) _empty_/Test.foo(). -> 3:7
+(9:24..9:25) _empty_/Test.bar().(x) -> 9:11
+(9:26..9:27) scala/Int#`+`(+4).
+(9:28..9:31) _empty_/Test.baz(). -> 11:7
+(9:32..9:33) _empty_/Test.bar().(x) -> 9:11
+(11:17..11:20) scala/Int#
+(11:24..11:25) _empty_/Test.baz().(y) -> 11:11
+(13:3..13:6) _empty_/Test.bar(). -> 9:7
+(13:7..13:10) _empty_/Test.foo(). -> 5:7
 

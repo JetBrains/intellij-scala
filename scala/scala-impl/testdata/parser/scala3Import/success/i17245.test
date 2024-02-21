@@ -1,0 +1,371 @@
+import scala.reflect.ClassTag
+
+trait MockSettings
+
+object Mockito {
+  def mock[T : ClassTag]: T = ???
+  def mock[T : ClassTag](settings: MockSettings): T = ???
+}
+
+trait Channel
+type OnChannel = Channel => Any
+
+@main def Test =
+  val case1: OnChannel = Mockito.mock[OnChannel]
+  val case2: OnChannel = Mockito.mock
+  val case3 = Mockito.mock[OnChannel]
+  val case4: OnChannel =  Mockito.mock[OnChannel](summon[ClassTag[OnChannel]])
+
+  // not a regressive case, but an added improvement with the fix for the above
+  val case5: Channel => Any = Mockito.mock[Channel => Any]
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.reflect.ClassTag
+        CodeReferenceElement: scala.reflect
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('reflect')
+        PsiElement(.)('.')
+        PsiElement(identifier)('ClassTag')
+  PsiWhiteSpace('\n\n')
+  ScTrait: MockSettings
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MockSettings')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: Mockito
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Mockito')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: mock
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('mock')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+              PsiWhiteSpace(' ')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: ClassTag
+                CodeReferenceElement: ClassTag
+                  PsiElement(identifier)('ClassTag')
+            PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: mock
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('mock')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+              PsiWhiteSpace(' ')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: ClassTag
+                CodeReferenceElement: ClassTag
+                  PsiElement(identifier)('ClassTag')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: settings
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('settings')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: MockSettings
+                    CodeReferenceElement: MockSettings
+                      PsiElement(identifier)('MockSettings')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Channel
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Channel')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTypeAliasDefinition: OnChannel
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('OnChannel')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    FunctionalType: Channel => Any
+      SimpleType: Channel
+        CodeReferenceElement: Channel
+          PsiElement(identifier)('Channel')
+      PsiWhiteSpace(' ')
+      PsiElement(=>)('=>')
+      PsiWhiteSpace(' ')
+      SimpleType: Any
+        CodeReferenceElement: Any
+          PsiElement(identifier)('Any')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: Test
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: case1
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: case1
+            PsiElement(identifier)('case1')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: OnChannel
+          CodeReferenceElement: OnChannel
+            PsiElement(identifier)('OnChannel')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        GenericCall
+          ReferenceExpression: Mockito.mock
+            ReferenceExpression: Mockito
+              PsiElement(identifier)('Mockito')
+            PsiElement(.)('.')
+            PsiElement(identifier)('mock')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: OnChannel
+              CodeReferenceElement: OnChannel
+                PsiElement(identifier)('OnChannel')
+            PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: case2
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: case2
+            PsiElement(identifier)('case2')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: OnChannel
+          CodeReferenceElement: OnChannel
+            PsiElement(identifier)('OnChannel')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: Mockito.mock
+          ReferenceExpression: Mockito
+            PsiElement(identifier)('Mockito')
+          PsiElement(.)('.')
+          PsiElement(identifier)('mock')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: case3
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: case3
+            PsiElement(identifier)('case3')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        GenericCall
+          ReferenceExpression: Mockito.mock
+            ReferenceExpression: Mockito
+              PsiElement(identifier)('Mockito')
+            PsiElement(.)('.')
+            PsiElement(identifier)('mock')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: OnChannel
+              CodeReferenceElement: OnChannel
+                PsiElement(identifier)('OnChannel')
+            PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: case4
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: case4
+            PsiElement(identifier)('case4')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: OnChannel
+          CodeReferenceElement: OnChannel
+            PsiElement(identifier)('OnChannel')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace('  ')
+        MethodCall
+          GenericCall
+            ReferenceExpression: Mockito.mock
+              ReferenceExpression: Mockito
+                PsiElement(identifier)('Mockito')
+              PsiElement(.)('.')
+              PsiElement(identifier)('mock')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: OnChannel
+                CodeReferenceElement: OnChannel
+                  PsiElement(identifier)('OnChannel')
+              PsiElement(])(']')
+          ArgumentList
+            PsiElement(()('(')
+            GenericCall
+              ReferenceExpression: summon
+                PsiElement(identifier)('summon')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: ClassTag[OnChannel]
+                  SimpleType: ClassTag
+                    CodeReferenceElement: ClassTag
+                      PsiElement(identifier)('ClassTag')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: OnChannel
+                      CodeReferenceElement: OnChannel
+                        PsiElement(identifier)('OnChannel')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+            PsiElement())(')')
+      PsiWhiteSpace('\n\n  ')
+      ScPatternDefinition: case5
+        PsiComment(comment)('// not a regressive case, but an added improvement with the fix for the above')
+        PsiWhiteSpace('\n  ')
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: case5
+            PsiElement(identifier)('case5')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        FunctionalType: Channel => Any
+          SimpleType: Channel
+            CodeReferenceElement: Channel
+              PsiElement(identifier)('Channel')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          SimpleType: Any
+            CodeReferenceElement: Any
+              PsiElement(identifier)('Any')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        GenericCall
+          ReferenceExpression: Mockito.mock
+            ReferenceExpression: Mockito
+              PsiElement(identifier)('Mockito')
+            PsiElement(.)('.')
+            PsiElement(identifier)('mock')
+          TypeArgumentsList
+            PsiElement([)('[')
+            FunctionalType: Channel => Any
+              SimpleType: Channel
+                CodeReferenceElement: Channel
+                  PsiElement(identifier)('Channel')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              SimpleType: Any
+                CodeReferenceElement: Any
+                  PsiElement(identifier)('Any')
+            PsiElement(])(']')

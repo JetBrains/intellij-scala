@@ -1,0 +1,69 @@
+Document tests/pos/strict-pattern-bindings-3.1.scala
+(4:8..4:16) scala/language.
+(4:17..4:22) scala/language.`3.1`.
+(8:11..8:15) scala/package.List#
+(8:16..8:22) scala/AnyRef#
+(8:26..8:29) scala/Predef.`???`().
+(10:12..10:18) scala/Predef.String#
+(10:23..10:25) _empty_/Test.xs. -> 8:7
+(11:15..11:21) scala/Predef.String#
+(11:26..11:28) _empty_/Test.xs. -> 8:7
+(12:18..12:20) _empty_/Test.xs. -> 8:7
+(14:12..14:18) scala/Predef.String#
+(14:23..14:25) _empty_/Test.xs. -> 8:7
+(14:29..14:30) local9 -> 14:9
+(14:31..14:38) java/lang/String#isEmpty().
+(15:12..15:18) scala/Predef.String#
+(15:23..15:25) _empty_/Test.xs. -> 8:7
+(15:27..15:28) local12 -> 15:27
+(15:31..15:32) local11 -> 15:9
+(16:12..16:18) scala/Predef.String#
+(16:23..16:25) _empty_/Test.xs. -> 8:7
+(16:37..16:39) _empty_/Test.xs. -> 8:7
+(17:17..17:23) scala/Predef.String#
+(17:28..17:30) _empty_/Test.xs. -> 8:7
+(17:42..17:44) _empty_/Test.xs. -> 8:7
+(18:12..18:18) scala/Predef.String#
+(18:23..18:25) _empty_/Test.xs. -> 8:7
+(18:42..18:44) _empty_/Test.xs. -> 8:7
+(20:14..20:18) scala/package.List#
+(20:19..20:25) scala/AnyRef#
+(20:29..20:33) scala/package.List.
+(21:18..21:23) _empty_/Test.pairs. -> 20:7
+(21:32..21:33) local30 -> 21:12
+(21:35..21:36) local29 -> 21:9
+(24:9..24:11) scala/package.`::`.
+(24:17..24:21) scala/package.List.
+(26:9..26:11) scala/`*:`.
+(26:22..26:27) scala/Tuple.
+(28:11..28:14) scala/Int#
+(28:20..28:26) scala/AnyRef#
+(28:30..28:33) scala/Predef.`???`().
+(28:36..28:42) scala/AnyRef#
+(32:36..32:39) scala/Int#
+(32:42..32:48) scala/Option#
+(32:49..32:52) scala/Int#
+(32:56..32:60) scala/Some.
+(32:61..32:62) _empty_/Test.Positive.unapply().(i) -> 32:33
+(32:64..32:70) scala/Option#filter().
+(32:73..32:74) scala/Int#`>`(+3).
+(33:35..33:38) scala/Int#
+(33:41..33:45) scala/Some#
+(33:46..33:49) scala/Int#
+(33:53..33:57) scala/Some.
+(33:58..33:59) _empty_/Test.Always1.unapply().(i) -> 33:32
+(34:33..34:36) scala/Int#
+(34:38..34:41) scala/Int#
+(34:45..34:46) _empty_/Test.Pair.unapply().(t) -> 34:29
+(34:54..34:55) _empty_/Test.Pair.unapply().(t) -> 34:29
+(35:35..35:38) scala/Int#
+(35:40..35:43) scala/Int#
+(35:45..35:48) scala/Int#
+(35:53..35:56) scala/Int#
+(35:58..35:61) scala/Int#
+(35:63..35:66) scala/Int#
+(35:70..35:71) _empty_/Test.Triple.unapply().(t) -> 35:31
+(37:7..37:15) _empty_/Test.Positive. -> 32:10
+(38:7..38:11) scala/Some.
+(38:18..38:24) scala/Option.
+

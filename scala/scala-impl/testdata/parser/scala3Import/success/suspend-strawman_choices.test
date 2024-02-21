@@ -1,0 +1,564 @@
+import scala.util.boundary, boundary.Label
+import runtime.suspend
+
+trait Choice:
+  def choose[A](choices: A*): A
+
+// the handler
+def choices[T](body: Choice ?=> T): Seq[T] =
+  boundary[Seq[T]]:
+    given Choice with
+      def choose[A](choices: A*): A =
+        suspend[A, Seq[T]](s => choices.flatMap(s.resume))
+    Seq(body)
+
+def choose[A](choices: A*)(using c: Choice): A = c.choose(choices*)
+
+def TestChoices: Seq[Int] =
+  choices:
+    def x = choose(1, -2, -3)
+    def y = choose("ab", "cde")
+    val xx = x;
+    xx + (
+      if xx > 0 then
+        val z = choose(xx / 2, xx * 2)
+        y.length * z
+      else y.length
+    )
+
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.util.boundary
+        CodeReferenceElement: scala.util
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('util')
+        PsiElement(.)('.')
+        PsiElement(identifier)('boundary')
+    PsiElement(,)(',')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: boundary.Label
+        CodeReferenceElement: boundary
+          PsiElement(identifier)('boundary')
+        PsiElement(.)('.')
+        PsiElement(identifier)('Label')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: runtime.suspend
+        CodeReferenceElement: runtime
+          PsiElement(identifier)('runtime')
+        PsiElement(.)('.')
+        PsiElement(identifier)('suspend')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Choice
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Choice')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: choose
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('choose')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: choices
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('choices')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                  PsiElement(identifier)('*')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: A
+            CodeReferenceElement: A
+              PsiElement(identifier)('A')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: choices
+    PsiComment(comment)('// the handler')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('choices')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: body
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('body')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            FunctionalType: Choice ?=> T
+              SimpleType: Choice
+                CodeReferenceElement: Choice
+                  PsiElement(identifier)('Choice')
+              PsiWhiteSpace(' ')
+              PsiElement(?=>)('?=>')
+              PsiWhiteSpace(' ')
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Seq[T]
+      SimpleType: Seq
+        CodeReferenceElement: Seq
+          PsiElement(identifier)('Seq')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: T
+          CodeReferenceElement: T
+            PsiElement(identifier)('T')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    MethodCall
+      GenericCall
+        ReferenceExpression: boundary
+          PsiElement(identifier)('boundary')
+        TypeArgumentsList
+          PsiElement([)('[')
+          ParametrizedType: Seq[T]
+            SimpleType: Seq
+              CodeReferenceElement: Seq
+                PsiElement(identifier)('Seq')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+              PsiElement(])(']')
+          PsiElement(])(']')
+      ArgumentList
+        BlockExpression
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n    ')
+          ScGivenDefinition: given_Choice
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(given)('given')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Choice
+                    CodeReferenceElement: Choice
+                      PsiElement(identifier)('Choice')
+              PsiWhiteSpace(' ')
+              PsiElement(with)('with')
+              PsiWhiteSpace('\n      ')
+              ScTemplateBody
+                ScFunctionDefinition: choose
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('choose')
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: A
+                      PsiElement(identifier)('A')
+                    PsiElement(])(']')
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      Parameter: choices
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(identifier)('choices')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParameterType
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
+                          PsiElement(identifier)('*')
+                      PsiElement())(')')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace('\n        ')
+                  MethodCall
+                    GenericCall
+                      ReferenceExpression: suspend
+                        PsiElement(identifier)('suspend')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ParametrizedType: Seq[T]
+                          SimpleType: Seq
+                            CodeReferenceElement: Seq
+                              PsiElement(identifier)('Seq')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: T
+                              CodeReferenceElement: T
+                                PsiElement(identifier)('T')
+                            PsiElement(])(']')
+                        PsiElement(])(']')
+                    ArgumentList
+                      PsiElement(()('(')
+                      FunctionExpression
+                        Parameters
+                          ParametersClause
+                            Parameter: s
+                              PsiElement(identifier)('s')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        MethodCall
+                          ReferenceExpression: choices.flatMap
+                            ReferenceExpression: choices
+                              PsiElement(identifier)('choices')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('flatMap')
+                          ArgumentList
+                            PsiElement(()('(')
+                            ReferenceExpression: s.resume
+                              ReferenceExpression: s
+                                PsiElement(identifier)('s')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('resume')
+                            PsiElement())(')')
+                      PsiElement())(')')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            ReferenceExpression: Seq
+              PsiElement(identifier)('Seq')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: body
+                PsiElement(identifier)('body')
+              PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: choose
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('choose')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: choices
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('choices')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: A
+              CodeReferenceElement: A
+                PsiElement(identifier)('A')
+            PsiElement(identifier)('*')
+        PsiElement())(')')
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement(using)('using')
+        PsiWhiteSpace(' ')
+        Parameter: c
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('c')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Choice
+              CodeReferenceElement: Choice
+                PsiElement(identifier)('Choice')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: A
+      CodeReferenceElement: A
+        PsiElement(identifier)('A')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: c.choose
+        ReferenceExpression: c
+          PsiElement(identifier)('c')
+        PsiElement(.)('.')
+        PsiElement(identifier)('choose')
+      ArgumentList
+        PsiElement(()('(')
+        TypedExpression
+          ReferenceExpression: choices
+            PsiElement(identifier)('choices')
+          SequenceArgumentType
+            PsiElement(identifier)('*')
+        PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: TestChoices
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TestChoices')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Seq[Int]
+      SimpleType: Seq
+        CodeReferenceElement: Seq
+          PsiElement(identifier)('Seq')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: Int
+          CodeReferenceElement: Int
+            PsiElement(identifier)('Int')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    MethodCall
+      ReferenceExpression: choices
+        PsiElement(identifier)('choices')
+      ArgumentList
+        BlockExpression
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n    ')
+          ScFunctionDefinition: x
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('x')
+            Parameters
+              <empty list>
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: choose
+                PsiElement(identifier)('choose')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('1')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                PrefixExpression
+                  ReferenceExpression: -
+                    PsiElement(identifier)('-')
+                  IntegerLiteral
+                    PsiElement(integer)('2')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                PrefixExpression
+                  ReferenceExpression: -
+                    PsiElement(identifier)('-')
+                  IntegerLiteral
+                    PsiElement(integer)('3')
+                PsiElement())(')')
+          PsiWhiteSpace('\n    ')
+          ScFunctionDefinition: y
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('y')
+            Parameters
+              <empty list>
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: choose
+                PsiElement(identifier)('choose')
+              ArgumentList
+                PsiElement(()('(')
+                StringLiteral
+                  PsiElement(string content)('"ab"')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                StringLiteral
+                  PsiElement(string content)('"cde"')
+                PsiElement())(')')
+          PsiWhiteSpace('\n    ')
+          ScPatternDefinition: xx
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: xx
+                PsiElement(identifier)('xx')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+          PsiElement(;)(';')
+          PsiWhiteSpace('\n    ')
+          InfixExpression
+            ReferenceExpression: xx
+              PsiElement(identifier)('xx')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: +
+              PsiElement(identifier)('+')
+            PsiWhiteSpace(' ')
+            ExpressionInParenthesis
+              PsiElement(()('(')
+              PsiWhiteSpace('\n      ')
+              IfStatement
+                PsiElement(if)('if')
+                PsiWhiteSpace(' ')
+                InfixExpression
+                  ReferenceExpression: xx
+                    PsiElement(identifier)('xx')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: >
+                    PsiElement(identifier)('>')
+                  PsiWhiteSpace(' ')
+                  IntegerLiteral
+                    PsiElement(integer)('0')
+                PsiWhiteSpace(' ')
+                PsiElement(then)('then')
+                BlockExpression
+                  PsiWhiteSpace('\n        ')
+                  ScPatternDefinition: z
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(val)('val')
+                    PsiWhiteSpace(' ')
+                    ListOfPatterns
+                      ReferencePattern: z
+                        PsiElement(identifier)('z')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    MethodCall
+                      ReferenceExpression: choose
+                        PsiElement(identifier)('choose')
+                      ArgumentList
+                        PsiElement(()('(')
+                        InfixExpression
+                          ReferenceExpression: xx
+                            PsiElement(identifier)('xx')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: /
+                            PsiElement(identifier)('/')
+                          PsiWhiteSpace(' ')
+                          IntegerLiteral
+                            PsiElement(integer)('2')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        InfixExpression
+                          ReferenceExpression: xx
+                            PsiElement(identifier)('xx')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: *
+                            PsiElement(identifier)('*')
+                          PsiWhiteSpace(' ')
+                          IntegerLiteral
+                            PsiElement(integer)('2')
+                        PsiElement())(')')
+                  PsiWhiteSpace('\n        ')
+                  InfixExpression
+                    ReferenceExpression: y.length
+                      ReferenceExpression: y
+                        PsiElement(identifier)('y')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('length')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: *
+                      PsiElement(identifier)('*')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: z
+                      PsiElement(identifier)('z')
+                PsiWhiteSpace('\n      ')
+                PsiElement(else)('else')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: y.length
+                  ReferenceExpression: y
+                    PsiElement(identifier)('y')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('length')
+              PsiWhiteSpace('\n    ')
+              PsiElement())(')')

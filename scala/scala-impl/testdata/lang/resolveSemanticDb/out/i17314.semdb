@@ -1,0 +1,35 @@
+Document tests/pos/i17314.scala
+(3:8..3:12) java/
+(3:13..3:16) java/net/
+(3:17..3:20) java/net/URI#
+(6:10..6:15) scala/
+(6:16..6:27) scala/compiletime/
+(6:28..6:40) scala/compiletime/package$package.summonInline().
+(7:10..7:15) scala/
+(7:16..7:24) scala/deriving/
+(7:25..7:31) scala/deriving/Mirror#
+(7:25..7:31) scala/deriving/Mirror.
+(13:45..13:58) _empty_/circelike.Configuration# -> 10:8
+(14:22..14:28) scala/deriving/Mirror.
+(14:29..14:31) scala/deriving/Mirror.Of#
+(14:32..14:33) _empty_/circelike.ConfiguredCodec.derived().[A] -> 13:30
+(15:8..15:23) _empty_/circelike.ConfiguredCodec# -> 11:9
+(15:24..15:25) _empty_/circelike.ConfiguredCodec.derived().[A] -> 13:30
+(16:11..16:26) _empty_/circelike.ConfiguredCodec# -> 11:9
+(16:27..16:28) _empty_/circelike.ConfiguredCodec.derived().[A] -> 13:30
+(17:21..17:33) scala/compiletime/package$package.summonInline().
+(17:34..17:39) _empty_/circelike.Codec# -> 9:8
+(17:40..17:43) java/net/URI#
+(21:10..21:19) _empty_/circelike. -> 5:8
+(23:9..23:22) _empty_/circelike.Configuration# -> 10:8
+(23:25..23:28) scala/Predef.`???`().
+(24:9..24:14) _empty_/circelike.Codec# -> 9:8
+(24:15..24:18) java/net/URI#
+(24:22..24:25) scala/Predef.`???`().
+(28:10..28:19) _empty_/circelike. -> 5:8
+(29:10..29:19) _empty_/circelike. -> 5:8
+(29:36..29:51) _empty_/circelike.ConfiguredCodec# -> 11:9
+(29:36..29:51) _empty_/circelike.ConfiguredCodec. -> 12:10
+(30:10..30:13) _empty_/foo. -> 20:8
+(32:28..32:31) java/net/URI#
+

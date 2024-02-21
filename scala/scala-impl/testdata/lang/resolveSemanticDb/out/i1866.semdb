@@ -5,6 +5,7 @@ Document tests/pos/i1866.scala
 (1:33..1:53) scala/reflect/Selectable.reflectiveSelectable().
 (3:26..3:30) scala/Unit#
 (3:36..3:37) _empty_/Test.f().(g) -> 3:9
+(3:37..3:44) scala/reflect/Selectable#selectDynamic().
 (4:20..4:25) scala/Array#
 (4:26..4:32) scala/Predef.String#
 

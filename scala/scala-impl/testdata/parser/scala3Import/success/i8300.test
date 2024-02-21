@@ -1,0 +1,264 @@
+// https://github.com/lampepfl/dotty/issues/8300
+
+type Bar[X] = X match {
+  case List[a] => List[Tuple1[a]]
+  case Set[a]  => Set[Tuple1[a]]
+}
+
+object Test:
+  (Set(1, 2, 3), List("a", "b")).map(
+    [A] =>
+      (a: A) =>
+        a match {
+          case it: Iterable[x] => it.map(Tuple1(_)).asInstanceOf[Bar[A]]
+      }
+  )
+-----
+ScalaFile
+  PsiComment(comment)('// https://github.com/lampepfl/dotty/issues/8300')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: Bar
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bar')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: X
+        PsiElement(identifier)('X')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchType: X match {
+  case List[a] => List[Tuple1[a]]
+  case Set[a]  => Set[Tuple1[a]]
+}
+      SimpleType: X
+        CodeReferenceElement: X
+          PsiElement(identifier)('X')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace(' ')
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      ScMatchTypeCasesImpl(match type cases)
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ParametrizedType: List[a]
+            SimpleType: List
+              CodeReferenceElement: List
+                PsiElement(identifier)('List')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeVariable: a
+                PsiElement(identifier)('a')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          ParametrizedType: List[Tuple1[a]]
+            SimpleType: List
+              CodeReferenceElement: List
+                PsiElement(identifier)('List')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: Tuple1[a]
+                SimpleType: Tuple1
+                  CodeReferenceElement: Tuple1
+                    PsiElement(identifier)('Tuple1')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: a
+                    CodeReferenceElement: a
+                      PsiElement(identifier)('a')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Set[a]
+            SimpleType: Set
+              CodeReferenceElement: Set
+                PsiElement(identifier)('Set')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeVariable: a
+                PsiElement(identifier)('a')
+              PsiElement(])(']')
+          PsiWhiteSpace('  ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Set[Tuple1[a]]
+            SimpleType: Set
+              CodeReferenceElement: Set
+                PsiElement(identifier)('Set')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: Tuple1[a]
+                SimpleType: Tuple1
+                  CodeReferenceElement: Tuple1
+                    PsiElement(identifier)('Tuple1')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: a
+                    CodeReferenceElement: a
+                      PsiElement(identifier)('a')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: (Set(1, 2, 3), List("a", "b")).map
+            Tuple
+              PsiElement(()('(')
+              MethodCall
+                ReferenceExpression: Set
+                  PsiElement(identifier)('Set')
+                ArgumentList
+                  PsiElement(()('(')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  IntegerLiteral
+                    PsiElement(integer)('2')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  IntegerLiteral
+                    PsiElement(integer)('3')
+                  PsiElement())(')')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: List
+                  PsiElement(identifier)('List')
+                ArgumentList
+                  PsiElement(()('(')
+                  StringLiteral
+                    PsiElement(string content)('"a"')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  StringLiteral
+                    PsiElement(string content)('"b"')
+                  PsiElement())(')')
+              PsiElement())(')')
+            PsiElement(.)('.')
+            PsiElement(identifier)('map')
+          ArgumentList
+            PsiElement(()('(')
+            PsiWhiteSpace('\n    ')
+            PolyFunctionExpression
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: A
+                  PsiElement(identifier)('A')
+                PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace('\n      ')
+              FunctionExpression
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: a
+                      AnnotationsList
+                        <empty list>
+                      PsiElement(identifier)('a')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace('\n        ')
+                MatchStatement
+                  ReferenceExpression: a
+                    PsiElement(identifier)('a')
+                  PsiWhiteSpace(' ')
+                  PsiElement(match)('match')
+                  PsiWhiteSpace(' ')
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n          ')
+                  CaseClauses
+                    CaseClause
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      Scala3 TypedPattern
+                        ReferencePattern: it
+                          PsiElement(identifier)('it')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        TypePattern
+                          ParametrizedType: Iterable[x]
+                            SimpleType: Iterable
+                              CodeReferenceElement: Iterable
+                                PsiElement(identifier)('Iterable')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeVariable: x
+                                PsiElement(identifier)('x')
+                              PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      BlockOfExpressions
+                        GenericCall
+                          ReferenceExpression: it.map(Tuple1(_)).asInstanceOf
+                            MethodCall
+                              ReferenceExpression: it.map
+                                ReferenceExpression: it
+                                  PsiElement(identifier)('it')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('map')
+                              ArgumentList
+                                PsiElement(()('(')
+                                MethodCall
+                                  ReferenceExpression: Tuple1
+                                    PsiElement(identifier)('Tuple1')
+                                  ArgumentList
+                                    PsiElement(()('(')
+                                    UnderscoreSection
+                                      PsiElement(_)('_')
+                                    PsiElement())(')')
+                                PsiElement())(')')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('asInstanceOf')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            ParametrizedType: Bar[A]
+                              SimpleType: Bar
+                                CodeReferenceElement: Bar
+                                  PsiElement(identifier)('Bar')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                SimpleType: A
+                                  CodeReferenceElement: A
+                                    PsiElement(identifier)('A')
+                                PsiElement(])(']')
+                            PsiElement(])(']')
+                  PsiWhiteSpace('\n      ')
+                  PsiElement(})('}')
+            PsiWhiteSpace('\n  ')
+            PsiElement())(')')

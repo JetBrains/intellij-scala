@@ -1,9 +1,7 @@
 Document tests/pos/i11184d.scala
-(1:8..1:13) scala/
-(1:14..1:20) scala/quoted/
-(3:20..3:27) scala/Boolean#
-(4:31..4:34) scala/Any#
-(4:47..4:53) _empty_/i11184d$package.isTrue(). -> 3:12
-(4:59..4:65) _empty_/i11184d$package.isTrue(). -> 3:12
-(5:13..5:18) _empty_/i11184d$package.oneOf(). -> 4:24
+(1:20..1:27) scala/Boolean#
+(2:31..2:34) scala/Any#
+(2:47..2:53) _empty_/i11184d$package.isTrue(). -> 1:12
+(2:59..2:65) _empty_/i11184d$package.isTrue(). -> 1:12
+(3:13..3:18) _empty_/i11184d$package.oneOf(). -> 2:24
 

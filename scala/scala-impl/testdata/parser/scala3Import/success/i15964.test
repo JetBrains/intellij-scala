@@ -1,4 +1,4 @@
-// scalac: -Werror
+//> using options -Werror
 sealed trait T
 class C extends T
 
@@ -16,9 +16,16 @@ def list2Product(
   }
 -----
 ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Werror')
+  PsiWhiteSpace('\n')
   ScTrait: T
-    PsiComment(comment)('// scalac: -Werror')
-    PsiWhiteSpace('\n')
     AnnotationsList
       <empty list>
     Modifiers

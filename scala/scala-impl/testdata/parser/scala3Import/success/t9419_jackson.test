@@ -1,0 +1,303 @@
+// from failure in the community project
+// jackson-module-scala
+// in ScalaAnnotationIntrospectorModule.scala:139:12
+
+import scala.language.implicitConversions
+
+trait EnrichedType[X]:
+  def value: X
+
+trait ClassW extends EnrichedType[Class[_]]:
+  def extendsScalaClass = false
+
+class Test:
+  implicit def mkClassW(c: => Class[_]): ClassW = new ClassW:
+    lazy val value = c
+
+  def test1(c1: Class[_]) = c1.extendsScalaClass           // ok: c1 is a value
+  def test2(c2: Class[_]) = mkClassW(c2).extendsScalaClass // ok: c2 is a value
+  // c1 in test1 goes throw adapting to find the extension method and gains the wildcard capture cast then
+  // c2 in test2 goes straight to typedArg, as it's already an arg, so it never gets wildcard captured
+-----
+ScalaFile
+  PsiComment(comment)('// from failure in the community project')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// jackson-module-scala')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// in ScalaAnnotationIntrospectorModule.scala:139:12')
+  PsiWhiteSpace('\n\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.language.implicitConversions
+        CodeReferenceElement: scala.language
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('language')
+        PsiElement(.)('.')
+        PsiElement(identifier)('implicitConversions')
+  PsiWhiteSpace('\n\n')
+  ScTrait: EnrichedType
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('EnrichedType')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: X
+        PsiElement(identifier)('X')
+      PsiElement(])(']')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: value
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('value')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: X
+            CodeReferenceElement: X
+              PsiElement(identifier)('X')
+  PsiWhiteSpace('\n\n')
+  ScTrait: ClassW
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ClassW')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: EnrichedType[Class[_]]
+            SimpleType: EnrichedType
+              CodeReferenceElement: EnrichedType
+                PsiElement(identifier)('EnrichedType')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: Class[_]
+                SimpleType: Class
+                  CodeReferenceElement: Class
+                    PsiElement(identifier)('Class')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  WildcardType: _
+                    PsiElement(_)('_')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: extendsScalaClass
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('extendsScalaClass')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BooleanLiteral
+            PsiElement(false)('false')
+  PsiWhiteSpace('\n\n')
+  ScClass: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: mkClassW
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('mkClassW')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: c
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: Class[_]
+                    SimpleType: Class
+                      CodeReferenceElement: Class
+                        PsiElement(identifier)('Class')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      WildcardType: _
+                        PsiElement(_)('_')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: ClassW
+            CodeReferenceElement: ClassW
+              PsiElement(identifier)('ClassW')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: ClassW
+                    CodeReferenceElement: ClassW
+                      PsiElement(identifier)('ClassW')
+              ScTemplateBody
+                PsiElement(:)(':')
+                PsiWhiteSpace('\n    ')
+                ScPatternDefinition: value
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    PsiElement(lazy)('lazy')
+                  PsiWhiteSpace(' ')
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  ListOfPatterns
+                    ReferencePattern: value
+                      PsiElement(identifier)('value')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: c
+                    PsiElement(identifier)('c')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: test1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('test1')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: c1
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c1')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Class[_]
+                    SimpleType: Class
+                      CodeReferenceElement: Class
+                        PsiElement(identifier)('Class')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      WildcardType: _
+                        PsiElement(_)('_')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: c1.extendsScalaClass
+            ReferenceExpression: c1
+              PsiElement(identifier)('c1')
+            PsiElement(.)('.')
+            PsiElement(identifier)('extendsScalaClass')
+        PsiWhiteSpace('           ')
+        PsiComment(comment)('// ok: c1 is a value')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: test2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('test2')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: c2
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c2')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Class[_]
+                    SimpleType: Class
+                      CodeReferenceElement: Class
+                        PsiElement(identifier)('Class')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      WildcardType: _
+                        PsiElement(_)('_')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: mkClassW(c2).extendsScalaClass
+            MethodCall
+              ReferenceExpression: mkClassW
+                PsiElement(identifier)('mkClassW')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: c2
+                  PsiElement(identifier)('c2')
+                PsiElement())(')')
+            PsiElement(.)('.')
+            PsiElement(identifier)('extendsScalaClass')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// ok: c2 is a value')
+  PsiWhiteSpace('\n  ')
+  PsiComment(comment)('// c1 in test1 goes throw adapting to find the extension method and gains the wildcard capture cast then')
+  PsiWhiteSpace('\n  ')
+  PsiComment(comment)('// c2 in test2 goes straight to typedArg, as it's already an arg, so it never gets wildcard captured')

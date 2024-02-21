@@ -1,4 +1,4 @@
-// scalac: -Ykind-projector:underscores
+//> using options -Ykind-projector:underscores
 
 sealed abstract class Free[+S[_, _], +E, +A] {
   @inline final def flatMap[S1[e, a] >: S[e, a], B, E1 >: E](fun: A => Free[S1, E1, B]): Free[S1, E1, B] = Free.FlatMapped[S1, E, E1, A, B](this, fun)
@@ -52,7 +52,14 @@ trait Monad3[F[-_, +_, +_]] {
 }
 -----
 ScalaFile
-  PsiComment(comment)('// scalac: -Ykind-projector:underscores')
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Ykind-projector:underscores')
   PsiWhiteSpace('\n\n')
   ScClass: Free
     AnnotationsList

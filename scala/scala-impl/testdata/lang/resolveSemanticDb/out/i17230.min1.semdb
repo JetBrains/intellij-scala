@@ -1,0 +1,19 @@
+Document tests/pos/i17230.min1.scala
+(6:20..6:23) _empty_/Foo# -> 2:7
+(6:40..6:41) _empty_/Foo.Aux#[B] -> 6:12
+(6:42..6:43) local0 -> 6:35
+(9:22..9:28) scala/Option#
+(9:29..9:32) _empty_/Foo. -> 5:8
+(9:33..9:36) _empty_/Foo.Aux# -> 6:8
+(9:37..9:38) _empty_/Test#t1().[B] -> 9:10
+(9:44..9:48) _empty_/Test#t1().(self) -> 9:16
+(10:10..10:14) scala/Some.
+(11:10..11:14) scala/None.
+(13:22..13:28) scala/Option#
+(13:29..13:32) _empty_/Foo. -> 5:8
+(13:33..13:36) _empty_/Foo.Aux# -> 6:8
+(13:37..13:38) _empty_/Test#t2().[B] -> 13:10
+(13:44..13:48) _empty_/Test#t2().(self) -> 13:16
+(14:10..14:14) scala/Some.
+(15:10..15:14) scala/None.
+

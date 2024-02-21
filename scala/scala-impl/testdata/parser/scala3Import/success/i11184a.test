@@ -1,22 +1,8 @@
-import scala.quoted._
-
 inline def isTrue: Boolean = true
 inline def oneOf: String = inline if isTrue then "foo" else "bar"
 def test1 = oneOf
 -----
 ScalaFile
-  ScImportStatement
-    PsiElement(import)('import')
-    PsiWhiteSpace(' ')
-    ImportExpression
-      CodeReferenceElement: scala.quoted
-        CodeReferenceElement: scala
-          PsiElement(identifier)('scala')
-        PsiElement(.)('.')
-        PsiElement(identifier)('quoted')
-      PsiElement(.)('.')
-      PsiElement(_)('_')
-  PsiWhiteSpace('\n\n')
   ScFunctionDefinition: isTrue
     AnnotationsList
       <empty list>

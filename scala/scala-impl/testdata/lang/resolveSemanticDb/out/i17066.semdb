@@ -1,0 +1,4 @@
+Document tests/pos/i17066/Bar.scala
+(1:19..1:22) _empty_/Foo#
+(2:16..2:22) scala/Predef.String#
+

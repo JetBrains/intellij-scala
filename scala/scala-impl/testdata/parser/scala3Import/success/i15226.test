@@ -1,4 +1,4 @@
-// scalac: -Werror
+//> using options -Werror
 class Proj { type State = String }
 
 sealed trait ProjState:
@@ -12,9 +12,16 @@ def test(pj: ProjState) = pj match
   case ProjState(p, s) =>
 -----
 ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Werror')
+  PsiWhiteSpace('\n')
   ScClass: Proj
-    PsiComment(comment)('// scalac: -Werror')
-    PsiWhiteSpace('\n')
     AnnotationsList
       <empty list>
     Modifiers

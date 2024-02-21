@@ -1,0 +1,13 @@
+Document tests/pos/i17525.scala
+(2:41..2:47) scala/Predef.String#
+(2:50..2:56) scala/Option#
+(2:57..2:62) scala/Tuple#
+(2:66..2:70) scala/Some.
+(4:13..4:17) scala/Unit#
+(4:53..4:54) _empty_/i17525$package.f(). -> 5:5
+(4:55..4:56) local4 -> 4:44
+(4:58..4:59) local5 -> 4:47
+(5:10..5:13) scala/Int#
+(5:18..5:24) scala/Predef.String#
+(5:27..5:31) scala/Unit#
+

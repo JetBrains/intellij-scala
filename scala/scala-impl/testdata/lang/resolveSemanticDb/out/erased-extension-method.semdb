@@ -1,0 +1,6 @@
+Document tests/pos/erased-extension-method.scala
+(3:18..3:21) scala/Int#
+(3:31..3:37) scala/AnyVal#
+(4:21..4:24) scala/Int#
+(4:28..4:29) _empty_/IntDeco#x. -> 3:15
+

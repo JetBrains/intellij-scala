@@ -1,0 +1,24 @@
+Document tests/pos/t9419.specs2.scala
+(2:35..2:36) _empty_/MustExpectable#[T] -> 2:22
+(3:25..3:28) scala/Any#
+(3:32..3:34) _empty_/MustExpectable#tm. -> 2:25
+(3:37..3:39) scala/Any#`==`().
+(3:40..3:45) _empty_/MustExpectable#`must_==`().(other) -> 3:15
+(8:34..8:35) _empty_/Main.theValue().[T] -> 8:25
+(8:38..8:52) _empty_/MustExpectable# -> 2:7
+(8:53..8:54) _empty_/Main.theValue().[T] -> 8:25
+(8:83..8:84) _empty_/Main.theValue().(t) -> 8:28
+(9:18..9:23) scala/Array#
+(9:24..9:30) scala/Predef.String#
+(9:34..9:38) scala/Unit#
+(10:15..10:22) scala/Predef.classOf().
+(10:23..10:26) _empty_/Foo# -> 5:7
+(11:24..11:27) _empty_/Foo# -> 5:7
+(12:17..12:20) local0 -> 10:9
+(12:21..12:28) _empty_/MustExpectable#`must_==`(). -> 3:7
+(12:29..12:32) local0 -> 10:9
+(13:17..13:25) local1 -> 11:9
+(13:26..13:34) scala/Any#getClass().
+(13:35..13:42) _empty_/MustExpectable#`must_==`(). -> 3:7
+(13:43..13:46) local0 -> 10:9
+

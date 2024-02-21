@@ -1,0 +1,403 @@
+//> using options -Werror
+object DiffUtil:
+  private sealed trait Patch
+  private final case class Unmodified(str: String) extends Patch
+  private final case class Modified(original: String, str: String) extends Patch
+  private final case class Deleted(str: String) extends Patch
+  private final case class Inserted(str: String) extends Patch
+
+  private def test(diff: Array[Patch]) =
+    diff.collect {
+      case Unmodified(str)     => str
+      case Inserted(str)       => s"+$str"
+      case Modified(orig, str) => s"{$orig,$str}"
+      case Deleted(str)        => s"-$str"
+    }.mkString
+-----
+ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Werror')
+  PsiWhiteSpace('\n')
+  ScObject: DiffUtil
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('DiffUtil')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTrait: Patch
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+            PsiWhiteSpace(' ')
+            PsiElement(sealed)('sealed')
+          PsiWhiteSpace(' ')
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Patch')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScClass: Unmodified
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+            PsiWhiteSpace(' ')
+            PsiElement(final)('final')
+            PsiWhiteSpace(' ')
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Unmodified')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: str
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('str')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Patch
+                  CodeReferenceElement: Patch
+                    PsiElement(identifier)('Patch')
+        PsiWhiteSpace('\n  ')
+        ScClass: Modified
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+            PsiWhiteSpace(' ')
+            PsiElement(final)('final')
+            PsiWhiteSpace(' ')
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Modified')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: original
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('original')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ClassParameter: str
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('str')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Patch
+                  CodeReferenceElement: Patch
+                    PsiElement(identifier)('Patch')
+        PsiWhiteSpace('\n  ')
+        ScClass: Deleted
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+            PsiWhiteSpace(' ')
+            PsiElement(final)('final')
+            PsiWhiteSpace(' ')
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Deleted')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: str
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('str')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Patch
+                  CodeReferenceElement: Patch
+                    PsiElement(identifier)('Patch')
+        PsiWhiteSpace('\n  ')
+        ScClass: Inserted
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+            PsiWhiteSpace(' ')
+            PsiElement(final)('final')
+            PsiWhiteSpace(' ')
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Inserted')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: str
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('str')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Patch
+                  CodeReferenceElement: Patch
+                    PsiElement(identifier)('Patch')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: test
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('test')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: diff
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('diff')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Array[Patch]
+                    SimpleType: Array
+                      CodeReferenceElement: Array
+                        PsiElement(identifier)('Array')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: Patch
+                        CodeReferenceElement: Patch
+                          PsiElement(identifier)('Patch')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          ReferenceExpression: diff.collect {
+      case Unmodified(str)     => str
+      case Inserted(str)       => s"+$str"
+      case Modified(orig, str) => s"{$orig,$str}"
+      case Deleted(str)        => s"-$str"
+    }.mkString
+            MethodCall
+              ReferenceExpression: diff.collect
+                ReferenceExpression: diff
+                  PsiElement(identifier)('diff')
+                PsiElement(.)('.')
+                PsiElement(identifier)('collect')
+              PsiWhiteSpace(' ')
+              ArgumentList
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n      ')
+                  CaseClauses
+                    CaseClause
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      ConstructorPattern
+                        CodeReferenceElement: Unmodified
+                          PsiElement(identifier)('Unmodified')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ReferencePattern: str
+                            PsiElement(identifier)('str')
+                          PsiElement())(')')
+                      PsiWhiteSpace('     ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      BlockOfExpressions
+                        ReferenceExpression: str
+                          PsiElement(identifier)('str')
+                    PsiWhiteSpace('\n      ')
+                    CaseClause
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      ConstructorPattern
+                        CodeReferenceElement: Inserted
+                          PsiElement(identifier)('Inserted')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ReferencePattern: str
+                            PsiElement(identifier)('str')
+                          PsiElement())(')')
+                      PsiWhiteSpace('       ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      BlockOfExpressions
+                        InterpolatedStringLiteral
+                          InterpolatedExpressionPrefix: s
+                            PsiElement(interpolated string id)('s')
+                          PsiElement(interpolated string)('"+')
+                          PsiElement(interpolated string injection)('$')
+                          ReferenceExpression: str
+                            PsiElement(identifier)('str')
+                          PsiElement(interpolated string end)('"')
+                    PsiWhiteSpace('\n      ')
+                    CaseClause
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      ConstructorPattern
+                        CodeReferenceElement: Modified
+                          PsiElement(identifier)('Modified')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ReferencePattern: orig
+                            PsiElement(identifier)('orig')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ReferencePattern: str
+                            PsiElement(identifier)('str')
+                          PsiElement())(')')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      BlockOfExpressions
+                        InterpolatedStringLiteral
+                          InterpolatedExpressionPrefix: s
+                            PsiElement(interpolated string id)('s')
+                          PsiElement(interpolated string)('"{')
+                          PsiElement(interpolated string injection)('$')
+                          ReferenceExpression: orig
+                            PsiElement(identifier)('orig')
+                          PsiElement(interpolated string)(',')
+                          PsiElement(interpolated string injection)('$')
+                          ReferenceExpression: str
+                            PsiElement(identifier)('str')
+                          PsiElement(interpolated string)('}')
+                          PsiElement(interpolated string end)('"')
+                    PsiWhiteSpace('\n      ')
+                    CaseClause
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      ConstructorPattern
+                        CodeReferenceElement: Deleted
+                          PsiElement(identifier)('Deleted')
+                        Pattern Argument List
+                          PsiElement(()('(')
+                          ReferencePattern: str
+                            PsiElement(identifier)('str')
+                          PsiElement())(')')
+                      PsiWhiteSpace('        ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      BlockOfExpressions
+                        InterpolatedStringLiteral
+                          InterpolatedExpressionPrefix: s
+                            PsiElement(interpolated string id)('s')
+                          PsiElement(interpolated string)('"-')
+                          PsiElement(interpolated string injection)('$')
+                          ReferenceExpression: str
+                            PsiElement(identifier)('str')
+                          PsiElement(interpolated string end)('"')
+                  PsiWhiteSpace('\n    ')
+                  PsiElement(})('}')
+            PsiElement(.)('.')
+            PsiElement(identifier)('mkString')

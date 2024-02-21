@@ -1,0 +1,18 @@
+Document tests/pos/i8945.scala
+(10:24..10:31) _empty_/Context# -> 4:7
+(11:10..11:11) _empty_/MacroImpl#c. -> 10:21
+(11:12..11:20) _empty_/Context#universe. -> 5:10
+(12:13..12:20) _empty_/Context#universe.Literal# -> 6:10
+(12:23..12:26) scala/Predef.`???`().
+(16:8..16:13) scala/
+(16:14..16:22) scala/language.
+(16:23..16:35) scala/language.experimental.
+(16:36..16:42) scala/language.experimental.macros.
+(21:15..21:19) scala/Unit#
+(21:38..21:42) _empty_/MacroImpl#mono(). -> 12:7
+(22:22..22:26) scala/Unit#
+(22:32..22:39) _empty_/Macros.Macros3. -> 25:10
+(22:40..22:48) _empty_/Macros.Macros3.monoImpl(). -> 26:9
+(26:24..26:30) scala/quoted/
+(26:31..26:37) scala/quoted/Quotes#
+

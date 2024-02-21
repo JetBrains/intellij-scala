@@ -1,0 +1,8 @@
+Document tests/pos/i3323b.scala
+(4:16..4:20) scala/package.List#
+(4:21..4:24) scala/Int#
+(4:28..4:32) scala/Unit#
+(5:5..5:8) _empty_/Foo#foo().(lss) -> 4:11
+(6:17..6:21) scala/package.List#
+(6:22..6:25) scala/Int#
+

@@ -1,0 +1,4 @@
+Document tests/pos/i11022.scala
+(2:2..2:12) scala/deprecated#
+(3:27..3:30) scala/Int#
+

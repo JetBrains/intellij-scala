@@ -1,0 +1,10 @@
+Document tests/pos/i17381.scala
+(1:8..1:15) scala/reflect/
+(1:16..1:26) scala/reflect/Selectable.
+(1:27..1:47) scala/reflect/Selectable.reflectiveSelectable().
+(3:21..3:27) scala/Predef.String#
+(3:38..3:39) local0 -> 3:17
+(7:11..7:12) _empty_/i17381$package.Y# -> 3:6
+(8:12..8:14) _empty_/Test#y1. -> 7:7
+(8:14..8:16) scala/reflect/Selectable#applyDynamic().
+

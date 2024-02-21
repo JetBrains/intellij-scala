@@ -1,0 +1,12 @@
+Document tests/pos/erased-typedef.scala
+(5:15..5:20) _empty_/Monadless#[Monad] -> 3:17
+(5:21..5:22) _empty_/Monadless#M#[T] -> 5:10
+(7:21..7:22) _empty_/Monadless#lift().[T] -> 7:12
+(7:25..7:30) _empty_/Monadless#[Monad] -> 3:17
+(7:31..7:32) _empty_/Monadless#lift().[T] -> 7:12
+(7:37..7:40) scala/Predef.`???`().
+(9:20..9:21) _empty_/Monadless#M# -> 5:8
+(9:22..9:23) _empty_/Monadless#unlift().[T] -> 9:14
+(9:27..9:28) _empty_/Monadless#unlift().[T] -> 9:14
+(9:31..9:34) scala/Predef.`???`().
+

@@ -1,0 +1,15 @@
+Document tests/pos/i16649-irrefutable.scala
+(3:8..3:14) scala/quoted/
+(5:15..5:21) scala/quoted/Quotes#
+(5:26..5:30) scala/quoted/Expr#
+(5:31..5:34) scala/Int#
+(6:17..6:18) _empty_/`i16649-irrefutable$package`.foo().(x) -> 5:23
+(7:22..7:23) _empty_/`i16649-irrefutable$package`.foo().(x) -> 5:23
+(8:22..8:23) _empty_/`i16649-irrefutable$package`.foo().(x) -> 5:23
+(9:9..9:13) scala/package.List#
+(9:14..9:17) scala/Int#
+(9:22..9:26) scala/quoted/Type.
+(9:27..9:29) scala/quoted/Type.of().
+(9:30..9:34) scala/package.List#
+(9:35..9:38) scala/Int#
+

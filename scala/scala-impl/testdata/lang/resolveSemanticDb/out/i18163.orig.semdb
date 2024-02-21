@@ -1,0 +1,58 @@
+Document tests/pos/i18163.orig.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:42) scala/language.implicitConversions.
+(11:21..11:34) _empty_/Contravariant# -> 22:7
+(12:24..12:25) _empty_/WriterT#contramap().[Z] -> 12:17
+(12:29..12:30) _empty_/WriterT#[V] -> 11:39
+(12:33..12:40) _empty_/WriterT# -> 11:7
+(12:41..12:42) _empty_/WriterT#[F] -> 11:15
+(12:44..12:45) _empty_/WriterT#[L] -> 11:36
+(12:47..12:48) _empty_/WriterT#contramap().[Z] -> 12:17
+(12:52..12:55) scala/Predef.`???`().
+(14:35..14:41) _empty_/Logger# -> 13:7
+(14:50..14:57) _empty_/WriterT# -> 11:7
+(14:58..14:59) _empty_/WriterTLogger#[F] -> 14:21
+(14:61..14:65) scala/package.List#
+(14:66..14:72) scala/Predef.String#
+(16:43..16:52) _empty_/Invariant# -> 17:7
+(16:53..16:54) _empty_/ContravariantMonoidal#[F] -> 16:29
+(16:61..16:74) _empty_/Contravariant# -> 22:7
+(16:75..16:76) _empty_/ContravariantMonoidal#[F] -> 16:29
+(19:9..19:30) _empty_/ContravariantMonoidal# -> 16:7
+(19:38..19:41) scala/Predef.`???`().
+(20:9..20:30) _empty_/ContravariantMonoidal# -> 16:7
+(20:38..20:41) scala/Predef.`???`().
+(22:35..22:44) _empty_/Invariant# -> 17:7
+(22:45..22:46) _empty_/Contravariant#[F] -> 22:21
+(25:25..25:26) _empty_/Contravariant.Ops#contramap().[B] -> 25:19
+(25:30..25:31) _empty_/Contravariant.Ops#[A] -> 24:19
+(25:34..25:35) _empty_/Contravariant.Ops#[F] -> 24:13
+(25:36..25:37) _empty_/Contravariant.Ops#contramap().[B] -> 25:19
+(25:41..25:44) scala/Predef.`???`().
+(28:41..28:54) _empty_/Contravariant# -> 22:7
+(28:67..28:68) _empty_/catsSyntax.toContravariantOps().[F] -> 28:35
+(28:69..28:70) _empty_/catsSyntax.toContravariantOps().[A] -> 28:56
+(28:74..28:87) _empty_/Contravariant. -> 23:8
+(28:88..28:91) _empty_/Contravariant.Ops# -> 24:9
+(28:92..28:93) _empty_/catsSyntax.toContravariantOps().[F] -> 28:35
+(28:95..28:96) _empty_/catsSyntax.toContravariantOps().[A] -> 28:56
+(28:100..28:103) scala/Predef.`???`().
+(31:45..31:51) _empty_/Logger# -> 13:7
+(31:52..31:53) _empty_/odinSyntax.LoggerSyntax#[F] -> 31:31
+(32:22..32:28) scala/Predef.String#
+(32:32..32:38) scala/Predef.String#
+(32:41..32:47) _empty_/Logger# -> 13:7
+(32:48..32:49) _empty_/odinSyntax.LoggerSyntax#[F] -> 31:31
+(32:53..32:56) scala/Predef.`???`().
+(34:8..34:18) _empty_/catsSyntax. -> 27:8
+(35:8..35:18) _empty_/odinSyntax. -> 30:8
+(35:19..35:31) _empty_/odinSyntax.LoggerSyntax(). -> 31:18
+(38:19..38:32) _empty_/WriterTLogger# -> 14:7
+(38:41..38:50) _empty_/odinSyntax.LoggerSyntax#contramap(). -> 32:9
+(38:51..38:59) scala/Predef.identity().
+(39:15..39:27) _empty_/odinSyntax.LoggerSyntax(). -> 31:18
+(39:32..39:45) _empty_/WriterTLogger# -> 14:7
+(39:55..39:64) _empty_/odinSyntax.LoggerSyntax#contramap(). -> 32:9
+(39:65..39:73) scala/Predef.identity().
+

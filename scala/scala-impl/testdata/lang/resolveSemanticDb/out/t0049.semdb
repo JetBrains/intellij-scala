@@ -3,4 +3,7 @@ Document tests/pos/t0049.scala
 (3:18..3:20) _empty_/C1# -> 1:7
 (3:39..3:45) scala/AnyRef#
 (3:60..3:66) scala/AnyRef#
+(6:20..6:22) _empty_/C1# -> 1:7
+(6:41..6:47) scala/AnyRef#
+(6:62..6:68) scala/AnyRef#
 

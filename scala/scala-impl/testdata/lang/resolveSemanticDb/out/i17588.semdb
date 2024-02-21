@@ -1,0 +1,4 @@
+Document tests/pos/i17588.scala
+(1:24..1:30) scala/Predef.String#
+(2:10..2:15) _empty_/StringBox#inner. -> 1:17
+

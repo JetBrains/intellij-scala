@@ -1,0 +1,38 @@
+Document tests/pos/i16706.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/deriving/
+(1:23..1:29) scala/deriving/Mirror#
+(1:23..1:29) scala/deriving/Mirror.
+(2:8..2:13) scala/
+(2:14..2:21) scala/reflect/
+(2:22..2:30) scala/reflect/ClassTag#
+(2:22..2:30) scala/reflect/ClassTag.
+(4:25..4:30) scala/Tuple#
+(4:44..4:47) _empty_/i16706$package.TupleUnionLub#[Lub] -> 4:32
+(4:52..4:55) _empty_/i16706$package.TupleUnionLub#[Lub] -> 4:32
+(4:58..4:59) _empty_/i16706$package.TupleUnionLub#[T] -> 4:20
+(5:11..5:12) scala/`&`#
+(5:13..5:16) _empty_/i16706$package.TupleUnionLub#[Lub] -> 4:32
+(5:18..5:20) scala/`*:`#
+(5:26..5:39) _empty_/i16706$package.TupleUnionLub# -> 4:6
+(5:40..5:41) local1 -> 5:21
+(5:43..5:46) _empty_/i16706$package.TupleUnionLub#[Lub] -> 4:32
+(5:48..5:51) _empty_/i16706$package.TupleUnionLub#[Acc] -> 4:37
+(5:52..5:53) scala/`|`#
+(5:54..5:55) local0 -> 5:9
+(6:8..6:18) scala/Tuple$package.EmptyTuple#
+(6:26..6:29) _empty_/i16706$package.TupleUnionLub#[Acc] -> 4:37
+(10:14..10:20) scala/deriving/Mirror.
+(10:21..10:26) scala/deriving/Mirror.SumOf#
+(10:27..10:28) _empty_/i16706$package.derived().[A] -> 9:34
+(11:17..11:25) scala/reflect/ClassTag#
+(11:26..11:39) _empty_/i16706$package.TupleUnionLub# -> 4:6
+(11:40..11:41) _empty_/i16706$package.derived().(m) -> 10:11
+(11:61..11:62) _empty_/i16706$package.derived().[A] -> 9:34
+(11:64..11:71) scala/Nothing#
+(12:4..12:8) scala/Unit#
+(15:20..15:23) scala/Int#
+(15:33..15:36) _empty_/Foo# -> 14:14
+(17:16..17:23) _empty_/i16706$package.derived(). -> 9:26
+(17:24..17:27) _empty_/Foo# -> 14:14
+

@@ -17,4 +17,5 @@ Document tests/pos/i15448.scala
 (17:28..17:33) _empty_/SelectableBreaks1.Break# -> 13:8
 (17:37..17:40) scala/Predef.`???`().
 (19:3..19:12) _empty_/SelectableBreaks1.makeBreak(). -> 17:7
+(19:14..19:19) _empty_/SelectableBreaks1.opaques.Pointer.PointerSelectable#applyDynamic(). -> 7:13
 

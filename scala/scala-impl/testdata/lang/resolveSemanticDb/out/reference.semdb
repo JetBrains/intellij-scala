@@ -1453,6 +1453,7 @@ Document tests/pos/reference/structural-closeable.scala
 (14:7..14:9) _empty_/`structural-closeable$package`.autoClose().(op) -> 13:29
 (14:10..14:11) _empty_/`structural-closeable$package`.autoClose().(f) -> 13:15
 (14:21..14:22) _empty_/`structural-closeable$package`.autoClose().(f) -> 13:15
+(14:22..14:28) scala/reflect/Selectable#applyDynamic().
 
 Document tests/pos/reference/trait-parameters.scala
 (1:26..1:32) scala/Predef.String#

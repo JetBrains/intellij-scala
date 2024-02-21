@@ -1,0 +1,15 @@
+Document tests/pos/i5970.scala
+(3:21..3:24) scala/App#
+(4:24..4:25) _empty_/Test.Foo#[T] -> 4:18
+(6:18..6:22) scala/Unit#
+(6:22..6:23) scala/`|`#
+(6:23..6:26) _empty_/Test.Foo# -> 4:14
+(6:27..6:28) _empty_/Test.foo().[T] -> 6:11
+(6:32..6:33) _empty_/Test.foo().[T] -> 6:11
+(7:5..7:7) _empty_/Test.foo().(ft) -> 6:14
+(8:12..8:15) _empty_/Test.Foo.
+(8:22..8:23) local0 -> 8:16
+(9:18..9:21) scala/Predef.`???`().
+(13:3..13:6) _empty_/Test.foo(). -> 6:7
+(13:7..13:10) _empty_/Test.Foo.
+

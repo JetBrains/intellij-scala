@@ -4,6 +4,7 @@ Document tests/pos/i13476.scala
 (2:28..2:32) scala/Unit#
 (3:35..3:39) scala/Unit#
 (5:8..5:11) _empty_/Foo. -> 1:16
+(5:8..5:11) _empty_/i13476$package.inline$Foo().
 (7:2..7:6) scala/main#
 (7:18..7:22) scala/Unit#
 (7:25..7:29) _empty_/i13476$package.haha().

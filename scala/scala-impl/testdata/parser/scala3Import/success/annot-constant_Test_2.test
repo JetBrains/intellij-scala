@@ -1,0 +1,75 @@
+//> using options -Xfatal-warnings -deprecation -feature
+
+package pkg
+
+object U {
+  println(Constants_1.foo()) // The same constant in the constant pool is first unpickled here as a boolean
+  println(Constants_1.BYTE) // ... and here as a byte
+}
+-----
+ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Xfatal-warnings')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-deprecation')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-feature')
+  PsiWhiteSpace('\n\n')
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: pkg
+      PsiElement(identifier)('pkg')
+    PsiWhiteSpace('\n\n')
+    ScObject: U
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('U')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          MethodCall
+            ReferenceExpression: println
+              PsiElement(identifier)('println')
+            ArgumentList
+              PsiElement(()('(')
+              MethodCall
+                ReferenceExpression: Constants_1.foo
+                  ReferenceExpression: Constants_1
+                    PsiElement(identifier)('Constants_1')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('foo')
+                ArgumentList
+                  PsiElement(()('(')
+                  PsiElement())(')')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiComment(comment)('// The same constant in the constant pool is first unpickled here as a boolean')
+          PsiWhiteSpace('\n  ')
+          MethodCall
+            ReferenceExpression: println
+              PsiElement(identifier)('println')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: Constants_1.BYTE
+                ReferenceExpression: Constants_1
+                  PsiElement(identifier)('Constants_1')
+                PsiElement(.)('.')
+                PsiElement(identifier)('BYTE')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiComment(comment)('// ... and here as a byte')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

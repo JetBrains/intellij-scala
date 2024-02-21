@@ -1,0 +1,626 @@
+import scala.annotation.unchecked.uncheckedVariance as uV
+
+trait Test:
+  def split[I, M](in: Flow[I, Byte, M]): SubFlow[Byte, M, in.Repr]
+  def test =
+    split(new Flow[Int, Byte, Unit])
+      .via[Char]
+      .merge
+      .filter()
+
+trait FlowOps[+Out, +Mat]:
+  type Repr[+O] <: FlowOps[O, Mat] { type Repr[+O] = FlowOps.this.Repr[O] }
+  def via[O]:   Repr[O]   = ???
+  def filter(): Repr[Out] = ???
+
+class Flow[-In, +Out, +Mat] extends FlowOps[Out, Mat]:
+  type Repr[+O] = Flow[In @uV, O, Mat @uV]
+
+class SubFlow[+Out, +Mat, +F[+_]] extends FlowOps[Out, Mat]:
+  type Repr[+O] = SubFlow[O, Mat @uV, F @uV]
+  def merge: F[Out] = ???
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.annotation.unchecked
+        CodeReferenceElement: scala.annotation
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('annotation')
+        PsiElement(.)('.')
+        PsiElement(identifier)('unchecked')
+      PsiElement(.)('.')
+      ImportSelectors
+        ImportSelector
+          CodeReferenceElement: uncheckedVariance
+            PsiElement(identifier)('uncheckedVariance')
+          PsiWhiteSpace(' ')
+          PsiElement(as)('as')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('uV')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: split
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('split')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: I
+              PsiElement(identifier)('I')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: M
+              PsiElement(identifier)('M')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: in
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('in')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Flow[I, Byte, M]
+                    SimpleType: Flow
+                      CodeReferenceElement: Flow
+                        PsiElement(identifier)('Flow')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: I
+                        CodeReferenceElement: I
+                          PsiElement(identifier)('I')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Byte
+                        CodeReferenceElement: Byte
+                          PsiElement(identifier)('Byte')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: M
+                        CodeReferenceElement: M
+                          PsiElement(identifier)('M')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: SubFlow[Byte, M, in.Repr]
+            SimpleType: SubFlow
+              CodeReferenceElement: SubFlow
+                PsiElement(identifier)('SubFlow')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Byte
+                CodeReferenceElement: Byte
+                  PsiElement(identifier)('Byte')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: M
+                CodeReferenceElement: M
+                  PsiElement(identifier)('M')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: in.Repr
+                CodeReferenceElement: in.Repr
+                  CodeReferenceElement: in
+                    PsiElement(identifier)('in')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Repr')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: test
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('test')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            ReferenceExpression: split(new Flow[Int, Byte, Unit])
+      .via[Char]
+      .merge
+      .filter
+              ReferenceExpression: split(new Flow[Int, Byte, Unit])
+      .via[Char]
+      .merge
+                GenericCall
+                  ReferenceExpression: split(new Flow[Int, Byte, Unit])
+      .via
+                    MethodCall
+                      ReferenceExpression: split
+                        PsiElement(identifier)('split')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ScNewTemplateDefinition: <anonymous>
+                          PsiElement(new)('new')
+                          PsiWhiteSpace(' ')
+                          ExtendsBlock
+                            TemplateParents
+                              ConstructorInvocation
+                                ParametrizedType: Flow[Int, Byte, Unit]
+                                  SimpleType: Flow
+                                    CodeReferenceElement: Flow
+                                      PsiElement(identifier)('Flow')
+                                  TypeArgumentsList
+                                    PsiElement([)('[')
+                                    SimpleType: Int
+                                      CodeReferenceElement: Int
+                                        PsiElement(identifier)('Int')
+                                    PsiElement(,)(',')
+                                    PsiWhiteSpace(' ')
+                                    SimpleType: Byte
+                                      CodeReferenceElement: Byte
+                                        PsiElement(identifier)('Byte')
+                                    PsiElement(,)(',')
+                                    PsiWhiteSpace(' ')
+                                    SimpleType: Unit
+                                      CodeReferenceElement: Unit
+                                        PsiElement(identifier)('Unit')
+                                    PsiElement(])(']')
+                        PsiElement())(')')
+                    PsiWhiteSpace('\n      ')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('via')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Char
+                      CodeReferenceElement: Char
+                        PsiElement(identifier)('Char')
+                    PsiElement(])(']')
+                PsiWhiteSpace('\n      ')
+                PsiElement(.)('.')
+                PsiElement(identifier)('merge')
+              PsiWhiteSpace('\n      ')
+              PsiElement(.)('.')
+              PsiElement(identifier)('filter')
+            ArgumentList
+              PsiElement(()('(')
+              PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScTrait: FlowOps
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('FlowOps')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Out
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('Out')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: Mat
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('Mat')
+      PsiElement(])(']')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: Repr
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Repr')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: O
+              PsiElement(identifier)('+')
+              PsiElement(identifier)('O')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          CompoundType: FlowOps[O, Mat] { type Repr[+O] = FlowOps.this.Repr[O] }
+            ParametrizedType: FlowOps[O, Mat]
+              SimpleType: FlowOps
+                CodeReferenceElement: FlowOps
+                  PsiElement(identifier)('FlowOps')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: O
+                  CodeReferenceElement: O
+                    PsiElement(identifier)('O')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: Mat
+                  CodeReferenceElement: Mat
+                    PsiElement(identifier)('Mat')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            Refinement
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              ScTypeAliasDefinition: Repr
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Repr')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: O
+                    PsiElement(identifier)('+')
+                    PsiElement(identifier)('O')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ParametrizedType: FlowOps.this.Repr[O]
+                  SimpleType: FlowOps.this.Repr
+                    CodeReferenceElement: FlowOps.this.Repr
+                      ThisReference
+                        CodeReferenceElement: FlowOps
+                          PsiElement(identifier)('FlowOps')
+                        PsiElement(.)('.')
+                        PsiElement(this)('this')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Repr')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: O
+                      CodeReferenceElement: O
+                        PsiElement(identifier)('O')
+                    PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: via
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('via')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: O
+              PsiElement(identifier)('O')
+            PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace('   ')
+          ParametrizedType: Repr[O]
+            SimpleType: Repr
+              CodeReferenceElement: Repr
+                PsiElement(identifier)('Repr')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: O
+                CodeReferenceElement: O
+                  PsiElement(identifier)('O')
+              PsiElement(])(']')
+          PsiWhiteSpace('   ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: filter
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('filter')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Repr[Out]
+            SimpleType: Repr
+              CodeReferenceElement: Repr
+                PsiElement(identifier)('Repr')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Out
+                CodeReferenceElement: Out
+                  PsiElement(identifier)('Out')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScClass: Flow
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Flow')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: In
+        PsiElement(identifier)('-')
+        PsiElement(identifier)('In')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: Out
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('Out')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: Mat
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('Mat')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: FlowOps[Out, Mat]
+            SimpleType: FlowOps
+              CodeReferenceElement: FlowOps
+                PsiElement(identifier)('FlowOps')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Out
+                CodeReferenceElement: Out
+                  PsiElement(identifier)('Out')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Mat
+                CodeReferenceElement: Mat
+                  PsiElement(identifier)('Mat')
+              PsiElement(])(']')
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Repr
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Repr')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: O
+              PsiElement(identifier)('+')
+              PsiElement(identifier)('O')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Flow[In @uV, O, Mat @uV]
+            SimpleType: Flow
+              CodeReferenceElement: Flow
+                PsiElement(identifier)('Flow')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeWithAnnotation: In @uV
+                SimpleType: In
+                  CodeReferenceElement: In
+                    PsiElement(identifier)('In')
+                PsiWhiteSpace(' ')
+                AnnotationsList
+                  Annotation
+                    PsiElement(@)('@')
+                    AnnotationExpression
+                      ConstructorInvocation
+                        SimpleType: uV
+                          CodeReferenceElement: uV
+                            PsiElement(identifier)('uV')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: O
+                CodeReferenceElement: O
+                  PsiElement(identifier)('O')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeWithAnnotation: Mat @uV
+                SimpleType: Mat
+                  CodeReferenceElement: Mat
+                    PsiElement(identifier)('Mat')
+                PsiWhiteSpace(' ')
+                AnnotationsList
+                  Annotation
+                    PsiElement(@)('@')
+                    AnnotationExpression
+                      ConstructorInvocation
+                        SimpleType: uV
+                          CodeReferenceElement: uV
+                            PsiElement(identifier)('uV')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScClass: SubFlow
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('SubFlow')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Out
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('Out')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: Mat
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('Mat')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: F
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('F')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(identifier)('+')
+            PsiElement(_)('_')
+          PsiElement(])(']')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: FlowOps[Out, Mat]
+            SimpleType: FlowOps
+              CodeReferenceElement: FlowOps
+                PsiElement(identifier)('FlowOps')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Out
+                CodeReferenceElement: Out
+                  PsiElement(identifier)('Out')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Mat
+                CodeReferenceElement: Mat
+                  PsiElement(identifier)('Mat')
+              PsiElement(])(']')
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Repr
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Repr')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: O
+              PsiElement(identifier)('+')
+              PsiElement(identifier)('O')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: SubFlow[O, Mat @uV, F @uV]
+            SimpleType: SubFlow
+              CodeReferenceElement: SubFlow
+                PsiElement(identifier)('SubFlow')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: O
+                CodeReferenceElement: O
+                  PsiElement(identifier)('O')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeWithAnnotation: Mat @uV
+                SimpleType: Mat
+                  CodeReferenceElement: Mat
+                    PsiElement(identifier)('Mat')
+                PsiWhiteSpace(' ')
+                AnnotationsList
+                  Annotation
+                    PsiElement(@)('@')
+                    AnnotationExpression
+                      ConstructorInvocation
+                        SimpleType: uV
+                          CodeReferenceElement: uV
+                            PsiElement(identifier)('uV')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeWithAnnotation: F @uV
+                SimpleType: F
+                  CodeReferenceElement: F
+                    PsiElement(identifier)('F')
+                PsiWhiteSpace(' ')
+                AnnotationsList
+                  Annotation
+                    PsiElement(@)('@')
+                    AnnotationExpression
+                      ConstructorInvocation
+                        SimpleType: uV
+                          CodeReferenceElement: uV
+                            PsiElement(identifier)('uV')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: merge
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('merge')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: F[Out]
+            SimpleType: F
+              CodeReferenceElement: F
+                PsiElement(identifier)('F')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Out
+                CodeReferenceElement: Out
+                  PsiElement(identifier)('Out')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')

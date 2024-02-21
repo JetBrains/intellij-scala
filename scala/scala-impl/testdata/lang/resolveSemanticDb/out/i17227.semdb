@@ -1,0 +1,29 @@
+Document tests/pos/i17227.scala
+(1:19..1:22) scala/Int#
+(1:26..1:29) scala/Int#
+(1:32..1:35) scala/Int#
+(1:39..1:42) scala/Int#
+(1:45..1:46) _empty_/i17227$package.foo().(f) -> 1:16
+(2:26..2:29) scala/Int#
+(2:33..2:36) scala/Int#
+(2:39..2:42) scala/Int#
+(2:46..2:49) scala/Int#
+(2:52..2:53) _empty_/i17227$package.bar().(f) -> 2:23
+(3:20..3:23) scala/Int#
+(3:27..3:30) scala/Int#
+(3:35..3:38) scala/Int#
+(3:42..3:45) scala/Int#
+(3:48..3:49) _empty_/i17227$package.baz().(f) -> 3:16
+(3:50..3:54) scala/collection/IterableOps#head().
+(5:10..5:13) scala/Int#
+(5:16..5:19) scala/Int#
+(5:22..5:23) _empty_/i17227$package.g().(i) -> 5:7
+(8:3..8:6) _empty_/i17227$package.foo(). -> 1:12
+(8:7..8:8) _empty_/i17227$package.foo().(f) -> 1:16
+(8:11..8:12) _empty_/i17227$package.g(). -> 5:5
+(9:3..9:6) _empty_/i17227$package.bar(). -> 2:12
+(9:7..9:8) _empty_/i17227$package.bar().(f) -> 2:23
+(9:11..9:12) _empty_/i17227$package.g(). -> 5:5
+(10:3..10:6) _empty_/i17227$package.baz(). -> 3:12
+(10:11..10:12) _empty_/i17227$package.g(). -> 5:5
+

@@ -1,0 +1,28 @@
+Document tests/pos/i16451.DiffUtil.scala
+(4:44..4:50) scala/Predef.String#
+(4:60..4:65) _empty_/DiffUtil.Patch# -> 3:24
+(5:47..5:53) scala/Predef.String#
+(5:60..5:66) scala/Predef.String#
+(5:76..5:81) _empty_/DiffUtil.Patch# -> 3:24
+(6:41..6:47) scala/Predef.String#
+(6:57..6:62) _empty_/DiffUtil.Patch# -> 3:24
+(7:42..7:48) scala/Predef.String#
+(7:58..7:63) _empty_/DiffUtil.Patch# -> 3:24
+(9:26..9:31) scala/Array#
+(9:32..9:37) _empty_/DiffUtil.Patch# -> 3:24
+(10:5..10:9) _empty_/DiffUtil.test().(diff) -> 9:20
+(10:10..10:17) scala/collection/ArrayOps#collect().
+(11:12..11:22) _empty_/DiffUtil.Unmodified.
+(11:35..11:38) local1 -> 11:23
+(12:12..12:20) _empty_/DiffUtil.Inserted.
+(12:39..12:42) local2 -> 12:21
+(12:42..12:43) scala/StringContext#s().
+(13:12..13:20) _empty_/DiffUtil.Modified.
+(13:39..13:43) local3 -> 13:21
+(13:45..13:48) local4 -> 13:27
+(13:49..13:50) scala/StringContext#s().
+(14:12..14:19) _empty_/DiffUtil.Deleted.
+(14:39..14:42) local5 -> 14:20
+(14:42..14:43) scala/StringContext#s().
+(15:7..15:15) scala/collection/IterableOnceOps#mkString(+2).
+

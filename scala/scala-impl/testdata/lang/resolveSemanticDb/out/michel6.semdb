@@ -1,0 +1,9 @@
+Document tests/pos/michel6.scala
+(4:13..4:16) scala/Int#
+(4:19..4:23) scala/Unit#
+(6:13..6:16) scala/Int#
+(6:20..6:24) scala/Unit#
+(7:12..7:14) scala/Int#`==`(+3).
+(7:18..7:19) _empty_/M.f(). -> 4:8
+(7:25..7:26) _empty_/M.g(). -> 6:8
+

@@ -1,10 +1,17 @@
-// scalac: -Yimports:scala.annotation
+//> using options -Yimports:scala.annotation
 class annotation extends Annotation
 -----
 ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Yimports:scala.annotation')
+  PsiWhiteSpace('\n')
   ScClass: annotation
-    PsiComment(comment)('// scalac: -Yimports:scala.annotation')
-    PsiWhiteSpace('\n')
     AnnotationsList
       <empty list>
     Modifiers

@@ -5,28 +5,31 @@
   },
   "descriptions": {
     "3.0": "Check some invariants of macro generated code while expanding macros",
-    "3.1": "Check some invariants of macro generated code while expanding macros",
+    "3.3": "Check some invariants of macro generated code while expanding macros",
     "3.2": "Check some invariants of macro generated code while expanding macros",
-    "3.3": "Check some invariants of macro generated code while expanding macros"
+    "3.1": "Check some invariants of macro generated code while expanding macros",
+    "3.4": "Check some invariants of macro generated code while expanding macros"
   },
   "flag": "--Xcheck-macros",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneAfterColon",
   "choices": {
     "3.0": ["12", "8", "13", "16", "10", "15", "11", "9", "17", "14"],
-    "3.1": ["12", "8", "13", "16", "10", "18", "15", "11", "9", "17", "14"],
+    "3.3": ["12", "8", "19", "13", "16", "10", "21", "20", "18", "15", "11", "9", "17", "14"],
     "3.2": ["12", "8", "19", "13", "16", "10", "18", "15", "11", "9", "17", "14"],
-    "3.3": ["12", "8", "19", "13", "16", "10", "20", "18", "15", "11", "9", "17", "14"]
+    "3.1": ["12", "8", "13", "16", "10", "18", "15", "11", "9", "17", "14"],
+    "3.4": ["12", "8", "19", "22", "13", "16", "10", "21", "20", "18", "15", "11", "9", "17", "14"]
   },
   "descriptions": {
     "3.0": "Emit bytecode for the specified version of the Java platform. This might produce bytecode that will break at runtime. When on JDK 9+, consider -release as a safer alternative.",
-    "3.1": "Emit bytecode for the specified version of the Java platform. This might produce bytecode that will break at runtime. Corresponds to -target flag in javac. When on JDK 9+, consider -java-output-version as a safer alternative.",
+    "3.3": "Emit bytecode for the specified version of the Java platform. This might produce bytecode that will break at runtime. Corresponds to -target flag in javac. When on JDK 9+, consider -java-output-version as a safer alternative.",
     "3.2": "Emit bytecode for the specified version of the Java platform. This might produce bytecode that will break at runtime. Corresponds to -target flag in javac. When on JDK 9+, consider -java-output-version as a safer alternative.",
-    "3.3": "Emit bytecode for the specified version of the Java platform. This might produce bytecode that will break at runtime. Corresponds to -target flag in javac. When on JDK 9+, consider -java-output-version as a safer alternative."
+    "3.1": "Emit bytecode for the specified version of the Java platform. This might produce bytecode that will break at runtime. Corresponds to -target flag in javac. When on JDK 9+, consider -java-output-version as a safer alternative.",
+    "3.4": "Emit bytecode for the specified version of the Java platform. This might produce bytecode that will break at runtime. Corresponds to -target flag in javac. When on JDK 9+, consider -java-output-version as a safer alternative."
   },
   "flag": "--Xtarget",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -43,14 +46,15 @@
 
   },
   "descriptions": {
-    "3.1": "Override location of bootstrap class files.",
     "3.0": "Override location of bootstrap class files.",
     "2.13": "Override location of bootstrap class files.",
     "3.3": "Override location of bootstrap class files.",
-    "3.2": "Override location of bootstrap class files."
+    "3.2": "Override location of bootstrap class files.",
+    "3.1": "Override location of bootstrap class files.",
+    "3.4": "Override location of bootstrap class files."
   },
   "flag": "--boot-class-path",
-  "scalaVersions": ["3.3", "2.13", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.1", "3.2", "2.13", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -58,31 +62,34 @@
   },
   "defaultValue": ".",
   "descriptions": {
-    "3.1": "Specify where to find user class files.",
     "3.0": "Specify where to find user class files.",
     "2.13": "Specify where to find user class files.",
     "3.3": "Specify where to find user class files.",
-    "3.2": "Specify where to find user class files."
+    "3.2": "Specify where to find user class files.",
+    "3.1": "Specify where to find user class files.",
+    "3.4": "Specify where to find user class files."
   },
   "flag": "--class-path",
-  "scalaVersions": ["3.3", "2.13", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.1", "3.2", "2.13", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneAfterColon",
   "choices": {
     "3.0": ["always", "never"],
-    "3.1": ["always", "never"],
+    "3.3": ["always", "never"],
     "3.2": ["always", "never"],
-    "3.3": ["always", "never"]
+    "3.1": ["always", "never"],
+    "3.4": ["always", "never"]
   },
   "defaultValue": "always",
   "descriptions": {
     "3.0": "Colored output",
-    "3.1": "Colored output",
+    "3.3": "Colored output",
     "3.2": "Colored output",
-    "3.3": "Colored output"
+    "3.1": "Colored output",
+    "3.4": "Colored output"
   },
   "flag": "--color",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -90,10 +97,11 @@
   },
   "descriptions": {
     "3.2": "Destination for coverage classfiles and instrumentation data.",
-    "3.3": "Destination for coverage classfiles and instrumentation data."
+    "3.3": "Destination for coverage classfiles and instrumentation data.",
+    "3.4": "Destination for coverage classfiles and instrumentation data."
   },
   "flag": "--coverage-out",
-  "scalaVersions": ["3.2", "3.3"]
+  "scalaVersions": ["3.2", "3.3", "3.4"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -111,15 +119,16 @@
 
   },
   "descriptions": {
-    "3.1": "Emit warning and location for usages of deprecated APIs.",
     "3.0": "Emit warning and location for usages of deprecated APIs.",
     "2.13": "Emit warning and location for usages of deprecated APIs. See also -Wconf. [false]",
     "3.3": "Emit warning and location for usages of deprecated APIs.",
     "2.12": "Emit warning and location for usages of deprecated APIs. See also -Wconf. [false]",
-    "3.2": "Emit warning and location for usages of deprecated APIs."
+    "3.2": "Emit warning and location for usages of deprecated APIs.",
+    "3.1": "Emit warning and location for usages of deprecated APIs.",
+    "3.4": "Emit warning and location for usages of deprecated APIs."
   },
   "flag": "--deprecation",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -294,14 +303,15 @@
   },
   "defaultValue": "UTF-8",
   "descriptions": {
-    "3.1": "Specify character encoding used by source files.",
     "3.0": "Specify character encoding used by source files.",
     "2.13": "Specify character encoding used by source files.",
     "3.3": "Specify character encoding used by source files.",
-    "3.2": "Specify character encoding used by source files."
+    "3.2": "Specify character encoding used by source files.",
+    "3.1": "Specify character encoding used by source files.",
+    "3.4": "Specify character encoding used by source files."
   },
   "flag": "--encoding",
-  "scalaVersions": ["3.3", "2.13", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.1", "3.2", "2.13", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -319,55 +329,59 @@
   },
   "descriptions": {
     "3.0": "Explain errors in more detail.",
-    "3.1": "Explain errors in more detail.",
+    "3.3": "Explain errors in more detail.",
     "3.2": "Explain errors in more detail.",
-    "3.3": "Explain errors in more detail."
+    "3.1": "Explain errors in more detail.",
+    "3.4": "Explain errors in more detail."
   },
   "flag": "--explain",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Explain type errors in more detail (deprecated, use -explain instead).",
     "3.0": "Explain type errors in more detail (deprecated, use -explain instead).",
     "2.13": "Explain type errors in more detail. [false]",
     "3.3": "Explain type errors in more detail (deprecated, use -explain instead).",
-    "3.2": "Explain type errors in more detail (deprecated, use -explain instead)."
+    "3.2": "Explain type errors in more detail (deprecated, use -explain instead).",
+    "3.1": "Explain type errors in more detail (deprecated, use -explain instead).",
+    "3.4": "Explain type errors in more detail (deprecated, use -explain instead)."
   },
   "flag": "--explain-types",
-  "scalaVersions": ["3.3", "2.13", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.1", "3.2", "2.13", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneSeparate",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Override location of installed extensions.",
     "3.0": "Override location of installed extensions.",
     "2.13": "Override location of installed extensions.",
     "3.3": "Override location of installed extensions.",
-    "3.2": "Override location of installed extensions."
+    "3.2": "Override location of installed extensions.",
+    "3.1": "Override location of installed extensions.",
+    "3.4": "Override location of installed extensions."
   },
   "flag": "--extension-directories",
-  "scalaVersions": ["3.3", "2.13", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.1", "3.2", "2.13", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Emit warning and location for usages of features that should be imported explicitly.",
     "3.0": "Emit warning and location for usages of features that should be imported explicitly.",
     "2.13": "Emit warning and location for usages of features that should be imported explicitly. See also -Wconf. [false]",
     "3.3": "Emit warning and location for usages of features that should be imported explicitly.",
     "2.12": "Emit warning and location for usages of features that should be imported explicitly. See also -Wconf. [false]",
-    "3.2": "Emit warning and location for usages of features that should be imported explicitly."
+    "3.2": "Emit warning and location for usages of features that should be imported explicitly.",
+    "3.1": "Emit warning and location for usages of features that should be imported explicitly.",
+    "3.4": "Emit warning and location for usages of features that should be imported explicitly."
   },
   "flag": "--feature",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -375,12 +389,13 @@
   },
   "descriptions": {
     "3.0": "Compile classes from tasty files. The arguments are .tasty or .jar files.",
-    "3.1": "Compile classes from tasty files. The arguments are .tasty or .jar files.",
+    "3.3": "Compile classes from tasty files. The arguments are .tasty or .jar files.",
     "3.2": "Compile classes from tasty files. The arguments are .tasty or .jar files.",
-    "3.3": "Compile classes from tasty files. The arguments are .tasty or .jar files."
+    "3.1": "Compile classes from tasty files. The arguments are .tasty or .jar files.",
+    "3.4": "Compile classes from tasty files. The arguments are .tasty or .jar files."
   },
   "flag": "--from-tasty",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -397,14 +412,15 @@
 
   },
   "descriptions": {
-    "3.1": "Print a synopsis of standard options.",
     "3.0": "Print a synopsis of standard options.",
     "2.13": "Print a synopsis of standard options [false]",
     "3.3": "Print a synopsis of standard options.",
-    "3.2": "Print a synopsis of standard options."
+    "3.2": "Print a synopsis of standard options.",
+    "3.1": "Print a synopsis of standard options.",
+    "3.4": "Print a synopsis of standard options."
   },
   "flag": "--help",
-  "scalaVersions": ["3.3", "2.13", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.1", "3.2", "2.13", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -461,42 +477,45 @@
 
   },
   "descriptions": {
-    "3.1": "Override java boot classpath.",
     "3.0": "Override java boot classpath.",
     "2.13": "Override java boot classpath.",
     "3.3": "Override java boot classpath.",
-    "3.2": "Override java boot classpath."
+    "3.2": "Override java boot classpath.",
+    "3.1": "Override java boot classpath.",
+    "3.4": "Override java boot classpath."
   },
   "flag": "--java-boot-class-path",
-  "scalaVersions": ["3.3", "2.13", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.1", "3.2", "2.13", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneSeparate",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Override java extdirs classpath.",
     "3.0": "Override java extdirs classpath.",
     "2.13": "Override java extdirs classpath.",
     "3.3": "Override java extdirs classpath.",
-    "3.2": "Override java extdirs classpath."
+    "3.2": "Override java extdirs classpath.",
+    "3.1": "Override java extdirs classpath.",
+    "3.4": "Override java extdirs classpath."
   },
   "flag": "--java-extension-directories",
-  "scalaVersions": ["3.3", "2.13", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.1", "3.2", "2.13", "3.4", "3.0", "3.3"]
 }, {
   "argType": "Multiple",
   "choices": {
     "2.13": ["experimental.macros", "higherKinds", "existentials", "dynamics", "reflectiveCalls", "implicitConversions", "postfixOps"]
   },
   "descriptions": {
-    "3.1": "Enable one or more language features.",
     "3.0": "Enable one or more language features.",
     "2.13": "Enable or disable language features",
     "3.3": "Enable one or more language features.",
-    "3.2": "Enable one or more language features."
+    "3.2": "Enable one or more language features.",
+    "3.1": "Enable one or more language features.",
+    "3.4": "Enable one or more language features."
   },
   "flag": "--language",
-  "scalaVersions": ["3.3", "2.13", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.1", "3.2", "2.13", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -553,14 +572,15 @@
 
   },
   "descriptions": {
-    "3.1": "Silence all warnings.",
     "3.0": "Silence all warnings.",
     "2.13": "Generate no warnings. [false]",
     "3.3": "Silence all warnings.",
-    "3.2": "Silence all warnings."
+    "3.2": "Silence all warnings.",
+    "3.1": "Silence all warnings.",
+    "3.4": "Silence all warnings."
   },
   "flag": "--no-warnings",
-  "scalaVersions": ["3.3", "2.13", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.1", "3.2", "2.13", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -569,12 +589,13 @@
   "defaultValue": "80",
   "descriptions": {
     "3.0": "Set page width",
-    "3.1": "Set page width",
+    "3.3": "Set page width",
     "3.2": "Set page width",
-    "3.3": "Set page width"
+    "3.1": "Set page width",
+    "3.4": "Set page width"
   },
   "flag": "--page-width",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -592,12 +613,13 @@
   },
   "descriptions": {
     "3.0": "Show source code line numbers.",
-    "3.1": "Show source code line numbers.",
+    "3.3": "Show source code line numbers.",
     "3.2": "Show source code line numbers.",
-    "3.3": "Show source code line numbers."
+    "3.1": "Show source code line numbers.",
+    "3.4": "Show source code line numbers."
   },
   "flag": "--print-lines",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -605,12 +627,13 @@
   },
   "descriptions": {
     "3.0": "Prints the raw tasty.",
-    "3.1": "Prints the raw tasty.",
+    "3.3": "Prints the raw tasty.",
     "3.2": "Prints the raw tasty.",
-    "3.3": "Prints the raw tasty."
+    "3.1": "Prints the raw tasty.",
+    "3.4": "Prints the raw tasty."
   },
   "flag": "--print-tasty",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -624,30 +647,34 @@
 }, {
   "argType": "OneAfterColon",
   "choices": {
+    "2.12": ["12", "8", "13", "16", "5", "10", "6", "7", "15", "11", "9", "17", "14"],
     "2.13": ["12", "8", "13", "16", "10", "15", "11", "9", "17", "14"]
   },
   "defaultValue": "17",
   "descriptions": {
+    "2.12": "Compile for a version of the Java API and target class file. (5,6,7,8,9,10,11,12,13,14,15,16,[17])",
     "2.13": "Compile for a version of the Java API and target class file. (8,9,10,11,12,13,14,15,16,[17])"
   },
   "flag": "--release",
-  "scalaVersions": ["2.13"]
+  "scalaVersions": ["2.12", "2.13"]
 }, {
   "argType": "OneAfterColon",
   "choices": {
     "3.0": ["12", "8", "13", "16", "10", "15", "11", "9", "17", "14"],
-    "3.1": ["12", "8", "13", "16", "10", "15", "11", "9", "17", "14"],
+    "3.3": ["12", "8", "13", "16", "10", "15", "11", "9", "17", "14"],
     "3.2": ["12", "8", "13", "16", "10", "15", "11", "9", "17", "14"],
-    "3.3": ["12", "8", "13", "16", "10", "15", "11", "9", "17", "14"]
+    "3.1": ["12", "8", "13", "16", "10", "15", "11", "9", "17", "14"],
+    "3.4": ["12", "8", "13", "16", "10", "15", "11", "9", "17", "14"]
   },
   "descriptions": {
     "3.0": "Compile code with classes specific to the given version of the Java platform available on the classpath and emit bytecode for this version.",
-    "3.1": "Compile code with classes specific to the given version of the Java platform available on the classpath and emit bytecode for this version. Corresponds to -release flag in javac.",
+    "3.3": "Compile code with classes specific to the given version of the Java platform available on the classpath and emit bytecode for this version. Corresponds to -release flag in javac.",
     "3.2": "Compile code with classes specific to the given version of the Java platform available on the classpath and emit bytecode for this version. Corresponds to -release flag in javac.",
-    "3.3": "Compile code with classes specific to the given version of the Java platform available on the classpath and emit bytecode for this version. Corresponds to -release flag in javac."
+    "3.1": "Compile code with classes specific to the given version of the Java platform available on the classpath and emit bytecode for this version. Corresponds to -release flag in javac.",
+    "3.4": "Compile code with classes specific to the given version of the Java platform available on the classpath and emit bytecode for this version. Corresponds to -release flag in javac."
   },
   "flag": "--release",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -655,12 +682,13 @@
   },
   "descriptions": {
     "3.0": "When used in conjunction with a `...-migration` source version, rewrites sources to migrate to new version.",
-    "3.1": "When used in conjunction with a `...-migration` source version, rewrites sources to migrate to new version.",
+    "3.3": "When used in conjunction with a `...-migration` source version, rewrites sources to migrate to new version.",
     "3.2": "When used in conjunction with a `...-migration` source version, rewrites sources to migrate to new version.",
-    "3.3": "When used in conjunction with a `...-migration` source version, rewrites sources to migrate to new version."
+    "3.1": "When used in conjunction with a `...-migration` source version, rewrites sources to migrate to new version.",
+    "3.4": "When used in conjunction with a `...-migration` source version, rewrites sources to migrate to new version."
   },
   "flag": "--rewrite",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -679,12 +707,13 @@
   },
   "descriptions": {
     "3.0": "Compile in Scala.js mode (requires scalajs-library.jar on the classpath).",
-    "3.1": "Compile in Scala.js mode (requires scalajs-library.jar on the classpath).",
+    "3.3": "Compile in Scala.js mode (requires scalajs-library.jar on the classpath).",
     "3.2": "Compile in Scala.js mode (requires scalajs-library.jar on the classpath).",
-    "3.3": "Compile in Scala.js mode (requires scalajs-library.jar on the classpath)."
+    "3.1": "Compile in Scala.js mode (requires scalajs-library.jar on the classpath).",
+    "3.4": "Compile in Scala.js mode (requires scalajs-library.jar on the classpath)."
   },
   "flag": "--scalajs",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -722,6 +751,17 @@
 }, {
   "argType": "OneAfterColon",
   "choices": {
+    "3.4": ["3.5-migration", "3.0", "3.5", "3.2-migration", "3.3-migration", "future-migration", "3.2", "3.4-migration", "future", "3.1", "3.4", "3.0-migration", "3.3"]
+  },
+  "defaultValue": "3.4",
+  "descriptions": {
+    "3.4": "source version"
+  },
+  "flag": "--source",
+  "scalaVersions": ["3.4"]
+}, {
+  "argType": "OneAfterColon",
+  "choices": {
     "3.2": ["future", "3.1", "3.0", "3.2-migration", "3.0-migration", "future-migration", "3.2"]
   },
   "defaultValue": "3.2",
@@ -736,14 +776,15 @@
 
   },
   "descriptions": {
-    "3.1": "Specify location(s) of source files.",
     "3.0": "Specify location(s) of source files.",
     "2.13": "Specify location(s) of source files.",
     "3.3": "Specify location(s) of source files.",
-    "3.2": "Specify location(s) of source files."
+    "3.2": "Specify location(s) of source files.",
+    "3.1": "Specify location(s) of source files.",
+    "3.4": "Specify location(s) of source files."
   },
   "flag": "--source-path",
-  "scalaVersions": ["3.3", "2.13", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.1", "3.2", "2.13", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneAfterColon",
   "choices": {
@@ -752,7 +793,7 @@
   },
   "defaultValue": "8",
   "descriptions": {
-    "2.12": "Target platform for object files. All JVM 1.5 - 1.7 targets are deprecated. (5,6,7,[8],9,10,11,12,13,14,15,16,17)",
+    "2.12": "Target platform for class files. Target < 8 is deprecated; target > 8 uses 8. Default: `8`, `help` to list choices.",
     "2.13": "Target platform for object files. ([8],9,10,11,12,13,14,15,16,17)"
   },
   "flag": "--target",
@@ -773,43 +814,46 @@
 
   },
   "descriptions": {
-    "3.1": "Enable additional warnings where generated code depends on assumptions.",
     "3.0": "Enable additional warnings where generated code depends on assumptions.",
     "2.13": "Enable additional warnings where generated code depends on assumptions. See also -Wconf. [false]",
     "3.3": "Enable additional warnings where generated code depends on assumptions.",
     "2.12": "Enable additional warnings where generated code depends on assumptions. See also -Wconf. [false]",
-    "3.2": "Enable additional warnings where generated code depends on assumptions."
+    "3.2": "Enable additional warnings where generated code depends on assumptions.",
+    "3.1": "Enable additional warnings where generated code depends on assumptions.",
+    "3.4": "Enable additional warnings where generated code depends on assumptions."
   },
   "flag": "--unchecked",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Uniquely tag all identifiers in debugging output.",
     "3.0": "Uniquely tag all identifiers in debugging output.",
     "2.13": "Uniquely tag all identifiers in debugging output. [false]",
     "3.3": "Uniquely tag all identifiers in debugging output.",
-    "3.2": "Uniquely tag all identifiers in debugging output."
+    "3.2": "Uniquely tag all identifiers in debugging output.",
+    "3.1": "Uniquely tag all identifiers in debugging output.",
+    "3.4": "Uniquely tag all identifiers in debugging output."
   },
   "flag": "--unique-id",
-  "scalaVersions": ["3.3", "2.13", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.1", "3.2", "2.13", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Utilize the java.class.path in classpath resolution.",
     "3.0": "Utilize the java.class.path in classpath resolution.",
     "2.13": "Utilize the java.class.path in classpath resolution. [false]",
     "3.3": "Utilize the java.class.path in classpath resolution.",
-    "3.2": "Utilize the java.class.path in classpath resolution."
+    "3.2": "Utilize the java.class.path in classpath resolution.",
+    "3.1": "Utilize the java.class.path in classpath resolution.",
+    "3.4": "Utilize the java.class.path in classpath resolution."
   },
   "flag": "--use-java-class-path",
-  "scalaVersions": ["3.3", "2.13", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.1", "3.2", "2.13", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -826,28 +870,30 @@
 
   },
   "descriptions": {
-    "3.1": "Output messages about what the compiler is doing.",
     "3.0": "Output messages about what the compiler is doing.",
     "2.13": "Output messages about what the compiler is doing. [false]",
     "3.3": "Output messages about what the compiler is doing.",
-    "3.2": "Output messages about what the compiler is doing."
+    "3.2": "Output messages about what the compiler is doing.",
+    "3.1": "Output messages about what the compiler is doing.",
+    "3.4": "Output messages about what the compiler is doing."
   },
   "flag": "--verbose",
-  "scalaVersions": ["3.3", "2.13", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.1", "3.2", "2.13", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Print product version and exit.",
     "3.0": "Print product version and exit.",
     "2.13": "Print product version and exit. [false]",
     "3.3": "Print product version and exit.",
-    "3.2": "Print product version and exit."
+    "3.2": "Print product version and exit.",
+    "3.1": "Print product version and exit.",
+    "3.4": "Print product version and exit."
   },
   "flag": "--version",
-  "scalaVersions": ["3.3", "2.13", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.1", "3.2", "2.13", "3.4", "3.0", "3.3"]
 }, {
   "argType": "Multiple",
   "choices": {
@@ -856,10 +902,11 @@
   "descriptions": {
     "3.1": "Pass -Dproperty=value directly to the runtime system.",
     "3.2": "Pass -Dproperty=value directly to the runtime system.",
-    "3.3": "Pass -Dproperty=value directly to the runtime system."
+    "3.3": "Pass -Dproperty=value directly to the runtime system.",
+    "3.4": "Pass -Dproperty=value directly to the runtime system."
   },
   "flag": "-Dproperty=value",
-  "scalaVersions": ["3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.3", "3.4"]
 }, {
   "argType": {
     "prefix": "-D",
@@ -883,10 +930,11 @@
   "descriptions": {
     "3.1": "Pass <flag> directly to the runtime system.",
     "3.2": "Pass <flag> directly to the runtime system.",
-    "3.3": "Pass <flag> directly to the runtime system."
+    "3.3": "Pass <flag> directly to the runtime system.",
+    "3.4": "Pass <flag> directly to the runtime system."
   },
   "flag": "-J<flag>",
-  "scalaVersions": ["3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.3", "3.4"]
 }, {
   "argType": {
     "prefix": "-J",
@@ -908,30 +956,32 @@
 
   },
   "descriptions": {
-    "3.1": "Pass an option to a plugin, e.g. -P:<plugin>:<opt>",
     "3.0": "Pass an option to a plugin, e.g. -P:<plugin>:<opt>",
     "2.13": "Pass an option to a plugin",
     "3.3": "Pass an option to a plugin, e.g. -P:<plugin>:<opt>",
     "2.12": "Pass an option to a plugin",
     "3.2": "Pass an option to a plugin, e.g. -P:<plugin>:<opt>",
-    "2.11": "Pass an option to a plugin"
+    "2.11": "Pass an option to a plugin",
+    "3.1": "Pass an option to a plugin, e.g. -P:<plugin>:<opt>",
+    "3.4": "Pass an option to a plugin, e.g. -P:<plugin>:<opt>"
   },
   "flag": "-P",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Print a synopsis of verbose options.",
     "3.0": "Print a synopsis of verbose options.",
     "2.13": "Print a synopsis of verbose options. [false]",
     "3.3": "Print a synopsis of verbose options.",
-    "3.2": "Print a synopsis of verbose options."
+    "3.2": "Print a synopsis of verbose options.",
+    "3.1": "Print a synopsis of verbose options.",
+    "3.4": "Print a synopsis of verbose options."
   },
   "flag": "-V",
-  "scalaVersions": ["3.3", "2.13", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.1", "3.2", "2.13", "3.4", "3.0", "3.3"]
 }, {
   "argType": "Multiple",
   "choices": {
@@ -1139,14 +1189,15 @@
 
   },
   "descriptions": {
-    "3.1": "List compiler phases.",
     "2.13": "Print a synopsis of compiler phases. [false]",
     "3.3": "List compiler phases.",
     "2.12": "Print a synopsis of compiler phases. [false]",
-    "3.2": "List compiler phases."
+    "3.2": "List compiler phases.",
+    "3.1": "List compiler phases.",
+    "3.4": "List compiler phases."
   },
   "flag": "-Vphases",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "3.4", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -1163,15 +1214,16 @@
 
   },
   "descriptions": {
-    "3.1": "Print out program after",
     "3.0": "Print out program after",
     "2.13": "Print out program after (or ~phase for before and after) <phases> (default: typer)",
     "3.3": "Print out program after",
     "2.12": "Print out program after <phases>",
-    "3.2": "Print out program after"
+    "3.2": "Print out program after",
+    "3.1": "Print out program after",
+    "3.4": "Print out program after"
   },
   "flag": "-Vprint",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -1210,10 +1262,11 @@
   },
   "descriptions": {
     "3.2": "Show metrics about sources and internal representations to estimate compile-time complexity.",
-    "3.3": "Show metrics about sources and internal representations to estimate compile-time complexity."
+    "3.3": "Show metrics about sources and internal representations to estimate compile-time complexity.",
+    "3.4": "Show metrics about sources and internal representations to estimate compile-time complexity."
   },
   "flag": "-Vprofile",
-  "scalaVersions": ["3.2", "3.3"]
+  "scalaVersions": ["3.2", "3.3", "3.4"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -1222,22 +1275,25 @@
   "defaultValue": "0",
   "descriptions": {
     "3.2": "Show metrics about sources and internal representations of the most complex methods",
-    "3.3": "Show metrics about sources and internal representations of the most complex methods"
+    "3.3": "Show metrics about sources and internal representations of the most complex methods",
+    "3.4": "Show metrics about sources and internal representations of the most complex methods"
   },
   "flag": "-Vprofile-details",
-  "scalaVersions": ["3.2", "3.3"]
+  "scalaVersions": ["3.2", "3.3", "3.4"]
 }, {
   "argType": "OneAfterColon",
   "choices": {
     "3.2": ["name", "path", "tasty", "complexity", "tokens", "lines"],
-    "3.3": ["name", "path", "tasty", "complexity", "tokens", "lines"]
+    "3.3": ["name", "path", "tasty", "complexity", "tokens", "lines"],
+    "3.4": ["name", "path", "tasty", "complexity", "tokens", "lines"]
   },
   "descriptions": {
     "3.2": "Show metrics about sources and internal representations sorted by given column name",
-    "3.3": "Show metrics about sources and internal representations sorted by given column name"
+    "3.3": "Show metrics about sources and internal representations sorted by given column name",
+    "3.4": "Show metrics about sources and internal representations sorted by given column name"
   },
   "flag": "-Vprofile-sorted-by",
-  "scalaVersions": ["3.2", "3.3"]
+  "scalaVersions": ["3.2", "3.3", "3.4"]
 }, {
   "argType": "No",
   "choices": {
@@ -1276,10 +1332,11 @@
   "defaultValue": "50000",
   "descriptions": {
     "3.2": "Number of characters to be printed before output is truncated.",
-    "3.3": "Number of characters to be printed before output is truncated."
+    "3.3": "Number of characters to be printed before output is truncated.",
+    "3.4": "Number of characters to be printed before output is truncated."
   },
   "flag": "-Vrepl-max-print-characters",
-  "scalaVersions": ["3.2", "3.3"]
+  "scalaVersions": ["3.2", "3.3", "3.4"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -1288,10 +1345,11 @@
   "defaultValue": "1000",
   "descriptions": {
     "3.2": "Number of elements to be printed before output is truncated.",
-    "3.3": "Number of elements to be printed before output is truncated."
+    "3.3": "Number of elements to be printed before output is truncated.",
+    "3.4": "Number of elements to be printed before output is truncated."
   },
   "flag": "-Vrepl-max-print-elements",
-  "scalaVersions": ["3.2", "3.3"]
+  "scalaVersions": ["3.2", "3.3", "3.4"]
 }, {
   "argType": "Multiple",
   "choices": {
@@ -1398,28 +1456,30 @@
 
   },
   "descriptions": {
-    "3.1": "Print a synopsis of warning options.",
     "3.0": "Print a synopsis of warning options.",
     "2.13": "Print a synopsis of warning options. [false]",
     "3.3": "Print a synopsis of warning options.",
-    "3.2": "Print a synopsis of warning options."
+    "3.2": "Print a synopsis of warning options.",
+    "3.1": "Print a synopsis of warning options.",
+    "3.4": "Print a synopsis of warning options."
   },
   "flag": "-W",
-  "scalaVersions": ["3.3", "2.13", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.1", "3.2", "2.13", "3.4", "3.0", "3.3"]
 }, {
   "argType": "Multiple",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Configure compiler warnings.\nSyntax: -Wconf:<filters>:<action>,<filters>:<action>,...\nmultiple <filters> are combined with &, i.e., <filter>&...&<filter>\n\n<filter>\n  - Any message: any\n\n  - Message categories: cat=deprecation, cat=feature, cat=unchecked\n\n  - Message content: msg=regex\n    The regex need only match some part of the message, not all of it.\n\n  - Message id: id=E129\n    The message id is printed with the warning.\n\n  - Message name: name=PureExpressionInStatementPosition\n    The message name is printed with the warning in verbose warning mode.\n\nIn verbose warning mode the compiler prints matching filters for warnings.\nVerbose mode can be enabled globally using `-Wconf:any:verbose`, or locally\nusing the @nowarn annotation (example: `@nowarn(\"v\") def test = try 1`).\n\n<action>\n  - error / e\n  - warning / w\n  - verbose / v (emit warning, show additional help for writing `-Wconf` filters)\n  - info / i    (infos are not counted as warnings and not affected by `-Werror`)\n  - silent / s\n\nThe default configuration is empty.\n\nUser-defined configurations are added to the left. The leftmost rule matching\na warning message defines the action.\n\nExamples:\n  - change every warning into an error: -Wconf:any:error\n  - silence deprecations: -Wconf:cat=deprecation:s\n\nNote: on the command-line you might need to quote configurations containing `*` or `&`\nto prevent the shell from expanding patterns.",
     "2.13": "Configure reporting of compiler warnings; use `help` for details.",
     "3.3": "Configure compiler warnings.\nSyntax: -Wconf:<filters>:<action>,<filters>:<action>,...\nmultiple <filters> are combined with &, i.e., <filter>&...&<filter>\n\n<filter>\n  - Any message: any\n\n  - Message categories: cat=deprecation, cat=feature, cat=unchecked\n\n  - Message content: msg=regex\n    The regex need only match some part of the message, not all of it.\n\n  - Message id: id=E129\n    The message id is printed with the warning.\n\n  - Message name: name=PureExpressionInStatementPosition\n    The message name is printed with the warning in verbose warning mode.\n\nIn verbose warning mode the compiler prints matching filters for warnings.\nVerbose mode can be enabled globally using `-Wconf:any:verbose`, or locally\nusing the @nowarn annotation (example: `@nowarn(\"v\") def test = try 1`).\n\n<action>\n  - error / e\n  - warning / w\n  - verbose / v (emit warning, show additional help for writing `-Wconf` filters)\n  - info / i    (infos are not counted as warnings and not affected by `-Werror`)\n  - silent / s\n\nThe default configuration is empty.\n\nUser-defined configurations are added to the left. The leftmost rule matching\na warning message defines the action.\n\nExamples:\n  - change every warning into an error: -Wconf:any:error\n  - silence deprecations: -Wconf:cat=deprecation:s\n\nNote: on the command-line you might need to quote configurations containing `*` or `&`\nto prevent the shell from expanding patterns.",
     "2.12": "Configure reporting of compiler warnings; use `help` for details.",
-    "3.2": "Configure compiler warnings.\nSyntax: -Wconf:<filters>:<action>,<filters>:<action>,...\nmultiple <filters> are combined with &, i.e., <filter>&...&<filter>\n\n<filter>\n  - Any message: any\n\n  - Message categories: cat=deprecation, cat=feature, cat=unchecked\n\n  - Message content: msg=regex\n    The regex need only match some part of the message, not all of it.\n\n  - Message id: id=E129\n    The message id is printed with the warning.\n\n  - Message name: name=PureExpressionInStatementPosition\n    The message name is printed with the warning in verbose warning mode.\n\nIn verbose warning mode the compiler prints matching filters for warnings.\nVerbose mode can be enabled globally using `-Wconf:any:verbose`, or locally\nusing the @nowarn annotation (example: `@nowarn(\"v\") def test = try 1`).\n\n<action>\n  - error / e\n  - warning / w\n  - verbose / v (emit warning, show additional help for writing `-Wconf` filters)\n  - info / i    (infos are not counted as warnings and not affected by `-Werror`)\n  - silent / s\n\nThe default configuration is empty.\n\nUser-defined configurations are added to the left. The leftmost rule matching\na warning message defines the action.\n\nExamples:\n  - change every warning into an error: -Wconf:any:error\n  - silence deprecations: -Wconf:cat=deprecation:s\n\nNote: on the command-line you might need to quote configurations containing `*` or `&`\nto prevent the shell from expanding patterns."
+    "3.2": "Configure compiler warnings.\nSyntax: -Wconf:<filters>:<action>,<filters>:<action>,...\nmultiple <filters> are combined with &, i.e., <filter>&...&<filter>\n\n<filter>\n  - Any message: any\n\n  - Message categories: cat=deprecation, cat=feature, cat=unchecked\n\n  - Message content: msg=regex\n    The regex need only match some part of the message, not all of it.\n\n  - Message id: id=E129\n    The message id is printed with the warning.\n\n  - Message name: name=PureExpressionInStatementPosition\n    The message name is printed with the warning in verbose warning mode.\n\nIn verbose warning mode the compiler prints matching filters for warnings.\nVerbose mode can be enabled globally using `-Wconf:any:verbose`, or locally\nusing the @nowarn annotation (example: `@nowarn(\"v\") def test = try 1`).\n\n<action>\n  - error / e\n  - warning / w\n  - verbose / v (emit warning, show additional help for writing `-Wconf` filters)\n  - info / i    (infos are not counted as warnings and not affected by `-Werror`)\n  - silent / s\n\nThe default configuration is empty.\n\nUser-defined configurations are added to the left. The leftmost rule matching\na warning message defines the action.\n\nExamples:\n  - change every warning into an error: -Wconf:any:error\n  - silence deprecations: -Wconf:cat=deprecation:s\n\nNote: on the command-line you might need to quote configurations containing `*` or `&`\nto prevent the shell from expanding patterns.",
+    "3.1": "Configure compiler warnings.\nSyntax: -Wconf:<filters>:<action>,<filters>:<action>,...\nmultiple <filters> are combined with &, i.e., <filter>&...&<filter>\n\n<filter>\n  - Any message: any\n\n  - Message categories: cat=deprecation, cat=feature, cat=unchecked\n\n  - Message content: msg=regex\n    The regex need only match some part of the message, not all of it.\n\n  - Message id: id=E129\n    The message id is printed with the warning.\n\n  - Message name: name=PureExpressionInStatementPosition\n    The message name is printed with the warning in verbose warning mode.\n\nIn verbose warning mode the compiler prints matching filters for warnings.\nVerbose mode can be enabled globally using `-Wconf:any:verbose`, or locally\nusing the @nowarn annotation (example: `@nowarn(\"v\") def test = try 1`).\n\n<action>\n  - error / e\n  - warning / w\n  - verbose / v (emit warning, show additional help for writing `-Wconf` filters)\n  - info / i    (infos are not counted as warnings and not affected by `-Werror`)\n  - silent / s\n\nThe default configuration is empty.\n\nUser-defined configurations are added to the left. The leftmost rule matching\na warning message defines the action.\n\nExamples:\n  - change every warning into an error: -Wconf:any:error\n  - silence deprecations: -Wconf:cat=deprecation:s\n\nNote: on the command-line you might need to quote configurations containing `*` or `&`\nto prevent the shell from expanding patterns.",
+    "3.4": "Configure compiler warnings.\nSyntax: -Wconf:<filters>:<action>,<filters>:<action>,...\nmultiple <filters> are combined with &, i.e., <filter>&...&<filter>\n\n<filter>\n  - Any message: any\n\n  - Message categories: cat=deprecation, cat=feature, cat=unchecked\n\n  - Message content: msg=regex\n    The regex need only match some part of the message, not all of it.\n\n  - Message id: id=E129\n    The message id is printed with the warning.\n\n  - Message name: name=PureExpressionInStatementPosition\n    The message name is printed with the warning in verbose warning mode.\n\nIn verbose warning mode the compiler prints matching filters for warnings.\nVerbose mode can be enabled globally using `-Wconf:any:verbose`, or locally\nusing the @nowarn annotation (example: `@nowarn(\"v\") def test = try 1`).\n\n<action>\n  - error / e\n  - warning / w\n  - verbose / v (emit warning, show additional help for writing `-Wconf` filters)\n  - info / i    (infos are not counted as warnings and not affected by `-Werror`)\n  - silent / s\n\nThe default configuration is empty.\n\nUser-defined configurations are added to the left. The leftmost rule matching\na warning message defines the action.\n\nExamples:\n  - change every warning into an error: -Wconf:any:error\n  - silence deprecations: -Wconf:cat=deprecation:s\n\nNote: on the command-line you might need to quote configurations containing `*` or `&`\nto prevent the shell from expanding patterns."
   },
   "flag": "-Wconf",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "3.4", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -1436,15 +1496,16 @@
 
   },
   "descriptions": {
-    "3.1": "Fail the compilation if there are any warnings.",
     "3.0": "Fail the compilation if there are any warnings.",
     "2.13": "Fail the compilation if there are any warnings. [false]",
     "3.3": "Fail the compilation if there are any warnings.",
     "2.12": "Fail the compilation if there are any warnings. [false]",
-    "3.2": "Fail the compilation if there are any warnings."
+    "3.2": "Fail the compilation if there are any warnings.",
+    "3.1": "Fail the compilation if there are any warnings.",
+    "3.4": "Fail the compilation if there are any warnings."
   },
   "flag": "-Werror",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -1455,6 +1516,16 @@
   },
   "flag": "-Wextra-implicit",
   "scalaVersions": ["2.13"]
+}, {
+  "argType": "No",
+  "choices": {
+
+  },
+  "descriptions": {
+    "3.4": "Warn if comparison with a pattern value looks like it might always fail."
+  },
+  "flag": "-Wimplausible-patterns",
+  "scalaVersions": ["3.4"]
 }, {
   "argType": "OneAfterColon",
   "choices": {
@@ -1482,10 +1553,12 @@
 
   },
   "descriptions": {
-    "2.13": "Warn when block statements are non-Unit expressions. [false]"
+    "2.13": "Warn when block statements are non-Unit expressions. [false]",
+    "3.3": "Warn when block statements are non-Unit expressions.",
+    "3.4": "Warn when block statements are non-Unit expressions."
   },
   "flag": "-Wnonunit-statement",
-  "scalaVersions": ["2.13"]
+  "scalaVersions": ["2.13", "3.3", "3.4"]
 }, {
   "argType": "No",
   "choices": {
@@ -1537,21 +1610,33 @@
   "flag": "-Wself-implicit",
   "scalaVersions": ["2.13"]
 }, {
+  "argType": "No",
+  "choices": {
+
+  },
+  "descriptions": {
+    "3.4": "Warn an inline methods has references to non-stable binary APIs."
+  },
+  "flag": "-WunstableInlineAccessors",
+  "scalaVersions": ["3.4"]
+}, {
   "argType": "Multiple",
   "choices": {
     "2.13": ["synthetics", "privates", "locals", "params", "patvars", "implicits", "explicits", "nowarn", "linted", "imports"],
-    "3.1": ["nowarn", "all"],
+    "3.3": ["locals", "implicits", "strict-no-implicit-warn", "explicits", "nowarn", "linted", "imports", "privates", "all", "unsafe-warn-patvars", "params"],
     "3.2": ["nowarn", "all"],
-    "3.3": ["locals", "implicits", "strict-no-implicit-warn", "explicits", "nowarn", "linted", "imports", "privates", "all", "unsafe-warn-patvars", "params"]
+    "3.1": ["nowarn", "all"],
+    "3.4": ["locals", "implicits", "strict-no-implicit-warn", "explicits", "nowarn", "linted", "imports", "privates", "all", "unsafe-warn-patvars", "params"]
   },
   "descriptions": {
     "2.13": "Enable or disable specific `unused` warnings",
-    "3.1": "Enable or disable specific `unused` warnings",
+    "3.3": "Enable or disable specific `unused` warnings",
     "3.2": "Enable or disable specific `unused` warnings",
-    "3.3": "Enable or disable specific `unused` warnings"
+    "3.1": "Enable or disable specific `unused` warnings",
+    "3.4": "Enable or disable specific `unused` warnings"
   },
   "flag": "-Wunused",
-  "scalaVersions": ["2.13", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "2.13", "3.4", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -1559,26 +1644,28 @@
   },
   "descriptions": {
     "2.13": "Warn when non-Unit expression results are unused. [false]",
-    "3.3": "Warn when non-Unit expression results are unused."
+    "3.3": "Warn when non-Unit expression results are unused.",
+    "3.4": "Warn when non-Unit expression results are unused."
   },
   "flag": "-Wvalue-discard",
-  "scalaVersions": ["2.13", "3.3"]
+  "scalaVersions": ["2.13", "3.3", "3.4"]
 }, {
   "argType": "No",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Print a synopsis of advanced options.",
     "3.0": "Print a synopsis of advanced options.",
     "2.13": "Print a synopsis of advanced options. [false]",
     "3.3": "Print a synopsis of advanced options.",
     "2.12": "Print a synopsis of advanced options. [false]",
     "3.2": "Print a synopsis of advanced options.",
-    "2.11": "Print a synopsis of advanced options."
+    "2.11": "Print a synopsis of advanced options.",
+    "3.1": "Print a synopsis of advanced options.",
+    "3.4": "Print a synopsis of advanced options."
   },
   "flag": "-X",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -1597,12 +1684,13 @@
   },
   "descriptions": {
     "3.0": "Check some invariants of macro generated code while expanding macros",
-    "3.1": "Check some invariants of macro generated code while expanding macros",
+    "3.3": "Check some invariants of macro generated code while expanding macros",
     "3.2": "Check some invariants of macro generated code while expanding macros",
-    "3.3": "Check some invariants of macro generated code while expanding macros"
+    "3.1": "Check some invariants of macro generated code while expanding macros",
+    "3.4": "Check some invariants of macro generated code while expanding macros"
   },
   "flag": "-Xcheck-macros",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -1670,16 +1758,17 @@
 
   },
   "descriptions": {
-    "3.1": "Fail the compilation if there are any warnings.",
     "3.0": "Fail the compilation if there are any warnings.",
     "2.13": "Fail the compilation if there are any warnings. [false]",
     "3.3": "Fail the compilation if there are any warnings.",
     "2.12": "Fail the compilation if there are any warnings. [false]",
     "3.2": "Fail the compilation if there are any warnings.",
-    "2.11": "Fail the compilation if there are any warnings."
+    "2.11": "Fail the compilation if there are any warnings.",
+    "3.1": "Fail the compilation if there are any warnings.",
+    "3.4": "Fail the compilation if there are any warnings."
   },
   "flag": "-Xfatal-warnings",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -1722,12 +1811,13 @@
   },
   "descriptions": {
     "3.0": "Ignore errors when compiling code that calls Scala2 macros, these will fail at runtime.",
-    "3.1": "Ignore errors when compiling code that calls Scala2 macros, these will fail at runtime.",
+    "3.3": "Ignore errors when compiling code that calls Scala2 macros, these will fail at runtime.",
     "3.2": "Ignore errors when compiling code that calls Scala2 macros, these will fail at runtime.",
-    "3.3": "Ignore errors when compiling code that calls Scala2 macros, these will fail at runtime."
+    "3.1": "Ignore errors when compiling code that calls Scala2 macros, these will fail at runtime.",
+    "3.4": "Ignore errors when compiling code that calls Scala2 macros, these will fail at runtime."
   },
   "flag": "-Xignore-scala2-macros",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -1737,10 +1827,11 @@
   "descriptions": {
     "3.1": "Maximal number of expressions to be generated in an implicit search",
     "3.2": "Maximal number of expressions to be generated in an implicit search",
-    "3.3": "Maximal number of expressions to be generated in an implicit search"
+    "3.3": "Maximal number of expressions to be generated in an implicit search",
+    "3.4": "Maximal number of expressions to be generated in an implicit search"
   },
   "flag": "-Ximplicit-search-limit",
-  "scalaVersions": ["3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.3", "3.4"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -1749,12 +1840,13 @@
   "defaultValue": "8000",
   "descriptions": {
     "3.0": "Timeout (in ms) for searching for import suggestions when errors are reported.",
-    "3.1": "Timeout (in ms) for searching for import suggestions when errors are reported.",
+    "3.3": "Timeout (in ms) for searching for import suggestions when errors are reported.",
     "3.2": "Timeout (in ms) for searching for import suggestions when errors are reported.",
-    "3.3": "Timeout (in ms) for searching for import suggestions when errors are reported."
+    "3.1": "Timeout (in ms) for searching for import suggestions when errors are reported.",
+    "3.4": "Timeout (in ms) for searching for import suggestions when errors are reported."
   },
   "flag": "-Ximport-suggestion-timeout",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneAfterColon",
   "choices": {
@@ -1771,15 +1863,17 @@
   "choices": {
     "2.11": ["infer-any", "private-shadow", "poly-implicit-overload", "type-parameter-shadow", "nullary-unit", "inaccessible", "option-implicit", "by-name-right-associative", "stars-align", "unsound-match", "missing-interpolator", "doc-detached", "package-object-classes", "delayedinit-select", "nullary-override", "adapted-args"],
     "2.12": ["constant", "infer-any", "private-shadow", "poly-implicit-overload", "type-parameter-shadow", "inaccessible", "option-implicit", "by-name-right-associative", "stars-align", "unsound-match", "int-div-to-float", "missing-interpolator", "doc-detached", "unused", "package-object-classes", "delayedinit-select", "deprecation", "nullary-unit", "nullary-override", "adapted-args"],
-    "2.13": ["implicit-not-found", "recurse-with-default", "private-shadow", "poly-implicit-overload", "type-parameter-shadow", "implicit-recursion", "nonlocal-return", "option-implicit", "stars-align", "numeric-methods", "int-div-to-float", "serial", "constant", "universal-methods", "missing-interpolator", "doc-detached", "strict-unsealed-patmat", "infer-any", "unused", "package-object-classes", "delayedinit-select", "eta-sam", "deprecation", "nullary-unit", "adapted-args", "byname-implicit", "eta-zero", "inaccessible", "unit-special", "arg-discard", "multiarg-infix", "valpattern"]
+    "2.13": ["implicit-not-found", "recurse-with-default", "private-shadow", "poly-implicit-overload", "type-parameter-shadow", "implicit-recursion", "nonlocal-return", "option-implicit", "stars-align", "numeric-methods", "int-div-to-float", "serial", "constant", "universal-methods", "missing-interpolator", "doc-detached", "strict-unsealed-patmat", "infer-any", "unused", "package-object-classes", "delayedinit-select", "eta-sam", "deprecation", "nullary-unit", "adapted-args", "byname-implicit", "eta-zero", "inaccessible", "unit-special", "arg-discard", "multiarg-infix", "valpattern"],
+    "3.4": ["all", "private-shadow", "type-parameter-shadow"]
   },
   "descriptions": {
     "2.11": "Enable or disable specific warnings: `_' for all, `-Xlint:help' to list",
     "2.12": "Enable or disable specific warnings: `_' for all, `-Xlint:help' to list choices.",
-    "2.13": "Enable recommended warnings"
+    "2.13": "Enable recommended warnings",
+    "3.4": "Enable or disable specific `lint` warnings"
   },
   "flag": "-Xlint",
-  "scalaVersions": ["2.11", "2.12", "2.13"]
+  "scalaVersions": ["2.11", "2.12", "2.13", "3.4"]
 }, {
   "argType": "No",
   "choices": {
@@ -1846,30 +1940,32 @@
 
   },
   "descriptions": {
-    "3.1": "List of settings which exposed to the macros",
     "2.13": "Custom settings for macros.",
     "3.3": "List of settings which exposed to the macros",
     "2.12": "Custom settings for macros.",
     "3.2": "List of settings which exposed to the macros",
-    "2.11": "Custom settings for macros."
+    "2.11": "Custom settings for macros.",
+    "3.1": "List of settings which exposed to the macros",
+    "3.4": "List of settings which exposed to the macros"
   },
   "flag": "-Xmacro-settings",
-  "scalaVersions": ["3.3", "2.13", "2.12", "2.11", "3.2", "3.1"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.3"]
 }, {
   "argType": "OneSeparate",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Class for manifest's Main-Class entry (only useful with -d <jar>)",
     "2.13": "Class for manifest's Main-Class entry (only useful with -d <jar>)",
     "3.3": "Class for manifest's Main-Class entry (only useful with -d <jar>)",
     "2.12": "Class for manifest's Main-Class entry (only useful with -d <jar>)",
     "3.2": "Class for manifest's Main-Class entry (only useful with -d <jar>)",
-    "2.11": "Class for manifest's Main-Class entry (only useful with -d <jar>)"
+    "2.11": "Class for manifest's Main-Class entry (only useful with -d <jar>)",
+    "3.1": "Class for manifest's Main-Class entry (only useful with -d <jar>)",
+    "3.4": "Class for manifest's Main-Class entry (only useful with -d <jar>)"
   },
   "flag": "-Xmain-class",
-  "scalaVersions": ["3.3", "2.13", "2.12", "2.11", "3.2", "3.1"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.3"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -1890,12 +1986,13 @@
   "defaultValue": "2000000",
   "descriptions": {
     "3.0": "Maximal number of inlined trees.",
-    "3.1": "Maximal number of inlined trees.",
+    "3.3": "Maximal number of inlined trees.",
     "3.2": "Maximal number of inlined trees.",
-    "3.3": "Maximal number of inlined trees."
+    "3.1": "Maximal number of inlined trees.",
+    "3.4": "Maximal number of inlined trees."
   },
   "flag": "-Xmax-inlined-trees",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -1904,12 +2001,13 @@
   "defaultValue": "32",
   "descriptions": {
     "3.0": "Maximal number of successive inlines.",
-    "3.1": "Maximal number of successive inlines.",
+    "3.3": "Maximal number of successive inlines.",
     "3.2": "Maximal number of successive inlines.",
-    "3.3": "Maximal number of successive inlines."
+    "3.1": "Maximal number of successive inlines.",
+    "3.4": "Maximal number of successive inlines."
   },
   "flag": "-Xmax-inlines",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -1941,53 +2039,57 @@
   },
   "defaultValue": "none",
   "descriptions": {
-    "3.1": "Warn about constructs whose behavior may have changed since version.",
     "3.0": "Warn about constructs whose behavior may have changed since version.",
     "2.13": "Warn about constructs whose behavior may have changed since version.",
     "3.3": "Warn about constructs whose behavior may have changed since version.",
     "2.12": "Warn about constructs whose behavior may have changed since version.",
     "3.2": "Warn about constructs whose behavior may have changed since version.",
-    "2.11": "Warn about constructs whose behavior may have changed since version."
+    "2.11": "Warn about constructs whose behavior may have changed since version.",
+    "3.1": "Warn about constructs whose behavior may have changed since version.",
+    "3.4": "Warn about constructs whose behavior may have changed since version."
   },
   "flag": "-Xmigration",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneAfterColon",
   "choices": {
-    "3.1": ["true", "junit", "false"],
     "3.0": ["true", "junit", "false"],
     "2.13": ["true", "junit", "false"],
     "3.3": ["true", "junit", "false"],
     "2.12": ["true", "junit", "false"],
-    "3.2": ["true", "junit", "false"]
+    "3.2": ["true", "junit", "false"],
+    "3.1": ["true", "junit", "false"],
+    "3.4": ["true", "junit", "false"]
   },
   "defaultValue": "true",
   "descriptions": {
-    "3.1": "Generate forwarder methods in classes inhering concrete methods from traits.",
     "3.0": "Generate forwarder methods in classes inhering concrete methods from traits.",
     "2.13": "Generate forwarder methods in classes inhering concrete methods from traits. Default: `true`, `help` to list choices.",
     "3.3": "Generate forwarder methods in classes inhering concrete methods from traits.",
     "2.12": "Generate forwarder methods in classes inhering concrete methods from traits. Default: `true`, `help` to list choices.",
-    "3.2": "Generate forwarder methods in classes inhering concrete methods from traits."
+    "3.2": "Generate forwarder methods in classes inhering concrete methods from traits.",
+    "3.1": "Generate forwarder methods in classes inhering concrete methods from traits.",
+    "3.4": "Generate forwarder methods in classes inhering concrete methods from traits."
   },
   "flag": "-Xmixin-force-forwarders",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Do not generate static forwarders in mirror classes.",
     "3.0": "Do not generate static forwarders in mirror classes.",
     "2.13": "Do not generate static forwarders in mirror classes. [false]",
     "3.3": "Do not generate static forwarders in mirror classes.",
     "2.12": "Do not generate static forwarders in mirror classes. [false]",
     "3.2": "Do not generate static forwarders in mirror classes.",
-    "2.11": "Do not generate static forwarders in mirror classes."
+    "2.11": "Do not generate static forwarders in mirror classes.",
+    "3.1": "Do not generate static forwarders in mirror classes.",
+    "3.4": "Do not generate static forwarders in mirror classes."
   },
   "flag": "-Xno-forwarders",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -2039,64 +2141,68 @@
 
   },
   "descriptions": {
-    "3.1": "Load a plugin from each classpath.",
     "3.0": "Load a plugin from each classpath.",
     "2.13": "Load a plugin from each classpath.",
     "3.3": "Load a plugin from each classpath.",
     "2.12": "Load a plugin from each classpath.",
     "3.2": "Load a plugin from each classpath.",
-    "2.11": "Load a plugin from each classpath."
+    "2.11": "Load a plugin from each classpath.",
+    "3.1": "Load a plugin from each classpath.",
+    "3.4": "Load a plugin from each classpath."
   },
   "flag": "-Xplugin",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "Multiple",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Disable plugins by name.",
     "3.0": "Disable plugins by name.",
     "2.13": "Disable plugins by name.",
     "3.3": "Disable plugins by name.",
     "2.12": "Disable plugins by name.",
     "3.2": "Disable plugins by name.",
-    "2.11": "Disable plugins by name."
+    "2.11": "Disable plugins by name.",
+    "3.1": "Disable plugins by name.",
+    "3.4": "Disable plugins by name."
   },
   "flag": "-Xplugin-disable",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Print a synopsis of loaded plugins.",
     "3.0": "Print a synopsis of loaded plugins.",
     "2.13": "Print a synopsis of loaded plugins. [false]",
     "3.3": "Print a synopsis of loaded plugins.",
     "2.12": "Print a synopsis of loaded plugins. [false]",
     "3.2": "Print a synopsis of loaded plugins.",
-    "2.11": "Print a synopsis of loaded plugins."
+    "2.11": "Print a synopsis of loaded plugins.",
+    "3.1": "Print a synopsis of loaded plugins.",
+    "3.4": "Print a synopsis of loaded plugins."
   },
   "flag": "-Xplugin-list",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "Multiple",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Abort if a named plugin is not loaded.",
     "3.0": "Abort if a named plugin is not loaded.",
     "2.13": "Abort if a named plugin is not loaded.",
     "3.3": "Abort if a named plugin is not loaded.",
     "2.12": "Abort if a named plugin is not loaded.",
     "3.2": "Abort if a named plugin is not loaded.",
-    "2.11": "Abort if a named plugin is not loaded."
+    "2.11": "Abort if a named plugin is not loaded.",
+    "3.1": "Abort if a named plugin is not loaded.",
+    "3.4": "Abort if a named plugin is not loaded."
   },
   "flag": "-Xplugin-require",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -2104,32 +2210,34 @@
   },
   "defaultValue": "misc/scala-devel/plugins",
   "descriptions": {
-    "3.1": "Path to search for plugin archives.",
     "3.0": "Path to search for plugin archives.",
     "2.13": "Path to search for plugin archives.",
     "3.3": "Path to search for plugin archives.",
     "2.12": "Path to search for plugin archives.",
     "3.2": "Path to search for plugin archives.",
-    "2.11": "Path to search for plugin archives."
+    "2.11": "Path to search for plugin archives.",
+    "3.1": "Path to search for plugin archives.",
+    "3.4": "Path to search for plugin archives."
   },
   "flag": "-Xpluginsdir",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "Multiple",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Print out program after",
     "3.0": "Print out program after",
     "2.13": "Print out program after (or ~phase for before and after) <phases> (default: typer)",
     "3.3": "Print out program after",
     "2.12": "Print out program after <phases>",
     "3.2": "Print out program after",
-    "2.11": "Print out program after <phases>"
+    "2.11": "Print out program after <phases>",
+    "3.1": "Print out program after",
+    "3.4": "Print out program after"
   },
   "flag": "-Xprint",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -2149,12 +2257,13 @@
   },
   "descriptions": {
     "3.0": "Print changed parts of the tree since last print.",
-    "3.1": "Print changed parts of the tree since last print.",
+    "3.3": "Print changed parts of the tree since last print.",
     "3.2": "Print changed parts of the tree since last print.",
-    "3.3": "Print changed parts of the tree since last print."
+    "3.1": "Print changed parts of the tree since last print.",
+    "3.4": "Print changed parts of the tree since last print."
   },
   "flag": "-Xprint-diff",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -2162,12 +2271,13 @@
   },
   "descriptions": {
     "3.0": "Print changed parts of the tree since last print including deleted parts.",
-    "3.1": "Print changed parts of the tree since last print including deleted parts.",
+    "3.3": "Print changed parts of the tree since last print including deleted parts.",
     "3.2": "Print changed parts of the tree since last print including deleted parts.",
-    "3.3": "Print changed parts of the tree since last print including deleted parts."
+    "3.1": "Print changed parts of the tree since last print including deleted parts.",
+    "3.4": "Print changed parts of the tree since last print including deleted parts."
   },
   "flag": "-Xprint-diff-del",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "Multiple",
   "choices": {
@@ -2185,12 +2295,13 @@
   },
   "descriptions": {
     "3.0": "Show where inlined code comes from.",
-    "3.1": "Show where inlined code comes from.",
+    "3.3": "Show where inlined code comes from.",
     "3.2": "Show where inlined code comes from.",
-    "3.3": "Show where inlined code comes from."
+    "3.1": "Show where inlined code comes from.",
+    "3.4": "Show where inlined code comes from."
   },
   "flag": "-Xprint-inline",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -2210,44 +2321,47 @@
   },
   "descriptions": {
     "3.0": "Show when code is suspended until macros are compiled.",
-    "3.1": "Show when code is suspended until macros are compiled.",
+    "3.3": "Show when code is suspended until macros are compiled.",
     "3.2": "Show when code is suspended until macros are compiled.",
-    "3.3": "Show when code is suspended until macros are compiled."
+    "3.1": "Show when code is suspended until macros are compiled.",
+    "3.4": "Show when code is suspended until macros are compiled."
   },
   "flag": "-Xprint-suspension",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Print tree types (debugging option).",
     "3.0": "Print tree types (debugging option).",
     "2.13": "Print tree types (debugging option). [false]",
     "3.3": "Print tree types (debugging option).",
     "2.12": "Print tree types (debugging option). [false]",
     "3.2": "Print tree types (debugging option).",
-    "2.11": "Print tree types (debugging option)."
+    "2.11": "Print tree types (debugging option).",
+    "3.1": "Print tree types (debugging option).",
+    "3.4": "Print tree types (debugging option)."
   },
   "flag": "-Xprint-types",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Display a prompt after each error (debugging option).",
     "3.0": "Display a prompt after each error (debugging option).",
     "2.13": "Display a prompt after each error (debugging option). [false]",
     "3.3": "Display a prompt after each error (debugging option).",
     "2.12": "Display a prompt after each error (debugging option). [false]",
     "3.2": "Display a prompt after each error (debugging option).",
-    "2.11": "Display a prompt after each error (debugging option)."
+    "2.11": "Display a prompt after each error (debugging option).",
+    "3.1": "Display a prompt after each error (debugging option).",
+    "3.4": "Display a prompt after each error (debugging option)."
   },
   "flag": "-Xprompt",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -2255,12 +2369,13 @@
   },
   "descriptions": {
     "3.0": "Do not display definitions in REPL.",
-    "3.1": "Do not display definitions in REPL.",
+    "3.3": "Do not display definitions in REPL.",
     "3.2": "Do not display definitions in REPL.",
-    "3.3": "Do not display definitions in REPL."
+    "3.1": "Do not display definitions in REPL.",
+    "3.4": "Do not display definitions in REPL."
   },
   "flag": "-Xrepl-disable-display",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -2314,12 +2429,13 @@
   },
   "descriptions": {
     "3.0": "Store information in SemanticDB.",
-    "3.1": "Store information in SemanticDB.",
+    "3.3": "Store information in SemanticDB.",
     "3.2": "Store information in SemanticDB.",
-    "3.3": "Store information in SemanticDB."
+    "3.1": "Store information in SemanticDB.",
+    "3.4": "Store information in SemanticDB."
   },
   "flag": "-Xsemanticdb",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -2350,16 +2466,17 @@
 
   },
   "descriptions": {
-    "3.1": "List compiler phases.",
     "3.0": "Print all compiler phases.",
     "2.13": "Print a synopsis of compiler phases. [false]",
     "3.3": "List compiler phases.",
     "2.12": "Print a synopsis of compiler phases. [false]",
     "3.2": "List compiler phases.",
-    "2.11": "Print a synopsis of compiler phases."
+    "2.11": "Print a synopsis of compiler phases.",
+    "3.1": "List compiler phases.",
+    "3.4": "List compiler phases."
   },
   "flag": "-Xshow-phases",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneAfterColon",
   "choices": {
@@ -2420,32 +2537,36 @@
   "argType": "OneAfterColon",
   "choices": {
     "3.0": ["12", "8", "13", "16", "10", "15", "11", "9", "17", "14"],
-    "3.1": ["12", "8", "13", "16", "10", "18", "15", "11", "9", "17", "14"],
+    "3.3": ["12", "8", "19", "13", "16", "10", "21", "20", "18", "15", "11", "9", "17", "14"],
     "3.2": ["12", "8", "19", "13", "16", "10", "18", "15", "11", "9", "17", "14"],
-    "3.3": ["12", "8", "19", "13", "16", "10", "20", "18", "15", "11", "9", "17", "14"]
+    "3.1": ["12", "8", "13", "16", "10", "18", "15", "11", "9", "17", "14"],
+    "3.4": ["12", "8", "19", "22", "13", "16", "10", "21", "20", "18", "15", "11", "9", "17", "14"]
   },
   "descriptions": {
     "3.0": "Emit bytecode for the specified version of the Java platform. This might produce bytecode that will break at runtime. When on JDK 9+, consider -release as a safer alternative.",
-    "3.1": "Emit bytecode for the specified version of the Java platform. This might produce bytecode that will break at runtime. Corresponds to -target flag in javac. When on JDK 9+, consider -java-output-version as a safer alternative.",
+    "3.3": "Emit bytecode for the specified version of the Java platform. This might produce bytecode that will break at runtime. Corresponds to -target flag in javac. When on JDK 9+, consider -java-output-version as a safer alternative.",
     "3.2": "Emit bytecode for the specified version of the Java platform. This might produce bytecode that will break at runtime. Corresponds to -target flag in javac. When on JDK 9+, consider -java-output-version as a safer alternative.",
-    "3.3": "Emit bytecode for the specified version of the Java platform. This might produce bytecode that will break at runtime. Corresponds to -target flag in javac. When on JDK 9+, consider -java-output-version as a safer alternative."
+    "3.1": "Emit bytecode for the specified version of the Java platform. This might produce bytecode that will break at runtime. Corresponds to -target flag in javac. When on JDK 9+, consider -java-output-version as a safer alternative.",
+    "3.4": "Emit bytecode for the specified version of the Java platform. This might produce bytecode that will break at runtime. Corresponds to -target flag in javac. When on JDK 9+, consider -java-output-version as a safer alternative."
   },
   "flag": "-Xtarget",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneAfterColon",
   "choices": {
     "3.1": ["12", "8", "13", "16", "10", "18", "15", "11", "9", "17", "14"],
     "3.2": ["12", "8", "19", "13", "16", "10", "18", "15", "11", "9", "17", "14"],
-    "3.3": ["12", "8", "19", "13", "16", "10", "20", "18", "15", "11", "9", "17", "14"]
+    "3.3": ["12", "8", "19", "13", "16", "10", "21", "20", "18", "15", "11", "9", "17", "14"],
+    "3.4": ["12", "8", "19", "22", "13", "16", "10", "21", "20", "18", "15", "11", "9", "17", "14"]
   },
   "descriptions": {
     "3.1": "Emit bytecode for the specified version of the Java platform. This might produce bytecode that will break at runtime. Corresponds to -target flag in javac. When on JDK 9+, consider -java-output-version as a safer alternative.",
     "3.2": "Emit bytecode for the specified version of the Java platform. This might produce bytecode that will break at runtime. Corresponds to -target flag in javac. When on JDK 9+, consider -java-output-version as a safer alternative.",
-    "3.3": "Emit bytecode for the specified version of the Java platform. This might produce bytecode that will break at runtime. Corresponds to -target flag in javac. When on JDK 9+, consider -java-output-version as a safer alternative."
+    "3.3": "Emit bytecode for the specified version of the Java platform. This might produce bytecode that will break at runtime. Corresponds to -target flag in javac. When on JDK 9+, consider -java-output-version as a safer alternative.",
+    "3.4": "Emit bytecode for the specified version of the Java platform. This might produce bytecode that will break at runtime. Corresponds to -target flag in javac. When on JDK 9+, consider -java-output-version as a safer alternative."
   },
   "flag": "-Xunchecked-java-output-version",
-  "scalaVersions": ["3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.3", "3.4"]
 }, {
   "argType": "No",
   "choices": {
@@ -2465,12 +2586,13 @@
   },
   "descriptions": {
     "3.0": "Verify generic signatures in generated bytecode.",
-    "3.1": "Verify generic signatures in generated bytecode.",
+    "3.3": "Verify generic signatures in generated bytecode.",
     "3.2": "Verify generic signatures in generated bytecode.",
-    "3.3": "Verify generic signatures in generated bytecode."
+    "3.1": "Verify generic signatures in generated bytecode.",
+    "3.4": "Verify generic signatures in generated bytecode."
   },
   "flag": "-Xverify-signatures",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -2478,12 +2600,13 @@
   },
   "descriptions": {
     "3.0": "Retains the Scala2 behavior of using Wiki Syntax in Scaladoc.",
-    "3.1": "Retains the Scala2 behavior of using Wiki Syntax in Scaladoc.",
+    "3.3": "Retains the Scala2 behavior of using Wiki Syntax in Scaladoc.",
     "3.2": "Retains the Scala2 behavior of using Wiki Syntax in Scaladoc.",
-    "3.3": "Retains the Scala2 behavior of using Wiki Syntax in Scaladoc."
+    "3.1": "Retains the Scala2 behavior of using Wiki Syntax in Scaladoc.",
+    "3.4": "Retains the Scala2 behavior of using Wiki Syntax in Scaladoc."
   },
   "flag": "-Xwiki-syntax",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "Multiple",
   "choices": {
@@ -2504,16 +2627,27 @@
 
   },
   "descriptions": {
-    "3.1": "Print a synopsis of private options.",
     "3.0": "Print a synopsis of private options.",
     "2.13": "Print a synopsis of private options. [false]",
     "3.3": "Print a synopsis of private options.",
     "2.12": "Print a synopsis of private options. [false]",
     "3.2": "Print a synopsis of private options.",
-    "2.11": "Print a synopsis of private options."
+    "2.11": "Print a synopsis of private options.",
+    "3.1": "Print a synopsis of private options.",
+    "3.4": "Print a synopsis of private options."
   },
   "flag": "-Y",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
+}, {
+  "argType": "No",
+  "choices": {
+
+  },
+  "descriptions": {
+    "3.4": "Allow outline TASTy to be loaded with the -from-tasty option."
+  },
+  "flag": "-Yallow-outline-from-tasty",
+  "scalaVersions": ["3.4"]
 }, {
   "argType": "OneAfterColon",
   "choices": {
@@ -2528,27 +2662,29 @@
 }, {
   "argType": "OneSeparate",
   "choices": {
-
+    "3.4": ["12", "8", "4", "13", "16", "5", "10", "14", "2", "7", "3", "15", "11", "9", "6", "1"]
   },
   "defaultValue": "1",
   "descriptions": {
     "2.12": "maximum worker threads for backend",
-    "2.13": "maximum worker threads for backend"
+    "2.13": "maximum worker threads for backend",
+    "3.4": "maximum worker threads for backend"
   },
   "flag": "-Ybackend-parallelism",
-  "scalaVersions": ["2.12", "2.13"]
+  "scalaVersions": ["2.12", "2.13", "3.4"]
 }, {
   "argType": "OneSeparate",
   "choices": {
-
+    "3.4": ["515", "574", "977", "858", "98", "619", "874", "455", "974", "302", "153", "158", "458", "710", "205", "45", "507", "113", "34", "563", "381", "624", "67", "388", "310", "169", "444", "817", "120", "193", "713", "844", "335", "885", "735", "664", "93", "142", "147", "436", "862", "836", "697", "777", "12", "223", "51", "963", "768", "925", "997", "182", "686", "616", "589", "544", "541", "66", "822", "216", "89", "833", "73", "941", "411", "620", "307", "981", "276", "164", "170", "78", "881", "526", "675", "608", "124", "84", "638", "8", "689", "400", "678", "501", "519", "425", "813", "794", "649", "461", "324", "918", "724", "362", "265", "433", "537", "993", "447", "952", "332", "175", "19", "313", "806", "100", "732", "23", "847", "62", "552", "321", "580", "929", "135", "896", "128", "4", "404", "523", "534", "955", "674", "318", "373", "110", "762", "783", "604", "284", "869", "121", "343", "829", "88", "598", "421", "702", "450", "77", "415", "40", "770", "985", "593", "378", "798", "418", "469", "758", "990", "721", "504", "743", "481", "15", "486", "892", "851", "141", "139", "181", "802", "132", "475", "931", "295", "944", "914", "716", "320", "681", "717", "549", "269", "920", "11", "104", "396", "90", "556", "9", "870", "201", "825", "578", "33", "117", "904", "567", "650", "492", "280", "840", "787", "287", "746", "751", "706", "44", "236", "959", "385", "273", "908", "497", "197", "966", "346", "670", "613", "919", "739", "936", "668", "454", "627", "466", "407", "866", "262", "186", "769", "227", "250", "22", "56", "329", "55", "602", "351", "585", "692", "540", "291", "948", "470", "298", "399", "773", "392", "855", "588", "727", "988", "212", "512", "393", "163", "821", "303", "895", "679", "460", "123", "174", "410", "907", "26", "224", "134", "884", "843", "244", "962", "50", "390", "750", "639", "617", "361", "382", "429", "37", "68", "242", "623", "166", "356", "646", "217", "336", "736", "328", "595", "859", "865", "177", "61", "776", "107", "491", "928", "765", "939", "13", "657", "206", "255", "509", "46", "728", "325", "877", "516", "949", "296", "99", "437", "837", "606", "155", "448", "609", "83", "917", "970", "414", "35", "635", "973", "538", "714", "441", "816", "24", "848", "253", "805", "527", "209", "888", "459", "661", "899", "94", "314", "903", "233", "306", "725", "754", "16", "772", "379", "731", "279", "553", "761", "784", "781", "583", "832", "951", "873", "192", "495", "426", "79", "398", "341", "152", "231", "367", "599", "5", "545", "992", "350", "861", "480", "940", "103", "112", "72", "268", "548", "980", "387", "500", "10", "801", "850", "199", "900", "665", "631", "742", "550", "718", "890", "237", "263", "812", "274", "330", "634", "159", "59", "353", "522", "932", "144", "87", "913", "703", "317", "196", "375", "720", "48", "281", "601", "484", "76", "256", "340", "403", "996", "476", "422", "572", "21", "116", "533", "498", "956", "984", "967", "138", "511", "559", "530", "592", "680", "339", "889", "487", "909", "419", "854", "228", "372", "270", "347", "989", "54", "628", "188", "978", "747", "473", "408", "43", "707", "148", "127", "729", "653", "65", "612", "71", "935", "605", "285", "826", "921", "479", "364", "32", "185", "508", "561", "910", "792", "642", "57", "924", "213", "292", "108", "505", "259", "945", "202", "691", "248", "946", "297", "860", "80", "428", "360", "820", "431", "923", "510", "898", "445", "472", "434", "219", "586", "808", "775", "845", "834", "106", "234", "252", "645", "137", "579", "126", "957", "386", "906", "490", "300", "348", "938", "337", "39", "785", "656", "568", "676", "82", "876", "636", "49", "596", "979", "6", "413", "987", "557", "383", "532", "241", "36", "968", "1", "788", "815", "565", "737", "883", "286", "289", "140", "582", "954", "759", "864", "173", "290", "658", "554", "208", "698", "14", "133", "878", "409", "912", "991", "17", "180", "745", "799", "267", "695", "771", "394", "221", "25", "60", "943", "397", "47", "823", "647", "983", "309", "102", "31", "753", "503", "162", "463", "701", "887", "662", "95", "856", "521", "122", "536", "391", "872", "704", "687", "230", "902", "111", "96", "69", "622", "442", "344", "278", "764", "191", "494", "456", "934", "151", "819", "245", "842", "950", "625", "190", "477", "184", "879", "214", "53", "694", "995", "322", "405", "58", "368", "145", "644", "315", "916", "741", "483", "264", "795", "257", "439", "64", "546", "571", "225", "730", "853", "961", "539", "389", "249", "528", "499", "115", "560", "195", "760", "452", "203", "867", "780", "525", "42", "827", "683", "75", "246", "517", "972", "467", "275", "376", "723", "156", "308", "756", "666", "189", "767", "326", "178", "357", "488", "27", "734", "641", "514", "293", "880", "109", "0", "630", "149", "354", "809", "690", "20", "891", "430", "260", "365", "311", "804", "849", "70", "542", "210", "965", "894", "927", "575", "266", "600", "2", "591", "38", "652", "333", "633", "810", "831", "564", "402", "86", "712", "238", "672", "371", "81", "611", "791", "167", "423", "271", "976", "304", "416", "789", "282", "587", "493", "198", "277", "998", "558", "958", "790", "778", "283", "659", "738", "937", "338", "922", "699", "871", "294", "685", "474", "947", "986", "482", "506", "160", "562", "969", "531", "118", "187", "814", "886", "663", "92", "446", "594", "125", "705", "901", "18", "489", "807", "395", "846", "748", "171", "345", "165", "443", "235", "835", "374", "708", "677", "462", "637", "573", "412", "520", "621", "363", "427", "261", "696", "655", "194", "719", "215", "838", "220", "994", "660", "535", "114", "875", "502", "982", "438", "464", "101", "247", "319", "942", "258", "551", "933", "154", "615", "570", "581", "648", "183", "30", "7", "597", "857", "824", "688", "352", "143", "97", "863", "331", "618", "130", "179", "218", "435", "432", "251", "882", "359", "288", "897", "471", "41", "299", "911", "905", "818", "222", "272", "496", "478", "457", "207", "793", "524", "607", "129", "590", "29", "569", "485", "744", "240", "384", "168", "105", "651", "733", "763", "555", "150", "3", "420", "614", "74", "839", "800", "468", "547", "63", "254", "684", "211", "782", "232", "722", "755", "603", "654", "204", "369", "868", "342", "953", "323", "828", "518", "243", "226", "305", "52", "960", "85", "626", "715", "915", "740", "380", "796", "797", "700", "366", "893", "757", "971", "852", "91", "841", "453", "172", "584", "406", "451", "930", "355", "643", "316", "1000", "566", "440", "774", "610", "334", "640", "926", "229", "830", "465", "629", "999", "449", "377", "424", "131", "401", "726", "786", "693", "766", "200", "327", "543", "669", "779", "803", "119", "513", "709", "811", "176", "349", "370", "671", "28", "301", "975", "576", "161", "632", "964", "417", "136", "157", "667", "749", "752", "711", "529", "146", "577", "358", "682", "673", "239", "312"]
   },
   "defaultValue": "0",
   "descriptions": {
     "2.12": "backend threads worker queue size",
-    "2.13": "backend threads worker queue size"
+    "2.13": "backend threads worker queue size",
+    "3.4": "backend threads worker queue size"
   },
   "flag": "-Ybackend-worker-queue",
-  "scalaVersions": ["2.12", "2.13"]
+  "scalaVersions": ["2.12", "2.13", "3.4"]
 }, {
   "argType": "No",
   "choices": {
@@ -2606,10 +2742,31 @@
   },
   "descriptions": {
     "3.2": "Used in conjunction with captureChecking language import, debug info for captured references",
-    "3.3": "Used in conjunction with captureChecking language import, debug info for captured references"
+    "3.3": "Used in conjunction with captureChecking language import, debug info for captured references.",
+    "3.4": "Used in conjunction with captureChecking language import, debug info for captured references."
   },
   "flag": "-Ycc-debug",
-  "scalaVersions": ["3.2", "3.3"]
+  "scalaVersions": ["3.2", "3.3", "3.4"]
+}, {
+  "argType": "No",
+  "choices": {
+
+  },
+  "descriptions": {
+    "3.4": "Used in conjunction with captureChecking language import, print tracing and debug info"
+  },
+  "flag": "-Ycc-log",
+  "scalaVersions": ["3.4"]
+}, {
+  "argType": "No",
+  "choices": {
+
+  },
+  "descriptions": {
+    "3.4": "Used in conjunction with captureChecking language import, try out new variants (debug option)"
+  },
+  "flag": "-Ycc-new",
+  "scalaVersions": ["3.4"]
 }, {
   "argType": "No",
   "choices": {
@@ -2617,26 +2774,37 @@
   },
   "descriptions": {
     "3.2": "Used in conjunction with captureChecking language import, suppress type abbreviations",
-    "3.3": "Used in conjunction with captureChecking language import, suppress type abbreviations"
+    "3.3": "Used in conjunction with captureChecking language import, suppress type abbreviations."
   },
   "flag": "-Ycc-no-abbrev",
   "scalaVersions": ["3.2", "3.3"]
+}, {
+  "argType": "No",
+  "choices": {
+
+  },
+  "descriptions": {
+    "3.4": "Used in conjunction with captureChecking language import, print trees after cc.Setup phase"
+  },
+  "flag": "-Ycc-print-setup",
+  "scalaVersions": ["3.4"]
 }, {
   "argType": "Multiple",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Check the tree at the end of",
     "3.0": "Check the tree at the end of",
     "2.13": "Check the tree at the end of <phases>",
     "3.3": "Check the tree at the end of",
     "2.12": "Check the tree at the end of <phases>",
     "3.2": "Check the tree at the end of",
-    "2.11": "Check the tree at the end of <phases>"
+    "2.11": "Check the tree at the end of <phases>",
+    "3.1": "Check the tree at the end of",
+    "3.4": "Check the tree at the end of"
   },
   "flag": "-Ycheck",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -2644,22 +2812,24 @@
   },
   "descriptions": {
     "3.0": "Check exhaustivity and redundancy of all pattern matching (used for testing the algorithm).",
-    "3.1": "Check exhaustivity and redundancy of all pattern matching (used for testing the algorithm).",
+    "3.3": "Check exhaustivity and redundancy of all pattern matching (used for testing the algorithm).",
     "3.2": "Check exhaustivity and redundancy of all pattern matching (used for testing the algorithm).",
-    "3.3": "Check exhaustivity and redundancy of all pattern matching (used for testing the algorithm)."
+    "3.1": "Check exhaustivity and redundancy of all pattern matching (used for testing the algorithm).",
+    "3.4": "Check exhaustivity and redundancy of all pattern matching (used for testing the algorithm)."
   },
   "flag": "-Ycheck-all-patmat",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
 
   },
   "descriptions": {
-    "3.3": "Check dependency tracking in constraints (used for testing the algorithm)."
+    "3.3": "Check dependency tracking in constraints (used for testing the algorithm).",
+    "3.4": "Check dependency tracking in constraints (used for testing the algorithm)."
   },
   "flag": "-Ycheck-constraint-deps",
-  "scalaVersions": ["3.3"]
+  "scalaVersions": ["3.3", "3.4"]
 }, {
   "argType": "No",
   "choices": {
@@ -2667,12 +2837,13 @@
   },
   "descriptions": {
     "3.0": "Check that symbols and their defining trees have modifiers in sync.",
-    "3.1": "Check that symbols and their defining trees have modifiers in sync.",
+    "3.3": "Check that symbols and their defining trees have modifiers in sync.",
     "3.2": "Check that symbols and their defining trees have modifiers in sync.",
-    "3.3": "Check that symbols and their defining trees have modifiers in sync."
+    "3.1": "Check that symbols and their defining trees have modifiers in sync.",
+    "3.4": "Check that symbols and their defining trees have modifiers in sync."
   },
   "flag": "-Ycheck-mods",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -2680,12 +2851,13 @@
   },
   "descriptions": {
     "3.0": "Check that compiled program does not contain vars that can be accessed from a global root.",
-    "3.1": "Check that compiled program does not contain vars that can be accessed from a global root.",
+    "3.3": "Check that compiled program does not contain vars that can be accessed from a global root.",
     "3.2": "Check that compiled program does not contain vars that can be accessed from a global root.",
-    "3.3": "Check that compiled program does not contain vars that can be accessed from a global root."
+    "3.1": "Check that compiled program does not contain vars that can be accessed from a global root.",
+    "3.4": "Check that compiled program does not contain vars that can be accessed from a global root."
   },
   "flag": "-Ycheck-reentrant",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneAfterColon",
   "choices": {
@@ -2720,6 +2892,16 @@
   "flag": "-Ycompact-trees",
   "scalaVersions": ["2.11", "2.12", "2.13"]
 }, {
+  "argType": "No",
+  "choices": {
+
+  },
+  "descriptions": {
+    "3.4": "Used when compiling the Scala 2 standard library."
+  },
+  "flag": "-Ycompile-scala2-library",
+  "scalaVersions": ["3.4"]
+}, {
   "argType": "OneAfterColon",
   "choices": {
     "2.11": ["pc", "adhoc", "none"]
@@ -2747,12 +2929,13 @@
   },
   "descriptions": {
     "3.0": "Cook the documentation (type check `@usecase`, etc.)",
-    "3.1": "Cook the documentation (type check `@usecase`, etc.)",
+    "3.3": "Cook the documentation (type check `@usecase`, etc.)",
     "3.2": "Cook the documentation (type check `@usecase`, etc.)",
-    "3.3": "Cook the documentation (type check `@usecase`, etc.)"
+    "3.1": "Cook the documentation (type check `@usecase`, etc.)",
+    "3.4": "Cook the documentation (type check `@usecase`, etc.)"
   },
   "flag": "-Ycook-comments",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -2760,12 +2943,13 @@
   },
   "descriptions": {
     "3.0": "Cook the documentation (type check `@usecase`, etc.)",
-    "3.1": "Cook the documentation (type check `@usecase`, etc.)",
+    "3.3": "Cook the documentation (type check `@usecase`, etc.)",
     "3.2": "Cook the documentation (type check `@usecase`, etc.)",
-    "3.3": "Cook the documentation (type check `@usecase`, etc.)"
+    "3.1": "Cook the documentation (type check `@usecase`, etc.)",
+    "3.4": "Cook the documentation (type check `@usecase`, etc.)"
   },
   "flag": "-Ycook-docs",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -2782,16 +2966,17 @@
 
   },
   "descriptions": {
-    "3.1": "Increase the quantity of debugging output.",
     "3.0": "Increase the quantity of debugging output.",
     "2.13": "Increase the quantity of debugging output. [false]",
     "3.3": "Increase the quantity of debugging output.",
     "2.12": "Increase the quantity of debugging output. [false]",
     "3.2": "Increase the quantity of debugging output.",
-    "2.11": "Increase the quantity of debugging output."
+    "2.11": "Increase the quantity of debugging output.",
+    "3.1": "Increase the quantity of debugging output.",
+    "3.4": "Increase the quantity of debugging output."
   },
   "flag": "-Ydebug",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -2799,12 +2984,13 @@
   },
   "descriptions": {
     "3.0": "Print the stack trace when any error is caught.",
-    "3.1": "Print the stack trace when any error is caught.",
+    "3.3": "Print the stack trace when any error is caught.",
     "3.2": "Print the stack trace when any error is caught.",
-    "3.3": "Print the stack trace when any error is caught."
+    "3.1": "Print the stack trace when any error is caught.",
+    "3.4": "Print the stack trace when any error is caught."
   },
   "flag": "-Ydebug-error",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -2812,12 +2998,24 @@
   },
   "descriptions": {
     "3.0": "Print all flags of definitions.",
-    "3.1": "Print all flags of definitions.",
+    "3.3": "Print all flags of definitions.",
     "3.2": "Print all flags of definitions.",
-    "3.3": "Print all flags of definitions."
+    "3.1": "Print all flags of definitions.",
+    "3.4": "Print all flags of definitions."
   },
   "flag": "-Ydebug-flags",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
+}, {
+  "argType": "No",
+  "choices": {
+
+  },
+  "descriptions": {
+    "3.3": "Show debug info when quote pattern match fails",
+    "3.4": "Show debug info when quote pattern match fails"
+  },
+  "flag": "-Ydebug-macros",
+  "scalaVersions": ["3.3", "3.4"]
 }, {
   "argType": "No",
   "choices": {
@@ -2825,12 +3023,13 @@
   },
   "descriptions": {
     "3.0": "Print a stacktrace when a required symbol is missing.",
-    "3.1": "Print a stacktrace when a required symbol is missing.",
+    "3.3": "Print a stacktrace when a required symbol is missing.",
     "3.2": "Print a stacktrace when a required symbol is missing.",
-    "3.3": "Print a stacktrace when a required symbol is missing."
+    "3.1": "Print a stacktrace when a required symbol is missing.",
+    "3.4": "Print a stacktrace when a required symbol is missing."
   },
   "flag": "-Ydebug-missing-refs",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -2838,12 +3037,13 @@
   },
   "descriptions": {
     "3.0": "Show internal representation of names.",
-    "3.1": "Show internal representation of names.",
+    "3.3": "Show internal representation of names.",
     "3.2": "Show internal representation of names.",
-    "3.3": "Show internal representation of names."
+    "3.1": "Show internal representation of names.",
+    "3.4": "Show internal representation of names."
   },
   "flag": "-Ydebug-names",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -2851,12 +3051,13 @@
   },
   "descriptions": {
     "3.0": "Show full source positions including spans.",
-    "3.1": "Show full source positions including spans.",
+    "3.3": "Show full source positions including spans.",
     "3.2": "Show full source positions including spans.",
-    "3.3": "Show full source positions including spans."
+    "3.1": "Show full source positions including spans.",
+    "3.4": "Show full source positions including spans."
   },
   "flag": "-Ydebug-pos",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -2874,12 +3075,13 @@
   },
   "descriptions": {
     "3.0": "Trace core operations.",
-    "3.1": "Trace core operations.",
+    "3.3": "Trace core operations.",
     "3.2": "Trace core operations.",
-    "3.3": "Trace core operations."
+    "3.1": "Trace core operations.",
+    "3.4": "Trace core operations."
   },
   "flag": "-Ydebug-trace",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -2888,26 +3090,28 @@
   "defaultValue": "-2147483648",
   "descriptions": {
     "3.0": "Print the stack trace when the tree with the given id is created.",
-    "3.1": "Print the stack trace when the tree with the given id is created.",
+    "3.3": "Print the stack trace when the tree with the given id is created.",
     "3.2": "Print the stack trace when the tree with the given id is created.",
-    "3.3": "Print the stack trace when the tree with the given id is created."
+    "3.1": "Print the stack trace when the tree with the given id is created.",
+    "3.4": "Print the stack trace when the tree with the given id is created."
   },
   "flag": "-Ydebug-tree-with-id",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Print the stack trace when a TypeError is caught",
     "3.0": "Print the stack trace when a TypeError is caught",
     "2.13": "Print the stack trace when any error is caught. [false]",
     "3.3": "Print the stack trace when a TypeError is caught",
-    "3.2": "Print the stack trace when a TypeError is caught"
+    "3.2": "Print the stack trace when a TypeError is caught",
+    "3.1": "Print the stack trace when a TypeError is caught",
+    "3.4": "Print the stack trace when a TypeError is caught"
   },
   "flag": "-Ydebug-type-error",
-  "scalaVersions": ["3.3", "2.13", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.1", "3.2", "2.13", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -2915,10 +3119,11 @@
   },
   "descriptions": {
     "3.2": "Print the stack trace when an error occurs when reading Tasty.",
-    "3.3": "Print the stack trace when an error occurs when reading Tasty."
+    "3.3": "Print the stack trace when an error occurs when reading Tasty.",
+    "3.4": "Print the stack trace when an error occurs when reading Tasty."
   },
   "flag": "-Ydebug-unpickling",
-  "scalaVersions": ["3.2", "3.3"]
+  "scalaVersions": ["3.2", "3.3", "3.4"]
 }, {
   "argType": "OneAfterColon",
   "choices": {
@@ -2950,12 +3155,13 @@
   },
   "descriptions": {
     "3.0": "Show detailed internal compiler stats (needs Stats.enabled to be set to true).",
-    "3.1": "Show detailed internal compiler stats (needs Stats.enabled to be set to true).",
+    "3.3": "Show detailed internal compiler stats (needs Stats.enabled to be set to true).",
     "3.2": "Show detailed internal compiler stats (needs Stats.enabled to be set to true).",
-    "3.3": "Show detailed internal compiler stats (needs Stats.enabled to be set to true)."
+    "3.1": "Show detailed internal compiler stats (needs Stats.enabled to be set to true).",
+    "3.4": "Show detailed internal compiler stats (needs Stats.enabled to be set to true)."
   },
   "flag": "-Ydetailed-stats",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -2982,16 +3188,17 @@
 
   },
   "descriptions": {
-    "3.1": "Do not cache flat classpath representation of classpath elements from jars across compiler instances.",
     "3.0": "Do not cache flat classpath representation of classpath elements from jars across compiler instances.",
     "2.13": "Do not cache flat classpath representation of classpath elements from jars across compiler instances. [false]",
     "3.3": "Do not cache flat classpath representation of classpath elements from jars across compiler instances.",
     "2.12": "Do not cache flat classpath representation of classpath elements from jars across compiler instances. [false]",
     "3.2": "Do not cache flat classpath representation of classpath elements from jars across compiler instances.",
-    "2.11": "Do not cache flat classpath representation of classpath elements from jars across compiler instances."
+    "2.11": "Do not cache flat classpath representation of classpath elements from jars across compiler instances.",
+    "3.1": "Do not cache flat classpath representation of classpath elements from jars across compiler instances.",
+    "3.4": "Do not cache flat classpath representation of classpath elements from jars across compiler instances."
   },
   "flag": "-YdisableFlatCpCaching",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -3011,12 +3218,13 @@
   },
   "descriptions": {
     "3.0": "Drop documentation when scanning source files.",
-    "3.1": "Drop documentation when scanning source files.",
+    "3.3": "Drop documentation when scanning source files.",
     "3.2": "Drop documentation when scanning source files.",
-    "3.3": "Drop documentation when scanning source files."
+    "3.1": "Drop documentation when scanning source files.",
+    "3.4": "Drop documentation when scanning source files."
   },
   "flag": "-Ydrop-comments",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -3024,28 +3232,30 @@
   },
   "descriptions": {
     "3.0": "Drop documentation when scanning source files.",
-    "3.1": "Drop documentation when scanning source files.",
+    "3.3": "Drop documentation when scanning source files.",
     "3.2": "Drop documentation when scanning source files.",
-    "3.3": "Drop documentation when scanning source files."
+    "3.1": "Drop documentation when scanning source files.",
+    "3.4": "Drop documentation when scanning source files."
   },
   "flag": "-Ydrop-docs",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneSeparate",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Dump the generated bytecode to .class files (useful for reflective compilation that utilizes in-memory classloaders).",
     "3.0": "Dump the generated bytecode to .class files (useful for reflective compilation that utilizes in-memory classloaders).",
     "2.13": "Dump the generated bytecode to .class files (useful for reflective compilation that utilizes in-memory classloaders).",
     "3.3": "Dump the generated bytecode to .class files (useful for reflective compilation that utilizes in-memory classloaders).",
     "2.12": "Dump the generated bytecode to .class files (useful for reflective compilation that utilizes in-memory classloaders).",
     "3.2": "Dump the generated bytecode to .class files (useful for reflective compilation that utilizes in-memory classloaders).",
-    "2.11": "Dump the generated bytecode to .class files (useful for reflective compilation that utilizes in-memory classloaders)."
+    "2.11": "Dump the generated bytecode to .class files (useful for reflective compilation that utilizes in-memory classloaders).",
+    "3.1": "Dump the generated bytecode to .class files (useful for reflective compilation that utilizes in-memory classloaders).",
+    "3.4": "Dump the generated bytecode to .class files (useful for reflective compilation that utilizes in-memory classloaders)."
   },
   "flag": "-Ydump-classes",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -3053,12 +3263,13 @@
   },
   "descriptions": {
     "3.0": "For every compiled foo.scala, output the API representation and dependencies used for sbt incremental compilation in foo.inc, implies -Yforce-sbt-phases.",
-    "3.1": "For every compiled foo.scala, output the API representation and dependencies used for sbt incremental compilation in foo.inc, implies -Yforce-sbt-phases.",
+    "3.3": "For every compiled foo.scala, output the API representation and dependencies used for sbt incremental compilation in foo.inc, implies -Yforce-sbt-phases.",
     "3.2": "For every compiled foo.scala, output the API representation and dependencies used for sbt incremental compilation in foo.inc, implies -Yforce-sbt-phases.",
-    "3.3": "For every compiled foo.scala, output the API representation and dependencies used for sbt incremental compilation in foo.inc, implies -Yforce-sbt-phases."
+    "3.1": "For every compiled foo.scala, output the API representation and dependencies used for sbt incremental compilation in foo.inc, implies -Yforce-sbt-phases.",
+    "3.4": "For every compiled foo.scala, output the API representation and dependencies used for sbt incremental compilation in foo.inc, implies -Yforce-sbt-phases."
   },
   "flag": "-Ydump-sbt-inc",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -3076,12 +3287,13 @@
   },
   "descriptions": {
     "3.0": "When explaining type errors, show types at a lower level.",
-    "3.1": "When explaining type errors, show types at a lower level.",
+    "3.3": "When explaining type errors, show types at a lower level.",
     "3.2": "When explaining type errors, show types at a lower level.",
-    "3.3": "When explaining type errors, show types at a lower level."
+    "3.1": "When explaining type errors, show types at a lower level.",
+    "3.4": "When explaining type errors, show types at a lower level."
   },
   "flag": "-Yexplain-lowlevel",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -3089,12 +3301,13 @@
   },
   "descriptions": {
     "3.0": "Make reference types non-nullable. Nullable types can be expressed with unions: e.g. String|Null.",
-    "3.1": "Make reference types non-nullable. Nullable types can be expressed with unions: e.g. String|Null.",
+    "3.3": "Make reference types non-nullable. Nullable types can be expressed with unions: e.g. String|Null.",
     "3.2": "Make reference types non-nullable. Nullable types can be expressed with unions: e.g. String|Null.",
-    "3.3": "Make reference types non-nullable. Nullable types can be expressed with unions: e.g. String|Null."
+    "3.1": "Make reference types non-nullable. Nullable types can be expressed with unions: e.g. String|Null.",
+    "3.4": "Make reference types non-nullable. Nullable types can be expressed with unions: e.g. String|Null."
   },
   "flag": "-Yexplicit-nulls",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -3102,12 +3315,13 @@
   },
   "descriptions": {
     "3.0": "Make non-transparent inline methods inline when typing. Emulates the old inlining behavior of 3.0.0-M3.",
-    "3.1": "Make non-transparent inline methods inline when typing. Emulates the old inlining behavior of 3.0.0-M3.",
+    "3.3": "Make non-transparent inline methods inline when typing. Emulates the old inlining behavior of 3.0.0-M3.",
     "3.2": "Make non-transparent inline methods inline when typing. Emulates the old inlining behavior of 3.0.0-M3.",
-    "3.3": "Make non-transparent inline methods inline when typing. Emulates the old inlining behavior of 3.0.0-M3."
+    "3.1": "Make non-transparent inline methods inline when typing. Emulates the old inlining behavior of 3.0.0-M3.",
+    "3.4": "Make non-transparent inline methods inline when typing. Emulates the old inlining behavior of 3.0.0-M3."
   },
   "flag": "-Yforce-inline-while-typing",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -3115,12 +3329,13 @@
   },
   "descriptions": {
     "3.0": "Run the phases used by sbt for incremental compilation (ExtractDependencies and ExtractAPI) even if the compiler is ran outside of sbt, for debugging.",
-    "3.1": "Run the phases used by sbt for incremental compilation (ExtractDependencies and ExtractAPI) even if the compiler is ran outside of sbt, for debugging.",
+    "3.3": "Run the phases used by sbt for incremental compilation (ExtractDependencies and ExtractAPI) even if the compiler is ran outside of sbt, for debugging.",
     "3.2": "Run the phases used by sbt for incremental compilation (ExtractDependencies and ExtractAPI) even if the compiler is ran outside of sbt, for debugging.",
-    "3.3": "Run the phases used by sbt for incremental compilation (ExtractDependencies and ExtractAPI) even if the compiler is ran outside of sbt, for debugging."
+    "3.1": "Run the phases used by sbt for incremental compilation (ExtractDependencies and ExtractAPI) even if the compiler is ran outside of sbt, for debugging.",
+    "3.4": "Run the phases used by sbt for incremental compilation (ExtractDependencies and ExtractAPI) even if the compiler is ran outside of sbt, for debugging."
   },
   "flag": "-Yforce-sbt-phases",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "Multiple",
   "choices": {
@@ -3128,12 +3343,13 @@
   },
   "descriptions": {
     "3.0": "List of `tasty` files in jar files that will not be loaded when using -from-tasty",
-    "3.1": "List of `tasty` files in jar files that will not be loaded when using -from-tasty",
+    "3.3": "List of `tasty` files in jar files that will not be loaded when using -from-tasty.",
     "3.2": "List of `tasty` files in jar files that will not be loaded when using -from-tasty",
-    "3.3": "List of `tasty` files in jar files that will not be loaded when using -from-tasty"
+    "3.1": "List of `tasty` files in jar files that will not be loaded when using -from-tasty",
+    "3.4": "List of `tasty` files in jar files that will not be loaded when using -from-tasty."
   },
   "flag": "-Yfrom-tasty-ignore-list",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -3195,10 +3411,11 @@
   },
   "descriptions": {
     "2.13": "Custom root imports, default is `java.lang,scala,scala.Predef`.",
-    "3.3": "Custom root imports. If set, none of scala.*, java.lang.*, or Predef.* will be imported unless explicitly included."
+    "3.3": "Custom root imports. If set, none of scala.*, java.lang.*, or Predef.* will be imported unless explicitly included.",
+    "3.4": "Custom root imports. If set, none of scala.*, java.lang.*, or Predef.* will be imported unless explicitly included."
   },
   "flag": "-Yimports",
-  "scalaVersions": ["2.13", "3.3"]
+  "scalaVersions": ["2.13", "3.3", "3.4"]
 }, {
   "argType": "No",
   "choices": {
@@ -3279,12 +3496,13 @@
   },
   "descriptions": {
     "3.0": "Add instrumentation code that counts allocations and closure creations.",
-    "3.1": "Add instrumentation code that counts allocations and closure creations.",
+    "3.3": "Add instrumentation code that counts allocations and closure creations.",
     "3.2": "Add instrumentation code that counts allocations and closure creations.",
-    "3.3": "Add instrumentation code that counts allocations and closure creations."
+    "3.1": "Add instrumentation code that counts allocations and closure creations.",
+    "3.4": "Add instrumentation code that counts allocations and closure creations."
   },
   "flag": "-Yinstrument",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -3292,12 +3510,13 @@
   },
   "descriptions": {
     "3.0": "Add instrumentation code that counts method calls; needs -Yinstrument to be set, too.",
-    "3.1": "Add instrumentation code that counts method calls; needs -Yinstrument to be set, too.",
+    "3.3": "Add instrumentation code that counts method calls; needs -Yinstrument to be set, too.",
     "3.2": "Add instrumentation code that counts method calls; needs -Yinstrument to be set, too.",
-    "3.3": "Add instrumentation code that counts method calls; needs -Yinstrument to be set, too."
+    "3.1": "Add instrumentation code that counts method calls; needs -Yinstrument to be set, too.",
+    "3.4": "Add instrumentation code that counts method calls; needs -Yinstrument to be set, too."
   },
   "flag": "-Yinstrument-defs",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -3312,15 +3531,16 @@
 }, {
   "argType": "OneSeparate",
   "choices": {
-
+    "3.4": ["8", "4", "9", "5", "0", "2", "7", "-1", "3", "6", "1"]
   },
   "defaultValue": "-1",
   "descriptions": {
     "2.12": "compression level to use when writing jar files",
-    "2.13": "compression level to use when writing jar files"
+    "2.13": "compression level to use when writing jar files",
+    "3.4": "compression level to use when writing jar files"
   },
   "flag": "-Yjar-compression-level",
-  "scalaVersions": ["2.12", "2.13"]
+  "scalaVersions": ["2.12", "2.13", "3.4"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -3334,32 +3554,56 @@
   "flag": "-YjarFactory",
   "scalaVersions": ["2.12", "2.13"]
 }, {
+  "argType": "No",
+  "choices": {
+
+  },
+  "descriptions": {
+    "3.4": "Pickler phase should compute pickles for .java defined symbols for use by build tools"
+  },
+  "flag": "-Yjava-tasty",
+  "scalaVersions": ["3.4"]
+}, {
+  "argType": "OneSeparate",
+  "choices": {
+
+  },
+  "defaultValue": "<no file>",
+  "descriptions": {
+    "3.4": "(Internal use only!) destination for generated .tasty files containing Java type signatures."
+  },
+  "flag": "-Yjava-tasty-output",
+  "scalaVersions": ["3.4"]
+}, {
   "argType": "OneAfterColon",
   "choices": {
     "3.0": ["disable", "", "underscores"],
-    "3.1": ["disable", "", "underscores"],
+    "3.3": ["disable", "", "underscores"],
     "3.2": ["disable", "", "underscores"],
-    "3.3": ["disable", "", "underscores"]
+    "3.1": ["disable", "", "underscores"],
+    "3.4": ["disable", "", "underscores"]
   },
   "defaultValue": "disable",
   "descriptions": {
     "3.0": "Allow `*` as type lambda placeholder to be compatible with kind projector. When invoked as -Ykind-projector:underscores will repurpose `_` to be a type parameter placeholder, this will disable usage of underscore as a wildcard.",
-    "3.1": "Allow `*` as type lambda placeholder to be compatible with kind projector. When invoked as -Ykind-projector:underscores will repurpose `_` to be a type parameter placeholder, this will disable usage of underscore as a wildcard.",
+    "3.3": "Allow `*` as type lambda placeholder to be compatible with kind projector. When invoked as -Ykind-projector:underscores will repurpose `_` to be a type parameter placeholder, this will disable usage of underscore as a wildcard.",
     "3.2": "Allow `*` as type lambda placeholder to be compatible with kind projector. When invoked as -Ykind-projector:underscores will repurpose `_` to be a type parameter placeholder, this will disable usage of underscore as a wildcard.",
-    "3.3": "Allow `*` as type lambda placeholder to be compatible with kind projector. When invoked as -Ykind-projector:underscores will repurpose `_` to be a type parameter placeholder, this will disable usage of underscore as a wildcard."
+    "3.1": "Allow `*` as type lambda placeholder to be compatible with kind projector. When invoked as -Ykind-projector:underscores will repurpose `_` to be a type parameter placeholder, this will disable usage of underscore as a wildcard.",
+    "3.4": "Allow `*` as type lambda placeholder to be compatible with kind projector. When invoked as -Ykind-projector:underscores will repurpose `_` to be a type parameter placeholder, this will disable usage of underscore as a wildcard."
   },
   "flag": "-Ykind-projector",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
 
   },
   "descriptions": {
-    "3.3": "Use legacy (pre 3.3.0) implementation of lazy vals"
+    "3.3": "Use legacy (pre 3.3.0) implementation of lazy vals.",
+    "3.4": "Use legacy (pre 3.3.0) implementation of lazy vals."
   },
   "flag": "-Ylegacy-lazy-vals",
-  "scalaVersions": ["3.3"]
+  "scalaVersions": ["3.3", "3.4"]
 }, {
   "argType": "No",
   "choices": {
@@ -3387,32 +3631,34 @@
 
   },
   "descriptions": {
-    "3.1": "Log operations during",
     "3.0": "Log operations during",
     "2.13": "Log operations during <phases>",
     "3.3": "Log operations during",
     "2.12": "Log operations during <phases>",
     "3.2": "Log operations during",
-    "2.11": "Log operations during <phases>"
+    "2.11": "Log operations during <phases>",
+    "3.1": "Log operations during",
+    "3.4": "Log operations during"
   },
   "flag": "-Ylog",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Output information about what classpath is being applied.",
     "3.0": "Output information about what classpath is being applied.",
     "2.13": "Output information about what classpath is being applied. [false]",
     "3.3": "Output information about what classpath is being applied.",
     "2.12": "Output information about what classpath is being applied. [false]",
     "3.2": "Output information about what classpath is being applied.",
-    "2.11": "Output information about what classpath is being applied."
+    "2.11": "Output information about what classpath is being applied.",
+    "3.1": "Output information about what classpath is being applied.",
+    "3.4": "Output information about what classpath is being applied."
   },
   "flag": "-Ylog-classpath",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -3525,12 +3771,13 @@
   },
   "descriptions": {
     "3.0": "Show raw StackOverflow stacktraces, instead of decoding them into triggering operations.",
-    "3.1": "Show raw StackOverflow stacktraces, instead of decoding them into triggering operations.",
+    "3.3": "Show raw StackOverflow stacktraces, instead of decoding them into triggering operations.",
     "3.2": "Show raw StackOverflow stacktraces, instead of decoding them into triggering operations.",
-    "3.3": "Show raw StackOverflow stacktraces, instead of decoding them into triggering operations."
+    "3.1": "Show raw StackOverflow stacktraces, instead of decoding them into triggering operations.",
+    "3.4": "Show raw StackOverflow stacktraces, instead of decoding them into triggering operations."
   },
   "flag": "-Yno-decode-stacktraces",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -3538,12 +3785,13 @@
   },
   "descriptions": {
     "3.0": "Throw an exception on deep subtyping call stacks.",
-    "3.1": "Throw an exception on deep subtyping call stacks.",
+    "3.3": "Throw an exception on deep subtyping call stacks.",
     "3.2": "Throw an exception on deep subtyping call stacks.",
-    "3.3": "Throw an exception on deep subtyping call stacks."
+    "3.1": "Throw an exception on deep subtyping call stacks.",
+    "3.4": "Throw an exception on deep subtyping call stacks."
   },
   "flag": "-Yno-deep-subtypes",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -3551,12 +3799,24 @@
   },
   "descriptions": {
     "3.0": "Assert no namedtype is bound twice (should be enabled only if program is error-free).",
-    "3.1": "Assert no namedtype is bound twice (should be enabled only if program is error-free).",
+    "3.3": "Assert no namedtype is bound twice (should be enabled only if program is error-free).",
     "3.2": "Assert no namedtype is bound twice (should be enabled only if program is error-free).",
-    "3.3": "Assert no namedtype is bound twice (should be enabled only if program is error-free)."
+    "3.1": "Assert no namedtype is bound twice (should be enabled only if program is error-free).",
+    "3.4": "Assert no namedtype is bound twice (should be enabled only if program is error-free)."
   },
   "flag": "-Yno-double-bindings",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
+}, {
+  "argType": "No",
+  "choices": {
+
+  },
+  "descriptions": {
+    "3.3": "Show raw error messages, instead of enriching them with contextual information.",
+    "3.4": "Show raw error messages, instead of enriching them with contextual information."
+  },
+  "flag": "-Yno-enrich-error-messages",
+  "scalaVersions": ["3.3", "3.4"]
 }, {
   "argType": "No",
   "choices": {
@@ -3564,12 +3824,13 @@
   },
   "descriptions": {
     "3.0": "Disable experimental language features",
-    "3.1": "Disable experimental language features",
+    "3.3": "Disable experimental language features.",
     "3.2": "Disable experimental language features",
-    "3.3": "Disable experimental language features"
+    "3.1": "Disable experimental language features",
+    "3.4": "Disable experimental language features."
   },
   "flag": "-Yno-experimental",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -3586,32 +3847,34 @@
 
   },
   "descriptions": {
-    "3.1": "Suppress generation of generic signatures for Java.",
     "3.0": "Suppress generation of generic signatures for Java.",
     "2.13": "Suppress generation of generic signatures for Java. [false]",
     "3.3": "Suppress generation of generic signatures for Java.",
     "2.12": "Suppress generation of generic signatures for Java. [false]",
     "3.2": "Suppress generation of generic signatures for Java.",
-    "2.11": "Suppress generation of generic signatures for Java."
+    "2.11": "Suppress generation of generic signatures for Java.",
+    "3.1": "Suppress generation of generic signatures for Java.",
+    "3.4": "Suppress generation of generic signatures for Java."
   },
   "flag": "-Yno-generic-signatures",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Compile without importing scala.*, java.lang.*, or Predef.",
     "3.0": "Compile without importing scala.*, java.lang.*, or Predef.",
     "2.13": "Compile without importing scala.*, java.lang.*, or Predef. [false]",
     "3.3": "Compile without importing scala.*, java.lang.*, or Predef.",
     "2.12": "Compile without importing scala.*, java.lang.*, or Predef. [false]",
     "3.2": "Compile without importing scala.*, java.lang.*, or Predef.",
-    "2.11": "Compile without importing scala.*, java.lang.*, or Predef."
+    "2.11": "Compile without importing scala.*, java.lang.*, or Predef.",
+    "3.1": "Compile without importing scala.*, java.lang.*, or Predef.",
+    "3.4": "Compile without importing scala.*, java.lang.*, or Predef."
   },
   "flag": "-Yno-imports",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -3619,12 +3882,13 @@
   },
   "descriptions": {
     "3.0": "Disable kind polymorphism.",
-    "3.1": "Disable kind polymorphism.",
+    "3.3": "Disable kind polymorphism.",
     "3.2": "Disable kind polymorphism.",
-    "3.3": "Disable kind polymorphism."
+    "3.1": "Disable kind polymorphism.",
+    "3.4": "Disable kind polymorphism."
   },
   "flag": "-Yno-kind-polymorphism",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -3642,28 +3906,30 @@
   },
   "descriptions": {
     "3.0": "Disable all pattern matching optimizations.",
-    "3.1": "Disable all pattern matching optimizations.",
+    "3.3": "Disable all pattern matching optimizations.",
     "3.2": "Disable all pattern matching optimizations.",
-    "3.3": "Disable all pattern matching optimizations."
+    "3.1": "Disable all pattern matching optimizations.",
+    "3.4": "Disable all pattern matching optimizations."
   },
   "flag": "-Yno-patmat-opt",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Compile without importing Predef.",
     "3.0": "Compile without importing Predef.",
     "2.13": "Compile without importing Predef. [false]",
     "3.3": "Compile without importing Predef.",
     "2.12": "Compile without importing Predef. [false]",
     "3.2": "Compile without importing Predef.",
-    "2.11": "Compile without importing Predef."
+    "2.11": "Compile without importing Predef.",
+    "3.1": "Compile without importing Predef.",
+    "3.4": "Compile without importing Predef."
   },
   "flag": "-Yno-predef",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -3756,6 +4022,16 @@
 
   },
   "descriptions": {
+    "3.4": "Used to only generate the TASTy file without the classfiles"
+  },
+  "flag": "-Youtput-only-tasty",
+  "scalaVersions": ["3.4"]
+}, {
+  "argType": "No",
+  "choices": {
+
+  },
+  "descriptions": {
     "2.11": "Allow member objects to be overridden.",
     "2.12": "Allow member objects to be overridden. [false]"
   },
@@ -3815,12 +4091,13 @@
   },
   "descriptions": {
     "3.0": "Pretty-print using a plain printer.",
-    "3.1": "Pretty-print using a plain printer.",
+    "3.3": "Pretty-print using a plain printer.",
     "3.2": "Pretty-print using a plain printer.",
-    "3.3": "Pretty-print using a plain printer."
+    "3.1": "Pretty-print using a plain printer.",
+    "3.4": "Pretty-print using a plain printer."
   },
   "flag": "-Yplain-printer",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -3936,12 +4213,13 @@
   },
   "descriptions": {
     "3.0": "When printing trees, print some extra information useful for debugging.",
-    "3.1": "When printing trees, print some extra information useful for debugging.",
+    "3.3": "When printing trees, print some extra information useful for debugging.",
     "3.2": "When printing trees, print some extra information useful for debugging.",
-    "3.3": "When printing trees, print some extra information useful for debugging."
+    "3.1": "When printing trees, print some extra information useful for debugging.",
+    "3.4": "When printing trees, print some extra information useful for debugging."
   },
   "flag": "-Yprint-debug",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -3949,12 +4227,13 @@
   },
   "descriptions": {
     "3.0": "When printing trees, print owners of definitions.",
-    "3.1": "When printing trees, print owners of definitions.",
+    "3.3": "When printing trees, print owners of definitions.",
     "3.2": "When printing trees, print owners of definitions.",
-    "3.3": "When printing trees, print owners of definitions."
+    "3.1": "When printing trees, print owners of definitions.",
+    "3.4": "When printing trees, print owners of definitions."
   },
   "flag": "-Yprint-debug-owners",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -3963,10 +4242,11 @@
   "descriptions": {
     "3.1": "print nesting levels of symbols and type variables.",
     "3.2": "print nesting levels of symbols and type variables.",
-    "3.3": "print nesting levels of symbols and type variables."
+    "3.3": "print nesting levels of symbols and type variables.",
+    "3.4": "print nesting levels of symbols and type variables."
   },
   "flag": "-Yprint-level",
-  "scalaVersions": ["3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.3", "3.4"]
 }, {
   "argType": "No",
   "choices": {
@@ -3974,12 +4254,13 @@
   },
   "descriptions": {
     "3.0": "Show tree positions.",
-    "3.1": "Show tree positions.",
+    "3.3": "Show tree positions.",
     "3.2": "Show tree positions.",
-    "3.3": "Show tree positions."
+    "3.1": "Show tree positions.",
+    "3.4": "Show tree positions."
   },
   "flag": "-Yprint-pos",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -3987,12 +4268,13 @@
   },
   "descriptions": {
     "3.0": "Show symbol definitions positions.",
-    "3.1": "Show symbol definitions positions.",
+    "3.3": "Show symbol definitions positions.",
     "3.2": "Show symbol definitions positions.",
-    "3.3": "Show symbol definitions positions."
+    "3.1": "Show symbol definitions positions.",
+    "3.4": "Show symbol definitions positions."
   },
   "flag": "-Yprint-pos-syms",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -4000,12 +4282,24 @@
   },
   "descriptions": {
     "3.0": "When printing trees print info in symbols instead of corresponding info in trees.",
-    "3.1": "When printing trees print info in symbols instead of corresponding info in trees.",
+    "3.3": "When printing trees print info in symbols instead of corresponding info in trees.",
     "3.2": "When printing trees print info in symbols instead of corresponding info in trees.",
-    "3.3": "When printing trees print info in symbols instead of corresponding info in trees."
+    "3.1": "When printing trees print info in symbols instead of corresponding info in trees.",
+    "3.4": "When printing trees print info in symbols instead of corresponding info in trees."
   },
   "flag": "-Yprint-syms",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
+}, {
+  "argType": "No",
+  "choices": {
+
+  },
+  "descriptions": {
+    "3.3": "Prints the generated TASTY to stdout.",
+    "3.4": "Prints the generated TASTY to stdout."
+  },
+  "flag": "-Yprint-tasty",
+  "scalaVersions": ["3.3", "3.4"]
 }, {
   "argType": "OneAfterColon",
   "choices": {
@@ -4023,60 +4317,64 @@
 
   },
   "descriptions": {
-    "3.1": "Where to send profiling output - specify a file, default is to the console.",
     "3.0": "Where to send profiling output - specify a file, default is to the console.",
     "2.13": "Profiling output - specify a file or `-` for console.",
     "3.3": "Where to send profiling output - specify a file, default is to the console.",
     "2.12": "Profiling output - specify a file or `-` for console.",
-    "3.2": "Where to send profiling output - specify a file, default is to the console."
+    "3.2": "Where to send profiling output - specify a file, default is to the console.",
+    "3.1": "Where to send profiling output - specify a file, default is to the console.",
+    "3.4": "Where to send profiling output - specify a file, default is to the console."
   },
   "flag": "-Yprofile-destination",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Enable profiling.",
     "3.0": "Enable profiling.",
     "2.13": "Enable profiling. [false]",
     "3.3": "Enable profiling.",
     "2.12": "Enable profiling. [false]",
-    "3.2": "Enable profiling."
+    "3.2": "Enable profiling.",
+    "3.1": "Enable profiling.",
+    "3.4": "Enable profiling."
   },
   "flag": "-Yprofile-enabled",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "3.4", "3.0", "3.3"]
 }, {
   "argType": "Multiple",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Enable profiling for a phase using an external tool hook. Generally only useful for a single phase.",
     "3.0": "Enable profiling for a phase using an external tool hook. Generally only useful for a single phase.",
     "2.13": "Enable profiling for a phase using an external tool hook. Generally only useful for a single phase <phases> (default: typer)",
     "3.3": "Enable profiling for a phase using an external tool hook. Generally only useful for a single phase.",
     "2.12": "Enable profiling for a phase using an external tool hook. Generally only useful for a single phase <phases> (default: typer)",
-    "3.2": "Enable profiling for a phase using an external tool hook. Generally only useful for a single phase."
+    "3.2": "Enable profiling for a phase using an external tool hook. Generally only useful for a single phase.",
+    "3.1": "Enable profiling for a phase using an external tool hook. Generally only useful for a single phase.",
+    "3.4": "Enable profiling for a phase using an external tool hook. Generally only useful for a single phase."
   },
   "flag": "-Yprofile-external-tool",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "3.4", "3.0", "3.3"]
 }, {
   "argType": "Multiple",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Run a GC between phases - this allows heap size to be accurate at the expense of more time. Specify a list of phases, or *",
     "3.0": "Run a GC between phases - this allows heap size to be accurate at the expense of more time. Specify a list of phases, or *",
     "2.13": "Run a GC between phases - this allows heap size to be accurate at the expense of more time. Specify a list of phases, or all <phases> (default: _)",
     "3.3": "Run a GC between phases - this allows heap size to be accurate at the expense of more time. Specify a list of phases, or *",
     "2.12": "Run a GC between phases - this allows heap size to be accurate at the expense of more time. Specify a list of phases, or all <phases> (default: _)",
-    "3.2": "Run a GC between phases - this allows heap size to be accurate at the expense of more time. Specify a list of phases, or *"
+    "3.2": "Run a GC between phases - this allows heap size to be accurate at the expense of more time. Specify a list of phases, or *",
+    "3.1": "Run a GC between phases - this allows heap size to be accurate at the expense of more time. Specify a list of phases, or *",
+    "3.4": "Run a GC between phases - this allows heap size to be accurate at the expense of more time. Specify a list of phases, or *"
   },
   "flag": "-Yprofile-run-gc",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -4120,12 +4418,13 @@
   },
   "descriptions": {
     "3.0": "Read documentation from tasty.",
-    "3.1": "Read documentation from tasty.",
+    "3.3": "Read documentation from tasty.",
     "3.2": "Read documentation from tasty.",
-    "3.3": "Read documentation from tasty."
+    "3.1": "Read documentation from tasty.",
+    "3.4": "Read documentation from tasty."
   },
   "flag": "-Yread-docs",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -4133,10 +4432,11 @@
   },
   "descriptions": {
     "3.2": "Run basic rechecking (internal test only)",
-    "3.3": "Run basic rechecking (internal test only)"
+    "3.3": "Run basic rechecking (internal test only).",
+    "3.4": "Run basic rechecking (internal test only)."
   },
   "flag": "-Yrecheck-test",
-  "scalaVersions": ["3.2", "3.3"]
+  "scalaVersions": ["3.2", "3.3", "3.4"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -4174,6 +4474,16 @@
   },
   "flag": "-Yreify-debug",
   "scalaVersions": ["2.11", "2.12", "2.13"]
+}, {
+  "argType": "Multiple",
+  "choices": {
+
+  },
+  "descriptions": {
+    "2.12": "Expose platform packages hidden under --release"
+  },
+  "flag": "-Yrelease",
+  "scalaVersions": ["2.12"]
 }, {
   "argType": "No",
   "choices": {
@@ -4227,35 +4537,38 @@
   },
   "descriptions": {
     "3.0": "Warn if an operator is defined without a @targetName annotation",
-    "3.1": "Warn if an operator is defined without a @targetName annotation",
+    "3.3": "Warn if an operator is defined without a @targetName annotation.",
     "3.2": "Warn if an operator is defined without a @targetName annotation",
-    "3.3": "Warn if an operator is defined without a @targetName annotation"
+    "3.1": "Warn if an operator is defined without a @targetName annotation",
+    "3.4": "Warn if an operator is defined without a @targetName annotation."
   },
   "flag": "-Yrequire-targetName",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneAfterColon",
   "choices": {
-    "3.1": ["package", "object", "error"],
     "3.0": ["package", "object", "error"],
     "2.13": ["package", "object", "error"],
     "3.3": ["package", "object", "error"],
     "2.12": ["package", "object", "error"],
     "3.2": ["package", "object", "error"],
-    "2.11": ["package", "object", "error"]
+    "2.11": ["package", "object", "error"],
+    "3.1": ["package", "object", "error"],
+    "3.4": ["package", "object", "error"]
   },
   "defaultValue": "error",
   "descriptions": {
-    "3.1": "Resolve term conflicts",
     "3.0": "Resolve term conflicts",
     "2.13": "Resolve term conflicts. (package,object,[error])",
     "3.3": "Resolve term conflicts",
     "2.12": "Resolve term conflicts. (package,object,[error])",
     "3.2": "Resolve term conflicts",
-    "2.11": "Resolve term conflicts (package,object,error) default:error"
+    "2.11": "Resolve term conflicts (package,object,error) default:error",
+    "3.1": "Resolve term conflicts",
+    "3.4": "Resolve term conflicts"
   },
   "flag": "-Yresolve-term-conflict",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -4263,12 +4576,13 @@
   },
   "descriptions": {
     "3.0": "Retain trees for top-level classes, accessible from ClassSymbol#tree",
-    "3.1": "Retain trees for top-level classes, accessible from ClassSymbol#tree",
+    "3.3": "Retain trees for top-level classes, accessible from ClassSymbol#tree",
     "3.2": "Retain trees for top-level classes, accessible from ClassSymbol#tree",
-    "3.3": "Retain trees for top-level classes, accessible from ClassSymbol#tree"
+    "3.1": "Retain trees for top-level classes, accessible from ClassSymbol#tree",
+    "3.4": "Retain trees for top-level classes, accessible from ClassSymbol#tree"
   },
   "flag": "-Yretain-trees",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -4276,12 +4590,23 @@
   },
   "descriptions": {
     "3.0": "Ensure safe initialization of objects",
-    "3.1": "Ensure safe initialization of objects",
+    "3.3": "Ensure safe initialization of objects.",
     "3.2": "Ensure safe initialization of objects",
-    "3.3": "Ensure safe initialization of objects"
+    "3.1": "Ensure safe initialization of objects",
+    "3.4": "Ensure safe initialization of objects."
   },
   "flag": "-Ysafe-init",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
+}, {
+  "argType": "No",
+  "choices": {
+
+  },
+  "descriptions": {
+    "3.4": "Check safe initialization of global objects."
+  },
+  "flag": "-Ysafe-init-global",
+  "scalaVersions": ["3.4"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -4290,12 +4615,13 @@
   "defaultValue": "always",
   "descriptions": {
     "3.0": "Control where we may get Scala 2 symbols from. This is either \"always\", \"never\", or a classpath.",
-    "3.1": "Control where we may get Scala 2 symbols from. This is either \"always\", \"never\", or a classpath.",
+    "3.3": "Control where we may get Scala 2 symbols from. This is either \"always\", \"never\", or a classpath.",
     "3.2": "Control where we may get Scala 2 symbols from. This is either \"always\", \"never\", or a classpath.",
-    "3.3": "Control where we may get Scala 2 symbols from. This is either \"always\", \"never\", or a classpath."
+    "3.1": "Control where we may get Scala 2 symbols from. This is either \"always\", \"never\", or a classpath.",
+    "3.4": "Control where we may get Scala 2 symbols from. This is either \"always\", \"never\", or a classpath."
   },
   "flag": "-Yscala2-unpickler",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -4324,12 +4650,13 @@
   },
   "descriptions": {
     "3.0": "Store information in SemanticDB.",
-    "3.1": "Store information in SemanticDB.",
+    "3.3": "Store information in SemanticDB.",
     "3.2": "Store information in SemanticDB.",
-    "3.3": "Store information in SemanticDB."
+    "3.1": "Store information in SemanticDB.",
+    "3.4": "Store information in SemanticDB."
   },
   "flag": "-Ysemanticdb",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "Multiple",
   "choices": {
@@ -4361,12 +4688,13 @@
   },
   "descriptions": {
     "3.0": "Don't suppress exceptions thrown during tree printing.",
-    "3.1": "Don't suppress exceptions thrown during tree printing.",
+    "3.3": "Don't suppress exceptions thrown during tree printing.",
     "3.2": "Don't suppress exceptions thrown during tree printing.",
-    "3.3": "Don't suppress exceptions thrown during tree printing."
+    "3.1": "Don't suppress exceptions thrown during tree printing.",
+    "3.4": "Don't suppress exceptions thrown during tree printing."
   },
   "flag": "-Yshow-print-errors",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -4374,12 +4702,13 @@
   },
   "descriptions": {
     "3.0": "Also show follow-on errors and warnings that are normally suppressed.",
-    "3.1": "Also show follow-on errors and warnings that are normally suppressed.",
+    "3.3": "Also show follow-on errors and warnings that are normally suppressed.",
     "3.2": "Also show follow-on errors and warnings that are normally suppressed.",
-    "3.3": "Also show follow-on errors and warnings that are normally suppressed."
+    "3.1": "Also show follow-on errors and warnings that are normally suppressed.",
+    "3.4": "Also show follow-on errors and warnings that are normally suppressed."
   },
   "flag": "-Yshow-suppressed-errors",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -4423,12 +4752,13 @@
   },
   "descriptions": {
     "3.0": "Uniquely tag all tree nodes in debugging output.",
-    "3.1": "Uniquely tag all tree nodes in debugging output.",
+    "3.3": "Uniquely tag all tree nodes in debugging output.",
     "3.2": "Uniquely tag all tree nodes in debugging output.",
-    "3.3": "Uniquely tag all tree nodes in debugging output."
+    "3.1": "Uniquely tag all tree nodes in debugging output.",
+    "3.4": "Uniquely tag all tree nodes in debugging output."
   },
   "flag": "-Yshow-tree-ids",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -4469,28 +4799,30 @@
   },
   "descriptions": {
     "3.0": "Print type variables with their bounds.",
-    "3.1": "Print type variables with their bounds.",
+    "3.3": "Print type variables with their bounds.",
     "3.2": "Print type variables with their bounds.",
-    "3.3": "Print type variables with their bounds."
+    "3.1": "Print type variables with their bounds.",
+    "3.4": "Print type variables with their bounds."
   },
   "flag": "-Yshow-var-bounds",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "Multiple",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Skip",
     "3.0": "Skip",
     "2.13": "Skip <phases>",
     "3.3": "Skip",
     "2.12": "Skip <phases>",
     "3.2": "Skip",
-    "2.11": "Skip <phases>"
+    "2.11": "Skip <phases>",
+    "3.1": "Skip",
+    "3.4": "Skip"
   },
   "flag": "-Yskip",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -4519,32 +4851,34 @@
 
   },
   "descriptions": {
-    "3.1": "Stop after",
     "3.0": "Stop after",
     "2.13": "Stop after <phases>",
     "3.3": "Stop after",
     "2.12": "Stop after <phases>",
     "3.2": "Stop after",
-    "2.11": "Stop after <phases>"
+    "2.11": "Stop after <phases>",
+    "3.1": "Stop after",
+    "3.4": "Stop after"
   },
   "flag": "-Ystop-after",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "Multiple",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Stop before",
     "3.0": "Stop before",
     "2.13": "Stop before <phases>",
     "3.3": "Stop before",
     "2.12": "Stop before <phases>",
     "3.2": "Stop before",
-    "2.11": "Stop before <phases>"
+    "2.11": "Stop before <phases>",
+    "3.1": "Stop before",
+    "3.4": "Stop before"
   },
   "flag": "-Ystop-before",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -4572,12 +4906,13 @@
   },
   "descriptions": {
     "3.0": "Self-test for pickling functionality; should be used with -Ystop-after:pickler.",
-    "3.1": "Self-test for pickling functionality; should be used with -Ystop-after:pickler.",
+    "3.3": "Self-test for pickling functionality; should be used with -Ystop-after:pickler.",
     "3.2": "Self-test for pickling functionality; should be used with -Ystop-after:pickler.",
-    "3.3": "Self-test for pickling functionality; should be used with -Ystop-after:pickler."
+    "3.1": "Self-test for pickling functionality; should be used with -Ystop-after:pickler.",
+    "3.4": "Self-test for pickling functionality; should be used with -Ystop-after:pickler."
   },
   "flag": "-Ytest-pickler",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -4820,16 +5155,17 @@
 
   },
   "descriptions": {
-    "3.1": "Override location of bootstrap class files.",
     "3.0": "Override location of bootstrap class files.",
     "2.13": "Override location of bootstrap class files.",
     "3.3": "Override location of bootstrap class files.",
     "2.12": "Override location of bootstrap class files.",
     "3.2": "Override location of bootstrap class files.",
-    "2.11": "Override location of bootstrap class files."
+    "2.11": "Override location of bootstrap class files.",
+    "3.1": "Override location of bootstrap class files.",
+    "3.4": "Override location of bootstrap class files."
   },
   "flag": "-bootclasspath",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -4837,33 +5173,36 @@
   },
   "defaultValue": ".",
   "descriptions": {
-    "3.1": "Specify where to find user class files.",
     "3.0": "Specify where to find user class files.",
     "2.13": "Specify where to find user class files.",
     "3.3": "Specify where to find user class files.",
     "2.12": "Specify where to find user class files.",
     "3.2": "Specify where to find user class files.",
-    "2.11": "Specify where to find user class files."
+    "2.11": "Specify where to find user class files.",
+    "3.1": "Specify where to find user class files.",
+    "3.4": "Specify where to find user class files."
   },
   "flag": "-classpath",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneAfterColon",
   "choices": {
     "3.0": ["always", "never"],
-    "3.1": ["always", "never"],
+    "3.3": ["always", "never"],
     "3.2": ["always", "never"],
-    "3.3": ["always", "never"]
+    "3.1": ["always", "never"],
+    "3.4": ["always", "never"]
   },
   "defaultValue": "always",
   "descriptions": {
     "3.0": "Colored output",
-    "3.1": "Colored output",
+    "3.3": "Colored output",
     "3.2": "Colored output",
-    "3.3": "Colored output"
+    "3.1": "Colored output",
+    "3.4": "Colored output"
   },
   "flag": "-color",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -4871,10 +5210,11 @@
   },
   "descriptions": {
     "3.2": "Destination for coverage classfiles and instrumentation data.",
-    "3.3": "Destination for coverage classfiles and instrumentation data."
+    "3.3": "Destination for coverage classfiles and instrumentation data.",
+    "3.4": "Destination for coverage classfiles and instrumentation data."
   },
   "flag": "-coverage-out",
-  "scalaVersions": ["3.2", "3.3"]
+  "scalaVersions": ["3.2", "3.3", "3.4"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -4882,16 +5222,17 @@
   },
   "defaultValue": ".",
   "descriptions": {
-    "3.1": "Specify where to find user class files.",
     "3.0": "Specify where to find user class files.",
     "2.13": "Specify where to find user class files.",
     "3.3": "Specify where to find user class files.",
     "2.12": "Specify where to find user class files.",
     "3.2": "Specify where to find user class files.",
-    "2.11": "Specify where to find user class files."
+    "2.11": "Specify where to find user class files.",
+    "3.1": "Specify where to find user class files.",
+    "3.4": "Specify where to find user class files."
   },
   "flag": "-cp",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -4899,16 +5240,17 @@
   },
   "defaultValue": ".",
   "descriptions": {
-    "3.1": "Destination for generated classfiles.",
     "3.0": "Destination for generated classfiles.",
     "2.13": "destination for generated classfiles.",
     "3.3": "Destination for generated classfiles.",
     "2.12": "destination for generated classfiles.",
     "3.2": "Destination for generated classfiles.",
-    "2.11": "destination for generated classfiles."
+    "2.11": "destination for generated classfiles.",
+    "3.1": "Destination for generated classfiles.",
+    "3.4": "Destination for generated classfiles."
   },
   "flag": "-d",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -4928,16 +5270,17 @@
 
   },
   "descriptions": {
-    "3.1": "Emit warning and location for usages of deprecated APIs.",
     "3.0": "Emit warning and location for usages of deprecated APIs.",
     "2.13": "Emit warning and location for usages of deprecated APIs. See also -Wconf. [false]",
     "3.3": "Emit warning and location for usages of deprecated APIs.",
     "2.12": "Emit warning and location for usages of deprecated APIs. See also -Wconf. [false]",
     "3.2": "Emit warning and location for usages of deprecated APIs.",
-    "2.11": "Emit warning and location for usages of deprecated APIs."
+    "2.11": "Emit warning and location for usages of deprecated APIs.",
+    "3.1": "Emit warning and location for usages of deprecated APIs.",
+    "3.4": "Emit warning and location for usages of deprecated APIs."
   },
   "flag": "-deprecation",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -5157,16 +5500,17 @@
   },
   "defaultValue": "UTF-8",
   "descriptions": {
-    "3.1": "Specify character encoding used by source files.",
     "3.0": "Specify character encoding used by source files.",
     "2.13": "Specify character encoding used by source files.",
     "3.3": "Specify character encoding used by source files.",
     "2.12": "Specify character encoding used by source files.",
     "3.2": "Specify character encoding used by source files.",
-    "2.11": "Specify character encoding used by source files."
+    "2.11": "Specify character encoding used by source files.",
+    "3.1": "Specify character encoding used by source files.",
+    "3.4": "Specify character encoding used by source files."
   },
   "flag": "-encoding",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -5185,13 +5529,24 @@
 
   },
   "descriptions": {
+    "3.4": "Annotate all top-level definitions with @experimental. This enables the use of experimental features anywhere in the project."
+  },
+  "flag": "-experimental",
+  "scalaVersions": ["3.4"]
+}, {
+  "argType": "No",
+  "choices": {
+
+  },
+  "descriptions": {
     "3.0": "Explain errors in more detail.",
-    "3.1": "Explain errors in more detail.",
+    "3.3": "Explain errors in more detail.",
     "3.2": "Explain errors in more detail.",
-    "3.3": "Explain errors in more detail."
+    "3.1": "Explain errors in more detail.",
+    "3.4": "Explain errors in more detail."
   },
   "flag": "-explain",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -5199,59 +5554,63 @@
   },
   "descriptions": {
     "3.0": "Explain type errors in more detail (deprecated, use -explain instead).",
-    "3.1": "Explain type errors in more detail (deprecated, use -explain instead).",
+    "3.3": "Explain type errors in more detail (deprecated, use -explain instead).",
     "3.2": "Explain type errors in more detail (deprecated, use -explain instead).",
-    "3.3": "Explain type errors in more detail (deprecated, use -explain instead)."
+    "3.1": "Explain type errors in more detail (deprecated, use -explain instead).",
+    "3.4": "Explain type errors in more detail (deprecated, use -explain instead)."
   },
   "flag": "-explain-types",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Explain type errors in more detail (deprecated, use -explain instead).",
     "2.13": "Explain type errors in more detail. [false]",
     "3.3": "Explain type errors in more detail (deprecated, use -explain instead).",
     "2.12": "Explain type errors in more detail. [false]",
     "3.2": "Explain type errors in more detail (deprecated, use -explain instead).",
-    "2.11": "Explain type errors in more detail."
+    "2.11": "Explain type errors in more detail.",
+    "3.1": "Explain type errors in more detail (deprecated, use -explain instead).",
+    "3.4": "Explain type errors in more detail (deprecated, use -explain instead)."
   },
   "flag": "-explaintypes",
-  "scalaVersions": ["3.3", "2.13", "2.12", "2.11", "3.2", "3.1"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.3"]
 }, {
   "argType": "OneSeparate",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Override location of installed extensions.",
     "3.0": "Override location of installed extensions.",
     "2.13": "Override location of installed extensions.",
     "3.3": "Override location of installed extensions.",
     "2.12": "Override location of installed extensions.",
     "3.2": "Override location of installed extensions.",
-    "2.11": "Override location of installed extensions."
+    "2.11": "Override location of installed extensions.",
+    "3.1": "Override location of installed extensions.",
+    "3.4": "Override location of installed extensions."
   },
   "flag": "-extdirs",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Emit warning and location for usages of features that should be imported explicitly.",
     "3.0": "Emit warning and location for usages of features that should be imported explicitly.",
     "2.13": "Emit warning and location for usages of features that should be imported explicitly. See also -Wconf. [false]",
     "3.3": "Emit warning and location for usages of features that should be imported explicitly.",
     "2.12": "Emit warning and location for usages of features that should be imported explicitly. See also -Wconf. [false]",
     "3.2": "Emit warning and location for usages of features that should be imported explicitly.",
-    "2.11": "Emit warning and location for usages of features that should be imported explicitly."
+    "2.11": "Emit warning and location for usages of features that should be imported explicitly.",
+    "3.1": "Emit warning and location for usages of features that should be imported explicitly.",
+    "3.4": "Emit warning and location for usages of features that should be imported explicitly."
   },
   "flag": "-feature",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -5259,12 +5618,13 @@
   },
   "descriptions": {
     "3.0": "Compile classes from tasty files. The arguments are .tasty or .jar files.",
-    "3.1": "Compile classes from tasty files. The arguments are .tasty or .jar files.",
+    "3.3": "Compile classes from tasty files. The arguments are .tasty or .jar files.",
     "3.2": "Compile classes from tasty files. The arguments are .tasty or .jar files.",
-    "3.3": "Compile classes from tasty files. The arguments are .tasty or .jar files."
+    "3.1": "Compile classes from tasty files. The arguments are .tasty or .jar files.",
+    "3.4": "Compile classes from tasty files. The arguments are .tasty or .jar files."
   },
   "flag": "-from-tasty",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneAfterColon",
   "choices": {
@@ -5299,28 +5659,30 @@
   },
   "descriptions": {
     "2.13": "Print a synopsis of standard options [false]",
-    "3.1": "Print a synopsis of standard options.",
+    "3.3": "Print a synopsis of standard options.",
     "3.2": "Print a synopsis of standard options.",
-    "3.3": "Print a synopsis of standard options."
+    "3.1": "Print a synopsis of standard options.",
+    "3.4": "Print a synopsis of standard options."
   },
   "flag": "-h",
-  "scalaVersions": ["2.13", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "2.13", "3.4", "3.3"]
 }, {
   "argType": "No",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Print a synopsis of standard options.",
     "3.0": "Print a synopsis of standard options.",
     "2.13": "Print a synopsis of standard options [false]",
     "3.3": "Print a synopsis of standard options.",
     "2.12": "Print a synopsis of standard options [false]",
     "3.2": "Print a synopsis of standard options.",
-    "2.11": "Print a synopsis of standard options"
+    "2.11": "Print a synopsis of standard options",
+    "3.1": "Print a synopsis of standard options.",
+    "3.4": "Print a synopsis of standard options."
   },
   "flag": "-help",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -5388,58 +5750,74 @@
   },
   "descriptions": {
     "3.0": "Together with -rewrite, remove {...} syntax when possible due to significant indentation.",
-    "3.1": "Together with -rewrite, remove {...} syntax when possible due to significant indentation.",
+    "3.3": "Together with -rewrite, remove {...} syntax when possible due to significant indentation.",
     "3.2": "Together with -rewrite, remove {...} syntax when possible due to significant indentation.",
-    "3.3": "Together with -rewrite, remove {...} syntax when possible due to significant indentation."
+    "3.1": "Together with -rewrite, remove {...} syntax when possible due to significant indentation.",
+    "3.4": "Together with -rewrite, remove {...} syntax when possible due to significant indentation."
   },
   "flag": "-indent",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
+}, {
+  "argType": "OneAfterColon",
+  "choices": {
+    "2.12": ["12", "8", "13", "16", "5", "10", "6", "7", "15", "11", "9", "17", "14"]
+  },
+  "defaultValue": "17",
+  "descriptions": {
+    "2.12": "Compile for a version of the Java API and target class file. (5,6,7,8,9,10,11,12,13,14,15,16,[17])"
+  },
+  "flag": "-java-output-version",
+  "scalaVersions": ["2.12"]
 }, {
   "argType": "OneAfterColon",
   "choices": {
     "3.1": ["12", "8", "13", "16", "10", "15", "11", "9", "17", "14"],
     "3.2": ["12", "8", "13", "16", "10", "15", "11", "9", "17", "14"],
-    "3.3": ["12", "8", "13", "16", "10", "15", "11", "9", "17", "14"]
+    "3.3": ["12", "8", "13", "16", "10", "15", "11", "9", "17", "14"],
+    "3.4": ["12", "8", "13", "16", "10", "15", "11", "9", "17", "14"]
   },
   "descriptions": {
     "3.1": "Compile code with classes specific to the given version of the Java platform available on the classpath and emit bytecode for this version. Corresponds to -release flag in javac.",
     "3.2": "Compile code with classes specific to the given version of the Java platform available on the classpath and emit bytecode for this version. Corresponds to -release flag in javac.",
-    "3.3": "Compile code with classes specific to the given version of the Java platform available on the classpath and emit bytecode for this version. Corresponds to -release flag in javac."
+    "3.3": "Compile code with classes specific to the given version of the Java platform available on the classpath and emit bytecode for this version. Corresponds to -release flag in javac.",
+    "3.4": "Compile code with classes specific to the given version of the Java platform available on the classpath and emit bytecode for this version. Corresponds to -release flag in javac."
   },
   "flag": "-java-output-version",
-  "scalaVersions": ["3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.3", "3.4"]
 }, {
   "argType": "OneSeparate",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Override java boot classpath.",
     "3.0": "Override java boot classpath.",
     "2.13": "Override java boot classpath.",
     "3.3": "Override java boot classpath.",
     "2.12": "Override java boot classpath.",
     "3.2": "Override java boot classpath.",
-    "2.11": "Override java boot classpath."
+    "2.11": "Override java boot classpath.",
+    "3.1": "Override java boot classpath.",
+    "3.4": "Override java boot classpath."
   },
   "flag": "-javabootclasspath",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneSeparate",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Override java extdirs classpath.",
     "3.0": "Override java extdirs classpath.",
     "2.13": "Override java extdirs classpath.",
     "3.3": "Override java extdirs classpath.",
     "2.12": "Override java extdirs classpath.",
     "3.2": "Override java extdirs classpath.",
-    "2.11": "Override java extdirs classpath."
+    "2.11": "Override java extdirs classpath.",
+    "3.1": "Override java extdirs classpath.",
+    "3.4": "Override java extdirs classpath."
   },
   "flag": "-javaextdirs",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -5458,16 +5836,17 @@
     "2.13": ["experimental.macros", "higherKinds", "existentials", "dynamics", "reflectiveCalls", "implicitConversions", "postfixOps"]
   },
   "descriptions": {
-    "3.1": "Enable one or more language features.",
     "3.0": "Enable one or more language features.",
     "2.13": "Enable or disable language features",
     "3.3": "Enable one or more language features.",
     "2.12": "Enable or disable language features: `_' for all, `-language:help' to list choices.",
     "3.2": "Enable one or more language features.",
-    "2.11": "Enable or disable language features: `_' for all, `-language:help' to list"
+    "2.11": "Enable or disable language features: `_' for all, `-language:help' to list",
+    "3.1": "Enable one or more language features.",
+    "3.4": "Enable one or more language features."
   },
   "flag": "-language",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -5475,12 +5854,13 @@
   },
   "descriptions": {
     "3.0": "Require `then` and `do` in control expressions.",
-    "3.1": "Require `then` and `do` in control expressions.",
+    "3.3": "Require `then` and `do` in control expressions.",
     "3.2": "Require `then` and `do` in control expressions.",
-    "3.3": "Require `then` and `do` in control expressions."
+    "3.1": "Require `then` and `do` in control expressions.",
+    "3.4": "Require `then` and `do` in control expressions."
   },
   "flag": "-new-syntax",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -5488,12 +5868,13 @@
   },
   "descriptions": {
     "3.0": "Require classical {...} syntax, indentation is not significant.",
-    "3.1": "Require classical {...} syntax, indentation is not significant.",
+    "3.3": "Require classical {...} syntax, indentation is not significant.",
     "3.2": "Require classical {...} syntax, indentation is not significant.",
-    "3.3": "Require classical {...} syntax, indentation is not significant."
+    "3.1": "Require classical {...} syntax, indentation is not significant.",
+    "3.4": "Require classical {...} syntax, indentation is not significant."
   },
   "flag": "-no-indent",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -5560,28 +5941,30 @@
   },
   "descriptions": {
     "3.0": "Require classical {...} syntax, indentation is not significant.",
-    "3.1": "Require classical {...} syntax, indentation is not significant.",
+    "3.3": "Require classical {...} syntax, indentation is not significant.",
     "3.2": "Require classical {...} syntax, indentation is not significant.",
-    "3.3": "Require classical {...} syntax, indentation is not significant."
+    "3.1": "Require classical {...} syntax, indentation is not significant.",
+    "3.4": "Require classical {...} syntax, indentation is not significant."
   },
   "flag": "-noindent",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Silence all warnings.",
     "3.0": "Silence all warnings.",
     "2.13": "Generate no warnings. [false]",
     "3.3": "Silence all warnings.",
     "2.12": "Generate no warnings. [false]",
     "3.2": "Silence all warnings.",
-    "2.11": "Generate no warnings."
+    "2.11": "Generate no warnings.",
+    "3.1": "Silence all warnings.",
+    "3.4": "Silence all warnings."
   },
   "flag": "-nowarn",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -5589,12 +5972,13 @@
   },
   "descriptions": {
     "3.0": "Require `(...)` around conditions.",
-    "3.1": "Require `(...)` around conditions.",
+    "3.3": "Require `(...)` around conditions.",
     "3.2": "Require `(...)` around conditions.",
-    "3.3": "Require `(...)` around conditions."
+    "3.1": "Require `(...)` around conditions.",
+    "3.4": "Require `(...)` around conditions."
   },
   "flag": "-old-syntax",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "Multiple",
   "choices": {
@@ -5662,12 +6046,13 @@
   "defaultValue": "80",
   "descriptions": {
     "3.0": "Set page width",
-    "3.1": "Set page width",
+    "3.3": "Set page width",
     "3.2": "Set page width",
-    "3.3": "Set page width"
+    "3.1": "Set page width",
+    "3.4": "Set page width"
   },
   "flag": "-pagewidth",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -5687,12 +6072,13 @@
   },
   "descriptions": {
     "3.0": "Show source code line numbers.",
-    "3.1": "Show source code line numbers.",
+    "3.3": "Show source code line numbers.",
     "3.2": "Show source code line numbers.",
-    "3.3": "Show source code line numbers."
+    "3.1": "Show source code line numbers.",
+    "3.4": "Show source code line numbers."
   },
   "flag": "-print-lines",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -5700,12 +6086,13 @@
   },
   "descriptions": {
     "3.0": "Prints the raw tasty.",
-    "3.1": "Prints the raw tasty.",
+    "3.3": "Prints the raw tasty.",
     "3.2": "Prints the raw tasty.",
-    "3.3": "Prints the raw tasty."
+    "3.1": "Prints the raw tasty.",
+    "3.4": "Prints the raw tasty."
   },
   "flag": "-print-tasty",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -5723,12 +6110,23 @@
   },
   "descriptions": {
     "3.0": "The source repository of your project.",
-    "3.1": "The source repository of your project.",
+    "3.3": "The source repository of your project.",
     "3.2": "The source repository of your project.",
-    "3.3": "The source repository of your project."
+    "3.1": "The source repository of your project.",
+    "3.4": "The source repository of your project."
   },
   "flag": "-project-url",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
+}, {
+  "argType": "Multiple",
+  "choices": {
+
+  },
+  "descriptions": {
+    "2.13": "Apply quick fixes provided by the compiler for warnings and errors to source files"
+  },
+  "flag": "-quickfix",
+  "scalaVersions": ["2.13"]
 }, {
   "argType": "No",
   "choices": {
@@ -5745,18 +6143,20 @@
   "argType": "OneAfterColon",
   "choices": {
     "3.0": ["12", "8", "13", "16", "10", "15", "11", "9", "17", "14"],
-    "3.1": ["12", "8", "13", "16", "10", "15", "11", "9", "17", "14"],
+    "3.3": ["12", "8", "13", "16", "10", "15", "11", "9", "17", "14"],
     "3.2": ["12", "8", "13", "16", "10", "15", "11", "9", "17", "14"],
-    "3.3": ["12", "8", "13", "16", "10", "15", "11", "9", "17", "14"]
+    "3.1": ["12", "8", "13", "16", "10", "15", "11", "9", "17", "14"],
+    "3.4": ["12", "8", "13", "16", "10", "15", "11", "9", "17", "14"]
   },
   "descriptions": {
     "3.0": "Compile code with classes specific to the given version of the Java platform available on the classpath and emit bytecode for this version.",
-    "3.1": "Compile code with classes specific to the given version of the Java platform available on the classpath and emit bytecode for this version. Corresponds to -release flag in javac.",
+    "3.3": "Compile code with classes specific to the given version of the Java platform available on the classpath and emit bytecode for this version. Corresponds to -release flag in javac.",
     "3.2": "Compile code with classes specific to the given version of the Java platform available on the classpath and emit bytecode for this version. Corresponds to -release flag in javac.",
-    "3.3": "Compile code with classes specific to the given version of the Java platform available on the classpath and emit bytecode for this version. Corresponds to -release flag in javac."
+    "3.1": "Compile code with classes specific to the given version of the Java platform available on the classpath and emit bytecode for this version. Corresponds to -release flag in javac.",
+    "3.4": "Compile code with classes specific to the given version of the Java platform available on the classpath and emit bytecode for this version. Corresponds to -release flag in javac."
   },
   "flag": "-release",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneAfterColon",
   "choices": {
@@ -5777,12 +6177,13 @@
   },
   "descriptions": {
     "3.0": "When used in conjunction with a `...-migration` source version, rewrites sources to migrate to new version.",
-    "3.1": "When used in conjunction with a `...-migration` source version, rewrites sources to migrate to new version.",
+    "3.3": "When used in conjunction with a `...-migration` source version, rewrites sources to migrate to new version.",
     "3.2": "When used in conjunction with a `...-migration` source version, rewrites sources to migrate to new version.",
-    "3.3": "When used in conjunction with a `...-migration` source version, rewrites sources to migrate to new version."
+    "3.1": "When used in conjunction with a `...-migration` source version, rewrites sources to migrate to new version.",
+    "3.4": "When used in conjunction with a `...-migration` source version, rewrites sources to migrate to new version."
   },
   "flag": "-rewrite",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -5811,12 +6212,13 @@
   },
   "descriptions": {
     "3.0": "Compile in Scala.js mode (requires scalajs-library.jar on the classpath).",
-    "3.1": "Compile in Scala.js mode (requires scalajs-library.jar on the classpath).",
+    "3.3": "Compile in Scala.js mode (requires scalajs-library.jar on the classpath).",
     "3.2": "Compile in Scala.js mode (requires scalajs-library.jar on the classpath).",
-    "3.3": "Compile in Scala.js mode (requires scalajs-library.jar on the classpath)."
+    "3.1": "Compile in Scala.js mode (requires scalajs-library.jar on the classpath).",
+    "3.4": "Compile in Scala.js mode (requires scalajs-library.jar on the classpath)."
   },
   "flag": "-scalajs",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -5824,12 +6226,13 @@
   },
   "descriptions": {
     "3.0": "Generate static forwarders even for non-top-level objects (Scala.js only)",
-    "3.1": "Generate static forwarders even for non-top-level objects (Scala.js only)",
+    "3.3": "Generate static forwarders even for non-top-level objects (Scala.js only).",
     "3.2": "Generate static forwarders even for non-top-level objects (Scala.js only)",
-    "3.3": "Generate static forwarders even for non-top-level objects (Scala.js only)"
+    "3.1": "Generate static forwarders even for non-top-level objects (Scala.js only)",
+    "3.4": "Generate static forwarders even for non-top-level objects (Scala.js only)."
   },
   "flag": "-scalajs-genStaticForwardersForNonTopLevelObjects",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "Multiple",
   "choices": {
@@ -5837,12 +6240,13 @@
   },
   "descriptions": {
     "3.0": "rebases source URIs from uri1 to uri2 (or to a relative URI) for source maps (Scala.js only)",
-    "3.1": "rebases source URIs from uri1 to uri2 (or to a relative URI) for source maps (Scala.js only)",
+    "3.3": "rebases source URIs from uri1 to uri2 (or to a relative URI) for source maps (Scala.js only).",
     "3.2": "rebases source URIs from uri1 to uri2 (or to a relative URI) for source maps (Scala.js only)",
-    "3.3": "rebases source URIs from uri1 to uri2 (or to a relative URI) for source maps (Scala.js only)"
+    "3.1": "rebases source URIs from uri1 to uri2 (or to a relative URI) for source maps (Scala.js only)",
+    "3.4": "rebases source URIs from uri1 to uri2 (or to a relative URI) for source maps (Scala.js only)."
   },
   "flag": "-scalajs-mapSourceURI",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -5850,12 +6254,24 @@
   },
   "descriptions": {
     "3.0": "Specify an alternative output directory for SemanticDB files.",
-    "3.1": "Specify an alternative output directory for SemanticDB files.",
+    "3.3": "Specify an alternative output directory for SemanticDB files.",
     "3.2": "Specify an alternative output directory for SemanticDB files.",
-    "3.3": "Specify an alternative output directory for SemanticDB files."
+    "3.1": "Specify an alternative output directory for SemanticDB files.",
+    "3.4": "Specify an alternative output directory for SemanticDB files."
   },
   "flag": "-semanticdb-target",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
+}, {
+  "argType": "No",
+  "choices": {
+
+  },
+  "descriptions": {
+    "3.3": "Specifies whether to include source code in SemanticDB files or not.",
+    "3.4": "Specifies whether to include source code in SemanticDB files or not."
+  },
+  "flag": "-semanticdb-text",
+  "scalaVersions": ["3.3", "3.4"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -5904,21 +6320,33 @@
   "flag": "-source",
   "scalaVersions": ["3.2"]
 }, {
+  "argType": "OneAfterColon",
+  "choices": {
+    "3.4": ["3.5-migration", "3.0", "3.5", "3.2-migration", "3.3-migration", "future-migration", "3.2", "3.4-migration", "future", "3.1", "3.4", "3.0-migration", "3.3"]
+  },
+  "defaultValue": "3.4",
+  "descriptions": {
+    "3.4": "source version"
+  },
+  "flag": "-source",
+  "scalaVersions": ["3.4"]
+}, {
   "argType": "OneSeparate",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Specify location(s) of source files.",
     "3.0": "Specify location(s) of source files.",
     "2.13": "Specify location(s) of source files.",
     "3.3": "Specify location(s) of source files.",
     "2.12": "Specify location(s) of source files.",
     "3.2": "Specify location(s) of source files.",
-    "2.11": "Specify location(s) of source files."
+    "2.11": "Specify location(s) of source files.",
+    "3.1": "Specify location(s) of source files.",
+    "3.4": "Specify location(s) of source files."
   },
   "flag": "-sourcepath",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -5927,28 +6355,30 @@
   "defaultValue": ".",
   "descriptions": {
     "3.0": "Specify workspace root directory.",
-    "3.1": "Specify workspace root directory.",
+    "3.3": "Specify workspace root directory.",
     "3.2": "Specify workspace root directory.",
-    "3.3": "Specify workspace root directory."
+    "3.1": "Specify workspace root directory.",
+    "3.4": "Specify workspace root directory."
   },
   "flag": "-sourceroot",
-  "scalaVersions": ["3.0", "3.1", "3.2", "3.3"]
+  "scalaVersions": ["3.1", "3.2", "3.4", "3.0", "3.3"]
 }, {
   "argType": "Multiple",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Stop after",
     "3.0": "Stop after",
     "2.13": "Stop after <phases>",
     "3.3": "Stop after",
     "2.12": "Stop after <phases>",
     "3.2": "Stop after",
-    "2.11": "Stop after <phases>"
+    "2.11": "Stop after <phases>",
+    "3.1": "Stop after",
+    "3.4": "Stop after"
   },
   "flag": "-stop",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "OneAfterColon",
   "choices": {
@@ -5968,7 +6398,7 @@
   },
   "defaultValue": "8",
   "descriptions": {
-    "2.12": "Target platform for object files. All JVM 1.5 - 1.7 targets are deprecated. (5,6,7,[8],9,10,11,12,13,14,15,16,17)",
+    "2.12": "Target platform for class files. Target < 8 is deprecated; target > 8 uses 8. Default: `8`, `help` to list choices.",
     "2.13": "Target platform for object files. ([8],9,10,11,12,13,14,15,16,17)"
   },
   "flag": "-target",
@@ -5991,48 +6421,51 @@
 
   },
   "descriptions": {
-    "3.1": "Enable additional warnings where generated code depends on assumptions.",
     "3.0": "Enable additional warnings where generated code depends on assumptions.",
     "2.13": "Enable additional warnings where generated code depends on assumptions. See also -Wconf. [false]",
     "3.3": "Enable additional warnings where generated code depends on assumptions.",
     "2.12": "Enable additional warnings where generated code depends on assumptions. See also -Wconf. [false]",
     "3.2": "Enable additional warnings where generated code depends on assumptions.",
-    "2.11": "Enable additional warnings where generated code depends on assumptions."
+    "2.11": "Enable additional warnings where generated code depends on assumptions.",
+    "3.1": "Enable additional warnings where generated code depends on assumptions.",
+    "3.4": "Enable additional warnings where generated code depends on assumptions."
   },
   "flag": "-unchecked",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Uniquely tag all identifiers in debugging output.",
     "3.0": "Uniquely tag all identifiers in debugging output.",
     "2.13": "Uniquely tag all identifiers in debugging output. [false]",
     "3.3": "Uniquely tag all identifiers in debugging output.",
     "2.12": "Uniquely tag all identifiers in debugging output. [false]",
     "3.2": "Uniquely tag all identifiers in debugging output.",
-    "2.11": "Uniquely tag all identifiers in debugging output."
+    "2.11": "Uniquely tag all identifiers in debugging output.",
+    "3.1": "Uniquely tag all identifiers in debugging output.",
+    "3.4": "Uniquely tag all identifiers in debugging output."
   },
   "flag": "-uniqid",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Utilize the java.class.path in classpath resolution.",
     "3.0": "Utilize the java.class.path in classpath resolution.",
     "2.13": "Utilize the java.class.path in classpath resolution. [false]",
     "3.3": "Utilize the java.class.path in classpath resolution.",
     "2.12": "Utilize the java.class.path in classpath resolution. [false]",
     "3.2": "Utilize the java.class.path in classpath resolution.",
-    "2.11": "Utilize the java.class.path in classpath resolution."
+    "2.11": "Utilize the java.class.path in classpath resolution.",
+    "3.1": "Utilize the java.class.path in classpath resolution.",
+    "3.4": "Utilize the java.class.path in classpath resolution."
   },
   "flag": "-usejavacp",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
@@ -6051,30 +6484,32 @@
 
   },
   "descriptions": {
-    "3.1": "Output messages about what the compiler is doing.",
     "3.0": "Output messages about what the compiler is doing.",
     "2.13": "Output messages about what the compiler is doing. [false]",
     "3.3": "Output messages about what the compiler is doing.",
     "2.12": "Output messages about what the compiler is doing. [false]",
     "3.2": "Output messages about what the compiler is doing.",
-    "2.11": "Output messages about what the compiler is doing."
+    "2.11": "Output messages about what the compiler is doing.",
+    "3.1": "Output messages about what the compiler is doing.",
+    "3.4": "Output messages about what the compiler is doing."
   },
   "flag": "-verbose",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }, {
   "argType": "No",
   "choices": {
 
   },
   "descriptions": {
-    "3.1": "Print product version and exit.",
     "3.0": "Print product version and exit.",
     "2.13": "Print product version and exit. [false]",
     "3.3": "Print product version and exit.",
     "2.12": "Print product version and exit. [false]",
     "3.2": "Print product version and exit.",
-    "2.11": "Print product version and exit."
+    "2.11": "Print product version and exit.",
+    "3.1": "Print product version and exit.",
+    "3.4": "Print product version and exit."
   },
   "flag": "-version",
-  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
+  "scalaVersions": ["3.1", "2.12", "3.2", "2.13", "2.11", "3.4", "3.0", "3.3"]
 }]

@@ -1,5 +1,0 @@
-Document tests/pos/i14567.scala
-(1:19..1:22) scala/Int#
-(1:28..1:34) scala/Predef.String#
-(2:12..2:15) _empty_/Foo.
-

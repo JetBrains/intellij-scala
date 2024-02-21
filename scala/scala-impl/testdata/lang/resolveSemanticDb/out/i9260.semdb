@@ -1,0 +1,19 @@
+Document tests/pos/i9260.scala
+(5:16..5:20) scala/Null#
+(8:20..8:24) scala/Null#
+(9:14..9:18) asts/ -> 3:9
+(9:19..9:22) asts/Ast# -> 5:6
+(9:23..9:24) asts/AstImpl#[T] -> 8:15
+(10:17..10:20) asts/Ast.
+(10:21..10:27) asts/Ast.DefDef# -> 6:8
+(10:28..10:29) asts/AstImpl#[T] -> 8:15
+(11:5..11:12) asts/AstImpl# -> 8:7
+(13:22..13:29) asts/AstImpl# -> 8:7
+(13:30..13:34) scala/Null#
+(15:19..15:22) asts/AstImpl#Ast# -> 9:8
+(15:25..15:31) asts/AstImpl#DefDef# -> 10:8
+(15:34..15:37) asts/untpd.DefDef().(ast) -> 15:14
+(16:15..16:21) asts/AstImpl#DefDef# -> 10:8
+(16:25..16:28) local0 -> 16:10
+(18:5..18:10) asts/untpd. -> 13:8
+

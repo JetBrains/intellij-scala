@@ -1,0 +1,73 @@
+Document tests/pos/i16920.scala
+(1:8..1:16) scala/language.
+(1:17..1:29) scala/language.experimental.
+(1:30..1:53) scala/language.experimental.relaxedExtensionImports.
+(4:17..4:23) scala/Predef.String#
+(5:14..5:18) scala/Unit#
+(5:21..5:28) scala/Predef.println(+1).
+(5:29..5:30) _empty_/One.wow().(s) -> 4:14
+(8:17..8:20) scala/Int#
+(9:14..9:18) scala/Unit#
+(9:21..9:28) scala/Predef.println(+1).
+(9:29..9:30) _empty_/Two.wow().(i) -> 8:14
+(12:17..12:23) scala/Predef.String#
+(13:14..13:18) scala/Unit#
+(13:21..13:28) scala/Predef.println(+1).
+(13:29..13:30) _empty_/Three.wow().(s) -> 12:14
+(14:17..14:20) scala/Int#
+(15:14..15:18) scala/Unit#
+(15:21..15:28) scala/Predef.println(+1).
+(15:29..15:30) _empty_/Three.wow(+1).(i) -> 14:14
+(18:31..18:37) scala/Predef.String#
+(19:14..19:18) scala/Unit#
+(19:21..19:28) scala/Predef.println(+1).
+(19:29..19:30) _empty_/Four.WowString#s. -> 18:28
+(22:28..22:31) scala/Int#
+(23:14..23:18) scala/Unit#
+(23:21..23:28) scala/Predef.println(+1).
+(23:29..23:30) _empty_/Five.WowInt#i. -> 22:25
+(26:10..26:15) _empty_/Three. -> 11:8
+(27:13..27:17) scala/Unit#
+(28:7..28:10) _empty_/Three.wow(+1). -> 15:9
+(29:12..29:15) _empty_/Three.wow(). -> 13:9
+(32:10..32:14) _empty_/Four. -> 17:8
+(33:10..33:14) _empty_/Five. -> 21:8
+(34:13..34:17) scala/Unit#
+(35:7..35:10) _empty_/Five.WowInt#wow(). -> 23:9
+(36:12..36:15) _empty_/Four.WowString#wow(). -> 19:9
+(39:10..39:13) _empty_/One. -> 3:8
+(40:10..40:18) _empty_/Compiles. -> 25:8
+(41:10..41:13) _empty_/Two. -> 7:8
+(42:13..42:17) scala/Unit#
+(43:7..43:10) _empty_/Two.wow(). -> 9:9
+(44:12..44:15) _empty_/One.wow(). -> 5:9
+(47:17..47:20) scala/Int#
+(48:14..48:18) scala/Unit#
+(48:21..48:28) scala/Predef.println(+1).
+(48:29..48:30) _empty_/Conflicting.wow().(i) -> 47:14
+(51:10..51:13) _empty_/One. -> 3:8
+(51:14..51:17) _empty_/One.wow(). -> 5:9
+(52:10..52:13) _empty_/Two. -> 7:8
+(52:14..52:17) _empty_/Two.wow(). -> 9:9
+(53:10..53:21) _empty_/Conflicting. -> 46:8
+(54:13..54:17) scala/Unit#
+(55:7..55:10) _empty_/Two.wow(). -> 9:9
+(56:12..56:15) _empty_/One.wow(). -> 5:9
+(59:10..59:21) _empty_/Conflicting. -> 46:8
+(60:10..60:13) _empty_/One. -> 3:8
+(60:14..60:17) _empty_/One.wow(). -> 5:9
+(61:10..61:13) _empty_/Two. -> 7:8
+(61:14..61:17) _empty_/Two.wow(). -> 9:9
+(62:13..62:17) scala/Unit#
+(63:7..63:10) _empty_/Two.wow(). -> 9:9
+(64:12..64:15) _empty_/One.wow(). -> 5:9
+(66:13..66:16) _empty_/Two. -> 7:8
+(69:10..69:15) _empty_/i16920$package.Alias. -> 66:5
+(70:10..70:13) _empty_/Two. -> 7:8
+(71:13..71:17) scala/Unit#
+(72:7..72:10) _empty_/Two.wow(). -> 9:9
+(75:10..75:13) _empty_/Two. -> 7:8
+(76:10..76:15) _empty_/i16920$package.Alias. -> 66:5
+(77:13..77:17) scala/Unit#
+(78:7..78:10) _empty_/Two.wow(). -> 9:9
+

@@ -1,0 +1,14 @@
+Document tests/pos/i11896.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:35) scala/language.experimental.
+(1:36..1:53) scala/language.experimental.erasedDefinitions.
+(4:15..4:16) _empty_/i11896$package.X# -> 3:6
+(4:19..4:30) scala/compiletime/
+(4:31..4:42) scala/compiletime/package$package.erasedValue().
+(6:22..6:23) _empty_/i11896$package.X# -> 3:6
+(6:26..6:30) scala/Unit#
+(8:11..8:15) scala/Unit#
+(8:18..8:21) _empty_/i11896$package.foo(). -> 6:5
+(8:28..8:29) _empty_/i11896$package.x(). -> 4:12
+

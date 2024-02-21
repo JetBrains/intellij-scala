@@ -1,0 +1,4 @@
+Document tests/pos/i16814.scala
+(1:27..1:30) scala/Int#
+(2:19..2:22) _empty_/Foo# -> 1:7
+

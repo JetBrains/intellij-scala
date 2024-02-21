@@ -1,9 +1,7 @@
 Document tests/pos/i11184c.scala
-(1:8..1:13) scala/
-(1:14..1:20) scala/quoted/
-(4:22..4:29) scala/Boolean#
-(5:19..5:25) scala/Predef.String#
-(5:38..5:41) _empty_/Foo. -> 3:8
-(5:42..5:48) _empty_/Foo.isTrue(). -> 4:14
-(6:13..6:18) _empty_/i11184c$package.oneOf(). -> 5:12
+(2:22..2:29) scala/Boolean#
+(3:19..3:25) scala/Predef.String#
+(3:38..3:41) _empty_/Foo. -> 1:8
+(3:42..3:48) _empty_/Foo.isTrue(). -> 2:14
+(4:13..4:18) _empty_/i11184c$package.oneOf(). -> 3:12
 
