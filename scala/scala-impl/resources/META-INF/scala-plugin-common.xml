@@ -596,7 +596,6 @@
 
         <spellchecker.bundledDictionaryProvider implementation="org.jetbrains.plugins.scala.spellchecker.ScalaBundledDictionaryProvider"/>
         <spellchecker.support language="Scala" implementationClass="org.jetbrains.plugins.scala.spellchecker.ScalaSpellcheckingStrategy"/>
-        <nameSuggestionProvider id="ScalaDictionarySuggestionProvider" implementation="org.jetbrains.plugins.scala.spellchecker.ScalaDictionarySuggestionProvider" order="first, before DictionarySuggestionProvider"/>
 
         <intentionAction>
             <language>Scala</language>

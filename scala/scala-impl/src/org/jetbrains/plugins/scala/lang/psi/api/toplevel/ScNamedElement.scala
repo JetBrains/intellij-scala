@@ -23,7 +23,11 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import javax.swing.Icon
 import scala.annotation.tailrec
 
-trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with NavigatablePsiElement {
+trait ScNamedElement extends ScalaPsiElement
+  with PsiNameIdentifierOwner
+  with NavigatablePsiElement
+  with PsiNamedElementWithCustomPresentation
+{
 
   def name: String = _name()
 
@@ -36,6 +40,8 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
       case _ => nameInner
     }
   })
+
+  override def getPresentationName: String = name
 
   /**
    * NOTE: implementors that can be anonymous and who's `nameId` can be null should explicitly override this method<br>
