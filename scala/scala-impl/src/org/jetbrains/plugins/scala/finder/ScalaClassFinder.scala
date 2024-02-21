@@ -1,11 +1,17 @@
 package org.jetbrains.plugins.scala.finder
 
+import com.intellij.openapi.fileTypes.FileTypeRegistry
 import com.intellij.openapi.project.{DumbService, Project}
-import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.impl.java.stubs.index.JavaStubIndexKeys
+import com.intellij.psi.search.{DelegatingGlobalSearchScope, GlobalSearchScope}
+import com.intellij.psi.stubs.StubIndex
 import com.intellij.psi.{PsiClass, PsiElementFinder, PsiPackage}
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.tasty.TastyFileType
 import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants.{PackageObjectClassName, TopLevelDefinitionsClassNameSuffix, TraitImplementationClassSuffix_211}
 import org.jetbrains.plugins.scala.util.TopLevelMembers
 
@@ -22,6 +28,23 @@ class ScalaClassFinder(project: Project) extends PsiElementFinder {
       return Array.empty
     }
 
+    val classes = doFindClasses(qualifiedName0, scope)
+
+    if (classes.isEmpty) javaClassesInTasty(qualifiedName0, scope) else classes
+  }
+
+  // Search for Java FQNs in .tasty to work around JavaSourceFilterScope in PsiElementFinderImpl->JavaFileManagerImpl->JavaFullClassNameIndex, SCL-20154
+  private def javaClassesInTasty(fqn: String, scope: GlobalSearchScope): Array[PsiClass] = {
+    val tastySourceFilterScope = new DelegatingGlobalSearchScope(scope) {
+      override def contains(file: VirtualFile): Boolean =
+        super.contains(file) &&
+        FileTypeRegistry.getInstance.isFileOfType(file, TastyFileType) &&
+        ProjectRootManager.getInstance(project).getFileIndex.isInLibraryClasses(file)
+    }
+    StubIndex.getElements(JavaStubIndexKeys.CLASS_FQN, fqn, project, tastySourceFilterScope, classOf[PsiClass]).asScala.toArray
+  }
+
+  private def doFindClasses(qualifiedName0: String, scope: GlobalSearchScope): Array[PsiClass] = {
     /**
      * Handle classes defined in package objects.
      * In JVM such classes will be defined as a static class of a class with name "package"
@@ -54,7 +77,7 @@ class ScalaClassFinder(project: Project) extends PsiElementFinder {
         o.fakeCompanionClass
       case clazz if isFromPackageObject =>
         Some(clazz)
-      case e: ScEnum => Some(e)
+      case e: ScEnum => Some(e) // TODO Is this required?
     }
 
     val classesWithout$ = classesWoSuffix("$")
@@ -103,7 +126,7 @@ class ScalaClassFinder(project: Project) extends PsiElementFinder {
     psiManager.getJavaPackageClassNames(psiPackage, scope)
       .flatMap { clsName =>
         val qualifiedName = psiPackage.getQualifiedName + "." + clsName
-        psiManager.getCachedClasses(scope, qualifiedName) ++ findClasses(qualifiedName, scope)
+        psiManager.getCachedClasses(scope, qualifiedName) ++ doFindClasses(qualifiedName, scope)
       }
       .toArray
   }
