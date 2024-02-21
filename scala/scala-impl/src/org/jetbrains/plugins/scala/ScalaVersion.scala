@@ -61,7 +61,14 @@ object ScalaVersion {
     }
 }
 
-//NOTE: when adding new version also update org.jetbrains.plugins.scala.util.runners.TestScalaVersion
+/**
+ * [NOTE] If you need to update the latest supported Scala_3_X version:
+ *  - update sbt bridge in `runtimeDependencies` of `community/build.sbt`
+ *  - create new ScalaLanguageLevel.Scala_3_x (if new major scala 3 version was released)
+ *  - update all latest minor versions LatestScalaVersions.Scala_3_X to the latest
+ *  - when adding new version also update org.jetbrains.plugins.scala.util.runners.TestScalaVersion
+ *  - run `AfterUpdateDottyVersionScript.scala`
+ */
 object LatestScalaVersions {
 
   // duplicated here to refer with `ScalaVersion.` prefix
