@@ -1,0 +1,18 @@
+Document tests/pos/interleaving-signatureCollision.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:35) scala/language.experimental.
+(1:36..1:54) scala/language.experimental.clauseInterleaving.
+(2:8..2:13) scala/
+(2:14..2:24) scala/annotation/
+(2:25..2:35) scala/annotation/targetName#
+(5:15..5:16) _empty_/signatureCollision.f().[T] -> 5:9
+(5:24..5:25) _empty_/signatureCollision.f().[U] -> 5:18
+(5:30..5:31) _empty_/signatureCollision.f().(x) -> 5:12
+(5:32..5:33) _empty_/signatureCollision.f().(y) -> 5:21
+(6:4..6:14) scala/annotation/targetName#
+(6:32..6:33) _empty_/signatureCollision.f(+1).[T] -> 6:26
+(6:38..6:39) _empty_/signatureCollision.f(+1).[T] -> 6:26
+(6:44..6:45) _empty_/signatureCollision.f(+1).(x) -> 6:29
+(6:46..6:47) _empty_/signatureCollision.f(+1).(y) -> 6:35
+

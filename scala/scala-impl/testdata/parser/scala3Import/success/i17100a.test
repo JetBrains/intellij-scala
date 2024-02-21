@@ -1,0 +1,221 @@
+
+import scala.language.dynamics
+trait Sel extends Dynamic
+
+extension (s: Sel)
+  def selectDynamic(name: String) = ???
+
+val sel = new Sel {}
+val foo = sel.foo
+val sel2 = (new Sel {}).asInstanceOf[Sel{ def foo: String }]
+val foo2 = sel2.foo
+
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.language.dynamics
+        CodeReferenceElement: scala.language
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('language')
+        PsiElement(.)('.')
+        PsiElement(identifier)('dynamics')
+  PsiWhiteSpace('\n')
+  ScTrait: Sel
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Sel')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Dynamic
+            CodeReferenceElement: Dynamic
+              PsiElement(identifier)('Dynamic')
+  PsiWhiteSpace('\n\n')
+  Extension on Sel
+    PsiElement(extension)('extension')
+    PsiWhiteSpace(' ')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: s
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('s')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Sel
+              CodeReferenceElement: Sel
+                PsiElement(identifier)('Sel')
+        PsiElement())(')')
+    PsiWhiteSpace('\n  ')
+    ScExtensionBody
+      ScFunctionDefinition: selectDynamic
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(def)('def')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('selectDynamic')
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            Parameter: name
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(identifier)('name')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+            PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: ???
+          PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: sel
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: sel
+        PsiElement(identifier)('sel')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ScNewTemplateDefinition: <anonymous>
+      PsiElement(new)('new')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: Sel
+              CodeReferenceElement: Sel
+                PsiElement(identifier)('Sel')
+        PsiWhiteSpace(' ')
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: foo
+        PsiElement(identifier)('foo')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: sel.foo
+      ReferenceExpression: sel
+        PsiElement(identifier)('sel')
+      PsiElement(.)('.')
+      PsiElement(identifier)('foo')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: sel2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: sel2
+        PsiElement(identifier)('sel2')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: (new Sel {}).asInstanceOf
+        ExpressionInParenthesis
+          PsiElement(()('(')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Sel
+                    CodeReferenceElement: Sel
+                      PsiElement(identifier)('Sel')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiElement(})('}')
+          PsiElement())(')')
+        PsiElement(.)('.')
+        PsiElement(identifier)('asInstanceOf')
+      TypeArgumentsList
+        PsiElement([)('[')
+        CompoundType: Sel{ def foo: String }
+          SimpleType: Sel
+            CodeReferenceElement: Sel
+              PsiElement(identifier)('Sel')
+          Refinement
+            PsiElement({)('{')
+            PsiWhiteSpace(' ')
+            ScFunctionDeclaration: foo
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('foo')
+              Parameters
+                <empty list>
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+            PsiWhiteSpace(' ')
+            PsiElement(})('}')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: foo2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: foo2
+        PsiElement(identifier)('foo2')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: sel2.foo
+      ReferenceExpression: sel2
+        PsiElement(identifier)('sel2')
+      PsiElement(.)('.')
+      PsiElement(identifier)('foo')

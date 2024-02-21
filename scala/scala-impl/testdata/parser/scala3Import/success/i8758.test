@@ -1,0 +1,139 @@
+//> using options -Xfatal-warnings -deprecation -feature
+
+def test = "?johndoe" match {
+  case s":$name" => println(s":name $name")
+  case s"{$name}" =>  println(s"{name} $name")
+  case s"?$pos" =>  println(s"pos $pos")
+}
+-----
+ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Xfatal-warnings')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-deprecation')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-feature')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchStatement
+      StringLiteral
+        PsiElement(string content)('"?johndoe"')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace(' ')
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          InterpolationPattern
+            CodeReferenceElement (string interpolator): s
+              PsiElement(interpolated string id)('s')
+            Pattern Argument List
+              PsiElement(interpolated string)('":')
+              PsiElement(interpolated string injection)('$')
+              ReferencePattern: name
+                PsiElement(identifier)('name')
+            PsiElement(interpolated string end)('"')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            MethodCall
+              ReferenceExpression: println
+                PsiElement(identifier)('println')
+              ArgumentList
+                PsiElement(()('(')
+                InterpolatedStringLiteral
+                  InterpolatedExpressionPrefix: s
+                    PsiElement(interpolated string id)('s')
+                  PsiElement(interpolated string)('":name ')
+                  PsiElement(interpolated string injection)('$')
+                  ReferenceExpression: name
+                    PsiElement(identifier)('name')
+                  PsiElement(interpolated string end)('"')
+                PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          InterpolationPattern
+            CodeReferenceElement (string interpolator): s
+              PsiElement(interpolated string id)('s')
+            Pattern Argument List
+              PsiElement(interpolated string)('"{')
+              PsiElement(interpolated string injection)('$')
+              ReferencePattern: name
+                PsiElement(identifier)('name')
+              PsiElement(interpolated string)('}')
+            PsiElement(interpolated string end)('"')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace('  ')
+          BlockOfExpressions
+            MethodCall
+              ReferenceExpression: println
+                PsiElement(identifier)('println')
+              ArgumentList
+                PsiElement(()('(')
+                InterpolatedStringLiteral
+                  InterpolatedExpressionPrefix: s
+                    PsiElement(interpolated string id)('s')
+                  PsiElement(interpolated string)('"{name} ')
+                  PsiElement(interpolated string injection)('$')
+                  ReferenceExpression: name
+                    PsiElement(identifier)('name')
+                  PsiElement(interpolated string end)('"')
+                PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          InterpolationPattern
+            CodeReferenceElement (string interpolator): s
+              PsiElement(interpolated string id)('s')
+            Pattern Argument List
+              PsiElement(interpolated string)('"?')
+              PsiElement(interpolated string injection)('$')
+              ReferencePattern: pos
+                PsiElement(identifier)('pos')
+            PsiElement(interpolated string end)('"')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace('  ')
+          BlockOfExpressions
+            MethodCall
+              ReferenceExpression: println
+                PsiElement(identifier)('println')
+              ArgumentList
+                PsiElement(()('(')
+                InterpolatedStringLiteral
+                  InterpolatedExpressionPrefix: s
+                    PsiElement(interpolated string id)('s')
+                  PsiElement(interpolated string)('"pos ')
+                  PsiElement(interpolated string injection)('$')
+                  ReferenceExpression: pos
+                    PsiElement(identifier)('pos')
+                  PsiElement(interpolated string end)('"')
+                PsiElement())(')')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

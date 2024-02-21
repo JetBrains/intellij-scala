@@ -1,0 +1,59 @@
+Document tests/pos/i18345.scala
+(1:17..1:20) scala/package.Seq#
+(1:21..1:24) scala/Int#
+(2:31..2:34) scala/Int#
+(2:39..2:40) _empty_/i18345$package.iterate().[T] -> 2:15
+(2:43..2:44) _empty_/i18345$package.iterate().[T] -> 2:15
+(3:20..3:23) _empty_/i18345$package.iterate().(vec) -> 1:12
+(3:24..3:32) scala/collection/IterableOnce#iterator().
+(4:5..4:9) _empty_/i18345$package.iterate().(body) -> 2:18
+(4:16..4:24) local0 -> 3:9
+(4:25..4:35) scala/collection/Iterator#nextOption().
+(4:38..4:47) scala/Option#getOrElse().
+(6:24..6:27) scala/Int#
+(6:35..6:38) scala/package.Seq#
+(6:39..6:42) scala/Int#
+(6:47..6:48) _empty_/i18345$package.withSequence().[T] -> 6:18
+(6:51..6:52) _empty_/i18345$package.withSequence().[T] -> 6:18
+(7:3..7:7) _empty_/i18345$package.withSequence().(body) -> 6:29
+(7:11..7:13) scala/runtime/RichInt#to().
+(7:14..7:15) _empty_/i18345$package.withSequence().(n) -> 6:21
+(11:3..11:15) _empty_/i18345$package.withSequence(). -> 6:5
+(12:7..12:14) _empty_/i18345$package.iterate(). -> 2:7
+(13:7..13:11) local1 -> 12:16
+(13:14..13:15) scala/Int#`+`(+4).
+(13:16..13:20) local1 -> 12:16
+(13:23..13:24) scala/Int#`+`(+4).
+(13:25..13:29) local1 -> 12:16
+(13:32..13:33) scala/Int#`+`(+4).
+(13:34..13:38) local1 -> 12:16
+(15:3..15:15) _empty_/i18345$package.withSequence(). -> 6:5
+(16:7..16:14) _empty_/i18345$package.iterate(). -> 2:7
+(18:9..18:13) local2 -> 17:7
+(18:16..18:17) scala/Int#`+`(+4).
+(18:18..18:22) local2 -> 17:7
+(18:25..18:26) scala/Int#`+`(+4).
+(18:27..18:31) local2 -> 17:7
+(18:34..18:35) scala/Int#`+`(+4).
+(18:36..18:40) local2 -> 17:7
+(20:3..20:15) _empty_/i18345$package.withSequence(). -> 6:5
+(21:5..21:6) local3 -> 20:20
+(21:7..21:14) _empty_/i18345$package.iterate(). -> 2:7
+(23:9..23:13) local4 -> 22:7
+(23:16..23:17) scala/Int#`+`(+4).
+(23:18..23:22) local4 -> 22:7
+(23:25..23:26) scala/Int#`+`(+4).
+(23:27..23:31) local4 -> 22:7
+(23:34..23:35) scala/Int#`+`(+4).
+(23:36..23:40) local4 -> 22:7
+(25:3..25:15) _empty_/i18345$package.withSequence(). -> 6:5
+(26:5..26:6) local5 -> 25:20
+(26:7..26:14) _empty_/i18345$package.iterate(). -> 2:7
+(27:7..27:11) local6 -> 26:16
+(27:14..27:15) scala/Int#`+`(+4).
+(27:16..27:20) local6 -> 26:16
+(27:23..27:24) scala/Int#`+`(+4).
+(27:25..27:29) local6 -> 26:16
+(27:32..27:33) scala/Int#`+`(+4).
+(27:34..27:38) local6 -> 26:16
+

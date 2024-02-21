@@ -1,4 +1,4 @@
-// scalac: -source:future
+//> using options -source:future
 
 trait Foo[A]:
   def map[B](f: A => B): Foo[B] = ???
@@ -10,7 +10,14 @@ def baz: Foo[(Int, String)] = ???
   yield ()
 -----
 ScalaFile
-  PsiComment(comment)('// scalac: -source:future')
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-source:future')
   PsiWhiteSpace('\n\n')
   ScTrait: Foo
     AnnotationsList

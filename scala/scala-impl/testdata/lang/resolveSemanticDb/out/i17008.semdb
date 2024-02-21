@@ -1,0 +1,12 @@
+Document tests/pos/i17008.scala
+(2:27..2:33) scala/Predef.String#
+(2:46..2:50) scala/Unit#
+(2:64..2:68) scala/Unit#
+(2:71..2:78) scala/Predef.println(+1).
+(2:82..2:86) _empty_/A#foo().(text) -> 2:21
+(2:89..2:92) _empty_/A#foo().(bar) -> 2:35
+(2:92..2:93) scala/StringContext#s().
+(5:17..5:18) _empty_/A# -> 1:16
+(6:13..6:17) scala/Unit#
+(7:11..7:14) _empty_/A#foo(). -> 2:17
+

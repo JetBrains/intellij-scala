@@ -13,6 +13,7 @@ Document tests/pos/i9403.scala
 (5:79..5:86) scala/Boolean#
 (5:89..5:92) scala/Int#
 (6:7..6:8) local2 -> 5:27
+(6:8..6:18) scala/reflect/Selectable#applyDynamic().
 (6:19..6:20) local3 -> 5:76
 (7:5..7:11) scala/Predef.assert(+1).
 (7:12..7:29) local4 -> 5:9

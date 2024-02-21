@@ -1,0 +1,308 @@
+import javax.annotation.processing.{ AbstractProcessor, RoundEnvironment }
+import javax.lang.model.element.{ ElementKind, PackageElement, TypeElement }
+
+import java.util as ju
+
+class P extends AbstractProcessor {
+  override def process(annotations: ju.Set[? <: TypeElement], roundEnv: RoundEnvironment): Boolean = {
+    annotations
+      .stream()
+      .flatMap(annotation => roundEnv.getElementsAnnotatedWith(annotation).stream())
+      .filter(element => element.getKind == ElementKind.PACKAGE)
+      .map(element => element.asInstanceOf[PackageElement])
+    true
+  }
+}
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: javax.annotation.processing
+        CodeReferenceElement: javax.annotation
+          CodeReferenceElement: javax
+            PsiElement(identifier)('javax')
+          PsiElement(.)('.')
+          PsiElement(identifier)('annotation')
+        PsiElement(.)('.')
+        PsiElement(identifier)('processing')
+      PsiElement(.)('.')
+      ImportSelectors
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ImportSelector
+          CodeReferenceElement: AbstractProcessor
+            PsiElement(identifier)('AbstractProcessor')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ImportSelector
+          CodeReferenceElement: RoundEnvironment
+            PsiElement(identifier)('RoundEnvironment')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: javax.lang.model.element
+        CodeReferenceElement: javax.lang.model
+          CodeReferenceElement: javax.lang
+            CodeReferenceElement: javax
+              PsiElement(identifier)('javax')
+            PsiElement(.)('.')
+            PsiElement(identifier)('lang')
+          PsiElement(.)('.')
+          PsiElement(identifier)('model')
+        PsiElement(.)('.')
+        PsiElement(identifier)('element')
+      PsiElement(.)('.')
+      ImportSelectors
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ImportSelector
+          CodeReferenceElement: ElementKind
+            PsiElement(identifier)('ElementKind')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ImportSelector
+          CodeReferenceElement: PackageElement
+            PsiElement(identifier)('PackageElement')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ImportSelector
+          CodeReferenceElement: TypeElement
+            PsiElement(identifier)('TypeElement')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: java
+        PsiElement(identifier)('java')
+      PsiElement(.)('.')
+      ImportSelectors
+        ImportSelector
+          CodeReferenceElement: util
+            PsiElement(identifier)('util')
+          PsiWhiteSpace(' ')
+          PsiElement(as)('as')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ju')
+  PsiWhiteSpace('\n\n')
+  ScClass: P
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('P')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: AbstractProcessor
+            CodeReferenceElement: AbstractProcessor
+              PsiElement(identifier)('AbstractProcessor')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: process
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(override)('override')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('process')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: annotations
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('annotations')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: ju.Set[? <: TypeElement]
+                    SimpleType: ju.Set
+                      CodeReferenceElement: ju.Set
+                        CodeReferenceElement: ju
+                          PsiElement(identifier)('ju')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Set')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      WildcardType: ? <: TypeElement
+                        PsiElement(?)('?')
+                        PsiWhiteSpace(' ')
+                        PsiElement(<:)('<:')
+                        PsiWhiteSpace(' ')
+                        SimpleType: TypeElement
+                          CodeReferenceElement: TypeElement
+                            PsiElement(identifier)('TypeElement')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: roundEnv
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('roundEnv')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: RoundEnvironment
+                    CodeReferenceElement: RoundEnvironment
+                      PsiElement(identifier)('RoundEnvironment')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Boolean
+            CodeReferenceElement: Boolean
+              PsiElement(identifier)('Boolean')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: annotations
+      .stream()
+      .flatMap(annotation => roundEnv.getElementsAnnotatedWith(annotation).stream())
+      .filter(element => element.getKind == ElementKind.PACKAGE)
+      .map
+                MethodCall
+                  ReferenceExpression: annotations
+      .stream()
+      .flatMap(annotation => roundEnv.getElementsAnnotatedWith(annotation).stream())
+      .filter
+                    MethodCall
+                      ReferenceExpression: annotations
+      .stream()
+      .flatMap
+                        MethodCall
+                          ReferenceExpression: annotations
+      .stream
+                            ReferenceExpression: annotations
+                              PsiElement(identifier)('annotations')
+                            PsiWhiteSpace('\n      ')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('stream')
+                          ArgumentList
+                            PsiElement(()('(')
+                            PsiElement())(')')
+                        PsiWhiteSpace('\n      ')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('flatMap')
+                      ArgumentList
+                        PsiElement(()('(')
+                        FunctionExpression
+                          Parameters
+                            ParametersClause
+                              Parameter: annotation
+                                PsiElement(identifier)('annotation')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          MethodCall
+                            ReferenceExpression: roundEnv.getElementsAnnotatedWith(annotation).stream
+                              MethodCall
+                                ReferenceExpression: roundEnv.getElementsAnnotatedWith
+                                  ReferenceExpression: roundEnv
+                                    PsiElement(identifier)('roundEnv')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('getElementsAnnotatedWith')
+                                ArgumentList
+                                  PsiElement(()('(')
+                                  ReferenceExpression: annotation
+                                    PsiElement(identifier)('annotation')
+                                  PsiElement())(')')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('stream')
+                            ArgumentList
+                              PsiElement(()('(')
+                              PsiElement())(')')
+                        PsiElement())(')')
+                    PsiWhiteSpace('\n      ')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('filter')
+                  ArgumentList
+                    PsiElement(()('(')
+                    FunctionExpression
+                      Parameters
+                        ParametersClause
+                          Parameter: element
+                            PsiElement(identifier)('element')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      InfixExpression
+                        ReferenceExpression: element.getKind
+                          ReferenceExpression: element
+                            PsiElement(identifier)('element')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('getKind')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: ==
+                          PsiElement(identifier)('==')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: ElementKind.PACKAGE
+                          ReferenceExpression: ElementKind
+                            PsiElement(identifier)('ElementKind')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('PACKAGE')
+                    PsiElement())(')')
+                PsiWhiteSpace('\n      ')
+                PsiElement(.)('.')
+                PsiElement(identifier)('map')
+              ArgumentList
+                PsiElement(()('(')
+                FunctionExpression
+                  Parameters
+                    ParametersClause
+                      Parameter: element
+                        PsiElement(identifier)('element')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  GenericCall
+                    ReferenceExpression: element.asInstanceOf
+                      ReferenceExpression: element
+                        PsiElement(identifier)('element')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('asInstanceOf')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: PackageElement
+                        CodeReferenceElement: PackageElement
+                          PsiElement(identifier)('PackageElement')
+                      PsiElement(])(']')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            BooleanLiteral
+              PsiElement(true)('true')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

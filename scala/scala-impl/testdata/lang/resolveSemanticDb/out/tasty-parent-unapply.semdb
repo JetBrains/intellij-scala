@@ -1,0 +1,19 @@
+Document tests/pos/tasty-parent-unapply.scala
+(3:8..3:13) scala/
+(3:14..3:20) scala/quoted/
+(8:18..8:24) scala/quoted/Quotes#
+(8:27..8:31) scala/Unit#
+(9:12..9:18) scala/quoted/Quotes$package.quotes().
+(9:19..9:26) scala/quoted/Quotes#reflect.
+(11:19..11:23) scala/quoted/Quotes#reflectModule#Tree#
+(11:31..11:35) scala/quoted/Quotes#reflectModule#Term#
+(11:47..11:55) scala/quoted/Quotes#reflectModule#TypeTree#
+(11:65..11:69) scala/quoted/Quotes#reflectModule#Tree#
+(13:7..13:11) local0 -> 11:13
+(14:20..14:24) scala/quoted/Quotes#reflectModule#Tree#
+(17:7..17:11) local1 -> 11:25
+(18:20..18:24) scala/quoted/Quotes#reflectModule#Term#
+(21:7..21:15) local2 -> 11:37
+(22:24..22:32) scala/quoted/Quotes#reflectModule#TypeTree#
+(25:7..25:13) local3 -> 11:57
+

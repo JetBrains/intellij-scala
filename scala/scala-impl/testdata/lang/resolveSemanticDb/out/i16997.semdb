@@ -1,0 +1,172 @@
+Document tests/pos/i16997.scala
+(16:8..16:12) _empty_/Tree# -> 14:6
+(16:13..16:16) _empty_/Tree.Branch#[`<*>`] -> 15:15
+(16:18..16:19) _empty_/Tree.Branch#[T] -> 15:26
+(16:21..16:22) _empty_/Tree.Branch#[F] -> 15:32
+(16:24..16:25) _empty_/Tree.Branch#[A] -> 15:38
+(17:8..17:12) _empty_/Tree# -> 14:6
+(17:13..17:16) _empty_/Tree.Branch#[`<*>`] -> 15:15
+(17:18..17:19) _empty_/Tree.Branch#[T] -> 15:26
+(17:21..17:22) _empty_/Tree.Branch#[F] -> 15:32
+(17:24..17:25) _empty_/Tree.Branch#[B] -> 15:41
+(18:13..18:17) _empty_/Tree# -> 14:6
+(18:18..18:21) _empty_/Tree.Branch#[`<*>`] -> 15:15
+(18:23..18:24) _empty_/Tree.Branch#[T] -> 15:26
+(18:26..18:27) _empty_/Tree.Branch#[F] -> 15:32
+(18:29..18:30) _empty_/Tree.Branch#[A] -> 15:38
+(18:31..18:34) _empty_/Tree.Branch#[`<*>`] -> 15:15
+(18:35..18:36) _empty_/Tree.Branch#[B] -> 15:41
+(21:12..21:13) _empty_/Tree.Leaf#[F] -> 20:30
+(21:14..21:15) _empty_/Tree.Leaf#[A] -> 20:36
+(22:13..22:17) _empty_/Tree# -> 14:6
+(22:18..22:21) _empty_/Tree.Leaf#[`<*>`] -> 20:13
+(22:23..22:24) _empty_/Tree.Leaf#[T] -> 20:24
+(22:26..22:27) _empty_/Tree.Leaf#[F] -> 20:30
+(22:29..22:30) _empty_/Tree.Leaf#[T] -> 20:24
+(22:31..22:32) _empty_/Tree.Leaf#[A] -> 20:36
+(24:20..24:24) _empty_/Tree# -> 14:6
+(24:25..24:28) _empty_/Tree#[`<*>`] -> 14:11
+(24:30..24:31) _empty_/Tree#[T] -> 14:22
+(24:33..24:34) _empty_/Tree#[F] -> 14:28
+(24:36..24:37) _empty_/Tree#`<*>`().[B] -> 24:11
+(24:41..24:45) _empty_/Tree# -> 14:6
+(24:46..24:49) _empty_/Tree#[`<*>`] -> 14:11
+(24:51..24:52) _empty_/Tree#[T] -> 14:22
+(24:54..24:55) _empty_/Tree#[F] -> 14:28
+(24:57..24:58) _empty_/Tree#[A] -> 14:34
+(24:59..24:62) _empty_/Tree#[`<*>`] -> 14:11
+(24:63..24:64) _empty_/Tree#`<*>`().[B] -> 24:11
+(25:5..25:11) _empty_/Tree.Branch.
+(25:18..25:22) _empty_/Tree#`<*>`().(that) -> 24:14
+(30:11..30:16) _empty_/Funs# -> 1:7
+(31:6..31:17) _empty_/Tree#Partitioned# -> 55:8
+(31:18..31:19) _empty_/Tree#partition().[G] -> 27:17
+(31:21..31:22) _empty_/Tree#partition().[H] -> 27:23
+(31:24..31:28) _empty_/Tree#partition().(funs) -> 30:5
+(33:12..33:16) _empty_/Tree.Leaf.
+(34:9..34:10) _empty_/Tree#partition().(f) -> 28:5
+(34:11..34:12) local4 -> 33:17
+(35:16..35:20) scala/package.Left.
+(35:28..35:39) _empty_/Tree#Partitioned.
+(35:40..35:44) _empty_/Tree#Partitioned.Left.
+(35:45..35:49) _empty_/Tree.Leaf.
+(35:50..35:51) local5 -> 35:21
+(36:16..36:21) scala/package.Right.
+(36:28..36:39) _empty_/Tree#Partitioned.
+(36:40..36:45) _empty_/Tree#Partitioned.Right.
+(36:46..36:50) _empty_/Tree.Leaf.
+(36:51..36:52) local6 -> 36:22
+(37:12..37:18) _empty_/Tree.Branch.
+(38:16..38:27) _empty_/Tree#Partitioned.
+(38:29..38:33) _empty_/Tree#Partitioned.Both# -> 58:10
+(38:29..38:33) _empty_/Tree#Partitioned.Both.
+(38:35..38:39) _empty_/Tree#Partitioned.Left# -> 56:10
+(38:35..38:39) _empty_/Tree#Partitioned.Left.
+(38:41..38:46) _empty_/Tree#Partitioned.Right# -> 57:10
+(38:41..38:46) _empty_/Tree#Partitioned.Right.
+(39:16..39:17) local9 -> 37:19
+(39:18..39:29) _empty_/Tree#Partitioned.
+(39:31..39:35) _empty_/Tree#Partitioned.Both# -> 58:10
+(39:31..39:35) _empty_/Tree#Partitioned.Both.
+(39:46..39:50) _empty_/Tree#Partitioned.Left# -> 56:10
+(39:46..39:50) _empty_/Tree#Partitioned.Left.
+(39:61..39:66) _empty_/Tree#Partitioned.Right# -> 57:10
+(39:61..39:66) _empty_/Tree#Partitioned.Right.
+(40:16..40:17) local10 -> 37:22
+(40:18..40:29) _empty_/Tree#Partitioned.
+(40:31..40:35) _empty_/Tree#Partitioned.Both# -> 58:10
+(40:31..40:35) _empty_/Tree#Partitioned.Both.
+(40:46..40:50) _empty_/Tree#Partitioned.Left# -> 56:10
+(40:46..40:50) _empty_/Tree#Partitioned.Left.
+(40:61..40:66) _empty_/Tree#Partitioned.Right# -> 57:10
+(40:61..40:66) _empty_/Tree#Partitioned.Right.
+(42:10..42:11) local9 -> 37:19
+(42:12..42:21) _empty_/Tree#partition(). -> 27:7
+(42:22..42:23) _empty_/Tree#partition().(f) -> 28:5
+(42:26..42:27) local10 -> 37:22
+(42:28..42:37) _empty_/Tree#partition(). -> 27:7
+(42:38..42:39) _empty_/Tree#partition().(f) -> 28:5
+(43:18..43:22) _empty_/Tree#Partitioned.Left.
+(43:33..43:37) _empty_/Tree#Partitioned.Left.
+(43:50..43:54) _empty_/Tree#Partitioned.Left.
+(43:55..43:57) local12 -> 43:23
+(43:58..43:61) _empty_/Tree#`<*>`(). -> 24:7
+(43:62..43:64) local14 -> 43:38
+(44:18..44:22) _empty_/Tree#Partitioned.Left.
+(44:33..44:38) _empty_/Tree#Partitioned.Right.
+(44:50..44:54) _empty_/Tree#Partitioned.Both.
+(44:55..44:57) local16 -> 44:23
+(44:59..44:61) local18 -> 44:39
+(45:18..45:22) _empty_/Tree#Partitioned.Left.
+(45:33..45:37) _empty_/Tree#Partitioned.Both.
+(45:50..45:54) _empty_/Tree#Partitioned.Both.
+(45:55..45:57) local20 -> 45:23
+(45:58..45:61) _empty_/Tree#`<*>`(). -> 24:7
+(45:62..45:64) local24 -> 45:38
+(45:66..45:68) local25 -> 45:42
+(46:18..46:23) _empty_/Tree#Partitioned.Right.
+(46:33..46:37) _empty_/Tree#Partitioned.Left.
+(46:50..46:54) _empty_/Tree#Partitioned.Both.
+(46:55..46:57) local29 -> 46:38
+(46:59..46:61) local27 -> 46:24
+(47:18..47:23) _empty_/Tree#Partitioned.Right.
+(47:33..47:38) _empty_/Tree#Partitioned.Right.
+(47:50..47:55) _empty_/Tree#Partitioned.Right.
+(47:56..47:58) local31 -> 47:24
+(47:59..47:62) _empty_/Tree#`<*>`(). -> 24:7
+(47:63..47:65) local33 -> 47:39
+(48:18..48:23) _empty_/Tree#Partitioned.Right.
+(48:33..48:37) _empty_/Tree#Partitioned.Both.
+(48:50..48:54) _empty_/Tree#Partitioned.Both.
+(48:55..48:57) local39 -> 48:38
+(48:59..48:61) local35 -> 48:24
+(48:62..48:65) _empty_/Tree#`<*>`(). -> 24:7
+(48:66..48:68) local40 -> 48:42
+(49:18..49:22) _empty_/Tree#Partitioned.Both.
+(49:33..49:37) _empty_/Tree#Partitioned.Left.
+(49:50..49:54) _empty_/Tree#Partitioned.Both.
+(49:55..49:57) local44 -> 49:23
+(49:58..49:61) _empty_/Tree#`<*>`(). -> 24:7
+(49:62..49:64) local47 -> 49:38
+(49:66..49:68) local45 -> 49:27
+(50:18..50:22) _empty_/Tree#Partitioned.Both.
+(50:33..50:38) _empty_/Tree#Partitioned.Right.
+(50:50..50:54) _empty_/Tree#Partitioned.Both.
+(50:55..50:57) local51 -> 50:23
+(50:59..50:61) local52 -> 50:27
+(50:62..50:65) _empty_/Tree#`<*>`(). -> 24:7
+(50:66..50:68) local54 -> 50:39
+(51:18..51:22) _empty_/Tree#Partitioned.Both.
+(51:33..51:37) _empty_/Tree#Partitioned.Both.
+(51:50..51:54) _empty_/Tree#Partitioned.Both.
+(51:55..51:57) local58 -> 51:23
+(51:58..51:61) _empty_/Tree#`<*>`(). -> 24:7
+(51:62..51:64) local63 -> 51:38
+(51:66..51:68) local59 -> 51:27
+(51:69..51:72) _empty_/Tree#`<*>`(). -> 24:7
+(51:73..51:75) local64 -> 51:42
+(56:22..56:26) _empty_/Tree# -> 14:6
+(56:27..56:30) _empty_/Tree#[`<*>`] -> 14:11
+(56:32..56:33) _empty_/Tree#[T] -> 14:22
+(56:35..56:36) _empty_/Tree#Partitioned.Left#[G]
+(56:38..56:39) _empty_/Tree#[A] -> 14:34
+(57:23..57:27) _empty_/Tree# -> 14:6
+(57:28..57:31) _empty_/Tree#[`<*>`] -> 14:11
+(57:33..57:34) _empty_/Tree#[T] -> 14:22
+(57:36..57:37) _empty_/Tree#Partitioned.Right#[H]
+(57:39..57:40) _empty_/Tree#[A] -> 14:34
+(59:10..59:14) _empty_/Tree# -> 14:6
+(59:15..59:18) _empty_/Tree#[`<*>`] -> 14:11
+(59:20..59:21) _empty_/Tree#[T] -> 14:22
+(59:23..59:24) _empty_/Tree#Partitioned.Both#[G] -> 58:15
+(59:26..59:27) _empty_/Tree#Partitioned.Both#[X] -> 58:27
+(60:10..60:14) _empty_/Tree# -> 14:6
+(60:15..60:18) _empty_/Tree#[`<*>`] -> 14:11
+(60:20..60:21) _empty_/Tree#[T] -> 14:22
+(60:23..60:24) _empty_/Tree#Partitioned.Both#[H] -> 58:21
+(60:26..60:27) _empty_/Tree#Partitioned.Both#[Y] -> 58:30
+(61:15..61:26) _empty_/Tree#Partitioned# -> 55:8
+(61:27..61:28) _empty_/Tree#Partitioned.Both#[G] -> 58:15
+(61:30..61:31) _empty_/Tree#Partitioned.Both#[H] -> 58:21
+(61:33..61:35) _empty_/Tree#Partitioned.Both#[`->`] -> 58:33
+

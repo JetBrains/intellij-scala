@@ -1,0 +1,21 @@
+Document tests/pos/i16997.min.scala
+(4:28..4:31) _empty_/Foo# -> 4:12
+(4:32..4:33) _empty_/Foo#[F] -> 4:16
+(5:37..5:40) _empty_/Foo# -> 4:12
+(5:41..5:42) _empty_/Foo#Bar#[G] -> 5:18
+(7:27..7:29) _empty_/Fn# -> 1:7
+(7:32..7:35) _empty_/Foo#Bar# -> 5:14
+(7:36..7:37) _empty_/Foo#bar().[G] -> 7:11
+(7:39..7:41) _empty_/Foo#bar().(fn) -> 7:23
+(7:47..7:50) scala/Predef.`???`().
+(9:28..9:30) _empty_/Fn# -> 1:7
+(9:33..9:36) _empty_/Foo#Bar# -> 5:14
+(9:37..9:38) _empty_/Foo#part().[G] -> 9:12
+(9:40..9:42) _empty_/Foo#part().(fn) -> 9:24
+(10:6..10:9) _empty_/Foo#bar(). -> 7:7
+(10:10..10:11) _empty_/Foo#part().[G] -> 9:12
+(11:13..11:16) _empty_/Foo#Bar.
+(12:9..12:12) _empty_/Foo#Bar.
+(12:13..12:16) _empty_/Foo.
+(12:17..12:22) local1 -> 11:17
+

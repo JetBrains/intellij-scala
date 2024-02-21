@@ -61,7 +61,14 @@ object ScalaVersion {
     }
 }
 
-//NOTE: when adding new version also update org.jetbrains.plugins.scala.util.runners.TestScalaVersion
+/**
+ * [NOTE] If you need to update the latest supported Scala_3_X version:
+ *  - update sbt bridge in `runtimeDependencies` of `community/build.sbt`
+ *  - create new ScalaLanguageLevel.Scala_3_x (if new major scala 3 version was released)
+ *  - update all latest minor versions LatestScalaVersions.Scala_3_X to the latest
+ *  - when adding new version also update org.jetbrains.plugins.scala.util.runners.TestScalaVersion
+ *  - run `AfterUpdateDottyVersionScript.scala`
+ */
 object LatestScalaVersions {
 
   // duplicated here to refer with `ScalaVersion.` prefix
@@ -73,11 +80,11 @@ object LatestScalaVersions {
   val Scala_3_0  = new ScalaVersion(ScalaLanguageLevel.Scala_3_0, "2")
   val Scala_3_1  = new ScalaVersion(ScalaLanguageLevel.Scala_3_1, "3")
   val Scala_3_2  = new ScalaVersion(ScalaLanguageLevel.Scala_3_2, "2")
-  val Scala_3_3 = new ScalaVersion(ScalaLanguageLevel.Scala_3_3, "1")
+  val Scala_3_3 = new ScalaVersion(ScalaLanguageLevel.Scala_3_3, "2")
 
   val Scala_2: ScalaVersion = Scala_2_13
   val Scala_3: ScalaVersion = Scala_3_3
-  val Scala_3_RC = new ScalaVersion(ScalaLanguageLevel.Scala_3_3, "1-RC7")
+  val Scala_3_RC = new ScalaVersion(ScalaLanguageLevel.Scala_3_3, "2-RC3")
 
   val allScala2: Seq[ScalaVersion] = Seq(
     Scala_2_9,

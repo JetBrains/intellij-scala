@@ -31,7 +31,7 @@ class ScalaGeneralTroubleInfoCollectorTest extends TestCase {
 
   def testBuildText_MultipleVersions(): Unit = {
     assertEquals(
-      """Scala versions: 3.3.1 (2), 2.13.12 (3), 2.12.18 (2), 2.11.12
+      """Scala versions: 3.3.2 (2), 2.13.12 (3), 2.12.18 (2), 2.11.12
         |SBT version: 1.9.2 (3), 1.9.1
         |""".stripMargin.trim,
       ScalaGeneralTroubleInfoCollector.buildText(

@@ -1,0 +1,4 @@
+Document tests/pos/i10383.scala
+(3:9..3:15) scala/package.BigInt.
+(3:22..3:28) scala/package.BigInt.
+

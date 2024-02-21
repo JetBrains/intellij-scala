@@ -1,11 +1,26 @@
-// scalac: -Yimports:scala,java.lang,scala.Predef,scala.annotation,scala.util.matching
+//> using options -Yimports:scala,java.lang,scala.Predef,scala.annotation,scala.util.matching
 
 class annotation extends Annotation
 val s: String = "str"
 val regex: Regex = s.r
 -----
 ScalaFile
-  PsiComment(comment)('// scalac: -Yimports:scala,java.lang,scala.Predef,scala.annotation,scala.util.matching')
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Yimports:scala')
+    ScDirectiveToken(tDIRECTIVE_COMMA)(',')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('java.lang')
+    ScDirectiveToken(tDIRECTIVE_COMMA)(',')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('scala.Predef')
+    ScDirectiveToken(tDIRECTIVE_COMMA)(',')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('scala.annotation')
+    ScDirectiveToken(tDIRECTIVE_COMMA)(',')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('scala.util.matching')
   PsiWhiteSpace('\n\n')
   ScClass: annotation
     AnnotationsList

@@ -1,0 +1,52 @@
+Document tests/pos/i17155.scala
+(1:20..1:25) scala/Array#
+(1:26..1:27) _empty_/i17155$package.foo().[A] -> 1:9
+(1:34..1:49) scala/PartialFunction#
+(1:50..1:51) _empty_/i17155$package.foo().[A] -> 1:9
+(1:53..1:54) _empty_/i17155$package.foo().[B] -> 1:12
+(1:58..1:61) scala/package.Seq#
+(1:62..1:63) _empty_/i17155$package.foo().[B] -> 1:12
+(1:67..1:70) _empty_/i17155$package.foo().(arr) -> 1:15
+(1:71..1:76) scala/collection/ArrayOps#toSeq().
+(1:77..1:84) scala/collection/IterableOps#collect().
+(1:85..1:87) _empty_/i17155$package.foo().(pf) -> 1:30
+(2:21..2:25) scala/package.List#
+(2:26..2:27) _empty_/i17155$package.foo(+1).[A] -> 2:9
+(2:34..2:49) scala/PartialFunction#
+(2:50..2:51) _empty_/i17155$package.foo(+1).[A] -> 2:9
+(2:53..2:54) _empty_/i17155$package.foo(+1).[B] -> 2:12
+(2:58..2:61) scala/package.Seq#
+(2:62..2:63) _empty_/i17155$package.foo(+1).[B] -> 2:12
+(2:67..2:71) _empty_/i17155$package.foo(+1).(list) -> 2:15
+(2:72..2:79) scala/collection/immutable/List#collect().
+(2:80..2:82) _empty_/i17155$package.foo(+1).(pf) -> 2:30
+(4:11..4:16) scala/Array.
+(5:15..5:18) _empty_/i17155$package.foo(). -> 1:5
+(5:19..5:22) _empty_/i17155$package.foo().(arr) -> 1:15
+(5:25..5:28) _empty_/i17155$package.arr. -> 4:5
+(5:42..5:43) local1 -> 5:37
+(5:44..5:45) scala/Int#`%`(+3).
+(5:48..5:50) scala/Int#`!=`(+3).
+(5:56..5:57) local1 -> 5:37
+(5:58..5:66) scala/Any#toString().
+(6:15..6:18) _empty_/i17155$package.foo(). -> 1:5
+(6:19..6:22) _empty_/i17155$package.foo().(arr) -> 1:15
+(6:25..6:28) _empty_/i17155$package.arr. -> 4:5
+(6:30..6:32) _empty_/i17155$package.foo().(pf) -> 1:30
+(6:47..6:48) local3 -> 6:42
+(6:49..6:50) scala/Int#`%`(+3).
+(6:53..6:55) scala/Int#`!=`(+3).
+(6:61..6:62) local3 -> 6:42
+(6:63..6:71) scala/Any#toString().
+(7:16..7:19) _empty_/i17155$package.foo(). -> 1:5
+(7:20..7:23) scala/Int#
+(7:25..7:31) scala/Predef.String#
+(7:33..7:36) _empty_/i17155$package.foo().(arr) -> 1:15
+(7:39..7:42) _empty_/i17155$package.arr. -> 4:5
+(7:44..7:46) _empty_/i17155$package.foo().(pf) -> 1:30
+(7:61..7:62) local5 -> 7:56
+(7:63..7:64) scala/Int#`%`(+3).
+(7:67..7:69) scala/Int#`!=`(+3).
+(7:75..7:76) local5 -> 7:56
+(7:77..7:85) scala/Any#toString().
+

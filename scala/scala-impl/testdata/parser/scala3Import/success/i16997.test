@@ -1,0 +1,1812 @@
+class Funs {
+  sealed trait ->[A, B]
+}
+
+/**
+ * Binary tree with leafs holding values of types `F[X]`, `F[Y]`, ...
+ * The complete structure of the tree is expressed by the type `A`, using the tags for branches and leafs.
+ *
+ * @tparam <*> tag for branches
+ * @tparam T tag for leafs.
+ * @tparam F value type of leafs. Each leaf holds a value of type `F[T]`, for some type `T`.
+ * @tparam A captures the complete structure of the tree
+ */
+enum Tree[<*>[_, _], T[_], F[_], A] {
+  case Branch[<*>[_, _], T[_], F[_], A, B](
+    l: Tree[<*>, T, F, A],
+    r: Tree[<*>, T, F, B],
+  ) extends Tree[<*>, T, F, A <*> B]
+
+  case Leaf[<*>[_, _], T[_], F[_], A](
+    value: F[A],
+  ) extends Tree[<*>, T, F, T[A]]
+
+  def <*>[B](that: Tree[<*>, T, F, B]): Tree[<*>, T, F, A <*> B] =
+    Branch(this, that)
+
+  def partition[G[_], H[_]](
+    f: [x] => F[x] => Either[G[x], H[x]],
+  )(using
+    funs: Funs,
+  ): Partitioned[G, H, funs.->] =
+    this match {
+      case Leaf(a) =>
+        f(a) match
+          case Left(a)  => Partitioned.Left(Leaf(a))
+          case Right(a) => Partitioned.Right(Leaf(a))
+      case Branch(l, r) =>
+        import Partitioned.{Both, Left, Right}
+        import l.Partitioned.{Both => LBoth, Left => LLeft, Right => LRight}
+        import r.Partitioned.{Both => RBoth, Left => RLeft, Right => RRight}
+
+        (l.partition(f), r.partition(f)) match
+          case (LLeft(lg),     RLeft(rg))     => Left(lg <*> rg)
+          case (LLeft(lg),     RRight(rh))    => Both(lg, rh)
+          case (LLeft(lg),     RBoth(rg, rh)) => Both(lg <*> rg, rh)
+          case (LRight(lh),    RLeft(rg))     => Both(rg, lh)
+          case (LRight(lh),    RRight(rh))    => Right(lh <*> rh)
+          case (LRight(lh),    RBoth(rg, rh)) => Both(rg, lh <*> rh)
+          case (LBoth(lg, lh), RLeft(rg))     => Both(lg <*> rg, lh)
+          case (LBoth(lg, lh), RRight(rh))    => Both(lg, lh <*> rh)
+          case (LBoth(lg, lh), RBoth(rg, rh)) => Both(lg <*> rg, lh <*> rh)
+    }
+
+  // note that `->` is never even used, to keep this reproduction case small
+  enum Partitioned[G[_], H[_], ->[_, _]] {
+    case Left(value: Tree[<*>, T, G, A])
+    case Right(value: Tree[<*>, T, H, A])
+    case Both[G[_], H[_], X, Y, ->[_, _]](
+      l: Tree[<*>, T, G, X],
+      r: Tree[<*>, T, H, Y],
+    ) extends Partitioned[G, H, ->]
+  }
+}
+-----
+ScalaFile
+  ScClass: Funs
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Funs')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTrait: ->
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(sealed)('sealed')
+          PsiWhiteSpace(' ')
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('->')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(])(']')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScEnum: Tree
+    DocComment
+      ScPsiDocToken(DOC_COMMENT_START)('/**')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScDocParagraph
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_COMMENT_DATA)('Binary tree with leafs holding values of types ')
+        DocSyntaxElement 8
+          ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+          ScPsiDocToken(DOC_COMMENT_DATA)('F[X]')
+          ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+        ScPsiDocToken(DOC_COMMENT_DATA)(', ')
+        DocSyntaxElement 8
+          ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+          ScPsiDocToken(DOC_COMMENT_DATA)('F[Y]')
+          ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+        ScPsiDocToken(DOC_COMMENT_DATA)(', ...')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_COMMENT_DATA)('The complete structure of the tree is expressed by the type ')
+        DocSyntaxElement 8
+          ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+          ScPsiDocToken(DOC_COMMENT_DATA)('A')
+          ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+        ScPsiDocToken(DOC_COMMENT_DATA)(', using the tags for branches and leafs.')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      DocTag
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_TAG_NAME)('@tparam')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScalaDocTagValue: <*>
+          ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('<*>')
+        ScDocParagraph
+          ScPsiDocToken(DOC_WHITESPACE)(' ')
+          ScPsiDocToken(DOC_COMMENT_DATA)('tag for branches')
+          ScPsiDocToken(DOC_WHITESPACE)('\n ')
+          ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      DocTag
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_TAG_NAME)('@tparam')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScalaDocTagValue: T
+          ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('T')
+        ScDocParagraph
+          ScPsiDocToken(DOC_WHITESPACE)(' ')
+          ScPsiDocToken(DOC_COMMENT_DATA)('tag for leafs.')
+          ScPsiDocToken(DOC_WHITESPACE)('\n ')
+          ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      DocTag
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_TAG_NAME)('@tparam')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScalaDocTagValue: F
+          ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('F')
+        ScDocParagraph
+          ScPsiDocToken(DOC_WHITESPACE)(' ')
+          ScPsiDocToken(DOC_COMMENT_DATA)('value type of leafs. Each leaf holds a value of type ')
+          DocSyntaxElement 8
+            ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+            ScPsiDocToken(DOC_COMMENT_DATA)('F[T]')
+            ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+          ScPsiDocToken(DOC_COMMENT_DATA)(', for some type ')
+          DocSyntaxElement 8
+            ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+            ScPsiDocToken(DOC_COMMENT_DATA)('T')
+            ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+          ScPsiDocToken(DOC_COMMENT_DATA)('.')
+          ScPsiDocToken(DOC_WHITESPACE)('\n ')
+          ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      DocTag
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_TAG_NAME)('@tparam')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScalaDocTagValue: A
+          ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('A')
+        ScDocParagraph
+          ScPsiDocToken(DOC_WHITESPACE)(' ')
+          ScPsiDocToken(DOC_COMMENT_DATA)('captures the complete structure of the tree')
+          ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_END)('*/')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(enum)('enum')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Tree')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: <*>
+        PsiElement(identifier)('<*>')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: F
+        PsiElement(identifier)('F')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: Branch
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumClassCase: Branch
+            PsiElement(identifier)('Branch')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: <*>
+                PsiElement(identifier)('<*>')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: _
+                    PsiElement(_)('_')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeParameter: _
+                    PsiElement(_)('_')
+                  PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeParameter: T
+                PsiElement(identifier)('T')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: _
+                    PsiElement(_)('_')
+                  PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeParameter: F
+                PsiElement(identifier)('F')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: _
+                    PsiElement(_)('_')
+                  PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeParameter: A
+                PsiElement(identifier)('A')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeParameter: B
+                PsiElement(identifier)('B')
+              PsiElement(])(']')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  PsiWhiteSpace('\n    ')
+                  ClassParameter: l
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('l')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      ParametrizedType: Tree[<*>, T, F, A]
+                        SimpleType: Tree
+                          CodeReferenceElement: Tree
+                            PsiElement(identifier)('Tree')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: <*>
+                            CodeReferenceElement: <*>
+                              PsiElement(identifier)('<*>')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: T
+                            CodeReferenceElement: T
+                              PsiElement(identifier)('T')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: F
+                            CodeReferenceElement: F
+                              PsiElement(identifier)('F')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
+                          PsiElement(])(']')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('\n    ')
+                  ClassParameter: r
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('r')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      ParametrizedType: Tree[<*>, T, F, B]
+                        SimpleType: Tree
+                          CodeReferenceElement: Tree
+                            PsiElement(identifier)('Tree')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: <*>
+                            CodeReferenceElement: <*>
+                              PsiElement(identifier)('<*>')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: T
+                            CodeReferenceElement: T
+                              PsiElement(identifier)('T')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: F
+                            CodeReferenceElement: F
+                              PsiElement(identifier)('F')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: B
+                            CodeReferenceElement: B
+                              PsiElement(identifier)('B')
+                          PsiElement(])(']')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('\n  ')
+                  PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  ParametrizedType: Tree[<*>, T, F, A <*> B]
+                    SimpleType: Tree
+                      CodeReferenceElement: Tree
+                        PsiElement(identifier)('Tree')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: <*>
+                        CodeReferenceElement: <*>
+                          PsiElement(identifier)('<*>')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: F
+                        CodeReferenceElement: F
+                          PsiElement(identifier)('F')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      InfixType: A <*> B
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: <*>
+                          PsiElement(identifier)('<*>')
+                        PsiWhiteSpace(' ')
+                        SimpleType: B
+                          CodeReferenceElement: B
+                            PsiElement(identifier)('B')
+                      PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScEnumCases: Leaf
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumClassCase: Leaf
+            PsiElement(identifier)('Leaf')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: <*>
+                PsiElement(identifier)('<*>')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: _
+                    PsiElement(_)('_')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeParameter: _
+                    PsiElement(_)('_')
+                  PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeParameter: T
+                PsiElement(identifier)('T')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: _
+                    PsiElement(_)('_')
+                  PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeParameter: F
+                PsiElement(identifier)('F')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: _
+                    PsiElement(_)('_')
+                  PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeParameter: A
+                PsiElement(identifier)('A')
+              PsiElement(])(']')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  PsiWhiteSpace('\n    ')
+                  ClassParameter: value
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('value')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      ParametrizedType: F[A]
+                        SimpleType: F
+                          CodeReferenceElement: F
+                            PsiElement(identifier)('F')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
+                          PsiElement(])(']')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace('\n  ')
+                  PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  ParametrizedType: Tree[<*>, T, F, T[A]]
+                    SimpleType: Tree
+                      CodeReferenceElement: Tree
+                        PsiElement(identifier)('Tree')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: <*>
+                        CodeReferenceElement: <*>
+                          PsiElement(identifier)('<*>')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: F
+                        CodeReferenceElement: F
+                          PsiElement(identifier)('F')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: T[A]
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
+                          PsiElement(])(']')
+                      PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: <*>
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('<*>')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: that
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('that')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Tree[<*>, T, F, B]
+                    SimpleType: Tree
+                      CodeReferenceElement: Tree
+                        PsiElement(identifier)('Tree')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: <*>
+                        CodeReferenceElement: <*>
+                          PsiElement(identifier)('<*>')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: F
+                        CodeReferenceElement: F
+                          PsiElement(identifier)('F')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Tree[<*>, T, F, A <*> B]
+            SimpleType: Tree
+              CodeReferenceElement: Tree
+                PsiElement(identifier)('Tree')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: <*>
+                CodeReferenceElement: <*>
+                  PsiElement(identifier)('<*>')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: F
+                CodeReferenceElement: F
+                  PsiElement(identifier)('F')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              InfixType: A <*> B
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: <*>
+                  PsiElement(identifier)('<*>')
+                PsiWhiteSpace(' ')
+                SimpleType: B
+                  CodeReferenceElement: B
+                    PsiElement(identifier)('B')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            ReferenceExpression: Branch
+              PsiElement(identifier)('Branch')
+            ArgumentList
+              PsiElement(()('(')
+              ThisReference
+                PsiElement(this)('this')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: that
+                PsiElement(identifier)('that')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: partition
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('partition')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: G
+              PsiElement(identifier)('G')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: _
+                  PsiElement(_)('_')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: H
+              PsiElement(identifier)('H')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: _
+                  PsiElement(_)('_')
+                PsiElement(])(']')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiWhiteSpace('\n    ')
+              Parameter: f
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('f')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  PolymorhicFunctionType: [x] => F[x] => Either[G[x], H[x]]
+                    TypeParameterClause
+                      PsiElement([)('[')
+                      TypeParameter: x
+                        PsiElement(identifier)('x')
+                      PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    FunctionalType: F[x] => Either[G[x], H[x]]
+                      ParametrizedType: F[x]
+                        SimpleType: F
+                          CodeReferenceElement: F
+                            PsiElement(identifier)('F')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: x
+                            CodeReferenceElement: x
+                              PsiElement(identifier)('x')
+                          PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: Either[G[x], H[x]]
+                        SimpleType: Either
+                          CodeReferenceElement: Either
+                            PsiElement(identifier)('Either')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          ParametrizedType: G[x]
+                            SimpleType: G
+                              CodeReferenceElement: G
+                                PsiElement(identifier)('G')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              SimpleType: x
+                                CodeReferenceElement: x
+                                  PsiElement(identifier)('x')
+                              PsiElement(])(']')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ParametrizedType: H[x]
+                            SimpleType: H
+                              CodeReferenceElement: H
+                                PsiElement(identifier)('H')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              SimpleType: x
+                                CodeReferenceElement: x
+                                  PsiElement(identifier)('x')
+                              PsiElement(])(']')
+                          PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n  ')
+              PsiElement())(')')
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(using)('using')
+              PsiWhiteSpace('\n    ')
+              Parameter: funs
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('funs')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Funs
+                    CodeReferenceElement: Funs
+                      PsiElement(identifier)('Funs')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n  ')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Partitioned[G, H, funs.->]
+            SimpleType: Partitioned
+              CodeReferenceElement: Partitioned
+                PsiElement(identifier)('Partitioned')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: G
+                CodeReferenceElement: G
+                  PsiElement(identifier)('G')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: H
+                CodeReferenceElement: H
+                  PsiElement(identifier)('H')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: funs.->
+                CodeReferenceElement: funs.->
+                  CodeReferenceElement: funs
+                    PsiElement(identifier)('funs')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('->')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MatchStatement
+            ThisReference
+              PsiElement(this)('this')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n      ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ConstructorPattern
+                  CodeReferenceElement: Leaf
+                    PsiElement(identifier)('Leaf')
+                  Pattern Argument List
+                    PsiElement(()('(')
+                    ReferencePattern: a
+                      PsiElement(identifier)('a')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace('\n        ')
+                BlockOfExpressions
+                  MatchStatement
+                    MethodCall
+                      ReferenceExpression: f
+                        PsiElement(identifier)('f')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: a
+                          PsiElement(identifier)('a')
+                        PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(match)('match')
+                    PsiWhiteSpace('\n          ')
+                    CaseClauses
+                      CaseClause
+                        PsiElement(case)('case')
+                        PsiWhiteSpace(' ')
+                        ConstructorPattern
+                          CodeReferenceElement: Left
+                            PsiElement(identifier)('Left')
+                          Pattern Argument List
+                            PsiElement(()('(')
+                            ReferencePattern: a
+                              PsiElement(identifier)('a')
+                            PsiElement())(')')
+                        PsiWhiteSpace('  ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        BlockOfExpressions
+                          MethodCall
+                            ReferenceExpression: Partitioned.Left
+                              ReferenceExpression: Partitioned
+                                PsiElement(identifier)('Partitioned')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('Left')
+                            ArgumentList
+                              PsiElement(()('(')
+                              MethodCall
+                                ReferenceExpression: Leaf
+                                  PsiElement(identifier)('Leaf')
+                                ArgumentList
+                                  PsiElement(()('(')
+                                  ReferenceExpression: a
+                                    PsiElement(identifier)('a')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+                      PsiWhiteSpace('\n          ')
+                      CaseClause
+                        PsiElement(case)('case')
+                        PsiWhiteSpace(' ')
+                        ConstructorPattern
+                          CodeReferenceElement: Right
+                            PsiElement(identifier)('Right')
+                          Pattern Argument List
+                            PsiElement(()('(')
+                            ReferencePattern: a
+                              PsiElement(identifier)('a')
+                            PsiElement())(')')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        BlockOfExpressions
+                          MethodCall
+                            ReferenceExpression: Partitioned.Right
+                              ReferenceExpression: Partitioned
+                                PsiElement(identifier)('Partitioned')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('Right')
+                            ArgumentList
+                              PsiElement(()('(')
+                              MethodCall
+                                ReferenceExpression: Leaf
+                                  PsiElement(identifier)('Leaf')
+                                ArgumentList
+                                  PsiElement(()('(')
+                                  ReferenceExpression: a
+                                    PsiElement(identifier)('a')
+                                  PsiElement())(')')
+                              PsiElement())(')')
+              PsiWhiteSpace('\n      ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ConstructorPattern
+                  CodeReferenceElement: Branch
+                    PsiElement(identifier)('Branch')
+                  Pattern Argument List
+                    PsiElement(()('(')
+                    ReferencePattern: l
+                      PsiElement(identifier)('l')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    ReferencePattern: r
+                      PsiElement(identifier)('r')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace('\n        ')
+                BlockOfExpressions
+                  ScImportStatement
+                    PsiElement(import)('import')
+                    PsiWhiteSpace(' ')
+                    ImportExpression
+                      CodeReferenceElement: Partitioned
+                        PsiElement(identifier)('Partitioned')
+                      PsiElement(.)('.')
+                      ImportSelectors
+                        PsiElement({)('{')
+                        ImportSelector
+                          CodeReferenceElement: Both
+                            PsiElement(identifier)('Both')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ImportSelector
+                          CodeReferenceElement: Left
+                            PsiElement(identifier)('Left')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ImportSelector
+                          CodeReferenceElement: Right
+                            PsiElement(identifier)('Right')
+                        PsiElement(})('}')
+                  PsiWhiteSpace('\n        ')
+                  ScImportStatement
+                    PsiElement(import)('import')
+                    PsiWhiteSpace(' ')
+                    ImportExpression
+                      CodeReferenceElement: l.Partitioned
+                        CodeReferenceElement: l
+                          PsiElement(identifier)('l')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Partitioned')
+                      PsiElement(.)('.')
+                      ImportSelectors
+                        PsiElement({)('{')
+                        ImportSelector
+                          CodeReferenceElement: Both
+                            PsiElement(identifier)('Both')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          PsiElement(identifier)('LBoth')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ImportSelector
+                          CodeReferenceElement: Left
+                            PsiElement(identifier)('Left')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          PsiElement(identifier)('LLeft')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ImportSelector
+                          CodeReferenceElement: Right
+                            PsiElement(identifier)('Right')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          PsiElement(identifier)('LRight')
+                        PsiElement(})('}')
+                  PsiWhiteSpace('\n        ')
+                  ScImportStatement
+                    PsiElement(import)('import')
+                    PsiWhiteSpace(' ')
+                    ImportExpression
+                      CodeReferenceElement: r.Partitioned
+                        CodeReferenceElement: r
+                          PsiElement(identifier)('r')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Partitioned')
+                      PsiElement(.)('.')
+                      ImportSelectors
+                        PsiElement({)('{')
+                        ImportSelector
+                          CodeReferenceElement: Both
+                            PsiElement(identifier)('Both')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          PsiElement(identifier)('RBoth')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ImportSelector
+                          CodeReferenceElement: Left
+                            PsiElement(identifier)('Left')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          PsiElement(identifier)('RLeft')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ImportSelector
+                          CodeReferenceElement: Right
+                            PsiElement(identifier)('Right')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          PsiElement(identifier)('RRight')
+                        PsiElement(})('}')
+                  PsiWhiteSpace('\n\n        ')
+                  MatchStatement
+                    Tuple
+                      PsiElement(()('(')
+                      MethodCall
+                        ReferenceExpression: l.partition
+                          ReferenceExpression: l
+                            PsiElement(identifier)('l')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('partition')
+                        ArgumentList
+                          PsiElement(()('(')
+                          ReferenceExpression: f
+                            PsiElement(identifier)('f')
+                          PsiElement())(')')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      MethodCall
+                        ReferenceExpression: r.partition
+                          ReferenceExpression: r
+                            PsiElement(identifier)('r')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('partition')
+                        ArgumentList
+                          PsiElement(()('(')
+                          ReferenceExpression: f
+                            PsiElement(identifier)('f')
+                          PsiElement())(')')
+                      PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(match)('match')
+                    PsiWhiteSpace('\n          ')
+                    CaseClauses
+                      CaseClause
+                        PsiElement(case)('case')
+                        PsiWhiteSpace(' ')
+                        TuplePattern
+                          PsiElement(()('(')
+                          ArgumentPatterns
+                            ConstructorPattern
+                              CodeReferenceElement: LLeft
+                                PsiElement(identifier)('LLeft')
+                              Pattern Argument List
+                                PsiElement(()('(')
+                                ReferencePattern: lg
+                                  PsiElement(identifier)('lg')
+                                PsiElement())(')')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace('     ')
+                            ConstructorPattern
+                              CodeReferenceElement: RLeft
+                                PsiElement(identifier)('RLeft')
+                              Pattern Argument List
+                                PsiElement(()('(')
+                                ReferencePattern: rg
+                                  PsiElement(identifier)('rg')
+                                PsiElement())(')')
+                          PsiElement())(')')
+                        PsiWhiteSpace('     ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        BlockOfExpressions
+                          MethodCall
+                            ReferenceExpression: Left
+                              PsiElement(identifier)('Left')
+                            ArgumentList
+                              PsiElement(()('(')
+                              InfixExpression
+                                ReferenceExpression: lg
+                                  PsiElement(identifier)('lg')
+                                PsiWhiteSpace(' ')
+                                ReferenceExpression: <*>
+                                  PsiElement(identifier)('<*>')
+                                PsiWhiteSpace(' ')
+                                ReferenceExpression: rg
+                                  PsiElement(identifier)('rg')
+                              PsiElement())(')')
+                      PsiWhiteSpace('\n          ')
+                      CaseClause
+                        PsiElement(case)('case')
+                        PsiWhiteSpace(' ')
+                        TuplePattern
+                          PsiElement(()('(')
+                          ArgumentPatterns
+                            ConstructorPattern
+                              CodeReferenceElement: LLeft
+                                PsiElement(identifier)('LLeft')
+                              Pattern Argument List
+                                PsiElement(()('(')
+                                ReferencePattern: lg
+                                  PsiElement(identifier)('lg')
+                                PsiElement())(')')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace('     ')
+                            ConstructorPattern
+                              CodeReferenceElement: RRight
+                                PsiElement(identifier)('RRight')
+                              Pattern Argument List
+                                PsiElement(()('(')
+                                ReferencePattern: rh
+                                  PsiElement(identifier)('rh')
+                                PsiElement())(')')
+                          PsiElement())(')')
+                        PsiWhiteSpace('    ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        BlockOfExpressions
+                          MethodCall
+                            ReferenceExpression: Both
+                              PsiElement(identifier)('Both')
+                            ArgumentList
+                              PsiElement(()('(')
+                              ReferenceExpression: lg
+                                PsiElement(identifier)('lg')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression: rh
+                                PsiElement(identifier)('rh')
+                              PsiElement())(')')
+                      PsiWhiteSpace('\n          ')
+                      CaseClause
+                        PsiElement(case)('case')
+                        PsiWhiteSpace(' ')
+                        TuplePattern
+                          PsiElement(()('(')
+                          ArgumentPatterns
+                            ConstructorPattern
+                              CodeReferenceElement: LLeft
+                                PsiElement(identifier)('LLeft')
+                              Pattern Argument List
+                                PsiElement(()('(')
+                                ReferencePattern: lg
+                                  PsiElement(identifier)('lg')
+                                PsiElement())(')')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace('     ')
+                            ConstructorPattern
+                              CodeReferenceElement: RBoth
+                                PsiElement(identifier)('RBoth')
+                              Pattern Argument List
+                                PsiElement(()('(')
+                                ReferencePattern: rg
+                                  PsiElement(identifier)('rg')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                ReferencePattern: rh
+                                  PsiElement(identifier)('rh')
+                                PsiElement())(')')
+                          PsiElement())(')')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        BlockOfExpressions
+                          MethodCall
+                            ReferenceExpression: Both
+                              PsiElement(identifier)('Both')
+                            ArgumentList
+                              PsiElement(()('(')
+                              InfixExpression
+                                ReferenceExpression: lg
+                                  PsiElement(identifier)('lg')
+                                PsiWhiteSpace(' ')
+                                ReferenceExpression: <*>
+                                  PsiElement(identifier)('<*>')
+                                PsiWhiteSpace(' ')
+                                ReferenceExpression: rg
+                                  PsiElement(identifier)('rg')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression: rh
+                                PsiElement(identifier)('rh')
+                              PsiElement())(')')
+                      PsiWhiteSpace('\n          ')
+                      CaseClause
+                        PsiElement(case)('case')
+                        PsiWhiteSpace(' ')
+                        TuplePattern
+                          PsiElement(()('(')
+                          ArgumentPatterns
+                            ConstructorPattern
+                              CodeReferenceElement: LRight
+                                PsiElement(identifier)('LRight')
+                              Pattern Argument List
+                                PsiElement(()('(')
+                                ReferencePattern: lh
+                                  PsiElement(identifier)('lh')
+                                PsiElement())(')')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace('    ')
+                            ConstructorPattern
+                              CodeReferenceElement: RLeft
+                                PsiElement(identifier)('RLeft')
+                              Pattern Argument List
+                                PsiElement(()('(')
+                                ReferencePattern: rg
+                                  PsiElement(identifier)('rg')
+                                PsiElement())(')')
+                          PsiElement())(')')
+                        PsiWhiteSpace('     ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        BlockOfExpressions
+                          MethodCall
+                            ReferenceExpression: Both
+                              PsiElement(identifier)('Both')
+                            ArgumentList
+                              PsiElement(()('(')
+                              ReferenceExpression: rg
+                                PsiElement(identifier)('rg')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression: lh
+                                PsiElement(identifier)('lh')
+                              PsiElement())(')')
+                      PsiWhiteSpace('\n          ')
+                      CaseClause
+                        PsiElement(case)('case')
+                        PsiWhiteSpace(' ')
+                        TuplePattern
+                          PsiElement(()('(')
+                          ArgumentPatterns
+                            ConstructorPattern
+                              CodeReferenceElement: LRight
+                                PsiElement(identifier)('LRight')
+                              Pattern Argument List
+                                PsiElement(()('(')
+                                ReferencePattern: lh
+                                  PsiElement(identifier)('lh')
+                                PsiElement())(')')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace('    ')
+                            ConstructorPattern
+                              CodeReferenceElement: RRight
+                                PsiElement(identifier)('RRight')
+                              Pattern Argument List
+                                PsiElement(()('(')
+                                ReferencePattern: rh
+                                  PsiElement(identifier)('rh')
+                                PsiElement())(')')
+                          PsiElement())(')')
+                        PsiWhiteSpace('    ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        BlockOfExpressions
+                          MethodCall
+                            ReferenceExpression: Right
+                              PsiElement(identifier)('Right')
+                            ArgumentList
+                              PsiElement(()('(')
+                              InfixExpression
+                                ReferenceExpression: lh
+                                  PsiElement(identifier)('lh')
+                                PsiWhiteSpace(' ')
+                                ReferenceExpression: <*>
+                                  PsiElement(identifier)('<*>')
+                                PsiWhiteSpace(' ')
+                                ReferenceExpression: rh
+                                  PsiElement(identifier)('rh')
+                              PsiElement())(')')
+                      PsiWhiteSpace('\n          ')
+                      CaseClause
+                        PsiElement(case)('case')
+                        PsiWhiteSpace(' ')
+                        TuplePattern
+                          PsiElement(()('(')
+                          ArgumentPatterns
+                            ConstructorPattern
+                              CodeReferenceElement: LRight
+                                PsiElement(identifier)('LRight')
+                              Pattern Argument List
+                                PsiElement(()('(')
+                                ReferencePattern: lh
+                                  PsiElement(identifier)('lh')
+                                PsiElement())(')')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace('    ')
+                            ConstructorPattern
+                              CodeReferenceElement: RBoth
+                                PsiElement(identifier)('RBoth')
+                              Pattern Argument List
+                                PsiElement(()('(')
+                                ReferencePattern: rg
+                                  PsiElement(identifier)('rg')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                ReferencePattern: rh
+                                  PsiElement(identifier)('rh')
+                                PsiElement())(')')
+                          PsiElement())(')')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        BlockOfExpressions
+                          MethodCall
+                            ReferenceExpression: Both
+                              PsiElement(identifier)('Both')
+                            ArgumentList
+                              PsiElement(()('(')
+                              ReferenceExpression: rg
+                                PsiElement(identifier)('rg')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              InfixExpression
+                                ReferenceExpression: lh
+                                  PsiElement(identifier)('lh')
+                                PsiWhiteSpace(' ')
+                                ReferenceExpression: <*>
+                                  PsiElement(identifier)('<*>')
+                                PsiWhiteSpace(' ')
+                                ReferenceExpression: rh
+                                  PsiElement(identifier)('rh')
+                              PsiElement())(')')
+                      PsiWhiteSpace('\n          ')
+                      CaseClause
+                        PsiElement(case)('case')
+                        PsiWhiteSpace(' ')
+                        TuplePattern
+                          PsiElement(()('(')
+                          ArgumentPatterns
+                            ConstructorPattern
+                              CodeReferenceElement: LBoth
+                                PsiElement(identifier)('LBoth')
+                              Pattern Argument List
+                                PsiElement(()('(')
+                                ReferencePattern: lg
+                                  PsiElement(identifier)('lg')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                ReferencePattern: lh
+                                  PsiElement(identifier)('lh')
+                                PsiElement())(')')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            ConstructorPattern
+                              CodeReferenceElement: RLeft
+                                PsiElement(identifier)('RLeft')
+                              Pattern Argument List
+                                PsiElement(()('(')
+                                ReferencePattern: rg
+                                  PsiElement(identifier)('rg')
+                                PsiElement())(')')
+                          PsiElement())(')')
+                        PsiWhiteSpace('     ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        BlockOfExpressions
+                          MethodCall
+                            ReferenceExpression: Both
+                              PsiElement(identifier)('Both')
+                            ArgumentList
+                              PsiElement(()('(')
+                              InfixExpression
+                                ReferenceExpression: lg
+                                  PsiElement(identifier)('lg')
+                                PsiWhiteSpace(' ')
+                                ReferenceExpression: <*>
+                                  PsiElement(identifier)('<*>')
+                                PsiWhiteSpace(' ')
+                                ReferenceExpression: rg
+                                  PsiElement(identifier)('rg')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression: lh
+                                PsiElement(identifier)('lh')
+                              PsiElement())(')')
+                      PsiWhiteSpace('\n          ')
+                      CaseClause
+                        PsiElement(case)('case')
+                        PsiWhiteSpace(' ')
+                        TuplePattern
+                          PsiElement(()('(')
+                          ArgumentPatterns
+                            ConstructorPattern
+                              CodeReferenceElement: LBoth
+                                PsiElement(identifier)('LBoth')
+                              Pattern Argument List
+                                PsiElement(()('(')
+                                ReferencePattern: lg
+                                  PsiElement(identifier)('lg')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                ReferencePattern: lh
+                                  PsiElement(identifier)('lh')
+                                PsiElement())(')')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            ConstructorPattern
+                              CodeReferenceElement: RRight
+                                PsiElement(identifier)('RRight')
+                              Pattern Argument List
+                                PsiElement(()('(')
+                                ReferencePattern: rh
+                                  PsiElement(identifier)('rh')
+                                PsiElement())(')')
+                          PsiElement())(')')
+                        PsiWhiteSpace('    ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        BlockOfExpressions
+                          MethodCall
+                            ReferenceExpression: Both
+                              PsiElement(identifier)('Both')
+                            ArgumentList
+                              PsiElement(()('(')
+                              ReferenceExpression: lg
+                                PsiElement(identifier)('lg')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              InfixExpression
+                                ReferenceExpression: lh
+                                  PsiElement(identifier)('lh')
+                                PsiWhiteSpace(' ')
+                                ReferenceExpression: <*>
+                                  PsiElement(identifier)('<*>')
+                                PsiWhiteSpace(' ')
+                                ReferenceExpression: rh
+                                  PsiElement(identifier)('rh')
+                              PsiElement())(')')
+                      PsiWhiteSpace('\n          ')
+                      CaseClause
+                        PsiElement(case)('case')
+                        PsiWhiteSpace(' ')
+                        TuplePattern
+                          PsiElement(()('(')
+                          ArgumentPatterns
+                            ConstructorPattern
+                              CodeReferenceElement: LBoth
+                                PsiElement(identifier)('LBoth')
+                              Pattern Argument List
+                                PsiElement(()('(')
+                                ReferencePattern: lg
+                                  PsiElement(identifier)('lg')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                ReferencePattern: lh
+                                  PsiElement(identifier)('lh')
+                                PsiElement())(')')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            ConstructorPattern
+                              CodeReferenceElement: RBoth
+                                PsiElement(identifier)('RBoth')
+                              Pattern Argument List
+                                PsiElement(()('(')
+                                ReferencePattern: rg
+                                  PsiElement(identifier)('rg')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                ReferencePattern: rh
+                                  PsiElement(identifier)('rh')
+                                PsiElement())(')')
+                          PsiElement())(')')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        BlockOfExpressions
+                          MethodCall
+                            ReferenceExpression: Both
+                              PsiElement(identifier)('Both')
+                            ArgumentList
+                              PsiElement(()('(')
+                              InfixExpression
+                                ReferenceExpression: lg
+                                  PsiElement(identifier)('lg')
+                                PsiWhiteSpace(' ')
+                                ReferenceExpression: <*>
+                                  PsiElement(identifier)('<*>')
+                                PsiWhiteSpace(' ')
+                                ReferenceExpression: rg
+                                  PsiElement(identifier)('rg')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              InfixExpression
+                                ReferenceExpression: lh
+                                  PsiElement(identifier)('lh')
+                                PsiWhiteSpace(' ')
+                                ReferenceExpression: <*>
+                                  PsiElement(identifier)('<*>')
+                                PsiWhiteSpace(' ')
+                                ReferenceExpression: rh
+                                  PsiElement(identifier)('rh')
+                              PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScEnum: Partitioned
+          PsiComment(comment)('// note that `->` is never even used, to keep this reproduction case small')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(enum)('enum')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Partitioned')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: G
+              PsiElement(identifier)('G')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: _
+                  PsiElement(_)('_')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: H
+              PsiElement(identifier)('H')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: _
+                  PsiElement(_)('_')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: ->
+              PsiElement(identifier)('->')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: _
+                  PsiElement(_)('_')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeParameter: _
+                  PsiElement(_)('_')
+                PsiElement(])(']')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScEnumCases: Left
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ScEnumClassCase: Left
+                  PsiElement(identifier)('Left')
+                  PrimaryConstructor
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    Parameters
+                      ParametersClause
+                        PsiElement(()('(')
+                        ClassParameter: value
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(identifier)('value')
+                          PsiElement(:)(':')
+                          PsiWhiteSpace(' ')
+                          ParameterType
+                            ParametrizedType: Tree[<*>, T, G, A]
+                              SimpleType: Tree
+                                CodeReferenceElement: Tree
+                                  PsiElement(identifier)('Tree')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                SimpleType: <*>
+                                  CodeReferenceElement: <*>
+                                    PsiElement(identifier)('<*>')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                SimpleType: T
+                                  CodeReferenceElement: T
+                                    PsiElement(identifier)('T')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                SimpleType: G
+                                  CodeReferenceElement: G
+                                    PsiElement(identifier)('G')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                SimpleType: A
+                                  CodeReferenceElement: A
+                                    PsiElement(identifier)('A')
+                                PsiElement(])(']')
+                        PsiElement())(')')
+                  ExtendsBlock
+                    <empty list>
+              PsiWhiteSpace('\n    ')
+              ScEnumCases: Right
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ScEnumClassCase: Right
+                  PsiElement(identifier)('Right')
+                  PrimaryConstructor
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    Parameters
+                      ParametersClause
+                        PsiElement(()('(')
+                        ClassParameter: value
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(identifier)('value')
+                          PsiElement(:)(':')
+                          PsiWhiteSpace(' ')
+                          ParameterType
+                            ParametrizedType: Tree[<*>, T, H, A]
+                              SimpleType: Tree
+                                CodeReferenceElement: Tree
+                                  PsiElement(identifier)('Tree')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                SimpleType: <*>
+                                  CodeReferenceElement: <*>
+                                    PsiElement(identifier)('<*>')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                SimpleType: T
+                                  CodeReferenceElement: T
+                                    PsiElement(identifier)('T')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                SimpleType: H
+                                  CodeReferenceElement: H
+                                    PsiElement(identifier)('H')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                SimpleType: A
+                                  CodeReferenceElement: A
+                                    PsiElement(identifier)('A')
+                                PsiElement(])(']')
+                        PsiElement())(')')
+                  ExtendsBlock
+                    <empty list>
+              PsiWhiteSpace('\n    ')
+              ScEnumCases: Both
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ScEnumClassCase: Both
+                  PsiElement(identifier)('Both')
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: G
+                      PsiElement(identifier)('G')
+                      TypeParameterClause
+                        PsiElement([)('[')
+                        TypeParameter: _
+                          PsiElement(_)('_')
+                        PsiElement(])(']')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeParameter: H
+                      PsiElement(identifier)('H')
+                      TypeParameterClause
+                        PsiElement([)('[')
+                        TypeParameter: _
+                          PsiElement(_)('_')
+                        PsiElement(])(']')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeParameter: X
+                      PsiElement(identifier)('X')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeParameter: Y
+                      PsiElement(identifier)('Y')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeParameter: ->
+                      PsiElement(identifier)('->')
+                      TypeParameterClause
+                        PsiElement([)('[')
+                        TypeParameter: _
+                          PsiElement(_)('_')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        TypeParameter: _
+                          PsiElement(_)('_')
+                        PsiElement(])(']')
+                    PsiElement(])(']')
+                  PrimaryConstructor
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    Parameters
+                      ParametersClause
+                        PsiElement(()('(')
+                        PsiWhiteSpace('\n      ')
+                        ClassParameter: l
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(identifier)('l')
+                          PsiElement(:)(':')
+                          PsiWhiteSpace(' ')
+                          ParameterType
+                            ParametrizedType: Tree[<*>, T, G, X]
+                              SimpleType: Tree
+                                CodeReferenceElement: Tree
+                                  PsiElement(identifier)('Tree')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                SimpleType: <*>
+                                  CodeReferenceElement: <*>
+                                    PsiElement(identifier)('<*>')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                SimpleType: T
+                                  CodeReferenceElement: T
+                                    PsiElement(identifier)('T')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                SimpleType: G
+                                  CodeReferenceElement: G
+                                    PsiElement(identifier)('G')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                SimpleType: X
+                                  CodeReferenceElement: X
+                                    PsiElement(identifier)('X')
+                                PsiElement(])(']')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace('\n      ')
+                        ClassParameter: r
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(identifier)('r')
+                          PsiElement(:)(':')
+                          PsiWhiteSpace(' ')
+                          ParameterType
+                            ParametrizedType: Tree[<*>, T, H, Y]
+                              SimpleType: Tree
+                                CodeReferenceElement: Tree
+                                  PsiElement(identifier)('Tree')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                SimpleType: <*>
+                                  CodeReferenceElement: <*>
+                                    PsiElement(identifier)('<*>')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                SimpleType: T
+                                  CodeReferenceElement: T
+                                    PsiElement(identifier)('T')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                SimpleType: H
+                                  CodeReferenceElement: H
+                                    PsiElement(identifier)('H')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                SimpleType: Y
+                                  CodeReferenceElement: Y
+                                    PsiElement(identifier)('Y')
+                                PsiElement(])(']')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace('\n    ')
+                        PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  ExtendsBlock
+                    PsiElement(extends)('extends')
+                    PsiWhiteSpace(' ')
+                    TemplateParents
+                      ConstructorInvocation
+                        ParametrizedType: Partitioned[G, H, ->]
+                          SimpleType: Partitioned
+                            CodeReferenceElement: Partitioned
+                              PsiElement(identifier)('Partitioned')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: G
+                              CodeReferenceElement: G
+                                PsiElement(identifier)('G')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            SimpleType: H
+                              CodeReferenceElement: H
+                                PsiElement(identifier)('H')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            SimpleType: ->
+                              CodeReferenceElement: ->
+                                PsiElement(identifier)('->')
+                            PsiElement(])(']')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

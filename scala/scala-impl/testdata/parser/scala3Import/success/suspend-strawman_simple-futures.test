@@ -1,0 +1,880 @@
+package simpleFutures
+
+import scala.collection.mutable.ListBuffer
+import scala.util.boundary, boundary.Label
+import runtime.suspend
+
+object Scheduler:
+  def schedule(task: Runnable): Unit = ???
+
+trait Async:
+  def await[T](f: Future[T]): T
+
+class Future[+T](body: Async ?=> T):
+  private var result: Option[T] = None
+  private var waiting: ListBuffer[T => Unit] = ListBuffer()
+  private def addWaiting(k: T => Unit): Unit = waiting += k
+
+  def await(using a: Async): T = a.await(this)
+
+  private def complete(): Unit =
+    Future.async:
+      val value = body
+      val result = Some(value)
+      for k <- waiting do
+        Scheduler.schedule(() => k(value))
+      waiting.clear()
+
+  Scheduler.schedule(() => complete())
+
+object Future:
+
+  // a handler for Async
+  def async(body: Async ?=> Unit): Unit =
+    boundary [Unit]:
+      given Async with
+        def await[T](f: Future[T]): T = f.result match
+          case Some(x) => x
+          case None => suspend[T, Unit](s => f.addWaiting(s.resume))
+      body
+
+end Future
+
+def Test(x: Future[Int], xs: List[Future[Int]]) =
+  Future:
+    x.await + xs.map(_.await).sum
+
+
+
+
+
+
+
+
+-----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: simpleFutures
+      PsiElement(identifier)('simpleFutures')
+    PsiWhiteSpace('\n\n')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: scala.collection.mutable.ListBuffer
+          CodeReferenceElement: scala.collection.mutable
+            CodeReferenceElement: scala.collection
+              CodeReferenceElement: scala
+                PsiElement(identifier)('scala')
+              PsiElement(.)('.')
+              PsiElement(identifier)('collection')
+            PsiElement(.)('.')
+            PsiElement(identifier)('mutable')
+          PsiElement(.)('.')
+          PsiElement(identifier)('ListBuffer')
+    PsiWhiteSpace('\n')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: scala.util.boundary
+          CodeReferenceElement: scala.util
+            CodeReferenceElement: scala
+              PsiElement(identifier)('scala')
+            PsiElement(.)('.')
+            PsiElement(identifier)('util')
+          PsiElement(.)('.')
+          PsiElement(identifier)('boundary')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: boundary.Label
+          CodeReferenceElement: boundary
+            PsiElement(identifier)('boundary')
+          PsiElement(.)('.')
+          PsiElement(identifier)('Label')
+    PsiWhiteSpace('\n')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: runtime.suspend
+          CodeReferenceElement: runtime
+            PsiElement(identifier)('runtime')
+          PsiElement(.)('.')
+          PsiElement(identifier)('suspend')
+    PsiWhiteSpace('\n\n')
+    ScObject: Scheduler
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Scheduler')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: schedule
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('schedule')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: task
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('task')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Runnable
+                      CodeReferenceElement: Runnable
+                        PsiElement(identifier)('Runnable')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Unit
+              CodeReferenceElement: Unit
+                PsiElement(identifier)('Unit')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: ???
+              PsiElement(identifier)('???')
+    PsiWhiteSpace('\n\n')
+    ScTrait: Async
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Async')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDeclaration: await
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('await')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: T
+                PsiElement(identifier)('T')
+              PsiElement(])(']')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: f
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('f')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: Future[T]
+                      SimpleType: Future
+                        CodeReferenceElement: Future
+                          PsiElement(identifier)('Future')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                        PsiElement(])(']')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
+    PsiWhiteSpace('\n\n')
+    ScClass: Future
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Future')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: T
+          PsiElement(identifier)('+')
+          PsiElement(identifier)('T')
+        PsiElement(])(']')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            ClassParameter: body
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(identifier)('body')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                FunctionalType: Async ?=> T
+                  SimpleType: Async
+                    CodeReferenceElement: Async
+                      PsiElement(identifier)('Async')
+                  PsiWhiteSpace(' ')
+                  PsiElement(?=>)('?=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+            PsiElement())(')')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n  ')
+          ScVariableDefinition: result
+            AnnotationsList
+              <empty list>
+            Modifiers
+              AccessModifier
+                PsiElement(private)('private')
+            PsiWhiteSpace(' ')
+            PsiElement(var)('var')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: result
+                PsiElement(identifier)('result')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParametrizedType: Option[T]
+              SimpleType: Option
+                CodeReferenceElement: Option
+                  PsiElement(identifier)('Option')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: None
+              PsiElement(identifier)('None')
+          PsiWhiteSpace('\n  ')
+          ScVariableDefinition: waiting
+            AnnotationsList
+              <empty list>
+            Modifiers
+              AccessModifier
+                PsiElement(private)('private')
+            PsiWhiteSpace(' ')
+            PsiElement(var)('var')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: waiting
+                PsiElement(identifier)('waiting')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParametrizedType: ListBuffer[T => Unit]
+              SimpleType: ListBuffer
+                CodeReferenceElement: ListBuffer
+                  PsiElement(identifier)('ListBuffer')
+              TypeArgumentsList
+                PsiElement([)('[')
+                FunctionalType: T => Unit
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Unit
+                    CodeReferenceElement: Unit
+                      PsiElement(identifier)('Unit')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: ListBuffer
+                PsiElement(identifier)('ListBuffer')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: addWaiting
+            AnnotationsList
+              <empty list>
+            Modifiers
+              AccessModifier
+                PsiElement(private)('private')
+            PsiWhiteSpace(' ')
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('addWaiting')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: k
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('k')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    FunctionalType: T => Unit
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Unit
+                        CodeReferenceElement: Unit
+                          PsiElement(identifier)('Unit')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Unit
+              CodeReferenceElement: Unit
+                PsiElement(identifier)('Unit')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              ReferenceExpression: waiting
+                PsiElement(identifier)('waiting')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: +=
+                PsiElement(identifier)('+=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: k
+                PsiElement(identifier)('k')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDefinition: await
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('await')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement(using)('using')
+                PsiWhiteSpace(' ')
+                Parameter: a
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('a')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Async
+                      CodeReferenceElement: Async
+                        PsiElement(identifier)('Async')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: a.await
+                ReferenceExpression: a
+                  PsiElement(identifier)('a')
+                PsiElement(.)('.')
+                PsiElement(identifier)('await')
+              ArgumentList
+                PsiElement(()('(')
+                ThisReference
+                  PsiElement(this)('this')
+                PsiElement())(')')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDefinition: complete
+            AnnotationsList
+              <empty list>
+            Modifiers
+              AccessModifier
+                PsiElement(private)('private')
+            PsiWhiteSpace(' ')
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('complete')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Unit
+              CodeReferenceElement: Unit
+                PsiElement(identifier)('Unit')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: Future.async
+                ReferenceExpression: Future
+                  PsiElement(identifier)('Future')
+                PsiElement(.)('.')
+                PsiElement(identifier)('async')
+              ArgumentList
+                BlockExpression
+                  PsiElement(:)(':')
+                  PsiWhiteSpace('\n      ')
+                  ScPatternDefinition: value
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(val)('val')
+                    PsiWhiteSpace(' ')
+                    ListOfPatterns
+                      ReferencePattern: value
+                        PsiElement(identifier)('value')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: body
+                      PsiElement(identifier)('body')
+                  PsiWhiteSpace('\n      ')
+                  ScPatternDefinition: result
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(val)('val')
+                    PsiWhiteSpace(' ')
+                    ListOfPatterns
+                      ReferencePattern: result
+                        PsiElement(identifier)('result')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    MethodCall
+                      ReferenceExpression: Some
+                        PsiElement(identifier)('Some')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: value
+                          PsiElement(identifier)('value')
+                        PsiElement())(')')
+                  PsiWhiteSpace('\n      ')
+                  ForStatement
+                    PsiElement(for)('for')
+                    PsiWhiteSpace(' ')
+                    Enumerators
+                      Generator
+                        ReferencePattern: k
+                          PsiElement(identifier)('k')
+                        PsiWhiteSpace(' ')
+                        PsiElement(<-)('<-')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: waiting
+                          PsiElement(identifier)('waiting')
+                    PsiWhiteSpace(' ')
+                    PsiElement(do)('do')
+                    PsiWhiteSpace('\n        ')
+                    MethodCall
+                      ReferenceExpression: Scheduler.schedule
+                        ReferenceExpression: Scheduler
+                          PsiElement(identifier)('Scheduler')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('schedule')
+                      ArgumentList
+                        PsiElement(()('(')
+                        FunctionExpression
+                          Parameters
+                            ParametersClause
+                              PsiElement(()('(')
+                              PsiElement())(')')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          MethodCall
+                            ReferenceExpression: k
+                              PsiElement(identifier)('k')
+                            ArgumentList
+                              PsiElement(()('(')
+                              ReferenceExpression: value
+                                PsiElement(identifier)('value')
+                              PsiElement())(')')
+                        PsiElement())(')')
+                  PsiWhiteSpace('\n      ')
+                  MethodCall
+                    ReferenceExpression: waiting.clear
+                      ReferenceExpression: waiting
+                        PsiElement(identifier)('waiting')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('clear')
+                    ArgumentList
+                      PsiElement(()('(')
+                      PsiElement())(')')
+          PsiWhiteSpace('\n\n  ')
+          MethodCall
+            ReferenceExpression: Scheduler.schedule
+              ReferenceExpression: Scheduler
+                PsiElement(identifier)('Scheduler')
+              PsiElement(.)('.')
+              PsiElement(identifier)('schedule')
+            ArgumentList
+              PsiElement(()('(')
+              FunctionExpression
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: complete
+                    PsiElement(identifier)('complete')
+                  ArgumentList
+                    PsiElement(()('(')
+                    PsiElement())(')')
+              PsiElement())(')')
+    PsiWhiteSpace('\n\n')
+    ScObject: Future
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Future')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDefinition: async
+            PsiComment(comment)('// a handler for Async')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('async')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: body
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('body')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    FunctionalType: Async ?=> Unit
+                      SimpleType: Async
+                        CodeReferenceElement: Async
+                          PsiElement(identifier)('Async')
+                      PsiWhiteSpace(' ')
+                      PsiElement(?=>)('?=>')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Unit
+                        CodeReferenceElement: Unit
+                          PsiElement(identifier)('Unit')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Unit
+              CodeReferenceElement: Unit
+                PsiElement(identifier)('Unit')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              GenericCall
+                ReferenceExpression: boundary
+                  PsiElement(identifier)('boundary')
+                PsiWhiteSpace(' ')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: Unit
+                    CodeReferenceElement: Unit
+                      PsiElement(identifier)('Unit')
+                  PsiElement(])(']')
+              ArgumentList
+                BlockExpression
+                  PsiElement(:)(':')
+                  PsiWhiteSpace('\n      ')
+                  ScGivenDefinition: given_Async
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(given)('given')
+                    PsiWhiteSpace(' ')
+                    ExtendsBlock
+                      TemplateParents
+                        ConstructorInvocation
+                          SimpleType: Async
+                            CodeReferenceElement: Async
+                              PsiElement(identifier)('Async')
+                      PsiWhiteSpace(' ')
+                      PsiElement(with)('with')
+                      PsiWhiteSpace('\n        ')
+                      ScTemplateBody
+                        ScFunctionDefinition: await
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(def)('def')
+                          PsiWhiteSpace(' ')
+                          PsiElement(identifier)('await')
+                          TypeParameterClause
+                            PsiElement([)('[')
+                            TypeParameter: T
+                              PsiElement(identifier)('T')
+                            PsiElement(])(']')
+                          Parameters
+                            ParametersClause
+                              PsiElement(()('(')
+                              Parameter: f
+                                AnnotationsList
+                                  <empty list>
+                                Modifiers
+                                  <empty list>
+                                PsiElement(identifier)('f')
+                                PsiElement(:)(':')
+                                PsiWhiteSpace(' ')
+                                ParameterType
+                                  ParametrizedType: Future[T]
+                                    SimpleType: Future
+                                      CodeReferenceElement: Future
+                                        PsiElement(identifier)('Future')
+                                    TypeArgumentsList
+                                      PsiElement([)('[')
+                                      SimpleType: T
+                                        CodeReferenceElement: T
+                                          PsiElement(identifier)('T')
+                                      PsiElement(])(']')
+                              PsiElement())(')')
+                          PsiElement(:)(':')
+                          PsiWhiteSpace(' ')
+                          SimpleType: T
+                            CodeReferenceElement: T
+                              PsiElement(identifier)('T')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=)('=')
+                          PsiWhiteSpace(' ')
+                          MatchStatement
+                            ReferenceExpression: f.result
+                              ReferenceExpression: f
+                                PsiElement(identifier)('f')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('result')
+                            PsiWhiteSpace(' ')
+                            PsiElement(match)('match')
+                            PsiWhiteSpace('\n          ')
+                            CaseClauses
+                              CaseClause
+                                PsiElement(case)('case')
+                                PsiWhiteSpace(' ')
+                                ConstructorPattern
+                                  CodeReferenceElement: Some
+                                    PsiElement(identifier)('Some')
+                                  Pattern Argument List
+                                    PsiElement(()('(')
+                                    ReferencePattern: x
+                                      PsiElement(identifier)('x')
+                                    PsiElement())(')')
+                                PsiWhiteSpace(' ')
+                                PsiElement(=>)('=>')
+                                PsiWhiteSpace(' ')
+                                BlockOfExpressions
+                                  ReferenceExpression: x
+                                    PsiElement(identifier)('x')
+                              PsiWhiteSpace('\n          ')
+                              CaseClause
+                                PsiElement(case)('case')
+                                PsiWhiteSpace(' ')
+                                StableElementPattern
+                                  ReferenceExpression: None
+                                    PsiElement(identifier)('None')
+                                PsiWhiteSpace(' ')
+                                PsiElement(=>)('=>')
+                                PsiWhiteSpace(' ')
+                                BlockOfExpressions
+                                  MethodCall
+                                    GenericCall
+                                      ReferenceExpression: suspend
+                                        PsiElement(identifier)('suspend')
+                                      TypeArgumentsList
+                                        PsiElement([)('[')
+                                        SimpleType: T
+                                          CodeReferenceElement: T
+                                            PsiElement(identifier)('T')
+                                        PsiElement(,)(',')
+                                        PsiWhiteSpace(' ')
+                                        SimpleType: Unit
+                                          CodeReferenceElement: Unit
+                                            PsiElement(identifier)('Unit')
+                                        PsiElement(])(']')
+                                    ArgumentList
+                                      PsiElement(()('(')
+                                      FunctionExpression
+                                        Parameters
+                                          ParametersClause
+                                            Parameter: s
+                                              PsiElement(identifier)('s')
+                                        PsiWhiteSpace(' ')
+                                        PsiElement(=>)('=>')
+                                        PsiWhiteSpace(' ')
+                                        MethodCall
+                                          ReferenceExpression: f.addWaiting
+                                            ReferenceExpression: f
+                                              PsiElement(identifier)('f')
+                                            PsiElement(.)('.')
+                                            PsiElement(identifier)('addWaiting')
+                                          ArgumentList
+                                            PsiElement(()('(')
+                                            ReferenceExpression: s.resume
+                                              ReferenceExpression: s
+                                                PsiElement(identifier)('s')
+                                              PsiElement(.)('.')
+                                              PsiElement(identifier)('resume')
+                                            PsiElement())(')')
+                                      PsiElement())(')')
+                  PsiWhiteSpace('\n      ')
+                  ReferenceExpression: body
+                    PsiElement(identifier)('body')
+          PsiWhiteSpace('\n\n')
+          End: Future
+            PsiElement(end)('end')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Future')
+    PsiWhiteSpace('\n\n')
+    ScFunctionDefinition: Test
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(def)('def')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Test')
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          Parameter: x
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('x')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              ParametrizedType: Future[Int]
+                SimpleType: Future
+                  CodeReferenceElement: Future
+                    PsiElement(identifier)('Future')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiElement(])(']')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          Parameter: xs
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('xs')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              ParametrizedType: List[Future[Int]]
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  ParametrizedType: Future[Int]
+                    SimpleType: Future
+                      CodeReferenceElement: Future
+                        PsiElement(identifier)('Future')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                      PsiElement(])(']')
+                  PsiElement(])(']')
+          PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: Future
+          PsiElement(identifier)('Future')
+        ArgumentList
+          BlockExpression
+            PsiElement(:)(':')
+            PsiWhiteSpace('\n    ')
+            InfixExpression
+              ReferenceExpression: x.await
+                ReferenceExpression: x
+                  PsiElement(identifier)('x')
+                PsiElement(.)('.')
+                PsiElement(identifier)('await')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: +
+                PsiElement(identifier)('+')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: xs.map(_.await).sum
+                MethodCall
+                  ReferenceExpression: xs.map
+                    ReferenceExpression: xs
+                      PsiElement(identifier)('xs')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('map')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: _.await
+                      UnderscoreSection
+                        PsiElement(_)('_')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('await')
+                    PsiElement())(')')
+                PsiElement(.)('.')
+                PsiElement(identifier)('sum')

@@ -1,3 +1,5 @@
+//> using options -Ycheck:nullarify
+
 object Test {
 
   def foo: Int = 2
@@ -13,6 +15,15 @@ object Test {
 }
 -----
 ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Ycheck:nullarify')
+  PsiWhiteSpace('\n\n')
   ScObject: Test
     AnnotationsList
       <empty list>

@@ -1,0 +1,88 @@
+Document tests/pos/i13433.scala
+(3:8..3:13) scala/
+(3:14..3:21) scala/reflect/
+(3:22..3:30) scala/reflect/TypeTest#
+(3:22..3:30) scala/reflect/TypeTest.
+(5:19..5:20) _empty_/i13433$package.Matcher#[A] -> 5:14
+(5:34..5:40) scala/Predef.String#
+(5:44..5:50) scala/Predef.String#
+(7:24..7:27) scala/Any#
+(7:39..7:47) scala/reflect/TypeTest#
+(7:48..7:51) scala/Any#
+(7:53..7:60) _empty_/i13433$package.Matcher# -> 5:6
+(7:61..7:62) _empty_/i13433$package.patternMatch().[A] -> 7:18
+(7:67..7:73) scala/Option#
+(7:74..7:81) _empty_/i13433$package.Matcher# -> 5:6
+(7:82..7:83) _empty_/i13433$package.patternMatch().[A] -> 7:18
+(9:3..9:4) _empty_/i13433$package.patternMatch().(a) -> 7:21
+(10:29..10:33) scala/Some.
+(10:34..10:37) local0 -> 10:10
+(11:15..11:19) scala/None.
+(15:33..15:36) scala/Any#
+(15:48..15:56) scala/reflect/TypeTest#
+(15:57..15:60) scala/Any#
+(15:62..15:69) _empty_/i13433$package.Matcher# -> 5:6
+(15:70..15:71) _empty_/i13433$package.patternMatchWithAlias().[A] -> 15:27
+(15:76..15:82) scala/Option#
+(15:83..15:90) _empty_/i13433$package.Matcher# -> 5:6
+(15:91..15:92) _empty_/i13433$package.patternMatchWithAlias().[A] -> 15:27
+(16:12..16:19) _empty_/i13433$package.Matcher# -> 5:6
+(16:20..16:21) _empty_/i13433$package.patternMatchWithAlias().[A] -> 15:27
+(17:3..17:4) _empty_/i13433$package.patternMatchWithAlias().(a) -> 15:30
+(18:20..18:24) scala/Some.
+(18:25..18:28) local2 -> 18:10
+(19:15..19:19) scala/None.
+(24:2..24:6) scala/main#
+(25:3..25:10) scala/Predef.println(+1).
+(25:11..25:23) _empty_/i13433$package.patternMatch(). -> 7:5
+(25:24..25:30) scala/Predef.String#
+(26:3..26:10) scala/Predef.println(+1).
+(26:11..26:32) _empty_/i13433$package.patternMatchWithAlias(). -> 15:5
+(26:33..26:39) scala/Predef.String#
+(27:3..27:10) scala/Predef.println(+1).
+(27:11..27:23) _empty_/i13433$package.patternMatch(). -> 7:5
+(27:24..27:30) scala/Predef.String#
+(27:49..27:52) scala/Any#
+(28:8..28:9) local5 -> 27:46
+(28:10..28:22) scala/Any#isInstanceOf().
+(28:23..28:30) _empty_/i13433$package.Matcher# -> 5:6
+(28:31..28:37) scala/Predef.String#
+(28:45..28:49) scala/Some.
+(28:50..28:51) local5 -> 27:46
+(28:57..28:58) scala/`&`#
+(28:59..28:66) _empty_/i13433$package.Matcher# -> 5:6
+(28:67..28:73) scala/Predef.String#
+(28:76..28:77) local5 -> 27:46
+(28:78..28:90) scala/Any#asInstanceOf().
+(28:91..28:92) local5 -> 27:46
+(28:98..28:99) scala/`&`#
+(28:100..28:107) _empty_/i13433$package.Matcher# -> 5:6
+(28:108..28:114) scala/Predef.String#
+(28:123..28:127) scala/None.
+(29:3..29:10) scala/Predef.println(+1).
+(29:11..29:32) _empty_/i13433$package.patternMatchWithAlias(). -> 15:5
+(29:33..29:39) scala/Predef.String#
+(29:58..29:61) scala/Any#
+(30:8..30:9) local6 -> 29:55
+(30:10..30:22) scala/Any#isInstanceOf().
+(30:23..30:30) _empty_/i13433$package.Matcher# -> 5:6
+(30:31..30:37) scala/Predef.String#
+(30:45..30:49) scala/Some.
+(30:50..30:51) local6 -> 29:55
+(30:57..30:58) scala/`&`#
+(30:59..30:66) _empty_/i13433$package.Matcher# -> 5:6
+(30:67..30:73) scala/Predef.String#
+(30:76..30:77) local6 -> 29:55
+(30:78..30:90) scala/Any#asInstanceOf().
+(30:91..30:92) local6 -> 29:55
+(30:98..30:99) scala/`&`#
+(30:100..30:107) _empty_/i13433$package.Matcher# -> 5:6
+(30:108..30:114) scala/Predef.String#
+(30:123..30:127) scala/None.
+(32:3..32:10) scala/Predef.println(+1).
+(32:11..32:23) _empty_/i13433$package.patternMatch(). -> 7:5
+(32:24..32:30) scala/Predef.String#
+(33:3..33:10) scala/Predef.println(+1).
+(33:11..33:32) _empty_/i13433$package.patternMatchWithAlias(). -> 15:5
+(33:33..33:39) scala/Predef.String#
+

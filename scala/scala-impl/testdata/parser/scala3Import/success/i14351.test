@@ -1,0 +1,104 @@
+val p: (Option[Int], Option[String]) = (1,"foo").map([T] => (x: T) => Option.apply[T](x))
+-----
+ScalaFile
+  ScPatternDefinition: p
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: p
+        PsiElement(identifier)('p')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    TupleType: (Option[Int], Option[String])
+      PsiElement(()('(')
+      TypesList
+        ParametrizedType: Option[Int]
+          SimpleType: Option
+            CodeReferenceElement: Option
+              PsiElement(identifier)('Option')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Option[String]
+          SimpleType: Option
+            CodeReferenceElement: Option
+              PsiElement(identifier)('Option')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
+            PsiElement(])(']')
+      PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: (1,"foo").map
+        Tuple
+          PsiElement(()('(')
+          IntegerLiteral
+            PsiElement(integer)('1')
+          PsiElement(,)(',')
+          StringLiteral
+            PsiElement(string content)('"foo"')
+          PsiElement())(')')
+        PsiElement(.)('.')
+        PsiElement(identifier)('map')
+      ArgumentList
+        PsiElement(()('(')
+        PolyFunctionExpression
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          FunctionExpression
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: x
+                  AnnotationsList
+                    <empty list>
+                  PsiElement(identifier)('x')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            MethodCall
+              GenericCall
+                ReferenceExpression: Option.apply
+                  ReferenceExpression: Option
+                    PsiElement(identifier)('Option')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('apply')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+                  PsiElement(])(']')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: x
+                  PsiElement(identifier)('x')
+                PsiElement())(')')
+        PsiElement())(')')

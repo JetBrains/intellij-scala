@@ -1,0 +1,4 @@
+Document tests/pos/unchecked-scrutinee.scala
+(4:4..4:8) scala/package.List.
+(5:12..5:14) scala/package.`::`.
+

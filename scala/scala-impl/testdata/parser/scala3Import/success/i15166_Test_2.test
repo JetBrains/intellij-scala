@@ -1,12 +1,19 @@
-// scalac: -Xfatal-warnings
+//> using options -Xfatal-warnings
 object Test {
   val x: InterfaceAudience_JAVA_ONLY_1.Public = ???
 }
 -----
 ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Xfatal-warnings')
+  PsiWhiteSpace('\n')
   ScObject: Test
-    PsiComment(comment)('// scalac: -Xfatal-warnings')
-    PsiWhiteSpace('\n')
     AnnotationsList
       <empty list>
     Modifiers

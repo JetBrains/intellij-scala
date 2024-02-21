@@ -1,0 +1,19 @@
+Document tests/pos/i11170a.scala
+(4:22..4:25) scala/Int#
+(7:12..7:15) scala/Int#
+(12:10..12:18) apackage/ -> 1:9
+(14:19..14:20) apackage/A# -> 3:18
+(15:5..15:12) scala/Predef.println(+1).
+(15:13..15:14) apackage/A#x. -> 4:19
+(17:20..17:22) apackage/A2# -> 6:18
+(18:5..18:12) scala/Predef.println(+1).
+(18:13..18:14) apackage/A2#x. -> 7:9
+(23:10..23:18) apackage/ -> 1:9
+(24:10..24:18) bpackage/ -> 11:9
+(26:42..26:45) scala/Int#
+(26:55..26:56) apackage/A# -> 3:18
+(26:62..26:63) bpackage/B# -> 14:9
+(27:33..27:36) scala/Int#
+(27:46..27:48) apackage/A2# -> 6:18
+(27:54..27:56) bpackage/B2# -> 17:9
+

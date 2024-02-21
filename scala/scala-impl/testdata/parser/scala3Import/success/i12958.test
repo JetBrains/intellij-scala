@@ -1,5 +1,3 @@
-import scala.quoted.*
-
 package mylib:
   object Export:
     transparent inline def exported: Any = 1
@@ -17,18 +15,6 @@ object Test:
   val oneWork : 1 = imported //works
 -----
 ScalaFile
-  ScImportStatement
-    PsiElement(import)('import')
-    PsiWhiteSpace(' ')
-    ImportExpression
-      CodeReferenceElement: scala.quoted
-        CodeReferenceElement: scala
-          PsiElement(identifier)('scala')
-        PsiElement(.)('.')
-        PsiElement(identifier)('quoted')
-      PsiElement(.)('.')
-      PsiElement(*)('*')
-  PsiWhiteSpace('\n\n')
   ScPackaging
     PsiElement(package)('package')
     PsiWhiteSpace(' ')

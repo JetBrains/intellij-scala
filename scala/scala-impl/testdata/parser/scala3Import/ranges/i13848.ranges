@@ -1,0 +1,10 @@
+[37,133]: PackageDef
+[37,37]: Ident
+[37,67]: Import
+[44,54]: Ident
+[69,108]: DefDef
+[100,104]: Ident
+[107,108]: Ident
+[110,133]: DefDef
+[129,129]: TypeTree
+[132,133]: Number

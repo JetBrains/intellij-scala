@@ -1,0 +1,204 @@
+package runtime
+import scala.util.boundary, boundary.Label
+
+/** A hypothetical API for suspensions. Not yet implemented.
+ *  Suspension contain a delimited contination, which can be
+ *  invoked with `resume`
+ */
+class Suspension[-T, +R]:
+  def resume(arg: T): R = ???
+
+def suspend[T, R](body: Suspension[T, R] => R)(using Label[R]): T = ???
+-----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: runtime
+      PsiElement(identifier)('runtime')
+    PsiWhiteSpace('\n')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: scala.util.boundary
+          CodeReferenceElement: scala.util
+            CodeReferenceElement: scala
+              PsiElement(identifier)('scala')
+            PsiElement(.)('.')
+            PsiElement(identifier)('util')
+          PsiElement(.)('.')
+          PsiElement(identifier)('boundary')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: boundary.Label
+          CodeReferenceElement: boundary
+            PsiElement(identifier)('boundary')
+          PsiElement(.)('.')
+          PsiElement(identifier)('Label')
+    PsiWhiteSpace('\n\n')
+    ScClass: Suspension
+      DocComment
+        ScPsiDocToken(DOC_COMMENT_START)('/**')
+        ScDocParagraph
+          ScPsiDocToken(DOC_WHITESPACE)(' ')
+          ScPsiDocToken(DOC_COMMENT_DATA)('A hypothetical API for suspensions. Not yet implemented.')
+          ScPsiDocToken(DOC_WHITESPACE)('\n ')
+          ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+          ScPsiDocToken(DOC_WHITESPACE)('  ')
+          ScPsiDocToken(DOC_COMMENT_DATA)('Suspension contain a delimited contination, which can be')
+          ScPsiDocToken(DOC_WHITESPACE)('\n ')
+          ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+          ScPsiDocToken(DOC_WHITESPACE)('  ')
+          ScPsiDocToken(DOC_COMMENT_DATA)('invoked with ')
+          DocSyntaxElement 8
+            ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+            ScPsiDocToken(DOC_COMMENT_DATA)('resume')
+            ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+          ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_END)('*/')
+      PsiWhiteSpace('\n')
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Suspension')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: T
+          PsiElement(identifier)('-')
+          PsiElement(identifier)('T')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeParameter: R
+          PsiElement(identifier)('+')
+          PsiElement(identifier)('R')
+        PsiElement(])(']')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: resume
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('resume')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: arg
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('arg')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: R
+              CodeReferenceElement: R
+                PsiElement(identifier)('R')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: ???
+              PsiElement(identifier)('???')
+    PsiWhiteSpace('\n\n')
+    ScFunctionDefinition: suspend
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(def)('def')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('suspend')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: T
+          PsiElement(identifier)('T')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeParameter: R
+          PsiElement(identifier)('R')
+        PsiElement(])(']')
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          Parameter: body
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('body')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              FunctionalType: Suspension[T, R] => R
+                ParametrizedType: Suspension[T, R]
+                  SimpleType: Suspension
+                    CodeReferenceElement: Suspension
+                      PsiElement(identifier)('Suspension')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: R
+                      CodeReferenceElement: R
+                        PsiElement(identifier)('R')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: R
+                  CodeReferenceElement: R
+                    PsiElement(identifier)('R')
+          PsiElement())(')')
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement(using)('using')
+          PsiWhiteSpace(' ')
+          Parameter: <anonymous>
+            ParameterType
+              ParametrizedType: Label[R]
+                SimpleType: Label
+                  CodeReferenceElement: Label
+                    PsiElement(identifier)('Label')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: R
+                    CodeReferenceElement: R
+                      PsiElement(identifier)('R')
+                  PsiElement(])(']')
+          PsiElement())(')')
+      PsiElement(:)(':')
+      PsiWhiteSpace(' ')
+      SimpleType: T
+        CodeReferenceElement: T
+          PsiElement(identifier)('T')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: ???
+        PsiElement(identifier)('???')

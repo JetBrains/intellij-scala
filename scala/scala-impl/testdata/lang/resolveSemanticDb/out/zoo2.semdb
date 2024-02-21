@@ -33,5 +33,6 @@ Document tests/pos/zoo2.scala
 (42:13..42:19) _empty_/Test.newCow(). -> 31:5
 (43:11..43:18) _empty_/Test.newLion(). -> 37:5
 (44:1..44:4) _empty_/Test.leo. -> 43:5
+(44:4..44:9) scala/reflect/Selectable#applyDynamic().
 (44:10..44:15) _empty_/Test.milka. -> 42:5
 

@@ -197,6 +197,35 @@ class MethodEvaluationTest_3_1 extends MethodEvaluationTest_3_0 {
 
 class MethodEvaluationTest_3 extends MethodEvaluationTest_3_1 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3
+
+  override def testFunctionsWithLocalParameters(): Unit = {
+    expressionEvaluationTest() { implicit ctx =>
+      evalEquals("a", "aa")
+      evalEquals("b", "default")
+      evalEquals("x", "1")
+      evalEquals("y", "2")
+      evalEquals("s", "start")
+      evalEquals("z", "startaadefault2")
+      evalEquals("inInner()", "startaadefault21")
+      evalEquals("inner(\"aa\", \"bb\")", "startaabb2")
+      failing(evalEquals("inner(\"aa\")", "startaadefault2"))
+      evalEquals("outer()", "startaadefault2")
+    }
+  }
+
+  override def testLocalFunctions(): Unit = {
+    expressionEvaluationTest()(
+      implicit ctx => evalEquals("foo1", "1"),
+      implicit ctx => evalEquals("foo2(3)", "7"),
+      implicit ctx => evalEquals("foo3", "1"),
+      implicit ctx => evalEquals("foo4", "1"),
+      implicit ctx => evalEquals("foo5", "1"),
+      implicit ctx => evalEquals("foo6", "1"),
+      implicit ctx => failing(evalEquals("foo7", "1")),
+      implicit ctx => evalEquals("moo(x)", "2"),
+      implicit ctx => evalEquals("foo8", "1")
+    )
+  }
 }
 
 abstract class MethodEvaluationTestBase extends ExpressionEvaluationTestBase {

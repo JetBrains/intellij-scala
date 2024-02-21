@@ -1,5 +1,5 @@
 def m(i: Int*) = i.sum
-val f1 = m
+val f1: Seq[Int] => Int = m
 val f2 = i => m(i*)
 
 def n(i: Seq[Int]) = i.sum
@@ -51,6 +51,25 @@ ScalaFile
     ListOfPatterns
       ReferencePattern: f1
         PsiElement(identifier)('f1')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    FunctionalType: Seq[Int] => Int
+      ParametrizedType: Seq[Int]
+        SimpleType: Seq
+          CodeReferenceElement: Seq
+            PsiElement(identifier)('Seq')
+        TypeArgumentsList
+          PsiElement([)('[')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+          PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiElement(=>)('=>')
+      PsiWhiteSpace(' ')
+      SimpleType: Int
+        CodeReferenceElement: Int
+          PsiElement(identifier)('Int')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
     PsiWhiteSpace(' ')

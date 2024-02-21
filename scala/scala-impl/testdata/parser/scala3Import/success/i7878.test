@@ -1,0 +1,299 @@
+//> using options -language:experimental.erasedDefinitions
+
+object Boom {
+  import scala.compiletime.*
+  trait Fail[A <: Int, B <: Int]
+
+  transparent inline given fail[X <: Int, Y <: Int]: Fail[X, Y] = {
+     scala.compiletime.summonFrom {
+       case t: Fail[X, y] if constValue[y] < constValue[Y] => ???
+    }
+  }
+
+  val a: Int = 1
+  given ev1: Fail[a.type, 2] = null
+
+  summon[Fail[a.type, 3]]
+}
+-----
+ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-language:experimental.erasedDefinitions')
+  PsiWhiteSpace('\n\n')
+  ScObject: Boom
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Boom')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: scala.compiletime
+              CodeReferenceElement: scala
+                PsiElement(identifier)('scala')
+              PsiElement(.)('.')
+              PsiElement(identifier)('compiletime')
+            PsiElement(.)('.')
+            PsiElement(*)('*')
+        PsiWhiteSpace('\n  ')
+        ScTrait: Fail
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Fail')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement(])(']')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n\n  ')
+        ScGivenAliasDefinition: fail
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(transparent)('transparent')
+            PsiWhiteSpace(' ')
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(given)('given')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('fail')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: X
+              PsiElement(identifier)('X')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Y
+              PsiElement(identifier)('Y')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Fail[X, Y]
+            SimpleType: Fail
+              CodeReferenceElement: Fail
+                PsiElement(identifier)('Fail')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: X
+                CodeReferenceElement: X
+                  PsiElement(identifier)('X')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Y
+                CodeReferenceElement: Y
+                  PsiElement(identifier)('Y')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n     ')
+            MethodCall
+              ReferenceExpression: scala.compiletime.summonFrom
+                ReferenceExpression: scala.compiletime
+                  ReferenceExpression: scala
+                    PsiElement(identifier)('scala')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('compiletime')
+                PsiElement(.)('.')
+                PsiElement(identifier)('summonFrom')
+              PsiWhiteSpace(' ')
+              ArgumentList
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n       ')
+                  CaseClauses
+                    CaseClause
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      Scala3 TypedPattern
+                        ReferencePattern: t
+                          PsiElement(identifier)('t')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        TypePattern
+                          ParametrizedType: Fail[X, y]
+                            SimpleType: Fail
+                              CodeReferenceElement: Fail
+                                PsiElement(identifier)('Fail')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              SimpleType: X
+                                CodeReferenceElement: X
+                                  PsiElement(identifier)('X')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              TypeVariable: y
+                                PsiElement(identifier)('y')
+                              PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      Guard
+                        PsiElement(if)('if')
+                        PsiWhiteSpace(' ')
+                        InfixExpression
+                          GenericCall
+                            ReferenceExpression: constValue
+                              PsiElement(identifier)('constValue')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              SimpleType: y
+                                CodeReferenceElement: y
+                                  PsiElement(identifier)('y')
+                              PsiElement(])(']')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: <
+                            PsiElement(identifier)('<')
+                          PsiWhiteSpace(' ')
+                          GenericCall
+                            ReferenceExpression: constValue
+                              PsiElement(identifier)('constValue')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              SimpleType: Y
+                                CodeReferenceElement: Y
+                                  PsiElement(identifier)('Y')
+                              PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      BlockOfExpressions
+                        ReferenceExpression: ???
+                          PsiElement(identifier)('???')
+                  PsiWhiteSpace('\n    ')
+                  PsiElement(})('}')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: a
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: a
+              PsiElement(identifier)('a')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('1')
+        PsiWhiteSpace('\n  ')
+        ScGivenAliasDefinition: ev1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(given)('given')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ev1')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Fail[a.type, 2]
+            SimpleType: Fail
+              CodeReferenceElement: Fail
+                PsiElement(identifier)('Fail')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: a.type
+                CodeReferenceElement: a
+                  PsiElement(identifier)('a')
+                PsiElement(.)('.')
+                PsiElement(type)('type')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              LiteralType: 2
+                IntegerLiteral
+                  PsiElement(integer)('2')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          NullLiteral
+            PsiElement(null)('null')
+        PsiWhiteSpace('\n\n  ')
+        GenericCall
+          ReferenceExpression: summon
+            PsiElement(identifier)('summon')
+          TypeArgumentsList
+            PsiElement([)('[')
+            ParametrizedType: Fail[a.type, 3]
+              SimpleType: Fail
+                CodeReferenceElement: Fail
+                  PsiElement(identifier)('Fail')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: a.type
+                  CodeReferenceElement: a
+                    PsiElement(identifier)('a')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                LiteralType: 3
+                  IntegerLiteral
+                    PsiElement(integer)('3')
+                PsiElement(])(']')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

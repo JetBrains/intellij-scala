@@ -1,0 +1,129 @@
+//> using options -nowarn -Xfatal-warnings
+// succeeds despite -Xfatal-warnings because of -nowarn
+
+object xfatalWarnings {
+  val opt:Option[String] = Some("test")
+
+  opt match { // error when running with -Xfatal-warnings
+    case None =>
+  }
+
+  object Test {
+    while (true) {} // should be ok. no "pure expression does nothing in statement position" issued.
+  }
+}
+-----
+ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-nowarn')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Xfatal-warnings')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// succeeds despite -Xfatal-warnings because of -nowarn')
+  PsiWhiteSpace('\n\n')
+  ScObject: xfatalWarnings
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('xfatalWarnings')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: opt
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: opt
+              PsiElement(identifier)('opt')
+          PsiElement(:)(':')
+          ParametrizedType: Option[String]
+            SimpleType: Option
+              CodeReferenceElement: Option
+                PsiElement(identifier)('Option')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: Some
+              PsiElement(identifier)('Some')
+            ArgumentList
+              PsiElement(()('(')
+              StringLiteral
+                PsiElement(string content)('"test"')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        MatchStatement
+          ReferenceExpression: opt
+            PsiElement(identifier)('opt')
+          PsiWhiteSpace(' ')
+          PsiElement(match)('match')
+          PsiWhiteSpace(' ')
+          PsiElement({)('{')
+          PsiWhiteSpace(' ')
+          PsiComment(comment)('// error when running with -Xfatal-warnings')
+          PsiWhiteSpace('\n    ')
+          CaseClauses
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              StableElementPattern
+                ReferenceExpression: None
+                  PsiElement(identifier)('None')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              BlockOfExpressions
+                <empty list>
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScObject: Test
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Test')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              WhileStatement
+                PsiElement(while)('while')
+                PsiWhiteSpace(' ')
+                PsiElement(()('(')
+                BooleanLiteral
+                  PsiElement(true)('true')
+                PsiElement())(')')
+                PsiWhiteSpace(' ')
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiElement(})('}')
+              PsiWhiteSpace(' ')
+              PsiComment(comment)('// should be ok. no "pure expression does nothing in statement position" issued.')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -1,0 +1,13 @@
+Document tests/pos/erased-asInstanceOf.scala
+(4:24..4:30) _empty_/Column# -> 7:7
+(4:33..4:37) scala/Unit#
+(10:18..10:23) scala/Array#
+(10:24..10:30) scala/Predef.String#
+(10:34..10:38) scala/Unit#
+(12:13..12:20) _empty_/Dataset# -> 3:7
+(12:23..12:26) scala/Predef.`???`().
+(14:26..14:32) _empty_/Column# -> 7:7
+(16:5..16:7) local0 -> 12:9
+(16:8..16:14) _empty_/Dataset#select(). -> 4:7
+(16:15..16:20) local1 -> 14:14
+

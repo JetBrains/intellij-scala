@@ -1,0 +1,218 @@
+class SynchronizedReevaluation
+class SynchronizedReevaluationApi[Api <: RescalaInterface](val api: Api){
+  import api._
+
+  def SynchronizedReevaluation[A](evt: Event[A])(implicit
+      turnSource: CreationTicket
+  ): (SynchronizedReevaluation, Event[A]) = {
+    val sync = new SynchronizedReevaluation
+    (sync, evt.map(identity)(turnSource))
+  }
+}
+-----
+ScalaFile
+  ScClass: SynchronizedReevaluation
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('SynchronizedReevaluation')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScClass: SynchronizedReevaluationApi
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('SynchronizedReevaluationApi')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Api
+        PsiElement(identifier)('Api')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: RescalaInterface
+          CodeReferenceElement: RescalaInterface
+            PsiElement(identifier)('RescalaInterface')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: api
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('api')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Api
+                CodeReferenceElement: Api
+                  PsiElement(identifier)('Api')
+          PsiElement())(')')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: api
+              PsiElement(identifier)('api')
+            PsiElement(.)('.')
+            PsiElement(_)('_')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: SynchronizedReevaluation
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('SynchronizedReevaluation')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: evt
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('evt')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Event[A]
+                    SimpleType: Event
+                      CodeReferenceElement: Event
+                        PsiElement(identifier)('Event')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                      PsiElement(])(']')
+              PsiElement())(')')
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(implicit)('implicit')
+              PsiWhiteSpace('\n      ')
+              Parameter: turnSource
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('turnSource')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: CreationTicket
+                    CodeReferenceElement: CreationTicket
+                      PsiElement(identifier)('CreationTicket')
+              PsiWhiteSpace('\n  ')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          TupleType: (SynchronizedReevaluation, Event[A])
+            PsiElement(()('(')
+            TypesList
+              SimpleType: SynchronizedReevaluation
+                CodeReferenceElement: SynchronizedReevaluation
+                  PsiElement(identifier)('SynchronizedReevaluation')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Event[A]
+                SimpleType: Event
+                  CodeReferenceElement: Event
+                    PsiElement(identifier)('Event')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                  PsiElement(])(']')
+            PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: sync
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: sync
+                  PsiElement(identifier)('sync')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ScNewTemplateDefinition: <anonymous>
+                PsiElement(new)('new')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      SimpleType: SynchronizedReevaluation
+                        CodeReferenceElement: SynchronizedReevaluation
+                          PsiElement(identifier)('SynchronizedReevaluation')
+            PsiWhiteSpace('\n    ')
+            Tuple
+              PsiElement(()('(')
+              ReferenceExpression: sync
+                PsiElement(identifier)('sync')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              MethodCall
+                MethodCall
+                  ReferenceExpression: evt.map
+                    ReferenceExpression: evt
+                      PsiElement(identifier)('evt')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('map')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: identity
+                      PsiElement(identifier)('identity')
+                    PsiElement())(')')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: turnSource
+                    PsiElement(identifier)('turnSource')
+                  PsiElement())(')')
+              PsiElement())(')')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

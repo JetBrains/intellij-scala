@@ -1,0 +1,23 @@
+Document tests/pos/i17230.orig.scala
+(2:8..2:13) scala/
+(2:14..2:18) scala/util/
+(8:19..8:30) _empty_/Transaction# -> 4:7
+(8:49..8:50) _empty_/Transaction.of#[S] -> 8:11
+(8:51..8:52) local0 -> 8:44
+(12:40..12:46) scala/util/Either#
+(12:47..12:58) _empty_/Transaction. -> 7:8
+(12:59..12:61) _empty_/Transaction.of# -> 8:8
+(12:62..12:67) _empty_/ScopeSearch#[State] -> 12:24
+(12:70..12:82) _empty_/DynamicScope# -> 10:7
+(12:83..12:88) _empty_/ScopeSearch#[State] -> 12:24
+(14:30..14:41) _empty_/Transaction. -> 7:8
+(14:42..14:44) _empty_/Transaction.of# -> 8:8
+(14:45..14:50) _empty_/ScopeSearch#[State] -> 12:24
+(14:55..14:56) _empty_/ScopeSearch#embedTransaction().[T] -> 14:24
+(14:59..14:60) _empty_/ScopeSearch#embedTransaction().[T] -> 14:24
+(15:5..15:9) _empty_/ScopeSearch#self. -> 12:34
+(16:12..16:16) scala/util/Left.
+(16:32..16:35) scala/Predef.`???`().
+(17:12..17:17) scala/util/Right.
+(17:32..17:35) scala/Predef.`???`().
+

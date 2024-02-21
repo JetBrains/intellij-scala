@@ -1,0 +1,23 @@
+Document tests/pos/patterns1.scala
+(5:23..5:24) _empty_/Some#[a] -> 5:17
+(5:34..5:40) _empty_/Option# -> 3:7
+(5:41..5:42) _empty_/Some#[a] -> 5:17
+(7:26..7:32) _empty_/Option# -> 3:7
+(7:33..7:40) scala/Nothing#
+(11:20..11:26) scala/Predef.String#
+(11:29..11:33) scala/Unit#
+(11:36..11:40) java/
+(11:41..11:45) java/lang/
+(11:46..11:52) java/lang/System#
+(11:53..11:56) java/lang/System#out.
+(11:57..11:64) java/io/PrintStream#println(+8).
+(11:65..11:68) _empty_/test.println().(str) -> 11:15
+(13:18..13:24) _empty_/Option# -> 3:7
+(13:25..13:31) scala/Predef.String#
+(13:36..13:39) _empty_/test.print().(opt) -> 13:13
+(14:10..14:14) _empty_/Some.
+(14:21..14:28) _empty_/test.println(). -> 11:7
+(14:29..14:30) local0 -> 14:15
+(15:10..15:14) _empty_/None. -> 7:13
+(15:18..15:25) _empty_/test.println(). -> 11:7
+

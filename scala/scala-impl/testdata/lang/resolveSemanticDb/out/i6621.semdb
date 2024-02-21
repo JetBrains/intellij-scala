@@ -1,0 +1,8 @@
+Document tests/pos/i6621.scala
+(4:18..4:21) scala/Any#
+(4:24..4:30) scala/Option#
+(4:32..4:35) scala/Int#
+(4:37..4:40) scala/Int#
+(5:5..5:9) scala/Some.
+(9:7..9:14) _empty_/Unapply. -> 3:8
+

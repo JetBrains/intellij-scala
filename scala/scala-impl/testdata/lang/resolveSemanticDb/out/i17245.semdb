@@ -1,0 +1,39 @@
+Document tests/pos/i17245.scala
+(1:8..1:13) scala/
+(1:14..1:21) scala/reflect/
+(1:22..1:30) scala/reflect/ClassTag#
+(1:22..1:30) scala/reflect/ClassTag.
+(6:16..6:24) scala/reflect/ClassTag#
+(6:27..6:28) _empty_/Mockito.mock().[T] -> 6:12
+(6:31..6:34) scala/Predef.`???`().
+(7:16..7:24) scala/reflect/ClassTag#
+(7:36..7:48) _empty_/MockSettings# -> 3:7
+(7:51..7:52) _empty_/Mockito.mock(+1).[T] -> 7:12
+(7:55..7:58) scala/Predef.`???`().
+(11:18..11:25) _empty_/Channel# -> 10:7
+(11:29..11:32) scala/Any#
+(13:2..13:6) scala/main#
+(14:14..14:23) _empty_/i17245$package.OnChannel# -> 11:6
+(14:26..14:33) _empty_/Mockito. -> 5:8
+(14:34..14:38) _empty_/Mockito.mock(). -> 6:7
+(14:39..14:48) _empty_/i17245$package.OnChannel# -> 11:6
+(15:14..15:23) _empty_/i17245$package.OnChannel# -> 11:6
+(15:26..15:33) _empty_/Mockito. -> 5:8
+(15:34..15:38) _empty_/Mockito.mock(). -> 6:7
+(16:15..16:22) _empty_/Mockito. -> 5:8
+(16:23..16:27) _empty_/Mockito.mock(). -> 6:7
+(16:28..16:37) _empty_/i17245$package.OnChannel# -> 11:6
+(17:14..17:23) _empty_/i17245$package.OnChannel# -> 11:6
+(17:27..17:34) _empty_/Mockito. -> 5:8
+(17:35..17:39) _empty_/Mockito.mock(). -> 6:7
+(17:40..17:49) _empty_/i17245$package.OnChannel# -> 11:6
+(17:51..17:57) scala/Predef.summon().
+(17:58..17:66) scala/reflect/ClassTag#
+(17:67..17:76) _empty_/i17245$package.OnChannel# -> 11:6
+(20:14..20:21) _empty_/Channel# -> 10:7
+(20:25..20:28) scala/Any#
+(20:31..20:38) _empty_/Mockito. -> 5:8
+(20:39..20:43) _empty_/Mockito.mock(). -> 6:7
+(20:44..20:51) _empty_/Channel# -> 10:7
+(20:55..20:58) scala/Any#
+

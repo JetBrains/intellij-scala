@@ -1,0 +1,16 @@
+Document tests/pos/argDenot-alpakka.min.scala
+(1:8..1:13) scala/
+(1:14..1:24) scala/annotation/
+(1:25..1:34) scala/annotation/unchecked/
+(1:35..1:52) scala/annotation/unchecked/uncheckedVariance#
+(5:22..5:25) _empty_/Foo# -> 8:7
+(5:26..5:27) local0 -> 5:15
+(5:29..5:30) _empty_/Test#test().[S] -> 4:12
+(5:34..5:36) scala/annotation/unchecked/uncheckedVariance#
+(5:38..5:41) scala/Int#
+(5:45..5:48) scala/Predef.`???`().
+(6:5..6:6) local1 -> 5:9
+(6:7..6:8) _empty_/Foo#m(). -> 9:7
+(9:12..9:13) _empty_/Foo#[Y] -> 8:14
+(9:16..9:19) scala/Predef.`???`().
+

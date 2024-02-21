@@ -1,0 +1,6 @@
+Document tests/pos/i17380.scala
+(3:10..3:11) _empty_/C# -> 1:7
+(3:23..3:24) _empty_/C#T# -> 1:16
+(3:33..3:34) local0 -> 3:19
+(3:48..3:54) scala/Predef.String#
+

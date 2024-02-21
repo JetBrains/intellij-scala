@@ -1,4 +1,4 @@
-// scalac: -Yno-deep-subtypes
+//> using options -Yno-deep-subtypes
 enum Free[+F[_], A]:
   case Return(a: A)
   case Suspend(s: F[A])
@@ -16,9 +16,16 @@ enum Free[+F[_], A]:
     case _ => this
 -----
 ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Yno-deep-subtypes')
+  PsiWhiteSpace('\n')
   ScEnum: Free
-    PsiComment(comment)('// scalac: -Yno-deep-subtypes')
-    PsiWhiteSpace('\n')
     AnnotationsList
       <empty list>
     Modifiers

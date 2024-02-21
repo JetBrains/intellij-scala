@@ -1,0 +1,10 @@
+Document tests/pos/matchable-same-type.scala
+(3:8..3:13) scala/
+(3:14..3:22) scala/language.
+(3:23..3:41) scala/language.`future-migration`.
+(6:8..6:9) _empty_/`matchable-same-type$package`.X# -> 5:6
+(6:12..6:15) scala/Predef.`???`().
+(7:11..7:15) scala/Unit#
+(8:3..8:4) _empty_/`matchable-same-type$package`.x(). -> 6:5
+(9:13..9:14) _empty_/`matchable-same-type$package`.X# -> 5:6
+

@@ -1,0 +1,136 @@
+Document tests/pos/i12663.scala
+(4:17..4:20) _empty_/HookComponentBuilder#[Ctx] -> 3:34
+(4:24..4:25) _empty_/HookComponentBuilder#asd().[A] -> 4:11
+(4:28..4:29) _empty_/HookComponentBuilder#asd().[A] -> 4:11
+(4:32..4:35) scala/Predef.`???`().
+(5:17..5:22) _empty_/HookComponentBuilder#[CtxFn] -> 3:39
+(5:23..5:24) _empty_/HookComponentBuilder#asd(+1).[A] -> 5:11
+(5:28..5:29) _empty_/HookComponentBuilder#asd(+1).[A] -> 5:11
+(5:32..5:35) scala/Predef.`???`().
+(9:31..9:32) _empty_/HookCtx.P1#[P] -> 9:17
+(9:41..9:43) _empty_/HookCtx.P1#[H1] -> 9:20
+(13:42..13:43) _empty_/HookCtxFn.P1#[P] -> 13:19
+(13:45..13:47) _empty_/HookCtxFn.P1#[H1] -> 13:22
+(13:52..13:53) _empty_/HookCtxFn.P1#Fn#[A] -> 13:36
+(17:10..17:30) _empty_/HookComponentBuilder# -> 3:13
+(18:5..18:12) _empty_/HookCtx. -> 8:8
+(18:13..18:15) _empty_/HookCtx.P1# -> 9:14
+(18:16..18:22) scala/Predef.String#
+(18:24..18:27) scala/Int#
+(19:5..19:14) _empty_/HookCtxFn. -> 12:8
+(19:15..19:17) _empty_/HookCtxFn.P1# -> 13:16
+(19:18..19:24) scala/Predef.String#
+(19:26..19:29) scala/Int#
+(19:31..19:33) _empty_/HookCtxFn.P1#Fn# -> 13:33
+(20:7..20:10) scala/Predef.`???`().
+(22:3..22:4) _empty_/Test.b. -> 17:7
+(22:5..22:8) _empty_/HookComponentBuilder#asd(). -> 4:7
+(22:14..22:15) local0 -> 22:9
+(22:16..22:21) _empty_/HookCtx.P1#props. -> 9:24
+(22:22..22:28) java/lang/String#length().
+(22:29..22:30) scala/Int#`+`(+4).
+(22:31..22:32) local0 -> 22:9
+(22:33..22:38) _empty_/HookCtx.P1#hook1. -> 9:34
+(23:3..23:4) _empty_/Test.b. -> 17:7
+(23:5..23:8) _empty_/HookComponentBuilder#asd(+1). -> 5:7
+(23:27..23:32) local1 -> 23:10
+(23:33..23:39) java/lang/String#length().
+(23:40..23:41) scala/Int#`+`(+4).
+(23:42..23:47) local2 -> 23:17
+(27:17..27:20) _empty_/HookComponentBuilder2#[Ctx] -> 26:35
+(27:24..27:25) _empty_/HookComponentBuilder2#asd().[A] -> 27:11
+(27:28..27:29) _empty_/HookComponentBuilder2#asd().[A] -> 27:11
+(27:32..27:35) scala/Predef.`???`().
+(28:17..28:22) _empty_/HookComponentBuilder2#[CtxFn] -> 26:40
+(28:23..28:24) _empty_/HookComponentBuilder2#asd(+1).[A] -> 28:11
+(28:28..28:29) _empty_/HookComponentBuilder2#asd(+1).[A] -> 28:11
+(28:32..28:35) scala/Predef.`???`().
+(32:31..32:32) _empty_/HookCtx2.P1#[P] -> 32:17
+(32:41..32:43) _empty_/HookCtx2.P1#[H1] -> 32:20
+(36:29..36:30) _empty_/HookCtxFn2.P1#[P] -> 36:11
+(36:32..36:34) _empty_/HookCtxFn2.P1#[H1] -> 36:14
+(36:39..36:40) _empty_/HookCtxFn2.P1#[A] -> 36:21
+(40:10..40:31) _empty_/HookComponentBuilder2# -> 26:13
+(41:5..41:13) _empty_/HookCtx2. -> 31:8
+(41:14..41:16) _empty_/HookCtx2.P1# -> 32:14
+(41:17..41:23) scala/Predef.String#
+(41:25..41:28) scala/Int#
+(42:5..42:15) _empty_/HookCtxFn2. -> 35:8
+(42:16..42:18) _empty_/HookCtxFn2.P1# -> 36:8
+(42:19..42:25) scala/Predef.String#
+(42:27..42:30) scala/Int#
+(43:7..43:10) scala/Predef.`???`().
+(45:3..45:4) _empty_/Test2.b. -> 40:7
+(45:5..45:8) _empty_/HookComponentBuilder2#asd(). -> 27:7
+(45:14..45:15) local3 -> 45:9
+(45:16..45:21) _empty_/HookCtx2.P1#props. -> 32:24
+(45:22..45:28) java/lang/String#length().
+(45:29..45:30) scala/Int#`+`(+4).
+(45:31..45:32) local3 -> 45:9
+(45:33..45:38) _empty_/HookCtx2.P1#hook1. -> 32:34
+(46:3..46:4) _empty_/Test2.b. -> 40:7
+(46:5..46:8) _empty_/HookComponentBuilder2#asd(+1). -> 28:7
+(46:27..46:32) local4 -> 46:10
+(46:33..46:39) java/lang/String#length().
+(46:40..46:41) scala/Int#`+`(+4).
+(46:42..46:47) local5 -> 46:17
+(50:17..50:20) scala/Int#
+(50:24..50:25) _empty_/Builder#asd().[A] -> 50:11
+(50:28..50:29) _empty_/Builder#asd().[A] -> 50:11
+(50:32..50:35) scala/Predef.`???`().
+(51:17..51:22) _empty_/Builder#[CtxFn] -> 49:21
+(51:23..51:24) _empty_/Builder#asd(+1).[A] -> 51:11
+(51:28..51:29) _empty_/Builder#asd(+1).[A] -> 51:11
+(51:32..51:35) scala/Predef.`???`().
+(55:11..55:18) _empty_/Builder# -> 49:13
+(55:28..55:34) scala/Predef.String#
+(55:36..55:39) scala/Int#
+(55:44..55:45) _empty_/Test3.b1.[Z] -> 55:20
+(55:49..55:52) scala/Predef.`???`().
+(56:3..56:5) _empty_/Test3.b1. -> 55:7
+(56:6..56:9) _empty_/Builder#asd(). -> 50:7
+(56:10..56:18) scala/Predef.identity().
+(57:3..57:5) _empty_/Test3.b1. -> 55:7
+(57:6..57:9) _empty_/Builder#asd(+1). -> 51:7
+(57:12..57:18) java/lang/String#length().
+(57:19..57:20) scala/Int#`+`(+4).
+(59:40..59:46) scala/Predef.String#
+(59:48..59:51) scala/Int#
+(59:56..59:57) _empty_/Test3.Scala2TL#F#[Z] -> 59:34
+(60:11..60:18) _empty_/Builder# -> 49:13
+(60:19..60:27) _empty_/Test3.Scala2TL# -> 59:16
+(60:28..60:29) _empty_/Test3.Scala2TL#F# -> 59:32
+(60:33..60:35) _empty_/Test3.b1. -> 55:7
+(61:3..61:5) _empty_/Test3.b2. -> 60:7
+(61:6..61:9) _empty_/Builder#asd(). -> 50:7
+(61:10..61:18) scala/Predef.identity().
+(62:3..62:5) _empty_/Test3.b2. -> 60:7
+(62:6..62:9) _empty_/Builder#asd(+1). -> 51:7
+(62:12..62:18) java/lang/String#length().
+(62:19..62:20) scala/Int#`+`(+4).
+(64:28..64:34) scala/Predef.String#
+(64:36..64:39) scala/Int#
+(64:44..64:45) _empty_/Test3.Scala3TL#[Z] -> 64:20
+(65:11..65:18) _empty_/Builder# -> 49:13
+(65:19..65:27) _empty_/Test3.Scala3TL# -> 64:8
+(65:31..65:33) _empty_/Test3.b1. -> 55:7
+(66:3..66:5) _empty_/Test3.b3. -> 65:7
+(66:6..66:9) _empty_/Builder#asd(). -> 50:7
+(66:10..66:18) scala/Predef.identity().
+(67:3..67:5) _empty_/Test3.b3. -> 65:7
+(67:6..67:9) _empty_/Builder#asd(+1). -> 51:7
+(67:12..67:18) java/lang/String#length().
+(67:19..67:20) scala/Int#`+`(+4).
+(69:11..69:18) _empty_/Builder# -> 49:13
+(69:35..69:41) scala/Predef.String#
+(69:43..69:46) scala/Int#
+(69:51..69:52) local9 -> 69:29
+(69:61..69:63) _empty_/Test3.b1. -> 55:7
+(70:3..70:5) _empty_/Test3.b4. -> 69:7
+(70:6..70:9) _empty_/Builder#asd(). -> 50:7
+(70:10..70:18) scala/Predef.identity().
+(71:3..71:5) _empty_/Test3.b4. -> 69:7
+(71:6..71:9) _empty_/Builder#asd(+1). -> 51:7
+(71:12..71:18) java/lang/String#length().
+(71:19..71:20) scala/Int#`+`(+4).
+

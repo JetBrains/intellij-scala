@@ -1,0 +1,128 @@
+import reflect.Selectable.reflectiveSelectable
+
+type Y = { type T = String; def u(): T }
+
+trait Test {
+
+  val y1: Y
+  val y2 = y1.u()
+}
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: reflect.Selectable.reflectiveSelectable
+        CodeReferenceElement: reflect.Selectable
+          CodeReferenceElement: reflect
+            PsiElement(identifier)('reflect')
+          PsiElement(.)('.')
+          PsiElement(identifier)('Selectable')
+        PsiElement(.)('.')
+        PsiElement(identifier)('reflectiveSelectable')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: Y
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Y')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    CompoundType: { type T = String; def u(): T }
+      Refinement
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ScTypeAliasDefinition: T
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('T')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+        PsiElement(;)(';')
+        PsiWhiteSpace(' ')
+        ScFunctionDeclaration: u
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('u')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScValueDeclaration: y1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
+            Field identifier: y1
+              PsiElement(identifier)('y1')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Y
+            CodeReferenceElement: Y
+              PsiElement(identifier)('Y')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: y2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: y2
+              PsiElement(identifier)('y2')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: y1.u
+              ReferenceExpression: y1
+                PsiElement(identifier)('y1')
+              PsiElement(.)('.')
+              PsiElement(identifier)('u')
+            ArgumentList
+              PsiElement(()('(')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -1,0 +1,35 @@
+Document tests/pos/i18163.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:42) scala/language.implicitConversions.
+(10:17..10:20) _empty_/Inv# -> 8:7
+(10:28..10:31) scala/Predef.`???`().
+(11:17..11:20) _empty_/Inv# -> 8:7
+(11:28..11:31) scala/Predef.`???`().
+(13:37..13:43) scala/Predef.String#
+(13:46..13:47) _empty_/InvOps#[H] -> 13:14
+(13:48..13:49) _empty_/InvOps#[D] -> 13:20
+(13:53..13:56) scala/Predef.`???`().
+(14:37..14:43) scala/Predef.String#
+(14:46..14:49) _empty_/Log# -> 6:7
+(14:50..14:51) _empty_/LogOps#[L] -> 14:14
+(14:55..14:58) scala/Predef.`???`().
+(17:32..17:35) _empty_/Log# -> 6:7
+(17:36..17:37) _empty_/Test#LogOps().[Q] -> 17:23
+(17:41..17:47) _empty_/LogOps# -> 14:7
+(17:48..17:49) _empty_/Test#LogOps().[Q] -> 17:23
+(17:53..17:56) scala/Predef.`???`().
+(18:37..18:38) _empty_/Test#InvOps().[J] -> 18:23
+(18:39..18:40) _empty_/Test#InvOps().[E] -> 18:29
+(18:55..18:58) _empty_/Inv# -> 8:7
+(18:59..18:60) _empty_/Test#InvOps().[J] -> 18:23
+(18:64..18:70) _empty_/InvOps# -> 13:7
+(18:71..18:72) _empty_/Test#InvOps().[J] -> 18:23
+(18:74..18:75) _empty_/Test#InvOps().[E] -> 18:29
+(18:79..18:82) scala/Predef.`???`().
+(20:19..20:22) _empty_/Log# -> 6:7
+(20:28..20:32) _empty_/LogOps#desc(). -> 14:29
+(21:15..21:21) _empty_/Test#LogOps(). -> 17:16
+(21:31..21:34) _empty_/Log# -> 6:7
+(21:41..21:45) _empty_/LogOps#desc(). -> 14:29
+

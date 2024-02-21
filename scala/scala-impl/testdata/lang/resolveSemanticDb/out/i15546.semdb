@@ -1,0 +1,11 @@
+Document tests/pos/i15546.scala
+(6:19..6:22) _empty_/Foo# -> 3:7
+(7:14..7:21) scala/Boolean#
+(8:17..8:20) scala/Int#
+(9:6..9:13) scala/Nothing#
+(9:16..9:19) scala/Predef.`???`().
+(11:19..11:22) _empty_/Foo# -> 3:7
+(11:25..11:32) scala/Nothing#
+(12:5..12:10) _empty_/Bug.apply(). -> 6:7
+(12:11..12:12) _empty_/Bug.apply(+1).[F] -> 11:13
+

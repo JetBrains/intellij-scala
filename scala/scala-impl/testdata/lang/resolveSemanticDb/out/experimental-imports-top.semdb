@@ -1,0 +1,8 @@
+Document tests/pos/experimental-imports-top.scala
+(3:8..3:16) scala/language.
+(3:17..3:29) scala/language.experimental.
+(3:30..3:47) scala/language.experimental.erasedDefinitions.
+(4:8..4:18) scala/annotation/
+(4:19..4:31) scala/annotation/experimental#
+(6:2..6:14) scala/annotation/experimental#
+

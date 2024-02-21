@@ -1,0 +1,106 @@
+Document tests/pos/not-looping-implicit.scala
+(3:8..3:13) scala/
+(3:14..3:22) scala/deriving/
+(3:23..3:29) scala/deriving/Mirror#
+(3:23..3:29) scala/deriving/Mirror.
+(4:8..4:13) scala/
+(4:14..4:25) scala/compiletime/
+(9:30..9:36) _empty_/Schema# -> 6:7
+(9:37..9:43) scala/Predef.String#
+(9:51..9:57) _empty_/Schema# -> 6:7
+(9:58..9:64) scala/Predef.String#
+(10:43..10:49) _empty_/Schema# -> 6:7
+(10:50..10:51) _empty_/Schema.listSchema().[A] -> 10:27
+(10:55..10:61) _empty_/Schema# -> 6:7
+(10:62..10:66) scala/package.List#
+(10:67..10:68) _empty_/Schema.listSchema().[A] -> 10:27
+(10:77..10:83) _empty_/Schema# -> 6:7
+(10:84..10:88) scala/package.List#
+(10:89..10:90) _empty_/Schema.listSchema().[A] -> 10:27
+(11:46..11:52) _empty_/Schema# -> 6:7
+(11:53..11:54) _empty_/Schema.mapSchema().[A] -> 11:26
+(11:62..11:68) _empty_/Schema# -> 6:7
+(11:69..11:70) _empty_/Schema.mapSchema().[B] -> 11:29
+(11:74..11:80) _empty_/Schema# -> 6:7
+(11:81..11:84) scala/Predef.Map#
+(11:85..11:86) _empty_/Schema.mapSchema().[A] -> 11:26
+(11:88..11:89) _empty_/Schema.mapSchema().[B] -> 11:29
+(12:9..12:15) _empty_/Schema# -> 6:7
+(12:16..12:19) scala/Predef.Map#
+(12:20..12:21) _empty_/Schema.mapSchema().[A] -> 11:26
+(12:23..12:24) _empty_/Schema.mapSchema().[B] -> 11:29
+(14:34..14:39) scala/Tuple#
+(14:48..14:51) scala/Int#
+(14:58..14:62) scala/package.List#
+(14:64..14:70) scala/Predef.String#
+(14:72..14:78) _empty_/Schema# -> 6:7
+(14:79..14:82) scala/Any#
+(14:85..14:88) scala/Int#
+(15:12..15:23) scala/compiletime/package$package.erasedValue().
+(15:25..15:30) _empty_/Schema.recurse().[Label] -> 14:22
+(15:32..15:33) _empty_/Schema.recurse().[A] -> 14:29
+(16:22..16:24) scala/`*:`#
+(16:39..16:41) scala/`*:`#
+(17:27..17:37) scala/compiletime/package$package.constValue().
+(17:38..17:42) local6 -> 16:17
+(17:44..17:52) scala/Any#toString().
+(18:27..18:39) scala/compiletime/package$package.summonInline().
+(18:40..18:46) _empty_/Schema# -> 6:7
+(18:47..18:48) local8 -> 16:37
+(18:51..18:63) scala/Any#asInstanceOf().
+(18:64..18:70) _empty_/Schema# -> 6:7
+(18:71..18:74) scala/Any#
+(19:36..19:43) _empty_/Schema.recurse(). -> 14:14
+(19:44..19:49) local7 -> 16:25
+(19:51..19:53) local9 -> 16:42
+(19:55..19:60) _empty_/Schema.recurse().(index) -> 14:41
+(19:61..19:62) scala/Int#`+`(+4).
+(20:16..20:26) scala/Tuple$package.EmptyTuple#
+(20:50..20:53) scala/package.Nil.
+(23:26..23:32) _empty_/Schema# -> 6:7
+(23:33..23:34) _empty_/Schema.derived().[A] -> 23:22
+(24:12..24:24) scala/compiletime/package$package.summonInline().
+(24:25..24:31) scala/deriving/Mirror.
+(24:32..24:34) scala/deriving/Mirror.Of#
+(24:35..24:36) _empty_/Schema.derived().[A] -> 23:22
+(25:15..25:21) scala/deriving/Mirror.
+(25:22..25:27) scala/deriving/Mirror.SumOf#
+(25:28..25:29) _empty_/Schema.derived().[A] -> 23:22
+(26:32..26:39) _empty_/Schema.recurse(). -> 14:14
+(26:40..26:41) local13 -> 25:12
+(26:42..26:60) scala/deriving/Mirror#MirroredElemLabels#
+(26:62..26:63) local13 -> 25:12
+(27:13..27:19) _empty_/Schema# -> 6:7
+(27:20..27:21) _empty_/Schema.derived().[A] -> 23:22
+(28:15..28:21) scala/deriving/Mirror.
+(28:22..28:31) scala/deriving/Mirror.ProductOf#
+(28:32..28:33) _empty_/Schema.derived().[A] -> 23:22
+(29:37..29:44) _empty_/Schema.recurse(). -> 14:14
+(29:45..29:46) local17 -> 28:12
+(29:47..29:65) scala/deriving/Mirror#MirroredElemLabels#
+(29:67..29:68) local17 -> 28:12
+(30:13..30:19) _empty_/Schema# -> 6:7
+(30:20..30:21) _empty_/Schema.derived().[A] -> 23:22
+(33:24..33:30) _empty_/Schema# -> 6:7
+(33:31..33:32) _empty_/Schema.gen().[A] -> 33:20
+(33:36..33:43) _empty_/Schema.derived(). -> 23:14
+(33:44..33:45) _empty_/Schema.gen().[A] -> 33:20
+(38:32..38:36) scala/package.List#
+(38:37..38:47) _empty_/InputValue# -> 36:14
+(38:67..38:77) _empty_/InputValue# -> 36:14
+(39:34..39:37) scala/Predef.Map#
+(39:38..39:44) scala/Predef.String#
+(39:46..39:56) _empty_/InputValue# -> 36:14
+(39:67..39:77) _empty_/InputValue# -> 36:14
+(40:34..40:40) scala/Predef.String#
+(40:67..40:77) _empty_/InputValue# -> 36:14
+(43:2..43:6) scala/main#
+(44:39..44:45) _empty_/Schema# -> 6:7
+(44:46..44:56) _empty_/InputValue# -> 36:14
+(44:60..44:66) _empty_/Schema. -> 8:8
+(44:67..44:70) _empty_/Schema.gen(). -> 33:16
+(45:3..45:10) scala/Predef.println(+1).
+(45:11..45:17) scala/Predef.summon().
+(45:18..45:24) _empty_/Schema# -> 6:7
+(45:25..45:35) _empty_/InputValue# -> 36:14
+

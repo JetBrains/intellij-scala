@@ -12,9 +12,9 @@ import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.sbt.lang.completion.UpdateScalacOptionsInfo
 import org.junit.Assert.{assertEquals, assertTrue, fail}
-import org.junit.{FixMethodOrder, Ignore, Test}
 import org.junit.runner.JUnitCore
 import org.junit.runners.MethodSorters
+import org.junit.{FixMethodOrder, Ignore, Test}
 
 import java.io.{File, PrintWriter}
 import java.nio.charset.StandardCharsets
@@ -52,6 +52,12 @@ class AfterUpdateDottyVersionScript {
   @Test def test_4_Scala3ImportedParserTest_Move_Fixed_Tests(): Unit =
     runScript(Script.FromTestSuite(new Scala3ImportedParserTest_Move_Fixed_Tests.Scala3ImportedParserTest_Move_Fixed_Tests))
 
+  /**
+   * NOTE:
+   * if it fails because there are compilation errors in [[dotty.tools.dotc.FromTastyTests.posTestFromTasty]]
+   * add the failing tests to the patched blacklist file [[AfterUpdateDottyVersionScript.`pos-from-tasty.blacklist`]].
+   * See `patchFile` usages.
+   */
   @Test def test_5_Scala3ImportedSemanticDbTest_Import_FromDottyDirectory(): Unit =
     runScript(Script.FromTestCase(classOf[Scala3ImportedSemanticDbTest_Import_FromDottyDirectory]))
 
@@ -72,8 +78,9 @@ object AfterUpdateDottyVersionScript {
   private var someTestAlreadyFailed = false
 
   private def runScript(script: Script): Unit = {
-    if (someTestAlreadyFailed)
-      return
+    if (someTestAlreadyFailed) {
+      fail("Previous step failed. Skipping current step.")
+    }
 
     try script match {
       case Script.FromTestCase(clazz) =>
@@ -101,8 +108,9 @@ object AfterUpdateDottyVersionScript {
           case None =>
         }
     } catch {
-      case _: Throwable =>
+      case t: Throwable =>
         someTestAlreadyFailed = true
+        throw t
     }
   }
 
@@ -234,8 +242,15 @@ object AfterUpdateDottyVersionScript {
       val tempRangeSourceDir = newTempDir().toPath.resolve("pos")
       tempRangeSourceDir.toFile.mkdirs()
 
+      // No help.ranges is generated for the source file help.scala.
+      // https://github.com/lampepfl/dotty/blob/release-3.4.0/tests/pos/help.scala
+      def acceptFile(file: File): Boolean = {
+        val fileName = file.getName.toLowerCase
+        fileName.endsWith(".scala") && fileName != "help.scala"
+      }
+
       var atLeastOneFileProcessed = false
-      for (file <- allFilesIn(srcDir) if file.toString.toLowerCase.endsWith(".scala"))  {
+      for (file <- allFilesIn(srcDir) if acceptFile(file))  {
         val target = dottyParserTestsFailDir + file.toString.substring(srcDir.length).replace(".scala", "++++test")
         val content = readFile(file.toPath)
           .replaceAll("[-]{5,}", "+") // <- some test files have comment lines with dashes which confuse junit
@@ -375,7 +390,7 @@ object AfterUpdateDottyVersionScript {
           |""".stripMargin
       )
 
-      // these files fail in dotty repository since 3.2
+      // these files fail in dotty repository but are not added to the blacklist for some reason
       patchFile(
         `pos-from-tasty.blacklist`,
         """# Tree is huge and blows stack for printing Text
@@ -406,6 +421,14 @@ object AfterUpdateDottyVersionScript {
           |
           |#Fatal compiler crash when compiling: tests\pos\i15827.scala:
           |i15827.scala
+          |
+          |# update from 3.3.1 to 3.3.2:
+          |extend-java-enum.scala
+          |i13044.scala
+          |i17230.bootstrap.scala
+          |i7445b.scala
+          |refinements.scala
+          |typeclass-scaling.scala
           |""".stripMargin.trim
       )
 

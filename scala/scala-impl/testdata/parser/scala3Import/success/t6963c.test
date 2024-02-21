@@ -1,4 +1,4 @@
-// scalac: -Xmigration:2.9 -Xfatal-warnings
+//> using options -Xmigration:2.9 -Xfatal-warnings
 //
 import collection.Seq
 object Test {
@@ -28,7 +28,16 @@ object Test {
 }
 -----
 ScalaFile
-  PsiComment(comment)('// scalac: -Xmigration:2.9 -Xfatal-warnings')
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Xmigration:2.9')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Xfatal-warnings')
   PsiWhiteSpace('\n')
   PsiComment(comment)('//')
   PsiWhiteSpace('\n')

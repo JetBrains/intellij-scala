@@ -1,0 +1,190 @@
+// https://github.com/lampepfl/dotty/issues/7445
+
+type O1[A] = {
+  type OutInner[Ts] <: Tuple = Ts match {
+    case EmptyTuple => EmptyTuple
+    case h *: t => h *: OutInner[t]
+  }
+
+  type Out = OutInner[A]
+}
+
+def f1: O1[(Int, Int)]#Out = ???
+-----
+ScalaFile
+  PsiComment(comment)('// https://github.com/lampepfl/dotty/issues/7445')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: O1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('O1')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    CompoundType: {
+  type OutInner[Ts] <: Tuple = Ts match {
+    case EmptyTuple => EmptyTuple
+    case h *: t => h *: OutInner[t]
+  }
+
+  type Out = OutInner[A]
+}
+      Refinement
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: OutInner
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('OutInner')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: Ts
+              PsiElement(identifier)('Ts')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Tuple
+            CodeReferenceElement: Tuple
+              PsiElement(identifier)('Tuple')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: Ts match {
+    case EmptyTuple => EmptyTuple
+    case h *: t => h *: OutInner[t]
+  }
+            SimpleType: Ts
+              CodeReferenceElement: Ts
+                PsiElement(identifier)('Ts')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                SimpleType: EmptyTuple
+                  CodeReferenceElement: EmptyTuple
+                    PsiElement(identifier)('EmptyTuple')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: EmptyTuple
+                  CodeReferenceElement: EmptyTuple
+                    PsiElement(identifier)('EmptyTuple')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                InfixType: h *: t
+                  TypeVariable: h
+                    PsiElement(identifier)('h')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: *:
+                    PsiElement(identifier)('*:')
+                  PsiWhiteSpace(' ')
+                  TypeVariable: t
+                    PsiElement(identifier)('t')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                InfixType: h *: OutInner[t]
+                  SimpleType: h
+                    CodeReferenceElement: h
+                      PsiElement(identifier)('h')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: *:
+                    PsiElement(identifier)('*:')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: OutInner[t]
+                    SimpleType: OutInner
+                      CodeReferenceElement: OutInner
+                        PsiElement(identifier)('OutInner')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: t
+                        CodeReferenceElement: t
+                          PsiElement(identifier)('t')
+                      PsiElement(])(']')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: Out
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Out')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: OutInner[A]
+            SimpleType: OutInner
+              CodeReferenceElement: OutInner
+                PsiElement(identifier)('OutInner')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: f1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('f1')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    TypeProjection: O1[(Int, Int)]#Out
+      ParametrizedType: O1[(Int, Int)]
+        SimpleType: O1
+          CodeReferenceElement: O1
+            PsiElement(identifier)('O1')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TupleType: (Int, Int)
+            PsiElement(()('(')
+            TypesList
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement())(')')
+          PsiElement(])(']')
+      PsiElement(#)('#')
+      PsiElement(identifier)('Out')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')

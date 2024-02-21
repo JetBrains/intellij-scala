@@ -1,0 +1,12 @@
+Document tests/pos/i14351.scala
+(1:9..1:15) scala/Option#
+(1:16..1:19) scala/Int#
+(1:22..1:28) scala/Option#
+(1:29..1:35) scala/Predef.String#
+(1:50..1:53) scala/Tuple#map().
+(1:65..1:66) local0 -> 1:55
+(1:71..1:77) scala/Option.
+(1:78..1:83) scala/Option.apply().
+(1:84..1:85) local0 -> 1:55
+(1:87..1:88) local1 -> 1:62
+

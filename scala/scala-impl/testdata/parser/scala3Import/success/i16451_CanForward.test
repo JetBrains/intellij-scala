@@ -1,0 +1,774 @@
+//> using options -Werror
+abstract class Namer:
+  private enum CanForward:
+    case Yes
+    case No(whyNot: String)
+    case Skip  // for members that have never forwarders
+
+  class Mbr
+  private def canForward(mbr: Mbr): CanForward = CanForward.Yes
+
+  private def applyOrElse[A1 <: CanForward, B1 >: String](x: A1, default: A1 => B1): B1 = x match
+    case CanForward.No(whyNot @ _) => whyNot
+    case _ => ""
+
+  def addForwardersNamed(mbrs: List[Mbr]) =
+    val reason = mbrs.map(canForward).collect {
+      case CanForward.No(whyNot) => whyNot
+    }.headOption.getOrElse("")
+
+  class ClassCompleter:
+    def addForwardersNamed(mbrs: List[Mbr]) =
+      val reason = mbrs.map(canForward).collect {
+        case CanForward.No(whyNot) => whyNot
+      }.headOption.getOrElse("")
+
+    private def exportForwarders =
+      def addForwardersNamed(mbrs: List[Mbr]) =
+        val reason = mbrs.map(canForward).collect {
+          case CanForward.No(whyNot) => whyNot
+        }.headOption.getOrElse("")
+        if mbrs.size == 4 then
+          val reason = mbrs.map(canForward).collect {
+            case CanForward.No(whyNot) => whyNot
+          }.headOption.getOrElse("")
+-----
+ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Werror')
+  PsiWhiteSpace('\n')
+  ScClass: Namer
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(abstract)('abstract')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Namer')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScEnum: CanForward
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(enum)('enum')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('CanForward')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement(:)(':')
+              PsiWhiteSpace('\n    ')
+              ScEnumCases: Yes
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ScEnumSingletonCase: Yes
+                  PsiElement(identifier)('Yes')
+                  ExtendsBlock
+                    <empty list>
+              PsiWhiteSpace('\n    ')
+              ScEnumCases: No
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ScEnumClassCase: No
+                  PsiElement(identifier)('No')
+                  PrimaryConstructor
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    Parameters
+                      ParametersClause
+                        PsiElement(()('(')
+                        ClassParameter: whyNot
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(identifier)('whyNot')
+                          PsiElement(:)(':')
+                          PsiWhiteSpace(' ')
+                          ParameterType
+                            SimpleType: String
+                              CodeReferenceElement: String
+                                PsiElement(identifier)('String')
+                        PsiElement())(')')
+                  ExtendsBlock
+                    <empty list>
+              PsiWhiteSpace('\n    ')
+              ScEnumCases: Skip
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ScEnumSingletonCase: Skip
+                  PsiElement(identifier)('Skip')
+                  ExtendsBlock
+                    <empty list>
+        PsiWhiteSpace('  ')
+        PsiComment(comment)('// for members that have never forwarders')
+        PsiWhiteSpace('\n\n  ')
+        ScClass: Mbr
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Mbr')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: canForward
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('canForward')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: mbr
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('mbr')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Mbr
+                    CodeReferenceElement: Mbr
+                      PsiElement(identifier)('Mbr')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: CanForward
+            CodeReferenceElement: CanForward
+              PsiElement(identifier)('CanForward')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: CanForward.Yes
+            ReferenceExpression: CanForward
+              PsiElement(identifier)('CanForward')
+            PsiElement(.)('.')
+            PsiElement(identifier)('Yes')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: applyOrElse
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('applyOrElse')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A1
+              PsiElement(identifier)('A1')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: CanForward
+                CodeReferenceElement: CanForward
+                  PsiElement(identifier)('CanForward')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B1
+              PsiElement(identifier)('B1')
+              PsiWhiteSpace(' ')
+              PsiElement(>:)('>:')
+              PsiWhiteSpace(' ')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: A1
+                    CodeReferenceElement: A1
+                      PsiElement(identifier)('A1')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: default
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('default')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  FunctionalType: A1 => B1
+                    SimpleType: A1
+                      CodeReferenceElement: A1
+                        PsiElement(identifier)('A1')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: B1
+                      CodeReferenceElement: B1
+                        PsiElement(identifier)('B1')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: B1
+            CodeReferenceElement: B1
+              PsiElement(identifier)('B1')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchStatement
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n    ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ConstructorPattern
+                  CodeReferenceElement: CanForward.No
+                    CodeReferenceElement: CanForward
+                      PsiElement(identifier)('CanForward')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('No')
+                  Pattern Argument List
+                    PsiElement(()('(')
+                    NamingPattern: whyNot
+                      PsiElement(identifier)('whyNot')
+                      PsiWhiteSpace(' ')
+                      PsiElement(@)('@')
+                      PsiWhiteSpace(' ')
+                      WildcardPattern
+                        PsiElement(_)('_')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  ReferenceExpression: whyNot
+                    PsiElement(identifier)('whyNot')
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                WildcardPattern
+                  PsiElement(_)('_')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  StringLiteral
+                    PsiElement(string content)('""')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: addForwardersNamed
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('addForwardersNamed')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: mbrs
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('mbrs')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: List[Mbr]
+                    SimpleType: List
+                      CodeReferenceElement: List
+                        PsiElement(identifier)('List')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: Mbr
+                        CodeReferenceElement: Mbr
+                          PsiElement(identifier)('Mbr')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: reason
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: reason
+                  PsiElement(identifier)('reason')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: mbrs.map(canForward).collect {
+      case CanForward.No(whyNot) => whyNot
+    }.headOption.getOrElse
+                  ReferenceExpression: mbrs.map(canForward).collect {
+      case CanForward.No(whyNot) => whyNot
+    }.headOption
+                    MethodCall
+                      ReferenceExpression: mbrs.map(canForward).collect
+                        MethodCall
+                          ReferenceExpression: mbrs.map
+                            ReferenceExpression: mbrs
+                              PsiElement(identifier)('mbrs')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('map')
+                          ArgumentList
+                            PsiElement(()('(')
+                            ReferenceExpression: canForward
+                              PsiElement(identifier)('canForward')
+                            PsiElement())(')')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('collect')
+                      PsiWhiteSpace(' ')
+                      ArgumentList
+                        BlockExpression
+                          PsiElement({)('{')
+                          PsiWhiteSpace('\n      ')
+                          CaseClauses
+                            CaseClause
+                              PsiElement(case)('case')
+                              PsiWhiteSpace(' ')
+                              ConstructorPattern
+                                CodeReferenceElement: CanForward.No
+                                  CodeReferenceElement: CanForward
+                                    PsiElement(identifier)('CanForward')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('No')
+                                Pattern Argument List
+                                  PsiElement(()('(')
+                                  ReferencePattern: whyNot
+                                    PsiElement(identifier)('whyNot')
+                                  PsiElement())(')')
+                              PsiWhiteSpace(' ')
+                              PsiElement(=>)('=>')
+                              PsiWhiteSpace(' ')
+                              BlockOfExpressions
+                                ReferenceExpression: whyNot
+                                  PsiElement(identifier)('whyNot')
+                          PsiWhiteSpace('\n    ')
+                          PsiElement(})('}')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('headOption')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('getOrElse')
+                ArgumentList
+                  PsiElement(()('(')
+                  StringLiteral
+                    PsiElement(string content)('""')
+                  PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScClass: ClassCompleter
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ClassCompleter')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement(:)(':')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: addForwardersNamed
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('addForwardersNamed')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: mbrs
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('mbrs')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        ParametrizedType: List[Mbr]
+                          SimpleType: List
+                            CodeReferenceElement: List
+                              PsiElement(identifier)('List')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: Mbr
+                              CodeReferenceElement: Mbr
+                                PsiElement(identifier)('Mbr')
+                            PsiElement(])(']')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                BlockExpression
+                  PsiWhiteSpace('\n      ')
+                  ScPatternDefinition: reason
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(val)('val')
+                    PsiWhiteSpace(' ')
+                    ListOfPatterns
+                      ReferencePattern: reason
+                        PsiElement(identifier)('reason')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    MethodCall
+                      ReferenceExpression: mbrs.map(canForward).collect {
+        case CanForward.No(whyNot) => whyNot
+      }.headOption.getOrElse
+                        ReferenceExpression: mbrs.map(canForward).collect {
+        case CanForward.No(whyNot) => whyNot
+      }.headOption
+                          MethodCall
+                            ReferenceExpression: mbrs.map(canForward).collect
+                              MethodCall
+                                ReferenceExpression: mbrs.map
+                                  ReferenceExpression: mbrs
+                                    PsiElement(identifier)('mbrs')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('map')
+                                ArgumentList
+                                  PsiElement(()('(')
+                                  ReferenceExpression: canForward
+                                    PsiElement(identifier)('canForward')
+                                  PsiElement())(')')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('collect')
+                            PsiWhiteSpace(' ')
+                            ArgumentList
+                              BlockExpression
+                                PsiElement({)('{')
+                                PsiWhiteSpace('\n        ')
+                                CaseClauses
+                                  CaseClause
+                                    PsiElement(case)('case')
+                                    PsiWhiteSpace(' ')
+                                    ConstructorPattern
+                                      CodeReferenceElement: CanForward.No
+                                        CodeReferenceElement: CanForward
+                                          PsiElement(identifier)('CanForward')
+                                        PsiElement(.)('.')
+                                        PsiElement(identifier)('No')
+                                      Pattern Argument List
+                                        PsiElement(()('(')
+                                        ReferencePattern: whyNot
+                                          PsiElement(identifier)('whyNot')
+                                        PsiElement())(')')
+                                    PsiWhiteSpace(' ')
+                                    PsiElement(=>)('=>')
+                                    PsiWhiteSpace(' ')
+                                    BlockOfExpressions
+                                      ReferenceExpression: whyNot
+                                        PsiElement(identifier)('whyNot')
+                                PsiWhiteSpace('\n      ')
+                                PsiElement(})('}')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('headOption')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('getOrElse')
+                      ArgumentList
+                        PsiElement(()('(')
+                        StringLiteral
+                          PsiElement(string content)('""')
+                        PsiElement())(')')
+              PsiWhiteSpace('\n\n    ')
+              ScFunctionDefinition: exportForwarders
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  AccessModifier
+                    PsiElement(private)('private')
+                PsiWhiteSpace(' ')
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('exportForwarders')
+                Parameters
+                  <empty list>
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                BlockExpression
+                  PsiWhiteSpace('\n      ')
+                  ScFunctionDefinition: addForwardersNamed
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(def)('def')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('addForwardersNamed')
+                    Parameters
+                      ParametersClause
+                        PsiElement(()('(')
+                        Parameter: mbrs
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(identifier)('mbrs')
+                          PsiElement(:)(':')
+                          PsiWhiteSpace(' ')
+                          ParameterType
+                            ParametrizedType: List[Mbr]
+                              SimpleType: List
+                                CodeReferenceElement: List
+                                  PsiElement(identifier)('List')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                SimpleType: Mbr
+                                  CodeReferenceElement: Mbr
+                                    PsiElement(identifier)('Mbr')
+                                PsiElement(])(']')
+                        PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    BlockExpression
+                      PsiWhiteSpace('\n        ')
+                      ScPatternDefinition: reason
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(val)('val')
+                        PsiWhiteSpace(' ')
+                        ListOfPatterns
+                          ReferencePattern: reason
+                            PsiElement(identifier)('reason')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=)('=')
+                        PsiWhiteSpace(' ')
+                        MethodCall
+                          ReferenceExpression: mbrs.map(canForward).collect {
+          case CanForward.No(whyNot) => whyNot
+        }.headOption.getOrElse
+                            ReferenceExpression: mbrs.map(canForward).collect {
+          case CanForward.No(whyNot) => whyNot
+        }.headOption
+                              MethodCall
+                                ReferenceExpression: mbrs.map(canForward).collect
+                                  MethodCall
+                                    ReferenceExpression: mbrs.map
+                                      ReferenceExpression: mbrs
+                                        PsiElement(identifier)('mbrs')
+                                      PsiElement(.)('.')
+                                      PsiElement(identifier)('map')
+                                    ArgumentList
+                                      PsiElement(()('(')
+                                      ReferenceExpression: canForward
+                                        PsiElement(identifier)('canForward')
+                                      PsiElement())(')')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('collect')
+                                PsiWhiteSpace(' ')
+                                ArgumentList
+                                  BlockExpression
+                                    PsiElement({)('{')
+                                    PsiWhiteSpace('\n          ')
+                                    CaseClauses
+                                      CaseClause
+                                        PsiElement(case)('case')
+                                        PsiWhiteSpace(' ')
+                                        ConstructorPattern
+                                          CodeReferenceElement: CanForward.No
+                                            CodeReferenceElement: CanForward
+                                              PsiElement(identifier)('CanForward')
+                                            PsiElement(.)('.')
+                                            PsiElement(identifier)('No')
+                                          Pattern Argument List
+                                            PsiElement(()('(')
+                                            ReferencePattern: whyNot
+                                              PsiElement(identifier)('whyNot')
+                                            PsiElement())(')')
+                                        PsiWhiteSpace(' ')
+                                        PsiElement(=>)('=>')
+                                        PsiWhiteSpace(' ')
+                                        BlockOfExpressions
+                                          ReferenceExpression: whyNot
+                                            PsiElement(identifier)('whyNot')
+                                    PsiWhiteSpace('\n        ')
+                                    PsiElement(})('}')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('headOption')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('getOrElse')
+                          ArgumentList
+                            PsiElement(()('(')
+                            StringLiteral
+                              PsiElement(string content)('""')
+                            PsiElement())(')')
+                      PsiWhiteSpace('\n        ')
+                      IfStatement
+                        PsiElement(if)('if')
+                        PsiWhiteSpace(' ')
+                        InfixExpression
+                          ReferenceExpression: mbrs.size
+                            ReferenceExpression: mbrs
+                              PsiElement(identifier)('mbrs')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('size')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: ==
+                            PsiElement(identifier)('==')
+                          PsiWhiteSpace(' ')
+                          IntegerLiteral
+                            PsiElement(integer)('4')
+                        PsiWhiteSpace(' ')
+                        PsiElement(then)('then')
+                        BlockExpression
+                          PsiWhiteSpace('\n          ')
+                          ScPatternDefinition: reason
+                            AnnotationsList
+                              <empty list>
+                            Modifiers
+                              <empty list>
+                            PsiElement(val)('val')
+                            PsiWhiteSpace(' ')
+                            ListOfPatterns
+                              ReferencePattern: reason
+                                PsiElement(identifier)('reason')
+                            PsiWhiteSpace(' ')
+                            PsiElement(=)('=')
+                            PsiWhiteSpace(' ')
+                            MethodCall
+                              ReferenceExpression: mbrs.map(canForward).collect {
+            case CanForward.No(whyNot) => whyNot
+          }.headOption.getOrElse
+                                ReferenceExpression: mbrs.map(canForward).collect {
+            case CanForward.No(whyNot) => whyNot
+          }.headOption
+                                  MethodCall
+                                    ReferenceExpression: mbrs.map(canForward).collect
+                                      MethodCall
+                                        ReferenceExpression: mbrs.map
+                                          ReferenceExpression: mbrs
+                                            PsiElement(identifier)('mbrs')
+                                          PsiElement(.)('.')
+                                          PsiElement(identifier)('map')
+                                        ArgumentList
+                                          PsiElement(()('(')
+                                          ReferenceExpression: canForward
+                                            PsiElement(identifier)('canForward')
+                                          PsiElement())(')')
+                                      PsiElement(.)('.')
+                                      PsiElement(identifier)('collect')
+                                    PsiWhiteSpace(' ')
+                                    ArgumentList
+                                      BlockExpression
+                                        PsiElement({)('{')
+                                        PsiWhiteSpace('\n            ')
+                                        CaseClauses
+                                          CaseClause
+                                            PsiElement(case)('case')
+                                            PsiWhiteSpace(' ')
+                                            ConstructorPattern
+                                              CodeReferenceElement: CanForward.No
+                                                CodeReferenceElement: CanForward
+                                                  PsiElement(identifier)('CanForward')
+                                                PsiElement(.)('.')
+                                                PsiElement(identifier)('No')
+                                              Pattern Argument List
+                                                PsiElement(()('(')
+                                                ReferencePattern: whyNot
+                                                  PsiElement(identifier)('whyNot')
+                                                PsiElement())(')')
+                                            PsiWhiteSpace(' ')
+                                            PsiElement(=>)('=>')
+                                            PsiWhiteSpace(' ')
+                                            BlockOfExpressions
+                                              ReferenceExpression: whyNot
+                                                PsiElement(identifier)('whyNot')
+                                        PsiWhiteSpace('\n          ')
+                                        PsiElement(})('}')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('headOption')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('getOrElse')
+                              ArgumentList
+                                PsiElement(()('(')
+                                StringLiteral
+                                  PsiElement(string content)('""')
+                                PsiElement())(')')

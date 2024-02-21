@@ -1,0 +1,22 @@
+Document tests/pos/i16707.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/deriving/
+(1:23..1:29) scala/deriving/Mirror#
+(1:23..1:29) scala/deriving/Mirror.
+(2:8..2:13) scala/
+(2:14..2:21) scala/reflect/
+(2:22..2:30) scala/reflect/ClassTag#
+(2:22..2:30) scala/reflect/ClassTag.
+(5:16..5:22) scala/deriving/Mirror.
+(5:23..5:32) scala/deriving/Mirror.ProductOf#
+(5:33..5:34) _empty_/i16707$package.derived().[A] -> 4:34
+(6:19..6:27) scala/reflect/ClassTag#
+(6:28..6:33) scala/Tuple.
+(6:34..6:39) scala/Tuple.Union#
+(6:40..6:41) _empty_/i16707$package.derived().(m) -> 5:13
+(7:6..7:10) scala/Unit#
+(7:13..7:16) scala/Predef.`???`().
+(9:19..9:22) scala/Int#
+(11:16..11:23) _empty_/i16707$package.derived(). -> 4:26
+(11:24..11:27) _empty_/Foo# -> 9:12
+
