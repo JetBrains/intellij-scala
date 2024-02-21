@@ -43,12 +43,20 @@ object TypePluralNamesProvider {
     import GenericTypeNamesProvider.isInheritor
 
     def unapply(`type`: ScParameterizedType): Option[(ScType, ScType)] = `type` match {
-      case ParameterizedType(designator, Seq(argument))
-        if designator.canonicalText == "_root_.scala.Array" ||
-          isInheritor(`type`, "scala.collection.GenTraversableOnce", "java.lang.Iterable") =>
+      case ParameterizedType(designator, Seq(argument)) if isMultiElementTraversable(`type`, designator) =>
         Some(designator, argument)
       case _ => None
     }
-  }
 
+    private def isMultiElementTraversable(`type`: ScParameterizedType, designator: ScType): Boolean = designator.canonicalText match {
+      case "_root_.scala.Array" => true
+      case _ if isInheritor(designator, "scala.Option") => false // do not suggest plural names for optional values
+      case _ =>
+        isInheritor(`type`,
+          "scala.collection.GenTraversableOnce",
+          "scala.collection.IterableOnce", // Traversable and TraversableOnce are replaced with Iterable and IterableOnce, respectively (https://docs.scala-lang.org/overviews/core/collections-migration-213.html)
+          "java.lang.Iterable",
+        )
+    }
+  }
 }
