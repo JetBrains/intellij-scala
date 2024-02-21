@@ -72,8 +72,9 @@ object AfterUpdateDottyVersionScript {
   private var someTestAlreadyFailed = false
 
   private def runScript(script: Script): Unit = {
-    if (someTestAlreadyFailed)
-      return
+    if (someTestAlreadyFailed) {
+      fail("Previous step failed. Skipping current step.")
+    }
 
     try script match {
       case Script.FromTestCase(clazz) =>
@@ -101,8 +102,9 @@ object AfterUpdateDottyVersionScript {
           case None =>
         }
     } catch {
-      case _: Throwable =>
+      case t: Throwable =>
         someTestAlreadyFailed = true
+        throw t
     }
   }
 
