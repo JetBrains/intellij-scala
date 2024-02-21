@@ -8,8 +8,8 @@ class ClientEventProcessor(client: Client) {
 
   def process(event: Event): Unit = {
     event match {
-      case MessageEvent(kind, text, source, pointer, problemStart, problemEnd) =>
-        client.message(kind, text, source, pointer, problemStart, problemEnd)
+      case MessageEvent(kind, text, source, pointer, problemStart, problemEnd, diagnostics) =>
+        client.message(kind, text, source, pointer, problemStart, problemEnd, diagnostics)
 
       case ProgressEvent(text, done) =>
         client.progress(text, done)

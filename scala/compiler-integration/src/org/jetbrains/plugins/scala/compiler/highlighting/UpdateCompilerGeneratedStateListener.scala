@@ -53,7 +53,8 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
           val highlighting = ExternalHighlighting(
             highlightType = highlightingType,
             message = text,
-            rangeInfo = rangeInfo
+            rangeInfo = rangeInfo,
+            diagnostics = msg.diagnostics
           )
           val fileState = FileCompilerGeneratedState(compilationId, Set(highlighting))
           val newState = replaceOrAppendFileState(oldState, virtualFile, fileState)

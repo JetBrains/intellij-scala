@@ -2,6 +2,7 @@ package org.jetbrains.jps.incremental.scala
 package local
 
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
+import org.jetbrains.plugins.scala.compiler.diagnostics
 import xsbti._
 import xsbti.compile._
 
@@ -95,7 +96,7 @@ abstract class AbstractCompiler extends Compiler {
 
     override def problems: Array[Problem] = entries.asScala.toArray.reverse
 
-    override def comment(position: Position, msg: String): Unit = logInClient(msg, position, MessageKind.Progress)
+    override def comment(position: Position, msg: String): Unit = logInClient(msg, position, MessageKind.Progress, Nil)
 
     override def log(problem: Problem): Unit = {
       entries.add(problem)
@@ -114,34 +115,65 @@ abstract class AbstractCompiler extends Compiler {
       val pos = problem.position
       val messageWithoutAnsiColorCodes = ansiColorCodePattern.replaceAllIn(problem.message(), "")
       val resultMsg = s"${messageWithoutAnsiColorCodes}\n${pos.lineContent}\n"
-      logInClient(resultMsg, pos, kind)
+      logInClient(resultMsg, pos, kind, createDiagnostics(problem))
     }
 
-    private def logInClient(msg: String, pos: Position, kind: MessageKind): Unit = {
+    private def createDiagnostics(problem: Problem): List[diagnostics.Action] =
+      problem.actions()
+        .asScala
+        .flatMap { action =>
+          val workspaceEdit = action.edit()
+          val textEdits = workspaceEdit.changes().asScala.flatMap { te =>
+            val position = te.position()
+
+            val startEnd = (for {
+              start <- createStart(position)
+              end <- createEnd(position)
+            } yield (start, end)).orElse {
+              createPointer(position).map(p => (p, p))
+            }
+
+            startEnd.map { case (start, end) =>
+              val text = ansiColorCodePattern.replaceAllIn(te.newText(), "")
+              diagnostics.TextEdit(start, end, text)
+            }
+          }
+
+          if (textEdits.nonEmpty) {
+            val title = ansiColorCodePattern.replaceAllIn(action.title(), "")
+            Some(diagnostics.Action(title, diagnostics.WorkspaceEdit(textEdits.toList)))
+          } else None
+        }.toList
+
+    private def logInClient(msg: String, pos: Position, kind: MessageKind, actions: List[diagnostics.Action]): Unit = {
       val source = pos.sourceFile.toScala
 
       // xsbti.Position#line, xsbti.Position#startLine and xsbti.Position#endLine contain 1-based line information.
       // xsbti.Position#pointer, xsbti.Position#startColumn and xsbti.Position#endColumn contain 0-based column information.
 
-      val pointer = for {
-        line <- pos.line().toScala
-        column <- pos.pointer().toScala
-      } yield PosInfo(line, column + 1)
-
-      val problemStart = for {
-        line <- pos.startLine().toScala
-        column <- pos.startColumn().toScala
-      } yield PosInfo(line, column + 1)
-
-      val problemEnd = for {
-        line <- pos.endLine().toScala
-        column <- pos.endColumn().toScala
-      } yield PosInfo(line, column + 1)
+      val pointer = createPointer(pos)
+      val problemStart = createStart(pos)
+      val problemEnd = createEnd(pos)
 
       //noinspection ReferencePassedToNls
-      client.message(kind, msg, source, pointer, problemStart, problemEnd)
+      client.message(kind, msg, source, pointer, problemStart, problemEnd, actions)
     }
   }
+
+  private def createPointer(position: Position): Option[PosInfo] = for {
+    line <- position.line().toScala
+    column <- position.pointer().toScala
+  } yield PosInfo(line, column + 1)
+
+  private def createStart(position: Position): Option[PosInfo] = for {
+    line <- position.startLine().toScala
+    column <- position.startColumn().toScala
+  } yield PosInfo(line, column + 1)
+
+  private def createEnd(position: Position): Option[PosInfo] = for {
+    line <- position.endLine().toScala
+    column <- position.endColumn().toScala
+  } yield PosInfo(line, column + 1)
 
   private val ansiColorCodePattern = "\\u001B\\[[\\d*]*m".r
 }

@@ -3,6 +3,7 @@ package org.jetbrains.jps.incremental.scala
 import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.incremental.scala.Client.{ClientMsg, PosInfo}
 import org.jetbrains.jps.incremental.scala.remote.CompileServerMetrics
+import org.jetbrains.plugins.scala.compiler.diagnostics.Action
 
 import java.io.File
 
@@ -18,8 +19,9 @@ trait Client {
                     source: Option[File] = None,
                     pointer: Option[PosInfo] = None,
                     problemStart: Option[PosInfo] = None,
-                    problemEnd: Option[PosInfo] = None): Unit =
-    message(ClientMsg(kind, text, source, pointer, problemStart, problemEnd))
+                    problemEnd: Option[PosInfo] = None,
+                    diagnostics: List[Action] = Nil): Unit =
+    message(ClientMsg(kind, text, source, pointer, problemStart, problemEnd, diagnostics))
 
   final def error(@Nls text: String,
                   source: Option[File] = None,
@@ -90,7 +92,8 @@ object Client {
                              source: Option[File],
                              pointer: Option[PosInfo],
                              problemStart: Option[PosInfo],
-                             problemEnd: Option[PosInfo])
+                             problemEnd: Option[PosInfo],
+                             diagnostics: List[Action])
 
   /**
    * Contains positional information for a highlighting information produced by the Scala compiler. The information

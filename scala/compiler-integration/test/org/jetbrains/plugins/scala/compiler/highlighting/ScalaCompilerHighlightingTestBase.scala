@@ -29,8 +29,8 @@ abstract class ScalaCompilerHighlightingTestBase
   extends ScalaCompilerTestBase
     with HamcrestMatchers {
 
-  private var myEditor: Editor = _
-  private var myPsiFile: PsiFile = _
+  protected var myEditor: Editor = _
+  protected var myPsiFile: PsiFile = _
 
   override def useCompileServer: Boolean = true
   override def runInDispatchThread: Boolean = false
@@ -70,12 +70,7 @@ abstract class ScalaCompilerHighlightingTestBase
                             expectedResult: ExpectedResult): Unit = {
     @tailrec
     def rec(attemptsLeft: Int): Unit = {
-      val actualResult = invokeAndWait {
-        val document = virtualFile.findDocument.get
-        myEditor = EditorFactory.getInstance().getEditors(document).head
-        myPsiFile = PsiDocumentManager.getInstance(getProject).getPsiFile(document)
-        DaemonCodeAnalyzerImpl.getHighlights(document, null, getProject).asScala.toSeq
-      }
+      val actualResult = fetchHighlightInfos(virtualFile)
       try {
         assertThat(actualResult, expectedResult)
       } catch {
@@ -89,6 +84,13 @@ abstract class ScalaCompilerHighlightingTestBase
       }
     }
     rec(40)
+  }
+
+  protected def fetchHighlightInfos(virtualFile: VirtualFile): Seq[HighlightInfo] = invokeAndWait {
+    val document = virtualFile.findDocument.get
+    myEditor = EditorFactory.getInstance().getEditors(document).head
+    myPsiFile = PsiDocumentManager.getInstance(getProject).getPsiFile(document)
+    DaemonCodeAnalyzerImpl.getHighlights(document, null, getProject).asScala.toSeq
   }
 
   protected def runTestCase(fileName: String,

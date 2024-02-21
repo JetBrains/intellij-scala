@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.compiler.highlighting
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfoType
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
+import org.jetbrains.plugins.scala.compiler.diagnostics.Action
 import org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlighting.RangeInfo
 
 /**
@@ -13,7 +14,8 @@ import org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlighting.Ra
  */
 final case class ExternalHighlighting(highlightType: HighlightInfoType,
                                       message: String,
-                                      rangeInfo: Option[RangeInfo])
+                                      rangeInfo: Option[RangeInfo],
+                                      diagnostics: List[Action])
 
 object ExternalHighlighting {
   sealed trait RangeInfo

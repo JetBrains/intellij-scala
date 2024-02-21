@@ -39,7 +39,7 @@ private class MyTranslatingClient(
   }
 
   override def message(msg: Client.ClientMsg): Unit = {
-    val Client.ClientMsg(kind, text, _, pointer, _, _) = msg
+    val Client.ClientMsg(kind, text, _, pointer, _, _, _) = msg
     val lines = (if (text == null) "" else text).split("\n")
     val linesLength = lines.length
 

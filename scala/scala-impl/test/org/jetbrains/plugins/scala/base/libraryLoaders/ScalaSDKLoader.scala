@@ -16,7 +16,8 @@ import java.{util => ju}
 /** @param includeScalaReflectIntoCompilerClasspath also see [[ScalaReflectLibraryLoader]] */
 case class ScalaSDKLoader(
   includeScalaReflectIntoCompilerClasspath: Boolean = false,
-  includeScalaCompilerIntoLibraryClasspath: Boolean = false
+  includeScalaCompilerIntoLibraryClasspath: Boolean = false,
+  compilerBridgeBinaryJar: Option[File] = None
 ) extends LibraryLoader {
 
   protected lazy val dependencyManager: DependencyManagerBase = DependencyManager
@@ -106,7 +107,7 @@ case class ScalaSDKLoader(
 
     inWriteAction {
       val version = Artifact.ScalaCompiler.versionOf(compilerFile)
-      val properties = ScalaLibraryProperties(version, compilerClasspath, Seq.empty, None)
+      val properties = ScalaLibraryProperties(version, compilerClasspath, Seq.empty, compilerBridgeBinaryJar)
 
       val editor = new ExistingLibraryEditor(library, null)
       editor.setType(ScalaLibraryType())

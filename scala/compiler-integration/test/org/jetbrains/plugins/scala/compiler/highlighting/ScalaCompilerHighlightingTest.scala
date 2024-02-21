@@ -229,6 +229,14 @@ class ScalaCompilerHighlightingTest_3_3 extends ScalaCompilerHighlightingTest_3 
   def testUnusedLocalDefinitions_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
     runTestUnusedLocalDefinitions()
   }
+
+  override def testWarningHighlighting(): Unit = {
+    runTestWarningHighlighting(Seq("Insert missing cases (1)"))
+  }
+
+  override def testWarningHighlighting_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
+    runTestWarningHighlighting(Seq("Insert missing cases (1)"))
+  }
 }
 
 abstract class ScalaCompilerHighlightingTest_3 extends ScalaCompilerHighlightingTestBase with ScalaCompilerHighlightingCommonScala2Scala3Test {
@@ -342,7 +350,7 @@ abstract class ScalaCompilerHighlightingTest_3 extends ScalaCompilerHighlighting
 trait ScalaCompilerHighlightingCommonScala2Scala3Test {
   self: ScalaCompilerHighlightingTestBase =>
 
-  private def runTestWarningHighlighting(): Unit = runTestCase(
+  protected def runTestWarningHighlighting(quickFixDescriptions: Seq[String]): Unit = runTestCase(
     fileName = "ExhaustiveMatchWarning.scala",
     content =
       """
@@ -356,14 +364,14 @@ trait ScalaCompilerHighlightingCommonScala2Scala3Test {
     expectedResult = expectedResult(ExpectedHighlighting(
       severity = HighlightSeverity.WARNING,
       range = Some(TextRange.create(70, 76)),
-      quickFixDescriptions = Seq.empty,
+      quickFixDescriptions = quickFixDescriptions,
       msgPrefix = "match may not be exhaustive"
     ))
   )
 
-  def testWarningHighlighting(): Unit = runTestWarningHighlighting()
+  def testWarningHighlighting(): Unit = runTestWarningHighlighting(Seq.empty)
 
   def testWarningHighlighting_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
-    runTestWarningHighlighting()
+    runTestWarningHighlighting(Seq.empty)
   }
 }
