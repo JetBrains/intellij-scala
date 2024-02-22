@@ -2010,6 +2010,7 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
+  // SCL-22135
   def test_second_paren_argument_list_on_next_line(): Unit = checkTree(
     """
       |{
@@ -2094,6 +2095,7 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
+  // SCL-22135
   def test_second_brace_argument_list_on_next_line(): Unit = checkTree(
     """
       |{
@@ -2181,7 +2183,115 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_blub(): Unit = checkTree(
+  // SCL-21085
+  def test_args_after_colon_arg(): Unit = checkTree(
+    """
+      |def foo =
+      |  List
+      |  .map:
+      |    x => x
+      |  (1)
+      |
+      |def bar = List
+      |  .map:
+      |    x => x
+      |  (1)
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScFunctionDefinition: foo
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('foo')
+      |    Parameters
+      |      <empty list>
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    BlockExpression
+      |      PsiWhiteSpace('\n  ')
+      |      MethodCall
+      |        ReferenceExpression: List
+      |  .map
+      |          ReferenceExpression: List
+      |            PsiElement(identifier)('List')
+      |          PsiWhiteSpace('\n  ')
+      |          PsiElement(.)('.')
+      |          PsiElement(identifier)('map')
+      |        ArgumentList
+      |          BlockExpression
+      |            PsiElement(:)(':')
+      |            PsiWhiteSpace('\n    ')
+      |            FunctionExpression
+      |              Parameters
+      |                ParametersClause
+      |                  Parameter: x
+      |                    PsiElement(identifier)('x')
+      |              PsiWhiteSpace(' ')
+      |              PsiElement(=>)('=>')
+      |              PsiWhiteSpace(' ')
+      |              BlockOfExpressions
+      |                ReferenceExpression: x
+      |                  PsiElement(identifier)('x')
+      |      PsiWhiteSpace('\n  ')
+      |      ExpressionInParenthesis
+      |        PsiElement(()('(')
+      |        IntegerLiteral
+      |          PsiElement(integer)('1')
+      |        PsiElement())(')')
+      |  PsiWhiteSpace('\n\n')
+      |  ScFunctionDefinition: bar
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('bar')
+      |    Parameters
+      |      <empty list>
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    MethodCall
+      |      MethodCall
+      |        ReferenceExpression: List
+      |  .map
+      |          ReferenceExpression: List
+      |            PsiElement(identifier)('List')
+      |          PsiWhiteSpace('\n  ')
+      |          PsiElement(.)('.')
+      |          PsiElement(identifier)('map')
+      |        ArgumentList
+      |          BlockExpression
+      |            PsiElement(:)(':')
+      |            PsiWhiteSpace('\n    ')
+      |            FunctionExpression
+      |              Parameters
+      |                ParametersClause
+      |                  Parameter: x
+      |                    PsiElement(identifier)('x')
+      |              PsiWhiteSpace(' ')
+      |              PsiElement(=>)('=>')
+      |              PsiWhiteSpace(' ')
+      |              BlockOfExpressions
+      |                ReferenceExpression: x
+      |                  PsiElement(identifier)('x')
+      |      PsiWhiteSpace('\n  ')
+      |      ArgumentList
+      |        PsiElement(()('(')
+      |        IntegerLiteral
+      |          PsiElement(integer)('1')
+      |        PsiElement())(')')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_tuple_and_not_arglist(): Unit = checkTree(
     """
       |object Test {
       |  def unbox(x) = s match {
@@ -2302,7 +2412,7 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_match(): Unit = checkTree(
+  def test_match_outdent(): Unit = checkTree(
     """
       |x match
       |case y =>
@@ -2333,6 +2443,86 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n ')
       |  ReferenceExpression: b
       |    PsiElement(identifier)('b')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  // SCL-21085
+  def test_if_then_return_indent(): Unit = checkTree(
+    """
+      |if x < 0 then return
+      |  a + b
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  IfStatement
+      |    PsiElement(if)('if')
+      |    PsiWhiteSpace(' ')
+      |    InfixExpression
+      |      ReferenceExpression: x
+      |        PsiElement(identifier)('x')
+      |      PsiWhiteSpace(' ')
+      |      ReferenceExpression: <
+      |        PsiElement(identifier)('<')
+      |      PsiWhiteSpace(' ')
+      |      IntegerLiteral
+      |        PsiElement(integer)('0')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(then)('then')
+      |    PsiWhiteSpace(' ')
+      |    ReturnStatement
+      |      PsiElement(return)('return')
+      |      PsiWhiteSpace('\n  ')
+      |      InfixExpression
+      |        ReferenceExpression: a
+      |          PsiElement(identifier)('a')
+      |        PsiWhiteSpace(' ')
+      |        ReferenceExpression: +
+      |          PsiElement(identifier)('+')
+      |        PsiWhiteSpace(' ')
+      |        ReferenceExpression: b
+      |          PsiElement(identifier)('b')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  // SCL-21085
+  def test_if_then_return_no_indent(): Unit = checkTree(
+    """
+      |if x < 0 then return
+      |a + b
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  IfStatement
+      |    PsiElement(if)('if')
+      |    PsiWhiteSpace(' ')
+      |    InfixExpression
+      |      ReferenceExpression: x
+      |        PsiElement(identifier)('x')
+      |      PsiWhiteSpace(' ')
+      |      ReferenceExpression: <
+      |        PsiElement(identifier)('<')
+      |      PsiWhiteSpace(' ')
+      |      IntegerLiteral
+      |        PsiElement(integer)('0')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(then)('then')
+      |    PsiWhiteSpace(' ')
+      |    ReturnStatement
+      |      PsiElement(return)('return')
+      |  PsiWhiteSpace('\n')
+      |  InfixExpression
+      |    ReferenceExpression: a
+      |      PsiElement(identifier)('a')
+      |    PsiWhiteSpace(' ')
+      |    ReferenceExpression: +
+      |      PsiElement(identifier)('+')
+      |    PsiWhiteSpace(' ')
+      |    ReferenceExpression: b
+      |      PsiElement(identifier)('b')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
