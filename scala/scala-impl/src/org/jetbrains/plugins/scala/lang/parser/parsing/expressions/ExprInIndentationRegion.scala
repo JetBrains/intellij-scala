@@ -162,7 +162,6 @@ sealed trait ExprInIndentationRegion extends ParsingRule {
                   true
                 } else {
                   // do regular expression parsing
-                  backMarker.rollbackTo()
                   doParseExpr()
                 }
             }
