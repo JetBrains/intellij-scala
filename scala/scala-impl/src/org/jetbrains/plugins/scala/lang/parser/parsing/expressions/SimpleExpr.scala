@@ -187,9 +187,7 @@ object SimpleExpr extends ParsingRule {
               builder error ScalaBundle.message("identifier.expected")
               marker.drop()
           }
-        case `tLPARENTHESIS` | `tLBRACE`
-          if builder.getTokenType != tLPARENTHESIS ||
-            !builder.newlineBeforeCurrentToken => // TODO(SCL-21085): || (builder.isScala3 && builder.isScala3IndentationBasedSyntaxEnabled && ParserUtils.isIndent)
+        case `tLPARENTHESIS` | `tLBRACE` if ArgumentExprs.canContinueWithArgumentExprs =>
           if (state && ArgumentExprs()) {
             val tMarker = marker.precede
             marker.done(ScalaElementType.METHOD_CALL)

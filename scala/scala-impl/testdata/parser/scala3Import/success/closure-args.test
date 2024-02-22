@@ -347,81 +347,82 @@ ScalaFile
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
           MethodCall
-            ReferenceExpression: xs
+            MethodCall
+              ReferenceExpression: xs
     .map: x =>
       x * x
     .filter
-              MethodCall
-                ReferenceExpression: xs
-    .map
+                MethodCall
                   ReferenceExpression: xs
-                    PsiElement(identifier)('xs')
-                  PsiWhiteSpace('\n    ')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('map')
-                ArgumentList
-                  BlockExpression
-                    PsiElement(:)(':')
-                    PsiWhiteSpace(' ')
-                    FunctionExpression
-                      Parameters
-                        ParametersClause
-                          Parameter: x
-                            PsiElement(identifier)('x')
+    .map
+                    ReferenceExpression: xs
+                      PsiElement(identifier)('xs')
+                    PsiWhiteSpace('\n    ')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('map')
+                  ArgumentList
+                    BlockExpression
+                      PsiElement(:)(':')
                       PsiWhiteSpace(' ')
-                      PsiElement(=>)('=>')
-                      PsiWhiteSpace('\n      ')
-                      BlockOfExpressions
-                        InfixExpression
-                          ReferenceExpression: x
-                            PsiElement(identifier)('x')
-                          PsiWhiteSpace(' ')
-                          ReferenceExpression: *
-                            PsiElement(identifier)('*')
-                          PsiWhiteSpace(' ')
-                          ReferenceExpression: x
-                            PsiElement(identifier)('x')
-              PsiWhiteSpace('\n    ')
-              PsiElement(.)('.')
-              PsiElement(identifier)('filter')
-            ArgumentList
-              BlockExpression
-                PsiElement(:)(':')
-                PsiWhiteSpace(' ')
-                FunctionExpression
-                  Parameters
-                    ParametersClause
-                      PsiElement(()('(')
-                      Parameter: y
-                        AnnotationsList
-                          <empty list>
-                        PsiElement(identifier)('y')
-                        PsiElement(:)(':')
+                      FunctionExpression
+                        Parameters
+                          ParametersClause
+                            Parameter: x
+                              PsiElement(identifier)('x')
                         PsiWhiteSpace(' ')
-                        ParameterType
-                          SimpleType: Int
-                            CodeReferenceElement: Int
-                              PsiElement(identifier)('Int')
-                      PsiElement())(')')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace('\n      ')
+                        BlockOfExpressions
+                          InfixExpression
+                            ReferenceExpression: x
+                              PsiElement(identifier)('x')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: *
+                              PsiElement(identifier)('*')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: x
+                              PsiElement(identifier)('x')
+                PsiWhiteSpace('\n    ')
+                PsiElement(.)('.')
+                PsiElement(identifier)('filter')
+              ArgumentList
+                BlockExpression
+                  PsiElement(:)(':')
                   PsiWhiteSpace(' ')
-                  PsiElement(=>)('=>')
-                  PsiWhiteSpace('\n      ')
-                  BlockOfExpressions
-                    InfixExpression
-                      ReferenceExpression: y
-                        PsiElement(identifier)('y')
-                      PsiWhiteSpace(' ')
-                      ReferenceExpression: >
-                        PsiElement(identifier)('>')
-                      PsiWhiteSpace(' ')
-                      IntegerLiteral
-                        PsiElement(integer)('0')
-        PsiWhiteSpace('\n    ')
-        ExpressionInParenthesis
-          PsiElement(()('(')
-          IntegerLiteral
-            PsiElement(integer)('0')
-          PsiElement())(')')
+                  FunctionExpression
+                    Parameters
+                      ParametersClause
+                        PsiElement(()('(')
+                        Parameter: y
+                          AnnotationsList
+                            <empty list>
+                          PsiElement(identifier)('y')
+                          PsiElement(:)(':')
+                          PsiWhiteSpace(' ')
+                          ParameterType
+                            SimpleType: Int
+                              CodeReferenceElement: Int
+                                PsiElement(identifier)('Int')
+                        PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace('\n      ')
+                    BlockOfExpressions
+                      InfixExpression
+                        ReferenceExpression: y
+                          PsiElement(identifier)('y')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: >
+                          PsiElement(identifier)('>')
+                        PsiWhiteSpace(' ')
+                        IntegerLiteral
+                          PsiElement(integer)('0')
+            PsiWhiteSpace('\n    ')
+            ArgumentList
+              PsiElement(()('(')
+              IntegerLiteral
+                PsiElement(integer)('0')
+              PsiElement())(')')
         PsiWhiteSpace('\n  ')
         ScPatternDefinition: e
           AnnotationsList

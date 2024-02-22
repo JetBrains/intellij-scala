@@ -103,39 +103,42 @@ ScalaFile
         PsiWhiteSpace(' ')
         PsiElement(=)('=')
         PsiWhiteSpace(' ')
-        MethodCall
-          ReferenceExpression: f
-            PsiElement(identifier)('f')
-          ArgumentList
-            PsiElement(()('(')
-            IntegerLiteral
-              PsiElement(integer)('1')
-            PsiElement())(')')
-      PsiWhiteSpace('\n    ')
-      InfixExpression
-        ExpressionInParenthesis
-          PsiElement(()('(')
-          IntegerLiteral
-            PsiElement(integer)('2')
-          PsiElement())(')')
-        PsiWhiteSpace('\n    ')
-        ReferenceExpression: +
-          PsiElement(identifier)('+')
-        PsiWhiteSpace(' ')
-        MethodCall
-          ReferenceExpression: f
-            PsiElement(identifier)('f')
-          ArgumentList
-            PsiElement(()('(')
-            IntegerLiteral
-              PsiElement(integer)('1')
-            PsiElement())(')')
-      PsiWhiteSpace('\n       ')
-      BlockExpression
-        PsiElement({)('{')
-        IntegerLiteral
-          PsiElement(integer)('2')
-        PsiElement(})('}')
+        InfixExpression
+          MethodCall
+            MethodCall
+              ReferenceExpression: f
+                PsiElement(identifier)('f')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('1')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ArgumentList
+              PsiElement(()('(')
+              IntegerLiteral
+                PsiElement(integer)('2')
+              PsiElement())(')')
+          PsiWhiteSpace('\n    ')
+          ReferenceExpression: +
+            PsiElement(identifier)('+')
+          PsiWhiteSpace(' ')
+          MethodCall
+            MethodCall
+              ReferenceExpression: f
+                PsiElement(identifier)('f')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('1')
+                PsiElement())(')')
+            PsiWhiteSpace('\n       ')
+            ArgumentList
+              BlockExpression
+                PsiElement({)('{')
+                IntegerLiteral
+                  PsiElement(integer)('2')
+                PsiElement(})('}')
       PsiWhiteSpace('\n  ')
       BlockExpression
         PsiElement({)('{')

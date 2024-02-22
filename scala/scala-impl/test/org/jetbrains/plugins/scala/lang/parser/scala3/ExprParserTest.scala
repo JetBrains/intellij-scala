@@ -2009,4 +2009,191 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  def test_second_paren_argument_list_on_next_line(): Unit = checkTree(
+    """
+      |{
+      |   indentation
+      |
+      |  f("arg 1")
+      |    ("arg 2")
+      |   ("no arg 3")
+      |
+      |  f
+      |    ("arg 4")
+      |
+      |  f
+      |   ("no arg 5")
+      |
+      |  f
+      |
+      |    ("no arg 6")
+      |}
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  BlockExpression
+      |    PsiElement({)('{')
+      |    PsiWhiteSpace('\n   ')
+      |    ReferenceExpression: indentation
+      |      PsiElement(identifier)('indentation')
+      |    PsiWhiteSpace('\n\n  ')
+      |    MethodCall
+      |      MethodCall
+      |        ReferenceExpression: f
+      |          PsiElement(identifier)('f')
+      |        ArgumentList
+      |          PsiElement(()('(')
+      |          StringLiteral
+      |            PsiElement(string content)('"arg 1"')
+      |          PsiElement())(')')
+      |      PsiWhiteSpace('\n    ')
+      |      ArgumentList
+      |        PsiElement(()('(')
+      |        StringLiteral
+      |          PsiElement(string content)('"arg 2"')
+      |        PsiElement())(')')
+      |    PsiWhiteSpace('\n   ')
+      |    ExpressionInParenthesis
+      |      PsiElement(()('(')
+      |      StringLiteral
+      |        PsiElement(string content)('"no arg 3"')
+      |      PsiElement())(')')
+      |    PsiWhiteSpace('\n\n  ')
+      |    MethodCall
+      |      ReferenceExpression: f
+      |        PsiElement(identifier)('f')
+      |      PsiWhiteSpace('\n    ')
+      |      ArgumentList
+      |        PsiElement(()('(')
+      |        StringLiteral
+      |          PsiElement(string content)('"arg 4"')
+      |        PsiElement())(')')
+      |    PsiWhiteSpace('\n\n  ')
+      |    ReferenceExpression: f
+      |      PsiElement(identifier)('f')
+      |    PsiWhiteSpace('\n   ')
+      |    ExpressionInParenthesis
+      |      PsiElement(()('(')
+      |      StringLiteral
+      |        PsiElement(string content)('"no arg 5"')
+      |      PsiElement())(')')
+      |    PsiWhiteSpace('\n\n  ')
+      |    ReferenceExpression: f
+      |      PsiElement(identifier)('f')
+      |    PsiWhiteSpace('\n\n    ')
+      |    ExpressionInParenthesis
+      |      PsiElement(()('(')
+      |      StringLiteral
+      |        PsiElement(string content)('"no arg 6"')
+      |      PsiElement())(')')
+      |    PsiWhiteSpace('\n')
+      |    PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_second_brace_argument_list_on_next_line(): Unit = checkTree(
+    """
+      |{
+      |   indentation
+      |
+      |  f{"arg 1"}
+      |    {"arg 2"}
+      |   {"no arg 3"}
+      |
+      |  f
+      |    {"arg 4"}
+      |
+      |  f
+      |   {"no arg 5"}
+      |
+      |  f
+      |
+      |    {"no arg 6"}
+      |}
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  BlockExpression
+      |    PsiElement({)('{')
+      |    PsiWhiteSpace('\n   ')
+      |    ReferenceExpression: indentation
+      |      PsiElement(identifier)('indentation')
+      |    PsiWhiteSpace('\n\n  ')
+      |    MethodCall
+      |      MethodCall
+      |        ReferenceExpression: f
+      |          PsiElement(identifier)('f')
+      |        ArgumentList
+      |          BlockExpression
+      |            PsiElement({)('{')
+      |            StringLiteral
+      |              PsiElement(string content)('"arg 1"')
+      |            PsiElement(})('}')
+      |      PsiWhiteSpace('\n    ')
+      |      ArgumentList
+      |        BlockExpression
+      |          PsiElement({)('{')
+      |          StringLiteral
+      |            PsiElement(string content)('"arg 2"')
+      |          PsiElement(})('}')
+      |    PsiWhiteSpace('\n   ')
+      |    BlockExpression
+      |      PsiElement({)('{')
+      |      StringLiteral
+      |        PsiElement(string content)('"no arg 3"')
+      |      PsiElement(})('}')
+      |    PsiWhiteSpace('\n\n  ')
+      |    MethodCall
+      |      ReferenceExpression: f
+      |        PsiElement(identifier)('f')
+      |      PsiWhiteSpace('\n    ')
+      |      ArgumentList
+      |        BlockExpression
+      |          PsiElement({)('{')
+      |          StringLiteral
+      |            PsiElement(string content)('"arg 4"')
+      |          PsiElement(})('}')
+      |    PsiWhiteSpace('\n\n  ')
+      |    ReferenceExpression: f
+      |      PsiElement(identifier)('f')
+      |    PsiWhiteSpace('\n   ')
+      |    BlockExpression
+      |      PsiElement({)('{')
+      |      StringLiteral
+      |        PsiElement(string content)('"no arg 5"')
+      |      PsiElement(})('}')
+      |    PsiWhiteSpace('\n\n  ')
+      |    ReferenceExpression: f
+      |      PsiElement(identifier)('f')
+      |    PsiWhiteSpace('\n\n    ')
+      |    BlockExpression
+      |      PsiElement({)('{')
+      |      StringLiteral
+      |        PsiElement(string content)('"no arg 6"')
+      |      PsiElement(})('}')
+      |    PsiWhiteSpace('\n')
+      |    PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_blub(): Unit = checkTree(
+    """
+      |object Test {
+      |  def unbox(x) = s match {
+      |    case Unfold() =>
+      |      val s1 = s
+      |      val f1 = f
+      |      (s, f)
+      |  }
+      |}
+      |""".stripMargin,
+    """
+      |
+      |""".stripMargin
+  )
 }

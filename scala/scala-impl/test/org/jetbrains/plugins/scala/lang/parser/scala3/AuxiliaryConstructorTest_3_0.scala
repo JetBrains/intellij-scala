@@ -281,7 +281,7 @@ class AuxiliaryConstructorTest_3_0 extends AuxiliaryConstructorTestBase with Sim
       |  PsiWhiteSpace('\n')""".stripMargin
   )
 
-  override   def test_correct_single_expression_no_braces_2_unindented_body(): Unit = checkTree(
+  override def test_correct_single_expression_no_braces_2_unindented_body(): Unit = checkTree(
     """
       |class Test {
       |  def this() =

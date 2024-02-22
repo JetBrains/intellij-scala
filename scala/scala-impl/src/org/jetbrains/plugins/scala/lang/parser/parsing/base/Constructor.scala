@@ -30,10 +30,14 @@ object Constructor extends ParsingRule {
     }
 
     if (builder.getTokenType == ScalaTokenTypes.tLPARENTHESIS) {
-      if (!builder.newlineBeforeCurrentToken)
-        ArgumentExprs()
-      while (builder.getTokenType == ScalaTokenTypes.tLPARENTHESIS && (!isAnnotation || annotationAllowed) && !builder.newlineBeforeCurrentToken) {
-        ArgumentExprs()
+      if (ArgumentExprs())
+
+      while (
+        builder.getTokenType == ScalaTokenTypes.tLPARENTHESIS &&
+          (!isAnnotation || annotationAllowed) &&
+          ArgumentExprs()
+      ) {
+        // already parsed ArgumentExprs
       }
     }
 

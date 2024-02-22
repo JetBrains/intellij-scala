@@ -23,6 +23,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 object ArgumentExprs extends ParsingRule {
 
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
+    if (!canContinueWithArgumentExprs) {
+      return false
+    }
     val argMarker = builder.mark()
     builder.getTokenType match {
       case ScalaTokenTypes.tLPARENTHESIS =>
@@ -49,17 +52,22 @@ object ArgumentExprs extends ParsingRule {
         argMarker.done(ScalaElementType.ARG_EXPRS)
         true
       case ScalaTokenTypes.tLBRACE =>
-        val blockCantBeArgs = builder.twoNewlinesBeforeCurrentToken || builder.isScala3 && builder.newlineBeforeCurrentToken
-        if (blockCantBeArgs) {
-          argMarker.rollbackTo()
-          return false
-        }
         BlockExpr()
         argMarker.done(ScalaElementType.ARG_EXPRS)
         true
       case _ =>
         argMarker.drop()
         false
+    }
+  }
+
+  def canContinueWithArgumentExprs(implicit builder: ScalaPsiBuilder): Boolean = {
+    if (builder.isScala3IndentationBasedSyntaxEnabled) {
+      !builder.newlineBeforeCurrentToken ||
+        builder.isIndentHere && !builder.twoNewlinesBeforeCurrentToken
+    } else {
+      builder.getTokenType == ScalaTokenTypes.tLBRACE && !builder.twoNewlinesBeforeCurrentToken ||
+        !builder.newlineBeforeCurrentToken
     }
   }
 }
