@@ -101,7 +101,7 @@ object ScForAnnotator extends ElementAnnotator[ScFor] {
           desugaredGenerator.callExpr.foreach { e =>
             ScReferenceAnnotator.qualifierPart(e, typeAware)(delegateHolderFor(generatorToken, session))
 
-            e.qualifier.flatMap(_.asOptionOf[ScMethodCall].map(_.getInvokedExpr).collect { case re: ScReferenceExpression => re }).foreach {
+            e.qualifier.flatMap(_.asOptionOf[ScMethodCall].map(_.getInvokedExpr).collect { case re: ScReferenceExpression if re.refName == "withFilter" => re }).foreach {
               ScReferenceAnnotator.qualifierPart(_, typeAware)(delegateHolderFor(generatorToken, session))
             }
           }
