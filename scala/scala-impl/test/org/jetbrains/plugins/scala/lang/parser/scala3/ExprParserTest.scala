@@ -2193,7 +2193,147 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
       |}
       |""".stripMargin,
     """
-      |
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScObject: Test
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(object)('object')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('Test')
+      |    PsiWhiteSpace(' ')
+      |    ExtendsBlock
+      |      ScTemplateBody
+      |        PsiElement({)('{')
+      |        PsiWhiteSpace('\n  ')
+      |        ScFunctionDefinition: unbox
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(def)('def')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(identifier)('unbox')
+      |          Parameters
+      |            ParametersClause
+      |              PsiElement(()('(')
+      |              Parameter: x
+      |                AnnotationsList
+      |                  <empty list>
+      |                Modifiers
+      |                  <empty list>
+      |                PsiElement(identifier)('x')
+      |                PsiErrorElement:':' expected
+      |                  <empty list>
+      |              PsiElement())(')')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(=)('=')
+      |          PsiWhiteSpace(' ')
+      |          MatchStatement
+      |            ReferenceExpression: s
+      |              PsiElement(identifier)('s')
+      |            PsiWhiteSpace(' ')
+      |            PsiElement(match)('match')
+      |            PsiWhiteSpace(' ')
+      |            PsiElement({)('{')
+      |            PsiWhiteSpace('\n    ')
+      |            CaseClauses
+      |              CaseClause
+      |                PsiElement(case)('case')
+      |                PsiWhiteSpace(' ')
+      |                ConstructorPattern
+      |                  CodeReferenceElement: Unfold
+      |                    PsiElement(identifier)('Unfold')
+      |                  Pattern Argument List
+      |                    PsiElement(()('(')
+      |                    PsiElement())(')')
+      |                PsiWhiteSpace(' ')
+      |                PsiElement(=>)('=>')
+      |                PsiWhiteSpace('\n      ')
+      |                BlockOfExpressions
+      |                  ScPatternDefinition: s1
+      |                    AnnotationsList
+      |                      <empty list>
+      |                    Modifiers
+      |                      <empty list>
+      |                    PsiElement(val)('val')
+      |                    PsiWhiteSpace(' ')
+      |                    ListOfPatterns
+      |                      ReferencePattern: s1
+      |                        PsiElement(identifier)('s1')
+      |                    PsiWhiteSpace(' ')
+      |                    PsiElement(=)('=')
+      |                    PsiWhiteSpace(' ')
+      |                    ReferenceExpression: s
+      |                      PsiElement(identifier)('s')
+      |                  PsiWhiteSpace('\n      ')
+      |                  ScPatternDefinition: f1
+      |                    AnnotationsList
+      |                      <empty list>
+      |                    Modifiers
+      |                      <empty list>
+      |                    PsiElement(val)('val')
+      |                    PsiWhiteSpace(' ')
+      |                    ListOfPatterns
+      |                      ReferencePattern: f1
+      |                        PsiElement(identifier)('f1')
+      |                    PsiWhiteSpace(' ')
+      |                    PsiElement(=)('=')
+      |                    PsiWhiteSpace(' ')
+      |                    ReferenceExpression: f
+      |                      PsiElement(identifier)('f')
+      |                  PsiWhiteSpace('\n      ')
+      |                  Tuple
+      |                    PsiElement(()('(')
+      |                    ReferenceExpression: s
+      |                      PsiElement(identifier)('s')
+      |                    PsiElement(,)(',')
+      |                    PsiWhiteSpace(' ')
+      |                    ReferenceExpression: f
+      |                      PsiElement(identifier)('f')
+      |                    PsiElement())(')')
+      |            PsiWhiteSpace('\n  ')
+      |            PsiElement(})('}')
+      |        PsiWhiteSpace('\n')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_match(): Unit = checkTree(
+    """
+      |x match
+      |case y =>
+      |  a
+      | b
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  MatchStatement
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(match)('match')
+      |    PsiWhiteSpace('\n')
+      |    CaseClauses
+      |      CaseClause
+      |        PsiElement(case)('case')
+      |        PsiWhiteSpace(' ')
+      |        ReferencePattern: y
+      |          PsiElement(identifier)('y')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=>)('=>')
+      |        PsiWhiteSpace('\n  ')
+      |        BlockOfExpressions
+      |          ReferenceExpression: a
+      |            PsiElement(identifier)('a')
+      |  PsiWhiteSpace('\n ')
+      |  ReferenceExpression: b
+      |    PsiElement(identifier)('b')
+      |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
 }

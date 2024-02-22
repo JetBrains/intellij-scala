@@ -49,11 +49,12 @@ abstract class CaseClause extends ParsingRule {
 }
 
 object CaseClause extends CaseClause {
-  override protected def parseBody()(implicit builder: ScalaPsiBuilder): Unit = {
-    if (!Block.Braceless(stopOnOutdent = false, needNode = true)) {
-      builder.wrongExpressionError()
+  override protected def parseBody()(implicit builder: ScalaPsiBuilder): Unit =
+    builder.withIndentationRegion(builder.newBracelessIndentationRegionHere) {
+      if (!Block.Braceless(stopOnOutdent = false, needNode = true)) {
+        builder.wrongExpressionError()
+      }
     }
-  }
 }
 
 /**
@@ -69,15 +70,16 @@ object CaseClause extends CaseClause {
  * }}}
  */
 object CaseClauseInBracelessCaseClauses extends CaseClause {
-  override protected def parseBody()(implicit builder: ScalaPsiBuilder): Unit = {
-    BlockInIndentationRegion()
+  override protected def parseBody()(implicit builder: ScalaPsiBuilder): Unit =
+  builder.withIndentationRegion(builder.newBracelessIndentationRegionHere) {
+      BlockInIndentationRegion()
   }
 
   override protected def isCaseKeywordAcceptable(implicit builder: ScalaPsiBuilder): Boolean = {
     // using `forall`, not `exists` because if there is no new line before case, it still can be allowed, e.g. here:
     // 1 match
     //   case 1 => 11 case 2 => 22
-    !builder.isOutdentHere
+    !builder.isOutdentForCaseKeywordInCaseClause
   }
 }
 

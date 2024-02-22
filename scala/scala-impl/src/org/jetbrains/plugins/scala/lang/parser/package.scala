@@ -161,8 +161,24 @@ package object parser {
     def isOutdentHere: Boolean =
       repr.currentIndentationRegion.isOutdent(repr.findPrecedingIndentation) || repr.eof()
 
+    def isOutdentForCaseKeywordInCaseClause: Boolean = {
+      val region = repr.currentIndentationRegion match {
+        case IndentationRegion.BracelessCaseClause(region) => region
+        case region => region
+      }
+      region.isOutdent(repr.findPrecedingIndentation) || repr.eof()
+    }
+
     def newExpressionRegionHere: IndentationRegion =
       newBracelessIndentationRegionHere.getOrElse(IndentationRegion.SingleExpr(repr.currentIndentationRegion))
+
+    def newCaseClausesRegionHere: Option[IndentationRegion] = {
+      val region = repr.currentIndentationRegion
+      repr.findPrecedingIndentation
+        .filter(repr => !region.isIndent(repr) && !region.isOutdent(repr))
+        .map(IndentationRegion.Indented(_)(Some(repr.currentIndentationRegion)))
+        .map(IndentationRegion.BracelessCaseClause)
+    }
 
     def newBracelessIndentationRegionHere: Option[IndentationRegion] =
       repr.findPrecedingIndentation

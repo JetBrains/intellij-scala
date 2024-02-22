@@ -21,14 +21,6 @@ object BlockInIndentationRegion extends ParsingRule {
         case _ if builder.isOutdentHere =>
           return
 
-        case _ if builder.hasPrecedingIndentation && !builder.isIndentHere =>
-          // the block must be indented one more than the indentation of `case`
-          //
-          // x match
-          //   case 1 =>
-          //   1   // <- no outdent here, but still not a part of the case block
-          return
-
         case ScalaTokenTypes.tRPARENTHESIS | ScalaTokenTypes.tRBRACE =>
           return
 

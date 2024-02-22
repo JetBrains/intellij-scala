@@ -66,6 +66,27 @@ object IndentationRegion {
   }
 
   /**
+   * From the reference:
+   *
+   * The indentation rules for match expressions and catch clauses are refined as follows:
+   *
+   * - An indentation region is opened after a match or catch also if the following case appears
+   *   at the indentation width that's current for the match itself.
+   * - In that case, the indentation region closes at the first token at that same indentation
+   *   width that is not a case, or at any token with a smaller indentation width, whichever comes first.
+   */
+  final case class BracelessCaseClause(inner: Indented) extends IndentationRegion {
+    override def isBraced: Boolean = false
+    override def isValidEndMarkerIndentation(indent: IndentationWidth): Boolean = inner.isValidEndMarkerIndentation(indent)
+
+    override def isOutdent(indent: IndentationWidth): Boolean = indent <= inner.indentation // here is the difference
+    override def isIndent(indent: IndentationWidth): Boolean = inner.isIndent(indent)
+
+    override def isOutdentForLeadingInfixOperator(indent: IndentationWidth): Boolean =
+      inner.isOutdentForLeadingInfixOperator(indent)
+  }
+
+  /**
    * Normally indented region
    */
   final case class Indented(indentation: IndentationWidth)(val outerRegion: Option[IndentationRegion]) extends IndentationRegion {
@@ -81,6 +102,7 @@ object IndentationRegion {
         def outdents(region: IndentationRegion): Boolean = region match {
           case SingleExpr(outer) => outdents(outer)
           case Indented(outerIndent) => indent <= outerIndent
+          case BracelessCaseClause(outerIndent) => indent <= outerIndent.indentation
           case _: Braced => false
         }
 

@@ -181,6 +181,8 @@ class ScalaPsiBuilderImpl(
         enterBracedRegion()
       case _: IndentationRegion.SingleExpr =>
         // single expression regions have the indentation level of the previous region
+      case _: IndentationRegion.BracelessCaseClause =>
+        // braceless case clauses have the indentation level of the previous region
     }
 
     indentationRegionStack ::= region
