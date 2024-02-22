@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes
 import org.jetbrains.plugins.scala.ExtensionPointDeclaration
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
-import org.jetbrains.plugins.scala.lang.psi.types.ScParameterizedType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
 
 trait GenericTypeNamesProvider {
 
@@ -17,7 +17,7 @@ object GenericTypeNamesProvider extends ExtensionPointDeclaration[GenericTypeNam
   def providers: Seq[GenericTypeNamesProvider] = implementations
 
   // TODO: extract this, due to it doesn't relate to this Extension point and only confuses
-  def isInheritor(`type`: ScParameterizedType, baseFqns: String*): Boolean =
+  def isInheritor(`type`: ScType, baseFqns: String*): Boolean =
     `type`.extractClass.exists { clazz =>
       val scope = ElementScope(clazz.getProject)
 

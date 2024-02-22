@@ -36,7 +36,11 @@ class FromTypeToTypeNamesProvider extends TwoTypesNamesProvider {
     super.isValid(`type`) &&
       (`type` match {
         case FunctionType(_, Seq(_)) => true
-        case _ => isInheritor(`type`, "scala.collection.GenMap", "java.util.Map")
+        case _ => isInheritor(`type`,
+          "scala.collection.GenMap",
+          "scala.collection.Map", // Gen* collection types have been removed since 2.13.0
+          "scala.collection.MapView", // View type hierarchy was changed in 2.13.0: https://docs.scala-lang.org/overviews/core/collections-migration-213.html
+          "java.util.Map",
+        )
       })
 }
-

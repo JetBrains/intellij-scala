@@ -1,17 +1,17 @@
-package org.jetbrains.plugins.scala
-package refactoring
-package nameSuggester
+package org.jetbrains.plugins.scala.refactoring.nameSuggester
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.ScalaNameSuggestionProvider
 import org.jetbrains.plugins.scala.project.ScalaFeatures
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert.{assertEquals, assertNotNull}
+import org.junit.runner.RunWith
 
 import scala.jdk.CollectionConverters._
 
-class NameSuggesterTest extends AbstractNameSuggesterTest {
+abstract class NameSuggesterTest extends AbstractNameSuggesterTest {
 
   def testStandard(): Unit = {
     testNamesByType("Boolean", "bool")
@@ -37,14 +37,20 @@ class NameSuggesterTest extends AbstractNameSuggesterTest {
     testNamesByType("Seq[Int]", "ints", "seq")
     testNamesByType("scala.collection.immutable.Vector[String]", "strings", "vector")
     testNamesByType("scala.collection.SeqLike[String]", "strings", "like", "seqLike")
-    testNamesByType("scala.collection.IterableView[String]", "strings", "view", "iterableView")
   }
+
+  // Views were simplified in 2.13: https://docs.scala-lang.org/overviews/core/collections-migration-213.html
+  protected def doTestViews(): Unit
+  def testViews(): Unit = doTestViews()
 
   def testCollectionsOfCollections(): Unit = {
     testNamesByType("List[List[String]]", "list")
     testNamesByType("Set[List[Object]]", "set")
-    testNamesByType("scala.collection.IterableView[Set[List[Int]]]", "view", "iterableView")
   }
+
+  // Views were simplified in 2.13: https://docs.scala-lang.org/overviews/core/collections-migration-213.html
+  protected def doTestViewsOfCollections(): Unit
+  def testViewsOfCollections(): Unit = doTestViewsOfCollections()
 
   def testJavaCollections(): Unit = {
     testNamesByType("java.util.List[String]", "strings", "list")
@@ -81,9 +87,45 @@ class NameSuggesterTest extends AbstractNameSuggesterTest {
     testNamesByType("scala.util.Either[Int, String]", "intOrString", "either")
   }
 
-  private def testNamesByType(typeElementText: String, expected: String*): Unit = {
+  protected def testNamesByType(typeElementText: String, expected: String*): Unit = {
     val typeElement = createTypeElementFromText(typeElementText, ScalaFeatures.onlyByVersion(version))(getProject)
     testNamesByElement(typeElement, expected)
+  }
+}
+
+@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_2_11,
+  TestScalaVersion.Scala_2_12,
+))
+class NameSuggesterTest_Before_2_13 extends NameSuggesterTest {
+  override protected def doTestViews(): Unit = {
+    testNamesByType("scala.collection.IterableView[String]", "strings", "view", "iterableView")
+    testNamesByType("scala.collection.SeqView[String]", "strings", "view", "seqView")
+  }
+
+  override protected def doTestViewsOfCollections(): Unit = {
+    testNamesByType("scala.collection.IterableView[Set[List[Int]]]", "view", "iterableView")
+    testNamesByType("scala.collection.SeqView[Set[List[Int]]]", "view", "seqView")
+  }
+}
+
+@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_2_13,
+  TestScalaVersion.Scala_3_Latest,
+))
+class NameSuggesterTest_After_2_13 extends NameSuggesterTest {
+  override protected def doTestViews(): Unit = {
+    testNamesByType("scala.collection.View[String]", "strings", "view")
+    testNamesByType("scala.collection.SeqView[String]", "strings", "view", "seqView")
+    testNamesByType("scala.collection.MapView[String, Int]", "stringToInt", "view", "mapView")
+  }
+
+  override protected def doTestViewsOfCollections(): Unit = {
+    testNamesByType("scala.collection.View[Set[List[Int]]]", "view")
+    testNamesByType("scala.collection.SeqView[Set[List[Int]]]", "view", "seqView")
+    testNamesByType("scala.collection.MapView[Set[List[Int]], Vector[Set[String]]]", "setToVector", "view", "mapView")
   }
 }
 
