@@ -160,11 +160,13 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
             TargetPresentation.builder(text).presentation()
           }
 
-          new PsiTargetNavigator(siblings.toArray)
-            .selection(selection)
-            .presentationProvider(renderer)
-            .createPopup(projectContext.project, title, processor)
-            .showInBestPositionFor(editor)
+          invokeLater {
+            new PsiTargetNavigator(siblings.toArray)
+              .selection(selection)
+              .presentationProvider(renderer)
+              .createPopup(projectContext.project, title, processor)
+              .showInBestPositionFor(editor)
+          }
         }
     }
 
