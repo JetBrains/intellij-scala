@@ -4,7 +4,7 @@ import com.intellij.codeInsight.daemon.impl.{HighlightInfo, HighlightInfoType, U
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.application.{ModalityState, ReadAction}
 import com.intellij.openapi.components.Service
-import com.intellij.openapi.editor.{Document, Editor, EditorFactory}
+import com.intellij.openapi.editor.{Document, EditorFactory}
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util.TextRange
@@ -12,7 +12,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.problems.WolfTheProblemSolver
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.util.concurrency.annotations.{RequiresReadLock, RequiresWriteLock}
+import com.intellij.util.concurrency.annotations.RequiresReadLock
 import com.intellij.xml.util.XmlStringUtil
 import org.jetbrains.annotations.{Nls, Nullable}
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
@@ -23,7 +23,6 @@ import org.jetbrains.plugins.scala.compiler.diagnostics.Action
 import org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlighting.RangeInfo
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, inReadAction, invokeLater}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed.UnusedImportReportedByCompilerKey
@@ -199,32 +198,13 @@ private final class ExternalHighlightersService(project: Project) { self =>
   }
 
   private def createIntentionAction(document: Document, action: Action): IntentionAction = {
+    val text = action.title.capitalize
     val markers = action.edit.changes.map { te =>
       val startOffset = document.getLineStartOffset(te.start.line - 1) + te.start.column - 1
       val endOffset = document.getLineStartOffset(te.end.line - 1) + te.end.column - 1
       (document.createRangeMarker(startOffset, endOffset), te.newText)
     }
-
-    new IntentionAction {
-      override def getText: String = action.title.capitalize
-
-      override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
-        !project.isDisposed && editor.getDocument.isWritable && file.isWritable && file.is[ScalaFile] &&
-          markers.forall(_._1.isValid)
-      }
-
-      @RequiresWriteLock
-      override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
-        markers.foreach { case (marker, text) =>
-          editor.getDocument.replaceString(marker.getStartOffset, marker.getEndOffset, text)
-          marker.dispose()
-        }
-      }
-
-      override def getFamilyName: String = getText
-
-      override def startInWriteAction(): Boolean = true
-    }
+    new CompilerDiagnosticIntentionAction(text, markers)
   }
 
   @RequiresReadLock
