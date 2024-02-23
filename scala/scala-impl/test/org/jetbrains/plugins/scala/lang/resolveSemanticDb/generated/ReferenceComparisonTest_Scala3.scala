@@ -1621,7 +1621,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_indent2(): Unit = doTest("indent2", true)
   def test_indent3(): Unit = doTest("indent3", true)
   def test_indent4(): Unit = doTest("indent4", true)
-  def test_indented_parens(): Unit = doTest("indented-parens", false)
+  def test_indented_parens(): Unit = doTest("indented-parens", true)
   def test_inf(): Unit = doTest("inf", true)
   def test_infer(): Unit = doTest("infer", true)
   def test_infer1(): Unit = doTest("infer1", true)
@@ -2740,11 +2740,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_tagging(): Unit = doTest("tagging", false) // #opaque
   def test_tailcall(): Unit = doTest("tailcall", true)
   def test_tailrec(): Unit = doTest("tailrec", false)
-
-  //TODO: should be fixed after https://youtrack.jetbrains.com/issue/SCL-21846/
-  // the issue existed before, but became visible after fixing https://youtrack.jetbrains.com/issue/SCL-21835
   def test_tailrec_super(): Unit = doTest("tailrec-super", false)
-
   def test_tangledCompanion(): Unit = doTest("tangledCompanion", true)
   def test_targetName(): Unit = doTest("targetName", true)
   def test_targetName_infer_result(): Unit = doTest("targetName-infer-result", true) // #enum
