@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.TypeParamClause
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.CaseClausesWithoutBraces
 import org.jetbrains.plugins.scala.lang.parser.util.InBracelessScala3
-import org.jetbrains.plugins.scala.lang.parser.{IndentationWidth, ScCodeBlockElementType, ScalaElementType}
+import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, ScalaElementType}
 
 import scala.util.chaining.scalaUtilChainingOps
 
@@ -27,7 +27,7 @@ object ColonArgument {
 
   def apply(needArgNode: Boolean)(implicit builder: ScalaPsiBuilder): Boolean =
     builder.getTokenType match {
-      case InBracelessScala3(ScalaTokenTypes.tCOLON) if builder.findPreviousNewLine.isEmpty =>
+      case InBracelessScala3(ScalaTokenTypes.tCOLON) if builder.features.`optional braces for method arguments` && builder.findPreviousNewLine.isEmpty =>
         val argMarker = builder.mark()
         val blockExprMarker = builder.mark()
 

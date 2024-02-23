@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.project
 
-import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.util.{Key, Ref}
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.annotations.Nullable
@@ -33,6 +32,8 @@ trait ScalaFeatures extends Any {
   def `leading infix operator`: Boolean
   def `? as wildcard marker`: Boolean
   def `case in pattern bindings`: Boolean
+
+  def `optional braces for method arguments`: Boolean
 }
 
 object ScalaFeatures {
@@ -83,6 +84,9 @@ object ScalaFeatures {
     def `case in pattern bindings`: Boolean =
       `in >= 2.12.15 or 2.13.7 or 3` || `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
 
+    def `optional braces for method arguments`: Boolean =
+      indentationBasedSyntaxEnabled && languageLevel >= ScalaLanguageLevel.Scala_3_3
+
     def copy(
       version:                        ScalaVersion,
       hasSource3Flag:                 Boolean = this.hasSource3Flag,
@@ -127,6 +131,7 @@ object ScalaFeatures {
     override def `leading infix operator`: Boolean               = delegate.`leading infix operator`
     override def `? as wildcard marker`: Boolean                 = delegate.`? as wildcard marker`
     override def `case in pattern bindings`: Boolean             = delegate.`case in pattern bindings`
+    override def `optional braces for method arguments`: Boolean          = delegate.`optional braces for method arguments`
   }
 
   private val minorVersion6  = Version("6")
@@ -164,7 +169,7 @@ object ScalaFeatures {
     // It can be turned off by giving any of the options -no-indent, -old-syntax and -language:Scala2
     // (NOTE: looks like -language:Scala2 doesn't affect anything in the compiler)
     val indentationBasedSyntaxEnabled: Boolean =
-    isScala3 && !(hasNoIndentFlag || hasOldSyntaxFlag)
+      isScala3 && !(hasNoIndentFlag || hasOldSyntaxFlag)
 
     val warnAboutDeprecatedInfixCallsEnabled: Boolean =
       isScala3 && hasDeprecationFlag && hasSourceFutureFlag

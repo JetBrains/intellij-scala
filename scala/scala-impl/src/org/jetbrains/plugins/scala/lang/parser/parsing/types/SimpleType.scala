@@ -96,7 +96,7 @@ trait SimpleType {
             else tupleMarker.done(ScalaElementType.TYPE_IN_PARENTHESIS)
         }
         builder.restoreNewlinesState()
-      case ScalaTokenTypes.tUNDER if builder.underscoreWildcardsDisabled =>
+      case ScalaTokenTypes.tUNDER if builder.features.hasUnderscoreWildcardsDisabled =>
         val simpleTypeMarker = builder.mark()
         val refMarker = builder.mark()
         builder.remapCurrentToken(ScalaTokenTypes.tIDENTIFIER)
@@ -108,7 +108,7 @@ trait SimpleType {
            ScalaTokenTypes.kSUPER =>
         val newMarker = builder.mark()
         val refMarker = builder.mark()
-        if (builder.underscoreWildcardsDisabled
+        if (builder.features.hasUnderscoreWildcardsDisabled
           && (builder.getTokenText == "+" || builder.getTokenText == "-")) {
           builder.advanceLexer()
           if (builder.getTokenText == "_") {

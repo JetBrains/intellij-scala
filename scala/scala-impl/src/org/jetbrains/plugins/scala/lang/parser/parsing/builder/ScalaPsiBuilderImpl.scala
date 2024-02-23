@@ -61,11 +61,9 @@ class ScalaPsiBuilderImpl(
     }
   }
 
-  override final lazy val underscoreWildcardsDisabled: Boolean = features.hasUnderscoreWildcardsDisabled
+  final lazy val scalaLanguageLevel: ScalaLanguageLevel = features.languageLevel
 
-  final lazy val scalaLanguageLevel: Option[ScalaLanguageLevel] = Option(features.languageLevel)
-
-  final private lazy val isAtLeast2_12: Boolean = scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_2_12)
+  final private lazy val isAtLeast2_12: Boolean = scalaLanguageLevel >= ScalaLanguageLevel.Scala_2_12
 
   override final def isTrailingComma: Boolean = getTokenType match {
     case `tCOMMA` => features.hasTrailingCommasEnabled ||

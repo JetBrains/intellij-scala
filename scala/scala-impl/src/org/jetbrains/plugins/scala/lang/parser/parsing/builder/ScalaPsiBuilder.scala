@@ -38,8 +38,6 @@ trait ScalaPsiBuilder extends PsiBuilder {
 
   def features: ScalaFeatures
 
-  def underscoreWildcardsDisabled: Boolean
-
   def isScala3IndentationBasedSyntaxEnabled: Boolean
 
   def findPrecedingIndentation: Option[IndentationWidth]

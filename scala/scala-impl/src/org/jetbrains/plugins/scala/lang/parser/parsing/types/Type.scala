@@ -26,7 +26,7 @@ object Type extends Type {
   //   The Scala 3.1 behavior is already available today under the -strict setting.
   //   In Scala >2.13.6 or >2.12.14 and when -Xsource:3 is given then ? is also ok
   def parseWildcardStartToken()(implicit builder: ScalaPsiBuilder): Boolean = {
-    val underscoresDisabled  = builder.underscoreWildcardsDisabled
+    val underscoresDisabled  = builder.features.hasUnderscoreWildcardsDisabled
     val qMarkWildcardEnabled = builder.features.`? as wildcard marker`
 
     if (!underscoresDisabled && builder.getTokenType == ScalaTokenTypes.tUNDER) {
