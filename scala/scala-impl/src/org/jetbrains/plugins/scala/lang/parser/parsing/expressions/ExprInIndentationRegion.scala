@@ -30,9 +30,6 @@ sealed trait ExprInIndentationRegion extends ParsingRule {
     if (!builder.isScala3 || !builder.isScala3IndentationBasedSyntaxEnabled) {
       return parseSingleExpr()
     }
-    if (builder.getTokenType == ScalaTokenTypes.tLBRACE) {
-      return parseSingleExpr()
-    }
 
     val prevIndent = builder.findPrecedingIndentation
     val indentationForExprBlock = prevIndent match {

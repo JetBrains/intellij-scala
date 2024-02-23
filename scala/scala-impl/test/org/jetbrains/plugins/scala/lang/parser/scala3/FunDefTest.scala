@@ -529,4 +529,49 @@ class FunDefTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')""".stripMargin
   )
 
+  def test_two_indented_blocks(): Unit = checkTree(
+    """
+      |def test =
+      |  {
+      |    a
+      |  }
+      |  {
+      |    b
+      |  }
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScFunctionDefinition: test
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('test')
+      |    Parameters
+      |      <empty list>
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    BlockExpression
+      |      PsiWhiteSpace('\n  ')
+      |      BlockExpression
+      |        PsiElement({)('{')
+      |        PsiWhiteSpace('\n    ')
+      |        ReferenceExpression: a
+      |          PsiElement(identifier)('a')
+      |        PsiWhiteSpace('\n  ')
+      |        PsiElement(})('}')
+      |      PsiWhiteSpace('\n  ')
+      |      BlockExpression
+      |        PsiElement({)('{')
+      |        PsiWhiteSpace('\n    ')
+      |        ReferenceExpression: b
+      |          PsiElement(identifier)('b')
+      |        PsiWhiteSpace('\n  ')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }
