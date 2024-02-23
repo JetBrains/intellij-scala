@@ -74,11 +74,15 @@ object ResultExpr {
             Bindings()
             return parseFunctionEnd()
           case _ =>
-            resultMarker.drop()
             backupMarker.rollbackTo()
+            resultMarker.drop()
             return false
         }
-      case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER =>
+
+      case InScala3(ScalaTokenTypes.tIDENTIFIER) if isColonArgumentCall =>
+        backupMarker.drop()
+
+      case ScalaTokenTypes.tUNDER | ScalaTokenTypes.tIDENTIFIER =>
         val pmarker = builder.mark()
         return parseFunction(pmarker)
 
@@ -92,7 +96,6 @@ object ResultExpr {
             return parseFunctionContent(ScalaElementType.POLY_FUNCTION_EXPR)
           case _ =>
             backupMarker.rollbackTo()
-            return false
         }
       case _ =>
         backupMarker.drop()
@@ -100,4 +103,7 @@ object ResultExpr {
     resultMarker.drop()
     false
   }
+
+  private def isColonArgumentCall(implicit builder: ScalaPsiBuilder): Boolean =
+    builder.predict { ColonArgument(needArgNode = true)(_) }
 }

@@ -1339,4 +1339,51 @@ class FewerBracesParserTest extends SimpleScala3ParserTestBase {
   //endregion
   // ------------------------------------------------------
 
+  // SCL-22134
+  def test_color_arg_in_result_expr(): Unit = checkTree(
+    """
+      |giveThree: i =>
+      |  giveSevenIsRed: j =>
+      |    i
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  MethodCall
+      |    ReferenceExpression: giveThree
+      |      PsiElement(identifier)('giveThree')
+      |    ArgumentList
+      |      BlockExpression
+      |        PsiElement(:)(':')
+      |        PsiWhiteSpace(' ')
+      |        FunctionExpression
+      |          Parameters
+      |            ParametersClause
+      |              Parameter: i
+      |                PsiElement(identifier)('i')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(=>)('=>')
+      |          PsiWhiteSpace('\n  ')
+      |          BlockOfExpressions
+      |            MethodCall
+      |              ReferenceExpression: giveSevenIsRed
+      |                PsiElement(identifier)('giveSevenIsRed')
+      |              ArgumentList
+      |                BlockExpression
+      |                  PsiElement(:)(':')
+      |                  PsiWhiteSpace(' ')
+      |                  FunctionExpression
+      |                    Parameters
+      |                      ParametersClause
+      |                        Parameter: j
+      |                          PsiElement(identifier)('j')
+      |                    PsiWhiteSpace(' ')
+      |                    PsiElement(=>)('=>')
+      |                    PsiWhiteSpace('\n    ')
+      |                    BlockOfExpressions
+      |                      ReferenceExpression: i
+      |                        PsiElement(identifier)('i')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }
