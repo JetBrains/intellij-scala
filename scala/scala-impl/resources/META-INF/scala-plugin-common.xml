@@ -1482,24 +1482,28 @@
                          key="displayname.dataflow.analysis.constant.conditions"
                          groupPath="Scala" groupKey="group.dataflow.analysis"
                          shortName="DfaConstantConditions"
+                         isInternal="true"
                          level="WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.dfa.DfaNpeOnInvocationInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.dataflow.analysis.npe.on.invocation"
                          groupPath="Scala" groupKey="group.dataflow.analysis"
                          shortName="DfaNpeOnInvocation"
+                         isInternal="true"
                          level="WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.dfa.DfaNullableToNotNullParamInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.dataflow.analysis.nullable.to.notnull"
                          groupPath="Scala" groupKey="group.dataflow.analysis"
                          shortName="DfaNullableToNotNullParam"
+                         isInternal="true"
                          level="WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.dfa.DfaNullableToUnannotatedParamInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.dataflow.analysis.nullable.to.unannotated"
                          groupPath="Scala" groupKey="group.dataflow.analysis"
                          shortName="DfaNullableToUnannotatedParam"
+                         isInternal="true"
                          level="WARNING" enabledByDefault="true" language="Scala"/>
         <!-- Collection inspections -->
         <!-- Size -->
