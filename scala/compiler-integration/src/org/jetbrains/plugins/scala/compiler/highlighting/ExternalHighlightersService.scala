@@ -178,7 +178,13 @@ private final class ExternalHighlightersService(project: Project) { self =>
     }
   }
 
-  private def highlightInfoBuilder(highlightType: HighlightInfoType, highlightRange: TextRange, @Nls description: String, diagnostics: List[Action]): HighlightInfo.Builder = {
+  private def highlightInfoBuilder(
+    document: Document,
+    highlightType: HighlightInfoType,
+    highlightRange: TextRange,
+    @Nls description: String,
+    diagnostics: List[Action]
+  ): HighlightInfo.Builder = {
     val builder = HighlightInfo.newHighlightInfo(highlightType)
       .range(highlightRange)
       .description(description)
@@ -186,33 +192,39 @@ private final class ExternalHighlightersService(project: Project) { self =>
       .group(ScalaCompilerPassId)
 
     diagnostics
-      .map(createIntentionAction)
+      .map(createIntentionAction(document, _))
       .foreach(builder.registerFix(_, null, null, TextRange.create(highlightRange.getStartOffset, highlightRange.getEndOffset), null))
 
     builder
   }
 
-  private def createIntentionAction(action: Action): IntentionAction = new IntentionAction {
-    override def getText: String = action.title.capitalize
-
-    override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean =
-      !project.isDisposed && editor.getDocument.isWritable && file.isWritable && file.is[ScalaFile]
-
-    @RequiresWriteLock
-    override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
-      var delta = 0
-      action.edit.changes.foreach { te =>
-        val document = editor.getDocument
-        val startOffset = document.getLineStartOffset(te.start.line - 1) + te.start.column - 1 + delta
-        val endOffset = document.getLineStartOffset(te.end.line - 1) + te.end.column - 1 + delta
-        document.replaceString(startOffset, endOffset, te.newText)
-        delta += te.newText.length - (endOffset - startOffset)
-      }
+  private def createIntentionAction(document: Document, action: Action): IntentionAction = {
+    val markers = action.edit.changes.map { te =>
+      val startOffset = document.getLineStartOffset(te.start.line - 1) + te.start.column - 1
+      val endOffset = document.getLineStartOffset(te.end.line - 1) + te.end.column - 1
+      (document.createRangeMarker(startOffset, endOffset), te.newText)
     }
 
-    override def getFamilyName: String = getText
+    new IntentionAction {
+      override def getText: String = action.title.capitalize
 
-    override def startInWriteAction(): Boolean = true
+      override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
+        !project.isDisposed && editor.getDocument.isWritable && file.isWritable && file.is[ScalaFile] &&
+          markers.forall(_._1.isValid)
+      }
+
+      @RequiresWriteLock
+      override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
+        markers.foreach { case (marker, text) =>
+          editor.getDocument.replaceString(marker.getStartOffset, marker.getEndOffset, text)
+          marker.dispose()
+        }
+      }
+
+      override def getFamilyName: String = getText
+
+      override def startInWriteAction(): Boolean = true
+    }
   }
 
   @RequiresReadLock
@@ -248,7 +260,7 @@ private final class ExternalHighlightersService(project: Project) { self =>
       val description = CompilerMessages.description(highlighting.message)
 
       def standardBuilder =
-        highlightInfoBuilder(highlighting.highlightType, highlightRange, description, highlighting.diagnostics)
+        highlightInfoBuilder(document, highlighting.highlightType, highlightRange, description, highlighting.diagnostics)
 
       val highlightInfo =
         if (CompilerMessages.isUnusedImport(description)) {
@@ -256,7 +268,7 @@ private final class ExternalHighlightersService(project: Project) { self =>
           val unusedImportRange = unusedImportElementRange(leaf)
           if (unusedImportRange != null) {
             // modify highlighting info to mimic Scala 2 unused import highlighting in Scala 3
-            highlightInfoBuilder(HighlightInfoType.UNUSED_SYMBOL, unusedImportRange, ScalaInspectionBundle.message("unused.import.statement"), Nil)
+            highlightInfoBuilder(document, HighlightInfoType.UNUSED_SYMBOL, unusedImportRange, ScalaInspectionBundle.message("unused.import.statement"), Nil)
               .registerFix(new ScalaOptimizeImportsFix, null, null, unusedImportRange, null)
           } else standardBuilder
         } else standardBuilder
