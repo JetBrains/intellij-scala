@@ -6,6 +6,8 @@ package argument
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
+import com.intellij.psi.tree.IElementType
+import com.intellij.psi.util.PsiUtil
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -24,9 +26,47 @@ final class BlockExpressionToArgumentIntention extends PsiElementBaseIntentionAc
     element match {
       case Parent((block: ScBlockExpr) & Parent(list: ScArgumentExprList))
         if list.exprs.size == 1 && block.caseClauses.isEmpty =>
-        IntentionAvailabilityChecker.checkIntention(this, element) && singleExpressionStatement(block).isDefined
+        IntentionAvailabilityChecker.checkIntention(this, element) && producesSameResult(block, element)
       case _ => false
     }
+
+
+  private def producesSameResult(block: ScBlockExpr, element: PsiElement): Boolean = {
+    def withoutBlock(e: PsiElement): Seq[PsiElement] = e match {
+      case block: ScBlock => block.statements.flatMap(withoutBlock)
+      case _ => Seq(e)
+    }
+    def withoutFunctionExpr(e: PsiElement): Seq[PsiElement] = e match {
+      case ScFunctionExpr(_, Some(result)) =>
+        result.asOptionOf[ScBlock]
+          .map(withoutBlock)
+          .getOrElse(Seq(result))
+      case _ =>
+        Seq(e)
+    }
+
+    singleExpressionStatement(block).exists { statement =>
+      implicit val context: ProjectContext = block.getManager
+      buildNewArgumentsText(statement)
+        .flatMap(createExpressionFromText(_, element).children.findByType[ScArgumentExprList])
+        .exists { newArguments =>
+          isStructurallyEqual(
+            withoutFunctionExpr(newArguments.exprs.head),
+            withoutFunctionExpr(statement)
+          )
+        }
+    }
+  }
+
+  private def isStructurallyEqual(a: Seq[PsiElement], b: Seq[PsiElement]): Boolean = {
+    def convert(psi: Seq[PsiElement]): Seq[String] =
+      psi.iterator
+        .flatMap(_.breadthFirst())
+        .filterNot(_.isWhitespaceOrComment)
+        .map(_.toString.filterNot(_.isWhitespace))
+        .to(LazyList)
+    convert(a) == convert(b)
+  }
 
   // ScFunctionExpr
   private def singleExpressionStatement(block: ScBlock): Option[ScBlockStatement] = {

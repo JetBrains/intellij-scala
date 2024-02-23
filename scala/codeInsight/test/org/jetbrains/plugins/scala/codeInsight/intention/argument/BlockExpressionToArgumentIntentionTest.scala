@@ -3,9 +3,10 @@ package codeInsight
 package intention
 package argument
 
+import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 
-class BlockExpressionToArgumentIntentionTest extends ScalaIntentionTestBase {
+abstract class BlockExpressionToArgumentIntentionTestBase extends ScalaIntentionTestBase {
   override def familyName: String = ScalaCodeInsightBundle.message("family.name.convert.to.argument.in.parentheses")
 
   protected val AFTER_SINGLE_EXPRESSION =
@@ -77,23 +78,11 @@ class BlockExpressionToArgumentIntentionTest extends ScalaIntentionTestBase {
     doTest(before, after)
   }
 
-  private val AFTER_SINGLE_EXPRESSION_TYPED =
+  protected val AFTER_SINGLE_EXPRESSION_TYPED =
     s"""object Test {
        |  Some(1).foreach($CARET(one: Int) => println(one))
        |}
        """.stripMargin
-
-  def testBlockWithSingleExpression_Typed_0(): Unit = {
-    val before =
-      s"""object Test {
-         |  Some(1).foreach {$CARET
-         |    one: Int =>
-         |      println(one)
-         |  }
-         |}
-       """.stripMargin
-    doTest(before, AFTER_SINGLE_EXPRESSION_TYPED)
-  }
 
   def testBlockWithSingleExpression_Typed_1(): Unit = {
     val before =
@@ -188,7 +177,7 @@ class BlockExpressionToArgumentIntentionTest extends ScalaIntentionTestBase {
     doTest(before, AFTER_MULTIPLE_BLOCK_EXPRESSIONS)
   }
 
-  private val AFTER_MULTIPLE_BLOCK_EXPRESSIONS_TYPED =
+  protected val AFTER_MULTIPLE_BLOCK_EXPRESSIONS_TYPED =
     s"""object Test {
        |  Some(1).foreach($CARET(one: Int) => {
        |    println(one)
@@ -197,20 +186,6 @@ class BlockExpressionToArgumentIntentionTest extends ScalaIntentionTestBase {
        |  })
        |}
        """.stripMargin
-
-  def testBlockWithMultipleExpressions_Typed_1(): Unit = {
-    val before =
-      s"""object Test {
-         |  Some(1).foreach {$CARET
-         |    one: Int =>
-         |      println(one)
-         |      val two = one + 1
-         |      println(two)
-         |  }
-         |}
-       """.stripMargin
-    doTest(before, AFTER_MULTIPLE_BLOCK_EXPRESSIONS_TYPED)
-  }
 
   def testBlockWithMultipleExpressions_Typed_2(): Unit = {
     val before =
@@ -299,9 +274,6 @@ class BlockExpressionToArgumentIntentionTest extends ScalaIntentionTestBase {
     doTest(before, after)
   }
 
-  "hello".toUpperCase()
-    .substring(0)
-
   def testBlockNonFunctionArgument_SCL15724_3(): Unit = {
     val before =
       s"""object Test {
@@ -342,7 +314,39 @@ class BlockExpressionToArgumentIntentionTest extends ScalaIntentionTestBase {
   }
 }
 
-class BlockExpressionToArgumentIntentionTest_Scala3 extends BlockExpressionToArgumentIntentionTest {
+class BlockExpressionToArgumentIntentionTest_Scala2 extends BlockExpressionToArgumentIntentionTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version < LatestScalaVersions.Scala_3_0
+
+
+  def testBlockWithSingleExpression_Typed_0(): Unit = {
+    val before =
+      s"""object Test {
+         |  Some(1).foreach {$CARET
+         |    one: Int =>
+         |      println(one)
+         |  }
+         |}
+       """.stripMargin
+    doTest(before, AFTER_SINGLE_EXPRESSION_TYPED)
+  }
+
+  def testBlockWithMultipleExpressions_Typed_1(): Unit = {
+    val before =
+      s"""object Test {
+         |  Some(1).foreach {$CARET
+         |    one: Int =>
+         |      println(one)
+         |      val two = one + 1
+         |      println(two)
+         |  }
+         |}
+       """.stripMargin
+    doTest(before, AFTER_MULTIPLE_BLOCK_EXPRESSIONS_TYPED)
+  }
+}
+
+class BlockExpressionToArgumentIntentionTest_Scala3 extends BlockExpressionToArgumentIntentionTestBase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= LatestScalaVersions.Scala_3_0
@@ -378,5 +382,25 @@ class BlockExpressionToArgumentIntentionTest_Scala3 extends BlockExpressionToArg
          |}
        """.stripMargin
     doTest(before, AFTER_SINGLE_EXPRESSION)
+  }
+
+  def testBlockWithSingleExpression_Typed_0(): Unit = {
+    val before =
+      s"""object Test {
+         |  Some(1).foreach {$CARET
+         |    func: arg =>
+         |      println(arg)
+         |  }
+         |}
+         |""".stripMargin
+
+    val after =
+      s"""object Test {
+         |  Some(1).foreach(func: arg =>
+         |    println(arg))
+         |}
+         |""".stripMargin
+
+    doTest(before, after)
   }
 }
