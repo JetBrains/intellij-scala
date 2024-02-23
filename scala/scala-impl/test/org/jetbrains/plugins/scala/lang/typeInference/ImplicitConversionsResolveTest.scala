@@ -82,3 +82,20 @@ class ImplicitConversionsResolveTest extends ScalaLightCodeInsightFixtureTestCas
       |""".stripMargin
   )
 }
+
+
+@Category(Array(classOf[TypecheckerTests]))
+class ImplicitConversionsScala3ResolveTest extends ScalaLightCodeInsightFixtureTestCase {
+  override protected def supportedIn(version: ScalaVersion) = version >= LatestScalaVersions.Scala_3
+
+  def testSCL21884(): Unit = checkTextHasNoErrors(
+    """
+      |trait Foo[A]
+      |object Foo
+      |
+      |extension (foo: Foo.type) def derived[A] = ???
+      |
+      |case class Bar() derives Foo
+      |""".stripMargin
+  )
+}

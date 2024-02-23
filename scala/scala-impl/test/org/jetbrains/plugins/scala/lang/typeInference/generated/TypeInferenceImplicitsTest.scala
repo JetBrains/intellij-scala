@@ -29,6 +29,8 @@ class TypeInferenceImplicitsTest extends TypeInferenceTestBase {
 
   def testSCL9877(): Unit = {doTest()}
 
+  def testSCL7605(): Unit = doTest()
+
   def testSCL5854(): Unit = doTest(
     """
       |object SCL5854 {

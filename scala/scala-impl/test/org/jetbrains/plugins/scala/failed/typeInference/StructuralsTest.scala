@@ -9,7 +9,7 @@ class StructuralsTest extends TypeInferenceTestBase {
   override def folderPath: String = super.folderPath + "bugs5/"
 
   def testSCL8689(): Unit = doTest()
-  
+
   def testSCL5423(): Unit = doTest {
     """
       |trait Test {
@@ -21,7 +21,7 @@ class StructuralsTest extends TypeInferenceTestBase {
       |  type Sett <: SettValue
       |  type BSetting <: Sett { type T = Foo }
       |  def foo(b: BSetting) = /*start*/b.value.foo/*end*/
-      |  
+      |
       |}
       |
       |//Int
