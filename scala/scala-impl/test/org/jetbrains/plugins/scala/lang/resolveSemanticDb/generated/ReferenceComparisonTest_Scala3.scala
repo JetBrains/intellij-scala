@@ -1122,7 +1122,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i10967(): Unit = doTest("i10967", true)
   def test_i10980(): Unit = doTest("i10980", true)
   def test_i10994(): Unit = doTest("i10994", true)
-  def test_i10997(): Unit = doTest("i10997", false)
+  def test_i10997(): Unit = doTest("i10997", true)
   def test_i11003(): Unit = doTest("i11003", false) // #intersectionType
   def test_i11015(): Unit = doTest("i11015", true)
   def test_i11020(): Unit = doTest("i11020", true) // #extension
@@ -1297,7 +1297,8 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i13197(): Unit = doTest("i13197", false) // #extension, #intersectionType, #unionType
   def test_i13282(): Unit = doTest("i13282", true)
   def test_i13331(): Unit = doTest("i13331", true) // #matchType
-  def test_i13332(): Unit = doTest("i13332", false)
+  def test_i13332(): Unit = doTest("i13332", true)
+  def test_i13332super(): Unit = doTest("i13332super", true)
   def test_i13334(): Unit = doTest("i13334", false) // #transparentInline
   def test_i13346(): Unit = doTest("i13346", false) // #export
   def test_i13349(): Unit = doTest("i13349", true)
