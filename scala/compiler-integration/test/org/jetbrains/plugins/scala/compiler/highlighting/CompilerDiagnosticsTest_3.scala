@@ -224,4 +224,32 @@ class CompilerDiagnosticsTest_3 extends CompilerDiagnosticsTestBase {
           |""".stripMargin
     )
   }
+
+  def testIntersectingRangesAfterApplication(): Unit = {
+    runCompilerDiagnosticsTest(
+      fileName = "IntersectingRangesAfterApplication.scala",
+      content =
+        """
+          |private final private final class IntersectingRangesAfterApplication
+          |""".stripMargin,
+      expectedResult = expectedResult(
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          range = Some(TextRange.create(15, 22)),
+          quickFixDescriptions = Seq("""Remove repeated modifier: "private""""),
+          msgPrefix = "Repeated modifier private"
+        ),
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          range = Some(TextRange.create(23, 28)),
+          quickFixDescriptions = Seq("""Remove repeated modifier: "final""""),
+          msgPrefix = "Repeated modifier final"
+        )
+      ),
+      expectedContent =
+        """
+          |private final   class IntersectingRangesAfterApplication
+          |""".stripMargin
+    )
+  }
 }
