@@ -56,13 +56,17 @@ ScalaFile
           PsiElement(=>)('=>')
           PsiWhiteSpace(' ')
           BlockOfExpressions
-            ReferenceExpression: x
-              PsiElement(identifier)('x')
-            PsiWhiteSpace(' ')
-            PsiElement(=>)('=>')
-            PsiWhiteSpace(' ')
-            ReferenceExpression: y
-              PsiElement(identifier)('y')
+            FunctionExpression
+              Parameters
+                ParametersClause
+                  Parameter: x
+                    PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                ReferenceExpression: y
+                  PsiElement(identifier)('y')
         PsiWhiteSpace('\n  ')
         CaseClause
           PsiElement(case)('case')
