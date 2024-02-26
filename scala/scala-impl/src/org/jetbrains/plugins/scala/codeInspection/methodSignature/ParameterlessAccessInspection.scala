@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.codeInspection.methodSignature
 
 import com.intellij.codeInspection._
-import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiElement, PsiMethod}
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
+import com.intellij.psi.{PsiElement, PsiFile, PsiMethod}
+import org.jetbrains.plugins.scala.annotator.quickfix.AddCallParenthesesQuickFix
+import org.jetbrains.plugins.scala.codeInspection.PsiElementVisitorSimple
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.project.ScalaFeatures.forPsiOrDefault
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 import scala.annotation.tailrec
@@ -27,7 +27,7 @@ sealed abstract class ParameterlessAccessInspection extends LocalInspectionTool 
       }
 
       maybeTargetExpression.flatMap(collect(_, reference)).foreach { expr =>
-        holder.registerProblem(reference.nameId, getDisplayName, createQuickFix(expr))
+        holder.registerProblem(reference.nameId, getDisplayName, new AddCallParenthesesQuickFix(expr))
       }
     case _ =>
   }
@@ -60,11 +60,9 @@ object ParameterlessAccessInspection {
     override protected def isValid(method: PsiMethod): Boolean = quickfix.isMutator(method)
   }
 
-  // TODO: this should be an ERROR in Scala3, not a WARNING
-  //  for example this in an error:
-  //  def m00() = "00"
-  //  val f002 = m00
   final class EmptyParenMethod extends ParameterlessAccessInspection {
+    override def isAvailableForFile(file: PsiFile): Boolean =
+      !file.isScala3 && super.isAvailableForFile(file)
 
     // might have been eta-expanded to () => A, so don't worn.
     // this avoids false positives. To be more accurate, we would need an 'etaExpanded'
@@ -98,22 +96,6 @@ object ParameterlessAccessInspection {
     case _ => false
   }
 
-  private def createQuickFix(expression: ScExpression): AbstractFixOnPsiElement[ScExpression] = new AbstractFixOnPsiElement(
-    ScalaInspectionBundle.message("add.call.parentheses"),
-    expression
-  ) {
-    override protected def doApplyFix(expression: ScExpression)(implicit project: Project): Unit = {
-      val target = expression.getParent match {
-        case postfix: ScPostfixExpr => postfix
-        case call: ScGenericCall => call
-        case _ => expression
-      }
-
-      val replacement = ScalaPsiElementFactory.createExpressionFromText(s"${target.getText}()", expression)
-      target.replace(replacement)
-    }
-  }
-
   private object HasFunctionType {
 
     def unapply(expression: ScExpression): Option[Seq[ScType]] = expression match {
@@ -121,5 +103,4 @@ object ParameterlessAccessInspection {
       case _ => None
     }
   }
-
 }
