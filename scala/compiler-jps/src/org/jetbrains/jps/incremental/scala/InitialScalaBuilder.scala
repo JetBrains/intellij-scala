@@ -7,6 +7,7 @@ import org.jetbrains.jps.builders.DirtyFilesHolder
 import org.jetbrains.jps.builders.java.{JavaBuilderUtil, JavaSourceRootDescriptor}
 import org.jetbrains.jps.builders.storage.BuildDataCorruptedException
 import org.jetbrains.jps.incremental._
+import org.jetbrains.jps.model.java.JpsJavaExtensionService
 import org.jetbrains.jps.model.module.JpsModule
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 
@@ -19,7 +20,7 @@ import _root_.scala.jdk.CollectionConverters._
 /**
   * For tasks that should be performed once per compilation
   */
-class InitialScalaBuilder extends ModuleLevelBuilder(BuilderCategory.SOURCE_INSTRUMENTER) { //should be before other scala builders
+class InitialScalaBuilder extends ModuleLevelBuilder(BuilderCategory.INITIAL) { //should be before other scala builders
 
   import InitialScalaBuilder._
 
@@ -30,6 +31,12 @@ class InitialScalaBuilder extends ModuleLevelBuilder(BuilderCategory.SOURCE_INST
     if (scalaModules.nonEmpty) {
       val previousIncrementalityType = readIncrementalityType(context)
       val incrementalityType = ScalaBuilder.projectSettings(context).getIncrementalityType
+
+      if (incrementalityType == IncrementalityType.SBT) {
+        val project = context.getProjectDescriptor.getProject
+        val configuration = JpsJavaExtensionService.getInstance().getCompilerConfiguration(project)
+        configuration.setJavaCompilerId("scala_Zinc")
+      }
 
       previousIncrementalityType match {
         case _ if JavaBuilderUtil.isForcedRecompilationAllJavaModules(context) =>

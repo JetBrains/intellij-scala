@@ -8,7 +8,6 @@ import org.jetbrains.jps.incremental.ModuleLevelBuilder.{ExitCode => JpsExitCode
 
 import java.io.File
 import org.jetbrains.jps.incremental._
-import org.jetbrains.jps.incremental.java.JavaBuilder
 import org.jetbrains.jps.incremental.messages.ProgressMessage
 import org.jetbrains.jps.incremental.scala.InitialScalaBuilder.isScalaProject
 import org.jetbrains.jps.incremental.scala.SbtBuilder._
@@ -23,12 +22,6 @@ import _root_.scala.jdk.CollectionConverters._
 
 class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
   override def getPresentableName: String = JpsBundle.message("sbt.builder.presentable.name")
-
-  override def buildStarted(context: CompileContext): Unit = {
-    if (isEnabled(context)) {
-      JavaBuilder.IS_ENABLED.set(context, false)
-    }
-  }
 
   override def build(context: CompileContext,
                      chunk: ModuleChunk,
