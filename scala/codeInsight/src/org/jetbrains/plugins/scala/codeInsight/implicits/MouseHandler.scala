@@ -19,6 +19,7 @@ import javax.swing.SwingUtilities
 import org.jetbrains.plugins.scala.annotator.hints.ErrorTooltip
 import org.jetbrains.plugins.scala.annotator.hints.TooltipUI
 import org.jetbrains.plugins.scala.annotator.hints.Text
+import org.jetbrains.plugins.scala.codeInsight.hints.ScalaHintsSettings
 import org.jetbrains.plugins.scala.codeInsight.implicits.MouseHandler.EscKeyListenerKey
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, inReadAction, invokeLater}
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -151,12 +152,19 @@ private final class MouseHandler extends ProjectManagerListener {
     val project = e.getEditor.getProject
     val isFromValidProject = project != null && project.isInitialized && !project.isDisposed
 
+    def isScalaFile = {
+      val file = e.getEditor.getVirtualFile
+      file != null && file.getExtension == "scala" || file.getExtension == "sc" || file.getExtension == "sbt"
+    }
+
     def checkSettings = {
       val settings = ScalaProjectSettings.getInstance(project)
-      ImplicitHints.enabled ||
+      ScalaHintsSettings.xRayMode ||
+        ImplicitHints.enabled ||
         (settings.isTypeAwareHighlightingEnabled && (settings.isShowNotFoundImplicitArguments || settings.isShowAmbiguousImplicitArguments))
     }
-    isFromValidProject && checkSettings
+
+    isFromValidProject && isScalaFile && checkSettings
   }
 
   private def activateHyperlink(editor: Editor, inlay: Inlay, text: Text, event: MouseEvent): Unit = {
