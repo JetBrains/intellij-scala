@@ -35,11 +35,13 @@ final class ScalaTreeStructureProvider extends TreeStructureProvider with DumbAw
     val childrenSeq = children.asScala.toSeq
     val modifiedChildren = parent match {
       // note: in GradleTreeStructureProvider they also implemented special handling for ProjectViewModuleGroupNode.
-      // It is more important in Gradle because they allow modules to be created outside the project base directory and in such cases it may happen
-      // that ProjectViewModuleGroupNode will be a parent.
-      // In sbt I have not been able to find any standard case in which we would need it. I was able to recreate such situation
+      // It is important in Gradle because they allow:
+      // - modules to be created outside the project base directory,
+      // - creation of modules with empty/non-existent/many content roots (we always have single content root for module)
+      // In all this cases ProjectViewModuleGroupNode could be a parent.
+      // In sbt I haven't been able to find any standard case in which we would need it. I was able to recreate such situation
       // by e.g. removing content root in the root module, but it is not our standard case, so I think we shouldn't care about it.
-      // recheck it when SCL-21157 is fixed
+      // Handling ProjectViewModuleGroupNode will be probably needed for SCL-21157
       case _: ProjectViewProjectNode =>
         getProjectViewProjectNodeChildren(childrenSeq)(project, settings)
       case _ =>
