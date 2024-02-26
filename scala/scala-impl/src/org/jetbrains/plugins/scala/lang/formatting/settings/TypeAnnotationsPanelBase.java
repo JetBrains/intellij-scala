@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.formatting.settings;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
+import com.intellij.ui.ContextHelpLabel;
 import com.intellij.ui.TitledSeparator;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
@@ -40,6 +41,9 @@ public abstract class TypeAnnotationsPanelBase extends ScalaCodeStylePanelBase {
     protected JPanel myContent;
     protected JCheckBox myStableType;
     protected JCheckBox myStructuralType;
+    private ContextHelpLabel myStableTypeHelp;
+    private ContextHelpLabel myDialectSourcesHelp;
+    private ContextHelpLabel myStructuralTypeHelp;
 
     protected TypeAnnotationsPanelBase(@NotNull CodeStyleSettings settings) {
         super(settings, TAB_TITLE);
@@ -71,6 +75,12 @@ public abstract class TypeAnnotationsPanelBase extends ScalaCodeStylePanelBase {
                         "Scala.TypeAnnotations.TypePatterns",
                         ParametersListUtil.COLON_LINE_PARSER, ParametersListUtil.COLON_LINE_JOINER)
         );
+
+        myStableTypeHelp = ContextHelpLabel.create(ScalaBundle.message("type.annotations.panel.type.is.stable.tooltip"));
+
+        myDialectSourcesHelp = ContextHelpLabel.create(ScalaBundle.message("type.annotations.panel.in.scala.dialect.sources.tooltip"));
+
+        myStructuralTypeHelp = ContextHelpLabel.create(ScalaBundle.message("type.annotations.panel.accidental.structural.type.tooltip"));
     }
 
     /**
@@ -125,20 +135,11 @@ public abstract class TypeAnnotationsPanelBase extends ScalaCodeStylePanelBase {
         myMemberOfPrivateClass = new JCheckBox();
         this.$$$loadButtonText$$$(myMemberOfPrivateClass, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "type.annotations.panel.member.of.private.class"));
         panel2.add(myMemberOfPrivateClass, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        myStableType = new JCheckBox();
-        myStableType.setSelected(true);
-        this.$$$loadButtonText$$$(myStableType, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "type.annotations.panel.type.is.stable"));
-        myStableType.setToolTipText(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "type.annotations.panel.type.is.stable.tooltip"));
-        panel2.add(myStableType, new GridConstraints(8, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer1 = new Spacer();
         panel2.add(spacer1, new GridConstraints(0, 0, 12, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, 1, new Dimension(30, -1), null, null, 0, false));
         myTestSources = new JCheckBox();
         this.$$$loadButtonText$$$(myTestSources, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "type.annotations.panel.in.test.sources"));
         panel2.add(myTestSources, new GridConstraints(10, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        myDialectSources = new JCheckBox();
-        this.$$$loadButtonText$$$(myDialectSources, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "type.annotations.panel.in.scala.dialect.sources"));
-        myDialectSources.setToolTipText(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "type.annotations.panel.in.scala.dialect.sources.tooltip"));
-        panel2.add(myDialectSources, new GridConstraints(11, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel3 = new JPanel();
         panel3.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
         panel2.add(panel3, new GridConstraints(4, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
@@ -163,28 +164,48 @@ public abstract class TypeAnnotationsPanelBase extends ScalaCodeStylePanelBase {
         this.$$$loadLabelText$$$(label3, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "type.annotations.panel.annotated.with"));
         panel5.add(label3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, new Dimension(85, -1), null, null, 0, false));
         panel5.add(myAnnotations, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        final JPanel panel6 = new JPanel();
+        panel6.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
+        panel2.add(panel6, new GridConstraints(8, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_VERTICAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        myStableType = new JCheckBox();
+        myStableType.setSelected(true);
+        this.$$$loadButtonText$$$(myStableType, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "type.annotations.panel.type.is.stable"));
+        panel6.add(myStableType, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        myStableTypeHelp.setAlignmentX(0.0f);
+        panel6.add(myStableTypeHelp, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 1, false));
+        final JPanel panel7 = new JPanel();
+        panel7.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
+        panel2.add(panel7, new GridConstraints(11, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_VERTICAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        myDialectSources = new JCheckBox();
+        myDialectSources.setLabel("In Scala dialect sources");
+        this.$$$loadButtonText$$$(myDialectSources, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "type.annotations.panel.in.scala.dialect.sources"));
+        panel7.add(myDialectSources, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel7.add(myDialectSourcesHelp, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 1, false));
         final Spacer spacer2 = new Spacer();
         myContent.add(spacer2, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-        final JPanel panel6 = new JPanel();
-        panel6.setLayout(new GridLayoutManager(4, 1, new Insets(0, 0, 0, 0), -1, -1));
-        myContent.add(panel6, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        panel6.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
+        final JPanel panel8 = new JPanel();
+        panel8.setLayout(new GridLayoutManager(4, 1, new Insets(0, 0, 0, 0), -1, -1));
+        myContent.add(panel8, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        panel8.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         final TitledSeparator titledSeparator3 = new TitledSeparator();
         titledSeparator3.setText(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "type.annotations.panel.enforce.for"));
-        panel6.add(titledSeparator3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        panel8.add(titledSeparator3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         myImplicitModifier = new JCheckBox();
         myImplicitModifier.setSelected(true);
         this.$$$loadButtonText$$$(myImplicitModifier, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "type.annotations.panel.implicit.definition"));
-        panel6.add(myImplicitModifier, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel8.add(myImplicitModifier, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myUnitType = new JCheckBox();
         myUnitType.setSelected(true);
         this.$$$loadButtonText$$$(myUnitType, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "type.annotations.panel.unit.type"));
-        panel6.add(myUnitType, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel8.add(myUnitType, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JPanel panel9 = new JPanel();
+        panel9.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
+        panel8.add(panel9, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_VERTICAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         myStructuralType = new JCheckBox();
         myStructuralType.setSelected(true);
         this.$$$loadButtonText$$$(myStructuralType, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "type.annotations.panel.accidental.structural.type"));
-        myStructuralType.setToolTipText(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "type.annotations.panel.accidental.structural.type.tooltip"));
-        panel6.add(myStructuralType, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel9.add(myStructuralType, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel9.add(myStructuralTypeHelp, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 1, false));
         final Spacer spacer3 = new Spacer();
         myContent.add(spacer3, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, 1, new Dimension(30, -1), null, null, 0, false));
     }
