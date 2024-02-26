@@ -93,6 +93,14 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
               case _: ScGenericCall =>
               case _: MethodInvocation =>
               case _ if !reference.is[ScInterpolatedPatternPrefix] =>
+                // TODO: In Scala 3 many of the reported problems here are wrong.
+                //       But missing empty argument lists are not reported at all.
+                //       We already disabled ParameterlessAccessInspection.EmptyParenMethod for Scala 3 because
+                //       it's not really a simple code style problem but a full fledged compiler error,
+                //       that should (?) be listed in the list of problems here.
+                //       When that has been implemented it should get a custom error message alá "Missing empty argument list"
+                //       and offer the quickfix AddCallParenthesesQuickFix, that we already refactored out of ParameterlessAccessInspection.
+                //       See SCL-22178 and SCL-22179
                 r.problems.foreach {
                   case MissedParametersClause(_) =>
                     holder.createErrorAnnotation(
