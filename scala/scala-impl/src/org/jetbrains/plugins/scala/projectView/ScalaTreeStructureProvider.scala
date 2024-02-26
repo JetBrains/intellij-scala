@@ -2,16 +2,16 @@ package org.jetbrains.plugins.scala.projectView
 
 import com.intellij.ide.projectView.impl.ProjectRootsUtil
 import com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode.canRealModuleNameBeHidden
-import com.intellij.ide.projectView.impl.nodes.{PsiDirectoryNode, PsiFileSystemItemFilter}
+import com.intellij.ide.projectView.impl.nodes.{ProjectViewModuleGroupNode, ProjectViewProjectNode, PsiDirectoryNode, PsiFileSystemItemFilter}
 import com.intellij.ide.projectView.{PresentationData, TreeStructureProvider, ViewSettings}
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil.isExternalSystemAwareModule
 import com.intellij.openapi.module.{Module, ModuleGrouper, ModuleManager}
 import com.intellij.openapi.project.{DumbAware, Project}
-import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
 import com.intellij.openapi.util.NlsSafe
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
 import com.intellij.psi.PsiDirectory
 import com.intellij.ui.SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -20,36 +20,118 @@ import org.jetbrains.sbt.project.SbtProjectSystem
 
 import java.util
 import scala.jdk.CollectionConverters._
+import scala.util.control.Breaks._
+
 
 final class ScalaTreeStructureProvider extends TreeStructureProvider with DumbAware {
 
   import ScalaTreeStructureProvider._
 
 
-  override def modify(parent: Node, children: util.Collection[Node], settings: ViewSettings): util.Collection[Node] =
-    children.asScala.map { it =>
-      transform(it)(it.getProject, settings)
-    }.asJavaCollection
+  override def modify(parent: Node, children: util.Collection[Node], settings: ViewSettings): util.Collection[Node] = {
+    val project = parent.getProject
+    if (project == null) return children
+
+    val childrenSeq = children.asScala.toSeq
+    val modifiedChildren = parent match {
+      // note: in GradleTreeStructureProvider they also implemented special handling for ProjectViewModuleGroupNode.
+      // It is more important in Gradle because they allow modules to be created outside the project base directory and in such cases it may happen
+      // that ProjectViewModuleGroupNode will be a parent.
+      // In sbt I have not been able to find any standard case in which we would need it. I was able to recreate such situation
+      // by e.g. removing content root in the root module, but it is not our standard case, so I think we shouldn't care about it.
+      // recheck it when SCL-21157 is fixed
+      case _: ProjectViewProjectNode =>
+        getProjectViewProjectNodeChildren(childrenSeq)(project, settings)
+      case _ =>
+        childrenSeq.map { it =>
+          transform(it)(it.getProject, settings)
+        }
+    }
+    modifiedChildren.asJavaCollection
+  }
 }
 
 private object ScalaTreeStructureProvider {
+
+  // note: this logic is written based on like the case where the parent is ProjectViewProjectNode is implemented in
+  // org.jetbrains.plugins.gradle.projectView.GradleTreeStructureProvider#getProjectNodeChildren
+  private def getProjectViewProjectNodeChildren(children: Seq[Node])
+                                (implicit project: Project, settings: ViewSettings): Seq[Node] = {
+    val fileIndex = ProjectRootManager.getInstance(project).getFileIndex
+    children.map {
+          case projectViewModuleGroupNode: ProjectViewModuleGroupNode =>
+            val directoryNode = getProjectViewModuleGroupNodeDirectoryNode(projectViewModuleGroupNode, fileIndex)
+            directoryNode.getOrElse(projectViewModuleGroupNode)
+          case psiDirectoryNode: PsiDirectoryNode if psiDirectoryNode.getParent == null && psiDirectoryNode.getValue != null =>
+            val scalaModuleDirectoryNode = getScalaModuleDirectoryNode(psiDirectoryNode)
+            scalaModuleDirectoryNode.getOrElse(psiDirectoryNode)
+          case node =>
+            transform(node)
+    }
+  }
+
+  // note: this logic is written based on like the case where the parent is ProjectViewProjectNode is implemented in
+  // org.jetbrains.plugins.gradle.projectView.GradleTreeStructureProvider#getProjectNodeChildren
+  private def getProjectViewModuleGroupNodeDirectoryNode(projectViewModuleGroupNode: ProjectViewModuleGroupNode, fileIndex: ProjectFileIndex): Option[PsiDirectoryNode] = {
+    val children = projectViewModuleGroupNode.getChildren.asScala.toSeq
+    val collectedChildren = children.collect {
+      case child: PsiDirectoryNode if {
+        val psiDirectory = child.getValue
+        psiDirectory != null && {
+          val module = fileIndex.getModuleForFile(psiDirectory.getVirtualFile)
+          isExternalSystemAwareModule(SbtProjectSystem.Id, module)
+        }
+      } => (child.getValue.getVirtualFile, child)
+    }
+
+    if (collectedChildren.length < children.length) return None
+
+    var parentNodePair: Option[(VirtualFile, PsiDirectoryNode)] = None
+    breakable {
+      collectedChildren.foreach { case (virtualFile, psiDirectoryNode) =>
+        parentNodePair match {
+          case None =>
+            parentNodePair = Option(virtualFile, psiDirectoryNode)
+          case Some((file, _)) if VfsUtilCore.isAncestor(virtualFile, file, false) =>
+            parentNodePair = Option(virtualFile, psiDirectoryNode)
+          case Some((file, _)) if !VfsUtilCore.isAncestor(file, virtualFile, false) =>
+            parentNodePair = None
+            break()
+          case _ =>
+        }
+      }
+    }
+    parentNodePair.map(_._2)
+  }
+
+  private def getScalaModuleDirectoryNode(node: PsiDirectoryNode)
+                                         (implicit project: Project, settings: ViewSettings): Option[ScalaModuleDirectoryNode] =
+    getScalaModuleDirectoryNode(node.getValue, node.getFilter)
+
+  private def getScalaModuleDirectoryNode(
+    psiDirectory: PsiDirectory,
+    filter: PsiFileSystemItemFilter
+  )(implicit project: Project, settings: ViewSettings) : Option[ScalaModuleDirectoryNode] = {
+    val virtualFile = psiDirectory.getVirtualFile
+    // For now in the process of creating modules, a single content root for each module is created and its path is equal to project.base.path (it is the root of the module).
+    // In ProjectRootsUtil#isModuleContentRoot it is checked whether the virtualFile is equal to the content root path associated with this virtualFile.
+    // In a nutshell, with this we check whether virtualFile is the module root. If it is, there is some probability that we should create
+    // ScalaModuleDirectoryNode for this node.
+    if (!ProjectRootsUtil.isModuleContentRoot(virtualFile, project)) return None
+    val fileIndex = ProjectRootManager.getInstance(project).getFileIndex
+    val module = fileIndex.getModuleForFile(virtualFile)
+    if (module == null) return None
+    val moduleShortName = getModuleShortName(module, project, virtualFile)
+    moduleShortName
+      .map(ScalaModuleDirectoryNode(project, psiDirectory, settings, _, filter, module))
+  }
 
   private def transform(node: Node)
                        (implicit project: Project, settings: ViewSettings): Node = {
     val nodeValue = node.getValue
     nodeValue match {
       case psiDirectory: PsiDirectory =>
-        val virtualFile = psiDirectory.getVirtualFile
-        val fileIndex = ProjectRootManager.getInstance(project).getFileIndex
-        val module = fileIndex.getModuleForFile(virtualFile)
-        // For now in the process of creating modules, a single content root for each module is created and its path is equal to project.base.path (it is the root of the module).
-        // In ProjectRootsUtil#isModuleContentRoot it is checked whether the virtualFile is equal to the content root path associated with this virtualFile.
-        // In a nutshell, with this we check whether virtualFile is the module root. If it is, there is some probability that we should create
-        // ScalaModuleDirectoryNode for this node.
-        if (!ProjectRootsUtil.isModuleContentRoot(virtualFile, project)) return node
-        val moduleShortName = getModuleShortName(module, project, virtualFile)
-        moduleShortName
-          .map(ScalaModuleDirectoryNode(project, psiDirectory, settings, _, node.asInstanceOf[PsiDirectoryNode].getFilter, module))
+        getScalaModuleDirectoryNode(psiDirectory, node.asInstanceOf[PsiDirectoryNode].getFilter)
           .getOrElse(node)
       case file: ScalaFile =>
         Node(file)
