@@ -21,7 +21,7 @@ object BlockInIndentationRegion extends ParsingRule {
         case _ if builder.isOutdentHere =>
           return
 
-        case ScalaTokenTypes.tRPARENTHESIS | ScalaTokenTypes.tRBRACE =>
+        case ScalaTokenTypes.tRPARENTHESIS | ScalaTokenTypes.tRBRACE | ScalaTokenTypes.tCOMMA =>
           return
 
         case ScalaTokenTypes.tSEMICOLON =>

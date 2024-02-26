@@ -501,4 +501,105 @@ class MatchParserTest extends SimpleScala3ParserTestBase {
       |              PsiElement(identifier)('x')
       |      PsiWhiteSpace(' ')
       |      PsiElement(})('}')""".stripMargin)
+
+  // SCL-22174
+  def test_comma_ending_case_clause_region(): Unit = checkTree(
+    """
+      |def test =
+      |  func(
+      |    a match
+      |      case x => x,
+      |    try 1
+      |    catch
+      |      case y => y,
+      |    b match
+      |      case z => z)
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScFunctionDefinition: test
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('test')
+      |    Parameters
+      |      <empty list>
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace('\n  ')
+      |    MethodCall
+      |      ReferenceExpression: func
+      |        PsiElement(identifier)('func')
+      |      ArgumentList
+      |        PsiElement(()('(')
+      |        PsiWhiteSpace('\n    ')
+      |        MatchStatement
+      |          ReferenceExpression: a
+      |            PsiElement(identifier)('a')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(match)('match')
+      |          PsiWhiteSpace('\n      ')
+      |          CaseClauses
+      |            CaseClause
+      |              PsiElement(case)('case')
+      |              PsiWhiteSpace(' ')
+      |              ReferencePattern: x
+      |                PsiElement(identifier)('x')
+      |              PsiWhiteSpace(' ')
+      |              PsiElement(=>)('=>')
+      |              PsiWhiteSpace(' ')
+      |              BlockOfExpressions
+      |                ReferenceExpression: x
+      |                  PsiElement(identifier)('x')
+      |        PsiElement(,)(',')
+      |        PsiWhiteSpace('\n    ')
+      |        TryStatement
+      |          PsiElement(try)('try')
+      |          PsiWhiteSpace(' ')
+      |          IntegerLiteral
+      |            PsiElement(integer)('1')
+      |          PsiWhiteSpace('\n    ')
+      |          CatchBlock
+      |            PsiElement(catch)('catch')
+      |            PsiWhiteSpace('\n      ')
+      |            CaseClauses
+      |              CaseClause
+      |                PsiElement(case)('case')
+      |                PsiWhiteSpace(' ')
+      |                ReferencePattern: y
+      |                  PsiElement(identifier)('y')
+      |                PsiWhiteSpace(' ')
+      |                PsiElement(=>)('=>')
+      |                PsiWhiteSpace(' ')
+      |                BlockOfExpressions
+      |                  ReferenceExpression: y
+      |                    PsiElement(identifier)('y')
+      |        PsiElement(,)(',')
+      |        PsiWhiteSpace('\n    ')
+      |        MatchStatement
+      |          ReferenceExpression: b
+      |            PsiElement(identifier)('b')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(match)('match')
+      |          PsiWhiteSpace('\n      ')
+      |          CaseClauses
+      |            CaseClause
+      |              PsiElement(case)('case')
+      |              PsiWhiteSpace(' ')
+      |              ReferencePattern: z
+      |                PsiElement(identifier)('z')
+      |              PsiWhiteSpace(' ')
+      |              PsiElement(=>)('=>')
+      |              PsiWhiteSpace(' ')
+      |              BlockOfExpressions
+      |                ReferenceExpression: z
+      |                  PsiElement(identifier)('z')
+      |        PsiElement())(')')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }
