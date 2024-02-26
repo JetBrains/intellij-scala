@@ -15,10 +15,11 @@ import com.intellij.openapi.util.SystemInfo
 import com.intellij.ui.AncestorListenerAdapter
 import com.intellij.util.ui.UIUtil
 import javax.swing.event.AncestorEvent
-import javax.swing.SwingUtilities
+import javax.swing.{SwingUtilities, Timer}
 import org.jetbrains.plugins.scala.annotator.hints.ErrorTooltip
 import org.jetbrains.plugins.scala.annotator.hints.TooltipUI
 import org.jetbrains.plugins.scala.annotator.hints.Text
+import org.jetbrains.plugins.scala.codeInsight.hints.ScalaHintsSettings
 import org.jetbrains.plugins.scala.codeInsight.implicits.MouseHandler.EscKeyListenerKey
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, inReadAction, invokeLater}
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -80,53 +81,68 @@ private final class MouseHandler extends ProjectManagerListener {
     }
   }
 
+  private var mouseMotionEvent: EditorMouseEvent = _
+
+  private val mouseMotionTimer = {
+    val timer = new Timer(20, _ => {
+      handleMouseMoved(mouseMotionEvent)
+      mouseMotionEvent = null
+    })
+    timer.setRepeats(false)
+    timer
+  }
+
   private val mouseMovedListener = new EditorMouseMotionListener {
     override def mouseMoved(e: EditorMouseEvent): Unit = {
       if (handlingRequired(e) && !e.isConsumed) {
-        val textAtPoint = textAt(e.getEditor, e.getMouseEvent.getPoint)
-
-        if (SystemInfo.isMac && e.getMouseEvent.isMetaDown || e.getMouseEvent.isControlDown) {
-          textAtPoint match {
-            case Some((inlay, text)) if text.navigatable.isDefined =>
-              if (!activeHyperlink.contains((inlay, text))) {
-                deactivateActiveHyperlink (e.getEditor)
-                activateHyperlink(e.getEditor, inlay, text, e.getMouseEvent)
-              }
-            case _ =>
-              deactivateActiveHyperlink(e.getEditor)
-          }
-          textAtPoint match {
-            case Some((inlay, text)) if text.expansion.isDefined =>
-              if (!activeFolding.contains((inlay, text))) {
-                deactivateActiveFolding(e.getEditor)
-                activateFolding(e.getEditor, inlay, text, e.getMouseEvent)
-              }
-            case _ =>
-              deactivateActiveFolding(e.getEditor)
-          }
-          textAtPoint match {
-            case Some((inlay, text)) =>
-              highlightMatches(e.getEditor, inlay, text)
-            case None =>
-              clearHighlightedMatches()
-          }
-        } else {
-          textAtPoint match {
-            case Some((inlay, text)) =>
-              val sameUiShown = errorTooltip.exists(ui => text.errorTooltip.map(_.message).contains(ui.message) && !ui.isDisposed)
-              if (text.errorTooltip.nonEmpty && !sameUiShown) {
-                errorTooltip.foreach(_.cancel())
-                errorTooltip = text.errorTooltip.map(showTooltip(e.getEditor, _, e.getMouseEvent, inlay))
-                errorTooltip.foreach(_.addHideListener(() => errorTooltip = None))
-              }
-            case None =>
-              errorTooltip.foreach(_.cancel())
-          }
-          deactivateActiveHyperlink(e.getEditor)
-          deactivateActiveFolding(e.getEditor)
-        }
-
+        mouseMotionEvent = e
+        mouseMotionTimer.restart()
       }
+    }
+  }
+
+  private def handleMouseMoved(e: EditorMouseEvent): Unit = {
+    val textAtPoint = textAt(e.getEditor, e.getMouseEvent.getPoint)
+
+    if (SystemInfo.isMac && e.getMouseEvent.isMetaDown || e.getMouseEvent.isControlDown) {
+      textAtPoint match {
+        case Some((inlay, text)) if text.navigatable.isDefined =>
+          if (!activeHyperlink.contains((inlay, text))) {
+            deactivateActiveHyperlink(e.getEditor)
+            activateHyperlink(e.getEditor, inlay, text, e.getMouseEvent)
+          }
+        case _ =>
+          deactivateActiveHyperlink(e.getEditor)
+      }
+      textAtPoint match {
+        case Some((inlay, text)) if text.expansion.isDefined =>
+          if (!activeFolding.contains((inlay, text))) {
+            deactivateActiveFolding(e.getEditor)
+            activateFolding(e.getEditor, inlay, text, e.getMouseEvent)
+          }
+        case _ =>
+          deactivateActiveFolding(e.getEditor)
+      }
+      textAtPoint match {
+        case Some((inlay, text)) =>
+          highlightMatches(e.getEditor, inlay, text)
+        case None =>
+          clearHighlightedMatches()
+      }
+    } else {
+      textAtPoint match {
+        case Some((inlay, text)) =>
+          val sameUiShown = errorTooltip.exists(ui => text.errorTooltip.map(_.message).contains(ui.message) && !ui.isDisposed)
+          if (text.errorTooltip.nonEmpty && !sameUiShown) {
+            errorTooltip.foreach(_.cancel())
+            errorTooltip = text.errorTooltip.map(showTooltip(e.getEditor, _, e.getMouseEvent, inlay))
+            errorTooltip.foreach(_.addHideListener(() => errorTooltip = None))
+          }
+        case None =>
+          errorTooltip.foreach(_.cancel())
+      }
+      deactivateActiveHyperlink(e.getEditor)
+      deactivateActiveFolding(e.getEditor)
     }
   }
 
@@ -151,12 +167,19 @@ private final class MouseHandler extends ProjectManagerListener {
     val project = e.getEditor.getProject
     val isFromValidProject = project != null && project.isInitialized && !project.isDisposed
 
+    def isScalaFile = {
+      val file = e.getEditor.getVirtualFile
+      file != null && file.getExtension == "scala" || file.getExtension == "sc" || file.getExtension == "sbt"
+    }
+
     def checkSettings = {
       val settings = ScalaProjectSettings.getInstance(project)
-      ImplicitHints.enabled ||
+      ScalaHintsSettings.xRayMode ||
+        ImplicitHints.enabled ||
         (settings.isTypeAwareHighlightingEnabled && (settings.isShowNotFoundImplicitArguments || settings.isShowAmbiguousImplicitArguments))
     }
-    isFromValidProject && checkSettings
+
+    isFromValidProject && isScalaFile && checkSettings
   }
 
   private def activateHyperlink(editor: Editor, inlay: Inlay, text: Text, event: MouseEvent): Unit = {
