@@ -1066,14 +1066,17 @@ ScalaFile
                 PsiElement(=>)('=>')
                 PsiWhiteSpace(' ')
                 BlockOfExpressions
-                  UnitExpression
-                    PsiElement(()('(')
-                    PsiElement())(')')
-                  PsiWhiteSpace(' ')
-                  PsiElement(=>)('=>')
-                  PsiWhiteSpace(' ')
-                  ReferenceExpression: t
-                    PsiElement(identifier)('t')
+                  FunctionExpression
+                    Parameters
+                      ParametersClause
+                        PsiElement(()('(')
+                        PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    BlockOfExpressions
+                      ReferenceExpression: t
+                        PsiElement(identifier)('t')
               PsiWhiteSpace('\n      ')
               CaseClause
                 PsiElement(case)('case')
@@ -1387,14 +1390,17 @@ ScalaFile
                           PsiElement(=>)('=>')
                           PsiWhiteSpace(' ')
                           BlockOfExpressions
-                            UnitExpression
-                              PsiElement(()('(')
-                              PsiElement())(')')
-                            PsiWhiteSpace(' ')
-                            PsiElement(=>)('=>')
-                            PsiWhiteSpace(' ')
-                            ReferenceExpression: t
-                              PsiElement(identifier)('t')
+                            FunctionExpression
+                              Parameters
+                                ParametersClause
+                                  PsiElement(()('(')
+                                  PsiElement())(')')
+                              PsiWhiteSpace(' ')
+                              PsiElement(=>)('=>')
+                              PsiWhiteSpace(' ')
+                              BlockOfExpressions
+                                ReferenceExpression: t
+                                  PsiElement(identifier)('t')
                         PsiWhiteSpace('\n        ')
                         CaseClause
                           PsiElement(case)('case')

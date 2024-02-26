@@ -24,7 +24,7 @@ object BlockInIndentationRegion extends ParsingRule {
           if (needSeparator && !builder.hasPrecedingIndentation) {
             builder.error(ErrMsg("semi.expected"))
           }
-          if (!BlockStat()) {
+          if (!ResultExpr(stopOnOutdent = true) && !BlockStat()) {
             builder.advanceLexer() // ate something
           }
           parseNext(needSeparator = true)

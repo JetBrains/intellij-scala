@@ -602,4 +602,56 @@ class MatchParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  def test_result_expr_in_match(): Unit = checkTree(
+    """
+      |val foo = 0 match
+      |  case _ => x => y
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScPatternDefinition: foo
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(val)('val')
+      |    PsiWhiteSpace(' ')
+      |    ListOfPatterns
+      |      ReferencePattern: foo
+      |        PsiElement(identifier)('foo')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    MatchStatement
+      |      IntegerLiteral
+      |        PsiElement(integer)('0')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(match)('match')
+      |      PsiWhiteSpace('\n  ')
+      |      CaseClauses
+      |        CaseClause
+      |          PsiElement(case)('case')
+      |          PsiWhiteSpace(' ')
+      |          WildcardPattern
+      |            PsiElement(_)('_')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(=>)('=>')
+      |          PsiWhiteSpace(' ')
+      |          BlockOfExpressions
+      |            FunctionExpression
+      |              Parameters
+      |                ParametersClause
+      |                  Parameter: x
+      |                    PsiElement(identifier)('x')
+      |              PsiWhiteSpace(' ')
+      |              PsiElement(=>)('=>')
+      |              PsiWhiteSpace(' ')
+      |              BlockOfExpressions
+      |                ReferenceExpression: y
+      |                  PsiElement(identifier)('y')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }
