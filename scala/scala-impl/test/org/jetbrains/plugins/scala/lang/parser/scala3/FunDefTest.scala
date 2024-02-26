@@ -574,4 +574,51 @@ class FunDefTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  // SCL-19777
+  def test_newline_expected_in_indented_block(): Unit = checkTree(
+    """
+      |def test =
+      |  class C ex
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScFunctionDefinition: test
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('test')
+      |    Parameters
+      |      <empty list>
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    BlockExpression
+      |      PsiWhiteSpace('\n  ')
+      |      ScClass: C
+      |        AnnotationsList
+      |          <empty list>
+      |        Modifiers
+      |          <empty list>
+      |        PsiElement(class)('class')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(identifier)('C')
+      |        PrimaryConstructor
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          Parameters
+      |            <empty list>
+      |        ExtendsBlock
+      |          <empty list>
+      |      PsiWhiteSpace(' ')
+      |      ReferenceExpression: ex
+      |        PsiElement(identifier)('ex')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }
