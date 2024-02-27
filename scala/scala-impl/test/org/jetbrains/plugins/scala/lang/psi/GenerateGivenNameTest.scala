@@ -4,8 +4,11 @@ import junit.framework.{Test, TestCase}
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScGivenPattern
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGiven
 import org.jetbrains.plugins.scala.util.GeneratedTestSuiteFactory
+import org.jetbrains.plugins.scala.util.GeneratedTestSuiteFactory.SingleCodeTestData
 
 class GenerateGivenNameTest extends TestCase
 
@@ -328,34 +331,47 @@ object GenerateGivenNameTest extends GeneratedTestSuiteFactory {
     ),
   )
 
-  case class GivenNameTestData(override val testCode: String, expectedGivenName: String) extends TestData {
-    override def testName: String = testCode.trim.linesIterator.toSeq.last.replaceAll(raw"([\s\n])+", " ")
-    override def checkCodeFragment: String = {
-      s"""
-         |object GivenHolder {
-         |  ${testCode.trim.replace("\n", "\n  ")}
-         |}
-         |println(GivenHolder.`$expectedGivenName`)
-         |""".stripMargin
+  abstract class GivenNameTestData extends SingleCodeTestData {
+    def expectedGivenName: String
+  }
+
+  object GivenNameTestData {
+    def apply(testCode: String, expectedGivenName: String): GivenNameTestData = GivenDeclOrDefNameTestData(testCode, expectedGivenName)
+
+    private def extractTestName(code: String): String =
+      code.trim.linesIterator.toSeq.last.replaceAll(raw"([\s\n])+", " ")
+
+    private case class GivenDeclOrDefNameTestData(override val testCode: String,
+                                                  override val expectedGivenName: String) extends GivenNameTestData {
+      override def testName: String = extractTestName(testCode)
+
+      override def checkCodeFragment: String = {
+        s"""
+           |object GivenHolder {
+           |  ${testCode.trim.replace("\n", "\n  ")}
+           |}
+           |println(GivenHolder.`$expectedGivenName`)
+           |""".stripMargin
+      }
     }
   }
 
   override def makeActualTest(testData: GivenNameTestData): Test =
     new SimpleActualTest(testData, ScalaVersion.Latest.Scala_3) {
       override def runActualTest(): Unit = {
-        val GivenNameTestData(code, expectedName) = testData
-        val tree = code.parse[ScFile]
+        val tree = testData.testCode.parse[ScFile]
 
         tree.hasParseError shouldBe false
 
-        val givens = tree.elements.collect {
+        val givens: Seq[ScNamedElement] = tree.elements.collect {
           case given: ScGiven => given
+          case pattern: ScGivenPattern => pattern
         }.toSeq
 
         givens.length shouldBe 1
 
         val givenElement = givens.head
-        givenElement.name shouldBe expectedName
+        givenElement.name shouldBe testData.expectedGivenName
       }
     }
 }

@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.typeInference
 
 import junit.framework.TestCase
 import org.jetbrains.plugins.scala.util.GeneratedTestSuiteFactory
+import org.jetbrains.plugins.scala.util.GeneratedTestSuiteFactory.SimpleTestData
 import org.jetbrains.plugins.scala.{ScalaVersion, TypecheckerTests}
 import org.junit.experimental.categories.Category
 
@@ -11,7 +12,7 @@ class Scala3UnapplySeqTest extends TestCase
 
 object Scala3UnapplySeqTest extends GeneratedTestSuiteFactory.withHighlightingTest(ScalaVersion.Latest.Scala_3_3) {
   // See https://docs.scala-lang.org/scala3/reference/changed-features/pattern-matching.html#
-  lazy val testData: Seq[TestData] = Seq(
+  lazy val testData: Seq[SimpleTestData] = Seq(
     // ============= Direct Sequence match =============
     s"""
        |// directSequenceMatchWithSeq

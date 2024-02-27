@@ -5,7 +5,7 @@ import junit.framework.{Test, TestSuite}
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken, SimpleTestCase}
 import org.jetbrains.plugins.scala.extensions.BooleanExt
-import org.jetbrains.plugins.scala.util.GeneratedTestSuiteFactory.SimpleTestData
+import org.jetbrains.plugins.scala.util.GeneratedTestSuiteFactory.{SimpleTestData, SingleCodeTestData}
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
 import org.junit.Ignore
 
@@ -23,11 +23,11 @@ abstract class GeneratedTestSuiteFactory {
     testSuite
   }
 
-  protected final def testDataFromCode(code: String): TestData = SimpleTestData.fromCode(code)
+  protected final def testDataFromCode(code: String): SimpleTestData = SimpleTestData.fromCode(code)
 
   //noinspection JUnitMalformedDeclaration
   @Ignore
-  protected class SimpleHighlightingActualTest(testData: TestData, minScalaVersion: ScalaVersion) extends ScalaLightCodeInsightFixtureTestCase with AssertionMatchers {
+  protected class SimpleHighlightingActualTest(testData: SingleCodeTestData, minScalaVersion: ScalaVersion) extends ScalaLightCodeInsightFixtureTestCase with AssertionMatchers {
     this.setName(testData.testName)
 
     override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(GeneratedTestSuiteFactory)
@@ -58,7 +58,6 @@ abstract class GeneratedTestSuiteFactory {
 object GeneratedTestSuiteFactory {
   trait TestData {
     def testName: String
-    def testCode: String
     def checkCodeFragment: String
     def failureExpectation: Option[FailureExpectation] = None
 
@@ -78,11 +77,15 @@ object GeneratedTestSuiteFactory {
     assert(line.nonEmpty || message.nonEmpty)
   }
 
-  case class TestDataErrorMessage(scalaPluginMessage: String, scalaCompilerMessage: String)
+  trait SingleCodeTestData extends TestData {
+    def testCode: String
+  }
 
-  case class SimpleTestData(override val testName: String,
-                            override val testCode: String,
-                            override val failureExpectation: Option[FailureExpectation]) extends TestData {
+  final case class TestDataErrorMessage(scalaPluginMessage: String, scalaCompilerMessage: String)
+
+  final case class SimpleTestData(override val testName: String,
+                                  override val testCode: String,
+                                  override val failureExpectation: Option[FailureExpectation]) extends SingleCodeTestData {
     override def checkCodeFragment: String = testCode
   }
 
@@ -104,7 +107,7 @@ object GeneratedTestSuiteFactory {
   }
 
   abstract class withHighlightingTest(minScalaVersion: ScalaVersion) extends GeneratedTestSuiteFactory {
-    override type TD = TestData
-    final def makeActualTest(testData: TestData): Test = new SimpleHighlightingActualTest(testData, minScalaVersion)
+    override type TD = SingleCodeTestData
+    final def makeActualTest(testData: SingleCodeTestData): Test = new SimpleHighlightingActualTest(testData, minScalaVersion)
   }
 }
