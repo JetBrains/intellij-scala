@@ -150,7 +150,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     SbtProjectResolver.processOutputOfLatestStructureDump = ""
 
     val useShellImport = settings.useShellForImport && shellImportSupported(sbtVersion) && project != null
-    val options = dumpOptions(settings)
+    val options = getSbtStructureDumpOptions(settings)
 
     def doDumpStructure(structureFile: File): Try[(Elem, BuildMessages)] = {
       val structureFilePath = normalizePath(structureFile)
@@ -278,9 +278,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     writeStructureFile: Boolean
   )
 
-  private def dumpOptions(settings: SbtExecutionSettings): Seq[String] =
+  private def getSbtStructureDumpOptions(settings: SbtExecutionSettings): Seq[String] =
     Seq("download") ++
-      settings.resolveClassifiers.seq("resolveClassifiers") ++
+      settings.resolveClassifiers.seq("resolveSourceClassifiers") ++
       settings.resolveSbtClassifiers.seq("resolveSbtClassifiers") ++
       settings.insertProjectTransitiveDependencies.seq("insertProjectTransitiveDependencies")
 
@@ -803,15 +803,19 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   private def createLibrary(module: sbtStructure.ModuleData, resolved: Boolean): LibraryNode = {
-    val result = new LibraryNode(nameFor(module.id), resolved)
+    val result = new LibraryNode(getNameForLibrary(module.id), resolved)
     result.addPaths(LibraryPathType.BINARY, module.binaries.map(_.path).toSeq)
     result.addPaths(LibraryPathType.SOURCE, module.sources.map(_.path).toSeq)
     result.addPaths(LibraryPathType.DOC, module.docs.map(_.path).toSeq)
     result
   }
 
-  private def nameFor(id: sbtStructure.ModuleIdentifier) = {
-    if (IJ_SDK_CLASSIFIERS.contains(id.classifier)) { // DevKit expects IJ SDK library names in certain format for some features to work
+  private def getNameForLibrary(id: sbtStructure.ModuleIdentifier): String = {
+    if (IJ_SDK_CLASSIFIERS.contains(id.classifier)) {
+      //DevKit expects IJ SDK library names in certain format for some features to work
+      //Examples of resulting library name:
+      //  sbt: [IJ-PLUGIN]JetBrains:JUnit:241.13688.18
+      //  sbt: [IJ-SDK]org.jetbrains:INTELLIJ-SDK:241.13688.4
       s"[${id.classifier}]${id.organization}:${id.name}:${id.revision}"
     } else {
       val classifierOption = if (id.classifier.isEmpty) None else Some(id.classifier)
@@ -1064,7 +1068,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
                                          (moduleData: ModuleData, libraries: Seq[LibraryData]): Seq[LibraryDependencyNode] = {
     val dependenciesWithResolvedConflicts = resolveLibraryDependencyConflicts(dependencies)
     dependenciesWithResolvedConflicts.map { dependency =>
-      val name = nameFor(dependency.id)
+      val name = getNameForLibrary(dependency.id)
       val library = libraries.find(_.getExternalName == name).getOrElse(
         throw new ExternalSystemException("Library not found: " + name))
       val data = new LibraryDependencyNode(moduleData, library, LibraryLevel.PROJECT)
@@ -1138,7 +1142,7 @@ object SbtProjectResolver {
 
   private val SbtBuildModulesGroupName = "sbt-build-modules"
 
-  val IJ_SDK_CLASSIFIERS: Set[String] = Set("IJ-SDK", "IJ-PLUGIN")
+  private val IJ_SDK_CLASSIFIERS: Set[String] = Set("IJ-SDK", "IJ-PLUGIN")
 
   case class ImportCancelledException(cause: Throwable) extends Exception(cause)
 

@@ -89,25 +89,25 @@ object SbtExternalSystemManager {
     val sbtOptions = SbtOpts.combineOptionsWithArgs(settings.sbtOptions)
 
     new SbtExecutionSettings(
-      realProjectPath,
-      vmExecutable,
-      vmOptions,
-      sbtOptions,
-      SbtSettings.hiddenDefaultMaxHeapSize,
-      environment,
-      customLauncher,
-      customSbtStructureFile,
-      projectJdkName,
-      projectSettings.resolveClassifiers,
-      projectSettings.resolveSbtClassifiers,
-      projectSettings.useSbtShellForImport,
-      projectSettings.enableDebugSbtShell,
-      projectSettings.preferScala2,
-      projectSettings.groupProjectsFromSameBuild,
-      settingsState.sbtEnvironment.asScala.toMap,
-      settingsState.sbtPassParentEnvironment,
-      projectSettings.insertProjectTransitiveDependencies,
-      projectSettings.useSeparateCompilerOutputPaths
+      realProjectPath = realProjectPath,
+      vmExecutable = vmExecutable,
+      vmOptions = vmOptions,
+      sbtOptions = sbtOptions,
+      hiddenDefaultMaxHeapSize = SbtSettings.hiddenDefaultMaxHeapSize,
+      environment = environment,
+      customLauncher = customLauncher,
+      customSbtStructureFile = customSbtStructureFile,
+      jdk = projectJdkName,
+      resolveClassifiers = projectSettings.resolveClassifiers,
+      resolveSbtClassifiers = projectSettings.resolveSbtClassifiers,
+      useShellForImport = projectSettings.useSbtShellForImport,
+      shellDebugMode = projectSettings.enableDebugSbtShell,
+      preferScala2 = projectSettings.preferScala2,
+      groupProjectsFromSameBuild = projectSettings.groupProjectsFromSameBuild,
+      userSetEnvironment = settingsState.sbtEnvironment.asScala.toMap,
+      passParentEnvironment = settingsState.sbtPassParentEnvironment,
+      insertProjectTransitiveDependencies = projectSettings.insertProjectTransitiveDependencies,
+      useSeparateCompilerOutputPaths = projectSettings.useSeparateCompilerOutputPaths
     )
   }
 
