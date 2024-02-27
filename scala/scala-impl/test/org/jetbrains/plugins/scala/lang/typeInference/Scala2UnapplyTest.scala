@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.typeInference
 
 import junit.framework.TestCase
 import org.jetbrains.plugins.scala.util.GeneratedTestSuiteFactory
+import org.jetbrains.plugins.scala.util.GeneratedTestSuiteFactory.SimpleTestData
 import org.jetbrains.plugins.scala.{ScalaVersion, TypecheckerTests}
 import org.junit.experimental.categories.Category
 
@@ -11,7 +12,7 @@ class Scala2UnapplyTest extends TestCase
 
 object Scala2UnapplyTest extends GeneratedTestSuiteFactory.withHighlightingTest(ScalaVersion.Latest.Scala_2_13) {
   // See https://www.scala-lang.org/files/archive/spec/2.13/08-pattern-matching.html#constructor-patterns
-  lazy val testData: Seq[TestData] = Seq(
+  lazy val testData: Seq[SimpleTestData] = Seq(
     // ============= Boolean Match =============
     """
       |// booleanExtractor

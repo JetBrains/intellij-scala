@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.typeInference
 
 import junit.framework.TestCase
 import org.jetbrains.plugins.scala.util.GeneratedTestSuiteFactory
+import org.jetbrains.plugins.scala.util.GeneratedTestSuiteFactory.SimpleTestData
 import org.jetbrains.plugins.scala.{ScalaVersion, TypecheckerTests}
 import org.junit.experimental.categories.Category
 
@@ -10,7 +11,7 @@ import org.junit.experimental.categories.Category
 class Scala3CaseClassTest extends TestCase
 
 object Scala3CaseClassTest extends GeneratedTestSuiteFactory.withHighlightingTest(ScalaVersion.Latest.Scala_3_3) {
-  lazy val testData: Seq[TestData] = Seq(
+  lazy val testData: Seq[SimpleTestData] = Seq(
     """
       |// testUnapplyMethod0Param
       |case class A()
