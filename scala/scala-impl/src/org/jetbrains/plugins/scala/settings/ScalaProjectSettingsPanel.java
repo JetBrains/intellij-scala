@@ -85,7 +85,6 @@ public class ScalaProjectSettingsPanel {
     private JPanel myBasePackagesPanel;
     private JPanel myBasePackagesHelpPanel;
     private JBTable myBasePackagesTable;
-    private JComboBox<pluginBranch> updateChannel;
     private JCheckBox myAotCompletion;
     private JCheckBox useEclipseCompatibilityModeCheckBox;
     private JTextField scalaTestDefaultSuperClass;
@@ -93,7 +92,6 @@ public class ScalaProjectSettingsPanel {
     private JSpinner worksheetAutoRunDelaySpinner;
     private JCheckBox customScalatestSyntaxHighlightingCheckbox;
     private JPanel librariesPanel;
-    private JButton updateNowButton;
     private JCheckBox addOverrideToImplementCheckBox;
     private JCheckBox myProjectViewHighlighting;
     private JComboBox<ScalaMetaMode> scalaMetaMode;
@@ -199,13 +197,6 @@ public class ScalaProjectSettingsPanel {
                 WORKSHEET_RUN_DELAY_SPINNER_STEP_SIZE
         ));
 
-        updateChannel.setModel(new EnumComboBoxModel<>(pluginBranch.class));
-        updateChannel.setRenderer(SimpleMappingListCellRenderer.create(
-                Pair.create(pluginBranch.Nightly, ScalaBundle.message("scala.plugin.chanel.nightly")),
-                Pair.create(pluginBranch.EAP, ScalaBundle.message("scala.plugin.chanel.eap")),
-                Pair.create(pluginBranch.Release, ScalaBundle.message("scala.plugin.chanel.release"))
-        ));
-
         scalaMetaMode.setModel(new EnumComboBoxModel<>(ScalaMetaMode.class));
         scalaMetaMode.setRenderer(SimpleMappingListCellRenderer.create(
                 Pair.create(ScalaMetaMode.Enabled, ScalaBundle.message("scala.meta.mode.enabled")),
@@ -262,16 +253,6 @@ public class ScalaProjectSettingsPanel {
 
         myInheritBasePackagesRadioButton.addActionListener(actionEvent -> myBasePackagesTable.setEnabled(!myInheritBasePackagesRadioButton.isSelected()));
         myUseCustomBasePackagesRadioButton.addActionListener(actionEvent -> myBasePackagesTable.setEnabled(myUseCustomBasePackagesRadioButton.isSelected()));
-
-        updateNowButton.addActionListener(e -> {
-            try {
-                pluginBranch chanel = (pluginBranch) updateChannel.getModel().getSelectedItem();
-                ScalaPluginUpdater.doUpdatePluginHosts(chanel, ScalaPluginVersionVerifier.getPluginDescriptor());
-                UpdateChecker.updateAndShowResult(myProject, UpdateSettings.getInstance());
-            } catch (InvalidRepoException ex) {
-                Messages.showErrorDialog(ex.getMessage(), ScalaBundle.message("invalid.update.channel"));
-            }
-        });
 
         extensionsPanel = new LibExtensionsSettingsPanelWrapper((JPanel) librariesPanel.getParent(), project);
         extensionsPanel.build();
@@ -335,12 +316,6 @@ public class ScalaProjectSettingsPanel {
 
         final ScalaProjectSettings scalaProjectSettings = getInstance(myProject);
         final ScalaCompileServerSettings compileServerSettings = ScalaCompileServerSettings.getInstance();
-
-        try {
-            ScalaPluginUpdater.doUpdatePluginHostsAndCheck((pluginBranch) updateChannel.getModel().getSelectedItem());
-        } catch (InvalidRepoException e) {
-            throw new ConfigurationException(e.getMessage());
-        }
 
         scalaProjectSettings.setInheritBasePackages(myInheritBasePackagesRadioButton.isSelected());
         scalaProjectSettings.setCustomBasePackages(getCustomBasePackages());
@@ -441,8 +416,6 @@ public class ScalaProjectSettingsPanel {
 
         final ScalaProjectSettings scalaProjectSettings = getInstance(myProject);
         final ScalaCompileServerSettings compileServerSettings = ScalaCompileServerSettings.getInstance();
-
-        if (!ScalaPluginUpdater.getScalaPluginBranch().equals(updateChannel.getModel().getSelectedItem())) return true;
 
         if (scalaProjectSettings.isInheritBasePackages() !=
                 myInheritBasePackagesRadioButton.isSelected()) return true;
@@ -589,8 +562,6 @@ public class ScalaProjectSettingsPanel {
     private void setSettings() {
         final ScalaProjectSettings scalaProjectSettings = getInstance(myProject);
         final ScalaCompileServerSettings compileServerSettings = ScalaCompileServerSettings.getInstance();
-
-        updateChannel.getModel().setSelectedItem(ScalaPluginUpdater.getScalaPluginBranch());
 
         myInheritBasePackagesRadioButton.setSelected(scalaProjectSettings.isInheritBasePackages());
         myUseCustomBasePackagesRadioButton.setSelected(!scalaProjectSettings.isInheritBasePackages());
@@ -1043,33 +1014,11 @@ public class ScalaProjectSettingsPanel {
         supportBackReferencesInCheckBox.setToolTipText(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "support.back.references.in.shared.sources.tooltip"));
         panel12.add(supportBackReferencesInCheckBox, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel13 = new JPanel();
-        panel13.setLayout(new GridLayoutManager(4, 4, new Insets(9, 9, 0, 0), -1, -1));
-        tabbedPane.addTab(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.tabs.updates"), panel13);
-        final Spacer spacer13 = new Spacer();
-        panel13.add(spacer13, new GridConstraints(3, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-        final JLabel label19 = new JLabel();
-        this.$$$loadLabelText$$$(label19, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.plugin.update.channel"));
-        panel13.add(label19, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        updateChannel = new JComboBox();
-        updateChannel.setEditable(false);
-        panel13.add(updateChannel, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        updateNowButton = new JButton();
-        this.$$$loadButtonText$$$(updateNowButton, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.check.for.updates"));
-        panel13.add(updateNowButton, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final Spacer spacer14 = new Spacer();
-        panel13.add(spacer14, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
-        final JLabel label20 = new JLabel();
-        this.$$$loadLabelText$$$(label20, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.info"));
-        panel13.add(label20, new GridConstraints(2, 0, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label21 = new JLabel();
-        label21.setText("");
-        panel13.add(label21, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JPanel panel14 = new JPanel();
-        panel14.setLayout(new GridLayoutManager(1, 1, new Insets(9, 9, 0, 0), -1, -1));
-        tabbedPane.addTab(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.tabs.extensions"), panel14);
+        panel13.setLayout(new GridLayoutManager(1, 1, new Insets(9, 9, 0, 0), -1, -1));
+        tabbedPane.addTab(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.tabs.extensions"), panel13);
         librariesPanel = new JPanel();
         librariesPanel.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
-        panel14.add(librariesPanel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 1, false));
+        panel13.add(librariesPanel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 1, false));
         label7.setLabelFor(myWidgetModeCombobox);
         ButtonGroup buttonGroup;
         buttonGroup = new ButtonGroup();
