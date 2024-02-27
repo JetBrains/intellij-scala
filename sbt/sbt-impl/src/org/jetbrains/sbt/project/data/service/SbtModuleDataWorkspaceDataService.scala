@@ -47,7 +47,7 @@ class SbtModuleDataWorkspaceDataService extends WorkspaceDataService[SbtModuleDa
     val vfUrlManager = WorkspaceModel.getInstance(project).getVirtualFileUrlManager
 
     val sbtModuleDataUri = sbtModuleData.buildURI.toString
-    val buildSbtVirtualFileUrl = vfUrlManager.getOrCreateFromUri(sbtModuleDataUri + "build.sbt")
+    val buildSbtVirtualFileUrl = vfUrlManager.getOrCreateFromUrl(sbtModuleDataUri + "build.sbt")
     val entitySource = new SbtEntitySource(buildSbtVirtualFileUrl)
 
     val baseDirectoryVirtualFileUrl = vfUrlManager.fromPath(sbtModuleData.baseDirectory.toString)

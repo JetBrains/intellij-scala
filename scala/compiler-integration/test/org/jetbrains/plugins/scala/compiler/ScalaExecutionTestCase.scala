@@ -82,8 +82,6 @@ trait ScalaExecutionTestCase extends ExecutionTestCase with ScalaSdkOwner {
   }
 
   override protected def setUp(): Unit = {
-    TestUtils.optimizeSearchingForIndexableFiles()
-
     Files.createDirectories(srcPath)
     Files.createDirectories(classFilesOutputPath)
     Files.createDirectories(checksumsPath)
