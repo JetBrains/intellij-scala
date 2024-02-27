@@ -23,12 +23,14 @@ import java.lang.reflect.Method;
 import java.util.ResourceBundle;
 
 @SuppressWarnings(value = "unchecked")
-public class UpdateSettingsSectionPanel implements SettingsSectionPanel {
+public class UpdateSettingsSectionPanel extends SettingsSectionPanel {
     private JPanel rootPanel;
     private JComboBox<ScalaApplicationSettings.pluginBranch> updateChannel;
     private JButton updateNowButton;
 
     public UpdateSettingsSectionPanel(Project project) {
+        super(project);
+
         updateChannel.setModel(new EnumComboBoxModel<>(ScalaApplicationSettings.pluginBranch.class));
         updateChannel.setRenderer(SimpleMappingListCellRenderer.create(
                 Pair.create(ScalaApplicationSettings.pluginBranch.Nightly, ScalaBundle.message("scala.plugin.chanel.nightly")),

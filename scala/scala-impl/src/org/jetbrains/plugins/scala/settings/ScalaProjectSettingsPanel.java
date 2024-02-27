@@ -75,7 +75,6 @@ public class ScalaProjectSettingsPanel {
     private JCheckBox useScalaClassesPriorityCheckBox;
     private JComboBox aliasSemantics;
     private JComboBox<ScalaCollectionHighlightingLevel> collectionHighlightingChooser;
-    private JPanel injectionJPanel;
     private JSpinner outputSpinner;
     private JSpinner implicitParametersSearchDepthSpinner;
     private JCheckBox myDontCacheCompound;
@@ -87,7 +86,6 @@ public class ScalaProjectSettingsPanel {
     private JBTable myBasePackagesTable;
     private JCheckBox myAotCompletion;
     private JCheckBox useEclipseCompatibilityModeCheckBox;
-    private JTextField scalaTestDefaultSuperClass;
     private JCheckBox treatScalaScratchFilesCheckBox;
     private JSpinner worksheetAutoRunDelaySpinner;
     private JCheckBox customScalatestSyntaxHighlightingCheckbox;
@@ -97,7 +95,6 @@ public class ScalaProjectSettingsPanel {
     private JComboBox<ScalaMetaMode> scalaMetaMode;
     private JCheckBox metaTrimBodies;
     private JComboBox<ScFileMode> scTypeSelectionCombobox;
-    private JComboBox<TrailingCommasMode> trailingCommasComboBox;
     private JCheckBox collapseWorksheetFoldByCheckBox;
     private JCheckBox showNotFoundImplicitArgumentsCheckBox;
     private JCheckBox showAmbiguousImplicitArgumentsCheckBox;
@@ -105,10 +102,7 @@ public class ScalaProjectSettingsPanel {
     private JComboBox<Ivy2IndexingMode> ivy2IndexingModeCBB;
     private final Project myProject;
 
-    private JCheckBox supportBackReferencesInCheckBox;
     private JPanel useCompilerRangesHelp;
-
-    private final List<ComponentWithSettings> extraSettings = new ArrayList<>();
 
     // IMPORTANT: So, we use tabbedPane for the form editor.
     //            Unfortunately the normal JTabbedPane does not really support the intellij search.
@@ -211,13 +205,6 @@ public class ScalaProjectSettingsPanel {
                 Pair.create(Ivy2IndexingMode.Classes, ScalaBundle.message("ivy2.indexing.mode.classes"))
         ));
 
-        trailingCommasComboBox.setModel(new EnumComboBoxModel<>(TrailingCommasMode.class));
-        trailingCommasComboBox.setRenderer(SimpleMappingListCellRenderer.create(
-                Pair.create(TrailingCommasMode.Enabled, ScalaBundle.message("trailing.commas.mode.enabled")),
-                Pair.create(TrailingCommasMode.Disabled, ScalaBundle.message("trailing.commas.mode.disabled")),
-                Pair.create(TrailingCommasMode.Auto, ScalaBundle.message("trailing.commas.mode.auto"))
-        ));
-
         scTypeSelectionCombobox.setModel(new EnumComboBoxModel<>(ScFileMode.class));
         scTypeSelectionCombobox.setRenderer(SimpleMappingListCellRenderer.create(
                 Pair.create(ScFileMode.Worksheet, ScalaBundle.message("script.file.mode.always.worksheet")),
@@ -256,10 +243,6 @@ public class ScalaProjectSettingsPanel {
 
         extensionsPanel = new LibExtensionsSettingsPanelWrapper((JPanel) librariesPanel.getParent(), project);
         extensionsPanel.build();
-
-        for (DependencyAwareInjectionSettings uiWithDependency : EP_NAME.getExtensionList()) {
-            extraSettings.add(uiWithDependency.createComponent(injectionJPanel));
-        }
 
         if (SystemInfo.isMac) {
             myDoublePressAndHoldCheckbox.setText(myDoublePressAndHoldCheckbox.getText().replace("Ctrl", "Cmd"));
@@ -319,7 +302,6 @@ public class ScalaProjectSettingsPanel {
 
         scalaProjectSettings.setInheritBasePackages(myInheritBasePackagesRadioButton.isSelected());
         scalaProjectSettings.setCustomBasePackages(getCustomBasePackages());
-        scalaProjectSettings.setScalaTestDefaultSuperClass(scalaTestDefaultSuperClass.getText());
         scalaProjectSettings.setImplicitParametersSearchDepth((Integer) implicitParametersSearchDepthSpinner.getValue());
         scalaProjectSettings.setOutputLimit((Integer) outputSpinner.getValue());
         scalaProjectSettings.setInProcessMode(runWorksheetInTheCheckBox.isSelected());
@@ -382,15 +364,7 @@ public class ScalaProjectSettingsPanel {
             }
             scalaProjectSettings.setScFileMode(newMode);
         }
-        Object trailingComa = trailingCommasComboBox.getSelectedItem();
-        if (trailingComa != null)
-            scalaProjectSettings.setTrailingCommasMode(TrailingCommasMode.valueOf(trailingComa.toString()));
-
         scalaProjectSettings.setEnableLibraryExtensions(extensionsPanel.enabledCB().isSelected());
-
-        extraSettings.forEach(s -> s.saveSettings(scalaProjectSettings));
-
-        scalaProjectSettings.setEnableBackReferencesFromSharedSources(supportBackReferencesInCheckBox.isSelected());
 
         ScalaApplicationSettings scalaApplicationSettings = ScalaApplicationSettings.getInstance();
         scalaApplicationSettings.XRAY_DOUBLE_PRESS_AND_HOLD = myDoublePressAndHoldCheckbox.isSelected();
@@ -421,8 +395,6 @@ public class ScalaProjectSettingsPanel {
                 myInheritBasePackagesRadioButton.isSelected()) return true;
         if (!scalaProjectSettings.getCustomBasePackages().equals(
                 getCustomBasePackages())) return true;
-        if (!scalaProjectSettings.getScalaTestDefaultSuperClass().equals(
-                scalaTestDefaultSuperClass.getText())) return true;
         if (scalaProjectSettings.isShowImplicitConversions() !=
                 showImplicitConversionsInCheckBox.isSelected()) return true;
         if (scalaProjectSettings.isTypeMismatchHints() !=
@@ -495,10 +467,6 @@ public class ScalaProjectSettingsPanel {
 
         if (scalaProjectSettings.getAutoRunDelay() != getWorksheetDelay()) return true;
 
-        for (ComponentWithSettings setting : extraSettings) {
-            if (setting.isModified(scalaProjectSettings)) return true;
-        }
-
         if (!scalaProjectSettings.getScalaMetaMode().equals(scalaMetaMode.getModel().getSelectedItem())) return true;
         if (scalaProjectSettings.isMetaTrimMethodBodies() != metaTrimBodies.isSelected()) return true;
 
@@ -506,29 +474,35 @@ public class ScalaProjectSettingsPanel {
             return true;
 
         if (scalaProjectSettings.getScFileMode() != scTypeSelectionCombobox.getSelectedItem()) return true;
-        if (scalaProjectSettings.getTrailingCommasMode() != trailingCommasComboBox.getSelectedItem()) return true;
 
         if (scalaProjectSettings.isEnableLibraryExtensions() != extensionsPanel.enabledCB().isSelected()) return true;
 
-        if (scalaProjectSettings.isEnableBackReferencesFromSharedSources() != supportBackReferencesInCheckBox.isSelected())
-            return true;
-
         ScalaApplicationSettings scalaApplicationSettings = ScalaApplicationSettings.getInstance();
-        if (scalaApplicationSettings.XRAY_DOUBLE_PRESS_AND_HOLD != myDoublePressAndHoldCheckbox.isSelected()) return true;
+        if (scalaApplicationSettings.XRAY_DOUBLE_PRESS_AND_HOLD != myDoublePressAndHoldCheckbox.isSelected())
+            return true;
         if (scalaApplicationSettings.XRAY_PRESS_AND_HOLD != myPressAndHoldCheckbox.isSelected()) return true;
-        if (scalaApplicationSettings.XRAY_SHOW_PARAMETER_HINTS != myShowParameterHintsCheckbox.isSelected()) return true;
+        if (scalaApplicationSettings.XRAY_SHOW_PARAMETER_HINTS != myShowParameterHintsCheckbox.isSelected())
+            return true;
         if (scalaApplicationSettings.XRAY_SHOW_ARGUMENT_HINTS != myShowArgumentHintsCheckbox.isSelected()) return true;
         if (scalaApplicationSettings.XRAY_SHOW_TYPE_HINTS != myShowTypeHintsCheckbox.isSelected()) return true;
-        if (scalaApplicationSettings.XRAY_SHOW_MEMBER_VARIABLE_HINTS != myShowMemberVariablesCheckbox.isSelected()) return true;
-        if (scalaApplicationSettings.XRAY_SHOW_LOCAL_VARIABLE_HINTS != myShowLocalVariablesCheckbox.isSelected()) return true;
-        if (scalaApplicationSettings.XRAY_SHOW_METHOD_RESULT_HINTS != myShowMethodResultsCheckbox.isSelected()) return true;
-        if (scalaApplicationSettings.XRAY_SHOW_LAMBDA_PARAMETER_HINTS != myShowLambdaParametersCheckbox.isSelected()) return true;
-        if (scalaApplicationSettings.XRAY_SHOW_LAMBDA_PLACEHOLDER_HINTS != myShowLambdaPlaceholdersCheckbox.isSelected()) return true;
-        if (scalaApplicationSettings.XRAY_SHOW_VARIABLE_PATTERN_HINTS != myShowVariablePatternsCheckbox.isSelected()) return true;
-        if (scalaApplicationSettings.XRAY_SHOW_METHOD_CHAIN_HINTS != myShowMethodChainHintsCheckbox.isSelected()) return true;
+        if (scalaApplicationSettings.XRAY_SHOW_MEMBER_VARIABLE_HINTS != myShowMemberVariablesCheckbox.isSelected())
+            return true;
+        if (scalaApplicationSettings.XRAY_SHOW_LOCAL_VARIABLE_HINTS != myShowLocalVariablesCheckbox.isSelected())
+            return true;
+        if (scalaApplicationSettings.XRAY_SHOW_METHOD_RESULT_HINTS != myShowMethodResultsCheckbox.isSelected())
+            return true;
+        if (scalaApplicationSettings.XRAY_SHOW_LAMBDA_PARAMETER_HINTS != myShowLambdaParametersCheckbox.isSelected())
+            return true;
+        if (scalaApplicationSettings.XRAY_SHOW_LAMBDA_PLACEHOLDER_HINTS != myShowLambdaPlaceholdersCheckbox.isSelected())
+            return true;
+        if (scalaApplicationSettings.XRAY_SHOW_VARIABLE_PATTERN_HINTS != myShowVariablePatternsCheckbox.isSelected())
+            return true;
+        if (scalaApplicationSettings.XRAY_SHOW_METHOD_CHAIN_HINTS != myShowMethodChainHintsCheckbox.isSelected())
+            return true;
         if (scalaApplicationSettings.XRAY_SHOW_IMPLICIT_HINTS != myShowImplicitHintsCheckbox.isSelected()) return true;
         if (scalaApplicationSettings.XRAY_SHOW_INDENT_GUIDES != myShowIndentGuidesCheckbox.isSelected()) return true;
-        if (scalaApplicationSettings.XRAY_SHOW_METHOD_SEPARATORS != myShowMethodSeparatorsCheckbox.isSelected()) return true;
+        if (scalaApplicationSettings.XRAY_SHOW_METHOD_SEPARATORS != myShowMethodSeparatorsCheckbox.isSelected())
+            return true;
         if (scalaApplicationSettings.XRAY_WIDGET_MODE != myWidgetModeCombobox.getSelectedItem()) return true;
 
         return false;
@@ -568,7 +542,6 @@ public class ScalaProjectSettingsPanel {
         myBasePackagesTable.setEnabled(!scalaProjectSettings.isInheritBasePackages());
         setCustomBasePackages(scalaProjectSettings.getCustomBasePackages());
 
-        setValue(scalaTestDefaultSuperClass, scalaProjectSettings.getScalaTestDefaultSuperClass());
         setValue(implicitParametersSearchDepthSpinner, scalaProjectSettings.getImplicitParametersSearchDepth());
         setValue(outputSpinner, scalaProjectSettings.getOutputLimit());
         setValue(runWorksheetInTheCheckBox, scalaProjectSettings.isInProcessMode());
@@ -605,11 +578,6 @@ public class ScalaProjectSettingsPanel {
         setValue(useCompilerRanges, scalaProjectSettings.isUseCompilerRanges());
 
         scTypeSelectionCombobox.setSelectedItem(scalaProjectSettings.getScFileMode());
-        trailingCommasComboBox.setSelectedItem(scalaProjectSettings.getTrailingCommasMode());
-
-        for (ComponentWithSettings setting : extraSettings) {
-            setting.loadSettings(scalaProjectSettings);
-        }
 
         scalaMetaMode.getModel().setSelectedItem(scalaProjectSettings.getScalaMetaMode());
         setValue(metaTrimBodies, scalaProjectSettings.isMetaTrimMethodBodies());
@@ -617,9 +585,6 @@ public class ScalaProjectSettingsPanel {
         ivy2IndexingModeCBB.getModel().setSelectedItem(scalaProjectSettings.getIvy2IndexingMode());
 
         setValue(extensionsPanel.enabledCB(), scalaProjectSettings.isEnableLibraryExtensions());
-
-
-        supportBackReferencesInCheckBox.setSelected(scalaProjectSettings.isEnableBackReferencesFromSharedSources());
 
         ScalaApplicationSettings scalaApplicationSettings = ScalaApplicationSettings.getInstance();
         myDoublePressAndHoldCheckbox.setSelected(scalaApplicationSettings.XRAY_DOUBLE_PRESS_AND_HOLD);
@@ -683,9 +648,6 @@ public class ScalaProjectSettingsPanel {
     }
 
     private void createUIComponents() {
-        injectionJPanel = new JPanel(new GridLayout(1, 1));
-        injectionJPanel.setPreferredSize(new Dimension(200, 500));
-        injectionJPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 0));
     }
 
     /**
@@ -696,7 +658,6 @@ public class ScalaProjectSettingsPanel {
      * @noinspection ALL
      */
     private void $$$setupUI$$$() {
-        createUIComponents();
         myPanel = new JPanel();
         myPanel.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
         tabbedPane = new JTabbedPane();
@@ -991,34 +952,11 @@ public class ScalaProjectSettingsPanel {
         final Spacer spacer10 = new Spacer();
         panel11.add(spacer10, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         final JPanel panel12 = new JPanel();
-        panel12.setLayout(new GridLayoutManager(5, 3, new Insets(9, 9, 0, 0), -1, -1));
-        tabbedPane.addTab(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.tabs.misc"), panel12);
-        panel12.add(injectionJPanel, new GridConstraints(3, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        final JLabel label17 = new JLabel();
-        this.$$$loadLabelText$$$(label17, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.scalatest.default.super.class"));
-        panel12.add(label17, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final Spacer spacer11 = new Spacer();
-        panel12.add(spacer11, new GridConstraints(4, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-        scalaTestDefaultSuperClass = new JTextField();
-        scalaTestDefaultSuperClass.setColumns(25);
-        panel12.add(scalaTestDefaultSuperClass, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
-        final JLabel label18 = new JLabel();
-        this.$$$loadLabelText$$$(label18, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.trailing.commas"));
-        panel12.add(label18, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        trailingCommasComboBox = new JComboBox();
-        panel12.add(trailingCommasComboBox, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final Spacer spacer12 = new Spacer();
-        panel12.add(spacer12, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
-        supportBackReferencesInCheckBox = new JCheckBox();
-        this.$$$loadButtonText$$$(supportBackReferencesInCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "support.back.references.in.shared.sources"));
-        supportBackReferencesInCheckBox.setToolTipText(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "support.back.references.in.shared.sources.tooltip"));
-        panel12.add(supportBackReferencesInCheckBox, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JPanel panel13 = new JPanel();
-        panel13.setLayout(new GridLayoutManager(1, 1, new Insets(9, 9, 0, 0), -1, -1));
-        tabbedPane.addTab(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.tabs.extensions"), panel13);
+        panel12.setLayout(new GridLayoutManager(1, 1, new Insets(9, 9, 0, 0), -1, -1));
+        tabbedPane.addTab(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.tabs.extensions"), panel12);
         librariesPanel = new JPanel();
         librariesPanel.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
-        panel13.add(librariesPanel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 1, false));
+        panel12.add(librariesPanel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 1, false));
         label7.setLabelFor(myWidgetModeCombobox);
         ButtonGroup buttonGroup;
         buttonGroup = new ButtonGroup();
