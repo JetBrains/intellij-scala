@@ -7,6 +7,7 @@ import org.jetbrains.jps.builders.DirtyFilesHolder
 import org.jetbrains.jps.builders.java.{JavaBuilderUtil, JavaSourceRootDescriptor}
 import org.jetbrains.jps.builders.storage.BuildDataCorruptedException
 import org.jetbrains.jps.incremental._
+import org.jetbrains.jps.model.java.JpsJavaExtensionService
 import org.jetbrains.jps.model.module.JpsModule
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 
@@ -30,6 +31,21 @@ class InitialScalaBuilder extends ModuleLevelBuilder(BuilderCategory.INITIAL) { 
     if (scalaModules.nonEmpty) {
       val previousIncrementalityType = readIncrementalityType(context)
       val incrementalityType = ScalaBuilder.projectSettings(context).getIncrementalityType
+
+      if (incrementalityType == IncrementalityType.SBT) {
+        // The project uses the Zinc incremental compiler. The Zinc incremental compiler compiles both Scala and Java
+        // sources. For that reason, it is important that the JavaBuilder does not run for our project. However,
+        // disabling the JavaBuilder through the JavaBuilder.IS_ENABLED global key is not ideal. There are other
+        // JPS builders who are also implicitly disabled by this action, such as the KotlinBuilder and the
+        // GradleResourcesBuilder. Thus, we want to instruct the JavaBuilder to not run for our project, but keep it
+        // enabled, such that the other builders can run. This can be achieved through the Java Compiler ID mechanism.
+        // We set the Java Compiler ID to our custom Zinc ID, an ID which is unique to the Scala plugin and for which
+        // a compiler does not exist in the IDEA Platform. In this case, the JavaBuilder will not have a compiler
+        // instance to run, and therefore it will not do anything in our project, but remain officially enabled.
+        val project = context.getProjectDescriptor.getProject
+        val configuration = JpsJavaExtensionService.getInstance().getCompilerConfiguration(project)
+        configuration.setJavaCompilerId(ZincCompilerId)
+      }
 
       previousIncrementalityType match {
         case _ if JavaBuilderUtil.isForcedRecompilationAllJavaModules(context) =>
@@ -156,4 +172,10 @@ object InitialScalaBuilder {
     storeScalaModules(context, result)
     result
   }
+
+  /**
+   * A unique compiler id (in the IntelliJ Platform), which does not match any other Java compiler implementation
+   * provided by the platform.
+   */
+  private final val ZincCompilerId = "scala_Zinc"
 }
