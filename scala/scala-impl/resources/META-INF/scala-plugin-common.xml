@@ -114,6 +114,10 @@
                              instance="org.jetbrains.plugins.scala.settings.ScalaProjectSettingsConfigurable"/>
         <projectConfigurable parentId="configurable.scala.root"
                              bundle="messages.ScalaBundle"
+                             key="scala.project.settings.form.tabs.misc"
+                             instance="org.jetbrains.plugins.scala.settings.sections.MiscSettingsSectionConfigurable"/>
+        <projectConfigurable parentId="configurable.scala.root"
+                             bundle="messages.ScalaBundle"
                              key="scala.project.settings.form.tabs.updates"
                              instance="org.jetbrains.plugins.scala.settings.sections.UpdateSettingsSectionConfigurable"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.settings.CompilerIndicesSettings"/>
