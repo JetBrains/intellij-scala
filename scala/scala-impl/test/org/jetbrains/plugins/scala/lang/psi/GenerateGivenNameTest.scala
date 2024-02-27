@@ -72,6 +72,19 @@ object GenerateGivenNameTest extends GeneratedTestSuiteFactory {
         |""".stripMargin,
       "given_Byte_Short_Int"
     ),
+    GivenNameTestData(
+      """
+        |given Int@java.lang.Deprecated = ???
+        |""".stripMargin,
+      "given_Int"
+    ),
+    GivenNameTestData(
+      """
+        |trait Test[A]
+        |given (Test[Int]@java.lang.Deprecated)@java.lang.Deprecated = ???
+        |""".stripMargin,
+      "given_Test_Int"
+    ),
 
     //////////////////// functions /////////////////
     GivenNameTestData(
