@@ -32,8 +32,8 @@ trait ScalaFeatures extends Any {
   def `leading infix operator`: Boolean
   def `? as wildcard marker`: Boolean
   def `case in pattern bindings`: Boolean
-
   def `optional braces for method arguments`: Boolean
+  def usingInArgumentsEnabled: Boolean
 }
 
 object ScalaFeatures {
@@ -84,6 +84,8 @@ object ScalaFeatures {
     def `case in pattern bindings`: Boolean =
       `in >= 2.12.15 or 2.13.7 or 3` || `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
 
+    override def usingInArgumentsEnabled: Boolean = Bits.usingInArgumentsEnabled.read(bits)
+
     def `optional braces for method arguments`: Boolean =
       indentationBasedSyntaxEnabled && languageLevel >= ScalaLanguageLevel.Scala_3_3
 
@@ -131,13 +133,16 @@ object ScalaFeatures {
     override def `leading infix operator`: Boolean               = delegate.`leading infix operator`
     override def `? as wildcard marker`: Boolean                 = delegate.`? as wildcard marker`
     override def `case in pattern bindings`: Boolean             = delegate.`case in pattern bindings`
-    override def `optional braces for method arguments`: Boolean          = delegate.`optional braces for method arguments`
+    override def usingInArgumentsEnabled: Boolean                = delegate.`case in pattern bindings`
+    override def `optional braces for method arguments`: Boolean = delegate.`optional braces for method arguments`
   }
 
   private val minorVersion6  = Version("6")
   private val minorVersion9  = Version("9")
+  private val minorVersion12 = Version("12")
   private val minorVersion14 = Version("14")
   private val minorVersion16 = Version("16")
+  private val minorVersion18 = Version("18")
 
   private val ScalaVersion_2_12_2 = ScalaVersion.Latest.Scala_2_12.withMinor(2)
 
@@ -174,6 +179,8 @@ object ScalaFeatures {
     val warnAboutDeprecatedInfixCallsEnabled: Boolean =
       isScala3 && hasDeprecationFlag && hasSourceFutureFlag
 
+    val usingInArgumentsEnabled = forMinorVersion(version, isScala3, _ >= minorVersion18, _ >= minorVersion12)
+
     create(
       languageLevel = languageLevel,
       hasSource3Flag = hasSource3Flag,
@@ -189,7 +196,8 @@ object ScalaFeatures {
       `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3` = `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`,
       `in >= 2.12.15 or 2.13.7 with -XSource:3 or 3` = `in >= 2.12.15 or 2.13.7 with -XSource:3 or 3`,
       `in >= 2.12.15 or 2.13.7 or 3` = `in >= 2.12.15 or 2.13.7 or 3`,
-      `in >= 2.12.16 or 2.13.9 or 3` = `in >= 2.12.16 or 2.13.9 or 3`
+      `in >= 2.12.16 or 2.13.9 or 3` = `in >= 2.12.16 or 2.13.9 or 3`,
+      usingInArgumentsEnabled = usingInArgumentsEnabled
     )
   }
 
@@ -293,7 +301,8 @@ object ScalaFeatures {
     `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`: Boolean,
     `in >= 2.12.15 or 2.13.7 with -XSource:3 or 3`: Boolean,
     `in >= 2.12.15 or 2.13.7 or 3`:                 Boolean,
-    `in >= 2.12.16 or 2.13.9 or 3`:                 Boolean
+    `in >= 2.12.16 or 2.13.9 or 3`:                 Boolean,
+    usingInArgumentsEnabled:                        Boolean
   ): SerializableScalaFeatures = {
     val bits = Ref.create[Int]
 
@@ -312,6 +321,7 @@ object ScalaFeatures {
     Bits.`in >= 2.12.15 or 2.13.7 with -XSource:3 or 3`.write(bits, `in >= 2.12.15 or 2.13.7 with -XSource:3 or 3`)
     Bits.`in >= 2.12.15 or 2.13.7 or 3`.write(bits, `in >= 2.12.15 or 2.13.7 or 3`)
     Bits.`in >= 2.12.16 or 2.13.9 or 3`.write(bits, `in >= 2.12.16 or 2.13.9 or 3`)
+    Bits.usingInArgumentsEnabled.write(bits, usingInArgumentsEnabled)
 
     new SerializableScalaFeatures(bits.get())
   }
@@ -335,6 +345,8 @@ object ScalaFeatures {
 
     val `in >= 2.12.15 or 2.13.7 or 3` = bool("in >= 2.12.15 or 2.13.7 or 3")
     val `in >= 2.12.16 or 2.13.9 or 3` = bool("in >= 2.12.16 or 2.13.9 or 3")
+
+    val usingInArgumentsEnabled = bool("warnAboutDeprecatedInfixCallsEnabled")
 
     override val version: Int = finishAndMakeVersion()
   }
