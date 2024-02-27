@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMac
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScPostfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam, TypeParamIdOwner}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunction}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunction, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -251,13 +251,23 @@ object InferUtil {
     (paramsForInfer.result(), exprs.result(), resolveResults.result())
   }
 
-  private def compilerGeneratedInstance(tp: ScType): Option[ScalaResolveResult] = tp match {
-    case p@ParameterizedType(des, params) =>
-      des.removeAliasDefinitions().extractClass.collect {
-        case clazz if areEligible(params, clazz.qualifiedName) => new ScalaResolveResult(clazz, p.substitutor)
-      }
-    case _ => None
-  }
+  private def compilerGeneratedInstance(tp: ScType): Option[ScalaResolveResult] =
+    tp.removeAliasDefinitions() match {
+      case p @ ParameterizedType(_, params) =>
+        p.extractClass.collect {
+          case clazz if areEligible(params, clazz.qualifiedName) =>
+            new ScalaResolveResult(clazz, p.substitutor)
+        }
+      case ScCompoundType(Seq(ExtractClass(cls)), _, typesMap) if cls.qualifiedName == Mirror =>
+        typesMap
+          .get("MirroredMonoType")
+          .map(sig => sig.typeAlias -> sig.substitutor)
+          .collect {
+            case (tdef: ScTypeAliasDefinition, subst) if eligibleForMirror(subst(tdef.aliasedType.getOrAny)) =>
+              new ScalaResolveResult(cls)
+          }
+      case _ => None
+    }
 
 
   private def areEligible(params: Seq[ScType], typeFqn: String): Boolean =
@@ -271,8 +281,8 @@ object InferUtil {
     }
 
   private def eligibleForMirror(tpe: ScType): Boolean = {
-    tpe.removeAliasDefinitions() match {
-      case DesignatorOwner(des) => des match {
+    tpe.extractDesignated(expandAliases = true) match {
+      case Some(des) => des match {
         case obj: ScObject                   => obj.isCase
         case _: ScEnum                       => true
         case _: ScEnumCase                   => true
@@ -285,6 +295,7 @@ object InferUtil {
           ).allMatch(cls => eligibleForMirror(ScDesignatorType(cls)))
         case _ => false
       }
+      case _ => false
     }
   }
 
@@ -631,17 +642,27 @@ object InferUtil {
             }
 
             val undefiningSubstitutor = ScSubstitutor.bind(typeParams)(UndefinedType(_))
+
             ScTypePolymorphicType(retType, typeParams.map { tp =>
               val lower = combineBounds(tp, isLower = true)
               val upper = combineBounds(tp, isLower = false)
 
-              if (canThrowSCE && !undefiningSubstitutor(lower).weakConforms(undefiningSubstitutor(upper)))
+              val boundsConformanceCheck =
+                undefiningSubstitutor(lower).conforms(
+                  undefiningSubstitutor(upper),
+                  ConstraintSystem.empty,
+                  checkWeak = true
+                )
+
+              if (canThrowSCE && !boundsConformanceCheck.isRight)
                 throw new SafeCheckException
 
-              TypeParameter(tp.psiTypeParameter, /* doesn't important here */
+              TypeParameter(
+                tp.psiTypeParameter, /* doesn't important here */
                 tp.typeParameters,
                 lower,
-                upper)
+                upper
+              )
             })
           } else {
 
