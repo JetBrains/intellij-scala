@@ -107,10 +107,15 @@
         <codeFoldingOptionsProvider instance="org.jetbrains.plugins.scala.editor.codeFolding.ScalaCodeFoldingOptionsProvider"/>
         <langCodeStyleSettingsProvider implementation="org.jetbrains.plugins.scala.lang.formatting.settings.ScalaLanguageCodeStyleSettingsProvider"/>
         <lang.lineWrapStrategy language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.formatting.ScalaLineWrapPositionStrategy"/>
-        <projectConfigurable groupId="language"
+        <projectConfigurable id="configurable.scala.root"
+                             groupId="language"
                              bundle="messages.ScalaInspectionBundle"
                              key="displayname.scala"
                              instance="org.jetbrains.plugins.scala.settings.ScalaProjectSettingsConfigurable"/>
+        <projectConfigurable parentId="configurable.scala.root"
+                             bundle="messages.ScalaBundle"
+                             key="scala.project.settings.form.tabs.updates"
+                             instance="org.jetbrains.plugins.scala.settings.sections.UpdateSettingsSectionConfigurable"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.settings.CompilerIndicesSettings"/>
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.settings.CompilerIndicesSbtSettings"/>
 
