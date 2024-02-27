@@ -1,4 +1,4 @@
-import kotlin.Keys.{kotlinRuntimeProvided, kotlinVersion, kotlincJvmTarget}
+import kotlin.Keys.{kotlinRuntimeProvided, kotlinSource, kotlinVersion, kotlincJvmTarget}
 import kotlin.KotlinPlugin
 import org.jetbrains.sbtidea.Keys.*
 import org.jetbrains.sbtidea.packaging.PackagingKeys.*
@@ -48,24 +48,39 @@ object Common {
   val outOfIDEAProcessJavacOptions       : Seq[String] = globalJavacOptionsCommon ++ globalExternalProcessReleaseOptions
   val outOfIDEAProcessScalacOptions      : Seq[String] = globalScalacOptionsCommon ++ globalExternalProcessReleaseOptions
 
-  private val NewProjectBaseSettings: Seq[Def.SettingsDefinition] = Seq(
+  val projectDirectoriesSettings: Seq[Setting[?]] = Seq(
+    // production sources
+    Compile / sourceDirectory := baseDirectory.value / "src", // we put all source files in <subproject_dir>/src
+    Compile / scalaSource := (Compile / sourceDirectory).value, // all Scala sources are in the same directory
+    Compile / javaSource := (Compile / sourceDirectory).value, // all Java sources are in the same directory
+    Compile / unmanagedSourceDirectories := Seq((Compile / sourceDirectory).value),
+    // test sources
+    Test / sourceDirectory := baseDirectory.value / "test", // we put all test source files in <subproject_dir>/test
+    Test / scalaSource := (Test / sourceDirectory).value, // all Scala test sources are in the same directory
+    Test / javaSource := (Test / sourceDirectory).value, // all Java test sources are in the same directory
+    Test / unmanagedSourceDirectories := Seq((Test / sourceDirectory).value),
+    //NOTE: this almost duplicates the logic from sbt-idea-plugin (see org.jetbrains.sbtidea.Init)
+    //but it uses `:=` instead of `+=` to remove standard resource directories, which intersect with source directories
+    // production resources
+    Compile / resourceDirectory := baseDirectory.value / "resources",
+    Compile / unmanagedResourceDirectories := Seq((Compile / resourceDirectory).value),
+    // test resources
+    Test / resourceDirectory := baseDirectory.value / "testResources",
+    Test / unmanagedResourceDirectories := Seq((Test / resourceDirectory).value)
+  )
+
+  private val NewProjectBaseSettings: Seq[Setting[?]] = Seq(
     organization := "JetBrains",
     scalaVersion := Versions.scalaVersion,
     (Compile / javacOptions) := globalJavacOptions,
     (Compile / scalacOptions) := globalScalacOptions,
-    (Compile / unmanagedSourceDirectories) := Seq(baseDirectory.value / "src"),
-    (Test / unmanagedSourceDirectories) := Seq(baseDirectory.value / "test"),
-    //NOTE: this almost duplicates the logic from sbt-idea-plugin (see org.jetbrains.sbtidea.Init)
-    //but it uses `:=` instead of `+=` to remove standard resource directories, which intersect with source directories
-    (Compile / unmanagedResourceDirectories) := Seq(baseDirectory.value / "resources"),
-    (Test / unmanagedResourceDirectories) := Seq(baseDirectory.value / "testResources"),
     updateOptions := updateOptions.value.withCachedResolution(true),
     instrumentThreadingAnnotations := true
-  )
+  ) ++ projectDirectoriesSettings
 
   def newPlainScalaProject(projectName: String, base: File): Project =
     Project(projectName, base).settings(
-      NewProjectBaseSettings *
+      NewProjectBaseSettings
     ).settings(
       name := projectName,
       intellijMainJars := Seq.empty,
@@ -79,7 +94,7 @@ object Common {
 
   def newProject(projectName: String, base: File): Project =
     Project(projectName, base).settings(
-      NewProjectBaseSettings *
+      NewProjectBaseSettings
     ).settings(
       name := projectName,
       //Note: we explicitly don't mark "testdata" directories as "test resources", because they are not test resources
@@ -113,7 +128,9 @@ object Common {
         // NOTE: keep versions in sync with ultimate/.idea/kotlinc.xml and community/.idea/kotlinc.xml
         kotlinVersion := "1.9.22",
         kotlincJvmTarget := "17",
-        kotlinRuntimeProvided := true
+        kotlinRuntimeProvided := true,
+        Compile / kotlinSource := (Compile / sourceDirectory).value, // all Kotlin source files are in the same directory as all other sources
+        Test / kotlinSource := (Test / sourceDirectory).value // all Kotlin test source files are in the same directory as all other sources
       )
   }
 
