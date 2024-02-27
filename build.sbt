@@ -158,10 +158,10 @@ lazy val worksheet =
 
 lazy val worksheetReplInterface =
   Project("worksheet-repl-interface", file("scala/worksheet-repl-interface"))
+    .settings(projectDirectoriesSettings)
     .settings(
       name := "worksheet-repl-interface",
       organization := "JetBrains",
-      (Compile / unmanagedSourceDirectories) += baseDirectory.value / "src",
       // NOTE: we might continue NOT using Scala in scalatestFinders just in case
       // in some future we will decide again to extract the library, so as it can be used even without scala jar
       scalaVersion := Versions.scalaVersion,
@@ -298,6 +298,7 @@ lazy val repl = newProject("repl", file("scala/repl"))
 lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
   .dependsOn(scalaLanguageUtils)
   .dependsOn(scalaLanguageUtilsRt)
+  .settings(projectDirectoriesSettings)
   .settings(
     name := "tasty-reader",
     organization := "JetBrains",
@@ -306,8 +307,6 @@ lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
     scalaVersion := Versions.scala3Version,
     libraryDependencies += "org.scala-lang" % "tasty-core_3" % Versions.scala3Version,
     (Compile / scalacOptions) := Seq("-deprecation"),
-    (Compile / unmanagedSourceDirectories) += baseDirectory.value / "src",
-    (Test / unmanagedSourceDirectories) += baseDirectory.value / "test",
     (Test / unmanagedResourceDirectories) += baseDirectory.value / "testdata",
     libraryDependencies ++= Seq(
       Dependencies.junit % Test,
@@ -317,11 +316,11 @@ lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
 
 lazy val scalacPatches: sbt.Project =
   Project("scalac-patches", file("scalac-patches"))
+    .settings(projectDirectoriesSettings)
     .settings(
       name := "scalac-patches",
       organization := "JetBrains",
       scalaVersion := Versions.scalaVersion,
-      Compile / unmanagedSourceDirectories += baseDirectory.value / "src",
       libraryDependencies ++= Seq(Dependencies.scalaCompiler),
       packageMethod := PackagingMethod.Skip(),
       intellijMainJars := Nil
