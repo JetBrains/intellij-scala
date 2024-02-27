@@ -19,7 +19,7 @@ import _root_.scala.jdk.CollectionConverters._
 /**
   * For tasks that should be performed once per compilation
   */
-class InitialScalaBuilder extends ModuleLevelBuilder(BuilderCategory.SOURCE_INSTRUMENTER) { //should be before other scala builders
+class InitialScalaBuilder extends ModuleLevelBuilder(BuilderCategory.INITIAL) { //should be before other scala builders
 
   import InitialScalaBuilder._
 
