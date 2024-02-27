@@ -329,6 +329,13 @@ object GenerateGivenNameTest extends GeneratedTestSuiteFactory {
         |""".stripMargin,
       "given_Seq_T"
     ),
+
+    //////////////////// patterns /////////////////
+    GivenNameTestData.pattern(
+      "trait Test[A]",
+      "given Test[a]",
+      "given_Test_a"
+    ),
   )
 
   abstract class GivenNameTestData extends SingleCodeTestData {
@@ -337,6 +344,7 @@ object GenerateGivenNameTest extends GeneratedTestSuiteFactory {
 
   object GivenNameTestData {
     def apply(testCode: String, expectedGivenName: String): GivenNameTestData = GivenDeclOrDefNameTestData(testCode, expectedGivenName)
+    def pattern(preamble: String, pattern: String, expectedGivenName: String): GivenNameTestData = GivenPatternNameTestData(preamble, pattern, expectedGivenName)
 
     private def extractTestName(code: String): String =
       code.trim.linesIterator.toSeq.last.replaceAll(raw"([\s\n])+", " ")
@@ -353,6 +361,30 @@ object GenerateGivenNameTest extends GeneratedTestSuiteFactory {
            |println(GivenHolder.`$expectedGivenName`)
            |""".stripMargin
       }
+    }
+
+    private case class GivenPatternNameTestData(preamble: String,
+                                                pattern: String,
+                                                override val expectedGivenName: String) extends GivenNameTestData {
+      override def testName: String = extractTestName(pattern)
+
+      override val testCode: String =
+        s"""
+           |$preamble
+           |
+           |??? match {
+           |  case $pattern =>
+           |}
+           |""".stripMargin
+
+      override def checkCodeFragment: String =
+        s"""
+           |$preamble
+           |
+           |??? match {
+           |  case $pattern => println($expectedGivenName)
+           |}
+           |""".stripMargin
     }
   }
 

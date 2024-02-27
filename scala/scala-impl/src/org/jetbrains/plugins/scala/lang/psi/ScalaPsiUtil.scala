@@ -1708,6 +1708,7 @@ object ScalaPsiUtil {
       case ScInfixTypeElement(_, op, _) => op.refName
       case ScParameterizedTypeElement(base, args) if isRoot => (transform(isRoot)(base) +: args.map(transformInner)).mkString("_")
       case ScParameterizedTypeElement(base, _) => transformInner(base)
+      case e: ScTypeVariableTypeElement => e.name
       case ScCompoundTypeElement(tes, _) if isRoot =>
         tes
           .take(2) // we take two elements at most, (A with B with C) means (A with (B with C)), so C is too deep
