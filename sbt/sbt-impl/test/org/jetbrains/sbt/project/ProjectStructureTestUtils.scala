@@ -47,7 +47,8 @@ object ProjectStructureTestUtils {
     new library(libraryName) {
       libClasses := coursierCacheArtifacts(s"org/scala-lang/$artifact/$version/$artifact-$version.jar")
       libSources := coursierCacheArtifacts(s"org/scala-lang/$artifact/$version/$artifact-$version-sources.jar")
-      libJavadocs := coursierCacheArtifacts(s"org/scala-lang/$artifact/$version/$artifact-$version-javadoc.jar")
+      //SCL-8356
+      //libJavadocs := coursierCacheArtifacts(s"org/scala-lang/$artifact/$version/$artifact-$version-javadoc.jar")
     }
   }
 
