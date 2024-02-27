@@ -1298,7 +1298,6 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i13282(): Unit = doTest("i13282", true)
   def test_i13331(): Unit = doTest("i13331", true) // #matchType
   def test_i13332(): Unit = doTest("i13332", true)
-  def test_i13332super(): Unit = doTest("i13332super", true)
   def test_i13334(): Unit = doTest("i13334", false) // #transparentInline
   def test_i13346(): Unit = doTest("i13346", false) // #export
   def test_i13349(): Unit = doTest("i13349", true)
