@@ -114,6 +114,10 @@
                              instance="org.jetbrains.plugins.scala.settings.ScalaProjectSettingsConfigurable"/>
         <projectConfigurable parentId="configurable.scala.root"
                              bundle="messages.ScalaBundle"
+                             key="scala.project.settings.form.tabs.editor"
+                             instance="org.jetbrains.plugins.scala.settings.sections.EditorSettingsSectionConfigurable"/>
+        <projectConfigurable parentId="configurable.scala.root"
+                             bundle="messages.ScalaBundle"
                              key="scala.project.settings.form.tabs.xray.mode"
                              instance="org.jetbrains.plugins.scala.settings.sections.XRayModeSettingsSectionConfigurable"/>
         <projectConfigurable parentId="configurable.scala.root"
