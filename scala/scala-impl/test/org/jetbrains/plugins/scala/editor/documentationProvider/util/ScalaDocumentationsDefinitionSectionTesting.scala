@@ -1,13 +1,11 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider.util
 
 import com.intellij.lang.documentation.DocumentationMarkup
-import com.intellij.openapi.editor.colors.{EditorColorsManager, TextAttributesKey}
-import com.intellij.openapi.editor.colors.impl.EmptyColorScheme
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocCss
 import org.jetbrains.plugins.scala.editor.documentationProvider.base.DocumentationProviderTestBase
-import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
+import org.jetbrains.plugins.scala.editor.documentationProvider.util.ScalaDocumentationsSectionsTestingBase.skipAllNestedDivs
 import org.junit.Assert._
 
 trait ScalaDocumentationsSectionsTestingBase {
@@ -33,11 +31,53 @@ trait ScalaDocumentationsSectionsTestingBase {
   // NOTE: doesn't support nested tags,
   // so will not detect "<div>a <div> b </div></div>"
   // will find first closing tag: "<div>a <div> b </div>"
-  protected def extractSectionInner(doc: String, sectionName: String, tagStart: String, tagEnd: String): String =
+  protected def extractSectionInner(doc: String, sectionName: String, tagStart: String, tagEnd: String): String = {
     doc.indexOf(tagStart) match {
-      case -1 => fail(s"no '$sectionName' section found\n$doc").asInstanceOf[Nothing]
-      case idx => doc.substring(idx + tagStart.length, doc.indexOf(tagEnd, idx))
+      case -1 =>
+        fail(s"no '$sectionName' section found\n$doc").asInstanceOf[Nothing]
+      case startIdx =>
+        val lastDivIdx = skipAllNestedDivs(doc, startIdx)
+        val endIndex = doc.indexOf(tagEnd, if (lastDivIdx != -1) lastDivIdx else startIdx)
+        doc.substring(startIdx + tagStart.length, endIndex)
     }
+  }
+}
+
+object ScalaDocumentationsSectionsTestingBase {
+  private val DivOpenRegex = "<div[^>]*>".r
+  private val DivCloseRegex = "</div>".r
+  private val DivOpenOrCloseRegex = s"($DivOpenRegex|$DivCloseRegex)".r
+
+  /**
+   * @return -1 - if no `<div></div>` sections were found<br>
+   *          index - of first character after last `</div>`
+   */
+  private def skipAllNestedDivs(html: String, start: Int): Int = {
+    var openedDivs = 0
+
+    var idx = start + 1
+    var continue = true
+    var hasAtLeastOneNestedDiv = false
+
+    val matcher = DivOpenOrCloseRegex.pattern.matcher(html)
+    while (continue && matcher.find(idx)) {
+      val matchingString = matcher.group()
+
+      val isDivOpening = DivOpenRegex.matches(matchingString)
+      hasAtLeastOneNestedDiv |= isDivOpening
+
+      openedDivs += (if (isDivOpening) 1 else -1)
+      if (openedDivs >= 0) {
+        idx = matcher.end()
+      }
+      continue = idx < html.length && openedDivs >= 0
+    }
+
+    if (hasAtLeastOneNestedDiv)
+      idx
+    else
+      -1
+  }
 }
 
 trait ScalaDocumentationsDefinitionSectionTesting extends ScalaDocumentationsSectionsTestingBase {
