@@ -120,6 +120,10 @@
                              bundle="messages.ScalaBundle"
                              key="scala.project.settings.form.tabs.updates"
                              instance="org.jetbrains.plugins.scala.settings.sections.UpdateSettingsSectionConfigurable"/>
+        <projectConfigurable parentId="configurable.scala.root"
+                             bundle="messages.ScalaBundle"
+                             key="scala.project.settings.form.tabs.extensions"
+                             instance="org.jetbrains.plugins.scala.settings.sections.ExtensionSettingsSectionConfigurable"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.settings.CompilerIndicesSettings"/>
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.settings.CompilerIndicesSbtSettings"/>
 
