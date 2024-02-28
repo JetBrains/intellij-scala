@@ -32,7 +32,7 @@ object ArgumentExprs extends ParsingRule {
         builder.advanceLexer() //Ate (
         builder.disableNewlines()
 
-        if (builder.isScala3) {
+        if (builder.isScala3 || builder.features.usingInArgumentsEnabled) {
           builder.tryParseSoftKeyword(ScalaTokenType.UsingKeyword)
         }
 
@@ -41,7 +41,7 @@ object ArgumentExprs extends ParsingRule {
           builder.advanceLexer()
           if (!Expr()) builder.wrongExpressionError()
         }
-      
+
         builder.getTokenType match {
           case ScalaTokenTypes.tRPARENTHESIS =>
             builder.advanceLexer() //Ate )

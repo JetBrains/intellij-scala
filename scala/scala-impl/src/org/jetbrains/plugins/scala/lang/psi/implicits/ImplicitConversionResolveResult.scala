@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.implicits
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.{PsiElement, PsiNamedElement, ResolveState}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -12,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.ExtensionMethod
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, MethodResolveProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState}
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 case class ImplicitConversionResolveResult(resolveResult: ScalaResolveResult,
                                            `type`: ScType,
@@ -52,18 +54,37 @@ object ImplicitConversionResolveResult {
   }
 
   def processImplicitConversionsAndExtensions(
-    refName:            Option[String],
-    ref:                ScExpression,
-    processor:          BaseProcessor,
+    refName: Option[String],
+    ref: PsiElement,
+    processor: BaseProcessor,
     noImplicitsForArgs: Boolean = false,
-    precalculatedType:  Option[ScType] = None,
-    forCompletion:      Boolean = false,
-  )(build:              ResolverStateBuilder => ResolverStateBuilder
+    forCompletion: Boolean = false,
+  )(build: ResolverStateBuilder => ResolverStateBuilder
   )(implicit
     place: ScExpression
   ): Unit =
+    processImplicitConversionsAndExtensions(
+      refName,
+      ref,
+      processor,
+      this.expressionType,
+      noImplicitsForArgs,
+      forCompletion
+    )(build)
+
+  def processImplicitConversionsAndExtensions(
+    refName:            Option[String],
+    ref:                PsiElement,
+    processor:          BaseProcessor,
+    precalculatedType:  Option[ScType],
+    noImplicitsForArgs: Boolean,
+    forCompletion:      Boolean,
+  )(build:              ResolverStateBuilder => ResolverStateBuilder
+  )(implicit
+    place: PsiElement
+  ): Unit =
     for {
-      expressionType <- precalculatedType.orElse(this.expressionType).toSeq
+      expressionType <- precalculatedType
       if !expressionType.equiv(Nothing) // do not proceed with nothing type, due to performance problems.
       resolveResult <- findImplicitConversionOrExtension(expressionType, refName, ref, processor, noImplicitsForArgs, forCompletion)
     } resolveResult match {
@@ -102,16 +123,17 @@ object ImplicitConversionResolveResult {
   private[this] def findImplicitConversionOrExtension(
     expressionType:     ScType,
     refName:            Option[String],
-    ref:                ScExpression,
+    ref:                PsiElement,
     processor:          BaseProcessor,
     noImplicitsForArgs: Boolean,
     forCompletion:      Boolean
   )(implicit
-    place: ScExpression
+    place: PsiElement
   ): Seq[ScalaResolveResult] = {
-    import place.elementScope
-    val functionType         = FunctionType(Any(place.projectContext), Seq(expressionType))
-    val expandedFunctionType = FunctionType(expressionType, arguments(processor, noImplicitsForArgs))
+    implicit val elementScope: ElementScope = ElementScope(place)
+
+    val functionType          = FunctionType(Any(place.getProject), Seq(expressionType))
+    val expandedFunctionType  = FunctionType(expressionType, arguments(processor, noImplicitsForArgs))
 
     def checkImplicits(noApplicability: Boolean = false, withoutImplicitsForArgs: Boolean = noImplicitsForArgs): Seq[ScalaResolveResult] = {
       val data = refName.map {

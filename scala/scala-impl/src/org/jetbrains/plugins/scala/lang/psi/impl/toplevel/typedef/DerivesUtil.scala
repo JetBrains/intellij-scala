@@ -1,19 +1,22 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
-import com.intellij.psi.PsiClass
+import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.{Model, StringsExt}
+import org.jetbrains.plugins.scala.extensions.{Model, ObjectExt, StringsExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScDerivesClauseOwner, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitConversionResolveResult
 import org.jetbrains.plugins.scala.lang.psi.types.TypeVariableUnification
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState
+import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 
 object DerivesUtil {
   /**
    * Check if ADT can be unified with typeclass' type parameter and
    * produce text of a given definition, which should be put into
-   * ADT's companion object. NOTE: `refName` is not neccessarily equal to
+   * ADT's companion object. NOTE: `refName` is not necessarily equal to
    * `tc.name`, it may be aliased.
    * Derivation mechanism covers two cases (a) and (b):
    * (a) ADT and type class parameters overlap on the right and have the
@@ -109,7 +112,7 @@ object DerivesUtil {
   }
 
   /**
-   * Produces text of a given defintion of `CanEqual` typeclass instance.
+   * Produces text of a given definition of `CanEqual` typeclass instance.
    * Specific derivation rules for `CanEqual[L, R]` and ADT `Foo[A, B, C[_]]` are as follows:
    *  1) Type params of the deriving class correspond to all and only
    *     elements of the deriving class which are relevant to equality
@@ -163,9 +166,8 @@ object DerivesUtil {
         case None =>
           Left(ScalaBundle.message("derives.type.has.no.companion.object", tc.name))
         case Some(companion) =>
-          val derivedTerms = companion.allTermsByName("derived")
 
-          if (derivedTerms.isEmpty)
+          if (!hasDerivedMethod(companion, owner))
             Left(ScalaBundle.message("derives.no.member.named.derived", tc.name))
           else {
             DerivesUtil.deriveSingleParameterTypeClass(refName, tc, owner).toRight(
@@ -174,6 +176,37 @@ object DerivesUtil {
           }
       }
     }
+  }
+
+  private def hasDerivedMethod(companion: ScTypeDefinition, place: PsiElement): Boolean = {
+    val processor = new MethodResolveProcessor(
+      place,
+      "derived",
+      List.empty,
+      Seq.empty,
+      Seq.empty,
+      isShapeResolve = false,
+    )
+
+    val companionType = companion.`type`().getOrAny
+
+    processor.processType(companionType, place, ScalaResolveState.empty)
+    val candidatesWithoutImplicits = processor.candidatesS
+
+    if (candidatesWithoutImplicits.forall(!_.isApplicable())) {
+      processor.resetPrecedence()
+
+      ImplicitConversionResolveResult.processImplicitConversionsAndExtensions(
+        Option(processor.refName),
+        place,
+        processor,
+        companionType.toOption,
+        noImplicitsForArgs = false,
+        forCompletion = false
+      )(identity)(place)
+
+      processor.candidatesS.nonEmpty
+    } else true
   }
 
   def resolveTypeClassReference(ref: ScReference): Either[String, ScTypeDefinition] =

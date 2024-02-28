@@ -1,15 +1,16 @@
 package org.jetbrains.plugins.scala.lang.psi.api
 
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.psi.PsiElement
+import com.intellij.psi.search.LocalSearchScope
+import com.intellij.psi.search.searches.ClassInheritorsSearch
+import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
-import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScInfixExpr, ScPostfixExpr}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScPostfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam, TypeParamIdOwner}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunction, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.ImplicitState
@@ -19,10 +20,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.{ConformanceExtR
 import org.jetbrains.plugins.scala.lang.psi.types.ConstraintSystem.SubstitutionBounds
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project._
 
@@ -32,7 +34,7 @@ import scala.util.control.ControlThrowable
 
 object InferUtil {
 
-  val tagsAndManifists = Set(
+  val tagsAndManifists: Set[String] = Set(
     "scala.reflect.ClassManifest",
     "scala.reflect.Manifest",
     "scala.reflect.OptManifest",
@@ -42,6 +44,7 @@ object InferUtil {
   )
 
   val ValueOf         = "scala.ValueOf"
+  val Mirror          = "scala.deriving.Mirror"
   val ConformsWitness = "scala.Predef.<:<"
   val EquivWitness    = "scala.Predef.=:="
 
@@ -59,13 +62,13 @@ object InferUtil {
   }
 
   /**
-    * This method can find implicit parameters for given MethodType
-    *
-    * @param res     MethodType or PolymorphicType(MethodType)
-    * @param element place to find implicit parameters
-    * @param canThrowSCE   if true can throw SafeCheckException if it not found not ambiguous implicit parameters
-    * @return updated type and sequence of implicit parameters
-    */
+   * This method can find implicit parameters for given MethodType
+   *
+   * @param res     MethodType or PolymorphicType(MethodType)
+   * @param element place to find implicit parameters
+   * @param canThrowSCE   if true can throw SafeCheckException if it not found not ambiguous implicit parameters
+   * @return updated type and sequence of implicit parameters
+   */
   def updateTypeWithImplicitParameters(
     res:                        ScType,
     element:                    PsiElement,
@@ -74,8 +77,6 @@ object InferUtil {
     searchImplicitsRecursively: Int = 0,
     fullInfo:                   Boolean
   ): (ScType, Option[Seq[ScalaResolveResult]], ConstraintSystem) = {
-    implicit val ctx: ProjectContext = element
-
     var implicitParameters: Option[Seq[ScalaResolveResult]] = None
     var resInner    = res
     var constraints = ConstraintSystem.empty
@@ -201,7 +202,7 @@ object InferUtil {
       val param = iterator.next()
       val paramType = abstractSubstitutor(param.paramType) //we should do all of this with information known before
       val implicitState = ImplicitState(place, paramType, paramType, coreElement, isImplicitConversion = false,
-          searchImplicitsRecursively, None, fullInfo = false, Some(ImplicitsRecursionGuard.currentMap))
+        searchImplicitsRecursively, None, fullInfo = false, Some(ImplicitsRecursionGuard.currentMap))
       val collector = new ImplicitCollector(implicitState)
       val results = collector.collect()
       if (results.length == 1) {
@@ -250,13 +251,23 @@ object InferUtil {
     (paramsForInfer.result(), exprs.result(), resolveResults.result())
   }
 
-  private def compilerGeneratedInstance(tp: ScType): Option[ScalaResolveResult] = tp match {
-    case p@ParameterizedType(des, params) =>
-      des.extractClass.collect {
-        case clazz if areEligible(params, clazz.qualifiedName) => new ScalaResolveResult(clazz, p.substitutor)
-      }
-    case _ => None
-  }
+  private def compilerGeneratedInstance(tp: ScType): Option[ScalaResolveResult] =
+    tp.removeAliasDefinitions() match {
+      case p @ ParameterizedType(_, params) =>
+        p.extractClass.collect {
+          case clazz if areEligible(params, clazz.qualifiedName) =>
+            new ScalaResolveResult(clazz, p.substitutor)
+        }
+      case ScCompoundType(Seq(ExtractClass(cls)), _, typesMap) if cls.qualifiedName == Mirror =>
+        typesMap
+          .get("MirroredMonoType")
+          .map(sig => sig.typeAlias -> sig.substitutor)
+          .collect {
+            case (tdef: ScTypeAliasDefinition, subst) if eligibleForMirror(subst(tdef.aliasedType.getOrAny)) =>
+              new ScalaResolveResult(cls)
+          }
+      case _ => None
+    }
 
 
   private def areEligible(params: Seq[ScType], typeFqn: String): Boolean =
@@ -264,9 +275,29 @@ object InferUtil {
       case (ValueOf, Seq(t))              => eligibleForValueOf(t)
       case (ConformsWitness, Seq(t1, t2)) => t1.conforms(t2)
       case (EquivWitness, Seq(t1, t2))    => t1.equiv(t2)
+      case (Mirror, Seq(t))               => eligibleForMirror(t)
       case _ if params.size == 1          => tagsAndManifists.contains(typeFqn)
       case _                              => false
     }
+
+  private def eligibleForMirror(tpe: ScType): Boolean = {
+    tpe.extractDesignated(expandAliases = true) match {
+      case Some(des) => des match {
+        case obj: ScObject                   => obj.isCase
+        case _: ScEnum                       => true
+        case _: ScEnumCase                   => true
+        case cls: ScClass if cls.isCase      => true
+        case tdef: PsiClass if tdef.isSealed =>
+          ClassInheritorsSearch.search(
+            tdef,
+            new LocalSearchScope(tdef.getContainingFile),
+            true
+          ).allMatch(cls => eligibleForMirror(ScDesignatorType(cls)))
+        case _ => false
+      }
+      case _ => false
+    }
+  }
 
   private def eligibleForValueOf(t: ScType): Boolean = {
     t.removeAliasDefinitions().inferValueType match {
@@ -289,14 +320,14 @@ object InferUtil {
   }
 
   /**
-    * Util method to update type according to expected type
-    *
-    * @param _nonValueType          type, to update it should be PolymorphicType
-    * @param expectedType           appropriate expected type
-    * @param expr                   place
-    * @param canThrowSCE            we fail to get right type then if canThrowSCE throw SafeCheckException
-    * @return updated type
-    */
+   * Util method to update type according to expected type
+   *
+   * @param _nonValueType          type, to update it should be PolymorphicType
+   * @param expectedType           appropriate expected type
+   * @param expr                   place
+   * @param canThrowSCE            we fail to get right type then if canThrowSCE throw SafeCheckException
+   * @return updated type
+   */
   def updateAccordingToExpectedType(_nonValueType: ScType,
                                     filterTypeParams: Boolean,
                                     expectedType: Option[ScType],
@@ -382,11 +413,11 @@ object InferUtil {
       val result = subst(inferredWithExpected)
 
       /** See
-        * [[scala.tools.nsc.typechecker.Typers.Typer.adapt#adaptToImplicitMethod]]
-        *
-        * If there is not found implicit for type parameters inferred using expected type,
-        * rollback type inference, it may be fixed later with implicit conversion
-        */
+       * [[scala.tools.nsc.typechecker.Typers.Typer.adapt#adaptToImplicitMethod]]
+       *
+       * If there is not found implicit for type parameters inferred using expected type,
+       * rollback type inference, it may be fixed later with implicit conversion
+       */
       if (cantFindImplicitsFor(result, conformanceResult.constraints)) _nonValueType
       else                                                             result
     }
@@ -611,17 +642,27 @@ object InferUtil {
             }
 
             val undefiningSubstitutor = ScSubstitutor.bind(typeParams)(UndefinedType(_))
+
             ScTypePolymorphicType(retType, typeParams.map { tp =>
               val lower = combineBounds(tp, isLower = true)
               val upper = combineBounds(tp, isLower = false)
 
-              if (canThrowSCE && !undefiningSubstitutor(lower).weakConforms(undefiningSubstitutor(upper)))
+              val boundsConformanceCheck =
+                undefiningSubstitutor(lower).conforms(
+                  undefiningSubstitutor(upper),
+                  ConstraintSystem.empty,
+                  checkWeak = true
+                )
+
+              if (canThrowSCE && !boundsConformanceCheck.isRight)
                 throw new SafeCheckException
 
-              TypeParameter(tp.psiTypeParameter, /* doesn't important here */
+              TypeParameter(
+                tp.psiTypeParameter, /* doesn't important here */
                 tp.typeParameters,
                 lower,
-                upper)
+                upper
+              )
             })
           } else {
 
@@ -672,8 +713,8 @@ object InferUtil {
               if (!retType.isValue) Seq.empty
               else
                 typeParams.filter(tp =>
-                    tp.varianceInType(retType).isContravariant &&
-                      !newConstraints.isApplicable(tp.typeParamId)
+                  tp.varianceInType(retType).isContravariant &&
+                    !newConstraints.isApplicable(tp.typeParamId)
                 )
 
             val contrSubst = ScSubstitutor.bind(notInferred)(tp => unSubst(tp.upperType))
