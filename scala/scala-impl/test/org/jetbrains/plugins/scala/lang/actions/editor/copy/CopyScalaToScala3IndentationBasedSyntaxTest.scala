@@ -1584,4 +1584,25 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |""".stripMargin,
     )
   }
+
+  //SCL-22181
+  def testToMethodWithEmptyBodyWithBraces_Nested(): Unit = {
+    doPasteTest(
+      """enum Color:
+        |  case Red, Green""".stripMargin,
+      s"""object A:
+         |  object B:
+         |    def foo = {
+         |      $CARET
+         |    }
+         |  """.stripMargin,
+      s"""object A:
+         |  object B:
+         |    def foo = {
+         |      enum Color:
+         |        case Red, Green
+         |    }
+         |  """.stripMargin,
+    )
+  }
 }
