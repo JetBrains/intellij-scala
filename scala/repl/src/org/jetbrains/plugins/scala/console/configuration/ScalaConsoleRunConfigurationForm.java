@@ -12,7 +12,7 @@ import com.intellij.ui.RawCommandLineEditor;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import org.jetbrains.plugins.scala.ScalaBundle;
+import org.jetbrains.plugins.scala.console.ScalaReplBundle;
 
 import javax.swing.*;
 import java.awt.*;
@@ -35,11 +35,11 @@ public class ScalaConsoleRunConfigurationForm {
         myModuleSelector = new ConfigurationModuleSelector(project, moduleComboBox);
         myModuleSelector.reset(configuration);
         moduleComboBox.setEnabled(true);
-        javaOptionsEditor.setName(ScalaBundle.message("scala.console.config.vm.options"));
+        javaOptionsEditor.setName(ScalaReplBundle.message("scala.console.config.vm.options"));
         javaOptionsEditor.setText("-Djline.terminal=NONE");
-        consoleArgsEditor.setName(ScalaBundle.message("scala.console.config.console.arguments"));
+        consoleArgsEditor.setName(ScalaReplBundle.message("scala.console.config.console.arguments"));
         consoleArgsEditor.setText("-usejavacp");
-        addFileChooser(ScalaBundle.message("scala.console.config.test.run.config.choose.working.directory"), workingDirectoryField, project);
+        addFileChooser(ScalaReplBundle.message("scala.console.config.test.run.config.choose.working.directory"), workingDirectoryField, project);
         VirtualFile baseDir = ProjectUtil.guessProjectDir(project);
         String path = baseDir != null ? baseDir.getPath() : "";
         workingDirectoryField.setText(path);
