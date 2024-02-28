@@ -90,7 +90,7 @@ public class UpdateSettingsSectionPanel extends SettingsSectionPanel {
      */
     private void $$$setupUI$$$() {
         rootPanel = new JPanel();
-        rootPanel.setLayout(new GridLayoutManager(4, 4, new Insets(9, 9, 0, 0), -1, -1));
+        rootPanel.setLayout(new GridLayoutManager(4, 4, new Insets(9, 9, 9, 9), -1, -1));
         final Spacer spacer1 = new Spacer();
         rootPanel.add(spacer1, new GridConstraints(3, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         final JLabel label1 = new JLabel();
