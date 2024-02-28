@@ -45,30 +45,22 @@ public class ScalaProjectSettingsPanel {
     private JComboBox<TypeChecker> typeChecker;
     private JCheckBox useCompilerRanges;
     private JPanel typeCheckerHelp;
-    private JCheckBox searchAllSymbolsIncludeCheckBox;
     private JCheckBox enableConversionOnCopyCheckBox;
     private JCheckBox donTShowDialogCheckBox;
     private JCheckBox showImplicitConversionsInCheckBox;
     private JCheckBox showArgumentsToByNameParametersCheckBox;
     private JCheckBox includeBlockExpressionsExpressionsCheckBox;
     private JCheckBox includeLiteralsCheckBox;
-    private JCheckBox treatDocCommentAsBlockComment;
-    private JCheckBox myDisableLanguageInjection;
     private JCheckBox useScalaClassesPriorityCheckBox;
     private JComboBox aliasSemantics;
     private JComboBox<ScalaCollectionHighlightingLevel> collectionHighlightingChooser;
-    private JSpinner implicitParametersSearchDepthSpinner;
-    private JCheckBox myDontCacheCompound;
     private JCheckBox myAotCompletion;
     private JCheckBox customScalatestSyntaxHighlightingCheckbox;
     private JCheckBox addOverrideToImplementCheckBox;
     private JCheckBox myProjectViewHighlighting;
-    private JComboBox<ScalaMetaMode> scalaMetaMode;
-    private JCheckBox metaTrimBodies;
     private JCheckBox showNotFoundImplicitArgumentsCheckBox;
     private JCheckBox showAmbiguousImplicitArgumentsCheckBox;
     private JCheckBox myGroupPackageObjectWithPackage;
-    private JComboBox<Ivy2IndexingMode> ivy2IndexingModeCBB;
     private final Project myProject;
 
     private JPanel useCompilerRangesHelp;
@@ -152,20 +144,6 @@ public class ScalaProjectSettingsPanel {
                 Pair.create(ScalaCollectionHighlightingLevel.All, ScalaBundle.message("scala.collection.highlighting.type.all"))
         ));
 
-        scalaMetaMode.setModel(new EnumComboBoxModel<>(ScalaMetaMode.class));
-        scalaMetaMode.setRenderer(SimpleMappingListCellRenderer.create(
-                Pair.create(ScalaMetaMode.Enabled, ScalaBundle.message("scala.meta.mode.enabled")),
-                Pair.create(ScalaMetaMode.Disabled, ScalaBundle.message("scala.meta.mode.disabled")),
-                Pair.create(ScalaMetaMode.Manual, ScalaBundle.message("scala.meta.mode.manual"))
-        ));
-
-        ivy2IndexingModeCBB.setModel(new EnumComboBoxModel<>(Ivy2IndexingMode.class));
-        ivy2IndexingModeCBB.setRenderer(SimpleMappingListCellRenderer.create(
-                Pair.create(Ivy2IndexingMode.Disabled, ScalaBundle.message("ivy2.indexing.mode.disabled")),
-                Pair.create(Ivy2IndexingMode.Metadata, ScalaBundle.message("ivy2.indexing.mode.metadata")),
-                Pair.create(Ivy2IndexingMode.Classes, ScalaBundle.message("ivy2.indexing.mode.classes"))
-        ));
-
         if (SystemInfo.isMac) {
             myDoublePressAndHoldCheckbox.setText(myDoublePressAndHoldCheckbox.getText().replace("Ctrl", "Cmd"));
             myPressAndHoldCheckbox.setText(myPressAndHoldCheckbox.getText().replace("Ctrl", "Cmd"));
@@ -215,13 +193,9 @@ public class ScalaProjectSettingsPanel {
         final ScalaProjectSettings scalaProjectSettings = getInstance(myProject);
         final ScalaCompileServerSettings compileServerSettings = ScalaCompileServerSettings.getInstance();
 
-        scalaProjectSettings.setImplicitParametersSearchDepth((Integer) implicitParametersSearchDepthSpinner.getValue());
-
-        scalaProjectSettings.setSearchAllSymbols(searchAllSymbolsIncludeCheckBox.isSelected());
         scalaProjectSettings.setEnableJavaToScalaConversion(enableConversionOnCopyCheckBox.isSelected());
         scalaProjectSettings.setAddOverrideToImplementInConverter(addOverrideToImplementCheckBox.isSelected());
         scalaProjectSettings.setDontShowConversionDialog(donTShowDialogCheckBox.isSelected());
-        scalaProjectSettings.setTreatDocCommentAsBlockComment(treatDocCommentAsBlockComment.isSelected());
 
         scalaProjectSettings.setShowImplicitConversions(showImplicitConversionsInCheckBox.isSelected());
         scalaProjectSettings.setTypeMismatchHints(showTypeMismatchHintsCheckBox.isSelected());
@@ -236,8 +210,6 @@ public class ScalaProjectSettingsPanel {
         scalaProjectSettings.setIncludeBlockExpressions(includeBlockExpressionsExpressionsCheckBox.isSelected());
         scalaProjectSettings.setIncludeLiterals(includeLiteralsCheckBox.isSelected());
 
-        scalaProjectSettings.setDisableLangInjection(myDisableLanguageInjection.isSelected());
-        scalaProjectSettings.setDontCacheCompoundTypes(myDontCacheCompound.isSelected());
         scalaProjectSettings.setAotCOmpletion(myAotCompletion.isSelected());
         scalaProjectSettings.setScalaPriority(useScalaClassesPriorityCheckBox.isSelected());
         scalaProjectSettings.setAliasSemantics((AliasExportSemantics) aliasSemantics.getSelectedItem());
@@ -256,11 +228,6 @@ public class ScalaProjectSettingsPanel {
             }
         }
         scalaProjectSettings.setGroupPackageObjectWithPackage(myGroupPackageObjectWithPackage.isSelected());
-
-        scalaProjectSettings.setScalaMetaMode((ScalaMetaMode) scalaMetaMode.getModel().getSelectedItem());
-        scalaProjectSettings.setMetaTrimMethodBodies(metaTrimBodies.isSelected());
-
-        scalaProjectSettings.setIvy2IndexingMode((Ivy2IndexingMode) ivy2IndexingModeCBB.getModel().getSelectedItem());
 
         ScalaApplicationSettings scalaApplicationSettings = ScalaApplicationSettings.getInstance();
         scalaApplicationSettings.XRAY_DOUBLE_PRESS_AND_HOLD = myDoublePressAndHoldCheckbox.isSelected();
@@ -304,25 +271,12 @@ public class ScalaProjectSettingsPanel {
         if (scalaProjectSettings.isIncludeLiterals() !=
                 includeLiteralsCheckBox.isSelected()) return true;
 
-        if (scalaProjectSettings.getImplicitParametersSearchDepth() !=
-                (Integer) implicitParametersSearchDepthSpinner.getValue()) return true;
-
-        if (scalaProjectSettings.isSearchAllSymbols() !=
-                searchAllSymbolsIncludeCheckBox.isSelected()) return true;
         if (scalaProjectSettings.isEnableJavaToScalaConversion() !=
                 enableConversionOnCopyCheckBox.isSelected()) return true;
         if (scalaProjectSettings.isAddOverrideToImplementInConverter() !=
                 addOverrideToImplementCheckBox.isSelected()) return true;
         if (scalaProjectSettings.isDontShowConversionDialog() !=
                 donTShowDialogCheckBox.isSelected()) return true;
-        if (scalaProjectSettings.isTreatDocCommentAsBlockComment() !=
-                treatDocCommentAsBlockComment.isSelected()) return true;
-
-        if (scalaProjectSettings.isDisableLangInjection() != myDisableLanguageInjection.isSelected())
-            return true;
-
-
-        if (scalaProjectSettings.isDontCacheCompoundTypes() != myDontCacheCompound.isSelected()) return true;
 
         if (scalaProjectSettings.isAotCompletion() != myAotCompletion.isSelected())
             return true;
@@ -346,12 +300,6 @@ public class ScalaProjectSettingsPanel {
                 (typeChecker.getSelectedItem() == TypeChecker.Compiler)) return true;
 
         if (scalaProjectSettings.isUseCompilerRanges() != useCompilerRanges.isSelected()) return true;
-
-        if (!scalaProjectSettings.getScalaMetaMode().equals(scalaMetaMode.getModel().getSelectedItem())) return true;
-        if (scalaProjectSettings.isMetaTrimMethodBodies() != metaTrimBodies.isSelected()) return true;
-
-        if (!scalaProjectSettings.getIvy2IndexingMode().equals(ivy2IndexingModeCBB.getModel().getSelectedItem()))
-            return true;
 
         ScalaApplicationSettings scalaApplicationSettings = ScalaApplicationSettings.getInstance();
         if (scalaApplicationSettings.XRAY_DOUBLE_PRESS_AND_HOLD != myDoublePressAndHoldCheckbox.isSelected())
@@ -413,13 +361,9 @@ public class ScalaProjectSettingsPanel {
         final ScalaProjectSettings scalaProjectSettings = getInstance(myProject);
         final ScalaCompileServerSettings compileServerSettings = ScalaCompileServerSettings.getInstance();
 
-        setValue(implicitParametersSearchDepthSpinner, scalaProjectSettings.getImplicitParametersSearchDepth());
-
-        setValue(searchAllSymbolsIncludeCheckBox, scalaProjectSettings.isSearchAllSymbols());
         setValue(enableConversionOnCopyCheckBox, scalaProjectSettings.isEnableJavaToScalaConversion());
         setValue(addOverrideToImplementCheckBox, scalaProjectSettings.isAddOverrideToImplementInConverter());
         setValue(donTShowDialogCheckBox, scalaProjectSettings.isDontShowConversionDialog());
-        setValue(treatDocCommentAsBlockComment, scalaProjectSettings.isTreatDocCommentAsBlockComment());
 
         setValue(showImplicitConversionsInCheckBox, scalaProjectSettings.isShowImplicitConversions());
         setValue(showTypeMismatchHintsCheckBox, scalaProjectSettings.isTypeMismatchHints());
@@ -430,8 +374,6 @@ public class ScalaProjectSettingsPanel {
         setValue(includeBlockExpressionsExpressionsCheckBox, scalaProjectSettings.isIncludeBlockExpressions());
         setValue(includeLiteralsCheckBox, scalaProjectSettings.isIncludeLiterals());
 
-        setValue(myDisableLanguageInjection, scalaProjectSettings.isDisableLangInjection());
-        setValue(myDontCacheCompound, scalaProjectSettings.isDontCacheCompoundTypes());
         setValue(myAotCompletion, scalaProjectSettings.isAotCompletion());
         setValue(useScalaClassesPriorityCheckBox, scalaProjectSettings.isScalaPriority());
         aliasSemantics.setSelectedItem(scalaProjectSettings.getAliasSemantics());
@@ -441,11 +383,6 @@ public class ScalaProjectSettingsPanel {
         setValue(myGroupPackageObjectWithPackage, scalaProjectSettings.isGroupPackageObjectWithPackage());
         typeChecker.setSelectedItem(scalaProjectSettings.isCompilerHighlightingScala2() ? TypeChecker.Compiler : TypeChecker.BuiltIn);
         setValue(useCompilerRanges, scalaProjectSettings.isUseCompilerRanges());
-
-        scalaMetaMode.getModel().setSelectedItem(scalaProjectSettings.getScalaMetaMode());
-        setValue(metaTrimBodies, scalaProjectSettings.isMetaTrimMethodBodies());
-
-        ivy2IndexingModeCBB.getModel().setSelectedItem(scalaProjectSettings.getIvy2IndexingMode());
 
         ScalaApplicationSettings scalaApplicationSettings = ScalaApplicationSettings.getInstance();
         myDoublePressAndHoldCheckbox.setSelected(scalaApplicationSettings.XRAY_DOUBLE_PRESS_AND_HOLD);
@@ -680,46 +617,6 @@ public class ScalaProjectSettingsPanel {
         myGroupPackageObjectWithPackage = new JCheckBox();
         this.$$$loadButtonText$$$(myGroupPackageObjectWithPackage, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.group.package.object.with.package"));
         panel8.add(myGroupPackageObjectWithPackage, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JPanel panel9 = new JPanel();
-        panel9.setLayout(new GridLayoutManager(9, 2, new Insets(9, 9, 0, 0), -1, -1));
-        tabbedPane.addTab(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.tabs.performance"), panel9);
-        final Spacer spacer5 = new Spacer();
-        panel9.add(spacer5, new GridConstraints(8, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-        final JLabel label9 = new JLabel();
-        this.$$$loadLabelText$$$(label9, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.implicit.parameters.search.depth"));
-        panel9.add(label9, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        implicitParametersSearchDepthSpinner = new JSpinner();
-        panel9.add(implicitParametersSearchDepthSpinner, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, new Dimension(50, -1), null, null, 0, false));
-        treatDocCommentAsBlockComment = new JCheckBox();
-        this.$$$loadButtonText$$$(treatDocCommentAsBlockComment, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.disable.parsing.of.documentation.comments"));
-        panel9.add(treatDocCommentAsBlockComment, new GridConstraints(5, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        myDisableLanguageInjection = new JCheckBox();
-        this.$$$loadButtonText$$$(myDisableLanguageInjection, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.disable.language.injection.in.scala.files"));
-        panel9.add(myDisableLanguageInjection, new GridConstraints(6, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        myDontCacheCompound = new JCheckBox();
-        this.$$$loadButtonText$$$(myDontCacheCompound, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.dont.cache.compound.types"));
-        panel9.add(myDontCacheCompound, new GridConstraints(7, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        searchAllSymbolsIncludeCheckBox = new JCheckBox();
-        this.$$$loadButtonText$$$(searchAllSymbolsIncludeCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.search.all.symbols"));
-        panel9.add(searchAllSymbolsIncludeCheckBox, new GridConstraints(4, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label10 = new JLabel();
-        this.$$$loadLabelText$$$(label10, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.scala.meta.settings.annot212"));
-        label10.setToolTipText(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.scala.meta.settings.annot212.tooltip"));
-        panel9.add(label10, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        scalaMetaMode = new JComboBox();
-        scalaMetaMode.setToolTipText(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.scala.meta.settings.modeOptions.tooltip"));
-        panel9.add(scalaMetaMode, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        metaTrimBodies = new JCheckBox();
-        this.$$$loadButtonText$$$(metaTrimBodies, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.scala.meta.settings.trimBodies.caption"));
-        metaTrimBodies.setToolTipText(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.scala.meta.settings.trimBodies.tooltip"));
-        panel9.add(metaTrimBodies, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        ivy2IndexingModeCBB = new JComboBox();
-        ivy2IndexingModeCBB.setToolTipText(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.sbt.index.ivy2.mode.hint"));
-        panel9.add(ivy2IndexingModeCBB, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label11 = new JLabel();
-        this.$$$loadLabelText$$$(label11, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.sbt.index.ivy2.mode"));
-        label11.setToolTipText(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.sbt.index.ivy2.mode.hint"));
-        panel9.add(label11, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         label7.setLabelFor(myWidgetModeCombobox);
     }
 
