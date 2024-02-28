@@ -38,11 +38,10 @@ abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImporti
    * It is necessary to explicitly set all project settings that are tested/required for test, because what is set in
    * #setUp method in each SbtProjectStructureImportingTest classes is not applied to the project settings of the linked project
    */
-  protected def linkSbtProject(path: String, groupProjectsFromSameBuild: Boolean, transitiveProjectDependencies: Boolean): Unit = {
+  protected def linkSbtProject(path: String, transitiveProjectDependencies: Boolean): Unit = {
     val settings = new SbtProjectSettings
     settings.jdk = getJdkConfiguredForTestCase.getName
     settings.setExternalProjectPath(path)
-    settings.setGroupProjectsFromSameBuild(groupProjectsFromSameBuild)
     settings.setInsertProjectTransitiveDependencies(transitiveProjectDependencies)
     SbtSettings.getInstance(myProject).linkProject(settings)
   }

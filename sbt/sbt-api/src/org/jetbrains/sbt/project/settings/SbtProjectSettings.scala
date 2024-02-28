@@ -63,9 +63,6 @@ class SbtProjectSettings extends ExternalProjectSettings {
   @BeanProperty var resolveClassifiers: Boolean = true
   @BeanProperty var resolveSbtClassifiers: Boolean = false
   @BeanProperty var preferScala2 = true
-  //See SCL-21694 for details
-  //TODO if by ~2024.2 release we don't observe any major issues related to this new grouping logic we can remove the setting completely (with all the code using it)
-  @BeanProperty var groupProjectsFromSameBuild = true
   //See SCL-21158 for details
   //This should be in sync with what is used as a default value in
   // org.jetbrains.jps.incremental.scala.model.impl.JpsSbtDependenciesEnumerationHandler.shouldProcessDependenciesRecursively
@@ -107,7 +104,6 @@ class SbtProjectSettings extends ExternalProjectSettings {
     result.useSbtShellForBuild = useSbtShellForBuild
     result.enableDebugSbtShell = enableDebugSbtShell
     result.preferScala2 = preferScala2
-    result.groupProjectsFromSameBuild = groupProjectsFromSameBuild
     result.insertProjectTransitiveDependencies = insertProjectTransitiveDependencies
     result.useSeparateCompilerOutputPaths = useSeparateCompilerOutputPaths
     result

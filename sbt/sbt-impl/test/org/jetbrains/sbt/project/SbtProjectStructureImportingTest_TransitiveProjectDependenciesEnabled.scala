@@ -7,7 +7,7 @@ import org.junit.experimental.categories.Category
 import java.net.URI
 
 @Category(Array(classOf[SlowTests]))
-final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesEnabledGroupModulesEnabled extends SbtProjectStructureImportingLike {
+final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesEnabled extends SbtProjectStructureImportingLike {
 
   import ProjectStructureDsl._
 
