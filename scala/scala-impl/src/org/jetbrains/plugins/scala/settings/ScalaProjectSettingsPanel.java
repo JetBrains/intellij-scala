@@ -41,10 +41,6 @@ public class ScalaProjectSettingsPanel {
 
     private static final String LAST_SELECTED_TAB_INDEX = "scala_project_settings_configurable.last_selected_tab_index";
 
-    private static final int WORKSHEET_RUN_DELAY_MS_MINIMUM = 500;
-    private static final int WORKSHEET_RUN_DELAY_MS_MAXIMUM = 5000;
-    private static final int WORKSHEET_RUN_DELAY_SPINNER_STEP_SIZE = 10;
-
     private JPanel myPanel;
     private JComboBox<TypeChecker> typeChecker;
     private JCheckBox useCompilerRanges;
@@ -61,21 +57,14 @@ public class ScalaProjectSettingsPanel {
     private JCheckBox useScalaClassesPriorityCheckBox;
     private JComboBox aliasSemantics;
     private JComboBox<ScalaCollectionHighlightingLevel> collectionHighlightingChooser;
-    private JSpinner outputSpinner;
     private JSpinner implicitParametersSearchDepthSpinner;
     private JCheckBox myDontCacheCompound;
-    private JCheckBox runWorksheetInTheCheckBox;
     private JCheckBox myAotCompletion;
-    private JCheckBox useEclipseCompatibilityModeCheckBox;
-    private JCheckBox treatScalaScratchFilesCheckBox;
-    private JSpinner worksheetAutoRunDelaySpinner;
     private JCheckBox customScalatestSyntaxHighlightingCheckbox;
     private JCheckBox addOverrideToImplementCheckBox;
     private JCheckBox myProjectViewHighlighting;
     private JComboBox<ScalaMetaMode> scalaMetaMode;
     private JCheckBox metaTrimBodies;
-    private JComboBox<ScFileMode> scTypeSelectionCombobox;
-    private JCheckBox collapseWorksheetFoldByCheckBox;
     private JCheckBox showNotFoundImplicitArgumentsCheckBox;
     private JCheckBox showAmbiguousImplicitArgumentsCheckBox;
     private JCheckBox myGroupPackageObjectWithPackage;
@@ -163,14 +152,6 @@ public class ScalaProjectSettingsPanel {
                 Pair.create(ScalaCollectionHighlightingLevel.All, ScalaBundle.message("scala.collection.highlighting.type.all"))
         ));
 
-        outputSpinner.setModel(spinnerModel(1, null, 1));
-
-        worksheetAutoRunDelaySpinner.setModel(spinnerModel(
-                WORKSHEET_RUN_DELAY_MS_MINIMUM,
-                WORKSHEET_RUN_DELAY_MS_MAXIMUM,
-                WORKSHEET_RUN_DELAY_SPINNER_STEP_SIZE
-        ));
-
         scalaMetaMode.setModel(new EnumComboBoxModel<>(ScalaMetaMode.class));
         scalaMetaMode.setRenderer(SimpleMappingListCellRenderer.create(
                 Pair.create(ScalaMetaMode.Enabled, ScalaBundle.message("scala.meta.mode.enabled")),
@@ -183,13 +164,6 @@ public class ScalaProjectSettingsPanel {
                 Pair.create(Ivy2IndexingMode.Disabled, ScalaBundle.message("ivy2.indexing.mode.disabled")),
                 Pair.create(Ivy2IndexingMode.Metadata, ScalaBundle.message("ivy2.indexing.mode.metadata")),
                 Pair.create(Ivy2IndexingMode.Classes, ScalaBundle.message("ivy2.indexing.mode.classes"))
-        ));
-
-        scTypeSelectionCombobox.setModel(new EnumComboBoxModel<>(ScFileMode.class));
-        scTypeSelectionCombobox.setRenderer(SimpleMappingListCellRenderer.create(
-                Pair.create(ScFileMode.Worksheet, ScalaBundle.message("script.file.mode.always.worksheet")),
-                Pair.create(ScFileMode.Ammonite, ScalaBundle.message("script.file.mode.always.ammonite")),
-                Pair.create(ScFileMode.Auto, ScalaBundle.message("script.file.mode.ammonite.in.test.sources.otherwise.worksheet"))
         ));
 
         if (SystemInfo.isMac) {
@@ -222,13 +196,6 @@ public class ScalaProjectSettingsPanel {
         myShowVariablePatternsCheckbox.setEnabled(b);
     }
 
-    private static SpinnerNumberModel spinnerModel(Integer min, Integer max, Integer stepSize) {
-        // assuming will be changed in setSettings method
-        //noinspection UnnecessaryLocalVariable
-        Number value = min;
-        return new SpinnerNumberModel(value, min, max, stepSize);
-    }
-
     @NotNull
     protected FileType getFileType() {
         return ScalaFileType.INSTANCE;
@@ -249,11 +216,6 @@ public class ScalaProjectSettingsPanel {
         final ScalaCompileServerSettings compileServerSettings = ScalaCompileServerSettings.getInstance();
 
         scalaProjectSettings.setImplicitParametersSearchDepth((Integer) implicitParametersSearchDepthSpinner.getValue());
-        scalaProjectSettings.setOutputLimit((Integer) outputSpinner.getValue());
-        scalaProjectSettings.setInProcessMode(runWorksheetInTheCheckBox.isSelected());
-        scalaProjectSettings.setWorksheetFoldCollapsedByDefault(collapseWorksheetFoldByCheckBox.isSelected());
-        scalaProjectSettings.setUseEclipseCompatibility(useEclipseCompatibilityModeCheckBox.isSelected());
-        scalaProjectSettings.setTreatScratchFilesAsWorksheet(treatScalaScratchFilesCheckBox.isSelected());
 
         scalaProjectSettings.setSearchAllSymbols(searchAllSymbolsIncludeCheckBox.isSelected());
         scalaProjectSettings.setEnableJavaToScalaConversion(enableConversionOnCopyCheckBox.isSelected());
@@ -283,8 +245,6 @@ public class ScalaProjectSettingsPanel {
         scalaProjectSettings.setCompilerHighlightingScala2(typeChecker.getSelectedItem() == TypeChecker.Compiler);
         scalaProjectSettings.setUseCompilerRanges(useCompilerRanges.isSelected());
 
-        scalaProjectSettings.setAutoRunDelay(getWorksheetDelay());
-
         if (scalaProjectSettings.isProjectViewHighlighting() && !myProjectViewHighlighting.isSelected()) {
             ProblemSolverUtils.clearProblemsIn(myProject);
         }
@@ -301,15 +261,6 @@ public class ScalaProjectSettingsPanel {
         scalaProjectSettings.setMetaTrimMethodBodies(metaTrimBodies.isSelected());
 
         scalaProjectSettings.setIvy2IndexingMode((Ivy2IndexingMode) ivy2IndexingModeCBB.getModel().getSelectedItem());
-
-        Object type = scTypeSelectionCombobox.getSelectedItem();
-        if (type != null) {
-            ScFileMode newMode = ScFileMode.valueOf(type.toString());
-            if (newMode != scalaProjectSettings.getScFileMode()) {
-                ScalaActionUsagesCollector.logScFileModeSet(newMode, myProject);
-            }
-            scalaProjectSettings.setScFileMode(newMode);
-        }
 
         ScalaApplicationSettings scalaApplicationSettings = ScalaApplicationSettings.getInstance();
         scalaApplicationSettings.XRAY_DOUBLE_PRESS_AND_HOLD = myDoublePressAndHoldCheckbox.isSelected();
@@ -355,16 +306,6 @@ public class ScalaProjectSettingsPanel {
 
         if (scalaProjectSettings.getImplicitParametersSearchDepth() !=
                 (Integer) implicitParametersSearchDepthSpinner.getValue()) return true;
-        if (scalaProjectSettings.getOutputLimit() !=
-                (Integer) outputSpinner.getValue()) return true;
-        if (scalaProjectSettings.isInProcessMode() !=
-                runWorksheetInTheCheckBox.isSelected()) return true;
-        if (scalaProjectSettings.isWorksheetFoldCollapsedByDefault() !=
-                collapseWorksheetFoldByCheckBox.isSelected()) return true;
-        if (scalaProjectSettings.isUseEclipseCompatibility() != useEclipseCompatibilityModeCheckBox.isSelected())
-            return true;
-        if (scalaProjectSettings.isTreatScratchFilesAsWorksheet() != treatScalaScratchFilesCheckBox.isSelected())
-            return true;
 
         if (scalaProjectSettings.isSearchAllSymbols() !=
                 searchAllSymbolsIncludeCheckBox.isSelected()) return true;
@@ -406,15 +347,11 @@ public class ScalaProjectSettingsPanel {
 
         if (scalaProjectSettings.isUseCompilerRanges() != useCompilerRanges.isSelected()) return true;
 
-        if (scalaProjectSettings.getAutoRunDelay() != getWorksheetDelay()) return true;
-
         if (!scalaProjectSettings.getScalaMetaMode().equals(scalaMetaMode.getModel().getSelectedItem())) return true;
         if (scalaProjectSettings.isMetaTrimMethodBodies() != metaTrimBodies.isSelected()) return true;
 
         if (!scalaProjectSettings.getIvy2IndexingMode().equals(ivy2IndexingModeCBB.getModel().getSelectedItem()))
             return true;
-
-        if (scalaProjectSettings.getScFileMode() != scTypeSelectionCombobox.getSelectedItem()) return true;
 
         ScalaApplicationSettings scalaApplicationSettings = ScalaApplicationSettings.getInstance();
         if (scalaApplicationSettings.XRAY_DOUBLE_PRESS_AND_HOLD != myDoublePressAndHoldCheckbox.isSelected())
@@ -477,11 +414,6 @@ public class ScalaProjectSettingsPanel {
         final ScalaCompileServerSettings compileServerSettings = ScalaCompileServerSettings.getInstance();
 
         setValue(implicitParametersSearchDepthSpinner, scalaProjectSettings.getImplicitParametersSearchDepth());
-        setValue(outputSpinner, scalaProjectSettings.getOutputLimit());
-        setValue(runWorksheetInTheCheckBox, scalaProjectSettings.isInProcessMode());
-        setValue(collapseWorksheetFoldByCheckBox, scalaProjectSettings.isWorksheetFoldCollapsedByDefault());
-        setValue(useEclipseCompatibilityModeCheckBox, scalaProjectSettings.isUseEclipseCompatibility());
-        setValue(treatScalaScratchFilesCheckBox, scalaProjectSettings.isTreatScratchFilesAsWorksheet());
 
         setValue(searchAllSymbolsIncludeCheckBox, scalaProjectSettings.isSearchAllSymbols());
         setValue(enableConversionOnCopyCheckBox, scalaProjectSettings.isEnableJavaToScalaConversion());
@@ -504,14 +436,11 @@ public class ScalaProjectSettingsPanel {
         setValue(useScalaClassesPriorityCheckBox, scalaProjectSettings.isScalaPriority());
         aliasSemantics.setSelectedItem(scalaProjectSettings.getAliasSemantics());
         collectionHighlightingChooser.setSelectedItem(scalaProjectSettings.getCollectionTypeHighlightingLevel());
-        setWorksheetDelay(scalaProjectSettings.getAutoRunDelay());
 
         setValue(myProjectViewHighlighting, scalaProjectSettings.isProjectViewHighlighting());
         setValue(myGroupPackageObjectWithPackage, scalaProjectSettings.isGroupPackageObjectWithPackage());
         typeChecker.setSelectedItem(scalaProjectSettings.isCompilerHighlightingScala2() ? TypeChecker.Compiler : TypeChecker.BuiltIn);
         setValue(useCompilerRanges, scalaProjectSettings.isUseCompilerRanges());
-
-        scTypeSelectionCombobox.setSelectedItem(scalaProjectSettings.getScFileMode());
 
         scalaMetaMode.getModel().setSelectedItem(scalaProjectSettings.getScalaMetaMode());
         setValue(metaTrimBodies, scalaProjectSettings.isMetaTrimMethodBodies());
@@ -535,14 +464,6 @@ public class ScalaProjectSettingsPanel {
         myShowIndentGuidesCheckbox.setSelected(scalaApplicationSettings.XRAY_SHOW_INDENT_GUIDES);
         myShowMethodSeparatorsCheckbox.setSelected(scalaApplicationSettings.XRAY_SHOW_METHOD_SEPARATORS);
         myWidgetModeCombobox.setSelectedItem(scalaApplicationSettings.XRAY_WIDGET_MODE);
-    }
-
-    private int getWorksheetDelay() {
-        return (int) worksheetAutoRunDelaySpinner.getValue();
-    }
-
-    private void setWorksheetDelay(int delay) {
-        worksheetAutoRunDelaySpinner.setValue(delay);
     }
 
     private static void setValue(JSpinner spinner, int value) {
@@ -799,49 +720,6 @@ public class ScalaProjectSettingsPanel {
         this.$$$loadLabelText$$$(label11, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.sbt.index.ivy2.mode"));
         label11.setToolTipText(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.sbt.index.ivy2.mode.hint"));
         panel9.add(label11, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JPanel panel10 = new JPanel();
-        panel10.setLayout(new GridLayoutManager(8, 4, new Insets(9, 9, 0, 0), -1, -1));
-        tabbedPane.addTab(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.tabs.worksheet"), panel10);
-        final Spacer spacer6 = new Spacer();
-        panel10.add(spacer6, new GridConstraints(7, 0, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-        final JLabel label12 = new JLabel();
-        this.$$$loadLabelText$$$(label12, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.output.cutoff.limit"));
-        panel10.add(label12, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label13 = new JLabel();
-        this.$$$loadLabelText$$$(label13, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.treat.sc.files.as"));
-        panel10.add(label13, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        scTypeSelectionCombobox = new JComboBox();
-        panel10.add(scTypeSelectionCombobox, new GridConstraints(0, 1, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label14 = new JLabel();
-        this.$$$loadLabelText$$$(label14, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.delay.before.auto.run"));
-        panel10.add(label14, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        outputSpinner = new JSpinner();
-        panel10.add(outputSpinner, new GridConstraints(5, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label15 = new JLabel();
-        this.$$$loadLabelText$$$(label15, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.output.cutoff.limit.units"));
-        panel10.add(label15, new GridConstraints(5, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final Spacer spacer7 = new Spacer();
-        panel10.add(spacer7, new GridConstraints(5, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
-        final Spacer spacer8 = new Spacer();
-        panel10.add(spacer8, new GridConstraints(6, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
-        final JLabel label16 = new JLabel();
-        this.$$$loadLabelText$$$(label16, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.delay.before.auto.run.units"));
-        panel10.add(label16, new GridConstraints(6, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        worksheetAutoRunDelaySpinner = new JSpinner();
-        panel10.add(worksheetAutoRunDelaySpinner, new GridConstraints(6, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        runWorksheetInTheCheckBox = new JCheckBox();
-        runWorksheetInTheCheckBox.setSelected(true);
-        this.$$$loadButtonText$$$(runWorksheetInTheCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.run.worksheet.in.the.compiler.process"));
-        panel10.add(runWorksheetInTheCheckBox, new GridConstraints(1, 0, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        useEclipseCompatibilityModeCheckBox = new JCheckBox();
-        this.$$$loadButtonText$$$(useEclipseCompatibilityModeCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.use.eclipse.compatibility.mode"));
-        panel10.add(useEclipseCompatibilityModeCheckBox, new GridConstraints(2, 0, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        treatScalaScratchFilesCheckBox = new JCheckBox();
-        this.$$$loadButtonText$$$(treatScalaScratchFilesCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.treat.scala.scratch.files.as.worksheet.files"));
-        panel10.add(treatScalaScratchFilesCheckBox, new GridConstraints(3, 0, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        collapseWorksheetFoldByCheckBox = new JCheckBox();
-        this.$$$loadButtonText$$$(collapseWorksheetFoldByCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.collapse.long.output.by.default"));
-        panel10.add(collapseWorksheetFoldByCheckBox, new GridConstraints(4, 0, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         label7.setLabelFor(myWidgetModeCombobox);
     }
 
