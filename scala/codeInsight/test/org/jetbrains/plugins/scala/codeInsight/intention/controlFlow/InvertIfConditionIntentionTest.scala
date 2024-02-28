@@ -206,6 +206,96 @@ class InvertIfConditionIntentionTest extends intentions.ScalaIntentionTestBase {
 
     doTest(text, resultText)
   }
+  def testInvertIf_CaretOnCondition(): Unit = {
+    val text =
+      s"""
+         |class X {
+         |  def bar(i: Int): Unit = {
+         |    if (i > 1${CARET}23) {
+         |      println("1")
+         |    } else {
+         |      println("2")
+         |    }
+         |  }
+         |}""".stripMargin
+    val resultText =
+      s"""
+         |class X {
+         |  def bar(i: Int): Unit = {
+         |    if (i <= ${CARET}123) {
+         |      println("2")
+         |    } else {
+         |      println("1")
+         |    }
+         |  }
+         |}""".stripMargin
+
+    doTest(text, resultText)
+  }
+
+  def testInvertIf_CaretOnCondition_MultipleBranches(): Unit = {
+    val text =
+      s"""
+         |class X {
+         |  def bar(i: Int): Unit = {
+         |    if (i >$CARET 123) {
+         |      println("1")
+         |    } else if (i < 123) {
+         |      println("2")
+         |    } else {
+         |      println("3")
+         |    }
+         |  }
+         |}""".stripMargin
+    val resultText =
+      s"""
+         |class X {
+         |  def bar(i: Int): Unit = {
+         |    if (i <$CARET= 123) {
+         |      if (i < 123) {
+         |        println("2")
+         |      } else {
+         |        println("3")
+         |      }
+         |    } else {
+         |      println("1")
+         |    }
+         |  }
+         |}""".stripMargin
+
+    doTest(text, resultText)
+  }
+
+  def testInvertIf_CaretOnSecondBranchCondition_MultipleBranches(): Unit = {
+    val text =
+      s"""
+         |class X {
+         |  def bar(i: Int): Unit = {
+         |    if (i > 123) {
+         |      println("1")
+         |    } else if (i$CARET < 123) {
+         |      println("2")
+         |    } else {
+         |      println("3")
+         |    }
+         |  }
+         |}""".stripMargin
+    val resultText =
+      s"""
+         |class X {
+         |  def bar(i: Int): Unit = {
+         |    if (i > 123) {
+         |      println("1")
+         |    } else if (i$CARET >= 123) {
+         |      println("3")
+         |    } else {
+         |      println("2")
+         |    }
+         |  }
+         |}""".stripMargin
+
+    doTest(text, resultText)
+  }
 
   def testInvertIf_NoBraces(): Unit = {
     val text =
@@ -536,6 +626,162 @@ class InvertIfConditionIntentionTest_Scala3 extends intentions.ScalaIntentionTes
          |      System.out.print("else")
          |    else
          |      System.out.print("if")
+         |""".stripMargin
+
+    doTest(text, resultText)
+  }
+
+  def testInvertIf_CaretOnCondition(): Unit = {
+    val text =
+      s"""class X:
+         |  def bar(i: Int) =
+         |    if i > ${CARET}123 then
+         |      println("1")
+         |    else
+         |      println("2")
+         |    println()
+         |""".stripMargin
+    val resultText =
+      s"""class X:
+         |  def bar(i: Int) =
+         |    if i <=$CARET 123 then
+         |      println("2")
+         |    else
+         |      println("1")
+         |    println()
+         |""".stripMargin
+
+    doTest(text, resultText)
+  }
+
+  def testInvertIf_CaretOnThen(): Unit = {
+    val text =
+      s"""class X:
+         |  def bar(i: Int) =
+         |    if i > 123 th${CARET}en
+         |      println("1")
+         |    else
+         |      println("2")
+         |    println()
+         |""".stripMargin
+    val resultText =
+      s"""class X:
+         |  def bar(i: Int) =
+         |    if i <= 123 t${CARET}hen
+         |      println("2")
+         |    else
+         |      println("1")
+         |    println()
+         |""".stripMargin
+
+    doTest(text, resultText)
+  }
+
+  def testInvertIf_CaretOnCondition_MultipleBranches(): Unit = {
+    val text =
+      s"""class X:
+         |  def bar(i: Int) =
+         |    if i > ${CARET}123 then
+         |      println("1")
+         |    else if i < 123 then
+         |      println("2")
+         |    else
+         |      println("3")
+         |    println()
+         |""".stripMargin
+    val resultText =
+      s"""class X:
+         |  def bar(i: Int) =
+         |    if i <=$CARET 123 then
+         |      if i < 123 then
+         |        println("2")
+         |      else
+         |        println("3")
+         |    else
+         |      println("1")
+         |    println()
+         |""".stripMargin
+
+    doTest(text, resultText)
+  }
+
+  def testInvertIf_CaretOnThen_MultipleBranches(): Unit = {
+    val text =
+      s"""class X:
+         |  def bar(i: Int) =
+         |    if i > 123 th${CARET}en
+         |      println("1")
+         |    else if i < 123 then
+         |      println("2")
+         |    else
+         |      println("3")
+         |    println()
+         |""".stripMargin
+    val resultText =
+      s"""class X:
+         |  def bar(i: Int) =
+         |    if i <= 123 t${CARET}hen
+         |      if i < 123 then
+         |        println("2")
+         |      else
+         |        println("3")
+         |    else
+         |      println("1")
+         |    println()
+         |""".stripMargin
+
+    doTest(text, resultText)
+  }
+
+  def testInvertIf_CaretOnSecondBranchCondition_MultipleBranches(): Unit = {
+    val text =
+      s"""class X:
+         |  def bar(i: Int) =
+         |    if i > 123 then
+         |      println("1")
+         |    else if i$CARET < 123 then
+         |      println("2")
+         |    else
+         |      println("3")
+         |    println()
+         |""".stripMargin
+    val resultText =
+      s"""class X:
+         |  def bar(i: Int) =
+         |    if i > 123 then
+         |      println("1")
+         |    else if i$CARET >= 123 then
+         |      println("3")
+         |    else
+         |      println("2")
+         |    println()
+         |""".stripMargin
+
+    doTest(text, resultText)
+  }
+
+  def testInvertIf_CaretOnSecondBranchThen_MultipleBranches(): Unit = {
+    val text =
+      s"""class X:
+         |  def bar(i: Int) =
+         |    if i > 123 then
+         |      println("1")
+         |    else if i < 123 the${CARET}n
+         |      println("2")
+         |    else
+         |      println("3")
+         |    println()
+         |""".stripMargin
+    val resultText =
+      s"""class X:
+         |  def bar(i: Int) =
+         |    if i > 123 then
+         |      println("1")
+         |    else if i >= 123 th${CARET}en
+         |      println("3")
+         |    else
+         |      println("2")
+         |    println()
          |""".stripMargin
 
     doTest(text, resultText)

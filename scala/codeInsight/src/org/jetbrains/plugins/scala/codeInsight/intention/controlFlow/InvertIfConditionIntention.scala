@@ -36,7 +36,10 @@ final class InvertIfConditionIntention extends PsiElementBaseIntentionAction {
     val caretIsOnIf = ifStmt.getTextRange.getStartOffset <= offset && offset < condition.getTextRange.getStartOffset
     val caretIsOnElse = isCaretOnElse(thenExpression, elseExpression, offset)
 
-    caretIsOnIf || caretIsOnElse
+    caretIsOnIf ||
+      caretIsOnElse ||
+      condition.getTextRange.contains(offset) ||
+      ifStmt.thenKeyword.exists(_.getTextRange.contains(offset))
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
