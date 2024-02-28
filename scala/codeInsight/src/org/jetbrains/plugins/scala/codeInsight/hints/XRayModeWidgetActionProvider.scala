@@ -17,11 +17,11 @@ import com.intellij.ui.scale.JBUIScale
 import com.intellij.util.ui.{JBInsets, JBUI, UIUtil}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
-import org.jetbrains.plugins.scala.settings.{ScalaProjectSettingsConfigurable, XRayWidgetMode}
+import org.jetbrains.plugins.scala.settings.XRayWidgetMode
+import org.jetbrains.plugins.scala.settings.sections.XRayModeSettingsSectionConfigurable
 
 import java.awt.event.{InputEvent, MouseAdapter, MouseEvent}
 import java.awt.{Component, Insets, Toolkit}
-import java.util.function.Consumer
 import javax.swing.JComponent
 import javax.swing.plaf.FontUIResource
 
@@ -81,9 +81,10 @@ class XRayModeWidgetActionProvider extends InspectionWidgetActionProvider {
               else
                 ScalaCodeInsightBundle.message("xray.mode.widget.tooltip.enter"))
             .setDescription(if (ScalaHintsSettings.xRayMode) null else "(" + ScalaHintsSettings.xRayModeShortcut + ")")
-            .setLink(ScalaCodeInsightBundle.message("xray.mode.widget.tooltip.link"), () =>
-              ShowSettingsUtil.getInstance.showSettingsDialog(project, classOf[ScalaProjectSettingsConfigurable],
-                (_.selectXRayModeTab()): Consumer[ScalaProjectSettingsConfigurable]))
+            .setLink(
+              ScalaCodeInsightBundle.message("xray.mode.widget.tooltip.link"),
+              () => ShowSettingsUtil.getInstance.showSettingsDialog(project, classOf[XRayModeSettingsSectionConfigurable])
+            )
             .installOn(this)
         }
 

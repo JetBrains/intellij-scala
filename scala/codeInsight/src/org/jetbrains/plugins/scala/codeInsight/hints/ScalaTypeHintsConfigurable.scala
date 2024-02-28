@@ -9,9 +9,7 @@ import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings.{getInstance => ScalaCodeInsightSettings}
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettingsConfigurable
-
-import java.util.function.Consumer
+import org.jetbrains.plugins.scala.settings.sections.XRayModeSettingsSectionConfigurable
 
 object ScalaTypeHintsConfigurable {
 
@@ -81,12 +79,8 @@ object ScalaTypeHintsConfigurable {
       e.getPresentation.setText(ScalaCodeInsightBundle.message("xray.mode.tip.context.menu", ScalaHintsSettings.xRayModeShortcut))
     }
 
-    override def actionPerformed(e: AnActionEvent): Unit = (
-      ShowSettingsUtil.getInstance.showSettingsDialog(
-        e.getProject,
-        classOf[ScalaProjectSettingsConfigurable],
-        (_.selectXRayModeTab()): Consumer[ScalaProjectSettingsConfigurable])
-      )
+    override def actionPerformed(e: AnActionEvent): Unit =
+      ShowSettingsUtil.getInstance.showSettingsDialog(e.getProject, classOf[XRayModeSettingsSectionConfigurable])
 
     override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
   }
