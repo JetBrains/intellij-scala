@@ -485,37 +485,6 @@
               </component>
             </children>
           </grid>
-          <grid id="2fa9e" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-            <margin top="9" left="9" bottom="0" right="0"/>
-            <constraints>
-              <tabbedpane title-resource-bundle="messages/ScalaBundle" title-key="scala.project.settings.form.tabs.project.view"/>
-            </constraints>
-            <properties/>
-            <border type="none"/>
-            <children>
-              <component id="82a34" class="javax.swing.JCheckBox" binding="myProjectViewHighlighting">
-                <constraints>
-                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.highlight.nodes.with.errors"/>
-                </properties>
-              </component>
-              <vspacer id="be2ff">
-                <constraints>
-                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
-                </constraints>
-              </vspacer>
-              <component id="a3262" class="javax.swing.JCheckBox" binding="myGroupPackageObjectWithPackage">
-                <constraints>
-                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.group.package.object.with.package"/>
-                </properties>
-              </component>
-            </children>
-          </grid>
         </children>
       </tabbedpane>
     </children>

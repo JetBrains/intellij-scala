@@ -57,10 +57,8 @@ public class ScalaProjectSettingsPanel {
     private JCheckBox myAotCompletion;
     private JCheckBox customScalatestSyntaxHighlightingCheckbox;
     private JCheckBox addOverrideToImplementCheckBox;
-    private JCheckBox myProjectViewHighlighting;
     private JCheckBox showNotFoundImplicitArgumentsCheckBox;
     private JCheckBox showAmbiguousImplicitArgumentsCheckBox;
-    private JCheckBox myGroupPackageObjectWithPackage;
     private final Project myProject;
 
     private JPanel useCompilerRangesHelp;
@@ -217,18 +215,6 @@ public class ScalaProjectSettingsPanel {
         scalaProjectSettings.setCompilerHighlightingScala2(typeChecker.getSelectedItem() == TypeChecker.Compiler);
         scalaProjectSettings.setUseCompilerRanges(useCompilerRanges.isSelected());
 
-        if (scalaProjectSettings.isProjectViewHighlighting() && !myProjectViewHighlighting.isSelected()) {
-            ProblemSolverUtils.clearProblemsIn(myProject);
-        }
-        scalaProjectSettings.setProjectViewHighlighting(myProjectViewHighlighting.isSelected());
-        if (scalaProjectSettings.isGroupPackageObjectWithPackage() != myGroupPackageObjectWithPackage.isSelected()) {
-            AbstractProjectViewPane pane = ProjectView.getInstance(myProject).getCurrentProjectViewPane();
-            if (pane != null) {
-                pane.updateFromRoot(true);
-            }
-        }
-        scalaProjectSettings.setGroupPackageObjectWithPackage(myGroupPackageObjectWithPackage.isSelected());
-
         ScalaApplicationSettings scalaApplicationSettings = ScalaApplicationSettings.getInstance();
         scalaApplicationSettings.XRAY_DOUBLE_PRESS_AND_HOLD = myDoublePressAndHoldCheckbox.isSelected();
         scalaApplicationSettings.XRAY_PRESS_AND_HOLD = myPressAndHoldCheckbox.isSelected();
@@ -279,12 +265,6 @@ public class ScalaProjectSettingsPanel {
                 donTShowDialogCheckBox.isSelected()) return true;
 
         if (scalaProjectSettings.isAotCompletion() != myAotCompletion.isSelected())
-            return true;
-
-        if (scalaProjectSettings.isProjectViewHighlighting() != myProjectViewHighlighting.isSelected())
-            return true;
-
-        if (scalaProjectSettings.isGroupPackageObjectWithPackage() != myGroupPackageObjectWithPackage.isSelected())
             return true;
 
         if (scalaProjectSettings.isScalaPriority() != useScalaClassesPriorityCheckBox.isSelected())
@@ -379,8 +359,6 @@ public class ScalaProjectSettingsPanel {
         aliasSemantics.setSelectedItem(scalaProjectSettings.getAliasSemantics());
         collectionHighlightingChooser.setSelectedItem(scalaProjectSettings.getCollectionTypeHighlightingLevel());
 
-        setValue(myProjectViewHighlighting, scalaProjectSettings.isProjectViewHighlighting());
-        setValue(myGroupPackageObjectWithPackage, scalaProjectSettings.isGroupPackageObjectWithPackage());
         typeChecker.setSelectedItem(scalaProjectSettings.isCompilerHighlightingScala2() ? TypeChecker.Compiler : TypeChecker.BuiltIn);
         setValue(useCompilerRanges, scalaProjectSettings.isUseCompilerRanges());
 
@@ -606,17 +584,6 @@ public class ScalaProjectSettingsPanel {
         final JLabel label8 = new JLabel();
         this.$$$loadLabelText$$$(label8, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.xray.widget"));
         panel6.add(label8, new GridConstraints(19, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JPanel panel8 = new JPanel();
-        panel8.setLayout(new GridLayoutManager(3, 1, new Insets(9, 9, 0, 0), -1, -1));
-        tabbedPane.addTab(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.tabs.project.view"), panel8);
-        myProjectViewHighlighting = new JCheckBox();
-        this.$$$loadButtonText$$$(myProjectViewHighlighting, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.highlight.nodes.with.errors"));
-        panel8.add(myProjectViewHighlighting, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final Spacer spacer4 = new Spacer();
-        panel8.add(spacer4, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-        myGroupPackageObjectWithPackage = new JCheckBox();
-        this.$$$loadButtonText$$$(myGroupPackageObjectWithPackage, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.group.package.object.with.package"));
-        panel8.add(myGroupPackageObjectWithPackage, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         label7.setLabelFor(myWidgetModeCombobox);
     }
 

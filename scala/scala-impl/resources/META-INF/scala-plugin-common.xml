@@ -114,6 +114,10 @@
                              instance="org.jetbrains.plugins.scala.settings.ScalaProjectSettingsConfigurable"/>
         <projectConfigurable parentId="configurable.scala.root"
                              bundle="messages.ScalaBundle"
+                             key="scala.project.settings.form.tabs.project.view"
+                             instance="org.jetbrains.plugins.scala.settings.sections.ProjectViewSettingsSectionConfigurable"/>
+        <projectConfigurable parentId="configurable.scala.root"
+                             bundle="messages.ScalaBundle"
                              key="scala.project.settings.form.tabs.performance"
                              instance="org.jetbrains.plugins.scala.settings.sections.PerformanceSettingsSectionConfigurable"/>
         <projectConfigurable parentId="configurable.scala.root"
