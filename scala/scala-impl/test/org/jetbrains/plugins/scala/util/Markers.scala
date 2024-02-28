@@ -139,7 +139,12 @@ trait Markers {
     val startIndexes = startReg.findAllMatchIn(inputText).map(_.start).toList
     val endIndexes = endReg.findAllMatchIn(inputText).map(_.start).toList
     assertEquals(
-      s"start & end markers counts are not equal\nstart: $startIndexes,\nend: $endIndexes\ntext: $inputText",
+      s"""start & end markers counts are not equal
+         |start indexes: $startIndexes,
+         |end indexes: $endIndexes
+         |start marker: $startMarker
+         |end marker: $endMarker
+         |text: $inputText""".stripMargin,
       startIndexes.size,
       endIndexes.size
     )

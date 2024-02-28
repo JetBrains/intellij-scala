@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.documentation.DocumentationManagerUtil
+import com.intellij.lang.documentation.QuickDocHighlightingHelper
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProcessCanceledException
@@ -12,6 +13,7 @@ import com.intellij.psi.{PsiClass, PsiElement, PsiErrorElement}
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.text.StringEscapeUtils.escapeHtml4
 import org.jetbrains.annotations.{Nls, TestOnly}
+import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocContentGenerator._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
@@ -26,8 +28,15 @@ import scala.collection.{Map, mutable}
 import scala.util.{Failure, Success, Try}
 
 /**
+ * The class contains rendering logic of scala doc comment<br>
+ * (links, lists, italic/bold, code blocks, and other "wiki" syntax)<br>
+ *
+ * It tries to be as close to the ScalaDoc tool logic as possible.
+ *
+ * @see [[https://docs.scala-lang.org/style/scaladoc.html]]
  * @see [[scala.tools.nsc.doc.base.CommentFactoryBase.WikiParser]]
  * @see [[scala.tools.nsc.doc.html.HtmlPage]]
+ * @see java plugin analog [[com.intellij.codeInsight.javadoc.JavaDocInfoGenerator]]
  */
 private class ScalaDocContentGenerator(
   originalComment: ScDocComment,
@@ -148,20 +157,27 @@ private class ScalaDocContentGenerator(
   private def visitDocCode(buffer: StringBuilder, code: ScDocInnerCodeElement): Unit = {
     val tabSize = CodeStyle.getIndentOptions(code.getContainingFile).TAB_SIZE
     val minIndent = calcMinIndent(code.children, tabSize)
+
+    val codeBuilder = new StringBuilder()
     code.children.foreach { element =>
       element.getNode.getElementType match {
         case ScalaDocTokenType.DOC_INNER_CODE_TAG =>
-          buffer.append("""<pre><code>""")
         case ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG =>
-          buffer.append("""</code></pre>""")
         case ScalaDocTokenType.DOC_INNER_CODE =>
           val text = minIndent.fold(element.getText)(element.getText.drop(_))
-          buffer.append(escapeHtml4(text))
+          codeBuilder.append(text)
         case ScalaDocTokenType.DOC_WHITESPACE if element.textContains('\n') =>
-          buffer.append("\n") // ignore other spaces except line break
+          codeBuilder.append("\n") // ignore other spaces except line break
         case _ => //just in case
       }
     }
+
+    QuickDocHighlightingHelper.appendStyledCodeBlock(
+      buffer.underlying,
+      code.getProject,
+      ScalaLanguage.INSTANCE, //NOTE: ScalaDoc tool always uses Scala language syntax highlighting (a least in Scala 2)
+      codeBuilder.toString
+    )
   }
 
   private def visitParagraph(buffer: StringBuilder, paragraph: ScDocParagraph, skipParagraphElement: Boolean): Unit = {
@@ -179,12 +195,16 @@ private class ScalaDocContentGenerator(
         .reverse
 
     if (nodesTrimmed.nonEmpty) {
-      if (!skipParagraphElement && !nodesTrimmed.head.getText.contains(HtmlStartParagraph))
+      val paragraphHasOnlyCodeSnippet = nodesTrimmed match {
+        case List(_: ScDocInnerCodeElement) => true
+        case _ => false
+      }
+      if (!paragraphHasOnlyCodeSnippet && !skipParagraphElement && !nodesTrimmed.head.getText.contains(HtmlStartParagraph))
         buffer.append(HtmlStartParagraph)
 
       nodesTrimmed.foreach(visitNode(buffer, _))
 
-      if (!skipParagraphElement && !nodesTrimmed.last.getText.contains(HtmlEndParagraph))
+      if (!paragraphHasOnlyCodeSnippet && !skipParagraphElement && !nodesTrimmed.last.getText.contains(HtmlEndParagraph))
         buffer.append(HtmlEndParagraph)
 
       buffer.append('\n')
