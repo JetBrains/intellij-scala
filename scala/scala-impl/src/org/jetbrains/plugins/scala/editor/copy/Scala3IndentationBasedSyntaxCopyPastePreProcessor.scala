@@ -118,6 +118,12 @@ object Scala3IndentationBasedSyntaxCopyPastePreProcessor {
   private object CaretPosition {
     case class InTheMiddleBodyIndentationBased(block: ScOptionalBracesOwner) extends CaretPosition
     case class InTheMiddleBodyWithBraces(block: ScOptionalBracesOwner) extends CaretPosition
+    /**
+     * Caret is after an empty template body or function body: {{{
+     *   class A:\n<caret>
+     *   def foo =\n<caret>
+     * }}}
+     */
     case class AfterIncompleteDefinitionBody(e: PsiErrorElement) extends CaretPosition
     object TopLevelScalaFile extends CaretPosition
     object NotInTheBeginningOfNewLine extends CaretPosition
@@ -159,16 +165,22 @@ object Scala3IndentationBasedSyntaxCopyPastePreProcessor {
   ): Int =
     elementAtCaretPosition match {
       case CaretPosition.InTheMiddleBodyIndentationBased(block) =>
-        getIndentOfFirstElementInBody(tabSize, block).getOrElse(codeStyleSettings.getIndentSize(ScalaFileType.INSTANCE))
+        val firstElementIndent = getIndentOfFirstElementInBody(tabSize, block)
+        firstElementIndent.getOrElse(getIndentRelativeToParentDefinition(codeStyleSettings, block))
       case CaretPosition.InTheMiddleBodyWithBraces(block) =>
-        getIndentOfFirstElementInBody(tabSize, block).getOrElse(codeStyleSettings.getIndentSize(ScalaFileType.INSTANCE))
+        val firstElementIndent = getIndentOfFirstElementInBody(tabSize, block)
+        firstElementIndent.getOrElse(getIndentRelativeToParentDefinition(codeStyleSettings, block))
       case CaretPosition.AfterIncompleteDefinitionBody(e) =>
-        val parentDefinitionIndentSize = IndentUtil.calcRegionIndent(e, 1)
-        val indentSize = codeStyleSettings.getIndentSize(ScalaFileType.INSTANCE)
-        parentDefinitionIndentSize + indentSize
+        getIndentRelativeToParentDefinition(codeStyleSettings, e)
       case _ =>
         IndentUtil.calcIndent(caretIndentWhitespace, tabSize)
     }
+
+  private def getIndentRelativeToParentDefinition(codeStyleSettings: CodeStyleSettings, element: PsiElement): Int = {
+    val parentDefinitionIndentSize = IndentUtil.calcRegionIndent(element, 1)
+    val indentSize = codeStyleSettings.getIndentSize(ScalaFileType.INSTANCE)
+    parentDefinitionIndentSize + indentSize
+  }
 
   private def getIndentOfFirstElementInBody(tabSize: Int, block: ScOptionalBracesOwner): Option[Int] = {
     val element = getFirstElementInBody(block)
