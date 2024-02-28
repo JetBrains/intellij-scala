@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.settings
 
 import com.intellij.java.JavaBundle
-import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnActionEvent}
 import com.intellij.openapi.ui.{InputValidator, Messages}
 import com.intellij.openapi.wm.IdeFocusManager
 import com.intellij.ui._
@@ -101,6 +101,8 @@ object ScalaProjectSettingsUtil {
       override def actionPerformed(e: AnActionEvent): Unit = {
         addPattern(ScalaCodeStyleSettings.BLANK_LINE, patternJBList)
       }
+
+      override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
     }).setRemoveAction(new AnActionButtonRunnable {
       override def run(t: AnActionButton): Unit = {
         val listModel = patternJBList.getModel match {
