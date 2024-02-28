@@ -133,7 +133,7 @@ object ScalaFeatures {
     override def `leading infix operator`: Boolean               = delegate.`leading infix operator`
     override def `? as wildcard marker`: Boolean                 = delegate.`? as wildcard marker`
     override def `case in pattern bindings`: Boolean             = delegate.`case in pattern bindings`
-    override def usingInArgumentsEnabled: Boolean                = delegate.`case in pattern bindings`
+    override def usingInArgumentsEnabled: Boolean                = delegate.usingInArgumentsEnabled
     override def `optional braces for method arguments`: Boolean = delegate.`optional braces for method arguments`
   }
 
@@ -346,7 +346,7 @@ object ScalaFeatures {
     val `in >= 2.12.15 or 2.13.7 or 3` = bool("in >= 2.12.15 or 2.13.7 or 3")
     val `in >= 2.12.16 or 2.13.9 or 3` = bool("in >= 2.12.16 or 2.13.9 or 3")
 
-    val usingInArgumentsEnabled = bool("warnAboutDeprecatedInfixCallsEnabled")
+    val usingInArgumentsEnabled = bool("usingInArgumentsEnabled")
 
     override val version: Int = finishAndMakeVersion()
   }
