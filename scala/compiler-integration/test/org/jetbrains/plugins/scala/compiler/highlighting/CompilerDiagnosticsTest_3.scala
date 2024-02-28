@@ -82,10 +82,10 @@ class CompilerDiagnosticsTest_3 extends CompilerDiagnosticsTestBase {
       ),
       expectedContent =
         """
-          |final  class RemoveRepeatModifier
+          |final class RemoveRepeatModifier
           |
           |object RemoveRepeatModifier
-          |""".stripMargin // The double space is expected, the compiler doesn't remove the extra space character.
+          |""".stripMargin
     )
   }
 
@@ -248,7 +248,7 @@ class CompilerDiagnosticsTest_3 extends CompilerDiagnosticsTestBase {
       ),
       expectedContent =
         """
-          |private final   class IntersectingRangesAfterApplication
+          |private final class IntersectingRangesAfterApplication
           |""".stripMargin
     )
   }

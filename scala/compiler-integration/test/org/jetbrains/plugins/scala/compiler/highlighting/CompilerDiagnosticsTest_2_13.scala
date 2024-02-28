@@ -132,8 +132,8 @@ class CompilerDiagnosticsTest_2_13 extends CompilerDiagnosticsTestBase {
       expectedContent =
         """
           |trait T { def f: Object }
-          |class K extends T { val f : String= "" }
-          |""".stripMargin // Reported upstream issue https://github.com/scala/bug/issues/12956
+          |class K extends T { val f: String = "" }
+          |""".stripMargin
     )
   }
 
