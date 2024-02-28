@@ -153,9 +153,12 @@ object AnnotatorUtils {
 
   def inSameFile(elem: PsiElement, file: PsiFile): Boolean = {
     elem != null && {
-      val vFile1 = elem.getContainingFile.getViewProvider.getVirtualFile
-      val vFile2 = file.getViewProvider.getVirtualFile
-      vFile1 == vFile2
+      val psiFile1 = elem.getContainingFile
+      psiFile1 != null && {
+        val vFile1 = psiFile1.getViewProvider.getVirtualFile
+        val vFile2 = file.getViewProvider.getVirtualFile
+        vFile1 == vFile2
+      }
     }
   }
 
