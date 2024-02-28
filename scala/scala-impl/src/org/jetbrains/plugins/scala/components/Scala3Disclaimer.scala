@@ -7,10 +7,9 @@ import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.{Project, ProjectManager, ProjectManagerListener}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.project.ProjectExt
-import org.jetbrains.plugins.scala.settings.{ScalaProjectSettings, ScalaProjectSettingsConfigurable}
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.settings.sections.UpdateSettingsSectionConfigurable
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
-
-import java.util.function.Consumer
 
 object Scala3Disclaimer {
   private final class ProjectListener extends ProjectManagerListener {
@@ -53,8 +52,7 @@ object Scala3Disclaimer {
 
   private def configureUpdatesActionIn(project: Project) = new NotificationAction(ScalaBundle.message("configure.updates")) {
     override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
-      ShowSettingsUtil.getInstance().showSettingsDialog(project, classOf[ScalaProjectSettingsConfigurable],
-        (_.selectUpdatesTab()): Consumer[ScalaProjectSettingsConfigurable])
+      ShowSettingsUtil.getInstance().showSettingsDialog(project, classOf[UpdateSettingsSectionConfigurable])
     }
   }
 }
