@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="org.jetbrains.plugins.scala.settings.sections.UpdateSettingsSectionPanel">
   <grid id="27dc6" binding="rootPanel" layout-manager="GridLayoutManager" row-count="4" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-    <margin top="9" left="9" bottom="0" right="0"/>
+    <margin top="9" left="9" bottom="9" right="9"/>
     <constraints>
-      <xy x="20" y="20" width="903" height="400"/>
+      <xy x="20" y="20" width="918" height="400"/>
     </constraints>
     <properties/>
     <border type="none"/>
