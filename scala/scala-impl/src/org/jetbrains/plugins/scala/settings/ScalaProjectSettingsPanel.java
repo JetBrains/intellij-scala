@@ -11,9 +11,6 @@ import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.updateSettings.impl.UpdateChecker;
-import com.intellij.openapi.updateSettings.impl.UpdateSettings;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.SystemInfo;
@@ -27,11 +24,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.plugins.scala.components.InvalidRepoException;
-import org.jetbrains.plugins.scala.components.ScalaPluginUpdater;
-import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier;
-import org.jetbrains.plugins.scala.components.libextensions.ui.LibExtensionsSettingsPanelWrapper;
-import org.jetbrains.plugins.scala.settings.uiControls.DependencyAwareInjectionSettings;
 import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector;
 
 import javax.swing.*;
@@ -39,12 +31,8 @@ import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.List;
 
-import static org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.pluginBranch;
 import static org.jetbrains.plugins.scala.settings.ScalaProjectSettings.*;
-import static org.jetbrains.plugins.scala.settings.uiControls.DependencyAwareInjectionSettings.ComponentWithSettings;
-import static org.jetbrains.plugins.scala.settings.uiControls.DependencyAwareInjectionSettings.EP_NAME;
 
 // TODO: cleanup
 //  1) split this panel into multiple per-tab
@@ -56,8 +44,6 @@ public class ScalaProjectSettingsPanel {
     private static final int WORKSHEET_RUN_DELAY_MS_MINIMUM = 500;
     private static final int WORKSHEET_RUN_DELAY_MS_MAXIMUM = 5000;
     private static final int WORKSHEET_RUN_DELAY_SPINNER_STEP_SIZE = 10;
-
-    private final LibExtensionsSettingsPanelWrapper extensionsPanel;
 
     private JPanel myPanel;
     private JComboBox<TypeChecker> typeChecker;
@@ -89,7 +75,6 @@ public class ScalaProjectSettingsPanel {
     private JCheckBox treatScalaScratchFilesCheckBox;
     private JSpinner worksheetAutoRunDelaySpinner;
     private JCheckBox customScalatestSyntaxHighlightingCheckbox;
-    private JPanel librariesPanel;
     private JCheckBox addOverrideToImplementCheckBox;
     private JCheckBox myProjectViewHighlighting;
     private JComboBox<ScalaMetaMode> scalaMetaMode;
@@ -241,9 +226,6 @@ public class ScalaProjectSettingsPanel {
         myInheritBasePackagesRadioButton.addActionListener(actionEvent -> myBasePackagesTable.setEnabled(!myInheritBasePackagesRadioButton.isSelected()));
         myUseCustomBasePackagesRadioButton.addActionListener(actionEvent -> myBasePackagesTable.setEnabled(myUseCustomBasePackagesRadioButton.isSelected()));
 
-        extensionsPanel = new LibExtensionsSettingsPanelWrapper((JPanel) librariesPanel.getParent(), project);
-        extensionsPanel.build();
-
         if (SystemInfo.isMac) {
             myDoublePressAndHoldCheckbox.setText(myDoublePressAndHoldCheckbox.getText().replace("Ctrl", "Cmd"));
             myPressAndHoldCheckbox.setText(myPressAndHoldCheckbox.getText().replace("Ctrl", "Cmd"));
@@ -364,7 +346,6 @@ public class ScalaProjectSettingsPanel {
             }
             scalaProjectSettings.setScFileMode(newMode);
         }
-        scalaProjectSettings.setEnableLibraryExtensions(extensionsPanel.enabledCB().isSelected());
 
         ScalaApplicationSettings scalaApplicationSettings = ScalaApplicationSettings.getInstance();
         scalaApplicationSettings.XRAY_DOUBLE_PRESS_AND_HOLD = myDoublePressAndHoldCheckbox.isSelected();
@@ -475,8 +456,6 @@ public class ScalaProjectSettingsPanel {
 
         if (scalaProjectSettings.getScFileMode() != scTypeSelectionCombobox.getSelectedItem()) return true;
 
-        if (scalaProjectSettings.isEnableLibraryExtensions() != extensionsPanel.enabledCB().isSelected()) return true;
-
         ScalaApplicationSettings scalaApplicationSettings = ScalaApplicationSettings.getInstance();
         if (scalaApplicationSettings.XRAY_DOUBLE_PRESS_AND_HOLD != myDoublePressAndHoldCheckbox.isSelected())
             return true;
@@ -583,8 +562,6 @@ public class ScalaProjectSettingsPanel {
         setValue(metaTrimBodies, scalaProjectSettings.isMetaTrimMethodBodies());
 
         ivy2IndexingModeCBB.getModel().setSelectedItem(scalaProjectSettings.getIvy2IndexingMode());
-
-        setValue(extensionsPanel.enabledCB(), scalaProjectSettings.isEnableLibraryExtensions());
 
         ScalaApplicationSettings scalaApplicationSettings = ScalaApplicationSettings.getInstance();
         myDoublePressAndHoldCheckbox.setSelected(scalaApplicationSettings.XRAY_DOUBLE_PRESS_AND_HOLD);
@@ -951,12 +928,6 @@ public class ScalaProjectSettingsPanel {
         panel11.add(myBasePackagesHelpPanel, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final Spacer spacer10 = new Spacer();
         panel11.add(spacer10, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
-        final JPanel panel12 = new JPanel();
-        panel12.setLayout(new GridLayoutManager(1, 1, new Insets(9, 9, 0, 0), -1, -1));
-        tabbedPane.addTab(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.tabs.extensions"), panel12);
-        librariesPanel = new JPanel();
-        librariesPanel.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
-        panel12.add(librariesPanel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 1, false));
         label7.setLabelFor(myWidgetModeCombobox);
         ButtonGroup buttonGroup;
         buttonGroup = new ButtonGroup();

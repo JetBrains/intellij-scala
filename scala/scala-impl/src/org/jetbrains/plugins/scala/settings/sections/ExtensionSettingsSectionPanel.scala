@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.components.libextensions.ui
+package org.jetbrains.plugins.scala.settings.sections
 
 import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.fileChooser.{FileChooser, FileChooserDescriptor}
@@ -6,26 +6,42 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.ui._
 import com.intellij.ui.components.{JBLabel, JBList}
+import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager}
 import com.intellij.util.ui.{JBUI, UIUtil}
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsManager._
 import org.jetbrains.plugins.scala.components.libextensions._
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
-import java.awt.BorderLayout
+import java.awt.{BorderLayout, Insets}
 import java.io.File
 import javax.swing._
+import javax.swing.border.EmptyBorder
 import scala.annotation.nowarn
 
-class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel,
-                                        private val project: Project) {
-
+class ExtensionSettingsSectionPanel(project: Project) extends SettingsSectionPanel(project) {
+  private val rootPanel = new JPanel()
   private val libraryExtensionsManager = LibraryExtensionsManager.getInstance(project)
   @NonNls
   private val CustomMacrosSupportHelpLink = "https://blog.jetbrains.com/scala/2015/10/14/intellij-api-to-build-scala-macros-support/"
 
   // Exported components
-  val enabledCB: JCheckBox = new JCheckBox(ScalaBundle.message("enable.loading.external.extensions"), true)
+  private val enabledCB: JCheckBox = new JCheckBox(ScalaBundle.message("enable.loading.external.extensions"), true)
+
+  private def scalaProjectSettings = ScalaProjectSettings.getInstance(project)
+
+  override def getRootPanel: JComponent = rootPanel
+
+  override def isModified: Boolean =
+    scalaProjectSettings.isEnableLibraryExtensions != enabledCB.isSelected
+
+  override def apply(): Unit =
+    scalaProjectSettings.setEnableLibraryExtensions(enabledCB.isSelected)
+
+  override def reset(): Unit =
+    enabledCB.setSelected(scalaProjectSettings.isEnableLibraryExtensions)
+
 
   class LibraryListModel(val extensionsModel: LibraryDetailsModel) extends AbstractListModel[ExtensionJarData] {
     private val extensionsManager: LibraryExtensionsManager = libraryExtensionsManager
@@ -45,11 +61,11 @@ class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel,
       .filter(_.isAvailable)
   }
 
-  def build(): Unit = {
+  locally {
     import com.intellij.util.ui.UI
 
-    rootPanel.setLayout(new BorderLayout())
-    UIUtil.addBorder(rootPanel, JBUI.Borders.empty(10))
+    //noinspection UseDPIAwareInsets
+    rootPanel.setLayout(new GridLayoutManager(2, 1, new Insets(9, 9, 9, 9), -1, -1))
 
     val checkBoxes  = new JPanel()
     checkBoxes.setLayout(new BoxLayout(checkBoxes, BoxLayout.Y_AXIS))
@@ -61,9 +77,7 @@ class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel,
       )
       .createPanel(): @nowarn("cat=deprecation"))
 
-    val settingsPanel = new JPanel(new BorderLayout())
-    settingsPanel.add(checkBoxes, BorderLayout.CENTER)
-    rootPanel.add(settingsPanel, BorderLayout.PAGE_START)
+    rootPanel.add(checkBoxes, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false))
 
 
     val detailsModel = new LibraryDetailsModel(None)
@@ -149,8 +163,6 @@ class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel,
       UIUtil.setEnabled(listsPane, enabledCB.isSelected, true)
     }
 
-    rootPanel.add(listsPane, BorderLayout.CENTER)
-
+    rootPanel.add(listsPane, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false))
   }
-
 }
