@@ -602,11 +602,16 @@ final class ScalaBlockBuilder(
   @tailrec
   private def endsWithIndentationBlock(prevNode: ASTNode): Boolean = {
     val last = prevNode.getLastChildNode
+    if (prevNode.getElementType == ScalaElementType.MATCH_STMT) {
+      return last.getElementType != ScalaTokenTypes.tRBRACE
+    }
     last != null && (last.getPsi match {
       case args: ScArgumentExprList =>
         args.isColonArgs
       case methodCall: ScMethodCall =>
         endsWithIndentationBlock(methodCall.getNode)
+      case matchExpr: ScMatch =>
+        endsWithIndentationBlock(matchExpr.getNode)
       case _ =>
         false
     })

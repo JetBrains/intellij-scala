@@ -58,8 +58,8 @@ class SbtStructureDump {
 
     val shell = SbtShellCommunication.forProject(project)
 
-    val optString = options.mkString(" ")
-    val setCmd = s"""set _root_.org.jetbrains.sbt.StructureKeys.sbtStructureOptions in Global := "$optString""""
+    val optString = makeOptionsStringLiteral(options)
+    val setCmd = s"""set _root_.org.jetbrains.sbt.StructureKeys.sbtStructureOptions in Global := $optString"""
 
     val ideaPortSetting =
       if (CompilerIndicesSettings(project).isBytecodeIndexingActive) {
@@ -88,13 +88,12 @@ class SbtStructureDump {
                      (implicit reporter: BuildReporter)
   : Try[BuildMessages] = {
 
-    val optString = options.mkString(", ")
-
+    val optString = makeOptionsStringLiteral(options)
     val setCommands = Seq(
       """historyPath := None""",
       s"""shellPrompt := { _ => "" }""",
       s"""SettingKey[_root_.scala.Option[_root_.sbt.File]]("sbtStructureOutputFile") in _root_.sbt.Global := _root_.scala.Some(_root_.sbt.file("$structureFilePath"))""",
-      s"""SettingKey[_root_.java.lang.String]("sbtStructureOptions") in _root_.sbt.Global := "$optString""""
+      s"""SettingKey[_root_.java.lang.String]("sbtStructureOptions") in _root_.sbt.Global := $optString"""
     ).mkString("set _root_.scala.collection.Seq(", ",", ")")
 
     val sbtCommands = (
@@ -113,6 +112,9 @@ class SbtStructureDump {
       SbtBundle.message("sbt.extracting.project.structure.from.sbt"), passParentEnvironment
     )
   }
+
+  private def makeOptionsStringLiteral(options: Seq[String]): String =
+    options.mkString("\"", ", ", "\"")
 
   /**
    * This is a workaround for [[https://github.com/sbt/sbt/issues/5128]] (tested for sbt 1.4.9)
