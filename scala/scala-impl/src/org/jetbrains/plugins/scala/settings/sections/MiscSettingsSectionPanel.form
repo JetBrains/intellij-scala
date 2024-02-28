@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="org.jetbrains.plugins.scala.settings.sections.MiscSettingsSectionPanel">
-  <grid id="27dc6" binding="rootPanel" layout-manager="GridLayoutManager" row-count="5" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+  <grid id="27dc6" binding="rootPanel" layout-manager="GridLayoutManager" row-count="4" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="9" left="9" bottom="9" right="9"/>
     <constraints>
       <xy x="20" y="20" width="1156" height="794"/>
@@ -25,16 +25,9 @@
           <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.scalatest.default.super.class"/>
         </properties>
       </component>
-      <vspacer id="94bee">
-        <constraints>
-          <grid row="4" column="0" row-span="1" col-span="2" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
-        </constraints>
-      </vspacer>
       <component id="39c05" class="javax.swing.JTextField" binding="scalaTestDefaultSuperClass">
         <constraints>
-          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="0" indent="0" use-parent-layout="false">
-            <preferred-size width="150" height="-1"/>
-          </grid>
+          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="1" use-parent-layout="false"/>
         </constraints>
         <properties>
           <columns value="25"/>
@@ -50,15 +43,12 @@
       </component>
       <component id="e2883" class="javax.swing.JComboBox" binding="trailingCommasComboBox">
         <constraints>
-          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="1" use-parent-layout="false">
+            <preferred-size width="200" height="-1"/>
+          </grid>
         </constraints>
         <properties/>
       </component>
-      <hspacer id="4491">
-        <constraints>
-          <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-      </hspacer>
       <component id="dd4c7" class="javax.swing.JCheckBox" binding="supportBackReferencesInCheckBox" default-binding="true">
         <constraints>
           <grid row="2" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
