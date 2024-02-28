@@ -37,7 +37,6 @@ class MaxJvmHeapParameterTest extends TestCase {
       useShellForImport = false ,
       shellDebugMode = false,
       preferScala2 = true,
-      groupProjectsFromSameBuild = true,
       userSetEnvironment = Map.empty,
       passParentEnvironment = true,
       insertProjectTransitiveDependencies = true,

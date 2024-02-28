@@ -32,7 +32,7 @@ import scala.jdk.CollectionConverters.SeqHasAsJava
 // SbtProjectStructureImportingTest_TransitiveProjectDependenciesEnabled.scala. Before each test performed in this class
 // insertProjectTransitiveDependencies is set to true, so that the functionality of transitive dependencies can be tested
 @Category(Array(classOf[SlowTests]))
-final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabledGroupModulesEnabled extends SbtProjectStructureImportingLike {
+final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabled extends SbtProjectStructureImportingLike {
 
   import ProjectStructureDsl._
 
@@ -135,7 +135,6 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
     val linkedSbtProjectPath = generateTestProjectPath(linkedProjectName)
     linkSbtProject(
       linkedSbtProjectPath,
-      groupProjectsFromSameBuild = true,
       transitiveProjectDependencies = false
     )
     runTest(
@@ -536,7 +535,7 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
   // SCL-16204, SCL-17597
   @nowarn("cat=deprecation")
   def testJavaLanguageLevelAndTargetByteCodeLevel_NoOptions(): Unit = {
-    val projectLangaugeLevel = SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabledGroupModulesEnabled.this.projectJdkLanguageLevel
+    val projectLangaugeLevel = SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabled.this.projectJdkLanguageLevel
     val projectName = "java-language-level-and-target-byte-code-level-no-options"
     def doRunTest(): Unit = runTest(
       new project(projectName) {
@@ -635,7 +634,7 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
         // no storing project level options
         javacOptions := Nil
         javaTargetBytecodeLevel := null
-        javaLanguageLevel := SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabledGroupModulesEnabled.this.projectJdkLanguageLevel
+        javaLanguageLevel := SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabled.this.projectJdkLanguageLevel
 
         val root: module = new module("javac-special-options-for-root-project") {
           javaLanguageLevel := LanguageLevel.JDK_1_9
