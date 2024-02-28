@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
+import com.intellij.lang.documentation.QuickDocHighlightingHelper.{CODE_BLOCK_PREFIX, CODE_BLOCK_SUFFIX}
 import org.jetbrains.plugins.scala.editor.documentationProvider.util.{ScalaDocumentationsBodySectionTesting, ScalaDocumentationsScalaDocContentTesting}
 import org.jetbrains.plugins.scala.util.AliasExports._
 
@@ -1541,12 +1542,12 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          |class ${|}NestedDoc""".stripMargin
 
     val expectedContent =
-      """text 1
+      s"""text 1
         | /**
         | * text inner 1
         | */
         | text 2
-        |<p><pre><code>/**   text inner   3   */</code></pre></p> """.stripMargin
+        |$CODE_BLOCK_PREFIX<span style="color:#808080;font-style:italic;">/**&#32;&#32;&#32;text&#32;inner&#32;&#32;&#32;3&#32;&#32;&#32;*/</span>$CODE_BLOCK_SUFFIX""".stripMargin
 
     doGenerateDocContentTest(fileContent, expectedContent, HtmlSpacesComparisonMode.DontIgnoreNewLinesCollapseSpaces)
   }
@@ -1747,16 +1748,7 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
         | """.stripMargin
 
     val expectedContent =
-      s"""<pre><code>
-         |code line 1
-         |
-         |code line 2
-         |
-         |
-         |code line 3
-         |code line 4
-         |</code></pre>
-         |""".stripMargin
+      s"""$CODE_BLOCK_PREFIX<span style="">code&#32;line&#32;</span><span style="color:#0000ff;">1<br></span><span style="color:#0000ff;"><br></span><span style="">code&#32;line&#32;</span><span style="color:#0000ff;">2<br></span><span style="color:#0000ff;"><br></span><span style="color:#0000ff;"><br></span><span style="">code&#32;line&#32;</span><span style="color:#0000ff;">3<br></span><span style="">code&#32;line&#32;</span><span style="color:#0000ff;">4</span>$CODE_BLOCK_SUFFIX""".stripMargin
 
     doGenerateDocContentDanglingTest(input, expectedContent, HtmlSpacesComparisonMode.DontIgnoreNewLinesCollapseSpaces)
   }
@@ -1909,7 +1901,7 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          | * text before {{{<head><style>...</style></head>}}} text after
          | */
          |class ${|}A""".stripMargin,
-      """text before <pre><code>&lt;head&gt;&lt;style&gt;...&lt;/style&gt;&lt;/head&gt;</code></pre> text after""".stripMargin,
+      s"""text before $CODE_BLOCK_PREFIX<span style="">&lt;</span><span style="color:#000080;font-weight:bold;">head</span><span style="">&gt;&lt;</span><span style="color:#000080;font-weight:bold;">style</span><span style="">&gt;</span><span style="">...</span><span style="">&lt;/</span><span style="color:#000080;font-weight:bold;">style</span><span style="">&gt;&lt;/</span><span style="color:#000080;font-weight:bold;">head</span><span style="">&gt;</span>$CODE_BLOCK_SUFFIX text after""".stripMargin,
       HtmlSpacesComparisonMode.DontIgnoreNewLinesCollapseSpaces
     )
 

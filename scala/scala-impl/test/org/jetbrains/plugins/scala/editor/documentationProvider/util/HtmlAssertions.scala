@@ -33,7 +33,9 @@ trait HtmlAssertions {
   private def normalizeWhiteSpaces(html: String, whitespacesMode: HtmlSpacesComparisonMode): String = {
     val buffer = new java.lang.StringBuilder
 
-    val (preTagStart, preTagEnd) = ("<pre>", "</pre>")
+    //NOTE: using <pre without closing > to detect tags with attributes, this is done so because current implementation
+    //of MarkersUtils.findRanges doesn't support regexp start/end makers
+    val (preTagStart, preTagEnd) = ("<pre", "</pre>")
     val preformattedRanges = MarkersUtils
       .findRanges(html, preTagStart, preTagEnd)
       .map(r => TextRange.create(r.getStartOffset, r.getEndOffset + preTagEnd.length))
