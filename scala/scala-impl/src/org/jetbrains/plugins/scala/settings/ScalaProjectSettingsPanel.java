@@ -70,22 +70,6 @@ public class ScalaProjectSettingsPanel {
     //            with a TabbedPaneWrapper and move all the tabs to it.
     @Nullable
     private JTabbedPane tabbedPane;
-    private JCheckBox myDoublePressAndHoldCheckbox;
-    private JCheckBox myPressAndHoldCheckbox;
-    private JCheckBox myShowParameterHintsCheckbox;
-    private JCheckBox myShowArgumentHintsCheckbox;
-    private JCheckBox myShowTypeHintsCheckbox;
-    private JCheckBox myShowMethodResultsCheckbox;
-    private JCheckBox myShowMemberVariablesCheckbox;
-    private JCheckBox myShowLocalVariablesCheckbox;
-    private JCheckBox myShowLambdaParametersCheckbox;
-    private JCheckBox myShowLambdaPlaceholdersCheckbox;
-    private JCheckBox myShowVariablePatternsCheckbox;
-    private JCheckBox myShowMethodChainHintsCheckbox;
-    private JCheckBox myShowImplicitHintsCheckbox;
-    private JCheckBox myShowIndentGuidesCheckbox;
-    private JCheckBox myShowMethodSeparatorsCheckbox;
-    private JComboBox<XRayWidgetMode> myWidgetModeCombobox;
     private JCheckBox showTypeMismatchHintsCheckBox;
     private final TabbedPaneWrapper wrappedTabbedPane;
     private final Disposable wrappedTabbedPaneDisposer = Disposer.newDisposable();
@@ -142,34 +126,9 @@ public class ScalaProjectSettingsPanel {
                 Pair.create(ScalaCollectionHighlightingLevel.All, ScalaBundle.message("scala.collection.highlighting.type.all"))
         ));
 
-        if (SystemInfo.isMac) {
-            myDoublePressAndHoldCheckbox.setText(myDoublePressAndHoldCheckbox.getText().replace("Ctrl", "Cmd"));
-            myPressAndHoldCheckbox.setText(myPressAndHoldCheckbox.getText().replace("Ctrl", "Cmd"));
-        }
-
-        Map<XRayWidgetMode, String> modes = new HashMap<>();
-        modes.put(XRayWidgetMode.ALWAYS, "Always");
-        modes.put(XRayWidgetMode.WHEN_ACTIVE, "When active");
-        modes.put(XRayWidgetMode.NEVER, "Never");
-        myWidgetModeCombobox.setModel(new DefaultComboBoxModel<>(XRayWidgetMode.values()));
-        myWidgetModeCombobox.setRenderer(new SimpleMappingListCellRenderer<>(modes));
-        myShowTypeHintsCheckbox.addItemListener(e -> updateTypeHintCheckboxes());
-
         setSettings();
-        updateTypeHintCheckboxes();
 
         initSelectedTab();
-    }
-
-    private void updateTypeHintCheckboxes() {
-        boolean b = myShowTypeHintsCheckbox.isSelected();
-        myShowMemberVariablesCheckbox.setEnabled(b);
-        myShowLocalVariablesCheckbox.setEnabled(b);
-        myShowMethodResultsCheckbox.setEnabled(b);
-        myShowMethodResultsCheckbox.setEnabled(b);
-        myShowLambdaParametersCheckbox.setEnabled(b);
-        myShowLambdaPlaceholdersCheckbox.setEnabled(b);
-        myShowVariablePatternsCheckbox.setEnabled(b);
     }
 
     @NotNull
@@ -214,24 +173,6 @@ public class ScalaProjectSettingsPanel {
         scalaProjectSettings.setCollectionTypeHighlightingLevel((ScalaCollectionHighlightingLevel) collectionHighlightingChooser.getSelectedItem());
         scalaProjectSettings.setCompilerHighlightingScala2(typeChecker.getSelectedItem() == TypeChecker.Compiler);
         scalaProjectSettings.setUseCompilerRanges(useCompilerRanges.isSelected());
-
-        ScalaApplicationSettings scalaApplicationSettings = ScalaApplicationSettings.getInstance();
-        scalaApplicationSettings.XRAY_DOUBLE_PRESS_AND_HOLD = myDoublePressAndHoldCheckbox.isSelected();
-        scalaApplicationSettings.XRAY_PRESS_AND_HOLD = myPressAndHoldCheckbox.isSelected();
-        scalaApplicationSettings.XRAY_SHOW_PARAMETER_HINTS = myShowParameterHintsCheckbox.isSelected();
-        scalaApplicationSettings.XRAY_SHOW_ARGUMENT_HINTS = myShowArgumentHintsCheckbox.isSelected();
-        scalaApplicationSettings.XRAY_SHOW_TYPE_HINTS = myShowTypeHintsCheckbox.isSelected();
-        scalaApplicationSettings.XRAY_SHOW_MEMBER_VARIABLE_HINTS = myShowMemberVariablesCheckbox.isSelected();
-        scalaApplicationSettings.XRAY_SHOW_LOCAL_VARIABLE_HINTS = myShowLocalVariablesCheckbox.isSelected();
-        scalaApplicationSettings.XRAY_SHOW_METHOD_RESULT_HINTS = myShowMethodResultsCheckbox.isSelected();
-        scalaApplicationSettings.XRAY_SHOW_LAMBDA_PARAMETER_HINTS = myShowLambdaParametersCheckbox.isSelected();
-        scalaApplicationSettings.XRAY_SHOW_LAMBDA_PLACEHOLDER_HINTS = myShowLambdaPlaceholdersCheckbox.isSelected();
-        scalaApplicationSettings.XRAY_SHOW_VARIABLE_PATTERN_HINTS = myShowVariablePatternsCheckbox.isSelected();
-        scalaApplicationSettings.XRAY_SHOW_METHOD_CHAIN_HINTS = myShowMethodChainHintsCheckbox.isSelected();
-        scalaApplicationSettings.XRAY_SHOW_IMPLICIT_HINTS = myShowImplicitHintsCheckbox.isSelected();
-        scalaApplicationSettings.XRAY_SHOW_INDENT_GUIDES = myShowIndentGuidesCheckbox.isSelected();
-        scalaApplicationSettings.XRAY_SHOW_METHOD_SEPARATORS = myShowMethodSeparatorsCheckbox.isSelected();
-        scalaApplicationSettings.XRAY_WIDGET_MODE = (XRayWidgetMode) myWidgetModeCombobox.getSelectedItem();
     }
 
     @SuppressWarnings({"RedundantIfStatement"})
@@ -280,35 +221,6 @@ public class ScalaProjectSettingsPanel {
                 (typeChecker.getSelectedItem() == TypeChecker.Compiler)) return true;
 
         if (scalaProjectSettings.isUseCompilerRanges() != useCompilerRanges.isSelected()) return true;
-
-        ScalaApplicationSettings scalaApplicationSettings = ScalaApplicationSettings.getInstance();
-        if (scalaApplicationSettings.XRAY_DOUBLE_PRESS_AND_HOLD != myDoublePressAndHoldCheckbox.isSelected())
-            return true;
-        if (scalaApplicationSettings.XRAY_PRESS_AND_HOLD != myPressAndHoldCheckbox.isSelected()) return true;
-        if (scalaApplicationSettings.XRAY_SHOW_PARAMETER_HINTS != myShowParameterHintsCheckbox.isSelected())
-            return true;
-        if (scalaApplicationSettings.XRAY_SHOW_ARGUMENT_HINTS != myShowArgumentHintsCheckbox.isSelected()) return true;
-        if (scalaApplicationSettings.XRAY_SHOW_TYPE_HINTS != myShowTypeHintsCheckbox.isSelected()) return true;
-        if (scalaApplicationSettings.XRAY_SHOW_MEMBER_VARIABLE_HINTS != myShowMemberVariablesCheckbox.isSelected())
-            return true;
-        if (scalaApplicationSettings.XRAY_SHOW_LOCAL_VARIABLE_HINTS != myShowLocalVariablesCheckbox.isSelected())
-            return true;
-        if (scalaApplicationSettings.XRAY_SHOW_METHOD_RESULT_HINTS != myShowMethodResultsCheckbox.isSelected())
-            return true;
-        if (scalaApplicationSettings.XRAY_SHOW_LAMBDA_PARAMETER_HINTS != myShowLambdaParametersCheckbox.isSelected())
-            return true;
-        if (scalaApplicationSettings.XRAY_SHOW_LAMBDA_PLACEHOLDER_HINTS != myShowLambdaPlaceholdersCheckbox.isSelected())
-            return true;
-        if (scalaApplicationSettings.XRAY_SHOW_VARIABLE_PATTERN_HINTS != myShowVariablePatternsCheckbox.isSelected())
-            return true;
-        if (scalaApplicationSettings.XRAY_SHOW_METHOD_CHAIN_HINTS != myShowMethodChainHintsCheckbox.isSelected())
-            return true;
-        if (scalaApplicationSettings.XRAY_SHOW_IMPLICIT_HINTS != myShowImplicitHintsCheckbox.isSelected()) return true;
-        if (scalaApplicationSettings.XRAY_SHOW_INDENT_GUIDES != myShowIndentGuidesCheckbox.isSelected()) return true;
-        if (scalaApplicationSettings.XRAY_SHOW_METHOD_SEPARATORS != myShowMethodSeparatorsCheckbox.isSelected())
-            return true;
-        if (scalaApplicationSettings.XRAY_WIDGET_MODE != myWidgetModeCombobox.getSelectedItem()) return true;
-
         return false;
     }
 
@@ -361,24 +273,6 @@ public class ScalaProjectSettingsPanel {
 
         typeChecker.setSelectedItem(scalaProjectSettings.isCompilerHighlightingScala2() ? TypeChecker.Compiler : TypeChecker.BuiltIn);
         setValue(useCompilerRanges, scalaProjectSettings.isUseCompilerRanges());
-
-        ScalaApplicationSettings scalaApplicationSettings = ScalaApplicationSettings.getInstance();
-        myDoublePressAndHoldCheckbox.setSelected(scalaApplicationSettings.XRAY_DOUBLE_PRESS_AND_HOLD);
-        myPressAndHoldCheckbox.setSelected(scalaApplicationSettings.XRAY_PRESS_AND_HOLD);
-        myShowParameterHintsCheckbox.setSelected(scalaApplicationSettings.XRAY_SHOW_PARAMETER_HINTS);
-        myShowArgumentHintsCheckbox.setSelected(scalaApplicationSettings.XRAY_SHOW_ARGUMENT_HINTS);
-        myShowTypeHintsCheckbox.setSelected(scalaApplicationSettings.XRAY_SHOW_TYPE_HINTS);
-        myShowMemberVariablesCheckbox.setSelected(scalaApplicationSettings.XRAY_SHOW_MEMBER_VARIABLE_HINTS);
-        myShowLocalVariablesCheckbox.setSelected(scalaApplicationSettings.XRAY_SHOW_LOCAL_VARIABLE_HINTS);
-        myShowMethodResultsCheckbox.setSelected(scalaApplicationSettings.XRAY_SHOW_METHOD_RESULT_HINTS);
-        myShowLambdaParametersCheckbox.setSelected(scalaApplicationSettings.XRAY_SHOW_LAMBDA_PARAMETER_HINTS);
-        myShowLambdaPlaceholdersCheckbox.setSelected(scalaApplicationSettings.XRAY_SHOW_LAMBDA_PLACEHOLDER_HINTS);
-        myShowVariablePatternsCheckbox.setSelected(scalaApplicationSettings.XRAY_SHOW_VARIABLE_PATTERN_HINTS);
-        myShowMethodChainHintsCheckbox.setSelected(scalaApplicationSettings.XRAY_SHOW_METHOD_CHAIN_HINTS);
-        myShowImplicitHintsCheckbox.setSelected(scalaApplicationSettings.XRAY_SHOW_IMPLICIT_HINTS);
-        myShowIndentGuidesCheckbox.setSelected(scalaApplicationSettings.XRAY_SHOW_INDENT_GUIDES);
-        myShowMethodSeparatorsCheckbox.setSelected(scalaApplicationSettings.XRAY_SHOW_METHOD_SEPARATORS);
-        myWidgetModeCombobox.setSelectedItem(scalaApplicationSettings.XRAY_WIDGET_MODE);
     }
 
     private static void setValue(JSpinner spinner, int value) {
@@ -509,82 +403,6 @@ public class ScalaProjectSettingsPanel {
         showTypeMismatchHintsCheckBox.setSelected(true);
         this.$$$loadButtonText$$$(showTypeMismatchHintsCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.show.type.mismatch.hints"));
         panel1.add(showTypeMismatchHintsCheckBox, new GridConstraints(5, 0, 1, 5, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JPanel panel6 = new JPanel();
-        panel6.setLayout(new GridLayoutManager(22, 2, new Insets(12, 9, 0, 0), -1, -1));
-        tabbedPane.addTab(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.tabs.xray.mode"), panel6);
-        final JLabel label3 = new JLabel();
-        this.$$$loadLabelText$$$(label3, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.xray.activate"));
-        panel6.add(label3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final Spacer spacer2 = new Spacer();
-        panel6.add(spacer2, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
-        final Spacer spacer3 = new Spacer();
-        panel6.add(spacer3, new GridConstraints(21, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-        final JLabel label4 = new JLabel();
-        this.$$$loadLabelText$$$(label4, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.xray.show"));
-        panel6.add(label4, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        myShowMethodChainHintsCheckbox = new JCheckBox();
-        this.$$$loadButtonText$$$(myShowMethodChainHintsCheckbox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.xray.method.chain.hints"));
-        panel6.add(myShowMethodChainHintsCheckbox, new GridConstraints(14, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
-        myShowIndentGuidesCheckbox = new JCheckBox();
-        this.$$$loadButtonText$$$(myShowIndentGuidesCheckbox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.xray.indent.guides"));
-        panel6.add(myShowIndentGuidesCheckbox, new GridConstraints(16, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
-        myShowMethodSeparatorsCheckbox = new JCheckBox();
-        this.$$$loadButtonText$$$(myShowMethodSeparatorsCheckbox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.xray.method.separators"));
-        panel6.add(myShowMethodSeparatorsCheckbox, new GridConstraints(17, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
-        myShowImplicitHintsCheckbox = new JCheckBox();
-        this.$$$loadButtonText$$$(myShowImplicitHintsCheckbox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.xray.implicit.hints"));
-        panel6.add(myShowImplicitHintsCheckbox, new GridConstraints(15, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
-        myShowTypeHintsCheckbox = new JCheckBox();
-        this.$$$loadButtonText$$$(myShowTypeHintsCheckbox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.xray.type.hints"));
-        panel6.add(myShowTypeHintsCheckbox, new GridConstraints(7, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
-        myShowMethodResultsCheckbox = new JCheckBox();
-        this.$$$loadButtonText$$$(myShowMethodResultsCheckbox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.xray.method.results"));
-        panel6.add(myShowMethodResultsCheckbox, new GridConstraints(10, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 2, false));
-        myShowMemberVariablesCheckbox = new JCheckBox();
-        this.$$$loadButtonText$$$(myShowMemberVariablesCheckbox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.xray.member.variables"));
-        panel6.add(myShowMemberVariablesCheckbox, new GridConstraints(8, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 2, false));
-        myShowLocalVariablesCheckbox = new JCheckBox();
-        this.$$$loadButtonText$$$(myShowLocalVariablesCheckbox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.xray.local.variables"));
-        panel6.add(myShowLocalVariablesCheckbox, new GridConstraints(9, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 2, false));
-        myShowLambdaParametersCheckbox = new JCheckBox();
-        this.$$$loadButtonText$$$(myShowLambdaParametersCheckbox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.xray.lambda.parameters"));
-        panel6.add(myShowLambdaParametersCheckbox, new GridConstraints(11, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 2, false));
-        myShowLambdaPlaceholdersCheckbox = new JCheckBox();
-        this.$$$loadButtonText$$$(myShowLambdaPlaceholdersCheckbox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.xray.lambda.placeholders"));
-        panel6.add(myShowLambdaPlaceholdersCheckbox, new GridConstraints(12, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 2, false));
-        myShowVariablePatternsCheckbox = new JCheckBox();
-        this.$$$loadButtonText$$$(myShowVariablePatternsCheckbox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.xray.variable.patterns"));
-        panel6.add(myShowVariablePatternsCheckbox, new GridConstraints(13, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 2, false));
-        myShowParameterHintsCheckbox = new JCheckBox();
-        this.$$$loadButtonText$$$(myShowParameterHintsCheckbox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.xray.parameter.name.hints"));
-        panel6.add(myShowParameterHintsCheckbox, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
-        myShowArgumentHintsCheckbox = new JCheckBox();
-        this.$$$loadButtonText$$$(myShowArgumentHintsCheckbox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.xray.by-name.argument.hints"));
-        panel6.add(myShowArgumentHintsCheckbox, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
-        myDoublePressAndHoldCheckbox = new JCheckBox();
-        this.$$$loadButtonText$$$(myDoublePressAndHoldCheckbox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.xray.double.press.and.hold"));
-        panel6.add(myDoublePressAndHoldCheckbox, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
-        myPressAndHoldCheckbox = new JCheckBox();
-        this.$$$loadButtonText$$$(myPressAndHoldCheckbox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.xray.press.and.hold"));
-        panel6.add(myPressAndHoldCheckbox, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
-        final JLabel label5 = new JLabel();
-        label5.setText("");
-        panel6.add(label5, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label6 = new JLabel();
-        label6.setText("");
-        panel6.add(label6, new GridConstraints(18, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JPanel panel7 = new JPanel();
-        panel7.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
-        panel6.add(panel7, new GridConstraints(20, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        myWidgetModeCombobox = new JComboBox();
-        panel7.add(myWidgetModeCombobox, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label7 = new JLabel();
-        this.$$$loadLabelText$$$(label7, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.xray.widget.display"));
-        panel7.add(label7, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
-        final JLabel label8 = new JLabel();
-        this.$$$loadLabelText$$$(label8, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.xray.widget"));
-        panel6.add(label8, new GridConstraints(19, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        label7.setLabelFor(myWidgetModeCombobox);
     }
 
     private static Method $$$cachedGetBundleMethod$$$ = null;
