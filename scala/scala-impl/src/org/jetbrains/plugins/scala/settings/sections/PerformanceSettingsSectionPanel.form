@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="org.jetbrains.plugins.scala.settings.sections.PerformanceSettingsSectionPanel">
-  <grid id="27dc6" binding="rootPanel" layout-manager="GridLayoutManager" row-count="9" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+  <grid id="27dc6" binding="rootPanel" layout-manager="GridLayoutManager" row-count="9" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="9" left="9" bottom="9" right="9"/>
     <constraints>
-      <xy x="20" y="20" width="1106" height="413"/>
+      <xy x="20" y="20" width="1126" height="413"/>
     </constraints>
     <properties/>
     <border type="none"/>
@@ -23,7 +23,7 @@
       </component>
       <component id="940d9" class="javax.swing.JSpinner" binding="implicitParametersSearchDepthSpinner">
         <constraints>
-          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="0" indent="0" use-parent-layout="false">
+          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="0" fill="1" indent="0" use-parent-layout="false">
             <minimum-size width="50" height="-1"/>
           </grid>
         </constraints>
@@ -31,7 +31,7 @@
       </component>
       <component id="b7e59" class="javax.swing.JCheckBox" binding="treatDocCommentAsBlockComment">
         <constraints>
-          <grid row="5" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="5" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.disable.parsing.of.documentation.comments"/>
@@ -39,7 +39,7 @@
       </component>
       <component id="eeca6" class="javax.swing.JCheckBox" binding="myDisableLanguageInjection">
         <constraints>
-          <grid row="6" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="6" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.disable.language.injection.in.scala.files"/>
@@ -47,7 +47,7 @@
       </component>
       <component id="e3c86" class="javax.swing.JCheckBox" binding="myDontCacheCompound">
         <constraints>
-          <grid row="7" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="7" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.dont.cache.compound.types"/>
@@ -72,7 +72,7 @@
       </component>
       <component id="ad509" class="javax.swing.JComboBox" binding="scalaMetaMode">
         <constraints>
-          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <toolTipText resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.scala.meta.settings.modeOptions.tooltip"/>
@@ -89,7 +89,7 @@
       </component>
       <component id="65198" class="javax.swing.JComboBox" binding="ivy2IndexingModeCBB">
         <constraints>
-          <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <toolTipText resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.sbt.index.ivy2.mode.hint"/>
@@ -104,6 +104,11 @@
           <toolTipText resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.sbt.index.ivy2.mode.hint"/>
         </properties>
       </component>
+      <hspacer id="30c62">
+        <constraints>
+          <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+      </hspacer>
     </children>
   </grid>
 </form>
