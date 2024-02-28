@@ -155,8 +155,8 @@ object AnnotatorUtils {
     elem != null && {
       val psiFile1 = elem.getContainingFile
       psiFile1 != null && {
-        val vFile1 = psiFile1.getViewProvider.getVirtualFile
-        val vFile2 = file.getViewProvider.getVirtualFile
+        val vFile1 = psiFile1.getViewProvider.nullSafe.map(_.getVirtualFile)
+        val vFile2 = file.getViewProvider.nullSafe.map(_.getVirtualFile)
         vFile1 == vFile2
       }
     }

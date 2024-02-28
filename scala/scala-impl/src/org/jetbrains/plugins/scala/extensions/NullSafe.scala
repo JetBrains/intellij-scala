@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable
   * It has no overhead of converting to Option, and allows to chain several nullable functions in a safe way
   * using `map` and `collect` methods.
   */
-final class NullSafe[+A >: Null] private(@Nullable val get: A) extends AnyVal {
+final case class NullSafe[+A >: Null] private(@Nullable get: A) extends AnyVal {
 
   import NullSafe.empty
 
