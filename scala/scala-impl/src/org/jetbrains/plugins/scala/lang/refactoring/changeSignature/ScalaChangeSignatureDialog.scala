@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.refactoring.changeSignature
 
 import com.intellij.codeInsight.daemon.impl.analysis.{FileHighlightingSetting, HighlightLevelUtil}
 import com.intellij.java.refactoring.JavaRefactoringBundle
-import com.intellij.openapi.actionSystem.{AnActionEvent, CustomShortcutSet}
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnActionEvent, CustomShortcutSet}
 import com.intellij.openapi.editor.event.{DocumentEvent, DocumentListener}
 import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.project.Project
@@ -366,6 +366,8 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
         }
         finishAndRestoreEditing(editedColumn)
       }
+
+      override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
     }
     addClauseButton.addCustomUpdater((_: AnActionEvent) => {
       val selected = parametersTable.getSelectedRow
@@ -389,6 +391,8 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
         }
         finishAndRestoreEditing(editedColumn)
       }
+
+      override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
     }
     removeClauseButton.addCustomUpdater((_: AnActionEvent) => {
       val selected = parametersTable.getSelectedRow
