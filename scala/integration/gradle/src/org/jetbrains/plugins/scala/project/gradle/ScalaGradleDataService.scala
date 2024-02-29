@@ -86,13 +86,19 @@ class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelD
       val scalaLibraryWithSameVersion = scalaLibrariesInProject.find(_.libraryVersion.contains(compilerVersion))
       scalaLibraryWithSameVersion match {
         case Some(library) =>
+          val compilerBridgeBinaryJar = library.libraryVersion.filter(_.startsWith("3.")).flatMap { version =>
+            compilerClasspath.find { jar =>
+              jar.getName == s"scala3-sbt-bridge-$version.jar"
+            }
+          }
+
           ScalaSdkUtils.ensureScalaLibraryIsConvertedToScalaSdk(
             modelsProvider,
             library,
             library.libraryVersion,
             compilerClasspath,
             scaladocExtraClasspath = Nil, // TODO SCL-17219
-            None //TODO: support it for Gradle (or maybe just implement a generic resolver)
+            compilerBridgeBinaryJar
           )
         case None =>
           showScalaLibraryNotFoundWarning(compilerVersion, moduleName)
