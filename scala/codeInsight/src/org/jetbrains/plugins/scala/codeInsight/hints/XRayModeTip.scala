@@ -9,10 +9,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.StartupActivity
 import com.intellij.util.messages.MessageBusConnection
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
-import org.jetbrains.plugins.scala.settings.{ScalaApplicationSettings, ScalaProjectSettingsConfigurable}
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.settings.sections.XRayModeSettingsSectionConfigurable
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
-
-import java.util.function.Consumer
 
 class XRayModeTip extends StartupActivity.DumbAware {
   private var messageBusConnection: Option[MessageBusConnection] = None
@@ -75,10 +74,7 @@ class XRayModeTip extends StartupActivity.DumbAware {
         disable()
         notification.hideBalloon()
 
-        ShowSettingsUtil.getInstance.showSettingsDialog(
-          e.getProject,
-          classOf[ScalaProjectSettingsConfigurable],
-          (_.selectXRayModeTab()): Consumer[ScalaProjectSettingsConfigurable])
+        ShowSettingsUtil.getInstance.showSettingsDialog(e.getProject, classOf[XRayModeSettingsSectionConfigurable])
       }
 
       override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT

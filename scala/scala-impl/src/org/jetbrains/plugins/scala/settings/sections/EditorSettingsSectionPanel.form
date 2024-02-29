@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="org.jetbrains.plugins.scala.settings.sections.EditorSettingsSectionPanel">
+  <grid id="27dc6" binding="rootPanel" layout-manager="GridLayoutManager" row-count="22" column-count="5" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+    <margin top="9" left="9" bottom="9" right="9"/>
+    <constraints>
+      <xy x="20" y="20" width="686" height="990"/>
+    </constraints>
+    <properties/>
+    <border type="none"/>
+    <children>
+      <vspacer id="48ae7">
+        <constraints>
+          <grid row="21" column="0" row-span="1" col-span="4" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+        </constraints>
+      </vspacer>
+      <component id="a0028" class="javax.swing.JCheckBox" binding="showImplicitConversionsInCheckBox" default-binding="true">
+        <constraints>
+          <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <selected value="true"/>
+          <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.highlight.implicit.conversions"/>
+        </properties>
+      </component>
+      <component id="b03a6" class="javax.swing.JCheckBox" binding="showArgumentsToByNameParametersCheckBox">
+        <constraints>
+          <grid row="8" column="0" row-span="1" col-span="5" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <selected value="true"/>
+          <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.highlight.arguments.to.by.name.parameters"/>
+        </properties>
+      </component>
+      <component id="e6635" class="javax.swing.JCheckBox" binding="includeBlockExpressionsExpressionsCheckBox">
+        <constraints>
+          <grid row="9" column="0" row-span="1" col-span="5" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <selected value="true"/>
+          <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.include.block.expressions"/>
+          <toolTipText value="Include expressions enclosed in in curly braces"/>
+        </properties>
+      </component>
+      <component id="164c3" class="javax.swing.JCheckBox" binding="includeLiteralsCheckBox">
+        <constraints>
+          <grid row="10" column="0" row-span="1" col-span="5" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <selected value="true"/>
+          <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.include.literals"/>
+          <toolTipText value="Include string, number, etc"/>
+        </properties>
+      </component>
+      <component id="ecb47" class="com.intellij.ui.TitledSeparator">
+        <constraints>
+          <grid row="3" column="0" row-span="1" col-span="5" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="102" height="36"/>
+          </grid>
+        </constraints>
+        <properties>
+          <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.highlighting"/>
+        </properties>
+      </component>
+      <component id="5e945" class="com.intellij.ui.TitledSeparator">
+        <constraints>
+          <grid row="14" column="0" row-span="1" col-span="5" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.autocomplete"/>
+        </properties>
+      </component>
+      <component id="eb315" class="javax.swing.JCheckBox" binding="myAotCompletion">
+        <constraints>
+          <grid row="15" column="0" row-span="1" col-span="5" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.ahead.of.time.completion"/>
+        </properties>
+      </component>
+      <component id="9d348" class="javax.swing.JCheckBox" binding="useScalaClassesPriorityCheckBox" default-binding="true">
+        <constraints>
+          <grid row="16" column="0" row-span="1" col-span="5" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <selected value="true"/>
+          <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.use.scala.classes.priority.over.java"/>
+        </properties>
+      </component>
+      <component id="e1bba" class="javax.swing.JCheckBox" binding="enableConversionOnCopyCheckBox" default-binding="true">
+        <constraints>
+          <grid row="18" column="0" row-span="1" col-span="5" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <selected value="true"/>
+          <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.convert.java.code.to.scala.on.copy.paste"/>
+        </properties>
+      </component>
+      <component id="cb873" class="javax.swing.JCheckBox" binding="donTShowDialogCheckBox" default-binding="true">
+        <constraints>
+          <grid row="19" column="0" row-span="1" col-span="5" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.automatically.convert.to.scala.code.without.dialog"/>
+        </properties>
+      </component>
+      <component id="77c72" class="com.intellij.ui.TitledSeparator">
+        <constraints>
+          <grid row="17" column="0" row-span="1" col-span="5" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.code.conversion"/>
+        </properties>
+      </component>
+      <component id="b8975" class="javax.swing.JCheckBox" binding="customScalatestSyntaxHighlightingCheckbox">
+        <constraints>
+          <grid row="11" column="0" row-span="1" col-span="4" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.custom.scalatest.keywords.highlighting"/>
+        </properties>
+      </component>
+      <component id="fa2a6" class="javax.swing.JCheckBox" binding="addOverrideToImplementCheckBox">
+        <constraints>
+          <grid row="20" column="0" row-span="1" col-span="5" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <selected value="true"/>
+          <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.add.override.keyword.to.method.implementation"/>
+        </properties>
+      </component>
+      <component id="a10ad" class="javax.swing.JCheckBox" binding="showNotFoundImplicitArgumentsCheckBox">
+        <constraints>
+          <grid row="6" column="0" row-span="1" col-span="5" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <selected value="true"/>
+          <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.show.hints.if.no.implicit.arguments.found"/>
+        </properties>
+      </component>
+      <grid id="b51a0" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="0" left="0" bottom="0" right="0"/>
+        <constraints>
+          <grid row="13" column="0" row-span="1" col-span="4" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="389fa" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.collection.type.highlighting.option"/>
+            </properties>
+          </component>
+          <component id="5626c" class="javax.swing.JComboBox" binding="collectionHighlightingChooser">
+            <constraints>
+              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+          </component>
+        </children>
+      </grid>
+      <component id="8c6f0" class="javax.swing.JCheckBox" binding="showAmbiguousImplicitArgumentsCheckBox">
+        <constraints>
+          <grid row="7" column="0" row-span="1" col-span="5" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <selected value="true"/>
+          <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.show.hints.if.ambiguous.implicit.arguments.found"/>
+        </properties>
+      </component>
+      <grid id="2f7a0" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="0" left="0" bottom="0" right="0"/>
+        <constraints>
+          <grid row="12" column="0" row-span="1" col-span="4" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="b8327" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.alias.export.semantics"/>
+            </properties>
+          </component>
+          <component id="cc087" class="javax.swing.JComboBox" binding="aliasSemantics">
+            <constraints>
+              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+          </component>
+        </children>
+      </grid>
+      <component id="dcffe" class="com.intellij.ui.TitledSeparator">
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="5" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.error.highlighting"/>
+        </properties>
+      </component>
+      <grid id="413cd" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="0" left="0" bottom="0" right="0"/>
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="2" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="7ca2d" class="javax.swing.JComboBox" binding="typeChecker">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+          </component>
+          <grid id="9efff" binding="typeCheckerHelp" layout-manager="BorderLayout" hgap="0" vgap="0">
+            <constraints>
+              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children/>
+          </grid>
+        </children>
+      </grid>
+      <grid id="651b9" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="0" left="0" bottom="0" right="0"/>
+        <constraints>
+          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="2" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <grid id="3037c" binding="useCompilerRangesHelp" layout-manager="BorderLayout" hgap="0" vgap="0">
+            <constraints>
+              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children/>
+          </grid>
+          <component id="bb23e" class="javax.swing.JCheckBox" binding="useCompilerRanges">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.error.highlighting.use.compiler.ranges"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
+      <component id="6520a" class="javax.swing.JCheckBox" binding="showTypeMismatchHintsCheckBox">
+        <constraints>
+          <grid row="5" column="0" row-span="1" col-span="5" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <selected value="true"/>
+          <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.show.type.mismatch.hints"/>
+        </properties>
+      </component>
+    </children>
+  </grid>
+</form>
