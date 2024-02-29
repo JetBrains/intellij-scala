@@ -3,8 +3,8 @@ package org.jetbrains.plugins.scala.testingSupport.test.munit
 import com.intellij.execution.CommonJavaRunConfigurationParameters
 
 trait DelegateCommonJavaRunConfigurationParameters
-  extends CommonJavaRunConfigurationParameters
-    with DelegateCommonProgramRunConfigurationParameters {
+  extends DelegateCommonProgramRunConfigurationParameters {
+  self: CommonJavaRunConfigurationParameters =>
 
   private var _alternativeJrePathEnabled: Boolean = false;
 
