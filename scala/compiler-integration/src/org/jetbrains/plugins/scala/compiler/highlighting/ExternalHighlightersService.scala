@@ -191,20 +191,10 @@ private final class ExternalHighlightersService(project: Project) { self =>
       .group(ScalaCompilerPassId)
 
     diagnostics
-      .map(createIntentionAction(document, _))
+      .map(CompilerDiagnosticIntentionAction.create(document, _))
       .foreach(builder.registerFix(_, null, null, TextRange.create(highlightRange.getStartOffset, highlightRange.getEndOffset), null))
 
     builder
-  }
-
-  private def createIntentionAction(document: Document, action: Action): IntentionAction = {
-    val text = action.title.capitalize
-    val markers = action.edit.changes.map { te =>
-      val startOffset = document.getLineStartOffset(te.start.line - 1) + te.start.column - 1
-      val endOffset = document.getLineStartOffset(te.end.line - 1) + te.end.column - 1
-      (document.createRangeMarker(startOffset, endOffset), te.newText)
-    }
-    new CompilerDiagnosticIntentionAction(text, markers)
   }
 
   @RequiresReadLock
