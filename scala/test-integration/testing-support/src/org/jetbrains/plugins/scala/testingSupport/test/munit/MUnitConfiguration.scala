@@ -2,12 +2,19 @@ package org.jetbrains.plugins.scala.testingSupport.test.munit
 
 import com.intellij.execution.configurations.ConfigurationFactory
 import com.intellij.execution.testframework.sm.runner.{SMRunnerConsolePropertiesProvider, SMTRunnerConsoleProperties}
-import com.intellij.execution.{Executor, JavaTestFrameworkRunnableState}
+import com.intellij.execution.{CommonJavaRunConfigurationParameters, Executor}
 import com.intellij.openapi.project.Project
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.testingSupport.test._
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.TestConfigurationData
 
+/**
+ * We need to implement [[CommonJavaRunConfigurationParameters]] to automatically enable "Run with Profiler" action. See:
+ *  - [[com.intellij.profiler.ultimate.DefaultJavaProfilerStarterExtension.canRun]]
+ *  - [[com.intellij.profiler.ultimate.jfr.JFRConfigurationExtension.isApplicableFor]]
+ *  - SCL-21891
+ * Also [[com.intellij.execution.JavaTestFrameworkRunnableState]] requires configuration to implement [[CommonJavaRunConfigurationParameters]]
+ */
 final class MUnitConfiguration(
   project: Project,
   configurationFactory: ConfigurationFactory,
@@ -16,13 +23,10 @@ final class MUnitConfiguration(
   project,
   configurationFactory,
   name
-) with DelegateCommonJavaRunConfigurationParameters
+) with CommonJavaRunConfigurationParameters
+  with DelegateCommonJavaRunConfigurationParameters
   with SMRunnerConsolePropertiesProvider {
 
-  /**
-   * This is required because [[JavaTestFrameworkRunnableState]] requires configuration to implement
-   * CommonJavaRunConfigurationParameters. But AbstractTestRunConfiguration contains all data inside a separate data structure
-   */
   override protected def delegateToTestData: TestConfigurationData = testConfigurationData
 
   override val testFramework: MUnitTestFramework = MUnitTestFramework()

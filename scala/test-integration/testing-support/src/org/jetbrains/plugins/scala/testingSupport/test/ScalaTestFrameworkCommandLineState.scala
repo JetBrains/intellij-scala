@@ -3,8 +3,10 @@ package org.jetbrains.plugins.scala.testingSupport.test
 import com.intellij.execution.configurations.{JavaCommandLineState, JavaParameters, ParametersList}
 import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
 import com.intellij.execution.testframework.sm.SMTestRunnerConnectionUtil
+import com.intellij.execution.testframework.ui.BaseTestsOutputConsoleView
 import com.intellij.execution.{CommonProgramRunConfigurationParameters, ExecutionResult, Executor, JavaRunConfigurationExtensionManager, ShortenCommandLine}
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
+import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.newvfs.ManagingFS
 import com.intellij.openapi.vfs.newvfs.persistent.PersistentFSImpl
@@ -161,14 +163,28 @@ class ScalaTestFrameworkCommandLineState(
 
     RawProcessOutputDebugLogger.maybeAddListenerTo(processHandler)
 
-    val consoleView = {
+    val consoleView: BaseTestsOutputConsoleView = {
       val consoleProperties = configuration.createTestConsoleProperties(executor)
       consoleProperties.setIdBasedTestTree(true)
       SMTestRunnerConnectionUtil.createConsole("Scala", consoleProperties)
     }
-    consoleView.attachToProcess(processHandler)
+    /**
+     * This, for example, can attach additional profiler window when the test is executed
+     * using "Profiler ... with IntelliJ Profiler". The window shows live process CPU & Memory usage.
+     *
+     * Copied from [[com.intellij.execution.JavaTestFrameworkRunnableState#execute]]
+     */
+    val consoleViewDecorated = JavaRunConfigurationExtensionManager.getInstance.decorateExecutionConsole(
+      configuration,
+      getRunnerSettings,
+      consoleView,
+      executor
+    )
+    Disposer.register(configuration.getProject, consoleViewDecorated)
 
-    val executionResult = createExecutionResult(consoleView, processHandler)
+    consoleViewDecorated.attachToProcess(processHandler)
+
+    val executionResult = createExecutionResult(consoleViewDecorated, processHandler)
 
     executionResult
   }
