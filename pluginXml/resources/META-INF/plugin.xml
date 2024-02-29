@@ -49,19 +49,19 @@
     <depends optional="true" config-file="scala-ml-completion-integration.xml">com.intellij.completion.ml.ranking</depends>
 <!--    <depends optional="true" config-file="packagesearch.xml">com.jetbrains.packagesearch.intellij-plugin</depends>-->
 
-    <xi:include href="sbt-api.xml" xpointer="xpointer(/idea-plugin/*)"/>
-    <xi:include href="scala-plugin-common.xml" xpointer="xpointer(/idea-plugin/*)"/>
-    <xi:include href="sbt.xml" xpointer="xpointer(/idea-plugin/*)"/>
-    <xi:include href="BSP.xml" xpointer="xpointer(/idea-plugin/*)"/>
-    <xi:include href="codeInsight.xml" xpointer="xpointer(/idea-plugin/*)"/>
-    <xi:include href="conversion.xml" xpointer="xpointer(/idea-plugin/*)"/>
-    <xi:include href="compiler-integration.xml" xpointer="xpointer(/idea-plugin/*)"/>
-    <xi:include href="debugger.xml" xpointer="xpointer(/idea-plugin/*)"/>
-    <xi:include href="scala-repl.xml" xpointer="xpointer(/idea-plugin/*)"/>
-    <xi:include href="structure-view.xml" xpointer="xpointer(/idea-plugin/*)"/>
-    <xi:include href="testing-support.xml" xpointer="xpointer(/idea-plugin/*)"/>
-    <xi:include href="uast.xml" xpointer="xpointer(/idea-plugin/*)"/>
-    <xi:include href="worksheet.xml" xpointer="xpointer(/idea-plugin/*)"/>
-    <xi:include href="scala-devkit-integration.xml" xpointer="xpointer(/idea-plugin/*)"/>
+    <xi:include href="/META-INF/sbt-api.xml" xpointer="xpointer(/idea-plugin/*)"/>
+    <xi:include href="/META-INF/scala-plugin-common.xml" xpointer="xpointer(/idea-plugin/*)"/>
+    <xi:include href="/META-INF/sbt.xml" xpointer="xpointer(/idea-plugin/*)"/>
+    <xi:include href="/META-INF/BSP.xml" xpointer="xpointer(/idea-plugin/*)"/>
+    <xi:include href="/META-INF/codeInsight.xml" xpointer="xpointer(/idea-plugin/*)"/>
+    <xi:include href="/META-INF/conversion.xml" xpointer="xpointer(/idea-plugin/*)"/>
+    <xi:include href="/META-INF/compiler-integration.xml" xpointer="xpointer(/idea-plugin/*)"/>
+    <xi:include href="/META-INF/debugger.xml" xpointer="xpointer(/idea-plugin/*)"/>
+    <xi:include href="/META-INF/scala-repl.xml" xpointer="xpointer(/idea-plugin/*)"/>
+    <xi:include href="/META-INF/structure-view.xml" xpointer="xpointer(/idea-plugin/*)"/>
+    <xi:include href="/META-INF/testing-support.xml" xpointer="xpointer(/idea-plugin/*)"/>
+    <xi:include href="/META-INF/uast.xml" xpointer="xpointer(/idea-plugin/*)"/>
+    <xi:include href="/META-INF/worksheet.xml" xpointer="xpointer(/idea-plugin/*)"/>
+    <xi:include href="/META-INF/scala-devkit-integration.xml" xpointer="xpointer(/idea-plugin/*)"/>
 
 </idea-plugin>
