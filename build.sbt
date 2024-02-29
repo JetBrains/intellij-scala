@@ -40,7 +40,7 @@ val definedTestsScopeFilter: ScopeFilter =
 lazy val scalaCommunity: sbt.Project =
   newProject("scalaCommunity", file("."))
     .dependsOn(
-      bsp % "test->test;compile->compile",
+      // bsp % "test->test;compile->compile",
       codeInsight % "test->test;compile->compile",
       conversion % "test->test;compile->compile",
       uast % "test->test;compile->compile",
@@ -55,6 +55,7 @@ lazy val scalaCommunity: sbt.Project =
       gradleIntegration % "test->test;compile->compile",
       intelliLangIntegration % "test->test;compile->compile",
       mavenIntegration % "test->test;compile->compile",
+      intellijBspIntegration % "test->test;compile->compile",
       propertiesIntegration % "test->test;compile->compile",
       mlCompletionIntegration % "test->test;compile->compile",
       pluginXml,
@@ -711,6 +712,13 @@ lazy val javaDecompilerIntegration =
     .settings(
       intellijPlugins += "org.jetbrains.java.decompiler".toPlugin,
       packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity)
+    )
+
+lazy val intellijBspIntegration =
+  newProject("intellij-bsp", file("scala/integration/intellij-bsp"))
+    .dependsOn(scalaImpl)
+    .settings(
+      intellijPlugins += "org.jetbrains.bsp::nightly".toPlugin
     )
 
 lazy val mlCompletionIntegration =
