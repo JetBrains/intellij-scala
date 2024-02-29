@@ -9,12 +9,8 @@ import org.jetbrains.plugins.scala.help.ScalaWebHelpProvider$;
 import javax.swing.*;
 
 public class ScalaProjectSettingsConfigurable implements Configurable {
-  private JComponent myComponent;
-  private ScalaProjectSettingsPanel myPanel;
 
   public ScalaProjectSettingsConfigurable(Project project) {
-    myPanel = new ScalaProjectSettingsPanel(project);
-    myComponent = myPanel.getPanel();
   }
 
   @Override
@@ -30,36 +26,15 @@ public class ScalaProjectSettingsConfigurable implements Configurable {
 
   @Override
   public JComponent createComponent() {
-    return myComponent;
-  }
-
-  public void selectXRayModeTab() {
-    myPanel.selectXRayModeTab();
-  }
-
-  public void selectUpdatesTab() {
-    myPanel.selectUpdatesTab();
+    return null;
   }
 
   @Override
   public boolean isModified() {
-    return myPanel.isModified();
+    return false;
   }
 
   @Override
   public void apply() throws ConfigurationException {
-    myPanel.apply();
-  }
-
-  @Override
-  public void reset() {
-    myPanel.resetImpl();
-  }
-
-  @Override
-  public void disposeUIResources() {
-    myPanel.dispose();
-    myPanel = null;
-    myComponent = null;
   }
 }

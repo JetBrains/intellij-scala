@@ -10,7 +10,7 @@ import java.util.List;
 
 public class ProblemSolverUtils {
   // TODO Extend IDEA API by adding clearProblems() to the WolfTheProblemSolver interface
-  static void clearProblemsIn(Project project) {
+  public static void clearProblemsIn(Project project) {
     WolfTheProblemSolver wolf = WolfTheProblemSolver.getInstance(project);
 
     for (VirtualFile file : getFilesWithProblems(project)) {
