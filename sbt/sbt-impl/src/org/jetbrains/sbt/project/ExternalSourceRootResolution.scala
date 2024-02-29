@@ -18,25 +18,23 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
 
   type ModuleDataNodeType = Node[_<:ModuleData]
 
-  def createSharedSourceModules(
+  def addSharedSourceModules(
     projectToModuleNode: Map[sbtStructure.ProjectData, ModuleDataNodeType],
     libraryNodes: Seq[LibraryNode],
     moduleFilesDirectory: File,
     insertProjectTransitiveDependencies: Boolean,
-    shouldGroupModulesFromSameBuild: Boolean,
     buildProjectsGroups: Seq[BuildProjectsGroup]
-  ): Seq[ModuleDataNodeType] = {
+  ): Unit = {
     val projects = projectToModuleNode.keys.toSeq
     val sharedRoots = sharedAndExternalRootsIn(projects)
     val grouped = groupSharedRoots(sharedRoots)
-    grouped.map { group =>
+    grouped.foreach { group =>
       createSourceModuleNodesAndDependencies(
         group,
         projectToModuleNode,
         libraryNodes,
         moduleFilesDirectory,
         insertProjectTransitiveDependencies,
-        shouldGroupModulesFromSameBuild,
         buildProjectsGroups
       )
     }
@@ -67,13 +65,12 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
     libraryNodes: Seq[LibraryNode],
     moduleFilesDirectory: File,
     insertProjectTransitiveDependencies: Boolean,
-    shouldGroupModulesFromSameBuild: Boolean,
     buildProjectsGroups: Seq[BuildProjectsGroup]
   ): ModuleDataNodeType = {
     val projects = rootGroup.projects
 
     val sourceModuleNode = {
-      val (moduleNode, contentRootNode) = createSourceModule(rootGroup, moduleFilesDirectory, shouldGroupModulesFromSameBuild)
+      val (moduleNode, contentRootNode) = createSourceModule(rootGroup, moduleFilesDirectory)
       //todo: get jdk from a corresponding jvm module ?
       moduleNode.add(ModuleSdkNode.inheritFromProject)
 
@@ -110,11 +107,10 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
         val reprProjectModulePrefix = Option(reprProjectModule.getInternalName.stripSuffix(reprProjectModule.getModuleName))
         val moduleNameWithGroupName = prependModuleNameWithGroupName(moduleNode.getInternalName, reprProjectModulePrefix)
         moduleNode.setInternalName(moduleNameWithGroupName)
-        if (shouldGroupModulesFromSameBuild) {
-          //find rootNode for reprProjectModule, because shared sources module should be put in the same root
-          val rootNode = findRootNodeForProjectData(representativeProject, buildProjectsGroups, projectToModuleNode)
-          rootNode.foreach(_.add(moduleNode))
-        }
+        //find rootNode for reprProjectModule, because shared sources module should be put in the same root
+        val rootNode = findRootNodeForProjectData(representativeProject, buildProjectsGroups, projectToModuleNode)
+        rootNode.foreach(_.add(moduleNode))
+
       }
 
       moduleNode
@@ -200,7 +196,6 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
   private def createSourceModule(
     group: RootGroup,
     moduleFilesDirectory: File,
-    shouldGroupModulesFromSameBuild: Boolean
   ): (ModuleDataNodeType, ContentRootNode) = {
     val groupBase = group.base
     val moduleNode = createModuleNode(
@@ -209,7 +204,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
       group.name,
       moduleFilesDirectory.path,
       groupBase.canonicalPath,
-      shouldGroupModulesFromSameBuild
+      shouldCreateNestedModule = true
     )
 
     val contentRootNode = new ContentRootNode(groupBase.path)

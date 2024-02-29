@@ -77,7 +77,6 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
       extraControls.useSbtShellForBuildCheckBox.isSelected != settings.useSbtShellForBuild ||
       extraControls.remoteDebugSbtShellCheckBox.isSelected != settings.enableDebugSbtShell ||
       extraControls.scalaVersionPreferenceCheckBox.isSelected != settings.preferScala2 ||
-      extraControls.groupProjectsFromSameBuildCheckBox.isSelected != settings.groupProjectsFromSameBuild ||
       extraControls.insertProjectTransitiveDependencies.isSelected != settings.insertProjectTransitiveDependencies ||
       extraControls.useSeparateCompilerOutputPaths.isSelected != settings.useSeparateCompilerOutputPaths
   }
@@ -99,7 +98,6 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     extraControls.useSbtShellForBuildCheckBox.setSelected(settings.buildWithShell)
     extraControls.remoteDebugSbtShellCheckBox.setSelected(settings.enableDebugSbtShell)
     extraControls.scalaVersionPreferenceCheckBox.setSelected(settings.preferScala2)
-    extraControls.groupProjectsFromSameBuildCheckBox.setSelected(settings.groupProjectsFromSameBuild)
     extraControls.insertProjectTransitiveDependencies.setSelected(settings.insertProjectTransitiveDependencies)
     extraControls.useSeparateCompilerOutputPaths.setSelected(settings.useSeparateCompilerOutputPaths)
     extraControls.refreshOutputPathsWarning()
@@ -117,7 +115,6 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     settings.useSbtShellForImport = extraControls.useSbtShellForImportCheckBox.isSelected
     settings.enableDebugSbtShell = extraControls.remoteDebugSbtShellCheckBox.isSelected
     settings.preferScala2 = extraControls.scalaVersionPreferenceCheckBox.isSelected
-    settings.groupProjectsFromSameBuild = extraControls.groupProjectsFromSameBuildCheckBox.isSelected
     settings.insertProjectTransitiveDependencies = extraControls.insertProjectTransitiveDependencies.isSelected
 
     val shouldReloadProject =

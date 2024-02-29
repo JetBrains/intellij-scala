@@ -320,7 +320,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       moduleFilesDirectory,
       insertProjectTransitiveDependencies = false,
       useSeparateCompilerOutputPaths = false,
-      groupProjectsFromSameBuild = false
     )
 
     val dummySbtProjectData = SbtProjectData(settings.jdk.map(JdkByName), sbtVersion, projectPath, projectTransitiveDependenciesUsed = false)
@@ -328,8 +327,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     projectNode.addAll(projectToModule.values)
 
     val dummyBuildData = BuildData(projectUri, Seq.empty, Seq.empty, Seq.empty, Seq.empty)
-    val buildModule = createBuildModule(dummyBuildData, projects, moduleFilesDirectory, None, sbtVersion, projectToModule, shouldGroupModules = false)
-    projectNode.add(buildModule.moduleNode)
+    createBuildModule(dummyBuildData, projects, moduleFilesDirectory, None, sbtVersion, projectToModule, buildProjectsGroup)
 
     projectNode
   }
@@ -370,16 +368,13 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val moduleFilesDirectory = new File(root, Sbt.ModulesDirectory)
 
-    val buildProjectsGroups: Seq[BuildProjectsGroup] =
-      createBuildProjectGroups(projects)
-    val shouldGroupModulesFromSameBuild = settings.groupProjectsFromSameBuild
+    val buildProjectsGroups: Seq[BuildProjectsGroup] = createBuildProjectGroups(projects)
     val projectToModule = createModules(
       buildProjectsGroups,
       libraryNodes,
       moduleFilesDirectory,
       settings.insertProjectTransitiveDependencies,
-      settings.useSeparateCompilerOutputPaths,
-      settings.groupProjectsFromSameBuild
+      settings.useSeparateCompilerOutputPaths
     )
 
     //Sort modules by id to make project imports more reproducible
@@ -388,44 +383,20 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val modulesSorted: Seq[ModuleDataNodeType] = projectToModule.values.toSeq.sortBy(_.getId)
     projectNode.addAll(removeNestedModuleNodes(modulesSorted))
 
-    val sharedSourceModules = createSharedSourceModules(
+    addSharedSourceModules(
       projectToModule,
       libraryNodes,
       moduleFilesDirectory,
       settings.insertProjectTransitiveDependencies,
-      shouldGroupModulesFromSameBuild,
       buildProjectsGroups
     )
-    if (!shouldGroupModulesFromSameBuild) {
-      projectNode.addAll(sharedSourceModules)
-    }
 
     val buildModuleForProject: BuildData => BuildModuleNodeWithBuildBaseDir =
-      createBuildModule(_, projects, moduleFilesDirectory, data.localCachePath.map(_.getCanonicalPath), sbtVersion, projectToModule, shouldGroupModulesFromSameBuild)
+      createBuildModule(_, projects, moduleFilesDirectory, data.localCachePath.map(_.getCanonicalPath), sbtVersion, projectToModule, buildProjectsGroups)
     val buildModules = data.builds.map(buildModuleForProject)
-
-    // note: if grouping modules from same build is enabled, grouping should be done even for one build module.
-    // Otherwise we only group if there is more than one build module
-    // todo - move this code to #createBuildModule when groupProjectsFromSameBuild setting will be removed
-    if (buildModules.size > 1 || shouldGroupModulesFromSameBuild) {
-        buildModules.foreach { buildModule =>
-          val ideModuleGroupNameForBuild =
-            if (shouldGroupModulesFromSameBuild) {
-              val rootNode = findRootNodeForBuild(buildProjectsGroups, buildModule.buildBaseDir, projectToModule)
-              rootNode.foreach(_.add(buildModule.moduleNode))
-              rootNode.map(_.getInternalName)
-            } else
-              Some(SbtBuildModulesGroupName)
-
-          val buildModuleInternalName = buildModule.moduleNode.getInternalName
-          val moduleInternalNameWithGroup = prependModuleNameWithGroupName(buildModuleInternalName, ideModuleGroupNameForBuild)
-          buildModule.moduleNode.setInternalName(moduleInternalNameWithGroup)
-        }
-    }
 
     configureBuildModuleDependencies(buildModules)
 
-    projectNode.addAll(removeNestedModuleNodes(buildModules.map(_.moduleNode)))
     projectNode
   }
 
@@ -551,45 +522,21 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     libraryNodes: Seq[LibraryNode],
     moduleFilesDirectory: File,
     insertProjectTransitiveDependencies: Boolean,
-    useSeparateCompilerOutputPaths: Boolean,
-    groupProjectsFromSameBuild: Boolean
+    useSeparateCompilerOutputPaths: Boolean
   ): Map[ProjectData, ModuleDataNodeType] = {
     val librariesData = libraryNodes.map(_.data)
     val unmanagedSourcesAndDocsLibrary = librariesData.find(_.getExternalName == Sbt.UnmanagedSourcesAndDocsName)
     val addAllNecessaryDataToModuleWithLibrariesData =
       addAllRequiredDataToModuleNode(librariesData, unmanagedSourcesAndDocsLibrary)(_: ProjectData, _: ModuleDataNodeType)
 
-    val moduleInternalNameGenerator = new ModuleUniqueInternalNameGenerator()
     val projectToModule: Iterable[(ProjectData, ModuleDataNodeType)] = projectsGrouped
       .flatMap { buildProjectsGroup =>
-        if (groupProjectsFromSameBuild) {
-          //NOTE: when projects are grouped according to their builds is not needed to have single ModuleUniqueInternalNameGenerator for all builds.
-          //This is because the uniqueness of project names between all builds is ensured by the unique root project names.
-          //From the SBT perspective using ModuleUniqueInternalNameGenerator for non root projects would not be necessary at all (projects id must be unique inside single build),
-          //but in IDEA in internal module names all "/" are replaced with "_" and it could happen that in one build the name of one project would be e.g. ro/t
-          //and the other one would be ro_t and for SBT uniqueness would be maintained but not for IDEA.
-          createModulesWithGroupProjectsFromSameBuild(
+          createModulesInsideBuildProjectGroup(
             buildProjectsGroup,
             moduleFilesDirectory,
             addAllNecessaryDataToModuleWithLibrariesData,
             useSeparateCompilerOutputPaths
           )
-        } else {
-          //NOTE: it is required to have single moduleInternalNameGenerator for all calls of #createModulesWithoutGroupProjectsFromSameBuild, because
-          //when grouping via qualified names is done we need to be sure that internal module names which we generate are unique.
-          //Proof of this: let's assume that in build.sbt there are references to two others ProjectRef and in both of these projects
-          //there is project foo which should be put in a group dummy. Internal names for these projects will be dummy.foo.
-          //Because these names are not unique, external system will rename one of them to something different
-          //e.g. some_name.dummy.foo (it is done via com.intellij.openapi.externalSystem.service.project.IdeModelsProviderImpl.ModuleNameGenerator.generate),
-          //as a result of which they will not be grouped together in the end (the prefix is not the same).
-          createModulesWithoutGroupProjectsFromSameBuild(
-            buildProjectsGroup,
-            moduleFilesDirectory,
-            Some(moduleInternalNameGenerator),
-            addAllNecessaryDataToModuleWithLibrariesData,
-            useSeparateCompilerOutputPaths
-          )
-        }
       }
 
     val projectToModuleMap = projectToModule.toMap
@@ -599,43 +546,11 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   /**
-   * In this method the grouping of modules is done in an "old way" - it means that projects belonging to the same build are not grouped together
-   * and it may happen that projects from different builds will be grouped together.
-   */
-  private def createModulesWithoutGroupProjectsFromSameBuild(
-    buildProjectsGroup: BuildProjectsGroup,
-    moduleFilesDirectory: File,
-    moduleInternalNameGeneratorOpt : Option[ModuleUniqueInternalNameGenerator],
-    addAllNecessaryDataToModuleNode: (ProjectData, ModuleDataNodeType) => Unit,
-    useSeparateCompilerOutputPaths: Boolean
-  ): Seq[(ProjectData, ModuleDataNodeType)] = {
-    val BuildProjectsGroup(_, rootProject, projects, _) = buildProjectsGroup
-    val allProjectsInsideBuild = projects :+ rootProject
-    val projectNameToProject = allProjectsInsideBuild.groupBy(_.name)
-
-    allProjectsInsideBuild.map { projectData =>
-      val (moduleName, moduleGroup) = generateModuleAndGroupName(projectData, None, projectNameToProject)
-      val moduleNode =
-        createModuleWithAllRequiredData(
-          projectData,
-          moduleFilesDirectory,
-          moduleName,
-          moduleGroup ,
-          moduleInternalNameGeneratorOpt,
-          addAllNecessaryDataToModuleNode,
-          shouldCreateNestedModule = false,
-          useSeparateCompilerOutputPaths
-        )
-      (projectData, moduleNode)
-    }
-  }
-
-  /**
    * In this method the grouping of modules is done in such a way that projects that belonging to the same build are grouped together (when there are at least 2 builds).
    * Additionally the root node (displayed in <code>Project Structure | Modules</code>) for projects inside single build is the root project of this build.
    * Because of that, the root project in each build does not participate in the grouping of modules.
    */
-  private def createModulesWithGroupProjectsFromSameBuild(
+  private def createModulesInsideBuildProjectGroup(
     buildProjectsGroup: BuildProjectsGroup,
     moduleFilesDirectory: File,
     addAllNecessaryDataToModuleNode: (ProjectData, ModuleDataNodeType) => Unit,
@@ -643,7 +558,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   ): Seq[(ProjectData, ModuleDataNodeType)] = {
     val BuildProjectsGroup(_, rootProject, projects, rootProjectModuleNameUnique) = buildProjectsGroup
 
-    //NOTE: it is not needed to pass ModuleUniqueInternalNameGenerator to generate module for the root project,
+    //note: it is not needed to pass ModuleUniqueInternalNameGenerator to generate module for the root project,
     //because "rootProjectModuleNameUnique" uniqueness has been ensured in #generateUniqueModuleInternalNameForRootProject
     val rootProjectModule =
       createModuleWithAllRequiredData(
@@ -659,6 +574,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val rootProjectInternalName = Some(rootProjectModule.getInternalName)
     val projectNameToProject = projects.groupBy(_.name)
+    //note: from the SBT perspective using ModuleUniqueInternalNameGenerator for non root projects would not be necessary at all (projects id must be unique inside single build),
+    //but in IDEA in internal module names all "/" are replaced with "_" and it could happen that in one build the name of one project would be e.g. ro/t
+    //and the other one would be ro_t and for SBT uniqueness would be maintained but not for IDEA.
     val moduleInternalNameRegistry = new ModuleUniqueInternalNameGenerator
     val projectToModuleForNonRootProjects = projects.map { project =>
       val (moduleName, moduleGroup) = generateModuleAndGroupName(project, rootProjectInternalName, projectNameToProject)
@@ -970,7 +888,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     localCachePath: Option[String],
     sbtVersion: String,
     projectToModule: Map[ProjectData, ModuleDataNodeType],
-    shouldGroupModules: Boolean
+    buildProjectsGroups: Seq[BuildProjectsGroup]
   ): BuildModuleNodeWithBuildBaseDir = {
     val buildBaseProject =
       projects
@@ -997,7 +915,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     // TODO explicit canonical path is needed until IDEA-126011 is fixed
     val result = createModuleNode(
-      SbtModuleType.instance.getId, buildId, buildId, moduleFilesDirectory.path, buildRoot.canonicalPath, shouldGroupModules
+      SbtModuleType.instance.getId, buildId, buildId, moduleFilesDirectory.path, buildRoot.canonicalPath, shouldCreateNestedModule = true
     )
 
     //todo: probably it should depend on sbt version?
@@ -1018,6 +936,14 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result.add(library)
 
     result.add(createSbtBuildModuleData(build, projects, localCachePath))
+
+    // note: put build module in a proper project group
+    val rootNode = findRootNodeForBuild(buildProjectsGroups, buildBaseDir, projectToModule)
+    rootNode.foreach(_.add(result))
+    val ideModuleGroupNameForBuild = rootNode.map(_.getInternalName)
+    val buildModuleInternalName = result.getInternalName
+    val moduleInternalNameWithGroup = prependModuleNameWithGroupName(buildModuleInternalName, ideModuleGroupNameForBuild)
+    result.setInternalName(moduleInternalNameWithGroup)
 
     BuildModuleNodeWithBuildBaseDir(result, buildBaseDir)
   }
