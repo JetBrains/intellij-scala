@@ -17,13 +17,14 @@ import com.intellij.util.keyFMap.KeyFMap
 import com.intellij.util.xmlb.XmlSerializer
 import com.intellij.util.xmlb.annotations.Transient
 import org.jdom.Element
-import org.jetbrains.annotations.{ApiStatus, Nullable}
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt}
 import org.jetbrains.plugins.scala.testingSupport.TestingSupportBundle
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration._
+import org.jetbrains.plugins.scala.testingSupport.test.munit.DelegateCommonJavaRunConfigurationParameters
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{ClassTestData, TestConfigurationData}
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 
@@ -31,7 +32,12 @@ import java.{util => ju}
 import scala.beans.BeanProperty
 import scala.jdk.CollectionConverters._
 
-//noinspection ConvertNullInitializerToUnderscore
+/**
+ * We need to implement [[CommonJavaRunConfigurationParameters]] to automatically enable "Run with Profiler" action. See:
+ *  - [[com.intellij.profiler.ultimate.DefaultJavaProfilerStarterExtension.canRun]]
+ *  - [[com.intellij.profiler.ultimate.jfr.JFRConfigurationExtension.isApplicableFor]]
+ *  - SCL-21891
+ */
 abstract class AbstractTestRunConfiguration(
   project: Project,
   val configurationFactory: ConfigurationFactory,
@@ -42,7 +48,11 @@ abstract class AbstractTestRunConfiguration(
   configurationFactory
 ) with ConfigurationWithCommandLineShortener
   with ConsolePropertiesProvider
+  with CommonJavaRunConfigurationParameters
+  with DelegateCommonJavaRunConfigurationParameters //see scaladoc
   with exceptions {
+
+  override protected def delegateToTestData: TestConfigurationData = testConfigurationData
 
   @Nullable
   override def createTestConsoleProperties(executor: Executor): SMTRunnerConsoleProperties = {
