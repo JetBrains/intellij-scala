@@ -3,6 +3,8 @@ package org.jetbrains.plugins.scala.project.external
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.libraries.Library
+import org.jetbrains.plugins.scala.DependencyManager
+import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.project.{LibraryExt, ScalaLibraryProperties, ScalaLibraryType}
 
 import java.io.File
@@ -24,5 +26,15 @@ object ScalaSdkUtils {
     }
     //NOTE: must be called after `setKind` because later resets the properties
     modifiableModel.setProperties(properties)
+  }
+
+  def resolveCompilerBridgeJar(scalaVersion: String): Option[File] = {
+    if (!scalaVersion.startsWith("3.")) return None
+
+    val compilerBridgeDependency = "org.scala-lang" % "scala3-sbt-bridge" % scalaVersion
+    DependencyManager.resolveSafe(compilerBridgeDependency)
+      .toOption
+      .flatMap(_.headOption)
+      .map(_.file)
   }
 }

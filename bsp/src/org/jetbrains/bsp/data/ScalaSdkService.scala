@@ -47,6 +47,7 @@ class ScalaSdkService extends ScalaAbstractProjectDataService[ScalaSdkData, Libr
 
     library <- scalaLibraries(module, modelsProvider)
   } {
+    val compilerBridgeBinaryJar = ScalaSdkUtils.resolveCompilerBridgeJar(presentation)
     ScalaSdkUtils.ensureScalaLibraryIsConvertedToScalaSdk(
       modelsProvider,
       library,
@@ -56,7 +57,7 @@ class ScalaSdkService extends ScalaAbstractProjectDataService[ScalaSdkData, Libr
       //  and we should probably create a separate request to obtain scaladoc classpath
       //  see https://github.com/build-server-protocol/build-server-protocol/issues/229
       scaladocExtraClasspath = Nil,
-      compilerBridgeBinaryJar = None //TODO: support it for Bsp (or maybe just implement a generic resolver?)
+      compilerBridgeBinaryJar = compilerBridgeBinaryJar
     )
   }
 
