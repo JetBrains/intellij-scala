@@ -19,7 +19,8 @@ object ScalaSdkUtils {
     scaladocExtraClasspath: Seq[File],
     compilerBridgeBinaryJar: Option[File],
   ): Unit = {
-    val properties = ScalaLibraryProperties(maybeVersion, compilerClasspath, scaladocExtraClasspath, compilerBridgeBinaryJar)
+    val compilerBridge = compilerBridgeBinaryJar.orElse(maybeVersion.flatMap(resolveCompilerBridgeJar))
+    val properties = ScalaLibraryProperties(maybeVersion, compilerClasspath, scaladocExtraClasspath, compilerBridge)
     val modifiableModel = modelsProvider.getModifiableLibraryModel(library).asInstanceOf[LibraryEx.ModifiableModelEx]
     if (!library.isScalaSdk) {
       modifiableModel.setKind(ScalaLibraryType.Kind)
@@ -28,7 +29,7 @@ object ScalaSdkUtils {
     modifiableModel.setProperties(properties)
   }
 
-  def resolveCompilerBridgeJar(scalaVersion: String): Option[File] = {
+  private def resolveCompilerBridgeJar(scalaVersion: String): Option[File] = {
     if (!scalaVersion.startsWith("3.")) return None
 
     val compilerBridgeDependency = "org.scala-lang" % "scala3-sbt-bridge" % scalaVersion
