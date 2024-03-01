@@ -5,6 +5,7 @@ import com.intellij.lang.impl.PsiBuilderAdapter
 import com.intellij.openapi.util.text.StringUtil.isWhiteSpace
 import com.intellij.psi.impl.source.resolve.FileContextUtil.CONTAINING_FILE_KEY
 import org.jetbrains.plugins.scala.lang.parser.IndentationWidth
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilderImpl.IndentationRegionHolder
 import org.jetbrains.plugins.scala.project.ProjectPsiFileExt.enableFeaturesCheckInTests
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.{ScalaVersion, isUnitTestMode}
@@ -166,9 +167,9 @@ class ScalaPsiBuilderImpl(
   def isScala3IndentationBasedSyntaxEnabled: Boolean =
     features.indentationBasedSyntaxEnabled
 
-  private var indentationRegionStack = List(IndentationRegion.initial)
+  private var indentationRegionStack = List(IndentationRegionHolder.initial)
 
-  override def currentIndentationRegion: IndentationRegion = indentationRegionStack.head
+  override def currentIndentationRegion: IndentationRegion = indentationRegionStack.head.region
 
   override def pushIndentationRegion(region: IndentationRegion): Unit = {
     region match {
@@ -183,21 +184,25 @@ class ScalaPsiBuilderImpl(
         // braceless case clauses have the indentation level of the previous region
     }
 
-    indentationRegionStack ::= region
+    val prevHolder = indentationRegionStack.head
+
+    prevHolder.rollback(getCurrentOffset)
+
+    indentationRegionStack ::= new IndentationRegionHolder(region, getCurrentOffset, prevHolder.prevIndents)
   }
 
-  override def popIndentationRegion(region: IndentationRegion): IndentationRegion = {
+  override def popIndentationRegion(region: IndentationRegion): Unit = {
     val popped :: rest = indentationRegionStack
-    assert(popped == region)
+    assert(popped.region eq region)
     indentationRegionStack = rest
 
-    if (popped.isBraced) {
+    if (region.isBraced) {
       exitBracedRegion()
     }
-
-    popped
   }
 
+  override def allPreviousIndentations(region: IndentationRegion): Set[IndentationWidth] =
+    indentationRegionStack.find(_.region eq region).get.prevIndents
 
   private val indentationCache = mutable.HashMap.empty[Int, Option[IndentationWidth]]
 
@@ -209,5 +214,43 @@ class ScalaPsiBuilderImpl(
    */
   def findPrecedingIndentation: Option[IndentationWidth] = {
     indentationCache.getOrElseUpdate(getCurrentOffset, lookBehindForPrecedingIndentation(this, 0))
+  }
+
+  override def advanceLexer(): Unit = {
+    super.advanceLexer()
+    if (isScala3) {
+      findPrecedingIndentation.foreach { indent =>
+        indentationRegionStack.head.addIntent(indent, getCurrentOffset)
+      }
+    }
+  }
+}
+
+object ScalaPsiBuilderImpl {
+  private class IndentationRegionHolder(val region: IndentationRegion, val start: Int, private var cachedPrevIndents: Set[IndentationWidth]) {
+    private var saves: List[(Int, Set[IndentationWidth])] = List(start -> cachedPrevIndents)
+
+    def prevIndents: Set[IndentationWidth] = cachedPrevIndents
+
+    def addIntent(indent: IndentationWidth, start: Int): Unit = {
+      if (start > saves.head._1) {
+        val newPrevIndents = cachedPrevIndents + indent
+        if (newPrevIndents ne cachedPrevIndents) {
+          cachedPrevIndents = newPrevIndents
+          saves = (start -> newPrevIndents) :: saves
+        }
+      }
+    }
+
+    def rollback(offset: Int): Unit = {
+      saves = saves.dropWhile(_._1 > offset)
+      cachedPrevIndents = saves.head._2
+    }
+  }
+
+  private object IndentationRegionHolder {
+    val initial: IndentationRegionHolder = IndentationRegionHolder(IndentationRegion.initial, 0)
+    def apply(region: IndentationRegion, start: Int): IndentationRegionHolder =
+      new IndentationRegionHolder(region, start, Set.empty)
   }
 }
