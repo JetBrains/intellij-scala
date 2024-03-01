@@ -46,7 +46,9 @@ trait ScalaPsiBuilder extends PsiBuilder {
 
   def pushIndentationRegion(region: IndentationRegion): Unit
 
-  def popIndentationRegion(region: IndentationRegion): IndentationRegion
+  def popIndentationRegion(region: IndentationRegion): Unit
+
+  def allPreviousIndentations(region: IndentationRegion): Set[IndentationWidth]
 
   /**
    * Instead of using this method consider using more specific error when possible
