@@ -7,12 +7,14 @@ import com.intellij.platform.externalSystem.testFramework.ExternalSystemImportin
 import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.plugins.gradle.settings.GradleProjectSettings
 import org.jetbrains.plugins.gradle.util.GradleConstants
-import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.{LibraryExExt, LibraryExt, ProjectExt}
+import org.jetbrains.plugins.scala.{ScalaVersion, SlowTests}
 import org.junit.Assert.{assertEquals, assertNotNull}
+import org.junit.experimental.categories.Category
 
+@Category(Array(classOf[SlowTests]))
 class ResolveCompilerBridgeTest extends ExternalSystemImportingTestCase {
 
   private val scalaVersion: String = ScalaVersion.Latest.Scala_3_RC.minor
