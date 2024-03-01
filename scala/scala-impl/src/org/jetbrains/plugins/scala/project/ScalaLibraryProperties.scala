@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.project
 import com.intellij.openapi.roots.libraries.LibraryProperties
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VfsUtilCore
+import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.util.HashBuilder._
 
 import java.io.File
@@ -27,11 +28,13 @@ final class ScalaLibraryProperties private(
 
   @Deprecated(forRemoval = true)
   @deprecated("Use ScalaLibraryProperties.apply")
+  @ApiStatus.ScheduledForRemoval(inVersion = "2024.2")
   def this(languageLevel: ScalaLanguageLevel, compilerClasspath: Seq[File], scaladocExtraClasspath: Seq[File]) =
     this(languageLevel, compilerClasspath, scaladocExtraClasspath, _compilerBridgeBinaryJar = None)
 
   @Deprecated(forRemoval = true)
   @deprecated("Use ScalaLibraryProperties.apply")
+  @ApiStatus.ScheduledForRemoval(inVersion = "2024.2")
   def this(languageLevel: ScalaLanguageLevel, compilerClasspath: Seq[File]) =
     this(languageLevel, compilerClasspath, scaladocExtraClasspath = Nil)
 
