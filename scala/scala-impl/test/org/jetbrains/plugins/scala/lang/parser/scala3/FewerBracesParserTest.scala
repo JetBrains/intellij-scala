@@ -1386,4 +1386,522 @@ class FewerBracesParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  def test_infix_blub(): Unit = checkTree(
+    """
+      |def test =
+      |  1 +
+      |    2
+      |  println:
+      |      3
+      |    + 3
+      |    + 3
+      |
+      |  println:
+      |      4
+      |   + 4
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScFunctionDefinition: test
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('test')
+      |    Parameters
+      |      <empty list>
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    BlockExpression
+      |      PsiWhiteSpace('\n  ')
+      |      InfixExpression
+      |        IntegerLiteral
+      |          PsiElement(integer)('1')
+      |        PsiWhiteSpace(' ')
+      |        ReferenceExpression: +
+      |          PsiElement(identifier)('+')
+      |        PsiWhiteSpace('\n    ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('2')
+      |      PsiWhiteSpace('\n  ')
+      |      InfixExpression
+      |        InfixExpression
+      |          MethodCall
+      |            ReferenceExpression: println
+      |              PsiElement(identifier)('println')
+      |            ArgumentList
+      |              BlockExpression
+      |                PsiElement(:)(':')
+      |                PsiWhiteSpace('\n      ')
+      |                IntegerLiteral
+      |                  PsiElement(integer)('3')
+      |          PsiWhiteSpace('\n    ')
+      |          ReferenceExpression: +
+      |            PsiElement(identifier)('+')
+      |          PsiWhiteSpace(' ')
+      |          IntegerLiteral
+      |            PsiElement(integer)('3')
+      |        PsiWhiteSpace('\n    ')
+      |        ReferenceExpression: +
+      |          PsiElement(identifier)('+')
+      |        PsiWhiteSpace(' ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('3')
+      |      PsiWhiteSpace('\n\n  ')
+      |      MethodCall
+      |        ReferenceExpression: println
+      |          PsiElement(identifier)('println')
+      |        ArgumentList
+      |          BlockExpression
+      |            PsiElement(:)(':')
+      |            PsiWhiteSpace('\n      ')
+      |            InfixExpression
+      |              IntegerLiteral
+      |                PsiElement(integer)('4')
+      |              PsiWhiteSpace('\n   ')
+      |              ReferenceExpression: +
+      |                PsiElement(identifier)('+')
+      |              PsiWhiteSpace(' ')
+      |              IntegerLiteral
+      |                PsiElement(integer)('4')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_infix_outdent(): Unit = checkTree(
+    """
+      |class MyClass:
+      |  //1
+      |  Seq(1)
+      |    ++ Seq(1)
+      |    ++ Seq(1)
+      |
+      |  //2
+      |  Seq(2)
+      |    ++ Seq(2).map:
+      |      case 2 => 2
+      |    ++ Seq(2)
+      |
+      |  //3
+      |  Seq(3)
+      |    ++ Seq(3).map:
+      |     x => x
+      |    ++ Seq(3)
+      |
+      |  //4
+      |  Seq(4)
+      |    ++ Seq(4).map:
+      |     x =>
+      |       x
+      |    ++ Seq(4)
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScClass: MyClass
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(class)('class')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('MyClass')
+      |    PrimaryConstructor
+      |      AnnotationsList
+      |        <empty list>
+      |      Modifiers
+      |        <empty list>
+      |      Parameters
+      |        <empty list>
+      |    ExtendsBlock
+      |      ScTemplateBody
+      |        PsiElement(:)(':')
+      |        PsiWhiteSpace('\n  ')
+      |        PsiComment(comment)('//1')
+      |        PsiWhiteSpace('\n  ')
+      |        InfixExpression
+      |          InfixExpression
+      |            MethodCall
+      |              ReferenceExpression: Seq
+      |                PsiElement(identifier)('Seq')
+      |              ArgumentList
+      |                PsiElement(()('(')
+      |                IntegerLiteral
+      |                  PsiElement(integer)('1')
+      |                PsiElement())(')')
+      |            PsiWhiteSpace('\n    ')
+      |            ReferenceExpression: ++
+      |              PsiElement(identifier)('++')
+      |            PsiWhiteSpace(' ')
+      |            MethodCall
+      |              ReferenceExpression: Seq
+      |                PsiElement(identifier)('Seq')
+      |              ArgumentList
+      |                PsiElement(()('(')
+      |                IntegerLiteral
+      |                  PsiElement(integer)('1')
+      |                PsiElement())(')')
+      |          PsiWhiteSpace('\n    ')
+      |          ReferenceExpression: ++
+      |            PsiElement(identifier)('++')
+      |          PsiWhiteSpace(' ')
+      |          MethodCall
+      |            ReferenceExpression: Seq
+      |              PsiElement(identifier)('Seq')
+      |            ArgumentList
+      |              PsiElement(()('(')
+      |              IntegerLiteral
+      |                PsiElement(integer)('1')
+      |              PsiElement())(')')
+      |        PsiWhiteSpace('\n\n  ')
+      |        PsiComment(comment)('//2')
+      |        PsiWhiteSpace('\n  ')
+      |        InfixExpression
+      |          InfixExpression
+      |            MethodCall
+      |              ReferenceExpression: Seq
+      |                PsiElement(identifier)('Seq')
+      |              ArgumentList
+      |                PsiElement(()('(')
+      |                IntegerLiteral
+      |                  PsiElement(integer)('2')
+      |                PsiElement())(')')
+      |            PsiWhiteSpace('\n    ')
+      |            ReferenceExpression: ++
+      |              PsiElement(identifier)('++')
+      |            PsiWhiteSpace(' ')
+      |            MethodCall
+      |              ReferenceExpression: Seq(2).map
+      |                MethodCall
+      |                  ReferenceExpression: Seq
+      |                    PsiElement(identifier)('Seq')
+      |                  ArgumentList
+      |                    PsiElement(()('(')
+      |                    IntegerLiteral
+      |                      PsiElement(integer)('2')
+      |                    PsiElement())(')')
+      |                PsiElement(.)('.')
+      |                PsiElement(identifier)('map')
+      |              ArgumentList
+      |                BlockExpression
+      |                  PsiElement(:)(':')
+      |                  PsiWhiteSpace('\n      ')
+      |                  CaseClauses
+      |                    CaseClause
+      |                      PsiElement(case)('case')
+      |                      PsiWhiteSpace(' ')
+      |                      LiteralPattern
+      |                        IntegerLiteral
+      |                          PsiElement(integer)('2')
+      |                      PsiWhiteSpace(' ')
+      |                      PsiElement(=>)('=>')
+      |                      PsiWhiteSpace(' ')
+      |                      BlockOfExpressions
+      |                        IntegerLiteral
+      |                          PsiElement(integer)('2')
+      |          PsiWhiteSpace('\n    ')
+      |          ReferenceExpression: ++
+      |            PsiElement(identifier)('++')
+      |          PsiWhiteSpace(' ')
+      |          MethodCall
+      |            ReferenceExpression: Seq
+      |              PsiElement(identifier)('Seq')
+      |            ArgumentList
+      |              PsiElement(()('(')
+      |              IntegerLiteral
+      |                PsiElement(integer)('2')
+      |              PsiElement())(')')
+      |        PsiWhiteSpace('\n\n  ')
+      |        PsiComment(comment)('//3')
+      |        PsiWhiteSpace('\n  ')
+      |        InfixExpression
+      |          InfixExpression
+      |            MethodCall
+      |              ReferenceExpression: Seq
+      |                PsiElement(identifier)('Seq')
+      |              ArgumentList
+      |                PsiElement(()('(')
+      |                IntegerLiteral
+      |                  PsiElement(integer)('3')
+      |                PsiElement())(')')
+      |            PsiWhiteSpace('\n    ')
+      |            ReferenceExpression: ++
+      |              PsiElement(identifier)('++')
+      |            PsiWhiteSpace(' ')
+      |            MethodCall
+      |              ReferenceExpression: Seq(3).map
+      |                MethodCall
+      |                  ReferenceExpression: Seq
+      |                    PsiElement(identifier)('Seq')
+      |                  ArgumentList
+      |                    PsiElement(()('(')
+      |                    IntegerLiteral
+      |                      PsiElement(integer)('3')
+      |                    PsiElement())(')')
+      |                PsiElement(.)('.')
+      |                PsiElement(identifier)('map')
+      |              ArgumentList
+      |                BlockExpression
+      |                  PsiElement(:)(':')
+      |                  PsiWhiteSpace('\n     ')
+      |                  FunctionExpression
+      |                    Parameters
+      |                      ParametersClause
+      |                        Parameter: x
+      |                          PsiElement(identifier)('x')
+      |                    PsiWhiteSpace(' ')
+      |                    PsiElement(=>)('=>')
+      |                    PsiWhiteSpace(' ')
+      |                    BlockOfExpressions
+      |                      ReferenceExpression: x
+      |                        PsiElement(identifier)('x')
+      |          PsiWhiteSpace('\n    ')
+      |          ReferenceExpression: ++
+      |            PsiElement(identifier)('++')
+      |          PsiWhiteSpace(' ')
+      |          MethodCall
+      |            ReferenceExpression: Seq
+      |              PsiElement(identifier)('Seq')
+      |            ArgumentList
+      |              PsiElement(()('(')
+      |              IntegerLiteral
+      |                PsiElement(integer)('3')
+      |              PsiElement())(')')
+      |        PsiWhiteSpace('\n\n  ')
+      |        PsiComment(comment)('//4')
+      |        PsiWhiteSpace('\n  ')
+      |        InfixExpression
+      |          InfixExpression
+      |            MethodCall
+      |              ReferenceExpression: Seq
+      |                PsiElement(identifier)('Seq')
+      |              ArgumentList
+      |                PsiElement(()('(')
+      |                IntegerLiteral
+      |                  PsiElement(integer)('4')
+      |                PsiElement())(')')
+      |            PsiWhiteSpace('\n    ')
+      |            ReferenceExpression: ++
+      |              PsiElement(identifier)('++')
+      |            PsiWhiteSpace(' ')
+      |            MethodCall
+      |              ReferenceExpression: Seq(4).map
+      |                MethodCall
+      |                  ReferenceExpression: Seq
+      |                    PsiElement(identifier)('Seq')
+      |                  ArgumentList
+      |                    PsiElement(()('(')
+      |                    IntegerLiteral
+      |                      PsiElement(integer)('4')
+      |                    PsiElement())(')')
+      |                PsiElement(.)('.')
+      |                PsiElement(identifier)('map')
+      |              ArgumentList
+      |                BlockExpression
+      |                  PsiElement(:)(':')
+      |                  PsiWhiteSpace('\n     ')
+      |                  FunctionExpression
+      |                    Parameters
+      |                      ParametersClause
+      |                        Parameter: x
+      |                          PsiElement(identifier)('x')
+      |                    PsiWhiteSpace(' ')
+      |                    PsiElement(=>)('=>')
+      |                    PsiWhiteSpace('\n       ')
+      |                    BlockOfExpressions
+      |                      ReferenceExpression: x
+      |                        PsiElement(identifier)('x')
+      |          PsiWhiteSpace('\n    ')
+      |          ReferenceExpression: ++
+      |            PsiElement(identifier)('++')
+      |          PsiWhiteSpace(' ')
+      |          MethodCall
+      |            ReferenceExpression: Seq
+      |              PsiElement(identifier)('Seq')
+      |            ArgumentList
+      |              PsiElement(()('(')
+      |              IntegerLiteral
+      |                PsiElement(integer)('4')
+      |              PsiElement())(')')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_match_infix_mix(): Unit = checkTree(
+    """
+      |class MyClass:
+      |  Seq(1)
+      |    ++ Seq(2).map:
+      |      case 2 => 2
+      |    ++ Seq(3)
+      |
+      |  1
+      |    + 1.match
+      |      case 1 => 1
+      |      case 2 => 2
+      |    + 2.match
+      |      case 1 => 1
+      |      case 2 => 2
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScClass: MyClass
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(class)('class')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('MyClass')
+      |    PrimaryConstructor
+      |      AnnotationsList
+      |        <empty list>
+      |      Modifiers
+      |        <empty list>
+      |      Parameters
+      |        <empty list>
+      |    ExtendsBlock
+      |      ScTemplateBody
+      |        PsiElement(:)(':')
+      |        PsiWhiteSpace('\n  ')
+      |        InfixExpression
+      |          InfixExpression
+      |            MethodCall
+      |              ReferenceExpression: Seq
+      |                PsiElement(identifier)('Seq')
+      |              ArgumentList
+      |                PsiElement(()('(')
+      |                IntegerLiteral
+      |                  PsiElement(integer)('1')
+      |                PsiElement())(')')
+      |            PsiWhiteSpace('\n    ')
+      |            ReferenceExpression: ++
+      |              PsiElement(identifier)('++')
+      |            PsiWhiteSpace(' ')
+      |            MethodCall
+      |              ReferenceExpression: Seq(2).map
+      |                MethodCall
+      |                  ReferenceExpression: Seq
+      |                    PsiElement(identifier)('Seq')
+      |                  ArgumentList
+      |                    PsiElement(()('(')
+      |                    IntegerLiteral
+      |                      PsiElement(integer)('2')
+      |                    PsiElement())(')')
+      |                PsiElement(.)('.')
+      |                PsiElement(identifier)('map')
+      |              ArgumentList
+      |                BlockExpression
+      |                  PsiElement(:)(':')
+      |                  PsiWhiteSpace('\n      ')
+      |                  CaseClauses
+      |                    CaseClause
+      |                      PsiElement(case)('case')
+      |                      PsiWhiteSpace(' ')
+      |                      LiteralPattern
+      |                        IntegerLiteral
+      |                          PsiElement(integer)('2')
+      |                      PsiWhiteSpace(' ')
+      |                      PsiElement(=>)('=>')
+      |                      PsiWhiteSpace(' ')
+      |                      BlockOfExpressions
+      |                        IntegerLiteral
+      |                          PsiElement(integer)('2')
+      |          PsiWhiteSpace('\n    ')
+      |          ReferenceExpression: ++
+      |            PsiElement(identifier)('++')
+      |          PsiWhiteSpace(' ')
+      |          MethodCall
+      |            ReferenceExpression: Seq
+      |              PsiElement(identifier)('Seq')
+      |            ArgumentList
+      |              PsiElement(()('(')
+      |              IntegerLiteral
+      |                PsiElement(integer)('3')
+      |              PsiElement())(')')
+      |        PsiWhiteSpace('\n\n  ')
+      |        InfixExpression
+      |          InfixExpression
+      |            IntegerLiteral
+      |              PsiElement(integer)('1')
+      |            PsiWhiteSpace('\n    ')
+      |            ReferenceExpression: +
+      |              PsiElement(identifier)('+')
+      |            PsiWhiteSpace(' ')
+      |            MatchStatement
+      |              IntegerLiteral
+      |                PsiElement(integer)('1')
+      |              PsiElement(.)('.')
+      |              PsiElement(match)('match')
+      |              PsiWhiteSpace('\n      ')
+      |              CaseClauses
+      |                CaseClause
+      |                  PsiElement(case)('case')
+      |                  PsiWhiteSpace(' ')
+      |                  LiteralPattern
+      |                    IntegerLiteral
+      |                      PsiElement(integer)('1')
+      |                  PsiWhiteSpace(' ')
+      |                  PsiElement(=>)('=>')
+      |                  PsiWhiteSpace(' ')
+      |                  BlockOfExpressions
+      |                    IntegerLiteral
+      |                      PsiElement(integer)('1')
+      |                PsiWhiteSpace('\n      ')
+      |                CaseClause
+      |                  PsiElement(case)('case')
+      |                  PsiWhiteSpace(' ')
+      |                  LiteralPattern
+      |                    IntegerLiteral
+      |                      PsiElement(integer)('2')
+      |                  PsiWhiteSpace(' ')
+      |                  PsiElement(=>)('=>')
+      |                  PsiWhiteSpace(' ')
+      |                  BlockOfExpressions
+      |                    IntegerLiteral
+      |                      PsiElement(integer)('2')
+      |          PsiWhiteSpace('\n    ')
+      |          ReferenceExpression: +
+      |            PsiElement(identifier)('+')
+      |          PsiWhiteSpace(' ')
+      |          MatchStatement
+      |            IntegerLiteral
+      |              PsiElement(integer)('2')
+      |            PsiElement(.)('.')
+      |            PsiElement(match)('match')
+      |            PsiWhiteSpace('\n      ')
+      |            CaseClauses
+      |              CaseClause
+      |                PsiElement(case)('case')
+      |                PsiWhiteSpace(' ')
+      |                LiteralPattern
+      |                  IntegerLiteral
+      |                    PsiElement(integer)('1')
+      |                PsiWhiteSpace(' ')
+      |                PsiElement(=>)('=>')
+      |                PsiWhiteSpace(' ')
+      |                BlockOfExpressions
+      |                  IntegerLiteral
+      |                    PsiElement(integer)('1')
+      |              PsiWhiteSpace('\n      ')
+      |              CaseClause
+      |                PsiElement(case)('case')
+      |                PsiWhiteSpace(' ')
+      |                LiteralPattern
+      |                  IntegerLiteral
+      |                    PsiElement(integer)('2')
+      |                PsiWhiteSpace(' ')
+      |                PsiElement(=>)('=>')
+      |                PsiWhiteSpace(' ')
+      |                BlockOfExpressions
+      |                  IntegerLiteral
+      |                    PsiElement(integer)('2')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }

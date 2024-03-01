@@ -34,7 +34,7 @@ sealed abstract class IndentationRegion {
   final def isOutdent(indent: Option[IndentationWidth]): Boolean = indent.exists(isOutdent)
   final def isIndent(indent: Option[IndentationWidth]): Boolean = indent.exists(isIndent)
 
-  def isOutdentForLeadingInfixOperator(indent: IndentationWidth): Boolean
+  def isOutdentForLeadingInfixOperator(indent: IndentationWidth)(implicit builder: ScalaPsiBuilder): Boolean
 }
 
 object IndentationRegion {
@@ -61,7 +61,7 @@ object IndentationRegion {
     override def isOutdent(indent: IndentationWidth): Boolean = outerNonSingleExprRegion.isOutdent(indent)
     override def isIndent(indent: IndentationWidth): Boolean = outerNonSingleExprRegion.isIndent(indent)
 
-    override def isOutdentForLeadingInfixOperator(indent: IndentationWidth): Boolean =
+    override def isOutdentForLeadingInfixOperator(indent: IndentationWidth)(implicit builder: ScalaPsiBuilder): Boolean =
       outerNonSingleExprRegion.isOutdentForLeadingInfixOperator(indent)
   }
 
@@ -82,7 +82,7 @@ object IndentationRegion {
     override def isOutdent(indent: IndentationWidth): Boolean = indent <= inner.indentation // here is the difference
     override def isIndent(indent: IndentationWidth): Boolean = inner.isIndent(indent)
 
-    override def isOutdentForLeadingInfixOperator(indent: IndentationWidth): Boolean =
+    override def isOutdentForLeadingInfixOperator(indent: IndentationWidth)(implicit builder: ScalaPsiBuilder): Boolean =
       inner.isOutdentForLeadingInfixOperator(indent)
   }
 
@@ -96,18 +96,21 @@ object IndentationRegion {
     override def isOutdent(indent: IndentationWidth): Boolean = indent < indentation
     override def isIndent(indent: IndentationWidth): Boolean = indent > indentation
 
-    override def isOutdentForLeadingInfixOperator(indent: IndentationWidth): Boolean =
+    override def isOutdentForLeadingInfixOperator(indent: IndentationWidth)(implicit builder: ScalaPsiBuilder): Boolean = {
+      def isOnPreviousIndent(region: IndentationRegion): Boolean = builder.allPreviousIndentations(region).contains(indent)
+
       indent < indentation && {
         @tailrec
         def outdents(region: IndentationRegion): Boolean = region match {
           case SingleExpr(outer) => outdents(outer)
-          case Indented(outerIndent) => indent <= outerIndent
-          case BracelessCaseClause(outerIndent) => indent <= outerIndent.indentation
+          case Indented(outerIndent) => indent <= outerIndent || isOnPreviousIndent(region)
+          case BracelessCaseClause(outerIndent) => indent <= outerIndent.indentation || isOnPreviousIndent(region)
           case _: Braced => false
         }
 
         outerRegion.exists(outdents)
       }
+    }
   }
 
   /**
@@ -119,7 +122,7 @@ object IndentationRegion {
 
     // no matter the indention, it you cannot outdent a braced block
     override final def isOutdent(indent: IndentationWidth): Boolean = false
-    override final def isOutdentForLeadingInfixOperator(indent: IndentationWidth): Boolean = false
+    override final def isOutdentForLeadingInfixOperator(indent: IndentationWidth)(implicit builder: ScalaPsiBuilder): Boolean = false
   }
 
   object Braced {
