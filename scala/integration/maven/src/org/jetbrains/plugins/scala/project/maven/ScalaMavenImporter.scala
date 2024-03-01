@@ -119,7 +119,7 @@ final class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-s
      * @see [[implicitScalaLibraryIfNeeded]]
      */
     val scalaLibraryToMarkAsSdk: Option[(Library, Version)] = {
-      val expectedLibraryName = scalaCompilerArtifactName("library", compilerVersion.toString)
+      val expectedLibraryName = scalaCompilerArtifactName("library", compilerVersion.presentation)
       val moduleModel = modelsProvider.getModifiableRootModel(module)
 
       val libraryEntriesGroupedByScope: Seq[(DependencyScope, Seq[LibraryOrderEntry])] =
@@ -152,16 +152,22 @@ final class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-s
     scalaLibraryToMarkAsSdk match {
       case Some((scalaLibrary, scalaLibraryVersion)) =>
         val compilerClasspathFull = module.getProject.getUserData(MavenFullCompilerClasspathKey)
+
+        val compilerBridgeBinaryJar =
+          compilerClasspathFull.find(_.getName == s"$Scala3SbtBridge-${scalaLibraryVersion.presentation}.jar")
+
+        val classpath = compilerClasspathFull.diff(compilerBridgeBinaryJar.toSeq)
+
         ScalaSdkUtils.ensureScalaLibraryIsConvertedToScalaSdk(
           modelsProvider,
           scalaLibrary,
-          Some(scalaLibraryVersion.toString),
-          compilerClasspathFull,
+          Some(scalaLibraryVersion.presentation),
+          classpath,
           scaladocExtraClasspath = Nil, // TODO SCL-17219
-          compilerBridgeBinaryJar = None //TODO: support it for Maven (or maybe just implement a generic resolver)
+          compilerBridgeBinaryJar = compilerBridgeBinaryJar
         )
       case None =>
-        val msg = s"Cannot find project Scala library $compilerVersion for module ${module.getName}"
+        val msg = s"Cannot find project Scala library ${compilerVersion.presentation} for module ${module.getName}"
         val exception = new IllegalArgumentException(msg)
         val console = MavenProjectsManager.getInstance(module.getProject).getSyncConsole
         console.addException(exception)
@@ -208,8 +214,11 @@ final class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-s
       val implicitScalaLibrary = implicitScalaLibraryIfNeeded(configuration)
       implicitScalaLibrary.map(resolveJar).foreach(mavenProject.addDependency)
 
+      val compilerBridgeJar = configuration.compilerBridgeArtifact.map(resolveJar).map(_.getFile)
+
       // compiler classpath should be resolved transitively, e.g. Scala3 compiler contains quite a lot of jar files in the classpath
-      val compilerClasspathWithTransitives: Seq[File] = resolveTransitively(configuration.compilerArtifact).map(_.getFile)
+      val compilerClasspathWithTransitives: Seq[File] =
+        resolveTransitively(configuration.compilerArtifact).map(_.getFile) ++ compilerBridgeJar
       project.putUserData(MavenFullCompilerClasspathKey, compilerClasspathWithTransitives)
 
       configuration.plugins.foreach(resolveJar)
@@ -267,6 +276,10 @@ private object ScalaMavenImporter {
    */
   private val MavenFullCompilerClasspathKey = Key.create[Seq[File]]("MavenFullCompilerClasspathKey")
 
+  private final val OrgScalaLang = "org.scala-lang"
+
+  private final val Scala3SbtBridge = "scala3-sbt-bridge"
+
   implicit class RichMavenProject(private val project: MavenProject) extends AnyVal {
     def localPathTo(id: MavenId): File = {
       val suffix = id.classifier.map("-" + _).getOrElse("")
@@ -292,8 +305,8 @@ private object ScalaMavenImporter {
 
     def findScalaLibraryDependency: Option[MavenArtifact] = {
       // Scala3 should go first (Scala3 also includes Scala2 library)
-      val maybeScala3 = project.findDependencies("org.scala-lang", "scala3-library_3").asScala.headOption
-      val result = maybeScala3.orElse(project.findDependencies("org.scala-lang", "scala-library").asScala.headOption)
+      val maybeScala3 = project.findDependencies(OrgScalaLang, "scala3-library_3").asScala.headOption
+      val result = maybeScala3.orElse(project.findDependencies(OrgScalaLang, "scala-library").asScala.headOption)
       result
     }
 
@@ -301,6 +314,9 @@ private object ScalaMavenImporter {
       val version = versionNumber
       scalaCompilerArtifactId("compiler", version)
     }
+
+    def compilerBridgeArtifact: Option[MavenId] =
+      compilerVersion.filter(_.startsWith("3.")).map(version => MavenId(OrgScalaLang, Scala3SbtBridge, version))
 
     private def versionNumber = compilerVersion.getOrElse("unknown")
 
@@ -366,7 +382,7 @@ private object ScalaMavenImporter {
 
   private def scalaCompilerArtifactId(artifactSuffix: String, scalaVersion: String): MavenId = {
     val artifactName = scalaCompilerArtifactName(artifactSuffix, scalaVersion)
-    MavenId("org.scala-lang", artifactName, scalaVersion)
+    MavenId(OrgScalaLang, artifactName, scalaVersion)
   }
 
   private def scalaCompilerArtifactName(artifactSuffix: String, scalaVersion: String): String =
