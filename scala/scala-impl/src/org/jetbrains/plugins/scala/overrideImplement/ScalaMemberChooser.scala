@@ -6,7 +6,7 @@ import com.intellij.ui.{HyperlinkLabel, NonFocusableCheckBox}
 import com.intellij.util.ui.ThreeStateCheckBox
 import com.intellij.util.ui.ThreeStateCheckBox.State
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, invokeLater}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiNamedElementExt, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScExtension
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
@@ -163,7 +163,8 @@ object ScalaMemberChooser {
         val more = c2.isInheritor(c1, /*checkDeep =*/ true)
         if (less && more) 0 //it is possible to have cyclic inheritance for generic traits in scala
         else if (less) -1
-        else 1
+        else if (more) 1
+        else c1.name.compareTo(c2.name)
       }
     }
     val groupedMembersSorted = clazzToMembers.keys.toSeq.sorted(ordering)
