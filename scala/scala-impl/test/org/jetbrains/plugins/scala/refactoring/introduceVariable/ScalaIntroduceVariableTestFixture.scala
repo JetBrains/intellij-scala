@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableHandler
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableHandler.ReplaceTestOptions
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 import org.junit.Assert
 import org.junit.Assert.assertNotNull
@@ -76,6 +77,9 @@ class ScalaIntroduceVariableTestFixture(
     val dataContext = createDataContext(options)
     val introduceVariableHandler = new ScalaIntroduceVariableHandler
     try {
+      if (options.useInplaceRefactoring.contains(true)) {
+        ScalaRefactoringUtil.enableInplaceRefactoringInTests(editor)
+      }
       introduceVariableHandler.invoke(project, editor, psiFile, dataContext)
       Right(editor.getDocument.getText)
     } catch {
