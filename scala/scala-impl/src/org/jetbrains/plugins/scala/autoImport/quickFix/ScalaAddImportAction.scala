@@ -81,36 +81,46 @@ sealed abstract class ScalaAddImportAction[Psi <: PsiElement, Elem <: ElementToI
   protected def separatorAbove(variant: Elem): ListSeparator = null
 
   private def showChooser(validVariants: Seq[Elem]): Unit = {
-    val title = chooserTitle(validVariants)
-    val firstPopupStep: BaseListPopupStep[Elem] = new BaseListPopupStep[Elem](title, validVariants.toSeq: _*) {
-      override def getIconFor(aValue: Elem): Icon =
-        aValue.element.getIcon(0)
+    case class PresentableElement(elem: Elem) {
+      // evaluate icon and presentation, so it won't be calculated in painting thread (which is forbidden)
+      val icon: Icon = elem.element.getIcon(0)
 
-      override def getTextFor(value: Elem): String =
-        value.presentation
-
-      override def isAutoSelectionEnabled: Boolean = false
-
-      override def isSpeedSearchEnabled: Boolean = true
-
-      import com.intellij.openapi.ui.popup.PopupStep.FINAL_CHOICE
-
-      override def getSeparatorAbove(value: Elem): ListSeparator = separatorAbove(value)
-
-      override def onChosen(selectedValue: Elem, finalChoice: Boolean): PopupStep[_] = {
-        if (selectedValue == null) {
-          return FINAL_CHOICE
-        }
-        if (finalChoice) {
-          addImport(selectedValue)
-          return FINAL_CHOICE
-        }
-        secondPopupStep(selectedValue)
-      }
-
-      override def hasSubstep(selectedValue: Elem): Boolean =
-        secondPopupStep(selectedValue) != FINAL_CHOICE
+      @Nls
+      //noinspection ReferencePassedToNls
+      val presentation: String = elem.presentation
     }
+
+    val title = chooserTitle(validVariants)
+    val firstPopupStep: BaseListPopupStep[PresentableElement] =
+      new BaseListPopupStep[PresentableElement](title, validVariants.map(PresentableElement): _*) {
+        override def getIconFor(aValue: PresentableElement): Icon =
+          aValue.icon
+
+        override def getTextFor(value: PresentableElement): String =
+          value.presentation
+
+        override def isAutoSelectionEnabled: Boolean = false
+
+        override def isSpeedSearchEnabled: Boolean = true
+
+        import com.intellij.openapi.ui.popup.PopupStep.FINAL_CHOICE
+
+        override def getSeparatorAbove(value: PresentableElement): ListSeparator = separatorAbove(value.elem)
+
+        override def onChosen(selectedValue: PresentableElement, finalChoice: Boolean): PopupStep[_] = {
+          if (selectedValue == null) {
+            return FINAL_CHOICE
+          }
+          if (finalChoice) {
+            addImport(selectedValue.elem)
+            return FINAL_CHOICE
+          }
+          secondPopupStep(selectedValue.elem)
+        }
+
+        override def hasSubstep(selectedValue: PresentableElement): Boolean =
+          secondPopupStep(selectedValue.elem) != FINAL_CHOICE
+      }
     val popup = JBPopupFactory.getInstance.createListPopup(firstPopupStep)
     customizePopup(popup, editor)
     popupPosition.showPopup(popup, editor)
