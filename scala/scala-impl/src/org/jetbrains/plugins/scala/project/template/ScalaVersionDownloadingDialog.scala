@@ -7,6 +7,7 @@ import org.jetbrains.annotations.VisibleForTesting
 import org.jetbrains.plugins.scala.{DependencyManagerBase, ScalaBundle, ScalaVersion}
 import org.jetbrains.plugins.scala.components.libextensions.ProgressIndicatorLogger
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, withProgressSynchronouslyTry}
+import org.jetbrains.plugins.scala.project.external.ScalaSdkUtils
 import org.jetbrains.plugins.scala.project.template.Artifact.ScalaLibrary
 import org.jetbrains.plugins.scala.project.{Version, Versions}
 import org.jetbrains.plugins.scala.project.template.ScalaVersionDownloadingDialog.{ScalaVersionResolveResult, createScalaVersionResolveResult, preselectLatestScala2Version}
@@ -74,7 +75,7 @@ final class ScalaVersionDownloadingDialog(parent: JComponent) extends VersionDia
 
 object ScalaVersionDownloadingDialog {
 
-  final case class ScalaVersionResolveResult(scalaVersion: String, compilerClassPathJars: Seq[File], librarySourcesJars: Seq[File])
+  final case class ScalaVersionResolveResult(scalaVersion: String, compilerClassPathJars: Seq[File], librarySourcesJars: Seq[File], compilerBridgeJar: Option[File])
 
   /**
    * While Scala 3 support is WIP we do not want preselect Scala 3 version
@@ -123,10 +124,13 @@ object ScalaVersionDownloadingDialog {
       if (scalaVersion.isScala3) getScala2LibrarySources
       else Seq.empty
 
+    val compilerBridge = ScalaSdkUtils.resolveCompilerBridgeJar(scalaVersion.minor)
+
     ScalaVersionResolveResult(
       scalaVersion.minor,
       compilerClasspathResolveResult.map(_.file),
       (librarySourcesResolveResult ++ scala2LibraryDependency).map(_.file),
+      compilerBridge
     )
   }
   object UiUtils {

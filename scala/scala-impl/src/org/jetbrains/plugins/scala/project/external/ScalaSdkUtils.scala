@@ -29,7 +29,7 @@ object ScalaSdkUtils {
     modifiableModel.setProperties(properties)
   }
 
-  private def resolveCompilerBridgeJar(scalaVersion: String): Option[File] = {
+  def resolveCompilerBridgeJar(scalaVersion: String): Option[File] = {
     if (!scalaVersion.startsWith("3.")) return None
 
     val compilerBridgeDependency = "org.scala-lang" % "scala3-sbt-bridge" % scalaVersion
