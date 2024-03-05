@@ -15,7 +15,8 @@ final case class ScalaSdkDescriptor(version: Option[String], // Why is it Option
                                     scaladocExtraClasspath: Seq[File],
                                     libraryFiles: Seq[File],
                                     sourceFiles: Seq[File],
-                                    docFiles: Seq[File])
+                                    docFiles: Seq[File],
+                                    compilerBridgeJar: Option[File])
   extends Ordered[ScalaSdkDescriptor] {
 
   def isScala3: Boolean = version.exists(_.startsWith("3"))

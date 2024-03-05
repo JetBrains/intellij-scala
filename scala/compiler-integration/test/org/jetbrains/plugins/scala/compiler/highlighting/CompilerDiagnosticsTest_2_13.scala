@@ -2,18 +2,10 @@ package org.jetbrains.plugins.scala.compiler.highlighting
 
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
-import org.jetbrains.plugins.scala.{DependencyManager, ScalaVersion}
-
-import java.io.File
+import org.jetbrains.plugins.scala.ScalaVersion
 
 class CompilerDiagnosticsTest_2_13 extends CompilerDiagnosticsTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
-
-  override protected def compilerBridgeBinaryJar: Option[File] = {
-    val resolved = DependencyManager.resolve("org.scala-lang" % "scala2-sbt-bridge" % ScalaVersion.Latest.Scala_2_13.minor)
-    resolved.headOption.map(_.file)
-  }
 
   def testImplicitDefinitionNeedsExplicitType(): Unit = {
     runCompilerDiagnosticsTest(

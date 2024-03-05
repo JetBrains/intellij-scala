@@ -154,7 +154,9 @@ final class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-s
         val compilerClasspathFull = module.getProject.getUserData(MavenFullCompilerClasspathKey)
 
         val compilerBridgeBinaryJar =
-          compilerClasspathFull.find(_.getName == s"$Scala3SbtBridge-${scalaLibraryVersion.presentation}.jar")
+          ScalaSdkUtils.compilerBridgeJarName(scalaLibraryVersion.presentation).flatMap { bridgeJarName =>
+            compilerClasspathFull.find(_.getName == bridgeJarName)
+          }
 
         val classpath = compilerClasspathFull.diff(compilerBridgeBinaryJar.toSeq)
 
@@ -278,8 +280,6 @@ private object ScalaMavenImporter {
 
   private final val OrgScalaLang = "org.scala-lang"
 
-  private final val Scala3SbtBridge = "scala3-sbt-bridge"
-
   implicit class RichMavenProject(private val project: MavenProject) extends AnyVal {
     def localPathTo(id: MavenId): File = {
       val suffix = id.classifier.map("-" + _).getOrElse("")
@@ -315,8 +315,10 @@ private object ScalaMavenImporter {
       scalaCompilerArtifactId("compiler", version)
     }
 
-    def compilerBridgeArtifact: Option[MavenId] =
-      compilerVersion.filter(_.startsWith("3.")).map(version => MavenId(OrgScalaLang, Scala3SbtBridge, version))
+    def compilerBridgeArtifact: Option[MavenId] = for {
+      version <- compilerVersion
+      bridge <- ScalaSdkUtils.compilerBridgeName(version)
+    } yield MavenId(OrgScalaLang, bridge, version)
 
     private def versionNumber = compilerVersion.getOrElse("unknown")
 
