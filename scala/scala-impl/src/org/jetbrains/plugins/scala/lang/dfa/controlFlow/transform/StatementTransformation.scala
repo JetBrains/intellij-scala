@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform
 
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, TransformationFailedException}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockStatement, ScExpression}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDefinitionWithAssignment
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaration, ScDefinitionWithAssignment}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportStmt}
 
 trait StatementTransformation { this: ScalaDfaControlFlowBuilder =>
@@ -14,11 +14,8 @@ trait StatementTransformation { this: ScalaDfaControlFlowBuilder =>
         transformDefinition(definition)
         pushUnit(rreq)
       //case statement: ScDeclaration with ScBlockStatement => pushUnknownCall(statement, 0)
-      case _: ScImportStmt =>
+      case _: ScImportStmt | _: ScImportExpr | _: ScDeclaration =>
         // nothing to do
-        pushUnit(rreq)
-      case _: ScImportExpr =>
-      // nothing to do
         pushUnit(rreq)
       case _ =>
         throw TransformationFailedException.todo(stmt)
