@@ -86,7 +86,8 @@ abstract class ScalaSdkDetectorBase extends ScalaSdkDetector
         scaladocExtraClasspath = Nil, // TODO SCL-17219
         libraryFiles           = files(binaryComponents)(ScalaLibraryAndModulesArtifacts.contains),
         sourceFiles            = files(sourcesComponents)(ScalaLibraryAndModulesArtifacts.contains),
-        docFiles               = files(docsComponents)(ScalaLibraryAndModulesArtifacts.contains)
+        docFiles               = files(docsComponents)(ScalaLibraryAndModulesArtifacts.contains),
+        compilerBridgeJar      = None
       )
 
       Right(descriptor)
