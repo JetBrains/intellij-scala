@@ -86,9 +86,11 @@ class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelD
       val scalaLibraryWithSameVersion = scalaLibrariesInProject.find(_.libraryVersion.contains(compilerVersion))
       scalaLibraryWithSameVersion match {
         case Some(library) =>
+          // Only resolve the compiler bridge for Scala 3. Gradle reports a compiler classpath that doesn't work with
+          // the Scala 2.13.12+ compiler bridges, due to clashes.
           val compilerBridgeBinaryJar = library.libraryVersion.filter(_.startsWith("3.")).flatMap { version =>
-            compilerClasspath.find { jar =>
-              jar.getName == s"scala3-sbt-bridge-$version.jar"
+            ScalaSdkUtils.compilerBridgeJarName(version).flatMap { bridgeJarName =>
+              compilerClasspath.find(_.getName == bridgeJarName).orElse(ScalaSdkUtils.resolveCompilerBridgeJar(version))
             }
           }
 
