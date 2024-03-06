@@ -76,7 +76,7 @@ class ScalaCompilerHighlightingTest_2_13 extends ScalaCompilerHighlightingTestBa
     runTestWrongReturnType(56)
   }
 
-  private def runTestUnusedLocalDefinitions(startOffsets: Int*): Unit = {
+  private def runTestUnusedLocalDefinitions(): Unit = {
     setCompilerOptions("-Wunused:locals")
 
     runTestCase(
@@ -94,19 +94,19 @@ class ScalaCompilerHighlightingTest_2_13 extends ScalaCompilerHighlightingTestBa
       expectedResult = expectedResult(
         ExpectedHighlighting(
           severity = HighlightSeverity.WARNING,
-          range = Some(TextRange.create(startOffsets.head, 78)),
+          range = Some(TextRange.create(69, 72)),
           quickFixDescriptions = Seq.empty,
           msgPrefix = "local val abc in method fn is never used"
         ),
         ExpectedHighlighting(
           severity = HighlightSeverity.WARNING,
-          range = Some(TextRange.create(startOffsets(1), 96)),
+          range = Some(TextRange.create(87, 90)),
           quickFixDescriptions = Seq.empty,
           msgPrefix = "local val dfe in method fn is never used"
         ),
         ExpectedHighlighting(
           severity = HighlightSeverity.WARNING,
-          range = Some(TextRange.create(startOffsets(2), 114)),
+          range = Some(TextRange.create(105, 108)),
           quickFixDescriptions = Seq.empty,
           msgPrefix = "local val xyz in method fn is never used"
         )
@@ -114,10 +114,10 @@ class ScalaCompilerHighlightingTest_2_13 extends ScalaCompilerHighlightingTestBa
     )
   }
 
-  def testUnusedLocalDefinitions(): Unit = runTestUnusedLocalDefinitions(65, 83, 101)
+  def testUnusedLocalDefinitions(): Unit = runTestUnusedLocalDefinitions()
 
   def testUnusedLocalDefinitions_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
-    runTestUnusedLocalDefinitions(69, 87, 105)
+    runTestUnusedLocalDefinitions()
   }
 }
 

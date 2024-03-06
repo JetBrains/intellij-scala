@@ -409,11 +409,11 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
        |
        |  def main(args: Array[String]): Unit = {
        |    val x = lzy
-       |    val y = lzy.foo() $breakpoint
+       |    val y = lzy.foo $breakpoint
        |  }
        |
        |  class AAA {
-       |    def foo(): Unit = {} //should step here
+       |    def foo: Int = 5 //should step here
        |  }
        |}
       """.stripMargin.trim
