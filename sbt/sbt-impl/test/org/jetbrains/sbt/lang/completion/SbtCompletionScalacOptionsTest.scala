@@ -1,6 +1,8 @@
 package org.jetbrains.sbt
 package lang.completion
 
+import org.jetbrains.plugins.scala.util.RevertableChange
+
 class SbtCompletionScalacOptionsTest extends SbtFileTestDataCompletionTestBase with MockSbt_1_0 {
   override def folderPath: String = super.folderPath + "scalacOptions/"
 
@@ -42,7 +44,10 @@ class SbtCompletionScalacOptionsTest extends SbtFileTestDataCompletionTestBase w
 
   def testCompleteComplexExprRef(): Unit = doTest()
 
-  def testCompleteComplexExprStringLiteral(): Unit = doTest()
+  // TODO(SCL-22236): ERROR: Tree access disabled
+  def testCompleteComplexExprStringLiteral(): Unit = RevertableChange.withModifiedRegistryValue("ast.loading.filter", newValue = false) {
+    doTest()
+  }
 
   def testCompleteObjectMemberAfterScalacOptions(): Unit = doTest()
 
