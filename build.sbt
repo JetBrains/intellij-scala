@@ -763,6 +763,7 @@ lazy val runtimeDependencies = project.in(file("target/tools/runtime-dependencie
 
       binaryDep("org.scala-sbt.rt", "java9-rt-export", Versions.java9rtExportVersion) -> "java9-rt-export/java9-rt-export.jar",
       binaryDep("ch.epfl.scala", "scala-expression-compiler", "3.4.0", Versions.scalaExpressionCompiler) -> "debugger/scala-expression-compiler_3.4.0.jar",
+      binaryDep("ch.epfl.scala", "scala-expression-compiler", "3.3.3", Versions.scalaExpressionCompiler) -> "debugger/scala-expression-compiler_3.3.3.jar",
       binaryDep("ch.epfl.scala", "scala-expression-compiler", "3.3.2", Versions.scalaExpressionCompiler) -> "debugger/scala-expression-compiler_3.3.2.jar",
       binaryDep("ch.epfl.scala", "scala-expression-compiler", "3.3.1", Versions.scalaExpressionCompiler) -> "debugger/scala-expression-compiler_3.3.1.jar",
       binaryDep("ch.epfl.scala", "scala-expression-compiler", "3.3.0", Versions.scalaExpressionCompiler) -> "debugger/scala-expression-compiler_3.3.0.jar",
