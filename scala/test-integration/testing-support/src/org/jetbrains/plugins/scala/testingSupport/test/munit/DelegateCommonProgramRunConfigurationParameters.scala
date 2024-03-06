@@ -5,11 +5,12 @@ import org.jetbrains.plugins.scala.testingSupport.test.testdata.TestConfiguratio
 
 import java.util
 
-trait DelegateCommonProgramRunConfigurationParameters
-  extends CommonProgramRunConfigurationParameters {
+trait DelegateCommonProgramRunConfigurationParameters {
+  self: CommonProgramRunConfigurationParameters =>
 
   protected def delegateToTestData: TestConfigurationData
-  @inline private def data = delegateToTestData
+
+  @inline private def data: TestConfigurationData = delegateToTestData
 
   override def setProgramParameters(value: String): Unit = data.setProgramParameters(value)
   override def getProgramParameters: String = data.getProgramParameters

@@ -62,8 +62,8 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
             // if there is no packaging statement, we annotate the members directly
             // for this we only try to highlight the nameIds if possible
             members.collect {
-              case named: ScNamedElement => Seq(named.nameId.getTextRange)
-              case v: ScValueOrVariable => v.declaredElements.map(_.nameId.getTextRange)
+              case named: ScNamedElement => Seq(named.nameId.nullSafe.getOrElse(named).getTextRange)
+              case v: ScValueOrVariable => v.declaredElements.map(e => e.nameId.nullSafe.getOrElse(e).getTextRange)
               case e => Seq(e.getTextRange)
             }
             .flatten

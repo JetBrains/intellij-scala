@@ -4,6 +4,7 @@ import com.intellij.maven.testFramework.MavenImportingTestCase
 import com.intellij.openapi.module.{ModuleTypeManager, StdModuleTypes}
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
+import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.{DependencyScope, ProjectRootManager}
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
 import com.intellij.pom.java.LanguageLevel
@@ -11,11 +12,13 @@ import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.extensions.{RichFile, inWriteAction}
+import org.jetbrains.plugins.scala.project.{LibraryExExt, LibraryExt, ProjectExt}
 import org.jetbrains.plugins.scala.project.maven.MavenProjectStructureTestUtils._
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.project.ProjectStructureDsl._
 import org.jetbrains.sbt.project.{ExactMatch, ProjectStructureMatcher}
 import org.junit.Assert
+import org.junit.Assert.assertNotNull
 import org.junit.experimental.categories.Category
 
 import java.io.File
@@ -248,5 +251,43 @@ abstract class ScalaMavenImporterTest
         compileOrder := CompileOrder.ScalaThenJava
       })
     })
+  }
+
+  def testResolveCompilerBridge_Scala3(): Unit = {
+    runImportingTest(new project("testResolveCompilerBridge_Scala3"))
+
+    // defined in the test project `resolveCompilerBridge_Scala3/pom.xml`
+    val scalaVersion = "3.4.2-RC1-bin-20240226-e0cb1e7-NIGHTLY"
+
+    val scalaSdk = getProject.libraries.find(_.isScalaSdk).orNull
+    assertNotNull("Scala SDK not configured", scalaSdk)
+
+    val properties = scalaSdk match {
+      case ex: LibraryEx => ex.properties
+    }
+
+    val compilerBridge = properties.compilerBridgeBinaryJar.orNull
+    assertNotNull("Scala 3 compiler bridge not configured", compilerBridge)
+
+    org.junit.Assert.assertEquals(s"scala3-sbt-bridge-$scalaVersion.jar", compilerBridge.getName)
+  }
+
+  def testResolveCompilerBridge_Scala2(): Unit = {
+    runImportingTest(new project("testResolveCompilerBridge_Scala2"))
+
+    // defined in the test project `resolveCompilerBridge_Scala2/pom.xml`
+    val scalaVersion = "2.13.13"
+
+    val scalaSdk = getProject.libraries.find(_.isScalaSdk).orNull
+    assertNotNull("Scala SDK not configured", scalaSdk)
+
+    val properties = scalaSdk match {
+      case ex: LibraryEx => ex.properties
+    }
+
+    val compilerBridge = properties.compilerBridgeBinaryJar.orNull
+    assertNotNull("Scala 2 compiler bridge not configured", compilerBridge)
+
+    org.junit.Assert.assertEquals(s"scala2-sbt-bridge-$scalaVersion.jar", compilerBridge.getName)
   }
 }

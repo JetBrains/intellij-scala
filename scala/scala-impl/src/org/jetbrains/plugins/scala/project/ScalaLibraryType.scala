@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.project
 
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries._
 import com.intellij.openapi.roots.ui.configuration._
@@ -7,6 +8,7 @@ import com.intellij.openapi.roots.{JavadocOrderRootType, OrderRootType}
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.project.external.ScalaSdkUtils
 
 import java.io.File
 import java.{util => ju}
@@ -87,12 +89,21 @@ object ScalaLibraryType {
     override def getDefaultLevel = projectRoot.LibrariesContainer.LibraryLevel.GLOBAL
 
     private def createNewScalaLibrary(descriptor: ScalaSdkDescriptor) = {
-      val ScalaSdkDescriptor(version, _, compilerClasspath, scaladocExtraClasspath, libraryFiles, sourceFiles, docFiles) = descriptor
+      val ScalaSdkDescriptor(version, _, compilerClasspath, scaladocExtraClasspath, libraryFiles, sourceFiles, docFiles, compilerBridgeJar) = descriptor
+
+      val compilerBridge = compilerBridgeJar.orElse {
+        ProgressManager.getInstance().runProcessWithProgressSynchronously(
+          () => version.flatMap(ScalaSdkUtils.resolveCompilerBridgeJar),
+          ScalaBundle.message("resolving.compiler.bridge.progress.message"),
+          true,
+          null
+        )
+      }
 
       new NewLibraryConfiguration(
         "scala-sdk-" + version.getOrElse(Version.Default),
         ScalaLibraryType(),
-        ScalaLibraryProperties(version, compilerClasspath, scaladocExtraClasspath, None)
+        ScalaLibraryProperties(version, compilerClasspath, scaladocExtraClasspath, compilerBridge)
       ) {
         override def addRoots(editor: libraryEditor.LibraryEditor): Unit = {
           addRootsInner(libraryFiles, OrderRootType.CLASSES)(editor)

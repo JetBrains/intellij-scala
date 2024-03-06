@@ -6,7 +6,7 @@ import com.intellij.openapi.components.{PersistentStateComponent, Service, State
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import kotlin.coroutines.Continuation
-import org.jetbrains.bsp.utils.ParsersKt
+import org.jetbrains.bsp.protocol.utils.ParsersKt
 import org.jetbrains.plugins.bsp.extension.points.BuildToolId
 import org.jetbrains.plugins.bsp.server.connection.ConnectionDetailsProviderExtension
 import org.jetbrains.plugins.scala.bsp.config.ScalaPluginConstants.BUILD_TOOL_ID
