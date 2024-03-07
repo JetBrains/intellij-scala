@@ -47,12 +47,12 @@
     <depends optional="true" config-file="scala-gradle-integration.xml">com.intellij.gradle</depends>
     <depends optional="true" config-file="decompile-scala-to-java.xml">org.jetbrains.java.decompiler</depends>
     <depends optional="true" config-file="scala-ml-completion-integration.xml">com.intellij.completion.ml.ranking</depends>
+    <depends optional="true" config-file="scala-intellij-bsp-integration.xml">org.jetbrains.bsp</depends>
 <!--    <depends optional="true" config-file="packagesearch.xml">com.jetbrains.packagesearch.intellij-plugin</depends>-->
 
     <xi:include href="/META-INF/sbt-api.xml" xpointer="xpointer(/idea-plugin/*)"/>
     <xi:include href="/META-INF/scala-plugin-common.xml" xpointer="xpointer(/idea-plugin/*)"/>
     <xi:include href="/META-INF/sbt.xml" xpointer="xpointer(/idea-plugin/*)"/>
-    <xi:include href="/META-INF/BSP.xml" xpointer="xpointer(/idea-plugin/*)"/>
     <xi:include href="/META-INF/codeInsight.xml" xpointer="xpointer(/idea-plugin/*)"/>
     <xi:include href="/META-INF/conversion.xml" xpointer="xpointer(/idea-plugin/*)"/>
     <xi:include href="/META-INF/compiler-integration.xml" xpointer="xpointer(/idea-plugin/*)"/>
