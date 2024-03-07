@@ -1016,7 +1016,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     else {
       pattern match {
         case naming: ScNamingPattern => evaluateSubpatternFromPattern(exprEval, naming.named, subPattern)
-        case _: ScTypedPattern => evaluateSubpatternFromPattern(exprEval, pattern.subpatterns.head, subPattern)
+        case _: ScTypedPatternLike => evaluateSubpatternFromPattern(exprEval, pattern.subpatterns.head, subPattern)
         case par: ScParenthesisedPattern =>
           val withoutPars = par.innerElement.getOrElse(throw new IllegalStateException("Empty parentheses pattern"))
           evaluateSubpatternFromPattern(exprEval, withoutPars, subPattern)

@@ -168,7 +168,7 @@ object CompilerFactoryImpl {
     else if (is3_2(scalaVersion))
       compilerBridges.scala3._3_2
     else if (is3_3(scalaVersion)) {
-      if (scalaVersion.major(3) <= Version("3.3.1")) compilerBridges.scala3._3_3_old
+      if (scalaVersion.major(3) <= Version("3.3.1")) compilerBridges.scala3._3_3_1
       else compilerBridges.scala3._3_3
     } else if (isLatest3(scalaVersion))
       compilerBridges.scala3._3_4
