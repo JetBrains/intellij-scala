@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.lexer
 import com.intellij.lexer.{MergingLexerAdapter, XmlLexer}
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.xml.XmlTokenType
+import org.jetbrains.annotations.Nullable
 
 import java.util
 
@@ -31,7 +32,7 @@ object ScalaXmlLexer {
     }
 
     // scala.Option usages should be avoided in lexer
-    def apply(elementType: IElementType): IElementType = elementType match {
+    def apply(@Nullable elementType: IElementType): IElementType = elementType match {
       case null => null
       case _ =>
         elementType.toString match {

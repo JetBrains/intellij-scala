@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.LanguageSubstitutors
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.ScalaLanguage
+import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
 import org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighterFactory.createScalaSyntaxHighlighter
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
 import org.jetbrains.plugins.scalaDirective.ScalaDirectiveLanguage
@@ -26,7 +26,7 @@ final class ScalaSyntaxHighlighterFactory extends SyntaxHighlighterFactory {
 }
 
 object ScalaSyntaxHighlighterFactory {
-  def createScalaSyntaxHighlighter(project: Project, @Nullable file: VirtualFile, language: Language): ScalaSyntaxHighlighter = {
+  def createScalaSyntaxHighlighter(@Nullable project: Project, @Nullable file: VirtualFile, language: Language): ScalaSyntaxHighlighter = {
     val scalaLexer = LanguageParserDefinitions.INSTANCE
       .forLanguage(language)
       .createLexer(project)
@@ -35,7 +35,7 @@ object ScalaSyntaxHighlighterFactory {
     import SyntaxHighlighterFactory.{getSyntaxHighlighter => findByLanguage}
 
     new ScalaSyntaxHighlighter(
-      new ScalaSyntaxHighlighter.CustomScalaLexer(scalaLexer),
+      new ScalaSyntaxHighlighter.CustomScalaLexer(scalaLexer, isScala3 = language == Scala3Language.INSTANCE),
       findByLanguage(ScalaDocLanguage.INSTANCE, project, file),
       findByLanguage(ScalaDirectiveLanguage.INSTANCE, project, file),
       findByLanguage(HTMLLanguage.INSTANCE, project, file)
