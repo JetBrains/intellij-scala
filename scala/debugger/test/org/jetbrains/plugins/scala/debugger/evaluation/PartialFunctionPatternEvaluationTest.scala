@@ -12,10 +12,6 @@ class PartialFunctionPatternEvaluationTest_2_13 extends PartialFunctionPatternEv
 
 class PartialFunctionPatternEvaluationTest_3 extends PartialFunctionPatternEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
-
-  override def testTypeTestsSAM(): Unit = {
-    // TODO: seems currently that the PSI structure is different for Scala 3 in this case. A typed pattern cannot be recognized.
-  }
 }
 
 abstract class PartialFunctionPatternEvaluationTestBase extends ExpressionEvaluationTestBase {
