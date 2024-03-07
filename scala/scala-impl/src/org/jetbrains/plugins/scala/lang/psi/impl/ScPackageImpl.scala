@@ -67,6 +67,9 @@ final class ScPackageImpl private (val pack: PsiPackage)
       true
   }
 
+  override def findPackage(qName: String): PsiPackageImpl =
+    ScPackageImpl.findPackage(getProject, qName).map(ScPackageImpl(_)).orNull
+
   override def findPackageObject(scope: GlobalSearchScope): Option[ScObject] = cachedInUserData(
     "findPackageObject",
     this,
