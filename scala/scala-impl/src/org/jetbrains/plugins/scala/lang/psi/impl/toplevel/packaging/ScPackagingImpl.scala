@@ -31,8 +31,7 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
     with ScPackaging
     with ScImportsHolder // todo: to be removed
     with ScExportsHolder
-    with ScDeclarationSequenceHolder
-    with ScBegin {
+    with ScDeclarationSequenceHolder {
   import ScPackageLike._
 
   override def toString = "ScPackaging"
