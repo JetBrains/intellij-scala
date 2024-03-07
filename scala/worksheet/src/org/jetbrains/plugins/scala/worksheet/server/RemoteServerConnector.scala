@@ -19,7 +19,6 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 import org.jetbrains.plugins.scala.util.ScalaPluginJars
 import org.jetbrains.plugins.scala.worksheet.WorksheetUtils
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
-import org.jetbrains.plugins.scala.worksheet.bsp.BspWorksheetCompilerExtension
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector._
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 
@@ -153,19 +152,7 @@ final class RemoteServerConnector(
     strings.map(new File(_)).toSeq
   }
 
-  override protected def assemblyRuntimeClasspath(): Seq[File] = {
-    val extensionCp = BspWorksheetCompilerExtension.worksheetClasspath(module)
-    extensionCp.getOrElse {
-      // This workaround specifically covers the following edge case.
-      // `super.assemblyRuntimeClasspath()` uses platform APIs (OrderEnumerator) to obtain the compilation classpath.
-      // If any of the `target` directories have been deleted manually by a user, they would _not_ be returned by the
-      // OrderEnumerator, so we would still see unresolved classes in the worksheet, even though the classes have
-      // already been produced. I currently do not have time before the release to dig into it more.
-      // External implementations of the `WorksheetCompilerExtension` extension point are not affected by this.
-      // TODO: Explore a more elegant solution to this problem.
-      (super.assemblyRuntimeClasspath() ++ outputDirs).distinct
-    }
-  }
+  override protected def assemblyRuntimeClasspath(): Seq[File] = Seq.empty
 }
 
 //private[worksheet]

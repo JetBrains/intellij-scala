@@ -4,7 +4,6 @@ import com.intellij.openapi.actionSystem.{ActionManager, ActionPlaces, DefaultAc
 import org.jetbrains.plugins.scala.worksheet.actions.InteractiveStatusDisplay
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.StopWorksheetAction.StoppableProcess
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu._
-import org.jetbrains.plugins.scala.worksheet.bsp.BspWorksheetCompilerExtension
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetControlPanel.createSplitter
 
 import java.awt.Dimension
@@ -20,7 +19,6 @@ final class WorksheetControlPanel extends JPanel {
   private val cleanAction = new CleanWorksheetAction()
   private val copyAction = new CopyWorksheetAction()
   private val settingsAction = new ShowWorksheetSettingsAction()
-  private val extraActions = BspWorksheetCompilerExtension.extraWorksheetActions()
 
   private var runEnabled = false
 
@@ -39,7 +37,6 @@ final class WorksheetControlPanel extends JPanel {
       group.addSeparator()
       group.add(settingsAction)
       group.addSeparator()
-      extraActions.foreach(group.add)
     }
     val leftToolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.EDITOR_TOOLBAR, leftToolbarGroup, true)
     leftToolbar.setTargetComponent(panel)

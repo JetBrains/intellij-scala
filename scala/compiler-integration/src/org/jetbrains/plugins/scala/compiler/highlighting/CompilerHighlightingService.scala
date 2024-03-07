@@ -22,8 +22,6 @@ import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.task.{ProjectTaskContext, ProjectTaskManager}
 import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.ui.UIUtil
-import org.jetbrains.bsp.BspUtil
-import org.jetbrains.bsp.project.{BspProjectTaskRunner, CustomTaskArguments}
 import org.jetbrains.jps.incremental.scala.remote.SourceScope
 import org.jetbrains.plugins.scala.build.CompilerEventReporter
 import org.jetbrains.plugins.scala.caches.cached
@@ -211,43 +209,12 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
             TriggerCompilerHighlightingService.get(project).beforeIncrementalCompilation()
             // Perform the rest of the execution of this incremental compilation on a background thread.
             performCompilation(delayIndicator = false) { client =>
-              if (BspUtil.isBspProject(project)) {
-                doBspIncrementalCompilation(request, client, runDocumentCompiler)
-              } else {
-                doJpsIncrementalCompilation(request, client, runDocumentCompiler)
-              }
+              doJpsIncrementalCompilation(request, client, runDocumentCompiler)
             }
           }
         promise.completeWith(future)
       }
       promise.future
-    }
-  }
-
-  private def doBspIncrementalCompilation(
-    request: CompilationRequest.IncrementalRequest,
-    client: CompilerEventGeneratingClient,
-    runDocumentCompiler: Boolean
-  ): Unit = {
-    val CompilationRequest.IncrementalRequest(module, sourceScope, virtualFile, _, psiFile, _) = request
-    val context = new ProjectTaskContext()
-    val representativeModule = module.findRepresentativeModuleForSharedSourceModuleOrSelf
-    val task = ProjectTaskManager.getInstance(project)
-      .createModulesBuildTask(Array(representativeModule), true, true, false, sourceScope == SourceScope.Test)
-    val reporter = new CompilerEventReporter(project, CompilationId.generate())
-    val arguments = CustomTaskArguments(
-      CompilerIntegrationBundle.message("highlighting.compilation"),
-      reporter
-    )
-    val taskRunner = new BspProjectTaskRunner(Some(arguments))
-    val promise = taskRunner.run(project, context, task)
-    promise.blockingGet(1, TimeUnit.DAYS)
-
-    if (runDocumentCompiler && reporter.successful) {
-      triggerDocumentCompilationInAllOpenEditors(Some(client))
-    }
-    if (psiFile.is[ScalaFile] && reporter.successful && client.successful && !project.isDisposed) {
-      TriggerCompilerHighlightingService.get(project).enableDocumentCompiler(virtualFile)
     }
   }
 

@@ -172,13 +172,6 @@ object DependencyGroups {
     //ExclusionRule("org.eclipse.lsp4j", "org.eclipse.lsp4j.jsonrpc")
   )
 
-  val bsp: Seq[ModuleID] = Seq(
-    ("ch.epfl.scala" % "bsp4j" % bspVersion).excludeAll(bspExclusions *),
-    ("ch.epfl.scala" %% "bsp-testkit" % bspVersion).excludeAll(bspExclusions *) % Test,
-    scalaTest,
-    scalaCheck
-  )
-
   val decompiler: Seq[ModuleID] = Seq(
     scalaLibrary,
     scalaReflect

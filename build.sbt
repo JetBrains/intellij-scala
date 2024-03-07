@@ -151,7 +151,7 @@ lazy val uast = newProject(
 lazy val worksheet =
   newProject("worksheet", file("scala/worksheet"))
     .dependsOn(
-      bsp,
+      // bsp,
       compilerIntegration % "test->test;compile->compile",
       worksheetReplInterface % "test->test;compile->compile",
       repl % "test->test;compile->compile", //do we indeed need this dependency on Scala REPL? can we get rid of it?
@@ -398,7 +398,7 @@ lazy val compilerIntegration =
       scalaImpl % "test->test;compile->compile",
       sbtImpl % "test->test;compile->compile",
       jps,
-      bsp
+      // bsp
     )
     .settings(
       intellijPlugins ++= Seq(
@@ -526,7 +526,7 @@ lazy val testingSupport =
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
       sbtImpl % "test->test;compile->compile",
-      bsp,
+      // bsp,
       structureView % "test->test;compile->compile",
       compilerIntegration % "test->test;compile->compile"
     )
@@ -627,23 +627,6 @@ lazy val decompiler =
     .settings(
       libraryDependencies ++= DependencyGroups.decompiler,
       packageMethod := PackagingMethod.Standalone("lib/scalap.jar")
-    )
-
-lazy val bsp =
-  newProject("bsp", file("bsp"))
-    .enablePlugins(BuildInfoPlugin)
-    .dependsOn(
-      scalaImpl % "test->test;compile->compile",
-      sbtImpl % "test->test;compile->compile"
-    )
-    .settings(
-      libraryDependencies ++= DependencyGroups.bsp,
-      intellijPlugins += "JUnit".toPlugin,
-      intellijPlugins += "org.jetbrains.plugins.terminal".toPlugin,
-      buildInfoPackage := "org.jetbrains.bsp.buildinfo",
-      buildInfoKeys := Seq("bloopVersion" -> Versions.bloopVersion),
-      buildInfoOptions += BuildInfoOption.ConstantValue,
-      ideExcludedDirectories := Seq(baseDirectory.value / "target")
     )
 
 // Integration with other IDEA plugins
