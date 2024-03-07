@@ -46,17 +46,11 @@ class ScalaLocalInplaceRenamer(elementToRename: PsiNamedElement, editor: Editor,
     )
   }
 
-  override def collectRefs(referencesSearchScope: SearchScope): util.Collection[PsiReference] =
-    super.collectRefs(referencesSearchScope).tap { refs =>
-      elementToRename
-        .withParentsInFile
-        .findByType[ScBegin]
-        .filter(_.tag == elementToRename)
-        .flatMap(_.end)
-        .foreach { end =>
-          refs.addAll(end.getReferences.toSeq.asJava)
-        }
-    }
+  override def collectRefs(referencesSearchScope: SearchScope): util.Collection[PsiReference] = {
+    val references = super.collectRefs(referencesSearchScope)
+    ScalaRenameUtil.addEndMarkerReference(getVariable, references)
+    references
+  }
 
   override def isIdentifier(newName: String, language: Language): Boolean =
     ScalaNamesValidator.isIdentifier(newName)
