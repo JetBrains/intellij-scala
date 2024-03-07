@@ -62,10 +62,11 @@ object ScalaRenameUtil {
       case begin: ScBegin => begin.end
       case Parent(Parent(begin: ScValueOrVariable with ScBegin)) =>
         // ScVariableDefinition and ScValueDefinition are not ScBegin, so we need to go up two parents
-        begin.end.filter(_.name == element.name)
+        begin.end
       case _ => None
     }
     end
+      .filter(_.name == element.name)
       .flatMap(_.asOptionOfUnsafe[PsiReference])
       .foreach(references.add)
   }

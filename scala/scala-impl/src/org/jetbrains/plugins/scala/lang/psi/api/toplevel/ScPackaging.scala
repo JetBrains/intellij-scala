@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.toplevel
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
-import org.jetbrains.plugins.scala.lang.psi.api.ScPackageLike
+import org.jetbrains.plugins.scala.lang.psi.api.{ScBegin, ScPackageLike}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScOptionalBracesOwner, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaredElementsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
@@ -10,7 +10,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTy
 trait ScPackaging extends ScImportsHolder
   with ScDeclaredElementsHolder
   with ScPackageLike
-  with ScOptionalBracesOwner {
+  with ScOptionalBracesOwner
+  with ScBegin {
 
   def parentPackageName: String
 

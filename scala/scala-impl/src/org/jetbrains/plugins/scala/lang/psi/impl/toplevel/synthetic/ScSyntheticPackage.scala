@@ -10,6 +10,7 @@ import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScEnd
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
@@ -66,6 +67,8 @@ abstract class ScSyntheticPackage(name: String, manager: PsiManager)
       case _ => true
     }
   }
+
+  def endMarkers: Seq[ScEnd] = Seq.empty
 }
 
 
@@ -181,6 +184,8 @@ object ScSyntheticPackage {
               buff.toArray
             }
             override def getSubPackages(scope: GlobalSearchScope): Array[PsiPackage] = getSubPackages
+
+            override def endMarkers: Seq[ScEnd] = filtered.flatMap(_.end).toSeq
           }
 
       }
