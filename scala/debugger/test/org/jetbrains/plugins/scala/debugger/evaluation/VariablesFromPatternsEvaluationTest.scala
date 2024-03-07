@@ -210,4 +210,34 @@ abstract class VariablesFromPatternsEvaluationTestBase extends ExpressionEvaluat
       evalEquals("i", "10")
     }
   }
+
+  addSourceFile("TypedPatterns.scala",
+    s"""
+       |object TypedPatterns {
+       |  def main(args: Array[String]): Unit = {
+       |    val something: Any = "hello"
+       |    something match {
+       |      case str: String =>
+       |        println(str) $breakpoint
+       |      case sth =>
+       |        println(sth)
+       |    }
+       |
+       |    val option = Option(5)
+       |    option match {
+       |      case Some(n: Int) =>
+       |        println(n) $breakpoint
+       |      case None =>
+       |        println("None")
+       |    }
+       |  }
+       |}
+       |""".stripMargin.trim)
+
+  def testTypedPatterns(): Unit = {
+    expressionEvaluationTest()(
+      { implicit ctx => evalEquals("str", "hello") },
+      { implicit ctx => evalEquals("n", "5") }
+    )
+  }
 }
