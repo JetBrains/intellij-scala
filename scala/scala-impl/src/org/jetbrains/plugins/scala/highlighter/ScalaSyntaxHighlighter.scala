@@ -9,7 +9,7 @@ import com.intellij.psi.{StringEscapesTokenTypes, TokenType}
 import org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter.CustomScalaLexer
 import org.jetbrains.plugins.scala.highlighter.lexer.{ScalaInterpolatedStringLiteralLexer, ScalaMultilineStringLiteralLexer, ScalaStringLiteralLexer}
 import org.jetbrains.plugins.scala.lang.TokenSets.TokenSetExt
-import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes, ScalaXmlLexer, ScalaXmlTokenTypes}
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaKeywordTokenType, ScalaLexer, ScalaTokenType, ScalaTokenTypes, ScalaXmlLexer, ScalaXmlTokenTypes}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scalaDirective.lang.lexer.ScalaDirectiveTokenTypes
@@ -34,7 +34,7 @@ final class ScalaSyntaxHighlighter(
   scalaLexer: CustomScalaLexer,
   scalaDocHighlighter: SyntaxHighlighter,
   scalaDirectiveHighlighter: SyntaxHighlighter,
-  htmlHighlighter: SyntaxHighlighter
+  htmlHighlighter: SyntaxHighlighter,
 ) extends SyntaxHighlighterBase {
 
   import ScalaSyntaxHighlighter._
@@ -61,7 +61,6 @@ object ScalaSyntaxHighlighter {
   import ScalaDocTokenType._
   import ScalaTokenTypes._
   import ScalaXmlTokenTypes._
-
   // Comments
   private val tLINE_COMMENTS = TokenSet.create(tLINE_COMMENT)
 
@@ -187,6 +186,7 @@ object ScalaSyntaxHighlighter {
       tBLOCK_COMMENTS -> BLOCK_COMMENT,
       TokenSet.create(SCALA_DOC_COMMENT) -> DOC_COMMENT,
       KEYWORDS -> KEYWORD,
+      SOFT_KEYWORDS -> KEYWORD,
       NUMBER_TOKEN_SET -> NUMBER,
       tVALID_STRING_ESCAPE -> VALID_STRING_ESCAPE,
       tINVALID_CHARACTER_ESCAPE -> INVALID_STRING_ESCAPE,
@@ -247,6 +247,13 @@ object ScalaSyntaxHighlighter {
     }
     unique.view.mapValues(_.head).toMap
   }
+
+
+  private val softKeywords: Map[String, ScalaKeywordTokenType] =
+    ScalaTokenTypes.SOFT_KEYWORDS.getTypes.iterator
+      .map(_.asInstanceOf[ScalaKeywordTokenType])
+      .map(tokenType => tokenType.keywordText -> tokenType)
+      .toMap
 
   private class CompoundLexer(
     scalaLexer: Lexer,
@@ -334,7 +341,7 @@ object ScalaSyntaxHighlighter {
     }
   }
 
-  private[highlighter] class CustomScalaLexer(delegate: ScalaLexer)
+  private[highlighter] class CustomScalaLexer(delegate: ScalaLexer, isScala3: Boolean)
     extends DelegateLexer(delegate) {
 
     private var openingTags = new ju.Stack[String]
@@ -366,6 +373,15 @@ object ScalaSyntaxHighlighter {
       case XML_EMPTY_ELEMENT_END => tCLOSEXMLTAG
       case XML_COMMENT_START => tXML_COMMENT_START
       case XML_COMMENT_END => tXML_COMMENT_END
+      case tokenType@ScalaTokenTypes.tIDENTIFIER =>
+        if (isScala3) {
+          softKeywords.get(getTokenText) match {
+            case Some(softKeyword) if checkSoftKeywordHeuristics(softKeyword) => softKeyword
+            case _ => tokenType
+          }
+        } else {
+          tokenType
+        }
       case elementType =>
         if (tSCALADOC_XML_TAGS.contains(elementType)) tXMLTAGPART
         else elementType
@@ -409,6 +425,111 @@ object ScalaSyntaxHighlighter {
         case _ =>
       }
     }
+
+    private def checkSoftKeywordHeuristics(tokenType: ScalaKeywordTokenType): Boolean = {
+      // https://docs.scala-lang.org/scala3/reference/soft-modifier.html
+      val text = getBufferSequence
+      val start = getTokenStart
+      val end = getTokenEnd
+
+      def checkPred(intermediate: Char => Boolean, pred: Char => Boolean, default: Boolean): Boolean =
+        checkBuffer(intermediate, pred, default, start - 1, -1)
+
+      def checkFollowing(intermediate: Char => Boolean, pred: Char => Boolean, default: Boolean): Boolean =
+        checkBuffer(intermediate, pred, default, end, 1)
+
+      tokenType match {
+        case ScalaTokenType.EndKeyword =>
+          // check that it's preceded by a newline
+          checkPred(_.isWhitespace, _ == '\n', default = true)
+        case ScalaTokenType.UsingKeyword =>
+          // check that it's preceded by an opening parenthesis and followed by an identifier
+          checkPred(_.isWhitespace, _ == '(', default = false) &&
+            checkFollowing(_.isWhitespace, _.isUnicodeIdentifierStart, default = false)
+
+        case ScalaTokenType.ExtensionKeyword =>
+          // check that it's followed by an opening parenthesis or opening bracket
+          checkFollowing(_.isWhitespace, "([".contains(_), default = false)
+
+        case ScalaTokenType.DerivesKeyword =>
+          // check that it's followed by an identifier
+          checkFollowing(_.isWhitespace, _.isUnicodeIdentifierStart, default = false)
+
+        case ScalaTokenType.AsKeyword =>
+          checkPred(_.isWhitespace, _.isUnicodeIdentifierPart, default = false) &&
+            checkFollowing(_.isWhitespace, _.isUnicodeIdentifierStart, default = false)
+
+        case ScalaTokenType.OpenKeyword | ScalaTokenType.InfixKeyword | ScalaTokenType.InlineKeyword |
+             ScalaTokenType.OpaqueKeyword | ScalaTokenType.TransparentKeyword =>
+          // soft modifiers
+          var i = end
+          var needWs = true
+          while (i < text.length) {
+            val c = text.charAt(i)
+
+            if (c.isWhitespace) {
+              i += 1
+              needWs = false
+            } else if (needWs) {
+              return false
+            } else {
+              c match {
+                case 'o' if checkBuffer(text, i, "open") => i += 4
+                case 'i' if checkBuffer(text, i, "infix") => i += 5
+                case 'i' if checkBuffer(text, i, "inline") => i += 6
+                case 'o' if checkBuffer(text, i, "opaque") => i += 6
+                case 't' if checkBuffer(text, i, "transparent") => i += 11
+                case 'c' if checkBuffer(text, i, "case") => i += 4
+
+                case 'd' if checkBuffer(text, i, "def") => return true
+                case 'v' if checkBuffer(text, i, "val") => return true
+                case 'v' if checkBuffer(text, i, "var") => return true
+                case 't' if checkBuffer(text, i, "type") => return true
+                case 'g' if checkBuffer(text, i, "given") => return true
+                case 'c' if checkBuffer(text, i, "class") => return true
+                case 't' if checkBuffer(text, i, "trait") => return true
+                case 'o' if checkBuffer(text, i, "object") => return true
+                case 'e' if checkBuffer(text, i, "enum") => return true
+                case _ => return false
+              }
+              needWs = true
+            }
+          }
+          false
+        case _ =>
+          false
+      }
+    }
+
+    private def checkBuffer(intermediate: Char => Boolean, pred: Char => Boolean, default: Boolean, start: Int, dir: Int): Boolean = {
+      val text = getBufferSequence
+      var i = start
+      while (i >= 0 && i < text.length) {
+        val c = text.charAt(i)
+        if (pred(c)) {
+          return true
+        } else if (!intermediate(c)) {
+          return false
+        } else {
+          i += dir
+        }
+      }
+      default
+    }
+
+    private def checkBuffer(text: CharSequence, start: Int, string: String): Boolean = {
+      var textIdx = start
+      var stringIdx = 0
+      while (textIdx < text.length && stringIdx < string.length) {
+        if (text.charAt(textIdx) != string.charAt(stringIdx)) {
+          return false
+        }
+        textIdx += 1
+        stringIdx += 1
+      }
+      stringIdx == string.length
+    }
+
   }
 
   private class ScalaHtmlHighlightingLexerWrapper(delegate: Lexer) extends DelegateLexer(delegate) {
