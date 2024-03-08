@@ -41,6 +41,30 @@ class ScalaImportTypeFixTest extends ScalaImportTypeFixTestBase {
     )
   }
 
+  def testCaseClassWithField(): Unit = {
+    val fileText =
+      s"""object Source {
+         |  case class Foo(value: String)
+         |}
+         |
+         |object Target {
+         |  val foo = ${CARET}Foo("value")
+         |}
+         |""".stripMargin
+    val qNameToImport = "Source.Foo"
+
+    checkElementsToImport(
+      fileText,
+      qNameToImport
+    )
+
+    doTest(
+      fileText,
+      expectedText = s"import $qNameToImport\n\n${fileText.replace(CARET, "")}",
+      selected = qNameToImport
+    )
+  }
+
   def testClassInAnnotationPosition(): Unit = checkNoImportFix(
     s"""object Source {
        |  class Foo
@@ -251,6 +275,42 @@ class Scala3ImportTypeFixTest extends ScalaImportTypeFixTestBase {
     )
   }
 
+  // SCL-22226
+  def testClassWithCompanion(): Unit = {
+    val fileText =
+      s"""object Source {
+         |  class Person(val name: String) {
+         |    def greet(): String = {
+         |      "Hello, " + name
+         |    }
+         |  }
+         |
+         |  object Person {
+         |    def apply(name: String): Person = new Person(name)
+         |  }
+         |}
+         |
+         |object Target {
+         |  def executeGreeting(): Unit = {
+         |    val person = P${CARET}erson("John")
+         |    println(person.greet())
+         |  }
+         |}
+         |""".stripMargin
+    val qNameToImport = "Source.Person"
+
+    checkElementsToImport(
+      fileText,
+      qNameToImport
+    )
+
+    doTest(
+      fileText,
+      expectedText = s"import $qNameToImport\n\n${fileText.replace(CARET, "")}",
+      selected = qNameToImport
+    )
+  }
+
   def testClassInsideGivenImport(): Unit = doTest(
     fileText =
       s"""
@@ -321,7 +381,6 @@ class Scala3ImportTypeFixTest extends ScalaImportTypeFixTestBase {
     checkElementsToImport(
       fileText,
       "OtherScope.MyFoodEnum",
-      "OtherScope.MyFoodEnum", // companion object
     )
 
     doTest(
