@@ -158,10 +158,6 @@ object ScalaImportTypeFix {
 
     } yield MemberToImport(alias, global.owner, global.pathToOwner)
 
-    //it's possible to have same qualified name with different owners in case of val overriding
-    val distinctAliasesToImport: Iterator[MemberToImport] =
-      aliasesToImport.iterator.distinctBy(_.qualifiedName)
-
     val packagesList = importsWithPrefix(referenceName).map { s =>
       s.reverse.dropWhile(_ != '.').tail.reverse
     }
@@ -172,10 +168,13 @@ object ScalaImportTypeFix {
       if kindMatches(pack, kinds)
     } yield PrefixPackageToImport(pack)
 
-    val elementsAll = classesToImport ++ inheritedClassesToImport ++ distinctAliasesToImport ++ packages
+    val elementsAll = classesToImport ++ inheritedClassesToImport ++ aliasesToImport ++ packages
     val elementsFiltered = elementsAll.filterNot(e => isExcluded(e.qualifiedName, project))
     val elementsSorted = elementsFiltered.sorted(defaultImportOrdering(ref))
-    elementsSorted
+    // it is possible to have same qualified name with different owners in case of val overriding
+    // or (case) classes with companion objects
+    val elementsDistinct = elementsSorted.distinctBy(_.qualifiedName)
+    elementsDistinct
   }
 
   private def hasApplyMethod(`class`: PsiClass): Boolean = `class` match {
