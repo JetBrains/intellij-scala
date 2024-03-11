@@ -289,6 +289,12 @@ object Scala3TestDataBracelessCode {
       // argument blocks
       s"""val test = x.foreach: $Caret""",
       s"""val test = x.foreach: a => $Caret""",
+      s"""val test = x.foreach:
+         |  a => $Caret
+         |""".stripMargin,
+      s"""val test = println { $Caret
+         |  i => i
+         |}""".stripMargin,
 
       /** case clause body
        * (test data for typing in single clause body
