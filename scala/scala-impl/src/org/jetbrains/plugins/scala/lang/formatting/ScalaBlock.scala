@@ -129,7 +129,7 @@ class ScalaBlock(
           val nodeBeforeLast = b.resultExpression.orElse(b.caseClauses).get.getNode.getTreePrev
           val isLineBreak = nodeBeforeLast.getElementType == TokenType.WHITE_SPACE && nodeBeforeLast.textContains('\n')
           val extraIndent =
-            if (isLineBreak) getSubBlocks().size - newChildIndex
+            if (b.isEnclosedByBraces && isLineBreak && getSubBlocks().size - 1 == newChildIndex) 1
             else 0
           val indentsCount = extraIndent + (if (braceShifted) 0 else 1)
           Indent.getSpaceIndent(indentsCount * indentSize)
