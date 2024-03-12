@@ -13,6 +13,8 @@
                 implementation="org.jetbrains.plugins.scala.project.bsp.ScalaSdkExtensionImpl"/>
         <connectionDetailsProviderExtension
                 implementation="org.jetbrains.plugins.scala.bsp.server.connection.ScalaConnectionDetailsProvider"/>
+        <sbtBuildModuleBspExtension
+                implementation="org.jetbrains.plugins.scala.project.bsp.sbt.SbtBuildModuleBspExtensionImpl"/>
     </extensions>
     <extensions defaultExtensionNs="com.intellij">
         <projectOpenProcessor
