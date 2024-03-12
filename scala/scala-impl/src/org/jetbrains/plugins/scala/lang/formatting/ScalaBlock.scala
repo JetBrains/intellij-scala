@@ -41,7 +41,7 @@ import scala.jdk.CollectionConverters._
 class ScalaBlock(
   val parentBlock: Option[ScalaBlock],
   val node: ASTNode,
-  val lastNode: ASTNode,
+  @Nullable val lastNode: ASTNode,
   @Nullable val alignment: Alignment,
   @Nullable var indent: Indent,
   @Nullable val wrap: Wrap,
@@ -79,7 +79,7 @@ class ScalaBlock(
 
   override def isLeaf: Boolean = isLeaf(node)
 
-  override def isIncomplete: Boolean = ScalaBlock.isIncomplete(node)
+  override def isIncomplete: Boolean = ScalaBlock.isIncomplete(if (lastNode != null) lastNode else node)
 
   override def getChildAttributes(newChildIndex: Int): ChildAttributes = {
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
