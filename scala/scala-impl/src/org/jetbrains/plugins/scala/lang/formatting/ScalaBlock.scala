@@ -290,11 +290,8 @@ class ScalaBlock(
 
   override def getSubBlocks: util.List[Block] = {
     if (subBlocks == null) {
-      val blocks = new ScalaBlockBuilder(this).buildSubBlocks
-      subBlocks = blocks
-        .asScala
-        .filterNot(_.asInstanceOf[ScalaBlock].getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE)
-        .asJava
+      subBlocks = new ScalaBlockBuilder(this).buildSubBlocks
+      subBlocks.removeIf(_.asInstanceOf[ScalaBlock].getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE)
       // printSubBlocksDebugInfoToConsole()
     }
     subBlocks
