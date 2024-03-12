@@ -5,6 +5,7 @@ import com.intellij.modcommand.ModCommand.error
 import com.intellij.openapi.components.{PersistentStateComponent, Service, State, Storage, StoragePathMacros}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.util.JavaCoroutines
 import kotlin.coroutines.Continuation
 import org.jetbrains.bsp.protocol.utils.ParsersKt
 import org.jetbrains.plugins.bsp.extension.points.BuildToolId
@@ -17,14 +18,17 @@ import scala.jdk.CollectionConverters._
 
 class ScalaConnectionDetailsProvider extends ConnectionDetailsProviderExtension {
   override def onFirstOpening(project: Project, projectPath: VirtualFile, continuation: Continuation[_ >: lang.Boolean]): AnyRef = {
-    saveProjectRootFile(project, projectPath)
-    val connectionFile = getConnectionFile(projectPath)
-    if (connectionFile.isDefined) {
-      return boolean2Boolean(true)
-    }
+    //noinspection ApiStatus,UnstableApiUsage
+    JavaCoroutines.suspendJava[lang.Boolean](cont => {
+      saveProjectRootFile(project, projectPath)
+      val connectionFile = getConnectionFile(projectPath)
+      if (connectionFile.isDefined) {
+        cont.resume(true)
+      }
 
-    val hasGeneratedFile = generateSbtConnectionFile(projectPath).isDefined
-    boolean2Boolean(hasGeneratedFile)
+      val hasGeneratedFile = generateSbtConnectionFile(projectPath).isDefined
+      cont.resume(hasGeneratedFile)
+    }, continuation)
   }
 
   override def provideNewConnectionDetails(project: Project, bspConnectionDetails: BspConnectionDetails): BspConnectionDetails = {
