@@ -39,7 +39,7 @@ import scala.jdk.CollectionConverters._
  *               (see [[ChainedMethodCallsBlockBuilder]]
  */
 class ScalaBlock(
-  var parentBlock: Option[ScalaBlock],
+  val parentBlock: Option[ScalaBlock],
   val node: ASTNode,
   val lastNode: ASTNode,
   @Nullable val alignment: Alignment,
@@ -415,6 +415,7 @@ object ScalaBlock {
     }
   }
 
+  @Nullable
   private def findLastNonBlankChild(node: ASTNode): ASTNode = {
     var lastChild = node.getLastChildNode
     while (lastChild != null && isBlank(lastChild.getPsi)) {
