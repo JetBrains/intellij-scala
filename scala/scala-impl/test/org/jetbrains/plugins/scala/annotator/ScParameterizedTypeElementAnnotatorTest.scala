@@ -429,6 +429,26 @@ class ScParameterizedTypeElementAnnotatorTest_scala_3 extends ScParameterizedTyp
   ))
 }
 
+class ScParameterizedTypeElementAnnotatorTest_Highlighting_scala_3 extends ScalaHighlightingTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
+
+  def testSCL22257(): Unit = assertNothing(errorsFromScala3Code(
+    """
+      |import scala.compiletime.summonAll
+      |import scala.deriving.Mirror
+      |
+      |inline def foo[T](using m: Mirror.SumOf[T]): Unit = {
+      |  val elemInstances = summonAll[Tuple.Map[m.MirroredElemTypes, ValueOf]].productIterator
+      |    .asInstanceOf[Iterator[ValueOf[T]]]
+      |    .map(_.value)
+      |  val elemNames = summonAll[Tuple.Map[m.MirroredElemLabels, ValueOf]].productIterator
+      |    .asInstanceOf[Iterator[ValueOf[String]]]
+      |    .map(_.value)
+      |}
+      |""".stripMargin
+  ))
+}
+
 @Category(Array(classOf[TypecheckerTests]))
 class ScParameterizedTypeElementAnnotatorTest_with_java extends ScalaLightCodeInsightFixtureTestCase with MatcherAssertions {
 

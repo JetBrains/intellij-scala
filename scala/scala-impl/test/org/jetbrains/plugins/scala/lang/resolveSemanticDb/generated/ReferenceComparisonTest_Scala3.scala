@@ -931,7 +931,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i8319(): Unit = doTest("i8319", true) // #intersectionType
   def test_i8321(): Unit = doTest("i8321", true)
   def test_i8338(): Unit = doTest("i8338", true)
-  def test_i8344_1(): Unit = doTest("i8344-1", false) // #enum
+  def test_i8344_1(): Unit = doTest("i8344-1", true) // #enum
   def test_i8344_2(): Unit = doTest("i8344-2", true)
   def test_i8357(): Unit = doTest("i8357", true) // #opaque, #intersectionType
   def test_i8368(): Unit = doTest("i8368", false) // #export
@@ -1256,7 +1256,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i12583(): Unit = doTest("i12583", true)
   def test_i12616(): Unit = doTest("i12616", true) // #unionType
   def test_i12632(): Unit = doTest("i12632", true)
-  def test_i12645(): Unit = doTest("i12645", false)
+  def test_i12645(): Unit = doTest("i12645", true)
   def test_i12655(): Unit = doTest("i12655", false)
   def test_i12663(): Unit = doTest("i12663", true) // #typeLambda
   def test_i12677(): Unit = doTest("i12677", true)
