@@ -72,7 +72,9 @@ object CaseClause extends CaseClause {
 object CaseClauseInBracelessCaseClauses extends CaseClause {
   override protected def parseBody()(implicit builder: ScalaPsiBuilder): Unit =
   builder.withIndentationRegion(builder.newBracelessIndentationRegionHere) {
-    BlockInIndentationRegion()
+    builder.withEnabledNewlines {
+      BlockInIndentationRegion()
+    }
   }
 
   override protected def isCaseKeywordAcceptable(implicit builder: ScalaPsiBuilder): Boolean = {

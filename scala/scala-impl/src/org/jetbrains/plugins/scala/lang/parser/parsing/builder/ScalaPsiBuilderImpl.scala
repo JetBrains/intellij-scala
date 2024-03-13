@@ -217,12 +217,12 @@ class ScalaPsiBuilderImpl(
   }
 
   override def advanceLexer(): Unit = {
-    super.advanceLexer()
     if (isScala3) {
       findPrecedingIndentation.foreach { indent =>
         indentationRegionStack.head.addIntent(indent, getCurrentOffset)
       }
     }
+    super.advanceLexer()
   }
 }
 
