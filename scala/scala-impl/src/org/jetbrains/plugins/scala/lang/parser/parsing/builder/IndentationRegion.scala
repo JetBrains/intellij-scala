@@ -97,14 +97,14 @@ object IndentationRegion {
     override def isIndent(indent: IndentationWidth): Boolean = indent > indentation
 
     override def isOutdentForLeadingInfixOperator(indent: IndentationWidth)(implicit builder: ScalaPsiBuilder): Boolean = {
-      def isOnPreviousIndent(region: IndentationRegion): Boolean = builder.allPreviousIndentations(region).contains(indent)
+      def isOnPreviousIndent: Boolean = builder.allPreviousIndentations(this).contains(indent)
 
       indent < indentation && {
         @tailrec
         def outdents(region: IndentationRegion): Boolean = region match {
           case SingleExpr(outer) => outdents(outer)
-          case Indented(outerIndent) => indent <= outerIndent || isOnPreviousIndent(region)
-          case BracelessCaseClause(outerIndent) => indent <= outerIndent.indentation || isOnPreviousIndent(region)
+          case Indented(outerIndent) => indent <= outerIndent || isOnPreviousIndent
+          case BracelessCaseClause(outerIndent) => indent <= outerIndent.indentation || isOnPreviousIndent
           case _: Braced => false
         }
 
