@@ -96,7 +96,7 @@ abstract class PrecedenceClimbingInfixParsingRule extends ParsingRule {
       }
       infixMarker.drop()
     } else if (!isInlineMatch && isMatchConsideredInfix
-      && builder.isScala3 && builder.getTokenType == ScalaTokenTypes.kMATCH) {
+      && builder.isScala3 && builder.getTokenType == ScalaTokenTypes.kMATCH && !builder.isOutdentHere) {
       Expr1.parseMatch(infixMarker)
     } else infixMarker.drop()
 
