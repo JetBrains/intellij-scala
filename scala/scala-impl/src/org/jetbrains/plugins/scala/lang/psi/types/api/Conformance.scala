@@ -36,12 +36,12 @@ trait Conformance {
 
     if (left.isAny || left.isAnyKind || left.is[WildcardType] || right.isNothing || left == right)
       constraints
-    else if (left.isTupleBaseType) {
-      if (right.isTupleN) constraints
-      else                Left
-    } else if (right.canBeSameOrInheritor(left)) {
+    else if (right.canBeSameOrInheritor(left)) {
       val result = conformsInner(Key(left, right, checkWeak), visited)
       combine(result)(constraints)
+    } else if (left.isTupleBaseType) {
+      if (right.isTupleN) constraints
+      else                Left
     } else Left
   }
 
