@@ -515,4 +515,25 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
     doGenerateDocDefinitionTest(fileContent, expectedContent)
   }
 
+  def testMethodReturningNestedType(): Unit = {
+    val fileContent =
+      s"""
+         |trait Encoder {
+         |  type Persisted
+         |  def encode(p: Encoder): Persisted
+         |}
+         |
+         |def encode(p: Encoder): p.Persisted = p.${|}encode(p)
+         |""".stripMargin
+
+    val expectedContent =
+      s"""
+         |<a href="psi_element://Encoder"><code>Encoder</code></a>
+         |
+         |<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">encode</span>(p: <span style="color:#000000;"><a href="psi_element://Encoder"><code>Encoder</code></a></span>): <span style="color:#000000;"><a href="psi_element://Encoder"><code>Encoder</code></a></span>#<span style="color:#20999d;"><a href="psi_element://Encoder.Persisted"><code>Persisted</code></a></span>
+         |""".stripMargin
+
+    doGenerateDocDefinitionTest(fileContent, expectedContent)
+  }
+
 }
