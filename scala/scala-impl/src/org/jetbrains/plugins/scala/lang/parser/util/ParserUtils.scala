@@ -74,7 +74,7 @@ object ParserUtils {
     var br = braceReported
     while (true) {
       body
-      builder.getTokenType match {
+      builder.getTokenTypeIgnoringOutdent match {
         case ScalaTokenTypes.tRBRACE =>
           builder.advanceLexer()
           return

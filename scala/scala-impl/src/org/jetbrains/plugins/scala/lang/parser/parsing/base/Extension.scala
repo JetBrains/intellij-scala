@@ -164,7 +164,7 @@ object ExtensionParameterClauses extends ParsingRule {
 
       if (!Param()) builder.error(ScalaBundle.message("parameter.expected"))
 
-      builder.getTokenType match {
+      builder.getTokenTypeIgnoringOutdent match {
         case ScalaTokenTypes.tRPARENTHESIS =>
           builder.advanceLexer() //Ate )
         case _ =>

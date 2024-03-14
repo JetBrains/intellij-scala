@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.builder
 
 import com.intellij.lang.PsiBuilder
+import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, IndentationWidth}
 import org.jetbrains.plugins.scala.project.ScalaFeatures
 
@@ -49,6 +50,12 @@ trait ScalaPsiBuilder extends PsiBuilder {
   def popIndentationRegion(region: IndentationRegion): Unit
 
   def allPreviousIndentations(region: IndentationRegion): Set[IndentationWidth]
+
+  def getTokenTypeIgnoringOutdent: IElementType
+
+  def getTokenTextIgnoringOutdent: String
+
+  def ignoreOutdent(): Unit
 
   /**
    * Instead of using this method consider using more specific error when possible

@@ -2,12 +2,13 @@ package org.jetbrains.plugins.scala.lang
 
 import com.intellij.lang.{PsiBuilder, WhitespacesAndCommentsBinder}
 import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.IndentationRegion
 
 import scala.annotation.tailrec
 
 package object parser {
+  val OUTDENT = new ScalaTokenType("OUTDENT")
 
   implicit final class PsiBuilderExt[B <: PsiBuilder](private val repr: B) extends AnyVal {
 
@@ -158,14 +159,12 @@ package object parser {
     def isIndentHere: Boolean =
       repr.isIndent(repr.findPrecedingIndentation)
 
-    def isOutdentHere: Boolean =
-      repr.currentIndentationRegion.isOutdent(repr.findPrecedingIndentation) || repr.eof()
-
-    def isOutdentForCaseKeywordInCaseClause: Boolean = {
+    def isOutdentHere: Boolean = {
       val region = repr.currentIndentationRegion match {
-        case IndentationRegion.BracelessCaseClause(region) => region
+        case IndentationRegion.BracelessCaseClause(region) if repr.getTokenTypeIgnoringOutdent == ScalaTokenTypes.kCASE => region
         case region => region
       }
+
       region.isOutdent(repr.findPrecedingIndentation) || repr.eof()
     }
 
@@ -214,7 +213,7 @@ package object parser {
       assert(opening == ScalaTokenTypes.tLPARENTHESIS || opening == ScalaTokenTypes.tLSQBRACKET)
       val closing = if (opening == ScalaTokenTypes.tLPARENTHESIS) ScalaTokenTypes.tRPARENTHESIS else ScalaTokenTypes.tRSQBRACKET
       repr.advanceLexer()
-      while (repr.getTokenType != null && repr.getTokenType != closing) {
+      while (repr.getTokenType != null && repr.getTokenTypeIgnoringOutdent != closing) {
         if (repr.getTokenType == opening && multiple)
           skipParensOrBrackets()
         else repr.advanceLexer()

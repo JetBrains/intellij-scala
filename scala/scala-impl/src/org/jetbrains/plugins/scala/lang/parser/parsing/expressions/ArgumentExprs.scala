@@ -41,8 +41,8 @@ object ArgumentExprs extends ParsingRule {
           builder.advanceLexer()
           if (!Expr()) builder.wrongExpressionError()
         }
-
-        builder.getTokenType match {
+      
+        builder.getTokenTypeIgnoringOutdent match {
           case ScalaTokenTypes.tRPARENTHESIS =>
             builder.advanceLexer() //Ate )
           case _ =>

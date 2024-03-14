@@ -40,6 +40,7 @@ sealed trait ExprInIndentationRegion extends ParsingRule {
 
     if (!builder.isIndent(indentationForExprBlock)) {
       if (builder.isOutdentHere) {
+        builder.ignoreOutdent()
         // hack! we have an outdent here, but at least *try* to parse an expression
         // Let's not do that if the next token is `end` as we can expect that it is not part of the current expression
         if (builder.getTokenText == "end") {

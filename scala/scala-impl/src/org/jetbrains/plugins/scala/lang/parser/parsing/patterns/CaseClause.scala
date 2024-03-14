@@ -75,12 +75,8 @@ object CaseClauseInBracelessCaseClauses extends CaseClause {
     BlockInIndentationRegion()
   }
 
-  override protected def isCaseKeywordAcceptable(implicit builder: ScalaPsiBuilder): Boolean = {
-    // using `forall`, not `exists` because if there is no new line before case, it still can be allowed, e.g. here:
-    // 1 match
-    //   case 1 => 11 case 2 => 22
-    !builder.isOutdentForCaseKeywordInCaseClause
-  }
+  override protected def isCaseKeywordAcceptable(implicit builder: ScalaPsiBuilder): Boolean =
+    !builder.isOutdentHere
 }
 
 /**

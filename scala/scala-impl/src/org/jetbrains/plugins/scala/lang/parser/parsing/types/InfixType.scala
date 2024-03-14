@@ -158,7 +158,7 @@ trait InfixType {
         parseInfixWildcardType() || parseTypeVariable() || componentType(star, isPattern)
 
       override protected def shouldContinue(implicit builder: ScalaPsiBuilder): Boolean =
-        (!isPattern || typeVariables || builder.getTokenText != "|") && super.shouldContinue
+        (!isPattern || typeVariables || builder.getTokenTextIgnoringOutdent != "|") && super.shouldContinue
 
     private def parseTypeVariable(): Boolean = if (isPattern && typeVariables && builder.getTokenType == ScalaTokenTypes.tIDENTIFIER) {
         val firstChar = builder.getTokenText.charAt(0)

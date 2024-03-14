@@ -4,7 +4,8 @@ import com.intellij.lang.PsiBuilder
 import com.intellij.lang.impl.PsiBuilderAdapter
 import com.intellij.openapi.util.text.StringUtil.isWhiteSpace
 import com.intellij.psi.impl.source.resolve.FileContextUtil.CONTAINING_FILE_KEY
-import org.jetbrains.plugins.scala.lang.parser.IndentationWidth
+import com.intellij.psi.tree.IElementType
+import org.jetbrains.plugins.scala.lang.parser.{OUTDENT, IndentationWidth}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilderImpl.IndentationRegionHolder
 import org.jetbrains.plugins.scala.project.ProjectPsiFileExt.enableFeaturesCheckInTests
 import org.jetbrains.plugins.scala.project._
@@ -218,12 +219,35 @@ class ScalaPsiBuilderImpl(
 
   override def advanceLexer(): Unit = {
     super.advanceLexer()
-    if (isScala3) {
+    if (isScala3IndentationBasedSyntaxEnabled) {
       findPrecedingIndentation.foreach { indent =>
         indentationRegionStack.head.addIntent(indent, getCurrentOffset)
       }
     }
   }
+
+  private var outdentIgnoredAt: Int = -1
+
+  override def getTokenType: IElementType = {
+    if (isScala3IndentationBasedSyntaxEnabled && outdentIgnoredAt != getCurrentOffset && this.isOutdentHere)
+      OUTDENT
+    else
+      super.getTokenType
+  }
+
+  override def getTokenText: String = {
+    if (isScala3IndentationBasedSyntaxEnabled && outdentIgnoredAt != getCurrentOffset && this.isOutdentHere)
+      ""
+    else
+      super.getTokenText
+  }
+
+  override def getTokenTypeIgnoringOutdent: IElementType =
+    super.getTokenType
+
+  def getTokenTextIgnoringOutdent: String = super.getTokenText
+
+  def ignoreOutdent(): Unit = outdentIgnoredAt = getCurrentOffset
 }
 
 object ScalaPsiBuilderImpl {

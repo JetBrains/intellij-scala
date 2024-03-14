@@ -35,7 +35,7 @@ abstract class PrecedenceClimbingInfixParsingRule extends ParsingRule {
       return false
     }
     var exitOf = true
-    while (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && shouldContinue && exitOf) {
+    while (builder.getTokenTypeIgnoringOutdent == ScalaTokenTypes.tIDENTIFIER && shouldContinue && exitOf) {
       //need to know associativity
       val s = builder.getTokenText
 
@@ -135,7 +135,7 @@ abstract class PrecedenceClimbingInfixParsingRule extends ParsingRule {
         // - is not following a blank line, and
         // - is followed by at least one whitespace character and a token that can start an expression.
         // - Furthermore, if the operator appears on its own line, the next line must have at least the same indentation width as the operator.
-        val opText = builder.getTokenText
+        val opText = builder.getTokenTextIgnoringOutdent
         builder.rawLookup(1) == ScalaTokenTypes.tWHITE_SPACE_IN_LINE &&
           isSymbolicIdentifier(opText) && {
             val region = builder.currentIndentationRegion

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing
 
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.parser.{OUTDENT, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.QualId
 import org.jetbrains.plugins.scala.lang.parser.util.InScala3
@@ -19,7 +19,7 @@ object CompilationUnit {
 
   def apply()(implicit builder: ScalaPsiBuilder): Unit = {
     def parsePackagingBody(): Unit = {
-      while (builder.getTokenType != null) {
+      while (builder.getTokenType != null && builder.getTokenType != OUTDENT) {
         TopStatSeq.parse(waitBrace = false)
       }
     }

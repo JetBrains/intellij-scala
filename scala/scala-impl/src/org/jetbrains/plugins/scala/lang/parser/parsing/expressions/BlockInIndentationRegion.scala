@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
+import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, OUTDENT, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
@@ -15,8 +15,7 @@ object BlockInIndentationRegion extends ParsingRule {
     @tailrec
     def parseNext(needSeparator: Boolean): Unit = {
       builder.getTokenType match {
-        case ScalaTokenTypes.kCASE | ScalaTokenTypes.tRPARENTHESIS | ScalaTokenTypes.tRBRACE | ScalaTokenTypes.tCOMMA =>
-        case _ if builder.isOutdentHere =>
+        case ScalaTokenTypes.kCASE | ScalaTokenTypes.tRPARENTHESIS | ScalaTokenTypes.tRBRACE | ScalaTokenTypes.tCOMMA | OUTDENT | null =>
         case ScalaTokenTypes.tSEMICOLON =>
           builder.advanceLexer()
           parseNext(needSeparator = false)

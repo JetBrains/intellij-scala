@@ -138,6 +138,8 @@ object IndentationRegion {
      */
     final case class Concrete(indentation: IndentationWidth) extends Braced {
       override def isIndent(indent: IndentationWidth): Boolean = indent > indentation
+
+      override def toString: String = s"Braced.Concrete($indentation)"
     }
 
     /**
@@ -168,6 +170,8 @@ object IndentationRegion {
     final class Lazy(private var regionStartRawTokenIndex: Int, builder: ScalaPsiBuilder) extends Braced {
 
       private var foundIndentation: Option[IndentationWidth] = None
+
+      override def toString: String = s"Braced.Lazy($regionStartRawTokenIndex)"
 
       override def isIndent(indent: IndentationWidth): Boolean = {
         findIndentationUntilHere() match {

@@ -113,6 +113,9 @@ object Block {
           builder.isScala3 &&
           builder.isScala3IndentationBasedSyntaxEnabled &&
             builder.isOutdentHere
+
+        builder.ignoreOutdent()
+
         if (isOutdent) {
           continue = false
         } else if (ResultExpr(stopOnOutdent)) {

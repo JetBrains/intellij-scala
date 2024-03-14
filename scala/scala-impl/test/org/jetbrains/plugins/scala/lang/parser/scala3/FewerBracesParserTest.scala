@@ -1904,4 +1904,167 @@ class FewerBracesParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  // SCL-18846
+  def test_outdent_before_within_definition_start(): Unit = checkTree(
+    """
+      |class A:
+      |  @nowarn
+      |
+      |class B:
+      |  @nowarn
+      |  final*/
+      |
+      |final class C:
+      |  @nowarn
+      |  override
+      |
+      |def funD =
+      |  @a
+      |  @b
+      |
+      |case class E
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScClass: A
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(class)('class')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('A')
+      |    PrimaryConstructor
+      |      AnnotationsList
+      |        <empty list>
+      |      Modifiers
+      |        <empty list>
+      |      Parameters
+      |        <empty list>
+      |    ExtendsBlock
+      |      ScTemplateBody
+      |        PsiElement(:)(':')
+      |        PsiErrorElement:Definition or declaration expected
+      |          <empty list>
+      |        PsiWhiteSpace('\n  ')
+      |        PsiElement(@)('@')
+      |        ReferenceExpression: nowarn
+      |          PsiElement(identifier)('nowarn')
+      |  PsiWhiteSpace('\n\n')
+      |  ScClass: B
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(class)('class')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('B')
+      |    PrimaryConstructor
+      |      AnnotationsList
+      |        <empty list>
+      |      Modifiers
+      |        <empty list>
+      |      Parameters
+      |        <empty list>
+      |    ExtendsBlock
+      |      ScTemplateBody
+      |        PsiElement(:)(':')
+      |        PsiWhiteSpace('\n  ')
+      |        Annotation
+      |          PsiElement(@)('@')
+      |          AnnotationExpression
+      |            ConstructorInvocation
+      |              SimpleType: nowarn
+      |                CodeReferenceElement: nowarn
+      |                  PsiElement(identifier)('nowarn')
+      |        PsiErrorElement:Missing statement for annotation
+      |          <empty list>
+      |        PsiWhiteSpace('\n  ')
+      |        PsiElement(final)('final')
+      |        ReferenceExpression: */
+      |          PsiElement(identifier)('*/')
+      |  PsiWhiteSpace('\n\n')
+      |  ScClass: C
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      PsiElement(final)('final')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(class)('class')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('C')
+      |    PrimaryConstructor
+      |      AnnotationsList
+      |        <empty list>
+      |      Modifiers
+      |        <empty list>
+      |      Parameters
+      |        <empty list>
+      |    ExtendsBlock
+      |      ScTemplateBody
+      |        PsiElement(:)(':')
+      |        PsiWhiteSpace('\n  ')
+      |        Annotation
+      |          PsiElement(@)('@')
+      |          AnnotationExpression
+      |            ConstructorInvocation
+      |              SimpleType: nowarn
+      |                CodeReferenceElement: nowarn
+      |                  PsiElement(identifier)('nowarn')
+      |        PsiErrorElement:Missing statement for annotation
+      |          <empty list>
+      |        PsiWhiteSpace('\n  ')
+      |        PsiElement(override)('override')
+      |  PsiWhiteSpace('\n\n')
+      |  ScFunctionDefinition: funD
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('funD')
+      |    Parameters
+      |      <empty list>
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    BlockExpression
+      |      PsiWhiteSpace('\n  ')
+      |      Annotation
+      |        PsiElement(@)('@')
+      |        AnnotationExpression
+      |          ConstructorInvocation
+      |            SimpleType: a
+      |              CodeReferenceElement: a
+      |                PsiElement(identifier)('a')
+      |      PsiErrorElement:Missing statement for annotation
+      |        <empty list>
+      |      PsiWhiteSpace('\n  ')
+      |      PsiElement(@)('@')
+      |      ReferenceExpression: b
+      |        PsiElement(identifier)('b')
+      |  PsiWhiteSpace('\n\n')
+      |  ScClass: E
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      PsiElement(case)('case')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(class)('class')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('E')
+      |    PrimaryConstructor
+      |      AnnotationsList
+      |        <empty list>
+      |      Modifiers
+      |        <empty list>
+      |      Parameters
+      |        <empty list>
+      |    ExtendsBlock
+      |      <empty list>
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }
