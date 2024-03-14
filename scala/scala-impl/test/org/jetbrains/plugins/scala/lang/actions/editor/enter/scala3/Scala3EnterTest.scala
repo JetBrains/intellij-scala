@@ -701,6 +701,48 @@ class Scala3EnterTest extends DoEditorStateTestOps with Scala2AndScala3EnterActi
     )
   }
 
+  // SCL-22247
+  def testEnterBeforeBlockExpr(): Unit = doEnterTest(
+    s"""val x = println {$CARET
+       |  y => y
+       |}""".stripMargin,
+    s"""val x = println {
+       |  $CARET
+       |  y => y
+       |}""".stripMargin,
+  )
+
+  def testEnterBeforeBlockExpr3(): Unit = doEnterTest(
+    s"""println:$CARET
+       |  y => y
+       |""".stripMargin,
+    s"""println:
+       |  $CARET
+       |  y => y
+       |""".stripMargin,
+  )
+
+  // SCL-21885
+  def testEnterAfterIndentedParams(): Unit = doEnterTest(
+    s"""println:
+       |  y =>$CARET
+       |""".stripMargin,
+    s"""println:
+       |  y =>
+       |    $CARET
+       |""".stripMargin,
+  )
+
+  def testEnterAfterIndentedParamsInBraces(): Unit = doEnterTest(
+    s"""Seq(1).map:
+       |  y =>$CARET
+       |""".stripMargin,
+    s"""Seq(1).map:
+       |  y =>
+       |    $CARET
+       |""".stripMargin,
+  )
+
   def testEnterHandlerShouldRespectIndentOptions(): Unit = {
     val settings = CodeStyle.getSettings(getProject).getCommonSettings(ScalaLanguage.INSTANCE)
     val indentOptions = settings.getIndentOptions

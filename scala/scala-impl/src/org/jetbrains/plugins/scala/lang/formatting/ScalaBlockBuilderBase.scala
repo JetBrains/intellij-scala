@@ -27,8 +27,6 @@ abstract class ScalaBlockBuilderBase(
   ): ScalaBlock = {
     val indentFinal = indent.getOrElse(ScalaIndentProcessor.getChildIndent(parentBlock, node))
     val wrapFinal = wrap.getOrElse(ScalaWrapManager.arrangeSuggestedWrapForChild(parentBlock, node, parentBlock.suggestedWrap)(scalaSettings))
-    val block = new ScalaBlock(node, lastNode, alignment, indentFinal, wrapFinal, settings, context)
-    block.parentBlock = Some(parentBlock)
-    block
+    new ScalaBlock(Some(parentBlock), node, lastNode, alignment, indentFinal, wrapFinal, settings, context)
   }
 }
