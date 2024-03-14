@@ -52,4 +52,10 @@
       </hspacer>
     </children>
   </grid>
+  <buttonGroups>
+    <group name="buttonGroup1">
+      <member id="534c1"/>
+      <member id="78691"/>
+    </group>
+  </buttonGroups>
 </form>
