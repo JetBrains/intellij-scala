@@ -5,6 +5,7 @@ import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.refactoring.suggested.{SuggestedRefactoringAvailability, SuggestedRefactoringExecution, SuggestedRefactoringStateChanges, SuggestedRefactoringSupport, SuggestedRefactoringUI}
 import com.intellij.util.ObjectUtils
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.console.ScalaLanguageConsoleUtils
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
@@ -15,8 +16,10 @@ final class ScalaSuggestedRefactoringSupport extends SuggestedRefactoringSupport
     //  // As per parent JavaDoc: if Change Signature is supported then individual parameters must not be considered as anchors
     //  // for they are part of a bigger anchor (method or function)
     //  false
-    case _: ScNamedElement => true
-    case _                 => false
+    case _: ScNamedElement =>
+      val file = element.getContainingFile
+      file != null && !ScalaLanguageConsoleUtils.isConsole(file)
+    case _ => false
   }
 
   // TODO(SCL-17973): Support Change Signature. Get range inside ScMethodLike
