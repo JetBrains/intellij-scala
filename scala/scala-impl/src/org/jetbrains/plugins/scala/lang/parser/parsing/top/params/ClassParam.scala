@@ -15,10 +15,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.ParamType
 */
 object ClassParam extends ParsingRule {
 
-  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = parse(ignoreErrors = true)
+
+  def parse(ignoreErrors: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
     val classParamMarker = builder.mark()
 
     Annotations()
+    var hasError = false
 
     //parse modifiers
     val modifierMarker = builder.mark()
@@ -55,9 +58,11 @@ object ClassParam extends ParsingRule {
         builder.advanceLexer() //Ate ':'
         if (!ParamType()) {
           builder.error(ScalaBundle.message("parameter.type.expected"))
+          hasError = true
         }
       case _ =>
         builder.error(ScalaBundle.message("colon.expected"))
+        hasError = true
     }
 
     //default param
@@ -66,11 +71,12 @@ object ClassParam extends ParsingRule {
         builder.advanceLexer() //Ate '='
         if (!Expr()) {
           builder.wrongExpressionError()
+          hasError = true
         }
       case _ =>
     }
     classParamMarker.done(ScalaElementType.CLASS_PARAM)
-    true
+    ignoreErrors || !hasError
   }
 
   private val canFollowInlineKeyword = Set(

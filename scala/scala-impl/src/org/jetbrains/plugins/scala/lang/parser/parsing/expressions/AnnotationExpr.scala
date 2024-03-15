@@ -8,11 +8,10 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 /*
  * AnnotationExpr ::= Constr [[nl] '{' {NameValuePair} '}']
  */
-object AnnotationExpr extends ParsingRule {
-
-  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
+object AnnotationExpr {
+  def apply(forConstructor: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
     val annotExprMarker = builder.mark()
-    if (Constructor.parse(isAnnotation = true)) {
+    if (Constructor.parse(isAnnotation = true, stopBeforeNonEmptyParameterClause = forConstructor)) {
       annotExprMarker.done(ScalaElementType.ANNOTATION_EXPR)
       true
     } else {
