@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotations
 object ConstrMods extends ParsingRule {
 
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
-    Annotations.parseOnTheSameLine()
+    Annotations.parseForConstructor()
 
     val modifiersMarker = builder.mark()
     if (!builder.newlineBeforeCurrentToken) {

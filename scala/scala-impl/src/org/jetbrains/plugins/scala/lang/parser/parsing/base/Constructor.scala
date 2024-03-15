@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.ArgumentExprs
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ClassParam
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.{AnnotType, SimpleType}
 
 /*
@@ -12,9 +13,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.{AnnotType, SimpleT
  */
 object Constructor extends ParsingRule {
 
-  override def parse(implicit builder: ScalaPsiBuilder): Boolean = parse(isAnnotation = false)
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = parse(isAnnotation = false, stopBeforeNonEmptyParameterClause = false)
 
-  def parse(isAnnotation: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
+  def parse(isAnnotation: Boolean, stopBeforeNonEmptyParameterClause: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
     val constrMarker = builder.mark()
     val latestDoneMarker = builder.getLatestDoneMarker
 
@@ -23,25 +24,51 @@ object Constructor extends ParsingRule {
         latestDoneMarker.getTokenType != ScalaElementType.MODIFIERS &&
         latestDoneMarker.getTokenType != ScalaElementType.TYPE_PARAM_CLAUSE)
 
-    if ((!isAnnotation && !AnnotType(isPattern = false, multipleSQBrackets = false)) ||
-      (isAnnotation && !SimpleType(isPattern = false))) {
+    val parsedType =
+      if (isAnnotation) {
+        SimpleType(isPattern = false)
+      } else {
+        AnnotType(isPattern = false, multipleSQBrackets = false)
+      }
+
+    if (!parsedType) {
       constrMarker.drop()
       return false
     }
 
-    if (builder.getTokenType == ScalaTokenTypes.tLPARENTHESIS) {
-      if (ArgumentExprs())
+    if (builder.isScala3) {
+      var first = true
 
       while (
         builder.getTokenType == ScalaTokenTypes.tLPARENTHESIS &&
-          (!isAnnotation || annotationAllowed) &&
+          (!stopBeforeNonEmptyParameterClause || !isParameter(first)) &&
           ArgumentExprs()
       ) {
-        // already parsed ArgumentExprs
+        first = false
+      }
+
+    } else {
+      if (builder.getTokenType == ScalaTokenTypes.tLPARENTHESIS) {
+        if (ArgumentExprs()) {
+          while (
+            builder.getTokenType == ScalaTokenTypes.tLPARENTHESIS &&
+              (!isAnnotation || annotationAllowed) &&
+              ArgumentExprs()
+          ) {
+            // already parsed ArgumentExprs
+          }
+        }
       }
     }
 
     constrMarker.done(ScalaElementType.CONSTRUCTOR)
     true
+  }
+
+  private def isParameter(first: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = builder.predict { builder =>
+    builder.getTokenType == ScalaTokenTypes.kIMPLICIT ||
+      builder.getTokenText == "using" ||
+      (!first && builder.getTokenType == ScalaTokenTypes.tRPARENTHESIS) ||
+      ClassParam.parse(ignoreErrors = false)(builder)
   }
 }
