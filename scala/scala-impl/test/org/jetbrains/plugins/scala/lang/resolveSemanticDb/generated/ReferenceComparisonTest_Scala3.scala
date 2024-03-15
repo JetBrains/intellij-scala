@@ -487,7 +487,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i2390(): Unit = doTest("i2390", false)
   def test_i2391(): Unit = doTest("i2391", true)
   def test_i2397(): Unit = doTest("i2397", true)
-  def test_i2426(): Unit = doTest("i2426", false)
+  def test_i2426(): Unit = doTest("i2426", true)
   def test_i2437a(): Unit = doTest("i2437a", true)
   def test_i2437b(): Unit = doTest("i2437b", true)
   def test_i2468(): Unit = doTest("i2468", true)
