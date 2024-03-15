@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.codeInspection.packageNameInspection
 
-import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
@@ -24,7 +23,7 @@ class ChainedPackageInspection extends LocalInspectionTool {
           firstPackaging <- file.firstPackaging
           module <- file.module
           basePackage = ScalaProjectSettings.getInstance(file.getProject).getBasePackageFor(module)
-          if !basePackage.isEmpty && firstPackaging.packageName != basePackage && (firstPackaging.packageName + ".").startsWith(basePackage + ".")
+          if basePackage.nonEmpty && firstPackaging.packageName != basePackage && (firstPackaging.packageName + ".").startsWith(basePackage + ".")
           reference <- firstPackaging.reference
           range = new TextRange(reference.getTextRange.getStartOffset, reference.getTextRange.getStartOffset + basePackage.length)
           quickFix = new UseChainedPackageQuickFix(file)
@@ -50,13 +49,8 @@ object ChainedPackageInspection {
   private class UseChainedPackageQuickFix(myFile: ScalaFile)
     extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("use.chained.package.clauses.like"), myFile) {
 
-    override protected def doApplyFix(file: ScalaFile)
-                                     (implicit project: Project): Unit = {
+    override protected def doApplyFix(file: ScalaFile)(implicit project: Project): Unit =
       file.setPackageName(file.getPackageName)
-    }
-
-    override def generatePreview(project: Project, previewDescriptor: ProblemDescriptor): IntentionPreviewInfo =
-      IntentionPreviewInfo.EMPTY //TODO: SCL-21623
 
     override def getFamilyName: String = ScalaInspectionBundle.message("use.chained.package.clauses")
   }
