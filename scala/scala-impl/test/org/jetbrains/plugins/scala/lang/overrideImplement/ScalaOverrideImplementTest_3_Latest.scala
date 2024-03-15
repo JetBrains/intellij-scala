@@ -878,7 +878,7 @@ class ScalaOverrideImplementTest_3_Latest extends ScalaOverrideImplementTestBase
          |    def myExt7(p1: Int)(using u1: Short, u2: MyTrait)(p2: Long): String
          |
          |class MyChildClass extends MyBaseClass:
-         |  extension (target: Int)(using MyContext, Long)(using mt: MyCaseClass[_], cs: CharSequence)
+         |  extension (target: Int)(using MyContext, Long)(using mt: MyCaseClass[?], cs: CharSequence)
          |    override def myExt7(p1: Int)(using u1: Short, u2: MyTrait)(p2: Long): String = ???
          |""".stripMargin
     addHelperClassesForExtensionTests()
@@ -899,7 +899,7 @@ class ScalaOverrideImplementTest_3_Latest extends ScalaOverrideImplementTestBase
          |    def myExt8(using u1: Short, u2: MyTrait)(p1: Int)(p2: Long): String
          |
          |class MyChildClass extends MyBaseClass:
-         |  extension (using MyContext)(using Long)(target: Int)(using mt: MyCaseClass[_], cs: CharSequence)
+         |  extension (using MyContext)(using Long)(target: Int)(using mt: MyCaseClass[?], cs: CharSequence)
          |    override def myExt8(using u1: Short, u2: MyTrait)(p1: Int)(p2: Long): String = ???
          |""".stripMargin
     addHelperClassesForExtensionTests()
@@ -954,7 +954,7 @@ class ScalaOverrideImplementTest_3_Latest extends ScalaOverrideImplementTestBase
          |    def myExtComplex[E <: TypeParamInBaseClass, E2 <: MyTrait](a: TypeParamInBaseClass)(using b: TypeParamInBaseClass, e: E)(t: T): String
          |
          |class MyChildClass extends MyBaseClass[MyClass]:
-         |  extension [T <: MyClass, T2 <: MyTrait](using MyClass, Long)(target: MyClass)(using mt: MyCaseClass[_], cs: CharSequence)
+         |  extension [T <: MyClass, T2 <: MyTrait](using MyClass, Long)(target: MyClass)(using mt: MyCaseClass[?], cs: CharSequence)
          |    override def myExtComplex[E <: MyClass, E2 <: MyTrait](a: MyClass)(using b: MyClass, e: E)(t: T): String = ???
          |""".stripMargin
     addHelperClassesForExtensionTests()
@@ -975,7 +975,7 @@ class ScalaOverrideImplementTest_3_Latest extends ScalaOverrideImplementTestBase
          |    def myExtComplex[E <: TypeParamInBaseClass, E2 <: MyTrait](a: TypeParamInBaseClass)(using b: TypeParamInBaseClass, e: E)(t: T): String = ???
          |
          |class MyChildClass extends MyBaseClass[MyClass]:
-         |  extension [T <: MyClass, T2 <: MyTrait](using MyClass, Long)(target: MyClass)(using mt: MyCaseClass[_], cs: CharSequence)
+         |  extension [T <: MyClass, T2 <: MyTrait](using MyClass, Long)(target: MyClass)(using mt: MyCaseClass[?], cs: CharSequence)
          |    override def myExtComplex[E <: MyClass, E2 <: MyTrait](a: MyClass)(using b: MyClass, e: E)(t: T): String = super.myExtComplex(target)(a)(t)
          |""".stripMargin
     addHelperClassesForExtensionTests()

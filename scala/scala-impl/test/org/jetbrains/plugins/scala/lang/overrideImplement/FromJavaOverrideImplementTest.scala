@@ -1,23 +1,14 @@
 package org.jetbrains.plugins.scala
 package lang.overrideImplement
 
-import com.intellij.testFramework.builders.JavaModuleFixtureBuilder
-import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 import org.junit.Assert.assertEquals
 
-class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
-  protected override def tuneFixture(moduleBuilder: JavaModuleFixtureBuilder[_]): Unit = {
-    moduleBuilder.setMockJdkLevel(JavaModuleFixtureBuilder.MockJdkLevel.jdk15)
-    // TODO: the path returned from IdeaTestUtil.getMockJdk14Path is invalid in the scala plugin
-    //       because the mock-jdk14 does only exists in the intellij-community source
-    //       we either have to copy the mock directory into our repo as well or just not add it at all
-    //moduleBuilder.addJdk(IdeaTestUtil.getMockJdk14Path.getPath)
-  }
-  
+final class FromJavaOverrideImplementTest extends ScalaLightCodeInsightFixtureTestCase {
   def runTest(methodName: String, javaText: String, scalaText: String, expectedText: String, isImplement: Boolean,
               defaultSettings: ScalaCodeStyleSettings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProject))): Unit = {
     myFixture.addFileToProject("JavaDummy.java", javaText.stripMargin.trim)
@@ -52,6 +43,28 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
         |}
       """.stripMargin
     runTest("foo", javaText, scalaText, expectedText, isImplement = false)
+  }
+
+  def testObjectTypeImplement(): Unit = {
+    val javaText =
+      """
+        |public abstract class JavaDummy {
+        |    public abstract Object foo();
+        |}
+      """.stripMargin
+    val scalaText =
+      """
+        |class Child extends JavaDummy {
+        |  <caret>
+        |}
+      """.stripMargin
+    val expectedText =
+      """
+        |class Child extends JavaDummy {
+        |  override def foo(): AnyRef = ???
+        |}
+      """.stripMargin
+    runTest("foo", javaText, scalaText, expectedText, isImplement = true)
   }
 
   def testVarargImplement(): Unit = {
@@ -117,7 +130,7 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
         |  override def `def`(`val`: Int) = super.`def`(`val`)
         |}
       """.stripMargin
-    
+
     val settings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProject))
     runTest("def", javaText, scalaText, expectedText, isImplement = false, defaultSettings = TypeAnnotationSettings.noTypeAnnotationForPublic(settings))
   }
@@ -359,21 +372,21 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
 
   def testSCL14206(): Unit = {
     val java = "public interface Solution { long find(int a[], int n); }"
-    
+
     val scala =
       """
         |class Impl extends Solution {
         |  <caret>
         |}
       """.stripMargin
-    
+
     val expected =
       """
         |class Impl extends Solution {
         |  override def find(a: Array[Int], n: Int): Long = ???
         |}
       """.stripMargin
-    
+
     runTest("find", java, scala, expected, isImplement = true)
   }
 

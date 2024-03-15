@@ -261,7 +261,7 @@ object ScalaGenerationInfo {
 
     val newExtension = createOverrideImplementExtensionMethods(
       extensionMethodConstructionInfos,
-      ScalaFeatures.forPsiOrDefault(td),
+      td,
       wrapMultipleExtensionsWithBraces = !td.containingFile.exists(_.useIndentationBasedSyntax),
       withComment = ScalaApplicationSettings.getInstance().COPY_SCALADOC,
     )(extension.getManager)
@@ -282,7 +282,7 @@ object ScalaGenerationInfo {
   private def createVariable(
     comment: String,
     classMember: ClassMember,
-    anchor: PsiElement,
+    targetClass: PsiClass,
     needsOverrideModifier: Boolean
   ): ScMember = {
     val isVal = classMember.is[ScValueMember]
@@ -299,7 +299,7 @@ object ScalaGenerationInfo {
       case _ => ???
     }
 
-    val m = createOverrideImplementVariable(value, substitutor, needsOverrideModifier, isVal, anchor, comment)(value.getManager)
+    val m = createOverrideImplementVariable(value, substitutor, needsOverrideModifier, isVal, targetClass, comment)(value.getManager)
     TypeAnnotationUtil.removeTypeAnnotationIfNeeded(m, typeAnnotationsPolicy)
     m
   }

@@ -1419,4 +1419,186 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
          |}""".stripMargin
     )
   }
+
+  def testImplementMemberWithThisType(): Unit = runImplementAllTest(
+    fileText =
+      s"""
+         |package foo {
+         |  private[foo] trait Tr {
+         |    trait InnerTrait
+         |  }
+         |
+         |  class C extends Tr
+         |  object O extends Tr
+         |}
+         |
+         |package bar {
+         |  import foo.O.InnerTrait
+         |
+         |  trait MyTrait {
+         |    def baz: List[InnerTrait]
+         |  }
+         |
+         |  object MyTraitImpl extends MyTrait$CARET
+         |}
+         |""".stripMargin,
+    expectedText =
+      """
+        |package foo {
+        |  private[foo] trait Tr {
+        |    trait InnerTrait
+        |  }
+        |
+        |  class C extends Tr
+        |  object O extends Tr
+        |}
+        |
+        |package bar {
+        |  import foo.O.InnerTrait
+        |
+        |  trait MyTrait {
+        |    def baz: List[InnerTrait]
+        |  }
+        |
+        |  object MyTraitImpl extends MyTrait {
+        |    override def baz: List[InnerTrait] = ???
+        |  }
+        |}
+        |""".stripMargin
+  )
+
+  def testImplementMemberWithThisTypePackageObject(): Unit = runImplementAllTest(
+    fileText =
+      s"""
+         |package foo {
+         |  private[foo] trait Tr {
+         |    trait InnerTrait
+         |  }
+         |}
+         |
+         |package object foo extends Tr
+         |
+         |package bar {
+         |  import foo.InnerTrait
+         |
+         |  trait MyTrait {
+         |    def baz: List[InnerTrait]
+         |  }
+         |
+         |  object MyTraitImpl extends MyTrait$CARET
+         |}
+         |""".stripMargin,
+    expectedText =
+      """
+        |package foo {
+        |  private[foo] trait Tr {
+        |    trait InnerTrait
+        |  }
+        |}
+        |
+        |package object foo extends Tr
+        |
+        |package bar {
+        |  import foo.InnerTrait
+        |
+        |  trait MyTrait {
+        |    def baz: List[InnerTrait]
+        |  }
+        |
+        |  object MyTraitImpl extends MyTrait {
+        |    override def baz: List[InnerTrait] = ???
+        |  }
+        |}
+        |""".stripMargin
+  )
+
+  def testImplementMemberWithThisType_ParamType(): Unit = runImplementAllTest(
+    fileText =
+      s"""
+         |package foo {
+         |  private[foo] trait Tr {
+         |    trait InnerTrait
+         |  }
+         |}
+         |
+         |package object foo extends Tr
+         |
+         |package bar {
+         |  import foo.InnerTrait
+         |
+         |  trait MyTrait {
+         |    def baz(it: InnerTrait): Unit
+         |  }
+         |
+         |  object MyTraitImpl extends MyTrait$CARET
+         |}
+         |""".stripMargin,
+    expectedText =
+      """
+        |package foo {
+        |  private[foo] trait Tr {
+        |    trait InnerTrait
+        |  }
+        |}
+        |
+        |package object foo extends Tr
+        |
+        |package bar {
+        |  import foo.InnerTrait
+        |
+        |  trait MyTrait {
+        |    def baz(it: InnerTrait): Unit
+        |  }
+        |
+        |  object MyTraitImpl extends MyTrait {
+        |    override def baz(it: InnerTrait): Unit = ???
+        |  }
+        |}
+        |""".stripMargin
+  )
+
+  def testImplementMemberWithThisType_VariableType(): Unit = runImplementAllTest(
+    fileText =
+      s"""
+         |package foo {
+         |  private[foo] trait Tr {
+         |    trait InnerTrait
+         |  }
+         |}
+         |
+         |package object foo extends Tr
+         |
+         |package bar {
+         |  import foo.InnerTrait
+         |
+         |  trait MyTrait {
+         |    val baz: InnerTrait
+         |  }
+         |
+         |  object MyTraitImpl extends MyTrait$CARET
+         |}
+         |""".stripMargin,
+    expectedText =
+      """
+        |package foo {
+        |  private[foo] trait Tr {
+        |    trait InnerTrait
+        |  }
+        |}
+        |
+        |package object foo extends Tr
+        |
+        |package bar {
+        |  import foo.InnerTrait
+        |
+        |  trait MyTrait {
+        |    val baz: InnerTrait
+        |  }
+        |
+        |  object MyTraitImpl extends MyTrait {
+        |    override val baz: InnerTrait = ???
+        |  }
+        |}
+        |""".stripMargin
+  )
 }

@@ -43,7 +43,6 @@ object ScalaOIUtil {
         needsOverrideModifier = false,
         isVal = true,
         clazz = parameter.containingClass,
-        features = tdContext
       ).asInstanceOf[ScValue]
 
       member.context = tdContext
