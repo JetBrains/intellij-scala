@@ -4,12 +4,13 @@ import com.intellij.framework.FrameworkTypeEx
 import com.intellij.framework.addSupport.{FrameworkSupportInModuleConfigurable, FrameworkSupportInModuleProvider}
 import com.intellij.ide.util.frameworkSupport.FrameworkSupportModel
 import com.intellij.ide.util.projectWizard.ModuleBuilder
-import com.intellij.openapi.module.{Module, ModuleType, ModuleTypeId}
+import com.intellij.openapi.module.{Module, ModuleType}
 import com.intellij.openapi.roots.ui.configuration.FacetsProvider
 import com.intellij.openapi.roots.{ModifiableModelsProvider, ModifiableRootModel}
-import org.jetbrains.plugins.scala.{NlsString, ScalaLanguage}
+import com.intellij.workspaceModel.ide.legacyBridge.impl.java.JavaModuleTypeUtils.JAVA_MODULE_ENTITY_TYPE_ID_NAME
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLibraryType}
+import org.jetbrains.plugins.scala.{NlsString, ScalaLanguage}
 
 /**
  * See https://www.jetbrains.com/help/idea/adding-support-for-frameworks-and-technologies.html
@@ -29,7 +30,7 @@ final class ScalaFrameworkType extends FrameworkTypeEx(ScalaLanguage.INSTANCE.ge
 
     override def isEnabledForModuleType(moduleType: ModuleType[_ <: ModuleBuilder]): Boolean =
       moduleType.getId match {
-        case ModuleTypeId.JAVA_MODULE |
+        case JAVA_MODULE_ENTITY_TYPE_ID_NAME |
              "PLUGIN_MODULE" => true // PluginModuleType.getInstance.getId
         case _ => false
       }
