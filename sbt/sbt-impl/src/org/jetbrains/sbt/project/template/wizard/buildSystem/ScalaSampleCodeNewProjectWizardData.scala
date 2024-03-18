@@ -7,6 +7,8 @@ import org.jetbrains.annotations.{Nullable, TestOnly}
 trait ScalaSampleCodeNewProjectWizardData {
   @TestOnly
   private[project] def setAddSampleCode(value: java.lang.Boolean): Unit
+  @TestOnly
+  private[project] def setGenerateOnboardingTips(value: java.lang.Boolean): Unit
 }
 
 object ScalaSampleCodeNewProjectWizardData {
