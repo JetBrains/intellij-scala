@@ -1,6 +1,6 @@
 package org.jetbrains.sbt.project.template.wizard.buildSystem
 
-import com.intellij.ide.JavaUiBundle
+import com.intellij.ide.{JavaUiBundle, RecentProjectsManagerBase}
 import com.intellij.ide.projectWizard.NewProjectWizardCollector.BuildSystem.{INSTANCE => BSLog}
 import com.intellij.ide.wizard.AbstractNewProjectWizardStep
 import com.intellij.openapi.GitRepositoryInitializer
@@ -50,6 +50,12 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
   @TestOnly override private[project] def setAddSampleCode(value: java.lang.Boolean): Unit = addSampleCodeProperty.set(value)
   private def needToAddSampleCode: Boolean = addSampleCodeProperty.get()
 
+  private val generateOnboardingTipsProperty: GraphProperty[java.lang.Boolean] =
+    propertyGraph.property(RecentProjectsManagerBase.getInstanceEx.getRecentPaths.isEmpty)
+  BindUtil.bindBooleanStorage(generateOnboardingTipsProperty,"NewProjectWizard.generateOnboardingTips")
+  @TestOnly override private[project] def setGenerateOnboardingTips(value: java.lang.Boolean): Unit = generateOnboardingTipsProperty.set(value)
+  private def needToGenerateOnboardingTips: Boolean = needToAddSampleCode && generateOnboardingTipsProperty.get()
+
   private val gitProperty: GraphProperty[java.lang.Boolean] = propertyGraph.property(java.lang.Boolean.FALSE)
   BindUtil.bindBooleanStorage(gitProperty, "NewProjectWizard.gitState")
   @TestOnly override private[project] def setGit(value: java.lang.Boolean): Unit = gitProperty.set(value)
@@ -94,7 +100,7 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
     project.putUserData(ExternalSystemDataKeys.NEWLY_IMPORTED_PROJECT, java.lang.Boolean.TRUE)
 
     if (needToAddSampleCode) {
-      val file = addScalaSampleCode(project, s"$projectRoot/src/main/scala", isScala3 = this.selections.scalaVersion.exists(_.startsWith("3.")), this.selections.packagePrefix)
+      val file = addScalaSampleCode(project, s"$projectRoot/src/main/scala", isScala3 = this.selections.scalaVersion.exists(_.startsWith("3.")), this.selections.packagePrefix, needToGenerateOnboardingTips)
       builder.openFileEditorAfterProjectOpened = Some(file)
     }
 
@@ -137,6 +143,21 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
       })
       KUnit
     }).topGap(TopGap.SMALL)
+
+    panel.indent((p: Panel) => {
+      p.row(null: JLabel, (row: Row) => {
+        val cb = row.checkBox(UIBundle.message("label.project.wizard.new.project.generate.onboarding.tips"))
+        ButtonKt.bindSelected(cb, generateOnboardingTipsProperty: com.intellij.openapi.observable.properties.ObservableMutableProperty[java.lang.Boolean])
+        ButtonKt.whenStateChangedFromUi(cb, null, value => {
+          BSLog.logAddSampleCodeChanged(parent, value): @nowarn("cat=deprecation")
+          KUnit
+        })
+        KUnit
+      }).enabledIf(addSampleCodeProperty)
+      KUnit
+    })
+
+    generateOnboardingTipsProperty.set(false)
 
     panel.collapsibleGroup(UIBundle.message("label.project.wizard.new.project.advanced.settings"), true, (panel: Panel) => {
       if (getContext.isCreatingNewProject) {

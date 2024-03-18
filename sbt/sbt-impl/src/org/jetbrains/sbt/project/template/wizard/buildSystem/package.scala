@@ -1,11 +1,17 @@
 package org.jetbrains.sbt.project.template.wizard
 
 import com.intellij.ide.fileTemplates.FileTemplateManager
+import com.intellij.ide.starters.JavaStartersBundle.message
 import com.intellij.ide.util.projectWizard.ModuleBuilder
 import com.intellij.ide.wizard.AbstractNewProjectWizardStep
+import com.intellij.openapi.actionSystem.IdeActions
+import com.intellij.openapi.application.ApplicationNamesInfo
+import com.intellij.openapi.keymap.KeymapTextContext
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.util.SystemInfo
+import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 
@@ -34,12 +40,48 @@ package object buildSystem {
   }
 
   private[buildSystem]
-  def addScalaSampleCode(project: Project, path: String, isScala3: Boolean, packagePrefix: Option[String]): VirtualFile = {
+  def addScalaSampleCode(project: Project, path: String, isScala3: Boolean, packagePrefix: Option[String], withOnboardingTips: Boolean): VirtualFile = {
     val manager = FileTemplateManager.getInstance(project)
-    val (template, fileName) =
-      if (isScala3) (manager.getInternalTemplate("scala3-sample-code.scala"), "main.scala")
-      else (manager.getInternalTemplate("scala-sample-code.scala"), "Main.scala")
-    val sourceCode = template.getText(packagePrefix.map(prefix => Map("PACKAGE_NAME" -> prefix)).getOrElse(Map.empty).asJava)
+    val shouldRenderOnboardingTips: Boolean = Registry.is("doc.onboarding.tips.render")
+    val (template, fileName) = (isScala3, withOnboardingTips, shouldRenderOnboardingTips) match {
+      case (true, true, true)    => (manager.getInternalTemplate("scala3-sample-code-tips-rendered.scala"), "main.scala")
+      case (true, true, false)   => (manager.getInternalTemplate("scala3-sample-code-tips.scala"),          "main.scala")
+      case (true, false, _)      => (manager.getInternalTemplate("scala3-sample-code.scala"),               "main.scala")
+      case (false, true, true)   => (manager.getInternalTemplate("scala-sample-code-tips-rendered.scala"),  "Main.scala")
+      case (false, true, false)  => (manager.getInternalTemplate("scala-sample-code-tips.scala"),           "Main.scala")
+      case (false, false, _)     => (manager.getInternalTemplate("scala-sample-code.scala"),                "Main.scala")
+    }
+
+    val variables = {
+      if (withOnboardingTips && shouldRenderOnboardingTips) {
+        def shortcut(actionId: String) = s"""<shortcut actionId="$actionId"/>"""
+        def icon(allIconsId: String) = s"""<icon src="$allIconsId"/>"""
+        Map(
+          "RunComment1"           -> message("onboarding.run.comment.render.1", shortcut(IdeActions.ACTION_DEFAULT_RUNNER)),
+          "RunComment2"           -> message("onboarding.run.comment.render.2", icon("AllIcons.Actions.Execute")),
+          "ShowIntentionComment1" -> message("onboarding.show.intention.tip.comment.render.1", shortcut(IdeActions.ACTION_SHOW_INTENTION_ACTIONS)),
+          "ShowIntentionComment2" -> message("onboarding.show.intention.tip.comment.render.2", ApplicationNamesInfo.getInstance.getFullProductName),
+          "DebugComment1"         -> message("onboarding.debug.comment.render.1", shortcut(IdeActions.ACTION_DEFAULT_DEBUGGER), icon("AllIcons.Debugger.Db_set_breakpoint")),
+          "DebugComment2"         -> message("onboarding.debug.comment.render.2", shortcut(IdeActions.ACTION_TOGGLE_LINE_BREAKPOINT)),
+        )
+      } else if (withOnboardingTips) {
+        val tipsContext = new KeymapTextContext {
+          override def isSimplifiedMacShortcuts: Boolean = SystemInfo.isMac
+        }
+        Map(
+          "SearchEverywhereComment1"  -> message("onboarding.search.everywhere.tip.comment.1", "Shift"),
+           "SearchEverywhereComment2" -> message("onboarding.search.everywhere.tip.comment.2"),
+          "ShowIntentionComment1"     -> message("onboarding.show.intention.tip.comment.1", tipsContext.getShortcutText(IdeActions.ACTION_SHOW_INTENTION_ACTIONS)),
+          "ShowIntentionComment2"     -> message("onboarding.show.intention.tip.comment.2", ApplicationNamesInfo.getInstance.getFullProductName),
+          "RunComment"                -> message("onboarding.run.comment", tipsContext.getShortcutText(IdeActions.ACTION_DEFAULT_RUNNER)),
+          "DebugComment1"             -> message("onboarding.debug.comment.1", tipsContext.getShortcutText(IdeActions.ACTION_DEFAULT_DEBUGGER)),
+          "DebugComment2"             -> message("onboarding.debug.comment.2", tipsContext.getShortcutText(IdeActions.ACTION_TOGGLE_LINE_BREAKPOINT))
+        )
+      } else
+        Map.empty[String, String]
+    } ++ packagePrefix.map(prefix => Map("PACKAGE_NAME" -> prefix)).getOrElse(Map.empty)
+
+    val sourceCode = template.getText(variables.asJava)
 
     inWriteAction {
       val fileDirectory = createDirectoryIfMissing(path)
