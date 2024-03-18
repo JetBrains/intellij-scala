@@ -118,7 +118,7 @@ final class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-s
      *
      * @see [[implicitScalaLibraryIfNeeded]]
      */
-    val scalaLibraryToMarkAsSdk: Either[Unit, Option[(Library, Version)]] = {
+    val scalaLibraryToMarkAsSdk: Option[(Library, Version)] = {
       val expectedLibraryName = scalaCompilerArtifactName("library", compilerVersion.presentation)
       val moduleModel = modelsProvider.getModifiableRootModel(module)
 
@@ -144,41 +144,36 @@ final class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-s
         librariesWithSameMajorVersion.maxByOption(_._2)
       }
 
-      // TODO - this workaround should be removed when #IDEA-348826 is merged to IDEA 2024.1 (around 20.04)
-      if (libraryEntriesGroupedByScope.isEmpty) Left(())
-      else {
-        val selectedLibrary = libraryEntriesGroupedByScope.iterator
-          .flatMap { case _ -> entries =>  selectScalaLibrary(entries) }
-          .nextOption()
-        Right(selectedLibrary)
-      }
+      libraryEntriesGroupedByScope.iterator
+        .flatMap { case _ -> entries =>  selectScalaLibrary(entries) }
+        .nextOption()
     }
 
-    scalaLibraryToMarkAsSdk.foreach {
-          case Some((scalaLibrary, scalaLibraryVersion)) =>
-            val compilerClasspathFull = module.getProject.getUserData(MavenFullCompilerClasspathKey)
+    scalaLibraryToMarkAsSdk match {
+      case Some((scalaLibrary, scalaLibraryVersion)) =>
+        val compilerClasspathFull = module.getProject.getUserData(MavenFullCompilerClasspathKey)
 
-            val compilerBridgeBinaryJar =
-              ScalaSdkUtils.compilerBridgeJarName(scalaLibraryVersion.presentation).flatMap { bridgeJarName =>
-                compilerClasspathFull.find(_.getName == bridgeJarName)
-              }
+        val compilerBridgeBinaryJar =
+          ScalaSdkUtils.compilerBridgeJarName(scalaLibraryVersion.presentation).flatMap { bridgeJarName =>
+            compilerClasspathFull.find(_.getName == bridgeJarName)
+          }
 
-            val classpath = compilerClasspathFull.diff(compilerBridgeBinaryJar.toSeq)
+        val classpath = compilerClasspathFull.diff(compilerBridgeBinaryJar.toSeq)
 
-            ScalaSdkUtils.ensureScalaLibraryIsConvertedToScalaSdk(
-              modelsProvider,
-              scalaLibrary,
-              Some(scalaLibraryVersion.presentation),
-              classpath,
-              scaladocExtraClasspath = Nil, // TODO SCL-17219
-              compilerBridgeBinaryJar = compilerBridgeBinaryJar
-            )
-          case None =>
-            val msg = s"Cannot find project Scala library ${compilerVersion.presentation} for module ${module.getName}"
-            val exception = new IllegalArgumentException(msg)
-            val console = MavenProjectsManager.getInstance(module.getProject).getSyncConsole
-            console.addException(exception)
-      }
+        ScalaSdkUtils.ensureScalaLibraryIsConvertedToScalaSdk(
+          modelsProvider,
+          scalaLibrary,
+          Some(scalaLibraryVersion.presentation),
+          classpath,
+          scaladocExtraClasspath = Nil, // TODO SCL-17219
+          compilerBridgeBinaryJar = compilerBridgeBinaryJar
+        )
+      case None =>
+        val msg = s"Cannot find project Scala library ${compilerVersion.presentation} for module ${module.getName}"
+        val exception = new IllegalArgumentException(msg)
+        val console = MavenProjectsManager.getInstance(module.getProject).getSyncConsole
+        console.addException(exception)
+    }
   }
 
   // called before `process`
