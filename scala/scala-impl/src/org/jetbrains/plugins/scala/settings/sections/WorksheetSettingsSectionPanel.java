@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.settings.sections;
 
-import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
 import com.intellij.ui.EnumComboBoxModel;
@@ -8,7 +7,6 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import org.jetbrains.plugins.scala.ScalaBundle;
-import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings;
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings;
 import org.jetbrains.plugins.scala.settings.SimpleMappingListCellRenderer;
 import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector;
@@ -20,6 +18,7 @@ import java.util.ResourceBundle;
 
 import static org.jetbrains.plugins.scala.settings.ScalaProjectSettings.getInstance;
 
+@SuppressWarnings("unchecked")
 public class WorksheetSettingsSectionPanel extends SettingsSectionPanel {
     private static final int WORKSHEET_RUN_DELAY_MS_MINIMUM = 500;
     private static final int WORKSHEET_RUN_DELAY_MS_MAXIMUM = 5000;
