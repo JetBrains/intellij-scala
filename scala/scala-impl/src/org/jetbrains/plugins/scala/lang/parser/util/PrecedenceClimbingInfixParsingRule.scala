@@ -8,11 +8,14 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr1
 import org.jetbrains.plugins.scala.lang.parser.parsing.{Associativity, ParsingRule}
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.{isAssignmentOperator, isSymbolicIdentifier, operatorAssociativity, priority}
+import org.jetbrains.plugins.scala.lang.parser.util.PrecedenceClimbingInfixParsingRule.InfixStackElement
+
+import scala.annotation.tailrec
 
 abstract class PrecedenceClimbingInfixParsingRule extends ParsingRule {
-  protected def parseFirstOperator()(implicit builder: ScalaPsiBuilder): Boolean
+  protected def parseFirstOperand()(implicit builder: ScalaPsiBuilder): Boolean
 
-  protected def parseOperator()(implicit builder: ScalaPsiBuilder): Boolean
+  protected def parseOperand()(implicit builder: ScalaPsiBuilder): Boolean
 
   protected def referenceElementType: IElementType
 
@@ -24,85 +27,74 @@ abstract class PrecedenceClimbingInfixParsingRule extends ParsingRule {
 
   final override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val isInlineMatch = builder.rawLookup(-2) == ScalaTokenType.InlineKeyword
-    var markerStack = List.empty[PsiBuilder.Marker]
-    var opStack = List.empty[String]
-    val infixMarker = builder.mark()
-    var backupMarker = builder.mark()
-    var count = 0
-    if (!parseFirstOperator()) {
-      backupMarker.drop()
-      infixMarker.drop()
+    val matchStartMarker = builder.mark()
+    val beforeFirstOperandMarker = builder.mark()
+
+    if (!parseFirstOperand()) {
+      beforeFirstOperandMarker.drop()
+      matchStartMarker.drop()
       return false
     }
-    var exitOf = true
-    while (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && shouldContinue && exitOf) {
-      //need to know associativity
-      val s = builder.getTokenText
 
-      var exit = false
-      while (!exit) {
-        if (opStack.isEmpty) {
-          opStack = s :: opStack
-          val newMarker = backupMarker.precede
-          markerStack = newMarker :: markerStack
-          exit = true
-        }
-        else if (!compar(s, opStack.head, builder)) {
-          opStack = opStack.tail
-          backupMarker.drop()
-          backupMarker = markerStack.head.precede
-          markerStack.head.done(infixElementType)
-          markerStack = markerStack.tail
-        }
-        else {
-          opStack = s :: opStack
-          val newMarker = backupMarker.precede
-          markerStack = newMarker :: markerStack
-          exit = true
-        }
+    def finishOpStack(opStack: List[InfixStackElement]): Unit =
+      opStack.foreach(_.marker.done(infixElementType))
+
+    @tailrec
+    def continueWithOperatorAndOperand(beforePrevOperandMarker: PsiBuilder.Marker, opStack: List[InfixStackElement]): Unit = {
+      // we are before an operator
+      if (builder.getTokenType != ScalaTokenTypes.tIDENTIFIER || !shouldContinue) {
+        beforePrevOperandMarker.drop()
+        finishOpStack(opStack)
+        return
       }
-      val setMarker = builder.mark()
+
+      //get operator because we need to know the precedence
+      val opText = builder.getTokenText
+
+      // pop operators with higher or equal precedence or different associativity
+      var infixMarker = beforePrevOperandMarker
+      val restOpStack = opStack.dropWhile {
+        case InfixStackElement(op, marker) if !compar(opText, op, builder) =>
+          infixMarker.drop()
+          marker.done(infixElementType)
+          infixMarker = marker.precede()
+          true
+        case _ =>
+          false
+      }
+
+      // parse the operator but make sure we can rollback if the operand fails to parse
+      val beforeOpMarker = builder.mark()
       val opMarker = builder.mark()
       builder.advanceLexer() //Ate id
       opMarker.done(referenceElementType)
 
       parseAfterOperatorId(opMarker)
 
-      if (builder.twoNewlinesBeforeCurrentToken) {
-        setMarker.rollbackTo()
-        count = 0
-        backupMarker.drop()
-        exitOf = false
+      val beforeOperandMarker = builder.mark()
+
+      // try to parse the operand
+      if (builder.twoNewlinesBeforeCurrentToken || !parseOperand()) {
+        beforeOpMarker.rollbackTo()
+        infixMarker.drop()
+        finishOpStack(restOpStack)
       } else {
-        backupMarker.drop()
-        backupMarker = builder.mark()
-        if (!parseOperator()) {
-          setMarker.rollbackTo()
-          count = 0
-          exitOf = false
-        }
-        else {
-          setMarker.drop()
-          count = count + 1
-        }
+        beforeOpMarker.drop()
+        continueWithOperatorAndOperand(beforeOperandMarker, InfixStackElement(opText, infixMarker) :: restOpStack)
       }
     }
-    if (exitOf) backupMarker.drop()
-    if (count > 0) {
-      while (count > 0 && markerStack.nonEmpty) {
-        markerStack.head.done(infixElementType)
-        markerStack = markerStack.tail
-        count -= 1
-      }
-      infixMarker.drop()
-    } else if (!isInlineMatch && isMatchConsideredInfix
-      && builder.isScala3 && builder.getTokenType == ScalaTokenTypes.kMATCH && !builder.isOutdentHere) {
-      Expr1.parseMatch(infixMarker)
-    } else infixMarker.drop()
 
-    while (markerStack.nonEmpty) {
-      markerStack.head.drop()
-      markerStack = markerStack.tail
+    continueWithOperatorAndOperand(beforeFirstOperandMarker, Nil)
+
+    if (
+      !isInlineMatch &&
+        isMatchConsideredInfix &&
+        builder.isScala3 && builder.getTokenType == ScalaTokenTypes.kMATCH &&
+        !builder.isOutdentHere
+    ) {
+      Expr1.parseMatch(matchStartMarker)
+    } else {
+      matchStartMarker.drop()
     }
     true
   }
@@ -184,4 +176,8 @@ abstract class PrecedenceClimbingInfixParsingRule extends ParsingRule {
       false
     }
   }
+}
+
+private object PrecedenceClimbingInfixParsingRule {
+  case class InfixStackElement(op: String, marker: PsiBuilder.Marker)
 }

@@ -2526,4 +2526,47 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  def test_infix_expr_in_seq_arg(): Unit = checkTree(
+    """
+      |fun(a + b * c + d*)
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  MethodCall
+      |    ReferenceExpression: fun
+      |      PsiElement(identifier)('fun')
+      |    ArgumentList
+      |      PsiElement(()('(')
+      |      TypedExpression
+      |        InfixExpression
+      |          InfixExpression
+      |            ReferenceExpression: a
+      |              PsiElement(identifier)('a')
+      |            PsiWhiteSpace(' ')
+      |            ReferenceExpression: +
+      |              PsiElement(identifier)('+')
+      |            PsiWhiteSpace(' ')
+      |            InfixExpression
+      |              ReferenceExpression: b
+      |                PsiElement(identifier)('b')
+      |              PsiWhiteSpace(' ')
+      |              ReferenceExpression: *
+      |                PsiElement(identifier)('*')
+      |              PsiWhiteSpace(' ')
+      |              ReferenceExpression: c
+      |                PsiElement(identifier)('c')
+      |          PsiWhiteSpace(' ')
+      |          ReferenceExpression: +
+      |            PsiElement(identifier)('+')
+      |          PsiWhiteSpace(' ')
+      |          ReferenceExpression: d
+      |            PsiElement(identifier)('d')
+      |        SequenceArgumentType
+      |          PsiElement(identifier)('*')
+      |      PsiElement())(')')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }
