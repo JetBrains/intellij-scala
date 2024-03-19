@@ -6,13 +6,13 @@ import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression.ScalaPsiElementExt
-import org.jetbrains.plugins.scala.extensions.PsiFileExt
+import com.intellij.psi.{PsiComment, PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiFileExt}
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.completion.clauses.{ClauseCompletionParameters, ExhaustiveMatchCompletionContributor, PatternGenerationStrategy}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScFunctionExpr, ScMatch}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression.ScalaPsiElementExt
 
 /**
  * @see [[ScalaMatchPostfixTemplate]]
@@ -48,7 +48,8 @@ object ScalaExhaustiveMatchPostfixTemplate {
   private[postfix] def exhaustiveAlias = ExhaustiveMatchCompletionContributor.Exhaustive
 
   private def topMostStrategy(context: PsiElement): Option[(ScExpression, PatternGenerationStrategy)] =
-    PsiTreeUtil.getNonStrictParentOfType(context, classOf[ScExpression]) match {
+    if (context.is[PsiComment]) None
+    else PsiTreeUtil.getNonStrictParentOfType(context, classOf[ScExpression]) match {
       case null |
            _: ScBlock |
            _: ScFunctionExpr => None

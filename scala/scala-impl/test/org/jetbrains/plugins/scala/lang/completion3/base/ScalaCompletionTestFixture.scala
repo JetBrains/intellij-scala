@@ -173,7 +173,7 @@ object ScalaCompletionTestFixture {
   private def hasLookupString(lookup: LookupElement, lookupString: String): Boolean =
     lookup.getLookupString == lookupString
 
-  private[completion3] def lookupItemsDebugText(items: Iterable[LookupElement]): String =
+  private[lang] def lookupItemsDebugText(items: Iterable[LookupElement]): String =
     items.map(lookupItemDebugText).mkString("\n")
 
   //TODO: unify with hasItemText and show difference in test error message

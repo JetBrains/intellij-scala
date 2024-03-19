@@ -8,12 +8,15 @@ import com.intellij.codeInsight.template.postfix.templates.PostfixTemplate
 import com.intellij.openapi.util.Condition
 import com.intellij.testFramework.UsefulTestCase.{assertNotEmpty, assertSize}
 import com.intellij.util.containers.ContainerUtil
-import junit.framework.TestCase.{assertNotNull, assertNull}
+import junit.framework.TestCase.{assertNotNull, assertNull, fail}
 import org.jetbrains.plugins.scala.base.ScalaCompletionAutoPopupTestCase
 import org.jetbrains.plugins.scala.lang.completion.postfix.templates.{ScalaExhaustiveMatchPostfixTemplate, ScalaMatchPostfixTemplate}
+import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestFixture.lookupItemsDebugText
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
+
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 @Category(Array(classOf[CompletionTests]))
 abstract class ScalaPostfixTemplateTabCompletionTestBase extends ScalaCompletionAutoPopupTestCase {
@@ -103,6 +106,21 @@ class ScalaPostfixTemplateTabCompletionTest extends ScalaPostfixTemplateTabCompl
   def testSeq(): Unit = doTestUniqueKeyTemplate()(".Seq")
 
   def testList(): Unit = doTestUniqueKeyTemplate()(".List")
+
+  def testNothingInComment(): Unit = {
+    LiveTemplateCompletionContributor.setShowTemplatesInTests(true, myFixture.getTestRootDisposable)
+
+    configureByFile(getTestName(true))
+    doType(".")
+
+    val lookup = getLookup
+    if (lookup != null) {
+      fail(
+        s"""No lookup expected.
+           |All lookup items:
+           |${lookupItemsDebugText(lookup.getItems.asScala)}""".stripMargin)
+    }
+  }
 }
 
 @RunWith(classOf[MultipleScalaVersionsRunner])
