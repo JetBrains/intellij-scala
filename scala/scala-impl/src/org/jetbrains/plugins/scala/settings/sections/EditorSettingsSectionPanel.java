@@ -22,6 +22,7 @@ import java.util.ResourceBundle;
 
 import static org.jetbrains.plugins.scala.settings.ScalaProjectSettings.getInstance;
 
+@SuppressWarnings("unchecked")
 public class EditorSettingsSectionPanel extends SettingsSectionPanel {
     private JCheckBox showImplicitConversionsInCheckBox;
     private JCheckBox showArgumentsToByNameParametersCheckBox;

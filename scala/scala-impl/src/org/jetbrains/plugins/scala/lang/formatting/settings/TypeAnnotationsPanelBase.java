@@ -18,6 +18,7 @@ import java.awt.*;
 import java.lang.reflect.Method;
 import java.util.ResourceBundle;
 
+@SuppressWarnings("deprecation")
 public abstract class TypeAnnotationsPanelBase extends ScalaCodeStylePanelBase {
 
     public static final String TAB_TITLE = ScalaBundle.message("type.annotations.panel.title");
