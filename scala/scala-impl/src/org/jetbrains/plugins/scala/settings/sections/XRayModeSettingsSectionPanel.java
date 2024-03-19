@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.settings.sections;
 
-import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.uiDesigner.core.GridConstraints;
@@ -17,6 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
 
+@SuppressWarnings("unchecked")
 public class XRayModeSettingsSectionPanel extends SettingsSectionPanel {
     private JCheckBox myShowMethodChainHintsCheckbox;
     private JCheckBox myShowIndentGuidesCheckbox;
