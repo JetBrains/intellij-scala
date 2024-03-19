@@ -157,6 +157,7 @@ final class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-s
     scalaLibraryToMarkAsSdk.foreach {
           case Some((scalaLibrary, scalaLibraryVersion)) =>
             val compilerClasspathFull = module.getProject.getUserData(MavenFullCompilerClasspathKey)
+            if (compilerClasspathFull == null) return
 
             val compilerBridgeBinaryJar =
               ScalaSdkUtils.compilerBridgeJarName(scalaLibraryVersion.presentation).flatMap { bridgeJarName =>
