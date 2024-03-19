@@ -2,7 +2,9 @@
 
 #end
 #parse("File Header.java")
+
 @main
 def main(): Unit = {
   println("Hello world!")
 }
+
