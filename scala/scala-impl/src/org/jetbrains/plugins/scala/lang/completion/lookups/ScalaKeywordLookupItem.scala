@@ -9,8 +9,11 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.codeStyle.{CodeStyleManager, CommonCodeStyleSettings}
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import com.intellij.util.ui.EmptyIcon
-import org.jetbrains.plugins.scala.extensions.{BooleanExt, PsiFileExt}
+import org.jetbrains.plugins.scala.editor.DocumentExt
+import org.jetbrains.plugins.scala.extensions.{BooleanExt, ObjectExt, PsiFileExt}
 import org.jetbrains.plugins.scala.lang.completion.InsertionContextExt
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression.ScalaPsiElementExt
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 
 object ScalaKeywordLookupItem {
@@ -81,10 +84,23 @@ object ScalaKeywordLookupItem {
           case MATCH | CATCH =>
             val caretOffset = caretModel.getOffset
 
-            val useIndentationBasedSyntax = file.useIndentationBasedSyntax
-            val text = if (useIndentationBasedSyntax) s"\n$CASE" else s"{\n$CASE\n}"
+            val text = s"{\n$CASE\n}"
             document.insertString(caretOffset, text)
             adjustLineIndent(TextRange.from(caretOffset, text.length))
+
+            val useIndentationBasedSyntax = file.useIndentationBasedSyntax
+            if (useIndentationBasedSyntax) {
+              document.commit(project)
+              /** the first char of [[text]] is `{` so the element at [[caretOffset]] will be brace leaf element */
+              val lBrace = file.findElementAt(caretOffset)
+
+              Option(lBrace) // just in case to avoid NPE
+                .flatMap(_.getContext.asOptionOf[ScalaPsiElement])
+                .foreach { element =>
+                  element.toIndentationBasedSyntax
+                  PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(document)
+                }
+            }
 
             val endOffset = document.getLineEndOffset(document.getLineNumber(caretOffset) + (!useIndentationBasedSyntax).toInt)
             document.insertString(endOffset, " ")
