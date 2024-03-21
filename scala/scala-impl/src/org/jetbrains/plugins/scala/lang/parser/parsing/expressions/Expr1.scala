@@ -1,15 +1,15 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
 
 import com.intellij.lang.PsiBuilder
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.End
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.params.TypeParamClause
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.CaseClauses
 import org.jetbrains.plugins.scala.lang.parser.util.{InScala3, ParserUtils}
 import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
+
+import scala.annotation.tailrec
 
 /*
  * Expr1 ::= ['inline'] 'if' '(' Expr ')' {nl} Expr [[semi] else Expr]
@@ -270,7 +270,7 @@ object Expr1 extends ParsingRule {
                 return true
               }
 
-              if (PostfixExpr() && builder.getTokenType == ScalaTokenTypes.kMATCH) {
+              if (PostfixExpr() && builder.getTokenType == ScalaTokenTypes.kMATCH && !builder.isOutdentHere) {
                 inlineRollbackMarker.drop()
                 parseMatch(exprMarker)
                 return true
@@ -306,7 +306,7 @@ object Expr1 extends ParsingRule {
             seqMarker.done(ScalaElementType.SEQUENCE_ARG)
             exprMarker.done(ScalaElementType.TYPED_EXPR_STMT)
             return true
-          case ScalaTokenTypes.kMATCH =>
+          case ScalaTokenTypes.kMATCH if !builder.isOutdentHere =>
             parseMatch(exprMarker)
             return true
           case _ =>
@@ -419,6 +419,7 @@ object Expr1 extends ParsingRule {
     success
   }
 
+  @tailrec
   def parseMatch(exprMarker: PsiBuilder.Marker)(implicit builder: ScalaPsiBuilder): Unit = {
     builder.advanceLexer() //Ate match
     builder.getTokenType match {
@@ -442,6 +443,11 @@ object Expr1 extends ParsingRule {
     }
 
     End()
+
     exprMarker.done(ScalaElementType.MATCH_STMT)
+
+    if (builder.getTokenType == ScalaTokenTypes.kMATCH && !builder.isOutdentHere) {
+      parseMatch(exprMarker.precede())
+    }
   }
 }

@@ -7,11 +7,12 @@ import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.impl.file.PsiPackageImpl
 import com.intellij.psi.scope.{NameHint, PsiScopeProcessor}
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.plugins.scala.caches.{cachedInUserData, ScalaShortNamesCacheManager}
+import org.jetbrains.plugins.scala.caches.{ScalaShortNamesCacheManager, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScEnd
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScPackageLike}
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticPackage, SyntheticClasses}
 import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveState}
@@ -66,6 +67,9 @@ final class ScPackageImpl private (val pack: PsiPackage)
     } else
       true
   }
+
+  override def findPackage(qName: String): PsiPackageImpl =
+    ScPackageImpl.findPackage(getProject, qName).map(ScPackageImpl(_)).orNull
 
   override def findPackageObject(scope: GlobalSearchScope): Option[ScObject] = cachedInUserData(
     "findPackageObject",
@@ -129,6 +133,13 @@ object ScPackageImpl {
     manager
       .getCachedPackage(packageName)
       .map(apply)
+
+  def getAllEndMarkers(psiPackage: PsiPackage): Seq[ScEnd] = {
+    ScPackageImpl(psiPackage).pack
+      .asOptionOf[ScSyntheticPackage]
+      .map(_.endMarkers)
+      .getOrElse(Seq.empty)
+  }
 
   /**
    * Process synthetic classes for scala._ package

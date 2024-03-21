@@ -62,8 +62,6 @@ class ScalaCompilerTestdataHighlightingFailingTests_2_12 extends ScalaCompilerTe
 
   def test_t5729(): Unit = doTest()
 
-  def test_t5953(): Unit = doTest()
-
   def test_t5958(): Unit = doTest()
 
   def test_t6205(): Unit = doTest()

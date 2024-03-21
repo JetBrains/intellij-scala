@@ -14,6 +14,8 @@ final class IndentationWidth(private val width: String) extends Ordered[Indentat
     case other: IndentationWidth => other.widthNum == widthNum
     case _ => false
   }
+
+  override def hashCode(): Int = widthNum.hashCode * 31
 }
 
 object IndentationWidth {

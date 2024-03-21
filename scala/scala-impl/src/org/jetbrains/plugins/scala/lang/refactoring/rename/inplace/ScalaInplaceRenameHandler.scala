@@ -91,8 +91,8 @@ trait ScalaInplaceRenameHandler {
       showSubstitutePopup(title, positive, ScalaRenameUtil.findSubstituteElement(elementToRename))
     }
 
-    val selected = getElementAtCaret(editor)
-      .nonStrictParentOfType(Seq(classOf[ScReference], classOf[ScNamedElement]))
+    val selected = Option(getElementAtCaret(editor))
+      .flatMap(_.nonStrictParentOfType(Seq(classOf[ScReference], classOf[ScNamedElement])))
     val nameId = selected.collect {
       case ref: ScReference => ref.nameId
       case named: ScNamedElement => named.nameId

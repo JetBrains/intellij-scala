@@ -46,7 +46,9 @@ class ScalaMemberInplaceRenamer(elementToRename: PsiNamedElement,
 
   override def collectRefs(referencesSearchScope: SearchScope): util.Collection[PsiReference] =
     ScalaRenameUtil.filterAliasedReferences {
-      super.collectRefs(referencesSearchScope)
+      val references = super.collectRefs(referencesSearchScope)
+      ScalaRenameUtil.addEndMarkerReference(getVariable(), references)
+      references
     }
 
   override def restoreCaretOffset(offset: Int): Int = {

@@ -17,6 +17,7 @@ import java.util.ResourceBundle;
 
 import static org.jetbrains.plugins.scala.settings.ScalaProjectSettings.getInstance;
 
+@SuppressWarnings("unchecked")
 public class PerformanceSettingsSectionPanel extends SettingsSectionPanel {
     private JSpinner implicitParametersSearchDepthSpinner;
     private JCheckBox treatDocCommentAsBlockComment;

@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base
 
-import com.intellij.psi.{PsiElement, PsiNamedElement}
+import com.intellij.psi.{PsiElement, PsiNamedElement, PsiReference}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScBegin, ScalaPsiElement}
 
-trait ScEnd extends ScalaPsiElement with PsiNamedElement {
+trait ScEnd extends ScalaPsiElement with PsiNamedElement with PsiReference {
   /** @return the ScBegin element to which this ScEnd element belongs */
   def begin: Option[ScBegin]
 

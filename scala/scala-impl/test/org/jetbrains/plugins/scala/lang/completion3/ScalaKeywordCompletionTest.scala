@@ -676,6 +676,32 @@ class ScalaKeywordCompletionTest_3_Latest extends ScalaCompletionTestBase {
     item = "match"
   )
 
+  def testMatchInBracelessBlock(): Unit = doCompletionTest(
+    fileText =
+      s"""object O:
+         |  42 m$CARET
+         |""".stripMargin,
+    resultText =
+      s"""object O:
+         |  42 match
+         |    case $CARET
+         |""".stripMargin,
+    item = "match"
+  )
+
+  def testMatchInBracedBlock(): Unit = doCompletionTest(
+    fileText =
+      s"""object O {
+         |  42 m$CARET
+         |}""".stripMargin,
+    resultText =
+      s"""object O {
+         |  42 match
+         |    case $CARET
+         |}""".stripMargin,
+    item = "match"
+  )
+
   def testInfixMatch(): Unit = doCompletionTest(
     fileText =
       s"42 m$CARET ",
@@ -691,6 +717,32 @@ class ScalaKeywordCompletionTest_3_Latest extends ScalaCompletionTestBase {
     resultText =
       s"""try 42 catch
          |  case $CARET""".stripMargin,
+    item = "catch"
+  )
+
+  def testCatchInBracelessBlock(): Unit = doCompletionTest(
+    fileText =
+      s"""object O:
+         |  try 42 c$CARET
+         |""".stripMargin,
+    resultText =
+      s"""object O:
+         |  try 42 catch
+         |    case $CARET
+         |""".stripMargin,
+    item = "catch"
+  )
+
+  def testCatchInBracedBlock(): Unit = doCompletionTest(
+    fileText =
+      s"""object O {
+         |  try 42 c$CARET
+         |}""".stripMargin,
+    resultText =
+      s"""object O {
+         |  try 42 catch
+         |    case $CARET
+         |}""".stripMargin,
     item = "catch"
   )
 

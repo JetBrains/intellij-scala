@@ -654,4 +654,69 @@ class MatchParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  def test_match_chain(): Unit = checkTree(
+    """
+      |5 match
+      |  case x => x
+      |match
+      |case x => x
+      | match
+      | case x => x
+      |""".stripMargin,
+    """ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  MatchStatement
+      |    MatchStatement
+      |      IntegerLiteral
+      |        PsiElement(integer)('5')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(match)('match')
+      |      PsiWhiteSpace('\n  ')
+      |      CaseClauses
+      |        CaseClause
+      |          PsiElement(case)('case')
+      |          PsiWhiteSpace(' ')
+      |          ReferencePattern: x
+      |            PsiElement(identifier)('x')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(=>)('=>')
+      |          PsiWhiteSpace(' ')
+      |          BlockOfExpressions
+      |            ReferenceExpression: x
+      |              PsiElement(identifier)('x')
+      |    PsiWhiteSpace('\n')
+      |    PsiElement(match)('match')
+      |    PsiWhiteSpace('\n')
+      |    CaseClauses
+      |      CaseClause
+      |        PsiElement(case)('case')
+      |        PsiWhiteSpace(' ')
+      |        ReferencePattern: x
+      |          PsiElement(identifier)('x')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=>)('=>')
+      |        PsiWhiteSpace(' ')
+      |        BlockOfExpressions
+      |          MatchStatement
+      |            ReferenceExpression: x
+      |              PsiElement(identifier)('x')
+      |            PsiWhiteSpace('\n ')
+      |            PsiElement(match)('match')
+      |            PsiWhiteSpace('\n ')
+      |            CaseClauses
+      |              CaseClause
+      |                PsiElement(case)('case')
+      |                PsiWhiteSpace(' ')
+      |                ReferencePattern: x
+      |                  PsiElement(identifier)('x')
+      |                PsiWhiteSpace(' ')
+      |                PsiElement(=>)('=>')
+      |                PsiWhiteSpace(' ')
+      |                BlockOfExpressions
+      |                  ReferenceExpression: x
+      |                    PsiElement(identifier)('x')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }

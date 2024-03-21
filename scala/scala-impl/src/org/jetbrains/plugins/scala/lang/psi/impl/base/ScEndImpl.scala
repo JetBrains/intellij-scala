@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScEndImpl.Name
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiElementImpl}
 
-class ScEndImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScEnd with PsiReference {
+class ScEndImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScEnd {
   override def begin: Option[ScBegin] = this.parentsInFile.findByType[ScBegin]
 
   override def keyword: PsiElement = getFirstChild
@@ -36,7 +36,7 @@ class ScEndImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScEnd with
     target
   }
 
-  override def handleElementRename(newElementName: String): PsiElement = this
+  override def handleElementRename(newElementName: String): PsiElement = setName(newElementName)
 
   override def bindToElement(element: PsiElement): PsiElement = this
 

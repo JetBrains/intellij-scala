@@ -14,5 +14,5 @@ object BSP {
 
   val ProjectSystemId = new ProjectSystemId("BSP", Name)
 
-  val NotificationGroup: NotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("BSP")
+  lazy val NotificationGroup: NotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("BSP")
 }

@@ -6,14 +6,15 @@ import com.intellij.psi.{PsiElement, PsiNamedElement, PsiReference}
 import com.intellij.refactoring.listeners.RefactoringElementListener
 import com.intellij.refactoring.rename.RenameUtil
 import com.intellij.usageView.UsageInfo
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.ScalaLanguage
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, Parent, PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.{ScBegin, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference, ScalaConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
@@ -56,13 +57,27 @@ object ScalaRenameUtil {
     case _ => false
   }
 
+  def addEndMarkerReference(@Nullable element: PsiNamedElement, references: util.Collection[PsiReference]): Unit = {
+    val end = element match {
+      case begin: ScBegin => begin.end
+      case Parent(Parent(begin: ScValueOrVariable with ScBegin)) =>
+        // ScVariableDefinition and ScValueDefinition are not ScBegin, so we need to go up two parents
+        begin.end
+      case _ => None
+    }
+    end
+      .filter(_.name == element.name)
+      .flatMap(_.asOptionOfUnsafe[PsiReference])
+      .foreach(references.add)
+  }
+
   def replaceImportClassReferences(allReferences: util.Collection[PsiReference]): util.Collection[PsiReference] = {
     val result = allReferences.asScala.map {
       case ref: ScStableCodeReference =>
         val isInImport = ref.parentOfType(classOf[ScImportStmt]).isDefined
         if (isInImport && ref.resolve() == null) {
           val multiResolve = ref.multiResolveScala(false)
-          if (multiResolve.length > 1 && multiResolve.forall(_.getElement.isInstanceOf[ScTypeDefinition])) {
+          if (multiResolve.length > 1 && multiResolve.forall(_.getElement.is[ScTypeDefinition])) {
             new PsiReference {
               override def getVariants: Array[AnyRef] = ref.getVariants
 

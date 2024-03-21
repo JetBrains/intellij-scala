@@ -21,8 +21,8 @@ private[parsing] object Annotations extends ParsingRule {
     true
   }
 
-  def parseOnTheSameLine()(implicit builder: ScalaPsiBuilder): Boolean = {
-    parseAnnotations(builder.newlineBeforeCurrentToken)
+  def parseForConstructor()(implicit builder: ScalaPsiBuilder): Boolean = {
+    parseAnnotations(builder.newlineBeforeCurrentToken, forConstructor = true)
     true
   }
 
@@ -37,12 +37,12 @@ private[parsing] object Annotations extends ParsingRule {
     marker.setCustomEdgeTokenBinders(LeftEdgeBinder, null)
   }
 
-  private def parseAnnotations(newlineBeforeCurrentToken: Boolean = false)
+  private def parseAnnotations(newlineBeforeCurrentToken: Boolean = false, forConstructor: Boolean = false)
                               (implicit builder: ScalaPsiBuilder) = {
     val marker = builder.mark()
 
     if (!newlineBeforeCurrentToken) {
-      while (Annotation()) {}
+      while (Annotation(forConstructor = forConstructor)) {}
     }
     marker.done(ScalaElementType.ANNOTATIONS)
 

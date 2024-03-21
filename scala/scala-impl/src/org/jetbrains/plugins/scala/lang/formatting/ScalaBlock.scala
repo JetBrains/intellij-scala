@@ -39,9 +39,9 @@ import scala.jdk.CollectionConverters._
  *               (see [[ChainedMethodCallsBlockBuilder]]
  */
 class ScalaBlock(
-  var parentBlock: Option[ScalaBlock],
+  val parentBlock: Option[ScalaBlock],
   val node: ASTNode,
-  val lastNode: ASTNode,
+  @Nullable val lastNode: ASTNode,
   @Nullable val alignment: Alignment,
   @Nullable var indent: Indent,
   @Nullable val wrap: Wrap,
@@ -79,7 +79,7 @@ class ScalaBlock(
 
   override def isLeaf: Boolean = isLeaf(node)
 
-  override def isIncomplete: Boolean = ScalaBlock.isIncomplete(node)
+  override def isIncomplete: Boolean = ScalaBlock.isIncomplete(if (lastNode != null) lastNode else node)
 
   override def getChildAttributes(newChildIndex: Int): ChildAttributes = {
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
@@ -129,7 +129,7 @@ class ScalaBlock(
           val nodeBeforeLast = b.resultExpression.orElse(b.caseClauses).get.getNode.getTreePrev
           val isLineBreak = nodeBeforeLast.getElementType == TokenType.WHITE_SPACE && nodeBeforeLast.textContains('\n')
           val extraIndent =
-            if (isLineBreak) getSubBlocks().size - newChildIndex
+            if (b.isEnclosedByBraces && isLineBreak && getSubBlocks().size - 1 == newChildIndex) 1
             else 0
           val indentsCount = extraIndent + (if (braceShifted) 0 else 1)
           Indent.getSpaceIndent(indentsCount * indentSize)
@@ -290,11 +290,8 @@ class ScalaBlock(
 
   override def getSubBlocks: util.List[Block] = {
     if (subBlocks == null) {
-      val blocks = new ScalaBlockBuilder(this).buildSubBlocks
-      subBlocks = blocks
-        .asScala
-        .filterNot(_.asInstanceOf[ScalaBlock].getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE)
-        .asJava
+      subBlocks = new ScalaBlockBuilder(this).buildSubBlocks
+      subBlocks.removeIf(_.asInstanceOf[ScalaBlock].getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE)
       // printSubBlocksDebugInfoToConsole()
     }
     subBlocks
@@ -418,6 +415,7 @@ object ScalaBlock {
     }
   }
 
+  @Nullable
   private def findLastNonBlankChild(node: ASTNode): ASTNode = {
     var lastChild = node.getLastChildNode
     while (lastChild != null && isBlank(lastChild.getPsi)) {

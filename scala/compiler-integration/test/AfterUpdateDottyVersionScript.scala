@@ -43,7 +43,7 @@ class AfterUpdateDottyVersionScript {
     // we have to clone the repo because it needs a git history
     //example of release branch: release-3.1.3
     val branch = "release-" + ScalaVersion.Latest.Scala_3.minor
-    repoPath = cloneRepository("https://github.com/lampepfl/dotty/", Some(branch)).toPath
+    repoPath = cloneRepository("https://github.com/scala/scala3/", Some(branch)).toPath
   }
 
   @Test def test_3_Scala3ImportedParserTest_Import_FromDottyDirectory(): Unit =
@@ -243,10 +243,17 @@ object AfterUpdateDottyVersionScript {
       tempRangeSourceDir.toFile.mkdirs()
 
       // No help.ranges is generated for the source file help.scala.
-      // https://github.com/lampepfl/dotty/blob/release-3.4.0/tests/pos/help.scala
+      // https://github.com/scala/scala3/blob/release-3.4.0/tests/pos/help.scala
+      // TODO: Understand the problems with the help.scala and widen-union.scala tests.
+      //       Adding them to the blacklist file fails the script.
+      //       If we do not ignore the widen-union.scala test, it fails during the import from the Scala 3 repository.
+      //       It gets categorized as a failing test. But then, when running `Scala3ImportedParserTest_Fail`, it
+      //       complains that it doesn't fail and needs to be moved to the successful category of tests. When it is
+      //       finally moved using `Scala3ImportedParserTest_Move_Fixed_Tests`, at the end `Scala3ImportedParserTest`
+      //       that the test fails and needs to be moved back.
       def acceptFile(file: File): Boolean = {
         val fileName = file.getName.toLowerCase
-        fileName.endsWith(".scala") && fileName != "help.scala"
+        fileName.endsWith(".scala") && fileName != "help.scala" && fileName != "widen-union.scala"
       }
 
       var atLeastOneFileProcessed = false

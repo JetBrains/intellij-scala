@@ -144,7 +144,7 @@ trait InfixType {
       override protected def infixElementType: IElementType = ScalaElementType.INFIX_TYPE
       override protected def isMatchConsideredInfix: Boolean = false
 
-      override protected def parseFirstOperator()(implicit builder: ScalaPsiBuilder): Boolean =
+      override protected def parseFirstOperand()(implicit builder: ScalaPsiBuilder): Boolean =
         if (parseInfixWildcardType()) {
           builder.getTokenText match {
             case Bounds.UPPER | Bounds.LOWER => false
@@ -154,7 +154,7 @@ trait InfixType {
           parseTypeVariable() || componentType(star, isPattern)
         }
 
-      override protected def parseOperator()(implicit builder: ScalaPsiBuilder): Boolean =
+      override protected def parseOperand()(implicit builder: ScalaPsiBuilder): Boolean =
         parseInfixWildcardType() || parseTypeVariable() || componentType(star, isPattern)
 
       override protected def shouldContinue(implicit builder: ScalaPsiBuilder): Boolean =

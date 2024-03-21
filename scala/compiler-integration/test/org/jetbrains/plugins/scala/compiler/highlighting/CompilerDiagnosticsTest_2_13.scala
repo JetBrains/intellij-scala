@@ -118,7 +118,7 @@ class CompilerDiagnosticsTest_2_13 extends CompilerDiagnosticsTestBase {
           severity = HighlightSeverity.WARNING,
           range = Some(TextRange.create(47, 57)),
           quickFixDescriptions = Seq("Add explicit type"),
-          msgPrefix = "under -Xsource:3, inferred Object instead of String [quickfixable]"
+          msgPrefix = "under -Xsource:3-cross, the inferred type changes to Object instead of String [quickfixable]"
         )
       ),
       expectedContent =

@@ -14,10 +14,10 @@ import org.jetbrains.plugins.scala.lang.parser.util.PrecedenceClimbingInfixParsi
  *             | InfixExpr MatchClause -- scala 3 new match expr. parsing rule
  */
 object InfixExpr extends PrecedenceClimbingInfixParsingRule {
-  override protected def parseFirstOperator()(implicit builder: ScalaPsiBuilder): Boolean = PrefixExpr()
+  override protected def parseFirstOperand()(implicit builder: ScalaPsiBuilder): Boolean = PrefixExpr()
 
-  override protected def parseOperator()(implicit builder: ScalaPsiBuilder): Boolean =
-    ColonArgument(needArgNode = false) || parseFirstOperator()
+  override protected def parseOperand()(implicit builder: ScalaPsiBuilder): Boolean =
+    ColonArgument(needArgNode = false) || parseFirstOperand()
 
   override protected def referenceElementType: IElementType = ScalaElementType.REFERENCE_EXPRESSION
   override protected def infixElementType: IElementType = ScalaElementType.INFIX_EXPR
@@ -25,6 +25,6 @@ object InfixExpr extends PrecedenceClimbingInfixParsingRule {
 
   override protected def parseAfterOperatorId(opMarker: PsiBuilder.Marker)(implicit builder: ScalaPsiBuilder): Unit =
     if (TypeArgs(isPattern = false)) {
-      opMarker.precede.done(ScalaElementType.GENERIC_CALL)
+      opMarker.precede().done(ScalaElementType.GENERIC_CALL)
     }
 }

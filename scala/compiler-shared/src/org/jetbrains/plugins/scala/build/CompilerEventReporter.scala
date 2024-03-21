@@ -6,6 +6,7 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
 import org.jetbrains.jps.incremental.scala.{Client, MessageKind}
+import org.jetbrains.plugins.scala.build.BuildMessages.stripAnsiCodes
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
 import org.jetbrains.plugins.scala.util.CompilationId
 
@@ -15,7 +16,7 @@ import scala.collection.mutable
 class CompilerEventReporter(project: Project,
                             compilationId: CompilationId)
   extends BuildReporter {
-  
+
   private val publisher = project.getMessageBus
     .syncPublisher(CompilerEventListener.topic)
 
@@ -28,7 +29,7 @@ class CompilerEventReporter(project: Project,
       // com.intellij.build.FilePosition contains 0-based line and column information, PosInfo expects 1-based indices.
       val problemStart = PosInfo(pos.getStartLine + 1, pos.getStartColumn + 1)
       val problemEnd = PosInfo(pos.getEndLine + 1, pos.getEndColumn + 1)
-      val msg = Client.ClientMsg(kind, text, Some(pos.getFile), Some(problemStart), Some(problemStart), Some(problemEnd), Nil)
+      val msg = Client.ClientMsg(kind, stripAnsiCodes(text), Some(pos.getFile), Some(problemStart), Some(problemStart), Some(problemEnd), Nil)
       val event = CompilerEvent.MessageEmitted(compilationId, None, None, msg)
       files.add(pos.getFile)
       publisher.eventReceived(event)
@@ -51,7 +52,7 @@ class CompilerEventReporter(project: Project,
     val event = CompilerEvent.CompilationStarted(compilationId, None)
     publisher.eventReceived(event)
   }
-  
+
   override def finish(messages: BuildMessages): Unit = finishFiles()
   override def finishWithFailure(err: Throwable): Unit = {
     finishFiles()

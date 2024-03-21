@@ -68,7 +68,7 @@ private [documentationProvider] class ScalaDocTypeRenderer(
     case ContextFunctionType(ret, params) if !typ.isAliasType =>
       s"${textOf(params)} ${ScalaPsiUtil.contextFunctionArrow} ${render(ret)}"
     case ScThisType(clazz: ScTypeDefinition) =>
-      s"${nameRenderer.renderName(clazz)}.$renderedThis.$renderedType"
+      nameRenderer.renderName(clazz)
     case ScThisType(_) =>
       s"$renderedThis.$renderedType"
     case TupleType(comps) if !typ.isAliasType =>

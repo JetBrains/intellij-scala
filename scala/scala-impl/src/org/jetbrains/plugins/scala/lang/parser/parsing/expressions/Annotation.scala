@@ -17,7 +17,7 @@ import scala.annotation.tailrec
  */
 object Annotation {
 
-  def apply(countLinesAfterAnnotation: Boolean = true)(implicit builder: ScalaPsiBuilder): Boolean = {
+  def apply(countLinesAfterAnnotation: Boolean = true, forConstructor: Boolean = false)(implicit builder: ScalaPsiBuilder): Boolean = {
     if (builder.getTokenType != ScalaTokenTypes.tAT)
       return false
 
@@ -26,13 +26,13 @@ object Annotation {
 
     builder.advanceLexer() //Ate @
 
-    if (!AnnotationExpr()) {
+    if (!AnnotationExpr(forConstructor)) {
       builder error ScalaBundle.message("wrong.annotation.expression")
       annotMarker.drop()
     } else {
       annotMarker.done(ScalaElementType.ANNOTATION)
     }
-    if (countLinesAfterAnnotation && builder.twoNewlinesBeforeCurrentToken) {
+    if (!builder.isScala3 && countLinesAfterAnnotation && builder.twoNewlinesBeforeCurrentToken) {
       rollbackMarker.rollbackTo()
       return false
     } else rollbackMarker.drop()

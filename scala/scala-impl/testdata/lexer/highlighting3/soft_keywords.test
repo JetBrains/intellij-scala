@@ -1,0 +1,214 @@
+// soft keywords
+transparent inline opaque infix open case class Test
+
+inline case blub
+
+inline class
+inline case class
+inline def
+inline val
+inline var
+inline type
+inline given
+inline enum
+inline object
+inline identifier
+
+// end keyword
+end
+a end b
+
+// using
+(using A)
+using
+
+// extension
+extension [T](a: T)
+extension (a: Int)
+extension Int
+
+// as
+import x as y
+blub.as()
+
+// derives
+class X derives Y
+derives()
+-----
+comment {// soft keywords}
+white space in line {
+}
+transparent {transparent}
+white space in line { }
+inline {inline}
+white space in line { }
+opaque {opaque}
+white space in line { }
+infix {infix}
+white space in line { }
+open {open}
+white space in line { }
+case {case}
+white space in line { }
+class {class}
+white space in line { }
+identifier {Test}
+white space in line {
+
+}
+identifier {inline}
+white space in line { }
+case {case}
+white space in line { }
+identifier {blub}
+white space in line {
+
+}
+inline {inline}
+white space in line { }
+class {class}
+white space in line {
+}
+inline {inline}
+white space in line { }
+case {case}
+white space in line { }
+class {class}
+white space in line {
+}
+inline {inline}
+white space in line { }
+def {def}
+white space in line {
+}
+inline {inline}
+white space in line { }
+val {val}
+white space in line {
+}
+inline {inline}
+white space in line { }
+var {var}
+white space in line {
+}
+inline {inline}
+white space in line { }
+type {type}
+white space in line {
+}
+inline {inline}
+white space in line { }
+given {given}
+white space in line {
+}
+inline {inline}
+white space in line { }
+enum {enum}
+white space in line {
+}
+inline {inline}
+white space in line { }
+object {object}
+white space in line {
+}
+identifier {inline}
+white space in line { }
+identifier {identifier}
+white space in line {
+
+}
+comment {// end keyword}
+white space in line {
+}
+end {end}
+white space in line {
+}
+identifier {a}
+white space in line { }
+identifier {end}
+white space in line { }
+identifier {b}
+white space in line {
+
+}
+comment {// using}
+white space in line {
+}
+( {(}
+using {using}
+white space in line { }
+identifier {A}
+) {)}
+white space in line {
+}
+identifier {using}
+white space in line {
+
+}
+comment {// extension}
+white space in line {
+}
+extension {extension}
+white space in line { }
+[ {[}
+identifier {T}
+] {]}
+( {(}
+identifier {a}
+: {:}
+white space in line { }
+identifier {T}
+) {)}
+white space in line {
+}
+extension {extension}
+white space in line { }
+( {(}
+identifier {a}
+: {:}
+white space in line { }
+identifier {Int}
+) {)}
+white space in line {
+}
+identifier {extension}
+white space in line { }
+identifier {Int}
+white space in line {
+
+}
+comment {// as}
+white space in line {
+}
+import {import}
+white space in line { }
+identifier {x}
+white space in line { }
+as {as}
+white space in line { }
+identifier {y}
+white space in line {
+}
+identifier {blub}
+. {.}
+identifier {as}
+( {(}
+) {)}
+white space in line {
+
+}
+comment {// derives}
+white space in line {
+}
+class {class}
+white space in line { }
+identifier {X}
+white space in line { }
+derives {derives}
+white space in line { }
+identifier {Y}
+white space in line {
+}
+identifier {derives}
+( {(}
+) {)}

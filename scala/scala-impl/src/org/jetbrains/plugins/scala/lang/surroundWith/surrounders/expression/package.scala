@@ -65,6 +65,8 @@ package object expression {
                 case _ =>
               }
             }
+          case block: ScBlockExpr =>
+            convertBlockToBraceless(block)
           case _ =>
             element.children.toList.foreach {
               case block: ScBlockExpr =>
