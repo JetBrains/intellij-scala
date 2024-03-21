@@ -7,8 +7,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
 import com.intellij.psi.codeStyle.CodeStyleManager
-import com.intellij.psi.util.PsiUtil
-import com.intellij.util.concurrency.annotations.RequiresWriteLock
 import org.jetbrains.plugins.scala.compiler.diagnostics.Action
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions.ObjectExt
@@ -25,7 +23,6 @@ private final class CompilerDiagnosticIntentionAction private (
       textEdits.forall(_._1.isValid)
   }
 
-  @RequiresWriteLock
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     val document = editor.getDocument
     applyDiagnostic(project, file, document, textEdits)
@@ -66,7 +63,6 @@ private final class CompilerDiagnosticIntentionAction private (
     edits.foreach { case (marker, _) => marker.dispose() }
   }
 
-  @RequiresWriteLock
   private def growLeftAndRight(range: TextRange, document: Document): TextRange = {
     val text = document.getCharsSequence
 
