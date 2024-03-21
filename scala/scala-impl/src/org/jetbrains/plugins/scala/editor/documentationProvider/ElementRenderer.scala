@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
-import com.intellij.codeInsight.daemon.impl.analysis.AnnotationSessionImpl
-import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColorsScheme}
+import com.intellij.codeInsight.daemon.impl.{AnnotationHolderImpl, AnnotationSessionImpl}
+import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColorsScheme, TextAttributesKey}
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -11,8 +11,8 @@ import org.jetbrains.plugins.scala.highlighter.{ScalaColorSchemeAnnotator, Scala
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScReferenceExpression, ScThisReference}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScThisReference
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiElementExt, ScalaFeatures}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
@@ -44,11 +44,13 @@ object ElementRenderer {
     val annotator = new ScalaColorSchemeAnnotator()
     val elements = file.elements.toSeq
 
-    val rangeToKey = AnnotationSessionImpl.computeWithSession(file, false, holder => {
-      elements.flatMap { e =>
-        holder.runAnnotatorWithContext(e, annotator)
-        holder.asScala.map(it => (TextRange.create(it.getStartOffset, it.getEndOffset), it.getTextAttributes))
-      }
+    val rangeToKey: Seq[(TextRange, TextAttributesKey)] = AnnotationSessionImpl.computeWithSession(file, false, annotator, {
+      case holder: AnnotationHolderImpl =>
+        elements.flatMap { e =>
+          holder.runAnnotatorWithContext(e)
+          holder.asScala.map(it => (TextRange.create(it.getStartOffset, it.getEndOffset), it.getTextAttributes))
+        }
+      case _ => Seq.empty
     })
 
     val leafElementToKeys = elements.filter(_.is[LeafPsiElement]).map { e =>

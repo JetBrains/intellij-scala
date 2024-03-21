@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.refactoring.inline
 
-import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.NlsContexts
 import com.intellij.psi.search.searches.ReferencesSearch
@@ -30,10 +29,9 @@ abstract class ScalaInlineDialog(element: ScNamedElement, @NlsContexts.DialogTit
   override val getHelpId: String = helpId
 
   private lazy val occurrenceNumber: Int = {
-    val progressManager = ProgressManager.getInstance
     val searchHelper = PsiSearchHelper.getInstance(project)
     val scope = GlobalSearchScope.projectScope(project)
-    val searchCost = searchHelper.isCheapEnoughToSearch(element.name, scope, null, progressManager.getProgressIndicator)
+    val searchCost = searchHelper.isCheapEnoughToSearch(element.name, scope, null)
     val isCheapToSearch = searchCost != PsiSearchHelper.SearchCostResult.TOO_MANY_OCCURRENCES
 
     if (isCheapToSearch) ReferencesSearch.search(element, scope).findAll().size()
