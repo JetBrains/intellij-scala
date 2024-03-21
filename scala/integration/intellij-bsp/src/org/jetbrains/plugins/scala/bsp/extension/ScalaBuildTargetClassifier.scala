@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.bsp.extension
 
 import com.intellij.openapi.diagnostic.Logger
-import org.jetbrains.magicmetamodel.impl.workspacemodel.BuildTargetInfo
 import org.jetbrains.plugins.bsp.extension.points.{BuildTargetClassifierExtension, BuildToolId}
+import org.jetbrains.plugins.bsp.magicmetamodel.impl.workspacemodel.BuildTargetInfo
 import org.jetbrains.plugins.scala.bsp.config.ScalaPluginConstants
 
 import java.io.File

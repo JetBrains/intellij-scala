@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.bsp.extension
 
 import junit.framework.TestCase
 import org.assertj.core.api.Assertions.assertThat
-import org.jetbrains.magicmetamodel.impl.workspacemodel.{BuildTargetInfo, ModuleCapabilities}
+import org.jetbrains.plugins.bsp.magicmetamodel.impl.workspacemodel.{BuildTargetInfo, ModuleCapabilities}
 
 import scala.jdk.CollectionConverters._
 
