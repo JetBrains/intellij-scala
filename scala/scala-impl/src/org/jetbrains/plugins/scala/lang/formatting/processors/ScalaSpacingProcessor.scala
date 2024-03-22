@@ -650,6 +650,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
                   //Extra check is an optimization not to check `isInScala3File` all the time when default code style is used
                   //TODO (minor) we ask `isInScala3File` for every block, which is not optimal (it requires tree traversal to parent every time)
                   // ideally we need to store information `isScala3` somewhere in global context when constructing blocks for entire scala file
+                  // (see other places using isInScala3File in formatter package)
                   val shouldEnforceBraceAtEndOfLine = style != CommonCodeStyleSettings.END_OF_LINE && left.node.getPsi.isInScala3File
                   val styleAdjusted = if (shouldEnforceBraceAtEndOfLine) CommonCodeStyleSettings.END_OF_LINE else style
                   (scalaSettings.SPACE_BEFORE_BRACE_METHOD_CALL, styleAdjusted, parent)

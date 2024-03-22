@@ -81,7 +81,8 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       case arg: ScArgumentExprList if arg.isBraceArgs =>
         if (isBraceNextLineShifted) Indent.getNormalIndent
         else Indent.getNoneIndent
-      case _ => Indent.getContinuationWithoutFirstIndent
+      case _ =>
+        Indent.getContinuationWithoutFirstIndent
     }
 
     @inline def blockIndent(b: ScBlock, bracesShifted: Boolean): Indent =
@@ -120,6 +121,13 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
     childPsi match {
       case c: PsiComment if settings.KEEP_FIRST_COLUMN_COMMENT && Scala3IndentationBasedSyntaxUtils.isNotIndentedAtFirstColumn(c) =>
         return Indent.getNoneIndent
+      case args: ScArgumentExprList if args.isInScala3File =>
+        //TODO (minor) we ask `isInScala3File` for many elements, which is not optimal (it requires tree traversal to parent every time)
+        // ideally we need to store information `isScala3` somewhere in global context when constructing blocks for entire scala file
+        // (see other places using isInScala3File in formatter package)
+        //indented arguments in parentheses in Scala 3 SCL-22238
+        //NOTE: some special logic for scala 3 indented arguments also exists in ChainedMethodCallsBlockBuilder.collectChainedMethodCalls
+        return Indent.getContinuationWithoutFirstIndent()
       case _ =>
     }
 
