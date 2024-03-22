@@ -4,6 +4,7 @@ import com.intellij.formatting._
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.ChainedMethodCallsBlockBuilder._
 import org.jetbrains.plugins.scala.lang.formatting.ScalaDocBlockBuilderUtils._
@@ -160,10 +161,11 @@ private final class ChainedMethodCallsBlockBuilder(
     //|-------------------||------||~~~~~~~| delegated: args `(1, 2, 3)`
     //|-----------|.|-----||~~~~~~||~~~~~~~| delegated: args `(1, 2, 3)` and type args `[String]`
     //|---|.|-----|.|-----||~~~~~~||~~~~~~~| delegated: args `(1, 2, 3)` and type args `[String]`
-
-    def `add blocks for "expr.xxx"`(expr: ASTNode, dot: ASTNode, nodeAfterDot: ASTNode): Boolean = {
+    //
+    //dot can be null in Scala 3, see SCL-22238
+    def `add blocks for "expr.xxx"`(expr: ASTNode, @Nullable dot: ASTNode, nodeAfterDot: ASTNode): Boolean = {
       //NOTE: we shadow `dotFollowedByNewLine` parameter, cause here we are interested in the new dot
-      val dotIsFollowedByNewLine = dot.getPsi.followedByNewLine()
+      val dotIsFollowedByNewLine = dot != null && dot.getPsi.followedByNewLine()
 
       val splitAtNode = if (dotIsFollowedByNewLine) nodeAfterDot else dot
 
@@ -223,8 +225,26 @@ private final class ChainedMethodCallsBlockBuilder(
       //expr.method1[String](1, 2, 3).method2[Int, String](4, 5, 6)
       //|--------------------caller----------------------||-args--|
       case caller :: args :: Nil if args.getElementType == ScalaElementType.ARG_EXPRS =>
-        val delegatedChildrenNew = args :: delegatedChildren ++ comments
-        collectChainedMethodCalls(caller, dotIsFollowedByNewLine, delegatedChildrenNew, delegatedContext)
+        //TODO (minor) we ask `isInScala3File` for many elements, which is not optimal (it requires tree traversal to parent every time)
+        // ideally we need to store information `isScala3` somewhere in global context when constructing blocks for entire scala file
+        // (see other places using isInScala3File in formatter package)
+        val argsPsi = args.getPsi
+        if (argsPsi.startsFromNewLine() && argsPsi.isInScala3File) {
+          //See SCL-22238 this code:
+          //   List(1, 2, 3)
+          //     .map(x => x + 42)
+          //     (23)
+          // is equivalent to
+          //    List(1, 2, 3)
+          //     .map(x => x + 42)
+          //     .apply(23)
+          // so (23) should go in a separate block as if it's .apply(23)
+          val dotIsFollowedByNewLine = `add blocks for "expr.xxx"`(caller, null, args)
+          collectChainedMethodCalls(caller, dotIsFollowedByNewLine)
+        } else {
+          val delegatedChildrenNew = args :: delegatedChildren ++ comments
+          collectChainedMethodCalls(caller, dotIsFollowedByNewLine, delegatedChildrenNew, delegatedContext)
+        }
 
       //caller[typeArgs]
       //expr.method1[String](1, 2, 3).method2[Int, String](4, 5, 6)
