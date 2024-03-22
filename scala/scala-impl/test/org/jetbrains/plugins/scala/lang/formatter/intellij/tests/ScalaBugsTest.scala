@@ -49,6 +49,7 @@ final class ScalaBugsTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
+  //SCL-2066
   def testSCL2066FromDiscussion(): Unit = {
     val settings = getCommonSettings
     settings.BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE
@@ -3757,4 +3758,43 @@ final class ScalaBugsTest extends AbstractScalaFormatterTestBase {
       |  ).productElementName
       |}""".stripMargin
   )
+
+  //SCL-22238
+  def testLooksLikeIndentedArgumentsButItsNot(): Unit = {
+    //indented arguments is only supported in Scala 3, in Scala 2 it's just a wrongly-formatted tuple
+    doTextTest(
+      """object Example {
+        |  def foo(x: Int)(y: Int): Unit = ???
+        |
+        |  foo(0)(1)
+        |
+        |  foo(0)
+        |    (1)
+        |
+        |  foo
+        |    (0)(1)
+        |
+        |  foo
+        |    (0)
+        |    (1)
+        |}
+        |""".stripMargin,
+      """object Example {
+        |  def foo(x: Int)(y: Int): Unit = ???
+        |
+        |  foo(0)(1)
+        |
+        |  foo(0)
+        |  (1)
+        |
+        |  foo
+        |  (0)(1)
+        |
+        |  foo
+        |  (0)
+        |  (1)
+        |}
+        |""".stripMargin
+    )
+  }
 }

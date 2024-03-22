@@ -530,4 +530,148 @@ class Scala3FormatterTest extends Scala3FormatterBaseTest {
         |""".stripMargin
     )
   }
+
+  //SCL-22238
+  def testIndentedArguments(): Unit = {
+    doTextTest(
+      """object Example {
+        |  def foo(x: Int)(y: Int): Unit = ???
+        |
+        |  foo(0)(1)
+        |
+        |  foo(0)
+        |    (1)
+        |
+        |  foo
+        |    (0)(1)
+        |
+        |  foo
+        |    (0)
+        |    (1)
+        |}
+        |""".stripMargin
+    )
+  }
+
+  def testIndentedArguments_1(): Unit = {
+    doTextTest(
+      """f(x + 1)
+        |  (2, 3) // equivalent to  `f(x + 1)(2, 3)`
+        |
+        |g(x + 1)
+        |(2, 3) // equivalent to  `g(x + 1); (2, 3)`
+        |
+        |h(x + 1)
+        |  {} // equivalent to  `h(x + 1){}`
+        |
+        |i(x + 1)
+        |{} // equivalent to  `i(x + 1); {}`
+        |
+        |if x < 0 then return
+        |  a + b // equivalent to  `if x < 0 then return a + b`
+        |
+        |if x < 0 then return
+        |println(a + b) // equivalent to  `if x < 0 then return; println(a + b)`
+        |""".stripMargin,
+      """f(x + 1)
+        |  (2, 3) // equivalent to  `f(x + 1)(2, 3)`
+        |
+        |g(x + 1)
+        |(2, 3) // equivalent to  `g(x + 1); (2, 3)`
+        |
+        |h(x + 1) {} // equivalent to  `h(x + 1){}`
+        |
+        |i(x + 1)
+        |{} // equivalent to  `i(x + 1); {}`
+        |
+        |if x < 0 then return
+        |  a + b // equivalent to  `if x < 0 then return a + b`
+        |
+        |if x < 0 then return
+        |println(a + b) // equivalent to  `if x < 0 then return; println(a + b)`
+        |""".stripMargin
+    )
+  }
+
+  def testIndentedArguments_2(): Unit = {
+    // From SCL-21085:
+    // Due to difference in indentation width of (1) relative to List(5, 7, 9),
+    // (1) is parsed as a number in parentheses in foo and as an implicit .apply call in bar.
+    // Note that .map is parsed the same way in both cases.
+    doTextTest(
+      """def foo: Int =
+        |  List(5, 7, 9)
+        |  .map:
+        |    x => x + 1
+        |  (1)
+        |
+        |def bar: Int = List(5, 7, 9)
+        |  .map:
+        |    x => x + 1
+        |  (1)
+        |
+        |foo // 1
+        |bar // 8
+        |""".stripMargin,
+      """def foo: Int =
+        |  List(5, 7, 9)
+        |    .map:
+        |      x => x + 1
+        |  (1)
+        |
+        |def bar: Int = List(5, 7, 9)
+        |  .map:
+        |    x => x + 1
+        |  (1)
+        |
+        |foo // 1
+        |bar // 8
+        |""".stripMargin
+    )
+  }
+
+  def testIndentedArguments_3(): Unit = {
+    doTextTest(
+      """object Example2 {
+        |  List(1, 2, 3)
+        |    .map:
+        |      x => x + 42
+        |    (23)
+        |
+        |  List(1, 2, 3)
+        |    .map(x => x + 42)
+        |    (23)
+        |
+        |  List(1, 2, 3)
+        |    .map(x => x + 42)
+        |    .apply(23)
+        |}
+        |""".stripMargin
+    )
+  }
+
+  //SCL-22135
+  def testIndentedArguments_4(): Unit = {
+    doTextTest(
+      """def f(x: Int)(y: Int, z: Int) = ???
+        |def h(x: Int)(f: Int => Unit) = ???
+        |
+        |
+        |f(1)
+        |  (2, 3) // equivalent to  `f(1)(2, 3)`
+        |
+        |h(1)
+        |  { y => println(s"$y") } // equivalent to  `h(1){ y => println(s"$y")}`
+        |""".stripMargin,
+      """def f(x: Int)(y: Int, z: Int) = ???
+        |def h(x: Int)(f: Int => Unit) = ???
+        |
+        |
+        |f(1)
+        |  (2, 3) // equivalent to  `f(1)(2, 3)`
+        |
+        |h(1) { y => println(s"$y") } // equivalent to  `h(1){ y => println(s"$y")}`
+        |""".stripMargin
+    )
+  }
 }
