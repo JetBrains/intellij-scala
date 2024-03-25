@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRe
 
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, SmartPsiElementPointer}
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition
@@ -155,6 +155,11 @@ private final class ElementUsageWithKnownReference private(
     !isReferenceToDefMacroImpl &&
       !parentTypeDef.exists(isIndirectReferenceToImplicitClassExtensionMethodFromWithinThatClass) &&
       (referenceIsInCompanionScope || parentTypeDef.exists(referenceIsInMemberThatHasTypeDefAsAncestor))
+  }
+
+  override def toString: String = {
+    def location(e: PsiElement): String = s"${e.getContainingFile.name}:${e.getLineNumber + 1}"
+    s"ElementUsageWithKnownReference(reference = ${reference.getElement.getText} in ${location(reference.getElement)}, target = ${target.get.map(t => s"${t.name} in ${location(t)}").orNull})"
   }
 }
 

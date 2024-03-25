@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.util.ScalaMainMethodUtil
 
 import java.util
 import java.util.concurrent.atomic.AtomicLong
-import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * Welcome to the cheapRefSearch package!
@@ -108,7 +108,7 @@ private[declarationRedundancy] object Search {
      */
     def runSearchPipeline(element: ScNamedElement, isOnTheFly: Boolean): Usages = {
 
-      val res = new ListBuffer[ElementUsage]()
+      val result = ArrayBuffer.empty[ElementUsage]
 
       val ctx = new Context(element, canExit)
 
@@ -137,17 +137,24 @@ private[declarationRedundancy] object Search {
         case _ => false
       }
 
-      searchMethods.foreach { method =>
-        if (method.shouldProcess(conditions) && !res.exists(ctx.canExit)) {
+      //println("SearchPipeline.runSearchPipeline")
+
+      searchMethods
+        .iterator
+        .filter(_.shouldProcess(conditions))
+        .takeWhile(_ => !result.exists(ctx.canExit))
+        .foreach { method =>
+          //println(s"Run search method ${method.getClass.getSimpleName}")
           method.getUsages(ctx)
             .filterNot(isSelfReferentialTypeDefRef)
             .foreach { usage =>
-              res.addOne(usage)
+              println(s"Found: $usage")
+              result.addOne(usage)
             }
         }
-      }
 
-      res.toSeq
+      //println(s"SearchPipeline.runSearchPipeline result: $result")
+      result.toSeq
     }
   }
 
