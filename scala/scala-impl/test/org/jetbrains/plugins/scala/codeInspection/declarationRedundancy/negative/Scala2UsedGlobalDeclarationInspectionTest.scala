@@ -9,6 +9,8 @@ class Scala2UsedGlobalDeclarationInspectionTest extends ScalaUnusedDeclarationIn
 
   private def addJavaFile(text: String): Unit = myFixture.addFileToProject(s"Foo.java", text)
 
+  private def addKotlinFile(text: String): Unit = myFixture.addFileToProject(s"Foo.kt", text)
+
   def test_trait_extends_trait(): Unit = {
     addScalaFile("trait Foo extends Bar")
     checkTextHasNoErrors("trait Bar")
@@ -115,6 +117,9 @@ class Scala2UsedGlobalDeclarationInspectionTest extends ScalaUnusedDeclarationIn
   }
 
   def test_plus_used_from_java(): Unit = doTestOperatorUsedFromJava("+", "$plus")
+
+  // TODO:
+  //def test_plusplus_used_from_java(): Unit = doTestOperatorUsedFromJava("++", "$plus$plus")
 
   def test_minus_used_from_java(): Unit = doTestOperatorUsedFromJava("-", "$minus")
 
@@ -249,4 +254,103 @@ class Scala2UsedGlobalDeclarationInspectionTest extends ScalaUnusedDeclarationIn
     configureFromFileText(XmlFileType.INSTANCE, "org.foo.Bar")
     checkTextHasNoErrors("package org.foo\nclass Bar")
   }
+
+  def test_kotlin_uses_scala_class(): Unit = {
+    addKotlinFile("fun foo() { new Foo }")
+    checkTextHasNoErrors("class Foo")
+  }
+
+  def test_kotlin_uses_scala_fun(): Unit = {
+    addKotlinFile("fun foo() { Blub.bar() }")
+    checkTextHasNoErrors("object Blub { def bar() = 42 }")
+  }
+
+  def test_kotlin_uses_scala_val(): Unit = {
+    addKotlinFile("fun foo() { Blub.bar }")
+    checkTextHasNoErrors("object Blub { val bar = 42 }")
+  }
+
+  /*
+  TODO: References are not checked for TextSearch SCL-22294
+  def test_kotlin_does_not_use_scala_class(): Unit = {
+    addKotlinFile(
+      """
+        |class Test {
+        |  class Foo
+        |
+        |  fun foo() {
+        |    Foo()
+        |  }
+        |}
+        |""".stripMargin)
+    checkTextHasError("class Foo")
+  }
+
+  def test_scala_does_not_use_scala_class(): Unit = {
+    addScalaFile(
+      """
+        |class Test {
+        |  class Foo
+        |
+        |  fun foo() {
+        |    new Foo()
+        |  }
+        |}
+        |""".stripMargin)
+    checkTextHasError(s"class ${START}Foo$END")
+  }*/
+
+  private def doTestOperatorUsedFromKotlin(operatorName: String, kotlinMethodName: String): Unit = {
+    addKotlinFile(
+      s"""class Test {
+         |  fun blub() {
+         |    Num(1).`$kotlinMethodName`(1)
+         |  }
+         |}""".stripMargin
+    )
+
+    checkTextHasNoErrors(
+      s"""class Num(n: Int) {
+         |  def $operatorName(n: Int): Num = new Num(n + this.n)
+         |}""".stripMargin)
+  }
+
+  /*
+  TODO: Not working, because $op or `$op` is not found by the text search processor for some reason (see SCL-22293)
+  def test_plus_used_from_kotlin(): Unit = doTestOperatorUsedFromKotlin("+", "$plus")
+
+  def test_plusplus_used_from_kotlin(): Unit = doTestOperatorUsedFromKotlin("++", "$plus$plus")
+
+  def test_minus_used_from_kotlin(): Unit = doTestOperatorUsedFromKotlin("-", "$minus")
+
+  def test_tilde_used_from_kotlin(): Unit = doTestOperatorUsedFromKotlin("~", "$tilde")
+
+  def test_eqeq_used_from_kotlin(): Unit = doTestOperatorUsedFromKotlin("==", "$eq$eq")
+
+  def test_less_used_from_kotlin(): Unit = doTestOperatorUsedFromKotlin("<", "$less")
+
+  def test_lesseq_used_from_kotlin(): Unit = doTestOperatorUsedFromKotlin("<=", "$less$eq")
+
+  def test_greater_used_from_kotlin(): Unit = doTestOperatorUsedFromKotlin(">", "$greater")
+
+  def test_greatereq_used_from_kotlin(): Unit = doTestOperatorUsedFromKotlin(">=", "$greater$eq")
+
+  def test_bang_used_from_kotlin(): Unit = doTestOperatorUsedFromKotlin("!", "$bang")
+
+  def test_percent_used_from_kotlin(): Unit = doTestOperatorUsedFromKotlin("%", "$percent")
+
+  def test_up_used_from_kotlin(): Unit = doTestOperatorUsedFromKotlin("^", "$up")
+
+  def test_amp_used_from_kotlin(): Unit = doTestOperatorUsedFromKotlin("&", "$amp")
+
+  def test_bar_used_from_kotlin(): Unit = doTestOperatorUsedFromKotlin("|", "$bar")
+
+  def test_times_used_from_kotlin(): Unit = doTestOperatorUsedFromKotlin("*", "$times")
+
+  def test_div_used_from_kotlin(): Unit = doTestOperatorUsedFromKotlin("/", "$div")
+
+  def test_bslash_used_from_kotlin(): Unit = doTestOperatorUsedFromKotlin("\\", "$bslash")
+
+  def test_qmark_used_from_kotlin(): Unit = doTestOperatorUsedFromKotlin("?", "$qmark")
+  */
 }
