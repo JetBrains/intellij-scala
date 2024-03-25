@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScEndImpl.Target
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, PsiMethodWrapper}
-import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
+import org.jetbrains.plugins.scala.lang.refactoring.rename.{RenameScalaPackageProcessor, ScalaRenameUtil}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 
@@ -34,7 +34,12 @@ trait ScalaInplaceRenameHandler {
       case _ => element.getLanguage.isKindOf(ScalaLanguage.INSTANCE)
     }
     val processor = if (isScalaElement) RenamePsiElementProcessor.forElement(element) else null
-    if (processor != RenamePsiElementProcessor.DEFAULT) processor else null
+    // packages are renamed using the default RenameHandler
+    if (processor != RenamePsiElementProcessor.DEFAULT && !processor.is[RenameScalaPackageProcessor]) {
+      processor
+    } else {
+      null
+    }
   }
 
   protected final def isLocal(element: PsiElement): Boolean =
