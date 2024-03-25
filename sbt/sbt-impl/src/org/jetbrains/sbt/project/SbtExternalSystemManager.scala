@@ -87,6 +87,7 @@ object SbtExternalSystemManager {
     val vmOptions = getVmOptions(settingsState, jreHome)
     val environment = Map.empty ++ getAndroidEnvironmentVariables(projectJdkName)
     val sbtOptions = SbtOpts.combineOptionsWithArgs(settings.sbtOptions)
+    val separateProdTestSources = true
 
     new SbtExecutionSettings(
       realProjectPath = realProjectPath,
@@ -106,7 +107,8 @@ object SbtExternalSystemManager {
       userSetEnvironment = settingsState.sbtEnvironment.asScala.toMap,
       passParentEnvironment = settingsState.sbtPassParentEnvironment,
       insertProjectTransitiveDependencies = projectSettings.insertProjectTransitiveDependencies,
-      useSeparateCompilerOutputPaths = projectSettings.useSeparateCompilerOutputPaths
+      useSeparateCompilerOutputPaths = projectSettings.useSeparateCompilerOutputPaths,
+      separateProdTestSources = separateProdTestSources
     )
   }
 

@@ -16,10 +16,10 @@ import org.jetbrains.plugins.scala.build.BuildReporter
 import org.jetbrains.plugins.scala.extensions.RichFile
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.util.ExternalSystemUtil
+import org.jetbrains.sbt.Sbt.SbtModuleChildKeyInstance
 import org.jetbrains.sbt.buildinfo.BuildInfo
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.data.{SbtBuildModuleData, SbtModuleData, SbtProjectData}
-import org.jetbrains.sbt.project.module.SbtNestedModuleData
 import org.jetbrains.sbt.project.structure.{JvmOpts, SbtOption, SbtOpts}
 import org.jetbrains.sbt.settings.SbtSettings
 
@@ -184,9 +184,15 @@ object SbtUtil {
       Option(properties.getProperty(name))
     }
 
-  def isBuiltWithProjectTransitiveDependencies(project: Project): Boolean = {
+  def isBuiltWithProjectTransitiveDependencies(project: Project): Boolean =
+    extractSbtProjectData(project, _.projectTransitiveDependenciesUsed)
+
+  def isBuiltWithProdTestSourcesSeparated(project: Project): Boolean =
+    extractSbtProjectData(project, _.prodTestSourcesSeparated)
+
+  private def extractSbtProjectData(project: Project, extractor: SbtProjectData => Boolean): Boolean = {
     val sbtProjectDataOpt = SbtUtil.getSbtProjectData(project)
-    sbtProjectDataOpt.exists(_.projectTransitiveDependenciesUsed)
+    sbtProjectDataOpt.exists(extractor)
   }
 
   def getSbtModuleEntity(module: Module): Option[SbtModuleEntity] = {
@@ -234,7 +240,7 @@ object SbtUtil {
   }
 
   def getSbtModuleData[K](project: Project, moduleId: String, rootProjectPath: Option[String], key: Key[K]): Iterable[K] = {
-    val dataEither = ExternalSystemUtil.getModuleData(SbtProjectSystem.Id, project, moduleId, key, rootProjectPath, Some(SbtNestedModuleData.Key))
+    val dataEither = ExternalSystemUtil.getModuleData(SbtProjectSystem.Id, project, moduleId, key, rootProjectPath, Some(SbtModuleChildKeyInstance))
     //TODO: do we need to report the warning to user
     // However there is some code which doesn't expect the data to be present and just checks if it exists
     // So before reporting the warning to user we need to review usage code and decide which code expects

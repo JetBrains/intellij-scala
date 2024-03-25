@@ -2,8 +2,10 @@ package org.jetbrains.sbt
 
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.project.Version
+import org.jetbrains.plugins.scala.util.ExternalSystemUtil.SbtModuleChildKey
 import org.jetbrains.sbt.buildinfo.BuildInfo
 import org.jetbrains.sbt.icons.Icons
+import org.jetbrains.sbt.project.module.{SbtNestedModuleData, SbtSourceSetData}
 
 import javax.swing.Icon
 
@@ -40,6 +42,8 @@ object Sbt {
   val LatestVersion: Version = Version(BuildInfo.sbtLatestVersion)
   val Latest_1_0: Version = Version(BuildInfo.sbtLatest_1_0)
   val Latest_0_13: Version = Version(BuildInfo.sbtLatest_0_13)
+
+  val SbtModuleChildKeyInstance: SbtModuleChildKey = SbtModuleChildKey(SbtNestedModuleData.Key, SbtSourceSetData.Key)
 
   /**
    * '''ATTENTION!'''<br>

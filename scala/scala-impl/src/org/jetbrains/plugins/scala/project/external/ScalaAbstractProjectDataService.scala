@@ -12,7 +12,6 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.sbt.project.module.SbtNestedModuleData
 
 import scala.annotation.nowarn
 
@@ -29,10 +28,8 @@ abstract class ScalaAbstractProjectDataService[E, I](key: Key[E]) extends Abstra
       Option(modelsProvider.findIdeModule(data))
 
     def getIdeModuleByNode(node: DataNode[_]): Option[Module] = {
-      val key = Option(node.getParent)
+      val key = Option(node.getParent(classOf[ModuleData]))
         .map(_.getKey)
-        .filter(key => key.getDataType == classOf[SbtNestedModuleData].getName || classOf[ModuleData].getName == key.getDataType)
-        .map(_.asInstanceOf[Key[_<:ModuleData]])
         .getOrElse(ProjectKeys.MODULE)
       for {
         moduleData <- Option(node.getData(key))

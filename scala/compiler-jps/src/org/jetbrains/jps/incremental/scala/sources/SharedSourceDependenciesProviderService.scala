@@ -12,8 +12,24 @@ class SharedSourceDependenciesProviderService extends SourceDependenciesProvider
 
     val dependencies = modules.flatMap(_.getDependenciesList.getDependencies.asScala)
 
+    // should be in sync with org.jetbrains.sbt.project.settings.SbtProjectSettings.separateProdAndTestSources
+    val prodTestSourcesSeparated = Option(System.getProperty("sbt.prod.test.separated")).flatMap(_.toBooleanOption).getOrElse(false)
+
+    val representativeTargetName = chunk.representativeTarget().getModule.getName.takeRight(4)
+    val isSuitableName: JpsModule => Boolean = { jpsModule =>
+      // note: when modules are separated to main/test in projects that contain shared sources its test module will have dependencies
+      // to shared sources test module and shared sources main module. Because test module has also a dependency to shared sources main module
+      // we cannot treat it as a source dependency for this module.
+      // To decide what shared sources module should be taken into account a simple suffix comparison was made - e.g. modules with suffix "test" should add shared sources
+      // modules with the same suffix ("test)
+      !prodTestSourcesSeparated || jpsModule.getName.takeRight(4) == representativeTargetName
+    }
+
     dependencies.collect {
-      case it: JpsModuleDependency if it.getModule != null && it.getModule.getModuleType == SharedSourcesModuleType.INSTANCE => it.getModule
+      case it: JpsModuleDependency if {
+        val module = it.getModule
+        module != null && module.getModuleType == SharedSourcesModuleType.INSTANCE && isSuitableName(module)
+      } => it.getModule
     }
   }
 }

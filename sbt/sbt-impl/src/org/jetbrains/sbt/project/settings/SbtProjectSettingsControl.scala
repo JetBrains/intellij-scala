@@ -78,7 +78,8 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
       extraControls.remoteDebugSbtShellCheckBox.isSelected != settings.enableDebugSbtShell ||
       extraControls.scalaVersionPreferenceCheckBox.isSelected != settings.preferScala2 ||
       extraControls.insertProjectTransitiveDependencies.isSelected != settings.insertProjectTransitiveDependencies ||
-      extraControls.useSeparateCompilerOutputPaths.isSelected != settings.useSeparateCompilerOutputPaths
+      extraControls.useSeparateCompilerOutputPaths.isSelected != settings.useSeparateCompilerOutputPaths ||
+      extraControls.separateProdTestModules.isSelected != settings.separateProdAndTestSources
   }
 
   override protected def resetExtraSettings(isDefaultModuleCreation: Boolean): Unit = {
@@ -100,7 +101,8 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     extraControls.scalaVersionPreferenceCheckBox.setSelected(settings.preferScala2)
     extraControls.insertProjectTransitiveDependencies.setSelected(settings.insertProjectTransitiveDependencies)
     extraControls.useSeparateCompilerOutputPaths.setSelected(settings.useSeparateCompilerOutputPaths)
-    extraControls.refreshOutputPathsWarning()
+    extraControls.separateProdTestModules.setSelected(settings.separateProdAndTestSources)
+    extraControls.refreshCheckboxesConstraints()
   }
 
   override def updateInitialExtraSettings(): Unit = {
@@ -116,6 +118,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     settings.enableDebugSbtShell = extraControls.remoteDebugSbtShellCheckBox.isSelected
     settings.preferScala2 = extraControls.scalaVersionPreferenceCheckBox.isSelected
     settings.insertProjectTransitiveDependencies = extraControls.insertProjectTransitiveDependencies.isSelected
+    settings.separateProdAndTestSources = extraControls.separateProdTestModules.isSelected
 
     val shouldReloadProject =
       settings.useSeparateCompilerOutputPaths != extraControls.useSeparateCompilerOutputPaths.isSelected
