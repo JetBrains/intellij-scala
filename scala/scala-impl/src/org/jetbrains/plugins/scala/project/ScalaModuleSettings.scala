@@ -7,7 +7,7 @@ import com.intellij.openapi.roots.{OrderEnumerator, OrderRootType, libraries}
 import com.intellij.openapi.util.ModificationTracker
 import com.intellij.openapi.util.io.JarUtil.{containsEntry, getJarAttribute}
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.util.CommonProcessors.{CollectProcessor, FindProcessor}
+import com.intellij.util.CommonProcessors.FindProcessor
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.caches.cached
 import org.jetbrains.plugins.scala.project.ScalaFeatures.SerializableScalaFeatures
@@ -18,7 +18,6 @@ import org.jetbrains.sbt.project.SbtVersionProvider
 
 import java.io.File
 import java.util.jar.Attributes
-import scala.jdk.CollectionConverters.IteratorHasAsScala
 
 private class ScalaModuleSettings private(
   module: Module,
@@ -141,6 +140,9 @@ private class ScalaModuleSettings private(
 
   val isCompilerStrictMode: Boolean =
     settingsForHighlighting.exists(_.strict)
+
+  val isCompilerStrictEqualityMode: Boolean =
+    settingsForHighlighting.exists(_.strictEquality)
 
   val customDefaultImports: Option[Seq[String]] =
     additionalCompilerOptions.collectFirst {

@@ -50,6 +50,8 @@ case class ScalaCompilerSettings(compileOrder: CompileOrder,
   val languageWildcard: Boolean = additionalCompilerOptions.contains("-language:_") ||
     additionalCompilerOptions.contains("--language:_")
   val strict: Boolean = additionalCompilerOptions.contains("-strict")
+  val strictEquality: Boolean = additionalCompilerOptions.contains("-language:strictEquality") ||
+    additionalCompilerOptions.contains("--language:strictEquality")
 
   def getOptionsAsStrings(forScala3Compiler: Boolean): Seq[String] = {
     val state = toState
