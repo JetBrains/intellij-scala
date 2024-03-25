@@ -301,9 +301,11 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
       // The Scala language level of a module is derived from the configured SDK.
       if (document == null || module == null || psiFile == null)
         None
-      else if (module.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_3_3) && psiFile.is[ScalaFile]) {
-        val sourceScope = calculateSourceScope(vf)
-        Some((module, sourceScope, document, vf))
+      else if (psiFile.is[ScalaFile]) {
+        if (!psiFile.isScalaWorksheet && module.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_3_3)) {
+          val sourceScope = calculateSourceScope(vf)
+          Some((module, sourceScope, document, vf))
+        } else None
       }
       else None
     }.foreach { case (module, sourceScope, document, virtualFile) =>
