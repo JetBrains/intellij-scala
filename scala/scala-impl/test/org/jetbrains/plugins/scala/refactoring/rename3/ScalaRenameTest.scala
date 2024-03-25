@@ -98,5 +98,9 @@ class Scala3RenameTest extends ScalaRenameTestBase {
   // SCL-20145
   def testPackageEndMarker(): Unit = doTest()
 
+  def testPackageEndMarker2(): Unit = doTest()
+
+  def testPackageEndMarker3(): Unit = doTest()
+
   def testUsageInImportBecomingKeyword(): Unit = doTest("given")
 }
