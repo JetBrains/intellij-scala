@@ -1,0 +1,17 @@
+"project_identifier": "intellij"
+"project_id": "60"
+"api_token_env": CROWDIN_API_KEY
+"base_url": "https://jetbrains.api.crowdin.com"
+
+"preserve_hierarchy": true
+
+files: [
+  {
+    "source": "/**/*Bundle.properties",
+    "translation": "/%two_letters_code%/%original_path%/%original_file_name%",
+    "ignore": ["**/*.class"],
+    "type": "properties",
+    "escape_quotes": 3,
+    "escape_special_characters": 0
+  }
+]
