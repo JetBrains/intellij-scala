@@ -9,7 +9,7 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.search.PsiElementProcessor
 import com.intellij.refactoring.rename.RenamePsiElementProcessor
-import org.jetbrains.annotations.{Nls, NotNull}
+import org.jetbrains.annotations.{Nls, NotNull, Nullable}
 import org.jetbrains.plugins.scala.codeInsight.navigation.DelegatingPsiTargetPresentationRenderer
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaration, ScTypeAlias}
@@ -48,7 +48,7 @@ object RenameSuperMembersUtil {
     chosen
   }
 
-  def chooseAndProcessSuper(named: ScNamedElement, processor: PsiElementProcessor[PsiNamedElement], editor: Editor): Unit = {
+  def chooseAndProcessSuper(named: ScNamedElement, processor: PsiElementProcessor[PsiNamedElement], @Nullable editor: Editor): Unit = {
 
     val superMembers = named match {
       case _: ScTypeAlias => allSuperTypes(named, withSelfType = false)
@@ -73,7 +73,7 @@ object RenameSuperMembersUtil {
 
   /* @param supermembers contains only maximal supermembers
    */
-  private def afterChoosingSuperMember(superMembers: Seq[PsiNamedElement], element: PsiNamedElement, editor: Editor)
+  private def afterChoosingSuperMember(superMembers: Seq[PsiNamedElement], element: PsiNamedElement, @Nullable editor: Editor)
                                       (action: PsiNamedElement => Unit): Unit = {
     if (superMembers.isEmpty) {
       action(element)
