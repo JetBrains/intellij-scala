@@ -87,6 +87,8 @@ final class ScalaRefCountHolder private (file: PsiFile) {
     isReady
   }
 
+  def isNew: Boolean = lastReadyModCount.get() == -1
+
 
   def runIfUnusedReferencesInfoIsAlreadyRetrievedOrSkip(analyze: () => Unit): Boolean = {
     if (isReady) {

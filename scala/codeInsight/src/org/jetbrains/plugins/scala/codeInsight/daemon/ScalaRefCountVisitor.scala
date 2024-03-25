@@ -5,6 +5,7 @@ package daemon
 import com.intellij.codeInsight.daemon.impl.HighlightVisitor
 import com.intellij.codeInsight.daemon.impl.analysis.{HighlightInfoHolder, HighlightingLevelManager}
 import com.intellij.lang.injection.InjectedLanguageManager
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.annotator.{HighlightingAdvisor, ScalaAnnotator}
@@ -12,15 +13,15 @@ import org.jetbrains.plugins.scala.annotator.hints.AnnotatorHints
 import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
 import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker._
 import org.jetbrains.plugins.scala.caches.CachesUtil.fileModCount
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiFileExt}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiFileExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 final class ScalaRefCountVisitor(project: Project) extends HighlightVisitor {
-
-  private var myRefCountHolder: ScalaRefCountHolder = _
+  private val LOG = Logger.getInstance(classOf[ScalaRefCountVisitor])
+  private var analyzedWholeFile = false
 
   override def suitableForFile(file: PsiFile): Boolean =
     HighlightingAdvisor.shouldInspect(file)
@@ -41,17 +42,28 @@ final class ScalaRefCountVisitor(project: Project) extends HighlightVisitor {
       return true
 
     clearDirtyAnnotatorHintsIn(scalaFile)
-    var success = true
-    try {
-      if (updateWholeFile) {
-        myRefCountHolder = ScalaRefCountHolder.getInstance(scalaFile)
-        success = myRefCountHolder.analyze(analyze, scalaFile)
-      } else {
-        myRefCountHolder = null
-        analyze.run()
+    val success = if (updateWholeFile) {
+      analyzedWholeFile = false
+
+      val refCountHolder = ScalaRefCountHolder.getInstance(scalaFile)
+      val isNew = refCountHolder.isNew
+      val result = refCountHolder.analyze(analyze, scalaFile)
+
+      // This will be true when the SoftReference that holds the ScalaRefCountHolder was garbage collected
+      // and the highlighting pass only partially processes the file.
+      // If that happens, the resulting RefCountHolder will look complete, but miss most references in the file
+      // which leads to a lot of unused warnings.
+      // To fix this, we can just fail the current analysis by returning false.
+      // In that case the whole file will be analyzed.
+      val incompleteRefCountHolder = isNew && !analyzedWholeFile
+      if (incompleteRefCountHolder) {
+        LOG.info(s"Failed ref-count analyzing '${scalaFile.name}' because the file was only partially analyzed and the RefCountHolder was new thus would be incomplete.")
       }
-    } finally {
-      myRefCountHolder = null
+
+      result && !incompleteRefCountHolder
+    } else {
+      analyze.run()
+      true
     }
     // TODO We should probably create a dedicated registry property that enables printing of the running time.
     // Otherwise, the output always pollutes the console, even when there's no need for that data.
@@ -62,6 +74,7 @@ final class ScalaRefCountVisitor(project: Project) extends HighlightVisitor {
   }
 
   private def registerElementsAndImportsUsed(element: PsiElement): Unit = {
+    analyzedWholeFile ||= element.is[PsiFile]
     element match {
       case ref: ScReference =>
         val resolve = ref.multiResolveScala(false)
