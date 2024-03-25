@@ -148,7 +148,7 @@ private[declarationRedundancy] object Search {
           method.getUsages(ctx)
             .filterNot(isSelfReferentialTypeDefRef)
             .foreach { usage =>
-              println(s"Found: $usage")
+              //println(s"Found: $usage")
               result.addOne(usage)
             }
         }
