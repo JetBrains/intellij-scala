@@ -7,6 +7,7 @@ import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.externalSystem.settings.ExternalSystemSettingsListener
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
+import kotlin.coroutines.Continuation
 import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.SbtUnlinkedProjectAware.Delegate
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
@@ -28,8 +29,8 @@ class SbtUnlinkedProjectAware extends ExternalSystemUnlinkedProjectAware {
       SbtUnlinkedProjectAwareHelper.isLinkedProject(project, externalProjectPath)
   }
 
-  override def linkAndLoadProject(project: Project, externalProjectPath: String): Unit =
-    new SbtOpenProjectProvider().linkToExistingProject(externalProjectPath, project)
+  override def linkAndLoadProjectAsync(project: Project, externalProjectPath: String, $completion: Continuation[_ >: kotlin.Unit]): Unit =
+    new SbtOpenProjectProvider().linkToExistingProjectAsync(externalProjectPath, project, $completion)
 
   override def subscribe(project: Project,
                          listener: ExternalSystemProjectLinkListener,
