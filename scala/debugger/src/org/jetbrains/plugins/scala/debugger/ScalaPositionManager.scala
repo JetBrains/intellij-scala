@@ -254,56 +254,71 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     }
 
     @RequiresReadLock
-    def computeRequestorAndQualifiedName(position: SourcePosition): (MyClassPrepareRequestor, String) = {
-      var qName: String = null
+    def computeClassPattern(position: SourcePosition): ClassPattern = {
       val sourceImage = findReferenceTypeSourceImage(position)
-      val insideMacro: Boolean = isInsideMacro(nonWhitespaceElement(position))
       sourceImage match {
         case cl: ScClass if ValueClassType.isValueClass(cl) =>
           //there are no instances of value classes, methods from companion object are used
-          qName = getSpecificNameForDebugger(cl) + "$"
+          ClassPattern.Single(getSpecificNameForDebugger(cl) + "$")
         case tr: ScTrait if !isLocalClass(tr) =>
           //to handle both trait methods encoding
-          qName = tr.getQualifiedNameForDebugger + "*"
+          ClassPattern.Nested(tr.getQualifiedNameForDebugger)
         case typeDef: ScTypeDefinition if !isLocalOrUnderDelayedInit(typeDef) =>
           val specificName = getSpecificNameForDebugger(typeDef)
-          qName = if (insideMacro) specificName + "*" else specificName
+          val insideMacro = isInsideMacro(nonWhitespaceElement(position))
+          if (insideMacro) ClassPattern.Nested(specificName) else ClassPattern.Single(specificName)
         case file: ScalaFile =>
           //top level member in default package
-          qName = topLevelMemberClassName(file, None)
+          ClassPattern.Single(topLevelMemberClassName(file, None))
         case pckg: ScPackaging =>
-          qName = topLevelMemberClassName(pckg.getContainingFile, Some(pckg))
+          ClassPattern.Single(topLevelMemberClassName(pckg.getContainingFile, Some(pckg)))
         case _ =>
-          val name =
+          val pattern =
             findEnclosingTypeDefinition match {
-              case Some(td) => Some(td.getQualifiedNameForDebugger + "*")
+              case Some(td) => Some(ClassPattern.Nested(getSpecificNameForDebugger(td)))
               case None =>
                 findEnclosingPackageOrFile.map {
-                  case Left(pkg) => topLevelMemberClassName(pkg.getContainingFile, Some(pkg))
-                  case Right(file) => topLevelMemberClassName(file, None)
+                  case Left(pkg) => ClassPattern.Single(topLevelMemberClassName(pkg.getContainingFile, Some(pkg)))
+                  case Right(file) => ClassPattern.Single(topLevelMemberClassName(file, None))
                 }
             }
-          qName = name.orNull
+          pattern.getOrElse(ClassPattern.Nested(SCRIPT_HOLDER_CLASS_NAME))
       }
-      // Enclosing type definition is not found
-      if (qName eq null) {
-        qName = SCRIPT_HOLDER_CLASS_NAME + "*"
-      }
-      (new MyClassPrepareRequestor(position, requestor), qName)
     }
+
+    def createRequestor(position: SourcePosition): MyClassPrepareRequestor =
+      new MyClassPrepareRequestor(position, requestor)
 
     val file = position.getFile
     throwIfNotScalaFile(file)
 
     val onLine = positionsOnLine(file, position.getLine)
-    ReadAction.nonBlocking(() => {
-      onLine.flatMap { e =>
+    val patterns = ReadAction.nonBlocking[Seq[(SourcePosition, ClassPattern)]](() => {
+      onLine.map { e =>
         ProgressManager.checkCanceled()
         val position = SourcePosition.createFromElement(e)
-        val (requestor, qName) = computeRequestorAndQualifiedName(position)
-        createClassPrepareRequests(requestor, qName)
-      }.asJava
+        (position, computeClassPattern(position))
+      }
     }).expireWhen(() => debugProcess.getProject.isDisposed).executeSynchronously()
+
+    val (nested, single) = patterns.distinctBy(_._2).partitionMap {
+      case (position, ClassPattern.Nested(pattern)) => Left(position -> ClassPattern.Nested(pattern))
+      case (position, ClassPattern.Single(pattern)) => Right(position -> ClassPattern.Single(pattern))
+    }
+    val singleFiltered = {
+      val nestedStrings = nested.map { case (_, ClassPattern.Nested(p)) => p }.toSet
+      single.filterNot { case (_, ClassPattern.Single(p)) => nestedStrings.contains(p) }
+    }
+    val filteredPatterns = nested ++ singleFiltered
+
+    val requestorsAndPatterns = filteredPatterns.map {
+      case (position, ClassPattern.Nested(pattern)) => (createRequestor(position), pattern + "*")
+      case (position, ClassPattern.Single(pattern)) => (createRequestor(position), pattern)
+    }
+
+    val res = requestorsAndPatterns.flatMap { case (requestor, pattern) => createClassPrepareRequests(requestor, pattern) }.asJava
+    println()
+    res
   }
 
   private def throwIfNotScalaFile(file: PsiFile): Unit = {
@@ -928,7 +943,7 @@ object ScalaPositionManager {
     private def sourceNameOf(refType: ReferenceType): Option[String] = ScalaPositionManager.cachedSourceName(refType)
 
     override def processClassPrepare(debuggerProcess: DebugProcess, referenceType: ReferenceType): Unit = {
-      val positionManager: CompoundPositionManager = debuggerProcess.asInstanceOf[DebugProcessImpl].getPositionManager
+      val positionManager = debuggerProcess.getPositionManager
 
       if (!sourceNameOf(referenceType).contains(sourceName)) return
 
@@ -1084,5 +1099,11 @@ object ScalaPositionManager {
       seenRefTypes.clear()
       sourceNames.clear()
     }
+  }
+
+  private sealed trait ClassPattern
+  private object ClassPattern {
+    final case class Single(pattern: String) extends ClassPattern
+    final case class Nested(pattern: String) extends ClassPattern
   }
 }
