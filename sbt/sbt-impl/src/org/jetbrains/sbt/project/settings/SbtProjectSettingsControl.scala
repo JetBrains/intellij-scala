@@ -104,7 +104,15 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
   }
 
   override def updateInitialExtraSettings(): Unit = {
-    applyExtraSettings(getInitialSettings)
+    val settings = getInitialSettings
+    val shouldReloadProject =
+      settings.useSeparateCompilerOutputPaths != extraControls.useSeparateCompilerOutputPaths.isSelected
+    applyExtraSettings(settings)
+    val project = getProject
+    if (shouldReloadProject && project != null) {
+      val builder = new ImportSpecBuilder(project, SbtProjectSystem.Id).use(ProgressExecutionMode.IN_BACKGROUND_ASYNC)
+      ExternalSystemUtil.refreshProjects(builder)
+    }
   }
 
   override protected def applyExtraSettings(settings: SbtProjectSettings): Unit = {
@@ -116,9 +124,6 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     settings.enableDebugSbtShell = extraControls.remoteDebugSbtShellCheckBox.isSelected
     settings.preferScala2 = extraControls.scalaVersionPreferenceCheckBox.isSelected
     settings.insertProjectTransitiveDependencies = extraControls.insertProjectTransitiveDependencies.isSelected
-
-    val shouldReloadProject =
-      settings.useSeparateCompilerOutputPaths != extraControls.useSeparateCompilerOutputPaths.isSelected
     settings.useSeparateCompilerOutputPaths = extraControls.useSeparateCompilerOutputPaths.isSelected
 
     val useSbtShellForBuildSettingChanged =
@@ -134,11 +139,6 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
         val newMode = if (newSetting) CompilerMode.SBT else CompilerMode.JPS
         project.getMessageBus.syncPublisher(SbtProjectSettingsControl.CompilerModeChangeTopic).onCompilerModeChange(newMode)
       }
-    }
-
-    if (shouldReloadProject) {
-      val builder = new ImportSpecBuilder(project, SbtProjectSystem.Id).use(ProgressExecutionMode.IN_BACKGROUND_ASYNC)
-      ExternalSystemUtil.refreshProjects(builder)
     }
   }
 
