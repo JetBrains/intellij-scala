@@ -9,7 +9,7 @@ import com.intellij.psi.{PsiElement, PsiNamedElement}
 import com.intellij.refactoring.rename.inplace.InplaceRefactoring
 import com.intellij.refactoring.rename.{PsiElementRenameHandler, RenamePsiElementProcessor}
 import com.intellij.ui.components.JBList
-import org.jetbrains.annotations.Nls
+import org.jetbrains.annotations.{Nls, Nullable}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, invokeLaterInTransaction}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScEnd, ScReference}
@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScEndImpl.Target
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, PsiMethodWrapper}
-import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
+import org.jetbrains.plugins.scala.lang.refactoring.rename.{RenameScalaPackageProcessor, ScalaRenameUtil}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 
@@ -27,14 +27,19 @@ import scala.annotation.nowarn
 
 trait ScalaInplaceRenameHandler {
 
-  protected final def renameProcessor(element: PsiElement): RenamePsiElementProcessor = {
+  protected final def renameProcessor(@Nullable element: PsiElement): RenamePsiElementProcessor = {
     val isScalaElement = element match {
       case null => false
       case _: PsiMethodWrapper[_] | _: PsiClassWrapper => true
       case _ => element.getLanguage.isKindOf(ScalaLanguage.INSTANCE)
     }
     val processor = if (isScalaElement) RenamePsiElementProcessor.forElement(element) else null
-    if (processor != RenamePsiElementProcessor.DEFAULT) processor else null
+    // packages are renamed using the default RenameHandler
+    if (processor != RenamePsiElementProcessor.DEFAULT && !processor.is[RenameScalaPackageProcessor]) {
+      processor
+    } else {
+      null
+    }
   }
 
   protected final def isLocal(element: PsiElement): Boolean =
@@ -47,6 +52,7 @@ trait ScalaInplaceRenameHandler {
     PsiElementRenameHandler.rename(element, project, nameSuggestionContext, editor)
   }
 
+  @Nullable
   protected final def afterElementSubstitution(elementToRename: PsiElement, editor: Editor)(inplaceRename: PsiElement => InplaceRefactoring): InplaceRefactoring = {
     def showSubstitutePopup(@Nls title: String, positive: String, subst: => PsiNamedElement): Unit = {
       val cancel = ScalaBundle.message("rename.cancel")
@@ -69,7 +75,7 @@ trait ScalaInplaceRenameHandler {
         .setMovable(false)
         .setResizable(false)
         .setRequestFocus(true)
-        .setItemChoosenCallback(callback)
+        .setItemChosenCallback(callback)
         .createPopup.showInBestPositionFor(editor): @nowarn("cat=deprecation")
     }
 
@@ -83,12 +89,22 @@ trait ScalaInplaceRenameHandler {
       }
       val title = ScalaBundle.message("rename.special.method.title")
       val positive = ScalaBundle.message("rename.special.method.rename.class", clazzType)
-      showSubstitutePopup(title, positive, ScalaRenameUtil.findSubstituteElement(elementToRename))
+      showSubstitutePopup(
+        title,
+        positive,
+        ScalaRenameUtil.findSubstituteElement(elementToRename)
+          .getOrElse(throw new Exception(s"Cannot find substitute for ${elementToRename.getText}"))
+      )
     }
     def aliasedElementPopup(): Unit = {
       val title = ScalaBundle.message("rename.aliased.title")
       val positive = ScalaBundle.message("rename.aliased.rename.actual")
-      showSubstitutePopup(title, positive, ScalaRenameUtil.findSubstituteElement(elementToRename))
+      showSubstitutePopup(
+        title,
+        positive,
+        ScalaRenameUtil.findSubstituteElement(elementToRename)
+          .getOrElse(throw new Exception(s"Cannot find substitute for ${elementToRename.getText}"))
+      )
     }
 
     val selected = Option(getElementAtCaret(editor))
@@ -96,7 +112,7 @@ trait ScalaInplaceRenameHandler {
     val nameId = selected.collect {
       case ref: ScReference => ref.nameId
       case named: ScNamedElement => named.nameId
-    }.orNull
+    }
 
     val actualElementToRename = elementToRename match {
       case Target(ScEnd(Some(begin), _)) =>
@@ -115,13 +131,17 @@ trait ScalaInplaceRenameHandler {
         specialMethodPopup(fun)
         null
       case e =>
-        if (nameId != null) nameId.getParent match {
-          case ref: ScReference if ScalaRenameUtil.isAliased(ref) =>
+        nameId.map(_.getParent) match {
+          case Some(ref: ScReference) if ScalaRenameUtil.isAliased(ref) =>
             aliasedElementPopup()
-            return null
+            null
           case _ =>
+            ScalaRenameUtil.findSubstituteElement(e)
+              .map { subst =>
+                inplaceRename(subst)
+              }
+              .orNull
         }
-        inplaceRename(ScalaRenameUtil.findSubstituteElement(e))
     }
   }
 
