@@ -27,7 +27,7 @@ import scala.annotation.nowarn
 
 trait ScalaInplaceRenameHandler {
 
-  protected final def renameProcessor(element: PsiElement): RenamePsiElementProcessor = {
+  protected final def renameProcessor(@Nullable element: PsiElement): RenamePsiElementProcessor = {
     val isScalaElement = element match {
       case null => false
       case _: PsiMethodWrapper[_] | _: PsiClassWrapper => true
