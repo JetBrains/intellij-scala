@@ -81,6 +81,7 @@ object LatestScalaVersions {
   val Scala_3_1  = new ScalaVersion(ScalaLanguageLevel.Scala_3_1, "3")
   val Scala_3_2  = new ScalaVersion(ScalaLanguageLevel.Scala_3_2, "2")
   val Scala_3_3 = new ScalaVersion(ScalaLanguageLevel.Scala_3_3, "3")
+  val Scala_3_4 = new ScalaVersion(ScalaLanguageLevel.Scala_3_4, "0")
 
   val Scala_2: ScalaVersion = Scala_2_13
   val Scala_3: ScalaVersion = Scala_3_3 // Scala 3.3 is an LTS version
