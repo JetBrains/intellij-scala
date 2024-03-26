@@ -376,6 +376,7 @@
         <renameHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.XmlRenameHandler"/>
         <renameHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.ScalaMemberInplaceRenameHandler" order="first"/>
         <renameHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.ScalaLocalInplaceRenameHandler" order="first"/>
+        <vetoRenameCondition implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaVetoDefaultRenameCondition" />
         <nameSuggestionProvider
                 implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.ScalaNameSuggestionProvider"
                 id="scalaNameSuggestionProvider" order="last"/>

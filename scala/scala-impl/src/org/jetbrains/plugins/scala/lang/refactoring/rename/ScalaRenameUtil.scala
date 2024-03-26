@@ -104,17 +104,17 @@ object ScalaRenameUtil {
     result.asJavaCollection
   }
 
-  def findSubstituteElement(elementToRename: PsiElement): PsiNamedElement = {
+  def findSubstituteElement(elementToRename: PsiElement): Option[PsiNamedElement] = {
     elementToRename match {
-      case ScalaConstructor(constr) => constr.containingClass
+      case ScalaConstructor(constr) => Some(constr.containingClass)
       case fun: ScFunction if Seq("apply", "unapply", "unapplySeq") contains fun.name =>
         fun.containingClass match {
-          case newTempl: ScNewTemplateDefinition => ScalaPsiUtil.findInstanceBinding(newTempl).orNull
-          case obj: ScObject if obj.isSyntheticObject => obj.fakeCompanionClassOrCompanionClass
-          case clazz => clazz
+          case newTempl: ScNewTemplateDefinition => ScalaPsiUtil.findInstanceBinding(newTempl)
+          case obj: ScObject if obj.isSyntheticObject => Some(obj.fakeCompanionClassOrCompanionClass)
+          case clazz => Some(clazz)
         }
-      case named: PsiNamedElement => named
-      case _ => null
+      case named: PsiNamedElement => Some(named)
+      case _ => None
     }
   }
 
@@ -193,7 +193,7 @@ object ScalaRenameUtil {
   }
 
   def sameElement(range: RangeMarker, element: PsiElement): Boolean = {
-    val newElemRange = Option(ScalaRenameUtil.findSubstituteElement(element)).map(_.getTextRange)
+    val newElemRange = ScalaRenameUtil.findSubstituteElement(element).map(_.getTextRange)
     newElemRange.exists(nr => nr.getStartOffset == range.getStartOffset && nr.getEndOffset == range.getEndOffset)
   }
 }

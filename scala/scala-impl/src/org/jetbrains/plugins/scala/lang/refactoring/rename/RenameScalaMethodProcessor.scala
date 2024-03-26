@@ -28,18 +28,31 @@ import scala.collection.mutable.ArrayBuffer
 class RenameScalaMethodProcessor extends RenameJavaMethodProcessor with ScalaRenameProcessor {
   override def canProcessElement(element: PsiElement): Boolean = RenameScalaMethodProcessor.canProcessElement(element)
 
-  override def substituteElementToRename(element: PsiElement, editor: Editor): PsiElement = { val guess = ScalaRenameUtil.findSubstituteElement(element)
-    if (guess != element) guess else RenameSuperMembersUtil.chooseSuper(element.asInstanceOf[ScNamedElement])
+  override def substituteElementToRename(element: PsiElement, editor: Editor): PsiElement = {
+    val guess = ScalaRenameUtil.findSubstituteElement(element)
+    guess match {
+      case Some(guess) if guess != element => guess
+      case _ => RenameSuperMembersUtil.chooseSuper(element.asInstanceOf[ScNamedElement])
+    }
   }
 
   override def substituteElementToRename(element: PsiElement, editor: Editor, renameCallback: Pass[_ >: PsiElement]): Unit = {
     val named = element match {case named: ScNamedElement => named; case _ => return}
     val guess = ScalaRenameUtil.findSubstituteElement(element)
-    if (guess != element) renameCallback.pass(guess)
-    else RenameSuperMembersUtil.chooseAndProcessSuper(named, (named: PsiNamedElement) => {
-      renameCallback.pass(named)
-      false
-    }, editor)
+
+    guess match {
+      case Some(guess) if guess != element =>
+        renameCallback.pass(guess)
+      case _ =>
+        RenameSuperMembersUtil.chooseAndProcessSuper(
+          named,
+          (named: PsiNamedElement) => {
+            renameCallback.pass(named)
+            false
+          },
+          editor
+        )
+    }
   }
 
   override def renameElement(psiElement: PsiElement, newName: String, usages: Array[UsageInfo], listener: RefactoringElementListener): Unit = {
@@ -83,7 +96,7 @@ class PrepareRenameScalaMethodProcessor extends RenamePsiElementProcessor {
     } {
       buff += elem
     }
-    if (!buff.isEmpty) {
+    if (buff.nonEmpty) {
       def addGettersAndSetters(): Unit = {
         def nameWithSetterSuffix(oldName: String, newName: String): String = {
           val newSuffix = ScalaRenameUtil.setterSuffix(newName)

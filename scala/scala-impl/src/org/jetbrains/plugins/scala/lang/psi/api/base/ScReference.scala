@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.base
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScStableReferencePattern
@@ -164,8 +165,9 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
    *
    * Corresponding references are used in FindUsages, but filtered from Rename
    */
-  def isIndirectReferenceTo(resolved: PsiElement, element: PsiElement): Boolean = {
-    if (resolved == null) return false
+  def isIndirectReferenceTo(@Nullable resolved: PsiElement, element: PsiElement): Boolean = {
+    if (resolved == null)
+      return false
     (resolved, element) match {
       case (typeAlias: ScTypeAliasDefinition, cls: PsiClass) =>
         typeAlias.isExactAliasFor(cls)
@@ -262,7 +264,7 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
                     ref.qualifier match {
                       case Some(_) =>
                       case None =>
-                        if (!ref.getParent.isInstanceOf[ScImportSelector]) {
+                        if (!ref.getParent.is[ScImportSelector]) {
                           if (ref.refName == parts(index)) res = false
                         }
                     }
