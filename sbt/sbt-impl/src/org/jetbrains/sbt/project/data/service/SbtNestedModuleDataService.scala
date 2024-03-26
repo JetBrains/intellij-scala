@@ -17,7 +17,7 @@ import org.jetbrains.annotations.VisibleForTesting
 import org.jetbrains.plugins.scala.util.ExternalSystemUtil
 import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.project.SbtProjectSystem
-import org.jetbrains.sbt.project.data.findModuleForParentOfDataNode
+import org.jetbrains.sbt.project.data.{computeOrphanDataForModuleType, findModuleForParentOfDataNode}
 import org.jetbrains.sbt.project.module.SbtNestedModuleData
 import org.jetbrains.sbt.settings.SbtSettings
 
@@ -35,25 +35,8 @@ class SbtNestedModuleDataService extends AbstractModuleDataService[SbtNestedModu
     projectData: ProjectData,
     project: Project,
     modelsProvider: IdeModifiableModelsProvider
-  ): Computable[util.Collection[Module]] = {
-    () => {
-      val orphanIdeModules = new java.util.ArrayList[Module]()
-
-      modelsProvider.getModules.foreach { module =>
-        val isPossibleOrphan = !module.isDisposed && ExternalSystemApiUtil.isExternalSystemAwareModule(projectData.getOwner, module) &&
-          ExternalSystemApiUtil.getExternalModuleType(module) == sbtNestedModuleType
-        if (isPossibleOrphan) {
-          val rootProjectPath = ExternalSystemApiUtil.getExternalRootProjectPath(module)
-          if (projectData.getLinkedExternalProjectPath.equals(rootProjectPath)) {
-            if (module.getUserData(AbstractModuleDataService.MODULE_DATA_KEY) == null) {
-              orphanIdeModules.add(module)
-            }
-          }
-        }
-      }
-      orphanIdeModules
-    }
-  }
+  ): Computable[util.Collection[Module]] =
+    computeOrphanDataForModuleType(sbtNestedModuleType, projectData, modelsProvider)
 
   override def importData(
     toImport: util.Collection[_ <: DataNode[SbtNestedModuleData]],
