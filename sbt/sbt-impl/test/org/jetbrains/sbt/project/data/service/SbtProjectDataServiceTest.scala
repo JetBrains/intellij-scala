@@ -91,7 +91,7 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
         externalConfigPath := getProject.getBasePath + "/module1"
       }
 
-      arbitraryNodes += new SbtProjectNode(SbtProjectData(None, "", getProject.getBasePath, projectTransitiveDependenciesUsed = false))
+      arbitraryNodes += new SbtProjectNode(SbtProjectData(None, "", getProject.getBasePath, projectTransitiveDependenciesUsed = false, prodTestSourcesSeparated = false))
     }.build.toDataNode
 
     importProjectData(testProject)
@@ -137,7 +137,7 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
         )
       }
 
-      arbitraryNodes += new SbtProjectNode(SbtProjectData(jdk, sbtVersion, getProject.getBasePath, projectTransitiveDependenciesUsed = false))
+      arbitraryNodes += new SbtProjectNode(SbtProjectData(jdk, sbtVersion, getProject.getBasePath, projectTransitiveDependenciesUsed = false, prodTestSourcesSeparated = false))
     }.build.toDataNode
 
   private def doTestBasePackages(basePackages: Seq[String]): Unit = {

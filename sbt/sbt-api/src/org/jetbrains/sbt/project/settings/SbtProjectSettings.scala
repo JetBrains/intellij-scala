@@ -70,6 +70,8 @@ class SbtProjectSettings extends ExternalProjectSettings {
   var insertProjectTransitiveDependencies: Boolean = true
   @BeanProperty
   var useSeparateCompilerOutputPaths: Boolean = false
+  @BeanProperty
+  var separateProdAndTestSources: Boolean = false
 
   //SBT shell settings
   @BeanProperty var useSbtShellForImport: Boolean = false
@@ -106,6 +108,7 @@ class SbtProjectSettings extends ExternalProjectSettings {
     result.preferScala2 = preferScala2
     result.insertProjectTransitiveDependencies = insertProjectTransitiveDependencies
     result.useSeparateCompilerOutputPaths = useSeparateCompilerOutputPaths
+    result.separateProdAndTestSources = separateProdAndTestSources
     result
   }
 }

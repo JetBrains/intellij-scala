@@ -135,7 +135,8 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
     val linkedSbtProjectPath = generateTestProjectPath(linkedProjectName)
     linkSbtProject(
       linkedSbtProjectPath,
-      transitiveProjectDependencies = false
+      transitiveProjectDependencies = false,
+      prodTestSourcesSeparated = false
     )
     runTest(
       new project(ideProjectName) {

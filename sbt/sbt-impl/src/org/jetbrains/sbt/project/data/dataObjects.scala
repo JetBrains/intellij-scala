@@ -36,12 +36,13 @@ abstract class SbtEntityData extends AbstractExternalEntityData(SbtProjectSystem
 
 object SbtEntityData {
   def datakey[T](clazz: Class[T],
-                // note: the weight was changed due to the `SbtNestedModuleData` implementation.
-                // It may happen that, for a given entity `SbtEntityData`, it wants to find its parent dataNode module via a `AbstractModuleDataService.MODULE_KEY` key.
-                // The key `AbstractModuleDataService.MODULE_KEY` is assigned to `SbtNestedModuleData` within the `SbtNestedModuleDataService`
-                 // itself (to be precise this is happening inside `AbstractModuleDataService`, but it is called from `SbtNestedModuleDataService`),
-                 // so it is necessary for this assignment to be made before the rest of the other services.
-                 weight: Int = ProjectKeys.MODULE.getProcessingWeight + 2
+                /* note: the weight was changed due to the `SbtNestedModuleData` and `SbtSourceSetData` creation.
+                It may happen that, for a given `SbtEntityData`, it wants to find its parent dataNode module via a `AbstractModuleDataService.MODULE_KEY` key.
+                The key `AbstractModuleDataService.MODULE_KEY` is assigned to special module types within their respective services
+                (to be precise this is happening inside `AbstractModuleDataService`, but it is called from the services),
+                so it is necessary for this assignment to be made before the rest of the other services.
+                 */
+                 weight: Int = ProjectKeys.MODULE.getProcessingWeight + 3
                 ): Key[T] = new Key(clazz.getName, weight)
 }
 
@@ -109,10 +110,11 @@ case class SbtProjectData @PropertyMapping(Array("jdk", /*"javacOptions",*/ "sbt
   sbtVersion: String,
   projectPath: String,
   //TODO Ideally this property should be stored in the workspace model
-  projectTransitiveDependenciesUsed: Boolean
+  projectTransitiveDependenciesUsed: Boolean,
+  prodTestSourcesSeparated: Boolean
 ) extends SbtEntityData {
   //Default constructor is needed in order intellij can deserialize data in old format with some fields missing
-  def this() = this(null, "1.0.0", ".", false)
+  def this() = this(null, "1.0.0", ".", false, false)
 }
 
 object SbtProjectData {
@@ -122,13 +124,15 @@ object SbtProjectData {
     jdk: Option[SdkReference],
     sbtVersion: String,
     projectPath: String,
-    projectTransitiveDependenciesUsed: Boolean
+    projectTransitiveDependenciesUsed: Boolean,
+    prodTestSourcesSeparated: Boolean
   ): SbtProjectData =
     SbtProjectData(
       jdk.orNull,
       sbtVersion,
       projectPath,
-      projectTransitiveDependenciesUsed
+      projectTransitiveDependenciesUsed,
+      prodTestSourcesSeparated
     )
 }
 

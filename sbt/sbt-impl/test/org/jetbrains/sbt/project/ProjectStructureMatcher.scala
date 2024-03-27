@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertC
 import org.jetbrains.sbt.DslUtils.MatchType
 import org.jetbrains.sbt.project.ProjectStructureDsl._
 import org.jetbrains.sbt.project.ProjectStructureMatcher.AttributeMatchType
+import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.junit.Assert.{assertFalse, assertTrue, fail}
 import org.junit.{Assert, ComparisonFailure}
 
@@ -174,9 +175,11 @@ trait ProjectStructureMatcher {
       assertMatchWithIgnoredOrder(s"$folderTypeDisplayName of module '${module.getName}'", Nil, sourceFolders)(mt)
     }
     else {
-      val contentRoot = getSingleContentRoot(module)
-      val sourceFolders = contentRoot.getSourceFolders(folderType).asScala.toSeq
-      assertContentRootFoldersEqual(folderTypeDisplayName, module, contentRoot, sourceFolders, expected)(mt)
+      val contentRoots = getContentRoots(module)
+      val mapa = contentRoots.map { contentRoot =>
+        contentRoot -> contentRoot.getSourceFolders(folderType).asScala.toSeq
+      }.toMap
+      assertContentRootFoldersEqual(folderTypeDisplayName, module, mapa, expected)(mt)
     }
   }
 
@@ -187,26 +190,33 @@ trait ProjectStructureMatcher {
       assertMatchWithIgnoredOrder(s"Excluded folders of module '${module.getName}'", Nil, excludedFolderFiles)(mt)
     }
     else {
-      val contentRoot = getSingleContentRoot(module)
-      assertContentRootFoldersEqual(s"Excluded folders", module, contentRoot, contentRoot.getExcludeFolders.toSeq, expected)(mt)
+      val o = SbtProjectSettings.forProject(module.getProject)
+      val contentRoot = getContentRoots(module)
+      val mapa = contentRoot.map { cr =>
+        cr -> cr.getExcludeFolders.toSeq
+      }.toMap
+      assertContentRootFoldersEqual(s"Excluded folders", module, mapa, expected)(mt)
     }
   }
 
-  private def assertContentRootFoldersEqual(folderType: String, module: Module, contentRoot: roots.ContentEntry, actual: Seq[roots.ContentFolder], expected: Seq[String])
+  private def assertContentRootFoldersEqual(folderType: String, module: Module, contentRootToFolders: Map[roots.ContentEntry, Seq[roots.ContentFolder]], expected: Seq[String])
                                            (mt: Option[MatchType]): Unit = {
-    val actualFolders = actual.map { folder =>
-      val folderUrl = folder.getUrl
-      if (folderUrl.startsWith(contentRoot.getUrl))
-        folderUrl.substring(Math.min(folderUrl.length, contentRoot.getUrl.length + 1))
-      else
-        folderUrl
-    }
+    val actualFolders = contentRootToFolders.flatMap { case (contentRoot, contentFolders) =>
+      contentFolders.map {folder =>
+        val folderUrl = folder.getUrl
+        if (folderUrl.startsWith(contentRoot.getUrl))
+          folderUrl.substring(Math.min(folderUrl.length, contentRoot.getUrl.length + 1))
+        else
+          folderUrl
+      }
+    }.toSeq
     assertMatchWithIgnoredOrder(s"$folderType of module '${module.getName}'", expected, actualFolders)(mt)
   }
 
   private def getSingleContentRoot(module: Module): roots.ContentEntry = {
+    val o = SbtProjectSettings.forProject(module.getProject)
     val contentRoots = getContentRoots(module)
-    assertEquals(s"Expected single content root in module ${module.getName}, Got: $contentRoots", 1, contentRoots.length)
+   // assertEquals(s"Expected single content root in module ${module.getName}, Got: $contentRoots", 1, contentRoots.length)
     contentRoots.head
   }
 

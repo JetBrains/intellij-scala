@@ -2,18 +2,20 @@ package org.jetbrains.plugins.scala.projectView
 
 import com.intellij.ide.projectView.impl.ProjectRootsUtil
 import com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode.canRealModuleNameBeHidden
-import com.intellij.ide.projectView.impl.nodes.{ProjectViewModuleGroupNode, ProjectViewProjectNode, PsiDirectoryNode, PsiFileSystemItemFilter}
+import com.intellij.ide.projectView.impl.nodes.{ProjectViewModuleGroupNode, ProjectViewModuleNode, ProjectViewProjectNode, PsiDirectoryNode, PsiFileSystemItemFilter}
 import com.intellij.ide.projectView.{PresentationData, TreeStructureProvider, ViewSettings}
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
-import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil.isExternalSystemAwareModule
+import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil.{getExternalProjectPath, isExternalSystemAwareModule}
 import com.intellij.openapi.module.{Module, ModuleGrouper, ModuleManager}
 import com.intellij.openapi.project.{DumbAware, Project}
-import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
+import com.intellij.openapi.roots.{ModuleRootManager, ProjectRootManager}
 import com.intellij.openapi.util.NlsSafe
+import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
 import com.intellij.psi.PsiDirectory
 import com.intellij.ui.SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.sbt.project.SbtProjectSystem
@@ -34,16 +36,10 @@ final class ScalaTreeStructureProvider extends TreeStructureProvider with DumbAw
 
     val childrenSeq = children.asScala.toSeq
     val modifiedChildren = parent match {
-      // note: in GradleTreeStructureProvider they also implemented special handling for ProjectViewModuleGroupNode.
-      // It is important in Gradle because they allow:
-      // - modules to be created outside the project base directory,
-      // - creation of modules with empty/non-existent/many content roots (we always have single content root for module)
-      // In all this cases ProjectViewModuleGroupNode could be a parent.
-      // In sbt I haven't been able to find any standard case in which we would need it. I was able to recreate such situation
-      // by e.g. removing content root in the root module, but it is not our standard case, so I think we shouldn't care about it.
-      // Handling ProjectViewModuleGroupNode will be probably needed for SCL-21157
+      case _: ProjectViewModuleGroupNode =>
+        transformProjectViewModuleGroupNodeChildren(childrenSeq)(project)
       case _: ProjectViewProjectNode =>
-        getProjectViewProjectNodeChildren(childrenSeq)(project, settings)
+        transformProjectViewProjectNodeChildren(childrenSeq)(project, settings)
       case _ =>
         childrenSeq.map { it =>
           transform(it)(it.getProject, settings)
@@ -55,14 +51,33 @@ final class ScalaTreeStructureProvider extends TreeStructureProvider with DumbAw
 
 private object ScalaTreeStructureProvider {
 
-  // note: this logic is written based on like the case where the parent is ProjectViewProjectNode is implemented in
+  private def transformProjectViewModuleGroupNodeChildren(children: Seq[Node])
+                                                         (implicit project: Project): Seq[Node] = {
+    children.flatMap {
+      case projectViewModuleNode: ProjectViewModuleNode =>
+        val module = projectViewModuleNode.getValue
+        // note: in Gradle when #showUnderModuleGroup returns true for the given module, it is possible to create a special object -
+        // GradleProjectViewModuleNode. Later explicit handling for it is done. In sbt I couldn't find a case in which it would be needed.
+        // That's because ProjectViewModuleNode might be created when module has empty/non-existent/many content roots. In our implementation it is only possible
+        // for SbtSourceSetData modules for which #showUnderModuleGroup always returns false
+        if (showUnderModuleGroup(module)) Some(projectViewModuleNode)
+        else None
+      case psiDirectoryNode: PsiDirectoryNode =>
+        val module = getModuleFromVirtualFile(psiDirectoryNode.getValue.getVirtualFile)
+        if (showUnderModuleGroup(module)) Some(psiDirectoryNode)
+        else None
+      case child => Some(child)
+    }
+  }
+
+
+  // note: this logic was written on the basis of how ProjectViewProjectNode is handled in
   // org.jetbrains.plugins.gradle.projectView.GradleTreeStructureProvider#getProjectNodeChildren
-  private def getProjectViewProjectNodeChildren(children: Seq[Node])
+  private def transformProjectViewProjectNodeChildren(children: Seq[Node])
                                 (implicit project: Project, settings: ViewSettings): Seq[Node] = {
-    val fileIndex = ProjectRootManager.getInstance(project).getFileIndex
     children.map {
           case projectViewModuleGroupNode: ProjectViewModuleGroupNode =>
-            val directoryNode = getProjectViewModuleGroupNodeDirectoryNode(projectViewModuleGroupNode, fileIndex)
+            val directoryNode = getProjectViewModuleGroupNodeDirectoryNode(projectViewModuleGroupNode)
             directoryNode.getOrElse(projectViewModuleGroupNode)
           case psiDirectoryNode: PsiDirectoryNode if psiDirectoryNode.getParent == null && psiDirectoryNode.getValue != null =>
             val scalaModuleDirectoryNode = getScalaModuleDirectoryNode(psiDirectoryNode)
@@ -72,15 +87,14 @@ private object ScalaTreeStructureProvider {
     }
   }
 
-  // note: this logic is written based on like the case where the parent is ProjectViewProjectNode is implemented in
-  // org.jetbrains.plugins.gradle.projectView.GradleTreeStructureProvider#getProjectNodeChildren
-  private def getProjectViewModuleGroupNodeDirectoryNode(projectViewModuleGroupNode: ProjectViewModuleGroupNode, fileIndex: ProjectFileIndex): Option[PsiDirectoryNode] = {
+  private def getProjectViewModuleGroupNodeDirectoryNode(projectViewModuleGroupNode: ProjectViewModuleGroupNode)
+                                                        (implicit project: Project): Option[PsiDirectoryNode] = {
     val children = projectViewModuleGroupNode.getChildren.asScala.toSeq
     val collectedChildren = children.collect {
       case child: PsiDirectoryNode if {
         val psiDirectory = child.getValue
         psiDirectory != null && {
-          val module = fileIndex.getModuleForFile(psiDirectory.getVirtualFile)
+          val module = getModuleFromVirtualFile(psiDirectory.getVirtualFile)
           isExternalSystemAwareModule(SbtProjectSystem.Id, module)
         }
       } => (child.getValue.getVirtualFile, child)
@@ -106,22 +120,34 @@ private object ScalaTreeStructureProvider {
     parentNodePair.map(_._2)
   }
 
+  private def getModuleFromVirtualFile(virtualFile: VirtualFile)
+                                      (implicit project: Project): Module = {
+    val fileIndex = ProjectRootManager.getInstance(project).getFileIndex
+    fileIndex.getModuleForFile(virtualFile)
+  }
+
+  private def showUnderModuleGroup(module: Module): Boolean =
+    !isExternalSystemAwareModule(SbtProjectSystem.Id, module) || {
+      val projectPath = getExternalProjectPath(module)
+      projectPath != null &&
+        ModuleRootManager.getInstance(module).getContentRoots.exists(root => !FileUtil.isAncestor(projectPath, root.getPath, true)
+        )
+    }
+
   private def getScalaModuleDirectoryNode(node: PsiDirectoryNode)
-                                         (implicit project: Project, settings: ViewSettings): Option[ScalaModuleDirectoryNode] =
+                                         (implicit project: Project, settings: ViewSettings): Option[ScalaModuleDirectoryNode] = {
     getScalaModuleDirectoryNode(node.getValue, node.getFilter)
+  }
 
   private def getScalaModuleDirectoryNode(
     psiDirectory: PsiDirectory,
-    filter: PsiFileSystemItemFilter
+    @Nullable filter: PsiFileSystemItemFilter
   )(implicit project: Project, settings: ViewSettings) : Option[ScalaModuleDirectoryNode] = {
     val virtualFile = psiDirectory.getVirtualFile
-    // For now in the process of creating modules, a single content root for each module is created and its path is equal to project.base.path (it is the root of the module).
     // In ProjectRootsUtil#isModuleContentRoot it is checked whether the virtualFile is equal to the content root path associated with this virtualFile.
-    // In a nutshell, with this we check whether virtualFile is the module root. If it is, there is some probability that we should create
-    // ScalaModuleDirectoryNode for this node.
+    // If this happens, it means that we are dealing with a module root and maybe ScalaModuleDirectoryNode will have to be created.
     if (!ProjectRootsUtil.isModuleContentRoot(virtualFile, project)) return None
-    val fileIndex = ProjectRootManager.getInstance(project).getFileIndex
-    val module = fileIndex.getModuleForFile(virtualFile)
+    val module = getModuleFromVirtualFile(virtualFile)
     if (module == null) return None
     val moduleShortName = getModuleShortName(module, project, virtualFile)
     moduleShortName
@@ -133,8 +159,7 @@ private object ScalaTreeStructureProvider {
     val nodeValue = node.getValue
     nodeValue match {
       case psiDirectory: PsiDirectory =>
-        getScalaModuleDirectoryNode(psiDirectory, node.asInstanceOf[PsiDirectoryNode].getFilter)
-          .getOrElse(node)
+        getScalaModuleDirectoryNode(psiDirectory, node.asInstanceOf[PsiDirectoryNode].getFilter).getOrElse(node)
       case file: ScalaFile =>
         Node(file)
       case definition: ScTypeDefinition  =>
@@ -216,7 +241,7 @@ private case class ScalaModuleDirectoryNode(
   psiDirectory: PsiDirectory,
   settings: ViewSettings,
   @NlsSafe moduleShortName: String,
-  filter: PsiFileSystemItemFilter,
+  @Nullable filter: PsiFileSystemItemFilter,
   module: Module,
 ) extends PsiDirectoryNode(project, psiDirectory, settings, filter) {
 
