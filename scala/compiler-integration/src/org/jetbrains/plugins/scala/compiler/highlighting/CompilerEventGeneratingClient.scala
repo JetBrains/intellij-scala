@@ -31,6 +31,14 @@ private class CompilerEventGeneratingClient(
   }
 
   override def message(msg: Client.ClientMsg): Unit = {
+    if (msg.text ne null) {
+      // TODO: SCL-22142 Revisit after discussing the changes to fatal warnings in Scala 3.4.1 with the compiler team.
+      val description = CompilerMessages.description(msg.text)
+      if (CompilerMessages.isNoWarningsCanBeIncurred(description)) {
+        return
+      }
+    }
+
     msg.kind match {
       case MessageKind.Error | MessageKind.InternalBuilderError => hasErrors = true
       case _ =>
