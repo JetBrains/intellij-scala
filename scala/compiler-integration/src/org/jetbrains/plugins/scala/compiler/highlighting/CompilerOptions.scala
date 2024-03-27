@@ -15,5 +15,5 @@ private object CompilerOptions {
   }
 
   def containsFatalWarnings(scalacOptions: Seq[String]): Boolean =
-    scalacOptions.contains("-Xfatal-warnings")
+    scalacOptions.contains("-Xfatal-warnings") || scalacOptions.contains("-Werror")
 }
