@@ -83,9 +83,14 @@ final class ScSyntheticTypeParameter(override val name: String, override val own
 
 // we could try and implement all type system related stuff
 // with class types, but it is simpler to indicate types corresponding to synthetic classes explicitly
-sealed class ScSyntheticClass(val className: String, val stdType: StdType)
-                             (implicit projectContext: ProjectContext)
-  extends SyntheticNamedElement(className) with PsiClassAdapter with PsiClassFake {
+sealed class ScSyntheticClass(
+  val className: String,
+  val stdType: StdType
+)(implicit projectContext: ProjectContext)
+  extends SyntheticNamedElement(className)
+    with PsiClassAdapter
+    with PsiClassFake {
+
   override def getPresentation: ItemPresentation = {
     new ItemPresentation {
       val This: ScSyntheticClass = ScSyntheticClass.this
@@ -105,11 +110,12 @@ sealed class ScSyntheticClass(val className: String, val stdType: StdType)
 
   def addMethod(method: ScSyntheticFunction): Unit = syntheticMethods.putValue(method.name, method)
 
-  import com.intellij.psi.scope.PsiScopeProcessor
-  override def processDeclarations(processor: PsiScopeProcessor,
-                                  state: ResolveState,
-                                  lastParent: PsiElement,
-                                  place: PsiElement): Boolean = {
+  override def processDeclarations(
+    processor: com.intellij.psi.scope.PsiScopeProcessor,
+    state: ResolveState,
+    lastParent: PsiElement,
+    place: PsiElement
+  ): Boolean = {
     processor match {
       case p: ResolveProcessor =>
         val name = ScalaNamesUtil.clean(state.renamed.getOrElse(p.name))
