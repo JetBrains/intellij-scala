@@ -684,4 +684,23 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
       getScalaCodeStyleSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = before
     }
   }
+
+  def testBackspaceInOpenPackaging(): Unit = doSequentialBackspaceTest(
+    """
+      |packaging A:
+      |  val x = 0#
+      |#
+      |# # #
+      |""".stripMargin
+  )
+
+  def testBackspaceInClosedPackaging(): Unit = doSequentialBackspaceTest(
+    """
+      |package A:
+      |  val x = 0#
+      |  #
+      |  # #
+      |end A
+      |""".stripMargin
+  )
 }
