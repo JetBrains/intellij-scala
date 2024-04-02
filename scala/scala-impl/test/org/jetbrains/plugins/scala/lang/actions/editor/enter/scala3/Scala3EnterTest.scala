@@ -1447,4 +1447,14 @@ class Scala3EnterTest extends DoEditorStateTestOps with Scala2AndScala3EnterActi
       getScalaCodeStyleSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = before
     }
   }
+
+  def testEnterAfterFirstStatementInPackaging(): Unit = doEnterTest(
+    s"""package a:
+       |  val x = 0$CARET
+       |""".stripMargin,
+    s"""package a:
+       |  val x = 0
+       |  $CARET
+       |""".stripMargin
+  )
 }

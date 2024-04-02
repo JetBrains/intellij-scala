@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScCommentOwner, ScEnumCases, ScExtensionBody}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScExportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.util.IndentUtil
@@ -221,6 +222,7 @@ object ScalaIndentationSyntaxUtils {
         val isInIndentationContext =
           parent.is[ScTemplateBody] ||
             parent.is[ScExtensionBody] ||
+            parent.is[ScPackaging] ||
             isInsideIndentationBlock ||
             isInsideIndentationBlock_AsSingleBlockElement1 ||
             isInsideIndentationBlock_AsSingleBlockElement2
