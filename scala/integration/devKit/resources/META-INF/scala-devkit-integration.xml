@@ -9,11 +9,4 @@
             <add-to-group group-id="MaintenanceGroup"/>
         </action>
     </actions>
-
-    <extensions defaultExtensionNs="com.intellij">
-        <externalSystemTaskNotificationListener
-                implementation="org.jetbrains.idea.devkit.scala.IntellijSourcesAttachListener"/>
-        <projectTemplatesFactory implementation="org.jetbrains.idea.devkit.scala.project.SbtIdeaPluginTemplatesFactory"/>
-    </extensions>
-
 </idea-plugin>
