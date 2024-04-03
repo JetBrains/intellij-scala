@@ -71,7 +71,9 @@ object ScalaVersion {
  */
 object LatestScalaVersions {
 
-  // duplicated here to refer with `ScalaVersion.` prefix
+  //
+  // Exact versions
+  //
   val Scala_2_9  = new ScalaVersion(ScalaLanguageLevel.Scala_2_9, "3")
   val Scala_2_10 = new ScalaVersion(ScalaLanguageLevel.Scala_2_10, "7")
   val Scala_2_11 = new ScalaVersion(ScalaLanguageLevel.Scala_2_11, "12")
@@ -83,8 +85,16 @@ object LatestScalaVersions {
   val Scala_3_3 = new ScalaVersion(ScalaLanguageLevel.Scala_3_3, "3")
   val Scala_3_4 = new ScalaVersion(ScalaLanguageLevel.Scala_3_4, "0")
 
+  //
+  // Aliases
+  //
   val Scala_2: ScalaVersion = Scala_2_13
-  val Scala_3: ScalaVersion = Scala_3_3 // Scala 3.3 is an LTS version
+  val Scala_3_LTS: ScalaVersion = Scala_3_3 // Scala 3.3 is an LTS version
+  val Scala_3: ScalaVersion = Scala_3_LTS
+
+  //
+  // Release candidates
+  //
   val Scala_3_RC = new ScalaVersion(ScalaLanguageLevel.Scala_3_4, "1-RC1")
 
   val allScala2: Seq[ScalaVersion] = Seq(
