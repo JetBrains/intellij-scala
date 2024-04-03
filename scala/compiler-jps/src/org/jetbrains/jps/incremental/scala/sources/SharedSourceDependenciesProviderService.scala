@@ -1,7 +1,7 @@
 package org.jetbrains.jps.incremental.scala.sources
 
 import org.jetbrains.jps.ModuleChunk
-import org.jetbrains.jps.incremental.scala.SourceDependenciesProviderService
+import org.jetbrains.jps.incremental.scala.{BuildParametersUtils, SourceDependenciesProviderService}
 import org.jetbrains.jps.model.module.{JpsModule, JpsModuleDependency}
 
 import scala.jdk.CollectionConverters._
@@ -11,13 +11,12 @@ class SharedSourceDependenciesProviderService extends SourceDependenciesProvider
     val modules = chunk.getModules.asScala.toSeq
 
     val dependencies = modules.flatMap(_.getDependenciesList.getDependencies.asScala)
-
     val allModuleDependencies = dependencies.collect {
       case it: JpsModuleDependency if it.getModule != null => it.getModule
     }
 
     val transitiveDependenciesEnabled = areTransitiveDependenciesEnabled
-     allModuleDependencies.collect {
+    allModuleDependencies.collect {
       case it: JpsModule if it.getModuleType == SharedSourcesModuleType.INSTANCE &&
         (!transitiveDependenciesEnabled || !isSharedSourcesModulePresentInModulesDependencies(allModuleDependencies, it)) => it
     }
@@ -50,11 +49,7 @@ class SharedSourceDependenciesProviderService extends SourceDependenciesProvider
   }
 
   private def areTransitiveDependenciesEnabled: Boolean = {
-    // "sbt.process.dependencies.recursively" property is the negation of the SbtProjectSettings.insertProjectTransitiveDependencies value
-    // (see ScalaBuildProcessParametersProvider.transitiveProjectDependenciesParams).
-    // So the default value for "sbt.process.dependencies.recursively" is set to
-    // the opposite of the default value of SbtProjectSettings.insertProjectTransitiveDependencies
-    val shouldProcessDependenciesRecursively = Option(System.getProperty("sbt.process.dependencies.recursively")).flatMap(_.toBooleanOption).getOrElse(false)
+    val shouldProcessDependenciesRecursively = BuildParametersUtils.getProcessDependenciesRecursivelyProperty
     !shouldProcessDependenciesRecursively
   }
 }
