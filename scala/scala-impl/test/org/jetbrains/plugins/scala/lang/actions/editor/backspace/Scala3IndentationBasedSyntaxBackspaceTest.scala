@@ -703,4 +703,35 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
       |end A
       |""".stripMargin
   )
+
+  def testBackspaceInTwoOpenPackagings(): Unit = doSequentialBackspaceTest(
+    """
+      |package A:
+      |  package B:
+      |    val x =
+      |      0#
+      |#
+      |# # # # #
+      |""".stripMargin
+  )
+
+  def testBackspaceNextLineInTwoOpenPackagings(): Unit = doSequentialBackspaceTest(
+    """
+      |package A:
+      |  package B:
+      |    val x = 0#
+      |    # #
+      |""".stripMargin
+  )
+
+  def testBackspaceInOpenPackagingInClosedPackaging(): Unit = doSequentialBackspaceTest(
+    """
+      |package A:
+      |  package B:
+      |    val x = 0#
+      |  #
+      |  # # #
+      |end A
+      |""".stripMargin
+  )
 }

@@ -160,7 +160,7 @@ object ScalaIndentationSyntaxUtils {
     // TODO: it should be just ScBlockStatement, without ScCommentOwner:
     //  according to the language spec, definitions are also block statements,
     //  but in our hierarchy they are not, we should try adding ScBlockStatement to all Definition PSI hierarchy
-    val isBlockChild = element.is[ScBlockStatement, ScExportStmt] ||
+    val isBlockChild = element.is[ScBlockStatement, ScExportStmt, ScPackaging] ||
       element.isInstanceOf[ScCommentOwner] ||
       element.elementType == ScalaTokenTypes.tSEMICOLON
     element match {
