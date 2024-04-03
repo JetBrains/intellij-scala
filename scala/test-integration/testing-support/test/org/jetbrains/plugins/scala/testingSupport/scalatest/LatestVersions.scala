@@ -55,3 +55,6 @@ trait WithScala_2_13 extends WithScalaTest_X {
 trait WithScala_3 extends WithScalaTest_X {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3
 }
+trait WithScala_3_RC extends WithScalaTest_X {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_RC
+}

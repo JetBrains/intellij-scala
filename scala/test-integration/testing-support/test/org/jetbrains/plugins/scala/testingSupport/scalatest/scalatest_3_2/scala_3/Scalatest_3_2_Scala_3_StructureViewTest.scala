@@ -11,3 +11,12 @@ class Scalatest_3_2_Scala_3_StructureViewTest extends Scalatest_3_2_Scala_3_Base
   with PropSpecFileStructureViewTest
   with WordSpecFileStructureViewTest
   with FunSpecFileStructureViewTest
+
+class Scalatest_3_2_Scala_3_RC_StructureViewTest extends Scalatest_3_2_Scala_3_RC_Base
+  with FeatureSpecFileStructureViewTest
+  with FlatSpecFileStructureViewTest
+  with FreeSpecFileStructureViewTest
+  with FunSuiteFileStructureViewTest
+  with PropSpecFileStructureViewTest
+  with WordSpecFileStructureViewTest
+  with FunSpecFileStructureViewTest
