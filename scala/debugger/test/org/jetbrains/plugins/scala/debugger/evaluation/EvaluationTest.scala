@@ -272,6 +272,12 @@ class EvaluationTest_3 extends EvaluationTests_2_13_And_Later {
 
 class EvaluationTest_3_RC extends EvaluationTest_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
+
+  override def testPrefixedThis(): Unit = {
+    expressionEvaluationTest() { implicit ctx =>
+      evalEquals("This.this.x", "1")
+    }
+  }
 }
 
 abstract class EvaluationTestBase extends ExpressionEvaluationTestBase {

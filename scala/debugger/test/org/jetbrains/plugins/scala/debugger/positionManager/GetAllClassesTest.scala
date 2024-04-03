@@ -291,7 +291,9 @@ abstract class GetAllClassesTestBase extends PositionManagerTestBase {
        |object AnonClass {
        |  def main(args: Array[String]): Unit = {
        |    val r = new Runnable {
-       |      override def run(): Unit = $offsetMarker()
+       |      override def run(): Unit = {
+       |        ${offsetMarker}println()
+       |      }
        |    }
        |    "" $breakpoint
        |  }
