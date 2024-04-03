@@ -97,6 +97,9 @@ object LatestScalaVersions {
   //
   val Scala_3_RC = new ScalaVersion(ScalaLanguageLevel.Scala_3_4, "2-RC1")
 
+  /** Available only when using [[DependencyManagerBase.Resolver.TypesafeScalaPRValidationSnapshots]] */
+  val Scala_2_13_RC = new ScalaVersion(ScalaLanguageLevel.Scala_2_13, "14-bin-ed3dfc9-SNAPSHOT")
+
   val allScala2: Seq[ScalaVersion] = Seq(
     Scala_2_9,
     Scala_2_10,

@@ -16,7 +16,7 @@ abstract class SbtDocumentationProviderTestBase extends DocumentationProviderTes
   protected def doGenerateSbtDocDescriptionTest(sbtContent: String, expectedDocShort: String): Unit =
     doGenerateDocContentTest(sbtContent, expectedDocShort)
 
-  override protected def createFile(fileContent: String): PsiFile = {
+  override protected def configureFixtureFromText(fileContent: String): Unit = {
     val fileText =
       s"""import sbt._
          |import sbt.KeyRanks._

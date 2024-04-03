@@ -143,6 +143,7 @@ abstract class ScalaLightCodeInsightFixtureTestCase
   protected final def openEditorAtOffset(startOffset: Int): Editor = scalaFixture.openEditorAtOffset(startOffset)
 
   protected final def configureScalaFromFileText(@Language("Scala") fileText: String): PsiFile = scalaFixture.configureFromFileText(fileText)
+  protected final def configureScala3FromFileText(@Language("Scala 3") fileText: String): PsiFile = scalaFixture.configureFromFileText(fileText)
   protected final def addScalaFileToProject(relativePath: String, @Language("Scala") fileText: String): PsiFile = myFixture.addFileToProject(relativePath, fileText)
   //end section: helper methods
 
