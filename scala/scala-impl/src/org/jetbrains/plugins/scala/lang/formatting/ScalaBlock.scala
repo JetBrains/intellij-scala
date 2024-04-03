@@ -151,9 +151,12 @@ class ScalaBlock(
         new ChildAttributes(indent, null)
       case p: ScPackaging if p.isExplicit =>
         new ChildAttributes(Indent.getNormalIndent, null)
+      case ElementType(ScalaTokenTypes.tCOLON) if blockFirstNode.getParent.is[ScPackaging] =>
+        // The ScalaBlock of a packaging block starts with a ':' token
+
+        new ChildAttributes(Indent.getNormalIndent, null)
       case _: ScBlock =>
-        val grandParent = blockFirstNode.getParent
-        val indent = grandParent match {
+        val indent = blockFirstNode.getParent match {
           case _: ScCaseClause | _: ScFunctionExpr => Indent.getNormalIndent
           case _  => Indent.getNoneIndent
         }
