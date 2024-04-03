@@ -17,15 +17,23 @@ import java.{util => ju}
 /** @param includeScalaReflectIntoCompilerClasspath also see [[ScalaReflectLibraryLoader]] */
 case class ScalaSDKLoader(
   includeScalaReflectIntoCompilerClasspath: Boolean = false,
+  //TODO: drop this parameter and fix tests
   includeScalaCompilerIntoLibraryClasspath: Boolean = false,
-  compilerBridgeBinaryJar: Option[File] = None
+  includeLibraryFilesInSdk: Boolean = true,
+  compilerBridgeBinaryJar: Option[File] = None,
+  dependencyManager: DependencyManagerBase = DependencyManager
 ) extends LibraryLoader {
-
-  protected lazy val dependencyManager: DependencyManagerBase = DependencyManager
 
   import DependencyManagerBase._
   import ScalaSDKLoader._
   import template.Artifact
+
+  def withResolvers(_resolvers: Seq[Resolver]): ScalaSDKLoader = {
+    val dependencyManager = new DependencyManagerBase {
+      override protected def resolvers: Seq[Resolver] = _resolvers
+    }
+    copy(dependencyManager = dependencyManager)
+  }
 
   protected def binaryDependencies(implicit version: ScalaVersion): List[DependencyDescription] =
     if (version.languageLevel.isScala3) {
@@ -86,23 +94,31 @@ case class ScalaSDKLoader(
       fail(s"Local SDK files should contain compiler jar for : $version\n${compilerClasspath.mkString("\n")}").asInstanceOf[Nothing]
     }
 
-    val scalaLibraryClasses: ju.List[VirtualFile] = {
-      import scala.jdk.CollectionConverters._
-      val files =
-        if (includeScalaCompilerIntoLibraryClasspath) compilerClasspath
-        else compilerClasspath.filter(_.getName.matches(".*(scala-library|scala3-library).*"))
-      files.map(findJarFile).asJava
-    }
+    val scalaLibraryClasses: Seq[VirtualFile] =
+      if (includeLibraryFilesInSdk) {
+        val files =
+          if (includeScalaCompilerIntoLibraryClasspath) compilerClasspath
+          else compilerClasspath.filter(_.getName.matches(".*(scala-library|scala3-library).*"))
+        files.map(findJarFile)
+      }
+      else Nil
+
+    val scalaLibrarySources =
+      if (includeLibraryFilesInSdk) Seq(sourceRoot)
+      else Nil
 
     val libraryTable = LibraryTablesRegistrar.getInstance.getLibraryTable(module.getProject)
     val scalaSdkName = s"scala-sdk-${version.minor}"
 
-    def createNewLibrary = PsiTestUtil.addProjectLibrary(
-      module,
-      scalaSdkName,
-      scalaLibraryClasses,
-      ju.Collections.singletonList(sourceRoot)
-    )
+    import scala.jdk.CollectionConverters._
+
+    def createNewLibrary =
+      PsiTestUtil.addProjectLibrary(
+        module,
+        scalaSdkName,
+        scalaLibraryClasses.asJava,
+        scalaLibrarySources.asJava
+      )
 
     val library =
       libraryTable.getLibraryByName(scalaSdkName)

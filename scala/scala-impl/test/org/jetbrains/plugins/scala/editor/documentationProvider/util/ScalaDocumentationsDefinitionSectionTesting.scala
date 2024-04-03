@@ -13,9 +13,11 @@ trait ScalaDocumentationsSectionsTestingBase {
 
   protected def DocHtmlHead(file: PsiFile): String =
     s"""<head>
-       |<style>${ScalaDocCss.value}</style>
+       |$CssStyleSection
        |<base href="${VfsUtilCore.convertToURL(file.getVirtualFile.getUrl)}">
        |</head>""".stripMargin
+
+  val CssStyleSection = s"""<style>${ScalaDocCss.value}</style>"""
 
   protected val BodyStart = s"<body>"
   protected val BodyEnd = "</body>"
@@ -84,7 +86,7 @@ trait ScalaDocumentationsDefinitionSectionTesting extends ScalaDocumentationsSec
   self: DocumentationProviderTestBase =>
 
   protected def doGenerateDocDefinitionTest(fileContent: String, expectedDefinition: String): Unit = {
-    val actualDoc = generateDoc(fileContent)
+    val actualDoc = configureFileAndGenerateDoc(fileContent)
     val actualPart = extractSectionInner(actualDoc, "definition", DefinitionStart, DefinitionEnd)
     assertDocHtml(
       expectedDefinition,
@@ -103,7 +105,7 @@ trait ScalaDocumentationsBodySectionTesting extends ScalaDocumentationsSectionsT
     expectedBody: String,
     whitespacesMode: HtmlSpacesComparisonMode = HtmlSpacesComparisonMode.IgnoreNewLinesAndCollapseSpaces
   ): Unit = {
-    val actualDoc = generateDoc(fileContent)
+    val actualDoc = configureFileAndGenerateDoc(fileContent)
     val actualPart = extractSectionInner(actualDoc, "body", BodyStart, BodyEnd)
     assertDocHtml(expectedBody, actualPart, whitespacesMode)
   }
@@ -128,7 +130,7 @@ trait ScalaDocumentationsScalaDocContentTesting extends ScalaDocumentationsSecti
     expectedContent: String,
     whitespacesMode: HtmlSpacesComparisonMode = HtmlSpacesComparisonMode.IgnoreNewLinesAndCollapseSpaces
   ): Unit = {
-    val actualDoc = generateDoc(fileContent)
+    val actualDoc = configureFileAndGenerateDoc(fileContent)
     val actualPart = extractSectionInner(actualDoc, "content", ContentStart, ContentEnd)
     assertDocHtml(expectedContent, actualPart, whitespacesMode)
   }
@@ -151,7 +153,7 @@ trait ScalaDocumentationsScalaDocContentTesting extends ScalaDocumentationsSecti
     expectedDoSections: String,
     whitespacesMode: HtmlSpacesComparisonMode = HtmlSpacesComparisonMode.IgnoreNewLinesAndCollapseSpaces
   ): Unit = {
-    val actualDoc = generateDoc(fileContent)
+    val actualDoc = configureFileAndGenerateDoc(fileContent)
     val actualPart = extractSectionInner(actualDoc, "sections", SectionsStart, SectionsEnd)
     assertDocHtml(expectedDoSections, actualPart, whitespacesMode)
   }
