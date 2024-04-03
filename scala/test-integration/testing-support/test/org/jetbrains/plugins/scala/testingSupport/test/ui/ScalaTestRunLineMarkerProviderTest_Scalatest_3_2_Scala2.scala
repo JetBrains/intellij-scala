@@ -9,7 +9,7 @@ class ScalaTestRunLineMarkerProviderTest_Scalatest_3_2_Scala2 extends ScalaTestR
 }
 
 class ScalaTestRunLineMarkerProviderTest_Scalatest_3_2_Scala3 extends ScalaTestRunLineMarkerProviderTestBase_Scalatest_3_2 {
-  override implicit def version: ScalaVersion = ScalaVersion.Latest.Scala_3_RC
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
 }
 
 abstract class ScalaTestRunLineMarkerProviderTestBase_Scalatest_3_2

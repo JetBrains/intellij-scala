@@ -13,7 +13,7 @@ trait ScalaSdkOwner extends Test
 
   import ScalaSdkOwner._
 
-  override implicit def version: ScalaVersion = {
+  override final implicit def version: ScalaVersion = {
     val configuredOpt = configuredScalaVersion
     configuredOpt match {
       case Some(exactVersion) =>
@@ -22,7 +22,9 @@ trait ScalaSdkOwner extends Test
         val supportedVersions = allTestVersions.filter(supportedIn)
         val defaultVersion = defaultVersionOverride.getOrElse(defaultSdkVersion)
         val selectedVersion = selectVersion(defaultVersion, supportedVersions)
-        selectedVersion
+        selectedVersion.orElse(
+          ScalaVersion.Latest.scalaNext.find(supportedIn)
+        ).getOrElse(sys.error("Could not find a Scala version matching the test criteria"))
     }
   }
 
@@ -90,7 +92,7 @@ object ScalaSdkOwner {
   val preferableSdkVersion: ScalaVersion = LatestScalaVersions.Scala_2_13
   val allTestVersions: SortedSet[ScalaVersion] = SortedSet.from(LatestScalaVersions.all.flatMap(_.generateAllMinorVersions()))
 
-  private def selectVersion(wantedVersion: ScalaVersion, possibleVersions0: SortedSet[ScalaVersion]): ScalaVersion = {
+  private def selectVersion(wantedVersion: ScalaVersion, possibleVersions0: SortedSet[ScalaVersion]): Option[ScalaVersion] = {
     val possibleVersions = possibleVersions0.iteratorFrom(wantedVersion).toSeq
     if (possibleVersions.nonEmpty) {
       val first = possibleVersions.head
@@ -98,17 +100,16 @@ object ScalaSdkOwner {
         // choose latest possible Scala 3 version
         //e.g. `supportedIn >= 3.0.2` -> 3.2.1
         //e.g. `supportedIn == 3.0.2` -> 3.0.2
-        possibleVersions.last
+        Some(possibleVersions.last)
       }
       else {
         //otherwise choose version closes to the "supportedIn"
         //e.g. `supportedIn >= 2.12.10` -> 2.12.10
         //TODO: unify this with Scala 3, test failures are expected
-        first
+        Some(first)
       }
     }
-    else
-      possibleVersions0.last
+    else possibleVersions0.lastOption
   }
 
   lazy val globalConfiguredScalaVersion: Option[ScalaVersion] = {

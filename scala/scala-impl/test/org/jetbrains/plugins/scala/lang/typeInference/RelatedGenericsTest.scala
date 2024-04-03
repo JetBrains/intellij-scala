@@ -7,7 +7,7 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[TypecheckerTests]))
 class RelatedGenericsTest extends ScalaLightCodeInsightFixtureTestCase {
 
-  override implicit def version: ScalaVersion = LatestScalaVersions.Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_12
 
   def testSCL9347(): Unit = checkTextHasNoErrors(
     """
