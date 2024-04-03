@@ -71,14 +71,14 @@ object Versions {
   ) {
 
     // While Scala 3 support is WIP we do not want preselect Scala 3 version
-    override protected def defaultVersion: String = {
-      val scala2Entity = entities.find(v => isScala2Version(v.minVersion))
-      scala2Entity.get.minVersion
-    }
+    override protected def defaultVersion: String =
+      ScalaVersion.Latest.Scala_3_LTS.minor
 
-    // While Scala 3 support is WIP we do not want preselect Scala 3 version
-    override def initiallySelectedVersion(versions: Seq[String]): String =
-      versions.find(isScala2Version).getOrElse(defaultVersion)
+    override def initiallySelectedVersion(versions: Seq[String]): String = {
+      //can contain multiple versions with different minor suffix (3.3.1, 3.3.2)
+      val ltsVersions = versions.flatMap(ScalaVersion.fromString).filter(_.languageLevel == ScalaVersion.Latest.Scala_3_LTS.languageLevel)
+      ltsVersions.maxOption.map(_.minor).getOrElse(defaultVersion)
+    }
 
     private def isScala2Version(v: String) = v.startsWith("2")
   }
