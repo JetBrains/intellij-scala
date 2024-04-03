@@ -230,6 +230,12 @@ class MethodEvaluationTest_3 extends MethodEvaluationTest_3_1 {
 
 class MethodEvaluationTest_3_RC extends MethodEvaluationTest_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
+
+  override def testNonStaticFunction(): Unit = {
+    expressionEvaluationTest() { implicit ctx =>
+      evalStartsWith("goo", "2")
+    }
+  }
 }
 
 abstract class MethodEvaluationTestBase extends ExpressionEvaluationTestBase {
