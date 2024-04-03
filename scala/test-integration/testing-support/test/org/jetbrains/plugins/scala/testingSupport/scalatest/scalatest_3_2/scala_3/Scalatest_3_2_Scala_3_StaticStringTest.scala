@@ -11,3 +11,13 @@ class Scalatest_3_2_Scala_3_StaticStringTest extends Scalatest_3_2_Scala_3_Base
   with PropSpecStaticStringTest
   with WordSpecStaticStringTest
   with MethodsStaticStringTest
+
+class Scalatest_3_2_Scala_3_RC_StaticStringTest extends Scalatest_3_2_Scala_3_RC_Base
+  with FeatureSpecStaticStringTest
+  with FlatSpecStaticStringTest
+  with FreeSpecStaticStringTest
+  with FunSpecStaticStringTest
+  with FunSuiteStaticStringTest
+  with PropSpecStaticStringTest
+  with WordSpecStaticStringTest
+  with MethodsStaticStringTest

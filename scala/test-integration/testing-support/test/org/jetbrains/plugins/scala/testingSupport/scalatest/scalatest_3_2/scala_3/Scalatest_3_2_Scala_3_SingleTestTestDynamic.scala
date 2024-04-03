@@ -6,3 +6,8 @@ class Scalatest_3_2_Scala_3_SingleTestTestDynamic extends Scalatest_3_2_Scala_3_
   with FunSuiteSingleTestTest {
   override val useDynamicClassPath = true
 }
+
+class Scalatest_3_2_Scala_3_RC_SingleTestTestDynamic extends Scalatest_3_2_Scala_3_RC_Base
+  with FunSuiteSingleTestTest {
+  override val useDynamicClassPath = true
+}

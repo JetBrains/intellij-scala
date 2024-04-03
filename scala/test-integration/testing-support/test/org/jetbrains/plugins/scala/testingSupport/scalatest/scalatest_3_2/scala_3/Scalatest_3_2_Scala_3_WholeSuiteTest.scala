@@ -4,3 +4,6 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.base.ScalaTestWholeS
 
 class Scalatest_3_2_Scala_3_WholeSuiteTest extends Scalatest_3_2_Scala_3_Base
   with ScalaTestWholeSuiteTest
+
+class Scalatest_3_2_Scala_3_RC_WholeSuiteTest extends Scalatest_3_2_Scala_3_RC_Base
+  with ScalaTestWholeSuiteTest

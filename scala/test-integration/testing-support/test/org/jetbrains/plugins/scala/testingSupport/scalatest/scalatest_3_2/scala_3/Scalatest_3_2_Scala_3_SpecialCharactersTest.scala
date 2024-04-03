@@ -4,3 +4,6 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.base.ScalaTestSpecia
 
 class Scalatest_3_2_Scala_3_SpecialCharactersTest extends Scalatest_3_2_Scala_3_Base
   with ScalaTestSpecialCharactersTest
+
+class Scalatest_3_2_Scala_3_RC_SpecialCharactersTest extends Scalatest_3_2_Scala_3_RC_Base
+  with ScalaTestSpecialCharactersTest
