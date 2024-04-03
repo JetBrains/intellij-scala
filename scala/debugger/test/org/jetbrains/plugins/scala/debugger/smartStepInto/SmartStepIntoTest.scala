@@ -12,11 +12,11 @@ import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
 
 class SmartStepIntoTest_2_11 extends SmartStepIntoTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_11
 }
 
 class SmartStepIntoTest_2_12 extends SmartStepIntoTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_12
 
   override def testByNameArgument2(): Unit = {
     smartStepIntoTest("ByNameArgument")(
@@ -64,7 +64,7 @@ class SmartStepIntoTest_2_12 extends SmartStepIntoTestBase {
 }
 
 class SmartStepIntoTest_2_13 extends SmartStepIntoTest_2_12 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 
   addSourceFile("PostfixAndUnapply.scala",
     s"""import scala.language.postfixOps
@@ -101,7 +101,7 @@ class SmartStepIntoTest_2_13 extends SmartStepIntoTest_2_12 {
 }
 
 class SmartStepIntoTest_3 extends SmartStepIntoTest_2_13 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
 
   override def testInfixAndApply(): Unit = {
     smartStepIntoTest()(
@@ -212,6 +212,10 @@ class SmartStepIntoTest_3 extends SmartStepIntoTest_2_13 {
       Breakpoint("InsideLambda.scala", "sum", 4) -> resume
     )
   }
+}
+
+class SmartStepIntoTest_3_RC extends SmartStepIntoTest_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
 }
 
 abstract class SmartStepIntoTestBase extends ScalaDebuggerTestCase {

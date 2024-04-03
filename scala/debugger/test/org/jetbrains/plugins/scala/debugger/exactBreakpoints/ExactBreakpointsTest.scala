@@ -18,11 +18,11 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import scala.jdk.CollectionConverters._
 
 class ExactBreakpointsTest_2_11 extends ExactBreakpointsTestWithEarlyDefinitions {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_11
 }
 
 class ExactBreakpointsTest_2_12 extends ExactBreakpointsTestWithEarlyDefinitions {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_12
 
   addSourceFile("SamAbstractClass.scala",
     s"""object SamAbstractClass {
@@ -61,11 +61,11 @@ class ExactBreakpointsTest_2_12 extends ExactBreakpointsTestWithEarlyDefinitions
 }
 
 class ExactBreakpointsTest_2_13 extends ExactBreakpointsTest_2_12 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 }
 
 class ExactBreakpointsTest_3 extends ExactBreakpointsTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
 
   addSourceFile("TopLevelDefinitions.scala",
     s"""object a:
@@ -160,6 +160,10 @@ class ExactBreakpointsTest_3 extends ExactBreakpointsTestBase {
   override def testNestedLambdas(): Unit = {}
 
   override def testEither(): Unit = {}
+}
+
+class ExactBreakpointsTest_3_RC extends ExactBreakpointsTest_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
 }
 
 abstract class ExactBreakpointsTestWithEarlyDefinitions extends ExactBreakpointsTestBase {

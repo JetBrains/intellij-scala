@@ -7,11 +7,11 @@ import com.intellij.debugger.settings.NodeRendererSettings
 import com.intellij.debugger.ui.tree.render._
 
 class ScalaCollectionRendererTest_2_11 extends ScalaCollectionRendererTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_11
 }
 
 class ScalaCollectionRendererTest_2_12 extends ScalaCollectionRendererTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_12
 
   addSourceFile("Lazy.scala",
     s"""
@@ -32,7 +32,7 @@ class ScalaCollectionRendererTest_2_12 extends ScalaCollectionRendererTestBase {
 }
 
 class ScalaCollectionRendererTest_2_13 extends ScalaCollectionRendererTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 
   addSourceFile("Lazy.scala",
     s"""
@@ -56,7 +56,11 @@ class ScalaCollectionRendererTest_2_13 extends ScalaCollectionRendererTestBase {
 }
 
 class ScalaCollectionRendererTest_3 extends ScalaCollectionRendererTest_2_13 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
+}
+
+class ScalaCollectionRendererTest_3_RC extends ScalaCollectionRendererTest_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
 }
 
 abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
