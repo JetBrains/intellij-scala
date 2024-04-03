@@ -1,5 +1,6 @@
 package org.jetbrains.jps.incremental.scala.model.impl
 
+import org.jetbrains.jps.incremental.scala.BuildParametersUtils
 import org.jetbrains.jps.incremental.scala.model.JpsSbtExtensionService
 import org.jetbrains.jps.model.java.impl.JpsJavaDependenciesEnumerationHandler
 import org.jetbrains.jps.model.module.JpsModule
@@ -19,14 +20,8 @@ final class JpsSbtDependenciesEnumerationHandler extends JpsJavaDependenciesEnum
   override def shouldIncludeTestsFromDependentModulesToTestClasspath: Boolean =
     super.shouldIncludeTestsFromDependentModulesToTestClasspath
 
-  override def shouldProcessDependenciesRecursively: Boolean = {
-    // "sbt.process.dependencies.recursively" property is the negation of the SbtProjectSettings.insertProjectTransitiveDependencies value
-    // (see ScalaBuildProcessParametersProvider.transitiveProjectDependenciesParams).
-    // So the default value for "sbt.process.dependencies.recursively" is set to
-    // the opposite of the default value of SbtProjectSettings.insertProjectTransitiveDependencies
-    Option(System.getProperty("sbt.process.dependencies.recursively")).flatMap(_.toBooleanOption)
-      .getOrElse(false)
-  }
+  override def shouldProcessDependenciesRecursively: Boolean =
+    BuildParametersUtils.getProcessDependenciesRecursivelyProperty
 }
 
 object JpsSbtDependenciesEnumerationHandler {
