@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.findUsages.factory
 
-import com.intellij.find.findUsages.{FindUsagesHandler, FindUsagesHandlerFactory}
+import com.intellij.find.findUsages.{FindUsagesHandler, FindUsagesHandlerFactory, JavaFindUsagesHandlerFactory}
+import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions._
@@ -63,8 +64,15 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
 
     replaced match {
       case Some((e, useCompilerIndices)) =>
-        if (useCompilerIndices) new CompilerIndicesFindUsagesHandler(e, config)
-        else                    new ScalaFindUsagesHandler(e, config)
+        //Replaced can be java base method (see SCL-22352)
+        if (e.getLanguage.isKindOf(JavaLanguage.INSTANCE)) {
+          val javaFactory = new JavaFindUsagesHandlerFactory(project)
+          javaFactory.createFindUsagesHandler(e, forHighlightUsages)
+        }
+        else if (useCompilerIndices)
+          new CompilerIndicesFindUsagesHandler(e, config)
+        else
+          new ScalaFindUsagesHandler(e, config)
       case None =>
         FindUsagesHandler.NULL_HANDLER
     }

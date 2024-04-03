@@ -2,6 +2,9 @@ package org.jetbrains.plugins.scala.lang.findUsages
 
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.findUsages.factory.ScalaFindUsagesConfiguration
+import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
+
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 class FindUsagesTest_Scala2 extends FindUsagesTestBase {
 
@@ -301,4 +304,53 @@ class FindUsagesTest_Scala2 extends FindUsagesTestBase {
        |}
        |""".stripMargin
   )
+
+  //SCL-22352
+  def testJavaBaseMethod(): Unit = {
+    myFixture.addFileToProject(
+      "JavaInterface.java",
+      """public interface JavaInterface {
+        |    int foo();
+        |}""".stripMargin
+    )
+    myFixture.addFileToProject(
+      "JavaUsage.java",
+      """public class JavaUsage {
+        |    public static void main(String[] args) {
+        |        JavaInterface ji = null;
+        |        ji.foo();
+        |    }
+        |}""".stripMargin
+    )
+    myFixture.addFileToProject(
+      "ScalaUsage.scala",
+      """object ScalaUsage extends App {
+        |  println(new ScalaImplementor().foo)
+        |}""".stripMargin
+    )
+
+    myFixture.configureByText(
+      "ScalaImplementor.scala",
+      s"""final class ScalaImplementor extends JavaInterface {
+         |  override def ${CARET}foo: Int = 5
+         |}""".stripMargin
+    )
+
+    val usageTexts: Seq[String] = myFixture.testFindUsagesUsingAction().asScala.toSeq
+      .map(_.asInstanceOf[com.intellij.usages.UsageInfo2UsageAdapter])
+      .map { u =>
+        val fileName = u.getFile.getName
+        val range = u.getNavigationRange
+        fileName + " " + range
+      }
+      .sorted
+
+    assertCollectionEquals(
+      Seq(
+        "JavaUsage.java (114,117)",
+        "ScalaUsage.scala (65,68)",
+      ),
+      usageTexts
+    )
+  }
 }
