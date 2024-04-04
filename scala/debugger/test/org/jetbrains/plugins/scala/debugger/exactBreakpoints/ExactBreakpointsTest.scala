@@ -153,13 +153,7 @@ class ExactBreakpointsTest_3 extends ExactBreakpointsTestBase {
 
   override def testConstructorAndClassParam(): Unit = {}
 
-  override def testSeveralLines1(): Unit = {}
-
-  override def testSeveralLines2(): Unit = {}
-
   override def testNestedLambdas(): Unit = {}
-
-  override def testEither(): Unit = {}
 }
 
 class ExactBreakpointsTest_3_RC extends ExactBreakpointsTest_3 {
