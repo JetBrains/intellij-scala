@@ -300,4 +300,41 @@ public interface ScalaTokenTypes {
     TokenSet YIELD_OR_DO = TokenSet.create(kYIELD, kDO);
 
     TokenSet LBRACE_OR_COLON_TOKEN_SET = TokenSet.create(tLBRACE, tCOLON);
+
+    /*
+        In the scala 2 compiler:
+
+        def isExprIntroToken(token: Token): Boolean =
+          !isValidSoftModifier && (isLiteralToken(token) || (token match {
+            case IDENTIFIER | BACKQUOTED_IDENT |
+                 THIS | SUPER | IF | FOR | NEW | USCORE | TRY | WHILE |
+                 DO | RETURN | THROW | LPAREN | LBRACE | XMLSTART => true
+            case _ => false
+          }))
+     */
+    TokenSet EXPR_START_TOKEN_SET = TokenSet.orSet(
+            LITERALS,
+            TokenSet.create(
+                    kNULL,
+
+                    tIDENTIFIER,
+                    kTHIS,
+                    kSUPER,
+                    kIF,
+                    kFOR,
+                    NewKeyword(),
+                    tUNDER,
+                    kTRY,
+                    kWHILE,
+                    kDO,
+                    kRETURN,
+                    kTHROW,
+                    tLPARENTHESIS,
+                    tLBRACE,
+                    XML_START_TAG_START
+            )
+            //IDENTIFIER | BACKQUOTED_IDENT |
+            //        THIS | SUPER | IF | FOR | NEW | USCORE | TRY | WHILE |
+            //        DO | RETURN | THROW | LPAREN | LBRACE | XMLSTART
+    );
 }
