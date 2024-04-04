@@ -315,4 +315,72 @@ class SimpleParserTest extends SimpleScalaParserTestBase {
         |""".stripMargin
     )
   }
+
+  def test_named_arg_using(): Unit = {
+    checkTree(
+      """
+        |test(using = 42)
+        |test(using +3)
+        |test(using x y)
+        |test(using)
+        |""".stripMargin,
+      """
+        |ScalaFile
+        |  PsiWhiteSpace('\n')
+        |  MethodCall
+        |    ReferenceExpression: test
+        |      PsiElement(identifier)('test')
+        |    ArgumentList
+        |      PsiElement(()('(')
+        |      AssignStatement
+        |        ReferenceExpression: using
+        |          PsiElement(identifier)('using')
+        |        PsiWhiteSpace(' ')
+        |        PsiElement(=)('=')
+        |        PsiWhiteSpace(' ')
+        |        IntegerLiteral
+        |          PsiElement(integer)('42')
+        |      PsiElement())(')')
+        |  PsiWhiteSpace('\n')
+        |  MethodCall
+        |    ReferenceExpression: test
+        |      PsiElement(identifier)('test')
+        |    ArgumentList
+        |      PsiElement(()('(')
+        |      PsiElement(using)('using')
+        |      PsiWhiteSpace(' ')
+        |      PrefixExpression
+        |        ReferenceExpression: +
+        |          PsiElement(identifier)('+')
+        |        IntegerLiteral
+        |          PsiElement(integer)('3')
+        |      PsiElement())(')')
+        |  PsiWhiteSpace('\n')
+        |  MethodCall
+        |    ReferenceExpression: test
+        |      PsiElement(identifier)('test')
+        |    ArgumentList
+        |      PsiElement(()('(')
+        |      PsiElement(using)('using')
+        |      PsiWhiteSpace(' ')
+        |      PostfixExpression
+        |        ReferenceExpression: x
+        |          PsiElement(identifier)('x')
+        |        PsiWhiteSpace(' ')
+        |        ReferenceExpression: y
+        |          PsiElement(identifier)('y')
+        |      PsiElement())(')')
+        |  PsiWhiteSpace('\n')
+        |  MethodCall
+        |    ReferenceExpression: test
+        |      PsiElement(identifier)('test')
+        |    ArgumentList
+        |      PsiElement(()('(')
+        |      ReferenceExpression: using
+        |        PsiElement(identifier)('using')
+        |      PsiElement())(')')
+        |  PsiWhiteSpace('\n')
+        |""".stripMargin,
+    )
+  }
 }

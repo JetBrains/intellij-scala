@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
 
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
-import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
@@ -32,7 +32,13 @@ object ArgumentExprs extends ParsingRule {
         builder.advanceLexer() //Ate (
         builder.disableNewlines()
 
-        if (builder.isScala3 || builder.features.usingInArgumentsEnabled) {
+        // In Scala 2 "using" must be followed by an identifier
+        def isUsingInScala2 =
+          builder.features.usingInArgumentsEnabled &&
+          builder.getTokenText == "using" &&
+          ScalaTokenTypes.EXPR_START_TOKEN_SET.contains(builder.lookAhead(1))
+
+        if (builder.isScala3 || isUsingInScala2) {
           builder.tryParseSoftKeyword(ScalaTokenType.UsingKeyword)
         }
 
