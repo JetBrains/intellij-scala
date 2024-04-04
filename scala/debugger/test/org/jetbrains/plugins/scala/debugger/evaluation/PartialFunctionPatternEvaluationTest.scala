@@ -14,6 +14,10 @@ class PartialFunctionPatternEvaluationTest_3 extends PartialFunctionPatternEvalu
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
 }
 
+class PartialFunctionPatternEvaluationTest_3_RC extends PartialFunctionPatternEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
+}
+
 abstract class PartialFunctionPatternEvaluationTestBase extends ExpressionEvaluationTestBase {
   addSourceFile("PartialFunctionHigherOrder.scala",
     s"""object PartialFunctionHigherOrder {

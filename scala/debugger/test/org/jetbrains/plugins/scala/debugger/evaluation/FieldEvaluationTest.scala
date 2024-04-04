@@ -3,19 +3,23 @@ package debugger
 package evaluation
 
 class FieldEvaluationTest_2_11 extends FieldEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_11
 }
 
 class FieldEvaluationTest_2_12 extends FieldEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_12
 }
 
 class FieldEvaluationTest_2_13 extends FieldEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 }
 
 class FieldEvaluationTest_3 extends FieldEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
+}
+
+class FieldEvaluationTest_3_RC extends FieldEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
 }
 
 abstract class FieldEvaluationTestBase extends ExpressionEvaluationTestBase {

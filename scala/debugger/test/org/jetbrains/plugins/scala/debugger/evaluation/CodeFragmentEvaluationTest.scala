@@ -3,19 +3,19 @@ package debugger
 package evaluation
 
 class CodeFragmentEvaluationTest_2_11 extends CodeFragmentEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_11
 }
 
 class CodeFragmentEvaluationTest_2_12 extends CodeFragmentEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_12
 }
 
 class CodeFragmentEvaluationTest_2_13 extends CodeFragmentEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 }
 
 class CodeFragmentEvaluationTest_3 extends CodeFragmentEvaluationTest_2_13 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
 
   addSourceFile("Scala3Syntax.scala",
     s"""package test
@@ -38,6 +38,10 @@ class CodeFragmentEvaluationTest_3 extends CodeFragmentEvaluationTest_2_13 {
           |  0""".stripMargin.trim, "5")
     }
   }
+}
+
+class CodeFragmentEvaluationTest_3_RC extends CodeFragmentEvaluationTest_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
 }
 
 abstract class CodeFragmentEvaluationTestBase extends ExpressionEvaluationTestBase {

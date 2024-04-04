@@ -10,11 +10,11 @@ import java.util.stream.Collectors
 import scala.jdk.CollectionConverters._
 
 class StepOverTest_2_11 extends StepOverTest {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_11
 }
 
 class StepOverTest_2_12 extends StepOverTest {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_12
 
   override def testSkipStoreResult(): Unit = {
     stepOverTest()(2, 3, 4, 5, 6, 9, 11)
@@ -52,7 +52,7 @@ class StepOverTest_2_12 extends StepOverTest {
 }
 
 class StepOverTest_2_13 extends StepOverTest_2_12 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 
   override def testPartialFun(): Unit = {
     stepOverTest()(4, 5, 6, 4, 7, 8, 9, 4, 7, 3, 11)
@@ -64,7 +64,7 @@ class StepOverTest_2_13 extends StepOverTest_2_12 {
 }
 
 class StepOverTest_3 extends StepOverTest_2_13 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
 
   override def testSimple(): Unit = {
     stepOverTest()(2, 3, 4, 5, 6, 8)
@@ -97,6 +97,10 @@ class StepOverTest_3 extends StepOverTest_2_13 {
   override def testAccessorInDelayedInit(): Unit = {
     stepOverTest()(1, 2, 3, 4)
   }
+}
+
+class StepOverTest_3_RC extends StepOverTest_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
 }
 
 abstract class StepOverTest extends ScalaDebuggerTestCase {

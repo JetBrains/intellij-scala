@@ -3,19 +3,19 @@ package debugger
 package evaluation
 
 class ObjectEvaluationTest_2_11 extends ObjectEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_11
 }
 
 class ObjectEvaluationTest_2_12 extends ObjectEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_12
 }
 
 class ObjectEvaluationTest_2_13 extends ObjectEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 }
 
 class ObjectEvaluationTest_3 extends ObjectEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
 
   override def testInnerClassObjectFromObject(): Unit = {
     expressionEvaluationTest() { implicit ctx =>
@@ -25,6 +25,10 @@ class ObjectEvaluationTest_3 extends ObjectEvaluationTestBase {
       evalStartsWith("localSS", "InnerClassObjectFromObject$S$SS$")
     }
   }
+}
+
+class ObjectEvaluationTest_3_RC extends ObjectEvaluationTest_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
 }
 
 abstract class ObjectEvaluationTestBase extends ExpressionEvaluationTestBase {

@@ -6,3 +6,7 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.base.ScalaTestTestCa
 abstract class Scalatest_3_2_Scala_3_Base extends ScalaTestTestCase
   with WithScalaTest_3_2
   with WithScala_3
+
+abstract class Scalatest_3_2_Scala_3_RC_Base extends ScalaTestTestCase
+  with WithScalaTest_3_2
+  with WithScala_3_RC

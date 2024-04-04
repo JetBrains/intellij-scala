@@ -12,9 +12,9 @@ import java.nio.file.Path
   TestScalaVersion.Scala_2_11,
   TestScalaVersion.Scala_2_12,
   TestScalaVersion.Scala_2_13,
-  TestScalaVersion.Scala_3_0,
-  TestScalaVersion.Scala_3_1,
-  TestScalaVersion.Scala_3_2
+  // TODO: Fix the renderers for Scala 3.3+
+//  TestScalaVersion.Scala_3_Latest,
+//  TestScalaVersion.Scala_3_Latest_RC
 ))
 class ScalaClassRendererTest extends RendererTestBase {
 

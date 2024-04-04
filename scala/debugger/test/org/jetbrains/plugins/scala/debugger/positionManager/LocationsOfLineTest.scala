@@ -5,11 +5,11 @@ package positionManager
 import java.nio.file.Path
 
 class LocationOfLineTest_2_11 extends LocationsOfLineTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_11
 }
 
 class LocationOfLineTest_2_12 extends LocationsOfLineTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_12
 
   override def testLambdas(): Unit = {
     checkLocationsOfLine()(
@@ -34,7 +34,7 @@ class LocationOfLineTest_2_12 extends LocationsOfLineTestBase {
 }
 
 class LocationOfLineTest_2_13 extends LocationsOfLineTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 
   override def testSimple(): Unit = {
     checkLocationsOfLine()(
@@ -80,7 +80,7 @@ class LocationOfLineTest_2_13 extends LocationsOfLineTestBase {
 }
 
 class LocationOfLineTest_3 extends LocationOfLineTest_2_13 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
 
   override def testLambdas(): Unit = {
     checkLocationsOfLine()(
@@ -110,6 +110,10 @@ class LocationOfLineTest_3 extends LocationOfLineTest_2_13 {
       Set(Loc("test.MultilevelClasses$", "main", 20))
     )
   }
+}
+
+class LocationsOfLineTest_3_RC extends LocationOfLineTest_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
 }
 
 abstract class LocationsOfLineTestBase extends PositionManagerTestBase {

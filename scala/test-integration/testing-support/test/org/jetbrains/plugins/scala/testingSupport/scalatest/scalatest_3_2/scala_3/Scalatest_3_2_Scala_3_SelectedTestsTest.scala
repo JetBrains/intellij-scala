@@ -4,3 +4,6 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.base.ScalaTestSelect
 
 class Scalatest_3_2_Scala_3_SelectedTestsTest extends Scalatest_3_2_Scala_3_Base
   with ScalaTestSelectedTests
+
+class Scalatest_3_2_Scala_3_RC_SelectedTestsTest extends Scalatest_3_2_Scala_3_RC_Base
+  with ScalaTestSelectedTests

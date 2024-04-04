@@ -3,7 +3,7 @@ package debugger
 package evaluation
 
 class MethodEvaluationTest_2_11 extends MethodEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_11
 
   //todo move to ScalaMethodEvaluationTestBase when SCL-17927 is fixed
   override def testInForStmt(): Unit = {
@@ -27,15 +27,15 @@ class MethodEvaluationTest_2_11 extends MethodEvaluationTestBase {
 }
 
 class MethodEvaluationTest_2_12 extends MethodEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_12
 }
 
 class MethodEvaluationTest_2_13 extends MethodEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 }
 
 class MethodEvaluationTest_3_0 extends MethodEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version == LatestScalaVersions.Scala_3_0
+  override protected def supportedIn(version: ScalaVersion) = version == ScalaVersion.Latest.Scala_3_0
 
   addSourceFile("one.scala", "def one() = 1")
   addSourceFile("a/two.scala",
@@ -167,7 +167,7 @@ class MethodEvaluationTest_3_0 extends MethodEvaluationTestBase {
 }
 
 class MethodEvaluationTest_3_1 extends MethodEvaluationTest_3_0 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_1
 
   override def testLocalMethodsWithSameName(): Unit = {
     expressionEvaluationTest()(
@@ -196,7 +196,7 @@ class MethodEvaluationTest_3_1 extends MethodEvaluationTest_3_0 {
 }
 
 class MethodEvaluationTest_3 extends MethodEvaluationTest_3_1 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
 
   override def testFunctionsWithLocalParameters(): Unit = {
     expressionEvaluationTest() { implicit ctx =>
@@ -225,6 +225,16 @@ class MethodEvaluationTest_3 extends MethodEvaluationTest_3_1 {
       implicit ctx => evalEquals("moo(x)", "2"),
       implicit ctx => evalEquals("foo8", "1")
     )
+  }
+}
+
+class MethodEvaluationTest_3_RC extends MethodEvaluationTest_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
+
+  override def testNonStaticFunction(): Unit = {
+    expressionEvaluationTest() { implicit ctx =>
+      evalStartsWith("goo", "2")
+    }
   }
 }
 

@@ -5,11 +5,11 @@ package positionManager
 import java.nio.file.Path
 
 class GetAllClassesTest_2_11 extends GetAllClassesTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_11
 }
 
 class GetAllClassesTest_2_12 extends GetAllClassesTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_12
 
   override def testForStmt(): Unit = {
     checkGetAllClasses()("ForStmt$")
@@ -53,11 +53,11 @@ class GetAllClassesTest_2_12 extends GetAllClassesTestBase {
 }
 
 class GetAllClassesTest_2_13 extends GetAllClassesTest_2_12 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 }
 
 class GetAllClassesTest_3 extends GetAllClassesTest_2_13 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
 
   override def testPartialFunctions(): Unit = {
     checkGetAllClasses()("PartialFunctions$")
@@ -66,6 +66,10 @@ class GetAllClassesTest_3 extends GetAllClassesTest_2_13 {
   override def testLocalObject(): Unit = {
     checkGetAllClasses()("LocalObject$A$2$")
   }
+}
+
+class GetAllClassesTest_3_RC extends GetAllClassesTest_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
 }
 
 abstract class GetAllClassesTestBase extends PositionManagerTestBase {
@@ -287,7 +291,9 @@ abstract class GetAllClassesTestBase extends PositionManagerTestBase {
        |object AnonClass {
        |  def main(args: Array[String]): Unit = {
        |    val r = new Runnable {
-       |      override def run(): Unit = $offsetMarker()
+       |      override def run(): Unit = {
+       |        ${offsetMarker}println()
+       |      }
        |    }
        |    "" $breakpoint
        |  }

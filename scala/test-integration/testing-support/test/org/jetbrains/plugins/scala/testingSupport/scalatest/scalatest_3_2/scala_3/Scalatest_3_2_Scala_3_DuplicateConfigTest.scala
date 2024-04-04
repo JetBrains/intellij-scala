@@ -4,3 +4,6 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.base.ScalaTestDuplic
 
 class Scalatest_3_2_Scala_3_DuplicateConfigTest extends Scalatest_3_2_Scala_3_Base
   with ScalaTestDuplicateConfigTest
+
+class Scalatest_3_2_Scala_3_RC_DuplicateConfigTest extends Scalatest_3_2_Scala_3_RC_Base
+  with ScalaTestDuplicateConfigTest

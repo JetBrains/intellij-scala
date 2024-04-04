@@ -14,7 +14,8 @@ import org.junit.runner.RunWith
   TestScalaVersion.Scala_2_11,
   TestScalaVersion.Scala_2_12,
   TestScalaVersion.Scala_2_13,
-  TestScalaVersion.Scala_3_Latest
+  TestScalaVersion.Scala_3_Latest,
+  TestScalaVersion.Scala_3_Latest_RC
 ))
 class JavaHighlightingScalaTest_since_2_12_CheckTestDataCompilerTest extends ScalaCompilerTestBase {
 

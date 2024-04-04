@@ -12,7 +12,7 @@ import java.util.stream.Collectors
 import scala.jdk.CollectionConverters._
 
 class StepIntoTest_2_11 extends StepIntoTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_11
 
   override def testPrivateMethodUsedInLambda(): Unit = {
     stepIntoTest()(
@@ -33,7 +33,7 @@ class StepIntoTest_2_11 extends StepIntoTestBase {
 }
 
 class StepIntoTest_2_12 extends StepIntoTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_12
 
   addSourceFile("SamAbstractClass.scala",
     s"""object SamAbstractClass {
@@ -62,11 +62,11 @@ class StepIntoTest_2_12 extends StepIntoTestBase {
 }
 
 class StepIntoTest_2_13 extends StepIntoTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 }
 
 class StepIntoTest_3 extends StepIntoTest_2_12 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
 
   override def testSamAbstractClass(): Unit = {
     stepIntoTest()(
@@ -90,6 +90,13 @@ class StepIntoTest_3 extends StepIntoTest_2_12 {
       Breakpoint("PrivateMethodUsedInLambda.scala", "privateMethod", 3) -> resume
     )
   }
+}
+
+class StepIntoTest_3_RC extends StepIntoTest_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
+
+  // TODO: Revisit lazy vals in Scala 3.4+
+  override def testLazyVal(): Unit = {}
 }
 
 abstract class StepIntoTestBase extends ScalaDebuggerTestCase {

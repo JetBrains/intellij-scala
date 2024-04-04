@@ -4,3 +4,6 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.base.ScalaTestGoToSo
 
 class Scalatest_3_2_Scala_3_GoToSourceTest extends Scalatest_3_2_Scala_3_Base
   with ScalaTestGoToSourceTest
+
+class Scalatest_3_2_Scala_3_RC_GoToSourceTest extends Scalatest_3_2_Scala_3_RC_Base
+  with ScalaTestGoToSourceTest

@@ -3,7 +3,7 @@ package debugger
 package evaluation
 
 class EvaluationTest_2_11 extends EvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_11
 }
 
 trait LocalLazyValEvaluationTests { self: EvaluationTestBase =>
@@ -41,11 +41,11 @@ trait LocalLazyValEvaluationTests { self: EvaluationTestBase =>
 }
 
 class EvaluationTest_2_12 extends EvaluationTestBase with LocalLazyValEvaluationTests {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_12
 }
 
 abstract class EvaluationTests_2_13_And_Later extends EvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 
   override def testSymbolLiteral(): Unit = {
     expressionEvaluationTest() { implicit ctx =>
@@ -128,7 +128,7 @@ abstract class EvaluationTests_2_13_And_Later extends EvaluationTestBase {
 class EvaluationTest_2_13 extends EvaluationTests_2_13_And_Later with LocalLazyValEvaluationTests
 
 class EvaluationTest_3 extends EvaluationTests_2_13_And_Later {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
 
   override def testInstanceOfWithLiteralTypes(): Unit = {
     expressionEvaluationTest() { implicit ctx =>
@@ -266,6 +266,16 @@ class EvaluationTest_3 extends EvaluationTests_2_13_And_Later {
     expressionEvaluationTest() { implicit ctx =>
       failing(evalEquals("x x", "1"))
       evalEquals("1 toString ()", "1")
+    }
+  }
+}
+
+class EvaluationTest_3_RC extends EvaluationTest_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
+
+  override def testPrefixedThis(): Unit = {
+    expressionEvaluationTest() { implicit ctx =>
+      evalEquals("This.this.x", "1")
     }
   }
 }

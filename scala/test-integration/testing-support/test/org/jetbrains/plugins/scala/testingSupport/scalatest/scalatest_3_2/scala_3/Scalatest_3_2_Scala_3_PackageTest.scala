@@ -4,3 +4,6 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.base.ScalaTestPackag
 
 class Scalatest_3_2_Scala_3_PackageTest extends Scalatest_3_2_Scala_3_Base
   with ScalaTestPackageTest
+
+class Scalatest_3_2_Scala_3_RC_PackageTest extends Scalatest_3_2_Scala_3_RC_Base
+  with ScalaTestPackageTest
