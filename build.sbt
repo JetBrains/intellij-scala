@@ -58,6 +58,7 @@ lazy val scalaCommunity: sbt.Project =
       propertiesIntegration % "test->test;compile->compile",
       mlCompletionIntegration % "test->test;compile->compile",
       featuresTrainerIntegration % "test->test;compile->compile",
+      textAnalysis % "test->test;compile->compile",
       pluginXml,
     )
     .settings(
@@ -723,6 +724,16 @@ lazy val mlCompletionIntegration =
       libraryDependencies += "org.jetbrains.intellij.deps.completion" % "completion-ranking-scala" % "0.4.1"
     )
 
+//Integration with:
+// - Build-in spellchecker (see com.intellij.spellchecker package)
+// - Grazie plugin (more advanced spell + grammar checker)
+lazy val textAnalysis =
+  newProject("textAnalysis", file("scala/integration/textAnalysis"))
+    .dependsOn(scalaImpl % "test->test;compile->compile")
+    .settings(
+      intellijPlugins += "tanvd.grazi".toPlugin,
+    )
+
 lazy val featuresTrainerIntegration =
   newProject("features-trainer", file("scala/integration/features-trainer"))
     .dependsOn(
@@ -823,7 +834,11 @@ lazy val runtimeDependencies = project.in(file("target/tools/runtime-dependencie
 //    .dependsOn(scalaImpl % "test->test")
 //    .enablePlugins(JmhPlugin)
 
+////////////////////////////////////////////
+//
 // Testing keys and settings
+//
+////////////////////////////////////////////
 import Common.TestCategory.*
 
 val junitInterfaceFlags = "-v -s -a +c +q"

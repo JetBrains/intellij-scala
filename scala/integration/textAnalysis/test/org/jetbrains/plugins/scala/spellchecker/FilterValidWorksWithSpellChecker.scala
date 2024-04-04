@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.spellchecker
 import com.intellij.spellchecker.SpellCheckerManager
 import com.intellij.testFramework.LightPlatformTestCase
 
-// We use LightPlatformTestCase, becasue it already knows how to create test project, create all services.
+// We use LightPlatformTestCase, because it already knows how to create test project, create all services.
 // Project is required to create spellchecker instance.
 class FilterValidWorksWithSpellChecker extends LightPlatformTestCase {
 

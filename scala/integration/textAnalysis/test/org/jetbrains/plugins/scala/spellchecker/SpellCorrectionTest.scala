@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.refactoring.spellCorrection
+package org.jetbrains.plugins.scala.spellchecker
 
 class SpellCorrectionTest extends SpellCorrectionTestBase {
 

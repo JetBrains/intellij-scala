@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.refactoring.spellCorrection
+package org.jetbrains.plugins.scala.spellchecker
 
 import com.intellij.codeInsight.lookup.impl.LookupImpl
 import com.intellij.codeInsight.lookup.{Lookup, LookupManager}
