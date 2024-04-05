@@ -80,10 +80,6 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
   val doesNotTakeParameters = ContainsPattern("does not take parameters")
   val missingParameterType = ContainsPattern("Missing parameter type")
   val missingArguments = ContainsPattern("Missing arguments for method")
-
-  case class ContainsPattern(fr: String) {
-    def unapply(s: String): Boolean = s.contains(fr)
-  }
 }
 
 // TODO: think how also test against actual compiler output
