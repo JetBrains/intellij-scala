@@ -70,7 +70,8 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
     val projects = rootGroup.projects
 
     val sourceModuleNode = {
-      val (moduleNode, contentRootNode) = createSourceModule(rootGroup, moduleFilesDirectory)
+      val ownerProjectsIds = projects.map(projectToModuleNode).map(_.getId)
+      val (moduleNode, contentRootNode) = createSourceModule(rootGroup, moduleFilesDirectory, ownerProjectsIds)
       //todo: get jdk from a corresponding jvm module ?
       moduleNode.add(ModuleSdkNode.inheritFromProject)
 
@@ -196,6 +197,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
   private def createSourceModule(
     group: RootGroup,
     moduleFilesDirectory: File,
+    ownerProjectsIds: Seq[String]
   ): (ModuleDataNodeType, ContentRootNode) = {
     val groupBase = group.base
     val moduleNode = createModuleNode(
@@ -206,6 +208,8 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
       groupBase.canonicalPath,
       shouldCreateNestedModule = true
     )
+
+    moduleNode.add(new SharedSourcesOwnersNode(SharedSourcesOwnersData(ownerProjectsIds)))
 
     val contentRootNode = new ContentRootNode(groupBase.path)
     group.roots.foreach { root =>
