@@ -2,36 +2,39 @@ package org.jetbrains.plugins.scala.annotator.element
 
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.annotator.{IntegerKind, Oct, ScalaAnnotationHolder}
 import org.jetbrains.plugins.scala.annotator.quickfix.NumberLiteralQuickFix._
+import org.jetbrains.plugins.scala.annotator.{IntegerKind, Oct, ScalaAnnotationHolder}
 import org.jetbrains.plugins.scala.extensions.ElementText
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral.Numeric
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScIntegerLiteral, ScLongLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScPrefixExpr}
-import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScLiteralTypeElementImpl
-import org.jetbrains.plugins.scala.lang.psi.types.ScLiteralType
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 
 sealed abstract class ScNumericLiteralAnnotator[L <: Numeric : reflect.ClassTag](isLong: Boolean) extends ElementAnnotator[L] {
 
-  protected def annotate(literal: L)
-                        (implicit holder: ScalaAnnotationHolder): Option[(ScExpression, Boolean)] = {
+  protected def actualAnnotate(literal: L)(implicit holder: ScalaAnnotationHolder): Unit
+
+  override def annotate(literal: L, typeAware: Boolean)
+                       (implicit holder: ScalaAnnotationHolder): Unit = {
+    val isHandledByScPrefixExprAnnotator =
+      ScNumericLiteralAnnotator.integerPrefixElement(literal.getParent).isDefined
+
+    if (!isHandledByScPrefixExprAnnotator) {
+      actualAnnotate(literal)
+    }
+  }
+}
+
+object ScNumericLiteralAnnotator {
+    private def annotate[L <: Numeric : reflect.ClassTag](literal: L, target: ScExpression, isLong: Boolean)
+                                                         (implicit holder: ScalaAnnotationHolder): Option[(ScExpression, Boolean)] = {
     val languageLevel = literal.scalaLanguageLevel
 
     val text = literal.getLastChild.getText
     val kind = IntegerKind(text)
-
-    val target = literal.getParent match {
-      case parent: ScPrefixExpr =>
-        parent.getChildren match {
-          case Array(ElementText("-"), `literal`) => parent
-          case _ => literal
-        }
-      case _ => literal
-    }
 
     if (kind == Oct && languageLevel.exists(_ >= ScalaLanguageLevel.Scala_2_11)) {
       val message = ScalaBundle.message("octal.literals.removed")
@@ -113,13 +116,10 @@ sealed abstract class ScNumericLiteralAnnotator[L <: Numeric : reflect.ClassTag]
           )
       }
     }
-}
 
-object ScLongLiteralAnnotator extends ScNumericLiteralAnnotator[ScLongLiteral](isLong = true) {
-
-  override def annotate(literal: ScLongLiteral, typeAware: Boolean)
-                       (implicit holder: ScalaAnnotationHolder): Unit = {
-    annotate(literal) match {
+  def annotateLong(literal: ScLongLiteral, target: ScExpression)
+                  (implicit holder: ScalaAnnotationHolder): Unit = {
+    annotate(literal, target, isLong = true) match {
       case Some(_) if ConvertMarker.isApplicableTo(literal) =>
         val range = literal.getTextRange
         holder.newAnnotation(HighlightSeverity.WARNING, ScalaBundle.message("lowercase.long.marker"))
@@ -129,13 +129,10 @@ object ScLongLiteralAnnotator extends ScNumericLiteralAnnotator[ScLongLiteral](i
       case _ =>
     }
   }
-}
 
-object ScIntegerLiteralAnnotator extends ScNumericLiteralAnnotator[ScIntegerLiteral](isLong = false) {
-
-  override def annotate(literal: ScIntegerLiteral, typeAware: Boolean)
-                       (implicit holder: ScalaAnnotationHolder): Unit = {
-    annotate(literal) match {
+  def annotateInt(literal: ScIntegerLiteral, target: ScExpression)
+                 (implicit holder: ScalaAnnotationHolder): Unit = {
+    annotate(literal, target, isLong = false) match {
       case Some((target, true)) =>
         val maybeFix = Option.when(target.expectedType().forall(ConvertToLong.isApplicableTo(literal, _))) {
           new ConvertToLong(literal)
@@ -148,4 +145,33 @@ object ScIntegerLiteralAnnotator extends ScNumericLiteralAnnotator[ScIntegerLite
       case _ =>
     }
   }
+
+  def annotateIntOrLong(literal: Numeric, target: ScExpression)
+                       (implicit holder: ScalaAnnotationHolder): Unit = {
+    literal match {
+      case long: ScLongLiteral => annotateLong(long, target)
+      case int: ScIntegerLiteral => annotateInt(int, target)
+      case _ =>
+    }
+  }
+
+  def integerPrefixElement(element: PsiElement): Option[(ScPrefixExpr, Numeric)] =
+    element match {
+      case prefix: ScPrefixExpr =>
+        prefix.getChildren match {
+          case Array(ElementText("-" | "+"), literal: Numeric) => Some((prefix, literal))
+          case _ => None
+        }
+      case _ => None
+    }
+}
+
+object ScLongLiteralAnnotator extends ScNumericLiteralAnnotator[ScLongLiteral](isLong = true) {
+  protected override def actualAnnotate(literal: ScLongLiteral)(implicit holder: ScalaAnnotationHolder): Unit =
+    ScNumericLiteralAnnotator.annotateLong(literal, literal)
+}
+
+object ScIntegerLiteralAnnotator extends ScNumericLiteralAnnotator[ScIntegerLiteral](isLong = false) {
+  protected override def actualAnnotate(literal: ScIntegerLiteral)(implicit holder: ScalaAnnotationHolder): Unit =
+    ScNumericLiteralAnnotator.annotateInt(literal, literal)
 }
