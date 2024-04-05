@@ -3,7 +3,6 @@ package literals
 
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.project.Project
-import com.intellij.psi.util.PsiLiteralUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScIntegerLiteral
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
@@ -17,14 +16,13 @@ final class ScIntegerLiteralImpl(node: ASTNode,
     ScIntegerLiteralImpl.Value(value)
 
   override protected def parseNumber(text: String): Integer =
-    PsiLiteralUtil.parseInteger(text)
+    literals.parseInteger(text)
 
   override private[psi] def unwrappedValue(value: Integer) =
     value.intValue
 }
 
 object ScIntegerLiteralImpl {
-
   final case class Value(override val value: Integer)
     extends NumericLiteralImplBase.Value(value) {
 
