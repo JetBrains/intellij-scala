@@ -3,14 +3,14 @@ package org.jetbrains.plugins.scala.annotator.element
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.quickfix.NumberLiteralQuickFix._
-import org.jetbrains.plugins.scala.annotator.{IntegerKind, Oct, ScalaAnnotationHolder}
+import org.jetbrains.plugins.scala.annotator.{Bin, IntegerKind, Oct, ScalaAnnotationHolder}
 import org.jetbrains.plugins.scala.extensions.ElementText
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral.Numeric
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScIntegerLiteral, ScLongLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScPrefixExpr}
+import org.jetbrains.plugins.scala.{ScalaBundle, project}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 
 sealed abstract class ScNumericLiteralAnnotator[L <: Numeric : reflect.ClassTag](isLong: Boolean) extends ElementAnnotator[L] {
@@ -32,6 +32,7 @@ object ScNumericLiteralAnnotator {
     private def annotate[L <: Numeric : reflect.ClassTag](literal: L, target: ScExpression, isLong: Boolean)
                                                          (implicit holder: ScalaAnnotationHolder): Option[(ScExpression, Boolean)] = {
     val languageLevel = literal.scalaLanguageLevel
+    val scalaVersion = literal.scalaMinorVersion
 
     val text = literal.getLastChild.getText
     val kind = IntegerKind(text)
@@ -39,6 +40,16 @@ object ScNumericLiteralAnnotator {
     if (kind == Oct && languageLevel.exists(_ >= ScalaLanguageLevel.Scala_2_11)) {
       val message = ScalaBundle.message("octal.literals.removed")
       holder.createErrorAnnotation(target.getTextRange, message, new ConvertOctToHex(literal, isLong))
+    }
+
+    val binAllowedInScala2_13 =
+      scalaVersion.forall(v => v.languageLevel == ScalaLanguageLevel.Scala_2_13 && v.minorVersion >= project.Version("13"))
+    val binAllowedInScala3_5 =
+      scalaVersion.forall(v => v.isScala3 && v.minorVersion >= project.Version("5"))
+
+    if (kind == Bin && !binAllowedInScala2_13 && !binAllowedInScala3_5) {
+      val message = ScalaBundle.message("binary.literals.not.supported")
+      holder.createErrorAnnotation(target.getTextRange, message, new ConvertBinaryToHex(literal, isLong))
     }
 
     val number = kind(text, isLong)

@@ -51,10 +51,11 @@ package object annotator {
   private[annotator] object IntegerKind {
 
     def apply(text: String): IntegerKind = text.head match {
-      case '0' if text.length > 1 =>
+      case '0' if text.length >= 2 =>
         text(1) match {
           case 'x' | 'X' => Hex
           case 'l' | 'L' => Dec
+          case 'b' | 'B' => Bin
           case _ => Oct
         }
       case _ => Dec
@@ -64,10 +65,9 @@ package object annotator {
   }
 
   private[annotator] case object Dec extends IntegerKind(10, "", 1)
-
   private[annotator] case object Hex extends IntegerKind(16, "0x")
-
   private[annotator] case object Oct extends IntegerKind(8, "0")
+  private[annotator] case object Bin extends IntegerKind(2, "0b")
 
 
   trait TooltipTreeFormatter[T] {
