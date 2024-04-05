@@ -17,6 +17,8 @@ final class ScCharLiteralImpl(node: ASTNode,
   override protected def wrappedValue(value: Character): ScLiteral.Value[Character] =
     ScCharLiteralImpl.Value(value)
 
+  override protected def fallbackType: ScType = api.Char
+
   override protected def toValue(chars: String): Character = {
     val outChars = new java.lang.StringBuilder
     val success = PsiLiteralExpressionImpl.parseStringCharacters(

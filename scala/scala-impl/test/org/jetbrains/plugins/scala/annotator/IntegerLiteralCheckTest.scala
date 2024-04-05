@@ -52,7 +52,6 @@ abstract class IntegerLiteralCheckTestBase(supportsOctal: Boolean,
           |}
           |""".stripMargin
       )
-        .filterNot { case (txt, _) => txt == "-" } // ignore errors on "-" sign. It cannot be resolved when the number is too large
 
     val expected = longStrings.map(_ -> ScalaBundle.message("integer.literal.is.out.of.range")).toSeq
 
@@ -83,7 +82,6 @@ abstract class IntegerLiteralCheckTestBase(supportsOctal: Boolean,
            |}
            |""".stripMargin
       )
-        .filterNot { case (txt, _) => txt == "-" }
 
     val expected = allStrings.map(_ -> ScalaBundle.message("long.literal.is.out.of.range")).toSeq
 

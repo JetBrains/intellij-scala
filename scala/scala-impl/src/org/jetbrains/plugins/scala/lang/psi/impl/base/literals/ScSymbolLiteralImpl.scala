@@ -18,6 +18,8 @@ final class ScSymbolLiteralImpl(node: ASTNode,
   override protected def wrappedValue(value: Symbol): ScLiteral.Value[Symbol] =
     ScSymbolLiteralImpl.Value(value)
 
+  override protected def fallbackType: ScType = cachedClass("scala.Symbol")
+
   override protected def toValue(name: String): Symbol = Symbol(name)
 }
 

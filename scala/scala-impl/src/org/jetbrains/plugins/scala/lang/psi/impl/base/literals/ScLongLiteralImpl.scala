@@ -18,6 +18,8 @@ final class ScLongLiteralImpl(node: ASTNode,
   override protected def wrappedValue(value: JLong): ScLiteral.Value[lang.Long] =
     ScLongLiteralImpl.Value(value)
 
+  override protected def fallbackType: ScType = api.Long
+
   override protected def parseNumber(text: String): JLong =
     literals.parseLong(text)
 

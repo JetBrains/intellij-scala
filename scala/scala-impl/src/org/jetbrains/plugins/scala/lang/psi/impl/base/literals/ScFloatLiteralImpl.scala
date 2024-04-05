@@ -19,6 +19,8 @@ final class ScFloatLiteralImpl(node: ASTNode,
   override protected def wrappedValue(value: JFloat): ScLiteral.Value[lang.Float] =
     ScFloatLiteralImpl.Value(value)
 
+  override protected def fallbackType: ScType = api.Float
+
   override protected def parseNumber(text: String): JFloat =
     PsiLiteralUtil.parseFloat(text)
 

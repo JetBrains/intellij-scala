@@ -15,6 +15,8 @@ final class ScIntegerLiteralImpl(node: ASTNode,
   override protected def wrappedValue(value: Integer): ScLiteral.Value[Integer] =
     ScIntegerLiteralImpl.Value(value)
 
+  override protected def fallbackType: ScType = api.Int
+
   override protected def parseNumber(text: String): Integer =
     literals.parseInteger(text)
 
