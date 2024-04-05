@@ -58,12 +58,4 @@ abstract class SimpleTestCase extends UsefulTestCase with MatcherAssertions with
     val title = "%s%s\n".format(indent, content)
     title + root.children.map(toString(_, level + 1)).mkString
   }
-
-  case class ContainsPattern(fragment: String) {
-    def unapply(s: String): Boolean = s.contains(fragment)
-  }
-
-  case class BundleMessagePattern(@Nls message: String) {
-    def unapply(text: String): Boolean = text == message
-  }
 }

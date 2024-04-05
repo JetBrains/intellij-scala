@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.util.assertions
 
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.annotator.Message
 import org.jetbrains.plugins.scala.base.FailableTest
 import org.junit.Assert
@@ -47,6 +48,14 @@ trait MatcherAssertions extends FailableTest {
     } else {
       Assert.fail(s"wrong object class\nexpected ${classTag.runtimeClass.getName}\nactual:${obj.getClass.getName}").asInstanceOf[Nothing]
     }
+
+  case class ContainsPattern(fragment: String) {
+    def unapply(s: String): Boolean = s.contains(fragment)
+  }
+
+  case class BundleMessagePattern(@Nls message: String) {
+    def unapply(text: String): Boolean = text == message
+  }
 }
 
 object MatcherAssertions extends MatcherAssertions
