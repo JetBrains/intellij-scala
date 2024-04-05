@@ -2,6 +2,11 @@
 2_1_
 0x_FF_FF__FF___FF_
 0_777_L
+0xbdc7_7_7_18
+0b11
+0B0_1
+0b_1l
+0b001L
 -----
 integer {0}
 white space in line {
@@ -13,3 +18,18 @@ integer {0x_FF_FF__FF___FF_}
 white space in line {
 }
 long {0_777_L}
+white space in line {
+}
+integer {0xbdc7_7_7_18}
+white space in line {
+}
+integer {0b11}
+white space in line {
+}
+integer {0B0_1}
+white space in line {
+}
+long {0b_1l}
+white space in line {
+}
+long {0b001L}

@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.annotator.{Hex, Oct}
+import org.jetbrains.plugins.scala.annotator.{Bin, Hex, Oct}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral.Numeric
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScIntegerLiteral, ScLongLiteral}
@@ -76,10 +76,22 @@ object NumberLiteralQuickFix {
   final class ConvertOctToHex(literal: Numeric,
                               isLong: Boolean) extends NumberLiteralQuickFix(literal) {
 
-    override def getText: String = ScalaBundle.message("convert.to.hex.fix")
+    override def getText: String = ScalaBundle.message("convert.octal.to.hex.fix")
 
     override protected def transformText(text: String): String =
       Oct.to(Hex)(text, isLong) match {
+        case result if isLong => ConvertToLong.transformText(result)
+        case result => result
+      }
+  }
+
+  final class ConvertBinaryToHex(literal: Numeric,
+                                 isLong: Boolean) extends NumberLiteralQuickFix(literal) {
+
+    override def getText: String = ScalaBundle.message("convert.binary.to.hex.fix")
+
+    override protected def transformText(text: String): String =
+      Bin.to(Hex)(text, isLong) match {
         case result if isLong => ConvertToLong.transformText(result)
         case result => result
       }
