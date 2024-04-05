@@ -64,6 +64,12 @@ class LibraryNode(override val data: LibraryData)
   override protected def key: Key[LibraryData] = ProjectKeys.LIBRARY
 }
 
+class SharedSourcesOwnersNode(override val data: SharedSourcesOwnersData)
+  extends Node[SharedSourcesOwnersData] {
+
+  override protected def key: Key[SharedSourcesOwnersData] = SharedSourcesOwnersData.Key
+}
+
 class ModuleSdkNode(override val data: ModuleSdkData)
   extends Node[ModuleSdkData] {
 
