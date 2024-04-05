@@ -66,10 +66,5 @@ object ScLiteral {
     def presentation: String = String.valueOf(value)
 
     def wideType(implicit project: Project): ScType
-
-    protected final def cachedClass(fqn: String)
-                                   (implicit project: Project): ScType =
-      ElementScope(project).getCachedClass(fqn)
-        .fold(api.Nothing: ScType)(ScalaType.designator)
   }
 }

@@ -45,6 +45,8 @@ class ScStringLiteralImpl(node: ASTNode,
   override protected final def wrappedValue(value: String): ScLiteral.Value[String] =
     Value(value)
 
+  override protected def fallbackType: ScType = cachedClass(CommonClassNames.JAVA_LANG_STRING)
+
   override def hasValidClosingQuotes: Boolean = firstChildElementType != `tWRONG_STRING`
 
   override def isMultiLineString: Boolean = firstChildElementType == `tMULTILINE_STRING`

@@ -19,6 +19,8 @@ final class ScDoubleLiteralImpl(node: ASTNode,
   override protected def wrappedValue(value: JDouble): ScLiteral.Value[lang.Double] =
     ScDoubleLiteralImpl.Value(value)
 
+  override protected def fallbackType: ScType = api.Double
+
   override protected def parseNumber(text: String): JDouble =
     PsiLiteralUtil.parseDouble(text)
 

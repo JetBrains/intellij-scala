@@ -16,6 +16,8 @@ final class ScBooleanLiteralImpl(node: ASTNode,
   override protected def wrappedValue(value: JBoolean): ScLiteral.Value[JBoolean] =
     ScBooleanLiteralImpl.Value(value)
 
+  override protected def fallbackType: ScType = api.Boolean
+
   override def getValue: JBoolean = {
     import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
     getNode.getFirstChildNode.getElementType match {
