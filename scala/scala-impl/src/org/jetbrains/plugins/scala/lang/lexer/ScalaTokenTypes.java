@@ -188,6 +188,11 @@ public interface ScalaTokenTypes {
             ScalaDirectiveElementTypes.SCALA_DIRECTIVE
     );
 
+    TokenSet PLAIN_COMMENTS_TOKEN_SET = TokenSet.create(
+            tLINE_COMMENT,
+            tBLOCK_COMMENT
+    );
+
     TokenSet WHITES_SPACES_AND_COMMENTS_TOKEN_SET = TokenSet.orSet(COMMENTS_TOKEN_SET, WHITES_SPACES_TOKEN_SET);
 
     TokenSet KEYWORDS = TokenSet.create(

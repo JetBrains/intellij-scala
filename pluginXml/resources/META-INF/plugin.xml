@@ -48,6 +48,7 @@
     <depends optional="true" config-file="decompile-scala-to-java.xml">org.jetbrains.java.decompiler</depends>
     <depends optional="true" config-file="scala-ml-completion-integration.xml">com.intellij.completion.ml.ranking</depends>
     <depends optional="true" config-file="scala-features-trainer-integration.xml">training</depends>
+    <depends optional="true" config-file="textAnalysis.xml">tanvd.grazi</depends>
 <!--    <depends optional="true" config-file="packagesearch.xml">com.jetbrains.packagesearch.intellij-plugin</depends>-->
 
     <xi:include href="/META-INF/sbt-api.xml" xpointer="xpointer(/idea-plugin/*)"/>
@@ -64,6 +65,4 @@
     <xi:include href="/META-INF/uast.xml" xpointer="xpointer(/idea-plugin/*)"/>
     <xi:include href="/META-INF/worksheet.xml" xpointer="xpointer(/idea-plugin/*)"/>
     <xi:include href="/META-INF/scala-devkit-integration.xml" xpointer="xpointer(/idea-plugin/*)"/>
-    <xi:include href="/META-INF/textAnalysis.xml" xpointer="xpointer(/idea-plugin/*)"/>
-
 </idea-plugin>

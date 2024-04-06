@@ -39,7 +39,7 @@ final class ScLiteralExpressionTokenizer extends EscapeSequenceTokenizer[ScLiter
       consumer.consumeToken(element, PlainTextSplitter.getInstance)
     }
     else {
-      val rangeInHost = element.contentRange.shiftLeft(element.getNode.getStartOffset)
+      val rangeInHost = element.contentRangeInParent
       val contentTextOriginal = rangeInHost.substring(text)
       processTextWithEscapeSequences(element, contentTextOriginal, rangeInHost, consumer)
     }

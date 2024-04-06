@@ -1,6 +1,10 @@
 <idea-plugin>
-    <extensions defaultExtensionNs="com.intellij">
-        <spellchecker.bundledDictionaryProvider implementation="org.jetbrains.plugins.scala.spellchecker.ScalaBundledDictionaryProvider"/>
-        <spellchecker.support language="Scala" implementationClass="org.jetbrains.plugins.scala.spellchecker.ScalaSpellcheckingStrategy"/>
+    <extensions defaultExtensionNs="com.intellij.spellchecker">
+        <bundledDictionaryProvider implementation="org.jetbrains.plugins.scala.spellchecker.ScalaBundledDictionaryProvider"/>
+        <support language="Scala" implementationClass="org.jetbrains.plugins.scala.spellchecker.ScalaSpellcheckingStrategy"/>
+    </extensions>
+
+    <extensions defaultExtensionNs="com.intellij.grazie">
+        <textExtractor language="Scala" implementationClass="org.jetbrains.plugins.scala.grazie.ScalaTextExtractor"/>
     </extensions>
 </idea-plugin>

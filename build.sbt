@@ -729,9 +729,17 @@ lazy val mlCompletionIntegration =
 // - Grazie plugin (more advanced spell + grammar checker)
 lazy val textAnalysis =
   newProject("textAnalysis", file("scala/integration/textAnalysis"))
-    .dependsOn(scalaImpl % "test->test;compile->compile")
+    .dependsOn(
+      scalaImpl % "test->test;compile->compile",
+      intelliLangIntegration //uses logic related to parsing interpolated strings
+    )
     .settings(
-      intellijPlugins += "tanvd.grazi".toPlugin,
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions,
+      intellijPlugins ++= Seq(
+        "tanvd.grazi".toPlugin,
+        "org.intellij.intelliLang".toPlugin //required for intelliLangIntegration
+      )
     )
 
 lazy val featuresTrainerIntegration =

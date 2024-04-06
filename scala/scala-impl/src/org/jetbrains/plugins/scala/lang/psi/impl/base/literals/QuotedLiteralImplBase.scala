@@ -10,6 +10,12 @@ abstract class QuotedLiteralImplBase(node: ASTNode,
                                      override val toString: String)
   extends ScLiteralImplBase(node, toString) {
 
+  /**
+   * @note in case of interpolated string this includes both interpolator and the quotes. Examples: {{{
+   *   s"""text""" //startQuote = s"""
+   *   raw"text"   //startQuote = raw"
+   * }}}
+   */
   protected def startQuote: String
 
   protected def endQuote: String = startQuote
@@ -32,7 +38,7 @@ abstract class QuotedLiteralImplBase(node: ASTNode,
   }
 
   override final def contentRange: TextRange = {
-    val range = super.contentRange
+    val range = getTextRange
     new TextRange(
       range.getStartOffset + startQuote.length,
       range.getEndOffset - endQuote.length

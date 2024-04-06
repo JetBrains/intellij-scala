@@ -14,7 +14,17 @@ trait ScLiteral extends ScExpression
 
   override def getValue: V
 
+  /**
+   * @return range of the content relative to file.<br>
+   *         In quoted literals (string, char) content range includes everything between opening and closing quotes.
+   */
   def contentRange: TextRange
+
+  /**
+   * @return range of the content relative to the literal start offset in the file.<br>
+   *         In quoted literals (string, char) content range includes everything between opening and closing quotes.
+   */
+  def contentRangeInParent: TextRange
 
   def contentText: String
 

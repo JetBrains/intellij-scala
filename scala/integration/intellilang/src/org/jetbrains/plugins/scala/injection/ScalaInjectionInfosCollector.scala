@@ -17,7 +17,7 @@ import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 //TODO: (maybe?) optimize to use buffers and less flatMaps, because ScalaLanguageInjector.getLanguagesToInject is quite a hot method
-private object ScalaInjectionInfosCollector {
+/*private */object ScalaInjectionInfosCollector {
 
   /**
    * Placeholder text for injections in interpolated strings<br>
