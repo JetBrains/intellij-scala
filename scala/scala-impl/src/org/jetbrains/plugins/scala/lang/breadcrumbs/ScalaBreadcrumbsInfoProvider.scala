@@ -61,6 +61,7 @@ class ScalaBreadcrumbsInfoProvider extends BreadcrumbsProvider {
   }
 
   override def acceptStickyElement(element: PsiElement): Boolean = element match {
+    case _: ScMatch | _: ScCaseClause => true
     case _: ScValueOrVariableDefinition => true
     case _ => super.acceptStickyElement(element)
   }
