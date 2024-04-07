@@ -1,11 +1,7 @@
 package org.jetbrains.plugins.scala.compiler.zinc
 
-import com.intellij.openapi.compiler.{CompilerMessage, CompilerMessageCategory}
-import com.intellij.openapi.externalSystem.model.ProjectSystemId
-import com.intellij.openapi.module.{Module, ModuleManager}
-import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
-import com.intellij.openapi.vfs.VfsUtil
-import com.intellij.platform.externalSystem.testFramework.ExternalSystemImportingTestCase
+import com.intellij.openapi.module.ModuleManager
+import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.testFramework.CompilerTester
 import org.jetbrains.plugins.scala.CompilationTests
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
@@ -15,23 +11,15 @@ import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
-import org.jetbrains.sbt.Sbt
-import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.junit.Assert.{assertNotNull, assertTrue}
 import org.junit.experimental.categories.Category
 
-import java.nio.file.{Files, Path}
+import java.nio.file.Files
 import scala.jdk.CollectionConverters._
 
 @Category(Array(classOf[CompilationTests]))
-class MultipleClassesInOneFileTest extends ExternalSystemImportingTestCase {
-
-  private var sdk: Sdk = _
-
-  private var compiler: CompilerTester = _
-
-  private var rootModule: Module = _
+class MultipleClassesInOneFileTest extends ZincTestBase {
 
   override lazy val getCurrentExternalProjectSettings: SbtProjectSettings = {
     val settings = new SbtProjectSettings()
@@ -39,11 +27,7 @@ class MultipleClassesInOneFileTest extends ExternalSystemImportingTestCase {
     settings
   }
 
-  override def getExternalSystemId: ProjectSystemId = SbtProjectSystem.Id
-
   override def getTestsTempDir: String = this.getClass.getSimpleName
-
-  override def getExternalSystemConfigFileName: String = Sbt.BuildFile
 
   override def setUp(): Unit = {
     super.setUp()
@@ -103,7 +87,7 @@ class MultipleClassesInOneFileTest extends ExternalSystemImportingTestCase {
 
     val classFileNames = List("Foo", "Bar", "Baz")
 
-    val firstClassFiles = classFileNames.map(findClassFile)
+    val firstClassFiles = classFileNames.map(findClassFileInRootModule)
     val firstTimestamps = firstClassFiles.map(Files.getLastModifiedTime(_).toMillis)
 
     removeFile(firstClassFiles(1)) // remove Bar.class
@@ -112,42 +96,11 @@ class MultipleClassesInOneFileTest extends ExternalSystemImportingTestCase {
     assertNoErrorsOrWarnings(messages2)
     assertCompilingScalaSources(messages2, 1)
 
-    val secondClassFiles = classFileNames.map(findClassFile)
+    val secondClassFiles = classFileNames.map(findClassFileInRootModule)
     val secondTimestamps = secondClassFiles.map(Files.getLastModifiedTime(_).toMillis)
 
     val recompiled = firstTimestamps.zip(secondTimestamps).forall { case (x, y) => x < y }
     assertTrue("Not all source files were recompiled", recompiled)
   }
 
-  private def assertNoErrorsOrWarnings(messages: Seq[CompilerMessage]): Unit = {
-    val errorsAndWarnings = messages.filter { message =>
-      val category = message.getCategory
-      category == CompilerMessageCategory.ERROR || category == CompilerMessageCategory.WARNING
-    }
-    assertTrue(s"Expected no compilation errors or warnings, got: ${errorsAndWarnings.mkString(System.lineSeparator())}", errorsAndWarnings.isEmpty)
-  }
-
-  private def assertCompilingScalaSources(messages: Seq[CompilerMessage], number: Int): Unit = {
-    val message = messages.find { message =>
-      val text = message.getMessage
-      text.contains("compiling") && text.contains("Scala source")
-    }.orNull
-    assertNotNull("Could not find Compiling Scala sources message", message)
-    val expected = s"compiling $number Scala source"
-    val text = message.getMessage
-    assertTrue(s"Compiling wrong number of Scala sources, expected '$expected', got '$text'", text.contains(expected))
-  }
-
-  private def findClassFile(name: String): Path = {
-    val cls = compiler.findClassFile(name, rootModule)
-    assertNotNull(s"Could not find compiled class file $name", cls)
-    cls.toPath
-  }
-
-  private def removeFile(path: Path): Unit = {
-    val virtualFile = VfsUtil.findFileByIoFile(path.toFile, true)
-    inWriteAction {
-      virtualFile.delete(null)
-    }
-  }
 }
