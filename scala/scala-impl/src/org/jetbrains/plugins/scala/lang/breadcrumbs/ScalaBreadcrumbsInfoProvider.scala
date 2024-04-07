@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScValueOrVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
@@ -58,6 +58,11 @@ class ScalaBreadcrumbsInfoProvider extends BreadcrumbsProvider {
       case _: ScIf | _: ScWhile | _: ScDo => settings.isBreadcrumbsIfDoWhileEnabled
       case _ => false
     }
+  }
+
+  override def acceptStickyElement(element: PsiElement): Boolean = element match {
+    case _: ScValueOrVariableDefinition => true
+    case _ => super.acceptStickyElement(element)
   }
 
   override def getLanguages: Array[Language] = ScalaBreadcrumbsInfoProvider.SCALA_LANG
