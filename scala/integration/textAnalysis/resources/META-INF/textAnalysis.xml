@@ -6,5 +6,8 @@
 
     <extensions defaultExtensionNs="com.intellij.grazie">
         <textExtractor language="Scala" implementationClass="org.jetbrains.plugins.scala.grazie.ScalaTextExtractor"/>
+        <problemFilter language="Scala" implementationClass="org.jetbrains.plugins.scala.grazie.ScaladocProblemFilter"/>
+        <!--Disable rules that are less actual for string literals. Note: same is done for Java. -->
+        <problemFilter language="Scala" implementationClass="com.intellij.grazie.text.LiteralProblemFilter"/>
     </extensions>
 </idea-plugin>
