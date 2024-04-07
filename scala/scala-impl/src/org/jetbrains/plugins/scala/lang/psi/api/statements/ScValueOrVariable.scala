@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements
 
-import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.IElementType
+import com.intellij.psi.{PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotations
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
@@ -39,6 +39,14 @@ trait ScValueOrVariable extends ScBlockStatement
     }
 
   final def hasExplicitType: Boolean = typeElement.isDefined
+
+  /**
+   * Returns the offset in the file to which the caret should be placed
+   * when performing the navigation to the element. (This trait does not implement
+   * [[PsiNamedElement]] so return the offset of the keyword instead of the
+   * name identifier)
+   */
+  override def getTextOffset: Int = keywordToken.getTextRange.getStartOffset
 
   override protected def isSimilarMemberForNavigation(member: ScMember, isStrictCheck: Boolean): Boolean = member match {
     case other: ScValueOrVariable =>
