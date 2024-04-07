@@ -133,9 +133,11 @@ object ScalaBreadcrumbsInfoProvider {
     def getTemplateDefTooltip(td: ScTemplateDefinition): String = {
       val name = td.name
       td match {
+        case _: ScEnum                       => s"enum $name"
         case _: ScClass                      => s"class $name"
         case _: ScObject                     => s"object $name"
         case _: ScTrait                      => s"trait $name"
+        // TODO: describe givens?
         case newDef: ScNewTemplateDefinition => describeNewTemplate(newDef)
         case _                               => name
       }
