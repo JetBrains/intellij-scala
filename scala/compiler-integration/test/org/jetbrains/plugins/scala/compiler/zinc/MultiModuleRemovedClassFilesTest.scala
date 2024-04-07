@@ -1,11 +1,8 @@
 package org.jetbrains.plugins.scala.compiler.zinc
 
-import com.intellij.openapi.compiler.{CompilerMessage, CompilerMessageCategory}
-import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.module.{Module, ModuleManager}
-import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
+import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.vfs.VfsUtil
-import com.intellij.platform.externalSystem.testFramework.ExternalSystemImportingTestCase
 import com.intellij.testFramework.CompilerTester
 import org.jetbrains.plugins.scala.CompilationTests
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
@@ -15,21 +12,15 @@ import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
-import org.jetbrains.sbt.Sbt
-import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
-import org.junit.Assert.{assertNotNull, assertTrue}
+import org.junit.Assert.assertNotNull
 import org.junit.experimental.categories.Category
 
 import java.nio.file.Path
 import scala.jdk.CollectionConverters._
 
 @Category(Array(classOf[CompilationTests]))
-class MultiModuleRemovedClassFilesTest extends ExternalSystemImportingTestCase {
-
-  private var sdk: Sdk = _
-
-  private var compiler: CompilerTester = _
+class MultiModuleRemovedClassFilesTest extends ZincTestBase {
 
   private var module1: Module = _
 
@@ -41,11 +32,7 @@ class MultiModuleRemovedClassFilesTest extends ExternalSystemImportingTestCase {
     settings
   }
 
-  override def getExternalSystemId: ProjectSystemId = SbtProjectSystem.Id
-
   override def getTestsTempDir: String = this.getClass.getSimpleName
-
-  override def getExternalSystemConfigFileName: String = Sbt.BuildFile
 
   override def setUp(): Unit = {
     super.setUp()
@@ -122,24 +109,4 @@ class MultiModuleRemovedClassFilesTest extends ExternalSystemImportingTestCase {
     assertNoErrorsOrWarnings(messages2)
   }
 
-  private def assertNoErrorsOrWarnings(messages: Seq[CompilerMessage]): Unit = {
-    val errorsAndWarnings = messages.filter { message =>
-      val category = message.getCategory
-      category == CompilerMessageCategory.ERROR || category == CompilerMessageCategory.WARNING
-    }
-    assertTrue(s"Expected no compilation errors or warnings, got: ${errorsAndWarnings.mkString(System.lineSeparator())}", errorsAndWarnings.isEmpty)
-  }
-
-  private def findClassFile(module: Module, name: String): Path = {
-    val cls = compiler.findClassFile(name, module)
-    assertNotNull(s"Could not find compiled class file $name", cls)
-    cls.toPath
-  }
-
-  private def removeFile(path: Path): Unit = {
-    val virtualFile = VfsUtil.findFileByIoFile(path.toFile, true)
-    inWriteAction {
-      virtualFile.delete(null)
-    }
-  }
 }

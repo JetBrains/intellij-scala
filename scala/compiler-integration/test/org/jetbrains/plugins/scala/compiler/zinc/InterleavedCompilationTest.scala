@@ -1,12 +1,10 @@
 package org.jetbrains.plugins.scala.compiler.zinc
 
 import com.intellij.execution.configurations.JavaParameters
-import com.intellij.openapi.compiler.{CompilerMessage, CompilerMessageCategory}
-import com.intellij.openapi.externalSystem.model.ProjectSystemId
-import com.intellij.openapi.module.{Module, ModuleManager}
+import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.vfs.VfsUtil
-import com.intellij.platform.externalSystem.testFramework.{ExternalSystemImportingTestCase, ExternalSystemTestCase}
+import com.intellij.platform.externalSystem.testFramework.ExternalSystemTestCase
 import com.intellij.testFramework.{CompilerTester, VfsTestUtil}
 import org.jetbrains.plugins.scala.CompilationTests
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
@@ -16,23 +14,16 @@ import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
-import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
-import org.jetbrains.sbt.{Sbt, SbtUtil}
-import org.junit.Assert.{assertEquals, assertNotNull, assertTrue}
+import org.jetbrains.sbt.SbtUtil
+import org.junit.Assert.{assertEquals, assertNotNull}
 import org.junit.experimental.categories.Category
 
 import java.nio.file.Path
 import scala.jdk.CollectionConverters._
 
 @Category(Array(classOf[CompilationTests]))
-class InterleavedCompilationTest extends ExternalSystemImportingTestCase {
-
-  private var sdk: Sdk = _
-
-  private var compiler: CompilerTester = _
-
-  private var rootModule: Module = _
+class InterleavedCompilationTest extends ZincTestBase {
 
   override lazy val getCurrentExternalProjectSettings: SbtProjectSettings = {
     val settings = new SbtProjectSettings()
@@ -40,11 +31,7 @@ class InterleavedCompilationTest extends ExternalSystemImportingTestCase {
     settings
   }
 
-  override def getExternalSystemId: ProjectSystemId = SbtProjectSystem.Id
-
   override def getTestsTempDir: String = this.getClass.getSimpleName
-
-  override def getExternalSystemConfigFileName: String = Sbt.BuildFile
 
   override def setUp(): Unit = {
     super.setUp()
@@ -181,22 +168,4 @@ class InterleavedCompilationTest extends ExternalSystemImportingTestCase {
     assertEquals(s"sbt $command did not finished with an error", 0, commandLine.createProcess().waitFor())
   }
 
-  private def assertNoErrorsOrWarnings(messages: Seq[CompilerMessage]): Unit = {
-    val errorsAndWarnings = messages.filter { message =>
-      val category = message.getCategory
-      category == CompilerMessageCategory.ERROR || category == CompilerMessageCategory.WARNING
-    }
-    assertTrue(s"Expected no compilation errors or warnings, got: ${errorsAndWarnings.mkString(System.lineSeparator())}", errorsAndWarnings.isEmpty)
-  }
-
-  private def assertCompilingScalaSources(messages: Seq[CompilerMessage], number: Int): Unit = {
-    val message = messages.find { message =>
-      val text = message.getMessage
-      text.contains("compiling") && text.contains("Scala source")
-    }.orNull
-    assertNotNull("Could not find Compiling Scala sources message", message)
-    val expected = s"compiling $number Scala source"
-    val text = message.getMessage
-    assertTrue(s"Compiling wrong number of Scala sources, expected '$expected', got '$text'", text.contains(expected))
-  }
 }
