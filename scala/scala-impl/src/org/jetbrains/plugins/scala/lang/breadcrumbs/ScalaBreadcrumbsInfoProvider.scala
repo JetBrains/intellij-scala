@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScValueOrVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScPatternDefinition, ScValueOrVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
@@ -61,6 +61,7 @@ class ScalaBreadcrumbsInfoProvider extends BreadcrumbsProvider {
   }
 
   override def acceptStickyElement(element: PsiElement): Boolean = element match {
+    case _: ScExtension => true
     case _: ScMatch | _: ScCaseClause => true
     case _: ScValueOrVariableDefinition => true
     case _ => super.acceptStickyElement(element)
