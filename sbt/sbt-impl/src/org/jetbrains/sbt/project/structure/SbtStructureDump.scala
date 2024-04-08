@@ -68,6 +68,7 @@ class SbtStructureDump {
       } else ""
 
     val cmd = s";reload; $setCmd ;${if (preferScala2) "preferScala2;" else ""}*/*:dumpStructureTo $structureFilePath; session clear-all $ideaPortSetting"
+
     val aggregator = shellMessageAggregator(EventId(s"dump:${UUID.randomUUID()}"), shell, reporter)
 
     shell.command(cmd, BuildMessages.empty, aggregator)
@@ -99,7 +100,7 @@ class SbtStructureDump {
     val sbtCommands = (
       Seq(
         setCommands,
-        s"""apply -cp "${normalizePath(sbtStructureJar)}" org.jetbrains.sbt.CreateTasks"""
+        s"""apply -cp "${normalizePath(sbtStructureJar)}" "org.jetbrains.sbt.CreateTasks" "sbt.jetbrains.LogDownloadArtifacts""""
       ) :++
         (if (preferScala2) Seq("preferScala2") else Seq.empty) :+
         s"*/*:dumpStructure"
