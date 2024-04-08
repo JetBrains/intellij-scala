@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.compiler.zinc
 
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.projectRoots.ProjectJdkTable
-import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.testFramework.CompilerTester
 import org.jetbrains.plugins.scala.CompilationTests
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
@@ -13,18 +12,19 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
-import org.junit.Assert.assertNotNull
+import org.junit.Assert.{assertNotNull, assertNull}
 import org.junit.experimental.categories.Category
 
-import java.nio.file.Path
 import scala.jdk.CollectionConverters._
 
 @Category(Array(classOf[CompilationTests]))
-class MultiModuleRemovedClassFilesTest extends ZincTestBase {
+class SharedSourcesUnmanagedDirectoriesTest extends ZincTestBase {
 
   private var module1: Module = _
 
   private var module2: Module = _
+
+  private var module3: Module = _
 
   override lazy val getCurrentExternalProjectSettings: SbtProjectSettings = {
     val settings = new SbtProjectSettings()
@@ -51,18 +51,24 @@ class MultiModuleRemovedClassFilesTest extends ZincTestBase {
       res
     }
 
-    createProjectSubDirs("project", "module1/src/main/scala", "module2/src/main/scala")
+    createProjectSubDirs("project", "module1/src/main/scala", "module2/src/main/scala", "module3/src/main/scala", "shared/src/main/scala")
     createProjectSubFile("project/build.properties", "sbt.version=1.9.7")
     createProjectSubFile("module1/src/main/scala/Foo.scala", "class Foo")
     createProjectSubFile("module2/src/main/scala/Bar.scala", "class Bar extends Foo")
+    createProjectSubFile("module3/src/main/scala/Dummy.scala", "class Dummy")
+    createProjectSubFile("shared/src/main/scala/Shared.scala", "class Shared")
     createProjectConfig(
       """lazy val root = project.in(file("."))
         |  .aggregate(module1, module2)
         |
         |lazy val module1 = project.in(file("module1"))
-        |  .settings(scalaVersion := "2.13.12")
+        |  .settings(scalaVersion := "2.13.12", Compile / unmanagedSourceDirectories += (ThisBuild / baseDirectory).value / "shared" / "src" / "main" / "scala")
         |
         |lazy val module2 = project.in(file("module2"))
+        |  .dependsOn(module1)
+        |  .settings(scalaVersion := "2.13.12", Compile / unmanagedSourceDirectories += (ThisBuild / baseDirectory).value / "shared" / "src" / "main" / "scala")
+        |
+        |lazy val module3 = project.in(file("module3"))
         |  .dependsOn(module1)
         |  .settings(scalaVersion := "2.13.12")
         |""".stripMargin)
@@ -75,6 +81,8 @@ class MultiModuleRemovedClassFilesTest extends ZincTestBase {
     assertNotNull("Could not find module with name 'root.module1'", module1)
     module2 = modules.find(_.getName == "root.module2").orNull
     assertNotNull("Could not find module with name 'root.module2'", module2)
+    module3 = modules.find(_.getName == "root.module3").orNull
+    assertNotNull("Could not find module with name 'root.module3'", module3)
     compiler = new CompilerTester(myProject, java.util.Arrays.asList(modules: _*), null, false)
   }
 
@@ -89,24 +97,16 @@ class MultiModuleRemovedClassFilesTest extends ZincTestBase {
     super.tearDown()
   }
 
-  def testRemoveDependencyClassFile(): Unit = {
+  def testSharedSourcesOnlyCompiledToOwnerModules(): Unit = {
     val messages1 = compiler.make().asScala.toSeq
     assertNoErrorsOrWarnings(messages1)
 
-    val fooClass = findClassFile(module1, "Foo")
-    removeFile(fooClass)
+    val module1SharedClass = compiler.findClassFile("Shared", module1)
+    val module2SharedClass = compiler.findClassFile("Shared", module2)
+    val module3SharedClass = compiler.findClassFile("Shared", module3)
 
-    val projectPath = Path.of(getProjectPath)
-    val srcMainScala = Path.of("src", "main", "scala")
-
-    val barSourcePath = projectPath.resolve(Path.of("module2").resolve(srcMainScala).resolve("Bar.scala"))
-    val barSource = VfsUtil.findFileByIoFile(barSourcePath.toFile, true)
-    inWriteAction {
-      VfsUtil.saveText(barSource, "class Bar extends Foo { def foo = 1 }")
-    }
-
-    val messages2 = compiler.make().asScala.toSeq
-    assertNoErrorsOrWarnings(messages2)
+    assertNotNull("Shared class file not found in module1", module1SharedClass)
+    assertNotNull("Shared class file not found in module2", module2SharedClass)
+    assertNull("Shared class file found in module3, but it shouldn't", module3SharedClass)
   }
-
 }

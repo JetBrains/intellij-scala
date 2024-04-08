@@ -46,6 +46,22 @@ object SbtEntityData {
 }
 
 /**
+ * Data storing external modules ids that own the given shared sources module.
+ * This data is only put in shared sources modules.
+ * @param ownerModuleIds id of the modules that own shared sources module
+ */
+case class SharedSourcesOwnersData @PropertyMapping(Array("ownerModuleIds"))(
+  ownerModuleIds: JList[String],
+) extends SbtEntityData
+
+object SharedSourcesOwnersData {
+  val Key: Key[SharedSourcesOwnersData] = datakey(classOf[SharedSourcesOwnersData])
+
+  def apply(owners: Seq[String]): SharedSourcesOwnersData =
+    SharedSourcesOwnersData(owners.toJavaList)
+}
+
+/**
   * Data describing a "build" module: The IDEA-side representation of the sbt meta-project
   * @param imports implicit sbt file imports.
   * @param resolvers resolvers for this build project
