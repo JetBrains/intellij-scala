@@ -21,7 +21,7 @@ final class ScLongLiteralImpl(node: ASTNode,
   override protected def fallbackType: ScType = api.Long
 
   override protected def parseNumber(text: String): JLong =
-    literals.parseLong(text)
+    literals.parseLong(text, stripLeading0 = this.isInScala3Module)
 
   override private[psi] def unwrappedValue(value: JLong) =
     value.longValue

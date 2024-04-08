@@ -1,5 +1,6 @@
 0
 2_1_
+09_1
 0x_FF_FF__FF___FF_
 0_777_L
 0xbdc7_7_7_18
@@ -12,6 +13,9 @@ integer {0}
 white space in line {
 }
 integer {2_1_}
+white space in line {
+}
+integer {09_1}
 white space in line {
 }
 integer {0x_FF_FF__FF___FF_}

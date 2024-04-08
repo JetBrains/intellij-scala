@@ -197,10 +197,10 @@ import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.*;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 longLiteal = {integerLiteral} [Ll]
-integerLiteral = {decimalNumeral} | {hexNumeral} | {octalNumeral} | {binaryNumeral}
-decimalNumeral = 0 | [1-9] {digitOrUnderscore}*
+integerLiteral = {decimalNumeral} | {hexNumeral} | {binaryNumeral}
+// this includes octal literals, which are deprecated since 2.11.0
+decimalNumeral = [0-9] {digitOrUnderscore}*
 hexNumeral = 0 [Xx] {hexDigitOrUnderscore}+
-octalNumeral = 0 {octalDigitOrUndescrore}+
 binaryNumeral = 0 [Bb] {binaryDigitOrUnderscore}+
 digitOrUnderscore = [_0-9]
 octalDigitOrUndescrore = [_0-7]
