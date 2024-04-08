@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.compiler.highlighting
 
-import com.intellij.openapi.Disposable
-import com.intellij.openapi.compiler.CompilerPaths
+import com.intellij.compiler.server.BuildManager
+import com.intellij.openapi.compiler.{CompilerManager, CompilerPaths}
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.module.Module
@@ -16,13 +16,23 @@ import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLanguageLevel, Virtu
 
 import java.io.File
 import java.nio.file.{Files, Path}
-import java.util.concurrent.ConcurrentHashMap
-import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 @Service(Array(Service.Level.PROJECT))
-private final class DocumentCompiler(project: Project) extends Disposable {
+private final class DocumentCompiler(project: Project) {
 
-  private val outputDirectories = new ConcurrentHashMap[Module, File]
+  private val workingDirectory: Path = {
+    var compilerDir = CompilerManager.getInstance(project).getJavacCompilerWorkingDir
+    if (compilerDir eq null) {
+      // This shouldn't happen, as the implementation of `CompilerManagerImpl#getJavacCompilerWorkingDir`
+      // does not return a nullable file, but just in case, this is the same directory.
+      compilerDir = BuildManager.getInstance().getProjectSystemDirectory(project)
+    }
+    compilerDir = compilerDir.toPath.resolve("document-compiler").toFile
+    if (!compilerDir.exists()) {
+      compilerDir.mkdirs()
+    }
+    compilerDir.toPath
+  }
 
   def compile(
     module: Module,
@@ -40,51 +50,65 @@ private final class DocumentCompiler(project: Project) extends Disposable {
     )
   }
 
-  def clearOutputDirectories(): Unit = {
-    outputDirectories.values().asScala.flatMap(dir => Option(dir.listFiles())).flatten.foreach(FileUtil.delete)
-  }
-
-  private def removeOutputDirectories(): Unit = {
-    outputDirectories.values().asScala.foreach(FileUtil.delete)
-  }
-
-  override def dispose(): Unit = {
-    clearOutputDirectories()
-    removeOutputDirectories()
-    outputDirectories.clear()
-  }
-
   private def compileDocumentContent(originalSourceFile: File,
                                      content: String,
                                      module: Module,
                                      sourceScope: SourceScope,
                                      client: Client): Unit = {
-    val tempSourceFile = FileUtil.createTempFile("tempSourceFile", null, false)
-    val outputDir = outputDirectories.computeIfAbsent(module, { _: Module =>
-      val prefix = s"${module.getProject.getName}-${module.getName}-target"
-      FileUtil.createTempDirectory(prefix, null, true)
-    })
-    try {
-      Files.writeString(tempSourceFile.toPath, content)
-      new RemoteServerConnector(tempSourceFile, module, sourceScope, outputDir).compile(originalSourceFile, client)
-    } finally {
-      FileUtil.delete(tempSourceFile)
+    val tempSourceFile = workingDirectory.resolve("tempSourceFile").toFile
+    Files.writeString(tempSourceFile.toPath, content)
+    val connector =
+      try new RemoteServerConnector(tempSourceFile, module, sourceScope)
+      catch {
+        case t: Throwable =>
+          // Remove the temporary source file if creating the connector failed.
+          FileUtil.delete(tempSourceFile)
+          throw t
+      }
+
+    try connector.compile(originalSourceFile, client)
+    finally {
+      if (connector.requiresCleanup) {
+        val files = workingDirectory.toFile.listFiles()
+        if (files ne null) {
+          files.foreach(FileUtil.delete)
+        }
+      } else {
+        FileUtil.delete(tempSourceFile)
+      }
     }
   }
 
-  private class RemoteServerConnector(tempSourceFile: File,
-                                      module: Module,
-                                      sourceScope: SourceScope,
-                                      outputDir: File)
-    extends RemoteServerConnectorBase(module, Some(Seq(tempSourceFile)), outputDir) {
+  private class RemoteServerConnector(tempSourceFile: File, module: Module, sourceScope: SourceScope)
+    extends RemoteServerConnectorBase(module, Some(Seq(tempSourceFile)), workingDirectory.toFile) {
+
+    var requiresCleanup: Boolean = false
 
     override protected def scalaParameters: Seq[String] = {
-      val scalacOptions = CompilerOptions.scalacOptions(module)
-      if (module.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_3_3)) {
-        if (CompilerOptions.containsUnusedImports(scalacOptions)) scalacOptions
-        else scalacOptions :+ "-Wunused:imports"
+      var scalacOptions = CompilerOptions.scalacOptions(module)
+      if (!CompilerOptions.containsStopAfter(scalacOptions)) {
+        val stopAfter = module.scalaLanguageLevel match {
+          case Some(ScalaLanguageLevel.Scala_2_10) => Some("-Ystop-after:dce")
+          case Some(ScalaLanguageLevel.Scala_2_11) |
+               Some(ScalaLanguageLevel.Scala_2_12) |
+               Some(ScalaLanguageLevel.Scala_2_13) => Some("-Ystop-after:delambdafy")
+          case Some(languageLevel) if languageLevel.isScala3 => Some("-Ystop-after:repeatableAnnotations")
+          case _ =>
+            // .class files will be produced, they should be cleaned up
+            requiresCleanup = true
+            None
+        }
+        scalacOptions ++= stopAfter
+      } else {
+        // .class/tasty files might be produced, they should be cleaned up if they exist
+        requiresCleanup = true
       }
-      else scalacOptions
+      if (module.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_3_3)) {
+        if (!CompilerOptions.containsUnusedImports(scalacOptions)) {
+          scalacOptions = scalacOptions :+ "-Wunused:imports"
+        }
+      }
+      scalacOptions
     }
 
     override protected def assemblyRuntimeClasspath(): Seq[File] = {
@@ -108,7 +132,7 @@ private final class DocumentCompiler(project: Project) extends Disposable {
            * Example: `bad option '-g:vars' was ignored`<br>
            * We do not want to loose such message.
            * We rely that they will be reported in the beginning of the file<br>
-           * see [[org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlighters.toHighlightInfo]]
+           * see [[org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlightersService.toHighlightInfo]]
            * (we assume that `from` and `to` are also empty for such files)
            */
           val fixedSource = Some(originalSourceFile) //msg.source.map(_ => originalSourceFile)

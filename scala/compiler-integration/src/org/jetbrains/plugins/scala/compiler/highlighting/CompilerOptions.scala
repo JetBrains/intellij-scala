@@ -16,4 +16,10 @@ private object CompilerOptions {
 
   def containsFatalWarnings(scalacOptions: Seq[String]): Boolean =
     scalacOptions.contains("-Xfatal-warnings") || scalacOptions.contains("-Werror")
+
+  def containsStopAfter(scalacOptions: Seq[String]): Boolean =
+    scalacOptions.exists {
+      case s"-Ystop-after:${_}" => true
+      case _ => false
+    }
 }
