@@ -196,6 +196,12 @@ object ParserUtils {
         return
       case _ if rule =>
         builder.getTokenType match {
+          case null =>
+            if (region.isBraced) {
+              // ok when we are in indentation style
+              builder.error(ErrMsg("rbrace.expected"))
+            }
+            return
           case ScalaTokenTypes.tRBRACE =>
             if (region.isBraced)
               builder.advanceLexer() // Ate }

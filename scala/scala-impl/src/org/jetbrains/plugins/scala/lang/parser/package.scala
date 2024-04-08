@@ -159,7 +159,8 @@ package object parser {
       repr.isIndent(repr.findPrecedingIndentation)
 
     def isOutdentHere: Boolean =
-      repr.currentIndentationRegion.isOutdent(repr.findPrecedingIndentation) || repr.eof()
+      repr.currentIndentationRegion.isOutdent(repr.findPrecedingIndentation) ||
+        repr.eof() && !repr.currentIndentationRegion.isBraced
 
     def isOutdentForCaseKeywordInCaseClause: Boolean = {
       val region = repr.currentIndentationRegion match {
