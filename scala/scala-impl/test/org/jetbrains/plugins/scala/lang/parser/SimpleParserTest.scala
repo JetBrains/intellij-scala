@@ -383,4 +383,59 @@ class SimpleParserTest extends SimpleScalaParserTestBase {
         |""".stripMargin,
     )
   }
+
+  // SCL-22309
+  def test_missing_brace_at_eof(): Unit = checkTree(
+    """
+      |class Foo {
+      |  def bar() = {
+      |}
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScClass: Foo
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(class)('class')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('Foo')
+      |    PrimaryConstructor
+      |      AnnotationsList
+      |        <empty list>
+      |      Modifiers
+      |        <empty list>
+      |      Parameters
+      |        <empty list>
+      |    PsiWhiteSpace(' ')
+      |    ExtendsBlock
+      |      ScTemplateBody
+      |        PsiElement({)('{')
+      |        PsiWhiteSpace('\n  ')
+      |        ScFunctionDefinition: bar
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(def)('def')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(identifier)('bar')
+      |          Parameters
+      |            ParametersClause
+      |              PsiElement(()('(')
+      |              PsiElement())(')')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(=)('=')
+      |          PsiWhiteSpace(' ')
+      |          BlockExpression
+      |            PsiElement({)('{')
+      |            PsiWhiteSpace('\n')
+      |            PsiElement(})('}')
+      |        PsiErrorElement:'}' expected
+      |          <empty list>
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }
