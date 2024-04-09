@@ -3,7 +3,7 @@ package project.data
 
 import com.intellij.openapi.externalSystem.model.project._
 import com.intellij.openapi.externalSystem.model.{DataNode, Key, ProjectKeys}
-import org.jetbrains.sbt.project.SbtProjectSystem
+import org.jetbrains.sbt.project.{SbtProjectSystem, SharedSourcesOwnersData}
 import org.jetbrains.sbt.project.module.SbtNestedModuleData
 
 import java.net.URI

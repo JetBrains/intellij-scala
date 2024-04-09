@@ -4,6 +4,7 @@ package project.data.service
 import com.intellij.openapi.externalSystem.model.project.{LibraryLevel, ModuleData}
 import com.intellij.openapi.module.StdModuleTypes
 import org.jetbrains.sbt.project.data._
+import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
 
 import java.net.URI
 import scala.language.implicitConversions
@@ -161,6 +162,10 @@ object ExternalSystemDataDsl {
 
   class javaModule extends module {
     override val typeId: String = StdModuleTypes.JAVA.getId
+  }
+
+  class sharedSourcesModule extends module {
+    override val typeId: String = SharedSourcesModuleType.instance.getId
   }
 
   class sbtNestedModule extends module {
