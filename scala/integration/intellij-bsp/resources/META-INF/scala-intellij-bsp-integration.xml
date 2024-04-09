@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<idea-plugin>
+    <extensions defaultExtensionNs="org.jetbrains.bsp">
+        <scalaSdkExtension implementation="org.jetbrains.plugins.scala.project.bsp.ScalaSdkExtensionImpl"/>
+    </extensions>
+</idea-plugin>
