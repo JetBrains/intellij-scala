@@ -14,14 +14,14 @@ interface SbtModuleEntity: ModuleExtensionWorkspaceEntity {
     val baseDirectory: VirtualFileUrl
 
     //region generated code
-    @GeneratedCodeApiVersion(2)
-    interface Builder : SbtModuleEntity, ModuleExtensionWorkspaceEntity.Builder<SbtModuleEntity>,
-        WorkspaceEntity.Builder<SbtModuleEntity> {
+    @GeneratedCodeApiVersion(3)
+    interface Builder : WorkspaceEntity.Builder<SbtModuleEntity>,
+        ModuleExtensionWorkspaceEntity.Builder<SbtModuleEntity> {
         override var entitySource: EntitySource
-        override var module: ModuleEntity
-        override var sbtModuleId: String
-        override var buildURI: String
-        override var baseDirectory: VirtualFileUrl
+        override var module: ModuleEntity.Builder
+        var sbtModuleId: String
+        var buildURI: String
+        var baseDirectory: VirtualFileUrl
     }
 
     companion object : EntityType<SbtModuleEntity, Builder>(ModuleExtensionWorkspaceEntity) {
@@ -33,8 +33,8 @@ interface SbtModuleEntity: ModuleExtensionWorkspaceEntity {
             buildURI: String,
             baseDirectory: VirtualFileUrl,
             entitySource: EntitySource,
-            init: (Builder.() -> Unit)? = null
-        ): SbtModuleEntity {
+            init: (Builder.() -> Unit)? = null,
+        ): Builder {
             val builder = builder()
             builder.sbtModuleId = sbtModuleId
             builder.buildURI = buildURI
@@ -50,7 +50,6 @@ interface SbtModuleEntity: ModuleExtensionWorkspaceEntity {
 //region generated code
 fun MutableEntityStorage.modifyEntity(
     entity: SbtModuleEntity,
-    modification: SbtModuleEntity.Builder.() -> Unit
+    modification: SbtModuleEntity.Builder.() -> Unit,
 ): SbtModuleEntity = modifyEntity(SbtModuleEntity.Builder::class.java, entity, modification)
 //endregion
-

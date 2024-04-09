@@ -1,14 +1,11 @@
 package com.intellij.entities
 
 import com.intellij.platform.workspace.jps.entities.ModuleEntity
-import com.intellij.platform.workspace.storage.EntityInformation
 import com.intellij.platform.workspace.storage.EntitySource
-import com.intellij.platform.workspace.storage.EntityType
 import com.intellij.platform.workspace.storage.GeneratedCodeApiVersion
 import com.intellij.platform.workspace.storage.GeneratedCodeImplVersion
 import com.intellij.platform.workspace.storage.MutableEntityStorage
 import com.intellij.platform.workspace.storage.WorkspaceEntity
-import com.intellij.platform.workspace.storage.annotations.Child
 import com.intellij.platform.workspace.storage.impl.ConnectionId
 import com.intellij.platform.workspace.storage.impl.EntityLink
 import com.intellij.platform.workspace.storage.impl.ModifiableWorkspaceEntityBase
@@ -20,10 +17,11 @@ import com.intellij.platform.workspace.storage.impl.extractOneToAbstractOneParen
 import com.intellij.platform.workspace.storage.impl.updateOneToAbstractOneParentOfChild
 import com.intellij.platform.workspace.storage.instrumentation.EntityStorageInstrumentation
 import com.intellij.platform.workspace.storage.instrumentation.EntityStorageInstrumentationApi
+import com.intellij.platform.workspace.storage.instrumentation.MutableEntityStorageInstrumentation
 import com.intellij.platform.workspace.storage.metadata.model.EntityMetadata
 
-@GeneratedCodeApiVersion(2)
-@GeneratedCodeImplVersion(3)
+@GeneratedCodeApiVersion(3)
+@GeneratedCodeImplVersion(5)
 open class SharedSourcesOwnersEntityImpl(private val dataSource: SharedSourcesOwnersEntityData) :
     SharedSourcesOwnersEntity, WorkspaceEntityBase(dataSource) {
 
@@ -77,7 +75,6 @@ open class SharedSourcesOwnersEntityImpl(private val dataSource: SharedSourcesOw
             }
 
             this.diff = builder
-            this.snapshot = builder
             addToBuilder()
             this.id = getEntityData().createEntityId()
             // After adding entity data to the builder, we need to unbind it and move the control over entity data to builder
@@ -138,14 +135,18 @@ open class SharedSourcesOwnersEntityImpl(private val dataSource: SharedSourcesOw
 
             }
 
-        override var module: ModuleEntity
+        override var module: ModuleEntity.Builder
             get() {
                 val _diff = diff
                 return if (_diff != null) {
-                    _diff.extractOneToAbstractOneParent(MODULE_CONNECTION_ID, this)
-                        ?: this.entityLinks[EntityLink(false, MODULE_CONNECTION_ID)]!! as ModuleEntity
+                    @OptIn(EntityStorageInstrumentationApi::class)
+                    ((_diff as MutableEntityStorageInstrumentation).getParentBuilder(
+                        MODULE_CONNECTION_ID,
+                        this
+                    ) as? ModuleEntity.Builder)
+                        ?: (this.entityLinks[EntityLink(false, MODULE_CONNECTION_ID)]!! as ModuleEntity.Builder)
                 } else {
-                    this.entityLinks[EntityLink(false, MODULE_CONNECTION_ID)]!! as ModuleEntity
+                    this.entityLinks[EntityLink(false, MODULE_CONNECTION_ID)]!! as ModuleEntity.Builder
                 }
             }
             set(value) {
@@ -156,7 +157,7 @@ open class SharedSourcesOwnersEntityImpl(private val dataSource: SharedSourcesOw
                         value.entityLinks[EntityLink(true, MODULE_CONNECTION_ID)] = this
                     }
                     // else you're attaching a new entity to an existing entity that is not modifiable
-                    _diff.addEntity(value)
+                    _diff.addEntity(value as ModifiableWorkspaceEntityBase<WorkspaceEntity, *>)
                 }
                 if (_diff != null && (value !is ModifiableWorkspaceEntityBase<*, *> || value.diff != null)) {
                     _diff.updateOneToAbstractOneParentOfChild(MODULE_CONNECTION_ID, this, value)
@@ -204,7 +205,6 @@ class SharedSourcesOwnersEntityData : WorkspaceEntityData<SharedSourcesOwnersEnt
     override fun wrapAsModifiable(diff: MutableEntityStorage): WorkspaceEntity.Builder<SharedSourcesOwnersEntity> {
         val modifiable = SharedSourcesOwnersEntityImpl.Builder(null)
         modifiable.diff = diff
-        modifiable.snapshot = diff
         modifiable.id = createEntityId()
         return modifiable
     }
@@ -235,15 +235,9 @@ class SharedSourcesOwnersEntityData : WorkspaceEntityData<SharedSourcesOwnersEnt
         return SharedSourcesOwnersEntity::class.java
     }
 
-    override fun serialize(ser: EntityInformation.Serializer) {
-    }
-
-    override fun deserialize(de: EntityInformation.Deserializer) {
-    }
-
-    override fun createDetachedEntity(parents: List<WorkspaceEntity>): WorkspaceEntity {
+    override fun createDetachedEntity(parents: List<WorkspaceEntity.Builder<*>>): WorkspaceEntity.Builder<*> {
         return SharedSourcesOwnersEntity(ownerModuleIds, entitySource) {
-            parents.filterIsInstance<ModuleEntity>().singleOrNull()?.let { this.module = it }
+            parents.filterIsInstance<ModuleEntity.Builder>().singleOrNull()?.let { this.module = it }
         }
     }
 

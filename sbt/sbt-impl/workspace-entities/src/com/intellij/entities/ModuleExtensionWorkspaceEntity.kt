@@ -17,10 +17,10 @@ interface ModuleExtensionWorkspaceEntity: WorkspaceEntity {
     val module: ModuleEntity
 
     //region generated code
-    @GeneratedCodeApiVersion(2)
-    interface Builder<T : ModuleExtensionWorkspaceEntity> : ModuleExtensionWorkspaceEntity, WorkspaceEntity.Builder<T> {
+    @GeneratedCodeApiVersion(3)
+    interface Builder<T : ModuleExtensionWorkspaceEntity> : WorkspaceEntity.Builder<T> {
         override var entitySource: EntitySource
-        override var module: ModuleEntity
+        var module: ModuleEntity.Builder
     }
 
     companion object : EntityType<ModuleExtensionWorkspaceEntity, Builder<ModuleExtensionWorkspaceEntity>>() {
@@ -29,8 +29,8 @@ interface ModuleExtensionWorkspaceEntity: WorkspaceEntity {
         @JvmName("create")
         operator fun invoke(
             entitySource: EntitySource,
-            init: (Builder<ModuleExtensionWorkspaceEntity>.() -> Unit)? = null
-        ): ModuleExtensionWorkspaceEntity {
+            init: (Builder<ModuleExtensionWorkspaceEntity>.() -> Unit)? = null,
+        ): Builder<ModuleExtensionWorkspaceEntity> {
             val builder = builder()
             builder.entitySource = entitySource
             init?.invoke(builder)
@@ -41,10 +41,9 @@ interface ModuleExtensionWorkspaceEntity: WorkspaceEntity {
 }
 
 //region generated code
-var ModuleEntity.Builder.moduleExtensionWorkspaceEntity: @Child ModuleExtensionWorkspaceEntity
-        by WorkspaceEntity.extension()
+var ModuleEntity.Builder.moduleExtensionWorkspaceEntity: @Child ModuleExtensionWorkspaceEntity.Builder<out ModuleExtensionWorkspaceEntity>
+        by WorkspaceEntity.extensionBuilder(ModuleExtensionWorkspaceEntity::class.java)
 //endregion
-
 
 val ModuleEntity.moduleExtensionWorkspaceEntity: @Child ModuleExtensionWorkspaceEntity
         by WorkspaceEntity.extension()

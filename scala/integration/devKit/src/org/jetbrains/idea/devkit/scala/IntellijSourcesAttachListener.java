@@ -3,7 +3,7 @@ package org.jetbrains.idea.devkit.scala;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.externalSystem.model.task.ExternalSystemTaskId;
-import com.intellij.openapi.externalSystem.model.task.ExternalSystemTaskNotificationListenerAdapter;
+import com.intellij.openapi.externalSystem.model.task.ExternalSystemTaskNotificationListener;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.Alarm;
@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import static org.jetbrains.idea.devkit.scala.AttachIntellijSourcesAction.attachIJSources;
 import static org.jetbrains.idea.devkit.scala.SbtIdeaPluginDetector.hasSbtIdeaPlugin;
 
-public class IntellijSourcesAttachListener extends ExternalSystemTaskNotificationListenerAdapter {
+public class IntellijSourcesAttachListener implements ExternalSystemTaskNotificationListener {
 
     private static final int MAX_ATTEMPTS = 10;
     private static final int RETRY_DELAY_MS = 3000;

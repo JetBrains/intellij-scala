@@ -1,21 +1,21 @@
 package org.jetbrains.sbt.project.data.service
 
-import com.intellij.entities.{SbtEntitySource, SbtModuleEntity}
-import com.intellij.openapi.externalSystem.model.{DataNode, Key}
+import com.intellij.entities.{ModuleExtensionWorkspaceEntityKt, SbtEntitySource, SbtModuleEntity}
 import com.intellij.openapi.externalSystem.model.project.ProjectData
+import com.intellij.openapi.externalSystem.model.{DataNode, Key}
 import com.intellij.openapi.externalSystem.service.project.manage.WorkspaceDataService
 import com.intellij.openapi.project.Project
 import com.intellij.platform.backend.workspace.WorkspaceModel
-import com.intellij.platform.workspace.jps.entities.{ModuleEntity, ModuleId}
+import com.intellij.platform.workspace.jps.entities.{ModuleEntityAndExtensions, ModuleId}
 import com.intellij.platform.workspace.storage.MutableEntityStorage
-import org.jetbrains.sbt.WorkspaceModelUtil
 import org.jetbrains.sbt.SbtUtil.EntityStorageOps
+import org.jetbrains.sbt.WorkspaceModelUtil
 import org.jetbrains.sbt.project.data.{SbtModuleData, findModuleForParentOfDataNode}
 
 import java.util
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
-class SbtModuleDataWorkspaceDataService extends WorkspaceDataService[SbtModuleData]{
+class SbtModuleDataWorkspaceDataService extends WorkspaceDataService[SbtModuleData] {
 
   override def getTargetDataKey: Key[SbtModuleData] = SbtModuleData.Key
 
@@ -36,14 +36,17 @@ class SbtModuleDataWorkspaceDataService extends WorkspaceDataService[SbtModuleDa
           .filter(WorkspaceModelUtil.findSbtModuleEntityForModuleEntity(_, mutableStorage).isEmpty)
           .foreach { moduleEntity =>
             val sbtModuleData = dataNode.getData
-            val newEntity = createSbtModuleEntity(sbtModuleData, moduleEntity, project)
-            mutableStorage.addEntity(newEntity)
+            val newEntity = createSbtModuleEntity(sbtModuleData, project)
+            ModuleEntityAndExtensions.modifyEntity(mutableStorage, moduleEntity, builder => {
+              ModuleExtensionWorkspaceEntityKt.setModuleExtensionWorkspaceEntity(builder, newEntity)
+              kotlin.Unit.INSTANCE
+            })
           }
       }
     }
   }
 
-  private def createSbtModuleEntity(sbtModuleData: SbtModuleData, moduleEntity: ModuleEntity, project: Project): SbtModuleEntity =  {
+  private def createSbtModuleEntity(sbtModuleData: SbtModuleData, project: Project): SbtModuleEntity.Builder = {
     val vfUrlManager = WorkspaceModel.getInstance(project).getVirtualFileUrlManager
 
     val sbtModuleDataUri = sbtModuleData.buildURI.toString
@@ -52,10 +55,7 @@ class SbtModuleDataWorkspaceDataService extends WorkspaceDataService[SbtModuleDa
 
     val baseDirectoryVirtualFileUrl = vfUrlManager.fromPath(sbtModuleData.baseDirectory.toString)
 
-    WorkspaceEntitiesCompanionProxy.SbtModuleEntityCompanion.create(sbtModuleData.id, sbtModuleDataUri, baseDirectoryVirtualFileUrl, entitySource, (t: SbtModuleEntity.Builder) => {
-      t.setModule(moduleEntity)
-      kotlin.Unit.INSTANCE
-    })
+    WorkspaceEntitiesCompanionProxy.SbtModuleEntityCompanion.create(sbtModuleData.id, sbtModuleDataUri, baseDirectoryVirtualFileUrl, entitySource)
   }
 }
 
