@@ -6,30 +6,35 @@ import com.intellij.platform.workspace.storage.EntityType
 import com.intellij.platform.workspace.storage.GeneratedCodeApiVersion
 import com.intellij.platform.workspace.storage.MutableEntityStorage
 import com.intellij.platform.workspace.storage.WorkspaceEntity
-import com.intellij.platform.workspace.storage.annotations.Child
 import com.intellij.platform.workspace.storage.url.VirtualFileUrl
 
-interface SbtModuleEntity: WorkspaceEntity {
+interface SbtModuleEntity: ModuleExtensionWorkspaceEntity {
     val sbtModuleId: String
     val buildURI: String
     val baseDirectory: VirtualFileUrl
-    val module: ModuleEntity
 
     //region generated code
     @GeneratedCodeApiVersion(2)
-    interface Builder : SbtModuleEntity, WorkspaceEntity.Builder<SbtModuleEntity> {
+    interface Builder : SbtModuleEntity, ModuleExtensionWorkspaceEntity.Builder<SbtModuleEntity>,
+        WorkspaceEntity.Builder<SbtModuleEntity> {
         override var entitySource: EntitySource
+        override var module: ModuleEntity
         override var sbtModuleId: String
         override var buildURI: String
         override var baseDirectory: VirtualFileUrl
-        override var module: ModuleEntity
     }
 
-    companion object : EntityType<SbtModuleEntity, Builder>() {
+    companion object : EntityType<SbtModuleEntity, Builder>(ModuleExtensionWorkspaceEntity) {
         @JvmOverloads
         @JvmStatic
         @JvmName("create")
-        operator fun invoke(sbtModuleId: String, buildURI: String, baseDirectory: VirtualFileUrl, entitySource: EntitySource, init: (Builder.() -> Unit)? = null): SbtModuleEntity {
+        operator fun invoke(
+            sbtModuleId: String,
+            buildURI: String,
+            baseDirectory: VirtualFileUrl,
+            entitySource: EntitySource,
+            init: (Builder.() -> Unit)? = null
+        ): SbtModuleEntity {
             val builder = builder()
             builder.sbtModuleId = sbtModuleId
             builder.buildURI = buildURI
@@ -43,11 +48,9 @@ interface SbtModuleEntity: WorkspaceEntity {
 }
 
 //region generated code
-fun MutableEntityStorage.modifyEntity(entity: SbtModuleEntity, modification: SbtModuleEntity.Builder.() -> Unit): SbtModuleEntity = modifyEntity(SbtModuleEntity.Builder::class.java, entity, modification)
-var ModuleEntity.Builder.sbtModuleEntity: @Child SbtModuleEntity
-        by WorkspaceEntity.extension()
+fun MutableEntityStorage.modifyEntity(
+    entity: SbtModuleEntity,
+    modification: SbtModuleEntity.Builder.() -> Unit
+): SbtModuleEntity = modifyEntity(SbtModuleEntity.Builder::class.java, entity, modification)
 //endregion
-
-val ModuleEntity.sbtModuleEntity: @Child SbtModuleEntity
-        by WorkspaceEntity.extension()
 
