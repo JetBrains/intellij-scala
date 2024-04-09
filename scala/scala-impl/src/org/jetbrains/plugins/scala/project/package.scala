@@ -4,6 +4,7 @@ import com.intellij.execution.ExecutionException
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.externalSystem.ExternalSystemModulePropertyManager
+import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager}
 import com.intellij.openapi.module._
 import com.intellij.openapi.project.{DumbService, Project, ProjectUtil}
@@ -26,7 +27,7 @@ import org.jetbrains.plugins.scala.project.ScalaFeatures.SerializableScalaFeatur
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings, ScalaCompilerSettingsProfile}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.{ScalaPluginJars, UnloadAwareDisposable}
-import org.jetbrains.sbt.Sbt
+import org.jetbrains.sbt.{Sbt, WorkspaceModelUtil}
 import org.jetbrains.sbt.language.SbtFile
 import org.jetbrains.sbt.project.module.SbtModuleType
 
@@ -165,13 +166,10 @@ package object project {
     def findJVMModule: Option[Module] = {
       if (isJvmModule) {
         Some(module)
-      }
-      else if (isSharedSourceModule) {
-        val moduleManager = ModuleManager.getInstance(module.getProject)
-        val dependents = moduleManager.getModuleDependentModules(module).asScala
-        dependents.find(_.isJvmModule)
-      }
-      else {
+      } else if (isSharedSourceModule) {
+        val sharedSourcesOwnerModules = getSharedSourcesModulesOwners(module)
+        sharedSourcesOwnerModules.find(_.isJvmModule)
+      } else {
         sharedSourceDependency.flatMap(_.findJVMModule)
       }
     }
@@ -182,13 +180,28 @@ package object project {
      */
     def findRepresentativeModuleForSharedSourceModule: Option[Module] = cachedInUserData("findRepresentativeModuleForSharedSourceModule", module, ScalaCompilerConfiguration.modTracker(module.getProject)) {
       if (isSharedSourceModule) {
-        val moduleManager = ModuleManager.getInstance(module.getProject)
-        val dependents = moduleManager.getModuleDependentModules(module).asScala
-        dependents.find(_.isJvmModule)
-          .orElse(dependents.find(_.isScalaJs))
-          .orElse(dependents.find(_.isScalaNative))
+        val sharedSourcesOwnerModules = getSharedSourcesModulesOwners(module)
+        sharedSourcesOwnerModules.find(_.isJvmModule)
+          .orElse(sharedSourcesOwnerModules.find(_.isScalaJs))
+          .orElse(sharedSourcesOwnerModules.find(_.isScalaNative))
       }
       else None
+    }
+
+    private def getSharedSourcesModulesOwners(module: Module): Seq[Module] = {
+      val moduleManager = ModuleManager.getInstance(module.getProject)
+      val sharedSourcesOwnersEntity = WorkspaceModelUtil.getSharedSourcesOwnersEntity(module)
+
+      sharedSourcesOwnersEntity match {
+        case Some(entity) =>
+          val ownerModuleIds = entity.getOwnerModuleIds.asScala
+          val modules = moduleManager.getModifiableModel.getModules.toSeq
+          modules.filter { module =>
+            val projectId = ExternalSystemApiUtil.getExternalProjectId(module)
+            ownerModuleIds.contains(projectId)
+          }
+        case _ => Seq.empty
+      }
     }
 
     def findRepresentativeModuleForSharedSourceModuleOrSelf: Module =
