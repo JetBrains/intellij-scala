@@ -64,4 +64,18 @@ class ModifierQuickFixTest extends ScalaLightCodeInsightFixtureTestCase {
          |""".stripMargin
     )
   }
+
+
+  def testRemoveModifierQuickFix_DuplicatedPrivateModifier(): Unit = {
+    doTestRemoveModifierFix(
+      s"""class A {
+         |  ${CARET}private private def abstractFoo: String
+         |}
+         |""".stripMargin,
+      s"""class A {
+         |  private def abstractFoo: String
+         |}
+         |""".stripMargin
+    )
+  }
 }
