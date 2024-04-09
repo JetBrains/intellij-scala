@@ -8,7 +8,8 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.project.external.ScalaAbstractProjectDataService
 import org.jetbrains.sbt.RichSeq
-import org.jetbrains.sbt.project.data.{SharedSourcesOwnersData, findModuleForParentOfDataNode}
+import org.jetbrains.sbt.project.SharedSourcesOwnersData
+import org.jetbrains.sbt.project.data.findModuleForParentOfDataNode
 import org.jetbrains.sbt.project.settings.SharedSourcesOwnerModules
 
 import java.util

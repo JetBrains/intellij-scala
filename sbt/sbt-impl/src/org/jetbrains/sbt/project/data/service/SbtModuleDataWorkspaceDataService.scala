@@ -52,7 +52,7 @@ class SbtModuleDataWorkspaceDataService extends WorkspaceDataService[SbtModuleDa
 
     val baseDirectoryVirtualFileUrl = vfUrlManager.fromPath(sbtModuleData.baseDirectory.toString)
 
-    SbtModuleEntityProxy.SbtModuleEntityCompanion.create(sbtModuleData.id, sbtModuleDataUri, baseDirectoryVirtualFileUrl, entitySource, (t: SbtModuleEntity.Builder) => {
+    WorkspaceEntitiesCompanionProxy.SbtModuleEntityCompanion.create(sbtModuleData.id, sbtModuleDataUri, baseDirectoryVirtualFileUrl, entitySource, (t: SbtModuleEntity.Builder) => {
       t.setModule(moduleEntity)
       kotlin.Unit.INSTANCE
     })

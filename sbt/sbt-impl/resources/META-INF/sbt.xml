@@ -44,6 +44,7 @@
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.Play2StubDataService"/>
 
         <externalWorkspaceDataService implementation="org.jetbrains.sbt.project.data.service.SbtModuleDataWorkspaceDataService"/>
+        <externalWorkspaceDataService implementation="org.jetbrains.sbt.project.data.service.SharedSourcesOwnersDataWorkspaceDataService"/>
 
         <externalSystemConfigLocator implementation="org.jetbrains.sbt.project.SbtConfigLocator"/>
         <externalSystemViewContributor implementation="org.jetbrains.sbt.project.SbtViewContributor"/>
