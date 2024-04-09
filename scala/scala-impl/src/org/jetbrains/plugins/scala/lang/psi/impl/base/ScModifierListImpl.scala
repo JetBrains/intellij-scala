@@ -93,7 +93,8 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
 
     val mod = ScalaModifier.byText(name)
 
-    if (mod == ScalaModifier.Private || mod == ScalaModifier.Protected) {
+    if (value && (mod == ScalaModifier.Private || mod == ScalaModifier.Protected)) {
+      // when we set a new access modifier, we should remove the old one
       accessModifier.foreach(e => getNode.removeChild(e.getNode))
     } else if (mod == null || value == modifiers.contains(mod)) {
       return
