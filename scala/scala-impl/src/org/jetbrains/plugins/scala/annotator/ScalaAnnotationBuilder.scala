@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.codeInsight.daemon.HighlightDisplayKey
-import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.codeInsight.intention.CommonIntentionAction
 import com.intellij.codeInspection.{LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
 import com.intellij.lang.ASTNode
 import com.intellij.lang.annotation.ProblemGroup
@@ -149,7 +149,7 @@ trait ScalaAnnotationBuilder {
    * If you want to tweak the fix, e.g. modify its range, please use {@link newFix ( IntentionAction )} instead.
    * This is an intermediate method in the creating new annotation pipeline.
    */
-  def withFix(fix: IntentionAction): this.type
+  def withFix(fix: CommonIntentionAction): this.type
 
   /**
    * Begin registration of the new quickfix associated with the annotation.
@@ -157,7 +157,7 @@ trait ScalaAnnotationBuilder {
    *
    * @param fix an intention action to be shown for the annotation as a quick fix
    */
-  def newFix(fix: IntentionAction): ScalaAnnotationBuilder.FixBuilder
+  def newFix(fix: CommonIntentionAction): ScalaAnnotationBuilder.FixBuilder
 
   /**
    * Begin registration of the new quickfix associated with the annotation.

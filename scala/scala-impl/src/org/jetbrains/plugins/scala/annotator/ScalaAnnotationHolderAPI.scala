@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.annotator
 
-import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.codeInsight.intention.CommonIntentionAction
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.codeInspection.util.InspectionMessage
 import com.intellij.lang.annotation.HighlightSeverity
@@ -18,7 +18,7 @@ trait ScalaAnnotationHolderAPI {
   final def createErrorAnnotation(range: TextRange,
                                   @InspectionMessage message: String,
                                   highlightType: ProblemHighlightType,
-                                  fixes: Iterable[IntentionAction]): Unit = {
+                                  fixes: Iterable[CommonIntentionAction]): Unit = {
     val builder = newAnnotation(HighlightSeverity.ERROR, message: String)
       .range(range)
       .highlightType(highlightType)
@@ -31,28 +31,28 @@ trait ScalaAnnotationHolderAPI {
   final def createErrorAnnotation(element: PsiElement,
                                   @InspectionMessage message: String,
                                   highlightType: ProblemHighlightType = ProblemHighlightType.GENERIC_ERROR,
-                                  fixes: Iterable[IntentionAction] = Nil): Unit =
+                                  fixes: Iterable[CommonIntentionAction] = Nil): Unit =
     createErrorAnnotation(element.getTextRange, message, highlightType, fixes)
 
 
   final def createErrorAnnotation(element: PsiElement,
                                   @InspectionMessage message: String,
-                                  fix: IntentionAction): Unit =
+                                  fix: CommonIntentionAction): Unit =
     createErrorAnnotation(element.getTextRange, message, ProblemHighlightType.GENERIC_ERROR, Some(fix))
 
   final def createErrorAnnotation(range: TextRange,
                                   @InspectionMessage message: String,
-                                  fixes: Iterable[IntentionAction]): Unit =
+                                  fixes: Iterable[CommonIntentionAction]): Unit =
     createErrorAnnotation(range, message, ProblemHighlightType.GENERIC_ERROR, fixes)
 
   final def createErrorAnnotation(element: PsiElement,
                                   @InspectionMessage message: String,
-                                  fixes: Iterable[IntentionAction]): Unit =
+                                  fixes: Iterable[CommonIntentionAction]): Unit =
     createErrorAnnotation(element, message, ProblemHighlightType.GENERIC_ERROR, fixes)
 
   final def createErrorAnnotation(range: TextRange,
                                   @InspectionMessage message: String,
-                                  fix: IntentionAction): Unit =
+                                  fix: CommonIntentionAction): Unit =
     createErrorAnnotation(range, message, ProblemHighlightType.GENERIC_ERROR, Some(fix))
 
   final def createErrorAnnotation(range: TextRange,
@@ -62,7 +62,7 @@ trait ScalaAnnotationHolderAPI {
   final def createWarningAnnotation(range: TextRange,
                                     @InspectionMessage message: String,
                                     highlightType: ProblemHighlightType,
-                                    fixes: Iterable[IntentionAction]): Unit = {
+                                    fixes: Iterable[CommonIntentionAction]): Unit = {
     val builder = newAnnotation(HighlightSeverity.WARNING, message: String)
       .range(range)
       .highlightType(highlightType)
@@ -76,25 +76,25 @@ trait ScalaAnnotationHolderAPI {
   final def createWarningAnnotation(element: PsiElement,
                                     @InspectionMessage message: String,
                                     highlightType: ProblemHighlightType = ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
-                                    fixes: Iterable[IntentionAction] = Nil): Unit =
+                                    fixes: Iterable[CommonIntentionAction] = Nil): Unit =
     createWarningAnnotation(element.getTextRange, message, highlightType, fixes)
 
   final def createWarningAnnotation(element: PsiElement,
                                     @InspectionMessage message: String,
                                     highlightType: ProblemHighlightType,
-                                    fix: IntentionAction): Unit =
+                                    fix: CommonIntentionAction): Unit =
     createWarningAnnotation(element.getTextRange, message, highlightType, Some(fix))
 
   final def createWarningAnnotation(element: PsiElement,
                                     @InspectionMessage message: String,
-                                    fix: IntentionAction): Unit =
+                                    fix: CommonIntentionAction): Unit =
     createWarningAnnotation(element.getTextRange, message, ProblemHighlightType.GENERIC_ERROR_OR_WARNING, Some(fix))
 
 
   final def createInfoAnnotation(range: TextRange,
                                  @InspectionMessage message: String,
                                  enforcedAttributes: Option[TextAttributes],
-                                 fixes: Iterable[IntentionAction]): Unit = {
+                                 fixes: Iterable[CommonIntentionAction]): Unit = {
     val builder = newAnnotation(HighlightSeverity.INFORMATION, message: String)
       .range(range)
     for (fix <- fixes) {

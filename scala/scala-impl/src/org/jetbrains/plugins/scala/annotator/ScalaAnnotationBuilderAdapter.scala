@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.codeInsight.daemon.HighlightDisplayKey
-import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.codeInsight.intention.CommonIntentionAction
 import com.intellij.codeInspection.{LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
 import com.intellij.lang.ASTNode
 import com.intellij.lang.annotation.{AnnotationBuilder, ProblemGroup}
@@ -86,12 +86,12 @@ class ScalaAnnotationBuilderAdapter(annotationBuilder: AnnotationBuilder)
     this
   }
 
-  override def withFix(fix: IntentionAction): this.type = {
+  override def withFix(fix: CommonIntentionAction): this.type = {
     annotationBuilder.withFix(fix)
     this
   }
 
-  override def newFix(fix: IntentionAction): ScalaAnnotationBuilder.FixBuilder =
+  override def newFix(fix: CommonIntentionAction): ScalaAnnotationBuilder.FixBuilder =
     annotationBuilder.newFix(fix)
 
   override def newLocalQuickFix(fix: LocalQuickFix, problemDescriptor: ProblemDescriptor): ScalaAnnotationBuilder.FixBuilder =

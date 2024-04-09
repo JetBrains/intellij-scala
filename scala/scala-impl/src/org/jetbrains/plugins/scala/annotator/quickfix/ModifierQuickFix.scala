@@ -1,15 +1,12 @@
 package org.jetbrains.plugins.scala.annotator.quickfix
 
 import com.intellij.codeInsight._
-import com.intellij.codeInsight.intention.FileModifier
+import com.intellij.modcommand.{ActionContext, ModCommand, PsiBasedModCommandAction}
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiElement
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.tree.IElementType
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
-import org.jetbrains.annotations.Nls
+import org.jetbrains.annotations.{Nls, Nullable}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
@@ -18,36 +15,27 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 import java.util.Collections
 
-sealed abstract class ModifierQuickFix(listOwner: ScModifierListOwner)
-                                      (@Nls modifierToText: String => String)
-                                      (modifier: ScalaModifier, value: Boolean = false)
-  extends intention.IntentionAction {
 
-  override final def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean =
-    listOwner.isValid &&
-      listOwner.getContainingFile == file
-
-  override final def invoke(project: Project, editor: Editor, file: PsiFile): Unit =
+sealed class ModifierQuickFix(listOwner: ScModifierListOwner)
+                              (@Nls modifierToText: String => String)
+                              (modifier: ScalaModifier, value: Boolean = false)
+  extends PsiBasedModCommandAction[ScModifierListOwner](listOwner)
+{
+  override def perform(context: ActionContext, listOwner: ScModifierListOwner): ModCommand = {
     listOwner.getModifierList match {
-      case null => ModifierQuickFix.logger.error("Illegal modifier list in: " + listOwner)
-      case modifierList => onModifierList(modifierList)(project, editor, file)
+      case null =>
+        ModifierQuickFix.logger.error("Illegal modifier list in: " + listOwner)
+        ModCommand.nop()
+      case modifierList =>
+        ModCommand.psiUpdate(modifierList, (modifierList: ScModifierList) => onModifierList(modifierList))
     }
-
-  protected def onModifierList(modifierList: ScModifierList)
-                              (implicit project: Project, editor: Editor, file: PsiFile): Unit = {
-    modifierList.setModifierProperty(modifier.text, value)
   }
 
-  override final def startInWriteAction = true
+  override def getFamilyName: String = modifierToText(modifier.text)
 
-  override final val getText: String = modifierToText(modifier.text)
-
-  override def getFamilyName: String = getText
-
-  override def getFileModifierForPreview(target: PsiFile): FileModifier =
-    withListOwner(PsiTreeUtil.findSameElementInCopy(listOwner, target))
-
-  protected def withListOwner(newListOwner: ScModifierListOwner): ModifierQuickFix
+  protected def onModifierList(modifierList: ScModifierList): Unit = {
+     modifierList.setModifierProperty(modifier.text, value)
+  }
 }
 
 object ModifierQuickFix {
@@ -62,37 +50,29 @@ object ModifierQuickFix {
       else daemon.QuickFixBundle.message("remove.modifier.fix", nameId.getText, _)
     )(modifier) {
 
-    override def onModifierList(modifierList: ScModifierList)
-                               (implicit project: Project, editor: Editor, file: PsiFile): Unit = {
+    override def onModifierList(modifierList: ScModifierList): Unit = {
       super.onModifierList(modifierList)
 
       // Should be handled by auto formatting
       val textRange = modifierList.getTextRange
-      val codeStyleManager = CodeStyleManager.getInstance(project)
+      val codeStyleManager = CodeStyleManager.getInstance(modifierList.getProject)
       if (textRange.isEmpty)
-        codeStyleManager.adjustLineIndent(file, textRange)
+        codeStyleManager.adjustLineIndent(modifierList.getContainingFile, textRange)
       else
-        codeStyleManager.reformatText(file, Collections.singleton(textRange))
+        codeStyleManager.reformatText(modifierList.getContainingFile, Collections.singleton(textRange))
     }
-
-    override protected def withListOwner(newListOwner: ScModifierListOwner): Remove =
-      new Remove(newListOwner, nameId, modifier)
   }
 
-  sealed class Add(listOwner: ScModifierListOwner, nameId: PsiElement, modifier: ScalaModifier)
+  sealed class Add(listOwner: ScModifierListOwner, @Nullable nameId: PsiElement, modifier: ScalaModifier)
     extends ModifierQuickFix(listOwner)(
       if (nameId == null) ScalaBundle.message("add.modifier.fix.without.name", _)
       else daemon.QuickFixBundle.message("add.modifier.fix", nameId.getText, _)
-    )(modifier, value = true) {
-    override protected def withListOwner(newListOwner: ScModifierListOwner): Add =
-      new Add(newListOwner, nameId, modifier)
-  }
+    )(modifier, value = true)
 
   final class AddWithKeyword(listOwner: ScModifierListOwner, nameId: PsiElement, keywordType: IElementType)
     extends Add(listOwner, nameId, Override) {
 
-    override def onModifierList(modifierList: ScModifierList)
-                               (implicit project: Project, editor: Editor, file: PsiFile): Unit = {
+    override def onModifierList(modifierList: ScModifierList): Unit = {
       val keyword = ScalaPsiElementFactory.createDeclarationFromText(
         keywordType.toString + " x",
         listOwner.getParent,
@@ -102,41 +82,30 @@ object ModifierQuickFix {
 
       super.onModifierList(modifierList)
     }
-
-    override protected def withListOwner(newListOwner: ScModifierListOwner): AddWithKeyword =
-      new AddWithKeyword(newListOwner, nameId, keywordType)
   }
 
   sealed abstract class MakeNonPrivate(listOwner: ScModifierListOwner, @Nls modifierToText: String => String)
                                       (modifier: ScalaModifier, value: Boolean)
     extends ModifierQuickFix(listOwner)(modifierToText)(modifier, value) {
 
-    override protected def onModifierList(modifierList: ScModifierList)
-                                         (implicit project: Project, editor: Editor, file: PsiFile): Unit = {
+    override protected def onModifierList(modifierList: ScModifierList): Unit = {
       super.onModifierList(modifierList)
-      PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(editor.getDocument)
-      CodeStyleManager.getInstance(project).adjustLineIndent(file, modifierList.getTextRange.getStartOffset)
+      CodeStyleManager.getInstance(modifierList.getProject)
+        .adjustLineIndent(modifierList.getContainingFile, modifierList.getTextRange.getStartOffset)
     }
 
     override def getFamilyName: String = ScalaBundle.message("make.non.private.title")
   }
 
   final class MakePublic(listOwner: ScModifierListOwner)
-    extends MakeNonPrivate(listOwner, ScalaBundle.message("make.public.fix", _))(Private, false) {
-    override protected def withListOwner(newListOwner: ScModifierListOwner): MakePublic =
-      new MakePublic(newListOwner)
-  }
+    extends MakeNonPrivate(listOwner, ScalaBundle.message("make.public.fix", _))(Private, false)
 
   final class MakeProtected(listOwner: ScModifierListOwner)
     extends MakeNonPrivate(listOwner, ScalaBundle.message("make.protected.fix", _))(Protected, value = true) {
 
-    override protected def onModifierList(modifierList: ScModifierList)
-                                         (implicit project: Project, editor: Editor, file: PsiFile): Unit = {
+    override protected def onModifierList(modifierList: ScModifierList): Unit = {
       modifierList.setModifierProperty(PRIVATE, false)
       super.onModifierList(modifierList)
     }
-
-    override protected def withListOwner(newListOwner: ScModifierListOwner): MakeProtected =
-      new MakeProtected(newListOwner)
   }
 }

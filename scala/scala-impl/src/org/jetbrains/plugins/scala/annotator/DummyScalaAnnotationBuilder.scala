@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.annotator
 import com.intellij.codeInsight.daemon.HighlightDisplayKey
-import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.codeInsight.intention.CommonIntentionAction
 import com.intellij.codeInspection.{LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
 import com.intellij.lang.ASTNode
 import com.intellij.lang.annotation.{HighlightSeverity, ProblemGroup}
@@ -59,8 +59,8 @@ abstract class DummyScalaAnnotationBuilder(severity: HighlightSeverity, @Nls mes
   override def tooltip(tooltip: String): this.type = this
   override def needsUpdateOnTyping: this.type = this
   override def needsUpdateOnTyping(value: Boolean): this.type = this
-  override def withFix(fix: IntentionAction): this.type = this
-  override def newFix(fix: IntentionAction): ScalaAnnotationBuilder.FixBuilder = DummyFixBuilder
+  override def withFix(fix: CommonIntentionAction): this.type = this
+  override def newFix(fix: CommonIntentionAction): ScalaAnnotationBuilder.FixBuilder = DummyFixBuilder
   override def newLocalQuickFix(fix: LocalQuickFix, problemDescriptor: ProblemDescriptor): ScalaAnnotationBuilder.FixBuilder = DummyFixBuilder
 
   private object DummyFixBuilder extends ScalaAnnotationBuilder.FixBuilder {
