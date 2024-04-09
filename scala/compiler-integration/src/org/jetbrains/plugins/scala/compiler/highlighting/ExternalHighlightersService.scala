@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.compiler.highlighting
 
-import com.intellij.codeInsight.daemon.impl.{HighlightInfo, HighlightInfoType, UpdateHighlightersUtil}
+import com.intellij.codeInsight.daemon.impl.{ErrorStripeUpdateManager, HighlightInfo, HighlightInfoType, UpdateHighlightersUtil}
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.application.{ModalityState, ReadAction}
 import com.intellij.openapi.components.Service
@@ -95,6 +95,7 @@ private final class ExternalHighlightersService(project: Project) { self =>
               editor.getColorsScheme,
               ScalaCompilerPassId
             )
+            ErrorStripeUpdateManager.getInstance(project).repaintErrorStripePanel(editor, psiFile)
           }
           queue.remove(executionState)
       }
