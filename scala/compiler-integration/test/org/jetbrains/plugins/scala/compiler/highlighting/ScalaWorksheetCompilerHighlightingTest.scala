@@ -86,9 +86,9 @@ class ScalaWorksheetCompilerHighlightingTest_2_13 extends ScalaWorksheetCompiler
   )
 }
 
-class ScalaWorksheetCompilerHighlightingTest_3_0 extends ScalaWorksheetCompilerHighlightingTestBase {
+class ScalaWorksheetCompilerHighlightingTest_3 extends ScalaWorksheetCompilerHighlightingTestBase {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_0
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
 
   /* see [[org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WrappedWorksheetCompilerMessagesFixer]] */
   def testOnlyErrorsAreExpectedInWorksheet(): Unit = runTestCaseForWorksheet(
@@ -131,4 +131,8 @@ class ScalaWorksheetCompilerHighlightingTest_3_0 extends ScalaWorksheetCompilerH
       )
     )
   )
+}
+
+class ScalaWorksheetCompilerHighlightingTest_3_RC extends ScalaWorksheetCompilerHighlightingTest_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
 }
