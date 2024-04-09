@@ -1,14 +1,11 @@
 package org.jetbrains.sbt
 
-import com.intellij.entities.SbtModuleEntity
 import com.intellij.execution.configurations.ParametersList
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.model.Key
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.platform.backend.workspace.WorkspaceModel
-import com.intellij.platform.workspace.jps.entities.{ModuleEntity, ModuleId}
 import com.intellij.platform.workspace.storage.{EntityStorage, SymbolicEntityId, WorkspaceEntityWithSymbolicId}
 import com.intellij.util.{EnvironmentUtil, SystemProperties}
 import org.jetbrains.annotations.VisibleForTesting
@@ -28,7 +25,7 @@ import java.net.URI
 import java.util.Properties
 import java.util.jar.JarFile
 import scala.collection.mutable
-import scala.jdk.CollectionConverters.{IteratorHasAsScala, MapHasAsScala}
+import scala.jdk.CollectionConverters.MapHasAsScala
 import scala.util.Using
 
 object SbtUtil {
@@ -187,18 +184,6 @@ object SbtUtil {
   def isBuiltWithProjectTransitiveDependencies(project: Project): Boolean = {
     val sbtProjectDataOpt = SbtUtil.getSbtProjectData(project)
     sbtProjectDataOpt.exists(_.projectTransitiveDependenciesUsed)
-  }
-
-  def getSbtModuleEntity(module: Module): Option[SbtModuleEntity] = {
-    val project = module.getProject
-    val storage = WorkspaceModel.getInstance(project).getCurrentSnapshot
-    val moduleEntityOpt = storage.resolveOpt(new ModuleId(module.getName))
-    moduleEntityOpt.flatMap(findSbtModuleEntityForModuleEntity(_, storage))
-  }
-
-  def findSbtModuleEntityForModuleEntity(moduleEntity: ModuleEntity, storage: EntityStorage): Option[SbtModuleEntity] = {
-    val entities = storage.entities(classOf[SbtModuleEntity]).iterator().asScala.toList
-    entities.find(_.getModule == moduleEntity)
   }
 
   def getSbtModuleData(module: Module): Option[SbtModuleData] = {

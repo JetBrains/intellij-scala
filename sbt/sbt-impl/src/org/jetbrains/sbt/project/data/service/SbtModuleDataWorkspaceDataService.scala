@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.platform.backend.workspace.WorkspaceModel
 import com.intellij.platform.workspace.jps.entities.{ModuleEntity, ModuleId}
 import com.intellij.platform.workspace.storage.MutableEntityStorage
-import org.jetbrains.sbt.SbtUtil
+import org.jetbrains.sbt.WorkspaceModelUtil
 import org.jetbrains.sbt.SbtUtil.EntityStorageOps
 import org.jetbrains.sbt.project.data.{SbtModuleData, findModuleForParentOfDataNode}
 
@@ -33,7 +33,7 @@ class SbtModuleDataWorkspaceDataService extends WorkspaceDataService[SbtModuleDa
         moduleEntityOpt
           // note: checking whether SbtModuleEntity already exists for ModuleEntity and
           // create a new one only if it does not exist
-          .filter(SbtUtil.findSbtModuleEntityForModuleEntity(_, mutableStorage).isEmpty)
+          .filter(WorkspaceModelUtil.findSbtModuleEntityForModuleEntity(_, mutableStorage).isEmpty)
           .foreach { moduleEntity =>
             val sbtModuleData = dataNode.getData
             val newEntity = createSbtModuleEntity(sbtModuleData, moduleEntity, project)
