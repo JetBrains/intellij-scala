@@ -102,9 +102,16 @@ lazy val scalaApi = newProject(
       idePackagePrefix := Some("org.jetbrains.plugins.scala"),
     )
 
+lazy val workspaceEntities = newProjectWithKotlin("workspace-entities", Some("sbt/sbt-impl/workspace-entities"))
+  .settings(
+    Compile / unmanagedSourceDirectories ++= Seq(baseDirectory.value/"gen"),
+    scalaVersion := Versions.scala3Version,
+    Compile / scalacOptions := globalScala3ScalacOptions
+  )
+
 lazy val sbtApi =
   newProject("sbt-api", file("sbt/sbt-api"))
-    .dependsOn(scalaApi, compilerShared)
+    .dependsOn(scalaApi, compilerShared, workspaceEntities)
     .enablePlugins(BuildInfoPlugin)
     .settings(
       ideExcludedDirectories := Seq(baseDirectory.value / "target"),
@@ -385,7 +392,7 @@ lazy val scalaLanguageUtilsRt: sbt.Project =
 
 lazy val sbtImpl =
   newProject("sbt-impl", file("sbt/sbt-impl"))
-    .dependsOn(sbtApi, scalaImpl % "test->test;compile->compile", workspaceEntities)
+    .dependsOn(sbtApi, scalaImpl % "test->test;compile->compile")
     .settings(
       intellijPlugins += "org.jetbrains.idea.maven".toPlugin
     )
@@ -416,13 +423,6 @@ lazy val debugger =
     )
     .withCompilerPluginIn(scalacPatches)
 
-lazy val workspaceEntities = newProjectWithKotlin("workspace-entities", Some("sbt/sbt-impl/workspace-entities"))
-  .dependsOn(scalaImpl)
-  .settings(
-    Compile / unmanagedSourceDirectories ++= Seq(baseDirectory.value/"gen"),
-    scalaVersion := Versions.scala3Version,
-    Compile / scalacOptions := globalScala3ScalacOptions
-  )
 
 lazy val compileServer =
   newProject("compile-server", file("scala/compile-server"))
