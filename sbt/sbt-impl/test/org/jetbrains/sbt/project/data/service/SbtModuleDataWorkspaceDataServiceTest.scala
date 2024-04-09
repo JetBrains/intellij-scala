@@ -4,7 +4,7 @@ import com.intellij.openapi.module.{JavaModuleType, ModuleType}
 import com.intellij.platform.backend.workspace.WorkspaceModel
 import com.intellij.platform.workspace.jps.entities.ModuleId
 import org.jetbrains.plugins.scala.project.ProjectExt
-import org.jetbrains.sbt.SbtUtil
+import org.jetbrains.sbt.WorkspaceModelUtil
 import org.jetbrains.sbt.SbtUtil.EntityStorageOps
 import org.jetbrains.sbt.project.data.{ModuleNode, SbtModuleData, SbtModuleNode}
 import org.jetbrains.sbt.project.data.service.ExternalSystemDataDsl._
@@ -80,7 +80,7 @@ class SbtModuleDataWorkspaceDataServiceTest extends SbtModuleDataServiceTestCase
     modules.foreach { module =>
       val moduleEntityOpt = storage.resolveOpt(new ModuleId(module.getName))
       moduleEntityOpt.map { entity =>
-        val sbtModuleEntity = SbtUtil.findSbtModuleEntityForModuleEntity(entity, storage)
+        val sbtModuleEntity = WorkspaceModelUtil.findSbtModuleEntityForModuleEntity(entity, storage)
         sbtModuleEntity.getOrElse {
           fail(s"There is no SbtModuleEntity associated with module ${module.getName}")
         }
