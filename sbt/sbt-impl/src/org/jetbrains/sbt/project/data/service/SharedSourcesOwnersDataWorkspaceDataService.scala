@@ -16,6 +16,7 @@ import java.util
 import java.util.{List => JList}
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
+// TODO SCL-22395
 class SharedSourcesOwnersDataWorkspaceDataService extends WorkspaceDataService[SharedSourcesOwnersData] {
 
   override def getTargetDataKey: Key[SharedSourcesOwnersData] = SharedSourcesOwnersData.Key
