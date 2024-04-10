@@ -15,6 +15,7 @@ import org.jetbrains.sbt.project.settings.SharedSourcesOwnerModules
 import java.util
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
+// TODO SCL-22395
 class SharedSourcesOwnersDataService extends ScalaAbstractProjectDataService[SharedSourcesOwnersData, Module](SharedSourcesOwnersData.Key){
 
   override def importData(
