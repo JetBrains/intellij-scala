@@ -739,6 +739,13 @@ lazy val textAnalysis =
       intellijPlugins ++= Seq(
         "tanvd.grazi".toPlugin,
         "org.intellij.intelliLang".toPlugin //required for intelliLangIntegration
+      ),
+      //Language packs needed at runtime to run tests
+      libraryDependencies ++= Seq(
+        //languagetool-core is available in the platform, exclude it to avoid some strange runtime errors in tests
+        ("org.languagetool" % "language-ru" % Versions.LanguageToolVersion % Runtime).exclude("org.languagetool", "languagetool-core"),
+        ("org.languagetool" % "language-de" % Versions.LanguageToolVersion % Runtime).exclude("org.languagetool", "languagetool-core"),
+        ("org.languagetool" % "language-it" % Versions.LanguageToolVersion % Runtime).exclude("org.languagetool", "languagetool-core"),
       )
     )
 

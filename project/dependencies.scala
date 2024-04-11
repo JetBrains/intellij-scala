@@ -44,6 +44,16 @@ object Versions {
 
   val scalaExpressionCompiler: String = "3.1.6"
 
+  /**
+   * For `"org.languagetool" % "language-*"` dependencies
+   *
+   * This version should be the same as in `com.intellij.grazie.GraziePlugin.LanguageTool.version`
+   * Note that in Grazie plugin they actually use custom language tool distributions (see com.intellij.grazie.GraziePlugin.LanguageTool.url)
+   * However according to Peter Gromov it shouldn't be important for us and we can use maven dependencies.
+   * Those custom distributions usually contain performance fixes and not the logic.
+   */
+  val LanguageToolVersion = "6.4"
+
   object Sbt {
     val binary_0_13 = "0.13"
     val binary_1_0 = "1.0" // 1.0 is the binary version of sbt 1.x series
