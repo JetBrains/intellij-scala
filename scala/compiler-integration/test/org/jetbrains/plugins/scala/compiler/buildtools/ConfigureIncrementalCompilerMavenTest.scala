@@ -6,7 +6,7 @@ import com.intellij.openapi.compiler.CompilerMessageCategory
 import com.intellij.openapi.module.{ModuleManager, ModuleTypeManager, StdModuleTypes}
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.ModuleRootModificationUtil
-import com.intellij.testFramework.CompilerTester
+import com.intellij.testFramework.{CompilerTester, StartupActivityTestUtil}
 import org.jetbrains.plugins.scala.CompilationTests
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
 import org.junit.Assert.{assertEquals, assertNotNull, assertTrue}
 import org.junit.experimental.categories.Category
 
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
 @Category(Array(classOf[CompilationTests]))
@@ -27,6 +28,10 @@ class ConfigureIncrementalCompilerMavenTest extends MavenImportingTestCase {
 
   override def setUp(): Unit = {
     super.setUp()
+
+    // TODO: Rewrite the test (or the ConfigureIncrementalCompilerProjectActivity) to not rely on
+    //       project activities being executed before the test.
+    StartupActivityTestUtil.waitForProjectActivitiesToComplete(getProject): @nowarn("cat=deprecation")
 
     // Without this HACK for some reason different instances of com.intellij.openapi.module.JavaModuleType will be used
     // in org.jetbrains.idea.maven.importing.MavenImporter (e.g. ScalaMavenImporter)
@@ -182,6 +187,11 @@ class ConfigureIncrementalCompilerMavenTest extends MavenImportingTestCase {
     createProjectSubFile("module1/src/main/java/Foo.java", "class Foo {}".stripMargin)
     createProjectSubFile("module2/src/main/scala/Bar.scala", "class Bar".stripMargin)
     createProjectSubFile("module3/src/main/kotlin/Baz.kt", "class Baz {}".stripMargin)
+
+    importProject()
+
+    val modules = ModuleManager.getInstance(getProject).getModules
+    modules.foreach(ModuleRootModificationUtil.setModuleSdk(_, sdk))
   }
 
   override def tearDown(): Unit = try {
@@ -198,11 +208,6 @@ class ConfigureIncrementalCompilerMavenTest extends MavenImportingTestCase {
   }
 
   def testIncrementalCompilerSetUp(): Unit = {
-    importProject()
-
-    val modules = ModuleManager.getInstance(getProject).getModules
-    modules.foreach(ModuleRootModificationUtil.setModuleSdk(_, sdk))
-
     NonBlockingReadActionImpl.waitForAsyncTaskCompletion()
     assertEquals(IncrementalityType.IDEA, ScalaCompilerConfiguration.instanceIn(getProject).incrementalityType)
   }

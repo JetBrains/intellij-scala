@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.project
 
 import com.intellij.openapi.application.impl.NonBlockingReadActionImpl
+import com.intellij.testFramework.{IndexingTestUtil, StartupActivityTestUtil}
 import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.LatestScalaVersions
@@ -9,9 +10,18 @@ import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.junit.Assert.{assertEquals, fail}
 
+import scala.annotation.nowarn
+
 class ConfigureIncrementalCompilerTest extends JavaCodeInsightFixtureTestCase {
 
   private case class SourceFile(relativePath: String, contents: String)
+
+  override def setUp(): Unit = {
+    super.setUp()
+    // TODO: Rewrite the test (or the ConfigureIncrementalCompilerProjectActivity) to not rely on
+    //       project activities being executed before the test.
+    StartupActivityTestUtil.waitForProjectActivitiesToComplete(getProject): @nowarn("cat=deprecation")
+  }
 
   private def kotlinProjectIncrementalityTypeTest(
     sourceFiles: SourceFile*
@@ -35,6 +45,7 @@ class ConfigureIncrementalCompilerTest extends JavaCodeInsightFixtureTestCase {
 
       loaders.zip(expectedIncrementalities).foreach { case (loader, expected) =>
         loader.init(getModule, scalaVersion)
+        IndexingTestUtil.waitUntilIndexesAreReady(getProject)
 
         NonBlockingReadActionImpl.waitForAsyncTaskCompletion()
         // Check incrementality type after setting up a library loader.

@@ -4,6 +4,7 @@ import com.intellij.openapi.application.impl.NonBlockingReadActionImpl
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.platform.externalSystem.testFramework.ExternalSystemImportingTestCase
+import com.intellij.testFramework.StartupActivityTestUtil
 import org.jetbrains.plugins.scala.CompilationTests
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
@@ -15,6 +16,8 @@ import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.junit.Assert.assertEquals
 import org.junit.experimental.categories.Category
+
+import scala.annotation.nowarn
 
 @Category(Array(classOf[CompilationTests]))
 class ConfigureIncrementalCompilerSbtKotlinTransitiveDependencyTest extends ExternalSystemImportingTestCase {
@@ -35,6 +38,10 @@ class ConfigureIncrementalCompilerSbtKotlinTransitiveDependencyTest extends Exte
 
   override def setUp(): Unit = {
     super.setUp()
+
+    // TODO: Rewrite the test (or the ConfigureIncrementalCompilerProjectActivity) to not rely on
+    //       project activities being executed before the test.
+    StartupActivityTestUtil.waitForProjectActivitiesToComplete(myProject): @nowarn("cat=deprecation")
 
     sdk = {
       val jdkVersion =
@@ -63,6 +70,8 @@ class ConfigureIncrementalCompilerSbtKotlinTransitiveDependencyTest extends Exte
         |// This library has a transitive dependency on the Kotlin standard library
         |libraryDependencies += "io.opentelemetry" % "opentelemetry-exporter-otlp" % "1.31.0"
         |""".stripMargin)
+
+    importProject(false)
   }
 
   override def tearDown(): Unit = try {
@@ -72,8 +81,6 @@ class ConfigureIncrementalCompilerSbtKotlinTransitiveDependencyTest extends Exte
   }
 
   def testTransitiveDependencyOnKotlinStandardLibrary(): Unit = {
-    importProject(false)
-
     NonBlockingReadActionImpl.waitForAsyncTaskCompletion()
     assertEquals(IncrementalityType.SBT, ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType)
   }

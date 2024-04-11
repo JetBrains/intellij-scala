@@ -6,6 +6,7 @@ import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.ModuleRootModificationUtil
 import com.intellij.platform.externalSystem.testFramework.ExternalSystemImportingTestCase
+import com.intellij.testFramework.StartupActivityTestUtil
 import org.jetbrains.plugins.gradle.settings.GradleProjectSettings
 import org.jetbrains.plugins.gradle.util.GradleConstants
 import org.jetbrains.plugins.scala.CompilationTests
@@ -16,6 +17,8 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
 import org.junit.Assert.assertEquals
 import org.junit.experimental.categories.Category
+
+import scala.annotation.nowarn
 
 @Category(Array(classOf[CompilationTests]))
 class ConfigureIncrementalCompilerGradleTest extends ExternalSystemImportingTestCase {
@@ -37,6 +40,10 @@ class ConfigureIncrementalCompilerGradleTest extends ExternalSystemImportingTest
 
   override def setUp(): Unit = {
     super.setUp()
+
+    // TODO: Rewrite the test (or the ConfigureIncrementalCompilerProjectActivity) to not rely on
+    //       project activities being executed before the test.
+    StartupActivityTestUtil.waitForProjectActivitiesToComplete(myProject): @nowarn("cat=deprecation")
 
     sdk = {
       val jdkVersion =
@@ -101,6 +108,11 @@ class ConfigureIncrementalCompilerGradleTest extends ExternalSystemImportingTest
     createProjectSubFile("module1/src/main/java/Foo.java", "class Foo {}".stripMargin)
     createProjectSubFile("module2/src/main/scala/Bar.scala", "class Bar".stripMargin)
     createProjectSubFile("module3/src/main/kotlin/Baz.kt", "class Baz {}".stripMargin)
+
+    importProject(false)
+
+    val modules = ModuleManager.getInstance(myProject).getModules
+    modules.foreach(ModuleRootModificationUtil.setModuleSdk(_, sdk))
   }
 
   override def tearDown(): Unit = try {
@@ -110,11 +122,6 @@ class ConfigureIncrementalCompilerGradleTest extends ExternalSystemImportingTest
   }
 
   def testIncrementalCompilerSetUp(): Unit = {
-    importProject(false)
-
-    val modules = ModuleManager.getInstance(myProject).getModules
-    modules.foreach(ModuleRootModificationUtil.setModuleSdk(_, sdk))
-
     NonBlockingReadActionImpl.waitForAsyncTaskCompletion()
     assertEquals(IncrementalityType.IDEA, ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType)
   }
