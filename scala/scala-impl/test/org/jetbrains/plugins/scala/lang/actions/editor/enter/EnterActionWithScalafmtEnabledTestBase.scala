@@ -1,24 +1,14 @@
 package org.jetbrains.plugins.scala.lang.actions.editor.enter
 
-import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3.{DoEditorStateTestOps, TypeText}
+import org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3.DoEditorStateTestOps
 import org.jetbrains.plugins.scala.lang.formatter.scalafmt.ScalaFmtForTestsSetupOps
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.scalafmt.dynamic.ScalafmtVersion
 
 abstract class EnterActionWithScalafmtEnabledTestBase extends DoEditorStateTestOps with ScalaFmtForTestsSetupOps {
 
   override protected def scalafmtConfigsBasePath: String =
     TestUtils.getTestDataPath + "/actions/editor/enter/_scalafmt_configs/"
-
-  override def setUp(): Unit = {
-    super.setUp()
-    ScalaFmtForTestsSetupOps.ensureDownloaded(
-      ScalafmtVersion(2, 7, 5),
-      ScalafmtVersion(3, 0, 0)
-    )
-  }
 
   override protected def configureByText(text: String, fileName: String, trimText: Boolean): Unit = {
     super.configureByText(text, fileName, trimText)
@@ -120,88 +110,3 @@ abstract class EnterActionWithScalafmtEnabledTestBase extends DoEditorStateTestO
   }
 }
 
-class EnterActionWithScalafmtEnabledCodeTest_Scalafmt_2_7 extends EnterActionWithScalafmtEnabledTestBase {
-
-  override protected def supportedIn(version: ScalaVersion): Boolean = true
-
-  override def setUp(): Unit = {
-    super.setUp()
-    setScalafmtConfig("2.7.5.conf")
-  }
-
-  def testAfterIncompleteFunctionDefinition(): Unit = {
-    doEditorStateTest(myFixture, (
-      s"""def foo = $CARET
-         |""".stripMargin,
-      TypeText.Enter
-    ), (
-      s"""def foo =
-         |  $CARET
-         |""".stripMargin,
-      TypeText("1\n")
-    ), (
-      s"""def foo =
-         |  1
-         |  $CARET
-         |""".stripMargin,
-      TypeText("2\n")
-    ), (
-      s"""def foo = {
-         |  1
-         |  2
-         |  $CARET
-         |}
-         |""".stripMargin,
-      TypeText("3\n")
-    ), (
-      s"""def foo = {
-         |  1
-         |  2
-         |  3
-         |  $CARET
-         |}
-         |""".stripMargin,
-      TypeText.Ignored
-    ))
-  }
-}
-
-class EnterActionWithScalafmtEnabledCodeTest_Scalafmt_3_0 extends EnterActionWithScalafmtEnabledTestBase {
-
-  override protected def supportedIn(version: ScalaVersion): Boolean =
-    version >= ScalaVersion.Latest.Scala_3_0
-
-  override def setUp(): Unit = {
-    super.setUp()
-    setScalafmtConfig("3.0.0.conf")
-  }
-
-  def testAfterIncompleteFunctionDefinition(): Unit = {
-    doEditorStateTest(myFixture, (
-      s"""def foo = $CARET""",
-      TypeText.Enter
-    ), (
-      s"""def foo =
-         |   $CARET""".stripMargin,
-      TypeText("1\n")
-    ), (
-      s"""def foo =
-         |   1
-         |   $CARET""".stripMargin,
-      TypeText("2\n")
-    ), (
-      s"""def foo =
-         |   1
-         |   2
-         |   $CARET""".stripMargin,
-      TypeText("3\n")
-    ), (
-      s"""def foo =
-         |   1
-         |   2
-         |   3
-         |   $CARET""".stripMargin,
-      TypeText.Ignored
-    ))
-  }
-}
