@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.worksheet.integration.repl
 
+import com.intellij.testFramework.IndexingTestUtil
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.util.RevertableChange.withModifiedRegistryValue
 import org.jetbrains.plugins.scala.util.assertions.StringAssertions._
@@ -752,6 +753,7 @@ class WorksheetReplIntegration_Scala_2_13_Test
     val editorAndFile = prepareWorksheetEditor(worksheetText, scratchFile = true)
 
     setAdditionalCompilerOptions(Seq("-Werror", "-Xfatal-warnings"))
+    IndexingTestUtil.waitUntilIndexesAreReady(project)
 
     doRenderTestWithoutCompilationChecks(editorAndFile,
       s"""
