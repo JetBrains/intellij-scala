@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.projectView
 import com.intellij.ide.projectView.impl.nodes.{ProjectViewProjectNode, PsiDirectoryNode}
 import com.intellij.openapi.roots.{ModuleRootManager, ModuleRootModificationUtil}
 import com.intellij.projectView.BaseProjectViewTestCase
+import com.intellij.testFramework.IndexingTestUtil
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ScalaSDKLoader}
@@ -38,6 +39,8 @@ class ScalaProjectViewTest extends BaseProjectViewTestCase with ScalaSdkOwner {
         true
       })
     }
+
+    IndexingTestUtil.waitUntilIndexesAreReady(getProject)
   }
 
   def testFileIcons(): Unit = {
