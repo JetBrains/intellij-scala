@@ -24,9 +24,8 @@ class ScalaPsiElementFactoryTest extends SimpleTestCase {
   }
 
   def testCreatingNewSyntheticElementsShouldNotIncrementModificationCounters(): Unit = {
-    val modTrackerTester = new ModificationTrackerTester(fixture.getProject)
-
     val scalaFile = fixture.configureByText("dummy.scala", "class Test { def foo(): String = ??? }")
+    val modTrackerTester = new ModificationTrackerTester(fixture.getProject)
     val fooMethodElement = scalaFile.elements.filterByType[ScFunction].find(_.name == "foo").get
 
     import ScalaPsiElementFactory._
