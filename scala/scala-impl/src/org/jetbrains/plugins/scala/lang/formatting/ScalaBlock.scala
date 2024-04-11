@@ -5,30 +5,18 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
-import com.intellij.psi.tree.IElementType
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.extensions.{&, ObjectExt, Parent, PsiElementExt}
-import org.jetbrains.plugins.scala.lang.formatting.ScalaBlock.{isConstructorArgOrMemberFunctionParameter, shouldIndentAfterCaseClause}
+import org.jetbrains.plugins.scala.ScalaLanguage
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.formatting.processors._
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtIndents
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
-import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScFunctionalTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDefinitionWithAssignment, ScExtension, ScExtensionBody, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScPackaging}
-import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
-import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 
 import java.util
 import scala.annotation.{tailrec, unused}
@@ -81,209 +69,16 @@ class ScalaBlock(
 
   override def isIncomplete: Boolean = ScalaBlock.isIncomplete(if (lastNode != null) lastNode else node)
 
-  override def getChildAttributes(newChildIndex: Int): ChildAttributes = {
-    val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
-
-    if (scalaSettings.USE_SCALAFMT_FORMATTER)
-      getChildAttributesScalafmtInner(newChildIndex)
-    else
-      getChildAttributesIntellijInner(newChildIndex, scalaSettings)
-  }
-
-  private def getChildAttributesIntellijInner(newChildIndex: Int, scalaSettings: ScalaCodeStyleSettings): ChildAttributes = {
-    val blockFirstNode = getNode.getPsi
-
-    val indentSize = settings.getIndentSize(ScalaFileType.INSTANCE)
-    val braceShifted = settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED
-
-    object ElementType {
-      def unapply(psi: PsiElement): Some[IElementType] =
-        Some(psi.getNode.getElementType)
-    }
-
-    blockFirstNode match {
-      case m: ScMatch =>
-        val isAfterLastCaseClause = m.clauses.nonEmpty
-        val indent =
-          if (isAfterLastCaseClause)
-            if (shouldIndentAfterCaseClause(newChildIndex, this.subBlocks))
-              Indent.getSpaceIndent(2 * indentSize)
-            else
-              Indent.getNormalIndent // we still need to indent to the `case`
-          else if (braceShifted) Indent.getNoneIndent
-          else Indent.getNormalIndent
-        new ChildAttributes(indent, null)
-      case _: ScCaseClauses =>
-        // used when Enter / Backspace is pressed after case clause body, in the trailing whitespace
-        // note: when the caret is located after the last case clause, this branch is not triggered,
-        // because parent of the last whitespace is ScMatch
-        val indent = if (shouldIndentAfterCaseClause(newChildIndex, this.subBlocks)) Indent.getNormalIndent else Indent.getNoneIndent
-        new ChildAttributes(indent, null)
-      case _: ScCaseClause =>
-        // used when Enter / Backspace is pressed inside case clause body (not in the trailing space)
-        new ChildAttributes(Indent.getNormalIndent, null)
-      case l: ScStringLiteral if l.isMultiLineString && scalaSettings.supportMultilineString =>
-        new ChildAttributes(Indent.getSpaceIndent(3, true), null)
-      case b: ScBlockExpr if b.resultExpression.exists(_.is[ScFunctionExpr]) || b.caseClauses.isDefined =>
-        val indent = {
-          val nodeBeforeLast = b.resultExpression.orElse(b.caseClauses).get.getNode.getTreePrev
-          val isLineBreak = nodeBeforeLast.getElementType == TokenType.WHITE_SPACE && nodeBeforeLast.textContains('\n')
-          val extraIndent =
-            if (b.isEnclosedByBraces && isLineBreak && getSubBlocks().size - 1 == newChildIndex) 1
-            else 0
-          val indentsCount = extraIndent + (if (braceShifted) 0 else 1)
-          Indent.getSpaceIndent(indentsCount * indentSize)
-        }
-        new ChildAttributes(indent, null)
-      case _: ScBlockExpr | _: ScEarlyDefinitions | _: ScTemplateBody | _: ScExtensionBody |
-           _: ScFor | _: ScWhile | _: ScCatchBlock | ElementType(ScalaTokenTypes.kYIELD | ScalaTokenTypes.kDO) =>
-        val indent =
-          if (braceShifted) {
-            Indent.getNoneIndent
-          } else {
-            Indent.getNormalIndent
-          }
-        new ChildAttributes(indent, null)
-      case scope if isBlockOnlyScope(scope) =>
-        val indent =
-          if (scope.getNode.getElementType == ScalaTokenTypes.tLBRACE && braceShifted) Indent.getNoneIndent
-          else Indent.getNormalIndent
-        new ChildAttributes(indent, null)
-      case p: ScPackaging if p.isExplicit =>
-        new ChildAttributes(Indent.getNormalIndent, null)
-      case ElementType(ScalaTokenTypes.tCOLON) if blockFirstNode.getParent.is[ScPackaging] =>
-        // The ScalaBlock of a packaging block starts with a ':' token
-
-        new ChildAttributes(Indent.getNormalIndent, null)
-      case _: ScBlock =>
-        val indent = blockFirstNode.getParent match {
-          case _: ScCaseClause | _: ScFunctionExpr => Indent.getNormalIndent
-          case _  => Indent.getNoneIndent
-        }
-        new ChildAttributes(indent, null)
-      case _: ScIf =>
-        new ChildAttributes(Indent.getNormalIndent(scalaSettings.ALIGN_IF_ELSE), this.getAlignment)
-      case x: ScDo =>
-        val indent =
-          if (x.body.isDefined) Indent.getNoneIndent
-          else if (settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED) Indent.getNoneIndent
-          else Indent.getNormalIndent
-        new ChildAttributes(indent, null)
-      case _: ScXmlElement =>
-        new ChildAttributes(Indent.getNormalIndent, null)
-      case _: ScalaFile =>
-        new ChildAttributes(Indent.getNoneIndent, null)
-      case _: ScMethodCall if newChildIndex > 0 =>
-        val prevChildBlock = getSubBlocks.get(newChildIndex - 1)
-        new ChildAttributes(prevChildBlock.getIndent, prevChildBlock.getAlignment)
-      case _: ScExpression | _: ScPattern | _: ScParameters =>
-        new ChildAttributes(Indent.getContinuationWithoutFirstIndent, this.getAlignment)
-      case _: ScDocComment =>
-        val indent = Indent.getSpaceIndent(if (scalaSettings.USE_SCALADOC2_FORMATTING) 2 else 1)
-        new ChildAttributes(indent, null)
-      case ElementType(ScalaTokenTypes.kIF) =>
-        new ChildAttributes(Indent.getNormalIndent, null)
-      case ElementType(ScalaTokenTypes.kELSE) =>
-        new ChildAttributes(Indent.getNormalIndent, null)
-      case p: ScParameterClause
-        if scalaSettings.USE_ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS && isConstructorArgOrMemberFunctionParameter(p) =>
-        val indent = Indent.getSpaceIndent(scalaSettings.ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS, false)
-        new ChildAttributes(indent, null)
-      case _: ScParameterClause =>
-        val indent =
-          if (scalaSettings.NOT_CONTINUATION_INDENT_FOR_PARAMS) Indent.getNormalIndent
-          else Indent.getContinuationWithoutFirstIndent
-        new ChildAttributes(indent, this.getAlignment)
-      case _: ScArgumentExprList =>
-        new ChildAttributes(Indent.getNormalIndent, this.getAlignment)
-      case _: ScFunctionalTypeElement =>
-        new ChildAttributes(Indent.getNormalIndent, null)
-      // def, var, val, type, given + `=`
-      case _: ScDefinitionWithAssignment =>
-        new ChildAttributes(Indent.getNormalIndent, null)
-      // extension (ss: Seq[String]) ...
-      case _: ScExtension =>
-        new ChildAttributes(Indent.getNormalIndent, null)
-      // given intOrd: Ord[Int] with <caret+Enter>
-      case (_: ScExtendsBlock) & Parent(_: ScGivenDefinition) =>
-        new ChildAttributes(Indent.getNormalIndent, this.getAlignment)
-      // given intOrd: Ord[Int] with <caret+Enter> (top level definition, as a last element in file)
-      // in this case `com.intellij.formatting.FormatProcessor.getParentFor` doesn't select ScExtendsBlock
-      case (_: ScTemplateParents) & Parent((_: ScExtendsBlock) & Parent(_: ScGivenDefinition)) if lastNode.getElementType == ScalaTokenTypes.kWITH =>
-        new ChildAttributes(Indent.getNormalIndent, null)
-      case ElementType(ScalaTokenTypes.kEXTENDS) =>
-        if (scalaSettings.ALIGN_EXTENDS_WITH == ScalaCodeStyleSettings.ALIGN_TO_EXTENDS)
-          new ChildAttributes(Indent.getNoneIndent, null)
-        else
-          new ChildAttributes(Indent.getNormalIndent, null)
-      case _: ScEnumerator =>
-        new ChildAttributes(Indent.getNormalIndent, null)
-      case _ =>
-        new ChildAttributes(Indent.getNoneIndent, null)
-    }
-  }
-
-  private def isBlockOnlyScope(scope: PsiElement): Boolean = {
-    !isLeaf && ScalaTokenTypes.LBRACE_LPARENT_TOKEN_SET.contains(scope.getNode.getElementType) &&
-      (scope.getParent match {
-        case _: ScFor | _: ScPackaging => true
-        case _ => false
-      })
-  }
+  override def getChildAttributes(newChildIndex: Int): ChildAttributes = ScalaBlockChildAttributes.getChildAttributes(this, newChildIndex)
 
   /**
    * Used to pass to intellij logic when scalafmt is enabled.<br>
    * In case there are any changes in IntelliJ formatter settings (even though scalafmt is selected),
    * we do not want these settings to be applicable in `getChildAttributesScalafmtInner`
+   *
+   * TODO: can't we reuse single instance for the whole file instead of for the each block?
    */
-  private val DefaultScalaCodeStyleSettings = new ScalaCodeStyleSettings(settings)
-
-  // TODO: in latest scalafmt versions there are a lot of new more-precise indent values.
-  //  We should handle all of them to provide proper indent on Enter handler
-  //  see https://scalameta.org/scalafmt/docs/configuration.html#indentation
-  //  indent.main (handled)
-  //  indent.callSite (handled)
-  //  indent.defnSite (handled)
-  //  indent.significant (asked to remove it https://github.com/scalameta/scalafmt/issues)
-  //  indent.ctrlSite
-  //  indent.ctorSite
-  //  indent.caseSite
-  //  indent.extendSite
-  //  indent.withSiteRelativeToExtends
-  //  indent.commaSiteRelativeToExtends
-  //  indent.extraBeforeOpenParenDefnSite
-  //  indentOperator
-  private def getChildAttributesScalafmtInner(newChildIndex: Int): ChildAttributes = {
-    val blockFirstNode = getNode.getPsi
-
-    val file = blockFirstNode.getContainingFile
-    val configManager = ScalafmtDynamicConfigService.instanceIn(file.getProject)
-    val configOpt = configManager.configForFile(file, FmtVerbosity.FailSilent, resolveFast = true)
-    val scalafmtIndents = configOpt.map(ScalafmtIndents.apply).getOrElse(ScalafmtIndents.Default)
-
-    val scalamtSpecificIndentOpt = blockFirstNode match {
-      case _: ScParameterClause if newChildIndex != 0 => Some(Indent.getSpaceIndent(scalafmtIndents.defnSite))
-      case _: ScArguments if newChildIndex != 0       => Some(Indent.getSpaceIndent(scalafmtIndents.callSite))
-      case _                                          => None
-    }
-
-    val indent = scalamtSpecificIndentOpt.getOrElse {
-      //fallback to default intellij indent calculation logic
-      val intellijChildAttributes = getChildAttributesIntellijInner(newChildIndex, DefaultScalaCodeStyleSettings)
-      val intellijIndent = intellijChildAttributes.getChildIndent
-      val useScalafmtMainIndent = intellijIndent.getType match {
-        case Indent.Type.SPACES => false
-        case Indent.Type.NONE   => false
-        case _                  => true
-      }
-      if (useScalafmtMainIndent)
-        Indent.getSpaceIndent(scalafmtIndents.main)
-      else
-        intellijIndent
-    }
-
-    new ChildAttributes(indent, null)
-  }
+  private[formatting] val DefaultScalaCodeStyleSettings = new ScalaCodeStyleSettings(settings)
 
   override def getSpacing(child1: Block, child2: Block): Spacing = {
     val spacing = ScalaSpacingProcessor.getSpacing(child1.asInstanceOf[ScalaBlock], child2.asInstanceOf[ScalaBlock])
@@ -436,39 +231,6 @@ object ScalaBlock {
     case _: PsiWhiteSpace | _: PsiComment => true
     case _                                => false
   }
-
-
-  /**
-   * When we press enter after caret here: {{{
-   *  42 match {
-   *    case Pattern1 => doSomething1()<caret>
-   *    case _ =>
-   *  }
-   * }}}
-   *
-   * We want the caret to be aligned with `case`, not indented<br>
-   * (NOTE: the same is for backspace action, performed in reverse)
-   */
-  private def shouldIndentAfterCaseClause(newChildIndex: Int, subBlocks: util.List[Block]): Boolean =
-    if (newChildIndex == 0 || subBlocks.isEmpty)
-      false // true
-    else {
-      val prevCaseClauseBlock = subBlocks.get(newChildIndex - 1) match {
-        case b: ScalaBlock => b
-        case _ => return false
-      }
-      val prevCaseClause = prevCaseClauseBlock.getNode.getPsi  match {
-        case clause: ScCaseClause => clause
-        // for the last case clause, the whitespace belongs to the root `match` node, so previous node is "all the clauses"
-        case clauses: ScCaseClauses => clauses.caseClauses.lastOption match {
-          case Some(c) => c
-          case _ => return false
-        }
-        case _ => return false
-      }
-      val hasCodeRightAfterArrow = prevCaseClause.funType.forall(c => !c.followedByNewLine(ignoreComments = false))
-      !hasCodeRightAfterArrow
-    }
 }
 
 
