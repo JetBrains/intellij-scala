@@ -51,6 +51,7 @@ scalac
 scaladex
 scalalogging
 scalastic
+scalafmt
 
 #scalatest-* artifacts
 scalatest
