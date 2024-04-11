@@ -3,7 +3,7 @@ package org.jetbrains.sbt.project.template.wizard
 import com.intellij.ide.fileTemplates.FileTemplateManager
 import com.intellij.ide.starters.JavaStartersBundle.message
 import com.intellij.ide.util.projectWizard.ModuleBuilder
-import com.intellij.ide.wizard.AbstractNewProjectWizardStep
+import com.intellij.ide.wizard.{AbstractNewProjectWizardStep, NewProjectOnboardingTips, OnboardingTipsInstallationInfo}
 import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.openapi.application.ApplicationNamesInfo
 import com.intellij.openapi.keymap.KeymapTextContext
@@ -13,9 +13,10 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
-import org.jetbrains.plugins.scala.extensions.inWriteAction
+import org.jetbrains.plugins.scala.extensions.{CharSeqExt, inWriteAction}
 
 import scala.jdk.CollectionConverters.MapHasAsJava
+import scala.jdk.CollectionConverters.ListHasAsScala
 
 package object buildSystem {
 
@@ -43,13 +44,13 @@ package object buildSystem {
   def addScalaSampleCode(project: Project, path: String, isScala3: Boolean, packagePrefix: Option[String], withOnboardingTips: Boolean): VirtualFile = {
     val manager = FileTemplateManager.getInstance(project)
     val shouldRenderOnboardingTips: Boolean = Registry.is("doc.onboarding.tips.render")
-    val (template, fileName) = (isScala3, withOnboardingTips, shouldRenderOnboardingTips) match {
-      case (true, true, true)    => (manager.getInternalTemplate("scala3-sample-code-tips-rendered.scala"), "main.scala")
-      case (true, true, false)   => (manager.getInternalTemplate("scala3-sample-code-tips.scala"),          "main.scala")
-      case (true, false, _)      => (manager.getInternalTemplate("scala3-sample-code.scala"),               "main.scala")
-      case (false, true, true)   => (manager.getInternalTemplate("scala-sample-code-tips-rendered.scala"),  "Main.scala")
-      case (false, true, false)  => (manager.getInternalTemplate("scala-sample-code-tips.scala"),           "Main.scala")
-      case (false, false, _)     => (manager.getInternalTemplate("scala-sample-code.scala"),                "Main.scala")
+    val (templateName, fileName) = (isScala3, withOnboardingTips, shouldRenderOnboardingTips) match {
+      case (true, true, true)    => ("scala3-sample-code-tips-rendered.scala", "main.scala")
+      case (true, true, false)   => ("scala3-sample-code-tips.scala",          "main.scala")
+      case (true, false, _)      => ("scala3-sample-code.scala",               "main.scala")
+      case (false, true, true)   => ("scala-sample-code-tips-rendered.scala",  "Main.scala")
+      case (false, true, false)  => ("scala-sample-code-tips.scala",           "Main.scala")
+      case (false, false, _)     => ("scala-sample-code.scala",                "Main.scala")
     }
 
     val variables = {
@@ -81,7 +82,16 @@ package object buildSystem {
         Map.empty[String, String]
     } ++ packagePrefix.map(prefix => Map("PACKAGE_NAME" -> prefix)).getOrElse(Map.empty)
 
-    val sourceCode = template.getText(variables.asJava)
+    val sourceCode = manager.getInternalTemplate(templateName).getText(variables.asJava)
+
+    if (withOnboardingTips) {
+      val onboardingInfo = new OnboardingTipsInstallationInfo(sourceCode, fileName, breakpointSelector)
+      NewProjectOnboardingTips
+        .EP_NAME
+        .getExtensionList
+        .asScala
+        .foreach(_.installTips(project, onboardingInfo))
+    }
 
     inWriteAction {
       val fileDirectory = createDirectoryIfMissing(path)
@@ -106,4 +116,10 @@ package object buildSystem {
       file
     }
   }
+
+  private val breakpointSelector: kotlin.jvm.functions.Function1[_ >: CharSequence, java.lang.Integer] =
+    str => {
+      val index = str.indexOf("""println(s"i = $i")""")
+      if (index >= 0) index else null
+    }
 }
