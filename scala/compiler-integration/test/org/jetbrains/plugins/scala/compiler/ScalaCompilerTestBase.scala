@@ -50,10 +50,6 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
         CompilerTestUtil.withForcedJdkForBuildProcess(buildProcessJdk) |+|
         RevertableChange.withApplicationSettingsSaving
     revertable.applyChange(getTestRootDisposable)
-  }
-
-  override protected def setUp(): Unit = {
-    super.setUp()
 
     // uncomment to enable debugging of compile server in tests
     //    BuildManager.getInstance().setBuildProcessDebuggingEnabled(true)
