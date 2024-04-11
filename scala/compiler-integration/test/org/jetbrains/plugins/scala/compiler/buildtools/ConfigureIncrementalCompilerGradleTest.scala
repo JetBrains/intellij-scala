@@ -6,7 +6,7 @@ import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.ModuleRootModificationUtil
 import com.intellij.platform.externalSystem.testFramework.ExternalSystemImportingTestCase
-import com.intellij.testFramework.StartupActivityTestUtil
+import com.intellij.testFramework.{IndexingTestUtil, StartupActivityTestUtil}
 import org.jetbrains.plugins.gradle.settings.GradleProjectSettings
 import org.jetbrains.plugins.gradle.util.GradleConstants
 import org.jetbrains.plugins.scala.CompilationTests
@@ -113,6 +113,8 @@ class ConfigureIncrementalCompilerGradleTest extends ExternalSystemImportingTest
 
     val modules = ModuleManager.getInstance(myProject).getModules
     modules.foreach(ModuleRootModificationUtil.setModuleSdk(_, sdk))
+
+    IndexingTestUtil.waitUntilIndexesAreReady(myProject)
   }
 
   override def tearDown(): Unit = try {

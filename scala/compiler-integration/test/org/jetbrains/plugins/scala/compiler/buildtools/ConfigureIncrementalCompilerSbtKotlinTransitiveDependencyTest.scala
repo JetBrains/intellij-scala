@@ -4,7 +4,7 @@ import com.intellij.openapi.application.impl.NonBlockingReadActionImpl
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.platform.externalSystem.testFramework.ExternalSystemImportingTestCase
-import com.intellij.testFramework.StartupActivityTestUtil
+import com.intellij.testFramework.{IndexingTestUtil, StartupActivityTestUtil}
 import org.jetbrains.plugins.scala.CompilationTests
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
@@ -72,6 +72,8 @@ class ConfigureIncrementalCompilerSbtKotlinTransitiveDependencyTest extends Exte
         |""".stripMargin)
 
     importProject(false)
+
+    IndexingTestUtil.waitUntilIndexesAreReady(myProject)
   }
 
   override def tearDown(): Unit = try {

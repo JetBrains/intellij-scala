@@ -6,7 +6,7 @@ import com.intellij.openapi.compiler.CompilerMessageCategory
 import com.intellij.openapi.module.{ModuleManager, ModuleTypeManager, StdModuleTypes}
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.ModuleRootModificationUtil
-import com.intellij.testFramework.{CompilerTester, StartupActivityTestUtil}
+import com.intellij.testFramework.{CompilerTester, IndexingTestUtil, StartupActivityTestUtil}
 import org.jetbrains.plugins.scala.CompilationTests
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
@@ -192,6 +192,8 @@ class ConfigureIncrementalCompilerMavenTest extends MavenImportingTestCase {
 
     val modules = ModuleManager.getInstance(getProject).getModules
     modules.foreach(ModuleRootModificationUtil.setModuleSdk(_, sdk))
+
+    IndexingTestUtil.waitUntilIndexesAreReady(getProject)
   }
 
   override def tearDown(): Unit = try {
