@@ -311,6 +311,7 @@
         <internalFileTemplate name="Package Object"/>
         <internalFileTemplate name="Scala File"/>
         <internalFileTemplate name="Scala Enum"/>
+        <internalFileTemplate name="Sbt File"/>
         <defaultTemplatePropertiesProvider implementation="org.jetbrains.plugins.scala.actions.ScalaDefaultTemplatePropertiesProvider"/>
 
         <indexPatternBuilder implementation="org.jetbrains.plugins.scala.editor.todo.ScalaIndexPatternBuilder"/>
@@ -1982,6 +1983,9 @@
                   class="org.jetbrains.plugins.scala.components.TypeAwareWidgetFactory$Listener"/>
     </projectListeners>
     <actions>
+        <action id="Scala.NewSbtFileAction" class="org.jetbrains.plugins.scala.actions.NewSbtFileAction">
+            <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFromTemplate"/>
+        </action>
         <action id="Scala.NewClass" class="org.jetbrains.plugins.scala.actions.NewScalaFileAction">
             <add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewGroup1"/>
         </action>
