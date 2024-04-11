@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScBlock, ScBlockExpr, ScCatchBlock, ScDo, ScEnumerator, ScExpression, ScFor, ScFunctionExpr, ScIf, ScMatch, ScMethodCall, ScWhile}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScArguments, ScParameterClause, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDefinitionWithAssignment, ScExtension, ScExtensionBody}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelectors
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScPackaging}
@@ -222,6 +223,8 @@ private object ScalaBlockChildAttributes {
         else
           new ChildAttributes(Indent.getNormalIndent, null)
       case _: ScEnumerator =>
+        new ChildAttributes(Indent.getNormalIndent, null)
+      case _: ScImportSelectors =>
         new ChildAttributes(Indent.getNormalIndent, null)
       case _ =>
         new ChildAttributes(Indent.getNoneIndent, null)

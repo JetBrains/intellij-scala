@@ -45,4 +45,12 @@ class EnterActionWithScalafmtEnabledCodeTest_Scalafmt_3_8 extends EnterActionWit
       TypeText.Ignored
     ))
   }
+
+  def testInImportSelectors(): Unit = {
+    checkGeneratedTextAfterEnter(
+      s"""import scala.util.{$CARET}""".stripMargin,
+      s"""import scala.util.{
+         |   $CARET
+         |}""".stripMargin,
+    )  }
 }

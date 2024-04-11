@@ -163,4 +163,55 @@ class EnterActionCodeTest extends EditorActionTestBase
          |""".stripMargin
     )
   }
+
+  def testImportSelectors_Empty(): Unit = {
+    checkGeneratedTextAfterEnter(
+      s"""import scala.util.{$CARET}""".stripMargin,
+      s"""import scala.util.{
+         |  $CARET
+         |}""".stripMargin,
+    )
+  }
+
+  def testImportSelectors_Before(): Unit = {
+    checkGeneratedTextAfterEnter(
+      s"""import scala.util.{$CARET
+         |  chaining,
+         |  Random,
+         |}""".stripMargin,
+      s"""import scala.util.{
+         |  $CARET
+         |  chaining,
+         |  Random,
+         |}""".stripMargin,
+    )
+  }
+
+  def testImportSelectors_Between(): Unit = {
+    checkGeneratedTextAfterEnter(
+      s"""import scala.util.{
+         |  chaining,$CARET
+         |  Random,
+         |}""".stripMargin,
+      s"""import scala.util.{
+         |  chaining,
+         |  $CARET
+         |  Random,
+         |}""".stripMargin,
+    )
+  }
+
+  def testImportSelectors_After(): Unit = {
+    checkGeneratedTextAfterEnter(
+      s"""import scala.util.{
+         |  chaining,
+         |  Random,$CARET
+         |}""".stripMargin,
+      s"""import scala.util.{
+         |  chaining,
+         |  Random,
+         |  $CARET
+         |}""".stripMargin,
+    )
+  }
 }
