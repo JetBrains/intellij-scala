@@ -6,7 +6,7 @@ import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.ModuleRootModificationUtil
 import com.intellij.platform.externalSystem.testFramework.ExternalSystemImportingTestCase
-import com.intellij.testFramework.{IndexingTestUtil, StartupActivityTestUtil}
+import com.intellij.testFramework.IndexingTestUtil
 import org.jetbrains.plugins.gradle.settings.GradleProjectSettings
 import org.jetbrains.plugins.gradle.util.GradleConstants
 import org.jetbrains.plugins.scala.CompilationTests
@@ -17,8 +17,6 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
 import org.junit.Assert.assertEquals
 import org.junit.experimental.categories.Category
-
-import scala.annotation.nowarn
 
 @Category(Array(classOf[CompilationTests]))
 class ConfigureIncrementalCompilerGradleTest extends ExternalSystemImportingTestCase {
@@ -40,10 +38,6 @@ class ConfigureIncrementalCompilerGradleTest extends ExternalSystemImportingTest
 
   override def setUp(): Unit = {
     super.setUp()
-
-    // TODO: Rewrite the test (or the ConfigureIncrementalCompilerProjectActivity) to not rely on
-    //       project activities being executed before the test.
-    StartupActivityTestUtil.waitForProjectActivitiesToComplete(myProject): @nowarn("cat=deprecation")
 
     sdk = {
       val jdkVersion =

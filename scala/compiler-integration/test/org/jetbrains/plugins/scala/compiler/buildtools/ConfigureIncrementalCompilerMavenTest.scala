@@ -2,24 +2,18 @@ package org.jetbrains.plugins.scala.compiler.buildtools
 
 import com.intellij.maven.testFramework.MavenImportingTestCase
 import com.intellij.openapi.application.impl.NonBlockingReadActionImpl
-import com.intellij.openapi.compiler.CompilerMessageCategory
 import com.intellij.openapi.module.{ModuleManager, ModuleTypeManager, StdModuleTypes}
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.ModuleRootModificationUtil
-import com.intellij.testFramework.{CompilerTester, IndexingTestUtil, StartupActivityTestUtil}
+import com.intellij.testFramework.IndexingTestUtil
 import org.jetbrains.plugins.scala.CompilationTests
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
-import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
-import org.junit.Assert.{assertEquals, assertNotNull, assertTrue}
+import org.junit.Assert.assertEquals
 import org.junit.experimental.categories.Category
-
-import scala.annotation.nowarn
-import scala.jdk.CollectionConverters._
 
 @Category(Array(classOf[CompilationTests]))
 class ConfigureIncrementalCompilerMavenTest extends MavenImportingTestCase {
@@ -28,10 +22,6 @@ class ConfigureIncrementalCompilerMavenTest extends MavenImportingTestCase {
 
   override def setUp(): Unit = {
     super.setUp()
-
-    // TODO: Rewrite the test (or the ConfigureIncrementalCompilerProjectActivity) to not rely on
-    //       project activities being executed before the test.
-    StartupActivityTestUtil.waitForProjectActivitiesToComplete(getProject): @nowarn("cat=deprecation")
 
     // Without this HACK for some reason different instances of com.intellij.openapi.module.JavaModuleType will be used
     // in org.jetbrains.idea.maven.importing.MavenImporter (e.g. ScalaMavenImporter)
