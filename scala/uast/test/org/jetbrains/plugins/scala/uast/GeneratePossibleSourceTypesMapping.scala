@@ -13,6 +13,8 @@ import org.jetbrains.uast.UElement
 import org.junit.Ignore
 
 import java.nio.file.{Files, Path, Paths}
+import java.text.SimpleDateFormat
+import java.util.Calendar
 import scala.jdk.CollectionConverters.IterableHasAsScala
 import scala.util.Try
 
@@ -20,6 +22,10 @@ import scala.util.Try
  * Run this to generate [[org.jetbrains.plugins.scala.uast.ScalaUastSourceTypeMapping]]
  */
 object GeneratePossibleSourceTypesMapping {
+  private val format = new SimpleDateFormat("HH:mm:ss.SSS")
+  private def log(message: String): Unit =
+    println(s"[${format.format(Calendar.getInstance().getTime)}] $message")
+
   val mappingOutputPath: Path =
     Paths.get(TestUtils.findCommunityRoot)
       .resolve("scala/uast/src/org/jetbrains/plugins/scala/uast/ScalaUastSourceTypeMapping.scala")
@@ -31,9 +37,9 @@ object GeneratePossibleSourceTypesMapping {
 
 
   private def run(): Unit = {
-    println("Gather mapping...")
+    log("Gather mapping...")
     val mappings = gatherMapping()
-    println(s"Finished. Found ${mappings.size} mappings.")
+    log(s"Finished. Found ${mappings.size} mappings.")
 
     val mappingsText = new StringBuilder
 
@@ -52,7 +58,7 @@ object GeneratePossibleSourceTypesMapping {
       mappingsText ++= s"    ),\n"
     }
 
-    println("Print...")
+    log("Print...")
     Files.writeString(
       mappingOutputPath,
       s"""package org.jetbrains.plugins.scala.uast
@@ -94,7 +100,7 @@ object GeneratePossibleSourceTypesMapping {
          |}
          |""".stripMargin
     )
-    println("Done.")
+    log("Done.")
   }
 
   private def gatherMapping(): Map[String, Set[String]] = {
@@ -104,7 +110,7 @@ object GeneratePossibleSourceTypesMapping {
       mapping = mapping.updatedWith(classOfUElement) {
         set =>
           if (!set.exists(_.contains(classOfElement))) {
-            println(s"    Found $classOfUElement -> $classOfElement")
+            log(s"    Found $classOfUElement -> $classOfElement")
           }
           Some(set.getOrElse(Set.empty) + classOfElement)
       }
@@ -121,7 +127,7 @@ object GeneratePossibleSourceTypesMapping {
       override protected def getLanguage: Language = lang
 
       override protected def runTest(testName0: String, content: String, project: Project): Unit = withPossibleSourceTypesCheck {
-        println(s"Gathering from $testName0")
+        log(s"Gathering from $testName0")
         val file = createLightFile(content, project)
 
         val plugin = new ScalaUastLanguagePlugin
