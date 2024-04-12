@@ -150,6 +150,9 @@ object GeneratePossibleSourceTypesMapping {
           |# Make sure you have -cp set to scalaUltimate in your run config.
           |# If that doesn't help try adding VM option -Didea.force.use.core.classloader=true
           |# and --add-opens options (see scalaUltimate run configuration)
+          |#
+          |# If you see an error mentioning a Native Library (e.g. you use Apple Silicon),
+          |# copy -Djna.boot.library.path options from scalaUltimate run configuration.
           |#####################################################################################
           |""".stripMargin.trim
       )
