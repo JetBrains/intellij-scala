@@ -23,8 +23,13 @@ import scala.util.Try
  */
 object GeneratePossibleSourceTypesMapping {
   private val format = new SimpleDateFormat("HH:mm:ss.SSS")
+
   private def log(message: String): Unit =
     println(s"[${format.format(Calendar.getInstance().getTime)}] $message")
+
+  private val excluded: Set[String] = Set(
+    "large.test", "large2.test" // they're just very large with ~10k references/definitions
+  )
 
   val mappingOutputPath: Path =
     Paths.get(TestUtils.findCommunityRoot)
@@ -126,20 +131,22 @@ object GeneratePossibleSourceTypesMapping {
 
       override protected def getLanguage: Language = lang
 
-      override protected def runTest(testName0: String, content: String, project: Project): Unit = withPossibleSourceTypesCheck {
-        log(s"Gathering from $testName0")
-        val file = createLightFile(content, project)
+      override protected def runTest(testName0: String, content: String, project: Project): Unit = if (!excluded(testName0)) {
+        withPossibleSourceTypesCheck {
+          log(s"Gathering from $testName0")
+          val file = createLightFile(content, project)
 
-        val plugin = new ScalaUastLanguagePlugin
-        for (element <- file.depthFirst()) {
-          val classOfElement = element.getClass.getSimpleName
-          for {
-            expectedUClass <- allUElementSubtypes.asScala
-            uElement <- Try(plugin.convertElementWithParent[UElement](element, Array(expectedUClass))).toOption
-            uClass <- allUElementSubtypes.asScala if uClass.isInstance(uElement)
-          } {
-            val classOfUElement = uClass.getSimpleName
-            add(classOfUElement, classOfElement)
+          val plugin = new ScalaUastLanguagePlugin
+          for (element <- file.depthFirst()) {
+            val classOfElement = element.getClass.getSimpleName
+            for {
+              expectedUClass <- allUElementSubtypes.asScala
+              uElement <- Try(plugin.convertElementWithParent[UElement](element, Array(expectedUClass))).toOption
+              uClass <- allUElementSubtypes.asScala if uClass.isInstance(uElement)
+            } {
+              val classOfUElement = uClass.getSimpleName
+              add(classOfUElement, classOfElement)
+            }
           }
         }
       }
