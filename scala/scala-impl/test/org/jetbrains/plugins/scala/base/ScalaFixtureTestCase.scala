@@ -3,7 +3,7 @@ package base
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.registry.Registry
-import com.intellij.testFramework.EditorTestUtil
+import com.intellij.testFramework.{EditorTestUtil, IndexingTestUtil}
 import com.intellij.testFramework.fixtures.CodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryLoader, ScalaSDKLoader}
 
@@ -23,6 +23,7 @@ abstract class ScalaFixtureTestCase extends CodeInsightFixtureTestCase with Scal
   override protected def setUp(): Unit = {
     super.setUp()
     setUpLibraries(myModule)
+    IndexingTestUtil.waitUntilIndexesAreReady(getProject)
     Registry.get("ast.loading.filter").setValue(true, getTestRootDisposable)
   }
 
