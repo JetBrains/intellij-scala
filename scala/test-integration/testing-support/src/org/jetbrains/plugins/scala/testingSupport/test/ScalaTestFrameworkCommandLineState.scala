@@ -174,14 +174,12 @@ class ScalaTestFrameworkCommandLineState(
      *
      * Copied from [[com.intellij.execution.JavaTestFrameworkRunnableState#execute]]
      */
-      // TODO(SCL-22415)
-//    val consoleViewDecorated = JavaRunConfigurationExtensionManager.getInstance.decorateExecutionConsole(
-//      configuration,
-//      getRunnerSettings,
-//      consoleView,
-//      executor
-//    )
-    val consoleViewDecorated = consoleView
+    val consoleViewDecorated = JavaRunConfigurationExtensionManager.getInstance.decorateExecutionConsole(
+      configuration,
+      getRunnerSettings,
+      consoleView,
+      executor
+    )
     Disposer.register(configuration.getProject, consoleViewDecorated)
 
     consoleViewDecorated.attachToProcess(processHandler)
