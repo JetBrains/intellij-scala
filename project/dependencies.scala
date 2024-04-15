@@ -76,6 +76,7 @@ object Dependencies {
   val sbtStructureCore: ModuleID = "org.jetbrains.scala" %% "sbt-structure-core" % sbtStructureVersion
   val evoInflector: ModuleID = "org.atteo" % "evo-inflector" % "1.3"
   val directories: ModuleID = "dev.dirs" % "directories" % "26"
+  val apacheCommonsText: ModuleID = "org.apache.commons" % "commons-text" % "1.11.0"
   // NOTE: current latest version is in https://github.com/unkarjedy/scalatest-finders.git repository
 
   val jetbrainsAnnotations: ModuleID = "org.jetbrains" % "annotations" % "24.1.0"
@@ -181,7 +182,8 @@ object DependencyGroups {
 
   val decompiler: Seq[ModuleID] = Seq(
     scalaLibrary,
-    scalaReflect
+    scalaReflect,
+    apacheCommonsText
   )
 
   val testRunners: Seq[ModuleID] = Seq(
