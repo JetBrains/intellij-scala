@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.refactoring
 
 class ScalaStatementMoverTest extends StatementMoverTestBase {
+
   def testSingleLineMember(): Unit = {
     s"${|}def a".moveUpIsDisabled()
     s"${|}def a".moveDownIsDisabled()
@@ -119,6 +120,317 @@ class ScalaStatementMoverTest extends StatementMoverTestBase {
 
     s"${|}foo() {\nfoo\n}\nbar" movedDownIs "bar\nfoo() {\n  foo\n}\n"
   }
+
+  def testClass(): Unit = {
+    val before =
+      s"""class A {
+         |  println()
+         |}
+         |
+         |class B $CARET{
+         |  println()
+         |}
+         |
+         |class C {
+         |  println()
+         |}
+         |""".stripMargin
+    val after =
+      s"""class B $CARET{
+         |  println()
+         |}
+         |
+         |class A {
+         |  println()
+         |}
+         |
+         |class C {
+         |  println()
+         |}
+         |""".stripMargin
+    before movedUpIs after
+  }
+
+  def testClass_WithParameters(): Unit = {
+    val before =
+      s"""class A {
+         |  println()
+         |}
+         |
+         |class B(x: Int)(y: Int) $CARET{
+         |  println()
+         |}
+         |
+         |class C {
+         |  println()
+         |}
+         |""".stripMargin
+    val after =
+      s"""class B(x: Int)(y: Int) $CARET{
+         |  println()
+         |}
+         |
+         |class A {
+         |  println()
+         |}
+         |
+         |class C {
+         |  println()
+         |}
+         |""".stripMargin
+    before movedUpIs after
+  }
+
+  def testClass_WithMultilineParameters(): Unit = {
+    val before =
+      s"""class A {
+         |  println()
+         |}
+         |
+         |class B($CARET
+         |  x: Int,
+         |  y: Int
+         |) {
+         |  println()
+         |}
+         |
+         |class C {
+         |  println()
+         |}
+         |""".stripMargin
+    val after =
+      s"""class B($CARET
+         |  x: Int,
+         |  y: Int
+         |) {
+         |  println()
+         |}
+         |
+         |class A {
+         |  println()
+         |}
+         |
+         |class C {
+         |  println()
+         |}
+         |""".stripMargin
+    before movedUpIs after
+  }
+
+  def testClass_WithExtendsList(): Unit = {
+    val before =
+      s"""class A {
+         |  println()
+         |}
+         |
+         |class B $CARET extends Base with T1 with T2 {
+         |  println()
+         |}
+         |
+         |class C {
+         |  println()
+         |}
+         |""".stripMargin
+    val after =
+      s"""class B $CARET extends Base with T1 with T2 {
+         |  println()
+         |}
+         |
+         |class A {
+         |  println()
+         |}
+         |
+         |class C {
+         |  println()
+         |}
+         |""".stripMargin
+    before movedUpIs after
+  }
+
+  def testClass_WithMultilineExtendsList(): Unit = {
+    val before =
+      s"""class A {
+         |  println()
+         |}
+         |
+         |class B$CARET
+         |  extends Base
+         |    with T1
+         |    with T2 {
+         |  println()
+         |}
+         |
+         |class C {
+         |  println()
+         |}
+         |""".stripMargin
+    val after =
+      s"""class B$CARET
+         |  extends Base
+         |    with T1
+         |    with T2 {
+         |  println()
+         |}
+         |
+         |class A {
+         |  println()
+         |}
+         |
+         |class C {
+         |  println()
+         |}
+         |""".stripMargin
+    before movedUpIs after
+  }
+
+  def testClass_WithoutBody(): Unit = {
+    val before =
+      s"""class A {
+         |  println()
+         |}
+         |
+         |${CARET}class B(x: Int)(y: Int)
+         |
+         |class C {
+         |  println()
+         |}
+         |""".stripMargin
+    val after =
+      s"""${CARET}class B(x: Int)(y: Int)
+         |
+         |class A {
+         |  println()
+         |}
+         |
+         |class C {
+         |  println()
+         |}
+         |""".stripMargin
+    before movedUpIs after
+  }
+
+  def testClass_WithAttachedLineComment(): Unit = {
+    val before =
+      s"""class A
+         |
+         |//line comment 1
+         |//line comment 2
+         |class B $CARET{
+         |  println()
+         |}
+         |
+         |class C
+         |""".stripMargin
+    val after =
+      s"""//line comment 1
+         |//line comment 2
+         |class B $CARET{
+         |  println()
+         |}
+         |
+         |class A
+         |
+         |class C
+         |""".stripMargin
+    before movedUpIs after
+  }
+
+  def testClass_WithAttachedBlockComment(): Unit = {
+    val before =
+      s"""class A
+         |
+         |/*
+         | * block
+         | * comment
+         | */
+         |class B $CARET{
+         |  println()
+         |}
+         |
+         |class C
+         |""".stripMargin
+    val after =
+      s"""/*
+         | * block
+         | * comment
+         | */
+         |class B $CARET{
+         |  println()
+         |}
+         |
+         |class A
+         |
+         |class C
+         |""".stripMargin
+    before movedUpIs after
+  }
+
+  def testClass_WithAttachedDocComment(): Unit = {
+    val before =
+      s"""class A
+         |
+         |/**
+         | * doc
+         | * comment
+         | */
+         |class B $CARET{
+         |  println()
+         |}
+         |
+         |class C
+         |""".stripMargin
+    val after =
+      s"""/**
+         | * doc
+         | * comment
+         | */
+         |class B $CARET{
+         |  println()
+         |}
+         |
+         |class A
+         |
+         |class C
+         |""".stripMargin
+    before movedUpIs after
+  }
+
+  def testDef_WithMultilineParameters(): Unit = {
+    val before =
+      s"""class A {
+         |  println()
+         |}
+         |
+         |def foo1($CARET
+         |  x: Int,
+         |  y: Int
+         |): Unit = {
+         |  println()
+         |}
+         |
+         |class C {
+         |  println()
+         |}
+         |""".stripMargin
+    val after =
+      s"""def foo1($CARET
+         |  x: Int,
+         |  y: Int
+         |): Unit = {
+         |  println()
+         |}
+         |
+         |class A {
+         |  println()
+         |}
+         |
+         |class C {
+         |  println()
+         |}
+         |""".stripMargin
+    before movedUpIs after
+  }
+
 }
 
 

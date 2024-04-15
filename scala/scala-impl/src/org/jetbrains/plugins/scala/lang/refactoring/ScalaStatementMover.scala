@@ -38,7 +38,8 @@ class ScalaStatementMover extends LineMover {
     if (!file.is[ScalaFile]) return false
 
     def aim(sourceClass: ElementClass, predicate: PsiElement => Boolean, canUseLineAsTarget: Boolean = true): Option[(PsiElement, LineRange)] = {
-      findSourceOf(sourceClass).map { source =>
+      val sourceOpt = findSourceOf(sourceClass)
+      sourceOpt.map { source =>
         val targetRange = findTargetRangeFor(source, predicate).getOrElse {
           if (canUseLineAsTarget) nextLineRangeFor(source) else null
         }
@@ -115,9 +116,11 @@ class ScalaStatementMover extends LineMover {
     val left = edges._1.flatMap(PsiTreeUtil.getParentOfType(_, cl, false).toOption)
     val right = edges._2.flatMap(PsiTreeUtil.getParentOfType(_, cl, false).toOption)
 
-    left.zip(right)
-      .collect { case (l: PsiElement, r: PsiElement) if l.withParentsInFile.contains(r) => r }
-      .find(it => editor.offsetToLogicalPosition(it.getTextOffset).line == line)
+    val elementOpt = left.zip(right).collect {
+      case (l: PsiElement, r: PsiElement) if l.withParentsInFile.contains(r) => r
+      case (l: PsiElement, r: PsiElement) if r.withParentsInFile.contains(l) => l
+    }
+    elementOpt.filter(it => editor.offsetToLogicalPosition(it.getTextOffset).line == line)
   }
 
   private def edgeLeafsOf(line: Int, editor: Editor, file: PsiFile): (Option[PsiElement], Option[PsiElement]) = {
