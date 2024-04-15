@@ -26,7 +26,6 @@ abstract class StatementMoverTestBase extends ScalaLightCodeInsightFixtureTestCa
   private def adjust(text: String): String = text
     .withNormalizedSeparator
     // add a newline at the end of the text if it's not there
-    .replaceFirst("(?-m)\n?$", "\n")
 
   private def move(code: String, direction: Direction): Option[String] = {
     val cursors = StringUtils.countMatches(code, |)
