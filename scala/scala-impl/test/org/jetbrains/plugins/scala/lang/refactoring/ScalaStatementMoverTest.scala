@@ -431,6 +431,103 @@ class ScalaStatementMoverTest extends StatementMoverTestBase {
     before movedUpIs after
   }
 
+  def testAnnotationWithVal(): Unit = {
+    val before =
+      s"""@deprecated("test val")
+         |${|}val myVal = {
+         |  42
+         |}
+         |
+         |class Other
+         |""".stripMargin
+    val after =
+      s"""class Other
+         |
+         |@deprecated("test val")
+         |${|}val myVal = {
+         |  42
+         |}
+         |""".stripMargin
+    before movedDownIs after
+  }
+
+  def testAnnotationWithVal_WithAnotherVal(): Unit = {
+    val before =
+      s"""@deprecated("test val")
+         |${|}val myVal = {
+         |  42
+         |}
+         |
+         |val other =  {
+         |  23
+         |}
+         |""".stripMargin
+    val after =
+      s"""val other =  {
+         |  23
+         |}
+         |
+         |@deprecated("test val")
+         |${|}val myVal = {
+         |  42
+         |}
+         |""".stripMargin
+    before movedDownIs after
+  }
+
+  def testAnnotationWithDef(): Unit = {
+    val before =
+      s"""@deprecated("test val")
+         |${|}def myDef = ???
+         |
+         |class Other
+         |""".stripMargin
+    val after =
+      s"""class Other
+         |
+         |@deprecated("test val")
+         |${|}def myDef = ???
+         |""".stripMargin
+    before movedDownIs after
+  }
+
+  def testAnnotationWithClass(): Unit = {
+    val before =
+      s"""@deprecated("test val")
+         |${|}class MyClass
+         |
+         |class Other
+         |""".stripMargin
+    val after =
+      s"""class Other
+         |
+         |@deprecated("test val")
+         |${|}class MyClass
+         |""".stripMargin
+    before movedDownIs after
+  }
+
+  def testMultipleValBindings(): Unit = {
+    val before =
+      s"""val (
+         |  ${|}x,
+         |  y,
+         |  z
+         |) = (1, 2, 3)
+         |
+         |"after"
+         |""".stripMargin
+    val after =
+      s"""val (
+         |  y,
+         |  ${|}x,
+         |  z
+         |) = (1, 2, 3)
+         |
+         |"after"
+         |""".stripMargin
+    before movedDownIs after
+  }
 }
 
 
