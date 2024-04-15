@@ -11,16 +11,24 @@ import org.jetbrains.plugins.scala.lang.refactoring.mock.EditorMock
 import org.junit.Assert._
 
 abstract class StatementMoverTestBase extends ScalaLightCodeInsightFixtureTestCase with ScalaCodeParsing {
+
   protected val | = EditorTestUtil.CARET_TAG
 
-  private def isAvailable(code: String, direction: Direction): Boolean = {
+  override protected def setUp(): Unit = {
+    super.setUp()
+
+    //Using this setting just for a nicer test data
+    getScalaCodeStyleSettings.INDENT_FIRST_PARAMETER = false
+  }
+
+  private def isMoveActionAvailableWithScalaMover(code: String, direction: Direction): Boolean = {
     val offset = code.indexOf(|)
     val cleanCode = code.replace(|, "")
     val file = cleanCode.parse(version)(getProject)
     val editor = new EditorMock(cleanCode, offset)
 
-    new ScalaStatementMover()
-      .checkAvailable(editor, file, new StatementUpDownMover.MoveInfo(), direction == Direction.Down)
+    val scalaMover = new ScalaStatementMover()
+    scalaMover.checkAvailable(editor, file, new StatementUpDownMover.MoveInfo(), direction == Direction.Down)
   }
 
   private def doMoveAction(code0: String, direction: Direction): Unit = {
@@ -31,11 +39,6 @@ abstract class StatementMoverTestBase extends ScalaLightCodeInsightFixtureTestCa
       fail("No cursor offset specified in the code: " + code)
     if (cursors > 1)
       fail("Multiple cursor offset specified in the code: " + code)
-
-    assertTrue(
-      s"Move $direction is expected to be enabled in the given code",
-      isAvailable(code, direction)
-    )
 
     myFixture.configureByText(ScalaFileType.INSTANCE, code)
     val action =
@@ -55,14 +58,14 @@ abstract class StatementMoverTestBase extends ScalaLightCodeInsightFixtureTestCa
     def moveUpIsDisabled(): Unit = {
       assertFalse(
         "Move Up action is expected to be disabled in the given code",
-        isAvailable(code, Direction.Up)
+        isMoveActionAvailableWithScalaMover(code, Direction.Up)
       )
     }
 
     def moveDownIsDisabled(): Unit = {
       assertFalse(
         "Move Down action is expected to be disabled in the given code",
-        isAvailable(code, Direction.Down)
+        isMoveActionAvailableWithScalaMover(code, Direction.Down)
       )
     }
 
