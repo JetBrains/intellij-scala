@@ -7,7 +7,7 @@ import com.intellij.openapi.roots.{OrderEnumerator, OrderRootType, libraries}
 import com.intellij.openapi.util.ModificationTracker
 import com.intellij.openapi.util.io.JarUtil.{containsEntry, getJarAttribute}
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.util.CommonProcessors.{CollectProcessor, FindProcessor}
+import com.intellij.util.CommonProcessors.FindProcessor
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.caches.cached
 import org.jetbrains.plugins.scala.project.ScalaFeatures.SerializableScalaFeatures
@@ -18,7 +18,6 @@ import org.jetbrains.sbt.project.SbtVersionProvider
 
 import java.io.File
 import java.util.jar.Attributes
-import scala.jdk.CollectionConverters.IteratorHasAsScala
 
 private class ScalaModuleSettings private(
   module: Module,
@@ -127,6 +126,9 @@ private class ScalaModuleSettings private(
   val hasSource3Flag: Boolean =
     additionalCompilerOptions.contains("-Xsource:3")
 
+  val hasSource3CrossFlag: Boolean =
+    additionalCompilerOptions.contains("-Xsource:3-cross")
+
   val hasSourceFutureFlag: Boolean =
     additionalCompilerOptions.contains("-source:future") || additionalCompilerOptions.contains("--source:future")
 
@@ -148,10 +150,15 @@ private class ScalaModuleSettings private(
       case YnoPredefOrNoImports(imports)                         => imports
     }
 
+  def XSourceFlag: ScalaXSourceFlag =
+    if (hasSource3Flag)           ScalaXSourceFlag.XSource3
+    else if (hasSource3CrossFlag) ScalaXSourceFlag.XSource3Cross
+    else                          ScalaXSourceFlag.None
+
   val features: SerializableScalaFeatures =
     ScalaFeatures(
       scalaMinorVersion.getOrElse(ScalaVersion.default),
-      hasSource3Flag = hasSource3Flag,
+      XSourceFlag,
       hasNoIndentFlag = hasNoIndentFlag,
       hasOldSyntaxFlag = hasOldSyntaxFlag,
       hasDeprecationFlag = hasDeprecationFlag,
