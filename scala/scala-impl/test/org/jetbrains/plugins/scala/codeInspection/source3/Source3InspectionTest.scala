@@ -5,22 +5,21 @@ import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 
-class Source3InspectionTest extends ScalaInspectionTestBase {
-
+abstract class Source3InspectinTestBase(source3Flag: String) extends ScalaInspectionTestBase {
   override def setUp(): Unit = {
     super.setUp()
     val defaultProfile = ScalaCompilerConfiguration.instanceIn(myFixture.getProject).defaultProfile
-    val newSettings = defaultProfile.getSettings.copy(
-      additionalCompilerOptions = Seq("-Xsource:3")
-    )
+    val newSettings =
+      defaultProfile.getSettings.copy(
+        additionalCompilerOptions = Seq(source3Flag)
+      )
     defaultProfile.setSettings(newSettings)
   }
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= ScalaVersion.Latest.Scala_2_13.withMinor(6)
 
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
-    classOf[Source3Inspection]
+  override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[Source3Inspection]
 
   override protected val description = "Scala 2 syntax with -Xsource:3"
 
@@ -57,16 +56,16 @@ class Source3InspectionTest extends ScalaInspectionTestBase {
   }
 
   // SCL-19204
-  def test_yield(): Unit = checkTextHasNoErrors(
-    """
+  def test_yield(): Unit =
+    checkTextHasNoErrors(
+      """
       |for {
       |  (a, b) <- returnTuple
       |  _ = println(a)
       |  _ = println(b)
       |} yield ()
       |""".stripMargin
-  )
-
+    )
 
   def test_wildcard_import(): Unit = {
     val selectedText = s"import base.${START}_$END"
@@ -161,6 +160,8 @@ class Source3InspectionTest extends ScalaInspectionTestBase {
     )
   }
 
-  def test_compound_type_in_pattern(): Unit =
-    checkTextHasNoErrors("??? match { case x: A with B => }")
+  def test_compound_type_in_pattern(): Unit = checkTextHasNoErrors("??? match { case x: A with B => }")
 }
+
+class Source3InspectionTest extends Source3InspectinTestBase("-Xsource:3")
+class Source3CrossInspectionTest extends Source3InspectinTestBase("-Xsource:3-cross")

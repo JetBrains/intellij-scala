@@ -599,6 +599,10 @@ package object project {
 
     def isSource3Enabled: Boolean = isDefinedInModuleOrProject(_.isSource3Enabled)
 
+    def isSource3CrossEnabled = isDefinedInModuleOrProject(_.isSource3CrossEnabled)
+
+    def isSource3OrSource3CrossEnabled = isDefinedInModuleOrProject(_.isSource3OrSource3Cross)
+
     def isScala3OrSource3Enabled: Boolean = isDefinedInModuleOrProject(m => m.hasScala3 || m.isSource3OrSource3Cross)
 
     private def featuresOpt: Option[SerializableScalaFeatures] = {
