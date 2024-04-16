@@ -316,4 +316,24 @@ class ExportsResolveTest extends SimpleResolveTestBase {
       |  value
       |""".stripMargin
   )
+
+  def testSCL22364(): Unit = checkTextHasNoErrors(
+    """
+      |object A {
+      |  extension (s: String) def foo: Int = 13
+      |}
+      |
+      |object B {
+      |  export A.*
+      |
+      |  "132".foo
+      |}
+      |
+      |object C {
+      |  import B.*
+      |
+      |  "123".foo
+      |}
+      |""".stripMargin
+  )
 }
