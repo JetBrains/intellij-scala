@@ -76,6 +76,7 @@ object ElementAnnotator extends ElementAnnotator[ScalaPsiElement] {
       ScOverriddenVarAnnotator ::
       ScGivenAliasDeclarationAnnotator ::
       ScMemberAnnotator ::
+      ScExportStmtAnnotator ::
       Nil
 
   private val cachedAnnotators: AtomicReference[Map[Class[_], Seq[ElementAnnotator[_]]]] =
