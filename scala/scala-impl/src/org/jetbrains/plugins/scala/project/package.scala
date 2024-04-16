@@ -348,8 +348,11 @@ package object project {
     def isSAMEnabled: Boolean =
       scalaModuleSettings.exists(_.isSAMEnabled)
 
-    def isSource3Enabled: Boolean =
-      scalaModuleSettings.exists(_.hasSource3Flag)
+    def XSource3Flag: ScalaXSourceFlag = scalaModuleSettings.fold(ScalaXSourceFlag.None)(_.XSourceFlag)
+
+    def isSource3OrSource3Cross: Boolean = XSource3Flag != ScalaXSourceFlag.None
+    def isSource3CrossEnabled: Boolean   = XSource3Flag == ScalaXSourceFlag.XSource3Cross
+    def isSource3Enabled: Boolean        = XSource3Flag == ScalaXSourceFlag.XSource3
 
     def features: SerializableScalaFeatures =
       scalaModuleSettings.fold(ScalaFeatures.default)(_.features)
@@ -596,7 +599,7 @@ package object project {
 
     def isSource3Enabled: Boolean = isDefinedInModuleOrProject(_.isSource3Enabled)
 
-    def isScala3OrSource3Enabled: Boolean = isDefinedInModuleOrProject(m => m.hasScala3 || m.isSource3Enabled)
+    def isScala3OrSource3Enabled: Boolean = isDefinedInModuleOrProject(m => m.hasScala3 || m.isSource3OrSource3Cross)
 
     private def featuresOpt: Option[SerializableScalaFeatures] = {
       val file = Option(element.getContainingFile)

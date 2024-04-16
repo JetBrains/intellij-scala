@@ -34,6 +34,7 @@ trait ScalaFeatures extends Any {
   def `case in pattern bindings`: Boolean
   def `optional braces for method arguments`: Boolean
   def usingInArgumentsEnabled: Boolean
+  def XSourceFlag: ScalaXSourceFlag
 }
 
 object ScalaFeatures {
@@ -58,8 +59,8 @@ object ScalaFeatures {
       Bits.`in >= 2.12.16 or 2.13.9 or 3`.read(bits)
 
     def languageLevel: ScalaLanguageLevel = Bits.languageLevel.read(bits)
+    def XSourceFlag: ScalaXSourceFlag = Bits.XSourceFlag.read(bits)
 
-    private def hasSource3Flag: Boolean = Bits.hasSource3Flag.read(bits)
     private def hasNoIndentFlag: Boolean = Bits.hasNoIndentFlag.read(bits)
     private def hasOldSyntaxFlag: Boolean = Bits.hasOldSyntaxFlag.read(bits)
     private def hasDeprecationFlag: Boolean = Bits.hasDeprecationFlag.read(bits)
@@ -91,7 +92,7 @@ object ScalaFeatures {
 
     def copy(
       version:                        ScalaVersion,
-      hasSource3Flag:                 Boolean = this.hasSource3Flag,
+      XSourceFlag:                    ScalaXSourceFlag = this.XSourceFlag,
       hasNoIndentFlag:                Boolean = this.hasNoIndentFlag,
       hasOldSyntaxFlag:               Boolean = this.hasOldSyntaxFlag,
       hasDeprecationFlag:             Boolean = this.hasDeprecationFlag,
@@ -102,7 +103,7 @@ object ScalaFeatures {
     ): SerializableScalaFeatures =
       ScalaFeatures(
         version = version,
-        hasSource3Flag = hasSource3Flag,
+        XSourceFlag = XSourceFlag,
         hasNoIndentFlag = hasNoIndentFlag,
         hasOldSyntaxFlag = hasOldSyntaxFlag,
         hasDeprecationFlag = hasDeprecationFlag,
@@ -135,6 +136,7 @@ object ScalaFeatures {
     override def `case in pattern bindings`: Boolean             = delegate.`case in pattern bindings`
     override def usingInArgumentsEnabled: Boolean                = delegate.usingInArgumentsEnabled
     override def `optional braces for method arguments`: Boolean = delegate.`optional braces for method arguments`
+    override def XSourceFlag: ScalaXSourceFlag             = delegate.XSourceFlag
   }
 
   private val minorVersion6  = Version("6")
@@ -149,7 +151,7 @@ object ScalaFeatures {
   def deserializeFromInt(bits: Int): SerializableScalaFeatures = new SerializableScalaFeatures(bits)
 
   def apply(version: ScalaVersion,
-            hasSource3Flag: Boolean,
+            XSourceFlag: ScalaXSourceFlag,
             hasNoIndentFlag: Boolean,
             hasOldSyntaxFlag: Boolean,
             hasDeprecationFlag: Boolean,
@@ -157,13 +159,19 @@ object ScalaFeatures {
             hasMetaEnabled: Boolean,
             hasTrailingCommasEnabled: Boolean,
             hasUnderscoreWildcardsDisabled: Boolean): SerializableScalaFeatures = {
+
+    val source3OrSource3Cross = XSourceFlag match {
+      case ScalaXSourceFlag.XSource3 | ScalaXSourceFlag.XSource3Cross => true
+      case ScalaXSourceFlag.None                                      => false
+    }
+
     val languageLevel = version.languageLevel
     val isScala3 = languageLevel.isScala3
 
     val `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`: Boolean =
-      forMinorVersion(version, isScala3, _ >= minorVersion14 && hasSource3Flag, _ >= minorVersion6 && hasSource3Flag)
+      forMinorVersion(version, isScala3, _ >= minorVersion14 && source3OrSource3Cross, _ >= minorVersion6 && source3OrSource3Cross)
     val `in >= 2.12.15 or 2.13.7 with -XSource:3 or 3`: Boolean =
-      forMinorVersion(version, isScala3, _ > minorVersion14 && hasSource3Flag, _ > minorVersion6 && hasSource3Flag)
+      forMinorVersion(version, isScala3, _ > minorVersion14 && source3OrSource3Cross, _ > minorVersion6 && source3OrSource3Cross)
     val `in >= 2.12.15 or 2.13.7 or 3`: Boolean =
       forMinorVersion(version, isScala3, _ > minorVersion14, _ > minorVersion6)
     val `in >= 2.12.16 or 2.13.9 or 3`: Boolean =
@@ -183,7 +191,7 @@ object ScalaFeatures {
 
     create(
       languageLevel = languageLevel,
-      hasSource3Flag = hasSource3Flag,
+      XSourceFlag   = XSourceFlag,
       hasNoIndentFlag = hasNoIndentFlag,
       hasOldSyntaxFlag = hasOldSyntaxFlag,
       hasDeprecationFlag = hasDeprecationFlag,
@@ -206,7 +214,7 @@ object ScalaFeatures {
 
   val `-Xsource:3 in 2.12.14 or 2.13.6`: SerializableScalaFeatures = default.copy(
     version = ScalaVersion.Latest.Scala_2_13.withMinor(6),
-    hasSource3Flag = true
+    XSourceFlag = ScalaXSourceFlag.XSource3
   )
 
   val `-Xsource:3 in 2.12.15 or 2.13.7`: SerializableScalaFeatures = `-Xsource:3 in 2.12.14 or 2.13.6`
@@ -216,7 +224,7 @@ object ScalaFeatures {
   def onlyByVersion(version: ScalaVersion): SerializableScalaFeatures =
     ScalaFeatures(
       version,
-      hasSource3Flag = false,
+      XSourceFlag = ScalaXSourceFlag.None,
       hasNoIndentFlag = false,
       hasOldSyntaxFlag = false,
       hasDeprecationFlag = false,
@@ -288,7 +296,7 @@ object ScalaFeatures {
 
   private def create(
     languageLevel:                                  ScalaLanguageLevel,
-    hasSource3Flag:                                 Boolean,
+    XSourceFlag:                                    ScalaXSourceFlag,
     hasNoIndentFlag:                                Boolean,
     hasOldSyntaxFlag:                               Boolean,
     hasDeprecationFlag:                             Boolean,
@@ -307,7 +315,7 @@ object ScalaFeatures {
     val bits = Ref.create[Int]
 
     Bits.languageLevel.write(bits, languageLevel)
-    Bits.hasSource3Flag.write(bits, hasSource3Flag)
+    Bits.XSourceFlag.write(bits, XSourceFlag)
     Bits.hasNoIndentFlag.write(bits, hasNoIndentFlag)
     Bits.hasOldSyntaxFlag.write(bits, hasOldSyntaxFlag)
     Bits.hasDeprecationFlag.write(bits, hasDeprecationFlag)
@@ -329,7 +337,7 @@ object ScalaFeatures {
   //noinspection TypeAnnotation
   private object Bits extends BitMaskStorage {
     val languageLevel                        = jEnum[ScalaLanguageLevel]("languageLevel")
-    val hasSource3Flag                       = bool("hasSource3Flag")
+    val XSourceFlag                          = jEnum[ScalaXSourceFlag]("XSourceFlag")
     val hasNoIndentFlag                      = bool("hasNoIndentFlag")
     val hasOldSyntaxFlag                     = bool("hasOldSyntaxFlag")
     val hasDeprecationFlag                   = bool("hasDeprecationFlag")
