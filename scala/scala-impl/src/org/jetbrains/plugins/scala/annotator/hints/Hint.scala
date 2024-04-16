@@ -12,7 +12,7 @@ import java.awt.Insets
 
 case class Hint(parts: Seq[Text],
                 element: PsiElement,
-                suffix: Boolean,
+                suffix: Boolean, // if true, the hint will be shown after the element, otherwise - before
                 menu: MenuProvider = MenuProvider.NoMenu,
                 margin: Option[Insets] = None,
                 relatesToPrecedingElement: Boolean = false,
@@ -26,6 +26,9 @@ case class Hint(parts: Seq[Text],
 object Hint {
   def leftInsetLikeChar(char: Char, editor: Option[Editor] = None)(implicit scheme: EditorColorsScheme): Option[Insets] =
     widthOf(char, editor).map(new Insets(0, _, 0, 0))
+
+  def rightInsetLikeChar(char: Char, editor: Option[Editor] = None)(implicit scheme: EditorColorsScheme): Option[Insets] =
+    widthOf(char, editor).map(new Insets(0, 0, 0, _))
 
   // TODO Can we detect a "current" editor somehow?
   private def widthOf(char: Char, editor: Option[Editor])(implicit scheme: EditorColorsScheme) =

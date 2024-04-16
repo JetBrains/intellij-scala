@@ -32,7 +32,7 @@ class InjectedTraitConstructorImplicitArgumentHintsTest extends ImplicitHintsTes
        |trait Foo(implicit x: Int)
        |trait Bar(implicit s: String)
        |trait Baz extends Foo with Bar
-       |class Super extends Foo()$S.explicitly$E(123)
+       |class Super extends Foo()(${S}using${E}123)
        |
        |class Test extends Super with Baz$S with Bar(?: String)$E
        |""".stripMargin
