@@ -400,9 +400,9 @@ object PhysicalMethodSignature {
 final class PhysicalMethodSignature(
   val method:               PsiMethod,
   override val substitutor: ScSubstitutor,
-  override val exportedIn:  Option[PsiClass]         = None,
+  override val exportedIn:  Option[PsiClass]               = None,
   val extensionSignature:   Option[ExtensionSignatureInfo] = None,
-  override val renamed:     Option[String]           = None
+  override val renamed:     Option[String]                 = None
 ) extends TermSignature(
   renamed.getOrElse(method.name),
   PhysicalMethodSignature.typesEval(method),
