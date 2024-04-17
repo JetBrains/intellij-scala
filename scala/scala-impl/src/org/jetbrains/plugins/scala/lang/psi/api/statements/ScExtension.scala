@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements
 
+import org.jetbrains.plugins.scala.lang.psi.ScExportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScMember}
@@ -14,7 +15,8 @@ trait ScExtension extends ScParameterOwner.WithContextBounds
   // We need to rethink the hierarchy for extensions.
   //NOTE: it's also extended in ScExtensionImpl
   with ScMember
-  with ScDeclaredElementsHolder {
+  with ScDeclaredElementsHolder
+  with ScExportsHolder {
 
   def extensionBody: Option[ScExtensionBody]
   def targetParameter: Option[ScParameter]

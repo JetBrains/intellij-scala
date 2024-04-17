@@ -196,7 +196,20 @@ sealed abstract class TermsCollector extends SignatureProcessor[TermSignature] {
   ): Seq[TermSignature] = e match {
     case v: ScValueOrVariable         => v.declaredElements.flatMap(propertySignatures(_, subst, exportedIn = exportedIn))
     case constr: ScPrimaryConstructor => constr.parameters.flatMap(propertySignatures(_, subst, exportedIn = exportedIn))
-    case f: ScFunction                => Seq(new PhysicalMethodSignature(f, subst, renamed = name, exportedIn = exportedIn))
+    case f: ScFunction                =>
+      val extensionSig = f.extensionMethodOwner.map { ext =>
+        ExtensionSignatureInfo(ext, ext.typeParameters, ext.allClauses)
+      }
+
+      Seq(
+        new PhysicalMethodSignature(
+          f,
+          subst,
+          renamed = name,
+          exportedIn = exportedIn,
+          extensionSignature = extensionSig
+        )
+    )
     case o: ScObject                  => Seq(TermSignature(o, subst, renamed = name, exportedIn = exportedIn))
     case c: ScTypeDefinition          => syntheticSignaturesFromInnerClass(c, subst)
     case cp: ScClassParameter if cp.isClassMember => propertySignatures(cp, subst, exportedIn = exportedIn)

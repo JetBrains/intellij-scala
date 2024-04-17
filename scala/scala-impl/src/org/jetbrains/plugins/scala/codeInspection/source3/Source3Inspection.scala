@@ -33,7 +33,7 @@ class Source3Inspection extends LocalInspectionTool {
   @BeanProperty final var convertCompoundTypes: Boolean = true
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = { element =>
-    if (element.getContainingFile.isSource3Enabled) {
+    if (element.getContainingFile.isSource3OrSource3CrossEnabled) {
 
       lazy val scala3ImportsAllowed = !ScalaCodeStyleSettings.getInstance(element.getProject).isForceScala2ImportSyntaxInSource3()
 

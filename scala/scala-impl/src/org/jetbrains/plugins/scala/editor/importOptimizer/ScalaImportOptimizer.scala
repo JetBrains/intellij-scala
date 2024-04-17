@@ -328,7 +328,7 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
     val dummyFile = fileFactory.createFileFromText(
       "dummy." + file.getFileType.getDefaultExtension,
       // a small hack to make this work with source3
-      if (file.isSource3Enabled) Scala3Language.INSTANCE else file.getLanguage,
+      if (file.isScala3OrSource3Enabled) Scala3Language.INSTANCE else file.getLanguage,
       text,
       /*eventSystemEnabled = */ false, /*markAsCopy = */ false)
 

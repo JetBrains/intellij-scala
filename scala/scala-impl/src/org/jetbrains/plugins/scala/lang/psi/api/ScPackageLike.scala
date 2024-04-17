@@ -119,7 +119,7 @@ trait ScPackageLike extends PsiElement {
             val exportStmt = exports.next()
             val canProcess = canProcessExport(exportStmt)
 
-            if (!canProcess) return true
+            if (!canProcess) shouldStop = true
             else
               shouldStop =
                 withReentrancyGuard(exportStmt)(!exportStmt.processDeclarations(proc, state, lastParent, place))
