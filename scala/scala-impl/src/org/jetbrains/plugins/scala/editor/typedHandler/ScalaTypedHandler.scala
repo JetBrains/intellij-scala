@@ -169,6 +169,9 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
       editor.getCaretModel.moveCaretRelatively(1, 0, false, false, false)
     }
 
+    // see SCL-22278
+    if (c == '.') scheduleAutoPopup(file, editor, project)
+
     if (c == '"' && elementType == ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_END_DELIMITER) {
       moveCaret()
       Result.STOP
