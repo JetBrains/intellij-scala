@@ -192,3 +192,7 @@ object DependencyGroups {
     provided.specs2_4x
   )
 }
+
+object DependencyResolvers {
+  val IntelliJDependencies = "IntelliJ Dependencies" at "https://cache-redirector.jetbrains.com/intellij-dependencies"
+}

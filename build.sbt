@@ -718,7 +718,7 @@ lazy val mlCompletionIntegration =
     .dependsOn(scalaImpl, sbtImpl)
     .settings(
       intellijPlugins += "com.intellij.completion.ml.ranking".toPlugin,
-      resolvers += "intellij-dependencies" at "https://packages.jetbrains.team/maven/p/ij/intellij-dependencies/",
+      resolvers += DependencyResolvers.IntelliJDependencies,
       libraryDependencies += "org.jetbrains.intellij.deps.completion" % "completion-ranking-scala" % "0.4.1"
     )
 
