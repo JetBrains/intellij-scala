@@ -1,0 +1,6 @@
+<idea-plugin>
+    <extensions defaultExtensionNs="com.intellij">
+        <lang.documentationProvider id="ScalaOnboardingTipsDocumentationProvider" language="Scala"
+                                    implementationClass="org.jetbrains.plugins.scala.training.ScalaOnboardingTipsDocumentationProvider"/>
+    </extensions>
+</idea-plugin>

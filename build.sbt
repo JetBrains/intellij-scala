@@ -57,6 +57,7 @@ lazy val scalaCommunity: sbt.Project =
       mavenIntegration % "test->test;compile->compile",
       propertiesIntegration % "test->test;compile->compile",
       mlCompletionIntegration % "test->test;compile->compile",
+      featuresTrainerIntegration % "test->test;compile->compile",
       pluginXml,
     )
     .settings(
@@ -720,6 +721,17 @@ lazy val mlCompletionIntegration =
       intellijPlugins += "com.intellij.completion.ml.ranking".toPlugin,
       resolvers += DependencyResolvers.IntelliJDependencies,
       libraryDependencies += "org.jetbrains.intellij.deps.completion" % "completion-ranking-scala" % "0.4.1"
+    )
+
+lazy val featuresTrainerIntegration =
+  newProject("features-trainer", file("scala/integration/features-trainer"))
+    .dependsOn(
+      scalaImpl % "test->test;compile->compile",
+    )
+    .settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions,
+      intellijPlugins += "training".toPlugin,
     )
 
 // SCL-20376 - The package search plugin will be replaced by a new one, requiring a rewrite of the integration code.
