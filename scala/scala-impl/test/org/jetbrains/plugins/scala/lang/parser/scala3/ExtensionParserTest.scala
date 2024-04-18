@@ -816,4 +816,45 @@ class ExtensionParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  def test_exports_in_extension(): Unit = {
+    checkTree(
+      """extension (x: String)
+        |  export x.length
+        |""".stripMargin,
+      """ScalaFile
+        |  Extension on String
+        |    PsiElement(extension)('extension')
+        |    PsiWhiteSpace(' ')
+        |    Parameters
+        |      ParametersClause
+        |        PsiElement(()('(')
+        |        Parameter: x
+        |          AnnotationsList
+        |            <empty list>
+        |          Modifiers
+        |            <empty list>
+        |          PsiElement(identifier)('x')
+        |          PsiElement(:)(':')
+        |          PsiWhiteSpace(' ')
+        |          ParameterType
+        |            SimpleType: String
+        |              CodeReferenceElement: String
+        |                PsiElement(identifier)('String')
+        |        PsiElement())(')')
+        |    PsiWhiteSpace('\n  ')
+        |    ScExtensionBody
+        |      ScExportStatement
+        |        PsiElement(export)('export')
+        |        PsiWhiteSpace(' ')
+        |        ImportExpression
+        |          CodeReferenceElement: x.length
+        |            CodeReferenceElement: x
+        |              PsiElement(identifier)('x')
+        |            PsiElement(.)('.')
+        |            PsiElement(identifier)('length')
+        |  PsiWhiteSpace('\n')
+        |""".stripMargin
+    )
+  }
 }

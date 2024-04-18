@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.base
 
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.{ExtensionKeyword, InlineKeyword}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.{IndentationRegion, ScalaPsiBuilder}
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotations
@@ -96,12 +96,12 @@ object ExtMethods extends ParsingRule {
     var extMethodsParsed = false
     region match {
       case None =>
-        // parse only a single extension method
-        extMethodsParsed = ExtMethod()
+        // parse only a single extension method or export statement
+        extMethodsParsed = parseExport() || ExtMethod()
       case Some(region) =>
         builder.withIndentationRegion(region) {
           parseRuleInBlockOrIndentationRegion(region, ErrMsg("extension.method.expected")) {
-            extMethodsParsed = ExtMethod()
+            extMethodsParsed = parseExport() || ExtMethod()
             extMethodsParsed
           }
         }
@@ -115,6 +115,10 @@ object ExtMethods extends ParsingRule {
     extDefinitionsMarker.done(ScalaElementType.EXTENSION_BODY)
     true
   }
+
+  private def parseExport()(implicit builder: ScalaPsiBuilder): Boolean =
+    builder.getTokenType == ScalaTokenType.ExportKeyword &&
+      Export()
 }
 
 object ExtensionParameterClauses extends ParsingRule {
