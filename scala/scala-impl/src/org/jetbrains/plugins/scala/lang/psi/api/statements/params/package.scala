@@ -38,8 +38,10 @@ package object params {
       case t: ScTypeParam => elementQual(t.owner) + "#" + t.name
       case c: PsiClass    => c.qualifiedName
       case f: ScFunction  =>
-        val maybeStub     = f.greenStub
-        val indexInParent = maybeStub.fold(0)(s => s.getParentStub.getChildrenStubs.indexOf(s))
+        val indexInParent = f.withGreenStub(
+          stub => stub.getParentStub.getChildrenStubs.indexOf(stub),
+          () => 0
+        )
         elementQual(f.containingClass) + ".." + indexInParent
       case _              => ""
     }

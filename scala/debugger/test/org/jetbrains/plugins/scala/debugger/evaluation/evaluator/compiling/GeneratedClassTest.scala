@@ -8,13 +8,12 @@ import com.intellij.openapi.util.io.FileUtil.loadFile
 import com.intellij.openapi.util.text.StringUtil.convertLineSeparators
 import com.intellij.openapi.vfs.CharsetToolkit
 import com.intellij.psi.{PsiElement, PsiFile}
-import org.assertj.core.api.Assertions.fail
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.runners._
-import org.junit.Assert.assertEquals
+import org.junit.Assert.{assertEquals, fail}
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 
@@ -45,7 +44,7 @@ abstract class GeneratedClassTestBase extends ScalaLightCodeInsightFixtureTestCa
           resultText = resultText.trim
         )
       case array =>
-        fail(s"Expected 4 sections: fileText, codeFragment, additionalImports, resultText; got: ${array.length}")
+        fail(s"Expected 4 sections: fileText, codeFragment, additionalImports, resultText; got: ${array.length}").asInstanceOf[Nothing]
     }
 
   protected def doTest(): Unit = {

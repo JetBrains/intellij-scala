@@ -21,7 +21,7 @@ import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
 import com.intellij.psi._
 import com.intellij.psi.impl.PsiImplUtil
 import com.intellij.psi.impl.light.LightMethod
-import com.intellij.psi.impl.source.tree.SharedImplUtil
+import com.intellij.psi.impl.source.tree.{FileElement, SharedImplUtil}
 import com.intellij.psi.impl.source.{PostprocessReformattingAspect, PsiFileImpl}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
@@ -1622,10 +1622,10 @@ package object extensions {
       element match {
         case st: StubBasedPsiElementBase[_] => st.getStubOrPsiChildren(elementType, f)
         case file: PsiFileImpl =>
-          file.getGreenStub match {
-            case stub: StubElement[_] => stub.getChildrenByType(elementType, f)
-            case null => findWithNode()
-          }
+          file.withGreenStubOrAst(
+            (stub: StubElement[_]) => stub.getChildrenByType(elementType, f),
+            (_: FileElement) => findWithNode()
+          )
         case _ => findWithNode()
       }
     }
@@ -1646,10 +1646,10 @@ package object extensions {
       element match {
         case st: StubBasedPsiElementBase[_] => st.getStubOrPsiChildren(filter, f)
         case file: PsiFileImpl =>
-          file.getGreenStub match {
-            case stub: StubElement[_] => stub.getChildrenByType(filter, f)
-            case null => findWithNode()
-          }
+          file.withGreenStubOrAst(
+            (stub: StubElement[_]) => stub.getChildrenByType(filter, f),
+            (_: FileElement) => findWithNode()
+          )
         case _ => findWithNode()
       }
     }
@@ -1665,18 +1665,24 @@ package object extensions {
       element match {
         case st: StubBasedPsiElementBase[_] => Option(st.getStubOrPsiChild(elementType))
         case file: PsiFileImpl =>
-          file.getGreenStub match {
-            case stub: StubElement[_] => Option(stub.findChildStubByType(elementType)).map(_.getPsi)
-            case _ => findWithNode()
-          }
+          file.withGreenStubOrAst(
+            (stub: StubElement[_]) => Option(stub.findChildStubByType(elementType)).map(_.getPsi),
+            (_: FileElement) => findWithNode()
+          )
         case _ => findWithNode()
       }
     }
 
-    def greenStub: Option[StubElement[_]] = element match {
-      case st: StubBasedPsiElementBase[_] => Option(st.getGreenStub.asInstanceOf[StubElement[_]])
-      case file: PsiFileImpl => Option(file.getGreenStub)
-      case _ => None
+    def withGreenStub[T](stubProcessor: StubElement[_] => T, treeProcessor: () => T): T = element match {
+      case st: StubBasedPsiElementBase[_] =>
+        val stub = st.getGreenStub.asInstanceOf[StubElement[_]]
+        if (stub == null) treeProcessor()
+        else stubProcessor(stub)
+      case file: PsiFileImpl => file.withGreenStubOrAst(
+        (stub: StubElement[_]) => stubProcessor(stub),
+        (_: FileElement) => treeProcessor()
+      )
+      case _ => treeProcessor()
     }
 
     def lastChildStub: Option[PsiElement] = {

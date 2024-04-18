@@ -6,7 +6,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement, PsiMember, PsiModifier}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.caches.{ModTracker, cached}
-import org.jetbrains.plugins.scala.extensions.{&, ObjectExt, Parent, PsiClassExt, PsiModifierListOwnerExt, StubBasedExt}
+import org.jetbrains.plugins.scala.extensions.{&, ObjectExt, Parent, StubBasedExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameterClause}
@@ -95,9 +95,9 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
   }
 
   def getContainingClassLoose: ScTemplateDefinition = {
-    this.greenStub match {
-      case Some(stub) => stub.getParentStubOfType(classOf[ScTemplateDefinition])
-      case None =>
+    this.withGreenStub(
+      stub => stub.getParentStubOfType(classOf[ScTemplateDefinition]),
+      () => {
         this.child match {
           // TODO is all of this mess still necessary?!
           case c: ScClass if c.isCase =>
@@ -114,7 +114,8 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
           case _ =>
         }
         PsiTreeUtil.getContextOfType(this, true, classOf[ScTemplateDefinition])
-    }
+      }
+    )
   }
 
   def isLocal: Boolean = containingClass == null && !isTopLevel && {
