@@ -15,8 +15,7 @@ trait ScExtension extends ScParameterOwner.WithContextBounds
   // We need to rethink the hierarchy for extensions.
   //NOTE: it's also extended in ScExtensionImpl
   with ScMember
-  with ScDeclaredElementsHolder
-  with ScExportsHolder {
+  with ScDeclaredElementsHolder {
 
   def extensionBody: Option[ScExtensionBody]
   def targetParameter: Option[ScParameter]

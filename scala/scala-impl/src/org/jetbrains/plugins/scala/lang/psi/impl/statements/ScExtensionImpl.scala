@@ -65,7 +65,10 @@ class ScExtensionImpl(@Nullable stub: ScExtensionStub, @Nullable node: ASTNode)
     if (!super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place))
       return false
 
-    if (!processDeclarationsFromExports(processor, state, lastParent, place))
+    if (extensionMethods.exists(!processor.execute(_, state)))
+      return false
+
+    if (extensionBody.exists(body => !body.processDeclarationsFromExports(processor, state, lastParent, place)))
       return false
 
     for {

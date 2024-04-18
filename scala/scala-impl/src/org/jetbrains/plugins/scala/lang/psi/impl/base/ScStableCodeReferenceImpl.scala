@@ -6,6 +6,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.DummyHolder
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.autoImport.quickFix.{ClassToImport, ElementToImport, MemberToImport}
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.extensions._
@@ -59,6 +60,14 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
 
   override def getKinds(incomplete: Boolean, completion: Boolean): Set[ResolveTargets.Value] = {
     import org.jetbrains.plugins.scala.lang.resolve.StdKinds._
+
+    val targetsExtensionMethodInExport = qualifier.isEmpty && getEnclosingImportStatement.is[ScExportStmt]
+    if (targetsExtensionMethodInExport) {
+      // The most inner stable reference in an export statement in an extension method
+      // must always target a "unique parameterless extension method in the same extension clause".
+      // We additionally allow other ref kinds here and annotate wrong ones as errors in ScExportStmtAnnotator.
+      return stableQualRefCandidates
+    }
 
     val result = getContext match {
       case contextRef: ScStableCodeReference =>
@@ -590,6 +599,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     result
   }
 
+  @Nullable
   private def getEnclosingImportStatement: ScImportOrExportStmt = {
     @tailrec
     def inner(element: PsiElement): ScImportOrExportStmt = {

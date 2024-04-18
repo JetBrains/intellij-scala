@@ -336,4 +336,15 @@ class ExportsResolveTest extends SimpleResolveTestBase {
       |}
       |""".stripMargin
   )
+
+  def testExportInExtension(): Unit = doResolveTest(
+    s"""
+       |class Ops(i: Int):
+       |  def blub = 1
+       |
+       |extension (x: Int)
+       |  private def o${REFTGT}ps = new Ops(x)
+       |  export o${REFSRC}ps.blub
+       |""".stripMargin
+  )
 }
