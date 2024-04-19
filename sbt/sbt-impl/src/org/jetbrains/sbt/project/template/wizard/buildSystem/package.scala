@@ -60,8 +60,8 @@ package object buildSystem {
         Map(
           "RunComment1"           -> message("onboarding.run.comment.render.1", shortcut(IdeActions.ACTION_DEFAULT_RUNNER)),
           "RunComment2"           -> message("onboarding.run.comment.render.2", icon("AllIcons.Actions.Execute")),
-          "ShowScalaIntentionComment1" -> s"""Press ${shortcut(IdeActions.ACTION_SHOW_INTENTION_ACTIONS)} with your caret in the middle of the string below""",
-          "ShowScalaIntentionComment2" -> s"""to see how ${ApplicationNamesInfo.getInstance.getFullProductName} suggests changing it.""",
+          "ShowIntentionComment1" -> message("onboarding.show.intention.tip.comment.render.1", shortcut(IdeActions.ACTION_SHOW_INTENTION_ACTIONS)),
+          "ShowIntentionComment2" -> message("onboarding.show.intention.tip.comment.render.2", ApplicationNamesInfo.getInstance.getFullProductName),
           "DebugComment1"         -> message("onboarding.debug.comment.render.1", shortcut(IdeActions.ACTION_DEFAULT_DEBUGGER), icon("AllIcons.Debugger.Db_set_breakpoint")),
           "DebugComment2"         -> message("onboarding.debug.comment.render.2", shortcut(IdeActions.ACTION_TOGGLE_LINE_BREAKPOINT)),
         )
@@ -71,9 +71,9 @@ package object buildSystem {
         }
         Map(
           "SearchEverywhereComment1"  -> message("onboarding.search.everywhere.tip.comment.1", "Shift"),
-          "SearchEverywhereComment2"  -> message("onboarding.search.everywhere.tip.comment.2"),
-          "ShowScalaIntentionComment1" -> s"""Press ${tipsContext.getShortcutText(IdeActions.ACTION_SHOW_INTENTION_ACTIONS)} with your caret in the middle of the string below""",
-          "ShowScalaIntentionComment2" -> s"""to see how ${ApplicationNamesInfo.getInstance.getFullProductName} suggests changing it.""",
+           "SearchEverywhereComment2" -> message("onboarding.search.everywhere.tip.comment.2"),
+          "ShowIntentionComment1"     -> message("onboarding.show.intention.tip.comment.1", tipsContext.getShortcutText(IdeActions.ACTION_SHOW_INTENTION_ACTIONS)),
+          "ShowIntentionComment2"     -> message("onboarding.show.intention.tip.comment.2", ApplicationNamesInfo.getInstance.getFullProductName),
           "RunComment"                -> message("onboarding.run.comment", tipsContext.getShortcutText(IdeActions.ACTION_DEFAULT_RUNNER)),
           "DebugComment1"             -> message("onboarding.debug.comment.1", tipsContext.getShortcutText(IdeActions.ACTION_DEFAULT_DEBUGGER)),
           "DebugComment2"             -> message("onboarding.debug.comment.2", tipsContext.getShortcutText(IdeActions.ACTION_TOGGLE_LINE_BREAKPOINT))

@@ -7,14 +7,12 @@
 // ${SearchEverywhereComment2}
 @main
 def main(): Unit =
-  val world = "world"
-  // ${ShowScalaIntentionComment1}
-  // ${ShowScalaIntentionComment2}
-  println("Hello " + world + "!")
+  //TIP ${ShowIntentionComment1}
+  // ${ShowIntentionComment2}
+  (1 to 5).map(println)
 
-  // ${RunComment}
-  (1 to 5).foreach { i =>
-    // ${DebugComment1}
+    for (i <- 1 to 5) {
+    //TIP ${DebugComment1}
     // ${DebugComment2}
     println(s"i = $i")
   }
