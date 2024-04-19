@@ -7,9 +7,10 @@
 // ${RunComment2}
 object Main {
   def main(args: Array[String]): Unit = {
-    //TIP ${ShowIntentionComment1}
-    // ${ShowIntentionComment2}
-    println("Hello world!")
+    val world = "world"
+    //TIP ${ShowScalaIntentionComment1}
+    // ${ShowScalaIntentionComment2}
+    println("Hello " + world + "!")
 
     (1 to 5).foreach { i =>
       //TIP ${DebugComment1}
