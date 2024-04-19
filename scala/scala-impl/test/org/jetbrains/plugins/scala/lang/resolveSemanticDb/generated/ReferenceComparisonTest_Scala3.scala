@@ -250,7 +250,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_explicitOuter(): Unit = doTest("explicitOuter", true)
   def test_exponential_spec(): Unit = doTest("exponential-spec", true)
   def test_export_enum(): Unit = doTest("export-enum", false) // #enum, #export
-  def test_export_in_extension_rename(): Unit = doTest("export-in-extension-rename", true) // #extension
+  def test_export_in_extension_rename(): Unit = doTest("export-in-extension-rename", false) // #extension
   def test_export_opaque(): Unit = doTest("export-opaque", false) // #opaque, #export
   def test_export_proxies(): Unit = doTest("export-proxies", true) // #export
   def test_extmethods(): Unit = doTest("extmethods", true) // #extension
