@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, 
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMatch, ScReferenceExpression, ScSuperReference, ScThisReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScMacroDefinition, ScTypeAlias, ScValue}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtensionBody, ScFunction, ScMacroDefinition, ScTypeAlias, ScValue}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScDerivesClause, ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -61,7 +61,8 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
   override def getKinds(incomplete: Boolean, completion: Boolean): Set[ResolveTargets.Value] = {
     import org.jetbrains.plugins.scala.lang.resolve.StdKinds._
 
-    val targetsExtensionMethodInExport = qualifier.isEmpty && getEnclosingImportStatement.is[ScExportStmt]
+    val targetsExtensionMethodInExport = qualifier.isEmpty &&
+      getEnclosingImportStatement.asOptionOf[ScExportStmt].exists(_.getContext.is[ScExtensionBody])
     if (targetsExtensionMethodInExport) {
       // The most inner stable reference in an export statement in an extension method
       // must always target a "unique parameterless extension method in the same extension clause".
