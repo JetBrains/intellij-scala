@@ -6,14 +6,13 @@
 //TIP ${RunComment1}
 // ${RunComment2}
 @main
-def main(): Unit = {
+def main(): Unit =
   //TIP ${ShowIntentionComment1}
   // ${ShowIntentionComment2}
-  println("Hello world!")
+  (1 to 5).map(println)
 
-  (1 to 5).foreach { i =>
+  for (i <- 1 to 5) {
     //TIP ${DebugComment1}
     // ${DebugComment2}
     println(s"i = $i")
   }
-}
