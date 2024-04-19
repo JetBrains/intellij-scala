@@ -13,6 +13,6 @@ final class NewSbtFileAction extends CreateFromTemplateActionBase(
   Icons.SBT_FILE
 ) {
 
-  override def getTemplate(project: Project, dir: PsiDirectory): FileTemplate = FileTemplateManager.getDefaultInstance.getInternalTemplate("Sbt File")
+  override def getTemplate(project: Project, dir: PsiDirectory): FileTemplate = FileTemplateManager.getDefaultInstance.getInternalTemplate(ScalaBundle.message("newclassorfile.menu.action.sbt.text"))
 
 }

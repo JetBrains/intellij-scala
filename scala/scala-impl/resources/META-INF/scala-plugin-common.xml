@@ -1983,9 +1983,15 @@
                   class="org.jetbrains.plugins.scala.components.TypeAwareWidgetFactory$Listener"/>
     </projectListeners>
     <actions>
-        <action id="Scala.NewSbtFileAction" class="org.jetbrains.plugins.scala.actions.NewSbtFileAction">
-            <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFromTemplate"/>
-        </action>
+
+        <group id="SbtFileAction" icon="org.jetbrains.sbt.icons.Icons.SBT_FILE" popup="true" text="Sbt File">
+            <separator/>
+            <action id="Scala.NewSbtFileAction" class="org.jetbrains.plugins.scala.actions.NewSbtFileAction"/>
+            <action id="Scala.NewSbtBuildFileAction" class="org.jetbrains.plugins.scala.actions.NewSbtBuildFileAction"/>
+            <action id="Scala.NewSbtPluginFileAction" class="org.jetbrains.plugins.scala.actions.NewSbtPluginFileAction"/>
+            <add-to-group group-id="NewGroup" anchor="last"/>
+        </group>
+
         <action id="Scala.NewClass" class="org.jetbrains.plugins.scala.actions.NewScalaFileAction">
             <add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewGroup1"/>
         </action>
