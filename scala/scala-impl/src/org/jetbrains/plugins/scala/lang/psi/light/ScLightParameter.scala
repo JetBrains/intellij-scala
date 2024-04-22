@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.lang.psi.light
 
-import com.intellij.lang.java.lexer.JavaLexer
 import com.intellij.openapi.project.Project
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightParameter
 import com.intellij.psi.impl.source.PsiImmediateClassType
+import com.intellij.psi.util.PsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -72,6 +72,5 @@ private object ScLightParameter {
   }
 
   private def escapeJavaKeywords(name: String): String =
-    if (JavaLexer.isKeyword(name, LanguageLevel.HIGHEST)) name + "$" else name
-
+    if (PsiUtil.isKeyword(name, LanguageLevel.HIGHEST)) name + "$" else name
 }

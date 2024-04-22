@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
 import com.intellij.lang.ASTNode
-import com.intellij.lang.java.lexer.JavaLexer
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiModifier._
@@ -137,7 +136,7 @@ class ScObjectImpl(
 
   private val getModuleField: () => Option[PsiField] = cached("getModuleField", BlockModificationTracker(this), () => {
     def hasJavaKeywords(qName: String) =
-      qName.split('.').exists(JavaLexer.isKeyword(_, PsiUtil.getLanguageLevel(this.getProject)))
+      qName.split('.').exists(PsiUtil.isKeyword(_, PsiUtil.getLanguageLevel(this.getProject)))
 
     if (Option(getQualifiedName).forall(hasJavaKeywords))
       None

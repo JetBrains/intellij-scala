@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.psi.light
 
-import com.intellij.lang.java.lexer.JavaLexer
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightModifierList
@@ -98,7 +97,7 @@ private[light] class ScLightModifierList(scalaElement: ScalaPsiElement,
         case s if keywordAnnotations.contains(s) => true
         case s if Set("scala.throws", "scala.inline", "scala.unchecked").contains(s) => true
         case s if s.endsWith("BeanProperty") => true
-        case s if s.split('.').exists(JavaLexer.isKeyword(_, javaLL)) => true
+        case s if s.split('.').exists(PsiUtil.isKeyword(_, javaLL)) => true
         case _ => false
       }
     }
