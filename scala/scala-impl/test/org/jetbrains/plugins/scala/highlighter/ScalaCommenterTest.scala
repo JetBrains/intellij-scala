@@ -233,4 +233,40 @@ class ScalaCommenterTest extends BasePlatformTestCase {
     val after = "//> using foo"
     testAction(before, after, ActionCommentBlock)
   }
+
+  def test_block_comment_for_multiline_expr(): Unit = testAction(
+    s"""
+       |def foobar = {
+       |$SelectionStart  "foo" +
+       |    "bar"
+       |$SelectionEnd}
+       |""".stripMargin,
+    """
+      |def foobar = {
+      |/*
+      |  "foo" +
+      |    "bar"
+      |*/
+      |}
+      |""".stripMargin,
+    ActionCommentBlock
+  )
+
+  def test_unblock_comment_for_multiline_expr(): Unit = testAction(
+    s"""
+       |def foobar = {
+       |/*
+       |  "foo" +$Caret
+       |    "bar"
+       |*/
+       |}
+       |""".stripMargin,
+    """
+      |def foobar = {
+      |  "foo" +
+      |    "bar"
+      |}
+      |""".stripMargin,
+    ActionCommentBlock
+  )
 }
