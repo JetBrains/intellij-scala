@@ -1,9 +1,12 @@
 package org.jetbrains.plugins.scala
 
 import junit.framework.TestCase
-import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
+import org.jetbrains.plugins.scala.project.{ScalaLanguageLevel, Version}
 import org.junit.Assert._
 
+/**
+ * See also [[org.jetbrains.plugins.scala.project.VersionTest]]
+ */
 class ScalaVersionTest extends TestCase {
 
   def testParseFromString(): Unit = {
@@ -29,5 +32,16 @@ class ScalaVersionTest extends TestCase {
     assertEquals(None, ScalaVersion.fromString("A.BC.3"))
     assertEquals(None, ScalaVersion.fromString("2.BC.3"))
     assertEquals(None, ScalaVersion.fromString("A.13.3"))
+  }
+
+  def testComparison(): Unit = {
+    assertTrue(ScalaVersion.fromString("2.13.13").get < ScalaVersion.fromString("2.13.14").get)
+    assertTrue(ScalaVersion.fromString("2.13.13").get > ScalaVersion.fromString("2.13.12").get)
+
+    assertTrue(ScalaVersion.fromString("2.13.13").get == ScalaVersion.fromString("2.13.13").get)
+    assertTrue(ScalaVersion.fromString("2.13.14-RC1").get > ScalaVersion.fromString("2.13.13").get)
+    assertTrue(ScalaVersion.fromString("2.13.13-RC1").get < ScalaVersion.fromString("2.13.13").get)
+    assertTrue(ScalaVersion.fromString("2.13.13-bin-db-2-fd41f6b").get > ScalaVersion.fromString("2.13.13").get)
+
   }
 }
