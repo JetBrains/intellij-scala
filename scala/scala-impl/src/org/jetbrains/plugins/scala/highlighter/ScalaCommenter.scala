@@ -102,11 +102,39 @@ class ScalaCommenter extends SelfManagingCommenter[ScalaCommenterDataHolder] wit
   override def getBlockCommentSuffix(selectionEnd: Int, document: Document, data: ScalaCommenterDataHolder): String =
     getBlockCommentSuffix()
 
-  override def uncommentBlockComment(startOffset: Int, endOffset: Int, document: Document, data: ScalaCommenterDataHolder): Unit =
-    SelfManagingCommenterUtil.uncommentBlockComment(startOffset, endOffset, document, getBlockCommentPrefix, getBlockCommentSuffix)
+  override def uncommentBlockComment(startOffset: Int, endOffset: Int, document: Document, data: ScalaCommenterDataHolder): Unit = {
+    val text = document.getCharsSequence
+    def isAloneInLine(start: Int, end: Int): Boolean = {
+      start == 0 || text.charAt(start - 1) == '\n' &&
+        end < text.length() && text.charAt(end) == '\n'
+    }
 
-  override def insertBlockComment(startOffset: Int, endOffset: Int, document: Document, data: ScalaCommenterDataHolder): TextRange =
-    SelfManagingCommenterUtil.insertBlockComment(startOffset, endOffset, document, getBlockCommentPrefix, getBlockCommentSuffix)
+    val startIsAlone = isAloneInLine(startOffset, startOffset + getBlockCommentPrefix.length)
+    val endIsAlone = isAloneInLine(endOffset - getBlockCommentSuffix.length, endOffset)
+
+    val (prefix, suffix) =
+      if (startIsAlone && endIsAlone)
+        (getBlockCommentPrefix + "\n", getBlockCommentSuffix + "\n")
+      else
+        (getBlockCommentPrefix, getBlockCommentSuffix)
+
+    SelfManagingCommenterUtil.uncommentBlockComment(startOffset, endOffset, document, prefix, suffix)
+  }
+
+  override def insertBlockComment(startOffset: Int, endOffset: Int, document: Document, data: ScalaCommenterDataHolder): TextRange = {
+    val text = document.getCharsSequence
+    def isAtStartOfLine(offset: Int): Boolean = {
+      offset == 0 || text.charAt(offset - 1) == '\n'
+    }
+
+    val (prefix, suffix) =
+      if (isAtStartOfLine(startOffset) && isAtStartOfLine(endOffset))
+        (getBlockCommentPrefix + "\n", getBlockCommentSuffix + "\n")
+      else
+        (getBlockCommentPrefix, getBlockCommentSuffix)
+
+    SelfManagingCommenterUtil.insertBlockComment(startOffset, endOffset, document, prefix, suffix)
+  }
 }
 
 object ScalaCommenter extends ScalaCommenter
