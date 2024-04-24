@@ -59,7 +59,7 @@ package object project {
       case _ => false
     }
 
-    def libraryVersion: Option[String] = name.flatMap(LibraryVersion.findFirstIn)
+    def libraryVersion: Option[String] = name.flatMap(guessLibraryVersionFromName)
 
     @ScheduledForRemoval(inVersion = "2022.3")
     @Deprecated
@@ -81,7 +81,18 @@ package object project {
 
   object LibraryExt {
 
-    private val LibraryVersion = "(?<=[:\\-])\\d+\\.\\d+\\.\\d+[^:\\s]*".r
+    @TestOnly
+    def guessLibraryVersionFromName(libraryName: String): Option[String] =
+      LibraryVersion.findFirstIn(libraryName)
+
+    /**
+     * Examples (see tests for more examples):
+     *  - anything-here-1.22.3
+     *  - anything-here:1.22.3
+     *  - anything-here_1.22.3
+     *  - anything-here-1.22.3-bin-db-2-fd41f6b
+     */
+    private val LibraryVersion = """(?<=[:_\-])\d+\.\d+\.\d+[^:\s]*""".r
 
     private[this] val RuntimeLibrary = "((?:scala|dotty|scala3)-library).+".r
 
