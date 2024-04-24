@@ -4,7 +4,7 @@ import org.junit.Assert._
 
 trait AssertionMatchers {
 
-  implicit class AssertMatchersExt[T](val actual: T) {
+  implicit class AssertMatchersExt[T](private val actual: T) {
     def shouldBe(expected: T): Unit = (actual, expected) match {
       case (actual: Double, expected: Double) => assertEquals(expected, actual, 0.01)
       case (actual: Float, expected: Float)   => assertEquals(expected, actual, 0.01)
