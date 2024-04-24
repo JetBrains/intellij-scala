@@ -59,7 +59,7 @@ package object project {
       case _ => false
     }
 
-    def libraryVersion: Option[String] = name.flatMap(LibraryVersion.findFirstIn)
+    def libraryVersion: Option[String] = name.flatMap(guessLibraryVersionFromName)
 
     def hasRuntimeLibrary: Boolean = name.exists(isRuntimeLibrary)
 
@@ -74,6 +74,10 @@ package object project {
   }
 
   object LibraryExt {
+
+    @TestOnly
+    def guessLibraryVersionFromName(libraryName: String): Option[String] =
+      LibraryVersion.findFirstIn(libraryName)
 
     private val LibraryVersion = "(?<=[:\\-])\\d+\\.\\d+\\.\\d+[^:\\s]*".r
 
