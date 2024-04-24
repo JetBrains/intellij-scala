@@ -79,7 +79,14 @@ package object project {
     def guessLibraryVersionFromName(libraryName: String): Option[String] =
       LibraryVersion.findFirstIn(libraryName)
 
-    private val LibraryVersion = "(?<=[:\\-])\\d+\\.\\d+\\.\\d+[^:\\s]*".r
+    /**
+     * Examples (see tests for more examples):
+     *  - anything-here-1.22.3
+     *  - anything-here:1.22.3
+     *  - anything-here_1.22.3
+     *  - anything-here-1.22.3-bin-db-2-fd41f6b
+     */
+    private val LibraryVersion = """(?<=[:_\-])\d+\.\d+\.\d+[^:\s]*""".r
 
     private[this] val RuntimeLibrary = "((?:scala|dotty|scala3)-library).+".r
 
