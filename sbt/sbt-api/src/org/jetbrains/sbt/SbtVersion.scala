@@ -22,6 +22,6 @@ object SbtVersion {
     SbtVersion("1.6.2"),
     SbtVersion("1.7.3"),
     SbtVersion("1.8.3"),
-    SbtVersion("1.9.7"),
+    SbtVersion("1.9.9"),
   )
 }

@@ -55,7 +55,7 @@ object Versions {
     val structure_extractor_binary_1_3 = "1.3"
 
     val latest_0_13 = "0.13.18"
-    val latest_1_0 = "1.9.7"
+    val latest_1_0 = "1.9.9"
     val latest: String = latest_1_0
     // ATTENTION: after adding sbt major version, also update:
     // buildInfoKeys, Sbt.scala and SbtUtil.latestCompatibleVersion
