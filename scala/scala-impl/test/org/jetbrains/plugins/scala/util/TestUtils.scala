@@ -25,6 +25,9 @@ object TestUtils {
 
   private var TEST_DATA_PATH: String = _
 
+  def getTestDataDir: File =
+    new File(getTestDataPath).getCanonicalFile
+
   def getTestDataPath: String = {
     if (TEST_DATA_PATH == null) {
       try {
