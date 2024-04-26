@@ -7,6 +7,7 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.{Semaphore, TimeUnit}
 
 /**
@@ -25,6 +26,8 @@ private final class CompilerLockService(project: Project) {
     new Semaphore(initialPermits, true)
   }
 
+  private val ready: AtomicBoolean = new AtomicBoolean(false)
+
   def withCompilerLock(indicator: ProgressIndicator)(body: => Unit): Unit = {
     withPermit(projectReadySemaphore, indicator) {
       if (!project.isDisposed) {
@@ -38,8 +41,12 @@ private final class CompilerLockService(project: Project) {
   }
 
   def markProjectReady(): Unit = {
-    projectReadySemaphore.release()
+    if (ready.compareAndSet(false, true)) {
+      projectReadySemaphore.release()
+    }
   }
+
+  def isReady: Boolean = ready.get()
 
   private def withPermit(semaphore: Semaphore, indicator: ProgressIndicator)(body: => Unit): Unit = {
     var acquired = false
