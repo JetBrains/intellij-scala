@@ -38,7 +38,8 @@ class ScalaStatementMover extends LineMover {
     if (!file.is[ScalaFile]) return false
 
     def aim(sourceClass: ElementClass, predicate: PsiElement => Boolean, canUseLineAsTarget: Boolean = true): Option[(PsiElement, LineRange)] = {
-      findSourceOf(sourceClass).map { source =>
+      val sourceOpt = findSourceOf(sourceClass)
+      sourceOpt.map { source =>
         val targetRange = findTargetRangeFor(source, predicate).getOrElse {
           if (canUseLineAsTarget) nextLineRangeFor(source) else null
         }
@@ -61,7 +62,11 @@ class ScalaStatementMover extends LineMover {
       val range = rangeOf(source, editor)
       if (down) {
         val maxLine = editor.offsetToLogicalPosition(editor.getDocument.getTextLength).line
-        if (range.endLine < maxLine) new LineRange(range.endLine, range.endLine + 1) else null
+        //when range.endLine == maxLine, IntelliJ will automatically insert a new line in the end of the file
+        if (range.endLine <= maxLine)
+          new LineRange(range.endLine, range.endLine + 1)
+        else
+          null
       } else {
         new LineRange(range.startLine - 1, range.startLine)
       }
@@ -75,9 +80,9 @@ class ScalaStatementMover extends LineMover {
       .orElse(aim(classOf[ScTry], _ => false))
       .orElse(aim(classOf[ScMethodCall], isControlStructureLikeCall).filter(p => isControlStructureLikeCall(p._1)))
 
-    pair.foreach { it =>
-      info.toMove = rangeOf(it._1, editor)
-      info.toMove2 = it._2
+    pair.foreach { case (sourceElement, targetLineRange) =>
+      info.toMove = rangeOf(sourceElement, editor)
+      info.toMove2 = targetLineRange
     }
 
     pair.isDefined
@@ -111,9 +116,11 @@ class ScalaStatementMover extends LineMover {
     val left = edges._1.flatMap(PsiTreeUtil.getParentOfType(_, cl, false).toOption)
     val right = edges._2.flatMap(PsiTreeUtil.getParentOfType(_, cl, false).toOption)
 
-    left.zip(right)
-      .collect { case (l: PsiElement, r: PsiElement) if l.withParentsInFile.contains(r) => r }
-      .find(it => editor.offsetToLogicalPosition(it.getTextOffset).line == line)
+    val elementOpt = left.zip(right).collect {
+      case (l: PsiElement, r: PsiElement) if l.withParentsInFile.contains(r) => r
+      case (l: PsiElement, r: PsiElement) if r.withParentsInFile.contains(l) => l
+    }
+    elementOpt.filter(it => editor.offsetToLogicalPosition(it.getTextOffset).line == line)
   }
 
   private def edgeLeafsOf(line: Int, editor: Editor, file: PsiFile): (Option[PsiElement], Option[PsiElement]) = {

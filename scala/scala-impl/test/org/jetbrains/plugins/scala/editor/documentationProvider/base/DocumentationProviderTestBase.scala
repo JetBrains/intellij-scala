@@ -43,10 +43,14 @@ abstract class DocumentationProviderTestBase
   /////////////////// section end ////////////////////////
 
   /////////////////// section start ////////////////////////
-  protected final def generateDoc(fileContent: String): String = {
+  protected final def configureFileAndGenerateDoc(fileContent: String): String = {
     val (editor, file) = createEditorAndFile(fileContent)
     assertTrue("file should contain valid psi tree", file.isValid)
 
+    generateDoc(editor, file)
+  }
+
+  private def generateDoc(editor: Editor, file: PsiFile): String = {
     val (referredElement, elementAtCaret) = extractReferredAndOriginalElements(editor, file)
     generateDoc(referredElement, elementAtCaret)
   }
@@ -68,11 +72,11 @@ abstract class DocumentationProviderTestBase
   }
 
   private def createEditorAndFile(fileContent: String): (Editor, PsiFile) = {
-    val file = createFile(fileContent)
-    (myFixture.getEditor, file)
+    configureFixtureFromText(fileContent)
+    (myFixture.getEditor, getFixture.getFile)
   }
 
-  protected def createFile(fileContent: String): PsiFile
+  protected def configureFixtureFromText(fileContent: String): Unit
 
   /** see parameters of [[com.intellij.lang.documentation.DocumentationProvider#generateDoc]] */
   //noinspection UnstableApiUsage
@@ -102,7 +106,16 @@ abstract class DocumentationProviderTestBase
     expectedDoc: => String,
     whitespacesMode: HtmlSpacesComparisonMode = HtmlSpacesComparisonMode.IgnoreNewLinesAndCollapseSpaces
   ): Unit = {
-    val actualDoc = generateDoc(fileContent)
+    val actualDoc = configureFileAndGenerateDoc(fileContent)
+    assertDocHtml(expectedDoc, actualDoc, whitespacesMode)
+  }
+
+  /** NOTE: test fixture should be setup in advance */
+  protected final def doGenerateDocAtCaretTest(
+    expectedDoc: => String,
+    whitespacesMode: HtmlSpacesComparisonMode = HtmlSpacesComparisonMode.IgnoreNewLinesAndCollapseSpaces
+  ): Unit = {
+    val actualDoc = generateDoc(getEditor, getFile)
     assertDocHtml(expectedDoc, actualDoc, whitespacesMode)
   }
 

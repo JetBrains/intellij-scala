@@ -14,7 +14,7 @@ abstract class SbtScalacOptionsDocumentationProviderTestBase extends Documentati
 
   override protected def documentationProvider: DocumentationProvider = new SbtScalacOptionsDocumentationProvider
 
-  override protected def createFile(fileContent: String): PsiFile =
+  override protected def configureFixtureFromText(fileContent: String): Unit =
     myFixture.configureByText(SbtFileType, fileContent)
 
   override protected def extractReferredAndOriginalElements(editor: Editor, file: PsiFile): (PsiElement, PsiElement) = {

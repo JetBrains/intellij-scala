@@ -13,9 +13,7 @@ import org.apache.ivy.plugins.repository.jar.JarRepository
 import org.apache.ivy.plugins.resolver.{ChainResolver, IBiblioResolver, RepositoryResolver, URLResolver}
 import org.apache.ivy.util.{DefaultMessageLogger, MessageLogger}
 import org.jetbrains.plugins.scala.DependencyManagerBase.DependencyDescription.scalaArtifact
-import org.jetbrains.plugins.scala.DependencyManagerBase.IvyResolver
 import org.jetbrains.plugins.scala.extensions.IterableOnceExt
-import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.template._
 
 import java.io.File
@@ -28,11 +26,8 @@ object DependencyManager extends DependencyManagerBase
 abstract class DependencyManagerBase {
   import DependencyManagerBase._
 
-  private val homePrefix = sys.props.get("tc.idea.prefix").orElse(Some(SystemProperties.getUserHome)).map(new File(_)).get
-  private val ivyHome = sys.props.get("sbt.ivy.home").map(new File(_)).orElse(Option(new File(homePrefix, ".ivy2"))).get
-
   protected def useFileSystemResolversOnly: Boolean =
-    if (ApplicationManager.getApplication == null) //to beable to use DependencyManagerBase outside IntelliJ App
+    if (ApplicationManager.getApplication == null) //to be able to use DependencyManagerBase outside IntelliJ App
       false
     else
       RegistryManager.getInstance().is("scala.dependency.manager.use.file.system.resolvers.only")
@@ -44,12 +39,8 @@ abstract class DependencyManagerBase {
   protected val logLevel: Int = org.apache.ivy.util.Message.MSG_WARN
 
   protected def resolvers: Seq[Resolver] = defaultResolvers
-  private final val defaultResolvers: Seq[Resolver] = Seq(
-    MavenResolver(
-      "central",
-      "https://repo1.maven.org/maven2"
-    )
-  )
+
+  private final val defaultResolvers: Seq[Resolver] = Seq(Resolver.MavenCentral)
 
   private def mkIvyXml(deps: Seq[DependencyDescription]): String = {
     s"""
@@ -248,6 +239,9 @@ abstract class DependencyManagerBase {
 
 object DependencyManagerBase {
 
+  private val homePrefix: File = sys.props.get("tc.idea.prefix").orElse(Some(SystemProperties.getUserHome)).map(new File(_)).get
+  val ivyHome: File = sys.props.get("sbt.ivy.home").map(new File(_)).orElse(Option(new File(homePrefix, ".ivy2"))).get
+
   private val fileSystemOnlyIvySettingsURL: URL = {
     val clazz = classOf[DependencyManagerBase]
     val resourcePath = "dependencyManager/ivysettings-file-system-resolvers-only.xml"
@@ -279,7 +273,10 @@ object DependencyManagerBase {
     def configuration(conf: String): DependencyDescription = copy(conf = conf)
     def transitive(): DependencyDescription = copy(isTransitive = true)
     def exclude(patterns: String*): DependencyDescription = copy(excludes = patterns)
-    override def toString: String = s"$org:$artId:$version"
+    override def toString: String = {
+      val kindHint = if (kind == Types.SRC) " (sources)" else ""
+      s"$org:$artId:$version$kindHint"
+    }
   }
   object DependencyDescription {
     def fromId(id: ModuleRevisionId): DependencyDescription =
@@ -310,6 +307,21 @@ object DependencyManagerBase {
   case class ResolvedDependency(info: DependencyDescription, file: File) extends Dependency
 
   sealed trait Resolver
+  object Resolver {
+    val MavenCentral: MavenResolver = MavenResolver(
+      "central",
+      "https://repo1.maven.org/maven2"
+    )
+    val TypesafeReleases: IvyResolver = IvyResolver(
+      "typesafe-releases",
+      "https://repo.typesafe.com/typesafe/ivy-releases/[organisation]/[module]/[revision]/[type]s/[artifact](-[classifier]).[ext]"
+    )
+    val TypesafeScalaPRValidationSnapshots: MavenResolver = MavenResolver(
+      "scala-pr-validation-snapshots",
+      "https://scala-ci.typesafe.com/artifactory/scala-pr-validation-snapshots"
+    )
+  }
+
   case class MavenResolver(name: String, root: String) extends Resolver
 
   /** @param pattern same generic pattern for both artifact & ivy files e.g. <br>
@@ -321,7 +333,6 @@ object DependencyManagerBase {
   def scalaCompilerDescription(implicit scalaVersion: ScalaVersion): DependencyDescription = scalaArtifact("compiler", scalaVersion)
   def scalaLibraryDescription(implicit scalaVersion: ScalaVersion): DependencyDescription = scalaArtifact("library", scalaVersion)
   def scalaReflectDescription(implicit scalaVersion: ScalaVersion): DependencyDescription = scalaArtifact("reflect", scalaVersion)
-
 
   implicit class RichStr(private val org: String) extends AnyVal {
 

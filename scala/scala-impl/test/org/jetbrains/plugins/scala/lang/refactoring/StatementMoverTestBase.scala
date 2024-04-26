@@ -1,70 +1,82 @@
-package org.jetbrains.plugins.scala
-package lang.refactoring
+package org.jetbrains.plugins.scala.lang.refactoring
 
 import com.intellij.codeInsight.editorActions.moveUpDown.StatementUpDownMover
 import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.testFramework.EditorTestUtil
 import org.apache.commons.lang3.StringUtils
+import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.base.{ScalaCodeParsing, ScalaLightCodeInsightFixtureTestCase}
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.refactoring.mock.EditorMock
 import org.junit.Assert._
 
 abstract class StatementMoverTestBase extends ScalaLightCodeInsightFixtureTestCase with ScalaCodeParsing {
+
   protected val | = EditorTestUtil.CARET_TAG
 
-  private def isAvailable(code: String, direction: Direction): Boolean = {
+  override protected def setUp(): Unit = {
+    super.setUp()
+
+    //Using this setting just for a nicer test data
+    getScalaCodeStyleSettings.INDENT_FIRST_PARAMETER = false
+  }
+
+  private def isMoveActionAvailableWithScalaMover(code: String, direction: Direction): Boolean = {
     val offset = code.indexOf(|)
     val cleanCode = code.replace(|, "")
     val file = cleanCode.parse(version)(getProject)
     val editor = new EditorMock(cleanCode, offset)
 
-    new ScalaStatementMover()
-      .checkAvailable(editor, file, new StatementUpDownMover.MoveInfo(), direction == Down)
+    val scalaMover = new ScalaStatementMover()
+    scalaMover.checkAvailable(editor, file, new StatementUpDownMover.MoveInfo(), direction == Direction.Down)
   }
 
-  private def adjust(text: String): String = text
-    .withNormalizedSeparator
-    // add a newline at the end of the text if it's not there
-    .replaceFirst("(?-m)\n?$", "\n")
+  private def doMoveAction(code0: String, direction: Direction): Unit = {
+    val code = code0.withNormalizedSeparator
 
-  private def move(code: String, direction: Direction): Option[String] = {
     val cursors = StringUtils.countMatches(code, |)
-    if (cursors == 0) fail("No cursor offset specified in the code: " + code)
-    if (cursors > 1) fail("Multiple cursor offset specified in the code: " + code)
+    if (cursors == 0)
+      fail("No cursor offset specified in the code: " + code)
+    if (cursors > 1)
+      fail("Multiple cursor offset specified in the code: " + code)
 
-    val adjustedCode = adjust(code)
+    myFixture.configureByText(ScalaFileType.INSTANCE, code)
+    val action =
+      if (direction == Direction.Down) IdeActions.ACTION_MOVE_STATEMENT_DOWN_ACTION
+      else IdeActions.ACTION_MOVE_STATEMENT_UP_ACTION
 
-    Option.when(isAvailable(adjustedCode, direction)) {
-      myFixture.configureByText(ScalaFileType.INSTANCE, adjustedCode)
-      val action =
-        if (direction == Down) IdeActions.ACTION_MOVE_STATEMENT_DOWN_ACTION
-        else IdeActions.ACTION_MOVE_STATEMENT_UP_ACTION
-
-      myFixture.performEditorAction(action)
-      myFixture.getFile.getText
-    }
+    myFixture.performEditorAction(action)
   }
 
   private class Direction
-  private case object Up extends Direction
-  private case object Down extends Direction
+  private object Direction {
+    case object Up extends Direction
+    case object Down extends Direction
+  }
 
   protected implicit class Movable(private val code: String) {
     def moveUpIsDisabled(): Unit = {
-      assertEquals(None, move(code, Up))
+      assertFalse(
+        "Move Up action is expected to be disabled in the given code",
+        isMoveActionAvailableWithScalaMover(code, Direction.Up)
+      )
     }
 
     def moveDownIsDisabled(): Unit = {
-      assertEquals(None, move(code, Down))
+      assertFalse(
+        "Move Down action is expected to be disabled in the given code",
+        isMoveActionAvailableWithScalaMover(code, Direction.Down)
+      )
     }
 
-    def movedUpIs(s: String): Unit = {
-      assertEquals(Some(adjust(s)), move(code, Up))
+    def movedUpIs(expected: String): Unit = {
+      doMoveAction(code, Direction.Up)
+      myFixture.checkResult(expected)
     }
 
-    def movedDownIs(s: String): Unit = {
-      assertEquals(Some(adjust(s)), move(code, Down))
+    def movedDownIs(expected: String): Unit = {
+      doMoveAction(code, Direction.Down)
+      myFixture.checkResult(expected)
     }
   }
 }

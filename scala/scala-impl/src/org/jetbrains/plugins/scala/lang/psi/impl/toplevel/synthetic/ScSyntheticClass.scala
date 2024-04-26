@@ -2,22 +2,25 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic
 
 import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.components.Service
-import com.intellij.openapi.project.ProjectManagerListener
+import com.intellij.openapi.project.{Project, ProjectManagerListener}
+import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.startup.StartupActivity
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.IncorrectOperationException
 import com.intellij.util.containers.MultiMap
+import org.jetbrains.annotations.TestOnly
+import org.jetbrains.plugins.scala.caches.cachedInUserData
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScTypeAlias}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitProcessor
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
@@ -83,9 +86,16 @@ final class ScSyntheticTypeParameter(override val name: String, override val own
 
 // we could try and implement all type system related stuff
 // with class types, but it is simpler to indicate types corresponding to synthetic classes explicitly
-sealed class ScSyntheticClass(val className: String, val stdType: StdType)
-                             (implicit projectContext: ProjectContext)
-  extends SyntheticNamedElement(className) with PsiClassAdapter with PsiClassFake {
+final class ScSyntheticClass(
+  val className: String,
+  val stdType: StdType
+)(implicit projectContext: ProjectContext)
+  extends SyntheticNamedElement(className)
+    with PsiClassAdapter
+    with PsiClassFake {
+
+  override def getQualifiedName: String = "scala." + className
+
   override def getPresentation: ItemPresentation = {
     new ItemPresentation {
       val This: ScSyntheticClass = ScSyntheticClass.this
@@ -97,19 +107,45 @@ sealed class ScSyntheticClass(val className: String, val stdType: StdType)
     }
   }
 
+  override def getNavigationElement: PsiElement = cachedInUserData("ScSyntheticClass.getNavigationElement", this, ProjectRootManager.getInstance(getProject)) {
+    val syntheticClassSourceMirror = for {
+      scalaPackagePsiDirectory <- findScalaPackageSourcesPsiDirectory(this.stdType.projectContext.project)
+      //class Any -> Any.scala
+      psiFile <- Option(scalaPackagePsiDirectory.findFile(s"$className.scala")).map(_.asInstanceOf[ScalaFile])
+      classDef <- psiFile.typeDefinitions.headOption //expecting single class definition in the file
+    } yield classDef
+    syntheticClassSourceMirror.getOrElse(super.getNavigationElement)
+  }
+
+  //TODO: current implementation might not work in a project with multiple scala versions. It depends on SCL-22349.
+  private def findScalaPackageSourcesPsiDirectory(project: Project): Option[PsiDirectory] = cachedInUserData("ScSyntheticClass.findScalaPackageSourcesPsiDirectory", project, ProjectRootManager.getInstance(project)) {
+    //Get some representative class from Scala standard library
+    val classFromStdLib = ScalaPsiManager.instance(this.stdType.projectContext).getCachedClass(GlobalSearchScope.allScope(this.stdType.projectContext.project), "scala.Array")
+    classFromStdLib.map { clazz =>
+      //.../scala-library-2.13.11-sources.jar!/scala/Array.scala
+      val navigationFile = clazz.getContainingFile.getNavigationElement.asInstanceOf[ScalaFile]
+      //.../scala-library-2.13.11-sources.jar!/scala
+      navigationFile.getParent;
+    }
+  }
+
   override def getNameIdentifier: PsiIdentifier = null
 
   override def toString = "Synthetic class"
 
   val syntheticMethods = new MultiMap[String, ScSyntheticFunction]()
 
-  def addMethod(method: ScSyntheticFunction): Unit = syntheticMethods.putValue(method.name, method)
+  def addMethod(method: ScSyntheticFunction): Unit = {
+    syntheticMethods.putValue(method.name, method)
+    method.setContainingSyntheticClass(this)
+  }
 
-  import com.intellij.psi.scope.PsiScopeProcessor
-  override def processDeclarations(processor: PsiScopeProcessor,
-                                  state: ResolveState,
-                                  lastParent: PsiElement,
-                                  place: PsiElement): Boolean = {
+  override def processDeclarations(
+    processor: com.intellij.psi.scope.PsiScopeProcessor,
+    state: ResolveState,
+    lastParent: PsiElement,
+    place: PsiElement
+  ): Boolean = {
     processor match {
       case p: ResolveProcessor =>
         val name = ScalaNamesUtil.clean(state.renamed.getOrElse(p.name))
@@ -146,6 +182,14 @@ sealed class ScSyntheticFunction(
   typeParameterNames: Seq[String]
 )(implicit projectContext: ProjectContext)
   extends SyntheticNamedElement(name) with ScFun {
+
+  private var containingSyntheticClass: Option[ScSyntheticClass] = None
+
+  def setContainingSyntheticClass(value: ScSyntheticClass): Unit = {
+    assert(containingSyntheticClass.isEmpty, s"Containing synthetic class was already assigned to method $name")
+    containingSyntheticClass = Some(value)
+  }
+
   def isStringPlusMethod: Boolean = {
     if (name != "+") return false
     retType.extractClass match {
@@ -180,6 +224,18 @@ sealed class ScSyntheticFunction(
     }
     null
   }
+
+  override def getNavigationElement: PsiElement = cachedInUserData("ScSyntheticFunction.getNavigationElement", this, ProjectRootManager.getInstance(retType.projectContext)) {
+    val syntheticFunctionSourceMirror = containingSyntheticClass.flatMap(_.getNavigationElement match {
+      case classInSources: ScTemplateDefinition =>
+        //NOTE: we search for the function with the same name ignoring overloaded functions
+        // in principle this is not entirely correct, but for the synthetic classes in Scala library
+        // it should work fine because it's known that there are no overloaded methods in those classes
+        classInSources.members.filterByType[ScFunction].find(_.name == name)
+      case _ => None
+    })
+    syntheticFunctionSourceMirror.getOrElse(super.getNavigationElement)
+  }
 }
 
 final class ScSyntheticValue(val name: String, val tp: ScType)
@@ -189,8 +245,6 @@ final class ScSyntheticValue(val name: String, val tp: ScType)
 
   override def toString = "Synthetic value"
 }
-
-import com.intellij.openapi.project.Project
 
 @Service(Array(Service.Level.PROJECT))
 final class SyntheticClasses(project: Project) {
@@ -321,6 +375,7 @@ final class SyntheticClasses(project: Project) {
     }
 
     //register synthetic objects
+    //TODO: drop it (see https://youtrack.jetbrains.com/issue/SCL-20932)
     def registerObject(debugName: String, fileText: String): Unit = {
       val dummyFile = createDummyFile(debugName, fileText)
       val obj = dummyFile.typeDefinitions.head.asInstanceOf[ScObject]
@@ -338,7 +393,7 @@ final class SyntheticClasses(project: Project) {
       val contextParameters = (1 to n).map(i => s"x$i: T$i").mkString(", ")
 
       registerContextFunctionClass("ContextFunction",
-       s"""
+        s"""
            |package scala
            |
            |trait ContextFunction$n[$typeParameters, +R] {
@@ -349,7 +404,7 @@ final class SyntheticClasses(project: Project) {
     }
 
     registerObject("Boolean",
-"""
+      """
 package scala
 
 object Boolean {
@@ -361,7 +416,7 @@ object Boolean {
     )
 
     registerObject("Byte",
-"""
+      """
 package scala
 
 object Byte {
@@ -377,7 +432,7 @@ object Byte {
     )
 
     registerObject("Char",
-"""
+      """
 package scala
 
 object Char {
@@ -393,7 +448,7 @@ object Char {
     )
 
     registerObject("Double",
-"""
+      """
 package scala
 
 object Double {
@@ -423,7 +478,7 @@ object Double {
     )
 
     registerObject("Float",
-"""
+      """
 package scala
 
 object Float {
@@ -453,7 +508,7 @@ object Float {
     )
 
     registerObject("Int",
-"""
+      """
 package scala
 
 object Int {
@@ -469,7 +524,7 @@ object Int {
     )
 
     registerObject("Long",
-"""
+      """
 package scala
 
 object Long {
@@ -485,7 +540,7 @@ object Long {
     )
 
     registerObject("Short",
-"""
+      """
 package scala
 
 object Short {
@@ -501,7 +556,7 @@ object Short {
     )
 
     registerObject("Unit",
-"""
+      """
 package scala
 
 object Unit
@@ -550,9 +605,7 @@ object Unit
   }
 
   def registerClass(t: StdType, name: String, isScala3: Boolean = false): ScSyntheticClass = {
-    val cls = new ScSyntheticClass(name, t) {
-      override def getQualifiedName: String = "scala." + name
-    }
+    val cls = new ScSyntheticClass(name, t)
 
     if (isScala3)
       scala3Classes += ((name, cls))
@@ -566,6 +619,8 @@ object Unit
   def registerNumericClass(clazz : ScSyntheticClass): ScSyntheticClass = {numeric += clazz; clazz}
 
   def all: Iterable[PsiClass] = sharedClasses.values ++ scala3Classes.values
+  @TestOnly
+  def getScala3Classes: Iterable[PsiClass] = scala3Classes.values
 
   def sharedClassesOnly: Iterable[PsiClass] = sharedClasses.values
 
