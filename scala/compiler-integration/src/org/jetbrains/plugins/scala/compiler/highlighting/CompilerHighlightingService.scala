@@ -109,7 +109,6 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
         //we need to save documents right away or automake won't happen
         TriggerCompilerHighlightingService.get(project).beforeIncrementalCompilation()
         BuildManager.getInstance().scheduleAutoMake()
-        // clearOutputDirectories is invoked in AutomakeBuildManagerListener
       }
     } else {
       val sourceScope = calculateSourceScope(virtualFile)
@@ -192,7 +191,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
       executeIncrementalCompilationRequest(incrementalRequest, runDocumentCompiler = false)
     }
 
-    prepareCompilation {
+    prepareCompilation(await = true) {
       performCompilation(delayIndicator = true) { client =>
         WorksheetHighlightingCompiler.compile(file, document, module, client)
       }
@@ -201,7 +200,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
 
   private def executeIncrementalCompilationRequest(request: CompilationRequest.IncrementalRequest, runDocumentCompiler: Boolean): Unit = {
     debug(s"incrementalCompilation: ${request.debugReason}")
-    prepareCompilation {
+    prepareCompilation(await = true) {
       val promise = Promise[Unit]()
       // Documents must be saved on the UI thread, so a thread shift is mandatory in this case.
       invokeLater {
@@ -269,16 +268,17 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
   private def executeDocumentCompilationRequest(request: CompilationRequest.DocumentRequest): Unit = {
     val CompilationRequest.DocumentRequest(module, sourceScope, virtualFile, document, debugReason) = request
     debug(s"documentCompilation: $debugReason")
-    executeDocumentCompilationRequest(module, sourceScope, virtualFile, document)
+    executeDocumentCompilationRequest(module, sourceScope, virtualFile, document, await = true)
   }
 
   private def executeDocumentCompilationRequest(
     module: Module,
     sourceScope: SourceScope,
     virtualFile: VirtualFile,
-    document: Document
+    document: Document,
+    await: Boolean
   ): Unit = {
-    prepareCompilation {
+    prepareCompilation(await) {
       performCompilation(delayIndicator = true) { client =>
         DocumentCompiler.get(project)
           .compile(module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, document, virtualFile, client)
@@ -313,17 +313,20 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
         case Some(c) =>
           DocumentCompiler.get(project).compile(module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, document, virtualFile, c)
         case None =>
-          executeDocumentCompilationRequest(module, sourceScope, virtualFile, document)
+          executeDocumentCompilationRequest(module, sourceScope, virtualFile, document, await = false)
       }
     }
   }
 
-  private def prepareCompilation(compile: => Future[Unit]): Unit = {
+  private def prepareCompilation(await: Boolean)(compile: => Future[Unit]): Unit = {
     try {
       saveProjectOnce()
       CompileServerLauncher.ensureServerRunning(project)
       if (project.isDisposed) return
-      Await.result(compile, Duration.Inf)
+      val future = compile
+      if (await) {
+        Await.result(future, Duration.Inf)
+      }
     } catch {
       case _: InterruptedException =>
         // Disposing of the CompilerHighlightingService (on project close) interrupts the compilation through the
