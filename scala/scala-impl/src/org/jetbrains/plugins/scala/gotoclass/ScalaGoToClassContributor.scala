@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.gotoclass
 import com.intellij.navigation.{GotoClassContributor, NavigationItem}
 import com.intellij.openapi.project.{PossiblyDumbAware, Project}
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.util.indexing.{DumbModeAccessType, FileBasedIndex}
+import com.intellij.util.indexing.DumbModeAccessType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -40,5 +40,5 @@ class ScalaGoToClassContributor extends GotoClassContributor with PossiblyDumbAw
 
   override def getQualifiedNameSeparator: String = "."
 
-  override def isDumbAware: Boolean = FileBasedIndex.isIndexAccessDuringDumbModeEnabled
+  override def isDumbAware: Boolean = true
 }
