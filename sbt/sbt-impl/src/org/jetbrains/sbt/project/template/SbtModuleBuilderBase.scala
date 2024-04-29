@@ -69,9 +69,7 @@ abstract class SbtModuleBuilderBase
       SbtModuleBuilderUtil.tryToSetupRootModel2(model, contentPath, contentEntryFolders)
 
       //execute when current dialog is closed
-      invokeLater {
-        openEditorForCodeSampleOrBuildFile(model.getProject, contentDir)
-      }
+      openEditorForCodeSampleOrBuildFile(model.getProject, contentDir)
     }
   }
 
@@ -84,7 +82,9 @@ abstract class SbtModuleBuilderBase
       val psiManager = PsiManager.getInstance(project)
       val psiFile = psiManager.findFile(vFile)
       if (psiFile != null) {
-        EditorHelper.openInEditor(psiFile)
+        invokeLater {
+          EditorHelper.openInEditor(psiFile)
+        }
       }
     }
   }
