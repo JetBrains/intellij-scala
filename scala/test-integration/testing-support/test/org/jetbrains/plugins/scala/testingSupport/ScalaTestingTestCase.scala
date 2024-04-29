@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport
 
-import com.intellij.execution.actions.{ConfigurationContext, RunConfigurationProducer}
+import com.intellij.execution.actions.{ConfigurationContext, ConfigurationFromContext, RunConfigurationProducer}
 import com.intellij.execution.configurations.{ConfigurationType, JavaCommandLineState, RunnerSettings}
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.impl.DefaultJavaProgramRunner
@@ -15,8 +15,8 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModuleRootManager
+import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.file.PsiDirectoryFactory
-import com.intellij.psi.{PsiDirectory, PsiElement}
 import com.intellij.testFramework.EdtTestUtil
 import com.intellij.util.concurrency.Semaphore
 import org.jetbrains.plugins.scala.TestingSupportTests
@@ -36,6 +36,7 @@ import java.io.File
 import java.util.concurrent.atomic.AtomicReference
 import scala.concurrent.Await
 import scala.concurrent.duration.FiniteDuration
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.util.{Failure, Try}
 
 @Category(Array(classOf[TestingSupportTests]))
@@ -60,16 +61,11 @@ abstract class ScalaTestingTestCase
   protected def createPsiLocation(location: CaretLocation): PsiLocation[PsiElement] =
     createPsiLocation(location, myModule, srcPath.toFile)
 
-  private def failedConfigMessage(packageName: String, reason: String = "<no reason>") =
-    s"Failed to create run configuration for test from package $packageName\nReason: $reason"
-
   override protected def createTestFromCaretLocation(caretLocation: CaretLocation): RunnerAndConfigurationSettings =
     inReadAction {
       val psiElement = findPsiElement(caretLocation, getProject, srcPath.toFile)
-      val context: ConfigurationContext = new ConfigurationContext(psiElement)
-      val configurationFromContext = configurationProducer.createConfigurationFromContext(context)
-      assertNotNull(s"No configuration created from context: $context", configurationFromContext)
-      configurationFromContext.getConfigurationSettings
+
+      createTestFromPsiElement(psiElement)
     }
 
   override protected def createTestFromPackage(packageName: String): RunnerAndConfigurationSettings =
@@ -78,9 +74,10 @@ abstract class ScalaTestingTestCase
       val psiDirectory = psiPackage.map(_.getDirectories().head) match {
         case Some(dir) => dir
         case None =>
-          throw new RuntimeException(failedConfigMessage(packageName))
+          throw new RuntimeException(s"Failed to create run configuration for test from package $packageName")
       }
-      createTestFromDirectory(psiDirectory)
+
+      createTestFromPsiElement(psiDirectory)
     }
 
   override protected def createTestFromModule(moduleName: String): RunnerAndConfigurationSettings =
@@ -89,14 +86,32 @@ abstract class ScalaTestingTestCase
       val module = manager.findModuleByName(moduleName)
       val moduleRoot = ModuleRootManager.getInstance(module).getContentRoots.head
       val directory = PsiDirectoryFactory.getInstance(getProject).createDirectory(moduleRoot)
-      createTestFromDirectory(directory)
+
+      createTestFromPsiElement(directory)
     }
 
-  private def createTestFromDirectory(directory: PsiDirectory): RunnerAndConfigurationSettings = {
+  override protected def createTestFromPsiElement(psiElement: PsiElement): RunnerAndConfigurationSettings =
     inReadAction {
-      val context: ConfigurationContext = new ConfigurationContext(directory)
-      val configurationFromContext = configurationProducer.createConfigurationFromContext(context)
+      val context: ConfigurationContext = new ConfigurationContext(psiElement)
+      val configurationFromContext = getSingleConfigurationFromContext(context)
       configurationFromContext.getConfigurationSettings
+    }
+
+  protected def getSingleConfigurationFromContext(context: ConfigurationContext): ConfigurationFromContext = {
+    val configurationsFromContext = context.getConfigurationsFromContext.asScala.toSeq
+    configurationsFromContext match {
+      case Seq() =>
+        fail(s"No configuration created from context: $context").asInstanceOf[Nothing]
+      case Seq(config) =>
+        if (config.isProducedBy(configurationProducer.getClass))
+          config
+        else
+          fail(s"Configuration created from context $context was created from an unexpected producer. Configuration: $config").asInstanceOf[Nothing]
+      case multipleConfigs =>
+        fail(
+          s"""Multiple configurations created from context: $context. Configurations:
+             |${multipleConfigs.map(_.toString).mkString("\n")}""".stripMargin
+        ).asInstanceOf[Nothing]
     }
   }
 
