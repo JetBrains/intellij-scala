@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.testingSupport.test.munit
 
-import com.intellij.execution.actions.RunConfigurationProducer
+import com.intellij.execution.actions.{ConfigurationFromContext, RunConfigurationProducer}
 import com.intellij.execution.configurations.ConfigurationFactory
+import com.intellij.execution.junit.JUnitConfigurationType
 import com.intellij.openapi.util.text.StringUtil
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -18,8 +19,14 @@ final class MUnitConfigurationProducer extends AbstractTestConfigurationProducer
 
   override val getConfigurationFactory: ConfigurationFactory = MUnitConfigurationType().confFactory
 
+  override def shouldReplace(self: ConfigurationFromContext, other: ConfigurationFromContext): Boolean = {
+    //JUnit run configuration producer can also create configuration for MUnit test because MUnit reuses JUnit under the hood
+    //In this case we prioritise MUnit configuration (see SCL-18441)
+    other.getConfigurationType.isInstanceOf[JUnitConfigurationType]
+  }
+
   override protected def configurationName(contextInfo: CreateFromContextInfo): String = contextInfo match {
-    case AllInPackage(_, packageName)           =>
+    case AllInPackage(_, packageName) =>
       s"UTest in '$packageName'"
     case ClassWithTestName(testClass, testName) =>
       StringUtil.getShortName(testClass.qualifiedName) + testName.fold("")("." + _)
