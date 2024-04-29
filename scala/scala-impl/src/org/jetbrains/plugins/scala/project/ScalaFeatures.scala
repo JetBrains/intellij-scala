@@ -64,7 +64,7 @@ object ScalaFeatures {
     private def hasNoIndentFlag: Boolean = Bits.hasNoIndentFlag.read(bits)
     private def hasOldSyntaxFlag: Boolean = Bits.hasOldSyntaxFlag.read(bits)
     private def hasDeprecationFlag: Boolean = Bits.hasDeprecationFlag.read(bits)
-    private def hasSourceFutureFlag: Boolean = Bits.hasSourceFutureFlag.read(bits)
+    def hasSourceFutureFlag: Boolean = Bits.hasSourceFutureFlag.read(bits)
     def hasMetaEnabled: Boolean = Bits.hasMetaEnabled.read(bits)
     def hasTrailingCommasEnabled: Boolean = Bits.hasTrailingCommasEnabled.read(bits)
     def hasUnderscoreWildcardsDisabled: Boolean = Bits.hasUnderscoreWildcardsDisabled.read(bits)

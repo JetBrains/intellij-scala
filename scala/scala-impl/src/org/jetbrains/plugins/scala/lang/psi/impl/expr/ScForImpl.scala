@@ -8,7 +8,7 @@ import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cached}
 import org.jetbrains.plugins.scala.extensions.{Model, ObjectExt, PsiElementExt, StringsExt}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaModifier, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -183,8 +183,15 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor wit
       normalizeUnderscores(expr).getText
     }
 
-    def needsPatternMatchFilter(pattern: ScPattern): Boolean =
-      !pattern.isIrrefutableFor(if (forDisplay) pattern.expectedType else None)
+    def needsPatternMatchFilter(pattern: ScPattern): Boolean = {
+      val hasSc3Case = pattern.isScala3OrSource3Enabled &&
+        pattern.prevSiblingNotWhitespace.exists(_.getText == ScalaModifier.CASE)
+      val hasSc3IrrefutablePatternsEnabled = pattern.isScala3OrSource3Enabled &&
+        (pattern.features.hasSourceFutureFlag || pattern.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_3_4))
+
+      hasSc3Case ||
+        !(hasSc3IrrefutablePatternsEnabled || pattern.isIrrefutableFor(if (forDisplay) pattern.expectedType else None))
+    }
 
     val resultText = new mutable.StringBuilder()
     val patternMappings = mutable.Map.empty[ScPattern, Int]

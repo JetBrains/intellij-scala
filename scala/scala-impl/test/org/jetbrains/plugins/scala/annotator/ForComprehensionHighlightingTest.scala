@@ -486,7 +486,6 @@ class ForComprehensionHighlightingTest_with_BetterMonadicFor extends ForComprehe
 
 class ForComprehensionSemicolonTest extends ForComprehensionHighlightingTestBase {
   import Message._
-
   import org.junit.Assert.assertEquals
   val errorText = ScalaBundle.message("semicolon.not.allowed.here")
   def errors(code: String) = {
@@ -506,4 +505,96 @@ class ForComprehensionSemicolonTest extends ForComprehensionHighlightingTestBase
 
   def test_error_semicolons_with_newlines(): Unit =
     assertEquals(2 + 2 + 3 + 3, errors("for{\n; \n; \nx <- Seq(1)\n;\n;\n;\nif x == 3\n;\n;;;\n y = x\n;;\n;} ()"))
+}
+
+class ForComprehensionRefutableTest_3 extends ForComprehensionHighlightingTestBase {
+
+  import Message.Error
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
+
+  def test_case_simple(): Unit = {
+    val code =
+      """
+        |val list = List(List(1, 2), List(3))
+        |for case head :: tail <- list do println(head > 1)
+      """.stripMargin
+
+    assertNoErrors(code)
+  }
+
+  def test_case_nested(): Unit = {
+    val code =
+      """
+        |val list = List(List(1, 2), List(3, 4))
+        |for case (_ :: (head :: tail)) <- list do println(head > 1)
+      """.stripMargin
+
+    assertNoErrors(code)
+  }
+
+  def test_case_missing_withFilter(): Unit = {
+    val code =
+      """
+        |for
+        |  case (a, b) <- Right("", 1)
+        |yield ()
+      """.stripMargin
+
+    assertMessages(code, Error("<-", "Cannot resolve symbol withFilter"))
+  }
+
+  def test_missing_withFilter(): Unit = {
+    val code =
+      """
+        |for
+        |  (a, b) <- Right("", 1)
+        |yield ()
+      """.stripMargin
+
+    assertMessages(code, Error("<-", "Cannot resolve symbol withFilter"))
+  }
+}
+
+class ForComprehensionIrrefutableTest_3_4 extends ForComprehensionHighlightingTestBase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_4
+
+  def test_destructuring(): Unit = {
+    val code =
+      """
+        |for
+        |  (a, b) <- Right("" -> 1)
+        |yield ()
+      """.stripMargin
+
+    assertNoErrors(code)
+  }
+}
+
+class ForComprehensionIrrefutableTest_3_future extends ForComprehensionHighlightingTestBase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= LatestScalaVersions.Scala_3_0 && version < LatestScalaVersions.Scala_3_4
+
+  override protected def setUp(): Unit = {
+    super.setUp()
+
+    val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
+    val newSettings = defaultProfile.getSettings.copy(
+      additionalCompilerOptions = defaultProfile.getSettings.additionalCompilerOptions :+ "-source:future"
+    )
+    defaultProfile.setSettings(newSettings)
+  }
+
+  def test_destructuring(): Unit = {
+    val code =
+      """
+        |for
+        |  (a, b) <- Right("" -> 1)
+        |yield ()
+      """.stripMargin
+
+    assertNoErrors(code)
+  }
 }
