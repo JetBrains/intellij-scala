@@ -35,9 +35,7 @@ class ScalaModuleBuilder extends JavaModuleBuilder {
 
   override def setupModule(module: Module): Unit = {
     //execute when current dialog is closed
-    invokeLater {
-      openEditorForCodeSample(module.getProject)
-    }
+    openEditorForCodeSample(module.getProject)
     super.setupModule(module)
   }
 
@@ -54,7 +52,9 @@ class ScalaModuleBuilder extends JavaModuleBuilder {
       val psiManager = PsiManager.getInstance(project)
       val psiFile = psiManager.findFile(vFile)
       if (psiFile != null) {
-        EditorHelper.openInEditor(psiFile)
+        invokeLater {
+          EditorHelper.openInEditor(psiFile)
+        }
       }
     }
   }
