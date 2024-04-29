@@ -11,8 +11,8 @@ import com.intellij.psi.PsiFile
 import com.intellij.ui.{EditorNotificationPanel, EditorNotificationProvider}
 import com.intellij.util.concurrency.annotations.RequiresEdt
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.project.template.ScalaFrameworkType
+import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaProjectConfigurationService}
 
 import java.util.function
 import javax.swing.JComponent
@@ -28,9 +28,14 @@ final class SetupScalaSdkNotificationProvider extends EditorNotificationProvider
 
   override def collectNotificationData(project: Project, file: VirtualFile): function.Function[_ >: FileEditor, _ <: JComponent] = {
     val isScalaSource = isScalaSourceFile(file, project)
-    if (isScalaSource && !hasDeveloperKit(file, project))
-      (fileEditor: FileEditor) => createPanel(project, fileEditor)
-    else
+    if (isScalaSource && !hasDeveloperKit(file, project)) {
+      // No notification while project sync is in progress
+      if (ScalaProjectConfigurationService.getInstance(project).isSyncInProgress) {
+        null
+      } else {
+        (fileEditor: FileEditor) => createPanel(project, fileEditor)
+      }
+    } else
       null
   }
 
