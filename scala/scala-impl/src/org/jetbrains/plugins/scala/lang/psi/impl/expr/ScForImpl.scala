@@ -185,7 +185,7 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor wit
 
     def needsPatternMatchFilter(pattern: ScPattern): Boolean = {
       val hasSc3Case = pattern.isScala3OrSource3Enabled &&
-        pattern.prevSiblingNotWhitespace.exists(_.getText == ScalaModifier.CASE)
+        pattern.prevSiblingNotWhitespace.exists(_.textMatches(ScalaModifier.CASE))
       val hasSc3IrrefutablePatternsEnabled = pattern.isScala3OrSource3Enabled &&
         (pattern.features.hasSourceFutureFlag || pattern.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_3_4))
 
