@@ -9,6 +9,8 @@ import com.intellij.util.ui.MessageCategory
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.worksheet.ui.printers.repl.QueuedPsi
 
+import scala.util.Try
+
 
 private[worksheet]
 object WorksheetCompilerUtil {
@@ -85,7 +87,11 @@ object WorksheetCompilerUtil {
                           (implicit project: Project): Unit =
     showCompilationMessage(file, pos, msg, ErrorSeverity, onShow)
 
-  def removeOldMessageContent(project: Project): Unit = {
+  // MessageViewImpl has been rewritten to Kotlin coroutines and is lazily, asynchronously loaded. If the MessageView
+  // instance for the project has not been fully initialized, `getInstance` throws an IllegalStateException.
+  // For the purposes of not complicating the code, we catch the exception and ignore it. If the MessageView instance
+  // has not been initialized, there is no old content to remove.
+  def removeOldMessageContent(project: Project): Unit = Try {
     val contentManager = MessageView.getInstance(project).getContentManager
     val oldContent = contentManager findContent ERROR_CONTENT_NAME
     if (oldContent != null) {
