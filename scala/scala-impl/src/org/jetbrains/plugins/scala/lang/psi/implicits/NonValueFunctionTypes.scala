@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.implicits
 import org.jetbrains.plugins.scala.caches.measure
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.functionTypeNoImplicits
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.implicits.NonValueFunctionTypes._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -12,7 +12,12 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, UndefinedT
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 
-private case class NonValueFunctionTypes(fun: ScFunction, substitutor: ScSubstitutor, typeFromMacro: Option[ScType]) {
+private case class NonValueFunctionTypes(
+  fun:                 ScFunction,
+  substitutor:         ScSubstitutor,
+  exportedInExtension: Option[ScExtension],
+  typeFromMacro:       Option[ScType]
+) {
 
   @volatile
   private var _undefinedData: Option[UndefinedTypeData] = _
@@ -22,14 +27,14 @@ private case class NonValueFunctionTypes(fun: ScFunction, substitutor: ScSubstit
   //lazy vals may lead to deadlock, see SCL-17722
   private def lazyUndefinedData: Option[UndefinedTypeData] = {
     if (_undefinedData == null) {
-      _undefinedData = computeUndefinedType(fun, substitutor, typeFromMacro)
+      _undefinedData = computeUndefinedType(fun, substitutor, exportedInExtension, typeFromMacro)
     }
     _undefinedData
   }
 
   private def lazyMethodTypeData: Option[MethodTypeData] = {
     if (_methodTypeData == null) {
-      _methodTypeData = lazyUndefinedData.flatMap(computeMethodType(fun, substitutor, _))
+      _methodTypeData = lazyUndefinedData.flatMap(computeMethodType(fun, substitutor, exportedInExtension, _))
     }
     _methodTypeData
   }
@@ -49,12 +54,15 @@ private object NonValueFunctionTypes {
 
   private case class MethodTypeData(methodType: ScType, hasImplicitClause: Boolean)
 
-  private def computeMethodType(fun: ScFunction,
-                                substitutor: ScSubstitutor,
-                                undefinedTypeData: UndefinedTypeData): Option[MethodTypeData] = measure("NonValueFunctionTypes.computeMethodType") {
-    val typeParameters = fun.typeParametersWithExtension
+  private def computeMethodType(
+    fun:                 ScFunction,
+    substitutor:         ScSubstitutor,
+    exportedInExtension: Option[ScExtension],
+    undefinedTypeData:   UndefinedTypeData
+  ): Option[MethodTypeData] = measure("NonValueFunctionTypes.computeMethodType") {
+    val typeParameters = fun.typeParametersWithExtension(exportedInExtension)
     //@TODO: multiple using clauses
-    val clauses        = fun.parameterClausesWithExtension
+    val clauses        = fun.parameterClausesWithExtension(exportedInExtension)
     val implicitClause = clauses.find(_.isImplicitOrUsing)
 
     if (typeParameters.isEmpty && implicitClause.isEmpty) {
@@ -78,15 +86,18 @@ private object NonValueFunctionTypes {
     }
   }
 
-  private def computeUndefinedType(fun: ScFunction,
-                                   substitutor: ScSubstitutor,
-                                   typeFromMacro: Option[ScType]): Option[UndefinedTypeData] = measure("NonValueFunctionTypes.computeUndefinedType") {
-    val ft = functionTypeNoImplicits(fun)
+  private def computeUndefinedType(
+    fun:                 ScFunction,
+    substitutor:         ScSubstitutor,
+    exportedInExtension: Option[ScExtension],
+    typeFromMacro:       Option[ScType]
+  ): Option[UndefinedTypeData] = measure("NonValueFunctionTypes.computeUndefinedType") {
+    val ft = functionTypeNoImplicits(fun, exportedInExtension)
 
     ft match {
       case Some(_funType: ScType) =>
         val funType            = typeFromMacro.getOrElse(_funType)
-        val undefineTypeParams = ScalaPsiUtil.undefineMethodTypeParams(fun)
+        val undefineTypeParams = ScalaPsiUtil.undefineMethodTypeParams(fun, exportedInExtension)
         val substedFunTp       = substitutor.followed(undefineTypeParams)(funType)
         val withoutDependents  = approximateDependent(substedFunTp, fun.parameters.toSet)
         val undefinedType      = withoutDependents.getOrElse(substedFunTp)

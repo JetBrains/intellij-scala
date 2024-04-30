@@ -1,5 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements
 
+import com.intellij.openapi.progress.ProgressManager
+import com.intellij.psi.{PsiElement, ResolveState}
+import com.intellij.psi.scope.PsiScopeProcessor
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
@@ -21,6 +24,21 @@ object ScParameterOwner {
       allClauses ++ clauses.flatMap(
         ScalaPsiUtil.syntheticParamClause(this, _, isClassParameter = false)()
       )
+    }
+
+    def processParameters(
+      processor:  PsiScopeProcessor,
+      state:      ResolveState
+    ): Boolean = {
+      for {
+        clause <- effectiveParameterClauses
+        param  <- clause.effectiveParameters
+      } {
+        ProgressManager.checkCanceled()
+        if (!processor.execute(param, state))
+          return false
+      }
+      true
     }
   }
 }

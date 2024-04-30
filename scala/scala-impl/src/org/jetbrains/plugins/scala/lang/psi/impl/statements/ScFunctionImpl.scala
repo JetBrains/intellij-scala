@@ -106,23 +106,9 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     if (!super[SyntheticElementsOwner].processDeclarations(processor, state, lastParent, place))
       return false
 
-    processParameters(processor, state, lastParent)
-  }
-
-  private def processParameters(processor: PsiScopeProcessor,
-                                state: ResolveState,
-                                lastParent: PsiElement): Boolean = {
-
-    if (lastParent != null && shouldProcessParameters(lastParent)) {
-      for {
-        clause <- effectiveParameterClauses
-        param <- clause.effectiveParameters
-      } {
-        ProgressManager.checkCanceled()
-        if (!processor.execute(param, state)) return false
-      }
-    }
-    true
+    if (lastParent != null && shouldProcessParameters(lastParent))
+      processParameters(processor, state)
+    else true
   }
 
   // to resolve parameters in return type, type parameter context bounds and body;
@@ -181,11 +167,11 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     def renameTypeParams(superM: PsiMethod): ScSubstitutor = {
       import org.jetbrains.plugins.scala.lang.psi.types.api.PsiTypeParametersExt
       val superTypeParams = superM match {
-        case fn: ScFunction => fn.typeParametersWithExtension.map(TypeParameter(_))
+        case fn: ScFunction => fn.typeParametersWithExtension().map(TypeParameter(_))
         case _              => superM.getTypeParameters.instantiate
       }
 
-      ScSubstitutor.bind(superTypeParams, this.typeParametersWithExtension)(TypeParameterType(_))
+      ScSubstitutor.bind(superTypeParams, this.typeParametersWithExtension())(TypeParameterType(_))
     }
 
     returnTypeElement match {

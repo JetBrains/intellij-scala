@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiMethodExt, PsiParam
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, ScParameters}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFun, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -30,9 +30,10 @@ sealed trait MethodTypeProvider[+T <: PsiElement] {
     * Returns internal type with type parameters.
     */
   def polymorphicType(
-    s:                    ScSubstitutor  = ScSubstitutor.empty,
-    returnType:           Option[ScType] = None,
-    dropExtensionClauses: Boolean        = false
+    s:                    ScSubstitutor       = ScSubstitutor.empty,
+    returnType:           Option[ScType]      = None,
+    dropExtensionClauses: Boolean             = false,
+    extensionOwner:       Option[ScExtension] = None
   ): ScType = {
     val typeParams = typeParameters
     val mTpe = methodType(returnType)
@@ -144,7 +145,8 @@ object MethodTypeProvider {
     override def polymorphicType(
       s:                    ScSubstitutor,
       returnType:           Option[ScType],
-      dropExtensionClauses: Boolean
+      dropExtensionClauses: Boolean,
+      extensionOwner:       Option[ScExtension]
     ): ScType = {
       val regularMethodResult = super.polymorphicType(s, returnType)
 
@@ -156,15 +158,17 @@ object MethodTypeProvider {
          * where extension type and value parameter sections are prepended to the
          * actual method type.
          */
-        element.extensionMethodOwner.fold(regularMethodResult) { ext =>
-          val extTypeParams = ext.typeParameters
-          val extParams     = ext.effectiveParameterClauses
+        extensionOwner
+          .orElse(element.extensionMethodOwner)
+          .fold(regularMethodResult) { ext =>
+            val extTypeParams = ext.typeParameters
+            val extParams     = ext.effectiveParameterClauses
 
-          val newMethodType = s(constructMethodType(regularMethodResult, extParams))
+            val newMethodType = s(constructMethodType(regularMethodResult, extParams))
 
-          if (extTypeParams.nonEmpty) ScTypePolymorphicType(newMethodType, extTypeParams.map(TypeParameter(_)))
-          else                        newMethodType
-        }
+            if (extTypeParams.nonEmpty) ScTypePolymorphicType(newMethodType, extTypeParams.map(TypeParameter(_)))
+            else                        newMethodType
+          }
       }
     }
   }

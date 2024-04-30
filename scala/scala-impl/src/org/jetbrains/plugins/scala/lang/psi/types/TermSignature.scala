@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, PsiTyp
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.SubtypeUpdater._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScExportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 import org.jetbrains.plugins.scala.util.HashBuilder._
@@ -33,23 +33,23 @@ class TermSignature(
   private val tParams:       Seq[TypeParameter],
   override val substitutor:  ScSubstitutor,
   override val namedElement: PsiNamedElement,
-  override val exportedIn:   Option[PsiClass] = None,
-  val hasRepeatedParam:      Array[Int]       = Array.empty,
-  override val renamed:      Option[String]   = None,
-  val intersectedReturnType: Option[ScType]   = None
+  override val exportedIn:   Option[ScExportsHolder] = None,
+  val hasRepeatedParam:      Array[Int]              = Array.empty,
+  override val renamed:      Option[String]          = None,
+  val intersectedReturnType: Option[ScType]          = None
 ) extends Signature
     with ProjectContextOwner {
 
   def copy(
-    _name:                 String                 = _name,
-    typesEval:             Seq[Seq[() => ScType]] = typesEval,
-    tParams:               Seq[TypeParameter]     = tParams,
-    substitutor:           ScSubstitutor          = substitutor,
-    namedElement:          PsiNamedElement        = namedElement,
-    exportedIn:            Option[PsiClass]       = exportedIn,
-    hasRepeatedParam:      Array[Int]             = hasRepeatedParam,
-    renamed:               Option[String]         = renamed,
-    intersectedReturnType: Option[ScType]         = intersectedReturnType
+    _name:                 String                  = _name,
+    typesEval:             Seq[Seq[() => ScType]]  = typesEval,
+    tParams:               Seq[TypeParameter]      = tParams,
+    substitutor:           ScSubstitutor           = substitutor,
+    namedElement:          PsiNamedElement         = namedElement,
+    exportedIn:            Option[ScExportsHolder] = exportedIn,
+    hasRepeatedParam:      Array[Int]              = hasRepeatedParam,
+    renamed:               Option[String]          = renamed,
+    intersectedReturnType: Option[ScType]          = intersectedReturnType
   ): TermSignature =
     new TermSignature(
       _name,
@@ -246,7 +246,7 @@ object TermSignature {
     substitutor:  ScSubstitutor,
     namedElement: PsiNamedElement,
     renamed:      Option[String],
-    exportedIn:   Option[PsiClass]
+    exportedIn:   Option[ScExportsHolder]
   ): TermSignature =
     new TermSignature(
       name,
@@ -260,14 +260,16 @@ object TermSignature {
 
   def apply(
     definition:  PsiNamedElement,
-    substitutor: ScSubstitutor    = ScSubstitutor.empty,
-    renamed:     Option[String]   = None,
-    exportedIn:  Option[PsiClass] = None
+    substitutor: ScSubstitutor           = ScSubstitutor.empty,
+    renamed:     Option[String]          = None,
+    exportedIn:  Option[ScExportsHolder] = None
   ): TermSignature = definition match {
     case function: ScFunction =>
+      val extensionOwner = exportedIn.flatMap(_.getContext.asOptionOf[ScExtension])
+
       new TermSignature(
         function.name,
-        PhysicalMethodSignature.typesEval(function),
+        PhysicalMethodSignature.typesEval(function, extensionOwner),
         function.getTypeParameters.instantiate,
         substitutor,
         function,
@@ -291,17 +293,17 @@ object TermSignature {
     name:         String,
     subst:        ScSubstitutor,
     namedElement: PsiNamedElement,
-    renamed:      Option[String] = None,
-    exportedIn:   Option[PsiClass] = None
+    renamed:      Option[String]          = None,
+    exportedIn:   Option[ScExportsHolder] = None
   ): TermSignature =
     TermSignature(name, Seq.empty, subst, namedElement, renamed, exportedIn)
 
   def setter(
     name:       String,
     definition: ScTypedDefinition,
-    subst:      ScSubstitutor    = ScSubstitutor.empty,
-    renamed:    Option[String]   = None,
-    exportedIn: Option[PsiClass] = None
+    subst:      ScSubstitutor           = ScSubstitutor.empty,
+    renamed:    Option[String]          = None,
+    exportedIn: Option[ScExportsHolder] = None
   ): TermSignature = TermSignature(
     name,
     Seq(() => definition.`type`().getOrAny),
@@ -329,13 +331,12 @@ object PhysicalMethodSignature {
     extensionTypeParameters.map(TypeParameter(_)) ++ m.getTypeParameters.instantiate
 
   @tailrec
-  def typesEval(method: PsiMethod): List[Seq[() => ScType]] = method match {
+  def typesEval(method: PsiMethod, extensionOwner: Option[ScExtension]): List[Seq[() => ScType]] = method match {
     case fun: ScFunction =>
-      fun.parameterClausesWithExtension.toList
+      fun.parameterClausesWithExtension(extensionOwner).toList
         .map(_.effectiveParameters.map(p => () => scalaParamType(p)))
-
-    case wrapper: ScFunctionWrapper => typesEval(wrapper.delegate)
-    case wrapper: ScPrimaryConstructorWrapper => typesEval(wrapper.delegate)
+    case wrapper: ScFunctionWrapper => typesEval(wrapper.delegate, extensionOwner)
+    case wrapper: ScPrimaryConstructorWrapper => typesEval(wrapper.delegate, extensionOwner)
     case _ =>
       val lazyParamTypes = method.getParameterList match {
         case ps: ScParameters => ps.params.map(p => () => scalaParamType(p))
@@ -400,12 +401,12 @@ object PhysicalMethodSignature {
 final class PhysicalMethodSignature(
   val method:               PsiMethod,
   override val substitutor: ScSubstitutor,
-  override val exportedIn:  Option[PsiClass]               = None,
+  override val exportedIn:  Option[ScExportsHolder]        = None,
   val extensionSignature:   Option[ExtensionSignatureInfo] = None,
   override val renamed:     Option[String]                 = None
 ) extends TermSignature(
   renamed.getOrElse(method.name),
-  PhysicalMethodSignature.typesEval(method),
+  PhysicalMethodSignature.typesEval(method, extensionSignature.map(_.extension)),
   PhysicalMethodSignature.typeParamsWithExtension(method, extensionSignature.map(_.typeParams).getOrElse(Seq.empty)),
   substitutor,
   method,

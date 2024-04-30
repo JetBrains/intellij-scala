@@ -67,6 +67,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
     def extensionContext: Option[ScExtension] = state.extensionContext
     def intersectedReturnType: Option[ScType] = state.intersectedReturnType
     def importsUsed = state.importsUsed
+    def exportedIn = state.exportedIn
 
     if (nameMatches(namedElement) || constructorResolve) {
       val accessible = isNamedParameter || isAccessible(namedElement, ref)
@@ -88,9 +89,10 @@ class MethodResolveProcessor(override val ref: PsiElement,
               isAccessible             = accessible,
               isForwardReference       = forwardReference,
               unresolvedTypeParameters = unresolvedTypeParameters,
-              isExtension              = extensionMethod,
+              isExtensionCall          = extensionMethod,
               extensionContext         = extensionContext,
-              intersectedReturnType    = intersectedReturnType
+              intersectedReturnType    = intersectedReturnType,
+              exportedIn               = exportedIn
             )
           )
         case o: ScObject if o.isPackageObject =>  // do not resolve to package object
@@ -126,7 +128,8 @@ class MethodResolveProcessor(override val ref: PsiElement,
                 parentElement            = Some(obj),
                 isAccessible             = accessible && isAccessible(m, ref),
                 isForwardReference       = forwardReference,
-                unresolvedTypeParameters = unresolvedTypeParameters
+                unresolvedTypeParameters = unresolvedTypeParameters,
+                exportedIn               = exportedIn
               )
           }.filter(r => !accessibility || r.isAccessible)
 
@@ -153,7 +156,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
                 fromType           = fromType,
                 parentElement      = Option(cls),
                 isAccessible       = isAccessible(cons, ref),
-                isForwardReference = forwardReference,
+                isForwardReference = forwardReference
               )
             }.filter(srr => !accessibility || srr.isAccessible)
 
@@ -270,7 +273,8 @@ object MethodResolveProcessor {
           s,
           selfConstructorResolve,
           typeArgElements,
-          realResolveResult.isExtension
+          realResolveResult.isExtensionCall,
+          realResolveResult.exportedInExtension
         )
       )
     }
@@ -566,7 +570,8 @@ object MethodResolveProcessor {
     subst:                  ScSubstitutor,
     selfConstructorResolve: Boolean,
     typeArgElements:        Seq[ScTypeElement],
-    isExtension:            Boolean
+    isExtension:            Boolean,
+    exportedInExtension:    Option[ScExtension]
   ): ScSubstitutor = {
     if (selfConstructorResolve) return ScSubstitutor.empty
 
@@ -575,7 +580,7 @@ object MethodResolveProcessor {
     val maybeTypeParameters: Option[Seq[PsiTypeParameter]] = element match {
       case ScalaConstructor(cons)          => Option(cons.getConstructorTypeParameters)
       case cons @ Constructor.ofClass(cls) => Option((cls.getTypeParameters ++ cons.getTypeParameters).toSeq)
-      case fun: ScFunction if !isExtension => Option(fun.typeParametersWithExtension)
+      case fun: ScFunction if !isExtension => Option(fun.typeParametersWithExtension(exportedInExtension))
       case t: ScTypeParametersOwner        => Option(t.typeParameters)
       case p: PsiTypeParameterListOwner    => Option(p.getTypeParameters.toSeq)
       case _                               => None
@@ -606,7 +611,7 @@ object MethodResolveProcessor {
     //field in base class is shadowed by private field from inherited class
     val input: Set[ScalaResolveResult] = _input.filter { r =>
       r.element match {
-        case f: ScFunction if f.parameterClausesWithExtension.nonEmpty => true
+        case f: ScFunction if f.parameterClausesWithExtension().nonEmpty => true
         case b: ScTypedDefinition =>
           b.nameContext match {
             case m: ScMember =>
@@ -615,7 +620,7 @@ object MethodResolveProcessor {
               else {
                 _input.forall { r2 =>
                   r2.element match {
-                    case f: ScFunction if f.parameterClausesWithExtension.nonEmpty => true
+                    case f: ScFunction if f.parameterClausesWithExtension().nonEmpty => true
                     case b2: ScTypedDefinition =>
                       b2.nameContext match {
                         case m2: ScMember =>
@@ -748,9 +753,29 @@ object MethodResolveProcessor {
       val (substitutor, cleanTypeArguments) =
         r.element match {
           case owner: ScTypeParametersOwner if owner.typeParameters.nonEmpty =>
-            (undefinedSubstitutor(owner, r.substitutor, selfConstructorResolve = false, typeArgElements, r.isExtension), true)
+            (
+              undefinedSubstitutor(
+                owner,
+                r.substitutor,
+                selfConstructorResolve = false,
+                typeArgElements,
+                r.isExtensionCall,
+                r.exportedInExtension
+              ),
+              true
+            )
           case owner: PsiTypeParameterListOwner if owner.getTypeParameters.length > 0 =>
-            (undefinedSubstitutor(owner, r.substitutor, selfConstructorResolve = false, typeArgElements, r.isExtension), true)
+            (
+              undefinedSubstitutor(
+                owner,
+                r.substitutor,
+                selfConstructorResolve = false,
+                typeArgElements,
+                r.isExtensionCall,
+                r.exportedInExtension
+              ),
+              true
+            )
           case _ => (r.substitutor, false)
         }
 

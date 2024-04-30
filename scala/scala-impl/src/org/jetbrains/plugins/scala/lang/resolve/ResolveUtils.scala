@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeElement, ScTypeVariableTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScFieldId, ScModifierList, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
@@ -431,7 +432,7 @@ object ResolveUtils {
       val applyProc =
         new MethodResolveProcessor(
           expr,
-          "apply",
+          CommonNames.Apply,
           List(exprs),
           Seq.empty,
           Seq.empty /* todo: ? */,
@@ -445,7 +446,7 @@ object ResolveUtils {
         val expr = call.get.getEffectiveInvokedExpr
 
         ImplicitConversionResolveResult.processImplicitConversionsAndExtensions(
-          Some("apply"),
+          Some(CommonNames.Apply),
           expr,
           applyProc,
           Some(tp),
@@ -466,23 +467,4 @@ object ResolveUtils {
       cand
     }
   }
-
-  object ExtensionMethod {
-    def unapply(fdef: ScFunction): Boolean = fdef.isExtensionMethod
-  }
-
-  def isExtensionMethod(e: PsiElement): Boolean = e match {
-    case ExtensionMethod() => true
-    case _                 => false
-  }
-
-  /**
-   * Is `invokedExpr` an invocation of an extension method `fun`
-   * of shape `x.fun`, i.e. an actual extension and not regular method call.
-   */
-  def isExtensionMethodCall(invokedExpr: PsiElement, fun: PsiNamedElement): Boolean =
-    isExtensionMethod(fun) && (invokedExpr match {
-      case ref: ScReferenceExpression => ref.isQualified
-      case _                          => false
-    })
 }

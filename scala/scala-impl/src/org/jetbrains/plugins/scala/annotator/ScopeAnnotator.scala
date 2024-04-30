@@ -205,7 +205,7 @@ object ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
       ""
     else {
       val isInStructuralType = f.getContext.is[ScRefinement]
-      val params = if (f.isExtensionMethod) f.parameterClausesWithExtension else f.paramClauses.clauses
+      val params = if (f.isExtensionMethod) f.parameterClausesWithExtension() else f.paramClauses.clauses
       val formattedParams = params.map(format(_, eraseParamType = !isInStructuralType)).mkString
       val returnType =
         if (withReturnType && !isInStructuralType) erasedReturnType(f, isInStructuralType)

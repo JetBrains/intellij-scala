@@ -9,7 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, Nothing, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.ExtensionMethod
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, MethodResolveProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState}
@@ -88,14 +87,16 @@ object ImplicitConversionResolveResult {
       if !expressionType.equiv(Nothing) // do not proceed with nothing type, due to performance problems.
       resolveResult <- findImplicitConversionOrExtension(expressionType, refName, ref, processor, noImplicitsForArgs, forCompletion)
     } resolveResult match {
-        case srr @ ScalaResolveResult(ext @ ExtensionMethod(), subst) =>
+        case srr if srr.isExtensionCall =>
           val state = ScalaResolveState
-            .withSubstitutor(subst)
+            .withSubstitutor(srr.substitutor)
             .withExtensionMethodMarker
             .withRename(srr.renamed)
             .withImportsUsed(srr.importsUsed)
             .withUnresolvedTypeParams(srr.unresolvedTypeParameters.getOrElse(Seq.empty))
-          processor.execute(ext, state)
+
+          val exportedInState = srr.exportedIn.fold(state)(state.withExportedIn)
+          processor.execute(srr.element, exportedInState)
         case conversion =>
           for {
             resultType <- ExtensionConversionHelper.specialExtractParameterType(conversion)
@@ -161,7 +162,7 @@ object ImplicitConversionResolveResult {
      * implicit defs and extensions. So this method is here to preserve compatibility with scalac ¯\_(ツ)_/¯ .
      */
     def preferExtensionsToOldStyleImplicitConversions(srrs: Seq[ScalaResolveResult]): Seq[ScalaResolveResult] = {
-      val (extensions, rest) = srrs.partition(_.isExtension)
+      val (extensions, rest) = srrs.partition(_.isExtensionCall)
 
       if (rest.size == 1 && rest.head.element.is[ScFunction]) extensions
       else                                                    Seq.empty
@@ -179,7 +180,7 @@ object ImplicitConversionResolveResult {
       case _ if forCompletion => found
       case Seq(_)             => found
       case multiple           => preferExtensionsToOldStyleImplicitConversions(multiple)
-        if (multiple.forall(_.isExtension)) multiple
+        if (multiple.forall(_.isExtensionCall)) multiple
         else                                preferExtensionsToOldStyleImplicitConversions(multiple)
     }
   }

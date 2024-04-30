@@ -7,8 +7,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isImplicit, strictlyOrderedByContext}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
-import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 private[implicits] final class ImplicitParametersProcessor(override protected val getPlace: PsiElement,
@@ -20,9 +20,10 @@ private[implicits] final class ImplicitParametersProcessor(override protected va
   )(implicit
     state: ResolveState
   ): Boolean = {
-    val isExtensionMethod = ResolveUtils.isExtensionMethod(namedElement)
+    val isDeclaredOrExportedInExtension =
+      ImplicitProcessor.isDeclaredOrExportedInExtension(namedElement, state)
 
-    if ((isImplicit(namedElement) || isExtensionMethod) && isAccessible(namedElement)) {
+    if ((isImplicit(namedElement) || isDeclaredOrExportedInExtension) && isAccessible(namedElement)) {
       addResult(
         new ScalaResolveResult(
           namedElement,
@@ -30,7 +31,8 @@ private[implicits] final class ImplicitParametersProcessor(override protected va
           renamed             = state.renamed,
           importsUsed         = state.importsUsed,
           implicitScopeObject = state.implicitScopeObject,
-          isExtension         = isExtensionMethod
+          isExtensionCall     = isDeclaredOrExportedInExtension,
+          exportedIn          = state.exportedIn
         )
       )
     }

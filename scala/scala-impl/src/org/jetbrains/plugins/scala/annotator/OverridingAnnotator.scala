@@ -17,7 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypePa
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TermSignature, TypePresentationContext}
-import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.ExtensionMethod
 import org.jetbrains.plugins.scala.statistics.ScalaAnnotatorUsagesCollector
 
 trait OverridingAnnotator {
@@ -173,7 +172,7 @@ trait OverridingAnnotator {
     } else {
       val isMismatchedExtension =
         namedElement match {
-          case ExtensionMethod() =>
+          case fn: ScFunction if fn.isExtensionMethod =>
             if (superSignatures.exists(!isExtension(_))) {
               holder.createErrorAnnotation(
                 memberNameId,
@@ -290,7 +289,7 @@ trait OverridingAnnotator {
         }
       }
 
-      def effectiveParams(fun: ScFunction) = fun.parameterClausesWithExtension.flatMap(_.effectiveParameters)
+      def effectiveParams(fun: ScFunction) = fun.parameterClausesWithExtension().flatMap(_.effectiveParameters)
 
       def overrideTypeMatchesBase(baseType: ScType, overType: ScType, s: TermSignature, baseName: String): Boolean = {
         val actualType = if (s.name == baseName + "_=") {
@@ -304,8 +303,8 @@ trait OverridingAnnotator {
             sFun.typeParameters.length == mFun.typeParameters.length =>
             val sParams = effectiveParams(sFun)
             val mParams = effectiveParams(mFun)
-            val sTypeParams = sFun.typeParametersWithExtension
-            val mTypeParams = mFun.typeParametersWithExtension
+            val sTypeParams = sFun.typeParametersWithExtension()
+            val mTypeParams = mFun.typeParametersWithExtension()
 
             val subst =
               if (sParams.size != mParams.size || sTypeParams.size != mTypeParams.size)

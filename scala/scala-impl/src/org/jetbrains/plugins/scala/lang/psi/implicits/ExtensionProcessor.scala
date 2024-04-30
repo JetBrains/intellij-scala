@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.implicits
 import com.intellij.psi.{PsiElement, PsiNamedElement, ResolveState}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
-import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
+import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 
 final class ExtensionProcessor(place: PsiElement, name: String, forCompletion: Boolean)
     extends ResolveProcessor(StdKinds.methodsOnly, place, name) {
@@ -13,7 +13,9 @@ final class ExtensionProcessor(place: PsiElement, name: String, forCompletion: B
   )(implicit
     state: ResolveState
   ): Boolean = {
-    if ((forCompletion || nameMatches(namedElement)) && ResolveUtils.isExtensionMethod(namedElement)) {
+    val isDeclaredOrExportedInExtension = ImplicitProcessor.isDeclaredOrExportedInExtension(namedElement, state)
+
+    if ((forCompletion || nameMatches(namedElement)) && isDeclaredOrExportedInExtension){
       addResult(
         new ScalaResolveResult(
           namedElement,
@@ -24,7 +26,8 @@ final class ExtensionProcessor(place: PsiElement, name: String, forCompletion: B
           implicitType             = state.implicitType,
           implicitScopeObject      = state.implicitScopeObject,
           unresolvedTypeParameters = state.unresolvedTypeParams,
-          isExtension              = true,
+          isExtensionCall          = true,
+          exportedIn               = state.exportedIn
         )
       )
     }

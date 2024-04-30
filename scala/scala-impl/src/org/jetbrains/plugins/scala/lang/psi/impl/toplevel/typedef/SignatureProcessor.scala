@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScExportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods.{DefinitionRole, EQ, SETTER, isApplicable, methodName}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -18,7 +19,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ExtensionSignatureInfo, Physi
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveState, StdKinds}
-import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
 
@@ -34,7 +34,13 @@ sealed trait SignatureProcessor[T <: Signature] {
     }
   }
 
-  def getExportClauseProcessor(cls: PsiClass, subst: ScSubstitutor, place: PsiElement, sink: Sink): PsiScopeProcessor
+  def getExportClauseProcessor(
+    owner:            ScExportsHolder,
+    subst:            ScSubstitutor,
+    place:            PsiElement,
+    processSig:       T => Unit,
+    extensionContext: Option[ScExtension] = None
+  ): PsiScopeProcessor
 
   protected def processJava(clazz: PsiClass, subst: ScSubstitutor, processor: Sink): Unit
 
@@ -53,7 +59,7 @@ sealed trait SignatureProcessor[T <: Signature] {
     case tdef: ScTypeDefinition =>
       tdef.extendsBlock.templateBody.foreach { body =>
         body.processDeclarationsFromExports(
-          getExportClauseProcessor(cls, subst, body, sink),
+          getExportClauseProcessor(body, subst, body, process(_, sink)),
           ScalaResolveState.empty,
           body,
           body
@@ -88,26 +94,29 @@ object TypesCollector extends SignatureProcessor[TypeSignature] {
   }
 
   override def getExportClauseProcessor(
-    cls:   PsiClass,
-    subst: ScSubstitutor,
-    place: PsiElement,
-    sink:  TypesCollector.Sink
+    owner:            ScExportsHolder,
+    subst:            ScSubstitutor,
+    place:            PsiElement,
+    processSig:       TypeSignature => Unit,
+    extensionContext: Option[ScExtension]
   ): PsiScopeProcessor =
     new BaseProcessor(Set(ResolveTargets.CLASS))(place) {
       override protected def execute(
         namedElement: PsiNamedElement
       )(implicit
         state: ResolveState
-      ): Boolean = {
-        val accesible    = isAccessible(namedElement, place)
-        val updatedSubst = state.substitutorWithThisType.followed(subst)
+      ): Boolean =
+        if (extensionContext.nonEmpty) true
+        else {
+          val accesible    = isAccessible(namedElement, place)
+          val updatedSubst = state.substitutorWithThisType.followed(subst)
 
-        if (accesible) {
-          process(TypeSignature(namedElement, updatedSubst, state.renamed, exportedIn = Option(cls)), sink)
+          if (accesible) {
+            processSig(TypeSignature(namedElement, updatedSubst, state.renamed, exportedIn = Option(owner)))
+          }
+
+          true
         }
-
-        true
-      }
     }
 
   override protected def processJava(clazz: PsiClass, subst: ScSubstitutor, sink: Sink): Unit = {
@@ -161,10 +170,11 @@ sealed abstract class TermsCollector extends SignatureProcessor[TermSignature] {
   }
 
   override def getExportClauseProcessor(
-    cls:   PsiClass,
-    subst: ScSubstitutor,
-    place: PsiElement,
-    sink:  Sink
+    owner:            ScExportsHolder,
+    subst:            ScSubstitutor,
+    place:            PsiElement,
+    processSig:       TermSignature => Unit,
+    extensionContext: Option[ScExtension] = None
   ): PsiScopeProcessor =
     new BaseProcessor(StdKinds.stableImportSelector)(place) {
       override protected def execute(
@@ -172,16 +182,27 @@ sealed abstract class TermsCollector extends SignatureProcessor[TermSignature] {
       )(implicit
         state: ResolveState
       ): Boolean = {
-        val accesible    = isAccessible(namedElement, place)
-        val renamed      = state.renamed
-        val updatedSubst = state.substitutorWithThisType.followed(subst)
+        val onlyMethods        = extensionContext.nonEmpty
+        val extensionSignature = extensionContext.map(ext => ExtensionSignatureInfo(ext, ext.typeParameters, ext.allClauses))
+        val accesible          = isAccessible(namedElement, place)
+        val renamed            = state.renamed
+        val updatedSubst       = state.substitutorWithThisType.followed(subst)
 
         if (accesible) {
           val signatures = namedElement match {
-            case pat: ScBindingPattern => propertySignatures(pat, updatedSubst, renamed, exportedIn = Option(cls))
-            case _                     => signaturesOf(namedElement, updatedSubst, renamed, exportedIn = Option(cls))
+            case pat: ScBindingPattern if !onlyMethods => propertySignatures(pat, updatedSubst, renamed, exportedIn = Option(owner))
+            case _                     =>
+              if (onlyMethods && !namedElement.is[ScFunctionDefinition]) Seq.empty
+              else
+                signaturesOf(
+                  namedElement,
+                  updatedSubst,
+                  renamed,
+                  exportedIn         = Option(owner),
+                  extensionSignature = extensionSignature
+                )
           }
-          signatures.foreach(process(_, sink))
+          signatures.foreach(processSig(_))
         }
 
         true
@@ -189,17 +210,20 @@ sealed abstract class TermsCollector extends SignatureProcessor[TermSignature] {
     }
 
   private def signaturesOf(
-    e:          PsiElement,
-    subst:      ScSubstitutor,
-    name:       Option[String]   = None,
-    exportedIn: Option[PsiClass] = None
+    e:                  PsiElement,
+    subst:              ScSubstitutor,
+    name:               Option[String]                 = None,
+    exportedIn:         Option[ScExportsHolder]        = None,
+    extensionSignature: Option[ExtensionSignatureInfo] = None
   ): Seq[TermSignature] = e match {
     case v: ScValueOrVariable         => v.declaredElements.flatMap(propertySignatures(_, subst, exportedIn = exportedIn))
     case constr: ScPrimaryConstructor => constr.parameters.flatMap(propertySignatures(_, subst, exportedIn = exportedIn))
     case f: ScFunction                =>
-      val extensionSig = f.extensionMethodOwner.map { ext =>
-        ExtensionSignatureInfo(ext, ext.typeParameters, ext.allClauses)
-      }
+      val extensionSig = extensionSignature.orElse(
+        f.extensionMethodOwner.map { ext =>
+          ExtensionSignatureInfo(ext, ext.typeParameters, ext.allClauses)
+        }
+      )
 
       Seq(
         new PhysicalMethodSignature(
@@ -210,20 +234,33 @@ sealed abstract class TermsCollector extends SignatureProcessor[TermSignature] {
           extensionSignature = extensionSig
         )
     )
-    case o: ScObject                  => Seq(TermSignature(o, subst, renamed = name, exportedIn = exportedIn))
-    case c: ScTypeDefinition          => syntheticSignaturesFromInnerClass(c, subst)
-    case cp: ScClassParameter if cp.isClassMember => propertySignatures(cp, subst, exportedIn = exportedIn)
+    case o: ScObject         => Seq(TermSignature(o, subst, renamed = name, exportedIn = exportedIn))
+    case c: ScTypeDefinition => syntheticSignaturesFromInnerClass(c, subst)
+    case cp: ScClassParameter if cp.isClassMember =>
+      propertySignatures(cp, subst, exportedIn = exportedIn)
     case ext: ScExtension =>
-      ext.extensionMethods
+      val extensionSig = Option(ExtensionSignatureInfo(ext, ext.typeParameters, ext.allClauses))
+
+      val extensionMethods = ext.extensionMethods
         .map(m =>
           new PhysicalMethodSignature(
             m,
             subst,
-            extensionSignature = Option(ExtensionSignatureInfo(ext, ext.typeParameters, ext.allClauses)),
-            renamed = name,
-            exportedIn = exportedIn
+            extensionSignature = extensionSig,
+            renamed            = name,
+            exportedIn         = exportedIn
           )
         )
+
+      val exportedSigBuilder = Seq.newBuilder[TermSignature]
+
+      ext.extensionBody.foreach { body =>
+        val exportProc = getExportClauseProcessor(body, subst, e, exportedSigBuilder += _, ext.toOption)
+        body.processDeclarationsFromExports(exportProc, ScalaResolveState.withSubstitutor(subst), ext, ext)
+      }
+      val exportedExtensionMethods = exportedSigBuilder.result()
+
+      extensionMethods ++ exportedExtensionMethods
     case _ => Seq.empty
   }
 
@@ -274,8 +311,8 @@ sealed abstract class TermsCollector extends SignatureProcessor[TermSignature] {
   private def propertySignatures(
     named:      ScTypedDefinition,
     subst:      ScSubstitutor,
-    renamed:    Option[String]   = None,
-    exportedIn: Option[PsiClass] = None
+    renamed:    Option[String]          = None,
+    exportedIn: Option[ScExportsHolder] = None
   ): Seq[TermSignature] =
     PropertyMethods.allRoles
       .filter(isApplicable(_, named, noResolve = true))
@@ -286,7 +323,7 @@ sealed abstract class TermsCollector extends SignatureProcessor[TermSignature] {
     subst:      ScSubstitutor,
     role:       DefinitionRole,
     renamed:    Option[String],
-    exportedIn: Option[PsiClass]
+    exportedIn: Option[ScExportsHolder]
   ): TermSignature = {
     val name = methodName(named.name, role)
     val actualRenamed = renamed.map(methodName(_, role))

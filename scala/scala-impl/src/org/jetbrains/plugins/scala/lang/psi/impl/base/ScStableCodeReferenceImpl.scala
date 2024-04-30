@@ -312,7 +312,10 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     resolver.resolve()
   }
 
-  private def processQualifier(processor: BaseProcessor): Array[ScalaResolveResult] = {
+  private def processQualifier(
+    processor:           BaseProcessor,
+    isExportInExtension: Boolean
+  ): Array[ScalaResolveResult] = {
     val qualifierResult = _qualifier()
     qualifierResult match {
       case None =>
@@ -408,12 +411,12 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         processor.candidates
       case Some(q: ScDocResolvableCodeReference) =>
         val result = q.multiResolveScala(incomplete = true)
-        val result2 = result.flatMap(processQualifierResolveResult(q, _, processor))
+        val result2 = result.flatMap(processQualifierResolveResult(q, _, processor, isExportInExtension))
         result2
       case Some(q: ScStableCodeReference) =>
         q.bind() match {
           case Some(res) =>
-            processQualifierResolveResult(q, res, processor)
+            processQualifierResolveResult(q, res, processor, isExportInExtension)
           case _ =>
             processor.candidates
         }
@@ -428,9 +431,12 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     }
   }
 
-  protected def processQualifierResolveResult(qualifier: ScStableCodeReference,
-                                              res: ScalaResolveResult,
-                                              processor: BaseProcessor): Array[ScalaResolveResult] = {
+  private def processQualifierResolveResult(
+    qualifier:           ScStableCodeReference,
+    res:                 ScalaResolveResult,
+    processor:           BaseProcessor,
+    isExportInExtension: Boolean
+  ): Array[ScalaResolveResult] = {
     var withDynamicResult: Option[Array[ScalaResolveResult]] = None
     res match {
       case r@ScalaResolveResult(td: ScTypeDefinition, substitutor) =>
@@ -454,6 +460,9 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
           case _: ScClass | _: ScTrait =>
             td.processDeclarations(processor, state, null, this)
         }
+      case ScalaResolveResult(fn: ScFunction, subst) if isExportInExtension =>
+        val exportedType = subst(fn.returnType.getOrNothing)
+        processor.processType(exportedType, this, ScalaResolveState.withSubstitutor(subst))
       case ScalaResolveResult(fun: ScFunction, _) =>
         val macroEvaluator = ScalaMacroEvaluator.getInstance(fun.getProject)
         val typeFromMacro = macroEvaluator.checkMacro(fun, MacroContext(qualifier, None))
@@ -590,7 +599,8 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       }
     }
 
-    val candidates = processQualifier(processor)
+    val isExportInExtension = isExport && enclosingImportOrExport.getContext.is[ScExtensionBody]
+    val candidates = processQualifier(processor, isExportInExtension)
     val filtered = candidates.filter(candidatesFilter)
 
     val result = if (accessibilityCheck && filtered.isEmpty)

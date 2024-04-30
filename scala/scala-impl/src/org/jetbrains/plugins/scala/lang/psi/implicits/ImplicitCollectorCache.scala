@@ -4,7 +4,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.caches.RecursionManager
 import org.jetbrains.plugins.scala.caches.stats.Tracer
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -54,10 +54,21 @@ class ImplicitCollectorCache(project: Project) {
 
   private[implicits] def getNonValueTypes(fun: ScFunction,
                                           substitutor: ScSubstitutor,
+                                          exportedInExtension: Option[ScExtension],
                                           typeFromMacro: Option[ScType]): NonValueFunctionTypes = {
 
-    val key = NonValueTypesKey(fun, substitutor, typeFromMacro)
-    nonValueTypesMap.computeIfAbsent(key, key => NonValueFunctionTypes(key.fun, key.substitutor, key.typeFromMacro))
+    val key = NonValueTypesKey(fun, substitutor, exportedInExtension, typeFromMacro)
+
+    nonValueTypesMap.computeIfAbsent(
+      key,
+      key =>
+        NonValueFunctionTypes(
+          key.fun,
+          key.substitutor,
+          key.exportedInExtension,
+          key.typeFromMacro
+        )
+    )
   }
 
   def put(place: PsiElement, tp: ScType, value: Seq[ScalaResolveResult]): Unit = {
@@ -72,12 +83,19 @@ class ImplicitCollectorCache(project: Project) {
     nonValueTypesMap.clear()
   }
 
-  private case class NonValueTypesKey(fun: ScFunction, substitutor: ScSubstitutor, typeFromMacro: Option[ScType]) {
-    override def hashCode(): Int = fun.hashCode() #+ identityHashCode(substitutor) #+ typeFromMacro
+  private case class NonValueTypesKey(
+    fun:                 ScFunction,
+    substitutor:         ScSubstitutor,
+    exportedInExtension: Option[ScExtension],
+    typeFromMacro:       Option[ScType]
+  ) {
+    override def hashCode(): Int = fun.hashCode() #+ identityHashCode(substitutor) #+ exportedInExtension #+ typeFromMacro
 
     override def equals(obj: Any): Boolean = obj match {
-      case NonValueTypesKey(otherFun, otherSubst, otherType) =>
-        otherFun == fun && (substitutor eq otherSubst) && typeFromMacro == otherType
+      case NonValueTypesKey(otherFun, otherSubst, otherExportedInExtension, otherType) =>
+        otherFun == fun && (substitutor eq otherSubst) &&
+          exportedInExtension == otherExportedInExtension &&
+          typeFromMacro == otherType
       case _ =>
         false
     }

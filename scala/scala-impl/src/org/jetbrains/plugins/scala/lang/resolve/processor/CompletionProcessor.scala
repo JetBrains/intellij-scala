@@ -52,7 +52,7 @@ object CompletionProcessor {
     fromType = state.fromType,
     importsUsed = state.importsUsed,
     prefixCompletion = state.isPrefixCompletion,
-    isExtension = state.isExtensionMethod
+    isExtensionCall = state.isExtensionMethod
   )
 }
 

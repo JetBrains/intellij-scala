@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
-import com.intellij.psi.{PsiClass, PsiNamedElement}
+import com.intellij.psi.PsiNamedElement
 import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
+import org.jetbrains.plugins.scala.lang.psi.ScExportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDeclaration
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -13,7 +14,7 @@ case class TypeSignature(
   override val namedElement: PsiNamedElement,
   override val substitutor:  ScSubstitutor,
   override val renamed:      Option[String] = None,
-  override val exportedIn:   Option[PsiClass] = None
+  override val exportedIn:   Option[ScExportsHolder] = None
 ) extends Signature {
   override val name: String = ScalaNamesUtil.clean(renamed.getOrElse(namedElement.name))
 

@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.autoImport
 
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, OptionExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScExtension
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
@@ -40,7 +41,13 @@ object GlobalImplicitInstance {
   }
 
   private def containingPackage(srr: ScalaResolveResult): Option[ScPackaging] =
-    if (srr.isExtension) srr.extensionContext.flatMap(_.getContext.asOptionOf[ScPackaging])
+    if (srr.isExtensionCall) {
+      val extOwner = srr.exportedInExtension.orElse(
+        srr.element.getContext.getContext.asOptionOf[ScExtension]
+      )
+
+      extOwner.flatMap(_.getContext.asOptionOf[ScPackaging])
+    }
     else srr.element.getContext.asOptionOf[ScPackaging]
 
 }

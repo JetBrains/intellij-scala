@@ -8,7 +8,6 @@ import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.extractImplicitParameterType
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ConstructorInvocationLike, ScPrimaryConstructor}
@@ -23,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, UndefinedTy
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt, ScalaLanguageLevel}
@@ -539,9 +539,9 @@ object Compatibility {
 
         checkParameterListConformance(parameters, firstArgumentListArgs)
       case fun: ScFunction =>
-        val isDefinedInExtension = ResolveUtils.isExtensionMethod(fun)
+        val isDefinedOrExportedInExtension = fun.isExtensionMethod || srr.exportedInExtension.isDefined
 
-        if ((!fun.hasParameterClause && !isDefinedInExtension) && argClauses.nonEmpty)
+        if ((!fun.hasParameterClause && !isDefinedOrExportedInExtension) && argClauses.nonEmpty)
           return ConformanceExtResult(Seq(DoesNotTakeParameters))
 
         if (QuasiquoteInferUtil.isMetaQQ(fun) && ref.isInstanceOf[ScReferenceExpression]) {
@@ -549,12 +549,12 @@ object Compatibility {
           return checkParameterListConformance(params, firstArgumentListArgs)
         }
 
-        val isQualifiedExtensionCall = srr.isExtension
+        val isQualifiedExtensionCall = srr.isExtensionCall
 
         def isRecursiveOrSameScopeExtensionCall =
-          isDefinedInExtension &&
+          isDefinedOrExportedInExtension &&
             !isQualifiedExtensionCall &&
-            srr.extensionContext == fun.extensionMethodOwner
+            (srr.extensionContext.nonEmpty && srr.extensionContext == fun.extensionMethodOwner)
 
         /**
          * We ignore parameter clauses coming from extension if:
@@ -571,7 +571,10 @@ object Compatibility {
 
         val clauses =
           if (shouldDropExtensionParameterClauses) fun.effectiveParameterClauses
-          else                                     fun.parameterClausesWithExtension
+          else {
+            val extensionOwner = srr.exportedInExtension
+            fun.parameterClausesWithExtension(extensionOwner)
+          }
 
         val firstClause = clauses.headOption
 
