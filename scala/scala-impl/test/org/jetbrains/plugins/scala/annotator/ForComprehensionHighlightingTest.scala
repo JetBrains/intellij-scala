@@ -508,11 +508,11 @@ class ForComprehensionSemicolonTest extends ForComprehensionHighlightingTestBase
     assertEquals(2 + 2 + 3 + 3, errors("for{\n; \n; \nx <- Seq(1)\n;\n;\n;\nif x == 3\n;\n;;;\n y = x\n;;\n;} ()"))
 }
 
-class ForComprehensionRefutableTest_3 extends ForComprehensionHighlightingTestBase {
+abstract class ForComprehensionRefutablityTestBase_3 extends ForComprehensionHighlightingTestBase {
 
   import Message.Error
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_3
 
   def test_case_simple(): Unit = {
     val code =
@@ -538,18 +538,7 @@ class ForComprehensionRefutableTest_3 extends ForComprehensionHighlightingTestBa
     val code =
       """
         |for
-        |  case (a, b) <- Right("", 1)
-        |yield ()
-      """.stripMargin
-
-    assertMessages(code, Error("<-", "Cannot resolve symbol withFilter"))
-  }
-
-  def test_missing_withFilter(): Unit = {
-    val code =
-      """
-        |for
-        |  (a, b) <- Right("", 1)
+        |  case (a, b) <- Right("" -> 1)
         |yield ()
       """.stripMargin
 
@@ -557,7 +546,7 @@ class ForComprehensionRefutableTest_3 extends ForComprehensionHighlightingTestBa
   }
 }
 
-class ForComprehensionIrrefutableTest_3_4 extends ForComprehensionHighlightingTestBase {
+class ForComprehensionRefutabilityTest_From_3_4 extends ForComprehensionRefutablityTestBase_3 {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_4
 
@@ -573,10 +562,27 @@ class ForComprehensionIrrefutableTest_3_4 extends ForComprehensionHighlightingTe
   }
 }
 
-class ForComprehensionIrrefutableTest_3_future extends ForComprehensionHighlightingTestBase {
+class ForComprehensionRefutabilityTest_3_3 extends ForComprehensionRefutablityTestBase_3 {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean =
-    version >= LatestScalaVersions.Scala_3_0 && version < LatestScalaVersions.Scala_3_4
+  import Message.Error
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_3
+
+  def test_missing_withFilter(): Unit = {
+    val code =
+      """
+        |for
+        |  (a, b) <- Right("" -> 1)
+        |yield ()
+      """.stripMargin
+
+    assertMessages(code, Error("<-", "Cannot resolve symbol withFilter"))
+  }
+}
+
+class ForComprehensionRefutabilityTest_3_3_future extends ForComprehensionRefutablityTestBase_3 {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_3
 
   override protected def setUp(): Unit = {
     super.setUp()
