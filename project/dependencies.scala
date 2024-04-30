@@ -47,7 +47,7 @@ object Versions {
   /**
    * For `"org.languagetool" % "language-*"` dependencies
    *
-   * This version should be the same as in `com.intellij.grazie.GraziePlugin.LanguageTool.version`
+   * This version should be the same as in `com.intellij.grazie.GraziePlugin.LanguageTool.version` (it's updated automatically by `UpdateVersions` script)
    * Note that in Grazie plugin they actually use custom language tool distributions (see com.intellij.grazie.GraziePlugin.LanguageTool.url)
    * However according to Peter Gromov it shouldn't be important for us and we can use maven dependencies.
    * Those custom distributions usually contain performance fixes and not the logic.
