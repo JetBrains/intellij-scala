@@ -453,7 +453,8 @@ class ForComprehensionHighlightingTest_with_filter extends ForComprehensionHighl
 class ForComprehensionHighlightingTest_with_BetterMonadicFor extends ForComprehensionHighlightingTestBase {
   import Message._
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= LatestScalaVersions.Scala_2_12 && version < LatestScalaVersions.Scala_3_0
 
   override protected def setUp(): Unit = {
     super.setUp()
