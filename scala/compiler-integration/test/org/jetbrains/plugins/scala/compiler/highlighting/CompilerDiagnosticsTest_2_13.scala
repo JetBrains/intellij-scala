@@ -115,10 +115,10 @@ class CompilerDiagnosticsTest_2_13 extends CompilerDiagnosticsTestBase {
           |""".stripMargin,
       expectedResult = expectedResult(
         ExpectedHighlighting(
-          severity = HighlightSeverity.WARNING,
+          severity = HighlightSeverity.ERROR,
           range = Some(TextRange.create(47, 57)),
           quickFixDescriptions = Seq("Add explicit type"),
-          msgPrefix = "under -Xsource:3-cross, the inferred type changes to Object instead of String [quickfixable]"
+          msgPrefix = "in Scala 3 (or with -Xsource-features:infer-override), the inferred type changes to Object instead of String [quickfixable]"
         )
       ),
       expectedContent =
