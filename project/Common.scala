@@ -65,6 +65,15 @@ object Common {
     Test / unmanagedResourceDirectories := Seq((Test / resourceDirectory).value)
   )
 
+  val NoSourceDirectories: Seq[Def.SettingsDefinition] = Seq(
+    Compile / sourceDirectories := Nil,
+    Compile / managedSourceDirectories := Nil,
+    Compile / unmanagedSourceDirectories := Nil,
+    Test / sourceDirectories := Nil,
+    Test / managedSourceDirectories := Nil,
+    Test / unmanagedSourceDirectories := Nil,
+  )
+
   private val NewProjectBaseSettings: Seq[Setting[?]] = Seq(
     organization := "JetBrains",
     scalaVersion := Versions.scalaVersion,
