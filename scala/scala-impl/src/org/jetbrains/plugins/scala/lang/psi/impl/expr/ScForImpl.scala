@@ -184,12 +184,13 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor wit
     }
 
     def needsPatternMatchFilter(pattern: ScPattern): Boolean = {
+      val features = pattern.features
       lazy val hasSc3Case = pattern.prevSiblingNotWhitespace.exists(_.textMatches(ScalaModifier.CASE))
       lazy val hasSc3IrrefutablePatternsEnabled =
-        pattern.features.hasSourceFutureFlag || pattern.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_3_4)
+        features.hasSourceFutureFlag || pattern.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_3_4)
       lazy val isRefutablePattern = !pattern.isIrrefutableFor(if (forDisplay) pattern.expectedType else None)
 
-      if (pattern.isScala3OrSource3Enabled) {
+      if (features.isScala3) {
         hasSc3Case || (!hasSc3IrrefutablePatternsEnabled && isRefutablePattern)
       } else {
         isRefutablePattern
