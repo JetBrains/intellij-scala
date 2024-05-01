@@ -19,8 +19,9 @@ class SbtNotificationListener extends ExternalSystemTaskNotificationListener {
     val project = id.findProject()
     if (project == null) return
 
-    ScalaProjectConfigurationService.getInstance(project).onSyncStarted()
-    ScalaProjectConfigurationService.getInstance(project).refreshEditorNotifications()
+    val projectConfigService = ScalaProjectConfigurationService.getInstance(project)
+    projectConfigService.onSyncStarted()
+    projectConfigService.refreshEditorNotifications()
   }
 
   override def onEnd(id: ExternalSystemTaskId): Unit = {
@@ -28,7 +29,9 @@ class SbtNotificationListener extends ExternalSystemTaskNotificationListener {
     val project = id.findProject()
     if (project == null) return
 
-    ScalaProjectConfigurationService.getInstance(project).onSyncEnded()
+    val projectConfigService = ScalaProjectConfigurationService.getInstance(project)
+    projectConfigService.onSyncEnded()
+    projectConfigService.refreshEditorNotifications()
   }
 
   private def processOutput(text: String): Unit = {
