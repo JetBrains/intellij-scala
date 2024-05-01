@@ -6,6 +6,7 @@ import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, Ext
 import org.jetbrains.plugins.scala.project.ScalaProjectConfigurationService
 
 // TODO Rely on the immediate UI interaction API when IDEA-123007 will be implemented
+/** @see [[ScalaProjectConfigurationService]] */
 class SbtNotificationListener extends ExternalSystemTaskNotificationListener {
   override def onTaskOutput(id: ExternalSystemTaskId, text: String, stdOut: Boolean): Unit = {
     // TODO this check must be performed in the External System itself (see SCL-7405)

@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.ScalaProjectConfigurationService
 import org.jetbrains.sbt.language.SbtFile
 
+/** @see [[ScalaProjectConfigurationService]] */
 final class ScalaProblemHighlightFilter extends ProblemHighlightFilter {
 
   override def shouldHighlight(file: PsiFile): Boolean = file match {
@@ -16,6 +17,7 @@ final class ScalaProblemHighlightFilter extends ProblemHighlightFilter {
       true // `.sbt` files are handled in `org.jetbrains.sbt.codeinsight.daemon.SbtProblemHighlightFilter`
     case file: ScalaFile =>
       if (isInSourceRoots(file)) {
+        // don't show error highlighting in Scala file while project sync is in progress (SCL-13000, SCL-22458)
         !ScalaProjectConfigurationService.getInstance(file.getProject).isSyncInProgress
       } else isSpecialFile(file)
     case _ => true
@@ -27,6 +29,12 @@ final class ScalaProblemHighlightFilter extends ProblemHighlightFilter {
     shouldHighlight && !isLibraryAndNotSource(file)
   }
 
+  /**
+   * Relies on Java root types. Kotlin uses its own types along with Java ones.
+   *
+   * @see [[org.jetbrains.jps.model.java.JavaSourceRootType]]
+   * @see [[org.jetbrains.kotlin.idea.base.util.ProjectStructureUtils.KOTLIN_AWARE_SOURCE_ROOT_TYPES]]
+   */
   private def isInSourceRoots(file: ScalaFile): Boolean =
     !JavaProjectRootsUtil.isOutsideJavaSourceRoot(file)
 
