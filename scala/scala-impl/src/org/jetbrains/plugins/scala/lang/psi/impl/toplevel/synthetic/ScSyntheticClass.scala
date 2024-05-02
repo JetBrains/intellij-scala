@@ -238,14 +238,6 @@ sealed class ScSyntheticFunction(
   }
 }
 
-final class ScSyntheticValue(val name: String, val tp: ScType)
-                            (implicit projectContext: ProjectContext)
-  extends SyntheticNamedElement(name) {
-  override def getIcon(flags: Int): Icon = Icons.VAL
-
-  override def toString = "Synthetic value"
-}
-
 @Service(Array(Service.Level.PROJECT))
 final class SyntheticClasses(project: Project) {
   implicit def ctx: ProjectContext = project

@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplatePar
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticClass, ScSyntheticValue}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitConversionResolveResult
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -72,7 +72,6 @@ object ResolveUtils {
             case _: ScSelfTypeElement => kinds contains VAL
             case _: PsiMethod => kinds contains METHOD
             case _: ScFun => kinds contains METHOD
-            case _: ScSyntheticValue => kinds contains VAL
             case f: PsiField => (kinds contains VAR) || (f.hasModifierPropertyScala(PsiModifier.FINAL) && kinds.contains(VAL))
             case _: PsiParameter => kinds contains VAL //to enable named Parameters resolve in Play 2.0 routing file for java methods
             case _ => false

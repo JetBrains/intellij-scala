@@ -18,7 +18,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaElementVisitor, ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionWithContextFromText, createReferenceExpressionFromText}
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticValue
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType, ScThisType}
@@ -390,7 +389,6 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
                 })
             }
         }
-      case ScalaResolveResult(value: ScSyntheticValue, _) => value.tp
       case result @ ScalaResolveResult(fun: ScFunction, s) if fun.isProbablyRecursive =>
         val maybeResult = result.intersectedReturnType.orElse(fun.definedReturnType.toOption)
         val dropExtensionClauses =
