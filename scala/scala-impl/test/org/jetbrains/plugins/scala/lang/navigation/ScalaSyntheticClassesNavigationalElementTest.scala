@@ -1,21 +1,28 @@
 package org.jetbrains.plugins.scala.lang.navigation
 
 import com.intellij.psi.PsiMember
-import org.jetbrains.plugins.scala.DependencyManagerBase.Resolver
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
-import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ScalaLibraryLoader, ScalaSDKLoader}
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiMemberExt}
-import org.jetbrains.plugins.scala.lang.navigation.ScalaSyntheticClassesNavigationalElementTest.libraryLoadersWithSeparateScalaLibraries
+import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ScalaLibraryLoader}
+import org.jetbrains.plugins.scala.extensions.PsiMemberExt
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
-import org.jetbrains.plugins.scala.{DependencyManagerBase, ScalaVersion}
 import org.junit.Assert.assertTrue
 
+/**
+ * See also [[org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProviderTest_SyntheticScalaLibraryElements]]
+ */
 class ScalaSyntheticClassesNavigationalElementTest extends ScalaLightCodeInsightFixtureTestCase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
 
+  //NOTE: we use custom Scala 2.13 library version because https://github.com/scala/bug/issues/12958 is available only since 2.13.14
+  // TODO: we can delete this once latest Scala 3 library depends at least at Scala 2.13.14
   override protected def librariesLoaders: Seq[LibraryLoader] =
-    libraryLoadersWithSeparateScalaLibraries(super.librariesLoaders)
+    ScalaLibraryLoader.libraryLoadersWithSeparateScalaLibraries(
+      super.librariesLoaders,
+      ScalaVersion.Latest.Scala_2_13,
+      ScalaVersion.Latest.Scala_3
+    )
 
   protected def assertNavigationElementPointsToSources(element: PsiMember): Unit = {
     val navigationElement = element.getNavigationElement
@@ -48,28 +55,5 @@ class ScalaSyntheticClassesNavigationalElementTest extends ScalaLightCodeInsight
     return
     val syntheticObjects = SyntheticClasses.get(getProject).aliases
     syntheticObjects.foreach(assertNavigationElementPointsToSources)
-  }
-}
-
-object ScalaSyntheticClassesNavigationalElementTest {
-  /**
-   * "override" default scala sdk loader, use non-standard resolvers
-   * TODO: remove these workarounds once 2.13.14 is resolved AND latest Scala 3.X depends on it
-   */
-  def libraryLoadersWithSeparateScalaLibraries(superLibraryLoaders: Seq[LibraryLoader]): Seq[LibraryLoader] = {
-    val dependencyManager = new DependencyManagerBase {
-      override protected def resolvers: Seq[Resolver] = super.resolvers ++ Seq(Resolver.TypesafeScalaPRValidationSnapshots)
-    }
-    val scala2LibraryLoader = ScalaLibraryLoader(ScalaVersion.Latest.Scala_2_13_RC, dependencyManager)
-    val scala3LibraryLoader = ScalaLibraryLoader(ScalaVersion.Latest.Scala_3)
-
-    //We use resolveScalaLibraryTransitiveDependencies = false in order to use the latest 2.13.14 RC version
-    val scala3SdkLoader = ScalaSDKLoader(includeLibraryFilesInSdk = false)
-
-    Seq(
-      scala3LibraryLoader,
-      scala2LibraryLoader,
-      scala3SdkLoader
-    ) ++ superLibraryLoaders.filterNot(_.is[ScalaSDKLoader])
   }
 }

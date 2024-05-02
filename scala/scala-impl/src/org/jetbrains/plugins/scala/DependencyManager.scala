@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.project.template._
 import java.io.File
 import java.net.URL
 import java.nio.file.{Files, Paths}
+import scala.annotation.unused
 import scala.jdk.CollectionConverters._
 
 object DependencyManager extends DependencyManagerBase
@@ -316,6 +317,7 @@ object DependencyManagerBase {
       "typesafe-releases",
       "https://repo.typesafe.com/typesafe/ivy-releases/[organisation]/[module]/[revision]/[type]s/[artifact](-[classifier]).[ext]"
     )
+    @unused("This resolver might be unused now but can be handy to have as a predefined")
     val TypesafeScalaPRValidationSnapshots: MavenResolver = MavenResolver(
       "scala-pr-validation-snapshots",
       "https://scala-ci.typesafe.com/artifactory/scala-pr-validation-snapshots"

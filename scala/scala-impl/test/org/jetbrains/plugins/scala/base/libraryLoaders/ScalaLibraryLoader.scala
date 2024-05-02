@@ -4,6 +4,8 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.libraries.{Library, LibraryTablesRegistrar}
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.testFramework.PsiTestUtil
+import org.jetbrains.plugins.scala.DependencyManagerBase.Resolver
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.{DependencyManager, DependencyManagerBase, ScalaVersion}
 
 import java.io.File
@@ -63,4 +65,26 @@ object ScalaLibraryLoader {
     JarFileSystem.getInstance().refreshAndFindFileByPath {
       file.getCanonicalPath + "!/"
     }
+
+  /**
+   * This utility "overrides" default scala sdk loader. use non-standard resolvers
+   * It uses separate scala libraries with specified versions
+   */
+  def libraryLoadersWithSeparateScalaLibraries(
+    superLibraryLoaders: Seq[LibraryLoader],
+    scala2Version: ScalaVersion,
+    scala3Version: ScalaVersion,
+  ): Seq[LibraryLoader] = {
+    val scala2LibraryLoader = ScalaLibraryLoader(scala2Version)
+    val scala3LibraryLoader = ScalaLibraryLoader(scala3Version)
+
+    //We use resolveScalaLibraryTransitiveDependencies = false in order to use the latest 2.13.14 RC version
+    val scala3SdkLoader = ScalaSDKLoader(includeLibraryFilesInSdk = false)
+
+    Seq(
+      scala3LibraryLoader,
+      scala2LibraryLoader,
+      scala3SdkLoader
+    ) ++ superLibraryLoaders.filterNot(_.is[ScalaSDKLoader])
+  }
 }
