@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil._
-import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.{ExtensionMethod, ScExpressionForExpectedTypesEx}
+import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.ScExpressionForExpectedTypesEx
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
 import org.jetbrains.plugins.scala.lang.resolve.processor._
@@ -310,7 +310,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
            * if it is called from inside the body of an extension method `g`, which is defined in the same collective extension.
            * To support resolve of such cases we store information about enclosing extension in the resolve state.
            */
-          case fdef @ ExtensionMethod() => fdef.extensionMethodOwner.fold(state)(state.withExtensionContext)
+          case fdef: ScFunction => fdef.extensionMethodOwner.fold(state)(state.withExtensionContext)
           case (cc: ScCaseClause) & Parent(Parent(m: ScMatch)) =>
             //@TODO: partial functions as well???
             val subst = PatternTypeInference.doForMatchClause(m, cc)

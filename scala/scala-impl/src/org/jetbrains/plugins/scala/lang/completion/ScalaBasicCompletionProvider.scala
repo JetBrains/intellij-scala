@@ -328,7 +328,7 @@ object ScalaBasicCompletionProvider {
       withImplicitConversions = true) {
 
     override protected def validLookupElement(result: ScalaResolveResult): Option[LookupElement] = {
-      val isExtension = result.isExtension || result.implicitConversion.nonEmpty
+      val isExtension = result.isExtensionCall || result.implicitConversion.nonEmpty
 
       if (!isExtension) None
       else super.validLookupElement(result)

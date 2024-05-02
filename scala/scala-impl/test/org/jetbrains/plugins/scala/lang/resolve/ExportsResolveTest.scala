@@ -337,14 +337,55 @@ class ExportsResolveTest extends SimpleResolveTestBase {
       |""".stripMargin
   )
 
-  def testExportInExtension(): Unit = doResolveTest(
+  def testExportInExtension(): Unit = checkTextHasNoErrors(
     s"""
        |class Ops(i: Int):
        |  def blub = 1
        |
        |extension (x: Int)
-       |  private def o${REFTGT}ps = new Ops(x)
-       |  export o${REFSRC}ps.blub
+       |  private def ops = new Ops(x)
+       |  export ops.blub
        |""".stripMargin
+  )
+
+  def testSCL22266(): Unit = checkTextHasNoErrors(
+    """
+      |object A {
+      |  class Ops(i: Int):
+      |    def blub = 1
+      |
+      |  extension (x: Int)
+      |    def foo: Int = 123
+      |    private def ops = new Ops(x)
+      |    export ops.blub
+      |
+      |    def qux = {
+      |      blub(x)
+      |      x.blub
+      |    }
+      |
+      |  123.foo
+      |  456.blub
+      |  val x = blub(42)
+      |}
+      |""".stripMargin
+  )
+
+  def testSCL22266TypeParameters(): Unit = checkTextHasNoErrors(
+    """
+      |object Test {
+      |  class Ops(i: Int):
+      |    def blub = 1
+      |
+      |  extension [A](x: A)
+      |    private def ops = new Ops(1)
+      |    export ops.blub
+      |
+      |  123.blub
+      |  "123".blub
+      |  blub(2d)
+      |  blub(Test)
+      |}
+      |""".stripMargin
   )
 }

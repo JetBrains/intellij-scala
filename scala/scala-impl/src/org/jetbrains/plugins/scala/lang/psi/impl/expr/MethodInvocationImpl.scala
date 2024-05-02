@@ -383,7 +383,7 @@ object MethodInvocationImpl {
 
     private def polymorphicType(result: ScalaResolveResult): ScType = {
       val dropExtensionClauses =
-        result.isExtension ||
+        result.isExtensionCall ||
           (result.extensionContext.nonEmpty &&
             result.element.asOptionOf[ScFunction].flatMap(_.extensionMethodOwner) == result.extensionContext)
 

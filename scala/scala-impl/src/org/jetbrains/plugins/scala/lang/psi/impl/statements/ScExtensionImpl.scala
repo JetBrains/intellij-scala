@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.statements
 
 import com.intellij.lang.ASTNode
-import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiClass, PsiElement, ResolveState}
@@ -26,7 +25,6 @@ class ScExtensionImpl(@Nullable stub: ScExtensionStub, @Nullable node: ASTNode)
     extends ScalaStubBasedElementImpl(stub, ScalaElementType.EXTENSION, node)
     with ScExtension
     with ScTypeParametersOwner
-    with ScMember
     with ScMember.WithBaseIconProvider
     with ScBegin {
 
@@ -61,26 +59,10 @@ class ScExtensionImpl(@Nullable stub: ScExtensionStub, @Nullable node: ASTNode)
     state:      ResolveState,
     lastParent: PsiElement,
     place:      PsiElement
-  ): Boolean = {
+  ): Boolean =
     if (!super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place))
-      return false
-
-    if (extensionMethods.exists(!processor.execute(_, state)))
-      return false
-
-    if (extensionBody.exists(body => !body.processDeclarationsFromExports(processor, state, lastParent, place)))
-      return false
-
-    for {
-      clause <- effectiveParameterClauses
-      param  <- clause.effectiveParameters
-    } {
-      ProgressManager.checkCanceled()
-      if (!processor.execute(param, state)) return false
-    }
-
-    true
-  }
+      false
+    else processParameters(processor, state)
 
   override protected def keywordTokenType: IElementType = ScalaTokenType.ExtensionKeyword
 

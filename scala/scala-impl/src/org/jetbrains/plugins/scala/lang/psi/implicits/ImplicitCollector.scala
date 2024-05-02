@@ -23,7 +23,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.ExtensionMethod
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.MostSpecificUtil
@@ -130,7 +129,7 @@ class ImplicitCollector(
   private def isExtensionConversion: Boolean = extensionData.isDefined
 
   private def canContainTargetMethod(srr: ScalaResolveResult): Boolean = measure("ImplicitCollector.canContainTargetMethod") {
-    withExtensions && !srr.isExtension && !hasExplicitClause(srr) && {
+    withExtensions && !srr.isExtensionCall && !hasExplicitClause(srr) && {
       val targetType = srr.element match {
         case param: ScParameter => param.typeElement.flatMap(_.`type`().toOption)
         case fun: ScFunction    => fun.returnType.toOption
@@ -187,7 +186,7 @@ class ImplicitCollector(
             //Step 3: Try implicits/givens/extension from implicit scope and extension inside given definitions
             val visible = visibleNamesCandidates()
 
-            val (visibleExtensions, otherVisibleCandidates) = visible.partition(_.isExtension)
+            val (visibleExtensions, otherVisibleCandidates) = visible.partition(_.isExtensionCall)
 
             val extensionCandidates =
               if (withExtensions) compatible(visibleExtensions)
@@ -235,7 +234,7 @@ class ImplicitCollector(
       if (withoutLocalTypeInference.nonEmpty) withoutLocalTypeInference
       else                                    collectCompatibleCandidates(candidates, withLocalTypeInference = true)
 
-    if (compatible.forall(_.isExtension)) compatible.toSeq
+    if (compatible.forall(_.isExtensionCall)) compatible.toSeq
     else
       mostSpecificUtil.mostSpecificForImplicitParameters(compatible) match {
         case Some(r) => Seq(r)
@@ -285,7 +284,9 @@ class ImplicitCollector(
 
     c.element match {
       case fun: ScFunction =>
-        if (fun.typeParametersWithExtension.isEmpty && withLocalTypeInference) return None
+        val exportedInExtension = c.exportedInExtension
+
+        if (fun.typeParametersWithExtension(exportedInExtension).isEmpty && withLocalTypeInference) return None
 
         //scala.Predef.$conforms should be excluded
         if (isImplicitConversion && isPredefConforms(fun)) return None
@@ -293,7 +294,7 @@ class ImplicitCollector(
         val clauses = fun.effectiveParameterClauses
         //to avoid checking implicit functions in case of simple implicit parameter search
         val hasNonImplicitClause = clauses.exists(!_.isImplicitOrUsing)
-        if (!c.isExtension && hasNonImplicitClause) {
+        if (!c.isExtensionCall && hasNonImplicitClause) {
           val clause = clauses.head
           val paramsCount = clause.parameters.size
           if (!possibleScalaFunction.exists(x => x == -1 || x == paramsCount)) {
@@ -356,7 +357,7 @@ class ImplicitCollector(
           afterExtensionPredicate match {
             case Some(r) =>
               val notMoreSpecific = mostSpecificUtil.notMoreSpecificThan(r)
-              if (!c.isExtension) {
+              if (!c.isExtensionCall) {
                 filteredCandidates.filterInPlace(notMoreSpecific)
                 //this filter was added to make result deterministic
                 results = results.filter(c => notMoreSpecific(c))
@@ -581,7 +582,7 @@ class ImplicitCollector(
     val depth = ScalaProjectSettings.getInstance(project).getImplicitParametersSearchDepth
     val notTooDeepSearch = depth < 0 || searchImplicitsRecursively < depth
 
-    if (hasImplicitClause && notTooDeepSearch && !c.isExtension) {
+    if (hasImplicitClause && notTooDeepSearch && !c.isExtensionCall) {
 
       val conversionDataCheckedResult =
         if (!hadDependents) {
@@ -698,16 +699,17 @@ class ImplicitCollector(
     withLocalTypeInference: Boolean,
     checkFast:              Boolean,
   ): Option[ScalaResolveResult] = measure("ImplicitCollector.checkFunctionByType") {
-    val fun = c.element.asInstanceOf[ScFunction]
+    val fun                 = c.element.asInstanceOf[ScFunction]
+    val exportedInExtension = c.exportedInExtension
 
-    if (fun.typeParametersWithExtension.nonEmpty && !withLocalTypeInference)
+    if (fun.typeParametersWithExtension(exportedInExtension).nonEmpty && !withLocalTypeInference)
       return None
 
     val macroEvaluator = ScalaMacroEvaluator.getInstance(project)
     val typeFromMacro  = macroEvaluator.checkMacro(fun, MacroContext(place, Some(tp)))
 
     val undefineGivenInstanceParameters =
-      if (c.isExtension) {
+      if (c.isExtensionCall) {
         val typeParams = c.unresolvedTypeParameters.getOrElse(Seq.empty)
         ScSubstitutor.bind(typeParams)(UndefinedType(_))
       }
@@ -717,6 +719,7 @@ class ImplicitCollector(
       ImplicitCollector.cache(project).getNonValueTypes(
         fun,
         c.substitutor.followed(undefineGivenInstanceParameters),
+        exportedInExtension,
         typeFromMacro
       )
 
@@ -794,12 +797,11 @@ class ImplicitCollector(
     extensionData match {
       case None => Some(cand)
       case Some(data) =>
-        val applicabilityCheck = cand.element match {
-          case e @ ExtensionMethod() =>
-            val candName = cand.renamed.getOrElse(e.name)
+        val applicabilityCheck =
+          if (cand.isExtensionCall) {
+            val candName = cand.renamed.getOrElse(cand.name)
             Option.when(data.refName == candName)(cand)
-          case _                     => extensionConversionCheck(data, cand)
-        }
+          } else extensionConversionCheck(data, cand)
 
         applicabilityCheck.orElse(
           reportWrong(cand, CantFindExtensionMethodResult)
@@ -808,8 +810,10 @@ class ImplicitCollector(
   }
 
   private def hasExplicitClause(srr: ScalaResolveResult): Boolean = srr.element match {
-    case fun: ScFunction => fun.parameterClausesWithExtension.exists(!_.isImplicitOrUsing)
-    case _               => false
+    case fun: ScFunction =>
+      val exportedInExtension = srr.exportedInExtension
+      fun.parameterClausesWithExtension(exportedInExtension).exists(!_.isImplicitOrUsing)
+    case _ => false
   }
 
   private def abstractsToUpper(tp: ScType): ScType = {

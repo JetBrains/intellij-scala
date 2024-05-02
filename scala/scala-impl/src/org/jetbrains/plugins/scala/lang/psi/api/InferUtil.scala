@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMac
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScPostfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam, TypeParamIdOwner}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunction, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScExtension, ScFunction, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.{ConformanceExtR
 import org.jetbrains.plugins.scala.lang.psi.types.ConstraintSystem.SubstitutionBounds
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType, ScThisType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
@@ -550,7 +550,9 @@ object InferUtil {
              _: ScParameter |
              _: patterns.ScBindingPattern |
              _: ScFieldId => element.asInstanceOf[Typeable].`type`().toOption
-        case function: ScFunction => functionTypeNoImplicits(function)
+        case function: ScFunction =>
+          val extensionOwner = result.exportedInExtension
+          functionTypeNoImplicits(function, extensionOwner)
       }
 
       maybeType.map(substitutor)
@@ -757,19 +759,23 @@ object InferUtil {
     (tpe, conformanceResult)
   }
 
-  def functionTypeNoImplicits(function: ScFunction): Option[ScType] = {
+  def functionTypeNoImplicits(function: ScFunction, extensionOwner: Option[ScExtension] = None): Option[ScType] = {
     val retType = function.returnType.toOption
 
-    collectReverseParamTypesNoImplicits(function).flatMap {
+    collectReverseParamTypesNoImplicits(function, extensionOwner).flatMap {
       params =>
         implicit val scope: ElementScope = ElementScope(function)
         retType.map(params.foldLeft(_)((res, params) => FunctionType(res, params)))
     }
   }
 
-  private def collectReverseParamTypesNoImplicits(function: ScFunction): Option[Seq[Seq[ScType]]] = {
+  private def collectReverseParamTypesNoImplicits(
+    function:       ScFunction,
+    extensionOwner: Option[ScExtension] = None
+  ): Option[Seq[Seq[ScType]]] = {
     val builder = Seq.newBuilder[Seq[ScType]]
-    val clauses = function.extensionMethodOwner.fold(function.paramClauses.clauses)(_.allClauses)
+    val owner   = extensionOwner.orElse(function.extensionMethodOwner)
+    val clauses = owner.fold(function.paramClauses.clauses)(_.allClauses)
 
     //for performance
     var idx = clauses.length - 1

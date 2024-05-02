@@ -5,7 +5,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ArrayFactory
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.{ScExportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScTypeAlias, ScTypeAliasDefinition}
@@ -28,38 +28,47 @@ import scala.annotation.tailrec
 
 /**
  * @param parentElement class for constructor or object/val of `apply/unapply` methods
+ * @param isExtensionCall true, iff resolved reference was an infix invocation of an extension method
+ * @param extensionContext enclosing (relative to the place, where resolve was invoked) extension, if any
+ * @param intersectedReturnType if this result was created from an intersected signature, its return type
+ * @param matchClauseSubstitutor substitutor accumulated during upwards context traversal
+ *                               of [[org.jetbrains.plugins.scala.lang.psi.api.expr.ScMatch]] expressions,
+ *                               see [[https://www.scala-lang.org/files/archive/spec/2.13/08-pattern-matching.html#type-parameter-inference-in-patterns Type Inference in Patterns]]
+ * @param exportedIn if this [[element]] was resolved through export statement,
+ *                   the owner of this statement (extension or template body)
  */
 class ScalaResolveResult(
   val element:                  PsiNamedElement,
-  val substitutor:              ScSubstitutor = ScSubstitutor.empty,
-  val importsUsed:              Set[ImportUsed] = Set.empty,
-  val renamed:                  Option[String] = None,
-  val problems:                 Seq[ApplicabilityProblem] = Seq.empty,
+  val substitutor:              ScSubstitutor              = ScSubstitutor.empty,
+  val importsUsed:              Set[ImportUsed]            = Set.empty,
+  val renamed:                  Option[String]             = None,
+  val problems:                 Seq[ApplicabilityProblem]  = Seq.empty,
   val implicitConversion:       Option[ScalaResolveResult] = None,
-  val implicitType:             Option[ScType] = None,
-  val defaultParameterUsed:     Boolean = false,
+  val implicitType:             Option[ScType]             = None,
+  val defaultParameterUsed:     Boolean                    = false,
   val innerResolveResult:       Option[ScalaResolveResult] = None,
-  val parentElement:            Option[PsiNamedElement] = None,
-  val isNamedParameter:         Boolean = false,
-  val fromType:                 Option[ScType] = None,
-  val tuplingUsed:              Boolean = false,
-  val isAssignment:             Boolean = false,
-  val notCheckedResolveResult:  Boolean = false,
-  val isAccessible:             Boolean = true,
-  val resultUndef:              Option[ConstraintSystem] = None,
-  val prefixCompletion:         Boolean = false,
-  val nameArgForDynamic:        Option[String] = None, //argument to a dynamic call
-  val isForwardReference:       Boolean = false,
-  val implicitParameterType:    Option[ScType] = None,
-  val implicitParameters:       Seq[ScalaResolveResult] = Seq.empty, // TODO Arguments and parameters should not be used interchangeably
-  val implicitReason:           ImplicitResult = NoResult,
-  val implicitSearchState:      Option[ImplicitState] = None,
+  val parentElement:            Option[PsiNamedElement]    = None,
+  val isNamedParameter:         Boolean                    = false,
+  val fromType:                 Option[ScType]             = None,
+  val tuplingUsed:              Boolean                    = false,
+  val isAssignment:             Boolean                    = false,
+  val notCheckedResolveResult:  Boolean                    = false,
+  val isAccessible:             Boolean                    = true,
+  val resultUndef:              Option[ConstraintSystem]   = None,
+  val prefixCompletion:         Boolean                    = false,
+  val nameArgForDynamic:        Option[String]             = None, //argument to a dynamic call
+  val isForwardReference:       Boolean                    = false,
+  val implicitParameterType:    Option[ScType]             = None,
+  val implicitParameters:       Seq[ScalaResolveResult]    = Seq.empty, // TODO Arguments and parameters should not be used interchangeably
+  val implicitReason:           ImplicitResult             = NoResult,
+  val implicitSearchState:      Option[ImplicitState]      = None,
   val unresolvedTypeParameters: Option[Seq[TypeParameter]] = None,
-  val implicitScopeObject:      Option[ScType] = None,
-  val isExtension:              Boolean = false, /** true, if resolved reference was an extension method */
-  val extensionContext:         Option[ScExtension] = None, /** enclosing extension, important for resolving extension methods */
-  val intersectedReturnType:    Option[ScType] = None, /** if this result was created from an intersected signature, it's return type */
-  val matchClauseSubstitutor:   ScSubstitutor = ScSubstitutor.empty
+  val implicitScopeObject:      Option[ScType]             = None,
+  val isExtensionCall:          Boolean                    = false,
+  val extensionContext:         Option[ScExtension]        = None,
+  val intersectedReturnType:    Option[ScType]             = None,
+  val matchClauseSubstitutor:   ScSubstitutor              = ScSubstitutor.empty,
+  val exportedIn:               Option[ScExportsHolder]    = None
 ) extends ResolveResult
     with ProjectContextOwner {
   if (element == null) throw new NullPointerException("element is null")
@@ -90,6 +99,14 @@ class ScalaResolveResult(
       case Some(r) => r.isApplicable(withExpectedType)
       case None    => isApplicable(withExpectedType)
     }
+
+  /**
+   * If this element (function definition) was resolved, while processing export statements
+   * inside an extension body, return said extension. This is important, because any attempt
+   * to calculate type of this function has to rely on is being extension method or not, which is
+   * now (with the introduction of exports in extensions) not as simple as just calling .extensionMethodOwner.
+   */
+  def exportedInExtension: Option[ScExtension] = exportedIn.flatMap(_.getContext.asOptionOf[ScExtension])
 
   override def isValidResult: Boolean = isAccessible && isApplicable()
 
@@ -124,10 +141,11 @@ class ScalaResolveResult(
     implicitSearchState:      Option[ImplicitState]      = implicitSearchState,
     unresolvedTypeParameters: Option[Seq[TypeParameter]] = unresolvedTypeParameters,
     implicitScopeObject:      Option[ScType]             = implicitScopeObject,
-    isExtension:              Boolean                    = isExtension,
+    isExtensionCall:          Boolean                    = isExtensionCall,
     extensionContext:         Option[ScExtension]        = extensionContext,
     matchClauseSubstitutor:   ScSubstitutor              = matchClauseSubstitutor,
     intersectedReturnType:    Option[ScType]             = intersectedReturnType,
+    exportedIn:               Option[ScExportsHolder]    = exportedIn
   ): ScalaResolveResult =
     new ScalaResolveResult(
       element,
@@ -155,10 +173,11 @@ class ScalaResolveResult(
       implicitSearchState      = implicitSearchState,
       unresolvedTypeParameters = unresolvedTypeParameters,
       implicitScopeObject      = implicitScopeObject,
-      isExtension              = isExtension,
+      isExtensionCall          = isExtensionCall,
       extensionContext         = extensionContext,
       matchClauseSubstitutor   = matchClauseSubstitutor,
-      intersectedReturnType    = intersectedReturnType
+      intersectedReturnType    = intersectedReturnType,
+      exportedIn               = exportedIn
     )
 
   override def equals(other: Any): Boolean = other match {
@@ -167,7 +186,8 @@ class ScalaResolveResult(
         renamed == rr.renamed &&
         implicitFunction == rr.implicitFunction &&
         innerResolveResult == rr.innerResolveResult &&
-        implicitScopeObject == rr.implicitScopeObject
+        implicitScopeObject == rr.implicitScopeObject &&
+        exportedIn == rr.exportedIn
     case _ => false
   }
 

@@ -50,7 +50,7 @@ private final class ExtensionMethodsFinder(originalType: ScType,
       case (_, elementToImport: ScFunction) =>
         val resolveResult = new ScalaResolveResult(
           elementToImport,
-          isExtension = elementToImport.isExtensionMethod,
+          isExtensionCall = elementToImport.isExtensionMethod,
           extensionContext = elementToImport.extensionMethodOwner
         )
         Set(resolveResult)

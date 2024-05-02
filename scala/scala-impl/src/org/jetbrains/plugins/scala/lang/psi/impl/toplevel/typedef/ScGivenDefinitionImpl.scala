@@ -116,15 +116,9 @@ class ScGivenDefinitionImpl(
     lastParent: PsiElement,
     place:      PsiElement
   ): Boolean = {
-    for {
-      clause <- effectiveParameterClauses
-      param  <- clause.effectiveParameters
-    } {
-      ProgressManager.checkCanceled()
-      if (!processor.execute(param, state)) return false
-    }
-
-    super.processDeclarations(processor, state, lastParent, place)
+    if (!processParameters(processor, state)) false
+    else
+      super.processDeclarations(processor, state, lastParent, place)
   }
 
   override protected def keywordTokenType: IElementType = ScalaTokenType.GivenKeyword

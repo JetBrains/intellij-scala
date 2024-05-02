@@ -23,13 +23,15 @@ package object statements {
   }
 
   implicit class ScFunctionExt(private val function: ScFunction) extends AnyVal {
-    def parameterClausesWithExtension: Seq[ScParameterClause] =
-      function.extensionMethodOwner.fold(Seq.empty[ScParameterClause])(_.effectiveParameterClauses) ++
-        function.effectiveParameterClauses
+    def parameterClausesWithExtension(owner: Option[ScExtension] = None): Seq[ScParameterClause] =
+      owner
+        .orElse(function.extensionMethodOwner)
+        .fold(Seq.empty[ScParameterClause])(_.effectiveParameterClauses) ++ function.effectiveParameterClauses
 
-    def typeParametersWithExtension: Seq[ScTypeParam] =
-      function.extensionMethodOwner.fold(Seq.empty[ScTypeParam])(_.typeParameters) ++
-        function.typeParameters
+    def typeParametersWithExtension(owner: Option[ScExtension] = None): Seq[ScTypeParam] =
+      owner
+        .orElse(function.extensionMethodOwner)
+        .fold(Seq.empty[ScTypeParam])(_.typeParameters) ++ function.typeParameters
   }
 
   implicit class ScFunctionDefinitionExt(private val function: ScFunctionDefinition) extends AnyVal {

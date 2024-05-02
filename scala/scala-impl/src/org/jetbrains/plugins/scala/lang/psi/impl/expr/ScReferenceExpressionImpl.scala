@@ -304,6 +304,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     val fromType                 = bind.fromType
     val unresolvedTypeParameters = bind.unresolvedTypeParameters.getOrElse(Seq.empty)
     val matchClauseSubst         = bind.matchClauseSubstitutor
+    val extensionOwner           = bind.exportedInExtension
 
     val inner: ScType = bind match {
       case ScalaResolveResult(fun: ScFun, s) =>
@@ -393,21 +394,27 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       case result @ ScalaResolveResult(fun: ScFunction, s) if fun.isProbablyRecursive =>
         val maybeResult = result.intersectedReturnType.orElse(fun.definedReturnType.toOption)
         val dropExtensionClauses =
-          result.isExtension ||
+          result.isExtensionCall ||
             (result.extensionContext.nonEmpty && result.extensionContext == fun.extensionMethodOwner)
 
         fun.polymorphicType(
           s,
           maybeResult,
-          dropExtensionClauses = dropExtensionClauses
+          dropExtensionClauses = dropExtensionClauses,
+          extensionOwner       = extensionOwner
         )
       case result @ ScalaResolveResult(fun: ScFunction, s) =>
         val dropExtensionClauses =
-          result.isExtension ||
+          result.isExtensionCall ||
             (result.extensionContext.nonEmpty && result.extensionContext == fun.extensionMethodOwner)
 
         fun
-          .polymorphicType(s, result.intersectedReturnType, dropExtensionClauses = dropExtensionClauses)
+          .polymorphicType(
+            s,
+            result.intersectedReturnType,
+            dropExtensionClauses = dropExtensionClauses,
+            extensionOwner       = extensionOwner
+          )
           .updateTypeOfDynamicCall(result.isDynamic)
       case ScalaResolveResult(param: ScParameter, s) if param.isRepeatedParameter =>
         val result = param.`type`()

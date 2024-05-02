@@ -1119,7 +1119,7 @@ package object extensions {
           case _ =>
         }
 
-        signature.exportedIn.orElse(
+        signature.exportedInCls.orElse(
           typedDef.nameContext match {
             case m: ScMember =>
               m.containingClass match {
@@ -1152,11 +1152,11 @@ package object extensions {
         case method: PsiMethod if !method.isConstructor =>
           if (isStatic) {
             if (method.containingClass != null && !method.containingClass.isJavaLangObject) {
-              processMethod(StaticPsiMethodWrapper.getWrapper(method, signature.exportedIn.getOrElse(clazz)))
+              processMethod(StaticPsiMethodWrapper.getWrapper(method, signature.exportedInCls.getOrElse(clazz)))
               processName(method.getName)
             }
           } else {
-            val toProcess = signature.exportedIn.fold(method) {
+            val toProcess = signature.exportedInCls.fold(method) {
               exportedCls =>
                 val wrapper = new LightMethod(method.getManager, method, exportedCls)
                 wrapper.setNavigationElement(method.getNavigationElement)
@@ -1322,7 +1322,7 @@ package object extensions {
       }
       last
     }
-    
+
     def findByType[T: ClassTag]: Option[T] = {
       val aClass = implicitly[ClassTag[T]].runtimeClass
       delegate.find(aClass.isInstance).asInstanceOf[Option[T]]

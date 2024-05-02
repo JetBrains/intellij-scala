@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.resolve
 import com.intellij.openapi.util.Key
 import com.intellij.psi.ResolveState
 import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.lang.psi.ScExportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScExtension
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -82,6 +83,9 @@ trait ResolveStateOps extends Any {
   def withIntersectedReturnType(tpe: ScType): ResolveState =
     resolveState.put(INTERSECTED_RETURN_TYPE, tpe)
 
+  def withExportedIn(owner: ScExportsHolder): ResolveState =
+    resolveState.put(EXPORTED_IN, owner)
+
   //
   // Getters
   //
@@ -139,8 +143,16 @@ trait ResolveStateOps extends Any {
 
   def intersectedReturnType: Option[ScType] =
     option(INTERSECTED_RETURN_TYPE)
+
+  def exportedIn: Option[ScExportsHolder] =
+    option(EXPORTED_IN)
 }
 
+/**
+ * Most of these keys have are meant to store intermediate resolve data, that will eventually make it into
+ * [[ScalaResolveResult]] fields. In case of confusion, it can be useful to refer to the corresponding field's
+ * documentation (e.g. [[ResolveStateOps.EXPORTED_IN]] corresponds to [[ScalaResolveResult#exportedIn]]).
+ */
 private object ResolveStateOps {
   private object TRUE
 
@@ -178,6 +190,7 @@ private object ResolveStateOps {
 
   private val STABLE_TYPE_EXPECTED: Key[TRUE.type] = Key.create("scala.stable.type.expected")
 
-  //a result of merging same signature members coming from an intersection type
   private val INTERSECTED_RETURN_TYPE: Key[ScType] = Key.create("scala.intersected.return.type")
+
+  private val EXPORTED_IN: Key[ScExportsHolder] = Key.create("scala.exported.in")
 }

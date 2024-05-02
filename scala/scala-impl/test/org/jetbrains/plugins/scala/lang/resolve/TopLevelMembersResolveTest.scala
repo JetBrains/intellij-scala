@@ -222,6 +222,41 @@ class TopLevelMembersResolveTest extends SimpleResolveTestBase {
     )
   }
 
+  def testTopLevelExtensionWithExport(): Unit = {
+    addFileToProject(
+      """
+        |package foo
+        |object A {
+        |  def foo: Int = 123
+        |}
+        |
+        |extension (x: String) {
+        |  private def a = A
+        |  export a.foo
+        |}
+        |""".stripMargin,
+      "toplevel.scala"
+    )
+
+    doResolveTest(
+      s"""
+         |package foo
+         |object Test {
+         |  val a = "123".fo${REFSRC}o
+         |}
+         |""".stripMargin
+    )
+
+    doResolveTest(
+      s"""
+         |package foo
+         |object Test {
+         |  val a = fo${REFSRC}o("123")
+         |}
+         |""".stripMargin
+    )
+  }
+
   private def addFileToProject(text: String, name: String): Unit =
     myFixture.addFileToProject(name, text)
 }

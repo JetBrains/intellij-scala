@@ -229,10 +229,10 @@ object ScalaPsiUtil {
     }
   }
 
-  def undefineMethodTypeParams(fun: PsiMethod): ScSubstitutor = {
+  def undefineMethodTypeParams(fun: PsiMethod, exportedInExtension: Option[ScExtension] = None): ScSubstitutor = {
     val typeParameters = fun match {
-      case fun: ScFunction => fun.typeParametersWithExtension
-      case fun: PsiMethod => fun.getTypeParameters.toSeq
+      case fun: ScFunction => fun.typeParametersWithExtension(exportedInExtension)
+      case fun: PsiMethod  => fun.getTypeParameters.toSeq
     }
 
     ScSubstitutor.bind(typeParameters)(UndefinedType(_, level = 1))

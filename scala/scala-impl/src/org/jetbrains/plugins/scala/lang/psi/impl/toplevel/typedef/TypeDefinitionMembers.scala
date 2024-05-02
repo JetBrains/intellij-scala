@@ -321,7 +321,9 @@ object TypeDefinitionMembers {
         val withRenamed               = withSubst.withRename(signature.renamed)
         val intersectedReturnType     = signature.asOptionOf[TermSignature].flatMap(_.intersectedReturnType)
         val withIntersectedReturnType = intersectedReturnType.fold(withRenamed)(withRenamed.withIntersectedReturnType)
-        processor.execute(signature.namedElement, withIntersectedReturnType)
+        val withExportedIn            = signature.exportedIn.fold(withIntersectedReturnType)(withIntersectedReturnType.withExportedIn)
+
+        processor.execute(signature.namedElement, withExportedIn)
       } else true
 
 
