@@ -189,8 +189,11 @@ object CustomPackageSearchApiClient {
 
 case class CustomPackageSearchParams(useCache: Boolean)
 
+// TODO(SCL-22206): use org.jetbrains.plugins.scala.packagesearch.api.PackageSearchClient
+//                  see org.jetbrains.sbt.language.completion.SbtMavenPackageSearchDependencyCompletionContributor
+//                  see org.jetbrains.sbt.language.completion.SbtScalaVersionCompletionContributor
 object CustomPackageSearchApiHelper {
-  /** Use [[org.jetbrains.plugins.scala.packagesearch.api.PackageSearchApiClient.searchById]] */
+  /** Use [[org.jetbrains.plugins.scala.packagesearch.api.PackageSearchClient.searchById]] */
   @ApiStatus.Obsolete
   def searchDependencyVersions(groupId: String,
                                artifactId: String,
@@ -206,7 +209,7 @@ object CustomPackageSearchApiHelper {
 
   }
 
-  /** Use [[org.jetbrains.plugins.scala.packagesearch.api.PackageSearchApiClient.searchByQuery]] */
+  /** Use [[org.jetbrains.plugins.scala.packagesearch.api.PackageSearchClient.searchByQuery]] */
   @ApiStatus.Obsolete
   def searchDependency(groupId: String,
                        artifactId: String,

@@ -1,15 +1,18 @@
 package org.jetbrains.plugins.scalaDirective.lang.completion
 
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
-import org.jetbrains.plugins.scala.packagesearch.api.PackageSearchApiClient
-import org.jetbrains.plugins.scala.packagesearch.model.ApiPackage
+import org.jetbrains.plugins.scala.packagesearch.api.{PackageSearchClient, PackageSearchClientTesting}
 
-final class ScalaDirectiveDependencyCompletionTest extends ScalaCompletionTestBase {
+import java.util.Arrays.asList
+
+final class ScalaDirectiveDependencyCompletionTest
+  extends ScalaCompletionTestBase
+    with PackageSearchClientTesting {
 
   /// GROUPS
 
   def testGroupIdPosition(): Unit = {
-    PackageSearchApiClient.updateByQueryCache("fo", "", Seq(ApiPackage("foo", "bar", Seq())))
+    PackageSearchClient.instance().updateByQueryCache("fo", "", asList(apiMavenPackage("foo", "bar", emptyVersionsContainer())))
     doCompletionTest(
       fileText = s"//> using dep fo$CARET",
       resultText = s"//> using dep foo:bar:$CARET",
@@ -18,7 +21,7 @@ final class ScalaDirectiveDependencyCompletionTest extends ScalaCompletionTestBa
   }
 
   def testGroupIdPosition_crossVersion(): Unit = {
-    PackageSearchApiClient.updateByQueryCache("fo", "", Seq(ApiPackage("foo", "bar_2.12", Seq())))
+    PackageSearchClient.instance().updateByQueryCache("fo", "", asList(apiMavenPackage("foo", "bar_2.12", emptyVersionsContainer())))
     doCompletionTest(
       fileText = s"//> using dep fo$CARET",
       resultText = s"//> using dep foo::bar:$CARET",
@@ -27,7 +30,7 @@ final class ScalaDirectiveDependencyCompletionTest extends ScalaCompletionTestBa
   }
 
   def testGroupIdPosition_crossVersion2(): Unit = {
-    PackageSearchApiClient.updateByQueryCache("fo", "", Seq(ApiPackage("foo", "bar_3", Seq())))
+    PackageSearchClient.instance().updateByQueryCache("fo", "", asList(apiMavenPackage("foo", "bar_3", emptyVersionsContainer())))
     doCompletionTest(
       fileText = s"//> using dep fo$CARET",
       resultText = s"//> using dep foo::bar:$CARET",
@@ -36,7 +39,7 @@ final class ScalaDirectiveDependencyCompletionTest extends ScalaCompletionTestBa
   }
 
   def testGroupIdPosition_fullCrossVersion(): Unit = {
-    PackageSearchApiClient.updateByQueryCache("fo", "", Seq(ApiPackage("foo", "bar_2.12.15", Seq())))
+    PackageSearchClient.instance().updateByQueryCache("fo", "", asList(apiMavenPackage("foo", "bar_2.12.15", emptyVersionsContainer())))
     doCompletionTest(
       fileText = s"//> using dep fo$CARET",
       resultText = s"//> using dep foo:::bar:$CARET",
@@ -45,7 +48,7 @@ final class ScalaDirectiveDependencyCompletionTest extends ScalaCompletionTestBa
   }
 
   def testGroupIdPosition_fullCrossVersion2(): Unit = {
-    PackageSearchApiClient.updateByQueryCache("fo", "", Seq(ApiPackage("foo", "bar_3.3.0", Seq())))
+    PackageSearchClient.instance().updateByQueryCache("fo", "", asList(apiMavenPackage("foo", "bar_3.3.0", emptyVersionsContainer())))
     doCompletionTest(
       fileText = s"//> using dep fo$CARET",
       resultText = s"//> using dep foo:::bar:$CARET",
@@ -54,7 +57,7 @@ final class ScalaDirectiveDependencyCompletionTest extends ScalaCompletionTestBa
   }
 
   def testGroupIdPosition_fullCrossVersion3(): Unit = {
-    PackageSearchApiClient.updateByQueryCache("fo", "", Seq(ApiPackage("foo", "bar_2.13.0-RC3", Seq())))
+    PackageSearchClient.instance().updateByQueryCache("fo", "", asList(apiMavenPackage("foo", "bar_2.13.0-RC3", emptyVersionsContainer())))
     doCompletionTest(
       fileText = s"//> using dep fo$CARET",
       resultText = s"//> using dep foo:::bar:$CARET",
@@ -63,7 +66,7 @@ final class ScalaDirectiveDependencyCompletionTest extends ScalaCompletionTestBa
   }
 
   def testGroupIdPosition_inBetween(): Unit = {
-    PackageSearchApiClient.updateByQueryCache("fo", "", Seq(ApiPackage("foo", "bar", Seq())))
+    PackageSearchClient.instance().updateByQueryCache("fo", "", asList(apiMavenPackage("foo", "bar", emptyVersionsContainer())))
     doCompletionTest(
       fileText = s"//> using dep fo${CARET}something",
       resultText = s"//> using dep foo:bar:$CARET",
@@ -72,7 +75,7 @@ final class ScalaDirectiveDependencyCompletionTest extends ScalaCompletionTestBa
   }
 
   def testGroupIdPosition_inBetween2(): Unit = {
-    PackageSearchApiClient.updateByQueryCache("fo", "", Seq(ApiPackage("foo", "bar", Seq())))
+    PackageSearchClient.instance().updateByQueryCache("fo", "", asList(apiMavenPackage("foo", "bar", emptyVersionsContainer())))
     doCompletionTest(
       fileText = s"//> using dep fo${CARET}something:another-artifact",
       resultText = s"//> using dep foo:bar:$CARET",
@@ -83,7 +86,7 @@ final class ScalaDirectiveDependencyCompletionTest extends ScalaCompletionTestBa
   /// ARTIFACTS
 
   def testArtifactIdPosition(): Unit = {
-    PackageSearchApiClient.updateByQueryCache("foo", "b", Seq(ApiPackage("foo", "bar", Seq())))
+    PackageSearchClient.instance().updateByQueryCache("foo", "b", asList(apiMavenPackage("foo", "bar", emptyVersionsContainer())))
     doCompletionTest(
       fileText = s"//> using dep foo:b$CARET",
       resultText = s"//> using dep foo:bar:$CARET",
@@ -92,7 +95,7 @@ final class ScalaDirectiveDependencyCompletionTest extends ScalaCompletionTestBa
   }
 
   def testArtifactIdPosition_crossVersion(): Unit = {
-    PackageSearchApiClient.updateByQueryCache("foo", "b", Seq(ApiPackage("foo", "bar_2.12", Seq())))
+    PackageSearchClient.instance().updateByQueryCache("foo", "b", asList(apiMavenPackage("foo", "bar_2.12", emptyVersionsContainer())))
     doCompletionTest(
       fileText = s"//> using dep foo:b$CARET",
       resultText = s"//> using dep foo::bar:$CARET",
@@ -101,7 +104,7 @@ final class ScalaDirectiveDependencyCompletionTest extends ScalaCompletionTestBa
   }
 
   def testArtifactIdPosition_crossVersion2(): Unit = {
-    PackageSearchApiClient.updateByQueryCache("foo", "b", Seq(ApiPackage("foo", "bar_3", Seq())))
+    PackageSearchClient.instance().updateByQueryCache("foo", "b", asList(apiMavenPackage("foo", "bar_3", emptyVersionsContainer())))
     doCompletionTest(
       fileText = s"//> using dep foo::b$CARET",
       resultText = s"//> using dep foo::bar:$CARET",
@@ -110,7 +113,7 @@ final class ScalaDirectiveDependencyCompletionTest extends ScalaCompletionTestBa
   }
 
   def testArtifactIdPosition_fullCrossVersion(): Unit = {
-    PackageSearchApiClient.updateByQueryCache("foo", "b", Seq(ApiPackage("foo", "bar_2.12.15", Seq())))
+    PackageSearchClient.instance().updateByQueryCache("foo", "b", asList(apiMavenPackage("foo", "bar_2.12.15", emptyVersionsContainer())))
     doCompletionTest(
       fileText = s"//> using dep foo:b$CARET",
       resultText = s"//> using dep foo:::bar:$CARET",
@@ -119,7 +122,7 @@ final class ScalaDirectiveDependencyCompletionTest extends ScalaCompletionTestBa
   }
 
   def testArtifactIdPosition_fullCrossVersion2(): Unit = {
-    PackageSearchApiClient.updateByQueryCache("foo", "b", Seq(ApiPackage("foo", "bar_3.3.0", Seq())))
+    PackageSearchClient.instance().updateByQueryCache("foo", "b", asList(apiMavenPackage("foo", "bar_3.3.0", emptyVersionsContainer())))
     doCompletionTest(
       fileText = s"//> using dep foo:b$CARET",
       resultText = s"//> using dep foo:::bar:$CARET",
@@ -128,7 +131,7 @@ final class ScalaDirectiveDependencyCompletionTest extends ScalaCompletionTestBa
   }
 
   def testArtifactIdPosition_fullCrossVersion3(): Unit = {
-    PackageSearchApiClient.updateByQueryCache("foo", "b", Seq(ApiPackage("foo", "bar_2.13.0-RC3", Seq())))
+    PackageSearchClient.instance().updateByQueryCache("foo", "b", asList(apiMavenPackage("foo", "bar_2.13.0-RC3", emptyVersionsContainer())))
     doCompletionTest(
       fileText = s"//> using dep foo:b$CARET",
       resultText = s"//> using dep foo:::bar:$CARET",
@@ -137,7 +140,7 @@ final class ScalaDirectiveDependencyCompletionTest extends ScalaCompletionTestBa
   }
 
   def testArtifactIdPosition_inBetween(): Unit = {
-    PackageSearchApiClient.updateByQueryCache("foo", "b", Seq(ApiPackage("foo", "bar", Seq())))
+    PackageSearchClient.instance().updateByQueryCache("foo", "b", asList(apiMavenPackage("foo", "bar", emptyVersionsContainer())))
     doCompletionTest(
       fileText = s"//> using dep foo:b${CARET}oo",
       resultText = s"//> using dep foo:bar:$CARET",
@@ -146,7 +149,7 @@ final class ScalaDirectiveDependencyCompletionTest extends ScalaCompletionTestBa
   }
 
   def testArtifactIdPosition_inBetween2(): Unit = {
-    PackageSearchApiClient.updateByQueryCache("foo", "b", Seq(ApiPackage("foo", "bar", Seq())))
+    PackageSearchClient.instance().updateByQueryCache("foo", "b", asList(apiMavenPackage("foo", "bar", emptyVersionsContainer())))
     doCompletionTest(
       fileText = s"//> using dep foo:b${CARET}oo:1.2.3",
       resultText = s"//> using dep foo:bar:$CARET",
@@ -155,14 +158,14 @@ final class ScalaDirectiveDependencyCompletionTest extends ScalaCompletionTestBa
   }
 
   def testNoCompletionWhenSelectedCrossVersionButHaveOnlyRegularArtifact(): Unit = {
-    PackageSearchApiClient.updateByQueryCache("foo", "b", Seq(ApiPackage("foo", "bar", Seq())))
+    PackageSearchClient.instance().updateByQueryCache("foo", "b", asList(apiMavenPackage("foo", "bar", emptyVersionsContainer())))
     checkNoBasicCompletion(fileText = s"//> using dep foo::b${CARET}oo", item = "foo:bar:")
   }
 
   /// VERSIONS
 
   def testVersionCompletion(): Unit = {
-    PackageSearchApiClient.updateByIdCache("foo", "bar", Some(ApiPackage("foo", "bar", Seq("1.2.3"))))
+    PackageSearchClient.instance().updateByIdCache("foo", "bar", apiMavenPackage("foo", "bar", versionsContainer("1.2.3")))
     doCompletionTest(
       fileText = s"//> using dep foo:bar:$CARET",
       resultText = s"//> using dep foo:bar:1.2.3$CARET",
@@ -171,7 +174,7 @@ final class ScalaDirectiveDependencyCompletionTest extends ScalaCompletionTestBa
   }
 
   def testVersionCompletion2(): Unit = {
-    PackageSearchApiClient.updateByIdCache("foo", "bar", Some(ApiPackage("foo", "bar", Seq("1.2.3"))))
+    PackageSearchClient.instance().updateByIdCache("foo", "bar", apiMavenPackage("foo", "bar", versionsContainer("1.2.3")))
     doCompletionTest(
       fileText = s"//> using dep foo:bar:1.$CARET",
       resultText = s"//> using dep foo:bar:1.2.3$CARET",
@@ -180,7 +183,7 @@ final class ScalaDirectiveDependencyCompletionTest extends ScalaCompletionTestBa
   }
 
   def testVersionCompletion_inBetween(): Unit = {
-    PackageSearchApiClient.updateByIdCache("foo", "bar", Some(ApiPackage("foo", "bar", Seq("1.2.3"))))
+    PackageSearchClient.instance().updateByIdCache("foo", "bar", apiMavenPackage("foo", "bar", versionsContainer("1.2.3")))
     doCompletionTest(
       fileText = s"//> using dep foo:bar:1.${CARET}1.0",
       resultText = s"//> using dep foo:bar:1.2.3$CARET",
@@ -189,7 +192,7 @@ final class ScalaDirectiveDependencyCompletionTest extends ScalaCompletionTestBa
   }
 
   def testNoCompletionForVersionWhenPrefixIsDifferent(): Unit = {
-    PackageSearchApiClient.updateByIdCache("foo", "bar", Some(ApiPackage("foo", "bar", Seq("1.2.3"))))
+    PackageSearchClient.instance().updateByIdCache("foo", "bar", apiMavenPackage("foo", "bar", versionsContainer("1.2.3")))
     checkNoBasicCompletion(
       fileText = s"//> using dep foo:bar:2$CARET",
       item = "foo:bar:1.2.3"
@@ -197,7 +200,7 @@ final class ScalaDirectiveDependencyCompletionTest extends ScalaCompletionTestBa
   }
 
   def testNoCompletionForVersionWhenNoStableVersionsFound(): Unit = {
-    PackageSearchApiClient.updateByIdCache("foo", "bar", Some(ApiPackage("foo", "bar", Seq("1.2.3-RC1"))))
+    PackageSearchClient.instance().updateByIdCache("foo", "bar", apiMavenPackage("foo", "bar", versionsContainer("1.2.3-RC1", None)))
     checkNoBasicCompletion(
       fileText = s"//> using dep foo:bar:1$CARET",
       item = "foo:bar:1.2.3-RC1"
@@ -205,7 +208,7 @@ final class ScalaDirectiveDependencyCompletionTest extends ScalaCompletionTestBa
   }
 
   def testVersionCompletionWithUnstableOnSecondInvocation(): Unit = {
-    PackageSearchApiClient.updateByIdCache("foo", "bar", Some(ApiPackage("foo", "bar", Seq("1.2.3-RC1"))))
+    PackageSearchClient.instance().updateByIdCache("foo", "bar", apiMavenPackage("foo", "bar", versionsContainer("1.2.3-RC1", None)))
     doCompletionTest(
       fileText = s"//> using dep foo:bar:1.$CARET",
       resultText = s"//> using dep foo:bar:1.2.3-RC1$CARET",
@@ -215,7 +218,7 @@ final class ScalaDirectiveDependencyCompletionTest extends ScalaCompletionTestBa
   }
 
   def testNoCompletionForVersionWhenNothingFound(): Unit = {
-    PackageSearchApiClient.updateByIdCache("foo", "bar", None)
+    PackageSearchClient.instance().updateByIdCache("foo", "bar", null)
     checkNoBasicCompletion(
       fileText = s"//> using dep foo:bar:2$CARET",
       item = "foo:bar:1.2.3-RC1"

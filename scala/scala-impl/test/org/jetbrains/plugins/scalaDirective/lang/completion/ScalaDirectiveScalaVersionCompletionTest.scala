@@ -2,11 +2,12 @@ package org.jetbrains.plugins.scalaDirective.lang.completion
 
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase.DefaultInvocationCount
-import org.jetbrains.plugins.scala.packagesearch.api.PackageSearchApiClient
-import org.jetbrains.plugins.scala.packagesearch.model.ApiPackage
+import org.jetbrains.plugins.scala.packagesearch.api.{PackageSearchClient, PackageSearchClientTesting}
 import org.jetbrains.plugins.scalaDirective.lang.completion.ScalaDirectiveScalaVersionCompletionContributor.{Scala2CompilerArtifactId, Scala3CompilerArtifactId, ScalaCompilerGroupId}
 
-final class ScalaDirectiveScalaVersionCompletionTest extends ScalaCompletionTestBase {
+final class ScalaDirectiveScalaVersionCompletionTest
+  extends ScalaCompletionTestBase
+    with PackageSearchClientTesting {
   private val scala2UnstableVersion = "2.13.0-RC1"
   private val scala2StableVersion = "2.12.15"
   private val scala2Versions = Seq(scala2StableVersion, scala2UnstableVersion)
@@ -16,8 +17,12 @@ final class ScalaDirectiveScalaVersionCompletionTest extends ScalaCompletionTest
   private val scala3Versions = Seq(scala3UnstableVersion, scala3StableVersion)
 
   private def setupCaches(): Unit = {
-    PackageSearchApiClient.updateByIdCache(ScalaCompilerGroupId, Scala2CompilerArtifactId, Some(ApiPackage(ScalaCompilerGroupId, Scala2CompilerArtifactId, scala2Versions)))
-    PackageSearchApiClient.updateByIdCache(ScalaCompilerGroupId, Scala3CompilerArtifactId, Some(ApiPackage(ScalaCompilerGroupId, Scala3CompilerArtifactId, scala3Versions)))
+    PackageSearchClient.instance()
+      .updateByIdCache(ScalaCompilerGroupId, Scala2CompilerArtifactId,
+        apiMavenPackage(ScalaCompilerGroupId, Scala2CompilerArtifactId, versionsContainer(scala2UnstableVersion, Some(scala2StableVersion), scala2Versions)))
+    PackageSearchClient.instance()
+      .updateByIdCache(ScalaCompilerGroupId, Scala3CompilerArtifactId,
+        apiMavenPackage(ScalaCompilerGroupId, Scala3CompilerArtifactId, versionsContainer(scala3UnstableVersion, Some(scala3StableVersion), scala3Versions)))
   }
 
   private def doTest(fileText: String, resultText: String, version: String, invocationCount: Int = DefaultInvocationCount): Unit = {

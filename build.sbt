@@ -104,7 +104,7 @@ lazy val scalaApi = newProject(
       idePackagePrefix := Some("org.jetbrains.plugins.scala"),
     )
 
-lazy val workspaceEntities = newProjectWithKotlin("workspace-entities", Some("sbt/sbt-impl/workspace-entities"))
+lazy val workspaceEntities = newProjectWithKotlin("workspace-entities", file("sbt/sbt-impl/workspace-entities"))
   .settings(
     Compile / unmanagedSourceDirectories ++= Seq(baseDirectory.value/"gen"),
     scalaVersion := Versions.scala3Version,
@@ -323,6 +323,15 @@ lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
     )
   )
 
+lazy val packageSearchClient: sbt.Project =
+  newProjectWithKotlin("package-search-client", file("scala/package-search-client"))
+    .settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions,
+      resolvers += DependencyResolvers.PackageSearch,
+      libraryDependencies += Dependencies.packageSearchClientJvm,
+    )
+
 lazy val scalacPatches: sbt.Project =
   Project("scalac-patches", file("scalac-patches"))
     .settings(projectDirectoriesSettings)
@@ -346,7 +355,8 @@ lazy val scalaImpl: sbt.Project =
       tastyReader % "test->test;compile->compile",
       scalatestFinders,
       runners,
-      testRunners
+      testRunners,
+      packageSearchClient % "test->test;compile->compile",
     )
     .settings(
       ideExcludedDirectories := Seq(

@@ -1,16 +1,19 @@
 package org.jetbrains.plugins.scalaDirective.codeInspection.dependencies
 
 import com.intellij.codeInspection.LocalInspectionTool
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
+import org.jetbrains.packagesearch.api.v3.{ApiMavenVersion, VersionsContainer}
 import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
-import org.jetbrains.plugins.scala.packagesearch.api.PackageSearchApiClient
-import org.jetbrains.plugins.scala.packagesearch.model.ApiPackage
+import org.jetbrains.plugins.scala.packagesearch.api.{PackageSearchClient, PackageSearchClientTesting}
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scalaDirective.ScalaDirectiveBundle
 
-abstract class ScalaDirectiveDependencyVersionInspectionTestBase extends ScalaInspectionTestBase {
+abstract class ScalaDirectiveDependencyVersionInspectionTestBase
+  extends ScalaInspectionTestBase
+    with PackageSearchClientTesting {
   private val groupId = "org.fancyname"
   private val artifactId = "cool-lib"
-  private val versions = Seq(
+
+  private val versions = List(
     "2.0.12", "2.0.11", "2.1.0-RC1", "2.0.3", "2.0.13", "2.0.0-RC6",
     "2.0.10", "2.0.9", "2.0.8", "2.0.7", "1.0.18", "2.0.6", "2.0.5",
     "2.0.4", "1.0.17", "2.0.2", "2.0.1", "1.0.16", "2.0.0", "1.0.15",
@@ -26,8 +29,12 @@ abstract class ScalaDirectiveDependencyVersionInspectionTestBase extends ScalaIn
   private val outdatedStableVersion = "1.0.9"
   private val outdatedUnstableVersion = "2.0.0-M6-1"
 
+  private val versionsContainer = super.versionsContainer(latestUnstableVersion, Some(latestStableVersion), versions)
+
   protected def scalaVersion: ScalaVersion
+
   protected def scalaVersionSuffix: String
+
   protected def fullScalaVersionSuffix: String = scalaVersion.minor
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
@@ -41,16 +48,17 @@ abstract class ScalaDirectiveDependencyVersionInspectionTestBase extends ScalaIn
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == scalaVersion
 
-  protected def preparePackageSearchCache(artifactId: String, versions: Option[Seq[String]]): Unit =
-    PackageSearchApiClient.updateByIdCache(groupId, artifactId, versions.map(ApiPackage(groupId, artifactId, _)))
+  protected def preparePackageSearchCache(artifactId: String, versions: Option[VersionsContainer[ApiMavenVersion]]): Unit =
+    PackageSearchClient.instance().updateByIdCache(groupId, artifactId,
+      versions.map(apiMavenPackage(groupId, artifactId, _)).orNull)
 
   protected def doTest(text: String, expected: String, artifactId: String = this.artifactId): Unit = {
-    preparePackageSearchCache(artifactId, Some(versions))
+    preparePackageSearchCache(artifactId, Some(versionsContainer))
     checkTextHasError(text)
     testQuickFix(text, expected, hint)
   }
 
-  protected def doCheckNoErrors(text: String, versions: Option[Seq[String]] = Some(this.versions)): Unit = {
+  protected def doCheckNoErrors(text: String, versions: Option[VersionsContainer[ApiMavenVersion]] = Some(versionsContainer)): Unit = {
     preparePackageSearchCache(artifactId, versions)
     checkTextHasNoErrors(text)
   }
@@ -127,7 +135,7 @@ abstract class ScalaDirectiveDependencyVersionInspectionTestBase extends ScalaIn
   )
 
   def testOutdatedDependenciesInMultipleDependencyList(): Unit = {
-    preparePackageSearchCache(artifactId, Some(versions))
+    preparePackageSearchCache(artifactId, Some(versionsContainer))
 
     val text = s"//> using deps $START$groupId:$artifactId:$outdatedStableVersion$END $START$groupId:$artifactId:$outdatedUnstableVersion$END"
     checkTextHasError(text)
@@ -203,6 +211,7 @@ abstract class ScalaDirectiveDependencyVersionInspectionTestBase extends ScalaIn
   )
 
   private def scalaVersionArtifactId: String = s"${artifactId}_$scalaVersionSuffix"
+
   private def fullScalaVersionArtifactId: String = s"${artifactId}_$fullScalaVersionSuffix"
 }
 

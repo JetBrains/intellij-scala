@@ -3,18 +3,21 @@ package org.jetbrains.plugins.scalaDirective.lang.completion
 import com.intellij.codeInsight.editorActions.CompletionAutoPopupHandler
 import com.intellij.testFramework.{TestModeFlags, UsefulTestCase}
 import org.jetbrains.plugins.scala.base.ScalaCompletionAutoPopupTestCase
-import org.jetbrains.plugins.scala.packagesearch.api.PackageSearchApiClient
-import org.jetbrains.plugins.scala.packagesearch.model.ApiPackage
+import org.jetbrains.plugins.scala.packagesearch.api.{PackageSearchClient, PackageSearchClientTesting}
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert.assertNull
 import org.junit.runner.RunWith
+
+import java.util.Arrays.asList
 
 @RunWith(classOf[MultipleScalaVersionsRunner])
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_13,
   TestScalaVersion.Scala_3_Latest
 ))
-final class ScalaDirectiveAutoPopupTest extends ScalaCompletionAutoPopupTestCase {
+final class ScalaDirectiveAutoPopupTest
+  extends ScalaCompletionAutoPopupTestCase
+    with PackageSearchClientTesting {
   override def setUp(): Unit = {
     super.setUp()
     TestModeFlags.set[java.lang.Boolean](
@@ -63,21 +66,24 @@ final class ScalaDirectiveAutoPopupTest extends ScalaCompletionAutoPopupTestCase
   }
 
   def testAutoPopupInDependencyAfterGroupId(): Unit = {
-    PackageSearchApiClient.updateByQueryCache("foo", "", Seq(ApiPackage("foo", "bar", Seq())))
+    PackageSearchClient.instance()
+      .updateByQueryCache("foo", "", asList(apiMavenPackage("foo", "bar", emptyVersionsContainer())))
     doTest(":", "foo:bar:" :: Nil) {
       s"//> using dep foo$CARET"
     }
   }
 
   def testAutoPopupInDependencyAfterArtifactId(): Unit = {
-    PackageSearchApiClient.updateByIdCache("foo", "bar", Some(ApiPackage("foo", "bar", Seq("1.2.3"))))
+    PackageSearchClient.instance()
+      .updateByIdCache("foo", "bar", apiMavenPackage("foo", "bar", versionsContainer("1.2.3")))
     doTest(":", "foo:bar:1.2.3" :: Nil) {
       s"//> using dep foo:bar$CARET"
     }
   }
 
   def testNoAutoPopupInDependencyWithWrongKey(): Unit = {
-    PackageSearchApiClient.updateByQueryCache("foo", "", Seq(ApiPackage("foo", "bar", Seq())))
+    PackageSearchClient.instance()
+      .updateByQueryCache("foo", "", asList(apiMavenPackage("foo", "bar", emptyVersionsContainer())))
     doTestNoAutoCompletion(":") {
       s"//> using something foo$CARET"
     }

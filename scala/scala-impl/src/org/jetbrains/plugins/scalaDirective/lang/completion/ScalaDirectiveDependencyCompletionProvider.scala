@@ -7,11 +7,11 @@ import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.progress.util.ProgressIndicatorUtils
 import com.intellij.util.ProcessingContext
+import org.jetbrains.packagesearch.api.v3.ApiMavenPackage
 import org.jetbrains.plugins.scala.LatestScalaVersions
-import org.jetbrains.plugins.scala.extensions.NonNullObjectExt
+import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, NonNullObjectExt}
 import org.jetbrains.plugins.scala.lang.completion.positionFromParameters
-import org.jetbrains.plugins.scala.packagesearch.api.PackageSearchApiClient
-import org.jetbrains.plugins.scala.packagesearch.model.ApiPackage
+import org.jetbrains.plugins.scala.packagesearch.api.PackageSearchClient
 import org.jetbrains.plugins.scala.packagesearch.util.DependencyUtil
 import org.jetbrains.plugins.scalaDirective.dependencies.ScalaDirectiveDependencyDescriptor
 import org.jetbrains.plugins.scalaDirective.lang.completion.ScalaDirectiveDependencyCompletionProvider._
@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scalaDirective.lang.completion.lookups.{ScalaDirect
 import org.jetbrains.plugins.scalaDirective.lang.completion.weigher.ScalaDirectiveDependencyVersionWeigher
 import org.jetbrains.plugins.scalaDirective.util.ScalaDirectiveValueKind
 
-import scala.jdk.CollectionConverters.IterableHasAsJava
+import scala.jdk.CollectionConverters.{IterableHasAsJava, ListHasAsScala}
 
 final class ScalaDirectiveDependencyCompletionProvider extends CompletionProvider[CompletionParameters] {
   override def addCompletions(params: CompletionParameters, processingContext: ProcessingContext, resultSet: CompletionResultSet): Unit = {
@@ -33,9 +33,11 @@ final class ScalaDirectiveDependencyCompletionProvider extends CompletionProvide
 
     def findDependencies(groupId: String, artifactId: String, exactMatchGroupId: Boolean): Seq[LookupElement] = {
       val useCache = !params.isExtendedCompletion || ApplicationManager.getApplication.isUnitTestMode
-      val packagesFuture = PackageSearchApiClient.searchByQuery(groupId, artifactId, useCache)
+      val packagesFuture = PackageSearchClient.instance().searchByQuery(groupId, artifactId, useCache)
       val packages = ProgressIndicatorUtils.awaitWithCheckCanceled(packagesFuture)
-        .pipeIf(exactMatchGroupId)(_.filter(_.groupId == groupId))
+        .asScala.toList
+        .filterByType[ApiMavenPackage]
+        .pipeIf(exactMatchGroupId)(_.filter(_.getGroupId == groupId))
 
       packages.map(toArtifactStringWithoutVersion).distinct.map { lookupString =>
         // schedule version completion auto popup after insertion
@@ -86,8 +88,8 @@ object ScalaDirectiveDependencyCompletionProvider {
     .collect { case version if version.isScala2 => version.major }
   private[this] val ScalaMajorVersions = Scala2MajorVersions :+ "3"
 
-  private def toArtifactStringWithoutVersion(pkg: ApiPackage): String = {
-    val artifactId = pkg.artifactId match {
+  private def toArtifactStringWithoutVersion(pkg: ApiMavenPackage): String = {
+    val artifactId = pkg.getArtifactId match {
       case CrossPublishedArtifact(artifactId, version) =>
 
         /**
@@ -103,7 +105,7 @@ object ScalaDirectiveDependencyCompletionProvider {
       case artifactId => artifactId
     }
 
-    s"${pkg.groupId}:$artifactId:"
+    s"${pkg.getGroupId}:$artifactId:"
   }
 
   private def clean(text: String): String = {

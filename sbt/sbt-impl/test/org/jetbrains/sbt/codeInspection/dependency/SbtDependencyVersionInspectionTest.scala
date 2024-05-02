@@ -2,14 +2,17 @@ package org.jetbrains.sbt.codeInspection.dependency
 
 import com.intellij.openapi.fileTypes.LanguageFileType
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
-import org.jetbrains.plugins.scala.packagesearch.api.PackageSearchApiClient
-import org.jetbrains.plugins.scala.packagesearch.model.ApiPackage
+import org.jetbrains.plugins.scala.packagesearch.api.{PackageSearchClient, PackageSearchClientTesting}
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.codeInspection.SbtDependencyVersionInspection
 import org.jetbrains.sbt.language.SbtFileType
 import org.jetbrains.sbt.{MockSbtBuildModule, MockSbt_1_0, Sbt, SbtHighlightingUtil}
 
-class SbtDependencyVersionInspectionTest extends ScalaInspectionTestBase with MockSbt_1_0 with MockSbtBuildModule {
+class SbtDependencyVersionInspectionTest
+  extends ScalaInspectionTestBase
+    with MockSbt_1_0
+    with MockSbtBuildModule
+    with PackageSearchClientTesting {
   override val sbtVersion: Version = Sbt.LatestVersion
   override protected val classOfInspection = classOf[SbtDependencyVersionInspection]
   override protected val description: String = ""
@@ -26,8 +29,8 @@ class SbtDependencyVersionInspectionTest extends ScalaInspectionTestBase with Mo
     val groupId = "org.scalatest"
     val artifactId = s"scalatest_${version.major}"
 
-    PackageSearchApiClient.updateByIdCache(groupId, artifactId,
-      Some(ApiPackage(groupId, artifactId, Seq("3.0.7", "3.0.8", "3.0.6"))))
+    PackageSearchClient.instance().updateByIdCache(groupId, artifactId,
+      apiMavenPackage(groupId, artifactId, versionsContainer("3.0.8", Seq("3.0.7", "3.0.8", "3.0.6"))))
 
     val text =
       s"""

@@ -152,6 +152,19 @@ object Dependencies {
 
   val intellijMavenTestFramework: ModuleID = ("com.jetbrains.intellij.maven" % "maven-test-framework" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()
   val intellijExternalSystemTestFramework: ModuleID = ("com.jetbrains.intellij.platform" % "external-system-test-framework" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()
+
+  val packageSearchClientJvm = ("org.jetbrains.packagesearch" % "packagesearch-api-client-jvm" % "3.0.0").excludeAll(
+    ExclusionRule(organization = "ch.qos.logback"),
+    ExclusionRule(organization = "com.soywiz.korlibs.krypto"),
+    ExclusionRule(organization = "io.ktor", name = "ktor-client-content-negotiation-jvm"),
+    ExclusionRule(organization = "io.ktor", name = "ktor-client-encoding-jvm"),
+    ExclusionRule(organization = "io.ktor", name = "ktor-http-jvm"),
+    ExclusionRule(organization = "io.ktor", name = "ktor-serialization-kotlinx-json-jvm"),
+    ExclusionRule(organization = "io.ktor", name = "ktor-serialization-kotlinx-jvm"),
+    ExclusionRule(organization = "org.jetbrains.kotlin"),
+    ExclusionRule(organization = "org.jetbrains.kotlinx"),
+    ExclusionRule(organization = "org.slf4j"),
+  )
 }
 
 object DependencyGroups {
@@ -205,4 +218,5 @@ object DependencyGroups {
 
 object DependencyResolvers {
   val IntelliJDependencies = "IntelliJ Dependencies" at "https://cache-redirector.jetbrains.com/intellij-dependencies"
+  val PackageSearch = "Package Search" at "https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/kpm/public"
 }

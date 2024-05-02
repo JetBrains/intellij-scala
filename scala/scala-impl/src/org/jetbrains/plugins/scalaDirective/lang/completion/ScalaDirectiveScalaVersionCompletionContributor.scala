@@ -40,12 +40,9 @@ object ScalaDirectiveScalaVersionCompletionContributor {
   private[completion] val Scala3CompilerArtifactId = "scala3-compiler_3"
 
   private def fetchVersions(onlyStable: Boolean): Seq[ComparableVersion] = {
-    val scala2 = DependencyUtil.getArtifactVersions(ScalaCompilerGroupId, Scala2CompilerArtifactId)
-    val scala3 = DependencyUtil.getArtifactVersions(ScalaCompilerGroupId, Scala3CompilerArtifactId)
+    val scala2 = DependencyUtil.getArtifactVersions(ScalaCompilerGroupId, Scala2CompilerArtifactId, onlyStable)
+    val scala3 = DependencyUtil.getArtifactVersions(ScalaCompilerGroupId, Scala3CompilerArtifactId, onlyStable)
 
-    (scala2 ++ scala3).collect {
-      case version if !onlyStable || DependencyUtil.isStable(version) =>
-        new ComparableVersion(version)
-    }
+    scala2 ++ scala3
   }
 }
