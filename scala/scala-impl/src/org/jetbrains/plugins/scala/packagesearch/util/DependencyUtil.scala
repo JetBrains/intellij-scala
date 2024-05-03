@@ -71,4 +71,14 @@ object DependencyUtil {
       }
     }
   }
+
+  def getScala2CompilerVersions(onlyStable: Boolean): Seq[ComparableVersion] =
+    getArtifactVersions(ScalaCompilerGroupId, Scala2CompilerArtifactId, onlyStable)
+
+  def getScala3CompilerVersions(onlyStable: Boolean): Seq[ComparableVersion] =
+    getArtifactVersions(ScalaCompilerGroupId, Scala3CompilerArtifactId, onlyStable)
+
+  val ScalaCompilerGroupId = "org.scala-lang"
+  val Scala2CompilerArtifactId = "scala-compiler"
+  val Scala3CompilerArtifactId = "scala3-compiler_3"
 }

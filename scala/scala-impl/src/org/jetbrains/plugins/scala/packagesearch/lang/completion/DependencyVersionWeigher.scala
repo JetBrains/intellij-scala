@@ -1,17 +1,17 @@
-package org.jetbrains.plugins.scalaDirective.lang.completion.weigher
+package org.jetbrains.plugins.scala.packagesearch.lang.completion
 
 import com.intellij.codeInsight.completion.impl.NegatingComparable
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementWeigher}
 import org.apache.maven.artifact.versioning.ComparableVersion
 
-object ScalaDirectiveDependencyVersionWeigher extends LookupElementWeigher("scalaDirectiveDependencyVersionWeigher") {
+object DependencyVersionWeigher extends LookupElementWeigher("scalaDependencyVersionWeigher") {
   override def weigh(element: LookupElement): Comparable[_] = {
     val version = element.getObject match {
-      case ScalaDirectiveVersion(version) => version
+      case DependencyVersion(version) => version
       case _ => new ComparableVersion("0.0.0")
     }
     new NegatingComparable(version)
   }
 
-  final case class ScalaDirectiveVersion(version: ComparableVersion)
+  final case class DependencyVersion(version: ComparableVersion)
 }

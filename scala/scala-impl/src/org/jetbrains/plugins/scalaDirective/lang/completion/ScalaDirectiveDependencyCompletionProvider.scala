@@ -12,11 +12,11 @@ import org.jetbrains.plugins.scala.LatestScalaVersions
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, NonNullObjectExt}
 import org.jetbrains.plugins.scala.lang.completion.positionFromParameters
 import org.jetbrains.plugins.scala.packagesearch.api.PackageSearchClient
+import org.jetbrains.plugins.scala.packagesearch.lang.completion.DependencyVersionWeigher
 import org.jetbrains.plugins.scala.packagesearch.util.DependencyUtil
 import org.jetbrains.plugins.scalaDirective.dependencies.ScalaDirectiveDependencyDescriptor
 import org.jetbrains.plugins.scalaDirective.lang.completion.ScalaDirectiveDependencyCompletionProvider._
 import org.jetbrains.plugins.scalaDirective.lang.completion.lookups.{ScalaDirectiveDependencyLookupItem, ScalaDirectiveDependencyVersionLookupItem}
-import org.jetbrains.plugins.scalaDirective.lang.completion.weigher.ScalaDirectiveDependencyVersionWeigher
 import org.jetbrains.plugins.scalaDirective.util.ScalaDirectiveValueKind
 
 import scala.jdk.CollectionConverters.{IterableHasAsJava, ListHasAsScala}
@@ -70,7 +70,7 @@ final class ScalaDirectiveDependencyCompletionProvider extends CompletionProvide
 
             val sorter = CompletionSorter.emptySorter()
               .weigh(new RealPrefixMatchingWeigher)
-              .weigh(ScalaDirectiveDependencyVersionWeigher)
+              .weigh(DependencyVersionWeigher)
 
             resultSet
               .withRelevanceSorter(sorter)

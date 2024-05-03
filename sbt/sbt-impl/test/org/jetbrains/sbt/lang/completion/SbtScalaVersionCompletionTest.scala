@@ -1,13 +1,13 @@
-package org.jetbrains.plugins.scalaDirective.lang.completion
+package org.jetbrains.sbt.lang.completion
 
-import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase.DefaultInvocationCount
 import org.jetbrains.plugins.scala.packagesearch.api.{PackageSearchClient, PackageSearchClientTesting}
 import org.jetbrains.plugins.scala.packagesearch.util.DependencyUtil.{Scala2CompilerArtifactId, Scala3CompilerArtifactId, ScalaCompilerGroupId}
 
-final class ScalaDirectiveScalaVersionCompletionTest
-  extends ScalaCompletionTestBase
+final class SbtScalaVersionCompletionTest
+  extends SbtCompletionTestBase
     with PackageSearchClientTesting {
+
   private val scala2UnstableVersion = "2.13.0-RC1"
   private val scala2StableVersion = "2.12.15"
   private val scala2Versions = Seq(scala2StableVersion, scala2UnstableVersion)
@@ -19,13 +19,16 @@ final class ScalaDirectiveScalaVersionCompletionTest
   private def setupCaches(): Unit = {
     PackageSearchClient.instance()
       .updateByIdCache(ScalaCompilerGroupId, Scala2CompilerArtifactId,
-        apiMavenPackage(ScalaCompilerGroupId, Scala2CompilerArtifactId, versionsContainer(scala2UnstableVersion, Some(scala2StableVersion), scala2Versions)))
+        apiMavenPackage(ScalaCompilerGroupId, Scala2CompilerArtifactId,
+          versionsContainer(scala2UnstableVersion, Some(scala2StableVersion), scala2Versions)))
     PackageSearchClient.instance()
       .updateByIdCache(ScalaCompilerGroupId, Scala3CompilerArtifactId,
-        apiMavenPackage(ScalaCompilerGroupId, Scala3CompilerArtifactId, versionsContainer(scala3UnstableVersion, Some(scala3StableVersion), scala3Versions)))
+        apiMavenPackage(ScalaCompilerGroupId, Scala3CompilerArtifactId,
+          versionsContainer(scala3UnstableVersion, Some(scala3StableVersion), scala3Versions)))
   }
 
-  private def doTest(fileText: String, resultText: String, version: String, invocationCount: Int = DefaultInvocationCount): Unit = {
+  private def doTest(fileText: String, resultText: String,
+                     version: String, invocationCount: Int = DefaultInvocationCount): Unit = {
     setupCaches()
     doCompletionTest(
       fileText = fileText,
@@ -44,73 +47,100 @@ final class ScalaDirectiveScalaVersionCompletionTest
   }
 
   def testScala2Version(): Unit = doTest(
-    s"//> using scala $CARET",
-    s"//> using scala $scala2StableVersion$CARET",
+    s"""scalaVersion := "$CARET"""",
+    s"""scalaVersion := "$scala2StableVersion$CARET"""",
     scala2StableVersion
   )
 
   def testScala2Version2(): Unit = doTest(
-    s"//> using scala 2.$CARET",
-    s"//> using scala $scala2StableVersion$CARET",
+    s"""scalaVersion := "2.$CARET"""",
+    s"""scalaVersion := "$scala2StableVersion$CARET"""",
+    scala2StableVersion
+  )
+
+  def testScala2Version3(): Unit = doTest(
+    s"""scalaVersion := "2.${CARET}12.6"""",
+    s"""scalaVersion := "$scala2StableVersion$CARET"""",
+    scala2StableVersion
+  )
+
+  def testNoCompletionForScala2VersionOutsideOfStringLiteral(): Unit = doTestNoCompletion(
+    s"""scalaVersion := $CARET""",
+    scala2StableVersion
+  )
+
+  def testNoCompletionForScala2VersionOutsideOfStringLiteral2(): Unit = doTestNoCompletion(
+    s"""scalaVersion := 2.$CARET""",
+    scala2StableVersion
+  )
+
+  def testNoCompletionForScala2VersionOutsideOfStringLiteral3(): Unit = doTestNoCompletion(
+    s"""scalaVersion := 2.${CARET}12.6""",
     scala2StableVersion
   )
 
   def testNoCompletionForScala2UnstableVersion(): Unit = doTestNoCompletion(
-    s"//> using scala $CARET",
+    s"""scalaVersion := "$CARET"""",
     scala2UnstableVersion
   )
 
   def testNoCompletionForScala2UnstableVersion2(): Unit = doTestNoCompletion(
-    s"//> using scala 2$CARET",
+    s"""scalaVersion := "2$CARET"""",
     scala2UnstableVersion
   )
 
   def testScala2UnstableVersionOnSecondInvocation(): Unit = doTest(
-    s"//> using scala $CARET",
-    s"//> using scala $scala2UnstableVersion$CARET",
+    s"""scalaVersion := "$CARET"""",
+    s"""scalaVersion := "$scala2UnstableVersion$CARET"""",
     scala2UnstableVersion,
     invocationCount = 2
   )
 
   def testScala2UnstableVersionOnSecondInvocation2(): Unit = doTest(
-    s"//> using scala 2.$CARET",
-    s"//> using scala $scala2UnstableVersion$CARET",
+    s"""scalaVersion := "2.$CARET"""",
+    s"""scalaVersion := "$scala2UnstableVersion$CARET"""",
     scala2UnstableVersion,
     invocationCount = 2
   )
 
   def testScala3Version(): Unit = doTest(
-    s"//> using scala $CARET",
-    s"//> using scala $scala3StableVersion$CARET",
+    s"""scalaVersion := "$CARET"""",
+    s"""scalaVersion := "$scala3StableVersion$CARET"""",
     scala3StableVersion
   )
 
   def testScala3Version2(): Unit = doTest(
-    s"//> using scala 3.$CARET",
-    s"//> using scala $scala3StableVersion$CARET",
+    s"""scalaVersion := "3.$CARET"""",
+    s"""scalaVersion := "$scala3StableVersion$CARET"""",
+    scala3StableVersion
+  )
+
+  def testScala3Version3(): Unit = doTest(
+    s"""scalaVersion := "3.${CARET}0.1"""",
+    s"""scalaVersion := "$scala3StableVersion$CARET"""",
     scala3StableVersion
   )
 
   def testNoCompletionForScala3UnstableVersion(): Unit = doTestNoCompletion(
-    s"//> using scala $CARET",
+    s"""scalaVersion := "$CARET"""",
     scala3UnstableVersion
   )
 
   def testNoCompletionForScala3UnstableVersion2(): Unit = doTestNoCompletion(
-    s"//> using scala 3$CARET",
+    s"""scalaVersion := "3$CARET"""",
     scala3UnstableVersion
   )
 
   def testScala3UnstableVersionOnSecondInvocation(): Unit = doTest(
-    s"//> using scala $CARET",
-    s"//> using scala $scala3UnstableVersion$CARET",
+    s"""scalaVersion := "$CARET"""",
+    s"""scalaVersion := "$scala3UnstableVersion$CARET"""",
     scala3UnstableVersion,
     invocationCount = 2
   )
 
   def testScala3UnstableVersionOnSecondInvocation2(): Unit = doTest(
-    s"//> using scala 3.$CARET",
-    s"//> using scala $scala3UnstableVersion$CARET",
+    s"""scalaVersion := "3.$CARET"""",
+    s"""scalaVersion := "$scala3UnstableVersion$CARET"""",
     scala3UnstableVersion,
     invocationCount = 2
   )

@@ -50,8 +50,9 @@ object SbtPsiElementPatterns {
     .`with`(condition[ScStringLiteral]("isScalacOptionsStringLiteralPattern")(isScalacOption(_)))
 
   def versionPattern: Capture[PsiElement] = psiElement().`with`(condition[PsiElement]("isVersionPattern") {
-    case infix: ScInfixExpr if infix.operation.refName == ":=" =>
-      infix.left match {
+    // do not suggest completion outside of string literals
+    case ScInfixExpr(left, ref, _: ScStringLiteral) if ref.refName == ":=" =>
+      left match {
         /* ThisBuild / scalaVersion := ... */
         case subInfix: ScInfixExpr =>
           subInfix.operation.refName == "/" && subInfix.right.textMatches("scalaVersion")

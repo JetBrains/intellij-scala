@@ -5,10 +5,10 @@ import com.intellij.codeInsight.completion.impl.RealPrefixMatchingWeigher
 import com.intellij.util.ProcessingContext
 import org.apache.maven.artifact.versioning.ComparableVersion
 import org.jetbrains.plugins.scala.lang.completion.positionFromParameters
+import org.jetbrains.plugins.scala.packagesearch.lang.completion.DependencyVersionWeigher
 import org.jetbrains.plugins.scala.packagesearch.util.DependencyUtil
 import org.jetbrains.plugins.scalaDirective.lang.completion.ScalaDirectiveScalaVersionCompletionContributor.fetchVersions
 import org.jetbrains.plugins.scalaDirective.lang.completion.lookups.ScalaDirectiveDependencyVersionLookupItem
-import org.jetbrains.plugins.scalaDirective.lang.completion.weigher.ScalaDirectiveDependencyVersionWeigher
 import org.jetbrains.plugins.scalaDirective.util.ScalaDirectiveValueKind
 
 import scala.jdk.CollectionConverters.IterableHasAsJava
@@ -25,7 +25,7 @@ final class ScalaDirectiveScalaVersionCompletionContributor extends CompletionCo
 
       val sorter = CompletionSorter.emptySorter()
         .weigh(new RealPrefixMatchingWeigher)
-        .weigh(ScalaDirectiveDependencyVersionWeigher)
+        .weigh(DependencyVersionWeigher)
       val newResultSet = resultSet.withRelevanceSorter(sorter)
 
       newResultSet.addAllElements(lookupElements.asJava)
@@ -35,13 +35,9 @@ final class ScalaDirectiveScalaVersionCompletionContributor extends CompletionCo
 }
 
 object ScalaDirectiveScalaVersionCompletionContributor {
-  private[completion] val ScalaCompilerGroupId = "org.scala-lang"
-  private[completion] val Scala2CompilerArtifactId = "scala-compiler"
-  private[completion] val Scala3CompilerArtifactId = "scala3-compiler_3"
-
   private def fetchVersions(onlyStable: Boolean): Seq[ComparableVersion] = {
-    val scala2 = DependencyUtil.getArtifactVersions(ScalaCompilerGroupId, Scala2CompilerArtifactId, onlyStable)
-    val scala3 = DependencyUtil.getArtifactVersions(ScalaCompilerGroupId, Scala3CompilerArtifactId, onlyStable)
+    val scala2 = DependencyUtil.getScala2CompilerVersions(onlyStable)
+    val scala3 = DependencyUtil.getScala3CompilerVersions(onlyStable)
 
     scala2 ++ scala3
   }
