@@ -85,6 +85,10 @@ object ScalaFeatures {
     def `case in pattern bindings`: Boolean =
       `in >= 2.12.15 or 2.13.7 or 3` || `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
 
+    //SCL-22468
+    def `Scala 3 Irrefutable Patterns`: Boolean =
+      hasSourceFutureFlag || languageLevel >= ScalaLanguageLevel.Scala_3_4
+
     override def usingInArgumentsEnabled: Boolean = Bits.usingInArgumentsEnabled.read(bits)
 
     def `optional braces for method arguments`: Boolean =

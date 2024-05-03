@@ -183,18 +183,16 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor wit
       normalizeUnderscores(expr).getText
     }
 
-    def needsPatternMatchFilter(pattern: ScPattern): Boolean = {
+    def canSkipPatternMatchFilter(pattern: ScPattern): Boolean = {
       val features = pattern.features
-      lazy val hasSc3Case = pattern.prevSiblingNotWhitespace.exists(_.textMatches(ScalaModifier.CASE))
-      lazy val hasSc3IrrefutablePatternsEnabled =
-        features.hasSourceFutureFlag || pattern.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_3_4)
-      lazy val isRefutablePattern = !pattern.isIrrefutableFor(if (forDisplay) pattern.expectedType else None)
+
+      lazy val isIrrefutablePattern = pattern.isIrrefutableFor(if (forDisplay) pattern.expectedType else None)
 
       if (features.isScala3) {
-        hasSc3Case || (!hasSc3IrrefutablePatternsEnabled && isRefutablePattern)
-      } else {
-        isRefutablePattern
+        val hasCase = pattern.prevSiblingNotWhitespace.exists(_.getNode.getElementType == ScalaTokenTypes.kCASE)
+        !hasCase && (features.`Scala 3 Irrefutable Patterns` || isIrrefutablePattern)
       }
+      else isIrrefutablePattern
     }
 
     val resultText = new mutable.StringBuilder()
@@ -287,7 +285,9 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor wit
         "withFilter"
       }
 
-      if (!this.betterMonadicForEnabled && needsPatternMatchFilter(pattern)) {
+      if (this.betterMonadicForEnabled || canSkipPatternMatchFilter(pattern)) {
+        //do nothing
+      } else {
         appendFunc(filterFunc, None, initialArg, forceCases = true) {
           resultText ++= "true; case _ => false"
         }
