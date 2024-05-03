@@ -14,7 +14,7 @@ In case of any questions you are welcome on our [discord channel](https://discor
 - [PSI Viewer](https://www.jetbrains.com/help/idea/psi-viewer.html) is an essential tool to dig into the structure of a source code.
 - [Useful links in IntelliJ docs](https://plugins.jetbrains.com/docs/intellij/useful-links.html)
 
-### Some guidelines for code, commits and pull requests:
+### Guidelines for code, commits and pull requests:
 - Make sure your modifications are covered by tests
 - Make sure you have a YouTrack issue number before you start working
 - Every commit message should reference the YouTrack issue number in format `#SCL-XXXXX`
