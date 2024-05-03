@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy
 
 import com.intellij.codeHighlighting._
 import com.intellij.codeInsight.daemon.ProblemHighlightFilter
-import com.intellij.codeInsight.daemon.impl.{DefaultHighlightInfoProcessor, FileStatusMap, HighlightInfoProcessor}
+import com.intellij.codeInsight.daemon.impl.{FileStatusMap, HighlightInfoProcessor}
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
@@ -28,7 +28,7 @@ final class ScalaUnusedImportsPassFactory
     if (nothingChangedInFile)
       null
     else
-      new ScalaUnusedImportPass(file, editor, editor.getDocument, new DefaultHighlightInfoProcessor)
+      new ScalaUnusedImportPass(file, editor, editor.getDocument, HighlightInfoProcessor.getEmpty)
   }
 
   override def createMainHighlightingPass(file: PsiFile, document: Document,
