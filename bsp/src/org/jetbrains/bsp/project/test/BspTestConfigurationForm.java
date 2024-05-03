@@ -1,5 +1,6 @@
 package org.jetbrains.bsp.project.test;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.project.Project;
@@ -46,6 +47,8 @@ public class BspTestConfigurationForm extends SettingsEditor<BspTestRunConfigura
     public BspTestConfigurationForm(Project project) {
         this.project = project;
         $$$setupUI$$$();
+        refreshClassesButton.setIcon(AllIcons.Actions.Refresh);
+
         { // init combo box
             for (TestMode sm : TestMode.values())
                 testModeCombobox.addItem(sm);
@@ -214,7 +217,6 @@ public class BspTestConfigurationForm extends SettingsEditor<BspTestRunConfigura
         matchedClassesList.setAutoscrolls(false);
         jBScrollPane1.setViewportView(matchedClassesList);
         refreshClassesButton = new JButton();
-        refreshClassesButton.setIcon(new ImageIcon(getClass().getResource("/actions/refresh.png")));
         this.$$$loadButtonText$$$(refreshClassesButton, this.$$$getMessageFromBundle$$$("messages/ScalaBspBundle", "bsp.test.refresh"));
         testClassFormWrapper.add(refreshClassesButton, new GridConstraints(2, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }

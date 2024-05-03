@@ -64,7 +64,7 @@ object ScalaFeatures {
     private def hasNoIndentFlag: Boolean = Bits.hasNoIndentFlag.read(bits)
     private def hasOldSyntaxFlag: Boolean = Bits.hasOldSyntaxFlag.read(bits)
     private def hasDeprecationFlag: Boolean = Bits.hasDeprecationFlag.read(bits)
-    private def hasSourceFutureFlag: Boolean = Bits.hasSourceFutureFlag.read(bits)
+    def hasSourceFutureFlag: Boolean = Bits.hasSourceFutureFlag.read(bits)
     def hasMetaEnabled: Boolean = Bits.hasMetaEnabled.read(bits)
     def hasTrailingCommasEnabled: Boolean = Bits.hasTrailingCommasEnabled.read(bits)
     def hasUnderscoreWildcardsDisabled: Boolean = Bits.hasUnderscoreWildcardsDisabled.read(bits)
@@ -84,6 +84,10 @@ object ScalaFeatures {
       `in >= 2.12.16 or 2.13.9 or 3` || `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
     def `case in pattern bindings`: Boolean =
       `in >= 2.12.15 or 2.13.7 or 3` || `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
+
+    //SCL-22468
+    def `Scala 3 Irrefutable Patterns`: Boolean =
+      hasSourceFutureFlag || languageLevel >= ScalaLanguageLevel.Scala_3_4
 
     override def usingInArgumentsEnabled: Boolean = Bits.usingInArgumentsEnabled.read(bits)
 

@@ -1,14 +1,15 @@
-package org.jetbrains.plugins.scala
-package annotator
+package org.jetbrains.plugins.scala.annotator
 
 import org.jetbrains.plugins.scala.DependencyManagerBase._
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaBundle, ScalaVersion}
+import org.jetbrains.plugins.scala.annotator.Message._
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 
 abstract class ForComprehensionHighlightingTestBase extends ScalaHighlightingTestBase
 
 class ForComprehensionHighlightingTest extends ForComprehensionHighlightingTestBase {
-  import Message._
+
 
   def test_guard_type(): Unit = {
     val code =
@@ -17,7 +18,7 @@ class ForComprehensionHighlightingTest extends ForComprehensionHighlightingTestB
         |for {y <- Seq(true) if y } {}
       """.stripMargin
 
-    assertMatches(errorsFromScalaCode(code)){
+    assertMatches(errorsFromScalaCode(code)) {
       case Error("if", "Cannot resolve overloaded method 'withFilter'") ::
         Error("x", "Expression of type Int doesn't conform to expected type Boolean") ::
         Nil =>
@@ -35,7 +36,7 @@ class ForComprehensionHighlightingTest extends ForComprehensionHighlightingTestB
         |for {y <- new A[Int] if y } {}
       """.stripMargin
 
-    assertMatches(errorsFromScalaCode(code)){
+    assertMatches(errorsFromScalaCode(code)) {
       case Error("x", "Expression of type Boolean doesn't conform to expected type Int") :: Nil =>
     }
   }
@@ -46,7 +47,7 @@ class ForComprehensionHighlightingTest extends ForComprehensionHighlightingTestB
         |for (i <- 1 to 5 if i) 1
       """.stripMargin
 
-    assertMatches(errorsFromScalaCode(code)){
+    assertMatches(errorsFromScalaCode(code)) {
       case Error("if", "Cannot resolve overloaded method 'withFilter'") ::
         Error("i", "Expression of type Int doesn't conform to expected type Boolean") ::
         Nil =>
@@ -66,7 +67,7 @@ class ForComprehensionHighlightingTest extends ForComprehensionHighlightingTestB
         |  } yield "blah"
       """.stripMargin
 
-    assertMatches(errorsFromScalaCode(code)){
+    assertMatches(errorsFromScalaCode(code)) {
       case Error("y <- Option(\"hello2\")", "Expression of type Option[String] doesn't conform to expected type Future[S_]") :: Nil =>
     }
   }
@@ -94,7 +95,7 @@ class ForComprehensionHighlightingTest extends ForComprehensionHighlightingTestB
         |  } yield "blah"
       """.stripMargin
 
-    assertMatches(errorsFromScalaCode(code)){
+    assertMatches(errorsFromScalaCode(code)) {
       case Error("x <- Seq(1, 2)", "Expression of type Seq[String] doesn't conform to expected type Option[B_]") :: Nil =>
     }
   }
@@ -108,7 +109,7 @@ class ForComprehensionHighlightingTest extends ForComprehensionHighlightingTestB
         |for (i <- Unit; j <- Unit) yield (i, j)
       """.stripMargin
 
-    assertMatches(errorsFromScalaCode(code)){
+    assertMatches(errorsFromScalaCode(code)) {
       case Error("<-", "Cannot resolve symbol foreach") ::
         Error("<-", "Cannot resolve symbol map") ::
         Error("<-", "Cannot resolve symbol flatMap") ::
@@ -139,7 +140,7 @@ class ForComprehensionHighlightingTest extends ForComprehensionHighlightingTestB
         |for(x <- l; y <- s) yield 3.14
       """.stripMargin
 
-    assertMatches(errorsFromScalaCode(code)){
+    assertMatches(errorsFromScalaCode(code)) {
       case Error("y <- l", "Expression of type List[String] doesn't conform to expected type Option[B_]") :: Nil =>
     }
   }
@@ -193,7 +194,7 @@ class ForComprehensionHighlightingTest extends ForComprehensionHighlightingTestB
         |} yield elem + 1
       """.stripMargin
 
-    assertMatches(errorsFromScalaCode(code)){
+    assertMatches(errorsFromScalaCode(code)) {
       case Error(_, "Expression of type List[Int] doesn't conform to expected type Option[B_]") :: Nil =>
     }
   }
@@ -212,7 +213,7 @@ class ForComprehensionHighlightingTest extends ForComprehensionHighlightingTestB
         |} yield {}
       """.stripMargin
 
-    assertMatches(errorsFromScalaCode(code)){
+    assertMatches(errorsFromScalaCode(code)) {
       case Error("<-", "Cannot resolve symbol flatMap") :: Nil =>
     }
   }
@@ -276,7 +277,7 @@ class ForComprehensionHighlightingTest extends ForComprehensionHighlightingTestB
 }
 
 class ForComprehensionHighlightingTest_with_cats_2_12 extends ForComprehensionHighlightingTestBase {
-  import Message._
+
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 
@@ -295,14 +296,14 @@ class ForComprehensionHighlightingTest_with_cats_2_12 extends ForComprehensionHi
         |} yield x + y
       """.stripMargin
 
-    assertMatches(errorsFromScalaCode(code)){
+    assertMatches(errorsFromScalaCode(code)) {
       case Error("<-", "Cannot resolve symbol withFilter") :: Error("+", "Cannot resolve symbol +") :: Nil =>
     }
   }
 }
 
 class ForComprehensionHighlightingTest_without_filter extends ForComprehensionHighlightingTestBase {
-  import Message._
+
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version > LatestScalaVersions.Scala_2_11
 
@@ -329,7 +330,7 @@ class ForComprehensionHighlightingTest_without_filter extends ForComprehensionHi
 }
 
 class ForComprehensionHighlightingTest_with_filter extends ForComprehensionHighlightingTestBase {
-  import Message._
+
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version <= LatestScalaVersions.Scala_2_11
 
@@ -451,9 +452,10 @@ class ForComprehensionHighlightingTest_with_filter extends ForComprehensionHighl
 }
 
 class ForComprehensionHighlightingTest_with_BetterMonadicFor extends ForComprehensionHighlightingTestBase {
-  import Message._
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_12
+
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= LatestScalaVersions.Scala_2_12 && version < LatestScalaVersions.Scala_3_0
 
   override protected def setUp(): Unit = {
     super.setUp()
@@ -485,13 +487,14 @@ class ForComprehensionHighlightingTest_with_BetterMonadicFor extends ForComprehe
 }
 
 class ForComprehensionSemicolonTest extends ForComprehensionHighlightingTestBase {
-  import Message._
 
   import org.junit.Assert.assertEquals
+
   val errorText = ScalaBundle.message("semicolon.not.allowed.here")
+
   def errors(code: String) = {
     val msgs = errorsFromScalaCode(code)
-    msgs.foreach { msg => assertEquals(Error(";", errorText), msg)}
+    msgs.foreach { msg => assertEquals(Error(";", errorText), msg) }
     msgs.length
   }
 
@@ -506,4 +509,96 @@ class ForComprehensionSemicolonTest extends ForComprehensionHighlightingTestBase
 
   def test_error_semicolons_with_newlines(): Unit =
     assertEquals(2 + 2 + 3 + 3, errors("for{\n; \n; \nx <- Seq(1)\n;\n;\n;\nif x == 3\n;\n;;;\n y = x\n;;\n;} ()"))
+}
+
+abstract class ForComprehensionRefutabilityTestBase_3 extends ForComprehensionHighlightingTestBase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_3
+
+  def test_case_simple(): Unit = {
+    val code =
+      """
+        |val list = List(List(1, 2), List(3))
+        |for case head :: tail <- list do println(head > 1)
+      """.stripMargin
+
+    assertNoErrors(code)
+  }
+
+  def test_case_nested(): Unit = {
+    val code =
+      """
+        |val list = List(List(1, 2), List(3, 4))
+        |for case (_ :: (head :: tail)) <- list do println(head > 1)
+      """.stripMargin
+
+    assertNoErrors(code)
+  }
+
+  def test_missing_withFilter_WithCase(): Unit = {
+    val code =
+      """
+        |for
+        |  case (a, b) <- Right("" -> 1)
+        |yield ()
+      """.stripMargin
+
+    assertMessages(code, Error("<-", "Cannot resolve symbol withFilter"))
+  }
+
+  def test_missing_withFilter(): Unit = {
+    val code =
+      """
+        |for
+        |  (a, b) <- Right("" -> 1)
+        |yield ()
+      """.stripMargin
+
+    assertMessages(code, Error("<-", "Cannot resolve symbol withFilter"))
+  }
+}
+
+class ForComprehensionRefutabilityTest_3_3 extends ForComprehensionRefutabilityTestBase_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_3
+}
+
+class ForComprehensionRefutabilityTest_3_3_future extends ForComprehensionRefutabilityTestBase_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_3
+
+  override protected def setUp(): Unit = {
+    super.setUp()
+
+    val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
+    val newSettings = defaultProfile.getSettings.copy(
+      additionalCompilerOptions = defaultProfile.getSettings.additionalCompilerOptions :+ "-source:future"
+    )
+    defaultProfile.setSettings(newSettings)
+  }
+
+  override def test_missing_withFilter(): Unit = {
+    val code =
+      """
+        |for
+        |  (a, b) <- Right("" -> 1)
+        |yield ()
+      """.stripMargin
+
+    assertNoErrors(code)
+  }
+}
+
+class ForComprehensionRefutabilityTest_From_3_4 extends ForComprehensionRefutabilityTestBase_3 {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_4
+
+  override def test_missing_withFilter(): Unit = {
+    val code =
+      """
+        |for
+        |  (a, b) <- Right("" -> 1)
+        |yield ()
+      """.stripMargin
+
+    assertNoErrors(code)
+  }
 }
