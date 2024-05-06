@@ -8,7 +8,7 @@ import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cached}
 import org.jetbrains.plugins.scala.extensions.{Model, ObjectExt, PsiElementExt, StringsExt}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaModifier, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -183,8 +183,17 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor wit
       normalizeUnderscores(expr).getText
     }
 
-    def needsPatternMatchFilter(pattern: ScPattern): Boolean =
-      !pattern.isIrrefutableFor(if (forDisplay) pattern.expectedType else None)
+    def canSkipPatternMatchFilter(pattern: ScPattern): Boolean = {
+      val features = pattern.features
+
+      lazy val isIrrefutablePattern = pattern.isIrrefutableFor(if (forDisplay) pattern.expectedType else None)
+
+      if (features.isScala3) {
+        val hasCase = pattern.prevSiblingNotWhitespace.exists(_.getNode.getElementType == ScalaTokenTypes.kCASE)
+        !hasCase && (features.`Scala 3 Irrefutable Patterns` || isIrrefutablePattern)
+      }
+      else isIrrefutablePattern
+    }
 
     val resultText = new mutable.StringBuilder()
     val patternMappings = mutable.Map.empty[ScPattern, Int]
@@ -276,7 +285,9 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor wit
         "withFilter"
       }
 
-      if (!this.betterMonadicForEnabled && needsPatternMatchFilter(pattern)) {
+      if (this.betterMonadicForEnabled || canSkipPatternMatchFilter(pattern)) {
+        //do nothing
+      } else {
         appendFunc(filterFunc, None, initialArg, forceCases = true) {
           resultText ++= "true; case _ => false"
         }
