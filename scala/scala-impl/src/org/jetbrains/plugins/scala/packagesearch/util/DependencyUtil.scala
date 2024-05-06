@@ -3,7 +3,8 @@ package org.jetbrains.plugins.scala.packagesearch.util
 import com.intellij.openapi.progress.util.ProgressIndicatorUtils
 import com.intellij.psi.PsiElement
 import org.apache.maven.artifact.versioning.ComparableVersion
-import org.jetbrains.plugins.scala.extensions.{NonNullObjectExt, SeqExt}
+import org.jetbrains.packagesearch.api.v3.ApiMavenPackage
+import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, NonNullObjectExt, SeqExt}
 import org.jetbrains.plugins.scala.packagesearch.api.PackageSearchClient
 import org.jetbrains.plugins.scala.packagesearch.codeInspection.DependencyVersionInspection.{ArtifactIdSuffix, DependencyDescriptor}
 import org.jetbrains.plugins.scala.project.{ProjectExt, ProjectPsiElementExt}
@@ -42,6 +43,15 @@ object DependencyUtil {
         else projectVersions.map(_.minor)
       versionStrings.distinct
     }
+  }
+
+  def getArtifacts(groupId: String, artifactId: String, useCache: Boolean, exactMatchGroupId: Boolean): List[ApiMavenPackage] = {
+    val packagesFuture = PackageSearchClient.instance().searchByQuery(groupId, artifactId, useCache)
+    val packages = ProgressIndicatorUtils.awaitWithCheckCanceled(packagesFuture)
+      .asScala.toList
+      .filterByType[ApiMavenPackage]
+      .pipeIf(exactMatchGroupId)(_.filter(_.getGroupId == groupId))
+    packages
   }
 
   def getArtifactVersions(groupId: String, artifactId: String, onlyStable: Boolean): Seq[ComparableVersion] = {

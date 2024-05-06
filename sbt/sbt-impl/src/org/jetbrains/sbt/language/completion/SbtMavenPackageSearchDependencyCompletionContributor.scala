@@ -4,24 +4,19 @@ import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.completion.impl.RealPrefixMatchingWeigher
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder, LookupElementPresentation}
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.progress.util.ProgressIndicatorUtils
 import com.intellij.openapi.project.Project
 import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi.PsiElement
 import com.intellij.util.ProcessingContext
 import org.apache.maven.artifact.versioning.ComparableVersion
-import org.jetbrains.packagesearch.api.v3.ApiMavenPackage
-import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, NonNullObjectExt, ObjectExt, PsiElementExt, inReadAction, inWriteCommandAction}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, inReadAction, inWriteCommandAction}
 import org.jetbrains.plugins.scala.lang.completion._
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScInfixExpr, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
-import org.jetbrains.plugins.scala.packagesearch.api.PackageSearchClient
 import org.jetbrains.plugins.scala.packagesearch.util.DependencyUtil
 import org.jetbrains.sbt.language.utils.SbtDependencyUtils.GetMode.GetDep
 import org.jetbrains.sbt.language.utils._
-
-import scala.jdk.CollectionConverters.ListHasAsScala
 
 // TODO(SCL-19130, SCL-22206): refactor
 class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionContributor {
@@ -123,11 +118,7 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
       def completeDependencies(groupIdText: String, artifactIdText: String, resultSet: CompletionResultSet, fillArtifact: Boolean): Unit = {
         val groupId = formatString(groupIdText)
         val artifactId = formatString(artifactIdText)
-        val packagesFuture = PackageSearchClient.instance().searchByQuery(groupId, artifactId, useCache)
-        val packages = ProgressIndicatorUtils.awaitWithCheckCanceled(packagesFuture)
-          .asScala.toList
-          .filterByType[ApiMavenPackage]
-          .pipeIf(fillArtifact)(_.filter(_.getGroupId == groupId))
+        val packages = DependencyUtil.getArtifacts(groupId, artifactId, useCache, exactMatchGroupId = fillArtifact)
 
         packages.foreach { pkg =>
           addArtifactResult(s"${pkg.getGroupId}:${pkg.getArtifactId}:", fillArtifact, resultSet)
