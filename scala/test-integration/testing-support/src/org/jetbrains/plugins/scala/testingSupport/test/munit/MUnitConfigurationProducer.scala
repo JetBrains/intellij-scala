@@ -27,7 +27,7 @@ final class MUnitConfigurationProducer extends AbstractTestConfigurationProducer
 
   override protected def configurationName(contextInfo: CreateFromContextInfo): String = contextInfo match {
     case AllInPackage(_, packageName) =>
-      s"UTest in '$packageName'"
+      s"MUnit in '$packageName'"
     case ClassWithTestName(testClass, testName) =>
       StringUtil.getShortName(testClass.qualifiedName) + testName.fold("")("." + _)
   }
