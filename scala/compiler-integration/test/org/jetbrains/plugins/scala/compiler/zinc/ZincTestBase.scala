@@ -3,13 +3,18 @@ package org.jetbrains.plugins.scala.compiler.zinc
 import com.intellij.openapi.compiler.{CompilerMessage, CompilerMessageCategory}
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.projectRoots.Sdk
+import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.platform.externalSystem.testFramework.ExternalSystemImportingTestCase
 import com.intellij.testFramework.CompilerTester
+import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
+import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.extensions.inWriteAction
+import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
+import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
 import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.SbtProjectSystem
+import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.junit.Assert.{assertNotNull, assertTrue}
 
 import java.nio.file.Path
@@ -25,6 +30,43 @@ abstract class ZincTestBase extends ExternalSystemImportingTestCase  {
   protected var sdk: Sdk = _
 
   protected var rootModule: Module = _
+
+  override lazy val getCurrentExternalProjectSettings: SbtProjectSettings = {
+    val settings = new SbtProjectSettings()
+    settings.jdk = sdk.getName
+    settings
+  }
+
+  override def getTestsTempDir: String = this.getClass.getSimpleName
+
+  override def setUp(): Unit = {
+    super.setUp()
+
+    sdk = {
+      val jdkVersion =
+        Option(System.getProperty("filter.test.jdk.version"))
+          .map(TestJdkVersion.valueOf)
+          .getOrElse(TestJdkVersion.JDK_17)
+          .toProductionVersion
+
+      val res = SmartJDKLoader.getOrCreateJDK(jdkVersion)
+      val settings = ScalaCompileServerSettings.getInstance()
+      settings.COMPILE_SERVER_SDK = res.getName
+      settings.USE_DEFAULT_SDK = false
+      res
+    }
+  }
+
+  override def tearDown(): Unit = try {
+    CompileServerLauncher.stopServerAndWait()
+    compiler.tearDown()
+    val settings = ScalaCompileServerSettings.getInstance()
+    settings.USE_DEFAULT_SDK = true
+    settings.COMPILE_SERVER_SDK = null
+    inWriteAction(ProjectJdkTable.getInstance().removeJdk(sdk))
+  } finally {
+    super.tearDown()
+  }
 
   protected def assertNoErrorsOrWarnings(messages: Seq[CompilerMessage]): Unit = {
     val errorsAndWarnings = messages.filter { message =>
