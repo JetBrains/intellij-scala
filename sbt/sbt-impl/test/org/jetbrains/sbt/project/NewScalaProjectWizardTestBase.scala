@@ -6,6 +6,7 @@ import com.intellij.ide.wizard.NewProjectWizardStep
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.JavaSdk
 import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootManager}
+import com.intellij.testFramework.IndexingTestUtil
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.sbt.project.ProjectStructureMatcher.ProjectComparisonOptions
 import org.junit.Assert
@@ -46,6 +47,8 @@ abstract class NewScalaProjectWizardTestBase extends NewProjectWizardTestCase
     Assert.assertEquals(jdkVersion.getMaxLanguageLevel, LanguageLevelProjectExtension.getInstance(project).getLanguageLevel)
 
     assertNoNotificationsShown(project)
+
+    IndexingTestUtil.waitUntilIndexesAreReady(project)
 
     project
   }
