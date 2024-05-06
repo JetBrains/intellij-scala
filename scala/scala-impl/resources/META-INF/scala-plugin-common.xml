@@ -2071,5 +2071,9 @@
         <action id="Scala.Clean.Caches"
                 class="org.jetbrains.plugins.scala.actions.internal.CleanScalaCachesAction"
                 internal="true"/>
+        <action id="Scala.CopyType"
+                class="org.jetbrains.plugins.scala.actions.CopyTypeAction">
+            <add-to-group group-id="Copy.Paste.Special" relative-to-action="CopyReference" anchor="after"/>
+        </action>
     </actions>
 </idea-plugin>
