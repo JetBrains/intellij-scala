@@ -52,7 +52,7 @@ class MUnitConfigPackageTest extends MUnitTestCase {
     runTestByLocation2(
       packageLoc(packageName0),
       config => {
-        assertPackageConfigAndSettings(config, packageName0, "UTest in 'org'")
+        assertPackageConfigAndSettings(config, packageName0, "MUnit in 'org'")
       },
       root => assertResultTreePathsEqualsUnordered(root.testTreeRoot.get)(Seq(
         TestNodePathWithStatus(Magnitude.FAILED_INDEX, TestNodePath.parse("[root] / MyTest01 / MyTest01.test error 01")),
@@ -74,7 +74,7 @@ class MUnitConfigPackageTest extends MUnitTestCase {
     runTestByLocation2(
       packageLoc(packageName1),
       config => {
-        assertPackageConfigAndSettings(config, packageName1, "UTest in 'example1'")
+        assertPackageConfigAndSettings(config, packageName1, "MUnit in 'example1'")
       },
       root => assertResultTreePathsEqualsUnordered(root.testTreeRoot.get)(Seq(
         TestNodePathWithStatus(Magnitude.FAILED_INDEX, TestNodePath.parse("[root] / MyTest11 / MyTest11.test error 11")),
@@ -88,7 +88,7 @@ class MUnitConfigPackageTest extends MUnitTestCase {
     runTestByLocation2(
       packageLoc(packageName2),
       config => {
-        assertPackageConfigAndSettings(config, packageName2, "UTest in 'example2'")
+        assertPackageConfigAndSettings(config, packageName2, "MUnit in 'example2'")
       },
       root => assertResultTreePathsEqualsUnordered(root.testTreeRoot.get)(Seq(
         TestNodePathWithStatus(Magnitude.FAILED_INDEX, TestNodePath.parse("[root] / MyTest21 / MyTest21.test error 21")),
