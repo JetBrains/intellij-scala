@@ -12,7 +12,7 @@ object Versions {
   // run runtimeDependencies/update manually
   val sbtVersion: String = Sbt.latest
   val bloopVersion = "1.5.6"
-  val zincVersion = "1.9.5"
+  val zincVersion = "1.10.0"
 
   // ATTENTION: check the comment in `Common.newProjectWithKotlin` when updating this version
   val intellijVersion = "242.9824"
@@ -65,7 +65,7 @@ object Versions {
     val structure_extractor_binary_1_3 = "1.3"
 
     val latest_0_13 = "0.13.18"
-    val latest_1_0 = "1.9.9"
+    val latest_1_0 = "1.10.0"
     val latest: String = latest_1_0
     // ATTENTION: after adding sbt major version, also update:
     // buildInfoKeys, Sbt.scala and SbtUtil.latestCompatibleVersion
