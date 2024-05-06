@@ -91,10 +91,10 @@ object Versions {
     /** Scala3 is only supported since sbt 1.5.0 */
     val MinSbtVersionForScala3 = "1.5.0"
 
-    def sbtVersionsForScala3(sbtVersions: Versions): Versions = Versions(
-      LatestSbtVersion,
-      sbtVersions.versions.filter(_ >= MinSbtVersionForScala3)
-    )
+    def sbtVersionsForScala3(sbtVersions: Versions): Versions = {
+      val minVersion = Version(MinSbtVersionForScala3)
+      Versions(LatestSbtVersion, sbtVersions.versions.collect { case v if Version(v) >= minVersion => v })
+    }
   }
 
   private def loadVersions(
