@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.debugger
 
 import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.engine.SourcePositionHighlighter
-import com.intellij.openapi.editor.Document
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiElement, PsiMethod}
 import com.intellij.util.DocumentUtil
@@ -21,12 +20,11 @@ class ScalaSourcePositionHighlighter extends SourcePositionHighlighter {
       val document = sourcePosition.getFile.getViewProvider.getDocument
       if (document eq null) return null
 
-      val line = sourcePosition.getLine
-      if (isWholeLine(document, line, element)) {
-        return null
-      }
+      val lineRange = DocumentUtil.getLineTextRange(document, sourcePosition.getLine)
 
-      containingLambda(element).flatMap(calculateRange(document, line)).orNull
+      if (isWholeLine(lineRange, element)) return null
+
+      containingLambda(element).flatMap(calculateRange(lineRange)).orNull
     }
     else null
   }
@@ -34,8 +32,8 @@ class ScalaSourcePositionHighlighter extends SourcePositionHighlighter {
   private def isScalaLanguage(sourcePosition: SourcePosition): Boolean =
     sourcePosition.getFile.getLanguage.isKindOf(ScalaLanguage.INSTANCE)
 
-  private def isWholeLine(document: Document, line: Int, element: PsiElement): Boolean =
-    DocumentUtil.getLineTextRange(document, line) == element.getTextRange
+  private def isWholeLine(lineRange: TextRange, element: PsiElement): Boolean =
+    lineRange == element.getTextRange
 
   private def containingLambda(element: PsiElement): Option[PsiElement] =
     element.withParentsInFile.collectFirst {
@@ -46,9 +44,8 @@ class ScalaSourcePositionHighlighter extends SourcePositionHighlighter {
       case _: ScClass => None
     }.flatten
 
-  private def calculateRange(document: Document, line: Int)(lambda: PsiElement): Option[TextRange] = {
-    val lineRange = DocumentUtil.getLineTextRange(document, line)
-    val res = lambda.getTextRange.intersection(lineRange)
-    if (lineRange != res) Some(res) else None
+  private def calculateRange(lineRange: TextRange)(lambda: PsiElement): Option[TextRange] = {
+    val intersection = lambda.getTextRange.intersection(lineRange)
+    if (lineRange != intersection) Some(intersection) else None
   }
 }
