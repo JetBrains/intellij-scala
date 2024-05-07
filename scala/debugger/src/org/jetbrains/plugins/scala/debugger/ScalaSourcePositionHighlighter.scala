@@ -24,7 +24,7 @@ class ScalaSourcePositionHighlighter extends SourcePositionHighlighter {
 
       if (isWholeLine(lineRange, element)) return null
 
-      containingLambda(element).flatMap(calculateRange(lineRange)).orNull
+      containingLambda(lineRange, element).map(_.getTextRange).orNull
     }
     else null
   }
@@ -35,17 +35,15 @@ class ScalaSourcePositionHighlighter extends SourcePositionHighlighter {
   private def isWholeLine(lineRange: TextRange, element: PsiElement): Boolean =
     lineRange == element.getTextRange
 
-  private def containingLambda(element: PsiElement): Option[PsiElement] =
-    element.withParentsInFile.collectFirst {
+  private def isContainedOnLine(lineRange: TextRange)(element: PsiElement): Boolean =
+    lineRange.contains(element.getTextRange)
+
+  private def containingLambda(lineRange: TextRange, element: PsiElement): Option[PsiElement] =
+    element.withParentsInFile.takeWhile(isContainedOnLine(lineRange)).collectFirst {
       case e if ScalaPositionManager.isLambda(e) => Some(e)
       case _: PsiMethod => None
       case _: ScTemplateBody => None
       case _: ScEarlyDefinitions => None
       case _: ScClass => None
     }.flatten
-
-  private def calculateRange(lineRange: TextRange)(lambda: PsiElement): Option[TextRange] = {
-    val intersection = lambda.getTextRange.intersection(lineRange)
-    if (lineRange != intersection) Some(intersection) else None
-  }
 }
