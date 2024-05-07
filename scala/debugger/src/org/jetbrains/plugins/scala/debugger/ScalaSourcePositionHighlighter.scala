@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 
 class ScalaSourcePositionHighlighter extends SourcePositionHighlighter {
   override def getHighlightRange(sourcePosition: SourcePosition): TextRange = {
@@ -44,6 +44,6 @@ class ScalaSourcePositionHighlighter extends SourcePositionHighlighter {
       case _: PsiMethod => None
       case _: ScTemplateBody => None
       case _: ScEarlyDefinitions => None
-      case _: ScClass => None
+      case _: ScTypeDefinition => None
     }.flatten
 }
