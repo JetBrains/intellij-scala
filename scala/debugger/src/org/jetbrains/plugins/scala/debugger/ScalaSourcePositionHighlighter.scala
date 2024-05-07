@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
+import org.jetbrains.plugins.scala.util.AnonymousFunction
 
 class ScalaSourcePositionHighlighter extends SourcePositionHighlighter {
   override def getHighlightRange(sourcePosition: SourcePosition): TextRange = {
@@ -40,10 +41,10 @@ class ScalaSourcePositionHighlighter extends SourcePositionHighlighter {
 
   private def containingLambda(lineRange: TextRange, element: PsiElement): Option[PsiElement] =
     element.withParentsInFile.takeWhile(isContainedOnLine(lineRange)).collectFirst {
-      case e if ScalaPositionManager.isLambda(e) => Some(e)
+      case e if AnonymousFunction.isGenerateAnonfun211(e) => Some(e)
       case _: PsiMethod => None
       case _: ScTemplateBody => None
       case _: ScEarlyDefinitions => None
       case _: ScTypeDefinition => None
-    }.flatten
+    }.flatten.filterNot(ScalaPositionManager.isInsideMacro)
 }
