@@ -167,6 +167,6 @@ object ScalaDocGenerator {
   private def inheritedDisclaimer(clazz: PsiClass): String =
     s"""${DocumentationMarkup.CONTENT_START}
        |<b>Description copied from class: </b>
-       |${HtmlPsiUtils.psiElementLink(clazz.qualifiedName, clazz.name)}
+       |${HtmlPsiUtils.psiElementLinkWithCodeTag(clazz.qualifiedName, clazz.name)}
        |${DocumentationMarkup.CONTENT_END}""".stripMargin
 }

@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
+import com.intellij.codeInsight.documentation.DocumentationManagerProtocol
 import com.intellij.openapi.editor.colors.{EditorColorsManager, TextAttributesKey}
 import com.intellij.openapi.editor.richcopy.HtmlSyntaxInfoUtil
 import com.intellij.psi.{PsiClass, PsiElement}
@@ -17,11 +18,36 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.StdType
  */
 private [documentationProvider] object HtmlPsiUtils {
 
-  def psiElementLink(fqn: String, label: String, escapeLabel: Boolean = true, attributesKey: Option[TextAttributesKey] = None): String = {
+  //TODO: unify with org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocContentGenerator.hyperLinkToPsi
+  def psiElementLinkWithCodeTag(
+    fqn: String,
+    label: String,
+    attributesKey: Option[TextAttributesKey] = None,
+  ): String = {
+    psiElementLink(fqn, label, attributesKey, addCodeTag = true)
+  }
+
+  //TODO: unify with org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocContentGenerator.hyperLinkToPsi
+  def psiElementLink(
+    fqn: String,
+    label: String,
+    attributesKey: Option[TextAttributesKey] = None,
+    addCodeTag: Boolean = true
+  ): String = {
     val href = psiElementHref(fqn)
-    val escapedContent = if (escapeLabel) StringEscapeUtils.escapeHtml4(label) else label
-    val link = s"""<a href="$href"><code>$escapedContent</code></a>"""
+    val contentEscaped = StringEscapeUtils.escapeHtml4(label)
+    val contentFinal = if (addCodeTag) s"<code>$contentEscaped</code>" else contentEscaped
+    val link = s"""<a href="$href">$contentFinal</a>"""
     attributesKey.fold(link) { withStyledSpan(link, _) }
+  }
+
+  /**
+   * @example `psi_element://scala.Option`
+   */
+  def psiElementHref(fqn: String): String = {
+    val protocol = s"${DocumentationManagerProtocol.PSI_ELEMENT_PROTOCOL}"
+    val fqnEscaped = StringEscapeUtils.escapeHtml4(fqn)
+    s"$protocol$fqnEscaped"
   }
 
   def psiElement(element: PsiElement, label: Option[String] = None, escapeLabel: Boolean = true): String = {
@@ -37,16 +63,18 @@ private [documentationProvider] object HtmlPsiUtils {
     }
   }
 
+  //TODO: defLinkHighlight is a misleading name! rename it
   def classLinkWithLabel(clazz: PsiClass,
                          label: String,
                          defLinkHighlight: Boolean,
+                         addCodeTag: Boolean,
                          isAnnotation: Boolean = false,
                          qualNameToType: Map[String, StdType] = Map.empty): String = {
     val attributesKey =
       if (defLinkHighlight) None
       else if (isAnnotation) Some(DefaultHighlighter.ANNOTATION)
       else Some(ScalaColorsSchemeUtils.textAttributesKey(clazz, qualNameToType = qualNameToType))
-    psiElementLink(clazz.qualifiedName, label, attributesKey = attributesKey)
+    psiElementLink(clazz.qualifiedName, label, attributesKey = attributesKey, addCodeTag = addCodeTag)
   }
 
   def withStyledSpan(text: String, attributesKey: TextAttributesKey): String =
@@ -56,6 +84,4 @@ private [documentationProvider] object HtmlPsiUtils {
       text,
       1.0f
     ).toString
-
-  def psiElementHref(fqn: String): String = s"psi_element://${StringEscapeUtils.escapeHtml4(fqn)}"
 }

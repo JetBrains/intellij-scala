@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
+import com.intellij.codeInsight.hint.HintUtil
 import com.intellij.codeInsight.javadoc.JavaDocUtil
 import com.intellij.lang.documentation.CodeDocumentationProvider
 import com.intellij.openapi.diagnostic.Logger
@@ -39,9 +40,14 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
 
   override def getUrlFor(element: PsiElement, originalElement: PsiElement): java.util.List[String] = null
 
-  override def getQuickNavigateInfo(element: PsiElement, originalElement: PsiElement): String =
-    if (!isInScalaFile(element)) null
-    else ScalaDocQuickInfoGenerator.getQuickNavigateInfo(element, originalElement)
+  override def getQuickNavigateInfo(element: PsiElement, originalElement: PsiElement): String = {
+    if (!isInScalaFile(element))
+      null
+    else {
+      val result = ScalaDocQuickInfoGenerator.getQuickNavigateInfo(element, originalElement)
+      HintUtil.prepareHintText(result, HintUtil.getInformationHint)
+    }
+  }
 
   override def getDocumentationElementForLink(psiManager: PsiManager, link: String, context: PsiElement): PsiElement =
     if (!isInScalaFile(context)) null

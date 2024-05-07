@@ -8,7 +8,7 @@ import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
-import org.jetbrains.plugins.scala.editor.documentationProvider.util.HtmlAssertions
+import org.jetbrains.plugins.scala.editor.documentationProvider.util.{HtmlAssertions, ScalaDocumentationsSectionsTestingBase}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwner
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.junit.Assert
@@ -35,7 +35,7 @@ abstract class DocumentationProviderTestBase
   protected final def generateDoc(referredElement: PsiElement, elementAtCaret: PsiElement): String =
     documentationProvider.generateDoc(referredElement, elementAtCaret)
 
-  protected final def generateQuickDoc(referredElement: PsiElement, elementAtCaret: PsiElement): String =
+  protected final def generateQuickNavigateInfo(referredElement: PsiElement, elementAtCaret: PsiElement): String =
     documentationProvider.getQuickNavigateInfo(referredElement, elementAtCaret)
 
   protected final def generateRenderedDoc(referredElement: PsiElement): String =
@@ -55,12 +55,12 @@ abstract class DocumentationProviderTestBase
     generateDoc(referredElement, elementAtCaret)
   }
 
-  protected final def generateQuickDoc(fileContent: String): String = {
+  protected final def generateQuickNavigateInfo(fileContent: String): String = {
     val (editor, file) = createEditorAndFile(fileContent)
     assertTrue("file should contain valid psi tree", file.isValid)
 
     val (referredElement, elementAtCaret) = extractReferredAndOriginalElements(editor, file)
-    generateQuickDoc(referredElement, elementAtCaret)
+    generateQuickNavigateInfo(referredElement, elementAtCaret)
   }
 
   protected final def generateRenderedDoc(fileContent: String): String = {
@@ -125,16 +125,6 @@ abstract class DocumentationProviderTestBase
     whitespacesMode: HtmlSpacesComparisonMode = HtmlSpacesComparisonMode.IgnoreNewLinesAndCollapseSpaces
   ): Unit = {
     val actualDoc = generateRenderedDoc(fileContent)
-    assertDocHtml(expectedDoc, actualDoc, whitespacesMode)
-  }
-
-  protected final def doGenerateQuickDocTest(
-    fileContent: String,
-    expectedDoc: => String,
-  ): Unit = {
-    val actualDoc = generateQuickDoc(fileContent)
-    //in quick doc new lines are visible (treated as if it's a `<br>`) but subsequent spaces are treated as one
-    val whitespacesMode = HtmlSpacesComparisonMode.DontIgnoreNewLinesCollapseSpaces
     assertDocHtml(expectedDoc, actualDoc, whitespacesMode)
   }
   /////////////////// section end ////////////////////////

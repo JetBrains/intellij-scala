@@ -28,6 +28,9 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 // TODO 3: add minimum required module/location, if class/method is in same scope, do not render module/location at all
 object ScalaDocQuickInfoGenerator {
 
+  //TODO: not supported yet
+  private[documentationProvider] val EnableSyntaxHighlightingInQuickInfo = false
+
   def getQuickNavigateInfo(element: PsiElement, originalElement: PsiElement): String = {
     val substitutor = originalElement match {
       case ref: ScReference =>
@@ -55,9 +58,9 @@ object ScalaDocQuickInfoGenerator {
       case _                                             =>
     }
 
-    buffer.result()
-      // Do not show an empty pop up, let the platform show the fallback option
-      .pipeIf(_.isEmpty)(_ => null)
+    val result = buffer.result().stripTrailing()
+    // Do not show an empty pop up, let the platform show the fallback option
+    if (result.isEmpty) null else result
   }
 
   private def generateClassInfo(buffer: StringBuilder, clazz: ScTypeDefinition)
@@ -163,7 +166,7 @@ object ScalaDocQuickInfoGenerator {
     if (member.getParent.is[ScTemplateBody] && member.getParent.getParent.getParent.is[ScTypeDefinition]) {
       val clazz = member.containingClass
       // TODO: should we remove [] from getLocationString (see renderClassHeader and unify)
-      buffer.append(HtmlPsiUtils.classLinkWithLabel(clazz, clazz.name, defLinkHighlight = false))
+      buffer.append(HtmlPsiUtils.classLinkWithLabel(clazz, clazz.name, addCodeTag = false, defLinkHighlight = !EnableSyntaxHighlightingInQuickInfo))
         .append(" ")
         .append(clazz.getPresentation.getLocationString)
         .append("\n")

@@ -1,119 +1,134 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
+import com.intellij.codeInsight.hint.HintUtil
+import com.intellij.util.ui.UIUtil
+import org.jetbrains.plugins.scala.editor.documentationProvider.util.ScalaDocumentationsSectionsTestingBase
 import org.jetbrains.plugins.scala.util.assertions.StringAssertions._
 
-class ScalaDocumentationProviderTest_QuickNavigateInfo extends ScalaDocumentationProviderTestBase {
+class ScalaDocumentationProviderTest_QuickNavigateInfo
+  extends ScalaDocumentationProviderTestBase
+    with ScalaDocumentationsSectionsTestingBase {
 
   private def moduleName: String = getModule.getName
 
-  def testSimpleClass(): Unit =
-    doGenerateQuickDocTest(
-      s"""class ${|}MyClass""",
-      s"""[$moduleName] default
-         |class MyClass extends <span style="color:#000000;"><a href="psi_element://java.lang.Object"><code>Object</code></a></span>
+  protected final def doGenerateQuickNavigateInfoBodyTest(
+    fileContent: String,
+    expectedBody: => String,
+  ): Unit = {
+    val actualDoc = generateQuickNavigateInfo(fileContent)
+    val actualBody = extractSectionInner(actualDoc, "body", BodyStart, BodyEnd)
+    assertDocHtml(expectedBody, actualBody)
+  }
+
+  def testSimpleClass_TestEntireHtml(): Unit = {
+    val fileContent = s"""class ${|}MyClass"""
+
+    val hintHint = HintUtil.getInformationHint
+    val style = UIUtil.getCssFontDeclaration(hintHint.getTextFont, hintHint.getTextForeground, hintHint.getLinkForeground, hintHint.getUlImg)
+    val expectedDoc =
+      s"""<html>
+         |<head>
+         |$style
+         |</head>
+         |<body>
+         |[$moduleName] default<br>class MyClass extends <a href="psi_element://java.lang.Object">Object</a></body>
+         |</html>
          |""".stripMargin
+
+    val actualDoc = generateQuickNavigateInfo(fileContent)
+    //in quick doc new lines are visible (treated as if it's a `<br>`) but subsequent spaces are treated as one
+    assertDocHtml(
+      expectedDoc,
+      actualDoc,
+      HtmlSpacesComparisonMode.IgnoreNewLinesAndCollapseSpaces
+    )
+  }
+
+  def testSimpleClass(): Unit =
+    doGenerateQuickNavigateInfoBodyTest(
+      s"""class ${|}MyClass""",
+      s"""[$moduleName] default<br>class MyClass extends <a href="psi_element://java.lang.Object">Object</a>"""
     )
 
   def testSimpleClassParam(): Unit =
-    doGenerateQuickDocTest(
+    doGenerateQuickNavigateInfoBodyTest(
       s"""class MyClass(s${|}tr: String)""",
-      s"""MyClass <default>
-         |str: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
-         |""".stripMargin
+      s"""MyClass <default><br>str: <a href="psi_element://java.lang.String">String</a>"""
     )
 
   def testSimpleClassParamWithDefaultValue(): Unit =
-    doGenerateQuickDocTest(
+    doGenerateQuickNavigateInfoBodyTest(
       s"""class MyClass(s${|}tr: String = "default value")""",
-      s"""MyClass <default>
-         |str: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span> = …
-         |""".stripMargin
+      s"""MyClass <default><br>str: <a href="psi_element://java.lang.String">String</a> = …"""
     )
 
   def testSimpleTypeAlias(): Unit =
-    doGenerateQuickDocTest(
+    doGenerateQuickNavigateInfoBodyTest(
       s"""type ${|}Foo = String""",
-      s"""type Foo = <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
+      s"""type Foo = <a href="psi_element://java.lang.String">String</a>
          |""".stripMargin
     )
 
   def testSimpleTrait(): Unit =
-    doGenerateQuickDocTest(
+    doGenerateQuickNavigateInfoBodyTest(
       s"""trait ${|}MyTrait""",
-      s"""[$moduleName] default
-         |trait MyTrait""".stripMargin
+      s"""[$moduleName] default<br>trait MyTrait"""
     )
 
   def testSimpleObject(): Unit =
-    doGenerateQuickDocTest(
+    doGenerateQuickNavigateInfoBodyTest(
       s"""object ${|}MyObject""",
-      s"""[$moduleName] default
-         |object MyObject extends <span style="color:#000000;"><a href="psi_element://java.lang.Object"><code>Object</code></a></span>
-         |""".stripMargin
+      s"""[$moduleName] default<br>object MyObject extends <a href="psi_element://java.lang.Object">Object</a>"""
     )
 
   def testClassWithModifiers(): Unit =
-    doGenerateQuickDocTest(
+    doGenerateQuickNavigateInfoBodyTest(
       s"""abstract sealed class ${|}MyClass""",
-      s"""[$moduleName] default
-         |abstract sealed class MyClass extends <span style="color:#000000;"><a href="psi_element://java.lang.Object"><code>Object</code></a></span>
-         |""".stripMargin
+      s"""[$moduleName] default<br>abstract sealed class MyClass extends <a href="psi_element://java.lang.Object">Object</a>"""
     )
 
   def testClassWithModifiers_1(): Unit =
-    doGenerateQuickDocTest(
+    doGenerateQuickNavigateInfoBodyTest(
       s"""final class ${|}MyClass""",
-      s"""[$moduleName] default
-         |final class MyClass extends <span style="color:#000000;"><a href="psi_element://java.lang.Object"><code>Object</code></a></span>
-         |""".stripMargin
+      s"""[$moduleName] default<br>final class MyClass extends <a href="psi_element://java.lang.Object">Object</a>"""
     )
 
   def testClassWithGenericParameter(): Unit =
-    doGenerateQuickDocTest(
+    doGenerateQuickNavigateInfoBodyTest(
       s"""class ${|}Class[T]""",
-      s"""[$moduleName] default
-         |class Class[T] extends <span style="color:#000000;"><a href="psi_element://java.lang.Object"><code>Object</code></a></span>
-         |""".stripMargin
+      s"""[$moduleName] default<br>class Class[T] extends <a href="psi_element://java.lang.Object">Object</a>"""
     )
 
   def testClassWithGenericParameter_WithBounds(): Unit =
-    doGenerateQuickDocTest(
+    doGenerateQuickNavigateInfoBodyTest(
       s"""trait Trait[A]
          |class ${|}Class[T <: Trait[_ >: Object]]
          |""".stripMargin,
-      s"""[$moduleName] default
-         |class Class[T &lt;: <span style="color:#000000;"><a href="psi_element://Trait"><code>Trait</code></a></span>[_ &gt;: <span style="color:#000000;"><a href="psi_element://java.lang.Object"><code>Object</code></a></span>]] extends <span style="color:#000000;"><a href="psi_element://java.lang.Object"><code>Object</code></a></span>
-         |""".stripMargin
+      s"""[$moduleName] default<br>class Class[T &lt;: <a href="psi_element://Trait">Trait</a>[_ &gt;: <a href="psi_element://java.lang.Object">Object</a>]] extends <a href="psi_element://java.lang.Object">Object</a>"""
     )
 
   def testClassWithGenericParameter_WithRecursiveBounds(): Unit =
-    doGenerateQuickDocTest(
+    doGenerateQuickNavigateInfoBodyTest(
       s"""trait Trait[T]
          |class ${|}Class2[T <: Trait[T]]
          |""".stripMargin,
-      s"""[$moduleName] default
-         |class Class2[T &lt;: <span style="color:#000000;"><a href="psi_element://Trait"><code>Trait</code></a></span>[T]] extends <span style="color:#000000;"><a href="psi_element://java.lang.Object"><code>Object</code></a></span>
-         |""".stripMargin
+      s"""[$moduleName] default<br>class Class2[T &lt;: <a href="psi_element://Trait">Trait</a>[T]] extends <a href="psi_element://java.lang.Object">Object</a>"""
     )
 
   def testClassWithGenericParameter_WithRecursiveBounds_1(): Unit =
-    doGenerateQuickDocTest(
+    doGenerateQuickNavigateInfoBodyTest(
       s"""trait Trait[T]
          |class ${|}Class4[T <: Trait[_ >: Trait[T]]]
          |""".stripMargin,
-      s"""[$moduleName] default
-         |class Class4[T &lt;: <span style="color:#000000;"><a href="psi_element://Trait"><code>Trait</code></a></span>[_ &gt;: <span style="color:#000000;"><a href="psi_element://Trait"><code>Trait</code></a></span>[T]]] extends <span style="color:#000000;"><a href="psi_element://java.lang.Object"><code>Object</code></a></span>
-         |""".stripMargin
+      s"""[$moduleName] default<br>class Class4[T &lt;: <a href="psi_element://Trait">Trait</a>[_ &gt;: <a href="psi_element://Trait">Trait</a>[T]]] extends <a href="psi_element://java.lang.Object">Object</a>"""
     )
 
   def testClassWithSuperWithGenerics(): Unit =
-    doGenerateQuickDocTest(
+    doGenerateQuickNavigateInfoBodyTest(
       s"""trait Trait[A]
          |abstract class ${|}Class extends Comparable[_ <: Trait[_ >: String]]
          |""".stripMargin,
-      s"""[$moduleName] default
-         |abstract class Class extends <span style="color:#000000;"><a href="psi_element://java.lang.Comparable"><code>Comparable</code></a></span>[_ &lt;: <span style="color:#000000;"><a href="psi_element://Trait"><code>Trait</code></a></span>[_ &gt;: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>]]
-         |""".stripMargin
+      s"""[$moduleName] default<br>abstract class Class extends <a href="psi_element://java.lang.Comparable">Comparable</a>[_ &lt;: <a href="psi_element://Trait">Trait</a>[_ &gt;: <a href="psi_element://java.lang.String">String</a>]]""".stripMargin
     )
 
   def testClassExtendsListShouldNotContainWithObject(): Unit = {
@@ -132,9 +147,9 @@ class ScalaDocumentationProviderTest_QuickNavigateInfo extends ScalaDocumentatio
       s"class ${|}MyTrait3 extends BaseTrait1 with BaseTrait2"
     )
     // testing exact quick info value would be very noisy, it's enough to test just presence of ` with Object` which can be escaped!
-    val withObjectRegex      = "(\\s|\\n)with .*Object".r
+    val withObjectRegex = "(\\s|\\n)with .*Object".r
     classesWithoutObject.foreach { content =>
-      val quickInfo = generateQuickDoc(content)
+      val quickInfo = generateQuickNavigateInfo(content)
       assertStringNotMatches(quickInfo, withObjectRegex)
     }
   }
@@ -153,117 +168,100 @@ class ScalaDocumentationProviderTest_QuickNavigateInfo extends ScalaDocumentatio
 
     val extendsObjectRegex = "(\\s|\\n)extends .*Object".r
     classesWithObject.foreach { content =>
-      val quickInfo = generateQuickDoc(content)
+      val quickInfo = generateQuickNavigateInfo(content)
       assertStringMatches(quickInfo, extendsObjectRegex)
     }
   }
 
   def testValueDefinition(): Unit =
-    doGenerateQuickDocTest(
+    doGenerateQuickNavigateInfoBodyTest(
       s"""class Wrapper {
          |  val (field1, ${|}field2) = (42, "hello")
          |}""".stripMargin,
-      """<span style="color:#000000;"><a href="psi_element://Wrapper"><code>Wrapper</code></a></span> <default>
-        |val field2: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span> = "hello"
-        |""".stripMargin
+      """<a href="psi_element://Wrapper">Wrapper</a> <default><br>val field2: <a href="psi_element://java.lang.String">String</a> = "hello""""
     )
 
   def testValueDeclaration(): Unit =
-    doGenerateQuickDocTest(
+    doGenerateQuickNavigateInfoBodyTest(
       s"""abstract class Wrapper {
          |  val ${|}field2: String
          |}""".stripMargin,
-      s"""<span style="color:#000000;"><a href="psi_element://Wrapper"><code>Wrapper</code></a></span> <default>
-         |val field2: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
-         |""".stripMargin
+      """<a href="psi_element://Wrapper">Wrapper</a> <default><br>val field2: <a href="psi_element://java.lang.String">String</a>"""
     )
 
   def testVariableDefinition(): Unit =
-    doGenerateQuickDocTest(
+    doGenerateQuickNavigateInfoBodyTest(
       s"""class Wrapper {
          |  var (field1, ${|}field2) = (42, "hello")
          |}""".stripMargin,
-      """<span style="color:#000000;"><a href="psi_element://Wrapper"><code>Wrapper</code></a></span> <default>
-        |var field2: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span> = "hello"
-        |""".stripMargin
+      """<a href="psi_element://Wrapper">Wrapper</a> <default><br>var field2: <a href="psi_element://java.lang.String">String</a> = "hello""""
     )
 
   def testVariableDeclaration(): Unit =
-    doGenerateQuickDocTest(
+    doGenerateQuickNavigateInfoBodyTest(
       s"""abstract class Wrapper {
          |  var ${|}field2: String
          |}""".stripMargin,
-      s"""<span style="color:#000000;"><a href="psi_element://Wrapper"><code>Wrapper</code></a></span> <default>
-         |var field2: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
-         |""".stripMargin
+      s"""<a href="psi_element://Wrapper">Wrapper</a> <default><br>var field2: <a href="psi_element://java.lang.String">String</a>"""
     )
 
   def testValueWithModifiers(): Unit =
-    doGenerateQuickDocTest(
+    doGenerateQuickNavigateInfoBodyTest(
       s"""class Wrapper {
          |  protected final lazy val ${|}field2 = "hello"
          |}""".stripMargin,
-      """<span style="color:#000000;"><a href="psi_element://Wrapper"><code>Wrapper</code></a></span> <default>
-        |protected final lazy val field2: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span> = "hello"
-        |""".stripMargin
+      """<a href="psi_element://Wrapper">Wrapper</a> <default><br>protected final lazy val field2: <a href="psi_element://java.lang.String">String</a> = "hello""""
     )
 
   def testHigherKindedTypeParameters(): Unit =
-    doGenerateQuickDocTest(
+    doGenerateQuickNavigateInfoBodyTest(
       s"""object O {
          |  def ${|}f[A[_, B]] = 42
          |}""".stripMargin,
-      """<span style="color:#000000;"><a href="psi_element://O"><code>O</code></a></span> <default>
-        |def f[A[_, B]]: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>""".stripMargin
+      """<a href="psi_element://O">O</a> <default><br>def f[A[_, B]]: <a href="psi_element://scala.Int">Int</a>"""
     )
 
   def testHigherKindedTypeParameters_1(): Unit =
-    doGenerateQuickDocTest(
+    doGenerateQuickNavigateInfoBodyTest(
       s"""trait ${|}T[X[_, Y[_, Z]]]
          |""".stripMargin,
-      """[light_idea_test_case] default
-        |trait T[X[_, Y[_, Z]]]""".stripMargin
+      """[light_idea_test_case] default<br>trait T[X[_, Y[_, Z]]]"""
     )
 
   def testMethod(): Unit =
-    doGenerateQuickDocTest(
+    doGenerateQuickNavigateInfoBodyTest(
       s"""class X {
          | def ${|}f1 = 42
          |}
          |""".stripMargin,
-      """<span style="color:#000000;"><a href="psi_element://X"><code>X</code></a></span> <default>
-        |def f1: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
-        |""".stripMargin
+      """<a href="psi_element://X">X</a> <default><br>def f1: <a href="psi_element://scala.Int">Int</a>"""
     )
 
   def testMethodWithAccessModifier(): Unit =
-    doGenerateQuickDocTest(
+    doGenerateQuickNavigateInfoBodyTest(
       s"""class X {
          |  protected def ${|}f1 = 42
          |}
          |""".stripMargin,
-      """<span style="color:#000000;"><a href="psi_element://X"><code>X</code></a></span> <default>
-        |protected def f1: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>""".stripMargin
+      """<a href="psi_element://X">X</a> <default><br>protected def f1: <a href="psi_element://scala.Int">Int</a>"""
     )
 
   def testMethodWithAccessModifierWithThisQualifier(): Unit =
-    doGenerateQuickDocTest(
+    doGenerateQuickNavigateInfoBodyTest(
       s"""class X {
          |  protected[this] def ${|}f1 = 42
          |}
          |""".stripMargin,
-      """<span style="color:#000000;"><a href="psi_element://X"><code>X</code></a></span> <default>
-        |protected def f1: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>""".stripMargin
+      """<a href="psi_element://X">X</a> <default><br>protected def f1: <a href="psi_element://scala.Int">Int</a>"""
     )
 
   def testTypeWithColon(): Unit =
-    doGenerateQuickDocTest(
+    doGenerateQuickNavigateInfoBodyTest(
       s"""trait MyTrait[T]
          |class :::[T1, T2]
          |class ${|}ClassWithGenericColons1[A <: MyTrait[:::[Int, String]]]
          |  extends MyTrait[Int ::: String]
          |""".stripMargin,
-      s"""[light_idea_test_case] default
-         |class ClassWithGenericColons1[A &lt;: <span style="color:#000000;"><a href="psi_element://MyTrait"><code>MyTrait</code></a></span>[<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span> <span style="color:#000000;"><a href="psi_element://:::"><code>:::</code></a></span> <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>]] extends <span style="color:#000000;"><a href="psi_element://MyTrait"><code>MyTrait</code></a></span>[<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span> <span style="color:#000000;"><a href="psi_element://:::"><code>:::</code></a></span> <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>]""".stripMargin
+      """[light_idea_test_case] default<br>class ClassWithGenericColons1[A &lt;: <a href="psi_element://MyTrait">MyTrait</a>[<a href="psi_element://scala.Int">Int</a> <a href="psi_element://:::">:::</a> <a href="psi_element://java.lang.String">String</a>]] extends <a href="psi_element://MyTrait">MyTrait</a>[<a href="psi_element://scala.Int">Int</a> <a href="psi_element://:::">:::</a> <a href="psi_element://java.lang.String">String</a>]"""
     )
 }
