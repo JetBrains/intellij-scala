@@ -36,6 +36,8 @@ abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaExecutio
 
   override protected def testDataDirectoryName: String = "debugger"
 
+  override protected def areLogErrorsIgnored(): Boolean = true
+
   override protected def initApplication(): Unit = {
     super.initApplication()
     NodeRendererSettings.getInstance().getClassRenderer.SHOW_DECLARED_TYPE = false
