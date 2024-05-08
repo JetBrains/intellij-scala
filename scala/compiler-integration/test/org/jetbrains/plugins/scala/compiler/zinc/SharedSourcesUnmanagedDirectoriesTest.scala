@@ -1,17 +1,10 @@
 package org.jetbrains.plugins.scala.compiler.zinc
 
 import com.intellij.openapi.module.{Module, ModuleManager}
-import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.testFramework.CompilerTester
 import org.jetbrains.plugins.scala.CompilationTests
-import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
-import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
-import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
-import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
-import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.junit.Assert.{assertNotNull, assertNull}
 import org.junit.experimental.categories.Category
 
@@ -26,30 +19,8 @@ class SharedSourcesUnmanagedDirectoriesTest extends ZincTestBase {
 
   private var module3: Module = _
 
-  override lazy val getCurrentExternalProjectSettings: SbtProjectSettings = {
-    val settings = new SbtProjectSettings()
-    settings.jdk = sdk.getName
-    settings
-  }
-
-  override def getTestsTempDir: String = this.getClass.getSimpleName
-
   override def setUp(): Unit = {
     super.setUp()
-
-    sdk = {
-      val jdkVersion =
-        Option(System.getProperty("filter.test.jdk.version"))
-          .map(TestJdkVersion.valueOf)
-          .getOrElse(TestJdkVersion.JDK_17)
-          .toProductionVersion
-
-      val res = SmartJDKLoader.getOrCreateJDK(jdkVersion)
-      val settings = ScalaCompileServerSettings.getInstance()
-      settings.COMPILE_SERVER_SDK = res.getName
-      settings.USE_DEFAULT_SDK = false
-      res
-    }
 
     createProjectSubDirs("project", "module1/src/main/scala", "module2/src/main/scala", "module3/src/main/scala", "shared/src/main/scala")
     createProjectSubFile("project/build.properties", "sbt.version=1.9.7")
@@ -84,17 +55,6 @@ class SharedSourcesUnmanagedDirectoriesTest extends ZincTestBase {
     module3 = modules.find(_.getName == "root.module3").orNull
     assertNotNull("Could not find module with name 'root.module3'", module3)
     compiler = new CompilerTester(myProject, java.util.Arrays.asList(modules: _*), null, false)
-  }
-
-  override def tearDown(): Unit = try {
-    CompileServerLauncher.stopServerAndWait()
-    compiler.tearDown()
-    val settings = ScalaCompileServerSettings.getInstance()
-    settings.USE_DEFAULT_SDK = true
-    settings.COMPILE_SERVER_SDK = null
-    inWriteAction(ProjectJdkTable.getInstance().removeJdk(sdk))
-  } finally {
-    super.tearDown()
   }
 
   def testSharedSourcesOnlyCompiledToOwnerModules(): Unit = {
