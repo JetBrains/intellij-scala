@@ -123,8 +123,8 @@ class ExactBreakpointsTest_3 extends ExactBreakpointsTestBase {
 
   def testSCL21348(): Unit = {
     exactBreakpointTest("helloMe")(
-    """val k1 = "hello"""", "val k = k1.length + 320", """println(s"${k} - ${v}")""",
-    """val k1 = "hello"""", "val k = k1.length + 320", """println(s"${k} - ${v}")"""
+      """val k1 = "hello"""", "val k = k1.length + 320", """println(s"${k} - ${v}")""",
+      """val k1 = "hello"""", "val k = k1.length + 320", """println(s"${k} - ${v}")"""
     )
   }
 
@@ -202,17 +202,15 @@ abstract class ExactBreakpointsTestBase extends ScalaDebuggerTestCase {
 
     onEveryBreakpoint { ctx =>
       val loc = ctx.getFrameProxy.getStackFrame.location()
-      inReadAction {
-        val srcPos = positionManager.getSourcePosition(loc)
-        val actual = highlightedText(srcPos)
-        Option(expectedSourcePositionsQueue.poll()) match {
-          case None =>
-            fail(s"The debugger stopped on line ${srcPos.getLine}, but there were no more expected lines")
-          case Some(expected) =>
-            if (!actual.startsWith(expected.stripSuffix("..."))) {
-              fail(s"Wrong source position. Expected: $expected, actual: $actual")
-            }
-        }
+      val srcPos = inReadAction(positionManager.getSourcePosition(loc))
+      val actual = highlightedText(srcPos)
+      Option(expectedSourcePositionsQueue.poll()) match {
+        case None =>
+          fail(s"The debugger stopped on line ${srcPos.getLine}, but there were no more expected lines")
+        case Some(expected) =>
+          if (!actual.startsWith(expected.stripSuffix("..."))) {
+            fail(s"Wrong source position. Expected: $expected, actual: $actual")
+          }
       }
       resume(ctx)
     }
@@ -231,11 +229,13 @@ abstract class ExactBreakpointsTestBase extends ScalaDebuggerTestCase {
     }
 
   private def highlightedText(position: SourcePosition): String = {
-    val elemRange = SourcePositionHighlighter.getHighlightRangeFor(position)
-    val document = PsiDocumentManager.getInstance(getProject).getDocument(position.getFile)
-    val lineRange = DocumentUtil.getLineTextRange(document, position.getLine)
-    val textRange = if (elemRange ne null) elemRange else lineRange
-    document.getText(textRange).trim
+    val elemRange = new ScalaSourcePositionHighlighter().getHighlightRange(position)
+    inReadAction {
+      val document = PsiDocumentManager.getInstance(getProject).getDocument(position.getFile)
+      val lineRange = DocumentUtil.getLineTextRange(document, position.getLine)
+      val textRange = if (elemRange ne null) elemRange else lineRange
+      document.getText(textRange).trim
+    }
   }
 
   addSourceFile("OneLine.scala",
@@ -534,6 +534,6 @@ abstract class ExactBreakpointsTestBase extends ScalaDebuggerTestCase {
        |}""".stripMargin)
 
   def testMultilineLambda(): Unit = {
-    exactBreakpointTest()("println(x)", "println(123)", "println(x)",  "println(123)", "println(x)", "println(123)")
+    exactBreakpointTest()("println(x)", "println(123)", "println(x)", "println(123)", "println(x)", "println(123)")
   }
 }
