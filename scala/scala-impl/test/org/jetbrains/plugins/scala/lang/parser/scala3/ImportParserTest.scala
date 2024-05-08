@@ -220,4 +220,36 @@ class ImportParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  def test_asterix_import(): Unit = checkTree(
+    """if (true) {
+      |  import x.*
+      |}
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  IfStatement
+      |    PsiElement(if)('if')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(()('(')
+      |    BooleanLiteral
+      |      PsiElement(true)('true')
+      |    PsiElement())(')')
+      |    PsiWhiteSpace(' ')
+      |    BlockExpression
+      |      PsiElement({)('{')
+      |      PsiWhiteSpace('\n  ')
+      |      ScImportStatement
+      |        PsiElement(import)('import')
+      |        PsiWhiteSpace(' ')
+      |        ImportExpression
+      |          CodeReferenceElement: x
+      |            PsiElement(identifier)('x')
+      |          PsiElement(.)('.')
+      |          PsiElement(*)('*')
+      |      PsiWhiteSpace('\n')
+      |      PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }
