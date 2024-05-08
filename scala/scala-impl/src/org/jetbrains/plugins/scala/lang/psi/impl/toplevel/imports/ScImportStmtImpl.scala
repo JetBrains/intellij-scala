@@ -19,8 +19,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGiven, ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSimpleTypeElementImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaStubBasedElementImpl}
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.{ScExportStmtElementType, ScImportOrExportStmtElementType, ScImportStmtElementType}
 import org.jetbrains.plugins.scala.lang.psi.stubs.{ScExportStmtStub, ScImportOrExportStmtStub, ScImportStmtStub}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -116,7 +116,11 @@ object ScImportOrExportImpl {
   ): Boolean = {
     val ref = importExpr.reference match {
       case Some(element) => element
-      case _             => return true
+      // `import foo as bar` in Scala 3
+      case _ if isScala3 && importExpr.selectors.exists(_.isScala3StyleAliasImport) =>
+        ScalaPsiElementFactory.createReferenceFromText("_root_")(project)
+      case _ =>
+        return true
     }
 
     val nameHint = processor.getHint(NameHint.KEY).nullSafe
@@ -136,7 +140,14 @@ object ScImportOrExportImpl {
     }
 
     val qualifier: ScStableCodeReference =
-      importExpr.qualifier.getOrElse(return true)
+      importExpr.qualifier match {
+        case Some(element) => element
+        // `import foo as bar` in Scala 3
+        case _ if isScala3 && importExpr.selectors.exists(_.isScala3StyleAliasImport) =>
+          ScalaPsiElementFactory.createReferenceFromText("_root_")(project)
+        case _ =>
+          return true
+      }
 
     val resolve = processor match {
       case p: ResolveProcessor =>

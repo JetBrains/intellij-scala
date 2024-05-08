@@ -167,4 +167,20 @@ class Scala3ResolveTest extends SimpleResolveTestBase {
        |  ${REFSRC}x$$5
        |""".stripMargin
   )
+
+  //SCL-22506
+  def testUnqualifiedRenamingImport(): Unit = doResolveTest(
+    s"""
+       |package foo
+       |
+       |class ${REFTGT}Bar
+       |""".stripMargin -> "Target.scala",
+
+    s"""import foo as bar
+       |
+       |class Test {
+       |  def f(): bar.${REFSRC}Bar = ???
+       |}
+       |""".stripMargin -> "Test.scala"
+  )
 }

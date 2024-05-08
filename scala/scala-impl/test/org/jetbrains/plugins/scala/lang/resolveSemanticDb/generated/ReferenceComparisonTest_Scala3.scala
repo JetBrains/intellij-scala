@@ -1887,7 +1887,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_reference(): Unit = doTest("reference", false) // #enum, #transparentInline, #extension, #typeLambda, #opaque, #export, #byNameImplicit, #unionType, #traitParameters, #intersectionType
   def test_refinedSubtyping(): Unit = doTest("refinedSubtyping", false)
   def test_relax_implicit_divergence(): Unit = doTest("relax_implicit_divergence", true)
-  def test_renaming_imports(): Unit = doTest("renaming-imports", false)
+  def test_renaming_imports(): Unit = doTest("renaming-imports", true)
   def test_Repeated(): Unit = doTest("Repeated", false) // #opaque, #extension
   def test_repeatedArgs213(): Unit = doTest("repeatedArgs213", true) // #intersectionType
   def test_Result(): Unit = doTest("Result", true) // #enum
