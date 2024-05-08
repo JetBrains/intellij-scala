@@ -162,6 +162,9 @@
     </applicationListeners>
 
     <actions>
+        <action class="org.jetbrains.sbt.project.SbtMigrateConfigurationsAction"
+                text="Migrate Configurations"/>
+
         <action id="Scala.Sbt.RunTask" class="org.jetbrains.sbt.shell.action.RunTaskAction"/>
         <action id="Scala.Sbt.ShowTask" class="org.jetbrains.sbt.shell.action.ShowTaskAction"/>
         <action id="Scala.Sbt.InspectTask" class="org.jetbrains.sbt.shell.action.InspectTaskAction"/>
