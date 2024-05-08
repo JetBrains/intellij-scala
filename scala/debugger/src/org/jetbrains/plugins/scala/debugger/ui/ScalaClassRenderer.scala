@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.debugger
 package ui
 
 import com.intellij.debugger.DebuggerContext
+import com.intellij.debugger.engine.DebuggerUtils
 import com.intellij.debugger.engine.evaluation.EvaluationContext
 import com.intellij.debugger.impl.DebuggerUtilsAsync
 import com.intellij.debugger.settings.NodeRendererSettings
@@ -27,7 +28,7 @@ class ScalaClassRenderer extends ClassRenderer {
   override def getName: String = DebuggerBundle.message("scala.class.renderer")
 
   def isApplicableFor(tpe: Type): Boolean = tpe match {
-    case ct: ClassType => isScalaSource(ct)
+    case ct: ClassType => isScalaSource(ct) && !isStringBuilder(ct)
     case _ => false
   }
 
@@ -105,4 +106,7 @@ private object ScalaClassRenderer {
       }
     }
   }
+
+  private[ui] def isStringBuilder(ct: ClassType): Boolean =
+    DebuggerUtils.instanceOf(ct, "scala.collection.mutable.StringBuilder")
 }
