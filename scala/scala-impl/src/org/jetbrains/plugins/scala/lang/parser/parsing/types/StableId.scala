@@ -150,7 +150,7 @@ object StableId {
       case `kTYPE` => true
       case `tUNDER` | `tLBRACE` | ScalaTokenType.GivenKeyword if forImport => true
       case `kMATCH` if builder.isScala3 => true
-      case `tIDENTIFIER` if forImport && (s3f.`Scala 3 renaming imports` || s3f.`Scala 3 wildcard imports`) =>
+      case `tIDENTIFIER` | ScalaTokenType.WildcardStar if forImport && (s3f.`Scala 3 renaming imports` || s3f.`Scala 3 wildcard imports`) =>
         builder.predict(builder => (s3f.`Scala 3 wildcard imports` && builder.getTokenText == "*") ||
           s3f.`Scala 3 renaming imports` && {
             builder.advanceLexer()
