@@ -51,7 +51,7 @@ object ImportExpr extends ParsingRule {
         }
         selectorMarker.done(ScalaElementType.IMPORT_SELECTOR)
         selectorsMarker.done(ScalaElementType.IMPORT_SELECTORS)
-      case ScalaTokenTypes.tIDENTIFIER if builder.features.`Scala 3 renaming imports` =>
+      case ScalaTokenTypes.tIDENTIFIER | ScalaTokenType.WildcardStar if builder.features.`Scala 3 renaming imports` =>
         if (!builder.tryParseSoftKeyword(ScalaTokenType.WildcardStar)) {
           val selectorsMarker = builder.mark()
           val selectorMarker = builder.mark()
