@@ -24,7 +24,7 @@ class ScalaCollectionRenderer extends ScalaClassRenderer {
 
   override def isApplicableFor(tpe: Type): Boolean =
     tpe match {
-      case ct: ClassType if isCollection(ct) => true
+      case ct: ClassType if isCollection(ct) => !ScalaClassRenderer.isStringBuilder(ct)
       case _ => false
     }
 
