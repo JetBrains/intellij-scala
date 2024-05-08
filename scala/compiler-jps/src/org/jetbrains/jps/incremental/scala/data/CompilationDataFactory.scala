@@ -59,12 +59,15 @@ object CompilationDataFactory
         Option(context.getProjectDescriptor.getEncodingConfiguration.getPreferredModuleChunkEncoding(chunk))
 
       def ensureEncodingIsExplicitlySet(compilerOptions: Seq[String]): Seq[String] = {
-        val EncodingOptionKey = "-encoding"
-        if (compilerOptions.contains(EncodingOptionKey))
-          compilerOptions
-        else {
-          val encodingOption = preferredEncoding.toSeq.flatMap(Seq(EncodingOptionKey, _))
-          encodingOption ++ compilerOptions
+        compilerOptions.find {
+          case "-encoding" | "--encoding" => true
+          case s"-encoding:${_}" | s"--encoding:${_}" => true
+          case _ => false
+        } match {
+          case Some(_) => compilerOptions
+          case None =>
+            val encodingOption = preferredEncoding.toSeq.flatMap(Seq("-encoding", _))
+            encodingOption ++ compilerOptions
         }
       }
 
