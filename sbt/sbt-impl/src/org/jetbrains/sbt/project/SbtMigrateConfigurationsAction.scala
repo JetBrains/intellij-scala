@@ -2,19 +2,20 @@ package org.jetbrains.sbt.project
 
 import com.intellij.execution.RunManager
 import com.intellij.execution.application.ApplicationConfiguration
-import com.intellij.execution.configurations.{JavaRunConfigurationModule, ModuleBasedConfiguration, RunConfigurationBase}
+import com.intellij.execution.configurations.{ModuleBasedConfiguration, RunConfigurationBase}
 import com.intellij.execution.junit.JUnitConfiguration
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.module.ModuleManager
-import com.intellij.openapi.module.Module
+import com.intellij.openapi.module.{Module, ModuleManager, ModuleUtilCore}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
+import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.{JavaPsiFacade, PsiDocumentManager}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.project.SbtMigrateConfigurationsAction.{ModuleHeuristicResult, logger}
 
-import scala.jdk.CollectionConverters.{CollectionHasAsScala, ListHasAsScala}
+import scala.jdk.CollectionConverters.ListHasAsScala
 
 class SbtMigrateConfigurationsAction extends AnAction {
 
@@ -54,7 +55,7 @@ class SbtMigrateConfigurationsAction extends AnAction {
     // finding new modules that end with old module name
     val possibleModules = modules.filter(_.getName.endsWith(s".$oldModuleName")).toSeq
     val modulesForClass = getModulesInWhichMainClassExists(config, project)
-    val combinedModules = possibleModules ++ modulesForClass
+    val combinedModules = (possibleModules ++ modulesForClass).distinct
     val productOfModuleSets = possibleModules.filter(modulesForClass.contains)
     productOfModuleSets match {
       case Seq(head) => ModuleHeuristicResult(Some(head))
@@ -83,12 +84,21 @@ class SbtMigrateConfigurationsAction extends AnAction {
     getModulesForClass(mainClassName, project)
   }
 
-  private def getModulesForClass(@Nullable mainClassName: String, project: Project): Seq[Module] =
-    if (mainClassName != null) {
-      JavaRunConfigurationModule.getModulesForClass(project, mainClassName).asScala.toSeq
-    } else {
-      Seq.empty
+  // note: this method is based on com.intellij.execution.configurations.JavaRunConfigurationModule.getModulesForClass.
+  // I decided not to use it, because it also adds dependant modules to the result. In theory it is also possible
+  // to run some configurations in dependant modules, but it doesn't seem to be common practice.
+  private def getModulesForClass(@Nullable mainClassName: String, project: Project): Seq[Module] = {
+    if (project.isDefault || mainClassName == null) return Seq.empty
+    PsiDocumentManager.getInstance(project).commitAllDocuments()
+
+    val possibleClasses = JavaPsiFacade.getInstance(project).findClasses(mainClassName, GlobalSearchScope.projectScope(project))
+
+    possibleClasses.foldLeft(Seq.empty[Module]) { case(acc, psiClass) =>
+      val module = ModuleUtilCore.findModuleForPsiElement(psiClass)
+      if (module != null) acc :+ module
+      else acc
     }
+  }
 }
 
 object SbtMigrateConfigurationsAction {
