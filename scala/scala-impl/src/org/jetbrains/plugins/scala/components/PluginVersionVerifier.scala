@@ -54,7 +54,8 @@ object ScalaPluginVersionVerifier {
     getClass.getClassLoader match {
       case pluginLoader: PluginClassLoader =>
         PluginManagerCore.getPlugin(pluginLoader.getPluginId).asInstanceOf[IdeaPluginDescriptorImpl]
-      case other => throw new RuntimeException(s"Wrong plugin classLoader: $other")
+      case other =>
+        throw new RuntimeException(s"Wrong plugin classLoader: $other")
     }
   }
 
