@@ -5,7 +5,7 @@
                         dynamic="true"/>
 
         <extensionPoint qualifiedName="com.intellij.newProjectWizard.scala.buildSystem" interface="org.jetbrains.sbt.project.template.wizard.buildSystem.BuildSystemScalaNewProjectWizard" dynamic="true"/>
-        <extensionPoint qualifiedName="org.intellij.scala.sbtUnlinkedProjectAwareHelper" interface="org.jetbrains.sbt.project.SbtUnlinkedProjectAwareHelper"/>
+        <extensionPoint qualifiedName="org.intellij.scala.sbtUnlinkedProjectAwareHelper" interface="org.jetbrains.sbt.project.SbtUnlinkedProjectAwareHelper" dynamic="true"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="org.intellij">

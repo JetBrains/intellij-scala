@@ -23,9 +23,9 @@
         <extensionPoint qualifiedName="org.intellij.scala.referenceExtraResolver" interface="org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceExtraResolver" dynamic="true"/>
         <extensionPoint qualifiedName="org.intellij.scala.compilerSettingsProfileProvider" interface="org.jetbrains.plugins.scala.codeInspection.feature.ScalaCompilerSettingsProfileProvider" dynamic="true"/>
 
-        <extensionPoint qualifiedName="org.intellij.scala.findUsages.externalReferenceSearcher" interface="org.jetbrains.plugins.scala.findUsages.ExternalReferenceSearcher"/>
-        <extensionPoint qualifiedName="org.intellij.scala.findUsages.externalInheritorsSearcher" interface="org.jetbrains.plugins.scala.findUsages.ExternalInheritorsSearcher"/>
-        <extensionPoint qualifiedName="org.intellij.scala.findUsages.externalSearchScopeChecker" interface="org.jetbrains.plugins.scala.findUsages.ExternalSearchScopeChecker"/>
+        <extensionPoint qualifiedName="org.intellij.scala.findUsages.externalReferenceSearcher" interface="org.jetbrains.plugins.scala.findUsages.ExternalReferenceSearcher" dynamic="true"/>
+        <extensionPoint qualifiedName="org.intellij.scala.findUsages.externalInheritorsSearcher" interface="org.jetbrains.plugins.scala.findUsages.ExternalInheritorsSearcher" dynamic="true"/>
+        <extensionPoint qualifiedName="org.intellij.scala.findUsages.externalSearchScopeChecker" interface="org.jetbrains.plugins.scala.findUsages.ExternalSearchScopeChecker" dynamic="true"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="org.intellij.scala">
@@ -1984,6 +1984,8 @@
    </extensions>
 
     <applicationListeners>
+        <listener topic="com.intellij.ide.plugins.DynamicPluginListener"
+                  class="org.jetbrains.plugins.scala.internal.ScalaPluginDynamicUnloadDenier" />
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.annotator.TypeMismatchTooltipsHandler"/>
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
