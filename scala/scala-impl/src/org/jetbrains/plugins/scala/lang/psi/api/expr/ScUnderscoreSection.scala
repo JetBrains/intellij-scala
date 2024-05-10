@@ -1,9 +1,11 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
 import com.intellij.lang.ASTNode
+import com.intellij.openapi.diagnostic.{Attachment, Logger}
 import com.intellij.psi.impl.source.tree.CompositeElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.{ModTracker, cachedInUserData}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
@@ -11,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScUnderScoreSectionUtil.isUnderscore
 
 import scala.annotation.tailrec
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable
 
 trait ScUnderscoreSection extends ScExpression {
   def bindingExpr: Option[ScExpression] =
@@ -88,6 +90,8 @@ object ScUnderscoreSection {
 }
 
 object ScUnderScoreSectionUtil {
+  private val LOG = Logger.getInstance(classOf[ScUnderScoreSectionUtil.type])
+
   @tailrec
   def isUnderscore(expr: ScExpression): Boolean = {
     expr match {
@@ -107,16 +111,26 @@ object ScUnderScoreSectionUtil {
   /**Collects parameters of anonymous functions in placeholder syntax*/
   def underscores(expr: ScExpression): Seq[ScUnderscoreSection] = cachedInUserData("underscores", expr, ModTracker.anyScalaPsiChange, Tuple1(expr: ScExpression)) {
     if (!expr.isValid) Nil else {
-      val underscores = ArrayBuffer.empty[ScUnderscoreSection]
-      collectUnderscoreNodes(expr.getNode, underscores)
+      val underscores = Seq.newBuilder[ScUnderscoreSection]
+
+      try collectUnderscoreNodes(expr.getNode, underscores)
+      catch {
+        case e: StackOverflowError =>
+          // SCL-22522
+          LOG.error(
+            "Stackoverflow in collectUnderscoreNodes",
+            e,
+            new Attachment("underscore_section_code", expr.withParents.take(4).toSeq.last.getText)
+          )
+      }
 
       underscores
+        .result()
         .filter(u => u.bindingExpr.isEmpty && u.overExpr.contains(expr))
-        .toList
     }
   }
 
-  private def collectUnderscoreNodes(node: ASTNode, result: ArrayBuffer[ScUnderscoreSection]): Unit = {
+  private def collectUnderscoreNodes(node: ASTNode, result: mutable.Growable[ScUnderscoreSection]): Unit = {
     node match {
       case composite: CompositeElement =>
         var currentChild = composite.getFirstChildNode
