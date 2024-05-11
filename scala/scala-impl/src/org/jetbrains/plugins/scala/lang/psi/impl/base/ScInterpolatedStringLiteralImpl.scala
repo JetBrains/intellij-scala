@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base
 
 import com.intellij.lang.{ASTNode, LanguageNamesValidation}
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.LiteralTextEscaper
+import com.intellij.psi.impl.source.tree.LeafElement
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedInUserData}
@@ -10,11 +12,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.base.ScInterpolatedStringLiteralImpl.Log
 import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.escapers.{ScLiteralEscaper, ScLiteralRawEscaper}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames.StringContextCanonical
 
 import scala.meta.intellij.QuasiquoteInferUtil._
+import scala.util.control.NonFatal
 
 // todo: move to "literals" subpackage, but check usages
 final class ScInterpolatedStringLiteralImpl(node: ASTNode,
@@ -102,4 +106,20 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode,
       new ScLiteralRawEscaper(this)
     else
       new ScLiteralEscaper(this)
+
+  override def updateText(text: String): ScStringLiteralImpl = try {
+    val newStringLiteral = ScalaPsiElementFactory.createStringLiteralFromText(text, this.features).asInstanceOf[ScStringLiteralImpl]
+    getParent.getNode.replaceChild(getNode, newStringLiteral.getNode)
+    newStringLiteral
+  } catch {
+    case NonFatal(ex) =>
+      Log.warn(ex)
+      //TODO: this is a fallback workaround for SCL-22507 and IJPL-149605
+      // it should be removed once IJPL-149605 is resolved
+      this
+  }
+}
+
+object ScInterpolatedStringLiteralImpl {
+  private val Log = Logger.getInstance(this.getClass)
 }
