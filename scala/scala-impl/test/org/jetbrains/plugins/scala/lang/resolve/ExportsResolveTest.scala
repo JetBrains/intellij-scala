@@ -388,4 +388,44 @@ class ExportsResolveTest extends SimpleResolveTestBase {
       |}
       |""".stripMargin
   )
+
+  def testSCL22526(): Unit = checkTextHasNoErrors(
+    """
+      |object StringExtension:
+      |  extension (value: String)
+      |    def addHello(): String =
+      |      value + "hello"
+      |
+      |object ExportTest:
+      |  export StringExtension.*
+      |  export java.lang.String as AS
+      |
+      |def test(): Unit = {
+      |  import ExportTest.*
+      |  val aliasTest: AS = "hi"
+      |
+      |  val result = aliasTest.addHello() // 1. The add extension method is not in suggestion list
+      |  // 2. Returns value type is any (actually String or AS)
+      |  print(result)
+      |}
+      |""".stripMargin
+  )
+
+  def testSCL22527(): Unit = checkTextHasNoErrors(
+    """
+      |
+      |trait GenericType[T]
+      |
+      |def genericTest[T]: GenericType[T] = ???
+      |
+      |object ExportTest:
+      |  export test.GenericType as GT
+      |
+      |@main
+      |def main(): Unit = {
+      |  import ExportTest.*
+      |  val test: GT[String] = genericTest
+      |}
+      |""".stripMargin
+  )
 }
