@@ -1,25 +1,40 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base
 
-import com.intellij.psi.{PsiElement, PsiWhiteSpace}
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamClause
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeBoundsOwner, ScTypeParametersOwner}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameter, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
+import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ScType, api}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 
-trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
+import scala.annotation.tailrec
+
+trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner with ScTypeParametersOwner {
 
   override def lowerBound: TypeResult = typeOf(lowerTypeElement, isLower = true)
 
   override def upperBound: TypeResult = typeOf(upperTypeElement, isLower = false)
 
-  protected def extractBound(in: ScType, isLower: Boolean): ScType = in
-
-  override def viewBound: Seq[ScType] = viewTypeElement.flatMap(_.`type`().toOption)
-
-  override def contextBound: Seq[ScType] = contextBoundTypeElement.flatMap(_.`type`().toOption)
+  @tailrec
+  final def extractBound(in: ScType, isLower: Boolean): ScType = typeParametersClause match {
+    case Some(pClause: ScTypeParamClause) =>
+      val tParams = pClause.typeParameters
+      in match {
+        case ParameterizedType(des, params)
+          if params.length == tParams.length &&
+            params.collect { case tpt: TypeParameterType => tpt.psiTypeParameter } == tParams => des
+        case AliasType(_: ScTypeAliasDefinition, Right(lower), _) if isLower  => extractBound(lower, isLower)
+        case AliasType(_: ScTypeAliasDefinition, _, Right(upper)) if !isLower => extractBound(upper, isLower)
+        case t                                                                => ScTypePolymorphicType(t, tParams.map(TypeParameter(_)))
+      }
+    case _ => in
+  }
 
   override def upperTypeElement: Option[ScTypeElement] =
     findLastChildByTypeScala[PsiElement](ScalaTokenTypes.tUPPER_BOUND)
@@ -28,34 +43,6 @@ trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
   override def lowerTypeElement: Option[ScTypeElement] =
     findLastChildByTypeScala[PsiElement](ScalaTokenTypes.tLOWER_BOUND)
       .flatMap(_.nextSiblingOfType[ScTypeElement])
-
-
-  override def viewTypeElement: Seq[ScTypeElement] = {
-    for {
-      v <- findChildrenByType(ScalaTokenTypes.tVIEW)
-      t <- v.nextSiblingOfType[ScTypeElement]
-    } yield t
-  }
-
-  override def contextBoundTypeElement: Seq[ScTypeElement] = {
-    for {
-      v <- findChildrenByType(ScalaTokenTypes.tCOLON)
-      t <- v.nextSiblingOfType[ScTypeElement]
-    } yield t
-  }
-
-  override def removeImplicitBounds(): Unit = {
-    var node = getNode.getFirstChildNode
-    while (node != null && !Set(ScalaTokenTypes.tCOLON, ScalaTokenTypes.tVIEW)(node.getElementType)) {
-      node = node.getTreeNext
-    }
-    if (node == null) return
-    node.getPsi.getPrevSibling match {
-      case ws: PsiWhiteSpace => ws.delete()
-      case _ =>
-    }
-    node.getTreeParent.removeRange(node, null)
-  }
 
   private def typeOf(typeElement: Option[ScTypeElement], isLower: Boolean): TypeResult =
     typeElement match {

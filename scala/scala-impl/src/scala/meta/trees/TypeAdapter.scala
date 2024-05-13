@@ -247,11 +247,11 @@ trait TypeAdapter {
     )//.setTypechecked
   }
 
-  def viewBounds(tp: ScTypeBoundsOwner): List[m.Type] = {
+  def viewBounds(tp: ScImplicitBoundsOwner): List[m.Type] = {
     tp.viewTypeElement.map(toType).toList
   }
 
-  def contextBounds(tp: ScTypeBoundsOwner): List[m.Type] = {
+  def contextBounds(tp: ScImplicitBoundsOwner): List[m.Type] = {
     tp.contextBoundTypeElement.map(toType).toList
   }
 

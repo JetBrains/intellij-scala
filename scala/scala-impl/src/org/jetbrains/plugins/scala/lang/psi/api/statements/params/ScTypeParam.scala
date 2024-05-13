@@ -3,10 +3,10 @@ package params
 
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiTypeParameterAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScPolymorphicElement, ScTypeParametersOwner}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScBoundsOwner, ScNamedElement, ScPolymorphicElement, ScTypeParametersOwner}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 
-trait ScTypeParam extends ScNamedElement with ScPolymorphicElement with PsiTypeParameterAdapter with ScAnnotationsHolder {
+trait ScTypeParam extends ScNamedElement with ScBoundsOwner with ScPolymorphicElement with PsiTypeParameterAdapter with ScAnnotationsHolder {
   val typeParamId: Long
 
   def isCovariant: Boolean

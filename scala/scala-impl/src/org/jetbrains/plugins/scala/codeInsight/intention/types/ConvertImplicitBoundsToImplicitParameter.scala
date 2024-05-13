@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScParameterOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScConstructorOwner, ScTrait}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeBoundsOwner, ScTypeParametersOwner}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScImplicitBoundsOwner, ScTypeBoundsOwner, ScTypeParametersOwner}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createImplicitClauseFromTextWithContext
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
 import org.jetbrains.plugins.scala.lang.refactoring.util.InplaceRenameHelper
@@ -41,7 +41,7 @@ class ConvertImplicitBoundsToImplicitParameter extends PsiElementBaseIntentionAc
 object ConvertImplicitBoundsToImplicitParameter {
 
   def canBeConverted(element: PsiElement): Boolean =
-    element.parentOfType(classOf[ScTypeBoundsOwner], strict = false)
+    element.parentOfType(classOf[ScImplicitBoundsOwner], strict = false)
       .filter(_.hasImplicitBounds)
       .flatMap(_.parentOfType(classOf[ScTypeParametersOwner]))
       .exists {

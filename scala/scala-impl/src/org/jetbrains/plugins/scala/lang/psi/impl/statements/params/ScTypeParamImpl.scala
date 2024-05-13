@@ -11,46 +11,27 @@ import org.jetbrains.plugins.scala.lang.TokenSets
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumCases, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumCases}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScBoundsOwnerImpl, ScTypeParametersOwner}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.base.ScTypeBoundsOwnerImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeParamStub
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameter, TypeParameterType}
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
-import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 
 import javax.swing.Icon
-import scala.annotation.tailrec
 
 class ScTypeParamImpl private (stub: ScTypeParamStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, ScalaElementType.TYPE_PARAM, node)
-    with ScTypeBoundsOwnerImpl with ScTypeParam with PsiClassFake {
+    with ScBoundsOwnerImpl with ScTypeParam with PsiClassFake {
 
   def this(node: ASTNode) =  this(null, node)
 
   def this(stub: ScTypeParamStub) = this(stub, null)
 
   override lazy val typeParamId: Long = reusableId(this)
-
-  @tailrec
-  final override protected def extractBound(in: ScType, isLower: Boolean): ScType = typeParametersClause match {
-    case Some(pClause: ScTypeParamClause) =>
-      val tParams = pClause.typeParameters
-      in match {
-        case ParameterizedType(des, params)
-          if params.length == tParams.length &&
-            params.collect { case tpt: TypeParameterType => tpt.psiTypeParameter } == tParams => des
-        case AliasType(_: ScTypeAliasDefinition, Right(lower), _) if isLower  => extractBound(lower, isLower)
-        case AliasType(_: ScTypeAliasDefinition, _, Right(upper)) if !isLower => extractBound(upper, isLower)
-        case t                                                                => ScTypePolymorphicType(t, tParams.map(TypeParameter(_)))
-      }
-    case _ => in
-  }
 
   override def toString: String = s"TypeParameter: ${ifReadAllowed(name)("")}"
 

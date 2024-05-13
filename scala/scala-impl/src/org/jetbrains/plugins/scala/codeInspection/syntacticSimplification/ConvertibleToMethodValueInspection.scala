@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.syntacticSimplification
 
-import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import org.jetbrains.annotations.Nls
@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, S
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScImplicitBoundsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createExpressionWithContextFromText}
@@ -158,7 +158,7 @@ class ConvertibleToMethodValueInspection extends LocalInspectionTool {
 
   private def hasContextOrViewBoundTypeParam(elem: PsiElement): Boolean = {
     elem match {
-      case fun: ScMethodLike => fun.getTypeParameters.exists { case bounds: ScTypeBoundsOwner => bounds.hasImplicitBounds }
+      case fun: ScMethodLike => fun.getTypeParameters.exists { case bounds: ScImplicitBoundsOwner => bounds.hasImplicitBounds }
       case _ => false
     }
   }

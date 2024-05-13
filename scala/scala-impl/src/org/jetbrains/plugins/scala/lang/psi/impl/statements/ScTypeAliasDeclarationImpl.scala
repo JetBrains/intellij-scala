@@ -16,14 +16,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createIdentifier
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.base.ScTypeBoundsOwnerImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeAliasStub
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing}
-import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 import javax.swing.Icon
 
 final class ScTypeAliasDeclarationImpl private(stub: ScTypeAliasStub, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, TYPE_DECLARATION, node) with ScTypeAliasDeclaration {
+  extends ScalaStubBasedElementImpl(stub, TYPE_DECLARATION, node) with ScTypeAliasDeclaration with ScTypeBoundsOwnerImpl {
 
   def this(node: ASTNode) = this(null, node)
 
@@ -42,16 +41,6 @@ final class ScTypeAliasDeclarationImpl private(stub: ScTypeAliasStub, node: ASTN
   }
 
   override def toString: String = "ScTypeAliasDeclaration: " + ifReadAllowed(name)("")
-
-  override def lowerBound: TypeResult = lowerTypeElement match {
-    case Some(te) => te.`type`()
-    case None => Right(Nothing)
-  }
-
-  override def upperBound: TypeResult = upperTypeElement match {
-    case Some(te) => te.`type`()
-    case None => Right(Any)
-  }
 
   override def upperTypeElement: Option[ScTypeElement] =
     byPsiOrStub(boundElement(tUPPER_BOUND))(_.upperBoundTypeElement)

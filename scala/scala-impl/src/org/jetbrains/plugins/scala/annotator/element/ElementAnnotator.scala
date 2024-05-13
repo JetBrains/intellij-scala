@@ -61,7 +61,7 @@ object ElementAnnotator extends ElementAnnotator[ScalaPsiElement] {
       ScSimpleTypeElementAnnotator ::
       ScTemplateDefinitionAnnotator ::
       ScTraitAnnotator ::
-      ScTypeBoundsOwnerAnnotator ::
+      ScBoundsOwnerAnnotator ::
       ScTypedExpressionAnnotator ::
       ScUnderscoreSectionAnnotator ::
       ScVariableDeclarationAnnotator ::
