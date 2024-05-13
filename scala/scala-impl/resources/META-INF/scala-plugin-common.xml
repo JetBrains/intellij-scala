@@ -388,7 +388,7 @@
         <refactoring.moveClassHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.MoveScalaClassHandler" order="first"/>
         <refactoring.moveDirectoryWithClassesHelper implementation="org.jetbrains.plugins.scala.lang.refactoring.move.ScalaMoveDirectoryWithClassesHelper" order="first"/> <!-- TODO: should be before Java's JavaMoveDirectoryWithClassesHelper that doesn't have an id yet -->
         <refactoring.elementListenerProvider implementation="org.jetbrains.plugins.scala.runner.ScalaRunConfigurationRefactoringListenerProvider"/>
-        <!--<moveFileHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.MoveScalaFileHandler" order="first"/>-->
+        <moveFileHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.MoveScalaFileHandler" order="first"/>
         <inlineActionHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.inline.method.ScalaInlineMethodHandler" id="scalaInlineMethodHandler" order="first"/> <!-- TODO: should be before Java's InlineToAnonymousClassHandler that doesn't have an id yet -->
         <inlineActionHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.inline.typeAlias.ScalaInlineTypeAliasHandler" id="scalaInlineTypeAliasHandler"/>
         <inlineActionHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.inline.variable.ScalaInlineVariableHandler" id="scalaInlineVariableHandler"/>
