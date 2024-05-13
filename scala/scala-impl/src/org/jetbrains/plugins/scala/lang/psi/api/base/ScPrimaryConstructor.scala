@@ -74,7 +74,7 @@ object ScPrimaryConstructor {
     def unapply(pc: ScPrimaryConstructor): Option[ScClass] = {
       pc.containingClass match {
         case c: ScClass => Some(c)
-        case _ => None
+        case _          => None
       }
     }
   }
