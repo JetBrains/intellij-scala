@@ -48,11 +48,7 @@ private final class ToggleHighlightingModeListener extends ProjectManagerListene
           forceStandardHighlighting(project)
           CompileServerNotificationsService.get(project).resetNotifications()
           if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
-            executeOnBackgroundThreadInNotDisposed(project) {
-              Option(FileEditorManager.getInstance(project).getSelectedEditor)
-                .flatMap(editor => Option(editor.getFile))
-                .foreach(TriggerCompilerHighlightingService.get(project).triggerOnEditorFocus)
-            }
+            TriggerCompilerHighlightingService.get(project).triggerCompilationInSelectedEditor()
           }
         }
       }
