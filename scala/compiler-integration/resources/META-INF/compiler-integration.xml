@@ -83,6 +83,9 @@
 
         <listener topic="com.intellij.compiler.server.CustomBuilderMessageHandler"
                   class="org.jetbrains.plugins.scala.compiler.CompilerEventFromCustomBuilderMessageListener"/>
+
+        <listener topic="com.intellij.openapi.roots.ModuleRootListener"
+                  class="org.jetbrains.plugins.scala.compiler.highlighting.CompilerHighlightingModuleRootListener"/>
     </projectListeners>
 
     <actions>

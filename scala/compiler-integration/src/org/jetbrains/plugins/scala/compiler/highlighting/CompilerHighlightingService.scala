@@ -13,9 +13,9 @@ import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.util.ProgressIndicatorBase
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator, ProgressManager, Task}
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots.{ProjectRootManager, TestSourcesFilter}
-import com.intellij.openapi.util.ModificationTracker
+import com.intellij.openapi.util.SimpleModificationTracker
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.ex.{StatusBarEx, WindowManagerEx}
 import com.intellij.psi.{PsiFile, PsiManager}
@@ -58,6 +58,8 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
   private val compilationTask: AtomicReference[ScheduledFuture[_]] = new AtomicReference()
 
   private val progressIndicator: AtomicReference[ProgressIndicator] = new AtomicReference()
+
+  private val projectSaveModificationTracker: SimpleModificationTracker = new SimpleModificationTracker()
 
   private def debug(message: => String): Unit = {
     if (Log.isDebugEnabled) {
@@ -134,6 +136,10 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     debugReason: String
   ): Unit =
     schedule(CompilationRequest.WorksheetRequest(psiFile, virtualFile, document, isFirstTimeHighlighting, debugReason))
+
+  private[highlighting] def saveProjectOnNextCompilation(): Unit = {
+    projectSaveModificationTracker.incModificationCount()
+  }
 
   private def calculateSourceScope(virtualFile: VirtualFile): SourceScope = {
     def sourceScope: SourceScope =
@@ -320,7 +326,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
 
   private def prepareCompilation(await: Boolean)(compile: => Future[Unit]): Unit = {
     try {
-      saveProjectOnce()
+      saveProject()
       CompileServerLauncher.ensureServerRunning(project)
       if (project.isDisposed) return
       val future = compile
@@ -370,8 +376,8 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     promise.future
   }
 
-  // SCL-17295
-  private val saveProjectOnce = cached("saveProjectOnce", ModificationTracker.NEVER_CHANGED, () => {
+  // SCL-17295, SCL-22491
+  private val saveProject = cached("saveProject", projectSaveModificationTracker, () => {
     if (!project.isDisposed || project.isDefault) project.save()
   })
 
@@ -379,6 +385,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     if (!request.virtualFile.isValid) {
       RequestState.Expired
     } else if (request.remaining < Duration.Zero) {
+      if (DumbService.isDumb(project)) return RequestState.NotReady
       request match {
         case CompilationRequest.WorksheetRequest(_, _, document, _, _) => canDocumentBeCompiled(document)
         case CompilationRequest.IncrementalRequest(_, _, _, _, _, _) => RequestState.Ready
