@@ -9,6 +9,7 @@ In case of any questions you are welcome on our [discord channel](https://discor
 ### Useful links:
 - [How to contribute to IntelliJ Scala plugin](https://blog.jetbrains.com/scala/2016/04/21/how-to-contribute-to-intellij-scala-plugin/) (includes YouTube video)
 - [Building IntelliJ IDEA plugins in Scala by Igal Tabachnik: Scala in the City Conference](https://www.youtube.com/watch?v=IPO-cY_giNA) (YouTube video)
+- [Up For Grabs](https://youtrack.jetbrains.com/issues/SCL?q=tag:%20%7BUp%20For%20Grabs%7D%20%23Unresolved%20order%20by:%20created) contains a  list of easy-to start YouTrack tickets
 - [Glossary of IntelliJ Platform](https://plugins.jetbrains.com/docs/intellij/glossary.html)
 - [Explore the IntelliJ Platform API](https://plugins.jetbrains.com/docs/intellij/explore-api.html)
 - [PSI Viewer](https://www.jetbrains.com/help/idea/psi-viewer.html) is an essential tool to dig into the structure of a source code.
