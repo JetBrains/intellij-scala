@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.scala.annotator
 
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.annotator.element.ScTypeBoundsOwnerAnnotator
+import org.jetbrains.plugins.scala.annotator.element.ScBoundsOwnerAnnotator
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 
-
-class ScTypeBoundsOwnerAnnotatorTest extends AnnotatorSimpleTestCase {
+class ScBoundsOwnerAnnotatorTest extends AnnotatorSimpleTestCase {
   import Message._
 
   def testNoErrors(): Unit = assertNothing(
@@ -137,7 +136,7 @@ class ScTypeBoundsOwnerAnnotatorTest extends AnnotatorSimpleTestCase {
     file
       .depthFirst()
       .filterByType[ScTypeParam]
-      .foreach(ScTypeBoundsOwnerAnnotator.annotate(_, typeAware = true))
+      .foreach(ScBoundsOwnerAnnotator.annotate(_, typeAware = true))
 
     mock.annotations
   }

@@ -22,13 +22,10 @@ trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner with ScTypeParametersOwner
   override def upperBound: TypeResult = typeOf(upperTypeElement, isLower = false)
 
   @tailrec
-  final def extractBound(in: ScType, isLower: Boolean): ScType = typeParametersClause match {
+  private final def extractBound(in: ScType, isLower: Boolean): ScType = typeParametersClause match {
     case Some(pClause: ScTypeParamClause) =>
       val tParams = pClause.typeParameters
       in match {
-        case ParameterizedType(des, params)
-          if params.length == tParams.length &&
-            params.collect { case tpt: TypeParameterType => tpt.psiTypeParameter } == tParams => des
         case AliasType(_: ScTypeAliasDefinition, Right(lower), _) if isLower  => extractBound(lower, isLower)
         case AliasType(_: ScTypeAliasDefinition, _, Right(upper)) if !isLower => extractBound(upper, isLower)
         case t                                                                => ScTypePolymorphicType(t, tParams.map(TypeParameter(_)))

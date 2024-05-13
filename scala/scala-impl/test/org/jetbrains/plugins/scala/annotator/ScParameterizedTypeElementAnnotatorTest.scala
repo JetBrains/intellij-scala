@@ -317,6 +317,28 @@ class ScParameterizedTypeElementAnnotatorTest_scala_2 extends ScParameterizedTyp
     ))
   }
 
+  def testSCL22501(): Unit = assertNothing(messages(
+    """
+      |trait MyIterable[+A]
+      |
+      |trait Aggregate1[F[_] <: MyIterable[_]]
+      |trait Aggregate2[F[A] <: MyIterable[A]]
+      |
+      |//noinspection NotImplementedCode
+      |object Example {
+      |  //without type alias
+      |  val aOk1: Aggregate1[MyIterable] = ???
+      |  val aOk2: Aggregate2[MyIterable] = ???
+      |
+      |  type AggregateValue[T] <: MyIterable[T]
+      |
+      |  //with type alias
+      |  val aBad1: Aggregate1[AggregateValue] = ???
+      |  val aBad2: Aggregate2[AggregateValue] = ???
+      |}
+      |""".stripMargin
+  ))
+
   def assertMessagesInAllContexts(typeText: String)(expected: Message*): Unit = {
     val Header =
       """

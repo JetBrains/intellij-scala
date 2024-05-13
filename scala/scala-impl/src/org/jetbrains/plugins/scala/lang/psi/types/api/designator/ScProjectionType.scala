@@ -6,16 +6,15 @@ import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, RecursionMa
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, TypeParamIdOwner}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumSingletonCase, ScTypeAlias, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
-import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ConstraintSystem, ConstraintsResult, ScCompoundType, ScExistentialArgument, ScExistentialType, ScLiteralType, ScType, ScalaTypeVisitor}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ConstraintSystem, ConstraintsResult, ScCompoundType, ScLiteralType, ScType, ScalaTypeVisitor}
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult, ScalaResolveState}
 import org.jetbrains.plugins.scala.util.HashBuilder._
@@ -29,50 +28,20 @@ import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 final class ScProjectionType private(val projected: ScType,
                                      override val element: PsiNamedElement) extends DesignatorOwner {
 
-  override protected def calculateAliasType: Option[AliasType] = {
+  override protected def calculateAliasType: Option[AliasType] =
     actualElement match {
-      case ta: ScTypeAlias if ta.typeParameters.isEmpty =>
-        val subst: ScSubstitutor = actualSubst
-        Some(AliasType(ta, ta.lowerBound.map(subst), ta.upperBound.map(subst)))
-      case ta: ScTypeAlias => //higher kind case
-        ta match {
-          case ta: ScTypeAliasDefinition => //hack for simple cases, it doesn't cover more complicated examples
-            ta.aliasedType match {
-              case Right(tp) if tp == this => // recursive type alias
-                return Some(AliasType(ta, Right(this), Right(this)))
-              case Right(tp) =>
-                actualSubst(tp) match {
-                  case target @ ParameterizedType(des, typeArgs) =>
-                    val tParams = ta.typeParameters
-                    val sameParams = tParams.length == typeArgs.length && tParams.zip(typeArgs).forall {
-                      case (tParam: ScTypeParam, TypeParameterType.ofPsi(param)) if tParam.typeParamId == param.typeParamId => true
-                      case _                                                                                                => false
-                    }
+      case ta: ScTypeAlias =>
+        val subst = actualSubst
 
-                    if (sameParams) return Some(AliasType(ta, Right(des), Right(des)))
-                    else {
-                      val typeConsuctor = ScTypePolymorphicType(target, tParams.map(TypeParameter.apply))
-                      return Option(AliasType(ta, Right(typeConsuctor), Right(typeConsuctor)))
-                    }
-                  case _ =>
-                }
-              case _ =>
-            }
-          case _ =>
-        }
-        val existentialArgs = ta.typeParameters
-          .map(tp => ScExistentialArgument(tp.name + "$$", Nil, Nothing, Any))
-          .toList
-
-        val genericSubst = ScSubstitutor.bind(ta.typeParameters, existentialArgs)
-
-        val s = actualSubst.followed(genericSubst)
-        Some(AliasType(ta,
-          ta.lowerBound.map(scType => ScExistentialType(s(scType))),
-          ta.upperBound.map(scType => ScExistentialType(s(scType)))))
+        Option(
+          AliasType(
+            ta,
+            ta.lowerBound.map(subst),
+            ta.upperBound.map(subst)
+          )
+        )
       case _ => None
     }
-  }
 
   override def isStable: Boolean = (projected match {
     case designatorOwner: DesignatorOwner => designatorOwner.isStable

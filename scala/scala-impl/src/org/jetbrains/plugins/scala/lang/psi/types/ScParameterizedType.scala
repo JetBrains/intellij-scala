@@ -22,13 +22,7 @@ final class ScParameterizedType private (override val designator: ScType, overri
     designator match {
       case ScDesignatorType(ta: ScTypeAlias)                   => computeAliasType(ta, ta.lowerBound, ta.upperBound)
       case ScProjectionType.withActual(ta: ScTypeAlias, subst) => computeAliasType(ta, ta.lowerBound, ta.upperBound, subst)
-      case p: ScParameterizedType =>
-        //@TODO: scala 3 only
-        p.aliasType.flatMap {
-          case AliasType(ta, lower, upper) =>
-            computeAliasType(ta, lower, upper, isGuaranteedToBeTypeLambda = true)
-        }
-      case _ => None
+      case _                                                   => None
     }
 
   private def computeAliasType(
@@ -36,21 +30,17 @@ final class ScParameterizedType private (override val designator: ScType, overri
     lower:                      TypeResult,
     upper:                      TypeResult,
     subst:                      ScSubstitutor = ScSubstitutor.empty,
-    isGuaranteedToBeTypeLambda: Boolean       = false
   ): Some[AliasType] = {
     @tailrec
-    def stripParamsFromTypeLambdas(ta: ScTypeAlias, t: ScType): (ScType, Seq[TypeParameter]) =
-      if (!isGuaranteedToBeTypeLambda && ta.typeParameters.nonEmpty)
-        (t, ta.typeParameters.map(TypeParameter(_)))
-      else
-        t match {
-          case ScTypePolymorphicType(internal, tps) => (internal, tps)
-          case AliasType(ta, Right(lower), _)       => stripParamsFromTypeLambdas(ta, lower)
-          case t                                    => (t, Seq.empty)
-        }
+    def stripParamsFromTypeLambdas(t: ScType): (ScType, Seq[TypeParameter]) =
+      t match {
+        case ScTypePolymorphicType(internal, tps) => (internal, tps)
+        case AliasType(_, Right(lower), _)        => stripParamsFromTypeLambdas(lower)
+        case t                                    => (t, Seq.empty)
+      }
 
     val newLower = lower.map { l =>
-      val (t, tps) = stripParamsFromTypeLambdas(ta, l)
+      val (t, tps) = stripParamsFromTypeLambdas(l)
 
       val actualTypeParameters =
         if (tps.isEmpty) ta.typeParameters.map(TypeParameter(_))
@@ -65,7 +55,7 @@ final class ScParameterizedType private (override val designator: ScType, overri
       if (ta.isDefinition) newLower
       else
         upper.map { u =>
-          val (t, tps) = stripParamsFromTypeLambdas(ta, u)
+          val (t, tps) = stripParamsFromTypeLambdas(u)
 
           val actualTypeParameters =
             if (tps.isEmpty) ta.typeParameters.map(TypeParameter(_))
