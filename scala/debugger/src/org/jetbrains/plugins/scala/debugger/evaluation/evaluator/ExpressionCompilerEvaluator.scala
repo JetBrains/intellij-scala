@@ -15,8 +15,8 @@ import org.jetbrains.jps.incremental.scala.DummyClient
 import org.jetbrains.jps.incremental.scala.remote.CommandIds
 import org.jetbrains.plugins.scala.compiler.data.ExpressionEvaluationArguments
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, RemoteServerRunner}
-import org.jetbrains.plugins.scala.debugger.ScalaPositionManager
-import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
+import org.jetbrains.plugins.scala.debugger.{DebuggerBundle, ScalaPositionManager}
+import org.jetbrains.plugins.scala.debugger.evaluation.{EvaluationException, ExpressionCompilerResolverListener}
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
@@ -41,13 +41,28 @@ private[evaluation] final class ExpressionCompilerEvaluator(codeFragment: PsiEle
       createOutputDirectory(compilerManager.getJavacCompilerWorkingDir.toPath)
     }
 
+    val scalaVersion = module.scalaMinorVersion match {
+      case Some(version) => version
+      case None =>
+        throw EvaluationException(DebuggerBundle.message("could.not.determine.scala.version", module.getName))
+    }
+
+    val expressionCompilerJar =
+      context.getProject.getUserData(ExpressionCompilerResolverListener.ExpressionCompilers).get(scalaVersion) match {
+        case Some(jar) => jar
+        case None =>
+          throw EvaluationException(DebuggerBundle.message("could.not.resolve.scala.expression.compiler", scalaVersion))
+      }
+
     try {
       def stripJarPathSuffix(path: String): String =
         path.stripSuffix("!").stripSuffix("!/")
 
       val enumerator = OrderEnumerator.orderEntries(module).compileOnly().recursively()
       val classpath =
-        module.scalaCompilerClasspath.map(_.toPath) ++ enumerator.getClassesRoots.map(_.getCanonicalPath).map(stripJarPathSuffix).map(Path.of(_))
+        module.scalaCompilerClasspath.map(_.toPath) ++
+          enumerator.getClassesRoots.map(_.getCanonicalPath).map(stripJarPathSuffix).map(Path.of(_)) :+
+          expressionCompilerJar
       val scalacOptions = module.scalaCompilerSettings.getOptionsAsStrings(module.hasScala3)
       val source = Path.of(position.getFile.getVirtualFile.getCanonicalPath)
       val line = position.getLine + 1

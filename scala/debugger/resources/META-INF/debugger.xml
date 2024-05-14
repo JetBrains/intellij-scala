@@ -33,5 +33,8 @@
 
         <listener topic="com.intellij.debugger.impl.DebuggerManagerListener"
                   class="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCompileHelper$Listener"/>
+
+        <listener topic="com.intellij.debugger.impl.DebuggerManagerListener"
+                  class="org.jetbrains.plugins.scala.debugger.evaluation.ExpressionCompilerResolverListener"/>
     </projectListeners>
 </idea-plugin>
