@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaXmlTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlStartTag
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxElementType
@@ -101,7 +102,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
         highlighterIterator.tokenLength == QuotesLength && offset == highlighterIterator.getStart && {
           highlighterIterator.retreat()
           try highlighterIterator.getTokenType == tINTERPOLATED_MULTILINE_STRING && highlighterIterator.tokenLength == QuotesLength
-          finally highlighterIterator.advance() // pretending we are side-affect-free =/
+          finally highlighterIterator.advance() // pretending we are side-effect-free =/
         }
       case _ =>
         false
@@ -134,18 +135,25 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
   }
 
   private def handleLeftBrace(element: PsiElement, file: PsiFile, editor: Editor): Unit = {
-    for {
-      BraceWrapInfo(element, _, parent, _) <- ScalaTypedHandler.findElementToWrap(element)
-      if element.is[ScBlockExpr]
-      block = element.asInstanceOf[ScBlockExpr]
-      lBrace <- block.getLBrace
-      rBrace <- block.getRBrace
-      if canDeleteClosingBrace(block, parent, lBrace, rBrace, file)
-    } {
+    def deleteRBrace(rBrace: PsiElement): Unit = {
       val document = editor.getDocument
       deleteBrace(rBrace, document)
       val project = file.getProject
       document.commit(project)
+    }
+
+    element match {
+      case ElementType(ScalaTokenTypes.tLBRACE) & Parent(tb: ScTemplateBody) if tb.isEmpty =>
+        tb.getRBrace.foreach(deleteRBrace)
+      case _ =>
+        for {
+          BraceWrapInfo(element, _, parent, _) <- ScalaTypedHandler.findElementToWrap(element)
+          if element.is[ScBlockExpr]
+          block = element.asInstanceOf[ScBlockExpr]
+          lBrace <- block.getLBrace
+          rBrace <- block.getRBrace
+          if canDeleteClosingBrace(block, parent, lBrace, rBrace, file)
+        } deleteRBrace(rBrace)
     }
   }
 
@@ -173,9 +181,9 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
     if (correctClosingBraceSelected(statements, parent, rBrace, tabSize))
       statements.isEmpty ||
         hasCorrectIndentationInside(statements, parent, tabSize) &&
-        hasCorrectIndentationOutside(statements, parent, rBrace, tabSize) &&
-        firstStatementDoesNotBreakIndentation(statements, lBrace, rBrace) &&
-        lastElementDoesNotBreakIndentation(rBrace)
+          hasCorrectIndentationOutside(statements, parent, rBrace, tabSize) &&
+          firstStatementDoesNotBreakIndentation(statements, lBrace, rBrace) &&
+          lastElementDoesNotBreakIndentation(rBrace)
     else
       false
 
@@ -326,10 +334,10 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
   }
 
   /*
-      In some cases with nested braces (like '{()}' ) IDEA can't properly handle backspace action due to
-      bag in BraceMatchingUtil (it looks for every lbrace/rbrace token regardless of they are a pair or not)
-      So we have to fix it in our handler
-     */
+   * In some cases with nested braces (like '{()}') IDEA can't properly handle backspace action due to
+   * bug in BraceMatchingUtil (it looks for every lbrace/rbrace token regardless of they are a pair or not).
+   * So we have to fix it in our handler
+   */
   override def charDeleted(deletedChar: Char, file: PsiFile, editor: Editor): Boolean = {
     val scalaFile = file match {
       case f: ScFile => f
@@ -365,8 +373,6 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
 
       val fileType = file.getFileType
       val matcher = BraceMatchingUtil.getBraceMatcher(fileType, tpe)
-      if (matcher == null)
-        return None
 
       val stack = scala.collection.mutable.Stack[IElementType]()
 
@@ -410,6 +416,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
     document.commit(file.getProject)
 
     val element = file.findElementAt(offset)
+    if (element == null) return
 
     element.parents.find(_.is[ScBlockExpr]) match {
       case Some(block: ScBlockExpr) if canAutoDeleteBraces(block) && AutoBraceUtils.isIndentationContext(block) =>

@@ -40,6 +40,29 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
     }
   }
 
+  def testRemove_TemplateBody_EmptyEnum(): Unit = doTest(
+    before =
+      s"""enum Foo {${|}
+         |}
+         |""".stripMargin,
+    after =
+      s"""enum Foo ${|}
+         |""".stripMargin
+  )
+
+  def testNotRemove_TemplateBody_EnumWithCases(): Unit = doTest(
+    before =
+      s"""enum Foo {${|}
+         |  case Bar
+         |}
+         |""".stripMargin,
+    after =
+      s"""enum Foo ${|}
+         |  case Bar
+         |}
+         |""".stripMargin
+  )
+
   def testRemove_FunctionBody_SingleExpression(): Unit = {
     val before =
       s"""def foo() = {${|}
