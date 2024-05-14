@@ -3,11 +3,13 @@ package templates
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, ResolveState}
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil._
 import org.jetbrains.plugins.scala.caches.{ModTracker, cached}
 import org.jetbrains.plugins.scala.lang.TokenSets._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.{EXTENSION, EnumCases, SELF_TYPE, TEMPLATE_BODY}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
@@ -19,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTemplateDefinitionImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateBodyStub
 
-class ScTemplateBodyImpl private (stub: ScTemplateBodyStub, node: ASTNode)
+class ScTemplateBodyImpl private(stub: ScTemplateBodyStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, TEMPLATE_BODY, node)
     with ScTemplateBody {
 
@@ -86,4 +88,18 @@ class ScTemplateBodyImpl private (stub: ScTemplateBodyStub, node: ASTNode)
   override protected def childBeforeFirstImport: Option[PsiElement] = {
     selfTypeElement.orElse(super.childBeforeFirstImport)
   }
+
+  override def isEmpty: Boolean = _isEmpty()
+
+  private val _isEmpty = cached("isEmpty", ModTracker.anyScalaPsiChange, () => {
+    getStubOrPsiChildren(TokenSet.ANY, PsiElementFactory)
+      .forall { child =>
+        val node = child.getNode
+        node != null && ScTemplateBodyImpl.WHITESPACE_OR_BRACE.contains(node.getElementType)
+      }
+  })
+}
+
+object ScTemplateBodyImpl {
+  private val WHITESPACE_OR_BRACE = TokenSet.orSet(TokenSet.WHITE_SPACE, ScalaTokenTypes.BRACES_TOKEN_SET)
 }

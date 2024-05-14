@@ -2,11 +2,9 @@ package org.jetbrains.plugins.scala.lang.psi.api.expr
 
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.{PsiElement, ResolveState}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScOptionalBracesOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses}
@@ -88,12 +86,6 @@ trait ScBlock extends ScExpression
 
   def hasRBrace: Boolean = getRBrace.isDefined
   def hasLBrace: Boolean = getLBrace.isDefined
-
-  def getRBrace: Option[PsiElement] =
-    getNode.getChildren(TokenSet.create(ScalaTokenTypes.tRBRACE)) match {
-      case Array(node) => Option(node.getPsi)
-      case _           => None
-    }
 
   def resultExpression: Option[ScExpression] = lastStatement.flatMap(_.asOptionOf[ScExpression])
   def lastStatement: Option[ScBlockStatement] = findLastChild[ScBlockStatement]
