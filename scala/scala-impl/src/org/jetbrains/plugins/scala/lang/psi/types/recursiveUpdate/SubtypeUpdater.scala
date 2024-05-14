@@ -161,21 +161,57 @@ private abstract class SubtypeUpdater(needVariance: Boolean, needUpdate: Boolean
       substitutor.recursiveUpdateImpl(tp.upperType, variance, isLazySubtype = true)
     )
 
+  private def updateAndType(
+    andType: ScAndType,
+    variance: Variance,
+    substitutor: ScSubstitutor
+  )(implicit
+    visited: Set[ScType]
+  ): ScType = {
+    val updatedLhs = substitutor.recursiveUpdateImpl(andType.lhs, variance)
+    val updatedRhs = substitutor.recursiveUpdateImpl(andType.rhs, variance)
 
-  final def updateSubtypes(scType: ScType,
-                           variance: Variance,
-                           substitutor: ScSubstitutor)
-                          (implicit visited: Set[ScType]): ScType =
+    if (!needUpdate || ((updatedLhs eq andType.lhs) && (updatedRhs eq andType.rhs)))
+      andType
+    else
+      ScAndType(updatedLhs, updatedRhs)
+  }
+
+  private def updateOrType(
+    orType: ScOrType,
+    variance: Variance,
+    substitutor: ScSubstitutor
+  )(implicit
+    visisted: Set[ScType]
+  ): ScType = {
+    val updatedLhs = substitutor.recursiveUpdateImpl(orType.lhs, variance)
+    val updatedRhs = substitutor.recursiveUpdateImpl(orType.rhs, variance)
+
+    if (!needUpdate || ((updatedLhs eq orType.lhs) && (updatedRhs eq orType.rhs)))
+      orType
+    else
+      ScOrType(updatedLhs, updatedRhs)
+  }
+
+  final def updateSubtypes(
+    scType:      ScType,
+    variance:    Variance,
+    substitutor: ScSubstitutor
+  )(implicit
+    visited: Set[ScType]
+  ): ScType =
     scType match {
-      case t: ScCompoundType        => updateCompoundType       (t, variance, substitutor)
-      case t: ScExistentialArgument => updateExistentialArg     (t, substitutor)
-      case t: ScExistentialType     => updateExistentialType    (t, variance, substitutor)
-      case t: ScParameterizedType   => updateParameterizedType  (t, variance, substitutor)
-      case t: JavaArrayType         => updateJavaArrayType      (t, substitutor)
-      case t: ScProjectionType      => updateProjectionType     (t, substitutor)
-      case t: ScMethodType          => updateMethodType         (t, variance, substitutor)
+      case t: ScCompoundType        => updateCompoundType(t, variance, substitutor)
+      case t: ScOrType              => updateOrType(t, variance, substitutor)
+      case t: ScAndType             => updateAndType(t, variance, substitutor)
+      case t: ScExistentialArgument => updateExistentialArg(t, substitutor)
+      case t: ScExistentialType     => updateExistentialType(t, variance, substitutor)
+      case t: ScParameterizedType   => updateParameterizedType(t, variance, substitutor)
+      case t: JavaArrayType         => updateJavaArrayType(t, substitutor)
+      case t: ScProjectionType      => updateProjectionType(t, substitutor)
+      case t: ScMethodType          => updateMethodType(t, variance, substitutor)
       case t: ScTypePolymorphicType => updateTypePolymorphicType(t, variance, substitutor)
-      case t: ScMatchType           => updateMatchType          (t, variance, substitutor)
+      case t: ScMatchType           => updateMatchType(t, variance, substitutor)
       case leaf                     => leaf
     }
 

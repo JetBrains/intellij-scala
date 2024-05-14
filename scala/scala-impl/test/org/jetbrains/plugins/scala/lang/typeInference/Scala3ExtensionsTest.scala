@@ -613,4 +613,17 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
       |      inner.maximum
       |""".stripMargin
   )
+
+  def testSCL21732(): Unit = checkTextHasNoErrors(
+    """
+      |object A {
+      |  object Test {
+      |    extension (ls: List[String & Int])
+      |      private def test[A <: Double]: List[String & A] = ???
+      |
+      |    def infer: Seq[String & Double] = List.empty[String & Int].test[Double]
+      |  }
+      |}
+      |""".stripMargin
+  )
 }

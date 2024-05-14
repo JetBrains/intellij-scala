@@ -170,44 +170,44 @@ final class ScParameterizedType private (override val designator: ScType, overri
 object ScParameterizedType {
   private val andOrOrTypeDesignator = Set("&", "|")
 
-  def apply(designator: ScType, typeArgs: Seq[ScType]): ValueType =
-  CompileTimeOps(designator, typeArgs).getOrElse {
-    def simple = new ScParameterizedType(designator, typeArgs)
+  def apply(designator: ScType, typeArgs: Seq[ScType]): ScType =
+    CompileTimeOps(designator, typeArgs).getOrElse {
+      def simple = new ScParameterizedType(designator, typeArgs)
 
-    designator match {
-      case ScDesignatorType(alias: ScTypeAlias)
-        if andOrOrTypeDesignator.contains(alias.name) &&
-          alias.topLevelQualifier.contains("scala") =>
+      designator match {
+        case ScDesignatorType(alias: ScTypeAlias)
+          if andOrOrTypeDesignator.contains(alias.name) &&
+            alias.topLevelQualifier.contains("scala") =>
 
-        val name = alias.name
+          val name = alias.name
 
-        if (typeArgs.size != 2) Any(alias.projectContext)
-        else if (name == "&")   ScAndType(typeArgs.head, typeArgs(1))
-        else                    ScOrType(typeArgs.head, typeArgs(1))
-      // Any and Nothing can take type parameter but will always produce themselves ignoring the arguments
-      case anyOrNothing@StdType(StdType.Name.Any | StdType.Name.Nothing, _) => anyOrNothing
-      // Simplify application of "type-lambda-like" types
-      // ((Compound {type S[x] = Type[x]}))#S[A] is replaced with Type[A]
-      case ScProjectionType(ScCompoundType(_, _, aliasMap), _) & ScProjectionType.withActual(alias: ScTypeAliasDefinition, _)
-        if aliasMap.contains(alias.name) =>
+          if (typeArgs.size != 2) Any(alias.projectContext)
+          else if (name == "&")   ScAndType(typeArgs.head, typeArgs(1))
+          else                    ScOrType(typeArgs.head, typeArgs(1))
+        // Any and Nothing can take type parameter but will always produce themselves ignoring the arguments
+        case anyOrNothing@StdType(StdType.Name.Any | StdType.Name.Nothing, _) => anyOrNothing
+        // Simplify application of "type-lambda-like" types
+        // ((Compound {type S[x] = Type[x]}))#S[A] is replaced with Type[A]
+        case ScProjectionType(ScCompoundType(_, _, aliasMap), _) & ScProjectionType.withActual(alias: ScTypeAliasDefinition, _)
+          if aliasMap.contains(alias.name) =>
 
-        val subst = ScSubstitutor.bind(alias.typeParameters, typeArgs)
-        val typeAliasSignature = aliasMap(alias.name)
+          val subst = ScSubstitutor.bind(alias.typeParameters, typeArgs)
+          val typeAliasSignature = aliasMap(alias.name)
 
-        subst(typeAliasSignature.upperBound) match {
-          case v: ValueType => v
-          case _ => simple
-        }
+          subst(typeAliasSignature.upperBound) match {
+            case v: ValueType => v
+            case _ => simple
+          }
 
-      // Simplify application of ScTypePolymorphicType encoding of type lambdas
-      case ScTypePolymorphicType(internal: ScParameterizedType, typeParameters) =>
-        val subst = ScSubstitutor.bind(typeParameters, typeArgs)
+        // Simplify application of ScTypePolymorphicType encoding of type lambdas
+        case ScTypePolymorphicType(internal: ScParameterizedType, typeParameters) =>
+          val subst = ScSubstitutor.bind(typeParameters, typeArgs)
 
-        ScParameterizedType(
-          subst(internal.designator),
-          internal.typeArguments.map(subst)
-        )
-      case _ => simple
+          ScParameterizedType(
+            subst(internal.designator),
+            internal.typeArguments.map(subst)
+          )
+        case _ => simple
+      }
     }
-  }
 }

@@ -15,7 +15,7 @@ final case class JavaArrayType(argument: ScType) extends ValueType {
       case clazz: ScClass => clazz
     }.find(_.getTypeParameters.length == 1)
       .map(ScalaType.designator)
-      .map(ScParameterizedType(_, Seq(argument)))
+      .map(ScParameterizedType(_, Seq(argument)).asInstanceOf[ValueType])
   }
 
   override def equivInner(`type`: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult =
