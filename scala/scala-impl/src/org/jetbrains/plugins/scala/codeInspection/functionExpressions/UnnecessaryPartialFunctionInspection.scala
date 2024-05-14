@@ -44,13 +44,13 @@ class UnnecessaryPartialFunctionInspection extends LocalInspectionTool {
     case _ =>
   }
 
-  private def findType(file: PsiFile, className: String, parameterTypes: PsiClass => Seq[ScType]): Option[ValueType] ={
-      implicit val ctx: ProjectContext = file
-      ScalaPsiManager.instance
-        .getCachedClass(file.resolveScope, className)
-        .map(clazz =>
-          ScParameterizedType(ScDesignatorType(clazz), parameterTypes(clazz)))
-    }
+  private def findType(file: PsiFile, className: String, parameterTypes: PsiClass => Seq[ScType]): Option[ValueType] = {
+    implicit val ctx: ProjectContext = file
+    ScalaPsiManager.instance
+      .getCachedClass(file.resolveScope, className)
+      .map(clazz =>
+        ScParameterizedType(ScDesignatorType(clazz), parameterTypes(clazz)).asInstanceOf[ValueType])
+  }
 
 
   private def findPartialFunctionType(file: PsiFile): Option[ValueType] =

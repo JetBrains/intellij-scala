@@ -48,7 +48,7 @@ object ParameterizedType {
   val substitutorCache: ConcurrentMap[ParameterizedType, ScSubstitutor] =
     new ConcurrentHashMap[ParameterizedType, ScSubstitutor]()
 
-  def apply(designator: ScType, typeArguments: Seq[ScType]): ValueType =
+  def apply(designator: ScType, typeArguments: Seq[ScType]): ScType =
     designator.typeSystem.parameterizedType(designator, typeArguments)
 
   def unapply(p: ParameterizedType): Option[(ScType, Seq[ScType])] =
