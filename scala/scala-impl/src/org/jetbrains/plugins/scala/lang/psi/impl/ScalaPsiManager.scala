@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.impl
 
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.project.{DumbService, Project, ProjectManagerListener}
-import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.project.{DumbService, Project}
+import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener, ProjectRootManager}
 import com.intellij.openapi.util._
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
@@ -12,7 +13,7 @@ import com.intellij.psi.util.PsiClassUtil
 import com.intellij.util.ObjectUtils
 import com.intellij.util.concurrency.annotations.RequiresEdt
 import com.intellij.util.containers.ContainerUtil
-import org.jetbrains.annotations.TestOnly
+import org.jetbrains.annotations.{Nullable, TestOnly}
 import org.jetbrains.plugins.scala.ScalaLowerCase
 import org.jetbrains.plugins.scala.caches.stats.{CacheCapabilities, CacheTracker}
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CleanupScheduler, ModTracker, ScalaShortNamesCacheManager, ValueWrapper, cachedInUserData, cachedWithoutModificationCount}
@@ -41,18 +42,17 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionTyp
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ParameterizedType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil._
 import org.jetbrains.plugins.scala.lang.resolve.SyntheticClassProducer
-import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt}
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
 
 import java.util
-import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
 import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
-class ScalaPsiManager(implicit val project: Project) {
+class ScalaPsiManager(implicit val project: Project) extends Disposable {
 
   private val inJavaPsiFacade: UnloadableThreadLocal[Boolean] = new UnloadableThreadLocal(false)
 
@@ -549,17 +549,6 @@ class ScalaPsiManager(implicit val project: Project) {
     clearCacheOnRootsChange.fireCleanup()
   }
 
-  private val psiChangeListener = ScalaPsiChangeListener(clearOnScalaElementChange, () => clearOnNonScalaChange())
-
-  private[impl] def projectOpened(): Unit = {
-    project.subscribeToModuleRootChanged() { _ =>
-      LOG.debug("Clear caches on root change")
-      clearOnRootsChange()
-    }
-    registerLowMemoryWatcher(project)
-    PsiManager.getInstance(project).addPsiTreeChangeListener(psiChangeListener, project.unloadAwareDisposable)
-  }
-
   private val syntheticPackages = ContainerUtil.createConcurrentWeakValueMap[String, AnyRef]()
   private val emptyMarker: AnyRef = ObjectUtils.sentinel("syntheticPackageEmptyMarker")
 
@@ -606,18 +595,18 @@ class ScalaPsiManager(implicit val project: Project) {
 
   val TopLevelModificationTracker: SimpleModificationTracker = new SimpleModificationTracker
 
-  private def clearOnScalaElementChange(psiElement: PsiElement): Unit = {
+  def clearOnScalaElementChange(psiElement: PsiElement): Unit = {
     clearOnChange()
     updateScalaModificationCount(psiElement)
   }
 
-  private def clearOnNonScalaChange(): Unit = {
+  def clearOnNonScalaChange(): Unit = {
     clearOnTopLevelChange()
     TopLevelModificationTracker.incModificationCount()
   }
 
   @tailrec
-  private def updateScalaModificationCount(element: PsiElement): Unit = element match {
+  private def updateScalaModificationCount(@Nullable element: PsiElement): Unit = element match {
     case null =>
       TopLevelModificationTracker.incModificationCount()
       clearOnTopLevelChange()
@@ -673,14 +662,26 @@ class ScalaPsiManager(implicit val project: Project) {
       TopLevelModificationTracker.incModificationCount()
     }
 
+  locally {
+    LowMemoryWatcher.register(
+      () => {
+        LOG.debug("Clear caches on low memory")
+        clearOnLowMemory()
+      },
+      this
+    )
+  }
+
+  override def dispose(): Unit = {
+    clearAllCaches()
+  }
+
   @TestOnly
   def clearCachesOnChange(): Unit =
     clearOnChange()
 }
 
 object ScalaPsiManager {
-  val TYPE_VARIABLE_KEY: Key[TypeParameterType] = Key.create("type.variable.key")
-
   private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager")
 
   def instance(
@@ -691,55 +692,18 @@ object ScalaPsiManager {
     instance(ctx.getProject)
 
   def instance(project: Project): ScalaPsiManager =
-    project.getService(classOf[ScalaPsiManagerHolder]).get
-
-  private def registerLowMemoryWatcher(project: Project): Unit =
-    LowMemoryWatcher.register(
-      (() => {
-          LOG.debug("Clear caches on low memory")
-          val manager = ScalaPsiManager.instance(project)
-          manager.clearOnLowMemory()
-        }
-      ): Runnable,
-      project.unloadAwareDisposable
-    )
+    project.getService(classOf[ScalaPsiManager])
 
   implicit val ImplicitCollectorCacheCapabilities: CacheCapabilities[ImplicitCollectorCache] =
     new CacheCapabilities[ImplicitCollectorCache] {
       override def cachedEntitiesCount(cache: CacheType): Int = cache.size()
       override def clear(cache:               CacheType): Unit = cache.clear()
     }
-}
 
-private class ScalaPsiManagerHolder(
-  implicit
-  project: Project) {
-  private val scalaPsiManager: AtomicReference[ScalaPsiManager] = new AtomicReference()
-
-  def get: ScalaPsiManager = {
-    if (scalaPsiManager.get() == null && !project.isDisposed) {
-      scalaPsiManager.compareAndSet(null, new ScalaPsiManager)
+  class SPMModuleRootListener(project: Project) extends ModuleRootListener {
+    override def rootsChanged(event: ModuleRootEvent): Unit = {
+      LOG.debug("Clear caches on root change")
+      ScalaPsiManager.instance(project).clearOnRootsChange()
     }
-    scalaPsiManager.get()
   }
-
-  def dispose(): Unit =
-    scalaPsiManager.set(null)
-}
-
-private final class ScalaPsiManagerListener extends ProjectManagerListener {
-
-  override def projectOpened(project: Project): Unit = {
-    val holder = managerHolder(project)
-    holder.get.projectOpened()
-  }
-
-  override def projectClosing(project: Project): Unit = {
-    val holder = managerHolder(project)
-    holder.get.clearAllCaches()
-    holder.dispose()
-  }
-
-  private def managerHolder(project: Project): ScalaPsiManagerHolder =
-    project.getService(classOf[ScalaPsiManagerHolder])
 }
