@@ -1,7 +1,7 @@
 <idea-plugin>
     <extensionPoints>
         <extensionPoint qualifiedName="com.intellij.sbt.environmentVariableProvider"
-                        interface="org.jetbrains.sbt.project.SbtEnvironmentVariablesProvider"
+                        interface="org.jetbrains.sbt.project.extensionPoints.SbtEnvironmentVariablesProvider"
                         dynamic="true"/>
 
         <extensionPoint qualifiedName="com.intellij.newProjectWizard.scala.buildSystem" interface="org.jetbrains.sbt.project.template.wizard.buildSystem.BuildSystemScalaNewProjectWizard" dynamic="true"/>

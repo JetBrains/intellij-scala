@@ -19,6 +19,7 @@ import org.jetbrains.annotations.NonNls
 import org.jetbrains.jps.model.java.JdkVersionDetector
 import org.jetbrains.plugins.scala.extensions.{RichFile, invokeAndWait}
 import org.jetbrains.sbt.SbtBundle
+import org.jetbrains.sbt.project.extensionPoints.SbtEnvironmentVariablesProvider
 import org.jetbrains.sbt.project.settings._
 import org.jetbrains.sbt.project.structure.SbtOpts
 import org.jetbrains.sbt.settings.{SbtExternalSystemConfigurable, SbtSettings}
