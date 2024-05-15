@@ -13,6 +13,7 @@ import com.intellij.psi.{JavaPsiFacade, PsiDocumentManager}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.sbt.{SbtBundle, SbtUtil}
 import org.jetbrains.sbt.project.SbtMigrateConfigurationsAction.{ModuleHeuristicResult, logger}
+import org.jetbrains.sbt.project.extensionPoints.ModuleBasedConfigurationMainClassExtractor
 
 class SbtMigrateConfigurationsAction extends AnAction {
 
@@ -84,6 +85,8 @@ class SbtMigrateConfigurationsAction extends AnAction {
       case x: JUnitConfiguration => x.getPersistentData.getMainClassName
       // note: in this pattern match AbstractTestRunConfiguration in which testConfigurationData is ClassTestData could be handled.
       // I didn't implement it, because using AbstractTestRunConfiguration in sbtImpl module requires major changes in module structure.
+      case x: ModuleBasedConfiguration[_, _] =>
+        ModuleBasedConfigurationMainClassExtractor.getMainClassFromTestConfiguration(x).orNull
       case _ => null
     }
     getModulesForClass(mainClassName, project)
