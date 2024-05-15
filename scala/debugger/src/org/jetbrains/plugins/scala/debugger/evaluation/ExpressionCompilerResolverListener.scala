@@ -50,7 +50,7 @@ private final class ExpressionCompilerResolverListener(project: Project) extends
   }
 
   private def resolveExpressionCompilerJar(scalaVersion: ScalaVersion): Option[Path] = {
-    val dep = "ch.epfl.scala" % s"scala-expression-compiler_${scalaVersion.minor}" % "3.1.6"
+    val dep = "ch.epfl.scala" % s"scala-expression-compiler_${scalaVersion.minor}" % "4.0.4"
     DependencyManager.resolveSafe(dep).toOption.flatMap(_.headOption).map(_.file.toPath)
   }
 }

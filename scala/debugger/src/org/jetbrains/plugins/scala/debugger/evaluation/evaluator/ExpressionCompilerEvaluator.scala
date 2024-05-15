@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 
 import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.engine.JVMNameUtil
-import com.intellij.debugger.engine.evaluation.expression.{Evaluator, ExpressionEvaluator, Modifier, UnBoxingEvaluator}
+import com.intellij.debugger.engine.evaluation.expression.{Evaluator, ExpressionEvaluator, IdentityEvaluator, Modifier, UnBoxingEvaluator}
 import com.intellij.debugger.engine.evaluation.{EvaluateException, EvaluationContext, EvaluationContextImpl}
 import com.intellij.debugger.impl.DebuggerUtilsEx
 import com.intellij.openapi.compiler.CompilerManager
@@ -15,8 +15,8 @@ import org.jetbrains.jps.incremental.scala.DummyClient
 import org.jetbrains.jps.incremental.scala.remote.CommandIds
 import org.jetbrains.plugins.scala.compiler.data.ExpressionEvaluationArguments
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, RemoteServerRunner}
-import org.jetbrains.plugins.scala.debugger.{DebuggerBundle, ScalaPositionManager}
 import org.jetbrains.plugins.scala.debugger.evaluation.{EvaluationException, ExpressionCompilerResolverListener}
+import org.jetbrains.plugins.scala.debugger.{DebuggerBundle, ScalaPositionManager}
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
@@ -73,13 +73,9 @@ private[evaluation] final class ExpressionCompilerEvaluator(codeFragment: PsiEle
       val (localVariableNames, localVariableValues) = {
         val names = localVariables.map(_.name())
         val values = localVariables.map(stackFrame.getValue)
-        if (names.contains("$this"))
-          names -> values
-        else {
-          val thisObject = stackFrame.thisObject()
-          (names :+ "$this") -> (values :+ thisObject)
-        }
+        names -> values
       }
+      val thisObject = stackFrame.thisObject()
 
       val packageName = inReadAction(ScalaPositionManager.findPackageName(position.getElementAt)).getOrElse("")
       val arguments = ExpressionEvaluationArguments(outDir, classpath, scalacOptions, source, line, expression, localVariableNames.toSet, packageName)
@@ -108,7 +104,8 @@ private[evaluation] final class ExpressionCompilerEvaluator(codeFragment: PsiEle
         array
       }
 
-      val instance = ScalaMethodEvaluator(new ScalaTypeEvaluator(JVMNameUtil.getJVMRawText(className)), "<init>", null, Seq(localVariableNamesEvaluator, localVariableValuesEvaluator))
+      val thisEvaluator = new IdentityEvaluator(thisObject)
+      val instance = ScalaMethodEvaluator(new ScalaTypeEvaluator(JVMNameUtil.getJVMRawText(className)), "<init>", null, Seq(thisEvaluator, localVariableNamesEvaluator, localVariableValuesEvaluator))
       val method = ScalaMethodEvaluator(instance, "evaluate", null, Seq.empty)
       val unboxed = new UnBoxingEvaluator(method)
 
