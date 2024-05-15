@@ -1,4 +1,4 @@
-package org.jetbrains.sbt.project
+package org.jetbrains.sbt.project.extensionPoints
 
 import com.intellij.openapi.projectRoots.Sdk
 import org.jetbrains.plugins.scala.ExtensionPointDeclaration
