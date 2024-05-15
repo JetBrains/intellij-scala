@@ -139,6 +139,7 @@ abstract class AbstractTestRunConfiguration(
       case module => moduleScope(module)
     }
 
+  @Nullable
   protected[test] def getClazz(path: String): PsiClass = {
     val scope = configurationScope
     val classes = ScalaPsiManager.instance(project).getCachedClasses(scope, path)
