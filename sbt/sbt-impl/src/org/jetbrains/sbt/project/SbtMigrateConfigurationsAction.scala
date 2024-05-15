@@ -1,10 +1,9 @@
 package org.jetbrains.sbt.project
 
-import com.intellij.execution.RunManager
 import com.intellij.execution.application.ApplicationConfiguration
 import com.intellij.execution.configurations.{ModuleBasedConfiguration, RunConfigurationBase}
 import com.intellij.execution.junit.JUnitConfiguration
-import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
+import com.intellij.openapi.actionSystem.{ActionPlaces, ActionUpdateThread, AnAction, AnActionEvent}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.{Module, ModuleManager, ModuleUtilCore}
 import com.intellij.openapi.project.Project
@@ -12,20 +11,26 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{JavaPsiFacade, PsiDocumentManager}
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.sbt.SbtBundle
+import org.jetbrains.sbt.{SbtBundle, SbtUtil}
 import org.jetbrains.sbt.project.SbtMigrateConfigurationsAction.{ModuleHeuristicResult, logger}
 
-import scala.jdk.CollectionConverters.ListHasAsScala
-
 class SbtMigrateConfigurationsAction extends AnAction {
+
+  override def update(e: AnActionEvent): Unit = {
+    // note: it is kind of hack, to have a different name for the action in the notification and a different name elsewhere.
+    val place = e.getPlace
+    if (place == ActionPlaces.ACTION_SEARCH || place == ActionPlaces.MAIN_MENU) {
+      e.getPresentation.setText(SbtBundle.message("sbt.migrate.configurations.full.title"))
+    }
+  }
+
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
   override def actionPerformed(e: AnActionEvent): Unit = {
     val project = e.getProject
     if (project == null) return
-    val moduleBasedConfigurations = RunManager.getInstance(project).getAllConfigurationsList.asScala.collect {
-      case config : ModuleBasedConfiguration[_, _] => config
-    }
 
+    val moduleBasedConfigurations = SbtUtil.getAllModuleBasedConfigurationsInProject(project)
     val modules = ModuleManager.getInstance(project).getModules
     val configToHeuristicResult = for {
       config <- moduleBasedConfigurations
@@ -102,6 +107,7 @@ class SbtMigrateConfigurationsAction extends AnAction {
 }
 
 object SbtMigrateConfigurationsAction {
+  val ID = "Scala.Sbt.MigrateConfigurations"
   val logger: Logger = Logger.getInstance(classOf[SbtMigrateConfigurationsAction])
 
   case class ModuleHeuristicResult(module: Option[Module], guesses: Seq[String] = Seq.empty)

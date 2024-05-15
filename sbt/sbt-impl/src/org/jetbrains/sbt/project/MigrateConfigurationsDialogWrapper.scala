@@ -32,7 +32,7 @@ class MigrateConfigurationsDialogWrapper(project: Project, configurationToModule
     }
   }
 
-  private val myTableModel = new DefaultTableModel(Array[AnyRef]("Configuration name", "Old module name", "New module"), 0) {
+  private val myTableModel = new DefaultTableModel(Array[AnyRef]("Configuration", "Module name in previous scheme", "New module"), 0) {
     override def isCellEditable(row: Int, column: Int): Boolean = column != 0 && column != 1
   }
 
@@ -50,6 +50,7 @@ class MigrateConfigurationsDialogWrapper(project: Project, configurationToModule
   override def createCenterPanel(): JComponent = {
     setUpSelectingModulesColumn()
     setUpConfigurationColumn()
+    setUpPreviousModuleNameColumn()
     setUpTableHeaderRenderer()
 
     configurationToModule.foreach { case(config, ModuleHeuristicResult(module, _)) =>
@@ -123,6 +124,12 @@ class MigrateConfigurationsDialogWrapper(project: Project, configurationToModule
         }
       }
     })
+  }
+
+  private def setUpPreviousModuleNameColumn(): Unit = {
+    // note: it is needed because column name "Module name in previous scheme" is too long
+    val columnModel = myTable.getColumnModel.getColumn(1)
+    columnModel.setPreferredWidth(150)
   }
 
   private def onCancel(): Unit =
