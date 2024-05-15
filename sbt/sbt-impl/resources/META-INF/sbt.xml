@@ -13,6 +13,11 @@
         <sbt.sbtVersionProvider implementation="org.jetbrains.sbt.project.SbtSbtVersionProvider"/>
     </extensions>
 
+    <projectListeners>
+        <listener class="org.jetbrains.sbt.project.UpgradeConfigurationImportListener"
+                  topic="com.intellij.openapi.externalSystem.service.project.manage.ProjectDataImportListener"/>
+    </projectListeners>
+
     <extensions defaultExtensionNs="com.intellij">
         <lang.parserDefinition language="sbt" implementationClass="org.jetbrains.sbt.language.SbtParserDefinition"/>
         <lang.fileViewProviderFactory language="sbt"
@@ -78,6 +83,8 @@
                     factoryClass="org.jetbrains.sbt.shell.SbtShellToolWindowFactory"
                     doNotActivateOnStart="true"/>
         <externalSystemSettingsListener implementation="org.jetbrains.sbt.project.ShowSbtShellAfterCreatingNewProject"/>
+
+        <notificationGroup id="sbt.configuration.migration" displayType="STICKY_BALLOON" bundle="messages.SbtBundle" key="sbt.configuration.upgrade.id"/>
 
         <psi.referenceContributor language="sbt" implementation="org.jetbrains.sbt.language.references.SbtReferenceContributor" order="first"/>
 
@@ -162,8 +169,13 @@
     </applicationListeners>
 
     <actions>
-        <action class="org.jetbrains.sbt.project.SbtMigrateConfigurationsAction"
-                text="Migrate Configurations"/>
+        <group id="ScalaGroup" popup="true" class="org.jetbrains.sbt.actions.ScalaActionsGroup" text="Scala">
+            <add-to-group group-id="ToolsMenu" anchor="before" relative-to-action="ExternalToolsGroup"/>
+        </group>
+
+        <action id="Scala.Sbt.MigrateConfigurations" class="org.jetbrains.sbt.project.SbtMigrateConfigurationsAction" text="Upgrade Run Configurations...">
+                <add-to-group group-id="ScalaGroup"/>
+        </action>
 
         <action id="Scala.Sbt.RunTask" class="org.jetbrains.sbt.shell.action.RunTaskAction"/>
         <action id="Scala.Sbt.ShowTask" class="org.jetbrains.sbt.shell.action.ShowTaskAction"/>

@@ -100,6 +100,8 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
 
   private boolean SCALA_3_DISCLAIMER_SHOWN = false;
 
+  private boolean MIGRATE_CONFIGURATIONS_NOTIFICATION_SHOWN = false;
+
   //INDEXING
   public enum Ivy2IndexingMode {Disabled, Metadata, Classes}
   private Ivy2IndexingMode IVY2_INDEXING_MODE = Ivy2IndexingMode.Metadata;
@@ -615,6 +617,14 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
 
   public void setEnableLibraryExtensions(boolean ENABLE_LIBRARY_EXTENSIONS) {
     this.ENABLE_LIBRARY_EXTENSIONS = ENABLE_LIBRARY_EXTENSIONS;
+  }
+
+  public boolean isMigrateConfigurationsNotificationShown() {
+    return MIGRATE_CONFIGURATIONS_NOTIFICATION_SHOWN;
+  }
+
+  public void setMigrateConfigurationsNotificationShown(boolean b) {
+    MIGRATE_CONFIGURATIONS_NOTIFICATION_SHOWN = b;
   }
 
   public boolean isScala3DisclaimerShown() {
