@@ -7,6 +7,7 @@ import com.intellij.openapi.editor.event.{EditorMouseEvent, EditorMouseMotionLis
 import com.intellij.openapi.editor.impl.EditorMouseHoverPopupControl
 import com.intellij.openapi.editor.{Editor, EditorFactory}
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.annotator.quickfix.EnableTypeMismatchHints
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.startup.ProjectActivity
@@ -22,8 +23,6 @@ private final class TypeMismatchTooltipsHandler extends ProjectActivity {
 }
 
 private object TypeMismatchTooltipsHandler {
-  private def TypeMismatchTooltipPrefix = "<html><body>Type mismatch"
-
   private class Listener(project: Project) extends EditorMouseMotionListener {
     // See com.intellij.openapi.editor.impl.EditorMouseHoverPopupControl
     private var popupsWereDisabled = false
@@ -54,7 +53,14 @@ private object TypeMismatchTooltipsHandler {
     private def disableTooltipOnMouseHoverForTypeMismatchErrors(editor: Editor, maybeInfo: Option[HighlightInfo]): Unit = {
       val isTypeMismatchError = maybeInfo.exists(info =>
         info.getSeverity == HighlightSeverity.ERROR &&
-          Option(info.getToolTip).exists(_.startsWith(TypeMismatchTooltipPrefix)))
+          // previously, determining wheather a HighlightInfo is a TypeMismatchError
+          // was by inspecting the tooltip message, but that didn't work anymore because of localizing.
+          // Looking for this quickfix is the only way I found to determine this :/
+          info.findRegisteredQuickFix {
+            case (desc, _) if desc.getAction == EnableTypeMismatchHints => desc
+            case _ => null
+          } != null
+      )
 
       if (isTypeMismatchError) {
         if (!popupsWereDisabled && !EditorMouseHoverPopupControl.arePopupsDisabled(editor)) {
