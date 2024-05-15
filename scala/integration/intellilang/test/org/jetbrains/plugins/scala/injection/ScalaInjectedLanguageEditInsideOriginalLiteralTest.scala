@@ -30,6 +30,13 @@ class ScalaInjectedLanguageEditInsideOriginalLiteralTest extends EditorActionTes
     }
   }
 
+  private def doTypingTestInInjection(textToType: String, before: String, after: String): Unit = {
+    performTest(before, after) { () =>
+      scalaInjectionTestFixture.assertHasSomeInjectedLanguageAtCaret()
+      performTypingAction(textToType)
+    }
+  }
+
   def testInsertMarginCharOnEnterInsideInjectedFileInMultilineString(): Unit = {
     val before =
       s"""val x =
@@ -120,5 +127,88 @@ class ScalaInjectedLanguageEditInsideOriginalLiteralTest extends EditorActionTes
          |""".stripMargin
 
     doEnterTestInInjection(before, after)
+  }
+
+  //SCL-22507
+  def testTypeColonAfterInvalidJsonProperty_CommentInjection_Multiline(): Unit = {
+    doTypingTestInInjection(
+      ":",
+      s"""object Example {
+         |  //language=JSON
+         |  \"\"\"{"a":"aaa", b$CARET  }\"\"\"
+         |}
+         |""".stripMargin,
+      s"""object Example {
+         |  //language=JSON
+         |  \"\"\"{"a":"aaa", "b": $CARET  }\"\"\"
+         |}
+         |""".stripMargin
+    )
+  }
+
+  //SCL-22507
+  def testTypeColonAfterInvalidJsonProperty_InterpolatorInjection_Multiline(): Unit = {
+    doTypingTestInInjection(
+      ":",
+      s"""object Example {
+         |  //1. Via interpolator
+         |  implicit class JsonHelper(val sc: StringContext) extends AnyVal {
+         |    def json(args: Any*): String = ???
+         |  }
+         |  json\"\"\"{"a":"aaa", b$CARET }\"\"\"
+         |}
+         |""".stripMargin,
+      s"""object Example {
+         |  //1. Via interpolator
+         |  implicit class JsonHelper(val sc: StringContext) extends AnyVal {
+         |    def json(args: Any*): String = ???
+         |  }
+         |  json\"\"\"{"a":"aaa", "b": $CARET }\"\"\"
+         |}
+         |""".stripMargin
+    )
+  }
+
+  //SCL-22507
+  def testTypeColonAfterInvalidJsonProperty_CommentInjection_OneLine(): Unit = {
+    //TODO: ignore IJPL-149605 is fixed (we might need to review our implementation as well)
+    return
+    doTypingTestInInjection(
+      ":",
+      s"""object Example {
+         |  //language=JSON
+         |  "{\\"a\\":\\"aaa\\", b$CARET }"
+         |}
+         |""".stripMargin,
+      s"""object Example {
+         |  //language=JSON
+         |  "{\\"a\\":\\"aaa\\", \\"b\\": $CARET }"
+         |}
+         |""".stripMargin
+    )
+  }
+
+  //SCL-22507
+  def testTypeColonAfterInvalidJsonProperty_InterpolatorInjection_OneLine(): Unit = {
+    //TODO: patch expected data once IJPL-149605 is fixed
+    doTypingTestInInjection(
+      ":",
+      s"""object Example {
+         |  //1. Via interpolator
+         |  implicit class JsonHelper(val sc: StringContext) extends AnyVal {
+         |    def json(args: Any*): String = ???
+         |  }
+         |  json"{\\"a\\":\\"aaa\\", b$CARET }"
+         |}
+         |""".stripMargin,
+      s"""object Example {
+         |  //1. Via interpolator
+         |  implicit class JsonHelper(val sc: StringContext) extends AnyVal {
+         |    def json(args: Any*): String = ???
+         |  }
+         |  json"{\\"a\\":\\"aaa\\", b: $CARET }"
+         |}
+         |""".stripMargin
+    )
   }
 }
