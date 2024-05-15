@@ -42,7 +42,7 @@ public enum ScalaLanguageLevel implements Ordered<ScalaLanguageLevel> {
         return isScala3() ? Scala3Language.INSTANCE : ScalaLanguage.INSTANCE;
     }
 
-    public static final ScalaLanguageLevel latestPublishedVersion = Scala_3_2;
+    public static final ScalaLanguageLevel latestPublishedVersion = Scala_3_5;
     public static final ScalaLanguageLevel[] publishedVersions;
 
     static {
