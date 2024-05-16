@@ -56,94 +56,94 @@ class ScalaUsageTypeProviderTest_Scala3 extends ScalaUsageTypeProviderTest_Scala
         |        constructor -> New instance creation
         |          simple type -> New instance creation
         |            reference[MyClassWithEmptyConstructor] -> New instance creation
-        |          arguments of function -> Value read
+        |          arguments of function
         |  Method call
         |    Reference expression[MyClassWithEmptyConstructor] -> New instance creation
-        |    arguments of function -> Value read
+        |    arguments of function
         |  ScNewTemplateDefinition[<anonymous>]
         |    extends block
         |      template parents
         |        constructor -> New instance creation
         |          simple type -> New instance creation
         |            reference[MyClassWithNonEmptyConstructor] -> New instance creation
-        |          arguments of function -> Value read
-        |            StringLiteral -> Value read
+        |          arguments of function
+        |            StringLiteral
         |  Method call
         |    Reference expression[MyClassWithNonEmptyConstructor] -> New instance creation
-        |    arguments of function -> Value read
-        |      StringLiteral -> Value read
+        |    arguments of function
+        |      StringLiteral
         |  ScNewTemplateDefinition[<anonymous>]
         |    extends block
         |      template parents
         |        constructor -> New instance creation
         |          simple type -> New instance creation
         |            reference[MyClassWithMultipleConstructors] -> New instance creation
-        |          arguments of function -> Value read
+        |          arguments of function
         |  ScNewTemplateDefinition[<anonymous>]
         |    extends block
         |      template parents
         |        constructor -> New instance creation
         |          simple type -> New instance creation
         |            reference[MyClassWithMultipleConstructors] -> New instance creation
-        |          arguments of function -> Value read
-        |            StringLiteral -> Value read
+        |          arguments of function
+        |            StringLiteral
         |  ScNewTemplateDefinition[<anonymous>]
         |    extends block
         |      template parents
         |        constructor -> New instance creation
         |          simple type -> New instance creation
         |            reference[MyClassWithMultipleConstructors] -> New instance creation
-        |          arguments of function -> Value read
-        |            IntegerLiteral -> Value read
+        |          arguments of function
+        |            IntegerLiteral
         |  Method call
         |    Reference expression[MyClassWithMultipleConstructors] -> New instance creation
-        |    arguments of function -> Value read
+        |    arguments of function
         |  Method call
         |    Reference expression[MyClassWithMultipleConstructors] -> New instance creation
-        |    arguments of function -> Value read
-        |      StringLiteral -> Value read
+        |    arguments of function
+        |      StringLiteral
         |  Method call
         |    Reference expression[MyClassWithMultipleConstructors] -> New instance creation
-        |    arguments of function -> Value read
-        |      IntegerLiteral -> Value read
+        |    arguments of function
+        |      IntegerLiteral
         |  ScNewTemplateDefinition[<anonymous>]
         |    extends block
         |      template parents
         |        constructor -> New instance creation
         |          simple type -> New instance creation
         |            reference[MyClassWithMultipleConstructorsAndApplyMethodsInCompanion] -> New instance creation
-        |          arguments of function -> Value read
+        |          arguments of function
         |  ScNewTemplateDefinition[<anonymous>]
         |    extends block
         |      template parents
         |        constructor -> New instance creation
         |          simple type -> New instance creation
         |            reference[MyClassWithMultipleConstructorsAndApplyMethodsInCompanion] -> New instance creation
-        |          arguments of function -> Value read
-        |            StringLiteral -> Value read
+        |          arguments of function
+        |            StringLiteral
         |  ScNewTemplateDefinition[<anonymous>]
         |    extends block
         |      template parents
         |        constructor -> New instance creation
         |          simple type -> New instance creation
         |            reference[MyClassWithMultipleConstructorsAndApplyMethodsInCompanion] -> New instance creation
-        |          arguments of function -> Value read
-        |            IntegerLiteral -> Value read
+        |          arguments of function
+        |            IntegerLiteral
         |  comment
         |  comment
         |  comment
         |  comment
         |  Method call
         |    Reference expression[MyClassWithMultipleConstructorsAndApplyMethodsInCompanion] -> Method `apply`
-        |    arguments of function -> Value read
-        |      IntegerLiteral -> Value read
-        |      StringLiteral -> Value read
+        |    arguments of function
+        |      IntegerLiteral
+        |      StringLiteral
         |  Method call
         |    Reference expression[apply] -> Method `apply`
         |      Reference expression[MyClassWithMultipleConstructorsAndApplyMethodsInCompanion] -> Method `apply`
-        |    arguments of function -> Value read
-        |      IntegerLiteral -> Value read
-        |      StringLiteral -> Value read
+        |    arguments of function
+        |      IntegerLiteral
+        |      StringLiteral
         |""".stripMargin
     )
   }
@@ -159,25 +159,25 @@ class ScalaUsageTypeProviderTest_Scala3 extends ScalaUsageTypeProviderTest_Scala
         |        reference[org] -> Usage in import
         |  ScObject[Usage]
         |    extends block
-        |      template body -> Value read
+        |      template body
         |        value definition -> Value read
         |          pattern list -> Value read
         |            reference pattern[value] -> Value read
-        |          IntegerLiteral -> Value read
+        |          IntegerLiteral
         |        match statement -> Value read
         |          Expression in parentheses -> Value read
         |            typed statement -> Value read
         |              Reference expression[???] -> Value read
         |              simple type -> Typed Statement
         |                reference[Any] -> Typed Statement
-        |          case clauses -> Value read
-        |            case clause -> Value read
+        |          case clauses
+        |            case clause
         |              Scala 3 Typed Pattern -> Typed Pattern
         |                any sequence -> Typed Pattern
         |                Type pattern -> Typed Pattern
         |                  simple type -> Typed Pattern
         |                    reference[MyClass] -> Typed Pattern
-        |            case clause -> Value read
+        |            case clause
         |              Scala 3 Typed Pattern -> Typed Pattern
         |                any sequence -> Typed Pattern
         |                Type pattern -> Typed Pattern
@@ -185,13 +185,13 @@ class ScalaUsageTypeProviderTest_Scala3 extends ScalaUsageTypeProviderTest_Scala
         |                    reference[MyClass] -> Typed Pattern
         |                      reference[example] -> Typed Pattern
         |                        reference[org] -> Typed Pattern
-        |            case clause -> Value read
+        |            case clause
         |              StableElementPattern -> Stable Reference Pattern
         |                Reference expression[MyObject] -> Stable Reference Pattern
-        |            case clause -> Value read
+        |            case clause
         |              StableElementPattern -> Stable Reference Pattern
         |                Reference expression[`value`] -> Stable Reference Pattern
-        |            case clause -> Value read
+        |            case clause
         |              Constructor Pattern -> Extractor
         |                reference[MyClassWithExtractor] -> Extractor
         |                Pattern arguments -> Extractor
@@ -207,23 +207,23 @@ class ScalaUsageTypeProviderTest_Scala3 extends ScalaUsageTypeProviderTest_Scala
       """scala.FILE
         |  ScObject[Usage]
         |    extends block
-        |      template body -> Value read
-        |        try statement -> Value read
+        |      template body
+        |        try statement
         |          Reference expression[???] -> Value read
-        |          catch block -> Value read
-        |            block of expressions -> Value read
-        |              { -> Value read
-        |              case clauses -> Value read
-        |                case clause -> Value read
+        |          catch block
+        |            block of expressions
+        |              {
+        |              case clauses
+        |                case clause
         |                  Scala 3 Typed Pattern -> Catch clause parameter declaration
         |                    any sequence -> Catch clause parameter declaration
         |                    Type pattern -> Catch clause parameter declaration
         |                      simple type -> Catch clause parameter declaration
         |                        reference[MyClass] -> Catch clause parameter declaration
-        |                case clause -> Value read
+        |                case clause
         |                  StableElementPattern -> Catch clause parameter declaration
         |                    Reference expression[MyObject] -> Catch clause parameter declaration
-        |              } -> Value read
+        |              }
         |""".stripMargin
     )
   }

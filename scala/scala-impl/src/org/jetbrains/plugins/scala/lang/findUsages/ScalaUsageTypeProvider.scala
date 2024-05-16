@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.findUsages
 
+import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiTreeUtil.{getParentOfType, isAncestor}
 import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
@@ -12,10 +13,10 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeArgs, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{AuxiliaryConstructor, ScAccessModifier, ScAnnotationExpr, ScConstructorInvocation, ScPrimaryConstructor, ScReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{AuxiliaryConstructor, ScAccessModifier, ScAnnotationExpr, ScConstructorInvocation, ScLiteral, ScPrimaryConstructor, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause, ScParameters, ScTypeParam, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
@@ -35,7 +36,13 @@ final class ScalaUsageTypeProvider extends UsageTypeProviderEx {
     getUsageType(element, UsageTarget.EMPTY_ARRAY)
 
   // TODO more of these, including Scala specific: case class/object, pattern match, type ascription, ...
-  override def getUsageType(element: PsiElement, targets: Array[UsageTarget]): UsageType =
+  override def getUsageType(element: PsiElement, targets: Array[UsageTarget]): UsageType = {
+    // Early return null for some elements for which there is no point to calculate usage type
+    // Primarily needed for tests. Note that Java implementation might still fall back to "Read" usage type
+    if (!shouldCalculateUsage(element))
+      return null
+
+    //TODO: don't use flatMap, this is shit
     element.containingScalaFile.flatMap { _ =>
       (element, targets) match {
         case (referenceElement: ScReference, Array(only: PsiElementUsageTarget))
@@ -57,9 +64,44 @@ final class ScalaUsageTypeProvider extends UsageTypeProviderEx {
             .nextOption()
       }
     }.orNull
+  }
 }
 
 object ScalaUsageTypeProvider {
+
+  /**
+   * Ror some elements it doesn't make sense to calculate usage type as it can't be found in "find usages"
+   * This is primarily needed for tests, but I put the logic here in order unit tests test actual prod logic
+   * It shouldn't' hurt production logic.
+   *
+   * @note Current logic is "excluding" - it allows all elements except cases in the "block-list".
+   *       Alternatively, it could be "including" - allow only those elements which are in the "white-list" (e.g. everything which is a reference).
+   *       But I decided not to go this way as we might miss some test cases.
+   *       With "block-list" you can simply add a new element if you notice any annoying redundant usage type in the test data
+   */
+  private def shouldCalculateUsage(element: PsiElement) = element match {
+    case _: LeafPsiElement |
+         _: ScLiteral |
+
+         // block-like structures
+         _: ScTry |
+         _: ScCatchBlock |
+         _: ScFinallyBlock |
+         _: ScBlock |
+         _: ScTemplateBody |
+         _: ScEarlyDefinitions |
+
+         _: ScCaseClause |
+         _: ScCaseClauses |
+
+         _: ScArgumentExprList |
+         _: ScParameterClause |
+         _: ScParameters |
+         _: ScTypeParamClause
+    => false
+    case _ => true
+  }
+
   private def isSAMTypeUsageTarget(usageTargets: Array[UsageTarget]): Boolean = {
     val psiElements = usageTargets.collect { case psiUsageTarget: PsiElementUsageTarget => psiUsageTarget.getElement }
     psiElements.exists {

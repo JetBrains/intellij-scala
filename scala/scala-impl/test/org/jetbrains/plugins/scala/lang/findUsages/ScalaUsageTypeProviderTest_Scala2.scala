@@ -17,25 +17,25 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
     """scala.FILE
       |  ScClass[Test]
       |    extends block
-      |      template body -> Value read
+      |      template body
       |        variable definition -> Value read
       |          pattern list -> Value read
       |            reference pattern[x] -> Value read
-      |          IntegerLiteral -> Value read
+      |          IntegerLiteral
       |        assign statement -> Value read
       |          Reference expression[x] -> Value write
-      |          IntegerLiteral -> Value read
+      |          IntegerLiteral
       |        function definition[method] -> Value read
-      |          parameter clauses -> Value read
-      |            parameter clause -> Value read
+      |          parameter clauses
+      |            parameter clause
       |          simple type -> Method return type
       |            reference[Unit] -> Method return type
-      |          block of expressions -> Value read
-      |            { -> Value read
+      |          block of expressions
+      |            {
       |            assign statement -> Value read
       |              Reference expression[x] -> Value write
-      |              IntegerLiteral -> Value read
-      |            } -> Value read
+      |              IntegerLiteral
+      |            }
       |""".stripMargin.withNormalizedSeparator
   )
 
@@ -101,14 +101,14 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |        constructor -> Usage in extends/implements clause
         |          simple type -> Usage in extends/implements clause
         |            reference[MyTrait2] -> Usage in extends/implements clause
-        |      template body -> Value read
+        |      template body
         |  ScNewTemplateDefinition[<anonymous>]
         |    extends block
         |      template parents
         |        constructor -> New anonymous inheritor creation
         |          simple type -> New anonymous inheritor creation
         |            reference[MyClass] -> New anonymous inheritor creation
-        |      template body -> Value read
+        |      template body
         |  ScClass[MyChildClass1]
         |    extends block
         |      template parents
@@ -156,12 +156,12 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
       |        constructor -> New instance creation
       |          simple type -> New instance creation
       |            reference[MyCaseClass] -> New instance creation
-      |          arguments of function -> Value read
-      |            IntegerLiteral -> Value read
+      |          arguments of function
+      |            IntegerLiteral
       |  Method call
       |    Reference expression[MyCaseClass] -> Method `apply`
-      |    arguments of function -> Value read
-      |      IntegerLiteral -> Value read
+      |    arguments of function
+      |      IntegerLiteral
       |""".stripMargin
   )
 
@@ -181,20 +181,20 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
     """scala.FILE
       |  ScObject[ApplyBug]
       |    extends block
-      |      template body -> Value read
+      |      template body
       |        ScClass[Foo] -> Value read
       |          extends block -> Value read
-      |            template body -> Value read
+      |            template body
       |              function definition[apply] -> Value read
-      |                parameter clauses -> Value read
-      |                  parameter clause -> Value read
+      |                parameter clauses
+      |                  parameter clause
       |                    parameter[t] -> Method parameter declaration
       |                      parameter type -> Method parameter declaration
       |                        simple type -> Method parameter declaration
       |                          reference[Int] -> Method parameter declaration
       |                simple type -> Method return type
       |                  reference[Int] -> Method return type
-      |                IntegerLiteral -> Value read
+      |                IntegerLiteral
       |        function definition[foo] -> Value read
       |          ScNewTemplateDefinition[<anonymous>] -> Value read
       |            extends block -> Value read
@@ -203,8 +203,8 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
       |                  simple type -> New instance creation
       |                    reference[Foo] -> New instance creation
       |        function definition[a] -> Value read
-      |          parameter clauses -> Value read
-      |            parameter clause -> Value read
+      |          parameter clauses
+      |            parameter clause
       |              parameter[i] -> Method parameter declaration
       |                parameter type -> Method parameter declaration
       |                  simple type -> Method parameter declaration
@@ -217,12 +217,12 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
       |                constructor -> New instance creation
       |                  simple type -> New instance creation
       |                    reference[Foo] -> New instance creation
-      |                  arguments of function -> Value read
-      |                  arguments of function -> Value read
+      |                  arguments of function
+      |                  arguments of function
       |                    Reference expression[i] -> Value read
       |        function definition[b] -> Value read
-      |          parameter clauses -> Value read
-      |            parameter clause -> Value read
+      |          parameter clauses
+      |            parameter clause
       |              parameter[i] -> Method parameter declaration
       |                parameter type -> Method parameter declaration
       |                  simple type -> Method parameter declaration
@@ -231,7 +231,7 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
       |            reference[Int] -> Method return type
       |          Method call -> Value read
       |            Reference expression[foo] -> Method `apply`
-      |            arguments of function -> Value read
+      |            arguments of function
       |              Reference expression[i] -> Value read
       |""".stripMargin
   )
@@ -253,14 +253,14 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
       |              simple type -> Method parameter declaration
       |                reference[String] -> Method parameter declaration
       |    extends block
-      |      template body -> Value read
+      |      template body
       |        Method call -> Value read
       |          Reference expression[println] -> Value read
-      |          arguments of function -> Value read
+      |          arguments of function
       |            Reference expression[name] -> Value read
       |        assign statement -> Value read
       |          Reference expression[name] -> Value write
-      |          StringLiteral -> Value read
+      |          StringLiteral
       |""".stripMargin
   )
 
@@ -276,7 +276,7 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
       |    Reference expression[???]
       |  Method call
       |    Reference expression[println]
-      |    arguments of function -> Value read
+      |    arguments of function
       |      Reference expression[foo] -> Value read
       |  ScNewTemplateDefinition[<anonymous>]
       |    extends block
@@ -284,7 +284,7 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
       |        constructor -> New instance creation
       |          simple type -> New instance creation
       |            reference[String] -> New instance creation
-      |          arguments of function -> Value read
+      |          arguments of function
       |            Reference expression[foo] -> Value read
       |""".stripMargin
   )
@@ -310,15 +310,15 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
       |              simple type -> Method parameter declaration
       |                reference[T] -> Method parameter declaration
       |    extends block
-      |      template body -> Value read
+      |      template body
       |        ScNewTemplateDefinition[<anonymous>] -> Value read
       |          extends block -> Value read
       |            template parents -> Value read
       |              constructor -> New instance creation
       |                simple type -> New instance creation
       |                  reference[JavaClass] -> New instance creation
-      |                arguments of function -> Value read
-      |                  IntegerLiteral -> Value read
+      |                arguments of function
+      |                  IntegerLiteral
       |        Reference expression[MY_CONSTANT] -> Value read
       |          Reference expression[JavaClass] -> Value read
       |        ScNewTemplateDefinition[<anonymous>] -> Value read
@@ -327,7 +327,7 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
       |              constructor -> New instance creation
       |                simple type -> New instance creation
       |                  reference[ScalaClass] -> New instance creation
-      |                arguments of function -> Value read
+      |                arguments of function
       |                  Reference expression[MY_CONSTANT] -> Value read
       |                    Reference expression[JavaClass] -> Value read
       |        ScNewTemplateDefinition[<anonymous>] -> Value read
@@ -340,7 +340,7 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
       |                  type arguments -> Type parameter
       |                    simple type -> Type parameter
       |                      reference[Int] -> Type parameter
-      |                arguments of function -> Value read
+      |                arguments of function
       |                  Reference expression[MY_CONSTANT] -> Value read
       |                    Reference expression[JavaClass] -> Value read
       |""".stripMargin
@@ -362,27 +362,27 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
       |              simple type -> Method parameter declaration
       |                reference[String] -> Method parameter declaration
       |    extends block
-      |      template body -> Value read
+      |      template body
       |        function definition[this] -> Value read
-      |          parameter clauses -> Value read
-      |            parameter clause -> Value read
+      |          parameter clauses
+      |            parameter clause
       |              parameter[x] -> Method parameter declaration
       |                parameter type -> Method parameter declaration
       |                  simple type -> Method parameter declaration
       |                    reference[Int] -> Method parameter declaration
       |          self invocation -> Secondary constructor
-      |            arguments of function -> Value read
+      |            arguments of function
       |              Reference expression[toString] -> Value read
       |                Reference expression[x] -> Value read
       |        function definition[this] -> Value read
-      |          parameter clauses -> Value read
-      |            parameter clause -> Value read
+      |          parameter clauses
+      |            parameter clause
       |              parameter[x] -> Method parameter declaration
       |                parameter type -> Method parameter declaration
       |                  simple type -> Method parameter declaration
       |                    reference[Short] -> Method parameter declaration
       |          self invocation -> Secondary constructor
-      |            arguments of function -> Value read
+      |            arguments of function
       |              Reference expression[toInt] -> Value read
       |                Reference expression[x] -> Value read
       |""".stripMargin
@@ -420,15 +420,15 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |            type arguments -> Type parameter
         |              simple type -> Type parameter
         |                reference[String] -> Type parameter
-        |      template body -> Value read
+        |      template body
         |        function definition[foo0] -> Value read
         |          modifiers -> Value read
         |          Reference expression[foo0] -> Delegate to super method
         |            Super reference -> Delegate to super method
         |        function definition[foo1] -> Value read
         |          modifiers -> Value read
-        |          parameter clauses -> Value read
-        |            parameter clause -> Value read
+        |          parameter clauses
+        |            parameter clause
         |              parameter[x] -> Method parameter declaration
         |                parameter type -> Method parameter declaration
         |                  simple type -> Method parameter declaration
@@ -436,12 +436,12 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |          Method call -> Value read
         |            Reference expression[foo1] -> Delegate to super method
         |              Super reference -> Delegate to super method
-        |            arguments of function -> Value read
+        |            arguments of function
         |              Reference expression[x] -> Value read
         |        function definition[foo2] -> Value read
         |          modifiers -> Value read
-        |          parameter clauses -> Value read
-        |            parameter clause -> Value read
+        |          parameter clauses
+        |            parameter clause
         |              parameter[t] -> Method parameter declaration
         |                parameter type -> Method parameter declaration
         |                  simple type -> Method parameter declaration
@@ -449,14 +449,14 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |          Method call -> Value read
         |            Reference expression[foo2] -> Delegate to super method
         |              Super reference -> Delegate to super method
-        |            arguments of function -> Value read
+        |            arguments of function
         |              Reference expression[t] -> Value read
         |        function definition[foo3] -> Value read
         |          modifiers -> Value read
-        |          type parameter clause -> Value read
+        |          type parameter clause
         |            type parameter[E] -> Value read
-        |          parameter clauses -> Value read
-        |            parameter clause -> Value read
+        |          parameter clauses
+        |            parameter clause
         |              parameter[e] -> Method parameter declaration
         |                parameter type -> Method parameter declaration
         |                  simple type -> Method parameter declaration
@@ -464,14 +464,14 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |          Method call -> Value read
         |            Reference expression[foo3] -> Delegate to super method
         |              Super reference -> Delegate to super method
-        |            arguments of function -> Value read
+        |            arguments of function
         |              Reference expression[e] -> Value read
         |        function definition[foo4] -> Value read
         |          modifiers -> Value read
-        |          type parameter clause -> Value read
+        |          type parameter clause
         |            type parameter[E] -> Value read
-        |          parameter clauses -> Value read
-        |            parameter clause -> Value read
+        |          parameter clauses
+        |            parameter clause
         |              parameter[e] -> Method parameter declaration
         |                parameter type -> Method parameter declaration
         |                  simple type -> Method parameter declaration
@@ -483,7 +483,7 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |          Method call -> Value read
         |            Reference expression[foo4] -> Delegate to super method
         |              Super reference -> Delegate to super method
-        |            arguments of function -> Value read
+        |            arguments of function
         |              Reference expression[e] -> Value read
         |              Reference expression[t] -> Value read
         |""".stripMargin
@@ -510,11 +510,11 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |            type arguments -> Type parameter
         |              simple type -> Type parameter
         |                reference[String] -> Type parameter
-        |      template body -> Value read
+        |      template body
         |        function definition[foo1] -> Value read
         |          modifiers -> Value read
-        |          parameter clauses -> Value read
-        |            parameter clause -> Value read
+        |          parameter clauses
+        |            parameter clause
         |              parameter[x] -> Method parameter declaration
         |                parameter type -> Method parameter declaration
         |                  simple type -> Method parameter declaration
@@ -522,12 +522,12 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |          Method call -> Value read
         |            Reference expression[foo1] -> Delegate to super method
         |              Super reference -> Delegate to super method
-        |            arguments of function -> Value read
-        |              IntegerLiteral -> Value read
+        |            arguments of function
+        |              IntegerLiteral
         |        function definition[foo2] -> Value read
         |          modifiers -> Value read
-        |          parameter clauses -> Value read
-        |            parameter clause -> Value read
+        |          parameter clauses
+        |            parameter clause
         |              parameter[t] -> Method parameter declaration
         |                parameter type -> Method parameter declaration
         |                  simple type -> Method parameter declaration
@@ -535,14 +535,14 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |          Method call -> Value read
         |            Reference expression[foo2] -> Delegate to super method
         |              Super reference -> Delegate to super method
-        |            arguments of function -> Value read
-        |              StringLiteral -> Value read
+        |            arguments of function
+        |              StringLiteral
         |        function definition[foo3] -> Value read
         |          modifiers -> Value read
-        |          type parameter clause -> Value read
+        |          type parameter clause
         |            type parameter[E] -> Value read
-        |          parameter clauses -> Value read
-        |            parameter clause -> Value read
+        |          parameter clauses
+        |            parameter clause
         |              parameter[e] -> Method parameter declaration
         |                parameter type -> Method parameter declaration
         |                  simple type -> Method parameter declaration
@@ -550,14 +550,14 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |          Method call -> Value read
         |            Reference expression[foo3] -> Delegate to super method
         |              Super reference -> Delegate to super method
-        |            arguments of function -> Value read
+        |            arguments of function
         |              Reference expression[???] -> Value read
         |        function definition[foo4] -> Value read
         |          modifiers -> Value read
-        |          type parameter clause -> Value read
+        |          type parameter clause
         |            type parameter[E] -> Value read
-        |          parameter clauses -> Value read
-        |            parameter clause -> Value read
+        |          parameter clauses
+        |            parameter clause
         |              parameter[e] -> Method parameter declaration
         |                parameter type -> Method parameter declaration
         |                  simple type -> Method parameter declaration
@@ -569,7 +569,7 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |          Method call -> Value read
         |            Reference expression[foo4] -> Delegate to super method
         |              Super reference -> Delegate to super method
-        |            arguments of function -> Value read
+        |            arguments of function
         |              Reference expression[???] -> Value read
         |              Reference expression[???] -> Value read
         |""".stripMargin
@@ -597,18 +597,18 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |            type arguments -> Type parameter
         |              simple type -> Type parameter
         |                reference[String] -> Type parameter
-        |      template body -> Value read
+        |      template body
         |        function definition[foo0] -> Value read
         |          modifiers -> Value read
         |          Method call -> Value read
         |            Reference expression[foo1] -> Value read
         |              Super reference -> Value read
-        |            arguments of function -> Value read
-        |              IntegerLiteral -> Value read
+        |            arguments of function
+        |              IntegerLiteral
         |        function definition[foo1] -> Value read
         |          modifiers -> Value read
-        |          parameter clauses -> Value read
-        |            parameter clause -> Value read
+        |          parameter clauses
+        |            parameter clause
         |              parameter[x] -> Method parameter declaration
         |                parameter type -> Method parameter declaration
         |                  simple type -> Method parameter declaration
@@ -617,8 +617,8 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |            Super reference -> Value read
         |        function definition[foo2] -> Value read
         |          modifiers -> Value read
-        |          parameter clauses -> Value read
-        |            parameter clause -> Value read
+        |          parameter clauses
+        |            parameter clause
         |              parameter[t] -> Method parameter declaration
         |                parameter type -> Method parameter declaration
         |                  simple type -> Method parameter declaration
@@ -627,10 +627,10 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |            Super reference -> Value read
         |        function definition[foo3] -> Value read
         |          modifiers -> Value read
-        |          type parameter clause -> Value read
+        |          type parameter clause
         |            type parameter[E] -> Value read
-        |          parameter clauses -> Value read
-        |            parameter clause -> Value read
+        |          parameter clauses
+        |            parameter clause
         |              parameter[e] -> Method parameter declaration
         |                parameter type -> Method parameter declaration
         |                  simple type -> Method parameter declaration
@@ -639,10 +639,10 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |            Super reference -> Value read
         |        function definition[foo4] -> Value read
         |          modifiers -> Value read
-        |          type parameter clause -> Value read
+        |          type parameter clause
         |            type parameter[E] -> Value read
-        |          parameter clauses -> Value read
-        |            parameter clause -> Value read
+        |          parameter clauses
+        |            parameter clause
         |              parameter[e] -> Method parameter declaration
         |                parameter type -> Method parameter declaration
         |                  simple type -> Method parameter declaration
@@ -678,16 +678,16 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |            type arguments -> Type parameter
         |              simple type -> Type parameter
         |                reference[String] -> Type parameter
-        |      template body -> Value read
+        |      template body
         |        function definition[bar0] -> Value read
         |          Method call -> Value read
         |            Reference expression[foo1] -> Value read
         |              Super reference -> Value read
-        |            arguments of function -> Value read
-        |              IntegerLiteral -> Value read
+        |            arguments of function
+        |              IntegerLiteral
         |        function definition[bar1] -> Value read
-        |          parameter clauses -> Value read
-        |            parameter clause -> Value read
+        |          parameter clauses
+        |            parameter clause
         |              parameter[x] -> Method parameter declaration
         |                parameter type -> Method parameter declaration
         |                  simple type -> Method parameter declaration
@@ -695,8 +695,8 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |          Reference expression[foo0] -> Value read
         |            Super reference -> Value read
         |        function definition[bar2] -> Value read
-        |          parameter clauses -> Value read
-        |            parameter clause -> Value read
+        |          parameter clauses
+        |            parameter clause
         |              parameter[t] -> Method parameter declaration
         |                parameter type -> Method parameter declaration
         |                  simple type -> Method parameter declaration
@@ -704,10 +704,10 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |          Reference expression[foo0] -> Value read
         |            Super reference -> Value read
         |        function definition[bar3] -> Value read
-        |          type parameter clause -> Value read
+        |          type parameter clause
         |            type parameter[E] -> Value read
-        |          parameter clauses -> Value read
-        |            parameter clause -> Value read
+        |          parameter clauses
+        |            parameter clause
         |              parameter[e] -> Method parameter declaration
         |                parameter type -> Method parameter declaration
         |                  simple type -> Method parameter declaration
@@ -715,10 +715,10 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |          Reference expression[foo0] -> Value read
         |            Super reference -> Value read
         |        function definition[bar4] -> Value read
-        |          type parameter clause -> Value read
+        |          type parameter clause
         |            type parameter[E] -> Value read
-        |          parameter clauses -> Value read
-        |            parameter clause -> Value read
+        |          parameter clauses
+        |            parameter clause
         |              parameter[e] -> Method parameter declaration
         |                parameter type -> Method parameter declaration
         |                  simple type -> Method parameter declaration
@@ -757,7 +757,7 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |            type arguments -> Type parameter
         |              simple type -> Type parameter
         |                reference[String] -> Type parameter
-        |      template body -> Value read
+        |      template body
         |        value definition -> Value read
         |          modifiers -> Value read
         |            access modifier -> Access Modifier
@@ -776,8 +776,8 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |            Reference expression[delegate] -> Value read
         |        function definition[foo1] -> Value read
         |          modifiers -> Value read
-        |          parameter clauses -> Value read
-        |            parameter clause -> Value read
+        |          parameter clauses
+        |            parameter clause
         |              parameter[x] -> Method parameter declaration
         |                parameter type -> Method parameter declaration
         |                  simple type -> Method parameter declaration
@@ -785,12 +785,12 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |          Method call -> Value read
         |            Reference expression[foo1] -> Value read
         |              Reference expression[delegate] -> Value read
-        |            arguments of function -> Value read
+        |            arguments of function
         |              Reference expression[x] -> Value read
         |        function definition[foo2] -> Value read
         |          modifiers -> Value read
-        |          parameter clauses -> Value read
-        |            parameter clause -> Value read
+        |          parameter clauses
+        |            parameter clause
         |              parameter[t] -> Method parameter declaration
         |                parameter type -> Method parameter declaration
         |                  simple type -> Method parameter declaration
@@ -798,14 +798,14 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |          Method call -> Value read
         |            Reference expression[foo2] -> Value read
         |              Reference expression[delegate] -> Value read
-        |            arguments of function -> Value read
+        |            arguments of function
         |              Reference expression[t] -> Value read
         |        function definition[foo3] -> Value read
         |          modifiers -> Value read
-        |          type parameter clause -> Value read
+        |          type parameter clause
         |            type parameter[E] -> Value read
-        |          parameter clauses -> Value read
-        |            parameter clause -> Value read
+        |          parameter clauses
+        |            parameter clause
         |              parameter[e] -> Method parameter declaration
         |                parameter type -> Method parameter declaration
         |                  simple type -> Method parameter declaration
@@ -813,14 +813,14 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |          Method call -> Value read
         |            Reference expression[foo3] -> Value read
         |              Reference expression[delegate] -> Value read
-        |            arguments of function -> Value read
+        |            arguments of function
         |              Reference expression[e] -> Value read
         |        function definition[foo4] -> Value read
         |          modifiers -> Value read
-        |          type parameter clause -> Value read
+        |          type parameter clause
         |            type parameter[E] -> Value read
-        |          parameter clauses -> Value read
-        |            parameter clause -> Value read
+        |          parameter clauses
+        |            parameter clause
         |              parameter[e] -> Method parameter declaration
         |                parameter type -> Method parameter declaration
         |                  simple type -> Method parameter declaration
@@ -832,7 +832,7 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |          Method call -> Value read
         |            Reference expression[foo4] -> Value read
         |              Reference expression[delegate] -> Value read
-        |            arguments of function -> Value read
+        |            arguments of function
         |              Reference expression[e] -> Value read
         |              Reference expression[t] -> Value read
         |""".stripMargin
@@ -862,7 +862,7 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |            type arguments -> Type parameter
         |              simple type -> Type parameter
         |                reference[String] -> Type parameter
-        |      template body -> Value read
+        |      template body
         |        value definition -> Value read
         |          modifiers -> Value read
         |            access modifier -> Access Modifier
@@ -877,8 +877,8 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |          Reference expression[???] -> Value read
         |        function definition[foo1] -> Value read
         |          modifiers -> Value read
-        |          parameter clauses -> Value read
-        |            parameter clause -> Value read
+        |          parameter clauses
+        |            parameter clause
         |              parameter[x] -> Method parameter declaration
         |                parameter type -> Method parameter declaration
         |                  simple type -> Method parameter declaration
@@ -886,12 +886,12 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |          Method call -> Value read
         |            Reference expression[foo1] -> Value read
         |              Reference expression[delegate] -> Value read
-        |            arguments of function -> Value read
-        |              IntegerLiteral -> Value read
+        |            arguments of function
+        |              IntegerLiteral
         |        function definition[foo2] -> Value read
         |          modifiers -> Value read
-        |          parameter clauses -> Value read
-        |            parameter clause -> Value read
+        |          parameter clauses
+        |            parameter clause
         |              parameter[t] -> Method parameter declaration
         |                parameter type -> Method parameter declaration
         |                  simple type -> Method parameter declaration
@@ -899,14 +899,14 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |          Method call -> Value read
         |            Reference expression[foo2] -> Value read
         |              Reference expression[delegate] -> Value read
-        |            arguments of function -> Value read
-        |              StringLiteral -> Value read
+        |            arguments of function
+        |              StringLiteral
         |        function definition[foo3] -> Value read
         |          modifiers -> Value read
-        |          type parameter clause -> Value read
+        |          type parameter clause
         |            type parameter[E] -> Value read
-        |          parameter clauses -> Value read
-        |            parameter clause -> Value read
+        |          parameter clauses
+        |            parameter clause
         |              parameter[e] -> Method parameter declaration
         |                parameter type -> Method parameter declaration
         |                  simple type -> Method parameter declaration
@@ -914,14 +914,14 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |          Method call -> Value read
         |            Reference expression[foo3] -> Value read
         |              Reference expression[delegate] -> Value read
-        |            arguments of function -> Value read
+        |            arguments of function
         |              Reference expression[???] -> Value read
         |        function definition[foo4] -> Value read
         |          modifiers -> Value read
-        |          type parameter clause -> Value read
+        |          type parameter clause
         |            type parameter[E] -> Value read
-        |          parameter clauses -> Value read
-        |            parameter clause -> Value read
+        |          parameter clauses
+        |            parameter clause
         |              parameter[e] -> Method parameter declaration
         |                parameter type -> Method parameter declaration
         |                  simple type -> Method parameter declaration
@@ -933,7 +933,7 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |          Method call -> Value read
         |            Reference expression[foo4] -> Value read
         |              Reference expression[delegate] -> Value read
-        |            arguments of function -> Value read
+        |            arguments of function
         |              Reference expression[???] -> Value read
         |              Reference expression[???] -> Value read
         |""".stripMargin
@@ -965,7 +965,7 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |            type arguments -> Type parameter
         |              simple type -> Type parameter
         |                reference[String] -> Type parameter
-        |      template body -> Value read
+        |      template body
         |        value definition -> Value read
         |          modifiers -> Value read
         |            access modifier -> Access Modifier
@@ -983,12 +983,12 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |          Method call -> Value read
         |            Reference expression[foo1] -> Value read
         |              Reference expression[delegate] -> Value read
-        |            arguments of function -> Value read
-        |              IntegerLiteral -> Value read
+        |            arguments of function
+        |              IntegerLiteral
         |        function definition[foo1] -> Value read
         |          modifiers -> Value read
-        |          parameter clauses -> Value read
-        |            parameter clause -> Value read
+        |          parameter clauses
+        |            parameter clause
         |              parameter[x] -> Method parameter declaration
         |                parameter type -> Method parameter declaration
         |                  simple type -> Method parameter declaration
@@ -997,8 +997,8 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |            Reference expression[delegate] -> Value read
         |        function definition[foo2] -> Value read
         |          modifiers -> Value read
-        |          parameter clauses -> Value read
-        |            parameter clause -> Value read
+        |          parameter clauses
+        |            parameter clause
         |              parameter[t] -> Method parameter declaration
         |                parameter type -> Method parameter declaration
         |                  simple type -> Method parameter declaration
@@ -1007,10 +1007,10 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |            Reference expression[delegate] -> Value read
         |        function definition[foo3] -> Value read
         |          modifiers -> Value read
-        |          type parameter clause -> Value read
+        |          type parameter clause
         |            type parameter[E] -> Value read
-        |          parameter clauses -> Value read
-        |            parameter clause -> Value read
+        |          parameter clauses
+        |            parameter clause
         |              parameter[e] -> Method parameter declaration
         |                parameter type -> Method parameter declaration
         |                  simple type -> Method parameter declaration
@@ -1019,10 +1019,10 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |            Reference expression[delegate] -> Value read
         |        function definition[foo4] -> Value read
         |          modifiers -> Value read
-        |          type parameter clause -> Value read
+        |          type parameter clause
         |            type parameter[E] -> Value read
-        |          parameter clauses -> Value read
-        |            parameter clause -> Value read
+        |          parameter clauses
+        |            parameter clause
         |              parameter[e] -> Method parameter declaration
         |                parameter type -> Method parameter declaration
         |                  simple type -> Method parameter declaration
@@ -1059,7 +1059,7 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |        constructor -> Usage in extends/implements clause
         |          simple type -> Usage in extends/implements clause
         |            reference[MyBaseClass] -> Usage in extends/implements clause
-        |      template body -> Value read
+        |      template body
         |        value definition -> Value read
         |          modifiers -> Value read
         |          pattern list -> Value read
@@ -1094,7 +1094,7 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |        constructor -> Usage in extends/implements clause
         |          simple type -> Usage in extends/implements clause
         |            reference[MyBaseClass] -> Usage in extends/implements clause
-        |      template body -> Value read
+        |      template body
         |        value definition -> Value read
         |          modifiers -> Value read
         |          pattern list -> Value read
@@ -1128,7 +1128,7 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |        constructor -> Usage in extends/implements clause
         |          simple type -> Usage in extends/implements clause
         |            reference[MyBaseClass] -> Usage in extends/implements clause
-        |      template body -> Value read
+        |      template body
         |        value definition -> Value read
         |          modifiers -> Value read
         |          pattern list -> Value read
@@ -1160,7 +1160,7 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |        constructor -> Usage in extends/implements clause
         |          simple type -> Usage in extends/implements clause
         |            reference[MyBaseClass] -> Usage in extends/implements clause
-        |      template body -> Value read
+        |      template body
         |        value definition -> Value read
         |          modifiers -> Value read
         |            access modifier -> Access Modifier
@@ -1204,7 +1204,7 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |        constructor -> Usage in extends/implements clause
         |          simple type -> Usage in extends/implements clause
         |            reference[MyBaseClass] -> Usage in extends/implements clause
-        |      template body -> Value read
+        |      template body
         |        value definition -> Value read
         |          modifiers -> Value read
         |            access modifier -> Access Modifier
@@ -1251,7 +1251,7 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
       """scala.FILE
         |  ScObject[MyScalaClass]
         |    extends block
-        |      template body -> Value read
+        |      template body
         |        function definition[foo1] -> Value read
         |          annotations -> Value read
         |            annotation -> Value read
@@ -1259,8 +1259,8 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |                constructor -> Annotation
         |                  simple type -> Annotation
         |                    reference[Deprecated] -> Annotation
-        |          parameter clauses -> Value read
-        |            parameter clause -> Value read
+        |          parameter clauses
+        |            parameter clause
         |          simple type -> Method return type
         |            reference[Unit] -> Method return type
         |          unit expression -> Value read
@@ -1271,9 +1271,9 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |                constructor -> Annotation
         |                  simple type -> Annotation
         |                    reference[Deprecated] -> Annotation
-        |                  arguments of function -> Value read
-        |          parameter clauses -> Value read
-        |            parameter clause -> Value read
+        |                  arguments of function
+        |          parameter clauses
+        |            parameter clause
         |          simple type -> Method return type
         |            reference[Unit] -> Method return type
         |          unit expression -> Value read
@@ -1284,12 +1284,12 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |                constructor -> Annotation
         |                  simple type -> Annotation
         |                    reference[Deprecated] -> Annotation
-        |                  arguments of function -> Value read
+        |                  arguments of function
         |                    assign statement -> Value read
         |                      Reference expression[forRemoval] -> Value write
-        |                      BooleanLiteral -> Value read
-        |          parameter clauses -> Value read
-        |            parameter clause -> Value read
+        |                      BooleanLiteral
+        |          parameter clauses
+        |            parameter clause
         |          simple type -> Method return type
         |            reference[Unit] -> Method return type
         |          unit expression -> Value read
@@ -1300,10 +1300,10 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |                constructor -> Annotation
         |                  simple type -> Annotation
         |                    reference[Deprecated] -> Annotation
-        |                  arguments of function -> Value read
-        |                    StringLiteral -> Value read
-        |          parameter clauses -> Value read
-        |            parameter clause -> Value read
+        |                  arguments of function
+        |                    StringLiteral
+        |          parameter clauses
+        |            parameter clause
         |          simple type -> Method return type
         |            reference[Unit] -> Method return type
         |          unit expression -> Value read
@@ -1314,12 +1314,12 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |                constructor -> Annotation
         |                  simple type -> Annotation
         |                    reference[Deprecated] -> Annotation
-        |                  arguments of function -> Value read
+        |                  arguments of function
         |                    assign statement -> Value read
         |                      Reference expression[since] -> Value write
-        |                      StringLiteral -> Value read
-        |          parameter clauses -> Value read
-        |            parameter clause -> Value read
+        |                      StringLiteral
+        |          parameter clauses
+        |            parameter clause
         |          simple type -> Method return type
         |            reference[Unit] -> Method return type
         |          unit expression -> Value read
@@ -1332,8 +1332,8 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |                    reference[Deprecated] -> Annotation
         |                      reference[lang] -> Annotation
         |                        reference[java] -> Annotation
-        |          parameter clauses -> Value read
-        |            parameter clause -> Value read
+        |          parameter clauses
+        |            parameter clause
         |          simple type -> Method return type
         |            reference[Unit] -> Method return type
         |          unit expression -> Value read
@@ -1346,9 +1346,9 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |                    reference[Deprecated] -> Annotation
         |                      reference[lang] -> Annotation
         |                        reference[java] -> Annotation
-        |                  arguments of function -> Value read
-        |          parameter clauses -> Value read
-        |            parameter clause -> Value read
+        |                  arguments of function
+        |          parameter clauses
+        |            parameter clause
         |          simple type -> Method return type
         |            reference[Unit] -> Method return type
         |          unit expression -> Value read
@@ -1361,12 +1361,12 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |                    reference[Deprecated] -> Annotation
         |                      reference[lang] -> Annotation
         |                        reference[java] -> Annotation
-        |                  arguments of function -> Value read
+        |                  arguments of function
         |                    assign statement -> Value read
         |                      Reference expression[forRemoval] -> Value write
-        |                      BooleanLiteral -> Value read
-        |          parameter clauses -> Value read
-        |            parameter clause -> Value read
+        |                      BooleanLiteral
+        |          parameter clauses
+        |            parameter clause
         |          simple type -> Method return type
         |            reference[Unit] -> Method return type
         |          unit expression -> Value read
@@ -1379,10 +1379,10 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |                    reference[Deprecated] -> Annotation
         |                      reference[lang] -> Annotation
         |                        reference[java] -> Annotation
-        |                  arguments of function -> Value read
-        |                    StringLiteral -> Value read
-        |          parameter clauses -> Value read
-        |            parameter clause -> Value read
+        |                  arguments of function
+        |                    StringLiteral
+        |          parameter clauses
+        |            parameter clause
         |          simple type -> Method return type
         |            reference[Unit] -> Method return type
         |          unit expression -> Value read
@@ -1395,12 +1395,12 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |                    reference[Deprecated] -> Annotation
         |                      reference[lang] -> Annotation
         |                        reference[java] -> Annotation
-        |                  arguments of function -> Value read
+        |                  arguments of function
         |                    assign statement -> Value read
         |                      Reference expression[since] -> Value write
-        |                      StringLiteral -> Value read
-        |          parameter clauses -> Value read
-        |            parameter clause -> Value read
+        |                      StringLiteral
+        |          parameter clauses
+        |            parameter clause
         |          simple type -> Method return type
         |            reference[Unit] -> Method return type
         |          unit expression -> Value read
@@ -1446,37 +1446,37 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |        reference[org] -> Usage in import
         |  ScObject[Usage]
         |    extends block
-        |      template body -> Value read
+        |      template body
         |        value definition -> Value read
         |          pattern list -> Value read
         |            reference pattern[value] -> Value read
-        |          IntegerLiteral -> Value read
+        |          IntegerLiteral
         |        match statement -> Value read
         |          Expression in parentheses -> Value read
         |            typed statement -> Value read
         |              Reference expression[???] -> Value read
         |              simple type -> Typed Statement
         |                reference[Any] -> Typed Statement
-        |          case clauses -> Value read
-        |            case clause -> Value read
+        |          case clauses
+        |            case clause
         |              typed pattern[_] -> Typed Pattern
         |                Type pattern -> Typed Pattern
         |                  simple type -> Typed Pattern
         |                    reference[MyClass] -> Typed Pattern
-        |            case clause -> Value read
+        |            case clause
         |              typed pattern[_] -> Typed Pattern
         |                Type pattern -> Typed Pattern
         |                  simple type -> Typed Pattern
         |                    reference[MyClass] -> Typed Pattern
         |                      reference[example] -> Typed Pattern
         |                        reference[org] -> Typed Pattern
-        |            case clause -> Value read
+        |            case clause
         |              StableElementPattern -> Stable Reference Pattern
         |                Reference expression[MyObject] -> Stable Reference Pattern
-        |            case clause -> Value read
+        |            case clause
         |              StableElementPattern -> Stable Reference Pattern
         |                Reference expression[`value`] -> Stable Reference Pattern
-        |            case clause -> Value read
+        |            case clause
         |              Constructor Pattern -> Extractor
         |                reference[MyClassWithExtractor] -> Extractor
         |                Pattern arguments -> Extractor
@@ -1501,22 +1501,22 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
       """scala.FILE
         |  ScObject[Usage]
         |    extends block
-        |      template body -> Value read
-        |        try statement -> Value read
+        |      template body
+        |        try statement
         |          Reference expression[???] -> Value read
-        |          catch block -> Value read
-        |            block of expressions -> Value read
-        |              { -> Value read
-        |              case clauses -> Value read
-        |                case clause -> Value read
+        |          catch block
+        |            block of expressions
+        |              {
+        |              case clauses
+        |                case clause
         |                  typed pattern[_] -> Catch clause parameter declaration
         |                    Type pattern -> Catch clause parameter declaration
         |                      simple type -> Catch clause parameter declaration
         |                        reference[MyClass] -> Catch clause parameter declaration
-        |                case clause -> Value read
+        |                case clause
         |                  StableElementPattern -> Catch clause parameter declaration
         |                    Reference expression[MyObject] -> Catch clause parameter declaration
-        |              } -> Value read
+        |              }
         |""".stripMargin
     )
   }
