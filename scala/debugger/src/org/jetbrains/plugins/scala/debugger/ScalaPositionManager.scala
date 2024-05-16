@@ -219,10 +219,10 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       isLocalClass(definition) || isDelayedInit(definition)
     }
 
-    def findEnclosingTypeDefinition: Option[ScTypeDefinition] = {
+    def findTopmostEnclosingTypeDefinition: Option[ScTypeDefinition] = {
       @tailrec
       def notLocalEnclosingTypeDefinition(element: PsiElement): Option[ScTypeDefinition] = {
-        PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition]) match {
+        PsiTreeUtil.getTopmostParentOfType(element, classOf[ScTypeDefinition]) match {
           case null => None
           case td if isLocalClass(td) => notLocalEnclosingTypeDefinition(td.getParent)
           case td => Some(td)
@@ -274,7 +274,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
           ClassPattern.Single(topLevelMemberClassName(pckg.getContainingFile, Some(pckg)))
         case _ =>
           val pattern =
-            findEnclosingTypeDefinition match {
+            findTopmostEnclosingTypeDefinition match {
               case Some(td) => Some(ClassPattern.Nested(getSpecificNameForDebugger(td)))
               case None =>
                 findEnclosingPackageOrFile.map {
@@ -316,9 +316,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       case (position, ClassPattern.Single(pattern)) => (createRequestor(position), pattern)
     }
 
-    val res = requestorsAndPatterns.flatMap { case (requestor, pattern) => createClassPrepareRequests(requestor, pattern) }.asJava
-    println()
-    res
+    requestorsAndPatterns.flatMap { case (requestor, pattern) => createClassPrepareRequests(requestor, pattern) }.asJava
   }
 
   private def throwIfNotScalaFile(file: PsiFile): Unit = {
