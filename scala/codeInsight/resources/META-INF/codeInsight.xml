@@ -321,6 +321,7 @@
 
         <postStartupActivity implementation="org.jetbrains.plugins.scala.codeInsight.implicits.ShowImplicitHintsAction$ConfigureShortcuts"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.codeInsight.hints.XRayModeTip"/>
+        <postStartupActivity implementation="org.jetbrains.plugins.scala.codeInsight.implicits.MouseHandler" />
 
         <iw.actionProvider implementation="org.jetbrains.plugins.scala.codeInsight.hints.XRayModeWidgetActionProvider"/>
 
@@ -331,10 +332,6 @@
         <delegateMethods language="Scala"
                          implementationClass="org.jetbrains.plugins.scala.codeInsight.delegate.ScalaGenerateDelegateHandler"/>
     </extensions>
-
-    <applicationListeners>
-        <listener class="org.jetbrains.plugins.scala.codeInsight.implicits.MouseHandler" topic="com.intellij.openapi.project.ProjectManagerListener"/>
-    </applicationListeners>
 
     <actions>
         <action id="Scala.ShowImplicits" class="org.jetbrains.plugins.scala.codeInsight.implicits.ShowImplicitHintsAction">
