@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeArgs, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{AuxiliaryConstructor, ScAccessModifier, ScAnnotationExpr, ScConstructorInvocation, ScLiteral, ScPrimaryConstructor, ScReference}
@@ -37,33 +38,38 @@ final class ScalaUsageTypeProvider extends UsageTypeProviderEx {
 
   // TODO more of these, including Scala specific: case class/object, pattern match, type ascription, ...
   override def getUsageType(element: PsiElement, targets: Array[UsageTarget]): UsageType = {
+    element.getContainingFile match {
+      case _: ScalaFile =>
+      case _ =>
+        return null
+    }
+
     // Early return null for some elements for which there is no point to calculate usage type
     // Primarily needed for tests. Note that Java implementation might still fall back to "Read" usage type
     if (!shouldCalculateUsage(element))
       return null
 
-    //TODO: don't use flatMap, this is shit
-    element.containingScalaFile.flatMap { _ =>
-      (element, targets) match {
-        case (referenceElement: ScReference, Array(only: PsiElementUsageTarget))
-          if isConstructorPatternReference(referenceElement) && !referenceElement.isReferenceTo(only.getElement) =>
-          Some(ParameterInPattern)
-        case (SAMTypeImplementation(_), _) if isSAMTypeUsageTarget(targets) =>
-          Option(SAMImplementation)
-        case (_: UnresolvedImplicitFakePsiElement, _) => Option(UnresolvedImplicit)
-        case (e, Array(target: PsiElementUsageTarget))
-          if isImplicitUsageTarget(target) && isReferencedImplicitlyIn(target.getElement, e) =>
-          Some(ImplicitConversionOrParam)
-        case (referenceElement: ScReference, Array(only: PsiElementUsageTarget))
-          if isConstructorPatternReference(referenceElement) && !referenceElement.isReferenceTo(only.getElement) =>
-          Some(ParameterInPattern)
-        case _ =>
-          //TODO: Only run this logic for references or leaf elements?
-          element.withParentsInFile
-            .flatMap(usageType(_, element))
-            .nextOption()
-      }
-    }.orNull
+    val result = (element, targets) match {
+      case (referenceElement: ScReference, Array(only: PsiElementUsageTarget))
+        if isConstructorPatternReference(referenceElement) && !referenceElement.isReferenceTo(only.getElement) =>
+        Some(ParameterInPattern)
+      case (SAMTypeImplementation(_), _) if isSAMTypeUsageTarget(targets) =>
+        Option(SAMImplementation)
+      case (_: UnresolvedImplicitFakePsiElement, _) =>
+        Option(UnresolvedImplicit)
+      case (e, Array(target: PsiElementUsageTarget))
+        if isImplicitUsageTarget(target) && isReferencedImplicitlyIn(target.getElement, e) =>
+        Some(ImplicitConversionOrParam)
+      case (referenceElement: ScReference, Array(only: PsiElementUsageTarget))
+        if isConstructorPatternReference(referenceElement) && !referenceElement.isReferenceTo(only.getElement) =>
+        Some(ParameterInPattern)
+      case _ =>
+        //TODO: Only run this logic for references or leaf elements?
+        element.withParentsInFile
+          .flatMap(usageType(_, element))
+          .nextOption()
+    }
+    result.orNull
   }
 }
 
@@ -97,8 +103,7 @@ object ScalaUsageTypeProvider {
          _: ScArgumentExprList |
          _: ScParameterClause |
          _: ScParameters |
-         _: ScTypeParamClause
-    => false
+         _: ScTypeParamClause => false
     case _ => true
   }
 
