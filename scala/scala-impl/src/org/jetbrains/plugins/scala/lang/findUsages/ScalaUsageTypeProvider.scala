@@ -132,25 +132,31 @@ object ScalaUsageTypeProvider {
     }
 
   def patternUsageType(pattern: ScPattern): UsageType = {
-    def isPatternAncestor(element: PsiElement) = isAncestor(element, pattern, false)
+    def isPatternAncestor(element: PsiElement) = isAncestor(pattern, element, false)
 
-    val patterns = pattern.parentOfType(classOf[ScCatchBlock]).toSeq.collect {
-      case ScCatchBlock(clauses) => clauses
-    }.flatMap(_.caseClauses)
+    val catchClausePatterns = pattern.parentOfType(classOf[ScCatchBlock]).toSeq
+      .collect {  case ScCatchBlock(clauses) => clauses }
+      .flatMap(_.caseClauses)
       .flatMap(_.pattern)
 
-    if (patterns.exists(isPatternAncestor)) CLASS_CATCH_CLAUSE_PARAMETER_DECLARATION
+    if (catchClausePatterns.exists(isPatternAncestor))
+      CLASS_CATCH_CLAUSE_PARAMETER_DECLARATION
     else pattern match {
-      case ScTypedPatternLike(typePattern) if isPatternAncestor(typePattern.typeElement) => ClassTypedPattern
-      case _: ScConstructorPattern | _: ScInfixPattern => Extractor
+      case ScTypedPatternLike(typePattern) if isPatternAncestor(typePattern.typeElement) =>
+        TypedPattern
+      case _: ScStableReferencePattern =>
+        StableReferencePattern
+      case _: ScConstructorPattern | _: ScInfixPattern =>
+        Extractor
       case _ => null
     }
   }
 
   implicit def stringToUsageType(@Nls name: String): UsageType = new UsageType(() => name)
   val Extractor: UsageType                 = ScalaBundle.message("usage.extractor")
-  val ClassTypedPattern: UsageType         = ScalaBundle.message("usage.typed.pattern")
-  val TypedExpression: UsageType            = ScalaBundle.message("usage.typed.statement")
+  val StableReferencePattern: UsageType    = ScalaBundle.message("usage.stable.reference.pattern")
+  val TypedPattern: UsageType              = ScalaBundle.message("usage.typed.pattern")
+  val TypedExpression: UsageType           = ScalaBundle.message("usage.typed.statement")
   val MethodApply: UsageType               = ScalaBundle.message("usage.method.apply")
   val ThisReference: UsageType             = ScalaBundle.message("usage.this.reference")
   val AccessModifier: UsageType            = ScalaBundle.message("usage.access.modifier")

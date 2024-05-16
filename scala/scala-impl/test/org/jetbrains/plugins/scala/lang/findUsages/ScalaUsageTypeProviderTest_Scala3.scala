@@ -147,4 +147,85 @@ class ScalaUsageTypeProviderTest_Scala3 extends ScalaUsageTypeProviderTest_Scala
         |""".stripMargin
     )
   }
+
+  override def testUsageInPatterns(): Unit = {
+    myFixture.addFileToProject("definitions.scala", CommonDeclarationsFoPatternUsages)
+    doTest(
+      MainFileForPatternUsages,
+      """scala.FILE
+        |  ScImportStatement
+        |    import expression -> Usage in import
+        |      reference[example] -> Usage in import
+        |        reference[org] -> Usage in import
+        |  ScObject[Usage]
+        |    extends block
+        |      template body -> Value read
+        |        value definition -> Value read
+        |          pattern list -> Value read
+        |            reference pattern[value] -> Value read
+        |          IntegerLiteral -> Value read
+        |        match statement -> Value read
+        |          Expression in parentheses -> Value read
+        |            typed statement -> Value read
+        |              Reference expression[???] -> Value read
+        |              simple type -> Typed Statement
+        |                reference[Any] -> Typed Statement
+        |          case clauses -> Value read
+        |            case clause -> Value read
+        |              Scala 3 Typed Pattern -> Typed Pattern
+        |                any sequence -> Typed Pattern
+        |                Type pattern -> Typed Pattern
+        |                  simple type -> Typed Pattern
+        |                    reference[MyClass] -> Typed Pattern
+        |            case clause -> Value read
+        |              Scala 3 Typed Pattern -> Typed Pattern
+        |                any sequence -> Typed Pattern
+        |                Type pattern -> Typed Pattern
+        |                  simple type -> Typed Pattern
+        |                    reference[MyClass] -> Typed Pattern
+        |                      reference[example] -> Typed Pattern
+        |                        reference[org] -> Typed Pattern
+        |            case clause -> Value read
+        |              StableElementPattern -> Stable Reference Pattern
+        |                Reference expression[MyObject] -> Stable Reference Pattern
+        |            case clause -> Value read
+        |              StableElementPattern -> Stable Reference Pattern
+        |                Reference expression[`value`] -> Stable Reference Pattern
+        |            case clause -> Value read
+        |              Constructor Pattern -> Extractor
+        |                reference[MyClassWithExtractor] -> Extractor
+        |                Pattern arguments -> Extractor
+        |                  any sequence -> Extractor
+        |""".stripMargin
+    )
+  }
+
+  override def testUsageInPatterns_InCatchClause(): Unit = {
+    myFixture.addFileToProject("definitions.scala", CommonDeclarationsFoPatternUsages)
+    doTest(
+      MainFileForPatternUsages_InCatchClause,
+      """scala.FILE
+        |  ScObject[Usage]
+        |    extends block
+        |      template body -> Value read
+        |        try statement -> Value read
+        |          Reference expression[???] -> Value read
+        |          catch block -> Value read
+        |            block of expressions -> Value read
+        |              { -> Value read
+        |              case clauses -> Value read
+        |                case clause -> Value read
+        |                  Scala 3 Typed Pattern -> Catch clause parameter declaration
+        |                    any sequence -> Catch clause parameter declaration
+        |                    Type pattern -> Catch clause parameter declaration
+        |                      simple type -> Catch clause parameter declaration
+        |                        reference[MyClass] -> Catch clause parameter declaration
+        |                case clause -> Value read
+        |                  StableElementPattern -> Catch clause parameter declaration
+        |                    Reference expression[MyObject] -> Catch clause parameter declaration
+        |              } -> Value read
+        |""".stripMargin
+    )
+  }
+
 }
