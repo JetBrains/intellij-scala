@@ -66,6 +66,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
   private val log = Logger.getInstance(getClass)
 
   @volatile private var processData: Option[ProcessData] = None
+  private val processDataMutex = new Object
 
   @NonNls private def repoPath: String = normalizePath(getRepoDir)
 
@@ -403,7 +404,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
   private def updateProcessData(): ProcessData = {
     log.trace("updateProcessData")
     val pd = createProcessData()
-    processData.synchronized {
+    processDataMutex.synchronized {
       processData = Some(pd)
       pd.runner.initAndRun()
     }
@@ -428,7 +429,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
    * The process handler should only be used to access the running process!
    * SbtProcessManager is solely responsible for handling the running state.
    */
-  private[shell] def acquireShellProcessHandler(): ColoredProcessHandler = processData.synchronized {
+  private[shell] def acquireShellProcessHandler(): ColoredProcessHandler = processDataMutex.synchronized {
     log.trace("acquireShellProcessHandler")
     processData match {
       case Some(data@ProcessData(handler, _)) if isAlive(data) =>
@@ -439,7 +440,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
   }
 
   /** Creates the SbtShellRunner view if necessary. */
-  def acquireShellRunner(): SbtShellRunner = processData.synchronized {
+  def acquireShellRunner(): SbtShellRunner = processDataMutex.synchronized {
     log.trace("processData")
     processData match {
       case Some(data@ProcessData(_, runner)) if isAlive(data) =>
@@ -451,7 +452,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
 
   def shellRunner: Option[SbtShellRunner] = processData.map(_.runner)
 
-  def restartProcess(): Unit = processData.synchronized {
+  def restartProcess(): Unit = processDataMutex.synchronized {
     log.debug("restartProcess")
     destroyProcess()
     updateProcessData()
@@ -489,7 +490,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
     }
   }
 
-  def destroyProcess(): Unit = processData.synchronized {
+  def destroyProcess(): Unit = processDataMutex.synchronized {
     log.debug("destroyProcess")
     processData match {
       case Some(ProcessData(handler, _)) =>
