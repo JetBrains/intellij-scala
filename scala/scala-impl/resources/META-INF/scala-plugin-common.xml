@@ -1976,6 +1976,7 @@
         <postStartupActivity implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.RegisterSyntheticClassesStartupActivity"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtProjectListener"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.annotator.TypeMismatchTooltipsHandler"/>
+        <postStartupActivity implementation="org.jetbrains.plugins.scala.components.Scala3Disclaimer$ProjectListener"/>"
 
         <resolveScopeProvider implementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaOutOfSourcesResolveScopeProvider"/>
 
@@ -1991,9 +1992,6 @@
                   class="org.jetbrains.plugins.scala.internal.ScalaPluginDynamicUnloadDenier" />
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.DeregisterSyntheticClassesListener"/>
-
-        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
-                  class="org.jetbrains.plugins.scala.components.Scala3Disclaimer$ProjectListener"/>
 
         <!-- Formatter listeners -->
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
