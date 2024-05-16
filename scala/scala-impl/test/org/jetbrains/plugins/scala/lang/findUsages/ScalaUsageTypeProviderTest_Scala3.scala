@@ -162,7 +162,7 @@ class ScalaUsageTypeProviderTest_Scala3 extends ScalaUsageTypeProviderTest_Scala
         |      template body
         |        value definition -> Value read
         |          pattern list -> Value read
-        |            reference pattern[value] -> Value read
+        |            reference pattern[value] -> Pattern
         |          IntegerLiteral
         |        match statement -> Value read
         |          Expression in parentheses -> Value read
@@ -172,30 +172,30 @@ class ScalaUsageTypeProviderTest_Scala3 extends ScalaUsageTypeProviderTest_Scala
         |                reference[Any] -> Typed Statement
         |          case clauses
         |            case clause
-        |              Scala 3 Typed Pattern -> Typed Pattern
-        |                any sequence -> Typed Pattern
-        |                Type pattern -> Typed Pattern
-        |                  simple type -> Typed Pattern
-        |                    reference[MyClass] -> Typed Pattern
+        |              Scala 3 Typed Pattern -> Pattern
+        |                any sequence -> Pattern
+        |                Type pattern -> Pattern
+        |                  simple type -> Pattern
+        |                    reference[MyClass] -> Pattern
         |            case clause
-        |              Scala 3 Typed Pattern -> Typed Pattern
-        |                any sequence -> Typed Pattern
-        |                Type pattern -> Typed Pattern
-        |                  simple type -> Typed Pattern
-        |                    reference[MyClass] -> Typed Pattern
-        |                      reference[example] -> Typed Pattern
-        |                        reference[org] -> Typed Pattern
+        |              Scala 3 Typed Pattern -> Pattern
+        |                any sequence -> Pattern
+        |                Type pattern -> Pattern
+        |                  simple type -> Pattern
+        |                    reference[MyClass] -> Pattern
+        |                      reference[example] -> Pattern
+        |                        reference[org] -> Pattern
         |            case clause
-        |              StableElementPattern -> Stable Reference Pattern
-        |                Reference expression[MyObject] -> Stable Reference Pattern
+        |              StableElementPattern -> Pattern
+        |                Reference expression[MyObject] -> Pattern
         |            case clause
-        |              StableElementPattern -> Stable Reference Pattern
-        |                Reference expression[`value`] -> Stable Reference Pattern
+        |              StableElementPattern -> Pattern
+        |                Reference expression[`value`] -> Pattern
         |            case clause
         |              Constructor Pattern -> Extractor
         |                reference[MyClassWithExtractor] -> Extractor
         |                Pattern arguments -> Extractor
-        |                  any sequence -> Extractor
+        |                  any sequence -> Pattern
         |""".stripMargin
     )
   }
@@ -216,7 +216,7 @@ class ScalaUsageTypeProviderTest_Scala3 extends ScalaUsageTypeProviderTest_Scala
         |              case clauses
         |                case clause
         |                  Scala 3 Typed Pattern -> Catch clause parameter declaration
-        |                    any sequence -> Catch clause parameter declaration
+        |                    any sequence -> Pattern
         |                    Type pattern -> Catch clause parameter declaration
         |                      simple type -> Catch clause parameter declaration
         |                        reference[MyClass] -> Catch clause parameter declaration
@@ -228,4 +228,40 @@ class ScalaUsageTypeProviderTest_Scala3 extends ScalaUsageTypeProviderTest_Scala
     )
   }
 
+  def testUsageInPatterns_Scala3Specific(): Unit = {
+    doTest(
+      """class MyClass
+        |
+        |object Usage {
+        |  (??? : Any) match {
+        |    case given MyClass =>
+        |      summon[MyClass]
+        |  }
+        |}
+        |""".stripMargin,
+      """scala.FILE
+        |  ScClass[MyClass]
+        |  ScObject[Usage]
+        |    extends block
+        |      template body
+        |        match statement -> Value read
+        |          Expression in parentheses -> Value read
+        |            typed statement -> Value read
+        |              Reference expression[???] -> Value read
+        |              simple type -> Typed Statement
+        |                reference[Any] -> Typed Statement
+        |          case clauses
+        |            case clause
+        |              given pattern[given_MyClass] -> Pattern
+        |                simple type -> Pattern
+        |                  reference[MyClass] -> Pattern
+        |              block
+        |                Generified call -> Value read
+        |                  Reference expression[summon] -> Value read
+        |                  type arguments -> Type parameter
+        |                    simple type -> Type parameter
+        |                      reference[MyClass] -> Type parameter
+        |""".stripMargin
+    )
+  }
 }

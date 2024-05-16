@@ -189,20 +189,16 @@ object ScalaUsageTypeProvider {
     if (catchClausePatterns.exists(isPatternAncestor))
       CLASS_CATCH_CLAUSE_PARAMETER_DECLARATION
     else pattern match {
-      case ScTypedPatternLike(typePattern) if isPatternAncestor(typePattern.typeElement) =>
-        TypedPattern
-      case _: ScStableReferencePattern =>
-        StableReferencePattern
       case _: ScConstructorPattern | _: ScInfixPattern =>
-        Extractor
-      case _ => null
+        Extractor //Q: maybe we should remove separate "Extractor" pattern and just always use "Pattern"?
+      case _ =>
+        Pattern
     }
   }
 
   implicit def stringToUsageType(@Nls name: String): UsageType = new UsageType(() => name)
   val Extractor: UsageType                 = ScalaBundle.message("usage.extractor")
-  val StableReferencePattern: UsageType    = ScalaBundle.message("usage.stable.reference.pattern")
-  val TypedPattern: UsageType              = ScalaBundle.message("usage.typed.pattern")
+  val Pattern: UsageType                   = ScalaBundle.message("usage.pattern")
   val TypedExpression: UsageType           = ScalaBundle.message("usage.typed.statement")
   val MethodApply: UsageType               = ScalaBundle.message("usage.method.apply")
   val ThisReference: UsageType             = ScalaBundle.message("usage.this.reference")

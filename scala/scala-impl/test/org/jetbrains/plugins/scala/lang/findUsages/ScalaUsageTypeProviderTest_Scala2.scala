@@ -20,7 +20,7 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
       |      template body
       |        variable definition -> Value read
       |          pattern list -> Value read
-      |            reference pattern[x] -> Value read
+      |            reference pattern[x] -> Pattern
       |          IntegerLiteral
       |        assign statement -> Value read
       |          Reference expression[x] -> Value write
@@ -762,7 +762,7 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |          modifiers -> Value read
         |            access modifier -> Access Modifier
         |          pattern list -> Value read
-        |            reference pattern[delegate] -> Value read
+        |            reference pattern[delegate] -> Pattern
         |          type generic call -> Field declaration
         |            simple type -> Field declaration
         |              reference[MyBaseClass] -> Field declaration
@@ -867,7 +867,7 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |          modifiers -> Value read
         |            access modifier -> Access Modifier
         |          pattern list -> Value read
-        |            reference pattern[delegate] -> Value read
+        |            reference pattern[delegate] -> Pattern
         |          type generic call -> Field declaration
         |            simple type -> Field declaration
         |              reference[MyBaseClass] -> Field declaration
@@ -970,7 +970,7 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |          modifiers -> Value read
         |            access modifier -> Access Modifier
         |          pattern list -> Value read
-        |            reference pattern[delegate] -> Value read
+        |            reference pattern[delegate] -> Pattern
         |          type generic call -> Field declaration
         |            simple type -> Field declaration
         |              reference[MyBaseClass] -> Field declaration
@@ -1063,7 +1063,7 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |        value definition -> Value read
         |          modifiers -> Value read
         |          pattern list -> Value read
-        |            reference pattern[foo1] -> Value read
+        |            reference pattern[foo1] -> Pattern
         |          simple type -> Field declaration
         |            reference[Int] -> Field declaration
         |          Reference expression[foo1] -> Delegate to super method
@@ -1071,7 +1071,7 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |        value definition -> Value read
         |          modifiers -> Value read
         |          pattern list -> Value read
-        |            reference pattern[foo2] -> Value read
+        |            reference pattern[foo2] -> Pattern
         |          simple type -> Field declaration
         |            reference[Int] -> Field declaration
         |          Reference expression[foo2] -> Delegate to super method
@@ -1098,7 +1098,7 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |        value definition -> Value read
         |          modifiers -> Value read
         |          pattern list -> Value read
-        |            reference pattern[foo1] -> Value read
+        |            reference pattern[foo1] -> Pattern
         |          simple type -> Field declaration
         |            reference[Int] -> Field declaration
         |          Reference expression[foo2] -> Value read
@@ -1106,7 +1106,7 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |        value definition -> Value read
         |          modifiers -> Value read
         |          pattern list -> Value read
-        |            reference pattern[foo2] -> Value read
+        |            reference pattern[foo2] -> Pattern
         |          simple type -> Field declaration
         |            reference[Int] -> Field declaration
         |          Reference expression[foo1] -> Value read
@@ -1132,10 +1132,10 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |        value definition -> Value read
         |          modifiers -> Value read
         |          pattern list -> Value read
-        |            Tuple Pattern -> Value read
-        |              patterns -> Value read
-        |                reference pattern[foo1] -> Value read
-        |                reference pattern[foo2] -> Value read
+        |            Tuple Pattern -> Pattern
+        |              patterns -> Pattern
+        |                reference pattern[foo1] -> Pattern
+        |                reference pattern[foo2] -> Pattern
         |          Tuple -> Value read
         |            Reference expression[foo1] -> Value read
         |              Super reference -> Value read
@@ -1165,14 +1165,14 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |          modifiers -> Value read
         |            access modifier -> Access Modifier
         |          pattern list -> Value read
-        |            reference pattern[delegate] -> Value read
+        |            reference pattern[delegate] -> Pattern
         |          simple type -> Field declaration
         |            reference[MyBaseClass] -> Field declaration
         |          Reference expression[???] -> Value read
         |        value definition -> Value read
         |          modifiers -> Value read
         |          pattern list -> Value read
-        |            reference pattern[foo1] -> Value read
+        |            reference pattern[foo1] -> Pattern
         |          simple type -> Field declaration
         |            reference[Int] -> Field declaration
         |          Reference expression[foo1] -> Value read
@@ -1180,7 +1180,7 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |        value definition -> Value read
         |          modifiers -> Value read
         |          pattern list -> Value read
-        |            reference pattern[foo2] -> Value read
+        |            reference pattern[foo2] -> Pattern
         |          simple type -> Field declaration
         |            reference[Int] -> Field declaration
         |          Reference expression[foo2] -> Value read
@@ -1209,14 +1209,14 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |          modifiers -> Value read
         |            access modifier -> Access Modifier
         |          pattern list -> Value read
-        |            reference pattern[delegate] -> Value read
+        |            reference pattern[delegate] -> Pattern
         |          simple type -> Field declaration
         |            reference[MyBaseClass] -> Field declaration
         |          Reference expression[???] -> Value read
         |        value definition -> Value read
         |          modifiers -> Value read
         |          pattern list -> Value read
-        |            reference pattern[foo1] -> Value read
+        |            reference pattern[foo1] -> Pattern
         |          simple type -> Field declaration
         |            reference[Int] -> Field declaration
         |          Reference expression[foo2] -> Value read
@@ -1224,7 +1224,7 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |        value definition -> Value read
         |          modifiers -> Value read
         |          pattern list -> Value read
-        |            reference pattern[foo2] -> Value read
+        |            reference pattern[foo2] -> Pattern
         |          simple type -> Field declaration
         |            reference[Int] -> Field declaration
         |          Reference expression[foo1] -> Value read
@@ -1449,7 +1449,7 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |      template body
         |        value definition -> Value read
         |          pattern list -> Value read
-        |            reference pattern[value] -> Value read
+        |            reference pattern[value] -> Pattern
         |          IntegerLiteral
         |        match statement -> Value read
         |          Expression in parentheses -> Value read
@@ -1459,28 +1459,28 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
         |                reference[Any] -> Typed Statement
         |          case clauses
         |            case clause
-        |              typed pattern[_] -> Typed Pattern
-        |                Type pattern -> Typed Pattern
-        |                  simple type -> Typed Pattern
-        |                    reference[MyClass] -> Typed Pattern
+        |              typed pattern[_] -> Pattern
+        |                Type pattern -> Pattern
+        |                  simple type -> Pattern
+        |                    reference[MyClass] -> Pattern
         |            case clause
-        |              typed pattern[_] -> Typed Pattern
-        |                Type pattern -> Typed Pattern
-        |                  simple type -> Typed Pattern
-        |                    reference[MyClass] -> Typed Pattern
-        |                      reference[example] -> Typed Pattern
-        |                        reference[org] -> Typed Pattern
+        |              typed pattern[_] -> Pattern
+        |                Type pattern -> Pattern
+        |                  simple type -> Pattern
+        |                    reference[MyClass] -> Pattern
+        |                      reference[example] -> Pattern
+        |                        reference[org] -> Pattern
         |            case clause
-        |              StableElementPattern -> Stable Reference Pattern
-        |                Reference expression[MyObject] -> Stable Reference Pattern
+        |              StableElementPattern -> Pattern
+        |                Reference expression[MyObject] -> Pattern
         |            case clause
-        |              StableElementPattern -> Stable Reference Pattern
-        |                Reference expression[`value`] -> Stable Reference Pattern
+        |              StableElementPattern -> Pattern
+        |                Reference expression[`value`] -> Pattern
         |            case clause
         |              Constructor Pattern -> Extractor
         |                reference[MyClassWithExtractor] -> Extractor
         |                Pattern arguments -> Extractor
-        |                  any sequence -> Extractor
+        |                  any sequence -> Pattern
         |""".stripMargin
     )
   }
