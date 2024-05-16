@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.caches.cachedInUserData
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdType.Name
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation.shouldExpand
@@ -349,8 +350,6 @@ package object types {
           }
         case ScExistentialType(quantified, _) =>
           extractFrom(quantified, visitedAliases)
-        case TypeParameterType.ofPsi(psiTypeParameter) =>
-          filter(psiTypeParameter, ScSubstitutor.empty)
         case _ => None
       }
     }
@@ -445,10 +444,10 @@ package object types {
         case Some(ta: ScTypeAlias) =>
           if (ta.typeParameters.isEmpty) ta.lowerBound.toSeq.flatMap(extractTypeParameters)
           else                           ta.typeParameters.map(TypeParameter(_))
+        case Some(tpo: ScTypeParametersOwner) => tpo.typeParameters.map(TypeParameter(_))
         case Some(cls: PsiClass) => cls.getTypeParameters.instantiate
         case _                   => Seq.empty
       }
-    case typeParameter: TypeParameterType                         => typeParameter.typeParameters
     case u: UndefinedType                                         => u.typeParameter.typeParameters
     case tpt: ScTypePolymorphicType                               => tpt.typeParameters
     case (_: ScParameterizedType) & AliasType(_, Right(lower), _) => extractTypeParameters(lower)

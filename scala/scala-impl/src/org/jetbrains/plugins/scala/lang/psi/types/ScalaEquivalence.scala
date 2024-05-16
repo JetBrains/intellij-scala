@@ -54,7 +54,7 @@ trait ScalaEquivalence extends api.Equivalence {
          * */
         case (tpt: ScTypePolymorphicType, des: DesignatorOwner) =>
           return des.equivInner(tpt, empty, falseUndef)
-        case (des: ScDesignatorType, tpt: ScTypePolymorphicType) =>
+        case (des: DesignatorOwner, tpt: ScTypePolymorphicType) =>
           return des.equivInner(tpt, empty, falseUndef)
         case (AliasType(_, Right(tpt: ScTypePolymorphicType), _), des: DesignatorOwner) =>
           return des.equivInner(tpt, empty, falseUndef)

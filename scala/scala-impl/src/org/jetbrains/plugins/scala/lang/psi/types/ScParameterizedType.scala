@@ -22,7 +22,12 @@ final class ScParameterizedType private (override val designator: ScType, overri
     designator match {
       case ScDesignatorType(ta: ScTypeAlias)                   => computeAliasType(ta, ta.lowerBound, ta.upperBound)
       case ScProjectionType.withActual(ta: ScTypeAlias, subst) => computeAliasType(ta, ta.lowerBound, ta.upperBound, subst)
-      case _                                                   => None
+      case p: ScParameterizedType =>
+        //@TODO: scala 3 only
+        p.aliasType.flatMap {
+          case AliasType(ta, lower, upper) => computeAliasType(ta, lower, upper)
+        }
+      case _ => None
     }
 
   private def computeAliasType(
@@ -30,7 +35,7 @@ final class ScParameterizedType private (override val designator: ScType, overri
     lower:                      TypeResult,
     upper:                      TypeResult,
     subst:                      ScSubstitutor = ScSubstitutor.empty,
-  ): Some[AliasType] = {
+  ): Option[AliasType] = {
     @tailrec
     def stripParamsFromTypeLambdas(t: ScType): (ScType, Seq[TypeParameter]) =
       t match {
@@ -66,7 +71,7 @@ final class ScParameterizedType private (override val designator: ScType, overri
           s(t)
         }
 
-    Some(AliasType(ta, newLower, newUpper))
+    Option(AliasType(ta, newLower, newUpper))
   }
 
   private var hash: Int = -1

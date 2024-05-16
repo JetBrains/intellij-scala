@@ -314,7 +314,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
       case ta: ScTypeAlias =>
         if (recState.visitedProjections.contains(ta)) return true
         val newState = state.withSubstitutor(ScSubstitutor.empty)
-        processTypeImpl(s(ta.upperBound.getOrAny), place, newState)(recState.add(ta))
+        processTypeImpl(s(ta.upperBound.getOrAny).inferValueType, place, newState)(recState.add(ta))
       //need to process scala way
       case clazz: PsiClass =>
         processClassDeclarations(clazz, BaseProcessor.this, state.withSubstitutor(newSubst), null, place)

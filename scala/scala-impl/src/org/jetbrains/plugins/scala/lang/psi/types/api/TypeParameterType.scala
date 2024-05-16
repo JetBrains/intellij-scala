@@ -1,13 +1,17 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api
 
-import com.intellij.psi.PsiTypeParameter
+import com.intellij.psi.{PsiNamedElement, PsiTypeParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
 import org.jetbrains.plugins.scala.lang.psi.light.DummyLightTypeParam
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType.isMaskedExtensionTypeParameter
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, LeafType, NamedType, ScType, ScalaTypeVisitor}
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 class TypeParameterType private (val typeParameter: TypeParameter)
-  extends ValueType with NamedType with LeafType {
+  extends DesignatorOwner with ValueType with NamedType with LeafType {
 
   override implicit def projectContext: ProjectContext = psiTypeParameter
 
@@ -50,6 +54,10 @@ class TypeParameterType private (val typeParameter: TypeParameter)
             constraints
           else ConstraintsResult.Left
         }
+      case tpt: ScTypePolymorphicType =>
+        ScEquivalenceUtil
+          .isDesignatorEqiuivalentToPolyType(this, tpt, constraints, falseUndef)
+          .getOrElse(ConstraintsResult.Left)
       case _ => ConstraintsResult.Left
     }
 
@@ -61,6 +69,8 @@ class TypeParameterType private (val typeParameter: TypeParameter)
   }
 
   override def hashCode(): Int = typeParameter.hashCode()
+
+  override val element: PsiNamedElement = typeParameter.psiTypeParameter
 }
 
 object TypeParameterType {
