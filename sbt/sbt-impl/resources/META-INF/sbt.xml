@@ -154,12 +154,9 @@
         <orderEnumerationHandlerFactory implementation="org.jetbrains.sbt.execution.SbtOrderEnumeratorHandlerFactory"/>
 
         <problemHighlightFilter implementation="org.jetbrains.sbt.codeInsight.daemon.SbtProblemHighlightFilter"/>
-    </extensions>
 
-    <applicationListeners>
-        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
-                  class="org.jetbrains.sbt.project.SbtProjectManagerListener"/>
-    </applicationListeners>
+        <postStartupActivity implementation="org.jetbrains.sbt.project.SbtProjectManagerListener" />
+    </extensions>
 
     <actions>
         <action class="org.jetbrains.sbt.project.SbtMigrateConfigurationsAction"
