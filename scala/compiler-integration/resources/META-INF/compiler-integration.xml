@@ -65,8 +65,6 @@
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.compiler.charts.ui.CompilationChartsBuildToolWindowNodeFactory"/>
 
-        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
-                  class="org.jetbrains.plugins.scala.compiler.highlighting.ToggleHighlightingModeListener"/>
         <listener topic="com.intellij.compiler.server.BuildManagerListener"
                   class="org.jetbrains.plugins.scala.compiler.highlighting.CompilerHighlightingBuildManagerListener"/>
 
@@ -86,6 +84,15 @@
 
         <listener topic="com.intellij.openapi.roots.ModuleRootListener"
                   class="org.jetbrains.plugins.scala.compiler.highlighting.CompilerHighlightingModuleRootListener"/>
+
+        <listener topic="org.jetbrains.plugins.scala.settings.CompilerHighlightingListener"
+                  class="org.jetbrains.plugins.scala.compiler.highlighting.ToggleHighlightingModeListener$OnCompilerHighlightingChange"
+                  activeInTestMode="false"
+                  />
+        <listener topic="com.intellij.openapi.roots.ModuleRootListener"
+                  class="org.jetbrains.plugins.scala.compiler.highlighting.ToggleHighlightingModeListener$OnModuleRootChange"
+                  activeInTestMode="false"
+                  />
     </projectListeners>
 
     <actions>
