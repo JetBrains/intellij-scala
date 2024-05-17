@@ -40,6 +40,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.util.AnonymousFunction._
+import org.jetbrains.plugins.scala.util.SAMUtil.toSAMType
 import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants
 import org.jetbrains.plugins.scala.util.TopLevelMembers.topLevelMemberClassName
 
@@ -515,6 +516,20 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
   }
 
+  private def isUntupled(literal: ScFunctionExpr): Boolean =
+    if (!literal.isInScala3Module) false
+    else {
+      (literal.expectedType() match {
+        case Some(t @ FunctionType(_, _)) => Some(t)
+        case Some(t) => toSAMType(t, literal)
+        case _ => None
+      }) match {
+        case Some(FunctionType(_, Seq(TupleType(components)))) =>
+          components.sizeCompare(literal.parameters) == 0
+        case _ => false
+      }
+    }
+
   def parameterEvaluator(fun: PsiElement, resolve: PsiElement): Evaluator = {
     val name = NameTransformer.encode(resolve.asInstanceOf[PsiNamedElement].name)
     val evaluator = new ScalaLocalVariableEvaluator(name, fileName)
@@ -529,6 +544,11 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         val pIndex = paramIndex(funDef, resolve)
         evaluator.setParameterIndex(pIndex)
         evaluator.setMethodName(funDef.name)
+      case funExpr: ScFunctionExpr if isUntupled(funExpr) =>
+        val tupleEval = new ScalaLocalVariableEvaluator("", fileName)
+        tupleEval.setParameterIndex(-1)
+        val index = funExpr.parameters.indexOf(resolve)
+        return ScalaMethodEvaluator(tupleEval, "productElement", JVMNameUtil.getJVMRawText("(I)Ljava/lang/Object;"), Seq(new IntEvaluator(index)))
       case funExpr: ScFunctionExpr =>
         evaluator.setParameterIndex(funExpr.parameters.indexOf(resolve))
         evaluator.setMethodName("apply")
