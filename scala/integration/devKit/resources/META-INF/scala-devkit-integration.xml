@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 
 <idea-plugin>
-
     <actions>
         <action class="org.jetbrains.idea.devkit.scala.AttachIntellijSourcesAction"
                 text="Attach IntelliJ Sources"
@@ -9,4 +8,13 @@
             <add-to-group group-id="MaintenanceGroup"/>
         </action>
     </actions>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <localInspection implementationClass="org.jetbrains.idea.devkit.scala.codeInspection.internal.UnitReturnTypeInSuspendFunctionOverride"
+                         language="Scala"
+                         bundle="messages.ScalaDevkitBundle"
+                         key="displayname.overridden.suspend.function.with.unit.return.type"
+                         groupPath="Scala" groupKey="group.internal"
+                         isInternal="true" level="WARNING" enabledByDefault="true"/>
+    </extensions>
 </idea-plugin>
