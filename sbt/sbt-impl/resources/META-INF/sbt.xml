@@ -7,7 +7,7 @@
                         interface="org.jetbrains.sbt.project.extensionPoints.ModuleBasedConfigurationMainClassExtractor"
                         dynamic="true"/>
         <extensionPoint qualifiedName="com.intellij.newProjectWizard.scala.buildSystem" interface="org.jetbrains.sbt.project.template.wizard.buildSystem.BuildSystemScalaNewProjectWizard" dynamic="true"/>
-        <extensionPoint qualifiedName="org.intellij.scala.sbtUnlinkedProjectAwareHelper" interface="org.jetbrains.sbt.project.SbtUnlinkedProjectAwareHelper"/>
+        <extensionPoint qualifiedName="org.intellij.scala.sbtUnlinkedProjectAwareHelper" interface="org.jetbrains.sbt.project.SbtUnlinkedProjectAwareHelper" dynamic="true"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="org.intellij">
@@ -163,12 +163,9 @@
         <orderEnumerationHandlerFactory implementation="org.jetbrains.sbt.execution.SbtOrderEnumeratorHandlerFactory"/>
 
         <problemHighlightFilter implementation="org.jetbrains.sbt.codeInsight.daemon.SbtProblemHighlightFilter"/>
-    </extensions>
 
-    <applicationListeners>
-        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
-                  class="org.jetbrains.sbt.project.SbtProjectManagerListener"/>
-    </applicationListeners>
+        <postStartupActivity implementation="org.jetbrains.sbt.project.SbtProjectManagerListener" />
+    </extensions>
 
     <actions>
         <group id="ScalaGroup" popup="true" class="org.jetbrains.sbt.actions.ScalaActionsGroup" text="Scala">

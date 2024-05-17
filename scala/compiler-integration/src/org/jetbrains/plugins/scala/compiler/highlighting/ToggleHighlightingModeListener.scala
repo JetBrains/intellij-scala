@@ -1,16 +1,14 @@
 package org.jetbrains.plugins.scala.compiler.highlighting
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.fileEditor.FileEditorManager
-import com.intellij.openapi.project.{DumbService, Project, ProjectManagerListener}
+import com.intellij.openapi.project.{DumbService, Project}
+import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
 import com.intellij.psi.PsiManager
 import com.intellij.psi.impl.source.resolve.ResolveCache
 import org.jetbrains.plugins.scala.annotator.hints.AnnotatorHints
 import org.jetbrains.plugins.scala.compiler.CompileServerNotificationsService
 import org.jetbrains.plugins.scala.compiler.highlighting.BackgroundExecutorService.executeOnBackgroundThreadInNotDisposed
 import org.jetbrains.plugins.scala.extensions.{inReadAction, inWriteAction, invokeLater}
-import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.{CompilerHighlightingListener, ScalaHighlightingMode}
 
 /**
@@ -18,23 +16,8 @@ import org.jetbrains.plugins.scala.settings.{CompilerHighlightingListener, Scala
  * Toggling means that the value of 
  * [[ScalaHighlightingMode.isShowErrorsFromCompilerEnabled]] was changed.
  */
-private final class ToggleHighlightingModeListener extends ProjectManagerListener {
-  
-  override def projectOpened(project: Project): Unit = if (!ApplicationManager.getApplication.isUnitTestMode) {
-
-    project.subscribeToModuleRootChanged() { _ => compileOrEraseHighlightings(project) }
-
-    val listener = new CompilerHighlightingListener {
-      override def compilerHighlightingScala2Changed(enabled: Boolean): Unit =
-        compileOrEraseHighlightings(project)
-      override def compilerHighlightingScala3Changed(enabled: Boolean): Unit =
-        compileOrEraseHighlightings(project)
-    }
-
-    ScalaHighlightingMode.addSettingsListener(project)(listener)
-  }
-  
-  private def compileOrEraseHighlightings(project: Project): Unit =
+abstract class ToggleHighlightingModeListener(project: Project) {
+  protected def compileOrEraseHighlightings(): Unit =
     DumbService.getInstance(project).runWhenSmart { () =>
       executeOnBackgroundThreadInNotDisposed(project) {
         if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
@@ -58,5 +41,20 @@ private final class ToggleHighlightingModeListener extends ProjectManagerListene
     ResolveCache.getInstance(project).clearCache(true)
     PsiManager.getInstance(project).dropPsiCaches()
     DaemonCodeAnalyzer.getInstance(project).restart()
+  }
+}
+
+object ToggleHighlightingModeListener {
+  final class OnCompilerHighlightingChange(project: Project) extends ToggleHighlightingModeListener(project) with CompilerHighlightingListener {
+    override def compilerHighlightingScala2Changed(enabled: Boolean): Unit =
+      compileOrEraseHighlightings()
+
+    override def compilerHighlightingScala3Changed(enabled: Boolean): Unit =
+      compileOrEraseHighlightings()
+  }
+
+  final class OnModuleRootChange(project: Project) extends ToggleHighlightingModeListener(project) with ModuleRootListener {
+    override def rootsChanged(event: ModuleRootEvent): Unit =
+      compileOrEraseHighlightings()
   }
 }

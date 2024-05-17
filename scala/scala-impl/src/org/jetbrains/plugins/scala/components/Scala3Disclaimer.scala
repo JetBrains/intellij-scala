@@ -4,18 +4,19 @@ import com.intellij.notification._
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.options.ShowSettingsUtil
-import com.intellij.openapi.project.{Project, ProjectManager, ProjectManagerListener}
+import com.intellij.openapi.project.{Project, ProjectManager}
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.settings.sections.UpdateSettingsSectionConfigurable
+import org.jetbrains.plugins.scala.startup.ProjectActivity
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 
 object Scala3Disclaimer {
-  private final class ProjectListener extends ProjectManagerListener {
-    override def projectOpened(project: Project): Unit = {
+  private final class ProjectListener extends ProjectActivity {
+    override def execute(project: Project): Unit =
       onProjectLoaded(project) // for IDEA-based projects
-    }
   }
   class DumbModeListener extends com.intellij.openapi.project.DumbService.DumbModeListener {
     override def exitDumbMode(): Unit = {
@@ -41,7 +42,7 @@ object Scala3Disclaimer {
     ScalaProjectSettings.getInstance(project).setScala3DisclaimerShown(true)
   }
 
-  private def showDisclaimerIn(message: String, actions: AnAction*): Unit = {
+  private def showDisclaimerIn(@Nls message: String, actions: AnAction*): Unit = {
     val notification =
       ScalaNotificationGroups.scala3Disclaimer
         .createNotification(message, NotificationType.INFORMATION)

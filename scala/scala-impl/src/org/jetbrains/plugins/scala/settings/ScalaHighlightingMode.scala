@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
 import org.jetbrains.plugins.scala.project.{ProjectExt, ProjectPsiElementExt}
-import org.jetbrains.plugins.scala.settings.{CompilerHighlightingListener, ScalaProjectSettings}
 
 import scala.concurrent.duration._
 
@@ -30,12 +29,6 @@ object ScalaHighlightingMode {
   def showCompilerErrorsScala3(project: Project): Boolean =
     compilerHighlightingEnabledInTests ||
       !isInTestMode && ScalaProjectSettings.getInstance(project).isCompilerHighlightingScala3
-
-  def addSettingsListener(project: Project)
-                         (listener: CompilerHighlightingListener): Unit =
-    project.getMessageBus
-      .connect(project.unloadAwareDisposable)
-      .subscribe(CompilerHighlightingListener.Topic, listener)
 
 
   /**

@@ -234,7 +234,7 @@ final class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-s
     nativeMavenProjectHolder: NativeMavenProjectHolder,
     mavenEmbedderWrapper: MavenEmbedderWrapper,
     continuation: Continuation[_ >: kotlin.Unit]
-  ): Unit = JavaCoroutines.suspendJava[kotlin.Unit](
+  ): AnyRef = JavaCoroutines.suspendJava[kotlin.Unit](
     javaContinuation => {
       resolve(project, mavenProject, nativeMavenProjectHolder, mavenEmbedderWrapper)
       javaContinuation.resume(kotlin.Unit.INSTANCE)

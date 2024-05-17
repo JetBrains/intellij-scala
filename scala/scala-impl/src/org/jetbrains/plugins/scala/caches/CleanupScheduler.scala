@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.scala.caches
 
-import scala.collection.mutable.ArrayBuffer
+import java.util.concurrent.ConcurrentLinkedQueue
 
 class CleanupScheduler {
-  private val actions: ArrayBuffer[() => Unit] = ArrayBuffer.empty
+  private val actions = new ConcurrentLinkedQueue[() => Unit]
 
-  def subscribe(action: () => Unit): Unit = actions += action
+  def subscribe(action: () => Unit): Unit = actions.add(action)
 
-  def fireCleanup(): Unit = actions.foreach(_.apply())
-
+  def fireCleanup(): Unit = actions.forEach(_.apply())
 }
