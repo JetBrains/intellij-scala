@@ -18,7 +18,7 @@ import org.jdom.Element
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 import org.jetbrains.sbt.SbtUtil
-import org.jetbrains.sbt.project.SbtEnvironmentVariablesProvider
+import org.jetbrains.sbt.project.extensionPoints.SbtEnvironmentVariablesProvider
 import org.jetbrains.sbt.settings.SbtSettings
 
 import java.io.File

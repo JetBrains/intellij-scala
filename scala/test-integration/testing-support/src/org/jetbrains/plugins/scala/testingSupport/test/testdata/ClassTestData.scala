@@ -4,6 +4,7 @@ package test.testdata
 import com.intellij.psi.PsiClass
 import org.apache.commons.lang3.StringUtils
 import org.jdom.Element
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.testingSupport.test.ui.TestRunConfigurationForm
@@ -20,6 +21,7 @@ class ClassTestData(config: AbstractTestRunConfiguration) extends TestConfigurat
 
   override def getKind: TestKind = TestKind.CLAZZ
 
+  @Nullable
   protected[test] def getClassPathClazz: PsiClass = config.getClazz(testClassPath)
 
   override def checkSuiteAndTestName: CheckResult =
