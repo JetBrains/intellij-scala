@@ -62,7 +62,7 @@ class SbtProjectSettings extends ExternalProjectSettings {
   //Settings used during SBT project import/reload
   @BeanProperty var resolveClassifiers: Boolean = true
   @BeanProperty var resolveSbtClassifiers: Boolean = false
-  @BeanProperty var preferScala2 = true
+  @BeanProperty var preferedScala: Int = 0
   //See SCL-21158 for details
   //This should be in sync with what is used as a default value in
   // org.jetbrains.jps.incremental.scala.model.impl.JpsSbtDependenciesEnumerationHandler.shouldProcessDependenciesRecursively
@@ -103,7 +103,7 @@ class SbtProjectSettings extends ExternalProjectSettings {
     result.useSbtShellForImport = useSbtShellForImport
     result.useSbtShellForBuild = useSbtShellForBuild
     result.enableDebugSbtShell = enableDebugSbtShell
-    result.preferScala2 = preferScala2
+    result.preferedScala = preferedScala
     result.insertProjectTransitiveDependencies = insertProjectTransitiveDependencies
     result.useSeparateCompilerOutputPaths = useSeparateCompilerOutputPaths
     result
@@ -112,7 +112,7 @@ class SbtProjectSettings extends ExternalProjectSettings {
 
 object SbtProjectSettings {
   // Increment if the converter algorithm is updated to trigger a reloading of previously opened projects.
-  val ConverterVersion = 2
+  val ConverterVersion = 3
 
   def default: SbtProjectSettings = {
     val settings = new SbtProjectSettings()

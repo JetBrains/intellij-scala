@@ -24,7 +24,7 @@ final class SbtExtraControls {
   val useSbtShellForImportCheckBox: JCheckBoxWithTooltip = ct(SbtBundle.message("sbt.settings.useShellForImport"), SbtBundle.message("sbt.settings.useShellForImport.tooltip"))
   val useSbtShellForBuildCheckBox: JCheckBoxWithTooltip = ct(SbtBundle.message("sbt.settings.useShellForBuild"), SbtBundle.message("sbt.settings.useShellForBuild.tooltip"))
   val remoteDebugSbtShellCheckBox: JCheckBoxWithTooltip = ct(SbtBundle.message("sbt.settings.remoteDebug"), SbtBundle.message("sbt.settings.remoteDebug.tooltip"))
-  val scalaVersionPreferenceCheckBox: JCheckBoxWithTooltip = ct(SbtBundle.message("sbt.settings.scalaVersionPreference"), SbtBundle.message("sbt.settings.scalaVersionPreference.tooltip"))
+  val scalaVersionPreferenceComboBox = new com.intellij.openapi.ui.ComboBox(Array(SbtBundle.message("sbt.settings.default"), "Scala 2", "Scala 3"))
   val insertProjectTransitiveDependencies: JCheckBoxWithTooltip = ct(SbtBundle.message("insert.project.transitive.dependencies"), SbtBundle.message("insert.project.transitive.dependencies.tooltip"))
   val useSeparateCompilerOutputPaths: JCheckBoxWithTooltip = ct(SbtBundle.message("use.separate.compiler.output.paths"), SbtBundle.message("use.separate.compiler.output.paths.tooltip"))
   private val useSeparateCompilerOutputPathsWarning: JBLabel = new JBLabel(SbtBundle.message("use.separate.compiler.output.paths.warning"))
@@ -48,10 +48,19 @@ final class SbtExtraControls {
       false
     )
 
+    val scalaVersionPreferencePanel = {
+      val panel = new JPanel()
+      panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS))
+      panel.add(new JBLabel(SbtBundle.message("sbt.settings.scalaVersionPreference")))
+      panel.add(Box.createRigidArea(new Dimension(10, 0)))
+      panel.add(withTooltip(scalaVersionPreferenceComboBox, SbtBundle.message("sbt.settings.scalaVersionPreference.tooltip")))
+      panel
+    }
+
     content.add(new JBLabel(SbtBundle.message("sbt.settings.download")), new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(80, 16), null, 0, false))
     content.add(resolveClassifiersCheckBox.panelWithTooltip, gc(0, 1, 1, 1))
     content.add(resolveSbtClassifiersCheckBox.panelWithTooltip, gc(1, 1, 1, 1))
-    content.add(scalaVersionPreferenceCheckBox.panelWithTooltip, gc(2, 0, 1, 2))
+    content.add(scalaVersionPreferencePanel, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false))
     content.add(insertProjectTransitiveDependencies.panelWithTooltip, gc(3, 0, 1, 2))
     content.add(useSeparateCompilerOutputPaths.panelWithTooltip, gc(4, 0, 1, 2))
     content.add(useSeparateCompilerOutputPathsWarning, warningConstraints)

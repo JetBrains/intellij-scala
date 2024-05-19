@@ -11,7 +11,7 @@ private final class SbtProjectManagerListener extends ProjectManagerListener {
   override def projectOpened(project: Project): Unit = {
     SbtProjectSettings.forProject(project).foreach { settings =>
       if (settings.converterVersion < SbtProjectSettings.ConverterVersion) {
-        if (project.hasScala3 && settings.preferScala2) { // TODO Remove (don't trigger the refresh unnecessarily)
+        if ((project.hasScala3 && settings.preferedScala == 1) || (project.hasScala2 && settings.preferedScala == 2)) { // TODO Remove (don't trigger the refresh unnecessarily)
           // TODO Only do this if auto-import is enabled? (more predictable, on the other hand, it's not about "build scripts", as the setting claims)
           ExternalSystemUtil.refreshProjects(new ImportSpecBuilder(project, SbtProjectSystem.Id).use(ProgressExecutionMode.IN_BACKGROUND_ASYNC))
           // The converterVersion will be updated by SbtProjectDataService on a successful refresh.

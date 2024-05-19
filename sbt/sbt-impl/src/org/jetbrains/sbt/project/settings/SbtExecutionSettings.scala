@@ -18,9 +18,16 @@ class SbtExecutionSettings(val realProjectPath: String,
                            val resolveSbtClassifiers: Boolean,
                            val useShellForImport: Boolean,
                            val shellDebugMode: Boolean,
-                           val preferScala2: Boolean,
+                           val preferedScala: PreferedScala,
                            val userSetEnvironment: Map[String, String],
                            val passParentEnvironment: Boolean,
                            val insertProjectTransitiveDependencies: Boolean,
                            val useSeparateCompilerOutputPaths: Boolean
                           ) extends ExternalSystemExecutionSettings
+
+sealed trait PreferedScala
+object PreferedScala {
+  object Default extends PreferedScala
+  object Scala2 extends PreferedScala
+  object Scala3 extends PreferedScala
+}

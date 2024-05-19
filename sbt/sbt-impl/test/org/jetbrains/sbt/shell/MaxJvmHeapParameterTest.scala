@@ -3,7 +3,7 @@ package org.jetbrains.sbt.shell
 import com.intellij.openapi.util.io.FileUtil
 import junit.framework.TestCase
 import org.jetbrains.sbt.JvmMemorySize
-import org.jetbrains.sbt.project.settings.SbtExecutionSettings
+import org.jetbrains.sbt.project.settings.{PreferedScala, SbtExecutionSettings}
 
 import java.io.File
 
@@ -36,7 +36,7 @@ class MaxJvmHeapParameterTest extends TestCase {
       resolveSbtClassifiers = false,
       useShellForImport = false ,
       shellDebugMode = false,
-      preferScala2 = true,
+      preferedScala = PreferedScala.Default,
       userSetEnvironment = Map.empty,
       passParentEnvironment = true,
       insertProjectTransitiveDependencies = true,
