@@ -144,6 +144,8 @@ class ShowScalaCompilerTreeActionTest_210 extends ShowScalaCompilerTreeActionTes
         PhaseWithTreeText("mixin", "Tree placeholder 11"),
         PhaseWithTreeText("cleanup", ""),
         PhaseWithTreeText("icode", ""),
+        PhaseWithTreeText("jvm", ""),
+        PhaseWithTreeText("xsbt-analyzer", "")
       )
     )
   }
@@ -174,7 +176,9 @@ class ShowScalaCompilerTreeActionTest_210 extends ShowScalaCompilerTreeActionTes
         PhaseWithTreeText("flatten", ""),
         PhaseWithTreeText("mixin", ""),
         PhaseWithTreeText("cleanup", ""),
-        PhaseWithTreeText("icode", "")
+        PhaseWithTreeText("icode", ""),
+        PhaseWithTreeText("jvm", ""),
+        PhaseWithTreeText("xsbt-analyzer", "")
       )
     )
   }
@@ -211,6 +215,8 @@ class ShowScalaCompilerTreeActionTest_211 extends ShowScalaCompilerTreeActionTes
         PhaseWithTreeText("cleanup", ""),
         PhaseWithTreeText("delambdafy", ""),
         PhaseWithTreeText("icode", ""),
+        PhaseWithTreeText("jvm", ""),
+        PhaseWithTreeText("xsbt-analyzer", ""),
       )
     )
   }
@@ -242,7 +248,9 @@ class ShowScalaCompilerTreeActionTest_211 extends ShowScalaCompilerTreeActionTes
         PhaseWithTreeText("mixin", ""),
         PhaseWithTreeText("cleanup", ""),
         PhaseWithTreeText("delambdafy", ""),
-        PhaseWithTreeText("icode", "")
+        PhaseWithTreeText("icode", ""),
+        PhaseWithTreeText("jvm", ""),
+        PhaseWithTreeText("xsbt-analyzer", ""),
       )
     )
   }
@@ -278,6 +286,8 @@ class ShowScalaCompilerTreeActionTest_212 extends ShowScalaCompilerTreeActionTes
         PhaseWithTreeText("mixin", ""),
         PhaseWithTreeText("cleanup", "Tree placeholder 11"),
         PhaseWithTreeText("delambdafy", ""),
+        PhaseWithTreeText("jvm", ""),
+        PhaseWithTreeText("xsbt-analyzer", ""),
       )
     )
   }
@@ -308,7 +318,9 @@ class ShowScalaCompilerTreeActionTest_212 extends ShowScalaCompilerTreeActionTes
         PhaseWithTreeText("flatten", ""),
         PhaseWithTreeText("mixin", ""),
         PhaseWithTreeText("cleanup", ""),
-        PhaseWithTreeText("delambdafy", "")
+        PhaseWithTreeText("delambdafy", ""),
+        PhaseWithTreeText("jvm", ""),
+        PhaseWithTreeText("xsbt-analyzer", ""),
       )
     )
   }
@@ -344,6 +356,8 @@ class ShowScalaCompilerTreeActionTest_213 extends ShowScalaCompilerTreeActionTes
         PhaseWithTreeText("mixin", "Tree placeholder 11"),
         PhaseWithTreeText("cleanup", "Tree placeholder 12"),
         PhaseWithTreeText("delambdafy", ""),
+        PhaseWithTreeText("jvm", ""),
+        PhaseWithTreeText("xsbt-analyzer", ""),
       )
     )
   }
@@ -374,7 +388,9 @@ class ShowScalaCompilerTreeActionTest_213 extends ShowScalaCompilerTreeActionTes
         PhaseWithTreeText("flatten", ""),
         PhaseWithTreeText("mixin", ""),
         PhaseWithTreeText("cleanup", ""),
-        PhaseWithTreeText("delambdafy", "")
+        PhaseWithTreeText("delambdafy", ""),
+        PhaseWithTreeText("jvm", ""),
+        PhaseWithTreeText("xsbt-analyzer", ""),
       )
     )
   }
@@ -409,7 +425,8 @@ class ShowScalaCompilerTreeActionTest_Scala3 extends ShowScalaCompilerTreeAction
         PhaseWithTreeText("MegaPhase{elimErasedValueType, pureStats, vcElideAllocations, etaReduce, arrayApply, elimPolyFunction, tailrec, completeJavaEnums, mixin, lazyVals, memoize, nonLocalReturns, capturedVars}", "Tree placeholder 9"),
         PhaseWithTreeText("constructors", "Tree placeholder 10"),
         PhaseWithTreeText("MegaPhase{lambdaLift, elimStaticThis, countOuterAccesses}", "Tree placeholder 11"),
-        PhaseWithTreeText("MegaPhase{dropOuterAccessors, checkNoSuperThis, flatten, transformWildcards, moveStatic, expandPrivate, restoreScopes, selectStatic, Collect entry points, collectSuperCalls, repeatableAnnotations}", "Tree placeholder 12")
+        PhaseWithTreeText("MegaPhase{dropOuterAccessors, checkNoSuperThis, flatten, transformWildcards, moveStatic, expandPrivate, restoreScopes, selectStatic, Collect entry points, collectSuperCalls, repeatableAnnotations}", "Tree placeholder 12"),
+        PhaseWithTreeText("genBCode", "")
       )
     )
   }
@@ -439,7 +456,8 @@ class ShowScalaCompilerTreeActionTest_Scala3 extends ShowScalaCompilerTreeAction
         PhaseWithTreeText("MegaPhase{elimErasedValueType, pureStats, vcElideAllocations, etaReduce, arrayApply, elimPolyFunction, tailrec, completeJavaEnums, mixin, lazyVals, memoize, nonLocalReturns, capturedVars}", "Tree placeholder 4"),
         PhaseWithTreeText("constructors", "Tree placeholder 5"),
         PhaseWithTreeText("MegaPhase{lambdaLift, elimStaticThis, countOuterAccesses}", ""),
-        PhaseWithTreeText("MegaPhase{dropOuterAccessors, checkNoSuperThis, flatten, transformWildcards, moveStatic, expandPrivate, restoreScopes, selectStatic, Collect entry points, collectSuperCalls, repeatableAnnotations}", "")
+        PhaseWithTreeText("MegaPhase{dropOuterAccessors, checkNoSuperThis, flatten, transformWildcards, moveStatic, expandPrivate, restoreScopes, selectStatic, Collect entry points, collectSuperCalls, repeatableAnnotations}", ""),
+        PhaseWithTreeText("genBCode", ""),
       )
     )
   }
