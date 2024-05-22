@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.actions.editor.backspace
 
 import org.jetbrains.plugins.scala.settings.{ScalaApplicationSettings, ScalaCompileServerSettings}
 
-/** @see [[org.jetbrains.plugins.scala.lang.actions.editor.ClosingBraceInsertTest]]*/
+/** @see [[org.jetbrains.plugins.scala.lang.actions.editor.ClosingBraceInsertTest]] */
 class ClosingBraceRemoveTest extends ScalaBackspaceHandlerBaseTest {
 
   // copied from Scala3BracelessSyntaxEnterExhaustiveTest
@@ -13,6 +13,95 @@ class ClosingBraceRemoveTest extends ScalaBackspaceHandlerBaseTest {
   }
 
   private def empty = ""
+
+  def testRemove_TemplateBody_EmptyTrait(): Unit = doTest(
+    before =
+      s"""trait Foo {${|}}
+         |""".stripMargin,
+    after =
+      s"""trait Foo ${|}
+         |""".stripMargin
+  )
+
+  def testRemove_TemplateBody_EmptyTrait2(): Unit = doTest(
+    before =
+      s"""trait Foo {${|}
+         |}
+         |""".stripMargin,
+    after =
+      s"""trait Foo ${|}
+         |""".stripMargin
+  )
+
+  def testRemove_TemplateBody_EmptyTrait3(): Unit = doTest(
+    before =
+      s"""trait Foo {${|}
+         |  $empty
+         |}
+         |""".stripMargin,
+    after =
+      s"""trait Foo ${|}
+         |
+         |""".stripMargin
+  )
+
+  def testRemove_TemplateBody_EmptyClass(): Unit = doTest(
+    s"""class Foo {${|}
+       |}
+       |""".stripMargin,
+    after =
+      s"""class Foo ${|}
+         |""".stripMargin
+  )
+
+  def testRemove_TemplateBody_EmptyObject(): Unit = doTest(
+    before =
+      s"""object Foo {${|}
+         |}
+         |""".stripMargin,
+    after =
+      s"""object Foo ${|}
+         |""".stripMargin
+  )
+
+  def testNotRemove_TemplateBody_Expression(): Unit = doTest(
+    before =
+      s"""trait Foo {${|}
+         |  2
+         |}
+         |""".stripMargin,
+    after =
+      s"""trait Foo ${|}
+         |  2
+         |}
+         |""".stripMargin
+  )
+
+  def testNotRemove_TemplateBody_Block(): Unit = doTest(
+    before =
+      s"""trait Foo {${|}
+         |  {}
+         |}
+         |""".stripMargin,
+    after =
+      s"""trait Foo ${|}
+         |  {}
+         |}
+         |""".stripMargin
+  )
+
+  def testNotRemove_TemplateBody_Method(): Unit = doTest(
+    before =
+      s"""trait Foo {${|}
+         |  def bar: Int
+         |}
+         |""".stripMargin,
+    after =
+      s"""trait Foo ${|}
+         |  def bar: Int
+         |}
+         |""".stripMargin
+  )
 
   def testRemove_FunctionBody_SingleExpression(): Unit = {
     val before =

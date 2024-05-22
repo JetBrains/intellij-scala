@@ -23,9 +23,9 @@
         <extensionPoint qualifiedName="org.intellij.scala.referenceExtraResolver" interface="org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceExtraResolver" dynamic="true"/>
         <extensionPoint qualifiedName="org.intellij.scala.compilerSettingsProfileProvider" interface="org.jetbrains.plugins.scala.codeInspection.feature.ScalaCompilerSettingsProfileProvider" dynamic="true"/>
 
-        <extensionPoint qualifiedName="org.intellij.scala.findUsages.externalReferenceSearcher" interface="org.jetbrains.plugins.scala.findUsages.ExternalReferenceSearcher"/>
-        <extensionPoint qualifiedName="org.intellij.scala.findUsages.externalInheritorsSearcher" interface="org.jetbrains.plugins.scala.findUsages.ExternalInheritorsSearcher"/>
-        <extensionPoint qualifiedName="org.intellij.scala.findUsages.externalSearchScopeChecker" interface="org.jetbrains.plugins.scala.findUsages.ExternalSearchScopeChecker"/>
+        <extensionPoint qualifiedName="org.intellij.scala.findUsages.externalReferenceSearcher" interface="org.jetbrains.plugins.scala.findUsages.ExternalReferenceSearcher" dynamic="true"/>
+        <extensionPoint qualifiedName="org.intellij.scala.findUsages.externalInheritorsSearcher" interface="org.jetbrains.plugins.scala.findUsages.ExternalInheritorsSearcher" dynamic="true"/>
+        <extensionPoint qualifiedName="org.intellij.scala.findUsages.externalSearchScopeChecker" interface="org.jetbrains.plugins.scala.findUsages.ExternalSearchScopeChecker" dynamic="true"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="org.intellij.scala">
@@ -388,7 +388,7 @@
         <refactoring.moveClassHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.MoveScalaClassHandler" order="first"/>
         <refactoring.moveDirectoryWithClassesHelper implementation="org.jetbrains.plugins.scala.lang.refactoring.move.ScalaMoveDirectoryWithClassesHelper" order="first"/> <!-- TODO: should be before Java's JavaMoveDirectoryWithClassesHelper that doesn't have an id yet -->
         <refactoring.elementListenerProvider implementation="org.jetbrains.plugins.scala.runner.ScalaRunConfigurationRefactoringListenerProvider"/>
-        <!--<moveFileHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.MoveScalaFileHandler" order="first"/>-->
+        <moveFileHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.MoveScalaFileHandler" order="first"/>
         <inlineActionHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.inline.method.ScalaInlineMethodHandler" id="scalaInlineMethodHandler" order="first"/> <!-- TODO: should be before Java's InlineToAnonymousClassHandler that doesn't have an id yet -->
         <inlineActionHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.inline.typeAlias.ScalaInlineTypeAliasHandler" id="scalaInlineTypeAliasHandler"/>
         <inlineActionHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.inline.variable.ScalaInlineVariableHandler" id="scalaInlineVariableHandler"/>
@@ -563,7 +563,7 @@
                         serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigServiceImpl"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.macros.evaluator.ScalaMacroEvaluator"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.macros.expansion.ReflectExpansionsCollector"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManagerHolder"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration"/>
@@ -1975,24 +1975,23 @@
         <postStartupActivity implementation="org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifierActivity"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.RegisterSyntheticClassesStartupActivity"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtProjectListener"/>
+        <postStartupActivity implementation="org.jetbrains.plugins.scala.annotator.TypeMismatchTooltipsHandler"/>
+        <postStartupActivity implementation="org.jetbrains.plugins.scala.components.Scala3Disclaimer$ProjectListener"/>"
 
         <resolveScopeProvider implementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaOutOfSourcesResolveScopeProvider"/>
 
         <iconMapper mappingFile="ScalaIconMappings.json" />
 
         <generalTroubleInfoCollector implementation="org.jetbrains.plugins.scala.internal.ScalaGeneralTroubleInfoCollector"/>
+
+        <psi.treeChangeListener implementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiChangeListener" />
    </extensions>
 
     <applicationListeners>
-        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
-                  class="org.jetbrains.plugins.scala.annotator.TypeMismatchTooltipsHandler"/>
+        <listener topic="com.intellij.ide.plugins.DynamicPluginListener"
+                  class="org.jetbrains.plugins.scala.internal.ScalaPluginDynamicUnloadDenier" />
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.DeregisterSyntheticClassesListener"/>
-        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
-                  class="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManagerListener"/>
-
-        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
-                  class="org.jetbrains.plugins.scala.components.Scala3Disclaimer$ProjectListener"/>
 
         <!-- Formatter listeners -->
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
@@ -2018,6 +2017,9 @@
 
         <listener topic="com.intellij.openapi.roots.ModuleRootListener"
                   class="org.jetbrains.plugins.scala.project.ConfigureIncrementalCompilerModuleRootListener"/>
+
+        <listener topic="com.intellij.openapi.roots.ModuleRootListener"
+                  class="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager$SPMModuleRootListener"/>
     </projectListeners>
     <actions>
         <action id="Scala.NewClass" class="org.jetbrains.plugins.scala.actions.NewScalaFileAction">

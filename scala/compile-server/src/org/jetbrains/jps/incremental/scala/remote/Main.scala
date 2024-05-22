@@ -1,7 +1,6 @@
 package org.jetbrains.jps.incremental.scala.remote
 
 import com.facebook.nailgun.{NGContext, NGServer}
-import com.intellij.openapi.application.PathManager
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.data.CompileServerCommandParser
 import org.jetbrains.jps.incremental.scala.local.worksheet.WorksheetServer
@@ -22,7 +21,6 @@ import java.util.{Timer, TimerTask}
 import scala.annotation.unused
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.jdk.CollectionConverters._
-import scala.util.matching.Regex
 import scala.util.{Failure, Success, Try}
 
 /**
@@ -224,38 +222,11 @@ object Main {
 
   private val expressionCompilerCache: Cache[Seq[Path], (AnyRef, Method)] = new Cache(3)
 
-  private val scala3CompilerJarName: String = "scala3-compiler_3"
-
-  private val scalaVersionRegex: Regex = s"""$scala3CompilerJarName-(\\d)\\.(\\d+)\\.(\\d+).*\\.jar""".r
-
-  private val scala3StableVersions: Set[String] = Set(
-    "3.0.0", "3.0.1", "3.0.2",
-    "3.1.0", "3.1.1", "3.1.2", "3.1.3",
-    "3.2.0", "3.2.1", "3.2.2",
-    "3.3.0", "3.3.1", "3.3.2", "3.3.3",
-    "3.4.0", "3.4.1"
-  )
-
-  private val scala3FallbackVersion: String = "3.4.1"
-
   private def evaluateExpressionLogic(args: ExpressionEvaluationArguments): Unit = {
     val ExpressionEvaluationArguments(outDir, classpath, scalacOptions, source, line, expression, localVariableNames, packageName) = args
 
-    val scalaVersion =
-      classpath
-        .collectFirst {
-          case p if p.getFileName.toString.startsWith(scala3CompilerJarName) => p.getFileName.toString
-        }
-        .collect {
-          case scalaVersionRegex(x, y, z) => s"$x.$y.$z"
-        }.filter(scala3StableVersions).getOrElse(scala3FallbackVersion)
-
     val (instance, method) = expressionCompilerCache.getOrUpdate(classpath) { () =>
-      val path = PathManager.getJarForClass(this.getClass)
-        .getParent.getParent.getParent
-        .resolve("debugger")
-        .resolve(s"scala-expression-compiler_$scalaVersion.jar")
-      val classLoader = new URLClassLoader((classpath :+ path).map(_.toUri.toURL).toArray, this.getClass.getClassLoader)
+      val classLoader = new URLClassLoader(classpath.map(_.toUri.toURL).toArray, this.getClass.getClassLoader)
       val bridgeClass = Class.forName("dotty.tools.dotc.ExpressionCompilerBridge", true, classLoader)
       val instance = bridgeClass.getDeclaredConstructor().newInstance().asInstanceOf[AnyRef]
       val method = bridgeClass.getMethods.find(_.getName == "run").get

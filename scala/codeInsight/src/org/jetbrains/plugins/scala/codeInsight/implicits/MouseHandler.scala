@@ -1,33 +1,29 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits
 
-import java.awt.event._
-import java.awt.Cursor
-import java.awt.Point
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
+import com.intellij.openapi.editor.{Editor, EditorFactory}
 import com.intellij.openapi.editor.event._
-import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.project.ProjectManagerListener
-import com.intellij.openapi.util.Key
-import com.intellij.openapi.util.SystemInfo
+import com.intellij.openapi.util.{Disposer, Key, SystemInfo}
 import com.intellij.ui.AncestorListenerAdapter
 import com.intellij.util.ui.UIUtil
-import javax.swing.event.AncestorEvent
-import javax.swing.{SwingUtilities, Timer}
-import org.jetbrains.plugins.scala.annotator.hints.ErrorTooltip
-import org.jetbrains.plugins.scala.annotator.hints.TooltipUI
-import org.jetbrains.plugins.scala.annotator.hints.Text
+import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.annotator.hints.{ErrorTooltip, Text, TooltipUI}
 import org.jetbrains.plugins.scala.codeInsight.hints.ScalaHintsSettings
 import org.jetbrains.plugins.scala.codeInsight.implicits.MouseHandler.EscKeyListenerKey
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, inReadAction, invokeLater}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.startup.ProjectActivity
 
+import java.awt.{Cursor, Point}
+import java.awt.event._
+import javax.swing.event.AncestorEvent
+import javax.swing.{SwingUtilities, Timer}
 import scala.jdk.CollectionConverters._
 
-private final class MouseHandler extends ProjectManagerListener {
+private final class MouseHandler extends ProjectActivity {
 
   private var activeHyperlink = Option.empty[(Inlay, Text)]
   private var activeFolding = Option.empty[(Inlay, Text)]
@@ -146,21 +142,18 @@ private final class MouseHandler extends ProjectManagerListener {
     }
   }
 
-  override def projectOpened(project: Project): Unit = {
+  override def execute(project: Project): Unit = {
+    val disposable = project.unloadAwareDisposable
     val multicaster = EditorFactory.getInstance().getEventMulticaster
-    multicaster.addEditorMouseListener(mousePressListener, project.unloadAwareDisposable)
-    multicaster.addEditorMouseMotionListener(mouseMovedListener, project.unloadAwareDisposable)
-  }
+    multicaster.addEditorMouseListener(mousePressListener, disposable)
+    multicaster.addEditorMouseMotionListener(mouseMovedListener, disposable)
 
-  override def projectClosed(project: Project): Unit = {
-    val multicaster = EditorFactory.getInstance().getEventMulticaster
-    multicaster.removeEditorMouseListener(mousePressListener)
-    multicaster.removeEditorMouseMotionListener(mouseMovedListener)
-
-    activeHyperlink = None
-    highlightedMatches = Set.empty
-    hyperlinkTooltip = None
-    errorTooltip = None
+    Disposer.register(disposable, () => {
+      activeHyperlink = None
+      highlightedMatches = Set.empty
+      hyperlinkTooltip = None
+      errorTooltip = None
+    })
   }
 
   private def handlingRequired(e: EditorMouseEvent) = {
@@ -239,7 +232,7 @@ private final class MouseHandler extends ProjectManagerListener {
     activeFolding = None
   }
 
-  private def navigateTo(text: Text, project: Project): Unit = {
+  private def navigateTo(text: Text, @Nullable project: Project): Unit = {
     CommandProcessor.getInstance.executeCommand(project,
       () => text.navigatable.filter(_.canNavigate).foreach(_.navigate(true)), null, null)
   }

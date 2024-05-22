@@ -1,17 +1,24 @@
 <idea-plugin>
     <extensionPoints>
         <extensionPoint qualifiedName="com.intellij.sbt.environmentVariableProvider"
-                        interface="org.jetbrains.sbt.project.SbtEnvironmentVariablesProvider"
+                        interface="org.jetbrains.sbt.project.extensionPoints.SbtEnvironmentVariablesProvider"
                         dynamic="true"/>
-
+        <extensionPoint qualifiedName="com.intellij.sbt.configurationMainClassExtractor"
+                        interface="org.jetbrains.sbt.project.extensionPoints.ModuleBasedConfigurationMainClassExtractor"
+                        dynamic="true"/>
         <extensionPoint qualifiedName="com.intellij.newProjectWizard.scala.buildSystem" interface="org.jetbrains.sbt.project.template.wizard.buildSystem.BuildSystemScalaNewProjectWizard" dynamic="true"/>
-        <extensionPoint qualifiedName="org.intellij.scala.sbtUnlinkedProjectAwareHelper" interface="org.jetbrains.sbt.project.SbtUnlinkedProjectAwareHelper"/>
+        <extensionPoint qualifiedName="org.intellij.scala.sbtUnlinkedProjectAwareHelper" interface="org.jetbrains.sbt.project.SbtUnlinkedProjectAwareHelper" dynamic="true"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="org.intellij">
         <sbt.buildModuleUriProvider implementation="org.jetbrains.sbt.project.SbtSbtBuildModuleUriProvider"/>
         <sbt.sbtVersionProvider implementation="org.jetbrains.sbt.project.SbtSbtVersionProvider"/>
     </extensions>
+
+    <projectListeners>
+        <listener class="org.jetbrains.sbt.project.UpgradeConfigurationImportListener"
+                  topic="com.intellij.openapi.externalSystem.service.project.manage.ProjectDataImportListener"/>
+    </projectListeners>
 
     <extensions defaultExtensionNs="com.intellij">
         <lang.parserDefinition language="sbt" implementationClass="org.jetbrains.sbt.language.SbtParserDefinition"/>
@@ -78,6 +85,8 @@
                     factoryClass="org.jetbrains.sbt.shell.SbtShellToolWindowFactory"
                     doNotActivateOnStart="true"/>
         <externalSystemSettingsListener implementation="org.jetbrains.sbt.project.ShowSbtShellAfterCreatingNewProject"/>
+
+        <notificationGroup id="sbt.configuration.migration" displayType="STICKY_BALLOON" bundle="messages.SbtBundle" key="sbt.configuration.upgrade.id"/>
 
         <psi.referenceContributor language="sbt" implementation="org.jetbrains.sbt.language.references.SbtReferenceContributor" order="first"/>
 
@@ -154,16 +163,18 @@
         <orderEnumerationHandlerFactory implementation="org.jetbrains.sbt.execution.SbtOrderEnumeratorHandlerFactory"/>
 
         <problemHighlightFilter implementation="org.jetbrains.sbt.codeInsight.daemon.SbtProblemHighlightFilter"/>
+
+        <postStartupActivity implementation="org.jetbrains.sbt.project.SbtProjectManagerListener" />
     </extensions>
 
-    <applicationListeners>
-        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
-                  class="org.jetbrains.sbt.project.SbtProjectManagerListener"/>
-    </applicationListeners>
-
     <actions>
-        <action class="org.jetbrains.sbt.project.SbtMigrateConfigurationsAction"
-                text="Migrate Configurations"/>
+        <group id="ScalaGroup" popup="true" class="org.jetbrains.sbt.actions.ScalaActionsGroup" text="Scala">
+            <add-to-group group-id="ToolsMenu" anchor="before" relative-to-action="ExternalToolsGroup"/>
+        </group>
+
+        <action id="Scala.Sbt.MigrateConfigurations" class="org.jetbrains.sbt.project.SbtMigrateConfigurationsAction" text="Upgrade Run Configurations...">
+                <add-to-group group-id="ScalaGroup"/>
+        </action>
 
         <action id="Scala.Sbt.RunTask" class="org.jetbrains.sbt.shell.action.RunTaskAction"/>
         <action id="Scala.Sbt.ShowTask" class="org.jetbrains.sbt.shell.action.ShowTaskAction"/>

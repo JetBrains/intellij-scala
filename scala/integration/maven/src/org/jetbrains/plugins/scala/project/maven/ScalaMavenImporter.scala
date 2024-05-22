@@ -152,7 +152,6 @@ final class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-s
     scalaLibraryToMarkAsSdk match {
       case Some((scalaLibrary, scalaLibraryVersion)) =>
         val compilerClasspathFull = module.getProject.getUserData(MavenFullCompilerClasspathKey)
-        if (compilerClasspathFull == null) return
 
         val compilerBridgeBinaryJar =
           ScalaSdkUtils.compilerBridgeJarName(scalaLibraryVersion.presentation).flatMap { bridgeJarName =>
@@ -235,7 +234,7 @@ final class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-s
     nativeMavenProjectHolder: NativeMavenProjectHolder,
     mavenEmbedderWrapper: MavenEmbedderWrapper,
     continuation: Continuation[_ >: kotlin.Unit]
-  ): Unit = JavaCoroutines.suspendJava[kotlin.Unit](
+  ): AnyRef = JavaCoroutines.suspendJava[kotlin.Unit](
     javaContinuation => {
       resolve(project, mavenProject, nativeMavenProjectHolder, mavenEmbedderWrapper)
       javaContinuation.resume(kotlin.Unit.INSTANCE)

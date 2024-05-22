@@ -1,12 +1,8 @@
 package org.jetbrains.plugins.scala.lang.refactoring.move
 
-import com.intellij.codeInsight.ChangeContextUtil
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.roots.ProjectRootManager
-import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
-import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesUtil
 import com.intellij.refactoring.move.moveFilesOrDirectories.MoveFileHandler
 import com.intellij.refactoring.util.MoveRenameUsageInfo
 import com.intellij.usageView.UsageInfo
@@ -14,12 +10,9 @@ import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.refactoring.Associations
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeContextUtil.encodeContextInfo
 import org.jetbrains.plugins.scala.statistics.ScalaRefactoringUsagesCollector
 
 import java.util
-import java.util.Collections
 import scala.jdk.CollectionConverters.IterableHasAsScala
 
 class MoveScalaFileHandler extends MoveFileHandler {
@@ -31,37 +24,27 @@ class MoveScalaFileHandler extends MoveFileHandler {
       return false
 
     val projectFileIndex = ProjectRootManager.getInstance(element.getProject).getFileIndex
-    !(projectFileIndex.isInSource(file) || projectFileIndex.isInLibraryClasses(file))
+    projectFileIndex.isInSource(file) || projectFileIndex.isInLibraryClasses(file)
   }
 
-  override def prepareMovedFile(file: PsiFile, moveDestination: PsiDirectory, oldToNewMap: util.Map[PsiElement, PsiElement]): Unit = {
-    if (file.is[ScalaFile]) {
+  override def prepareMovedFile(file: PsiFile, moveDestination: PsiDirectory, oldToNewMap: util.Map[PsiElement, PsiElement]): Unit = file match {
+    case file: ScalaFile =>
       ScalaRefactoringUsagesCollector.logMoveFile(file.getProject)
-      ChangeContextUtil.encodeContextInfo(file, true)
-      encodeContextInfo(file)
-    }
+      file.typeDefinitions.foreach(collectAssociations(_, file, withCompanion = false))
+
+      moveFile(file, moveDestination, oldToNewMap)
+    case _ =>
   }
 
-  override def findUsages(psiFile: PsiFile, newParent: PsiDirectory, searchInComments: Boolean, searchInNonJavaFiles: Boolean): util.List[UsageInfo] = {
-    val result = new util.ArrayList[UsageInfo]
-
+  override def findUsages(psiFile: PsiFile, newParent: PsiDirectory, searchInComments: Boolean, searchInNonJavaFiles: Boolean): util.List[UsageInfo] =
     psiFile match {
       case scalaFile: ScalaFile =>
-        val newParentPackage = JavaDirectoryService.getInstance.getPackage(newParent)
-        val qualifiedName = if (newParentPackage == null) ""
-        else newParentPackage.getQualifiedName
-        for (aClass <- scalaFile.getClasses) {
-          val scope = GlobalSearchScope.projectScope(aClass.getProject)
-          val fqn = StringUtil.getQualifiedName(qualifiedName, aClass.getName)
-          val usages = MoveClassesOrPackagesUtil.findUsages(aClass, scope, searchInComments, searchInNonJavaFiles, fqn)
-          Collections.addAll(result, usages: _*)
-        }
-      case _ =>
-    }
+        val result = new util.ArrayList[UsageInfo]
+        collectUsages(scalaFile, result, searchInComments, searchInNonJavaFiles)
 
-    if (result.isEmpty) null
-    else result
-  }
+        if (result.isEmpty) null else result
+      case _ => null
+    }
 
   override def retargetUsages(usageInfos: util.List[UsageInfo], oldToNewMap: util.Map[PsiElement, PsiElement]): Unit = {
     for (usage <- usageInfos.asScala) {
@@ -83,12 +66,12 @@ class MoveScalaFileHandler extends MoveFileHandler {
   }
 
   @throws[IncorrectOperationException]
-  override def updateMovedFile(file: PsiFile): Unit = {
-    if (file.is[ScalaFile]) {
-      ChangeContextUtil.decodeContextInfo(file, null, null)
-      Associations.restoreFor(file)
+  override def updateMovedFile(file: PsiFile): Unit = file match {
+    case file: ScalaFile =>
+      file.typeDefinitions.foreach(restoreAssociations)
+
       new ScalaImportOptimizer().processFile(file).run()
-    }
+    case _ =>
   }
 }
 

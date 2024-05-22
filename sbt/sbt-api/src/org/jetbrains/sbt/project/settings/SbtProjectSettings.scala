@@ -122,7 +122,8 @@ object SbtProjectSettings {
 
   def forProject(project: Project): Option[SbtProjectSettings] = {
     val settings = SbtSettings.getInstance(project)
-    Option(settings.getLinkedProjectSettings(project.getBasePath))
+    Option(project.getBasePath)
+      .flatMap(path => Option(settings.getLinkedProjectSettings(path)))
   }
 
   private def canonical(path: String) =

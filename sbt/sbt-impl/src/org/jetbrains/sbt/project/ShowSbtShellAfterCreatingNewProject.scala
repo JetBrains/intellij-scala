@@ -11,6 +11,7 @@ import org.jetbrains.sbt.settings.SbtSettings
 import org.jetbrains.sbt.shell.SbtShellToolWindowFactory
 
 import java.util
+import scala.annotation.nowarn
 
 /**
  * This is hacky workaround to show sbt-shell tool window when a new sbt project is created.<br>
@@ -62,7 +63,7 @@ final class ShowSbtShellAfterCreatingNewProject extends ExternalSystemSettingsLi
               setAvailable(toolWindow1)
             }
           })
-        })
+        }): @nowarn("cat=deprecation") // recommended alternative is Kotlin coroutines with edtDispatcher context
       }
     })
   }
@@ -105,7 +106,7 @@ final class ShowSbtShellAfterCreatingNewProject extends ExternalSystemSettingsLi
         .onUiThread
         .expireWith(settings)
         .expireWith(toolWindow.getDisposable)
-        .execute(() => toolWindow.setAvailable(false))
+        .execute(() => toolWindow.setAvailable(false)): @nowarn("cat=deprecation") // recommended alternative is Kotlin coroutines with edtDispatcher context
     }
   }
 }

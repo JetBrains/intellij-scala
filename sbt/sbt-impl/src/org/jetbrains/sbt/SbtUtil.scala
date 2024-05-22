@@ -1,6 +1,7 @@
 package org.jetbrains.sbt
 
-import com.intellij.execution.configurations.ParametersList
+import com.intellij.execution.RunManager
+import com.intellij.execution.configurations.{ModuleBasedConfiguration, ParametersList, RunConfigurationModule}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.model.Key
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
@@ -25,7 +26,7 @@ import java.net.URI
 import java.util.Properties
 import java.util.jar.JarFile
 import scala.collection.mutable
-import scala.jdk.CollectionConverters.MapHasAsScala
+import scala.jdk.CollectionConverters.{CollectionHasAsScala, MapHasAsScala}
 import scala.util.Using
 
 object SbtUtil {
@@ -382,6 +383,11 @@ object SbtUtil {
    */
   def appendSuffixToModuleName(moduleName: String, inc: Int): String =
     moduleName + "~" + inc
+
+  def getAllModuleBasedConfigurationsInProject(project: Project): Iterable[ModuleBasedConfiguration[_ <: RunConfigurationModule, _]] =
+    RunManager.getInstance(project).getAllConfigurationsList.asScala.collect {
+      case config : ModuleBasedConfiguration[_, _]  => config
+    }
 
   implicit class EntityStorageOps(storage: EntityStorage) {
     def resolveOpt[T <: WorkspaceEntityWithSymbolicId](id: SymbolicEntityId[T]): Option[T] = Option(storage.resolve(id))

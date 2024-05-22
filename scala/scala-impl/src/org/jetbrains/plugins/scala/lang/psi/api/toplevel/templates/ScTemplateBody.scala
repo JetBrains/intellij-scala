@@ -34,4 +34,6 @@ trait ScTemplateBody extends ScalaPsiElement
   def selfTypeElement: Option[ScSelfTypeElement]
 
   def extensions: Seq[ScExtension]
+
+  def isEmpty: Boolean
 }

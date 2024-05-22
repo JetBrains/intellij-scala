@@ -24,8 +24,7 @@ private sealed trait ScalaPsiEventFilter {
 }
 
 private object ScalaPsiEventFilter {
-
-  def defaultFilters: Seq[ScalaPsiEventFilter] =
+  val defaultFilters: Seq[ScalaPsiEventFilter] =
     Seq(InternalEventsFilter, NonSignificantParentsFilter, IgnoreLeafElementsFilter)
 
   private object InternalEventsFilter extends ScalaPsiEventFilter {
