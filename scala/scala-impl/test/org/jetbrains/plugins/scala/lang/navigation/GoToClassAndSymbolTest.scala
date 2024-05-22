@@ -4,16 +4,14 @@ package navigation
 
 import com.intellij.ide.util.gotoByName._
 import com.intellij.openapi.application.ModalityState
-import com.intellij.openapi.module.Module
-import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiClass, PsiElement}
-import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
-import com.intellij.testFramework.{NeedsIndex, PlatformTestUtil, TestIndexingModeSupporter}
+import com.intellij.testFramework.{NeedsIndex, PlatformTestUtil}
 import com.intellij.util.concurrency.Semaphore
-import org.jetbrains.plugins.scala.base.TestIndexingModeSupporterCompanion
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithIndexingModes, RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert._
+import org.junit.runner.RunWith
 
 import scala.jdk.CollectionConverters._
 
@@ -73,6 +71,12 @@ abstract class GoToClassAndSymbolTestBase extends GoToTestBase {
   )
 }
 
+@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWithIndexingModes
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_2_13,
+  TestScalaVersion.Scala_3_Latest,
+))
 class GoToClassAndSymbolTest extends GoToClassAndSymbolTestBase {
   override protected def loadScalaLibrary = false
 
@@ -208,5 +212,3 @@ class GoToClassAndSymbolTest extends GoToClassAndSymbolTestBase {
     checkSize(elements, 2)
   }
 }
-
-object GoToClassAndSymbolTest extends TestIndexingModeSupporterCompanion[GoToClassAndSymbolTest]
