@@ -4,6 +4,7 @@ package completion
 package postfix
 
 import com.intellij.codeInsight.template.postfix.templates.PostfixTemplate
+import com.intellij.openapi.application.impl.NonBlockingReadActionImpl
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.io.FileUtil
@@ -98,6 +99,7 @@ object PostfixTemplateTest {
 
       val isApplicable = template.isApplicable(element, file.getViewProvider.getDocument, endOffset)
       if (isApplicable) inWriteCommandAction(template.expand(element, editor))(null)
+      NonBlockingReadActionImpl.waitForAsyncTaskCompletion()
       isApplicable
     }
   }

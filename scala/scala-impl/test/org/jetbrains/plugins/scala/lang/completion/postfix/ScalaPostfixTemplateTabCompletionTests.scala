@@ -5,7 +5,9 @@ import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.codeInsight.template.impl.LiveTemplateCompletionContributor
 import com.intellij.codeInsight.template.postfix.completion.PostfixTemplateLookupElement
 import com.intellij.codeInsight.template.postfix.templates.PostfixTemplate
+import com.intellij.openapi.application.impl.NonBlockingReadActionImpl
 import com.intellij.openapi.util.Condition
+import com.intellij.testFramework.EdtTestUtil
 import com.intellij.testFramework.UsefulTestCase.{assertNotEmpty, assertSize}
 import com.intellij.util.containers.ContainerUtil
 import junit.framework.TestCase.{assertNotNull, assertNull, fail}
@@ -28,6 +30,7 @@ abstract class ScalaPostfixTemplateTabCompletionTestBase extends ScalaCompletion
   protected def doTestUniqueKeyTemplate(testName: String = getTestName(true))(textToType: String = "." + testName): Unit = {
     configureByFile(testName)
     myFixture.`type`(textToType + tab)
+    EdtTestUtil.runInEdtAndWait(() => NonBlockingReadActionImpl.waitForAsyncTaskCompletion())
     myFixture.checkResultByFile(testName + resultFilePostfix, true)
   }
 
@@ -56,6 +59,7 @@ abstract class ScalaPostfixTemplateTabCompletionTestBase extends ScalaCompletion
     doType(tab)
     assertNull(getLookup)
 
+    EdtTestUtil.runInEdtAndWait(() => NonBlockingReadActionImpl.waitForAsyncTaskCompletion())
     myFixture.checkResultByFile(testName + resultFilePostfix, true)
   }
 }

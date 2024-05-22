@@ -27,8 +27,7 @@ final class ScalaExpressionSurroundDescriptor extends SurroundDescriptor {
 }
 
 object ScalaExpressionSurroundDescriptor {
-
-  private val Surrounders = Array[Surrounder](
+  private lazy val Surrounders = Array[Surrounder](
     new ScalaWithIfSurrounder,
     new ScalaWithIfElseSurrounder,
     new ScalaWithWhileSurrounder,

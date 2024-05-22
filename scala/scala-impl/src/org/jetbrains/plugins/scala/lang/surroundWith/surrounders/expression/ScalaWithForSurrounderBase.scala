@@ -1,24 +1,25 @@
 package org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression
 
 import com.intellij.lang.ASTNode
-import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFor
 
 abstract class ScalaWithForSurrounderBase extends ScalaExpressionSurrounder {
-  override def getSurroundSelectionRange(editor: Editor, withForNode: ASTNode): TextRange = {
-    val forStmt = unwrapParenthesis(withForNode) match {
+  override def getSurroundSelectionRange(withForNode: ASTNode): Option[TextRange] =
+    unwrapParenthesis(withForNode) match {
       case Some(stmt: ScFor) =>
-        stmt.toIndentationBasedSyntax
-      case _ => return withForNode.getTextRange
+        getRange(stmt.toIndentationBasedSyntax)
+      case _ => None
     }
 
-    val enums = (forStmt.enumerators: @unchecked) match {
-      case Some(x) => x.getNode
-    }
+  protected def getRange(forStmt: ScFor): Option[TextRange] = for {
+    file    <- forStmt.containingFile
+    enums   <- forStmt.enumerators.flatMap(_.forcePostprocessAndRestore)
+    offset   = enums.startOffset
+    document = file.getFileDocument
+    _        = document.deleteString(offset, enums.endOffset)
+  } yield TextRange.from(offset, 0)
 
-    val offset = enums.getTextRange.getStartOffset
-    deleteText(editor, enums)
-    TextRange.from(offset, 0)
-  }
+  override protected val isApplicableToMultipleElements: Boolean = true
 }

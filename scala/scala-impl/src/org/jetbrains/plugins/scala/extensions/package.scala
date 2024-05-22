@@ -1446,6 +1446,10 @@ package object extensions {
     case application => application.runWriteAction(body)
   }
 
+  def inWriteCommandActionIf[T](condition: Boolean)(body: => T)(implicit project: Project): T =
+    if (condition) inWriteCommandAction(body)
+    else body
+
   def inWriteCommandAction[T](body: => T)
                              (implicit project: Project): T =
     WriteCommandAction.runWriteCommandAction(project, body)

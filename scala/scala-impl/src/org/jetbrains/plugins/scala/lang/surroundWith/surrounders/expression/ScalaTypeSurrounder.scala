@@ -1,10 +1,8 @@
 package org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression
 
 import com.intellij.lang.ASTNode
-import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
@@ -18,32 +16,21 @@ class ScalaTypeSurrounder extends ScalaExpressionSurrounder {
   //noinspection ScalaExtractStringToBundle,DialogTitleCapitalization
   override def getTemplateDescription: String = "(expr: Type)"
 
-  override def isApplicable(elements: Array[PsiElement]): Boolean = {
-    if (elements.length != 1) return false
-    elements(0) match {
-      case _: ScExpression => true
-      case _ => false
-    }
-  }
-
-  override def getSurroundSelectionRange(editor: Editor, withType: ASTNode): TextRange = {
+  override def getSurroundSelectionRange(withType: ASTNode): Option[TextRange] = {
     lazy val defaultRange = {
       val expr: ScExpression = withType.getPsi.asInstanceOf[ScExpression]
       val offset = expr.getTextRange.getEndOffset
-      new TextRange(offset, offset)
+      Some(new TextRange(offset, offset))
     }
 
     unwrapParenthesis(withType) match {
       case Some(typedExpr: ScTypedExpression) =>
-        typedExpr.typeElement match {
-          case Some(te: ScTypeElement) =>
-            if (te.textMatches("Any"))
-              te.getTextRange
-            else
-              defaultRange
-          case _ => defaultRange
-        }
+        typedExpr.typeElement
+          .collect { case te if te.textMatches("Any") => te.getTextRange }
+          .orElse(defaultRange)
       case _ => defaultRange
     }
   }
+
+  override protected val isApplicableToUnitExpressions: Boolean = true
 }

@@ -1,39 +1,33 @@
 package org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression
 
 import com.intellij.lang.ASTNode
-import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScIf
 
 abstract class ScalaWithIfSurrounderBase extends ScalaExpressionSurrounder {
-  override def getSurroundSelectionRange(editor: Editor, nodeWithIfNode: ASTNode): TextRange = {
-    val stmt = unwrapParenthesis(nodeWithIfNode) match {
+  override def getSurroundSelectionRange(nodeWithIfNode: ASTNode): Option[TextRange] =
+    unwrapParenthesis(nodeWithIfNode) match {
       case Some(stmt: ScIf) =>
-        stmt.toIndentationBasedSyntax
-      case _ => return nodeWithIfNode.getTextRange
+        getRange(stmt.toIndentationBasedSyntax)
+      case _ => None
     }
 
-    getRange(editor, stmt)
-  }
-
-  protected def getRange(editor: Editor, ifStmt: ScIf): TextRange = {
-    val conditionNode: ASTNode = (ifStmt.condition: @unchecked) match {
-      case Some(c) => c.getNode
-    }
-
-    val offset = conditionNode.getStartOffset
-    deleteText(editor, conditionNode)
-    TextRange.from(offset, 0)
-  }
+  protected def getRange(ifStmt: ScIf): Option[TextRange] = for {
+    file      <- ifStmt.containingFile
+    condition <- ifStmt.condition.flatMap(_.forcePostprocessAndRestore)
+    offset     = condition.startOffset
+    document   = file.getFileDocument
+    _          = document.deleteString(offset, condition.endOffset)
+  } yield TextRange.from(offset, 0)
 }
 
 abstract class ScalaWithIfConditionSurrounderBase extends ScalaWithIfSurrounderBase {
-  override protected def getRange(editor: Editor, ifStmt: ScIf): TextRange = {
-    val body = (ifStmt.thenExpression: @unchecked) match {
-      case Some(b) => b
-    }
+  override protected def getRange(ifStmt: ScIf): Option[TextRange] = for {
+    thenExpr <- ifStmt.thenExpression.flatMap(_.forcePostprocessAndRestore)
+    offset    = thenExpr.startOffset + 1
+  } yield TextRange.from(offset, 0)
 
-    val offset = body.getTextRange.getStartOffset + 1
-    TextRange.from(offset, 0)
-  }
+  override def isApplicable(element: PsiElement): Boolean = isBooleanExpression(element)
 }

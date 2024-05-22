@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression
 
 import com.intellij.lang.ASTNode
-import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 
@@ -15,10 +14,13 @@ class ScalaWithBracesSurrounder extends ScalaExpressionSurrounder {
   //noinspection ScalaExtractStringToBundle
   override def getTemplateDescription = "{  }"
 
-  override def getSurroundSelectionRange(editor: Editor, expr: ASTNode): TextRange = {
+  override def getSurroundSelectionRange(expr: ASTNode): Option[TextRange] = {
     val offset = expr.getTextRange.getEndOffset
-    new TextRange(offset, offset)
+    val range = new TextRange(offset, offset)
+    Some(range)
   }
 
   override def needParenthesis(element: PsiElement) = false
+
+  override protected val isApplicableToMultipleElements: Boolean = true
 }

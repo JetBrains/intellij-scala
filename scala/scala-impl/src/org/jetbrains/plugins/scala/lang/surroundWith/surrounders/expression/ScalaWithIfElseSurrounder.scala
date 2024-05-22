@@ -11,4 +11,6 @@ class ScalaWithIfElseSurrounder extends ScalaWithIfSurrounderBase {
 
   //noinspection ScalaExtractStringToBundle,DialogTitleCapitalization
   override def getTemplateDescription = "if / else"
+
+  override protected val isApplicableToMultipleElements: Boolean = true
 }
