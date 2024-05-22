@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.compiler.data.{CompilationData, ZincData}
 import java.io.{File, IOException}
 import java.util.Collections
 import scala.collection.immutable.ArraySeq
+import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
 trait CompilationDataFactory {
@@ -71,6 +72,28 @@ object CompilationDataFactory
         }
       }
 
+      def filterOutPipeliningOptions(compilerOptions: Seq[String]): Seq[String] = {
+        val withoutBooleans = compilerOptions.to(mutable.ArrayBuffer).filter {
+          case "-Xjava-tasty" | "-Xpickle-java" | "-Yjava-tasty" | "-Ypickle-java" => false
+          case "-Xallow-outline-from-tasty" | "-Yallow-outline-from-tasty" => false
+          case "-Ypickle-write-api-only" => false
+          case _ => true
+        }
+
+        def remove(option: String): Unit = {
+          var index = -1
+          while ({
+            index = withoutBooleans.indexOf(option)
+            index != -1
+          }) {
+            withoutBooleans.remove(index, 2)
+          }
+        }
+
+        List("-Xearly-tasty-output", "-Xpickle-write", "-Yearly-tasty-output", "-Ypickle-write").foreach(remove)
+        withoutBooleans.toSeq
+      }
+
       val javaOptions = CompilerDataFactory.javaOptionsFor(context, chunk)
 
       val outputGroups = createOutputGroups(chunk)
@@ -85,7 +108,7 @@ object CompilationDataFactory
         sources = canonicalSources,
         classpath = classpath.toSeq,
         output = output,
-        scalaOptions = ensureEncodingIsExplicitlySet(scalaOptions),
+        scalaOptions = filterOutPipeliningOptions(ensureEncodingIsExplicitlySet(scalaOptions)),
         javaOptions = ensureEncodingIsExplicitlySet(javaOptions),
         order = order,
         cacheFile = cacheFile,
