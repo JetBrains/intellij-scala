@@ -17,11 +17,8 @@ import org.junit.Assert._
 
 import scala.jdk.CollectionConverters._
 
-abstract class GoToClassAndSymbolTestBase extends GoToTestBase with TestIndexingModeSupporter {
+abstract class GoToClassAndSymbolTestBase extends GoToTestBase {
   private var myPopup: ChooseByNamePopup = _
-
-  private var myToken: IndexingMode.ShutdownToken = _
-  private var myIndexingMode: IndexingMode = IndexingMode.SMART
 
   private def createPopup(model: ChooseByNameModel): ChooseByNamePopup = {
     if (myPopup == null) {
@@ -30,22 +27,13 @@ abstract class GoToClassAndSymbolTestBase extends GoToTestBase with TestIndexing
     myPopup
   }
 
-  override protected def afterSetUpProject(project: Project, module: Module): Unit = {
-    super.afterSetUpProject(project, module)
-    myToken = myIndexingMode.setUpTest(project, getTestRootDisposable)
-  }
-
   override def tearDown(): Unit = {
     if (myPopup != null) {
       myPopup.close(false)
       myPopup.dispose()
       myPopup = null
     }
-    try {
-      if (myToken != null) {
-        myIndexingMode.tearDownTest(getProject, myToken)
-      }
-    } finally super.tearDown()
+    super.tearDown()
   }
 
   protected def gotoClassElements(text: String): Set[Any] = getPopupElements(new GotoClassModel2(getProject), text)
@@ -83,10 +71,6 @@ abstract class GoToClassAndSymbolTestBase extends GoToTestBase with TestIndexing
     expectedSize,
     elements.size
   )
-
-  override def getIndexingMode: IndexingMode = myIndexingMode
-
-  override def setIndexingMode(mode: IndexingMode): Unit = myIndexingMode = mode
 }
 
 class GoToClassAndSymbolTest extends GoToClassAndSymbolTestBase {
