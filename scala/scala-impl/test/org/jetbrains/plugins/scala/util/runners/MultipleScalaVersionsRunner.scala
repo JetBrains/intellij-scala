@@ -277,7 +277,7 @@ private object MultipleScalaVersionsRunner {
       .getOrElse(Seq(DefaultJdkVersionToRun))
   }
 
-  private def findAnnotation[T <: Annotation](klass: Class[_], annotationClass: Class[T]): Option[T] = {
+  private[runners] def findAnnotation[T <: Annotation](klass: Class[_], annotationClass: Class[T]): Option[T] = {
     @tailrec
     def inner(c: Class[_]): Annotation = c.getAnnotation(annotationClass) match {
       case null =>

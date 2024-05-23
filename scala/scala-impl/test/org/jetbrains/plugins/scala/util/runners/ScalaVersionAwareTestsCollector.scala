@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.util.runners
 import com.intellij.testFramework.TestIndexingModeSupporter
 import junit.framework.{Test, TestCase, TestSuite}
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
+import org.jetbrains.plugins.scala.util.runners.MultipleScalaVersionsRunner.findAnnotation
 import org.junit.internal.MethodSorter
 
 import java.lang.reflect.{Method, Modifier}
@@ -141,7 +142,7 @@ class ScalaVersionAwareTestsCollector(klass: Class[_ <: TestCase],
 
   // SCL-21849
   private def methodEffectiveIndexingModes(method: Method): Seq[TestIndexingMode] =
-    if (!classOf[TestIndexingModeSupporter].isAssignableFrom(klass) || klass.getAnnotation(classOf[RunWithIndexingModes]) == null) {
+    if (!classOf[TestIndexingModeSupporter].isAssignableFrom(klass) || findAnnotation(klass, classOf[RunWithIndexingModes]).isEmpty) {
       Seq(TestIndexingMode.SMART)
     } else {
       TestIndexingMode.values().toSeq.filterNot { mode =>
