@@ -136,7 +136,6 @@ class ScalaPostfixTemplateTabCompletionTest_2_13 extends ScalaPostfixTemplateTab
   @NeedsIndex.SmartMode(reason = "ScExpression.`type`() doesn't work in DumbMode")
   def testExhaustiveMatch(): Unit = doTest(classOf[ScalaExhaustiveMatchPostfixTemplate])(".match")
 
-  @NeedsIndex.SmartMode(reason = "try template is not DumbAware yet")
   def testTry(): Unit = doTestUniqueKeyTemplate()()
 
   @NeedsIndex.SmartMode(reason = "if-else template is not DumbAware yet")
@@ -157,7 +156,6 @@ class ScalaPostfixTemplateTabCompletionTest_3_Latest extends ScalaPostfixTemplat
   @NeedsIndex.SmartMode(reason = "ScExpression.`type`() doesn't work in DumbMode")
   def testExhaustiveMatch(): Unit = doTest(classOf[ScalaExhaustiveMatchPostfixTemplate])(".match")
 
-  @NeedsIndex.SmartMode(reason = "try template is not DumbAware yet")
   def testTry(): Unit = doTestUniqueKeyTemplate()()
 
   @NeedsIndex.SmartMode(reason = "if-else template is not DumbAware yet")
