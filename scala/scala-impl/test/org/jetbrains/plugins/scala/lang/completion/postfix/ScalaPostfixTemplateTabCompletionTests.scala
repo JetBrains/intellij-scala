@@ -65,50 +65,70 @@ abstract class ScalaPostfixTemplateTabCompletionTestBase extends ScalaCompletion
 }
 
 @RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWithIndexingModes
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_13,
   TestScalaVersion.Scala_3_Latest,
 ))
 class ScalaPostfixTemplateTabCompletionTest extends ScalaPostfixTemplateTabCompletionTestBase {
 
+  @NeedsIndex.SmartMode(reason = "assert template is not DumbAware yet")
   def testAssert(): Unit = doTestUniqueKeyTemplate()()
 
   def testCast(): Unit = doTestUniqueKeyTemplate()()
 
+  @NeedsIndex.SmartMode(reason = "for template is not DumbAware yet")
   def testFor(): Unit = doTestUniqueKeyTemplate()()
 
+  @NeedsIndex.SmartMode(reason = "field template is not DumbAware yet")
   def testField(): Unit = doTestUniqueKeyTemplate()()
 
+  @NeedsIndex.SmartMode(reason = "var template is not DumbAware yet")
   def testVar(): Unit = doTestUniqueKeyTemplate()()
 
+  @NeedsIndex.SmartMode(reason = "not template is not DumbAware yet")
   def testNot(): Unit = doTestUniqueKeyTemplate()()
 
+  @NeedsIndex.SmartMode(reason = "! template is not DumbAware yet")
   def testNotBang(): Unit = doTestUniqueKeyTemplate("not")("!")
 
+  @NeedsIndex.SmartMode(reason = "par template is not DumbAware yet")
   def testPar(): Unit = doTestUniqueKeyTemplate()()
 
+  @NeedsIndex.SmartMode(reason = "return template is not DumbAware yet")
   def testReturn(): Unit = doTestUniqueKeyTemplate()()
 
+  @NeedsIndex.SmartMode(reason = "sout template is not DumbAware yet")
   def testSout(): Unit = doTestUniqueKeyTemplate("println")(".sout")
 
+  @NeedsIndex.SmartMode(reason = "prtln template is not DumbAware yet")
   def testPrtln(): Unit = doTestUniqueKeyTemplate("println")(".prtln")
 
+  @NeedsIndex.SmartMode(reason = "throw template is not DumbAware yet")
   def testThrow(): Unit = doTestUniqueKeyTemplate()()
 
+  @NeedsIndex.SmartMode(reason = "while template is not DumbAware yet")
   def testWhile(): Unit = doTestUniqueKeyTemplate()()
 
+  @NeedsIndex.SmartMode(reason = "do-while template is not DumbAware yet")
   def testDoWhile(): Unit = doTestUniqueKeyTemplate()(".dowhile")
 
+  @NeedsIndex.SmartMode(reason = "null template is not DumbAware yet")
   def testIsNull(): Unit = doTestUniqueKeyTemplate()(".null")
 
+  @NeedsIndex.SmartMode(reason = "notnull template is not DumbAware yet")
   def testNotNull(): Unit = doTestUniqueKeyTemplate()(".notnull")
 
+  @NeedsIndex.SmartMode(reason = "nn template is not DumbAware yet")
   def testNotNullNn(): Unit = doTestUniqueKeyTemplate("notNull")(".nn")
 
+  @NeedsIndex.SmartMode(reason = "Option template is not DumbAware yet")
   def testOption(): Unit = doTestUniqueKeyTemplate()(".Option")
 
+  @NeedsIndex.SmartMode(reason = "Seq template is not DumbAware yet")
   def testSeq(): Unit = doTestUniqueKeyTemplate()(".Seq")
 
+  @NeedsIndex.SmartMode(reason = "List template is not DumbAware yet")
   def testList(): Unit = doTestUniqueKeyTemplate()(".List")
 
   def testNothingInComment(): Unit = {

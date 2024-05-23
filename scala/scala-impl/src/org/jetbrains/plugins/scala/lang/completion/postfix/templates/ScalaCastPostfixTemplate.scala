@@ -4,6 +4,7 @@ import com.intellij.codeInsight.template.TemplateManager
 import com.intellij.codeInsight.template.impl.TextExpression
 import com.intellij.codeInsight.template.postfix.templates.{PostfixTemplateWithExpressionSelector, PostfixTemplatesUtils}
 import com.intellij.openapi.editor.{Document, Editor}
+import com.intellij.openapi.project.DumbAware
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.AncestorSelector.SelectAllAncestors
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -14,7 +15,7 @@ final class ScalaCastPostfixTemplate extends PostfixTemplateWithExpressionSelect
   "expr.asInstanceOf[SomeType]",
   SelectAllAncestors(),
   null
-) {
+) with DumbAware {
 
   def getTemplateString(expression: PsiElement): String = "$expr$.asInstanceOf[$END$]"
 
