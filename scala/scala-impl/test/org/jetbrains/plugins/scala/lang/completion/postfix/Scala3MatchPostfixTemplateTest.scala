@@ -22,22 +22,22 @@ final class Scala3MatchPostfixTemplateTest extends PostfixTemplateTest {
 
   def testInnerMatchInfixExpr(): Unit = doTest()
 
-  @NeedsIndex.SmartMode(reason = "ScExpression.`type`() doesn't work in DumbMode")
+  @NeedsIndex.SmartMode(reason = "exhaustive match needs type inference")
   def testExhaustiveSealed(): Unit = doTest()
 
-  @NeedsIndex.SmartMode(reason = "ScExpression.`type`() doesn't work in DumbMode")
+  @NeedsIndex.SmartMode(reason = "exhaustive match needs type inference")
   def testExhaustiveJavaEnum(): Unit = doTest()
 
-  @NeedsIndex.SmartMode(reason = "ScExpression.`type`() doesn't work in DumbMode")
+  @NeedsIndex.SmartMode(reason = "exhaustive match needs type inference")
   def testExhaustiveScala2Enum(): Unit = doTest()
 
-  @NeedsIndex.SmartMode(reason = "ScExpression.`type`() doesn't work in DumbMode")
+  @NeedsIndex.SmartMode(reason = "exhaustive match needs type inference")
   def testExhaustiveScala2Enum2(): Unit = doTest()
 
-  @NeedsIndex.SmartMode(reason = "ScExpression.`type`() doesn't work in DumbMode")
+  @NeedsIndex.SmartMode(reason = "exhaustive match needs type inference")
   def testExhaustiveScala3Enum(): Unit = doTest()
 
-  @NeedsIndex.SmartMode(reason = "ScExpression.`type`() doesn't work in DumbMode")
+  @NeedsIndex.SmartMode(reason = "exhaustive match needs type inference")
   def testExhaustiveScala3EnumInTheMiddle(): Unit = doTest()
 
   def testNoFunctionExprParent(): Unit = doNotApplicableTest()

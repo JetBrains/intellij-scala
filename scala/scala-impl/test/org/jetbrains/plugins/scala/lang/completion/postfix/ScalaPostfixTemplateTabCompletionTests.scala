@@ -72,22 +72,22 @@ abstract class ScalaPostfixTemplateTabCompletionTestBase extends ScalaCompletion
 ))
 class ScalaPostfixTemplateTabCompletionTest extends ScalaPostfixTemplateTabCompletionTestBase {
 
-  @NeedsIndex.SmartMode(reason = "assert template is not DumbAware yet")
+  @NeedsIndex.SmartMode(reason = "`assert` needs type inference to check conformance with Boolean")
   def testAssert(): Unit = doTestUniqueKeyTemplate()()
 
   def testCast(): Unit = doTestUniqueKeyTemplate()()
 
-  @NeedsIndex.SmartMode(reason = "for template is not DumbAware yet")
+  @NeedsIndex.SmartMode(reason = "`for` needs type inference to check sameOrInheritor")
   def testFor(): Unit = doTestUniqueKeyTemplate()()
 
   def testField(): Unit = doTestUniqueKeyTemplate()()
 
   def testVar(): Unit = doTestUniqueKeyTemplate()()
 
-  @NeedsIndex.SmartMode(reason = "not template is not DumbAware yet")
+  @NeedsIndex.SmartMode(reason = "`not` needs type inference to check conformance with Boolean")
   def testNot(): Unit = doTestUniqueKeyTemplate()()
 
-  @NeedsIndex.SmartMode(reason = "! template is not DumbAware yet")
+  @NeedsIndex.SmartMode(reason = "`!` needs type inference to check conformance with Boolean")
   def testNotBang(): Unit = doTestUniqueKeyTemplate("not")("!")
 
   def testPar(): Unit = doTestUniqueKeyTemplate()()
@@ -98,22 +98,22 @@ class ScalaPostfixTemplateTabCompletionTest extends ScalaPostfixTemplateTabCompl
 
   def testPrtln(): Unit = doTestUniqueKeyTemplate("println")(".prtln")
 
-  @NeedsIndex.SmartMode(reason = "throw template is not DumbAware yet")
+  @NeedsIndex.SmartMode(reason = "`throw` needs type inference to check sameOrInheritor")
   def testThrow(): Unit = doTestUniqueKeyTemplate()()
 
-  @NeedsIndex.SmartMode(reason = "while template is not DumbAware yet")
+  @NeedsIndex.SmartMode(reason = "`while` needs type inference to check conformance with Boolean")
   def testWhile(): Unit = doTestUniqueKeyTemplate()()
 
-  @NeedsIndex.SmartMode(reason = "do-while template is not DumbAware yet")
+  @NeedsIndex.SmartMode(reason = "`do-while` needs type inference to check conformance with Boolean")
   def testDoWhile(): Unit = doTestUniqueKeyTemplate()(".dowhile")
 
-  @NeedsIndex.SmartMode(reason = "null template is not DumbAware yet")
+  @NeedsIndex.SmartMode(reason = "`null` needs type inference to check conformance with AnyRef")
   def testIsNull(): Unit = doTestUniqueKeyTemplate()(".null")
 
-  @NeedsIndex.SmartMode(reason = "notnull template is not DumbAware yet")
+  @NeedsIndex.SmartMode(reason = "`notnull` needs type inference to check conformance with AnyRef")
   def testNotNull(): Unit = doTestUniqueKeyTemplate()(".notnull")
 
-  @NeedsIndex.SmartMode(reason = "nn template is not DumbAware yet")
+  @NeedsIndex.SmartMode(reason = "`nn` needs type inference to check conformance with AnyRef")
   def testNotNullNn(): Unit = doTestUniqueKeyTemplate("notNull")(".nn")
 
   def testOption(): Unit = doTestUniqueKeyTemplate()(".Option")
@@ -144,7 +144,7 @@ class ScalaPostfixTemplateTabCompletionTest extends ScalaPostfixTemplateTabCompl
 class ScalaPostfixTemplateTabCompletionTest_2_13 extends ScalaPostfixTemplateTabCompletionTestBase {
   def testMatch(): Unit = doTest(classOf[ScalaMatchPostfixTemplate])()
 
-  @NeedsIndex.SmartMode(reason = "ScExpression.`type`() doesn't work in DumbMode")
+  @NeedsIndex.SmartMode(reason = "exhaustive match needs type inference")
   def testExhaustiveMatch(): Unit = doTest(classOf[ScalaExhaustiveMatchPostfixTemplate])(".match")
 
   def testTry(): Unit = doTestUniqueKeyTemplate()()
@@ -162,7 +162,7 @@ class ScalaPostfixTemplateTabCompletionTest_3_Latest extends ScalaPostfixTemplat
 
   def testMatch(): Unit = doTest(classOf[ScalaMatchPostfixTemplate])()
 
-  @NeedsIndex.SmartMode(reason = "ScExpression.`type`() doesn't work in DumbMode")
+  @NeedsIndex.SmartMode(reason = "exhaustive match needs type inference")
   def testExhaustiveMatch(): Unit = doTest(classOf[ScalaExhaustiveMatchPostfixTemplate])(".match")
 
   def testTry(): Unit = doTestUniqueKeyTemplate()()

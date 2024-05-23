@@ -25,16 +25,16 @@ class ScalaMatchPostfixTemplateTest extends PostfixTemplateTest {
 
   def testInnerMatchInfixExpr(): Unit = doTest()
 
-  @NeedsIndex.SmartMode(reason = "ScExpression.`type`() doesn't work in DumbMode")
+  @NeedsIndex.SmartMode(reason = "exhaustive match needs type inference")
   def testExhaustiveSealed(): Unit = doTest()
 
-  @NeedsIndex.SmartMode(reason = "ScExpression.`type`() doesn't work in DumbMode")
+  @NeedsIndex.SmartMode(reason = "exhaustive match needs type inference")
   def testExhaustiveJavaEnum(): Unit = doTest()
 
-  @NeedsIndex.SmartMode(reason = "ScExpression.`type`() doesn't work in DumbMode")
+  @NeedsIndex.SmartMode(reason = "exhaustive match needs type inference")
   def testExhaustiveScalaEnum(): Unit = doTest()
 
-  @NeedsIndex.SmartMode(reason = "ScExpression.`type`() doesn't work in DumbMode")
+  @NeedsIndex.SmartMode(reason = "exhaustive match needs type inference")
   def testExhaustiveScalaEnum2(): Unit = doTest()
 
   def testNoFunctionExprParent(): Unit = doNotApplicableTest()
