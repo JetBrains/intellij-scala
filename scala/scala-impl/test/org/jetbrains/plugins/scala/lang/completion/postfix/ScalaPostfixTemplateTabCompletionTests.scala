@@ -160,7 +160,6 @@ class ScalaPostfixTemplateTabCompletionTest_2_13 extends ScalaPostfixTemplateTab
 
   def testElse(): Unit = doTestUniqueKeyTemplate()()
 
-  @NeedsIndex.SmartMode(reason = "if template is not DumbAware yet")
   def testIf(): Unit = doTestUniqueKeyTemplate()()
 }
 
@@ -179,6 +178,5 @@ class ScalaPostfixTemplateTabCompletionTest_3_Latest extends ScalaPostfixTemplat
 
   def testElse(): Unit = doTestUniqueKeyTemplate()()
 
-  @NeedsIndex.SmartMode(reason = "if template is not DumbAware yet")
   def testIf(): Unit = doTestUniqueKeyTemplate()()
 }
