@@ -99,6 +99,28 @@ class ScalaFmtCustomConfigTest extends ScalaFmtTestBase {
     )
   }
 
+  def testConfigWithIncludes_WithoutExtension(): Unit = {
+    setScalafmtConfig("config_root_include_without_extension.conf")
+    doTextTest(
+      """class A {
+        |  def foo(parameterName: Int): Unit = {
+        |    val x = 42
+        |    val xxxxxxxx = 23
+        |  }
+        |}
+        |""".stripMargin,
+      """class A {
+        |  def foo(
+        |      parameterName: Int)
+        |    : Unit = {
+        |    val x        = 42
+        |    val xxxxxxxx = 23
+        |  }
+        |}
+        |""".stripMargin
+    )
+  }
+
   def testRewriteRules_sortImports(): Unit = {
     setScalafmtConfig("sortImports.conf")
     val before =
