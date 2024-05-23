@@ -7,14 +7,14 @@ import com.intellij.codeInsight.template.postfix.completion.PostfixTemplateLooku
 import com.intellij.codeInsight.template.postfix.templates.PostfixTemplate
 import com.intellij.openapi.application.impl.NonBlockingReadActionImpl
 import com.intellij.openapi.util.Condition
-import com.intellij.testFramework.EdtTestUtil
 import com.intellij.testFramework.UsefulTestCase.{assertNotEmpty, assertSize}
+import com.intellij.testFramework.{EdtTestUtil, NeedsIndex}
 import com.intellij.util.containers.ContainerUtil
 import junit.framework.TestCase.{assertNotNull, assertNull, fail}
 import org.jetbrains.plugins.scala.base.ScalaCompletionAutoPopupTestCase
 import org.jetbrains.plugins.scala.lang.completion.postfix.templates.{ScalaExhaustiveMatchPostfixTemplate, ScalaMatchPostfixTemplate}
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestFixture.lookupItemsDebugText
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithIndexingModes, RunWithScalaVersions, TestScalaVersion}
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 
@@ -128,31 +128,41 @@ class ScalaPostfixTemplateTabCompletionTest extends ScalaPostfixTemplateTabCompl
 }
 
 @RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWithIndexingModes
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_13))
 class ScalaPostfixTemplateTabCompletionTest_2_13 extends ScalaPostfixTemplateTabCompletionTestBase {
   def testMatch(): Unit = doTest(classOf[ScalaMatchPostfixTemplate])()
 
+  @NeedsIndex.SmartMode(reason = "ScExpression.`type`() doesn't work in DumbMode")
   def testExhaustiveMatch(): Unit = doTest(classOf[ScalaExhaustiveMatchPostfixTemplate])(".match")
 
+  @NeedsIndex.SmartMode(reason = "try template is not DumbAware yet")
   def testTry(): Unit = doTestUniqueKeyTemplate()()
 
+  @NeedsIndex.SmartMode(reason = "if-else template is not DumbAware yet")
   def testElse(): Unit = doTestUniqueKeyTemplate()()
 
+  @NeedsIndex.SmartMode(reason = "if template is not DumbAware yet")
   def testIf(): Unit = doTestUniqueKeyTemplate()()
 }
 
 @RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWithIndexingModes
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
 class ScalaPostfixTemplateTabCompletionTest_3_Latest extends ScalaPostfixTemplateTabCompletionTestBase {
   override def getTestDataPath: String = super.getTestDataPath + "/scala3"
 
   def testMatch(): Unit = doTest(classOf[ScalaMatchPostfixTemplate])()
 
+  @NeedsIndex.SmartMode(reason = "ScExpression.`type`() doesn't work in DumbMode")
   def testExhaustiveMatch(): Unit = doTest(classOf[ScalaExhaustiveMatchPostfixTemplate])(".match")
 
+  @NeedsIndex.SmartMode(reason = "try template is not DumbAware yet")
   def testTry(): Unit = doTestUniqueKeyTemplate()()
 
+  @NeedsIndex.SmartMode(reason = "if-else template is not DumbAware yet")
   def testElse(): Unit = doTestUniqueKeyTemplate()()
 
+  @NeedsIndex.SmartMode(reason = "if template is not DumbAware yet")
   def testIf(): Unit = doTestUniqueKeyTemplate()()
 }

@@ -26,11 +26,8 @@ abstract class ScalaExpressionSurrounder extends ScalaModCommandSurrounder {
 
   def isApplicable(element: PsiElement): Boolean = element match {
     case e: ScExpression =>
-      e.`type`() match {
-        case Left(_) => false
-        case Right(tpe) =>
-          !tpe.isUnit || isApplicableToUnitExpressions
-      }
+      val typeResult = e.`type`()
+      typeResult.forall(tpe => !tpe.isUnit || isApplicableToUnitExpressions)
     case _: PsiWhiteSpace |
          _: ScValueOrVariable |
          _: ScFunction |

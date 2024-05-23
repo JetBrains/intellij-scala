@@ -14,13 +14,10 @@ object ScalaWithMatchSurrounder extends ScalaExpressionSurrounder {
   import ScalaPsiUtil.functionArrow
 
   override def isApplicable(element: PsiElement): Boolean = element match {
-    case _: ScBlockExpr => true //TODO perhaps this is a temporary hack?
-    case block: ScBlock =>
-      !block.hasRBrace && (block.exprs match {
-        case Seq(_: ScExpression) => true
-        case _ => false
-      })
-    case _: ScExpression | _: PsiWhiteSpace => super.isApplicable(element)
+    case _: ScBlockExpr => true
+    case _: ScBlock => false
+    case _: ScExpression | _: PsiWhiteSpace =>
+      super.isApplicable(element)
     case _ => false
   }
 

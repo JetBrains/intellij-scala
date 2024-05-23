@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.completion.postfix.templates
 import com.intellij.codeInsight.template.TemplateManager
 import com.intellij.codeInsight.template.postfix.templates.{PostfixTemplate, StringBasedPostfixTemplate}
 import com.intellij.openapi.editor.{Document, Editor}
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiComment, PsiElement, PsiFile}
@@ -24,7 +24,7 @@ final class ScalaExhaustiveMatchPostfixTemplate(
   alias,
   s"${StringBasedPostfixTemplate.EXPR} ${ScalaExhaustiveMatchPostfixTemplate.alias} ${ScalaExhaustiveMatchPostfixTemplate.exhaustiveAlias}",
   null
-) {
+) with DumbAware {
 
   import ScalaExhaustiveMatchPostfixTemplate._
 

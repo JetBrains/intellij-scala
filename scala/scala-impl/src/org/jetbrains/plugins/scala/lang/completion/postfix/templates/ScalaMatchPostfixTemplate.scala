@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.completion.postfix.templates
 
 import com.intellij.codeInsight.template.postfix.templates.{PostfixTemplateWithExpressionSelector, PostfixTemplatesUtils}
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.DumbAware
 import com.intellij.psi.PsiElement
 import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.AncestorSelector.SelectAllAncestors
@@ -16,7 +17,7 @@ final class ScalaMatchPostfixTemplate extends PostfixTemplateWithExpressionSelec
   "expr match {...}",
   SelectAllAncestors(ScalaWithMatchSurrounder),
   null
-) {
+) with DumbAware {
 
   override def expandForChooseExpression(expression: PsiElement, editor: Editor): Unit = {
     val file = expression.getContainingFile // not to be inlined!
