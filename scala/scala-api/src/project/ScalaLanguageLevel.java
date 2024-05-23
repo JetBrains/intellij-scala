@@ -42,6 +42,8 @@ public enum ScalaLanguageLevel implements Ordered<ScalaLanguageLevel> {
         return isScala3() ? Scala3Language.INSTANCE : ScalaLanguage.INSTANCE;
     }
 
+    //TODO: Consider unifying hardcoded Scala 3 versions used throughout the project
+    // https://youtrack.jetbrains.com/issue/SCL-22545
     public static final ScalaLanguageLevel latestPublishedVersion = Scala_3_5;
     public static final ScalaLanguageLevel[] publishedVersions;
 
