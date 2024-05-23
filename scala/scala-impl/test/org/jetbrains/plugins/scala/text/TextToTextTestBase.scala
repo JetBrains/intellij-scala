@@ -77,10 +77,10 @@ abstract class TextToTextTestBase(dependencies: Seq[DependencyDescription],
         s2.replaceAll("\\.super\\[.*?\\*/\\]\\.", ".this.")
       }
 
-      if (!classExceptions(cls.qualifiedName)) {
-        Assert.assertEquals(cls.qualifiedName, expected, actual)
+      if (classExceptions(cls.qualifiedName)) {
+        Assert.assertNotEquals(expected, actual, s"Expected to contain errors: ${cls.qualifiedName}")
       } else {
-        Assert.assertFalse(s"Must contain errors: ${cls.qualifiedName}", expected == actual)
+        Assert.assertEquals(cls.qualifiedName, expected, actual)
       }
     }
 
