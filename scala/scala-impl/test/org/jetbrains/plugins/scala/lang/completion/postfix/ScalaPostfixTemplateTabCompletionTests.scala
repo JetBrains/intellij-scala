@@ -90,7 +90,6 @@ class ScalaPostfixTemplateTabCompletionTest extends ScalaPostfixTemplateTabCompl
   @NeedsIndex.SmartMode(reason = "! template is not DumbAware yet")
   def testNotBang(): Unit = doTestUniqueKeyTemplate("not")("!")
 
-  @NeedsIndex.SmartMode(reason = "par template is not DumbAware yet")
   def testPar(): Unit = doTestUniqueKeyTemplate()()
 
   @NeedsIndex.SmartMode(reason = "return template is not DumbAware yet")
