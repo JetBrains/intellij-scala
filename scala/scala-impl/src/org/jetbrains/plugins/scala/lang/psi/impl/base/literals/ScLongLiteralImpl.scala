@@ -3,7 +3,6 @@ package literals
 
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.project.Project
-import com.intellij.psi.util.PsiLiteralUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScLongLiteral
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
@@ -19,8 +18,10 @@ final class ScLongLiteralImpl(node: ASTNode,
   override protected def wrappedValue(value: JLong): ScLiteral.Value[lang.Long] =
     ScLongLiteralImpl.Value(value)
 
+  override protected def fallbackType: ScType = api.Long
+
   override protected def parseNumber(text: String): JLong =
-    PsiLiteralUtil.parseLong(text)
+    literals.parseLong(text, stripLeading0 = this.isInScala3Module)
 
   override private[psi] def unwrappedValue(value: JLong) =
     value.longValue
