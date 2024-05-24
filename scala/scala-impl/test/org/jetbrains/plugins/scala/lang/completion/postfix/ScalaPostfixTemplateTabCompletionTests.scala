@@ -14,7 +14,7 @@ import junit.framework.TestCase.{assertNotNull, assertNull, fail}
 import org.jetbrains.plugins.scala.base.ScalaCompletionAutoPopupTestCase
 import org.jetbrains.plugins.scala.lang.completion.postfix.templates.{ScalaExhaustiveMatchPostfixTemplate, ScalaMatchPostfixTemplate}
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestFixture.lookupItemsDebugText
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithIndexingModes, RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithAllIndexingModes, RunWithScalaVersions, TestScalaVersion}
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 
@@ -65,7 +65,7 @@ abstract class ScalaPostfixTemplateTabCompletionTestBase extends ScalaCompletion
 }
 
 @RunWith(classOf[MultipleScalaVersionsRunner])
-@RunWithIndexingModes
+@RunWithAllIndexingModes
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_13,
   TestScalaVersion.Scala_3_Latest,
@@ -139,7 +139,7 @@ class ScalaPostfixTemplateTabCompletionTest extends ScalaPostfixTemplateTabCompl
 }
 
 @RunWith(classOf[MultipleScalaVersionsRunner])
-@RunWithIndexingModes
+@RunWithAllIndexingModes
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_13))
 class ScalaPostfixTemplateTabCompletionTest_2_13 extends ScalaPostfixTemplateTabCompletionTestBase {
   def testMatch(): Unit = doTest(classOf[ScalaMatchPostfixTemplate])()
@@ -155,7 +155,7 @@ class ScalaPostfixTemplateTabCompletionTest_2_13 extends ScalaPostfixTemplateTab
 }
 
 @RunWith(classOf[MultipleScalaVersionsRunner])
-@RunWithIndexingModes
+@RunWithAllIndexingModes
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
 class ScalaPostfixTemplateTabCompletionTest_3_Latest extends ScalaPostfixTemplateTabCompletionTestBase {
   override def getTestDataPath: String = super.getTestDataPath + "/scala3"

@@ -9,7 +9,7 @@ import com.intellij.testFramework.{NeedsIndex, PlatformTestUtil}
 import com.intellij.util.concurrency.Semaphore
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithIndexingModes, RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithAllIndexingModes, RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert._
 import org.junit.runner.RunWith
 
@@ -72,7 +72,7 @@ abstract class GoToClassAndSymbolTestBase extends GoToTestBase {
 }
 
 @RunWith(classOf[MultipleScalaVersionsRunner])
-@RunWithIndexingModes
+@RunWithAllIndexingModes
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_13,
   TestScalaVersion.Scala_3_Latest,

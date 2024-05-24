@@ -142,7 +142,7 @@ class ScalaVersionAwareTestsCollector(klass: Class[_ <: TestCase],
 
   // SCL-21849
   private def methodEffectiveIndexingModes(method: Method): Seq[TestIndexingMode] =
-    if (!classOf[TestIndexingModeSupporter].isAssignableFrom(klass) || findAnnotation(klass, classOf[RunWithIndexingModes]).isEmpty) {
+    if (!classOf[TestIndexingModeSupporter].isAssignableFrom(klass) || findAnnotation(klass, classOf[RunWithAllIndexingModes]).isEmpty) {
       Seq(TestIndexingMode.SMART)
     } else {
       TestIndexingMode.values().toSeq.filterNot { mode =>

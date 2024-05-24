@@ -3,11 +3,11 @@ package completion
 package postfix
 
 import com.intellij.testFramework.NeedsIndex
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithIndexingModes, RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithAllIndexingModes, RunWithScalaVersions, TestScalaVersion}
 import org.junit.runner.RunWith
 
 @RunWith(classOf[MultipleScalaVersionsRunner])
-@RunWithIndexingModes
+@RunWithAllIndexingModes
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_13
 ))
