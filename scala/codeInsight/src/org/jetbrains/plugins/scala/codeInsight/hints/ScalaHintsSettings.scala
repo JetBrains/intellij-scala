@@ -1,8 +1,10 @@
 package org.jetbrains.plugins.scala.codeInsight
 package hints
 
-import com.intellij.openapi.util.SystemInfo
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
+import org.jetbrains.plugins.scala.settings.{ScalaApplicationSettings, XRayUtils}
 
 trait ScalaHintsSettings {
   def showParameters: Boolean
@@ -24,11 +26,14 @@ object ScalaHintsSettings {
 
   var xRayModePinned = false
 
-  def xRayModeShortcut: String = {
-    val key = if (SystemInfo.isMac) "Cmd" else "Ctrl"
-    if (ScalaApplicationSettings.getInstance.XRAY_DOUBLE_PRESS_AND_HOLD) s"double-press and hold $key"
-    else if (ScalaApplicationSettings.getInstance.XRAY_PRESS_AND_HOLD) s"press and hold $key"
-    else "enable Settings | Languages | Scala | X-Ray Mode"
+  @Nls def xRayModeShortcut: String = {
+    val keyText = XRayUtils.xRayActionKeyText
+    if (ScalaApplicationSettings.getInstance.XRAY_DOUBLE_PRESS_AND_HOLD)
+      ScalaBundle.message("scala.project.settings.form.xray.double.press.and.hold", keyText)
+    else if (ScalaApplicationSettings.getInstance.XRAY_PRESS_AND_HOLD)
+      ScalaBundle.message("scala.project.settings.form.xray.press.and.hold", keyText)
+    else
+      ScalaCodeInsightBundle.message("enable.xray.settings.path")
   }
 
   class Defaults extends ScalaHintsSettings {
