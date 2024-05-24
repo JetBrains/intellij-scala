@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
 import com.intellij.openapi.progress.ProgressManager
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation.PresentationOptions
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.NameRenderer
@@ -63,6 +64,7 @@ trait ScType extends ProjectContextOwner {
 
   def typeDepth: Int = 1
 
+  @Nls
   def presentableText(implicit context: TypePresentationContext): String =
     typeSystem.presentableText(this)
 
