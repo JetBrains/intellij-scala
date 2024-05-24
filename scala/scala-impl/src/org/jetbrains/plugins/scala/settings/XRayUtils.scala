@@ -7,7 +7,7 @@ import java.awt.event.KeyEvent
 
 object XRayUtils {
 
-  private def xRayActionKeyModifier: Int =
+  def xRayActionKeyModifier: Int =
     if (SystemInfoRt.isMac) KeyEvent.VK_META else KeyEvent.VK_CONTROL
 
   /**
