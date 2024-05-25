@@ -26,6 +26,9 @@ object ScalaHintsSettings {
 
   var xRayModePinned = false
 
+  private[hints] def xRayModeTipText: String =
+    ScalaCodeInsightBundle.message("xray.mode.tip", xRayModeShortcut)
+
   @Nls def xRayModeShortcut: String = {
     val keyText = XRayUtils.xRayActionKeyText
     if (ScalaApplicationSettings.getInstance.XRAY_DOUBLE_PRESS_AND_HOLD)
