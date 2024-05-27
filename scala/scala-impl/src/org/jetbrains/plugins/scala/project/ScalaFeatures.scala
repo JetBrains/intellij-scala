@@ -33,6 +33,7 @@ trait ScalaFeatures extends Any {
   def `? as wildcard marker`: Boolean
   def `case in pattern bindings`: Boolean
   def `optional braces for method arguments`: Boolean
+  def `named tuples`: Boolean
   def usingInArgumentsEnabled: Boolean
   def XSourceFlag: ScalaXSourceFlag
 }
@@ -94,6 +95,10 @@ object ScalaFeatures {
     def `optional braces for method arguments`: Boolean =
       indentationBasedSyntaxEnabled && languageLevel >= ScalaLanguageLevel.Scala_3_3
 
+
+    def `named tuples`: Boolean =
+      languageLevel >= ScalaLanguageLevel.Scala_3_5
+
     def copy(
       version:                        ScalaVersion,
       XSourceFlag:                    ScalaXSourceFlag = this.XSourceFlag,
@@ -140,7 +145,8 @@ object ScalaFeatures {
     override def `case in pattern bindings`: Boolean             = delegate.`case in pattern bindings`
     override def usingInArgumentsEnabled: Boolean                = delegate.usingInArgumentsEnabled
     override def `optional braces for method arguments`: Boolean = delegate.`optional braces for method arguments`
-    override def XSourceFlag: ScalaXSourceFlag             = delegate.XSourceFlag
+    override def `named tuples`: Boolean                         = delegate.`named tuples`
+    override def XSourceFlag: ScalaXSourceFlag                   = delegate.XSourceFlag
   }
 
   private val minorVersion6  = Version("6")

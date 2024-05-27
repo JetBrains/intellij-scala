@@ -17,13 +17,22 @@ trait Types {
   final def apply(isPattern: Boolean, typeVariables: Boolean)(implicit builder: ScalaPsiBuilder): (Boolean, Boolean) ={
     var isTuple = false
 
-    def parseTypes(): Boolean = if (`type`.parseWithoutScParamTypeCreation(isPattern, typeVariables)(builder)) {
-      true
-    } else if (builder.getTokenType == ScalaTokenTypes.tUNDER) {
-      builder.advanceLexer()
-      true
-    } else {
-      false
+    def parseTypes(): Boolean = {
+      if (builder.features.`named tuples` && builder.lookAhead(ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tCOLON)) {
+        // Parse named tuple, but only consume tokens for now...
+        // Later we want to have special psi elements ala ScNamedTupleElement
+        builder.advanceLexer()
+        builder.advanceLexer()
+        isTuple = true
+      }
+      if (`type`.parseWithoutScParamTypeCreation(isPattern, typeVariables)(builder)) {
+        true
+      } else if (builder.getTokenType == ScalaTokenTypes.tUNDER) {
+        builder.advanceLexer()
+        true
+      } else {
+        false
+      }
     }
 
     val typesMarker = builder.mark()

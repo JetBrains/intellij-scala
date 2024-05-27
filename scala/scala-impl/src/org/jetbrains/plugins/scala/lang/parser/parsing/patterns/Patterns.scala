@@ -8,8 +8,18 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 object Patterns extends ParsingRule {
 
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
+    def parsePattern(): Boolean = {
+      if (builder.features.`named tuples` && builder.lookAhead(ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tASSIGN)) {
+        // Parse named tuple pattern, but only consume tokens for now...
+        // Later we want to have special psi elements ala ScNamedTupleElement
+        builder.advanceLexer()
+        builder.advanceLexer()
+      }
+      Pattern()
+    }
+
     val patternsMarker = builder.mark()
-    if (!Pattern()) {
+    if (!parsePattern()) {
       builder.getTokenType match {
         case ScalaTokenTypes.tUNDER =>
           builder.advanceLexer()
@@ -28,7 +38,7 @@ object Patterns extends ParsingRule {
     builder.getTokenType match {
       case ScalaTokenTypes.tCOMMA =>
         builder.advanceLexer() //Ate ,
-        while (Pattern()) {
+        while (parsePattern()) {
           builder.getTokenType match {
             case ScalaTokenTypes.tCOMMA =>
               builder.advanceLexer() //Ate ,
