@@ -24,7 +24,7 @@ white space in line {
 }
 class {class}
 white space in line { }
-identifier {a}
+class identifier {a}
 white space in line { }
 { {{}
 white space in line {

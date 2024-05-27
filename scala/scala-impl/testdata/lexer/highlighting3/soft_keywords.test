@@ -52,7 +52,7 @@ case {case}
 white space in line { }
 class {class}
 white space in line { }
-identifier {Test}
+class identifier {Test}
 white space in line {
 
 }
@@ -111,7 +111,7 @@ white space in line { }
 object {object}
 white space in line {
 }
-identifier {inline}
+object identifier {inline}
 white space in line { }
 identifier {identifier}
 white space in line {
@@ -202,7 +202,7 @@ white space in line {
 }
 class {class}
 white space in line { }
-identifier {X}
+class identifier {X}
 white space in line { }
 derives {derives}
 white space in line { }
