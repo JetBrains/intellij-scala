@@ -83,6 +83,41 @@ object Common {
     instrumentThreadingAnnotations := true
   ) ++ projectDirectoriesSettings
 
+  val intellijPluginsScopeFilter: ScopeFilter =
+    ScopeFilter(inDependencies(ThisProject, includeRoot = false))
+
+  //Common settings for Community & Ultimate main projects
+  val MainProjectSettings: Seq[Def.SettingsDefinition] = Seq(
+    sourcesInBase   := false,
+    packageMethod := PackagingMethod.Standalone(),
+    libraryDependencies ++= Seq(
+      Dependencies.scalaLibrary,
+      //Original commit message:
+      //scala-reflect.jar could be excluded from package mappings in scala-impl, because jars from scala-lang are not
+      // package by default in non-root modules. It was non-deterministic and happened on my machine, but not on buildserver.
+      //https://github.com/JetBrains/sbt-idea-plugin/blob/d7d8a421cc4ff10ea723ce116a79cb4491d7e38d/packaging/src/main/scala/org/jetbrains/sbtidea/packaging/PackagingKeysInit.scala#L26
+      Dependencies.scalaReflect,
+      Dependencies.scalaXml
+    ),
+    packageLibraryMappings := Seq(
+      Dependencies.scalaLibrary  -> Some("lib/scala-library.jar"),
+      Dependencies.scalaReflect  -> Some("lib/scala-reflect.jar"),
+      Dependencies.scalaXml      -> Some("lib/scala-xml.jar"),
+    ),
+    intellijPlugins := intellijPlugins.all(intellijPluginsScopeFilter).value.flatten.distinct,
+    intellijRuntimePlugins := Seq(
+      //Below are some other useful plugins which you might be interested to inspect
+      //We don't have any dependencies on those plugins, however sometimes it might be useful to see how some features are implemented in them plugin.
+      //You can uncomment any of them locally
+
+      //This bundled plugin contains some internal development tools such as "View Psi Structure" action
+      //(note there is also PsiViewer plugin, but it's a different plugin)
+      //"com.intellij.dev".toPlugin,
+
+      "org.jetbrains.kotlin".toPlugin
+    ),
+  )
+
   def newPlainScalaProject(projectName: String, base: File): Project =
     Project(projectName, base).settings(
       NewProjectBaseSettings
@@ -154,6 +189,7 @@ object Common {
    * Note that JPS process will contain classpath from other plugins as well.
    * Currently only base classes from Java & Platform are required for Scala Plugin
    *
+   * TODO: can we take the base classpath from the product.info?
    * @todo we might also use this classpath for community/scala/compiler-jps module. But before that it should be refactored.
    *       Currently, the module contains code which might be executed in Scala Compile Server, not only in JPS.
    *       We should split it into separate modules with oun classpathes
