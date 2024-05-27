@@ -10,7 +10,7 @@ import com.intellij.psi.{PsiClass, PsiClassType, PsiMethod, PsiNamedElement}
 import com.intellij.util.containers.{ContainerUtil, SmartHashSet}
 import com.intellij.util.{AstLoadingFilter, SmartList}
 import it.unimi.dsi.fastutil.Hash
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap
+import it.unimi.dsi.fastutil.objects.{Object2ObjectMap, Object2ObjectMaps, Object2ObjectOpenCustomHashMap}
 import org.jetbrains.plugins.scala.caches.{ModTracker, cachedInUserData, cachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
@@ -335,7 +335,7 @@ object MixinNodes {
         }
       }
 
-      new AllNodes(nodesMap, privates)
+      new AllNodes(Object2ObjectMaps.synchronize(nodesMap), privates)
     }
   }
 
@@ -409,7 +409,7 @@ object MixinNodes {
       nodesIterator.foreach(addNode)
       other.nodesIterator.foreach(addNode)
 
-      new AllNodes(newPublics, newPrivates)
+      new AllNodes(Object2ObjectMaps.synchronize(newPublics), newPrivates)
     }
 
     def get(s: T): Option[Node[T]] = {
@@ -467,7 +467,7 @@ object MixinNodes {
     def nodesIterator: Iterator[Node[T]] = list.iterator.asScala
   }
 
-  type NodesMap[T <: Signature] = Object2ObjectOpenCustomHashMap[T, Node[T]]
+  type NodesMap[T <: Signature] = Object2ObjectMap[T, Node[T]]
 
   object NodesMap {
     private def hashingStrategy[T <: Signature]: Hash.Strategy[T] =
