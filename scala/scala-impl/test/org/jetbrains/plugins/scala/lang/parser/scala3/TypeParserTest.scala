@@ -87,4 +87,23 @@ class TypeParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  def test_incomplete_type_func(): Unit = checkTree(
+    """
+      |[A]
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  PolyFunctionExpression
+      |    TypeParameterClause
+      |      PsiElement([)('[')
+      |      TypeParameter: A
+      |        PsiElement(identifier)('A')
+      |      PsiElement(])(']')
+      |    PsiErrorElement:'=>' expected
+      |      <empty list>
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }

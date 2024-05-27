@@ -58,9 +58,7 @@ object Expr extends ParsingRule {
         else {
           exprMarker.drop()
         }
-      case InScala3(ScalaTokenTypes.tLSQBRACKET) =>
-        TypeParamClause(mayHaveViewBounds = false, mayHaveContextBounds = false)
-
+      case InScala3(ScalaTokenTypes.tLSQBRACKET) if TypeParamClause(mayHaveViewBounds = false, mayHaveContextBounds = false) =>
         builder.getTokenType match {
           case ScalaTokenTypes.tFUNTYPE =>
             builder.advanceLexer() // ate =>
@@ -69,7 +67,11 @@ object Expr extends ParsingRule {
             return true
           case _ =>
             builder.error(ScalaBundle.message("fun.sign.expected"))
-            exprMarker.drop()
+            // Even though we couldn't even parse the =>,
+            // we still create a PolyFunctionExpr.
+            // We do that to give the parsed TypeParams a valid parent node
+            // instead of discarding the TypeParams.
+            exprMarker.done(ScalaElementType.POLY_FUNCTION_EXPR)
             return true
         }
 
