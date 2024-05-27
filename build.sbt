@@ -297,7 +297,7 @@ lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
     idePackagePrefix := Some("org.jetbrains.plugins.scala.tasty.reader"),
     intellijMainJars := Seq.empty,
     scalaVersion := Versions.scala3Version,
-    libraryDependencies += "org.scala-lang" % "tasty-core_3" % Versions.scala3Version,
+    libraryDependencies += Dependencies.tastyCore,
     (Compile / scalacOptions) := Seq("-deprecation"),
     (Test / unmanagedResourceDirectories) += baseDirectory.value / "testdata",
     libraryDependencies ++= Seq(
@@ -363,7 +363,8 @@ lazy val scalaImpl: sbt.Project =
         // "com.thesamet.scalapb" %% "lenses" % ".*"          -> None,
         Dependencies.scalaXml                              -> Some("lib/scala-xml.jar"),
         Dependencies.scalaReflect                          -> Some("lib/scala-reflect.jar"),
-        Dependencies.scalaLibrary                          -> None
+        Dependencies.scalaLibrary                          -> None,
+        Dependencies.scala3Library                         -> None,
       )
     )
     .withCompilerPluginIn(scalacPatches) // TODO Add to other modules

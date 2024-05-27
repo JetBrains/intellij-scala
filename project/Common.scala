@@ -92,6 +92,7 @@ object Common {
     packageMethod := PackagingMethod.Standalone(),
     libraryDependencies ++= Seq(
       Dependencies.scalaLibrary,
+      Dependencies.scala3Library,
       //Original commit message:
       //scala-reflect.jar could be excluded from package mappings in scala-impl, because jars from scala-lang are not
       // package by default in non-root modules. It was non-deterministic and happened on my machine, but not on buildserver.
@@ -100,9 +101,10 @@ object Common {
       Dependencies.scalaXml
     ),
     packageLibraryMappings := Seq(
-      Dependencies.scalaLibrary  -> Some("lib/scala-library.jar"),
-      Dependencies.scalaReflect  -> Some("lib/scala-reflect.jar"),
-      Dependencies.scalaXml      -> Some("lib/scala-xml.jar"),
+      Dependencies.scalaLibrary   -> Some("lib/scala-library.jar"),
+      Dependencies.scala3Library  -> Some("lib/scala3-library_3.jar"),
+      Dependencies.scalaReflect   -> Some("lib/scala-reflect.jar"),
+      Dependencies.scalaXml       -> Some("lib/scala-xml.jar"),
     ),
     intellijPlugins := intellijPlugins.all(intellijPluginsScopeFilter).value.flatten.distinct,
     intellijRuntimePlugins := Seq(
