@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression
 
 import com.intellij.lang.ASTNode
+import com.intellij.modcommand.ActionContext
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, StringExt}
@@ -46,7 +47,7 @@ abstract class ScalaExpressionSurrounder extends ScalaModCommandSurrounder {
     else if (isApplicableToMultipleElements || elements.sizeIs == 1) elements.forall(isApplicable)
     else false
 
-  override protected def surroundElements(elements: Array[PsiElement]): Option[TextRange] =
+  override protected def surroundElements(elements: Array[PsiElement], context: ActionContext): Option[TextRange] =
     getSurroundSelectionRange(surroundedNode(elements))
 
   def surroundedNode(elements: Array[PsiElement]): ASTNode = {

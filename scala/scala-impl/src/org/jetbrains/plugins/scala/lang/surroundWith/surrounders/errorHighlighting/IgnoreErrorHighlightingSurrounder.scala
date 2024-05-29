@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.surroundWith.surrounders.errorHighlighting
 
+import com.intellij.modcommand.ActionContext
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
@@ -11,7 +12,7 @@ class IgnoreErrorHighlightingSurrounder extends ScalaModCommandSurrounder {
 
   override def isApplicable(elements: Array[PsiElement]): Boolean = elements.nonEmpty
 
-  override def surroundElements(elements: Array[PsiElement]): Option[TextRange] = {
+  override def surroundElements(elements: Array[PsiElement], context: ActionContext): Option[TextRange] = {
     val firstElement = elements.head
     firstElement.containingFile.map { file =>
       val text = "/*_*/"

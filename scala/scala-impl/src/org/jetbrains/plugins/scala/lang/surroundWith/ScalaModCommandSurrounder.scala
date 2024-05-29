@@ -9,9 +9,9 @@ abstract class ScalaModCommandSurrounder extends ModCommandSurrounder {
   override final def surroundElements(context: ActionContext, elements: Array[PsiElement]): ModCommand =
     if (elements.isEmpty) ModCommand.nop()
     else ModCommand.psiUpdate(context, (updater: ModPsiUpdater) => {
-      val range = surroundElements(elements.map(updater.getWritable))
+      val range = surroundElements(elements.map(updater.getWritable), context)
       range.foreach(updater.select)
     })
 
-  protected def surroundElements(elements: Array[PsiElement]): Option[TextRange]
+  protected def surroundElements(elements: Array[PsiElement], context: ActionContext): Option[TextRange]
 }
