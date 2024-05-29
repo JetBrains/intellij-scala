@@ -25,6 +25,7 @@ import org.jetbrains.sbt.project.structure.SbtOpts
 import org.jetbrains.sbt.settings.{SbtExternalSystemConfigurable, SbtSettings}
 
 import java.io.File
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
 class SbtExternalSystemManager
@@ -229,7 +230,9 @@ object SbtExternalSystemManager {
   /** @param select Allow only options that pass this filter on option name */
   private def proxyOptions(select: String => Boolean): Seq[String] = {
 
+    @nowarn("cat=deprecation") // SCL-22625
     val http = HttpConfigurable.getInstance
+    @nowarn("cat=deprecation") // SCL-22625
     val jvmArgs = http
       .getJvmProperties(false, null)
       .asScala.iterator
@@ -237,6 +240,7 @@ object SbtExternalSystemManager {
       .toSeq
 
     // TODO workaround for IDEA-186551 -- remove when fixed in core
+    @nowarn("cat=deprecation") // SCL-22625
     val nonProxyHosts =
       if (!StringUtil.isEmpty(http.PROXY_EXCEPTIONS) && (http.USE_HTTP_PROXY || http.USE_PROXY_PAC)) {
         val hosts = http.PROXY_EXCEPTIONS.split(",")

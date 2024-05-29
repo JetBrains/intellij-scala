@@ -308,6 +308,9 @@ final class ScalaUastElementFactory(project: Project) extends UastElementFactory
   override def createMethodFromText(methodText: String, @Nullable context: PsiElement): UMethod =
     toUElement(ScalaPsiElementFactory.createMethodFromText(methodText, context), classOf[UMethod])
 
+  override def createComment(text: String, @Nullable context: PsiElement): UComment =
+    toUElement(ScalaPsiElementFactory.createCommentFromText(text), classOf[UComment])
+
   private def createInfixExpr(leftOperand: UExpression,
                               rightOperand: UExpression,
                               operator: UastBinaryOperator,

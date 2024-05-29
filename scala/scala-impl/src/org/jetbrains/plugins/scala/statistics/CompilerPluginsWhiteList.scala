@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.statistics
 
 import com.intellij.facet.frameworks.LibrariesDownloadConnectionService
 import com.intellij.internal.statistic.libraryJar.LibraryJarDescriptors
-import com.intellij.util.net.HttpConfigurable
+import com.intellij.util.net.HttpConnectionUtils
 import com.intellij.util.xmlb.XmlSerializer
 
 import java.net.URL
@@ -23,7 +23,7 @@ private object CompilerPluginsWhiteList {
     val serviceUrl = LibrariesDownloadConnectionService.getInstance.getServiceUrl
     val url = s"$serviceUrl/statistics/scalac-plugins-statistics.xml"
     Try {
-      HttpConfigurable.getInstance.prepareURL(url)
+      HttpConnectionUtils.prepareUrl(url)
       new URL(url)
     }.toOption
   }
