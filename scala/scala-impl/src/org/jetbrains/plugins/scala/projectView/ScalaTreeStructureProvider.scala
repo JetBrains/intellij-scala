@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import org.jetbrains.sbt.project.SbtProjectSystem
 
 import java.util
+import java.util.regex.Pattern
 import scala.jdk.CollectionConverters._
 import scala.util.control.Breaks._
 
@@ -184,7 +185,10 @@ private object ScalaTreeStructureProvider {
 
 
   private def isRootModuleInMultiBUILDProject(module: Module, project: Project, virtualFile: VirtualFile): Boolean = {
-    val regexPattern = (path: String) => s""".*$path(?:/)?\\]""".r
+    val regexPattern = (path: String) => {
+      val quoted = Pattern.quote(path)
+      s""".*$quoted(?:/)?\\]""".r
+    }
     val moduleRegexPattern = regexPattern(virtualFile.getPath)
 
     def moduleIdOpt(module: Module): Option[String] = Option(ExternalSystemApiUtil.getExternalProjectId(module))
