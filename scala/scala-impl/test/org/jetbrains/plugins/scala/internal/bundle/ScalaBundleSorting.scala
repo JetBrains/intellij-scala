@@ -1,18 +1,14 @@
 package org.jetbrains.plugins.scala.internal.bundle
 
 import org.jetbrains.plugins.scala.extensions.PathExt
-import org.jetbrains.plugins.scala.internal.bundle.ScalaBundleSorting.ModuleWithBundleInfo
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.internal.I18nBundleContent
 import org.jetbrains.plugins.scala.util.internal.I18nBundleContent._
-import org.junit.Assert.assertEquals
 
 import java.io.File
-import java.nio.file.attribute.BasicFileAttributes
-import java.nio.file.{FileVisitResult, Files, Path, Paths, SimpleFileVisitor}
+import java.nio.file.Path
 import java.util.Scanner
 import java.util.regex.Pattern
-import scala.collection.mutable
 import scala.io.Source
 
 //noinspection ScalaUnusedSymbol
@@ -48,7 +44,7 @@ object ScalaBundleSorting {
     extraUsageModules: Seq[ModuleInfo] = Nil,
     override val searcher: Searcher = new Searcher
   ) extends ModuleInfoLike {
-    def bundleAbsolutePath: Path = messagesPath / bundleMessagesRelativePath
+    def bundleAbsolutePath: Path = (messagesPath / bundleMessagesRelativePath).normalize()
   }
 
   val communityDir: Path = TestUtils.findCommunityRootPath
@@ -172,8 +168,8 @@ object ScalaBundleSorting {
   )
 
   def main(args: Array[String]): Unit = {
-    ScalaBundleSortingUtils.assertAllModulesWithBundlesAreRegistered(communityDir, allModuleInfos)
     sortAll(allModuleInfos)
+    new ScalaBundleCoverageTest().testAllBundlesAreCovered()
   }
 
   def sortAll(moduleInfos: Seq[ModuleWithBundleInfo]): Unit = for (moduleInfo <- moduleInfos) {
@@ -258,86 +254,14 @@ object ScalaBundleSorting {
       findKeysInDirectory(module.resourcesPath, module.searcher)
 
   def findKeysInDirectory(root: Path, searcher: Searcher): List[Finding] =
-    for (file <- allFilesIn(root).toList.sorted; key <- searcher.search(file.toPath)) yield {
+    for (file <- allFilesIn(root.toFile).toList.sorted; key <- searcher.search(file.toPath)) yield {
       val absoluteFilepath = file.toString.replace('\\', '/')
       val relativeFilepath = absoluteFilepath.substring(root.toString.length).stripPrefix("/")
       Finding(relativeFilepath, key)(absoluteFilepath)
     }
 
-  def allFilesIn(path: Path): Iterator[File] =
-    allFilesIn(path.toFile)
-
-  def allFilesIn(file: File): Iterator[File] = {
+  private def allFilesIn(file: File): Iterator[File] =
     if (!file.exists) Iterator()
     else if (!file.isDirectory) Iterator(file)
     else file.listFiles.sorted.iterator.flatMap(allFilesIn)
-  }
-}
-
-object ScalaBundleSortingUtils {
-
-  def assertAllModulesWithBundlesAreRegistered(
-    projectRoot: Path,
-    moduleInfos: Seq[ModuleWithBundleInfo]
-  ): Unit = {
-    //item example: akka/resources/META-INF/Akka.xml
-    val pluginXmlFiles: Seq[Path] =
-      collectAllIdeaPluginXmlFilesInDir(
-        projectRoot,
-        ignoreDirNames = Seq("community", ".idea", ".git", "target")
-      ).map(_.normalize())
-
-    //item example: akka
-    val moduleRoots: Seq[Path] =
-      pluginXmlFiles.map(_.getParent.getParent.getParent).distinct
-
-    moduleRoots.foreach { moduleRoot =>
-
-      assert(Files.exists(moduleRoot))
-      val bundleFiles: Seq[Path] = Option(moduleRoot / "resources" / "messages").map(_.toFile).filter(_.exists).toSeq
-        .flatMap(_.listFiles.toSeq)
-        .filter(_.getName.endsWith("Bundle.properties"))
-        .map(_.toPath)
-
-      if (bundleFiles.nonEmpty) {
-        val moduleInfo = moduleInfos.find(_.rootPath.normalize() == moduleRoot).getOrElse {
-          throw new AssertionError(s"Module info is not registered: $moduleRoot")
-        }
-        assertEquals(
-          Seq(moduleInfo.bundleAbsolutePath.normalize()),
-          bundleFiles
-        )
-      }
-    }
-  }
-
-
-  //example: scala-coverage.xml, intellij-qodana-jvm-sbt.xml
-  def collectAllIdeaPluginXmlFilesInDir(
-    root: Path,
-    ignoreDirNames: Seq[String]
-  ): Seq[Path] = {
-    val fileExtension = ".xml"
-
-    val result = mutable.ArrayBuffer.empty[Path]
-    Files.walkFileTree(root, new SimpleFileVisitor[Path] {
-      override def preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult =
-        if (ignoreDirNames.contains(dir.getFileName.toString))
-          FileVisitResult.SKIP_SUBTREE
-        else
-          FileVisitResult.CONTINUE
-
-      override def visitFile(path: Path, attrs: BasicFileAttributes): FileVisitResult = {
-        val file = path.toFile
-        if (file.getName.endsWith(fileExtension) && file.getParentFile.getName == "META-INF" && file.getParentFile.getParentFile.getName == "resources") {
-          result += path
-          FileVisitResult.CONTINUE
-        }
-        else
-          FileVisitResult.CONTINUE
-      }
-    })
-
-    result.toSeq
-  }
 }
