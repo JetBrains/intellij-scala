@@ -1,12 +1,18 @@
 package org.jetbrains.plugins.scala.internal.bundle
 
+import org.jetbrains.plugins.scala.extensions.RichFile
+import org.jetbrains.plugins.scala.internal.bundle.ScalaBundleSorting.ModuleWithBundleInfo
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.internal.I18nBundleContent
 import org.jetbrains.plugins.scala.util.internal.I18nBundleContent._
+import org.junit.Assert.assertEquals
 
 import java.io.File
+import java.nio.file.attribute.BasicFileAttributes
+import java.nio.file.{FileVisitResult, Files, Path, SimpleFileVisitor}
 import java.util.Scanner
 import java.util.regex.Pattern
+import scala.collection.mutable
 import scala.io.Source
 
 //noinspection ScalaUnusedSymbol
@@ -165,7 +171,10 @@ object ScalaBundleSorting {
     ),
   )
 
-  def main(args: Array[String]): Unit = sortAll(allModuleInfos)
+  def main(args: Array[String]): Unit = {
+    ScalaBundleSortingUtils.assertAllModulesWithBundlesAreRegistered(new File(communityDir), allModuleInfos)
+    sortAll(allModuleInfos)
+  }
 
   def sortAll(moduleInfos: Seq[ModuleWithBundleInfo]): Unit = for (moduleInfo <- moduleInfos) {
     val keyToFindings: Map[String, List[Finding]] =
@@ -262,5 +271,71 @@ object ScalaBundleSorting {
     if (!path.exists) Iterator()
     else if (!path.isDirectory) Iterator(path)
     else path.listFiles.sorted.iterator.flatMap(allFilesIn)
+  }
+}
+
+object ScalaBundleSortingUtils {
+
+  def assertAllModulesWithBundlesAreRegistered(
+    projectRoot: File,
+    moduleInfos: Seq[ModuleWithBundleInfo]
+  ): Unit = {
+    //item example: akka/resources/META-INF/Akka.xml
+    val pluginXmlFiles: Seq[File] =
+      collectAllIdeaPluginXmlFilesInDir(
+        projectRoot,
+        ignoreDirNames = Seq("community", ".idea", ".git", "target")
+      ).map(_.getCanonicalFile)
+
+    //item example: akka
+    val moduleRoots: Seq[File] =
+      pluginXmlFiles.map(_.getParentFile.getParentFile.getParentFile).distinct
+
+    moduleRoots.foreach { moduleRoot =>
+      assert(moduleRoot.exists())
+      val bundleFiles = Option(moduleRoot / "resources" / "messages").filter(_.exists()).toSeq
+        .flatMap(_.listFiles.toSeq)
+        .filter(_.getName.endsWith("Bundle.properties"))
+
+      if (bundleFiles.nonEmpty) {
+        val moduleInfo = moduleInfos.find(mi => new File(mi.rootPath).getCanonicalFile == moduleRoot).getOrElse {
+          throw new AssertionError(s"Module info is not registered: $moduleRoot")
+        }
+        assertEquals(
+          Seq(new File(moduleInfo.bundleAbsolutePath).getCanonicalFile),
+          bundleFiles
+        )
+      }
+    }
+  }
+
+
+  //example: scala-coverage.xml, intellij-qodana-jvm-sbt.xml
+  def collectAllIdeaPluginXmlFilesInDir(
+    root: File,
+    ignoreDirNames: Seq[String]
+  ): Seq[File] = {
+    val fileExtension = ".xml"
+
+    val result = mutable.ArrayBuffer.empty[File]
+    Files.walkFileTree(root.toPath, new SimpleFileVisitor[Path] {
+      override def preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult =
+        if (ignoreDirNames.contains(dir.getFileName.toString))
+          FileVisitResult.SKIP_SUBTREE
+        else
+          FileVisitResult.CONTINUE
+
+      override def visitFile(path: Path, attrs: BasicFileAttributes): FileVisitResult = {
+        val file = path.toFile
+        if (file.getName.endsWith(fileExtension) && file.getParentFile.getName == "META-INF" && file.getParentFile.getParentFile.getName == "resources") {
+          result += file
+          FileVisitResult.CONTINUE
+        }
+        else
+          FileVisitResult.CONTINUE
+      }
+    })
+
+    result.toSeq
   }
 }
