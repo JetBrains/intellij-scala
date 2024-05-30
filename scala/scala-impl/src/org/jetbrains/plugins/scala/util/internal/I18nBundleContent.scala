@@ -19,9 +19,14 @@ case class I18nBundleContent(entries: Seq[Entry]) {
     val (before, after) = entries.partition(entryOrdering.lteq(_, entry))
     I18nBundleContent(before ++ Seq(entry) ++ after)
   }
-
   def writeTo(path: String): Unit =
     writeTo(new PrintWriter(new File(path)))
+
+  def writeTo(path: Path): Unit =
+    writeTo(new PrintWriter(path.toFile))
+
+  def writeTo(file: File): Unit =
+    writeTo(new PrintWriter(file))
 
   def writeTo(outputStream: OutputStream): Unit =
     writeTo(new PrintWriter(outputStream))
@@ -59,9 +64,15 @@ object I18nBundleContent {
     def isUnused: Boolean = path == unusedPath
   }
 
-  def read(bundlePath: String): I18nBundleContent = {
+  def read(bundlePath: String): I18nBundleContent =
+    read(new File(bundlePath))
+
+  def read(bundleFile: Path): I18nBundleContent =
+    read(bundleFile.toFile)
+
+  def read(bundleFile: File): I18nBundleContent = {
     val lines = {
-      val source = Source.fromFile(bundlePath)(StandardCharsets.ISO_8859_1)
+      val source = Source.fromFile(bundleFile)(StandardCharsets.ISO_8859_1)
       try source.getLines().toArray
       finally source.close()
     }

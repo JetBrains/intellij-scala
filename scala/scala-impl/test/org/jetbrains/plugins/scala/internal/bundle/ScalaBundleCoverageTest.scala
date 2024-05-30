@@ -2,14 +2,15 @@ package org.jetbrains.plugins.scala.internal.bundle
 
 import com.intellij.testFramework.UsefulTestCase
 import junit.framework.TestCase.fail
+import org.jetbrains.plugins.scala.extensions.{PathExt, RichFile}
 
 import java.io.File
 import java.nio.file.{Path, Paths}
 
 trait ScalaBundleCoverageTestBase extends UsefulTestCase {
-  protected def root: String
+  protected def root: Path
 
-  protected def ignoreRoots: Seq[String]
+  protected def ignoreRoots: Seq[Path]
 
   protected def definedModuleInfos: Seq[ScalaBundleSorting.ModuleWithBundleInfo]
 
@@ -32,11 +33,13 @@ trait ScalaBundleCoverageTestBase extends UsefulTestCase {
     file <- ScalaBundleSorting.allFilesIn(root)
     if isMessageBundleFile(file)
     absolutePath = normalizedAbsolutePath(file.toPath)
-    if !ignoreRoots.exists(absolutePath.startsWith)
+    if !ignoreRoots.exists(r => absolutePath.startsWith(r.toString))
   } yield absolutePath
 
   // resolve paths like /foo/../bar/baz to /foo/bar/baz
   private def normalizedAbsolutePath(path: String): String = normalizedAbsolutePath(Paths.get(path))
+
+  private def normalizedAbsolutePath(file: File): String = normalizedAbsolutePath(file.getPath)
 
   private def normalizedAbsolutePath(path: Path): String = path.toAbsolutePath.normalize().toString
 
@@ -61,14 +64,14 @@ trait ScalaBundleCoverageTestBase extends UsefulTestCase {
         .append(System.lineSeparator())
       messageBundles.foreach { path =>
         messageBuffer.append("- ")
-          .append(path.stripPrefix(root))
+          .append(path.stripPrefix(root.toString))
           .append(System.lineSeparator())
       }
     }
 }
 
 final class ScalaBundleCoverageTest extends ScalaBundleCoverageTestBase {
-  override val root = ScalaBundleSorting.communityDir
-  override val ignoreRoots = Seq(ScalaBundleSorting.integrationDir + "packagesearch/")
+  override val root: Path = ScalaBundleSorting.communityDir
+  override val ignoreRoots: Seq[Path] = Seq(ScalaBundleSorting.integrationDir / "packagesearch")
   override val definedModuleInfos = ScalaBundleSorting.allModuleInfos
 }
