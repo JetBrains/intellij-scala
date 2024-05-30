@@ -2,8 +2,9 @@ package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.editor.documentationProvider.renderers.{ScalaDocTypeRenderer, WithHtmlPsiLink}
-import org.jetbrains.plugins.scala.extensions.{NonNullObjectExt, ObjectExt, PsiClassExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{ContextBoundInfo, inNameContext}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -31,6 +32,7 @@ object ScalaDocQuickInfoGenerator {
   //TODO: not supported yet
   private[documentationProvider] val EnableSyntaxHighlightingInQuickInfo = false
 
+  @Nullable
   def getQuickNavigateInfo(element: PsiElement, originalElement: PsiElement): String = {
     val substitutor = originalElement match {
       case ref: ScReference =>
@@ -43,6 +45,7 @@ object ScalaDocQuickInfoGenerator {
     getQuickNavigateInfo(element, originalElement, substitutor)
   }
 
+  @Nullable
   def getQuickNavigateInfo(element: PsiElement, originalElement: PsiElement, substitutor: ScSubstitutor): String = {
     implicit val typeRenderer: TypeRenderer = ScalaDocTypeRenderer.forQuickInfo(originalElement, substitutor)(ProjectContext.fromPsi(element))
     val buffer = new StringBuilder
