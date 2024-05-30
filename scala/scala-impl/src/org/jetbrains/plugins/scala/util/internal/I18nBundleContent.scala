@@ -72,7 +72,7 @@ object I18nBundleContent {
 
   def read(bundleFile: File): I18nBundleContent = {
     val lines = {
-      val source = Source.fromFile(bundleFile)(StandardCharsets.ISO_8859_1)
+      val source = Source.fromFile(bundleFile)(StandardCharsets.UTF_8)
       try source.getLines().toArray
       finally source.close()
     }
