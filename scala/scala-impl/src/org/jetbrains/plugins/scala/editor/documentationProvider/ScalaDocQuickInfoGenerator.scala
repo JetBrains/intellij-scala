@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.openapi.module.ModuleUtilCore
+import com.intellij.openapi.util.NlsContexts.HintText
 import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
-import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.editor.documentationProvider.renderers.{ScalaDocTypeRenderer, WithHtmlPsiLink}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -32,8 +32,8 @@ object ScalaDocQuickInfoGenerator {
   //TODO: not supported yet
   private[documentationProvider] val EnableSyntaxHighlightingInQuickInfo = false
 
-  @Nullable
-  def getQuickNavigateInfo(element: PsiElement, originalElement: PsiElement): String = {
+  @HintText
+  def getQuickNavigateInfo(element: PsiElement, originalElement: PsiElement): Option[String] = {
     val substitutor = originalElement match {
       case ref: ScReference =>
         ref.bind() match {
@@ -45,8 +45,8 @@ object ScalaDocQuickInfoGenerator {
     getQuickNavigateInfo(element, originalElement, substitutor)
   }
 
-  @Nullable
-  def getQuickNavigateInfo(element: PsiElement, originalElement: PsiElement, substitutor: ScSubstitutor): String = {
+  @HintText
+  def getQuickNavigateInfo(element: PsiElement, originalElement: PsiElement, substitutor: ScSubstitutor): Option[String] = {
     implicit val typeRenderer: TypeRenderer = ScalaDocTypeRenderer.forQuickInfo(originalElement, substitutor)(ProjectContext.fromPsi(element))
     val buffer = new StringBuilder
     element match {
@@ -63,7 +63,7 @@ object ScalaDocQuickInfoGenerator {
 
     val result = buffer.result().stripTrailing()
     // Do not show an empty pop up, let the platform show the fallback option
-    if (result.isEmpty) null else result
+    if (result.isEmpty) Option.empty else Option(result)
   }
 
   private def generateClassInfo(buffer: StringBuilder, clazz: ScTypeDefinition)
