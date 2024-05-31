@@ -118,6 +118,11 @@ private object MultipleScalaVersionsRunner {
     def this(version: JdkVersion) = this(sanitize(s"(jdk ${version.toString})"))
   }
 
+  // SCL-21849
+  private case class IndexingModeTestSuite(name: String) extends MyBaseTestSuite(name) {
+    def this(indexingMode: TestIndexingMode) = this(s"(${indexingMode.label})")
+  }
+
   def testSuite(klass: Class[_ <: TestCase]): TestSuite = {
     assert(classOf[ScalaSdkOwner].isAssignableFrom(klass))
 
@@ -147,10 +152,10 @@ private object MultipleScalaVersionsRunner {
     def filterJdkVersion(version: TestJdkVersion): Boolean =
       runWithJdkVersion.forall(_.contains(version))
 
-    val allTestCases: Seq[(TestCase, ScalaVersion, JdkVersion)] = {
+    val allTestCases: Seq[(TestCase, ScalaVersion, JdkVersion, TestIndexingMode)] = {
       val collected = new ScalaVersionAwareTestsCollector(klass, classScalaVersions, classJdkVersions).collectTests()
-      collected.collect { case (test, sv, jv) if filterScalaVersion(sv) && filterJdkVersion(jv) =>
-        (test, sv.toProductionVersion, jv.toProductionVersion)
+      collected.collect { case (test, sv, jv, im) if filterScalaVersion(sv) && filterJdkVersion(jv) =>
+        (test, sv.toProductionVersion, jv.toProductionVersion, im)
       }
     }
 
@@ -182,11 +187,11 @@ private object MultipleScalaVersionsRunner {
 //    }
 //  }
 
-  private def childTestsByScalaVersion(testCases: Seq[(TestCase, ScalaVersion, JdkVersion)]): Seq[Test] = {
+  private def childTestsByScalaVersion(testCases: Seq[(TestCase, ScalaVersion, JdkVersion, TestIndexingMode)]): Seq[Test] = {
     val scalaVersionToTests: Map[ScalaVersion, Seq[Test]] =
       testCases.groupBy(_._2)
         .view
-        .mapValues(_.map(t => (t._1, t._3)))
+        .mapValues(_.map(t => (t._1, t._3, t._4)))
         .mapValues(childTestsByJdkVersion)
         .toMap
 
@@ -199,7 +204,7 @@ private object MultipleScalaVersionsRunner {
       } yield {
         val firstTest = tests.head
         val suite = firstTest match {
-          case _: JdkVersionTestSuite =>
+          case _: JdkVersionTestSuite | _: IndexingModeTestSuite =>
             new ScalaVersionTestSuite(version)
           case s: ScalaSdkOwner =>
             // if only one jdk version is used, display it in the test name
@@ -219,9 +224,13 @@ private object MultipleScalaVersionsRunner {
     }
   }
 
-  private def childTestsByJdkVersion(testCases: Seq[(TestCase, JdkVersion)]): Seq[Test] = {
-    val jdkVersionToTests: Map[JdkVersion, Seq[TestCase]] =
-      testCases.groupBy(_._2).view.mapValues(_.map(_._1)).toMap
+  private def childTestsByJdkVersion(testCases: Seq[(TestCase, JdkVersion, TestIndexingMode)]): Seq[Test] = {
+    val jdkVersionToTests: Map[JdkVersion, Seq[Test]] =
+      testCases.groupBy(_._2)
+        .view
+        .mapValues(_.map(t => (t._1, t._3)))
+        .mapValues(childTestsByIndexingMode)
+        .toMap
 
     if (jdkVersionToTests.size == 1) jdkVersionToTests.head._2 else {
       for {
@@ -229,6 +238,25 @@ private object MultipleScalaVersionsRunner {
         if tests.nonEmpty
       } yield {
         val suite = new JdkVersionTestSuite(version)
+        tests.foreach(suite.addTest)
+        suite
+      }
+    }
+  }
+
+  private def childTestsByIndexingMode(testCases: Seq[(TestCase, TestIndexingMode)]): Seq[Test] = {
+    val indexingModeToTests: Map[TestIndexingMode, Seq[Test]] =
+      testCases.groupBy(_._2)
+        .view
+        .mapValues(_.map(_._1))
+        .toMap
+
+    if (indexingModeToTests.size == 1) indexingModeToTests.head._2 else {
+      for {
+        (indexingMode, tests) <- indexingModeToTests.toSeq.sortBy(_._1)
+        if tests.nonEmpty
+      } yield {
+        val suite = new IndexingModeTestSuite(indexingMode)
         tests.foreach(suite.addTest)
         suite
       }
@@ -249,7 +277,7 @@ private object MultipleScalaVersionsRunner {
       .getOrElse(Seq(DefaultJdkVersionToRun))
   }
 
-  private def findAnnotation[T <: Annotation](klass: Class[_], annotationClass: Class[T]): Option[T] = {
+  private[runners] def findAnnotation[T <: Annotation](klass: Class[_], annotationClass: Class[T]): Option[T] = {
     @tailrec
     def inner(c: Class[_]): Annotation = c.getAnnotation(annotationClass) match {
       case null =>

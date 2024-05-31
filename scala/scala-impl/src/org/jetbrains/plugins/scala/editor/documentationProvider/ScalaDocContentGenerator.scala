@@ -448,6 +448,10 @@ object ScalaDocContentGenerator {
       case _                  => None
     }
 
+  /**
+   * TODO: unify with [[org.jetbrains.plugins.scala.editor.documentationProvider.HtmlPsiUtils.psiElementLink]]
+   *  and [[org.jetbrains.plugins.scala.editor.documentationProvider.HtmlPsiUtils.psiElementLinkWithCodeTag]]
+   */
   private def hyperLinkToPsi(refText: String, label: String, plainLink: Boolean): String = {
     val buffer = new java.lang.StringBuilder
     DocumentationManagerUtil.createHyperlink(buffer, refText, label, plainLink)

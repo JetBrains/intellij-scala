@@ -1,5 +1,8 @@
 package org.jetbrains.plugins.scala.lang.completion.postfix
 
+import com.intellij.testFramework.NeedsIndex
+
+@NeedsIndex.SmartMode(reason = "`not` needs type inference to check conformance with Boolean")
 class ScalaNotPostfixTemplateTest extends PostfixTemplateTest {
   override def testPath(): String = super.testPath() + "not/"
 

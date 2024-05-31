@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement.AnonymousPlaceholder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createIdentifier
@@ -49,7 +50,7 @@ trait ScNamedElement extends ScalaPsiElement
    */
   protected def nameInner: String = {
     val nameId = this.nameId
-    if (nameId != null) nameId.getText else "<anonymous>"
+    if (nameId != null) nameId.getText else AnonymousPlaceholder
   }
 
   def nameContext: PsiElement = _nameContext()
@@ -143,7 +144,7 @@ trait ScNamedElement extends ScalaPsiElement
       override def getPresentableText: String = name
       override def getLocationString: String = clazz match {
         case _: ScTypeDefinition => "(" + clazz.qualifiedName + ")"
-        case _: ScNewTemplateDefinition => "(<anonymous>)"
+        case _: ScNewTemplateDefinition => s"($AnonymousPlaceholder)"
         case _ => parentMember.map(m => StringUtil.first(m.getText, 30, true)).getOrElse("")
       }
       override def getIcon(open: Boolean): Icon = parentMember.map(_.getIcon(0)).orNull
@@ -156,4 +157,8 @@ trait ScNamedElement extends ScalaPsiElement
       case _: ScCaseClause => Icons.PATTERN_VAL
       case x => x.getIcon(flags)
     }
+}
+
+object ScNamedElement {
+  val AnonymousPlaceholder = "<anonymous>"
 }

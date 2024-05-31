@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScalaConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createClassTemplateParents
@@ -26,7 +27,7 @@ object ExtractSuperUtil {
     clazz match {
       case td: ScTypeDefinition => td.qualifiedName
       case anon: ScNewTemplateDefinition =>
-        val anonymous = "<anonymous>"
+        val anonymous = ScNamedElement.AnonymousPlaceholder
         PsiTreeUtil.getParentOfType(anon, classOf[ScTemplateDefinition], classOf[ScFunctionDefinition]) match {
           case td: ScTemplateDefinition => s"$anonymous in ${td.name}"
           case fun: ScFunctionDefinition => s"$anonymous in ${fun.name}"

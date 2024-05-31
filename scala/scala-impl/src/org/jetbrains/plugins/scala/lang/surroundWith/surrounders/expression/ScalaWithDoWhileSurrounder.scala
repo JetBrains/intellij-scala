@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression
 
 import com.intellij.lang.ASTNode
-import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ToNullSafe}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /*
@@ -22,17 +21,16 @@ class ScalaWithDoWhileSurrounder extends ScalaExpressionSurrounder {
   //noinspection ScalaExtractStringToBundle,DialogTitleCapitalization
   override def getTemplateDescription = "do / while"
 
-  override def getSurroundSelectionRange(editor: Editor, withDoWhileNode: ASTNode): TextRange = {
-    val doWhileStmt = unwrapParenthesis(withDoWhileNode) match {
-      case Some(stmt: ScDo) => stmt
-      case _ => return withDoWhileNode.getTextRange
+  override def getSurroundSelectionRange(withDoWhileNode: ASTNode): Option[TextRange] =
+    unwrapParenthesis(withDoWhileNode) match {
+      case Some(stmt: ScDo) =>
+        val conditionNode = stmt.getNode
+          .nullSafe
+          .map(_.getLastChildNode)
+          .map(_.getTreePrev)
+        conditionNode.map(_.getTextRange).toOption
+      case _ => None
     }
 
-    val conditionNode: ASTNode = doWhileStmt.getNode.getLastChildNode.getTreePrev
-
-    val startOffset = conditionNode.getTextRange.getStartOffset
-    val endOffset = conditionNode.getTextRange.getEndOffset
-
-    new TextRange(startOffset, endOffset)
-  }
+  override protected val isApplicableToMultipleElements: Boolean = true
 }

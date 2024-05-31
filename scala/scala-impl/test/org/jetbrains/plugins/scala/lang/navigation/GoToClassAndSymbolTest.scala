@@ -4,24 +4,19 @@ package navigation
 
 import com.intellij.ide.util.gotoByName._
 import com.intellij.openapi.application.ModalityState
-import com.intellij.openapi.module.Module
-import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiClass, PsiElement}
-import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
-import com.intellij.testFramework.{NeedsIndex, PlatformTestUtil, TestIndexingModeSupporter}
+import com.intellij.testFramework.{NeedsIndex, PlatformTestUtil}
 import com.intellij.util.concurrency.Semaphore
-import org.jetbrains.plugins.scala.base.TestIndexingModeSupporterCompanion
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithAllIndexingModes, RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert._
+import org.junit.runner.RunWith
 
 import scala.jdk.CollectionConverters._
 
-abstract class GoToClassAndSymbolTestBase extends GoToTestBase with TestIndexingModeSupporter {
+abstract class GoToClassAndSymbolTestBase extends GoToTestBase {
   private var myPopup: ChooseByNamePopup = _
-
-  private var myToken: IndexingMode.ShutdownToken = _
-  private var myIndexingMode: IndexingMode = IndexingMode.SMART
 
   private def createPopup(model: ChooseByNameModel): ChooseByNamePopup = {
     if (myPopup == null) {
@@ -30,22 +25,13 @@ abstract class GoToClassAndSymbolTestBase extends GoToTestBase with TestIndexing
     myPopup
   }
 
-  override protected def afterSetUpProject(project: Project, module: Module): Unit = {
-    super.afterSetUpProject(project, module)
-    myToken = myIndexingMode.setUpTest(project, getTestRootDisposable)
-  }
-
   override def tearDown(): Unit = {
     if (myPopup != null) {
       myPopup.close(false)
       myPopup.dispose()
       myPopup = null
     }
-    try {
-      if (myToken != null) {
-        myIndexingMode.tearDownTest(getProject, myToken)
-      }
-    } finally super.tearDown()
+    super.tearDown()
   }
 
   protected def gotoClassElements(text: String): Set[Any] = getPopupElements(new GotoClassModel2(getProject), text)
@@ -83,12 +69,14 @@ abstract class GoToClassAndSymbolTestBase extends GoToTestBase with TestIndexing
     expectedSize,
     elements.size
   )
-
-  override def getIndexingMode: IndexingMode = myIndexingMode
-
-  override def setIndexingMode(mode: IndexingMode): Unit = myIndexingMode = mode
 }
 
+@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWithAllIndexingModes
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_2_13,
+  TestScalaVersion.Scala_3_Latest,
+))
 class GoToClassAndSymbolTest extends GoToClassAndSymbolTestBase {
   override protected def loadScalaLibrary = false
 
@@ -224,5 +212,3 @@ class GoToClassAndSymbolTest extends GoToClassAndSymbolTestBase {
     checkSize(elements, 2)
   }
 }
-
-object GoToClassAndSymbolTest extends TestIndexingModeSupporterCompanion[GoToClassAndSymbolTest]

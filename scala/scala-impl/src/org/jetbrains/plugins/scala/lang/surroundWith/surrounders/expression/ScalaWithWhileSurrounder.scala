@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression
 
 import com.intellij.lang.ASTNode
-import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScWhile
@@ -16,20 +15,13 @@ class ScalaWithWhileSurrounder extends ScalaExpressionSurrounder {
   //noinspection ScalaExtractStringToBundle,DialogTitleCapitalization
   override def getTemplateDescription = "while"
 
-  override def getSurroundSelectionRange(editor: Editor, withWhileNode: ASTNode): TextRange = {
-    val whileStmt = unwrapParenthesis(withWhileNode) match {
+  override protected val isApplicableToMultipleElements: Boolean = true
+
+  override def getSurroundSelectionRange(withWhileNode: ASTNode): Option[TextRange] =
+    unwrapParenthesis(withWhileNode) match {
       case Some(stmt: ScWhile) =>
-        stmt.toIndentationBasedSyntax
-      case _ => return withWhileNode.getTextRange
+        val whileStmt = stmt.toIndentationBasedSyntax
+        whileStmt.condition.map(_.getTextRange)
+      case _ => None
     }
-
-    val conditionNode: ASTNode = (whileStmt.condition: @unchecked) match {
-      case Some(c) => c.getNode
-    }
-
-    val startOffset = conditionNode.getTextRange.getStartOffset
-    val endOffset = conditionNode.getTextRange.getEndOffset
-
-    new TextRange(startOffset, endOffset)
-  }
 }

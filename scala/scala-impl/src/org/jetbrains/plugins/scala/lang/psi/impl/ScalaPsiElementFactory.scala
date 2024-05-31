@@ -17,8 +17,7 @@ import com.intellij.psi.tree.{IElementType, IFileElementType}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.LightVirtualFile
 import com.intellij.util.IncorrectOperationException
-import org.apache.commons.lang3.StringUtils
-import org.apache.commons.lang3.ObjectUtils
+import org.apache.commons.lang3.{ObjectUtils, StringUtils}
 import org.jetbrains.annotations.{NonNls, Nullable}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaKeywordTokenType, ScalaModifier, ScalaTokenType}
@@ -1583,6 +1582,13 @@ object ScalaPsiElementFactory {
 
   def createTypeAliasDefinitionFromText(@NonNls text: String, context: PsiElement, child: PsiElement): ScTypeAliasDefinition =
     createElementWithContext[ScTypeAliasDefinition](text, context, child)(parsingStat.Def.parse(_))
+
+  def createCommentFromText(@NonNls text: String)(implicit ctx: ProjectContext): PsiComment = {
+    val definition = createScalaFileFromText(s"$text\nclass a", ScalaFeatures.default).getFirstChild.asInstanceOf[ScClass]
+    definition.allComments.headOption.getOrElse {
+      throw ScalaPsiElementCreationException("scala comment", text)
+    }
+  }
 
   //============================================================
   // ScalaDoc elements

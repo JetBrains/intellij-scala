@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.util.runners
 
+import com.intellij.testFramework.TestIndexingModeSupporter
 import junit.framework.{Test, TestCase, TestSuite}
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
+import org.jetbrains.plugins.scala.util.runners.MultipleScalaVersionsRunner.findAnnotation
 import org.junit.internal.MethodSorter
 
 import java.lang.reflect.{Method, Modifier}
@@ -12,31 +14,36 @@ class ScalaVersionAwareTestsCollector(klass: Class[_ <: TestCase],
                                       classScalaVersion: Seq[TestScalaVersion],
                                       classJdkVersion: Seq[TestJdkVersion]) {
 
-  def collectTests(): Seq[(TestCase, TestScalaVersion, TestJdkVersion)] = {
-    val result = ArrayBuffer.empty[(Test, TestScalaVersion, TestJdkVersion)]
+  def collectTests(): Seq[(TestCase, TestScalaVersion, TestJdkVersion, TestIndexingMode)] = {
+    val result = ArrayBuffer.empty[(Test, TestScalaVersion, TestJdkVersion, TestIndexingMode)]
 
     val tests = testsFromTestCase(klass)
     tests.foreach {
-      case (test: ScalaSdkOwner, _, scalaVersion, jdkVersion) =>
+      case (test: ScalaSdkOwner, _, scalaVersion, jdkVersion, indexingMode) =>
         val scalaVersionProd = scalaVersion.toProductionVersion
         val jdkVersionProd = jdkVersion.toProductionVersion
 
         test.injectedScalaVersion = scalaVersionProd // !! should be set before calling test.skip
         test.injectedJdkVersion = jdkVersionProd
 
-        if (!test.skip) {
-          result.append((test, scalaVersion, jdkVersion))
+        test match {
+          case test: TestIndexingModeSupporter => test.setIndexingMode(indexingMode.mode)
+          case _ =>
         }
-      case (warningTest, _, scalaVersion, jdkVersion) =>
-        result.append((warningTest, scalaVersion, jdkVersion))
+
+        if (!test.skip) {
+          result.append((test, scalaVersion, jdkVersion, indexingMode))
+        }
+      case (warningTest, _, scalaVersion, jdkVersion, handler) =>
+        result.append((warningTest, scalaVersion, jdkVersion, handler))
     }
 
-    result.map(t => (t._1.asInstanceOf[TestCase], t._2, t._3)).toSeq
+    result.map(t => (t._1.asInstanceOf[TestCase], t._2, t._3, t._4)).toSeq
   }
 
   // warning test or collection of tests (each test method is multiplied by the amount of versions it is run with)
-  private def testsFromTestCase(klass: Class[_]): Seq[(Test, Method, TestScalaVersion, TestJdkVersion)] = {
-    def warn(text: String) = Seq((warning(text), null, null, null))
+  private def testsFromTestCase(klass: Class[_]): Seq[(Test, Method, TestScalaVersion, TestJdkVersion, TestIndexingMode)] = {
+    def warn(text: String) = Seq((warning(text), null, null, null, null))
 
     try TestSuite.getTestConstructor(klass) catch {
       case _: NoSuchMethodException =>
@@ -56,10 +63,10 @@ class ScalaVersionAwareTestsCollector(klass: Class[_ <: TestCase],
       superClass <- withSuperClasses
       method     <- MethodSorter.getDeclaredMethods(superClass)
       if !isShadowed(method, visitedMethods)
-      (test, scalaVersion, jdkVersion) <- createTestMethods(klass, method)
+      (test, scalaVersion, jdkVersion, indexingMode) <- createTestMethods(klass, method)
     } yield {
       visitedMethods += method
-      (test, method, scalaVersion, jdkVersion)
+      (test, method, scalaVersion, jdkVersion, indexingMode)
     }
 
     if (tests.isEmpty) {
@@ -79,7 +86,7 @@ class ScalaVersionAwareTestsCollector(klass: Class[_ <: TestCase],
   private def createTestMethods(
     theClass: Class[_],
     method: Method
-  ): Seq[(Test, TestScalaVersion, TestJdkVersion)] = {
+  ): Seq[(Test, TestScalaVersion, TestJdkVersion, TestIndexingMode)] = {
     val name = method.getName
 
     if (isTestMethod(method)) {
@@ -87,16 +94,18 @@ class ScalaVersionAwareTestsCollector(klass: Class[_ <: TestCase],
 
       val effectiveScalaVersions = methodEffectiveScalaVersions(method, classScalaVersion)
       val effectiveJdkVersions = methodEffectiveJdkVersions(method, classJdkVersion)
+      val effectiveIndexingModes = methodEffectiveIndexingModes(method)
       for {
         scalaVersion <- effectiveScalaVersions
         jdkVersion <- effectiveJdkVersions
+        indexingMode <- effectiveIndexingModes
       } yield {
         val test = if (isPublic) {
           TestSuite.createTest(theClass, name)
         } else {
           warning(s"Test method isn't public: ${method.getName}(${theClass.getCanonicalName})")
         }
-        (test, scalaVersion, jdkVersion)
+        (test, scalaVersion, jdkVersion, indexingMode)
       }
     } else {
       Seq()
@@ -129,6 +138,16 @@ class ScalaVersionAwareTestsCollector(klass: Class[_ <: TestCase],
         }
         val extraVersions = annotation.extra.toSeq
         (baseVersions ++ extraVersions).sorted.distinct
+    }
+
+  // SCL-21849
+  private def methodEffectiveIndexingModes(method: Method): Seq[TestIndexingMode] =
+    if (!classOf[TestIndexingModeSupporter].isAssignableFrom(klass) || findAnnotation(klass, classOf[RunWithAllIndexingModes]).isEmpty) {
+      Seq(TestIndexingMode.SMART)
+    } else {
+      TestIndexingMode.values().toSeq.filterNot { mode =>
+        mode.shouldIgnore(klass) || mode.shouldIgnore(method)
+      }
     }
 
   private def isPublicMethod(m: Method): Boolean = Modifier.isPublic(m.getModifiers)

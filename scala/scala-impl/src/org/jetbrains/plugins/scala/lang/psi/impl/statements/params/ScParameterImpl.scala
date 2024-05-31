@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScStringLiteral, 
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ParameterExpectedTypesUtil._
 import org.jetbrains.plugins.scala.lang.psi.stubs._
@@ -46,7 +47,7 @@ class ScParameterImpl protected(
     if (nameId != null)
       name
     else
-      "<anonymous>"
+      ScNamedElement.AnonymousPlaceholder
   }("")
 
   override def isCallByNameParameter: Boolean = byStubOrPsi(_.isCallByNameParameter)(paramType.exists(_.isCallByNameParameter))

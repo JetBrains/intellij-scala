@@ -6,6 +6,7 @@ import com.intellij.util.{PathUtil, net}
 import org.jetbrains.plugins.scala.project.template._
 
 import java.io.{File, FileNotFoundException}
+import scala.annotation.nowarn
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
@@ -78,6 +79,7 @@ private object SbtUtils {
   }
 
   private def vmOptions = {
+    @nowarn("cat=deprecation") // SCL-22625
     val proxyOpts = net.HttpConfigurable.getInstance
       .getJvmProperties(false, null)
       .asScala

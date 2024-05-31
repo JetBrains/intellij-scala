@@ -4,18 +4,19 @@ package completion
 package postfix
 
 import com.intellij.codeInsight.template.postfix.templates.PostfixTemplate
+import com.intellij.openapi.application.impl.NonBlockingReadActionImpl
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.CharsetToolkit
 import com.intellij.psi.PsiFile
-import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.inWriteCommandAction
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithAllIndexingModes, RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert.{assertEquals, assertFalse, assertTrue}
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
@@ -23,6 +24,7 @@ import org.junit.runner.RunWith
 import java.io.File
 
 @RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWithAllIndexingModes
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_13,
   TestScalaVersion.Scala_3_Latest
@@ -93,12 +95,20 @@ object PostfixTemplateTest {
       val startOffset = range.getStartOffset
       val endOffset = range.getEndOffset
 
-      val element = PsiTreeUtil.findElementOfClassAtRange(file, startOffset, endOffset, classOf[ScalaPsiElement])
-      assertEquals(range, element.getTextRange)
+      val elements = ScalaPsiUtil.elementsAtRange[ScalaPsiElement](file, startOffset, endOffset)
+      assertTrue(s"No Scala PSI elements found at range $range", elements.nonEmpty)
+      assertEquals(range, elements.head.getTextRange)
 
-      val isApplicable = template.isApplicable(element, file.getViewProvider.getDocument, endOffset)
-      if (isApplicable) inWriteCommandAction(template.expand(element, editor))(null)
-      isApplicable
+      val document = file.getFileDocument
+      val applicableElement = elements.find(template.isApplicable(_, document, endOffset))
+
+      applicableElement match {
+        case Some(element) =>
+          inWriteCommandAction(template.expand(element, editor))(null)
+          NonBlockingReadActionImpl.waitForAsyncTaskCompletion()
+          true
+        case None => false
+      }
     }
   }
 

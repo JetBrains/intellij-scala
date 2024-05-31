@@ -48,8 +48,13 @@ object ScalafmtConfigUtils {
     }
   }
 
-  def resolveConfigIncludeFile(baseConfig: VirtualFile, includeConfig: String): Option[VirtualFile] = {
-    val baseDir      = baseConfig.getParent match {
+  private val ConfExtension = ".conf"
+
+  def resolveConfigIncludeFile(baseConfig: VirtualFile, includeConfig0: String): Option[VirtualFile] = {
+    //NOTE: is seems like scalafmt/hocon supports only `.conf` extension and no others (checked with SBT + addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.2"))
+    val includeConfig = if (includeConfig0.endsWith(ConfExtension)) includeConfig0 else includeConfig0 + ConfExtension
+
+    val baseDir = baseConfig.getParent match {
       case null => return None
       case parent => parent
     }

@@ -2,8 +2,9 @@ package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.editor.documentationProvider.renderers.{ScalaDocTypeRenderer, WithHtmlPsiLink}
-import org.jetbrains.plugins.scala.extensions.{NonNullObjectExt, ObjectExt, PsiClassExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{ContextBoundInfo, inNameContext}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -28,6 +29,10 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 // TODO 3: add minimum required module/location, if class/method is in same scope, do not render module/location at all
 object ScalaDocQuickInfoGenerator {
 
+  //TODO: not supported yet
+  private[documentationProvider] val EnableSyntaxHighlightingInQuickInfo = false
+
+  @Nullable
   def getQuickNavigateInfo(element: PsiElement, originalElement: PsiElement): String = {
     val substitutor = originalElement match {
       case ref: ScReference =>
@@ -40,6 +45,7 @@ object ScalaDocQuickInfoGenerator {
     getQuickNavigateInfo(element, originalElement, substitutor)
   }
 
+  @Nullable
   def getQuickNavigateInfo(element: PsiElement, originalElement: PsiElement, substitutor: ScSubstitutor): String = {
     implicit val typeRenderer: TypeRenderer = ScalaDocTypeRenderer.forQuickInfo(originalElement, substitutor)(ProjectContext.fromPsi(element))
     val buffer = new StringBuilder
@@ -55,9 +61,9 @@ object ScalaDocQuickInfoGenerator {
       case _                                             =>
     }
 
-    buffer.result()
-      // Do not show an empty pop up, let the platform show the fallback option
-      .pipeIf(_.isEmpty)(_ => null)
+    val result = buffer.result().stripTrailing()
+    // Do not show an empty pop up, let the platform show the fallback option
+    if (result.isEmpty) null else result
   }
 
   private def generateClassInfo(buffer: StringBuilder, clazz: ScTypeDefinition)
@@ -163,7 +169,7 @@ object ScalaDocQuickInfoGenerator {
     if (member.getParent.is[ScTemplateBody] && member.getParent.getParent.getParent.is[ScTypeDefinition]) {
       val clazz = member.containingClass
       // TODO: should we remove [] from getLocationString (see renderClassHeader and unify)
-      buffer.append(HtmlPsiUtils.classLinkWithLabel(clazz, clazz.name, defLinkHighlight = false))
+      buffer.append(HtmlPsiUtils.classLinkWithLabel(clazz, clazz.name, addCodeTag = false, defLinkHighlight = !EnableSyntaxHighlightingInQuickInfo))
         .append(" ")
         .append(clazz.getPresentation.getLocationString)
         .append("\n")

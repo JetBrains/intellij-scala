@@ -1,47 +1,54 @@
 package org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression
 
 import com.intellij.lang.ASTNode
-import com.intellij.lang.surroundWith.Surrounder
-import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
+import com.intellij.modcommand.ActionContext
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiWhiteSpace}
-import org.jetbrains.plugins.scala.editor.DocumentExt
+import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, StringExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.api
+import org.jetbrains.plugins.scala.lang.surroundWith.ScalaModCommandSurrounder
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
  * Surrounds an expression and return an expression
  */
-abstract class ScalaExpressionSurrounder extends Surrounder {
+abstract class ScalaExpressionSurrounder extends ScalaModCommandSurrounder {
 
   import ScalaTokenTypes.{COMMENTS_TOKEN_SET, tSEMICOLON => Semicolon}
 
+  protected def isApplicableToMultipleElements: Boolean = false
+
+  protected def isApplicableToUnitExpressions: Boolean = isApplicableToMultipleElements
+
   def isApplicable(element: PsiElement): Boolean = element match {
-    case _: ScExpression |
-         _: PsiWhiteSpace |
-         _: ScValue |
-         _: ScVariable |
+    case e: ScExpression =>
+      val typeResult = e.`type`()
+      typeResult.forall(tpe => !tpe.isUnit || isApplicableToUnitExpressions)
+    case _: PsiWhiteSpace |
+         _: ScValueOrVariable |
          _: ScFunction |
-         _: ScTypeAlias => true
-    case _ if ScalaPsiUtil.isLineTerminator(element) => true
-    case _ =>
-      element.getNode.getElementType match {
-        case Semicolon => true
-        case elementType => COMMENTS_TOKEN_SET.contains(elementType)
+         _: ScTypeAlias => isApplicableToMultipleElements
+    case _ if isApplicableToMultipleElements =>
+      if (ScalaPsiUtil.isLineTerminator(element)) true
+      else {
+        val elementType = element.elementType
+        elementType == Semicolon || COMMENTS_TOKEN_SET.contains(elementType)
       }
+    case _ => false
   }
 
   override def isApplicable(elements: Array[PsiElement]): Boolean =
-    elements.forall(isApplicable)
+    if (elements.isEmpty) false
+    else if (isApplicableToMultipleElements || elements.sizeIs == 1) elements.forall(isApplicable)
+    else false
 
-  override def surroundElements(project: Project, editor: Editor, elements: Array[PsiElement]): TextRange =
-    getSurroundSelectionRange(editor, surroundedNode(elements))
+  override protected def surroundElements(elements: Array[PsiElement], context: ActionContext): Option[TextRange] =
+    getSurroundSelectionRange(surroundedNode(elements))
 
   def surroundedNode(elements: Array[PsiElement]): ASTNode = {
     val result = surroundPsi(elements).getNode
@@ -81,25 +88,15 @@ abstract class ScalaExpressionSurrounder extends Surrounder {
   def getTemplateAsString(elements: Array[PsiElement]): String =
     elements.map(_.getNode.getText).mkString
 
-  def getSurroundSelectionRange(editor: Editor, node: ASTNode): TextRange
+  def getSurroundSelectionRange(node: ASTNode): Option[TextRange]
 
   protected def unwrapParenthesis(node: ASTNode): Option[PsiElement] = node.getPsi match {
     case p: ScParenthesisedExpr => p.innerElement
     case e => Option(e)
   }
 
-  protected def unblockDocument(editor: Editor): Unit =
-    PsiDocumentManager.getInstance(editor.getProject)
-      .doPostponedOperationsAndUnblockDocument(editor.getDocument)
-
-  protected def deleteText(editor: Editor, range: TextRange): Unit = {
-    val document = editor.getDocument
-    document.deleteString(range.getStartOffset, range.getEndOffset)
-    document.commit(editor.getProject)
-  }
-
-  protected def deleteText(editor: Editor, node: ASTNode): Unit = {
-    unblockDocument(editor)
-    deleteText(editor, node.getTextRange)
+  protected final def isBooleanExpression(element: PsiElement): Boolean = element match {
+    case expr: ScExpression => expr.getTypeIgnoreBaseType.getOrAny.conforms(api.Boolean(expr.getProject))
+    case _ => false
   }
 }

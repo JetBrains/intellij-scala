@@ -129,7 +129,7 @@ class InlayTypeHintsTest extends InlayHintsTestBase {
   )
 
   def testNavigationTooltip(): Unit = doTest(
-    s"""  val a$S: Foo /* [light_idea_test_case] default\\nclass Foo extends <span style='color:#000000;'><a href='psi_element://java.lang.Object'><code>Object</code></a></span> */ $E = new Foo()""".stripMargin,
+    s"""  val a<hint text=": Foo /* [light_idea_test_case] default\\nclass Foo extends <a href='psi_element://java.lang.Object'>Object</a> */ "/> = new Foo()""".stripMargin,
     withTooltips = true,
     options = settings.showMemberVariableSetter, settings.showObviousTypeSetter
   )

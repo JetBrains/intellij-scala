@@ -43,9 +43,13 @@ object ScNumericLiteralAnnotator {
     }
 
     val binAllowedInScala2_13 =
-      scalaVersion.forall(v => v.languageLevel == ScalaLanguageLevel.Scala_2_13 && v.minorVersion >= project.Version("13"))
+      scalaVersion.forall(v =>
+        v.languageLevel >= ScalaLanguageLevel.Scala_2_13 &&
+          v.languageLevel < ScalaLanguageLevel.Scala_3_0 &&
+          (v.minorVersion >= project.Version("13"))
+      )
     val binAllowedInScala3_5 =
-      scalaVersion.forall(v => v.isScala3 && v.minorVersion >= project.Version("5"))
+      scalaVersion.forall(_.languageLevel >= ScalaLanguageLevel.Scala_3_5)
 
     if (kind == Bin && !binAllowedInScala2_13 && !binAllowedInScala3_5) {
       val message = ScalaBundle.message("binary.literals.not.supported")

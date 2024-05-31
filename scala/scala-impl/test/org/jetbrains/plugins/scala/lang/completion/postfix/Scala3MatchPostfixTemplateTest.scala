@@ -1,9 +1,11 @@
 package org.jetbrains.plugins.scala.lang.completion.postfix
 
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import com.intellij.testFramework.NeedsIndex
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithAllIndexingModes, RunWithScalaVersions, TestScalaVersion}
 import org.junit.runner.RunWith
 
 @RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWithAllIndexingModes
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_3_Latest
 ))
@@ -20,16 +22,22 @@ final class Scala3MatchPostfixTemplateTest extends PostfixTemplateTest {
 
   def testInnerMatchInfixExpr(): Unit = doTest()
 
+  @NeedsIndex.SmartMode(reason = "exhaustive match needs type inference")
   def testExhaustiveSealed(): Unit = doTest()
 
+  @NeedsIndex.SmartMode(reason = "exhaustive match needs type inference")
   def testExhaustiveJavaEnum(): Unit = doTest()
 
+  @NeedsIndex.SmartMode(reason = "exhaustive match needs type inference")
   def testExhaustiveScala2Enum(): Unit = doTest()
 
+  @NeedsIndex.SmartMode(reason = "exhaustive match needs type inference")
   def testExhaustiveScala2Enum2(): Unit = doTest()
 
+  @NeedsIndex.SmartMode(reason = "exhaustive match needs type inference")
   def testExhaustiveScala3Enum(): Unit = doTest()
 
+  @NeedsIndex.SmartMode(reason = "exhaustive match needs type inference")
   def testExhaustiveScala3EnumInTheMiddle(): Unit = doTest()
 
   def testNoFunctionExprParent(): Unit = doNotApplicableTest()

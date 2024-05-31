@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScFunctionExpr, ScUnderScoreSectionUtil}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.types.api.PartialFunctionType
 import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{ScUAnnotated, ScUElement, ScUExpression}
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter
@@ -113,7 +114,7 @@ final class ScUPartialLambdaExpression(
 
     Seq(
       new ScULambdaParameter(
-        name = "<anonymous>",
+        name = ScNamedElement.AnonymousPlaceholder,
         paramPsiType,
         declarationScope = scExpression,
         sourcePsi = None,

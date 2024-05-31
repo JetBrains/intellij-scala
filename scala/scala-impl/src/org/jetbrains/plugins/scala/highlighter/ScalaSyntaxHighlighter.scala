@@ -47,14 +47,35 @@ final class ScalaSyntaxHighlighter(
       htmlHighlighter.getHighlightingLexer
     )
 
-  override def getTokenHighlights(elementType: IElementType): Array[TextAttributesKey] =
-    SyntaxHighlighterBase.pack(
-      Attributes0.get(elementType).orNull,
-      Attributes.get(elementType).orNull
-    )
+  override def getTokenHighlights(elementType: IElementType): Array[TextAttributesKey] = elementType match {
+    case CLASS_IDENTIFIER => Array(DefaultHighlighter.CLASS)
+    case TRAIT_IDENTIFIER => Array(DefaultHighlighter.TRAIT)
+    case OBJECT_IDENTIFIER => Array(DefaultHighlighter.OBJECT)
+    case ENUM_IDENTIFIER => Array(DefaultHighlighter.ENUM)
+    case GIVEN_IDENTIFIER => Array(DefaultHighlighter.GIVEN)
+    case METHOD_IDENTIFIER => Array(DefaultHighlighter.METHOD_DECLARATION)
+    case VALUE_IDENTIFIER => Array(DefaultHighlighter.LOCAL_VARIABLES)
+    case VARIABLE_IDENTIFIER => Array(DefaultHighlighter.LOCAL_VARIABLES)
+    case TYPE_IDENTIFIER => Array(DefaultHighlighter.TYPE_ALIAS)
+    case _ =>
+      SyntaxHighlighterBase.pack(
+        Attributes0.get(elementType).orNull,
+        Attributes.get(elementType).orNull
+      )
+  }
 }
 
 object ScalaSyntaxHighlighter {
+
+  private val CLASS_IDENTIFIER = new ScalaTokenType("class identifier")
+  private val TRAIT_IDENTIFIER = new ScalaTokenType("trait identifier")
+  private val OBJECT_IDENTIFIER = new ScalaTokenType("object identifier")
+  private val ENUM_IDENTIFIER = new ScalaTokenType("enum identifier")
+  private val GIVEN_IDENTIFIER = new ScalaTokenType("given identifier")
+  private val METHOD_IDENTIFIER = new ScalaTokenType("method identifier")
+  private val VALUE_IDENTIFIER = new ScalaTokenType("value identifier")
+  private val VARIABLE_IDENTIFIER = new ScalaTokenType("variable identifier")
+  private val TYPE_IDENTIFIER = new ScalaTokenType("type identifier")
 
   import ScalaDirectiveTokenTypes._
   import ScalaDocElementTypes.SCALA_DOC_COMMENT
@@ -373,18 +394,40 @@ object ScalaSyntaxHighlighter {
       case XML_EMPTY_ELEMENT_END => tCLOSEXMLTAG
       case XML_COMMENT_START => tXML_COMMENT_START
       case XML_COMMENT_END => tXML_COMMENT_END
-      case tokenType@ScalaTokenTypes.tIDENTIFIER =>
+      case ScalaTokenTypes.tIDENTIFIER =>
         if (isScala3) {
           softKeywords.get(getTokenText) match {
             case Some(softKeyword) if checkSoftKeywordHeuristics(softKeyword) => softKeyword
-            case _ => tokenType
+            case _ => identifier()
           }
         } else {
-          tokenType
+          identifier()
         }
       case elementType =>
         if (tSCALADOC_XML_TAGS.contains(elementType)) tXMLTAGPART
         else elementType
+    }
+
+    private def identifier(): IElementType =
+      if (after("class")) CLASS_IDENTIFIER
+      else if (after("trait")) TRAIT_IDENTIFIER
+      else if (after("object")) OBJECT_IDENTIFIER
+      else if (after("enum")) ENUM_IDENTIFIER
+      else if (after("def")) METHOD_IDENTIFIER
+      else if (after("val")) VALUE_IDENTIFIER
+      else if (after("var")) VARIABLE_IDENTIFIER
+      else if (after("type")) TYPE_IDENTIFIER
+      else ScalaTokenTypes.tIDENTIFIER
+
+    private def after(s: String): Boolean = {
+      val text = getBufferSequence
+      var i = getTokenStart - 1
+      while (i >= 0 && text.charAt(i).isWhitespace) { i -= 1 }
+      i += 1
+      i >= s.length && text.subSequence(i - s.length, i) == s && (i == s.length || {
+        val charBefore = text.charAt(i - s.length - 1)
+        charBefore.isWhitespace || charBefore == ';' || charBefore == '}'
+      })
     }
 
     override def advance(): Unit = {

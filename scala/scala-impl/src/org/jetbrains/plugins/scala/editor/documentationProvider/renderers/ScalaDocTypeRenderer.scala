@@ -3,8 +3,8 @@ package org.jetbrains.plugins.scala.editor.documentationProvider.renderers
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement, PsiPackage}
 import org.apache.commons.text.StringEscapeUtils.escapeHtml4
-import org.jetbrains.plugins.scala.editor.documentationProvider.HtmlBuilderWrapper
 import org.jetbrains.plugins.scala.editor.documentationProvider.renderers.ScalaDocTypeRenderer.StaticJavaClassHolder
+import org.jetbrains.plugins.scala.editor.documentationProvider.{HtmlBuilderWrapper, ScalaDocQuickInfoGenerator}
 import org.jetbrains.plugins.scala.extensions.{Model, ObjectExt, PsiMemberExt, PsiNamedElementExt, StringExt, StringsExt}
 import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTy
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation.ABSTRACT_TYPE_POSTFIX
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.{NameRenderer, TypeBoundsRenderer, TypePresentation, TypeRenderer}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ContextFunctionType, FunctionType, JavaArrayType, ParameterizedType, StdType, TupleType, TypeParameter, TypeParameterType, WildcardType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ContextFunctionType, FunctionType, ParameterizedType, StdType, TupleType, TypeParameter, TypeParameterType, WildcardType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScAndType, ScCompoundType, ScExistentialArgument, ScExistentialType, ScLiteralType, ScMatchType, ScOrType, ScType, TypePresentationContext}
@@ -297,7 +297,7 @@ private [documentationProvider] object ScalaDocTypeRenderer {
         clazz
           .qualifiedNameOpt
           .fold(escapeName(clazz.name)) { _ =>
-            classLinkWithLabel(clazz, clazz.name, defLinkHighlight = false, isAnnotation = true, qualNameToType = projectContext.stdTypes.QualNameToType)
+            classLinkWithLabel(clazz, clazz.name, addCodeTag = true, defLinkHighlight = false, isAnnotation = true, qualNameToType = projectContext.stdTypes.QualNameToType)
           }
       case _ =>
         psiElement(e, Some(e.name))
@@ -311,6 +311,8 @@ private [documentationProvider] object ScalaDocTypeRenderer {
 
     override def renderNameWithPoint(e: PsiNamedElement): String = nameFun(e, withPoint = true)
 
+    private val addCodeTag = true
+
     private def nameFun(e: PsiNamedElement, withPoint: Boolean): String = e match {
       case o: ScObject if withPoint && TypePresentation.isPredefined(o) => ""
       case _: PsiPackage if withPoint => ""
@@ -318,32 +320,34 @@ private [documentationProvider] object ScalaDocTypeRenderer {
         clazz
           .qualifiedNameOpt
           .fold(escapeName(clazz.name)) { _ =>
-            classLinkWithLabel(clazz, clazz.name, defLinkHighlight = false, qualNameToType = projectContext.stdTypes.QualNameToType)
+            classLinkWithLabel(clazz, clazz.name, addCodeTag = addCodeTag, defLinkHighlight = false, qualNameToType = projectContext.stdTypes.QualNameToType)
           }
       case a: ScTypeAlias =>
         a.qualifiedNameOpt
-          .fold(escapeName(e.name))(psiElementLink(_, e.name, attributesKey = Some(DefaultHighlighter.TYPE_ALIAS)))
+          .fold(escapeName(e.name))(psiElementLink(_, e.name, attributesKey = Some(DefaultHighlighter.TYPE_ALIAS), addCodeTag = addCodeTag))
       case _ =>
         psiElement(e, Some(e.name))
     }
   }
 
-  private val quickInfoRenderer: NameRenderer = new NameRenderer {
+  private val quickInfoNameRenderer: NameRenderer = new NameRenderer {
     override def escapeName(e: String): String = escapeHtml4(e)
 
     override def renderName(e: PsiNamedElement): String = nameFun(e, withPoint = false)
 
     override def renderNameWithPoint(e: PsiNamedElement): String = nameFun(e, withPoint = true)
 
+    private val addCodeTag = false
+
     private def nameFun(e: PsiNamedElement, withPoint: Boolean): String = e match {
       case o: ScObject if withPoint && TypePresentation.isPredefined(o) => ""
       case _: PsiPackage if withPoint => ""
       case clazz: PsiClass =>
         clazz.qualifiedNameOpt
-          .fold(escapeName(clazz.name))(_ => classLinkWithLabel(clazz, clazz.name, defLinkHighlight = false))
+          .fold(escapeName(clazz.name))(_ => classLinkWithLabel(clazz, clazz.name, addCodeTag = addCodeTag, defLinkHighlight = !ScalaDocQuickInfoGenerator.EnableSyntaxHighlightingInQuickInfo))
       case a: ScTypeAlias =>
         a.qualifiedNameOpt
-          .fold(escapeName(e.name))(psiElementLink(_, e.name, attributesKey = None))
+          .fold(escapeName(e.name))(psiElementLink(_, e.name, attributesKey = None, addCodeTag = addCodeTag))
       case _ =>
         escapeName(e.name)
     }
@@ -356,7 +360,7 @@ private [documentationProvider] object ScalaDocTypeRenderer {
     new ScalaDocTypeRenderer(originalElement, annotationsRenderer, None)
 
   def forQuickInfo(originalElement: PsiElement, substitutor: ScSubstitutor)(implicit projectContext: ProjectContext): TypeRenderer =
-    new ScalaDocTypeRenderer(Some(originalElement), quickInfoRenderer, Some(substitutor)) {
+    new ScalaDocTypeRenderer(Some(originalElement), quickInfoNameRenderer, Some(substitutor)) {
       override protected def renderWithAttrKey(name: String, attrKey: TextAttributesKey): String = escapeHtml4(name)
     }
 }

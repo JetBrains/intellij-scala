@@ -5,6 +5,7 @@ import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
 import com.intellij.execution.testframework.sm.SMTestRunnerConnectionUtil
 import com.intellij.execution.testframework.ui.BaseTestsOutputConsoleView
 import com.intellij.execution.{CommonProgramRunConfigurationParameters, ExecutionResult, Executor, JavaRunConfigurationExtensionManager, ShortenCommandLine}
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.text.StringUtil
@@ -174,12 +175,18 @@ class ScalaTestFrameworkCommandLineState(
      *
      * Copied from [[com.intellij.execution.JavaTestFrameworkRunnableState#execute]]
      */
-    val consoleViewDecorated = JavaRunConfigurationExtensionManager.getInstance.decorateExecutionConsole(
-      configuration,
-      getRunnerSettings,
-      consoleView,
-      executor
-    )
+    val consoleViewDecorated =
+      if (ApplicationManager.getApplication.isUnitTestMode) {
+        // Don't decorate teh console in tests - it can try to create some UI which will lead to runtime exceptions
+        // E.g. in JavaProfilerConsoleWidgetManager
+        consoleView
+      } else
+        JavaRunConfigurationExtensionManager.getInstance.decorateExecutionConsole(
+          configuration,
+          getRunnerSettings,
+          consoleView,
+          executor
+        )
     Disposer.register(configuration.getProject, consoleViewDecorated)
 
     consoleViewDecorated.attachToProcess(processHandler)

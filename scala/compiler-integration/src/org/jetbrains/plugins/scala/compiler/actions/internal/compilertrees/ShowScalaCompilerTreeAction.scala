@@ -190,21 +190,20 @@ object ShowScalaCompilerTreeAction {
     }
   }
 
-  //NOTE: adding "-Ystop-before" not to waste time on generating class files, we are only interested in the trees
   private def getScalacOptionsToPrintCompilerTrees(languageLevel: Option[ScalaLanguageLevel]): Seq[String] =
     languageLevel match {
       case Some(value) if value.isScala3 =>
-        Seq("-Vprint:all", "-Ystop-before:genBCode")
+        Seq("-Vprint:all")
       case Some(ScalaLanguageLevel.Scala_2_13) =>
         //NOTE: before Scala 2.13.11 only `_` is recognised `all` is supported only since 2.13.11
         //We use `_` to support all scala 2.13.x versions
-        Seq("-Vprint:_", "-Ystop-before:jvm")
+        Seq("-Vprint:_")
       case Some(value) if value < ScalaLanguageLevel.Scala_2_12 =>
         //NOTE: before 2.12 only `-Xprint` option exists, since 2.12 `-Xprint` is deprecated in favor of `-Vprint`
         //Even though `-Xprint` alias still exists in newer versions, we use non-deprecated option just in case
         //(see also https://github.com/scala/bug/issues/12737#issuecomment-1705606926)
-        Seq("-Xprint:all", "-Ystop-before:jvm")
+        Seq("-Xprint:all")
       case _ =>
-        Seq("-Vprint:all", "-Ystop-before:jvm")
+        Seq("-Vprint:all")
     }
 }

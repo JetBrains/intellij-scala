@@ -65,7 +65,8 @@ private class ScalaDocDefinitionGenerator private(
     for {
       clazz   <- Option(elem.containingClass)
       qn      <- Option(clazz.qualifiedName)
-      psiLink =  classLinkWithLabel(clazz, qn, defLinkHighlight = true)
+      //TODO: actually <code> tag is not redundant in the definition section (check Java/Kotlin implementations)
+      psiLink =  classLinkWithLabel(clazz, qn, addCodeTag = true, defLinkHighlight = true)
     } {
       builder.append(psiLink)
         .append(NewLineSeparatorInDefinitionSection)
@@ -141,7 +142,8 @@ private class ScalaDocDefinitionGenerator private(
       if (path.nonEmpty) {
         builder
           .append("<icon src=\"AllIcons.Nodes.Package\"/> ")
-          .append(HtmlPsiUtils.psiElementLink(path, path))
+          //TODO: actually <code> tag is not redundant in the definition section (check Java/Kotlin implementations)
+          .append(HtmlPsiUtils.psiElementLinkWithCodeTag(path, path))
           .append(NewLineSeparatorInDefinitionSection)
           //append extra line separator between the containing class and the main definition part (like in JavaDoc)
           .append(NewLineSeparatorInDefinitionSection)

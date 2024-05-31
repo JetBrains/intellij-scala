@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala.lang.surroundWith.surrounders
 
+import com.intellij.codeInsight.CodeInsightUtilCore
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
-import org.jetbrains.plugins.scala.extensions.{ElementType, OptionExt, PsiElementExt, inWriteCommandAction}
+import org.jetbrains.plugins.scala.extensions.{ElementType, OptionExt, PsiElementExt, inWriteCommandActionIf}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.convertBlockToBraceless
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
@@ -14,7 +15,7 @@ package object expression {
 
   private[scala] implicit class ScalaPsiElementExt[E <: ScalaPsiElement](private val element: E) extends AnyVal {
     def toIndentationBasedSyntax(implicit ctx: ProjectContext = element.projectContext,
-                                 features: ScalaFeatures = element): E = inWriteCommandAction {
+                                 features: ScalaFeatures = element): E = inWriteCommandActionIf(element.isPhysical) {
       val withNewSyntax = Rewriters.rewriteToNewSyntax(element)
       val withIndentationBasedSyntax = Rewriters.rewriteToIndentationBasedSyntax(withNewSyntax)
 
@@ -23,7 +24,10 @@ package object expression {
 
     def toNewSyntax(implicit ctx: ProjectContext = element.projectContext,
                     features: ScalaFeatures = element): E =
-      inWriteCommandAction(Rewriters.rewriteToNewSyntax(element))(ctx.project)
+      inWriteCommandActionIf(element.isPhysical)(Rewriters.rewriteToNewSyntax(element))(ctx.project)
+
+    private[expression] def forcePostprocessAndRestore: Option[PsiElement] =
+      scala.util.Try(CodeInsightUtilCore.forcePsiPostprocessAndRestoreElement(element)).toOption
   }
 
   private object Rewriters {
