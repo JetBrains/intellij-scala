@@ -27,10 +27,10 @@ abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImporti
     SbtProjectResolver.processOutputOfLatestStructureDump = ""
   }
 
-  protected def runTest(expected: project): Unit = {
+  protected def runTest(expected: project, singleContentRootModules: Boolean = true): Unit = {
     importProject(false)
 
-    assertProjectsEqual(expected, myProject)(ProjectComparisonOptions.Implicit.default)
+    assertProjectsEqual(expected, myProject, singleContentRootModules)(ProjectComparisonOptions.Implicit.default)
     assertNoNotificationsShown(myProject)
   }
 
@@ -38,11 +38,12 @@ abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImporti
    * It is necessary to explicitly set all project settings that are tested/required for test, because what is set in
    * #setUp method in each SbtProjectStructureImportingTest classes is not applied to the project settings of the linked project
    */
-  protected def linkSbtProject(path: String, transitiveProjectDependencies: Boolean): Unit = {
+  protected def linkSbtProject(path: String, transitiveProjectDependencies: Boolean, prodTestSourcesSeparated: Boolean): Unit = {
     val settings = new SbtProjectSettings
     settings.jdk = getJdkConfiguredForTestCase.getName
     settings.setExternalProjectPath(path)
     settings.setInsertProjectTransitiveDependencies(transitiveProjectDependencies)
+    settings.setSeparateProdAndTestSources(prodTestSourcesSeparated)
     SbtSettings.getInstance(myProject).linkProject(settings)
   }
 
@@ -53,31 +54,59 @@ abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImporti
     projectRelativePath: String,
     rootType: JpsModuleSourceRootType[_]
   )
+   object ExpectedDirectoryCompletionVariant {
+     implicit val expectedDirectoryCompletionVariantOrdering: Ordering[ExpectedDirectoryCompletionVariant] =
+       (x: ExpectedDirectoryCompletionVariant, y: ExpectedDirectoryCompletionVariant) => {
+         x.projectRelativePath compare y.projectRelativePath
+       }
+   }
 
-  protected val DefaultSbtContentRootsScala212: Seq[ExpectedDirectoryCompletionVariant] = Seq(
+  protected val DefaultSbtContentRootsScala212: Seq[ExpectedDirectoryCompletionVariant] =
+    defaultSbtContentRootsScala2(12)
+
+  protected val DefaultSbtContentRootsScala213: Seq[ExpectedDirectoryCompletionVariant] =
+    defaultSbtContentRootsScala2(13)
+
+  private def defaultSbtContentRootsScala2: Integer => Seq[ExpectedDirectoryCompletionVariant] = (minorVersion: Integer) => Seq(
     ("src/main/java", JavaSourceRootType.SOURCE),
     ("src/main/scala", JavaSourceRootType.SOURCE),
     ("src/main/scala-2", JavaSourceRootType.SOURCE),
-    ("src/main/scala-2.12", JavaSourceRootType.SOURCE),
+    (s"src/main/scala-2.$minorVersion", JavaSourceRootType.SOURCE),
     ("src/test/java", JavaSourceRootType.TEST_SOURCE),
     ("src/test/scala", JavaSourceRootType.TEST_SOURCE),
     ("src/test/scala-2", JavaSourceRootType.TEST_SOURCE),
-    ("src/test/scala-2.12", JavaSourceRootType.TEST_SOURCE),
+    (s"src/test/scala-2.$minorVersion", JavaSourceRootType.TEST_SOURCE),
     ("src/main/resources", JavaResourceRootType.RESOURCE),
     ("src/test/resources", JavaResourceRootType.TEST_RESOURCE),
   ).map((ExpectedDirectoryCompletionVariant.apply _).tupled)
 
-  protected val DefaultSbtContentRootsScala213: Seq[ExpectedDirectoryCompletionVariant] = Seq(
-    ("src/main/java", JavaSourceRootType.SOURCE),
-    ("src/main/scala", JavaSourceRootType.SOURCE),
-    ("src/main/scala-2", JavaSourceRootType.SOURCE),
-    ("src/main/scala-2.13", JavaSourceRootType.SOURCE),
-    ("src/test/java", JavaSourceRootType.TEST_SOURCE),
-    ("src/test/scala", JavaSourceRootType.TEST_SOURCE),
-    ("src/test/scala-2", JavaSourceRootType.TEST_SOURCE),
-    ("src/test/scala-2.13", JavaSourceRootType.TEST_SOURCE),
-    ("src/main/resources", JavaResourceRootType.RESOURCE),
-    ("src/test/resources", JavaResourceRootType.TEST_RESOURCE),
+  protected val DefaultMainSbtContentRootsScala213: Seq[ExpectedDirectoryCompletionVariant] =
+    defaultMainSbtContentRootsScala2(13)
+
+  protected val DefaultTestSbtContentRootsScala213: Seq[ExpectedDirectoryCompletionVariant] =
+    defaultTestSbtContentRootsScala2(13)
+
+  protected val DefaultMainSbtContentRootsScala212: Seq[ExpectedDirectoryCompletionVariant] =
+    defaultMainSbtContentRootsScala2(12)
+
+  protected val DefaultTestSbtContentRootsScala212: Seq[ExpectedDirectoryCompletionVariant] =
+    defaultTestSbtContentRootsScala2(12)
+
+
+  private def defaultMainSbtContentRootsScala2: Integer => Seq[ExpectedDirectoryCompletionVariant] = (minorVersion: Integer) => Seq(
+    ("java", JavaSourceRootType.SOURCE),
+    ("scala", JavaSourceRootType.SOURCE),
+    ("scala-2", JavaSourceRootType.SOURCE),
+    (s"scala-2.$minorVersion", JavaSourceRootType.SOURCE),
+    ("resources", JavaResourceRootType.RESOURCE),
+  ).map((ExpectedDirectoryCompletionVariant.apply _).tupled)
+
+  private def defaultTestSbtContentRootsScala2: Integer => Seq[ExpectedDirectoryCompletionVariant] = (minorVersion: Integer) => Seq(
+    ("java", JavaSourceRootType.TEST_SOURCE),
+    ("scala", JavaSourceRootType.TEST_SOURCE),
+    ("scala-2", JavaSourceRootType.TEST_SOURCE),
+    (s"scala-2.$minorVersion", JavaSourceRootType.TEST_SOURCE),
+    ("resources", JavaResourceRootType.TEST_RESOURCE),
   ).map((ExpectedDirectoryCompletionVariant.apply _).tupled)
 
   protected val DefaultSbtContentRootsScala3: Seq[ExpectedDirectoryCompletionVariant] = Seq(
@@ -89,6 +118,20 @@ abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImporti
     ("src/test/scala-3", JavaSourceRootType.TEST_SOURCE),
     ("src/main/resources", JavaResourceRootType.RESOURCE),
     ("src/test/resources", JavaResourceRootType.TEST_RESOURCE),
+  ).map((ExpectedDirectoryCompletionVariant.apply _).tupled)
+
+  protected val DefaultMainSbtContentRootsScala3: Seq[ExpectedDirectoryCompletionVariant] = Seq(
+    ("java", JavaSourceRootType.SOURCE),
+    ("scala", JavaSourceRootType.SOURCE),
+    ("scala-3", JavaSourceRootType.SOURCE),
+    ("resources", JavaResourceRootType.RESOURCE),
+  ).map((ExpectedDirectoryCompletionVariant.apply _).tupled)
+
+  protected val DefaultTestSbtContentRootsScala3: Seq[ExpectedDirectoryCompletionVariant] = Seq(
+    ("java", JavaSourceRootType.TEST_SOURCE),
+    ("scala", JavaSourceRootType.TEST_SOURCE),
+    ("scala-3", JavaSourceRootType.TEST_SOURCE),
+    ("resources", JavaResourceRootType.TEST_RESOURCE),
   ).map((ExpectedDirectoryCompletionVariant.apply _).tupled)
 
   //NOTE: it doesn't test final ordering on UI, see IDEA-306694
@@ -107,8 +150,8 @@ abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImporti
 
     assertCollectionEquals(
       "Wrong directory completion contributor variants",
-      expectedVariants,
-      actualVariants
+      expectedVariants.sorted,
+      actualVariants.sorted
     )
   }
 

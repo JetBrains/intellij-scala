@@ -1,14 +1,10 @@
 package org.jetbrains.sbt.project.data.service
 
-import com.intellij.openapi.externalSystem.ExternalSystemModulePropertyManager
 import com.intellij.openapi.module.{ModuleManager, StdModuleTypes}
-import org.jetbrains.annotations.Nullable
-import org.jetbrains.sbt.Sbt
-import com.intellij.openapi.module.Module
 import org.jetbrains.sbt.project.data.{ModuleNode, NestedModuleNode}
 import org.jetbrains.sbt.project.data.service.ExternalSystemDataDsl._
 
-import org.junit.Assert.{assertEquals, assertTrue}
+import org.junit.Assert.assertTrue
 
 import java.io.File
 import java.net.URI
@@ -68,20 +64,13 @@ class SbtNestedModuleDataServiceTest extends SbtModuleDataServiceTestCase {
     val moduleManager = ModuleManager.getInstance(getProject)
     val allModules = moduleManager.getModules
     val rootModules = Seq("root", "c1").map(moduleManager.findModuleByName).filter(_ != null)
-    val nonRootModules = Seq("root.project1", "c1.project1").map(moduleManager.findModuleByName).filter(_ != null)
+    val nestedModules = Seq("root.project1", "c1.project1").map(moduleManager.findModuleByName).filter(_ != null)
 
     assertTrue("The number of modules is not equal to 5", allModules.size == 5)
-    assertTrue("There is less than 2 root modules", rootModules.size == 2)
-    assertTrue("There is less than 2 non root modules", nonRootModules.size == 2)
+    assertTrue("The number of root modules is not equal to 2", rootModules.size == 2)
+    assertTrue("The number of nested modules is not equal to 2", nestedModules.size == 2)
 
     testModuleExternalType(rootModules, null)
-    testModuleExternalType(nonRootModules, SbtNestedModuleDataService.sbtNestedModuleType)
-  }
-
-  private def testModuleExternalType(modules: Seq[Module], @Nullable desiredType: String): Unit = {
-    modules.foreach { module =>
-      val moduleExternalType = ExternalSystemModulePropertyManager.getInstance(module).getExternalModuleType
-      assertEquals(desiredType, moduleExternalType)
-    }
+    testModuleExternalType(nestedModules, SbtNestedModuleDataService.sbtNestedModuleType)
   }
 }
