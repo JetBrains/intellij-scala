@@ -28,8 +28,9 @@ object ProjectStructureDsl {
   object javaLanguageLevel       extends Attribute[LanguageLevel]("javaLanguageLevel") with ProjectAttribute with ModuleAttribute
   object javaTargetBytecodeLevel extends Attribute[String]("javaTargetBytecodeLevel")  with ProjectAttribute with ModuleAttribute
   object javacOptions            extends Attribute[Seq[String]]("javacOptions")        with ProjectAttribute with ModuleAttribute
+  object scalacOptions           extends Attribute[Seq[String]]("scalacOptions")       with ProjectAttribute with ModuleAttribute
 
-  // looks like currently package prefix is a project-level feature (?)
+  // TODO looks like it should be a module attribute SCL-22637
   object packagePrefix           extends Attribute[String]("packagePrefix") with ProjectAttribute
 
   object sbtBuildURI         extends Attribute[URI]("sbtBuildURI")                              with ModuleAttribute
