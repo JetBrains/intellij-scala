@@ -1,15 +1,18 @@
 package org.jetbrains.sbt.project.data.service
 
+import com.intellij.openapi.externalSystem.ExternalSystemModulePropertyManager
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.testFramework.IdeaTestUtil
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.{LibraryExt, ProjectExt}
 import org.jetbrains.plugins.scala.project.external.SdkReference
 import org.jetbrains.sbt.project.data._
+import org.junit.Assert.assertEquals
 
 import java.io.File
 import java.net.URI
@@ -49,7 +52,7 @@ trait SbtModuleDataServiceTestCase extends ProjectDataServiceTestCase {
       name := getProject.getName
       ideDirectoryPath := getProject.getBasePath
       linkedProjectPath := getProject.getBasePath
-      arbitraryNodes += new SbtProjectNode(SbtProjectData(None, "", getProject.getBasePath, projectTransitiveDependenciesUsed = false))
+      arbitraryNodes += new SbtProjectNode(SbtProjectData(None, "", getProject.getBasePath, projectTransitiveDependenciesUsed = false, prodTestSourcesSeparated = false))
 
       val scalaLibrary: Option[library] = scalaLibraryVersion.map { version =>
         new library {
@@ -83,6 +86,12 @@ trait SbtModuleDataServiceTestCase extends ProjectDataServiceTestCase {
       .filter(_.getName.contains(s"sbt: scala-sdk-$scalaVersion"))
       .filter(_.isScalaSdk)
   }
+
+  protected def testModuleExternalType(modules: Seq[Module], @Nullable desiredType: String): Unit =
+    modules.foreach { module =>
+      val moduleExternalType = ExternalSystemModulePropertyManager.getInstance(module).getExternalModuleType
+      assertEquals(desiredType, moduleExternalType)
+    }
 
   private def setUpJdks(): Unit = inWriteAction {
     val projectJdkTable = ProjectJdkTable.getInstance()
