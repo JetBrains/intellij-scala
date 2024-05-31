@@ -11,10 +11,8 @@ import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkType, JdkUtil, ProjectJdkTable}
 import com.intellij.openapi.roots.ProjectRootManager
-import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.{Pair, SystemInfo}
 import com.intellij.util.Function
-import com.intellij.util.net.HttpConfigurable
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.jps.model.java.JdkVersionDetector
 import org.jetbrains.plugins.scala.extensions.{RichFile, invokeAndWait}
@@ -25,8 +23,6 @@ import org.jetbrains.sbt.project.structure.SbtOpts
 import org.jetbrains.sbt.settings.{SbtExternalSystemConfigurable, SbtSettings}
 
 import java.io.File
-import scala.annotation.nowarn
-import scala.jdk.CollectionConverters._
 
 class SbtExternalSystemManager
   extends ExternalSystemManager[SbtProjectSettings, SbtProjectSettingsListener, SbtSettings, SbtLocalSettings, SbtExecutionSettings]
@@ -229,29 +225,8 @@ object SbtExternalSystemManager {
 
   /** @param select Allow only options that pass this filter on option name */
   private def proxyOptions(select: String => Boolean): Seq[String] = {
-
-    @nowarn("cat=deprecation") // SCL-22625
-    val http = HttpConfigurable.getInstance
-    @nowarn("cat=deprecation") // SCL-22625
-    val jvmArgs = http
-      .getJvmProperties(false, null)
-      .asScala.iterator
-      .map { pair => (pair.first, pair.second)}
-      .toSeq
-
-    // TODO workaround for IDEA-186551 -- remove when fixed in core
-    @nowarn("cat=deprecation") // SCL-22625
-    val nonProxyHosts =
-      if (!StringUtil.isEmpty(http.PROXY_EXCEPTIONS) && (http.USE_HTTP_PROXY || http.USE_PROXY_PAC)) {
-        val hosts = http.PROXY_EXCEPTIONS.split(",")
-        if (hosts.nonEmpty) {
-          val hostString = hosts.map(_.trim).mkString("|")
-          Seq(("http.nonProxyHosts", hostString))
-        } else Seq.empty
-      } else Seq.empty
-
-    (jvmArgs ++ nonProxyHosts)
-      .collect { case (name,value) if select(name) => s"-D$name=$value" }
+    val optionsMap = SbtUtil.getStaticProxyConfigurationJvmOptions
+    optionsMap.toSeq.collect { case (name,value) if select(name) => s"-D$name=$value" }
   }
 
   private implicit class OptionsOps(options: Seq[String]) {

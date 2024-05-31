@@ -8,6 +8,7 @@ import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.platform.workspace.storage.{EntityStorage, SymbolicEntityId, WorkspaceEntityWithSymbolicId}
+import com.intellij.util.net.{ProxyConfiguration, ProxyCredentialStore, ProxyCredentialStoreKt, ProxySettings, ProxyUtils}
 import com.intellij.util.{EnvironmentUtil, SystemProperties}
 import org.jetbrains.annotations.VisibleForTesting
 import org.jetbrains.plugins.scala.build.BuildReporter
@@ -393,4 +394,16 @@ object SbtUtil {
     def resolveOpt[T <: WorkspaceEntityWithSymbolicId](id: SymbolicEntityId[T]): Option[T] = Option(storage.resolve(id))
   }
 
+  def getStaticProxyConfigurationJvmOptions: Map[String, String] = {
+    val proxyConfiguration = ProxySettings.getInstance().getProxyConfiguration
+    val credentialStore = ProxyCredentialStore.getInstance()
+    val credentialProvider = ProxyCredentialStoreKt.asProxyCredentialProvider(credentialStore)
+    proxyConfiguration match {
+      case c: ProxyConfiguration.StaticProxyConfiguration =>
+        val stringToString = ProxyUtils.asJvmProperties(c, credentialProvider)
+        stringToString.asScala.toMap
+      case _ =>
+        Map.empty
+    }
+  }
 }
