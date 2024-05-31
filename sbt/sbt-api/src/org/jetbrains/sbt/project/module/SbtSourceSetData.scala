@@ -5,14 +5,12 @@ import com.intellij.openapi.externalSystem.model.project.ModuleData
 import com.intellij.serialization.PropertyMapping
 import org.jetbrains.sbt.project.SbtProjectSystem
 
-
 /**
- * All subprojects of individual builds (except root projects) should be encapsulated in this data class.
- * By creating this class for subprojects of individual builds, it is possible to process them after the ModuleData classes (which are created for root projects within each build)
- * and adjust their name according to the root project name. <br>
- * Adjust the project name during the import is not enough, because IDEA is capable of renaming modules and in a situation where
- * the name of the root project would be changed, the subprojects would be left with incorrect names
- * (by incorrect I mean names, that would not have the same prefix as the project's root name).
+ * This data class was created to represent main and test modules.
+ * Main and test modules might be located both inside ModuleData modules (cause root module inside each build also can
+ * contain main and test sources) and SbtNestedModuleData modules. The reason for the creation of this data class is
+ * the same as it was for SbtNestedModuleData - adjusting proper module names.
+ * See [[org.jetbrains.sbt.project.module.SbtNestedModuleData]] for more details
  *
  * @param id unique project id
  * @param externalName module external name
@@ -20,7 +18,7 @@ import org.jetbrains.sbt.project.SbtProjectSystem
  * @param externalConfigPath module path
  * @param moduleTypeId module type id
  */
-final case class SbtNestedModuleData @PropertyMapping(Array(
+final case class SbtSourceSetData @PropertyMapping(Array(
   "id",
   "externalName",
   "moduleFileDirectoryPath",
@@ -41,7 +39,7 @@ final case class SbtNestedModuleData @PropertyMapping(Array(
   externalConfigPath
 ) { }
 
-object SbtNestedModuleData {
-  val Key: Key[SbtNestedModuleData] =
-    new Key(classOf[SbtNestedModuleData].getName, ProjectKeys.MODULE.getProcessingWeight + 1)
+object SbtSourceSetData {
+  val Key: Key[SbtSourceSetData] =
+    new Key(classOf[SbtSourceSetData].getName, ProjectKeys.MODULE.getProcessingWeight + 2)
 }
