@@ -4,9 +4,11 @@ import com.intellij.openapi.compiler.{CompilerMessage, CompilerMessageCategory}
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
+import com.intellij.openapi.roots.{CompilerModuleExtension, ModuleRootManager}
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.platform.externalSystem.testFramework.ExternalSystemImportingTestCase
 import com.intellij.testFramework.CompilerTester
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.extensions.inWriteAction
@@ -17,9 +19,10 @@ import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.junit.Assert.{assertNotNull, assertTrue}
 
+import java.io.File
 import java.nio.file.Path
 
-abstract class ZincTestBase extends ExternalSystemImportingTestCase  {
+abstract class ZincTestBase(separateProdAndTestSources: Boolean = false) extends ExternalSystemImportingTestCase  {
 
   override def getExternalSystemId: ProjectSystemId = SbtProjectSystem.Id
 
@@ -33,6 +36,7 @@ abstract class ZincTestBase extends ExternalSystemImportingTestCase  {
 
   override lazy val getCurrentExternalProjectSettings: SbtProjectSettings = {
     val settings = new SbtProjectSettings()
+    settings.separateProdAndTestSources = separateProdAndTestSources
     settings.jdk = sdk.getName
     settings
   }
@@ -102,4 +106,22 @@ abstract class ZincTestBase extends ExternalSystemImportingTestCase  {
     val text = message.getMessage
     assertTrue(s"Compiling wrong number of Scala sources, expected '$expected', got '$text'", text.contains(expected))
   }
+
+  /**
+   * It is written as an extension of [[com.intellij.testFramework.CompilerTester#findClassFile]].
+   * In this method, if the module in which the className is searched for is a test module,
+   * then #getCompilerOutputPathForTests is used instead of #getCompilerOutputPath
+   */
+  @Nullable
+  protected def findClassFile(className: String, module:Module, isTest: Boolean): File = {
+    val moduleExtension = ModuleRootManager.getInstance(module).getModuleExtension(classOf[CompilerModuleExtension])
+    val out =
+      if (isTest) moduleExtension.getCompilerOutputPathForTests
+      else moduleExtension.getCompilerOutputPath
+    assertNotNull(out)
+    val classFile = new File(out.getPath, className.replace('.', '/') + ".class")
+    if (classFile.exists()) classFile
+    else null
+  }
+
 }
