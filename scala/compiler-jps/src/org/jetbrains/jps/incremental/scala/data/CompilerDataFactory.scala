@@ -1,12 +1,12 @@
 package org.jetbrains.jps.incremental.scala.data
 
+import com.intellij.openapi.util.Key
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.incremental.CompileContext
 import org.jetbrains.jps.incremental.java.JavaBuilder
 import org.jetbrains.jps.incremental.scala.model.{CompilerSettings, LibrarySettings}
 import org.jetbrains.jps.incremental.scala.{ScalaBuilder, SettingsManager, compilerVersionIn}
 import org.jetbrains.jps.model.JpsModel
-import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
 import org.jetbrains.jps.model.java.{JpsJavaExtensionService, JpsJavaSdkType}
 import org.jetbrains.jps.model.library.JpsLibrary
 import org.jetbrains.jps.model.module.JpsModule
@@ -168,7 +168,15 @@ object CompilerDataFactory
 
     val options = new util.ArrayList[String]()
 
-    addCommonJavacOptions(options, compilerConfig.getCurrentCompilerOptions)
+    val compilerOptions = {
+      val compilerId = ReplacedJavaCompilerId.get(context)
+      if (compilerId eq null)
+        compilerConfig.getCurrentCompilerOptions
+      else
+        compilerConfig.getCompilerOptions(compilerId)
+    }
+
+    JavacOptionsProvider.addCommonJavacOptions(options, compilerOptions, context, chunk)
 
     val annotationProcessingProfile = {
       val module = chunk.representativeTarget.getModule
@@ -178,26 +186,6 @@ object CompilerDataFactory
     JavaBuilder.addCompilationOptions(options, context, chunk, annotationProcessingProfile)
 
     options.asScala.toSeq
-  }
-
-  // TODO JavaBuilder.loadCommonJavacOptions should be public
-  private def addCommonJavacOptions(options: util.ArrayList[String], compilerOptions: JpsJavaCompilerOptions): Unit = {
-    if (compilerOptions.DEBUGGING_INFO) {
-      options.add("-g")
-    }
-
-    if (compilerOptions.DEPRECATION) {
-      options.add("-deprecation")
-    }
-
-    if (compilerOptions.GENERATE_NO_WARNINGS) {
-      options.add("-nowarn")
-    }
-
-    if (compilerOptions.ADDITIONAL_OPTIONS_STRING.nonEmpty) {
-      // TODO extract VM options
-      options.addAll(compilerOptions.ADDITIONAL_OPTIONS_STRING.split("\\s+").toSeq.asJava)
-    }
   }
 
   private def compilerJarsIn(module: JpsModule): Option[CompilerJars] = {
@@ -235,4 +223,15 @@ object CompilerDataFactory
       case FilesDoNotExist(absentJars)  => s"Scala compiler JARs not found (module '${module.getName}'): ${filePaths(absentJars)}"
     }
   }
+
+  /**
+   * In [[org.jetbrains.jps.incremental.scala.InitialScalaBuilder.buildStarted]], we manually replace the platform Java
+   * compiler id when running the Zinc incremental compiler. Please refer to the comments in that method for more
+   * details about why this is necessary.
+   *
+   * This key is used to record the value of the platform Java compiler id that was replaced by the Zinc compiler id.
+   * Using the replaced value of the platform Java compiler id, we can get the values of the compiler options
+   * specified in the Java Compiler settings page.
+   */
+  private[scala] final val ReplacedJavaCompilerId: Key[String] = Key.create("_scala_replaced_java_compiler_id_")
 }

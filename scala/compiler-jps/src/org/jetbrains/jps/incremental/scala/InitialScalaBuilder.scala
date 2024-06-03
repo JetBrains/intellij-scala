@@ -7,6 +7,7 @@ import org.jetbrains.jps.builders.DirtyFilesHolder
 import org.jetbrains.jps.builders.java.{JavaBuilderUtil, JavaSourceRootDescriptor}
 import org.jetbrains.jps.builders.storage.BuildDataCorruptedException
 import org.jetbrains.jps.incremental._
+import org.jetbrains.jps.incremental.scala.data.CompilerDataFactory
 import org.jetbrains.jps.model.java.JpsJavaExtensionService
 import org.jetbrains.jps.model.module.JpsModule
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
@@ -44,6 +45,8 @@ class InitialScalaBuilder extends ModuleLevelBuilder(BuilderCategory.INITIAL) { 
         // instance to run, and therefore it will not do anything in our project, but remain officially enabled.
         val project = context.getProjectDescriptor.getProject
         val configuration = JpsJavaExtensionService.getInstance().getCompilerConfiguration(project)
+        val replaced = configuration.getJavaCompilerId
+        CompilerDataFactory.ReplacedJavaCompilerId.set(context, replaced)
         configuration.setJavaCompilerId(ZincCompilerId)
       }
 
