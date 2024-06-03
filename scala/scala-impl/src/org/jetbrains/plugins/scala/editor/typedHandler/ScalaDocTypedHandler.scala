@@ -10,7 +10,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaDocTypedHandler._
 import org.jetbrains.plugins.scala.editor.{DocumentExt, ScalaEditorUtils}
-import org.jetbrains.plugins.scala.extensions.{CharSeqExt, DocWhitespace, ObjectExt, PsiElementExt, ToNullSafe}
+import org.jetbrains.plugins.scala.extensions.{CharSeqExt, DocWhitespace, ElementType, ObjectExt, PsiElementExt, ToNullSafe}
 import org.jetbrains.plugins.scala.highlighter.ScalaCommenter
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.scaladoc.ScalaIsCommentComplete
@@ -152,13 +152,15 @@ final class ScalaDocTypedHandler extends TypedHandlerDelegate {
     val elementAtCaret = file.findElementAt(offset)
 
     val caretIsAtEmptyScaladocContentLine =
-      if (elementAtCaret.elementType == ScalaDocTokenType.DOC_WHITESPACE) {
+      if (elementAtCaret != null && elementAtCaret.elementType == ScalaDocTokenType.DOC_WHITESPACE) {
         val prevLeaf = PsiTreeUtil.prevLeaf(elementAtCaret)
         prevLeaf != null && prevLeaf.elementType == ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS && {
           val nextLeaf = PsiTreeUtil.nextLeaf(elementAtCaret)
-          nextLeaf.elementType match {
-            case ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS | ScalaDocTokenType.DOC_COMMENT_END => true
-            case _ => false
+          nextLeaf match {
+            case ElementType(ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS | ScalaDocTokenType.DOC_COMMENT_END) =>
+              true
+            case _ =>
+              false
           }
         }
       }
