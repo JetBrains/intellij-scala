@@ -4,10 +4,10 @@ import com.intellij.grazie.text.TextContent.{Exclusion, TextDomain}
 import com.intellij.grazie.text.{TextContent, TextContentBuilder, TextExtractor}
 import com.intellij.grazie.utils.{HtmlUtilsKt, PsiUtilsKt}
 import com.intellij.openapi.fileTypes.PlainTextLanguage
+import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiUtilCore
-import com.intellij.psi.{PsiComment, PsiElement}
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.injection.ScalaInjectionInfosCollector
@@ -68,14 +68,13 @@ final class ScalaTextExtractor extends TextExtractor:
         case _ =>
 
     // Handle line & block comments
-    if (allowedDomains.contains(TextDomain.COMMENTS))
-      root match
-        case _: PsiComment =>
-          val roots = PsiUtilsKt.getNotSoDistantSimilarSiblings(root, (e: PsiElement) => ScalaTokenTypes.PLAIN_COMMENTS_TOKEN_SET.contains(PsiUtilCore.getElementType(e)))
-          return TextContent.joinWithWhitespace('\n', ContainerUtil.mapNotNull(roots, (c: PsiElement) => {
-            TextContentBuilder.FromPsi.removingIndents(" \t*/").removingLineSuffixes(" \t").build(c, TextDomain.COMMENTS)
-          }))
-        case _ =>
+    def isPlainCommentToken(e: PsiElement): Boolean =
+      ScalaTokenTypes.PLAIN_COMMENTS_TOKEN_SET.contains(PsiUtilCore.getElementType(e))
+    if (allowedDomains.contains(TextDomain.COMMENTS) && isPlainCommentToken(root))
+      val roots = PsiUtilsKt.getNotSoDistantSimilarSiblings(root, e => isPlainCommentToken(e))
+      return TextContent.joinWithWhitespace('\n', ContainerUtil.mapNotNull(roots, (c: PsiElement) => {
+        TextContentBuilder.FromPsi.removingIndents(" \t*/").removingLineSuffixes(" \t").build(c, TextDomain.COMMENTS)
+      }))
 
     // Handle string literals
     if (allowedDomains.contains(TextDomain.LITERALS))
