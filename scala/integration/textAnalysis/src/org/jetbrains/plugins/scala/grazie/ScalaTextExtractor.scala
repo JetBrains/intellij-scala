@@ -98,7 +98,7 @@ final class ScalaTextExtractor extends TextExtractor:
               // Multiline string literals without margin can empty ranges for every blank line
               // We need to filter such empty ranges because `Exclusion` constructor will fail otherwise
               if (start == end) None else {
-                val isInterpolationInjectionExclusion = contentText.charAt(start) == '$'
+                val isInterpolationInjectionExclusion = contentText.lift(start).contains('$')
                 // Treat ${} injection as "Unknown" in order grammar check uses it as a border at which a new analyses should be started
                 // In s"this is example" we can reliable run the check and detect missing article "an"
                 // But in s"this is $text example" we can't do it because $text could inject the article
