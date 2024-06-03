@@ -210,7 +210,7 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor wit
       args:       Seq[(Option[ScPattern], String)],
       forceCases: Boolean = false,
       forceBlock: Boolean = false
-    )(appendBody: =>R
+    )(appendBody: => R
     ): R = {
       val argPatterns = args.flatMap(_._1)
       val needsCase = !forDisplay || forceCases || args.size > 1 || argPatterns.exists(needsDeconstruction)
@@ -259,16 +259,21 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor wit
       val initialArg = Seq(Some(pattern) -> pattern.getText)
 
       // start with the generator expression
-      val generatorNeedsParenthesis = rvalue.exists {
+      val generatorNeedsBlock = this.features.indentationBasedSyntaxEnabled && rvalue.exists(_.textContains('\n'))
+      lazy val generatorNeedsParenthesis = rvalue.exists {
         rvalue =>
           val inParenthesis = code"($rvalue).foo".getFirstChild.asInstanceOf[ScParenthesisedExpr]
           ScalaPsiUtil.needParentheses(inParenthesis, inParenthesis.innerElement.get)
       }
 
-      if (generatorNeedsParenthesis)
+      if (generatorNeedsBlock)
+        resultText ++= "{"
+      else if (generatorNeedsParenthesis)
         resultText ++= "("
       resultText ++= rvalue.map(_.getText).getOrElse("???")
-      if (generatorNeedsParenthesis)
+      if (generatorNeedsBlock)
+        resultText ++= "}"
+      else if (generatorNeedsParenthesis)
         resultText ++= ")"
 
       // add guards and assignment enumerators

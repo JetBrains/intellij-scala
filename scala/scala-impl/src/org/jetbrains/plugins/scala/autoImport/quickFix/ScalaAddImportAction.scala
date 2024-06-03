@@ -80,23 +80,23 @@ sealed abstract class ScalaAddImportAction[Psi <: PsiElement, Elem <: ElementToI
 
   protected def separatorAbove(variant: Elem): ListSeparator = null
 
+  case class PresentablePopupElement(elem: Elem) {
+    // evaluate icon and presentation, so it won't be calculated in painting thread (which is forbidden)
+    val icon: Icon = elem.element.getIcon(0)
+
+    @Nls
+    //noinspection ReferencePassedToNls
+    val presentation: String = elem.presentation
+  }
+
   private def showChooser(validVariants: Seq[Elem]): Unit = {
-    case class PresentableElement(elem: Elem) {
-      // evaluate icon and presentation, so it won't be calculated in painting thread (which is forbidden)
-      val icon: Icon = elem.element.getIcon(0)
-
-      @Nls
-      //noinspection ReferencePassedToNls
-      val presentation: String = elem.presentation
-    }
-
     val title = chooserTitle(validVariants)
-    val firstPopupStep: BaseListPopupStep[PresentableElement] =
-      new BaseListPopupStep[PresentableElement](title, validVariants.map(PresentableElement): _*) {
-        override def getIconFor(aValue: PresentableElement): Icon =
+    val firstPopupStep: BaseListPopupStep[PresentablePopupElement] =
+      new BaseListPopupStep[PresentablePopupElement](title, validVariants.map(PresentablePopupElement): _*) {
+        override def getIconFor(aValue: PresentablePopupElement): Icon =
           aValue.icon
 
-        override def getTextFor(value: PresentableElement): String =
+        override def getTextFor(value: PresentablePopupElement): String =
           value.presentation
 
         override def isAutoSelectionEnabled: Boolean = false
@@ -105,9 +105,9 @@ sealed abstract class ScalaAddImportAction[Psi <: PsiElement, Elem <: ElementToI
 
         import com.intellij.openapi.ui.popup.PopupStep.FINAL_CHOICE
 
-        override def getSeparatorAbove(value: PresentableElement): ListSeparator = separatorAbove(value.elem)
+        override def getSeparatorAbove(value: PresentablePopupElement): ListSeparator = separatorAbove(value.elem)
 
-        override def onChosen(selectedValue: PresentableElement, finalChoice: Boolean): PopupStep[_] = {
+        override def onChosen(selectedValue: PresentablePopupElement, finalChoice: Boolean): PopupStep[_] = {
           if (selectedValue == null) {
             return FINAL_CHOICE
           }
@@ -118,7 +118,7 @@ sealed abstract class ScalaAddImportAction[Psi <: PsiElement, Elem <: ElementToI
           secondPopupStep(selectedValue.elem)
         }
 
-        override def hasSubstep(selectedValue: PresentableElement): Boolean =
+        override def hasSubstep(selectedValue: PresentablePopupElement): Boolean =
           secondPopupStep(selectedValue.elem) != FINAL_CHOICE
       }
     val popup = JBPopupFactory.getInstance.createListPopup(firstPopupStep)
@@ -176,6 +176,7 @@ object ScalaAddImportAction {
     case reference: ScDocResolvableCodeReference => new ForScalaDoc(editor, variants, reference)
     case _ => new ForReference(editor, variants, reference)
   }
+
 
   private sealed class ForReference[Ref <: ScReference, ToImport <: ElementToImport](editor: Editor,
                                                                                      variants: Seq[ToImport],
@@ -284,8 +285,8 @@ object ScalaAddImportAction {
       popup.asInstanceOf[ListPopupImpl].getList.clearSelection()
 
       popup.addListSelectionListener { (e: ListSelectionEvent) =>
-        val jList = e.getSource.asInstanceOf[JList[ImplicitToImport]]
-        Option(jList.getSelectedValue).foreach { value =>
+        val jList = e.getSource.asInstanceOf[JList[PresentablePopupElement]]
+        Option(jList.getSelectedValue).foreach { case PresentablePopupElement(value) =>
           if (value.found.path.size > 1)
             showDerivationPopup(value, editor, jList)
           else
@@ -308,7 +309,7 @@ object ScalaAddImportAction {
     current.foreach(_.cancel())
   }
 
-  private def showDerivationPopup(variant: ImplicitToImport, editor: Editor, jList: JList[ImplicitToImport]): JBPopup = {
+  private def showDerivationPopup(variant: ImplicitToImport, editor: Editor, jList: JList[_]): JBPopup = {
     val label = new JLabel(derivation(variant.found))
 
     label.setBorder(JBUI.Borders.empty(2))
