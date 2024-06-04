@@ -198,7 +198,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     }
 
     prepareCompilation(await = true) {
-      performCompilation(delayIndicator = true) { client =>
+      performCompilation(delayIndicator = true, refreshVfs = false) { client =>
         WorksheetHighlightingCompiler.compile(file, document, module, client)
       }
     }
@@ -215,7 +215,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
           else {
             TriggerCompilerHighlightingService.get(project).beforeIncrementalCompilation()
             // Perform the rest of the execution of this incremental compilation on a background thread.
-            performCompilation(delayIndicator = false) { client =>
+            performCompilation(delayIndicator = false, refreshVfs = true) { client =>
               if (BspUtil.isBspProject(project)) {
                 doBspIncrementalCompilation(request, client, runDocumentCompiler)
               } else {
@@ -285,7 +285,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     await: Boolean
   ): Unit = {
     prepareCompilation(await) {
-      performCompilation(delayIndicator = true) { client =>
+      performCompilation(delayIndicator = true, refreshVfs = false) { client =>
         DocumentCompiler.get(project)
           .compile(module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, document, virtualFile, client)
       }
@@ -343,7 +343,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     }
   }
 
-  private def performCompilation(delayIndicator: Boolean)(compile: CompilerEventGeneratingClient => Unit): Future[Unit] = {
+  private def performCompilation(delayIndicator: Boolean, refreshVfs: Boolean)(compile: CompilerEventGeneratingClient => Unit): Future[Unit] = {
     val promise = Promise[Unit]()
     val taskMsg = CompilerIntegrationBundle.message("highlighting.compilation")
 
@@ -353,7 +353,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
 
         try {
           progressIndicator.set(indicator)
-          val client = new CompilerEventGeneratingClient(project, indicator, Log)
+          val client = new CompilerEventGeneratingClient(project, indicator, Log, refreshVfs)
           CompilerLockService.instance(project).withCompilerLock(indicator) {
             compile(client)
           }

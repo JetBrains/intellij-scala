@@ -13,7 +13,8 @@ import java.io.File
 private class CompilerEventGeneratingClient(
   project: Project,
   indicator: ProgressIndicator,
-  log: Logger
+  log: Logger,
+  refreshVfs: Boolean
 ) extends DummyClient {
 
   final val compilationId = CompilationId.generate()
@@ -49,8 +50,12 @@ private class CompilerEventGeneratingClient(
   override def compilationStart(): Unit =
     sendEvent(CompilerEvent.CompilationStarted(compilationId, None))
 
-  override def compilationEnd(sources: Set[File]): Unit =
+  override def compilationEnd(sources: Set[File]): Unit = {
+    if (refreshVfs) {
+      VfsUtil.refreshOutputPaths(project, sources)
+    }
     sendEvent(CompilerEvent.CompilationFinished(compilationId, None, sources))
+  }
 
   override def isCanceled: Boolean = indicator.isCanceled
 
