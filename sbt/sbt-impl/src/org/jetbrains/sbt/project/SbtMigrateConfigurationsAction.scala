@@ -1,7 +1,7 @@
 package org.jetbrains.sbt.project
 
 import com.intellij.execution.application.ApplicationConfiguration
-import com.intellij.execution.configurations.{ModuleBasedConfiguration, RunConfigurationBase}
+import com.intellij.execution.configurations.{JavaRunConfigurationModule, ModuleBasedConfiguration, RunConfigurationBase}
 import com.intellij.execution.junit.JUnitConfiguration
 import com.intellij.openapi.actionSystem.{ActionPlaces, ActionUpdateThread, AnAction, AnActionEvent}
 import com.intellij.openapi.diagnostic.Logger
@@ -15,6 +15,8 @@ import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.sbt.{SbtBundle, SbtUtil}
 import org.jetbrains.sbt.project.SbtMigrateConfigurationsAction.{ModuleHeuristicResult, logger}
 import org.jetbrains.sbt.project.extensionPoints.ModuleBasedConfigurationMainClassExtractor
+
+import scala.util.Try
 
 class SbtMigrateConfigurationsAction extends AnAction {
 
@@ -38,7 +40,9 @@ class SbtMigrateConfigurationsAction extends AnAction {
       config <- moduleBasedConfigurations
       configurationModule = config.getConfigurationModule
       oldModuleName = configurationModule.getModuleName
-      if oldModuleName.nonEmpty && configurationModule.getModule == null
+      // note: if oldModuleName is non-empty and configurationModule.getModule is not null, it's possible that the configuration may still be broken.
+      // See #isMainClassInConfigurationModule ScalaDoc for more details.
+      if oldModuleName.nonEmpty && (configurationModule.getModule == null || isMainClassInConfigurationModule(config))
     } yield config -> mapConfigurationToHeuristicResult(config, oldModuleName, modules, project)
 
     if (configToHeuristicResult.isEmpty) {
@@ -97,17 +101,43 @@ class SbtMigrateConfigurationsAction extends AnAction {
     // modules main class is available. It may happen that it will only be available in one module from the list of possible modules and
     // the situation will be solved because we will only have one module that fits.
     // If this does not happen, all possible modules are displayed as tooltip in MigrateConfigurationsDialogWrapper
-    val mainClassName = config match {
-      case x: ApplicationConfiguration => x.getMainClassName
-      case x: JUnitConfiguration => x.getPersistentData.getMainClassName
-      // note: in this pattern match AbstractTestRunConfiguration in which testConfigurationData is ClassTestData could be handled.
-      // I didn't implement it, because using AbstractTestRunConfiguration in sbtImpl module requires major changes in module structure.
-      case x: ModuleBasedConfiguration[_, _] =>
-        ModuleBasedConfigurationMainClassExtractor.getMainClassFromTestConfiguration(x).orNull
-      case _ => null
-    }
+    val mainClassName = extractMainClassName(config)
     getModulesForClass(mainClassName, project)
   }
+
+  /**
+   * Checks whether a module in a configuration contains an expected main class.
+   * If not, the situation like that could happen - in the old grouping there may have been an IDEA module called X
+   * owned by project Y (project in the sbt sense), and in the new grouping the same module (X) may belong to another project e.g. Z.
+   * In that case, the configuration that had a module called X will still have it, but it will no longer be the same module as the original one and
+   * some main class may no longer exists inside it.
+   */
+  private def isMainClassInConfigurationModule(config: ModuleBasedConfiguration[_, _]): Boolean = {
+    val mainClassName = extractMainClassName(config)
+    val javaRunConfigurationModule = extractJavaRunConfigurationModule(config)
+    if (mainClassName != null && javaRunConfigurationModule != null) {
+      Try(javaRunConfigurationModule.findNotNullClass(mainClassName)).toOption.isEmpty
+    } else {
+      false
+    }
+  }
+
+  @Nullable
+  private def extractMainClassName(config: ModuleBasedConfiguration[_, _]): String =
+    config match {
+      case x: ApplicationConfiguration => x.getMainClassName
+      case x: JUnitConfiguration => x.getPersistentData.getMainClassName
+      case x: ModuleBasedConfiguration[_, _] => ModuleBasedConfigurationMainClassExtractor.getMainClass(x).orNull
+      case _ => null
+    }
+
+  @Nullable
+  private def extractJavaRunConfigurationModule(config: ModuleBasedConfiguration[_, _]): JavaRunConfigurationModule =
+    config.getConfigurationModule match {
+      case x: JavaRunConfigurationModule => x
+      case _ => null
+    }
+
 
   // note: this method is based on com.intellij.execution.configurations.JavaRunConfigurationModule.getModulesForClass.
   // I decided not to use it, because it also adds dependant modules to the result. In theory it is also possible
