@@ -11,6 +11,7 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{JavaPsiFacade, PsiDocumentManager}
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.sbt.{SbtBundle, SbtUtil}
 import org.jetbrains.sbt.project.SbtMigrateConfigurationsAction.{ModuleHeuristicResult, logger}
 import org.jetbrains.sbt.project.extensionPoints.ModuleBasedConfigurationMainClassExtractor
@@ -61,6 +62,9 @@ class SbtMigrateConfigurationsAction extends AnAction {
     modules.filter(m => moduleTypeManager.isClasspathProvider(ModuleType.get(m)))
   }
 
+  /**
+   * @param modules include only classpath provider modules (it doesn't contain shared sources or build modules)
+   */
   private def mapConfigurationToHeuristicResult[T <: RunConfigurationBase[_]](
     config: ModuleBasedConfiguration[_, _],
     oldModuleName: String,
@@ -74,9 +78,13 @@ class SbtMigrateConfigurationsAction extends AnAction {
     val productOfModuleSets = possibleModules.filter(modulesForClass.contains)
     productOfModuleSets match {
       case Seq(head) => ModuleHeuristicResult(Some(head))
-      case Seq() if modulesForClass.size == 1 => ModuleHeuristicResult(Some(modulesForClass.head))
+      // note: it may happen that module from modulesForClass will be of SharedSourcesModuleType type.
+      // Because of that we have to find their JVM representation.
+      case Seq() if modulesForClass.size == 1 => ModuleHeuristicResult(modulesForClass.head.findJVMModule)
       // note: when there is more than 10 possible modules, displaying them in a tooltip can introduce additional chaos
-      case Seq() if combinedModules.size < 10 => ModuleHeuristicResult(None, combinedModules.map(_.getName))
+      case Seq() if combinedModules.size < 10 =>
+        val onlyJVMModules = combinedModules.flatMap(_.findJVMModule).map(_.getName)
+        ModuleHeuristicResult(None, onlyJVMModules)
       case _ if productOfModuleSets.size < 10 => ModuleHeuristicResult(None, productOfModuleSets.map(_.getName))
       case _  => ModuleHeuristicResult(None)
     }
