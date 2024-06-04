@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.debugger.evaluation
 
 import com.intellij.debugger.impl.{DebuggerManagerListener, DebuggerSession}
-import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
+import com.intellij.openapi.progress.{ProgressIndicator, Task}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.{Key, ThrowableComputable}
+import com.intellij.openapi.util.Key
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.debugger.DebuggerBundle
 import org.jetbrains.plugins.scala.debugger.evaluation.ExpressionCompilerResolverListener.ExpressionCompilers
@@ -18,35 +18,28 @@ private final class ExpressionCompilerResolverListener(project: Project) extends
   override def sessionCreated(session: DebuggerSession): Unit = {
     if (project.isDisposed) return
 
-    val resolve: ThrowableComputable[Map[ScalaVersion, Path], Exception] = () => {
-      project
-        .modulesWithScala
-        .flatMap(_.scalaMinorVersion)
-        .filter(_.isScala3)
-        .flatMap { v =>
-          resolveExpressionCompilerJar(v) match {
-            case Some(jar) => Some(v -> jar)
-            case None => None
-          }
-        }
-        .toMap
-    }
+    new Task.Backgroundable(project, DebuggerBundle.message("resolving.expression.compiler"), false, () => false) {
+      override def run(indicator: ProgressIndicator): Unit = {
+        if (project.isDisposed) return
 
-    val expressionCompilers = try {
-      ProgressManager
-        .getInstance()
-        .runProcessWithProgressSynchronously(
-          resolve,
-          DebuggerBundle.message("resolving.expression.compiler"),
-          true,
+        val expressionCompilers = try {
           project
-        )
-    } catch {
-      case _: ProcessCanceledException => Map.empty[ScalaVersion, Path]
-      case NonFatal(_) => Map.empty[ScalaVersion, Path]
-    }
+            .modulesWithScala
+            .flatMap(_.scalaMinorVersion)
+            .filter(_.isScala3)
+            .flatMap { v =>
+              resolveExpressionCompilerJar(v) match {
+                case Some(jar) => Some(v -> jar)
+                case None => None
+              }
+            }.toMap
+        } catch {
+          case NonFatal(_) => Map.empty[ScalaVersion, Path]
+        }
 
-    project.putUserData(ExpressionCompilers, expressionCompilers)
+        project.putUserData(ExpressionCompilers, expressionCompilers)
+      }
+    }.queue()
   }
 
   private def resolveExpressionCompilerJar(scalaVersion: ScalaVersion): Option[Path] = {
