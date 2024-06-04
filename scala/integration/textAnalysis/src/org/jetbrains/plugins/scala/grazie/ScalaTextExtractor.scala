@@ -4,10 +4,10 @@ import com.intellij.grazie.text.TextContent.{Exclusion, TextDomain}
 import com.intellij.grazie.text.{TextContent, TextContentBuilder, TextExtractor}
 import com.intellij.grazie.utils.{HtmlUtilsKt, PsiUtilsKt}
 import com.intellij.openapi.fileTypes.PlainTextLanguage
+import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiUtilCore
-import com.intellij.psi.{PsiComment, PsiElement}
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.injection.ScalaInjectionInfosCollector
@@ -68,14 +68,13 @@ final class ScalaTextExtractor extends TextExtractor:
         case _ =>
 
     // Handle line & block comments
-    if (allowedDomains.contains(TextDomain.COMMENTS))
-      root match
-        case _: PsiComment =>
-          val roots = PsiUtilsKt.getNotSoDistantSimilarSiblings(root, (e: PsiElement) => ScalaTokenTypes.PLAIN_COMMENTS_TOKEN_SET.contains(PsiUtilCore.getElementType(e)))
-          return TextContent.joinWithWhitespace('\n', ContainerUtil.mapNotNull(roots, (c: PsiElement) => {
-            TextContentBuilder.FromPsi.removingIndents(" \t*/").removingLineSuffixes(" \t").build(c, TextDomain.COMMENTS)
-          }))
-        case _ =>
+    def isPlainCommentToken(e: PsiElement): Boolean =
+      ScalaTokenTypes.PLAIN_COMMENTS_TOKEN_SET.contains(PsiUtilCore.getElementType(e))
+    if (allowedDomains.contains(TextDomain.COMMENTS) && isPlainCommentToken(root))
+      val roots = PsiUtilsKt.getNotSoDistantSimilarSiblings(root, e => isPlainCommentToken(e))
+      return TextContent.joinWithWhitespace('\n', ContainerUtil.mapNotNull(roots, (c: PsiElement) => {
+        TextContentBuilder.FromPsi.removingIndents(" \t*/").removingLineSuffixes(" \t").build(c, TextDomain.COMMENTS)
+      }))
 
     // Handle string literals
     if (allowedDomains.contains(TextDomain.LITERALS))
@@ -99,7 +98,7 @@ final class ScalaTextExtractor extends TextExtractor:
               // Multiline string literals without margin can empty ranges for every blank line
               // We need to filter such empty ranges because `Exclusion` constructor will fail otherwise
               if (start == end) None else {
-                val isInterpolationInjectionExclusion = contentText.charAt(start) == '$'
+                val isInterpolationInjectionExclusion = contentText.lift(start).contains('$')
                 // Treat ${} injection as "Unknown" in order grammar check uses it as a border at which a new analyses should be started
                 // In s"this is example" we can reliable run the check and detect missing article "an"
                 // But in s"this is $text example" we can't do it because $text could inject the article

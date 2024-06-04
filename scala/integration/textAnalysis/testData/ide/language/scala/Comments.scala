@@ -1,4 +1,5 @@
 // Copyright 2000-2020 I are a incorrect comment that the developers can hardly do anything about.
+//> using test
 
 class ForMultiLanguageSupport {
     // er überprüfte die Rechnungen noch <TYPO descr="Typo: In word 'einal'">einal</TYPO>, um ganz <GRAMMAR_ERROR descr="COMPOUND_INFINITIV_RULE">sicher zu gehen</GRAMMAR_ERROR>.
