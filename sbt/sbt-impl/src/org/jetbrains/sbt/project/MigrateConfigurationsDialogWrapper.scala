@@ -4,7 +4,6 @@ import com.intellij.application.options.ModulesComboBox
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.table.JBTable
-import com.intellij.openapi.project.Project
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager}
 
 import java.awt.{Dimension, Font}
@@ -17,8 +16,9 @@ import org.jetbrains.sbt.project.SbtMigrateConfigurationsAction.ModuleHeuristicR
 
 import java.awt.event.MouseEvent
 import scala.collection.mutable
+import scala.jdk.CollectionConverters.IterableHasAsJava
 
-class MigrateConfigurationsDialogWrapper(project: Project, configurationToModule: Map[ModuleBasedConfiguration[_, _], ModuleHeuristicResult]) extends DialogWrapper(true) {
+class MigrateConfigurationsDialogWrapper(modules: Array[Module], configurationToModule: Map[ModuleBasedConfiguration[_, _], ModuleHeuristicResult]) extends DialogWrapper(true) {
 
   private val myTable = new JBTable() {
     override def getToolTipText(event: MouseEvent): String = {
@@ -103,7 +103,7 @@ class MigrateConfigurationsDialogWrapper(project: Project, configurationToModule
     val defaultText = SbtBundle.message("sbt.migrate.configurations.dialog.wrapper.default")
 
     val comboBox = new ModulesComboBox()
-    comboBox.fillModules(project)
+    comboBox.setModules(modules.toSeq.asJavaCollection)
     comboBox.allowEmptySelection(defaultText)
     val editor = new DefaultCellEditor(comboBox)
 

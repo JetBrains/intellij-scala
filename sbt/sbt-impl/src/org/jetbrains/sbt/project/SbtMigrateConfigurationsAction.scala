@@ -5,7 +5,7 @@ import com.intellij.execution.configurations.{ModuleBasedConfiguration, RunConfi
 import com.intellij.execution.junit.JUnitConfiguration
 import com.intellij.openapi.actionSystem.{ActionPlaces, ActionUpdateThread, AnAction, AnActionEvent}
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.module.{Module, ModuleManager, ModuleUtilCore}
+import com.intellij.openapi.module.{Module, ModuleManager, ModuleType, ModuleTypeManager, ModuleUtilCore}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.psi.search.GlobalSearchScope
@@ -32,7 +32,7 @@ class SbtMigrateConfigurationsAction extends AnAction {
     if (project == null) return
 
     val moduleBasedConfigurations = SbtUtil.getAllModuleBasedConfigurationsInProject(project)
-    val modules = ModuleManager.getInstance(project).getModules
+    val modules = classPathProviderModules(project)
     val configToHeuristicResult = for {
       config <- moduleBasedConfigurations
       configurationModule = config.getConfigurationModule
@@ -43,13 +43,22 @@ class SbtMigrateConfigurationsAction extends AnAction {
     if (configToHeuristicResult.isEmpty) {
       Messages.showWarningDialog(project, SbtBundle.message("sbt.migrate.configurations.warning.message"), SbtBundle.message("sbt.migrate.configurations.warning.title"))
     } else {
-      val dialogWrapper = new MigrateConfigurationsDialogWrapper(project, configToHeuristicResult.toMap)
+      val dialogWrapper = new MigrateConfigurationsDialogWrapper(modules, configToHeuristicResult.toMap)
       val changedConfigToModule = dialogWrapper.open()
       changedConfigToModule.collect { case(config, Some(module)) =>
         config.setModule(module)
         logger.info(s"In ${config.getName} configuration, the module was changed to ${module.getName}")
       }
     }
+  }
+
+  private def classPathProviderModules(project: Project): Array[Module] = {
+    val modules = ModuleManager.getInstance(project).getModules
+    val moduleTypeManager = ModuleTypeManager.getInstance()
+    // note: it is written based on com.intellij.execution.ui.ModuleClasspathCombo.isModuleAccepted
+    // I didn't use ModuleClasspathCombo directly in the org.jetbrains.sbt.project.MigrateConfigurationsDialogWrapper.myTable,
+    // cause it will require additional non-obvious tricks to display it nicely it in a table cell.
+    modules.filter(m => moduleTypeManager.isClasspathProvider(ModuleType.get(m)))
   }
 
   private def mapConfigurationToHeuristicResult[T <: RunConfigurationBase[_]](
