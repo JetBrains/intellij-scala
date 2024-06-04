@@ -12,8 +12,9 @@ trait ModuleBasedConfigurationMainClassExtractor {
 object ModuleBasedConfigurationMainClassExtractor
   extends ExtensionPointDeclaration[ModuleBasedConfigurationMainClassExtractor]("com.intellij.sbt.configurationMainClassExtractor") {
 
-  def getMainClassFromTestConfiguration(config: ModuleBasedConfiguration[_, _]): Option[String] =
+  def getMainClass(config: ModuleBasedConfiguration[_, _]): Option[String] =
     implementations
       .map(_.getConfigurationMainClass(config))
-      .collectFirst { case result if result.nonEmpty => result.get }
+      .collectFirst { case Some(result) => result }
+
 }
