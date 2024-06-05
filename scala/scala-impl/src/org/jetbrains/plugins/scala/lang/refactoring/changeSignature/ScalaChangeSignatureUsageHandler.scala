@@ -70,7 +70,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
     def addType(element: ScNamedElement, oldTypeElem: Option[ScTypeElement], substType: ScType): Unit = {
       oldTypeElem match {
         case Some(te) =>
-          val replaced = te.replace(createTypeElementFromText(substType.canonicalCodeText, element)(element))
+          val replaced = te.replace(createTypeElementFromText(substType.canonicalCodeText(element), element)(element))
           TypeAdjuster.markToAdjust(replaced)
         case None =>
           val (context, anchor) = element.nameContext match {
@@ -165,7 +165,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
       if (paramTypes.size == names.size)
         names.zip(paramTypes).map {
           case (name, tpe) =>
-            ScalaExtractMethodUtils.typedName(name, tpe.canonicalCodeText)(expr.getProject)
+            ScalaExtractMethodUtils.typedName(name, tpe.canonicalCodeText(expr))(expr.getProject)
         }
       else names
     val clause = params.mkString("(", ", ", ")")
@@ -435,7 +435,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
       val method = change.getMethod
       paramInfo match {
         case sInfo: ScalaParameterInfo =>
-          val text = UsageUtil.substitutor(usage)(sInfo.scType).canonicalCodeText
+          val text = UsageUtil.substitutor(usage)(sInfo.scType).canonicalCodeText(method)
           val `=> ` = if (sInfo.isByName) ScalaPsiUtil.functionArrow + " " else ""
           val `*` = if (sInfo.isRepeatedParameter) "*" else ""
           `=> `+ text + `*`
