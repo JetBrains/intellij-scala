@@ -1,13 +1,15 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
+import com.intellij.psi.PsiTypeParameterListOwner
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScAssignment, ScExpression, ScGenericCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitConversionResolveResult
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, UndefinedType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.UndefinedType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor.{conformsToDynamic, getDynamicNameForMethodInvocation}
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
@@ -26,6 +28,10 @@ case class ApplyOrUpdateInvocation(
 
   def collectCandidates(isShape: Boolean, withImplicits: Boolean = true): Array[ScalaResolveResult] = {
     val nameArgForDynamic = Option.when(isDynamic)(CommonNames.Apply)
+    val curriedTypeParams = baseExprType match {
+      case tpt: ScTypePolymorphicType => tpt.typeParameters
+      case _                          => Seq.empty
+    }
 
     val processor =
       new MethodResolveProcessor(
@@ -33,7 +39,7 @@ case class ApplyOrUpdateInvocation(
         methodName,
         argClauses,
         typeArgs,
-        Seq.empty,
+        curriedTypeParams,
         expectedOption    = expectedType,
         isShapeResolve    = isShape,
         enableTupling     = true,
@@ -58,9 +64,8 @@ case class ApplyOrUpdateInvocation(
     baseExprType match {
       case ScTypePolymorphicType(_: ScMethodType | _: UndefinedType, _) =>
         Set.empty
-      case ScTypePolymorphicType(internal, tparams) if shouldProcess(internal) =>
-        val cands = candidatesFromType(processor, internal)
-        cands.map(_.copy(unresolvedTypeParameters = tparams.toOption))
+      case ScTypePolymorphicType(internal, _) if shouldProcess(internal) =>
+        candidatesFromType(processor, internal)
       case other =>
         if (shouldProcess(other)) candidatesFromType(processor, other)
         else                      Set.empty
@@ -161,5 +166,11 @@ object ApplyOrUpdateInvocation {
       val emptyStringExpression = createExpressionFromText("\"\"", call)
       List(Seq(emptyStringExpression), arguments)
     }
+  }
+
+  def srrHasTypeParameters(srr: ScalaResolveResult): Boolean = srr.element match {
+    case tpo: PsiTypeParameterListOwner => tpo.getTypeParameters.nonEmpty
+    case tpo: ScTypeParametersOwner     => tpo.typeParameters.nonEmpty
+    case _                              => false
   }
 }

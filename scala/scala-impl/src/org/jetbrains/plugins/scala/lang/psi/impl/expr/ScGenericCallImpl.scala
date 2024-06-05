@@ -13,26 +13,29 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider.PsiMethodTypeProviderExt
-import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.ScExpressionForExpectedTypesEx
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor.ScTypeForDynamicProcessorEx
 
 class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScGenericCall {
-  private def processApplyOrUpdateMethod(tp: ScType, isShape: Boolean): ScType =
-    getContext match {
-      case _: MethodInvocation => tp
-      case _ =>
-        val srrs = this.tryResolveApplyMethod(this, tp, isShape = isShape, stripTypeArgs = false)
-
-        srrs match {
-          case Array(srr @ ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor)) =>
-            fun
-              .methodTypeProvider(elementScope)
-              .polymorphicType(s)
-              .updateTypeOfDynamicCall(srr.isDynamic)
-          case _ => Nothing
-        }
+  private def processApplyOrUpdateMethod(tp: ScType, isShape: Boolean): ScType = {
+    val applyResolver = getContext match {
+      case inv: MethodInvocation =>
+        ApplyOrUpdateInvocation(inv, tp, isDynamic = false, stripTypeArgs = false)
+      case _ => ApplyOrUpdateInvocation(this, tp, stripTypeArgs = false)
     }
+
+    val srrs = applyResolver.collectCandidates(isShape)
+
+    srrs match {
+      case Array(srr @ ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor)) =>
+        fun
+          .methodTypeProvider(elementScope)
+          .polymorphicType(s)
+          .updateTypeOfDynamicCall(srr.isDynamic)
+      case _ =>
+        Nothing
+    }
+  }
 
   private def substPolymorphicType: ScType => ScType = {
     case ScTypePolymorphicType(internal, tps) =>

@@ -52,30 +52,17 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
     case _ => Seq.empty
   }
 
-  override final def getImportsUsed: Set[ImportUsed] =
-    (for {
-      srr    <- applyOrUpdateElement
-      inner  <- srr.innerResolveResult
-      imports = inner.importsUsed
-    } yield imports).getOrElse(Set.empty)
-
-
   override final def getImplicitFunction: Option[ScalaResolveResult] =
-  for {
-    srr   <- applyOrUpdateElement
-    conv  <- srr.implicitConversion
-  } yield conv
+    applyOrUpdateElement.flatMap(_.implicitConversion)
+
+  override final def getImportsUsed: Set[ImportUsed] = applyOrUpdateElement match {
+    case Some(srr) => srr.importsUsed
+    case None      => Set.empty
+  }
 
   override final def applyOrUpdateElement: Option[ScalaResolveResult] = innerTypeExt match {
     case syntheticCase: SyntheticCase if syntheticCase.isApplyOrUpdate => Some(syntheticCase.resolveResult)
-    case regularCase: RegularCase =>
-      regularCase.target.filter {
-        srr =>
-          val nameFits  = srr.name == CommonNames.Apply || srr.name == CommonNames.Update
-          val isSugared = srr.innerResolveResult.isDefined
-          nameFits && isSugared
-      }
-      case _ => None
+    case _ => None
   }
 
   //noinspection ScalaExtractStringToBundle
@@ -108,7 +95,6 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
 
         val invokedResolveResult = getEffectiveInvokedExpr match {
           case ref: ScReferenceExpression => ref.bind()
-          case gen: ScGenericCall         => gen.bindInvokedExpr
           case _                          => None
         }
 
@@ -117,13 +103,8 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
           case _ =>
             val stripTypeArgs =
               getEffectiveInvokedExpr match {
-                case gen: ScGenericCall =>
-                  gen.bindInvokedExpr.forall {
-                    case ScalaResolveResult(tpo: ScTypeParametersOwner, _)     => tpo.typeParameters.nonEmpty
-                    case ScalaResolveResult(tpo: PsiTypeParameterListOwner, _) => tpo.getTypeParameters.nonEmpty
-                    case _                                                     => false
-                  }
-                case _ => true
+                case gen: ScGenericCall => gen.bindInvokedExpr.forall(ApplyOrUpdateInvocation.srrHasTypeParameters)
+                case _                  => true
               }
 
             val applyOrUpdateCands = this.tryResolveApplyMethod(

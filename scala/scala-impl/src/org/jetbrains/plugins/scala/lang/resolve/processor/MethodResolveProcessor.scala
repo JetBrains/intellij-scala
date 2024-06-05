@@ -126,7 +126,11 @@ class MethodResolveProcessor(override val ref: PsiElement,
 
   override def candidatesS: Set[ScalaResolveResult] = {
     if (isDynamic) {
-      collectCandidates(super.candidatesS.map(_.copy(nameArgForDynamic = nameArgForDynamic))).filter(_.isApplicable())
+      collectCandidates(
+        super.candidatesS.collect {
+          case srr if srr.isApplicable() => srr.copy(nameArgForDynamic = nameArgForDynamic)
+        }
+      )
     } else {
       val superCandidates = super.candidatesS
       val res = collectCandidates(superCandidates)
