@@ -6,6 +6,7 @@ import com.intellij.openapi.externalSystem.model.ExternalSystemDataKeys
 import com.intellij.openapi.externalSystem.service.project.manage.ProjectDataImportListener
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.sbt.project.SbtMigrateConfigurationsAction.isConfigurationInvalid
 import org.jetbrains.sbt.{SbtBundle, SbtUtil}
 
 class UpgradeConfigurationImportListener(project: Project) extends ProjectDataImportListener {
@@ -46,7 +47,7 @@ class UpgradeConfigurationImportListener(project: Project) extends ProjectDataIm
       val configurationModule = config.getConfigurationModule
       val oldModuleName = configurationModule.getModuleName
       // note: when configuration doesn't have a module, then moduleName is empty
-      oldModuleName.nonEmpty && configurationModule.getModule == null
+      isConfigurationInvalid(config, configurationModule, oldModuleName)
     }
   }
 }
