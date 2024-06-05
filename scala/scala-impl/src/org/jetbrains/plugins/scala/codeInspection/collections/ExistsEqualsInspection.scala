@@ -19,7 +19,7 @@ object ExistsEquals extends SimplificationType {
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
       case qual`.exists`(`x == `(e)) if canBeReplacedWithContains(qual, e) =>
-        Some(replace(expr).withText(invocationText(qual, "contains", e)))
+        Some(replace(expr).withText(invocationText(qual, "contains", e)).highlightFrom(qual))
       case _ => None
     }
   }
@@ -28,8 +28,6 @@ object ExistsEquals extends SimplificationType {
 
   def canBeReplacedWithContains(qual: ScExpression, arg: ScExpression): Boolean = {
     if (qual == null) return false
-
-    implicit val ctx: ProjectContext = qual.projectContext
 
     val exprText = s"(${qual.getText}).contains(${arg.getText})"
     ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, qual.getContext, qual) match {
@@ -47,7 +45,7 @@ object ForallNotEquals extends SimplificationType {
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
       case qual`.forall`(`x != `(e)) if ExistsEquals.canBeReplacedWithContains(qual, e) =>
-        Some(replace(expr).withText("!" + invocationText(qual, "contains", e)))
+        Some(replace(expr).withText("!" + invocationText(qual, "contains", e)).highlightFrom(qual))
       case _ => None
     }
   }

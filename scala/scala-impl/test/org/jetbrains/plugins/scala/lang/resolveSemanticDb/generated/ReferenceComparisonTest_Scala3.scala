@@ -530,7 +530,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i2981(): Unit = doTest("i2981", true)
   def test_i2982(): Unit = doTest("i2982", true)
   def test_i2989(): Unit = doTest("i2989", true) // #typeLambda
-  def test_i2997(): Unit = doTest("i2997", false)
+  def test_i2997(): Unit = doTest("i2997", true)
   def test_i2998(): Unit = doTest("i2998", true)
   def test_i3000(): Unit = doTest("i3000", true)
   def test_i3050(): Unit = doTest("i3050", true)
@@ -576,7 +576,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i3540(): Unit = doTest("i3540", true)
   def test_i3542_1(): Unit = doTest("i3542-1", false) // #byNameImplicit
   def test_i3542_2(): Unit = doTest("i3542-2", true) // #byNameImplicit
-  def test_i3544(): Unit = doTest("i3544", false) // #typeLambda
+  def test_i3544(): Unit = doTest("i3544", true) // #typeLambda
   def test_i3553(): Unit = doTest("i3553", true)
   def test_i3561(): Unit = doTest("i3561", true)
   def test_i3564(): Unit = doTest("i3564", true)
@@ -1043,7 +1043,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i9531(): Unit = doTest("i9531", true)
   def test_i9533(): Unit = doTest("i9533", true)
   def test_i9562(): Unit = doTest("i9562", true) // #extension
-  def test_i9567(): Unit = doTest("i9567", false) // #typeLambda
+  def test_i9567(): Unit = doTest("i9567", true) // #typeLambda
   def test_i9568(): Unit = doTest("i9568", true) // #byNameImplicit
   def test_i9626(): Unit = doTest("i9626", true)
   def test_i9667(): Unit = doTest("i9667", false)
@@ -1233,7 +1233,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i12218(): Unit = doTest("i12218", true)
   def test_i12226(): Unit = doTest("i12226", true)
   def test_i12247(): Unit = doTest("i12247", true)
-  def test_i12264(): Unit = doTest("i12264", false) // #opaque
+  def test_i12264(): Unit = doTest("i12264", true) // #opaque
   def test_i12265(): Unit = doTest("i12265", true)
   def test_i12273(): Unit = doTest("i12273", true)
   def test_i12277(): Unit = doTest("i12277", true)
@@ -1249,7 +1249,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i12396(): Unit = doTest("i12396", true)
   def test_i12474(): Unit = doTest("i12474", true)
   def test_i12476(): Unit = doTest("i12476", true)
-  def test_i12478(): Unit = doTest("i12478", false)
+  def test_i12478(): Unit = doTest("i12478", true)
   def test_i12508(): Unit = doTest("i12508", true)
   def test_i12508a(): Unit = doTest("i12508a", true)
   def test_i12508b(): Unit = doTest("i12508b", true)
@@ -1479,7 +1479,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i15898(): Unit = doTest("i15898", true)
   def test_i15922(): Unit = doTest("i15922", true)
   def test_i15931(): Unit = doTest("i15931", true) // #enum
-  def test_i15934(): Unit = doTest("i15934", false)
+  def test_i15934(): Unit = doTest("i15934", true)
   def test_i15940(): Unit = doTest("i15940", true)
   def test_i15960(): Unit = doTest("i15960", true)
   def test_i15964(): Unit = doTest("i15964", false)
@@ -1683,7 +1683,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_isRef(): Unit = doTest("isRef", true) // #intersectionType
   def test_itay(): Unit = doTest("itay", true)
   def test_Iter2(): Unit = doTest("Iter2", true)
-  def test_Iterable(): Unit = doTest("Iterable", false)
+  def test_Iterable(): Unit = doTest("Iterable", true)
   def test_iterator_traversable_mix(): Unit = doTest("iterator-traversable-mix", true)
   def test_java_annot(): Unit = doTest("java-annot", true)
   def test_java_futures(): Unit = doTest("java-futures", true)
@@ -1937,7 +1937,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_SI_7638a(): Unit = doTest("SI-7638a", true)
   def test_sigs(): Unit = doTest("sigs", true) // #unionType
   def test_simple(): Unit = doTest("simple", true)
-  def test_simple_boundary(): Unit = doTest("simple-boundary", false)
+  def test_simple_boundary(): Unit = doTest("simple-boundary", true)
   def test_simple_exceptions(): Unit = doTest("simple-exceptions", true)
   def test_simple_repeated_args(): Unit = doTest("simple-repeated-args", true)
   def test_simpleAnnot(): Unit = doTest("simpleAnnot", true)

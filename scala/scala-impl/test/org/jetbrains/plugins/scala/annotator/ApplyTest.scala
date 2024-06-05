@@ -1,6 +1,39 @@
 package org.jetbrains.plugins.scala.annotator
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 class ApplyTest extends AnnotatorLightCodeInsightFixtureTestAdapter {
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= LatestScalaVersions.Scala_3
+
+  def testSCL10902(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |object Test extends App {
+        | class A { def apply[Z] = 42 }
+        | def create = new A
+        |
+        | create[String]
+        |}
+      """.stripMargin)
+  }
+
+  def testSCL13689(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |class parent {
+        |  def abc[T]: T = ???
+        |}
+        |
+        |object foo extends parent {
+        |  def abc: Nothing = ???
+        |}
+        |
+        |object bar {
+        |  foo.abc[Int]
+        |}
+      """.stripMargin)
+  }
+
   def testSCL10253(): Unit = {
     val code =
       """
@@ -154,6 +187,79 @@ class ApplyTest extends AnnotatorLightCodeInsightFixtureTestAdapter {
       |  def apply[T <: Data](dataType: HardType[T]): T = ???
       |  def apply[T <: SpinalEnum](enumType: T): enumType.C = ???
       |}
+      |""".stripMargin
+  )
+
+  def testSCL21742(): Unit = checkTextHasNoErrors(
+    """
+      |case class Bool() {
+      |  def unary_! : Bool = ???
+      |  def &&&(other: Bool) : Bool = ???
+      |}
+      |
+      |class ElseWhenClause() {}
+      |
+      |case class Reproduction() {
+      |  implicit class ElseWhenClauseBuilder(cond: Bool) {
+      |    def apply(block: => Unit): ElseWhenClause = ???
+      |  }
+      |
+      |  val x = Bool()
+      |  val e1: ElseWhenClause = (!x) {} // ERROR: unary_! does not take parameters
+      |  val e2: ElseWhenClause = (!x &&& !x) { } //OK
+      |}
+      |""".stripMargin
+  )
+
+  def testSCL21616(): Unit = checkTextHasNoErrors(
+    """
+      |class MyClass {
+      |  def apply(booleanParameter: Boolean): Int = ???
+      |}
+      |
+      |object wrapper {
+      |  val myMethod: MyClass = ???
+      |  myMethod(true)
+      |  myMethod.apply(true)
+      |  //OK: named argument is ok for `apply` method
+      |  myMethod(booleanParameter = true)
+      |
+      |  object inner1 {
+      |    extension (target: MyClass)
+      |      def apply(doubleParameter: Double): Int = ???
+      |
+      |    myMethod(42d)
+      |    myMethod.apply(doubleParameter = 42d)
+      |    //BAD: named argument is not recognised for `apply` extension method
+      |    myMethod(doubleParameter = 42d)
+      |  }
+      |
+      |  object inner2 {
+      |    //scala 2 style extensions
+      |    implicit class MyClassOps42(private val target: MyClass) extends AnyVal {
+      |      final def apply(stringParameter: String): Int = ???
+      |    }
+      |
+      |    myMethod("42")
+      |    myMethod.apply(stringParameter = "42")
+      |    //BAD: named argument is not recognised for `apply` extension method (Scala 2 style)
+      |    myMethod(stringParameter = "42")
+      |  }
+      |}
+      |""".stripMargin
+  )
+
+  def testSCL8967(): Unit = checkTextHasNoErrors(
+    """
+      |object ATest extends App {
+      |    implicit class OptApply(val value: Option[_]) extends AnyVal {
+      |        def apply[T](code: T => Unit): Unit = {}
+      |    }
+      |    val sxOp = Some(new SX)
+      |    sxOp.apply[SX] { sx => sx.test() }
+      |    sxOp[SX] { sx => sx.test() } //!!! "sx" is red, "test()" is red
+      |}
+      |class SX {def test(): Unit = {}}
       |""".stripMargin
   )
 }

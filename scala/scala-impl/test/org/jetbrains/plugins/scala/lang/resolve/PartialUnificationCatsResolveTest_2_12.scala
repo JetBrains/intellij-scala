@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.project._
 class PartialUnificationCatsResolveTest_2_12 extends SimpleResolveTestBase {
   import SimpleResolveTestBase._
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version  == LatestScalaVersions.Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 
   override def additionalLibraries: Seq[LibraryLoader] = Seq(IvyManagedLoader("org.typelevel" %% "cats-core" % "1.4.0"))
 

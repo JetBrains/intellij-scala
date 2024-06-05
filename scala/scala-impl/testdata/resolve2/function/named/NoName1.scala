@@ -1,3 +1,3 @@
 def f(a: Int, b: Boolean) {}
 
-/* */ f(/* offset: 6 */a = 1, /* resolved: false */ c = true)
+/* applicable: false*/ f(/* offset: 6 */a = 1, /* resolved: false */ c = true)

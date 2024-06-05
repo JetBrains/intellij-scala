@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 
 import scala.annotation.tailrec
@@ -22,8 +21,10 @@ trait ScMethodCall extends ScExpression with MethodInvocation {
 
   def args: ScArgumentExprList = findChild[ScArgumentExprList].get
 
-  override def isUpdateCall: Boolean = getContext.is[ScAssignment] &&
-    getContext.asInstanceOf[ScAssignment].leftExpression == this
+  override def isUpdateCall: Boolean = getContext match {
+    case ScAssignment(lhs, _) => lhs == this
+    case _                    => false
+  }
 
   def updateExpression(): Option[ScExpression] = {
     getContext match {

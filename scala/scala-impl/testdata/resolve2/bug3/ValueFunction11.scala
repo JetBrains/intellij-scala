@@ -12,6 +12,6 @@ object Test extends Application {
 
   val a = new A
   val z = a./* line: 10 */foo(new X, new X)
-  a./* line: 9 */foo(new X, new Y)
+  a./* line: 5, name: apply */foo(new X, new Y)
   print(z)
 }

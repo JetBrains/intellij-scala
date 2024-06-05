@@ -12,13 +12,8 @@ import scala.language.implicitConversions
 case class Simplification(exprToReplace: SmartPsiElementPointer[ScExpression], replacementText: String, @Nls hint: String, rangeInParent: TextRange)
 
 class SimplificationBuilder private[collections] (val exprToReplace: ScExpression) {
-  private var rangeInParent: TextRange = {
-    val exprToHighlightFrom: ScExpression = exprToReplace match {
-      case MethodRepr(_, Some(base), _, _) => base
-      case _ => exprToReplace
-    }
-    rightRangeInParent(exprToHighlightFrom, exprToReplace)
-  }
+  private var rangeInParent: TextRange =
+    rightRangeInParent(exprToReplace, exprToReplace)
 
   private var replacementText: String = ""
   @Nls

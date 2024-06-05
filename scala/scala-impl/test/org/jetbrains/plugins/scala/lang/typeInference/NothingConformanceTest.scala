@@ -1,10 +1,10 @@
-package org.jetbrains.plugins.scala.failed.typeInference
+package org.jetbrains.plugins.scala.lang.typeInference
 
 import org.jetbrains.plugins.scala.lang.typeConformance.TypeConformanceTestBase
 
 class NothingConformanceTest extends TypeConformanceTestBase {
 
-  override protected def shouldPass: Boolean = false
+  override protected def shouldPass: Boolean = true
 
   def testSCL6634(): Unit = {
     doTest(

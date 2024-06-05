@@ -136,6 +136,7 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
       case NotFoundImplicitParameter(_) =>
       case WrongTypeParameterInferred =>
       case TypeIsNotStable =>
+      case WrongNamedParameterName(_) =>
     }
   }
 

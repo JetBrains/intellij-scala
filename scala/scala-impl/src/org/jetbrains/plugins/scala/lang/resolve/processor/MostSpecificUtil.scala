@@ -26,34 +26,28 @@ import scala.collection.mutable
 case class MostSpecificUtil(place: PsiElement, length: Int) {
   implicit def ctx: ProjectContext = place
 
-  def mostSpecificForResolveResult(applicable: Set[ScalaResolveResult],
-                                   expandInnerResult: Boolean = true): Option[ScalaResolveResult] = {
-    mostSpecificGeneric(applicable.map(r => r.innerResolveResult match {
-      case Some(rr) if expandInnerResult =>
-        new InnerScalaResolveResult(rr.element, implicitConversionClass(rr), r, r.substitutor)
-      case _ =>
-        new InnerScalaResolveResult(r.element, implicitConversionClass(r), r, r.substitutor)
-    }), noImplicit = false).map(_.repr)
-  }
+  def mostSpecificForResolveResult(applicable: Set[ScalaResolveResult]): Option[ScalaResolveResult] =
+    mostSpecificGeneric(applicable.map(r =>
+      InnerScalaResolveResult(r.element, implicitConversionClass(r), r, r.substitutor)
+    ), noImplicit = false).map(_.repr)
 
-  def mostSpecificForImplicitParameters(applicable: Set[ScalaResolveResult]): Option[ScalaResolveResult] = {
-    mostSpecificGeneric(applicable.map { r =>
-      r.innerResolveResult match {
-        case Some(rr) => new InnerScalaResolveResult(rr.element, implicitConversionClass(rr), r, r.substitutor, implicitCase = true)
-        case None => new InnerScalaResolveResult(r.element, implicitConversionClass(r), r, r.substitutor, implicitCase = true)
-      }
-    }, noImplicit = true).map(_.repr)
-  }
+  def mostSpecificForImplicitParameters(applicable: Set[ScalaResolveResult]): Option[ScalaResolveResult] =
+    mostSpecificGeneric(
+      applicable.map(r => toInnerSRR(r, withSubst = true)),
+      noImplicit = true
+    ).map(_.repr)
 
-  private def toInnerSRR(r: ScalaResolveResult): InnerScalaResolveResult[ScalaResolveResult] = {
-    r.innerResolveResult match {
-      case Some(rr) => new InnerScalaResolveResult(rr.element, implicitConversionClass(rr), r, ScSubstitutor.empty, implicitCase = true)
-      case None => new InnerScalaResolveResult(r.element, implicitConversionClass(r), r, ScSubstitutor.empty, implicitCase = true)
-    }
-  }
+  private def toInnerSRR(r: ScalaResolveResult, withSubst: Boolean = false): InnerScalaResolveResult[ScalaResolveResult] =
+    InnerScalaResolveResult(
+      r.element,
+      implicitConversionClass(r),
+      r,
+      if (withSubst) r.substitutor else ScSubstitutor.empty,
+      implicitCase = true
+    )
 
   def nextMostSpecific(rest: Iterable[ScalaResolveResult]): Option[ScalaResolveResult] = {
-    nextMostSpecificGeneric(rest.map(toInnerSRR)).map(_.repr)
+    nextMostSpecificGeneric(rest.map(toInnerSRR(_))).map(_.repr)
   }
 
   def notMoreSpecificThan(result: ScalaResolveResult): ScalaResolveResult => Boolean = {

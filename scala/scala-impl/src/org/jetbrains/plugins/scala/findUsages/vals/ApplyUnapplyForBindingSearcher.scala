@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScConstructorPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScNewTemplateDefinition, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
@@ -71,10 +72,11 @@ class ApplyUnapplyForBindingSearcher extends QueryExecutor[PsiReference, Referen
         case (sref: ScStableCodeReference, _: ScConstructorPattern) =>
           sref.bind() match {
             case Some(resolve@ScalaResolveResult(fun: ScFunctionDefinition, _))
-              if Set("unapply", "unapplySeq").contains(fun.name) =>
+              if Set(CommonNames.Unapply, CommonNames.UnapplySeq).contains(fun.name) =>
+
               resolve.innerResolveResult match {
                 case Some(ScalaResolveResult(`binding`, _)) => Some(sref)
-                case _ => None
+                case _                                      => None
               }
             case Some(resolve@ScalaResolveResult(`binding`, _)) =>
               resolve.innerResolveResult match {
@@ -95,12 +97,7 @@ class ApplyUnapplyForBindingSearcher extends QueryExecutor[PsiReference, Referen
         case (sref: ScReferenceExpression, x: ScMethodCall) if x.getInvokedExpr == ref.getElement =>
           sref.bind() match {
             case Some(ScalaResolveResult(fun: ScFunctionDefinition, _))
-              if fun.name == "apply" && sref.isReferenceTo(binding) => Some(sref)
-            case Some(resolve@ScalaResolveResult(`binding`, _)) =>
-              resolve.innerResolveResult match {
-                case Some(ScalaResolveResult(fun: ScFunctionDefinition, _)) if fun.name == "apply" => Some(sref)
-                case _ => None
-              }
+              if fun.name == CommonNames.Apply && sref.isReferenceTo(binding) => Some(sref)
             case _ => None
           }
         case _ => None

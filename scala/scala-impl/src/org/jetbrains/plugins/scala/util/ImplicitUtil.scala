@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement,
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -25,14 +26,15 @@ import scala.annotation.tailrec
 
 object ImplicitUtil {
   implicit class ImplicitTargetExt(private val targetImplicit: PsiElement) extends AnyVal {
-    private def isTarget(candidate: PsiElement): Boolean = candidate match {
+    private def isTarget(srr: ScalaResolveResult): Boolean = srr.element match {
       case `targetImplicit`                                                => true
       case f: ScFunction if targetImplicit == f.syntheticNavigationElement => true
+      case f: ScFunction if f.name == CommonNames.Apply            => srr.innerResolveResult.exists(isTarget)
       case _                                                               => false
     }
 
     private def matches(srr: ScalaResolveResult): Boolean =
-      isTarget(srr.element) ||
+      isTarget(srr) ||
         srr.implicitParameters.exists(matches) ||
         srr.implicitConversion.exists(matches)
 
@@ -45,7 +47,7 @@ object ImplicitUtil {
         .exists(matches)
 
     def refOrImplicitRefIn(usage: PsiElement): Option[PsiReference] = usage match {
-      case ref: ScReference if isTarget(ref.resolve())            => Option(ref)
+      case ref: ScReference if ref.bind().exists(isTarget)        => Option(ref)
       case e: ScExpression if isImplicitConversionOrParameter(e)  => Option(ImplicitReference(e, targetImplicit))
       case c: ScConstructorInvocation if isImplicitParameterOf(c) => Option(ImplicitReference(c, targetImplicit))
       case _                                                      => None

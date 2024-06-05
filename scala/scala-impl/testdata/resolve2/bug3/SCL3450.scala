@@ -7,7 +7,7 @@ class Handler {
 
   def handle2[A, B](callback: A => B): (A) => B = null
 
-  def testNok = /*resolved: true*/ handle[Int] { i => (i + 1).toString}
+  def testNok = /*resolved: true, name: apply*/ handle[Int] { i => (i + 1).toString}
 }
 
 

@@ -33,8 +33,7 @@ object InvocationChainExtractor {
       return Nil
     }
 
-    val (call, resolveResult) :: rest = remainingCalls
-    val target = resolveResult.map(_.mostInnerResolveResult)
+    val (call, target) :: rest = remainingCalls
     val isTupled = target.exists(_.tuplingUsed)
 
     val (restArgs, followingCalls) = target match {

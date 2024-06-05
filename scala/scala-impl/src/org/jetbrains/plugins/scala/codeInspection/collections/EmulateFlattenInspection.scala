@@ -27,7 +27,7 @@ object FlattenSimplification extends SimplificationType {
   }
 
   private def toSimplification(expr: ScExpression, qual: ScExpression): Some[Simplification] =
-    Some(replace(expr).withText(invocationText(qual, "flatten")))
+    Some(replace(expr).withText(invocationText(qual, "flatten")).highlightFrom(qual))
 
   private object identityOperation {
     def unapply(expr: ScExpression): Boolean = stripped(expr) match {

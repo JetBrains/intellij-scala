@@ -182,7 +182,6 @@ object InferUtil {
     (resInner, implicitParameters, constraints)
   }
 
-
   def findImplicits(
     params:                     Seq[Parameter],
     coreElement:                Option[ScNamedElement],

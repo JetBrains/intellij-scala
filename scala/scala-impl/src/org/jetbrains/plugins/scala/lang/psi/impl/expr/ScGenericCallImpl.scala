@@ -1,63 +1,38 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi._
+import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.caches.{ModTracker, cached}
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil.kindProjectorPolymorphicLambdaType
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.PolymorphicLambda
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api._
+import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState
-import org.jetbrains.plugins.scala.lang.resolve.processor._
-import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState}
+import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider.PsiMethodTypeProviderExt
+import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.ScExpressionForExpectedTypesEx
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor.ScTypeForDynamicProcessorEx
 
 class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScGenericCall {
+  private def processApplyOrUpdateMethod(tp: ScType, isShape: Boolean): ScType =
+    getContext match {
+      case _: MethodInvocation => tp
+      case _ =>
+        val srrs = this.tryResolveApplyMethod(this, tp, isShape = isShape, stripTypeArgs = false)
 
-  /**
-    * Utility method to get generics for apply methods of concrecte class.
-    */
-  private def processType(tp: ScType, isShape: Boolean): ScType = {
-    val curr = getContext match {
-      case call: ScMethodCall => call
-      case _ => this
+        srrs match {
+          case Array(srr @ ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor)) =>
+            fun
+              .methodTypeProvider(elementScope)
+              .polymorphicType(s)
+              .updateTypeOfDynamicCall(srr.isDynamic)
+          case _ => Nothing
+        }
     }
-    val isUpdate = curr.getContext.is[ScAssignment] &&
-      curr.getContext.asInstanceOf[ScAssignment].leftExpression == curr
-    val methodName = if (isUpdate) "update" else "apply"
-    val args =
-      if (curr == this && !isUpdate) List.empty
-      else {
-        (curr match {
-          case call: ScMethodCall => call.args.exprs
-          case _ => Seq.empty[ScExpression]
-        }) ++ (
-          if (isUpdate) curr.getContext.asInstanceOf[ScAssignment].rightExpression match {
-            case Some(x) => Seq(x)
-            case None =>
-              Seq[ScExpression](createExpressionFromText("{val x: Nothing = null; x}", this))
-            //we can't to not add something => add Nothing expression
-          }
-          else Seq.empty) :: Nil
-      }
-    val typeArgs: Seq[ScTypeElement] = this.arguments
-    val processor = new MethodResolveProcessor(referencedExpr, methodName, args, typeArgs,
-      Seq.empty /* todo: ? */ , isShapeResolve = isShape, enableTupling = true)
-    processor.processType(tp, referencedExpr, ScalaResolveState.empty)
-    processor.candidates match {
-      case Array(ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor)) =>
-        fun.methodTypeProvider(elementScope).polymorphicType(s)
-      case _ => Nothing
-    }
-  }
 
   private def substPolymorphicType: ScType => ScType = {
     case ScTypePolymorphicType(internal, tps) =>
@@ -72,7 +47,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
 
   private def processNonPolymorphic(isShape: Boolean): ScType => ScType = {
     case p: ScTypePolymorphicType => p
-    case t => processType(t, isShape)
+    case t                        => processApplyOrUpdateMethod(t, isShape)
   }
 
   private def convertReferencedType(typeResult: TypeResult, isShape: Boolean): TypeResult = {
@@ -117,7 +92,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
   override def shapeMultiResolve: Option[Array[ScalaResolveResult]] = {
     referencedExpr match {
       case ref: ScReferenceExpression => Some(ref.shapeResolve)
-      case _ => None
+      case _                          => None
     }
   }
 
@@ -135,8 +110,13 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
   override def multiResolve: Option[Array[ScalaResolveResult]] = {
     referencedExpr match {
       case ref: ScReferenceExpression => Some(ref.multiResolveScala(false))
-      case _ => None
+      case _                          => None
     }
+  }
+
+  override def bindInvokedExpr: Option[ScalaResolveResult] = referencedExpr match {
+    case ref: ScReferenceExpression => ref.bind()
+    case _                          => None
   }
 
   override def toString: String = "GenericCall"

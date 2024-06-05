@@ -83,7 +83,14 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
     val iterator = multiResolveScala(false).iterator
     while (iterator.hasNext) {
       val resolved = iterator.next()
-      if (isReferenceTo(element, resolved.getElement, Some(resolved))) return true
+
+      val foundReference =
+        isReferenceTo(element, resolved.element, Option(resolved)) || {
+          val hasInnerResolve = resolved.element != resolved.getActualElement
+          hasInnerResolve && isReferenceTo(element, resolved.getActualElement, Option(resolved))
+        }
+
+      if (foundReference) return true
     }
     false
   }

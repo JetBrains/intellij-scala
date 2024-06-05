@@ -8,7 +8,6 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{MethodValue, isAnonymousExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.base._
-import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScIntegerLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes.ParameterType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, InferUtil, ScalaPsiElement, ScalaRecursiveElementVisitor}
@@ -17,7 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
 import org.jetbrains.plugins.scala.lang.psi.light.LightContextFunctionParameter
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -172,7 +170,10 @@ trait ScExpression extends ScBlockStatement
             if checkImplicits && !tp.conformsIn(this, expType) => //do not try implicit conversions for shape check or already correct type
 
             // isSAMEnabled is checked in tryAdaptTypeToSAM, but we can cut it right here
-            val adapted = if (this.isSAMEnabled) this.tryAdaptTypeToSAM(tp, expType, fromUnderscore) else None
+            val adapted =
+              if (this.isSAMEnabled) this.tryAdaptTypeToSAM(tp, expType, fromUnderscore, checkImplicits)
+              else                   None
+
             adapted.getOrElse(
               if (isJavaReflectPolymorphic) ExpressionTypeResult(Right(expType))
               else this.updateTypeWithImplicitConversion(tp, expType)
@@ -233,35 +234,49 @@ object ScExpression {
 
     def getTypeIgnoreBaseType: TypeResult = expr.getTypeAfterImplicitConversion(ignoreBaseTypes = true).tr
 
-    def getNonValueType(ignoreBaseType: Boolean = false,
-                        fromUnderscore: Boolean = false): TypeResult = cachedWithRecursionGuard("getNonValueType", expr, Failure(NlsString.force("Recursive getNonValueType")), BlockModificationTracker(expr), (ignoreBaseType, fromUnderscore)) {
-      ProgressManager.checkCanceled()
-      if (fromUnderscore) expr.innerType
-      else {
-        val unders = ScUnderScoreSectionUtil.underscores(expr)
-        if (unders.isEmpty) expr.innerType
+    def getNonValueType(
+      ignoreBaseType: Boolean = false,
+      fromUnderscore: Boolean = false
+    ): TypeResult =
+      cachedWithRecursionGuard(
+        "getNonValueType",
+        expr,
+        Failure(NlsString.force("Recursive getNonValueType")),
+        BlockModificationTracker(expr),
+        (ignoreBaseType, fromUnderscore)
+      ) {
+        ProgressManager.checkCanceled()
+
+        if (fromUnderscore) expr.innerType
         else {
-          val params = unders.zipWithIndex.map {
-            case (u, index) =>
-              val tpe = u.getNonValueType(ignoreBaseType).getOrAny.inferValueType.unpackedType
-              Parameter(tpe, isRepeated = false, index = index)
+          val unders = ScUnderScoreSectionUtil.underscores(expr)
+          if (unders.isEmpty)
+            expr.innerType
+          else {
+            val params =
+              unders.zipWithIndex.map {
+                case (u, index) =>
+                  val tpe = u.getNonValueType(ignoreBaseType).getOrAny.inferValueType.unpackedType
+                  Parameter(tpe, isRepeated = false, index = index)
+              }
+
+            val methType =
+              ScMethodType(
+                expr
+                  .getTypeAfterImplicitConversion(
+                    ignoreBaseTypes = ignoreBaseType,
+                    fromUnderscore = true
+                  )
+                  .tr
+                  .getOrAny,
+                params,
+                isImplicit = false
+              )
+
+            Right(methType)
           }
-          val methType =
-            ScMethodType(
-              expr
-                .getTypeAfterImplicitConversion(
-                  ignoreBaseTypes = ignoreBaseType,
-                  fromUnderscore  = true
-                )
-                .tr
-                .getOrAny,
-              params,
-              isImplicit = false
-            )
-          Right(methType)
         }
       }
-    }
 
     def getTypeWithoutImplicits(
       ignoreBaseType: Boolean = false,
@@ -323,7 +338,7 @@ object ScExpression {
               expectedType match {
                 case None                                                   => Right(valueType)
                 case Some(expected) if expected.removeAbstracts.equiv(Unit) => Right(Unit) //value discarding
-                case Some(expected)                                         => numericWideningOrNarrowing(valueType, expected)
+                case Some(expected)                                         => Right(numericWideningOrNarrowing(valueType, expected, expr))
               }
           }
       }
@@ -349,43 +364,6 @@ object ScExpression {
       } else (tpe, None)
     }
 
-    //numeric literal narrowing
-    def isNarrowing(expected: ScType): Option[TypeResult] = {
-      import expr.projectContext
-
-      def isByte(v: Long) = v >= scala.Byte.MinValue && v <= scala.Byte.MaxValue
-
-      def isChar(v: Long) = v >= scala.Char.MinValue && v <= scala.Char.MaxValue
-
-      def isShort(v: Long) = v >= scala.Short.MinValue && v <= scala.Short.MaxValue
-
-      def success(t: ScType) = Some(Right(t))
-
-      def findIntLiteralValue(expr: ScExpression): Option[Int] = expr match {
-        case ScIntegerLiteral(value) => Some(value)
-        case ScPrefixExpr(op, operand) if Set("+", "-").contains(op.refName) =>
-          findIntLiteralValue(operand).map(v => if (op.refName == "-") -v else v)
-        case ScParenthesisedExpr(inner) => findIntLiteralValue(inner)
-        case _ => None
-      }
-
-
-      val intLiteralValue: Int = findIntLiteralValue(expr) match {
-        case Some(value) => value
-        case _ => return None
-      }
-
-      val stdTypes = StdTypes.instance
-      import stdTypes._
-
-      expected.removeAbstracts.removeAliasDefinitions() match {
-        case Char if isChar(intLiteralValue)   => success(Char)
-        case Byte if isByte(intLiteralValue)   => success(Byte)
-        case Short if isShort(intLiteralValue) => success(Short)
-        case _                                 => None
-      }
-    }
-
     def implicitConversions(fromUnderscore: Boolean = false): Seq[PsiNamedElement] = {
       ScImplicitlyConvertible.implicits(expr, fromUnderscore)
         .sortWith {
@@ -401,50 +379,6 @@ object ScExpression {
               case _ => firstName.compareTo(secondName) < 0
             }
         }
-    }
-
-    //numeric widening
-    private def isWidening(valueType: ScType, expected: ScType): Option[TypeResult] = {
-      val (l, r) = (getStdType(valueType), getStdType(expected)) match {
-        case (Some(left), Some(right)) => (left, right)
-        case _                         => return None
-      }
-
-      val stdTypes = project.stdTypes
-      import stdTypes._
-
-      (l, r) match {
-        case (Byte, Short | Int | Long | Float | Double)        => Some(Right(expected))
-        case (Short, Int | Long | Float | Double)               => Some(Right(expected))
-        case (Char, Byte | Short | Int | Long | Float | Double) => Some(Right(expected))
-        case (Int, Long | Float | Double)                       => Some(Right(expected))
-        case (Long, Float | Double)                             => Some(Right(expected))
-        case (Float, Double)                                    => Some(Right(expected))
-        case _                                                  => None
-      }
-    }
-
-    private def numericWideningOrNarrowing(valType: ScType, expected: ScType): TypeResult = {
-      val narrowing = isNarrowing(expected)
-      if (narrowing.isDefined) narrowing.get
-      else {
-        val widening = isWidening(valType, expected)
-        if (widening.isDefined) widening.get
-        else Right(valType)
-      }
-    }
-
-    private def getStdType(t: ScType): Option[StdType] = {
-      val stdTypes  = project.stdTypes
-      val dealiased = t.widenIfLiteral.removeAliasDefinitions()
-      import stdTypes._
-
-      dealiased match {
-        case AnyVal                           => Some(AnyVal)
-        case valType: ValType                 => Some(valType)
-        case designatorType: ScDesignatorType => designatorType.getValType
-        case _                                => None
-      }
     }
   }
 

@@ -36,8 +36,12 @@ object QuasiquoteInferUtil {
     fqnO.exists(_.startsWith("scala.meta.quasiquotes.Api.XtensionQuasiquote"))
   }
 
-  def getMetaQQExpectedTypes(stringContextApplicationRef: ScReferenceExpression): Seq[Parameter] = {
+  def getMetaQQExpectedTypes(srr: ScalaResolveResult, stringContextApplicationRef: ScReferenceExpression): Seq[Parameter] = {
     ProgressManager.checkCanceled()
+    val interpolatorName = srr.element match {
+      case fn: ScFunction if fn.isApplyMethod => fn.containingClass.name
+      case _                                  => stringContextApplicationRef.refName
+    }
     val joined = stringContextApplicationRef.qualifier match {
       case Some(mc: ScMethodCallImpl) => mc.argumentExpressions.zipWithIndex.foldLeft("") {
         case (a, (expr, i)) if i > 0 => s"$a$$__meta$i${unquoteString(expr.getText)}"
@@ -49,7 +53,7 @@ object QuasiquoteInferUtil {
       scala.meta.dialects.QuasiquoteTerm(m.Dialect.standards("Scala211"), multiline = true)
     else
       scala.meta.dialects.QuasiquoteTerm(m.Dialect.standards("Scala211"), multiline = false)
-    val typeStrings = parseQQExpr(stringContextApplicationRef.refName, joined, qqdialect) match {
+    val typeStrings = parseQQExpr(interpolatorName, joined, qqdialect) match {
       case Parsed.Success(qqparts) =>
         val parts = collectQQParts(qqparts)
         val classes = parts.map(_.pt)

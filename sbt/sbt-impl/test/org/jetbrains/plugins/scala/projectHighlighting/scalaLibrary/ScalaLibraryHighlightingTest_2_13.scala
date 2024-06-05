@@ -47,17 +47,6 @@ class ScalaLibraryHighlightingTest_2_13 extends ScalaLibraryHighlightingTest {
       (11341, 11345), // Type mismatch, expected: MapView.SomeMapOps[NotInferredK, NotInferredV], actual: MapOps[K, V, CC, C]
       (11886, 11890), // Type mismatch, expected: MapView.SomeMapOps[NotInferredK, NotInferredV], actual: MapOps[K, V, CC, C]
     ),
-    "scala/collection/StrictOptimizedSortedMapOps.scala" -> Set(
-      (1785, 1797), // Cannot resolve symbol asInstanceOf
-      (1809, 1810), // Cannot resolve symbol +
-      (1873, 1879), // Cannot resolve symbol concat
-    ),
-    "scala/collection/immutable/IntMap.scala" -> Set(
-      (10799, 10804), // Method annotated with @tailrec contains no recursive calls
-    ),
-    "scala/collection/immutable/LongMap.scala" -> Set(
-      (10803, 10808), // Method annotated with @tailrec contains no recursive calls
-    ),
     "scala/collection/immutable/SortedMap.scala" -> Set(
       (7418, 7512), // Expression of type mutable.Builder[(K, Nothing), WithDefault[K, V]] doesn't conform to expected type mutable.Builder[(K, V), WithDefault[K, V]]
     ),

@@ -1,9 +1,14 @@
 package org.jetbrains.plugins.scala.lang.resolve2
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 class BugTest extends ResolveTestBase {
   override def folderPath: String = {
     super.folderPath + "bug/"
   }
+
+  override protected def supportedIn(version: ScalaVersion) =
+    version >= LatestScalaVersions.Scala_2_12
+
   def testBug1(): Unit = {doTest()}
 
   //TODO answer?
@@ -58,6 +63,6 @@ class BugTest extends ResolveTestBase {
   //def testSCL2238() {doTest()}
 
   def testThisTypeSelfType(): Unit = {doTest()}
-  
+
   def testImplicitsOverloading(): Unit = {doTest()}
 }

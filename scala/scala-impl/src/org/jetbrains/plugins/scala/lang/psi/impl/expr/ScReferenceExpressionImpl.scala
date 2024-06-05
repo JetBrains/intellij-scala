@@ -542,8 +542,19 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
           .polymorphicType(s, returnType)
       case _ => return resolveFailure
     }
-    qualifier match {
-      case Some(_: ScSuperReference) =>
+
+    val default =
+      if (unresolvedTypeParameters.nonEmpty)
+        inner match {
+          case ScTypePolymorphicType(internal, typeParams) =>
+            ScTypePolymorphicType(internal, unresolvedTypeParameters ++ typeParams)
+          case _ =>
+            ScTypePolymorphicType(inner, unresolvedTypeParameters)
+        }
+      else inner
+
+    val withUnresolvedTypeParams = qualifier match {
+      case Some(_: ScSuperReference) => default
       case None => //infix, prefix and postfix
         getContext match {
           case sugar: ScSugarCallExpr if sugar.operation == this =>
@@ -551,20 +562,13 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
               case Right(ScTypePolymorphicType(_, typeParams)) =>
                 inner match {
                   case ScTypePolymorphicType(internal, typeParams2) =>
-                    return Right(ScalaPsiUtil.removeBadBounds(ScTypePolymorphicType(internal, unresolvedTypeParameters ++ typeParams ++ typeParams2)))
+                    ScalaPsiUtil.removeBadBounds(ScTypePolymorphicType(internal, unresolvedTypeParameters ++ typeParams ++ typeParams2))
                   case _ =>
-                    return Right(ScTypePolymorphicType(inner, unresolvedTypeParameters ++ typeParams))
+                    ScTypePolymorphicType(inner, unresolvedTypeParameters ++ typeParams)
                 }
-              case _ if unresolvedTypeParameters.nonEmpty =>
-                inner match {
-                  case ScTypePolymorphicType(internal, typeParams) =>
-                    return Right(ScTypePolymorphicType(internal, unresolvedTypeParameters ++ typeParams))
-                  case _ =>
-                    return Right(ScTypePolymorphicType(inner, unresolvedTypeParameters))
-                }
-              case _ =>
+              case _ => default
             }
-          case _ =>
+          case _ => default
         }
       case Some(qualifier) =>
         qualifier.getNonValueType() match {
@@ -575,17 +579,11 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
               case _ =>
                 return Right(ScTypePolymorphicType(inner, unresolvedTypeParameters ++ typeParams))
             }
-          case _ if unresolvedTypeParameters.nonEmpty =>
-            inner match {
-              case ScTypePolymorphicType(internal, typeParams) =>
-                return Right(ScTypePolymorphicType(internal, unresolvedTypeParameters ++ typeParams))
-              case _ =>
-                return Right(ScTypePolymorphicType(inner, unresolvedTypeParameters))
-            }
-          case _ =>
+          case _ => default
         }
     }
-    Right(matchClauseSubst(inner))
+
+    Right(matchClauseSubst(withUnresolvedTypeParams))
   }
 
   override def getPrevTypeInfoParams: Seq[TypeParameter] = {

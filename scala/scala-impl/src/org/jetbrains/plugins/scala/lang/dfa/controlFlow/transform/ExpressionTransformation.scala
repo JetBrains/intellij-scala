@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuil
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{inferExpressionType, literalToDfType}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.util.SAMUtil.isFunctionalExpression
 
@@ -88,7 +89,7 @@ trait ExpressionTransformation { this: ScalaDfaControlFlowBuilder =>
   }
 
   private def isReferenceExpressionInvocation(expression: ScReferenceExpression): Boolean = {
-    expression.bind().map(_.element).exists(_.is[PsiMethod])
+    expression.bind().map(_.element).exists(e => e.name != CommonNames.Apply && e.is[PsiMethod])
   }
 
   private def transformBlock(block: ScBlock, rreq: ResultReq): rreq.Result = {

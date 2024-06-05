@@ -226,6 +226,9 @@ object TypeDefinitionMembers {
     if (!privateProcessDeclarations(processor, state, place, AllSignatures(comp, state.compoundOrThisType)))
       return false
 
+    //@TODO: this is actually incorrect, compound type might be comprised purely of AnyVal types for example
+    //       instead we should fix linearization for CompoundTypes to properly include java.lang.Object when
+    //       needed.
     if (!processSyntheticAnyRefAndAny(processor, state, lastParent, place))
       return false
 

@@ -70,8 +70,8 @@ class ExtractorResolveProcessor(ref: ScReference,
 
       namedElement match {
         case o: ScObject if o.isPackageObject =>
-        case td: ScTypedDefinition => resultsForTypedDef(td)
-        case _ =>
+        case td: ScTypedDefinition            => resultsForTypedDef(td)
+        case _                                =>
       }
     }
     true
@@ -100,7 +100,7 @@ class ExtractorResolveProcessor(ref: ScReference,
 
         if (filtered.isEmpty)        candidates
         else if (filtered.size == 1) filtered
-        else MostSpecificUtil(ref, 1).mostSpecificForResolveResult(filtered, expandInnerResult = false) match {
+        else MostSpecificUtil(ref, 1).mostSpecificForResolveResult(filtered) match {
           case Some(r) => Set(r)
           case None    => candidates
         }

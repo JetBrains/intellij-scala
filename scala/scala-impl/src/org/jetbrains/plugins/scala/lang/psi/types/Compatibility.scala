@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.SAMUtil
 
@@ -95,7 +95,7 @@ object Compatibility {
           else cachedWithRecursionGuard("getTypeAfterImplicitConversion", e, ExpressionTypeResult(Right(tpe)), BlockModificationTracker(e), (e, tpe, expectedOption)) {
             expectedOption.collect {
               case etpe if !tpe.conforms(etpe) =>
-                e.tryAdaptTypeToSAM(tpe, etpe, fromUnderscore = false, checkResolve = false)
+                e.tryAdaptTypeToSAM(tpe, etpe, fromUnderscore = false, checkResolve = false, checkImplicits = checkImplicits)
                   .getOrElse(e.updateTypeWithImplicitConversion(tpe, etpe))
             }.getOrElse(default)
           }
@@ -117,7 +117,8 @@ object Compatibility {
       tp:             ScType,
       pt:             ScType,
       fromUnderscore: Boolean,
-      checkResolve:   Boolean = true
+      checkResolve:   Boolean = true,
+      checkImplicits: Boolean = false
     ): Option[ExpressionTypeResult] = {
       def expectedResult(subst: ScSubstitutor): ScExpression.ExpressionTypeResult =
         ExpressionTypeResult(Right(subst(pt)))
@@ -138,17 +139,33 @@ object Compatibility {
 
       def checkForSAM(etaExpansionHappened: Boolean = false): Option[ExpressionTypeResult] =
         tp match {
-          case FunctionType(_, params) if place.isSAMEnabled =>
+          case FunctionType(retTpe, params) if place.isSAMEnabled =>
             SAMUtil.toSAMType(pt, place) match {
-              case Some(methodType @ FunctionType(retTpe, _)) =>
+              case Some(methodType @ FunctionType(ptRetTpe, _)) =>
                 val maybeSubst = conformanceSubst(tp, methodType)
 
                 maybeSubst match {
                   case Some(subst) => Option(expectedResult(subst))
-                  case None if etaExpansionHappened && retTpe.isUnit =>
-                    val newTp    = FunctionType(Unit, params)
-                    val newSubst = conformanceSubst(newTp, methodType)
-                    newSubst.map(expectedResult)
+                  case None if etaExpansionHappened =>
+                    if (ptRetTpe.isUnit) {
+                      val newTp = FunctionType(Unit, params)
+                      conformanceSubst(newTp, methodType).map(expectedResult)
+                    } else if (isNumericWidening(retTpe, ptRetTpe)) {
+                      val newTp = FunctionType(ptRetTpe, params)
+                      conformanceSubst(newTp, methodType).map(expectedResult)
+                    } else if (checkImplicits) {
+                      val implicitResult @ ExpressionTypeResult(Right(newRetTpe), _, _) =
+                        updateTypeWithImplicitConversion(retTpe, ptRetTpe)
+
+                      if (retTpe == newRetTpe) None
+                      else {
+                        val newTp = FunctionType(newRetTpe, params)
+                        val maybeSubst = conformanceSubst(newTp, methodType)
+                        maybeSubst.map { subst =>
+                          implicitResult.copy(tr = Right(subst(pt)))
+                        }
+                      }
+                    } else None
                   case _ => None
                 }
               case _ => None
@@ -162,8 +179,8 @@ object Compatibility {
           checkForSAM() // SCL-18195 `def bar(block: => Int): Foo = block _`
         case e: ScExpression if !fromUnderscore && ScalaPsiUtil.isAnonExpression(e) =>
           checkForSAM()
+        case _ if !checkResolve => checkForSAM(etaExpansionHappened = true)
         case MethodValue(_)     => checkForSAM(etaExpansionHappened = true)
-        case _ if !checkResolve => checkForSAM()
         case _                  => None
       }
     }
@@ -382,7 +399,7 @@ object Compatibility {
 
             case None => problems :::= doNoNamed(expr).reverse
           }
-        case Expression(assign@ScAssignment.Named(name)) =>
+        case Expression(assign @ ScAssignment.Named(name)) =>
           val index = parameters.indexWhere { p =>
             ScalaNamesUtil.equivalent(p.name, name) ||
               p.deprecatedName.exists(ScalaNamesUtil.equivalent(_, name))
@@ -392,7 +409,14 @@ object Compatibility {
               if (ScUnderScoreSectionUtil.isUnderscoreFunction(assign)) assign
               else assign.rightExpression.getOrElse(assign)
             }
-            problems :::= doNoNamed(extractExpression(assign)).reverse
+            val extracted = extractExpression(assign)
+
+            if (extracted != assign) {
+              //Named parameter case, note that assignment can also be a lambda, e.g. `foo = _`
+              problems ::= WrongNamedParameterName(name)
+            }
+
+              problems :::= doNoNamed(extractExpression(assign)).reverse
           } else {
             used(index) = true
             val param: Parameter = parameters(index)
@@ -545,7 +569,7 @@ object Compatibility {
           return ConformanceExtResult(Seq(DoesNotTakeParameters))
 
         if (QuasiquoteInferUtil.isMetaQQ(fun) && ref.isInstanceOf[ScReferenceExpression]) {
-          val params = QuasiquoteInferUtil.getMetaQQExpectedTypes(ref.asInstanceOf[ScReferenceExpression])
+          val params = QuasiquoteInferUtil.getMetaQQExpectedTypes(srr, ref.asInstanceOf[ScReferenceExpression])
           return checkParameterListConformance(params, firstArgumentListArgs)
         }
 

@@ -9,6 +9,6 @@ object Test {
 
   val a = new A
 
-  a./* line: 6 */foo("")
+  a./* line: 3, name: apply */foo("")
   a./* line: 7 */foo(3)
 }

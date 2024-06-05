@@ -4,8 +4,7 @@ import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.{PsiElement, PsiErrorElement, PsiFile}
-import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
-import org.jetbrains.plugins.scala.annotator.template.kindOf
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
@@ -14,11 +13,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDeclaration
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.psi.types.{AmbiguousImplicitParameters, ApplicabilityProblem, DefaultTypeParameterMismatch, DoesNotTakeParameters, DoesNotTakeTypeParameters, ExcessArgument, ExcessTypeArgument, ExpansionForNonRepeatedParameter, ExpectedTypeMismatch, IncompleteCallSyntax, InternalApplicabilityProblem, MalformedDefinition, MissedParametersClause, MissedTypeParameter, MissedValueParameter, NotFoundImplicitParameter, ParameterSpecifiedMultipleTimes, PositionalAfterNamedArgument, ScType, ScTypeExt, TypeIsNotStable, TypeMismatch, UnresolvedParameter, WrongTypeParameterInferred}
+import org.jetbrains.plugins.scala.lang.psi.types.{AmbiguousImplicitParameters, ApplicabilityProblem, DefaultTypeParameterMismatch, DoesNotTakeParameters, DoesNotTakeTypeParameters, ExcessArgument, ExcessTypeArgument, ExpansionForNonRepeatedParameter, ExpectedTypeMismatch, IncompleteCallSyntax, InternalApplicabilityProblem, MalformedDefinition, MissedParametersClause, MissedTypeParameter, MissedValueParameter, NotFoundImplicitParameter, ParameterSpecifiedMultipleTimes, PositionalAfterNamedArgument, ScType, ScTypeExt, TypeIsNotStable, TypeMismatch, UnresolvedParameter, WrongNamedParameterName, WrongTypeParameterInferred}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
@@ -57,7 +55,7 @@ object AnnotatorUtils {
     // Most often it's an incomplete if-then-else, SCL-18862
     def isIfThen: Boolean = e match {
       case it: ScIf => it.elseExpression.isEmpty
-      case _ => false  
+      case _ => false
     }
 
     // Most often it's an incomplete case clause, SCL-19447
@@ -189,5 +187,6 @@ object AnnotatorUtils {
     case IncompleteCallSyntax(_)                     => true
     case InternalApplicabilityProblem(_)             => true
     case TypeIsNotStable                             => true
+    case WrongNamedParameterName(_)                  => true
   }
 }

@@ -14,7 +14,7 @@ object GetOrElseNull extends SimplificationType {
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
       case qual`.getOrElse`(literal("null")) =>
-        Some(replace(expr).withText(invocationText(qual, "orNull")))
+        Some(replace(expr).withText(invocationText(qual, "orNull")).highlightFrom(qual))
       case _ => None
     }
   }

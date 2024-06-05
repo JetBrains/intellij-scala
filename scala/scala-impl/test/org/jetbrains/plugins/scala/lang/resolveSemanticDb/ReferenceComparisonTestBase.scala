@@ -287,7 +287,7 @@ object ReferenceComparisonTestBase {
     override def toString: String = s"$name at $pos in $fileName"
 
     lazy val targets: Seq[RefTarget] = resolved
-      .flatMap(r => Seq(r.element) ++ r.parentElement)
+      .flatMap(r => Seq(r.element) ++ r.parentElement ++ r.innerResolveResult.map(_.element))
       .filterByType[PsiNamedElement]
       .flatMap { named =>
         physicalRefTarget(named) ++ assignmentTarget(named) ++ opaqueTarget(named)

@@ -4,11 +4,14 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiReference, ResolveResult}
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.resolve.{DynamicTypeReferenceResolver, ScalaResolveResult}
+
+import scala.annotation.tailrec
 
 object DynamicResolveProcessor {
 
@@ -23,7 +26,7 @@ object DynamicResolveProcessor {
     }
 
     if (qualifiers.exists(_.isEmpty)) APPLY_DYNAMIC_NAMED
-    else APPLY_DYNAMIC
+    else                              APPLY_DYNAMIC
   }
 
   object DynamicReference {
@@ -53,18 +56,27 @@ object DynamicResolveProcessor {
   def dynamicResolveProcessor(ref: ScReferenceExpression,
                               qualifier: ScExpression,
                               fromProcessor: BaseProcessor): MethodResolveProcessor = {
-    val expressionsOrContext = ref.getContext match {
-      case postfix: ScPostfixExpr               => Left(postfix)
-      case MethodInvocation(`ref`, expressions) => Right(expressions)
-      case _                                    => Left(ref)
-    }
+
+    def isSameOrApply(invoked: ScExpression, target: ScExpression): Boolean =
+      invoked == target || ref.refName == CommonNames.Apply
+
+    @tailrec
+    def getContext(e: ScExpression): Either[ScExpression, Seq[ScExpression]] =
+      e.getContext match {
+        case postfix: ScPostfixExpr                                  => Left(postfix)
+        case gen: ScGenericCall                                      => getContext(gen)
+        case MethodInvocation(expr, args) if isSameOrApply(expr, e)  => Right(args)
+        case _                                                       => Left(ref)
+      }
+
+    val expressionsOrContext = getContext(ref)
 
     val name = expressionsOrContext match {
       case Right(expressions) => getDynamicNameForMethodInvocation(expressions)
       case Left(reference) =>
         reference.getContext match {
           case ScAssignment(`reference`, _) => UPDATE_DYNAMIC
-          case _ => SELECT_DYNAMIC
+          case _                            => SELECT_DYNAMIC
         }
     }
 
