@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.util.{CompilationId, ExternalSystemVfsUtil}
 
 import java.net.URI
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.atomic.AtomicBoolean
+import scala.collection.mutable
 import scala.concurrent.{Future, Promise}
 import scala.jdk.CollectionConverters._
 import scala.util.Try
@@ -40,12 +40,7 @@ class BspTask[T](project: Project,
   private val bspTaskId: EventId = BuildMessages.randomEventId
   private val resultPromise: Promise[BuildMessages] = Promise()
 
-  private val diagnostics: collection.concurrent.TrieMap[URI, Vector[Diagnostic]] = collection.concurrent.TrieMap.empty
-
-  /*
-   * Mill-specific fix. For some reason, Mill sends two TaskFinish messages. We only want to report diagnostics once.
-   */
-  private val taskFinished: AtomicBoolean = new AtomicBoolean()
+  private val diagnostics: mutable.Map[URI, List[Diagnostic]] = mutable.Map.empty
 
   import BspNotifications._
   private def notifications(implicit reporter: BuildReporter): NotificationAggregator[BuildMessages] =
@@ -57,8 +52,7 @@ class BspTask[T](project: Project,
     case ShowMessage(params) =>
       reportShowMessage(messages, params)
     case PublishDiagnostics(params) =>
-      collectDiagnostics(params)
-      messages
+      reportDiagnostics(messages, params)
     case TaskStart(params) =>
       reportTaskStart(params)
       messages
@@ -66,7 +60,8 @@ class BspTask[T](project: Project,
       reportTaskProgress(params)
       messages
     case TaskFinish(params) =>
-      reportTaskFinish(messages, params)
+      reportTaskFinish(params)
+      messages
     case DidChangeBuildTarget(_) =>
       // ignore
       messages
@@ -248,57 +243,50 @@ class BspTask[T](project: Project,
     }
   }
 
-  private def collectDiagnostics(params: bsp4j.PublishDiagnosticsParams): Unit = {
-    val reset = params.getReset
-    val uri = params.getTextDocument.getUri.toURI
-    val newDiagnostics = params.getDiagnostics.asScala.toVector
-    diagnostics.updateWith(uri) {
-      case Some(old) if !reset => Some(old ++ newDiagnostics)
-      case _ => Some(newDiagnostics)
-    }
-  }
-
   //noinspection ReferencePassedToNls
-  private def aggregateDiagnostics(buildMessages: BuildMessages)(implicit reporter: BuildReporter): BuildMessages = {
+  private def reportDiagnostics(buildMessages: BuildMessages, params: bsp4j.PublishDiagnosticsParams)
+                               (implicit reporter: BuildReporter): BuildMessages = {
     // TODO use params.originId to show tree structure
 
-    diagnostics
-      .foldLeft(buildMessages) { case (messages, (uri, uriDiagnostics)) =>
-        if (uriDiagnostics.isEmpty) {
-          reporter.clear(uri.toFile)
-          messages
-        } else {
-          uriDiagnostics
-            .distinct
-            .foldLeft(messages) { case (messages, diagnostic) =>
-              val start = diagnostic.getRange.getStart
-              val end = diagnostic.getRange.getEnd
-              val position = Some(new FilePosition(uri.toFile, start.getLine, start.getCharacter, end.getLine, end.getCharacter))
-              val text = s"${diagnostic.getMessage} [${start.getLine + 1}:${start.getCharacter + 1}]"
+    val uri = params.getTextDocument.getUri.toURI
+    val uriDiagnostics = params.getDiagnostics.asScala
+    val previousDiagnostics = diagnostics.getOrElse(uri, List.empty)
+    diagnostics.put(uri, uriDiagnostics.toList)
 
-              import bsp4j.DiagnosticSeverity._
-              Option(diagnostic.getSeverity)
-                .map {
-                  case ERROR =>
-                    reporter.error(text, position)
-                    messages.addError(text)
-                  case WARNING =>
-                    reporter.warning(text, position)
-                    messages.addWarning(text)
-                  case INFORMATION =>
-                    reporter.info(text, position)
-                    messages
-                  case HINT =>
-                    reporter.info(text, position)
-                    messages
-                }
-                .getOrElse {
-                  reporter.info(text, position)
-                  messages
-                }
+    if (uriDiagnostics.isEmpty) {
+      reporter.clear(uri.toFile)
+      buildMessages
+    } else
+      uriDiagnostics
+        .filterNot(previousDiagnostics.contains)
+        .foldLeft(buildMessages) { (messages, diagnostic) =>
+
+          val start = diagnostic.getRange.getStart
+          val end = diagnostic.getRange.getEnd
+          val position = Some(new FilePosition(uri.toFile, start.getLine, start.getCharacter, end.getLine, end.getCharacter))
+          val text = s"${diagnostic.getMessage} [${start.getLine + 1}:${start.getCharacter + 1}]"
+
+          import bsp4j.DiagnosticSeverity._
+          Option(diagnostic.getSeverity)
+            .map {
+              case ERROR =>
+                reporter.error(text, position)
+                messages.addError(text)
+              case WARNING =>
+                reporter.warning(text, position)
+                messages.addWarning(text)
+              case INFORMATION =>
+                reporter.info(text, position)
+                messages
+              case HINT =>
+                reporter.info(text, position)
+                messages
+            }
+            .getOrElse {
+              reporter.info(text, position)
+              messages
             }
         }
-      }
   }
 
   //noinspection ReferencePassedToNls
@@ -321,32 +309,24 @@ class BspTask[T](project: Project,
   }
 
   //noinspection ReferencePassedToNls
-  private def reportTaskFinish(buildMessages: BuildMessages, params: TaskFinishParams)(implicit reporter: BuildReporter): BuildMessages = {
-    if (taskFinished.compareAndSet(false, true)) {
-      val diagnostics = aggregateDiagnostics(buildMessages)
+  private def reportTaskFinish(params: TaskFinishParams)(implicit reporter: BuildReporter): Unit = {
+    val taskId = params.getTaskId
+    val id = EventId(taskId.getId)
+    val time = Option(params.getEventTime.longValue()).getOrElse(System.currentTimeMillis())
+    val msg = Option(params.getMessage).getOrElse("")
 
-      val taskId = params.getTaskId
-      val id = EventId(taskId.getId)
-      val time = Option(params.getEventTime.longValue()).getOrElse(System.currentTimeMillis())
-      val msg = Option(params.getMessage).getOrElse("")
-
-      val result = params.getStatus match {
-        case StatusCode.OK =>
-          new SuccessResultImpl()
-        case StatusCode.CANCELLED =>
-          new SkippedResultImpl
-        case StatusCode.ERROR =>
-          new FailureResultImpl(params.getMessage, null)
-        case otherCode =>
-          new FailureResultImpl(BspBundle.message("bsp.task.unknown.status.code", otherCode), null)
-      }
-
-      reporter.finishTask(id, msg, result, time)
-
-      diagnostics
-    } else {
-      buildMessages
+    val result = params.getStatus match {
+      case StatusCode.OK =>
+        new SuccessResultImpl()
+      case StatusCode.CANCELLED =>
+        new SkippedResultImpl
+      case StatusCode.ERROR =>
+        new FailureResultImpl(params.getMessage, null)
+      case otherCode =>
+        new FailureResultImpl(BspBundle.message("bsp.task.unknown.status.code", otherCode), null)
     }
+
+    reporter.finishTask(id, msg, result, time)
   }
 }
 
