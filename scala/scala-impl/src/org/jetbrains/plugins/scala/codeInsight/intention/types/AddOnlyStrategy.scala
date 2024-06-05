@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.ScTypeText
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, StdTypes}
-import org.jetbrains.plugins.scala.lang.psi.types.{BaseTypes, ScType, TermSignature}
+import org.jetbrains.plugins.scala.lang.psi.types.{BaseTypes, ScType, TermSignature, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring._
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.annotations.Implementation
@@ -153,7 +153,7 @@ object AddOnlyStrategy {
   case class TypeForAnnotation(ty: ScType, ctx: PsiElement, addSuperTypes: Boolean = true) {
     def typeWithSuperTypes: Seq[ScTypeElement] =
       if (addSuperTypes) AddOnlyStrategy.annotationsFor(ty, ctx)
-      else Seq(createTypeElementFromText(ty.canonicalCodeText, ctx)(ctx))
+      else Seq(createTypeElementFromText(ty.canonicalCodeText(ctx), ctx)(ctx))
   }
 
   case class TypeAnnotationWithVariants(annotation: ScTypeElement, validVariants: Seq[ScTypeText])
@@ -249,7 +249,7 @@ object AddOnlyStrategy {
       case p: ScParameter =>
         val parameter = p.getParent match {
           case Parent(Parent(Parent(_: ScBlockExpr))) => p
-          // ensure  that the parameter is wrapped in parentheses before we add the type annotation.
+          // ensure that the parameter is wrapped in parentheses before we add the type annotation.
           case clause: ScParameterClause if clause.parameters.length == 1 =>
             clause.replace(createClauseForFunctionExprFromText(p.getText.parenthesize(), clause))
               .asInstanceOf[ScParameterClause].parameters.head
@@ -279,15 +279,15 @@ object AddOnlyStrategy {
   }
 
   def annotationsFor(`type`: ScType, ctx: PsiElement): Seq[ScTypeElement] =
-    canonicalTypes(`type`)
+    canonicalTypes(`type`)(ctx)
       .map(createTypeElementFromText(_, ctx)(ctx))
 
-  private[this] def canonicalTypes(tpe: ScType): Seq[String] = {
+  private[this] def canonicalTypes(tpe: ScType)(ctx: TypePresentationContext): Seq[String] = {
     import BaseTypes.get
 
-    tpe.canonicalCodeText +: (tpe.extractClass match {
+    tpe.canonicalCodeText(ctx) +: (tpe.extractClass match {
       case Some(sc: ScTypeDefinition) if sc.qualifiedName == "scala.Some" =>
-        get(tpe).map(_.canonicalCodeText)
+        get(tpe).map(_.canonicalCodeText(ctx))
           .filter(_.startsWith("_root_.scala.Option"))
       case Some(sc: ScTypeDefinition) if sc.qualifiedName.startsWith("scala.collection") =>
         val goodTypes = Set(
@@ -299,12 +299,12 @@ object AddOnlyStrategy {
           "_root_.scala.collection.immutable.Map["
         )
 
-        get(tpe).map(_.canonicalCodeText)
+        get(tpe).map(_.canonicalCodeText(ctx))
           .filter(t => goodTypes.exists(t.startsWith))
       case Some(sc: ScTypeDefinition) if sc.isObject && sc.supers.exists(_.isSealed) =>
         // if the type is the type of an object we prefer the super class
         get(tpe).find(_.extractClass.exists(_.isSealed)).toSeq
-          .map(_.canonicalCodeText)
+          .map(_.canonicalCodeText(ctx))
       case _ => Seq.empty
     })
   }
