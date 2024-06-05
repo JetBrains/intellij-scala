@@ -41,10 +41,10 @@ abstract class ScalaDirectiveDependencyVersionInspectionTestBase
     classOf[ScalaDirectiveDependencyVersionInspection]
 
   override protected val description: String =
-    ScalaInspectionBundle.message("packagesearch.newer.stable.version.available", groupId, artifactId)
+    ScalaInspectionBundle.message("packagesearch.newer.version.available", groupId, artifactId)
 
-  protected val hint =
-    ScalaDirectiveBundle.message("packagesearch.update.dependency.to.newer.stable.version", latestStableVersion)
+  protected def quickFixHint(version: String) =
+    ScalaDirectiveBundle.message("packagesearch.update.dependency.to.newer.version", version)
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == scalaVersion
 
@@ -52,7 +52,9 @@ abstract class ScalaDirectiveDependencyVersionInspectionTestBase
     PackageSearchClient.instance().updateByIdCache(groupId, artifactId,
       versions.map(apiMavenPackage(groupId, artifactId, _)).orNull)
 
-  protected def doTest(text: String, expected: String, artifactId: String = this.artifactId): Unit = {
+  protected def doTest(text: String, expected: String,
+                       artifactId: String = this.artifactId,
+                       hint: String = quickFixHint(latestStableVersion)): Unit = {
     preparePackageSearchCache(artifactId, Some(versionsContainer))
     checkTextHasError(text)
     testQuickFix(text, expected, hint)
@@ -116,22 +118,26 @@ abstract class ScalaDirectiveDependencyVersionInspectionTestBase
 
   def testOutdatedDependencyWithUnstableVersion(): Unit = doTest(
     text = s"//> using dep $START$groupId:$artifactId:$outdatedUnstableVersion$END",
-    expected = s"//> using dep $groupId:$artifactId:$latestStableVersion"
+    expected = s"//> using dep $groupId:$artifactId:$latestUnstableVersion",
+    hint = quickFixHint(latestUnstableVersion),
   )
 
   def testOutdatedDependencyWithUnstableVersion_SameBaseVersionAsLatestStable(): Unit = doTest(
     text = s"//> using dep $START$groupId:$artifactId:$unstableWithSameBaseVersionAsStable$END",
-    expected = s"//> using dep $groupId:$artifactId:$latestStableVersion"
+    expected = s"//> using dep $groupId:$artifactId:$latestUnstableVersion",
+    hint = quickFixHint(latestUnstableVersion),
   )
 
   def testOutdatedDependencyInMultipleDependencyList(): Unit = doTest(
     text = s"//> using deps $START$groupId:$artifactId:$outdatedUnstableVersion$END $groupId:$artifactId:$latestStableVersion",
-    expected = s"//> using deps $groupId:$artifactId:$latestStableVersion $groupId:$artifactId:$latestStableVersion"
+    expected = s"//> using deps $groupId:$artifactId:$latestUnstableVersion $groupId:$artifactId:$latestStableVersion",
+    hint = quickFixHint(latestUnstableVersion),
   )
 
   def testOutdatedDependencyInMultipleDependencyList2(): Unit = doTest(
     text = s"//> using deps $groupId:$artifactId:$latestStableVersion $START$groupId:$artifactId:$outdatedUnstableVersion$END",
-    expected = s"//> using deps $groupId:$artifactId:$latestStableVersion $groupId:$artifactId:$latestStableVersion"
+    expected = s"//> using deps $groupId:$artifactId:$latestStableVersion $groupId:$artifactId:$latestUnstableVersion",
+    hint = quickFixHint(latestUnstableVersion),
   )
 
   def testOutdatedDependenciesInMultipleDependencyList(): Unit = {
@@ -140,8 +146,8 @@ abstract class ScalaDirectiveDependencyVersionInspectionTestBase
     val text = s"//> using deps $START$groupId:$artifactId:$outdatedStableVersion$END $START$groupId:$artifactId:$outdatedUnstableVersion$END"
     checkTextHasError(text)
 
-    val expected = s"//> using deps $groupId:$artifactId:$latestStableVersion $groupId:$artifactId:$latestStableVersion"
-    testQuickFixAllInFile(text, expected, hint)
+    val expected = s"//> using deps $groupId:$artifactId:$latestStableVersion $groupId:$artifactId:$latestUnstableVersion"
+    testQuickFixAllInFile(text, expected, Seq(quickFixHint(latestStableVersion), quickFixHint(latestUnstableVersion)))
   }
 
   def testAliasKey_Deps(): Unit = doTest(

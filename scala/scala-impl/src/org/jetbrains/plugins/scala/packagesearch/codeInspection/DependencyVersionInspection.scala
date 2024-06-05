@@ -20,10 +20,10 @@ abstract class DependencyVersionInspection extends LocalInspectionTool {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = { element =>
     if (isAvailable(element)) {
       createDependencyDescriptor(element).foreach { dependencyDescriptor =>
-        val versions = DependencyUtil.getDependencyVersions(dependencyDescriptor, element, onlyStable = true)
-
         val currentVersion = dependencyDescriptor.version
-        val newestStableVersion = versions
+        val versions = DependencyUtil.getDependencyVersions(dependencyDescriptor, element, onlyStable = currentVersion.forall(DependencyUtil.isStable))
+
+        val newestVersion = versions
           .sort(reverse = true)
           .headOption
           .collect {
@@ -32,12 +32,12 @@ abstract class DependencyVersionInspection extends LocalInspectionTool {
               newVersion.toString
           }
 
-        newestStableVersion.foreach { newVersion =>
-          // if new version is different or current version is empty
+        newestVersion.foreach { newVersion =>
+          // if a new version is different or a current version is empty
           if (!currentVersion.contains(newVersion)) {
             holder.registerProblem(
               element,
-              ScalaInspectionBundle.message("packagesearch.newer.stable.version.available", dependencyDescriptor.groupId, dependencyDescriptor.artifactId),
+              ScalaInspectionBundle.message("packagesearch.newer.version.available", dependencyDescriptor.groupId, dependencyDescriptor.artifactId),
               createQuickFix(element, newVersion)
             )
           }

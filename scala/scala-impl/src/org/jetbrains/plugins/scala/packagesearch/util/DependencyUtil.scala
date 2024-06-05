@@ -12,6 +12,14 @@ import org.jetbrains.plugins.scala.project.{ProjectExt, ProjectPsiElementExt}
 import scala.jdk.CollectionConverters.ListHasAsScala
 
 object DependencyUtil {
+  // heuristic similar to what coursier does
+  def isStable(version: String): Boolean =
+    !version.toLowerCase.endsWith("snapshot") &&
+      !version.exists(_.isLetter) &&
+      version
+        .split(Array('.', '-'))
+        .forall(_.lengthCompare(5) <= 0)
+
   /**
    * Append scala version suffix to `artifactId`. If `fullVersion = false`, then:
    *  - for Scala 3 use `artifactId_3`

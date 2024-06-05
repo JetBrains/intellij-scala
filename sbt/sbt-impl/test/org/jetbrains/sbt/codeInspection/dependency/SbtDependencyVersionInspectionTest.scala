@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.packagesearch.api.{PackageSearchClient, Packa
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.codeInspection.SbtDependencyVersionInspection
 import org.jetbrains.sbt.language.SbtFileType
-import org.jetbrains.sbt.{MockSbtBuildModule, MockSbt_1_0, Sbt, SbtHighlightingUtil}
+import org.jetbrains.sbt.{MockSbtBuildModule, MockSbt_1_0, Sbt, SbtBundle, SbtHighlightingUtil}
 
 class SbtDependencyVersionInspectionTest
   extends ScalaInspectionTestBase
@@ -18,12 +18,15 @@ class SbtDependencyVersionInspectionTest
   override protected val description: String = ""
   override protected val fileType: LanguageFileType = SbtFileType
 
-  override protected def descriptionMatches(s: String): Boolean = Option(s).exists(x => x.startsWith("Newer stable version for") && x.endsWith("is available"))
+  override protected def descriptionMatches(s: String): Boolean = Option(s).exists(x => x.startsWith("Newer version for") && x.endsWith("is available"))
 
   protected override def setUp(): Unit = {
     super.setUp()
     SbtHighlightingUtil.enableHighlightingOutsideBuildModule(getProject)
   }
+
+  private def quickFixHint(version: String): String =
+    SbtBundle.message("packagesearch.update.dependency.to.newer.version", version)
 
   def testDependencyVersionInspection(): Unit = {
     val groupId = "org.scalatest"
@@ -41,6 +44,44 @@ class SbtDependencyVersionInspectionTest
          |libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8"
      """.stripMargin
     checkTextHasError(text)
-    testQuickFix(text, expected, "Update dependency to newer stable version 3.0.8")
+    testQuickFix(text, expected, quickFixHint("3.0.8"))
+  }
+
+  def testDependencyVersionInspection_UpdateUnstableToGreaterStable(): Unit = {
+    val groupId = "org.scalatest"
+    val artifactId = s"scalatest_${version.major}"
+
+    PackageSearchClient.instance().updateByIdCache(groupId, artifactId,
+      apiMavenPackage(groupId, artifactId, versionsContainer("3.0.8", Seq("3.0.7", "3.0.7-RC1", "3.0.8", "3.0.8-RC2", "3.0.6"))))
+
+    val text =
+      s"""
+         |libraryDependencies += "org.scalatest" %% "scalatest" % $START"3.0.7-RC1"$END
+     """.stripMargin
+    val expected =
+      s"""
+         |libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8"
+     """.stripMargin
+    checkTextHasError(text)
+    testQuickFix(text, expected, quickFixHint("3.0.8"))
+  }
+
+  def testDependencyVersionInspection_UpdateUnstableToGreaterUnstableIfNoStableIsApplicable(): Unit = {
+    val groupId = "org.scalatest"
+    val artifactId = s"scalatest_${version.major}"
+
+    PackageSearchClient.instance().updateByIdCache(groupId, artifactId,
+      apiMavenPackage(groupId, artifactId, versionsContainer("3.0.8-RC2", Some("3.0.7"), Seq("3.0.7", "3.0.7-RC1", "3.0.8-RC2", "3.0.6"))))
+
+    val text =
+      s"""
+         |libraryDependencies += "org.scalatest" %% "scalatest" % $START"3.0.7-RC1"$END
+     """.stripMargin
+    val expected =
+      s"""
+         |libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8-RC2"
+     """.stripMargin
+    checkTextHasError(text)
+    testQuickFix(text, expected, quickFixHint("3.0.8-RC2"))
   }
 }
