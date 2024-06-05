@@ -46,7 +46,7 @@ object ScSelfInvocationAnnotator extends ElementAnnotator[ScSelfInvocation] {
         // if there is only one well-formed, resolved, scala constructor with multiple parameter clauses,
         // check all of these clauses
 
-        val res = Compatibility.checkConstructorConformance(
+        val res = Compatibility.checkConstructorApplicability(
           element,
           r.substitutor,
           element.arguments,

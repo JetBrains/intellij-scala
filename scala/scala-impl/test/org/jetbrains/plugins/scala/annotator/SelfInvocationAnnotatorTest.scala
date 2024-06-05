@@ -140,7 +140,7 @@ class SelfInvocationAnnotatorTest extends SimpleTestCase {
 
   def testMissingAndTypeMismatch(): Unit = {
     assertMessagesSorted(messagesForGeneric("this(true)"))(
-      Error("e)", "Unspecified value parameters: d: Boolean"),
+      Error(")", "Missing argument list for constructor GenericTest(Int)(T)"),
       Error("true", "Type mismatch, expected: Int, actual: Boolean")
     )
   }

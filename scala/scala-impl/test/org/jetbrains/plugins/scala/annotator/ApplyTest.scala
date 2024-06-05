@@ -262,4 +262,14 @@ class ApplyTest extends AnnotatorLightCodeInsightFixtureTestAdapter {
       |class SX {def test(): Unit = {}}
       |""".stripMargin
   )
+
+  def testSCL22917(): Unit = checkTextHasNoErrors(
+    """
+      |def m[A] = new C[A]
+      |class C[A] {
+      |  def apply[B, C](f: A => (B, C)) = f
+      |}
+      |def r = m[Int](_.toString -> false)
+      |""".stripMargin
+  )
 }

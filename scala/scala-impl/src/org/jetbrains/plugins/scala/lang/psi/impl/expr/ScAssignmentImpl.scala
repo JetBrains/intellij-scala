@@ -97,9 +97,17 @@ class ScAssignmentImpl(node: ASTNode) extends ScExpressionImplBase(node) with Sc
               case c: ScClassParameter if c.isVar => None
               case _: PsiField                    => None
               case fun: ScFunction if ScalaPsiUtil.isViableForAssignmentFunction(fun) =>
-                val processor = new MethodResolveProcessor(ref, ScalaNamesUtil.clean(fun.name) + "_=",
-                  rightExpression.map(expr => List(Seq(expr))).getOrElse(Nil), Nil, ref.getPrevTypeInfoParams,
-                  isShapeResolve = shapeResolve, kinds = StdKinds.methodsOnly)
+                val processor =
+                  new MethodResolveProcessor(
+                    ref,
+                    ScalaNamesUtil.clean(fun.name) + "_=",
+                    rightExpression.map(expr => List(Seq(expr))).getOrElse(Nil),
+                    Nil,
+                    ref.getPrevTypeInfoParams,
+                    isShapeResolve = shapeResolve,
+                    kinds = StdKinds.methodsOnly
+                  )
+
                 r.fromType match {
                   case Some(tp) => processor.processType(tp, ref)
                   case None =>

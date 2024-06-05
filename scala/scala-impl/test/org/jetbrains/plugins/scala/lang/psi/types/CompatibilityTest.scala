@@ -35,7 +35,7 @@ class CompatibilityTest extends ScalaFixtureTestCase {
     val expressions: Seq[DummyExpression] = Seq(e1, e2, e3, e4)
 
     val conformanceExtResult =
-      Compatibility.checkConformanceExt(parameters, expressions, checkWithImplicits = false, isShapesResolve = false)
+      Compatibility.checkMethodApplicability(parameters, expressions, withImplicits = false, isOverloaded = false)
 
     val matchedParameters: Seq[Parameter] = conformanceExtResult.matched.map(_._1)
 

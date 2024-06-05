@@ -79,7 +79,7 @@ object Compatibility {
       case _               => None
     }
 
-    final case class OfType(tpe: ScType, place: Option[PsiElement]) extends Expression {
+    final case class OfType(tpe: ScType, place: Option[PsiElement])(implicit ctx: ProjectContext) extends Expression {
       private def default: ExpressionTypeResult = ExpressionTypeResult(Right(tpe))
 
       override def getTypeAfterImplicitConversion(
@@ -89,15 +89,31 @@ object Compatibility {
         ignoreBaseTypes: Boolean,
         fromUnderscore:  Boolean
       ): ExpressionTypeResult =
-        place.fold(default) { e =>
-          if (isShape || !checkImplicits) default
-          else cachedWithRecursionGuard("getTypeAfterImplicitConversion", e, ExpressionTypeResult(Right(tpe)), BlockModificationTracker(e), (e, tpe, expectedOption)) {
-            expectedOption.collect {
-              case etpe if !tpe.conforms(etpe) =>
-                e.tryAdaptTypeToSAM(tpe, etpe, fromUnderscore = false, checkResolve = false, checkImplicits = checkImplicits)
-                  .getOrElse(e.updateTypeWithImplicitConversion(tpe, etpe))
-            }.getOrElse(default)
-          }
+        place.fold(default) {
+          e =>
+            if (isShape) ExpressionTypeResult(Right(api.Nothing))
+            else if (!checkImplicits) default
+            else
+              cachedWithRecursionGuard(
+                "getTypeAfterImplicitConversion",
+                e,
+                ExpressionTypeResult(Right(tpe)),
+                BlockModificationTracker(e),
+                (e, tpe, expectedOption)
+              ) {
+                expectedOption
+                  .collect {
+                    case etpe if !tpe.conforms(etpe) =>
+                      e.tryAdaptTypeToSAM(
+                        tpe,
+                        etpe,
+                        fromUnderscore = false,
+                        checkResolve = false,
+                        checkImplicits = checkImplicits
+                      ).getOrElse(e.updateTypeWithImplicitConversion(tpe, etpe))
+                  }
+                  .getOrElse(default)
+              }
         }
     }
   }
@@ -209,7 +225,7 @@ object Compatibility {
                     Some(substitutor(functionType.typeArguments(1)))
                   case _ => None
                 }
-              }.filterNot(_.isInstanceOf[UndefinedType])
+              }.filterNot(_.is[UndefinedType])
           }.map(_ -> res)
         case _ => None
       }
@@ -222,192 +238,200 @@ object Compatibility {
     }
   }
 
-  def seqTypeFor(expr: ScTypedExpression): Option[ScType] =
+  private def seqTypeFor(expr: ScTypedExpression): Option[ScType] =
     seqClass.map(clazz =>
       if (ApplicationManager.getApplication.isUnitTestMode) ScDesignatorType(clazz)
       else throw new RuntimeException("Illegal state for seqClass variable")
     ).orElse(expr.elementScope.scalaSeqType)
 
   def checkConformance(
-    parameters:         Seq[Parameter],
-    exprs:              Seq[Expression],
-    checkWithImplicits: Boolean
-  ): ConstraintsResult = {
-    val r = checkConformanceExt(
+    parameters:    Seq[Parameter],
+    args:          Seq[Expression],
+    withImplicits: Boolean,
+    isOverloaded:  Boolean
+  )(implicit ctx: ProjectContext): ConstraintsResult = {
+    val r = checkMethodApplicability(
       parameters,
-      exprs,
-      checkWithImplicits,
-      isShapesResolve = false
+      args,
+      withImplicits = withImplicits,
+      isOverloaded  = isOverloaded
     )
 
     if (r.problems.nonEmpty) ConstraintsResult.Left
     else                     r.constraints
   }
 
-  def clashedAssignmentsIn(exprs: Seq[Expression]): Seq[ScAssignment] = {
-    val pairs = for(Expression(assignment @ ScAssignment.Named(name)) <- exprs) yield (name, assignment)
-    val names = pairs.map(_._1)
+  private def clashedAssignmentsIn(args: Seq[Expression]): Seq[ScAssignment] = {
+    val assignements =
+      for (Expression(assignment @ ScAssignment.Named(name)) <- args)
+        yield (name, assignment)
+
+    val names        = assignements.map(_._1)
     val clashedNames = names.diff(names.distinct)
-    pairs.filter(p => clashedNames.contains(p._1)).map(_._2)
+    assignements.filter(p => clashedNames.contains(p._1)).map(_._2)
   }
 
-  case class ConformanceExtResult(
+  case class ApplicabilityCheckResult(
     problems:             Seq[ApplicabilityProblem],
     constraints:          ConstraintSystem,
-    defaultParameterUsed: Boolean = false,
+    defaultParameterUsed: Boolean                                = false,
     matched:              Seq[(Parameter, ScExpression, ScType)] = Seq.empty
   )
 
-  object ConformanceExtResult {
-    def apply(problems: Seq[ApplicabilityProblem])(implicit project: ProjectContext): ConformanceExtResult =
-      ConformanceExtResult(problems, ConstraintSystem.empty)
+  object ApplicabilityCheckResult {
+    def apply(problems: Seq[ApplicabilityProblem]): ApplicabilityCheckResult =
+      ApplicabilityCheckResult(problems, ConstraintSystem.empty)
   }
 
-  def collectSimpleProblems(exprs: Seq[Expression], parameters: Seq[Parameter]): Seq[ApplicabilityProblem] = {
+  private def collectSimpleProblems(args: Seq[Expression], parameters: Seq[Parameter]): Seq[ApplicabilityProblem] = {
     val problems = Seq.newBuilder[ApplicabilityProblem]
 
-    exprs.foldLeft(parameters) { (parameters, expression) =>
-      expression match {
-        case a: ScAssignment if a.referenceName.nonEmpty =>
-          parameters.find(_.name == a.referenceName.get) match {
-            case Some(parameter) =>
-              parameters.filter(_ ne parameter)
-            case None => parameters.tail
+    args
+      .foldLeft(parameters) {
+        (parameters, expression) =>
+          expression match {
+            case a: ScAssignment if a.referenceName.nonEmpty =>
+              parameters.find(_.name == a.referenceName.get) match {
+                case Some(parameter) => parameters.filter(_ ne parameter)
+                case None            => parameters.tail
+              }
+            case _ => parameters.tail
           }
-        case _ => parameters.tail
       }
-    }.foreach { param =>
-      if (!param.isRepeated && !param.isDefault) {
-        problems += MissedValueParameter(param)
+      .foreach {
+        param =>
+          if (!param.isRepeated && !param.isDefault) {
+            problems += MissedValueParameter(param)
+          }
       }
-    }
+
     problems.result()
   }
 
-  def checkConformanceExt(
-    parameters:         Seq[Parameter],
-    exprs:              Seq[Expression],
-    checkWithImplicits: Boolean,
-    isShapesResolve:    Boolean
-  ): ConformanceExtResult = {
+  /**
+   * @param withImplicits When true, try implicit conversions in case `arg.type <!:< param.type`
+   * @param shapesOnly    When true, only calculate shapeTypes of argument expressions
+   */
+  def checkMethodApplicability(
+    parameters:    Seq[Parameter],
+    args:          Seq[Expression],
+    withImplicits: Boolean,
+    isOverloaded:  Boolean,
+    shapesOnly:    Boolean = false,
+  )(implicit
+    ctx: ProjectContext
+  ): ApplicabilityCheckResult = {
     ProgressManager.checkCanceled()
     var constraintAccumulator = ConstraintSystem.empty
-
-    val clashedAssignments = clashedAssignmentsIn(exprs)
+    val clashedAssignments    = clashedAssignmentsIn(args)
 
     if (clashedAssignments.nonEmpty) {
       val problems = clashedAssignments.map(ParameterSpecifiedMultipleTimes)
-      return ConformanceExtResult(problems, constraintAccumulator)
+      return ApplicabilityCheckResult(problems, constraintAccumulator)
     }
 
     //optimization:
     val hasRepeated = parameters.exists(_.isRepeated)
-    val maxParams: Int = if (hasRepeated) scala.Int.MaxValue else parameters.length
+    val maxParams   = if (hasRepeated) scala.Int.MaxValue else parameters.length
 
-    val excess = exprs.length - maxParams
+    val excess = args.length - maxParams
 
     if (excess > 0) {
-      val arguments = exprs.takeRight(excess).map(_.scExpressionOrNull)
-      return ConformanceExtResult(arguments.map(ExcessArgument), constraintAccumulator)
+      val excessArguments = args.takeRight(excess).map(_.scExpressionOrNull)
+      return ApplicabilityCheckResult(excessArguments.map(ExcessArgument), constraintAccumulator)
     }
 
     val minParams = parameters.count(p => !p.isDefault && !p.isRepeated)
-    if (exprs.length < minParams) {
-      return ConformanceExtResult(collectSimpleProblems(exprs, parameters), constraintAccumulator)
+    if (args.length < minParams) {
+      return ApplicabilityCheckResult(collectSimpleProblems(args, parameters), constraintAccumulator)
     }
 
     if (parameters.isEmpty) {
-      assert(exprs.isEmpty, "Empty exprs should have been handled by the excess check above")
-      return ConformanceExtResult(Seq.empty, constraintAccumulator)
+      assert(args.isEmpty, "Empty args should have been handled by the excess check above")
+      return ApplicabilityCheckResult(Seq.empty, constraintAccumulator)
     }
 
-    var parameterIndex = 0
-    var namedMode = false //todo: optimization, when namedMode enabled, exprs.length <= parameters.length
-    val used = new Array[Boolean](parameters.length)
-    var problems: List[ApplicabilityProblem] = Nil
-    val matched = Seq.newBuilder[(Parameter, ScExpression, ScType)]
+    var parameterIndex       = 0
+    var namedMode            = false //todo: optimization, when namedMode enabled, args.length <= parameters.length
+    val used                 = new Array[Boolean](parameters.length)
+    var problems             = List.empty[ApplicabilityProblem]
+    val matched              = Seq.newBuilder[(Parameter, ScExpression, ScType)]
     var defaultParameterUsed = false
 
-    def doNoNamed(expr: Expression): List[ApplicabilityProblem] = {
-      if (namedMode) {
-        List(PositionalAfterNamedArgument(expr.scExpressionOrNull))
-      }
-      else {
-        val getIt = used.indexOf(false)
-        used(getIt) = true
-        val param        = parameters(getIt)
-        val paramType    = param.paramType
-        val expectedType = param.expectedType
+    def processParamConformance(param: Parameter, pt: ScType, arg: Expression): List[ApplicabilityProblem] = {
+      val typeResult =
+        arg.getTypeAfterImplicitConversion(
+          withImplicits, shapesOnly, Option(pt)
+        ).tr
 
-        val typeResult =
-          expr.getTypeAfterImplicitConversion(
-            checkWithImplicits, isShapesResolve, Option(expectedType)
-          ).tr
+      typeResult.toOption match {
+        case None => Nil
+        case Some(exprType) =>
+          val conforms = exprType.conforms(pt, ConstraintSystem.empty, checkWeak = true)
 
-        typeResult.toOption match {
-          case None => Nil
-          case Some(exprType) =>
-            val conforms = exprType.weakConforms(paramType)
-            matched.addOne(param, expr.scExpressionOrNull, exprType)
-            if (!conforms) List(TypeMismatch(expr.scExpressionOrNull, paramType))
-            else {
-              constraintAccumulator += exprType.conforms(paramType, ConstraintSystem.empty, checkWeak = true).constraints
+          conforms match {
+            case ConstraintsResult.Left =>
+              List(TypeMismatch(arg.scExpressionOrNull, pt))
+            case cs: ConstraintSystem   =>
+              matched.addOne(param, arg.scExpressionOrNull, exprType)
+              constraintAccumulator += cs
               List.empty
-            }
-        }
+          }
       }
     }
 
-    while (parameterIndex < parameters.length.min(exprs.length)) {
-      val expressionWithSameIndex = exprs(parameterIndex)
+    def processUnnamedArg(arg: Expression): List[ApplicabilityProblem] = {
+      if (namedMode) {
+        List(PositionalAfterNamedArgument(arg.scExpressionOrNull))
+      } else {
+        val idx = used.indexOf(false)
+        used(idx) = true
+        val param        = parameters(idx)
+        val expectedType = param.paramType
+
+        processParamConformance(param, expectedType, arg)
+      }
+    }
+
+    while (parameterIndex < parameters.length.min(args.length)) {
+      val expressionWithSameIndex = args(parameterIndex)
+
       expressionWithSameIndex match {
         case Expression(expr: ScTypedExpression) if expr.isSequenceArg =>
           seqTypeFor(expr) match {
             case Some(stpe) =>
-              val getIt = used.indexOf(false)
-              used(getIt) = true
-              val param = parameters(getIt)
+              val idx   = used.indexOf(false)
+              used(idx) = true
+              val param = parameters(idx)
 
               if (!param.isRepeated) problems ::= ExpansionForNonRepeatedParameter(expr)
 
-              val tpe = ScParameterizedType(stpe, Seq(param.paramType))
-              val expectedTpe = ScParameterizedType(stpe, Seq(param.expectedType))
+              val expectedType         = ScParameterizedType(stpe, Seq(param.paramType))
+              val typeMismatchProblems = processParamConformance(param, expectedType, expr)
 
-              for (exprType <- expr
-                .getTypeAfterImplicitConversion(
-                  checkWithImplicits,
-                  isShapesResolve,
-                  Some(expectedTpe)
+              if (typeMismatchProblems.nonEmpty)
+                return ApplicabilityCheckResult(
+                  typeMismatchProblems,
+                  constraintAccumulator,
+                  defaultParameterUsed,
+                  matched.result()
                 )
-                .tr
-                .toOption) {
-                if (exprType.weakConforms(tpe)) {
-                  matched.addOne((param, expr, exprType))
-                  constraintAccumulator += exprType
-                    .conforms(tpe, ConstraintSystem.empty, checkWeak = true)
-                    .constraints
-                } else {
-                  return ConformanceExtResult(
-                    Seq(TypeMismatch(expr, tpe)),
-                    constraintAccumulator,
-                    defaultParameterUsed,
-                    matched.result()
-                  )
-                }
-              }
 
-            case None => problems :::= doNoNamed(expr).reverse
+            case None => problems :::= processUnnamedArg(expr)
           }
         case Expression(assign @ ScAssignment.Named(name)) =>
           val index = parameters.indexWhere { p =>
             ScalaNamesUtil.equivalent(p.name, name) ||
               p.deprecatedName.exists(ScalaNamesUtil.equivalent(_, name))
           }
+
           if (index == -1 || used(index)) {
-            def extractExpression(assign: ScAssignment): ScExpression = {
-              if (ScUnderScoreSectionUtil.isUnderscoreFunction(assign)) assign
-              else assign.rightExpression.getOrElse(assign)
-            }
+            def extractExpression(assign: ScAssignment): ScExpression =
+              if (ScUnderScoreSectionUtil.isUnderscoreFunction(assign))
+                assign
+              else
+                assign.rightExpression.getOrElse(assign)
+
             val extracted = extractExpression(assign)
 
             if (extracted != assign) {
@@ -415,116 +439,135 @@ object Compatibility {
               problems ::= WrongNamedParameterName(name)
             }
 
-              problems :::= doNoNamed(extractExpression(assign)).reverse
+            problems :::= processUnnamedArg(extractExpression(assign))
           } else {
             used(index) = true
-            val param: Parameter = parameters(index)
+            val param   = parameters(index)
+
             if (index != parameterIndex) {
               namedMode = true
             }
 
             assign.rightExpression match {
-              case rightExpression@Some(expr: ScExpression) =>
+              case rightExpression @ Some(expr: ScExpression) =>
+
                 val maybeSeqType = rightExpression.collect {
                   case typedExpr: ScTypedExpression if typedExpr.isSequenceArg => typedExpr
-                }.flatMap {
-                  seqTypeFor
-                }
+                }.flatMap(seqTypeFor)
 
                 maybeSeqType.foreach { _ =>
-                  if (!param.isRepeated)
-                    problems ::= ExpansionForNonRepeatedParameter(expr)
+                  if (!param.isRepeated) problems ::= ExpansionForNonRepeatedParameter(expr)
                 }
 
-                val (paramType, expectedType) = maybeSeqType.map { seqType =>
-                  (ScParameterizedType(seqType, Seq(param.paramType)): ScType,
-                    ScParameterizedType(seqType, Seq(param.expectedType)): ScType)
-                }.getOrElse {
-                  (param.paramType, param.expectedType)
-                }
+                val expectedType = maybeSeqType.map { seqType =>
+                  ScParameterizedType(seqType, Seq(param.paramType))
+                }.getOrElse(param.paramType)
 
-                for (exprType <- expr.getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType)).tr.toOption) {
-                  if (exprType.weakConforms(paramType)) {
-                    matched.addOne(param, expr, exprType)
-                    constraintAccumulator += exprType.conforms(paramType, ConstraintSystem.empty, checkWeak = true).constraints
-                  } else {
-                    problems ::= TypeMismatch(expr, paramType)
-                  }
-                }
+                problems :::= processParamConformance(param, expectedType, expr)
               case _ =>
-                return ConformanceExtResult(Seq(IncompleteCallSyntax(ScalaBundle.message("assignment.missing.right.side"))), constraintAccumulator, defaultParameterUsed, matched.result())
+                return ApplicabilityCheckResult(
+                  Seq(IncompleteCallSyntax(ScalaBundle.message("assignment.missing.right.side"))),
+                  constraintAccumulator,
+                  defaultParameterUsed,
+                  matched.result()
+                )
             }
           }
         case expr: Expression =>
-          problems :::= doNoNamed(expr).reverse
+          problems :::= processUnnamedArg(expr)
       }
       parameterIndex = parameterIndex + 1
     }
 
     if (problems.nonEmpty)
-      return ConformanceExtResult(problems.reverse, constraintAccumulator, defaultParameterUsed, matched.result())
+      return ApplicabilityCheckResult(problems.reverse, constraintAccumulator, defaultParameterUsed, matched.result())
 
-    if (exprs.length == parameters.length)
-      return ConformanceExtResult(Seq.empty, constraintAccumulator, defaultParameterUsed, matched.result())
-    else if (exprs.length > parameters.length) {
+    if (args.length == parameters.length)
+      return ApplicabilityCheckResult(Seq.empty, constraintAccumulator, defaultParameterUsed, matched.result())
+    else if (args.length > parameters.length) {
       if (namedMode) {
-        // if we are in nameMode we cannot supply
-        val excessiveExprs = exprs.drop(parameters.length).map(_.scExpressionOrNull)
-        return ConformanceExtResult(excessiveExprs.map(ExcessArgument), constraintAccumulator, defaultParameterUsed, matched.result())
-      }
-      assert (parameters.last.isRepeated, "This case should have been handled by excessive check above")
+        // We cannot have repeated parameter, if we are in namedMode
+        val excessiveArgs = args.drop(parameters.length).map(_.scExpressionOrNull)
 
-      val paramType: ScType = parameters.last.paramType
-      val expectedType: ScType = parameters.last.expectedType
-      while (parameterIndex < exprs.length) {
-        val expressionWithSameIndex = exprs(parameterIndex)
-        for (exprType <- expressionWithSameIndex.getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType)).tr) {
-          val conforms = exprType.weakConforms(paramType)
-          if (!conforms) {
-            val result = ConformanceExtResult(
-              Seq(TypeMismatch(expressionWithSameIndex.scExpressionOrNull, paramType)),
-              constraintAccumulator, defaultParameterUsed, matched.result()
-            )
-            return result
-          } else {
-            matched.addOne(parameters.last, expressionWithSameIndex.scExpressionOrNull, exprType)
-            constraintAccumulator += exprType.conforms(paramType, ConstraintSystem.empty, checkWeak = true).constraints
-          }
+        return ApplicabilityCheckResult(
+          excessiveArgs.map(ExcessArgument),
+          constraintAccumulator,
+          defaultParameterUsed,
+          matched.result()
+        )
+      }
+      assert(parameters.last.isRepeated, "This case should have been handled by excessive check above")
+
+      val param        = parameters.last
+      val expectedType = param.paramType
+
+      while (parameterIndex < args.length) {
+        val expressionWithSameIndex = args(parameterIndex)
+
+        val typeMismatchProblem = processParamConformance(param, expectedType, expressionWithSameIndex)
+        if (typeMismatchProblem.nonEmpty) {
+          return ApplicabilityCheckResult(
+            typeMismatchProblem,
+            constraintAccumulator,
+            defaultParameterUsed,
+            matched.result()
+          )
         }
         parameterIndex = parameterIndex + 1
       }
-    }
-    else {
-      if (exprs.length == parameters.length - 1 && !namedMode && parameters.last.isRepeated)
-        return ConformanceExtResult(Seq.empty, constraintAccumulator, defaultParameterUsed, matched.result())
+    } else {
+      //Empty repeated parameter case:
+      if (args.length == parameters.length - 1 && !namedMode && parameters.last.isRepeated)
+        return ApplicabilityCheckResult(Seq.empty, constraintAccumulator, defaultParameterUsed, matched.result())
 
-      val missed = for ((parameter: Parameter, b) <- parameters.zip(used)
-                        if !b && !parameter.isDefault) yield MissedValueParameter(parameter)
-      defaultParameterUsed = parameters.zip(used).exists { case (param, bool) => !bool && param.isDefault}
+      val missed =
+        for (
+          (parameter: Parameter, b) <- parameters.zip(used)
+          if !b && !parameter.isDefault
+        ) yield MissedValueParameter(parameter)
+
+      defaultParameterUsed = parameters.zip(used).exists { case (param, bool) => !bool && param.isDefault }
+
       if (missed.nonEmpty)
-        return ConformanceExtResult(missed, constraintAccumulator, defaultParameterUsed, matched.result())
+        return ApplicabilityCheckResult(
+          missed,
+          constraintAccumulator,
+          defaultParameterUsed,
+          matched.result()
+        )
       else {
-        // inspect types default values
-        val pack = parameters.zip(used)
-        for ((param, use) <- pack if param.isDefault && !use) {
+        // Inspect types of default parameter values
+        val parametersUsage = parameters.zip(used)
+
+        for ((param, isUsed) <- parametersUsage if param.isDefault && !isUsed) {
           val paramType = param.paramType
+
           param.defaultType match {
             case Some(defaultTp) if defaultTp.conforms(paramType) =>
-              val expr = param.paramInCode
-                .flatMap(_.getDefaultExpression)
-                .get // safe (see defaultType implementation)
+              val expr =
+                param.paramInCode
+                  .flatMap(_.getDefaultExpression)
+                  .get // safe (see defaultType implementation)
+
               matched.addOne(param, expr, defaultTp)
 
-              constraintAccumulator += defaultTp.conforms(paramType, ConstraintSystem.empty).constraints
+              constraintAccumulator += defaultTp
+                .conforms(paramType, ConstraintSystem.empty)
+                .constraints
             case Some(defaultTp) =>
-              return ConformanceExtResult(Seq(DefaultTypeParameterMismatch(defaultTp, paramType)), constraintAccumulator,
-                defaultParameterUsed = true, matched.result())
+              return ApplicabilityCheckResult(
+                Seq(DefaultTypeParameterMismatch(defaultTp, paramType)),
+                constraintAccumulator,
+                defaultParameterUsed = true,
+                matched.result()
+              )
             case _ =>
           }
         }
       }
     }
-    ConformanceExtResult(Seq.empty, constraintAccumulator, defaultParameterUsed, matched.result())
+
+    ApplicabilityCheckResult(Seq.empty, constraintAccumulator, defaultParameterUsed, matched.result())
   }
 
   def toParameter(p: ScParameter, substitutor: ScSubstitutor): Parameter = {
@@ -535,26 +578,31 @@ object Compatibility {
   }
 
   def compatible(
-    srr:                ScalaResolveResult,
-    substitutor:        ScSubstitutor,
-    argClauses:         List[Seq[Expression]],
-    checkWithImplicits: Boolean,
-    isShapesResolve:    Boolean,
-    ref:                PsiElement = null
-  )(implicit
-    project: ProjectContext
-  ): ConformanceExtResult = {
+    srr:           ScalaResolveResult,
+    substitutor:   ScSubstitutor,
+    argClauses:    List[Seq[Expression]],
+    withImplicits: Boolean,
+    shapesOnly:    Boolean,
+    isOverloaded:  Boolean,
+    ref:           PsiElement = null
+  ): ApplicabilityCheckResult = {
     val named = srr.element
 
-    def checkParameterListConformance(parameters: Seq[Parameter], arguments: Seq[Expression]): ConformanceExtResult =
-      checkConformanceExt(parameters, arguments, checkWithImplicits, isShapesResolve)
+    def checkParameterListConformance(parameters: Seq[Parameter], arguments: Seq[Expression]): ApplicabilityCheckResult =
+      checkMethodApplicability(
+        parameters,
+        arguments,
+        withImplicits,
+        isOverloaded,
+        shapesOnly
+      )(srr.element)
 
     val firstArgumentListArgs: Seq[Expression] = argClauses.headOption.getOrElse(Seq.empty)
 
     named match {
       case synthetic: ScSyntheticFunction =>
         if (synthetic.paramClauses.isEmpty)
-          return ConformanceExtResult(Seq(DoesNotTakeParameters))
+          return ApplicabilityCheckResult(Seq(DoesNotTakeParameters))
 
         val parameters = synthetic.paramClauses.head.map(p =>
           p.copy(paramType = substitutor(p.paramType))
@@ -565,7 +613,7 @@ object Compatibility {
         val isDefinedOrExportedInExtension = fun.isExtensionMethod || srr.exportedInExtension.isDefined
 
         if ((!fun.hasParameterClause && !isDefinedOrExportedInExtension) && argClauses.nonEmpty)
-          return ConformanceExtResult(Seq(DoesNotTakeParameters))
+          return ApplicabilityCheckResult(Seq(DoesNotTakeParameters))
 
         if (QuasiquoteInferUtil.isMetaQQ(fun) && ref.is[ScReferenceExpression]) {
           val params = QuasiquoteInferUtil.getMetaQQExpectedTypes(srr, ref.asInstanceOf[ScReferenceExpression])
@@ -626,37 +674,47 @@ object Compatibility {
       case unknown =>
         val problem = InternalApplicabilityProblem(ScalaBundle.message("cannot.handle.compatibility.for", unknown))
         LOG.error(problem.toString)
-        ConformanceExtResult(Seq(problem))
+        ApplicabilityCheckResult(Seq(problem))
     }
   }
 
-  def checkConstructorConformance(
+  def checkConstructorApplicability(
     constrInvocation: ConstructorInvocationLike,
-    substitutor: ScSubstitutor,
-    argClauses: Seq[ScArgumentExprList],
-    paramClauses: Seq[ScParameterClause]
-  )(implicit project: ProjectContext): ConformanceExtResult = {
-
+    substitutor:      ScSubstitutor,
+    argClauses:       Seq[ScArgumentExprList],
+    paramClauses:     Seq[ScParameterClause]
+  )(implicit
+    ctx: ProjectContext
+  ): ApplicabilityCheckResult = {
     // a first empty argument clause might lack
     val nonEmptyArgClause =
       if (argClauses.isEmpty) Seq(Seq.empty)
-      else argClauses.map(_.exprs)
+      else                    argClauses.map(_.exprs)
 
-    val (result, _) = nonEmptyArgClause.zip(paramClauses).foldLeft(ConformanceExtResult(Seq.empty) -> substitutor) {
+    val (result, _) = nonEmptyArgClause.zip(paramClauses).foldLeft(ApplicabilityCheckResult(Seq.empty) -> substitutor) {
       case ((prevRes, prevSubstitutor), (args, paramClause)) =>
 
-        val params = paramClause.effectiveParameters.map(toParameter(_, prevSubstitutor))
-
+        val params                 = paramClause.effectiveParameters.map(toParameter(_, prevSubstitutor))
         val eligibleForAutoTupling = args.length != 1 && params.length == 1 && !params.head.isDefault
 
         val curRes =
-          checkConformanceExt(params, args, checkWithImplicits = true, isShapesResolve = false) match {
+          checkMethodApplicability(
+            params,
+            args,
+            withImplicits = true,
+            isOverloaded  = false
+          ) match {
             case res if eligibleForAutoTupling && res.problems.nonEmpty =>
               // try autotupling. If the conformance check succeeds without problems we use that result
               ScalaPsiUtil
                 .tupled(args, constrInvocation)
                 .map(
-                  checkConformanceExt(params, _, checkWithImplicits = true, isShapesResolve = true)
+                  checkMethodApplicability(
+                    params, _,
+                    withImplicits = true,
+                    shapesOnly    = true,
+                    isOverloaded  = false
+                  )
                 )
                 .filter(_.problems.isEmpty)
                 .getOrElse(res)
@@ -671,7 +729,7 @@ object Compatibility {
 
         val newSubstitutor = curRes.constraints match {
           case ConstraintSystem(csSubstitutor) => prevSubstitutor.followed(csSubstitutor)
-          case _ => prevSubstitutor
+          case _                               => prevSubstitutor
         }
 
         res -> newSubstitutor
@@ -681,9 +739,17 @@ object Compatibility {
     // Providing more clauses than required is ok, as those might be calls to apply
     // see: class A(i: Int) { def apply(j: Int) = ??? }
     // new A(2)(3) is ok
-    val missedParameterClauseProblems = missedParameterClauseProblemsFor(paramClauses, nonEmptyArgClause.length, isConstructorInvocation = true)
-    if (missedParameterClauseProblems.isEmpty) result
-    else result.copy(problems = result.problems ++ missedParameterClauseProblems)
+    val missedParameterClauseProblems =
+      missedParameterClauseProblemsFor(
+        paramClauses,
+        nonEmptyArgClause.length,
+        isConstructorInvocation = true
+      )
+
+    if (missedParameterClauseProblems.isEmpty)
+      result
+    else
+      result.copy(problems = result.problems ++ missedParameterClauseProblems)
   }
 
   def missedParameterClauseProblemsFor(
@@ -702,7 +768,8 @@ object Compatibility {
     if (missedArgumentClauses > 0) {
       val reportMissingClauses: Boolean = {
         val scalaLanguageLevel = paramClauses.headOption.map(_.scalaLanguageLevelOrDefault)
-        val isBeforeScala213 = scalaLanguageLevel.exists(_ < ScalaLanguageLevel.Scala_2_13)
+        val isBeforeScala213   = scalaLanguageLevel.exists(_ < ScalaLanguageLevel.Scala_2_13)
+
         if (isBeforeScala213 && isConstructorInvocation)
           true
         else
@@ -712,9 +779,7 @@ object Compatibility {
       if (reportMissingClauses) {
         val missingClauses = paramClauses.drop(argClauseCount)
         missingClauses.map(MissedParametersClause.apply)
-      }
-      else Seq.empty
-    }
-    else Seq.empty
+      } else Seq.empty
+    } else Seq.empty
   }
 }

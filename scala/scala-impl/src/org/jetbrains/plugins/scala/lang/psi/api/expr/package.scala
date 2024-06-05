@@ -23,13 +23,13 @@ package object expr {
     import stdTypes._
 
     (l, r) match {
-      case (Byte, Short | Int | Long | Float | Double)        => true
-      case (Short, Int | Long | Float | Double)               => true
-      case (Char, Byte | Short | Int | Long | Float | Double) => true
-      case (Int, Long | Float | Double)                       => true
-      case (Long, Float | Double)                             => true
-      case (Float, Double)                                    => true
-      case _                                                  => false
+      case (Byte, Short | Int | Long | Float | Double) => true
+      case (Short, Int | Long | Float | Double)        => true
+      case (Char, Int | Long | Float | Double)         => true
+      case (Int, Long | Float | Double)                => true
+      case (Long, Float | Double)                      => true
+      case (Float, Double)                             => true
+      case _                                           => false
     }
   }
 

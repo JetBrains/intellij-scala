@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.ImplicitState
 import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ImplicitsRecursionGuard}
 import org.jetbrains.plugins.scala.lang.psi.light.LightContextFunctionParameter
-import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.{ConformanceExtResult, Expression}
+import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.{ApplicabilityCheckResult, Expression}
 import org.jetbrains.plugins.scala.lang.psi.types.ConstraintSystem.SubstitutionBounds
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
@@ -193,7 +193,7 @@ object InferUtil {
 
     implicit val project: ProjectContext = place.getProject
 
-    val exprs = ArraySeq.newBuilder[Expression]
+    val exprs          = ArraySeq.newBuilder[Expression]
     val paramsForInfer = ArraySeq.newBuilder[Parameter]
     val resolveResults = ArraySeq.newBuilder[ScalaResolveResult]
     val iterator = params.iterator
@@ -571,9 +571,9 @@ object InferUtil {
       params,
       exprs,
       typeParams,
-      shouldUndefineParameters,
-      canThrowSCE,
-      filterTypeParams
+      shouldUndefineParameters = shouldUndefineParameters,
+      canThrowSCE              = canThrowSCE,
+      filterTypeParams         = filterTypeParams
     )._1
 
   class SafeCheckException extends ControlThrowable
@@ -587,7 +587,7 @@ object InferUtil {
     canThrowSCE:              Boolean = false,
     filterTypeParams:         Boolean = true,
     paramSubst:               Option[ScSubstitutor] = None
-  ): (ScTypePolymorphicType, ConformanceExtResult) = {
+  ): (ScTypePolymorphicType, ApplicabilityCheckResult) = {
     implicit val projectContext: ProjectContext = retType.projectContext
 
     val typeParamIds = typeParams.map(_.typeParamId).toSet
@@ -612,12 +612,12 @@ object InferUtil {
         )
     )
 
-    val conformanceResult @ ConformanceExtResult(problems, constraints, _, _) =
-      Compatibility.checkConformanceExt(
+    val conformanceResult @ ApplicabilityCheckResult(problems, constraints, _, _) =
+      Compatibility.checkMethodApplicability(
         paramsWithUndefTypes,
         exprs,
-        checkWithImplicits = true,
-        isShapesResolve    = false
+        withImplicits = true,
+        isOverloaded  = false
       )
 
     val tpe = if (problems.isEmpty) {

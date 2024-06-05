@@ -72,22 +72,22 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
     resolved match {
       case Seq(r) if !r.isAccessible => holder.createErrorAnnotation(argsElementsTextRange(constrInvocation), ScalaBundle.message("annotator.error.no.constructor.accessible"))
       case Seq(r@ScConstructorResolveResult(constr)) if constr.effectiveParameterClauses.length > 1 && !isConstructorMalformed(r) =>
-        // if there is only one well-formed, resolved, scala constructor with multiple parameter clauses,
-        // check all of these clauses
-        implicit val ctx: ProjectContext = constr
-
-        val params = constr.getClassTypeParameters.map(_.typeParameters).getOrElse(Seq.empty)
+        val params   = constr.getClassTypeParameters.map(_.typeParameters).getOrElse(Seq.empty)
         val typeArgs = constrInvocation.typeArgList.map(_.typeArgs).getOrElse(Seq.empty)
-        val substitutor = ScSubstitutor.bind(params, typeArgs)(_.calcType)
-          .followed(ScSubstitutor.bind(params)(UndefinedType(_)))
-          .followed(r.substitutor)
 
-        val res = Compatibility.checkConstructorConformance(
-          constrInvocation,
-          substitutor,
-          constrInvocation.arguments,
-          constr.effectiveParameterClauses
-        )
+        val substitutor =
+          ScSubstitutor
+            .bind(params, typeArgs)(_.calcType)
+            .followed(ScSubstitutor.bind(params)(UndefinedType(_)))
+            .followed(r.substitutor)
+
+        val res =
+          Compatibility.checkConstructorApplicability(
+            constrInvocation,
+            substitutor,
+            constrInvocation.arguments,
+            constr.effectiveParameterClauses
+          )(constr.projectContext)
 
         annotateProblems(res.problems, r, constrInvocation)
       case results if results.length > 1 =>
@@ -226,7 +226,7 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
 
   object ScConstructorResolveResult {
     def unapply(res: ScalaResolveResult): Option[ScMethodLike] =
-      Some(res.element).collect { case constr: ScMethodLike => constr }
+      Option(res.element).collect { case constr: ScMethodLike => constr }
   }
 }
 

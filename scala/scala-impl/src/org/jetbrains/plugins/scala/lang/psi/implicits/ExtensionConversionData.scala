@@ -93,19 +93,6 @@ object ExtensionConversionHelper {
       processor.candidatesS.find(_.isApplicable())
     }
 
-  def scala3ExtensionApplicabilityCheck(
-    data: ExtensionConversionData,
-    cand: ScalaResolveResult
-  ): Option[ScalaResolveResult] = {
-    val candName = cand.renamed.getOrElse(cand.element.name)
-
-    if (data.refName != candName) None
-    else
-      extractMethodResolveProc(data, Seq.empty).flatMap { proc =>
-        MethodResolveProcessor.candidates(proc, Set(cand)).find(_.isApplicable())
-      }
-  }
-
   private def extractMethodResolveProc(
     data:       ExtensionConversionData,
     typeParams: Seq[TypeParameter]

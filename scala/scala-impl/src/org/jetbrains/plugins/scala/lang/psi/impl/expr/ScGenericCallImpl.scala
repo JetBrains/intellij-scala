@@ -18,21 +18,25 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor.ScTypeForDynamicProcessorEx
 
 class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScGenericCall {
-  private def processApplyOrUpdateMethod(tp: ScType, isShape: Boolean): ScType =
-    getContext match {
-      case _: MethodInvocation => tp
-      case _ =>
-        val srrs = this.tryResolveApplyMethod(this, tp, isShape = isShape, stripTypeArgs = false)
+  private def processApplyOrUpdateMethod(tp: ScType, shapesOnly: Boolean): ScType = {
+    val applyCandidates = this.resolveApplyMethod(
+      this,
+      tp,
+      shapesOnly    = shapesOnly,
+      stripTypeArgs = false,
+      withImplicits = true
+    )
 
-        srrs match {
-          case Array(srr @ ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor)) =>
-            fun
-              .methodTypeProvider(elementScope)
-              .polymorphicType(s)
-              .updateTypeOfDynamicCall(srr.isDynamic)
-          case _ => Nothing
-        }
+    applyCandidates match {
+      case Array(srr @ ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor)) =>
+        fun
+          .methodTypeProvider(elementScope)
+          .polymorphicType(s)
+          .updateTypeOfDynamicCall(srr.isDynamic)
+      case _ =>
+        Nothing
     }
+  }
 
   private def substPolymorphicType: ScType => ScType = {
     case ScTypePolymorphicType(internal, tps) =>
@@ -45,14 +49,14 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
     case t => t
   }
 
-  private def processNonPolymorphic(isShape: Boolean): ScType => ScType = {
+  private def processNonPolymorphic(shapesOnly: Boolean): ScType => ScType = {
     case p: ScTypePolymorphicType => p
-    case t                        => processApplyOrUpdateMethod(t, isShape)
+    case t                        => processApplyOrUpdateMethod(t, shapesOnly)
   }
 
-  private def convertReferencedType(typeResult: TypeResult, isShape: Boolean): TypeResult = {
+  private def convertReferencedType(typeResult: TypeResult, shapesOnly: Boolean): TypeResult = {
     typeResult
-      .map(processNonPolymorphic(isShape))
+      .map(processNonPolymorphic(shapesOnly))
       .map(substPolymorphicType)
   }
 
@@ -66,7 +70,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
   protected override def innerType: TypeResult =
     polymorphicLambdaType().left.flatMap { _ =>
       val typeResult = referencedExpr.getNonValueType()
-      convertReferencedType(typeResult, isShape = false)
+      convertReferencedType(typeResult, shapesOnly = false)
     }
 
   override def shapeType: TypeResult =
@@ -75,7 +79,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
         case ref: ScReferenceExpression => ref.shapeType
         case expr => expr.getNonValueType()
       }
-      convertReferencedType(typeResult, isShape = true)
+      convertReferencedType(typeResult, shapesOnly = true)
     }
 
   override def shapeMultiType: Array[TypeResult] = {
@@ -85,7 +89,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
         case ref: ScReferenceExpression => ref.shapeMultiType
         case expr                       => Array(expr.getNonValueType())
       }
-      typeResult.map(convertReferencedType(_, isShape = true))
+      typeResult.map(convertReferencedType(_, shapesOnly = true))
     } else Array(polyLambdaType)
   }
 
@@ -103,7 +107,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
         case ref: ScReferenceExpression => ref.multiType
         case expr => Array(expr.getNonValueType())
       }
-      typeResult.map(convertReferencedType(_, isShape = false))
+      typeResult.map(convertReferencedType(_, shapesOnly = false))
     } else Array(polyLambdaType)
   }
 

@@ -1113,7 +1113,7 @@ abstract class SingleAbstractMethodTest_Since_2_11_experimental extends SingleAb
     val code =
       """
         |trait SAMOverload[A] {
-        |  def foo(s: A): Int = ???
+        |  def foo(s: A): Int
         |}
         |
         |def f[T](s: T): Unit = ()

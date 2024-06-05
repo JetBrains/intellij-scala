@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScPrimaryConstructor, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
@@ -412,18 +413,22 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
           extensionOwner       = extensionOwner
         )
       case result @ ScalaResolveResult(fun: ScFunction, s) =>
-        val dropExtensionClauses =
-          result.isExtensionCall ||
-            (result.extensionContext.nonEmpty && result.extensionContext == fun.extensionMethodOwner)
+        if (fun.name == CommonNames.Apply && result.innerResolveResult.nonEmpty) {
+          return convertBindToType(result.innerResolveResult.get)
+        } else {
+          val dropExtensionClauses =
+            result.isExtensionCall ||
+              (result.extensionContext.nonEmpty && result.extensionContext == fun.extensionMethodOwner)
 
-        fun
-          .polymorphicType(
-            s,
-            result.intersectedReturnType,
-            dropExtensionClauses = dropExtensionClauses,
-            extensionOwner       = extensionOwner
-          )
-          .updateTypeOfDynamicCall(result.isDynamic)
+          fun
+            .polymorphicType(
+              s,
+              result.intersectedReturnType,
+              dropExtensionClauses = dropExtensionClauses,
+              extensionOwner       = extensionOwner
+            )
+            .updateTypeOfDynamicCall(result.isDynamic)
+        }
       case ScalaResolveResult(param: ScParameter, s) if param.isRepeatedParameter =>
         val result = param.`type`()
         val computeType = s(result match {

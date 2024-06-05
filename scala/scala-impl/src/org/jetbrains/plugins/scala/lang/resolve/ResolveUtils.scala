@@ -422,36 +422,39 @@ object ResolveUtils {
   }
 
   implicit class ScExpressionForExpectedTypesEx(private val expr: ScExpression) extends AnyVal {
-    def tryResolveApplyMethod(
-      call:           ScExpression,
-      tp:             ScType,
-      isShape:        Boolean,
-      stripTypeArgs:  Boolean
+    def resolveApplyMethod(
+      call:          ScExpression,
+      tp:            ScType,
+      shapesOnly:    Boolean,
+      stripTypeArgs: Boolean,
+      withImplicits: Boolean
     ): Array[ScalaResolveResult] =
       cachedWithRecursionGuard(
-        "shapeResolveApplyMethod",
+        "tryResolveApplyMethod",
         expr,
         Array.empty[ScalaResolveResult],
         BlockModificationTracker(expr),
-        (call, isShape)
+        (call, shapesOnly, withImplicits)
       ) {
 
         val cands =
           ScalaPsiUtil.processTypeForUpdateOrApplyCandidates(
             call,
             tp,
-            isShape        = isShape,
-            isDynamic      = false,
-            stripTypeArgs  = stripTypeArgs
+            shapesOnly    = shapesOnly,
+            isDynamic     = false,
+            stripTypeArgs = stripTypeArgs,
+            withImplicits = withImplicits
           )
 
         if (cands.isEmpty && conformsToDynamic(tp, expr.resolveScope)) {
           ScalaPsiUtil.processTypeForUpdateOrApplyCandidates(
             call,
             tp,
-            isShape        = isShape,
-            isDynamic      = true,
-            stripTypeArgs  = stripTypeArgs
+            shapesOnly    = shapesOnly,
+            isDynamic     = true,
+            stripTypeArgs = stripTypeArgs,
+            withImplicits = withImplicits
           )
         } else cands
       }

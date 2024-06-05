@@ -30,8 +30,8 @@ class TypeInferenceLiteralsTest extends TypeInferenceTestBase {
   def testUnitType(): Unit = {doTest()}
 
   def test3074(): Unit = doTest(
-    """
-      |val a: Array[Byte] = Array(/*start*/1/*end*/)
-      |//Byte
+    s"""
+      |val a: Array[Byte] = ${START}Array(1)$END
+      |//Array[Byte]
     """.stripMargin)
 }

@@ -14,7 +14,7 @@ abstract class ConstructorInvocationAnnotatorTestBase extends AnnotatorSimpleTes
   import Message._
 
   final val Header = """
-  class Seq[+A] 
+  class Seq[+A]
   object Seq { def apply[A](a: A) = new Seq[A] }
   class Simple
   class Complex(r: Double, i: Double)
@@ -45,11 +45,11 @@ abstract class ConstructorInvocationAnnotatorTestBase extends AnnotatorSimpleTes
   class Klass[K](a: K)
   type Alias[A] = Klass[A]
   """
-  
+
   def testEmpty(): Unit = {
     assertNothing(messages(""))
   }
-  
+
   def testFine(): Unit = {
     val codes = Seq(
       "new Simple",
@@ -176,7 +176,7 @@ abstract class ConstructorInvocationAnnotatorTestBase extends AnnotatorSimpleTes
 
   def testMissingAndTypeMismatch(): Unit = {
     assertMessagesSorted(messages("new DD(true)"))(
-      Error("DD", "Cannot resolve overloaded constructor `DD`") // SCL-15594
+      Error("true", "Type mismatch, expected: Int, actual: Boolean") // SCL-15594
     )
   }
 
@@ -306,7 +306,7 @@ abstract class ConstructorInvocationAnnotatorTestBase extends AnnotatorSimpleTes
       Error("true", "Type mismatch, expected: Int, actual: Boolean"),
     )
   }
-  
+
   def testMalformedSignature(): Unit = {
     assertMatches(messages("class Malformed(a: A*, b: B); new Malformed(0)")) {
       case Error("Malformed", "Constructor has malformed definition") :: Nil =>

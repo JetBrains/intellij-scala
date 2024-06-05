@@ -12,5 +12,5 @@ object Test {
   val a = new A
 
   print(a./* line: 7 */foo((p: Int) => p, ""))
-  print(a./* resolved: false */foo(p => p, ""))
+  print(a./* resolved: true */foo(p => p, ""))
 }

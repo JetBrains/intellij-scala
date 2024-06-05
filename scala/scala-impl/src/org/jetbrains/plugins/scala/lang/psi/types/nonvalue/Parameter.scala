@@ -14,7 +14,7 @@ case class Parameter(
   name:           String,
   deprecatedName: Option[String],
   paramType:      ScType,
-  expectedType:   ScType,
+  expectedType:   ScType, //@TODO: remove ???
   isDefault:      Boolean = false,
   isRepeated:     Boolean = false,
   isByName:       Boolean = false,

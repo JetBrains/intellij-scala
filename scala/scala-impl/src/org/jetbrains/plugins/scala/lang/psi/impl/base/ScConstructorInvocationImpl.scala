@@ -103,23 +103,23 @@ class ScConstructorInvocationImpl(node: ASTNode)
     def FAILURE = Failure(ScalaBundle.message("can.t.resolve.type"))
 
     def workWithResolveResult(
-      constr: PsiMethod,
-      r:      ScalaResolveResult,
-      subst:  ScSubstitutor,
-      s:      ScSimpleTypeElement,
-      ref:    ScStableCodeReference
+      cons:         PsiMethod,
+      srr:          ScalaResolveResult,
+      subst:        ScSubstitutor,
+      typeElement:  ScSimpleTypeElement,
+      ref:          ScStableCodeReference
     ): TypeResult = {
-      val clazz = constr.containingClass
+      val clazz = cons.containingClass
 
-      val tp = r.getActualElement match {
+      val tp = srr.getActualElement match {
         case ta: ScTypeAliasDefinition => subst(ta.aliasedType.getOrElse(return FAILURE))
         case _ =>
           parameterize(
-            ScSimpleTypeElementImpl.calculateReferenceType(ref, shapesOnly = true).getOrElse(return FAILURE),
+            ScSimpleTypeElementImpl.calculateReferenceType(ref).getOrElse(return FAILURE),
             clazz)
       }
 
-      val res = constr match {
+      val res = cons match {
         case fun: ScMethodLike => fun.nestedMethodType(i, Option(tp), subst).getOrElse(return FAILURE)
         case method: PsiMethod =>
           if (i > 0) return Failure(ScalaBundle.message("java.constructors.only.have.one.parameter.section"))
@@ -127,7 +127,7 @@ class ScConstructorInvocationImpl(node: ASTNode)
           subst(methodType)
       }
 
-      val clsTypeParameters = r.getActualElement match {
+      val clsTypeParameters = srr.getActualElement match {
         case tp: ScTypeParametersOwner if tp.typeParameters.nonEmpty =>
           tp.typeParameters.map(TypeParameter(_))
         case ptp: PsiTypeParameterListOwner if ptp.getTypeParameters.nonEmpty =>
@@ -135,14 +135,14 @@ class ScConstructorInvocationImpl(node: ASTNode)
         case _ => Seq.empty
       }
 
-      val typeParameters = r.element match {
+      val typeParameters = srr.element match {
         case JavaConstructor(cons) => clsTypeParameters ++ cons.getTypeParameters.toSeq.map(TypeParameter(_))
         case _                     => clsTypeParameters
       }
 
       if (typeParameters.isEmpty) return Right(res)
 
-      s.getParent match {
+      typeElement.getParent match {
         case p: ScParameterizedTypeElement =>
           val appSubst = ScSubstitutor.bind(typeParameters, p.typeArgList.typeArgs)(_.calcType)
           Right(appSubst(res))
@@ -171,19 +171,29 @@ class ScConstructorInvocationImpl(node: ASTNode)
               }
             case _ if i > 0 =>
               val paramsByClauses = matchedParametersByClauses.toArray.apply(i - 1)
-              val mySubst = ScSubstitutor.bind(constr.containingClass.getTypeParameters)(UndefinedType(_))
+              val mySubst         = ScSubstitutor.bind(cons.containingClass.getTypeParameters)(UndefinedType(_))
+
               val undefParams = paramsByClauses.map(_._2).map(
                 param => Parameter(mySubst(param.paramType), param.isRepeated, param.index)
               )
 
-              val extRes = Compatibility.checkConformanceExt(undefParams, paramsByClauses.map(_._1), checkWithImplicits = false, isShapesResolve = false)
+              val extRes =
+                Compatibility.checkMethodApplicability(
+                  undefParams,
+                  paramsByClauses.map(_._1),
+                  withImplicits = false,
+                  isOverloaded  = false
+                )
+
               val maybeSubstitutor = extRes.constraints match {
                 case ConstraintSystem(substitutor) => Some(substitutor)
-                case _ => None
+                case _                             => None
               }
+
               val result = maybeSubstitutor.fold(nonValueType: ScType) {
                 _.apply(nonValueType)
               }
+
               return Right(result)
             case _ =>
           }
@@ -194,8 +204,9 @@ class ScConstructorInvocationImpl(node: ASTNode)
     def processSimple(s: ScSimpleTypeElement): Array[TypeResult] = {
       s.reference match {
         case Some(ref) =>
-          val builder = mutable.ArrayBuilder.make[TypeResult]
-          val resolve = if (isShape) ref.shapeResolveConstr else ref.resolveAllConstructors
+          val builder      = mutable.ArrayBuilder.make[TypeResult]
+          val resolve      = ref.resolveAllConstructors
+
           resolve.foreach {
             case r@ScalaResolveResult(constr: PsiMethod, subst) =>
               builder += workWithResolveResult(constr, r, subst, s, ref)

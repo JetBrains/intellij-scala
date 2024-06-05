@@ -261,19 +261,30 @@ object ScalaPsiUtil {
   }
 
   def processTypeForUpdateOrApplyCandidates(
-    call:           ScExpression,
-    tp:             ScType,
-    isShape:        Boolean,
-    isDynamic:      Boolean,
-    stripTypeArgs:  Boolean
-  ): Array[ScalaResolveResult] =
-    call match {
-      case inv: MethodInvocation =>
-        ApplyOrUpdateInvocation(inv, tp, isDynamic, stripTypeArgs).collectCandidates(isShape)
-      case gen: ScGenericCall =>
-        ApplyOrUpdateInvocation(gen, tp, stripTypeArgs).collectCandidates(isShape)
-      case _ => ScalaResolveResult.EMPTY_ARRAY
+    call:          ScExpression,
+    tp:            ScType,
+    shapesOnly:    Boolean,
+    isDynamic:     Boolean,
+    stripTypeArgs: Boolean,
+    withImplicits: Boolean
+  ): Array[ScalaResolveResult] = {
+    def methodCallApplyResolver(mc: MethodInvocation): ApplyOrUpdateInvocation =
+      ApplyOrUpdateInvocation(mc, tp, isDynamic = isDynamic, stripTypeArgs = stripTypeArgs)
+
+    val applyResolver =
+      call match {
+        case mc: MethodInvocation => methodCallApplyResolver(mc).toOption
+        case gc: ScGenericCall    =>
+          gc.getContext match {
+            case mc: MethodInvocation => methodCallApplyResolver(mc).toOption
+            case _                    =>
+              ApplyOrUpdateInvocation(gc, tp, isDynamic = isDynamic, stripTypeArgs = stripTypeArgs).toOption
+          }
+        case _ => None
     }
+
+    applyResolver.to(Array).flatMap(_.collectCandidates(shapesOnly, withImplicits))
+  }
 
   /**
    * This method created for the following example:

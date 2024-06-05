@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenericCall, ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ApplyOrUpdateInvocation
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.{DefaultTypeParameterMismatch, TypePresentationContext}
@@ -32,8 +33,12 @@ object ScGenericCallAnnotator extends ElementAnnotator[ScGenericCall] {
       for {
         ref <- genCall.referencedExpr.asOptionOf[ScReferenceExpression]
         rr  <- ref.bind()
-        f = rr.element
       } {
+        val f =
+          if (ApplyOrUpdateInvocation.innerSrrHasTypeParameters(rr))
+            rr.innerResolveResult.get.element
+          else rr.element
+
         if (f.is[ScFunction, PsiMethod, ScSyntheticFunction]) {
           rr.problems.foreach {
             case DefaultTypeParameterMismatch(expected, actual) =>

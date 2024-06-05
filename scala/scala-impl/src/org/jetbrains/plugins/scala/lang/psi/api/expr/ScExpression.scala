@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{P
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.{Scala_2_11, Scala_2_13}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.SAMUtil
@@ -144,11 +144,11 @@ trait ScExpression extends ScBlockStatement
   }
 
   override def getTypeAfterImplicitConversion(
-    checkImplicits: Boolean = true,
-    isShape: Boolean = false,
-    expectedOption: Option[ScType] = None,
-    ignoreBaseTypes: Boolean = false,
-    fromUnderscore: Boolean = false
+    checkImplicits:        Boolean        = true,
+    isShape:               Boolean        = false,
+    expectedOption:        Option[ScType] = None,
+    ignoreBaseTypes:       Boolean        = false,
+    fromUnderscore:        Boolean        = false,
   ): ExpressionTypeResult =
     cachedWithRecursionGuard(
       "ScExpression.getTypeAfterImplicitConversion",
@@ -161,27 +161,29 @@ trait ScExpression extends ScBlockStatement
         this.scalaLanguageLevelOrDefault >= Scala_2_11 &&
           ScalaPsiUtil.isJavaReflectPolymorphicSignature(this)
 
-      val result = if (isShape) ExpressionTypeResult(Right(shape(this).getOrElse(Nothing)))
-      else {
-        val expected = expectedOption.orElse(this.expectedType(fromUnderscore = fromUnderscore))
-        val tr = this.getTypeWithoutImplicits(ignoreBaseTypes, fromUnderscore)
+      val result =
+        if (isShape) ExpressionTypeResult(Right(shape(this).getOrElse(Nothing)))
+        else {
+          val expected = expectedOption.orElse(this.expectedType(fromUnderscore = fromUnderscore))
+          val tr       = this.getTypeWithoutImplicits(ignoreBaseTypes, fromUnderscore)
 
-        (expected, tr.toOption) match {
-          case (Some(expType), Some(tp))
-            if checkImplicits && !tp.conformsIn(this, expType) => //do not try implicit conversions for shape check or already correct type
+          (expected, tr.toOption) match {
+            case (Some(expType), Some(tp))
+              //do not try implicit conversions for shape check or already correct type
+              if checkImplicits && !tp.conformsIn(this, expType) =>
 
-            // isSAMEnabled is checked in tryAdaptTypeToSAM, but we can cut it right here
-            val adapted =
-              if (this.isSAMEnabled) this.tryAdaptTypeToSAM(tp, expType, fromUnderscore, checkImplicits)
-              else                   None
+              // isSAMEnabled is checked in tryAdaptTypeToSAM, but we can cut it right here
+              val adapted =
+                if (this.isSAMEnabled) this.tryAdaptTypeToSAM(tp, expType, fromUnderscore, checkImplicits)
+                else                   None
 
-            adapted.getOrElse(
-              if (isJavaReflectPolymorphic) ExpressionTypeResult(Right(expType))
-              else this.updateTypeWithImplicitConversion(tp, expType)
-            )
-          case _ => ExpressionTypeResult(tr)
+              adapted.getOrElse(
+                if (isJavaReflectPolymorphic) ExpressionTypeResult(Right(expType))
+                else this.updateTypeWithImplicitConversion(tp, expType)
+              )
+            case _ => ExpressionTypeResult(tr)
+          }
         }
-      }
 
       Tracing.inference(this, result)
 
@@ -205,7 +207,7 @@ object ScExpression {
   implicit class Ext(private val expr: ScExpression) extends AnyVal {
     private implicit def elementScope: ElementScope = expr.elementScope
 
-    private def project = elementScope.projectContext
+    private def project: ProjectContext = elementScope.projectContext
 
     def contextFunctionParameters: Seq[LightContextFunctionParameter] =
       expr match {
@@ -225,13 +227,27 @@ object ScExpression {
 
     def expectedTypes(fromUnderscore: Boolean = true): Seq[ScType] = expectedTypesEx(fromUnderscore).map(_._1).toSeq
 
-    def expectedTypesEx(fromUnderscore: Boolean = true): Array[ParameterType] = cachedWithRecursionGuard("expectedTypesEx", expr, Array.empty[ParameterType], BlockModificationTracker(expr), Tuple1(fromUnderscore)) {
-      ExpectedTypes.instance().expectedExprTypes(expr, fromUnderscore = fromUnderscore)
-    }
+    def expectedTypesEx(fromUnderscore: Boolean = true): Array[ParameterType] =
+      cachedWithRecursionGuard(
+        "expectedTypesEx",
+        expr,
+        Array.empty[ParameterType],
+        BlockModificationTracker(expr),
+        Tuple1(fromUnderscore)
+      ) {
+        ExpectedTypes.instance().expectedExprTypes(expr, fromUnderscore = fromUnderscore)
+      }
 
-    def smartExpectedType(fromUnderscore: Boolean = true): Option[ScType] = cachedWithRecursionGuard("smartExpectedType", expr, Option.empty[ScType], BlockModificationTracker(expr), Tuple1(fromUnderscore)) {
-      ExpectedTypes.instance().smartExpectedType(expr, fromUnderscore)
-    }
+    def smartExpectedType(fromUnderscore: Boolean = true): Option[ScType] =
+      cachedWithRecursionGuard(
+        "smartExpectedType",
+        expr,
+        Option.empty[ScType],
+        BlockModificationTracker(expr),
+        Tuple1(fromUnderscore)
+      ) {
+        ExpectedTypes.instance().smartExpectedType(expr, fromUnderscore)
+      }
 
     def getTypeIgnoreBaseType: TypeResult = expr.getTypeAfterImplicitConversion(ignoreBaseTypes = true).tr
 
@@ -280,9 +296,16 @@ object ScExpression {
       }
 
     def getTypeWithoutImplicits(
-      ignoreBaseType: Boolean = false,
-      fromUnderscore: Boolean = false
-    ): TypeResult = cachedWithRecursionGuard("getTypeWithoutImplicits", expr, Failure(NlsString.force("Recursive getTypeWithoutImplicits")), BlockModificationTracker(expr), (ignoreBaseType, fromUnderscore)) {
+      ignoreBaseType: Boolean        = false,
+      fromUnderscore: Boolean        = false
+    ): TypeResult =
+      cachedWithRecursionGuard(
+        "getTypeWithoutImplicits",
+        expr,
+        Failure(NlsString.force("Recursive getTypeWithoutImplicits")),
+        BlockModificationTracker(expr),
+        (ignoreBaseType, fromUnderscore)
+      ) {
       ProgressManager.checkCanceled()
 
       CompilerType(expr) match {
@@ -354,7 +377,8 @@ object ScExpression {
               expectedType match {
                 case None                                                   => Right(valueType)
                 case Some(expected) if expected.removeAbstracts.equiv(Unit) => Right(Unit) //value discarding
-                case Some(expected)                                         => Right(numericWideningOrNarrowing(valueType, expected, expr))
+                case Some(expected)                                         =>
+                  Right(numericWideningOrNarrowing(valueType, expected, expr))
               }
           }
       }

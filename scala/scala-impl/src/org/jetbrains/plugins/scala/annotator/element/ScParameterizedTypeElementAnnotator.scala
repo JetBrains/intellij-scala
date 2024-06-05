@@ -217,44 +217,45 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
   ): Unit = {
     val paramTyParams = param.typeParameters
 
-    if (paramTyParams.nonEmpty) {
-      val expectedTyConstr = (param.name, paramTyParams)
-      argTy match {
-        case TypeParameters(argParams) if argParams.nonEmpty =>
-          val actualTyConstr = (argTy.presentableText, argParams)
-          val actualDiff = TypeConstructorDiff.forActual(expectedTyConstr, actualTyConstr, substitute)
-          if (actualDiff.exists(_.hasError)) {
-            val expectedDiff = TypeConstructorDiff.forExpected(expectedTyConstr, actualTyConstr, substitute)
-            holder
-              .newAnnotation(
-                HighlightSeverity.ERROR,
-                ScalaBundle.message(
-                  "type.constructor.does.not.conform",
-                  argTy.presentableText,
-                  expectedDiff.flatten.map(_.text).mkString
-                )
-              )
-              .range(range)
-              .tooltip(tooltipForDiffTrees(ScalaBundle.message("type.constructor.mismatch"), expectedDiff, actualDiff))
-              .withFix(ReportHighlightingErrorQuickFix)
-              .create()
-          }
-        case ty if ty.isNothing || ty.isAny => // nothing and any are ok
-        case _ =>
-          val actualTyConstr = (argTy.presentableText, Seq.empty)
-          val expectedDiff = TypeConstructorDiff.forExpected(expectedTyConstr, actualTyConstr, substitute)
-          val actualDiff = TypeConstructorDiff.forActual(expectedTyConstr, actualTyConstr, substitute)
+    val expectedTyConstr = (param.name, paramTyParams)
 
-          val paramText = param.psiTypeParameter.asInstanceOf[ScTypeParam].typeParameterText
+    argTy match {
+      case TypeParameters(argParams) if argParams.nonEmpty =>
+        val actualTyConstr = (argTy.presentableText, argParams)
+        val actualDiff     = TypeConstructorDiff.forActual(expectedTyConstr, actualTyConstr, substitute)
+
+        if (actualDiff.exists(_.hasError)) {
+          val expectedDiff = TypeConstructorDiff.forExpected(expectedTyConstr, actualTyConstr, substitute)
           holder
-            .newAnnotation(HighlightSeverity.ERROR, ScalaBundle.message("expected.type.constructor", paramText))
-            .range(range)
-            .tooltip(
-              tooltipForDiffTrees(ScalaBundle.message("expected.type.constructor", ""), expectedDiff, actualDiff)
+            .newAnnotation(
+              HighlightSeverity.ERROR,
+              ScalaBundle.message(
+                "type.constructor.does.not.conform",
+                argTy.presentableText,
+                expectedDiff.flatten.map(_.text).mkString
+              )
             )
+            .range(range)
+            .tooltip(tooltipForDiffTrees(ScalaBundle.message("type.constructor.mismatch"), expectedDiff, actualDiff))
             .withFix(ReportHighlightingErrorQuickFix)
             .create()
-      }
+        }
+      case ty if ty.isNothing || ty.isAny => // nothing and any are ok
+      case _ if paramTyParams.nonEmpty=>
+        val actualTyConstr = (argTy.presentableText, Seq.empty)
+        val expectedDiff   = TypeConstructorDiff.forExpected(expectedTyConstr, actualTyConstr, substitute)
+        val actualDiff     = TypeConstructorDiff.forActual(expectedTyConstr, actualTyConstr, substitute)
+        val paramText      = param.psiTypeParameter.asInstanceOf[ScTypeParam].typeParameterText
+
+        holder
+          .newAnnotation(HighlightSeverity.ERROR, ScalaBundle.message("expected.type.constructor", paramText))
+          .range(range)
+          .tooltip(
+            tooltipForDiffTrees(ScalaBundle.message("expected.type.constructor", ""), expectedDiff, actualDiff)
+          )
+          .withFix(ReportHighlightingErrorQuickFix)
+          .create()
+      case _ =>
     }
   }
 
