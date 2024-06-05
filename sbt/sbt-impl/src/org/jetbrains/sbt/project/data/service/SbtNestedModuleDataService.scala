@@ -44,7 +44,7 @@ class SbtNestedModuleDataService extends AbstractModuleDataService[SbtNestedModu
     project: Project,
     modelsProvider: IdeModifiableModelsProvider
   ): Unit = {
-    setModulesInExternalSystemSettings(project, toImport.asScala.toList)
+    setModulesInExternalSystemSettings(project, projectData.getLinkedExternalProjectPath, toImport.asScala.toList)
     toImport.asScala.foreach { sbtNestedModuleNode =>
       val newInternalModuleName = generateNewInternalModuleNameIfApplicable(sbtNestedModuleNode, modelsProvider)
       newInternalModuleName match {
@@ -161,8 +161,12 @@ class SbtNestedModuleDataService extends AbstractModuleDataService[SbtNestedModu
   //note: before introducing SbtNestedModuleData setting modules in com.intellij.openapi.externalSystem.service.internal.ExternalSystemResolveProjectTask.doExecute was enough, but because
   // the logic there does not take into account modules with keys different than ProjectKeys.MODULE it was needed to implement it on our own for SbtNestedModuleData.
   // It is needed for com.intellij.openapi.externalSystem.service.project.IdeModelsProviderImpl.suggestModuleNameCandidates method to choose the proper delimiter for ModuleNameGenerator.
-  private def setModulesInExternalSystemSettings(project: Project, sbtNestedModules: List[_ <: DataNode[SbtNestedModuleData]]): Unit = {
-    val linkedProjectSettings = SbtSettings.getInstance(project).getLinkedProjectSettings(project.getBasePath)
+  private def setModulesInExternalSystemSettings(
+    project: Project,
+    rootProjectPath: String,
+    sbtNestedModules: List[_ <: DataNode[SbtNestedModuleData]]
+  ): Unit = {
+    val linkedProjectSettings = SbtSettings.getInstance(project).getLinkedProjectSettings(rootProjectPath)
     if (linkedProjectSettings != null) {
       val sbtNestedModulePaths = sbtNestedModules.map(_.getData).map(_.externalConfigPath)
 

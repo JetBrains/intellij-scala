@@ -1,19 +1,22 @@
 package org.jetbrains.sbt.project
 
 import com.intellij.execution.application.ApplicationConfiguration
-import com.intellij.execution.configurations.{ModuleBasedConfiguration, RunConfigurationBase}
+import com.intellij.execution.configurations.{JavaRunConfigurationModule, ModuleBasedConfiguration, RunConfigurationBase}
 import com.intellij.execution.junit.JUnitConfiguration
 import com.intellij.openapi.actionSystem.{ActionPlaces, ActionUpdateThread, AnAction, AnActionEvent}
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.module.{Module, ModuleManager, ModuleUtilCore}
+import com.intellij.openapi.module.{Module, ModuleManager, ModuleType, ModuleTypeManager, ModuleUtilCore}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{JavaPsiFacade, PsiDocumentManager}
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.sbt.{SbtBundle, SbtUtil}
 import org.jetbrains.sbt.project.SbtMigrateConfigurationsAction.{ModuleHeuristicResult, logger}
 import org.jetbrains.sbt.project.extensionPoints.ModuleBasedConfigurationMainClassExtractor
+
+import scala.util.Try
 
 class SbtMigrateConfigurationsAction extends AnAction {
 
@@ -32,18 +35,20 @@ class SbtMigrateConfigurationsAction extends AnAction {
     if (project == null) return
 
     val moduleBasedConfigurations = SbtUtil.getAllModuleBasedConfigurationsInProject(project)
-    val modules = ModuleManager.getInstance(project).getModules
+    val modules = classPathProviderModules(project)
     val configToHeuristicResult = for {
       config <- moduleBasedConfigurations
       configurationModule = config.getConfigurationModule
       oldModuleName = configurationModule.getModuleName
-      if oldModuleName.nonEmpty && configurationModule.getModule == null
+      // note: if oldModuleName is non-empty and configurationModule.getModule is not null, it's possible that the configuration may still be broken.
+      // See #isMainClassInConfigurationModule ScalaDoc for more details.
+      if oldModuleName.nonEmpty && (configurationModule.getModule == null || isMainClassInConfigurationModule(config))
     } yield config -> mapConfigurationToHeuristicResult(config, oldModuleName, modules, project)
 
     if (configToHeuristicResult.isEmpty) {
       Messages.showWarningDialog(project, SbtBundle.message("sbt.migrate.configurations.warning.message"), SbtBundle.message("sbt.migrate.configurations.warning.title"))
     } else {
-      val dialogWrapper = new MigrateConfigurationsDialogWrapper(project, configToHeuristicResult.toMap)
+      val dialogWrapper = new MigrateConfigurationsDialogWrapper(modules, configToHeuristicResult.toMap)
       val changedConfigToModule = dialogWrapper.open()
       changedConfigToModule.collect { case(config, Some(module)) =>
         config.setModule(module)
@@ -52,6 +57,18 @@ class SbtMigrateConfigurationsAction extends AnAction {
     }
   }
 
+  private def classPathProviderModules(project: Project): Array[Module] = {
+    val modules = ModuleManager.getInstance(project).getModules
+    val moduleTypeManager = ModuleTypeManager.getInstance()
+    // note: it is written based on com.intellij.execution.ui.ModuleClasspathCombo.isModuleAccepted
+    // I didn't use ModuleClasspathCombo directly in the org.jetbrains.sbt.project.MigrateConfigurationsDialogWrapper.myTable,
+    // cause it will require additional non-obvious tricks to display it nicely it in a table cell.
+    modules.filter(m => moduleTypeManager.isClasspathProvider(ModuleType.get(m)))
+  }
+
+  /**
+   * @param modules include only classpath provider modules (it doesn't contain shared sources or build modules)
+   */
   private def mapConfigurationToHeuristicResult[T <: RunConfigurationBase[_]](
     config: ModuleBasedConfiguration[_, _],
     oldModuleName: String,
@@ -65,9 +82,13 @@ class SbtMigrateConfigurationsAction extends AnAction {
     val productOfModuleSets = possibleModules.filter(modulesForClass.contains)
     productOfModuleSets match {
       case Seq(head) => ModuleHeuristicResult(Some(head))
-      case Seq() if modulesForClass.size == 1 => ModuleHeuristicResult(Some(modulesForClass.head))
+      // note: it may happen that module from modulesForClass will be of SharedSourcesModuleType type.
+      // Because of that we have to find their JVM representation.
+      case Seq() if modulesForClass.size == 1 => ModuleHeuristicResult(modulesForClass.head.findJVMModule)
       // note: when there is more than 10 possible modules, displaying them in a tooltip can introduce additional chaos
-      case Seq() if combinedModules.size < 10 => ModuleHeuristicResult(None, combinedModules.map(_.getName))
+      case Seq() if combinedModules.size < 10 =>
+        val onlyJVMModules = combinedModules.flatMap(_.findJVMModule).map(_.getName)
+        ModuleHeuristicResult(None, onlyJVMModules)
       case _ if productOfModuleSets.size < 10 => ModuleHeuristicResult(None, productOfModuleSets.map(_.getName))
       case _  => ModuleHeuristicResult(None)
     }
@@ -80,17 +101,43 @@ class SbtMigrateConfigurationsAction extends AnAction {
     // modules main class is available. It may happen that it will only be available in one module from the list of possible modules and
     // the situation will be solved because we will only have one module that fits.
     // If this does not happen, all possible modules are displayed as tooltip in MigrateConfigurationsDialogWrapper
-    val mainClassName = config match {
-      case x: ApplicationConfiguration => x.getMainClassName
-      case x: JUnitConfiguration => x.getPersistentData.getMainClassName
-      // note: in this pattern match AbstractTestRunConfiguration in which testConfigurationData is ClassTestData could be handled.
-      // I didn't implement it, because using AbstractTestRunConfiguration in sbtImpl module requires major changes in module structure.
-      case x: ModuleBasedConfiguration[_, _] =>
-        ModuleBasedConfigurationMainClassExtractor.getMainClassFromTestConfiguration(x).orNull
-      case _ => null
-    }
+    val mainClassName = extractMainClassName(config)
     getModulesForClass(mainClassName, project)
   }
+
+  /**
+   * Checks whether a module in a configuration contains an expected main class.
+   * If not, the situation like that could happen - in the old grouping there may have been an IDEA module called X
+   * owned by project Y (project in the sbt sense), and in the new grouping the same module (X) may belong to another project e.g. Z.
+   * In that case, the configuration that had a module called X will still have it, but it will no longer be the same module as the original one and
+   * some main class may no longer exists inside it.
+   */
+  private def isMainClassInConfigurationModule(config: ModuleBasedConfiguration[_, _]): Boolean = {
+    val mainClassName = extractMainClassName(config)
+    val javaRunConfigurationModule = extractJavaRunConfigurationModule(config)
+    if (mainClassName != null && javaRunConfigurationModule != null) {
+      Try(javaRunConfigurationModule.findNotNullClass(mainClassName)).toOption.isEmpty
+    } else {
+      false
+    }
+  }
+
+  @Nullable
+  private def extractMainClassName(config: ModuleBasedConfiguration[_, _]): String =
+    config match {
+      case x: ApplicationConfiguration => x.getMainClassName
+      case x: JUnitConfiguration => x.getPersistentData.getMainClassName
+      case x: ModuleBasedConfiguration[_, _] => ModuleBasedConfigurationMainClassExtractor.getMainClass(x).orNull
+      case _ => null
+    }
+
+  @Nullable
+  private def extractJavaRunConfigurationModule(config: ModuleBasedConfiguration[_, _]): JavaRunConfigurationModule =
+    config.getConfigurationModule match {
+      case x: JavaRunConfigurationModule => x
+      case _ => null
+    }
+
 
   // note: this method is based on com.intellij.execution.configurations.JavaRunConfigurationModule.getModulesForClass.
   // I decided not to use it, because it also adds dependant modules to the result. In theory it is also possible
