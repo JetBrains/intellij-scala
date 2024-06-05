@@ -292,7 +292,7 @@ object IntroduceExpressions {
     def needsTypeAnnotation(element: PsiElement) =
       ScalaInplaceVariableIntroducer.needsTypeAnnotation(element, copy, forceType, fromDialogMode)
 
-    val maybeTypeText = Option(options.varType).map(_.canonicalCodeText)
+    val maybeTypeText = Option(options.varType).map(_.canonicalCodeText(copy))
 
     runRefactoringInside(file, unparExpr(copy), occurrences, mainOccurrence, options.varName, options.isVariable, forceType) { element =>
       maybeTypeText

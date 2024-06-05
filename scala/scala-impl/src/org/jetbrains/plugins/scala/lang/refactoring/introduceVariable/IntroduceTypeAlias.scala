@@ -186,7 +186,7 @@ trait IntroduceTypeAlias {
       }
 
 
-      val mtext = typeElement.calcType.canonicalCodeText
+      val mtext = typeElement.calcType.canonicalCodeText(parent)
 
       val definition = ScalaPsiElementFactory
         .createTypeAliasDefinitionFromText(s"type $typeName = $mtext", typeElement.getContext, typeElement)
