@@ -607,7 +607,7 @@ object ScalaPsiElementFactory {
     val typeText = `type` match {
       case null                    => ""
       case tp if isPresentableText => tp.presentableText
-      case tp                      => tp.canonicalText
+      case tp                      => tp.canonicalText(tpc)
     }
 
     val expr = createExpressionFromText(exprText, features)
