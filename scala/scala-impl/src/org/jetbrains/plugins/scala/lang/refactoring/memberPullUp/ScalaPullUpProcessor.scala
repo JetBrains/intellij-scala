@@ -120,7 +120,7 @@ final class ScalaPullUpProcessor(project: Project,
   private def declarationsText(m: ScMember): Seq[String] = {
     def textForBinding(b: ScBindingPattern) = {
       val typeText = b.`type`() match {
-        case Right(t) => s": ${t.canonicalCodeText}"
+        case Right(t) => s": ${t.canonicalCodeText(b)}"
         case _ => ""
       }
       s"${b.name}$typeText"
@@ -135,7 +135,7 @@ final class ScalaPullUpProcessor(project: Project,
         copy.accept(new ScalaRecursiveElementVisitor() {
           override def visitSimpleTypeElement(te: ScSimpleTypeElement): Unit = {
             val tpe = te.calcType
-            te.replace(createTypeElementFromText(tpe.canonicalCodeText, te)(te))
+            te.replace(createTypeElementFromText(tpe.canonicalCodeText(te), te)(te))
           }
         })
         Seq(copy.getText)
