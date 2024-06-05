@@ -61,7 +61,7 @@ import org.jetbrains.plugins.scala.util.ScalaPluginUtils
 import java.io.File
 import java.lang.ref.Reference
 import java.lang.reflect.InvocationTargetException
-import java.nio.file.Path
+import java.nio.file.{Path, Paths}
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.{Callable, ScheduledFuture, TimeUnit, ConcurrentMap => JConcurrentMap, Future => JFuture}
 import java.util.regex.Pattern
@@ -1776,6 +1776,8 @@ package object extensions {
   }
 
   implicit class PathExt(private val path: Path) extends AnyVal {
+    def /(@NonNls subPath: String): Path = path.resolve(subPath)
+
     def parents: Iterator[Path] =
       withParents.drop(1)
     def withParents: Iterator[Path] =

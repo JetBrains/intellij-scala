@@ -30,9 +30,6 @@ ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" 
 //UPD: this is probably about: https://github.com/sbt/sbt/issues/6029
 Global / concurrentRestrictions := Seq(Tags.limitAll(3))
 
-val intellijPluginsScopeFilter: ScopeFilter =
-  ScopeFilter(inDependencies(ThisProject, includeRoot = false))
-
 val definedTestsScopeFilter: ScopeFilter =
   ScopeFilter(inDependencies(scalaCommunity, includeRoot = false), inConfigurations(Test))
 
@@ -61,8 +58,8 @@ lazy val scalaCommunity: sbt.Project =
       textAnalysis % "test->test;compile->compile",
       pluginXml,
     )
+    .settings(MainProjectSettings *)
     .settings(
-      ideExcludedDirectories    := Seq(baseDirectory.value / "target"),
       packageAdditionalProjects := Seq(
         jps,
         compilerJps,
@@ -73,20 +70,6 @@ lazy val scalaCommunity: sbt.Project =
         copyrightIntegration,
         javaDecompilerIntegration,
         runtimeDependencies
-      ),
-      packageLibraryMappings := Dependencies.scalaLibrary -> Some("lib/scala-library.jar") :: Nil,
-      packageMethod := PackagingMethod.Standalone(),
-      intellijPlugins := intellijPlugins.all(intellijPluginsScopeFilter).value.flatten.distinct,
-      intellijRuntimePlugins := Seq(
-        //Below are some other useful plugins which you might be interested to inspect
-        //We don't have any dependencies on those plugins, however sometimes it might be useful to see how some features are implemented in them plugin.
-        //You can uncomment any of them locally
-
-        //This bundled plugin contains some internal development tools such as "View Psi Structure" action
-        //(note there is also PsiViewer plugin, but it's a different plugin)
-        //"com.intellij.dev".toPlugin,
-
-        "org.jetbrains.kotlin".toPlugin
       ),
       // all sub-project tests need to be run within main project's classpath
       Test / definedTests := definedTests.all(definedTestsScopeFilter).value.flatten
@@ -314,7 +297,7 @@ lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
     idePackagePrefix := Some("org.jetbrains.plugins.scala.tasty.reader"),
     intellijMainJars := Seq.empty,
     scalaVersion := Versions.scala3Version,
-    libraryDependencies += "org.scala-lang" % "tasty-core_3" % Versions.scala3Version,
+    libraryDependencies += Dependencies.tastyCore,
     (Compile / scalacOptions) := Seq("-deprecation"),
     (Test / unmanagedResourceDirectories) += baseDirectory.value / "testdata",
     libraryDependencies ++= Seq(
@@ -380,7 +363,8 @@ lazy val scalaImpl: sbt.Project =
         // "com.thesamet.scalapb" %% "lenses" % ".*"          -> None,
         Dependencies.scalaXml                              -> Some("lib/scala-xml.jar"),
         Dependencies.scalaReflect                          -> Some("lib/scala-reflect.jar"),
-        Dependencies.scalaLibrary                          -> None
+        Dependencies.scalaLibrary                          -> None,
+        Dependencies.scala3Library                         -> None,
       )
     )
     .withCompilerPluginIn(scalacPatches) // TODO Add to other modules

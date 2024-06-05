@@ -1,10 +1,12 @@
 package org.jetbrains.plugins.scala.internal.bundle
 
+import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.internal.I18nBundleContent
 import org.jetbrains.plugins.scala.util.internal.I18nBundleContent._
 
 import java.io.File
+import java.nio.file.Path
 import java.util.Scanner
 import java.util.regex.Pattern
 import scala.io.Source
@@ -16,16 +18,16 @@ import scala.io.Source
 object ScalaBundleSorting {
 
   trait ModuleInfoLike {
-    def rootPath: String
+    def rootPath: Path
     def searcher: Searcher
 
-    def srcPath: String = rootPath + "src/"
-    def resourcesPath: String = rootPath + "resources/"
-    def messagesPath: String = resourcesPath + "messages/"
+    def srcPath: Path = rootPath / "src"
+    def resourcesPath: Path = rootPath /  "resources"
+    def messagesPath: Path = resourcesPath / "messages"
   }
 
   case class ModuleInfo(
-    override val rootPath: String,
+    override val rootPath: Path,
     override val searcher: Searcher = new Searcher
   ) extends ModuleInfoLike
 
@@ -37,91 +39,91 @@ object ScalaBundleSorting {
    *                                   but it has to be used from resources/META-INF/ultimateScala.xml<br>
    */
   case class ModuleWithBundleInfo(
-    override val rootPath: String,
+    override val rootPath: Path,
     bundleMessagesRelativePath: String,
     extraUsageModules: Seq[ModuleInfo] = Nil,
     override val searcher: Searcher = new Searcher
   ) extends ModuleInfoLike {
-    def bundleAbsolutePath: String = messagesPath + bundleMessagesRelativePath
+    def bundleAbsolutePath: Path = (messagesPath / bundleMessagesRelativePath).normalize()
   }
 
-  val communityDir: String = TestUtils.findCommunityRoot
-  val scalaModDir: String = communityDir + "scala/"
-  val sbtModDir: String = communityDir + "sbt/"
-  val scalaImplDir: String = scalaModDir + "scala-impl/"
-  val integrationDir: String = scalaModDir + "integration/"
+  val communityDir: Path = TestUtils.findCommunityRootPath
+  val scalaModDir: Path = communityDir / "scala"
+  val sbtModDir: Path = communityDir / "sbt"
+  val scalaImplDir: Path = scalaModDir / "scala-impl"
+  val integrationDir: Path = scalaModDir / "integration"
 
   val allModuleInfos: Seq[ModuleWithBundleInfo] = Seq(
     ModuleWithBundleInfo(
-      rootPath = communityDir + "bsp/",
+      rootPath = communityDir / "bsp",
       bundleMessagesRelativePath = "ScalaBspBundle.properties",
     ),
     ModuleWithBundleInfo(
-      rootPath = scalaModDir + "codeInsight/",
+      rootPath = scalaModDir / "codeInsight",
       bundleMessagesRelativePath = "ScalaCodeInsightBundle.properties",
     ),
     ModuleWithBundleInfo(
-      rootPath = scalaModDir + "compile-server/",
+      rootPath = scalaModDir / "compile-server",
       bundleMessagesRelativePath = "ScalaCompileServerBundle.properties"
     ),
     ModuleWithBundleInfo(
-      rootPath = scalaModDir + "compiler-integration/",
+      rootPath = scalaModDir / "compiler-integration",
       bundleMessagesRelativePath = "CompilerIntegrationBundle.properties"
     ),
     ModuleWithBundleInfo(
-      rootPath = scalaModDir + "compiler-jps/",
+      rootPath = scalaModDir / "compiler-jps",
       bundleMessagesRelativePath = "ScalaJpsBundle.properties",
     ),
     ModuleWithBundleInfo(
-      rootPath = scalaModDir + "compiler-shared/",
+      rootPath = scalaModDir / "compiler-shared",
       bundleMessagesRelativePath = "CompilerSharedBuildBundle.properties"
     ),
     ModuleWithBundleInfo(
-      rootPath = scalaModDir + "compiler-shared/",
+      rootPath = scalaModDir / "compiler-shared",
       bundleMessagesRelativePath = "ScalaCompileServerSharedBundle.properties",
     ),
     ModuleWithBundleInfo(
-      rootPath = scalaModDir + "conversion/",
+      rootPath = scalaModDir / "conversion",
       bundleMessagesRelativePath = "ScalaConversionBundle.properties",
     ),
     ModuleWithBundleInfo(
-      rootPath = scalaModDir + "debugger/",
+      rootPath = scalaModDir / "debugger",
       bundleMessagesRelativePath = "DebuggerBundle.properties"
     ),
     ModuleWithBundleInfo(
-      rootPath = scalaModDir + "repl/",
+      rootPath = scalaModDir / "repl",
       bundleMessagesRelativePath = "ScalaReplBundle.properties"
     ),
     ModuleWithBundleInfo(
-      rootPath = integrationDir + "devKit/",
+      rootPath = integrationDir / "devKit",
       bundleMessagesRelativePath = "ScalaDevkitBundle.properties",
     ),
     ModuleWithBundleInfo(
-      rootPath = integrationDir + "gradle/",
+      rootPath = integrationDir / "gradle",
       bundleMessagesRelativePath = "ScalaGradleBundle.properties",
     ),
     ModuleWithBundleInfo(
-      rootPath = integrationDir + "intellilang/",
+      rootPath = integrationDir / "intellilang",
       bundleMessagesRelativePath = "ScalaIntellilangBundle.properties",
     ),
     ModuleWithBundleInfo(
-      rootPath = integrationDir + "java-decompiler/",
+      rootPath = integrationDir / "java-decompiler",
       bundleMessagesRelativePath = "ScalaJavaDecompilerBundle.properties",
     ),
 //    ModuleWithBundleInfo(
-//      rootPath = integrationDir + "packagesearch/",
+//      rootPath = integrationDir /"packagesearch/",
 //      bundleMessagesRelativePath = "PackageSearchSbtBundle.properties",
 //    ),
     ModuleWithBundleInfo(
-      rootPath = integrationDir + "properties/",
+      rootPath = integrationDir / "properties",
       bundleMessagesRelativePath = "ScalaI18nBundle.properties",
     ),
     ModuleWithBundleInfo(
-      rootPath = sbtModDir + "sbt-api/",
+      rootPath = sbtModDir / "sbt-api",
       bundleMessagesRelativePath = "SbtApiBundle.properties"
     ),
     ModuleWithBundleInfo(
-      rootPath = sbtModDir + "sbt-impl/",
+      rootPath = sbtModDir / "sbt-impl",
       bundleMessagesRelativePath = "SbtBundle.properties"
     ),
     ModuleWithBundleInfo(
@@ -140,7 +142,7 @@ object ScalaBundleSorting {
       rootPath = scalaImplDir,
       bundleMessagesRelativePath = "ScalaInspectionBundle.properties",
       extraUsageModules = Seq(
-        ModuleInfo(integrationDir + "properties/")
+        ModuleInfo(integrationDir / "properties")
       )
     ),
     ModuleWithBundleInfo(
@@ -152,20 +154,23 @@ object ScalaBundleSorting {
       bundleMessagesRelativePath = "ScalaOptionsBundle.properties"
     ),
     ModuleWithBundleInfo(
-      rootPath = scalaModDir + "structure-view/",
+      rootPath = scalaModDir / "structure-view",
       bundleMessagesRelativePath = "ScalaStructureViewBundle.properties"
     ),
     ModuleWithBundleInfo(
-      rootPath = scalaModDir + "test-integration/testing-support/",
+      rootPath = scalaModDir / "test-integration/testing-support",
       bundleMessagesRelativePath = "TestingSupportBundle.properties"
     ),
     ModuleWithBundleInfo(
-      rootPath = scalaModDir + "worksheet/",
+      rootPath = scalaModDir / "worksheet",
       bundleMessagesRelativePath = "ScalaWorksheetBundle.properties",
     ),
   )
 
-  def main(args: Array[String]): Unit = sortAll(allModuleInfos)
+  def main(args: Array[String]): Unit = {
+    sortAll(allModuleInfos)
+    new ScalaBundleCoverageTest().testAllBundlesAreCovered()
+  }
 
   def sortAll(moduleInfos: Seq[ModuleWithBundleInfo]): Unit = for (moduleInfo <- moduleInfos) {
     val keyToFindings: Map[String, List[Finding]] =
@@ -173,7 +178,7 @@ object ScalaBundleSorting {
 
     val bundlePath = moduleInfo.bundleAbsolutePath
     println(s"Read bundle $bundlePath")
-    val I18nBundleContent(entries) = read(bundlePath)
+    val I18nBundleContent(entries) = read(bundlePath.toFile)
     val keyToAmountOfEntries = entries.groupBy(_.key).view.mapValues(_.size)
 
     def isEntryInInvalidPath(entry: Entry): Boolean =
@@ -220,9 +225,9 @@ object ScalaBundleSorting {
     val pattern: Pattern =
       """(?:(?:(?:message|ErrMsg|nls)\s*\(\s*|groupPathKey=|groupKey=|key=)"(.+?)")|(?:<categoryKey>(.+?)</categoryKey>)""".r.pattern
 
-    def search(file: File): Seq[String] = {
+    def search(path: Path): Seq[String] = {
       val result = Seq.newBuilder[String]
-      val scanner = new Scanner(Source.fromFile(file).bufferedReader())
+      val scanner = new Scanner(Source.fromFile(path.toFile).bufferedReader())
       try {
         while (scanner.findWithinHorizon(pattern, 0) ne null) {
           val m = scanner.`match`()
@@ -248,19 +253,15 @@ object ScalaBundleSorting {
     findKeysInDirectory(module.srcPath, module.searcher) ++
       findKeysInDirectory(module.resourcesPath, module.searcher)
 
-  def findKeysInDirectory(path: String, searcher: Searcher): List[Finding] =
-    for (file <- allFilesIn(path).toList.sorted; key <- searcher.search(file)) yield {
+  def findKeysInDirectory(root: Path, searcher: Searcher): List[Finding] =
+    for (file <- allFilesIn(root.toFile).toList.sorted; key <- searcher.search(file.toPath)) yield {
       val absoluteFilepath = file.toString.replace('\\', '/')
-      val relativeFilepath = absoluteFilepath.substring(path.length)
+      val relativeFilepath = absoluteFilepath.substring(root.toString.length).stripPrefix("/")
       Finding(relativeFilepath, key)(absoluteFilepath)
     }
 
-  def allFilesIn(path: String): Iterator[File] =
-    allFilesIn(new File(path))
-
-  def allFilesIn(path: File): Iterator[File] = {
-    if (!path.exists) Iterator()
-    else if (!path.isDirectory) Iterator(path)
-    else path.listFiles.sorted.iterator.flatMap(allFilesIn)
-  }
+  private def allFilesIn(file: File): Iterator[File] =
+    if (!file.exists) Iterator()
+    else if (!file.isDirectory) Iterator(file)
+    else file.listFiles.sorted.iterator.flatMap(allFilesIn)
 }

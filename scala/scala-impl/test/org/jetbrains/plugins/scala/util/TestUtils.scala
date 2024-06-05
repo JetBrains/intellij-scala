@@ -13,6 +13,7 @@ import org.junit.Assert.{assertNotNull, fail}
 
 import java.io.{File, IOException}
 import java.net.URISyntaxException
+import java.nio.file.Path
 import java.util
 
 object TestUtils {
@@ -52,6 +53,14 @@ object TestUtils {
     // <community-root>/scala/scala-impl/testdata/
     val testDataPath = getTestDataPath
     java.nio.file.Paths.get(testDataPath, "..", "..", "..").normalize.toString + "/"
+  }
+
+  def findCommunityRootPath: Path =
+    Path.of(findCommunityRoot).normalize()
+
+  def findUltimateRootPath: Path = {
+    val community = findCommunityRootPath
+    community.getParent.normalize()
   }
 
   @throws[IOException]

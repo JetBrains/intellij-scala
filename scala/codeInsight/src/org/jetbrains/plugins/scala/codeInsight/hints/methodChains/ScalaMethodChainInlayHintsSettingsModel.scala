@@ -1,15 +1,12 @@
 package org.jetbrains.plugins.scala.codeInsight.hints.methodChains
 
-import java.util
-import com.intellij.codeInsight.hints.{ImmediateConfigurable, InlayGroup}
 import com.intellij.codeInsight.hints.settings.InlayProviderSettingsModel
+import com.intellij.codeInsight.hints.{ImmediateConfigurable, InlayGroup}
 import com.intellij.lang.Language
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import com.intellij.ui.components.labels.LinkLabel
-
-import javax.swing.{JComponent, JPanel}
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.codeInsight.hints.{ScalaHintsSettings, ScalaTypeHintsSettingsModel, navigateToInlaySettings}
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
@@ -17,7 +14,9 @@ import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightBundle, ScalaCod
 import org.jetbrains.plugins.scala.extensions.StringExt
 
 import java.awt.{BorderLayout, FlowLayout}
+import java.util
 import java.util.Collections
+import javax.swing.{JComponent, JPanel}
 
 class ScalaMethodChainInlayHintsSettingsModel(project: Project) extends InlayProviderSettingsModel(
   true,
@@ -122,7 +121,7 @@ class ScalaMethodChainInlayHintsSettingsModel(project: Project) extends InlayPro
     settingsPanel.reset()
   }
 
-  override def getDescription: String = ScalaCodeInsightBundle.message("method.chain.hints.description", ScalaCodeInsightBundle.message("xray.mode.tip", ScalaHintsSettings.xRayModeShortcut))
+  override def getDescription: String = ScalaCodeInsightBundle.message("method.chain.hints.description", ScalaHintsSettings.xRayModeTipText)
 
   override def getComponent: JComponent = {
     val linePanel = {

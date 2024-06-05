@@ -1,12 +1,13 @@
 package org.jetbrains.plugins.scala.settings.sections;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.SystemInfo;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
 import org.jetbrains.plugins.scala.settings.SimpleMappingListCellRenderer;
+import org.jetbrains.plugins.scala.settings.XRayUtils;
 import org.jetbrains.plugins.scala.settings.XRayWidgetMode;
 
 import javax.swing.*;
@@ -39,10 +40,9 @@ public class XRayModeSettingsSectionPanel extends SettingsSectionPanel {
     protected XRayModeSettingsSectionPanel(Project project) {
         super(project);
 
-        if (SystemInfo.isMac) {
-            myDoublePressAndHoldCheckbox.setText(myDoublePressAndHoldCheckbox.getText().replace("Ctrl", "Cmd"));
-            myPressAndHoldCheckbox.setText(myPressAndHoldCheckbox.getText().replace("Ctrl", "Cmd"));
-        }
+        String key = XRayUtils.xRayActionKeyText();
+        myDoublePressAndHoldCheckbox.setText(ScalaBundle.message("scala.project.settings.form.xray.double.press.and.hold", key));
+        myPressAndHoldCheckbox.setText(ScalaBundle.message("scala.project.settings.form.xray.press.and.hold", key));
 
         Map<XRayWidgetMode, String> modes = new HashMap<>();
         modes.put(XRayWidgetMode.ALWAYS, "Always");

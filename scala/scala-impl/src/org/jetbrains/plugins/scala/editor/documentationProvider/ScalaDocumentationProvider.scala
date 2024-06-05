@@ -45,8 +45,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
       null
     else {
       val result = ScalaDocQuickInfoGenerator.getQuickNavigateInfo(element, originalElement)
-      if (result != null) HintUtil.prepareHintText(result, HintUtil.getInformationHint)
-      else null
+      result.map(HintUtil.prepareHintText(_, HintUtil.getInformationHint)).orNull
     }
   }
 
