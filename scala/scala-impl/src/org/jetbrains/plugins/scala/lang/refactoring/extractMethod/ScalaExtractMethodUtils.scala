@@ -461,7 +461,6 @@ object ScalaExtractMethodUtils {
         val expr = createExpressionFromText(exprText, target)
         val declaration = createDeclaration(pattern, "", isVariable = !isVal, expr, target)
         val result = target.replace(declaration)
-        TypeAdjuster.markToAdjust(result)
         result
       }
     }
