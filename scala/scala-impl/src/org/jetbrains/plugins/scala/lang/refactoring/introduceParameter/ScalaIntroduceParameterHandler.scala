@@ -24,12 +24,12 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.refactoring.{ScTypePresentationExt, ScalaRefactoringActionHandler}
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.{ScalaMethodDescriptor, ScalaParameterInfo}
 import org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterHandler._
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.util.{DialogConflictsReporter, ScalaVariableValidator}
+import org.jetbrains.plugins.scala.lang.refactoring.{ScTypePresentationExt, ScalaRefactoringActionHandler}
 import org.jetbrains.plugins.scala.statistics.ScalaRefactoringUsagesCollector
 
 import scala.annotation.nowarn
@@ -51,18 +51,17 @@ class ScalaIntroduceParameterHandler extends ScalaRefactoringActionHandler with 
   }
 
   def functionalArg(elems: Seq[PsiElement], input: Iterable[VariableInfo], method: ScMethodLike): (ScExpression, ScType) = {
-    import method.projectContext
+    implicit val project: Project = method.getProject
 
     val namesAndTypes = input.map { v =>
       val elem = v.element
       val typeText = elem match {
-        case fun: ScFunction => fun.`type`().getOrAny.canonicalCodeText
-        case _ => v.element.ofNamedElement().getOrElse(Any).canonicalCodeText
+        case fun: ScFunction => fun.`type`().getOrAny.canonicalCodeText(method)
+        case _ => v.element.ofNamedElement().getOrElse(Any).canonicalCodeText(method)
       }
       s"${elem.name}: $typeText"
     }
-    val project = method.getProject
-    val arrow = ScalaPsiUtil.functionArrow(project)
+    val arrow = ScalaPsiUtil.functionArrow
     val paramsText = namesAndTypes.mkString("(", ", ", ")")
     val funText = elems match {
       case Seq(single: ScExpression) =>
