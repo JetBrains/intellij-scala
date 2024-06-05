@@ -98,7 +98,7 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
     }
     implicit val projectContext: ProjectContext = aClass.projectContext
     val name = settings.name
-    val typeName = Option(settings.scType).map(_.canonicalCodeText).getOrElse("")
+    val typeName = Option(settings.scType).map(_.canonicalCodeText(aClass)).getOrElse("")
     val replacedOccurences = replaceOccurrences(occurrencesToReplace, name, ifc.file)
 
     val anchor = anchorForNewDeclaration(replacedOccurences, aClass)
