@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiMethod
+import com.intellij.psi.{PsiMethod, PsiTypeParameterListOwner}
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, MacroInvocationContext, ScalaMacroEvaluator}
@@ -10,9 +10,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.InferUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames.Update
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumClassCase, ScEnumSingletonCase, ScFun, ScFunction, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumClassCase, ScFun, ScFunction, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScProjectionType}
@@ -22,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
+import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.ScExpressionForExpectedTypesEx
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
 import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
@@ -99,25 +101,30 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
         checkApplication(nonValueType, invokedResolveResult) match {
           case Some(regularCase) => updateImplicitParameters(regularCase, invokedResolveResult)
           case _ =>
-            val applyOrUpdateCandidates = this.findPossibleApplyOrUpdateCandidates(nonValueType)
-            applyOrUpdateCandidates.collect { case Array(result) => this.updateGenericType(nonValueType, result) } match {
-              case Some((processedType, result)) =>
+            val stripTypeArgs = invokedResolveResult.exists {
+              case ScalaResolveResult(tpo: ScTypeParametersOwner, _)     => tpo.typeParameters.nonEmpty
+              case ScalaResolveResult(tpo: PsiTypeParameterListOwner, _) => tpo.getTypeParameters.nonEmpty
+              case _                                                     => false
+            }
+
+            val applyOrUpdateCandidates = this.tryResolveApplyMethod(this, nonValueType, isShape = false, stripTypeArgs = stripTypeArgs)
+            applyOrUpdateCandidates match {
+              case Array(srr) =>
+                val processedType = this.updateGenericType(nonValueType, srr)
                 val updatedProcessedType = updateType(processedType)
 
-                val maybeRegularCase = checkApplication(updatedProcessedType, Some(result))
+                val maybeRegularCase = checkApplication(updatedProcessedType, srr.toOption)
                 val regularCase = maybeRegularCase.getOrElse {
-                  RegularCase(updatedProcessedType, Some(result), Seq(DoesNotTakeParameters))
+                  RegularCase(updatedProcessedType, srr.toOption, Seq(DoesNotTakeParameters))
                 }
 
                 SyntheticCase(
                   updateImplicitParameters(regularCase, invokedResolveResult),
-                  result,
+                  srr,
                   maybeRegularCase.isDefined
                 )
               case _ =>
-                val problems = applyOrUpdateCandidates
-                  .getOrElse(Array.empty)
-                  .flatMap(_.problems)
+                val problems = applyOrUpdateCandidates.flatMap(_.problems)
                 FailureCase(Failure(noSuitableMethodFoundError), problems.toSeq)
             }
         }
@@ -279,26 +286,26 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
           case ScAssignment(left: ScReferenceExpression, Some(right)) if left.qualifier.isEmpty => right
           case argument => argument
         }.map { expr =>
-            (
-              checkImplicits:  Boolean,
-              isShape:         Boolean,
-              expectedOption:  Option[ScType],
-              _: Boolean,
-              _:  Boolean
-            ) =>
-              {
-                expr.getTypeAfterImplicitConversion(
-                  checkImplicits,
-                  isShape,
-                  expectedOption.map {
-                    case SecondType(t) => t
-                    case t             => t
-                  }
-                ) match {
-                  case ExpressionTypeResult(typeResult, imports, _) =>
-                    ExpressionTypeResult(typeResult.map(SecondType(_)), imports)
-                }
+          (
+            checkImplicits:  Boolean,
+            isShape:         Boolean,
+            expectedOption:  Option[ScType],
+            _: Boolean,
+            _:  Boolean
+          ) =>
+          {
+            expr.getTypeAfterImplicitConversion(
+              checkImplicits,
+              isShape,
+              expectedOption.map {
+                case SecondType(t) => t
+                case t             => t
               }
+            ) match {
+              case ExpressionTypeResult(typeResult, imports, _) =>
+                ExpressionTypeResult(typeResult.map(SecondType(_)), imports)
+            }
+          }
         }
       case arguments => arguments
     }
@@ -358,28 +365,13 @@ object MethodInvocationImpl {
           result.element,
           MacroContext(invocation.getContext, invocation.expectedType()))
 
-    def findPossibleApplyOrUpdateCandidates(`type`: ScType): Option[Array[ScalaResolveResult]] = {
-      def findApplyOrUpdate(isDynamic: Boolean) =
-        processTypeForUpdateOrApplyCandidates(invocation, `type`, isShape = false, isDynamic = isDynamic) match {
-          case Array() => None
-          case results if results.forall(_.element.is[PsiMethod]) => Some(results)
-          case _ => None
-        }
-
-      findApplyOrUpdate(isDynamic = false)
-        .orElse(findApplyOrUpdate(isDynamic = true))
-    }
-
-    def updateGenericType(`type`: ScType, resolveResult: ScalaResolveResult): (ScType, ScalaResolveResult) = {
-      val updatedType = (`type`, polymorphicType(resolveResult)) match {
+    def updateGenericType(`type`: ScType, resolveResult: ScalaResolveResult): ScType =
+      (`type`, polymorphicType(resolveResult)) match {
         case (ScTypePolymorphicType(_, head), ScTypePolymorphicType(internal, tail)) =>
           removeBadBounds(ScTypePolymorphicType(internal, head ++ tail))
         case (ScTypePolymorphicType(_, head), internalType) => ScTypePolymorphicType(internalType, head)
-        case (_, polymorphicType) => polymorphicType
+        case (_, polymorphicType)                           => polymorphicType
       }
-
-      (updatedType, resolveResult)
-    }
 
     private def polymorphicType(result: ScalaResolveResult): ScType = {
       val dropExtensionClauses =
@@ -419,7 +411,7 @@ object MethodInvocationImpl {
   }
 
   private case class SyntheticCase(full: RegularCase, resolveResult: ScalaResolveResult, isApplyOrUpdate: Boolean)
-      extends InvocationData {
+    extends InvocationData {
     override def target: Option[ScalaResolveResult] = Some(resolveResult)
     override def typeResult: TypeResult = full.typeResult
   }

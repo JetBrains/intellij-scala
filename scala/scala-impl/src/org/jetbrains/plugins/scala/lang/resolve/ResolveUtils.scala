@@ -423,47 +423,38 @@ object ResolveUtils {
   }
 
   implicit class ScExpressionForExpectedTypesEx(private val expr: ScExpression) extends AnyVal {
-    def shapeResolveApplyMethod(
-      tp:    ScType,
-      exprs: Seq[ScExpression],
-      call:  Option[MethodInvocation]
-    ): Array[ScalaResolveResult] = cachedWithRecursionGuard("shapreResolveApplyMethod", expr, Array.empty[ScalaResolveResult], BlockModificationTracker(expr), (tp, exprs, call)) {
-      val applyProc =
-        new MethodResolveProcessor(
-          expr,
-          CommonNames.Apply,
-          List(exprs),
-          Seq.empty,
-          Seq.empty /* todo: ? */,
-          StdKinds.methodsOnly,
-          isShapeResolve = true
-        )
+    def tryResolveApplyMethod(
+      call:          MethodInvocation,
+      tp:            ScType,
+      isShape:       Boolean,
+      stripTypeArgs: Boolean
+    ): Array[ScalaResolveResult] =
+      cachedWithRecursionGuard(
+        "shapeResolveApplyMethod",
+        expr,
+        Array.empty[ScalaResolveResult],
+        BlockModificationTracker(expr),
+        (call, tp, isShape)
+      ) {
 
-      applyProc.processType(tp, expr, ScalaResolveState.withFromType(tp))
-      var cand = applyProc.candidates
-      if (cand.isEmpty && call.isDefined) {
-        val expr = call.get.getEffectiveInvokedExpr
+        val cands =
+          ScalaPsiUtil.processTypeForUpdateOrApplyCandidates(
+            call,
+            tp,
+            isShape       = isShape,
+            isDynamic     = false,
+            stripTypeArgs = stripTypeArgs
+          )
 
-        ImplicitConversionResolveResult.processImplicitConversionsAndExtensions(
-          Some(CommonNames.Apply),
-          expr,
-          applyProc,
-          Some(tp),
-          noImplicitsForArgs = false,
-          forCompletion = false
-        )(identity)(expr)
-
-        cand = applyProc.candidates
+        if (cands.isEmpty && conformsToDynamic(tp, expr.resolveScope)) {
+          ScalaPsiUtil.processTypeForUpdateOrApplyCandidates(
+            call,
+            tp,
+            isShape       = isShape,
+            isDynamic     = true,
+            stripTypeArgs = stripTypeArgs
+          )
+        } else cands
       }
-      if (cand.isEmpty && conformsToDynamic(tp, expr.resolveScope) && call.isDefined) {
-        cand = ScalaPsiUtil.processTypeForUpdateOrApplyCandidates(
-          call.get,
-          tp,
-          isShape   = true,
-          isDynamic = true
-        )
-      }
-      cand
-    }
   }
 }

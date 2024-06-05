@@ -13,14 +13,14 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, Method
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult, ScalaResolveState}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-case class ExtensionConversionData(place: PsiElement,
-                                   ref: PsiElement,
-                                   refName: String,
-                                   processor: BaseProcessor,
-                                   noApplicability: Boolean,
-                                   withoutImplicitsForArgs: Boolean) {
-
-  //TODO! remove this after find a way to improve implicits according to compiler.
+case class ExtensionConversionData(
+  place:                   PsiElement,
+  ref:                     PsiElement,
+  refName:                 String,
+  processor:               BaseProcessor,
+  noApplicability:         Boolean,
+  withoutImplicitsForArgs: Boolean
+) {
   val kinds: Set[ResolveTargets.Value] = processor.kinds
 }
 

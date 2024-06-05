@@ -7,11 +7,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ApplyOrUpdateInvocation
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.{ConformanceExtResult, Expression}
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -25,6 +27,8 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveRes
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.util.SAMUtil
+
+import scala.annotation.tailrec
 
 //todo: remove all argumentClauses, we need just one of them
 class MethodResolveProcessor(override val ref: PsiElement,
@@ -96,8 +100,8 @@ class MethodResolveProcessor(override val ref: PsiElement,
             )
           )
         case o: ScObject if o.isPackageObject =>  // do not resolve to package object
-        case obj: ScObject if ref.getParent.isInstanceOf[ScMethodCall] || ref.getParent.isInstanceOf[ScGenericCall] =>
-          val functionName = if (isUpdate) "update" else "apply"
+        case obj: ScObject if ref.getParent.is[ScMethodCall] || ref.getParent.is[ScGenericCall] =>
+          val functionName = if (isUpdate) CommonNames.Update else CommonNames.Apply
 
           val typeResult = fromType match {
             case Some(tp) => Right(ScProjectionType(tp, obj))
@@ -125,7 +129,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
                 implicitConversion       = implFunction,
                 implicitType             = implType,
                 fromType                 = fromType,
-                parentElement            = Some(obj),
+                parentElement            = Option(obj),
                 isAccessible             = accessible && isAccessible(m, ref),
                 isForwardReference       = forwardReference,
                 unresolvedTypeParameters = unresolvedTypeParameters,
@@ -140,7 +144,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
             unresolvedTypeParameters = unresolvedTypeParameters))
         case cls: PsiClass
           if ref.isInScala3Module &&
-            (ref.getParent.isInstanceOf[ScMethodCall] || ref.getParent.isInstanceOf[ScGenericCall]) =>
+            (ref.getParent.is[ScMethodCall] || ref.getParent.is[ScGenericCall]) =>
           // process constructor proxies
           val constructors = cls.constructors
 
@@ -196,7 +200,8 @@ class MethodResolveProcessor(override val ref: PsiElement,
     if (isDynamic) {
       collectCandidates(super.candidatesS.map(_.copy(nameArgForDynamic = nameArgForDynamic))).filter(_.isApplicable())
     } else {
-      collectCandidates(super.candidatesS)
+      val superCandidates = super.candidatesS
+      collectCandidates(superCandidates)
     }
   }
 
@@ -313,8 +318,8 @@ object MethodResolveProcessor {
         case Constructor.ofClass(cls) =>
           substitutor(ScalaPsiUtil.constructTypeForPsiClass(cls)((tp, _) => TypeParameterType(tp)))
         case f: ScFunction
-            if f.paramClauses.clauses.length > 1 &&
-              !f.paramClauses.clauses(1).isImplicit =>
+          if f.paramClauses.clauses.length > 1 &&
+            !f.paramClauses.clauses(1).isImplicit =>
           problems += ExpectedTypeMismatch //do not check expected types for more than one param clauses
           Nothing
         case f: ScFunction => substitutor(f.returnType.getOrNothing)
@@ -501,18 +506,18 @@ object MethodResolveProcessor {
         problems += MalformedDefinition(f.name)
         ConformanceExtResult(problems.result())
       case fun: ScFunction if (typeArgElements.isEmpty ||
-              typeArgElements.length == fun.typeParameters.length) && fun.paramClauses.clauses.length == 1 &&
-              fun.paramClauses.clauses.head.isImplicitOrUsing && //@TODO: multiple using clauses ???
-              argumentClauses.isEmpty =>
+        typeArgElements.length == fun.typeParameters.length) && fun.paramClauses.clauses.length == 1 &&
+        fun.paramClauses.clauses.head.isImplicitOrUsing && //@TODO: multiple using clauses ???
+        argumentClauses.isEmpty =>
         addExpectedTypeProblems()
       //eta expansion
       case (fun: ScTypeParametersOwner) & (_: PsiNamedElement)
-          if (typeArgElements.isEmpty ||
-            typeArgElements.length == fun.typeParameters.length) && argumentClauses.isEmpty =>
+        if (typeArgElements.isEmpty ||
+          typeArgElements.length == fun.typeParameters.length) && argumentClauses.isEmpty =>
         checkFunction(fun, fun.typeParameters.nonEmpty)
       case (fun: PsiTypeParameterListOwner) & (_: PsiNamedElement)
-          if (typeArgElements.isEmpty ||
-            typeArgElements.length == fun.getTypeParameters.length) && argumentClauses.isEmpty =>
+        if (typeArgElements.isEmpty ||
+          typeArgElements.length == fun.getTypeParameters.length) && argumentClauses.isEmpty =>
         checkFunction(fun, fun.getTypeParameters.nonEmpty)
       //simple application including empty application
       case tpOwner: ScTypeParametersOwner with PsiNamedElement     => checkSimpleApplication(tpOwner.typeParameters)
@@ -646,15 +651,15 @@ object MethodResolveProcessor {
     if (argumentClauses.nonEmpty && filtered.nonEmpty) {
       argumentClauses.head.
         collect { case assignment: ScAssignment => assignment.referenceName }.foreach { listOfNames =>
-        filtered = filtered.filter { r =>
-          r.element match {
-            case func: ScFunction if func.hasParameterClause =>
-              val paramsNames = func.parameterList.params.map(_.name)
-              listOfNames.find(str => !paramsNames.contains(str)).forall(_.isEmpty)
-            case _ => false
+          filtered = filtered.filter { r =>
+            r.element match {
+              case func: ScFunction if func.hasParameterClause =>
+                val paramsNames = func.parameterList.params.map(_.name)
+                listOfNames.find(str => !paramsNames.contains(str)).forall(_.isEmpty)
+              case _ => false
+            }
           }
         }
-      }
     }
 
     if (filtered.isEmpty) filtered = mapped.filter(_.isApplicableInternal(withExpectedType = false))
@@ -666,31 +671,31 @@ object MethodResolveProcessor {
       if (filtered.isEmpty) filtered = mapped.filter(_.isApplicableInternal(withExpectedType = false))
     }
 
-    val onlyValues = mapped.forall { r =>
-      r.element match {
-        case _: ScFunction => false
-        case _: ScReferencePattern if r.innerResolveResult.exists(_.element.getName == "apply") =>
-          true
-        case _: ScTypedDefinition => r.innerResolveResult.isEmpty && r.problems.size == 1
-        case _                    => false
-      }
-    }
-
-    if (filtered.isEmpty && onlyValues) {
-      //possible implicit conversions in ScMethodCall
-      return input.map(_.copy(notCheckedResolveResult = true))
-    } else if (!onlyValues) {
-      //in this case all values are not applicable
-      mapped = mapped.map(
-        r =>
-          if (r.isApplicable())
-            r.innerResolveResult match {
-              case Some(rr) => r.copy(problems = rr.problems)
-              case _        => r
-            }
-          else r
-      )
-    }
+//    val onlyValues = mapped.forall { r =>
+//      r.element match {
+//        case _: ScFunction => false
+//        case _: ScReferencePattern if r.innerResolveResult.exists(_.element.getName == "apply") =>
+//          true
+//        case _: ScTypedDefinition => r.innerResolveResult.isEmpty && r.problems.size == 1
+//        case _                    => false
+//      }
+//    }
+//
+//    if (filtered.isEmpty && onlyValues) {
+//      //possible implicit conversions in ScMethodCall
+//      return input.map(_.copy(notCheckedResolveResult = true))
+//    } else if (!onlyValues) {
+//      //in this case all values are not applicable
+//      mapped = mapped.map(
+//        r =>
+//          if (r.isApplicable())
+//            r.innerResolveResult match {
+//              case Some(rr) => r.copy(problems = rr.problems)
+//              case _        => r
+//            }
+//          else r
+//      )
+//    }
 
     //remove default parameters alternatives
     if (filtered.size > 1 && !isShapeResolve)
@@ -779,15 +784,28 @@ object MethodResolveProcessor {
           case _ => (r.substitutor, false)
         }
 
-      val methodName = if (isUpdate) "update" else "apply"
-      val processor  = new CollectMethodsProcessor(ref, methodName)
-      processor.processType(substitutor(tp), ref)
 
-      val cands =
-        processor.candidatesS.map(rr => (r.copy(innerResolveResult = Some(rr)), cleanTypeArguments))
+      @tailrec
+      def callContext(e: PsiElement): Option[MethodInvocation] = e match {
+        case mc: MethodInvocation => mc.toOption
+        case gc: ScGenericCall    => callContext(gc.getContext)
+        case _                    => None
+      }
 
-      if (cands.isEmpty) Set((r, false))
-      else               cands
+      val result = callContext(ref.getContext) match {
+        case Some(mc: MethodInvocation) =>
+          val applyOrUpdateInvocation =
+            ApplyOrUpdateInvocation(mc, substitutor(tp), isDynamic, stripTypeArgs = cleanTypeArguments)
+
+          val cands = applyOrUpdateInvocation.collectCandidates(false)
+
+          if (cands.isEmpty) Set((r, false))
+          else               cands.view.map(
+            rr => (r.copy(innerResolveResult = Some(rr)), cleanTypeArguments)
+          ).toSet
+        case _ => Set((r, false))
+      }
+      result
     }
 
     if (argumentClauses.isEmpty) Set((r, false))

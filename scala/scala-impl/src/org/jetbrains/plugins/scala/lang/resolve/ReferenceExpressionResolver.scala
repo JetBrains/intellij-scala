@@ -367,9 +367,11 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       case _ =>
     }
 
-    def processMethodAssignment(args: ScArgumentExprList,
-                                call: MethodInvocation,
-                                processor: BaseProcessor): Unit =
+    def processMethodAssignment(
+      args: ScArgumentExprList,
+      call: MethodInvocation,
+      processor: BaseProcessor
+    ): Unit =
       args.callReference.foreach { reference =>
         val isNamedParametersEnabled = call match {
           case call: ScMethodCall => call.isNamedParametersEnabledEverywhere
@@ -403,31 +405,27 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
           )
       }
 
-      def processResult(result: ScalaResolveResult, index: Int): Unit = result.element match {
-        case _: ScFunction if isApplyDynamicNamed(result) =>
-          addParamForApplyDynamicNamed()
-        case _ if call.applyOrUpdateElement.exists(isApplyDynamicNamed) =>
-          addParamForApplyDynamicNamed()
+      def processNamedParameterOf(result: ScalaResolveResult, index: Int): Unit = result.element match {
+        case _: ScFunction if isApplyDynamicNamed(result)               => addParamForApplyDynamicNamed()
+        case _ if call.applyOrUpdateElement.exists(isApplyDynamicNamed) => addParamForApplyDynamicNamed()
         case fun: ScMethodLike =>
           val substitutor = result.substitutor
+
           processor match {
             case completionProcessor: CompletionProcessor =>
               collectNamedCompletions(fun.parameterList, completionProcessor, substitutor, exprs, index)
             case _ =>
-              getParamByName(fun, refName, index) match {
-                //todo: why -1?
-                case Some(param) =>
-                  val rename =
-                    if (!equivalent(param.name, refName)) param.deprecatedName
-                    else                                  None
+              getParamByName(fun, refName, index).foreach { param =>
+                val rename =
+                  if (!equivalent(param.name, refName)) param.deprecatedName
+                  else                                  None
 
-                  val state = ScalaResolveState
-                    .withSubstitutor(substitutor)
-                    .withNamedParam
-                    .withRename(rename)
+                val state = ScalaResolveState
+                  .withSubstitutor(substitutor)
+                  .withNamedParam
+                  .withRename(rename)
 
-                  processor.execute(param, state)
-                case None =>
+                processor.execute(param, state)
               }
           }
         case _: FakePsiMethod => //todo: ?
@@ -447,9 +445,9 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         def traverseInvokedExprs(call: ScExpression, dropped: Int): Unit = call match {
           case mc: MethodInvocation =>
             val tp            = mc.`type`().getOrAny
-            val applyResolves = mc.shapeResolveApplyMethod(tp, mc.argumentExpressions, mc.toOption)
+            val applyResolves = mc.tryResolveApplyMethod(mc, tp, isShape = false, stripTypeArgs = false)
 
-            applyResolves.foreach(processResult(_, dropped))
+            applyResolves.foreach(processNamedParameterOf(_, dropped))
             if (processor.candidates.isEmpty) traverseInvokedExprs(mc.getEffectiveInvokedExpr, dropped + 1)
           case _ => ()
         }
@@ -457,12 +455,12 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       }
 
       for (variant <- callReference.multiResolveScala(false)) {
-        processResult(variant, index)
+        processNamedParameterOf(variant, index)
         // Consider named parameters of apply method; see SCL-2407
-        variant.innerResolveResult.foreach(processResult(_, index))
-        // Check if argument clause is actuall an apply method invocation SCL-17892
-        if (processor.candidates.isEmpty) tryProcessApplyMethodArgs()
+        variant.innerResolveResult.foreach(processNamedParameterOf(_, index))
       }
+      // Check if argument clause is actually an apply method invocation SCL-17892
+      if (processor.candidates.isEmpty) tryProcessApplyMethodArgs()
     }
 
     def processConstructorReference(args: ScArgumentExprList,

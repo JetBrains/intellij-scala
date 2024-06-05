@@ -156,4 +156,79 @@ class ApplyTest extends AnnotatorLightCodeInsightFixtureTestAdapter {
       |}
       |""".stripMargin
   )
+
+  def testSCL21742(): Unit = checkTextHasNoErrors(
+    """
+      |case class Bool() {
+      |  def unary_! : Bool = ???
+      |  def &&&(other: Bool) : Bool = ???
+      |}
+      |
+      |class ElseWhenClause() {}
+      |
+      |case class Reproduction() {
+      |  implicit class ElseWhenClauseBuilder(cond: Bool) {
+      |    def apply(block: => Unit): ElseWhenClause = ???
+      |  }
+      |
+      |  val x = Bool()
+      |  val e1: ElseWhenClause = (!x) {} // ERROR: unary_! does not take parameters
+      |  val e2: ElseWhenClause =  (!x &&& !x) { } //OK
+      |}
+      |""".stripMargin
+  )
+
+  def testSCL21616(): Unit = checkTextHasNoErrors(
+    """
+      |class MyClass {
+      |  def apply(booleanParameter: Boolean): Int = ???
+      |}
+      |
+      |object wrapper {
+      |  val myMethod: MyClass = ???
+      |  myMethod(true)
+      |  myMethod.apply(true)
+      |  //OK: named argument is ok for `apply` method
+      |  myMethod(booleanParameter = true)
+      |
+      |  object inner1 {
+      |    extension (target: MyClass)
+      |      def apply(doubleParameter: Double): Int = ???
+      |
+      |    myMethod(42d)
+      |    myMethod.apply(doubleParameter = 42d)
+      |    //BAD: named argument is not recognised for `apply` extension method
+      |    myMethod(doubleParameter = 42d)
+      |  }
+      |
+      |  object inner2 {
+      |    //scala 2 style extensions
+      |    implicit class MyClassOps42(private val target: MyClass) extends AnyVal {
+      |      final def apply(stringParameter: String): Int = ???
+      |    }
+      |
+      |    myMethod("42")
+      |    myMethod.apply(stringParameter = "42")
+      |    //BAD: named argument is not recognised for `apply` extension method (Scala 2 style)
+      |    myMethod(stringParameter = "42")
+      |  }
+      |}
+      |""".stripMargin
+  )
+
+  def testSCL8967(): Unit = checkTextHasNoErrors(
+    """
+      |object ATest extends App {
+      |    implicit class OptApply(val value: Option[_]) extends AnyVal {
+      |        def apply[T](code: T => Unit): Unit = {}
+      |    }
+      |    val sxOp = Some(new SX)
+      |    sxOp.apply[SX] { sx => sx.test() }
+      |    sxOp[SX] { sx => sx.test() } //!!! "sx" is red, "test()" is red
+      |}
+      |class SX {def test(): Unit = {}}
+      |""".stripMargin
+  )
+
+  def testTemp(): Unit = ???
 }

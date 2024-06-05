@@ -23,7 +23,7 @@ object DynamicResolveProcessor {
     }
 
     if (qualifiers.exists(_.isEmpty)) APPLY_DYNAMIC_NAMED
-    else APPLY_DYNAMIC
+    else                              APPLY_DYNAMIC
   }
 
   object DynamicReference {
@@ -64,7 +64,7 @@ object DynamicResolveProcessor {
       case Left(reference) =>
         reference.getContext match {
           case ScAssignment(`reference`, _) => UPDATE_DYNAMIC
-          case _ => SELECT_DYNAMIC
+          case _                            => SELECT_DYNAMIC
         }
     }
 

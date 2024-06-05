@@ -229,35 +229,49 @@ object ScExpression {
 
     def getTypeIgnoreBaseType: TypeResult = expr.getTypeAfterImplicitConversion(ignoreBaseTypes = true).tr
 
-    def getNonValueType(ignoreBaseType: Boolean = false,
-                        fromUnderscore: Boolean = false): TypeResult = cachedWithRecursionGuard("getNonValueType", expr, Failure(NlsString.force("Recursive getNonValueType")), BlockModificationTracker(expr), (ignoreBaseType, fromUnderscore)) {
-      ProgressManager.checkCanceled()
-      if (fromUnderscore) expr.innerType
-      else {
-        val unders = ScUnderScoreSectionUtil.underscores(expr)
-        if (unders.isEmpty) expr.innerType
+    def getNonValueType(
+      ignoreBaseType: Boolean = false,
+      fromUnderscore: Boolean = false
+    ): TypeResult =
+      cachedWithRecursionGuard(
+        "getNonValueType",
+        expr,
+        Failure(NlsString.force("Recursive getNonValueType")),
+        BlockModificationTracker(expr),
+        (ignoreBaseType, fromUnderscore)
+      ) {
+        ProgressManager.checkCanceled()
+
+        if (fromUnderscore) expr.innerType
         else {
-          val params = unders.zipWithIndex.map {
-            case (u, index) =>
-              val tpe = u.getNonValueType(ignoreBaseType).getOrAny.inferValueType.unpackedType
-              Parameter(tpe, isRepeated = false, index = index)
+          val unders = ScUnderScoreSectionUtil.underscores(expr)
+          if (unders.isEmpty)
+            expr.innerType
+          else {
+            val params =
+              unders.zipWithIndex.map {
+                case (u, index) =>
+                  val tpe = u.getNonValueType(ignoreBaseType).getOrAny.inferValueType.unpackedType
+                  Parameter(tpe, isRepeated = false, index = index)
+              }
+
+            val methType =
+              ScMethodType(
+                expr
+                  .getTypeAfterImplicitConversion(
+                    ignoreBaseTypes = ignoreBaseType,
+                    fromUnderscore = true
+                  )
+                  .tr
+                  .getOrAny,
+                params,
+                isImplicit = false
+              )
+
+            Right(methType)
           }
-          val methType =
-            ScMethodType(
-              expr
-                .getTypeAfterImplicitConversion(
-                  ignoreBaseTypes = ignoreBaseType,
-                  fromUnderscore  = true
-                )
-                .tr
-                .getOrAny,
-              params,
-              isImplicit = false
-            )
-          Right(methType)
         }
       }
-    }
 
     def getTypeWithoutImplicits(
       ignoreBaseType: Boolean = false,
