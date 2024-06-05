@@ -6,6 +6,7 @@ import com.intellij.openapi.application.ApplicationNamesInfo
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.Service.Level
 import com.intellij.openapi.components.service
+import com.intellij.util.containers.orNull
 import io.ktor.client.plugins.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.future.future
@@ -15,6 +16,7 @@ import org.jetbrains.packagesearch.api.v3.ApiPackage
 import org.jetbrains.packagesearch.api.v3.http.PackageSearchApiClient
 import org.jetbrains.packagesearch.api.v3.http.PackageSearchEndpoints
 import org.jetbrains.packagesearch.api.v3.http.searchPackages
+import java.util.*
 import java.util.concurrent.CompletableFuture
 import kotlin.time.Duration.Companion.seconds
 
@@ -38,8 +40,8 @@ class PackageSearchClient(private val cs: CoroutineScope) {
         }
     )
 
-    private val byIdCache: AsyncExpirableCache<String, ApiPackage?> =
-        AsyncExpirableCache(cs) { searchById(it) }
+    private val byIdCache: AsyncExpirableCache<String, Optional<ApiPackage>> =
+        AsyncExpirableCache(cs) { Optional.ofNullable(searchById(it)) }
 
     private val byQueryCache: AsyncExpirableCache<String, List<ApiPackage>> =
         AsyncExpirableCache(cs) { searchByQuery(it) }
@@ -63,7 +65,7 @@ class PackageSearchClient(private val cs: CoroutineScope) {
 
     fun searchById(groupId: String, artifactId: String): CompletableFuture<ApiPackage?> {
         val id = idCacheKey(groupId, artifactId)
-        return byIdCache.get(id)
+        return byIdCache.get(id).thenApply { it.orNull() }
     }
 
     private fun queryCacheKey(groupId: String, artifactId: String): String =
@@ -90,7 +92,7 @@ class PackageSearchClient(private val cs: CoroutineScope) {
     @VisibleForTesting
     fun updateByIdCache(groupId: String, artifactId: String, result: ApiPackage?) {
         val key = idCacheKey(groupId, artifactId)
-        val value = CompletableFuture.completedFuture(result)
+        val value = CompletableFuture.completedFuture(Optional.ofNullable(result))
         byIdCache.updateCache(key, value)
     }
 }
