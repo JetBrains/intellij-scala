@@ -95,7 +95,7 @@ package object transformation {
   object RenamedReference {
     def unapply(r: ScReference): Option[(String, String)] = {
       val id = r.nameId
-      r.bind().flatMap(_.innerResolveResult).orElse(r.bind()).map(_.element) collect  {
+      r.bind().map(_.element) collect  {
         case target: PsiNamedElement if !id.textMatches(target.name) => (id.getText, target.name)
       }
     }

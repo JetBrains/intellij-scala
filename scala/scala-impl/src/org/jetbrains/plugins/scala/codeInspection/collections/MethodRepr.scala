@@ -2,9 +2,11 @@ package org.jetbrains.plugins.scala.codeInspection.collections
 
 import org.jetbrains.plugins.scala.caches.{ModTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
+import scala.util.Try
 
 class MethodRepr private (val itself: ScExpression,
                           val optionalBase: Option[ScExpression],
@@ -34,12 +36,20 @@ object MethodRepr {
             case methCall: ScMethodCall => Some(expr, Some(methCall), None, args)
             case _ => Some(expr, None, None, args)
           }
-        case ScInfixExpr.withAssoc(base, operation, argument) =>
+        case inv @ ScInfixExpr.withAssoc(base, operation, argument) =>
           val args = argument match {
             case tuple: ScTuple => tuple.exprs
             case _ => Seq(argument)
           }
-          Some(expr, Some(stripped(base)), Some(operation), args)
+          if (inv.isApplyOrUpdateCall) {
+            val postfixExpr =
+              Try(ScalaPsiElementFactory.createExpressionWithContextFromText(
+                s"${base.getText} ${operation.getText}",
+                inv
+              )).toOption
+
+            Some(expr, postfixExpr, None, args)
+          } else Some(expr, Some(stripped(base)), Some(operation), args)
         case prefix: ScPrefixExpr => Some(expr, Some(stripped(prefix.getBaseExpr)), Some(prefix.operation), Seq())
         case postfix: ScPostfixExpr => Some(expr, Some(stripped(postfix.getBaseExpr)), Some(postfix.operation), Seq())
         case refExpr: ScReferenceExpression =>
@@ -77,7 +87,7 @@ object MethodSeq {
     def extractMethods(expr: ScExpression): Unit = {
       expr match {
         case MethodRepr(_, optionalBase, _, args) =>
-          result += MethodRepr(expr, optionalBase, args.toSeq)
+          result += MethodRepr(expr, optionalBase, args)
           optionalBase match {
             case Some(ScParenthesisedExpr(inner)) => extractMethods(stripped(inner))
             case Some(expression) => extractMethods(expression)

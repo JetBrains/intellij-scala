@@ -127,11 +127,7 @@ object ScalaUsageTypeProvider {
     }
 
   def referenceExpressionUsageType(referenceExpr: ScReferenceExpression): Option[UsageType] = {
-    def resolvedElement(result: ScalaResolveResult) =
-      result.innerResolveResult
-        .getOrElse(result).element
-
-    val referenceResolved: Option[PsiNamedElement] = referenceExpr.bind().map(resolvedElement)
+    val referenceResolved: Option[PsiNamedElement] = referenceExpr.bind().map(_.element)
     referenceResolved.flatMap {
       case function: ScFunction if function.isApplyMethod =>
         Some(MethodApply)

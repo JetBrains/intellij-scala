@@ -123,32 +123,31 @@ class ReferenceExpressionsControlFlowTest extends ScalaDfaControlFlowBuilderTest
       |0: PUSH Nil
       |1: ASSIGN_TO grades
       |2: POP
-      |3: PUSH_VAL TOP
-      |4: CALL Student#apply
-      |5: PUSH_VAL 22
-      |6: PUSH grades
-      |7: CALL Student#apply
-      |8: ASSIGN_TO s1
-      |9: POP
-      |10: PUSH s1
-      |11: POP
-      |12: PUSH s1.age
-      |13: PUSH_VAL 20
-      |14: BOOLEAN_OP >=
-      |15: POP
-      |16: PUSH s1
-      |17: POP
-      |18: PUSH s1.grades
-      |19: PUSH_VAL 5
-      |20: ENSURE_INDEX size
-      |21: PUSH s1
-      |22: POP
-      |23: PUSH s1.grades
-      |24: PUSH_VAL 5
-      |25: CALL LinearSeqOptimized#apply
-      |26: POP
-      |27: FINISH BlockExpression
-      |28: RETURN
+      |3: PUSH Student
+      |4: PUSH_VAL 22
+      |5: PUSH grades
+      |6: CALL Student#apply
+      |7: ASSIGN_TO s1
+      |8: POP
+      |9: PUSH s1
+      |10: POP
+      |11: PUSH s1.age
+      |12: PUSH_VAL 20
+      |13: BOOLEAN_OP >=
+      |14: POP
+      |15: PUSH s1
+      |16: POP
+      |17: PUSH s1.grades
+      |18: PUSH_VAL 5
+      |19: ENSURE_INDEX size
+      |20: PUSH s1
+      |21: POP
+      |22: PUSH s1.grades
+      |23: PUSH_VAL 5
+      |24: CALL LinearSeqOptimized#apply
+      |25: POP
+      |26: FINISH BlockExpression
+      |27: RETURN
       |""".stripMargin
   }
 

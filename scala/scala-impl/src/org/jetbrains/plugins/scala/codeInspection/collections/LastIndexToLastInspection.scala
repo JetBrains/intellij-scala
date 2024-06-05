@@ -17,9 +17,9 @@ object LastIndexToLast extends SimplificationType {
     expr match {
       // TODO infix notation?
       case qual`.apply`(`.sizeOrLength`(qual2) `-` literal("1"))
-        if PsiEquivalenceUtil.areElementsEquivalent(qual, qual2)
+        if areElementsEquivalent(qual, qual2)
           && isSeq(qual) && !isIndexedSeq(qual) =>
-        Some(replace(expr).withText(invocationText(qual, "last")))
+        Some(replace(expr).withText(invocationText(qual, "last")).highlightFrom(qual))
       case _ => None
     }
   }

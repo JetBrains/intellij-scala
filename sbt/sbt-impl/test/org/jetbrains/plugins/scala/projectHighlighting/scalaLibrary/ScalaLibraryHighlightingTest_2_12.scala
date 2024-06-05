@@ -23,29 +23,6 @@ class ScalaLibraryHighlightingTest_2_12 extends ScalaLibraryHighlightingTest {
     "scala/collection/LinearSeqLike.scala" -> Set(
       (2448,2459), // Recursive call not in tail position (in @tailrec annotated method)
     ),
-    "scala/collection/generic/ClassTagTraversableFactory.scala" -> Set(
-      (1010,1032), // Cannot resolve symbol genericClassTagBuilder
-    ),
-    "scala/collection/generic/GenTraversableFactory.scala" -> Set(
-      (2221,2235), // Cannot resolve symbol genericBuilder
-    ),
-    "scala/collection/generic/ImmutableSetFactory.scala" -> Set(
-      (615,627), // Cannot resolve symbol asInstanceOf
-      (701,709), // Type mismatch, expected: CC[A], actual: Any
-    ),
-    "scala/collection/generic/OrderedTraversableFactory.scala" -> Set(
-      (658,679), // Cannot resolve symbol genericOrderedBuilder
-    ),
-    "scala/collection/generic/ParFactory.scala" -> Set(
-      (1295,1310), // Cannot resolve symbol genericCombiner
-    ),
-    "scala/collection/generic/ParMapFactory.scala" -> Set(
-      (1568,1586), // Cannot resolve symbol genericMapCombiner
-      (1593,1605), // Cannot resolve symbol asInstanceOf
-    ),
-    "scala/collection/generic/ParSetFactory.scala" -> Set(
-      (946,961), // Cannot resolve symbol genericCombiner
-    ),
     "scala/collection/immutable/HashMap.scala" -> Set(
       (5538,5546), // Overriding type Int does not conform to base type () => Int
     ),
@@ -57,7 +34,6 @@ class ScalaLibraryHighlightingTest_2_12 extends ScalaLibraryHighlightingTest {
     ),
     "scala/collection/mutable/ArrayLike.scala" -> Set(
       (1680,1688), // Cannot resolve symbol getClass
-      (1689,1696), // Cannot resolve symbol isArray
     ),
     "scala/collection/parallel/ParIterableLike.scala" -> Set(
       (36189,36191), // Type mismatch, expected: T <:< (Nothing, Nothing), actual: T <:< (K, V)

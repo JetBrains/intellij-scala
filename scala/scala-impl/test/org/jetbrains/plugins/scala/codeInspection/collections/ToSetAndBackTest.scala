@@ -36,7 +36,7 @@ abstract class ToSetAndBackTestBase extends OperationsOnCollectionInspectionTest
 
   def testPostfix(): Unit = {
     doTest(
-      s"(Seq(1)$START toSet) toSeq$END",
+      s"(Seq(1) ${START}toSet) toSeq$END",
       "(Seq(1) toSet) toSeq",
       "Seq(1).distinct"
     )

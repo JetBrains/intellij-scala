@@ -80,10 +80,12 @@ private case class ThisTypeSubstitution(target: ScType) extends LeafSubstitution
         else target match {
           case t: TypeParameterType => isMoreNarrow(t.upperType, thisTp, visited + typeParam)
           case p: ParameterizedType =>
-            val pSubst = p.substitutor
             p.designator match {
-              case tpt: TypeParameterType => isMoreNarrow(pSubst(tpt.upperType), thisTp, visited + typeParam)
-              case _                      => isMoreNarrow(pSubst(TypeParameterType(typeParam)), thisTp, visited + typeParam)
+              case tpt: TypeParameterType =>
+                val upperType = ParameterizedType(tpt.upperType, p.typeArguments)
+                isMoreNarrow(upperType, thisTp, visited + typeParam)
+              case _                      =>
+                isMoreNarrow(p.substitutor(TypeParameterType(typeParam)), thisTp, visited + typeParam)
             }
           case _ => isSameOrInheritor(typeParam, thisTp)
         }

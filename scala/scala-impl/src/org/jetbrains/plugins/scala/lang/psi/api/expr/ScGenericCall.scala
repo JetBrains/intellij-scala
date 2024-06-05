@@ -23,6 +23,8 @@ trait ScGenericCall extends ScExpression {
 
   def multiResolve: Option[Array[ScalaResolveResult]]
 
+  def bindInvokedExpr: Option[ScalaResolveResult]
+
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitGenericCallExpression(this)
   }

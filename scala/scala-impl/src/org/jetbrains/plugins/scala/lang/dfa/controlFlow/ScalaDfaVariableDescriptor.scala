@@ -7,6 +7,7 @@ import com.intellij.psi.{PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{isStableElement, scTypeToDfType}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
 case class ScalaDfaVariableDescriptor(variable: PsiElement,
@@ -36,7 +37,7 @@ object ScalaDfaVariableDescriptor {
 
     if (expression.isQualified && qualifierVariable.isEmpty) None
     else expression.getReference.bind()
-      .map(_.element)
+      .map(srr => if (srr.name == CommonNames.Apply) srr.getActualElement else srr.element)
       .map(element => ScalaDfaVariableDescriptor(element, qualifierVariable,
         isStableElement(element) && qualifierVariable.forall(qualifier => isStableElement(qualifier.variable))))
   }

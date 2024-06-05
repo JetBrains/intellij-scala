@@ -47,7 +47,7 @@ class RedundantHeadOptionTest extends RedundantHeadOrLastOptionInspectionTest {
 
   def test5(): Unit = {
     doTest(
-      s"Option(1)$START headOption$END",
+      s"Option(1) ${START}headOption$END",
       "Option(1) headOption",
       "Option(1)"
     )
@@ -93,7 +93,7 @@ class RedundantLastOptionTest extends RedundantHeadOrLastOptionInspectionTest {
 
   def test5(): Unit = {
     doTest(
-      s"Option(1)$START lastOption$END",
+      s"Option(1) ${START}lastOption$END",
       "Option(1) lastOption",
       "Option(1)"
     )

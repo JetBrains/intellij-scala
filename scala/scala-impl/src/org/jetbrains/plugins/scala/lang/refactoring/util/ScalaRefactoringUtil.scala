@@ -44,6 +44,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.ScTypePresentationExt
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectExt
 
 import java.awt.Component
@@ -260,14 +261,21 @@ object ScalaRefactoringUtil {
   def expressionToIntroduce(expr: ScExpression): ScExpression = {
     def copyExpr = expr.copy.asInstanceOf[ScExpression]
     def liftMethod = createExpressionFromText(expr.getText + " _", expr)(expr.getManager)
+
+    @tailrec
+    def needToLift(srr: ScalaResolveResult): Boolean = srr match {
+      case ScalaResolveResult.ApplyMethodInnerResolve(inner) => needToLift(inner)
+      case ScalaResolveResult(fun: ScFunction, _) if fun.paramClauses.clauses.nonEmpty &&
+        fun.paramClauses.clauses.head.isImplicit => false
+      case ScalaResolveResult(method: PsiMethod, _) if method.hasParameters => true
+      case _                                                                => false
+    }
     expr match {
       case ref: ScReferenceExpression =>
-        ref.resolve() match {
-          case fun: ScFunction if fun.paramClauses.clauses.nonEmpty &&
-            fun.paramClauses.clauses.head.isImplicit => copyExpr
-          case method: PsiMethod if method.parameters.nonEmpty => liftMethod
-          case _ => copyExpr
-        }
+        val lift = ref.bind().exists(needToLift)
+
+        if (lift) liftMethod
+        else      copyExpr
       case _ => copyExpr
     }
   }

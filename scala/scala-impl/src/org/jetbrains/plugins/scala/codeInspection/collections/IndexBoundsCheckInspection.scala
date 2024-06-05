@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.codeInspection.collections
 
-import com.intellij.codeInsight.PsiEquivalenceUtil.areElementsEquivalent
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.collections.IndexBoundsCheckInspection._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression

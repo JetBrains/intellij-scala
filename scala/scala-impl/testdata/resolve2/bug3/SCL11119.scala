@@ -14,6 +14,6 @@ object SCL11119 {
     import test._
 
     val f = F("foo")
-    f./* applicable: true */onS2{ case "x" => "baz" }
+    f./* applicable: true, name: apply */onS2{ case "x" => "baz" }
   }
 }

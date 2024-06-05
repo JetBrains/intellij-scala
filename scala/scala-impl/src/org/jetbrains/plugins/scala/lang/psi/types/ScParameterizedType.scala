@@ -210,13 +210,9 @@ object ScParameterizedType {
           }
 
         // Simplify application of ScTypePolymorphicType encoding of type lambdas
-        case ScTypePolymorphicType(internal: ScParameterizedType, typeParameters) =>
+        case ScTypePolymorphicType(internal, typeParameters) if typeParameters.size == typeArgs.size =>
           val subst = ScSubstitutor.bind(typeParameters, typeArgs)
-
-          ScParameterizedType(
-            subst(internal.designator),
-            internal.typeArguments.map(subst)
-          )
+          subst(internal)
         case _ => simple
       }
     }

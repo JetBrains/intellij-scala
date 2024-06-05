@@ -25,7 +25,7 @@ class ScAssignmentImpl(node: ASTNode) extends ScExpressionImplBase(node) with Sc
           case Some(_) =>
             mirrorMethodCall match {
               case Some(call) => call.`type`()
-              case None => Right(Unit)
+              case None       => Right(Unit)
             }
           case _ => Right(Unit)
         }
@@ -93,9 +93,9 @@ class ScAssignmentImpl(node: ASTNode) extends ScExpressionImplBase(node) with Sc
         ref.bind() match {
           case Some(r) =>
             r.element.nameContext match {
-              case _: ScVariable => None
+              case _: ScVariable                  => None
               case c: ScClassParameter if c.isVar => None
-              case _: PsiField => None
+              case _: PsiField                    => None
               case fun: ScFunction if ScalaPsiUtil.isViableForAssignmentFunction(fun) =>
                 val processor = new MethodResolveProcessor(ref, ScalaNamesUtil.clean(fun.name) + "_=",
                   rightExpression.map(expr => List(Seq(expr))).getOrElse(Nil), Nil, ref.getPrevTypeInfoParams,

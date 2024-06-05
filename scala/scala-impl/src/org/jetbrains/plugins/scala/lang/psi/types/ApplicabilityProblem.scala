@@ -36,6 +36,7 @@ case class MissedTypeParameter(param: TypeParameter)                     extends
 case object ExpectedTypeMismatch                                         extends ApplicabilityProblem
 case class NotFoundImplicitParameter(tpe: ScType)                        extends ApplicabilityProblem
 case class AmbiguousImplicitParameters(results: Seq[ScalaResolveResult]) extends ApplicabilityProblem
+case class WrongNamedParameterName(name: String)                         extends ApplicabilityProblem
 
 // TODO AmbiguousOverloading(results: Seq[ScalaResolveResult]) extends ApplicabilityProblem ?
 

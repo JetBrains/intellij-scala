@@ -16,6 +16,6 @@ object SCL6786 {
   val b = new B
   val c = new C
 
-  /*start*/(a.foo(1)(2)(3), b.foo("text"), c(1) = 2)/*end*/
+  /*start*/(a.foo(1)(2)(3), b.foo("text"))/*end*/
 }
-//(SCL6786.A, String, Int)
+//(SCL6786.A, String)

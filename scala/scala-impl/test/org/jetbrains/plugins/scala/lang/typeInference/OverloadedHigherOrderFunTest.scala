@@ -7,7 +7,7 @@ import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
 class OverloadedHigherOrderFunTest extends ScalaLightCodeInsightFixtureTestCase {
-  override protected def supportedIn(version: ScalaVersion) = version  >= LatestScalaVersions.Scala_2_13
+  override protected def supportedIn(version: ScalaVersion) = version >= LatestScalaVersions.Scala_2_13
 
   def testOverloadedProto(): Unit = checkTextHasNoErrors(
     """

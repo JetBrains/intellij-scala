@@ -15,12 +15,14 @@ import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, ScalaEle
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScReferencePattern, ScTuplePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScPatternList}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScPatternsImpl
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.structureView.element.{Test, TypeDefinition, Value}
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationProducer
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationProducer.CreateFromContextInfo.ClassWithTestName
@@ -217,16 +219,9 @@ object TestNodeProvider {
     }
     methodExpr.exists { methodExpr =>
       methodExpr.bind() match {
-        case Some(resolveResult) =>
-          resolveResult.getActualElement.name == callerName && {
-            val funElement = resolveResult.innerResolveResult match {
-              case Some(innerResult) =>
-                innerResult.getActualElement
-              case None => resolveResult.getElement
-            }
-            funElement.name == "apply" && funElement.is[ScFunctionDefinition] &&
-              checkClauses(funElement.asInstanceOf[ScFunctionDefinition].getParameterList.clauses, paramNames)
-          }
+        case Some(srr @ ScalaResolveResult(fun: ScFunctionDefinition, _)) if fun.name == CommonNames.Apply =>
+          srr.getActualElement.name == callerName &&
+            checkClauses(fun.getParameterList.clauses, paramNames)
         case _ => false
       }
     }

@@ -13,14 +13,14 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, Method
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult, ScalaResolveState}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-case class ExtensionConversionData(place: PsiElement,
-                                   ref: PsiElement,
-                                   refName: String,
-                                   processor: BaseProcessor,
-                                   noApplicability: Boolean,
-                                   withoutImplicitsForArgs: Boolean) {
-
-  //TODO! remove this after find a way to improve implicits according to compiler.
+case class ExtensionConversionData(
+  place:                   PsiElement,
+  ref:                     PsiElement,
+  refName:                 String,
+  processor:               BaseProcessor,
+  noApplicability:         Boolean,
+  withoutImplicitsForArgs: Boolean
+) {
   val kinds: Set[ResolveTargets.Value] = processor.kinds
 }
 
@@ -112,23 +112,23 @@ object ExtensionConversionHelper {
   ): Option[MethodResolveProcessor] = {
     import data._
 
-    Option(processor).collect { case processor: MethodResolveProcessor =>
-      processor
-    }.map { processor =>
-      new MethodResolveProcessor(
-        ref,
-        refName,
-        processor.argumentClauses,
-        processor.typeArgElements,
-        typeParams,
-        kinds,
-        processor.expectedOption,
-        processor.isUnderscore,
-        processor.isShapeResolve,
-        processor.constructorResolve,
-        noImplicitsForArgs = withoutImplicitsForArgs
-      )
-    }
+    processor
+      .asOptionOf[MethodResolveProcessor]
+      .map { processor =>
+        new MethodResolveProcessor(
+          ref,
+          refName,
+          processor.argumentClauses,
+          processor.typeArgElements,
+          typeParams,
+          kinds,
+          processor.expectedOption,
+          processor.isUnderscore,
+          processor.isShapeResolve,
+          processor.constructorResolve,
+          noImplicitsForArgs = withoutImplicitsForArgs
+        )
+      }
   }
 
   private def checkHasMethodFast(data: ExtensionConversionData, tp: ScType) = {

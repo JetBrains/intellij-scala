@@ -5,8 +5,8 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ArrayFactory
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
-import org.jetbrains.plugins.scala.lang.psi.{ScExportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import org.jetbrains.plugins.scala.lang.psi.{ScExportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.PrecedenceTypes
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 import org.jetbrains.plugins.scala.util.HashBuilder._
@@ -52,7 +53,7 @@ class ScalaResolveResult(
   val fromType:                 Option[ScType]             = None,
   val tuplingUsed:              Boolean                    = false,
   val isAssignment:             Boolean                    = false,
-  val notCheckedResolveResult:  Boolean                    = false,
+  val notCheckedResolveResult:  Boolean                    = false, //TODO: does not seem to be used anywhere
   val isAccessible:             Boolean                    = true,
   val resultUndef:              Option[ConstraintSystem]   = None,
   val prefixCompletion:         Boolean                    = false,
@@ -92,13 +93,13 @@ class ScalaResolveResult(
 
   def isApplicable(withExpectedType: Boolean = false): Boolean =
     if (withExpectedType) problems.isEmpty
-    else problems.forall(_ == ExpectedTypeMismatch)
+    else                  problems.forall(_ == ExpectedTypeMismatch)
 
-  def isApplicableInternal(withExpectedType: Boolean): Boolean =
-    innerResolveResult match {
-      case Some(r) => r.isApplicable(withExpectedType)
-      case None    => isApplicable(withExpectedType)
-    }
+//  def isApplicableInternal(withExpectedType: Boolean): Boolean =
+//    innerResolveResult match {
+//      case Some(r) => r.isApplicable(withExpectedType)
+//      case None    => isApplicable(withExpectedType)
+//    }
 
   /**
    * If this element (function definition) was resolved, while processing export statements
@@ -145,7 +146,8 @@ class ScalaResolveResult(
     extensionContext:         Option[ScExtension]        = extensionContext,
     matchClauseSubstitutor:   ScSubstitutor              = matchClauseSubstitutor,
     intersectedReturnType:    Option[ScType]             = intersectedReturnType,
-    exportedIn:               Option[ScExportsHolder]    = exportedIn
+    exportedIn:               Option[ScExportsHolder]    = exportedIn,
+    parentElement:            Option[PsiNamedElement]    = parentElement
   ): ScalaResolveResult =
     new ScalaResolveResult(
       element,
@@ -348,7 +350,7 @@ class ScalaResolveResult(
   final def mostInnerResolveResult: ScalaResolveResult =
     innerResolveResult match {
       case Some(inner) => inner.mostInnerResolveResult
-      case None => this
+      case None        => this
     }
 
   //for name-based extractor
@@ -365,6 +367,15 @@ object ScalaResolveResult {
 
   object withActual {
     def unapply(r: ScalaResolveResult): Option[PsiNamedElement] = Some(r.getActualElement)
+  }
+
+  object ApplyMethodInnerResolve {
+    def unapply(srr: ScalaResolveResult): Option[ScalaResolveResult] = {
+      val nameFits  = srr.name == CommonNames.Apply
+
+      if (nameFits) srr.innerResolveResult
+      else          None
+    }
   }
 
   val EMPTY_ARRAY = Array.empty[ScalaResolveResult]

@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.util.ImplicitUtil._
 
 import java.util
@@ -71,21 +72,22 @@ object ScalaHighlightImplicitUsagesHandler {
   object TargetKind {
     implicit val namedKind: TargetKind[ScNamedElement] = target(_)
 
-    implicit val refKind: TargetKind[ScReference] = ref => ref.resolve match {
-      case named: ScNamedElement => target(named)
-      case _                     => None
+    implicit val refKind: TargetKind[ScReference] = ref => ref.bind().flatMap {
+      case ScalaResolveResult.ApplyMethodInnerResolve(inner) => target(inner.element)
+      case ScalaResolveResult(named: ScNamedElement, _)      => target(named)
+      case _                                                 => None
     }
 
     implicit val contextBoundKind: TargetKind[(ScTypeParam, ScTypeElement)] = {
       case (_, typeElem) => contextBoundImplicitTarget(typeElem)
     }
 
-    private def target(named: ScNamedElement): Option[PsiNamedElement] = named match {
-        case _ if !named.isValid                             => None
-        case c: ScClass                                      => c.getSyntheticImplicitMethod
-        case n: ScNamedElement if ScalaPsiUtil.isImplicit(n) => Option(n)
-        case _                                               => None
-      }
+    private def target(named: PsiNamedElement): Option[PsiNamedElement] = named match {
+      case _ if !named.isValid                             => None
+      case c: ScClass                                      => c.getSyntheticImplicitMethod
+      case n: ScNamedElement if ScalaPsiUtil.isImplicit(n) => Option(n)
+      case _                                               => None
+    }
 
     private def contextBoundImplicitTarget(typeElem: ScTypeElement): Option[ScParameter] = {
       if (!typeElem.isValid) return None

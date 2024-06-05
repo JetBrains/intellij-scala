@@ -25,6 +25,8 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFor, ScMethodCall}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
@@ -899,7 +901,14 @@ object ScalaImportOptimizer {
     if (rangeStartPsi == null) false
     else {
       val ref = ScalaPsiElementFactory.createReferenceFromText(name, rangeStartPsi.getContext, rangeStartPsi)
-      ref.bind().map(_.element).exists {
+      val srr = ref.bind()
+
+      val element = srr.collect {
+        case srr @ ScalaResolveResult(fun: ScFunction) if fun.name == CommonNames.Apply => srr.getActualElement
+        case other                                                                      => other.element
+      }
+
+      element.exists {
         case p: PsiPackage =>
           p.getParentPackage != null && p.getParentPackage.name != null
         case o: ScObject if o.isPackageObject => o.qualifiedName.contains(".")
@@ -1272,7 +1281,7 @@ object ScalaImportOptimizer {
     val defaultImportsSet = element.defaultImports
 
     def fromDefaultImport(srr: ScalaResolveResult): Boolean =
-      srr.element match {
+      srr.getActualElement match {
         case c: PsiClass =>
           val qName = c.qualifiedName
 
@@ -1287,12 +1296,15 @@ object ScalaImportOptimizer {
       }
 
     def addResult(srr: ScalaResolveResult, fromElem: PsiElement): Unit = {
-      val importsUsed = srr.importsUsed
-      if (importsUsed.nonEmpty || fromDefaultImport(srr)) {
+      val innerSrr = srr match {
+        case ScalaResolveResult.ApplyMethodInnerResolve(actual) => actual
+        case other                                              => other
+      }
+
+      val importsUsed = innerSrr.importsUsed
+      if (importsUsed.nonEmpty || fromDefaultImport(innerSrr)) {
         imports.addAll(importsUsed.asJava)
-        // TODO Why does List() resolve to "List", but to "apply" if there's import scala.collection.immutable.List? (see SCL-19972)
-        val name = if (srr.name == "apply") fromElem.getText else srr.name
-        names.add(UsedName(name, fromElem.getTextRange.getStartOffset))
+        names.add(UsedName(innerSrr.name, fromElem.getTextRange.getStartOffset))
       }
     }
 

@@ -18,14 +18,14 @@ class ScalaShouldBeTextContainsInspectionTest extends ScalaInspectionTestBase {
       |  object intellij {
       |    object psi {
       |      class PsiElement {
-      |        def getText = ""
+      |        def getText() = ""
       |      }
       |    }
       |    class SubPsiElement extends psi.PsiElement
       |
       |    object lang {
       |      class ASTNode {
-      |        def getText = ""
+      |        def getText() = ""
       |      }
       |    }
       |  }

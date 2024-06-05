@@ -17,16 +17,16 @@ object IfElseToOption extends SimplificationType {
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     val inner = expr match {
       case IfStmt(x `==` literal("null"), scalaNone(), scalaSome(x1))
-        if PsiEquivalenceUtil.areElementsEquivalent(x, x1) =>
+        if areElementsEquivalent(x, x1) =>
         Some((x, x1))
       case IfStmt(x `!=` literal("null"), scalaSome(x1), scalaNone())
-        if PsiEquivalenceUtil.areElementsEquivalent(x, x1) =>
+        if areElementsEquivalent(x, x1) =>
         Some((x, x1))
       case IfStmt(literal("null") `==` x, scalaNone(), scalaSome(x1))
-        if PsiEquivalenceUtil.areElementsEquivalent(x, x1) =>
+        if areElementsEquivalent(x, x1) =>
         Some((x, x1))
       case IfStmt(literal("null") `!=` x, scalaSome(x1), scalaNone())
-        if PsiEquivalenceUtil.areElementsEquivalent(x, x1) =>
+        if areElementsEquivalent(x, x1) =>
         Some((x, x1))
       case _ => None
     }

@@ -6,14 +6,15 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil
 import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil._
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestUtil.{itWordFqns, theyWordFqns}
@@ -166,7 +167,7 @@ object ScalaTestAstTransformer {
     val firstChild = element.getFirstChild
     firstChild match {
       case literal: ScStringLiteral if literal.hasValidClosingQuotes =>
-        new StToStringTarget(firstChild, className, literal.getValue.toString)
+        new StToStringTarget(firstChild, className, literal.getValue)
       case invocation: MethodInvocation =>
         getScalaTestMethodInvocation(selected, invocation, Seq.empty, className) match {
           case Some(ast) => ast
@@ -186,12 +187,14 @@ object ScalaTestAstTransformer {
 
     current.getInvokedExpr match {
       case ref: ScReferenceExpression =>
-        val member = ref.resolve() match {
-          case member: ScMember => Some(member)
-          case pattern: ScBindingPattern =>
+
+        val member = ref.bind().flatMap {
+          case ScalaResolveResult.ApplyMethodInnerResolve(inner) => inner.element.asOptionOfUnsafe[ScMember]
+          case ScalaResolveResult(member: ScMember, _) => Some(member)
+          case ScalaResolveResult(pattern: ScBindingPattern, _) =>
             pattern.nameContext match {
               case member: ScMember => Some(member)
-              case _ => None
+              case _                => None
             }
           case _ => None
         }
@@ -202,7 +205,7 @@ object ScalaTestAstTransformer {
 
         val argsAst = arguments.map {
           case literal: ScStringLiteral if literal.hasValidClosingQuotes =>
-            new StStringLiteral(literal, containingClassName, literal.getValue.toString)
+            new StStringLiteral(literal, containingClassName, literal.getValue)
           case expr =>
             new StToStringTarget(expr, containingClassName, expr.getText)
         }

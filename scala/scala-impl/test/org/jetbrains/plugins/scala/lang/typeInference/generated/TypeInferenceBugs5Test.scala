@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.typeInference.generated
 
-import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
 import org.jetbrains.plugins.scala.lang.typeInference.testInjectors.{SCL9445Injector, SCL9532Injector, SCL9533Injector, SCL9865Injector}
 
@@ -9,6 +9,8 @@ abstract class TypeInferenceBugs5TestBase extends TypeInferenceTestBase {
 }
 
 class TypeInferenceBugs5Test extends TypeInferenceBugs5TestBase {
+  override protected def supportedIn(version: ScalaVersion) =
+    version >= LatestScalaVersions.Scala_2_11
 
   def testAnyPatternMatching(): Unit = doTest()
 

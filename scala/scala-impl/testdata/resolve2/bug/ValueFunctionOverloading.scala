@@ -3,5 +3,5 @@ object ValueFunctionOverloading {
   val foo: String => String = "" + _
 
   /* line: 2 */ foo(3)
-  /* line: 3 */ foo("")
+  /* name: apply, file: Function1 */ foo("")
 }

@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection
 
+import com.intellij.codeInsight.PsiEquivalenceUtil
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.CachedValueProvider.Result
@@ -10,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
@@ -19,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, JavaArrayTy
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, _}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ScalaFeatures
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.AnonymousFunction
@@ -104,7 +107,7 @@ package object collections {
   private[collections] val `.toSet` = invocation("toSet").from(likeCollectionClasses)
   private[collections] val `.toIterator` = invocation("toIterator").from(likeCollectionClasses)
 
-  private[collections] val `.lift` = invocation("lift").from(ArraySeq(PartialFunctionType.TypeName))
+  private[collections] val `.lift` = invocation("lift")
 
   private[collections] val `.monadicMethod` = invocation(monadicMethods).from(likeCollectionClasses)
 
@@ -119,7 +122,7 @@ package object collections {
 
   object scalaSome {
     def unapply(expr: ScExpression): Option[ScExpression] = expr match {
-      case MethodRepr(_, _, Some(ref), Seq(e)) if ref.refName == "Some" =>
+      case MethodRepr(_, Some(ref: ScReferenceExpression), _, Seq(e)) if ref.refName == "Some" =>
         ref.resolve() match {
           case m: ScMember if m.containingClass.qualifiedName == "scala.Some" => Some(e)
           case _ => None
@@ -130,7 +133,7 @@ package object collections {
 
   object scalaOption {
     def unapply(expr: ScExpression): Option[ScExpression] = expr match {
-      case MethodRepr(_, _, Some(ref), Seq(e)) if ref.refName == "Option" =>
+      case MethodRepr(_, Some(ref: ScReferenceExpression), _, Seq(e)) if ref.refName == "Option" =>
         ref.resolve() match {
           case m: ScMember if m.containingClass.qualifiedName == "scala.Option" => Some(e)
           case _ => None
@@ -275,7 +278,14 @@ package object collections {
     }
   }
 
-  def invocationText(qual: ScExpression, methName: String, args: ScExpression*): String = {
+  def areElementsEquivalent(lhs: PsiElement, rhs: PsiElement): Boolean = (lhs, rhs) match {
+    case (Resolved(lhsSrr), Resolved(rhsSrr)) =>
+      lhsSrr.element == rhsSrr.element ||
+        lhsSrr.getActualElement == rhsSrr.getActualElement
+    case _ => PsiEquivalenceUtil.areElementsEquivalent(lhs, rhs)
+  }
+
+  def invocationText(qual: PsiElement, methName: String, args: ScExpression*): String = {
     def argsText = argListText(args)
 
     if (qual == null) {
@@ -284,6 +294,8 @@ package object collections {
       val qualText = qual.getText
       qual match {
         case _ childOf ScInfixExpr(`qual`, _, _) if args.size == 1 =>
+          s"$qualText $methName ${args.head.getText}"
+        case _ childOf ScPostfixExpr(`qual`, _) if args.size == 1 =>
           s"$qualText $methName ${args.head.getText}"
         case _: ScInfixExpr => s"($qualText).$methName$argsText"
         case _: ScFor => s"($qualText).$methName$argsText"
@@ -446,9 +458,14 @@ package object collections {
   def isIterator: Typeable => Boolean =
     isExpressionOfType("scala.collection.Iterator")
 
-  private def isExpressionOfType(fqns: String*): Typeable => Boolean = {
+  @tailrec
+  private def isExpressionOfType(fqns: String*)(tpbl: Typeable): Boolean = tpbl match {
+    case Resolved(srr @ ScalaResolveResult(fun: ScFunction, _)) if fun.name == CommonNames.Apply =>
+      isExpressionOfType(fqns: _*)(
+        srr.getActualElement.asInstanceOf[Typeable]
+      )
     case Typeable(scType) => fqns.exists(conformsToTypeFromClass(scType, _)(scType.projectContext))
-    case _ => false
+    case _                => false
   }
 
   def withoutConversions(expr: ScExpression): Typeable = new Typeable {
@@ -486,10 +503,15 @@ package object collections {
       }
 
       object definedOutside {
-        def unapply(ref: ScReference): Option[PsiElement] = ref match {
-          case ResolvesTo(elem: PsiElement) if !PsiTreeUtil.isAncestor(expr, elem, false) => Some(elem)
-          case _ => None
-        }
+        private def elementDefinedOutside(e: PsiNamedElement): Boolean =
+          !PsiTreeUtil.isAncestor(expr, e, false)
+
+        def unapply(ref: ScReference): Option[PsiElement] =
+          for {
+            srr <- ref.bind()
+            e   = srr.getActualElement
+            if elementDefinedOutside(e)
+        } yield e
       }
 
       val predicate: (PsiElement) => Boolean = {
@@ -523,11 +545,16 @@ package object collections {
   def rightRangeInParent(expr: ScExpression, parent: ScExpression): TextRange = {
     if (expr == parent) return TextRange.create(0, expr.getTextLength)
 
-    val endOffset = parent.getTextRange.getEndOffset
+    val endOffset = parent.end
 
     val startOffset = expr match {
       case _ childOf ScInfixExpr(`expr`, op, _) => op.nameId.getTextOffset
-      case _ childOf (ref @ ScReferenceExpression.withQualifier(`expr`)) => ref.nameId.getTextOffset
+      case _ childOf (pfix @ ScPostfixExpr(`expr`, op))  =>
+        if (pfix.getContext == pfix.getParent) op.nameId.getTextOffset
+        else
+          pfix.getContext.getTextOffset + op.getTextRangeInParent.getStartOffset
+      case _ childOf (ref @ ScReferenceExpression.withQualifier(`expr`)) =>
+        ref.nameId.getTextOffset
       case _ => expr.getTextRange.getEndOffset
     }
     TextRange.create(startOffset, endOffset).shiftRight( - parent.getTextOffset)

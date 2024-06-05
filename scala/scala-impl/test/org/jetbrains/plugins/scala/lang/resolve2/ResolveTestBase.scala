@@ -189,9 +189,9 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
       val options: Map[String, String] = expectedTarget.map
 
       val (target, accessible, applicable) = (
-        result.get.element,
-        result.get.isAccessible,
-        result.get.isApplicable()
+        result.element,
+        result.isAccessible,
+        result.isApplicable()
       )
 
       def assertParameterEquals(name: String, expected: Any, actual: Any): Unit = {
