@@ -618,4 +618,33 @@ class ForComprehensionRefutabilityTest_From_3_4 extends ForComprehensionRefutabi
 
     assertNoErrors(code)
   }
+
+  def test_scala3_colon_lambdas(): Unit = assertNoErrors(
+    """
+      |def blub(int: Int): Boolean = int == 0
+      |
+      |val x: Seq[Seq[Int]] = for
+      |  a <- Seq(1).map: a1 =>
+      |    a1
+      |  b <-
+      |    a match
+      |      case b1 => Seq(b1)
+      |    end match
+      |  if
+      |    blub:
+      |      b + 1
+      |  if
+      |    a match
+      |      case _ => true
+      |    end match
+      |  e = Seq(b).map: c1 =>
+      |    c1
+      |  f =
+      |    e match
+      |      case f1 => f1
+      |    end match
+      |yield
+      |  f
+      |""".stripMargin
+  )
 }
