@@ -12,6 +12,14 @@ import org.jetbrains.plugins.scala.project.{ProjectExt, ProjectPsiElementExt}
 import scala.jdk.CollectionConverters.ListHasAsScala
 
 object DependencyUtil {
+  // heuristic similar to what coursier does
+  def isStable(version: String): Boolean =
+    !version.toLowerCase.endsWith("snapshot") &&
+      !version.exists(_.isLetter) &&
+      version
+        .split(Array('.', '-'))
+        .forall(_.lengthCompare(5) <= 0)
+
   /**
    * Append scala version suffix to `artifactId`. If `fullVersion = false`, then:
    *  - for Scala 3 use `artifactId_3`
@@ -61,9 +69,11 @@ object DependencyUtil {
     if (apiPackage == null) Seq.empty
     else apiPackage.getVersions
       .getAll.asScala.toSeq
-      .collect { case version if !onlyStable || version.getNormalizedVersion.isStable =>
+      // NormalizedVersion.isStable is not applicable in some cases (SCL-22621), use DependencyUtil.isStable instead
+      .map(_.getNormalizedVersion.getVersionName)
+      .collect { case version if !onlyStable || isStable(version) =>
         // NormalizedVersion treats 1.0.0 and 1.0.0-RC1 as equal which is not a desired result
-        new ComparableVersion(version.getNormalizedVersion.getVersionName)
+        new ComparableVersion(version)
       }
   }
 

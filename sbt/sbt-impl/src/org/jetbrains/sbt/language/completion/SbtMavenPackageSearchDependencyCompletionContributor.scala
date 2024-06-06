@@ -132,7 +132,7 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
 
           override def renderElement(presentation: LookupElementPresentation): Unit = {
             presentation.setItemText(version.toString)
-            if (SbtDependencyUtils.isVersionStable(version.toString)) presentation.setItemTextBold(true)
+            if (DependencyUtil.isStable(version.toString)) presentation.setItemTextBold(true)
             presentation.setTailText(" ")
             presentation.appendTailTextItalic(tailText, true)
           }

@@ -29,7 +29,7 @@ class SbtDependencyVersionInspection extends DependencyVersionInspection {
 }
 
 class SbtUpdateDependencyVersionQuickFix(elem: PsiElement, newVer: String)
-  extends AbstractFixOnPsiElement(SbtBundle.message("packagesearch.update.dependency.to.newer.stable.version", newVer), elem) {
+  extends AbstractFixOnPsiElement(SbtBundle.message("packagesearch.update.dependency.to.newer.version", newVer), elem) {
 
   override protected def doApplyFix(element: PsiElement)
                                    (implicit project: Project): Unit = {
