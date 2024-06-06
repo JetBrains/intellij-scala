@@ -159,7 +159,7 @@ final class ShowImplicitConversionsAction extends AnAction(
         case Seq() => editor.getSelectionModel.selectLineAtCaret()
         case Seq(expression) => chooseExpression(expression)
         case expressions =>
-          ScalaRefactoringUtil.showChooser(editor, expressions, (elem: ScExpression)=>
+          ScalaRefactoringUtil.showPsiChooser(expressions, (elem: ScExpression) =>
             chooseExpression(elem), ScalaBundle.message("title.expressions"), (expr: ScExpression) => {
             ScalaRefactoringUtil.getShortText(expr)
           })

@@ -59,7 +59,7 @@ class ShowImplicitArgumentsAction extends AnAction(
       case Seq(target) => onChosen(target)
       case targets     =>
         ScalaRefactoringUtil.showChooserGeneric[ImplicitArgumentsTarget](
-          editor, targets, onChosen, ScalaBundle.message("title.expressions"), _.presentation, _.expression
+          targets, onChosen, ScalaBundle.message("title.expressions"), _.presentation, _.expression
         )
     }
   }

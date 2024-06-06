@@ -265,7 +265,7 @@ class ScalaIntroduceParameterHandler extends ScalaRefactoringActionHandler with 
                                  (implicit project: Project = element.getProject, editor: Editor): Unit = {
     val validEnclosingMethods = getEnclosingMethods(element)
     if (validEnclosingMethods.size > 1 && !ApplicationManager.getApplication.isUnitTestMode) {
-      showChooser[ScMethodLike](editor, validEnclosingMethods, action,
+      showPsiChooser[ScMethodLike](validEnclosingMethods, action,
         ScalaBundle.message("choose.function.for.refactoring", REFACTORING_NAME), getTextForElement, toHighlight)
     }
     else if (validEnclosingMethods.size == 1 || ApplicationManager.getApplication.isUnitTestMode) {

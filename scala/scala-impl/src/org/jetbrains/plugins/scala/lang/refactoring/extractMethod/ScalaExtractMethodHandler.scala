@@ -117,13 +117,13 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
       case Seq(sibling) =>
         invokeDialog(elements, hasReturn, lastReturn, sibling, smallestScope = true, lastExprType)
       case siblings =>
-        showChooser(editor, siblings, { (selectedValue: PsiElement) =>
+        showPsiChooser(siblings, { (selectedValue: PsiElement) =>
           invokeDialog(
             elements, hasReturn, lastReturn, selectedValue,
             smallestScope = siblings.last == selectedValue,
             lastExprType  = lastExprType
           )
-        }, ScalaBundle.message("choose.level.for.extract.method"), getTextForElement, (e: PsiElement) => e.getParent)
+        }, ScalaBundle.message("choose.level.for.extract.method"), getTextForElement, _.getParent)
     }
   }
 
