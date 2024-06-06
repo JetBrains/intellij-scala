@@ -96,7 +96,9 @@ class ShowImplicitArgumentsAction extends AnAction(
           w.getText.contains("\n") => file.findElementAt(offset - 1)
         case p => p
       }
-      element.withParentsInFile.flatMap(allTargets).toSeq
+
+      if (element == null) Seq.empty
+      else element.withParentsInFile.flatMap(allTargets).toSeq
     }
   }
 
