@@ -19,7 +19,7 @@ class ModuleComboBoxColumnCellRenderer(defaultText: String) extends DefaultTable
     }
     // note: it is needed, because when the cell with ModulesComboBox is active (the user clicks on it), ModulesComboBox is responsible for displaying the values in a cell
     // and it has a margin. Without adding a border the value in a cell would change its position depending on whether it is active or not.
-    setBorder(BorderFactory.createEmptyBorder(0,12,0,0))
+    setBorder(BorderFactory.createEmptyBorder(0, 12, 0, 0))
   }
 
 

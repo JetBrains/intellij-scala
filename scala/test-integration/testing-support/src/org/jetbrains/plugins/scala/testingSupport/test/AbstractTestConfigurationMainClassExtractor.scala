@@ -9,11 +9,11 @@ class AbstractTestConfigurationMainClassExtractor extends ModuleBasedConfigurati
 
   override def getConfigurationMainClass(config: ModuleBasedConfiguration[_, _]): Option[String] =
     config match {
-      case x: AbstractTestRunConfiguration => handleTestConfigurationData(x.testConfigurationData)
+      case x: AbstractTestRunConfiguration => getMainClassFromConfigurationData(x.testConfigurationData)
       case _ => None
     }
 
-  private def handleTestConfigurationData(data: TestConfigurationData): Option[String] =
+  private def getMainClassFromConfigurationData(data: TestConfigurationData): Option[String] =
     data match {
       case data: ClassTestData =>
         val testClasspath = data.testClassPath

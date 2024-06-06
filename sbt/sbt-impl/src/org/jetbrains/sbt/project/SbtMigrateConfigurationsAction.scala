@@ -18,13 +18,20 @@ import org.jetbrains.sbt.project.extensionPoints.ModuleBasedConfigurationMainCla
 
 import scala.util.Try
 
-class SbtMigrateConfigurationsAction extends AnAction {
+class SbtMigrateConfigurationsAction extends AnAction(
+  SbtBundle.message("sbt.migrate.configurations.text")
+) {
 
   override def update(e: AnActionEvent): Unit = {
-    // note: it is kind of hack, to have a different name for the action in the notification and a different name elsewhere.
+    val presentation = e.getPresentation
     val place = e.getPlace
+    // note: it is kind of hack, to have a different name for the action in the notification and a different name elsewhere.
     if (place == ActionPlaces.ACTION_SEARCH || place == ActionPlaces.MAIN_MENU) {
-      e.getPresentation.setText(SbtBundle.message("sbt.migrate.configurations.full.title"))
+      presentation.setText(SbtBundle.message("sbt.migrate.configurations.full.title"))
+    }
+    val project = e.getProject
+    if (project == null || !SbtUtil.isSbtProject(project)) {
+      presentation.setEnabled(false)
     }
   }
 
@@ -32,7 +39,7 @@ class SbtMigrateConfigurationsAction extends AnAction {
 
   override def actionPerformed(e: AnActionEvent): Unit = {
     val project = e.getProject
-    if (project == null) return
+    if (project == null || project.isDefault) return
 
     val moduleBasedConfigurations = SbtUtil.getAllModuleBasedConfigurationsInProject(project)
     val modules = classPathProviderModules(project)
@@ -48,7 +55,7 @@ class SbtMigrateConfigurationsAction extends AnAction {
     } else {
       val dialogWrapper = new MigrateConfigurationsDialogWrapper(modules, configToHeuristicResult.toMap)
       val changedConfigToModule = dialogWrapper.open()
-      changedConfigToModule.collect { case(config, Some(module)) =>
+      changedConfigToModule.foreach { case (config, module) =>
         config.setModule(module)
         logger.info(s"In ${config.getName} configuration, the module was changed to ${module.getName}")
       }
@@ -73,7 +80,8 @@ class SbtMigrateConfigurationsAction extends AnAction {
     modules: Array[Module],
     project: Project
   ): ModuleHeuristicResult  = {
-    // finding new modules that end with old module name
+    // finding new modules that end with old module name e.g.
+    // oldModuleName = foo and some module in modules could be root.foo
     val possibleModules = modules.filter(_.getName.endsWith(s".$oldModuleName")).toSeq
     val modulesForClass = getModulesInWhichMainClassExists(config, project)
     val combinedModules = (possibleModules ++ modulesForClass).distinct
@@ -88,7 +96,12 @@ class SbtMigrateConfigurationsAction extends AnAction {
         val onlyJVMModules = combinedModules.flatMap(_.findJVMModule).map(_.getName)
         ModuleHeuristicResult(None, onlyJVMModules)
       case _ if productOfModuleSets.size < 10 => ModuleHeuristicResult(None, productOfModuleSets.map(_.getName))
-      case _  => ModuleHeuristicResult(None)
+      case _  =>
+        if (combinedModules.size >= 10) {
+          val combinedModulesString = combinedModules.map(_.getName).mkString(",")
+          logger.warn(s"For ${config.getName} the upgrade configuration action found 10 or more modules: $combinedModulesString")
+        }
+        ModuleHeuristicResult(None)
     }
   }
 
@@ -100,30 +113,31 @@ class SbtMigrateConfigurationsAction extends AnAction {
     // the situation will be solved because we will only have one module that fits.
     // If this does not happen, all possible modules are displayed as tooltip in MigrateConfigurationsDialogWrapper
     val mainClassName = extractMainClassName(config)
-    getModulesForClass(mainClassName, project)
+    if (mainClassName == null) Seq.empty
+    else getModulesForClass(mainClassName, project)
   }
 
-  // note: this method is based on com.intellij.execution.configurations.JavaRunConfigurationModule.getModulesForClass.
-  // I decided not to use it, because it also adds dependant modules to the result. In theory it is also possible
-  // to run some configurations in dependant modules, but it doesn't seem to be common practice.
-  private def getModulesForClass(@Nullable mainClassName: String, project: Project): Seq[Module] = {
-    if (project.isDefault || mainClassName == null) return Seq.empty
+  /**
+   * It's written based on [[com.intellij.execution.configurations.JavaRunConfigurationModule#getModulesForClass]].
+   * I decided not to use it directly, because it also adds dependant modules to the result. In theory it is also possible
+   * to run some configurations in dependant modules, but it doesn't seem to be common practice.
+   */
+  private def getModulesForClass(mainClassName: String, project: Project): Seq[Module] = {
     PsiDocumentManager.getInstance(project).commitAllDocuments()
-
-    val possibleClasses = JavaPsiFacade.getInstance(project).findClasses(mainClassName, GlobalSearchScope.projectScope(project))
-
-    possibleClasses.foldLeft(Seq.empty[Module]) { case(acc, psiClass) =>
-      val module = ModuleUtilCore.findModuleForPsiElement(psiClass)
-      if (module != null) acc :+ module
-      else acc
-    }
+    val possibleClasses = JavaPsiFacade.getInstance(project).findClasses(mainClassName, GlobalSearchScope.projectScope(project)).toSeq
+    possibleClasses.map(ModuleUtilCore.findModuleForPsiElement).filter(_ != null)
   }
 }
 
 object SbtMigrateConfigurationsAction {
   val ID = "Scala.Sbt.MigrateConfigurations"
-  val logger: Logger = Logger.getInstance(classOf[SbtMigrateConfigurationsAction])
+  private val logger: Logger = Logger.getInstance(classOf[SbtMigrateConfigurationsAction])
 
+  /**
+   * @param module single suitable module for configuration identified using heuristic from [[org.jetbrains.sbt.project.SbtMigrateConfigurationsAction#mapConfigurationToHeuristicResult]]
+   * @param guesses contains all possible modules (max 10), if heuristic in [[org.jetbrains.sbt.project.SbtMigrateConfigurationsAction#mapConfigurationToHeuristicResult]]
+   *                won't be able to find a single suitable module for configuration
+   */
   case class ModuleHeuristicResult(module: Option[Module], guesses: Seq[String] = Seq.empty)
 
   def isConfigurationInvalid(
@@ -131,8 +145,11 @@ object SbtMigrateConfigurationsAction {
     configurationModule: RunConfigurationModule,
     oldModuleName: String
   ): Boolean = {
-    // note: if oldModuleName is non-empty and configurationModule.getModule is not null, it's possible that the configuration may still be broken.
-    // See #isMainClassInConfigurationModule ScalaDoc for more details.
+    /*
+    1. If oldModuleName is non-empty and configurationModule.getModule is not null, it's still possible that the configuration may still be broken.
+    Check #isMainClassInConfigurationModule ScalaDoc for more details.
+    2. If configuration doesn't have a module, then moduleName is empty
+    */
     oldModuleName.nonEmpty && (configurationModule.getModule == null || isMainClassAbsentInConfigurationModule(config))
   }
 
