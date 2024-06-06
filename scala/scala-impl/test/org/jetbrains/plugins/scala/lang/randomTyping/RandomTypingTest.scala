@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.{RandomTypingTests, ScalaVersion}
 import org.junit.experimental.categories.Category
 
 import java.io.File
+import java.nio.file.Files
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.ListHasAsScala
@@ -65,7 +66,13 @@ abstract class RandomTypingTestBase(testFilePath: String) extends EditorActionTe
   def test_all_files(): Unit = {
     val random = new Random
 
-    val allFiles = new File(testFilePath).allFiles.to(ArraySeq)
+    val allFiles = new File(testFilePath)
+      .allFiles
+      // yeah this class does a lot of string indexing and slicing,
+      // which doesn't work at all well with code points that do not fit into one char
+      // So let's ignore those
+      .filterNot(file => hasCodePointsSpanningMultipleChars(Files.readString(file.toPath)))
+      .to(ArraySeq)
     println(s"Test ${allFiles.size} in $testFilePath:")
     for ((file, i) <- allFiles.zipWithIndex) {
       print(f"[${i + 1}%4s/${allFiles.length}] ")
@@ -103,6 +110,7 @@ abstract class RandomTypingTestBase(testFilePath: String) extends EditorActionTe
   }
 
   def typeRandomly(targetText: String, random: Random): Unit = {
+    assert(!hasCodePointsSpanningMultipleChars(targetText))
     val psiDocumentManager = PsiDocumentManager.getInstance(getProject)
     def commit(): Unit = {
       inWriteCommandAction {
@@ -276,4 +284,7 @@ object RandomTypingTest {
       case (TypingAction(i, Right(iIns)) :: rest, TypingAction(j, Right(jIns))) if i + iIns.length == j => TypingAction(i, Right(iIns + jIns)) :: rest
       case (rest, next) => next :: rest
     }.reverse
+
+  def hasCodePointsSpanningMultipleChars(string: String): Boolean =
+    Character.codePointCount(string, 0, string.length) != string.length
 }
