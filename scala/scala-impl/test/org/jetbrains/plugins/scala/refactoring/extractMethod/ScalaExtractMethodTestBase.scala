@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.refactoring.extractMethod
 
 import com.intellij.openapi.actionSystem.DataKey
 import com.intellij.openapi.actionSystem.impl.SimpleDataContext
+import com.intellij.openapi.application.impl.NonBlockingReadActionImpl
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
@@ -53,6 +54,7 @@ abstract class ScalaExtractMethodTestBase extends ScalaLightCodeInsightFixtureTe
     val scalaFile = getFile.asInstanceOf[ScalaFile]
 
     invokeExtractMethodRefactoring(scalaFile, scopeOffset, startOffset, endOffset)(getProject)
+    NonBlockingReadActionImpl.waitForAsyncTaskCompletion()
 
     val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
 

@@ -1,24 +1,18 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
 import com.intellij.codeInsight.template.impl.{TemplateManagerImpl, TemplateState}
-import com.intellij.codeInsight.unwrap.ScopeHighlighter
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.impl.StartMarkAction
-import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsScheme}
-import com.intellij.openapi.editor.markup._
-import com.intellij.openapi.editor.{Editor, SelectionModel}
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.popup.{JBPopupListener, LightweightWindowEvent, PopupChooserBuilder}
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageEditorUtil
 import com.intellij.psi.util.PsiTreeUtil.{findElementOfClassAtRange, getChildOfType, getParentOfType}
-import com.intellij.ui.components.JBList
 import org.jetbrains.annotations.{Nls, TestOnly}
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.editor.DocumentExt
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ValidSmartPointer, executeWriteActionCommand, inWriteAction, invokeLaterInTransaction}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, ValidSmartPointer, executeWriteActionCommand, inWriteAction}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -28,16 +22,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTy
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.refactoring.ScTypePresentationExt
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.OccurrenceData.ReplaceOptions
-import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableHandler.ReplaceTestOptions
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaDirectoryService, ScalaRefactoringUtil}
-import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.statistics.ScalaRefactoringUsagesCollector
 
-import java.awt.Component
 import java.util
-import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
-import javax.swing.{DefaultListCellRenderer, DefaultListModel, JList, ListCellRenderer}
 
 trait IntroduceTypeAlias {
   this: ScalaIntroduceVariableHandler =>
@@ -49,7 +38,8 @@ trait IntroduceTypeAlias {
     try {
       ScalaRefactoringUsagesCollector.logIntroduceTypeAlias(project)
 
-      PsiDocumentManager.getInstance(project).commitAllDocuments()
+      val documentManager = PsiDocumentManager.getInstance(project)
+      documentManager.commitAllDocuments()
       writableScalaFile(file, INTRODUCE_TYPEALIAS_REFACTORING_NAME)
 
       if (isInvalid(inTypeElement)) {
@@ -121,7 +111,9 @@ trait IntroduceTypeAlias {
               editor.getSelectionModel.removeSelection()
 
               if (isInplaceAvailable(editor)) {
-                editor.getDocument.commit(project)
+                val document = editor.getDocument
+                documentManager.commitDocument(document)
+                documentManager.doPostponedOperationsAndUnblockDocument(document)
 
                 maybeTypeAlias.foreach { typeAlias =>
                   editor.getUserData(IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO).addScopeElement(scopeItem)
@@ -154,7 +146,7 @@ trait IntroduceTypeAlias {
           //          editor.getUserData(IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO).clearData()
         } else {
           currentDataObject.setInintialInfo(inTypeElement.getTextRange)
-          afterScopeChoosing(editor, currentDataObject.possibleScopes, INTRODUCE_TYPEALIAS_REFACTORING_NAME) {
+          afterScopeChoosing(currentDataObject.possibleScopes, INTRODUCE_TYPEALIAS_REFACTORING_NAME) {
             case simpleScope: SimpleScopeItem if simpleScope.usualOccurrences.nonEmpty =>
               handleScope(simpleScope, needReplacement = true)
             case packageScope: PackageScopeItem =>
@@ -186,7 +178,7 @@ trait IntroduceTypeAlias {
       }
 
 
-      val mtext = typeElement.calcType.canonicalCodeText
+      val mtext = typeElement.calcType.canonicalCodeText(parent)
 
       val definition = ScalaPsiElementFactory
         .createTypeAliasDefinitionFromText(s"type $typeName = $mtext", typeElement.getContext, typeElement)
@@ -244,14 +236,15 @@ trait IntroduceTypeAlias {
     editor.getSelectionModel.removeSelection()
   }
 
-  private def afterScopeChoosing(editor: Editor, scopes: Array[ScopeItem],
-                                 refactoringName: String)(invokesNext: ScopeItem => Unit): Unit = {
+  private def afterScopeChoosing(scopes: Array[ScopeItem], refactoringName: String)
+                                (invokesNext: ScopeItem => Unit)
+                                (implicit project: Project, editor: Editor): Unit = {
 
     def chooseScopeItem(item: ScopeItem): Unit = {
       invokesNext(item)
     }
 
-    showTypeAliasChooser(editor, scopes, (elem: ScopeItem) => chooseScopeItem(elem),
+    showTypeAliasChooser(scopes, (elem: ScopeItem) => chooseScopeItem(elem),
       ScalaBundle.message("choose.scope.for", refactoringName), (elem: ScopeItem) => elem.toString)
   }
 
@@ -259,7 +252,7 @@ trait IntroduceTypeAlias {
     def replaceHelper(typeElement: ScTypeElement, inName: String): ScTypeElement = {
       val replacement = ScalaPsiElementFactory.createTypeElementFromText(inName, typeElement.getContext, typeElement)
       //remove parethesis around typeElement
-      if (typeElement.getParent.isInstanceOf[ScParenthesisedTypeElement]) {
+      if (typeElement.getParent.is[ScParenthesisedTypeElement]) {
         typeElement.getNextSibling.delete()
         typeElement.getPrevSibling.delete()
       }
@@ -283,74 +276,15 @@ trait IntroduceTypeAlias {
   }
 
 
-  private def showTypeAliasChooser[T](editor: Editor, elements: Array[T], pass: T => Unit, @Nls title: String, elementName: T => String): Unit = {
-    class Selection {
-      val selectionModel: SelectionModel = editor.getSelectionModel
-      val (start, end) = (selectionModel.getSelectionStart, selectionModel.getSelectionEnd)
-      val scheme: EditorColorsScheme = editor.getColorsScheme
-      val textAttributes = new TextAttributes
-      textAttributes.setForegroundColor(scheme.getColor(EditorColors.SELECTION_FOREGROUND_COLOR))
-      textAttributes.setBackgroundColor(scheme.getColor(EditorColors.SELECTION_BACKGROUND_COLOR))
-      var selectionHighlighter: RangeHighlighter = _
-      val markupModel: MarkupModel = editor.getMarkupModel
-
-      def addHighlighter(): Unit = if (selectionHighlighter == null) {
-        selectionHighlighter = markupModel.addRangeHighlighter(start, end, HighlighterLayer.SELECTION + 1,
-          textAttributes, HighlighterTargetArea.EXACT_RANGE)
-      }
-
-      def removeHighlighter(): Unit = if (selectionHighlighter != null) markupModel.removeHighlighter(selectionHighlighter)
-    }
-
-    val selection = new Selection
-    val highlighter: ScopeHighlighter = new ScopeHighlighter(editor)
-    val model = new DefaultListModel[T]()
-    elements.foreach(model.addElement)
-    val list = new JBList[T](model)
-    list.setCellRenderer(new DefaultListCellRenderer {
-      override def getListCellRendererComponent(list: JList[_], value: AnyRef, index: Int, isSelected: Boolean, cellHasFocus: Boolean): Component = {
-        val rendererComponent: Component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-
-        val element: T = value.asInstanceOf[T]
-        //        if (element.isValid) {
-        setText(elementName(element))
-        //        }
-        rendererComponent
-      }
-    }.asInstanceOf[ListCellRenderer[T]])
-    list.addListSelectionListener(new ListSelectionListener {
-      override def valueChanged(e: ListSelectionEvent): Unit = {
-        highlighter.dropHighlight()
-        val index: Int = list.getSelectedIndex
-        if (index < 0) return
-      }
-    })
-
-    val highlightingListener = new JBPopupListener {
-      override def beforeShown(event: LightweightWindowEvent): Unit = {
-        selection.addHighlighter()
-      }
-
-      override def onClosed(event: LightweightWindowEvent): Unit = {
-        highlighter.dropHighlight()
-        selection.removeHighlighter()
-      }
-    }
-
-    val callback: Runnable = () => invokeLaterInTransaction(editor.getProject.unloadAwareDisposable) {
-      pass(list.getSelectedValue)
-    }
-
-    new PopupChooserBuilder(list)
-      .setTitle(title)
-      .setMovable(false)
-      .setResizable(false)
-      .setRequestFocus(true)
-      .setItemChosenCallback(callback)
-      .addListener(highlightingListener)
-      .createPopup
-      .showInBestPositionFor(editor)
-  }
+  private def showTypeAliasChooser[T](elements: Array[T], pass: T => Unit, @Nls title: String, elementName: T => String)
+                                     (implicit project: Project, editor: Editor): Unit =
+    showChooserGeneric(
+      elements.toSeq,
+      pass,
+      title,
+      elementName,
+      (_: T) => null // do not highlight on item selection
+    )
 
   private def createAndGetPackageObjectBody(suggestedDirectory: PsiDirectory,
                                             needCreateDirectory: Boolean,

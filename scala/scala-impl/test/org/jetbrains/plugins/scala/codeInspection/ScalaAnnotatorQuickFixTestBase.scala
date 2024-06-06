@@ -32,8 +32,11 @@ abstract class ScalaAnnotatorQuickFixTestBase extends ScalaLightCodeInsightFixtu
     myFixture.checkResult(expectedFileText.withNormalizedSeparator.pipeIf(trimExpectedText)(_.trim), true)
   }
 
-  protected def testQuickFixAllInFile(text: String, expected: String, hint: String): Unit = {
-    val actions = doFindQuickFixes(text, hint)
+  protected def testQuickFixAllInFile(text: String, expected: String, hint: String): Unit =
+    testQuickFixAllInFile(text, expected, Seq(hint))
+
+  protected def testQuickFixAllInFile(text: String, expected: String, hints: Seq[String]): Unit = {
+    val actions = doFindQuickFixes(text, hints, failOnEmptyErrors = true)
 
     executeWriteActionCommand() {
       actions.foreach(_.invoke(getProject, getEditor, getFile))
@@ -65,10 +68,20 @@ abstract class ScalaAnnotatorQuickFixTestBase extends ScalaLightCodeInsightFixtu
   private def doFindQuickFix(text: String, hint: String, failOnEmptyErrors: Boolean = true): IntentionAction =
     doFindQuickFixes(text, hint, failOnEmptyErrors).head
 
-  protected def doFindQuickFixes(text: String, hint: String, failOnEmptyErrors: Boolean = true): Seq[IntentionAction] = {
+  protected def doFindQuickFixes(text: String, hint: String, failOnEmptyErrors: Boolean = true): Seq[IntentionAction] =
+    doFindQuickFixes(text, Seq(hint), failOnEmptyErrors)
+
+  protected def doFindQuickFixes(text: String, hints: Seq[String], failOnEmptyErrors: Boolean): Seq[IntentionAction] = {
     val actions = findAllQuickFixes(text, failOnEmptyErrors)
-    val actionsMatching = actions.filter(_.getText == hint)
-    assert(actionsMatching.nonEmpty, s"Quick fixes not found. Available actions:\n${actions.map(_.getText).mkString("\n")}")
+    val hintSet = hints.toSet
+    val actionsMatching = actions.filter(a => hintSet.contains(a.getText))
+    assert(actionsMatching.nonEmpty,
+      s"""Quick fixes not found.
+         |Expected actions:
+         |  ${hints.mkString("  \n")}
+         |Available actions:
+         |  ${actions.map(_.getText).mkString("  \n")}""".stripMargin
+    )
     actionsMatching
   }
 

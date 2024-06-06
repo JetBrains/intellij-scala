@@ -23,7 +23,7 @@ object ScalaBundleSortingTest {
   @Category(Array(classOf[BundleSortingTests]))
   final class ActualTest(moduleInfo: ModuleWithBundleInfo) extends TestCase with AssertionMatchers {
 
-    this.setName(moduleInfo.bundleAbsolutePath)
+    this.setName(moduleInfo.bundleAbsolutePath.toString)
 
     // Unused, but needed to suppress inspection that JUnit test class cannot be constructed.
     private[ScalaBundleSortingTest] def this() = this(null)
@@ -36,7 +36,7 @@ object ScalaBundleSortingTest {
       val keyToFindings: Map[String, List[Finding]] =
         ScalaBundleSorting.findKeyUsages(info)
 
-      val I18nBundleContent(entries) = read(info.bundleAbsolutePath)
+      val I18nBundleContent(entries) = read(info.bundleAbsolutePath.toFile)
 
       val usedEntries = entries.filterNot(_.path == unusedPath)
 

@@ -56,7 +56,7 @@ package object hints {
           expansion = Some(() => diffs.map(toText)))
       case Leaf(Match(text, tpe)) =>
         def quickNavigateInfo = tpe.flatMap {
-          case dt: ScDesignatorType => Option(ScalaDocQuickInfoGenerator.getQuickNavigateInfo(dt.element, originalElement))
+          case dt: ScDesignatorType => ScalaDocQuickInfoGenerator.getQuickNavigateInfo(dt.element, originalElement)
           case _ => None
         }
         Text(text,

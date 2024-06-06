@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.compiler.highlighting
 import com.intellij.codeInsight.daemon.impl.UpdateHighlightersUtil
 import com.intellij.codeInsight.daemon.impl.analysis.{FileHighlightingSetting, FileHighlightingSettingListener}
 import com.intellij.ide.PowerSaveMode
+import com.intellij.injected.editor.VirtualFileWindow
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.editor.{Document, EditorFactory}
@@ -70,7 +71,12 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
 
   private[highlighting] def triggerOnFileChange(psiFile: PsiFile, virtualFile: VirtualFile): Unit = executeOnBackgroundThreadInNotDisposed(project) {
     //file could be deleted (this code is called in background activity)
-    if (isHighlightingEnabled && virtualFile.isValid && isHighlightingEnabledFor(psiFile, virtualFile) && !hasErrors(psiFile)) {
+    val process = isHighlightingEnabled &&
+      !virtualFile.isInstanceOf[VirtualFileWindow] && //injected fragments
+      virtualFile.isValid &&
+      isHighlightingEnabledFor(psiFile, virtualFile) &&
+      !hasErrors(psiFile)
+    if (process) {
       val debugReason = s"file content changed: ${psiFile.name}"
       val document = inReadAction(FileDocumentManager.getInstance().getDocument(virtualFile))
       if (document ne null) {

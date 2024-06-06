@@ -47,7 +47,7 @@ final class ChangeTypeFix(
     if (!typeElement.isValid) return
     if (!IntentionPreviewUtils.prepareElementForWrite(typeElement.getContainingFile)) return
     if (typeElement.getParent == null || typeElement.getParent.getNode == null) return
-    val replaced = typeElement.replace(createTypeElementFromText(newType.canonicalText, typeElement)(file))
+    val replaced = typeElement.replace(createTypeElementFromText(newType.canonicalText(typeElement), typeElement)(file))
     ScalaPsiUtil.adjustTypes(replaced)
     UndoUtil.markPsiFileForUndo(file)
   }

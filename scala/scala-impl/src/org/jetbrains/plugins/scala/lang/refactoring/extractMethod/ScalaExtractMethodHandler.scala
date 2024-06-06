@@ -1,18 +1,19 @@
 package org.jetbrains.plugins.scala.lang.refactoring.extractMethod
 
 import com.intellij.openapi.actionSystem.DataContext
-import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.{ApplicationManager, ModalityState, ReadAction}
 import com.intellij.openapi.editor.{Editor, ScrollType}
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.util.concurrency.AppExecutorUtil
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -116,13 +117,13 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
       case Seq(sibling) =>
         invokeDialog(elements, hasReturn, lastReturn, sibling, smallestScope = true, lastExprType)
       case siblings =>
-        showChooser(editor, siblings, { (selectedValue: PsiElement) =>
+        showPsiChooser(siblings, { (selectedValue: PsiElement) =>
           invokeDialog(
             elements, hasReturn, lastReturn, selectedValue,
             smallestScope = siblings.last == selectedValue,
             lastExprType  = lastExprType
           )
-        }, ScalaBundle.message("choose.level.for.extract.method"), getTextForElement, (e: PsiElement) => e.getParent)
+        }, ScalaBundle.message("choose.level.for.extract.method"), getTextForElement, _.getParent)
     }
   }
 
@@ -294,7 +295,16 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
   }
 
   private def performRefactoring(settings: ScalaExtractMethodSettings, editor: Editor): Unit = {
-    val method = ScalaExtractMethodUtils.createMethodFromSettings(settings)
+    implicit val project: Project = editor.getProject
+    if (project == null) return
+    ReadAction
+      .nonBlocking(() => ScalaExtractMethodUtils.createMethodFromSettings(settings))
+      .finishOnUiThread(ModalityState.defaultModalityState, doPerformRefactoring(_, settings, editor))
+      .expireWhen(() => project.isDisposed)
+      .submit(AppExecutorUtil.getAppExecutorService)
+  }
+
+  private def doPerformRefactoring(method: ScFunction, settings: ScalaExtractMethodSettings, editor: Editor)(implicit project: Project): Unit = {
     if (method == null) return
     val ics = settings.innerClassSettings
 
@@ -331,8 +341,6 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
       insertedMethod
     }
 
-
-    implicit val project: Project = editor.getProject
     PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
     inWriteCommandAction {
       val method = insertMethod()

@@ -14,11 +14,13 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
 import com.intellij.psi.PsiDirectory
 import com.intellij.ui.SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.sbt.project.SbtProjectSystem
 
 import java.util
+import java.util.regex.Pattern
 import scala.jdk.CollectionConverters._
 import scala.util.control.Breaks._
 
@@ -112,7 +114,7 @@ private object ScalaTreeStructureProvider {
 
   private def getScalaModuleDirectoryNode(
     psiDirectory: PsiDirectory,
-    filter: PsiFileSystemItemFilter
+    @Nullable filter: PsiFileSystemItemFilter
   )(implicit project: Project, settings: ViewSettings) : Option[ScalaModuleDirectoryNode] = {
     val virtualFile = psiDirectory.getVirtualFile
     // For now in the process of creating modules, a single content root for each module is created and its path is equal to project.base.path (it is the root of the module).
@@ -132,9 +134,11 @@ private object ScalaTreeStructureProvider {
                        (implicit project: Project, settings: ViewSettings): Node = {
     val nodeValue = node.getValue
     nodeValue match {
-      case psiDirectory: PsiDirectory =>
-        getScalaModuleDirectoryNode(psiDirectory, node.asInstanceOf[PsiDirectoryNode].getFilter)
-          .getOrElse(node)
+      case _: PsiDirectory =>
+        node match {
+          case x: PsiDirectoryNode => getScalaModuleDirectoryNode(x).getOrElse(node)
+          case _ => node
+        }
       case file: ScalaFile =>
         Node(file)
       case definition: ScTypeDefinition  =>
@@ -184,7 +188,10 @@ private object ScalaTreeStructureProvider {
 
 
   private def isRootModuleInMultiBUILDProject(module: Module, project: Project, virtualFile: VirtualFile): Boolean = {
-    val regexPattern = (path: String) => s""".*$path(?:/)?\\]""".r
+    val regexPattern = (path: String) => {
+      val quoted = Pattern.quote(path)
+      s""".*$quoted(?:/)?\\]""".r
+    }
     val moduleRegexPattern = regexPattern(virtualFile.getPath)
 
     def moduleIdOpt(module: Module): Option[String] = Option(ExternalSystemApiUtil.getExternalProjectId(module))
@@ -216,7 +223,7 @@ private case class ScalaModuleDirectoryNode(
   psiDirectory: PsiDirectory,
   settings: ViewSettings,
   @NlsSafe moduleShortName: String,
-  filter: PsiFileSystemItemFilter,
+  @Nullable filter: PsiFileSystemItemFilter,
   module: Module,
 ) extends PsiDirectoryNode(project, psiDirectory, settings, filter) {
 

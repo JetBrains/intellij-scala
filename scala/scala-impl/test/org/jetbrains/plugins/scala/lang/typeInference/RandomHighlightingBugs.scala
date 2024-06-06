@@ -730,4 +730,44 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
       |}
       |""".stripMargin
   )
+
+  //SCL-15422
+  def testSCL15422(): Unit = {
+    checkTextHasNoErrors(
+      """trait Test {
+        |  type A = { type T <: Any }
+        |  type B <: A { type T <: Int }
+        |
+        |  val b: B
+        |  val i: b.T
+        |
+        |  i + i
+        |  //  ^ error "Type mismatch, expected: String, actual: Test.this.b.T"
+        |  //
+        |  //    But Scalac compiles this code
+        |}
+        |""".stripMargin
+    )
+  }
+
+  //SCL-15422
+  def testSCL15422_1(): Unit = {
+    checkTextHasNoErrors(
+      """trait Trait { def method(): Unit }
+        |trait OtherTrait { def otherMethod(): Unit }
+        |
+        |trait Test {
+        |  type A = { type T <: Trait }
+        |  type B <: A { type T <: OtherTrait }
+        |
+        |  val b: B
+        |  val s: b.T
+        |
+        |  s.otherMethod()
+        |//  ^ error "Cannot resolve symbol otherMethod"
+        |//
+        |//    But Scalac compiles this code
+        |}""".stripMargin
+    )
+  }
 }

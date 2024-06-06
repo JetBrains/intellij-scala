@@ -4,7 +4,6 @@ import com.intellij.application.options.ModulesComboBox
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.table.JBTable
-import com.intellij.openapi.project.Project
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager}
 
 import java.awt.{Dimension, Font}
@@ -16,18 +15,19 @@ import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.project.SbtMigrateConfigurationsAction.ModuleHeuristicResult
 
 import java.awt.event.MouseEvent
-import scala.collection.mutable
+import scala.jdk.CollectionConverters.IterableHasAsJava
 
-class MigrateConfigurationsDialogWrapper(project: Project, configurationToModule: Map[ModuleBasedConfiguration[_, _], ModuleHeuristicResult]) extends DialogWrapper(true) {
+class MigrateConfigurationsDialogWrapper(modules: Array[Module], configurationToModule: Map[ModuleBasedConfiguration[_, _], ModuleHeuristicResult]) extends DialogWrapper(true) {
 
   private val myTable = new JBTable() {
     override def getToolTipText(event: MouseEvent): String = {
       val row = rowAtPoint(event.getPoint)
       val configurationOpt = findConfigInRow(row)
-      val guesses = configurationOpt.flatMap(configurationToModule.get).map(_.guesses)
-      guesses match {
-        case Some(guesses) if guesses.nonEmpty => guesses.mkString("Suggested modules: ", ", ", "")
-        case _ => super.getToolTipText(event)
+      val guesses = configurationOpt.flatMap(configurationToModule.get).map(_.guesses).getOrElse(Nil)
+      if (guesses.nonEmpty) {
+        guesses.mkString("Suggested modules: ", ", ", "")
+      } else {
+        super.getToolTipText(event)
       }
     }
   }
@@ -36,9 +36,7 @@ class MigrateConfigurationsDialogWrapper(project: Project, configurationToModule
     override def isCellEditable(row: Int, column: Int): Boolean = column != 0 && column != 1
   }
 
-  private var result: mutable.Map[ModuleBasedConfiguration[_, _], Option[Module]] = mutable.Map() ++ configurationToModule.collect {
-    case(config, heuristicResult) if heuristicResult.module.nonEmpty => config -> heuristicResult.module
-  }
+  private var isClosed: Boolean = false
 
   locally {
     setTitle(SbtBundle.message("sbt.migrate.configurations.dialog.wrapper.title"))
@@ -48,12 +46,12 @@ class MigrateConfigurationsDialogWrapper(project: Project, configurationToModule
   }
 
   override def createCenterPanel(): JComponent = {
-    setUpSelectingModulesColumn()
+    setUpTableHeaderRenderer()
     setUpConfigurationColumn()
     setUpPreviousModuleNameColumn()
-    setUpTableHeaderRenderer()
+    setUpSelectingModulesColumn()
 
-    configurationToModule.foreach { case(config, ModuleHeuristicResult(module, _)) =>
+    configurationToModule.foreach { case (config, ModuleHeuristicResult(module, _)) =>
       val moduleName = config.getConfigurationModule.asInstanceOf[RunConfigurationModule].getModuleName
       val row: Array[AnyRef] = module match {
         case Some(module) => Array(config, moduleName, module)
@@ -61,15 +59,6 @@ class MigrateConfigurationsDialogWrapper(project: Project, configurationToModule
       }
       myTableModel.addRow(row)
     }
-
-    myTableModel.addTableModelListener{ e => {
-      val row = e.getFirstRow
-      val configOpt = findConfigInRow(row)
-      configOpt.foreach { config =>
-        val newModule = getValueAt[Module](row, 2)
-        result.update(config, Option(newModule))
-      }
-    }}
 
     getOKAction.setEnabled(true)
 
@@ -83,16 +72,17 @@ class MigrateConfigurationsDialogWrapper(project: Project, configurationToModule
 
   override def doCancelAction(): Unit = {
     super.doCancelAction()
-    onCancel()
+    isClosed = true
+    dispose()
   }
 
   override def doOKAction(): Unit = {
     super.doOKAction()
-    disposeDialog()
+    dispose()
   }
 
-  private def getValueAt[T](row: Integer, column: Integer): T =
-    myTableModel.getValueAt(row, column).asInstanceOf[T]
+  private def getValueAt[T](row: Integer, column: Integer): Option[T] =
+    Option(myTableModel.getValueAt(row, column)).map(_.asInstanceOf[T])
 
   private def setUpTableHeaderRenderer(): Unit = {
     val font = myTable.getTableHeader.getFont
@@ -103,7 +93,7 @@ class MigrateConfigurationsDialogWrapper(project: Project, configurationToModule
     val defaultText = SbtBundle.message("sbt.migrate.configurations.dialog.wrapper.default")
 
     val comboBox = new ModulesComboBox()
-    comboBox.fillModules(project)
+    comboBox.setModules(modules.toSeq.asJavaCollection)
     comboBox.allowEmptySelection(defaultText)
     val editor = new DefaultCellEditor(comboBox)
 
@@ -132,27 +122,31 @@ class MigrateConfigurationsDialogWrapper(project: Project, configurationToModule
     columnModel.setPreferredWidth(150)
   }
 
-  private def onCancel(): Unit =
-    closeDialogGracefully()
-
-  def open(): Map[ModuleBasedConfiguration[_, _], Option[Module]] = {
+  def open(): Map[ModuleBasedConfiguration[_, _], Module] = {
     pack()
     show()
-    result.toMap
+    if (!isClosed) getCurrentTableState
+    else Map.empty
+  }
+
+  private def getCurrentTableState: Map[ModuleBasedConfiguration[_, _], Module] = {
+    val rowsCount = myTableModel.getRowCount
+    (0 until rowsCount)
+      .map(createConfigModuleTuple)
+      .collect { case (Some(config), Some(module)) => config -> module }
+      .toMap
+  }
+
+  private def createConfigModuleTuple(row: Int): (Option[ModuleBasedConfiguration[_, _]], Option[Module]) = {
+    val config = getValueAt[ModuleBasedConfiguration[_, _]](row, 0)
+    val module = getValueAt[Module](row, 2)
+    (config, module)
   }
 
   private def findConfigInRow(row: Integer): Option[ModuleBasedConfiguration[_, _]] = {
     val isRowWithinRange = row >= 0 && row < configurationToModule.size
-    if (isRowWithinRange) Option(getValueAt[ModuleBasedConfiguration[_, _]](row, 0))
+    if (isRowWithinRange) getValueAt[ModuleBasedConfiguration[_, _]](row, 0)
     else None
   }
-
-  private def closeDialogGracefully(): Unit = {
-    result = mutable.Map.empty[ModuleBasedConfiguration[_, _], Option[Module]]
-    disposeDialog()
-  }
-
-  private def disposeDialog(): Unit =
-    dispose()
 }
 

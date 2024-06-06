@@ -1,15 +1,15 @@
 package org.jetbrains.plugins.scala.codeInsight.hints.rangeHints
 
-import com.intellij.codeInsight.hints.{ImmediateConfigurable, InlayGroup}
 import com.intellij.codeInsight.hints.settings.InlayProviderSettingsModel
+import com.intellij.codeInsight.hints.{ImmediateConfigurable, InlayGroup}
 import com.intellij.lang.Language
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.ScalaLanguage
-import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightBundle, ScalaCodeInsightSettings}
 import org.jetbrains.plugins.scala.codeInsight.hints.{ScalaHintsSettings, navigateToInlaySettings}
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
+import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightBundle, ScalaCodeInsightSettings}
 import org.jetbrains.plugins.scala.extensions.StringExt
 
 import java.util
@@ -81,7 +81,7 @@ class ExclusiveRangeHintSettingsModel(project: Project) extends InlayProviderSet
   override def reset(): Unit =
     settings.reset()
 
-  override def getDescription: String = ScalaCodeInsightBundle.message("range.exclusive.hint.description", ScalaCodeInsightBundle.message("xray.mode.tip", ScalaHintsSettings.xRayModeShortcut))
+  override def getDescription: String = ScalaCodeInsightBundle.message("range.exclusive.hint.description", ScalaHintsSettings.xRayModeTipText)
 
   override def getCaseDescription(aCase: ImmediateConfigurable.Case): String = null
 

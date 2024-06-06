@@ -264,12 +264,29 @@ abstract class ToggleTypeAnnotationIntentionTestBase extends ScalaIntentionTestB
        |}
        |""".stripMargin
   )
+
+  def testAddTypeAnnotationWithTypeWildCard(): Unit = doTest(
+    s"""
+       |class Foo[T]
+       |
+       |abstract class A {
+       |  def b(): Foo[_]
+       |}
+       |
+       |class B extends A {
+       |  protected def b$caretTag() = new Foo[_]
+       |}
+       |""".stripMargin,
+    s"""
+       |class Foo[T]
+       |
+       |abstract class A {
+       |  def b(): Foo[_]
+       |}
+       |
+       |class B extends A {
+       |  protected def b$caretTag(): Foo[_] = new Foo[_]
+       |}
+       |""".stripMargin
+  )
 }
-
-
-
-
-
-
-
-

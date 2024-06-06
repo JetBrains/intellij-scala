@@ -36,7 +36,7 @@ class SharedSourcesOwnersDataWorkspaceDataService extends WorkspaceDataService[S
           .foreach { moduleEntity =>
             val sharedSourcesOwnersData = dataNode.getData
             val newEntity = createSharedSourcesOwnersEntity(sharedSourcesOwnersData.ownerModuleIds)
-            ModuleEntityAndExtensions.modifyEntity(mutableStorage, moduleEntity, builder => {
+            ModuleEntityAndExtensions.modifyModuleEntity(mutableStorage, moduleEntity, builder => {
               ModuleExtensionWorkspaceEntityKt.setModuleExtensionWorkspaceEntity(builder, newEntity)
               kotlin.Unit.INSTANCE
             })

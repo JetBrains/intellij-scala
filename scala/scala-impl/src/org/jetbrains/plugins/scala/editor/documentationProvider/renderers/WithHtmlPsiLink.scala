@@ -2,7 +2,8 @@ package org.jetbrains.plugins.scala.editor.documentationProvider.renderers
 
 import com.intellij.psi.{PsiClass, PsiModifier, PsiPackage}
 import org.jetbrains.plugins.scala.editor.documentationProvider.{HtmlPsiUtils, _}
-import org.jetbrains.plugins.scala.extensions.{PsiClassExt, ResolvesTo}
+import org.jetbrains.plugins.scala.extensions.PsiClassExt
+import org.jetbrains.plugins.scala.highlighter.ScalaColorsSchemeUtils
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAccessModifier
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
@@ -68,19 +69,17 @@ private [documentationProvider] object WithHtmlPsiLink extends AccessQualifierRe
   override def renderQualifier(modifier: ScAccessModifier): String = {
     val res = for {
       id        <- modifier.idText
-      qualifier <- resolveAccessQualifier(modifier)
-    } yield HtmlPsiUtils.psiElementLink(qualifier, id)
+      reference <- Option(modifier.getReference)
+      resolved  <- Option(reference.resolve())
+      qualifier <- resolved match {
+        case c: PsiClass => Some(c.qualifiedName)
+        case p: PsiPackage => Some(p.getQualifiedName)
+        case _ => None
+      }
+    } yield {
+      val attributesKey = ScalaColorsSchemeUtils.textAttributesKey(resolved)
+      HtmlPsiUtils.psiElementLinkWithCodeTag(qualifier, id, Some(attributesKey))
+    }
     res.getOrElse("")
   }
-
-  private def resolveAccessQualifier(modifier: ScAccessModifier): Option[String] =
-    modifier.getReference match {
-      case ResolvesTo(element) =>
-        element match {
-          case clazz: PsiClass => Some(clazz.qualifiedName)
-          case p: PsiPackage => Some(p.getQualifiedName)
-          case _ => None
-        }
-      case _ => None
-    }
 }

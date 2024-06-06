@@ -14,6 +14,7 @@ import com.intellij.openapi.util.SystemInfo
 import org.jetbrains.plugins.scala.codeInsight.hints.ScalaEditorFactoryListener._
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
+import org.jetbrains.plugins.scala.settings.XRayUtils
 import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector
 
 import java.awt.event.{FocusAdapter, FocusEvent, InputEvent, KeyAdapter, KeyEvent, MouseEvent, MouseMotionAdapter, MouseWheelEvent, MouseWheelListener}
@@ -91,7 +92,7 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
   }
 
   private val editorKeyListener = new KeyAdapter {
-    private val ModifierKey = if (SystemInfo.isMac) KeyEvent.VK_META else KeyEvent.VK_CONTROL
+    private val ModifierKey = XRayUtils.xRayActionKeyModifier
 
     private var firstKeyPressTime = 0L
 

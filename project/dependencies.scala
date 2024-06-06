@@ -15,7 +15,7 @@ object Versions {
   val zincVersion = "1.10.0"
 
   // ATTENTION: check the comment in `Common.newProjectWithKotlin` when updating this version
-  val intellijVersion = "242.14146.5"
+  val intellijVersion = "242.15523.1"
 
   def isNightlyIntellijVersion: Boolean = intellijVersion.count(_ == '.') == 1
 
@@ -38,7 +38,7 @@ object Versions {
   val bspVersion = "2.1.0-M3"
   val sbtStructureVersion: String = "2024.1.2"
   val sbtIdeaShellVersion: String = "2021.1.0"
-  val compilerIndicesVersion = "1.0.14"
+  val compilerIndicesVersion = "1.0.15"
 
   val java9rtExportVersion: String = "0.1.0"
 
@@ -77,9 +77,11 @@ object Dependencies {
   import Versions.*
 
   val scalaLibrary: ModuleID = "org.scala-lang" % "scala-library" % scalaVersion
+  val scala3Library: ModuleID = "org.scala-lang" % "scala3-library_3" % scala3Version
   val scalaReflect: ModuleID = "org.scala-lang" % "scala-reflect" % scalaVersion
   val scalaCompiler: ModuleID = "org.scala-lang" % "scala-compiler" % scalaVersion
   val scalaXml: ModuleID = "org.scala-lang.modules" %% "scala-xml" % "2.3.0"
+  val tastyCore: ModuleID = "org.scala-lang" % "tasty-core_3" % Versions.scala3Version
   val scalaParallelCollections: ModuleID = "org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0"
   //  val scalaParserCombinators: ModuleID = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.2"
   // this actually needs the explicit version because something in packager breaks otherwise (???)

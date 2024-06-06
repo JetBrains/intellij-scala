@@ -59,7 +59,7 @@ class ShowImplicitArgumentsAction extends AnAction(
       case Seq(target) => onChosen(target)
       case targets     =>
         ScalaRefactoringUtil.showChooserGeneric[ImplicitArgumentsTarget](
-          editor, targets, onChosen, ScalaBundle.message("title.expressions"), _.presentation, _.expression
+          targets, onChosen, ScalaBundle.message("title.expressions"), _.presentation, _.expression
         )
     }
   }
@@ -96,7 +96,9 @@ class ShowImplicitArgumentsAction extends AnAction(
           w.getText.contains("\n") => file.findElementAt(offset - 1)
         case p => p
       }
-      element.withParentsInFile.flatMap(allTargets).toSeq
+
+      if (element == null) Seq.empty
+      else element.withParentsInFile.flatMap(allTargets).toSeq
     }
   }
 

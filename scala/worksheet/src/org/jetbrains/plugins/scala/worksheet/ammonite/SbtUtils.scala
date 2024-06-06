@@ -2,13 +2,12 @@ package org.jetbrains.plugins.scala.worksheet.ammonite
 
 import com.intellij.execution.process.{OSProcessHandler, ProcessAdapter, ProcessEvent}
 import com.intellij.openapi.util.Key
-import com.intellij.util.{PathUtil, net}
+import com.intellij.util.PathUtil
 import org.jetbrains.plugins.scala.project.template._
+import org.jetbrains.sbt.SbtUtil
 
 import java.io.{File, FileNotFoundException}
-import scala.annotation.nowarn
-import scala.collection.mutable
-import scala.jdk.CollectionConverters.CollectionHasAsScala
+import scala.collection.{immutable, mutable}
 
 // moved from org.jetbrains.plugins.scala.project.template
 private object SbtUtils {
@@ -78,22 +77,13 @@ private object SbtUtils {
       throw new FileNotFoundException("Jar file not found for class: " + launcher.getPath)
   }
 
-  private def vmOptions = {
-    @nowarn("cat=deprecation") // SCL-22625
-    val proxyOpts = net.HttpConfigurable.getInstance
-      .getJvmProperties(false, null)
-      .asScala
-      .map(toTuple)
+  private def vmOptions: immutable.Iterable[String] = {
+    val proxyOpts = SbtUtil.getStaticProxyConfigurationJvmOptions
     val javaOpts = Seq(sysprop("java.io.tmpdir")).flatten
     val options = proxyOpts ++ javaOpts
-    options.map { pair =>
-      "-D" + pair._1 + "=" + pair._2
-    }
+    options.map { case (name, value) => s"-D$name=$value" }
   }
 
   private def sysprop(key: String): Option[(String, String)] =
     Option(System.getProperty(key)).map((key, _))
-
-  private def toTuple[A, B](pair: com.intellij.openapi.util.Pair[A, B]): Tuple2[A,B] =
-    (pair.first, pair.second)
 }

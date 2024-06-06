@@ -37,7 +37,7 @@ class SbtModuleDataWorkspaceDataService extends WorkspaceDataService[SbtModuleDa
           .foreach { moduleEntity =>
             val sbtModuleData = dataNode.getData
             val newEntity = createSbtModuleEntity(sbtModuleData, project)
-            ModuleEntityAndExtensions.modifyEntity(mutableStorage, moduleEntity, builder => {
+            ModuleEntityAndExtensions.modifyModuleEntity(mutableStorage, moduleEntity, builder => {
               ModuleExtensionWorkspaceEntityKt.setModuleExtensionWorkspaceEntity(builder, newEntity)
               kotlin.Unit.INSTANCE
             })

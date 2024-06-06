@@ -556,6 +556,23 @@ abstract class ForComprehensionRefutabilityTestBase_3 extends ForComprehensionHi
 
     assertMessages(code, Error("<-", "Cannot resolve symbol withFilter"))
   }
+
+  def test_scala3_block(): Unit = assertNoErrors(
+    """
+      |for {
+      |  x <- List(1, 2)
+      |  str <-
+      |    val foo: List[String] = ???
+      |    foo
+      |  blub =
+      |    val str2 = str
+      |    str
+      |  if
+      |    val b = true
+      |    b
+      |} yield str
+      |""".stripMargin
+  )
 }
 
 class ForComprehensionRefutabilityTest_3_3 extends ForComprehensionRefutabilityTestBase_3 {

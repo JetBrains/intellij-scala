@@ -1,9 +1,7 @@
 package org.jetbrains.plugins.scala.testingSupport.test
 
-import com.intellij.execution.JavaExecutionUtil
 import com.intellij.execution.configurations.ModuleBasedConfiguration
-import com.intellij.psi.PsiClass
-import org.jetbrains.annotations.Nullable
+import org.apache.commons.lang3.StringUtils
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{ClassTestData, TestConfigurationData}
 import org.jetbrains.sbt.project.extensionPoints.ModuleBasedConfigurationMainClassExtractor
 
@@ -11,17 +9,15 @@ class AbstractTestConfigurationMainClassExtractor extends ModuleBasedConfigurati
 
   override def getConfigurationMainClass(config: ModuleBasedConfiguration[_, _]): Option[String] =
     config match {
-      case x: AbstractTestRunConfiguration => handleTestConfigurationData(x.testConfigurationData)
+      case x: AbstractTestRunConfiguration => getMainClassFromConfigurationData(x.testConfigurationData)
       case _ => None
     }
 
-  private def handleTestConfigurationData(data: TestConfigurationData): Option[String] =
+  private def getMainClassFromConfigurationData(data: TestConfigurationData): Option[String] =
     data match {
-      case data: ClassTestData => getMainClassFromPsiClass(data.getClassPathClazz)
+      case data: ClassTestData =>
+        val testClasspath = data.testClassPath
+        Option(testClasspath).filter(StringUtils.isNotBlank)
       case _ => None
     }
-
-  private def getMainClassFromPsiClass(@Nullable psiClass: PsiClass): Option[String] =
-    if (psiClass != null) Option(JavaExecutionUtil.getRuntimeQualifiedName(psiClass))
-    else None
 }

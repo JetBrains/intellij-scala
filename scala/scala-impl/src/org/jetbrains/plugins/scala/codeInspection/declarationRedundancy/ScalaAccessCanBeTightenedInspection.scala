@@ -1,15 +1,18 @@
 package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy
 
+import com.intellij.codeInsight.daemon.impl.{DaemonCodeAnalyzerEx, HighlightInfo}
 import com.intellij.codeInsight.intention.PriorityAction.Priority
 import com.intellij.codeInsight.intention.{FileModifier, PriorityAction}
 import com.intellij.codeInspection.LocalQuickFixAndIntentionActionOnPsiElement
+import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.impl.ImaginaryEditor
 import com.intellij.openapi.project.Project
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
-import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaAccessCanBeTightenedInspection.getPipeline
+import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaAccessCanBeTightenedInspection.{elementToHighlightIn, getPipeline}
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.SymbolEscaping.elementIsSymbolWhichEscapesItsDefiningScopeWhenItIsPrivate
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.Pipeline
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.{ElementUsage, Search, SearchMethodsWithProjectBoundCache}
@@ -49,12 +52,8 @@ final class ScalaAccessCanBeTightenedInspection extends HighlightingPassInspecti
 
         if (canBePrivate) {
           val fix = new ScalaAccessCanBeTightenedInspection.MakePrivateQuickFix(member)
-          val elementToHighlight = member match {
-            case n: ScNamedElement => n.nameId
-            case v: ScValueOrVariableDefinition => v.pList
-          }
           Seq(ProblemInfo(
-            elementToHighlight,
+            elementToHighlightIn(member),
             ScalaInspectionBundle.message("access.can.be.private"),
             Seq(fix)
           ))
@@ -75,6 +74,11 @@ final class ScalaAccessCanBeTightenedInspection extends HighlightingPassInspecti
 
 private object ScalaAccessCanBeTightenedInspection {
 
+  private def elementToHighlightIn(member: PsiElement) = member match {
+    case n: ScNamedElement => n.nameId
+    case v: ScValueOrVariableDefinition => v.pList
+  }
+
   private[declarationRedundancy]
   class MakePrivateQuickFix(element: ScModifierListOwner)
     extends LocalQuickFixAndIntentionActionOnPsiElement(element)
@@ -88,8 +92,22 @@ private object ScalaAccessCanBeTightenedInspection {
 
     override def getFamilyName: String = ScalaInspectionBundle.message("change.modifier")
 
-    override def invoke(project: Project, file: PsiFile, editor: Editor, startElement: PsiElement, endElement: PsiElement): Unit =
+    override def invoke(project: Project, file: PsiFile, editor: Editor, startElement: PsiElement, endElement: PsiElement): Unit = {
+      if (!editor.isInstanceOf[ImaginaryEditor]) { // Preview
+        val range = elementToHighlightIn(element).getTextRange
+        var highlight: Option[HighlightInfo] = None
+        DaemonCodeAnalyzerEx.processHighlights(editor.getDocument, project, HighlightSeverity.WARNING, range.getStartOffset, range.getEndOffset, (info: HighlightInfo) => {
+          if (info.getDescription == ScalaInspectionBundle.message("access.can.be.private")) {
+            highlight = Some(info)
+            false
+          } else {
+            true
+          }
+        })
+        highlight.foreach(_.getHighlighter.dispose()) // Delete the highlight immediately, SCL-22635
+      }
       element.setModifierProperty("private")
+    }
 
     override def getFileModifierForPreview(target: PsiFile): FileModifier =
       new MakePrivateQuickFix(PsiTreeUtil.findSameElementInCopy(element, target))
