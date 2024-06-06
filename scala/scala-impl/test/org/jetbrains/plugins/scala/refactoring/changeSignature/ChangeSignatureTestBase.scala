@@ -17,10 +17,17 @@ import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.{ScalaChange
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.annotations._
 import org.jetbrains.plugins.scala.util._
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert._
+import org.junit.runner.RunWith
 
 import java.io.File
 
+@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_2_13,
+  TestScalaVersion.Scala_3_Latest,
+))
 abstract class ChangeSignatureTestBase extends ScalaLightCodeInsightFixtureTestCase {
 
   protected var targetMethod: PsiMember = null
@@ -136,4 +143,3 @@ abstract class ChangeSignatureTestBase extends ScalaLightCodeInsightFixtureTestC
     new ScalaChangeSignatureProcessor(changeInfo)(getProject)
   }
 }
-

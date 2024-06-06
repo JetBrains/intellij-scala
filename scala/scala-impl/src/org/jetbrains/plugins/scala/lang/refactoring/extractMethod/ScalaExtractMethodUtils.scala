@@ -41,7 +41,7 @@ object ScalaExtractMethodUtils {
 
     def paramText(param: ExtractMethodParameter): String = {
       val ExtractMethodParameter(oldName, _, fromElement, tp, _) = param
-      typedName(oldName, tp.canonicalCodeText, param.isCallByNameParameter)(fromElement.getProject)
+      typedName(oldName, tp.canonicalCodeText(fromElement), param.isCallByNameParameter)(fromElement.getProject)
     }
 
     val parameters = settings.parameters.filter(_.passAsParameter).map(paramText)
@@ -71,7 +71,7 @@ object ScalaExtractMethodUtils {
 
     val notPassedParams = settings.parameters.filter(p => !p.passAsParameter).map {
       case ExtractMethodParameter(oldName, _, fromElement, tp, _) =>
-        val nameAndType = typedName(oldName, tp.canonicalCodeText)(fromElement.getProject)
+        val nameAndType = typedName(oldName, tp.canonicalCodeText(fromElement))(fromElement.getProject)
       s"val $nameAndType = ???\n"
     }
     val notPassedParamsText = notPassedParams.mkString
@@ -397,8 +397,10 @@ object ScalaExtractMethodUtils {
     val methodCallText = s"${settings.methodName}$paramsText"
     var needExtractorsFromMultipleReturn = false
 
-    val outputTypedNames = settings.outputs.map(o =>
-      ScalaExtractMethodUtils.typedName(outputName(o), o.returnType.canonicalCodeText)(o.fromElement.getProject))
+    val outputTypedNames = settings.outputs.map { o =>
+      val fromElement = o.fromElement
+      ScalaExtractMethodUtils.typedName(outputName(o), o.returnType.canonicalCodeText(fromElement))(fromElement.getProject)
+    }
     val ics = settings.innerClassSettings
 
     def patternForDeclaration: String = {
@@ -459,7 +461,6 @@ object ScalaExtractMethodUtils {
         val expr = createExpressionFromText(exprText, target)
         val declaration = createDeclaration(pattern, "", isVariable = !isVal, expr, target)
         val result = target.replace(declaration)
-        TypeAdjuster.markToAdjust(result)
         result
       }
     }

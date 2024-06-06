@@ -18,6 +18,8 @@ class ScalaExtractMethodOutputTest extends ScalaExtractMethodTestBase {
 
   def testReturnSeveralOutput2(): Unit = doTest()
 
+  def testReturnSeveralOutput3(): Unit = doTest()
+
   def testUnitReturnNoOutput(): Unit = doTest()
 
   def testUnitReturnOneOutput(): Unit = doTest()
@@ -25,5 +27,4 @@ class ScalaExtractMethodOutputTest extends ScalaExtractMethodTestBase {
   def testUnitReturnSeveralOutput1(): Unit = doTest()
 
   def testUnitReturnSeveralOutput2(): Unit = doTest()
-
 }

@@ -21,4 +21,29 @@ final class ToggleTypeAnnotationIntentionTest_Scala3 extends ToggleTypeAnnotatio
        |}
        |""".stripMargin
   )
+
+  override def testAddTypeAnnotationWithTypeWildCard(): Unit = doTest(
+    s"""
+       |class Foo[T]
+       |
+       |abstract class A {
+       |  def b(): Foo[?]
+       |}
+       |
+       |class B extends A {
+       |  protected def b$caretTag() = new Foo[?]
+       |}
+       |""".stripMargin,
+    s"""
+       |class Foo[T]
+       |
+       |abstract class A {
+       |  def b(): Foo[?]
+       |}
+       |
+       |class B extends A {
+       |  protected def b$caretTag(): Foo[?] = new Foo[?]
+       |}
+       |""".stripMargin
+  )
 }

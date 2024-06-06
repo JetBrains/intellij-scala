@@ -2,21 +2,23 @@ package org.jetbrains.plugins.scala.lang.refactoring.util
 
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import com.intellij.codeInsight.highlighting.HighlightManager
+import com.intellij.codeInsight.navigation.PsiTargetNavigator
 import com.intellij.codeInsight.unwrap.ScopeHighlighter
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsScheme}
 import com.intellij.openapi.editor.markup._
 import com.intellij.openapi.editor.{Document, Editor, RangeMarker, SelectionModel}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.popup.{JBPopupFactory, JBPopupListener, LightweightWindowEvent}
+import com.intellij.openapi.ui.popup.{JBPopup, JBPopupFactory, JBPopupListener, LightweightWindowEvent}
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.openapi.vfs.ReadonlyStatusHandler
+import com.intellij.platform.backend.presentation.TargetPresentation
 import com.intellij.psi._
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.util.CommonRefactoringUtil
-import com.intellij.ui.components.JBList
+import com.intellij.util.Consumer
 import org.jetbrains.annotations.{Nls, TestOnly}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
@@ -47,9 +49,8 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 import java.awt.Component
 import java.util.Collections
 import java.{lang, util => ju}
-import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
-import javax.swing.{DefaultListCellRenderer, DefaultListModel, JList, ListCellRenderer}
-import scala.annotation.{nowarn, tailrec}
+import javax.swing.{DefaultListCellRenderer, JList, ListCellRenderer}
+import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -490,24 +491,97 @@ object ScalaRefactoringUtil {
     highlightOccurrences(project, ranges, editor)
   }
 
-  private[scala]
-  def showChooserGeneric[T](
-    editor: Editor,
+  /**
+   * '''ATTENTION''': for PSI elements use [[showPsiChooser]]
+   */
+  private[scala] def showChooserGeneric[T](
     elements: Seq[T],
     onChosen: T => Unit,
     @Nls title: String,
     presentation: T => String,
     toHighlight: T => PsiElement
-  ): Unit = {
+  )(implicit project: Project, editor: Editor): Unit =
+    showChooserImpl(onChosen) { chooserModel =>
+      JBPopupFactory.getInstance
+        .createPopupChooserBuilder(elements.asJava)
+        .setTitle(title)
+        .setMovable(false)
+        .setResizable(false)
+        .setRequestFocus(true)
+        .addListener(chooserModel.highlighterPopupListener)
+        .setItemChosenCallback(chooserModel.elementChosen)
+        .setItemSelectedCallback { item =>
+          val psiElement = toHighlight(item)
+          if (psiElement != null) {
+            chooserModel.highlightPsi.accept(psiElement)
+          }
+        }
+        .setRenderer(new DefaultListCellRenderer {
+          override def getListCellRendererComponent(list: JList[_], value: Object, index: Int, isSelected: Boolean, cellHasFocus: Boolean): Component = {
+            val rendererComponent: Component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus)
+            val element: T = value.asInstanceOf[T]
+            setText(presentation(element))
+            rendererComponent
+          }
+        }.asInstanceOf[ListCellRenderer[T]])
+        .createPopup
+    }
+
+  def showPsiChooser[T <: PsiElement](elements: Seq[T],
+                                      onChosen: T => Unit,
+                                      @Nls title: String,
+                                      presentation: T => String,
+                                      toHighlight: PsiElement => PsiElement = identity)
+                                     (implicit project: Project, editor: Editor): Unit =
+    showChooserImpl(onChosen) { chooserModel =>
+      new PsiTargetNavigator(elements.asJava)
+        .presentationProvider((element: T) => TargetPresentation.builder(presentation(element)).presentation())
+        .builderConsumer { builder =>
+          builder
+            .setMovable(false)
+            .setResizable(false)
+            .setRequestFocus(true)
+            .addListener(chooserModel.highlighterPopupListener)
+            .setItemSelectedCallback { item =>
+              if (item != null) {
+                val element = item.dereference()
+                if (element != null) {
+                  val psiElement = toHighlight(element)
+                  if (psiElement != null) {
+                    chooserModel.highlightPsi.accept(psiElement)
+                  }
+                }
+              }
+            }
+        }
+        .createPopup(project, title, (element: T) => {
+          chooserModel.elementChosen.accept(element)
+          true
+        })
+    }
+
+  /** See [[showChooserImpl]] */
+  private final case class HighlightingChooserModel[T](
+    elementChosen: Consumer[T],
+    highlightPsi: Consumer[PsiElement],
+    highlighterPopupListener: JBPopupListener,
+  )
+
+  private def showChooserImpl[T](onChosen: T => Unit)
+                                (createPopup: HighlightingChooserModel[T] => JBPopup)
+                                (implicit project: Project, editor: Editor): Unit = {
     class Selection {
-      val selectionModel: SelectionModel = editor.getSelectionModel
-      val (start, end) = (selectionModel.getSelectionStart, selectionModel.getSelectionEnd)
-      val scheme: EditorColorsScheme = editor.getColorsScheme
-      val textAttributes = new TextAttributes
-      textAttributes.setForegroundColor(scheme.getColor(EditorColors.SELECTION_FOREGROUND_COLOR))
-      textAttributes.setBackgroundColor(scheme.getColor(EditorColors.SELECTION_BACKGROUND_COLOR))
-      var selectionHighlighter: RangeHighlighter = _
-      val markupModel: MarkupModel = editor.getMarkupModel
+      private val selectionModel: SelectionModel = editor.getSelectionModel
+      private val (start, end) = (selectionModel.getSelectionStart, selectionModel.getSelectionEnd)
+      private val scheme: EditorColorsScheme = editor.getColorsScheme
+      private val textAttributes = new TextAttributes
+      private var selectionHighlighter: RangeHighlighter = _
+      private val markupModel: MarkupModel = editor.getMarkupModel
+
+      locally {
+        textAttributes.setForegroundColor(scheme.getColor(EditorColors.SELECTION_FOREGROUND_COLOR))
+        textAttributes.setBackgroundColor(scheme.getColor(EditorColors.SELECTION_BACKGROUND_COLOR))
+      }
 
       def addHighlighter(): Unit = if (selectionHighlighter == null) {
         selectionHighlighter = markupModel.addRangeHighlighter(start, end, HighlighterLayer.SELECTION + 1,
@@ -519,65 +593,30 @@ object ScalaRefactoringUtil {
 
     val selection = new Selection
     val highlighter: ScopeHighlighter = new ScopeHighlighter(editor)
-    val model = new DefaultListModel[T]()
-    elements.foreach(model.addElement)
-    val list = new JBList[T](model)
-    list.setCellRenderer(new DefaultListCellRenderer {
-      override def getListCellRendererComponent(list: JList[_], value: Object, index: Int, isSelected: Boolean, cellHasFocus: Boolean): Component = {
-        val rendererComponent: Component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus)
-        val element: T = value.asInstanceOf[T]
-        val psi = toHighlight(element)
-        if (psi.isValid) {
-          setText(presentation(element))
+
+    val chooserModel = HighlightingChooserModel[T](
+      elementChosen = element => invokeLaterInTransaction(project.unloadAwareDisposable) {
+        onChosen(element)
+      },
+      highlightPsi = psiElement => {
+        highlighter.dropHighlight()
+        if (psiElement != null) {
+          highlighter.highlight(psiElement, ju.Collections.singletonList(psiElement))
         }
-        rendererComponent
-      }
-    }.asInstanceOf[ListCellRenderer[T]])
-    list.addListSelectionListener(new ListSelectionListener {
-      override def valueChanged(e: ListSelectionEvent): Unit = {
-        highlighter.dropHighlight()
-        val index: Int = list.getSelectedIndex
-        if (index < 0) return
-        val element: T = model.get(index)
+      },
+      highlighterPopupListener = new JBPopupListener {
+        override def beforeShown(event: LightweightWindowEvent): Unit = selection.addHighlighter()
 
-        val psiElement = toHighlight(element)
-        highlighter.highlight(psiElement, ju.Collections.singletonList(psiElement))
+        override def onClosed(event: LightweightWindowEvent): Unit = {
+          highlighter.dropHighlight()
+          selection.removeHighlighter()
+        }
       }
-    })
+    )
 
-    val callback: Runnable = () => invokeLaterInTransaction(editor.getProject.unloadAwareDisposable) {
-      onChosen(list.getSelectedValue)
-    }
-
-    val highlighterAdapter = new JBPopupListener {
-      override def beforeShown(event: LightweightWindowEvent): Unit = {
-        selection.addHighlighter()
-      }
-
-      override def onClosed(event: LightweightWindowEvent): Unit = {
-        highlighter.dropHighlight()
-        selection.removeHighlighter()
-      }
-    }
-    JBPopupFactory.getInstance.createListPopupBuilder(list)
-      .setTitle(title)
-      .setMovable(false)
-      .setResizable(false)
-      .setRequestFocus(true)
-      .setItemChoosenCallback(callback)
-      .addListener(highlighterAdapter)
-      .createPopup
-      .showInBestPositionFor(editor): @nowarn("cat=deprecation")
+    val popup = createPopup(chooserModel)
+    popup.showInBestPositionFor(editor)
   }
-
-
-  def showChooser[T <: PsiElement](editor: Editor,
-                                   elements: Seq[T],
-                                   onChosen: T => Unit,
-                                   @Nls title: String,
-                                   presentation: T => String,
-                                   toHighlight: T => PsiElement = (t: T) => t.asInstanceOf[PsiElement]): Unit =
-    showChooserGeneric(editor, elements, onChosen, title, presentation, toHighlight)
 
   def getShortText(expr: ScalaPsiElement): String = {
     val builder = new mutable.StringBuilder
@@ -763,7 +802,7 @@ object ScalaRefactoringUtil {
 
   def afterExpressionChoosing(file: PsiFile, refactoringName: String)
                              (invokesNext: => Unit)
-                             (implicit editor: Editor): Unit = {
+                             (implicit project: Project, editor: Editor): Unit = {
     invokeOnSelected(ScalaBundle.message("choose.expression.for", refactoringName))(invokesNext, (_: ScExpression) => invokesNext) {
       possibleExpressionsToExtract(file, editor.getCaretModel.getOffset)
     }
@@ -788,7 +827,7 @@ object ScalaRefactoringUtil {
 
   def afterTypeElementChoosing(selectedElement: ScTypeElement, refactoringName: String)
                               (invokesNext: ScTypeElement => Unit)
-                              (implicit editor: Editor): Unit = {
+                              (implicit project: Project, editor: Editor): Unit = {
     invokeOnSelected(ScalaBundle.message("choose.type.element.for", refactoringName))(invokesNext(selectedElement), invokesNext) {
       getTypeElements(selectedElement)
     }
@@ -797,7 +836,7 @@ object ScalaRefactoringUtil {
   private def invokeOnSelected[T <: ScalaPsiElement](@Nls message: String)
                                                     (default: => Unit, consumer: T => Unit)
                                                     (elements: => Seq[T])
-                                                    (implicit editor: Editor): Unit = {
+                                                    (implicit project: Project, editor: Editor): Unit = {
     implicit val selectionModel: SelectionModel = editor.getSelectionModel
 
     if (selectionModel.hasSelection) default
@@ -814,7 +853,7 @@ object ScalaRefactoringUtil {
           selectionModel.selectLineAtCaret()
           default
         case Seq(element) => onElement(element)
-        case elements => showChooser(editor, elements, onElement, message, getShortText)
+        case elements => showPsiChooser(elements, onElement, message, getShortText)
       }
     }
   }
@@ -1106,7 +1145,6 @@ object ScalaRefactoringUtil {
       case _ => false
     }
   }
-
 
   def checkForwardReferences(expr: ScExpression, position: PsiElement): Boolean = {
     var result = true
