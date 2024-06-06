@@ -4,6 +4,7 @@ import com.intellij.build.FilePosition
 import com.intellij.build.events.EventResult
 import com.intellij.execution.process.{AnsiEscapeDecoder, ProcessOutputTypes}
 import com.intellij.openapi.progress.ProgressIndicator
+import org.jetbrains.sbt.SbtBundle
 
 import java.io.File
 
@@ -12,7 +13,7 @@ class IndicatorReporter(indicator: ProgressIndicator) extends BuildReporter {
   private val myAnsiEscapeDecoder = new AnsiEscapeDecoder
 
   override def start(): Unit = {
-    indicator.setText(CompilerSharedBuildBundle.message("report.build.running"))
+    indicator.setText(SbtBundle.message("report.build.running"))
   }
 
   override def finish(messages: BuildMessages): Unit = {
@@ -20,32 +21,32 @@ class IndicatorReporter(indicator: ProgressIndicator) extends BuildReporter {
     indicator.setText2("")
 
     if (messages.errors.isEmpty)
-      indicator.setText(CompilerSharedBuildBundle.message("report.build.completed"))
+      indicator.setText(SbtBundle.message("report.build.completed"))
     else
-      indicator.setText(CompilerSharedBuildBundle.message("report.build.failed"))
+      indicator.setText(SbtBundle.message("report.build.failed"))
   }
 
   override def finishWithFailure(err: Throwable): Unit = {
-    indicator.setText(CompilerSharedBuildBundle.message("report.failed.with.message", err.getMessage))
+    indicator.setText(SbtBundle.message("report.failed.with.message", err.getMessage))
   }
 
   override def finishCanceled(): Unit = {
-    indicator.setText(CompilerSharedBuildBundle.message("report.canceled"))
+    indicator.setText(SbtBundle.message("report.canceled"))
   }
 
 
   override def warning(message: String, position: Option[FilePosition]): Unit = {
-    indicator.setText(CompilerSharedBuildBundle.message("report.warning.with.message", message))
+    indicator.setText(SbtBundle.message("report.warning.with.message", message))
     indicator.setText2(positionString(position))
   }
 
   override def error(message: String, position: Option[FilePosition]): Unit = {
-    indicator.setText(CompilerSharedBuildBundle.message("report.error.with.message", message))
+    indicator.setText(SbtBundle.message("report.error.with.message", message))
     indicator.setText2(positionString(position))
   }
 
   override def log(message: String): Unit = {
-    indicator.setText(CompilerSharedBuildBundle.message("report.building"))
+    indicator.setText(SbtBundle.message("report.building"))
     myAnsiEscapeDecoder.escapeText(message, ProcessOutputTypes.STDOUT, (messageUnescaped, _) => {
       //noinspection ReferencePassedToNls
       indicator.setText2(messageUnescaped)
