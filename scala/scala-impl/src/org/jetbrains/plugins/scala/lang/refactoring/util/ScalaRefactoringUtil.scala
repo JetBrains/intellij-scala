@@ -564,7 +564,7 @@ object ScalaRefactoringUtil {
       .setMovable(false)
       .setResizable(false)
       .setRequestFocus(true)
-      .setItemChoosenCallback(callback)
+      .setItemChosenCallback(callback)
       .addListener(highlighterAdapter)
       .createPopup
       .showInBestPositionFor(editor): @nowarn("cat=deprecation")
