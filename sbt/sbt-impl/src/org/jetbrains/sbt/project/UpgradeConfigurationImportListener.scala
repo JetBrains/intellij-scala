@@ -9,16 +9,30 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.sbt.project.SbtMigrateConfigurationsAction.isConfigurationInvalid
 import org.jetbrains.sbt.{SbtBundle, SbtUtil}
 
+/**
+ * Project import listener created to detect whether a notification with upgrade configuration action should be displayed.
+ * The notification is displayed only once for non-new sbt projects.
+ */
 class UpgradeConfigurationImportListener(project: Project) extends ProjectDataImportListener {
 
   override def onImportFinished(projectPath: String): Unit = {
-    val isNew = project.getUserData(ExternalSystemDataKeys.NEWLY_CREATED_PROJECT)
-    if (isNew != null && isNew) setNotificationShown()
-    val isConfigurationCheckNotNeeded = isNotificationAlreadyShown || !SbtUtil.isSbtProject(project)
-    if (isConfigurationCheckNotNeeded) return
+    if (!SbtUtil.isSbtProject(project)) return
 
-    if (areIncorrectConfigurationsPresent()) showNotification()
+    if (shouldShowNotification(project)) {
+      showNotification()
+    }
     setNotificationShown()
+  }
+
+  private def isNewlyCreatedProject(project: Project): Boolean = {
+    val isNew = project.getUserData(ExternalSystemDataKeys.NEWLY_CREATED_PROJECT)
+    isNew != null && isNew
+  }
+
+  private def shouldShowNotification(project: Project): Boolean = {
+    val isNew = isNewlyCreatedProject(project)
+    val shouldShow = !isNotificationAlreadyShown && areIncorrectConfigurationsPresent
+    !isNew && shouldShow
   }
 
   private def showNotification():Unit = {
@@ -40,13 +54,12 @@ class UpgradeConfigurationImportListener(project: Project) extends ProjectDataIm
   private def setNotificationShown(): Unit =
     ScalaProjectSettings.getInstance(project).setMigrateConfigurationsNotificationShown(true)
 
-  private def areIncorrectConfigurationsPresent(): Boolean = {
+  private def areIncorrectConfigurationsPresent: Boolean = {
     val moduleBasedConfigurations = SbtUtil.getAllModuleBasedConfigurationsInProject(project)
 
     moduleBasedConfigurations.exists { config =>
       val configurationModule = config.getConfigurationModule
       val oldModuleName = configurationModule.getModuleName
-      // note: when configuration doesn't have a module, then moduleName is empty
       isConfigurationInvalid(config, configurationModule, oldModuleName)
     }
   }

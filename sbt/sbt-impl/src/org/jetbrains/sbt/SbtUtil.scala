@@ -11,7 +11,7 @@ import com.intellij.platform.workspace.storage.{EntityStorage, SymbolicEntityId,
 import com.intellij.util.{EnvironmentUtil, SystemProperties}
 import org.jetbrains.annotations.VisibleForTesting
 import org.jetbrains.plugins.scala.build.BuildReporter
-import org.jetbrains.plugins.scala.extensions.RichFile
+import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, RichFile}
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.util.ExternalSystemUtil
 import org.jetbrains.sbt.buildinfo.BuildInfo
@@ -384,10 +384,10 @@ object SbtUtil {
   def appendSuffixToModuleName(moduleName: String, inc: Int): String =
     moduleName + "~" + inc
 
-  def getAllModuleBasedConfigurationsInProject(project: Project): Iterable[ModuleBasedConfiguration[_ <: RunConfigurationModule, _]] =
-    RunManager.getInstance(project).getAllConfigurationsList.asScala.collect {
-      case config : ModuleBasedConfiguration[_, _]  => config
-    }
+  def getAllModuleBasedConfigurationsInProject(project: Project): Iterable[ModuleBasedConfiguration[_ <: RunConfigurationModule, _]] = {
+    val allConfigurations = RunManager.getInstance(project).getAllConfigurationsList.asScala
+    allConfigurations.filterByType[ModuleBasedConfiguration[_ <: RunConfigurationModule, _]]
+  }
 
   implicit class EntityStorageOps(storage: EntityStorage) {
     def resolveOpt[T <: WorkspaceEntityWithSymbolicId](id: SymbolicEntityId[T]): Option[T] = Option(storage.resolve(id))
