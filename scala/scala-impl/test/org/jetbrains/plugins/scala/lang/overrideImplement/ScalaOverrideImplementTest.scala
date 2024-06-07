@@ -1467,6 +1467,57 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
         |""".stripMargin
   )
 
+  def testImplementMemberWithThisType_AddImports(): Unit = runImplementAllTest(
+    fileText =
+      s"""
+         |package foo {
+         |  private[foo] trait Tr {
+         |    trait InnerTrait
+         |  }
+         |
+         |  class C extends Tr
+         |  object O extends Tr
+         |
+         |  import foo.O.InnerTrait
+         |
+         |  trait MyTrait {
+         |    def baz: List[InnerTrait]
+         |  }
+         |}
+         |
+         |package bar {
+         |  import foo.MyTrait
+         |
+         |  object MyTraitImpl extends MyTrait$CARET
+         |}
+         |""".stripMargin,
+    expectedText =
+      """
+        |package foo {
+        |  private[foo] trait Tr {
+        |    trait InnerTrait
+        |  }
+        |
+        |  class C extends Tr
+        |  object O extends Tr
+        |
+        |  import foo.O.InnerTrait
+        |
+        |  trait MyTrait {
+        |    def baz: List[InnerTrait]
+        |  }
+        |}
+        |
+        |package bar {
+        |  import foo.{MyTrait, O}
+        |
+        |  object MyTraitImpl extends MyTrait {
+        |    override def baz: List[O.InnerTrait] = ???
+        |  }
+        |}
+        |""".stripMargin
+  )
+
   def testImplementMemberWithThisTypePackageObject(): Unit = runImplementAllTest(
     fileText =
       s"""
