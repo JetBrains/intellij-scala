@@ -5,6 +5,7 @@ import LocalRepoPackager.{localRepoDependencies, localRepoUpdate, relativeJarPat
 import org.jetbrains.sbtidea.Keys.*
 
 import java.nio.file.Path
+import org.jetbrains.sbtidea.PluginJars
 
 // Global build settings
 
@@ -57,6 +58,8 @@ lazy val scalaCommunity: sbt.Project =
       mlCompletionIntegration % "test->test;compile->compile",
       featuresTrainerIntegration % "test->test;compile->compile",
       textAnalysis % "test->test;compile->compile",
+      scalaLanguageUtils % "test->test;compile->compile",
+      scalaLanguageUtilsRt % "test->test;compile->compile",
       pluginXml,
       //We need this explicit dependency in the root project to ensure the module is compiled before any other module
       //It matters when the project is built as a "Before Run" step when executing run configuration.
@@ -168,6 +171,7 @@ lazy val worksheetReplInterface =
       (Compile / scalacOptions) := Seq.empty, // scala is disabled anyway, set empty options to move to a separate compiler profile (in IntelliJ model)
       packageMethod :=  PackagingMethod.Standalone("lib/repl-interface.jar", static = true),
       intellijMainJars := Seq.empty,
+      intellijTestJars := Seq.empty,
       intellijPlugins := Seq.empty
     )
 
@@ -209,6 +213,7 @@ def worksheetReplInterfaceImplCommonSettings(scalaVer: String): Seq[Setting[?]] 
   (Compile / scalacOptions) := Seq("-release", "8"),
   packageMethod := PackagingMethod.MergeIntoOther(worksheetReplInterfaceImpls),
   intellijMainJars := Seq.empty,
+  intellijTestJars := Seq.empty,
   intellijPlugins := Seq.empty
 )
 
@@ -301,6 +306,7 @@ lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
     organization := "JetBrains",
     idePackagePrefix := Some("org.jetbrains.plugins.scala.tasty.reader"),
     intellijMainJars := Seq.empty,
+    intellijTestJars := Seq.empty,
     scalaVersion := Versions.scala3Version,
     libraryDependencies += Dependencies.tastyCore,
     (Compile / scalacOptions) := Seq("-deprecation"),
@@ -329,7 +335,8 @@ lazy val scalacPatches: sbt.Project =
       scalaVersion := Versions.scalaVersion,
       libraryDependencies ++= Seq(Dependencies.scalaCompiler),
       packageMethod := PackagingMethod.Skip(),
-      intellijMainJars := Nil
+      intellijMainJars := Nil,
+      intellijTestJars := Nil
     )
 
 lazy val scalaImpl: sbt.Project =
@@ -366,11 +373,10 @@ lazy val scalaImpl: sbt.Project =
       ),
       resolvers += Versions.intellijRepository_ForManagedIntellijDependencies,
       intellijPlugins += "JUnit".toPlugin,
-
       libraryDependencies += Dependencies.junit5Jupiter % Test,
-
-      intellijPluginJars :=
-        intellijPluginJars.value.map { case (descriptor, cp) => descriptor -> cp.filterNot(_.data.getName.contains("junit-jupiter-api")) },
+      intellijPluginJars := intellijPluginJars.value.map { case PluginJars(descriptor, root, cp) =>
+        PluginJars(descriptor, root, cp.filterNot(_.getName.contains("junit-jupiter-api")))
+      },
       packageLibraryMappings := Seq(
         // "com.thesamet.scalapb" %% "scalapb-runtime" % ".*" -> None,
         // "com.thesamet.scalapb" %% "lenses" % ".*"          -> None,
@@ -382,10 +388,14 @@ lazy val scalaImpl: sbt.Project =
     )
     .withCompilerPluginIn(scalacPatches) // TODO Add to other modules
 
-//The module is meant to keep utilities which only depend on Scala standard library
-//and do not depend on other libraries or IntelliJ SDK
+/**
+ * Utilities which only depend on the Scala standard library and do not depend on other libraries or IntelliJ SDK
+ */
 lazy val scalaLanguageUtils: sbt.Project =
   newPlainScalaProject("scala-utils-language", file("scala/scala-utils-language"))
+    .settings(
+      packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity)
+    )
 
 /**
  * Same as [[scalaLanguageUtils]], but utilities from this module can be used form both IntelliJ IDEA process and JPS process.
@@ -434,7 +444,7 @@ lazy val debugger =
 
 
 lazy val compileServer =
-  newProject("compile-server", file("scala/compile-server"))
+  newPlainScalaProject("compile-server", file("scala/compile-server"))
     .dependsOn(compilerShared, repackagedZinc, worksheetReplInterface)
     .settings(
       Compile / javacOptions := outOfIDEAProcessJavacOptions,
@@ -447,13 +457,11 @@ lazy val compileServer =
       //NOTE: this classpath is only required to properly compile the module
       //(in order we do not accidentally use any classes which are not available in JPS process)<br>
       //At runtime the classpath will be constructed in by Platform.
-      intellijMainJars := Seq.empty,
-      intellijPlugins := Seq.empty,
       Compile / unmanagedJars ++= Common.jpsClasspath.value
     )
 
 lazy val compilerJps =
-  newProject("compiler-jps", file("scala/compiler-jps"))
+  newPlainScalaProject("compiler-jps", file("scala/compiler-jps"))
     .dependsOn(jps, compileServer)
     .settings(
       (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
@@ -468,8 +476,6 @@ lazy val compilerJps =
       //NOTE: this classpath is only required to properly compile the module
       //(in order we do not accidentally use any classes which are not available in JPS process)<br>
       //At runtime the classpath will be constructed in by Platform.
-      intellijMainJars := Seq.empty,
-      intellijPlugins := Seq.empty,
       Compile / unmanagedJars ++= Common.jpsClasspath.value
     )
 
@@ -491,19 +497,17 @@ lazy val repackagedZinc =
     )
 
 lazy val compilerShared =
-  newProject("compiler-shared", file("scala/compiler-shared"))
+  newPlainScalaProject("compiler-shared", file("scala/compiler-shared"))
     .dependsOn(scalaLanguageUtilsRt)
     .settings(
       (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
       (Compile / scalacOptions) := outOfIDEAProcessScalacOptions,
       packageMethod := PackagingMethod.Standalone("lib/compiler-shared.jar", static = true),
-      intellijMainJars := Seq.empty,
-      intellijPlugins := Seq.empty,
       Compile / unmanagedJars ++= Common.compilerSharedClasspath.value
     )
 
 lazy val jps =
-  newProject("jps", file("scala/jps"))
+  newPlainScalaProject("jps", file("scala/jps"))
     .settings(
       Compile / javacOptions := outOfIDEAProcessJavacOptions,
       Compile / scalacOptions := outOfIDEAProcessScalacOptions,
@@ -515,8 +519,6 @@ lazy val jps =
       //NOTE: this classpath is only required to properly compile the module
       //(in order we do not accidentally use any classes which are not available in JPS process)<br>
       //At runtime the classpath will be constructed in by Platform.
-      intellijMainJars := Nil,
-      intellijPlugins := Nil,
       Compile / unmanagedJars ++= Common.jpsClasspath.value
     )
 
@@ -576,7 +578,8 @@ lazy val scalatestFinders = Project("scalatest-finders", scalatestFindersRootDir
     scalacOptions := Seq(), // scala is disabled anyway, set empty options to move to a separate compiler profile (in IntelliJ model)
     javacOptions := globalJavacOptions, // finders are run in IDEA process, so using JDK 17
     packageMethod := PackagingMethod.Standalone("lib/scalatest-finders-patched.jar"),
-    intellijMainJars := Nil //without this lineon SDK is still added (as "Provided"), while it shouldn't
+    intellijMainJars := Nil,
+    intellijTestJars := Nil,
   )
 
 lazy val scalatestFindersTestSettings = Seq(
@@ -594,7 +597,8 @@ lazy val scalatestFindersTests_2 = Project("scalatest-finders-tests-2", scalates
     scalatestFindersTestSettings,
     scalaVersion := "2.11.12",
     libraryDependencies := Seq("org.scalatest" %% "scalatest" % scalatestLatest_2 % Test),
-    intellijMainJars := Nil
+    intellijMainJars := Nil,
+    intellijTestJars := Nil
   )
 
 lazy val scalatestFindersTests_3_0 = Project("scalatest-finders-tests-3_0", scalatestFindersRootDir / "tests-3_0")
@@ -605,7 +609,8 @@ lazy val scalatestFindersTests_3_0 = Project("scalatest-finders-tests-3_0", scal
     scalatestFindersTestSettings,
     scalaVersion := "2.12.17",
     libraryDependencies := Seq("org.scalatest" %% "scalatest" % scalatestLatest_3_0 % Test),
-    intellijMainJars := Nil
+    intellijMainJars := Nil,
+    intellijTestJars := Nil,
   )
 
 lazy val scalatestFindersTests_3_2 = Project("scalatest-finders-tests-3_2", scalatestFindersRootDir / "tests-3_2")
@@ -616,7 +621,8 @@ lazy val scalatestFindersTests_3_2 = Project("scalatest-finders-tests-3_2", scal
     scalatestFindersTestSettings,
     scalaVersion := Versions.scalaVersion,
     libraryDependencies := Seq("org.scalatest" %% "scalatest" % scalatestLatest_3_2 % Test),
-    intellijMainJars := Nil
+    intellijMainJars := Nil,
+    intellijTestJars := Nil,
   )
 
 lazy val nailgunRunners =

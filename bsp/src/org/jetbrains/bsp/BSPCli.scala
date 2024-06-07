@@ -2,10 +2,11 @@ package org.jetbrains.bsp
 
 import ch.epfl.scala.bsp4j
 import ch.epfl.scala.bsp4j._
-import com.intellij.mock.{MockApplication, MockLocalFileSystem}
+import com.intellij.mock.MockApplication
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationEvent, ExternalSystemTaskNotificationListener, ExternalSystemTaskType}
 import com.intellij.openapi.vfs.VirtualFileManager
+import com.intellij.openapi.vfs.ex.temp.TempFileSystem
 import com.intellij.openapi.vfs.impl.VirtualFileManagerImpl
 import org.jetbrains.bsp
 import org.jetbrains.bsp.project.importing.BspProjectResolver
@@ -71,7 +72,7 @@ object BSPCli extends App {
 
       override def getComponent[T](interfaceClass: Class[T]): T = {
         if (interfaceClass == classOf[VirtualFileManager])
-          new VirtualFileManagerImpl(Collections.singletonList(new MockLocalFileSystem())).asInstanceOf[T]
+          new VirtualFileManagerImpl(Collections.singletonList(TempFileSystem.getInstance())).asInstanceOf[T]
         else if (interfaceClass == classOf[BspCommunicationService])
           (new BspCommunicationService).asInstanceOf[T]
         else if (interfaceClass == classOf[BspSystemSettings]) {

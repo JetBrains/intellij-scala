@@ -154,8 +154,11 @@ object Dependencies {
    * It's purpose is to exclude platform jars that may conflict with plugin dependencies. */
   val excludeJarsFromPlatformDependencies: File => Boolean = { file =>
     val fileName = file.getName
-    fileName == "annotations.jar" || // we explicitly specify dependency on jetbrains annotations library, see SCL-20557
-      fileName == "junit4.jar" // we explicitly specify dependency on junit 4 library
+    // we explicitly specify dependency on jetbrains annotations library, see SCL-20557
+    fileName == "annotations.jar" ||
+      // We explicitly specify dependency on JUnit 4 library.
+      // See also https://youtrack.jetbrains.com/issue/IDEA-315065/The-IDE-runtime-classpath-contains-conflicting-JUnit-classes-from-lib-junit.jar-vs-lib-junit4.jar#focus=Comments-27-6987325.0-0
+      fileName == "junit4.jar"
   }
 
   val intellijMavenTestFramework: ModuleID = ("com.jetbrains.intellij.maven" % "maven-test-framework" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()

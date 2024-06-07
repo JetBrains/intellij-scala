@@ -10,7 +10,8 @@ import java.nio.file.Path
 
 object Common {
   private val globalJavacOptionsCommon = Seq(
-    "-Xlint:unchecked"
+    "-Xlint:unchecked",
+    "-Xlint:deprecation"
   )
   private val globalScalacOptionsCommon = Seq(
     "-explaintypes",
@@ -61,6 +62,8 @@ object Common {
     Compile / resourceDirectory := baseDirectory.value / "resources",
     Compile / unmanagedResourceDirectories := Seq((Compile / resourceDirectory).value),
     // test resources
+    //Note: we don't mark "testdata" as "test resources", because test data files are not test resources.
+    //Those directories don't contain files which that should be copied `target/scala-2.13/test-classes
     Test / resourceDirectory := baseDirectory.value / "testResources",
     Test / unmanagedResourceDirectories := Seq((Test / resourceDirectory).value)
   )
@@ -80,7 +83,13 @@ object Common {
     (Compile / javacOptions) := globalJavacOptions,
     (Compile / scalacOptions) := globalScalacOptions,
     updateOptions := updateOptions.value.withCachedResolution(true),
-    instrumentThreadingAnnotations := true
+    instrumentThreadingAnnotations := true,
+    libraryDependencies ++= Seq(
+      //jetbrains annotations library is quite minimalistic, it's required for @Nullable/@NotNull/@Nls/etc.. annotations
+      Dependencies.jetbrainsAnnotations % Provided,
+      Dependencies.junit % Test,
+      Dependencies.junitInterface % Test,
+    ),
   ) ++ projectDirectoriesSettings
 
   val intellijPluginsScopeFilter: ScopeFilter =
@@ -107,7 +116,7 @@ object Common {
       Dependencies.scalaXml       -> Some("lib/scala-xml.jar"),
     ),
     intellijPlugins := intellijPlugins.all(intellijPluginsScopeFilter).value.flatten.distinct,
-    intellijRuntimePlugins := Seq(
+    intellijExtraRuntimePluginsInTests := Seq(
       //Below are some other useful plugins which you might be interested to inspect
       //We don't have any dependencies on those plugins, however sometimes it might be useful to see how some features are implemented in them plugin.
       //You can uncomment any of them locally
@@ -126,12 +135,8 @@ object Common {
     ).settings(
       name := projectName,
       intellijMainJars := Seq.empty,
+      intellijTestJars := Seq.empty,
       intellijPlugins := Seq.empty,
-      libraryDependencies ++= Seq(
-        //jetbrains annotations library is quite minimalistic, it's required for @Nullable/@NotNull annotations
-        Dependencies.jetbrainsAnnotations % Provided,
-        Dependencies.junit % Test
-      )
     )
 
   def newProject(projectName: String, base: File): Project =
@@ -139,17 +144,10 @@ object Common {
       NewProjectBaseSettings
     ).settings(
       name := projectName,
-      //Note: we explicitly don't mark "testdata" directories as "test resources", because they are not test resources
-      // (those directories don't contain files which are supposed to be copied to `target/scala-2.13/test-classes
-      //(Test / unmanagedResourceDirectories) += baseDirectory.value / "testdata",
-      libraryDependencies ++= Seq(
-        Dependencies.jetbrainsAnnotations % Provided,
-        Dependencies.junit % Test,
-        Dependencies.junitInterface % Test,
-      ),
-      intellijMainJars := intellijMainJars.value.filterNot(file => Dependencies.excludeJarsFromPlatformDependencies(file.data)),
+      intellijMainJars := intellijMainJars.value.filterNot(file => Dependencies.excludeJarsFromPlatformDependencies(file)),
       intellijPlugins += "com.intellij.java".toPlugin,
       pathExcludeFilter := excludePathsFromPackage _,
+      //needed for BSP module (maybe move it there then?)
       (Test / testOptions) += Tests.Argument(TestFrameworks.ScalaCheck, "-maxSize", "20"),
       (Test / testFrameworks) := (Test / testFrameworks).value.filterNot(_.implClassNames.exists(_.contains("org.scalatest")))
     )
