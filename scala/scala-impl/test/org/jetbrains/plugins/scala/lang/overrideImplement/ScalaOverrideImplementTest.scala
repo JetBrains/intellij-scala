@@ -35,6 +35,45 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
     runTest(methodName, fileText, expectedText, isImplement)
   }
 
+  def testImplement_AddImports(): Unit = runImplementAllTest(
+    fileText =
+      s"""
+         |package foo.bar {
+         |  import java.io.File
+         |
+         |  trait MyTrait {
+         |    def getFile(): File
+         |  }
+         |}
+         |
+         |package foo {
+         |  import foo.bar.MyTrait
+         |
+         |  class MyClass extends MyTrait$CARET
+         |}
+         |""".stripMargin,
+    expectedText =
+      """
+        |package foo.bar {
+        |  import java.io.File
+        |
+        |  trait MyTrait {
+        |    def getFile(): File
+        |  }
+        |}
+        |
+        |package foo {
+        |  import foo.bar.MyTrait
+        |
+        |  import java.io.File
+        |
+        |  class MyClass extends MyTrait {
+        |    override def getFile(): File = ???
+        |  }
+        |}
+        |""".stripMargin
+  )
+
   def testEmptyLinePos(): Unit = {
     val fileText =
       s"""
