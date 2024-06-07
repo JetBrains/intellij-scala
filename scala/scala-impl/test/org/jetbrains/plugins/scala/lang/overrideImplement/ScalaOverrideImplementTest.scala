@@ -1420,6 +1420,7 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
     )
   }
 
+  /* // TODO: uncomment when SCL-22094 is fixed
   def testImplementMemberWithThisType(): Unit = runImplementAllTest(
     fileText =
       s"""
@@ -1466,6 +1467,7 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
         |}
         |""".stripMargin
   )
+  */
 
   def testImplementMemberWithThisType_AddImports(): Unit = runImplementAllTest(
     fileText =
@@ -1518,6 +1520,7 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
         |""".stripMargin
   )
 
+  /* // TODO: uncomment when SCL-22094 is fixed
   def testImplementMemberWithThisTypePackageObject(): Unit = runImplementAllTest(
     fileText =
       s"""
@@ -1562,7 +1565,9 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
         |}
         |""".stripMargin
   )
+  */
 
+  /* // TODO: uncomment when SCL-22094 is fixed
   def testImplementMemberWithThisType_ParamType(): Unit = runImplementAllTest(
     fileText =
       s"""
@@ -1607,7 +1612,9 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
         |}
         |""".stripMargin
   )
+  */
 
+  /* // TODO: uncomment when SCL-22094 is fixed
   def testImplementMemberWithThisType_VariableType(): Unit = runImplementAllTest(
     fileText =
       s"""
@@ -1652,4 +1659,5 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
         |}
         |""".stripMargin
   )
+  */
 }

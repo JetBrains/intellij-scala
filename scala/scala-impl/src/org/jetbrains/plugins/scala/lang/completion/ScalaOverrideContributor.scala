@@ -144,11 +144,11 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
               signature,
               needsOverrideModifier = true,
               mBody,
-              clazz,
+              scalaFeatures,
               withComment = false,
               withAnnotation = false
             )
-          else createMethodFromSignature(signature, mBody, clazz, withComment = false, withAnnotation = false)
+          else createMethodFromSignature(signature, mBody, scalaFeatures, withComment = false, withAnnotation = false)
 
         removeTypeAnnotationIfNeeded(fun)
         fun.getText
@@ -162,7 +162,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
         }
         val newExtension = ScalaPsiElementFactory.createOverrideImplementExtensionMethod(
           extensionMethodConstructionInfo,
-          clazz,
+          scalaFeatures,
           wrapMultipleExtensionsWithBraces = !clazz.containingFile.exists(_.useIndentationBasedSyntax),
           withComment = false
         )
@@ -174,14 +174,14 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
         removeTypeAnnotationIfNeeded(newExtension)
         newExtension.getText
       case ScAliasMember(element, substitutor, _) =>
-        getOverrideImplementTypeSign(element, substitutor, clazz, needsOverride = false)
+        getOverrideImplementTypeSign(element, substitutor, needsOverride = false)
       case member: ScValueMember =>
         val variable = createOverrideImplementVariable(
           member.element,
           member.substitutor,
           needsOverrideModifier = false,
           isVal = true,
-          clazz,
+          features = scalaFeatures,
           withBody = withBody
         )
         removeTypeAnnotationIfNeeded(variable)
@@ -192,7 +192,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
           member.substitutor,
           needsOverrideModifier = false,
           isVal = false,
-          clazz,
+          features = scalaFeatures,
           withBody = withBody
         )
         removeTypeAnnotationIfNeeded(variable)
