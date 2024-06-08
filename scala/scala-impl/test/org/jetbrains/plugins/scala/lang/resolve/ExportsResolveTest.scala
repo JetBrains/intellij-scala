@@ -413,7 +413,7 @@ class ExportsResolveTest extends SimpleResolveTestBase {
 
   def testSCL22527(): Unit = checkTextHasNoErrors(
     """
-      |
+      |package test
       |trait GenericType[T]
       |
       |def genericTest[T]: GenericType[T] = ???
