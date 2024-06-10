@@ -8,7 +8,7 @@ import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
-import com.intellij.testFramework.EdtTestUtil
+import com.intellij.testFramework.{EdtTestUtil, IndexingTestUtil}
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.{Description, Matcher}
 import org.jetbrains.plugins.scala.SlowTests
@@ -45,6 +45,7 @@ abstract class ScalaCompilerHighlightingTestBase
     // Compiler Based Highlighting, without going through the CompilerTester API. Not saving the JDK to disk will
     // result in the Scala Compile Server not compiling any of the project code.
     ProjectJdkTable.getInstance().saveOnDisk()
+    IndexingTestUtil.waitUntilIndexesAreReady(myProject)
   }
 
   override protected def tearDown(): Unit = {
@@ -70,13 +71,13 @@ abstract class ScalaCompilerHighlightingTestBase
                             expectedResult: ExpectedResult): Unit = {
     @tailrec
     def rec(attemptsLeft: Int): Unit = {
+      Thread.sleep(3_000)
       val actualResult = fetchHighlightInfos(virtualFile)
       try {
         assertThat(actualResult, expectedResult)
       } catch {
         case error: AssertionError =>
           if (attemptsLeft > 0) {
-            Thread.sleep(3000)
             rec(attemptsLeft - 1)
           } else {
             throw error
