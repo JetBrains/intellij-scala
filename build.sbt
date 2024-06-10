@@ -58,6 +58,10 @@ lazy val scalaCommunity: sbt.Project =
       featuresTrainerIntegration % "test->test;compile->compile",
       textAnalysis % "test->test;compile->compile",
       pluginXml,
+      //We need this explicit dependency in the root project to ensure the module is compiled before any other module
+      //It matters when the project is built as a "Before Run" step when executing run configuration.
+      //In this case, it actually builds the module with all its dependencies, not the whole project.
+      scalacPatches % Provided
     )
     .settings(MainProjectSettings *)
     .settings(
