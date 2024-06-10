@@ -2,8 +2,10 @@ package org.jetbrains.plugins.scala.lang.completion.handlers
 
 import com.intellij.codeInsight.completion.{InsertHandler, InsertionContext}
 import com.intellij.codeInsight.lookup.LookupElement
+import com.intellij.openapi.application.{ModalityState, ReadAction}
 import com.intellij.psi.util.PsiTreeUtil.getParentOfType
 import com.intellij.psi.{PsiClass, PsiDocumentManager, PsiElement, PsiFile}
+import com.intellij.util.concurrency.AppExecutorUtil
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.{InsertionContextExt, afterNewKeywordPattern}
@@ -15,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumCl
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createReferenceExpressionFromText, createReferenceFromText}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.overrideImplement.ClassMember
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil.{getMembersToImplement, runAction}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
@@ -123,19 +126,31 @@ final class ScalaConstructorInsertHandler(typeParametersEvaluator: (ScType => St
         }
 
         if (isInterface && !hasSubstitutionProblem) {
+          val offset = model.getOffset - 1
           context.setLaterRunnable(() => {
-            onDefinition(file, model.getOffset - 1) { newTemplateDefinition =>
-              val members = getMembersToImplement(newTemplateDefinition)
+            val marker = editor.getDocument.createRangeMarker(offset, offset)
+            ReadAction
+              .nonBlocking { () =>
+                onDefinition(file, marker.getStartOffset, defaultValue = Option.empty[ImplementMembersContext]) { newTemplateDefinition =>
+                  val members = getMembersToImplement(newTemplateDefinition)
+                  Some(ImplementMembersContext(newTemplateDefinition, members))
+                }
+              }
+              .withDocumentsCommitted(project)
+              .finishOnUiThread(ModalityState.defaultModalityState(), contextOption => {
+                marker.dispose()
+                contextOption.foreach { ctx =>
+                  ScalaApplicationSettings.getInstance().SPECIFY_RETURN_TYPE_EXPLICITLY =
+                    ScalaApplicationSettings.ReturnTypeLevel.BY_CODE_STYLE
 
-              ScalaApplicationSettings.getInstance().SPECIFY_RETURN_TYPE_EXPLICITLY =
-                ScalaApplicationSettings.ReturnTypeLevel.BY_CODE_STYLE
-
-              runAction(
-                members,
-                isImplement = true,
-                newTemplateDefinition
-              )(project, editor)
-            }
+                  runAction(
+                    ctx.members,
+                    isImplement = true,
+                    ctx.definition
+                  )(project, editor)
+                }
+              })
+              .submit(AppExecutorUtil.getAppExecutorService)
           })
         }
     }
@@ -170,8 +185,12 @@ final class ScalaConstructorInsertHandler(typeParametersEvaluator: (ScType => St
 
   private def onDefinition(file: PsiFile, offset: Int)
                           (action: ScNewTemplateDefinition => Unit): Unit =
+    onDefinition(file, offset, defaultValue = ())(action)
+
+  private def onDefinition[T](file: PsiFile, offset: Int, defaultValue: T)
+                             (action: ScNewTemplateDefinition => T): T =
     getParentOfType(findNonWhitespaceElement(file, offset), classOf[ScNewTemplateDefinition]) match {
-      case null =>
+      case null => defaultValue
       case newTemplateDefinition => action(newTemplateDefinition)
     }
 
@@ -212,3 +231,5 @@ final class ScalaConstructorInsertHandler(typeParametersEvaluator: (ScType => St
     else (":", "")
   }
 }
+
+private final case class ImplementMembersContext(definition: ScNewTemplateDefinition, members: Seq[ClassMember])

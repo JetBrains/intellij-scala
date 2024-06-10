@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.completion3.base
 import com.intellij.codeInsight.completion.{CodeCompletionHandlerBase, CompletionType}
 import com.intellij.codeInsight.lookup.impl.LookupImpl
 import com.intellij.codeInsight.lookup.{Lookup, LookupElement, LookupElementPresentation, LookupManager}
+import com.intellij.openapi.application.impl.NonBlockingReadActionImpl
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.testFramework.fixtures.JavaCodeInsightTestFixture
@@ -58,6 +59,7 @@ class ScalaCompletionTestFixture(
     items.find(predicate) match {
       case Some(item) =>
         lookup.finishLookup(char, item)
+        NonBlockingReadActionImpl.waitForAsyncTaskCompletion()
         checkResultByText(resultText)
       case _ =>
         fail(
