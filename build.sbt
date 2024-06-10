@@ -352,8 +352,13 @@ lazy val scalaImpl: sbt.Project =
       //scalacOptions in Global += "-Xmacro-settings:analyze-caches",
       libraryDependencies ++= DependencyGroups.scalaCommunity,
 
-      //for ExternalSystemTestCase and ExternalSystemImportingTestCase
-      libraryDependencies += Dependencies.intellijExternalSystemTestFramework % Test,
+      libraryDependencies ++= Seq(
+        //for ExternalSystemTestCase and ExternalSystemImportingTestCase
+        Dependencies.intellijExternalSystemTestFramework % Test,
+        //for PlatformTestUtil.newPerformanceTest
+        Dependencies.intellijIdeMetricsBenchmark % Test,
+        Dependencies.intellijIdeUtilCommon % Test,
+      ),
       resolvers += Versions.intellijRepository_ForManagedIntellijDependencies,
       intellijPlugins += "JUnit".toPlugin,
       intellijPluginJars :=
