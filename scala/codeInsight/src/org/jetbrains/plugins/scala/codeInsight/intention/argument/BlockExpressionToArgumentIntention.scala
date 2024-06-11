@@ -6,14 +6,12 @@ package argument
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
-import com.intellij.psi.tree.IElementType
-import com.intellij.psi.util.PsiUtil
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
@@ -48,7 +46,8 @@ final class BlockExpressionToArgumentIntention extends PsiElementBaseIntentionAc
     singleExpressionStatement(block).exists { statement =>
       implicit val context: ProjectContext = block.getManager
       buildNewArgumentsText(statement)
-        .flatMap(createExpressionFromText(_, element).children.findByType[ScArgumentExprList])
+        .flatMap(text => ScalaPsiElementFactory.safe(_.createExpressionFromText(text, element)))
+        .flatMap(_.children.findByType[ScArgumentExprList])
         .exists { newArguments =>
           isStructurallyEqual(
             withoutFunctionExpr(newArguments.exprs.head),
@@ -83,7 +82,8 @@ final class BlockExpressionToArgumentIntention extends PsiElementBaseIntentionAc
     for {
       statement <- singleExpressionStatement(block)
       newArgumentsText <- buildNewArgumentsText(statement)
-      newArguments <- createExpressionFromText(newArgumentsText, element).children.findByType[ScArgumentExprList]
+      newArgumentsExpr <- ScalaPsiElementFactory.safe(_.createExpressionFromText(newArgumentsText, element))
+      newArguments <- newArgumentsExpr.children.findByType[ScArgumentExprList]
       replacement = block.getParent.replace(newArguments)
     } replacement.getPrevSibling match {
       case ws: PsiWhiteSpace => ws.delete()
