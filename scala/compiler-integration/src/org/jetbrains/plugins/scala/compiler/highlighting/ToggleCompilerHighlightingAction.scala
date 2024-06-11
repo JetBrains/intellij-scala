@@ -41,18 +41,29 @@ sealed abstract class ToggleCompilerHighlightingAction(scalaVersion: Either["2",
 
 class ToggleCompilerHighlightingScala2Action extends ToggleCompilerHighlightingAction(Left("2")) {
   override def isSelected(e: AnActionEvent): Boolean = {
-    ScalaProjectSettings.getInstance(e.getProject).isCompilerHighlightingScala2
+    val project = e.getProject
+    project != null && ScalaProjectSettings.getInstance(project).isCompilerHighlightingScala2
   }
 
-  override def setSelected(e: AnActionEvent, state: Boolean): Unit =
-    ScalaProjectSettings.getInstance(e.getProject).setCompilerHighlightingScala2(state)
+  override def setSelected(e: AnActionEvent, state: Boolean): Unit = {
+    val project = e.getProject
+    if (project != null) {
+      ScalaProjectSettings.getInstance(project).setCompilerHighlightingScala2(state)
+    }
+  }
 }
 
 // Is effectively a per-project Registry key, accessible vis Find Action.
 class ToggleCompilerHighlightingScala3Action extends ToggleCompilerHighlightingAction(Right("3")) {
-  override def isSelected(e: AnActionEvent): Boolean =
-    ScalaProjectSettings.getInstance(e.getProject).isCompilerHighlightingScala3
+  override def isSelected(e: AnActionEvent): Boolean = {
+    val project = e.getProject
+    project != null && ScalaProjectSettings.getInstance(project).isCompilerHighlightingScala3
+  }
 
-  override def setSelected(e: AnActionEvent, state: Boolean): Unit =
-    ScalaProjectSettings.getInstance(e.getProject).setCompilerHighlightingScala3(state)
+  override def setSelected(e: AnActionEvent, state: Boolean): Unit = {
+    val project = e.getProject
+    if (project != null) {
+      ScalaProjectSettings.getInstance(project).setCompilerHighlightingScala3(state)
+    }
+  }
 }
