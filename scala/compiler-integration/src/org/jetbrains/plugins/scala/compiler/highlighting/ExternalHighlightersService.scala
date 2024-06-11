@@ -102,6 +102,7 @@ private final class ExternalHighlightersService(project: Project) { self =>
 
       ReadAction
         .nonBlocking(readActionCallable)
+        .inSmartMode(project)
         .expireWhen(() => executionState.obsolete || project.isDisposed)
         .finishOnUiThread(ModalityState.defaultModalityState(), applyHighlightingInfo)
         .submit(BackgroundExecutorService.instance(project).executor)
