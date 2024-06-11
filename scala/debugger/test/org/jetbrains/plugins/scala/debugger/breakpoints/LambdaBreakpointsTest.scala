@@ -48,6 +48,15 @@ class LambdaBreakpointsTest_2_12 extends LambdaBreakpointsTestBase {
       (8, "$anonfun$create$1"), (9, "$anonfun$create$1"), (10, "$anonfun$create$1"), (11, "$anonfun$create$1"),
     )
   }
+
+  override def testLambdaInGuard(): Unit = {
+    breakpointsTest()(
+      (5, "main"),
+      (5, "$anonfun$main$1"), (5, "$anonfun$main$2"),
+      (5, "$anonfun$main$1"), (5, "$anonfun$main$2"), (6, "$anonfun$main$3"),
+      (5, "$anonfun$main$1"), (5, "$anonfun$main$2"), (6, "$anonfun$main$3")
+    )
+  }
 }
 
 class LambdaBreakpointsTest_2_13 extends LambdaBreakpointsTest_2_12 {
@@ -101,6 +110,15 @@ class LambdaBreakpointsTest_3_0 extends LambdaBreakpointsTestBase {
     )
   }
 
+  override def testLambdaInGuard(): Unit = {
+    breakpointsTest()(
+      (5, "main"), (6, "main"),
+      (5, "$anonfun$1"), (5, "$anonfun$3$$anonfun$1"),
+      (5, "$anonfun$1"), (5, "$anonfun$3$$anonfun$1"), (6, "$anonfun$2"),
+      (5, "$anonfun$1"), (5, "$anonfun$3$$anonfun$1"), (6, "$anonfun$2")
+    )
+  }
+
   addSourceFile("LambdaInExtension.scala",
     s"""
        |object LambdaInExtension:
@@ -145,6 +163,15 @@ class LambdaBreakpointsTest_3_1 extends LambdaBreakpointsTest_3_0 {
       (8, "func$1$$anonfun$1"), (9, "func$1$$anonfun$1"), (10, "func$1$$anonfun$1"), (11, "func$1$$anonfun$1"),
       (8, "func$1$$anonfun$1"), (9, "func$1$$anonfun$1"), (10, "func$1$$anonfun$1"), (11, "func$1$$anonfun$1"),
       (8, "func$1$$anonfun$1"), (9, "func$1$$anonfun$1"), (10, "func$1$$anonfun$1"), (11, "func$1$$anonfun$1"),
+    )
+  }
+
+  override def testLambdaInGuard(): Unit = {
+    breakpointsTest()(
+      (5, "main"), (6, "main"),
+      (5, "$anonfun$1"), (5, "$anonfun$1$$anonfun$1"),
+      (5, "$anonfun$1"), (5, "$anonfun$1$$anonfun$1"), (6, "$anonfun$2"),
+      (5, "$anonfun$1"), (5, "$anonfun$1$$anonfun$1"), (6, "$anonfun$2")
     )
   }
 }
@@ -215,6 +242,15 @@ class LambdaBreakpointsTest_3_RC extends LambdaBreakpointsTest_3_4 {
       (8, "func$1$$anonfun$1"), (9, "func$1$$anonfun$1"), (10, "func$1$$anonfun$1"), (11, "func$1$$anonfun$1"),
       (8, "func$1$$anonfun$1"), (9, "func$1$$anonfun$1"), (10, "func$1$$anonfun$1"), (11, "func$1$$anonfun$1"),
       (8, "func$1$$anonfun$1"), (9, "func$1$$anonfun$1"), (10, "func$1$$anonfun$1"), (11, "func$1$$anonfun$1"),
+    )
+  }
+
+  override def testLambdaInGuard(): Unit = {
+    breakpointsTest()(
+      (5, "main"),
+      (5, "$anonfun$1"), (5, "$anonfun$1$$anonfun$1"),
+      (5, "$anonfun$1"), (5, "$anonfun$1$$anonfun$1"), (6, "$anonfun$2"),
+      (5, "$anonfun$1"), (5, "$anonfun$1$$anonfun$1"), (6, "$anonfun$2")
     )
   }
 
@@ -433,6 +469,28 @@ abstract class LambdaBreakpointsTestBase extends ScalaDebuggerTestCase {
       (8, "apply"), (9, "apply"), (10, "apply"), (11, "apply"),
       (8, "apply"), (9, "apply"), (10, "apply"), (11, "apply"),
       (8, "apply"), (9, "apply"), (10, "apply"), (11, "apply")
+    )
+  }
+
+  addSourceFile(s"LambdaInGuard.scala",
+    s"""
+       |object LambdaInGuard {
+       |  def contains(f: Int => Boolean, x: Int): Boolean = f(x)
+       |
+       |  def main(args: Array[String]): Unit = {
+       |    val xs = for { i <- (0 to 2) if contains(_ > 0, i) } $breakpoint
+       |      yield i $breakpoint
+       |    println(xs)
+       |  }
+       |}
+       |""".stripMargin)
+
+  def testLambdaInGuard(): Unit = {
+    breakpointsTest()(
+      (5, "main"),
+      (5, "apply$mcZI$sp"), (5, "apply$mcZI$sp"),
+      (5, "apply$mcZI$sp"), (5, "apply$mcZI$sp"), (6, "apply$mcII$sp"),
+      (5, "apply$mcZI$sp"), (5, "apply$mcZI$sp"), (6, "apply$mcII$sp")
     )
   }
 }
