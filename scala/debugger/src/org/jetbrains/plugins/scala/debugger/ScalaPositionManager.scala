@@ -862,15 +862,9 @@ object ScalaPositionManager {
   }
 
   def indyLambdaMethodsOnLine(refType: ReferenceType, lineNumber: Int): Seq[Method] = {
-    def ordinal(m: Method) = {
-      val name = m.name()
-      val lastDollar = name.lastIndexOf('$')
-      Try(name.substring(lastDollar + 1).toInt).getOrElse(-1)
-    }
-
     val all = refType.methods().asScala.iterator.filter(isIndyLambda)
     val onLine = all.filter(m => Try(!m.locationsOfLine(lineNumber + 1).isEmpty).getOrElse(false))
-    onLine.toSeq.sortBy(ordinal)
+    onLine.toSeq.sortBy(_.name())
   }
 
   @tailrec
