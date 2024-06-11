@@ -15,31 +15,91 @@ class LambdaBreakpointsTest_2_11 extends LambdaBreakpointsTestBase {
 
 class LambdaBreakpointsTest_2_12 extends LambdaBreakpointsTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_12
+
+  override def testLambdaInClassConstructor(): Unit = {
+    breakpointsTest()((9, "main"), (4, "$anonfun$new$1"), (4, "$anonfun$new$1"), (4, "$anonfun$new$1"))
+  }
+
+  override def testLambdaInObjectConstructor(): Unit = {
+    breakpointsTest()((9, "main"), (4, "$anonfun$new$1"), (4, "$anonfun$new$1"), (4, "$anonfun$new$1"))
+  }
+
+  override def testLambdaInNestedObjectStatic(): Unit = {
+    breakpointsTest()((11, "main"), (5, "$anonfun$method$1"), (5, "$anonfun$method$1"), (5, "$anonfun$method$1"))
+  }
+
+  override def testLambdaInNestedClassStatic(): Unit = {
+    breakpointsTest()((11, "main"), (5, "$anonfun$method$1"), (5, "$anonfun$method$1"), (5, "$anonfun$method$1"))
+  }
+
+  override def testLambdaInNestedObject(): Unit = {
+    breakpointsTest()((15, "main"), (8, "$anonfun$method$1"), (8, "$anonfun$method$1"), (8, "$anonfun$method$1"))
+  }
+
+  override def testLambdaInNestedClass(): Unit = {
+    breakpointsTest()((15, "main"), (8, "$anonfun$method$1"), (8, "$anonfun$method$1"), (8, "$anonfun$method$1"))
+  }
+
+  override def testLambdaInLocalMethod(): Unit = {
+    breakpointsTest()(
+      (21, "main"),
+      (8, "$anonfun$create$1"), (9, "$anonfun$create$1"), (10, "$anonfun$create$1"), (11, "$anonfun$create$1"),
+      (8, "$anonfun$create$1"), (9, "$anonfun$create$1"), (10, "$anonfun$create$1"), (11, "$anonfun$create$1"),
+      (8, "$anonfun$create$1"), (9, "$anonfun$create$1"), (10, "$anonfun$create$1"), (11, "$anonfun$create$1"),
+    )
+  }
 }
 
-class LambdaBreakpointsTest_2_13 extends LambdaBreakpointsTestBase {
+class LambdaBreakpointsTest_2_13 extends LambdaBreakpointsTest_2_12 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 }
 
 class LambdaBreakpointsTest_3_0 extends LambdaBreakpointsTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_0
 
-  override def testLambdaInClassConstructor(): Unit = breakpointsTest()(9, 4, 4, 4, 4, 4, 4)
+  override def testLambdaInClassConstructor(): Unit = {
+    breakpointsTest()((9, "main"), (4, "<init>"), (4, "$init$$$anonfun$1"), (4, "$init$$$anonfun$1"), (4, "$init$$$anonfun$1"))
+  }
 
-  override def testLambdaInObjectConstructor(): Unit = breakpointsTest()(9, 4, 4, 4, 4, 4, 4)
+  override def testLambdaInObjectConstructor(): Unit = {
+    breakpointsTest()((9, "main"), (4, "<clinit>"), (4, "$init$$$anonfun$1"), (4, "$init$$$anonfun$1"), (4, "$init$$$anonfun$1"))
+  }
 
-  override def testLambdaInNestedObject(): Unit = breakpointsTest()(15, 8, 8, 8, 8, 8, 8)
+  override def testLambdaInNestedObjectStatic(): Unit = {
+    breakpointsTest()(
+      (11, "main"),
+      (5, "LambdaInNestedObjectStatic$Outer$Inner$$$_$method$$anonfun$1"),
+      (5, "LambdaInNestedObjectStatic$Outer$Inner$$$_$method$$anonfun$1"),
+      (5, "LambdaInNestedObjectStatic$Outer$Inner$$$_$method$$anonfun$1")
+    )
+  }
 
-  override def testLambdaInNestedClass(): Unit = breakpointsTest()(15, 8, 8, 8, 8, 8, 8)
+  override def testLambdaInNestedClassStatic(): Unit = {
+    breakpointsTest()((11, "main"), (5, "method$$anonfun$1"), (5, "method$$anonfun$1"), (5, "method$$anonfun$1"))
+  }
 
-  override def testLambdaInLocalMethod(): Unit = breakpointsTest()(
-    21, 11,
-    8, 9, 10, 11,
-    8, 9, 10, 11,
-    8, 9, 10, 11,
-    8, 9, 10, 11,
-    8, 9, 10, 11,
-  )
+  override def testLambdaInNestedObject(): Unit = {
+    breakpointsTest()(
+      (15, "main"),
+      (8, "method"),
+      (8, "LambdaInNestedObject$Outer$Inner$$$_$method$$anonfun$1"),
+      (8, "LambdaInNestedObject$Outer$Inner$$$_$method$$anonfun$1"),
+      (8, "LambdaInNestedObject$Outer$Inner$$$_$method$$anonfun$1")
+    )
+  }
+
+  override def testLambdaInNestedClass(): Unit = {
+    breakpointsTest()((15, "main"), (8, "method"), (8, "method$$anonfun$1"), (8, "method$$anonfun$1"), (8, "method$$anonfun$1"))
+  }
+
+  override def testLambdaInLocalMethod(): Unit = {
+    breakpointsTest()(
+      (21, "main"), (11, "func$1"),
+      (8, "func$2$$anonfun$1"), (9, "func$2$$anonfun$1"), (10, "func$2$$anonfun$1"), (11, "func$2$$anonfun$1"),
+      (8, "func$2$$anonfun$1"), (9, "func$2$$anonfun$1"), (10, "func$2$$anonfun$1"), (11, "func$2$$anonfun$1"),
+      (8, "func$2$$anonfun$1"), (9, "func$2$$anonfun$1"), (10, "func$2$$anonfun$1"), (11, "func$2$$anonfun$1"),
+    )
+  }
 
   addSourceFile("LambdaInExtension.scala",
     s"""
@@ -50,10 +110,12 @@ class LambdaBreakpointsTest_3_0 extends LambdaBreakpointsTestBase {
        |    }
        |
        |  def main(args: Array[String]): Unit =
-       |    5.blah() $breakpoint
+       |    3.blah() $breakpoint
        |""".stripMargin)
 
-  def testLambdaInExtension(): Unit = breakpointsTest()(8, 4, 4, 4, 4, 4, 4)
+  def testLambdaInExtension(): Unit = {
+    breakpointsTest()((8, "main"), (4, "blah"), (4, "blah$$anonfun$1"), (4, "blah$$anonfun$1"), (4, "blah$$anonfun$1"))
+  }
 
   addSourceFile("MainAnnotation.scala",
     s"""
@@ -69,57 +131,107 @@ class LambdaBreakpointsTest_3_0 extends LambdaBreakpointsTestBase {
        |}
        |""".stripMargin)
 
-  def testMainAnnotation(): Unit = breakpointsTest("multipleBreakpoints")(4)
+  def testMainAnnotation(): Unit = {
+    breakpointsTest("multipleBreakpoints")((4, "foo$1"))
+  }
 }
 
 class LambdaBreakpointsTest_3_1 extends LambdaBreakpointsTest_3_0 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_1
+
+  override def testLambdaInLocalMethod(): Unit = {
+    breakpointsTest()(
+      (21, "main"), (11, "func$1"),
+      (8, "func$1$$anonfun$1"), (9, "func$1$$anonfun$1"), (10, "func$1$$anonfun$1"), (11, "func$1$$anonfun$1"),
+      (8, "func$1$$anonfun$1"), (9, "func$1$$anonfun$1"), (10, "func$1$$anonfun$1"), (11, "func$1$$anonfun$1"),
+      (8, "func$1$$anonfun$1"), (9, "func$1$$anonfun$1"), (10, "func$1$$anonfun$1"), (11, "func$1$$anonfun$1"),
+    )
+  }
 }
 
-class LambdaBreakpointsTest_3_2 extends LambdaBreakpointsTest_3_0 {
+class LambdaBreakpointsTest_3_2 extends LambdaBreakpointsTest_3_1 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_2
 }
 
-class LambdaBreakpointsTest_3_3 extends LambdaBreakpointsTest_3_0 {
+class LambdaBreakpointsTest_3_3 extends LambdaBreakpointsTest_3_1 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_3
 }
 
-class LambdaBreakpointsTest_3_4 extends LambdaBreakpointsTest_3_0 {
+class LambdaBreakpointsTest_3_4 extends LambdaBreakpointsTest_3_1 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_4
+
+  override def testLambdaInNestedClassStatic(): Unit = {
+    breakpointsTest()(
+      (11, "main"),
+      (5, "LambdaInNestedClassStatic$Outer$Inner$$_$method$$anonfun$1"),
+      (5, "LambdaInNestedClassStatic$Outer$Inner$$_$method$$anonfun$1"),
+      (5, "LambdaInNestedClassStatic$Outer$Inner$$_$method$$anonfun$1")
+    )
+  }
+
+  override def testLambdaInNestedClass(): Unit = {
+    breakpointsTest()(
+      (15, "main"),
+      (8, "method"),
+      (8, "LambdaInNestedClass$Outer$Inner$$_$method$$anonfun$1"),
+      (8, "LambdaInNestedClass$Outer$Inner$$_$method$$anonfun$1"),
+      (8, "LambdaInNestedClass$Outer$Inner$$_$method$$anonfun$1")
+    )
+  }
 }
 
-class LambdaBreakpointsTest_3_RC extends LambdaBreakpointsTest_3_0 {
+class LambdaBreakpointsTest_3_RC extends LambdaBreakpointsTest_3_4 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_5_RC
 
-  override def testLambdaInClassConstructor(): Unit = breakpointsTest()(9, 4, 4, 4, 4, 4)
+  override def testLambdaInClassConstructor(): Unit = {
+    breakpointsTest()((9, "main"), (4, "$init$$$anonfun$1"), (4, "$init$$$anonfun$1"), (4, "$init$$$anonfun$1"))
+  }
 
-  override def testLambdaInObjectConstructor(): Unit = breakpointsTest()(9, 4, 4, 4, 4, 4)
+  override def testLambdaInObjectConstructor(): Unit = {
+    breakpointsTest()((9, "main"), (4, "$init$$$anonfun$1"), (4, "$init$$$anonfun$1"), (4, "$init$$$anonfun$1"))
+  }
 
-  override def testLambdaInExtension(): Unit = breakpointsTest()(8, 4, 4, 4, 4, 4)
+  override def testLambdaInNestedObject(): Unit = {
+    breakpointsTest()(
+      (15, "main"),
+      (8, "LambdaInNestedObject$Outer$Inner$$$_$method$$anonfun$1"),
+      (8, "LambdaInNestedObject$Outer$Inner$$$_$method$$anonfun$1"),
+      (8, "LambdaInNestedObject$Outer$Inner$$$_$method$$anonfun$1")
+    )
+  }
 
-  override def testLambdaInNestedObject(): Unit = breakpointsTest()(15, 8, 8, 8, 8, 8)
+  override def testLambdaInNestedClass(): Unit = {
+    breakpointsTest()(
+      (15, "main"),
+      (8, "LambdaInNestedClass$Outer$Inner$$_$method$$anonfun$1"),
+      (8, "LambdaInNestedClass$Outer$Inner$$_$method$$anonfun$1"),
+      (8, "LambdaInNestedClass$Outer$Inner$$_$method$$anonfun$1")
+    )
+  }
 
-  override def testLambdaInNestedClass(): Unit = breakpointsTest()(15, 8, 8, 8, 8, 8)
+  override def testLambdaInLocalMethod(): Unit = {
+    breakpointsTest()(
+      (21, "main"),
+      (8, "func$1$$anonfun$1"), (9, "func$1$$anonfun$1"), (10, "func$1$$anonfun$1"), (11, "func$1$$anonfun$1"),
+      (8, "func$1$$anonfun$1"), (9, "func$1$$anonfun$1"), (10, "func$1$$anonfun$1"), (11, "func$1$$anonfun$1"),
+      (8, "func$1$$anonfun$1"), (9, "func$1$$anonfun$1"), (10, "func$1$$anonfun$1"), (11, "func$1$$anonfun$1"),
+    )
+  }
 
-  override def testLambdaInLocalMethod(): Unit = breakpointsTest()(
-    21,
-    8, 9, 10, 11,
-    8, 9, 10, 11,
-    8, 9, 10, 11,
-    8, 9, 10, 11,
-    8, 9, 10, 11
-  )
+  override def testLambdaInExtension(): Unit = {
+    breakpointsTest()((8, "main"), (4, "blah$$anonfun$1"), (4, "blah$$anonfun$1"), (4, "blah$$anonfun$1"))
+  }
 }
 
 abstract class LambdaBreakpointsTestBase extends ScalaDebuggerTestCase {
 
-  private val expectedLineQueue: ConcurrentLinkedQueue[Int] = new ConcurrentLinkedQueue()
+  private val expectedLineQueue: ConcurrentLinkedQueue[(Int, String)] = new ConcurrentLinkedQueue()
 
   override protected def tearDown(): Unit = {
     try {
       if (!expectedLineQueue.isEmpty) {
         val remaining =
-          expectedLineQueue.stream().collect(Collectors.toList[Int]).asScala.toList
+          expectedLineQueue.stream().collect(Collectors.toList[(Int, String)]).asScala.toList
         fail(s"The debugger did not stop on all expected lines. Remaining: $remaining")
       }
     } finally {
@@ -127,9 +239,13 @@ abstract class LambdaBreakpointsTestBase extends ScalaDebuggerTestCase {
     }
   }
 
-  protected def breakpointsTest(className: String = getTestName(false))(lineNumbers: Int*): Unit = {
-    assertTrue("The test should stop on at least 1 breakpoint", lineNumbers.nonEmpty)
-    expectedLineQueue.addAll(lineNumbers.asJava)
+  protected def breakpointsTest2(className: String = getTestName(false))(lines: Int*): Unit = {
+    breakpointsTest(className)(lines.map(l => (l, "blah")): _*)
+  }
+
+  protected def breakpointsTest(className: String = getTestName(false))(linesAndMethods: (Int, String)*): Unit = {
+    assertTrue("The test should stop on at least 1 breakpoint", linesAndMethods.nonEmpty)
+    expectedLineQueue.addAll(linesAndMethods.asJava)
 
     createLocalProcess(className)
 
@@ -139,12 +255,14 @@ abstract class LambdaBreakpointsTestBase extends ScalaDebuggerTestCase {
     onEveryBreakpoint { implicit ctx =>
       val loc = ctx.getFrameProxy.location()
       val srcPos = inReadAction(positionManager.getSourcePosition(loc))
-      val actual = srcPos.getLine
+      val actualLine = srcPos.getLine
+      val actualMethod = loc.method().name()
       Option(expectedLineQueue.poll()) match {
         case None =>
-          fail(s"The debugger stopped on line $actual, but there were no more expected lines")
-        case Some(expected) =>
-          assertEquals(expected, actual)
+          fail(s"The debugger stopped on line $actualLine and method $actualMethod, but there were no more expected lines")
+        case Some((line, method)) =>
+          assertEquals(line, actualLine)
+          assertEquals(method, actualMethod)
           resume(ctx)
       }
     }
@@ -154,7 +272,7 @@ abstract class LambdaBreakpointsTestBase extends ScalaDebuggerTestCase {
     s"""
        |object LambdaInClassConstructor {
        |  class C {
-       |    (0 until 5).foreach { x =>
+       |    (0 until 3).foreach { x =>
        |      println(x) $breakpoint
        |    }
        |  }
@@ -165,13 +283,15 @@ abstract class LambdaBreakpointsTestBase extends ScalaDebuggerTestCase {
        |}
        |""".stripMargin)
 
-  def testLambdaInClassConstructor(): Unit = breakpointsTest()(9, 4, 4, 4, 4, 4)
+  def testLambdaInClassConstructor(): Unit = {
+    breakpointsTest()((9, "main"), (4, "apply$mcVI$sp"), (4, "apply$mcVI$sp"), (4, "apply$mcVI$sp"))
+  }
 
   addSourceFile("LambdaInObjectConstructor.scala",
     s"""
        |object LambdaInObjectConstructor {
        |  object O {
-       |    (0 until 5).foreach { x =>
+       |    (0 until 3).foreach { x =>
        |      println(x) $breakpoint
        |    }
        |  }
@@ -182,7 +302,9 @@ abstract class LambdaBreakpointsTestBase extends ScalaDebuggerTestCase {
        |}
        |""".stripMargin)
 
-  def testLambdaInObjectConstructor(): Unit = breakpointsTest()(9, 4, 4, 4, 4, 4)
+  def testLambdaInObjectConstructor(): Unit = {
+    breakpointsTest()((9, "main"), (4, "apply$mcVI$sp"), (4, "apply$mcVI$sp"), (4, "apply$mcVI$sp"))
+  }
 
   addSourceFile("LambdaInNestedObjectStatic.scala",
     s"""
@@ -196,12 +318,14 @@ abstract class LambdaBreakpointsTestBase extends ScalaDebuggerTestCase {
        |  }
        |
        |  def main(args: Array[String]): Unit = {
-       |    new Outer().Inner.method(5) $breakpoint
+       |    new Outer().Inner.method(3) $breakpoint
        |  }
        |}
        |""".stripMargin)
 
-  def testLambdaInNestedObjectStatic(): Unit = breakpointsTest()(11, 5, 5, 5, 5, 5)
+  def testLambdaInNestedObjectStatic(): Unit = {
+    breakpointsTest()((11, "main"), (5, "apply$mcVI$sp"), (5, "apply$mcVI$sp"), (5, "apply$mcVI$sp"))
+  }
 
   addSourceFile("LambdaInNestedClassStatic.scala",
     s"""
@@ -215,18 +339,20 @@ abstract class LambdaBreakpointsTestBase extends ScalaDebuggerTestCase {
        |  }
        |
        |  def main(args: Array[String]): Unit = {
-       |    new Outer.Inner().method(5) $breakpoint
+       |    new Outer.Inner().method(3) $breakpoint
        |  }
        |}
        |""".stripMargin)
 
-  def testLambdaInNestedClassStatic(): Unit = breakpointsTest()(11, 5, 5, 5, 5, 5)
+  def testLambdaInNestedClassStatic(): Unit = {
+    breakpointsTest()((11, "main"), (5, "apply"), (5, "apply"), (5, "apply"))
+  }
 
   addSourceFile("LambdaInNestedObject.scala",
     s"""
        |object LambdaInNestedObject {
        |  class Outer {
-       |    val field: Int = 5
+       |    val field: Int = 3
        |
        |    object Inner {
        |      def method(): Unit = {
@@ -243,13 +369,15 @@ abstract class LambdaBreakpointsTestBase extends ScalaDebuggerTestCase {
        |}
        |""".stripMargin)
 
-  def testLambdaInNestedObject(): Unit = breakpointsTest()(15, 8, 8, 8, 8, 8)
+  def testLambdaInNestedObject(): Unit = {
+    breakpointsTest()((15, "main"), (8, "apply$mcVI$sp"), (8, "apply$mcVI$sp"), (8, "apply$mcVI$sp"))
+  }
 
   addSourceFile("LambdaInNestedClass.scala",
     s"""
        |object LambdaInNestedClass {
        |  object Outer {
-       |    val field: Int = 5
+       |    val field: Int = 3
        |
        |    class Inner {
        |      def method(): Unit = {
@@ -266,7 +394,11 @@ abstract class LambdaBreakpointsTestBase extends ScalaDebuggerTestCase {
        |}
        |""".stripMargin)
 
-  def testLambdaInNestedClass(): Unit = breakpointsTest()(15, 8, 8, 8, 8, 8)
+  def testLambdaInNestedClass(): Unit = {
+    breakpointsTest()(
+      (15, "main"), (8, "apply$mcVI$sp"), (8, "apply$mcVI$sp"), (8, "apply$mcVI$sp")
+    )
+  }
 
   addSourceFile("LambdaInLocalMethod.scala",
     s"""
@@ -284,7 +416,7 @@ abstract class LambdaBreakpointsTestBase extends ScalaDebuggerTestCase {
        |        }
        |
        |      }
-       |      func(a, 5)
+       |      func(a, 3)
        |      a
        |    }
        |  }
@@ -295,13 +427,13 @@ abstract class LambdaBreakpointsTestBase extends ScalaDebuggerTestCase {
        |}
        |""".stripMargin)
 
-  def testLambdaInLocalMethod(): Unit = breakpointsTest()(
-    21,
-    8, 9, 10, 11,
-    8, 9, 10, 11,
-    8, 9, 10, 11,
-    8, 9, 10, 11,
-    8, 9, 10, 11
-  )
+  def testLambdaInLocalMethod(): Unit = {
+    breakpointsTest()(
+      (21, "main"),
+      (8, "apply"), (9, "apply"), (10, "apply"), (11, "apply"),
+      (8, "apply"), (9, "apply"), (10, "apply"), (11, "apply"),
+      (8, "apply"), (9, "apply"), (10, "apply"), (11, "apply")
+    )
+  }
 }
 
