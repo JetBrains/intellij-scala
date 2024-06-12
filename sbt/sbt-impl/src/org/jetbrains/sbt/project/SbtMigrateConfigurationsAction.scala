@@ -2,7 +2,6 @@ package org.jetbrains.sbt.project
 
 import com.intellij.execution.application.ApplicationConfiguration
 import com.intellij.execution.configurations.{JavaRunConfigurationModule, ModuleBasedConfiguration, RunConfigurationModule}
-import com.intellij.execution.junit.JUnitConfiguration
 import com.intellij.openapi.actionSystem.{ActionPlaces, ActionUpdateThread, AnAction, AnActionEvent}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.{Module, ModuleManager, ModuleType, ModuleTypeManager, ModuleUtilCore}
@@ -174,7 +173,6 @@ object SbtMigrateConfigurationsAction {
   def extractMainClassName(config: ModuleBasedConfiguration[_, _]): String =
     config match {
       case x: ApplicationConfiguration => x.getMainClassName
-      case x: JUnitConfiguration => x.getPersistentData.getMainClassName
       case x: ModuleBasedConfiguration[_, _] => ModuleBasedConfigurationMainClassExtractor.getMainClass(x).orNull
       case _ => null
     }
