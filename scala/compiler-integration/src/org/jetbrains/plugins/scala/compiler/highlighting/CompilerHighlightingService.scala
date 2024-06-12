@@ -4,6 +4,7 @@ import com.intellij.codeInsight.lookup.LookupManager
 import com.intellij.codeInsight.template.TemplateManager
 import com.intellij.compiler.CompilerWorkspaceConfiguration
 import com.intellij.compiler.server.BuildManager
+import com.intellij.configurationStore.StoreUtilKt
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.{ApplicationManager, ReadAction}
 import com.intellij.openapi.components.Service
@@ -15,18 +16,17 @@ import com.intellij.openapi.progress.util.ProgressIndicatorBase
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots.{ProjectRootManager, TestSourcesFilter}
-import com.intellij.openapi.util.SimpleModificationTracker
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.ex.{StatusBarEx, WindowManagerEx}
 import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.task.{ProjectTaskContext, ProjectTaskManager}
 import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.ui.UIUtil
+import kotlinx.coroutines.{BuildersKt, CoroutineScope}
 import org.jetbrains.bsp.BspUtil
 import org.jetbrains.bsp.project.{BspProjectTaskRunner, CustomTaskArguments}
 import org.jetbrains.jps.incremental.scala.remote.SourceScope
 import org.jetbrains.plugins.scala.build.CompilerEventReporter
-import org.jetbrains.plugins.scala.caches.cached
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerIntegrationBundle}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -35,14 +35,14 @@ import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.util.CompilationId
 
 import java.io.EOFException
-import java.util.concurrent.atomic.AtomicReference
+import java.util.concurrent.atomic.{AtomicBoolean, AtomicReference}
 import java.util.concurrent.{ConcurrentSkipListSet, ScheduledExecutorService, ScheduledFuture, TimeUnit}
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future, Promise}
 import scala.util.control.NonFatal
 
 @Service(Array(Service.Level.PROJECT))
-private final class CompilerHighlightingService(project: Project) extends Disposable {
+private final class CompilerHighlightingService(project: Project, coroutineScope: CoroutineScope) extends Disposable {
 
   import CompilerHighlightingService._
 
@@ -59,7 +59,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
 
   private val progressIndicator: AtomicReference[ProgressIndicator] = new AtomicReference()
 
-  private val projectSaveModificationTracker: SimpleModificationTracker = new SimpleModificationTracker()
+  private val projectSaveTracker: AtomicBoolean = new AtomicBoolean(false)
 
   private def debug(message: => String): Unit = {
     if (Log.isDebugEnabled) {
@@ -138,7 +138,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     schedule(CompilationRequest.WorksheetRequest(psiFile, virtualFile, document, isFirstTimeHighlighting, debugReason))
 
   private[highlighting] def saveProjectOnNextCompilation(): Unit = {
-    projectSaveModificationTracker.incModificationCount()
+    projectSaveTracker.set(true)
   }
 
   private def calculateSourceScope(virtualFile: VirtualFile): SourceScope = {
@@ -377,9 +377,16 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
   }
 
   // SCL-17295, SCL-22491
-  private val saveProject = cached("saveProject", projectSaveModificationTracker, () => {
-    if (!project.isDisposed || project.isDefault) project.save()
-  })
+  private def saveProject(): Unit = {
+    if (projectSaveTracker.compareAndSet(true, false)) {
+      if (!project.isDisposed || project.isDefault) {
+        BuildersKt.runBlocking(
+          coroutineScope.getCoroutineContext,
+          (_, continuation) => StoreUtilKt.saveSettings(project, false, continuation)
+        )
+      }
+    }
+  }
 
   private def isReadyForExecution(request: CompilationRequest): RequestState = {
     if (!request.virtualFile.isValid) {

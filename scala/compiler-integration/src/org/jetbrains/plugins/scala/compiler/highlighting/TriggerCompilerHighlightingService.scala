@@ -111,8 +111,6 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
   }
 
   private[highlighting] def triggerCompilationInSelectedEditor(): Unit = executeOnBackgroundThreadInNotDisposed(project) {
-    // Ensure that the project will be saved before the next compilation.
-    CompilerHighlightingService.get(project).saveProjectOnNextCompilation()
     // Disable the document compiler.
     documentCompilerAvailable.clear()
     // Find an active editor and start a compilation from that file. If no editors are open, the next compilation will
