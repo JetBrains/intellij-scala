@@ -38,7 +38,10 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
 
   override def toString: String = "ReferenceExpression: " + ifReadAllowed(getText)("")
 
-  override def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
+  override def nameId: PsiElement = {
+    val id = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
+    if (id != null) id else findChildByType[PsiElement](TokenType.ERROR_ELEMENT) // foo.bar.
+  }
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitReferenceExpression(this)

@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.annotator.element
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.psi._
+import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil.{findCommonContext, findFirstContext}
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -352,7 +353,12 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
 
   private def checkQualifiedReferenceElement(refElement: ScReference, typeAware: Boolean)
                                             (implicit holder: ScalaAnnotationHolder): Unit = {
-    val resolve = refElement.multiResolveScala(false)
+
+    if (refElement.isPhysical && isInIncompleteCode(refElement)) {
+      return
+    }
+
+    val resolve = refElement.multiResolveScala(true)
 
     checkAccessForReference(resolve, refElement)
     val resolveCount = resolve.length
@@ -387,6 +393,12 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
           createUnknownSymbolProblem(refElement)
       }
     }
+  }
+
+  // foo.bar.
+  private def isInIncompleteCode(e: ScalaPsiElement) = e.lastChild.flatMap(e2 => e2.prevSibling.map((_, e2))).exists {
+    case (e1: LeafPsiElement, e2: PsiErrorElement) => e1.textMatches(".") && e2.getErrorDescription == ScalaBundle.message("identifier.expected")
+    case _ => false
   }
 
   def nameWithSignature(f: PsiNamedElement): String = nameOf(f) + signatureOf(f)
