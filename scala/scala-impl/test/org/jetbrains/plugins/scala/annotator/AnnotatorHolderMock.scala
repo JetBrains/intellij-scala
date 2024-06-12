@@ -4,7 +4,7 @@ import com.intellij.lang.annotation.{AnnotationSession, HighlightSeverity}
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
-import org.jetbrains.annotations.Nls
+import org.jetbrains.annotations.{Nls, Nullable}
 import org.jetbrains.plugins.scala.extensions.IterableOnceExt
 
 import scala.annotation.nowarn
@@ -67,7 +67,7 @@ abstract class AnnotatorHolderMockBase[T](file: PsiFile) extends ScalaAnnotation
   override def newSilentAnnotation(severity: HighlightSeverity): ScalaAnnotationBuilder =
     new DummyAnnotationBuilder(severity, null)
 
-  private class DummyAnnotationBuilder(severity: HighlightSeverity, @Nls message: String)
+  private class DummyAnnotationBuilder(severity: HighlightSeverity, @Nullable @Nls message: String)
     extends DummyScalaAnnotationBuilder(severity, message) {
 
     override def onCreate(severity: HighlightSeverity, message: String, range: TextRange, enforcedAttributes: TextAttributesKey): Unit =

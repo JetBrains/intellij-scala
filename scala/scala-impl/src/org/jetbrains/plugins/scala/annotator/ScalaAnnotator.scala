@@ -54,9 +54,9 @@ class ScalaAnnotator extends Annotator
     annotate(element, HighlightingAdvisor.isTypeAwareHighlightingEnabled(element))
   }
 
-  def annotate(element: PsiElement, typeAware: Boolean)(implicit holder: ScalaAnnotationHolder): Unit = {
+  def annotate(element: PsiElement, typeAware: Boolean, checkShouldInspect: Boolean = true)(implicit holder: ScalaAnnotationHolder): Unit = {
     val file = element.getContainingFile
-    if (!HighlightingAdvisor.shouldInspect(file))
+    if (checkShouldInspect && !HighlightingAdvisor.shouldInspect(file))
       return
 
     val (compiled, isInSources) = file match {
