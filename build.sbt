@@ -56,6 +56,7 @@ lazy val scalaCommunity: sbt.Project =
       gradleIntegration % "test->test;compile->compile",
       intelliLangIntegration % "test->test;compile->compile",
       mavenIntegration % "test->test;compile->compile",
+      junitIntegration % "test->test;compile->compile",
       propertiesIntegration % "test->test;compile->compile",
       mlCompletionIntegration % "test->test;compile->compile",
       pluginXml,
@@ -701,6 +702,13 @@ lazy val mavenIntegration =
       intellijPlugins += "org.jetbrains.idea.maven".toPlugin,
       libraryDependencies += Dependencies.intellijMavenTestFramework % Test,
       resolvers += Versions.intellijRepository_ForManagedIntellijDependencies
+    )
+
+lazy val junitIntegration =
+  newProject("junit", file("scala/integration/junit"))
+    .dependsOn(sbtImpl % "compile->compile")
+    .settings(
+      intellijPlugins += "JUnit".toPlugin
     )
 
 lazy val propertiesIntegration =
