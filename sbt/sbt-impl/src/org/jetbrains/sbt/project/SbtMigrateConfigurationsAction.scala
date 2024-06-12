@@ -10,6 +10,7 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{JavaPsiFacade, PsiDocumentManager}
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.sbt.{SbtBundle, SbtUtil}
 import org.jetbrains.sbt.project.SbtMigrateConfigurationsAction.{ModuleHeuristicResult, extractMainClassName, isConfigurationInvalid, logger}
@@ -154,16 +155,18 @@ object SbtMigrateConfigurationsAction {
 
   /**
    * Checks whether a configuration module doesn't contain an expected main class.
-   * If yes, the situation like that could happen - in the old grouping there may have been an IDEA module called X
+   * If yes, a situation like that could happen - in the old grouping there may have been an IDEA module called X
    * owned by project Y (project in the sbt sense), and in the new grouping the same module (X) may belong to another project e.g. Z.
    * In that case, the configuration that had a module called X will still have it, but it will no longer be the same module as the original one and
-   * some main class may no longer exists inside it.
+   * some main class may no longer exist inside it.
    */
   private def isMainClassAbsentInConfigurationModule(config: ModuleBasedConfiguration[_, _]): Boolean = {
     val mainClassName = extractMainClassName(config)
     val javaRunConfigurationModule = extractJavaRunConfigurationModule(config)
     if (mainClassName != null && javaRunConfigurationModule != null) {
-      Try(javaRunConfigurationModule.findNotNullClass(mainClassName)).toOption.isEmpty
+      inReadAction {
+        Try(javaRunConfigurationModule.findNotNullClass(mainClassName)).toOption.isEmpty
+      }
     } else {
       false
     }
