@@ -93,7 +93,7 @@ private object ScalaAccessCanBeTightenedInspection {
     override def getFamilyName: String = ScalaInspectionBundle.message("change.modifier")
 
     override def invoke(project: Project, file: PsiFile, editor: Editor, startElement: PsiElement, endElement: PsiElement): Unit = {
-      if (!editor.isInstanceOf[ImaginaryEditor]) { // Preview
+      if (editor != null && !editor.isInstanceOf[ImaginaryEditor]) { // Batch || Preview
         val range = elementToHighlightIn(element).getTextRange
         var highlight: Option[HighlightInfo] = None
         DaemonCodeAnalyzerEx.processHighlights(editor.getDocument, project, HighlightSeverity.WARNING, range.getStartOffset, range.getEndOffset, (info: HighlightInfo) => {
