@@ -5,7 +5,7 @@ import com.intellij.notification.{NotificationAction, NotificationGroupManager, 
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.externalSystem.model.ExternalSystemDataKeys
 import com.intellij.openapi.externalSystem.service.project.manage.ProjectDataImportListener
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbService, Project}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.sbt.project.SbtMigrateConfigurationsAction.isConfigurationInvalid
 import org.jetbrains.sbt.{SbtBundle, SbtUtil}
@@ -20,10 +20,17 @@ class UpgradeConfigurationImportListener(project: Project) extends ProjectDataIm
     val isTrustedProject = TrustedProjects.isTrusted(project)
     if (!(SbtUtil.isSbtProject(project) && isTrustedProject)) return
 
-    if (shouldShowNotification(project)) {
-      showNotification()
-    }
-    setNotificationShown()
+    // note: we need to wait until the project switches to smart mode before executing
+    // this logic, because under the hood it calls JavaExecutionUtil#findMainClass
+    // (from com.intellij.execution.configurations.JavaRunConfigurationModule.findNotNullClass),
+    // which for a project in a dumb mode returns null so we can get incorrect results.
+    // TODO it could be written better with coroutineScope.launch && smartReadAction
+    DumbService.getInstance(project).runWhenSmart(() => {
+      if (shouldShowNotification(project)) {
+        showNotification()
+      }
+      setNotificationShown()
+    })
   }
 
   private def isNewlyCreatedProject(project: Project): Boolean = {
