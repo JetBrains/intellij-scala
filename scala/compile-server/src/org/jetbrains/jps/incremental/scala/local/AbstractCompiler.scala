@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.compiler.diagnostics
 import xsbti._
 import xsbti.compile._
 
+import java.nio.file.Paths
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.function.Supplier
 import scala.jdk.CollectionConverters._
@@ -146,7 +147,7 @@ abstract class AbstractCompiler extends Compiler {
         }.toList
 
     private def logInClient(msg: String, pos: Position, kind: MessageKind, actions: List[diagnostics.Action]): Unit = {
-      val source = pos.sourceFile.toScala
+      val source = pos.sourcePath().map(Paths.get(_)).toScala
 
       // xsbti.Position#line, xsbti.Position#startLine and xsbti.Position#endLine contain 1-based line information.
       // xsbti.Position#pointer, xsbti.Position#startColumn and xsbti.Position#endColumn contain 0-based column information.
@@ -156,7 +157,7 @@ abstract class AbstractCompiler extends Compiler {
       val problemEnd = createEnd(pos)
 
       //noinspection ReferencePassedToNls
-      client.message(kind, msg, source, pointer, problemStart, problemEnd, actions)
+      client.message(kind, msg, source.map(_.toFile), pointer, problemStart, problemEnd, actions)
     }
   }
 

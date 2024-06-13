@@ -1,8 +1,8 @@
 package org.jetbrains.jps.incremental.scala.local
 
 import org.jetbrains.jps.incremental.scala.Client
-import org.jetbrains.plugins.scala.compiler.data.CompilationData
-import sbt.internal.inc.{AnalyzingCompiler, CompileOutput, PlainVirtualFileConverter}
+import org.jetbrains.plugins.scala.compiler.data.{CompilationData, DocumentCompilationData}
+import sbt.internal.inc.{AnalyzingCompiler, CompileOutput, PlainVirtualFileConverter, StringVirtualFile}
 import xsbti._
 import xsbti.api.{ClassLike, DependencyContext}
 import xsbti.compile.DependencyChanges
@@ -12,6 +12,7 @@ import java.nio.file.Path
 import java.util
 import java.util.Optional
 import scala.jdk.CollectionConverters._
+import scala.util.control.NonFatal
 
 class IdeaIncrementalCompiler(scalac: AnalyzingCompiler)
   extends AbstractCompiler {
@@ -50,6 +51,37 @@ class IdeaIncrementalCompiler(scalac: AnalyzingCompiler)
     catch {
       case _: xsbti.CompileFailed => // the error should be already handled via the `reporter`
       case t: Throwable =>
+        client.trace(t)
+    }
+  }
+
+  def compileDocument(compilationData: DocumentCompilationData, client: Client): Unit = {
+    val DocumentCompilationData(sourcePath, sourceContent, output, classpath, scalacOptions) = compilationData
+
+    val progress = getProgress(client, 1)
+    val reporter = getReporter(client)
+    val logger = getLogger(client)
+    val clientCallback = new ClientCallback(client, output)
+
+    val out = CompileOutput(output)
+
+    val virtualFile = StringVirtualFile(sourcePath.toString, sourceContent)
+    try {
+      scalac.compile(
+        Array(virtualFile),
+        classpath.toArray.map(PlainVirtualFileConverter.converter.toVirtualFile),
+        PlainVirtualFileConverter.converter,
+        emptyChanges,
+        scalacOptions.toArray,
+        out,
+        clientCallback,
+        reporter,
+        Optional.of(progress),
+        logger
+      )
+    } catch {
+      case _: xsbti.CompileFailed =>
+      case NonFatal(t) =>
         client.trace(t)
     }
   }

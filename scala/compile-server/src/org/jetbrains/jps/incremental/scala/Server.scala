@@ -1,6 +1,6 @@
 package org.jetbrains.jps.incremental.scala
 
-import org.jetbrains.plugins.scala.compiler.data.{CompilationData, CompilerData, SbtData}
+import org.jetbrains.plugins.scala.compiler.data.{CompilationData, CompilerData, DocumentCompilationArguments, SbtData}
 
 import java.net.{InetAddress, SocketException, SocketTimeoutException, UnknownHostException}
 import java.nio.file.Path
@@ -16,6 +16,8 @@ trait Server {
   ): Either[Server.ServerError, ExitCode]
 
   def computeStamps(outputFiles: Seq[Path], analysisFile: Path, client: Client): Either[Server.ServerError, ExitCode]
+
+  def compileDocument(arguments: DocumentCompilationArguments, client: Client): Unit = {}
 }
 
 object Server {

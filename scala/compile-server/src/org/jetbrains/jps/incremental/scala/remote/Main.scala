@@ -8,7 +8,7 @@ import org.jetbrains.jps.incremental.scala.local.{Cache, LocalServer}
 import org.jetbrains.jps.incremental.scala.utils.CompileServerSharedMessages
 import org.jetbrains.plugins.scala.compiler.data.serialization.SerializationUtils
 import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
-import org.jetbrains.plugins.scala.compiler.data.{Arguments, ComputeStampsArguments, ExpressionEvaluationArguments}
+import org.jetbrains.plugins.scala.compiler.data.{Arguments, ComputeStampsArguments, DocumentCompilationArguments, ExpressionEvaluationArguments}
 import org.jetbrains.plugins.scala.server.CompileServerToken
 
 import java.io._
@@ -193,6 +193,8 @@ object Main {
           computeStampsLogic(arguments, client)
         case compileJps: CompileServerCommand.CompileJps =>
           Jps.compileJpsLogic(compileJps, client, scalaCompileServerSystemDir)
+        case CompileServerCommand.CompileDocument(arguments) =>
+          compileDocumentLogic(arguments, client)
         case CompileServerCommand.EvaluateExpression(args) =>
           evaluateExpressionLogic(args)
         case CompileServerCommand.GetMetrics =>
@@ -218,6 +220,10 @@ object Main {
   private def computeStampsLogic(args: ComputeStampsArguments, client: Client): Unit = {
     val ComputeStampsArguments(outputFiles, analysisFile) = args
     server.computeStamps(outputFiles, analysisFile, client)
+  }
+
+  private def compileDocumentLogic(arguments: DocumentCompilationArguments, client: EncodingEventGeneratingClient): Unit = {
+    server.compileDocument(arguments, client)
   }
 
   private val expressionCompilerCache: Cache[Seq[Path], (AnyRef, Method)] = new Cache(3)
