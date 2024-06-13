@@ -6,7 +6,7 @@ import com.intellij.psi.{PsiElement, PsiNamedElement, PsiReference}
 import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScExpression, ScSugarCallExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScVariableDefinition}
 
 class ScalaReadWriteAccessDetector extends ReadWriteAccessDetector {
@@ -43,6 +43,7 @@ private object ScalaReadWriteAccessDetector {
   def isAccessedForWriting(expression: ScExpression): Boolean = {
     expression.getParent match {
       case assign : ScAssignment if expression == assign.leftExpression => true
+      case ScSugarCallExpr(`expression`, method, _) if method.refName.endsWith("=") && method.bind().exists(_.name == method.refName.dropRight(1)) => true
       case _ => false
     }
   }
