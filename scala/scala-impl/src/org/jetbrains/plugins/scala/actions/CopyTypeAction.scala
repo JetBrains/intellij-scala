@@ -9,6 +9,7 @@ import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, Parent, PsiElementExt}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
@@ -68,8 +69,18 @@ final class CopyTypeAction extends AnAction(ScalaBundle.message("copy.scala.type
     val startOffset = selectionModel.getSelectionStart
     val endOffset = selectionModel.getSelectionEnd
 
+    def preprocessType(ty: ScType): ScType =
+      ty.removeAliasDefinitions().tryExtractDesignatorSingleton
+
     getSelectedElement(startOffset, endOffset, file)
-      .flatMap(e => e.`type`().toOption.map(e -> _.removeAliasDefinitions()))
+      .flatMap {
+        case e: ScExpression =>
+          e.getTypeWithoutImplicits(ignoreBaseType = true)
+            .toOption
+            .map(e -> preprocessType(_))
+        case e =>
+          e.`type`().toOption.map(e -> preprocessType(_))
+      }
   }
 
   private def getSelectedElement(start: Int, end: Int, file: ScalaFile): Option[ScalaPsiElement with Typeable] = {
