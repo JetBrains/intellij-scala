@@ -3,13 +3,15 @@ package annotator
 
 import org.jetbrains.plugins.scala.codeInspection.ScalaAnnotatorQuickFixTestBase
 
-class SymbolLiteralAnnotatorTest extends ScalaAnnotatorQuickFixTestBase {
-
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_13
-
+abstract class SymbolLiteralAnnotatorTestBase extends ScalaAnnotatorQuickFixTestBase {
   val symbolName = "symb"
 
   override protected val description = ScalaBundle.message("symbolliterals.are.deprecated", symbolName)
+}
+
+class SymbolLiteralAnnotatorTest_Scala2 extends SymbolLiteralAnnotatorTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version.isScala2 && version >= LatestScalaVersions.Scala_2_13
+
   def hint = ScalaBundle.message("convert.to.explicit.symbol", symbolName)
 
   def test_in_assignment(): Unit = {
@@ -26,5 +28,13 @@ class SymbolLiteralAnnotatorTest extends ScalaAnnotatorQuickFixTestBase {
       """.stripMargin,
       hint
     )
+  }
+}
+
+class SymbolLiteralAnnotatorTest_Scala3 extends SymbolLiteralAnnotatorTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version.isScala3
+
+  def test_in_assignment(): Unit = {
+    checkTextHasNoErrors(s"inline def foo(inline $symbolName: String) = $${ fooImpl('$symbolName) }")
   }
 }
