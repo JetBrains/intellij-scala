@@ -1,5 +1,6 @@
 package org.jetbrains.sbt.project
 
+import com.intellij.ide.impl.TrustedProjects
 import com.intellij.notification.{NotificationAction, NotificationGroupManager, NotificationType}
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.externalSystem.model.ExternalSystemDataKeys
@@ -16,7 +17,8 @@ import org.jetbrains.sbt.{SbtBundle, SbtUtil}
 class UpgradeConfigurationImportListener(project: Project) extends ProjectDataImportListener {
 
   override def onImportFinished(projectPath: String): Unit = {
-    if (!SbtUtil.isSbtProject(project)) return
+    val isTrustedProject = TrustedProjects.isTrusted(project)
+    if (!(SbtUtil.isSbtProject(project) && isTrustedProject)) return
 
     if (shouldShowNotification(project)) {
       showNotification()
