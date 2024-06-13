@@ -22,6 +22,8 @@ class SbtMigrateConfigurationsAction extends AnAction(
   SbtBundle.message("sbt.migrate.configurations.text")
 ) {
 
+  private val MAX_MODULES_THRESHOLD = 10
+
   override def update(e: AnActionEvent): Unit = {
     val presentation = e.getPresentation
     val place = e.getPlace
@@ -91,19 +93,23 @@ class SbtMigrateConfigurationsAction extends AnAction(
       // note: it may happen that module from modulesForClass will be of SharedSourcesModuleType type.
       // Because of that we have to find their JVM representation.
       case Seq() if modulesForClass.size == 1 => ModuleHeuristicResult(modulesForClass.head.findJVMModule)
+      case Seq() if possibleModules.size == 1 => ModuleHeuristicResult(Some(possibleModules.head))
       // note: when there is more than 10 possible modules, displaying them in a tooltip can introduce additional chaos
-      case Seq() if combinedModules.size < 10 =>
+      case Seq() if combinedModules.size < MAX_MODULES_THRESHOLD =>
         val onlyJVMModules = combinedModules.flatMap(_.findJVMModule).map(_.getName)
         ModuleHeuristicResult(None, onlyJVMModules)
-      case _ if productOfModuleSets.size < 10 => ModuleHeuristicResult(None, productOfModuleSets.map(_.getName))
+      case _ if productOfModuleSets.size < MAX_MODULES_THRESHOLD => ModuleHeuristicResult(None, productOfModuleSets.map(_.getName))
       case _  =>
-        if (combinedModules.size >= 10) {
-          val combinedModulesString = combinedModules.map(_.getName).mkString(",")
-          logger.warn(s"For ${config.getName} the upgrade configuration action found 10 or more modules: $combinedModulesString")
-        }
+        logWarningIfNeeded(combinedModules, config.getName)
         ModuleHeuristicResult(None)
     }
   }
+
+  private def logWarningIfNeeded(combinedModules: Seq[Module], configName: String): Unit =
+    if (combinedModules.size >= MAX_MODULES_THRESHOLD) {
+      val combinedModulesString = combinedModules.map(_.getName).mkString(",")
+      logger.warn(s"For $configName the upgrade configuration action found 10 or more modules: $combinedModulesString")
+    }
 
   private def getModulesInWhichMainClassExists(config: ModuleBasedConfiguration[_, _], project: Project): Seq[Module] = {
     // note: some module that was previously called e.g. foo may be present in two builds e.g. root1 and root2.
