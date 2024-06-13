@@ -17,10 +17,10 @@ final case class ComputeStampsArguments(
 }
 
 object ComputeStampsArguments {
-  import Extractors.{stringToPath, stringToPaths}
+  import Extractors.{StringToPath, StringToPaths}
 
   def parse(arguments: Seq[String]): Option[ComputeStampsArguments] = arguments match {
-    case Seq(stringToPaths(outputFiles), stringToPath(analysisFile)) =>
+    case Seq(StringToPaths(outputFiles), StringToPath(analysisFile)) =>
       Some(ComputeStampsArguments(outputFiles, analysisFile))
     case _ =>
       None

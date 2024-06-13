@@ -1,7 +1,7 @@
 package org.jetbrains.jps.incremental.scala.data
 
 import org.jetbrains.jps.incremental.scala.remote.{CommandIds, CompileServerCommand, SourceScope}
-import org.jetbrains.plugins.scala.compiler.data.{ComputeStampsArguments, ExpressionEvaluationArguments}
+import org.jetbrains.plugins.scala.compiler.data.{ComputeStampsArguments, DocumentCompilationArguments, ExpressionEvaluationArguments}
 
 import scala.util.Try
 
@@ -40,6 +40,11 @@ object CompileServerCommandParser
             )
           case _ =>
             throwIllegalArgs(commandId, args)
+        }
+      case CommandIds.CompileDocument =>
+        DocumentCompilationArguments.deserialize(args) match {
+          case Left(_) => throwIllegalArgs(commandId, args)
+          case Right(arguments) => CompileServerCommand.CompileDocument(arguments)
         }
       case CommandIds.EvaluateExpression =>
         val parsed = ExpressionEvaluationArguments.parse(args).get

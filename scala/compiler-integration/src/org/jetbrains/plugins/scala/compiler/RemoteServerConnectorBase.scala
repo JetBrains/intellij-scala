@@ -22,7 +22,7 @@ abstract class RemoteServerConnectorBase(
 
   implicit def projectContext: ProjectContext = module.getProject
 
-  private val sbtData = {
+  protected val sbtData: SbtData = {
     val javaClassVersion = System.getProperty("java.class.version")
     SbtData.from(ScalaPluginJars.jpsRoot, javaClassVersion, Utils.getSystemRoot.toPath) match {
       case Left(msg)   => throw new IllegalArgumentException(msg)
@@ -53,7 +53,7 @@ abstract class RemoteServerConnectorBase(
 
   protected def worksheetArgs: Option[WorksheetArgs] = None
 
-  private def runtimeClasspath: Seq[File] = {
+  protected def runtimeClasspath: Seq[File] = {
     val classesRoots = assemblyRuntimeClasspath().map(stripJarPathSuffix).map(new File(_))
     classesRoots ++ additionalRuntimeClasspath
   }
@@ -94,7 +94,7 @@ abstract class RemoteServerConnectorBase(
 
   protected def compilerSettings: ScalaCompilerSettings = module.scalaCompilerSettings
 
-  private def findJdk = CompileServerLauncher.compileServerJdk(module.getProject)
+  protected def findJdk: File = CompileServerLauncher.compileServerJdk(module.getProject)
     .fold(m => throw new IllegalArgumentException(s"JDK for compiler process not found: $m"), _.executable)
 
   private def checkFilesToCompile(files: Seq[File]): Unit = {

@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.compiler.data
 
 import com.intellij.openapi.util.io.FileUtil
+import org.jetbrains.jps.incremental.scala.Extractor
 
 import java.io._
 import java.nio.file.Path
@@ -18,6 +19,32 @@ case class SbtData(sbtInterfaceJar: File,
 }
 
 object SbtData {
+
+  def serialize(data: SbtData): Seq[String] = {
+    import serialization.SerializationUtils.fileToPath
+    val SbtData(_, _, _, interfacesHome, javaClassVersion) = data
+
+    Seq(
+      fileToPath(data.pluginJpsDirectory.toFile),
+      fileToPath(interfacesHome),
+      javaClassVersion
+    )
+  }
+
+  import Extractors.PathToFile
+
+  def deserialize(strings: Seq[String]): Either[String, (SbtData, Seq[String])] = strings match {
+    case PathToFile(pluginJpsDirectory) +:
+      PathToFile(interfacesHome) +:
+      javaClassVersion +:
+      tail =>
+
+      val Jars(sbtInterfaceJar, compilerInterfaceJar, compilerBridges) =
+        Jars.fromPluginJpsDirectory(pluginJpsDirectory.toPath)
+      Right(SbtData(sbtInterfaceJar, compilerInterfaceJar, compilerBridges, interfacesHome, javaClassVersion) -> tail)
+
+    case args => Left(s"The arguments don't match the expected shape of CompilerData: ${args.mkString("[", ",", "]")}")
+  }
 
   case class Jars(sbtInterfaceJar: File, compilerInterfaceJar: File, compilerBridges: SbtData.CompilerBridges)
 

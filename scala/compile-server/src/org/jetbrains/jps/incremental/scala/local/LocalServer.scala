@@ -2,7 +2,7 @@ package org.jetbrains.jps.incremental.scala.local
 
 import org.jetbrains.jps.incremental.scala.local.zinc.AnalysisStoreFactory
 import org.jetbrains.jps.incremental.scala.{Client, CompileServerBundle, DelegateClient, ExitCode, Server}
-import org.jetbrains.plugins.scala.compiler.data.{CompilationData, CompilerData, SbtData}
+import org.jetbrains.plugins.scala.compiler.data.{CompilationData, CompilerData, DocumentCompilationArguments, SbtData}
 import sbt.internal.inc.{Analysis, PlainVirtualFileConverter, Stamper}
 import xsbti.compile.{AnalysisContents, AnalysisStore}
 
@@ -11,6 +11,7 @@ import java.nio.file.Path
 import java.util.ServiceLoader
 import scala.jdk.CollectionConverters._
 import scala.jdk.OptionConverters._
+import scala.util.control.NonFatal
 
 final class LocalServer extends Server {
 
@@ -72,6 +73,30 @@ final class LocalServer extends Server {
     }
 
     Right(ExitCode.Ok)
+  }
+
+  override def compileDocument(arguments: DocumentCompilationArguments, client: Client): Unit = {
+    val DocumentCompilationArguments(sbtData, compilerData, compilationData) = arguments
+
+    val collectingSourcesClient = new DelegateClient(client) with CollectingSourcesClient
+
+    val compiler = (try {
+      val compilerFactory = lock.synchronized(compilerFactoryFrom(sbtData, compilerData, client))
+      compilerFactory.createCompiler(compilerData, collectingSourcesClient, null)
+    } catch {
+      case NonFatal(t) =>
+        collectingSourcesClient.sourceStarted(compilationData.sourcePath.toString)
+        throw t
+    }) match {
+      case idea: IdeaIncrementalCompiler => idea
+      case c => sys.error(s"Document compilation can only be done with the IdeaIncrementalCompiler, compiler class: ${c.getClass.getName}")
+    }
+
+    if (!collectingSourcesClient.isCanceled) {
+      client.compilationStart()
+      compiler.compileDocument(compilationData, collectingSourcesClient)
+      client.compilationEnd(collectingSourcesClient.sources + compilationData.sourcePath.toFile)
+    }
   }
 
   // NOTE: `LocalServer` can be used both in JPS process (when can't connect to the scala compile server)
