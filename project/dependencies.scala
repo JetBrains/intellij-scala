@@ -35,6 +35,8 @@ object Versions {
   val junitVersion: String = "4.13.2"
   val junitInterfaceVersion: String = "0.13.3"
 
+  val junit5JupiterVersion: String = "5.10.2"
+
   val bspVersion = "2.1.0-M3"
   val sbtStructureVersion: String = "2024.1.2"
   val sbtIdeaShellVersion: String = "2021.1.0"
@@ -102,6 +104,10 @@ object Dependencies {
   // (Both runtime and compilation time)
   val junit: ModuleID = "junit" % "junit" % junitVersion
   val junitInterface: ModuleID = "com.github.sbt" % "junit-interface" % junitInterfaceVersion
+
+  // NOTE: after update to 242.16677.15 the test compilation started failing with `java.lang.NoClassDefFoundError: org/opentest4j/AssertionFailedError`
+  // This class is a part of opentest4j, a transitive dependency of JUnit5, which is a `provided` dependency in a lot of platform modules such as testFramework.
+  val junit5Jupiter: ModuleID = "org.junit.jupiter" % "junit-jupiter-api" % junit5JupiterVersion
 
   val ivy2: ModuleID = "org.apache.ivy" % "ivy" % "2.5.2"
 
