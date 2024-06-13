@@ -12,7 +12,8 @@ object ScSymbolLiteralAnnotator extends ElementAnnotator[ScSymbolLiteral] {
   override def annotate(element: ScSymbolLiteral, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
 
-    if (element.scalaLanguageLevelOrDefault >= ScalaLanguageLevel.Scala_2_13) {
+    val langLevel = element.scalaLanguageLevelOrDefault
+    if (langLevel.isScala2 && langLevel >= ScalaLanguageLevel.Scala_2_13) {
       holder.createWarningAnnotation(
         element,
         ScalaBundle.message("symbolliterals.are.deprecated", element.contentText),
