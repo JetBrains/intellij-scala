@@ -14,38 +14,27 @@ case class Arguments(sbtData: SbtData,
   /** @see `org.jetbrains.jps.incremental.scala.data.ArgumentsParser.parse` */
   def asStrings: Seq[String] = {
     val (outputs, caches) = compilationData.outputToCacheMap.toSeq.unzip
-
     val (sourceRoots, outputDirs) = compilationData.outputGroups.unzip
 
-    val compilerJarPaths = compilerData.compilerJars.map(jars => filesToPaths(jars.allJars))
-    val customCompilerBridgeJarPath = compilerData.compilerJars.flatMap(_.customCompilerBridgeJar.map(fileToPath))
-    val javaHomePath = compilerData.javaHome.map(fileToPath)
-    val incrementalType = compilerData.incrementalType
-
-    Seq(
-      fileToPath(sbtData.pluginJpsDirectory.toFile),
-      fileToPath(sbtData.interfacesHome),
-      sbtData.javaClassVersion,
-      optionToString(compilerJarPaths),
-      optionToString(customCompilerBridgeJarPath),
-      optionToString(javaHomePath),
-      filesToPaths(compilationData.sources),
-      filesToPaths(compilationData.classpath),
-      fileToPath(compilationData.output),
-      sequenceToString(compilationData.scalaOptions),
-      sequenceToString(compilationData.javaOptions),
-      compilationData.order.toString,
-      fileToPath(compilationData.cacheFile),
-      filesToPaths(outputs),
-      filesToPaths(caches),
-      incrementalType.name,
-      filesToPaths(sourceRoots),
-      filesToPaths(outputDirs),
-      sequenceToString(worksheetArgs.map(WorksheetArgsSerializer.serialize).getOrElse(Nil)),
-      //sbtIncOptions
-      filesToPaths(compilationData.zincData.allSources),
-      compilationData.zincData.compilationStartDate.toString,
-      compilationData.zincData.isCompile.toString
-    )
+    SbtData.serialize(sbtData) ++
+      CompilerData.serialize(compilerData) ++
+      Seq(
+        filesToPaths(compilationData.sources),
+        filesToPaths(compilationData.classpath),
+        fileToPath(compilationData.output),
+        sequenceToString(compilationData.scalaOptions),
+        sequenceToString(compilationData.javaOptions),
+        compilationData.order.toString,
+        fileToPath(compilationData.cacheFile),
+        filesToPaths(outputs),
+        filesToPaths(caches),
+        filesToPaths(sourceRoots),
+        filesToPaths(outputDirs),
+        sequenceToString(worksheetArgs.map(WorksheetArgsSerializer.serialize).getOrElse(Nil)),
+        //sbtIncOptions
+        filesToPaths(compilationData.zincData.allSources),
+        compilationData.zincData.compilationStartDate.toString,
+        compilationData.zincData.isCompile.toString
+      )
   }
 }

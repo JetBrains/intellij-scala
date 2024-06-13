@@ -31,15 +31,15 @@ object DocumentCompilationData {
     )
   }
 
-  def deserialize(strings: Seq[String]): Option[DocumentCompilationData] = strings match {
+  def deserialize(strings: Seq[String]): Either[String, DocumentCompilationData] = strings match {
     case Seq(
       stringToPath(sourcePath),
       sourceContent,
       stringToPath(output),
       stringToPaths(classpath),
       stringToSequence(scalacOptions)
-    ) => Some(DocumentCompilationData(sourcePath, sourceContent, output, classpath, scalacOptions))
-    case _ => None
+    ) => Right(DocumentCompilationData(sourcePath, sourceContent, output, classpath, scalacOptions))
+    case args => Left(s"The arguments don't match the expected shape of CompilerData: ${args.mkString("[", ",", "]")}")
   }
 
   private val stringToSequence: Extractor[String, Seq[String]] = SerializationUtils.stringToSequence

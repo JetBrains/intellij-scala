@@ -43,8 +43,8 @@ object CompileServerCommandParser
         }
       case CommandIds.CompileDocument =>
         DocumentCompilationArguments.deserialize(args) match {
-          case Some(arguments) => CompileServerCommand.CompileDocument(arguments)
-          case None => throwIllegalArgs(commandId, args)
+          case Left(_) => throwIllegalArgs(commandId, args)
+          case Right(arguments) => CompileServerCommand.CompileDocument(arguments)
         }
       case CommandIds.EvaluateExpression =>
         val parsed = ExpressionEvaluationArguments.parse(args).get
