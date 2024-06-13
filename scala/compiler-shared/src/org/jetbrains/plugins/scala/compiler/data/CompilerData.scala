@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.compiler.data
 
 import org.jetbrains.jps.incremental.scala.Extractor
-import org.jetbrains.plugins.scala.compiler.data.serialization.SerializationUtils
+import org.jetbrains.plugins.scala.compiler.data.Extractors.{PathToFile, PathsToFiles}
 
 import java.io.File
 
@@ -46,12 +46,6 @@ object CompilerData {
       Right(CompilerData(compilerJars, javaHome, incrementalType) -> tail)
 
     case args => Left(s"The arguments don't match the expected shape of CompilerData: ${args.mkString("[", ",", "]")}")
-  }
-
-  private val PathToFile: Extractor[String, File] = new File(_)
-
-  private val PathsToFiles: Extractor[String, Seq[File]] = { paths =>
-    if (paths.isEmpty) Seq.empty else paths.split(SerializationUtils.Delimiter).map(PathToFile).toSeq
   }
 
   private val StringToOption: Extractor[String, Option[String]] = { s =>

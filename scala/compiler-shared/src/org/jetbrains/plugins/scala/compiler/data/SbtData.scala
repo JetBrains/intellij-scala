@@ -31,6 +31,8 @@ object SbtData {
     )
   }
 
+  import Extractors.PathToFile
+
   def deserialize(strings: Seq[String]): Either[String, (SbtData, Seq[String])] = strings match {
     case PathToFile(pluginJpsDirectory) +:
       PathToFile(interfacesHome) +:
@@ -43,8 +45,6 @@ object SbtData {
 
     case args => Left(s"The arguments don't match the expected shape of CompilerData: ${args.mkString("[", ",", "]")}")
   }
-
-  private val PathToFile: Extractor[String, File] = new File(_)
 
   case class Jars(sbtInterfaceJar: File, compilerInterfaceJar: File, compilerBridges: SbtData.CompilerBridges)
 

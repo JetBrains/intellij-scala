@@ -2,11 +2,10 @@ package org.jetbrains.jps.incremental.scala.data
 
 import org.jetbrains.jps.incremental.scala.Extractor
 import org.jetbrains.jps.incremental.scala.data.ArgumentsParser.ArgumentsParserError
+import org.jetbrains.plugins.scala.compiler.data.Extractors.{PathToFile, PathsToFiles, StringToSequence}
 import org.jetbrains.plugins.scala.compiler.data._
-import org.jetbrains.plugins.scala.compiler.data.serialization.{SerializationUtils, WorksheetArgsSerializer}
+import org.jetbrains.plugins.scala.compiler.data.serialization.WorksheetArgsSerializer
 import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
-
-import java.io.File
 
 // TODO: move to compiler-shared
 //  unify with serializers org.jetbrains.plugins.scala.compiler.data.serialization.ArgListSerializer
@@ -72,14 +71,6 @@ object ArgumentsParser
         }
       }
     }.left.map(ArgumentsParserError.apply)
-
-  private val PathToFile: Extractor[String, File] = new File(_)
-
-  private val PathsToFiles: Extractor[String, Seq[File]] = { paths =>
-    if (paths.isEmpty) Seq.empty else paths.split(SerializationUtils.Delimiter).map(PathToFile).toSeq
-  }
-
-  private val StringToSequence: Extractor[String, Seq[String]] = SerializationUtils.stringToSequence
 
   private val StringToBoolean: Extractor[String, Boolean] = _.toBoolean
 }

@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.compiler.data
 
-import org.jetbrains.jps.incremental.scala.Extractor
-import org.jetbrains.plugins.scala.compiler.data.serialization.SerializationUtils
-
 import java.nio.file.Path
 
 final case class DocumentCompilationData(
@@ -15,7 +12,7 @@ final case class DocumentCompilationData(
 
 object DocumentCompilationData {
 
-  import Extractors.{stringToPath, stringToPaths}
+  import Extractors.{StringToPath, StringToPaths, StringToSequence}
 
   def serialize(data: DocumentCompilationData): Seq[String] = {
     val DocumentCompilationData(sourcePath, sourceContent, output, classpath, scalacOptions) = data
@@ -33,14 +30,12 @@ object DocumentCompilationData {
 
   def deserialize(strings: Seq[String]): Either[String, DocumentCompilationData] = strings match {
     case Seq(
-      stringToPath(sourcePath),
+      StringToPath(sourcePath),
       sourceContent,
-      stringToPath(output),
-      stringToPaths(classpath),
-      stringToSequence(scalacOptions)
+      StringToPath(output),
+      StringToPaths(classpath),
+      StringToSequence(scalacOptions)
     ) => Right(DocumentCompilationData(sourcePath, sourceContent, output, classpath, scalacOptions))
     case args => Left(s"The arguments don't match the expected shape of CompilerData: ${args.mkString("[", ",", "]")}")
   }
-
-  private val stringToSequence: Extractor[String, Seq[String]] = SerializationUtils.stringToSequence
 }

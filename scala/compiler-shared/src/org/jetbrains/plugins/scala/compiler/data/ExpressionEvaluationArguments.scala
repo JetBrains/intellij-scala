@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala.compiler.data
 
 import org.jetbrains.jps.incremental.scala.Extractor
-import org.jetbrains.plugins.scala.compiler.data.serialization.SerializationUtils
-
-import java.nio.file.{Path, Paths}
 import org.jetbrains.plugins.scala.compiler.data.serialization.SerializationUtils._
+
+import java.nio.file.Path
 
 case class ExpressionEvaluationArguments(
   outDir: Path,
@@ -30,14 +29,14 @@ case class ExpressionEvaluationArguments(
 }
 
 object ExpressionEvaluationArguments {
-  import Extractors.{stringToPath, stringToPaths}
+  import Extractors.{StringToPath, StringToPaths, StringToSequence}
 
   def parse(strings: Seq[String]): Option[ExpressionEvaluationArguments] = strings match {
     case Seq(
-      stringToPath(outDir),
-      stringToPaths(classpath),
-      stringToSequence(scalacOptions),
-      stringToPath(source),
+      StringToPath(outDir),
+      StringToPaths(classpath),
+      StringToSequence(scalacOptions),
+      StringToPath(source),
       s2i(line),
       expression,
       stringToSet(localVariableNames),
@@ -47,9 +46,7 @@ object ExpressionEvaluationArguments {
     case _ => None
   }
 
-  private val stringToSequence: Extractor[String, Seq[String]] = SerializationUtils.stringToSequence(_)
-
-  private val stringToSet: Extractor[String, Set[String]] = stringToSequence.andThen(_.toSet)(_)
+  private val stringToSet: Extractor[String, Set[String]] = StringToSequence.andThen(_.toSet)(_)
 
   private val s2i: Extractor[String, Int] = _.toInt
 }
