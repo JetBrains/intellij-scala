@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.actions
 
 import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, CommonDataKeys}
-import com.intellij.openapi.application.{Application, ApplicationManager}
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiUtilBase
@@ -9,12 +9,11 @@ import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, Parent, PsiElementExt}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
-import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector
 
 import java.awt.Toolkit
 import java.awt.datatransfer.StringSelection
@@ -47,15 +46,19 @@ final class CopyTypeAction extends AnAction(ScalaBundle.message("copy.scala.type
     val project: Project = CommonDataKeys.PROJECT.getData(context)
     val editor: Editor = CommonDataKeys.EDITOR.getData(context)
 
-    val file = PsiUtilBase.getPsiFileInEditor(editor, project)
-
-    file.is[ScalaFile]
+    if (project == null || editor == null) false
+    else {
+      val file = PsiUtilBase.getPsiFileInEditor(editor, project)
+      file.is[ScalaFile]
+    }
   }
 
   private def getTypeableElement(e: AnActionEvent): Option[(ScalaPsiElement with Typeable, ScType)] = {
     val context = e.getDataContext
     implicit val project: Project = CommonDataKeys.PROJECT.getData(context)
     implicit val editor: Editor = CommonDataKeys.EDITOR.getData(context)
+
+    if (project == null || editor == null) return None
 
     val file = PsiUtilBase.getPsiFileInEditor(editor, project) match {
       case file: ScalaFile => file

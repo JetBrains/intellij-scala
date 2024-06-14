@@ -31,6 +31,23 @@ abstract class ScalaClassNameCompletionTest extends ScalaCompletionTestBase {
   TestScalaVersion.Scala_2_13
 ))
 class ClassNameCompletionTest extends ScalaClassNameCompletionTest {
+  def testInterfaceNameImplement(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |object Test extends App {
+         |  val ac = new AutoCl$CARET
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |object Test extends App {
+         |  val ac = new AutoCloseable {
+         |    override def close(): Unit = $START???$END
+         |  }
+         |}
+      """.stripMargin,
+    item = "AutoCloseable"
+  )
 
   def testClassNameRenamed(): Unit = doCompletionTest(
     fileText =
@@ -296,6 +313,21 @@ class ClassNameCompletionTest extends ScalaClassNameCompletionTest {
   TestScalaVersion.Scala_3_Latest
 ))
 class ClassNameCompletionTest_Scala_3 extends ClassNameCompletionTest {
+  override def testInterfaceNameImplement(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |object Test extends App:
+         |  val ac = new AutoCl$CARET
+      """.stripMargin,
+    resultText =
+      s"""
+         |object Test extends App:
+         |  val ac = new AutoCloseable:
+         |    override def close(): Unit = $START???$END
+      """.stripMargin,
+    item = "AutoCloseable"
+  )
+
   override def testImportsMess(): Unit = doRawCompletionTest(
     fileText =
       s"""
