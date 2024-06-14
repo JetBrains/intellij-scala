@@ -80,7 +80,8 @@ lazy val scalaCommunity: sbt.Project =
         runtimeDependencies
       ),
       // all sub-project tests need to be run within main project's classpath
-      Test / definedTests := definedTests.all(definedTestsScopeFilter).value.flatten
+      Test / definedTests := definedTests.all(definedTestsScopeFilter).value.flatten,
+      libraryDependencies ++= Dependencies.junit5EngineTestDependencies
     )
 
 lazy val pluginXml = newProject("pluginXml", file("pluginXml"))
@@ -373,7 +374,7 @@ lazy val scalaImpl: sbt.Project =
       ),
       resolvers += Versions.intellijRepository_ForManagedIntellijDependencies,
       intellijPlugins += "JUnit".toPlugin,
-      libraryDependencies += Dependencies.junit5Jupiter % Test,
+      libraryDependencies += Dependencies.junit5JupiterApi,
       intellijPluginJars := intellijPluginJars.value.map { case PluginJars(descriptor, root, cp) =>
         PluginJars(descriptor, root, cp.filterNot(_.getName.contains("junit-jupiter-api")))
       },
