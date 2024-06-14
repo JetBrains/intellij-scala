@@ -16,8 +16,9 @@ import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.editor.typedHandler.AutoBraceInsertionTools._
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler._
 import org.jetbrains.plugins.scala.editor.{AutoBraceAdvertiser, DocumentExt, ScalaEditorUtils, indentElement, indentKeyword}
-import org.jetbrains.plugins.scala.extensions.{CharSeqExt, PsiFileExt, _}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionConfidence
+import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionConfidence.isStringInUnionTypeExpectedPosition
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaXmlLexer, ScalaXmlTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
@@ -28,7 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLitera
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariable, _}
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.IndentUtil
@@ -211,6 +212,13 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
     if (!file.is[ScalaFile]) Result.CONTINUE
     else if (charTyped == '{' || charTyped == '[') {
       AutoPopupController.getInstance(project).autoPopupParameterInfo(editor, null)
+      Result.STOP
+    } else if (file.isScala3File && charTyped == '"') {
+      AutoPopupController.getInstance(project).scheduleAutoPopup(editor, CompletionType.BASIC, (file: PsiFile) => {
+        val offset = editor.getCaretModel.getOffset
+        val leaf = file.findElementAt(offset)
+        isStringInUnionTypeExpectedPosition(leaf)
+      })
       Result.STOP
     } else Result.CONTINUE
   }

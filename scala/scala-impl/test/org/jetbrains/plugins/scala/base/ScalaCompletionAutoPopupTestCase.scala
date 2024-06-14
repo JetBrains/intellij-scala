@@ -5,9 +5,11 @@ import com.intellij.openapi.fileTypes.FileType
 import com.intellij.psi.PsiFile
 import com.intellij.testFramework.fixtures.CompletionAutoPopupTester
 import com.intellij.util.ThrowableRunnable
-import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.{CompletionTests, ScalaFileType}
+import org.junit.experimental.categories.Category
 
 /** @see [[com.intellij.codeInsight.completion.JavaCompletionAutoPopupTestCase]] */
+@Category(Array(classOf[CompletionTests]))
 abstract class ScalaCompletionAutoPopupTestCase extends ScalaLightCodeInsightFixtureTestCase {
   private[this] var myTester: CompletionAutoPopupTester = _
 
