@@ -249,11 +249,17 @@ class BspTask[T](project: Project,
     // TODO use params.originId to show tree structure
 
     val uri = params.getTextDocument.getUri.toURI
-    val uriDiagnostics = params.getDiagnostics.asScala
+    val uriDiagnostics = params.getDiagnostics.asScala.toList
     val previousDiagnostics = diagnostics.getOrElse(uri, List.empty)
-    diagnostics.put(uri, uriDiagnostics.toList)
 
-    if (uriDiagnostics.isEmpty) {
+    val reset = params.getReset
+    diagnostics.updateWith(uri) {
+      case _ if reset => Some(uriDiagnostics)
+      case Some(old) => Some(old ++ uriDiagnostics)
+      case None => if (uriDiagnostics.isEmpty) None else Some(uriDiagnostics)
+    }
+
+    if (uriDiagnostics.isEmpty && reset) {
       reporter.clear(uri.toFile)
       buildMessages
     } else
