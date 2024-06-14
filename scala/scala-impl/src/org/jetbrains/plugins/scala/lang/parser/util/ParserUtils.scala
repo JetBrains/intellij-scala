@@ -21,8 +21,8 @@ object ParserUtils {
     }
   }
 
-  def isAssignmentOperator: String => Boolean = {
-    case "==" | "!=" | "<=" | ">=" => false
+  def isAssignmentOperator(op: String): Boolean = op match {
+    case "" | "==" | "!=" | "<=" | ">=" => false
     case "=" => true
     case id => id.head != '=' && id.last == '='
   }
