@@ -40,10 +40,8 @@ final case class ScOrType private (lhs: ScType, rhs: ScType) extends ScalaType w
 }
 
 object ScOrType {
-  def apply(lhs: ScType, rhs: ScType): ValueType = {
-    assert(lhs.isValue && rhs.isValue, "Components of a union type must be value types.")
-
+  def apply(lhs: ScType, rhs: ScType): ScType = {
     if (!ScalaApplicationSettings.PRECISE_TEXT && lhs == rhs) lhs.asInstanceOf[ValueType]
-    else new ScOrType(lhs, rhs)
+    else                                                      new ScOrType(lhs, rhs)
   }
 }

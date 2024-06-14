@@ -76,10 +76,6 @@ object ScalaBundleSorting {
     ),
     ModuleWithBundleInfo(
       rootPath = scalaModDir / "compiler-shared",
-      bundleMessagesRelativePath = "CompilerSharedBuildBundle.properties"
-    ),
-    ModuleWithBundleInfo(
-      rootPath = scalaModDir / "compiler-shared",
       bundleMessagesRelativePath = "ScalaCompileServerSharedBundle.properties",
     ),
     ModuleWithBundleInfo(

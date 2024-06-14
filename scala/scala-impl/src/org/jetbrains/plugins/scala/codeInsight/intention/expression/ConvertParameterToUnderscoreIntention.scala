@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.codeInsight.intention.expression
 
 import com.intellij.codeInsight.hint.HintManager
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
@@ -49,7 +50,7 @@ final class ConvertParameterToUnderscoreIntention extends PsiElementBaseIntentio
               case _ => expr.replace(newExpr)
             }
             editor.getCaretModel.moveToOffset(added.getTextOffset)
-          case Left(message) if !ApplicationManager.getApplication.isUnitTestMode =>
+          case Left(message) if !ApplicationManager.getApplication.isUnitTestMode && !IntentionPreviewUtils.isIntentionPreviewActive =>
             //noinspection ReferencePassedToNls
             HintManager.getInstance().showErrorHint(editor, message)
           case _ =>

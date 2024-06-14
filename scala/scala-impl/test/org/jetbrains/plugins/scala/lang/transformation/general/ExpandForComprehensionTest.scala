@@ -298,12 +298,46 @@ class ExpandForComprehensionTest_Scala3 extends ExpandForComprehensionTestBase {
           |""".stripMargin,
       after =
         """(1 to 8)
-          |  .withFilter(n => n match {
-          |    case x if x > 5 => true
-          |    case _ => false
-          |  })
-          |  .map(n => n)
+          |  .withFilter(n =>
+          |    n match {
+          |      case x if x > 5 => true
+          |      case _ => false
+          |    }
+          |  )
+          |  .map(n =>
+          |    n
+          |  )
           |""".stripMargin
     )
   }
+
+  // SCL-22383
+  def test_desugar_with_fewer_braces(): Unit = check3(
+    before =
+      """
+        |val foo = for
+        |  x <- List(1, 3, 5).map { i =>
+        |    i + 1
+        |  }
+        |  y <- List(2, 4, 6).map: i =>
+        |    i * 2
+        |yield y - x
+        |""".stripMargin,
+    after =
+      """
+        |val foo = {
+        |  List(1, 3, 5).map { i =>
+        |    i + 1
+        |  }
+        |}
+        |  .flatMap(x => {
+        |    List(2, 4, 6).map: i =>
+        |      i * 2
+        |  }
+        |    .map(y =>
+        |      y - x
+        |    )
+        |  )
+        |""".stripMargin,
+  )
 }

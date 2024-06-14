@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
-import junit.framework.ComparisonFailure
+import com.intellij.platform.testFramework.core.FileComparisonFailedError
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
@@ -51,11 +51,11 @@ abstract class AbstractConversionCompletionTest extends ScalaCompletionTestBase 
   }
 
   private def myCheckResultByText(expectedFileText: String, ignoreTrailingSpaces: Boolean): Unit = {
-    def runCheck(fileText: String): Either[ComparisonFailure, Unit] = try {
+    def runCheck(fileText: String): Either[FileComparisonFailedError, Unit] = try {
       myFixture.checkResult(fileText, ignoreTrailingSpaces)
       Right(())
     } catch {
-      case cf: ComparisonFailure =>
+      case cf: FileComparisonFailedError =>
         Left(cf)
     }
 
@@ -65,7 +65,7 @@ abstract class AbstractConversionCompletionTest extends ScalaCompletionTestBase 
          |$expectedFileText
          |""".stripMargin.trim
     }
-    val lazyCheckResults: LazyList[Either[ComparisonFailure, Unit]] = expectedTextCandidates.toList.to(LazyList).map(runCheck)
+    val lazyCheckResults: LazyList[Either[FileComparisonFailedError, Unit]] = expectedTextCandidates.toList.to(LazyList).map(runCheck)
     if (lazyCheckResults.exists(_.isRight)) {
       //ok, success
     }

@@ -143,7 +143,7 @@ package object move {
     file.namedElements.foreach {
       case obj: ScObject if obj.isPackageObject =>
         for {
-          named <- obj.namedElements
+          named <- obj.namedElements :+ obj
           usage <- findElementUsages(named, searchInComments, searchInNonJavaFiles)
         } usages.add(usage)
       case named =>

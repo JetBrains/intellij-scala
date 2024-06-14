@@ -600,4 +600,30 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
       |}
       |""".stripMargin
   )
+
+  def testSCL22495(): Unit = checkTextHasNoErrors(
+    """
+      |object Example:
+      |  val outer: Option[Int] = null
+      |  outer.maximum
+      |
+      |  extension (t: Option[Int])
+      |    def maximum: Int =
+      |      val inner: Option[Int] = null
+      |      inner.maximum
+      |""".stripMargin
+  )
+
+  def testSCL21732(): Unit = checkTextHasNoErrors(
+    """
+      |object A {
+      |  object Test {
+      |    extension (ls: List[String & Int])
+      |      private def test[A <: Double]: List[String & A] = ???
+      |
+      |    def infer: Seq[String & Double] = List.empty[String & Int].test[Double]
+      |  }
+      |}
+      |""".stripMargin
+  )
 }

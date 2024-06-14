@@ -8,14 +8,15 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.remote.{CommandIds, SourceScope}
-import org.jetbrains.jps.incremental.scala.{Client, DelegateClient}
+import org.jetbrains.plugins.scala.compiler.data.{CompilerData, CompilerJarsFactory, DocumentCompilationArguments, DocumentCompilationData, IncrementalityType}
 import org.jetbrains.plugins.scala.compiler.{RemoteServerConnectorBase, RemoteServerRunner}
 import org.jetbrains.plugins.scala.editor.DocumentExt
-import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLanguageLevel, VirtualFileExt}
+import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLanguageLevel}
 
 import java.io.File
-import java.nio.file.{Files, Path}
+import java.nio.file.Path
 
 @Service(Array(Service.Level.PROJECT))
 private final class DocumentCompiler(project: Project) {
@@ -42,45 +43,33 @@ private final class DocumentCompiler(project: Project) {
     client: Client
   ): Unit = {
     compileDocumentContent(
-      originalSourceFile = virtualFile.toFile,
-      content = document.textWithConvertedSeparators(virtualFile),
+      sourcePath = virtualFile.toNioPath,
+      sourceContent = document.textWithConvertedSeparators(virtualFile),
       module = module,
       sourceScope = sourceScope,
       client = client
     )
   }
 
-  private def compileDocumentContent(originalSourceFile: File,
-                                     content: String,
+  private def compileDocumentContent(sourcePath: Path,
+                                     sourceContent: String,
                                      module: Module,
                                      sourceScope: SourceScope,
                                      client: Client): Unit = {
-    val tempSourceFile = workingDirectory.resolve("tempSourceFile").toFile
-    Files.writeString(tempSourceFile.toPath, content)
-    val connector =
-      try new RemoteServerConnector(tempSourceFile, module, sourceScope)
-      catch {
-        case t: Throwable =>
-          // Remove the temporary source file if creating the connector failed.
-          FileUtil.delete(tempSourceFile)
-          throw t
-      }
-
-    try connector.compile(originalSourceFile, client)
+    val connector = new RemoteServerConnector(sourcePath, sourceContent, module, sourceScope)
+    try connector.compile(client)
     finally {
       if (connector.requiresCleanup) {
         val files = workingDirectory.toFile.listFiles()
         if (files ne null) {
           files.foreach(FileUtil.delete)
         }
-      } else {
-        FileUtil.delete(tempSourceFile)
       }
     }
   }
 
-  private class RemoteServerConnector(tempSourceFile: File, module: Module, sourceScope: SourceScope)
-    extends RemoteServerConnectorBase(module, Some(Seq(tempSourceFile)), workingDirectory.toFile) {
+  private class RemoteServerConnector(sourcePath: Path, sourceContent: String, module: Module, sourceScope: SourceScope)
+    extends RemoteServerConnectorBase(module, None, workingDirectory.toFile) {
 
     var requiresCleanup: Boolean = false
 
@@ -124,29 +113,25 @@ private final class DocumentCompiler(project: Project) {
       (fromSuper ++ outputDir).distinct
     }
 
-    def compile(originalSourceFile: File, client: Client): Unit = {
-      val fixedClient = new DelegateClient(client) {
-        override def message(msg: Client.ClientMsg): Unit = {
-          /**
-           * NOTE: some compiler errors can be with empty `source`<br>
-           * Example: `bad option '-g:vars' was ignored`<br>
-           * We do not want to loose such message.
-           * We rely that they will be reported in the beginning of the file<br>
-           * see [[org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlightersService.toHighlightInfo]]
-           * (we assume that `from` and `to` are also empty for such files)
-           */
-          val fixedSource = Some(originalSourceFile) //msg.source.map(_ => originalSourceFile)
-          val fixedMsg = msg.copy(source = fixedSource)
-          client.message(fixedMsg)
-        }
+    def compile(client: Client): Unit = {
+      val arguments = DocumentCompilationArguments(
+        sbtData = sbtData,
+        compilerData = CompilerData(
+          compilerJars = CompilerJarsFactory.fromFiles(compilerClasspath, module.customScalaCompilerBridgeJar).toOption,
+          javaHome = Some(findJdk),
+          incrementalType = IncrementalityType.IDEA
+        ),
+        compilationData = DocumentCompilationData(
+          sourcePath = sourcePath,
+          sourceContent = sourceContent,
+          output = workingDirectory,
+          classpath = runtimeClasspath.map(_.toPath),
+          scalacOptions = scalaParameters
+        )
+      )
 
-        override def compilationEnd(sources: Set[File]): Unit = {
-          val fixedSources = Set(originalSourceFile)
-          client.compilationEnd(fixedSources)
-        }
-      }
       new RemoteServerRunner()
-        .buildProcess(CommandIds.Compile, arguments.asStrings, fixedClient)
+        .buildProcess(CommandIds.CompileDocument, DocumentCompilationArguments.serialize(arguments), client)
         .runSync()
     }
   }

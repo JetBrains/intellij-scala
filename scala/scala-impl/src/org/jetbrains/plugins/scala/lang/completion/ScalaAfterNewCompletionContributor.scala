@@ -280,9 +280,9 @@ object ScalaAfterNewCompletionContributor {
     None
   }
 
-  private[this] def fromParameters(designatorType: ScDesignatorType, parameters: Iterable[PsiTypeParameter]): ValueType =
+  private[this] def fromParameters(designatorType: ScDesignatorType, parameters: Iterable[PsiTypeParameter]): ScType =
     fromParametersTypes(designatorType, parameters.map(TypeParameterType(_)))
 
-  private[this] def fromParametersTypes(designatorType: ScDesignatorType, types: Iterable[ScType]): ValueType =
+  private[this] def fromParametersTypes(designatorType: ScDesignatorType, types: Iterable[ScType]): ScType =
     if (types.isEmpty) designatorType else ScParameterizedType(designatorType, types.toSeq)
 }

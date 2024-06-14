@@ -1,9 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
 import com.intellij.psi._
-import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiNamedElementExt, PsiTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
@@ -235,28 +233,12 @@ class ExpectedTypesImpl extends ExpectedTypes {
     result.map(_ -> None)
   }
 
-  //Expression has no expected type if followed by "." + "Identifier expected" error, #SCL-15754
-  private def isInIncompeteCode(e: ScExpression): Boolean = {
-    def isIncompleteDot(e1: LeafPsiElement, e2: PsiErrorElement) =
-      e1.textMatches(".") && e2.getErrorDescription == ScalaBundle.message("identifier.expected")
-
-    e.nextSiblings.toSeq match {
-      case Seq(e1: LeafPsiElement, e2: PsiErrorElement, _ @_*) if isIncompleteDot(e1, e2) => true
-      case Seq(_: PsiWhiteSpace, e2: LeafPsiElement, e3: PsiErrorElement, _ @_*) if isIncompleteDot(e2, e3) => true
-      case _ => false
-    }
-  }
-
   /**
    * @return (expectedType, expectedTypeElement)
    */
   override def expectedExprTypes(expr: ScExpression, withResolvedFunction: Boolean = false,
                                  fromUnderscore: Boolean = true): Array[ParameterType] = {
     import expr.projectContext
-
-    if (expr.isPhysical && isInIncompeteCode(expr)) {
-      return Array.empty
-    }
 
     val sameInContext = expr.getDeepSameElementInContext
 

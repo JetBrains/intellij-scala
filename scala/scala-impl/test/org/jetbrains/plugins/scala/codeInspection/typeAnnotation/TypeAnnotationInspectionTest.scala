@@ -105,6 +105,18 @@ class MembersTypeAnnotationInspectionTest_Scala3 extends TypeAnnotationInspectio
          |  private def extension3 = "test3" + 42
          |""".stripMargin
   )
+
+  def testUniversalApply(): Unit = checkTextHasNoErrors(
+    s"""class Blub() {
+       |  def this(i: Int) = this()
+       |}
+       |
+       |object Test {
+       |  val a = Blub()
+       |  val b = Blub(3)
+       |}
+       |""".stripMargin
+  )
 }
 
 class SuperTypeAnnotationInspectionTest extends TypeAnnotationInspectionTest {

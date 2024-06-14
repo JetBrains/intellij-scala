@@ -10,7 +10,6 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScSuperReference, ScThisReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
@@ -126,16 +125,18 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
           )
           addResult(result)
         case clazz: PsiClass if !isThisOrSuperResolve || PsiTreeUtil.isContextAncestor(clazz, ref, true) =>
-          val result = new ScalaResolveResult(
-            namedElement,
-            state.substitutor,
-            state.importsUsed,
-            renamed,
-            problems = problems,
-            fromType = state.fromType,
-            isAccessible = accessible,
-            matchClauseSubstitutor = state.matchClauseSubstitutor
-          )
+          val result =
+            new ScalaResolveResult(
+              namedElement,
+              state.substitutor,
+              state.importsUsed,
+              renamed,
+              problems               = problems,
+              fromType               = state.fromType,
+              isAccessible           = accessible,
+              matchClauseSubstitutor = state.matchClauseSubstitutor,
+              exportedIn             = state.exportedIn
+            )
           addResult(result)
         case _: PsiClass => //do nothing, it's wrong class or object
         case _ if isThisOrSuperResolve => //do nothing for type alias
@@ -148,7 +149,8 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
             problems               = problems,
             fromType               = state.fromType,
             isAccessible           = accessible,
-            matchClauseSubstitutor = state.matchClauseSubstitutor
+            matchClauseSubstitutor = state.matchClauseSubstitutor,
+            exportedIn             = state.exportedIn
           )
           addResult(result)
       }

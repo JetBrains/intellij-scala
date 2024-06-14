@@ -52,6 +52,7 @@ lazy val scalaCommunity: sbt.Project =
       gradleIntegration % "test->test;compile->compile",
       intelliLangIntegration % "test->test;compile->compile",
       mavenIntegration % "test->test;compile->compile",
+      junitIntegration % "test->test;compile->compile",
       propertiesIntegration % "test->test;compile->compile",
       mlCompletionIntegration % "test->test;compile->compile",
       featuresTrainerIntegration % "test->test;compile->compile",
@@ -352,10 +353,18 @@ lazy val scalaImpl: sbt.Project =
       //scalacOptions in Global += "-Xmacro-settings:analyze-caches",
       libraryDependencies ++= DependencyGroups.scalaCommunity,
 
-      //for ExternalSystemTestCase and ExternalSystemImportingTestCase
-      libraryDependencies += Dependencies.intellijExternalSystemTestFramework % Test,
+      libraryDependencies ++= Seq(
+        //for ExternalSystemTestCase and ExternalSystemImportingTestCase
+        Dependencies.intellijExternalSystemTestFramework % Test,
+        //for PlatformTestUtil.newPerformanceTest
+        Dependencies.intellijIdeMetricsBenchmark % Test,
+        Dependencies.intellijIdeUtilCommon % Test,
+      ),
       resolvers += Versions.intellijRepository_ForManagedIntellijDependencies,
       intellijPlugins += "JUnit".toPlugin,
+
+      libraryDependencies += Dependencies.junit5Jupiter % Test,
+
       intellijPluginJars :=
         intellijPluginJars.value.map { case (descriptor, cp) => descriptor -> cp.filterNot(_.data.getName.contains("junit-jupiter-api")) },
       packageLibraryMappings := Seq(
@@ -689,6 +698,13 @@ lazy val mavenIntegration =
       intellijPlugins += "org.jetbrains.idea.maven".toPlugin,
       libraryDependencies += Dependencies.intellijMavenTestFramework % Test,
       resolvers += Versions.intellijRepository_ForManagedIntellijDependencies
+    )
+
+lazy val junitIntegration =
+  newProject("junit", file("scala/integration/junit"))
+    .dependsOn(sbtImpl % "compile->compile")
+    .settings(
+      intellijPlugins += "JUnit".toPlugin
     )
 
 lazy val propertiesIntegration =

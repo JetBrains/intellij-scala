@@ -36,7 +36,7 @@ object StableId {
             case ScalaTokenTypes.kSUPER => parseSuperReference(nm, element, forImport)
             case _ =>
               builder error ErrMsg("identifier.expected")
-              nm.drop()
+              nm.done(element)
               true
           }
         } else {
@@ -128,7 +128,7 @@ object StableId {
   def parseQualId(marker: PsiBuilder.Marker, element: IElementType, forImport: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
     if (builder.getTokenType != tIDENTIFIER) {
       builder.error(ErrMsg("identifier.expected"))
-      marker.drop()
+      marker.done(element)
       return true
     }
     builder.advanceLexer() // ate identifier

@@ -15,7 +15,7 @@ object Versions {
   val zincVersion = "1.10.0"
 
   // ATTENTION: check the comment in `Common.newProjectWithKotlin` when updating this version
-  val intellijVersion = "242.15523.1"
+  val intellijVersion = "242.16677.15"
 
   def isNightlyIntellijVersion: Boolean = intellijVersion.count(_ == '.') == 1
 
@@ -34,6 +34,8 @@ object Versions {
 
   val junitVersion: String = "4.13.2"
   val junitInterfaceVersion: String = "0.13.3"
+
+  val junit5JupiterVersion: String = "5.10.2"
 
   val bspVersion = "2.1.0-M3"
   val sbtStructureVersion: String = "2024.1.2"
@@ -103,6 +105,10 @@ object Dependencies {
   val junit: ModuleID = "junit" % "junit" % junitVersion
   val junitInterface: ModuleID = "com.github.sbt" % "junit-interface" % junitInterfaceVersion
 
+  // NOTE: after update to 242.16677.15 the test compilation started failing with `java.lang.NoClassDefFoundError: org/opentest4j/AssertionFailedError`
+  // This class is a part of opentest4j, a transitive dependency of JUnit5, which is a `provided` dependency in a lot of platform modules such as testFramework.
+  val junit5Jupiter: ModuleID = "org.junit.jupiter" % "junit-jupiter-api" % junit5JupiterVersion
+
   val ivy2: ModuleID = "org.apache.ivy" % "ivy" % "2.5.2"
 
   val scalastyle: ModuleID = "com.beautiful-scala" %% "scalastyle" % "1.5.1"
@@ -154,6 +160,8 @@ object Dependencies {
 
   val intellijMavenTestFramework: ModuleID = ("com.jetbrains.intellij.maven" % "maven-test-framework" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()
   val intellijExternalSystemTestFramework: ModuleID = ("com.jetbrains.intellij.platform" % "external-system-test-framework" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()
+  val intellijIdeMetricsBenchmark: ModuleID = ("com.jetbrains.intellij.tools" % "ide-metrics-benchmark" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()
+  val intellijIdeUtilCommon: ModuleID = ("com.jetbrains.intellij.tools" % "ide-util-common" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive.notTransitive()
 
   val packageSearchClientJvm = ("org.jetbrains.packagesearch" % "packagesearch-api-client-jvm" % "3.0.0").excludeAll(
     ExclusionRule(organization = "ch.qos.logback"),

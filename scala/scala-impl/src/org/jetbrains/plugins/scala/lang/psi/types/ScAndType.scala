@@ -38,22 +38,19 @@ final case class ScAndType private(lhs: ScType, rhs: ScType) extends ScalaType w
 }
 
 object ScAndType {
-  def apply(lhs: ScType, rhs: ScType): ValueType = {
-    assert(lhs.isValue && rhs.isValue, "Components of an intersection type must be value types.")
-
-    if (!ScalaApplicationSettings.PRECISE_TEXT && (lhs == rhs || rhs.isAny)) lhs.asInstanceOf[ValueType]
-    else if (!ScalaApplicationSettings.PRECISE_TEXT && lhs.isAny) rhs.asInstanceOf[ValueType]
-    else makeAndType(lhs, rhs)
-  }
+  def apply(lhs: ScType, rhs: ScType): ScType =
+    if (!ScalaApplicationSettings.PRECISE_TEXT && (lhs == rhs || rhs.isAny)) lhs
+    else if (!ScalaApplicationSettings.PRECISE_TEXT && lhs.isAny)            rhs
+    else                                                                     makeAndType(lhs, rhs)
 
   private[this] def checkEquiv(lhs: ScType, rhs: ScType): Boolean =
     lhs.equiv(rhs, ConstraintSystem.empty, falseUndef = false).isRight
 
-  private[this] def makeAndType(lhs: ScType, rhs: ScType): ValueType = (lhs, rhs) match {
+  private[this] def makeAndType(lhs: ScType, rhs: ScType): ScType = (lhs, rhs) match {
     case (ParameterizedType(des1, args1), ParameterizedType(des2, args2))
       if !ScalaApplicationSettings.PRECISE_TEXT && checkEquiv(des1, des2) =>
       val jointArgs = glbArgs(args1, args2, extractTypeParameters(des1))
-      jointArgs.fold[ValueType](new ScAndType(lhs, rhs))(ScParameterizedType(des1, _))
+      jointArgs.fold[ScType](new ScAndType(lhs, rhs))(ScParameterizedType(des1, _))
     case _ => new ScAndType(lhs, rhs)
   }
 

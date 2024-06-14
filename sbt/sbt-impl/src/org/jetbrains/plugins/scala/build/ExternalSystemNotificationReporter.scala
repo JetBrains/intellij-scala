@@ -9,6 +9,7 @@ import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, Ext
 import org.jetbrains.annotations.{Nls, Nullable}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.ExternalSystemNotificationReporter._
+import org.jetbrains.sbt.SbtBundle
 
 import java.io.File
 import scala.collection.mutable
@@ -64,7 +65,7 @@ class ExternalSystemNotificationReporter(workingDir: String,
     val time = System.currentTimeMillis()
     descriptors.foreach { case (id, _) =>
       val result = new com.intellij.build.events.impl.SkippedResultImpl
-      finishTask(id, CompilerSharedBuildBundle.message("report.build.task.canceled"), result, time)
+      finishTask(id, SbtBundle.message("report.build.task.canceled"), result, time)
     }
     notifications.onCancel(taskId)
   }

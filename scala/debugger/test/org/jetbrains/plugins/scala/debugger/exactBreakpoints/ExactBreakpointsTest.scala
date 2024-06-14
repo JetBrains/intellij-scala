@@ -62,10 +62,22 @@ class ExactBreakpointsTest_2_12 extends ExactBreakpointsTestWithEarlyDefinitions
 
 class ExactBreakpointsTest_2_13 extends ExactBreakpointsTest_2_12 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
+
+  override def testWholeLineIsLambda(): Unit = {
+    checkVariants()(3) //no variants
+    checkVariants()(6, "Line and Lambda", "line in function main", "_ + 1")
+    checkVariants()(9, "Line and Lambdas", "line in function main", "_ + 1", "_ + 2")
+  }
 }
 
 class ExactBreakpointsTest_3 extends ExactBreakpointsTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
+
+  override def testWholeLineIsLambda(): Unit = {
+    checkVariants()(3) //no variants
+    checkVariants()(6, "Line and Lambda", "line in function main", "_ + 1")
+    checkVariants()(9, "Line and Lambdas", "line in function main", "_ + 1", "_ + 2")
+  }
 
   addSourceFile("TopLevelDefinitions.scala",
     s"""object a:
@@ -535,5 +547,171 @@ abstract class ExactBreakpointsTestBase extends ScalaDebuggerTestCase {
 
   def testMultilineLambda(): Unit = {
     exactBreakpointTest()("println(x)", "println(123)", "println(x)",  "println(123)", "println(x)", "println(123)")
+  }
+
+  addSourceFile("ForGuardLambdaYield.scala",
+    s"""
+       |object ForGuardLambdaYield {
+       |  type F = Int => Boolean
+       |
+       |  def contains(f: F, x: Int): Boolean = f(x)
+       |
+       |  def makeString(f: F): String = {
+       |    val xs = for { i <- (0 until 3) if contains(_ > 0, i) } yield i
+       |    xs.mkString(",")
+       |  }
+       |
+       |  def main(args: Array[String]): Unit = {
+       |    println(makeString(null))
+       |  }
+       |}
+       |""".stripMargin)
+
+  def testForGuardLambdaYield(): Unit = {
+    checkVariants()(7, "Line and Lambdas", "line in function makeString", "if contains(_ > 0, i)", "_ > 0", "i")
+    checkVariants()(12)
+  }
+
+  addSourceFile("ForGuardFunctionReferenceYield.scala",
+    s"""
+       |object ForGuardFunctionReferenceYield {
+       |  type F = Int => Boolean
+       |
+       |  def contains(f: F, x: Int): Boolean = f(x)
+       |
+       |  def makeString(f: F): String = {
+       |    val xs = for { i <- (0 until 3) if contains(f, i) } yield i
+       |    xs.mkString(",")
+       |  }
+       |
+       |  def main(args: Array[String]): Unit = {
+       |    println(makeString(_ > 0))
+       |  }
+       |}
+       |""".stripMargin)
+
+  def testForGuardFunctionReferenceYield(): Unit = {
+    checkVariants()(7, "Line and Lambdas", "line in function makeString", "if contains(f, i)", "i")
+    checkVariants()(12, "Line and Lambda", "line in function main", "_ > 0")
+  }
+
+  addSourceFile("ForGuardSetReferenceYield.scala",
+    s"""
+       |object ForGuardSetReferenceYield {
+       |  type F = Int => Boolean
+       |
+       |  def contains(f: F, x: Int): Boolean = f(x)
+       |
+       |  def mySet: Set[Int] = Set(1, 2)
+       |
+       |  def makeString: String = {
+       |    val xs = for { i <- (0 until 3) if contains(mySet, i) } yield i
+       |    xs.mkString(",")
+       |  }
+       |
+       |  def main(args: Array[String]): Unit = {
+       |    println(makeString)
+       |  }
+       |}
+       |""".stripMargin)
+
+  def testForGuardSetReferenceYield(): Unit = {
+    checkVariants()(9, "Line and Lambdas", "line in function makeString", "if contains(mySet, i)", "i")
+  }
+
+  addSourceFile("ForGuardFunctionObjectYield.scala",
+    s"""
+       |object ForGuardFunctionObjectYield {
+       |  type F = Int => Boolean
+       |
+       |  def contains(f: F, x: Int): Boolean = f(x)
+       |
+       |  object MyFunction extends F {
+       |    def apply(x: Int): Boolean = x > 0
+       |  }
+       |
+       |  def makeString(f: F): String = {
+       |    val xs = for { i <- (0 until 3) if contains(MyFunction, i) } yield i
+       |    xs.mkString(",")
+       |  }
+       |
+       |  def main(args: Array[String]): Unit = {
+       |    println(makeString(null))
+       |  }
+       |}
+       |""".stripMargin)
+
+  def testForGuardFunctionObjectYield(): Unit = {
+    checkVariants()(11, "Line and Lambdas", "line in function makeString", "if contains(MyFunction, i)", "i")
+    checkVariants()(16)
+  }
+
+  addSourceFile("ForGuardMethodValueYield.scala",
+    s"""
+       |object ForGuardMethodValueYield {
+       |  type F = Int => Boolean
+       |
+       |  def contains(f: F, x: Int): Boolean = f(x)
+       |
+       |  def makeString(f: F): String = {
+       |    val xs = for { i <- (0 until 3) if contains(Set(1, 2, 3).contains, i) } yield i
+       |    xs.mkString(",")
+       |  }
+       |
+       |  def main(args: Array[String]): Unit = {
+       |    println(makeString(_ > 0))
+       |  }
+       |}
+       |""".stripMargin)
+
+  def testForGuardMethodValueYield(): Unit = {
+    checkVariants()(7, "Line and Lambdas", "line in function makeString", "if contains(Set(1, 2, 3).contains, i)", "Set(1, 2, 3).contains", "i")
+    checkVariants()(12, "Line and Lambda", "line in function main", "_ > 0")
+  }
+
+  addSourceFile("ForGuardFunctionExpressionYield.scala",
+    s"""
+       |object ForGuardFunctionExpressionYield {
+       |  type F = Int => Boolean
+       |
+       |  def contains(f: F, x: Int): Boolean = f(x)
+       |
+       |  def makeString(f: F): String = {
+       |    val xs = for { i <- (0 until 3) if contains(x => x > 0, i) } yield i
+       |    xs.mkString(",")
+       |  }
+       |
+       |  def main(args: Array[String]): Unit = {
+       |    println(makeString(_ > 0))
+       |  }
+       |}
+       |""".stripMargin)
+
+  def testForGuardFunctionExpressionYield(): Unit = {
+    checkVariants()(7, "Line and Lambdas", "line in function makeString", "if contains(x => x > 0, i)", "x => x > 0", "i")
+    checkVariants()(12, "Line and Lambda", "line in function main", "_ > 0")
+  }
+
+  addSourceFile("ForGuardMethodValueUnderscoresYield.scala",
+    s"""
+       |object ForGuardMethodValueUnderscoresYield {
+       |  type F = Int => Boolean
+       |
+       |  def contains(f: F, x: Int): Boolean = f(x)
+       |
+       |  def makeString(f: F): String = {
+       |    val xs = for { i <- (0 until 3) if contains(Set(1, 2, 3)(_), i) } yield i
+       |    xs.mkString(",")
+       |  }
+       |
+       |  def main(args: Array[String]): Unit = {
+       |    println(makeString(_ > 0))
+       |  }
+       |}
+       |""".stripMargin)
+
+  def testForGuardMethodValueUnderscoresYield(): Unit = {
+    checkVariants()(7, "Line and Lambdas", "line in function makeString", "if contains(Set(1, 2, 3)(_), i)", "Set(1, 2, 3)(_)", "i")
+    checkVariants()(12, "Line and Lambda", "line in function main", "_ > 0")
   }
 }

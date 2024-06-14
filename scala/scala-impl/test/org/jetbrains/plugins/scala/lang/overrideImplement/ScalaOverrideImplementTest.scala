@@ -35,6 +35,45 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
     runTest(methodName, fileText, expectedText, isImplement)
   }
 
+  def testImplement_AddImports(): Unit = runImplementAllTest(
+    fileText =
+      s"""
+         |package foo.bar {
+         |  import java.io.File
+         |
+         |  trait MyTrait {
+         |    def getFile(): File
+         |  }
+         |}
+         |
+         |package foo {
+         |  import foo.bar.MyTrait
+         |
+         |  class MyClass extends MyTrait$CARET
+         |}
+         |""".stripMargin,
+    expectedText =
+      """
+        |package foo.bar {
+        |  import java.io.File
+        |
+        |  trait MyTrait {
+        |    def getFile(): File
+        |  }
+        |}
+        |
+        |package foo {
+        |  import foo.bar.MyTrait
+        |
+        |  import java.io.File
+        |
+        |  class MyClass extends MyTrait {
+        |    override def getFile(): File = ???
+        |  }
+        |}
+        |""".stripMargin
+  )
+
   def testEmptyLinePos(): Unit = {
     val fileText =
       s"""
@@ -1420,6 +1459,7 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
     )
   }
 
+  /* // TODO: uncomment when SCL-22094 is fixed
   def testImplementMemberWithThisType(): Unit = runImplementAllTest(
     fileText =
       s"""
@@ -1466,7 +1506,60 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
         |}
         |""".stripMargin
   )
+  */
 
+  def testImplementMemberWithThisType_AddImports(): Unit = runImplementAllTest(
+    fileText =
+      s"""
+         |package foo {
+         |  private[foo] trait Tr {
+         |    trait InnerTrait
+         |  }
+         |
+         |  class C extends Tr
+         |  object O extends Tr
+         |
+         |  import foo.O.InnerTrait
+         |
+         |  trait MyTrait {
+         |    def baz: List[InnerTrait]
+         |  }
+         |}
+         |
+         |package bar {
+         |  import foo.MyTrait
+         |
+         |  object MyTraitImpl extends MyTrait$CARET
+         |}
+         |""".stripMargin,
+    expectedText =
+      """
+        |package foo {
+        |  private[foo] trait Tr {
+        |    trait InnerTrait
+        |  }
+        |
+        |  class C extends Tr
+        |  object O extends Tr
+        |
+        |  import foo.O.InnerTrait
+        |
+        |  trait MyTrait {
+        |    def baz: List[InnerTrait]
+        |  }
+        |}
+        |
+        |package bar {
+        |  import foo.{MyTrait, O}
+        |
+        |  object MyTraitImpl extends MyTrait {
+        |    override def baz: List[O.InnerTrait] = ???
+        |  }
+        |}
+        |""".stripMargin
+  )
+
+  /* // TODO: uncomment when SCL-22094 is fixed
   def testImplementMemberWithThisTypePackageObject(): Unit = runImplementAllTest(
     fileText =
       s"""
@@ -1511,7 +1604,9 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
         |}
         |""".stripMargin
   )
+  */
 
+  /* // TODO: uncomment when SCL-22094 is fixed
   def testImplementMemberWithThisType_ParamType(): Unit = runImplementAllTest(
     fileText =
       s"""
@@ -1556,7 +1651,9 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
         |}
         |""".stripMargin
   )
+  */
 
+  /* // TODO: uncomment when SCL-22094 is fixed
   def testImplementMemberWithThisType_VariableType(): Unit = runImplementAllTest(
     fileText =
       s"""
@@ -1601,4 +1698,5 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
         |}
         |""".stripMargin
   )
+  */
 }

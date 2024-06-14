@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.SymbolEs
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.Pipeline
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.{ElementUsage, Search, SearchMethodsWithProjectBoundCache}
 import org.jetbrains.plugins.scala.codeInspection.typeAnnotation.TypeAnnotationInspection
-import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, PsiElementExt, PsiModifierListOwnerExt}
+import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt, PsiElementExt, PsiModifierListOwnerExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isLocalClass
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods.isBeanProperty
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPatternList
@@ -30,9 +30,10 @@ import scala.annotation.tailrec
 
 final class ScalaAccessCanBeTightenedInspection extends HighlightingPassInspection {
 
-  private def computeCanBePrivate(element: ScNamedElement, isOnTheFly: Boolean): Boolean =
+  private def computeCanBePrivate(element: ScNamedElement): Boolean =
     Search.Util.shouldProcessElement(element) && {
-      val usages = getPipeline(element.getProject).runSearchPipeline(element, isOnTheFly)
+      val usages = getPipeline(element.getProject)
+        .runSearchPipeline(element, isOnTheFly = true /* the inspection does not work with false here*/)
       usages.nonEmpty && usages.forall(_.targetCanBePrivate) &&
         !elementIsSymbolWhichEscapesItsDefiningScopeWhenItIsPrivate(element)
     }
@@ -41,12 +42,12 @@ final class ScalaAccessCanBeTightenedInspection extends HighlightingPassInspecti
     element match {
       case member: ScMember if !member.hasModifierPropertyScala("private") =>
         val canBePrivate = member match {
-          case d: ScFunctionDefinition => computeCanBePrivate(d, isOnTheFly)
-          case d: ScTypeDefinition => computeCanBePrivate(d, isOnTheFly)
-          case t: ScTypeAliasDefinition if !t.isOpaque => computeCanBePrivate(t, isOnTheFly)
+          case d: ScFunctionDefinition => computeCanBePrivate(d)
+          case d: ScTypeDefinition => computeCanBePrivate(d)
+          case t: ScTypeAliasDefinition if !t.isOpaque => computeCanBePrivate(t)
           case v: ScValueOrVariableDefinition =>
             val allRefPatterns = v.pList.depthFirst().filterByType[ScBindingPattern]
-            allRefPatterns.nonEmpty && allRefPatterns.forall(computeCanBePrivate(_, isOnTheFly))
+            allRefPatterns.nonEmpty && allRefPatterns.forall(computeCanBePrivate(_))
           case _ => false
         }
 
@@ -93,7 +94,7 @@ private object ScalaAccessCanBeTightenedInspection {
     override def getFamilyName: String = ScalaInspectionBundle.message("change.modifier")
 
     override def invoke(project: Project, file: PsiFile, editor: Editor, startElement: PsiElement, endElement: PsiElement): Unit = {
-      if (!editor.isInstanceOf[ImaginaryEditor]) { // Preview
+      if (editor != null && !editor.isInstanceOf[ImaginaryEditor]) { // Batch || Preview
         val range = elementToHighlightIn(element).getTextRange
         var highlight: Option[HighlightInfo] = None
         DaemonCodeAnalyzerEx.processHighlights(editor.getDocument, project, HighlightSeverity.WARNING, range.getStartOffset, range.getEndOffset, (info: HighlightInfo) => {

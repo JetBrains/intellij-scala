@@ -21,6 +21,8 @@ class MigrateConfigurationsDialogWrapper(modules: Array[Module], configurationTo
 
   private val myTable = new JBTable() {
     override def getToolTipText(event: MouseEvent): String = {
+      // TODO The tooltip doesn't work when the user just clicks on it.
+      //  In order for a tooltip to appear, the user has to move the mouse a little after clicking on it.
       val row = rowAtPoint(event.getPoint)
       val configurationOpt = findConfigInRow(row)
       val guesses = configurationOpt.flatMap(configurationToModule.get).map(_.guesses).getOrElse(Nil)

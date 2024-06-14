@@ -6,10 +6,12 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.listeners.RefactoringElementListener
-import com.intellij.refactoring.move.moveClassesOrPackages.MoveDirectoryWithClassesHelper
+import com.intellij.refactoring.move.moveClassesOrPackages.{CommonMoveUtil, MoveDirectoryWithClassesHelper}
+import com.intellij.refactoring.util.MoveRenameUsageInfo
 import com.intellij.usageView.UsageInfo
 import com.intellij.util.Function
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import com.intellij.util.containers.ContainerUtil
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
@@ -77,6 +79,17 @@ class ScalaMoveDirectoryWithClassesHelper extends MoveDirectoryWithClassesHelper
         collectAssociations(_, scalaFile, withCompanion = false)
       }
     case _ =>
+  }
+
+  override def retargetUsages(usages: ju.List[UsageInfo], oldToNewMap: ju.Map[PsiElement, PsiElement]): Unit = {
+    val usageInfosToProcess = ContainerUtil.filter[UsageInfo](usages, {
+      case usageInfo: MoveRenameUsageInfo =>
+        val referencedElement = usageInfo.getUpToDateReferencedElement
+        referencedElement != null && referencedElement.getContainingFile.is[ScalaFile]
+      case _ => false
+    })
+    CommonMoveUtil.retargetUsages(usageInfosToProcess.toArray(UsageInfo.EMPTY_ARRAY), oldToNewMap)
+    usages.removeAll(usageInfosToProcess)
   }
 
   private def isUnderRefactoring(element: PsiElement, directoriesToMove: Array[PsiDirectory]): Boolean =

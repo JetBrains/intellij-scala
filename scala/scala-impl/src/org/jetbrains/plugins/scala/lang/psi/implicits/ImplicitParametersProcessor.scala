@@ -41,7 +41,10 @@ private[implicits] final class ImplicitParametersProcessor(override protected va
   }
 
   override def candidatesS: Set[ScalaResolveResult] =
-    super.candidatesS.filterNot(c => lowerInFileWithoutType(c) || isContextAncestor(c))
+    super.candidatesS.filterNot { c =>
+      lowerInFileWithoutType(c) ||
+        (!c.isExtensionCall && isContextAncestor(c))
+    }
 
   private def isAccessible(namedElement: PsiNamedElement): Boolean =
     isPredefPriority || ImplicitProcessor.isAccessible(namedElement, getPlace)

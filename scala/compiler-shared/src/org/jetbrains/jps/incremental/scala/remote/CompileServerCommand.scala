@@ -1,6 +1,6 @@
 package org.jetbrains.jps.incremental.scala.remote
 
-import org.jetbrains.plugins.scala.compiler.data.{Arguments, ComputeStampsArguments, ExpressionEvaluationArguments}
+import org.jetbrains.plugins.scala.compiler.data.{Arguments, ComputeStampsArguments, DocumentCompilationArguments, ExpressionEvaluationArguments}
 
 sealed trait CompileServerCommand {
   def asArgs: Seq[String]
@@ -50,6 +50,14 @@ object CompileServerCommand {
       moduleName,
       sourceScope.toString,
     ) ++ externalProjectConfig
+
+    override def isCompileCommand: Boolean = true
+  }
+
+  case class CompileDocument(arguments: DocumentCompilationArguments) extends CompileServerCommand {
+    override def asArgs: Seq[String] = DocumentCompilationArguments.serialize(arguments)
+
+    override def id: String = CommandIds.CompileDocument
 
     override def isCompileCommand: Boolean = true
   }

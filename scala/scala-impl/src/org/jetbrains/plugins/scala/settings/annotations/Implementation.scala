@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.settings.annotations
 
-import com.intellij.psi.{PsiElement, PsiEnumConstant}
+import com.intellij.psi.{PsiElement, PsiEnumConstant, PsiMethod}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
@@ -33,7 +33,7 @@ sealed abstract class Implementation {
            _: ScThrow |
            ScReferenceExpression(_: PsiEnumConstant) |
            StableApplyCall() |
-           ScMethodCall(StableApplyCall(), _) |
+           ScMethodCall(StableApplyCall() | UniversalApply(), _) |
            EmptyCollectionFactoryCall(_) => true
       case _ => false
     }
@@ -145,6 +145,12 @@ object Implementation {
         .flatMap(_.`type`().toOption)
         .flatMap(_.asOptionOf[DesignatorOwner])
         .exists(_.element.is[ScObject])
+  }
+
+  private object UniversalApply {
+    def unapply(call: ScReferenceExpression): Boolean = {
+      call.bind().flatMap(_.element.asOptionOf[PsiMethod]).exists(_.isConstructor)
+    }
   }
 
   object EmptyCollectionFactoryCall {

@@ -35,6 +35,7 @@ public class NailgunRunner {
           "compile",
           "compute-stamps",
           "compile-jps",
+          "compile-document",
           "evaluate-expression",
           "get-metrics"
   };

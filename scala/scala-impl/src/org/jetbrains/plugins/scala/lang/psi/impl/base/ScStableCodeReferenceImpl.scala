@@ -111,7 +111,10 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     else result
   }
 
-  override def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
+  override def nameId: PsiElement = {
+    val id = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
+    if (id != null) id else findChildByType[PsiElement](TokenType.ERROR_ELEMENT) // foo.bar.
+  }
 
   @throws(classOf[IncorrectOperationException])
   override def bindToElement(element: PsiElement): PsiElement = {

@@ -9,6 +9,7 @@ import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnAction
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.{DumbAwareAction, Project}
 import org.jetbrains.annotations.Nls
+import org.jetbrains.bsp.BspBundle
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 
 import java.io.File
@@ -40,7 +41,7 @@ class BuildToolWindowReporter(project: Project,
           descriptor
         }
         .withRestartActions(cancelAction)
-    val startEvent = new StartBuildEventImpl(buildDescriptor, CompilerSharedBuildBundle.message("report.build.toolwindow.running"))
+    val startEvent = new StartBuildEventImpl(buildDescriptor, BspBundle.message("report.build.toolwindow.running"))
     viewManager.onEvent(buildId, startEvent)
   }
 
@@ -63,14 +64,14 @@ class BuildToolWindowReporter(project: Project,
   override def finishWithFailure(err: Throwable): Unit = {
     val failureResult = new FailureResultImpl(err)
     val finishEvent =
-      new FinishBuildEventImpl(buildId, null, System.currentTimeMillis(), CompilerSharedBuildBundle.message("report.build.toolwindow.failed"), failureResult)
+      new FinishBuildEventImpl(buildId, null, System.currentTimeMillis(), BspBundle.message("report.build.toolwindow.failed"), failureResult)
     viewManager.onEvent(buildId, finishEvent)
   }
 
   override def finishCanceled(): Unit = {
     val canceledResult = new SkippedResultImpl
     val finishEvent =
-      new FinishBuildEventImpl(buildId, null, System.currentTimeMillis(), CompilerSharedBuildBundle.message("report.build.toolwindow.canceled"), canceledResult)
+      new FinishBuildEventImpl(buildId, null, System.currentTimeMillis(), BspBundle.message("report.build.toolwindow.canceled"), canceledResult)
     viewManager.onEvent(buildId, finishEvent)
   }
 
@@ -80,7 +81,7 @@ class BuildToolWindowReporter(project: Project,
   }
 
   override def progressTask(taskId: EventId, total: Long, progress: Long, unit: String, message: String, time: Long = System.currentTimeMillis()): Unit = {
-    val unitOrDefault = if (unit == null) CompilerSharedBuildBundle.message("report.build.toolwindow.items") else unit
+    val unitOrDefault = if (unit == null) BspBundle.message("report.build.toolwindow.items") else unit
     val event = new ProgressBuildEventImpl(taskId, null, time, message, total, progress, unitOrDefault)
     viewManager.onEvent(buildId, event)
   }
@@ -117,7 +118,7 @@ class BuildToolWindowReporter(project: Project,
 
 object BuildToolWindowReporter {
   class CancelBuildAction(cancelToken: Promise[_])
-    extends DumbAwareAction(CompilerSharedBuildBundle.message("report.build.toolwindow.cancel"), CompilerSharedBuildBundle.message("report.build.toolwindow.cancel"), AllIcons.Actions.Suspend) {
+    extends DumbAwareAction(BspBundle.message("report.build.toolwindow.cancel"), BspBundle.message("report.build.toolwindow.cancel"), AllIcons.Actions.Suspend) {
 
     override def actionPerformed(e: AnActionEvent): Unit = {
       cancelToken.failure(new ProcessCanceledException())

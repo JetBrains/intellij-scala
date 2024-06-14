@@ -116,7 +116,19 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor wit
     enumerators.processDeclarations(processor, state, null, place)
   }
 
-  protected def bodyToText(expr: ScalaPsiElement): String = expr.getText
+
+  private def toTextWithPrevWhitespaceInScala3(e: PsiElement): String = {
+    if (this.isInScala3File) {
+      e.prevSiblings
+        .takeWhile(_.is[PsiComment, PsiWhiteSpace])
+        .map(_.getText)
+        .mkString("\n", "", e.getText + "\n")
+    } else {
+      e.getText
+    }
+  }
+
+  protected def bodyToText(expr: ScalaPsiElement): String = toTextWithPrevWhitespaceInScala3(expr)
 
   private def generateDesugaredExprWithMappings(forDisplay: Boolean) =
     generateDesugaredExprTextWithMappings(forDisplay).map {
@@ -179,9 +191,8 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor wit
       }
     }
 
-    def toTextWithNormalizedUnderscores(expr: ScExpression): String = {
-      normalizeUnderscores(expr).getText
-    }
+    def toTextWithNormalizedUnderscores(expr: ScExpression): String =
+      toTextWithPrevWhitespaceInScala3(normalizeUnderscores(expr))
 
     def canSkipPatternMatchFilter(pattern: ScPattern): Boolean = {
       val features = pattern.features
@@ -270,7 +281,14 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor wit
         resultText ++= "{"
       else if (generatorNeedsParenthesis)
         resultText ++= "("
-      resultText ++= rvalue.map(_.getText).getOrElse("???")
+
+      resultText ++= rvalue.map(
+        if (generatorNeedsBlock)
+          toTextWithPrevWhitespaceInScala3
+        else
+          _.getText
+      ).getOrElse("???")
+
       if (generatorNeedsBlock)
         resultText ++= "}"
       else if (generatorNeedsParenthesis)
@@ -325,7 +343,7 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor wit
         if (newLines) {
           resultText ++= "\n"
         }
-        forBindings foreach {
+        forBindings.foreach {
           binding =>
             val pattern = binding.pattern
             val patternText = binding.patternText
@@ -419,7 +437,9 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor wit
       else
         "foreach"
 
-      val needsMultiline = !forceSingleLine && forBindingsInGenBody.nonEmpty
+      val needsMultiline =
+        !forceSingleLine && forBindingsInGenBody.nonEmpty ||
+          forBindingsInGenBody.exists(_.forBinding.textContains('\n'))
       appendFunc(funcText, Some(gen), generatorArgs, forceBlock = needsMultiline || forBindingsInGenBody.nonEmpty) {
         printForBindings(forBindingsInGenBody, newLines = needsMultiline)
 
@@ -435,11 +455,14 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor wit
             }
           case _ =>
             assert(nextEnums.isEmpty)
+            val needsBraces = forBindingsInGenBody.exists(_.forBinding.textContains('\n'))
 
             if (needsMultiline) {
               // add an empty line between the value definitions of the for-bindings and the body
               // to avoid merging
               resultText ++= "\n"
+              if (needsBraces)
+                resultText += '{'
             }
 
             // sometimes the body of a for loop is enclosed in {}
@@ -457,6 +480,8 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor wit
 
             if (needsMultiline) {
               resultText ++= "\n"
+              if (needsBraces)
+                resultText += '}'
             }
         }
       }

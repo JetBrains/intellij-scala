@@ -66,7 +66,7 @@ private[scala] object AnonymousFunction {
         elem match {
           case e: ScExpression if ScUnderScoreSectionUtil.underscores(e).nonEmpty => true
           case b: ScBlock if b.isPartialFunction => false //handled in isGenerateAnonfunSimple
-          case e: ScExpression if ScalaPsiUtil.isByNameArgument(e) || ScalaPsiUtil.isArgumentOfFunctionType(e) => true
+          case e: ScExpression if ScalaPsiUtil.isByNameArgument(e) => true
           case ScalaPsiUtil.MethodValue(_) => true
           case ChildOf(argExprs: ScArgumentExprList) & InsideAsync(call)
             if call.args == argExprs => true

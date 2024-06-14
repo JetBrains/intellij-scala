@@ -6,6 +6,7 @@ object CommandIds {
   final val Compile = "compile"
   final val ComputeStamps = "compute-stamps"
   final val CompileJps = "compile-jps"
+  final val CompileDocument = "compile-document"
   final val EvaluateExpression = "evaluate-expression"
   final val GetMetrics = "get-metrics"
 }
