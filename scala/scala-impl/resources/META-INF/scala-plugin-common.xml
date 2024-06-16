@@ -291,7 +291,7 @@
                                 order="before keywordCompletionContributor"/>
         <completion.contributor language="Scala"
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaLiteralTypeValuesCompletionContributor"
-                                order="before keywordCompletionContributor"/>
+                                order="first, before keywordCompletionContributor"/>
 
         <completion.contributor language="Scala" id="scalaDirectiveCompletionContributor"
                                 implementationClass="org.jetbrains.plugins.scalaDirective.lang.completion.ScalaDirectiveCompletionContributor"/>

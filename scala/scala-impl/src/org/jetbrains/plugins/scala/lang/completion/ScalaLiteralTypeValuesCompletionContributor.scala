@@ -66,6 +66,10 @@ object ScalaLiteralTypeValuesCompletionContributor {
           result
             .withPrefixMatcher(result.getPrefixMatcher.cloneWithPrefix(fixedPrefix))
             .addAllElements(lookups.asJava)
+
+          if (lookups.nonEmpty) {
+            result.stopHere()
+          }
         case _ =>
       }
     }
