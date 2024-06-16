@@ -26,8 +26,6 @@ final class Scala3LiteralTypeValuesAutoPopupCompletionTest extends ScalaCompleti
     val actualLookupItems = myFixture.getLookupElementStrings
     assertNotNull("myFixture.getLookupElementStrings", actualLookupItems)
 
-    println(actualLookupItems)
-
     UsefulTestCase.assertContainsElements[String](actualLookupItems, expectedLookupItems.asJava)
   }
 
