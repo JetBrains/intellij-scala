@@ -84,8 +84,9 @@ trait ScalaTypePresentation extends TypePresentation {
         if (options.renderProjectionTypeName) nameRenderer.renderName(e)
         else nameRenderer.escapeName(refName)
 
-      if (context.nameResolvesTo(refName, e))
-        escapedName // if reference can be resolved from the context we do not render any context info
+      if (context.nameResolvesTo(refName + typeTailForProjection, e))
+        // if the reference can be resolved from the context, we do not render a redundant context prefix
+        escapedName + typeTailForProjection
       else
         projType.projected match {
           case ScDesignatorType(pack: PsiPackage) =>
