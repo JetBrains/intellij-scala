@@ -22,5 +22,7 @@ class IvyExtensionsResolver(
       .toSeq
   }
 
+  override protected def progressIndicator: Option[ProgressIndicator] = Some(indicator)
+
   override def createLogger: ProgressIndicatorLogger = new ProgressIndicatorLogger(indicator)
 }

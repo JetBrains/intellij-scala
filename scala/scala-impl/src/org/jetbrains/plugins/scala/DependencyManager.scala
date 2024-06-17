@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
 import com.intellij.openapi.util.registry.RegistryManager
 import com.intellij.util.SystemProperties
 import org.apache.ivy.Ivy
@@ -19,8 +20,10 @@ import org.jetbrains.plugins.scala.project.template._
 import java.io.File
 import java.net.URL
 import java.nio.file.{Files, Paths}
+import java.util.concurrent.atomic.AtomicReference
 import scala.annotation.unused
 import scala.jdk.CollectionConverters._
+import scala.util.control.NonFatal
 
 object DependencyManager extends DependencyManagerBase
 
@@ -74,11 +77,14 @@ abstract class DependencyManagerBase {
 
   protected def customizeIvySettings(settings: IvySettings): Unit = ()
 
+  protected def progressIndicator: Option[ProgressIndicator] = {
+    val indicator = ProgressManager.getInstance().getProgressIndicator
+    Option(indicator)
+  }
+
   protected def createLogger: MessageLogger = new DefaultMessageLogger(logLevel)
 
   private def resolveIvy(deps: Seq[DependencyDescription]): Seq[ResolvedDependency] = {
-
-    org.apache.ivy.util.Message.setDefaultLogger(createLogger) // ¯\_(ツ)_/¯ SCL-15168
 
     def makeIvyResolver(resolver: Resolver): RepositoryResolver = resolver match {
       case MavenResolver(name, root) =>
@@ -133,22 +139,72 @@ abstract class DependencyManagerBase {
 
     if (deps.isEmpty) return Seq.empty
 
-    // ATTENTION: settings should be created before other code SCL-15168
-    val settings = mkIvySettings()
-    val ivy = new Ivy()
-    ivy.getLoggerEngine.pushLogger(createLogger)
-    ivy.setSettings(settings)
-    ivy.bind()
+    val logger = createLogger
+    org.apache.ivy.util.Message.setDefaultLogger(logger) // ¯\_(ツ)_/¯ SCL-15168
 
-    val report = usingTempFile("ivy", ".xml") { ivyFile =>
-      val ivyXml = mkIvyXml(deps)
-      Files.write(Paths.get(ivyFile.toURI), ivyXml.getBytes)
-      val resolveOptions = new ResolveOptions()
-        .setConfs(Array("compile"))
-      ivy.resolve(ivyFile.toURI.toURL, resolveOptions)
+    val ref = new AtomicReference[ResolveReport]()
+
+    val ivy = new Ivy()
+    // Using a raw `java.lang.Thread` because `Ivy` is particularly destructive when it comes to the thread interruption
+    // mechanism, ultimately calling `Thread#stop()` if the thread doing the resolution has not responded after 2
+    // seconds of waiting. It is not worth doing this to an IDEA platform background thread.
+    // This is because `java.io.InputStream#read` (which is used in the implementation of the download code) isn't
+    // guaranteed to respond to Java thread interruption.
+    val thread = new Thread(() => {
+      // ATTENTION: settings should be created before other code SCL-15168
+      val settings = mkIvySettings()
+      ivy.getLoggerEngine.pushLogger(logger)
+      ivy.setSettings(settings)
+      ivy.bind()
+
+      val report = usingTempFile("ivy", ".xml") { ivyFile =>
+        val ivyXml = mkIvyXml(deps)
+        Files.write(Paths.get(ivyFile.toURI), ivyXml.getBytes)
+        val resolveOptions = new ResolveOptions()
+          .setConfs(Array("compile"))
+        ivy.resolve(ivyFile.toURI.toURL, resolveOptions)
+      }
+
+      ref.set(report)
+    })
+    // Do not print rethrown exceptions from the resolving thread, in case of interruption. Ivy already reports errors,
+    // including interruption, to the provided Ivy logger instance.
+    thread.setUncaughtExceptionHandler((_, _) => ())
+
+    thread.start()
+
+    val indicator = progressIndicator.orNull
+    while (ref.get() eq null) {
+      // Check cancellation.
+      if ((indicator ne null) && indicator.isCanceled) {
+        // Interrupt the Ivy instance.
+        try ivy.interrupt(thread)
+        catch {
+          case NonFatal(_) => // Ignore non fatal errors
+          case _: InterruptedException => // Ignore possible interruption exceptions from the resolving thread
+        } finally {
+          indicator.checkCanceled() // Propagate the PCE
+        }
+      }
+
+      // Sleep for a while.
+      try Thread.sleep(300L)
+      catch {
+        case e: InterruptedException =>
+          // This can happen on IDEA exit.
+          try ivy.interrupt(thread)
+          catch {
+            case NonFatal(_) => // Ignore non fatal errors
+            case _: InterruptedException => // Ignore possible interruption exceptions from the resolving thread
+          } finally {
+            throw e // Propagate the InterruptedException
+          }
+      }
     }
 
-    processIvyReport(report)
+    // The `ref` has already been set, join should be instant here.
+    thread.join()
+    processIvyReport(ref.get())
   }
 
   protected def artifactReportToResolvedDependency(artifactReport: ArtifactDownloadReport): ResolvedDependency = {
