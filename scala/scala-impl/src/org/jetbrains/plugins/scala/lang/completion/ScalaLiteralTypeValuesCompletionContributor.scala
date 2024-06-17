@@ -53,7 +53,7 @@ object ScalaLiteralTypeValuesCompletionContributor {
           val contentRange = str.contentRange.shiftLeft(stringTextOffset)
 
           /**
-           * `" foo<caret>"` by default uses `"foo"` as prefix inside Scala strings instead of `" foo"`
+           * `" foo<caret>"` by default uses `foo` as prefix inside Scala strings instead of ` foo`, the same applies to `"$foo<caret>"`
            *
            * @see [[com.intellij.codeInsight.completion.BaseCompletionService#suggestPrefix(com.intellij.codeInsight.completion.CompletionParameters)]]
            */
