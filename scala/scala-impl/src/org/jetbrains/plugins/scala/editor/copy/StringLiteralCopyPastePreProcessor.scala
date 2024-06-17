@@ -4,41 +4,56 @@ import com.intellij.codeInsight.editorActions.CopyPastePreProcessor
 import com.intellij.openapi.editor.{Editor, RawText}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.{LineTokenizer, StringUtil}
-import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.ScalaLanguage
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import com.intellij.psi.{PsiDocumentManager, PsiFile}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
+/**
+ * @see [[MultiLineStringCopyPastePreProcessor]]
+ * @see java version [[com.intellij.codeInsight.editorActions.StringLiteralCopyPasteProcessor]]
+ */
 class StringLiteralCopyPastePreProcessor extends CopyPastePreProcessor {
 
   override def preprocessOnCopy(file: PsiFile, startOffsets: Array[Int], endOffsets: Array[Int], text: String): String = {
-    val literal = startOffsets.zip(endOffsets).forall { case (a, b) =>
-      val e = file.findElementAt(a)
-      e.is[PsiElement] && e.getLanguage.isKindOf(ScalaLanguage.INSTANCE) && e.getNode != null &&
-                e.getNode.getElementType == ScalaTokenTypes.tSTRING &&
-                a > e.getTextRange.getStartOffset && b < e.getTextRange.getEndOffset
+    if (!file.is[ScalaFile])
+      return text
+
+    val literal = startOffsets.zip(endOffsets).forall { case (start, end) =>
+      val e = file.findElementAt(start)
+      e != null && e.elementType == ScalaTokenTypes.tSTRING && {
+        val range = e.getTextRange
+        range.getStartOffset < start && end < range.getEndOffset
+      }
     }
     if (literal) StringUtil.unescapeStringCharacters(text) else null
   }
 
   override def preprocessOnPaste(project: Project, file: PsiFile, editor: Editor, text: String, rawText: RawText): String = {
+    if (!file.is[ScalaFile])
+      return text
+
     PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
 
-    val offset = editor.getSelectionModel.getSelectionStart
-    val e = file.findElementAt(offset)
+    val selectionModel = editor.getSelectionModel
+    val selectionStart = selectionModel.getSelectionStart
+    val selectionEnd = selectionModel.getSelectionEnd
 
-    if (e.is[PsiElement] && e.getLanguage.isKindOf(ScalaLanguage.INSTANCE) && offset > e.getTextOffset) {
-      val elementType = if(e.getNode == null) null else e.getNode.getElementType
-      if ((elementType == ScalaTokenTypes.tSTRING || elementType == ScalaTokenTypes.tCHAR) 
-              && rawText != null && rawText.rawText != null) {
-          rawText.rawText
-      } else if (elementType == ScalaTokenTypes.tSTRING) {
-        LineTokenizer.tokenize(text.toCharArray, false, true).map(line => StringUtil.escapeStringCharacters(line)).mkString("\\n")
-      } else {
-        text
-      }
-    } else {
-      text
+    val elementAtStart = file.findElementAt(selectionStart)
+    val elementAtEnd = if (selectionStart == selectionEnd) elementAtStart else file.findElementAt(selectionEnd)
+    if (elementAtStart == null || elementAtEnd == null)
+      return text
+
+    val elementTypeAtStart = elementAtStart.elementType
+    val elementTypeAtEnd = elementAtEnd.elementType
+
+    //Q: what is this condition for? Not covered in tests
+    if ((elementTypeAtStart == ScalaTokenTypes.tSTRING || elementTypeAtStart == ScalaTokenTypes.tCHAR) && rawText != null && rawText.rawText != null)
+      rawText.rawText
+    else if (elementTypeAtStart == ScalaTokenTypes.tSTRING && elementTypeAtEnd == ScalaTokenTypes.tSTRING) {
+      val tokens = LineTokenizer.tokenize(text.toCharArray, false, true)
+      tokens.map(line => StringUtil.escapeStringCharacters(line)).mkString("\\n")
     }
+    else text
   }
 }
