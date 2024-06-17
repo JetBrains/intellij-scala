@@ -500,4 +500,48 @@ class Scala3ImportTypeFixTest extends ScalaImportTypeFixTestBase {
        |""".stripMargin,
     "MyObject.MyEnumInClass"
   )
+
+  def testEnumSingletonCase(): Unit = {
+    val fileText =
+      s"""enum Source:
+         |  case Foo
+         |
+         |object Target:
+         |  val foo = ${CARET}Foo
+         |""".stripMargin
+    val qNameToImport = "Source.Foo"
+
+    checkElementsToImport(
+      fileText,
+      qNameToImport
+    )
+
+    doTest(
+      fileText,
+      expectedText = s"import $qNameToImport\n\n${fileText.replace(CARET, "")}",
+      selected = qNameToImport
+    )
+  }
+
+  def testEnumClassCase(): Unit = {
+    val fileText =
+      s"""enum Source:
+         |  case Foo(i: Int)
+         |
+         |object Target:
+         |  val foo = ${CARET}Foo(2)
+         |""".stripMargin
+    val qNameToImport = "Source.Foo"
+
+    checkElementsToImport(
+      fileText,
+      qNameToImport
+    )
+
+    doTest(
+      fileText,
+      expectedText = s"import $qNameToImport\n\n${fileText.replace(CARET, "")}",
+      selected = qNameToImport
+    )
+  }
 }
