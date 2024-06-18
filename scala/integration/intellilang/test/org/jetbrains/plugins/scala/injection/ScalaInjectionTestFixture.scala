@@ -41,12 +41,12 @@ class ScalaInjectionTestFixture(
   /**
    * Copy of [[injectionTestFixture.assertInjectedLangAtCaret]] with a small alteration:<br>
    * if string contains single invalid token it's language can be empty (with id "") so we need to check for parent as well.
-   * For example injected regex in "\\".r literal contains single token
+   * For example, injected regex in "\\".r literal contains single token
    * `PsiElement(INVALID_CHARACTER_ESCAPE_TOKEN)('\\')` but it's parent is `RegExpCharImpl: <\\>`
    */
   def assertInjectedLanguageAtCaret(expectedLanguage: String): Unit = {
     val injectedElement = injectionTestFixture.getInjectedElement
-    assertNotNull("Can't find injected element", injectedElement)
+    assertNotNull(s"Can't find injected element in code: ${injectionTestFixture.getTopLevelFile.getText}", injectedElement)
     if (expectedLanguage != null) {
       val language = injectedElementLanguage(injectedElement)
       assertNotNull(s"injection of '$expectedLanguage' expected", injectedElement)
@@ -60,6 +60,11 @@ class ScalaInjectionTestFixture(
   def assertHasSomeInjectedLanguageAtCaret(): Unit = {
     val injectedElement = injectionTestFixture.getInjectedElement
     assertNotNull("Can't find injected element", injectedElement)
+  }
+
+  def assertHasNoInjectionAtCaret(): Unit = {
+    val injectedElement = injectionTestFixture.getInjectedElement
+    assertNull(s"Unexpected injection found", injectedElement)
   }
 
   private def injectedElementLanguage(injectedElement: PsiElement) = {

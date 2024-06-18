@@ -7,16 +7,16 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwn
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdType.Name
-import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation.shouldExpand
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType, ScThisType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation.shouldExpand
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, _}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{NonValueType, Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.project.{ProjectContext, _}
-import org.jetbrains.plugins.scala.util.SAMUtil
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
+import org.jetbrains.plugins.scala.util.{CommonQualifiedNames, SAMUtil}
 
 import scala.util.control.NoStackTrace
 
@@ -277,9 +277,10 @@ package object types {
   }
 
   implicit class ScalaSeqExt(private val context: PsiElement) {
+    //TODO: move to org.jetbrains.plugins.scala.util.CommonQualifiedNames and reuse
     def scalaSeqFqn: String = cachedInUserData("scalaSeqFqn", context, ScalaPsiManager.instance(context.getProject).TopLevelModificationTracker) {
-      if (context.newCollectionsFramework) "scala.collection.immutable.Seq"
-      else "scala.collection.Seq"
+      if (context.newCollectionsFramework) CommonQualifiedNames.CollectionImmutableSeq
+      else CommonQualifiedNames.CollectionSeq
     }
   }
 

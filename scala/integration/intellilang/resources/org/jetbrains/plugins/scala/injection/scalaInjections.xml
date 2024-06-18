@@ -6,8 +6,12 @@
     <display-name>String.r (scala)</display-name>
     <place><![CDATA[scalaLiteral().isRegExpLiteral()]]></place>
   </injection>
-<!--
+  <injection language="RegExp" injector-id="scala">
+    <display-name>Regex (scala.util.matching)</display-name>
+    <place><![CDATA[scalaLiteral().constructorCallArgument("scala.util.matching.Regex", 0, "java.lang.String", "java.lang.String*")]]></place>
+  </injection>
 
+<!--
 NOTE: this single injection is left commented just to show an example of how you can write patterns for Scala code
 The pattern is not actually needed, because it's already defined for Java (though in little but different way) and Scala code reuses Java injection patterns
 -->

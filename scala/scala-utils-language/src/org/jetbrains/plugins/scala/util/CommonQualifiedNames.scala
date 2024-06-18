@@ -4,7 +4,7 @@ package org.jetbrains.plugins.scala.util
  * Note, this class is similar to `com.intellij.psi.CommonClassNames`, but we don't reuse it
  * because we want to stay minimalistic and not depend on intellij modules here
  */
-//noinspection ScalaUnusedSymbol
+//noinspection ScalaUnusedSymbol,ScalaWeakerAccess
 object CommonQualifiedNames {
 
   private final val Root = "_root_."
@@ -54,4 +54,7 @@ object CommonQualifiedNames {
 
   final val ScalaReflectEnumFqn = "scala.reflect.Enum"
   final val ScalaReflectEnumCanonical = Root + ScalaReflectEnumFqn
+
+  @inline val CollectionImmutableSeq: String = "scala.collection.immutable.Seq"
+  @inline val CollectionSeq: String = "scala.collection.Seq"
 }
