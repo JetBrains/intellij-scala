@@ -1,12 +1,15 @@
-package com.intellij.entities
+package com.intellij.entities.impl
 
+import com.intellij.entities.ModuleExtensionWorkspaceEntity
+import com.intellij.entities.SbtModuleEntity
 import com.intellij.platform.workspace.jps.entities.ModuleEntity
+import com.intellij.platform.workspace.storage.ConnectionId
 import com.intellij.platform.workspace.storage.EntitySource
 import com.intellij.platform.workspace.storage.GeneratedCodeApiVersion
 import com.intellij.platform.workspace.storage.GeneratedCodeImplVersion
 import com.intellij.platform.workspace.storage.MutableEntityStorage
 import com.intellij.platform.workspace.storage.WorkspaceEntity
-import com.intellij.platform.workspace.storage.impl.ConnectionId
+import com.intellij.platform.workspace.storage.WorkspaceEntityInternalApi
 import com.intellij.platform.workspace.storage.impl.EntityLink
 import com.intellij.platform.workspace.storage.impl.ModifiableWorkspaceEntityBase
 import com.intellij.platform.workspace.storage.impl.WorkspaceEntityBase
@@ -20,8 +23,9 @@ import com.intellij.platform.workspace.storage.metadata.model.EntityMetadata
 import com.intellij.platform.workspace.storage.url.VirtualFileUrl
 
 @GeneratedCodeApiVersion(3)
-@GeneratedCodeImplVersion(5)
-open class SbtModuleEntityImpl(private val dataSource: SbtModuleEntityData) : SbtModuleEntity,
+@GeneratedCodeImplVersion(6)
+@OptIn(WorkspaceEntityInternalApi::class)
+internal class SbtModuleEntityImpl(private val dataSource: SbtModuleEntityData) : SbtModuleEntity,
     WorkspaceEntityBase(dataSource) {
 
     private companion object {
@@ -70,9 +74,9 @@ open class SbtModuleEntityImpl(private val dataSource: SbtModuleEntityData) : Sb
     }
 
 
-    class Builder(result: SbtModuleEntityData?) :
+    internal class Builder(result: SbtModuleEntityData?) :
         ModifiableWorkspaceEntityBase<SbtModuleEntity, SbtModuleEntityData>(result), SbtModuleEntity.Builder {
-        constructor() : this(SbtModuleEntityData())
+        internal constructor() : this(SbtModuleEntityData())
 
         override fun applyToBuilder(builder: MutableEntityStorage) {
             if (this.diff != null) {
@@ -213,7 +217,8 @@ open class SbtModuleEntityImpl(private val dataSource: SbtModuleEntityData) : Sb
     }
 }
 
-class SbtModuleEntityData : WorkspaceEntityData<SbtModuleEntity>() {
+@OptIn(WorkspaceEntityInternalApi::class)
+internal class SbtModuleEntityData : WorkspaceEntityData<SbtModuleEntity>() {
     lateinit var sbtModuleId: String
     lateinit var buildURI: String
     lateinit var baseDirectory: VirtualFileUrl
