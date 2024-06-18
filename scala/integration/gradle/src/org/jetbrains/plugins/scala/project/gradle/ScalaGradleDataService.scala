@@ -121,10 +121,16 @@ class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelD
         !isEmpty(options.getEncoding) -> options.getEncoding
       )
 
+      val scalaCompilerPlugins =
+        if (data.getScalaCompilerPlugins ne null)
+          data.getScalaCompilerPlugins.asScala.map(f => s"-Xplugin:${f.getPath}").toSeq
+        else
+          Seq.empty
+
       val additionalOptions =
         if (options.getAdditionalParameters != null) options.getAdditionalParameters.asScala else Seq.empty
 
-      presentations.flatMap((include _).tupled) ++ additionalOptions
+      presentations.flatMap((include _).tupled) ++ scalaCompilerPlugins ++ additionalOptions
     }
 
   private def isEmpty(s: String) = s == null || s.isEmpty

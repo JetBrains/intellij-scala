@@ -28,6 +28,7 @@ final class ScalaGradleProjectResolverExtension extends AbstractProjectResolverE
     val data = new ScalaModelData(GradleConstants.SYSTEM_ID);
     data.setZincClasspath(model.getZincClasspath)
     data.setScalaClasspath(model.getScalaClasspath)
+    data.setScalaCompilerPlugins(model.getScalaCompilerPlugins)
     data.setScalaCompileOptions(Option(model.getScalaCompileOptions).map(dataOf).orNull)
     data.setSourceCompatibility(model.getSourceCompatibility)
     data.setTargetCompatibility(model.getTargetCompatibility)
