@@ -35,6 +35,9 @@
         <registryKey key="scala.erase.compiler.process.jdk.once" defaultValue="true" restartRequired="false"
                      description="Erase compiler.process.jdk value before compilation. A dirty hack needed because of removal of SetSameJdkToBuildProcessAsInCompileServer #SCL-17676"/>
 
+        <registryKey key="scala.compiler.highlighting.document.use.in.memory.file" defaultValue="false" restartRequired="false"
+                     description="When enabled, uses an in-memory file for document compilation"/>
+
         <buildProcess.parametersProvider implementation="org.jetbrains.plugins.scala.compiler.references.CompilerIndicesBuildProcessParametersProvider"/>
 
         <projectConfigurable id="Bytecode Indices"
