@@ -122,7 +122,7 @@ object Dependencies {
    * These dependencies are needed for IntelliJ to run correctly run tests using JUnit 5 runner.<br>
    * Actually, IntelliJ adds these dependencies to the test classpath automatically in<br>
    * `com.intellij.execution.junit.TestObject.appendJUnit5LauncherClasses`<br>
-   * However, when running tests via Run Configuration we pass the classpath via `the --classpath` VM option.
+   * However, when running tests via Run Configuration we pass the classpath via the `--classpath` VM option.
    * (it's defined by sbt-idea-plugin).<br>
    * As a result, the class path provided by intellij is ignored. So we need to add the dependencies manually.
    *
