@@ -1,12 +1,15 @@
-package com.intellij.entities
+package com.intellij.entities.impl
 
+import com.intellij.entities.ModuleExtensionWorkspaceEntity
+import com.intellij.entities.SharedSourcesOwnersEntity
 import com.intellij.platform.workspace.jps.entities.ModuleEntity
+import com.intellij.platform.workspace.storage.ConnectionId
 import com.intellij.platform.workspace.storage.EntitySource
 import com.intellij.platform.workspace.storage.GeneratedCodeApiVersion
 import com.intellij.platform.workspace.storage.GeneratedCodeImplVersion
 import com.intellij.platform.workspace.storage.MutableEntityStorage
 import com.intellij.platform.workspace.storage.WorkspaceEntity
-import com.intellij.platform.workspace.storage.impl.ConnectionId
+import com.intellij.platform.workspace.storage.WorkspaceEntityInternalApi
 import com.intellij.platform.workspace.storage.impl.EntityLink
 import com.intellij.platform.workspace.storage.impl.ModifiableWorkspaceEntityBase
 import com.intellij.platform.workspace.storage.impl.WorkspaceEntityBase
@@ -21,8 +24,9 @@ import com.intellij.platform.workspace.storage.instrumentation.MutableEntityStor
 import com.intellij.platform.workspace.storage.metadata.model.EntityMetadata
 
 @GeneratedCodeApiVersion(3)
-@GeneratedCodeImplVersion(5)
-open class SharedSourcesOwnersEntityImpl(private val dataSource: SharedSourcesOwnersEntityData) :
+@GeneratedCodeImplVersion(6)
+@OptIn(WorkspaceEntityInternalApi::class)
+internal class SharedSourcesOwnersEntityImpl(private val dataSource: SharedSourcesOwnersEntityData) :
     SharedSourcesOwnersEntity, WorkspaceEntityBase(dataSource) {
 
     private companion object {
@@ -59,10 +63,10 @@ open class SharedSourcesOwnersEntityImpl(private val dataSource: SharedSourcesOw
     }
 
 
-    class Builder(result: SharedSourcesOwnersEntityData?) :
+    internal class Builder(result: SharedSourcesOwnersEntityData?) :
         ModifiableWorkspaceEntityBase<SharedSourcesOwnersEntity, SharedSourcesOwnersEntityData>(result),
         SharedSourcesOwnersEntity.Builder {
-        constructor() : this(SharedSourcesOwnersEntityData())
+        internal constructor() : this(SharedSourcesOwnersEntityData())
 
         override fun applyToBuilder(builder: MutableEntityStorage) {
             if (this.diff != null) {
@@ -197,7 +201,8 @@ open class SharedSourcesOwnersEntityImpl(private val dataSource: SharedSourcesOw
     }
 }
 
-class SharedSourcesOwnersEntityData : WorkspaceEntityData<SharedSourcesOwnersEntity>() {
+@OptIn(WorkspaceEntityInternalApi::class)
+internal class SharedSourcesOwnersEntityData : WorkspaceEntityData<SharedSourcesOwnersEntity>() {
     lateinit var ownerModuleIds: MutableList<String>
 
     internal fun isOwnerModuleIdsInitialized(): Boolean = ::ownerModuleIds.isInitialized

@@ -40,8 +40,10 @@ interface SharedSourcesOwnersEntity: ModuleExtensionWorkspaceEntity {
 }
 
 //region generated code
-fun MutableEntityStorage.modifyEntity(
+fun MutableEntityStorage.modifySharedSourcesOwnersEntity(
     entity: SharedSourcesOwnersEntity,
     modification: SharedSourcesOwnersEntity.Builder.() -> Unit,
-): SharedSourcesOwnersEntity = modifyEntity(SharedSourcesOwnersEntity.Builder::class.java, entity, modification)
+): SharedSourcesOwnersEntity {
+    return modifyEntity(SharedSourcesOwnersEntity.Builder::class.java, entity, modification)
+}
 //endregion

@@ -48,8 +48,10 @@ interface SbtModuleEntity: ModuleExtensionWorkspaceEntity {
 }
 
 //region generated code
-fun MutableEntityStorage.modifyEntity(
+fun MutableEntityStorage.modifySbtModuleEntity(
     entity: SbtModuleEntity,
     modification: SbtModuleEntity.Builder.() -> Unit,
-): SbtModuleEntity = modifyEntity(SbtModuleEntity.Builder::class.java, entity, modification)
+): SbtModuleEntity {
+    return modifyEntity(SbtModuleEntity.Builder::class.java, entity, modification)
+}
 //endregion
