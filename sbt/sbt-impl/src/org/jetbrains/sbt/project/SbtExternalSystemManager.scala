@@ -82,7 +82,7 @@ object SbtExternalSystemManager {
     val projectJdkName = bootstrapJdk(project, projectSettings)
     val vmExecutable = getVmExecutable(projectJdkName, settingsState)
     val jreHome = vmExecutable.parent.flatMap(_.parent)
-    val vmOptions = getVmOptions(settingsState, jreHome)
+    val vmOptions = getVmOptions(settingsState, jreHome, projectSettings.separateProdAndTestSources)
     val environment = Map.empty ++ getAndroidEnvironmentVariables(projectJdkName)
     val sbtOptions = SbtOpts.combineOptionsWithArgs(settings.sbtOptions)
 
@@ -186,7 +186,11 @@ object SbtExternalSystemManager {
       .map(SbtEnvironmentVariablesProvider.computeAdditionalVariables)
       .getOrElse(Map.empty)
 
-  private def getVmOptions(settings: SbtSettings.State, jreHome: Option[File]): Seq[String] = {
+  private def getVmOptions(
+    settings: SbtSettings.State,
+    jreHome: Option[File],
+    separateProdAndTestSources: Boolean
+  ): Seq[String] = {
     @NonNls val userOptions = settings.vmParameters.split("\\s+").toSeq.filter(_.nonEmpty)
 
     @NonNls val maxHeapSizeString = settings.maximumHeapSize.trim
@@ -202,8 +206,9 @@ object SbtExternalSystemManager {
       } else Seq.empty
 
     val groupingWithQualifiedNamesEnabled = Seq("-Dgrouping.with.qualified.names.enabled=true")
+    val prodTestSeparationEnabledEnabled = Seq(s"-Dseparate.prod.test.sources.enabled=$separateProdAndTestSources")
 
-    val givenOptions = maxHeapOptions ++ groupingWithQualifiedNamesEnabled ++ userOptions
+    val givenOptions = maxHeapOptions ++ groupingWithQualifiedNamesEnabled ++ prodTestSeparationEnabledEnabled ++ userOptions
 
     getVmOptions(givenOptions, jreHome)
   }
