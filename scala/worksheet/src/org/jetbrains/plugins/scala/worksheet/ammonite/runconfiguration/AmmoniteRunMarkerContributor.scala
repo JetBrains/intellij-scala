@@ -2,11 +2,13 @@ package org.jetbrains.plugins.scala.worksheet.ammonite.runconfiguration
 
 import com.intellij.execution.lineMarker.RunLineMarkerContributor
 import com.intellij.icons.AllIcons
+import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
+import java.util.function.{Function => JFunction}
 import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
 
 class AmmoniteRunMarkerContributor extends RunLineMarkerContributor {
@@ -27,10 +29,12 @@ class AmmoniteRunMarkerContributor extends RunLineMarkerContributor {
         return null
     }
 
+    val actions = Array[AnAction](new AmmoniteRunScriptAction(ammoniteFile))
+    val tooltipProvider: JFunction[_ >: PsiElement, String] = (_: PsiElement) => WorksheetBundle.message("ammonite.run.script")
     new RunLineMarkerContributor.Info(
       AllIcons.RunConfigurations.TestState.Run,
-      (_: PsiElement) => WorksheetBundle.message("ammonite.run.script"),
-      new AmmoniteRunScriptAction(ammoniteFile)
+      actions,
+      tooltipProvider
     )
   }
 }

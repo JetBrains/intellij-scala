@@ -25,6 +25,7 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
 
   private def generateProject(scalaVersion: Option[String] = None,
                               scalaCompilerClasspath: Set[File] = Set.empty,
+                              scalaCompilerPlugins: Set[File] = Set.empty,
                               compilerOptions: Option[ScalaCompileOptionsData] = None,
                               separateModules: Boolean = true): DataNode[ProjectData] =
     new project {
@@ -59,6 +60,7 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
           }
 
           data.setScalaClasspath(asSerializableJavaSet(scalaCompilerClasspath))
+          data.setScalaCompilerPlugins(asSerializableJavaSet(scalaCompilerPlugins))
           data.setScalaCompileOptions(compilerOptions.getOrElse(new ScalaCompileOptionsData))
         }
 
@@ -146,6 +148,7 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
       generateProject(
         Some("2.10.4"),
         defaultCompilerClasspath,
+        Set.empty,
         Some(options),
         separateModules = false
       )
@@ -194,6 +197,7 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
       generateProject(
         Some("2.10.4"),
         defaultCompilerClasspath,
+        Set.empty,
         Some(options)
       )
     )
@@ -232,6 +236,23 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
     }
 
     assertCollectionEquals("additional compiler options (tests) ", Seq("-encoding", "utf-8"), testCompilerConfiguration.additionalCompilerOptions)
+  }
+
+  def testScalaCompilerPlugins(): Unit = {
+    importProjectData(
+      generateProject(
+        Some("2.13.14"),
+        Set(new File("/tmp/test/scala-library-2.13.14.jar")),
+        Set(new File("/tmp/test/scalac-plugin_2.13-1.0.0.jar"))
+      )
+    )
+
+    val compilerConfiguration = {
+      val module = ModuleManager.getInstance(getProject).findModuleByName("module_main")
+      ScalaCompilerConfiguration.instanceIn(getProject).getSettingsForModule(module)
+    }
+
+    assertCollectionEquals(Seq("/tmp/test/scalac-plugin_2.13-1.0.0.jar"), compilerConfiguration.plugins)
   }
 
   def testModuleIsNull(): Unit = {

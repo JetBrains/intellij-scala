@@ -50,12 +50,15 @@ final class NewScalaFileAction extends CreateTemplateInPackageAction[ScalaPsiEle
       builder.addKind("Class", Icons.CLASS, ScalaFileTemplateUtil.SCALA_CLASS)
       builder.addKind("Case Class", Icons.CASE_CLASS, ScalaFileTemplateUtil.SCALA_CASE_CLASS)
       if (isInScala3Module) {
-        builder.addKind("Enum", Icons.ENUM, ScalaFileTemplateUtil.SCALA_ENUM)
         builder.addKind("File", Icons.SCALA_FILE, ScalaFileTemplateUtil.SCALA_FILE)
       }
       builder.addKind("Object", Icons.OBJECT, ScalaFileTemplateUtil.SCALA_OBJECT)
       builder.addKind("Case Object", Icons.CASE_OBJECT, ScalaFileTemplateUtil.SCALA_CASE_OBJECT)
       builder.addKind("Trait", Icons.TRAIT, ScalaFileTemplateUtil.SCALA_TRAIT)
+      //place enum in the very end of the list SCL-20749
+      if (isInScala3Module) {
+        builder.addKind("Enum", Icons.ENUM, ScalaFileTemplateUtil.SCALA_ENUM)
+      }
     }
 
     for {

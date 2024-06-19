@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.project.template
 
-import com.intellij.openapi.progress.ProcessCanceledException
+import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator}
 import com.intellij.openapi.ui.Messages
 import org.apache.ivy.util.MessageLogger
 import org.jetbrains.annotations.VisibleForTesting
@@ -52,8 +52,10 @@ final class ScalaVersionDownloadingDialog(parent: JComponent) extends VersionDia
       }
 
       val tri: Try[ScalaVersionResolveResult] = withProgressSynchronouslyTry(ScalaBundle.message("downloading.scala.version", scalaVersionStr), canBeCanceled = true) { manager =>
+        val indicator = manager.getProgressIndicator
         val dependencyManager = new DependencyManagerBase {
-          override def createLogger: MessageLogger = new ProgressIndicatorLogger(manager.getProgressIndicator)
+          override protected def progressIndicator: Option[ProgressIndicator] = Some(indicator)
+          override def createLogger: MessageLogger = new ProgressIndicatorLogger(indicator)
         }
         createScalaVersionResolveResult(scalaVersion, dependencyManager)
       }

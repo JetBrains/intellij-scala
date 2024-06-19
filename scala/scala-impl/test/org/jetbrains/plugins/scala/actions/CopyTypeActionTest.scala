@@ -121,4 +121,51 @@ class CopyTypeActionTest extends ScalaLightCodeInsightFixtureTestCase {
        |""".stripMargin,
     "Unit"
   )
+
+  def testUnitReturned(): Unit = doTest(
+    s"""def test = 4
+       |
+       |def blub: Unit = te${CARET}st
+       |""".stripMargin,
+    "Int"
+  )
+
+  def testLocalStableType(): Unit = doTest(
+    s"""
+       |class Bar
+       |
+       |def test: Unit = {
+       |  val bar = new Bar
+       |  b${CARET}ar.getClass
+       |}
+       |""".stripMargin,
+    "Bar" // and not a.type
+  )
+
+//  TODO: make this work and not give Nothing => Blub[Nothing].
+//        It's unfortunately not that easy to do and probably not tooo important :)
+//  def testGenericCall(): Unit = doTest(
+//    s"""
+//       |class Blub[T]
+//       |def foo[T](i: T): Blub[T] = ???
+//       |
+//       |fo${CARET}o(1)
+//       |""".stripMargin,
+//    "Int => Blub[Int]"
+//  )
+
+  def testInner(): Unit = doTest(
+    s"""
+       |object A {
+       |  class C
+       |}
+       |
+       |object B {
+       |  import A.C
+       |
+       |  new ${CARET}C
+       |}
+       |""".stripMargin,
+    "A.C"
+  )
 }

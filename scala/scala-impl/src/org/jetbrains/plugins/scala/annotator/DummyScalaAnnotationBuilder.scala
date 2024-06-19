@@ -8,12 +8,12 @@ import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.editor.markup.{GutterIconRenderer, TextAttributes}
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
-import org.jetbrains.annotations.Nls
+import org.jetbrains.annotations.{Nls, Nullable}
 
 /**
  * To be used in tests and annotator-based inspection, where no instance of AnnotationHolder is available
  */
-abstract class DummyScalaAnnotationBuilder(severity: HighlightSeverity, @Nls message: String)
+abstract class DummyScalaAnnotationBuilder(severity: HighlightSeverity, @Nullable @Nls message: String)
   extends ScalaAnnotationBuilder {
 
   private var rangeTransformer: TextRange => TextRange = identity

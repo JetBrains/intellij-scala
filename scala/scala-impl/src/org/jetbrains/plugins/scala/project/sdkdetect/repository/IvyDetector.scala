@@ -103,6 +103,7 @@ private[repository] object IvyDetector extends ScalaSdkDetectorDependencyManager
 
   private class LocalCachesResolver(log: Logger)(implicit indicator: ProgressIndicator) extends DependencyManagerBase {
     override protected val useFileSystemResolversOnly: Boolean = true
+    override protected def progressIndicator: Option[ProgressIndicator] = Some(indicator)
     override protected def createLogger: MessageLogger = new DelegateLogger(log)
   }
 

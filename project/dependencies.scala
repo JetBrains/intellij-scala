@@ -15,7 +15,7 @@ object Versions {
   val zincVersion = "1.10.0"
 
   // ATTENTION: check the comment in `Common.newProjectWithKotlin` when updating this version
-  val intellijVersion = "242.16677.15"
+  val intellijVersion = "242.18071.5"
 
   def isNightlyIntellijVersion: Boolean = intellijVersion.count(_ == '.') == 1
 
@@ -34,7 +34,6 @@ object Versions {
 
   val junitVersion: String = "4.13.2"
   val junitInterfaceVersion: String = "0.13.3"
-
   val junit5JupiterVersion: String = "5.10.2"
 
   val bspVersion = "2.1.0-M3"
@@ -95,19 +94,51 @@ object Dependencies {
 
   val jetbrainsAnnotations: ModuleID = "org.jetbrains" % "annotations" % "24.1.0"
 
-  //NOTE: JUnit 4 dependency is already available via intellij main jars.
-  // It's bundled together with it's transitive dependencies in single junit4.jar (in <sdk_root>/lib folder)
-  // HOWEVER junit4.jar it is excluded via excludeJarsFromPlatformDependencies
-  // We explicitly include junit dependency in all modules.
-  // This is done because some modules are not intellij-based and they explicitly define junit dependency anyway.
-  // Due to imperfection of classpath construction in the end there might be multiple junit4 jrs in classpath.
-  // (Both runtime and compilation time)
+  /**
+   * NOTE: JUnit 4 dependency is already available via intellij main jars.
+   * It's bundled together with its transitive dependencies in single junit4.jar (in sdk_root/lib folder).
+   * However, junit4.jar is excluded via excludeJarsFromPlatformDependencies.
+   * Instead, we explicitly include junit dependency in all modules.
+   * This is done because some modules are not intellij-based, and they explicitly define junit dependency anyway.
+   * Due to imperfection of classpath construction, there might be multiple junit4 jrs in the final classpath.
+   * (Both runtime and compilation time)
+   */
   val junit: ModuleID = "junit" % "junit" % junitVersion
   val junitInterface: ModuleID = "com.github.sbt" % "junit-interface" % junitInterfaceVersion
 
-  // NOTE: after update to 242.16677.15 the test compilation started failing with `java.lang.NoClassDefFoundError: org/opentest4j/AssertionFailedError`
-  // This class is a part of opentest4j, a transitive dependency of JUnit5, which is a `provided` dependency in a lot of platform modules such as testFramework.
-  val junit5Jupiter: ModuleID = "org.junit.jupiter" % "junit-jupiter-api" % junit5JupiterVersion
+  /**
+   * IntelliJ test framework classes depend a lot on JUnit 5 classes.<br>
+   * To avoid compilation errors, we need to add it as well.<br>
+   * We add just "junit-jupiter-api" instead of "junit-jupiter" to keep it minimalistic.<br>
+   * In principle, we can start depending on directly "junit-jupiter" when needed.
+   */
+  val junit5JupiterApi: ModuleID = "org.junit.jupiter" % "junit-jupiter-api" % junit5JupiterVersion
+
+  private val junit5JupiterEngine: ModuleID = "org.junit.jupiter" % "junit-jupiter-engine" % junit5JupiterVersion
+  private val junit5JupiterVintageEngine: ModuleID = "org.junit.vintage" % "junit-vintage-engine" % junit5JupiterVersion
+  private val junitPlatformLauncher: ModuleID = "org.junit.platform" % "junit-platform-launcher" % "1.10.2"
+
+  /**
+   * These dependencies are needed for IntelliJ to run correctly run tests using JUnit 5 runner.<br>
+   * Actually, IntelliJ adds these dependencies to the test classpath automatically in<br>
+   * `com.intellij.execution.junit.TestObject.appendJUnit5LauncherClasses`<br>
+   * However, when running tests via Run Configuration we pass the classpath via `the --classpath` VM option.
+   * (it's defined by sbt-idea-plugin).<br>
+   * As a result, the class path provided by intellij is ignored. So we need to add the dependencies manually.
+   *
+   * ===Note about JUnit 5 test runner===
+   * After we added dependency on JUnit 5 artifact, IntelliJ will sometimes prefer using JUnit 5 test runner
+   * (`com.intellij.junit5.JUnit5IdeaTestRunner`). For example, when we use a pattern to find tests.
+   * To be able to run JUnit 4 tests "junit-vintage-engine" is needed
+   *
+   * @see `com.intellij.execution.junit.TestObject.getRunnerInner`
+   * @see `com.intellij.execution.junit.JUnitUtil.isJUnit5`
+   */
+  val junit5EngineTestDependencies: Seq[ModuleID] = Seq(
+    junit5JupiterEngine,
+    junit5JupiterVintageEngine,
+    junitPlatformLauncher,
+  ).map(_ % Test)
 
   val ivy2: ModuleID = "org.apache.ivy" % "ivy" % "2.5.2"
 
@@ -151,11 +182,14 @@ object Dependencies {
   }
 
   /** The filtering function returns true for jars to be removed.
-   * It's purpose is to exclude platform jars that may conflict with plugin dependencies. */
+   * Its purpose is to exclude platform jars that may conflict with plugin dependencies. */
   val excludeJarsFromPlatformDependencies: File => Boolean = { file =>
     val fileName = file.getName
-    fileName == "annotations.jar" || // we explicitly specify dependency on jetbrains annotations library, see SCL-20557
-      fileName == "junit4.jar" // we explicitly specify dependency on junit 4 library
+    // we explicitly specify dependency on the jetbrains annotations library, see SCL-20557
+    fileName == "annotations.jar" ||
+      // We explicitly specify dependency on JUnit 4 library.
+      // See also https://youtrack.jetbrains.com/issue/IDEA-315065/The-IDE-runtime-classpath-contains-conflicting-JUnit-classes-from-lib-junit.jar-vs-lib-junit4.jar#focus=Comments-27-6987325.0-0
+      fileName == "junit4.jar"
   }
 
   val intellijMavenTestFramework: ModuleID = ("com.jetbrains.intellij.maven" % "maven-test-framework" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()

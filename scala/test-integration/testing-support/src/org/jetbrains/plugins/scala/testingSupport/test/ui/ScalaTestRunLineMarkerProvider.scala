@@ -205,7 +205,7 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
   protected def buildLineInfo(url: String, project: Project, isClass: Boolean): RunLineMarkerContributor.Info = {
     val icon = iconFor(url, project, isClass)
     val actions = ExecutorAction.getActions(1)
-    new RunLineMarkerContributor.Info(icon, (_: PsiElement) => TestingSupportBundle.message("scalatest.gutter.run.test"), actions: _*)
+    new RunLineMarkerContributor.Info(icon, actions, (_: PsiElement) => TestingSupportBundle.message("scalatest.gutter.run.test"))
   }
 
   private def iconFor(url: String, project: Project, isClass: Boolean): Icon = {

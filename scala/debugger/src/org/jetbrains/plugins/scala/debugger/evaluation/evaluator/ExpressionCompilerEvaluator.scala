@@ -47,12 +47,14 @@ private[evaluation] final class ExpressionCompilerEvaluator(codeFragment: PsiEle
         throw EvaluationException(DebuggerBundle.message("could.not.determine.scala.version", module.getName))
     }
 
-    val expressionCompilerJar =
-      context.getProject.getUserData(ExpressionCompilerResolverListener.ExpressionCompilers).get(scalaVersion) match {
+    val expressionCompilerJar = {
+      import ExpressionCompilerResolverListener.{ExpressionCompilers, ScalaExpressionCompilerVersion}
+      context.getProject.getUserData(ExpressionCompilers).get(scalaVersion) match {
         case Some(jar) => jar
         case None =>
-          throw EvaluationException(DebuggerBundle.message("could.not.resolve.scala.expression.compiler", scalaVersion))
+          throw EvaluationException(DebuggerBundle.message("could.not.resolve.scala.expression.compiler", ScalaExpressionCompilerVersion, scalaVersion.minor))
       }
+    }
 
     try {
       def stripJarPathSuffix(path: String): String =
