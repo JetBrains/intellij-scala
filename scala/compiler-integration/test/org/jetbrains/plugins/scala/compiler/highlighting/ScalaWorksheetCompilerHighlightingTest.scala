@@ -131,6 +131,25 @@ class ScalaWorksheetCompilerHighlightingTest_3 extends ScalaWorksheetCompilerHig
       )
     )
   )
+
+  def testCompilerDiagnostics(): Unit = {
+    runTestCaseForWorksheet(
+      fileName = "worksheet.sc",
+      content =
+        """def x: Int = 3
+          |val test = x _
+          |val y = 2 * x
+          |""".stripMargin,
+      expectedResult = expectedResult(
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          range = Some(TextRange.create(26, 29)),
+          quickFixDescriptions = Seq("Rewrite to function value"),
+          msgPrefix = "Only function types can be followed by _ but the current expression has type Int"
+        )
+      )
+    )
+  }
 }
 
 class ScalaWorksheetCompilerHighlightingTest_3_RC extends ScalaWorksheetCompilerHighlightingTest_3 {
