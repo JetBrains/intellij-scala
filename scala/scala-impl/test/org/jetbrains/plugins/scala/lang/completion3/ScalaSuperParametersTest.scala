@@ -3,12 +3,11 @@ package org.jetbrains.plugins.scala.lang.completion3
 import com.intellij.codeInsight.completion.CompletionType
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.completion3.base.SameSignatureCallParametersProviderTestBase
-import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
 
 class ScalaSuperParametersTest extends SameSignatureCallParametersProviderTestBase {
 
+  import org.jetbrains.plugins.scala.icons.Icons.PARAMETER
   import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase._
-  import org.jetbrains.plugins.scala.icons.Icons.{PARAMETER, PATTERN_VAL}
 
   def testConstructorCall(): Unit = doCompletionTest(
     fileText =
@@ -188,10 +187,6 @@ class ScalaSuperParametersTest extends SameSignatureCallParametersProviderTestBa
     icons = PARAMETER, PARAMETER
   )
 
-  //todo fix for Scala 3
-  @RunWithScalaVersions(Array(
-    TestScalaVersion.Scala_2_13,
-  ))
   def testConstructorCallAfterNew(): Unit = doCompletionTest(
     fileText =
       s"""class A(x: Int, y: Int)
@@ -212,9 +207,6 @@ class ScalaSuperParametersTest extends SameSignatureCallParametersProviderTestBa
     item = "x, y"
   )
 
-  @RunWithScalaVersions(Array(
-    TestScalaVersion.Scala_2_13,
-  ))
   def testConstructorCallAfterNew2(): Unit = doCompletionTest(
     fileText =
       s"""class A(x: Int, y: Int) {
@@ -241,9 +233,6 @@ class ScalaSuperParametersTest extends SameSignatureCallParametersProviderTestBa
     item = "x, y, z"
   )
 
-  @RunWithScalaVersions(Array(
-    TestScalaVersion.Scala_2_13,
-  ))
   def testConstructorCallAfterNew3(): Unit = doCompletionTest(
     fileText =
       s"""class A(x: Int, y: Int) {
@@ -270,9 +259,6 @@ class ScalaSuperParametersTest extends SameSignatureCallParametersProviderTestBa
     item = "x, y"
   )
 
-  @RunWithScalaVersions(Array(
-    TestScalaVersion.Scala_2_13,
-  ))
   def testConstructorCallAfterNew3Smart(): Unit = doCompletionTest(
     fileText =
       s"""class A(x: Int, y: Int) {
@@ -300,9 +286,6 @@ class ScalaSuperParametersTest extends SameSignatureCallParametersProviderTestBa
     completionType = CompletionType.SMART
   )
 
-  @RunWithScalaVersions(Array(
-    TestScalaVersion.Scala_2_13,
-  ))
   def testConstructorCallAfterNewLookupElement(): Unit = checkLookupElement(
     fileText =
       s"""class A(x: Int, y: Int)
@@ -325,9 +308,6 @@ class ScalaSuperParametersTest extends SameSignatureCallParametersProviderTestBa
     icons = Icons.VAL, Icons.VAL
   )
 
-  @RunWithScalaVersions(Array(
-    TestScalaVersion.Scala_2_13,
-  ))
   def testAfterParenthesisOnlyInConstructorAfterNew(): Unit = checkNoCompletion(
     fileText =
       s"""class A(x: Int, y: Int)
@@ -350,9 +330,6 @@ class ScalaSuperParametersTest extends SameSignatureCallParametersProviderTestBa
         """.stripMargin
   )
 
-  @RunWithScalaVersions(Array(
-    TestScalaVersion.Scala_2_13,
-  ))
   def testPositionInConstructorAfterNew(): Unit = doCompletionTest(
     fileText =
       s"""class A(x: Int, y: Int, z: Int)
@@ -618,7 +595,7 @@ class ScalaSuperParametersTest extends SameSignatureCallParametersProviderTestBa
        |""".stripMargin
   )
 
-  def testNoNameMatchingSuperMethod(): Unit = checkNoBasicCompletion(
+  def testNoNameMatchingSuperMethod(): Unit = checkLookupElement(
     fileText =
       s"""class A {
          |  def foo(x: Int, y: Int) = 42
@@ -629,7 +606,34 @@ class ScalaSuperParametersTest extends SameSignatureCallParametersProviderTestBa
          |    super.foo($CARET)
          |}
          |""".stripMargin,
-    item = "x, y"
+    resultText =
+      s"""class A {
+         |  def foo(x: Int, y: Int) = 42
+         |}
+         |
+         |class B extends A {
+         |  override def foo(x: Int, z: Int) =
+         |    super.foo(x = ???, y = ???)$CARET
+         |}
+         |""".stripMargin,
+    item = "x, y",
+    isSuper = false,
+    icons = PARAMETER, PARAMETER
+  )
+
+  // should have (x = ???, y = ???) but not (x, y)
+  def testNoNameMatchingSuperMethod2(): Unit = checkNoCompletionWithoutTailText(
+    fileText =
+      s"""class A {
+         |  def foo(x: Int, y: Int) = 42
+         |}
+         |
+         |class B extends A {
+         |  override def foo(x: Int, z: Int) =
+         |    super.foo($CARET)
+         |}
+         |""".stripMargin,
+    lookupString = "x, y",
   )
 
   def testMethodCall(): Unit = doCompletionTest(
@@ -817,7 +821,7 @@ class ScalaSuperParametersTest extends SameSignatureCallParametersProviderTestBa
        |""".stripMargin
   )
 
-  def testNoNameMatchingMethod(): Unit = checkNoBasicCompletion(
+  def testNoNameMatchingMethod(): Unit = checkLookupElement(
     fileText =
       s"""class A {
          |  def foo(x: Int, y: Int) = 42
@@ -828,10 +832,37 @@ class ScalaSuperParametersTest extends SameSignatureCallParametersProviderTestBa
          |    foo($CARET)
          |}
          |""".stripMargin,
-    item = "x, y"
+    resultText =
+      s"""class A {
+         |  def foo(x: Int, y: Int) = 42
+         |}
+         |
+         |class B extends A {
+         |  def bar(x: Int, z: Int) =
+         |    foo(x = ???, y = ???)$CARET
+         |}
+         |""".stripMargin,
+    item = "x, y",
+    isSuper = false,
+    icons = PARAMETER, PARAMETER
   )
 
-  def testNoTypeMatchingMethod(): Unit = checkNoBasicCompletion(
+  // should have (x = ???, y = ???) but not (x, y)
+  def testNoNameMatchingMethod2(): Unit = checkNoCompletionWithoutTailText(
+    fileText =
+      s"""class A {
+         |  def foo(x: Int, y: Int) = 42
+         |}
+         |
+         |class B extends A {
+         |  def bar(x: Int, z: Int) =
+         |    foo($CARET)
+         |}
+         |""".stripMargin,
+    lookupString = "x, y",
+  )
+
+  def testNoTypeMatchingMethod(): Unit = checkLookupElement(
     fileText =
       s"""class A {
          |  def foo(x: Int, y: Int) = 42
@@ -842,7 +873,34 @@ class ScalaSuperParametersTest extends SameSignatureCallParametersProviderTestBa
          |    foo($CARET)
          |}
          |""".stripMargin,
-    item = "x, y"
+    resultText =
+      s"""class A {
+         |  def foo(x: Int, y: Int) = 42
+         |}
+         |
+         |class B extends A {
+         |  def bar(x: Int, y: String) =
+         |    foo(x = ???, y = ???)$CARET
+         |}
+         |""".stripMargin,
+    item = "x, y",
+    isSuper = false,
+    icons = PARAMETER, PARAMETER
+  )
+
+  // should have (x = ???, y = ???) but not (x, y)
+  def testNoTypeMatchingMethod2(): Unit = checkNoCompletionWithoutTailText(
+    fileText =
+      s"""class A {
+         |  def foo(x: Int, y: Int) = 42
+         |}
+         |
+         |class B extends A {
+         |  def bar(x: Int, y: String) =
+         |    foo($CARET)
+         |}
+         |""".stripMargin,
+    lookupString = "x, y",
   )
 
   def testCaseClass(): Unit = doCompletionTest(
@@ -1147,13 +1205,36 @@ class ScalaSuperParametersTest extends SameSignatureCallParametersProviderTestBa
        |""".stripMargin
   )
 
-  def testNonApplyMethod(): Unit = checkNoCompletion(
-    s"""object Foo {
-       |  def baz(foo: Int, bar: Int): Unit = {}
-       |}
-       |
-       |Foo.baz(f$CARET)
-       |""".stripMargin
+  def testNonApplyMethod(): Unit = checkLookupElement(
+    fileText =
+      s"""object Foo {
+         |  def baz(foo: Int, bar: Int): Unit = {}
+         |}
+         |
+         |Foo.baz(f$CARET)
+         |""".stripMargin,
+    resultText =
+      s"""object Foo {
+         |  def baz(foo: Int, bar: Int): Unit = {}
+         |}
+         |
+         |Foo.baz(foo = ???, bar = ???)$CARET
+         |""".stripMargin,
+    item = "foo, bar",
+    isSuper = false,
+    icons = PARAMETER, PARAMETER
+  )
+
+  // should have (foo = ???, bar = ???) but not (foo, bar)
+  def testNonApplyMethod2(): Unit = checkNoCompletionWithoutTailText(
+    fileText =
+      s"""object Foo {
+         |  def baz(foo: Int, bar: Int): Unit = {}
+         |}
+         |
+         |Foo.baz(f$CARET)
+         |""".stripMargin,
+    lookupString = "foo, bar",
   )
 
   def testClauseLookupElement(): Unit = checkLookupElement(
@@ -1202,7 +1283,7 @@ class ScalaSuperParametersTest extends SameSignatureCallParametersProviderTestBa
     icons = Icons.VAR, Icons.PATTERN_VAL
   )
 
-  def testClauseLookupElement3(): Unit = checkNoBasicCompletion(
+  def testClauseLookupElement3(): Unit = checkLookupElement(
     fileText =
       s"""import java.util.{Collections, List}
          |import Thread._
@@ -1215,7 +1296,38 @@ class ScalaSuperParametersTest extends SameSignatureCallParametersProviderTestBa
          |
          |foo(e$CARET)
          |""".stripMargin,
+    resultText =
+      s"""import java.util.{Collections, List}
+         |import Thread._
+         |
+         |def emptyList = Collections.emptyList[String]
+         |
+         |def foo(emptyList: List[String],
+         |        currentThread: Thread,
+         |        defaultUncaughtExceptionHandler: UncaughtExceptionHandler): Unit = {}
+         |
+         |foo(emptyList = ???, currentThread = ???, defaultUncaughtExceptionHandler = ???)$CARET
+         |""".stripMargin,
     item = "emptyList, currentThread, defaultUncaughtExceptionHandler",
+    isSuper = false,
+    icons = PARAMETER, PARAMETER
+  )
+
+  // should have (emptyList = ???, currentThread = ???, defaultUncaughtExceptionHandler = ???) but not (emptyList, currentThread, defaultUncaughtExceptionHandler)
+  def testClauseLookupElement4(): Unit = checkNoCompletionWithoutTailText(
+    fileText =
+      s"""import java.util.{Collections, List}
+         |import Thread._
+         |
+         |def emptyList = Collections.emptyList[String]
+         |
+         |def foo(emptyList: List[String],
+         |        currentThread: Thread,
+         |        defaultUncaughtExceptionHandler: UncaughtExceptionHandler): Unit = {}
+         |
+         |foo(e$CARET)
+         |""".stripMargin,
+    lookupString = "emptyList, currentThread, defaultUncaughtExceptionHandler",
   )
 
   def testClauseLookupElementAccessAll(): Unit = doCompletionTest(

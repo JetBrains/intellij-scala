@@ -15,7 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScConstructorOwner, ScTrait}
@@ -80,21 +79,35 @@ object SameSignatureCallParametersProvider {
                                                 hasSuperQualifier: Boolean,
                                                 invocationCount: Int) = for {
       ScalaResolveResult(method: ScMethodLike, substitutor) <- reference.completionVariants() ++ reference.multiResolveScala(incomplete = true)
-      if method.name == CommonNames.Apply || method.name == reference.refName
+      if method.name == CommonNames.Apply || method.name == reference.refName ||
+        method.isConstructor // Scala 3 universal apply secondary constructor
 
-      lookupElement <- createFunctionLookupElement(reference, method, argumentToStart, substitutor, invocationCount, hasSuperQualifier)
+      function <- applicableFunctions(method)
+      lookupElement <- createFunctionLookupElement(reference, function, argumentToStart, substitutor, invocationCount, hasSuperQualifier)
     } yield lookupElement
 
-    /** Complete apply method's arguments: `(foo = ???, bar = ???, baz = ???)` starting from the given argument
+    /** Complete method's arguments: `(foo = ???, bar = ???, baz = ???)` starting from the given argument
      * and run an interactive [[com.intellij.codeInsight.template.Template]] */
     private def createAssignmentElements(reference: ScReferenceExpression,
                                          argumentToStart: ArgumentToStart) = for {
-      ScalaResolveResult(function: ScFunction, substitutor) <- reference.multiResolveScala(incomplete = true).toSeq
-      if function.isApplyMethod
-
+      ScalaResolveResult(method: ScMethodLike, substitutor) <- reference.multiResolveScala(incomplete = true).toSeq
+      function <- applicableFunctions(method)
       lookupElement <- createAssignmentLookupElement(function, argumentToStart, substitutor)
     } yield lookupElement
 
+    /**
+     * @param function either a function or a primary constructor in method call position (Universal Apply)
+     * @return all constructors if the function is a primary constructor, otherwise the given function
+     */
+    private def applicableFunctions(function: ScMethodLike): Seq[ScMethodLike] = function match {
+      case ctr: ScPrimaryConstructor =>
+        ctr.containingClass match {
+          case constructorOwner: ScConstructorOwner if !constructorOwner.is[ScTrait] =>
+            constructorOwner.constructors
+          case _ => Seq(function)
+        }
+      case _ => Seq(function)
+    }
   }
 
   private final class ConstructorParametersCompletionProvider extends ScalaCompletionProvider {
