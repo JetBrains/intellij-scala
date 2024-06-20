@@ -26,11 +26,12 @@ final class SbtExtraControls {
   val remoteDebugSbtShellCheckBox: JCheckBoxWithTooltip = ct(SbtBundle.message("sbt.settings.remoteDebug"), SbtBundle.message("sbt.settings.remoteDebug.tooltip"))
   val scalaVersionPreferenceCheckBox: JCheckBoxWithTooltip = ct(SbtBundle.message("sbt.settings.scalaVersionPreference"), SbtBundle.message("sbt.settings.scalaVersionPreference.tooltip"))
   val insertProjectTransitiveDependencies: JCheckBoxWithTooltip = ct(SbtBundle.message("insert.project.transitive.dependencies"), SbtBundle.message("insert.project.transitive.dependencies.tooltip"))
+  val separateProdTestModules: JCheckBoxWithTooltip = ct(SbtBundle.message("separate.prod.test.modules"), SbtBundle.message("separate.prod.test.modules.tooltip"))
   val useSeparateCompilerOutputPaths: JCheckBoxWithTooltip = ct(SbtBundle.message("use.separate.compiler.output.paths"), SbtBundle.message("use.separate.compiler.output.paths.tooltip"))
   private val useSeparateCompilerOutputPathsWarning: JBLabel = new JBLabel(SbtBundle.message("use.separate.compiler.output.paths.warning"))
 
   locally {
-    content.setLayout(new GridLayoutManager(11, 2, JBUI.emptyInsets(), -1, -1))
+    content.setLayout(new GridLayoutManager(12, 2, JBUI.emptyInsets(), -1, -1))
 
     def gc(row: Int, column: Int, rowSpan: Int, colSpan: Int) =
       new GridConstraints(row, column, rowSpan, colSpan, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false)
@@ -54,13 +55,14 @@ final class SbtExtraControls {
     content.add(scalaVersionPreferenceCheckBox.panelWithTooltip, gc(2, 0, 1, 2))
     content.add(insertProjectTransitiveDependencies.panelWithTooltip, gc(3, 0, 1, 2))
     content.add(useSeparateCompilerOutputPaths.panelWithTooltip, gc(4, 0, 1, 2))
+    content.add(separateProdTestModules.panelWithTooltip, gc(5, 0, 1, 2))
     content.add(useSeparateCompilerOutputPathsWarning, warningConstraints)
-    content.add(new TitledSeparator(SbtBundle.message("sbt.settings.shell.title")), new GridConstraints(6, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false))
-    content.add(new JBLabel(SbtBundle.message("sbt.settings.useShell")), new GridConstraints(7, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false))
-    content.add(useSbtShellForImportCheckBox.panelWithTooltip, gc(7, 1, 1, 1))
-    content.add(useSbtShellForBuildCheckBox.panelWithTooltip, gc(8, 1, 1, 1))
-    content.add(remoteDebugSbtShellCheckBox.panelWithTooltip, gc(9, 0, 1, 2))
-    content.add(new Spacer, new GridConstraints(10, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, new Dimension(-1, 5), null, new Dimension(-1, 1), 0, false))
+    content.add(new TitledSeparator(SbtBundle.message("sbt.settings.shell.title")), new GridConstraints(7, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false))
+    content.add(new JBLabel(SbtBundle.message("sbt.settings.useShell")), new GridConstraints(8, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false))
+    content.add(useSbtShellForImportCheckBox.panelWithTooltip, gc(8, 1, 1, 1))
+    content.add(useSbtShellForBuildCheckBox.panelWithTooltip, gc(9, 1, 1, 1))
+    content.add(remoteDebugSbtShellCheckBox.panelWithTooltip, gc(10, 0, 1, 2))
+    content.add(new Spacer, new GridConstraints(11, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, new Dimension(-1, 5), null, new Dimension(-1, 1), 0, false))
 
     resolveClassifiersCheckBox.setEnabled(true)
     useSeparateCompilerOutputPathsWarning.setVisible(shouldWarningBeVisible)
@@ -68,6 +70,9 @@ final class SbtExtraControls {
 
     useSeparateCompilerOutputPaths.box.addActionListener(warningActionListener)
     useSbtShellForBuildCheckBox.box.addActionListener(warningActionListener)
+
+    refreshSeparateProdTestModulesConstraints()
+    separateProdTestModules.box.addActionListener(separateProdTestModulesListener)
   }
 
   private def withTooltip(component: JComponent, @Nls tooltip: String): JPanel =
@@ -83,9 +88,26 @@ final class SbtExtraControls {
     useSeparateCompilerOutputPathsWarning.setVisible(shouldWarningBeVisible)
   }
 
+  private def refreshSeparateProdTestModulesConstraints():Unit = {
+    if (separateProdTestModules.isSelected) {
+      insertProjectTransitiveDependencies.setSelected(true)
+      insertProjectTransitiveDependencies.setEnabled(false)
+    } else {
+      insertProjectTransitiveDependencies.setEnabled(true)
+    }
+  }
+
+  def refreshCheckboxesConstraints(): Unit = {
+    refreshOutputPathsWarning()
+    refreshSeparateProdTestModulesConstraints()
+  }
+
   private def warningActionListener(@unused e: ActionEvent): Unit = {
     refreshOutputPathsWarning()
   }
+
+  private def separateProdTestModulesListener(@unused e: ActionEvent): Unit =
+    refreshSeparateProdTestModulesConstraints()
 
   private def shouldWarningBeVisible: Boolean = {
     val checkedOutputPaths = useSeparateCompilerOutputPaths.isSelected

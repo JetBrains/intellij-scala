@@ -25,14 +25,26 @@ class SharedSourcesOwnersDataService extends ScalaAbstractProjectDataService[Sha
     modelsProvider: IdeModifiableModelsProvider
   ): Unit = {
     val projectIdToModuleName = getProjectIdToActualModuleNameMap(modelsProvider)
+    clearOwnerModules(modelsProvider.getModules)
     toImport.asScala.foreach { sharedSourcesOwnersNode =>
       val ownersModuleNames = sharedSourcesOwnersNode.getData.ownerModuleIds
       val actualOwnerModuleNames = ownersModuleNames.asScala.map(projectIdToModuleName).toSeq
-      val parentModule = findModuleForParentOfDataNode(sharedSourcesOwnersNode)
-      parentModule.foreach(updateSharedSourcesOwnerModules(_, actualOwnerModuleNames))
+      if (actualOwnerModuleNames.nonEmpty) {
+        val parentModule = findModuleForParentOfDataNode(sharedSourcesOwnersNode)
+        parentModule.foreach(updateSharedSourcesOwnerModules(_, actualOwnerModuleNames))
+      }
     }
     super.importData(toImport, projectData, project, modelsProvider)
   }
+
+  private def clearOwnerModules(modules: Array[Module]): Unit =
+    modules.foreach { module =>
+      val sharedSourcesOwnerModules = SharedSourcesOwnerModules.getInstance(module)
+      val actualOwnersModuleNames = sharedSourcesOwnerModules.getState.ownersModuleNames
+      if (actualOwnersModuleNames != null) {
+        sharedSourcesOwnerModules.getState.ownersModuleNames = null
+      }
+    }
 
   private def updateSharedSourcesOwnerModules(module: Module, ownerModuleNames: Seq[String]): Unit = {
     val sharedSourcesOwnerModules = SharedSourcesOwnerModules.getInstance(module)
