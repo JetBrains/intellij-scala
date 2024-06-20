@@ -4,6 +4,7 @@ import com.intellij.codeInsight.daemon.impl.{ErrorStripeUpdateManager, Highlight
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.application.{ModalityState, ReadAction}
 import com.intellij.openapi.components.Service
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.{Document, EditorFactory}
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.{DumbService, Project}
@@ -223,7 +224,7 @@ private final class ExternalHighlightersService(project: Project) { self =>
     val range = highlighting.rangeInfo.getOrElse {
       // Our PosInfo data structure expects 1-based line and column information.
       val start = PosInfo(1, 1)
-      RangeInfo.Range(start, start)
+      RangeInfo.Range(start, start, s"toHighlightInfo rangeInfo default case (1, 1), highlighting=$highlighting")
     }
 
     for {
@@ -264,12 +265,21 @@ private final class ExternalHighlightersService(project: Project) { self =>
     document: Document,
     psiFile: PsiFile
   ): Option[TextRange] = {
+    import ExternalHighlightersService.Log
     rangeInfo match {
-      case RangeInfo.Range(PosInfo(startLine, startColumn), PosInfo(endLine, endColumn)) =>
+      case range@RangeInfo.Range(PosInfo(startLine, startColumn), PosInfo(endLine, endColumn), _) =>
         for {
           startOffset <- convertToOffset(startLine, startColumn, document)
           endOffset <- convertToOffset(endLine, endColumn, document)
-        } yield TextRange.create(startOffset, endOffset)
+        } yield {
+          if (startLine <= endLine && startColumn <= endColumn && startOffset <= endOffset) {
+            TextRange.create(startOffset, endOffset)
+          } else {
+            val message = s"Illegal highlighting range calculated, startOffset=$startOffset, endOffset=$endOffset, range=$range"
+            Log.error(message)
+            throw new IllegalArgumentException(message)
+          }
+        }
       case RangeInfo.Pointer(PosInfo(line, column)) =>
         convertToOffset(line, column, document).flatMap(guessRangeToHighlight(psiFile, _))
     }
@@ -325,6 +335,8 @@ private final class ExternalHighlightersService(project: Project) { self =>
 
 private object ExternalHighlightersService {
   final val ScalaCompilerPassId = 979132998
+
+  final val Log: Logger = Logger.getInstance(classOf[ExternalHighlightersService])
 
   def instance(project: Project): ExternalHighlightersService =
     project.getService(classOf[ExternalHighlightersService])
