@@ -887,7 +887,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val parentModuleNameWithGroup = prependModuleNameWithGroupName(parentModuleUniqueName, moduleGroup)
     setParentModuleNames(parentModule, parentModuleUniqueName, parentModuleNameWithGroup)
 
-    parentModule.add(createParentContentRoot(project))
     addAllRequiredDataToParentModuleNode(project, parentModule)
 
     val (prodModule, testModule) = createSbtSourceSetModules(
@@ -1013,7 +1012,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     projectData: ProjectData,
     moduleNode: ModuleDataNodeType
   ): Unit = {
-    createLegacyContentRoot(projectData)
+    moduleNode.add(createParentContentRoot(projectData))
     moduleNode.add(new SbtModuleNode(SbtModuleData(projectData.id, projectData.buildURI, projectData.base)))
     addSbtRelatedData(projectData, moduleNode)
 
