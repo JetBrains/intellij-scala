@@ -7,7 +7,6 @@ import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
-import org.jetbrains.plugins.scala.util.CompilerTestUtil.runWithErrorsFromCompiler
 
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{Await, Promise}
@@ -25,39 +24,32 @@ abstract class ScalaWorksheetCompilerHighlightingTestBase extends ScalaCompilerH
       |val x = 23
       |""".stripMargin
 
-  protected def runTestCaseForWorksheet(
-    fileName: String,
-    content: String,
-    expectedResult: ExpectedResult
-  ): Unit = runWithErrorsFromCompiler(getProject) {
-    val waitUntilFileIsHighlighted: VirtualFile => Unit = virtualFile => {
-      // Compilation is done on file opening (see RegisterCompilationListener.MyFileEditorManagerListener)
-      // There is no explicit compile worksheet action for now, like we have in Build with JPS.
-      // In order to detect the end of we wait until CompilationFinished event is generated
-      val promise = Promise[Unit]()
-      getProject.getMessageBus.connect().subscribe(CompilerEventListener.topic, new CompilerEventListener {
-        override def eventReceived(event: CompilerEvent): Unit = event match {
-          case CompilerEvent.CompilationFinished(_, _, sources) =>
-            if (sources.map(_.getCanonicalPath).contains(virtualFile.getCanonicalPath)) {
-              promise.success(())
-            }
-          case _ =>
-            ()
-        }
-      })
-
-      invokeAndWait {
-        val descriptor = new OpenFileDescriptor(getProject, virtualFile)
-        val editor = FileEditorManager.getInstance(getProject).openTextEditor(descriptor, true)
-        // The tests are running in a headless environment where focus events are not propagated.
-        // We need to call our listener manually.
-        new CompilerHighlightingEditorFocusListener(editor).focusGained()
+  override protected def waitUntilFileIsHighlighted(virtualFile: VirtualFile): Unit = {
+    // Compilation is done on file opening (see RegisterCompilationListener.MyFileEditorManagerListener)
+    // There is no explicit compile worksheet action for now, like we have in Build with JPS.
+    // In order to detect the end of we wait until CompilationFinished event is generated
+    val promise = Promise[Unit]()
+    getProject.getMessageBus.connect().subscribe(CompilerEventListener.topic, new CompilerEventListener {
+      override def eventReceived(event: CompilerEvent): Unit = event match {
+        case CompilerEvent.CompilationFinished(_, _, sources) =>
+          if (sources.map(_.getCanonicalPath).contains(virtualFile.getCanonicalPath)) {
+            promise.success(())
+          }
+        case _ =>
+          ()
       }
+    })
 
-      val timeout = 60.seconds
-      Await.result(promise.future, timeout)
+    invokeAndWait {
+      val descriptor = new OpenFileDescriptor(getProject, virtualFile)
+      val editor = FileEditorManager.getInstance(getProject).openTextEditor(descriptor, true)
+      // The tests are running in a headless environment where focus events are not propagated.
+      // We need to call our listener manually.
+      new CompilerHighlightingEditorFocusListener(editor).focusGained()
     }
-    runTestCase(fileName, content, expectedResult, waitUntilFileIsHighlighted)
+
+    val timeout = 60.seconds
+    Await.result(promise.future, timeout)
   }
 }
 
@@ -66,7 +58,7 @@ class ScalaWorksheetCompilerHighlightingTest_2_13 extends ScalaWorksheetCompiler
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 
-  def testOnlyErrorsAreExpectedInWorksheet(): Unit = runTestCaseForWorksheet(
+  def testOnlyErrorsAreExpectedInWorksheet(): Unit = runTestCase(
     fileName = "worksheet.sc",
     content = worksheetContent.stripMargin,
     expectedResult = expectedResult(
@@ -86,12 +78,12 @@ class ScalaWorksheetCompilerHighlightingTest_2_13 extends ScalaWorksheetCompiler
   )
 }
 
-class ScalaWorksheetCompilerHighlightingTest_3 extends ScalaWorksheetCompilerHighlightingTestBase {
+class ScalaWorksheetCompilerHighlightingTest_3 extends ScalaWorksheetCompilerHighlightingTestBase with CompilerDiagnosticsTestBase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
 
   /* see [[org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WrappedWorksheetCompilerMessagesFixer]] */
-  def testOnlyErrorsAreExpectedInWorksheet(): Unit = runTestCaseForWorksheet(
+  def testOnlyErrorsAreExpectedInWorksheet(): Unit = runTestCase(
     fileName = "worksheet.sc",
     content = worksheetContent.stripMargin,
     expectedResult = expectedResult(
@@ -110,7 +102,7 @@ class ScalaWorksheetCompilerHighlightingTest_3 extends ScalaWorksheetCompilerHig
     )
   )
 
-  def testReplaceWrapperClassNameFromErrorMessages(): Unit = runTestCaseForWorksheet(
+  def testReplaceWrapperClassNameFromErrorMessages(): Unit = runTestCase(
     fileName = "worksheet.sc",
     content =
       """object X {}
@@ -133,7 +125,7 @@ class ScalaWorksheetCompilerHighlightingTest_3 extends ScalaWorksheetCompilerHig
   )
 
   def testCompilerDiagnostics(): Unit = {
-    runTestCaseForWorksheet(
+    runCompilerDiagnosticsTest(
       fileName = "worksheet.sc",
       content =
         """def x: Int = 3
@@ -147,7 +139,58 @@ class ScalaWorksheetCompilerHighlightingTest_3 extends ScalaWorksheetCompilerHig
           quickFixDescriptions = Seq("Rewrite to function value"),
           msgPrefix = "Only function types can be followed by _ but the current expression has type Int"
         )
-      )
+      ),
+      expectedContent =
+        """def x: Int = 3
+          |val test = (() => x)
+          |val y = 2 * x
+          |""".stripMargin
+    )
+  }
+
+  def testMultipleCompilerDiagnosticsCorrectLines(): Unit = {
+    runCompilerDiagnosticsTest(
+      fileName = "worksheet.sc",
+      content =
+        """def m0 = "0"
+          |def m00() = "00"
+          |def m000(implicit s: String) = "000"
+          |def m0000()(implicit s: String) = "0000"
+          |
+          |implicit val s: String = "42"
+          |
+          |val f1 = m0 _
+          |val f2 = m00 _
+          |val f3 = m000 _
+          |val f4 = m0000 _
+          |""".stripMargin,
+      expectedResult = expectedResult(
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          range = Some(TextRange.create(149, 153)),
+          quickFixDescriptions = Seq("Rewrite to function value"),
+          msgPrefix = "Only function types can be followed by _ but the current expression has type String"
+        ),
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          range = Some(TextRange.create(178, 184)),
+          quickFixDescriptions = Seq("Rewrite to function value"),
+          msgPrefix = "Only function types can be followed by _ but the current expression has type String"
+        )
+      ),
+      expectedContent =
+        """def m0 = "0"
+          |def m00() = "00"
+          |def m000(implicit s: String) = "000"
+          |def m0000()(implicit s: String) = "0000"
+          |
+          |implicit val s: String = "42"
+          |
+          |val f1 = (() => m0)
+          |val f2 = m00 _
+          |val f3 = (() => m000)
+          |val f4 = m0000 _
+          |""".stripMargin
     )
   }
 }
