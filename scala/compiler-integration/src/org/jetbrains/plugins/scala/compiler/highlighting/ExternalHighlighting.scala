@@ -21,7 +21,7 @@ object ExternalHighlighting {
   sealed trait RangeInfo
 
   object RangeInfo {
-    final case class Range(problemStart: PosInfo, problemEnd: PosInfo) extends RangeInfo
+    final case class Range(problemStart: PosInfo, problemEnd: PosInfo, debugTag: String) extends RangeInfo
     final case class Pointer(pointer: PosInfo) extends RangeInfo
   }
 }

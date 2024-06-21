@@ -30,25 +30,25 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
           source <- msg.source
           virtualFile <- source.toVirtualFile
         } {
-          def calculateRangeInfo(startInfo: Option[PosInfo], endInfo: Option[PosInfo]): Option[RangeInfo] =
+          def calculateRangeInfo(startInfo: Option[PosInfo], endInfo: Option[PosInfo], debugTag: String): Option[RangeInfo] =
             for {
               startPos <- startInfo
               endPos <- endInfo if startPos != endPos
-            } yield RangeInfo.Range(startPos, endPos)
+            } yield RangeInfo.Range(startPos, endPos, debugTag)
 
           val highlightingType = kindToHighlightInfoType(msg.kind, text, virtualFile)
           val rangeInfo = (highlightingType match {
             case HighlightInfoType.WRONG_REF =>
               // Wrong reference errors are always highlighted starting from the pointer provided by the compiler.
               // Empirically, this only highlights the name of the symbol which cannot be resolved.
-              calculateRangeInfo(msg.pointer, msg.problemEnd)
+              calculateRangeInfo(msg.pointer, msg.problemEnd, s"wrong_ref case start=msg.pointer, end=msg.problemEnd, msg=$msg")
             case _ if ScalaProjectSettings.in(project).isUseCompilerRanges =>
               // If the setting is checked, the full text range provided by the compiler is used.
-              calculateRangeInfo(msg.problemStart, msg.problemEnd)
+              calculateRangeInfo(msg.problemStart, msg.problemEnd, s"use compiler ranges true case start=msg.problemStart, end=msg.problemEnd, msg=$msg")
             case _ =>
               // Otherwise, the range from the pointer to the end is used, matching the behaviour before
               // SCL-21339, SCL-21292 were implemented.
-              calculateRangeInfo(msg.pointer, msg.problemEnd)
+              calculateRangeInfo(msg.pointer, msg.problemEnd, s"default case start=msg.pointer, end=msg.problemEnd, msg=$msg")
           }).orElse(msg.pointer.map(RangeInfo.Pointer))
           val highlighting = ExternalHighlighting(
             highlightType = highlightingType,
