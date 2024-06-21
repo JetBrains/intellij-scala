@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.compiler.data.{CompileOrder, IncrementalityTy
 
 import java.io.File
 import java.{util => ju}
-import scala.annotation.nowarn
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
@@ -64,8 +63,7 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
       }
     }
 
-    val delta = context.getProjectDescriptor.dataManager.getMappings.createDelta()
-    val callback = delta.getCallback
+    val callback = JavaBuilderUtil.getDependenciesRegistrar(context)
 
     val modules = chunk.getModules.asScala.toSet
 
@@ -87,12 +85,10 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
         JpsExitCode.ABORT
       case _ if client.hasReportedErrors || client.isCanceled => JpsExitCode.ABORT
       case Right(code) =>
-        if (delta != null && JavaBuilderUtil.updateMappings(context, delta, dirtyFilesHolder, chunk, scalaSources, successfullyCompiled.asJava): @nowarn("cat=deprecation"))
-          JpsExitCode.ADDITIONAL_PASS_REQUIRED
-        else {
-          client.progress(JpsBundle.message("compilation.completed"), Some(1.0F))
-          ScalaBuilder.exitCode(code)
-        }
+        JavaBuilderUtil.registerFilesToCompile(context, scalaSources)
+        JavaBuilderUtil.registerSuccessfullyCompiled(context, successfullyCompiled.asJava)
+        client.progress(JpsBundle.message("compilation.completed"), Some(1.0F))
+        ScalaBuilder.exitCode(code)
     }
   }
 
