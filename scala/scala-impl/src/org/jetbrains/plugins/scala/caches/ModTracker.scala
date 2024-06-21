@@ -20,7 +20,7 @@ object ModTracker {
    *
    * @see https://youtrack.jetbrains.com/issue/SCL-11651/Minimize-usage-of-psi-operations-during-type-inference
    */
-  object anyScalaPsiChange extends SimpleModificationTracker
+  val anyScalaPsiChange: SimpleModificationTracker = new ScalaModificationTracker("anyScalaPsiChange")
 
   def physicalPsiChange(project: Project): ModificationTracker =
     PsiModificationTracker.getInstance(project)

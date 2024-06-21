@@ -16,7 +16,7 @@ import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.annotations.{Nullable, TestOnly}
 import org.jetbrains.plugins.scala.ScalaLowerCase
 import org.jetbrains.plugins.scala.caches.stats.{CacheCapabilities, CacheTracker}
-import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CleanupScheduler, ModTracker, ScalaShortNamesCacheManager, ValueWrapper, cachedInUserData, cachedWithoutModificationCount}
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CleanupScheduler, ModTracker, ScalaModificationTracker, ScalaShortNamesCacheManager, ValueWrapper, cachedInUserData, cachedWithoutModificationCount}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
@@ -593,7 +593,7 @@ class ScalaPsiManager(implicit val project: Project) extends Disposable {
       STABLE_ALIAS_NAME_KEY.allKeys
     }
 
-  val TopLevelModificationTracker: SimpleModificationTracker = new SimpleModificationTracker
+  val TopLevelModificationTracker: SimpleModificationTracker = new ScalaModificationTracker("TopLevelModificationTracker")
 
   def clearOnScalaElementChange(psiElement: PsiElement): Unit = {
     clearOnChange()
