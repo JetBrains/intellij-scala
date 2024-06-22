@@ -104,7 +104,7 @@ object SbtModuleData {
     new SbtModuleData(id, new MyURI(buildURI), baseDirectory)
 }
 
-case class SbtProjectData @PropertyMapping(Array("jdk", /*"javacOptions",*/ "sbtVersion", "projectPath", "projectTransitiveDependenciesUsed"))(
+case class SbtProjectData @PropertyMapping(Array("jdk", /*"javacOptions",*/ "sbtVersion", "projectPath", "projectTransitiveDependenciesUsed", "prodTestSourcesSeparated"))(
   @Nullable jdk: SdkReference,
   //javacOptions: JList[String], // see the commit message, why we don't need javacOptions at the project level
   sbtVersion: String,

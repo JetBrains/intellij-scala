@@ -4,13 +4,10 @@ import com.intellij.openapi.externalSystem.ExternalSystemModulePropertyManager
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.model.{DataNode, Key}
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
-import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import org.jetbrains.annotations.VisibleForTesting
-import org.jetbrains.plugins.scala.util.ExternalSystemUtil
-import org.jetbrains.sbt.Sbt.SbtModuleChildKeyInstance
-import org.jetbrains.sbt.project.SbtProjectSystem
+import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.project.module.SbtNestedModuleData
 import org.jetbrains.sbt.settings.SbtSettings
 
@@ -68,13 +65,8 @@ class SbtNestedModuleDataService extends AbstractSbtModuleDataService[SbtNestedM
   }
 
   private def findParentModuleOriginalName(module: Module): Option[String] = {
-    val moduleId = Option(ExternalSystemApiUtil.getExternalProjectId(module))
-    moduleId.flatMap { id =>
-      val project = module.getProject
-      val rootProjectPath = Option(ExternalSystemApiUtil.getExternalRootProjectPath(module))
-      val moduleData = ExternalSystemUtil.getModuleDataNode(SbtProjectSystem.Id, project, id, rootProjectPath, Some(SbtModuleChildKeyInstance))
-      moduleData.map(_.getData.getModuleName)
-    }
+    val moduleData = SbtUtil.getModuleDataNode(module)
+    moduleData.map(_.getData.getModuleName)
   }
 
   private def generateNewInternalModuleName(

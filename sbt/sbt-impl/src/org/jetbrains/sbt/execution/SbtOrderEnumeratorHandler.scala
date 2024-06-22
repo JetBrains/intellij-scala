@@ -47,16 +47,14 @@ class SbtOrderEnumeratorHandler(projectTransitiveDependenciesUsed: Boolean) exte
     super.shouldIncludeTestsFromDependentModulesToTestClasspath
 
   override def shouldProcessDependenciesRecursively: Boolean =
-    if (projectTransitiveDependenciesUsed) false
-    else true
+    !projectTransitiveDependenciesUsed
 
 }
 
 class SbtOrderEnumeratorHandlerFactory extends OrderEnumerationHandler.Factory {
   override def createHandler(module: Module): OrderEnumerationHandler = {
-    val project = module.getProject
-    val projectTransitiveDependenciesUsed = SbtUtil.isBuiltWithProjectTransitiveDependencies(project)
-    new SbtOrderEnumeratorHandler(projectTransitiveDependenciesUsed)
+    val useTransitiveDependencies = SbtUtil.shouldUseTransitiveDependenciesEnabled(module)
+    new SbtOrderEnumeratorHandler(useTransitiveDependencies)
   }
 
   override def isApplicable(module: Module): Boolean =

@@ -3,7 +3,8 @@ package org.jetbrains.sbt
 import com.intellij.execution.RunManager
 import com.intellij.execution.configurations.{ModuleBasedConfiguration, ParametersList, RunConfigurationModule}
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.externalSystem.model.Key
+import com.intellij.openapi.externalSystem.model.project.ModuleData
+import com.intellij.openapi.externalSystem.model.{DataNode, Key}
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
@@ -19,6 +20,7 @@ import org.jetbrains.sbt.Sbt.SbtModuleChildKeyInstance
 import org.jetbrains.sbt.buildinfo.BuildInfo
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.data.{SbtBuildModuleData, SbtModuleData, SbtProjectData}
+import org.jetbrains.sbt.project.module.SbtSourceSetData
 import org.jetbrains.sbt.project.structure.{JvmOpts, SbtOption, SbtOpts}
 import org.jetbrains.sbt.settings.SbtSettings
 
@@ -183,9 +185,31 @@ object SbtUtil {
       Option(properties.getProperty(name))
     }
 
-  def isBuiltWithProjectTransitiveDependencies(project: Project): Boolean = {
-    val sbtProjectDataOpt = SbtUtil.getSbtProjectData(project)
-    sbtProjectDataOpt.exists(_.projectTransitiveDependenciesUsed)
+  def isBuiltWithProjectTransitiveDependencies(project: Project): Boolean =
+    checkSbtProjectData(project, _.projectTransitiveDependenciesUsed)
+
+  def shouldUseTransitiveDependenciesEnabled(module: Module): Boolean = {
+    val project = module.getProject
+    val separateProdTestSourcesEnabled = SbtUtil.isBuiltWithProdTestSourcesEnabled(project)
+    if (separateProdTestSourcesEnabled) {
+      val moduleDataNode = SbtUtil.getModuleDataNode(module)
+      moduleDataNode.exists(isSourceSetDataKey)
+    } else {
+      SbtUtil.isBuiltWithProjectTransitiveDependencies(project)
+    }
+  }
+
+  private def isSourceSetDataKey(data: DataNode[_ <: ModuleData]): Boolean = {
+    val key = data.getKey
+    key == SbtSourceSetData.Key
+  }
+
+  private def isBuiltWithProdTestSourcesEnabled(project: Project): Boolean =
+    checkSbtProjectData(project, _.prodTestSourcesSeparated)
+
+  private def checkSbtProjectData(project: Project, condition: SbtProjectData => Boolean): Boolean = {
+    val sbtProjectDataOpt = getSbtProjectData(project)
+    sbtProjectDataOpt.exists(condition)
   }
 
   def getSbtModuleData(module: Module): Option[SbtModuleData] = {
@@ -234,6 +258,15 @@ object SbtUtil {
       case Some(data) => (Some(data.buildURI.toString), Some(data.id))
       case _ => (None, None)
     }
+
+  def getModuleDataNode(module: Module): Option[DataNode[_ <: ModuleData]] = {
+    val moduleId = Option(ExternalSystemApiUtil.getExternalProjectId(module))
+    moduleId.flatMap { id =>
+      val project = module.getProject
+      val rootProjectPath = Option(ExternalSystemApiUtil.getExternalRootProjectPath(module))
+      ExternalSystemUtil.getModuleDataNode(SbtProjectSystem.Id, project, id, rootProjectPath, Some(SbtModuleChildKeyInstance))
+    }
+  }
 
   def makeSbtProjectId(data: SbtModuleData): String = {
     val uri = data.buildURI

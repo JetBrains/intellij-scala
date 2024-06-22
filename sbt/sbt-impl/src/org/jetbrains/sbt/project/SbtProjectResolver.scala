@@ -11,7 +11,7 @@ import com.intellij.openapi.module.StdModuleTypes
 import com.intellij.openapi.project.{Project, ProjectManager}
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.openapi.util.registry.RegistryManager
+import com.intellij.openapi.util.registry.{Registry, RegistryManager}
 import com.intellij.util.SystemProperties
 import org.jetbrains.annotations.{ApiStatus, NonNls, Nullable, TestOnly}
 import org.jetbrains.plugins.scala._
@@ -894,6 +894,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       moduleFilesDirectory.path,
       parentModuleNameWithGroup,
     )
+    addSourceModuleToParentModule(parentModule, prodModule, testModule)
     val dependencies = project.dependencies
 
     addAllRequiredDataToModuleNode(librariesData, dependencies.modules.forProduction, dependencies.jars.forProduction, project, prodModule, ProductionModuleType)
@@ -1021,6 +1022,20 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       sdk = projectData.java.flatMap(_.home).map(JdkByHome),
     )
     moduleNode.add(new ModuleExtNode(data))
+  }
+
+  private def addSourceModuleToParentModule(
+    parentModule: ModuleDataNodeType,
+    prodModule: ModuleDataNodeType,
+    testModule: ModuleDataNodeType
+  ): Unit = {
+    val prodModuleDependency = new ModuleDependencyNode(parentModule, prodModule)
+    prodModuleDependency.setExported(false)
+
+    val testModuleDependency = new ModuleDependencyNode(parentModule, testModule)
+    testModuleDependency.setExported(false)
+
+    parentModule.addAll(Seq(prodModuleDependency, testModuleDependency))
   }
 
   private def addSbtRelatedData(projectData: ProjectData, moduleNode: ModuleDataNodeType): Unit = {

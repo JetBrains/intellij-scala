@@ -156,6 +156,9 @@
         <registryKey key="SBT.system.in.process" defaultValue="true" restartRequired="true"
                      description="Internal, do not change"/>
 
+        <registryKey key="sbt.source.modules.in.parent.module.dependencies" defaultValue="true" restartRequired="false"
+                     description="Compile main/test modules from a parent module"/>
+
         <newProjectWizard.languageGenerator implementation="org.jetbrains.sbt.project.template.wizard.ScalaNewProjectWizard"/>
         <newProjectWizard.scala.buildSystem implementation="org.jetbrains.sbt.project.template.wizard.buildSystem.SbtScalaNewProjectWizard" />
         <newProjectWizard.scala.buildSystem implementation="org.jetbrains.sbt.project.template.wizard.buildSystem.IntelliJScalaNewProjectWizard" />
