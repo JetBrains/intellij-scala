@@ -232,10 +232,16 @@ trait ScImportsHolder extends ScImportsOrExportsHolder {
 
   final def addImportsForPaths(
     paths: Seq[String],
-    refsContainer: PsiElement = null
+    @Nullable refsContainer: PsiElement = null
   ): Unit = {
     val importPaths = paths.map(ImportPath.apply(_))
+    addImportsForPaths(importPaths, refsContainer)
+  }
 
+  final def addImportsForPaths(
+    importPaths: Seq[ImportPath],
+    @Nullable refsContainer: PsiElement
+  )(implicit d: DummyImplicit): Unit = {
     val first = this.firstChildNotWhitespaceComment
     first match {
       case Some(pack: ScPackaging) if !pack.isExplicit && this.children.filterByType[ScImportStmt].isEmpty =>

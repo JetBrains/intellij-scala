@@ -37,6 +37,7 @@ object Dependency {
     }
 
     override protected val forName: Option[String] = Some(ref.refName)
+    override protected val forNameRespectRenamed: Boolean = true //SCL-7653
 
     private val nameHint = new NameHint {
       override def getName(state: ResolveState): String = forName.get

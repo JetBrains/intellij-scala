@@ -7,15 +7,16 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Key, Segment, TextRange}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
+import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.dependency.{Dependency, DependencyPath}
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
+import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder.ImportPath
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTypeDefinitionImpl
 
 import scala.collection.mutable
-import scala.jdk.CollectionConverters
+import scala.jdk.CollectionConverters.SeqHasAsJava
 
 final class Associations private(override val associations: Array[Association])
   extends AssociationsData(associations, Associations)
@@ -25,7 +26,7 @@ final class Associations private(override val associations: Array[Association])
 
   override def clone(): Associations = new Associations(associations)
 
-  override def canEqual(other: Any): Boolean = other.isInstanceOf[Associations]
+  override def canEqual(other: Any): Boolean = other.is[Associations]
 
   override def toString = s"Associations(${associations.mkString("Array(", ", ", ")")})"
 
@@ -33,22 +34,18 @@ final class Associations private(override val associations: Array[Association])
              (filter: Seq[Binding] => Seq[Binding])
              (implicit project: Project, file: PsiFile): Unit = {
     val bindings = getBindingsForOffset(segment.getStartOffset)
-    if (bindings.nonEmpty) {
-      val bindingsDistinct = bindings.distinctBy(_.path)
-      val bindingsToRestore = filter(bindingsDistinct)
+    val bindingsDistinct = bindings.distinctBy(_.path)
+    val bindingsToRestore = filter(bindingsDistinct)
 
-      if (bindingsToRestore.nonEmpty) {
-        val (elements, paths) = bindingsToRestore.unzip { binding =>
-          (binding.element, binding.path)
-        }
+    if (bindingsToRestore.nonEmpty) {
+      val references = bindingsToRestore.map(_.reference)
+      val importPaths = bindingsToRestore.map(b => ImportPath(b.path, b.aliasName))
 
-        import CollectionConverters._
-
-        val commonParent = PsiTreeUtil.findCommonParent(elements.asJava)
+      val commonParent = PsiTreeUtil.findCommonParent(references.asJava)
+      if (commonParent != null) {
         val importsHolder = ScImportsHolder(commonParent)(project)
-
         inWriteAction {
-          importsHolder.addImportsForPaths(paths, commonParent)
+          importsHolder.addImportsForPaths(importPaths, commonParent)
         }
       }
     }
@@ -57,11 +54,11 @@ final class Associations private(override val associations: Array[Association])
   private def getBindingsForOffset(offset: Int)
                                   (implicit file: PsiFile): Seq[Binding] = for {
     association <- associations.toSeq
-    element <- elementFor(association, offset)
+    reference <- referenceFor(association, offset)
 
     path = association.path.asString()
     if hasNonDefaultPackage(path)
-  } yield Binding(element, path)
+  } yield Binding(reference, path)
 }
 
 object Associations extends AssociationsData.Companion(classOf[Associations], "ScalaReferenceData") {
@@ -73,7 +70,39 @@ object Associations extends AssociationsData.Companion(classOf[Associations], "S
   def unapply(associations: Associations): Some[Array[Association]] =
     Some(associations.associations)
 
-  case class Binding(element: PsiElement, path: String)
+  //for testing purposes
+  sealed trait BindingLike {
+    def path: String
+    def aliasName: Option[String]
+
+    final def getInitAndLast: (String, String) = {
+      val lastDotIdx = path.lastIndexOf('.')
+      if (lastDotIdx < 0)
+        ("_root_", path)
+      else {
+        val init = path.substring(0, lastDotIdx)
+        val last = path.substring(lastDotIdx + 1)
+        (init, last)
+      }
+    }
+  }
+
+  case class Binding(
+    reference: ScReference,
+    override val path: String
+  ) extends BindingLike {
+    override val aliasName: Option[String] = {
+      val referenceText = Option(reference.nameId).map(_.getText)
+      val lastNameInFqn = getInitAndLast._2
+      referenceText.filter(_ != lastNameInFqn)
+    }
+  }
+
+  @TestOnly
+  case class MockBinding(
+    path: String,
+    aliasName: Option[String] = None
+  ) extends BindingLike
 
   object Data {
 
@@ -121,14 +150,17 @@ object Associations extends AssociationsData.Companion(classOf[Associations], "S
             (path, references) <- Dependency.collect(range)
             reference <- references
 
-          } buffer += Association(path, reference.getTextRange.shiftRight(-range.getStartOffset))
+          } {
+            val referenceRange = reference.getTextRange.shiftRight(-range.getStartOffset)
+            buffer += Association(path, referenceRange)
+          }
         }): Runnable,
         new ProgressIndicator
       )
     } catch {
       case _: ProcessCanceledException =>
         logger.warn(
-          s"""Time-out while collecting dependencies in ${file.getName}:
+          s"""Time-out while collecting dependencies in ${file.name}:
              |${subText(ranges.head)}""".stripMargin
         )
       case e: Exception =>
@@ -175,28 +207,21 @@ object Associations extends AssociationsData.Companion(classOf[Associations], "S
     }
   }
 
-  private def elementFor(association: Association, offset: Int)
-                        (implicit file: PsiFile): Option[PsiElement] = {
+  private def referenceFor(association: Association, offset: Int)
+                          (implicit file: PsiFile): Option[ScReference] = {
     val Association(path, range) = association
     val shiftedRange = range.shiftRight(offset)
 
     for {
-      ref <- Option(file.findElementAt(shiftedRange.getStartOffset))
-
-      parent = ref.getParent
-      if parent != null && parent.getTextRange == shiftedRange
-
-      if !isSatisfiedIn(parent, path)
-    } yield parent
+      leafElement <- Option(file.findElementAt(shiftedRange.getStartOffset))
+      reference: ScReference <- Option(leafElement.getParent).filterByType[ScReference]
+      if reference.getTextRange == shiftedRange
+      if !hasDependenciesWithPath(reference, path)
+    } yield reference
   }
 
-  private def isSatisfiedIn(element: PsiElement, path: DependencyPath): Boolean = element match {
-    case reference: ScReference =>
-      Dependency.dependenciesFor(reference).exists {
-        case Dependency(_, `path`) => true
-        case _ => false
-      }
-    case _ => false
+  private def hasDependenciesWithPath(reference: ScReference, path: DependencyPath): Boolean = {
+    val dependencies = Dependency.dependenciesFor(reference)
+    dependencies.exists(_.path == path)
   }
-
 }
