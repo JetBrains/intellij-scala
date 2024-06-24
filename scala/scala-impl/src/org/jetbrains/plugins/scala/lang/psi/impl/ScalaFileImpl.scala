@@ -101,7 +101,7 @@ class ScalaFileImpl(
 
     val vector = toVector(name)
 
-    preservingClasses {
+    preservingNamedElements {
       val documentManager = PsiDocumentManager.getInstance(getProject)
       val document = this.getViewProvider.getDocument
 
@@ -131,18 +131,18 @@ class ScalaFileImpl(
     }
   }
 
-  private def preservingClasses(block: => Unit): Unit = {
-    val data = this.typeDefinitions
+  private def preservingNamedElements(block: => Unit): Unit = {
+    val data = this.namedElements
 
     block
 
-    for ((aClass, oldClass) <- this.typeDefinitions.zip(data)) {
-      codeStyle.CodeEditUtil.setNodeGenerated(oldClass.getNode, true)
+    for ((newElement, oldElement) <- this.namedElements.zip(data)) {
+      codeStyle.CodeEditUtil.setNodeGenerated(oldElement.getNode, true)
       PostprocessReformattingAspect.getInstance(getProject).disablePostprocessFormattingInside {
         new Runnable {
           override def run(): Unit = {
-            DebugUtil.performPsiModification("ScalaFileImpl.preservingClasses", (() => {
-              aClass.getNode.getTreeParent.replaceChild(aClass.getNode, oldClass.getNode)
+            DebugUtil.performPsiModification("ScalaFileImpl.preservingNamedElements", (() => {
+              newElement.getNode.getTreeParent.replaceChild(newElement.getNode, oldElement.getNode)
             }): ThrowableRunnable[Throwable])
           }
         }
