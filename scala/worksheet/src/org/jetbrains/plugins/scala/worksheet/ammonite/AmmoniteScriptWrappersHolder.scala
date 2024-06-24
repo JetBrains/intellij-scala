@@ -142,7 +142,7 @@ class AmmoniteScriptWrappersHolder(project: Project) {
             DocumentMarkupModel.forDocument(editor.getDocument, project, true).asInstanceOf[MarkupModelEx].processRangeHighlightersOverlappingWith(
               0, ammFile.getTextLength, (t: RangeHighlighterEx) => {
                 t.getErrorStripeTooltip match {
-                  case hInfo: HighlightInfo if hInfo.`type` == HighlightInfoType.WEAK_WARNING =>
+                  case hInfo: HighlightInfo if hInfo.`type` == HighlightInfoType.WARNING =>
                     hInfo.findRegisteredQuickFix { case (descriptor, _) =>
                       QuickFixWrapper.unwrap(descriptor.getAction) match {
                         case ammoniteFix: CreateImportedLibraryQuickFix => acc.append(ammoniteFix)
@@ -158,7 +158,7 @@ class AmmoniteScriptWrappersHolder(project: Project) {
             CommandProcessor.getInstance().executeCommand(project, () => {
               acc.foreach {
                 fix =>
-                  fix.invoke(project, ammFile, ammFile, ammFile)
+                  fix.applyFix()
               }
             }, null, null)
           }
