@@ -544,4 +544,25 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesEnable
     }
   )
 
+  def testProjectWithJmhPlugin(): Unit = runTest(
+    new project("projectWithJmhPlugin") {
+      lazy val root: module = new module("projectWithJmhPlugin")
+
+      lazy val project1: module = new module("projectWithJmhPlugin.project1") {
+        sbtProjectId := "project1"
+        contentRoots := Seq(getProjectPath + "/project1")
+        compileOutputPath := "target/scala-2.13/classes"
+        compileTestOutputPath := "target/scala-2.13/test-classes"
+      }
+
+      lazy val project2: module = new module("projectWithJmhPlugin.project2") {
+        sbtProjectId := "project2"
+        contentRoots := Seq(getProjectPath + "/project2")
+        compileOutputPath := "target/scala-2.13/classes"
+        compileTestOutputPath := "target/scala-2.13/test-classes"
+      }
+
+      modules := root :: project1 :: project2 :: Nil
+    }
+  )
 }
