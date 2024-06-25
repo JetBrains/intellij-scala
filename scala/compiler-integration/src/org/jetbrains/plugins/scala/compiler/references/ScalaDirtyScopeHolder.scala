@@ -60,7 +60,7 @@ private class ScalaDirtyScopeHolder(
     import scala.collection.mutable
     import scala.jdk.CollectionConverters._
 
-    val visited = mutable.Stack.empty[ScopedModule]
+    val visited = mutable.Set.empty[ScopedModule]
     val stack = scopes.to(mutable.Stack)
 
     while (stack.nonEmpty) {
