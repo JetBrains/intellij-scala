@@ -88,7 +88,7 @@ class BspTask[T](project: Project,
         .getOrElse {
           new CompositeReporter(
             new BuildToolWindowReporter(project, bspTaskId, BspBundle.message("bsp.task.build"), new CancelBuildAction(resultPromise)),
-            new CompilerEventReporter(project, CompilationId.generate()),
+            new CompilerEventReporter(project, CompilationId(timestamp = System.nanoTime(), documentVersion = None)),
             new IndicatorReporter(indicator)
           )
         }

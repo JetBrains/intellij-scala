@@ -1,7 +1,3 @@
 package org.jetbrains.plugins.scala.util
 
-object CompilationId {
-
-  def generate(): CompilationId =
-    System.nanoTime()
-}
+final case class CompilationId(timestamp: Long, documentVersion: Option[DocumentVersion]) extends Serializable

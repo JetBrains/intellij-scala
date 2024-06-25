@@ -23,7 +23,7 @@ abstract class IdeClient(compilerName: String,
   import IdeClient._
 
   private var hasErrors = false
-  private val compilationId: CompilationId = CompilationId.generate()
+  private val compilationId: CompilationId = CompilationId(timestamp = System.nanoTime(), documentVersion = None)
   private val compilationUnitId = Some(IdeClient.getCompilationUnitId(chunk))
 
   override def message(msg: Client.ClientMsg): Unit = {

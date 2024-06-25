@@ -87,7 +87,7 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
           executeOnBackgroundThreadInNotDisposed(project) {
             val highlightingState = newState.toHighlightingState
             try {
-              ExternalHighlightersService.instance(project).applyHighlightingState(toHighlight, highlightingState)
+              ExternalHighlightersService.instance(project).applyHighlightingState(toHighlight, highlightingState, compilationId)
             } catch {
               // don't know what else we can do if compilation was cancelled at this stage
               // probably just don't show updated highlightings

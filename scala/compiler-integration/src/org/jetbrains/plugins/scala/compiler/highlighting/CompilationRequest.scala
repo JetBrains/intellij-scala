@@ -7,6 +7,7 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.jps.incremental.scala.remote.SourceScope
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
+import org.jetbrains.plugins.scala.util.DocumentVersion
 
 import scala.concurrent.duration._
 
@@ -15,6 +16,8 @@ private sealed trait CompilationRequest {
   val virtualFile: VirtualFile
   val document: Document
   val debugReason: String
+
+  final val documentVersion: DocumentVersion = DocumentUtil.documentVersion(virtualFile, document)
 
   final val compilationDelay: FiniteDuration = ScalaHighlightingMode.compilationDelay
 
