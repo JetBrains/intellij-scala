@@ -5,7 +5,7 @@ import com.intellij.psi.{CommonClassNames, PsiMethod}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaDfaVariableDescriptor, TransformationFailedException}
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{literalToDfType, resolveExpressionType}
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{literalToDfType, inferExpressionType}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
@@ -181,7 +181,7 @@ trait ExpressionTransformation { this: ScalaDfaControlFlowBuilder =>
     assignment.leftExpression match {
       case reference: ScReferenceExpression =>
         ScalaDfaVariableDescriptor.fromReferenceExpression(reference) match {
-          case Some(descriptor) => val definedType = resolveExpressionType(assignment.leftExpression)
+          case Some(descriptor) => val definedType = inferExpressionType(assignment.leftExpression)
             assignVariableValue(descriptor, assignment.rightExpression, definedType)
             pushUnknownValue(rreq)
           case _ =>

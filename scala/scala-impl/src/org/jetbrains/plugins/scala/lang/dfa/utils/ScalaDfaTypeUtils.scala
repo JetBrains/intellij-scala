@@ -19,15 +19,12 @@ import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValueOrVariable, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode.ScalaCodeContext
 import org.jetbrains.plugins.scala.lang.psi.types.api.Any
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
-import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
-import org.jetbrains.plugins.scala.project.ProjectContext
 
 //noinspection UnstableApiUsage
 object ScalaDfaTypeUtils {
@@ -121,21 +118,9 @@ object ScalaDfaTypeUtils {
     case _ => false
   }
 
-  def resolveExpressionType(expression: ScExpression): ScType = {
-    implicit val context: ProjectContext = expression.getProject
-    expression match {
-      // A fix for very weird behaviour of literals in some specific cases
-      case _: ScIntegerLiteral => code"0".asInstanceOf[ScExpression].`type`().getOrAny
-      case _: ScLongLiteral => code"0L".asInstanceOf[ScExpression].`type`().getOrAny
-      case _: ScDoubleLiteral => code"0.0".asInstanceOf[ScExpression].`type`().getOrAny
-      case _: ScFloatLiteral => code"0.0F".asInstanceOf[ScExpression].`type`().getOrAny
-      case reference: ScReferenceExpression => reference.bind().map(_.element) match {
-        case Some(resolved: Typeable) => resolved.`type`().getOrAny
-        case _ => expression.`type`().getOrAny
-      }
-      case _ => expression.`type`().getOrAny
-    }
-  }
+  // Widen literal types
+  def inferExpressionType(expression: ScExpression): ScType =
+    expression.`type`().getOrAny.widen
 
   def findArgumentsPrimitiveType(argumentValues: Map[Argument, DfaValue]): Option[String] = {
     argumentValues.filter(_._1.kind.is[ProperArgument]).values.headOption.map(_.getDfType) match {
