@@ -256,7 +256,7 @@ private final class ExternalHighlightersService(project: Project) { self =>
           startOffset <- convertToOffset(startLine, startColumn, document)
           endOffset <- convertToOffset(endLine, endColumn, document)
         } yield {
-          if (startLine <= endLine && startColumn <= endColumn && startOffset <= endOffset) {
+          if (startOffset <= endOffset) {
             TextRange.create(startOffset, endOffset)
           } else {
             val message = s"Illegal highlighting range calculated, startOffset=$startOffset, endOffset=$endOffset, range=$range"
