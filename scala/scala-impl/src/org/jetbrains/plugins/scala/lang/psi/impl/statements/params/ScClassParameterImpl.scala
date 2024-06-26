@@ -47,22 +47,12 @@ final class ScClassParameterImpl private(stub: ScParameterStub, node: ASTNode)
     }
   }
 
-  override def isCaseClassVal: Boolean = containingClass match {
+  override def isCaseClassPrimaryParameter: Boolean = containingClass match {
     case c: ScClass if c.isCase =>
       val isInPrimaryConstructorFirstParamSection = c.constructor
         .exists(_.effectiveFirstParameterSection.contains(this))
 
       isInPrimaryConstructorFirstParamSection
-    case _ => false
-  }
-
-  override def isEnumVal: Boolean = containingClass match {
-    case _: ScEnum => true
-    case _ => false
-  }
-
-  override def isEnumCaseVal: Boolean = containingClass match {
-    case _: ScEnumCase => true
     case _ => false
   }
 
@@ -101,7 +91,7 @@ final class ScClassParameterImpl private(stub: ScParameterStub, node: ASTNode)
 
   override protected def baseIcon: Icon =
     if (isVar) Icons.FIELD_VAR
-    else if (isVal || isCaseClassVal) Icons.FIELD_VAL
+    else if (isVal || isCaseClassPrimaryParameter) Icons.FIELD_VAL
     else Icons.PARAMETER
 
 

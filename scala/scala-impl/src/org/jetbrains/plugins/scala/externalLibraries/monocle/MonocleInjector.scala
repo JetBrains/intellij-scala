@@ -48,7 +48,7 @@ object MonocleInjector {
     }
 
     clazz.allVals.map(_.namedElement).collect {
-      case f: ScClassParameter if f.isCaseClassVal => f
+      case f: ScClassParameter if f.isCaseClassPrimaryParameter => f
     }.map { parameter =>
       val typeText = if (typeParametersText.isEmpty) {
         parameter.`type`().toOption.map(_.canonicalText).getOrElse("Any")

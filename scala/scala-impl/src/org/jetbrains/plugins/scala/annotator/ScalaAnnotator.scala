@@ -302,7 +302,7 @@ class ScalaAnnotator extends Annotator
         checkTypeVariance(toCheck, Contravariant, toCheck.nameId, toCheck)
         checkTypeVariance(toCheck, Covariant, toCheck.nameId, toCheck)
       }
-      else if (toCheck.isVal || toCheck.isCaseClassVal) {
+      else if (toCheck.isValEffectively) {
         checkTypeVariance(toCheck, Covariant, toCheck.nameId, toCheck)
       }
     }

@@ -54,10 +54,9 @@ object ValueClassType {
     qualNames.contains("AnyVal")
   }
 
-  private def isValOrCompiled(p: ScClassParameter) = {
-    if (p.isVal || p.isCaseClassVal) true
+  private def isValOrCompiled(p: ScClassParameter): Boolean =
+    if (p.isValEffectively) true
     else p.containingScalaFile.exists(_.isCompiled)
-  }
 
   object ImplicitValueClass {
     def unapply(templateDefinition: ScTemplateDefinition): Option[ScClass] =
