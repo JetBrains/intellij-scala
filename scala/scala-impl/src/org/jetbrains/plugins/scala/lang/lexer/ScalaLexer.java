@@ -26,6 +26,7 @@ import com.intellij.util.text.CharArrayUtil;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.Tracing;
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings;
 
 import java.util.Arrays;
@@ -86,6 +87,8 @@ public final class ScalaLexer extends Lexer {
     myBuffer = buffer;
     myBufferEnd = endOffset;
     myTokenType = null;
+
+    Tracing.lexerStart(buffer, startOffset, endOffset, initialState);
   }
 
   @Override
@@ -113,6 +116,8 @@ public final class ScalaLexer extends Lexer {
 
     if (myTokenType == null) {
       doLocateToken();
+
+      Tracing.lexer(myBuffer, myTokenStart, myTokenEnd);
     }
   }
 

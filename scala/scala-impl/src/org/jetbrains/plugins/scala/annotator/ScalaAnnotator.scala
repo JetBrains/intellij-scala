@@ -7,7 +7,7 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.{ScalaBundle, Tracing}
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils._
 import org.jetbrains.plugins.scala.annotator.annotationHolder.ScalaAnnotationHolderAdapter
 import org.jetbrains.plugins.scala.annotator.element.ElementAnnotator
@@ -47,6 +47,8 @@ class ScalaAnnotator extends Annotator
       else HighlightingAdvisor.isTypeAwareHighlightingEnabled(element)
 
     annotate(element, typeAware)(new ScalaAnnotationHolderAdapter(holder))
+
+    Tracing.annotator(element)
   }
 
   // Added for preserving binary compatibility.
