@@ -195,7 +195,7 @@ trait OverridingAnnotator {
 
         if (hasConcreteSuper && !member.hasModifierProperty(OVERRIDE)) {
           val maybeQuickFix: Option[Add] = namedElement match {
-            case param: ScClassParameter if param.isCaseClassVal && !(param.isVal || param.isVar) =>
+            case param: ScClassParameter if param.isCaseClassPrimaryParameter && !(param.isVal || param.isVar) =>
               superSignaturesWithSelfType.headOption.collect {
                 case signature: TermSignature => signature.namedElement
               }.flatMap { element =>
@@ -203,7 +203,7 @@ trait OverridingAnnotator {
                 element.nameContext match {
                   case parameter: ScClassParameter =>
                     val keywordElementType =
-                      if (parameter.isVal || (parameter.isCaseClassVal && !parameter.isVar)) kVAL
+                      if (parameter.isValEffectively) kVAL
                       else kVAR
                     Some(keywordElementType)
                   case _: ScValue | _: ScFunction => Some(kVAL)

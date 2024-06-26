@@ -1,5 +1,6 @@
 package org.jetbrains.sbt.project
 
+import com.intellij.openapi.externalSystem.service.project.ProjectDataManager
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiManager
 import org.jetbrains.jps.model.java.{JavaResourceRootType, JavaSourceRootType}
@@ -10,6 +11,7 @@ import org.jetbrains.sbt.actions.SbtDirectoryCompletionContributor
 import org.jetbrains.sbt.project.ProjectStructureMatcher.ProjectComparisonOptions
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.settings.SbtSettings
+import org.junit.Assert.fail
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
@@ -29,6 +31,17 @@ abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImporti
 
   protected def runTest(expected: project, singleContentRootModules: Boolean = true): Unit = {
     importProject(false)
+
+    val projectData = ProjectDataManager.getInstance.getExternalProjectsData(getProject, getExternalSystemId).asScala.toSeq
+    projectData match {
+      case Nil =>
+        fail("Couldn't import project (project data is empty). See output for the details.")
+      case infos =>
+        val withEmptyStructure = infos.find(_.getExternalProjectStructure == null)
+        withEmptyStructure.foreach { pd =>
+          fail(s"Couldn't import project (structure is empty). See output for the details. Project: $pd")
+        }
+    }
 
     assertProjectsEqual(expected, myProject, singleContentRootModules)(ProjectComparisonOptions.Implicit.default)
     assertNoNotificationsShown(myProject)

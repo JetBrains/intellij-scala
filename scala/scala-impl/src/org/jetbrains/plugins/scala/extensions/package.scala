@@ -1167,7 +1167,7 @@ package object extensions {
             processName(toProcess.getName)
           }
         case t: ScTypedDefinition if t.isVal || t.isVar ||
-          (t.is[ScClassParameter] && t.asInstanceOf[ScClassParameter].isCaseClassVal) =>
+          (t.is[ScClassParameter] && t.asInstanceOf[ScClassParameter].isCaseClassPrimaryParameter) =>
           PsiTypedDefinitionWrapper.processWrappersFor(
             t,
             concreteClassFor(t),

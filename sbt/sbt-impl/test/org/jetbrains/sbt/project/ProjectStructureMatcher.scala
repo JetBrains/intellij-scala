@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.libraries.Library
-import com.intellij.openapi.roots.{ContentEntry, LanguageLevelModuleExtensionImpl, LibraryOrderEntry, ModuleRootManager}
+import com.intellij.openapi.roots.{CompilerModuleExtension, ContentEntry, LanguageLevelModuleExtensionImpl, LibraryOrderEntry, ModuleRootManager}
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.util.{CommonProcessors, PathUtil}
@@ -110,6 +110,8 @@ trait ProjectStructureMatcher {
     expected.foreach0(javaTargetBytecodeLevel)(assertModuleJavaTargetBytecodeLevel(actual))
     expected.foreach(javacOptions)(assertModuleJavacOptions(actual))
     expected.foreach0(compileOrder)(assertModuleCompileOrder(actual))
+    expected.foreach0(compileOutputPath)(assertModuleCompileOutputPath(actual))
+    expected.foreach0(compileTestOutputPath)(assertModuleCompileOutputPath(actual, test = true))
 
     lazy val sbtModuleData = SbtUtil.getSbtModuleData(actual).getOrElse {
       fail(s"Can't get module data for module: $actual (${actual.getModuleFilePath})").asInstanceOf[Nothing]
@@ -154,6 +156,18 @@ trait ProjectStructureMatcher {
 
   private def assertModuleCompileOrder(module: Module)(expected: CompileOrder): Unit = {
     assertEquals("Compile order", expected, module.scalaCompilerSettings.compileOrder)
+  }
+
+  private def assertModuleCompileOutputPath(module: Module, test: Boolean = false)(expected: String): Unit = {
+    val contentRoots = getContentRoots(module)
+    assertTrue("assertModuleCompileOutputPath expects a single content root", contentRoots.size == 1)
+    val contentRoot = contentRoots.head
+
+    val extension = CompilerModuleExtension.getInstance(module)
+    val actualPath = if (test) extension.getCompilerOutputUrlForTests else extension.getCompilerOutputUrl
+    val actualPathString = mapContentFolderToUrl(actualPath, contentRoot.getUrl)
+
+    assertEquals("Compilation output path", expected, actualPathString)
   }
 
   private def assertProjectJavacOptions(project: Project)(expectedOptions: Seq[String]): Unit = {
@@ -214,12 +228,14 @@ trait ProjectStructureMatcher {
     assertMatchWithIgnoredOrder(s"$folderType of module '${module.getName}'", expected, actualFolders)(mt)
   }
 
-  private def mapContentFolderToUrl(folder: roots.ContentFolder, contentRoot: ContentEntry): String = {
-    val folderUrl = folder.getUrl
-    if (folderUrl.startsWith(contentRoot.getUrl)) {
-      folderUrl.substring(Math.min(folderUrl.length, contentRoot.getUrl.length + 1))
-    } else folderUrl
-  }
+  private def mapContentFolderToUrl(folder: roots.ContentFolder, contentRoot: ContentEntry): String =
+    mapContentFolderToUrl(folder.getUrl, contentRoot.getUrl)
+
+  private def mapContentFolderToUrl(folderUrl: String, contentRootUrl: String): String =
+    if (folderUrl.startsWith(contentRootUrl))
+      folderUrl.substring(Math.min(folderUrl.length, contentRootUrl.length + 1))
+    else
+      folderUrl
 
   private def getContentRoots(module: Module): Seq[ContentEntry] =
     roots.ModuleRootManager.getInstance(module).getContentEntries.toSeq

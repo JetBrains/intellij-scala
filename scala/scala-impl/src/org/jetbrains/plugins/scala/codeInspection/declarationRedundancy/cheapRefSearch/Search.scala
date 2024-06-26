@@ -12,8 +12,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isImplicit, isOnlyVisi
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScRefinement, ScSelfTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunction, ScFunctionDeclaration, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 import org.jetbrains.plugins.scala.project.ModuleExt
@@ -348,7 +348,7 @@ private[declarationRedundancy] object Search {
             case p: ScModifierListOwner if hasOverrideModifier(p) => false
             case fd: ScFunctionDefinition if ScalaMainMethodUtil.isMainMethod(fd) => false
             case f: ScFunction if f.isSpecial || isOverridingFunction(f) || f.isConstructor => false
-            case p: ScClassParameter if p.isCaseClassVal || p.isEnumVal || p.isEnumCaseVal || isImplicit(p.containingClass) => false
+            case p: ScClassParameter if p.isCaseClassPrimaryParameter || Option(p.containingClass).exists(_.is[ScEnum, ScEnumCase]) || isImplicit(p.containingClass) => false
             case m: ScMember if m.getContext.is[ScRefinement] => false
             case p: ScParameter =>
               p.parent.flatMap(_.parent.flatMap(_.parent)) match {

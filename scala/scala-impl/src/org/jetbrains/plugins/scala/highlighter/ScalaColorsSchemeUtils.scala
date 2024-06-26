@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiMember
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScForBinding, ScFunctionExpr, ScGenerator, ScMethodCall, ScNameValuePair, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumClassCase, ScEnumSingletonCase, ScFunction, ScFunctionDeclaration, ScFunctionDefinition, ScMacroDefinition, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenDefinition.DesugaredTypeDefinition
@@ -88,9 +88,20 @@ object ScalaColorsSchemeUtils {
     }
 
   //SCL-7499
-  def parameterAttributes(p: ScParameter): TextAttributesKey =
-    if (isParameterOfAnonymousFunction(p)) DefaultHighlighter.PARAMETER_OF_ANONIMOUS_FUNCTION
-    else DefaultHighlighter.PARAMETER
+  def parameterAttributes(p: ScParameter): TextAttributesKey = p match {
+    case cp: ScClassParameter =>
+      classParameterAttributes(cp)
+    case _ if isParameterOfAnonymousFunction(p) =>
+      DefaultHighlighter.PARAMETER_OF_ANONIMOUS_FUNCTION
+    case _ =>
+      DefaultHighlighter.PARAMETER
+  }
+
+  def classParameterAttributes(classParameter: ScClassParameter): TextAttributesKey =
+    if (classParameter.isClassMember)
+      DefaultHighlighter.VALUES
+    else
+      DefaultHighlighter.PARAMETER
 
   private def isParameterOfAnonymousFunction(p: ScParameter): Boolean = p.getContext match {
     case clause: ScParameterClause => clause.getContext.getContext match {

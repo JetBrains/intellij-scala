@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
 
 class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[TextAttributesKey] {
   import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter._
@@ -242,6 +243,115 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
     testAnnotations(text, LOCAL_VARIABLES,
       """
         |Info((25,26),c,Scala Local variable)
+        |""".stripMargin
+    )
+  }
+
+  def testHighlightParameterFieldAsField(): Unit = {
+    val text =
+      """class MyClass(
+        |  parameter1: String, //NOTE USED outside constructor -> field IS NOT generated
+        |  parameter2: String, //USED outside constructor -> field IS generated
+        |  val parameterFieldVal: String,
+        |  var parameterFieldVar: String
+        |)(
+        |   parameterInSecondClause: String
+        | )(
+        |   val parameterFieldInThirdClauseVal: String
+        | ) {
+        |  println(parameter1)
+        |  println(parameter2)
+        |  val field: Int = parameter2.length
+        |}
+        |
+        |case class MyCaseClass(
+        |  parameterField: String,
+        |  val parameterFieldVal: String,
+        |  var parameterFieldVar: String
+        |)(
+        |  parameterInSecondClause: String
+        |)(
+        |  val parameterFieldInThirdClauseVal: String
+        |) {
+        |  val field: Int = ???
+        |}
+        |
+        |object Usage {
+        |  def main(args: Array[String]): Unit = {
+        |    val instance1 = new MyClass("1", "2", "3", "4")("22")("33")
+        |    instance1.field
+        |    instance1.parameterFieldVal
+        |    instance1.parameterFieldVar
+        |    instance1.parameterFieldInThirdClauseVal
+        |
+        |    val instance2 = MyCaseClass("1", "2", "3")("22")("33")
+        |    instance2.field
+        |    instance2.parameterField
+        |    instance2.parameterFieldVal
+        |    instance2.parameterFieldVar
+        |    instance2.parameterFieldInThirdClauseVal
+        |  }
+        |}
+        |""".stripMargin
+
+
+    //adding more keys which I think could be accidentally used, but not too many to keep test data compact
+    val keysOfInterest: Set[TextAttributesKey] = Set(
+      DefaultHighlighter.VALUES,
+      DefaultHighlighter.VARIABLES,
+      DefaultHighlighter.PARAMETER,
+      DefaultHighlighter.PARAMETER_OF_ANONIMOUS_FUNCTION,
+      DefaultHighlighter.TYPEPARAM,
+      DefaultHighlighter.LOCAL_VALUES,
+      DefaultHighlighter.LOCAL_VARIABLES,
+      DefaultHighlighter.METHOD_DECLARATION,
+      DefaultHighlighter.OBJECT_METHOD_CALL,
+      DefaultHighlighter.LOCAL_METHOD_CALL,
+      DefaultHighlighter.METHOD_CALL,
+    )
+    testAnnotations(text, keysOfInterest,
+      """Info((17,27),parameter1,Scala Parameter)
+        |Info((97,107),parameter2,Scala Parameter)
+        |Info((172,189),parameterFieldVal,Scala Template val)
+        |Info((205,222),parameterFieldVar,Scala Template val)
+        |Info((237,260),parameterInSecondClause,Scala Parameter)
+        |Info((280,310),parameterFieldInThirdClauseVal,Scala Template val)
+        |Info((326,333),println,Scala Object method call)
+        |Info((334,344),parameter1,Scala Parameter)
+        |Info((348,355),println,Scala Object method call)
+        |Info((356,366),parameter2,Scala Parameter)
+        |Info((374,379),field,Scala Template val)
+        |Info((387,397),parameter2,Scala Parameter)
+        |Info((398,404),length,Scala Class method call)
+        |Info((434,448),parameterField,Scala Template val)
+        |Info((464,481),parameterFieldVal,Scala Template val)
+        |Info((497,514),parameterFieldVar,Scala Template val)
+        |Info((528,551),parameterInSecondClause,Scala Parameter)
+        |Info((569,599),parameterFieldInThirdClauseVal,Scala Template val)
+        |Info((618,623),field,Scala Template val)
+        |Info((631,634),???,Scala Object method call)
+        |Info((659,663),main,Scala Method declaration)
+        |Info((664,668),args,Scala Parameter)
+        |Info((703,712),instance1,Scala Local value)
+        |Info((763,772),instance1,Scala Local value)
+        |Info((773,778),field,Scala Template val)
+        |Info((783,792),instance1,Scala Local value)
+        |Info((793,810),parameterFieldVal,Scala Template val)
+        |Info((815,824),instance1,Scala Local value)
+        |Info((825,842),parameterFieldVar,Scala Template val)
+        |Info((847,856),instance1,Scala Local value)
+        |Info((857,887),parameterFieldInThirdClauseVal,Scala Template val)
+        |Info((897,906),instance2,Scala Local value)
+        |Info((952,961),instance2,Scala Local value)
+        |Info((962,967),field,Scala Template val)
+        |Info((972,981),instance2,Scala Local value)
+        |Info((982,996),parameterField,Scala Template val)
+        |Info((1001,1010),instance2,Scala Local value)
+        |Info((1011,1028),parameterFieldVal,Scala Template val)
+        |Info((1033,1042),instance2,Scala Local value)
+        |Info((1043,1060),parameterFieldVar,Scala Template val)
+        |Info((1065,1074),instance2,Scala Local value)
+        |Info((1075,1105),parameterFieldInThirdClauseVal,Scala Template val)
         |""".stripMargin
     )
   }
