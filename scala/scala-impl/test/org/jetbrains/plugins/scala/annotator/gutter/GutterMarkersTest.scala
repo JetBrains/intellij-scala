@@ -8,6 +8,9 @@ import org.junit.Test
 import org.junit.experimental.categories.Category
 
 // TODO: split by functionality
+/**
+ * See also [[org.jetbrains.plugins.scala.runner.ScalaRunLineMarkerContributorTestBase]]
+ */
 @Category(Array(classOf[TypecheckerTests]))
 class GutterMarkersTest extends GutterMarkersTestBase {
 

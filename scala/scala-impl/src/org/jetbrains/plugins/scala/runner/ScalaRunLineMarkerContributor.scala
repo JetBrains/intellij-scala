@@ -30,8 +30,11 @@ class ScalaRunLineMarkerContributor extends RunLineMarkerContributor {
       case _ =>
         false
     }
-    if (isIdentifier && hasMain)
-      new Info(RunIcon, ExecutorAction.getActions(0), null)
+    if (isIdentifier && hasMain) {
+      val actions = ExecutorAction.getActions(0)
+      //TODO: remove `null` once IJPL-157360 is fixed
+      new Info(RunIcon, actions, null)
+    }
     else
       null
   }

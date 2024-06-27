@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.runner
 
-import com.intellij.codeInsight.daemon.LineMarkerInfo
-import com.intellij.codeInsight.daemon.LineMarkerInfo.LineMarkerGutterIconRenderer
 import com.intellij.execution.RunManager
 import com.intellij.execution.actions.ConfigurationContext
 import com.intellij.execution.application.ApplicationConfiguration
@@ -12,11 +10,12 @@ import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.configurations.TestLocation.{CaretLocation2, PsiElementLocation}
 import org.jetbrains.plugins.scala.configurations.{RunConfigurationCreationOps, TestLocation}
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers._
-import org.junit.Assert.{assertNotNull, assertNull, fail}
+import org.junit.Assert.{assertNotNull, assertNull}
 import org.junit.ComparisonFailure
 
-import scala.jdk.CollectionConverters.ListHasAsScala
-
+/**
+ * See also [[org.jetbrains.plugins.scala.runner.ScalaRunLineMarkerContributorTestBase]]
+ */
 abstract class ScalaApplicationConfigurationProducerTestBase
   extends ScalaFixtureTestCaseWithSourceFolder
     with RunConfigurationCreationOps {
@@ -217,7 +216,8 @@ class ScalaApplicationConfigurationProducerTest_Scala2 extends ScalaApplicationC
     assertIsTheSame(configB, configB3Reused)
   }
 
-  // Scala doesn't support main methods in nested objects even if they have stable path
+  // NOTE: Scala doesn't support main methods in nested objects even if they have a stable path
+  // It doesn't generate static main method
   def testMainInNestedObjectShouldNotBeDetectedAsMainMethod(): Unit ={
     val pack = "org.example"
 
@@ -235,19 +235,8 @@ class ScalaApplicationConfigurationProducerTest_Scala2 extends ScalaApplicationC
     val vFile = addFileToProjectSources(Some(pack), "A.scala", text)
 
     val linesCount = text.linesIterator.size
-    (0 until linesCount).foreach { lineIdx =>
-      assertNoConfiguration(CaretLocation2(vFile, lineIdx, 0))
-    }
-
-    myFixture.openFileInEditor(vFile)
-    val gutters: Seq[LineMarkerInfo[_]] = myFixture.findAllGutters.asScala.toSeq.map(_.asInstanceOf[LineMarkerGutterIconRenderer[_]].getLineMarkerInfo)
-    val runGutters = gutters.filter(_.getIcon == ScalaRunLineMarkerContributor.RunIcon)
-
-    if (runGutters.nonEmpty) {
-      val document = myFixture.getDocument(myFixture.getFile)
-      val lines = runGutters.map(_.startOffset).map(document.getLineNumber)
-      fail(s"No run gutters expected but found at lines: ${lines.mkString(", ")}")
-    }
+    val allLinesLocations = (0 until linesCount).map(CaretLocation2(vFile, _, 0))
+    allLinesLocations.foreach(assertNoConfiguration)
   }
 
   //SCL-11082

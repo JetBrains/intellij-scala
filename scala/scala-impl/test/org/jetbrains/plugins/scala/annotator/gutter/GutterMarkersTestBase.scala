@@ -16,15 +16,23 @@ import scala.jdk.CollectionConverters.ListHasAsScala
 @Category(Array(classOf[TypecheckerTests]))
 abstract class GutterMarkersTestBase extends ScalaFixtureTestCase {
 
+  protected def filterGutter(marker: GutterMark): Boolean = true
+
+  protected final def findGuttersAtCaretFiltered: Seq[GutterMark] =
+    myFixture.findGuttersAtCaret.asScala.filter(filterGutter).toSeq
+
+  protected final def findAllGuttersFiltered: Seq[GutterMark] =
+    myFixture.findAllGutters.asScala.filter(filterGutter).toSeq
+
   protected def doTestNoLineMarkersAtCaret(fileText: String): Unit =
     doTest(fileText) {
-      val gutters = myFixture.findGuttersAtCaret().asScala.toSeq
+      val gutters = findGuttersAtCaretFiltered
       assertNoGutters(gutters, s"no gutters expected at caret, but got:")
     }
 
   protected def doTestNoLineMarkers(fileText: String, fileExtension: String = "scala"): Unit =
     doTest(fileText, fileExtension) {
-      val gutters = myFixture.findAllGutters().asScala.toSeq
+      val gutters = findAllGuttersFiltered
       assertNoGutters(gutters, "no gutters expected, but got:")
     }
 
@@ -65,7 +73,7 @@ abstract class GutterMarkersTestBase extends ScalaFixtureTestCase {
     assertTrue("Tooltip text expected", expectedTooltipParts.nonEmpty)
 
     doTest(fileText) {
-      val gutters = myFixture.findGuttersAtCaret().asScala.toSeq
+      val gutters = findGuttersAtCaretFiltered
       gutters match {
         case Seq(marker) =>
           val actualTooltip = marker.getTooltipText
@@ -85,7 +93,7 @@ abstract class GutterMarkersTestBase extends ScalaFixtureTestCase {
     assertTrue("Tooltips expected", expectedTooltips.nonEmpty)
 
     doTest(fileText) {
-      val markers = myFixture.findGuttersAtCaret().asScala.toSeq
+      val markers = findGuttersAtCaretFiltered
       val actualTooltips = markers.map(_.getTooltipText)
 
       val errorMsg =
@@ -109,19 +117,19 @@ abstract class GutterMarkersTestBase extends ScalaFixtureTestCase {
 
   protected def doTestAllGuttersShortWithText(fileText: String, expectedGuttersSortedText: String, fileExtension: String = "scala"): Unit =
     doTest(fileText, fileExtension) {
-      val gutters0 = myFixture.findAllGutters().asScala.toSeq
+      val gutters0 = findAllGuttersFiltered
       val gutters = gutters0.map(toFullExpectedGutter)
-      val guttersShort = gutters.map(g => g.copy(tooltipContent = extractFirstParagraph(g.tooltipContent).getOrElse(g.tooltipContent)))
+      val guttersShort = gutters.map(g => g.copy(tooltipContent = Option(g.tooltipContent).flatMap(extractFirstParagraph).getOrElse(g.tooltipContent)))
 
       val guttersSorted = guttersShort.sorted
       val actualText = guttersDebugText(guttersSorted)
-      assertEquals(expectedGuttersSortedText, actualText)
+      assertEquals(expectedGuttersSortedText.trim, actualText)
     }
 
   /** Use this if gutter html content is too complex to directly test it via assertEquals */
   protected def doTestAllGuttersParts(fileText: String, expectedGutters: Seq[ExpectedGutterParts], fileExtension: String = "scala"): Unit =
     doTest(fileText, fileExtension) {
-      val gutters0 = myFixture.findAllGutters().asScala.toSeq
+      val gutters0 = findAllGuttersFiltered
       val gutters = gutters0.map(toFullExpectedGutter)
 
       val guttersSorted = gutters.sorted
@@ -160,7 +168,7 @@ abstract class GutterMarkersTestBase extends ScalaFixtureTestCase {
     val info = gutter.asInstanceOf[LineMarkerGutterIconRenderer[_]].getLineMarkerInfo
     val line = myFixture.getDocument(myFixture.getFile).getLineNumber(info.startOffset) + 1
     val tooltip = info.getLineMarkerTooltip
-    val tooltipDecorated = tooltipContentDecorator(tooltip)
+    val tooltipDecorated = if (tooltip != null) tooltipContentDecorator(tooltip) else null
     ExpectedGutter(line, TextRange.create(info.startOffset, info.endOffset), tooltipDecorated)
   }
 
@@ -217,13 +225,14 @@ abstract class GutterMarkersTestBase extends ScalaFixtureTestCase {
     val start = gutter.range.getStartOffset
     val end = gutter.range.getEndOffset
     val line = gutter.line
-    s"line $line ($start, $end) ${gutter.tooltipContent}"
+    val tooltipQuoted = s"""${Option(gutter.tooltipContent).map("\"" + _ + "\"").orNull}"""
+    s"""ExpectedGutter($line, ($start, $end), $tooltipQuoted)"""
   }
 
   private def gutterDebugText(gutter: ExpectedGutterParts): String = {
     val start = gutter.range.getStartOffset
     val end = gutter.range.getEndOffset
     val line = gutter.line
-    s"line $line ($start, $end) ${gutter.tooltipParts}"
+    s"ExpectedGutter($line, ($start, $end), ${gutter.tooltipParts})"
   }
 }

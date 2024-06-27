@@ -46,16 +46,17 @@ abstract class ScalaTestRunLineMarkerProviderTestBase_Scalatest_3_2
         |
         |object FeatureSpecTag extends Tag("MyTag")
         |""".stripMargin,
-      """line 4 (84, 102) Run Test
-        |line 5 (134, 141) Run Test
-        |line 6 (161, 169) Run Test
-        |line 8 (196, 204) Run Test
-        |line 12 (234, 241) Run Test
-        |line 13 (261, 269) Run Test
-        |line 15 (296, 304) Run Test
-        |line 19 (334, 341) Run Test
-        |line 22 (360, 367) Run Test
-        |line 23 (387, 395) Run Test""".stripMargin
+      """ExpectedGutter(4, (84, 102), "Run Test")
+        |ExpectedGutter(5, (134, 141), "Run Test")
+        |ExpectedGutter(6, (161, 169), "Run Test")
+        |ExpectedGutter(8, (196, 204), "Run Test")
+        |ExpectedGutter(12, (234, 241), "Run Test")
+        |ExpectedGutter(13, (261, 269), "Run Test")
+        |ExpectedGutter(15, (296, 304), "Run Test")
+        |ExpectedGutter(19, (334, 341), "Run Test")
+        |ExpectedGutter(22, (360, 367), "Run Test")
+        |ExpectedGutter(23, (387, 395), "Run Test")
+        |""".stripMargin
     )
   }
 
@@ -78,13 +79,14 @@ abstract class ScalaTestRunLineMarkerProviderTestBase_Scalatest_3_2
         |    }
         |  }
         |}""".stripMargin,
-      """line 3 (59, 94) Run Test
-        |line 4 (126, 133) Run Test
-        |line 5 (153, 161) Run Test
-        |line 7 (188, 196) Run Test
-        |line 11 (226, 233) Run Test
-        |line 12 (253, 261) Run Test
-        |line 14 (288, 296) Run Test""".stripMargin
+      """ExpectedGutter(3, (59, 94), "Run Test")
+        |ExpectedGutter(4, (126, 133), "Run Test")
+        |ExpectedGutter(5, (153, 161), "Run Test")
+        |ExpectedGutter(7, (188, 196), "Run Test")
+        |ExpectedGutter(11, (226, 233), "Run Test")
+        |ExpectedGutter(12, (253, 261), "Run Test")
+        |ExpectedGutter(14, (288, 296), "Run Test")
+        |""".stripMargin
     )
   }
 
@@ -111,12 +113,13 @@ abstract class ScalaTestRunLineMarkerProviderTestBase_Scalatest_3_2
         |
         |object FlatSpecTag extends Tag("MyTag")
         |""".stripMargin,
-      """line 4 (78, 93) Run Test
-        |line 5 (141, 143) Run Test
-        |line 8 (172, 174) Run Test
-        |line 11 (213, 215) Run Test
-        |line 14 (254, 256) Run Test
-        |line 17 (317, 319) Run Test""".stripMargin
+      """ExpectedGutter(4, (78, 93), "Run Test")
+        |ExpectedGutter(5, (141, 143), "Run Test")
+        |ExpectedGutter(8, (172, 174), "Run Test")
+        |ExpectedGutter(11, (213, 215), "Run Test")
+        |ExpectedGutter(14, (254, 256), "Run Test")
+        |ExpectedGutter(17, (317, 319), "Run Test")
+        |""".stripMargin
     )
   }
 
@@ -147,14 +150,15 @@ abstract class ScalaTestRunLineMarkerProviderTestBase_Scalatest_3_2
         |}
         |
         |object FreeSpecTag extends Tag("MyTag")""".stripMargin,
-      """line 4 (78, 93) Run Test
-        |line 6 (138, 139) Run Test
-        |line 7 (161, 162) Run Test
-        |line 9 (187, 188) Run Test
-        |line 14 (235, 236) Run Test
-        |line 15 (258, 259) Run Test
-        |line 17 (284, 285) Run Test
-        |line 21 (345, 347) Run Test""".stripMargin
+      """ExpectedGutter(4, (78, 93), "Run Test")
+        |ExpectedGutter(6, (138, 139), "Run Test")
+        |ExpectedGutter(7, (161, 162), "Run Test")
+        |ExpectedGutter(9, (187, 188), "Run Test")
+        |ExpectedGutter(14, (235, 236), "Run Test")
+        |ExpectedGutter(15, (258, 259), "Run Test")
+        |ExpectedGutter(17, (284, 285), "Run Test")
+        |ExpectedGutter(21, (345, 347), "Run Test")
+        |""".stripMargin
     )
   }
 
@@ -181,13 +185,14 @@ abstract class ScalaTestRunLineMarkerProviderTestBase_Scalatest_3_2
         |  }
         |}
         |""".stripMargin,
-      """line 3 (53, 72) Run Test
-        |line 5 (117, 118) Run Test
-        |line 6 (140, 141) Run Test
-        |line 8 (166, 167) Run Test
-        |line 13 (214, 215) Run Test
-        |line 14 (237, 238) Run Test
-        |line 16 (263, 264) Run Test""".stripMargin
+      """ExpectedGutter(3, (53, 72), "Run Test")
+        |ExpectedGutter(5, (117, 118), "Run Test")
+        |ExpectedGutter(6, (140, 141), "Run Test")
+        |ExpectedGutter(8, (166, 167), "Run Test")
+        |ExpectedGutter(13, (214, 215), "Run Test")
+        |ExpectedGutter(14, (237, 238), "Run Test")
+        |ExpectedGutter(16, (263, 264), "Run Test")
+        |""".stripMargin
     )
   }
 
@@ -225,18 +230,19 @@ abstract class ScalaTestRunLineMarkerProviderTestBase_Scalatest_3_2
         |
         |object FunSpecTag extends Tag("MyTag")
         |""".stripMargin,
-      """line 4 (76, 90) Run Test
-        |line 6 (119, 127) Run Test
-        |line 7 (146, 148) Run Test
-        |line 9 (171, 173) Run Test
-        |line 11 (196, 204) Run Test
-        |line 12 (225, 227) Run Test
-        |line 17 (260, 268) Run Test
-        |line 18 (287, 289) Run Test
-        |line 20 (312, 314) Run Test
-        |line 22 (337, 345) Run Test
-        |line 23 (366, 368) Run Test
-        |line 26 (395, 397) Run Test""".stripMargin
+      """ExpectedGutter(4, (76, 90), "Run Test")
+        |ExpectedGutter(6, (119, 127), "Run Test")
+        |ExpectedGutter(7, (146, 148), "Run Test")
+        |ExpectedGutter(9, (171, 173), "Run Test")
+        |ExpectedGutter(11, (196, 204), "Run Test")
+        |ExpectedGutter(12, (225, 227), "Run Test")
+        |ExpectedGutter(17, (260, 268), "Run Test")
+        |ExpectedGutter(18, (287, 289), "Run Test")
+        |ExpectedGutter(20, (312, 314), "Run Test")
+        |ExpectedGutter(22, (337, 345), "Run Test")
+        |ExpectedGutter(23, (366, 368), "Run Test")
+        |ExpectedGutter(26, (395, 397), "Run Test")
+        |""".stripMargin
     )
   }
 
@@ -257,10 +263,11 @@ abstract class ScalaTestRunLineMarkerProviderTestBase_Scalatest_3_2
         |
         |object FunSuiteTag extends Tag("MyTag")
         |""".stripMargin,
-      """line 4 (78, 93) Run Test
-        |line 5 (122, 126) Run Test
-        |line 8 (146, 150) Run Test
-        |line 11 (170, 174) Run Test""".stripMargin
+      """ExpectedGutter(4, (78, 93), "Run Test")
+        |ExpectedGutter(5, (122, 126), "Run Test")
+        |ExpectedGutter(8, (146, 150), "Run Test")
+        |ExpectedGutter(11, (170, 174), "Run Test")
+        |""".stripMargin
     )
   }
 
@@ -278,9 +285,10 @@ abstract class ScalaTestRunLineMarkerProviderTestBase_Scalatest_3_2
         |}
         |
         |object PropSpecTag extends Tag("MyTag")""".stripMargin,
-      """line 4 (78, 93) Run Test
-        |line 5 (122, 130) Run Test
-        |line 8 (150, 158) Run Test""".stripMargin
+      """ExpectedGutter(4, (78, 93), "Run Test")
+        |ExpectedGutter(5, (122, 130), "Run Test")
+        |ExpectedGutter(8, (150, 158), "Run Test")
+        |""".stripMargin
     )
   }
 
@@ -315,16 +323,17 @@ abstract class ScalaTestRunLineMarkerProviderTestBase_Scalatest_3_2
         |
         |object WordSpecTag extends Tag("MyTag")
         |""".stripMargin,
-      """line 4 (78, 94) Run Test
-        |line 5 (133, 139) Run Test
-        |line 6 (155, 157) Run Test
-        |line 8 (179, 181) Run Test
-        |line 12 (207, 213) Run Test
-        |line 13 (229, 231) Run Test
-        |line 15 (253, 255) Run Test
-        |line 19 (279, 285) Run Test
-        |line 23 (311, 317) Run Test
-        |line 24 (359, 361) Run Test""".stripMargin
+      """ExpectedGutter(4, (78, 94), "Run Test")
+        |ExpectedGutter(5, (133, 139), "Run Test")
+        |ExpectedGutter(6, (155, 157), "Run Test")
+        |ExpectedGutter(8, (179, 181), "Run Test")
+        |ExpectedGutter(12, (207, 213), "Run Test")
+        |ExpectedGutter(13, (229, 231), "Run Test")
+        |ExpectedGutter(15, (253, 255), "Run Test")
+        |ExpectedGutter(19, (279, 285), "Run Test")
+        |ExpectedGutter(23, (311, 317), "Run Test")
+        |ExpectedGutter(24, (359, 361), "Run Test")
+        |""".stripMargin
     )
   }
 }
