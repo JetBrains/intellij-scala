@@ -22,7 +22,12 @@ object Versions {
   val (
     intellijVersion_ForManagedIntellijDependencies,
     intellijRepository_ForManagedIntellijDependencies,
-  ) = detectIntellijArtifactVersionAndRepository(intellijVersion)
+  ) = {
+    // TODO: Return cache redirected repository URLs directly from `sbt-idea-plugin`.
+    val (version, repository) = detectIntellijArtifactVersionAndRepository(intellijVersion)
+    val cacheRedirected = MavenRepository(repository.name, "https://cache-redirector.jetbrains.com/" + repository.root.stripPrefix("https://www.jetbrains.com/"))
+    (version, cacheRedirected)
+  }
 
   private def detectIntellijArtifactVersionAndRepository(intellijVersion: String): (String, MavenRepository) = {
     val locationDescriptor = IntellijVersionUtils.detectArtifactLocation(BuildInfo(intellijVersion, IdeaCommunity), ".zip")
