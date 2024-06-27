@@ -29,6 +29,42 @@ object Versions {
     (version, cacheRedirected)
   }
 
+  val pluginVerifierVersion: String = {
+    println("Fetching pluginVerifier version")
+
+    import org.jetbrains.sbtidea.PluginLogger
+    import scala.util.{Failure, Success, Try}
+    import scala.xml.XML
+
+    val propKey = "SCALA_PLUGIN_VERIFIER_RESOLVED_VERSION"
+
+    val hardcodedVersion = "1.369"
+    val spaceMetadataUrl = "https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/intellij-plugin-verifier/intellij-plugin-verifier/org/jetbrains/intellij/plugins/verifier-cli/maven-metadata.xml"
+
+    Option(System.getProperty(propKey)) match {
+      case Some(version) =>
+        println(s"Using already resolved version $version")
+        version
+      case None =>
+        Try(XML.load(spaceMetadataUrl)) match {
+          case Failure(exception) =>
+            PluginLogger.error(s"failed get latest verifier version: ${exception.getMessage}")
+            hardcodedVersion
+          case Success(value) =>
+            val v = (value \\ "metadata" \ "versioning" \ "latest").text
+            if (v.isEmpty) {
+              PluginLogger.error(s"failed get latest verifier version: falling back to $hardcodedVersion")
+              println(s"failed get latest verifier version: falling back to $hardcodedVersion")
+              hardcodedVersion
+            } else {
+              println(s"Done fetching plugin verifier version: $v")
+              System.setProperty(propKey, v)
+              v
+            }
+        }
+    }
+  }
+
   private def detectIntellijArtifactVersionAndRepository(intellijVersion: String): (String, MavenRepository) = {
     val locationDescriptor = IntellijVersionUtils.detectArtifactLocation(BuildInfo(intellijVersion, IdeaCommunity), ".zip")
     val artifactVersion = locationDescriptor.artifactVersion
