@@ -29,6 +29,7 @@ abstract class InstructionBuilder(factory: DfaValueFactory,
 {
   private val flow = new ControlFlow(factory, context)
   private val trapTracker = new TrapTracker(factory, JavaClassDef.typeConstraintFactory(context))
+  protected val trapTracker = new TrapTracker(factory, JavaClassDef.typeConstraintFactory(context))
   private val stack = new StackManager
   private val labelStacks = mutable.Map.empty[Int, VStack]
 

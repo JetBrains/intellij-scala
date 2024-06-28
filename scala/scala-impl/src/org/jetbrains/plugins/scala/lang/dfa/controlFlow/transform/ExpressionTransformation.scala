@@ -1,15 +1,24 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform
 
+import com.intellij.codeInspection.dataFlow.interpreter.DataFlowInterpreter
+import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.ControlFlowOffset
+import com.intellij.codeInspection.dataFlow.lang.ir.DfaInstructionState
+import com.intellij.codeInspection.dataFlow.memory.DfaMemoryState
 import com.intellij.codeInspection.dataFlow.types.DfTypes
-import com.intellij.psi.{CommonClassNames, PsiMethod}
+import com.intellij.codeInspection.dataFlow.value.DfaControlTransferValue
+import com.intellij.codeInspection.dataFlow.value.DfaControlTransferValue.Trap
+import com.intellij.psi.{CommonClassNames, PsiElement, PsiMethod}
+import com.intellij.util.containers.FList
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaDfaVariableDescriptor, TransformationFailedException}
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{literalToDfType, inferExpressionType}
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{inferExpressionType, literalToDfType}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.util.SAMUtil.isFunctionalExpression
+
+import java.util
 
 trait ExpressionTransformation { this: ScalaDfaControlFlowBuilder =>
   def transformExpression(expr: ScExpression, rreq: ResultReq): rreq.Result = {
@@ -35,6 +44,7 @@ trait ExpressionTransformation { this: ScalaDfaControlFlowBuilder =>
       case someExpression if isUnsupportedImpureExpressionType(someExpression) => buildUnknownCall(rreq)
       case block: ScBlock => transformBlock(block, rreq)
       case parenthesised: ScParenthesisedExpr => transformParenthesisedExpression(parenthesised, rreq)
+      case tryExpression: ScTry => transformTryExpression(tryExpression, rreq)
       case invocation: MethodInvocation => transformInvocation(invocation, rreq)
       case literal: ScLiteral => transformLiteral(literal, rreq)
       case ifExpression: ScIf => transformIfExpression(ifExpression, rreq)
@@ -69,7 +79,7 @@ trait ExpressionTransformation { this: ScalaDfaControlFlowBuilder =>
   }
 
   private def isUnsupportedImpureExpressionType(expression: ScExpression): Boolean = {
-    isFunctionalExpression(expression) || expression.is[ScTry, ScUnderscoreSection, ScGenericCall]
+    isFunctionalExpression(expression) || expression.is[ScUnderscoreSection, ScGenericCall]
   }
 
   private def isReferenceExpressionInvocation(expression: ScReferenceExpression): Boolean = {
@@ -93,6 +103,24 @@ trait ExpressionTransformation { this: ScalaDfaControlFlowBuilder =>
 
   private def transformParenthesisedExpression(parenthesised: ScParenthesisedExpr, rreq: ResultReq): rreq.Result =
     transformExpression(parenthesised.innerElement, rreq)
+
+  // TODO Handle cases and finally, SCL-22813
+  private def transformTryExpression(tryExpression: ScTry, rreq: ResultReq): rreq.Result = {
+    if (tryExpression.catchBlock.isEmpty) {
+      transformExpression(tryExpression.expression, rreq)
+    } else {
+      trapTracker.pushTrap(new GoTo(flow.getEndOffset(tryExpression), tryExpression))
+      val result = transformExpression(tryExpression.expression, rreq)
+      trapTracker.popTrap(classOf[GoTo])
+      result
+    }
+  }
+
+  private class GoTo(offset: ControlFlowOffset, override val getAnchor: PsiElement) extends Trap {
+    override def dispatch(state: DfaMemoryState, interpreter: DataFlowInterpreter,
+                          target: DfaControlTransferValue.TransferTarget, nextTraps: FList[Trap]): util.List[DfaInstructionState] =
+      util.List.of(new DfaInstructionState(interpreter.getInstruction(offset.getInstructionOffset), state))
+  }
 
   def transformLiteral(literal: ScLiteral, rreq: ResultReq): rreq.Result = rreq.result {
     if (literal.is[ScInterpolatedStringLiteral]) {
