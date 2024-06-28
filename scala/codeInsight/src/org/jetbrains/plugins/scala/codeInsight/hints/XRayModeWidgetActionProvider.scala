@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.codeInsight.hints
 
-import com.intellij.icons.{AllIcons, ExpUiIcons}
+import com.intellij.icons.AllIcons
 import com.intellij.ide.HelpTooltip
 import com.intellij.openapi.actionSystem.ex.CustomComponentAction
 import com.intellij.openapi.actionSystem.impl.{ActionButtonWithText, ActionToolbarImpl}
@@ -16,6 +16,7 @@ import com.intellij.ui.JBColor.{`lazy` => LazyJBColor}
 import com.intellij.ui.scale.JBUIScale
 import com.intellij.util.ui.{JBInsets, JBUI, UIUtil}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
+import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 import org.jetbrains.plugins.scala.settings.XRayWidgetMode
 import org.jetbrains.plugins.scala.settings.sections.XRayModeSettingsSectionConfigurable
@@ -99,8 +100,8 @@ class XRayModeWidgetActionProvider extends InspectionWidgetActionProvider {
         if (ScalaHintsSettings.xRayMode) {
           e.getPresentation.setText(ScalaCodeInsightBundle.message("xray.mode.widget.text"))
           e.getPresentation.setIcon(
-            if (ScalaHintsSettings.xRayModePinned) ExpUiIcons.General.Pin
-            else IconLoader.getDisabledIcon(ExpUiIcons.General.Pin))
+            if (ScalaHintsSettings.xRayModePinned) Icons.PIN
+            else IconLoader.getDisabledIcon(Icons.PIN))
         } else {
           e.getPresentation.setText(null: String)
           e.getPresentation.setIcon(IconLoader.getDisabledIcon(AllIcons.Actions.Show))
