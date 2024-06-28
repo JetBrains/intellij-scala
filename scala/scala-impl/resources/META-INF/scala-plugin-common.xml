@@ -1212,6 +1212,13 @@
                          shortName="ScalaUnreachableCode"
                          language="Scala" level="WARNING" editorAttributes="NOT_USED_ELEMENT_ATTRIBUTES"
                          enabledByDefault="true"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.dfa.DfaUnreachableCodeInspection"
+                         bundle="messages.ScalaInspectionBundle"
+                         key="unreachable.code.dfa.name"
+                         groupPath="Scala" groupKey="group.general"
+                         shortName="DfaUnreachableCode"
+                         language="Scala" level="WARNING" editorAttributes="NOT_USED_ELEMENT_ATTRIBUTES"
+                         isInternal="true" enabledByDefault="false"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.controlFlow.ScalaUnusedExpressionInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="unused.expression.name"

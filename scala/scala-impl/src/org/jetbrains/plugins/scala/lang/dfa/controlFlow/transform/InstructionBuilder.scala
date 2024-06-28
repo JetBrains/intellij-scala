@@ -27,8 +27,8 @@ import scala.collection.mutable
 abstract class InstructionBuilder(factory: DfaValueFactory,
                                   context: ScalaPsiElement)
 {
-  private val flow = new ControlFlow(factory, context)
-  private val trapTracker = new TrapTracker(factory, JavaClassDef.typeConstraintFactory(context))
+  protected val flow = new ControlFlow(factory, context)
+  protected val trapTracker = new TrapTracker(factory, JavaClassDef.typeConstraintFactory(context))
   private val stack = new StackManager
   private val labelStacks = mutable.Map.empty[Int, VStack]
 

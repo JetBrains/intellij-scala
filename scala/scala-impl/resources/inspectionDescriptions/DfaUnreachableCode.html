@@ -1,0 +1,21 @@
+<html>
+<body>
+<p>Reports unreachable code (using DFA).</p>
+<p><b>Example:</b></p>
+<pre><code>
+  def test(): Unit = {
+    val x = 1
+    if (x == 1) throw new Exception()
+    println("this will never be reached")
+  }
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+  def test(): Unit = {
+    val x = 1
+    if (x == 1) throw new Exception()
+  }
+</code></pre>
+<!-- tooltip end -->
+</body>
+</html>
