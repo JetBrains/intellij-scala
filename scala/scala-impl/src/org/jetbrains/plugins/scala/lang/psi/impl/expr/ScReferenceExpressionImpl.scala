@@ -4,7 +4,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
-import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.{ScalaBundle, Tracing}
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaModifier, ScalaTokenTypes}
@@ -62,7 +62,11 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       case Some(value) =>
         value.resolveAssignment.toArray
       case None => cachedWithRecursionGuard("multiResolveScala", this, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(this), Tuple1(incomplete)) {
-        new ReferenceExpressionResolver().resolve(this, shapesOnly = false, incomplete)
+        val result = new ReferenceExpressionResolver().resolve(this, shapesOnly = false, incomplete)
+
+        Tracing.resolve(this, result)
+
+        result
       }
     }
   }

@@ -94,7 +94,7 @@ object ScClassAnnotator extends ElementAnnotator[ScClass] {
         val parameters = c.parameters
         parameters match {
           case Seq(param)  =>
-            val ignoreParameter = !param.isPrivateThis && (param.isVal || param.isCaseClassVal)
+            val ignoreParameter = !param.isPrivateThis && param.isValEffectively
             if (!ignoreParameter) {
               holder.createErrorAnnotation(param, ScalaBundle.message("value.class.can.have.only.val.parameter"))
             }

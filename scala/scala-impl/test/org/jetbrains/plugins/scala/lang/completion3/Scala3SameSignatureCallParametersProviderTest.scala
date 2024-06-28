@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.completion3
 import com.intellij.codeInsight.completion.CompletionType
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.plugins.scala.icons.Icons.FIELD_VAL
+import org.jetbrains.plugins.scala.icons.Icons.{FIELD_VAL, VAL}
 import org.jetbrains.plugins.scala.lang.completion3.base.SameSignatureCallParametersProviderTestBase
 
 class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallParametersProviderTestBase {
@@ -684,4 +684,158 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
     icons = PARAMETER, PARAMETER
   )
 
+  /// Universal Apply
+
+  def testUniversalApplyConstructorCall(): Unit = checkLookupElement(
+    fileText =
+      s"""class A(x: Int, y: Int)
+         |
+         |val x: Int = ???
+         |val y: Int = ???
+         |
+         |A($CARET)
+        """.stripMargin,
+    resultText =
+      s"""class A(x: Int, y: Int)
+         |
+         |val x: Int = ???
+         |val y: Int = ???
+         |
+         |A(x, y)$CARET
+        """.stripMargin,
+    item = "x, y",
+    isSuper = false,
+    icons = VAL, VAL
+  )
+
+  def testUniversalApplyConstructorCall2(): Unit = checkLookupElement(
+    fileText =
+      s"""class A(x: Int, y: Int) {
+         |  def this(x: Int, y: Int, z: Int) = this(x, y)
+         |}
+         |
+         |val x: Int = ???
+         |val y: Int = ???
+         |val z: Int = ???
+         |
+         |A($CARET)
+        """.stripMargin,
+    resultText =
+      s"""class A(x: Int, y: Int) {
+         |  def this(x: Int, y: Int, z: Int) = this(x, y)
+         |}
+         |
+         |val x: Int = ???
+         |val y: Int = ???
+         |val z: Int = ???
+         |
+         |A(x, y, z)$CARET
+        """.stripMargin,
+    item = "x, y, z",
+    isSuper = false,
+    icons = VAL, VAL
+  )
+
+  def testUniversalApplyConstructorCall3(): Unit = checkLookupElement(
+    fileText =
+      s"""class A(x: Int, y: Int) {
+         |  def this(x: Int, y: Int, z: Int) = this(x, y)
+         |}
+         |
+         |val x: Int = ???
+         |val y: Int = ???
+         |val z: Int = ???
+         |
+         |A($CARET)
+        """.stripMargin,
+    resultText =
+      s"""class A(x: Int, y: Int) {
+         |  def this(x: Int, y: Int, z: Int) = this(x, y)
+         |}
+         |
+         |val x: Int = ???
+         |val y: Int = ???
+         |val z: Int = ???
+         |
+         |A(x, y)$CARET
+        """.stripMargin,
+    item = "x, y",
+    isSuper = false,
+    icons = VAL, VAL
+  )
+
+  def testUniversalApplyConstructorCall4(): Unit = checkLookupElement(
+    fileText =
+      s"""class A(x: Int, y: Int)
+         |
+         |A($CARET)
+        """.stripMargin,
+    resultText =
+      s"""class A(x: Int, y: Int)
+         |
+         |A(x = ???, y = ???)$CARET
+        """.stripMargin,
+    item = "x, y",
+    isSuper = false,
+    icons = PARAMETER, PARAMETER
+  )
+
+  // should have (x = ???, y = ???) but not (x, y)
+  def testUniversalApplyConstructorCall5(): Unit = checkNoCompletionWithoutTailText(
+    fileText =
+      s"""class A(x: Int, y: Int)
+         |
+         |A($CARET)
+         |""".stripMargin,
+    lookupString = "x, y"
+  )
+
+  def testPositionInUniversalApply(): Unit = checkLookupElement(
+    fileText =
+      s"""class A(x: Int, y: Int, z: Int)
+         |
+         |val y: Int = ???
+         |val z: Int = ???
+         |
+         |A(, $CARET)
+        """.stripMargin,
+    resultText =
+      s"""class A(x: Int, y: Int, z: Int)
+         |
+         |val y: Int = ???
+         |val z: Int = ???
+         |
+         |A(, y, z)$CARET
+        """.stripMargin,
+    item = "y, z",
+    isSuper = false,
+    icons = VAL, VAL
+  )
+
+  def testPositionInUniversalApplyAssignment(): Unit = checkLookupElement(
+    fileText =
+      s"""class A(x: Int, y: Int, z: Int)
+         |
+         |A(, $CARET)
+         |""".stripMargin,
+    resultText =
+      s"""class A(x: Int, y: Int, z: Int)
+         |
+         |A(, y = ???, z = ???)$CARET
+         |""".stripMargin,
+    item = "y, z",
+    isSuper = false,
+    icons = PARAMETER, PARAMETER
+  )
+
+  def testBeforeParenthesisOnlyInUniversalApply(): Unit = checkNoCompletion(
+    fileText =
+      s"""class A(x: Int, y: Int)
+         |
+         |val x: Int = ???
+         |val y: Int = ???
+         |
+         |A($CARET, y)
+        """.stripMargin
+  )
 }

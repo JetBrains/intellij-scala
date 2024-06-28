@@ -28,26 +28,29 @@ object ProjectStructureDsl {
   object javaLanguageLevel       extends Attribute[LanguageLevel]("javaLanguageLevel") with ProjectAttribute with ModuleAttribute
   object javaTargetBytecodeLevel extends Attribute[String]("javaTargetBytecodeLevel")  with ProjectAttribute with ModuleAttribute
   object javacOptions            extends Attribute[Seq[String]]("javacOptions")        with ProjectAttribute with ModuleAttribute
+  object scalacOptions           extends Attribute[Seq[String]]("scalacOptions")       with ProjectAttribute with ModuleAttribute
 
-  // looks like currently package prefix is a project-level feature (?)
+  // TODO looks like it should be a module attribute SCL-22637
   object packagePrefix           extends Attribute[String]("packagePrefix") with ProjectAttribute
 
-  object sbtBuildURI         extends Attribute[URI]("sbtBuildURI")                              with ModuleAttribute
-  object sbtProjectId        extends Attribute[String]("sbtProjectId")                          with ModuleAttribute
-  object contentRoots        extends Attribute[Seq[String]]("contentRoots")                     with ModuleAttribute
-  object sources             extends Attribute[Seq[String]]("sources")                          with ModuleAttribute
-  object testSources         extends Attribute[Seq[String]]("testSources")                      with ModuleAttribute
-  object resources           extends Attribute[Seq[String]]("resources")                        with ModuleAttribute
-  object testResources       extends Attribute[Seq[String]]("testResources")                    with ModuleAttribute
-  object excluded            extends Attribute[Seq[String]]("excluded")                         with ModuleAttribute
-  object moduleDependencies  extends Attribute[Seq[dependency[module]]]("moduleDependencies")   with ModuleAttribute
-  object libraryDependencies extends Attribute[Seq[dependency[library]]]("libraryDependencies") with ModuleAttribute
-  object compileOrder extends Attribute[CompileOrder]("compileOrder") with ModuleAttribute
+  object sbtBuildURI           extends Attribute[URI]("sbtBuildURI")                              with ModuleAttribute
+  object sbtProjectId          extends Attribute[String]("sbtProjectId")                          with ModuleAttribute
+  object contentRoots          extends Attribute[Seq[String]]("contentRoots")                     with ModuleAttribute
+  object sources               extends Attribute[Seq[String]]("sources")                          with ModuleAttribute
+  object testSources           extends Attribute[Seq[String]]("testSources")                      with ModuleAttribute
+  object resources             extends Attribute[Seq[String]]("resources")                        with ModuleAttribute
+  object testResources         extends Attribute[Seq[String]]("testResources")                    with ModuleAttribute
+  object excluded              extends Attribute[Seq[String]]("excluded")                         with ModuleAttribute
+  object moduleDependencies    extends Attribute[Seq[dependency[module]]]("moduleDependencies")   with ModuleAttribute
+  object libraryDependencies   extends Attribute[Seq[dependency[library]]]("libraryDependencies") with ModuleAttribute
+  object compileOrder          extends Attribute[CompileOrder]("compileOrder")                    with ModuleAttribute
+  object compileOutputPath     extends Attribute[String]("compileOutputPath")               with ModuleAttribute
+  object compileTestOutputPath extends Attribute[String]("compileTestOutputPath")           with ModuleAttribute
 
   object libClasses       extends Attribute[Seq[String]]("libraryClasses")                         with LibraryAttribute
   object libSources       extends Attribute[Seq[String]]("librarySources")                         with LibraryAttribute
   object libJavadocs      extends Attribute[Seq[String]]("libraryJavadocs")                        with LibraryAttribute
-  object scalaSdkSettings extends Attribute[Option[ScalaSdkAttributes]]("scalaSdkSettings") with LibraryAttribute
+  object scalaSdkSettings extends Attribute[Option[ScalaSdkAttributes]]("scalaSdkSettings")        with LibraryAttribute
 
   case class ScalaSdkAttributes(languageLevel: ScalaLanguageLevel, classpath: Option[Seq[String]], extraClasspath: Option[Seq[String]])
   object ScalaSdkAttributes {

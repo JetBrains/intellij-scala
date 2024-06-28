@@ -5,6 +5,15 @@ import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaDfaTestBase
 
 class TypeBalancingAndConversionsDfaTest extends ScalaDfaTestBase {
 
+  def testLiteralTypeWidening(): Unit =  test(codeFromMethodBody(returnType = "Boolean") {
+    """
+      |val x = "1"
+      |x == "1"
+      |""".stripMargin
+  })(
+    "x == \"1\"" -> ConditionAlwaysTrue,
+  )
+
   def testImplicitConversionsInBinaryOperators(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
     """
       |1 + 2L == 3L

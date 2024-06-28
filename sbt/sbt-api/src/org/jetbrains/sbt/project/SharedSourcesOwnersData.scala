@@ -18,7 +18,7 @@ case class SharedSourcesOwnersData @PropertyMapping(Array("ownerModuleIds"))(
 ) extends AbstractExternalEntityData(SbtProjectSystem.Id) with Product
 
 object SharedSourcesOwnersData {
-  val Key: Key[SharedSourcesOwnersData] = new Key(classOf[SharedSourcesOwnersData].getName,  ProjectKeys.MODULE.getProcessingWeight + 2)
+  val Key: Key[SharedSourcesOwnersData] = new Key(classOf[SharedSourcesOwnersData].getName,  ProjectKeys.MODULE.getProcessingWeight + 3)
 
   def apply(owners: Seq[String]): SharedSourcesOwnersData =
     SharedSourcesOwnersData(owners.toJavaList)

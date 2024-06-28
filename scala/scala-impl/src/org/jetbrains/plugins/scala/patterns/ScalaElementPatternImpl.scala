@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.patterns
 
-import com.intellij.patterns.ElementPattern
+import com.intellij.patterns.{ElementPattern, PsiMethodPattern}
 import com.intellij.psi.{PsiElement, PsiMethod}
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScMethodCall, ScPostfixExpr, ScReferenceExpression}
 
 private[scala]
@@ -27,26 +27,75 @@ object ScalaElementPatternImpl {
   ): Boolean = {
     host.getParent match {
       case argsList: ScArgumentExprList =>
-        val args = argsList.exprs
-        val hostIsAnArgument = index < args.length && (args(index) eq host)
-        if (!hostIsAnArgument)
+        if (!hostIsTheArgument(host, index, argsList))
           return false
 
         argsList.getParent match {
           case call: ScMethodCall =>
             call.getEffectiveInvokedExpr match {
               case ref: ScReference =>
-                for (result <- ref.multiResolveScala(false)) {
-                  if (methodPattern.accepts(result.getElement, context))
-                    return true
-                }
+                return resolvesAndMatchesPattern(ref, methodPattern, context)
               case _ =>
             }
           case _ =>
         }
       case _ =>
     }
+
     false
+  }
+
+  //TODO: handle Scala 3 universal apply call
+  def isConstructorCallArgument[T <: ScalaPsiElement](
+    host: T,
+    context: ProcessingContext,
+    index: Int,
+    constrPattern: PsiMethodPattern,
+    isScala3: Boolean
+  ): Boolean = {
+    host.getParent match {
+      case argsList: ScArgumentExprList =>
+        argsList.getParent match {
+          case call: ScConstructorInvocation =>
+            //check arguments only after we checked for parent for performance optimization
+            //(tree structure check is cheaper)
+            if (!hostIsTheArgument(host, index, argsList))
+              return false
+
+            call.reference match {
+              case Some(ref) =>
+                return resolvesAndMatchesPattern(ref, constrPattern, context)
+              case None =>
+            }
+          case call: ScMethodCall if isScala3 => //handle universal apply
+            call.getEffectiveInvokedExpr match {
+              case ref: ScReference =>
+                return resolvesAndMatchesPattern(ref, constrPattern, context)
+              case _ =>
+            }
+          case _ =>
+        }
+      case _ =>
+    }
+
+    false
+  }
+
+  private def hostIsTheArgument[T <: ScalaPsiElement](host: T, index: Int, argsList: ScArgumentExprList) = {
+    val args = argsList.exprs
+    val hostIsTheArgument = index < args.length && (args(index) eq host)
+    hostIsTheArgument
+  }
+
+  private def resolvesAndMatchesPattern(
+    ref: ScReference,
+    methodPattern: ElementPattern[_ <: PsiMethod],
+    context: ProcessingContext,
+  ): Boolean = {
+    val resolveResults = ref.multiResolveScala(false)
+    //using "find" instead of "exists" for easier debugging
+    val result = resolveResults.find(r => methodPattern.accepts(r.getElement, context))
+    result.nonEmpty
   }
 
   //TODO: support infix expressions

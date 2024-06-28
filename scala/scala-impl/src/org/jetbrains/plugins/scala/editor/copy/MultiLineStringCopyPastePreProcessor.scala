@@ -16,6 +16,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
+/**
+ * @see [[StringLiteralCopyPastePreProcessor]]
+ */
 class MultiLineStringCopyPastePreProcessor extends CopyPastePreProcessor {
 
   override def preprocessOnCopy(file: PsiFile,

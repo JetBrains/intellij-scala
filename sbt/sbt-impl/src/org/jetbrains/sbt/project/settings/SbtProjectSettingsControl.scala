@@ -6,6 +6,7 @@ import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMo
 import com.intellij.openapi.externalSystem.service.settings.AbstractExternalProjectSettingsControl
 import com.intellij.openapi.externalSystem.util.ExternalSystemUiUtil._
 import com.intellij.openapi.externalSystem.util.{ExternalSystemUtil, PaintAwarePanel}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, SdkTypeId}
 import com.intellij.openapi.roots.ui.configuration.JdkComboBox
 import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel
@@ -13,7 +14,7 @@ import com.intellij.openapi.util.Condition
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.util.messages.Topic
 import com.intellij.util.ui.{GridBag, JBUI}
-import org.jetbrains.annotations.NotNull
+import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.project.external.SdkUtils
 import org.jetbrains.sbt.project.SbtProjectSystem
 
@@ -78,7 +79,8 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
       extraControls.remoteDebugSbtShellCheckBox.isSelected != settings.enableDebugSbtShell ||
       extraControls.scalaVersionPreferenceCheckBox.isSelected != settings.preferScala2 ||
       extraControls.insertProjectTransitiveDependencies.isSelected != settings.insertProjectTransitiveDependencies ||
-      extraControls.useSeparateCompilerOutputPaths.isSelected != settings.useSeparateCompilerOutputPaths
+      extraControls.useSeparateCompilerOutputPaths.isSelected != settings.useSeparateCompilerOutputPaths ||
+      extraControls.separateProdTestModules.isSelected != settings.separateProdAndTestSources
   }
 
   override protected def resetExtraSettings(isDefaultModuleCreation: Boolean): Unit = {
@@ -100,19 +102,16 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     extraControls.scalaVersionPreferenceCheckBox.setSelected(settings.preferScala2)
     extraControls.insertProjectTransitiveDependencies.setSelected(settings.insertProjectTransitiveDependencies)
     extraControls.useSeparateCompilerOutputPaths.setSelected(settings.useSeparateCompilerOutputPaths)
+    extraControls.separateProdTestModules.setSelected(settings.separateProdAndTestSources)
+    extraControls.refreshCheckboxesConstraints()
     extraControls.refreshOutputPathsWarning()
   }
 
   override def updateInitialExtraSettings(): Unit = {
     val settings = getInitialSettings
-    val shouldReloadProject =
-      settings.useSeparateCompilerOutputPaths != extraControls.useSeparateCompilerOutputPaths.isSelected
+    val shouldReload = shouldReloadProject(settings)
     applyExtraSettings(settings)
-    val project = getProject
-    if (shouldReloadProject && project != null) {
-      val builder = new ImportSpecBuilder(project, SbtProjectSystem.Id).use(ProgressExecutionMode.IN_BACKGROUND_ASYNC)
-      ExternalSystemUtil.refreshProjects(builder)
-    }
+    reloadProjectIfNeeded(shouldReload, getProject)
   }
 
   override protected def applyExtraSettings(settings: SbtProjectSettings): Unit = {
@@ -124,6 +123,11 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     settings.enableDebugSbtShell = extraControls.remoteDebugSbtShellCheckBox.isSelected
     settings.preferScala2 = extraControls.scalaVersionPreferenceCheckBox.isSelected
     settings.insertProjectTransitiveDependencies = extraControls.insertProjectTransitiveDependencies.isSelected
+    settings.separateProdAndTestSources = extraControls.separateProdTestModules.isSelected
+    settings.useSeparateCompilerOutputPaths = extraControls.useSeparateCompilerOutputPaths.isSelected
+
+    val shouldReload = shouldReloadProject(settings)
+
     settings.useSeparateCompilerOutputPaths = extraControls.useSeparateCompilerOutputPaths.isSelected
 
     val useSbtShellForBuildSettingChanged =
@@ -140,14 +144,26 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
         project.getMessageBus.syncPublisher(SbtProjectSettingsControl.CompilerModeChangeTopic).onCompilerModeChange(newMode)
       }
     }
+
+    reloadProjectIfNeeded(shouldReload, project)
   }
 
   private def selectedJdkName = Option(jdkComboBox.getSelectedJdk).map(_.getName)
+
+  private def shouldReloadProject(settings: SbtProjectSettings): Boolean =
+    settings.useSeparateCompilerOutputPaths != extraControls.useSeparateCompilerOutputPaths.isSelected ||
+      settings.separateProdAndTestSources != extraControls.separateProdTestModules.isSelected
 
   private def fillLineAndColumnConstraints(indentLevel: Int): GridBag = {
     val insets = JBUI.insets(INSETS, INSETS + INSETS * indentLevel, 0, INSETS)
     new GridBag().weightx(1).coverLine().coverColumn().fillCell().anchor(GridBagConstraints.WEST).insets(insets)
   }
+
+  private def reloadProjectIfNeeded(shouldReload: Boolean, @Nullable project: Project): Unit =
+    if (shouldReload && project != null) {
+      val builder = new ImportSpecBuilder(project, SbtProjectSystem.Id).use(ProgressExecutionMode.IN_BACKGROUND_ASYNC)
+      ExternalSystemUtil.refreshProjects(builder)
+    }
 
   override def validate(sbtProjectSettings: SbtProjectSettings): Boolean = selectedJdkName.isDefined
 }

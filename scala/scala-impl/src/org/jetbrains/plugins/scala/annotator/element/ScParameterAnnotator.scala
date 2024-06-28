@@ -62,7 +62,7 @@ object ScParameterAnnotator extends ElementAnnotator[ScParameter] {
     element match {
       case cp: ScClassParameter if cp.isVal => errorWithMessageAbout("""'val'""")
       case cp: ScClassParameter if cp.isVar => errorWithMessageAbout("""'var'""")
-      case cp: ScClassParameter if cp.isCaseClassVal => errorWithMessageAbout("case class")
+      case cp: ScClassParameter if cp.isCaseClassPrimaryParameter => errorWithMessageAbout("case class")
       case p if p.isImplicitParameter && p.scalaLanguageLevel.forall(_ < ScalaLanguageLevel.Scala_2_13) =>
         errorWithMessageAbout("implicit")
       case _ =>

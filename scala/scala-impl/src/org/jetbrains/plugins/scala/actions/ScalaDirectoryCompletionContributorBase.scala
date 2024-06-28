@@ -14,8 +14,9 @@ import org.jetbrains.jps.model.java.{JavaResourceRootType, JavaSourceRootType}
 import org.jetbrains.jps.model.module.JpsModuleSourceRootType
 import org.jetbrains.plugins.scala.actions.ScalaDirectoryCompletionContributorBase.getModuleContentRootsData
 import org.jetbrains.plugins.scala.util.ExternalSystemUtil
+import org.jetbrains.sbt.Sbt.SbtModuleChildKeyInstance
 import org.jetbrains.sbt.project.SbtProjectSystem
-import org.jetbrains.sbt.project.module.SbtNestedModuleData
+import org.jetbrains.sbt.project.module.SbtSourceSetData
 
 import java.util
 import java.util.Collections.emptyList
@@ -69,8 +70,9 @@ object ScalaDirectoryCompletionContributorBase {
   private def getModuleContentRootsData(module: Module, projectSystemId: ProjectSystemId): Seq[ContentRootData] =
      findModuleData(module, projectSystemId) match {
       case Some(moduleData) =>
-        val contentRoots = ExternalSystemApiUtil.findAll(moduleData, ProjectKeys.CONTENT_ROOT)
-        contentRoots.asScala.map(_.getData).toSeq
+        val sbtSourcesSetData = ExternalSystemApiUtil.findAll(moduleData, SbtSourceSetData.Key).asScala.toSeq
+        val contentRoots = (sbtSourcesSetData :+ moduleData).flatMap(ExternalSystemApiUtil.findAll(_, ProjectKeys.CONTENT_ROOT).asScala)
+        contentRoots.map(_.getData)
       case None =>
         Nil
     }
@@ -110,9 +112,10 @@ object ScalaDirectoryCompletionContributorBase {
   private def getModuleDataBasedOnProjectSystemId(projectSystemId: ProjectSystemId, module: Module): Option[DataNode[_ <: ModuleData]]  = {
     val project = module.getProject
     val moduleId = ExternalSystemApiUtil.getExternalProjectId(module)
+    if (moduleId == null) return None
     val rootProjectPath = Option(ExternalSystemApiUtil.getExternalRootProjectPath(module))
     if (projectSystemId == SbtProjectSystem.Id) {
-      ExternalSystemUtil.getModuleDataNode(projectSystemId, project, moduleId, rootProjectPath, Some(SbtNestedModuleData.Key))
+      ExternalSystemUtil.getModuleDataNode(projectSystemId, project, moduleId, rootProjectPath, Some(SbtModuleChildKeyInstance))
     } else {
       ExternalSystemUtil.getModuleDataNode(projectSystemId, project, moduleId, rootProjectPath, None)
     }

@@ -37,6 +37,10 @@ public class ScalaElementPattern<T extends ScalaPsiElement, Self extends ScalaEl
     });
   }
 
+    public Self constructorCallArgument(final String className, final int index, final String... parameterTypes) {
+        return with(new ConstructorCallArgumentPattern(className, index, parameterTypes));
+    }
+
   public static class Capture<T extends ScLiteral> extends ScalaElementPattern<T, Capture<T>> {
     public Capture(final Class<T> aClass) {
       super(aClass);

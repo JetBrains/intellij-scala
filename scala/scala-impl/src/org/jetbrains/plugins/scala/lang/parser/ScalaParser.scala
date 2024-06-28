@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.parser
 
 import com.intellij.lang.{ASTNode, LightPsiParser, PsiBuilder, PsiParser}
 import com.intellij.psi.tree.IElementType
+import org.jetbrains.plugins.scala.Tracing
 
 class ScalaParser(isScala3: Boolean) extends PsiParser with LightPsiParser {
 
@@ -24,6 +25,8 @@ class ScalaParser(isScala3: Boolean) extends PsiParser with LightPsiParser {
         CompilationUnit()
         rootMarker.done(rootElementType)
     }
+
+    Tracing.parser(builder)
   }
 
   override def parse(rootElementType: IElementType, delegate: PsiBuilder): ASTNode = {

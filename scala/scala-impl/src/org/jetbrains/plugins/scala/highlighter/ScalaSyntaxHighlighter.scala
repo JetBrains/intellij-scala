@@ -6,6 +6,7 @@ import com.intellij.openapi.fileTypes.{SyntaxHighlighter, SyntaxHighlighterBase}
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.xml.XmlTokenType
 import com.intellij.psi.{StringEscapesTokenTypes, TokenType}
+import org.jetbrains.plugins.scala.Tracing
 import org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter.CustomScalaLexer
 import org.jetbrains.plugins.scala.highlighter.lexer.{ScalaInterpolatedStringLiteralLexer, ScalaMultilineStringLiteralLexer, ScalaStringLiteralLexer}
 import org.jetbrains.plugins.scala.lang.TokenSets.TokenSetExt
@@ -372,6 +373,8 @@ object ScalaSyntaxHighlighter {
     private var nameIndex = 0
 
     override def start(buffer: CharSequence, startOffset: Int, endOffset: Int, initialState: Int): Unit = {
+      Tracing.highlightingLexerStart(buffer, startOffset, endOffset, initialState)
+
       super.start(buffer, startOffset, endOffset, initialState) // TODO is it correct???
 
       // TODO State class

@@ -702,7 +702,7 @@ package object extensions {
 
     def elementAt(offset: Int): Option[PsiElement] = Option(element.findElementAt(offset))
 
-    def isAncestorOf(otherElement: PsiElement): Boolean = isAncestorOf(otherElement, true)
+    def isAncestorOf(otherElement: PsiElement): Boolean = isAncestorOf(otherElement, strict = true)
     def isAncestorOf(otherElement: PsiElement, strict: Boolean): Boolean = PsiTreeUtil.isAncestor(element, otherElement, strict)
 
     def parents: Iterator[PsiElement] = new ParentsIterator(element)
@@ -1167,7 +1167,7 @@ package object extensions {
             processName(toProcess.getName)
           }
         case t: ScTypedDefinition if t.isVal || t.isVar ||
-          (t.is[ScClassParameter] && t.asInstanceOf[ScClassParameter].isCaseClassVal) =>
+          (t.is[ScClassParameter] && t.asInstanceOf[ScClassParameter].isCaseClassPrimaryParameter) =>
           PsiTypedDefinitionWrapper.processWrappersFor(
             t,
             concreteClassFor(t),
@@ -1837,7 +1837,9 @@ package object extensions {
 
     def isAncestorOf(aFile: File): Boolean = FileUtil.isAncestor(file, aFile, true)
 
-    def isUnder(root: File): Boolean = FileUtil.isAncestor(root, file, true)
+    def isUnder(root: File): Boolean = isUnder(root, strict = true)
+
+    def isUnder(root: File, strict: Boolean): Boolean = FileUtil.isAncestor(root, file, strict)
 
     def isIn(root: File): Boolean = file.getParentFile == root
 

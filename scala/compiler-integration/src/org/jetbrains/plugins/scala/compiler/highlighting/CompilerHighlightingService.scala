@@ -32,7 +32,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
-import org.jetbrains.plugins.scala.util.CompilationId
+import org.jetbrains.plugins.scala.util.DocumentVersion
 
 import java.io.EOFException
 import java.util.concurrent.atomic.{AtomicBoolean, AtomicReference}
@@ -198,7 +198,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     }
 
     prepareCompilation(await = true) {
-      performCompilation(delayIndicator = true, refreshVfs = false) { client =>
+      performCompilation(Some(request.documentVersion), delayIndicator = true, refreshVfs = false) { client =>
         WorksheetHighlightingCompiler.compile(file, document, module, client)
       }
     }
@@ -215,7 +215,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
           else {
             TriggerCompilerHighlightingService.get(project).beforeIncrementalCompilation()
             // Perform the rest of the execution of this incremental compilation on a background thread.
-            performCompilation(delayIndicator = false, refreshVfs = true) { client =>
+            performCompilation(Some(request.documentVersion), delayIndicator = false, refreshVfs = true) { client =>
               if (BspUtil.isBspProject(project)) {
                 doBspIncrementalCompilation(request, client, runDocumentCompiler)
               } else {
@@ -239,7 +239,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     val representativeModule = module.findRepresentativeModuleForSharedSourceModuleOrSelf
     val task = ProjectTaskManager.getInstance(project)
       .createModulesBuildTask(Array(representativeModule), true, true, false, sourceScope == SourceScope.Test)
-    val reporter = new CompilerEventReporter(project, CompilationId.generate())
+    val reporter = new CompilerEventReporter(project, client.compilationId)
     val arguments = CustomTaskArguments(
       CompilerIntegrationBundle.message("highlighting.compilation"),
       reporter
@@ -274,7 +274,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
   private def executeDocumentCompilationRequest(request: CompilationRequest.DocumentRequest): Unit = {
     val CompilationRequest.DocumentRequest(module, sourceScope, virtualFile, document, debugReason) = request
     debug(s"documentCompilation: $debugReason")
-    executeDocumentCompilationRequest(module, sourceScope, virtualFile, document, await = true)
+    executeDocumentCompilationRequest(module, sourceScope, virtualFile, document, Some(request.documentVersion), await = true)
   }
 
   private def executeDocumentCompilationRequest(
@@ -282,10 +282,11 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     sourceScope: SourceScope,
     virtualFile: VirtualFile,
     document: Document,
+    version: Option[DocumentVersion],
     await: Boolean
   ): Unit = {
     prepareCompilation(await) {
-      performCompilation(delayIndicator = true, refreshVfs = false) { client =>
+      performCompilation(version, delayIndicator = true, refreshVfs = false) { client =>
         DocumentCompiler.get(project)
           .compile(module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, document, virtualFile, client)
       }
@@ -319,7 +320,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
         case Some(c) =>
           DocumentCompiler.get(project).compile(module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, document, virtualFile, c)
         case None =>
-          executeDocumentCompilationRequest(module, sourceScope, virtualFile, document, await = false)
+          executeDocumentCompilationRequest(module, sourceScope, virtualFile, document, None, await = false)
       }
     }
   }
@@ -343,7 +344,8 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     }
   }
 
-  private def performCompilation(delayIndicator: Boolean, refreshVfs: Boolean)(compile: CompilerEventGeneratingClient => Unit): Future[Unit] = {
+  private def performCompilation(documentVersion: Option[DocumentVersion], delayIndicator: Boolean, refreshVfs: Boolean)
+                                (compile: CompilerEventGeneratingClient => Unit): Future[Unit] = {
     val promise = Promise[Unit]()
     val taskMsg = CompilerIntegrationBundle.message("highlighting.compilation")
 
@@ -353,7 +355,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
 
         try {
           progressIndicator.set(indicator)
-          val client = new CompilerEventGeneratingClient(project, indicator, Log, refreshVfs)
+          val client = new CompilerEventGeneratingClient(project, indicator, Log, refreshVfs, documentVersion)
           CompilerLockService.instance(project).withCompilerLock(indicator) {
             compile(client)
           }
@@ -389,7 +391,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
   }
 
   private def isReadyForExecution(request: CompilationRequest): RequestState = {
-    if (!request.virtualFile.isValid) {
+    if (!request.virtualFile.isValid || request.documentVersion.version != DocumentUtil.version(request.document)) {
       RequestState.Expired
     } else if (request.remaining < Duration.Zero) {
       if (DumbService.isDumb(project)) return RequestState.NotReady

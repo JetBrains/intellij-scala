@@ -2,13 +2,12 @@ package org.jetbrains.plugins.scala.compiler.highlighting
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.codeInsight.intention.IntentionAction
-import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
-import org.jetbrains.plugins.scala.extensions.{inReadAction, inWriteCommandAction, invokeAndWait}
+import org.jetbrains.plugins.scala.extensions.{inReadAction, inWriteCommandAction}
 import org.jetbrains.plugins.scala.project.VirtualFileExt
 import org.jetbrains.plugins.scala.util.CompilerTestUtil.runWithErrorsFromCompiler
 import org.junit.Assert.assertEquals
 
-abstract class CompilerDiagnosticsTestBase extends ScalaCompilerHighlightingTestBase {
+trait CompilerDiagnosticsTestBase { self: ScalaCompilerHighlightingTestBase =>
 
   protected def runCompilerDiagnosticsTest(
     fileName: String,
@@ -18,13 +17,7 @@ abstract class CompilerDiagnosticsTestBase extends ScalaCompilerHighlightingTest
   ): Unit = runWithErrorsFromCompiler(getProject) {
     val virtualFile = addFileToProjectSources(fileName, content)
 
-    invokeAndWait {
-      val descriptor = new OpenFileDescriptor(getProject, virtualFile)
-      val editor = FileEditorManager.getInstance(getProject).openTextEditor(descriptor, true)
-      // The tests are running in a headless environment where focus events are not propagated.
-      // We need to call our listener manually.
-      new CompilerHighlightingEditorFocusListener(editor).focusGained()
-    }
+    waitUntilFileIsHighlighted(virtualFile)
 
     doAssertion(virtualFile, expectedResult)
 

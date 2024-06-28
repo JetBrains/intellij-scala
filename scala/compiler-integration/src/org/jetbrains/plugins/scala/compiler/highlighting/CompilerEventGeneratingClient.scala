@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.incremental.scala.{Client, DummyClient, MessageKind}
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener, CompilerIntegrationBundle}
-import org.jetbrains.plugins.scala.util.CompilationId
+import org.jetbrains.plugins.scala.util.{CompilationId, DocumentVersion}
 
 import java.io.File
 
@@ -14,10 +14,11 @@ private class CompilerEventGeneratingClient(
   project: Project,
   indicator: ProgressIndicator,
   log: Logger,
-  refreshVfs: Boolean
+  refreshVfs: Boolean,
+  documentVersion: Option[DocumentVersion]
 ) extends DummyClient {
 
-  final val compilationId = CompilationId.generate()
+  final val compilationId = CompilationId(timestamp = System.nanoTime(), documentVersion = documentVersion)
 
   private var hasErrors: Boolean = false
 

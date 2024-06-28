@@ -15,11 +15,20 @@ import org.jetbrains.sbtidea.PluginJars
 
 (ThisBuild / intellijPlatform) := (Global / intellijPlatform).??(IntelliJPlatform.IdeaCommunity).value
 
-(ThisBuild / resolvers) ++=
-  Resolver.sonatypeOssRepos("releases") ++
-    Resolver.sonatypeOssRepos("staging") ++
-    Resolver.sonatypeOssRepos("snapshots") :+
-    ("scala-integration" at "https://scala-ci.typesafe.com/artifactory/scala-integration/")
+ThisBuild / resolvers ++= {
+//  not exactly sure why "releases" and "staging" would ever need to be enabled
+//  Resolver.sonatypeOssRepos("releases") ++
+//  Resolver.sonatypeOssRepos("staging") ++
+//  enable if you need to resolve SNAPSHOT versions of open source libraries
+//  Resolver.sonatypeOssRepos("snapshots") ++
+//  enable if you need to resolve Scala 2.12, 2.13 RC versions
+//  Seq(
+//    "scala-integration" at "https://scala-ci.typesafe.com/artifactory/scala-integration/"
+//  ) ++
+  Seq(
+    "JetBrains Maven Central" at "https://cache-redirector.jetbrains.com/maven-central"
+  )
+}
 
 ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
 
@@ -175,6 +184,7 @@ lazy val worksheetReplInterface =
       intellijTestJars := Seq.empty,
       intellijPlugins := Seq.empty
     )
+    .settings(fixedPluginVerifierOptions)
 
 lazy val worksheetReplInterfaceImpls: Project =
   newProject("worksheet-repl-interface-impls", file("scala/worksheet-repl-interface-impls"))
@@ -317,6 +327,7 @@ lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
       Dependencies.junitInterface % Test,
     )
   )
+  .settings(fixedPluginVerifierOptions)
 
 lazy val packageSearchClient: sbt.Project =
   newProjectWithKotlin("package-search-client", file("scala/package-search-client"))
@@ -339,6 +350,7 @@ lazy val scalacPatches: sbt.Project =
       intellijMainJars := Nil,
       intellijTestJars := Nil
     )
+    .settings(fixedPluginVerifierOptions)
 
 lazy val scalaImpl: sbt.Project =
   newProject("scala-impl", file("scala/scala-impl"))
@@ -582,6 +594,7 @@ lazy val scalatestFinders = Project("scalatest-finders", scalatestFindersRootDir
     intellijMainJars := Nil,
     intellijTestJars := Nil,
   )
+  .settings(fixedPluginVerifierOptions)
 
 lazy val scalatestFindersTestSettings = Seq(
   scalacOptions := Seq("-deprecation")
@@ -601,6 +614,7 @@ lazy val scalatestFindersTests_2 = Project("scalatest-finders-tests-2", scalates
     intellijMainJars := Nil,
     intellijTestJars := Nil
   )
+  .settings(fixedPluginVerifierOptions)
 
 lazy val scalatestFindersTests_3_0 = Project("scalatest-finders-tests-3_0", scalatestFindersRootDir / "tests-3_0")
   .dependsOn(scalatestFinders)
@@ -613,6 +627,7 @@ lazy val scalatestFindersTests_3_0 = Project("scalatest-finders-tests-3_0", scal
     intellijMainJars := Nil,
     intellijTestJars := Nil,
   )
+  .settings(fixedPluginVerifierOptions)
 
 lazy val scalatestFindersTests_3_2 = Project("scalatest-finders-tests-3_2", scalatestFindersRootDir / "tests-3_2")
   .dependsOn(scalatestFinders)
@@ -625,6 +640,7 @@ lazy val scalatestFindersTests_3_2 = Project("scalatest-finders-tests-3_2", scal
     intellijMainJars := Nil,
     intellijTestJars := Nil,
   )
+  .settings(fixedPluginVerifierOptions)
 
 lazy val nailgunRunners =
   newProject("nailgun", file("scala/nailgun"))
@@ -848,6 +864,7 @@ lazy val runtimeDependencies = project.in(file("target/tools/runtime-dependencie
       }
     }
   )
+  .settings(fixedPluginVerifierOptions)
 
 //lazy val jmhBenchmarks =
 //  newProject("benchmarks", file("scala/benchmarks"))

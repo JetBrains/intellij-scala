@@ -4,7 +4,7 @@ import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.ScalaVersion
 
-class CompilerDiagnosticsTest_2_13 extends CompilerDiagnosticsTestBase {
+class CompilerDiagnosticsTest_2_13 extends ScalaCompilerHighlightingTestBase with CompilerDiagnosticsTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 
   def testImplicitDefinitionNeedsExplicitType(): Unit = {

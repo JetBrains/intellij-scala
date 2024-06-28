@@ -263,7 +263,7 @@ object AmmoniteUtil {
       if (p.nonEmpty) {
         val prefix = if (p.contains("_")) {
           p.split('_') match {
-            case Array(prefix, suffix@("2.10" | "2.11" | "2.12")) =>
+            case Array(prefix, suffix@("2.10" | "2.11" | "2.12" | "2.13")) =>
               scalaVersion = Option(suffix)
               prefix
             case _ => p

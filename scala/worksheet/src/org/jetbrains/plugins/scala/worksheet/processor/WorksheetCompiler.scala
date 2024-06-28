@@ -474,6 +474,19 @@ object WorksheetCompiler {
         val fixedLine = (posInfo.line - WorksheetWrapper.headerLinesCount).max(0)
         posInfo.copy(line = fixedLine)
       }
+
+      import org.jetbrains.plugins.scala.compiler.diagnostics.Action
+      def fixDiagnostics(actions: List[Action]): List[Action] =
+        actions.map { action =>
+          val textEdits = action.edit.changes.map { edit =>
+            edit.copy(
+              start = fixPosInfo(edit.start),
+              end = fixPosInfo(edit.end)
+            )
+          }
+          action.copy(edit = action.edit.copy(textEdits))
+        }
+
       msg.copy(
         source = msg.source.map(_ => originalFile),
         text = msg.text
@@ -483,7 +496,8 @@ object WorksheetCompiler {
           .trim,
         pointer = msg.pointer.map(fixPosInfo),
         problemStart = msg.problemStart.map(fixPosInfo),
-        problemEnd = msg.problemEnd.map(fixPosInfo)
+        problemEnd = msg.problemEnd.map(fixPosInfo),
+        diagnostics = fixDiagnostics(msg.diagnostics)
       )
     }
 

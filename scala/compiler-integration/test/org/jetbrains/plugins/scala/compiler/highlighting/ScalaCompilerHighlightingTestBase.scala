@@ -56,11 +56,18 @@ abstract class ScalaCompilerHighlightingTestBase
 
   type ExpectedResult = Matcher[Seq[HighlightInfo]]
 
+  protected def waitUntilFileIsHighlighted(virtualFile: VirtualFile): Unit = invokeAndWait {
+    val descriptor = new OpenFileDescriptor(getProject, virtualFile)
+    val editor = FileEditorManager.getInstance(getProject).openTextEditor(descriptor, true)
+    // The tests are running in a headless environment where focus events are not propagated.
+    // We need to call our listener manually.
+    new CompilerHighlightingEditorFocusListener(editor).focusGained()
+  }
+
   protected def runTestCase(
     fileName: String,
     content: String,
     expectedResult: ExpectedResult,
-    waitUntilFileIsHighlighted: VirtualFile => Unit
   ): Unit = runWithErrorsFromCompiler(getProject) {
     val virtualFile = addFileToProjectSources(fileName, content)
     waitUntilFileIsHighlighted(virtualFile)
@@ -92,21 +99,6 @@ abstract class ScalaCompilerHighlightingTestBase
     myEditor = EditorFactory.getInstance().getEditors(document).head
     myPsiFile = PsiDocumentManager.getInstance(getProject).getPsiFile(document)
     DaemonCodeAnalyzerImpl.getHighlights(document, null, getProject).asScala.toSeq
-  }
-
-  protected def runTestCase(fileName: String,
-                            content: String,
-                            expectedResult: ExpectedResult): Unit = runWithErrorsFromCompiler(getProject) {
-    val waitUntilFileIsHighlighted: VirtualFile => Unit = virtualFile => {
-      invokeAndWait {
-        val descriptor = new OpenFileDescriptor(getProject, virtualFile)
-        val editor = FileEditorManager.getInstance(getProject).openTextEditor(descriptor, true)
-        // The tests are running in a headless environment where focus events are not propagated.
-        // We need to call our listener manually.
-        new CompilerHighlightingEditorFocusListener(editor).focusGained()
-      }
-    }
-    runTestCase(fileName, content, expectedResult, waitUntilFileIsHighlighted)
   }
 
   protected case class ExpectedHighlighting(severity: HighlightSeverity,

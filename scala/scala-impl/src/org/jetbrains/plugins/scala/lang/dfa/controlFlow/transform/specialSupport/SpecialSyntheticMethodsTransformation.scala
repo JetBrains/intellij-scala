@@ -46,8 +46,8 @@ trait SpecialSyntheticMethodsTransformation { this: ScalaDfaControlFlowBuilder =
                                          forceEqualityByContent: Boolean): (StackValue, StackValue, Boolean) = {
     val leftExpression = leftArg.content
     val rightExpression = rightArg.content
-    val leftType = leftExpression.map(resolveExpressionType)
-    val rightType = rightExpression.map(resolveExpressionType)
+    val leftType = leftExpression.map(inferExpressionType)
+    val rightType = rightExpression.map(inferExpressionType)
     val balancedType = balanceType(
       leftType,
       rightType,
@@ -185,7 +185,7 @@ trait SpecialSyntheticMethodsTransformation { this: ScalaDfaControlFlowBuilder =
   }
 
   private def verifyBooleanArgumentType(expression: Option[ScExpression]): Boolean = expression
-    .map(resolveExpressionType)
+    .map(inferExpressionType)
     .map(scTypeToDfType(_))
     .exists(_.is[DfBooleanType])
 }

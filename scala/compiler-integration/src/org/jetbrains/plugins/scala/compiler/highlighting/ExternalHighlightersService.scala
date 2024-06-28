@@ -4,11 +4,13 @@ import com.intellij.codeInsight.daemon.impl.{ErrorStripeUpdateManager, Highlight
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.application.{ModalityState, ReadAction}
 import com.intellij.openapi.components.Service
-import com.intellij.openapi.editor.{Document, EditorFactory}
+import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.editor.{Document, Editor, EditorFactory}
+import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util.TextRange
-import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
 import com.intellij.problems.WolfTheProblemSolver
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
@@ -22,71 +24,54 @@ import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaOpt
 import org.jetbrains.plugins.scala.compiler.diagnostics.Action
 import org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlighting.RangeInfo
 import org.jetbrains.plugins.scala.editor.DocumentExt
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, inReadAction, invokeLater}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, executeOnPooledThread, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed.UnusedImportReportedByCompilerKey
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportOrExportStmt, ScImportSelector}
 import org.jetbrains.plugins.scala.settings.{ProblemSolverUtils, ScalaHighlightingMode}
+import org.jetbrains.plugins.scala.util.{CompilationId, DocumentVersion}
 
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
+import java.nio.file.Path
 import java.util.Collections
-import java.util.concurrent.{Callable, ConcurrentLinkedQueue}
+import java.util.concurrent.Callable
 import java.util.function.Consumer
 import scala.jdk.CollectionConverters._
 
 @Service(Array(Service.Level.PROJECT))
 private final class ExternalHighlightersService(project: Project) { self =>
-  import ExternalHighlightersService.ScalaCompilerPassId
+  import ExternalHighlightersService.{HighlightingData, ScalaCompilerPassId}
 
-  private final class ExecutionState {
-    @volatile var obsolete: Boolean = false
-  }
+  private val errorTypes: Set[HighlightInfoType] = Set(HighlightInfoType.ERROR, HighlightInfoType.WRONG_REF)
 
-  private val queue: ConcurrentLinkedQueue[Cancellable] = new ConcurrentLinkedQueue()
-
-  def applyHighlightingState(virtualFiles: Set[VirtualFile], state: HighlightingState): Unit = {
+  def applyHighlightingState(virtualFiles: Set[VirtualFile], state: HighlightingState, compilationId: CompilationId): Unit = {
     if (project.isDisposed) return
 
-    // Cancel all running highlighting info computations from previous compilation runs.
-    // In practice, there will only ever be one running computation, because this method is called on a single thread.
-    while (!queue.isEmpty) {
-      val head = queue.poll()
-
-      // It can happen that the queue was emptied between `queue.isEmpty` and `queue.poll`, due to a concurrent
-      // `queue.remove` later.
-      if (head ne null) {
-        head.cancel()
+    val readActionCallable: Callable[(Seq[HighlightingData], Set[VirtualFile])] = { () =>
+      val filteredVirtualFiles = filterFilesToHighlightBasedOnFileLevel(virtualFiles)
+      val psiManager = PsiManager.getInstance(project)
+      val data = for {
+        editor <- EditorFactory.getInstance().getAllEditors.toSeq if !project.isDisposed
+        editorProject <- Option(editor.getProject) if editorProject == project
+        document = editor.getDocument
+        virtualFile <- document.virtualFile if filteredVirtualFiles.contains(virtualFile)
+        psiFile <- Option(psiManager.findFile(virtualFile)) if ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(psiFile)
+      } yield {
+        val externalHighlights = state.externalHighlightings(virtualFile)
+        val highlightInfos = calculateHighlightInfos(externalHighlights, document, psiFile)
+        HighlightingData(editor, document, psiFile, highlightInfos)
       }
+      val errorFiles = filterFilesToHighlightBasedOnFileLevel(state.filesWithHighlightings(errorTypes))
+      (data, errorFiles)
     }
 
-    // Show red squiggly lines for errors in Project View.
-    informWolf(state)
-
-    // State necessary for cancelling every promise that will be fired for each open editor that needs to have
-    // highlighting information applied.
-    val executionState = new ExecutionState()
-
-    val filteredVirtualFiles = filterFilesToHighlightBasedOnFileLevel(virtualFiles)
-    val promises = for {
-      editor <- EditorFactory.getInstance().getAllEditors if !project.isDisposed
-      editorProject <- Option(editor.getProject) if editorProject == project
-      document = editor.getDocument
-      virtualFile <- document.virtualFile if filteredVirtualFiles.contains(virtualFile)
-      psiFile <- Option(inReadAction(PsiManager.getInstance(project).findFile(virtualFile)))
-      if ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(psiFile)
-    } yield {
-      val externalHighlights = state.externalHighlightings(virtualFile)
-
-      val executionState = new ExecutionState()
-
-      val readActionCallable: Callable[Either["Cancelled", Set[HighlightInfo]]] =
-        () => calculateHighlightInfos(externalHighlights, document, psiFile, executionState)
-
-      val applyHighlightingInfo: Consumer[Either["Cancelled", Set[HighlightInfo]]] = {
-        case Left("Cancelled") => ()
-        case Right(highlightInfos) =>
-          if (!executionState.obsolete && !project.isDisposed) {
-            // If the results are still valid, they will be applied to the editor.
+    val applyHighlightingInfo: Consumer[(Seq[HighlightingData], Set[VirtualFile])] = {
+      case (infos, errorFiles) =>
+        if (!project.isDisposed && stillValid(compilationId)) {
+          // If the results are still valid, they will be applied to the editor.
+          infos.foreach { case HighlightingData(editor, document, psiFile, highlightInfos) =>
             val collection = highlightInfos.asJavaCollection
             UpdateHighlightersUtil.setHighlightersToEditor(
               project,
@@ -97,22 +82,18 @@ private final class ExternalHighlightersService(project: Project) { self =>
             )
             ErrorStripeUpdateManager.getInstance(project).repaintErrorStripePanel(editor, psiFile)
           }
-          queue.remove(executionState)
-      }
-
-      ReadAction
-        .nonBlocking(readActionCallable)
-        .inSmartMode(project)
-        .expireWhen(() => executionState.obsolete || project.isDisposed)
-        .finishOnUiThread(ModalityState.defaultModalityState(), applyHighlightingInfo)
-        .submit(BackgroundExecutorService.instance(project).executor)
+          // Show red squiggly lines for errors in Project View.
+          executeOnPooledThread(informWolf(errorFiles))
+        }
     }
 
-    queue.add(() => {
-      // When cancelled, cancel all scheduled promises and mark the highlighting as obsolete.
-      promises.foreach(_.cancel())
-      executionState.obsolete = true
-    })
+    ReadAction
+      .nonBlocking(readActionCallable)
+      .inSmartMode(project)
+      .expireWhen(() => project.isDisposed || !stillValid(compilationId))
+      .coalesceBy(compilationId)
+      .finishOnUiThread(ModalityState.nonModal(), applyHighlightingInfo)
+      .submit(BackgroundExecutorService.instance(project).executor)
   }
 
   def eraseAllHighlightings(): Unit = {
@@ -135,24 +116,34 @@ private final class ExternalHighlightersService(project: Project) { self =>
     ProblemSolverUtils.clearAllProblemsFromExternalSource(project, self)
   }
 
-  private def informWolf(state: HighlightingState): Unit =
-    if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
-      val errorTypes = Set(HighlightInfoType.ERROR, HighlightInfoType.WRONG_REF)
-      ProblemSolverUtils.clearAllProblemsFromExternalSource(project, self)
-      val wolf = WolfTheProblemSolver.getInstance(project)
-      val errorFiles = filterFilesToHighlightBasedOnFileLevel(state.filesWithHighlightings(errorTypes))
-      inReadAction(errorFiles.foreach(wolf.reportProblemsFromExternalSource(_, self)))
+  private def stillValid(compilationId: CompilationId): Boolean =
+    compilationId.documentVersion.forall { case DocumentVersion(path, version) =>
+      val url = URLDecoder.decode(Path.of(path).toUri.toString, StandardCharsets.UTF_8)
+      val virtualFile = VirtualFileManager.getInstance().findFileByUrl(url)
+      if (virtualFile eq null) false
+      else {
+        val document = FileDocumentManager.getInstance().getCachedDocument(virtualFile)
+        if (document eq null) false else version == DocumentUtil.version(document)
+      }
     }
 
+  private def informWolf(errorFiles: Set[VirtualFile]): Unit = {
+    if (!project.isDisposed && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
+      ProblemSolverUtils.clearAllProblemsFromExternalSource(project, self)
+      val wolf = WolfTheProblemSolver.getInstance(project)
+      errorFiles.foreach(wolf.reportProblemsFromExternalSource(_, self))
+    }
+  }
+
+  @RequiresReadLock
   private def filterFilesToHighlightBasedOnFileLevel(files: Set[VirtualFile]): Set[VirtualFile] = {
     val manager = PsiManager.getInstance(project)
-    inReadAction {
-      files.filter { vf =>
-        if (vf.isValid) {
-          val psiFile = manager.findFile(vf)
-          if (psiFile ne null) ScalaHighlightingMode.shouldHighlightBasedOnFileLevel(psiFile, project) else false
-        } else false
-      }
+    files.filter { vf =>
+      ProgressManager.checkCanceled()
+      if (vf.isValid) {
+        val psiFile = manager.findFile(vf)
+        if (psiFile ne null) ScalaHighlightingMode.shouldHighlightBasedOnFileLevel(psiFile, project) else false
+      } else false
     }
   }
 
@@ -203,18 +194,12 @@ private final class ExternalHighlightersService(project: Project) { self =>
   private def calculateHighlightInfos(
     externalHighlights: Set[ExternalHighlighting],
     document: Document,
-    psiFile: PsiFile,
-    executionState: ExecutionState
-  ): Either["Cancelled", Set[HighlightInfo]] = {
-    val res = externalHighlights.flatMap { highlighting =>
+    psiFile: PsiFile
+  ): Set[HighlightInfo] =
+    externalHighlights.flatMap { highlighting =>
       ProgressManager.checkCanceled()
-      if (executionState.obsolete) {
-        return Left("Cancelled")
-      }
       toHighlightInfo(highlighting, document, psiFile)
     }
-    Right(res)
-  }
 
   @RequiresReadLock
   private def toHighlightInfo(highlighting: ExternalHighlighting, document: Document, psiFile: PsiFile): Option[HighlightInfo] = {
@@ -223,7 +208,7 @@ private final class ExternalHighlightersService(project: Project) { self =>
     val range = highlighting.rangeInfo.getOrElse {
       // Our PosInfo data structure expects 1-based line and column information.
       val start = PosInfo(1, 1)
-      RangeInfo.Range(start, start)
+      RangeInfo.Range(start, start, s"toHighlightInfo rangeInfo default case (1, 1), highlighting=$highlighting")
     }
 
     for {
@@ -264,12 +249,21 @@ private final class ExternalHighlightersService(project: Project) { self =>
     document: Document,
     psiFile: PsiFile
   ): Option[TextRange] = {
+    import ExternalHighlightersService.Log
     rangeInfo match {
-      case RangeInfo.Range(PosInfo(startLine, startColumn), PosInfo(endLine, endColumn)) =>
+      case range@RangeInfo.Range(PosInfo(startLine, startColumn), PosInfo(endLine, endColumn), _) =>
         for {
           startOffset <- convertToOffset(startLine, startColumn, document)
           endOffset <- convertToOffset(endLine, endColumn, document)
-        } yield TextRange.create(startOffset, endOffset)
+        } yield {
+          if (startOffset <= endOffset) {
+            TextRange.create(startOffset, endOffset)
+          } else {
+            val message = s"Illegal highlighting range calculated, startOffset=$startOffset, endOffset=$endOffset, range=$range"
+            Log.error(message)
+            throw new IllegalArgumentException(message)
+          }
+        }
       case RangeInfo.Pointer(PosInfo(line, column)) =>
         convertToOffset(line, column, document).flatMap(guessRangeToHighlight(psiFile, _))
     }
@@ -325,6 +319,10 @@ private final class ExternalHighlightersService(project: Project) { self =>
 
 private object ExternalHighlightersService {
   final val ScalaCompilerPassId = 979132998
+
+  private final case class HighlightingData(editor: Editor, document: Document, psiFile: PsiFile, highlightInfos: Set[HighlightInfo])
+
+  final val Log: Logger = Logger.getInstance(classOf[ExternalHighlightersService])
 
   def instance(project: Project): ExternalHighlightersService =
     project.getService(classOf[ExternalHighlightersService])

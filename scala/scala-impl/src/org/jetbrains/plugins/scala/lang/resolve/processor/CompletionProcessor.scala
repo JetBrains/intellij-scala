@@ -82,6 +82,7 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
   val includePrefixImports: Boolean = true
 
   protected val forName: Option[String] = None
+  protected val forNameRespectRenamed: Boolean = false
 
   protected def postProcess(result: ScalaResolveResult): Unit = {
   }
@@ -92,7 +93,11 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
 
   override protected def execute(namedElement: PsiNamedElement)
                                 (implicit state: ResolveState): Boolean = {
-    if (forName.exists(_ != namedElement.name))
+    val wantedNameIsDifferent = forName.exists { name =>
+      name != namedElement.name &&
+        (if (forNameRespectRenamed) name != state.renamed.orNull else true)
+    }
+    if (wantedNameIsDifferent)
       return true
 
     //Do not show anonymous using parameters in completion,

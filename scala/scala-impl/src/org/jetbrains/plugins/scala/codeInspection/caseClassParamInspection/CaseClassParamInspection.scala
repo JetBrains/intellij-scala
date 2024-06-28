@@ -16,7 +16,7 @@ class CaseClassParamInspection extends LocalInspectionTool {
       for {
         paramClause <- c.allClauses.take(1)
         classParam@(__ : ScClassParameter) <- paramClause.parameters
-        if classParam.isVal && classParam.isCaseClassVal && !hasExplicitModifier(classParam)
+        if classParam.isVal && classParam.isCaseClassPrimaryParameter && !hasExplicitModifier(classParam)
       } {
         val valToken = classParam.findFirstChildByType(ScalaTokenTypes.kVAL)
         val errorElement = valToken.getOrElse(classParam)

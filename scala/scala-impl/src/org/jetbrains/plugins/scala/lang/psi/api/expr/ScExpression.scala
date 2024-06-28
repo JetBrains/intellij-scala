@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.{Scala_2_11, Scala_2_13}
 import org.jetbrains.plugins.scala.util.SAMUtil
-import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
+import org.jetbrains.plugins.scala.{NlsString, ScalaBundle, Tracing}
 
 import scala.annotation.tailrec
 
@@ -162,7 +162,7 @@ trait ScExpression extends ScBlockStatement
         this.scalaLanguageLevelOrDefault >= Scala_2_11 &&
           ScalaPsiUtil.isJavaReflectPolymorphicSignature(this)
 
-      if (isShape) ExpressionTypeResult(Right(shape(this).getOrElse(Nothing)))
+      val result = if (isShape) ExpressionTypeResult(Right(shape(this).getOrElse(Nothing)))
       else {
         val expected = expectedOption.orElse(this.expectedType(fromUnderscore = fromUnderscore))
         val tr = this.getTypeWithoutImplicits(ignoreBaseTypes, fromUnderscore)
@@ -180,6 +180,10 @@ trait ScExpression extends ScBlockStatement
           case _ => ExpressionTypeResult(tr)
         }
       }
+
+      Tracing.inference(this, result)
+
+      result
     }
 }
 
