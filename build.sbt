@@ -15,7 +15,7 @@ import org.jetbrains.sbtidea.PluginJars
 
 (ThisBuild / intellijPlatform) := (Global / intellijPlatform).??(IntelliJPlatform.IdeaCommunity).value
 
-ThisBuild / resolvers ++= {
+ThisBuild / resolvers := {
 //  not exactly sure why "releases" and "staging" would ever need to be enabled
 //  Resolver.sonatypeOssRepos("releases") ++
 //  Resolver.sonatypeOssRepos("staging") ++
