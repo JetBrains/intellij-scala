@@ -159,12 +159,11 @@ object ScalaDocumentationProvider {
   }
 
   @tailrec
-  private def getElementWithDoc(originalElement: PsiElement): PsiElement =
+  private def getElementWithDoc(originalElement: PsiElement): PsiElement = {
     originalElement match {
       case null                        => null
       case ScFunctionWrapper(delegate) => delegate
-      case synthetic: SyntheticNamedElement =>
-        synthetic //extra .getNavigationalElement will be called later
+      //Q: why can't we use `ScDocCommentOwner`?
       case _: ScTypeDefinition |
            _: ScTypeAlias |
            _: ScValue |
@@ -174,4 +173,5 @@ object ScalaDocumentationProvider {
            _: ScParameter              => originalElement
       case _                           => getElementWithDoc(originalElement.getParent)
     }
+  }
 }
