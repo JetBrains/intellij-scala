@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.dfa.analysis
 
-import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection.{InspectionManager, ProblemHighlightType, ProblemsHolder}
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework._
@@ -9,6 +9,9 @@ import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants.SyntheticOpe
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.constantValueToProblemMessage
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+
+import scala.annotation.nowarn
+import scala.collection.mutable.ListBuffer
 
 class ScalaDfaProblemReporter(problemsHolder: ProblemsHolder) {
 
@@ -30,6 +33,34 @@ class ScalaDfaProblemReporter(problemsHolder: ProblemsHolder) {
     reportUnsatisfiedConditionProblems(result)
   }
 
+  @nowarn
+  def reportUnreachableCode(result: ScalaDfaResult): Unit = {
+    val elements = result.unreachableElements.filterNot(_.asOptionOf[ScBlockExpr].exists(_.statements.isEmpty)).sortBy(_.getTextRange.getStartOffset)
+    if (elements.isEmpty) return
+
+    val text = elements.head.getContainingFile.getText
+
+    var spans = Seq.empty[ListBuffer[PsiElement]]
+    elements.foreach { e =>
+      if (spans.isEmpty || spans.last.last.getTextRange.getEndOffset < e.getTextRange.getEndOffset) {
+        if (spans.isEmpty) {
+          spans :+= ListBuffer.empty[PsiElement]
+        } else {
+          val end = spans.last.last.getTextRange.getEndOffset
+          val start = e.getTextRange.getStartOffset
+          if (end < start && text.substring(end, start).exists(!_.isWhitespace)) {
+            spans :+= ListBuffer.empty[PsiElement]
+          }
+        }
+        spans.last.addOne(e)
+      }
+    }
+
+    spans.foreach { e =>
+      problemsHolder.registerProblem(InspectionManager.getInstance(problemsHolder.getProject)
+        .createProblemDescriptor(e.head, e.last, "Unreachable code", ProblemHighlightType.LIKE_UNUSED_SYMBOL))
+    }
+  }
 
   private def reportConstantCondition(anchor: ScalaDfaAnchor, value: DfaConstantValue): Unit = {
     anchor match {
@@ -106,6 +137,9 @@ object ScalaDfaProblemReporter {
 
   def reportingAllUnsatisfiedConditions(problemsHolder: ProblemsHolder): ScalaDfaResult => Unit =
     ScalaDfaProblemReporter(problemsHolder).reportUnsatisfiedConditionProblems(_)
+
+  def reportingUnreachableCode(problemsHolder: ProblemsHolder): ScalaDfaResult => Unit =
+    ScalaDfaProblemReporter(problemsHolder).reportUnreachableCode
 
   def reportingUnsatisfiedConditionsOfKind(kind: ScalaDfaProblemKind[_])(problemsHolder: ProblemsHolder): ScalaDfaResult => Unit =
     ScalaDfaProblemReporter(problemsHolder).reportUnsatisfiedConditionProblems(_, {

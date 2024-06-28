@@ -11,7 +11,9 @@ trait StatementTransformation { this: ScalaDfaControlFlowBuilder =>
       case expression: ScExpression =>
         transformExpression(expression, rreq)
       case definition: ScDefinitionWithAssignment =>
+        flow.startElement(stmt)
         transformDefinition(definition)
+        flow.finishElement(stmt)
         pushUnit(rreq)
       //case statement: ScDeclaration with ScBlockStatement => pushUnknownCall(statement, 0)
       case _: ScImportStmt | _: ScImportExpr | _: ScDeclaration =>

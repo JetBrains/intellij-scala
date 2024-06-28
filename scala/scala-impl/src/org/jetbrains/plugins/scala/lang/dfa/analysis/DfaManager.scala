@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.dfa.analysis
 
-import com.intellij.codeInspection.dataFlow.interpreter.{RunnerResult, StandardDataFlowInterpreter}
+import com.intellij.codeInspection.dataFlow.interpreter.{ReachabilityCountingInterpreter, RunnerResult}
 import com.intellij.codeInspection.dataFlow.jvm.JvmDfaMemoryStateImpl
 import com.intellij.codeInspection.dataFlow.lang.ir.{ControlFlow, DfaInstructionState}
 import com.intellij.codeInspection.dataFlow.value.DfaValueFactory
@@ -9,13 +9,13 @@ import com.intellij.openapi.progress.ProcessCanceledException
 import org.jetbrains.plugins.scala.caches.{ModTracker, cached}
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.{ScalaDfaListener, ScalaDfaResult}
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.AnalysedMethodInfo
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, TransformationFailedException}
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform.ResultReq
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, TransformationFailedException}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
 import java.util.concurrent.ConcurrentHashMap
 import scala.concurrent.{Future, Promise}
-import scala.jdk.CollectionConverters.SeqHasAsJava
+import scala.jdk.CollectionConverters.{SeqHasAsJava, SetHasAsScala}
 import scala.util.control.NonFatal
 
 object DfaManager {
@@ -70,9 +70,13 @@ object DfaManager {
     val flow = controlFlowBuilder.build()
     try {
       val listener = new ScalaDfaListener
-      val interpreter = new StandardDataFlowInterpreter(flow, listener)
+      val interpreter = new ReachabilityCountingInterpreter(flow, listener, false, false, 0)
       if (interpreter.interpret(buildInterpreterStates(memoryStates, flow).asJava) == RunnerResult.OK) {
-        Some(listener.result)
+        Some {
+          val result = listener.result
+          result.unreachableElements = interpreter.getUnreachable.asScala.toSeq
+          result
+        }
       } else {
         None
       }

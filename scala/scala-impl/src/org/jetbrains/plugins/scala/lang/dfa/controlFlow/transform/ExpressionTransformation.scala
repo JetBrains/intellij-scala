@@ -22,6 +22,8 @@ import java.util
 
 trait ExpressionTransformation { this: ScalaDfaControlFlowBuilder =>
   def transformExpression(expr: ScExpression, rreq: ResultReq): rreq.Result = {
+    flow.startElement(expr)
+
     lazy val from = expr.getNonValueType().toOption
     lazy val to = expr.`type`().toOption
 
@@ -33,9 +35,12 @@ trait ExpressionTransformation { this: ScalaDfaControlFlowBuilder =>
         transformExpressionBeforeConversion(expr, rreq)
     }
 
-    rreq.map(result) { value =>
+    val r = rreq.map(result) { value =>
       convertPrimitiveIfNeeded(value, from, to)
     }
+
+    flow.finishElement(expr)
+    r
   }
 
   def transformExpressionBeforeConversion(expr: ScExpression, rreq: ResultReq): rreq.Result =
