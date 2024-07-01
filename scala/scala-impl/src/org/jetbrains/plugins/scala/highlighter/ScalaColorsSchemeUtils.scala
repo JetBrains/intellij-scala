@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnu
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, StdType}
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocResolvableCodeReference, ScDocTagValue}
 
 object ScalaColorsSchemeUtils {
   def findAttributesKeyByParent(element: PsiElement): Option[TextAttributesKey] =
@@ -81,7 +82,14 @@ object ScalaColorsSchemeUtils {
       case p: ScBindingPattern                                                           => attributesKey(p)
       case f: PsiField if !hasModifier(f, "final")                              => DefaultHighlighter.VARIABLES
       case _: PsiField                                                                   => DefaultHighlighter.VALUES
-      case p: ScParameter                                                                => parameterAttributes(p)
+      case p: ScParameter =>
+        refElement match {
+          case Some(_: ScDocTagValue | _: ScDocResolvableCodeReference) =>
+            //when parameter/field is references from scaladoc, we always highlight it as a parameter, not as a field
+            DefaultHighlighter.PARAMETER
+          case _ =>
+            parameterAttributes(p)
+        }
       case f@(_: ScFunctionDefinition | _: ScFunctionDeclaration | _: ScMacroDefinition) => attributesKey(f.asInstanceOf[ScFunction])
       case m: PsiMethod                                                                  => attributesKey(m)
       case _                                                                             => DefaultLanguageHighlighterColors.IDENTIFIER

@@ -355,4 +355,80 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
         |""".stripMargin
     )
   }
+
+  def testHighlightParameterFieldAsParameterInScalaDoc(): Unit = {
+    val text =
+      """/**
+        | * [[parameter1]]
+        | * [[parameter2]]
+        | * [[parameterFieldVal]]
+        | * [[parameterFieldVar]]
+        | *
+        | * @param parameter1        description
+        | * @param parameter2        description
+        | * @param parameterFieldVal description
+        | * @param parameterFieldVar description
+        | */
+        |class MyClass(
+        |  parameter1: String, //NOTE USED outside constructor -> field IS NOT generated
+        |  parameter2: String, //USED outside constructor -> field IS generated
+        |  val parameterFieldVal: String,
+        |  var parameterFieldVar: String
+        |)
+        |
+        |/**
+        | * [[parameterField]]
+        | * [[parameterFieldVal]]
+        | * [[parameterFieldVar]]
+        | *
+        | * @param parameterField    description
+        | * @param parameterFieldVal description
+        | * @param parameterFieldVar description
+        | */
+        |case class MyCaseClass(
+        |  parameterField: String,
+        |  val parameterFieldVal: String,
+        |  var parameterFieldVar: String
+        |)
+        |""".stripMargin
+
+
+    //adding more keys which I think could be accidentally used, but not too many to keep test data compact
+    val keysOfInterest: Set[TextAttributesKey] = Set(
+      DefaultHighlighter.VALUES,
+      DefaultHighlighter.VARIABLES,
+      DefaultHighlighter.PARAMETER,
+      DefaultHighlighter.PARAMETER_OF_ANONIMOUS_FUNCTION,
+      DefaultHighlighter.TYPEPARAM,
+      DefaultHighlighter.LOCAL_VALUES,
+      DefaultHighlighter.LOCAL_VARIABLES,
+      DefaultHighlighter.METHOD_DECLARATION,
+      DefaultHighlighter.OBJECT_METHOD_CALL,
+      DefaultHighlighter.LOCAL_METHOD_CALL,
+      DefaultHighlighter.METHOD_CALL,
+    )
+    testAnnotations(text, keysOfInterest,
+      """Info((9,19),parameter1,Scala Parameter)
+        |Info((27,37),parameter2,Scala Parameter)
+        |Info((45,62),parameterFieldVal,Scala Parameter)
+        |Info((70,87),parameterFieldVar,Scala Parameter)
+        |Info((103,113),parameter1,Scala Parameter)
+        |Info((143,153),parameter2,Scala Parameter)
+        |Info((183,200),parameterFieldVal,Scala Parameter)
+        |Info((223,240),parameterFieldVar,Scala Parameter)
+        |Info((274,284),parameter1,Scala Parameter)
+        |Info((354,364),parameter2,Scala Parameter)
+        |Info((429,446),parameterFieldVal,Scala Template val)
+        |Info((462,479),parameterFieldVar,Scala Template val)
+        |Info((500,514),parameterField,Scala Parameter)
+        |Info((522,539),parameterFieldVal,Scala Parameter)
+        |Info((547,564),parameterFieldVar,Scala Parameter)
+        |Info((580,594),parameterField,Scala Parameter)
+        |Info((620,637),parameterFieldVal,Scala Parameter)
+        |Info((660,677),parameterFieldVar,Scala Parameter)
+        |Info((720,734),parameterField,Scala Template val)
+        |Info((750,767),parameterFieldVal,Scala Template val)
+        |Info((783,800),parameterFieldVar,Scala Template val)""".stripMargin
+    )
+  }
 }
