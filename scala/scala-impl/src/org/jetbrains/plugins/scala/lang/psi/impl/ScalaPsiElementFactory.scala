@@ -20,7 +20,7 @@ import com.intellij.util.IncorrectOperationException
 import org.apache.commons.lang3.{ObjectUtils, StringUtils}
 import org.jetbrains.annotations.{NonNls, Nullable}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.lexer.{ScalaKeywordTokenType, ScalaModifier, ScalaTokenType}
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaKeywordTokenType, ScalaModifier, ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Import
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderImpl}
@@ -1533,6 +1533,14 @@ object ScalaPsiElementFactory {
 
   def createWhitespace(@NonNls whitespace: String)(implicit ctx: ProjectContext): PsiElement =
     createExpressionFromText(s"1$whitespace+ 1", ScalaFeatures.default).findElementAt(1)
+
+  def createWithKeyword(implicit ctx: ProjectContext): PsiElement =
+    createScalaFileFromText("class A extends B with C", ScalaFeatures.default)
+      .typeDefinitions
+      .headOption
+      .flatMap(_.extendsBlock.templateParents)
+      .flatMap(_.findLastChildByTypeScala[PsiElement](ScalaTokenTypes.kWITH))
+      .get
 
   def createTypeElementFromText(
     @NonNls text:      String,
