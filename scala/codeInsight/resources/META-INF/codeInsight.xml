@@ -92,7 +92,7 @@
             <language>Scala</language>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.declarations.ChangeAccessModifierIntention</className>
             <categoryKey>intention.category.scala</categoryKey>
-            <bundleName>messages.ScalaCodeInsightBundle</bundleName>
+            <bundleName>messages.ScalaIntentionBundle</bundleName>
         </intentionAction>
 
         <intentionAction>

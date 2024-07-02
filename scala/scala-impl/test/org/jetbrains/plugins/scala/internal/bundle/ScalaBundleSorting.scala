@@ -52,6 +52,7 @@ object ScalaBundleSorting {
   val sbtModDir: Path = communityDir / "sbt"
   val scalaImplDir: Path = scalaModDir / "scala-impl"
   val integrationDir: Path = scalaModDir / "integration"
+  val codeInsightDir: Path = scalaModDir / "codeInsight"
 
   val allModuleInfos: Seq[ModuleWithBundleInfo] = Seq(
     ModuleWithBundleInfo(
@@ -59,7 +60,7 @@ object ScalaBundleSorting {
       bundleMessagesRelativePath = "ScalaBspBundle.properties",
     ),
     ModuleWithBundleInfo(
-      rootPath = scalaModDir / "codeInsight",
+      rootPath = codeInsightDir,
       bundleMessagesRelativePath = "ScalaCodeInsightBundle.properties",
     ),
     ModuleWithBundleInfo(
@@ -139,6 +140,13 @@ object ScalaBundleSorting {
       bundleMessagesRelativePath = "ScalaInspectionBundle.properties",
       extraUsageModules = Seq(
         ModuleInfo(integrationDir / "properties")
+      )
+    ),
+    ModuleWithBundleInfo(
+      rootPath = scalaImplDir,
+      bundleMessagesRelativePath = "ScalaIntentionBundle.properties",
+      extraUsageModules = Seq(
+        ModuleInfo(codeInsightDir)
       )
     ),
     ModuleWithBundleInfo(
