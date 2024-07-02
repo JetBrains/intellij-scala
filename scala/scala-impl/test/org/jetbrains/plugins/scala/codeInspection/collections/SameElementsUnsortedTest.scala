@@ -80,3 +80,37 @@ class CorrespondsUnsortedTest extends CorrespondsUnsortedInspectionTest {
   }
 }
 
+// Detection of arrays uses the same logic in all collection inspections
+// I picked a single inspection to test that IArray is handled properly
+class DetectOpaqueAliasToScala3ArrayTest extends CorrespondsUnsortedInspectionTest {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version.isScala3
+
+  override protected val hint: String =
+    ScalaInspectionBundle.message("sameElements.unsorted")
+
+  def testSeqIArray(): Unit = {
+    checkTextHasNoErrors("Seq(1).sameElements(IArray(1))")
+  }
+
+  def testArrayIArray(): Unit = {
+    checkTextHasNoErrors("IArray(1).sameElements(IArray(1))")
+  }
+
+  //TODO: after opaque types are properly supported (SCL-20887) we should probably change the test data
+  // we should expect error here as `MyIArray` should be considered a complete abstraction?
+  def testIArray_CustomOpaqueType_TreatAsCompleteAbstraction(): Unit = checkTextHasNoErrors(
+    s"""import scala.collection.immutable.ArraySeq
+       |
+       |object Scope:
+       |  opaque type MyIArray[+T] = Array[_ <: T]
+       |  object MyIArray1:
+       |    implicit def wrapIntArray(arr: MyIArray[Int]): ArraySeq.ofInt = ???
+       |
+       |object Usage:
+       |  import Scope.*
+       |  (??? : MyIArray[Int]) sameElements (??? : MyIArray[Int])
+       |""".stripMargin
+  )
+}
+
