@@ -203,16 +203,16 @@ private object ScalaTreeStructureProvider {
   private def getModuleShortName(module: Module, project: Project, virtualFile: VirtualFile): Option[String] = {
     if (!isExternalSystemAwareModule(SbtProjectSystem.Id, module)) return None
 
-    // note: generating module short name shouldn't be done for root modules in a multi BUILD project (root module represents root project in each BUILD)
-    // This is how it is implemented, because when there is a project with multi BUILD, and projects from different BUILDs are grouped together, it
-    // is more transparent to display full module name for root modules - it may simplify searching concrete modules in Project Structure | Modules
-    if (isRootModuleInMultiBUILDProject(module, project, virtualFile)) return None
+    // note: generating module short name shouldn't be done for root modules in a multi build project (root module represents a root project in each build)
+    // This is how it is implemented, because when there is a project with multi build, and projects from different builds are grouped together, it
+    // is more transparent to display full module name for root modules -it may simplify searching concrete modules in Project Structure | Modules
+    if (isRootModuleInMultiBuildProject(module, project, virtualFile)) return None
 
     val fullModuleName = module.getName
     val moduleGrouper = ModuleGrouper.instanceFor(project)
     val shortModuleName = moduleGrouper.getShortenedNameByFullModuleName(fullModuleName)
 
-    // Because of the fact that ExplicitModuleGrouper#getShortenedNameByFullModuleName always returns the original module name and
+    // Because ExplicitModuleGrouper#getShortenedNameByFullModuleName always returns the original module name and
     // QualifiedNameGrouper#getShortenedNameByFullModuleName also returns the original module name when when grouping is not used at all in the project, we can assume that
     // when (shortModuleName == moduleName) it is not needed to create custom ScalaModuleDirectoryNode (so None is returned from this method).
     // For such a case com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode.updateImpl will work correctly, because the group name is not present in module name
@@ -220,7 +220,7 @@ private object ScalaTreeStructureProvider {
   }
 
 
-  private def isRootModuleInMultiBUILDProject(module: Module, project: Project, virtualFile: VirtualFile): Boolean = {
+  private def isRootModuleInMultiBuildProject(module: Module, project: Project, virtualFile: VirtualFile): Boolean = {
     val regexPattern = (path: String) => {
       val quoted = Pattern.quote(path)
       s""".*$quoted(?:/)?\\]""".r
@@ -229,7 +229,7 @@ private object ScalaTreeStructureProvider {
 
     def moduleIdOpt(module: Module): Option[String] = Option(ExternalSystemApiUtil.getExternalProjectId(module))
 
-    def isRootAndBelongsToDifferentBUILD(module: Module): Boolean =
+    def isRootAndBelongsToDifferentBuild(module: Module): Boolean =
       moduleIdOpt(module).exists { id =>
         val moduleRootPath = ExternalSystemApiUtil.getExternalProjectPath(module)
         if (moduleRootPath == null) false
@@ -242,9 +242,9 @@ private object ScalaTreeStructureProvider {
     moduleIdOpt(module).exists { id =>
       val isRootProject = moduleRegexPattern.matches(id)
       if (isRootProject) {
-        // note: checking if there are more root projects and if they belong to other BUILD
+        // note: checking if there are more root projects and if they belong to another build
         val modules = ModuleManager.getInstance(project).getModules
-        modules.exists(isRootAndBelongsToDifferentBUILD)
+        modules.exists(isRootAndBelongsToDifferentBuild)
       } else {
         false
       }
