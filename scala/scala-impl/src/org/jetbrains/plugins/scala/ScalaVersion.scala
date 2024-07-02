@@ -97,7 +97,7 @@ object LatestScalaVersions {
   //
   val Scala_3_RC = new ScalaVersion(ScalaLanguageLevel.Scala_3_4, "2-RC1")
 
-  val Scala_3_5_RC = new ScalaVersion(ScalaLanguageLevel.Scala_3_5, "0-RC1")
+  val Scala_3_5_RC = new ScalaVersion(ScalaLanguageLevel.Scala_3_5, "0-RC2")
 
   /** Available only when using [[DependencyManagerBase.Resolver.TypesafeScalaPRValidationSnapshots]] */
   val Scala_2_13_RC = new ScalaVersion(ScalaLanguageLevel.Scala_2_13, "14-bin-ed3dfc9-SNAPSHOT")
