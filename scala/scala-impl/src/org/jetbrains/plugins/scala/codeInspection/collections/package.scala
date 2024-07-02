@@ -11,12 +11,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, JavaArrayType, PartialFunctionType, PsiTypeConstants}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, _}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.project.ScalaFeatures
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
@@ -372,11 +373,20 @@ package object collections {
     }
   }
 
-  def isOfClassFrom(expr: ScExpression, patterns: Seq[String]): Boolean =
-    expr.`type`().toOption.exists(isOfClassFrom(_, patterns))
+  private def isOfClassFrom(expr: ScExpression, patterns: Seq[String]): Boolean = {
+    val typ = expr.`type`().toOption
+    typ.exists(isOfClassFrom(_, patterns))
+  }
 
-  def isOfClassFrom(`type`: ScType, patterns: Seq[String]): Boolean =
-    `type`.tryExtractDesignatorSingleton.extractClass.exists(qualifiedNameFitToPatterns(_, patterns))
+  private def isOfClassFrom(`type`: ScType, patterns: Seq[String]): Boolean = {
+    val typeExtracted = `type`.tryExtractDesignatorSingleton
+    isOfClassFromForExtractedType(typeExtracted, patterns)
+  }
+
+  private def isOfClassFromForExtractedType(typeExtracted: ScType, patterns: Seq[String]): Boolean = {
+    val clazz = typeExtracted.extractClass
+    clazz.exists(qualifiedNameFitToPatterns(_, patterns))
+  }
 
   private def qualifiedNameFitToPatterns(clazz: PsiClass, patterns: Seq[String]) =
     Option(clazz).flatMap(c => Option(c.qualifiedName))
@@ -388,8 +398,27 @@ package object collections {
 
   def isArray(expr: ScExpression): Boolean = expr match {
     case Typeable(JavaArrayType(_)) => true
-    case _ => isOfClassFrom(expr, ArraySeq("scala.Array"))
+    case _ =>
+      val typ = expr.`type`().toOption
+      typ.exists { t =>
+        val typeExtracted = t.tryExtractDesignatorSingleton
+        isArray(typeExtracted) || isIArray(typeExtracted)
+      }
   }
+
+  private def isArray(typeExtracted: ScType): Boolean =
+    isOfClassFromForExtractedType(typeExtracted, ArraySeq("scala.Array"))
+
+  private def isIArray(typeExtracted: ScType): Boolean =
+    typeExtracted match {
+      case pt: ScParameterizedType =>
+        pt.designator match {
+          case ScDesignatorType(ta: ScTypeAlias) =>
+            ta.qualifiedNameOpt.contains("scala.IArray")
+          case _ => false
+        }
+      case _ => false
+    }
 
   def isString: Typeable => Boolean =
     isExpressionOfType("java.lang.String")
