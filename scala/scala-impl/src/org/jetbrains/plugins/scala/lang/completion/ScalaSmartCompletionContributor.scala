@@ -365,7 +365,7 @@ object ScalaSmartCompletionContributor {
             if (!scType.equiv(Nothing) && typez.exists(scType conforms _)) {
               elementAdded = true
               if (etaExpanded) scalaLookupItem.etaExpanded = true
-              result.addElement(elemToAdd)
+              result.addElement(PrioritizedLookupElement.withPriority(elemToAdd, 1))
             } else {
               typez.foreach {
                 case ParameterizedType(tpe, Seq(arg)) if !elementAdded =>
