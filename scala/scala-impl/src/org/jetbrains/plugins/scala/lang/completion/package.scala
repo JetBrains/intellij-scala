@@ -239,6 +239,19 @@ package object completion {
         case ElementType(ScalaTokenTypes.tIDENTIFIER) => positionInCompletionFile.getParent.startOffset
         case _                                        => positionInCompletionFile.startOffset
       }
+      /**
+       * TODO(SCL-21582): seems like this might change the context if nothing was typed.
+       * E.g.:
+       * {{{
+       *   def main(): Unit = {
+       *     val test: Int = <caret>
+       *   }
+       * }}}
+       *
+       * `copy.context` will probably be `main` instead of `test` because original position is a whitespace
+       * with `main` as a parent. Therefore places that rely on expected type will get wrong results
+       * (`Unit` instead of `Int` in this example)
+       */
       val placeInOriginalFile = originalFile.findElementAt(placeOffset)
 
       //todo: we may probably choose a smaller fragment to copy in many cases SCL-17106

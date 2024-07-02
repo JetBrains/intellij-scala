@@ -29,6 +29,44 @@ abstract class ScalaTypeMatchingEnumBasicCompletionTest extends ScalaCompletionT
       |""".stripMargin
   )
 
+  private def configureJavaWeekdayEnum(): Unit = myFixture.addFileToProject("completion/WeekDayJava.java",
+    """
+      |package completion
+      |
+      |public enum WeekDayJava {
+      |    Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday
+      |}
+      |""".stripMargin
+  )
+
+  private def configureScala2WeekdayEnum(): Unit = myFixture.addFileToProject("completion/WeekDayScala2Enumeration.scala",
+    """
+      |package completion
+      |
+      |object WeekDayScala2Enumeration extends Enumeration {
+      |  type WeekDay = Value
+      |  val Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday = Value
+      |}
+      |""".stripMargin
+  )
+
+  private def configureScalaSealedWeekdayEnum(): Unit = myFixture.addFileToProject("completion/WeekDayScala2ADT.scala",
+    """
+      |package completion
+      |
+      |sealed trait WeekDayScala2ADT
+      |object WeekDayScala2ADT {
+      |  object Monday extends WeekDayScala2ADT
+      |  object Tuesday extends WeekDayScala2ADT
+      |  object Wednesday extends WeekDayScala2ADT
+      |  object Thursday extends WeekDayScala2ADT
+      |  object Friday extends WeekDayScala2ADT
+      |  object Saturday extends WeekDayScala2ADT
+      |  object Sunday extends WeekDayScala2ADT
+      |}
+      |""".stripMargin
+  )
+
   /// ------------ JAVA ENUM -------------
 
   def testJavaEnumInMatchByCaseName(): Unit = {
@@ -188,6 +226,196 @@ abstract class ScalaTypeMatchingEnumBasicCompletionTest extends ScalaCompletionT
            |}
            |""".stripMargin,
       item = "NoConstructorCase",
+      completionType = BASIC
+    )
+  }
+
+  def testSCL_21582_JavaEnum_VariableDefinition(): Unit = {
+    configureJavaWeekdayEnum()
+
+    doCompletionTest(
+      fileText =
+        s"""
+           |package completion
+           |
+           |object Test {
+           |  def main(args: Array[String]): Unit = {
+           |    val enumsInstance: WeekDayJava = F$CARET
+           |  }
+           |}
+           |""".stripMargin,
+      resultText =
+        """
+          |package completion
+          |
+          |object Test {
+          |  def main(args: Array[String]): Unit = {
+          |    val enumsInstance: WeekDayJava = WeekDayJava.Friday
+          |  }
+          |}
+          |""".stripMargin,
+      item = "Friday",
+      completionType = BASIC
+    )
+  }
+
+  def testSCL_21582_JavaEnum_VariableDefinition_Seq(): Unit = {
+    configureJavaWeekdayEnum()
+
+    doCompletionTest(
+      fileText =
+        s"""
+           |package completion
+           |
+           |object Test {
+           |  def main(args: Array[String]): Unit = {
+           |    val enumsSeq: Seq[WeekDayJava] = Seq($CARET)
+           |  }
+           |}
+           |""".stripMargin,
+      resultText =
+        """
+          |package completion
+          |
+          |object Test {
+          |  def main(args: Array[String]): Unit = {
+          |    val enumsSeq: Seq[WeekDayJava] = Seq(WeekDayJava.Friday)
+          |  }
+          |}
+          |""".stripMargin,
+      item = "Friday",
+      completionType = BASIC
+    )
+  }
+
+  def testSCL_21582_JavaEnum_Equals(): Unit = {
+    configureJavaWeekdayEnum()
+
+    doCompletionTest(
+      fileText =
+        s"""
+           |package completion
+           |
+           |object Test {
+           |  def main(args: Array[String]): Unit = {
+           |    val enumsInstance: WeekDayJava = ???
+           |
+           |    enumsInstance == F$CARET
+           |  }
+           |}
+           |""".stripMargin,
+      resultText =
+        """
+          |package completion
+          |
+          |object Test {
+          |  def main(args: Array[String]): Unit = {
+          |    val enumsInstance: WeekDayJava = ???
+          |
+          |    enumsInstance == WeekDayJava.Friday
+          |  }
+          |}
+          |""".stripMargin,
+      item = "Friday",
+      completionType = BASIC
+    )
+  }
+
+  def testSCL_21582_JavaEnum_Equals_InMethodCall(): Unit = {
+    configureJavaWeekdayEnum()
+
+    doCompletionTest(
+      fileText =
+        s"""
+           |package completion
+           |
+           |object Test {
+           |  def main(args: Array[String]): Unit = {
+           |    val enumsSeq: Seq[WeekDayJava] = ???
+           |
+           |    enumsSeq.exists(_ == $CARET)
+           |  }
+           |}
+           |""".stripMargin,
+      resultText =
+        """
+          |package completion
+          |
+          |object Test {
+          |  def main(args: Array[String]): Unit = {
+          |    val enumsSeq: Seq[WeekDayJava] = ???
+          |
+          |    enumsSeq.exists(_ == WeekDayJava.Friday)
+          |  }
+          |}
+          |""".stripMargin,
+      item = "Friday",
+      completionType = BASIC
+    )
+  }
+
+  def testSCL_21582_JavaEnum_MethodCall(): Unit = {
+    configureJavaWeekdayEnum()
+
+    doCompletionTest(
+      fileText =
+        s"""
+           |package completion
+           |
+           |object Test {
+           |  def main(args: Array[String]): Unit = {
+           |    val enumsSeq: Seq[WeekDayJava] = ???
+           |
+           |    enumsSeq.contains($CARET)
+           |  }
+           |}
+           |""".stripMargin,
+      resultText =
+        """
+          |package completion
+          |
+          |object Test {
+          |  def main(args: Array[String]): Unit = {
+          |    val enumsSeq: Seq[WeekDayJava] = ???
+          |
+          |    enumsSeq.contains(WeekDayJava.Friday)
+          |  }
+          |}
+          |""".stripMargin,
+      item = "Friday",
+      completionType = BASIC
+    )
+  }
+
+  def testSCL_21582_JavaEnum_MethodCall2(): Unit = {
+    configureJavaWeekdayEnum()
+
+    doCompletionTest(
+      fileText =
+        s"""
+           |package completion
+           |
+           |object Test {
+           |  def main(args: Array[String]): Unit = {
+           |    foo($CARET)
+           |  }
+           |
+           |  def foo(p: WeekDayJava): Unit = ???
+           |}
+           |""".stripMargin,
+      resultText =
+        """
+          |package completion
+          |
+          |object Test {
+          |  def main(args: Array[String]): Unit = {
+          |    foo(WeekDayJava.Friday)
+          |  }
+          |
+          |  def foo(p: WeekDayJava): Unit = ???
+          |}
+          |""".stripMargin,
+      item = "Friday",
       completionType = BASIC
     )
   }
@@ -367,7 +595,403 @@ abstract class ScalaTypeMatchingEnumBasicCompletionTest extends ScalaCompletionT
     )
   }
 
+  def testSCL_21582_Scala2Enum_VariableDefinition(): Unit = {
+    configureScala2WeekdayEnum()
+
+    doCompletionTest(
+      fileText =
+        s"""
+           |package completion
+           |
+           |object Test {
+           |  def main(args: Array[String]): Unit = {
+           |    val enumsInstance: WeekDayScala2Enumeration.WeekDay = F$CARET
+           |  }
+           |}
+           |""".stripMargin,
+      resultText =
+        """
+          |package completion
+          |
+          |object Test {
+          |  def main(args: Array[String]): Unit = {
+          |    val enumsInstance: WeekDayScala2Enumeration.WeekDay = WeekDayScala2Enumeration.Friday
+          |  }
+          |}
+          |""".stripMargin,
+      item = "Friday",
+      completionType = BASIC
+    )
+  }
+
+  def testSCL_21582_Scala2Enum_VariableDefinition_Seq(): Unit = {
+    configureScala2WeekdayEnum()
+
+    doCompletionTest(
+      fileText =
+        s"""
+           |package completion
+           |
+           |object Test {
+           |  def main(args: Array[String]): Unit = {
+           |    val enumsSeq: Seq[WeekDayScala2Enumeration.WeekDay] = Seq($CARET)
+           |  }
+           |}
+           |""".stripMargin,
+      resultText =
+        """
+          |package completion
+          |
+          |object Test {
+          |  def main(args: Array[String]): Unit = {
+          |    val enumsSeq: Seq[WeekDayScala2Enumeration.WeekDay] = Seq(WeekDayScala2Enumeration.Friday)
+          |  }
+          |}
+          |""".stripMargin,
+      item = "Friday",
+      completionType = BASIC
+    )
+  }
+
+  def testSCL_21582_Scala2Enum_Equals(): Unit = {
+    configureScala2WeekdayEnum()
+
+    doCompletionTest(
+      fileText =
+        s"""
+           |package completion
+           |
+           |object Test {
+           |  def main(args: Array[String]): Unit = {
+           |    val enumsInstance: WeekDayScala2Enumeration.WeekDay = ???
+           |
+           |    enumsInstance == F$CARET
+           |  }
+           |}
+           |""".stripMargin,
+      resultText =
+        """
+          |package completion
+          |
+          |object Test {
+          |  def main(args: Array[String]): Unit = {
+          |    val enumsInstance: WeekDayScala2Enumeration.WeekDay = ???
+          |
+          |    enumsInstance == WeekDayScala2Enumeration.Friday
+          |  }
+          |}
+          |""".stripMargin,
+      item = "Friday",
+      completionType = BASIC
+    )
+  }
+
+  def testSCL_21582_Scala2Enum_Equals_InMethodCall(): Unit = {
+    configureScala2WeekdayEnum()
+
+    doCompletionTest(
+      fileText =
+        s"""
+           |package completion
+           |
+           |object Test {
+           |  def main(args: Array[String]): Unit = {
+           |    val enumsSeq: Seq[WeekDayScala2Enumeration.WeekDay] = ???
+           |
+           |    enumsSeq.exists(_ == $CARET)
+           |  }
+           |}
+           |""".stripMargin,
+      resultText =
+        """
+          |package completion
+          |
+          |object Test {
+          |  def main(args: Array[String]): Unit = {
+          |    val enumsSeq: Seq[WeekDayScala2Enumeration.WeekDay] = ???
+          |
+          |    enumsSeq.exists(_ == WeekDayScala2Enumeration.Friday)
+          |  }
+          |}
+          |""".stripMargin,
+      item = "Friday",
+      completionType = BASIC
+    )
+  }
+
+  def testSCL_21582_Scala2Enum_MethodCall(): Unit = {
+    configureScala2WeekdayEnum()
+
+    doCompletionTest(
+      fileText =
+        s"""
+           |package completion
+           |
+           |object Test {
+           |  def main(args: Array[String]): Unit = {
+           |    val enumsSeq: Seq[WeekDayScala2Enumeration.WeekDay] = ???
+           |
+           |    enumsSeq.contains($CARET)
+           |  }
+           |}
+           |""".stripMargin,
+      resultText =
+        """
+          |package completion
+          |
+          |object Test {
+          |  def main(args: Array[String]): Unit = {
+          |    val enumsSeq: Seq[WeekDayScala2Enumeration.WeekDay] = ???
+          |
+          |    enumsSeq.contains(WeekDayScala2Enumeration.Friday)
+          |  }
+          |}
+          |""".stripMargin,
+      item = "Friday",
+      completionType = BASIC
+    )
+  }
+
+  def testSCL_21582_Scala2Enum_MethodCall2(): Unit = {
+    configureScala2WeekdayEnum()
+
+    doCompletionTest(
+      fileText =
+        s"""
+           |package completion
+           |
+           |object Test {
+           |  def main(args: Array[String]): Unit = {
+           |    foo($CARET)
+           |  }
+           |
+           |  def foo(p: WeekDayScala2Enumeration.WeekDay): Unit = ???
+           |}
+           |""".stripMargin,
+      resultText =
+        """
+          |package completion
+          |
+          |object Test {
+          |  def main(args: Array[String]): Unit = {
+          |    foo(WeekDayScala2Enumeration.Friday)
+          |  }
+          |
+          |  def foo(p: WeekDayScala2Enumeration.WeekDay): Unit = ???
+          |}
+          |""".stripMargin,
+      item = "Friday",
+      completionType = BASIC
+    )
+  }
+
   /// ---------- SCALA 2 ENUM ------------
+
+  /// ---------- SCALA SEALED ------------
+
+  def testSCL_21582_ScalaSealed_VariableDefinition(): Unit = {
+    configureScalaSealedWeekdayEnum()
+
+    doCompletionTest(
+      fileText =
+        s"""
+           |package completion
+           |
+           |object Test {
+           |  def main(args: Array[String]): Unit = {
+           |    val enumsInstance: WeekDayScala2ADT = F$CARET
+           |  }
+           |}
+           |""".stripMargin,
+      resultText =
+        """
+          |package completion
+          |
+          |import completion.WeekDayScala2ADT.Friday
+          |
+          |object Test {
+          |  def main(args: Array[String]): Unit = {
+          |    val enumsInstance: WeekDayScala2ADT = Friday
+          |  }
+          |}
+          |""".stripMargin,
+      item = "Friday",
+      completionType = BASIC
+    )
+  }
+
+  def testSCL_21582_ScalaSealedDefinition_Seq(): Unit = {
+    configureScalaSealedWeekdayEnum()
+
+    doCompletionTest(
+      fileText =
+        s"""
+           |package completion
+           |
+           |object Test {
+           |  def main(args: Array[String]): Unit = {
+           |    val enumsSeq: Seq[WeekDayScala2ADT] = Seq($CARET)
+           |  }
+           |}
+           |""".stripMargin,
+      resultText =
+        """
+          |package completion
+          |
+          |import completion.WeekDayScala2ADT.Friday
+          |
+          |object Test {
+          |  def main(args: Array[String]): Unit = {
+          |    val enumsSeq: Seq[WeekDayScala2ADT] = Seq(Friday)
+          |  }
+          |}
+          |""".stripMargin,
+      item = "Friday",
+      completionType = BASIC
+    )
+  }
+
+  def testSCL_21582_ScalaSealedEnum_Equals(): Unit = {
+    configureScalaSealedWeekdayEnum()
+
+    doCompletionTest(
+      fileText =
+        s"""
+           |package completion
+           |
+           |object Test {
+           |  def main(args: Array[String]): Unit = {
+           |    val enumsInstance: WeekDayScala2ADT = ???
+           |
+           |    enumsInstance == F$CARET
+           |  }
+           |}
+           |""".stripMargin,
+      resultText =
+        """
+          |package completion
+          |
+          |import completion.WeekDayScala2ADT.Friday
+          |
+          |object Test {
+          |  def main(args: Array[String]): Unit = {
+          |    val enumsInstance: WeekDayScala2ADT = ???
+          |
+          |    enumsInstance == Friday
+          |  }
+          |}
+          |""".stripMargin,
+      item = "Friday",
+      completionType = BASIC
+    )
+  }
+
+  def testSCL_21582_ScalaSealedMethodCall(): Unit = {
+    configureScalaSealedWeekdayEnum()
+
+    doCompletionTest(
+      fileText =
+        s"""
+           |package completion
+           |
+           |object Test {
+           |  def main(args: Array[String]): Unit = {
+           |    val enumsSeq: Seq[WeekDayScala2ADT] = ???
+           |
+           |    enumsSeq.exists(_ == $CARET)
+           |  }
+           |}
+           |""".stripMargin,
+      resultText =
+        """
+          |package completion
+          |
+          |import completion.WeekDayScala2ADT.Friday
+          |
+          |object Test {
+          |  def main(args: Array[String]): Unit = {
+          |    val enumsSeq: Seq[WeekDayScala2ADT] = ???
+          |
+          |    enumsSeq.exists(_ == Friday)
+          |  }
+          |}
+          |""".stripMargin,
+      item = "Friday",
+      completionType = BASIC
+    )
+  }
+
+  def testSCL_21582_ScalaSealed_MethodCall(): Unit = {
+    configureScalaSealedWeekdayEnum()
+
+    doCompletionTest(
+      fileText =
+        s"""
+           |package completion
+           |
+           |object Test {
+           |  def main(args: Array[String]): Unit = {
+           |    val enumsSeq: Seq[WeekDayScala2ADT] = ???
+           |
+           |    enumsSeq.contains($CARET)
+           |  }
+           |}
+           |""".stripMargin,
+      resultText =
+        """
+          |package completion
+          |
+          |import completion.WeekDayScala2ADT.Friday
+          |
+          |object Test {
+          |  def main(args: Array[String]): Unit = {
+          |    val enumsSeq: Seq[WeekDayScala2ADT] = ???
+          |
+          |    enumsSeq.contains(Friday)
+          |  }
+          |}
+          |""".stripMargin,
+      item = "Friday",
+      completionType = BASIC
+    )
+  }
+
+  def testSCL_21582_ScalaSealed_MethodCall2(): Unit = {
+    configureScalaSealedWeekdayEnum()
+
+    doCompletionTest(
+      fileText =
+        s"""
+           |package completion
+           |
+           |object Test {
+           |  def main(args: Array[String]): Unit = {
+           |    foo($CARET)
+           |  }
+           |
+           |  def foo(p: WeekDayScala2ADT): Unit = ???
+           |}
+           |""".stripMargin,
+      resultText =
+        """
+          |package completion
+          |
+          |import completion.WeekDayScala2ADT.Friday
+          |
+          |object Test {
+          |  def main(args: Array[String]): Unit = {
+          |    foo(Friday)
+          |  }
+          |
+          |  def foo(p: WeekDayScala2ADT): Unit = ???
+          |}
+          |""".stripMargin,
+      item = "Friday",
+      completionType = BASIC
+    )
+  }
+
+  /// ---------- SCALA SEALED ------------
 }
 
 @RunWith(classOf[MultipleScalaVersionsRunner])
@@ -396,6 +1020,16 @@ final class ScalaTypeMatchingEnumBasicCompletionTest_3_Latest extends ScalaTypeM
       |  case NoArgCase()
       |  case OneArgCase(arg: String)
       |  case NoConstructorCase
+      |}
+      |""".stripMargin
+  )
+
+  private def configureScala3WeekdayEnum(): Unit = myFixture.addFileToProject("completion/WeekDayScala3.scala",
+    """
+      |package completion
+      |
+      |enum WeekDayScala3 {
+      |  case Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday
       |}
       |""".stripMargin
   )
@@ -756,6 +1390,208 @@ final class ScalaTypeMatchingEnumBasicCompletionTest_3_Latest extends ScalaTypeM
            |}
            |""".stripMargin,
       item = "NoConstructorCase",
+      completionType = BASIC
+    )
+  }
+
+  def testSCL_21582_Scala3Enum_VariableDefinition(): Unit = {
+    configureScala3WeekdayEnum()
+
+    doCompletionTest(
+      fileText =
+        s"""
+           |package completion
+           |
+           |object Test {
+           |  def main(args: Array[String]): Unit = {
+           |    val enumsInstance: WeekDayScala3 = F$CARET
+           |  }
+           |}
+           |""".stripMargin,
+      resultText =
+        """
+          |package completion
+          |
+          |import completion.WeekDayScala3.Friday
+          |
+          |object Test {
+          |  def main(args: Array[String]): Unit = {
+          |    val enumsInstance: WeekDayScala3 = Friday
+          |  }
+          |}
+          |""".stripMargin,
+      item = "Friday",
+      completionType = BASIC
+    )
+  }
+
+  def testSCL_21582_Scala3Enum_VariableDefinition_Seq(): Unit = {
+    configureScala3WeekdayEnum()
+
+    doCompletionTest(
+      fileText =
+        s"""
+           |package completion
+           |
+           |object Test {
+           |  def main(args: Array[String]): Unit = {
+           |    val enumsSeq: Seq[WeekDayScala3] = Seq($CARET)
+           |  }
+           |}
+           |""".stripMargin,
+      resultText =
+        """
+          |package completion
+          |
+          |import completion.WeekDayScala3.Friday
+          |
+          |object Test {
+          |  def main(args: Array[String]): Unit = {
+          |    val enumsSeq: Seq[WeekDayScala3] = Seq(Friday)
+          |  }
+          |}
+          |""".stripMargin,
+      item = "Friday",
+      completionType = BASIC
+    )
+  }
+
+  def testSCL_21582_Scala3Enum_Equals(): Unit = {
+    configureScala3WeekdayEnum()
+
+    doCompletionTest(
+      fileText =
+        s"""
+           |package completion
+           |
+           |object Test {
+           |  def main(args: Array[String]): Unit = {
+           |    val enumsInstance: WeekDayScala3 = ???
+           |
+           |    enumsInstance == F$CARET
+           |  }
+           |}
+           |""".stripMargin,
+      resultText =
+        """
+          |package completion
+          |
+          |import completion.WeekDayScala3.Friday
+          |
+          |object Test {
+          |  def main(args: Array[String]): Unit = {
+          |    val enumsInstance: WeekDayScala3 = ???
+          |
+          |    enumsInstance == Friday
+          |  }
+          |}
+          |""".stripMargin,
+      item = "Friday",
+      completionType = BASIC
+    )
+  }
+
+  def testSCL_21582_Scala3Enum_Equals_InMethodCall(): Unit = {
+    configureScala3WeekdayEnum()
+
+    doCompletionTest(
+      fileText =
+        s"""
+           |package completion
+           |
+           |object Test {
+           |  def main(args: Array[String]): Unit = {
+           |    val enumsSeq: Seq[WeekDayScala3] = ???
+           |
+           |    enumsSeq.exists(_ == $CARET)
+           |  }
+           |}
+           |""".stripMargin,
+      resultText =
+        """
+          |package completion
+          |
+          |import completion.WeekDayScala3.Friday
+          |
+          |object Test {
+          |  def main(args: Array[String]): Unit = {
+          |    val enumsSeq: Seq[WeekDayScala3] = ???
+          |
+          |    enumsSeq.exists(_ == Friday)
+          |  }
+          |}
+          |""".stripMargin,
+      item = "Friday",
+      completionType = BASIC
+    )
+  }
+
+  def testSCL_21582_Scala3Enum_MethodCall(): Unit = {
+    configureScala3WeekdayEnum()
+
+    doCompletionTest(
+      fileText =
+        s"""
+           |package completion
+           |
+           |object Test {
+           |  def main(args: Array[String]): Unit = {
+           |    val enumsSeq: Seq[WeekDayScala3] = ???
+           |
+           |    enumsSeq.contains($CARET)
+           |  }
+           |}
+           |""".stripMargin,
+      resultText =
+        """
+          |package completion
+          |
+          |import completion.WeekDayScala3.Friday
+          |
+          |object Test {
+          |  def main(args: Array[String]): Unit = {
+          |    val enumsSeq: Seq[WeekDayScala3] = ???
+          |
+          |    enumsSeq.contains(Friday)
+          |  }
+          |}
+          |""".stripMargin,
+      item = "Friday",
+      completionType = BASIC
+    )
+  }
+
+  def testSCL_21582_Scala3Enum_MethodCall2(): Unit = {
+    configureScala3WeekdayEnum()
+
+    doCompletionTest(
+      fileText =
+        s"""
+           |package completion
+           |
+           |object Test {
+           |  def main(args: Array[String]): Unit = {
+           |    foo($CARET)
+           |  }
+           |
+           |  def foo(p: WeekDayScala3): Unit = ???
+           |}
+           |""".stripMargin,
+      resultText =
+        """
+          |package completion
+          |
+          |import completion.WeekDayScala3.Friday
+          |
+          |object Test {
+          |  def main(args: Array[String]): Unit = {
+          |    foo(Friday)
+          |  }
+          |
+          |  def foo(p: WeekDayScala3): Unit = ???
+          |}
+          |""".stripMargin,
+      item = "Friday",
       completionType = BASIC
     )
   }

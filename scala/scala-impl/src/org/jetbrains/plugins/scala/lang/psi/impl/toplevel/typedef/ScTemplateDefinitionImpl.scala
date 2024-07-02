@@ -17,7 +17,7 @@ import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
 import org.jetbrains.plugins.scala.caches.{ModTracker, ScalaShortNamesCacheManager, cached, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.TokenSets.RBRACE_OR_END_STMT
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isLineTerminator
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createBodyFromMember, createNewLineNode, createWhitespace}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createBodyFromMember, createNewLineNode, createWhitespace, createWithKeyword}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
@@ -43,6 +43,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeRefe
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt, ScalaFeatures}
 
 import java.{util => ju}
+import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
@@ -452,6 +453,31 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
 
     val isGiven = this.isInstanceOf[ScGivenDefinition]
     if (isGiven) {
+      extendsBlock.templateParents match {
+        case Some(templateParents) =>
+          def endsWithWithKeyword(node: ASTNode): Boolean = {
+            @tailrec
+            def isWithKeywordIgnoringWhitespacesAndComments(node: ASTNode): Boolean = node match {
+              case null => false
+              case node if node.isWhitespaceOrComment =>
+                isWithKeywordIgnoringWhitespacesAndComments(node.prevNonWhitespaceNode)
+              case node => node.getElementType == ScalaTokenTypes.kWITH
+            }
+
+            isWithKeywordIgnoringWhitespacesAndComments(node.getLastChildNode)
+          }
+
+          val templateParentsNode = templateParents.getNode
+          // `given Foo with Bar` needs `with` after `Bar` to compile with the template body
+          // but don't add `with` to `given Foo with` - in this case `with` is a child of the extendsBlock node
+          val needsWith = !endsWithWithKeyword(templateParentsNode) && !endsWithWithKeyword(extendsBlockNode)
+          if (needsWith) {
+            templateParentsNode.addChild(createWhitespace.getNode)
+            templateParentsNode.addChild(createWithKeyword.getNode)
+          }
+        case _ =>
+      }
+
       // given definition does not have a new line inside a template body
       extendsBlockNode.addChild(createWhitespace("\n  ").getNode)
     }

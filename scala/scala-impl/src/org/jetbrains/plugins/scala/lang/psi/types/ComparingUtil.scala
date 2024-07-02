@@ -18,17 +18,10 @@ object ComparingUtil {
     val oneFinal = subClass.isEffectivelyFinal || supClass.isEffectivelyFinal
     val twoNonTraitsOrInterfaces = !classes.exists(_.isInterface)
 
-    def inheritorsInSameFile(clazz: PsiClass) = {
-      ClassInheritorsSearch.search(clazz, new LocalSearchScope(clazz.getContainingFile), true)
-        .findAll()
-        .asScala
-        .collect {
-          case x: ScTypeDefinition => x
-        }
+    def sealedAndAllChildrenAreIrreconcilable(subClass: PsiClass, supClass: PsiClass): Boolean = subClass match {
+      case SealedClassInheritors(classes) => classes.forall(isNeverSubClass(_, supClass))
+      case _                              => false
     }
-
-    def sealedAndAllChildrenAreIrreconcilable(subClass: PsiClass, supClass: PsiClass): Boolean =
-      subClass.isSealed && inheritorsInSameFile(subClass).forall(isNeverSubClass(_, supClass))
 
     def oneClazzIsSealedAndAllChildrenAreIrreconcilable: Boolean =
       sealedAndAllChildrenAreIrreconcilable(subClass, supClass) || sealedAndAllChildrenAreIrreconcilable(supClass, subClass)
