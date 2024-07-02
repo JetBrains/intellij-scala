@@ -229,13 +229,15 @@ private object ScalaTreeStructureProvider {
 
     def moduleIdOpt(module: Module): Option[String] = Option(ExternalSystemApiUtil.getExternalProjectId(module))
 
-    def isRootAndBelongsToDifferentBUILD(module: Module): Boolean = {
-      moduleIdOpt(module).fold(false) { id =>
+    def isRootAndBelongsToDifferentBUILD(module: Module): Boolean =
+      moduleIdOpt(module).exists { id =>
         val moduleRootPath = ExternalSystemApiUtil.getExternalProjectPath(module)
-        val isRoot = regexPattern(moduleRootPath).matches(id)
-        isRoot && !moduleRegexPattern.matches(id)
+        if (moduleRootPath == null) false
+        else {
+          val isRoot = regexPattern(moduleRootPath).matches(id)
+          isRoot && !moduleRegexPattern.matches(id)
+        }
       }
-    }
 
     moduleIdOpt(module).exists { id =>
       val isRootProject = moduleRegexPattern.matches(id)
