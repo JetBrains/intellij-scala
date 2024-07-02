@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.tasty.reader
 
 import Node.{Node1, Node2, Node3}
-import TreePrinter.Keywords
+import TreePrinter.{Keywords, TypeBounds}
 
 import dotty.tools.tasty.TastyBuffer.Addr
 import dotty.tools.tasty.TastyFormat.*
@@ -171,8 +171,12 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
     readSourceFileAnnotationIn(node)
     textOfAnnotationIn(sb, indent, node, "\n")
     sb ++= indent
-    modifiersIn(sb, if (isObject) node.prevSibling.getOrElse(node) else node,
-      if (isGivenClass) Set(GIVEN) else (if (isEnum) Set(ABSTRACT, SEALED, CASE, FINAL) else (if (isTypeMember) Set.empty else Set(OPAQUE))), isParameter = false)
+
+    val excluding: Set[Int] =
+      if (isGivenClass) Set(GIVEN)
+      else if (isEnum) Set(ABSTRACT, SEALED, CASE, FINAL)
+      else if (isTypeMember) Set.empty else Set(OPAQUE)
+    modifiersIn(sb, if (isObject) node.prevSibling.getOrElse(node) else node, excluding, isParameter = false)
     if (isImplicitClass) {
       sb ++= "implicit "
     }
@@ -223,7 +227,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
         case _ =>
       }
       if (bounds.isDefined) {
-        boundsIn(sb, bounds.get)
+        printTypeBounds(sb, bounds.get)
       } else {
         if (!node.contains(OPAQUE)) { // TODO Enable when opaque types are implemented, #SCL-21516
           sb ++= " = "
@@ -589,7 +593,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
 
       case Node1(TYPEBOUNDStpt | TYPEBOUNDS) =>
         val sb1 = new StringBuilder() // TODO reuse
-        boundsIn(sb1, node)
+        printTypeBounds(sb1, node)
         (if (legacySyntax) "_" else "?") + sb1.toString
 
       case Node3(LAMBDAtpt, _, children) =>
@@ -769,11 +773,11 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
             parametersIn(sb, lambda)
             lambda.children.lastOption match { // TODO deduplicate somehow?
               case Some(bounds @ Node1(TYPEBOUNDStpt)) =>
-                boundsIn(sb, bounds)
+                printTypeBounds(sb, bounds)
               case _ =>
             }
           case Seq(bounds @ Node1(TYPEBOUNDStpt), _: _*) =>
-            boundsIn(sb, bounds)
+            printTypeBounds(sb, bounds)
           case _ =>
         }
         contextBounds.foreach { case (id, tpe) =>
@@ -992,17 +996,32 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
     }
   }
 
-  private def boundsIn(sb: StringBuilder, node: Node): Unit = node match {
-    case Node3(TYPEBOUNDStpt | TYPEBOUNDS, _, Seq(lower, upper)) =>
-      val l = textOfType(lower)
-      if (l.nonEmpty && l != "_root_.scala.Nothing") {
-        sb ++= " >: " + simple(l)
-      }
-      val u = textOfType(upper)
-      if (u.nonEmpty && u != "_root_.scala.Any") {
-        sb ++= " <: " + simple(u)
-      }
-    case _ => // TODO exhaustive match
+  private def printTypeBounds(sb: StringBuilder, node: Node): Unit = {
+    val bounds = typeBoundsIn(node)
+    printTypeBounds(sb, bounds)
+  }
+
+  private def printTypeBounds(sb: StringBuilder, bounds: TypeBounds): Unit = {
+    bounds.lower.foreach(l => sb ++= " >: " + simple(l))
+    bounds.upper.foreach(u => sb ++= " <: " + simple(u))
+  }
+
+  private def typeBoundsIn(node: Node): TypeBounds = {
+    var lRes: Option[String] = None
+    var uRes: Option[String] = None
+    node match {
+      case Node3(TYPEBOUNDStpt | TYPEBOUNDS, _, Seq(lower, upper)) =>
+        val l = textOfType(lower)
+        if (l.nonEmpty && l != "_root_.scala.Nothing") {
+          lRes = Some(simple(l))
+        }
+        val u = textOfType(upper)
+        if (u.nonEmpty && u != "_root_.scala.Any") {
+          uRes = Some(simple(u))
+        }
+      case _ => // TODO exhaustive match
+    }
+    TypeBounds(lRes, uRes)
   }
 
   private def asQualifier(tpe: String): String = {
@@ -1095,4 +1114,6 @@ private object TreePrinter {
     "with",
     "yield",
   )
+
+  private case class TypeBounds(lower: Option[String], upper: Option[String])
 }
