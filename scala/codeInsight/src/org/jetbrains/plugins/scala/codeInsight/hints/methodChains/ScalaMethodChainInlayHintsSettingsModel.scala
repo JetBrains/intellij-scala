@@ -121,7 +121,7 @@ class ScalaMethodChainInlayHintsSettingsModel(project: Project) extends InlayPro
     settingsPanel.reset()
   }
 
-  override def getDescription: String = ScalaCodeInsightBundle.message("method.chain.hints.description", ScalaHintsSettings.xRayModeTipText)
+  override def getDescription: String = ScalaCodeInsightBundle.message("method.chain.hints.description") + ScalaHintsSettings.xRayModeTipHtmlForSettingsDescription
 
   override def getComponent: JComponent = {
     val linePanel = {

@@ -41,7 +41,7 @@ class ScalaParameterHintsSettingsModel(project: Project)
 
   override def reset(): Unit = setEnabled(ScalaCodeInsightSettings.showParameterNames)
 
-  override def getDescription: String = ScalaCodeInsightBundle.message("parameter.name.hints.description", ScalaHintsSettings.xRayModeTipText)
+  override def getDescription: String = ScalaCodeInsightBundle.message("parameter.name.hints.description") + ScalaHintsSettings.xRayModeTipHtmlForSettingsDescription
 
   override def getCaseDescription(aCase: ImmediateConfigurable.Case): String = null
 

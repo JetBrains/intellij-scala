@@ -26,6 +26,18 @@ object ScalaHintsSettings {
 
   var xRayModePinned = false
 
+  /**
+   * Returns html with a gray tip text advertising usage of X-Ray mode.
+   * It's shown, for example, in `Settings | Editor | Inlay Hints | Types | Scala`
+   * A paragraph is added in order the tip is shown on a new line, below the main setting title.
+   */
+  @Nls //noinspection ScalaExtractStringToBundle
+  private[hints] def xRayModeTipHtmlForSettingsDescription: String = {
+    val innerText = xRayModeTipText
+    s"""<p style="font-size: 90%; margin-top: 5px; color: gray;">$innerText</p>"""
+  }
+
+  @Nls
   private[hints] def xRayModeTipText: String =
     ScalaCodeInsightBundle.message("xray.mode.tip", xRayModeShortcut)
 
