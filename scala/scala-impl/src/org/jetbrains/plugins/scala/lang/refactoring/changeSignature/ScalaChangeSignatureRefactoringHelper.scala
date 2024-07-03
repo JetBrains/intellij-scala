@@ -8,7 +8,7 @@ import com.intellij.usageView.UsageInfo
 import java.util
 
 class ScalaChangeSignatureRefactoringHelper extends RefactoringHelper[Unit] {
-  override def prepareOperation(usages: Array[UsageInfo], elements: util.List[PsiElement]): Unit = {
+  override def prepareOperation(usages: Array[UsageInfo], elements: util.List[_ <: PsiElement]): Unit = {
     def priority(usageInfo: UsageInfo) = usageInfo match {
       case _: ParameterUsageInfo => 0
       case _: MethodUsageInfo => 1

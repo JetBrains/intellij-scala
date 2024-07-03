@@ -16,7 +16,7 @@ final class ScalaPrioritizeImportsUsageRefactoringHelper extends RefactoringHelp
    * Move usages inside imports to the beginning of the usages.<br>
    * Scala refactoring code (i.e. "Move" refactoring) relies on the fact that imports are processed first.
    */
-  override def prepareOperation(usages: Array[UsageInfo], elements: util.List[PsiElement]): Unit = {
+  override def prepareOperation(usages: Array[UsageInfo], elements: util.List[_ <: PsiElement]): Unit = {
     moveImportsToStart(usages)
     ()
   }
