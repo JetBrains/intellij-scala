@@ -40,4 +40,9 @@
             <option name="FOREGROUND" value="00b8bb" />
         </value>
     </option>
+    <option name="Scala Named Argument">
+        <value>
+            <option name="FOREGROUND" value="4a86e8" />
+        </value>
+    </option>
 </list>

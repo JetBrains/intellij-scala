@@ -24,8 +24,8 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * NOTE: some non default values are specified in predefined color schemes<br>
- * See scala/scala-impl/resources/colorSchemes/*.xml (e.g. ScalaDarcula.xml or ScalaDefault.xml)
+ * NOTE: some non-default values are specified in predefined color schemes<br>
+ * See scala/scala-impl/resources/colorSchemes/*.xml (for example, ScalaDarcula.xml or ScalaDefault.xml)
  */
 public class DefaultHighlighter {
 
@@ -79,6 +79,7 @@ public class DefaultHighlighter {
   static final String VARIABLES_ID = "Scala Template var";
   static final String LAZY_ID = "Scala Template lazy val/var";
   static final String PARAMETER_ID = "Scala Parameter";
+  static final String NAMED_ARGUMENT_ID = "Scala Named Argument";
   static final String GIVEN_ID = "Scala Given";
   //"Scala Anonymous Parameter" is preserved for backward compatibility
   static final String PARAMETER_OF_ANONYMOUS_FUNCTION_ID = "Scala Anonymous Parameter";
@@ -154,6 +155,7 @@ public class DefaultHighlighter {
   public static final TextAttributesKey PATTERN = createKey(PATTERN_ID, JavaHighlightInfoTypes.LOCAL_VARIABLE.getAttributesKey());
   public static final TextAttributesKey GENERATOR = createKey(GENERATOR_ID, JavaHighlightInfoTypes.LOCAL_VARIABLE.getAttributesKey());
   public static final TextAttributesKey PARAMETER = createKey(PARAMETER_ID, JavaHighlightInfoTypes.PARAMETER.getAttributesKey());
+  public static final TextAttributesKey NAMED_ARGUMENT = createKey(NAMED_ARGUMENT_ID, PARAMETER);
   public static final TextAttributesKey GIVEN = createKey(GIVEN_ID, JavaHighlightInfoTypes.STATIC_FIELD.getAttributesKey());
 
   //TODO: rename ANONIMOUS -> ANONYMOUS
