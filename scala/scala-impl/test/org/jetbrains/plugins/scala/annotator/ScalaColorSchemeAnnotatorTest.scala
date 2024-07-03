@@ -299,7 +299,10 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
     val keysOfInterest: Set[TextAttributesKey] = Set(
       DefaultHighlighter.VALUES,
       DefaultHighlighter.VARIABLES,
+      DefaultHighlighter.LOCAL_VALUES,
+      DefaultHighlighter.LOCAL_VARIABLES,
       DefaultHighlighter.PARAMETER,
+      DefaultHighlighter.NAMED_ARGUMENT,
       DefaultHighlighter.PARAMETER_OF_ANONIMOUS_FUNCTION,
       DefaultHighlighter.TYPEPARAM,
       DefaultHighlighter.LOCAL_VALUES,
@@ -397,7 +400,10 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
     val keysOfInterest: Set[TextAttributesKey] = Set(
       DefaultHighlighter.VALUES,
       DefaultHighlighter.VARIABLES,
+      DefaultHighlighter.LOCAL_VALUES,
+      DefaultHighlighter.LOCAL_VARIABLES,
       DefaultHighlighter.PARAMETER,
+      DefaultHighlighter.NAMED_ARGUMENT,
       DefaultHighlighter.PARAMETER_OF_ANONIMOUS_FUNCTION,
       DefaultHighlighter.TYPEPARAM,
       DefaultHighlighter.LOCAL_VALUES,
@@ -429,6 +435,52 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
         |Info((720,734),parameterField,Scala Template val)
         |Info((750,767),parameterFieldVal,Scala Template val)
         |Info((783,800),parameterFieldVar,Scala Template val)""".stripMargin
+    )
+  }
+
+  def testNamedArguments(): Unit = {
+    addScalaFileToProject("defs.scala",
+      """class MyClass(param: Int, val paramFieldVal: Int, var paramFieldVar: Int)(param4: Int)
+        |case class MyCaseClass(paramField: Int, val paramFieldVal: Int, var paramFieldVar: Int)(param4: Int)
+        |def foo(param1: Int, param2: Int)(param3: Int): Unit = ???
+        |val value = 42
+        |""".stripMargin
+    )
+    val text =
+      """new MyClass(param = 1, paramFieldVal = 2, paramFieldVar = 3)(param4 = 4)
+        |MyCaseClass(paramField = 1, paramFieldVal = 2, paramFieldVar = 3)(param4 = 4)
+        |foo(param1 = value, param2 = value)(param3 = value)
+        |""".stripMargin
+
+    //adding more keys which I think could be accidentally used, but not too many to keep test data compact
+    val keysOfInterest: Set[TextAttributesKey] = Set(
+      DefaultHighlighter.VALUES,
+      DefaultHighlighter.LOCAL_VALUES,
+      DefaultHighlighter.LOCAL_VARIABLES,
+      DefaultHighlighter.VARIABLES,
+      DefaultHighlighter.PARAMETER,
+      DefaultHighlighter.NAMED_ARGUMENT,
+      DefaultHighlighter.PARAMETER_OF_ANONIMOUS_FUNCTION,
+      DefaultHighlighter.TYPEPARAM,
+    )
+    testAnnotations(
+      text,
+      keysOfInterest,
+      """Info((12,19),param =,Scala Named Argument)
+        |Info((23,38),paramFieldVal =,Scala Named Argument)
+        |Info((42,57),paramFieldVar =,Scala Named Argument)
+        |Info((61,69),param4 =,Scala Named Argument)
+        |Info((85,97),paramField =,Scala Named Argument)
+        |Info((101,116),paramFieldVal =,Scala Named Argument)
+        |Info((120,135),paramFieldVar =,Scala Named Argument)
+        |Info((139,147),param4 =,Scala Named Argument)
+        |Info((155,163),param1 =,Scala Named Argument)
+        |Info((164,169),value,Scala Local value)
+        |Info((171,179),param2 =,Scala Named Argument)
+        |Info((180,185),value,Scala Local value)
+        |Info((187,195),param3 =,Scala Named Argument)
+        |Info((196,201),value,Scala Local value)
+        |""".stripMargin
     )
   }
 }

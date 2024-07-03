@@ -175,6 +175,8 @@
 
         <additionalTextAttributes scheme="Default" file="colorSchemes/ScalaDefault.xml"/>
         <additionalTextAttributes scheme="Darcula" file="colorSchemes/ScalaDarcula.xml"/>
+        <additionalTextAttributes scheme="High contrast" file="colorSchemes/ScalaHighContrast.xml"/>
+        <additionalTextAttributes scheme="Dark" file="colorSchemes/expui/ScalaDark.xml"/>
         <treeStructureProvider implementation="org.jetbrains.plugins.scala.projectView.ScalaTreeStructureProvider" order="last"/>
         <lang.braceMatcher language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaBraceMatcher"/>
         <codeBlockSupportHandler language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaBlockSupportHandler"/>
