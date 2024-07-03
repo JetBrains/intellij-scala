@@ -15,55 +15,14 @@ object Versions {
   val zincVersion = "1.10.0"
 
   // ATTENTION: check the comment in `Common.newProjectWithKotlin` when updating this version
-  val intellijVersion = "242.19533.34"
+  val intellijVersion = "242.19890.5"
 
   def isNightlyIntellijVersion: Boolean = intellijVersion.count(_ == '.') == 1
 
   val (
     intellijVersion_ForManagedIntellijDependencies,
     intellijRepository_ForManagedIntellijDependencies,
-  ) = {
-    // TODO: Return cache redirected repository URLs directly from `sbt-idea-plugin`.
-    val (version, repository) = detectIntellijArtifactVersionAndRepository(intellijVersion)
-    val cacheRedirected = MavenRepository(repository.name, "https://cache-redirector.jetbrains.com/" + repository.root.stripPrefix("https://www.jetbrains.com/"))
-    (version, cacheRedirected)
-  }
-
-  val pluginVerifierVersion: String = {
-    println("Fetching pluginVerifier version")
-
-    import org.jetbrains.sbtidea.PluginLogger
-    import scala.util.{Failure, Success, Try}
-    import scala.xml.XML
-
-    val propKey = "SCALA_PLUGIN_VERIFIER_RESOLVED_VERSION"
-
-    val hardcodedVersion = "1.369"
-    val spaceMetadataUrl = "https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/intellij-plugin-verifier/intellij-plugin-verifier/org/jetbrains/intellij/plugins/verifier-cli/maven-metadata.xml"
-
-    Option(System.getProperty(propKey)) match {
-      case Some(version) =>
-        println(s"Using already resolved version $version")
-        version
-      case None =>
-        Try(XML.load(spaceMetadataUrl)) match {
-          case Failure(exception) =>
-            PluginLogger.error(s"failed get latest verifier version: ${exception.getMessage}")
-            hardcodedVersion
-          case Success(value) =>
-            val v = (value \\ "metadata" \ "versioning" \ "latest").text
-            if (v.isEmpty) {
-              PluginLogger.error(s"failed get latest verifier version: falling back to $hardcodedVersion")
-              println(s"failed get latest verifier version: falling back to $hardcodedVersion")
-              hardcodedVersion
-            } else {
-              println(s"Done fetching plugin verifier version: $v")
-              System.setProperty(propKey, v)
-              v
-            }
-        }
-    }
-  }
+  ) = detectIntellijArtifactVersionAndRepository(intellijVersion)
 
   private def detectIntellijArtifactVersionAndRepository(intellijVersion: String): (String, MavenRepository) = {
     val locationDescriptor = IntellijVersionUtils.detectArtifactLocation(BuildInfo(intellijVersion, IdeaCommunity), ".zip")

@@ -74,4 +74,7 @@ public interface Icons {
     // Highlighting (status bar)
     Icon TYPED = getIcon("/org/jetbrains/plugins/scala/images/typed.svg", Icons.class);
     Icon UNTYPED = getIcon("/org/jetbrains/plugins/scala/images/untyped.svg", Icons.class);
+
+    // X-Ray mode widget
+    Icon PIN = getIcon("/org/jetbrains/plugins/scala/images/pin.svg", Icons.class);
 }

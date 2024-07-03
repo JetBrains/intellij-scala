@@ -77,25 +77,6 @@ object Common {
     Test / unmanagedSourceDirectories := Nil,
   )
 
-  val fixedPluginVerifierOptions: Seq[Setting[?]] = Seq(
-    // TODO: Copied from `sbt-idea-plugin` RunPluginVerifierTask, needs to be addressed at the plugin level.
-    pluginVerifierOptions := Def.setting {
-      val isRunningOnTC = System.getenv("TEAMCITY_VERSION") != null
-      PluginVerifierOptions(
-        version              = Versions.pluginVerifierVersion,
-        reportsDir           = target.value / "verifier" / "reports",
-        teamcity             = isRunningOnTC,
-        teamcityGrouping     = isRunningOnTC,
-        offline              = false,
-        pluginDir            = packageOutputDir.value,
-        ideaDir              = (ThisBuild / intellijBaseDirectory).value,
-        failureLevels        = org.jetbrains.sbtidea.verifier.FailureLevel.values().toSet,
-        additionalCommonOpts = Seq.empty,
-        overrideIDEs         = Seq.empty
-      )
-    }.value
-  )
-
   private val NewProjectBaseSettings: Seq[Setting[?]] = Seq(
     organization := "JetBrains",
     scalaVersion := Versions.scalaVersion,
@@ -109,8 +90,7 @@ object Common {
       Dependencies.junit % Test,
       Dependencies.junitInterface % Test,
     ),
-  ) ++ projectDirectoriesSettings ++
-    fixedPluginVerifierOptions
+  ) ++ projectDirectoriesSettings
 
   val intellijPluginsScopeFilter: ScopeFilter =
     ScopeFilter(inDependencies(ThisProject, includeRoot = false))

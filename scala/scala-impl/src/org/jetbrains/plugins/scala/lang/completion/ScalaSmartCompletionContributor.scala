@@ -224,7 +224,10 @@ final class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
                                   place: PsiElement): Unit =
         extractReference[ScInfixExpr](place).foreach { case (ref, infix) =>
           if (infix.left == ref && infix.isRightAssoc || infix.right == ref && infix.isLeftAssoc) {
-            acceptTypes(ref.expectedTypes(), ref)
+            val expr = if (infix.isRightAssoc) infix.right else infix.left
+            // e.g. `foo == bar` -> ref.expectedTypes() == Seq(Any), expr.`type`() == (foo/bar).type
+            val expectedTypes = ref.expectedTypes() ++ expr.`type`().toSeq.map(_.widen)
+            acceptTypes(expectedTypes.distinct, ref)
           }
         }
     }
@@ -362,7 +365,7 @@ object ScalaSmartCompletionContributor {
             if (!scType.equiv(Nothing) && typez.exists(scType conforms _)) {
               elementAdded = true
               if (etaExpanded) scalaLookupItem.etaExpanded = true
-              result.addElement(elemToAdd)
+              result.addElement(PrioritizedLookupElement.withPriority(elemToAdd, 1))
             } else {
               typez.foreach {
                 case ParameterizedType(tpe, Seq(arg)) if !elementAdded =>
@@ -457,7 +460,11 @@ object ScalaSmartCompletionContributor {
         //enum and factory methods
         val iterator = typez.iterator
         while (iterator.hasNext) {
-          val tp = iterator.next()
+          val tp = iterator.next() match {
+            // SCL-21582: e.g.: `A1_ >: WeekDayScala3` -> `WeekDayScala3`
+            case t: ScAbstractType => t.removeAbstracts
+            case t => t
+          }
 
           // todo unify with SbtCompletionContributor.collectAndApplyVariants
           def checkObject(containingClass: ScObject): Unit =
@@ -498,7 +505,7 @@ object ScalaSmartCompletionContributor {
                   }
                 case Some(javaEnum@JavaEnum(fields)) if isAccessible(javaEnum) =>
                   fields.foreach(field => applyVariant(createLookupElementWithPrefix(field, javaEnum)))
-                case _ =>
+                case cls =>
                   val valueType = tp.extractDesignatorSingleton.getOrElse(tp)
                   valueType match {
                     case ScProjectionType(DesignatorOwner(enumeration@ScalaEnumeration(vals)), _) if isAccessible(enumeration) =>
@@ -506,6 +513,14 @@ object ScalaSmartCompletionContributor {
                       val fields = applicableVals.flatMap(_.declaredElements)
                       fields.foreach(field => applyVariant(createLookupElementWithPrefix(field, enumeration)))
                     case _ =>
+                      cls match {
+                        // SCL-21582
+                        case Some(sealedClass@SealedClassInheritors(cases)) if isAccessible(sealedClass) =>
+                          cases.foreach { c =>
+                            applyVariant(createLookupElement(c, sealedClass))
+                          }
+                        case _ =>
+                      }
                   }
               }
             } else tp.extractClass match {
