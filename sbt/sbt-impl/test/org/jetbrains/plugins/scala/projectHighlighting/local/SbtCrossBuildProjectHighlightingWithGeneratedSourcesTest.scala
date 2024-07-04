@@ -8,9 +8,7 @@ import org.jetbrains.sbt.project.ProjectStructureMatcher
 import org.jetbrains.sbt.project.ProjectStructureMatcher.ProjectComparisonOptions
 import org.junit.Assert.fail
 
-import java.lang
-
-class SbtCrossBuildProjectHighlightingWithGeneratedSourcesTest_TransitiveProjectDependenciesDisabled extends SbtProjectHighlightingLocalProjectsTestBase {
+class SbtCrossBuildProjectHighlightingWithGeneratedSourcesTest extends SbtProjectHighlightingLocalProjectsTestBase {
 
   override def projectName = "sbt-crossproject-test-project-with-generated-sources"
 
@@ -20,12 +18,6 @@ class SbtCrossBuildProjectHighlightingWithGeneratedSourcesTest_TransitiveProject
     reporter: HighlightingProgressReporter,
   ): Unit =
     doHighlightingForFile(virtualFile, psiFile, reporter)
-
-  override def importProject(skipIndexing: lang.Boolean): Unit = {
-    val projectSettings = getCurrentExternalProjectSettings
-    projectSettings.setInsertProjectTransitiveDependencies(false)
-    super.importProject(skipIndexing)
-  }
 
   //noinspection ScalaUnusedSymbol,TypeAnnotation
   def testProjectStructure(): Unit = {
@@ -138,16 +130,16 @@ class SbtCrossBuildProjectHighlightingWithGeneratedSourcesTest_TransitiveProject
       // Define dependencies between modules separately for better test data readability
       //
       `downstreamPure-sources`.dependsOn(`upstreamPureJVM`)
-      `downstreamPureJVM`.dependsOn(`upstreamPureJVM`, `downstreamPure-sources`)
-      `downstreamPureJS`.dependsOn(`upstreamPureJS`, `downstreamPure-sources`)
+      `downstreamPureJVM`.dependsOn(`upstreamPureJVM`, `downstreamPure-sources`, `upstreamPure-sources`)
+      `downstreamPureJS`.dependsOn(`upstreamPureJS`, `downstreamPure-sources`, `upstreamPure-sources`)
 
       `upstreamPure-sources`.dependsOn()
       `upstreamPureJVM`.dependsOn(`upstreamPure-sources`)
       `upstreamPureJS`.dependsOn(`upstreamPure-sources`)
 
       `downstreamFull-sources`.dependsOn(`upstreamFullJVM`)
-      `downstreamFullJVM`.dependsOn(`upstreamFullJVM`, `downstreamFull-sources`)
-      `downstreamFullJS`.dependsOn(`upstreamFullJS`, `downstreamFull-sources`)
+      `downstreamFullJVM`.dependsOn(`upstreamFullJVM`, `downstreamFull-sources`, `upstreamFull-sources`)
+      `downstreamFullJS`.dependsOn(`upstreamFullJS`, `downstreamFull-sources`, `upstreamFull-sources`)
 
       `upstreamFull-sources`.dependsOn()
       `upstreamFullJVM`.dependsOn(`upstreamFull-sources`)

@@ -282,7 +282,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     Seq("download") ++
       settings.resolveClassifiers.seq("resolveSourceClassifiers") ++
       settings.resolveSbtClassifiers.seq("resolveSbtClassifiers") ++
-      settings.insertProjectTransitiveDependencies.seq("insertProjectTransitiveDependencies") ++
       settings.separateProdTestSources.seq("separateProdAndTestSources")
 
 
@@ -320,7 +319,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       buildProjectsGroup,
       libraryNodes,
       moduleFilesDirectory,
-      insertProjectTransitiveDependencies = false,
       useSeparateCompilerOutputPaths = false,
       separateProdTestSources = false
     )
@@ -329,7 +327,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       settings.jdk.map(JdkByName),
       sbtVersion,
       projectPath,
-      projectTransitiveDependenciesUsed = false,
       prodTestSourcesSeparated = false
     )
     projectNode.add(new SbtProjectNode(dummySbtProjectData))
@@ -375,7 +372,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
           projectJdk,
           data.sbtVersion,
           root,
-          settings.insertProjectTransitiveDependencies,
           settings.separateProdTestSources
         )
       )
@@ -394,7 +390,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       buildProjectsGroups,
       libraryNodes,
       moduleFilesDirectory,
-      settings.insertProjectTransitiveDependencies,
       settings.useSeparateCompilerOutputPaths,
       settings.separateProdTestSources
     )
@@ -410,7 +405,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       projectToModule,
       libraryNodes,
       moduleFilesDirectory,
-      settings.insertProjectTransitiveDependencies,
       settings.separateProdTestSources,
       buildProjectsGroups
     )
@@ -543,11 +537,11 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
         Seq((main, projectDependencies.forProduction), (test, projectDependencies.forTest))
     }
 
-  private def addAllModuleDependencies(projectToModule: Map[ProjectData, ModuleSourceSet], insertProjectTransitiveDependencies: Boolean): Unit = {
+  private def addAllModuleDependencies(projectToModule: Map[ProjectData, ModuleSourceSet]): Unit = {
     val moduleToDependencies = mapToModuleNodeToDependencies(projectToModule)
     val allSourceSetModules = collectSourceModules(projectToModule)
     moduleToDependencies.foreach { case (module, deps) =>
-      addModuleDependencies(deps, allSourceSetModules, module, insertProjectTransitiveDependencies)
+      addModuleDependencies(deps, allSourceSetModules, module)
     }
   }
 
@@ -555,7 +549,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     projectsGrouped: Seq[BuildProjectsGroup],
     libraryNodes: Seq[LibraryNode],
     moduleFilesDirectory: File,
-    insertProjectTransitiveDependencies: Boolean,
     useSeparateCompilerOutputPaths: Boolean,
     separateProdTestSources: Boolean
   ): Map[ProjectData, ModuleSourceSet] = {
@@ -572,14 +565,14 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       }
 
     val projectToModuleMap = projectToModule.toMap
-    addAllModuleDependencies(projectToModuleMap, insertProjectTransitiveDependencies)
+    addAllModuleDependencies(projectToModuleMap)
 
     projectToModuleMap
   }
 
   /**
    * In this method the grouping of modules is done in such a way that projects that belonging to the same build are grouped together (when there are at least 2 builds).
-   * Additionally the root node (displayed in <code>Project Structure | Modules</code>) for projects inside single build is the root project of this build.
+   * Additionally, the root node (displayed in <code>Project Structure | Modules</code>) for projects inside single build is the root project of this build.
    * Because of that, the root project in each build does not participate in the grouping of modules.
    */
   private def createModulesInsideBuildProjectGroup(
@@ -663,7 +656,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     //NOTE: sort by URI for a better reproducibility/testability of resulting project structure
     //The matters for unique group names generation
-    //(if the order is not specifies, group names of projects with colliding names can have random index suffixes)
+    //(if the order is not specified, group names of projects with colliding names can have random index suffixes)
     buildToProjects
       .toSeq.sortBy(_._1)
       .map { case (buildUri, projects) =>
