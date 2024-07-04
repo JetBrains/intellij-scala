@@ -36,10 +36,6 @@ ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" 
 
 (Global / scalacOptions) := globalScalacOptions
 
-//todo remove after fixing leak in sbt.internal.inc.HashUtil.farmHash
-//UPD: this is probably about: https://github.com/sbt/sbt/issues/6029
-Global / concurrentRestrictions := Seq(Tags.limitAll(3))
-
 val definedTestsScopeFilter: ScopeFilter =
   ScopeFilter(inDependencies(scalaCommunity, includeRoot = false), inConfigurations(Test))
 
