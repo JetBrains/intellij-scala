@@ -1,6 +1,5 @@
 package org.jetbrains.jps.incremental.scala.model.impl
 
-import org.jetbrains.jps.incremental.scala.BuildParametersUtils
 import org.jetbrains.jps.incremental.scala.model.JpsSbtExtensionService
 import org.jetbrains.jps.model.java.impl.JpsJavaDependenciesEnumerationHandler
 import org.jetbrains.jps.model.module.JpsModule
@@ -21,7 +20,7 @@ final class JpsSbtDependenciesEnumerationHandler extends JpsJavaDependenciesEnum
     super.shouldIncludeTestsFromDependentModulesToTestClasspath
 
   override def shouldProcessDependenciesRecursively: Boolean =
-    BuildParametersUtils.getProcessDependenciesRecursivelyProperty
+    false
 }
 
 object JpsSbtDependenciesEnumerationHandler {

@@ -21,7 +21,6 @@ class SbtExecutionSettings(val realProjectPath: String,
                            val preferScala2: Boolean,
                            val userSetEnvironment: Map[String, String],
                            val passParentEnvironment: Boolean,
-                           val insertProjectTransitiveDependencies: Boolean,
                            val useSeparateCompilerOutputPaths: Boolean,
                            val separateProdTestSources: Boolean
                           ) extends ExternalSystemExecutionSettings

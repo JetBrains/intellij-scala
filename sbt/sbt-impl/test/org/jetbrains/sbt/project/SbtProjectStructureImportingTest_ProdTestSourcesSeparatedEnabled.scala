@@ -1,13 +1,9 @@
 package org.jetbrains.sbt.project
 
-import com.intellij.compiler.CompilerConfiguration
 import com.intellij.compiler.impl.javaCompiler.javac.JavacConfiguration
 import com.intellij.openapi.externalSystem.util.{DisposeAwareProjectChange, ExternalSystemApiUtil}
-import com.intellij.openapi.module.Module
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
-import com.intellij.openapi.roots.{LanguageLevelModuleExtension, LanguageLevelProjectExtension, ModuleRootModificationUtil}
-import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
+import com.intellij.openapi.projectRoots.ProjectJdkTable
+import com.intellij.openapi.roots.DependencyScope
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.IdeaTestUtil
 import org.jetbrains.annotations.Nullable
@@ -19,19 +15,13 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.external.JdkByName
 import org.jetbrains.plugins.scala.project.template.FileExt
 import org.jetbrains.sbt.Sbt
-import org.jetbrains.sbt.settings.SbtSettings
 import org.junit.Assert
 import org.junit.Assert.{assertEquals, assertTrue}
 import org.junit.experimental.categories.Category
 
 import java.net.URI
-import java.nio.file.Path
 import scala.annotation.nowarn
-import scala.jdk.CollectionConverters.SeqHasAsJava
 
-// IMPORTANT ! each test that tests the dependencies of the modules should have its counterpart in
-// SbtProjectStructureImportingTest_TransitiveProjectDependenciesEnabled.scala. Before each test performed in this class
-// insertProjectTransitiveDependencies is set to true, so that the functionality of transitive dependencies can be tested
 @Category(Array(classOf[SlowTests]))
 final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled extends SbtProjectStructureImportingLike {
 
@@ -42,8 +32,6 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
     super.runTest(expected, singleContentRootModules = false)
   }
 
-  // note: it is needed to set insertProjectTransitiveDependencies to false in projectSettings because it is enabled
-  //by default
   override def setUp(): Unit = {
     super.setUp()
     val projectSettings = getCurrentExternalProjectSettings
@@ -78,88 +66,13 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
   // note: this test is for the case in which an additional project is linked to the project.
   // The linked project is project "simple". The ideProject is generated from "twoLinkedProjects" project
   def testTwoLinkedProjects(): Unit = {
-    runTwoLinkedProjectsTest(
-      ideProjectName = "testTwoLinkedProjects",
-      originalProjectName = "twoLinkedProjects",
-      linkedProjectName = "simple",
-      ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk("2.13.5"),
-      DefaultSbtContentRootsScala213,
-      DefaultMainSbtContentRootsScala213,
-      DefaultTestSbtContentRootsScala213
-    )
-  }
-
-  def testSimpleDoNotUseCoursier(): Unit = {
-    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkFromIvy("2.12.10")
-    runSimpleTest("simpleDoNotUseCoursier", "2.12", scalaLibraries, DefaultSbtContentRootsScala212, DefaultMainSbtContentRootsScala212, DefaultTestSbtContentRootsScala212)
-  }
-
-  private def runSimpleTest(
-    projectName: String,
-    scalaVersion: String,
-    expectedScalaLibraries: Seq[library],
-    expectedSbtCompletionVariantsForParentModule: Seq[ExpectedDirectoryCompletionVariant] = DefaultSbtContentRootsScala213,
-    expectedSbtCompletionVariantsForMainModule: Seq[ExpectedDirectoryCompletionVariant] = DefaultMainSbtContentRootsScala213,
-    expectedSbtCompletionVariantsForTestModule: Seq[ExpectedDirectoryCompletionVariant] = DefaultTestSbtContentRootsScala213,
-  ): Unit = {
-    runTest(
-      new project(projectName) {
-        libraries := expectedScalaLibraries
-
-        modules := Seq(
-          new module(projectName) {
-            contentRoots += getProjectPath
-            excluded := Seq("target")
-          },
-          new module(s"$projectName.main") {
-            contentRoots := Seq(s"$getProjectPath/src/main", s"$getProjectPath/target/scala-$scalaVersion/src_managed/main", s"$getProjectPath/target/scala-$scalaVersion/resource_managed/main")
-            ProjectStructureDsl.sources := Seq("scala", "java")
-            resources := Seq("resources")
-            libraryDependencies := expectedScalaLibraries
-          },
-          new module(s"$projectName.test") {
-            contentRoots := Seq(s"$getProjectPath/src/test", s"$getProjectPath/target/scala-$scalaVersion/src_managed/test", s"$getProjectPath/target/scala-$scalaVersion/resource_managed/test")
-            testSources := Seq("scala", "java")
-            testResources := Seq("resources")
-            libraryDependencies := expectedScalaLibraries
-          },
-          new module(s"$projectName.$projectName-build") {
-            ProjectStructureDsl.sources := Seq("")
-            excluded := Seq("project/target", "target")
-          }
-        )
-      }
-    )
-    assertDirectoryCompletionVariantsForProjectPaths(
-      expectedSbtCompletionVariantsForParentModule,
-      expectedSbtCompletionVariantsForMainModule,
-      expectedSbtCompletionVariantsForTestModule,
-      myProject.baseDir.getPath
-    )
-  }
-
-  /**
-   *
-   * @param ideProjectName it is required to pass explicitly ide project name, because if there is more than one linked project, the project is
-   *                       not renamed to ProjectData internal name (see [[com.intellij.openapi.externalSystem.service.project.manage.ProjectDataServiceImpl#importData]])
-   */
-  private def runTwoLinkedProjectsTest(
-    ideProjectName: String,
-    originalProjectName: String,
-    linkedProjectName: String,
-    expectedScalaLibraries: Seq[library],
-    expectedSbtCompletionVariants: Seq[ExpectedDirectoryCompletionVariant],
-    expectedSbtCompletionVariantsForMainModule: Seq[ExpectedDirectoryCompletionVariant],
-    expectedSbtCompletionVariantsForTestModule: Seq[ExpectedDirectoryCompletionVariant]
-  ): Unit = {
+    val originalProjectName = "twoLinkedProjects"
+    val linkedProjectName = "simple"
+    val expectedScalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk("2.13.5")
     val linkedSbtProjectPath = generateTestProjectPath(linkedProjectName)
-    linkSbtProject(
-      linkedSbtProjectPath,
-      transitiveProjectDependencies = true,
-      prodTestSourcesSeparated = true
-    )
+    linkSbtProject(linkedSbtProjectPath, prodTestSourcesSeparated = true)
     runTest(
-      new project(ideProjectName) {
+      new project("testTwoLinkedProjects") {
         modules := Seq(
           new module(originalProjectName) {
             contentRoots += getProjectPath
@@ -205,11 +118,55 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
       }
     )
     assertDirectoryCompletionVariantsForProjectPaths(
-      expectedSbtCompletionVariants,
-      expectedSbtCompletionVariantsForMainModule,
-      expectedSbtCompletionVariantsForTestModule,
+      DefaultSbtContentRootsScala213,
+      DefaultMainSbtContentRootsScala213,
+      DefaultTestSbtContentRootsScala213,
       linkedSbtProjectPath,
       getProjectPath
+    )
+  }
+
+  private def runSimpleTest(
+    projectName: String,
+    scalaVersion: String,
+    expectedScalaLibraries: Seq[library],
+    expectedSbtCompletionVariantsForParentModule: Seq[ExpectedDirectoryCompletionVariant] = DefaultSbtContentRootsScala213,
+    expectedSbtCompletionVariantsForMainModule: Seq[ExpectedDirectoryCompletionVariant] = DefaultMainSbtContentRootsScala213,
+    expectedSbtCompletionVariantsForTestModule: Seq[ExpectedDirectoryCompletionVariant] = DefaultTestSbtContentRootsScala213,
+  ): Unit = {
+    runTest(
+      new project(projectName) {
+        libraries := expectedScalaLibraries
+
+        modules := Seq(
+          new module(projectName) {
+            contentRoots += getProjectPath
+            excluded := Seq("target")
+          },
+          new module(s"$projectName.main") {
+            contentRoots := Seq(s"$getProjectPath/src/main", s"$getProjectPath/target/scala-$scalaVersion/src_managed/main", s"$getProjectPath/target/scala-$scalaVersion/resource_managed/main")
+            sources := Seq("scala", "java")
+            resources := Seq("resources")
+            libraryDependencies := expectedScalaLibraries
+          },
+          new module(s"$projectName.test") {
+            contentRoots := Seq(s"$getProjectPath/src/test", s"$getProjectPath/target/scala-$scalaVersion/src_managed/test", s"$getProjectPath/target/scala-$scalaVersion/resource_managed/test")
+            testSources := Seq("scala", "java")
+            testResources := Seq("resources")
+            libraryDependencies := expectedScalaLibraries
+          },
+          new module(s"$projectName.$projectName-build") {
+            sources := Seq("")
+            excluded := Seq("project/target", "target")
+          }
+        )
+      }
+    )
+    assertDirectoryCompletionVariantsForProjectPaths(
+      expectedSbtCompletionVariantsForParentModule,
+      expectedSbtCompletionVariantsForMainModule,
+      expectedSbtCompletionVariantsForTestModule,
+      myProject.baseDir.getPath
     )
   }
 
@@ -227,33 +184,6 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
       ).foreach { case(path, variants) =>
         assertSbtDirectoryCompletionContributorVariants(findVirtualFile(path), variants)
       }
-    }
-  }
-
-  private def findVirtualFile(projectPath: String): VirtualFile = {
-    val vfm = VirtualFileManager.getInstance()
-    val projectPathVirtualFile = vfm.findFileByNioPath(Path.of(projectPath))
-    Assert.assertNotNull(s"VirtualFile for $projectPath is null", projectPathVirtualFile)
-    projectPathVirtualFile
-  }
-
-  def testProjectWithUppercaseName(): Unit = runTest {
-    new project("MyProjectWithUppercaseName") {
-      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk("2.13.6")
-      libraries ++= scalaLibraries
-
-      modules := Seq(
-        new module("MyProjectWithUppercaseName") {
-        },
-        new module("MyProjectWithUppercaseName.main") {
-          libraryDependencies ++= scalaLibraries
-        },
-        new module("MyProjectWithUppercaseName.test") {
-          libraryDependencies ++= scalaLibraries
-        },
-        new module("MyProjectWithUppercaseName.MyProjectWithUppercaseName-build") {
-        }
-      )
     }
   }
 
@@ -381,14 +311,18 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
 
   def testSbtIdeSettingsRespectIdeExcludedDirectoriesSetting(): Unit = runTest(
     new project("root") {
-      lazy val root = new module("root") {
+      lazy val root: module = new module("root") {
         excluded := Seq(
           "directory-to-exclude-1",
           "directory/to/exclude/2"
         )
       }
-      lazy val rootMain = new module("root.main")
-      lazy val rootTest = new module("root.test")
+      lazy val rootMain: module = new module("root.main") {
+        excluded := Seq()
+      }
+      lazy val rootTest: module = new module("root.test") {
+        excluded := Seq()
+      }
       modules := Seq(root, rootMain, rootTest)
     }
   )
@@ -658,6 +592,173 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
     }
   )
 
+  def testNonSourceConfigurationsWithNestedProjectDependencies():Unit = {
+    val projectName = "nonSourceConfigurationsWithNestedProjectDependencies"
+    runTest(
+      new project(projectName) {
+
+        lazy val proj0: module = new module(s"$projectName.proj0") {
+          sbtProjectId := "proj0"
+          moduleDependencies := Seq()
+        }
+        lazy val proj0Main: module = new module(s"$projectName.proj0.main") {
+          sbtProjectId := "proj0"
+          moduleDependencies := Seq()
+        }
+        lazy val proj0Test: module = new module(s"$projectName.proj0.test") {
+          sbtProjectId := "proj0"
+          moduleDependencies := Seq(
+            new dependency(proj0Main) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            }
+          )
+        }
+
+        lazy val proj1: module = new module(s"$projectName.proj1") {
+          sbtProjectId := "proj1"
+          moduleDependencies := Seq()
+        }
+        lazy val proj1Main: module = new module(s"$projectName.proj1.main") {
+          sbtProjectId := "proj1"
+          moduleDependencies := Seq()
+        }
+        lazy val proj1Test: module = new module(s"$projectName.proj1.test") {
+          sbtProjectId := "proj1"
+          moduleDependencies := Seq(
+            new dependency(proj0Main) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(proj1Main) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            }
+          )
+        }
+
+        lazy val proj2: module = new module(s"$projectName.proj2") {
+          sbtProjectId := "proj2"
+          moduleDependencies := Seq()
+        }
+
+        lazy val proj2Main: module = new module(s"$projectName.proj2.main") {
+          sbtProjectId := "proj2"
+          moduleDependencies := Seq(
+            new dependency(proj0Main) {
+              isExported := false
+              scope := DependencyScope.PROVIDED
+            },
+            new dependency(proj1Main) {
+              isExported := false
+              scope := DependencyScope.PROVIDED
+            },
+            new dependency(proj1Test) {
+              isExported := false
+              scope := DependencyScope.PROVIDED
+            }
+          )
+        }
+
+        lazy val proj2Test: module = new module(s"$projectName.proj2.test") {
+          sbtProjectId := "proj2"
+          moduleDependencies := Seq(
+            new dependency(proj2Main) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(proj0Main) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(proj1Main) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(proj1Test) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            }
+          )
+        }
+
+        lazy val proj3: module = new module(s"$projectName.proj3") {
+          sbtProjectId := "proj3"
+          moduleDependencies := Seq()
+        }
+
+        lazy val proj3Main: module = new module(s"$projectName.proj3.main") {
+          sbtProjectId := "proj3"
+          moduleDependencies := Seq(
+            new dependency(proj0Main) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(proj1Main) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(proj1Test) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            }
+          )
+        }
+
+        lazy val proj3Test: module = new module(s"$projectName.proj3.test") {
+          sbtProjectId := "proj3"
+          moduleDependencies := Seq(
+            new dependency(proj3Main) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(proj0Main) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(proj1Main) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(proj1Test) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            }
+          )
+        }
+
+        lazy val root: module = new module(projectName) {
+          sbtProjectId := "root"
+          moduleDependencies := Seq()
+        }
+        lazy val rootMain: module = new module(s"$projectName.main") {
+          sbtProjectId := "root"
+          moduleDependencies := Seq()
+        }
+        lazy val rootTest: module = new module(s"$projectName.test") {
+          sbtProjectId := "root"
+          moduleDependencies := Seq(
+            new dependency(proj2Main) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(rootMain) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            }
+          )
+        }
+        modules := Seq(
+          root, rootMain, rootTest,
+          proj0, proj0Main, proj0Test,
+          proj1, proj1Main, proj1Test,
+          proj2, proj2Main, proj2Test,
+          proj3, proj3Main, proj3Test
+        )
+      }
+    )
+  }
+
   def testCrossplatform(): Unit = runTest(
     new project("crossplatform") {
 
@@ -681,6 +782,260 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
           jvmNativeSourcesModules
     }
   )
+
+  def testCrossPlatformWithNestedProjectDependencies(): Unit = {
+    val projectName = "crossPlatformWithNestedProjectDependencies"
+    runTest(
+      new project(projectName) {
+
+        lazy val module1Sources: module = new module("module1-sources", Array(projectName, "module1")){
+          moduleDependencies := Seq()
+        }
+        lazy val module1SourcesMain: module = new module("module1-sources.main", Array(projectName, "module1")){
+          moduleDependencies := Seq()
+        }
+        lazy val module1SourcesTest: module = new module("module1-sources.test", Array(projectName, "module1")){
+          moduleDependencies := Seq(
+            new dependency(module1JVMMain) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+          )
+        }
+
+        lazy val module1JS: module = new module("module1JS", Array(projectName, "module1")) {
+          moduleDependencies := Seq()
+        }
+        lazy val module1JSMain: module = new module("module1JS.main", Array(projectName, "module1")) {
+          moduleDependencies := Seq(
+            new dependency(module1SourcesMain) {
+              isExported := true
+              scope := DependencyScope.COMPILE
+            }
+          )
+        }
+        lazy val module1JSTest: module = new module("module1JS.test", Array(projectName, "module1")) {
+          moduleDependencies := Seq(
+            new dependency(module1JSMain) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(module1SourcesMain) {
+              isExported := true
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(module1SourcesTest) {
+              isExported := true
+              scope := DependencyScope.COMPILE
+            }
+          )
+        }
+        lazy val module1JVM: module = new module("module1JVM", Array(projectName, "module1")) {
+          moduleDependencies := Seq()
+        }
+        lazy val module1JVMMain: module = new module("module1JVM.main", Array(projectName, "module1")) {
+          moduleDependencies := Seq(
+            new dependency(module1SourcesMain) {
+              isExported := true
+              scope := DependencyScope.COMPILE
+            }
+          )
+        }
+        lazy val module1JVMTest: module = new module("module1JVM.test", Array(projectName, "module1")) {
+          moduleDependencies := Seq(
+            new dependency(module1JVMMain) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(module1SourcesMain) {
+              isExported := true
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(module1SourcesTest) {
+              isExported := true
+              scope := DependencyScope.COMPILE
+            }
+          )
+        }
+
+        lazy val module2JS: module = new module("module2JS", Array(projectName, "module2")) {
+          moduleDependencies := Seq()
+        }
+        lazy val module2JSMain: module = new module("module2JS.main", Array(projectName, "module2")) {
+          moduleDependencies := Seq(
+            new dependency(module2SourcesMain) {
+              isExported := true
+              scope := DependencyScope.COMPILE
+            }
+          )
+        }
+        lazy val module2JSTest: module = new module("module2JS.test", Array(projectName, "module2")) {
+          moduleDependencies := Seq(
+            new dependency(module1JSMain) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(module1SourcesMain) {
+              isExported := true
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(module2SourcesMain) {
+              isExported := true
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(module2SourcesTest) {
+              isExported := true
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(module2JSMain) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            }
+          )
+        }
+        lazy val module2JVM: module = new module("module2JVM", Array(projectName, "module2")) {
+          moduleDependencies := Seq()
+        }
+        lazy val module2JVMMain: module = new module("module2JVM.main", Array(projectName, "module2")) {
+          moduleDependencies := Seq(
+            new dependency(module2SourcesMain) {
+              isExported := true
+              scope := DependencyScope.COMPILE
+            },
+          )
+        }
+        lazy val module2JVMTest: module = new module("module2JVM.test", Array(projectName, "module2")) {
+          moduleDependencies := Seq(
+            new dependency(module1JVMMain) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(module1SourcesMain) {
+              isExported := true
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(module2SourcesMain) {
+              isExported := true
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(module2SourcesTest) {
+              isExported := true
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(module2JVMMain) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            }
+          )
+        }
+        lazy val module2Sources: module = new module("module2-sources", Array(projectName, "module2")) {
+          moduleDependencies := Seq()
+        }
+
+        lazy val module2SourcesMain: module = new module("module2-sources.main", Array(projectName, "module2")) {
+          moduleDependencies := Seq()
+        }
+
+        lazy val module2SourcesTest: module = new module("module2-sources.test", Array(projectName, "module2")) {
+          moduleDependencies := Seq(
+            new dependency(module1JVMMain) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(module2JVMMain) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            }
+          )
+        }
+
+        lazy val module3: module = new module(s"$projectName.module3") {
+          moduleDependencies := Seq()
+        }
+        lazy val module3Main: module = new module(s"$projectName.module3.main") {
+          moduleDependencies := Seq()
+        }
+        lazy val module3Test: module = new module(s"$projectName.module3.test") {
+          moduleDependencies := Seq(
+            new dependency(module2JVMTest) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(module1JVMMain) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(module1SourcesMain) {
+              isExported := true
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(module2SourcesMain) {
+              isExported := true
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(module2SourcesTest) {
+              isExported := true
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(module2JVMMain) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(module3Main) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            }
+          )
+        }
+
+        lazy val root: module = new module(projectName) {
+          sbtProjectId := "root"
+          moduleDependencies := Seq()
+        }
+        lazy val rootMain: module = new module(s"$projectName.main") {
+          sbtProjectId := "root"
+          moduleDependencies := Seq(
+            new dependency(module2JVMMain) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(module2SourcesMain) {
+              isExported := true
+              scope := DependencyScope.COMPILE
+            }
+          )
+        }
+        lazy val rootTest: module = new module(s"$projectName.test") {
+          sbtProjectId := "root"
+          moduleDependencies := Seq(
+            new dependency(rootMain) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(module2JVMMain) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(module2SourcesMain) {
+              isExported := true
+              scope := DependencyScope.COMPILE
+            }
+          )
+        }
+
+        modules := Seq(
+          module1JS, module1JSMain, module1JSTest,
+          module1JVM, module1JVMMain, module1JVMTest,
+          module1Sources, module1SourcesMain, module1SourcesTest,
+          root, rootMain, rootTest,
+          module2JS, module2JSMain, module2JSTest,
+          module2JVM, module2JVMMain, module2JVMTest,
+          module2Sources, module2SourcesMain, module2SourcesTest,
+          module3, module3Main, module3Test
+        )
+      }
+    )
+  }
 
   //noinspection TypeAnnotation
   // SCL-16204, SCL-17597
@@ -776,12 +1131,6 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
     }
   }
 
-  private def setSbtSettingsCustomSdk(sdk: Sdk): Unit = {
-    val settings = SbtSettings.getInstance(myProject)
-    settings.setCustomVMPath(sdk.getHomePath)
-    settings.setCustomVMEnabled(true)
-  }
-
   //noinspection TypeAnnotation
   // SCL-16204, SCL-17597
   @nowarn("cat=deprecation")
@@ -828,27 +1177,6 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
 
     // Manually set settings should be rewritten if no explicit javac options provided
     doRunTest()
-  }
-
-  private def setOptions(project: Project, source: LanguageLevel, target: String, other: Seq[String]): Unit = {
-    val compilerSettings = CompilerConfiguration.getInstance(project)
-    compilerSettings.setProjectBytecodeTarget(target)
-
-    val options = JavacConfiguration.getOptions(project, classOf[JavacConfiguration])
-    options.ADDITIONAL_OPTIONS_STRING = other.mkString(" ")
-
-    val ext = LanguageLevelProjectExtension.getInstance(project)
-    ext.setLanguageLevel(source)
-  }
-
-  private def setOptions(module: Module, source: LanguageLevel, target: String, other: Seq[String]): Unit = {
-    val compilerSettings = CompilerConfiguration.getInstance(module.getProject)
-    compilerSettings.setBytecodeTargetLevel(module, target)
-    compilerSettings.setAdditionalOptions(module, other.asJava)
-
-    ModuleRootModificationUtil.updateModel(module,
-      _.getModuleExtension(classOf[LanguageLevelModuleExtension]).setLanguageLevel(source)
-    )
   }
 
   // noinspection TypeAnnotation
@@ -1056,6 +1384,94 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
       )
     }
   )
+
+  def testCustomConfigurationsWithNestedProjectDependencies(): Unit = {
+    val projectName = "customConfigurationsWithNestedProjectDependencies"
+    runTest(
+      new project(projectName) {
+
+        lazy val root: module = new module(projectName) {
+          sbtProjectId := "root"
+          moduleDependencies := Seq()
+        }
+        lazy val rootMain: module = new module(s"$projectName.main") {
+          sbtProjectId := "root"
+          moduleDependencies := Seq()
+        }
+        lazy val rootTest: module = new module(s"$projectName.test") {
+          sbtProjectId := "root"
+          moduleDependencies := Seq(
+            new dependency(rootMain) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            }
+          )
+        }
+
+        lazy val foo: module = new module(s"$projectName.foo") {
+          sbtProjectId := "foo"
+          moduleDependencies := Seq()
+        }
+        lazy val fooMain: module = new module(s"$projectName.foo.main") {
+          sbtProjectId := "foo"
+          moduleDependencies := Seq()
+        }
+        lazy val fooTest: module = new module(s"$projectName.foo.test") {
+          sbtProjectId := "foo"
+          moduleDependencies := Seq(
+            new dependency(rootMain) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(fooMain) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            }
+          )
+        }
+
+        lazy val utils: module = new module(s"$projectName.utils") {
+          sbtProjectId := "utils"
+          moduleDependencies := Seq()
+        }
+        lazy val utilsMain: module = new module(s"$projectName.utils.main") {
+          sbtProjectId := "utils"
+          moduleDependencies := Seq(
+            new dependency(fooMain) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            }
+          )
+        }
+        lazy val utilsTest: module = new module(s"$projectName.utils.test") {
+          sbtProjectId := "utils"
+          moduleDependencies := Seq(
+            new dependency(fooTest) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(fooMain) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(utilsMain) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(rootMain) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            }
+          )
+        }
+        modules := Seq(
+          utils, utilsMain, utilsTest,
+          foo, fooMain, fooTest,
+          root, rootMain, rootTest
+        )
+      }
+    )
+  }
 
   def testProjectWithModulesWithSameIdsAndNamesWithDifferentCase(): Unit = runTest(
     new project("sameIdsAndNamesWithDifferentCase") {
@@ -1337,7 +1753,7 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
     }
   )
 
-//SCL-22637
+  //SCL-22637
   def testPackagePrefix(): Unit = runTest(
     new project("packagePrefix") {
       lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk("2.13.6")

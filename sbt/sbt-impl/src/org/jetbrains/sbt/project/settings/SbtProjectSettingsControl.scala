@@ -78,7 +78,6 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
       extraControls.useSbtShellForBuildCheckBox.isSelected != settings.useSbtShellForBuild ||
       extraControls.remoteDebugSbtShellCheckBox.isSelected != settings.enableDebugSbtShell ||
       extraControls.scalaVersionPreferenceCheckBox.isSelected != settings.preferScala2 ||
-      extraControls.insertProjectTransitiveDependencies.isSelected != settings.insertProjectTransitiveDependencies ||
       extraControls.useSeparateCompilerOutputPaths.isSelected != settings.useSeparateCompilerOutputPaths ||
       extraControls.separateProdTestModules.isSelected != settings.separateProdAndTestSources
   }
@@ -100,7 +99,6 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     extraControls.useSbtShellForBuildCheckBox.setSelected(settings.buildWithShell)
     extraControls.remoteDebugSbtShellCheckBox.setSelected(settings.enableDebugSbtShell)
     extraControls.scalaVersionPreferenceCheckBox.setSelected(settings.preferScala2)
-    extraControls.insertProjectTransitiveDependencies.setSelected(settings.insertProjectTransitiveDependencies)
     extraControls.useSeparateCompilerOutputPaths.setSelected(settings.useSeparateCompilerOutputPaths)
     extraControls.separateProdTestModules.setSelected(settings.separateProdAndTestSources)
     extraControls.refreshCheckboxesConstraints()
@@ -122,7 +120,6 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     settings.useSbtShellForImport = extraControls.useSbtShellForImportCheckBox.isSelected
     settings.enableDebugSbtShell = extraControls.remoteDebugSbtShellCheckBox.isSelected
     settings.preferScala2 = extraControls.scalaVersionPreferenceCheckBox.isSelected
-    settings.insertProjectTransitiveDependencies = extraControls.insertProjectTransitiveDependencies.isSelected
     settings.separateProdAndTestSources = extraControls.separateProdTestModules.isSelected
     settings.useSeparateCompilerOutputPaths = extraControls.useSeparateCompilerOutputPaths.isSelected
 

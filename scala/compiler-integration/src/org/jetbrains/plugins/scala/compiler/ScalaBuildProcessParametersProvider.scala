@@ -22,18 +22,12 @@ class ScalaBuildProcessParametersProvider(project: Project)
         customScalaCompilerInterfaceDir().toSeq ++
           parallelCompilationOptions() ++
           addOpens() ++
-          transitiveProjectDependenciesParams() ++
           java9rtParams() :+
           scalaCompileServerSystemDir() :+
           // this is the only way to propagate registry values to the JPS process
           s"-Dscala.compile.server.socket.connect.timeout.milliseconds=${Registry.intValue("scala.compile.server.socket.connect.timeout.milliseconds")}"
       ).asJava
     } else Collections.emptyList()
-
-  private def transitiveProjectDependenciesParams(): Seq[String] = {
-    val projectTransitiveDependenciesUsed = SbtUtil.isBuiltWithProjectTransitiveDependencies(project)
-    Seq(s"-Dsbt.process.dependencies.recursively=${!projectTransitiveDependenciesUsed}")
-  }
 
   private def customScalaCompilerInterfaceDir(): Option[String] = {
     val key = SbtData.compilerInterfacesKey

@@ -13,7 +13,7 @@ import java.util
  * ATTENTION: implementation should be in sync with<br>
  * org.jetbrains.jps.incremental.scala.model.JpsSbtDependenciesEnumerationHandler
  */
-class SbtOrderEnumeratorHandler(projectTransitiveDependenciesUsed: Boolean) extends OrderEnumerationHandler {
+class SbtOrderEnumeratorHandler extends OrderEnumerationHandler {
   override def shouldAddDependency(orderEntry: OrderEntry, settings: OrderEnumeratorSettings): AddDependencyType = {
     (orderEntry, settings) match {
       case (library: LibraryOrderEntry, enumerator: ModuleOrderEnumerator) =>
@@ -47,17 +47,12 @@ class SbtOrderEnumeratorHandler(projectTransitiveDependenciesUsed: Boolean) exte
     super.shouldIncludeTestsFromDependentModulesToTestClasspath
 
   override def shouldProcessDependenciesRecursively: Boolean =
-    if (projectTransitiveDependenciesUsed) false
-    else true
-
+    false
 }
 
 class SbtOrderEnumeratorHandlerFactory extends OrderEnumerationHandler.Factory {
-  override def createHandler(module: Module): OrderEnumerationHandler = {
-    val project = module.getProject
-    val projectTransitiveDependenciesUsed = SbtUtil.isBuiltWithProjectTransitiveDependencies(project)
-    new SbtOrderEnumeratorHandler(projectTransitiveDependenciesUsed)
-  }
+  override def createHandler(module: Module): OrderEnumerationHandler =
+    new SbtOrderEnumeratorHandler
 
   override def isApplicable(module: Module): Boolean =
     SbtUtil.isSbtModule(module)

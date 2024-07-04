@@ -8,9 +8,7 @@ import org.jetbrains.sbt.project.ProjectStructureMatcher.ProjectComparisonOption
 import org.jetbrains.sbt.project.{ExactMatch, ProjectStructureMatcher}
 import org.junit.Assert.fail
 
-import java.lang
-
-class SbtProjectWithProjectMatrixAndSourceGenerators_TransitiveProjectDependenciesDisabled
+class SbtProjectWithProjectMatrixAndSourceGenerators
   extends SbtProjectHighlightingLocalProjectsTestBase
     with ProjectStructureMatcher
     with ExactMatch {
@@ -23,12 +21,6 @@ class SbtProjectWithProjectMatrixAndSourceGenerators_TransitiveProjectDependenci
 
   override def testHighlighting(): Unit = {
     super.testHighlighting()
-  }
-
-  override def importProject(skipIndexing: lang.Boolean): Unit = {
-    val projectSettings = getCurrentExternalProjectSettings
-    projectSettings.setInsertProjectTransitiveDependencies(false)
-    super.importProject(skipIndexing)
   }
 
   override protected def highlightSingleFile(
@@ -60,7 +52,6 @@ class SbtProjectWithProjectMatrixAndSourceGenerators_TransitiveProjectDependenci
       moduleDependencies := Seq()
       excluded := Seq()
     }
-
     class myNonRootModule(name: String, contentRootRelativePaths: Option[Seq[String]] = None) extends myModule(s"$projectName.$name", contentRootRelativePaths) {
       def this(name: String, contentRootRelativePaths: String) = {
         this(name, Some(Seq(contentRootRelativePaths)))
@@ -68,7 +59,7 @@ class SbtProjectWithProjectMatrixAndSourceGenerators_TransitiveProjectDependenci
     }
 
     val expectedProject: project = new project(projectName) {
-      val `sbt-projectmatrix-with-source-generator` = new myModule("sbt-projectmatrix-with-source-generators", "") {
+      val `sbt-projectmatrix-with-source-generator` = new myModule(projectName, "") {
         excluded := Seq("target")
       }
       val `sbt-projectmatrix-with-source-generators-build` = new myNonRootModule("sbt-projectmatrix-with-source-generators-build", "project") {
@@ -169,9 +160,9 @@ class SbtProjectWithProjectMatrixAndSourceGenerators_TransitiveProjectDependenci
       // Define dependencies between modules separately for better test data readability
       //
       `downstream-sources`.dependsOn(`upstream`)
-      `downstream`.dependsOn(`upstream`, `downstream-sources`)
-      `downstream2_11`.dependsOn(`upstream2_11`, `downstream-sources`)
-      `downstream2_12`.dependsOn(`upstream2_12`, `downstream-sources`)
+      `downstream`.dependsOn(`upstream`, `downstream-sources`, `upstream-sources`)
+      `downstream2_11`.dependsOn(`upstream2_11`, `downstream-sources`, `upstream-sources`)
+      `downstream2_12`.dependsOn(`upstream2_12`, `downstream-sources`, `upstream-sources`)
 
       `upstream-sources`.dependsOn()
       `upstream`.dependsOn(`upstream-sources`)
@@ -179,12 +170,12 @@ class SbtProjectWithProjectMatrixAndSourceGenerators_TransitiveProjectDependenci
       `upstream2_12`.dependsOn(`upstream-sources`)
 
       `downstreamBothPlatforms-sources`.dependsOn(`upstreamBothPlatforms`)
-      `downstreamBothPlatforms`.dependsOn(`upstreamBothPlatforms`, `downstreamBothPlatforms-sources`)
-      `downstreamBothPlatforms2_11`.dependsOn(`upstreamBothPlatforms2_11`, `downstreamBothPlatforms-sources`)
-      `downstreamBothPlatforms2_12`.dependsOn(`upstreamBothPlatforms2_12`, `downstreamBothPlatforms-sources`)
-      `downstreamBothPlatformsJS`.dependsOn(`upstreamBothPlatformsJS`, `downstreamBothPlatforms-sources`)
-      `downstreamBothPlatformsJS2_11`.dependsOn(`upstreamBothPlatformsJS2_11`, `downstreamBothPlatforms-sources`)
-      `downstreamBothPlatformsJS2_12`.dependsOn(`upstreamBothPlatformsJS2_12`, `downstreamBothPlatforms-sources`)
+      `downstreamBothPlatforms`.dependsOn(`upstreamBothPlatforms`, `downstreamBothPlatforms-sources`, `upstreamBothPlatforms-sources`)
+      `downstreamBothPlatforms2_11`.dependsOn(`upstreamBothPlatforms2_11`, `downstreamBothPlatforms-sources`, `upstreamBothPlatforms-sources`)
+      `downstreamBothPlatforms2_12`.dependsOn(`upstreamBothPlatforms2_12`, `downstreamBothPlatforms-sources`, `upstreamBothPlatforms-sources`)
+      `downstreamBothPlatformsJS`.dependsOn(`upstreamBothPlatformsJS`, `downstreamBothPlatforms-sources`, `upstreamBothPlatforms-sources`)
+      `downstreamBothPlatformsJS2_11`.dependsOn(`upstreamBothPlatformsJS2_11`, `downstreamBothPlatforms-sources`, `upstreamBothPlatforms-sources`)
+      `downstreamBothPlatformsJS2_12`.dependsOn(`upstreamBothPlatformsJS2_12`, `downstreamBothPlatforms-sources`, `upstreamBothPlatforms-sources`)
 
       `upstreamBothPlatforms-sources`.dependsOn()
       `upstreamBothPlatforms`.dependsOn(`upstreamBothPlatforms-sources`)

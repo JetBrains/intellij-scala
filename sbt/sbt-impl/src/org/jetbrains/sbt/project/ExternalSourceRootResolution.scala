@@ -28,7 +28,6 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
     projectToSourceSet: Map[sbtStructure.ProjectData, ModuleSourceSet],
     libraryNodes: Seq[LibraryNode],
     moduleFilesDirectory: File,
-    insertProjectTransitiveDependencies: Boolean,
     separateProdTestSources: Boolean,
     buildProjectsGroups: Seq[BuildProjectsGroup]
   ): Unit = {
@@ -41,7 +40,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
       if (separateProdTestSources) {
         createSourceModuleNode(_, castMapValues[CompleteModuleSourceSet](projectToSourceSet), _, _, _)
       } else {
-        createSourceModuleNodeLegacy(_, castMapValues[PrentModuleSourceSet](projectToSourceSet), _, _, insertProjectTransitiveDependencies, _)
+        createSourceModuleNodeLegacy(_, castMapValues[PrentModuleSourceSet](projectToSourceSet), _, _, _)
       }
 
     grouped.map(createSourceModule(_, libraryNodes, moduleFilesDirectory, buildProjectsGroups))
@@ -50,8 +49,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
   protected def addModuleDependencies(
     projectDependencies: Seq[ProjectDependencyData],
     allModules: Seq[ModuleDataNodeType],
-    moduleNode: ModuleDataNodeType,
-    insertProjectTransitiveDependencies: Boolean
+    moduleNode: ModuleDataNodeType
   ): Unit = {
     projectDependencies.foreach { dependencyId =>
       val dependency = allModules
@@ -60,8 +58,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
 
       val dependencyNode = new ModuleDependencyNode(moduleNode, dependency)
       dependencyNode.setScope(scopeFor(dependencyId.configurations.distinct))
-      val exported = !insertProjectTransitiveDependencies
-      dependencyNode.setExported(exported)
+      dependencyNode.setExported(false)
       moduleNode.add(dependencyNode)
     }
   }
@@ -74,7 +71,6 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
     projectToModuleNode: Map[sbtStructure.ProjectData, PrentModuleSourceSet],
     libraryNodes: Seq[LibraryNode],
     moduleFilesDirectory: File,
-    insertProjectTransitiveDependencies: Boolean,
     buildProjectsGroups: Seq[BuildProjectsGroup]
   ): ModuleDataNodeType = {
     val projects = rootGroup.projects
@@ -100,7 +96,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
 
       //add project dependencies of the representative project
       val allSourceModules = projectToModuleNode.values.toSeq.map(_.parent)
-      addModuleDependencies(representativeProjectDependencies.projects.forProduction, allSourceModules, moduleNode, insertProjectTransitiveDependencies)
+      addModuleDependencies(representativeProjectDependencies.projects.forProduction, allSourceModules, moduleNode)
 
       //add some managed sources of the representative project
       //(see description of `getManagedSourceRootsFromRepresentativeProjectToIncludeAsBaseModelSourceRoots` method for the details)
@@ -121,12 +117,8 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
       moduleNode
     }
 
-    val dependentModulesThatRequireSharedSourcesModule =
-      if (insertProjectTransitiveDependencies) {
-        getModulesRequiringSharedModuleTransitivelyLegacy(projectToModuleNode, projects)
-      } else {
-        Seq.empty
-      }
+    val dependentModulesThatRequireSharedSourcesModule = getModulesRequiringSharedModuleTransitivelyLegacy(projectToModuleNode, projects)
+
 
     //add shared sources module as a dependency to platform modules
     val sharedSourceRootProjects = projects.map(projectToModuleNode).map { case PrentModuleSourceSet(module) =>
@@ -481,7 +473,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
 
     // add project dependencies of the representative project
     val moduleDependencies = getScopedDependencies(representativeProjectDependencies.projects)
-    addModuleDependencies(moduleDependencies, allSourceModules, moduleNode, insertProjectTransitiveDependencies = true)
+    addModuleDependencies(moduleDependencies, allSourceModules, moduleNode)
 
     Some(moduleNode)
   }
