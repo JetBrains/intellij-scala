@@ -29,9 +29,6 @@ import java.nio.file.Path
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters.SeqHasAsJava
 
-// IMPORTANT ! each test that tests the dependencies of the modules should have its counterpart in
-// SbtProjectStructureImportingTest_TransitiveProjectDependenciesEnabled.scala. Before each test performed in this class
-// insertProjectTransitiveDependencies is set to true, so that the functionality of transitive dependencies can be tested
 @Category(Array(classOf[SlowTests]))
 final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled extends SbtProjectStructureImportingLike {
 
@@ -42,8 +39,6 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
     super.runTest(expected, singleContentRootModules = false)
   }
 
-  // note: it is needed to set insertProjectTransitiveDependencies to false in projectSettings because it is enabled
-  //by default
   override def setUp(): Unit = {
     super.setUp()
     val projectSettings = getCurrentExternalProjectSettings
