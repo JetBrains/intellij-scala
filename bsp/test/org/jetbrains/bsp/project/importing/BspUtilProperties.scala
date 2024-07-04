@@ -11,6 +11,8 @@ import org.scalatestplus.scalacheck.Checkers
 @Category(Array(classOf[SlowTests]))
 class BspUtilProperties extends Checkers {
 
+  implicit val generatorConfig: PropertyCheckConfiguration = PropertyCheckConfiguration(sizeRange = 20)
+
   @Test
   def stringOpsToUri(): Unit = check(
     forAll(genUri) { uri =>

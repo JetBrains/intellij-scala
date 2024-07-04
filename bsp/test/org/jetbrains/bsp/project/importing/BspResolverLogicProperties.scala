@@ -25,6 +25,8 @@ class BspResolverLogicProperties extends Checkers {
 
   implicit val gson: Gson = new GsonBuilder().setPrettyPrinting().create()
 
+  implicit val generatorConfig: PropertyCheckConfiguration = PropertyCheckConfiguration(sizeRange = 20)
+
   @Test @Ignore
   def testGetScalaSdkData(): Unit = check(
     forAll { (scalaBuildTarget: ScalaBuildTarget, scalacOptionsItem: ScalacOptionsItem) =>

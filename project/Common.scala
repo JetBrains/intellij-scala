@@ -146,9 +146,7 @@ object Common {
       name := projectName,
       intellijMainJars := intellijMainJars.value.filterNot(file => Dependencies.excludeJarsFromPlatformDependencies(file)),
       intellijPlugins += "com.intellij.java".toPlugin,
-      pathExcludeFilter := excludePathsFromPackage _,
-      //needed for BSP module (maybe move it there then?)
-      (Test / testOptions) += Tests.Argument(TestFrameworks.ScalaCheck, "-maxSize", "20")
+      pathExcludeFilter := excludePathsFromPackage _
     )
 
   /**

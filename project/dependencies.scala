@@ -156,8 +156,8 @@ object Dependencies {
   )
   val scalapbRuntime: ModuleID = "com.thesamet.scalapb" %% "scalapb-runtime" % "0.11.11" % Test exclude("com.google.protobuf", "protobuf-java") // A dependency of scalameta, only used in tests.
 
-  val scalaTestNotSpecified: ModuleID = "org.scalatest" %% "scalatest" % "3.2.17"
-  val scalaCheck: ModuleID = "org.scalatestplus" %% "scalacheck-1-17" % "3.2.17.0" % Test
+  val scalaTestNotSpecified: ModuleID = "org.scalatest" %% "scalatest" % "3.2.19"
+  val scalaCheck: ModuleID = "org.scalatestplus" %% "scalacheck-1-18" % "3.2.19.0" % Test
 
   // has to be in the compiler process classpath along with spray-json
   // when updating the version, do not forget to:
