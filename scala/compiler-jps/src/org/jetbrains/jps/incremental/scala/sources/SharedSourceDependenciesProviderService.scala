@@ -1,7 +1,7 @@
 package org.jetbrains.jps.incremental.scala.sources
 
 import org.jetbrains.jps.ModuleChunk
-import org.jetbrains.jps.incremental.scala.{BuildParametersUtils, SourceDependenciesProviderService}
+import org.jetbrains.jps.incremental.scala.SourceDependenciesProviderService
 import org.jetbrains.jps.model.module.{JpsModule, JpsModuleDependency}
 
 import scala.jdk.CollectionConverters._
@@ -15,13 +15,8 @@ class SharedSourceDependenciesProviderService extends SourceDependenciesProvider
       case it: JpsModuleDependency if it.getModule != null && it.getModule.getModuleType == SharedSourcesModuleType.INSTANCE => it.getModule
     }
 
-    if (areTransitiveDependenciesEnabled) {
-      val representativeTargetName = chunk.representativeTarget().getId
-      leaveOnlyRequiredSharedSourcesModules(sharedSourcesModules, representativeTargetName)
-    } else {
-      sharedSourcesModules
-    }
-
+    val representativeTargetName = chunk.representativeTarget().getId
+    leaveOnlyRequiredSharedSourcesModules(sharedSourcesModules, representativeTargetName)
   }
 
   private def leaveOnlyRequiredSharedSourcesModules(sharedSourcesModules: Seq[JpsModule], representativeTargetName: String): Seq[JpsModule] =
@@ -36,9 +31,4 @@ class SharedSourceDependenciesProviderService extends SourceDependenciesProvider
         false
       }
     }
-
-  private def areTransitiveDependenciesEnabled: Boolean = {
-    val shouldProcessDependenciesRecursively = BuildParametersUtils.getProcessDependenciesRecursivelyProperty
-    !shouldProcessDependenciesRecursively
-  }
 }
