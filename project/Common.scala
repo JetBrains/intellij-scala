@@ -148,8 +148,7 @@ object Common {
       intellijPlugins += "com.intellij.java".toPlugin,
       pathExcludeFilter := excludePathsFromPackage _,
       //needed for BSP module (maybe move it there then?)
-      (Test / testOptions) += Tests.Argument(TestFrameworks.ScalaCheck, "-maxSize", "20"),
-      (Test / testFrameworks) := (Test / testFrameworks).value.filterNot(_.implClassNames.exists(_.contains("org.scalatest")))
+      (Test / testOptions) += Tests.Argument(TestFrameworks.ScalaCheck, "-maxSize", "20")
     )
 
   /**
