@@ -28,21 +28,10 @@ import java.nio.file.Path
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters.SeqHasAsJava
 
-// IMPORTANT ! each test that tests the dependencies of the modules should have its counterpart in
-// SbtProjectStructureImportingTest_TransitiveProjectDependenciesEnabled.scala. Before each test performed in this class
-// insertProjectTransitiveDependencies is set to true, so that the functionality of transitive dependencies can be tested
 @Category(Array(classOf[SlowTests]))
-final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabled extends SbtProjectStructureImportingLike {
+final class SbtProjectStructureImportingTest extends SbtProjectStructureImportingLike {
 
   import ProjectStructureDsl._
-
-  // note: it is needed to set insertProjectTransitiveDependencies to false in projectSettings because it is enabled
-  //by default
-  override def setUp(): Unit = {
-    super.setUp()
-    val projectSettings = getCurrentExternalProjectSettings
-    projectSettings.setInsertProjectTransitiveDependencies(false)
-  }
 
   def testSimple(): Unit = {
     val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk("2.13.5")
@@ -848,4 +837,25 @@ final class SbtProjectStructureImportingTest_TransitiveProjectDependenciesDisabl
     }
   )
 
+  def testProjectWithJmhPlugin(): Unit = runTest(
+    new project("projectWithJmhPlugin") {
+      lazy val root: module = new module("projectWithJmhPlugin")
+
+      lazy val project1: module = new module("projectWithJmhPlugin.project1") {
+        sbtProjectId := "project1"
+        contentRoots := Seq(getProjectPath + "/project1")
+        compileOutputPath := "target/scala-2.13/classes"
+        compileTestOutputPath := "target/scala-2.13/test-classes"
+      }
+
+      lazy val project2: module = new module("projectWithJmhPlugin.project2") {
+        sbtProjectId := "project2"
+        contentRoots := Seq(getProjectPath + "/project2")
+        compileOutputPath := "target/scala-2.13/classes"
+        compileTestOutputPath := "target/scala-2.13/test-classes"
+      }
+
+      modules := root :: project1 :: project2 :: Nil
+    }
+  )
 }
