@@ -1,7 +1,14 @@
 package org.jetbrains.sbt.project
 
+import com.intellij.compiler.CompilerConfiguration
+import com.intellij.compiler.impl.javaCompiler.javac.JavacConfiguration
 import com.intellij.openapi.externalSystem.service.project.ProjectDataManager
-import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.module.Module
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.projectRoots.Sdk
+import com.intellij.openapi.roots.{LanguageLevelModuleExtension, LanguageLevelProjectExtension, ModuleRootModificationUtil}
+import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
+import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.PsiManager
 import org.jetbrains.jps.model.java.{JavaResourceRootType, JavaSourceRootType}
 import org.jetbrains.jps.model.module.JpsModuleSourceRootType
@@ -11,9 +18,11 @@ import org.jetbrains.sbt.actions.SbtDirectoryCompletionContributor
 import org.jetbrains.sbt.project.ProjectStructureMatcher.ProjectComparisonOptions
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.settings.SbtSettings
+import org.junit.Assert
 import org.junit.Assert.fail
 
-import scala.jdk.CollectionConverters.CollectionHasAsScala
+import java.nio.file.Path
+import scala.jdk.CollectionConverters.{CollectionHasAsScala, SeqHasAsJava}
 
 
 abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImportingTestLike
@@ -164,6 +173,40 @@ abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImporti
       "Wrong directory completion contributor variants",
       expectedVariants.sorted,
       actualVariants.sorted
+    )
+  }
+
+  protected def findVirtualFile(projectPath: String): VirtualFile = {
+    val vfm = VirtualFileManager.getInstance()
+    val projectPathVirtualFile = vfm.findFileByNioPath(Path.of(projectPath))
+    Assert.assertNotNull(s"VirtualFile for $projectPath is null", projectPathVirtualFile)
+    projectPathVirtualFile
+  }
+
+  protected def setSbtSettingsCustomSdk(sdk: Sdk): Unit = {
+    val settings = SbtSettings.getInstance(myProject)
+    settings.setCustomVMPath(sdk.getHomePath)
+    settings.setCustomVMEnabled(true)
+  }
+
+  protected def setOptions(project: Project, source: LanguageLevel, target: String, other: Seq[String]): Unit = {
+    val compilerSettings = CompilerConfiguration.getInstance(project)
+    compilerSettings.setProjectBytecodeTarget(target)
+
+    val options = JavacConfiguration.getOptions(project, classOf[JavacConfiguration])
+    options.ADDITIONAL_OPTIONS_STRING = other.mkString(" ")
+
+    val ext = LanguageLevelProjectExtension.getInstance(project)
+    ext.setLanguageLevel(source)
+  }
+
+  protected def setOptions(module: Module, source: LanguageLevel, target: String, other: Seq[String]): Unit = {
+    val compilerSettings = CompilerConfiguration.getInstance(module.getProject)
+    compilerSettings.setBytecodeTargetLevel(module, target)
+    compilerSettings.setAdditionalOptions(module, other.asJava)
+
+    ModuleRootModificationUtil.updateModel(module,
+      _.getModuleExtension(classOf[LanguageLevelModuleExtension]).setLanguageLevel(source)
     )
   }
 
