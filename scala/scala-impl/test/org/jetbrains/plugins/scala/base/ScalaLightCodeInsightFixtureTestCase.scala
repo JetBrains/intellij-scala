@@ -13,24 +13,25 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
 import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
-import com.intellij.testFramework.fixtures.{JavaCodeInsightTestFixture, LightJavaCodeInsightFixtureTestCase}
-import com.intellij.testFramework.{EditorTestUtil, LightProjectDescriptor}
+import com.intellij.testFramework.fixtures.JavaCodeInsightTestFixture
+import com.intellij.testFramework.{EditorTestUtil, IdeaTestUtil, LightProjectDescriptor}
+import com.intellij.util.lang.JavaVersion
 import org.intellij.lang.annotations.Language
 import org.jetbrains.jps.model.java.JavaSourceRootType
 import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ScalaSDKLoader, SmartJDKLoader, SourcesLoader}
-import org.jetbrains.plugins.scala.extensions.StringExt
+import org.jetbrains.plugins.scala.extensions.{StringExt, inWriteAction}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 import org.junit.Assert
-import org.junit.Assert.fail
+import org.junit.Assert.{assertNotNull, fail}
 
 import scala.jdk.CollectionConverters._
 
 //TODO: try to remove EditorTestUtil.buildInitialFoldingsInBackground(getEditor) and see if tests pass?
 abstract class ScalaLightCodeInsightFixtureTestCase
-  extends LightJavaCodeInsightFixtureTestCase
+  extends LightScalaCodeInsightFixtureTestCase
     with ScalaSdkOwner
     with FailableTest {
 
@@ -73,7 +74,7 @@ abstract class ScalaLightCodeInsightFixtureTestCase
       afterSetUpProject(project, module)
     }
 
-    override def getSdk: Sdk = SmartJDKLoader.getOrCreateJDK()
+    override def getSdk: Sdk = IdeaTestUtil.getMockJdk(JavaVersion.compose(17))
 
     override def getSourceRootType: JavaSourceRootType =
       if (placeSourceFilesInTestContentRoot)
