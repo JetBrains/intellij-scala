@@ -383,7 +383,7 @@ lazy val scalaImpl: sbt.Project =
       ),
       resolvers += Versions.intellijRepository_ForManagedIntellijDependencies,
       intellijPlugins += "JUnit".toPlugin,
-      libraryDependencies += Dependencies.junit5JupiterApi,
+      libraryDependencies += Dependencies.junit5JupiterApi % Test,
       intellijPluginJars := intellijPluginJars.value.map { case PluginJars(descriptor, root, cp) =>
         PluginJars(descriptor, root, cp.filterNot(_.getName.contains("junit-jupiter-api")))
       },
