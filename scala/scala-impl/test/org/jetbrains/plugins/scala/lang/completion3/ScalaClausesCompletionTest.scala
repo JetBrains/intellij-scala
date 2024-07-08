@@ -1,7 +1,10 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.application.options.CodeStyle
+import com.intellij.openapi.projectRoots.Sdk
+import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaClausesCompletionTestBase
 import org.jetbrains.plugins.scala.util.ConfigureJavaFile.configureJavaFile
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
@@ -14,6 +17,9 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
   import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase._
   import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword.{CASE, MATCH}
   import org.jetbrains.plugins.scala.lang.completion.clauses.DirectInheritors.FqnBlockList
+
+  override protected lazy val projectJdk: Sdk =
+    SmartJDKLoader.createFilteredJdk(LanguageLevel.JDK_17, Seq("java.base", "java.desktop"))
 
   def testSyntheticUnapply(): Unit = doPatternCompletionTest(
     fileText =
