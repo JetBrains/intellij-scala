@@ -1,12 +1,18 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.lookup.Lookup
+import com.intellij.openapi.projectRoots.Sdk
+import com.intellij.pom.java.LanguageLevel
+import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTypeDefinitionImpl
 
 class ScalaAotCompletionTest extends ScalaCompletionTestBase {
 
   import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase._
+
+  override protected lazy val projectJdk: Sdk =
+    SmartJDKLoader.createFilteredJdk(LanguageLevel.JDK_17, Seq("java.base", "java.desktop"))
 
   def testParameterName(): Unit = doAotCompletionTest(
     fileText =

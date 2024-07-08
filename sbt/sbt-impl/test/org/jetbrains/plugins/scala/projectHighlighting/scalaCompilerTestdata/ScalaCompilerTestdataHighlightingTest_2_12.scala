@@ -1,6 +1,9 @@
 package org.jetbrains.plugins.scala.projectHighlighting.scalaCompilerTestdata
 
+import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.util.TextRange
+import com.intellij.pom.java.LanguageLevel
+import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProgressReporter
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
@@ -16,6 +19,9 @@ class ScalaCompilerTestdataHighlightingTest_2_12 extends ScalaCompilerTestdataHi
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 
   override protected def getTestDirName: String = "pos"
+
+  override protected lazy val projectJdk: Sdk =
+    SmartJDKLoader.createFilteredJdk(LanguageLevel.JDK_17, Seq("java.base", "java.desktop", "java.rmi"))
 
   import org.jetbrains.plugins.scala.util.TextRangeUtils.ImplicitConversions.tupleToTextRange
 

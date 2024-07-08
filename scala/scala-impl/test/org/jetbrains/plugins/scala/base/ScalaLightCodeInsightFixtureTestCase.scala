@@ -14,7 +14,8 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
 import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
 import com.intellij.testFramework.fixtures.{JavaCodeInsightTestFixture, LightJavaCodeInsightFixtureTestCase}
-import com.intellij.testFramework.{EditorTestUtil, LightProjectDescriptor}
+import com.intellij.testFramework.{EditorTestUtil, IdeaTestUtil, LightProjectDescriptor}
+import com.intellij.util.lang.JavaVersion
 import org.intellij.lang.annotations.Language
 import org.jetbrains.jps.model.java.JavaSourceRootType
 import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ScalaSDKLoader, SmartJDKLoader, SourcesLoader}
@@ -68,12 +69,14 @@ abstract class ScalaLightCodeInsightFixtureTestCase
   protected def sharedProjectToken: SharedTestProjectToken =
     SharedTestProjectToken.ByTestClassAndScalaSdkAndProjectLibraries(this)
 
+  protected def projectJdk: Sdk = IdeaTestUtil.getMockJdk(JavaVersion.compose(17))
+
   override protected def getProjectDescriptor: LightProjectDescriptor = new ScalaLightProjectDescriptor(sharedProjectToken) {
     override def tuneModule(module: Module, project: Project): Unit = {
       afterSetUpProject(project, module)
     }
 
-    override def getSdk: Sdk = SmartJDKLoader.getOrCreateJDK()
+    override def getSdk: Sdk = projectJdk
 
     override def getSourceRootType: JavaSourceRootType =
       if (placeSourceFilesInTestContentRoot)
