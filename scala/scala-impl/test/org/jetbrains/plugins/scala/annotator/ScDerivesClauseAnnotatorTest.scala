@@ -21,8 +21,8 @@ class ScDerivesClauseAnnotatorTest extends AnnotatorSimpleTestCase {
           |""".stripMargin
       )
     )(
+      Error("Foo", "Expression of type Foo[Nothing] doesn't conform to expected type Foo[A]"),
       Error("Foo", "No implicit arguments of type: Foo[Int]"),
-      Error("Foo", "Expression of type Foo[Nothing] doesn't conform to expected type Foo[A]")
     )
 
   def testTypesDoNotMatch(): Unit =

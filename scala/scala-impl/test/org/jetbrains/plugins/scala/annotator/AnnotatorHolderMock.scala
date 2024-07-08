@@ -48,12 +48,14 @@ class AnnotatorHolderExtendedMock(file: PsiFile) extends AnnotatorHolderMockBase
   }
 }
 
-abstract class AnnotatorHolderMockBase[T](file: PsiFile) extends ScalaAnnotationHolder {
+abstract class AnnotatorHolderMockBase[T : Ordering](file: PsiFile) extends ScalaAnnotationHolder {
 
   import org.jetbrains.plugins.scala.annotator.Message2.TextRangeOrdering
 
-  //return sorted annotations for more stable tests
-  def annotations: List[T] = myAnnotations.sortBy(_._1).map(_._2)
+  //for more stable tests, sorted annotations by range and if it's the same then by the value
+  def annotations: List[T] = myAnnotations
+    .sortBy(a => (a._1, a._2))
+    .map(_._2)
 
   private var myAnnotations: List[(TextRange, T)] = List[(TextRange, T)]()
 
