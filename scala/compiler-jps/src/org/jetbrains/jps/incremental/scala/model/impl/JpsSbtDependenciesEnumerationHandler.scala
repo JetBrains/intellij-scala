@@ -13,6 +13,7 @@ import scala.jdk.CollectionConverters.IterableHasAsScala
  */
 final class JpsSbtDependenciesEnumerationHandler extends JpsJavaDependenciesEnumerationHandler {
 
+  //TODO SCL-22835
   override def shouldAddRuntimeDependenciesToTestCompilationClasspath: Boolean =
     true
 
