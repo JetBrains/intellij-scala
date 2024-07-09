@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.testingSupport.munit
 
 import com.intellij.execution.testframework.sm.runner.states.TestStateInfo.Magnitude
 
-class MUnitConfigWholeSuiteTest extends MUnitTestCase {
+abstract class MUnitConfigWholeSuiteTestBase extends MUnitTestCase {
 
   private val ClassNameFunSuite = "MUnitConfigWholeSuite_Test_FunSuite"
   private val FileNameFunSuite = s"$ClassNameFunSuite.scala"
@@ -101,3 +101,7 @@ class MUnitConfigWholeSuiteTest extends MUnitTestCase {
       }
     )
 }
+
+class MUnit_0_7_ConfigWholeSuiteTest extends MUnitConfigWholeSuiteTestBase with MUnit_0_7
+
+class MUnit_1_0_ConfigWholeSuiteTest extends MUnitConfigWholeSuiteTestBase with MUnit_1_0

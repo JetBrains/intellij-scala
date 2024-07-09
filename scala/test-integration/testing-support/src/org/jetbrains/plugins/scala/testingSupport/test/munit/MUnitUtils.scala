@@ -7,13 +7,16 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall
 private[testingSupport]
 object MUnitUtils {
 
-  /** see see munit.FunSuite.test & see munit.FunSuite.property */
+  /** see munit.BaseFunSuite.test & see munit.FunSuite.property */
   val FunSuiteTestMethodNames: Set[String] = Set("test", "property")
 
+  // Base trait containing the test method definition in MUnit 1.0+
+  val BaseFunSuiteFqn = "munit.BaseFunSuite"
+  // Base class containing the test method definition in MUnit 0.x
   val FunSuiteFqn = "munit.FunSuite"
   val ScalaCheckSuiteFqn = "munit.ScalaCheckSuite"
 
-  val FunSuiteFqnList: List[String] = List(FunSuiteFqn)
+  val FunSuiteFqnList: List[String] = List(BaseFunSuiteFqn, FunSuiteFqn)
   val ScalaCheckSuiteFqnList: List[String] = List(ScalaCheckSuiteFqn)
 
   /**

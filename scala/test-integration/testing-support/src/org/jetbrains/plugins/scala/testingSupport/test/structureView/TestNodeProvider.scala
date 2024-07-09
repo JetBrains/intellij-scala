@@ -152,7 +152,7 @@ object TestNodeProvider {
       extractFunSpec(expr, project)
     else if (propSpecBases.exists(isInheritor(clazz, _)))
       extractPropSpec(expr)
-    else if (isInheritor(clazz, MUnitUtils.FunSuiteFqn))
+    else if (isInheritor(clazz, MUnitUtils.BaseFunSuiteFqn) || isInheritor(clazz, MUnitUtils.FunSuiteFqn))
       extractMUnitFunSuite(expr) //this should be a funSuite-like test
     else
       None

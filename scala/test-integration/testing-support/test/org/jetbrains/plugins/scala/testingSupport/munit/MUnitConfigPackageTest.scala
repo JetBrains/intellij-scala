@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.testingSupport.munit
 import com.intellij.execution.testframework.sm.runner.states.TestStateInfo.Magnitude
 import org.jetbrains.plugins.scala.util.assertions.ExceptionAssertions
 
-class MUnitConfigPackageTest extends MUnitTestCase {
+abstract class MUnitConfigPackageTestBase extends MUnitTestCase {
 
   private val packageName0 = "org"
   private val packageName1 = "org.example1"
@@ -110,3 +110,7 @@ class MUnitConfigPackageTest extends MUnitTestCase {
     )(optionsWithErrorCode)
   }
 }
+
+class Munit_0_7_ConfigPackageTest extends MUnitConfigPackageTestBase with MUnit_0_7
+
+class Munit_1_0_ConfigPackageTest extends MUnitConfigPackageTestBase with MUnit_1_0
