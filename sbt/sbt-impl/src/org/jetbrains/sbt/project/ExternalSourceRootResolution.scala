@@ -398,6 +398,9 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
     val contentRootNode = new ContentRootNode(group.base.path)
     contentRootNode.storePath(ExternalSystemSourceType.EXCLUDED, getOrCreateTargetDir(group.base.path, "target").getAbsolutePath)
     moduleNode.add(contentRootNode)
+
+    moduleNode.add(ModuleSdkNode.inheritFromProject)
+
     moduleNode
   }
 
