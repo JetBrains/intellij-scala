@@ -8,7 +8,7 @@ import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.SlowTests
+import org.jetbrains.plugins.scala.EditorTests
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.editor.documentationProvider.util.HtmlAssertions
@@ -20,7 +20,7 @@ import org.junit.experimental.categories.Category
 
 import scala.jdk.CollectionConverters.ListHasAsScala
 
-@Category(Array(classOf[SlowTests]))
+@Category(Array(classOf[EditorTests]))
 abstract class DocumentationProviderTestBase
   extends ScalaLightCodeInsightFixtureTestCase
     with HtmlAssertions {
