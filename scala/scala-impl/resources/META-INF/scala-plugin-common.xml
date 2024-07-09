@@ -175,6 +175,8 @@
 
         <additionalTextAttributes scheme="Default" file="colorSchemes/ScalaDefault.xml"/>
         <additionalTextAttributes scheme="Darcula" file="colorSchemes/ScalaDarcula.xml"/>
+        <additionalTextAttributes scheme="High contrast" file="colorSchemes/ScalaHighContrast.xml"/>
+        <additionalTextAttributes scheme="Dark" file="colorSchemes/expui/ScalaDark.xml"/>
         <treeStructureProvider implementation="org.jetbrains.plugins.scala.projectView.ScalaTreeStructureProvider" order="last"/>
         <lang.braceMatcher language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaBraceMatcher"/>
         <codeBlockSupportHandler language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaBlockSupportHandler"/>
@@ -368,6 +370,8 @@
         <codeInsight.gotoSuper language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToSuperActionHandler"/>
         <gotoDeclarationHandler implementation="org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToDeclarationHandler"/>
         <lang.documentationProvider id="ScalaDocumentationProvider" language="Scala" implementationClass="org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider"/>
+        <!-- Putting our provider first as a workaround fir WEB-67867 -->
+        <platform.backend.documentation.psiTargetProvider order="first" implementation="org.jetbrains.plugins.scala.editor.documentationProvider.ScalaPsiDocumentationTargetProvider"/>
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaMethodProcessor" order="first"/>
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.PrepareRenameScalaMethodProcessor" order="last"/>
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaPackageProcessor" order="first"/>

@@ -42,8 +42,8 @@ class ScEnumCaseAnnotatorTest extends ScalaHighlightingTestBase {
         |""".stripMargin
     )(
       // TODO Show only a single error
+      Error("class X extends Foo", "Class 'X' must either be declared abstract or implement abstract member 'ordinal: Int' in 'scala.reflect.Enum'"),
       Error("Foo", "Extending enums is prohibited"),
-      Error("class X extends Foo", "Class 'X' must either be declared abstract or implement abstract member 'ordinal: Int' in 'scala.reflect.Enum'")
     )
 
   def testNonVariantTypeParameterNeg(): Unit =
@@ -155,8 +155,8 @@ class ScEnumCaseAnnotatorTest extends ScalaHighlightingTestBase {
       |""".stripMargin
   )(
     // TODO Show only a single error
+    Error("class C extends Color.Green(1)", "Class 'C' must either be declared abstract or implement abstract member 'ordinal: Int' in 'scala.reflect.Enum'"),
     Error("Color.Green", "Illegal inheritance from final class 'Green'"),
-    Error("class C extends Color.Green(1)", "Class 'C' must either be declared abstract or implement abstract member 'ordinal: Int' in 'scala.reflect.Enum'")
   )
 
   def testClassCaseTypeParameterInheritance(): Unit = doTest(

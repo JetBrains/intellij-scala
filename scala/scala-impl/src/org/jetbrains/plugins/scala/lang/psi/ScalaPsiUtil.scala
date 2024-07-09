@@ -43,7 +43,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUs
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportOrExportStmt, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaFile, ScalaPsiElement, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScPackageLike, ScalaFile, ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ApplyOrUpdateInvocation
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
@@ -1758,14 +1758,12 @@ object ScalaPsiUtil {
     }
 
   @Nullable
-  def getParentOfTypeStoppingAtBlocks[T <: PsiElement](element: PsiElement, clazz: Class[T], strict: Boolean): T =
+  def getParentOfTypeInsideImport[T <: PsiElement](element: PsiElement, clazz: Class[T], strict: Boolean): T = {
     PsiTreeUtil.getParentOfType(
-      element, clazz, strict, /*stopAt=*/ classOf[ScBlock], classOf[ScTemplateBody]
+      //using extra stopAt as an optimization, in order not to traverse the whole file to the root
+      element, clazz, strict, /*stopAt=*/ classOf[ScBlockStatement], classOf[ScControlFlowOwner], classOf[ScMember]
     )
-
-  @Nullable
-  def getParentOfTypeInsideImport[T <: PsiElement](element: PsiElement, clazz: Class[T], strict: Boolean): T =
-    ScalaPsiUtil.getParentOfTypeStoppingAtBlocks(element, clazz, strict)
+  }
 
   def parentOfTypeInsideImport[T <: PsiElement](element: PsiElement, clazz: Class[T], strict: Boolean): Option[T] =
     Option(getParentOfTypeInsideImport(element, clazz, strict))

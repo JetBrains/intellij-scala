@@ -9,6 +9,9 @@ import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.experimental.categories.Category
 
+/**
+ * See also [[ScopeAnnotatorHeavyTest]]
+ */
 @Category(Array(classOf[TypecheckerTests]))
 abstract class ScopeAnnotatorTestBase extends SimpleTestCase {
 

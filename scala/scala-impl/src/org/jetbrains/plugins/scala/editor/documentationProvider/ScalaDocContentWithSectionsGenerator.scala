@@ -250,8 +250,7 @@ private class ScalaDocContentWithSectionsGenerator(
     }
 
     // in case inherited class is in jar file we need to use sources for it
-    val superCommentOwnerSources = superCommentOwner.map(_.getNavigationElement)
-    superCommentOwnerSources.fold(false) {
+    superCommentOwner.fold(false) {
       case scalaDocOwner: ScDocCommentOwner =>
         scalaDocOwner.docComment match {
           case Some(superComment) =>

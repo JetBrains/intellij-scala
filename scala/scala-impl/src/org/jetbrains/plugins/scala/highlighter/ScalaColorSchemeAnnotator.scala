@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.highlighter
 import com.intellij.codeInspection.util.InspectionMessage
 import com.intellij.lang.annotation.{AnnotationHolder, Annotator, HighlightSeverity}
 import com.intellij.openapi.editor.colors.TextAttributesKey
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -12,6 +13,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScAssignment}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
@@ -165,7 +167,22 @@ object ScalaColorSchemeAnnotator {
   def highlightElement(element: PsiElement)(implicit holder: ScalaAnnotationHolder): Unit =
     element match {
       case _: ScInterpolatedExpressionPrefix =>
-      case r: ScReference  => highlightReferenceElement(r)
+      case r: ScReference  =>
+        r.getParent match {
+          case (a: ScAssignment) & Parent(_: ScArgumentExprList) if a.leftExpression eq r =>
+            //parameter reference in the named argument is handled separately below
+          case _ =>
+            highlightReferenceElement(r)
+        }
+      //highlight parameter reference in named arguments
+      case (a: ScAssignment) & Parent(_: ScArgumentExprList) =>
+        //TODO: this highlighting should be applied even when annotators are disabled and just syntax is highlighted
+        // kotlin has org.jetbrains.kotlin.idea.highlighter.BeforeResolveHighlightingVisitor
+        val parameterRefRange = a.leftExpression.getNode.getTextRange
+        val start = parameterRefRange.getStartOffset
+        val end = a.assignmentToken.map(_.endOffset).getOrElse(parameterRefRange.getEndOffset)
+        createInfoAnnotation(TextRange.create(start, end), DefaultHighlighter.NAMED_ARGUMENT)
+
       case x: ScAnnotation => visitAnnotation(x)
       case x: ScParameter  => visitParameter(x)
       case x: ScTypeAlias  => visitTypeAlias(x)
@@ -214,6 +231,17 @@ object ScalaColorSchemeAnnotator {
         holder.newAnnotation(HighlightSeverity.INFORMATION, message)
     builder
       .range(psiElement)
+      .textAttributes(attributes)
+      .create()
+  }
+
+  private def createInfoAnnotation(
+    range: TextRange,
+    attributes: TextAttributesKey,
+  )(implicit holder: ScalaAnnotationHolder): Unit = {
+    val builder = holder.newSilentAnnotation(HighlightSeverity.INFORMATION)
+    builder
+      .range(range)
       .textAttributes(attributes)
       .create()
   }
