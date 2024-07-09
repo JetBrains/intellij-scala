@@ -34,7 +34,7 @@ class SbtOrderEnumeratorHandler extends OrderEnumerationHandler {
     modules.asScala.headOption
   }
 
-  //TODO: after splitting sources to production and test it should be changed to false SCL-21157
+  //TODO SCL-22835
   override def shouldAddRuntimeDependenciesToTestCompilationClasspath: Boolean =
     true
 
