@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.testingSupport.munit
 
 import org.jetbrains.plugins.scala.util.assertions.ExceptionAssertions
 
-class MUnitFileStructureViewTest extends MUnitTestCase {
+abstract class MUnitFileStructureViewTestBase extends MUnitTestCase {
 
   private val ClassNameFunSuite = "MUnitFileStructureView_Test_FunSuite"
   private val FileNameFunSuite = ClassNameFunSuite + ".scala"
@@ -70,3 +70,7 @@ class MUnitFileStructureViewTest extends MUnitTestCase {
     )
   }
 }
+
+class MUnit_0_7_FileStructureViewTest extends MUnitFileStructureViewTestBase with MUnit_0_7
+
+class MUnit_1_0_FileStructureViewTest extends MUnitFileStructureViewTestBase with MUnit_1_0

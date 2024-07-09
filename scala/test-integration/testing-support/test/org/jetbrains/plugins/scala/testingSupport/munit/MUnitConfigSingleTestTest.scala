@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfigurat
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.SingleTestData
 
 //noinspection RedundantBlock
-class MUnitConfigSingleTestTest extends MUnitTestCase {
+abstract class MUnitConfigSingleTestTestBase extends MUnitTestCase {
 
   private val qqq = "\"\"\""
 
@@ -174,3 +174,7 @@ class MUnitConfigSingleTestTest extends MUnitTestCase {
     )
 
 }
+
+class MUnit_0_7_ConfigSingleTestTest extends MUnitConfigSingleTestTestBase with MUnit_0_7
+
+class MUnit_1_0_ConfigSingleTestTest extends MUnitConfigSingleTestTestBase with MUnit_1_0

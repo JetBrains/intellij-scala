@@ -5,7 +5,7 @@ import com.intellij.psi.{PsiDirectory, PsiManager}
 import org.jetbrains.plugins.scala.configurations.TestLocation.{CaretLocation, PackageLocation, PsiElementLocation}
 import org.jetbrains.plugins.scala.extensions.inReadAction
 
-class MUnitShouldReplaceJUnit extends MUnitTestCase {
+abstract class MUnitShouldReplaceJUnitTestBase extends MUnitTestCase {
 
   private val ClassName = "MyTestClass"
   private val FileName = "org/example/MyTestClass.scala"
@@ -56,3 +56,7 @@ class MUnitShouldReplaceJUnit extends MUnitTestCase {
     PsiManager.getInstance(myProject).findDirectory(srcDir)
   }
 }
+
+class MUnit_0_7_ShouldReplaceJUnitTest extends MUnitShouldReplaceJUnitTestBase with MUnit_0_7
+
+class MUnit_1_0_ShouldReplaceJUnitTest extends MUnitShouldReplaceJUnitTestBase with MUnit_1_0

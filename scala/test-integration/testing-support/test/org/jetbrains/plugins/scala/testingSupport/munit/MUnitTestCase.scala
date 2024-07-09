@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.munit.MUnitConfigurationP
 
 abstract class MUnitTestCase extends ScalaTestingTestCase {
 
-  val LatestMunitVersion = "0.7.29"
+  def munitVersion: String
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= ScalaVersion.Latest.Scala_2_13
@@ -19,7 +19,7 @@ abstract class MUnitTestCase extends ScalaTestingTestCase {
     RunConfigurationProducer.getInstance(classOf[MUnitConfigurationProducer])
 
   override protected def additionalLibraries: Seq[LibraryLoader] =
-    IvyManagedLoader(("org.scalameta" %% "munit" % LatestMunitVersion).transitive()) ::
-      IvyManagedLoader(("org.scalameta" %% "munit-scalacheck" % LatestMunitVersion).transitive()) ::
+    IvyManagedLoader(("org.scalameta" %% "munit" % munitVersion).transitive()) ::
+      IvyManagedLoader(("org.scalameta" %% "munit-scalacheck" % munitVersion).transitive()) ::
       Nil
 }
