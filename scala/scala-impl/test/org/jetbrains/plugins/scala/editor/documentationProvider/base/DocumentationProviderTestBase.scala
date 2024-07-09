@@ -4,11 +4,14 @@ import com.intellij.lang.documentation.DocumentationProvider
 import com.intellij.lang.documentation.ide.IdeDocumentationTargetProvider
 import com.intellij.lang.documentation.psi.PsiElementDocumentationTarget
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.projectRoots.Sdk
+import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.SlowTests
+import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
-import org.jetbrains.plugins.scala.editor.documentationProvider.util.{HtmlAssertions, ScalaDocumentationsSectionsTestingBase}
+import org.jetbrains.plugins.scala.editor.documentationProvider.util.HtmlAssertions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwner
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.junit.Assert
@@ -28,6 +31,10 @@ abstract class DocumentationProviderTestBase
 
   override protected def sharedProjectToken: SharedTestProjectToken =
     SharedTestProjectToken.ByTestClassAndScalaSdkAndProjectLibraries(this)
+
+  // Documentation tests require access to the JDK sources on top of the classes.
+  override protected def projectJdk: Sdk =
+    SmartJDKLoader.createFilteredJdk(LanguageLevel.JDK_17, Seq("java.base"), includeSourcesAndDocs = true)
 
   /////////////////// section start ////////////////////////
   protected def documentationProvider: DocumentationProvider
