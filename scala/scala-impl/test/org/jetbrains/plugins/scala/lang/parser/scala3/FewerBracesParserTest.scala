@@ -1904,4 +1904,48 @@ class FewerBracesParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  def test_too_many_brackets_in_indentation_block(): Unit = checkTree(
+    """
+      |def x =
+      |  empty[Int]] // one `]` too many
+      |  return
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScFunctionDefinition: x
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('x')
+      |    Parameters
+      |      <empty list>
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    BlockExpression
+      |      PsiWhiteSpace('\n  ')
+      |      GenericCall
+      |        ReferenceExpression: empty
+      |          PsiElement(identifier)('empty')
+      |        TypeArgumentsList
+      |          PsiElement([)('[')
+      |          SimpleType: Int
+      |            CodeReferenceElement: Int
+      |              PsiElement(identifier)('Int')
+      |          PsiElement(])(']')
+      |      PsiErrorElement:Unexpected token
+      |        <empty list>
+      |      PsiElement(])(']')
+      |      PsiWhiteSpace(' ')
+      |      PsiComment(comment)('// one `]` too many')
+      |      PsiWhiteSpace('\n  ')
+      |      ReturnStatement
+      |        PsiElement(return)('return')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }
