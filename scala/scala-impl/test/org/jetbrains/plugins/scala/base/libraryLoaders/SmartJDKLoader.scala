@@ -91,9 +91,16 @@ object SmartJDKLoader {
    *
    * @note [[ScalaLightCodeInsightFixtureTestCase]] automatically registers the project SDK to the JDK table.
    */
-  def createFilteredJdk(languageLevel: LanguageLevel, jdkModuleNames: Seq[String]): Sdk = {
+  def createFilteredJdk(
+    languageLevel: LanguageLevel,
+    jdkModuleNames: Seq[String],
+    includeSourcesAndDocs: Boolean = false
+  ): Sdk = {
+    if (languageLevel.isLessThan(LanguageLevel.JDK_1_9)) {
+      throw new IllegalArgumentException("can only create filtered JDKs based on Java 9+")
+    }
     if (jdkModuleNames.isEmpty) {
-      throw new IllegalArgumentException(s"jdkModuleNames cannot be empty")
+      throw new IllegalArgumentException("jdkModuleNames cannot be empty")
     }
 
     val jdkVersion = JavaSdkVersion.fromLanguageLevel(languageLevel)
@@ -108,11 +115,14 @@ object SmartJDKLoader {
     // `java.lang.String`, `java.util.List`, etc...
     // Having a minimal number of classes in the created SDK significantly speeds up SDK set up and indexing in tests.
     val modulePaths = jdkModuleNames.map(m => s"/$m")
+    // Keep only classes from the specified modules.
     val filterFn = (url: String) => modulePaths.exists(url.endsWith)
+    // If sources and docs should be included, keep only sources and docs from the specified modules, otherwise remove all sources and docs.
+    val filterSrcsDocsFn = (url: String) => includeSourcesAndDocs && filterFn(url)
     val modificator = jdk.getSdkModificator
     modificator.getUrls(OrderRootType.CLASSES).filterNot(filterFn).foreach(modificator.removeRoot(_, OrderRootType.CLASSES))
-    modificator.getUrls(OrderRootType.SOURCES).foreach(modificator.removeRoot(_, OrderRootType.SOURCES))
-    modificator.getUrls(OrderRootType.DOCUMENTATION).foreach(modificator.removeRoot(_, OrderRootType.DOCUMENTATION))
+    modificator.getUrls(OrderRootType.SOURCES).filterNot(filterSrcsDocsFn).foreach(modificator.removeRoot(_, OrderRootType.SOURCES))
+    modificator.getUrls(OrderRootType.DOCUMENTATION).filterNot(filterSrcsDocsFn).foreach(modificator.removeRoot(_, OrderRootType.DOCUMENTATION))
     inWriteAction(modificator.commitChanges())
     jdk
   }

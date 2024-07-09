@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.compiler.highlighting
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
+import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
 import com.intellij.psi.PsiManager
@@ -27,7 +28,11 @@ abstract class ToggleHighlightingModeListener(project: Project) {
         }
         // TODO: we should ensure that we do not do this if the project wasn't highlighted with compiler at all,
         //  e.g. for Scala 2 projects where it's disabled by default
-        invokeLater {
+        // Passing `ModalityState.nonModal()` is important here. The call to `forceStandardHighlighting` requires
+        // making changes to the PSI model, which must be done in a write-safe context.
+        // Per the documentation of `com.intellij.openapi.application.TransactionGuard`, `nonModal` is one of the
+        // write-safe contexts.
+        invokeLater(ModalityState.nonModal()) {
           forceStandardHighlighting(project)
           CompileServerNotificationsService.get(project).resetNotifications()
           if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
