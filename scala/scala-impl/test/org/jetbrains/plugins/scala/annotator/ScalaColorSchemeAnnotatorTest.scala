@@ -299,7 +299,10 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
     val keysOfInterest: Set[TextAttributesKey] = Set(
       DefaultHighlighter.VALUES,
       DefaultHighlighter.VARIABLES,
+      DefaultHighlighter.LOCAL_VALUES,
+      DefaultHighlighter.LOCAL_VARIABLES,
       DefaultHighlighter.PARAMETER,
+      DefaultHighlighter.NAMED_ARGUMENT,
       DefaultHighlighter.PARAMETER_OF_ANONIMOUS_FUNCTION,
       DefaultHighlighter.TYPEPARAM,
       DefaultHighlighter.LOCAL_VALUES,
@@ -352,6 +355,131 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
         |Info((1043,1060),parameterFieldVar,Scala Template val)
         |Info((1065,1074),instance2,Scala Local value)
         |Info((1075,1105),parameterFieldInThirdClauseVal,Scala Template val)
+        |""".stripMargin
+    )
+  }
+
+  def testHighlightParameterFieldAsParameterInScalaDoc(): Unit = {
+    val text =
+      """/**
+        | * [[parameter1]]
+        | * [[parameter2]]
+        | * [[parameterFieldVal]]
+        | * [[parameterFieldVar]]
+        | *
+        | * @param parameter1        description
+        | * @param parameter2        description
+        | * @param parameterFieldVal description
+        | * @param parameterFieldVar description
+        | */
+        |class MyClass(
+        |  parameter1: String, //NOTE USED outside constructor -> field IS NOT generated
+        |  parameter2: String, //USED outside constructor -> field IS generated
+        |  val parameterFieldVal: String,
+        |  var parameterFieldVar: String
+        |)
+        |
+        |/**
+        | * [[parameterField]]
+        | * [[parameterFieldVal]]
+        | * [[parameterFieldVar]]
+        | *
+        | * @param parameterField    description
+        | * @param parameterFieldVal description
+        | * @param parameterFieldVar description
+        | */
+        |case class MyCaseClass(
+        |  parameterField: String,
+        |  val parameterFieldVal: String,
+        |  var parameterFieldVar: String
+        |)
+        |""".stripMargin
+
+
+    //adding more keys which I think could be accidentally used, but not too many to keep test data compact
+    val keysOfInterest: Set[TextAttributesKey] = Set(
+      DefaultHighlighter.VALUES,
+      DefaultHighlighter.VARIABLES,
+      DefaultHighlighter.LOCAL_VALUES,
+      DefaultHighlighter.LOCAL_VARIABLES,
+      DefaultHighlighter.PARAMETER,
+      DefaultHighlighter.NAMED_ARGUMENT,
+      DefaultHighlighter.PARAMETER_OF_ANONIMOUS_FUNCTION,
+      DefaultHighlighter.TYPEPARAM,
+      DefaultHighlighter.LOCAL_VALUES,
+      DefaultHighlighter.LOCAL_VARIABLES,
+      DefaultHighlighter.METHOD_DECLARATION,
+      DefaultHighlighter.OBJECT_METHOD_CALL,
+      DefaultHighlighter.LOCAL_METHOD_CALL,
+      DefaultHighlighter.METHOD_CALL,
+    )
+    testAnnotations(text, keysOfInterest,
+      """Info((9,19),parameter1,Scala Parameter)
+        |Info((27,37),parameter2,Scala Parameter)
+        |Info((45,62),parameterFieldVal,Scala Parameter)
+        |Info((70,87),parameterFieldVar,Scala Parameter)
+        |Info((103,113),parameter1,Scala Parameter)
+        |Info((143,153),parameter2,Scala Parameter)
+        |Info((183,200),parameterFieldVal,Scala Parameter)
+        |Info((223,240),parameterFieldVar,Scala Parameter)
+        |Info((274,284),parameter1,Scala Parameter)
+        |Info((354,364),parameter2,Scala Parameter)
+        |Info((429,446),parameterFieldVal,Scala Template val)
+        |Info((462,479),parameterFieldVar,Scala Template val)
+        |Info((500,514),parameterField,Scala Parameter)
+        |Info((522,539),parameterFieldVal,Scala Parameter)
+        |Info((547,564),parameterFieldVar,Scala Parameter)
+        |Info((580,594),parameterField,Scala Parameter)
+        |Info((620,637),parameterFieldVal,Scala Parameter)
+        |Info((660,677),parameterFieldVar,Scala Parameter)
+        |Info((720,734),parameterField,Scala Template val)
+        |Info((750,767),parameterFieldVal,Scala Template val)
+        |Info((783,800),parameterFieldVar,Scala Template val)""".stripMargin
+    )
+  }
+
+  def testNamedArguments(): Unit = {
+    addScalaFileToProject("defs.scala",
+      """class MyClass(param: Int, val paramFieldVal: Int, var paramFieldVar: Int)(param4: Int)
+        |case class MyCaseClass(paramField: Int, val paramFieldVal: Int, var paramFieldVar: Int)(param4: Int)
+        |def foo(param1: Int, param2: Int)(param3: Int): Unit = ???
+        |val value = 42
+        |""".stripMargin
+    )
+    val text =
+      """new MyClass(param = 1, paramFieldVal = 2, paramFieldVar = 3)(param4 = 4)
+        |MyCaseClass(paramField = 1, paramFieldVal = 2, paramFieldVar = 3)(param4 = 4)
+        |foo(param1 = value, param2 = value)(param3 = value)
+        |""".stripMargin
+
+    //adding more keys which I think could be accidentally used, but not too many to keep test data compact
+    val keysOfInterest: Set[TextAttributesKey] = Set(
+      DefaultHighlighter.VALUES,
+      DefaultHighlighter.LOCAL_VALUES,
+      DefaultHighlighter.LOCAL_VARIABLES,
+      DefaultHighlighter.VARIABLES,
+      DefaultHighlighter.PARAMETER,
+      DefaultHighlighter.NAMED_ARGUMENT,
+      DefaultHighlighter.PARAMETER_OF_ANONIMOUS_FUNCTION,
+      DefaultHighlighter.TYPEPARAM,
+    )
+    testAnnotations(
+      text,
+      keysOfInterest,
+      """Info((12,19),param =,Scala Named Argument)
+        |Info((23,38),paramFieldVal =,Scala Named Argument)
+        |Info((42,57),paramFieldVar =,Scala Named Argument)
+        |Info((61,69),param4 =,Scala Named Argument)
+        |Info((85,97),paramField =,Scala Named Argument)
+        |Info((101,116),paramFieldVal =,Scala Named Argument)
+        |Info((120,135),paramFieldVar =,Scala Named Argument)
+        |Info((139,147),param4 =,Scala Named Argument)
+        |Info((155,163),param1 =,Scala Named Argument)
+        |Info((164,169),value,Scala Local value)
+        |Info((171,179),param2 =,Scala Named Argument)
+        |Info((180,185),value,Scala Local value)
+        |Info((187,195),param3 =,Scala Named Argument)
+        |Info((196,201),value,Scala Local value)
         |""".stripMargin
     )
   }

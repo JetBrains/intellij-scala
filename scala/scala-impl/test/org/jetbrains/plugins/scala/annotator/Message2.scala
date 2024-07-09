@@ -38,7 +38,8 @@ sealed abstract class Message2 extends Ordered[Message2] {
 
     import scala.math.Ordered.orderingToOrdered
 
-    (this.range, this.message) compare(that.range, that.message)
+    //wrapping the message to option as it can be null
+    (this.range, Option(this.message)).compare(that.range, Option(that.message))
   }
 
   def textWithRangeAndCodeAttribute: String = buildText(includeRange = true, includeCode = true, includeAttributes = true)

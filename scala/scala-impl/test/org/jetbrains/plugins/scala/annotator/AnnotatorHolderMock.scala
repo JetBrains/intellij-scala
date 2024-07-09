@@ -48,11 +48,16 @@ class AnnotatorHolderExtendedMock(file: PsiFile) extends AnnotatorHolderMockBase
   }
 }
 
-abstract class AnnotatorHolderMockBase[T](file: PsiFile) extends ScalaAnnotationHolder {
+abstract class AnnotatorHolderMockBase[T : Ordering](file: PsiFile) extends ScalaAnnotationHolder {
 
-  def annotations: List[T] = myAnnotations.reverse
+  import org.jetbrains.plugins.scala.annotator.Message2.TextRangeOrdering
 
-  protected var myAnnotations: List[T] = List[T]()
+  //for more stable tests, sorted annotations by range and if it's the same then by the value
+  def annotations: List[T] = myAnnotations
+    .sortBy(a => (a._1, a._2))
+    .map(_._2)
+
+  private var myAnnotations: List[(TextRange, T)] = List[(TextRange, T)]()
 
   def createMockAnnotation(severity: HighlightSeverity, range: TextRange, message: String, enforcedAttributes: TextAttributesKey): Option[T]
 
@@ -71,7 +76,7 @@ abstract class AnnotatorHolderMockBase[T](file: PsiFile) extends ScalaAnnotation
     extends DummyScalaAnnotationBuilder(severity, message) {
 
     override def onCreate(severity: HighlightSeverity, message: String, range: TextRange, enforcedAttributes: TextAttributesKey): Unit =
-      myAnnotations :::= createMockAnnotation(severity, range, message, enforcedAttributes).toList
+      myAnnotations :::= createMockAnnotation(severity, range, message, enforcedAttributes).toList.map(range -> _)
   }
 
   protected def fileTextOf(range: TextRange): String = {

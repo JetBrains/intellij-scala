@@ -339,9 +339,9 @@ abstract class ApplicationAnnotatorTest_Common extends ApplicationAnnotatorTestB
         |foo5()(42)
         |foo5()()(42)
         |""".stripMargin,
-      """Error(),Missing argument list () for method foo5()()(Int))
+      """Error((4,Too many arguments for method foo5()()(Int))
+        |Error(),Missing argument list () for method foo5()()(Int))
         |Error(),Missing argument list (x: Int) for method foo5()()(Int))
-        |Error((4,Too many arguments for method foo5()()(Int))
         |Error((4,Too many arguments)
         |""".stripMargin
     )

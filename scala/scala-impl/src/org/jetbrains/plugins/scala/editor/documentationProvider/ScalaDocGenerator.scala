@@ -48,11 +48,10 @@ object ScalaDocGenerator {
     val builder = new StringBuilder
 
     // for library classes, get class from sources jar
-    val actualElementWithDoc = elementWithDoc.getNavigationElement
-    appendHeader(builder, actualElementWithDoc)
+    appendHeader(builder, elementWithDoc)
 
-    ScalaDocDefinitionGenerator.generate(builder, actualElementWithDoc, originalElement)
-    generateDocContent(builder, actualElementWithDoc)
+    ScalaDocDefinitionGenerator.generate(builder, elementWithDoc, originalElement)
+    generateDocContent(builder, elementWithDoc)
 
     appendFooter(builder)
 

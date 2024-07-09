@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcesso
 
 import scala.annotation.tailrec
 
+//TODO: move to a proper package, it doesn't belong to "annotator.gutter"
 class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
 
   override def getGotoDeclarationTargets(element: PsiElement, offset: Int, editor: Editor): Array[PsiElement] = {
@@ -170,11 +171,8 @@ object ScalaGoToDeclarationHandler {
       case _ => return null
     }
 
-    targets.flatMap { element =>
-      val syntheticTargets = syntheticTarget(element)
-      if (syntheticTargets.isEmpty) Seq(element)
-      else                          syntheticTargets
-    }.toArray
+    val targetsFinal = targets.flatMap(syntheticTargetOrSelf)
+    targetsFinal.toArray
   }
 
   private def regularCase(result: ScalaResolveResult): Seq[PsiElement] = {
@@ -239,6 +237,12 @@ object ScalaGoToDeclarationHandler {
     set.isEmpty || set.exists(predicate)
 
   import ScalaPsiUtil.{getCompanionModule, parameterForSyntheticParameter}
+
+  def syntheticTargetOrSelf(element: PsiElement): Seq[PsiElement] = {
+    val syntheticTargets = syntheticTarget(element)
+    if (syntheticTargets.isEmpty) Seq(element)
+    else syntheticTargets
+  }
 
   private def syntheticTarget(element: PsiElement): Seq[PsiElement] =
     element match {

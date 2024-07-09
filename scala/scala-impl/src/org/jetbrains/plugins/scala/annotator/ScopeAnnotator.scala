@@ -10,14 +10,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScFor, ScGenerator}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameterClause, ScParameters, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause, ScParameters, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScConstructorOwner, ScEnum, ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, ParameterizedType, StdTypes, TypeParameterType, arrayType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
-import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScParameterizedType, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 import scala.collection.immutable.ArraySeq
@@ -37,7 +37,7 @@ object ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
   def annotateScope(element: PsiElement)
                    (implicit holder: ScalaAnnotationHolder): Unit = {
     //Do not process class parameters, template body and early definitions separately
-    //process them in single pass for the whole template definition
+    //process them in a single pass for the whole template definition
     val shouldAnnotate = ScalaPsiUtil.isScope(element) && (element match {
       case _: ScTemplateBody => false
       case _: ScEarlyDefinitions => false
@@ -60,7 +60,8 @@ object ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
       val clashesSet = clashes.toSet
       clashesSet.foreach { e =>
         val element = Option(e.getNameIdentifier).getOrElse(e)
-        holder.createErrorAnnotation(element, ScalaBundle.message("id.is.already.defined", nameOf(e)))
+        val innerText = nameOf(e, forPresentableText = true)
+        holder.createErrorAnnotation(element, ScalaBundle.message("id.is.already.defined", innerText))
       }
     }
 
@@ -125,7 +126,7 @@ object ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
           case e: ScTypeAlias => types ::= e
           case e: ScTypeParam => types ::= e
           case e: ScClass  =>
-            if (e.isCase && e. baseCompanion.isEmpty) { //add synthtetic companion
+            if (e.isCase && e. baseCompanion.isEmpty) { //add a synthetic companion
               parameterless ::= e
               fieldLike ::= e
             }
@@ -154,24 +155,26 @@ object ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
   // https://www.scala-lang.org/files/archive/spec/2.13/05-classes-and-objects.html#class-members
   //
   // We find clashes in three steps
-  //  1. we group together all elements that have the same name and the same erasure parameter types.
+  //  1. We group together all elements that have the same name and the same erasure parameter types.
   //  2. All elements that end up in the same group and are not functions with parameters are already clashes.
   //     The functions are now grouped by their erasure return type.
   //     Functions in the same group have the exact same erasure signature and must therefore be clashes.
   //  3. The remaining functions will not clash if they do not have equivalent parameter types.
-  private def clashesOf(elements: Seq[ScNamedElement]): Seq[ScNamedElement] =
-    elements.groupBy(nameOf(_, withReturnType = false)).iterator.flatMap {
+  private def clashesOf(elements: Seq[ScNamedElement]): Seq[ScNamedElement] = {
+    val nameToClashes = elements.groupBy(nameOf(_, withReturnType = false, forPresentableText = false))
+    nameToClashes.iterator.flatMap {
       case ("_", _) => Nil
       case (_, clashed) if clashed.size > 1 => clashesOf2(clashed)
       case _ => Nil
     }.toSeq
+  }
 
   private def clashesOf2(elements: Seq[ScNamedElement]): Iterator[ScNamedElement] =
     elements.head match {
       case fun: ScFunction if fun.hasParameters && !fun.getParent.is[ScBlockExpr]  =>
         val (withDifferentReturnTypes, withSameReturnTypes) = elements
           .map(_.asInstanceOf[ScFunction])
-          .groupBy(fun => erasedReturnType(fun, fun.getContext.is[ScRefinement]))
+          .groupBy(fun => erasedReturnType(fun, fun.getContext.is[ScRefinement], forPresentableText = false))
           .values
           .partition(_.size == 1)
 
@@ -193,33 +196,44 @@ object ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
     result.result().iterator
   }
 
-  private def nameOf(element: ScNamedElement, withReturnType: Boolean = true): String = element match {
+  private def nameOf(
+    element: ScNamedElement,
+    forPresentableText: Boolean,
+    withReturnType: Boolean = true
+  ): String = element match {
     case f: ScFunction if !f.getParent.is[ScBlockExpr] =>
-      ScalaNamesUtil.clean(f.name) + signatureOf(f, withReturnType)
+      ScalaNamesUtil.clean(f.name) + signatureOf(f, withReturnType, forPresentableText = forPresentableText)
     case _ =>
       ScalaNamesUtil.clean(element.name)
   }
 
-  private def signatureOf(f: ScFunction, withReturnType: Boolean): String = {
+  private def signatureOf(
+    f: ScFunction,
+    withReturnType: Boolean,
+    forPresentableText: Boolean
+  ): String = {
     if (!f.isExtensionMethod && f.parameters.isEmpty)
       ""
     else {
       val isInStructuralType = f.getContext.is[ScRefinement]
       val params = if (f.isExtensionMethod) f.parameterClausesWithExtension() else f.paramClauses.clauses
-      val formattedParams = params.map(format(_, eraseParamType = !isInStructuralType)).mkString
+      val formattedParams = params.map(format(_, eraseParamType = !isInStructuralType, forPresentableText)).mkString
       val returnType =
-        if (withReturnType && !isInStructuralType) erasedReturnType(f, isInStructuralType)
+        if (withReturnType && !isInStructuralType) erasedReturnType(f, isInStructuralType, forPresentableText)
         else ""
       formattedParams + returnType
     }
   }
 
-  private def erasedReturnType(f: ScFunction, isInStructuralType: Boolean): String = {
-    if (!isInStructuralType) erased(f.returnType.getOrAny.removeAliasDefinitions()).canonicalText
+  private def erasedReturnType(f: ScFunction, isInStructuralType: Boolean, forPresentableText: Boolean): String = {
+    if (!isInStructuralType) {
+      val returnType = f.returnType.getOrAny.removeAliasDefinitions()
+      erased(returnType, forPresentableText).canonicalText
+    }
     else ""
   }
 
-  private def erased(t: ScType): ScType = {
+  private def erased(t: ScType, forPresentableText: Boolean): ScType = {
     val stdTypes = StdTypes.instance(t.projectContext)
 
     t.updateRecursively {
@@ -230,25 +244,46 @@ object ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
         case other => other
       }.getOrAny
 
-      case arrayType(inner) => JavaArrayType(erased(inner)) //array types are not erased
-      case p: ParameterizedType => p.designator
+      // array types are not erased
+      case arrayType(inner) =>
+        JavaArrayType(erased(inner, forPresentableText))
+      case pt@ParameterizedType(ScDesignatorType(ta: ScTypeAlias), Seq(arg)) if ta.qualifiedNameOpt.contains("scala.IArray") =>
+        if (forPresentableText) //use IArray instead of Array when presenting text
+          ScParameterizedType(pt.designator, pt.typeArguments.map(erased(_, forPresentableText)))
+        else
+          JavaArrayType(erased(arg, forPresentableText))
+      case pt: ParameterizedType => pt.designator
       case tpt: TypeParameterType => tpt.upperType
       case stdTypes.Any | stdTypes.AnyVal => stdTypes.AnyRef
     }
   }
 
-  private def format(clause: ScParameterClause, eraseParamType: Boolean) = {
-    val parts = clause.parameters.map { p =>
-      val `=>` = if (p.isCallByNameParameter) " => " else ""
-      val `*` = if (p.isRepeatedParameter) "*" else ""
-
-      val paramType = p.`type`().getOrAny.removeAliasDefinitions()
-      val erasedType =
-        if (eraseParamType) erased(paramType)
-        else paramType
-
-      `=>` + erasedType.canonicalText + `*`
-    }
+  private def format(
+    clause: ScParameterClause,
+    eraseParamType: Boolean,
+    forPresentableText: Boolean
+  ): String = {
+    val parts = clause.parameters.map(formatParameter(_, eraseParamType, forPresentableText))
     parts.mkString("(", ", ", ")")
+  }
+
+  private def formatParameter(
+    p: ScParameter,
+    eraseParamType: Boolean,
+    forPresentableText: Boolean
+  ): String = {
+    val `=>` = if (p.isCallByNameParameter) " => " else ""
+    val `*` = if (p.isRepeatedParameter) "*" else ""
+
+    val paramType = p.`type`().getOrAny
+    // We need opaque types RHS to distinguish array types (e.g. IArray, see SCL-22062).
+    // However, when we show the type in the error tooltip,
+    // we don't expand opaque types because for user RHS is an implementation detail.
+    val paramTypeExpanded = paramType.removeAliasDefinitions()
+    val erasedType =
+      if (eraseParamType) erased(paramTypeExpanded, forPresentableText)
+      else paramTypeExpanded
+
+    `=>` + erasedType.canonicalText + `*`
   }
 }

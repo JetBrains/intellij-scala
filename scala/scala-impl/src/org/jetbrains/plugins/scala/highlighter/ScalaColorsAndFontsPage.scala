@@ -59,6 +59,7 @@ object ScalaColorsAndFontsPage {
     new AttributesDescriptor(DisplayNames.LAZY, LAZY),
     new AttributesDescriptor(DisplayNames.GIVEN, GIVEN),
     new AttributesDescriptor(DisplayNames.PARAMETER, PARAMETER),
+    new AttributesDescriptor(DisplayNames.NAMED_ARGUMENT, NAMED_ARGUMENT),
     new AttributesDescriptor(DisplayNames.PARAMETER_OF_ANONIMOUS_FUNCTION, PARAMETER_OF_ANONIMOUS_FUNCTION),
     new AttributesDescriptor(DisplayNames.PATTERN, PATTERN),
     new AttributesDescriptor(DisplayNames.GENERATOR, GENERATOR),
@@ -130,6 +131,7 @@ object ScalaColorsAndFontsPage {
     val GIVEN = ScalaOptionsBundle.message("options.scala.attribute.descriptor.given")
     val LAZY = ScalaOptionsBundle.message("options.scala.attribute.descriptor.template.lazy.val.var")
     val PARAMETER = ScalaOptionsBundle.message("options.scala.attribute.descriptor.parameter")
+    val NAMED_ARGUMENT = ScalaOptionsBundle.message("options.scala.attribute.descriptor.named.argument")
     //TODO: rename ANONIMOUS -> ANONYMOUS
     val PARAMETER_OF_ANONIMOUS_FUNCTION = ScalaOptionsBundle.message("options.scala.attribute.descriptor.parameter.of.anonimous.function")
     val METHOD_CALL = ScalaOptionsBundle.message("options.scala.attribute.descriptor.class.method.call")
@@ -203,7 +205,7 @@ class ScalaColorsAndFontsPage extends RainbowColorSettingsPage {
        | * <tag>@param</tag> <paramtagval>x</paramtagval> Int param
        | * <tag>@author</tag> IntelliJ
        | */</scaladoc>
-       |<keyword>class</keyword> <class>ScalaClass</class><par>(</par><param>x</param><colon>:</colon> <predef>Int</predef><par>)</par> <keyword>extends</keyword> <class>ScalaObject</class> <brace>{</brace>
+       |<keyword>class</keyword> <class>ScalaClass</class><par>(</par><param>number</param><colon>:</colon> <predef>Int</predef><par>)</par> <keyword>extends</keyword> <class>ScalaObject</class> <brace>{</brace>
        |  <number>1</number> <implicit>to</implicit> <number>5</number>
        |  <par>(</par><anon_param>x</anon_param><colon>:</colon> <predef>Int</predef><par>)</par> <arrow>=></arrow> <anon_param>x</anon_param>
        |  <keyword>val</keyword> <val>field</val> <assign>=</assign> <string>"Some<validescape>\\n</validescape>Strin<invalidescape>\\g</invalidescape>"</string>
@@ -226,7 +228,7 @@ class ScalaColorsAndFontsPage extends RainbowColorSettingsPage {
        |  <keyword>val</keyword> <val>immutableCollection</val> <assign>=</assign> <immutablec>List</immutablec>(<number>1</number><comma>,</comma> <number>2</number>)
        |  <keyword>val</keyword> <val>javaCollection</val> <assign>=</assign> <keyword>new</keyword> <javac>TreeMap</javac>[<predef>Int</predef>,  <predef>Int</predef>]()
        |
-       |  <keyword>def</keyword> <methoddecl>foo</methoddecl><colon>:</colon> <class>ScalaClass</class> <assign>=</assign> <keyword>new</keyword> <class>ScalaClass</class><par>(</par><number>23</number>, <number>9</number><par>)</par>
+       |  <keyword>def</keyword> <methoddecl>foo</methoddecl><colon>:</colon> <class>ScalaClass</class> <assign>=</assign> <keyword>new</keyword> <class>ScalaClass</class><par>(</par><named_arg>number =</named_arg> <number>23</number>, <number>9</number><par>)</par>
        |  <keyword>given</keyword> <given>ordering</given><colon>:</colon> <trait>Ordering</trait>[<predef>Int</predef>] <assign>=</assign> <keyword>null</keyword>
        |
        |  <keyword>class</keyword> <class>usage</class> <brace>{</brace>
@@ -283,6 +285,7 @@ class ScalaColorsAndFontsPage extends RainbowColorSettingsPage {
     map.put("val", VALUES)
     map.put("given", GIVEN)
     map.put("param", PARAMETER)
+    map.put("named_arg", NAMED_ARGUMENT)
     map.put("anon_param", PARAMETER_OF_ANONIMOUS_FUNCTION)
     map.put("method", METHOD_CALL)
     map.put("objectmethod", OBJECT_METHOD_CALL)
