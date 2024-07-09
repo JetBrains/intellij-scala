@@ -1,6 +1,9 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
+import com.intellij.openapi.projectRoots.Sdk
+import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.PsiClass
+import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
@@ -13,6 +16,9 @@ import scala.jdk.CollectionConverters.CollectionHasAsScala
 class ScaladocLinkResolveTest_Old extends ScalaResolveTestCase {
 
   override def folderPath: String = super.folderPath + "resolve/scaladoc"
+
+  override protected lazy val projectJdk: Sdk =
+    SmartJDKLoader.createFilteredJdk(LanguageLevel.JDK_17, Seq("java.base", "java.desktop"))
 
   protected def genericResolve(expectedLength: Int, expectedClass: Class[_]): Unit = try {
     //NOTE: the file is prepared in `setUp`

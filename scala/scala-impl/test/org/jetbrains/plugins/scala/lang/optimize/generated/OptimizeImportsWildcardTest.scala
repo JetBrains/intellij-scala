@@ -1,11 +1,17 @@
 package org.jetbrains.plugins.scala.lang.optimize.generated
 
+import com.intellij.openapi.projectRoots.Sdk
+import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.lang.optimize.OptimizeImportsTestBase
 
 abstract class OptimizeImportsWildcardTestBase extends OptimizeImportsTestBase {
 
   override def folderPath: String = super.folderPath + "wildcard/"
+
+  override protected lazy val projectJdk: Sdk =
+    SmartJDKLoader.createFilteredJdk(LanguageLevel.JDK_17, Seq("java.base", "java.desktop"))
 
   def testMayReplace(): Unit = doTest()
 

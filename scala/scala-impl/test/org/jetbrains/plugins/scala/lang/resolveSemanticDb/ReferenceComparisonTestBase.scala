@@ -1,6 +1,9 @@
 package org.jetbrains.plugins.scala.lang.resolveSemanticDb
 
+import com.intellij.openapi.projectRoots.Sdk
+import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.PsiNamedElement
+import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScMatchTypeElement, ScTypeElement, ScTypeLambdaTypeElement}
@@ -28,6 +31,9 @@ abstract class ReferenceComparisonTestBase_Scala3 extends ReferenceComparisonTes
 }
 
 abstract class ReferenceComparisonTestBase extends ComparisonTestBase {
+
+  override protected lazy val projectJdk: Sdk =
+    SmartJDKLoader.createFilteredJdk(LanguageLevel.JDK_17, Seq("java.base", "java.compiler", "java.rmi", "java.sql", "java.desktop"))
 
   override def doTest(testName: String, shouldSucceed: Boolean): Unit = {
     val Result(actualProblems, _, _, _, _, _, _) = runTestToResult(testName)
