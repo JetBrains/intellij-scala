@@ -198,13 +198,14 @@ package object types {
         case _ => true
       }
     }
-
-    def removeAliasDefinitions(expandableOnly: Boolean = false): ScType = {
-      def needExpand(ta: ScTypeAliasDefinition) = !ta.isOpaque && (!expandableOnly || shouldExpand(ta))
+    def removeAliasDefinitions(expandableOnly: Boolean = false, place: Option[PsiElement] = None, opaqueOnly: Boolean = false): ScType = {
+      def needExpand(ta: ScTypeAliasDefinition) = !expandableOnly || shouldExpand(ta)
 
       def innerUpdate(tp: ScType, visited: Set[ScType]): ScType = {
         tp.recursiveUpdate {
-          case AliasType(tdef: ScTypeAliasDefinition, _, _) if tdef.isOpaque => Stop
+          case AliasType(tdef: ScTypeAliasDefinition, _, _) & ScProjectionType(tpe, _) if place.exists(tdef.isOpaqueIn) =>
+            ReplaceWith(ScProjectionType(tpe, tdef.toDeclaration))
+          case _ if opaqueOnly => ProcessSubtypes
           case AliasType(_: ScTypeAliasDefinition, Right(_: ScTypePolymorphicType), _) => ProcessSubtypes
           case AliasType(ta: ScTypeAliasDefinition, _, Failure(_)) if needExpand(ta) =>
             ReplaceWith(projectContext.stdTypes.Any)
@@ -223,6 +224,18 @@ package object types {
       }
 
       innerUpdate(scType, Set.empty)
+    }
+
+    def conformsIn(place: PsiElement, that: ScType): Boolean = {
+      val thisType = this.removeAliasDefinitions(place = Some(place), opaqueOnly = true)
+      val thatType = that.removeAliasDefinitions(place = Some(place), opaqueOnly = true)
+      thisType.conforms(thatType)
+    }
+
+    def conformsIn(place: PsiElement, that: ScType, constraints: ConstraintSystem, checkWeak: Boolean = false): ConstraintsResult = {
+      val thisType = this.removeAliasDefinitions(place = Some(place), opaqueOnly = true)
+      val thatType = that.removeAliasDefinitions(place = Some(place), opaqueOnly = true)
+      thisType.conforms(thatType, constraints, checkWeak)
     }
 
     /**

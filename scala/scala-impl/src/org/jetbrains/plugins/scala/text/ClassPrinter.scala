@@ -24,6 +24,13 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ") {
     case t: ScTypeAlias => textOf(t, "")
   }
 
+  def declarationOf(t: ScTypeAliasDefinition): String = {
+    val name = t.name
+    val tps = if (t.typeParameters.isEmpty) "" else t.typeParameters.map(textOf).mkString("[", ", ", "]")
+    val bounds = if (t.isDefinition) "" else textOfBoundsIn(t)
+    "type " + name + tps + bounds
+  }
+
   def printTo(sb: StringBuilder, cls: ScTypeDefinition): Unit = printTo(sb, cls, "")
 
   private def printTo(sb: StringBuilder, cls: ScTypeDefinition, indent: String): Unit = {

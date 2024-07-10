@@ -133,7 +133,7 @@ abstract class ImplicitProcessor(override protected val getPlace: PsiElement,
 
   final def candidatesByType(expandedType: ScType): Set[ScalaResolveResult] = {
     ImplicitProcessor
-      .findImplicitObjects(expandedType.removeAliasDefinitions(), getPlace.resolveScope)
+      .findImplicitObjects(expandedType.removeAliasDefinitions(place = Some(getPlace)), getPlace.resolveScope)
       .foreach(objectTpe =>
         processType(objectTpe, getPlace, ScalaResolveState.withImplicitScopeObject(objectTpe))
       )
