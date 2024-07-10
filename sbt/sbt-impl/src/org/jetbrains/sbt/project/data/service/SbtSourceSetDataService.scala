@@ -28,6 +28,7 @@ class SbtSourceSetDataService extends AbstractSbtModuleDataService[SbtSourceSetD
 }
 
 object SbtSourceSetDataService {
+  // if the value of this field is modified, then org.jetbrains.jps.incremental.scala.model.impl.JpsSbtModuleExtensionImpl.SbtSourceSetModuleTypeKey should be updated
   @VisibleForTesting
   val sbtSourceSetModuleType = "sbtSourceSet"
 }
