@@ -9,14 +9,13 @@ final class JpsSbtExtensionServiceImpl extends JpsSbtExtensionService {
     Option(module.getContainer.getChild(JpsSbtModuleExtensionImpl.Role))
   }
 
-  override def getOrCreateExtension(module: JpsModule): JpsSbtModuleExtension = {
+  override def getOrCreateExtension(module: JpsModule, moduleType: Option[String]): JpsSbtModuleExtension =
     module.getContainer.getChild(JpsSbtModuleExtensionImpl.Role) match {
       case null =>
-        val extension = new JpsSbtModuleExtensionImpl
+        val extension = new JpsSbtModuleExtensionImpl(moduleType)
         module.getContainer.setChild(JpsSbtModuleExtensionImpl.Role, extension)
         extension
       case extension =>
         extension
     }
-  }
 }
