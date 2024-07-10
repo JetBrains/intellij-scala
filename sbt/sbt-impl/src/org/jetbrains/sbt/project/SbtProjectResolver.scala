@@ -908,9 +908,15 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     )
 
     parentModule.addAll(Seq(testModule, prodModule))
+    addSourceSetModulesDependencies(parentModule, testModule, prodModule)
 
     CompleteModuleSourceSet(parentModule, prodModule, testModule)
   }
+
+  private def addSourceSetModulesDependencies(parentModule: ModuleDataNodeType, sourceModules: SbtSourceSetModuleNode*): Unit =
+    sourceModules.foreach { sourceModuleNode =>
+      addModuleDependencyNode(parentModule, sourceModuleNode, DependencyScope.COMPILE, exported = false)
+    }
 
   private def createSbtSourceSetModules(
     project: sbtStructure.ProjectData,

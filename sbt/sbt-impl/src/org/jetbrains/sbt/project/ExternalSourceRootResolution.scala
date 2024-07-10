@@ -226,8 +226,15 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
     Seq(sharedSourcesMainModule, sharedSourcesTestModule).collect { case Some(module) =>
       parentModule.add(module)
     }
+    addSourceSetModulesDependencies(parentModule, sharedSourcesMainModule, sharedSourcesTestModule)
+
     parentModule
   }
+
+  private def addSourceSetModulesDependencies(parentModule: ModuleDataNodeType, sourceModules: Option[SbtSourceSetModuleNode]*): Unit =
+    sourceModules.flatten.foreach { sourceModuleNode =>
+      addModuleDependencyNode(parentModule, sourceModuleNode, DependencyScope.COMPILE, exported = false)
+    }
 
   protected def collectSourceModules(projectToSourceSet: Map[sbtStructure.ProjectData, ModuleSourceSet]): Seq[ModuleDataNodeType] =
     projectToSourceSet.values.flatMap {
@@ -235,10 +242,10 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
       case CompleteModuleSourceSet(_, main, test) => Seq(main, test)
     }.toSeq
 
-  private def addModuleDependencyNode(ownerModule: ModuleDataNodeType, module: ModuleDataNodeType, dependencyScope: DependencyScope): Unit = {
+  protected def addModuleDependencyNode(ownerModule: ModuleDataNodeType, module: ModuleDataNodeType, dependencyScope: DependencyScope, exported: Boolean = true): Unit = {
     val node = new ModuleDependencyNode(ownerModule, module)
     node.setScope(dependencyScope)
-    node.setExported(true)
+    node.setExported(exported)
     ownerModule.add(node)
   }
 

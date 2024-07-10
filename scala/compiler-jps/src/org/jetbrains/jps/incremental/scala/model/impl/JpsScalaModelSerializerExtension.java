@@ -64,7 +64,7 @@ public class JpsScalaModelSerializerExtension extends JpsModelSerializerExtensio
     @Override
     public void loadExtension(@NotNull JpsProject jpsProject, @NotNull Element componentTag) {
       IncrementalityType incrementalityType = loadIncrementalityType(componentTag);
-
+      Boolean separateProdTestSources = loadSeparateProdTestSources(componentTag);
       CompilerSettingsImpl defaultSetting = loadSettings(componentTag);
 
       Map<String, String> moduleToProfile = new HashMap<>();
@@ -81,7 +81,7 @@ public class JpsScalaModelSerializerExtension extends JpsModelSerializerExtensio
         }
       }
 
-      ProjectSettings configuration = new ProjectSettingsImpl(incrementalityType, defaultSetting, profileToSettings, moduleToProfile);
+      ProjectSettings configuration = new ProjectSettingsImpl(incrementalityType, defaultSetting, separateProdTestSources, profileToSettings, moduleToProfile);
 
       SettingsManager.setProjectSettings(jpsProject, configuration);
     }
@@ -93,6 +93,15 @@ public class JpsScalaModelSerializerExtension extends JpsModelSerializerExtensio
         }
       }
       return IncrementalityType.SBT;
+    }
+
+    private static Boolean loadSeparateProdTestSources(Element componentTag) {
+      for (Element option : componentTag.getChildren("option")) {
+        if ("separateProdTestSources".equals(option.getAttributeValue("name"))) {
+          return Boolean.parseBoolean(option.getAttributeValue("value"));
+        }
+      }
+      return false;
     }
 
     private static CompilerSettingsImpl loadSettings(Element componentTag) {
