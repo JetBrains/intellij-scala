@@ -59,15 +59,32 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
         case Some(q) => q match {
           case _: ScDocResolvableCodeReference => // TODO Uniform, fine-grained highlighting, SCL-22154
             checkQualifiedReferenceElement(element, typeAware)
-          case e: ScExpression
-            if !e.isInstanceOf[ScThisReference] && !e.isInstanceOf[ScSuperReference] &&
-              !e.isInstanceOf[ScUnderscoreSection] && // TODO Highlight underscore rather than remainder, SCL-22148
-              !e.asOptionOf[ScReferenceExpression].exists(_.resolve() != null) && // TODO Highlight expressions of non-inferred type? SCL-22150
-              e.`type`().isLeft => // Don't highlight the remainder if the type of the qualifier is unknown (see SCL-15138, SCL-20431, SCL-22138)
+          case e: ScExpression if skipHighlightingForRemainingQualifier(e) =>
+            // Don't highlight the remainder if the type of the qualifier is unknown (see SCL-15138, SCL-20431, SCL-22138)
+            ()
+          case r: ScStableCodeReference if skipHighlightingForRemainingQualifier(r) =>
+            // Don't highlight the remainder if the type of the qualifier is unknown (see SCL-15138, SCL-20431, SCL-22138)
+            ()
           case _ =>
             checkQualifiedReferenceElement(element, typeAware)
         }
       }
+    }
+
+  private def skipHighlightingForRemainingQualifier(stableRef: ScStableCodeReference): Boolean =
+    stableRef.multiResolveScala(false).isEmpty
+
+  private def skipHighlightingForRemainingQualifier(e: ScExpression): Boolean =
+    e match {
+      case _: ScThisReference |
+           _: ScSuperReference |
+           _ :ScUnderscoreSection => // TODO Highlight underscore rather than remainder, SCL-22148
+        false
+      case refExpr: ScReferenceExpression =>
+        // TODO Highlight expressions of non-inferred type? SCL-22150
+        refExpr.resolve() == null
+      case _ =>
+        e.`type`().isLeft
     }
 
   def annotateReference(reference: ScReference)

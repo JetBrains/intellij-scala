@@ -18,6 +18,7 @@ import java.io.File
 import scala.io.{Codec, Source}
 import scala.util.Using
 
+//see also org.jetbrains.plugins.scala.lang.resolveSemanticDb.ReferenceComparisonTestBase
 @Category(Array(classOf[ScalacTests]))
 abstract class ScalaCompilerTestdataHighlightingTest
   extends ScalaLightCodeInsightFixtureTestCase {

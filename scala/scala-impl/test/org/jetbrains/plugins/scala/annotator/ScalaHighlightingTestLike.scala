@@ -52,6 +52,8 @@ trait ScalaHighlightingTestLike extends MatcherAssertions {
     val actualMessages = errorsFromScalaCode(code)
     assertMessagesTextImpl(messagesConcatenated, actualMessages)
   }
+  protected def assertErrorsTextScala3(@Language("Scala 3") code: String, messagesConcatenated: String): Unit =
+    assertErrorsText(code, messagesConcatenated)
 
   protected def assertErrorsWithHintsText(@Language("Scala") code: String, messagesConcatenated: String): Unit = {
     val actualMessages = errorsWithHintsFromScalaCode(code)

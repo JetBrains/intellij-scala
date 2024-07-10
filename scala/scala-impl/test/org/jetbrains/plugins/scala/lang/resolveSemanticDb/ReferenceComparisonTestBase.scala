@@ -30,6 +30,7 @@ abstract class ReferenceComparisonTestBase_Scala3 extends ReferenceComparisonTes
   override protected def reportFailedTestContextDetails: Boolean = false
 }
 
+// See also org.jetbrains.plugins.scala.projectHighlighting.scalaCompilerTestdata.ScalaCompilerTestdataHighlightingTest
 abstract class ReferenceComparisonTestBase extends ComparisonTestBase {
 
   override protected lazy val projectJdk: Sdk =
