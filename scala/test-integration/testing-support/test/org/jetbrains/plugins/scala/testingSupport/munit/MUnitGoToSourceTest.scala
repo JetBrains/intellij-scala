@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.testingSupport.munit
 
 import org.jetbrains.plugins.scala.util.assertions.ExceptionAssertions
 
-class MUnitGoToSourceTest extends MUnitTestCase {
+abstract class MUnitGoToSourceTestBase extends MUnitTestCase {
 
   private val qqq = "\"\"\""
 
@@ -68,3 +68,7 @@ class MUnitGoToSourceTest extends MUnitTestCase {
     assertGoToSourceTest(testTreeRoot, TestNodePath("[root]"), GoToLocation(FileNameFunSuite, 5))
   }
 }
+
+class MUnit_0_7_GoToSourceTest extends MUnitGoToSourceTestBase with MUnit_0_7
+
+class MUnit_1_0_GoToSourceTest extends MUnitGoToSourceTestBase with MUnit_1_0
