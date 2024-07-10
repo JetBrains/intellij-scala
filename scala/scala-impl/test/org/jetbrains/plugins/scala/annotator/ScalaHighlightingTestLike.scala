@@ -31,9 +31,13 @@ trait ScalaHighlightingTestLike extends MatcherAssertions {
 
   protected def assertNoErrors(@Language("Scala") code: String): Unit =
     assertErrors(code, Nil: _*)
+  protected def assertNoErrorsScala3(@Language("Scala 3") code: String): Unit =
+    assertNoErrors(code)
 
   protected def assertErrors(@Language("Scala") code: String, messages: Message*): Unit =
     assertErrorsText(code, messages.mkString("\n"))
+  protected def assertErrorsScala3(@Language("Scala 3") code: String, messages: Message*): Unit =
+    assertErrors(code, messages: _*)
 
   protected def assertErrorsWithHints(@Language("Scala") code: String, messages: Message*): Unit =
     assertErrorsWithHintsText(code, messages.mkString("\n"))

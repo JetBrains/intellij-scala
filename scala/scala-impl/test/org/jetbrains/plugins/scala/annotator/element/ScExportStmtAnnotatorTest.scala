@@ -8,7 +8,7 @@ class ScExportStmtAnnotatorTest extends ScalaHighlightingTestBase{
   override def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3
 
   def testOkExportInExtension(): Unit =
-    assertNoErrors(
+    assertNoErrorsScala3(
       """extension (x: Int)
         |  def str = ""
         |  export str.*
@@ -16,7 +16,7 @@ class ScExportStmtAnnotatorTest extends ScalaHighlightingTestBase{
     )
 
   def testExportInExtensionTargetsValue(): Unit =
-    assertErrors(
+    assertErrorsScala3(
       """extension (x: Int)
         |  export x.*
         |""".stripMargin,
@@ -24,7 +24,7 @@ class ScExportStmtAnnotatorTest extends ScalaHighlightingTestBase{
     )
 
   def testExportInExtensionTargetsParameterizedMethod_type_params(): Unit =
-    assertErrors(
+    assertErrorsScala3(
       """extension (x: Int)
         |  def str[T] = ""
         |  export str.*
@@ -33,7 +33,7 @@ class ScExportStmtAnnotatorTest extends ScalaHighlightingTestBase{
     )
 
   def testExportInExtensionTargetsParameterizedMethod_params_0(): Unit =
-    assertErrors(
+    assertErrorsScala3(
       """extension (x: Int)
         |  def str() = ""
         |  export str.*
@@ -42,7 +42,7 @@ class ScExportStmtAnnotatorTest extends ScalaHighlightingTestBase{
     )
 
   def testExportInExtensionTargetsParameterizedMethod_params_1(): Unit =
-    assertErrors(
+    assertErrorsScala3(
       """extension (x: Int)
         |  def str(a: Int) = ""
         |  export str.*
@@ -51,7 +51,7 @@ class ScExportStmtAnnotatorTest extends ScalaHighlightingTestBase{
     )
 
   def testExportInExtensionTargetsOuterMethod(): Unit =
-    assertErrors(
+    assertErrorsScala3(
       """def str = ""
         |
         |extension (x: Int)
