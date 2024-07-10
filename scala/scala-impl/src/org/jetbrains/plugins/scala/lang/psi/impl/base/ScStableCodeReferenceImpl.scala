@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, 
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMatch, ScReferenceExpression, ScSuperReference, ScThisReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtensionBody, ScFunction, ScMacroDefinition, ScTypeAlias, ScValue}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScExtensionBody, ScFunction, ScMacroDefinition, ScTypeAlias, ScValue}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScDerivesClause, ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -35,7 +35,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaP
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
-import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
@@ -342,6 +342,22 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
             case p: ScAnnotationsHolder
               if processor.kinds.contains(ResolveTargets.ANNOTATION) && PsiTreeUtil.isContextAncestor(p, this, true) =>
                 treeWalkUp(place.getContext, place, state)
+            // Export statement in the extension:
+            case (export: ScExportStmt) childOf ((_: ScExtensionBody) childOf (ex: ScExtension)) =>
+              // >In this case the qualifier expression must be an identifier
+              // >that refers to a unique parameterless extension method in the same extension clause
+              // (from https://docs.scala-lang.org/scala3/reference/other-new-features/export.html#export-clauses-in-extensions-1)
+              //
+              // Soo we do the following:
+              //   1. Only resolve extension method declarations inside extension context
+              //   2. Additionally, resolve extension parameter/type parameters just for a nicer highlighting
+              //      (via ScExtensionImpl.processDeclarations)
+              //   3. Do not continue "tree walk up" further because elements from outside can't be resolved anyway
+
+              //start from the export to process its siblings (other extension methods)
+              if (!ScDeclarationSequenceHolder.processDeclarations(processor, state, export, place))
+                return
+              ex.processDeclarations(processor, state, export, place)
             case export: ScExportStmt =>
               val clsContext = PsiTreeUtil.getContextOfType(export, classOf[PsiClass])
               val nodes      = MixinNodes.currentlyProcessedSigs.value.get(clsContext)

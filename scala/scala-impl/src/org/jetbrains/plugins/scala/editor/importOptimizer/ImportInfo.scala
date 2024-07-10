@@ -150,7 +150,7 @@ object ImportInfo {
         allNames += nameToAdd
     }
 
-    val deepRef = deepestQualifier(qualifier)
+    val deepRef = qualifier.deepestQualifier
     val rootUsed = deepRef.textMatches(_root_prefix)
 
     val (prefixQualifier, isRelative) =
@@ -279,14 +279,6 @@ object ImportInfo {
         }
       case _: ScPackaging | _: ScalaFile => true
       case _ => res //something in default package or in local object
-    }
-  }
-
-  @tailrec
-  private def deepestQualifier(ref: ScStableCodeReference): ScStableCodeReference = {
-    ref.qualifier match {
-      case Some(q) => deepestQualifier(q)
-      case None => ref
     }
   }
 

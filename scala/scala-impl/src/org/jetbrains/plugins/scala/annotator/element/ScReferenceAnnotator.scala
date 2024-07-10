@@ -13,15 +13,15 @@ import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQui
 import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationHolder, UnresolvedReferenceFixProvider}
 import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.ValToVarQuickFix
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.{childOf, _}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern, ScPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtensionBody, ScFunction, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScExportStmt, ScImportExpr, ScImportSelector}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -208,6 +208,8 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
               else {
                 holder.createWeakWarningAnnotation(refElement, ScalaBundle.message("cannot.resolve", refElement.refName))
               }
+            case _ if isReferenceInExportInExtension(refElement) =>
+              () //skip, handled by `ScExportStmtAnnotator`
             case _ =>
               addUnknownSymbolProblem()
           }
@@ -406,6 +408,8 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
         case _: ScMethodCall if resolveCount > 1 =>
           val error = ScalaBundle.message("cannot.resolve.overloaded", refElement.refName)
           holder.createErrorAnnotation(refElement.nameId, error)
+        case _ if isReferenceInExportInExtension(refElement) =>
+          () //skip, handled by `ScExportStmtAnnotator`
         case _ =>
           createUnknownSymbolProblem(refElement)
       }
@@ -534,5 +538,19 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
           new CreateClassQuickFix(reference) ::
           new CreateCaseClassQuickFix(reference) ::
           Nil
+    }
+
+  private def isReferenceInExportInExtension(refElement: ScReference): Boolean =
+    refElement match {
+      case r: ScStableCodeReference =>
+        val rootRef = r.withParents.takeWhile(_.isInstanceOf[ScStableCodeReference]).lastOption
+        rootRef match {
+          case Some(_ childOf ((_: ScImportExpr) childOf ((_: ScExportStmt) childOf (_: ScExtensionBody)))) =>
+            true
+          case _ =>
+            false
+        }
+      case _ =>
+        false
     }
 }

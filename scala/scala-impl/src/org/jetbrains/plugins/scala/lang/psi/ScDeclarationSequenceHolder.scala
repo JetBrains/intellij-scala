@@ -20,6 +20,18 @@ trait ScDeclarationSequenceHolder extends ScalaPsiElement {
     lastParent: PsiElement,
     place: PsiElement
   ): Boolean = {
+    ScDeclarationSequenceHolder.processDeclarations(processor, state, lastParent, place)
+  }
+}
+
+object ScDeclarationSequenceHolder {
+
+  def processDeclarations(
+    processor: PsiScopeProcessor,
+    state: ResolveState,
+    lastParent: PsiElement,
+    place: PsiElement
+  ): Boolean = {
     def processElement(e: PsiElement, state: ResolveState): Boolean = {
       def isOkCompanionModule = {
         processor match {
@@ -96,9 +108,7 @@ trait ScDeclarationSequenceHolder extends ScalaPsiElement {
     }
     true
   }
-}
 
-object ScDeclarationSequenceHolder {
 
   /** @return false to stop processing */
   private[psi] def processSyntheticsForTopLevelDefinition(definition: ScMember, processor: PsiScopeProcessor, state: ResolveState): Boolean = {

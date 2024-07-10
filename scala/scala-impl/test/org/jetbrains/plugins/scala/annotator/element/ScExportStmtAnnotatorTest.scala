@@ -15,7 +15,7 @@ class ScExportStmtAnnotatorTest extends ScalaHighlightingTestBase{
         |""".stripMargin
     )
 
-  def testExportInExtensionTargetsValue(): Unit =
+  def testExportInExtensionTargetsExtensionParameter(): Unit =
     assertErrorsScala3(
       """extension (x: Int)
         |  export x.*
@@ -50,13 +50,32 @@ class ScExportStmtAnnotatorTest extends ScalaHighlightingTestBase{
       Error("str", ScalaBundle.message("export.qualifier.not.parameterless.companion.method", "str"))
     )
 
-  def testExportInExtensionTargetsOuterMethod(): Unit =
+  def testExportInExtensionTargetsOuterMethod_TopLevel(): Unit =
     assertErrorsScala3(
-      """def str = ""
+      """def outer = ""
         |
         |extension (x: Int)
-        |  export str.*
+        |  export outer.*
+        |  export outer.reference1
+        |  export outer.reference2.reference3
         |""".stripMargin,
-      Error("str", ScalaBundle.message("export.qualifier.not.parameterless.companion.method", "str"))
+      Error("outer", ScalaBundle.message("export.qualifier.not.parameterless.companion.method", "outer")),
+      Error("outer", ScalaBundle.message("export.qualifier.not.parameterless.companion.method", "outer")),
+      Error("outer.reference2", ScalaBundle.message("export.qualifier.not.parameterless.companion.method", "outer.reference2")),
+    )
+
+  def testExportInExtensionTargetsOuterMethod_InObject(): Unit =
+    assertErrorsScala3(
+      """object Wrapper:
+        |  def outer = ""
+        |
+        |  extension (x: Int)
+        |    export outer.*
+        |    export outer.reference1
+        |    export outer.reference2.reference3
+        |""".stripMargin,
+      Error("outer", ScalaBundle.message("export.qualifier.not.parameterless.companion.method", "outer")),
+      Error("outer", ScalaBundle.message("export.qualifier.not.parameterless.companion.method", "outer")),
+      Error("outer.reference2", ScalaBundle.message("export.qualifier.not.parameterless.companion.method", "outer.reference2")),
     )
 }
