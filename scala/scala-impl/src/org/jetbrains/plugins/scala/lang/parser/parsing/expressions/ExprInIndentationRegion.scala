@@ -90,6 +90,7 @@ sealed trait ExprInIndentationRegion extends ParsingRule {
               } else if (builder.eof() || isFollowSetIfIndented(builder.getTokenType)) {
                 isBlock
               } else if (!ResultExpr(stopOnOutdent = true) && !BlockStat()) {
+                builder.error(ScalaBundle.message("unexpected.token"))
                 builder.advanceLexer() // ate something
                 parseRest(isBlock = true)
               } else {
