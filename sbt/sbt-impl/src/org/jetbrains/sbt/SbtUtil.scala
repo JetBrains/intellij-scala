@@ -3,7 +3,8 @@ package org.jetbrains.sbt
 import com.intellij.execution.RunManager
 import com.intellij.execution.configurations.{ModuleBasedConfiguration, ParametersList, RunConfigurationModule}
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.externalSystem.model.Key
+import com.intellij.openapi.externalSystem.model.project.ModuleData
+import com.intellij.openapi.externalSystem.model.{DataNode, Key}
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
@@ -100,6 +101,20 @@ object SbtUtil {
       val major = sbtVersion.major(1).presentation
       Version(s"$major.0")
     } else sbtVersion.major(2)
+  }
+
+  def isBuiltWithSeparateModulesForProdTest(project: Project): Boolean = {
+    val sbtProjectDataOpt = getSbtProjectData(project)
+    sbtProjectDataOpt.exists(_.prodTestSourcesSeparated)
+  }
+
+  def getSbtModuleDataNode(module: Module): Option[DataNode[_ <: ModuleData]] = {
+    val moduleId = Option(ExternalSystemApiUtil.getExternalProjectId(module))
+    moduleId.flatMap { id =>
+      val project = module.getProject
+      val rootProjectPath = Option(ExternalSystemApiUtil.getExternalRootProjectPath(module))
+      ExternalSystemUtil.getModuleDataNode(SbtProjectSystem.Id, project, id, rootProjectPath, Some(SbtModuleChildKeyInstance))
+    }
   }
 
   def structurePluginBinaryVersion(sbtVersion: Version): Version =
