@@ -27,6 +27,8 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
 
   var customProfiles: Seq[ScalaCompilerSettingsProfile] = Seq.empty
 
+  var separateProdTestSources: Boolean = false
+
   @TestOnly
   def createCustomProfileForModule(profileName: String, module: Module): ScalaCompilerSettingsProfile = {
     assert(!allProfiles.exists(_.getName == profileName))
@@ -95,12 +97,17 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
     // yes, default profile options are currently serialized as root options of element node
     val configurationElement = XmlSerializer.serialize(defaultProfile.getSettings.toState, new SkipDefaultValuesSerializationFilters(): @nowarn("cat=deprecation"))
 
+    val optionElement = new Element("option")
+
+    optionElement.setAttribute("name", "separateProdTestSources")
+    optionElement.setAttribute("value", separateProdTestSources.toString)
+
     if (incrementalityType != IncrementalityType.SBT) {
-      val incrementalityTypeElement = new Element("option")
-      incrementalityTypeElement.setAttribute("name", "incrementalityType")
-      incrementalityTypeElement.setAttribute("value", incrementalityType.toString)
-      configurationElement.addContent(incrementalityTypeElement)
+      optionElement.setAttribute("name", "incrementalityType")
+      optionElement.setAttribute("value", incrementalityType.toString)
     }
+
+    configurationElement.addContent(optionElement)
 
     customProfiles.foreach { profile =>
       val profileElement = XmlSerializer.serialize(profile.getSettings.toState, new SkipDefaultValuesSerializationFilters(): @nowarn("cat=deprecation"))
@@ -115,10 +122,15 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
   }
 
   override def loadState(configurationElement: Element): Unit = {
-    incrementalityType = configurationElement.getChildren("option").asScala
+    val optionElements = configurationElement.getChildren("option").asScala
+    incrementalityType = optionElements
       .find(_.getAttributeValue("name") == "incrementalityType")
       .map(it => IncrementalityType.valueOf(it.getAttributeValue("value")))
       .getOrElse(IncrementalityType.SBT)
+
+    separateProdTestSources = optionElements
+      .find(_.getAttributeValue("name") == "separateProdTestSources")
+      .exists(it => it.getAttributeValue("value").toBoolean)
 
     defaultProfile.setSettings(ScalaCompilerSettings.fromState(XmlSerializer.deserialize(configurationElement, classOf[ScalaCompilerSettingsState])))
 
