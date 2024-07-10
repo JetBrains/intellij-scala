@@ -90,6 +90,23 @@ class StepIntoTest_2_11 extends StepIntoTestBase {
       Breakpoint("LineStepIntoLambdaStepOutStepIntoLambda.scala", "LineStepIntoLambdaStepOutStepIntoLambda$", "main", 3) -> resume
     )
   }
+
+  override def testLambdaStepIntoMethod(): Unit = {
+    stepIntoTest()(
+      Breakpoint("LambdaStepIntoMethod.scala", "LambdaStepIntoMethod$$anonfun$1", "apply$mcDI$sp", 7) -> stepInto,
+      Breakpoint("LambdaStepIntoMethod.scala", "LambdaStepIntoMethod$", "multi", 2) -> stepOut,
+      Breakpoint("LambdaStepIntoMethod.scala", "LambdaStepIntoMethod$$anonfun$1", "apply$mcDI$sp", 7) -> stepInto,
+      Breakpoint("LambdaStepIntoMethod.scala", "LambdaStepIntoMethod$", "sum", 3) -> resume,
+      Breakpoint("LambdaStepIntoMethod.scala", "LambdaStepIntoMethod$$anonfun$1", "apply$mcDI$sp", 7) -> stepInto,
+      Breakpoint("LambdaStepIntoMethod.scala", "LambdaStepIntoMethod$", "multi", 2) -> stepOut,
+      Breakpoint("LambdaStepIntoMethod.scala", "LambdaStepIntoMethod$$anonfun$1", "apply$mcDI$sp", 7) -> stepInto,
+      Breakpoint("LambdaStepIntoMethod.scala", "LambdaStepIntoMethod$", "sum", 3) -> resume,
+      Breakpoint("LambdaStepIntoMethod.scala", "LambdaStepIntoMethod$$anonfun$1", "apply$mcDI$sp", 7) -> stepInto,
+      Breakpoint("LambdaStepIntoMethod.scala", "LambdaStepIntoMethod$", "multi", 2) -> stepOut,
+      Breakpoint("LambdaStepIntoMethod.scala", "LambdaStepIntoMethod$$anonfun$1", "apply$mcDI$sp", 7) -> stepInto,
+      Breakpoint("LambdaStepIntoMethod.scala", "LambdaStepIntoMethod$", "sum", 3) -> resume
+    )
+  }
 }
 
 class StepIntoTest_2_12 extends StepIntoTestBase {
@@ -204,6 +221,24 @@ class StepIntoTest_3 extends StepIntoTest_2_13 {
       Breakpoint("LineStepIntoLambdaStepOutStepIntoLambda.scala", "LineStepIntoLambdaStepOutStepIntoLambda$", "main", 3) -> resume
     )
   }
+
+  override def testLambdaStepIntoMethod(): Unit = {
+    stepIntoTest()(
+      Breakpoint("LambdaStepIntoMethod.scala", "LambdaStepIntoMethod$", "$anonfun$1", 7) -> stepInto,
+      Breakpoint("LambdaStepIntoMethod.scala", "LambdaStepIntoMethod$", "multi", 2) -> stepOut,
+      Breakpoint("LambdaStepIntoMethod.scala", "LambdaStepIntoMethod$", "$anonfun$1", 7) -> stepInto,
+      Breakpoint("LambdaStepIntoMethod.scala", "LambdaStepIntoMethod$", "sum", 3) -> resume,
+      Breakpoint("LambdaStepIntoMethod.scala", "LambdaStepIntoMethod$", "$anonfun$1", 7) -> stepInto,
+      Breakpoint("LambdaStepIntoMethod.scala", "LambdaStepIntoMethod$", "multi", 2) -> stepOut,
+      Breakpoint("LambdaStepIntoMethod.scala", "LambdaStepIntoMethod$", "$anonfun$1", 7) -> stepInto,
+      Breakpoint("LambdaStepIntoMethod.scala", "LambdaStepIntoMethod$", "sum", 3) -> resume,
+      Breakpoint("LambdaStepIntoMethod.scala", "LambdaStepIntoMethod$", "$anonfun$1", 7) -> stepInto,
+      Breakpoint("LambdaStepIntoMethod.scala", "LambdaStepIntoMethod$", "multi", 2) -> stepOut,
+      Breakpoint("LambdaStepIntoMethod.scala", "LambdaStepIntoMethod$", "$anonfun$1", 7) -> stepInto,
+      Breakpoint("LambdaStepIntoMethod.scala", "LambdaStepIntoMethod$", "sum", 3) -> resume
+    )
+  }
+
 }
 
 class StepIntoTest_3_RC extends StepIntoTest_3 {
@@ -821,6 +856,36 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
       Breakpoint("LineStepIntoLambdaStepOutStepIntoLambda.scala", "LineStepIntoLambdaStepOutStepIntoLambda$", "main", 3) -> stepInto,
       Breakpoint("LineStepIntoLambdaStepOutStepIntoLambda.scala", "LineStepIntoLambdaStepOutStepIntoLambda$", "$anonfun$main$2", 3) -> stepOut,
       Breakpoint("LineStepIntoLambdaStepOutStepIntoLambda.scala", "LineStepIntoLambdaStepOutStepIntoLambda$", "main", 3) -> resume
+    )
+  }
+
+  addSourceFile("LambdaStepIntoMethod.scala",
+    s"""object LambdaStepIntoMethod {
+       |  def multi(x: Double, y: Double): Double = x * y
+       |  def sum(x: Double, y: Double): Double = x + y
+       |
+       |  def main(args: Array[String]): Unit = {
+       |    val celsiusDegrees = List(0, 20, 100)
+       |    val fahrenheitDegrees = celsiusDegrees.map(i => sum(multi(i, 1.8), 32)) $breakpoint ${lambdaOrdinal(0)}
+       |    println(fahrenheitDegrees)
+       |  }
+       |}
+       |""".stripMargin)
+
+  def testLambdaStepIntoMethod(): Unit = {
+    stepIntoTest()(
+      Breakpoint("LambdaStepIntoMethod.scala", "LambdaStepIntoMethod$", "$anonfun$main$1", 7) -> stepInto,
+      Breakpoint("LambdaStepIntoMethod.scala", "LambdaStepIntoMethod$", "multi", 2) -> stepOut,
+      Breakpoint("LambdaStepIntoMethod.scala", "LambdaStepIntoMethod$", "$anonfun$main$1", 7) -> stepInto,
+      Breakpoint("LambdaStepIntoMethod.scala", "LambdaStepIntoMethod$", "sum", 3) -> resume,
+      Breakpoint("LambdaStepIntoMethod.scala", "LambdaStepIntoMethod$", "$anonfun$main$1", 7) -> stepInto,
+      Breakpoint("LambdaStepIntoMethod.scala", "LambdaStepIntoMethod$", "multi", 2) -> stepOut,
+      Breakpoint("LambdaStepIntoMethod.scala", "LambdaStepIntoMethod$", "$anonfun$main$1", 7) -> stepInto,
+      Breakpoint("LambdaStepIntoMethod.scala", "LambdaStepIntoMethod$", "sum", 3) -> resume,
+      Breakpoint("LambdaStepIntoMethod.scala", "LambdaStepIntoMethod$", "$anonfun$main$1", 7) -> stepInto,
+      Breakpoint("LambdaStepIntoMethod.scala", "LambdaStepIntoMethod$", "multi", 2) -> stepOut,
+      Breakpoint("LambdaStepIntoMethod.scala", "LambdaStepIntoMethod$", "$anonfun$main$1", 7) -> stepInto,
+      Breakpoint("LambdaStepIntoMethod.scala", "LambdaStepIntoMethod$", "sum", 3) -> resume
     )
   }
 }
