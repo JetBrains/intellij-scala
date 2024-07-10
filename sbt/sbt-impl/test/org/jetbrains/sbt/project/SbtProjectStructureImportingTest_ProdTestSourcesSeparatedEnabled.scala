@@ -189,7 +189,16 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
 
   def testMultiModule(): Unit = runTest(
     new project("multiModule") {
-      lazy val foo = new module("multiModule.foo")
+      lazy val foo = new module("multiModule.foo") {
+        moduleDependencies ++= Seq(
+          new dependency(fooMain) {
+            isExported := false
+          },
+          new dependency(fooTest) {
+            isExported := false
+          }
+        )
+      }
       lazy val fooMain: module = new module("multiModule.foo.main") {
         moduleDependencies += new dependency(barMain) {
           isExported := false
@@ -249,6 +258,14 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
 
       lazy val root: module = new module("sharedSourcesProject") {
         contentRoots := Seq(getProjectPath)
+        moduleDependencies ++= Seq(
+          new dependency(rootMain) {
+            isExported := false
+          },
+          new dependency(rootTest) {
+            isExported := false
+          }
+        )
       }
       lazy val rootMain: module = new module("sharedSourcesProject.main") {
         contentRoots := Seq(s"$getProjectPath/src/main", s"$getProjectPath/target/scala-2.13/src_managed/main", s"$getProjectPath/target/scala-2.13/resource_managed/main")
@@ -264,13 +281,27 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
 
       lazy val sharedSourcesModule: module = new module("sharedSourcesProject.sharedSources-sources") {
         contentRoots := Seq(getProjectPath + "/shared")
+        moduleDependencies ++= Seq(
+          new dependency(sharedSourcesModuleMain) {
+            isExported := false
+          }
+        )
       }
       lazy val sharedSourcesModuleMain: module = new module("sharedSourcesProject.sharedSources-sources.main") {
         contentRoots := Seq(s"$getProjectPath/shared/src/main")
         libraryDependencies := scalaLibraries
       }
 
-      lazy val foo: module = new module("sharedSourcesProject.foo")
+      lazy val foo: module = new module("sharedSourcesProject.foo") {
+        moduleDependencies ++= Seq(
+          new dependency(fooMain) {
+            isExported := false
+          },
+          new dependency(fooTest) {
+            isExported := false
+          }
+        )
+      }
       lazy val fooMain: module = new module("sharedSourcesProject.foo.main") {
         libraryDependencies := scalaLibraries
         moduleDependencies := Seq(
@@ -285,7 +316,16 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
         )
       }
 
-      lazy val bar: module = new module("sharedSourcesProject.bar")
+      lazy val bar: module = new module("sharedSourcesProject.bar") {
+        moduleDependencies ++= Seq(
+          new dependency(barMain) {
+            isExported := false
+          },
+          new dependency(barTest) {
+            isExported := false
+          }
+        )
+      }
       lazy val barMain: module = new module("sharedSourcesProject.bar.main") {
         libraryDependencies := scalaLibraries
         moduleDependencies := Seq(
@@ -382,14 +422,21 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
       val rootC1: module = new module("Build C1 Name") {
         sbtProjectId := "root"
         sbtBuildURI := buildURI.resolve("c1/")
-        moduleDependencies := Seq()
+        moduleDependencies ++= Seq(
+          new dependency(rootC1Main) {
+            isExported := false
+          },
+          new dependency(rootC1Test) {
+            isExported := false
+          }
+        )
       }
-      val rootC1Main: module = new module("Build C1 Name.main") {
+      lazy val rootC1Main: module = new module("Build C1 Name.main") {
         sbtProjectId := "root"
         sbtBuildURI := buildURI.resolve("c1/")
         moduleDependencies := Seq()
       }
-      val rootC1Test: module = new module("Build C1 Name.test") {
+      lazy val rootC1Test: module = new module("Build C1 Name.test") {
         sbtProjectId := "root"
         sbtBuildURI := buildURI.resolve("c1/")
         moduleDependencies := Seq(rootC1Main)
@@ -397,14 +444,21 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
       val rootC2: module = new module("Build C2 Name") {
         sbtProjectId := "root"
         sbtBuildURI := buildURI.resolve("c2/")
-        moduleDependencies := Seq()
+        moduleDependencies ++= Seq(
+          new dependency(rootC2Main) {
+            isExported := false
+          },
+          new dependency(rootC2Test) {
+            isExported := false
+          }
+        )
       }
-      val rootC2Main: module = new module("Build C2 Name.main") {
+      lazy val rootC2Main: module = new module("Build C2 Name.main") {
         sbtProjectId := "root"
         sbtBuildURI := buildURI.resolve("c2/")
         moduleDependencies := Seq()
       }
-      val rootC2Test: module = new module("Build C2 Name.test") {
+      lazy val rootC2Test: module = new module("Build C2 Name.test") {
         sbtProjectId := "root"
         sbtBuildURI := buildURI.resolve("c2/")
         moduleDependencies := Seq(rootC2Main)
@@ -412,14 +466,21 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
       val rootC3: module = new module("root~1") {
         sbtProjectId := "root"
         sbtBuildURI := buildURI.resolve("prefix1/prefix2/c3/suffix1/suffix2/")
-        moduleDependencies := Seq()
+        moduleDependencies ++= Seq(
+          new dependency(rootC3Main) {
+            isExported := false
+          },
+          new dependency(rootC3Test) {
+            isExported := false
+          }
+        )
       }
-      val rootC3Main: module = new module("root~1.main") {
+      lazy val rootC3Main: module = new module("root~1.main") {
         sbtProjectId := "root"
         sbtBuildURI := buildURI.resolve("prefix1/prefix2/c3/suffix1/suffix2/")
         moduleDependencies := Seq()
       }
-      val rootC3Test: module = new module("root~1.test") {
+      lazy val rootC3Test: module = new module("root~1.test") {
         sbtProjectId := "root"
         sbtBuildURI := buildURI.resolve("prefix1/prefix2/c3/suffix1/suffix2/")
         moduleDependencies := Seq(rootC3Main)
@@ -427,14 +488,21 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
       val rootC4: module = new module("root~2") {
         sbtProjectId := "root"
         sbtBuildURI := buildURI.resolve("prefix1/prefix2/c4/suffix1/suffix2/")
-        moduleDependencies := Seq()
+        moduleDependencies ++= Seq(
+          new dependency(rootC4Main) {
+            isExported := false
+          },
+          new dependency(rootC4Test) {
+            isExported := false
+          }
+        )
       }
-      val rootC4Main: module = new module("root~2.main") {
+      lazy val rootC4Main: module = new module("root~2.main") {
         sbtProjectId := "root"
         sbtBuildURI := buildURI.resolve("prefix1/prefix2/c4/suffix1/suffix2/")
         moduleDependencies := Seq()
       }
-      val rootC4Test: module = new module("root~2.test") {
+      lazy val rootC4Test: module = new module("root~2.test") {
         sbtProjectId := "root"
         sbtBuildURI := buildURI.resolve("prefix1/prefix2/c4/suffix1/suffix2/")
         moduleDependencies := Seq(rootC4Main)
@@ -442,8 +510,16 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
       val root: module = new module("root") {
         sbtProjectId := "root"
         sbtBuildURI := buildURI
+        moduleDependencies ++= Seq(
+          new dependency(rootMain) {
+            isExported := false
+          },
+          new dependency(rootTest) {
+            isExported := false
+          }
+        )
       }
-      val rootMain: module = new module("root.main") {
+      lazy val rootMain: module = new module("root.main") {
         sbtProjectId := "root"
         sbtBuildURI := buildURI
         moduleDependencies := Seq(
@@ -453,7 +529,7 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
           new dependency(rootC4Main) {isExported := false },
         )
       }
-      val rootTest: module = new module("root.test") {
+      lazy val rootTest: module = new module("root.test") {
         sbtProjectId := "root"
         sbtBuildURI := buildURI
         moduleDependencies := Seq(
@@ -599,7 +675,14 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
 
         lazy val proj0: module = new module(s"$projectName.proj0") {
           sbtProjectId := "proj0"
-          moduleDependencies := Seq()
+          moduleDependencies ++= Seq(
+            new dependency(proj0Main) {
+              isExported := false
+            },
+            new dependency(proj0Test) {
+              isExported := false
+            }
+          )
         }
         lazy val proj0Main: module = new module(s"$projectName.proj0.main") {
           sbtProjectId := "proj0"
@@ -617,7 +700,14 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
 
         lazy val proj1: module = new module(s"$projectName.proj1") {
           sbtProjectId := "proj1"
-          moduleDependencies := Seq()
+          moduleDependencies ++= Seq(
+            new dependency(proj1Main) {
+              isExported := false
+            },
+            new dependency(proj1Test) {
+              isExported := false
+            }
+          )
         }
         lazy val proj1Main: module = new module(s"$projectName.proj1.main") {
           sbtProjectId := "proj1"
@@ -639,7 +729,14 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
 
         lazy val proj2: module = new module(s"$projectName.proj2") {
           sbtProjectId := "proj2"
-          moduleDependencies := Seq()
+          moduleDependencies ++= Seq(
+            new dependency(proj2Main) {
+              isExported := false
+            },
+            new dependency(proj2Test) {
+              isExported := false
+            }
+          )
         }
 
         lazy val proj2Main: module = new module(s"$projectName.proj2.main") {
@@ -684,7 +781,14 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
 
         lazy val proj3: module = new module(s"$projectName.proj3") {
           sbtProjectId := "proj3"
-          moduleDependencies := Seq()
+          moduleDependencies ++= Seq(
+            new dependency(proj3Main) {
+              isExported := false
+            },
+            new dependency(proj3Test) {
+              isExported := false
+            }
+          )
         }
 
         lazy val proj3Main: module = new module(s"$projectName.proj3.main") {
@@ -729,7 +833,14 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
 
         lazy val root: module = new module(projectName) {
           sbtProjectId := "root"
-          moduleDependencies := Seq()
+          moduleDependencies ++= Seq(
+            new dependency(rootMain) {
+              isExported := false
+            },
+            new dependency(rootTest) {
+              isExported := false
+            }
+          )
         }
         lazy val rootMain: module = new module(s"$projectName.main") {
           sbtProjectId := "root"
@@ -789,7 +900,14 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
       new project(projectName) {
 
         lazy val module1Sources: module = new module("module1-sources", Array(projectName, "module1")){
-          moduleDependencies := Seq()
+          moduleDependencies ++= Seq(
+            new dependency(module1SourcesMain) {
+              isExported := false
+            },
+            new dependency(module1SourcesTest) {
+              isExported := false
+            }
+          )
         }
         lazy val module1SourcesMain: module = new module("module1-sources.main", Array(projectName, "module1")){
           moduleDependencies := Seq()
@@ -804,7 +922,14 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
         }
 
         lazy val module1JS: module = new module("module1JS", Array(projectName, "module1")) {
-          moduleDependencies := Seq()
+          moduleDependencies ++= Seq(
+            new dependency(module1JSMain) {
+              isExported := false
+            },
+            new dependency(module1JSTest) {
+              isExported := false
+            }
+          )
         }
         lazy val module1JSMain: module = new module("module1JS.main", Array(projectName, "module1")) {
           moduleDependencies := Seq(
@@ -831,7 +956,14 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
           )
         }
         lazy val module1JVM: module = new module("module1JVM", Array(projectName, "module1")) {
-          moduleDependencies := Seq()
+          moduleDependencies ++= Seq(
+            new dependency(module1JVMMain) {
+              isExported := false
+            },
+            new dependency(module1JVMTest) {
+              isExported := false
+            }
+          )
         }
         lazy val module1JVMMain: module = new module("module1JVM.main", Array(projectName, "module1")) {
           moduleDependencies := Seq(
@@ -859,7 +991,14 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
         }
 
         lazy val module2JS: module = new module("module2JS", Array(projectName, "module2")) {
-          moduleDependencies := Seq()
+          moduleDependencies ++= Seq(
+            new dependency(module2JSMain) {
+              isExported := false
+            },
+            new dependency(module2JSTest) {
+              isExported := false
+            }
+          )
         }
         lazy val module2JSMain: module = new module("module2JS.main", Array(projectName, "module2")) {
           moduleDependencies := Seq(
@@ -894,7 +1033,14 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
           )
         }
         lazy val module2JVM: module = new module("module2JVM", Array(projectName, "module2")) {
-          moduleDependencies := Seq()
+          moduleDependencies ++= Seq(
+            new dependency(module2JVMMain) {
+              isExported := false
+            },
+            new dependency(module2JVMTest) {
+              isExported := false
+            }
+          )
         }
         lazy val module2JVMMain: module = new module("module2JVM.main", Array(projectName, "module2")) {
           moduleDependencies := Seq(
@@ -929,7 +1075,14 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
           )
         }
         lazy val module2Sources: module = new module("module2-sources", Array(projectName, "module2")) {
-          moduleDependencies := Seq()
+          moduleDependencies ++= Seq(
+            new dependency(module2SourcesMain) {
+              isExported := false
+            },
+            new dependency(module2SourcesTest) {
+              isExported := false
+            }
+          )
         }
 
         lazy val module2SourcesMain: module = new module("module2-sources.main", Array(projectName, "module2")) {
@@ -950,7 +1103,14 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
         }
 
         lazy val module3: module = new module(s"$projectName.module3") {
-          moduleDependencies := Seq()
+          moduleDependencies ++= Seq(
+            new dependency(module3Main) {
+              isExported := false
+            },
+            new dependency(module3Test) {
+              isExported := false
+            }
+          )
         }
         lazy val module3Main: module = new module(s"$projectName.module3.main") {
           moduleDependencies := Seq()
@@ -990,7 +1150,14 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
 
         lazy val root: module = new module(projectName) {
           sbtProjectId := "root"
-          moduleDependencies := Seq()
+          moduleDependencies ++= Seq(
+            new dependency(rootMain) {
+              isExported := false
+            },
+            new dependency(rootTest) {
+              isExported := false
+            }
+          )
         }
         lazy val rootMain: module = new module(s"$projectName.main") {
           sbtProjectId := "root"
@@ -1392,7 +1559,14 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
 
         lazy val root: module = new module(projectName) {
           sbtProjectId := "root"
-          moduleDependencies := Seq()
+          moduleDependencies ++= Seq(
+            new dependency(rootMain) {
+              isExported := false
+            },
+            new dependency(rootTest) {
+              isExported := false
+            }
+          )
         }
         lazy val rootMain: module = new module(s"$projectName.main") {
           sbtProjectId := "root"
@@ -1410,7 +1584,14 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
 
         lazy val foo: module = new module(s"$projectName.foo") {
           sbtProjectId := "foo"
-          moduleDependencies := Seq()
+          moduleDependencies ++= Seq(
+            new dependency(fooMain) {
+              isExported := false
+            },
+            new dependency(fooTest) {
+              isExported := false
+            }
+          )
         }
         lazy val fooMain: module = new module(s"$projectName.foo.main") {
           sbtProjectId := "foo"
@@ -1432,7 +1613,14 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
 
         lazy val utils: module = new module(s"$projectName.utils") {
           sbtProjectId := "utils"
-          moduleDependencies := Seq()
+          moduleDependencies ++= Seq(
+            new dependency(utilsMain) {
+              isExported := false
+            },
+            new dependency(utilsTest) {
+              isExported := false
+            }
+          )
         }
         lazy val utilsMain: module = new module(s"$projectName.utils.main") {
           sbtProjectId := "utils"
@@ -1500,14 +1688,21 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
       val rootC1: module = new module("Build__1_N_ame") {
         sbtProjectId := "root"
         sbtBuildURI := buildURI.resolve("c1/")
-        moduleDependencies := Seq()
+        moduleDependencies ++= Seq(
+          new dependency(rootC1Main) {
+            isExported := false
+          },
+          new dependency(rootC1Test) {
+            isExported := false
+          }
+        )
       }
-      val rootC1Main: module = new module("Build__1_N_ame.main") {
+      lazy val rootC1Main: module = new module("Build__1_N_ame.main") {
         sbtProjectId := "root"
         sbtBuildURI := buildURI.resolve("c1/")
         moduleDependencies := Seq()
       }
-      val rootC1Test: module = new module("Build__1_N_ame.test") {
+      lazy val rootC1Test: module = new module("Build__1_N_ame.test") {
         sbtProjectId := "root"
         sbtBuildURI := buildURI.resolve("c1/")
         moduleDependencies := Seq(rootC1Main)
@@ -1515,15 +1710,23 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
       val root: module = new module("ro__o_t_") {
         sbtProjectId := "root"
         sbtBuildURI := buildURI
+        moduleDependencies ++= Seq(
+          new dependency(rootMain) {
+            isExported := false
+          },
+          new dependency(rootTest) {
+            isExported := false
+          }
+        )
       }
-      val rootMain: module = new module("ro__o_t_.main") {
+      lazy val rootMain: module = new module("ro__o_t_.main") {
         sbtProjectId := "root"
         sbtBuildURI := buildURI
         moduleDependencies ++= Seq(
           new dependency(rootC1Main) { isExported := false },
         )
       }
-      val rootTest: module = new module("ro__o_t_.test") {
+      lazy val rootTest: module = new module("ro__o_t_.test") {
         sbtProjectId := "root"
         sbtBuildURI := buildURI
         moduleDependencies ++= Seq(
@@ -1576,7 +1779,14 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
           sbtProjectId := "sharedSourcesInsideMultiBuildProject"
           sbtBuildURI := buildURI
           libraryDependencies := Seq()
-          moduleDependencies := Seq()
+          moduleDependencies ++= Seq(
+            new dependency(rootMain) {
+              isExported := false
+            },
+            new dependency(rootTest) {
+              isExported := false
+            }
+          )
         }
         lazy val rootMain: module = new module("sharedSourcesInsideMultiBuildProject.main") {
           contentRoots := Seq(s"$getProjectPath/src/main", s"$getProjectPath/target/scala-2.13/src_managed/main", s"$getProjectPath/target/scala-2.13/resource_managed/main")
@@ -1606,15 +1816,22 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
           libraryDependencies := Seq()
           sbtProjectId := "foo"
           sbtBuildURI := buildURI.resolve("c1/")
-          moduleDependencies := Seq()
+          moduleDependencies ++= Seq(
+            new dependency(fooMainInC1) {
+              isExported := false
+            },
+            new dependency(fooTestInC1) {
+              isExported := false
+            }
+          )
         }
-       val fooMainInC1: module = new module("foo.main", Array("c1")) {
+       lazy val fooMainInC1: module = new module("foo.main", Array("c1")) {
           libraryDependencies := scalaLibraries
           sbtProjectId := "foo"
           sbtBuildURI := buildURI.resolve("c1/")
           moduleDependencies += new dependency(sharedSourcesModuleInC1Main) { isExported := true }
         }
-        val fooTestInC1: module = new module("foo.test", Array("c1")) {
+        lazy val fooTestInC1: module = new module("foo.test", Array("c1")) {
           libraryDependencies := scalaLibraries
           sbtProjectId := "foo"
           sbtBuildURI := buildURI.resolve("c1/")
@@ -1628,14 +1845,22 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
           libraryDependencies := Seq()
           sbtProjectId := "bar"
           sbtBuildURI := buildURI.resolve("c1/")
+          moduleDependencies ++= Seq(
+            new dependency(barMain) {
+              isExported := false
+            },
+            new dependency(barTest) {
+              isExported := false
+            }
+          )
         }
-        val barMain: module = new module("bar.main", Array("c1")) {
+        lazy val barMain: module = new module("bar.main", Array("c1")) {
           libraryDependencies := scalaLibraries
           sbtProjectId := "bar"
           sbtBuildURI := buildURI.resolve("c1/")
           moduleDependencies += new dependency(sharedSourcesModuleInC1Main) { isExported := true }
         }
-        val barTest: module = new module("bar.test", Array("c1")) {
+        lazy val barTest: module = new module("bar.test", Array("c1")) {
           libraryDependencies := scalaLibraries
           sbtProjectId := "bar"
           sbtBuildURI := buildURI.resolve("c1/")
@@ -1762,6 +1987,14 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
       lazy val root: module = new module("packagePrefix") {
         contentRoots := Seq(getProjectPath)
         libraryDependencies := Seq()
+        moduleDependencies ++= Seq(
+          new dependency(rootMain) {
+            isExported := false
+          },
+          new dependency(rootTest) {
+            isExported := false
+          }
+        )
       }
       lazy val rootMain: module = new module("packagePrefix.main") {
         contentRoots := Seq(s"$getProjectPath/src/main", s"$getProjectPath/target/scala-2.13/src_managed/main", s"$getProjectPath/target/scala-2.13/resource_managed/main")
