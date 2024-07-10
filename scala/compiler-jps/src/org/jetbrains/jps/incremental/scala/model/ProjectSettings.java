@@ -8,4 +8,6 @@ public interface ProjectSettings extends JpsElement {
   IncrementalityType getIncrementalityType();
 
   CompilerSettings getCompilerSettings(ModuleChunk chunk);
+
+  Boolean getSeparateProdTestSources();
 }
