@@ -58,7 +58,7 @@ object ScCatchBlockAnnotator extends ElementAnnotator[ScCatchBlock] {
                       case ScalaResolveResult(fun: ScFunction, subst) => fun.returnType.map(subst)
                       case _ => return
                     }
-                    val conformance = smartCheckConformance(Right(tp), returnType)
+                    val conformance = smartCheckConformance(t, Right(tp), returnType)
                     if (!conformance) {
                       if (typeAware) {
                         val (retTypeText, expectedTypeText) = TypePresentation.different(returnType.getOrNothing, tp)(t)

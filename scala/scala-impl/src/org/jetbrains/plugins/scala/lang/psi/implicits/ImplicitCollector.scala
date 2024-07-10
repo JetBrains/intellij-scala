@@ -410,7 +410,7 @@ class ImplicitCollector(
         val subst = c.substitutor
         typeable.`type`() match {
           case Right(t) =>
-            val conformance = subst(t).conforms(tp, ConstraintSystem.empty)
+            val conformance = subst(t).conformsIn(place, tp, ConstraintSystem.empty)
             conformance match {
               case ConstraintSystem(subst) =>
                 //Update synthetic parameters, coming from expected context-function type
@@ -732,8 +732,8 @@ class ImplicitCollector(
         }
 
         val undefinedConforms =
-          if (isImplicitConversion) checkWeakConformance(undefined, maskTypeParametersInExtensions(tp, c))
-          else                      undefined.conforms(tp, ConstraintSystem.empty)
+          if (isImplicitConversion) checkWeakConformance(place, undefined, maskTypeParametersInExtensions(tp, c))
+          else                      undefined.conformsIn(place, tp, ConstraintSystem.empty)
 
         if (undefinedConforms.isRight) {
           if (checkFast) Option(c)
@@ -864,7 +864,7 @@ class ImplicitCollector(
       case _                           => 1
     }
 
-  private def checkWeakConformance(left: ScType, right: ScType): ConstraintsResult = {
+  private def checkWeakConformance(place: PsiElement, left: ScType, right: ScType): ConstraintsResult = {
     import SmartSuperTypeUtil.{TraverseSupers, traverseSuperTypes}
 
     def function1Arg(scType: ScType, strict: Boolean = true): Option[(ScType, ScType)] = {
@@ -900,8 +900,8 @@ class ImplicitCollector(
       case Some((leftArg, leftRes)) =>
         function1Arg(right) match {
           case Some((rightArg, rightRes)) =>
-            rightArg.conforms(leftArg, ConstraintSystem.empty, checkWeak = true) match {
-              case cs: ConstraintSystem => leftRes.conforms(rightRes, cs)
+            rightArg.conformsIn(place, leftArg, ConstraintSystem.empty, checkWeak = true) match {
+              case cs: ConstraintSystem => leftRes.conformsIn(place, rightRes, cs)
               case left => left
             }
           case _ => ConstraintsResult.Left

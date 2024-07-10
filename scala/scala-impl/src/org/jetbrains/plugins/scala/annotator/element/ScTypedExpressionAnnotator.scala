@@ -37,7 +37,7 @@ object ScTypedExpressionAnnotator extends ElementAnnotator[ScTypedExpression] {
     expression.getTypeAfterImplicitConversion().tr.foreach { actual =>
       val expected = typeElement.calcType
 
-      if (!actual.conforms(expected)) {
+      if (!actual.conformsIn(expression, expected)) {
         val ranges = mismatchRangesIn(typeElement, actual)
         // TODO add messange to the whole element, but higlight separate parts?
         // TODO fine-grained tooltip
