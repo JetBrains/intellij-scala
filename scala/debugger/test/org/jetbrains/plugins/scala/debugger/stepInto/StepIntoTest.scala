@@ -61,11 +61,11 @@ class StepIntoTest_2_12 extends StepIntoTestBase {
   }
 }
 
-class StepIntoTest_2_13 extends StepIntoTestBase {
+class StepIntoTest_2_13 extends StepIntoTest_2_12 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 }
 
-class StepIntoTest_3 extends StepIntoTest_2_12 {
+class StepIntoTest_3 extends StepIntoTest_2_13 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
 
   override def testSamAbstractClass(): Unit = {
