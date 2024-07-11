@@ -22,10 +22,6 @@ class SbtNestedModuleDataService extends AbstractSbtModuleDataService[SbtNestedM
 
   override protected def moduleType: String = sbtNestedModuleType
 
-  override def setModuleOptions(module: Module, moduleDataNode: DataNode[SbtNestedModuleData]): Unit = {
-    super.setModuleOptions(module, moduleDataNode)
-    ExternalSystemModulePropertyManager.getInstance(module).setExternalModuleType(sbtNestedModuleType)
-  }
 
   override def importData(
     toImport: util.Collection[_ <: DataNode[SbtNestedModuleData]],
