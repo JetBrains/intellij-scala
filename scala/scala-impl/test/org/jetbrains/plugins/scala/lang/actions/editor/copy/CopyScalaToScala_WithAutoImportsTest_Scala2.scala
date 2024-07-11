@@ -190,4 +190,24 @@ class CopyScalaToScala_WithAutoImportsTest_Scala3 extends CopyScalaToScala_WithA
         |}""".stripMargin
     )
   }
+
+  def testAddImportsOnPaste_WithSamePathOriginalAndRenamed(): Unit = {
+    doTest(
+      s"""import scala.util.{Random => RandomRenamed}
+         |import scala.util.Random
+         |
+         |${START}object Main {
+         |  println(Random.nextInt())
+         |  println(RandomRenamed.nextInt())
+         |}$END
+         |""".stripMargin,
+      "",
+      """import scala.util.{Random, Random as RandomRenamed}
+        |
+        |object Main {
+        |  println(Random.nextInt())
+        |  println(RandomRenamed.nextInt())
+        |}""".stripMargin
+    )
+  }
 }
