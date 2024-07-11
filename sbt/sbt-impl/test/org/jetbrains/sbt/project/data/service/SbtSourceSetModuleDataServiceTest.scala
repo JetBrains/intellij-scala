@@ -1,6 +1,7 @@
 package org.jetbrains.sbt.project.data.service
 
 import com.intellij.openapi.module.{ModuleManager, StdModuleTypes}
+import org.jetbrains.plugins.scala.util.SbtModuleType.{sbtNestedModuleType, sbtSourceSetModuleType}
 import org.jetbrains.sbt.project.data.service.ExternalSystemDataDsl._
 import org.jetbrains.sbt.project.data.{ModuleNode, NestedModuleNode, SbtSourceSetModuleNode}
 import org.junit.Assert.assertTrue
@@ -115,7 +116,7 @@ class SbtSourceSetModuleDataServiceTest extends SbtModuleDataServiceTestCase {
     assertTrue("The number of sbt source set modules is not equal to 6", sbtSourceSetModules.size == 6)
 
     testModuleExternalType(rootModules, null)
-    testModuleExternalType(nestedModules, SbtNestedModuleDataService.sbtNestedModuleType)
-    testModuleExternalType(sbtSourceSetModules, SbtSourceSetDataService.sbtSourceSetModuleType)
+    testModuleExternalType(nestedModules, sbtNestedModuleType)
+    testModuleExternalType(sbtSourceSetModules, sbtSourceSetModuleType)
   }
 }

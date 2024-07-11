@@ -1,9 +1,9 @@
 package org.jetbrains.sbt.project.data.service
 
 import com.intellij.openapi.module.{ModuleManager, StdModuleTypes}
+import org.jetbrains.plugins.scala.util.SbtModuleType.sbtNestedModuleType
 import org.jetbrains.sbt.project.data.{ModuleNode, NestedModuleNode}
 import org.jetbrains.sbt.project.data.service.ExternalSystemDataDsl._
-
 import org.junit.Assert.assertTrue
 
 import java.io.File
@@ -71,6 +71,6 @@ class SbtNestedModuleDataServiceTest extends SbtModuleDataServiceTestCase {
     assertTrue("The number of nested modules is not equal to 2", nestedModules.size == 2)
 
     testModuleExternalType(rootModules, null)
-    testModuleExternalType(nestedModules, SbtNestedModuleDataService.sbtNestedModuleType)
+    testModuleExternalType(nestedModules, sbtNestedModuleType)
   }
 }
