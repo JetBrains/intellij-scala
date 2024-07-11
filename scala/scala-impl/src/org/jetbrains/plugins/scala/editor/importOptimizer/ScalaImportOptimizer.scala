@@ -670,7 +670,9 @@ object ScalaImportOptimizer {
         if (useScala3Wildcards) "*"
         else "_"
       addGroup(importInfo.singleNames)
-      addGroup(importInfo.renames.map { case (from, to) => s"$from $renameArrow $to" })
+
+      val renamedImports = importInfo.renames.map { case (from, to) => s"$from $renameArrow $to" }
+      addGroup(renamedImports)
       addGroup(importInfo.hiddenNames.map(_ + s" $renameArrow _"))
 
       if (importInfo.hasWildcard) {
@@ -1171,9 +1173,15 @@ object ScalaImportOptimizer {
       val prefixIndex: Int = samePrefixAfter(infoIdx)
       if (prefixIndex != -1) {
         if (prefixIndex == infoIdx + 1) {
-          val merged = infos(infoIdx).merge(infos(infoIdx + 1))
-          infos(infoIdx) = merged
-          infos.remove(infoIdx + 1)
+          val info1 = infos(infoIdx)
+          val info2 = infos(infoIdx + 1)
+          if (canMerge(info1, info2)) {
+            val merged = info1.merge(info2)
+            infos(infoIdx) = merged
+            infos.remove(infoIdx + 1)
+          } else {
+            infoIdx += 1
+          }
         }
         else {
           if (swapWithNextIfCan(infos, infoIdx)) {
@@ -1188,9 +1196,15 @@ object ScalaImportOptimizer {
               j += 1
             }
             if (!break) {
-              val merged = infos(j).merge(infos(j + 1))
-              infos(j) = merged
-              infos.remove(j + 1)
+              val info1 = infos(j)
+              val info2 = infos(j + 1)
+              if (canMerge(info1, info2)) {
+                val merged = info1.merge(info2)
+                infos(j) = merged
+                infos.remove(j + 1)
+              } else {
+                j += 1
+              }
             }
           }
           else infoIdx += 1
@@ -1198,6 +1212,19 @@ object ScalaImportOptimizer {
       }
       else infoIdx += 1
     }
+  }
+
+  // Scala doesn't allow multiple aliases for the same name to be present in the same import alias
+  // BAD: import scala.util.{Random, Random => RandomRenamed1, Random => RandomRenamed2}
+  // OK: import scala.util.Random
+  //     import scala.util.{Random => RandomRenamed1}
+  //     import scala.util.{Random => RandomRenamed2}
+  private def canMerge(info1: ImportInfo, info2: ImportInfo): Boolean = {
+    val info1RenameKeys = info1.renames.keySet
+    val info2RenameKeys = info2.renames.keySet
+    info1RenameKeys.intersect(info2RenameKeys).isEmpty &&
+      info1RenameKeys.intersect(info2.singleNames).isEmpty &&
+      info2RenameKeys.intersect(info1.singleNames).isEmpty
   }
 
   private def getFirstId(s: String): String = {
