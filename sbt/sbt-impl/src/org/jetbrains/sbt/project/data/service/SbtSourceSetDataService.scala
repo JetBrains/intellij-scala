@@ -14,10 +14,6 @@ class SbtSourceSetDataService extends AbstractSbtModuleDataService[SbtSourceSetD
 
   override protected def moduleType: String = sbtSourceSetModuleType
 
-  override def setModuleOptions(module: Module, moduleDataNode: DataNode[SbtSourceSetData]): Unit = {
-    super.setModuleOptions(module, moduleDataNode)
-    ExternalSystemModulePropertyManager.getInstance(module).setExternalModuleType(sbtSourceSetModuleType)
-  }
 
   override protected def generateNewName(
     parentModule: Module,

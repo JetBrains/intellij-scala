@@ -1,5 +1,6 @@
 package org.jetbrains.sbt.project.data.service
 
+import com.intellij.openapi.externalSystem.ExternalSystemModulePropertyManager
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project.{ModuleData, ProjectData}
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
@@ -19,6 +20,11 @@ import java.util
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 abstract class AbstractSbtModuleDataService[T <: ModuleData] extends AbstractModuleDataService[T] {
+
+  override def setModuleOptions(module: Module, moduleDataNode: DataNode[T]): Unit = {
+    super.setModuleOptions(module, moduleDataNode)
+    ExternalSystemModulePropertyManager.getInstance(module).setExternalModuleType(moduleType)
+  }
 
   override def importData(
     toImport: util.Collection[_ <: DataNode[T]],
