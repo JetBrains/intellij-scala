@@ -175,7 +175,7 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
               EffectType.LINE_UNDERSCORE, Color.LIGHT_GRAY)*/
             case None => //do nothing
           }
-          val conformance = smartCheckConformance(expectedType, exprType)
+          val conformance = smartCheckConformance(element, expectedType, exprType)
           if (!conformance) {
             if (typeAware) {
               element.getParent match {

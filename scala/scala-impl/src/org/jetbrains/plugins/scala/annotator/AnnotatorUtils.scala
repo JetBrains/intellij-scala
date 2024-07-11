@@ -128,7 +128,7 @@ object AnnotatorUtils {
     * In other way it will return true to avoid red code.
     * Check conformance in case l = r.
     */
-  def smartCheckConformance(l: TypeResult, r: TypeResult): Boolean = {
+  def smartCheckConformance(place: PsiElement, l: TypeResult, r: TypeResult): Boolean = {
     val leftType = l match {
       case Right(res) => res
       case _ => return true
@@ -137,7 +137,7 @@ object AnnotatorUtils {
       case Right(res) => res
       case _ => return true
     }
-    rightType.conforms(leftType)
+    rightType.conformsIn(place, leftType)
   }
 
   // TODO encapsulate

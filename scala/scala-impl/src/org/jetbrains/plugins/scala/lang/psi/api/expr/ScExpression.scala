@@ -169,7 +169,7 @@ trait ScExpression extends ScBlockStatement
 
         (expected, tr.toOption) match {
           case (Some(expType), Some(tp))
-            if checkImplicits && !tp.conforms(expType) => //do not try implicit conversions for shape check or already correct type
+            if checkImplicits && !tp.conformsIn(this, expType) => //do not try implicit conversions for shape check or already correct type
 
             // isSAMEnabled is checked in tryAdaptTypeToSAM, but we can cut it right here
             val adapted = if (this.isSAMEnabled) this.tryAdaptTypeToSAM(tp, expType, fromUnderscore) else None
