@@ -8,6 +8,7 @@ import com.intellij.openapi.util.{ModificationTracker, SimpleModificationTracker
 import com.intellij.util.xmlb.{SkipDefaultValuesSerializationFilters, XmlSerializer}
 import org.jdom.Element
 import org.jetbrains.annotations.TestOnly
+import org.jetbrains.plugins.scala.compiler.data.ScalaCompilerConfigurationAttributes.{IncrementalityTypeAttr, ModulesAttr, NameAttr, OptionAttr, ProfileAttr, SeparateProdTestSourcesAttr, ValueAttr}
 import org.jetbrains.plugins.scala.compiler.data.{IncrementalityType, ScalaCompilerSettingsState}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration.DefaultProfileName
 
@@ -97,23 +98,23 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
     // yes, default profile options are currently serialized as root options of element node
     val configurationElement = XmlSerializer.serialize(defaultProfile.getSettings.toState, new SkipDefaultValuesSerializationFilters(): @nowarn("cat=deprecation"))
 
-    val optionElement = new Element("option")
+    val optionElement = new Element(OptionAttr)
 
-    optionElement.setAttribute("name", "separateProdTestSources")
-    optionElement.setAttribute("value", separateProdTestSources.toString)
+    optionElement.setAttribute(NameAttr, SeparateProdTestSourcesAttr)
+    optionElement.setAttribute(ValueAttr, separateProdTestSources.toString)
 
     if (incrementalityType != IncrementalityType.SBT) {
-      optionElement.setAttribute("name", "incrementalityType")
-      optionElement.setAttribute("value", incrementalityType.toString)
+      optionElement.setAttribute(NameAttr, IncrementalityTypeAttr)
+      optionElement.setAttribute(ValueAttr, incrementalityType.toString)
     }
 
     configurationElement.addContent(optionElement)
 
     customProfiles.foreach { profile =>
       val profileElement = XmlSerializer.serialize(profile.getSettings.toState, new SkipDefaultValuesSerializationFilters(): @nowarn("cat=deprecation"))
-      profileElement.setName("profile")
-      profileElement.setAttribute("name", profile.getName)
-      profileElement.setAttribute("modules", profile.moduleNames.sorted.mkString(","))
+      profileElement.setName(ProfileAttr)
+      profileElement.setAttribute(NameAttr, profile.getName)
+      profileElement.setAttribute(ModulesAttr, profile.moduleNames.sorted.mkString(","))
 
       configurationElement.addContent(profileElement)
     }
@@ -122,25 +123,25 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
   }
 
   override def loadState(configurationElement: Element): Unit = {
-    val optionElements = configurationElement.getChildren("option").asScala
+    val optionElements = configurationElement.getChildren(OptionAttr).asScala
     incrementalityType = optionElements
-      .find(_.getAttributeValue("name") == "incrementalityType")
-      .map(it => IncrementalityType.valueOf(it.getAttributeValue("value")))
+      .find(_.getAttributeValue(NameAttr) == IncrementalityTypeAttr)
+      .map(it => IncrementalityType.valueOf(it.getAttributeValue(ValueAttr)))
       .getOrElse(IncrementalityType.SBT)
 
     separateProdTestSources = optionElements
-      .find(_.getAttributeValue("name") == "separateProdTestSources")
-      .exists(it => it.getAttributeValue("value").toBoolean)
+      .find(_.getAttributeValue(NameAttr) == SeparateProdTestSourcesAttr)
+      .exists(it => it.getAttributeValue(ValueAttr).toBoolean)
 
     defaultProfile.setSettings(ScalaCompilerSettings.fromState(XmlSerializer.deserialize(configurationElement, classOf[ScalaCompilerSettingsState])))
 
-    customProfiles = configurationElement.getChildren("profile").asScala.map { profileElement =>
-      val profile = new ScalaCompilerSettingsProfile(profileElement.getAttributeValue("name"))
+    customProfiles = configurationElement.getChildren(ProfileAttr).asScala.map { profileElement =>
+      val profile = new ScalaCompilerSettingsProfile(profileElement.getAttributeValue(NameAttr))
 
       val settings = ScalaCompilerSettings.fromState(XmlSerializer.deserialize(profileElement, classOf[ScalaCompilerSettingsState]))
       profile.setSettings(settings)
 
-      val moduleNames = profileElement.getAttributeValue("modules").split(",").filter(!_.isEmpty)
+      val moduleNames = profileElement.getAttributeValue(ModulesAttr).split(",").filter(!_.isEmpty)
       moduleNames.foreach(profile.addModuleName)
 
       profile

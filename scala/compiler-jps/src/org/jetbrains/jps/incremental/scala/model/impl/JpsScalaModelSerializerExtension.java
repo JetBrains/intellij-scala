@@ -16,6 +16,7 @@ import org.jetbrains.jps.model.serialization.JpsModelSerializerExtension;
 import org.jetbrains.jps.model.serialization.JpsProjectExtensionSerializer;
 import org.jetbrains.jps.model.serialization.library.JpsLibraryPropertiesSerializer;
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType;
+import org.jetbrains.plugins.scala.compiler.data.ScalaCompilerConfigurationAttributes;
 import org.jetbrains.plugins.scala.compiler.data.ScalaCompilerSettingsState;
 
 import java.util.*;
@@ -70,12 +71,12 @@ public class JpsScalaModelSerializerExtension extends JpsModelSerializerExtensio
       Map<String, String> moduleToProfile = new HashMap<>();
       Map<String, CompilerSettingsImpl> profileToSettings = new HashMap<>();
 
-      for (Element profileElement : componentTag.getChildren("profile")) {
-        String profile = profileElement.getAttributeValue("name");
+      for (Element profileElement : componentTag.getChildren(ScalaCompilerConfigurationAttributes.ProfileAttr())) {
+        String profile = profileElement.getAttributeValue(ScalaCompilerConfigurationAttributes.NameAttr());
         CompilerSettingsImpl settings = loadSettings(profileElement);
         profileToSettings.put(profile, settings);
 
-        List<String> modules = StringUtil.split(profileElement.getAttributeValue("modules"), ",");
+        List<String> modules = StringUtil.split(profileElement.getAttributeValue(ScalaCompilerConfigurationAttributes.ModulesAttr()), ",");
         for (String module : modules) {
           moduleToProfile.put(module, profile);
         }
@@ -87,18 +88,18 @@ public class JpsScalaModelSerializerExtension extends JpsModelSerializerExtensio
     }
 
     private static IncrementalityType loadIncrementalityType(Element componentTag) {
-      for (Element option : componentTag.getChildren("option")) {
-        if ("incrementalityType".equals(option.getAttributeValue("name"))) {
-          return IncrementalityType.valueOf(option.getAttributeValue("value"));
+      for (Element option : componentTag.getChildren(ScalaCompilerConfigurationAttributes.OptionAttr())) {
+        if (ScalaCompilerConfigurationAttributes.IncrementalityTypeAttr().equals(option.getAttributeValue(ScalaCompilerConfigurationAttributes.NameAttr()))) {
+          return IncrementalityType.valueOf(option.getAttributeValue(ScalaCompilerConfigurationAttributes.ValueAttr()));
         }
       }
       return IncrementalityType.SBT;
     }
 
     private static Boolean loadSeparateProdTestSources(Element componentTag) {
-      for (Element option : componentTag.getChildren("option")) {
-        if ("separateProdTestSources".equals(option.getAttributeValue("name"))) {
-          return Boolean.parseBoolean(option.getAttributeValue("value"));
+      for (Element option : componentTag.getChildren(ScalaCompilerConfigurationAttributes.OptionAttr())) {
+        if (ScalaCompilerConfigurationAttributes.SeparateProdTestSourcesAttr().equals(option.getAttributeValue(ScalaCompilerConfigurationAttributes.NameAttr()))) {
+          return Boolean.parseBoolean(option.getAttributeValue(ScalaCompilerConfigurationAttributes.ValueAttr()));
         }
       }
       return false;
