@@ -37,15 +37,6 @@ trait ScFunction
     with ScMethodLike
     with ScBlockStatement {
 
-  private[this] val probablyRecursive = new UnloadableThreadLocal[Boolean](false)
-
-  final def isProbablyRecursive: Boolean = probablyRecursive.value
-
-  //noinspection AccessorLikeMethodIsUnit
-  final def isProbablyRecursive_=(value: Boolean): Unit = {
-    probablyRecursive.value = value
-  }
-
   final def syntheticCaseClass: Option[ScClass] = name match {
     case Apply | Unapply | UnapplySeq =>
       syntheticContainingClass match {

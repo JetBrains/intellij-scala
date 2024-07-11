@@ -639,6 +639,11 @@
 
         <registryKey key="scala.compiler.highlighting.suppress.java.highlighting" defaultValue="false" restartRequired="false"
                      description="If enabled, Scala 3 compiler based highlighting suppresses built-in highlighting of Java files in mixed Scala 3 and Java projects (Java are not highlighted)"/>
+        <!-- Added for SCL-22786. TODO: If no major issues is found before 2025.1, consider removing the registry and it's usages -->
+        <registryKey key="use.recursion.guard.for.signatures.cache"
+                     defaultValue="true"
+                     restartRequired="true"
+                     description="If enabled, a recursion guard will be used when calculating signatures in org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.SignatureCaches.cachedMap"/>
         
         <intentionAction>
             <language>Scala</language>

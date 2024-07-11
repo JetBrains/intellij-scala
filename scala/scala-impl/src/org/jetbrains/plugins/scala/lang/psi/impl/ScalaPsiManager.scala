@@ -5,6 +5,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener, ProjectRootManager}
 import com.intellij.openapi.util._
+import com.intellij.openapi.util.registry.RegistryManager
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.impl.JavaPsiFacadeImpl
@@ -16,7 +17,7 @@ import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.annotations.{Nullable, TestOnly}
 import org.jetbrains.plugins.scala.ScalaLowerCase
 import org.jetbrains.plugins.scala.caches.stats.{CacheCapabilities, CacheTracker}
-import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CleanupScheduler, ModTracker, ScalaModificationTracker, ScalaShortNamesCacheManager, ValueWrapper, cachedInUserData, cachedWithoutModificationCount}
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CleanupScheduler, ModTracker, ScalaModificationTracker, ScalaShortNamesCacheManager, ValueWrapper, cachedInUserData, cachedWithRecursionGuard, cachedWithoutModificationCount}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
@@ -39,7 +40,7 @@ import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.{ScPackageObjectFqnIndex, ScPackagingFqnIndex, ScStableTypeAliasFqnIndex, ScalaIndexKeys}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ParameterizedType, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ParameterizedType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil._
 import org.jetbrains.plugins.scala.lang.resolve.SyntheticClassProducer
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -637,9 +638,15 @@ class ScalaPsiManager(implicit val project: Project) extends Disposable {
         case `rootManager`               => forLibraryClasses(clazz, withSupers)
         case TopLevelModificationTracker => forTopLevelClasses(clazz, withSupers)
         case tracker =>
-          cachedInUserData("cachedMap", clazz, tracker, (clazz, nodes, withSupers)) {
-            nodes.build(clazz, withSupers)
-          }
+          val key = (clazz, nodes, withSupers)
+          if (UseRecursionGuardForSignatureCache)
+            cachedWithRecursionGuard("cachedMap", clazz, nodes.emptyMap, tracker, key) {
+              nodes.build(clazz, withSupers)
+            }
+          else
+            cachedInUserData("cachedMap", clazz, tracker, key) {
+              nodes.build(clazz, withSupers)
+            }
       }
   }
 
@@ -683,6 +690,8 @@ class ScalaPsiManager(implicit val project: Project) extends Disposable {
 
 object ScalaPsiManager {
   private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager")
+
+  private lazy val UseRecursionGuardForSignatureCache = RegistryManager.getInstance().get("use.recursion.guard.for.signatures.cache").asBoolean()
 
   def instance(
     implicit

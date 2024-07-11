@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createIdentifier
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
 
 import javax.swing.Icon
 import scala.annotation.tailrec
@@ -29,6 +30,17 @@ trait ScNamedElement extends ScalaPsiElement
   with NavigatablePsiElement
   with PsiNamedElementWithCustomPresentation
 {
+
+  // NOTE: this hack was originally located in ScFunction
+  // but was moved here to also handle classes, to avoid recursion when building signatures
+  // TODO: this hack is potentially needed for all PsiClass, not just for scala classes
+  //  so keeping it in class field might be not the best option
+  private[this] val probablyRecursive = new UnloadableThreadLocal[Boolean](false)
+  final def isProbablyRecursive: Boolean = probablyRecursive.value
+  //noinspection AccessorLikeMethodIsUnit
+  final def isProbablyRecursive_=(value: Boolean): Unit = {
+    probablyRecursive.value = value
+  }
 
   def name: String = _name()
 

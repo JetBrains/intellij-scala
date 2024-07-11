@@ -43,7 +43,8 @@ abstract class MixinNodes[T <: Signature](signatureCollector: SignatureProcessor
   type Map = MixinNodes.Map[T]
 
   def build(clazz: PsiClass, withSupers: Boolean, subst: ScSubstitutor = ScSubstitutor.empty): Map = {
-    if (!clazz.isValid) MixinNodes.emptyMap[T]
+    if (!clazz.isValid)
+      emptyMap
     else {
       def build0: MapImpl[T] = {
         val map = new MapImpl[T]
@@ -68,9 +69,12 @@ abstract class MixinNodes[T <: Signature](signatureCollector: SignatureProcessor
     }
   }
 
+  def emptyMap: Map = MixinNodes.emptyMap[T]
+
   def build(andTpe: ScAndType): Map = {
     def collectChildrenNodes(tp: ScType): Seq[Map] = tp match {
-      case ScAndType(lhs, rhs) => collectChildrenNodes(lhs) ++ collectChildrenNodes(rhs)
+      case ScAndType(lhs, rhs) =>
+        collectChildrenNodes(lhs) ++ collectChildrenNodes(rhs)
       case other               =>
         extractClassOrUpperBoundClass(other) match {
           case Some((cls, subst)) => Seq(build(cls, withSupers = true, subst = subst))

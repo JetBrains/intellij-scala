@@ -10,6 +10,8 @@ import org.jetbrains.plugins.scala.caches.stats.{CacheCapabilities, CacheTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiManager}
 
 import java.util.concurrent.atomic.AtomicReference
@@ -42,10 +44,12 @@ object CachesUtil {
     }
   }
 
-  case class ProbablyRecursionException[Data](elem: PsiElement,
-                                              data: Data,
-                                              key: Key[_],
-                                              set: Set[ScFunction]) extends ControlThrowable
+  case class ProbablyRecursionException[Data](
+    elem: PsiElement,
+    data: Data,
+    key: Key[_],
+    set: Set[ScNamedElement]
+  ) extends ControlThrowable
 
   def getOrCreateCachedMap[Dom: ProjectUserDataHolder, Data, Result](elem: Dom,
                                                                      key: Key[CachedMap[Data, Result]],
@@ -87,10 +91,23 @@ object CachesUtil {
     cachedValue.getValue
   }
 
+  //TODO: logic is duplicated in org.jetbrains.plugins.scala.caches.CacheWithRecursionGuard.handleRecursionException
   def handleRecursiveCall[Data, Result](e: PsiElement,
                                         data: Data,
                                         key: Key[_],
                                         defaultValue: => Result): Result = {
+    //hack for recursive MixinNodes.build
+    e match {
+      case clazz: ScTemplateDefinition =>
+        if (clazz.isProbablyRecursive)
+          return defaultValue
+        else {
+          clazz.isProbablyRecursive = true
+          throw ProbablyRecursionException(clazz, data, key, Set(clazz))
+        }
+      case _ =>
+    }
+
     val function = PsiTreeUtil.getContextOfType(e, true, classOf[ScFunction])
     if (function == null || function.isProbablyRecursive) {
       defaultValue
