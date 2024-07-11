@@ -2,9 +2,9 @@ package org.jetbrains.jps.incremental.scala.model.impl
 
 import org.jetbrains.jps.incremental.scala.SettingsManager
 import org.jetbrains.jps.incremental.scala.model.JpsSbtExtensionService
-import org.jetbrains.jps.incremental.scala.model.impl.JpsSbtModuleExtensionImpl.SbtSourceSetModuleTypeKey
 import org.jetbrains.jps.model.java.impl.JpsJavaDependenciesEnumerationHandler
 import org.jetbrains.jps.model.module.JpsModule
+import org.jetbrains.plugins.scala.util.SbtModuleType.sbtSourceSetModuleType
 
 import java.util
 import scala.jdk.CollectionConverters.IterableHasAsScala
@@ -48,7 +48,7 @@ object JpsSbtDependenciesEnumerationHandler {
       val sbtModuleExtension = service.getExtension(module)
       sbtModuleExtension match {
         case Some(ext) =>
-          ext.getModuleType.exists(_.equals(SbtSourceSetModuleTypeKey))
+          ext.getModuleType.exists(_.equals(sbtSourceSetModuleType))
         // note: if for any reason sbtModuleExtension is None, then true is returned.
         // It's done this way, because if true is returned, the dependency processing will be non-recursive, and it's the default behavior
         case _ => true

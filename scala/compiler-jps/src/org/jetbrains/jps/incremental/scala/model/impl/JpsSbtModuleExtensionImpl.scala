@@ -10,7 +10,5 @@ class JpsSbtModuleExtensionImpl(moduleType: Option[String]) extends JpsElementBa
 }
 
 object JpsSbtModuleExtensionImpl {
-  // it should be in sync with org.jetbrains.sbt.project.data.service.SbtSourceSetDataService.sbtSourceSetModuleType
-  val SbtSourceSetModuleTypeKey: String = "sbtSourceSet"
   val Role: JpsElementChildRole[JpsSbtModuleExtension] = JpsElementChildRoleBase.create("sbt")
 }
