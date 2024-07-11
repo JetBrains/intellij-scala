@@ -1,12 +1,11 @@
 package org.jetbrains.sbt.project.data.service
 
-import com.intellij.openapi.externalSystem.ExternalSystemModulePropertyManager
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.model.{DataNode, Key}
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import org.jetbrains.annotations.VisibleForTesting
+import org.jetbrains.plugins.scala.util.SbtModuleType.sbtNestedModuleType
 import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.project.module.SbtNestedModuleData
 import org.jetbrains.sbt.settings.SbtSettings
@@ -16,16 +15,10 @@ import scala.jdk.CollectionConverters.{CollectionHasAsScala, SetHasAsJava}
 
 class SbtNestedModuleDataService extends AbstractSbtModuleDataService[SbtNestedModuleData]{
 
-  import org.jetbrains.sbt.project.data.service.SbtNestedModuleDataService.sbtNestedModuleType
-
   override def getTargetDataKey: Key[SbtNestedModuleData] = SbtNestedModuleData.Key
 
-  override protected def moduleType: String = sbtNestedModuleType
-
-  override def setModuleOptions(module: Module, moduleDataNode: DataNode[SbtNestedModuleData]): Unit = {
-    super.setModuleOptions(module, moduleDataNode)
-    ExternalSystemModulePropertyManager.getInstance(module).setExternalModuleType(sbtNestedModuleType)
-  }
+  override protected def moduleType: String =
+    sbtNestedModuleType
 
   override def importData(
     toImport: util.Collection[_ <: DataNode[SbtNestedModuleData]],
@@ -78,9 +71,4 @@ class SbtNestedModuleDataService extends AbstractSbtModuleDataService[SbtNestedM
     val groupNameInsideBuild = internalModuleName.stripPrefix(s"$parentOriginalModuleName.").stripSuffix(moduleName)
     s"$parentActualModuleName.$groupNameInsideBuild$moduleName"
   }
-}
-
-object SbtNestedModuleDataService {
-  @VisibleForTesting
-  val sbtNestedModuleType = "nestedProject"
 }
