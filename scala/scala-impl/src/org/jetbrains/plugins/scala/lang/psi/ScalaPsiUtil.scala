@@ -1177,30 +1177,27 @@ object ScalaPsiUtil {
 
 
     /**
-     * @return true if a method can be eta-expanded non-explicitly (without using of _, like `foo _`)
-     *         in presence of expected type
+     * @return true if the method can be eta-expanded automatically/non-explicitly in presence of an expected type.<br>
+     *        ("automatically" means without using of underscore `_`, like `foo _`)
      */
     private def canBeAutoEtaExpanded(m: PsiMethod): Boolean = {
       import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
       lazy val isScala211 = m.scalaLanguageLevelOrDefault == Scala_2_11
 
-      val res = m match {
+      m match {
         case f: ScFunctionDefinition =>
           val clauses = f.paramClauses.clauses
           val hasSomeNonEmptyClause = clauses.exists { clause =>
             val isEmptyClause =
               if (isScala211) false
               else clause.parameters.isEmpty
-            !clause.isImplicit && !isEmptyClause
+            !clause.isImplicitOrUsing && !isEmptyClause
           }
           hasSomeNonEmptyClause
         case _ =>
           // java method
           m.hasParameters || isScala211
       }
-      // debug info
-      //println(f"canBeEtaExpanded    (isScala211: $isScala211)    ${m.getName}%-16s    $res")
-      res
     }
 
     private def referencedMethod(
