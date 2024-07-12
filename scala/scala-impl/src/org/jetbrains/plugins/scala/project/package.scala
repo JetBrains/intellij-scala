@@ -312,6 +312,9 @@ package object project {
     def isCompilerStrictMode: Boolean =
       scalaModuleSettings.exists(_.isCompilerStrictMode)
 
+    def isCompilerStrictEqualityMode: Boolean =
+      scalaModuleSettings.exists(_.isCompilerStrictEqualityMode)
+
     def scalaCompilerClasspath: Seq[File] = module.scalaSdk
       .fold(throw new ScalaSdkNotConfiguredException(module)) {
         _.properties.compilerClasspath
@@ -567,6 +570,8 @@ package object project {
         module.exists(_.hasScala3)
 
     def isCompilerStrictMode: Boolean = module.exists(_.isCompilerStrictMode)
+
+    def isCompilerStrictEqualityMode: Boolean = isInScala3Module && module.exists(_.isCompilerStrictEqualityMode)
 
     def scalaLanguageLevel: Option[ScalaLanguageLevel] =
       fromFeaturesOrModule(_.languageLevel, _.scalaLanguageLevel)

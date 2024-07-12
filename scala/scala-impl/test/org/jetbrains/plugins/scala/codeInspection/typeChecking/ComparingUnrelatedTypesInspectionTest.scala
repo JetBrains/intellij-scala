@@ -9,7 +9,8 @@ import org.junit.runner.RunWith
 @RunWith(classOf[MultipleScalaVersionsRunner])
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_12,
-  TestScalaVersion.Scala_2_13
+  TestScalaVersion.Scala_2_13,
+  TestScalaVersion.Scala_3_Latest
 ))
 abstract class ComparingUnrelatedTypesInspectionTest extends ScalaInspectionTestBase {
 
@@ -316,10 +317,28 @@ class Test20 extends ComparingUnrelatedTypesInspectionTest {
 
 class Test21 extends ComparingUnrelatedTypesInspectionTest {
 
+  override def supportedIn(version: ScalaVersion): Boolean = version < LatestScalaVersions.Scala_3_0
+
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "Some[Int]", "List[_]")
 
   def testExistential(): Unit = checkTextHasError(
+    s"${START}Some(1).isInstanceOf[List[_]]$END"
+  )
+}
+
+class Test21_Scala_3 extends ComparingUnrelatedTypesInspectionTest {
+
+  override def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
+
+  override protected val description: String =
+    ScalaInspectionBundle.message("comparing.unrelated.types.hint", "Some[Int]", "List[?]")
+
+  def testExistential(): Unit = checkTextHasError(
+    s"${START}Some(1).isInstanceOf[List[?]]$END"
+  )
+
+  def testExistentialOldWildcard(): Unit = checkTextHasError(
     s"${START}Some(1).isInstanceOf[List[_]]$END"
   )
 }
@@ -336,10 +355,28 @@ class Test22 extends ComparingUnrelatedTypesInspectionTest {
 
 class Test23 extends ComparingUnrelatedTypesInspectionTest {
 
+  override def supportedIn(version: ScalaVersion): Boolean = version < LatestScalaVersions.Scala_3_0
+
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "Some[_]", "Seq[Int]")
 
   def testExistential(): Unit = checkTextHasError(
+    s"def foo(x: Some[_]) { ${START}x == Seq(1)$END }"
+  )
+}
+
+class Test23_Scala_3 extends ComparingUnrelatedTypesInspectionTest {
+
+  override def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
+
+  override protected val description: String =
+    ScalaInspectionBundle.message("comparing.unrelated.types.hint", "Some[?]", "Seq[Int]")
+
+  def testExistential(): Unit = checkTextHasError(
+    s"def foo(x: Some[?]) { ${START}x == Seq(1)$END }"
+  )
+
+  def testExistentialOldWildcard(): Unit = checkTextHasError(
     s"def foo(x: Some[_]) { ${START}x == Seq(1)$END }"
   )
 }
@@ -437,7 +474,8 @@ class Test29 extends ComparingUnrelatedTypesInspectionTest {
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_10,
   TestScalaVersion.Scala_2_12,
-  TestScalaVersion.Scala_2_13
+  TestScalaVersion.Scala_2_13,
+  TestScalaVersion.Scala_3_Latest
 ))
 class Test30 extends ComparingUnrelatedTypesInspectionTest {
 
@@ -659,9 +697,6 @@ class TestInstanceOfAutoBoxing3 extends ComparingUnrelatedTypesInspectionTest {
   )
 }
 
-@RunWithScalaVersions(Array(
-  TestScalaVersion.Scala_2_13
-))
 class TestLiteralTypes extends ComparingUnrelatedTypesInspectionTest {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_13
@@ -1024,5 +1059,216 @@ class TestVariousCasesWithStdTypes extends ComparingUnrelatedTypesInspectionTest
       |  implicit def toList[A](a: A) : List[A] = a :: Nil
       |  1.indexOf($START"2"$END)
       |}""".stripMargin
+  )
+}
+
+class Test33 extends ComparingUnrelatedTypesInspectionTest {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
+
+  override protected val description: String =
+    ScalaInspectionBundle.message("comparing.unrelated.types.hint", "String", "Int")
+
+  def testCanEqualLiteralTypes(): Unit = checkTextHasError(
+    s"""
+      |given CanEqual[String, Int] = CanEqual.derived
+      |$START"1" == 1$END
+      |""".stripMargin
+  )
+}
+
+class Test34 extends ComparingUnrelatedTypesInspectionTest {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
+
+  override protected val description: String =
+    ScalaInspectionBundle.message("comparing.unrelated.types.hint", "Boolean", "Int")
+
+  def testCanEqualPrimitiveTypes(): Unit = checkTextHasError(
+    s"""
+       |given CanEqual[Boolean, Int] = CanEqual.derived
+       |val b: Boolean = true
+       |val i: Int = 1
+       |${START}b == i$END
+       |""".stripMargin
+  )
+}
+
+class Test35 extends ComparingUnrelatedTypesInspectionTest {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
+
+  override protected val description: String =
+    ScalaInspectionBundle.message("comparing.unrelated.types.hint", "Boolean", "Int")
+
+  def testCanEqualPrimitiveTypes(): Unit = checkTextHasError(
+    s"""
+       |given CanEqual[Boolean, Int] = CanEqual.derived
+       |val b: Boolean = true
+       |val i: Int = 1
+       |${START}b == i$END
+       |""".stripMargin
+  )
+}
+
+class Test36 extends ComparingUnrelatedTypesInspectionTest {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
+
+  override protected val description: String =
+    ScalaInspectionBundle.message("comparing.unrelated.types.hint", "A", "B")
+
+  def testCanEqualDefined(): Unit = checkTextHasNoErrors(
+    s"""
+       |case class A()
+       |case class B()
+       |given CanEqual[A, B] = CanEqual.derived
+       |A() == B()
+       |""".stripMargin
+  )
+
+  def testCanEqualComparisonWithUnderscore(): Unit = checkTextHasNoErrors(
+    s"""
+       |case class A()
+       |case class B()
+       |given CanEqual[A, B] = CanEqual.derived
+       |List(A()).find(_ == B())
+       |""".stripMargin
+  )
+
+  def testCanEqualSuperType(): Unit = checkTextHasNoErrors(
+    s"""
+       |trait T
+       |case class A() extends T
+       |case class B()
+       |given CanEqual[T, B] = CanEqual.derived
+       |A() == B()
+       |""".stripMargin
+  )
+
+  def testCanEqualOutsideComparisonContext(): Unit = checkTextHasNoErrors(
+    s"""
+       |case class A()
+       |case class B()
+       |given CanEqual[A, B] = CanEqual.derived
+       |def test(): Boolean = A() == B()
+       |""".stripMargin
+    )
+
+  def testCanEqualInHigherContext(): Unit = checkTextHasNoErrors(
+    s"""
+       |case class A()
+       |case class B()
+       |given CanEqual[A, B] = CanEqual.derived
+       |
+       |object Test:
+       |  def test(): Boolean = A() == B()
+       |""".stripMargin
+  )
+
+  def testCanEqualSeveralContextsHigher(): Unit = checkTextHasNoErrors(
+    s"""
+       |case class A()
+       |case class B()
+       |
+       |object Highest:
+       |  given CanEqual[A, B] = CanEqual.derived
+       |
+       |  object Higher:
+       |
+       |    object High:
+       |      def test(): Boolean = A() == B()
+       |""".stripMargin
+  )
+
+  def testCanEqualInUnrelatedContext(): Unit = checkTextHasError(
+    s"""
+       |case class A()
+       |case class B()
+       |
+       |object Unrelated:
+       |  given CanEqual[A, B] = CanEqual.derived
+       |
+       |object Test:
+       |  def test(): Boolean = ${START}A() == B()$END
+       |""".stripMargin
+  )
+
+  def testCanEqualNotDefined(): Unit = checkTextHasError(
+    s"""
+       |case class A()
+       |case class B()
+       |${START}A() == B()$END
+       |""".stripMargin
+  )
+
+  def testCanEqualForIncompatibleSourceType(): Unit = checkTextHasError(
+    s"""
+       |case class A()
+       |case class B()
+       |case class C()
+       |given CanEqual[C, B] = CanEqual.derived
+       |${START}A() == B()$END
+       |""".stripMargin
+  )
+
+  def testCanEqualIncompatibleTargetType(): Unit = checkTextHasError(
+    s"""
+       |case class A()
+       |case class B()
+       |case class C()
+       |given CanEqual[A, C] = CanEqual.derived
+       |${START}A() == B()$END
+       |""".stripMargin
+  )
+
+  def testCanEqualCaseObjects(): Unit = checkTextHasNoErrors(
+    s"""
+       |case object A
+       |case object B
+       |given CanEqual[A, B] = CanEqual.derived
+       |A == B
+       |""".stripMargin
+  )
+
+  def testCanEqualIncompatibleCaseObjects(): Unit = checkTextHasError(
+    s"""
+       |case object A
+       |case object B
+       |case object C
+       |given CanEqual[A, C] = CanEqual.derived
+       |${START}A == B$END
+       |""".stripMargin
+  )
+
+  def testCanEqualImported(): Unit = checkTextHasNoErrors(
+    s"""
+       |case class A()
+       |case class B()
+       |
+       |import Givens.given
+       |A() == B()
+       |
+       |object Givens:
+       |  given CanEqual[A, B] = CanEqual.derived
+       |""".stripMargin
+  )
+
+  def testCanEqualImportedFromCompanion(): Unit = checkTextHasNoErrors(
+    s"""
+       |case class A()
+       |case class B()
+       |
+       |object A:
+       |  given CanEqual[A, B] = CanEqual.derived
+       |
+       |A() == B()
+       |""".stripMargin
+  )
+
+  def testCanEqualDerivedOnTrait(): Unit = checkTextHasNoErrors(
+    s"""
+       |trait T derives CanEqual
+       |case class A() extends T
+       |case class B() extends T
+       |
+       |A() == B()
+       |""".stripMargin
   )
 }

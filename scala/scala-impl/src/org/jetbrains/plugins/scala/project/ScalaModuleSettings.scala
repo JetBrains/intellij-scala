@@ -144,6 +144,9 @@ private class ScalaModuleSettings private(
   val isCompilerStrictMode: Boolean =
     settingsForHighlighting.exists(_.strict)
 
+  val isCompilerStrictEqualityMode: Boolean =
+    settingsForHighlighting.exists(_.strictEquality)
+
   val customDefaultImports: Option[Seq[String]] =
     additionalCompilerOptions.collectFirst {
       case Yimports(imports) if scalaLanguageLevel >= Scala_2_13 => imports

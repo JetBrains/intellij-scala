@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.typeChecking
 
-import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.psi.PsiMethod
 import com.siyeh.ig.psiutils.MethodUtils
 import org.jetbrains.annotations.Nls
@@ -8,9 +8,10 @@ import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.codeInspection.typeChecking.ComparingUnrelatedTypesInspection._
 import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScGiven}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
@@ -127,12 +128,36 @@ object ComparingUnrelatedTypesInspection {
       }
     }
   }
+
+  private def hasCanEqual(expr: ScExpression, source: ScType, target: ScType): Boolean = {
+    lazy val expressionTypes: Seq[ScType] = List(source, target)
+    lazy val canEqualExists: Boolean = expr
+      .contexts
+      .flatMap(_.children)
+      .filterByType[ScGiven]
+      .filter(_.`type`().map(_.canonicalText.matches("_root_\\.scala\\.CanEqual\\[.+?, .+?]")).getOrElse(false))
+      .flatMap(_.children.filterByType[ScParameterizedTypeElement])
+      .map(_.typeArgList.typeArgs.flatMap(_.`type`().map(_.tryExtractDesignatorSingleton).toSeq))
+      .exists(_
+        .zip(expressionTypes)
+        .forall {
+          case (givenType, compType) =>
+            !checkComparability(givenType, compType, isBuiltinOperation = true).shouldNotBeCompared
+        }
+      )
+
+    val wideSource: ScType = source.widenIfLiteral
+    // Even though CanEqual[Primitive | String, _] can be defined and will satisfy compiler in strictEquals mode,
+    // it is not possible to override equals method on the primitives or Strings
+    !wideSource.isPrimitive &&
+      !wideSource.canonicalText.matches("_root_\\.java\\.lang\\.String") &&
+      (expr.isCompilerStrictEqualityMode || canEqualExists)
+  }
 }
 
 class ComparingUnrelatedTypesInspection extends LocalInspectionTool {
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
-    case e if e.isInScala3File => () // TODO Handle Scala 3 code (`CanEqual` instances, etc.), SCL-19722
     case MethodRepr(expr, Some(left), Some(oper), Seq(right)) if isComparingFunctions(oper.refName) =>
       // "blub" == 3
       val needHighlighting = oper.resolve() match {
@@ -145,7 +170,8 @@ class ComparingUnrelatedTypesInspection extends LocalInspectionTool {
           case Seq(Right(leftType), Right(rightType)) =>
             val isBuiltinOperation = isIdentityFunction(oper.refName) || !hasNonDefaultEquals(leftType)
             val comparability = checkComparability(leftType, rightType, isBuiltinOperation)
-            if (comparability.shouldNotBeCompared) {
+            if ((!expr.isInScala3File && comparability.shouldNotBeCompared) ||
+              (expr.isInScala3File && comparability.shouldNotBeCompared && !hasCanEqual(expr, leftType, rightType))) {
               val message = generateComparingUnrelatedTypesMsg(leftType, rightType)(expr)
               holder.registerProblem(expr, message)
             }
@@ -158,7 +184,8 @@ class ComparingUnrelatedTypesInspection extends LocalInspectionTool {
         ParameterizedType(_, Seq(elemType)) <- receiverType(baseExpr, ref).map(_.tryExtractDesignatorSingleton)
         argType <- arg.`type`().toOption
         comparability = checkComparability(elemType, argType, isBuiltinOperation = !hasNonDefaultEquals(elemType))
-        if comparability.shouldNotBeCompared
+        if (!baseExpr.isInScala3File && comparability.shouldNotBeCompared) ||
+          (baseExpr.isInScala3File && comparability.shouldNotBeCompared && !hasCanEqual(baseExpr, elemType, argType))
       } {
         val message = generateComparingUnrelatedTypesMsg(elemType, argType)(arg)
         holder.registerProblem(arg, message)
