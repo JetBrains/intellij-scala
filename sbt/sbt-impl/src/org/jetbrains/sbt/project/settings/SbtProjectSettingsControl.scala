@@ -76,7 +76,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
       extraControls.useSbtShellForImportCheckBox.isSelected != settings.useSbtShellForImport ||
       extraControls.useSbtShellForBuildCheckBox.isSelected != settings.useSbtShellForBuild ||
       extraControls.remoteDebugSbtShellCheckBox.isSelected != settings.enableDebugSbtShell ||
-      extraControls.scalaVersionPreferenceCheckBox.isSelected != settings.preferScala2 ||
+      extraControls.scalaVersionPreferenceComboBox.getSelectedIndex != settings.preferedScala ||
       extraControls.insertProjectTransitiveDependencies.isSelected != settings.insertProjectTransitiveDependencies ||
       extraControls.useSeparateCompilerOutputPaths.isSelected != settings.useSeparateCompilerOutputPaths
   }
@@ -97,7 +97,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     extraControls.useSbtShellForImportCheckBox.setSelected(settings.importWithShell)
     extraControls.useSbtShellForBuildCheckBox.setSelected(settings.buildWithShell)
     extraControls.remoteDebugSbtShellCheckBox.setSelected(settings.enableDebugSbtShell)
-    extraControls.scalaVersionPreferenceCheckBox.setSelected(settings.preferScala2)
+    extraControls.scalaVersionPreferenceComboBox.setSelectedIndex(settings.preferedScala)
     extraControls.insertProjectTransitiveDependencies.setSelected(settings.insertProjectTransitiveDependencies)
     extraControls.useSeparateCompilerOutputPaths.setSelected(settings.useSeparateCompilerOutputPaths)
     extraControls.refreshOutputPathsWarning()
@@ -122,7 +122,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     settings.resolveSbtClassifiers = extraControls.resolveSbtClassifiersCheckBox.isSelected
     settings.useSbtShellForImport = extraControls.useSbtShellForImportCheckBox.isSelected
     settings.enableDebugSbtShell = extraControls.remoteDebugSbtShellCheckBox.isSelected
-    settings.preferScala2 = extraControls.scalaVersionPreferenceCheckBox.isSelected
+    settings.preferedScala = extraControls.scalaVersionPreferenceComboBox.getSelectedIndex
     settings.insertProjectTransitiveDependencies = extraControls.insertProjectTransitiveDependencies.isSelected
     settings.useSeparateCompilerOutputPaths = extraControls.useSeparateCompilerOutputPaths.isSelected
 

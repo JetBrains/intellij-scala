@@ -88,6 +88,11 @@ object SbtExternalSystemManager {
     val vmOptions = getVmOptions(settingsState, jreHome)
     val environment = Map.empty ++ getAndroidEnvironmentVariables(projectJdkName)
     val sbtOptions = SbtOpts.combineOptionsWithArgs(settings.sbtOptions)
+    val preferedScala = projectSettings.preferedScala match {
+      case 0 => PreferedScala.Default
+      case 1 => PreferedScala.Scala2
+      case 2 => PreferedScala.Scala3
+    }
 
     new SbtExecutionSettings(
       realProjectPath = realProjectPath,
@@ -103,7 +108,7 @@ object SbtExternalSystemManager {
       resolveSbtClassifiers = projectSettings.resolveSbtClassifiers,
       useShellForImport = projectSettings.useSbtShellForImport,
       shellDebugMode = projectSettings.enableDebugSbtShell,
-      preferScala2 = projectSettings.preferScala2,
+      preferedScala = preferedScala ,
       userSetEnvironment = settingsState.sbtEnvironment.asScala.toMap,
       passParentEnvironment = settingsState.sbtPassParentEnvironment,
       insertProjectTransitiveDependencies = projectSettings.insertProjectTransitiveDependencies,

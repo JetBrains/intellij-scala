@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.plugins.scala.settings.CompilerIndicesSettings
 import org.jetbrains.sbt.SbtUtil._
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportCancelledException
+import org.jetbrains.sbt.project.settings.PreferedScala
 import org.jetbrains.sbt.project.structure.SbtOption._
 import org.jetbrains.sbt.project.structure.SbtStructureDump._
 import org.jetbrains.sbt.shell.SbtShellCommunication
@@ -51,7 +52,7 @@ class SbtStructureDump {
                     structureFilePath: String,
                     options: Seq[String],
                     reporter: BuildReporter,
-                    preferScala2: Boolean,
+                    preferedScala: PreferedScala,
                    ): Future[BuildMessages] = {
 
     reporter.start()
@@ -66,8 +67,13 @@ class SbtStructureDump {
         val ideaPort = SbtCompilationSupervisorPort.port
         if (ideaPort == -1) "" else s"; set ideaPort in Global := $ideaPort"
       } else ""
+    val scalaSelection = preferedScala match {
+      case PreferedScala.Default => ""
+      case PreferedScala.Scala2 => "preferScala2;"
+      case PreferedScala.Scala3 => "preferScala3;"
+    }
 
-    val cmd = s";reload; $setCmd ;${if (preferScala2) "preferScala2;" else ""}*/*:dumpStructureTo $structureFilePath; session clear-all $ideaPortSetting"
+    val cmd = s";reload; $setCmd ;$scalaSelection*/*:dumpStructureTo $structureFilePath; session clear-all $ideaPortSetting"
 
     val aggregator = shellMessageAggregator(EventId(s"dump:${UUID.randomUUID()}"), shell, reporter)
 
@@ -83,7 +89,7 @@ class SbtStructureDump {
                       environment: Map[String, String],
                       sbtLauncher: File,
                       sbtStructureJar: File,
-                      preferScala2: Boolean,
+                      preferedScala: PreferedScala,
                       passParentEnvironment: Boolean
                      )
                      (implicit reporter: BuildReporter)
@@ -96,13 +102,18 @@ class SbtStructureDump {
       s"""SettingKey[_root_.scala.Option[_root_.sbt.File]]("sbtStructureOutputFile") in _root_.sbt.Global := _root_.scala.Some(_root_.sbt.file("$structureFilePath"))""",
       s"""SettingKey[_root_.java.lang.String]("sbtStructureOptions") in _root_.sbt.Global := $optString"""
     ).mkString("set _root_.scala.collection.Seq(", ",", ")")
+    val scalaSelection = preferedScala match {
+      case PreferedScala.Default => Seq.empty
+      case PreferedScala.Scala2 => Seq("preferScala2")
+      case PreferedScala.Scala3 => Seq("preferScala3")
+    }
 
     val sbtCommands = (
       Seq(
         setCommands,
         s"""apply -cp "${normalizePath(sbtStructureJar)}" "org.jetbrains.sbt.CreateTasks" "sbt.jetbrains.LogDownloadArtifacts""""
       ) :++
-        (if (preferScala2) Seq("preferScala2") else Seq.empty) :+
+        scalaSelection :+
         s"*/*:dumpStructure"
       ).mkString(";", ";", "")
 
