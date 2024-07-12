@@ -236,7 +236,10 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
                 }
               }
 
-              TypeMismatchError.register(target, tp, exprType.getOrNothing,
+              val tp0 = tp.removeAliasDefinitions(place = Some(element), opaqueOnly = true)
+              val exprType0 = exprType.getOrNothing.removeAliasDefinitions(place = Some(element), opaqueOnly = true)
+
+              TypeMismatchError.register(target, tp0, exprType0,
                 blockLevel = 2, canBeHint = !element.is[ScTypedExpression] && !inDesugaring, fixes) { (expected, actual) =>
                 ScalaBundle.message("expr.type.does.not.conform.expected.type", actual, expected)
               }
