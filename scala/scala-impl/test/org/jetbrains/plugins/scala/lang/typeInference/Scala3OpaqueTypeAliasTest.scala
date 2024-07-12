@@ -71,6 +71,17 @@ class Scala3OpaqueTypeAliasTest extends ScalaLightCodeInsightFixtureTestCase {
     )
   }
 
+  def testExpression(): Unit = {
+    checkHasErrorAroundCaret(
+      s"""
+         |object Inside:
+         |  opaque type T = Int
+         |object Outside:
+         |  val v: Inside.T = ${CARET}123
+      """.stripMargin
+    )
+  }
+
   def testImplicitArgumentLhsLhsInside(): Unit = {
     checkTextHasNoErrors(
       s"""
