@@ -51,12 +51,21 @@ trait ScalaTestFrameworkCommandLineStateLike {
     def port = "5009"
   }
 
+  /**
+   * @param consoleView Console view to create an execution result for. Can be a decorated console view.
+   * @param testConsoleView Console view to create restart actions for. If `consoleView` is a decorated console view,
+   *                        this should be the underlying test console view. Can be the same reference as `consoleView`
+   *                        if `consoleView` is not decorated.
+   * @param processHandler Process handler for creating the execution result.
+   * @return The execution result for the passed console view with correctly set up restart actions.
+   */
   protected def createExecutionResult(
     consoleView: ConsoleView,
+    testConsoleView: ConsoleView,
     processHandler: ProcessHandler
   ): DefaultExecutionResult = {
     val result = new DefaultExecutionResult(consoleView, processHandler)
-    val restartActions = createRestartActions(consoleView)
+    val restartActions = createRestartActions(testConsoleView)
     result.setRestartActions(restartActions: _*)
     result
   }

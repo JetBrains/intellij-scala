@@ -164,7 +164,7 @@ class ScalaTestFrameworkCommandLineState(
 
     RawProcessOutputDebugLogger.maybeAddListenerTo(processHandler)
 
-    val consoleView: BaseTestsOutputConsoleView = {
+    val testConsoleView: BaseTestsOutputConsoleView = {
       val consoleProperties = configuration.createTestConsoleProperties(executor)
       consoleProperties.setIdBasedTestTree(true)
       SMTestRunnerConnectionUtil.createConsole("Scala", consoleProperties)
@@ -179,19 +179,21 @@ class ScalaTestFrameworkCommandLineState(
       if (ApplicationManager.getApplication.isUnitTestMode) {
         // Don't decorate teh console in tests - it can try to create some UI which will lead to runtime exceptions
         // E.g. in JavaProfilerConsoleWidgetManager
-        consoleView
+        testConsoleView
       } else
         JavaRunConfigurationExtensionManager.getInstance.decorateExecutionConsole(
           configuration,
           getRunnerSettings,
-          consoleView,
+          testConsoleView,
           executor
         )
     Disposer.register(configuration.getProject, consoleViewDecorated)
 
     consoleViewDecorated.attachToProcess(processHandler)
 
-    val executionResult = createExecutionResult(consoleViewDecorated, processHandler)
+    // Using a decorated console view. We also need to pass the underlying test console view, in order to correctly
+    // create the restart actions.
+    val executionResult = createExecutionResult(consoleViewDecorated, testConsoleView, processHandler)
 
     executionResult
   }
