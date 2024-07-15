@@ -290,6 +290,45 @@ class ImplicitParametersAnnotatorTest extends ImplicitParametersAnnotatorTestBas
   ))
 }
 
+class ImplicitParametersAnnotatorTest_Scala3 extends ImplicitParametersAnnotatorTestBase {
+  override def scalaVersion = ScalaVersion.Latest.Scala_3_4
+
+  // SCL-21490
+  def testGivenPatternsInFor(): Unit = {
+    assertNothing(messages3(
+      """
+        |object Blub {
+        |  def foreach(f: Int => Unit): Unit = ()
+        |  def withFilter(f: Int => Boolean): Blub.type = this
+        |}
+        |
+        |def summon[T](using t: T): T = t
+        |
+        |def main1(): Unit = {
+        |  for {
+        |    given Int <- Blub
+        |  } {
+        |    summon[Int]
+        |  }
+        |}
+        |""".stripMargin
+    ))
+  }
+
+  def testGivenPatternInCaseClause(): Unit = {
+    assertNothing(messages3(
+      """
+        |def giveInt(f: Int => Unit): Unit = ()
+        |def summon[T](using t: T): T = t
+        |
+        |giveInt { case given Int =>
+        |  summon[Int]
+        |}
+        |""".stripMargin
+    ))
+  }
+}
+
 //annotator tests doesn't have scala library, so it's not possible to use FunctionType, for example
 @Category(Array(classOf[TypecheckerTests]))
 class ImplicitParametersAnnotatorHeavyTest extends ScalaLightCodeInsightFixtureTestCase {
