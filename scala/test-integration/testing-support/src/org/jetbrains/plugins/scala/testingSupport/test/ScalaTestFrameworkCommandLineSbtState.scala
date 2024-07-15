@@ -47,7 +47,9 @@ class ScalaTestFrameworkCommandLineSbtState(
     }
     consoleView.attachToProcess(processHandler)
 
-    val executionResult = createExecutionResult(consoleView, processHandler)
+    // Sbt shell does not use a decorated console view, passing the same instance twice means that the execution result
+    // and restart actions are created for the same console view instance.
+    val executionResult = createExecutionResult(consoleView, consoleView, processHandler)
 
     ScalaSbtUsagesCollector.logShellTestRunCommand(project)
     val suitesToTestsMap = buildSuitesToTestsMap
