@@ -22,6 +22,8 @@ abstract class AnnotatorTestBase[T <: ScalaPsiElement : reflect.ClassTag] extend
   protected final val Prefix = "object Holder { class Object; "
   protected final val Suffix = " }"
 
+  protected final def messages3(@Language(value = "Scala 3", prefix = Prefix, suffix = Suffix) code: String): Option[List[Message]] =
+    messages(code)
   protected def messages(@Language(value = "Scala", prefix = Prefix, suffix = Suffix) code: String): Option[List[Message]] = {
     val s: String = Prefix + code + Suffix
     val file: ScalaFile = s.parse(scalaVersion)

@@ -6,6 +6,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiTreeUtil.isContextAncestor
 import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement, ResolveState}
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
@@ -105,7 +106,7 @@ abstract class ImplicitProcessor(override protected val getPlace: PsiElement,
     val isScala3 = getPlace.isInScala3File
 
     @tailrec
-    def treeWalkUp(element: PsiElement, lastParent: PsiElement): Unit =
+    def treeWalkUp(@Nullable element: PsiElement, @Nullable lastParent: PsiElement): Unit =
       if (element != null &&
         element.processDeclarations(this, ScalaResolveState.empty, lastParent, getPlace)) {
 

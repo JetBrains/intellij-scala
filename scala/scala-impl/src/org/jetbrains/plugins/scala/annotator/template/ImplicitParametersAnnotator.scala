@@ -24,7 +24,7 @@ object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitArgumentsOwner]
       }
 
       if (typeAware && showImplictErrors)
-        highlightNotFound(element, params.toSeq)
+        highlightNotFound(element, params)
     }
   }
 
