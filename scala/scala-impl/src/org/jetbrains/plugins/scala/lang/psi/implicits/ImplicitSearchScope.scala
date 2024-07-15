@@ -79,6 +79,7 @@ object ImplicitSearchScope {
       case _: ScForBinding                                                => isScala3 || elem.betterMonadicForEnabled
       case _: ScGenerator                                                 => isScala3 || elem.betterMonadicForEnabled
       case _: ScCaseClause                                                => isScala3 || elem.betterMonadicForEnabled
+      case _: ScFor                                                       => isScala3 || elem.betterMonadicForEnabled
       case _: ScImportStmt | _: ScPackaging | _: ScExtension | _: ScGiven => true
       case (_: ScParameters) childOf (m: ScMethodLike)                    => hasImplicitClause(m)
       case pc: ScPrimaryConstructor                                       => hasImplicitClause(pc)

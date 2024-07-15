@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.implicits
 
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement, ResolveState}
-import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isImplicit, strictlyOrderedByContext}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
@@ -71,7 +71,7 @@ private[implicits] final class ImplicitParametersProcessor(override protected va
   private def isContextAncestor(c: ScalaResolveResult): Boolean = {
     val nameContext = c.element.nameContext
     nameContext match {
-      case _: ScCaseClause => !getPlace.betterMonadicForEnabled && !getPlace.isInScala3Module
+      case _: ScCaseClause => !getPlace.betterMonadicForEnabled && !getPlace.isInScala3File
       case _               => PsiTreeUtil.isContextAncestor(nameContext, getPlace, false)
     }
   }
