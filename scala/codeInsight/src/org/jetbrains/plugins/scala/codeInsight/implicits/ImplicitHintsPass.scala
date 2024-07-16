@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInsight.implicits
 
 import com.intellij.codeHighlighting.EditorBoundHighlightingPass
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.editor.colors.EditorColorsScheme
+import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColorsScheme}
 import com.intellij.openapi.editor.ex.util.EditorScrollingPositionKeeper
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.util.Disposer
@@ -33,6 +33,7 @@ import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider.fromScMethodL
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.{ScalaHighlightingMode, ScalaProjectSettings}
 import org.jetbrains.plugins.scala.extensions.&
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
 import scala.collection.mutable
 
@@ -216,7 +217,10 @@ class ImplicitHintsPass(
 
     DocumentUtil.executeInBulk(myEditor.getDocument, bulkChange, () => {
       existingInlays.foreach(Disposer.dispose)
-      hints.foreach(inlayModel.add(_))
+      // sort the inlay hints so that they are at least ordered correctly when they belong to different psi elements
+      hints
+        .sortBy(hint => hint.element.startOffset + hint.offsetDelta)
+        .foreach(inlayModel.add(_))
       regenerateMethodChainHints(myEditor, inlayModel, rootElement)
       regenerateRangeInlayHints(myEditor, inlayModel, rootElement)
     })
@@ -256,7 +260,28 @@ private object ImplicitHintsPass {
   }
 
   private def explicitImplicitArgumentsHint(args: ScArgumentExprList): Seq[Hint] = {
-    val hint = Hint(Seq(Text(".explicitly")), args, suffix = false, menu = menu.ExplicitArguments)
+    if (args.isUsing) {
+      // if there is already a using keyword, we don't need to show the hint
+      return Seq.empty
+    }
+
+    implicit val scheme: EditorColorsScheme = EditorColorsManager.getInstance().getGlobalScheme
+    val firstChild = args.firstChild
+    val argListOpener = firstChild
+      .filter(e => e.elementType == ScalaTokenTypes.tLPARENTHESIS)
+      .orElse(
+        firstChild.flatMap(_.asOptionOf[ScBlock])
+          .flatMap(_.firstChild)
+          .filter(e => e.elementType == ScalaTokenTypes.tLBRACE || e.elementType == ScalaTokenTypes.tCOLON)
+      )
+    val isFollowedByWS = argListOpener.exists(_.nextLeaf.exists(_.isWhitespace))
+    val hint = Hint(
+      Seq(Text("using")),
+      argListOpener.getOrElse(args),
+      suffix = argListOpener.nonEmpty,
+      menu = menu.ExplicitArguments,
+      margin = if (isFollowedByWS) None else Hint.rightInsetLikeChar(' ')
+    )
     Seq(hint)
   }
 
