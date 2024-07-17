@@ -719,6 +719,67 @@ class UnusedImportTest_213_XSource3 extends UnusedImportTest_Common_2 {
         |""".stripMargin
     assert(messages(text).isEmpty)
   }
+
+  def testGivenWildcardImport_used(): Unit = {
+    val text =
+      """
+        |object A {
+        |  implicit val i: Int = 1
+        |}
+        |
+        |object B {
+        |  import A.{given, *}
+        |
+        |  implicitly[Int]
+        |}
+        |""".stripMargin
+
+    assertCollectionEquals(
+      Seq.empty[HighlightMessage],
+      messages(text)
+    )
+  }
+
+  def testGivenWildcardImport_unused(): Unit = {
+    val text =
+      """
+        |object A {
+        |  implicit val i: Int = 1
+        |}
+        |
+        |object B {
+        |  import A.{given, *}
+        |}
+        |""".stripMargin
+
+    assertCollectionEquals(
+      Seq(
+        HighlightMessage("import A.{given, *}", UnusedImportStatement),
+      ),
+      messages(text)
+    )
+  }
+
+  def testGivenWildcardImport_unused_but_wildcard_used(): Unit = {
+    val text =
+      """
+        |object A {
+        |  def fun(): Unit = ()
+        |  implicit val i: Int = 1
+        |}
+        |
+        |object B {
+        |  import A.{given, *} // given should be marked as unused, but it's technically too difficult to implement
+        |
+        |  fun()
+        |}
+        |""".stripMargin
+
+    assertCollectionEquals(
+      Seq.empty[HighlightMessage],
+      messages(text)
+    )
+  }
 }
 
 final class UnusedImportTest_3 extends UnusedImportTestBase {
