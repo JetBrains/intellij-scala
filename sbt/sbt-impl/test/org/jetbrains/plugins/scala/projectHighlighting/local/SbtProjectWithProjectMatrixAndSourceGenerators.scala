@@ -74,6 +74,7 @@ class SbtProjectWithProjectMatrixAndSourceGenerators
           "src/main/scala",
           "target/jvm-2.13/src_managed/main"
         )
+        testSources := Seq("target/jvm-2.13/src_managed/test")
         excluded := Seq("target")
       }
 
@@ -99,6 +100,7 @@ class SbtProjectWithProjectMatrixAndSourceGenerators
           "src/main/scala",
           "target/jvm-2.13/src_managed/main"
         )
+        testSources := Seq("src/test/scala", "target/jvm-2.13/src_managed/test")
         excluded := Seq("target")
       }
 
@@ -149,11 +151,6 @@ class SbtProjectWithProjectMatrixAndSourceGenerators
         `upstreamBothPlatformsJS2_11`,
         `upstreamBothPlatformsJS2_12`,
       )
-
-      downstreamGroup.foreach(_.group = Array("downstream"))
-      upstreamGroup.foreach(_.group = Array("upstream"))
-      downstreamBothPlatformsGroup.foreach(_.group = Array("downstreamBothPlatforms"))
-      upstreamBothPlatformsGroup.foreach(_.group = Array("upstreamBothPlatforms"))
 
       //
       // Define dependencies between modules separately for better test data readability

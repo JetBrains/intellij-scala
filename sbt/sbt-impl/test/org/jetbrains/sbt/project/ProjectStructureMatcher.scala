@@ -207,11 +207,13 @@ trait ProjectStructureMatcher {
 
   private def assertModuleExcludedFoldersEqual(module: Module, singleContentRootModules: Boolean)(expected: Seq[String])(mt: Option[MatchType]): Unit = {
     val contentRoots = getContentRoots(module)
-    if (expected.isEmpty) {
+    // note: when singleContentRootModules is false, then there is a test with modules separated to main and test, and in such a case
+    // checking for excluded folder files when expected Seq is empty is not correct.
+    // For main and test modules expected will always be empty, but #getExcludeFolderFiles will return the module output.
+    if (singleContentRootModules && expected.isEmpty) {
       val excludedFolderFiles = contentRoots.flatMap(_.getExcludeFolderFiles).map(_.getUrl)
       assertMatchWithIgnoredOrder(s"Excluded folders of module '${module.getName}'", Nil, excludedFolderFiles)(mt)
-    }
-    else {
+    } else {
       if (singleContentRootModules) assertSingleContentRoot(contentRoots, module.getName)
       val contentRootToExcludeFolders = contentRoots.map { contentRoot =>
         contentRoot -> contentRoot.getExcludeFolders.toSeq
