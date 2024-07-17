@@ -49,11 +49,13 @@ object UsageTracker {
 
     val potentiallyRedundantImports = RedundantImportUtils.collectPotentiallyRedundantImports(file)
 
-    val importExprToUsedImports: mutable.Buffer[(ScImportExpr, Iterable[ImportUsed])] =
+    val importExprToUsedImports: mutable.Buffer[(ScImportExpr, Set[ImportUsed])] =
       mutable.ArrayBuffer.empty
 
     val importHolders: Iterator[ScImportsHolder] =
       file.depthFirst().filterByType[ScImportsHolder]
+
+    val isSource3 = file.isSource3OrSource3CrossEnabled
 
     for {
       importHolder <- importHolders
@@ -76,13 +78,20 @@ object UsageTracker {
         refHolder.usageFound(importUsed) && !isRedundant(importUsed) ||
           importUsed.isAlwaysUsed
 
+      def containsGivenWildcardInSource3(importsUsed: Set[ImportUsed]): Boolean = isSource3 && {
+        importsUsed.exists {
+          case ImportWildcardSelectorUsed(importExpr) if importExpr.hasGivenSelector => true
+          case _ => false
+        }
+      }
+
       importExprToUsedImports.foreach { case (expr, importsUsed) =>
         val toHighlight: Iterable[ImportUsed] = importsUsed.filterNot(treatAsUnused)
 
         val wholeImportExprIsUnused = toHighlight.size == importsUsed.size
         if (wholeImportExprIsUnused)
           redundantBuilder += new ImportExprUsed(expr)
-        else
+        else if (!containsGivenWildcardInSource3(importsUsed))
           redundantBuilder ++= toHighlight
       }
     }
