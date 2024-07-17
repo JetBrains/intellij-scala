@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
 
 import java.util.regex.Pattern
+import scala.annotation.nowarn
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
@@ -171,7 +172,7 @@ object JavaToScala {
       case t: PsiThrowStatement => ThrowStatement(convertPsiToIntermediate(t.getException, externalProperties))
       case i: PsiImportStatement => handleImport(i)
       case i: PsiImportStaticStatement => handleImport(i)
-      case i: PsiImportList => ImportStatementList(i.getAllImportStatements.map(handleImport).distinct.toIndexedSeq)
+      case i: PsiImportList => ImportStatementList(i.getAllImportStatements.map(handleImport).distinct.toIndexedSeq): @nowarn("cat=deprecation")
       case a: PsiAssignmentExpression =>
         BinaryExpressionConstruction(convertPsiToIntermediate(a.getLExpression, externalProperties),
           convertPsiToIntermediate(a.getRExpression, externalProperties), a.getOperationSign.getText, inExpression = false)
