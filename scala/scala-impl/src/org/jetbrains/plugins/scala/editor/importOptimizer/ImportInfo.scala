@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed, ImportWildcardSelectorUsed}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportStmt}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGiven, ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypedDefinition}
@@ -134,6 +134,7 @@ object ImportInfo {
     if (qualifier == null)
       return None //ignore invalid imports
 
+    val isSource3 = imp.isSource3OrSource3CrossEnabled
     val importsUsed = ArrayBuffer[ImportUsed]()
     val allNames = mutable.HashSet[String]()
     val singleNames = mutable.HashSet[String]()
@@ -148,6 +149,10 @@ object ImportInfo {
     def addAllNames(ref: ScStableCodeReference, nameToAdd: String): Unit = {
       if (ref.multiResolveScala(false).exists(shouldAddName))
         allNames += nameToAdd
+    }
+
+    def isSource3WildcardGivenSelector(imp: ScImportSelector): Boolean = {
+      isSource3 && imp.isGivenSelector
     }
 
     val deepRef = deepestQualifier(qualifier)
@@ -167,7 +172,8 @@ object ImportInfo {
         (prefixQual, relative)
       }
 
-    for (selector <- imp.selectors if !selector.isWildcardSelector) {
+    // handle wildcards and source3-given-wildcards later
+    for (selector <- imp.selectors if !selector.isWildcardSelector && !isSource3WildcardGivenSelector(selector)) {
       val importUsed: ImportSelectorUsed = new ImportSelectorUsed(selector)
       if (isImportUsed(importUsed)) {
         importsUsed += importUsed
@@ -200,18 +206,7 @@ object ImportInfo {
       }
     }
 
-    if (imp.selectorSet.isEmpty && !imp.hasWildcardSelector) {
-      val importUsed: ImportExprUsed = new ImportExprUsed(imp)
-      if (isImportUsed(importUsed)) {
-        importsUsed += importUsed
-        imp.reference match {
-          case Some(ref) =>
-            singleNames += ref.refName
-            addAllNames(ref, ref.refName)
-          case None => //something is not valid
-        }
-      }
-    } else if (imp.hasWildcardSelector) {
+    if (imp.hasWildcardSelector) {
       val importUsed =
         if (imp.selectorSet.isEmpty) new ImportExprUsed(imp)
         else new ImportWildcardSelectorUsed(imp)
@@ -222,6 +217,25 @@ object ImportInfo {
         allNames ++= namesForWildcard
         allNamesForWildcard = namesForWildcard
         hasNonUsedImplicits = (implicitNames -- singleNames).nonEmpty
+
+        if (isSource3) {
+          // in -Xsource:3, given selectors should be added iff the accompanying wildcard is used
+          for (givenSel <- imp.selectors.find(isSource3WildcardGivenSelector)) {
+            hasGivenWildcard = true
+            importsUsed += new ImportSelectorUsed(givenSel)
+          }
+        }
+      }
+    } else if (imp.selectorSet.isEmpty) {
+      val importUsed: ImportExprUsed = new ImportExprUsed(imp)
+      if (isImportUsed(importUsed)) {
+        importsUsed += importUsed
+        imp.reference match {
+          case Some(ref) =>
+            singleNames += ref.refName
+            addAllNames(ref, ref.refName)
+          case None => //something is not valid
+        }
       }
     }
 
