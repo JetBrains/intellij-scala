@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.scala.projectHighlighting.local
 
-import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.projectHighlighting.base.SbtProjectHighlightingLocalProjectsTestBase
 import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProgressReporter
 import org.jetbrains.sbt.project.ProjectStructureMatcher
 import org.jetbrains.sbt.project.ProjectStructureMatcher.ProjectComparisonOptions
-import org.junit.Assert.fail
 
 class SbtCrossBuildProjectHighlightingWithGeneratedSourcesTest extends SbtProjectHighlightingLocalProjectsTestBase {
 
@@ -161,18 +160,5 @@ class SbtCrossBuildProjectHighlightingWithGeneratedSourcesTest extends SbtProjec
     }
     implicit val comparisonOptions: ProjectComparisonOptions = ProjectComparisonOptions(strictCheckForBuildModules = true)
     matcher.assertProjectsEqual(expectedProject, getProject)(comparisonOptions)
-  }
-
-  private lazy val testProjectDirVFile: VirtualFile =
-    VirtualFileManager.getInstance().findFileByNioPath(getTestProjectDir.toPath)
-
-  private def relativeProjectPath(relPath: String): String = {
-    //force refresh, because otherwise sometimes it can old data from previous tests runs (cached in test system directory)
-    testProjectDirVFile.refresh(false, true)
-    val result = testProjectDirVFile.findFileByRelativePath(relPath)
-    if (result == null) {
-      fail(s"Can't find file `$relPath` in `$testProjectDirVFile``")
-    }
-    result.getPath
   }
 }

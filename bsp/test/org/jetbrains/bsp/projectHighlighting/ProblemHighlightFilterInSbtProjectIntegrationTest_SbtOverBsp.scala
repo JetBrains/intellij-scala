@@ -1,7 +1,7 @@
 package org.jetbrains.bsp.projectHighlighting
 
 import com.intellij.openapi.fileTypes.FileType
-import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.projectHighlighting.base.ProjectHighlightingAssertions
@@ -10,7 +10,6 @@ import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.language.SbtFileType
 import org.jetbrains.sbt.project.ProjectStructureMatcher
 import org.jetbrains.sbt.project.ProjectStructureMatcher.ProjectComparisonOptions
-import org.junit.Assert.fail
 
 //NOTE:
 //The test is very similar to `org.jetbrains.plugins.scala.projectHighlighting.local.SbtFilesProblemHighlightFilterTest`
@@ -118,17 +117,6 @@ class ProblemHighlightFilterInSbtProjectIntegrationTest_SbtOverBsp
     assertFileShouldBeHighlighted("sub-project-separate/src/main/scala/worksheet.sc")
     assertFileShouldBeHighlighted("sub-project-separate/src/test/scala/worksheet.sc")
     assertFileShouldBeHighlighted("sub-project-separate/testdata/worksheet.sc")
-  }
-
-  private lazy val testProjectDirVFile: VirtualFile =
-    VirtualFileManager.getInstance().findFileByNioPath(getTestProjectDir.toPath)
-
-  def relativeProjectPath(relPath: String): String = {
-    val result = testProjectDirVFile.findFileByRelativePath(relPath)
-    if (result == null) {
-      fail(s"Can't find file `$relPath` in `$testProjectDirVFile``")
-    }
-    result.getPath
   }
 
   def testProjectStructure(): Unit = {

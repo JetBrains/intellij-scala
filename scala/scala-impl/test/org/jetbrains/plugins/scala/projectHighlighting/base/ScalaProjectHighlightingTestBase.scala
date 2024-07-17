@@ -5,7 +5,7 @@ import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.registry.Registry
-import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
 import com.intellij.psi.PsiFile
 import com.intellij.testFramework.TestLoggerFactory
 import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, IdeaTestFixtureFactory}
@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.projectHighlighting.base.ScalaProjectHighligh
 import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProgressReporter
 import org.jetbrains.sbt.project.ScalaExternalSystemImportingTestBase
 import org.jetbrains.sbt.settings.SbtSettings
+import org.junit.Assert.fail
 import org.junit.experimental.categories.Category
 
 import java.nio.file.{Files, Path, Paths}
@@ -98,6 +99,19 @@ abstract class ScalaProjectHighlightingTestBase extends ScalaExternalSystemImpor
   }
 
   protected def filesWithProblems: Map[String, Set[TextRange]] = Map.empty
+
+  protected lazy val testProjectDirVFile: VirtualFile =
+    VirtualFileManager.getInstance().findFileByNioPath(getTestProjectDir.toPath)
+
+  protected def relativeProjectPath(relPath: String): String = {
+    //force refresh, because otherwise sometimes it can old data from previous tests runs (cached in test system directory)
+    testProjectDirVFile.refresh(false, true)
+    val result = testProjectDirVFile.findFileByRelativePath(relPath)
+    if (result == null) {
+      fail(s"Can't find file `$relPath` in `$testProjectDirVFile``")
+    }
+    result.getPath
+  }
 
   protected val reporter = HighlightingProgressReporter.newInstance(getClass.getSimpleName, filesWithProblems)
 
