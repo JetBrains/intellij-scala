@@ -11,6 +11,11 @@ trait SbtExternalSystemImportingTestLike extends ScalaExternalSystemImportingTes
 
   override protected def getExternalSystemId: ProjectSystemId = SbtProjectSystem.Id
 
+  override protected def setupProjectJdk(): Unit = {
+    super.setupProjectJdk()
+    getCurrentExternalProjectSettings.jdk = getJdkConfiguredForTestCase.getName
+  }
+
   override protected def setUpFixtures(): Unit = {
     super.setUpFixtures()
 
@@ -18,11 +23,8 @@ trait SbtExternalSystemImportingTestLike extends ScalaExternalSystemImportingTes
     ProjectHighlightingTestUtils.dontPrintErrorsAndWarningsToConsole(this)
   }
 
-  private lazy val currentExternalProjectSettings: SbtProjectSettings = {
-    val settings = new SbtProjectSettings
-    settings.jdk = getJdkConfiguredForTestCase.getName
-    settings
-  }
+  private lazy val currentExternalProjectSettings: SbtProjectSettings =
+    new SbtProjectSettings
 
   override protected def getCurrentExternalProjectSettings: SbtProjectSettings = currentExternalProjectSettings
 }
