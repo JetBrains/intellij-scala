@@ -60,135 +60,229 @@ class Source3ParserTest extends ScalaLightCodeInsightFixtureTestCase with ScalaP
       |""".stripMargin
   )
 
-  def test_imports(): Unit =
-    assert(version <= ScalaVersion.Latest.Scala_2_13.withMinor(6),
-      "please uncomment and delete this assert. in 2.13.6 there is a bug with wildcard imports. Also adjust supportedIn to 2.13.7")
-  //def test_imports(): Unit = checkTree(
-  //  """
-  //    |import a as b
-  //    |import a.b
-  //    |import a.*
-  //    |import a._
-  //    |import a.b as c
-  //    |import a.{b as c, d as e}
-  //    |import a.{b => c, d => e}
-  //    |""".stripMargin,
-  //  """
-  //    |ScalaFile
-  //    |  PsiWhiteSpace('\n')
-  //    |  ScImportStatement
-  //    |    PsiElement(import)('import')
-  //    |    PsiWhiteSpace(' ')
-  //    |    ImportExpression
-  //    |      ImportSelectors
-  //    |        ImportSelector
-  //    |          CodeReferenceElement: a
-  //    |            PsiElement(identifier)('a')
-  //    |          PsiWhiteSpace(' ')
-  //    |          PsiElement(as)('as')
-  //    |          PsiWhiteSpace(' ')
-  //    |          PsiElement(identifier)('b')
-  //    |  PsiWhiteSpace('\n')
-  //    |  ScImportStatement
-  //    |    PsiElement(import)('import')
-  //    |    PsiWhiteSpace(' ')
-  //    |    ImportExpression
-  //    |      CodeReferenceElement: a.b
-  //    |        CodeReferenceElement: a
-  //    |          PsiElement(identifier)('a')
-  //    |        PsiElement(.)('.')
-  //    |        PsiElement(identifier)('b')
-  //    |  PsiWhiteSpace('\n')
-  //    |  ScImportStatement
-  //    |    PsiElement(import)('import')
-  //    |    PsiWhiteSpace(' ')
-  //    |    ImportExpression
-  //    |      CodeReferenceElement: a
-  //    |        PsiElement(identifier)('a')
-  //    |      PsiElement(.)('.')
-  //    |      PsiElement(*)('*')
-  //    |  PsiWhiteSpace('\n')
-  //    |  ScImportStatement
-  //    |    PsiElement(import)('import')
-  //    |    PsiWhiteSpace(' ')
-  //    |    ImportExpression
-  //    |      CodeReferenceElement: a
-  //    |        PsiElement(identifier)('a')
-  //    |      PsiElement(.)('.')
-  //    |      PsiElement(_)('_')
-  //    |  PsiWhiteSpace('\n')
-  //    |  ScImportStatement
-  //    |    PsiElement(import)('import')
-  //    |    PsiWhiteSpace(' ')
-  //    |    ImportExpression
-  //    |      CodeReferenceElement: a
-  //    |        PsiElement(identifier)('a')
-  //    |      PsiElement(.)('.')
-  //    |      ImportSelectors
-  //    |        ImportSelector
-  //    |          CodeReferenceElement: b
-  //    |            PsiElement(identifier)('b')
-  //    |          PsiWhiteSpace(' ')
-  //    |          PsiElement(as)('as')
-  //    |          PsiWhiteSpace(' ')
-  //    |          PsiElement(identifier)('c')
-  //    |  PsiWhiteSpace('\n')
-  //    |  ScImportStatement
-  //    |    PsiElement(import)('import')
-  //    |    PsiWhiteSpace(' ')
-  //    |    ImportExpression
-  //    |      CodeReferenceElement: a
-  //    |        PsiElement(identifier)('a')
-  //    |      PsiElement(.)('.')
-  //    |      ImportSelectors
-  //    |        PsiElement({)('{')
-  //    |        ImportSelector
-  //    |          CodeReferenceElement: b
-  //    |            PsiElement(identifier)('b')
-  //    |          PsiWhiteSpace(' ')
-  //    |          PsiElement(as)('as')
-  //    |          PsiWhiteSpace(' ')
-  //    |          PsiElement(identifier)('c')
-  //    |        PsiElement(,)(',')
-  //    |        PsiWhiteSpace(' ')
-  //    |        ImportSelector
-  //    |          CodeReferenceElement: d
-  //    |            PsiElement(identifier)('d')
-  //    |          PsiWhiteSpace(' ')
-  //    |          PsiElement(as)('as')
-  //    |          PsiWhiteSpace(' ')
-  //    |          PsiElement(identifier)('e')
-  //    |        PsiElement(})('}')
-  //    |  PsiWhiteSpace('\n')
-  //    |  ScImportStatement
-  //    |    PsiElement(import)('import')
-  //    |    PsiWhiteSpace(' ')
-  //    |    ImportExpression
-  //    |      CodeReferenceElement: a
-  //    |        PsiElement(identifier)('a')
-  //    |      PsiElement(.)('.')
-  //    |      ImportSelectors
-  //    |        PsiElement({)('{')
-  //    |        ImportSelector
-  //    |          CodeReferenceElement: b
-  //    |            PsiElement(identifier)('b')
-  //    |          PsiWhiteSpace(' ')
-  //    |          PsiElement(=>)('=>')
-  //    |          PsiWhiteSpace(' ')
-  //    |          PsiElement(identifier)('c')
-  //    |        PsiElement(,)(',')
-  //    |        PsiWhiteSpace(' ')
-  //    |        ImportSelector
-  //    |          CodeReferenceElement: d
-  //    |            PsiElement(identifier)('d')
-  //    |          PsiWhiteSpace(' ')
-  //    |          PsiElement(=>)('=>')
-  //    |          PsiWhiteSpace(' ')
-  //    |          PsiElement(identifier)('e')
-  //    |        PsiElement(})('}')
-  //    |  PsiWhiteSpace('\n')
-  //    |""".stripMargin
-  //)
+  def test_imports(): Unit = checkTree(
+    """
+      |import a as b
+      |import a.b
+      |import a.*
+      |import a._
+      |import a.b as c
+      |import a.{b as c, d as e}
+      |import a.{b => c, d => e}
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScImportStatement
+      |    PsiElement(import)('import')
+      |    PsiWhiteSpace(' ')
+      |    ImportExpression
+      |      ImportSelectors
+      |        ImportSelector
+      |          CodeReferenceElement: a
+      |            PsiElement(identifier)('a')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(as)('as')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(identifier)('b')
+      |  PsiWhiteSpace('\n')
+      |  ScImportStatement
+      |    PsiElement(import)('import')
+      |    PsiWhiteSpace(' ')
+      |    ImportExpression
+      |      CodeReferenceElement: a.b
+      |        CodeReferenceElement: a
+      |          PsiElement(identifier)('a')
+      |        PsiElement(.)('.')
+      |        PsiElement(identifier)('b')
+      |  PsiWhiteSpace('\n')
+      |  ScImportStatement
+      |    PsiElement(import)('import')
+      |    PsiWhiteSpace(' ')
+      |    ImportExpression
+      |      CodeReferenceElement: a
+      |        PsiElement(identifier)('a')
+      |      PsiElement(.)('.')
+      |      PsiElement(*)('*')
+      |  PsiWhiteSpace('\n')
+      |  ScImportStatement
+      |    PsiElement(import)('import')
+      |    PsiWhiteSpace(' ')
+      |    ImportExpression
+      |      CodeReferenceElement: a
+      |        PsiElement(identifier)('a')
+      |      PsiElement(.)('.')
+      |      PsiElement(_)('_')
+      |  PsiWhiteSpace('\n')
+      |  ScImportStatement
+      |    PsiElement(import)('import')
+      |    PsiWhiteSpace(' ')
+      |    ImportExpression
+      |      CodeReferenceElement: a
+      |        PsiElement(identifier)('a')
+      |      PsiElement(.)('.')
+      |      ImportSelectors
+      |        ImportSelector
+      |          CodeReferenceElement: b
+      |            PsiElement(identifier)('b')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(as)('as')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(identifier)('c')
+      |  PsiWhiteSpace('\n')
+      |  ScImportStatement
+      |    PsiElement(import)('import')
+      |    PsiWhiteSpace(' ')
+      |    ImportExpression
+      |      CodeReferenceElement: a
+      |        PsiElement(identifier)('a')
+      |      PsiElement(.)('.')
+      |      ImportSelectors
+      |        PsiElement({)('{')
+      |        ImportSelector
+      |          CodeReferenceElement: b
+      |            PsiElement(identifier)('b')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(as)('as')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(identifier)('c')
+      |        PsiElement(,)(',')
+      |        PsiWhiteSpace(' ')
+      |        ImportSelector
+      |          CodeReferenceElement: d
+      |            PsiElement(identifier)('d')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(as)('as')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(identifier)('e')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |  ScImportStatement
+      |    PsiElement(import)('import')
+      |    PsiWhiteSpace(' ')
+      |    ImportExpression
+      |      CodeReferenceElement: a
+      |        PsiElement(identifier)('a')
+      |      PsiElement(.)('.')
+      |      ImportSelectors
+      |        PsiElement({)('{')
+      |        ImportSelector
+      |          CodeReferenceElement: b
+      |            PsiElement(identifier)('b')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(=>)('=>')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(identifier)('c')
+      |        PsiElement(,)(',')
+      |        PsiWhiteSpace(' ')
+      |        ImportSelector
+      |          CodeReferenceElement: d
+      |            PsiElement(identifier)('d')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(=>)('=>')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(identifier)('e')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_given_import(): Unit = checkTree(
+    """
+      |import a.{*, given}
+      |import a.{given, *}
+      |import a.{given, b}
+      |import a.given
+      |import a.{given as g}
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScImportStatement
+      |    PsiElement(import)('import')
+      |    PsiWhiteSpace(' ')
+      |    ImportExpression
+      |      CodeReferenceElement: a
+      |        PsiElement(identifier)('a')
+      |      PsiElement(.)('.')
+      |      ImportSelectors
+      |        PsiElement({)('{')
+      |        ImportSelector
+      |          CodeReferenceElement: *
+      |            PsiElement(identifier)('*')
+      |        PsiElement(,)(',')
+      |        PsiWhiteSpace(' ')
+      |        ImportSelector
+      |          PsiElement(given)('given')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |  ScImportStatement
+      |    PsiElement(import)('import')
+      |    PsiWhiteSpace(' ')
+      |    ImportExpression
+      |      CodeReferenceElement: a
+      |        PsiElement(identifier)('a')
+      |      PsiElement(.)('.')
+      |      ImportSelectors
+      |        PsiElement({)('{')
+      |        ImportSelector
+      |          PsiElement(given)('given')
+      |        PsiElement(,)(',')
+      |        PsiWhiteSpace(' ')
+      |        ImportSelector
+      |          CodeReferenceElement: *
+      |            PsiElement(identifier)('*')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |  ScImportStatement
+      |    PsiElement(import)('import')
+      |    PsiWhiteSpace(' ')
+      |    ImportExpression
+      |      CodeReferenceElement: a
+      |        PsiElement(identifier)('a')
+      |      PsiElement(.)('.')
+      |      ImportSelectors
+      |        PsiElement({)('{')
+      |        ImportSelector
+      |          CodeReferenceElement: given
+      |            PsiElement(identifier)('given')
+      |        PsiElement(,)(',')
+      |        PsiWhiteSpace(' ')
+      |        ImportSelector
+      |          CodeReferenceElement: b
+      |            PsiElement(identifier)('b')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |  ScImportStatement
+      |    PsiElement(import)('import')
+      |    PsiWhiteSpace(' ')
+      |    ImportExpression
+      |      CodeReferenceElement: a.given
+      |        CodeReferenceElement: a
+      |          PsiElement(identifier)('a')
+      |        PsiElement(.)('.')
+      |        PsiElement(identifier)('given')
+      |  PsiWhiteSpace('\n')
+      |  ScImportStatement
+      |    PsiElement(import)('import')
+      |    PsiWhiteSpace(' ')
+      |    ImportExpression
+      |      CodeReferenceElement: a
+      |        PsiElement(identifier)('a')
+      |      PsiElement(.)('.')
+      |      ImportSelectors
+      |        PsiElement({)('{')
+      |        ImportSelector
+      |          CodeReferenceElement: given
+      |            PsiElement(identifier)('given')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(as)('as')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(identifier)('g')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 
   def test_open_and_infix_soft_keywords(): Unit = checkTree(
     """

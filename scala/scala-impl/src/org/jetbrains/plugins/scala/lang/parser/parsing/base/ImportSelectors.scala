@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
+import org.jetbrains.plugins.scala.project.ScalaXSourceFlag
 
 import scala.annotation.tailrec
 
@@ -14,7 +15,26 @@ import scala.annotation.tailrec
 
 
 object ImportSelectors extends ParsingRule {
+  // under -Xsource:3, we allow `given` keyword in import selectors, but only if it also has a wildcard import
+  // example:
+  //   import a.{given, *}
+  private val allowedTokenTextsForGivenImportUnderXSourceFlag = Set(
+    "{", "*", "given", ","
+  )
+
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
+    val parseGivenKeywordInScala2 = builder.features.XSourceFlag != ScalaXSourceFlag.None &&
+      builder.predict { builder =>
+        var hadGiven = false
+        var hadStar = false
+        while (allowedTokenTextsForGivenImportUnderXSourceFlag.contains(builder.getTokenText)) {
+          if (builder.getTokenText == "given") hadGiven = true
+          if (builder.getTokenText == "*") hadStar = true
+          builder.advanceLexer()
+        }
+        hadGiven && hadStar && builder.getTokenType == ScalaTokenTypes.tRBRACE
+      }
+
     val importSelectorMarkers = builder.mark()
     //Look for {
     builder.getTokenType match {
@@ -80,6 +100,14 @@ object ImportSelectors extends ParsingRule {
               importSelectorMarkers.done(ScalaElementType.IMPORT_SELECTORS)
               true
           }
+
+        case _ if parseGivenKeywordInScala2 && builder.getTokenText == "given" =>
+          val importSelector = builder.mark()
+          builder.remapCurrentToken(ScalaTokenType.GivenKeyword)
+          builder.advanceLexer()
+          importSelector.done(ScalaElementType.IMPORT_SELECTOR)
+          parseNext(expectComma = true)
+
         case ScalaTokenTypes.tIDENTIFIER | ScalaTokenType.GivenKeyword | ScalaTokenType.WildcardStar | ScalaTokenTypes.tUNDER =>
           ImportSelector()
           parseNext(expectComma = true)
