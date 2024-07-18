@@ -605,6 +605,7 @@ package object project {
 
     def isSAMEnabled: Boolean = isDefinedInModuleOrProject(_.isSAMEnabled)
 
+    def source3Options: Source3Options = module.fold(Source3Options.none)(_.source3Options)
     def isSource3Enabled: Boolean = isDefinedInModuleOrProject(_.isSource3Enabled)
 
     def isScala3OrSource3Enabled: Boolean = isDefinedInModuleOrProject(m => m.hasScala3 || m.isSource3Enabled)
