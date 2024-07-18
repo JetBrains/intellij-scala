@@ -287,7 +287,7 @@ object ScalaIndentationSyntaxUtils {
     }
   }
 
-  private def precededIndentWhitespace(element: PsiElement): Option[PsiWhiteSpace] =
+  def precededIndentWhitespace(element: PsiElement): Option[PsiWhiteSpace] =
     element.getPrevNonEmptyLeaf match {
       case ws: PsiWhiteSpace if ws.textContains('\n') => Some(ws)
       case _ => None
