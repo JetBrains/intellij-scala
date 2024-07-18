@@ -38,6 +38,7 @@ object ElementAnnotator extends ElementAnnotator[ScalaPsiElement] {
       ScForBindingAnnotator ::
       ScGenericCallAnnotator ::
       ScImportExprAnnotator ::
+      ScInfixElementAnnotator ::
       ScInterpolatedStringLiteralAnnotator ::
       ScStringLiteralAnnotator ::
       ScLongLiteralAnnotator ::
