@@ -134,7 +134,7 @@ object ImportInfo {
     if (qualifier == null)
       return None //ignore invalid imports
 
-    val isSource3 = imp.isSource3OrSource3CrossEnabled
+    val isSource3 = imp.isSource3Enabled
     val importsUsed = ArrayBuffer[ImportUsed]()
     val allNames = mutable.HashSet[String]()
     val singleNames = mutable.HashSet[String]()

@@ -55,7 +55,7 @@ object UsageTracker {
     val importHolders: Iterator[ScImportsHolder] =
       file.depthFirst().filterByType[ScImportsHolder]
 
-    val isSource3 = file.isSource3OrSource3CrossEnabled
+    val isSource3 = file.isSource3Enabled
 
     for {
       importHolder <- importHolders

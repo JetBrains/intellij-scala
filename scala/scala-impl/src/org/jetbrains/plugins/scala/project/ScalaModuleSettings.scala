@@ -123,11 +123,10 @@ private class ScalaModuleSettings private(
     case _ => false
   }
 
-  val hasSource3Flag: Boolean =
-    additionalCompilerOptions.contains("-Xsource:3")
+  val source3Options: Source3Options = Source3Options.fromAdditionalCompilerFlags(additionalCompilerOptions)
 
-  val hasSource3CrossFlag: Boolean =
-    additionalCompilerOptions.contains("-Xsource:3-cross")
+  val isSource3Enabled: Boolean =
+    source3Options.isSource3Enabled
 
   val hasSourceFutureFlag: Boolean =
     additionalCompilerOptions.contains("-source:future") || additionalCompilerOptions.contains("--source:future")
@@ -150,15 +149,12 @@ private class ScalaModuleSettings private(
       case YnoPredefOrNoImports(imports)                         => imports
     }
 
-  def XSourceFlag: ScalaXSourceFlag =
-    if (hasSource3Flag)           ScalaXSourceFlag.XSource3
-    else if (hasSource3CrossFlag) ScalaXSourceFlag.XSource3Cross
-    else                          ScalaXSourceFlag.None
+  def isSource3 = source3Options.isSource3Enabled
 
   val features: SerializableScalaFeatures =
     ScalaFeatures(
       scalaMinorVersion.getOrElse(ScalaVersion.default),
-      XSourceFlag,
+      isSource3 = isSource3,
       hasNoIndentFlag = hasNoIndentFlag,
       hasOldSyntaxFlag = hasOldSyntaxFlag,
       hasDeprecationFlag = hasDeprecationFlag,
