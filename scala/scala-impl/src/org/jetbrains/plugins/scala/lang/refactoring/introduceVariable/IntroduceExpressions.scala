@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
-import com.intellij.codeInspection.{InspectionManager, LocalQuickFixOnPsiElement, ProblemsHolder}
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.{Editor, ScrollType}
@@ -15,7 +14,6 @@ import com.intellij.psi.util.PsiTreeUtil.findElementOfClassAtOffset
 import com.intellij.refactoring.introduce.inplace.OccurrencesChooser
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.codeInspection.parentheses.ScalaUnnecessaryParenthesesInspection
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiModifierListOwnerExt, childOf, executeWriteActionCommand}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -522,22 +520,12 @@ object IntroduceExpressions {
 
   // SCL-20916
   private def removeUnnecessaryParentheses(file: PsiFile, element: PsiElement)(implicit project: Project): Unit = {
-    val isOnTheFly = false
-    val holder = new ProblemsHolder(InspectionManager.getInstance(project), file, isOnTheFly)
-    val inspection = new ScalaUnnecessaryParenthesesInspection
-    val visitor = inspection.buildVisitor(holder, isOnTheFly)
-
     element match {
-      case ScForBinding.expr(e) => visitor.visitElement(e)
-      case v: ScValueOrVariableDefinition => v.expr.foreach(visitor.visitElement)
+      case ScForBinding.expr(e) =>
+        removeUnnecessaryParentheses(file, e)
+      case v: ScValueOrVariableDefinition =>
+        v.expr.foreach(removeUnnecessaryParentheses(file, _))
       case _ =>
-    }
-
-    holder.getResults.forEach { descriptor =>
-      descriptor.getFixes.foreach {
-        case fix: LocalQuickFixOnPsiElement => fix.applyFix()
-        case _ =>
-      }
     }
   }
 }

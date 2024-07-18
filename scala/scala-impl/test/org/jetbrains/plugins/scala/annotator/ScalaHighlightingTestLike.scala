@@ -1,12 +1,16 @@
 package org.jetbrains.plugins.scala.annotator
 
+import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.annotator.hints.AnnotatorHints
-import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, PsiElementExt, StringExt}
+import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestFixture
+import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, PsiElementExt, StringExt, inWriteCommandAction}
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertionsExt
 import org.junit.Assert.fail
+
+import scala.jdk.CollectionConverters.ListHasAsScala
 
 //TODO: use better name for the base class?
 // Current naming is confusing
@@ -159,4 +163,15 @@ trait ScalaHighlightingTestLike extends MatcherAssertionsExt {
   //////////////////////////////////////////////////
   // Annotations extraction logic END
   //////////////////////////////////////////////////
+
+  protected def applyAllQuickFixesWithText(fixText: String): Unit = {
+    val highlights = getFixture.doHighlighting().asScala.toSeq
+    val fixesAll = highlights.flatMap(ScalaQuickFixTestFixture.findRegisteredQuickFixes)
+    val fixes = fixesAll.filter(_.getText == fixText)
+
+    implicit val project: Project = getFixture.getProject
+    inWriteCommandAction {
+      fixes.foreach(_.invoke(project, getFixture.getEditor, getFixture.getFile))
+    }
+  }
 }

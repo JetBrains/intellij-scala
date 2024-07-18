@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.annotator.element
 
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.annotator.ScalaHighlightingTestBase
-import org.jetbrains.plugins.scala.codeInspection.{ScalaAnnotatorQuickFixTestBase, ScalaInspectionBundle, ScalaQuickFixTestFixture}
+import org.jetbrains.plugins.scala.codeInspection.{ScalaAnnotatorQuickFixTestBase, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.inWriteCommandAction
 
 import scala.jdk.CollectionConverters.ListHasAsScala
@@ -77,14 +77,5 @@ class ScReferenceAnnotatorTestBase_Scala3 extends ScReferenceAnnotatorTestBase {
         |foo3()
         |""".stripMargin
     )
-  }
-
-  private def applyAllQuickFixesWithText(fixText: String): Unit = {
-    val highlights = myFixture.doHighlighting().asScala.toSeq
-    val fixesAll = highlights.flatMap(ScalaQuickFixTestFixture.findRegisteredQuickFixes)
-    val fixes = fixesAll.filter(_.getText == fixText)
-    inWriteCommandAction {
-      fixes.foreach(_.invoke(getProject, getEditor, getFile))
-    }
   }
 }

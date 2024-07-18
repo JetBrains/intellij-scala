@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.codeInspection
 
-import com.intellij.codeInspection.{LocalQuickFix, ProblemsHolder}
+import com.intellij.codeInspection.{InspectionManager, LocalQuickFix, LocalQuickFixOnPsiElement, ProblemsHolder}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiFile}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 
@@ -30,4 +32,29 @@ package object parentheses {
     }
   }
 
+  def removeUnnecessaryParentheses(
+    file: PsiFile,
+    element: PsiElement,
+  )(implicit project: Project): Unit = {
+    removeUnnecessaryParentheses(file, Seq(element))
+  }
+
+  def removeUnnecessaryParentheses(
+    file: PsiFile,
+    elements: Seq[PsiElement]
+  )(implicit project: Project): Unit = {
+    val isOnTheFly = false
+    val holder = new ProblemsHolder(InspectionManager.getInstance(project), file, isOnTheFly)
+    val inspection = new ScalaUnnecessaryParenthesesInspection
+    val visitor = inspection.buildVisitor(holder, isOnTheFly)
+
+    elements.foreach(visitor.visitElement)
+
+    holder.getResults.forEach { descriptor =>
+      descriptor.getFixes.foreach {
+        case fix: LocalQuickFixOnPsiElement => fix.applyFix()
+        case _ =>
+      }
+    }
+  }
 }
