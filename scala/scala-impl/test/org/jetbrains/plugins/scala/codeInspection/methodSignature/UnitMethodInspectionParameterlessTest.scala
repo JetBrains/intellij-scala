@@ -5,8 +5,9 @@ import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
 import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 
+//TODO: rename to UnitMethodInspection.Parameterless
 @WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
-class ParameterlessInspectionTest extends ScalaInspectionTestBase {
+class UnitMethodInspectionParameterlessTest extends ScalaInspectionTestBase {
   protected override val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[UnitMethodInspection.Parameterless]
 
