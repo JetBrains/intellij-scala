@@ -5,7 +5,6 @@ import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
-import org.jetbrains.plugins.scala.project.ScalaXSourceFlag
 
 import scala.annotation.tailrec
 
@@ -23,7 +22,7 @@ object ImportSelectors extends ParsingRule {
   )
 
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
-    val parseGivenKeywordInScala2 = builder.features.XSourceFlag != ScalaXSourceFlag.None &&
+    val parseGivenKeywordInScala2 = builder.features.isSource3 &&
       builder.predict { builder =>
         var hadGiven = false
         var hadStar = false
