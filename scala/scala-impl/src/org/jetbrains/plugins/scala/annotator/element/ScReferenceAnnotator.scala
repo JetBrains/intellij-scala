@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.annotator.createFromUsage._
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationHolder, UnresolvedReferenceFixProvider}
 import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportTypeFix
+import org.jetbrains.plugins.scala.codeInspection.methodSignature.ParameterlessAccessInspection
 import org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.ValToVarQuickFix
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
@@ -108,14 +109,6 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
               case _: ScGenericCall =>
               case _: MethodInvocation =>
               case _ if !reference.is[ScInterpolatedPatternPrefix] =>
-                // TODO: In Scala 3 many of the reported problems here are wrong.
-                //       But missing empty argument lists are not reported at all.
-                //       We already disabled ParameterlessAccessInspection.EmptyParenMethod for Scala 3 because
-                //       it's not really a simple code style problem but a full fledged compiler error,
-                //       that should (?) be listed in the list of problems here.
-                //       When that has been implemented it should get a custom error message alá "Missing empty argument list"
-                //       and offer the quickfix AddCallParenthesesQuickFix, that we already refactored out of ParameterlessAccessInspection.
-                //       See SCL-22178 and SCL-22179
                 r.problems.foreach {
                   case MissedParametersClause(_) =>
                     holder.createErrorAnnotation(
@@ -126,6 +119,22 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
                   case _ =>
                 }
               case _ =>
+            }
+          case _ =>
+        }
+      }
+
+      /** Scala 2 is handled in [[org.jetbrains.plugins.scala.codeInspection.methodSignature.ParameterlessAccessInspection.EmptyParenMethod]] */
+      if (reference.isInScala3File) {
+        (reference, targetElement) match {
+          case (refExpr: ScReferenceExpression, f: PsiMethod) =>
+            val inspection = ParameterlessAccessInspection.EmptyParenMethod.InstanceForAnnotator
+            inspection.getMissingEmptyArgumentsErrorWithFix(refExpr, targetElement).foreach { case (element, fix) =>
+              holder.createErrorAnnotation(
+                reference.nameId,
+                ScalaBundle.message("method.name.must.be.called.with.argument", f.name),
+                fix
+              )
             }
           case _ =>
         }

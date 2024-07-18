@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.methodSignature
 import com.intellij.codeInspection.LocalInspectionTool
 import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
 
-class JavaMutatorCallInspectionTest extends ScalaInspectionTestBase {
+class ParameterlessAccessInspectionJavaMutatorTest extends ScalaInspectionTestBase {
   protected override val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[ParameterlessAccessInspection.JavaMutator]
 

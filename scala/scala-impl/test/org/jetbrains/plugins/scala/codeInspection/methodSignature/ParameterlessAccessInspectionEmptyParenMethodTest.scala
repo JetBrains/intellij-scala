@@ -4,16 +4,18 @@ import com.intellij.codeInspection.LocalInspectionTool
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
 
-abstract class EmptyParenMethodCallInspectionTestBase extends ScalaInspectionTestBase {
+/**
+ * Also see related annotator tests [[org.jetbrains.plugins.scala.annotator.element.ScReferenceAnnotatorTestBase]]
+ */
+abstract class ParameterlessAccessInspectionEmptyParenMethodTest extends ScalaInspectionTestBase {
   protected override val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[ParameterlessAccessInspection.EmptyParenMethod]
 
   protected override val description: String =
     ScalaInspectionBundle.message("method.signature.parameterless.access.empty.paren")
-
 }
 
-class EmptyParenMethodCallInspectionTest_Scala2 extends EmptyParenMethodCallInspectionTestBase {
+class ParameterlessAccessInspectionEmptyParenMethodTest_Scala2 extends ParameterlessAccessInspectionEmptyParenMethodTest {
   override def supportedIn(version: ScalaVersion): Boolean = version <= ScalaVersion.Latest.Scala_2
 
   private val hint = ScalaInspectionBundle.message("add.call.parentheses")
@@ -118,7 +120,7 @@ class EmptyParenMethodCallInspectionTest_Scala2 extends EmptyParenMethodCallInsp
   }
 }
 
-class EmptyParenMethodCallInspectionTest_Scala3 extends EmptyParenMethodCallInspectionTestBase {
+class ParameterlessAccessInspectionEmptyParenMethodTest_Scala3 extends ParameterlessAccessInspectionEmptyParenMethodTest {
   override def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3
 
   def test_not_available_in_scala3(): Unit = {

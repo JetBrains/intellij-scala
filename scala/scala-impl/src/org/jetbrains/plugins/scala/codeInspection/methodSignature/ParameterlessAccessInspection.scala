@@ -16,25 +16,47 @@ sealed abstract class ParameterlessAccessInspection extends LocalInspectionTool 
 
   import ParameterlessAccessInspection._
 
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
-    case element if !isValid(element) =>
-    case reference@ScReferenceExpression(method: PsiMethod) if isValid(method) =>
-      val maybeTargetExpression = reference.getParent match {
-        case parent if !isFixable(parent) => None
-        case call: ScGenericCall if !findCall(call) => Some(call)
-        case _: ScGenericCall => None
-        case _ => Some(reference)
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = (element: PsiElement) => {
+    if (isValid(element)) {
+      val errorData = element match {
+        case ref@ScReferenceExpression(target) =>
+          getMissingEmptyArgumentsErrorWithFix(ref, target)
+        case _ =>
+          None
       }
+      errorData.foreach { case (elementToAnnotate, quickFix) =>
+        holder.registerProblem(elementToAnnotate, getDisplayName, quickFix)
+      }
+    }
+  }
 
-      maybeTargetExpression.flatMap(collect(_, reference)).foreach { expr =>
-        holder.registerProblem(reference.nameId, getDisplayName, new AddCallParenthesesQuickFix(expr))
-      }
-    case _ =>
+  def getMissingEmptyArgumentsErrorWithFix(ref: ScReferenceExpression, targetElement: PsiElement): Option[(PsiElement, AddCallParenthesesQuickFix)] =
+    targetElement match {
+      case method: PsiMethod =>
+        if (isApplicableForInspection(method))
+          getMissingEmptyArgumentsFix(ref).map(fix => (ref.nameId, fix))
+        else
+          None
+      case _ =>
+        None
+    }
+
+  private def getMissingEmptyArgumentsFix(ref: ScReferenceExpression): Option[AddCallParenthesesQuickFix] = {
+    val maybeTargetExpression = ref.getParent match {
+      case parent if !isFixable(parent) => None
+      case call: ScGenericCall if !findCall(call) => Some(call)
+      case _: ScGenericCall => None
+      case _ => Some(ref)
+    }
+
+    maybeTargetExpression.flatMap(collect(_, ref)).map { expr =>
+      new AddCallParenthesesQuickFix(expr)
+    }
   }
 
   protected def isValid(element: PsiElement): Boolean = element.isValid
 
-  protected def isValid(method: PsiMethod): Boolean
+  protected def isApplicableForInspection(method: PsiMethod): Boolean
 
   protected def isFixable(parent: PsiElement): Boolean = parent match {
     case _: ScMethodCall |
@@ -57,10 +79,12 @@ object ParameterlessAccessInspection {
       case _ => Some(expression)
     }
 
-    override protected def isValid(method: PsiMethod): Boolean = quickfix.isMutator(method)
+    override protected def isApplicableForInspection(method: PsiMethod): Boolean = quickfix.isMutator(method)
   }
 
   final class EmptyParenMethod extends ParameterlessAccessInspection {
+
+    /** Scala 3 is handled in [[org.jetbrains.plugins.scala.annotator.element.ScReferenceAnnotator.annotateReference]]*/
     override def isAvailableForFile(file: PsiFile): Boolean =
       !file.isScala3 && super.isAvailableForFile(file)
 
@@ -76,9 +100,16 @@ object ParameterlessAccessInspection {
     override protected def isValid(element: PsiElement): Boolean =
       super.isValid(element) && IntentionAvailabilityChecker.checkInspection(this, element)
 
-    override protected def isValid(method: PsiMethod): Boolean = method match {
+    override protected def isApplicableForInspection(method: PsiMethod): Boolean = method match {
       case function: ScFunction =>
-        function.isValid && !function.isInCompiledFile && function.isEmptyParen
+        function.isValid && !function.isInCompiledFile && {
+          //TODO: we might need to review this logic when we implement "mixed using clauses" (SCL-22384, SCL-22190)
+          // For example the type of foo3 here should not be treated as () => Int but as Int with missing () arguments
+          // def foo3(using String)(): Int = 1
+          // foo3
+          val explicitParamClauses = function.paramClauses.clauses.filterNot(_.isImplicit)
+          explicitParamClauses.size == 1 && explicitParamClauses.head.parameters.isEmpty
+        }
       case _ => false
     }
 
@@ -86,6 +117,10 @@ object ParameterlessAccessInspection {
       case _: ScPrefixExpr => false
       case _ => super.isFixable(parent)
     }
+  }
+
+  object EmptyParenMethod {
+    val InstanceForAnnotator = new EmptyParenMethod
   }
 
   @tailrec

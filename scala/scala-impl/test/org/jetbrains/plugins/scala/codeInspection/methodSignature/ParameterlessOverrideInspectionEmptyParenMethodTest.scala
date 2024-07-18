@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.methodSignature
 import com.intellij.codeInspection.LocalInspectionTool
 import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
 
-class EmptyParenMethodInspectionTest extends ScalaInspectionTestBase {
+class ParameterlessOverrideInspectionEmptyParenMethodTest extends ScalaInspectionTestBase {
   protected override val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[ParameterlessOverrideInspection.EmptyParenMethod]
 

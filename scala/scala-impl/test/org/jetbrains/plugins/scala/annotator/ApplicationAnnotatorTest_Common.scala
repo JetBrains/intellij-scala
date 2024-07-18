@@ -364,15 +364,10 @@ class ApplicationAnnotatorTest_3 extends ApplicationAnnotatorTest_Common {
   override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_3
 
   override def testEmptyTrailingParametersClauses(): Unit = {
-    //TODO: this test has wrong expected test data
-    // In Scala 3 empty arguments are mandatory and their absense is considered to be an error
-    // Right now there is an inspection
-    // `org.jetbrains.plugins.scala.codeInspection.methodSignature.ParameterlessAccessInspection.EmptyParenMethod`
-    // which produces warning for Scala 2 but it should be an error in Scala 3
-    // (See SCL-19504 for the details)
-    // We might consider rewriting it as Annotator, or disabling it in Scala 2 and implementing similar logic in annotator for Scala 3
-    // This is something to be discussed
-    assertMessagesText(EmptyTrailingParametersClausesCode, "")
+    assertMessagesText(EmptyTrailingParametersClausesCode,
+      """Error(foo1,Method foo1 must be called with () argument)
+        |""".stripMargin
+    )
   }
 
   override def testNonApplicable_Int(): Unit = {
