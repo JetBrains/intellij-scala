@@ -35,7 +35,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScProjectionTy
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.AccessModifierRenderer
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.isBacktickedName.withoutBackticks
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.BacktickedName.stripBackticks
 import org.jetbrains.plugins.scala.projectView.FileKind
 import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants
 import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants.{PackageObjectClassName, PackageObjectClassPackageSuffix, PackageObjectSingletonClassPackageSuffix}
@@ -279,10 +279,10 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
           case _ => ""
         }
 
-        import ScalaNamesUtil.{isBacktickedName, toJavaName}
+        import ScalaNamesUtil.{BacktickedName, toJavaName}
         val fqn = qualifiedName(DefaultSeparator, forJvmRepresentation = true)(toJavaName)
           .split('.')
-          .map(isBacktickedName(_).orNull)
+          .map(BacktickedName.stripBackticks)
           .mkString(DefaultSeparator)
 
         //We need to handle legacy package object in order we can access it from java like this:
@@ -315,7 +315,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
       case _ if isPackageObject =>
         qualifiedName("", forJvmRepresentation = true)(toJavaName) + PackageObjectClassPackageSuffix
       case _ =>
-        qualifiedName("$", forJvmRepresentation = true)(s => toJavaName(withoutBackticks(s)))
+        qualifiedName("$", forJvmRepresentation = true)(s => toJavaName(stripBackticks(s)))
     }
   }
 
