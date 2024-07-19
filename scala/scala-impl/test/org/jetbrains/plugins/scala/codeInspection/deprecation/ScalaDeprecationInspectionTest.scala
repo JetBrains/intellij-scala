@@ -371,6 +371,26 @@ class ScalaDeprecationInspectionTest extends ScalaDeprecationInspectionTestBase 
        |}
        |""".stripMargin
   )
+
+  def testImplicitClass(): Unit = checkTextHasError(
+    s"""
+       |@deprecated
+       |implicit class Test(i: Int) {
+       |  def test(): Int = 3
+       |}
+       |
+       |1.${START}test$END()
+       |""".stripMargin
+  )
+
+  def testDeprecatedConversion(): Unit = checkTextHasError(
+    s"""
+       |@deprecated
+       |implicit def int2String(i: Int): String = i.toString
+       |
+       |val x: String = 1.${START}substring$END(1, 2)
+       |""".stripMargin
+  )
 }
 
 class ScalaDeprecationInspectionTest_where_deprecatedName_symbol_constructor_is_deprecated extends ScalaDeprecationInspectionTestBase {

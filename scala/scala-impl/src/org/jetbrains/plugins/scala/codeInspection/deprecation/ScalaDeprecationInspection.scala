@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScNewTemplateDefinition, S
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
@@ -26,8 +26,8 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
 
-    def checkDeprecated(result: ScalaResolveResult, elementToHighlight: PsiElement, name: String): Unit =
-      result.element match {
+    def checkDeprecated(element: PsiElement, result: ScalaResolveResult, elementToHighlight: PsiElement, name: String, isImplicitConversion: Boolean): Unit = {
+      element match {
         case param: ScParameter if result.isNamedParameter && !ScalaNamesUtil.equivalent(param.name, name) =>
           param.deprecatedName.foreach { deprecatedName =>
             holder.registerProblem(elementToHighlight, ScalaInspectionBundle.message("parameter.name.is.deprecated", deprecatedName))
@@ -53,10 +53,15 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
 
           deprecatedElement.foreach { deprecatedElement =>
             val message = deprecationMessage(deprecatedElement).getOrElse("")
-            holder.registerProblem(elementToHighlight, ScalaInspectionBundle.message("symbol.name.is.deprecated.with.message", name, message))
+            if (isImplicitConversion) {
+              holder.registerProblem(elementToHighlight, ScalaInspectionBundle.message("implicit.conversion.is.deprecated", name, message))
+            } else {
+              holder.registerProblem(elementToHighlight, ScalaInspectionBundle.message("symbol.name.is.deprecated.with.message", name, message))
+            }
           }
         case _ => ()
       }
+    }
 
     def checkDeprecatedInheritance(result: ScalaResolveResult, elementToHighlight: PsiElement, name: String): Unit = {
       result.getActualElement match {
@@ -101,7 +106,15 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
                 checkDeprecatedInheritance(rr, ref.nameId, ref.refName)
               case _ =>
             }
-            checkDeprecated(rr, ref.nameId, ref.refName)
+            checkDeprecated(rr.element, rr, ref.nameId, ref.refName, isImplicitConversion = false)
+
+            rr.implicitConversion.foreach { convRr =>
+              val element = convRr.element match {
+                case member: ScMember => NullSafe(member.syntheticNavigationElement).getOrElse(member)
+                case _ => convRr.element
+              }
+              checkDeprecated(element, convRr, ref.nameId, convRr.name, isImplicitConversion = true)
+            }
           }
         }
 
