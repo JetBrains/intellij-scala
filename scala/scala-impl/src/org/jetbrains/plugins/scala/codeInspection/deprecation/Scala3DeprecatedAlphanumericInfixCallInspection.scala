@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScInfixTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.{isBacktickedName, isOpCharacter}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.{BacktickedName, isOpCharacter}
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 final class Scala3DeprecatedAlphanumericInfixCallInspection extends LocalInspectionTool {
@@ -64,7 +64,7 @@ object Scala3DeprecatedAlphanumericInfixCallInspection {
   private def infixOKSinceFollowedBy(expr: ScExpression): Boolean = expr.is[ScBlockExpr, ScMatch]
 
   private def isDeprecatedInfix(ref: ScReference): Boolean = ref.refName match {
-    case isBacktickedName(_) => false
+    case BacktickedName(_) => false
     case name if !name.exists(isOpCharacter) =>
       val resolved = ref.resolve()
       resolved != null && !isDeclaredInfix(resolved) && resolved.isInScala3File

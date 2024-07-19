@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod.{getter, setter}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil._
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.isBacktickedName.withoutBackticks
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.BacktickedName.stripBackticks
 
 import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
 
@@ -69,11 +69,11 @@ object PropertyMethods extends Enumeration {
   }
 
   private def javaMethodName(scalaName: String, decoration: String => String): String = {
-    toJavaName(decoration(withoutBackticks(scalaName)))
+    toJavaName(decoration(stripBackticks(scalaName)))
   }
 
   private def scalaMethodName(scalaName: String, decoration: String => String): String =
-    clean(decoration(withoutBackticks(scalaName)))
+    clean(decoration(stripBackticks(scalaName)))
 
   def getPropertyMethod(t: ScTypedDefinition, role: DefinitionRole): Option[PsiMethod] = {
     if (!mayHavePropertyMethod(t, role))

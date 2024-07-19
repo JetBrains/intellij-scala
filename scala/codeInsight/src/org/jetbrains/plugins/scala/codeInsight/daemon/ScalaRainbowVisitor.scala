@@ -51,7 +51,7 @@ final class ScalaRainbowVisitor extends RainbowVisitor {
                        colorKey: TextAttributesKey): HighlightInfo = super.getInfo(
     context,
     rainbowElement,
-    ScalaNamesUtil.isBacktickedName.unapply(name).getOrElse(name),
+    ScalaNamesUtil.BacktickedName.stripBackticks(name),
     colorKey
   )
 

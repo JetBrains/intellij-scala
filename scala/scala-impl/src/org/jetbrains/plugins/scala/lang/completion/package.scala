@@ -272,7 +272,7 @@ package object completion {
 
   private[completion] def dummyIdentifier(file: PsiFile, offset: Int): String = {
     import CompletionUtil.{DUMMY_IDENTIFIER, DUMMY_IDENTIFIER_TRIMMED}
-    import ScalaNamesUtil.isBacktickedName.BackTick
+    import ScalaNamesUtil.BacktickedName.BackTick
     import ScalaNamesValidator._
 
     file.findReferenceAt(offset) match {
@@ -425,10 +425,10 @@ package object completion {
   private class BacktickPrefixMatcher(private val delegate: PrefixMatcher) extends PrefixMatcher(delegate.getPrefix) {
 
     import ScalaNamesUtil._
-    import isBacktickedName._
+    import BacktickedName._
 
     private val backticklessMatcher = delegate.cloneWithPrefix {
-      withoutBackticks(myPrefix)
+      stripBackticks(myPrefix)
     }
 
     override def prefixMatches(name: String): Boolean = {
