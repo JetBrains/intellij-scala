@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
+import com.intellij.codeInsight.lookup.Lookup
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{CommonClassNames, JavaPsiFacade}
@@ -1985,7 +1986,26 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
          |    x.foo2
          |  }
          |}""".stripMargin,
-    item = "foo2")
+    item = "foo2"
+  )
+
+  // SCL-15659
+  def testCompleteInBackticks(): Unit = doCompletionTest(
+    fileText =
+      s"""object Test {
+         |  def `bla ha` = 42
+         |  println(`$CARET`)
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""object Test {
+         |  def `bla ha` = 42
+         |  println(`bla ha`$CARET)
+         |}
+         |""".stripMargin,
+    item = "`bla ha`",
+    char = Lookup.NORMAL_SELECT_CHAR,
+  )
 }
 
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_12))
