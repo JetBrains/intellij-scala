@@ -43,7 +43,7 @@ package object hints {
       }
 
     def camelCaseIterator: Iterator[String] = for {
-      name <- ScalaNamesUtil.isBacktickedName(string).iterator
+      name <- Iterator(ScalaNamesUtil.BacktickedName.stripBackticks(string))
       segment <- name.split("(?<!^)(?=[A-Z])").reverseIterator
     } yield segment.toLowerCase
   }

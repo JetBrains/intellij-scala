@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlo
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createReferenceFromText}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedExpressionPrefix
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 import scala.annotation.tailrec
 
@@ -197,6 +198,15 @@ final class ScalaInsertHandler extends InsertHandler[ScalaLookupItem] {
 
       maybeElement.getOrElse(element)
     }
+
+    // if the inserted element is a backtick identifier, we want to remove the following backtick
+    if (ScalaNamesUtil.BacktickedName.hasBackticks(element.getText)) {
+      val next = element.getNextNonWhitespaceAndNonEmptyLeaf
+      if (next != null && next.textMatches("`")) {
+        document.deleteString(next.startOffset, next.endOffset)
+      }
+    }
+
     if (some) {
       var elem = element
       var parent = elem.getParent

@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.finder.ScalaFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.isBacktickedName.withoutBackticks
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.BacktickedName.stripBackticks
 
 import java.{util => ju}
 
@@ -65,8 +65,8 @@ class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, Referenc
     var names = Set.empty[String]
     val name = elementToSearch.name
     names += name
-    names += withoutBackticks(name)
-    names += withoutBackticks(name).stripPrefix("unary_")
+    names += stripBackticks(name)
+    names += stripBackticks(name).stripPrefix("unary_")
     names
   }
 
