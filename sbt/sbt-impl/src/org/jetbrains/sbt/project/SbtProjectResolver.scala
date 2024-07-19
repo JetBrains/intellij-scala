@@ -83,7 +83,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     @NonNls val importTaskId = s"import:${UUID.randomUUID()}"
     val importTaskDescriptor =
-      new TaskOperationDescriptorImpl(SbtBundle.message("sbt.import.to.intellij.project.model"), System.currentTimeMillis(), "project-model-import")
+      new TaskOperationDescriptor(SbtBundle.message("sbt.import.to.intellij.project.model"), System.currentTimeMillis(), "project-model-import")
 
     val esReporter = new ExternalSystemNotificationReporter(projectRoot.getAbsolutePath, taskId, notifications)
     implicit val reporter: BuildReporter = if (isUnitTestMode) {
@@ -96,7 +96,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     // side-effecty status reporting
     structureDump.foreach { _ =>
-      val convertStartEvent = new ExternalSystemStartEventImpl(importTaskId, null, importTaskDescriptor)
+      val convertStartEvent = new ExternalSystemStartEvent(importTaskId, null, importTaskDescriptor)
       val event = new ExternalSystemTaskExecutionEvent(taskId, convertStartEvent)
       notifications.onStatusChange(event)
     }
@@ -128,11 +128,11 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val endTime = System.currentTimeMillis()
     val resultNode = conversionResult match {
       case Success(_) =>
-        new SuccessResultImpl(startTime, endTime, true)
+        new SuccessResult(startTime, endTime, true)
       case Failure(_) =>
-        new FailureResultImpl(startTime, endTime, Collections.emptyList[ESFailure]) // TODO error list
+        new FailureResult(startTime, endTime, Collections.emptyList[ESFailure]) // TODO error list
     }
-    val convertFinishedEvent = new ExternalSystemFinishEventImpl[TaskOperationDescriptor](
+    val convertFinishedEvent = new ExternalSystemFinishEvent[TaskOperationDescriptor](
       importTaskId, null, importTaskDescriptor, resultNode
     )
     val event = new ExternalSystemTaskExecutionEvent(taskId, convertFinishedEvent)

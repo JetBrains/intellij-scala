@@ -4,7 +4,7 @@ import com.intellij.build.events.MessageEvent.Kind
 import com.intellij.build.events._
 import com.intellij.build.{FilePosition, SyncViewManager}
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.externalSystem.model.task.event.{FailureResult => _, SkippedResult => _, SuccessResult => _, _}
+import com.intellij.openapi.externalSystem.model.task.event.{Failure => ExternalSystemFailure, FailureResult => ExternalSystemFailureResult, SkippedResult => ExternalSystemSkippedResult, SuccessResult => ExternalSystemSuccessResult, _}
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener}
 import org.jetbrains.annotations.{Nls, Nullable}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
@@ -108,13 +108,13 @@ class ExternalSystemNotificationReporter(workingDir: String,
     val taskDescriptor = descriptors.getOrElseUpdate(
       eventId,
       TaskDescriptor(
-        new TaskOperationDescriptorImpl(message, System.currentTimeMillis(), "task-" + Random.nextLong()),
+        new TaskOperationDescriptor(message, System.currentTimeMillis(), "task-" + Random.nextLong()),
         parent
       )
     )
 
     val startEvent =
-      new ExternalSystemStartEventImpl[TaskOperationDescriptor](eventId.id, parent.map(_.id).orNull, taskDescriptor.descriptor)
+      new ExternalSystemStartEvent[TaskOperationDescriptor](eventId.id, parent.map(_.id).orNull, taskDescriptor.descriptor)
     val statusEvent =
       new ExternalSystemTaskExecutionEvent(taskId, startEvent)
     notifications.onStatusChange(statusEvent)
@@ -122,7 +122,7 @@ class ExternalSystemNotificationReporter(workingDir: String,
 
   override def progressTask(eventId: EventId, total: Long, progress: Long, unit: String, message: String, time: Long = System.currentTimeMillis()): Unit = {
     descriptors.get(eventId).foreach { taskDescriptor =>
-      val progressEvent = new ExternalSystemStatusEventImpl[TaskOperationDescriptor](
+      val progressEvent = new ExternalSystemStatusEvent[TaskOperationDescriptor](
         eventId.id, taskDescriptor.parent.map(_.id).orNull, taskDescriptor.descriptor, total, progress, unit
       )
       val statusEvent = new ExternalSystemTaskExecutionEvent(taskId, progressEvent)
@@ -138,17 +138,17 @@ class ExternalSystemNotificationReporter(workingDir: String,
 
         val resultObject = result match {
           case _: SuccessResult =>
-            new SuccessResultImpl(startTime, time, true)
+            new ExternalSystemSuccessResult(startTime, time, true)
           case result: FailureResult =>
             val fails = result.getFailures.asScala.map(convertFailure).asJava
-            new FailureResultImpl(startTime, time, fails)
+            new ExternalSystemFailureResult(startTime, time, fails)
           case _: SkippedResult =>
-            new SkippedResultImpl(startTime, time)
+            new ExternalSystemSkippedResult(startTime, time)
           case _ => // unknown or unhandled result type
-            new SkippedResultImpl(startTime, time)
+            new ExternalSystemSkippedResult(startTime, time)
         }
 
-        val finishEvent = new ExternalSystemFinishEventImpl[TaskOperationDescriptor](
+        val finishEvent = new ExternalSystemFinishEvent[TaskOperationDescriptor](
           eventId.id, taskDescriptor.parent.map(_.id).orNull, taskDescriptor.descriptor, resultObject)
         val statusEvent = new ExternalSystemTaskExecutionEvent(taskId, finishEvent)
         notifications.onStatusChange(statusEvent)
@@ -157,7 +157,7 @@ class ExternalSystemNotificationReporter(workingDir: String,
 
   override def clear(file: File): Unit = ()
 
-  private def event(@Nls message: String, kind: MessageEvent.Kind, position: Option[FilePosition], @Nls @Nullable details: String)=
+  private def event(@Nls message: String, kind: MessageEvent.Kind, position: Option[FilePosition], @Nls @Nullable details: String) =
     BuildMessages.message(taskId, message, kind, position, eventTime = System.currentTimeMillis, details)
 }
 
@@ -171,9 +171,8 @@ object ExternalSystemNotificationReporter {
     case t: Throwable => new Exception(t)
   }
 
-  private def convertFailure(fail: com.intellij.build.events.Failure):
-  com.intellij.openapi.externalSystem.model.task.event.Failure = {
+  private def convertFailure(fail: com.intellij.build.events.Failure): ExternalSystemFailure = {
     val causes = fail.getCauses.asScala.map(convertFailure).asJava
-    new FailureImpl(fail.getMessage, fail.getDescription, causes)
+    new ExternalSystemFailure(fail.getMessage, fail.getDescription, causes)
   }
 }
