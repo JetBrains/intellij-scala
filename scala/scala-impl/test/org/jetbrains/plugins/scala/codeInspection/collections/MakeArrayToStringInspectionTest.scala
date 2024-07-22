@@ -114,4 +114,21 @@ class MakeArrayToStringInspectionTest extends OperationsOnCollectionInspectionTe
         |"test" + a.mkString("Array(", ", ", ")")
       """.stripMargin)
   }
+
+  // #SCL-22875
+  def testInCustomStringInterpolator(): Unit = {
+    checkTextHasNoErrors(
+      s"""
+         |val a = Array(3)
+         |myInterpolator"before $$a after"
+       """.stripMargin
+    )
+
+    checkTextHasNoErrors(
+      s"""
+         |val a = Array(3)
+         |myInterpolator"before $${a} after"
+       """.stripMargin
+    )
+  }
 }
