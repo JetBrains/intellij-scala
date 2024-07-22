@@ -35,7 +35,7 @@ object MakeArrayToStringInspection extends SimplificationType {
         def result: SimplificationBuilder = replace(expr).withText(invocationText(expr, mkString)).highlightFrom(expr)
 
         expr.getParent match {
-          case _: ScInterpolatedStringLiteral =>
+          case lit: ScInterpolatedStringLiteral if isInBuiltinStringInterpolator(lit) =>
             // s"start $array end"
             Some(result.wrapInBlock())
           case null => None
@@ -47,7 +47,7 @@ object MakeArrayToStringInspection extends SimplificationType {
               case `print` (args@_*) if args.contains(expr) =>
                 // println(array)
                 Some(result)
-              case _: ScInterpolatedStringLiteral =>
+              case lit: ScInterpolatedStringLiteral if isInBuiltinStringInterpolator(lit) =>
                 // s"start ${array} end"
                 Some(result)
               case _ => None
@@ -57,4 +57,9 @@ object MakeArrayToStringInspection extends SimplificationType {
         None
     }
   }
+
+  private val builtinStringInterpolators = Set("s", "f", "raw")
+
+  private def isInBuiltinStringInterpolator(lit: ScInterpolatedStringLiteral): Boolean =
+    builtinStringInterpolators.contains(lit.referenceName)
 }
