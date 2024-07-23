@@ -117,7 +117,6 @@ lazy val sbtApi =
     .dependsOn(scalaApi, compilerShared, workspaceEntities)
     .enablePlugins(BuildInfoPlugin)
     .settings(
-      ideExcludedDirectories := Seq(baseDirectory.value / "target"),
       buildInfoPackage := "org.jetbrains.sbt.buildinfo",
       buildInfoKeys := Seq(
         "sbtStructureVersion" -> Versions.sbtStructureVersion,
@@ -666,8 +665,7 @@ lazy val bsp =
       intellijPlugins += "org.jetbrains.plugins.terminal".toPlugin,
       buildInfoPackage := "org.jetbrains.bsp.buildinfo",
       buildInfoKeys := Seq("bloopVersion" -> Versions.bloopVersion),
-      buildInfoOptions += BuildInfoOption.ConstantValue,
-      ideExcludedDirectories := Seq(baseDirectory.value / "target")
+      buildInfoOptions += BuildInfoOption.ConstantValue
     )
 
 // Integration with other IDEA plugins
