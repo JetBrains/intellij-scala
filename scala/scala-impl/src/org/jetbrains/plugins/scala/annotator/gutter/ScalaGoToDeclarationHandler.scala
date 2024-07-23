@@ -175,7 +175,7 @@ object ScalaGoToDeclarationHandler {
       case _ => return null
     }
 
-    val targetsFinal = targets.flatMap(syntheticTargetOrSelf)
+    val targetsFinal = targets.flatMap(targetOfSyntheticElementOrSelf)
     targetsFinal.toArray
   }
 
@@ -242,13 +242,13 @@ object ScalaGoToDeclarationHandler {
 
   import ScalaPsiUtil.{getCompanionModule, parameterForSyntheticParameter}
 
-  def syntheticTargetOrSelf(element: PsiElement): Seq[PsiElement] = {
-    val syntheticTargets = syntheticTarget(element)
+  def targetOfSyntheticElementOrSelf(element: PsiElement): Seq[PsiElement] = {
+    val syntheticTargets = targetOfSyntheticElement(element)
     if (syntheticTargets.isEmpty) Seq(element)
     else syntheticTargets
   }
 
-  private def syntheticTarget(element: PsiElement): Seq[PsiElement] =
+  private def targetOfSyntheticElement(element: PsiElement): Seq[PsiElement] =
     element match {
       case ScGivenDefinition.DesugaredTypeDefinition(gvn)         => Seq(gvn)
       case function: ScFunction                                   => Option(function.syntheticNavigationElement).toSeq

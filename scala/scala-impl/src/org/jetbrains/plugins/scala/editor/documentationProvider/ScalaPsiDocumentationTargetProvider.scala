@@ -35,7 +35,7 @@ class ScalaPsiDocumentationTargetProvider extends PsiDocumentationTargetProvider
         // if a reference under the caret is resolved to a single element,
         // it will be handled by the platform, and we will get the resolved element here
         val results = ref.multiResolveScala(false)
-        results.flatMap(r => ScalaGoToDeclarationHandler.syntheticTargetOrSelf(r.element))
+        results.flatMap(r => ScalaGoToDeclarationHandler.targetOfSyntheticElementOrSelf(r.element))
           .distinct
           .toSeq
       case _ =>
