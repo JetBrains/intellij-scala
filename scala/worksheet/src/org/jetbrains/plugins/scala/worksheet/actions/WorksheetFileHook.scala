@@ -193,7 +193,7 @@ object WorksheetFileHook {
           }
         }
 
-        val controlPanel = new WorksheetControlPanel()
+        val controlPanel = new WorksheetControlPanel(editor.getComponent)
         val actions: ju.List[AnAction] = ju.List.of(new WorksheetReplRunAction)
         ClientProperty.put(editor.getComponent, AnAction.ACTIONS_KEY, actions)
         file2panel.put(file, controlPanel)

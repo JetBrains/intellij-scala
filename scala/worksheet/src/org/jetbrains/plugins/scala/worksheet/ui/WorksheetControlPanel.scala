@@ -12,7 +12,7 @@ import javax.swing._
 import scala.util.chaining.scalaUtilChainingOps
 
 // TODO: check if Scala Plugin is unloadable if there are some worksheets with initialized top panel UI
-final class WorksheetControlPanel extends JPanel {
+final class WorksheetControlPanel(editorComponent: JComponent) extends JPanel {
 
   private val statusDisplay = new InteractiveStatusDisplay()
   private val runAction = new RunWorksheetAction()
@@ -42,7 +42,7 @@ final class WorksheetControlPanel extends JPanel {
       extraActions.foreach(group.add)
     }
     val leftToolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.EDITOR_TOOLBAR, leftToolbarGroup, true)
-    leftToolbar.setTargetComponent(panel)
+    leftToolbar.setTargetComponent(editorComponent)
 
     panel.add(leftToolbar.getComponent)
     panel.add(Box.createHorizontalGlue())
