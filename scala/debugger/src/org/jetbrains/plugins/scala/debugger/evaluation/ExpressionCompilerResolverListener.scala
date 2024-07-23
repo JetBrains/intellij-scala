@@ -55,5 +55,5 @@ private final class ExpressionCompilerResolverListener(project: Project) extends
 private object ExpressionCompilerResolverListener {
   final val ExpressionCompilers: Key[Map[ScalaVersion, Path]] = Key.create("scala_debugger_expression_compilers")
 
-  final val ScalaExpressionCompilerVersion = "4.0.4"
+  final val ScalaExpressionCompilerVersion = "4.2.0"
 }
