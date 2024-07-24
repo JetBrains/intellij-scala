@@ -378,6 +378,7 @@ lazy val scalaImpl: sbt.Project =
         Dependencies.intellijExternalSystemTestFramework % Test,
         //for PlatformTestUtil.newPerformanceTest
         Dependencies.intellijIdeMetricsBenchmark % Test,
+        Dependencies.intellijIdeMetricsCollector % Test,
         Dependencies.intellijIdeUtilCommon % Test,
       ),
       resolvers += Versions.intellijRepository_ForManagedIntellijDependencies,
