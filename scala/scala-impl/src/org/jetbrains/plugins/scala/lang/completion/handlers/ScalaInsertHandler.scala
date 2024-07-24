@@ -138,7 +138,7 @@ final class ScalaInsertHandler extends InsertHandler[ScalaLookupItem] {
     val InsertionContextExt(editor, document, file, project) = context
     val model = editor.getCaretModel
 
-    var (startOffset, endOffset) = {
+    val (originalStartOffset, originalEndOffset) = {
       val startOffset = context.getStartOffset
       val tailOffset = context.getTailOffset
 
@@ -162,6 +162,8 @@ final class ScalaInsertHandler extends InsertHandler[ScalaLookupItem] {
       } else (startOffset, tailOffset)
     }
 
+    var endOffset = originalEndOffset
+
     val completionChar = context.getCompletionChar
 
     def disableParenthesesCompletionChar(): Unit = {
@@ -170,15 +172,12 @@ final class ScalaInsertHandler extends InsertHandler[ScalaLookupItem] {
       }
     }
 
-    val some = item.someSmartCompletion
-    val someNum = if (some) 1 else 0
-
     val element = {
       // InsertionContext::getFile returns wrong file in evaluate expression in debugger (runtime type completion)
       val element = PsiDocumentManager
         .getInstance(project)
         .getPsiFile(document)
-        .findElementAt(startOffset)
+        .findElementAt(originalStartOffset)
 
       val maybeElement = if (completionChar == '\t' &&
         item.getAllLookupStrings.size() > 1 &&
@@ -200,12 +199,23 @@ final class ScalaInsertHandler extends InsertHandler[ScalaLookupItem] {
     }
 
     // if the inserted element is a backtick identifier, we want to remove the following backtick
-    if (ScalaNamesUtil.BacktickedName.hasBackticks(element.getText)) {
+    val newElementHasBackticks = ScalaNamesUtil.BacktickedName.hasBackticks(item.getLookupString)
+    if (item.isInStableElementPattern || newElementHasBackticks) {
       val next = element.getNextNonWhitespaceAndNonEmptyLeaf
       if (next != null && next.textMatches("`")) {
         document.deleteString(next.startOffset, next.endOffset)
       }
     }
+
+    // if the inserted element is not a backtick identifier, but it was in a StableElementPattern, we want to add backticks
+    if (item.isInStableElementPattern && !newElementHasBackticks) {
+      document.insertString(element.endOffset, "`")
+      document.insertString(element.startOffset, "`")
+      endOffset += 2
+    }
+
+    val some = item.someSmartCompletion
+    val someNum = if (some) 1 else 0
 
     if (some) {
       var elem = element
@@ -232,14 +242,11 @@ final class ScalaInsertHandler extends InsertHandler[ScalaLookupItem] {
       val end = elem.getTextRange.getEndOffset
       document.insertString(end, ")")
       document.insertString(start, "Some(")
-      startOffset += 5
       endOffset += 5
     }
 
     def moveCaretIfNeeded(): Unit = {
-      if (some) {
-        model.moveToOffset(endOffset + 1)
-      }
+      model.moveToOffset(endOffset + someNum)
     }
 
     /**

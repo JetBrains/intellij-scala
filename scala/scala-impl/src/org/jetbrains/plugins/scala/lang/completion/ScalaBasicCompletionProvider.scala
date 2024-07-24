@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaModifier, ScalaTokenTypes}
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.StableReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.adjustTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
@@ -215,6 +216,9 @@ object ScalaBasicCompletionProvider {
     private val isInImport = completion.isInImport(getPlace)
     private val isInTypeElement = completion.isInTypeElement(getPlace)
     private val isInStableCodeReference = getPlace.isInstanceOf[ScStableCodeReference]
+    private val isInStableElementPattern =
+      Option(getPlace.getContext).exists(_.elementType == StableReferencePattern) &&
+        getPlace.textContains('`')
 
     final def lookupElements(): Seq[LookupElement] = {
       ProgressManager.checkCanceled()
@@ -244,7 +248,8 @@ object ScalaBasicCompletionProvider {
         isInStableCodeReference = isInStableCodeReference,
         isLocalVariable = isLocalVariable,
         isInSimpleString = isInSimpleString,
-        isInInterpolatedString = isInInterpolatedString
+        isInInterpolatedString = isInInterpolatedString,
+        isInStableElementPattern = isInStableElementPattern,
       )
     }
 
