@@ -53,10 +53,18 @@ private object LazyValDescriptor {
     val bitmapIndex = index / 32
     val bitmapExponent = index % 32
     val bitmapName = s"${bitmapIndex}bitmap$$"
-    val bitmapField = allFields.find(_.name().contains(bitmapName)).getOrElse(throw EvaluationException(DebuggerBundle.message("could.not.find.bitmap.field", bitmapName)))
-    val bitmapValue = ref.getValue(bitmapField).asInstanceOf[PrimitiveValue].longValue()
-    val bitmapMask = (1L << bitmapExponent) + (1L << (bitmapExponent + 1))
-    (bitmapValue & bitmapMask) == bitmapMask
+    val bitmapField = allFields.find(_.name().contains(bitmapName))
+
+    bitmapField match {
+      case Some(bitmap) =>
+        // Old lazy val encoding, Scala 3.0, 3.1 and 3.2
+        val bitmapValue = ref.getValue(bitmap).asInstanceOf[PrimitiveValue].longValue()
+        val bitmapMask = (1L << bitmapExponent) + (1L << (bitmapExponent + 1))
+        (bitmapValue & bitmapMask) == bitmapMask
+      case None =>
+        // New lazy val encoding, Scala 3.3+
+        ref.getValue(field) ne null
+    }
   }
 
   private def findInitializerScala2(field: Field, allMethods: mutable.Buffer[Method]): Method = {
@@ -75,7 +83,7 @@ private class FieldLazyValDescriptor(project: Project, ref: ObjectReference, fie
 
   override def getName: String = init.name()
 
-  override def getType: Type = field.`type`()
+  override def getType: Type = init.returnType()
 
   override def getRenderer(process: DebugProcessImpl): CompletableFuture[NodeRenderer] =
     getRenderer(getType, process)
@@ -87,7 +95,7 @@ private final class NotInitializedFieldLazyValDescriptor(project: Project, ref: 
   OnDemandRenderer.ON_DEMAND_CALCULATED.set(this, false)
   setOnDemandPresentationProvider { node =>
     node.setFullValueEvaluator(OnDemandRenderer.createFullValueEvaluator(DebuggerBundle.message("initialize.lazy.val")))
-    val typeName = field.typeName()
+    val typeName = init.returnTypeName()
     node.setPresentation(icon, typeName, DebuggerBundle.message("lazy.val.not.initialized"), false)
   }
 
