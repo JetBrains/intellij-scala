@@ -29,7 +29,6 @@ import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.settings.CompilerIndicesSettings
 import org.jetbrains.plugins.scala.util.ImplicitUtil._
 import org.jetbrains.sbt.project.settings.CompilerMode
-import org.jetbrains.sbt.shell.SbtShellCommunication
 
 import java.awt.{List => _}
 import java.util.concurrent.locks.ReentrantLock
@@ -110,13 +109,12 @@ object CompilerIndicesReferencesSearcher extends ExternalSearchScopeChecker {
           val manager = ProjectTaskManager.getInstance(project)
           runSearchAfterIndexingFinishedAsync(modules, project, target)
           manager.build(modules.toArray: _*)
+          false
         case (CompilerMode.SBT, _) =>
-          runSearchAfterIndexingFinishedAsync(modules, project, target)
-          val shell = SbtShellCommunication.forProject(project)
-          shell.command("rebuildIdeaIndices")
+          // SCL-22858 compiler bytecode indices are disabled in sbt shell
+          // returning `true` means proceed with the search (which will return no results)
+          true
       }
-
-      false
     }
   }
 
@@ -125,13 +123,21 @@ object CompilerIndicesReferencesSearcher extends ExternalSearchScopeChecker {
     project: Project,
     modules: Set[Module]
   ) extends BeforeIndicesSearchAction {
-    override def runAction(): Boolean =
-      if (modules.nonEmpty) {
-        val manager = ProjectTaskManager.getInstance(project)
-        runSearchAfterIndexingFinishedAsync(modules, project, target)
-        manager.build(modules.toArray: _*)
-        false
-      } else true
+    override def runAction(): Boolean = {
+      ScalaCompilerReferenceService(project).inTransaction {
+        case (CompilerMode.JPS, _) =>
+          if (modules.nonEmpty) {
+            val manager = ProjectTaskManager.getInstance(project)
+            runSearchAfterIndexingFinishedAsync(modules, project, target)
+            manager.build(modules.toArray: _*)
+            false
+          } else true
+        case (CompilerMode.SBT, _) =>
+          // SCL-22858 compiler bytecode indices are disabled in sbt shell
+          // returning `true` means proceed with the search (which will return no results)
+          true
+      }
+    }
   }
 
   private[this] val lock                      = new ReentrantLock()
@@ -219,8 +225,13 @@ object CompilerIndicesReferencesSearcher extends ExternalSearchScopeChecker {
     } else {
       val (dirtyModules, upToDateModules) = dirtyModulesInDependencyChain(target)
       val validIndexExists                = upToDateCompilerIndexExists(project, ScalaCompilerIndices.version)
+      // SCL-22858 compiler bytecode indices are disabled in sbt shell
+      // No need to show the rebuild suggestion dialog, as it does nothing.
+      val shouldShowDialog = service.inTransaction {
+        case (compilerMode, _) => compilerMode == CompilerMode.JPS
+      }
 
-      if (dirtyModules.nonEmpty || !validIndexExists) {
+      if (shouldShowDialog && (dirtyModules.nonEmpty || !validIndexExists)) {
         var action: Option[BeforeIndicesSearchAction] = None
 
         val dialogAction =

@@ -271,7 +271,6 @@ final private[references] class ScalaCompilerReferenceService(project: Project) 
     }
 
     new JpsCompilationWatcher(project, transactionManager).start()
-    new SbtCompilationWatcher(project, transactionManager, ScalaCompilerReferenceReaderFactory.expectedIndexVersion).start()
 
     dirtyScopeHolder.markProjectAsOutdated()
     dirtyScopeHolder.installVFSListener(this)
