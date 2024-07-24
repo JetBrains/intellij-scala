@@ -150,7 +150,6 @@
                              key="scala.project.settings.form.tabs.extensions"
                              instance="org.jetbrains.plugins.scala.settings.sections.ExtensionSettingsSectionConfigurable"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.settings.CompilerIndicesSettings"/>
-        <applicationService serviceImplementation="org.jetbrains.plugins.scala.settings.CompilerIndicesSbtSettings"/>
 
         <errorHandler implementation="org.jetbrains.plugins.scala.ScalaErrorReportSubmitter"/>
         <autoImportOptionsProvider instance="org.jetbrains.plugins.scala.editor.autoimport.ScalaAutoImportOptionsProvider"/>

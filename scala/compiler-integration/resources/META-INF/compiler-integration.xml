@@ -49,11 +49,8 @@
 
         <editorFactoryListener implementation="org.jetbrains.plugins.scala.compiler.highlighting.CompilerHighlightingEditorFactoryListener"/>
 
-        <applicationService serviceImplementation="org.jetbrains.plugins.scala.compiler.references.compilation.SbtCompilationSupervisor"/>
-
         <postStartupActivity implementation="org.jetbrains.plugins.scala.compiler.highlighting.CompilerHighlightingSetupActivity"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.compiler.references.ScalaCompilerReferenceService$Startup"/>
-        <postStartupActivity implementation="org.jetbrains.plugins.scala.compiler.references.compilation.SbtCompilationSupervisor$Activity"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.compiler.charts.ui.CompilationChartsBuildToolWindowNodeFactory" />
     </extensions>
 

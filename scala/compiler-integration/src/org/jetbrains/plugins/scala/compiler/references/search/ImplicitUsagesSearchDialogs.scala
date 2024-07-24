@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.compiler.CompilerIntegrationBundle
 import org.jetbrains.plugins.scala.findUsages.UsageType
 import org.jetbrains.plugins.scala.compiler.references.ScalaCompilerReferenceService
 import org.jetbrains.plugins.scala.compiler.references.settings.CompilerIndicesConfigurable
-import org.jetbrains.plugins.scala.settings.{CompilerIndicesSbtSettings, CompilerIndicesSettings}
+import org.jetbrains.plugins.scala.settings.CompilerIndicesSettings
 
 import java.awt.FlowLayout
 import java.awt.event.ActionEvent
@@ -84,7 +84,7 @@ private object ImplicitUsagesSearchDialogs {
     private[this] val shouldCompileCB = {
       val checkBox = new JBCheckBox(
         CompilerIntegrationBundle.message("bytecode.indices.precompile"),
-        !CompilerIndicesSbtSettings().useManualConfiguration)
+        true)
       checkBox.setMnemonic('P')
       checkBox
     }
