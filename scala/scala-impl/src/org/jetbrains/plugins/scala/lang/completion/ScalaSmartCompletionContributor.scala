@@ -27,6 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
@@ -499,24 +500,29 @@ object ScalaSmartCompletionContributor {
                 case Some(scEnum: ScEnum) =>
                   if (isAccessible(scEnum)) {
                     val cases = scEnum.cases
-                    cases.foreach { enumCase =>
+                    // cases that are already in scope will be added by ScalaBasicCompletionContributor (SCL-22855)
+                    val casesFiltered = cases.filterNot(isAccessibleWithoutExtraImports(_))
+                    casesFiltered.foreach { enumCase =>
                       applyVariant(createLookupElement(enumCase, scEnum))
                     }
                   }
                 case Some(javaEnum@JavaEnum(fields)) if isAccessible(javaEnum) =>
-                  fields.foreach(field => applyVariant(createLookupElementWithPrefix(field, javaEnum)))
+                  val fieldsFiltered = fields.filterNot(isAccessibleWithoutExtraImports(_))
+                  fieldsFiltered.foreach(field => applyVariant(createLookupElementWithPrefix(field, javaEnum)))
                 case cls =>
                   val valueType = tp.extractDesignatorSingleton.getOrElse(tp)
                   valueType match {
                     case ScProjectionType(DesignatorOwner(enumeration@ScalaEnumeration(vals)), _) if isAccessible(enumeration) =>
                       val applicableVals = vals.filter(v => isAccessible(v) && v.`type`().exists(_.conforms(valueType)))
                       val fields = applicableVals.flatMap(_.declaredElements)
-                      fields.foreach(field => applyVariant(createLookupElementWithPrefix(field, enumeration)))
+                      val fieldsFiltered = fields.filterNot(isAccessibleWithoutExtraImports(_))
+                      fieldsFiltered.foreach(field => applyVariant(createLookupElementWithPrefix(field, enumeration)))
                     case _ =>
                       cls match {
                         // SCL-21582
                         case Some(sealedClass@SealedClassInheritors(cases)) if isAccessible(sealedClass) =>
-                          cases.foreach { c =>
+                          val casesFiltered = cases.filterNot(isAccessibleWithoutExtraImports(_))
+                          casesFiltered.foreach { c =>
                             applyVariant(createLookupElement(c, sealedClass))
                           }
                         case _ =>
@@ -629,6 +635,12 @@ object ScalaSmartCompletionContributor {
     )
 
     lookupElement
+  }
+
+  private[this] def isAccessibleWithoutExtraImports(element: PsiNamedElement)(implicit place: PsiElement): Boolean = {
+    val ref = ScalaPsiElementFactory.createReferenceExpressionFromText(element.name)
+    ref.context = place.getContext
+    ref.resolve() == element
   }
 
   private[this] def isAccessible(item: ScalaLookupItem)
