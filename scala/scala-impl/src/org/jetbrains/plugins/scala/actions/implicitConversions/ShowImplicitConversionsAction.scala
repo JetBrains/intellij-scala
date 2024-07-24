@@ -12,6 +12,7 @@ import com.intellij.psi.util.PsiUtilBase
 import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBList
 import com.intellij.util.Alarm
+import kotlinx.coroutines.CoroutineScope
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.actions.{GoToImplicitConversionAction, MakeExplicitAction, Parameters, ScalaActionUtil}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
@@ -27,7 +28,7 @@ import javax.swing._
 import javax.swing.border.Border
 import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 
-final class ShowImplicitConversionsAction extends AnAction(
+final class ShowImplicitConversionsAction(cs: CoroutineScope) extends AnAction(
   ScalaBundle.message("implicit.conversions.action.text"),
   ScalaBundle.message("implicit.conversions.action.description"),
   AllIcons.Actions.IntentionBulb,
@@ -36,7 +37,7 @@ final class ShowImplicitConversionsAction extends AnAction(
   import MakeExplicitAction._
 
   private var hint: LightBulbHint = _
-  private val hintAlarm: Alarm = new Alarm
+  private val hintAlarm: Alarm = new Alarm(cs, Alarm.ThreadToUse.SWING_THREAD)
 
   override def update(e: AnActionEvent): Unit =
     ScalaActionUtil.enableAndShowIfInScalaFile(e)

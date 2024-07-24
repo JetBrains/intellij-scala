@@ -38,7 +38,7 @@ abstract class TypingTestWithPerformanceTestBase extends ScalaFixtureTestCase {
     }
 
     PlatformTestUtil
-      .newPerformanceTest(testName, testBody)
+      .newBenchmark(testName, testBody)
       .start()
   }
 

@@ -355,7 +355,7 @@ class ScalaTextExtractorTest extends BasePlatformTestCase {
     val comment = assertInstanceOf(file.findElementAt(10), classOf[PsiComment])
     val builder = TextContentBuilder.FromPsi.removingIndents(" ")
 
-    PlatformTestUtil.newPerformanceTest("TextContent building with indent removing", () => {
+    PlatformTestUtil.newBenchmark("TextContent building with indent removing", () => {
       assertEquals(expected, builder.build(comment, TextContent.TextDomain.COMMENTS).toString)
     }).start()
   }
@@ -366,7 +366,7 @@ class ScalaTextExtractorTest extends BasePlatformTestCase {
     val file = myFixture.configureByText("dummy.scala", "/**\n" + text + "*/")
     val comment = PsiTreeUtil.findElementOfClassAtOffset(file, 10, classOf[PsiDocComment], false)
     val extractor = new ScalaTextExtractor
-    PlatformTestUtil.newPerformanceTest("TextContent building with HTML removal", () => {
+    PlatformTestUtil.newBenchmark("TextContent building with HTML removal", () => {
       assertEquals(expected, extractor.buildTextContent(comment, TextContent.TextDomain.ALL).toString)
     }).start()
   }
@@ -378,7 +378,7 @@ class ScalaTextExtractorTest extends BasePlatformTestCase {
     val file = myFixture.configureByText("dummy.scala", "class C { String s = \"\"\"\n" + text + "\"\"\"; }")
     val literal = PsiTreeUtil.findElementOfClassAtOffset(file, 100, classOf[ScStringLiteral], false)
     val extractor = new ScalaTextExtractor
-    PlatformTestUtil.newPerformanceTest("TextContent building from a long text fragment", () => {
+    PlatformTestUtil.newBenchmark("TextContent building from a long text fragment", () => {
       assertEquals(expected, extractor.buildTextContent(literal, TextContent.TextDomain.ALL).toString)
     }).start()
   }
@@ -389,7 +389,7 @@ class ScalaTextExtractorTest extends BasePlatformTestCase {
     val file = myFixture.configureByText("dummy.scala", text)
     val extractor = new ScalaTextExtractor
     val tag = PsiTreeUtil.findElementOfClassAtOffset(file, text.indexOf("something"), classOf[PsiDocTag], false)
-    PlatformTestUtil.newPerformanceTest("TextContent building from complex PSI", () => {
+    PlatformTestUtil.newBenchmark("TextContent building from complex PSI", () => {
       for (_ <- 0 until 10) {
         val content = extractor.buildTextContent(tag, TextContent.TextDomain.ALL)
         assertEquals("something if  is not too expensive", content.toString)
