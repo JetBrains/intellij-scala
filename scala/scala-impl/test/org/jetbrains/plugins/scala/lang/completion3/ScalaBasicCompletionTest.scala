@@ -681,11 +681,11 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
          |}
       """.stripMargin,
     resultText =
-      """
-        |object Test extends App {
-        |  Thread.`yield`()
-        |}
-      """.stripMargin,
+      s"""
+         |object Test extends App {
+         |  Thread.`yield`()$CARET
+         |}
+         """.stripMargin,
     item = "`yield`"
   )
 
@@ -1386,10 +1386,10 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
          |val Person(na$CARET) = null
        """.stripMargin,
     resultText =
-      """
-        |case class Person(name: String)
-        |val Person(name) = null
-      """.stripMargin,
+      s"""
+         |case class Person(name: String)
+         |val Person(name$CARET) = null
+         """.stripMargin,
     item = "name"
   )
 
@@ -1402,12 +1402,12 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
          |}
       """.stripMargin,
     resultText =
-      """
-        |case class Person(name: String)
-        |Person("Johnny") match {
-        |  case Person(name) =>
-        |}
-      """.stripMargin,
+      s"""
+         |case class Person(name: String)
+         |Person("Johnny") match {
+         |  case Person(name$CARET) =>
+         |}
+         """.stripMargin,
     item = "name"
   )
 
@@ -1419,11 +1419,11 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
          |for (Person(na$CARET) <- guys) {}
       """.stripMargin,
     resultText =
-      """
-        |case class Person(name: String)
-        |val guys: List[Person] = ???
-        |for (Person(name) <- guys) {}
-      """.stripMargin,
+      s"""
+         |case class Person(name: String)
+         |val guys: List[Person] = ???
+         |for (Person(name$CARET) <- guys) {}
+         """.stripMargin,
     item = "name"
   )
 
@@ -1441,18 +1441,18 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
          |}
       """.stripMargin,
     resultText =
-      """
-        |import `interface`.ScalaClass
-        |package `interface` {
-        | class ScalaClass {
-        |
-        | }
-        |}
-        |
-        |object Test {
-        | new ScalaClass
-        |}
-      """.stripMargin,
+      s"""
+         |import `interface`.ScalaClass
+         |package `interface` {
+         | class ScalaClass {
+         |
+         | }
+         |}
+         |
+         |object Test {
+         | new ScalaClass$CARET
+         |}
+       """.stripMargin,
     item = "ScalaClass"
   )
 
@@ -1655,7 +1655,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
          |
          |class A {
          |  def function(): Unit = {
-         |    lazy val foo = foo
+         |    lazy val foo = foo$CARET
          |  }
          |}
          |""".stripMargin,
@@ -1735,7 +1735,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
          |class Foo(val abc: Abc) {
          |  private def baz(): Int = {
          |    val a: Foo.this.abc.Type = ???
-         |    a.toString
+         |    a.toString$CARET
          |  }
          |}
          |""".stripMargin,
@@ -1983,28 +1983,10 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
          |class Main {
          |  import mySyntax._
          |  def f2[F[_]](x: F[Int])(implicit F: DoubleParam[F, Throwable]) = {
-         |    x.foo2
+         |    x.foo2$CARET
          |  }
          |}""".stripMargin,
     item = "foo2"
-  )
-
-  // SCL-15659
-  def testCompleteInBackticks(): Unit = doCompletionTest(
-    fileText =
-      s"""object Test {
-         |  def `bla ha` = 42
-         |  println(`$CARET`)
-         |}
-         |""".stripMargin,
-    resultText =
-      s"""object Test {
-         |  def `bla ha` = 42
-         |  println(`bla ha`$CARET)
-         |}
-         |""".stripMargin,
-    item = "`bla ha`",
-    char = Lookup.NORMAL_SELECT_CHAR,
   )
 }
 
@@ -2013,6 +1995,115 @@ class ScalaBasicCompletionTest_with_2_12 extends ScalaBasicCompletionTest_Common
 
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_13))
 class ScalaBasicCompletionTest_with_2_13 extends ScalaBasicCompletionTest_CommonTests {
+  def testCompleteBackticksInBackticks(): Unit =
+    for (char <- Seq(Lookup.NORMAL_SELECT_CHAR, Lookup.REPLACE_SELECT_CHAR))
+      doCompletionTest(
+        fileText =
+          s"""object Test {
+             |  def `bla ha` = 42
+             |  println(`$CARET`)
+             |}
+             |""".stripMargin,
+        resultText =
+          s"""object Test {
+             |  def `bla ha` = 42
+             |  println(`bla ha`$CARET)
+             |}
+             |""".stripMargin,
+        item = "`bla ha`",
+        char = char,
+      )
+
+  def testCompleteBackticksOutsideOfBackticks(): Unit =
+    for (char <- Seq(Lookup.NORMAL_SELECT_CHAR, Lookup.REPLACE_SELECT_CHAR))
+      doCompletionTest(
+        fileText =
+          s"""object Test {
+             |  def `bla ha` = 42
+             |  println($CARET)
+             |}
+             |""".stripMargin,
+        resultText =
+          s"""object Test {
+             |  def `bla ha` = 42
+             |  println(`bla ha`$CARET)
+             |}
+             |""".stripMargin,
+        item = "`bla ha`",
+        char = char,
+      )
+
+  def testCompleteBackticksInStablePattern(): Unit =
+    for (char <- Seq(Lookup.NORMAL_SELECT_CHAR, Lookup.REPLACE_SELECT_CHAR))
+      doCompletionTest(
+        fileText =
+          s"""object Test {
+             |  def `bla ha` = 42
+             |  3 match {
+             |    case `$CARET` =>
+             |  }
+             |}
+             |""".stripMargin,
+        resultText =
+          s"""object Test {
+             |  def `bla ha` = 42
+             |  3 match {
+             |    case `bla ha`$CARET =>
+             |  }
+             |}
+             |""".stripMargin,
+        item = "`bla ha`",
+        char = char,
+      )
+
+  def testCompleteBackticksInEmptyPatternPosition(): Unit =
+    for (char <- Seq(Lookup.NORMAL_SELECT_CHAR, Lookup.REPLACE_SELECT_CHAR))
+      doCompletionTest(
+        fileText =
+          s"""object Test {
+             |  def `bla ha` = 42
+             |  3 match {
+             |    case $CARET =>
+             |  }
+             |}
+             |""".stripMargin,
+        resultText =
+          s"""object Test {
+             |  def `bla ha` = 42
+             |  3 match {
+             |    case `bla ha`$CARET =>
+             |  }
+             |}
+             |""".stripMargin,
+        item = "`bla ha`",
+        char = char,
+      )
+
+  // SCL-15659
+  def testCompleteInStableIdentPattern(): Unit =
+    for (char <- Seq(Lookup.NORMAL_SELECT_CHAR, Lookup.REPLACE_SELECT_CHAR))
+      doCompletionTest(
+        fileText =
+          s"""object Test {
+             |  val myValueName = 42
+             |  23 match {
+             |    case `my$CARET` =>
+             |    case _ =>
+             |  }
+             |}
+             |""".stripMargin,
+        resultText =
+          s"""object Test {
+             |  val myValueName = 42
+             |  23 match {
+             |    case `myValueName`$CARET =>
+             |    case _ =>
+             |  }
+             |}
+             |""".stripMargin,
+        item = "myValueName",
+        char = char,
+      )
 
   def testExtensionMethodFromStandardLibrary_Scala213_1(): Unit = doCompletionTest(
     fileText = s""""".toInt$CARET""",
@@ -2028,7 +2119,7 @@ class ScalaBasicCompletionTest_with_2_13 extends ScalaBasicCompletionTest_Common
 
   def testMethodFromImplicitConversion(): Unit = doCompletionTest(
     s"""def test(): Unit = 1.unti$CARET""".stripMargin,
-    """def test(): Unit = 1.until()""".stripMargin,
+    s"""def test(): Unit = 1.until($CARET)""".stripMargin,
     item = "until"
   )
 }
@@ -2057,7 +2148,7 @@ class ScalaBasicCompletionTest_with_3_0 extends ScalaBasicCompletionTest_CommonT
 
   def testMethodFromImplicitConversion(): Unit = doCompletionTest(
     s"""def test(): Unit = 1.unti$CARET""".stripMargin,
-    """def test(): Unit = 1.until()""".stripMargin,
+    s"""def test(): Unit = 1.until($CARET)""".stripMargin,
     item = "until"
   )
 
