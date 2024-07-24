@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import org.jetbrains.plugins.scala.compiler.CompilerIntegrationBundle
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.settings.{CompilerIndicesSbtSettings, CompilerIndicesSettings}
+import org.jetbrains.plugins.scala.settings.CompilerIndicesSettings
 import org.jetbrains.plugins.scala.help.ScalaWebHelpProvider
 
 import javax.swing.JComponent
@@ -20,11 +20,11 @@ class CompilerIndicesConfigurable(project: Project) extends Configurable {
 
   override def getDisplayName: String        = CompilerIntegrationBundle.message("bytecode.indices")
   override def createComponent(): JComponent = panel.mainPanel
-  override def isModified: Boolean           = panel.isModified(CompilerIndicesSettings(project), CompilerIndicesSbtSettings())
-  override def reset(): Unit                 = panel.from(CompilerIndicesSettings(project), CompilerIndicesSbtSettings())
+  override def isModified: Boolean           = panel.isModified(CompilerIndicesSettings(project))
+  override def reset(): Unit                 = panel.from(CompilerIndicesSettings(project))
 
   override def apply(): Unit                 = {
-    val requiresRestart = panel.applyTo(CompilerIndicesSettings(project), CompilerIndicesSbtSettings())
+    val requiresRestart = panel.applyTo(CompilerIndicesSettings(project))
 
     if (requiresRestart) {
       shutdownCallback = Option(() => invokeLater { shutdownOrRestartApp() })

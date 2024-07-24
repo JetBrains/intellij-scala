@@ -31,7 +31,6 @@ import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.external.{JdkByName, SdkUtils}
-import org.jetbrains.plugins.scala.settings.CompilerIndicesSettings
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 import org.jetbrains.sbt.SbtUtil._
 import org.jetbrains.sbt.buildinfo.BuildInfo
@@ -39,7 +38,7 @@ import org.jetbrains.sbt.project.settings.SbtExecutionSettings
 import org.jetbrains.sbt.project.structure.SbtOption._
 import org.jetbrains.sbt.project.{SbtExternalSystemManager, SbtProjectResolver, SbtProjectSystem}
 import org.jetbrains.sbt.shell.SbtProcessManager._
-import org.jetbrains.sbt.{JvmMemorySize, Sbt, SbtBundle, SbtCompilationSupervisorPort, SbtUtil}
+import org.jetbrains.sbt.{JvmMemorySize, Sbt, SbtBundle, SbtUtil}
 
 import java.io.{File, IOException, OutputStreamWriter, PrintWriter}
 import java.util.concurrent.TimeUnit
@@ -96,19 +95,15 @@ final class SbtProcessManager(project: Project) extends Disposable {
     val sbtStructureVersion = BuildInfo.sbtStructureVersion
     val sbtIdeaShellVersion = BuildInfo.sbtIdeaShellVersion
 
-    val compilerIndicesEnabled = CompilerIndicesSettings(project).isBytecodeIndexingActive
-    val compilerIndicesPlugin = compilerIndicesEnabled.seq {
-      val pluginVersion = BuildInfo.sbtIdeaCompilerIndicesVersion
-      s"""addSbtPlugin("org.jetbrains.scala" % "sbt-idea-compiler-indices" % "$pluginVersion")"""
-    }
-
     sbtBinVersion.presentation match {
       case "0.12" => Seq.empty // 0.12 doesn't support AutoPlugins
       case _ =>
         Seq(
           s"""addSbtPlugin("org.jetbrains.scala" % "sbt-structure-extractor" % "$sbtStructureVersion", "$sbtStructurePluginBinVersion")""",
           s"""addSbtPlugin("org.jetbrains.scala" % "sbt-idea-shell" % "$sbtIdeaShellVersion")""",
-        ) ++ compilerIndicesPlugin // works for 0.13.5+, for older versions it will be ignored
+        )
+        // SCL-22858 compiler bytecode indices are disabled in sbt shell
+        // ++ compilerIndicesPlugin // works for 0.13.5+, for older versions it will be ignored
     }
   }
 
@@ -197,14 +192,8 @@ final class SbtProcessManager(project: Project) extends Disposable {
         commandLine.addParameter("early(addPluginSbtFile=\"\"\"" + settingsPath + "\"\"\")")
       }
 
-      val compilerIndicesPluginLoaded = injectPluginsSettings.exists(_.contains("sbt-idea-compiler-indices"))
-      val ideaPort = SbtCompilationSupervisorPort.port
-      val ideaPortSetting = if (ideaPort == -1) "" else s"; set ideaPort in Global := $ideaPort ;"
-
-      // we have our plugins in there, load custom shell
-      val commands =
-        if (compilerIndicesPluginLoaded) s"$ideaPortSetting idea-shell"
-        else                             "idea-shell"
+      // SCL-22858 compiler bytecode indices are disabled in sbt shell
+      val commands = "idea-shell"
 
       commandLine.addParameter(commands)
       val sbtLauncherArgs = sbtOpts.collect { case a: SbtLauncherOption => a.value }

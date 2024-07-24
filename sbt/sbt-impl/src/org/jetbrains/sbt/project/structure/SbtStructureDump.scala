@@ -13,14 +13,13 @@ import org.jetbrains.annotations.{Nls, NonNls}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter, ExternalSystemNotificationReporter}
 import org.jetbrains.plugins.scala.extensions.LoggerExt
-import org.jetbrains.plugins.scala.settings.CompilerIndicesSettings
 import org.jetbrains.sbt.SbtUtil._
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportCancelledException
 import org.jetbrains.sbt.project.structure.SbtOption._
 import org.jetbrains.sbt.project.structure.SbtStructureDump._
 import org.jetbrains.sbt.shell.SbtShellCommunication
 import org.jetbrains.sbt.shell.SbtShellCommunication._
-import org.jetbrains.sbt.{SbtBundle, SbtCompilationSupervisorPort, SbtUtil}
+import org.jetbrains.sbt.{SbtBundle, SbtUtil}
 
 import java.io.{BufferedWriter, File, OutputStreamWriter, PrintWriter}
 import java.nio.charset.Charset
@@ -61,11 +60,8 @@ class SbtStructureDump {
     val optString = makeOptionsStringLiteral(options)
     val setCmd = s"""set _root_.org.jetbrains.sbt.StructureKeys.sbtStructureOptions in Global := $optString"""
 
-    val ideaPortSetting =
-      if (CompilerIndicesSettings(project).isBytecodeIndexingActive) {
-        val ideaPort = SbtCompilationSupervisorPort.port
-        if (ideaPort == -1) "" else s"; set ideaPort in Global := $ideaPort"
-      } else ""
+    // SCL-22858 compiler bytecode indices are disabled in sbt shell
+    val ideaPortSetting = ""
 
     val cmd = s";reload; $setCmd ;${if (preferScala2) "preferScala2;" else ""}*/*:dumpStructureTo $structureFilePath; session clear-all $ideaPortSetting"
 
