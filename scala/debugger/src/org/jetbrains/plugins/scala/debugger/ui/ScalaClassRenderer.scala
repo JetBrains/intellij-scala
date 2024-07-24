@@ -96,9 +96,8 @@ private object ScalaClassRenderer {
     val allFields = ref.referenceType().allFields().asScala
     val isScala3 = allFields.exists(_.name().startsWith(Offset))
     val fieldName = f.name()
-    if (isScala3) {
-      fieldName.contains("$lzy") && allFields.exists(isBitmap)
-    } else {
+    if (isScala3) fieldName.contains("$lzy")
+    else {
       val allMethods = ref.referenceType().allMethods().asScala
       allMethods.exists { m =>
         val methodName = m.name()
