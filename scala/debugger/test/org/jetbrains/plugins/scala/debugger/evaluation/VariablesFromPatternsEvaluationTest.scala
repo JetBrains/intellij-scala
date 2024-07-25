@@ -42,6 +42,10 @@ class VariablesFromPatternsEvaluationTest_3_RC extends VariablesFromPatternsEval
   }
 }
 
+class VariablesFromPatternsEvaluationTest_3_Next_RC extends VariablesFromPatternsEvaluationTest_3_RC {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_Next_RC
+}
+
 abstract class VariablesFromPatternsEvaluationTestBase extends ExpressionEvaluationTestBase {
   addSourceFile("Match.scala",
     s"""

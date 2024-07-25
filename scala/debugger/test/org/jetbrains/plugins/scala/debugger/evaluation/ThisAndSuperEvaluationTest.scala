@@ -22,6 +22,10 @@ class ThisAndSuperEvaluationTest_3_RC extends ThisAndSuperEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
 }
 
+class ThisAndSuperEvaluationTest_3_Next_RC extends ThisAndSuperEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_Next_RC
+}
+
 abstract class ThisAndSuperEvaluationTestBase extends ExpressionEvaluationTestBase {
   addSourceFile("TraitThis.scala",
     s"""

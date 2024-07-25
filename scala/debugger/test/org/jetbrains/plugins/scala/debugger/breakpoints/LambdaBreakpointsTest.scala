@@ -208,7 +208,7 @@ class LambdaBreakpointsTest_3_4 extends LambdaBreakpointsTest_3_1 {
 }
 
 class LambdaBreakpointsTest_3_RC extends LambdaBreakpointsTest_3_4 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_5_RC
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
 
   override def testLambdaInClassConstructor(): Unit = {
     breakpointsTest()((9, "main"), (4, "$init$$$anonfun$1"), (4, "$init$$$anonfun$1"), (4, "$init$$$anonfun$1"))
@@ -257,6 +257,10 @@ class LambdaBreakpointsTest_3_RC extends LambdaBreakpointsTest_3_4 {
   override def testLambdaInExtension(): Unit = {
     breakpointsTest()((8, "main"), (4, "blah$$anonfun$1"), (4, "blah$$anonfun$1"), (4, "blah$$anonfun$1"))
   }
+}
+
+class LambdaBreakpointsTest_3_Next_RC extends LambdaBreakpointsTest_3_RC {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_Next_RC
 }
 
 abstract class LambdaBreakpointsTestBase extends ScalaDebuggerTestCase {

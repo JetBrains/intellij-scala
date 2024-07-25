@@ -44,6 +44,10 @@ class CodeFragmentEvaluationTest_3_RC extends CodeFragmentEvaluationTest_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
 }
 
+class CodeFragmentEvaluationTest_3_Next_RC extends CodeFragmentEvaluationTest_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_Next_RC
+}
+
 abstract class CodeFragmentEvaluationTestBase extends ExpressionEvaluationTestBase {
   addSourceFile("CodeFragments.scala",
     s"""package test

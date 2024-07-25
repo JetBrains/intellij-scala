@@ -12,7 +12,8 @@ import scala.language.postfixOps
 
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_3_Latest,
-  TestScalaVersion.Scala_3_Latest_RC
+  TestScalaVersion.Scala_3_Latest_RC,
+  TestScalaVersion.Scala_3_Next_RC
 ))
 class WorksheetReplIntegration_Scala_3_Latest_Test extends WorksheetReplIntegration_Since_3_2_TestBase
 @RunWithScalaVersions(Array(

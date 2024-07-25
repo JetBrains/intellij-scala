@@ -22,6 +22,10 @@ class FieldEvaluationTest_3_RC extends FieldEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
 }
 
+class FieldEvaluationTest_3_Next_RC extends FieldEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_Next_RC
+}
+
 abstract class FieldEvaluationTestBase extends ExpressionEvaluationTestBase {
   addSourceFile("Static.scala",
     s"""
