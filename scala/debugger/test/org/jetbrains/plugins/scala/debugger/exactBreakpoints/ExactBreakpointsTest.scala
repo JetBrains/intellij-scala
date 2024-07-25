@@ -172,6 +172,10 @@ class ExactBreakpointsTest_3_RC extends ExactBreakpointsTest_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
 }
 
+class ExactBreakpointsTest_3_Next_RC extends ExactBreakpointsTest_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_Next_RC
+}
+
 abstract class ExactBreakpointsTestWithEarlyDefinitions extends ExactBreakpointsTestBase {
   addSourceFile("EarlyDefAndTemplateBody.scala",
     s"""object EarlyDefAndTemplateBody {

@@ -103,6 +103,10 @@ class StepOverTest_3_RC extends StepOverTest_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
 }
 
+class StepOverTest_3_Next_RC extends StepOverTest_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_Next_RC
+}
+
 abstract class StepOverTest extends ScalaDebuggerTestCase {
 
   private val expectedLineQueue: ConcurrentLinkedQueue[Int] = new ConcurrentLinkedQueue()

@@ -22,6 +22,10 @@ class InAnonFunEvaluationTest_3_RC extends InAnonFunEvaluationTest_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
 }
 
+class InAnonFunEvaluationTest_3_Next_RC extends InAnonFunEvaluationTest_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_Next_RC
+}
+
 abstract class InAnonFunEvaluationTestBase extends ExpressionEvaluationTestBase {
   addSourceFile("FunctionValue.scala",
     s"""

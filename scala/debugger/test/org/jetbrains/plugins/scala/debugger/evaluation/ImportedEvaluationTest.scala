@@ -22,6 +22,10 @@ class ImportedEvaluationTest_3_RC extends ImportedEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
 }
 
+class ImportedEvaluationTest_3_Next_RC extends ImportedEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_Next_RC
+}
+
 abstract class ImportedEvaluationTestBase extends ExpressionEvaluationTestBase {
   addSourceFile("ImportFromObject.scala",
     s"""

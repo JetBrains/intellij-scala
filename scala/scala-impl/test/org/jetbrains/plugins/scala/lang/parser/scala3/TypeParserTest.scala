@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.parser.scala3
 import org.jetbrains.plugins.scala.ScalaVersion
 
 class TypeParserTest extends SimpleScala3ParserTestBase {
-  override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_3_5_RC
+  override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_3_Next_RC
 
   // SCL-21210
   def testHK(): Unit = checkTree(
