@@ -15,15 +15,13 @@ class RegexpLanguageInjectionTest extends TestCase
 
 object RegexpLanguageInjectionTest {
 
+  //noinspection JUnitMalformedDeclaration
   @Category(Array(classOf[FileSetTests]))
   final class ActualTest(
     testFile: File,
     testName: String,
     testIdx: Int,
   ) extends ScalaLanguageInjectionTestBase {
-
-    // Unused, but needed to suppress inspection that JUnit test class cannot be constructed.
-    private[RegexpLanguageInjectionTest] def this() = this(null, null, 0)
 
     override def getTestName(lowercaseFirstLetter: Boolean): String = ""
 
