@@ -116,6 +116,10 @@ class LocationsOfLineTest_3_RC extends LocationOfLineTest_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
 }
 
+class LocationsOfLineTest_3_Next_RC extends LocationOfLineTest_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_Next_RC
+}
+
 abstract class LocationsOfLineTestBase extends PositionManagerTestBase {
   val noLocations = Set.empty[Loc]
 

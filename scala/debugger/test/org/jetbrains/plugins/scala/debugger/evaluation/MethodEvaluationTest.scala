@@ -238,6 +238,10 @@ class MethodEvaluationTest_3_RC extends MethodEvaluationTest_3 {
   }
 }
 
+class MethodEvaluationTest_3_Next_RC extends MethodEvaluationTest_3_RC {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_Next_RC
+}
+
 abstract class MethodEvaluationTestBase extends ExpressionEvaluationTestBase {
   addSourceFile("SmartBoxing.scala",
     s"""

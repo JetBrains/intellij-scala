@@ -34,11 +34,11 @@ class UsePipeliningCompilationTest extends ZincTestBase {
   }
 
   def testUsePipelining_Zinc_Scala_3(): Unit = {
-    runUsePipeliningTest(IncrementalityType.SBT, ScalaVersion.Latest.Scala_3_5_RC)
+    runUsePipeliningTest(IncrementalityType.SBT, ScalaVersion.Latest.Scala_3_Next_RC)
   }
 
   def testUsePipelining_IDEA_Scala_3(): Unit = {
-    runUsePipeliningTest(IncrementalityType.IDEA, ScalaVersion.Latest.Scala_3_5_RC)
+    runUsePipeliningTest(IncrementalityType.IDEA, ScalaVersion.Latest.Scala_3_Next_RC)
   }
 
   private def runUsePipeliningTest(incrementalityType: IncrementalityType, scalaVersion: ScalaVersion): Unit = {

@@ -63,6 +63,10 @@ class ScalaCollectionRendererTest_3_RC extends ScalaCollectionRendererTest_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
 }
 
+class ScalaCollectionRendererTest_3_Next_RC extends ScalaCollectionRendererTest_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_Next_RC
+}
+
 abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
   private val UNIQUE_ID = "uniqueID"
 

@@ -248,6 +248,10 @@ class StepIntoTest_3_RC extends StepIntoTest_3 {
   override def testLazyVal(): Unit = {}
 }
 
+class StepIntoTest_3_Next_RC extends StepIntoTest_3_RC {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_Next_RC
+}
+
 abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
 
   protected case class Breakpoint(file: String, declaringType: String, method: String, line: Int)

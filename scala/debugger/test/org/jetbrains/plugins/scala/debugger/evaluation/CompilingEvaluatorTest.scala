@@ -43,6 +43,10 @@ class CompilingEvaluatorTest_3_RC extends CompilingEvaluatorTest_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
 }
 
+class CompilingEvaluatorTest_3_Next_RC extends CompilingEvaluatorTest_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_Next_RC
+}
+
 abstract class CompilingEvaluatorTestBase extends ExpressionEvaluationTestBase {
   addSourceFile("SimplePlace.scala",
     s"""
