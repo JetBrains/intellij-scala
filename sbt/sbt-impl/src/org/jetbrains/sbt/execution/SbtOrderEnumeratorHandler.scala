@@ -18,36 +18,42 @@ import scala.jdk.CollectionConverters.CollectionHasAsScala
 class SbtOrderEnumeratorHandler(processDependenciesRecursively: Boolean) extends OrderEnumerationHandler {
   override def shouldAddDependency(orderEntry: OrderEntry, settings: OrderEnumeratorSettings): AddDependencyType = {
     (orderEntry, settings) match {
-      case (library: LibraryOrderEntry, enumerator: ModuleOrderEnumerator) =>
-        val isTransitive = getModuleFromEnumerator(enumerator).fold(false)(_ != library.getOwnerModule)
-        if (isTransitive) AddDependencyType.DO_NOT_ADD else AddDependencyType.DEFAULT
-      case (moduleOrderEntry: ModuleOrderEntry, enumerator: ModuleOrderEnumerator) if shouldProcessDependenciesRecursively =>
-        val moduleFromEnumerator = getModuleFromEnumerator(enumerator)
-        moduleFromEnumerator match {
-          case Some(enumeratorModule) =>
-            // note: when shouldProcessDependenciesRecursively is true, then the project is built with separate modules for prod/test, and
-            // we deal with a parent (aka grouping) module. It's set to true for a parent module because we want to process its dependencies recursively,
-            // but we don't want to do it indefinitely (as it happens by default). Indefinitely, I mean that when module root (parent module) contains in its dependencies
-            // source modules - root.main and root.test, we only want to process their (root.main and root.test) direct dependencies.
-            // We don't want to process root.main and root.test dependencies recursively (all the necessary dependencies are already added to them).
-            //
-            // Without this logic, when e.g., root.main would depend on dummy.main and dummy.main would depend on foo.main with PROVIDED scope,
-            // then when compiling root, foo.main would be also compiled, but it shouldn't.
-            val ownerModule = moduleOrderEntry.getOwnerModule
-            // When ownerModule is the same as enumeratorModule, then we deal with a direct parent modules dependency,
-            // and for it, we should leave DEFAULT (it will be processed recursively).
-            val isOwnerModuleTheSameAsEnumeratorModule = ownerModule.getName == enumeratorModule.getName
-            val isOwnerModuleInEnumeratorModuleDeps = isDependentModule(enumeratorModule, ownerModule)
-            if (isOwnerModuleTheSameAsEnumeratorModule || isOwnerModuleInEnumeratorModuleDeps) {
-              AddDependencyType.DEFAULT
-            } else {
-              AddDependencyType.DO_NOT_ADD
-            }
-          case None => AddDependencyType.DEFAULT
-        }
+      // note: when shouldProcessDependenciesRecursively is true, then the project is built with separate modules for prod/test, and
+      // we deal with a parent (aka grouping) module. It's set to true for a parent module because we want to process its dependencies recursively,
+      // but we only want to do it to one level of depth. A parent module will always include its own source modules
+      // in dependencies - e.g. root.main and root.test, and we only want to process their (root.main and root.test) direct dependencies.
+      // We don't want to process root.main and root.test dependencies recursively (all the necessary dependencies are already added to them).
+      //
+      // It was necessary to implement, because by default, if shouldProcessDependenciesRecursively is true, then dependencies are processed recursively indefinitely.
+      case (entry @ (_: ModuleOrderEntry | _: LibraryOrderEntry), enumerator: ModuleOrderEnumerator) if shouldProcessDependenciesRecursively =>
+        getAddDependencyType(entry, enumerator)
       case _ =>
         AddDependencyType.DEFAULT
     }
+  }
+
+  /**
+   * Returns <code>AddDependencyType.DEFAULT</code> if order entry is either a direct dependency of an enumerator module or a dependency of the enumerator module's direct dependencies. <br>
+   * Example:
+   * <code>
+   * <pre> root -> main -> foo -> dummy
+   *      -> test</pre>
+   *</code>
+   * -> means "depends on".
+   *
+   * In the example above, if we have an enumerator for module <code>root</code>, then for module order entries <code>main</code>, <code>test</code> and <code>foo</code> it returns <code>AddDependencyType.DEFAULT</code>.
+   * For module order entry  <code>dummy</code>, it returns <code>AddDependencyTye.DO_NOT_ADD</code>.
+   */
+  private def getAddDependencyType(orderEntry: OrderEntry, enumerator: ModuleOrderEnumerator): AddDependencyType = {
+    val ownerModule = orderEntry.getOwnerModule
+    val moduleFromEnumerator = getModuleFromEnumerator(enumerator)
+    val shouldAdd = moduleFromEnumerator.forall { enumeratorModule =>
+      val isOwnerModuleTheSameAsEnumeratorModule = ownerModule.getName == enumeratorModule.getName
+      val isOwnerModuleInEnumeratorModuleDeps = isDependentModule(enumeratorModule, ownerModule)
+      isOwnerModuleTheSameAsEnumeratorModule || isOwnerModuleInEnumeratorModuleDeps
+    }
+    if (shouldAdd) AddDependencyType.DEFAULT
+    else AddDependencyType.DO_NOT_ADD
   }
 
   /**

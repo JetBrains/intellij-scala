@@ -242,8 +242,29 @@ object AbstractTestRunConfiguration {
 
   def SettingMap(): SettingMap = Map[SettingEntry, String]()
 
+   /**
+    * Returns the search scope that includes transitive, non-exported dependencies and allow <code>RUNTIME</code> dependencies ([[com.intellij.psi.search.GlobalSearchScope#moduleRuntimeScope]]). </br>
+    * Previously used scope ([[com.intellij.psi.search.GlobalSearchScope#moduleWithDependenciesAndLibrariesScope]]) did not allow for either of these two things.
+    * <ol>
+    *   <li>
+    *   Regarding the <code>RUNTIME</code> scope which was in theory prohibited in ([[com.intellij.psi.search.GlobalSearchScope#moduleWithDependenciesAndLibrariesScope]])
+    *   but is allowed in [[com.intellij.psi.search.GlobalSearchScope#moduleRuntimeScope]].
+    *   It is prohibited in [[com.intellij.psi.search.GlobalSearchScope#moduleWithDependenciesAndLibrariesScope]] only if <code>shouldAddRuntimeDependenciesToTestCompilationClasspath</code> is false.<br>
+    *   In our current codebase <code>shouldAddRuntimeDependenciesToTestCompilationClasspath</code> is always true,
+    *   so this check wasn't valid.
+    *   Recheck the behavior with <a href="https://youtrack.jetbrains.com/issue/SCL-22835/shouldAddRuntimeDependenciesToTestCompilationClasspath-should-be-set-to-false-if-separate-modules-for-prod-test-are-enabled">SCL-22835</a>
+    *   </li>
+    *   <li>
+    *     Transitive dependencies will be processed only if any of the module's enumerator handler has <code>shouldProcessDependenciesRecursively</code> set to <code>true</code>
+    *     (in practice, such situation occurs when separate modules for production and test are enabled, and there is a parent aka grouping module).
+    *     Module's dependencies are processed recursively to one level of depth - the direct dependencies of the module and the dependencies of these dependencies.
+    *     To understand why there is no indefinite recursive processing, check [[org.jetbrains.sbt.execution.SbtOrderEnumeratorHandler.getAddDependencyType]]
+    *   </li>
+    * </ol>
+ *
+ */
   private def moduleScope(module: Module): GlobalSearchScope =
-    GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module)
+    GlobalSearchScope.moduleRuntimeScope(module, true)
 
   /**
    * TODO: why not using just [[GlobalSearchScope.projectScope]]?
