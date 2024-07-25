@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.findUsages
 
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.findUsages.factory.ScalaFindUsagesConfiguration
+import org.jetbrains.plugins.scala.findUsages.factory.dialog.ScalaOverridableMemberFindUsagesDialog
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala
@@ -166,7 +167,9 @@ class FindUsagesTest_Scala2 extends FindUsagesTestBase {
          |    val x: ${start}MyType$end
          |  }
          |}
-         |""".stripMargin)
+         |""".stripMargin
+    )
+    assertFindUsageDialogIsInstanceOf[ScalaOverridableMemberFindUsagesDialog]()
   }
 
   def testFindUsagesOfValOverriders(): Unit = {
@@ -186,73 +189,110 @@ class FindUsagesTest_Scala2 extends FindUsagesTestBase {
          |    println(${start}findMyVal$end)
          |  }
          |}
-    """.stripMargin)
+    """.stripMargin
+    )
+    assertFindUsageDialogIsInstanceOf[ScalaOverridableMemberFindUsagesDialog]()
   }
 
-  def testFindUsagesOfMethodOverriders(): Unit = doTest(
-    s"""class BaseClass {
-       |  def ${CARET}foo(): String = ???
-       |  def foo(x: Int): String = ???
-       |}
-       |
-       |class ChildClass extends BaseClass {
-       |  override def foo(): String = ???
-       |  override def foo(x: Int): String = ???
-       |}
-       |
-       |object Usage {
-       |  val base: BaseClass = ???
-       |  val child: ChildClass = ???
-       |
-       |  base.${start}foo$end()
-       |  base.foo(42)
-       |
-       |  child.${start}foo$end()
-       |  child.foo(42)
-       |}""".stripMargin
-  )
+  def testFindUsagesOfMethodOverriders(): Unit = {
+    doTest(
+      s"""class BaseClass {
+         |  def ${CARET}foo(): String = ???
+         |  def foo(x: Int): String = ???
+         |}
+         |
+         |class ChildClass extends BaseClass {
+         |  override def foo(): String = ???
+         |  override def foo(x: Int): String = ???
+         |}
+         |
+         |object Usage {
+         |  val base: BaseClass = ???
+         |  val child: ChildClass = ???
+         |
+         |  base.${start}foo$end()
+         |  base.foo(42)
+         |
+         |  child.${start}foo$end()
+         |  child.foo(42)
+         |}""".stripMargin
+    )
+    assertFindUsageDialogIsInstanceOf[ScalaOverridableMemberFindUsagesDialog]()
+  }
 
-  def testFindUsagesOfMethodOverriders_Complex(): Unit = doTest(
-    s"""class BaseClass[T <: AnyRef] {
-       |  def ${CARET}foo[E1, E2 <: T](p1: T, p2: E1, p3: E2)
-       |                      (implicit x: Long, y: T): Tuple2[T, E1] = ???
-       |}
-       |
-       |class ChildClass extends BaseClass[String] {
-       |  override def foo[E1, E2 <: String](p1: String, p2: E1, p3: E2)
-       |                                    (implicit x: Long, y: String): (String, E1) = ???
-       |}
-       |
-       |object Usage {
-       |  implicit val x: Long = ???
-       |  implicit val y: String = ???
-       |
-       |  val base: BaseClass[AnyRef] = ???
-       |  val child: ChildClass = ???
-       |
-       |  base.${start}foo$end(???, ???, ???)
-       |  child.${start}foo$end(???, ???, ???)
-       |}
-       |""".stripMargin
-  )
+  def testFindUsagesOfMethodImplementers(): Unit = {
+    doTest(
+      s"""class BaseClass {
+         |  def ${CARET}foo(): String
+         |  def foo(x: Int): String
+         |}
+         |
+         |class ChildClass extends BaseClass {
+         |  override def foo(): String = ???
+         |  override def foo(x: Int): String = ???
+         |}
+         |
+         |object Usage {
+         |  val base: BaseClass = ???
+         |  val child: ChildClass = ???
+         |
+         |  base.${start}foo$end()
+         |  base.foo(42)
+         |
+         |  child.${start}foo$end()
+         |  child.foo(42)
+         |}""".stripMargin
+    )
+    assertFindUsageDialogIsInstanceOf[ScalaOverridableMemberFindUsagesDialog]()
+  }
 
-  def testFindUsagesOfMethodOverriders_OverrideByVal(): Unit = doTest(
-    s"""class BaseClass {
-       |  def ${CARET}bar: String = ???
-       |}
-       |
-       |class ChildClass extends BaseClass {
-       |  override val bar: String = ???
-       |}
-       |
-       |object Usage {
-       |  val base: BaseClass = ???
-       |  val child: ChildClass = ???
-       |
-       |  base.${start}bar$end
-       |  child.${start}bar$end
-       |}""".stripMargin
-  )
+  def testFindUsagesOfMethodOverriders_Complex(): Unit = {
+    doTest(
+      s"""class BaseClass[T <: AnyRef] {
+         |  def ${CARET}foo[E1, E2 <: T](p1: T, p2: E1, p3: E2)
+         |                      (implicit x: Long, y: T): Tuple2[T, E1] = ???
+         |}
+         |
+         |class ChildClass extends BaseClass[String] {
+         |  override def foo[E1, E2 <: String](p1: String, p2: E1, p3: E2)
+         |                                    (implicit x: Long, y: String): (String, E1) = ???
+         |}
+         |
+         |object Usage {
+         |  implicit val x: Long = ???
+         |  implicit val y: String = ???
+         |
+         |  val base: BaseClass[AnyRef] = ???
+         |  val child: ChildClass = ???
+         |
+         |  base.${start}foo$end(???, ???, ???)
+         |  child.${start}foo$end(???, ???, ???)
+         |}
+         |""".stripMargin
+    )
+    assertFindUsageDialogIsInstanceOf[ScalaOverridableMemberFindUsagesDialog]()
+  }
+
+  def testFindUsagesOfMethodOverriders_OverrideByVal(): Unit = {
+    doTest(
+      s"""class BaseClass {
+         |  def ${CARET}bar: String = ???
+         |}
+         |
+         |class ChildClass extends BaseClass {
+         |  override val bar: String = ???
+         |}
+         |
+         |object Usage {
+         |  val base: BaseClass = ???
+         |  val child: ChildClass = ???
+         |
+         |  base.${start}bar$end
+         |  child.${start}bar$end
+         |}""".stripMargin
+    )
+    assertFindUsageDialogIsInstanceOf[ScalaOverridableMemberFindUsagesDialog]()
+  }
 
   def testFindUsagesOnPrimaryConstructor(): Unit = doTest(
     s"""
