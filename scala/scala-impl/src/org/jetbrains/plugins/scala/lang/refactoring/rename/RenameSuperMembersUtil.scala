@@ -16,7 +16,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaration, ScTyp
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.{MixinNodes, TypeDefinitionMembers}
+import org.jetbrains.plugins.scala.lang.psi.types.Signature
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.project.UserDataHolderExt
 
@@ -163,11 +164,17 @@ object RenameSuperMembersUtil {
       case _ => return Seq.empty
     }
     val aClass = member.containingClass
-    val signatures =
-      if (withSelfType) TypeDefinitionMembers.getSelfTypeSignatures(aClass)
-      else TypeDefinitionMembers.getSignatures(aClass)
-    val allSigns = signatures.forName(named.name)
 
+    val signatures: MixinNodes.Map[_ <: Signature] = member match {
+      case _: ScTypeAlias =>
+        if (withSelfType) TypeDefinitionMembers.getSelfTypeTypes(aClass)
+        else TypeDefinitionMembers.getTypes(aClass)
+      case _ =>
+        if (withSelfType) TypeDefinitionMembers.getSelfTypeSignatures(aClass)
+        else TypeDefinitionMembers.getSignatures(aClass)
+    }
+
+    val allSigns = signatures.forName(named.name)
     allSigns.findNode(named) match {
       case Some(node) => node.supers.map(_.info.namedElement)
       case _ => Seq.empty
