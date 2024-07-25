@@ -26,4 +26,89 @@ class OptimizeImportsTest_Scala3 extends OptimizeImportsTestBase {
     )
   }
 
+  def testUnqualifiedUsedRenamedScala3ImportIsNotRemoved(): Unit = {
+    myFixture.addFileToProject("Foo.scala",
+      """
+        |package definitions
+        |
+        |case class Foo(s: String)
+        |""".stripMargin
+    )
+
+    doTest(
+      """
+        |package tests
+        |
+        |import definitions as defs
+        |
+        |object Test:
+        |  def test(): Unit =
+        |    println(defs.Foo("bar"))
+        |""".stripMargin
+    )
+  }
+
+  def testUnqualifiedUnusedRenamedScala3ImportIsRemoved(): Unit = {
+    myFixture.addFileToProject("Foo.scala",
+      """
+        |package definitions
+        |
+        |case class Foo(s: String)
+        |""".stripMargin
+    )
+
+    doTest(
+      before =
+        """
+          |package tests
+          |
+          |import definitions as defs
+          |
+          |object Test:
+          |  def test(): Unit =
+          |    println("bar")
+          |""".stripMargin,
+      after =
+        """
+          |package tests
+          |
+          |object Test:
+          |  def test(): Unit =
+          |    println("bar")
+          |""".stripMargin,
+      expectedNotificationText = "Removed 1 import"
+    )
+  }
+
+  def testUnqualifiedUnusedRenamedScala3ImportIsRemoved2(): Unit = {
+    myFixture.addFileToProject("Foo.scala",
+      """
+        |package definitions
+        |
+        |case class Foo(s: String)
+        |""".stripMargin
+    )
+
+    doTest(
+      before =
+        """
+          |package tests
+          |
+          |import definitions as defs
+          |
+          |object Test:
+          |  def test(): Unit =
+          |    println(definitions.Foo("bar"))
+          |""".stripMargin,
+      after =
+        """
+          |package tests
+          |
+          |object Test:
+          |  def test(): Unit =
+          |    println(definitions.Foo("bar"))
+          |""".stripMargin,
+      expectedNotificationText = "Removed 1 import"
+    )
+  }
 }
