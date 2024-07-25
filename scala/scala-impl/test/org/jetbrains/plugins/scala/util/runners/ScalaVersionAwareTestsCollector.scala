@@ -43,7 +43,7 @@ class ScalaVersionAwareTestsCollector(klass: Class[_ <: TestCase],
 
   // warning test or collection of tests (each test method is multiplied by the amount of versions it is run with)
   private def testsFromTestCase(klass: Class[_]): Seq[(Test, Method, TestScalaVersion, TestJdkVersion, TestIndexingMode)] = {
-    def warn(text: String) = Seq((warning(text), null, null, null, null))
+    def warn(text: String) = Seq((TestSuite.warning(text), null, null, null, null))
 
     try TestSuite.getTestConstructor(klass) catch {
       case _: NoSuchMethodException =>
@@ -103,7 +103,7 @@ class ScalaVersionAwareTestsCollector(klass: Class[_ <: TestCase],
         val test = if (isPublic) {
           TestSuite.createTest(theClass, name)
         } else {
-          warning(s"Test method isn't public: ${method.getName}(${theClass.getCanonicalName})")
+          TestSuite.warning(s"Test method isn't public: ${method.getName}(${theClass.getCanonicalName})")
         }
         (test, scalaVersion, jdkVersion, indexingMode)
       }
@@ -156,10 +156,4 @@ class ScalaVersionAwareTestsCollector(klass: Class[_ <: TestCase],
     m.getParameterTypes.length == 0 &&
       m.getName.startsWith("test") &&
       m.getReturnType == Void.TYPE
-
-  // duplicate from `org.junit.framework.TestSuite.warning`
-  // the method is public in junit 4.12 in but private in `junit.jar` in IDEA jars which leads to a compilation error on TeamCity
-  private def warning(message: String) = new TestCase("warning") {
-    override protected def runTest(): Unit = org.junit.Assert.fail(message)
-  }
 }
