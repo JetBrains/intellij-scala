@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.editor.importOptimizer
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer._root_prefix
 import org.jetbrains.plugins.scala.extensions.implementation.iterator.ContextsIterator
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiMemberExt, PsiModifierListOwnerExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiElementExt, PsiMemberExt, PsiModifierListOwnerExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
@@ -131,9 +131,10 @@ object ImportInfo {
 
   def create(imp: ScImportExpr, isImportUsed: ImportUsed => Boolean): Option[ImportInfo] = {
     val qualifier = imp.qualifier.orNull
-    if (qualifier == null)
+    if (qualifier == null && !(imp.isInScala3File && imp.selectors.exists(_.isScala3StyleAliasImport)))
       return None //ignore invalid imports
 
+    val isUnqualifiedScala3StyleAlias = qualifier == null
     val isSource3 = imp.isSource3Enabled
     val importsUsed = ArrayBuffer[ImportUsed]()
     val allNames = mutable.HashSet[String]()
@@ -154,23 +155,6 @@ object ImportInfo {
     def isSource3WildcardGivenSelector(imp: ScImportSelector): Boolean = {
       isSource3 && imp.isGivenSelector
     }
-
-    val deepRef = deepestQualifier(qualifier)
-    val rootUsed = deepRef.textMatches(_root_prefix)
-
-    val (prefixQualifier, isRelative) =
-      if (rootUsed)
-        (explicitQualifierString(qualifier, withDeepest = false), false)
-      else {
-        val qualifiedDeepRef =
-          try qualifiedRef(deepRef)
-          catch {
-            case _: IllegalStateException => return None
-          }
-        val prefixQual = qualifiedDeepRef + withDot(explicitQualifierString(qualifier, withDeepest = false))
-        val relative = !deepRef.textMatches(qualifiedDeepRef)
-        (prefixQual, relative)
-      }
 
     // handle wildcards and source3-given-wildcards later
     for (selector <- imp.selectors if !selector.isWildcardSelector && !isSource3WildcardGivenSelector(selector)) {
@@ -206,75 +190,111 @@ object ImportInfo {
       }
     }
 
-    if (imp.hasWildcardSelector) {
-      val importUsed =
-        if (imp.selectorSet.isEmpty) new ImportExprUsed(imp)
-        else new ImportWildcardSelectorUsed(imp)
-      if (isImportUsed(importUsed)) {
-        importsUsed += importUsed
-        hasWildcard = true
-        val (namesForWildcard, implicitNames) = collectAllNamesAndImplicitsFromWildcard(prefixQualifier, imp)
-        allNames ++= namesForWildcard
-        allNamesForWildcard = namesForWildcard
-        hasNonUsedImplicits = (implicitNames -- singleNames).nonEmpty
-
-        if (isSource3) {
-          // in -Xsource:3, given selectors should be added iff the accompanying wildcard is used
-          for (givenSel <- imp.selectors.find(isSource3WildcardGivenSelector)) {
-            hasGivenWildcard = true
-            importsUsed += new ImportSelectorUsed(givenSel)
-          }
-        }
-      }
-    } else if (imp.selectorSet.isEmpty) {
-      val importUsed: ImportExprUsed = new ImportExprUsed(imp)
-      if (isImportUsed(importUsed)) {
-        importsUsed += importUsed
-        imp.reference match {
-          case Some(ref) =>
-            singleNames += ref.refName
-            addAllNames(ref, ref.refName)
-          case None => //something is not valid
-        }
-      }
-    }
-
     if (ImportInfoProvider.providers.exists(_.isImportUsedWithFileCheck(imp)))
       importsUsed += new ImportExprUsed(imp)
 
-    if (importsUsed.isEmpty)
-      return None //all imports are empty
+    if (isUnqualifiedScala3StyleAlias) {
+      allNames --= hiddenNames
 
-    allNames --= hiddenNames
-
-    val relativeQualifier =
-      if (isRelative) Some(explicitQualifierString(qualifier, withDeepest = true))
-      else None
-
-    val isStableImport = {
-      deepRef.resolve() match {
-        case named: PsiNamedElement => ScalaPsiUtil.hasStablePath(named)
-        case _ => false
-      }
-    }
-
-    Some(
-      new ImportInfo(
-        prefixQualifier,
-        relativeQualifier,
-        allNames.toSet,
-        singleNames.toSet,
-        renames.toMap,
-        hiddenNames.toSet,
-        hasWildcard,
-        rootUsed,
-        isStableImport,
-        allNamesForWildcard,
-        givenTypeTexts,
-        hasGivenWildcard,
-        hasNonUsedImplicits
+      Option.when(importsUsed.nonEmpty)(
+        new ImportInfo(
+          prefixQualifier = "",
+          relative = None,
+          allNames = allNames.toSet,
+          singleNames = singleNames.toSet,
+          renames = renames.toMap,
+          hiddenNames = hiddenNames.toSet,
+          hasWildcard = hasWildcard,
+          rootUsed = false,
+          isStableImport = true,
+          allNamesForWildcard = allNamesForWildcard,
+          givenTypeTexts = givenTypeTexts,
+          hasGivenWildcard = hasGivenWildcard,
+          wildcardHasUnusedImplicit = hasNonUsedImplicits
+        )
       )
-    )
+    } else {
+      val deepRef = deepestQualifier(qualifier)
+      val rootUsed = deepRef.textMatches(_root_prefix)
+
+      val (prefixQualifier, isRelative) =
+        if (rootUsed)
+          (explicitQualifierString(qualifier, withDeepest = false), false)
+        else {
+          val qualifiedDeepRef =
+            try qualifiedRef(deepRef)
+            catch {
+              case _: IllegalStateException => return None
+            }
+          val prefixQual = qualifiedDeepRef + withDot(explicitQualifierString(qualifier, withDeepest = false))
+          val relative = !deepRef.textMatches(qualifiedDeepRef)
+          (prefixQual, relative)
+        }
+
+      if (imp.hasWildcardSelector) {
+        val importUsed =
+          if (imp.selectorSet.isEmpty) new ImportExprUsed(imp)
+          else new ImportWildcardSelectorUsed(imp)
+        if (isImportUsed(importUsed)) {
+          importsUsed += importUsed
+          hasWildcard = true
+          val (namesForWildcard, implicitNames) = collectAllNamesAndImplicitsFromWildcard(prefixQualifier, imp)
+          allNames ++= namesForWildcard
+          allNamesForWildcard = namesForWildcard
+          hasNonUsedImplicits = (implicitNames -- singleNames).nonEmpty
+
+          if (isSource3) {
+            // in -Xsource:3, given selectors should be added iff the accompanying wildcard is used
+            for (givenSel <- imp.selectors.find(isSource3WildcardGivenSelector)) {
+              hasGivenWildcard = true
+              importsUsed += new ImportSelectorUsed(givenSel)
+            }
+          }
+        }
+      } else if (imp.selectorSet.isEmpty) {
+        val importUsed: ImportExprUsed = new ImportExprUsed(imp)
+        if (isImportUsed(importUsed)) {
+          importsUsed += importUsed
+          imp.reference match {
+            case Some(ref) =>
+              singleNames += ref.refName
+              addAllNames(ref, ref.refName)
+            case None => //something is not valid
+          }
+        }
+      }
+
+      val relativeQualifier =
+        if (isRelative) Some(explicitQualifierString(qualifier, withDeepest = true))
+        else None
+
+      val isStableImport = {
+        deepRef.resolve() match {
+          case named: PsiNamedElement => ScalaPsiUtil.hasStablePath(named)
+          case _ => false
+        }
+      }
+
+      allNames --= hiddenNames
+
+      Option.when(importsUsed.nonEmpty)(
+        new ImportInfo(
+          prefixQualifier,
+          relativeQualifier,
+          allNames.toSet,
+          singleNames.toSet,
+          renames.toMap,
+          hiddenNames.toSet,
+          hasWildcard,
+          rootUsed,
+          isStableImport,
+          allNamesForWildcard,
+          givenTypeTexts,
+          hasGivenWildcard,
+          hasNonUsedImplicits
+        )
+      )
+    }
   }
 
   def merge(infos: IterableOnce[ImportInfo]): Option[ImportInfo] = infos.iterator.reduceOption(_ merge _)
