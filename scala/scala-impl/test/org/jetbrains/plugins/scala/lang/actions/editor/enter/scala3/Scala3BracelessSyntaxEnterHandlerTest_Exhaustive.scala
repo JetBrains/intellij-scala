@@ -221,11 +221,9 @@ object Scala3BracelessSyntaxEnterHandlerTest_Exhaustive {
       tests.foreach(suite.addTest)
   }
 
+  //noinspection JUnitMalformedDeclaration
   @Category(Array(classOf[FileSetTests]))
   private final class ActualTest(testData: TestData) extends DoEditorStateTestOps {
-
-    // Unused, but needed to suppress inspection that JUnit test class cannot be constructed.
-    private[Scala3BracelessSyntaxEnterHandlerTest_Exhaustive] def this() = this(null)
 
     private implicit def p: Project = getProject
 

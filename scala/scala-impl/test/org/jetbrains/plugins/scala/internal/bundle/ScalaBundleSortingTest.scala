@@ -20,13 +20,10 @@ object ScalaBundleSortingTest {
     suite
   }
 
+  //noinspection JUnitMalformedDeclaration
   @Category(Array(classOf[BundleSortingTests]))
-  final class ActualTest(moduleInfo: ModuleWithBundleInfo) extends TestCase with AssertionMatchers {
-
-    this.setName(moduleInfo.bundleAbsolutePath.toString)
-
-    // Unused, but needed to suppress inspection that JUnit test class cannot be constructed.
-    private[ScalaBundleSortingTest] def this() = this(null)
+  final class ActualTest(moduleInfo: ModuleWithBundleInfo)
+    extends TestCase(moduleInfo.bundleMessagesRelativePath.stripSuffix(".properties")) with AssertionMatchers {
 
     override def runTest(): Unit = {
       checkDirectory(moduleInfo)
