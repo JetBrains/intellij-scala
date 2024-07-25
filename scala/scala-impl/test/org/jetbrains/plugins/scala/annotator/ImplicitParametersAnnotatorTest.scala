@@ -1,45 +1,50 @@
-package org.jetbrains.plugins.scala
-package annotator
+package org.jetbrains.plugins.scala.annotator
 
-import org.jetbrains.plugins.scala.annotator.template.ImplicitParametersAnnotator
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
-import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
+import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.{ScalaVersion, TypecheckerTests}
 import org.junit.experimental.categories.Category
 
-abstract class ImplicitParametersAnnotatorTestBase extends AnnotatorTestBase[ImplicitArgumentsOwner] {
-  protected def notFound(types: String*) = ImplicitParametersAnnotator.message(types)
+@Category(Array(classOf[TypecheckerTests]))
+abstract class ImplicitParametersAnnotatorTestBase
+  extends ScalaLightCodeInsightFixtureTestCase
+    with ScalaHighlightingTestLike {
 
-  override protected def annotate(element: ImplicitArgumentsOwner)
-                                 (implicit holder: ScalaAnnotationHolder): Unit =
-    ImplicitParametersAnnotator.annotate(element, typeAware = true)
+  override protected def sharedProjectToken: SharedTestProjectToken = super.sharedProjectToken
 }
 
-class ImplicitParametersAnnotatorTest extends ImplicitParametersAnnotatorTestBase {
-  import Message._
+class ImplicitParametersAnnotatorTest_Scala2 extends ImplicitParametersAnnotatorTestBase {
 
-  def testCorrectImplicits(): Unit = assertNothing(messages(
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
+
+  def testCorrectImplicits(): Unit = assertNoErrors(
     """def implicitly[T](implicit e: T) = e
       |implicit val implicitInt = 42
       |val v1: Int = implicitly
-      |val v2 = implicitly[Int]""".stripMargin
-  ))
+      |val v2 = implicitly[Int]
+      |""".stripMargin
+  )
 
-  def testUnresolvedImplicits(): Unit = assertMatches(messages(
+  def testUnresolvedImplicits(): Unit = assertMessagesText(
     """def implicitly[T](implicit e: T) = e
-      |implicit val implicitInt = implicitly[Int]""".stripMargin)) {
-    case Error("implicitly[Int]", m) :: Nil if m == notFound("Int") =>
-  }
+      |implicit val implicitInt = implicitly[Int]""".stripMargin,
+    """Error(implicitly[Int],No implicit arguments of type: Int)"""
+  )
 
-  def testPair(): Unit = assertMatches(messages("def foo(implicit i: Int, d: Double) = (i, d); foo")) {
-    case Error("foo", m) :: Nil if m == notFound("Int", "Double") =>
-  }
+  def testPair(): Unit = assertMessagesText(
+    """def foo(implicit i: Int, d: Double) = (i, d)
+      |foo""".stripMargin,
+    """Error(foo,No implicit arguments of type: Int, Double)"""
+  )
 
-  def testAmbiguous(): Unit = assertMatches(messages(
-    "def f(implicit i: Int) = (); implicit val i1: Int = 1; implicit val i2: Int = 2; f")) {
-    case Error("f", m) :: Nil if m == notFound("Int") =>
-  }
+  def testAmbiguous(): Unit = assertMessagesText(
+    """def f(implicit i: Int) = ()
+      |implicit val i1: Int = 1
+      |implicit val i2: Int = 2
+      |f""".stripMargin,
+    """Error(f,No implicit arguments of type: Int)"""
+  )
 
-  def testInfix(): Unit = assertNothing(messages(
+  def testInfix(): Unit = assertNoErrors(
     //adapted from scalatest
     """
       |trait Test {
@@ -57,11 +62,11 @@ class ImplicitParametersAnnotatorTest extends ImplicitParametersAnnotatorTestBas
       |  def equal(right: Int): MatcherFactory1[Int, Equality] = nothing
       |
       |  this should equal(42)
-      |}""".stripMargin)
+      |}""".stripMargin
   )
 
   //adapted from scalacheck usage in finch
-  def testCombineEquivBounds(): Unit = assertNothing(messages(
+  def testCombineEquivBounds(): Unit = assertNoErrors(
     """
       |object collection {
       |  trait Seq[X]
@@ -88,13 +93,12 @@ class ImplicitParametersAnnotatorTest extends ImplicitParametersAnnotatorTestBas
       |
       |  foo
       |}
-    """.stripMargin
-  ))
+      |""".stripMargin
+  )
 
   def testImplicitCollectorCacheBug(): Unit = {
-    val actualMessages = messages(
-      """
-        |implicit def int: Int = 1
+    assertMessagesText(
+      """implicit def int: Int = 1
         |implicit def bool(implicit int: Int): Boolean = true
         |
         |def foo(j: Int)(implicit b: Boolean) = j
@@ -109,14 +113,13 @@ class ImplicitParametersAnnotatorTest extends ImplicitParametersAnnotatorTestBas
         |
         |  foo(3)
         |}
-      """.stripMargin).get
-    assertMessages(actualMessages)(
-      Error("foo(2)", notFound("Boolean"))
+        |""".stripMargin,
+      """Error(foo(2),No implicit arguments of type: Boolean)"""
     )
   }
 
   def testImplicitsInConstructorsMissing(): Unit = {
-    val actualMessages = messages(
+    val code =
       """object Test {
         |
         |  class MyClass(implicit number: Int)
@@ -132,19 +135,19 @@ class ImplicitParametersAnnotatorTest extends ImplicitParametersAnnotatorTestBas
         |  new MyClassWithArgs(43)
         |}
         |""".stripMargin
-    ).get
-
-    assertMessages(actualMessages)(
-      Error("MyClass()",           notFound("Int")),
-      Error("MyClassWithArgs(42)", notFound("Int")),
-      Error("MyClass()",           notFound("Int")),
-      Error("MyClass",             notFound("Int")),
-      Error("MyClassWithArgs(43)", notFound("Int"))
+    assertMessagesText(
+      code,
+      """Error(MyClass(),No implicit arguments of type: Int)
+        |Error(MyClassWithArgs(42),No implicit arguments of type: Int)
+        |Error(MyClass(),No implicit arguments of type: Int)
+        |Error(MyClass,No implicit arguments of type: Int)
+        |Error(MyClassWithArgs(43),No implicit arguments of type: Int)
+        |""".stripMargin
     )
   }
 
   def testImplicitsInConstructors(): Unit = {
-    assertNothing(messages(
+    assertNoErrors(
       """object Test {
         |  implicit val i: Int = 0
         |
@@ -161,11 +164,11 @@ class ImplicitParametersAnnotatorTest extends ImplicitParametersAnnotatorTestBas
         |  new MyClassWithArgs(43)
         |}
         |""".stripMargin
-    ).get)
+    )
   }
 
-  def testApplyAfterConstructor(): Unit = {
-    val actualMessages = messages(
+  def testApplyAfterConstructor(): Unit =
+    assertMessagesText(
       """|object A {
          |
          |  class B
@@ -175,110 +178,94 @@ class ImplicitParametersAnnotatorTest extends ImplicitParametersAnnotatorTestBas
          |
          |  new MyClass()(2)
          |}
-         |""".stripMargin).get
-    assertMessages(actualMessages)(
-      Error("new MyClass()(2)", notFound("B"))
+         |""".stripMargin,
+      """Error(new MyClass()(2),No implicit arguments of type: B)"""
     )
-  }
 
-  def testImplicitBefore(): Unit = {
-    val implicitAbstract = messages(
-      """
-        |object ImplicitAbstract {
+  def testImplicitBefore1(): Unit =
+    assertMessagesText(
+      """object ImplicitAbstract {
         |  def bar(implicit i: Int) = i
         |  trait Actor { implicit def context: Int }
         |  trait Stash { def context: Int = 1 }
         |  trait ActorImpl extends Stash with Actor { bar }
         |}
-      """.stripMargin
+        |""".stripMargin,
+      """Error(bar,No implicit arguments of type: Int)"""
     )
-    val bothAbstract = messages(
-      """
-        |object BothAbstract {
-        |  def bar(implicit i: Int) = i
-        |  trait Actor { implicit def context: Int }
-        |  trait Stash { def context: Int }
-        |  trait ActorImpl extends Stash with Actor { bar }
-        |}
-      """.stripMargin
-    )
-    val implicitConcrete = messages(
-      """
-        |object ImplicitConcrete {
+
+  def testImplicitBefore2(): Unit =
+    assertNoErrors(
+      """object ImplicitConcrete {
         |  def bar(implicit i: Int) = i
         |  trait Actor { implicit def context: Int = 1 }
         |  trait Stash { def context: Int }
         |  trait ActorImpl extends Stash with Actor { bar }
         |}
-      """.stripMargin
+        |""".stripMargin
     )
 
-    assertNothing(implicitConcrete)
-    assertNothing(bothAbstract)
-
-    assertMessages(implicitAbstract.get)(
-      Error("bar", notFound("Int"))
-    )
-  }
-
-
-  def testNotImplicitBefore(): Unit = {
-    val bothAbstract = messages(
-      """
-        |object BothAbstract {
+  def testImplicitBefore3(): Unit =
+    assertNoErrors(
+      """object BothAbstract {
         |  def bar(implicit i: Int) = i
         |  trait Actor { implicit def context: Int }
         |  trait Stash { def context: Int }
-        |  trait ActorImpl extends Actor with Stash { bar }
+        |  trait ActorImpl extends Stash with Actor { bar }
         |}
-      """.stripMargin
+        |""".stripMargin
     )
-    val implicitAbstract = messages(
-      """
-        |object ImplicitAbstract {
+
+  def testNotImplicitBefore1(): Unit =
+    assertMessagesText(
+      """object ImplicitAbstract {
         |  def bar(implicit i: Int) = i
         |  trait Actor { implicit def context: Int }
         |  trait Stash { def context: Int = 1 }
         |  trait ActorImpl extends Actor with Stash { bar }
         |}
-      """.stripMargin
+        |""".stripMargin,
+      """Error(bar,No implicit arguments of type: Int)"""
     )
-    val implicitConcrete = messages(
-      """
-        |object ImplicitConcrete {
+
+  def testNotImplicitBefore2(): Unit =
+    assertMessagesText(
+      """object BothAbstract {
+        |  def bar(implicit i: Int) = i
+        |  trait Actor { implicit def context: Int }
+        |  trait Stash { def context: Int }
+        |  trait ActorImpl extends Actor with Stash { bar }
+        |}
+        |""".stripMargin,
+      """Error(bar,No implicit arguments of type: Int)"""
+    )
+
+  def testNotImplicitBefore3(): Unit =
+    assertNoErrors(
+      """object ImplicitConcrete {
         |  def bar(implicit i: Int) = i
         |  trait Actor { implicit def context: Int = 1 }
         |  trait Stash { def context: Int }
         |  trait ActorImpl extends Actor with Stash { bar }
         |}
-      """.stripMargin
+        |""".stripMargin
     )
 
-    assertNothing(implicitConcrete)
+  def testRecursiveFunctionSeveralImplicits(): Unit = assertNoErrors(
+    """
+      |object Bug {
+      |  trait Monad[F[_]]
+      |  trait Console[F[_]]
+      |  trait Random[F[_]]
+      |
+      |  def gameLoop[F[_]](implicit m: Monad[F], c: Console[F], r: Random[F]): F[Unit] = gameLoop
+      |
+      |  def gameLoop2[F[_]: Monad : Console : Random]: F[Unit] = gameLoop2
+      |}
+      |""".stripMargin
+  )
 
-    val error = Error("bar", notFound("Int")) :: Nil
-
-    assertMessages(error)(bothAbstract.get: _*)
-    assertMessages(error)(implicitAbstract.get: _*)
-  }
-
-  def testRecursiveFunctionSeveralImplicits(): Unit = {
-    val text =
-      """
-        |object Bug {
-        |  trait Monad[F[_]]
-        |  trait Console[F[_]]
-        |  trait Random[F[_]]
-        |
-        |  def gameLoop[F[_]](implicit m: Monad[F], c: Console[F], r: Random[F]): F[Unit] = gameLoop
-        |
-        |  def gameLoop2[F[_]: Monad : Console : Random]: F[Unit] = gameLoop2
-        |}
-      """.stripMargin
-    assertNothing(messages(text))
-  }
-
-  def testSCL17677(): Unit = assertNothing(messages(
+  def testSCL17677(): Unit = assertNoErrors(
     """
       |class Foo; class Bar extends Foo
       |trait C[-A] { def f(p: A): Unit }
@@ -287,115 +274,10 @@ class ImplicitParametersAnnotatorTest extends ImplicitParametersAnnotatorTestBas
       |def f[A: C](p: A) = ()
       |f(new Bar)
       |""".stripMargin
-  ))
+  )
 
-  // SCL-23591
-  def testDivergentType(): Unit = {
-    val actualMessages = messages(
-      """
-        |object Test {
-        |  trait B[T]
-        |  implicit def unbox[T](implicit b: B[T]): T /* = () */
-        |
-        |  // used to produce a stackoverflow because a search for B[T] could be satisfied by
-        |  //   unboxed[Int](unbox[B[Int]]                 )
-        |  //   unboxed[Int](unbox[B[Int]](unboxed[B[B[Int]]]))
-        |  // etc and our divergence algorithm was not working correctly
-        |  unbox[Int]
-        |}
-        |""".stripMargin
-    ).get
-
-    assertMessages(actualMessages)(
-      Error("unbox[Int]", notFound("B[Int]"))
-    )
-  }
-
-  def testNonDivergentTypeWithEvolvingCoverSet(): Unit = {
-    val actualMessages = messages(
-      """
-        |object Test {
-        |  trait +[L, R]
-        |
-        |  trait Atomic[V]
-        |  trait Assign[V, X]
-        |  trait AsString[X]
-        |
-        |  object AsString {
-        |    implicit def atomic[V](implicit a: Atomic[V]): AsString[V]
-        |    implicit def assign[V, X](implicit a: Assign[V, X], asx: AsString[X]): AsString[V]
-        |    implicit def plus[L, R](implicit asl: AsString[L], asr: AsString[R]): AsString[+[L, R]]
-        |  }
-        |
-        |  trait X
-        |  implicit val declareX: Atomic[X]
-        |  trait Y
-        |  implicit val declareY: Atomic[Y]
-        |  trait Z
-        |  implicit val declareZ: Atomic[Z]
-        |
-        |  trait Q
-        |  implicit val declareQ: Assign[Q, (X + Y) + Z]
-        |  trait R
-        |  implicit val declareR: Assign[R, Q + Z]
-        |
-        |  def implicitly[T](implicit t: T): T
-        |  implicitly[AsString[R]]
-        |}
-        |""".stripMargin
-    ).get
-
-    assertNothing(actualMessages)
-  }
-}
-
-class ImplicitParametersAnnotatorTest_Scala3 extends ImplicitParametersAnnotatorTestBase {
-  override def scalaVersion = ScalaVersion.Latest.Scala_3_4
-
-  // SCL-21490
-  def testGivenPatternsInFor(): Unit = {
-    assertNothing(messages3(
-      """
-        |object Blub {
-        |  def foreach(f: Int => Unit): Unit = ()
-        |  def withFilter(f: Int => Boolean): Blub.type = this
-        |}
-        |
-        |def summon[T](using t: T): T = t
-        |
-        |def main1(): Unit = {
-        |  for {
-        |    given Int <- Blub
-        |  } {
-        |    summon[Int]
-        |  }
-        |}
-        |""".stripMargin
-    ))
-  }
-
-  def testGivenPatternInCaseClause(): Unit = {
-    assertNothing(messages3(
-      """
-        |def giveInt(f: Int => Unit): Unit = ()
-        |def summon[T](using t: T): T = t
-        |
-        |giveInt { case given Int =>
-        |  summon[Int]
-        |}
-        |""".stripMargin
-    ))
-  }
-}
-
-//annotator tests doesn't have scala library, so it's not possible to use FunctionType, for example
-@Category(Array(classOf[TypecheckerTests]))
-class ImplicitParametersAnnotatorHeavyTest extends ScalaLightCodeInsightFixtureTestCase {
-  import Message._
-
-  def testSCL16246(): Unit = checkTextHasNoErrors(
-    """
-      |trait Info[A] {
+  def testSCL16246(): Unit = assertNoErrors(
+    """trait Info[A] {
       |  val value = ???
       |}
       |
@@ -411,11 +293,13 @@ class ImplicitParametersAnnotatorHeavyTest extends ScalaLightCodeInsightFixtureT
       |
       |implicit def conv(a: Int)(implicit info: Info[Bar]): Info[Bar] = ???
       |
-      |0.value
+      |object A {
+      |  0.value
+      |}
       |""".stripMargin
   )
 
-  def testSpecificityFromSbtDsl(): Unit = checkTextHasNoErrors(
+  def testSpecificityFromSbtDsl(): Unit = assertNoErrors(
     """object Test {
       |  object Append extends scala.AnyRef {
       |
@@ -440,7 +324,7 @@ class ImplicitParametersAnnotatorHeavyTest extends ScalaLightCodeInsightFixtureT
       |
       |  key += "someString"
       |}
-    """.stripMargin
+      |""".stripMargin
   )
 
   def testConstructorTypeInference(): Unit = checkTextHasNoErrors {
@@ -457,7 +341,7 @@ class ImplicitParametersAnnotatorHeavyTest extends ScalaLightCodeInsightFixtureT
       |  def print = printer.print(default)
       |}
       |class String
-    """.stripMargin
+      |""".stripMargin
   }
 
   def testSCL14180(): Unit = checkTextHasNoErrors {
@@ -484,12 +368,12 @@ class ImplicitParametersAnnotatorHeavyTest extends ScalaLightCodeInsightFixtureT
       |object Test {
       |  val jint: java.lang.Integer = Opt(41).boxedOrNull
       |}
-    """.stripMargin
+      |""".stripMargin
 
   }
 
   def testNotFoundImplicitWithExpectedType(): Unit = {
-    checkTextHasNoErrors(
+    assertNoErrors(
       s"""
          |object Z {
          |  trait Monoid[T]
@@ -512,8 +396,7 @@ class ImplicitParametersAnnotatorHeavyTest extends ScalaLightCodeInsightFixtureT
 
   def testSCL14305(): Unit = {
     val text =
-      """
-        |object TestImplicit {
+      """object TestImplicit {
         |
         |  /**
         |    * @see https://github.com/squeryl/squeryl/blob/master/src/main/scala/org/squeryl/dsl/TypedExpression.scala#L27-L84
@@ -546,11 +429,11 @@ class ImplicitParametersAnnotatorHeavyTest extends ScalaLightCodeInsightFixtureT
         |    println(s"${v2.value}")
         |  }
         |}
-      """.stripMargin
-    checkTextHasNoErrors(text)
+        |""".stripMargin
+    assertNoErrors(text)
   }
 
-  def testSCL14940(): Unit = checkTextHasNoErrors(
+  def testSCL14940(): Unit = assertNoErrors(
     """object EnumTest {
       |
       |  object Enum1 extends Enumeration {
@@ -580,10 +463,10 @@ class ImplicitParametersAnnotatorHeavyTest extends ScalaLightCodeInsightFixtureT
       |  enum.serialize
       |}
       |
-    """.stripMargin
+      |""".stripMargin
   )
 
-  def testSCL14936(): Unit = checkTextHasNoErrors(
+  def testSCL14936(): Unit = assertNoErrors(
     """
       |object IntellijExample {
       |
@@ -602,34 +485,100 @@ class ImplicitParametersAnnotatorHeavyTest extends ScalaLightCodeInsightFixtureT
       |
       |  123.foo.map(_ + 1)
       |}
-    """.stripMargin
+      |""".stripMargin
+  )
+
+  // SCL-23591
+  def testDivergentType(): Unit = {
+    assertErrorsText(
+      """
+        |object Test {
+        |  trait B[T]
+        |  implicit def unbox[T](implicit b: B[T]): T /* = () */
+        |
+        |  // used to produce a stackoverflow because a search for B[T] could be satisfied by
+        |  //   unboxed[Int](unbox[B[Int]]                 )
+        |  //   unboxed[Int](unbox[B[Int]](unboxed[B[B[Int]]]))
+        |  // etc and our divergence algorithm was not working correctly
+        |  unbox[Int]
+        |}
+        |""".stripMargin,
+      """Error(implicit def unbox[T](implicit b: B[T]): T,Only classes can have declared but undefined members)
+        |Error(unbox[Int],No implicit arguments of type: B[Int])""".stripMargin
+    )
+  }
+
+  def testNonDivergentTypeWithEvolvingCoverSet(): Unit = assertNoErrors(
+    """
+      |object Test {
+      |  trait +[L, R]
+      |
+      |  trait Atomic[V]
+      |  trait Assign[V, X]
+      |  trait AsString[X]
+      |
+      |  object AsString {
+      |    implicit def atomic[V](implicit a: Atomic[V]): AsString[V] = ???
+      |    implicit def assign[V, X](implicit a: Assign[V, X], asx: AsString[X]): AsString[V] = ???
+      |    implicit def plus[L, R](implicit asl: AsString[L], asr: AsString[R]): AsString[+[L, R]] = ???
+      |  }
+      |
+      |  trait X
+      |  implicit val declareX: Atomic[X] = ???
+      |  trait Y
+      |  implicit val declareY: Atomic[Y] = ???
+      |  trait Z
+      |  implicit val declareZ: Atomic[Z] = ???
+      |
+      |  trait Q
+      |  implicit val declareQ: Assign[Q, (X + Y) + Z] = ???
+      |  trait R
+      |  implicit val declareR: Assign[R, Q + Z] = ???
+      |
+      |  def implicitly[T](implicit t: T): T = ???
+      |  implicitly[AsString[R]]
+      |}
+      |""".stripMargin
   )
 }
 
-class ImplicitParameterFailingTest extends ScalaLightCodeInsightFixtureTestCase {
+class ImplicitParametersAnnotatorTest_Scala3 extends ImplicitParametersAnnotatorTestBase {
 
-  override protected def shouldPass = false
+  override protected def supportedIn(version: ScalaVersion): Boolean = version.isScala3
 
-  def test_t6948(): Unit = checkTextHasNoErrors(
-    """
-      |import scala.collection.generic.CanBuildFrom
-      |
-      |object Test {
-      |
-      |  def shuffle[T, CC[X] <: TraversableOnce[X]](xs: CC[T])(implicit bf: CanBuildFrom[CC[T], T, CC[T]]): CC[T] = ???
-      |  val range: Range.Inclusive = ???
-      |
-      |  def a1 = shuffle(range)
-      |}
-    """.stripMargin)
-}
+  // SCL-21490
+  def testGivenPatternsInFor(): Unit =
+    assertNoErrors(
+      """object Blub {
+        |  def foreach(f: Int => Unit): Unit = ()
+        |  def withFilter(f: Int => Boolean): Blub.type = this
+        |}
+        |
+        |def summon[T](using t: T): T = t
+        |
+        |def main1(): Unit = {
+        |  for {
+        |    given Int <- Blub
+        |  } {
+        |    summon[Int]
+        |  }
+        |}
+        |""".stripMargin
+    )
 
-@Category(Array(classOf[TypecheckerTests]))
-class ImplicitParametersAnnotatorHeavyTest_Scala3 extends ScalaLightCodeInsightFixtureTestCase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3_4
+  def testGivenPatternInCaseClause(): Unit =
+    assertNoErrors(
+      """def giveInt(f: Int => Unit): Unit = ()
+        |def summon[T](using t: T): T = t
+        |
+        |giveInt { case given Int =>
+        |  summon[Int]
+        |}
+        |""".stripMargin
+    )
 
   def testUsingInImplicitMethod(): Unit = {
-    checkTextHasNoErrors(
+    assertNoErrors(
       """
         |def test = {
         |  implicit def foo(using Int)(int: Int)(implicit imp: Int): Boolean = true
@@ -643,15 +592,15 @@ class ImplicitParametersAnnotatorHeavyTest_Scala3 extends ScalaLightCodeInsightF
   }
 }
 
-class ImplicitParametersAnnotatorFailingTest extends ImplicitParametersAnnotatorTestBase {
-  import Message._
+class ImplicitParametersAnnotatorFailingTest_Scala2 extends ImplicitParametersAnnotatorTestBase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 
   override protected def shouldPass = false
 
   def testSCL5472C(): Unit = {
     val text =
-      """
-        |class List[+A]
+      """class List[+A]
         |object List {
         |  def apply[A](xs: A*): List[A] = new List[A]()
         |}
@@ -679,9 +628,22 @@ class ImplicitParametersAnnotatorFailingTest extends ImplicitParametersAnnotator
         |
         |  foo
         |}
-      """.stripMargin
-    assertMessages(messages(text).get)(
-      Error("foo", notFound("ParamDefAux[Tuple2[Int, S_]]"))
+        |""".stripMargin
+    assertMessagesText(
+      text,
+      """Error("foo", notFound("ParamDefAux[Tuple2[Int, S_]]"))"""
     )
   }
+
+  def test_t6948(): Unit = assertNoErrors(
+    """import scala.collection.generic.CanBuildFrom
+      |
+      |object Test {
+      |
+      |  def shuffle[T, CC[X] <: TraversableOnce[X]](xs: CC[T])(implicit bf: CanBuildFrom[CC[T], T, CC[T]]): CC[T] = ???
+      |  val range: Range.Inclusive = ???
+      |
+      |  def a1 = shuffle(range)
+      |}
+      |""".stripMargin)
 }
