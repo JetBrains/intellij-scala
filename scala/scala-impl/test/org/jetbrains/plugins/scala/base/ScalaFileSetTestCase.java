@@ -99,12 +99,6 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
         return true;
     }
 
-    @NotNull
-    @Override
-    public final String getName() {
-        return getClass().getName();
-    }
-
     protected void setSettings(@NotNull Project project) {
         CommonCodeStyleSettings.IndentOptions indentOptions = getCommonSettings(project).getIndentOptions();
         assertNotNull(indentOptions);
@@ -187,7 +181,7 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
         return true;
     }
 
-    @SuppressWarnings("UnconstructableJUnitTestCase")
+    @SuppressWarnings("JUnitMalformedDeclaration")
     @Category({FileSetTests.class})
     private final class NoSdkTestCase extends LightJavaCodeInsightFixtureTestCase {
         private final File testFile;
@@ -246,7 +240,7 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
         }
     }
 
-    @SuppressWarnings("UnconstructableJUnitTestCase")
+    @SuppressWarnings("JUnitMalformedDeclaration")
     @Category({FileSetTests.class})
     private final class ActualTest extends ScalaLightCodeInsightFixtureTestCase {
 
@@ -317,7 +311,12 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
         @NotNull
         @Override
         public String getName() {
-            return myTestFile.getAbsolutePath();
+            final var name = myTestFile.getName();
+            final var dotIndex = name.lastIndexOf('.');
+            if (dotIndex == -1) {
+                return name;
+            }
+            return name.substring(0, dotIndex);
         }
     }
 
