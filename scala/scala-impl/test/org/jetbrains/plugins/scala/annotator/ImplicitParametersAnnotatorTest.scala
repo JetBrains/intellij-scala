@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.annotator
 
+import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.{ScalaVersion, TypecheckerTests}
 import org.junit.experimental.categories.Category
@@ -12,7 +13,169 @@ abstract class ImplicitParametersAnnotatorTestBase
   override protected def sharedProjectToken: SharedTestProjectToken = super.sharedProjectToken
 }
 
-class ImplicitParametersAnnotatorTest_Scala2 extends ImplicitParametersAnnotatorTestBase {
+abstract class ImplicitParametersAnnotatorTest_CommonTests extends ImplicitParametersAnnotatorTestBase {
+  //language=Scala
+  protected val MultipleImplicitParametersWithSameTypeInContextFromDifferentScopes_SameName_Code =
+    """def foo2(implicit sameName: String): Unit = {
+      |  def bar1(p: Int)(implicit sameName: String): Unit =
+      |    implicitly[String]
+      |}
+      |
+      |object O1 {
+      |  implicit def sameName: String = "1"
+      |
+      |  object O2 {
+      |    implicit def sameName: String = "2"
+      |
+      |    object O3 {
+      |      implicit def sameName: String = "3"
+      |
+      |      implicitly[String]
+      |    }
+      |  }
+      |}""".stripMargin
+  def testMultipleImplicitParametersWithSameTypeInContextFromDifferentScopes_SameName(): Unit = {
+    assertNoErrors(MultipleImplicitParametersWithSameTypeInContextFromDifferentScopes_SameName_Code)
+  }
+
+  //language=Scala
+  protected val MultipleImplicitParametersWithSameTypeInContextFromDifferentScopes_DifferentNames_Code =
+    """def foo2(implicit differentName1: String): Unit = {
+      |  def bar1(p: Int)(implicit differentName2: String): Unit =
+      |    implicitly[String]
+      |}
+      |
+      |object O1 {
+      |  implicit def differentName1: String = "1"
+      |
+      |  object O2 {
+      |    implicit def differentName2: String = "2"
+      |
+      |    object O3 {
+      |      implicit def differentName3: String = "3"
+      |
+      |      implicitly[String]
+      |    }
+      |  }
+      |}
+      |""".stripMargin
+  def testMultipleImplicitParametersWithSameTypeInContextFromDifferentScopes_DifferentNames(): Unit = {
+    assertMessagesText(
+      MultipleImplicitParametersWithSameTypeInContextFromDifferentScopes_DifferentNames_Code,
+      """Error(implicitly[String],No implicit arguments of type: String)
+        |Error(implicitly[String],No implicit arguments of type: String)
+        |""".stripMargin
+    )
+  }
+
+  //language=Scala
+  protected val MultipleImplicitConversionsWithSameTypeInContextFromDifferentScopes_SameName_Code =
+    """//noinspection DuplicatedCode
+      |object nested_conversions {
+      |  def foo1(): Unit = {
+      |    implicit def sameName(x: Int): String = ???
+      |
+      |    def bar1(p: Int): Unit = {
+      |      implicit def sameName(x: Int): String = ???
+      |
+      |      val x: String = 42
+      |    }
+      |  }
+      |}""".stripMargin
+  def testMultipleImplicitConversionsWithSameTypeInContextFromDifferentScopes_SameName(): Unit = {
+    assertNoErrors(MultipleImplicitConversionsWithSameTypeInContextFromDifferentScopes_SameName_Code)
+  }
+
+  //language=Scala
+  protected val MultipleImplicitConversionsWithSameTypeInContextFromDifferentScopes_DifferentNames_Code =
+    """//noinspection DuplicatedCode
+      |object nested_conversions {
+      |  def foo2(): Unit = {
+      |    implicit def differentName1(x: Int): String = ???
+      |
+      |    def bar2(p: Int): Unit = {
+      |      implicit def differentName2(x: Int): String = ???
+      |
+      |      val x: String = 42
+      |    }
+      |  }
+      |}
+      |""".stripMargin
+  def testMultipleImplicitConversionsWithSameTypeInContextFromDifferentScopes_DifferentNames(): Unit = {
+    assertMessagesText(
+      MultipleImplicitConversionsWithSameTypeInContextFromDifferentScopes_DifferentNames_Code,
+      """Error(42,Expression of type Int doesn't conform to expected type String)
+        |""".stripMargin
+    )
+  }
+
+  def testToBinaryString(): Unit = assertNoErrors(
+    """(23 : Int).toBinaryString
+      |(23 : Long).toBinaryString
+      |""".stripMargin
+  )
+
+  def testToBinaryString_WithFlagConversion(): Unit = assertNoErrors(
+    """import scala.language.implicitConversions
+      |
+      |(23 : Int).toBinaryString
+      |(23 : Long).toBinaryString
+      |""".stripMargin
+  )
+
+  def testTopLevelImplicitsWithClashingAndNotClashingNames(): Unit = {
+    addScalaFileToProject("implicit_resolution_changes.scala",
+      """package object implicit_resolution_changes {
+        |  @inline implicit def intWrapper2(x: Int): RichInt2 = new RichInt2(x)
+        |
+        |  class RichInt2(x: Int) {
+        |    def toBinaryString2: String = ???
+        |  }
+        |}
+        |""".stripMargin
+    )
+    addScalaFileToProject("inner_package.scala",
+      """package implicit_resolution_changes
+        |
+        |package object inner_package {
+        |  @inline implicit def intWrapper(x: Int): RichInt3 = new RichInt3(x)
+        |  class RichInt3(x: Int) { def toBinaryString3: String = ??? }
+        |}
+        |""".stripMargin
+    )
+    assertNoErrors(
+      """package implicit_resolution_changes
+        |
+        |object O1 {
+        |  (23: Int).toBinaryString
+        |  (23: Int).toBinaryString2
+        |}
+        |
+        |object O2 {
+        |  implicit def myLongImplicit: Long = ???
+        |  (23: Int).toBinaryString
+        |  (23: Int).toBinaryString2
+        |}
+        |
+        |object O3 {
+        |  implicit def intWrapper: Long = ???
+        |  (23: Int).toBinaryString
+        |  (23: Int).toBinaryString2
+        |}
+        |
+        |package inner_package {
+        |  object O1 {
+        |    (23: Int).toBinaryString
+        |    (23: Int).toBinaryString2
+        |    (23: Int).toBinaryString3
+        |  }
+        |}
+        |""".stripMargin
+    )
+  }
+}
+
+class ImplicitParametersAnnotatorTest_Scala2 extends ImplicitParametersAnnotatorTest_CommonTests {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 
@@ -542,9 +705,11 @@ class ImplicitParametersAnnotatorTest_Scala2 extends ImplicitParametersAnnotator
   )
 }
 
-class ImplicitParametersAnnotatorTest_Scala3 extends ImplicitParametersAnnotatorTestBase {
+class ImplicitParametersAnnotatorTest_Scala3 extends ImplicitParametersAnnotatorTest_CommonTests {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version.isScala3
+
+  override protected def assertNoErrors(@Language("Scala 3") code: String): Unit = super.assertNoErrors(code)
 
   // SCL-21490
   def testGivenPatternsInFor(): Unit =
@@ -590,6 +755,77 @@ class ImplicitParametersAnnotatorTest_Scala3 extends ImplicitParametersAnnotator
         |""".stripMargin
     )
   }
+
+  override def testMultipleImplicitParametersWithSameTypeInContextFromDifferentScopes_SameName(): Unit =
+    assertNoMessages(MultipleImplicitParametersWithSameTypeInContextFromDifferentScopes_SameName_Code)
+
+  override def testMultipleImplicitParametersWithSameTypeInContextFromDifferentScopes_DifferentNames(): Unit =
+    assertNoMessages(MultipleImplicitParametersWithSameTypeInContextFromDifferentScopes_DifferentNames_Code)
+
+  override def testMultipleImplicitConversionsWithSameTypeInContextFromDifferentScopes_SameName(): Unit =
+    assertNoMessages(MultipleImplicitConversionsWithSameTypeInContextFromDifferentScopes_SameName_Code)
+
+  override def testMultipleImplicitConversionsWithSameTypeInContextFromDifferentScopes_DifferentNames(): Unit =
+    assertNoMessages(MultipleImplicitConversionsWithSameTypeInContextFromDifferentScopes_DifferentNames_Code)
+
+  def testMultipleImplicitParametersWithSameTypeInContextFromDifferentScopes_DifferentNames_UsingAndGivensSyntax(): Unit = {
+    val code =
+      """def f1(using differentName1: String): Unit =
+        |  def f2(p: Int)(using differentName2: String): Unit =
+        |    def f3(p: Int)(using String): Unit =
+        |      summon[String]
+        |
+        |object O1:
+        |  given differentName1: String = "1"
+        |  object O2:
+        |    given differentName2: String = "2"
+        |    object O3:
+        |      given String = "3"
+        |      implicitly[String]
+        |""".stripMargin
+
+    assertNoErrors(code)
+  }
+
+  def testScala3TopLevelImplicitsWithClashingAndNotClashingNames(): Unit = {
+    assertNoErrors(
+      """package implicit_resolution_changes
+        |
+        |@inline implicit def intWrapper2(x: Int): RichInt2 = new RichInt2(x)
+        |class RichInt2(x: Int) {
+        |   def toBinaryString2: String = ???
+        |}
+        |
+        |object O1 {
+        |  (23: Int).toBinaryString
+        |  (23: Int).toBinaryString2
+        |}
+        |
+        |object O2 {
+        |  implicit def myLongImplicit: Long = ???
+        |  (23: Int).toBinaryString
+        |  (23: Int).toBinaryString2
+        |}
+        |
+        |object O3 {
+        |  implicit def intWrapper: Long = ???
+        |  (23: Int).toBinaryString
+        |  (23: Int).toBinaryString2
+        |}
+        |
+        |package inner_package {
+        |  @inline implicit def intWrapper(x: Int): RichInt3 = new RichInt3(x)
+        |  class RichInt3(x: Int) { def toBinaryString3: String = ??? }
+        |
+        |  object O1 {
+        |    (23: Int).toBinaryString
+        |    (23: Int).toBinaryString2
+        |    (23: Int).toBinaryString3
+        |  }
+        |}
+        |""".stripMargin
+    )
+  }
 }
 
 class ImplicitParametersAnnotatorFailingTest_Scala2 extends ImplicitParametersAnnotatorTestBase {
@@ -598,8 +834,8 @@ class ImplicitParametersAnnotatorFailingTest_Scala2 extends ImplicitParametersAn
 
   override protected def shouldPass = false
 
-  def testSCL5472C(): Unit = {
-    val text =
+  def testSCL5472C(): Unit =
+    assertMessagesText(
       """class List[+A]
         |object List {
         |  def apply[A](xs: A*): List[A] = new List[A]()
@@ -628,12 +864,9 @@ class ImplicitParametersAnnotatorFailingTest_Scala2 extends ImplicitParametersAn
         |
         |  foo
         |}
-        |""".stripMargin
-    assertMessagesText(
-      text,
+        |""".stripMargin,
       """Error("foo", notFound("ParamDefAux[Tuple2[Int, S_]]"))"""
     )
-  }
 
   def test_t6948(): Unit = assertNoErrors(
     """import scala.collection.generic.CanBuildFrom
@@ -645,5 +878,6 @@ class ImplicitParametersAnnotatorFailingTest_Scala2 extends ImplicitParametersAn
       |
       |  def a1 = shuffle(range)
       |}
-      |""".stripMargin)
+      |""".stripMargin
+  )
 }
