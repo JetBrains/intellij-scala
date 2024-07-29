@@ -18,9 +18,6 @@ object ScalaPossibleSourceTypesTest {
   def suite(): Test = new ScalaFileSetTestCase("/parser/data") with PossibleSourceTypesTestBase {
     override protected def getLanguage: Language = ScalaLanguage.INSTANCE
 
-    override protected def supportedInScalaVersion(version: ScalaVersion): Boolean =
-      version == ScalaVersion.Latest.Scala_2_13
-
     override protected def runTest(testName0: String, content: String, project: Project): Unit = withPossibleSourceTypesCheck {
       val file = createLightFile(content, project)
       val uFile = UastFacade.INSTANCE.convertElementWithParent[UFile](file, Array())
