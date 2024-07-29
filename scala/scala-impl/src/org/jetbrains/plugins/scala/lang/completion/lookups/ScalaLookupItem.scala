@@ -68,6 +68,7 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
   var isInSimpleString: Boolean = false
   var isInSimpleStringNoBraces: Boolean = false
   var isInInterpolatedString: Boolean = false
+  var isInStableElementPattern: Boolean = false
 
   def isNamedParameterOrAssignment: Boolean = isNamedParameter || isAssignment
 

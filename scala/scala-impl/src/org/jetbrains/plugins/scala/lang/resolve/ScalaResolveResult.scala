@@ -393,7 +393,8 @@ object ScalaResolveResult {
                             containingClass: Option[PsiClass] = None,
                             isLocalVariable: Boolean = false,
                             isInSimpleString: Boolean = false,
-                            isInInterpolatedString: Boolean = false): ScalaLookupItem = {
+                            isInInterpolatedString: Boolean = false,
+                            isInStableElementPattern: Boolean = false): ScalaLookupItem = {
       val ScalaResolveResult(element, substitutor) = resolveResult
       if (!element.isValid) {
         throw new IllegalArgumentException(s"`$element` is supposed to be valid (please consider using ${classOf[com.intellij.openapi.application.ReadAction[_]].getName})")
@@ -457,6 +458,7 @@ object ScalaResolveResult {
       result.isLocalVariable = isLocalVariable
       result.isInSimpleString = isInSimpleString
       result.isInInterpolatedString = isInInterpolatedString
+      result.isInStableElementPattern = isInStableElementPattern
 
       result
     }
