@@ -51,11 +51,6 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
   private def codeStyleManager(implicit project: Project): CodeStyleManager =
     CodeStyleManager.getInstance(project)
 
-  override protected def setUp(): Unit = {
-    super.setUp()
-    TestUtils.disableTimerThread()
-  }
-
   override def tearDown(): Unit = {
     // clean virtual files references to aboid project leaks
     // NOTE: in theory it shouldn't be required because VirtualFiles are not associated with project, they are application-level

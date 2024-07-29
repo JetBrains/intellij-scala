@@ -6,7 +6,6 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiComment, PsiFile}
-import com.intellij.testFramework.common.ThreadLeakTracker
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.junit.Assert
 import org.junit.Assert.{assertNotNull, fail}
@@ -128,16 +127,6 @@ object TestUtils {
     input.add(content)
     Assert.assertTrue("No data found in source file", input.size > 0)
     input
-  }
-
-  def disableTimerThread(): Unit = {
-    //This hacky "something" is originated from this commit:
-    //  Fixed thread leak in PrivacyPolicyUpdater (it was actually suppressed).
-    //  f0e2ac01 Alexander.Podkhalyuzin <alexander.podkhalyuzin@jetbrains.com> on 7/23/2016 at 12:03
-    //Not sure if it's still actual though
-    ThreadLeakTracker.longRunningThreadCreated(UnloadAwareDisposable.scalaPluginDisposable, "Timer")
-    ThreadLeakTracker.longRunningThreadCreated(UnloadAwareDisposable.scalaPluginDisposable, "BaseDataReader")
-    ThreadLeakTracker.longRunningThreadCreated(UnloadAwareDisposable.scalaPluginDisposable, "ProcessWaitFor")
   }
 
   /**

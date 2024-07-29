@@ -18,7 +18,7 @@ import com.intellij.testFramework.{EditorTestUtil, IdeaTestUtil, LightProjectDes
 import com.intellij.util.lang.JavaVersion
 import org.intellij.lang.annotations.Language
 import org.jetbrains.jps.model.java.JavaSourceRootType
-import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ScalaSDKLoader, SmartJDKLoader, SourcesLoader}
+import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ScalaSDKLoader, SourcesLoader}
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
@@ -130,7 +130,6 @@ abstract class ScalaLightCodeInsightFixtureTestCase
   override protected def setUp(): Unit = {
     super.setUp()
     scalaFixture //init fixture lazy val
-    TestUtils.disableTimerThread()
   }
 
   override protected def tearDown(): Unit = {
