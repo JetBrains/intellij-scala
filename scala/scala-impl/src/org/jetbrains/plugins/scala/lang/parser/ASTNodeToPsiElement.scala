@@ -36,7 +36,6 @@ object ASTNodeToPsiElement {
          */
         new ScDocResolvableCodeReferenceImpl(node)
 
-      case NAME_VALUE_PAIR => new ScNameValuePairImpl(node)
       case ANNOTATION_EXPR => new ScAnnotationExprImpl(node)
       case END_STMT => new ScEndImpl(node)
 

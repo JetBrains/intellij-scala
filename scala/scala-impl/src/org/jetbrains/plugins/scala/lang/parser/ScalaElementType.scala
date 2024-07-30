@@ -158,7 +158,6 @@ object ScalaElementType {
    * to create a syntetic reference from doc
    */
   val DOC_REFERENCE: ScalaElementType = new ScalaElementType("doc reference")
-  val NAME_VALUE_PAIR: ScalaElementType = new ScalaElementType("name value pair")
   val ANNOTATION_EXPR: ScalaElementType = new ScalaElementType("annotation expression")
   val END_STMT: ScalaElementType = new ScalaElementType("end")
 
