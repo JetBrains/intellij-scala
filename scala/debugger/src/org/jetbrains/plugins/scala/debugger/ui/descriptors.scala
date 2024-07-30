@@ -94,13 +94,9 @@ private final class NotInitializedFieldLazyValDescriptor(project: Project, ref: 
 
   OnDemandRenderer.ON_DEMAND_CALCULATED.set(this, false)
   setOnDemandPresentationProvider { node =>
-    node.setFullValueEvaluator(OnDemandRenderer.createFullValueEvaluator(DebuggerBundle.message("initialize.lazy.val")))
     val typeName = init.returnTypeName()
     node.setPresentation(icon, typeName, DebuggerBundle.message("lazy.val.not.initialized"), false)
   }
-
-  override def calcValue(context: EvaluationContextImpl): Value =
-    context.getDebugProcess.invokeMethod(context, ref, init, Seq.empty.asJava)
 
   private val icon: Icon = {
     var base = AllIcons.Nodes.Field
