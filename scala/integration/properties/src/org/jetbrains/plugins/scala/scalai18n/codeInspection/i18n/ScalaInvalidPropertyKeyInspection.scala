@@ -46,14 +46,6 @@ class ScalaInvalidPropertyKeyInspection extends LocalInspectionTool {
       problems.add(manager.createProblemDescriptor(expression, description, null: LocalQuickFix,
         ProblemHighlightType.LIKE_UNKNOWN_SYMBOL, onTheFly))
     }
-
-    def isComputablePropertyExpression(myExpression: ScExpression): Boolean = {
-      var expression = myExpression
-      while (expression != null && expression.getParent.isInstanceOf[ScParenthesisedExpr]) {
-        expression = expression.getParent.asInstanceOf[ScExpression]
-      }
-      expression != null && expression.getParent.isInstanceOf[ScExpression]
-    }
   }
 
   private class UnresolvedPropertyVisitor(myManager: InspectionManager, onTheFly: Boolean) extends ScalaRecursiveElementVisitor {
@@ -67,16 +59,13 @@ class ScalaInvalidPropertyKeyInspection extends LocalInspectionTool {
       }
 
       val key: String = stringLiteral.getValue
-      if (isComputablePropertyExpression(stringLiteral))
-        return
-
       val resourceBundleName: Ref[String] = new Ref[String]
       if (!ScalaI18nUtil.isValidPropertyReference(stringLiteral, key, resourceBundleName)) {
         appendPropertyKeyNotFoundProblem(key, stringLiteral, myManager, myProblems, onTheFly)
       } else {
         stringLiteral.getParent match {
-          case nvp: ScNameValuePair =>
-            if (Objects.equals(nvp.name, AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER)) {
+          case ScAssignment(left: ScReferenceExpression, Some(`stringLiteral`)) =>
+            if (Objects.equals(left.refName, AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER)) {
               val manager: PropertiesReferenceManager = PropertiesReferenceManager.getInstance(stringLiteral.getProject)
               val module: Module = ModuleUtilCore.findModuleForPsiElement(stringLiteral)
               if (module != null) {
