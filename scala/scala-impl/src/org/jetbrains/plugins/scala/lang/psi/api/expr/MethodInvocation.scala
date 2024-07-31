@@ -94,12 +94,8 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
 
 object MethodInvocation {
 
-  def unapply(methodInvocation: MethodInvocation): Option[(ScExpression, Seq[ScExpression])] =
-    for {
-      invocation <- Option(methodInvocation)
-      expression = invocation.getInvokedExpr
-      if expression != null
-    } yield (expression, invocation.argumentExpressions)
+  def unapply(methodInvocation: MethodInvocation): Some[(ScExpression, Seq[ScExpression])] =
+    Some((methodInvocation.getInvokedExpr, methodInvocation.argumentExpressions))
 
   /**
     * @return map of expressions and parameters
