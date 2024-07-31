@@ -20,7 +20,7 @@ private final class StaticMembersFinder(place: ScReferenceExpression,
                                        (private val namePredicate: String => Boolean)
   extends ByPlaceGlobalMembersFinder(place, accessAll) {
 
-  override protected[global] def candidates: Iterable[GlobalMemberResult] = {
+  override protected[global] def allCandidates: Iterable[GlobalMemberResult] = {
     implicit val scope: GlobalSearchScope = place.resolveScope
     val cacheManager = ScalaShortNamesCacheManager.getInstance(place.getProject)
 
