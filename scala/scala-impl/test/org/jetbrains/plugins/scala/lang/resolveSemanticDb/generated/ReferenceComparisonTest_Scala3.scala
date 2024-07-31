@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.resolveSemanticDb
 package generated
 
 import org.jetbrains.plugins.scala.ScalacTests
+import org.jetbrains.plugins.scala.util.RevertableChange
 import org.junit.experimental.categories.Category
 
 /**
@@ -1459,7 +1460,10 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i15670(): Unit = doTest("i15670", false) // #givenImport
   def test_i15673(): Unit = doTest("i15673", true) // #extension
   def test_i15677(): Unit = doTest("i15677", true)
-  def test_i15715(): Unit = doTest("i15715", false) // #spliced/quoted
+  // TODO: SCL-22911 run the test with ast.loading.filter=true (the default) when fixed
+  def test_i15715(): Unit = RevertableChange.withModifiedRegistryValue("ast.loading.filter", false).run {
+    doTest("i15715", false) // #spliced/quoted
+  }
   def test_i15717(): Unit = doTest("i15717", true)
   def test_i15738(): Unit = doTest("i15738", false)
   def test_i15743(): Unit = doTest("i15743", true)

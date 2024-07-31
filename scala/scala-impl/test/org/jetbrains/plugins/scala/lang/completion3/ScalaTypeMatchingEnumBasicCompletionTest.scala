@@ -1003,6 +1003,7 @@ final class ScalaTypeMatchingEnumBasicCompletionTest_2_13 extends ScalaTypeMatch
 final class ScalaTypeMatchingEnumBasicCompletionTest_3_Latest extends ScalaTypeMatchingEnumBasicCompletionTest {
 
   // TODO: ERROR: Tree access disabled in org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.EnumMembersInjector#injectEnumCase
+  //       SCL-22912
   private def withoutAstLoadingFilter(action: => Unit): Unit = {
     val oldValue = Registry.get("ast.loading.filter").asBoolean()
     try {
@@ -1326,7 +1327,7 @@ final class ScalaTypeMatchingEnumBasicCompletionTest_3_Latest extends ScalaTypeM
     )
   }
 
-  def testScala3EnumInMethodCall(): Unit = {
+  def testScala3EnumInMethodCall(): Unit = withoutAstLoadingFilter {
     configureScala3Enum()
 
     doCompletionTest(
@@ -1360,7 +1361,7 @@ final class ScalaTypeMatchingEnumBasicCompletionTest_3_Latest extends ScalaTypeM
     )
   }
 
-  def testScala3EnumInMethodCallWithNamedArgument(): Unit = {
+  def testScala3EnumInMethodCallWithNamedArgument(): Unit = withoutAstLoadingFilter {
     configureScala3Enum()
 
     doCompletionTest(
