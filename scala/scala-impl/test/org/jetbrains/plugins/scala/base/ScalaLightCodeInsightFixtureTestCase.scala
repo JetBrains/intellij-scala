@@ -92,8 +92,6 @@ abstract class ScalaLightCodeInsightFixtureTestCase
    *       test invocations. Look into also overriding [[sharedProjectToken]].
    */
   protected def afterSetUpProject(project: Project, module: Module): Unit = {
-    Registry.get("ast.loading.filter").setValue(true, getTestRootDisposable)
-
     setUpLibraries(module)
   }
 
@@ -130,6 +128,7 @@ abstract class ScalaLightCodeInsightFixtureTestCase
   override protected def setUp(): Unit = {
     super.setUp()
     scalaFixture //init fixture lazy val
+    Registry.get("ast.loading.filter").setValue(true, getTestRootDisposable)
   }
 
   override protected def tearDown(): Unit = {
