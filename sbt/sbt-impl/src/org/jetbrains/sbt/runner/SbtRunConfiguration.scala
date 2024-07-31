@@ -18,7 +18,6 @@ import org.jdom.Element
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 import org.jetbrains.sbt.SbtUtil
-import org.jetbrains.sbt.project.extensionPoints.SbtEnvironmentVariablesProvider
 import org.jetbrains.sbt.settings.SbtSettings
 
 import java.io.File
@@ -115,16 +114,15 @@ class SbtCommandLineState(val processedCommands: String, val configuration: SbtR
     }
   
   override def createJavaParameters(): JavaParameters = {
-    val environmentVariables = configuration.environmentVariables
+    val project = configuration.getProject
     val params: JavaParameters = new JavaParameters
-    val jdk: Sdk = JavaParametersUtil.createProjectJdk(configuration.getProject, null)
-    val additionalEnvVariables = SbtEnvironmentVariablesProvider.computeAdditionalVariables(jdk).asJava
-    environmentVariables.putAll(additionalEnvVariables)
 
     params.setWorkingDirectory(configuration.workingDir)
-    params.configureByProject(configuration.getProject, JavaParameters.JDK_ONLY, jdk)
+
+    val jdk: Sdk = JavaParametersUtil.createProjectJdk(project, null)
+    params.configureByProject(project, JavaParameters.JDK_ONLY, jdk)
     
-    val sbtSystemSettings = SbtSettings.getInstance(configuration.getProject).getState
+    val sbtSystemSettings = SbtSettings.getInstance(project).getState
     if (sbtSystemSettings.customLauncherEnabled) {
       params.getClassPath.add(sbtSystemSettings.customLauncherPath)
       params.setMainClass(determineMainClass(sbtSystemSettings.customLauncherPath))
@@ -134,7 +132,7 @@ class SbtCommandLineState(val processedCommands: String, val configuration: SbtR
       params.setMainClass(determineMainClass(launcher.getAbsolutePath))
     }
     
-    params.setEnv(environmentVariables)
+    params.setEnv(configuration.environmentVariables)
     params.getVMParametersList.addParametersString(configuration.vmparams)
     params.getProgramParametersList.addParametersString(processedCommands)
     

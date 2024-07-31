@@ -17,7 +17,6 @@ import org.jetbrains.annotations.NonNls
 import org.jetbrains.jps.model.java.JdkVersionDetector
 import org.jetbrains.plugins.scala.extensions.{RichFile, invokeAndWait}
 import org.jetbrains.sbt.SbtBundle
-import org.jetbrains.sbt.project.extensionPoints.SbtEnvironmentVariablesProvider
 import org.jetbrains.sbt.project.settings._
 import org.jetbrains.sbt.project.structure.SbtOpts
 import org.jetbrains.sbt.settings.{SbtExternalSystemConfigurable, SbtSettings}
@@ -83,7 +82,6 @@ object SbtExternalSystemManager {
     val vmExecutable = getVmExecutable(projectJdkName, settingsState)
     val jreHome = vmExecutable.parent.flatMap(_.parent)
     val vmOptions = getVmOptions(settingsState, jreHome, projectSettings.separateProdAndTestSources)
-    val environment = Map.empty ++ getAndroidEnvironmentVariables(projectJdkName)
     val sbtOptions = SbtOpts.combineOptionsWithArgs(settings.sbtOptions)
 
     new SbtExecutionSettings(
@@ -92,7 +90,6 @@ object SbtExternalSystemManager {
       vmOptions = vmOptions,
       sbtOptions = sbtOptions,
       hiddenDefaultMaxHeapSize = SbtSettings.hiddenDefaultMaxHeapSize,
-      environment = environment,
       customLauncher = customLauncher,
       customSbtStructureFile = customSbtStructureFile,
       jdk = projectJdkName,
@@ -178,12 +175,6 @@ object SbtExternalSystemManager {
 
     realExe
   }
-
-  private def getAndroidEnvironmentVariables(projectJdkName: Option[String]): Map[String, String] =
-    projectJdkName
-      .flatMap(name => Option(ProjectJdkTable.getInstance().findJdk(name)))
-      .map(SbtEnvironmentVariablesProvider.computeAdditionalVariables)
-      .getOrElse(Map.empty)
 
   private def getVmOptions(
     settings: SbtSettings.State,

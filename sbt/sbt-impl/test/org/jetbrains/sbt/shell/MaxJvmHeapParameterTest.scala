@@ -28,7 +28,6 @@ class MaxJvmHeapParameterTest extends TestCase {
       vmOptions = userOpts,
       sbtOptions = List.empty,
       hiddenDefaultMaxHeapSize = hiddenDefaultSize,
-      environment = null,
       customLauncher = null,
       customSbtStructureFile = null,
       jdk = null,

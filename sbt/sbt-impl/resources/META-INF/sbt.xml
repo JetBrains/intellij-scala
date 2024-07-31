@@ -1,8 +1,5 @@
 <idea-plugin>
     <extensionPoints>
-        <extensionPoint qualifiedName="com.intellij.sbt.environmentVariableProvider"
-                        interface="org.jetbrains.sbt.project.extensionPoints.SbtEnvironmentVariablesProvider"
-                        dynamic="true"/>
         <extensionPoint qualifiedName="com.intellij.sbt.configurationMainClassExtractor"
                         interface="org.jetbrains.sbt.project.extensionPoints.ModuleBasedConfigurationMainClassExtractor"
                         dynamic="true"/>

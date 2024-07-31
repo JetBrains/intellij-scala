@@ -171,10 +171,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
           log.debug(s"sbtStructureJar: $sbtStructureJar")
           // TODO add error/warning messages during dump, report directly
-          val environment = settings.environment ++ settings.userSetEnvironment
           dumper.dumpFromProcess(
             projectRoot, structureFilePath, options,
-            settings.vmExecutable, settings.vmOptions, settings.sbtOptions, environment,
+            settings.vmExecutable, settings.vmOptions, settings.sbtOptions, settings.userSetEnvironment,
             sbtLauncher, sbtStructureJar, settings.preferScala2, settings.passParentEnvironment)
         }
       }
