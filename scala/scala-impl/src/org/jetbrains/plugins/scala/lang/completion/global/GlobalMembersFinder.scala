@@ -3,14 +3,14 @@ package org.jetbrains.plugins.scala.lang.completion.global
 import com.intellij.codeInsight.completion.PrefixMatcher
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi.{PsiClass, PsiElement, PsiMember, PsiNamedElement}
-import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, JavaEnum, PsiElementExt, PsiNamedElementExt, ScalaEnumeration, SealedClassInheritors}
 import org.jetbrains.plugins.scala.lang.completion
 import org.jetbrains.plugins.scala.lang.completion.{global, regardlessAccessibility}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isImplicit, isStatic}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 sealed abstract class GlobalMembersFinder protected(protected val place: ScExpression,
@@ -116,6 +116,22 @@ private[completion] abstract class ByPlaceGlobalMembersFinder protected(override
       if (elements.contains(element)) AVAILABLE
       else if (elements.exists(_.name == element.name)) CONFLICT
       else NO_CONFLICT
+  }
+
+  override protected[global] final def candidates: Iterable[GlobalMemberResult] =
+    allCandidates.filterNot(isEnumCase) // enum cases are handled by ScalaSmartCompletionContributor (SCL-22855)
+
+  protected[global] def allCandidates: Iterable[GlobalMemberResult]
+
+  private def isEnumCase(member: GlobalMemberResult): Boolean = {
+    val members: Seq[PsiMember] = member.containingClass.toSeq.flatMap {
+      case e: ScEnum => e.cases
+      case JavaEnum(fields) => fields
+      case ScalaEnumeration(values) => values
+      case SealedClassInheritors(inheritors) => inheritors
+      case _ => Seq.empty
+    }
+    members.contains(member.element)
   }
 }
 
