@@ -18,6 +18,7 @@ import org.junit.Assert._
 
 import java.io.File
 import java.net.URI
+import java.nio.file.Path
 import java.util
 import scala.jdk.CollectionConverters._
 
@@ -239,11 +240,14 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
   }
 
   def testScalaCompilerPlugins(): Unit = {
+    val scalaLibraryPath = Path.of("/", "tmp", "test", "scala-library-2.13.14.jar")
+    val scalacPluginPath = Path.of("/", "tmp", "test", "scalac-plugin_2.13-1.0.0.jar")
+
     importProjectData(
       generateProject(
         Some("2.13.14"),
-        Set(new File("/tmp/test/scala-library-2.13.14.jar")),
-        Set(new File("/tmp/test/scalac-plugin_2.13-1.0.0.jar"))
+        Set(scalaLibraryPath.toFile),
+        Set(scalacPluginPath.toFile)
       )
     )
 
@@ -252,7 +256,7 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
       ScalaCompilerConfiguration.instanceIn(getProject).getSettingsForModule(module)
     }
 
-    assertCollectionEquals(Seq("/tmp/test/scalac-plugin_2.13-1.0.0.jar"), compilerConfiguration.plugins)
+    assertCollectionEquals(Seq(scalacPluginPath.toString), compilerConfiguration.plugins)
   }
 
   def testModuleIsNull(): Unit = {
