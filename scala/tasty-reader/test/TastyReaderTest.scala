@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.tasty.reader
 import junit.framework.TestCase
 import org.junit.Assert.*
 
+import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 import scala.util.control.NonFatal
 
@@ -171,7 +172,7 @@ class TastyReaderTest extends TestCase {
 
     assertEquals("Scala file name", scalaFile.toFile.getName, sourceFile)
 
-    val expected = new String(readBytes(scalaFile))
+    val expected = new String(readBytes(scalaFile), StandardCharsets.UTF_8)
       .replaceAll(raw"(?s)/\*\*/.*?/\*(.*?)\*/", "$1")
       .replace("\r", "")
 
