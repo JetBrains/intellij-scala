@@ -17,7 +17,7 @@ private final class LocallyImportableMembersFinder(place: ScReferenceExpression,
                                                    accessAll: Boolean)
   extends ByPlaceGlobalMembersFinder(place, accessAll) {
 
-  override protected[global] def candidates: Iterable[GlobalMemberResult] =
+  override protected[global] def allCandidates: Iterable[GlobalMemberResult] =
     importableCandidates(LocallyImportableMemberResult) ++
       companionObjectCandidates
 

@@ -11,9 +11,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScPackageLike
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 private abstract class GlobalMemberResult protected(protected val resolveResult: ScalaResolveResult,
-                                                    containingClass: Option[PsiClass])
+                                                    private[global] val containingClass: Option[PsiClass])
                                                    (nameAvailability: NameAvailability) {
   private[global] def isApplicable: Boolean
+
+  private[global] def element: PsiNamedElement = resolveResult.getElement
 
   final def createLookupItem: LookupElement = {
     val lookupItem = resolveResult.createLookupElement(
@@ -34,7 +36,7 @@ private abstract class GlobalMemberResult protected(protected val resolveResult:
   protected def createInsertHandler: InsertHandler[LookupElement]
 
   protected final def nameAvailabilityState: NameAvailabilityState =
-    nameAvailability(resolveResult.getElement)
+    nameAvailability(element)
 }
 
 private abstract class GlobalPsiClassMemberResult protected(override protected val resolveResult: ScalaResolveResult,
