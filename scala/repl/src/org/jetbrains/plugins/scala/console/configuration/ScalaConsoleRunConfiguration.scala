@@ -13,7 +13,6 @@ import com.intellij.util.xmlb.XmlSerializer
 import org.jdom.Element
 import org.jetbrains.annotations.{ApiStatus, Nls}
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.console.configuration.ScalaConsoleRunConfiguration.Scala2_13_2
 import org.jetbrains.plugins.scala.console.configuration.ScalaSdkJLineFixer.{JlineResolveResult, showJLineMissingNotification}
 import org.jetbrains.plugins.scala.console.{ScalaLanguageConsole, ScalaReplBundle}
 import org.jetbrains.plugins.scala.project.*
@@ -157,10 +156,13 @@ class ScalaConsoleRunConfiguration(
   }
 
   private def disableJLineOption: String = {
+    import ScalaConsoleRunConfiguration.{Scala2_13_2, Scala2_13_14}
     val scalaVersion: Option[ScalaVersion] = getModule.flatMap(_.scalaMinorVersion)
-    if (scalaVersion.exists(_ >= Scala2_13_2))
-      "-Xjline:off" // https://github.com/scala/scala/pull/8906
-    else
+    if (scalaVersion.exists(v => Scala2_13_2 <= v && v < Scala2_13_14)) {
+      // https://github.com/scala/scala/pull/8906
+      // https://github.com/scala/scala/pull/10716
+      "-Xjline:off"
+    } else
       "-Xnojline"
   }
 
@@ -208,4 +210,5 @@ class ScalaConsoleRunConfiguration(
 
 object ScalaConsoleRunConfiguration {
   private val Scala2_13_2 = ScalaVersion.Latest.Scala_2_13.withMinor(2)
+  private val Scala2_13_14 = ScalaVersion.Latest.Scala_2_13.withMinor(14)
 }
