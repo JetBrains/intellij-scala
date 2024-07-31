@@ -758,6 +758,7 @@ lazy val textAnalysis =
       scalaImpl % "test->test;compile->compile",
       intelliLangIntegration //uses logic related to parsing interpolated strings
     )
+    .withCompilerPluginIn(scalacPatches)
     .settings(
       scalaVersion := Versions.scala3Version,
       Compile / scalacOptions := globalScala3ScalacOptions,
