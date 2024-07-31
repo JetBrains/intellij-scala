@@ -7,7 +7,7 @@ import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.lang.properties.psi.PropertiesFile
 import com.intellij.lang.properties.{IProperty, PropertiesImplUtil, PropertiesReferenceManager}
 import com.intellij.openapi.diagnostic.ControlFlowException
-import com.intellij.openapi.module.Module
+import com.intellij.openapi.module.{Module, ModuleUtilCore}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.Ref
@@ -15,8 +15,9 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.annotations.{NotNull, Nullable}
-import org.jetbrains.plugins.scala.extensions.{&, NullSafe, ObjectExt, Parent, PsiMethodExt, PsiParameterExt}
+import org.jetbrains.plugins.scala.extensions.{&, BooleanExt, NullSafe, ObjectExt, Parent, PsiMethodExt, PsiParameterExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -29,7 +30,7 @@ import java.text.MessageFormat
 import java.util.Collections
 import scala.annotation.tailrec
 import scala.collection.mutable
-import scala.jdk.CollectionConverters.IterableHasAsJava
+import scala.jdk.CollectionConverters.{CollectionHasAsScala, IterableHasAsJava}
 
 object ScalaI18nUtil {
   // com.intellij.codeInspection.i18n.NlsInfo.NLS_SAFE is package-private
@@ -87,14 +88,14 @@ object ScalaI18nUtil {
     ScalaI18nUtil.isPassedToAnnotated(element, PassedToNlsChecker)
 
   def mustBePropertyKey(literal: ScLiteral,
-                        @Nullable annotationAttributeValues: mutable.HashMap[String, AnyRef] = null): Boolean = {
+                        @Nullable annotationAttributeValues: mutable.HashMap[String, PsiAnnotationMemberValue] = null): Boolean = {
     isPassedToAnnotated(literal, AnnotationUtil.PROPERTY_KEY, annotationAttributeValues)
   }
 
   def isPassedToAnnotated(element: PsiElement,
                           annFqn: String,
                           @Nullable
-                          annotationAttributeValues: mutable.HashMap[String, AnyRef] = null): Boolean =
+                          annotationAttributeValues: mutable.HashMap[String, PsiAnnotationMemberValue] = null): Boolean =
     isPassedToAnnotated(element, new AnnotationChecker {
       override def checkPsiModifierListOwner(owner: PsiModifierListOwner): Boolean =
         addToAnnotationAttributeValues(AnnotationUtil.findAnnotation(owner, annFqn))
@@ -246,88 +247,62 @@ object ScalaI18nUtil {
     elementIsAnnotated || typeIsAnnotated
   }
 
-  private def isPropertyRef(expression: ScLiteral, key: String, resourceBundleName: String): Boolean = {
-    if (resourceBundleName == null) {
-      !PropertiesImplUtil.findPropertiesByKey(expression.getProject, key).isEmpty
-    }
-    else {
-      val propertiesFiles = propertiesFilesByBundleName(resourceBundleName, expression)
-      var containedInPropertiesFile: Boolean = false
-      propertiesFiles.forEach { propertiesFile =>
-        containedInPropertiesFile |= propertiesFile.findPropertyByKey(key) != null
-      }
-      containedInPropertiesFile
+  def propertiesFilesByBundleName(bundleName: String, context: PsiElement): Seq[PropertiesFile] = {
+    val propManager = PropertiesReferenceManager.getInstance(context.getProject)
+    val module = ModuleUtilCore.findModuleForPsiElement(context)
+    if (module == null) {
+      Seq.empty
+    } else {
+      propManager.findPropertiesFiles(module, bundleName).asScala.toSeq
     }
   }
 
-  private def propertiesFilesByBundleName(resourceBundleName: String, context: PsiElement): java.util.List[PropertiesFile] = {
-    var containingFile: PsiFile = context.getContainingFile
-    val containingFileContext: PsiElement = containingFile.getContext
-    if (containingFileContext != null) containingFile = containingFileContext.getContainingFile
-    var virtualFile: VirtualFile = containingFile.getVirtualFile
-    if (virtualFile == null) {
-      virtualFile = containingFile.getOriginalFile.getVirtualFile
-    }
-    if (virtualFile != null) {
-      val project: Project = containingFile.getProject
-      val module: Module = ProjectRootManager.getInstance(project).getFileIndex.getModuleForFile(virtualFile)
-      if (module != null) {
-        val refManager: PropertiesReferenceManager = PropertiesReferenceManager.getInstance(project)
-        return refManager.findPropertiesFiles(module, resourceBundleName)
+  def paramCountOf(property: IProperty): Option[Int] = {
+    Option(property.getValue).flatMap { value =>
+      try {
+        val format = new MessageFormat(value)
+        Some(format.getFormatsByArgumentIndex.length)
+      } catch {
+        case _: IllegalArgumentException => None
       }
     }
-    java.util.Collections.emptyList()
   }
 
-  /**
-   * Returns number of different parameters in i18n message. For example, for string
-   * <i>Class {0} info: Class {0} extends class {1} and implements interface {2}</i>
-   * number of parameters is 3.
-   *
-   * @param expression i18n literal
-   * @return number of parameters
-   */
-  def getPropertyValueParamsMaxCount(expression: ScLiteral): Int = {
-    var maxCount: Int = -1
-    for (reference <- expression.getReferences) {
-      reference match {
-        case polyVarRef: PsiPolyVariantReference =>
-          for (result <- polyVarRef.multiResolve(false)) {
-
-            if (result.isValidResult && result.getElement.isInstanceOf[IProperty]) {
-              val value: String = result.getElement.asInstanceOf[IProperty].getValue
-              var format: MessageFormat = null
-              try {
-                format = new MessageFormat(value)
-                val count: Int = format.getFormatsByArgumentIndex.length
-                maxCount = Math.max(maxCount, count)
-              }
-              catch {
-                case c: ControlFlowException => throw c
-                case _: Exception =>
-              }
-            }
-          }
-        case _ =>
-      }
-    }
-    maxCount
+  def resolveBundleName(bundleNameElement: PsiElement): Option[String] = {
+    val result = JavaPsiFacade.getInstance(bundleNameElement.getProject).getConstantEvaluationHelper
+      .computeConstantExpression(bundleNameElement)
+    Option(result).map(_.toString)
   }
 
-  def isValidPropertyReference(expression: ScLiteral, key: String, outResourceBundle: Ref[String]): Boolean = {
-    val annotationAttributeValues = new mutable.HashMap[String, AnyRef]
-    annotationAttributeValues.put(AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER, null)
-    if (mustBePropertyKey(expression, annotationAttributeValues)) {
-      annotationAttributeValues.get(AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER).exists {
-        case bundleName: PsiElement =>
-          val result = JavaPsiFacade.getInstance(bundleName.getProject).getConstantEvaluationHelper.computeConstantExpression(bundleName)
-          if (result == null) false else {
-            val bundleName = result.toString
-            outResourceBundle.set(bundleName)
-            isPropertyRef(expression, key, bundleName)
-          }
-        case _ => false
+  case class PropertyReferenceResolver(expression: ScStringLiteral) {
+    val key: String = expression.getValue
+
+    lazy val bundleName: Option[String] = {
+      val annotationAttributeValues = new mutable.HashMap[String, PsiAnnotationMemberValue]
+      annotationAttributeValues.put(AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER, null)
+      if (mustBePropertyKey(expression, annotationAttributeValues)) {
+        annotationAttributeValues.get(AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER).flatMap {
+          case bundleName: PsiElement => resolveBundleName(bundleName)
+          case _ => None
+        }
+      } else None
+    }
+
+    lazy val isPassedToPropertyKey: Boolean = bundleName.isDefined
+
+    lazy val referencedPropertiesFiles: Seq[PropertiesFile] =
+      bundleName match {
+        case Some(name) => propertiesFilesByBundleName(name, expression)
+        case None => Seq.empty
       }
-    } else true
+
+    lazy val referencedProperties: Seq[IProperty] =
+      referencedPropertiesFiles.flatMap(_.findPropertyByKey(key).toOption)
+
+    lazy val referenceIsValid: Boolean =
+      referencedProperties.nonEmpty
+
+    lazy val possibleParamCounts: Seq[Int] =
+      referencedProperties.flatMap(paramCountOf)
   }
 }

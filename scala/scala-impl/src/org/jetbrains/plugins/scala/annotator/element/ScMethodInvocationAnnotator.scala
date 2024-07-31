@@ -33,6 +33,11 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
     }
   }
 
+  def missingArgumentsRange(call: MethodInvocation): TextRange =
+    call.argumentExpressions.lastOption
+      .map(e => new TextRange(e.getTextRange.getEndOffset - 1, call.argsElement.getTextRange.getEndOffset))
+      .getOrElse(call.argsElement.getTextRange)
+
   def annotateMethodInvocation(call: MethodInvocation, inDesugaring: Boolean = false)
                               (implicit holder: ScalaAnnotationHolder): Unit = {
     implicit val ctx: ProjectContext = call
@@ -50,12 +55,8 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
 
 
     if(missed.nonEmpty) {
-      val range = call.argumentExpressions.lastOption
-        .map(e => new TextRange(e.getTextRange.getEndOffset - 1, call.argsElement.getTextRange.getEndOffset))
-        .getOrElse(call.argsElement.getTextRange)
-
       val message = ScalaBundle.message("annotator.error.unspecified.value.parameters", missed.mkString(", "))
-      holder.createErrorAnnotation(range, message)
+      holder.createErrorAnnotation(missingArgumentsRange(call), message)
     }
 
     if (problems.isEmpty) {

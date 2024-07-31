@@ -20,7 +20,7 @@ trait ScParenthesizedElement extends ScalaPsiElement {
 
 object ScParenthesizedElement {
   object InnermostElement {
-    def unapply(e: ScalaPsiElement): Option[ScalaPsiElement] = e match {
+    def unapply(e: ScalaPsiElement): Some[ScalaPsiElement] = e match {
       case ScParenthesizedElement(InnermostElement(e)) => Some(e)
       case e => Some(e)
     }
