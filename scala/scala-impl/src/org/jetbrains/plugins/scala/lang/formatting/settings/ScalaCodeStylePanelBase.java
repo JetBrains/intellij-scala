@@ -39,7 +39,7 @@ abstract public class ScalaCodeStylePanelBase extends CodeStyleAbstractPanel {
     @Override
     protected final EditorHighlighter createHighlighter(@NotNull EditorColorsScheme colors) {
         FileType fileType = getFileType();
-        return FileTypeEditorHighlighterProviders.INSTANCE
+        return FileTypeEditorHighlighterProviders.getInstance()
                 .forFileType(fileType)
                 .getEditorHighlighter(null, fileType, null, colors);
     }

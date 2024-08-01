@@ -13,6 +13,7 @@ import org.jetbrains.jps.model.JpsGlobal;
 import org.jetbrains.jps.model.JpsProject;
 import org.jetbrains.jps.model.serialization.JpsGlobalExtensionSerializer;
 import org.jetbrains.jps.model.serialization.JpsModelSerializerExtension;
+import org.jetbrains.jps.model.serialization.JpsPathMapper;
 import org.jetbrains.jps.model.serialization.JpsProjectExtensionSerializer;
 import org.jetbrains.jps.model.serialization.library.JpsLibraryPropertiesSerializer;
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType;
@@ -117,7 +118,7 @@ public class JpsScalaModelSerializerExtension extends JpsModelSerializerExtensio
     }
 
     @Override
-    public LibrarySettings loadProperties(@Nullable Element propertiesElement) {
+    public LibrarySettings loadProperties(@Nullable Element propertiesElement, @NotNull JpsPathMapper pathMapper) {
       LibrarySettingsImpl.State state = propertiesElement == null? null :
           XmlSerializer.deserialize(propertiesElement, LibrarySettingsImpl.State.class);
       return new LibrarySettingsImpl(state == null? new LibrarySettingsImpl.State() : state);

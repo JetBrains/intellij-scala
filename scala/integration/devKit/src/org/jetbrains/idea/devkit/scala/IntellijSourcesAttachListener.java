@@ -47,7 +47,7 @@ public class IntellijSourcesAttachListener implements ExternalSystemTaskNotifica
             // when the external project is refreshed (counter to imported) "onSuccess" callback is invoked before new libraries model
             // is committed and not in dumb mode so we can't even properly postpone attaching sources
             //NOTE: `addRequest` schedules a single request, it doesn't call it periodically
-            new Alarm().addRequest(() -> tryAttach(project, attempt + 1), RETRY_DELAY_MS);
+            new Alarm(Alarm.ThreadToUse.SWING_THREAD).addRequest(() -> tryAttach(project, attempt + 1), RETRY_DELAY_MS);
         }
     }
 
