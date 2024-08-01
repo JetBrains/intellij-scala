@@ -44,10 +44,7 @@ class SbtCompletionScalacOptionsTest extends SbtFileTestDataCompletionTestBase w
 
   def testCompleteComplexExprRef(): Unit = doTest()
 
-  // TODO(SCL-22236): ERROR: Tree access disabled
-  def testCompleteComplexExprStringLiteral(): Unit = RevertableChange.withModifiedRegistryValue("ast.loading.filter", newValue = false) {
-    doTest()
-  }
+  def testCompleteComplexExprStringLiteral(): Unit = doTest()
 
   def testCompleteObjectMemberAfterScalacOptions(): Unit = doTest()
 
