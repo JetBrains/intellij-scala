@@ -26,6 +26,7 @@ final class ScTemplateDefinitionStubImpl[TypeDef <: ScTemplateDefinition](
   override val topLevelQualifier:                Option[String],
   override val isGiven:                          Boolean,
   override val givenClassNames:                  Array[String],
+  override val givenDefinitionParameterText:     String,
 ) extends ScNamedStubBase[TypeDef](parent, elementType, nameRef)
     with ScTemplateDefinitionStub[TypeDef] {
 
