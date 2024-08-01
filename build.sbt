@@ -142,6 +142,7 @@ lazy val conversion = newProject(
 ).dependsOn(
   codeInsight % "test->test;compile->compile"
 )
+  .withCompilerPluginIn(scalacPatches)
 
 lazy val uast = newProject(
   "uast",
