@@ -819,15 +819,28 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     )
     result.setInheritProjectCompileOutputPath(false)
 
-    val parentModuleUniqueName = getUniqueParentModuleName(result, moduleName, moduleInternalNameRegistry)
-    val parentModuleNameWithGroup = prependModuleNameWithGroupName(parentModuleUniqueName, moduleGroup)
-    setParentModuleNames(result, parentModuleUniqueName, parentModuleNameWithGroup)
+    adjustParentModuleNames(result, moduleName, moduleGroup, moduleInternalNameRegistry)
 
     val projectDependencies = project.dependencies
     addAllRequiredDataToModuleNode(librariesData, projectDependencies.modules.forProduction, projectDependencies.jars.forProduction, project, result, LegacyModuleType)
     setCompileOutputPathsForLegacyModule(result, project.configurations, useSeparateCompilerOutputPaths)
 
     PrentModuleSourceSet(result)
+  }
+
+  /**
+   * @return a tuple where the first element is a unique parent module name and the second one is the unique name from the first element preceded by the groups
+   */
+  private def adjustParentModuleNames(
+    module: ModuleDataNodeType,
+    moduleName: String,
+    moduleGroup: Option[String],
+    moduleInternalNameRegistry: Option[ModuleUniqueInternalNameGenerator]
+  ): (String, String) = {
+    val parentModuleUniqueName = getUniqueParentModuleName(module, moduleName, moduleInternalNameRegistry)
+    val parentModuleNameWithGroup = prependModuleNameWithGroupName(parentModuleUniqueName, moduleGroup) //this
+    setParentModuleNames(module, parentModuleUniqueName, parentModuleNameWithGroup)
+    (parentModuleUniqueName, parentModuleNameWithGroup)
   }
 
   private def getUniqueParentModuleName(
@@ -875,9 +888,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       project.base.canonicalPath,
       shouldCreateNestedModule
     )
-    val parentModuleUniqueName = getUniqueParentModuleName(parentModule, moduleName, moduleInternalNameRegistry)
-    val parentModuleNameWithGroup = prependModuleNameWithGroupName(parentModuleUniqueName, moduleGroup)
-    setParentModuleNames(parentModule, parentModuleUniqueName, parentModuleNameWithGroup)
+    val (_, parentModuleNameWithGroup) = adjustParentModuleNames(parentModule, moduleName, moduleGroup, moduleInternalNameRegistry)
 
     addAllRequiredDataToParentModuleNode(project, parentModule)
 
@@ -935,7 +946,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       moduleNode
     }
 
-    (sbtSourceSetModule("main"), sbtSourceSetModule("test"))
+    (sbtSourceSetModule(SourceSetType.MAIN.toString), sbtSourceSetModule(SourceSetType.TEST.toString))
   }
 
   private def setCompileOutputPathsForLegacyModule(
@@ -1030,10 +1041,10 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   private def createLegacyContentRoot(
     project: sbtStructure.ProjectData,
   ): Seq[ContentRootNode] = {
-    val productionSources = validRootPathsIn(project, CompileScope)(_.sources)
-    val productionResources = validRootPathsIn(project, CompileScope)(_.resources)
-    val testSources = validRootPathsIn(project, TestScope)(_.sources) ++ validRootPathsIn(project, IntegrationTestScope)(_.sources)
-    val testResources = validRootPathsIn(project, TestScope)(_.resources) ++ validRootPathsIn(project, IntegrationTestScope)(_.resources)
+    val productionSources = getProductionSources(project)
+    val productionResources = getProductionResources(project)
+    val testSources = getTestSources(project)
+    val testResources = getTestResources(project)
 
     val result = new ContentRootNode(project.base.path)
 
@@ -1069,13 +1080,10 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   private def createProductionContentRoot(
     project: sbtStructure.ProjectData,
-  ): Seq[ContentRootNode] = {
-    val productionSources = validRootPathsIn(project, CompileScope)(_.sources)
-    val productionResources = validRootPathsIn(project, CompileScope)(_.resources)
-
+  ): Seq[ContentRootNode] =
     convertDirectoriesDataToContentRootNodes(
-      productionSources,
-      productionResources,
+      getProductionSources(project),
+      getProductionResources(project),
       project.base,
       project.mainSourceDirectories,
       ExternalSystemSourceType.SOURCE,
@@ -1083,17 +1091,25 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       ExternalSystemSourceType.RESOURCE,
       ExternalSystemSourceType.RESOURCE_GENERATED
     )
-  }
+
+  private def getProductionSources(project: ProjectData): Seq[DirectoryData] =
+    validRootPathsIn(project, CompileScope)(_.sources)
+
+  private def getProductionResources(project: ProjectData): Seq[DirectoryData] =
+    validRootPathsIn(project, CompileScope)(_.resources)
+
+  private def getTestSources(project: ProjectData): Seq[DirectoryData] =
+    validRootPathsIn(project, TestScope)(_.sources) ++ validRootPathsIn(project, IntegrationTestScope)(_.sources)
+
+  private def getTestResources(project: ProjectData): Seq[DirectoryData] =
+    validRootPathsIn(project, TestScope)(_.resources) ++ validRootPathsIn(project, IntegrationTestScope)(_.resources)
 
   private def createTestContentRoot(
     project: sbtStructure.ProjectData,
-  ): Seq[ContentRootNode] = {
-    val testSources = validRootPathsIn(project, TestScope)(_.sources) ++ validRootPathsIn(project, IntegrationTestScope)(_.sources)
-    val testResources = validRootPathsIn(project, TestScope)(_.resources) ++ validRootPathsIn(project, IntegrationTestScope)(_.resources)
-
+  ): Seq[ContentRootNode] =
     convertDirectoriesDataToContentRootNodes(
-      testSources,
-      testResources,
+      getTestSources(project),
+      getTestResources(project),
       project.base,
       project.testSourceDirectories,
       ExternalSystemSourceType.TEST,
@@ -1101,7 +1117,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       ExternalSystemSourceType.TEST_RESOURCE,
       ExternalSystemSourceType.TEST_RESOURCE_GENERATED
     )
-  }
 
   private def convertDirectoriesDataToContentRootNodes(
     sources: Seq[DirectoryData],
