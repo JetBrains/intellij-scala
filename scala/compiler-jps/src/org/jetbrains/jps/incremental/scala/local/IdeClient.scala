@@ -7,7 +7,9 @@ import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.incremental.CompileContext
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage, CustomBuilderMessage, FileDeletedEvent, ProgressMessage}
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
+import org.jetbrains.jps.incremental.scala.model.JpsSbtExtensionService
 import org.jetbrains.jps.incremental.scala.remote.CompileServerMetrics
+import org.jetbrains.jps.model.module.JpsModule
 import org.jetbrains.plugins.scala.compiler.{CompilationUnitId, CompilerEvent}
 import org.jetbrains.plugins.scala.util.{CompilationId, ObjectSerialization}
 
@@ -120,13 +122,33 @@ object IdeClient {
 
   private def getCompilationUnitId(chunk: ModuleChunk): CompilationUnitId = {
     val moduleBuildTarget = chunk.representativeTarget
-    val moduleId = moduleBuildTarget.getModule.getName
+    val moduleId = getDisplayModuleNameIfApplicable(moduleBuildTarget.getModule)
     val testScope = moduleBuildTarget.isTests
     CompilationUnitId(
       moduleId = moduleId,
       testScope = testScope
     )
   }
+
+  private def getDisplayModuleNameIfApplicable(module: JpsModule): String =
+    if (shouldUseDisplayModuleNames) getDisplayModuleName(module)
+    else module.getName
+
+  private def getDisplayModuleName(module: JpsModule): String = {
+    val service = JpsSbtExtensionService.getInstance
+    val sbtModuleExtension = service.getExtension(module)
+    val displayName = sbtModuleExtension.flatMap(_.getDisplayModuleName)
+    displayName match {
+      case Some(name) => name
+      case _ =>
+        val moduleName = module.getName
+        ScalaBuilder.Log.info(s"Couldn't find display module name for module $moduleName")
+        moduleName
+    }
+  }
+
+  private def shouldUseDisplayModuleNames: Boolean =
+    Option(System.getProperty("use.module.display.name")).flatMap(_.toBooleanOption).getOrElse(false)
 
   private[IdeClient] implicit class CompilerEventExt(private val compilerEvent: CompilerEvent) extends AnyVal {
     def toCustomMessage: CustomBuilderMessage = new CustomBuilderMessage(

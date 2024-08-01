@@ -34,10 +34,12 @@
         <externalSystemManager implementation="org.jetbrains.sbt.project.SbtExternalSystemManager"/>
 
         <moduleService serviceImplementation = "org.jetbrains.sbt.project.settings.SharedSourcesOwnerModules"/>
+        <moduleService serviceImplementation = "org.jetbrains.sbt.project.settings.DisplayModuleName"/>
 
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtModuleExtDataService" order="last"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtScalaSdkDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtNestedModuleDataService"/>
+        <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.DisplayModuleNameDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtSourceSetDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtProjectDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtBuildModuleDataService"/>

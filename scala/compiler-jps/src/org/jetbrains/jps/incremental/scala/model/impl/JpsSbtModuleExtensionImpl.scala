@@ -4,9 +4,10 @@ import org.jetbrains.jps.incremental.scala.model.JpsSbtModuleExtension
 import org.jetbrains.jps.model.ex.{JpsElementBase, JpsElementChildRoleBase}
 import org.jetbrains.jps.model.JpsElementChildRole
 
-class JpsSbtModuleExtensionImpl(moduleType: Option[String]) extends JpsElementBase[JpsSbtModuleExtensionImpl] with JpsSbtModuleExtension {
+class JpsSbtModuleExtensionImpl(moduleType: Option[String], displayModuleName: Option[String]) extends JpsElementBase[JpsSbtModuleExtensionImpl] with JpsSbtModuleExtension {
 
   override def getModuleType: Option[String] = moduleType
+  override def getDisplayModuleName: Option[String] = displayModuleName
 }
 
 object JpsSbtModuleExtensionImpl {

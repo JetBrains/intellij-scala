@@ -133,6 +133,12 @@ class SbtSettingNode(override val data: SbtSettingData) extends Node[SbtSettingD
   override protected def key: Key[SbtSettingData] = SbtSettingData.Key
 }
 
+class SbtDisplayModuleNameNode(override val data: DisplayModuleNameData) extends Node[DisplayModuleNameData] {
+  override protected def key: Key[DisplayModuleNameData] = DisplayModuleNameData.Key
+
+  def this(name: String) = this(DisplayModuleNameData(name))
+}
+
 class SbtTaskNode(override val data: SbtTaskData) extends Node[SbtTaskData] {
   override protected def key: Key[SbtTaskData] = SbtTaskData.Key
 }

@@ -819,10 +819,18 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     )
     result.setInheritProjectCompileOutputPath(false)
 
-    adjustParentModuleNames(result, moduleName, moduleGroup, moduleInternalNameRegistry)
+    val (parentModuleUniqueName, _) = adjustParentModuleNames(result, moduleName, moduleGroup, moduleInternalNameRegistry)
 
     val projectDependencies = project.dependencies
-    addAllRequiredDataToModuleNode(librariesData, projectDependencies.modules.forProduction, projectDependencies.jars.forProduction, project, result, LegacyModuleType)
+    addAllRequiredDataToModuleNode(
+      librariesData,
+      projectDependencies.modules.forProduction,
+      projectDependencies.jars.forProduction,
+      project,
+      result,
+      LegacyModuleType,
+      parentModuleUniqueName
+    )
     setCompileOutputPathsForLegacyModule(result, project.configurations, useSeparateCompilerOutputPaths)
 
     PrentModuleSourceSet(result)
@@ -888,8 +896,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       project.base.canonicalPath,
       shouldCreateNestedModule
     )
-    val (_, parentModuleNameWithGroup) = adjustParentModuleNames(parentModule, moduleName, moduleGroup, moduleInternalNameRegistry)
-
+    val (parentModuleUniqueName, parentModuleNameWithGroup) = adjustParentModuleNames(parentModule, moduleName, moduleGroup, moduleInternalNameRegistry)
     addAllRequiredDataToParentModuleNode(project, parentModule)
 
     val (prodModule, testModule) = createSbtSourceSetModules(
@@ -897,9 +904,21 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       moduleFilesDirectory.path,
       parentModuleNameWithGroup,
     )
+
+    def createDisplayName(module: ModuleDataNodeType): String =
+      s"$parentModuleUniqueName.${module.getExternalName}"
+
     val dependencies = project.dependencies
 
-    addAllRequiredDataToModuleNode(librariesData, dependencies.modules.forProduction, dependencies.jars.forProduction, project, prodModule, ProductionModuleType)
+    addAllRequiredDataToModuleNode(
+      librariesData,
+      dependencies.modules.forProduction,
+      dependencies.jars.forProduction,
+      project,
+      prodModule,
+      ProductionModuleType,
+      createDisplayName(prodModule)
+    )
     setCompileOutputPaths(
       prodModule,
       project.configurations,
@@ -908,7 +927,15 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       useSeparateCompilerOutputPaths
     )
 
-    addAllRequiredDataToModuleNode(librariesData, dependencies.modules.forTest, dependencies.jars.forTest, project, testModule, TestModuleType)
+    addAllRequiredDataToModuleNode(
+      librariesData,
+      dependencies.modules.forTest,
+      dependencies.jars.forTest,
+      project,
+      testModule,
+      TestModuleType,
+      createDisplayName(testModule)
+    )
     setCompileOutputPaths(
       testModule,
       project.configurations,
@@ -990,7 +1017,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     jarDependencies: Seq[JarDependencyData],
     projectData: ProjectData,
     moduleNode: ModuleDataNodeType,
-    moduleType: ModuleType
+    moduleType: ModuleType,
+    displayName: String
   ): Unit = {
     val contentRootNodes = moduleType match {
       case ProductionModuleType => createProductionContentRoot(projectData)
@@ -998,6 +1026,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       case LegacyModuleType => createLegacyContentRoot(projectData)
     }
     moduleNode.addAll(contentRootNodes)
+
+    moduleNode.add(new SbtDisplayModuleNameNode(displayName))
 
     // in sbt source set modules task/settings/command are not inserted
     // maybe it should be implemented in the future
@@ -1022,6 +1052,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     moduleNode: ModuleDataNodeType
   ): Unit = {
     moduleNode.add(createParentContentRoot(projectData))
+    moduleNode.add(new SbtDisplayModuleNameNode(moduleNode.getModuleName))
     moduleNode.add(new SbtModuleNode(SbtModuleData(projectData.id, projectData.buildURI, projectData.base)))
     addSbtRelatedData(projectData, moduleNode)
 
@@ -1198,6 +1229,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       SbtModuleType.instance.getId, buildId, buildId, moduleFilesDirectory.path, buildRoot.canonicalPath, shouldCreateNestedModule = true
     )
 
+    result.add(new SbtDisplayModuleNameNode(buildId))
     //todo: probably it should depend on sbt version?
     result.add(ModuleSdkNode.inheritFromProject)
 

@@ -151,6 +151,19 @@ object SbtSettingData {
   val Key: Key[SbtSettingData] = datakey(classOf[SbtSettingData])
 }
 
+/**
+ * @param name module name, without any group or root module prefix.
+ *             In practice, it will be the name or id of the sbt project - depending on whether the name is unique within a single build.
+ *             If separate modules for production and test are enabled, the main/test suffix will also be present in the name.
+ */
+case class DisplayModuleNameData @PropertyMapping(Array("name"))(
+  name: String
+) extends SbtEntityData
+
+object DisplayModuleNameData {
+  val Key: Key[DisplayModuleNameData] = datakey(classOf[DisplayModuleNameData])
+}
+
 case class SbtTaskData @PropertyMapping(Array("name", "description", "rank")) (
   override val name: String,
   @Nls description: String,

@@ -1,5 +1,6 @@
 package org.jetbrains.jps.incremental.scala.sources;
 
+import org.jdom.Content;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jps.incremental.scala.model.JpsSbtExtensionService;
@@ -10,6 +11,8 @@ import scala.Option;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 public class JpsSbtModelSerializerExtension extends JpsModelSerializerExtension {
 
@@ -28,8 +31,28 @@ public class JpsSbtModelSerializerExtension extends JpsModelSerializerExtension 
     // See how org.jetbrains.jps.gradle.model.impl.JpsGradleModelSerializationExtension#loadModuleOptions is implemented.
     boolean isSbtModule = SBT_SYSTEM_ID.equals(rootElement.getAttributeValue("external.system.id"));
     if (isSbtModule) {
+      Option<String> displayModuleName = getDisplayModuleName(rootElement);
       Option<String> type = Option.apply(rootElement.getAttributeValue("external.system.module.type"));
-      JpsSbtExtensionService.getInstance().getOrCreateExtension(module, type);
+      JpsSbtExtensionService.getInstance().getOrCreateExtension(module, type, displayModuleName);
     }
   }
+
+  private Option<String> getDisplayModuleName(@NotNull Element rootElement) {
+    List<Content> contents = rootElement.getContent();
+    Optional<Content> displayModuleNameContent = contents.stream().filter(this::isDisplayModuleNameContent).findFirst();
+    String value = displayModuleNameContent
+            .map(t -> ((Element) t).getChild("option"))
+            .map(t -> t.getAttributeValue("value"))
+            .orElse(null);
+    return Option.apply(value);
+  }
+
+  private Boolean isDisplayModuleNameContent(@NotNull Content content) {
+    if (content instanceof Element) {
+      String nameAttrValue = ((Element) content).getAttributeValue("name");
+      return Objects.equals(nameAttrValue, "DisplayModuleName");
+    }
+    return false;
+  }
+
 }
