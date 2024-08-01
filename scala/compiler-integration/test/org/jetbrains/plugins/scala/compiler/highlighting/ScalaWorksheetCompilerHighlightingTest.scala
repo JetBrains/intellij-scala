@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.compiler.highlighting
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
@@ -32,7 +33,9 @@ abstract class ScalaWorksheetCompilerHighlightingTestBase extends ScalaCompilerH
     getProject.getMessageBus.connect().subscribe(CompilerEventListener.topic, new CompilerEventListener {
       override def eventReceived(event: CompilerEvent): Unit = event match {
         case CompilerEvent.CompilationFinished(_, _, sources) =>
-          if (sources.map(_.getCanonicalPath).contains(virtualFile.getCanonicalPath)) {
+          val platformIndependentSources = sources.map(_.getCanonicalPath).map(FileUtil.toSystemIndependentName)
+          val source = virtualFile.getCanonicalPath
+          if (platformIndependentSources.contains(source)) {
             promise.success(())
           }
         case _ =>
