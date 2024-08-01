@@ -300,7 +300,6 @@ lazy val repl = newProject("repl", file("scala/repl"))
     Compile / scalacOptions := globalScala3ScalacOptions,
     packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity)
   )
-  .withCompilerPluginIn(scalacPatches)
 
 lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
   .dependsOn(scalaLanguageUtils)
@@ -773,7 +772,6 @@ lazy val textAnalysis =
         ("org.languagetool" % "language-it" % Versions.LanguageToolVersion % Runtime).exclude("org.languagetool", "languagetool-core"),
       )
     )
-    .withCompilerPluginIn(scalacPatches)
 
 lazy val featuresTrainerIntegration =
   newProject("features-trainer", file("scala/integration/features-trainer"))
