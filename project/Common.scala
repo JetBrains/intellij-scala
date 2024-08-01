@@ -238,6 +238,11 @@ object Common {
     def withCompilerPluginIn(plugin: Project): Project =
       withCompilerPluginIn(projectToRef(plugin))
 
+    /**
+     * @note Be careful when applying this to sbt subprojects.
+     *       Any `Compile / scalacOptions := Seq(...)` specified after this method is called will completely override
+     *       the scalac plugin, and it will not be applied.
+     */
     def withCompilerPluginIn(plugin: ProjectReference): Project = project
       .dependsOn(
         plugin % Provided

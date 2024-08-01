@@ -284,23 +284,23 @@ lazy val worksheetReplInterfaceImpl_3_3_0: Project =
 
 lazy val structureView = newProject("structure-view", file("scala/structure-view"))
   .dependsOn(scalaImpl % "test->test;compile->compile")
-  .withCompilerPluginIn(scalacPatches)
   .settings(
     scalaVersion := Versions.scala3Version,
     Compile / scalacOptions := globalScala3ScalacOptions,
   )
+  .withCompilerPluginIn(scalacPatches)
 
 lazy val repl = newProject("repl", file("scala/repl"))
   .dependsOn(
     scalaImpl % "test->test;compile->compile",
     structureView % "test->test;compile->compile",
   )
-  .withCompilerPluginIn(scalacPatches)
   .settings(
     scalaVersion := Versions.scala3Version,
     Compile / scalacOptions := globalScala3ScalacOptions,
     packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity)
   )
+  .withCompilerPluginIn(scalacPatches)
 
 lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
   .dependsOn(scalaLanguageUtils)
@@ -758,7 +758,6 @@ lazy val textAnalysis =
       scalaImpl % "test->test;compile->compile",
       intelliLangIntegration //uses logic related to parsing interpolated strings
     )
-    .withCompilerPluginIn(scalacPatches)
     .settings(
       scalaVersion := Versions.scala3Version,
       Compile / scalacOptions := globalScala3ScalacOptions,
@@ -774,6 +773,7 @@ lazy val textAnalysis =
         ("org.languagetool" % "language-it" % Versions.LanguageToolVersion % Runtime).exclude("org.languagetool", "languagetool-core"),
       )
     )
+    .withCompilerPluginIn(scalacPatches)
 
 lazy val featuresTrainerIntegration =
   newProject("features-trainer", file("scala/integration/features-trainer"))
