@@ -289,7 +289,6 @@ lazy val structureView = newProject("structure-view", file("scala/structure-view
     scalaVersion := Versions.scala3Version,
     Compile / scalacOptions := globalScala3ScalacOptions,
   )
-  .withCompilerPluginIn(scalacPatches)
 
 lazy val repl = newProject("repl", file("scala/repl"))
   .dependsOn(
