@@ -4,7 +4,6 @@ import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.openapi.roots.ModuleRootModificationUtil
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.base.SharedTestProjectToken
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
@@ -532,10 +531,6 @@ class ScalaPackageNameInspectionTest_Scala3 extends ScalaPackageNameInspectionTe
 }
 
 class ScalaPackageNameInspectionPackagePrefixTest extends ScalaPackageNameInspectionTestBase {
-
-  // This test needs to be in a separate test class, or else the package prefix may propagate to other tests.
-  // We make sure the test has its own project descriptor by returning `SharedTestProjectToken.DoNotShare` below.
-  override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken.DoNotShare
 
   def test_package_prefix(): Unit = {
     ModuleRootModificationUtil.updateModel(myFixture.getModule, model => {
