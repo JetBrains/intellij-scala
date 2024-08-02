@@ -4,7 +4,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.{MarkersUtils, TypeAnnotationSettings}
@@ -22,9 +22,6 @@ abstract class CopyPasteTestBase extends ScalaLightCodeInsightFixtureTestCase {
   protected val empty = ""
 
   def fromLangExtension: String = "scala"
-
-  override protected def sharedProjectToken: SharedTestProjectToken =
-    SharedTestProjectToken.ByTestClassAndScalaSdkAndProjectLibraries(this)
 
   private var oldSettings: ScalaCodeStyleSettings = _
   private var oldBlankLineSetting: Int = _

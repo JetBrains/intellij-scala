@@ -9,8 +9,8 @@ import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.EditorTests
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.editor.documentationProvider.util.HtmlAssertions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwner
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -28,9 +28,6 @@ abstract class DocumentationProviderTestBase
   protected val | : String = EditorTestUtil.CARET_TAG
 
   protected implicit def projectContext: ProjectContext = super.getProject
-
-  override protected def sharedProjectToken: SharedTestProjectToken =
-    SharedTestProjectToken.ByTestClassAndScalaSdkAndProjectLibraries(this)
 
   // Documentation tests require access to the JDK sources on top of the classes.
   override protected def projectJdk: Sdk =
