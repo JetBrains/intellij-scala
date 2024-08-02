@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
 import com.intellij.openapi.util.Key
-import com.intellij.psi.ResolveState
+import com.intellij.psi.{ PsiClass, ResolveState }
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.ScExportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScExtension
@@ -95,6 +95,9 @@ trait ResolveStateOps extends Any {
 
   def substitutorWithThisType: ScSubstitutor =
     fromType.fold(substitutor)(substitutor.followUpdateThisType)
+
+  def substitutorWithThisType(seenFromClass: PsiClass): ScSubstitutor =
+    fromType.fold(substitutor)(substitutor.followUpdateThisType(_, seenFromClass))
 
   def fromType: Option[ScType] =
     option(FROM_TYPE_KEY)
