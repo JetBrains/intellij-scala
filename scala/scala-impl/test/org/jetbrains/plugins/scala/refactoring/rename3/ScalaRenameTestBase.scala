@@ -4,16 +4,13 @@ package rename3
 import com.intellij.codeInsight.TargetElementUtil
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.module.Module
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.vfs.pointers.VirtualFilePointerManager
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil, VirtualFile}
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import com.intellij.refactoring.rename.{RenameProcessor, RenamePsiElementProcessor}
-import com.intellij.testFramework.{LightPlatformTestCase, PlatformTestUtil, PsiTestUtil}
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
+import com.intellij.testFramework.{PlatformTestUtil, PsiTestUtil}
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.util.WriteCommandActionEx
 
@@ -25,8 +22,6 @@ import scala.jdk.CollectionConverters._
 
 abstract class ScalaRenameTestBase extends ScalaLightCodeInsightFixtureTestCase {
 
-  override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken.DoNotShare
-
   protected val caretMarker = "/*caret*/"
 
   private var myEditors: Map[VirtualFile, Editor] = _
@@ -37,18 +32,6 @@ abstract class ScalaRenameTestBase extends ScalaLightCodeInsightFixtureTestCase 
 
   private def rootBefore = (folderPath + getTestName(true) + "/before").replace(File.separatorChar, '/')
   private def rootAfter = (folderPath + getTestName(true) + "/after").replace(File.separatorChar, '/')
-
-  override protected def afterSetUpProject(project: Project, module: Module): Unit = {
-    super.afterSetUpProject(project, module)
-    LocalFileSystem.getInstance().refresh(false)
-    myDirectory = PsiTestUtil.createTestProjectStructure(project, module, rootBefore, new util.HashSet[Path](), true)
-    filesBefore =
-      VfsUtil.collectChildrenRecursively(myDirectory.findChild("tests")).asScala
-        .filter(!_.isDirectory)
-        .toSeq
-    //hack to avoid pointer leak: if pointer is created early enough it is not considered leak
-    filesBefore.foreach(VirtualFilePointerManager.getInstance().create(_, project, null))
-  }
 
   protected def doTest(newName: String = "NameAfterRename"): Unit = {
     val caretPositions = findCaretsAndRemoveMarkers(filesBefore)
@@ -117,12 +100,14 @@ abstract class ScalaRenameTestBase extends ScalaLightCodeInsightFixtureTestCase 
     files.iterator.map(f => f -> createEditor(f)).toMap
   }
 
-  protected override def tearDown(): Unit = {
-    super.tearDown()
-    myEditors = null
-    myDirectory = null
-    filesBefore = null
-    LightPlatformTestCase.closeAndDeleteProject()
+  override protected def setUp(): Unit = {
+    super.setUp()
+    LocalFileSystem.getInstance().refresh(false)
+    myDirectory = PsiTestUtil.createTestProjectStructure(getProject, getModule, rootBefore, new util.HashSet[Path](), true)
+    filesBefore =
+      VfsUtil.collectChildrenRecursively(myDirectory.findChild("tests")).asScala
+        .filter(!_.isDirectory)
+        .toSeq
   }
 
   private def doRename(editor: Editor, file: PsiFile, newName: String): String = {
