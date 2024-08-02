@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate
 
 import com.intellij.psi.{PsiClass, PsiElement, PsiTypeParameter}
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions.PsiMemberExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isInheritorDeep
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -11,24 +12,40 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefi
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.{LeafType, ScCompoundType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.BaseTypes
 
 import scala.annotation.tailrec
 
-private case class ThisTypeSubstitution(target: ScType) extends LeafSubstitution {
+private case class ThisTypeSubstitution(target: ScType, @Nullable seenFromClass: PsiClass) extends LeafSubstitution {
 
-  override def toString: String = s"`this` -> $target"
+  override def toString: String = seenFromClass match {
+    case null => s"`this` -> $target"
+    case _    => s"`this` -> $target asSeenFrom $seenFromClass"
+  }
 
   override protected val subst: PartialFunction[LeafType, ScType] = {
-    case th: ScThisType if !hasRecursiveThisType(target, th.element) => doUpdateThisType(th, target)
+    case th: ScThisType if !hasRecursiveThisType(target, th.element) => doUpdateThisType(th, target, seenFromClass)
   }
 
   @tailrec
-  private def doUpdateThisType(thisTp: ScThisType, target: ScType): ScType =
-    if (isMoreNarrow(target, thisTp, Set.empty)) target
-    else {
-      containingClassType(target) match {
-        case Some(targetContext) => doUpdateThisType(thisTp, targetContext)
-        case _                   => thisTp
+  private def doUpdateThisType(thisTp: ScThisType, target: ScType, @Nullable clazz: PsiClass): ScType =
+    if (clazz == thisTp.element) target
+    else if (clazz == null) {
+      if (isMoreNarrow(target, thisTp, Set.empty)) target
+      else {
+        containingClassType(target) match {
+          case Some(targetContext) => doUpdateThisType(thisTp, targetContext, clazz)
+          case _                   => thisTp
+        }
+      }
+    } else {
+      val classContext = clazz.containingClass
+      if (classContext == null) thisTp
+      else {
+        BaseTypes.iterator(target).find(_.extractClass.contains(clazz)).flatMap(containingClassType) match {
+          case Some(targetContext) => doUpdateThisType(thisTp, targetContext, classContext)
+          case _                   => thisTp
+        }
       }
     }
 
