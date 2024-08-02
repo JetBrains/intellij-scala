@@ -13,9 +13,10 @@ import com.intellij.testFramework.UsefulTestCase.assertInstanceOf
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import org.intellij.lang.regexp.RegExpLanguage
 import org.jetbrains.plugins.scala.ScalaFileType
-import org.jetbrains.plugins.scala.grazie.ScalaTextExtractorTest.buildTextWithSpecialMarkers
+import org.jetbrains.plugins.scala.extensions.StringExt
+import org.jetbrains.plugins.scala.grazie.ScalaTextExtractorTest.{TripleQuote, buildTextWithSpecialMarkers}
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
-import org.junit.Assert._
+import org.junit.Assert.*
 
 import java.util
 
@@ -36,12 +37,12 @@ class ScalaTextExtractorTest extends BasePlatformTestCase {
   def testMergeAdjacentLineComments_1(): Unit = {
     assertEquals(
       """Hello. I are a very humble
-        |persons.""".stripMargin,
+        |persons.""".stripMargin.withNormalizedSeparator,
       extractTextWithUnknownFragments(
         """//Hello. I are a very humble
           |//persons.
           |
-          |class C {}""".stripMargin, 4
+          |class C {}""".stripMargin.withNormalizedSeparator, 4
       )
     )
   }
@@ -49,12 +50,12 @@ class ScalaTextExtractorTest extends BasePlatformTestCase {
   def testMergeAdjacentLineComments_2(): Unit = {
     assertEquals(
       """First line.
-        |Third line.""".stripMargin,
+        |Third line.""".stripMargin.withNormalizedSeparator,
       extractTextWithUnknownFragments(
         s"""// First line.
            |//   ${""}
            |//   Third line.
-           |""".stripMargin, 4
+           |""".stripMargin.withNormalizedSeparator, 4
       )
     )
   }
@@ -64,7 +65,7 @@ class ScalaTextExtractorTest extends BasePlatformTestCase {
       """//1
         |//2
         |//3
-        |//4""".stripMargin
+        |//4""".stripMargin.withNormalizedSeparator
 
     val file = PsiFileFactory.getInstance(getProject).createFileFromText("Dummy.scala", ScalaFileType.INSTANCE, text)
     val textContent1 = TextExtractor.findTextAt(file, text.indexOf("1"), TextContent.TextDomain.ALL)
@@ -74,7 +75,7 @@ class ScalaTextExtractorTest extends BasePlatformTestCase {
       """1
         |2
         |3
-        |4""".stripMargin,
+        |4""".stripMargin.withNormalizedSeparator,
       textContent1.toString
     )
     assertEquals(
@@ -89,19 +90,19 @@ class ScalaTextExtractorTest extends BasePlatformTestCase {
         |//2
         |
         |//3
-        |//4""".stripMargin
+        |//4""".stripMargin.withNormalizedSeparator
 
     val textContent1 = extractTextContent(text, text.indexOf("1"))
     val textContent2 = extractTextContent(text, text.indexOf("3"))
     assertEquals(
       """1
-        |2""".stripMargin,
+        |2""".stripMargin.withNormalizedSeparator,
       textContent1.toString
     )
 
     assertEquals(
       """3
-        |4""".stripMargin,
+        |4""".stripMargin.withNormalizedSeparator,
       textContent2.toString
     )
   }
@@ -148,7 +149,7 @@ class ScalaTextExtractorTest extends BasePlatformTestCase {
         | * @throws Exception description of exception [[scala.Option]] (exception is not included)
         | */
         |class A
-        |""".stripMargin
+        |""".stripMargin.withNormalizedSeparator
 
     val text0 = extractTextContent(docText, 10)
     assertEquals(
@@ -184,7 +185,7 @@ class ScalaTextExtractorTest extends BasePlatformTestCase {
         |?list item 1
         |?list item 2 line 1 ? description?
         |list item 2 line 2 ?
-        |?list item 3""".stripMargin,
+        |?list item 3""".stripMargin.withNormalizedSeparator,
       buildTextWithSpecialMarkers(text0)
     )
 
@@ -207,7 +208,7 @@ class ScalaTextExtractorTest extends BasePlatformTestCase {
         | * }}}
         | * After snippet
         | */
-        |""".stripMargin
+        |""".stripMargin.withNormalizedSeparator
 
     assertEquals("Before snippet\n\n\n\nAfter snippet", extractTextWithUnknownFragments(docText, docText.indexOf("snippet")))
   }
@@ -244,76 +245,76 @@ class ScalaTextExtractorTest extends BasePlatformTestCase {
 
   def testStringLiteral_Multiline_Plain(): Unit = {
     val text =
-      """  '''  first line
-        |   second line
-        |   third line
-        |  '''  """.stripMargin.replace("'''", "\"\"\"")
+      s"""  $TripleQuote  first line
+         |   second line
+         |   third line
+         |  $TripleQuote  """.stripMargin.withNormalizedSeparator
     assertEquals("first line\n   second line\n   third line", extractTextWithUnknownFragments(text, text.indexOf("first line")))
   }
 
   def testStringLiteral_Multiline_Plain_WithStripMargin(): Unit = {
     val text =
-      """'''first line
-        |  |second line
-        |  |third line
-        |  |'''.stripMargin""".stripMargin.replace("'''", "\"\"\"")
+      s"""${TripleQuote}first line
+         *  |second line
+         *  |third line
+         *  |$TripleQuote.stripMargin""".stripMargin('*').withNormalizedSeparator
     assertEquals("first line\nsecond line\nthird line\n", extractTextWithUnknownFragments(text, text.indexOf("first line")))
   }
 
   def testStringLiteral_Multiline_Plain_WithStripMargin_WithCustomMargin(): Unit = {
     val text =
-      """'''first line
-        |  #second line
-        |  #third line
-        |  #'''.stripMargin('#')""".stripMargin.replace("'''", "\"\"\"")
+      s"""${TripleQuote}first line
+         |  #second line
+         |  #third line
+         |  #$TripleQuote.stripMargin('#')""".stripMargin.withNormalizedSeparator
     assertEquals("first line\nsecond line\nthird line\n", extractTextWithUnknownFragments(text, text.indexOf("first line")))
   }
 
   def testStringLiteral_Multiline_Plain_WithStripMargin_WithCustomMargin_1(): Unit = {
     val text =
-      """'''first line
-        |  |second line
-        |  |third line
-        |  |'''.stripMargin('#')""".stripMargin.replace("'''", "\"\"\"")
+      s"""${TripleQuote}first line
+         *  |second line
+         *  |third line
+         *  |$TripleQuote.stripMargin('#')""".stripMargin('*').withNormalizedSeparator
     assertEquals("first line\n  |second line\n  |third line\n  |", extractTextWithUnknownFragments(text, text.indexOf("first line")))
   }
 
   def testStringLiteral_Multiline_WithStripMargin_FirstLineBlank(): Unit = {
     val text =
-      """val value =
-        |
-        |'''
-        |  |second line
-        |  |third line
-        |  |   '''.stripMargin""".stripMargin.replace("'''", "\"\"\"")
+      s"""val value =
+         *
+         *$TripleQuote
+         *  |second line
+         *  |third line
+         *  |   $TripleQuote.stripMargin""".stripMargin('*').withNormalizedSeparator
     assertEquals("second line\nthird line\n", extractTextWithUnknownFragments(text, text.indexOf("second")))
   }
 
   def testStringLiteral_Multiline_Interpolated_S(): Unit = {
     val text =
-      """s'''
-        |   |this is
-        |   |example
-        |   |
-        |   |this is
-        |   | ${42}
-        |   |example
-        |   |
-        |   |this is
-        |   |${42}
-        |   |example
-        |   |
-        |   |this is ${42} example
-        |   |'''.stripMargin""".stripMargin.replace("'''", "\"\"\"")
+      s"""s$TripleQuote
+         *   |this is
+         *   |example
+         *   |
+         *   |this is
+         *   | $${42}
+         *   |example
+         *   |
+         *   |this is
+         *   |$${42}
+         *   |example
+         *   |
+         *   |this is $${42} example
+         *   |$TripleQuote.stripMargin""".stripMargin('*').withNormalizedSeparator
     assertEquals("this is\nexample\n\nthis is\n ?\nexample\n\nthis is\n?\nexample\n\nthis is ? example\n", extractTextWithUnknownFragments(text, text.indexOf("this")))
   }
 
   def testStringLiteral_Multiline_Interpolated_Raw_WithStripMargin_WithCustomMargin(): Unit = {
     val text =
-      """raw'''  first \ line
-        |     #second ${2 + 2} line
-        |     #third $value line
-        |     #  '''.stripMargin('#')""".stripMargin.replace("'''", "\"\"\"")
+      s"""raw$TripleQuote  first \\ line
+         |     #second $${2 + 2} line
+         |     #third $$value line
+         |     #  $TripleQuote.stripMargin('#')""".stripMargin.withNormalizedSeparator
     assertEquals("first \\ line\nsecond ? line\nthird ? line\n", extractTextWithUnknownFragments(text, text.indexOf("first")))
   }
 
@@ -408,6 +409,7 @@ object ScalaTextExtractorTest {
 
   private val UnknownMarker = '?'
   private val MarkupMarker = '~'
+  private val TripleQuote = "\"\"\""
 
   private def buildTextWithSpecialMarkers(content: TextContent): String = {
     val builder = new java.lang.StringBuilder(content.replaceMarkupWith(MarkupMarker))
