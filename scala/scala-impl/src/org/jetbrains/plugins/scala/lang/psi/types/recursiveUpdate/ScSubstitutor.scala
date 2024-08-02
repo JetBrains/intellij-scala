@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate
 
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions.ArrayExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, TypeParamId}
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
@@ -116,6 +117,10 @@ final class ScSubstitutor private(_substitutions: Array[Update],   //Array is us
     ScSubstitutor(tp).followed(this)
   }
 
+  def followUpdateThisType(tp: ScType, seenFromClass: PsiClass): ScSubstitutor = {
+    ScSubstitutor(tp, seenFromClass).followed(this)
+  }
+
   def withBindings(from: Iterable[TypeParameter], target: Iterable[TypeParameter]): ScSubstitutor = {
     assertFullSubstitutor()
 
@@ -187,7 +192,10 @@ object ScSubstitutor {
   }
 
   def apply(updateThisType: ScType): ScSubstitutor =
-    ScSubstitutor(ThisTypeSubstitution(updateThisType))
+    ScSubstitutor(ThisTypeSubstitution(updateThisType, null))
+
+  def apply(updateThisType: ScType, seenFromClass: PsiClass): ScSubstitutor =
+    ScSubstitutor(ThisTypeSubstitution(updateThisType, seenFromClass))
 
   def paramToExprType(parameters: Seq[Parameter], expressions: Seq[Expression], useExpected: Boolean = true): ScSubstitutor =
     ScSubstitutor(ParamsToExprs(parameters, expressions, useExpected))

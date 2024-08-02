@@ -29,6 +29,7 @@ class Bug2Test extends ResolveTestBase {
   def testSCL2765(): Unit = {doTest()}
   def testDependent(): Unit = {doTest()}
   def testDependentEquality(): Unit = {doTest()}
+  def testDependentEquality2(): Unit = {doTest()}
   def testSCL2904(): Unit = {doTest()}
   def testSCL2827A(): Unit = {doTest()}
   def testSCL2827B(): Unit = {doTest()}
