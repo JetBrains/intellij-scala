@@ -1,13 +1,19 @@
 package org.jetbrains.plugins.scala.projectHighlighting.scalaLibrary
 
+import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.util.TextRange
+import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.util.TextRangeUtils.ImplicitConversions.tupleToTextRange
 
 class ScalaLibraryHighlightingTest_2_12 extends ScalaLibraryHighlightingTest {
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version == ScalaVersion.Latest.Scala_2_12
+
+  override protected lazy val projectJdk: Sdk =
+    SmartJDKLoader.createFilteredJdk(LanguageLevel.JDK_17, Seq("java.base", "java.desktop", "java.management"))
 
   override protected def filesWithProblems: Map[String, Set[TextRange]] = Map(
     "scala/Predef.scala" -> Set(
