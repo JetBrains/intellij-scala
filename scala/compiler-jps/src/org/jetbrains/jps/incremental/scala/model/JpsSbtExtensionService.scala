@@ -5,7 +5,7 @@ import org.jetbrains.jps.service.JpsServiceManager
 
 trait JpsSbtExtensionService {
   def getExtension(module: JpsModule): Option[JpsSbtModuleExtension]
-  def getOrCreateExtension(module: JpsModule, moduleType: Option[String]): JpsSbtModuleExtension
+  def getOrCreateExtension(module: JpsModule, moduleType: Option[String], displayModuleName: Option[String]): JpsSbtModuleExtension
 }
 
 object JpsSbtExtensionService {

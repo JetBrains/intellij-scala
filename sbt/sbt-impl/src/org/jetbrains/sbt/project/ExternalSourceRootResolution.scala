@@ -379,6 +379,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
       shouldCreateNestedModule = true
     )
 
+    moduleNode.add(new SbtDisplayModuleNameNode(group.name))
     moduleNode.add(new SharedSourcesOwnersNode(SharedSourcesOwnersData(ownerProjectsIds)))
 
     val contentRootNode = new ContentRootNode(groupBase.path)
@@ -403,6 +404,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
       group.base.canonicalPath
     )
     val contentRootNode = new ContentRootNode(group.base.path)
+    moduleNode.add(new SbtDisplayModuleNameNode(group.name))
     contentRootNode.storePath(ExternalSystemSourceType.EXCLUDED, getOrCreateTargetDir(group.base.path, "target").getAbsolutePath)
     moduleNode.add(contentRootNode)
 
@@ -432,7 +434,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
       group.base.canonicalPath
     )
     moduleNode.setInternalName(internalModuleName)
-
+    moduleNode.add(new SbtDisplayModuleNameNode(internalModuleName))
     moduleNode.add(new SharedSourcesOwnersNode(SharedSourcesOwnersData(ownerProjectsIds)))
 
     def isApplicableSource(sourceType: ExternalSystemSourceType): Boolean =

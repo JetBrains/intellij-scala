@@ -33,7 +33,7 @@ class SbtModuleDataWorkspaceDataServiceTest extends SbtModuleDataServiceTestCase
         externalConfigPath := getProject.getBasePath + "/c1"
         arbitraryNodes += new SbtModuleNode(SbtModuleData(moduleId, buildURI, new File(getProject.getBasePath)))
       }
-      val c1NestedModule: sbtNestedModule = new sbtNestedModule {
+      val c1NestedModule: javaModule = new javaModule {
         val moduleId: String = ModuleNode.combinedId("project1", Option(c1URI))
         name := "c1.project1"
         projectId := moduleId
@@ -53,7 +53,7 @@ class SbtModuleDataWorkspaceDataServiceTest extends SbtModuleDataServiceTestCase
         externalConfigPath := getProject.getBasePath
         arbitraryNodes += new SbtModuleNode(SbtModuleData(moduleId, buildURI, new File(getProject.getBasePath)))
       }
-      val rootNestedModule: sbtNestedModule = new sbtNestedModule {
+      val rootNestedModule: javaModule = new javaModule {
         val moduleId: String = ModuleNode.combinedId("project1", Option(buildURI))
         name := "root.project1"
         projectId := moduleId
