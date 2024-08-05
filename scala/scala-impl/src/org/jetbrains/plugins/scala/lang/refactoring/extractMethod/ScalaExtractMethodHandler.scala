@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.refactoring.extractMethod
 
-import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.actionSystem.{DataContext, DataKey}
 import com.intellij.openapi.application.{ApplicationManager, ModalityState, ReadAction}
 import com.intellij.openapi.editor.{Editor, ScrollType}
 import com.intellij.openapi.project.Project
@@ -8,7 +8,7 @@ import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.concurrency.AppExecutorUtil
-import org.jetbrains.annotations.Nullable
+import org.jetbrains.annotations.{Nullable, TestOnly}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReference}
@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, TypeAdjuster}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaRefactoringActionHandler
+import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMethodHandler.ChosenTargetScopeKey
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.DuplicatesUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -104,7 +105,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
 
     siblings match {
       case Seq(firstSibling, _*) if ApplicationManager.getApplication.isUnitTestMode =>
-        val targetOffset = Option(dataContext).map(_.getData("chosenTargetScope").asInstanceOf[Int])
+        val targetOffset = Option(dataContext).flatMap(_.getData(ChosenTargetScopeKey).toOption)
         val targetScope = targetOffset
           .flatMap(smallestScopeEnclosingTarget(siblings))
           .getOrElse(firstSibling)
@@ -352,4 +353,11 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
       editor.getSelectionModel.removeSelection()
     }
   }
+}
+
+object ScalaExtractMethodHandler {
+  // Used in ScalaExtractMethodTestBase
+  // Test package doesn't match this package, so using the common parent package as a `private` scope
+  @TestOnly
+  private[scala] val ChosenTargetScopeKey: DataKey[Int] = DataKey.create("chosenTargetScope")
 }

@@ -63,15 +63,13 @@ abstract class ScalaExtractMethodTestBase extends ScalaLightCodeInsightFixtureTe
     assertEquals(expected, actual)
   }
 
-  private val chosenTargetScopeKey: DataKey[Int] = DataKey.create("chosenTargetScope")
-
   private def invokeExtractMethodRefactoring(scalaFile: ScalaFile, scopeOffset: Int, startOffset: Int, endOffset: Int)
                                             (project: Project): Unit = {
     val editor = openEditorAtOffset(startOffset)
 
     editor.getSelectionModel.setSelection(startOffset, endOffset)
 
-    val context = SimpleDataContext.getSimpleContext(chosenTargetScopeKey, scopeOffset)
+    val context = SimpleDataContext.getSimpleContext(ScalaExtractMethodHandler.ChosenTargetScopeKey, scopeOffset)
     val handler = new ScalaExtractMethodHandler
     handler.invoke(project, getEditor, scalaFile, context)
     UsefulTestCase.doPostponedFormatting(project)

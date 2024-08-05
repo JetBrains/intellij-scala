@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.actions
 
-import com.intellij.ide.IdeView
 import com.intellij.ide.actions.CreateTemplateInPackageAction
 import com.intellij.ide.fileTemplates.{FileTemplateManager, JavaTemplateUtil}
 import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext, LangDataKeys, PlatformCoreDataKeys}
@@ -54,23 +53,22 @@ abstract class NewTypeDefinitionBase[T <: ScTemplateDefinition](@Nls txt: String
     directory.add(file).asInstanceOf[PsiFile]
   }
 
-  protected def isUnderSourceRoots(dataContext: DataContext): Boolean =
-    (dataContext getData PlatformCoreDataKeys.MODULE.getName, dataContext getData LangDataKeys.IDE_VIEW.getName,
-     dataContext getData CommonDataKeys.PROJECT.getName) match {
-      case (module: Module, view: IdeView, project: Project) =>
-        if (!Option(module).exists(checkModule)) return false
+  protected def isUnderSourceRoots(dataContext: DataContext): Boolean = {
+    val module = dataContext.getData(PlatformCoreDataKeys.MODULE)
+    val view = dataContext.getData(LangDataKeys.IDE_VIEW)
+    val project = dataContext.getData(CommonDataKeys.PROJECT)
 
-        val projectFileIndex = ProjectRootManager.getInstance(project).getFileIndex
-        val dirs = view.getDirectories
+    if (module == null || view == null || project == null || !checkModule(module)) false
+    else {
+      val projectFileIndex = ProjectRootManager.getInstance(project).getFileIndex
+      val dirs = view.getDirectories
 
-        for (dir <- dirs) {
-          if (projectFileIndex.isInSourceContent(dir.getVirtualFile) &&
-            JavaDirectoryService.getInstance.getPackage(dir) != null) return true
-        }
-
-        false
-      case _ => false
+      dirs.exists { dir =>
+        projectFileIndex.isInSourceContent(dir.getVirtualFile) &&
+          JavaDirectoryService.getInstance.getPackage(dir) != null
+      }
     }
+  }
 
   protected def checkModule(module: Module): Boolean
 
