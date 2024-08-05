@@ -4,10 +4,10 @@ package actions
 
 import com.intellij.ide.fileTemplates.actions.AttributesDefaults
 import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnActionEvent, CommonDataKeys, DataContext, PlatformCoreDataKeys}
-import com.intellij.openapi.module.Module
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDirectory, PsiFile}
 import org.jetbrains.plugins.scala.actions.LazyFileTemplateAction
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.worksheet.actions.NewScalaWorksheetAction._
 
@@ -35,10 +35,7 @@ final class NewScalaWorksheetAction extends LazyFileTemplateAction(
   override def update(event: AnActionEvent): Unit = {
     super.update(event)
 
-    val isEnabled = event.getDataContext.getData(PlatformCoreDataKeys.MODULE.getName) match {
-      case module: Module => module.hasScala
-      case _ => false
-    }
+    val isEnabled = event.getDataContext.getData(PlatformCoreDataKeys.MODULE).toOption.exists(_.hasScala)
 
     val presentation = event.getPresentation
     presentation.setEnabled(isEnabled)

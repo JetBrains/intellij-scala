@@ -26,7 +26,7 @@ class NewPackageObjectAction extends LazyFileTemplateAction(
             .map(_.getQualifiedName)
             .exists(_.nonEmpty)
 
-    val module: Module = e.getDataContext.getData(PlatformCoreDataKeys.MODULE.getName).asInstanceOf[Module]
+    val module: Module = e.getDataContext.getData(PlatformCoreDataKeys.MODULE)
     val isEnabled: Boolean = Option(module).exists(_.hasScala)
 
     e.getPresentation.setEnabled(hasPackage && isEnabled)
