@@ -15,8 +15,6 @@ import java.nio.file.Path
 import java.util
 
 abstract class ScalaMoveTestBase extends ScalaLightCodeInsightFixtureTestCase {
-  override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken.DoNotShare
-
   protected def getTestDataRoot: String = TestUtils.getTestDataPath + "/refactoring/move/"
 
   protected def configureModuleSources(module: Module, rootDir: VirtualFile): Unit =
@@ -37,8 +35,8 @@ abstract class ScalaMoveTestBase extends ScalaLightCodeInsightFixtureTestCase {
 
   protected def getRootAfter: VirtualFile = rootDirAfter
 
-  override protected def afterSetUpProject(project: Project, module: Module): Unit = {
-    super.afterSetUpProject(project, module)
+  override protected def setUp(): Unit = {
+    super.setUp()
     val rootBefore = root + "/before"
     val rootAfter = root + "/after"
     findAndRefreshVFile(rootBefore)
@@ -46,16 +44,16 @@ abstract class ScalaMoveTestBase extends ScalaLightCodeInsightFixtureTestCase {
     // remove existing content entries (default source folders),
     // otherwise default package (empty one, "") will be detected in this content entry during move refactoring
     inWriteAction {
-      ModuleRootModificationUtil.modifyModel(module, model => {
+      ModuleRootModificationUtil.modifyModel(getModule, model => {
         val contentEntries = model.getContentEntries
         contentEntries.foreach(model.removeContentEntry)
         true
       })
     }
 
-    rootDirBefore = PsiTestUtil.createTestProjectStructure(project, module, rootBefore, new util.HashSet[Path](), false)
-    configureModuleSources(module, rootDirBefore)
-    PsiDocumentManager.getInstance(project).commitAllDocuments()
+    rootDirBefore = PsiTestUtil.createTestProjectStructure(getProject, getModule, rootBefore, new util.HashSet[Path](), false)
+    configureModuleSources(getModule, rootDirBefore)
+    PsiDocumentManager.getInstance(getProject).commitAllDocuments()
 
     rootDirAfter = findAndRefreshVFile(rootAfter)
   }
