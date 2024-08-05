@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.refactoring.move
 
-import com.intellij.lang.ASTNode
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{JavaDirectoryService, JavaPsiFacade, PsiClass, PsiDirectory, PsiDocumentManager, PsiPackage}
@@ -58,9 +57,6 @@ abstract class ScalaMoveClassTestBase extends ScalaMoveTestBase {
         }
       } yield clazz
 
-    //keeping hard refs to AST nodes to avoid flaky tests (as a workaround for SCL-20527 (see solution proposals))
-    var myASTHardRefs: Seq[ASTNode] = classesToMove.map(_.getNode)
-
     val targetPackage: PsiPackage = JavaPsiFacade.getInstance(getProject).findPackage(targetPackageName)
     assertNotNull(s"Can't find package '$targetPackageName'", targetPackage)
 
@@ -89,8 +85,6 @@ abstract class ScalaMoveClassTestBase extends ScalaMoveTestBase {
     })
 
     PsiDocumentManager.getInstance(getProject).commitAllDocuments()
-
-    myASTHardRefs = null
   }
 
   object Kinds extends Enumeration {

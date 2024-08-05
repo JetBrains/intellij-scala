@@ -1439,7 +1439,6 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |        println(3)
          |  }""".stripMargin.withNormalizedSeparator)
 
-    myASTHardRefs += file.getNode
     myFixture.performEditorAction(IdeActions.ACTION_COPY) //selects current line and copies it
     myFixture.performEditorAction(IdeActions.ACTION_PASTE) //replaces current line with same content, removes selection, moves caret to the next line
     myFixture.performEditorAction(IdeActions.ACTION_PASTE) //adds duplicate line
