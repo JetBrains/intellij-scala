@@ -97,7 +97,6 @@ abstract class ScalaLightCodeInsightFixtureTestCase
 
   override def setUpLibraries(implicit module: Module): Unit = {
     if (loadScalaLibrary) {
-      myFixture.allowTreeAccessForAllFiles()
       super.setUpLibraries(module)
 
       val compilerOptions = additionalCompilerOptions
