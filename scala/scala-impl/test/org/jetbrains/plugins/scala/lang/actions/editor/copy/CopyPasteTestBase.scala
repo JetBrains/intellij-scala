@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.actions.editor.copy
 
-import com.intellij.lang.ASTNode
 import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.testFramework.EditorTestUtil
@@ -11,7 +10,6 @@ import org.jetbrains.plugins.scala.util.{MarkersUtils, TypeAnnotationSettings}
 import org.junit.Assert.assertTrue
 
 import java.awt.datatransfer.StringSelection
-import scala.collection.mutable.ArrayBuffer
 
 abstract class CopyPasteTestBase extends ScalaLightCodeInsightFixtureTestCase {
   protected val Start = EditorTestUtil.SELECTION_START_TAG
@@ -26,9 +24,6 @@ abstract class CopyPasteTestBase extends ScalaLightCodeInsightFixtureTestCase {
   private var oldSettings: ScalaCodeStyleSettings = _
   private var oldBlankLineSetting: Int = _
 
-  //keeping hard refs to AST nodes to avoid flaky tests (as a workaround for SCL-20527 (see solution proposals))
-  protected val myASTHardRefs: ArrayBuffer[ASTNode] = ArrayBuffer.empty
-
   override protected def setUp(): Unit = {
     super.setUp()
 
@@ -40,7 +35,6 @@ abstract class CopyPasteTestBase extends ScalaLightCodeInsightFixtureTestCase {
   }
 
   override def tearDown(): Unit = {
-    myASTHardRefs.clear()
     val project = getProject
     ScalaCodeStyleSettings.getInstance(project).BLANK_LINES_AROUND_METHOD_IN_INNER_SCOPES = oldBlankLineSetting
     TypeAnnotationSettings.set(project, oldSettings)
@@ -61,12 +55,10 @@ abstract class CopyPasteTestBase extends ScalaLightCodeInsightFixtureTestCase {
     val containsCaretOrSelection = to.contains(Caret) || to.contains(Start) && to.contains(End) || to.isEmpty
     assertTrue("Content of target file doesn't contain caret marker or selection markers", containsCaretOrSelection)
 
-    val fileFrom = myFixture.configureByText(fromFileName, normalize(from))
-    myASTHardRefs += fileFrom.getNode
+    myFixture.configureByText(fromFileName, normalize(from))
     myFixture.performEditorAction(IdeActions.ACTION_COPY)
 
-    val fileTo = myFixture.configureByText(toFileName, normalize(to))
-    myASTHardRefs += fileTo.getNode
+    myFixture.configureByText(toFileName, normalize(to))
     myFixture.performEditorAction(IdeActions.ACTION_PASTE)
 
     myFixture.checkResult(normalize(after), true)
@@ -79,8 +71,7 @@ abstract class CopyPasteTestBase extends ScalaLightCodeInsightFixtureTestCase {
     val copyPasteManager = CopyPasteManager.getInstance
     copyPasteManager.setContents(new StringSelection(pastedText))
 
-    val fileTo = myFixture.configureByText(s"to.scala", to.withNormalizedSeparator)
-    myASTHardRefs += fileTo.getNode
+    myFixture.configureByText(s"to.scala", to.withNormalizedSeparator)
     myFixture.performEditorAction(IdeActions.ACTION_PASTE)
 
     myFixture.checkResult(after.withNormalizedSeparator, true)

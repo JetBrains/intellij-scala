@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
-import com.intellij.lang.ASTNode
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiFile, PsiManager}
@@ -11,23 +10,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.resolve.SimpleResolveTestBase.{REFSRC, REFTGT}
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
-import scala.collection.mutable
-
 abstract class ResolvePrecedenceTest extends SimpleResolveTestBase {
 
-  //keeping hard refs to AST nodes to avoid flaky tests as a workaround for SCL-20527 (see solution proposals)
-  private val myASTHardRefs = new mutable.ArrayBuffer[ASTNode]
-
-  protected def addFileToProjectKeepingHardRefsToAst(relativePath: String, fileText: String): PsiFile = {
-    val file = myFixture.addFileToProject(relativePath, fileText)
-    myASTHardRefs += file.getNode
-    file
-  }
-
-  override def tearDown(): Unit = {
-    myASTHardRefs.clear()
-    super.tearDown()
-  }
+  protected def addFileToProject(relativePath: String, fileText: String): PsiFile =
+    myFixture.addFileToProject(relativePath, fileText)
 
   //SCL-6146
   def testSCL6146(): Unit = doResolveTest(
@@ -174,17 +160,17 @@ abstract class ResolvePrecedenceTest extends SimpleResolveTestBase {
         |def myDefInPackageObject = 0
         |""".stripMargin
 
-    addFileToProjectKeepingHardRefsToAst("aaa/package.scala",
+    addFileToProject("aaa/package.scala",
       s"""$commonDefsPackageObject
          |""".stripMargin
     )
-    addFileToProjectKeepingHardRefsToAst("aaa/defs.scala",
+    addFileToProject("aaa/defs.scala",
       s"""package aaa
          |$commonDefs
          |""".stripMargin
     )
 
-    addFileToProjectKeepingHardRefsToAst("aaa/bbb/package.scala",
+    addFileToProject("aaa/bbb/package.scala",
       s"""package aaa
          |
          |package object bbb {
@@ -192,13 +178,13 @@ abstract class ResolvePrecedenceTest extends SimpleResolveTestBase {
          |}
          |""".stripMargin
     )
-    addFileToProjectKeepingHardRefsToAst("aaa/bbb/defs.scala",
+    addFileToProject("aaa/bbb/defs.scala",
       s"""package aaa.bbb
          |$commonDefs
          |""".stripMargin
     )
 
-    addFileToProjectKeepingHardRefsToAst("aaa/bbb/ccc/package.scala",
+    addFileToProject("aaa/bbb/ccc/package.scala",
       s"""package aaa.bbb
          |
          |package object ccc {
@@ -206,13 +192,13 @@ abstract class ResolvePrecedenceTest extends SimpleResolveTestBase {
          |}
          |""".stripMargin
     )
-    addFileToProjectKeepingHardRefsToAst("aaa/bbb/ccc/defs.scala",
+    addFileToProject("aaa/bbb/ccc/defs.scala",
       s"""package aaa.bbb.ccc
          |$commonDefs
          |""".stripMargin
     )
 
-    addFileToProjectKeepingHardRefsToAst("aaa/bbb/ccc/ddd/package.scala",
+    addFileToProject("aaa/bbb/ccc/ddd/package.scala",
       s"""package aaa.bbb.ccc
          |
          |package object ddd {
@@ -220,7 +206,7 @@ abstract class ResolvePrecedenceTest extends SimpleResolveTestBase {
          |}
          |""".stripMargin
     )
-    addFileToProjectKeepingHardRefsToAst("aaa/bbb/ccc/ddd/defs.scala",
+    addFileToProject("aaa/bbb/ccc/ddd/defs.scala",
       s"""package aaa.bbb.ccc.ddd
          |$commonDefs
          |""".stripMargin
@@ -544,8 +530,8 @@ class ResolvePrecedenceTest_3 extends ResolvePrecedenceTest_2_13 {
        |""".stripMargin
 
   def testNameClashBetweenDefinitionsFromTopWildcardImportAndTopLevelDefinitionInSamePackage(): Unit = {
-    addFileToProjectKeepingHardRefsToAst(TopLevelDefinitionsInOtherPackageFileName, TopLevelDefinitionsInOtherPackageFileContent)
-    addFileToProjectKeepingHardRefsToAst(TopLevelDefinitionsInSamePackageFileName, TopLevelDefinitionsInSamePackageFileContent)
+    addFileToProject(TopLevelDefinitionsInOtherPackageFileName, TopLevelDefinitionsInOtherPackageFileContent)
+    addFileToProject(TopLevelDefinitionsInSamePackageFileName, TopLevelDefinitionsInSamePackageFileContent)
 
     val mainFile =
       """package org.example
@@ -590,8 +576,8 @@ class ResolvePrecedenceTest_3 extends ResolvePrecedenceTest_2_13 {
   }
 
   def testNameClashBetweenDefinitionsFromTopWildcardImportAndTopLevelDefinitionInParentPackagingStatement(): Unit = {
-    addFileToProjectKeepingHardRefsToAst(TopLevelDefinitionsInOtherPackageFileName, TopLevelDefinitionsInOtherPackageFileContent)
-    addFileToProjectKeepingHardRefsToAst(TopLevelDefinitionsInSamePackageFileName, TopLevelDefinitionsInSamePackageFileContent)
+    addFileToProject(TopLevelDefinitionsInOtherPackageFileName, TopLevelDefinitionsInOtherPackageFileContent)
+    addFileToProject(TopLevelDefinitionsInSamePackageFileName, TopLevelDefinitionsInSamePackageFileContent)
 
     val mainFile =
       """package org
@@ -637,9 +623,9 @@ class ResolvePrecedenceTest_3 extends ResolvePrecedenceTest_2_13 {
   }
 
   def testNameClashBetweenDefinitionsFromTopGivenImportAndTopLevelDefinitionInSamePackage(): Unit = {
-    addFileToProjectKeepingHardRefsToAst(TopLevelDefinitionsInOtherPackageFileName, TopLevelDefinitionsInOtherPackageFileContent)
+    addFileToProject(TopLevelDefinitionsInOtherPackageFileName, TopLevelDefinitionsInOtherPackageFileContent)
 
-    addFileToProjectKeepingHardRefsToAst(TopLevelDefinitionsInSamePackageFileName, TopLevelDefinitionsInSamePackageFileContent)
+    addFileToProject(TopLevelDefinitionsInSamePackageFileName, TopLevelDefinitionsInSamePackageFileContent)
 
     val MainFileContent_WithScala3 =
       """package org.example
@@ -657,8 +643,8 @@ class ResolvePrecedenceTest_3 extends ResolvePrecedenceTest_2_13 {
   }
 
   def testNameClashBetweenDefinitionsFromTopGivenImportAndTopLevelDefinitionInParentPackagingStatement(): Unit = {
-    addFileToProjectKeepingHardRefsToAst(TopLevelDefinitionsInOtherPackageFileName, TopLevelDefinitionsInOtherPackageFileContent)
-    addFileToProjectKeepingHardRefsToAst(TopLevelDefinitionsInSamePackageFileName, TopLevelDefinitionsInSamePackageFileContent)
+    addFileToProject(TopLevelDefinitionsInOtherPackageFileName, TopLevelDefinitionsInOtherPackageFileContent)
+    addFileToProject(TopLevelDefinitionsInSamePackageFileName, TopLevelDefinitionsInSamePackageFileContent)
 
     val MainFileContentWithSeparatePackagings_WithScala3 =
       """package org
@@ -927,8 +913,8 @@ class ResolvePrecedenceTest_2_13 extends ResolvePrecedenceTest {
   }
 
   override def testNameClashBetweenDefinitionsFromTopWildcardImportAndSamePackage(): Unit = {
-    addFileToProjectKeepingHardRefsToAst(PackageObjectInOtherPackageFileName, PackageObjectInOtherPackageFileContent)
-    addFileToProjectKeepingHardRefsToAst(PackageObjectInSamePackageFileName, PackageObjectInSamePackageFileContent)
+    addFileToProject(PackageObjectInOtherPackageFileName, PackageObjectInOtherPackageFileContent)
+    addFileToProject(PackageObjectInSamePackageFileName, PackageObjectInSamePackageFileContent)
 
     doTestResolvesToFqn(MainFileContent, "MyClass", "org.other.MyClass")
     doTestResolvesToFqn(MainFileContent, "MyTrait", "org.other.MyTrait")
@@ -942,8 +928,8 @@ class ResolvePrecedenceTest_2_13 extends ResolvePrecedenceTest {
   }
 
   override def testNameClashBetweenDefinitionsFromTopWildcardImportAndParentPackagingStatement(): Unit = {
-    addFileToProjectKeepingHardRefsToAst(PackageObjectInOtherPackageFileName, PackageObjectInOtherPackageFileContent)
-    addFileToProjectKeepingHardRefsToAst(PackageObjectInSamePackageFileName, PackageObjectInSamePackageFileContent)
+    addFileToProject(PackageObjectInOtherPackageFileName, PackageObjectInOtherPackageFileContent)
+    addFileToProject(PackageObjectInSamePackageFileName, PackageObjectInSamePackageFileContent)
 
     doTestResolvesToFqn(MainFileContentWithSeparatePackagings, "MyClass", "org.other.MyClass")
     doTestResolvesToFqn(MainFileContentWithSeparatePackagings, "MyTrait", "org.other.MyTrait")
@@ -1244,8 +1230,8 @@ class ResolvePrecedenceTest_2_12 extends ResolvePrecedenceTest {
 
 
   override def testNameClashBetweenDefinitionsFromTopWildcardImportAndSamePackage(): Unit = {
-    addFileToProjectKeepingHardRefsToAst(PackageObjectInOtherPackageFileName, PackageObjectInOtherPackageFileContent).getNode
-    addFileToProjectKeepingHardRefsToAst(PackageObjectInSamePackageFileName, PackageObjectInSamePackageFileContent).getNode
+    addFileToProject(PackageObjectInOtherPackageFileName, PackageObjectInOtherPackageFileContent).getNode
+    addFileToProject(PackageObjectInSamePackageFileName, PackageObjectInSamePackageFileContent).getNode
 
     doTestResolvesToFqn(MainFileContent, "MyClass", "org.example.MyClass")
     doTestResolvesToFqn(MainFileContent, "MyTrait", "org.example.MyTrait")
@@ -1259,8 +1245,8 @@ class ResolvePrecedenceTest_2_12 extends ResolvePrecedenceTest {
   }
 
   override def testNameClashBetweenDefinitionsFromTopWildcardImportAndParentPackagingStatement(): Unit = {
-    addFileToProjectKeepingHardRefsToAst(PackageObjectInOtherPackageFileName, PackageObjectInOtherPackageFileContent)
-    addFileToProjectKeepingHardRefsToAst(PackageObjectInParentPackageFileName, PackageObjectInParentPackageFileName)
+    addFileToProject(PackageObjectInOtherPackageFileName, PackageObjectInOtherPackageFileContent)
+    addFileToProject(PackageObjectInParentPackageFileName, PackageObjectInParentPackageFileName)
 
     doTestResolvesToFqn(MainFileContentWithSeparatePackagings, "MyClass", "org.other.MyClass")
     doTestResolvesToFqn(MainFileContentWithSeparatePackagings, "MyTrait", "org.other.MyTrait")
