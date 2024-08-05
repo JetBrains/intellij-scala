@@ -8,7 +8,7 @@ import com.intellij.grazie.text.TextChecker
 import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.spellchecker.inspections.SpellCheckingInspection
 import com.intellij.testFramework.{ExtensionTestUtil, PlatformTestUtil}
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.util.TestUtils
 
 import java.io.File
@@ -33,9 +33,6 @@ abstract class GrazieScalaTestBase extends ScalaLightCodeInsightFixtureTestCase:
     "LanguageTool.EN.COMMA_WHICH",
     "LanguageTool.EN.UPPERCASE_SENTENCE_START"
   )
-
-  override def sharedProjectToken: SharedTestProjectToken =
-    SharedTestProjectToken.ByTestClassAndScalaSdkAndProjectLibraries(this)
 
   override def getTestDataPath: String =
     new File(TestUtils.getTestDataPath + "/../../integration/textAnalysis/testData").getCanonicalPath

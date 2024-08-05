@@ -7,8 +7,8 @@ import com.intellij.psi.PsiManager
 import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.annotator.HighlightingAdvisor
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
-import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryLoader, ScalaSDKLoader}
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
+import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ScalaSDKLoader}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.compiled.ScClsFileViewProvider.ScClsFileImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
@@ -25,14 +25,9 @@ import scala.collection.mutable
 @Category(Array(classOf[HighlightingTests]))
 abstract class ScalaLibraryHighlightingTest extends ScalaLightCodeInsightFixtureTestCase {
 
-  override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken.DoNotShare
-
   private val CustomScalaSdkLoader = ScalaSDKLoader()
 
-  override def librariesLoaders: Seq[LibraryLoader] = Seq(
-    CustomScalaSdkLoader,
-    HeavyJDKLoader()
-  )
+  override def librariesLoaders: Seq[LibraryLoader] = Seq(CustomScalaSdkLoader)
 
   protected def filesWithProblems: Map[String, Set[TextRange]] = Map()
 
