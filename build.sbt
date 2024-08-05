@@ -865,48 +865,82 @@ lazy val runtimeDependencies = project.in(file("target/tools/runtime-dependencie
 ////////////////////////////////////////////
 import Common.TestCategory.*
 
-val junitInterfaceFlags = "-v -s -a +c +q"
+lazy val runTestCategory = Command.single("runTestCategory") { (state, category) =>
+  val state1 = Command.process(
+    s"""set Seq(
+       |  Test / testFrameworks := Seq(TestFrameworks.JUnit),
+       |  Test / testOptions := Seq(Tests.Argument(TestFrameworks.JUnit, "-v", "-s", "-a", "+c", "+q", "--include-categories=$category", "--exclude-categories=$flakyTests"))
+       |)""".stripMargin,
+    state,
+    _ => ()
+  )
+  Command.process("testOnly", state1, _ => ())
+  state
+}
 
-def testOnlyCategories(categories: String*): String =
-  s"testOnly -- $junitInterfaceFlags --include-categories=${categories.mkString(",")} --exclude-categories=$flakyTests"
+def runTestsInTC(category: String): String = s"runTestCategory $category"
 
-addCommandAlias("runFileSetTests", testOnlyCategories(fileSetTests))
-addCommandAlias("runCompilationTests", testOnlyCategories(compilationTests))
-addCommandAlias("runCompletionTests", testOnlyCategories(completionTests))
-addCommandAlias("runEditorTests", testOnlyCategories(editorTests))
-addCommandAlias("runSlowTests", testOnlyCategories(slowTests))
-addCommandAlias("runDebuggerTests", testOnlyCategories(debuggerTests))
-addCommandAlias("runScalacTests", testOnlyCategories(scalacTests))
-addCommandAlias("runTypeInferenceTests", testOnlyCategories(typecheckerTests))
-addCommandAlias("runTestingSupportTests", testOnlyCategories(testingSupportTests))
-addCommandAlias("runWorksheetEvaluationTests", testOnlyCategories(worksheetEvaluationTests))
-addCommandAlias("runHighlightingTests", testOnlyCategories(highlightingTests))
-addCommandAlias("runNightlyTests", testOnlyCategories(randomTypingTests))
-addCommandAlias("runFlakyTests", s"testOnly -- --include-categories=$flakyTests")
+addCommandAlias("runFileSetTests", runTestsInTC(fileSetTests))
+addCommandAlias("runCompilationTests", runTestsInTC(compilationTests))
+addCommandAlias("runCompletionTests", runTestsInTC(completionTests))
+addCommandAlias("runEditorTests", runTestsInTC(editorTests))
+addCommandAlias("runSlowTests", runTestsInTC(slowTests))
+addCommandAlias("runDebuggerTests", runTestsInTC(debuggerTests))
+addCommandAlias("runScalacTests", runTestsInTC(scalacTests))
+addCommandAlias("runTypeInferenceTests", runTestsInTC(typecheckerTests))
+addCommandAlias("runTestingSupportTests", runTestsInTC(testingSupportTests))
+addCommandAlias("runWorksheetEvaluationTests", runTestsInTC(worksheetEvaluationTests))
+addCommandAlias("runHighlightingTests", runTestsInTC(highlightingTests))
+addCommandAlias("runNightlyTests", runTestsInTC(randomTypingTests))
+
+lazy val runFlakyTests = Command.command("runFlakyTests") { state =>
+  val state1 = Command.process(
+    s"""set Seq(
+       |  Test / testFrameworks := Seq(TestFrameworks.JUnit),
+       |  Test / testOptions := Seq(Tests.Argument(TestFrameworks.JUnit, "-v", "-s", "-a", "+c", "+q", "--include-categories=$flakyTests"))
+       |)""".stripMargin,
+    state,
+    _ => ()
+  )
+  Command.process("testOnly", state1, _ => ())
+  state
+}
 
 //it's run during "Package" step on TC
-addCommandAlias("runBundleSortingTests", s"testOnly -- --include-categories=$bundleSortingTests")
+addCommandAlias("runBundleSortingTests", runTestsInTC(bundleSortingTests))
 
-val categoriesToExclude = List(
-  fileSetTests,
-  compilationTests,
-  completionTests,
-  editorTests,
-  slowTests,
-  debuggerTests,
-  scalacTests,
-  typecheckerTests,
-  testingSupportTests,
-  highlightingTests,
-  worksheetEvaluationTests,
-  randomTypingTests,
-  flakyTests
-)
+lazy val runFastTestsCommand = Command.single("runFastTestsCommand") { (state, glob) =>
+  val categoriesToExclude = List(
+    fileSetTests,
+    compilationTests,
+    completionTests,
+    editorTests,
+    slowTests,
+    debuggerTests,
+    scalacTests,
+    typecheckerTests,
+    testingSupportTests,
+    highlightingTests,
+    worksheetEvaluationTests,
+    randomTypingTests,
+    flakyTests
+  )
+  val state1 = Command.process(
+    s"""set Seq(
+       |  Test / testFrameworks := Seq(TestFrameworks.JUnit),
+       |  Test / testOptions := Seq(Tests.Argument(TestFrameworks.JUnit, "-v", "-s", "-a", "+c", "+q", "--exclude-categories=${categoriesToExclude.mkString(",")}"))
+       |)""".stripMargin,
+    state,
+    _ => ()
+  )
+  Command.process(s"testOnly $glob", state1, _ => ())
+  state
+}
 
-val fastTestOptions = s"$junitInterfaceFlags --exclude-categories=${categoriesToExclude.mkString(",")}"
-
-addCommandAlias("runFastTests", s"testOnly -- $fastTestOptions")
+addCommandAlias("runFastTests", "runFastTestsCommand *")
 // subsets of tests to split the complete test run into smaller chunks
-addCommandAlias("runFastTestsComIntelliJ", s"testOnly com.intellij.* -- $fastTestOptions")
-addCommandAlias("runFastTestsOrgJetbrains", s"testOnly org.jetbrains.* -- $fastTestOptions")
-addCommandAlias("runFastTestsScala", s"testOnly scala.* -- $fastTestOptions")
+addCommandAlias("runFastTestsComIntelliJ", "runFastTestsCommand com.intellij.*")
+addCommandAlias("runFastTestsOrgJetbrains", "runFastTestsCommand org.jetbrains.*")
+addCommandAlias("runFastTestsScala", "runFastTestsCommand scala.*")
+
+Global / commands ++= Seq(runTestCategory, runFlakyTests, runFastTestsCommand)
