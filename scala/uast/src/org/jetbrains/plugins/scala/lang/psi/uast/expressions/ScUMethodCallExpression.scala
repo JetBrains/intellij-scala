@@ -211,7 +211,8 @@ final class ScUBinaryExpressionCall(
 
   override def getValueArguments: ju.List[UExpression] = args
 
-  override def getReceiver: UExpression = scExpression.left.convertTo[UExpression](this).get
+  @Nullable
+  override def getReceiver: UExpression = scExpression.left.convertTo[UExpression](this).orNull
 }
 
 /**

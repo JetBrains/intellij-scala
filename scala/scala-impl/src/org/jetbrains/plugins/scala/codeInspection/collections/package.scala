@@ -29,14 +29,15 @@ import org.jetbrains.plugins.scala.util.AnonymousFunction
 import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
 
+//noinspection ScalaWeakerAccess
 package object collections {
   // TODO: once initialized, it doesn't change because it is used in `val`s below
   def likeCollectionClasses: ArraySeq[String] = ArraySeq.unsafeWrapArray(ScalaApplicationSettings.getInstance().getLikeCollectionClasses)
   def likeOptionClasses: ArraySeq[String] = ArraySeq.unsafeWrapArray(ScalaApplicationSettings.getInstance().getLikeOptionClasses)
 
-  val monadicMethods = Set("map", "flatMap", "filter", "withFilter")
-  val foldMethodNames = Set("foldLeft", "/:", "foldRight", ":\\", "fold")
-  val reduceMethodNames = Set("reduce", "reduceLeft", "reduceRight")
+  val monadicMethods: Set[String] = Set("map", "flatMap", "filter", "withFilter")
+  val foldMethodNames: Set[String] = Set("foldLeft", "/:", "foldRight", ":\\", "fold")
+  val reduceMethodNames: Set[String] = Set("reduce", "reduceLeft", "reduceRight")
 
   def invocation(methodName: String) = new Qualified(methodName == _)
   def invocation(methodNames: Set[String]) = new Qualified(methodNames.contains)
@@ -124,7 +125,7 @@ package object collections {
     def unapply(expr: ScExpression): Option[ScExpression] = expr match {
       case MethodRepr(_, Some(ref: ScReferenceExpression), _, Seq(e)) if ref.refName == "Some" =>
         ref.resolve() match {
-          case m: ScMember if m.containingClass.qualifiedName == "scala.Some" => Some(e)
+          case m: ScMember if m.containingClass.nullSafe.exists(_.qualifiedName == "scala.Some") => Some(e)
           case _ => None
         }
       case _ => None
@@ -135,7 +136,7 @@ package object collections {
     def unapply(expr: ScExpression): Option[ScExpression] = expr match {
       case MethodRepr(_, Some(ref: ScReferenceExpression), _, Seq(e)) if ref.refName == "Option" =>
         ref.resolve() match {
-          case m: ScMember if m.containingClass.qualifiedName == "scala.Option" => Some(e)
+          case m: ScMember if m.containingClass.nullSafe.exists(_.qualifiedName == "scala.Option") => Some(e)
           case _ => None
         }
       case _ => None
@@ -233,7 +234,7 @@ package object collections {
               (stripped(left), stripped(right)) match {
                 case (leftRef: ScReferenceExpression, right: ScExpression)
                   if leftRef.resolve() == x && isIndependentOf(right, x) =>
-                  val secondArgName = y.getName
+                  val secondArgName = y.name
                   val funExprText = secondArgName + " => " + right.getText
                   Some(ScalaPsiElementFactory.createExpressionWithContextFromText(funExprText, expr.getContext, expr))
                 case _ => None
@@ -271,7 +272,7 @@ package object collections {
     def unapply(expr: ScExpression): Boolean = {
       stripped(expr) match {
         case ScParenthesisedExpr(underscore()) => true
-        case typed: ScTypedExpression if typed.expr.isInstanceOf[ScUnderscoreSection] => true
+        case typed: ScTypedExpression if typed.expr.is[ScUnderscoreSection] => true
         case und: ScUnderscoreSection if und.bindingExpr.isEmpty => true
         case _ => false
       }
@@ -468,9 +469,7 @@ package object collections {
     case _                => false
   }
 
-  def withoutConversions(expr: ScExpression): Typeable = new Typeable {
-    override def `type`(): TypeResult = expr.getTypeWithoutImplicits()
-  }
+  def withoutConversions(expr: ScExpression): Typeable = () => expr.getTypeWithoutImplicits()
 
   private val sideEffectsCollectionMethods = Set("append", "appendAll", "clear", "insert", "insertAll",
     "prepend", "prependAll", "reduceToSize", "remove", "retain",
@@ -514,9 +513,9 @@ package object collections {
         } yield e
       }
 
-      val predicate: (PsiElement) => Boolean = {
+      val predicate: PsiElement => Boolean = {
         case `expr` => true
-        case (ScFunctionExpr(_, _) | (_: ScCaseClauses)) childOf `expr` => true
+        case (ScFunctionExpr(_, _) | _: ScCaseClauses) childOf `expr` => true
         case (e: ScExpression) childOf `expr` if ScUnderScoreSectionUtil.underscores(e).nonEmpty => true
         case _: ScFunctionDefinition => false
         case elem: PsiElement => !AnonymousFunction.isGenerateClass(elem)
@@ -531,7 +530,7 @@ package object collections {
           assign
         case infix @ ScInfixExpr(definedOutside(ScalaPsiUtil.inNameContext(_: ScVariable)), _, _) if infix.isAssignmentOperator =>
           infix
-        case MethodRepr(itself, Some(definedOutside(ScalaPsiUtil.inNameContext((_ : ScVariable | _: ScValue)))), Some(ref), _)
+        case MethodRepr(itself, Some(definedOutside(ScalaPsiUtil.inNameContext(_ : ScVariable | _: ScValue))), Some(ref), _)
           if isSideEffectCollectionMethod(ref) || isSetter(ref) || hasUnitReturnType(ref) => itself
         case MethodRepr(itself, None, Some(ref @ definedOutside(_)), _) if hasUnitReturnType(ref) => itself
       }.toSeq
@@ -567,9 +566,8 @@ package object collections {
     case _ => None
   }
 
-  implicit class PsiElementRange(private val elem: PsiElement) extends AnyVal {
+  implicit final class PsiElementRange(private val elem: PsiElement) extends AnyVal {
     def start: Int = elem.getTextRange.getStartOffset
     def end: Int = elem.getTextRange.getEndOffset
   }
 }
-
