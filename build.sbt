@@ -941,4 +941,18 @@ addCommandAlias("runFastTestsComIntelliJ", "runFastTestsCommand com.intellij.*")
 addCommandAlias("runFastTestsOrgJetbrains", "runFastTestsCommand org.jetbrains.*")
 addCommandAlias("runFastTestsScala", "runFastTestsCommand scala.*")
 
-Global / commands ++= Seq(runTestCategory, runFlakyTests, runFastTestsCommand)
+lazy val runJUnit5Tests = Command.command("runJUnit5Tests") { state =>
+  val testFrameworkFqn = "com.github.sbt.junit.jupiter.sbt.Import.jupiterTestFramework"
+  val state1 = Command.process(
+    s"""set Seq(
+       |  Test / testFrameworks := Seq($testFrameworkFqn),
+       |  Test / testOptions := Seq(Tests.Argument($testFrameworkFqn, "-v", "-s", "-a", "+c", "+q"))
+       |)""".stripMargin,
+    state,
+    _ => ()
+  )
+  Command.process("test", state1, _ => ())
+  state
+}
+
+Global / commands ++= Seq(runTestCategory, runFlakyTests, runFastTestsCommand, runJUnit5Tests)
