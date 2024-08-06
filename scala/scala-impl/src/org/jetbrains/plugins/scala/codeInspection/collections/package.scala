@@ -121,7 +121,7 @@ package object collections {
     def unapply(expr: ScExpression): Option[ScExpression] = expr match {
       case MethodRepr(_, _, Some(ref), Seq(e)) if ref.refName == "Some" =>
         ref.resolve() match {
-          case m: ScMember if m.containingClass.qualifiedName == "scala.Some" => Some(e)
+          case m: ScMember if m.containingClass.nullSafe.exists(_.qualifiedName == "scala.Some") => Some(e)
           case _ => None
         }
       case _ => None
@@ -132,7 +132,7 @@ package object collections {
     def unapply(expr: ScExpression): Option[ScExpression] = expr match {
       case MethodRepr(_, _, Some(ref), Seq(e)) if ref.refName == "Option" =>
         ref.resolve() match {
-          case m: ScMember if m.containingClass.qualifiedName == "scala.Option" => Some(e)
+          case m: ScMember if m.containingClass.nullSafe.exists(_.qualifiedName == "scala.Option") => Some(e)
           case _ => None
         }
       case _ => None
