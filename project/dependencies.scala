@@ -34,7 +34,6 @@ object Versions {
 
   val junitVersion: String = "4.13.2"
   val junitInterfaceVersion: String = "0.13.3"
-  val junit5JupiterVersion: String = "5.10.2"
 
   val bspVersion = "2.1.0-M3"
   val sbtStructureVersion: String = "2024.2.3"
@@ -106,39 +105,7 @@ object Dependencies {
   val junit: ModuleID = "junit" % "junit" % junitVersion
   val junitInterface: ModuleID = "com.github.sbt" % "junit-interface" % junitInterfaceVersion
 
-  /**
-   * IntelliJ test framework classes depend a lot on JUnit 5 classes.<br>
-   * To avoid compilation errors, we need to add it as well.<br>
-   * We add just "junit-jupiter-api" instead of "junit-jupiter" to keep it minimalistic.<br>
-   * In principle, we can start depending on directly "junit-jupiter" when needed.
-   */
-  val junit5JupiterApi: ModuleID = "org.junit.jupiter" % "junit-jupiter-api" % junit5JupiterVersion
-
-  private val junit5JupiterEngine: ModuleID = "org.junit.jupiter" % "junit-jupiter-engine" % junit5JupiterVersion
-  private val junit5JupiterVintageEngine: ModuleID = "org.junit.vintage" % "junit-vintage-engine" % junit5JupiterVersion
-  private val junitPlatformLauncher: ModuleID = "org.junit.platform" % "junit-platform-launcher" % "1.10.2"
-
-  /**
-   * These dependencies are needed for IntelliJ to run correctly run tests using JUnit 5 runner.<br>
-   * Actually, IntelliJ adds these dependencies to the test classpath automatically in<br>
-   * `com.intellij.execution.junit.TestObject.appendJUnit5LauncherClasses`<br>
-   * However, when running tests via Run Configuration we pass the classpath via the `--classpath` VM option.
-   * (it's defined by sbt-idea-plugin).<br>
-   * As a result, the class path provided by intellij is ignored. So we need to add the dependencies manually.
-   *
-   * ===Note about JUnit 5 test runner===
-   * After we added dependency on JUnit 5 artifact, IntelliJ will sometimes prefer using JUnit 5 test runner
-   * (`com.intellij.junit5.JUnit5IdeaTestRunner`). For example, when we use a pattern to find tests.
-   * To be able to run JUnit 4 tests "junit-vintage-engine" is needed
-   *
-   * @see `com.intellij.execution.junit.TestObject.getRunnerInner`
-   * @see `com.intellij.execution.junit.JUnitUtil.isJUnit5`
-   */
-  val junit5EngineTestDependencies: Seq[ModuleID] = Seq(
-    junit5JupiterEngine,
-    junit5JupiterVintageEngine,
-    junitPlatformLauncher,
-  ).map(_ % Test)
+  val jupiterInterface: ModuleID = "com.github.sbt.junit" % "jupiter-interface" % "0.11.4"
 
   val ivy2: ModuleID = "org.apache.ivy" % "ivy" % "2.5.2"
 

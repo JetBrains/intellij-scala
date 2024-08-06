@@ -89,6 +89,7 @@ object Common {
       Dependencies.jetbrainsAnnotations % Provided,
       Dependencies.junit % Test,
       Dependencies.junitInterface % Test,
+      Dependencies.jupiterInterface % Test
     ),
   ) ++ projectDirectoriesSettings
 
