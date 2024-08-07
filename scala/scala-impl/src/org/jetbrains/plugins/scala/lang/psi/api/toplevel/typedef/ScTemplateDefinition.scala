@@ -99,6 +99,9 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
    * Returns parent super class (not trait) if there is one.
    */
   def superClass: Option[PsiClass]
+
+  @Nullable
+  override def getSuperClass: PsiClass = superClass.orNull
 }
 
 object ScTemplateDefinition {
