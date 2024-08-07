@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.junit.Assert.*
 
 import java.util
+import scala.jdk.CollectionConverters.ListHasAsScala
 
 /**
  * Inspired by tests in `com.intellij.grazie.text.TextExtractionTest` in IntelliJ repo
@@ -27,6 +28,9 @@ class ScalaTextExtractorTest extends BasePlatformTestCase {
 
   private def extractTextContent(fileText: String, offset: Int): TextContent =
     ScalaTextExtractorTest.extractTextContent("Dummy.scala", fileText, offset, getProject)
+
+  private def extractTextContents(fileText: String, offset: Int, psi: Class[_ <: PsiElement]): List[TextContent] =
+    ScalaTextExtractorTest.extractTextContents("Dummy.scala", fileText, offset, psi, getProject).asScala.toList
 
   private def extractTextWithUnknownFragments(fileText: String, offset: Int): String = {
     val textContent = extractTextContent(fileText, offset)
@@ -132,7 +136,7 @@ class ScalaTextExtractorTest extends BasePlatformTestCase {
         | * Link 1 [[scala.Option]]
         | * Link 2 [[scala.Option description of class reference]]
         | * Link 3 [[https://www.scala-lang.org]]
-        | * Link 4 [[https://www.scala-lang.org description o http link]]
+        | * Link 4 [[https://www.scala-lang.org description of http link]]
         | *
         | * Deprecated Java-style inline elements:
         | * {@link scala.Option}
@@ -151,15 +155,19 @@ class ScalaTextExtractorTest extends BasePlatformTestCase {
         |class A
         |""".stripMargin.withNormalizedSeparator
 
-    val text0 = extractTextContent(docText, 10)
-    assertEquals(
+    val texts0 = extractTextContents(docText, 10, classOf[PsiDocComment])
+    val actual = texts0.map(buildTextWithSpecialMarkers)
+    val expected = List(
       """Plain text line 1
         |Plain text line 2
         |Here's an asterisk: *
         |
-        |Text ? html ? tags ? inside.
+        |Text ~ with ~ html""".stripMargin.withNormalizedSeparator,
+      "tags",
+      """inside.
         |Unknown tags1: ?
-        |Unknown tags2: tags2 ?
+        |Unknown tags2: tags2 ?one? two""".stripMargin.withNormalizedSeparator,
+      """three? four?
         |
         |Bold: bold text
         |Italic: italic text
@@ -175,7 +183,7 @@ class ScalaTextExtractorTest extends BasePlatformTestCase {
         |Link 1?
         |Link 2 ? description of class reference?
         |Link 3?
-        |Link 4 ? description o http link?
+        |Link 4 ? description of http link?
         |
         |Deprecated Java-style inline elements:
         |?
@@ -184,10 +192,10 @@ class ScalaTextExtractorTest extends BasePlatformTestCase {
         |List:
         |?list item 1
         |?list item 2 line 1 ? description?
-        |list item 2 line 2 ?
-        |?list item 3""".stripMargin.withNormalizedSeparator,
-      buildTextWithSpecialMarkers(text0)
+        |list item 2 line 2 ~text in span~
+        |?list item 3""".stripMargin.withNormalizedSeparator
     )
+    assertEquals(expected, actual)
 
     val text1 = extractTextWithUnknownFragments(docText, docText.indexOf("macro text"))
     assertEquals("macro text content (macro key name is not included)", text1)
@@ -363,24 +371,24 @@ class ScalaTextExtractorTest extends BasePlatformTestCase {
 
   def testBuildingPerformance_removingHtml(): Unit = {
     val text = "b<unknownTag>x</unknownTag>".repeat(10_000)
-    val expected = "b".repeat(10_000)
+    val expected = List("b".repeat(10_000))
     val file = myFixture.configureByText("dummy.scala", "/**\n" + text + "*/")
     val comment = PsiTreeUtil.findElementOfClassAtOffset(file, 10, classOf[PsiDocComment], false)
     val extractor = new ScalaTextExtractor
     PlatformTestUtil.newBenchmark("TextContent building with HTML removal", () => {
-      assertEquals(expected, extractor.buildTextContent(comment, TextContent.TextDomain.ALL).toString)
+      assertEquals(expected, extractor.buildTextContents(comment, TextContent.TextDomain.ALL).asScala.toList.map(_.toString))
     }).start()
   }
 
   def testBuildingPerformance_longTextFragment(): Unit = {
     val line = "here's some relative long text that helps make this text fragment a bit longer than it could have been otherwise"
     val text = ("\n\n\n" + line).repeat(10_000)
-    val expected = (line + "\n\n\n").repeat(10_000).trim
+    val expected = List((line + "\n\n\n").repeat(10_000).trim)
     val file = myFixture.configureByText("dummy.scala", "class C { String s = \"\"\"\n" + text + "\"\"\"; }")
     val literal = PsiTreeUtil.findElementOfClassAtOffset(file, 100, classOf[ScStringLiteral], false)
     val extractor = new ScalaTextExtractor
     PlatformTestUtil.newBenchmark("TextContent building from a long text fragment", () => {
-      assertEquals(expected, extractor.buildTextContent(literal, TextContent.TextDomain.ALL).toString)
+      assertEquals(expected, extractor.buildTextContents(literal, TextContent.TextDomain.ALL).asScala.toList.map(_.toString))
     }).start()
   }
 
@@ -392,8 +400,8 @@ class ScalaTextExtractorTest extends BasePlatformTestCase {
     val tag = PsiTreeUtil.findElementOfClassAtOffset(file, text.indexOf("something"), classOf[PsiDocTag], false)
     PlatformTestUtil.newBenchmark("TextContent building from complex PSI", () => {
       for (_ <- 0 until 10) {
-        val content = extractor.buildTextContent(tag, TextContent.TextDomain.ALL)
-        assertEquals("something if  is not too expensive", content.toString)
+        val content = extractor.buildTextContents(tag, TextContent.TextDomain.ALL).asScala.toList
+        assertEquals(List("something if  is not too expensive"), content.map(_.toString))
       }
     }).start()
   }
@@ -401,10 +409,17 @@ class ScalaTextExtractorTest extends BasePlatformTestCase {
 
 object ScalaTextExtractorTest {
 
-  private def extractTextContent(fileName: String, fileText: String, offset: Int, project: Project): TextContent = {
+  private def extractTextContents(fileName: String, text: String, offset: Int, psi: Class[_ <: PsiElement], project: Project) = {
+    val file = createFile(fileName, text, project)
+    TextExtractor.findTextsAt(PsiTreeUtil.findElementOfClassAtOffset(file, offset, psi, false), TextContent.TextDomain.ALL)
+  }
+
+  private def extractTextContent(fileName: String, fileText: String, offset: Int, project: Project) =
+    TextExtractor.findTextAt(createFile(fileName, fileText, project), offset, TextContent.TextDomain.ALL)
+
+  private def createFile(fileName: String, fileText: String, project: Project) = {
     val fileType = FileTypeManager.getInstance.getFileTypeByFileName(fileName)
-    val file = PsiFileFactory.getInstance(project).createFileFromText(fileName, fileType, fileText)
-    TextExtractor.findTextAt(file, offset, TextContent.TextDomain.ALL)
+    PsiFileFactory.getInstance(project).createFileFromText(fileName, fileType, fileText)
   }
 
   private val UnknownMarker = '?'
@@ -412,9 +427,10 @@ object ScalaTextExtractorTest {
   private val TripleQuote = "\"\"\""
 
   private def buildTextWithSpecialMarkers(content: TextContent): String = {
-    val builder = new java.lang.StringBuilder(content.replaceMarkupWith(MarkupMarker))
-    for (i <- content.length to 0 by -1) {
-      if (content.hasUnknownFragmentsIn(TextRange.from(i, 0))) {
+    val contentWithMarkup = content.replaceMarkupWith(MarkupMarker)
+    val builder = new java.lang.StringBuilder(contentWithMarkup)
+    for (i <- contentWithMarkup.length to 0 by -1) {
+      if (content.hasUnknownFragmentsIn(TextRange.from(contentWithMarkup.offsetToOriginal(i), 0))) {
         builder.insert(i, UnknownMarker)
       }
     }

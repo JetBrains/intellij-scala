@@ -57,24 +57,26 @@ final class ScalaTextExtractor extends TextExtractor:
 
   private val scaladocBuilderWithoutTags = scaladocBuilder.excluding(_.is[ScDocTag])
 
-  override def buildTextContent(root: PsiElement, allowedDomains: util.Set[TextContent.TextDomain]): TextContent =
+  override def buildTextContents(root: PsiElement, allowedDomains: util.Set[TextContent.TextDomain]): util.List[TextContent] =
     // Handle ScalaDoc comments
     if (allowedDomains.contains(TextDomain.DOCUMENTATION))
       root match
         case _: ScDocComment =>
-          return HtmlUtilsKt.removeHtml(scaladocBuilderWithoutTags.build(root, TextDomain.DOCUMENTATION))
+          return HtmlUtilsKt.excludeHtml(scaladocBuilderWithoutTags.build(root, TextDomain.DOCUMENTATION))
         case _: ScDocTag =>
-          return HtmlUtilsKt.removeHtml(scaladocBuilder.build(root, TextDomain.DOCUMENTATION))
+          return HtmlUtilsKt.excludeHtml(scaladocBuilder.build(root, TextDomain.DOCUMENTATION))
         case _ =>
 
     // Handle line & block comments
     def isPlainCommentToken(e: PsiElement): Boolean =
       ScalaTokenTypes.PLAIN_COMMENTS_TOKEN_SET.contains(PsiUtilCore.getElementType(e))
+
     if (allowedDomains.contains(TextDomain.COMMENTS) && isPlainCommentToken(root))
       val roots = PsiUtilsKt.getNotSoDistantSimilarSiblings(root, e => isPlainCommentToken(e))
-      return TextContent.joinWithWhitespace('\n', ContainerUtil.mapNotNull(roots, (c: PsiElement) => {
-        TextContentBuilder.FromPsi.removingIndents(" \t*/").removingLineSuffixes(" \t").build(c, TextDomain.COMMENTS)
-      }))
+      return ContainerUtil.createMaybeSingletonList(
+        TextContent.joinWithWhitespace('\n', ContainerUtil.mapNotNull(roots, (c: PsiElement) => {
+          TextContentBuilder.FromPsi.removingIndents(" \t*/").removingLineSuffixes(" \t").build(c, TextDomain.COMMENTS)
+        })))
 
     // Handle string literals
     if (allowedDomains.contains(TextDomain.LITERALS))
@@ -106,14 +108,13 @@ final class ScalaTextExtractor extends TextExtractor:
                 Some(new Exclusion(start, end, isUnknown))
               }
             }
-            return content.excludeRanges(excludedRanges.asJava)
+            return ContainerUtil.createMaybeSingletonList(content.excludeRanges(excludedRanges.asJava))
           }
         case _ =>
       end match
     end if
 
-    null
-  end buildTextContent
+    util.List.of()
+  end buildTextContents
 
 end ScalaTextExtractor
-
