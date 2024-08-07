@@ -21,4 +21,6 @@ trait ScTemplateDefinitionStub[T <: ScTemplateDefinition]
   def additionalJavaName: Option[String]
 
   def javaName: String
+
+  def givenDefinitionParameterText: String
 }

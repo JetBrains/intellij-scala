@@ -71,6 +71,8 @@ class ScGivenDefinitionImpl(
   override def parameters: Seq[ScParameter] =
     clauses.fold(Seq.empty[ScParameter])(_.params)
 
+  def parametersText: String = byStubOrPsi(_.givenDefinitionParameterText)(clauses.fold("")(_.getText))
+
   override def desugaredDefinitions: Seq[ScMember] =
     cachedInUserData("desugaredDefinitions", this, ModTracker.libraryAware(this)) {
       try {
@@ -89,7 +91,7 @@ class ScGivenDefinitionImpl(
             if (typeParameters.isEmpty) ""
             else                        typeParameters.map(_.name).commaSeparated(Model.SquareBrackets)
 
-          val parametersText = clauses.fold("")(_.getText)
+          val parametersText = this.parametersText
 
           val clsText            = s"class $name$typeParametersDeclText$parametersText extends $supersText"
           val implicitMethodText = s"implicit def $name$typeParametersDeclText$parametersText: $name$typeParametersText = ???"

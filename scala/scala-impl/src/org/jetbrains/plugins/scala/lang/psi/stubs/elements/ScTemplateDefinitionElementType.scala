@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScEnumClassCaseImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScGivenDefinitionImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTemplateDefinitionStubImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.stubs.{ScGivenStub, ScImplicitStub, ScTemplateDefinitionStub}
@@ -40,6 +40,7 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
     dataStream.writeOptionName(stub.topLevelQualifier)
     dataStream.writeBoolean(stub.isGiven)
     dataStream.writeNames(stub.givenClassNames)
+    dataStream.writeUTFFast(stub.givenDefinitionParameterText)
   }
 
   override final def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]) =
@@ -63,6 +64,7 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       topLevelQualifier                = dataStream.readOptionName,
       isGiven                          = dataStream.readBoolean,
       givenClassNames                  = dataStream.readNames,
+      givenDefinitionParameterText     = dataStream.readUTFFast,
     )
 
   override final def createStubImpl(definition: TypeDef,
@@ -113,9 +115,9 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       case _                => (false, None)
     }
 
-    val (isGivenDefinition, givenDefinitionClassNames) = definition match {
-      case givenDef: ScGivenDefinition => (true, ScGivenStub.givenDefinitionClassNames(givenDef))
-      case _                           => (false, EMPTY_STRING_ARRAY)
+    val (isGivenDefinition, givenDefinitionClassNames, givenDefinitionParameterText) = definition match {
+      case givenDef: ScGivenDefinitionImpl => (true, ScGivenStub.givenDefinitionClassNames(givenDef), givenDef.parametersText)
+      case _                               => (false, EMPTY_STRING_ARRAY, "")
     }
 
     new ScTemplateDefinitionStubImpl(
@@ -137,7 +139,8 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       isTopLevel                       = isTopLevel,
       topLevelQualifier                = topLevelQualifier,
       isGiven                          = isGivenDefinition,
-      givenClassNames                  = givenDefinitionClassNames
+      givenClassNames                  = givenDefinitionClassNames,
+      givenDefinitionParameterText     = givenDefinitionParameterText,
     )
   }
 
