@@ -1,9 +1,14 @@
 package org.jetbrains.sbt.project
 
+import com.intellij.openapi.module.{JavaModuleType, ModuleType}
+import com.intellij.openapi.project.Project
 import com.intellij.util.SystemProperties
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.sdkdetect.repository.CoursierPaths
 import org.jetbrains.plugins.scala.{DependencyManagerBase, ScalaVersion}
 import org.jetbrains.sbt.project.ProjectStructureDsl._
+import org.jetbrains.sbt.project.settings.DisplayModuleName
+import org.junit.Assert.{assertEquals, fail}
 
 object ProjectStructureTestUtils {
 
@@ -134,6 +139,24 @@ object ProjectStructureTestUtils {
     val scalaLibrary = expectedScalaLibraryFromIvy(scalaVersionFromString, createScalaLibraryName(scalaVersionFromString))
     val scalaSdkLibrary = expectedScalaSdkLibraryFromIvy(scalaVersionFromString, s"sbt: scala-sdk-$scalaVersion")
     Seq(scalaLibrary, scalaSdkLibrary)
+  }
+
+  /**
+   *
+   * @param expected map in which the keys are the full module names and the values are the display module names
+   */
+  def checkDisplayModuleNames(project: Project, expected: Map[String, String]): Unit = {
+    val modules = project.modules.filter(ModuleType.get(_).getName == JavaModuleType.getModuleName)
+    assertEquals("The amount of expected and actual modules is not the same", modules.size, expected.size)
+    expected.foreach { case (fullName, expectedDisplayName) =>
+      val moduleOpt = modules.find(_.getName == fullName)
+      moduleOpt match {
+        case Some(module) =>
+          val displayName = DisplayModuleName.getInstance(module).name
+          assertEquals("The expected display module name is different than the actual one", expectedDisplayName, displayName)
+        case _ => fail(s"The module called $fullName doesn't exist")
+      }
+    }
   }
 
   private def expectedScalaLibraryFromIvy(scalaVersion: ScalaVersion, libraryName: String): library = {
