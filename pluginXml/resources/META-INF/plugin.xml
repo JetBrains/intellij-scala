@@ -50,20 +50,26 @@
     <depends optional="true" config-file="scala-features-trainer-integration.xml">training</depends>
     <depends optional="true" config-file="textAnalysis.xml">tanvd.grazi</depends>
     <depends optional="true" config-file="scala-junit-integration.xml">JUnit</depends>
-<!--    <depends optional="true" config-file="packagesearch.xml">com.jetbrains.packagesearch.intellij-plugin</depends>-->
+    <!-- <depends optional="true" config-file="packagesearch.xml">com.jetbrains.packagesearch.intellij-plugin</depends> -->
 
-    <xi:include href="/META-INF/sbt-api.xml" xpointer="xpointer(/idea-plugin/*)"/>
-    <xi:include href="/META-INF/scala-plugin-common.xml" xpointer="xpointer(/idea-plugin/*)"/>
-    <xi:include href="/META-INF/sbt.xml" xpointer="xpointer(/idea-plugin/*)"/>
-    <xi:include href="/META-INF/BSP.xml" xpointer="xpointer(/idea-plugin/*)"/>
-    <xi:include href="/META-INF/codeInsight.xml" xpointer="xpointer(/idea-plugin/*)"/>
-    <xi:include href="/META-INF/conversion.xml" xpointer="xpointer(/idea-plugin/*)"/>
-    <xi:include href="/META-INF/compiler-integration.xml" xpointer="xpointer(/idea-plugin/*)"/>
-    <xi:include href="/META-INF/debugger.xml" xpointer="xpointer(/idea-plugin/*)"/>
-    <xi:include href="/META-INF/scala-repl.xml" xpointer="xpointer(/idea-plugin/*)"/>
-    <xi:include href="/META-INF/structure-view.xml" xpointer="xpointer(/idea-plugin/*)"/>
-    <xi:include href="/META-INF/testing-support.xml" xpointer="xpointer(/idea-plugin/*)"/>
-    <xi:include href="/META-INF/uast.xml" xpointer="xpointer(/idea-plugin/*)"/>
-    <xi:include href="/META-INF/worksheet.xml" xpointer="xpointer(/idea-plugin/*)"/>
-    <xi:include href="/META-INF/scala-devkit-integration.xml" xpointer="xpointer(/idea-plugin/*)"/>
+    <xi:include href="/META-INF/sbt-api.xml"/>
+    <xi:include href="/META-INF/scala-plugin-common.xml"/>
+    <xi:include href="/META-INF/sbt.xml"/>
+    <xi:include href="/META-INF/BSP.xml"/>
+    <xi:include href="/META-INF/codeInsight.xml"/>
+    <xi:include href="/META-INF/conversion.xml"/>
+    <xi:include href="/META-INF/compiler-integration.xml"/>
+    <xi:include href="/META-INF/debugger.xml"/>
+    <xi:include href="/META-INF/scala-repl.xml"/>
+    <xi:include href="/META-INF/structure-view.xml"/>
+    <xi:include href="/META-INF/testing-support.xml"/>
+    <xi:include href="/META-INF/uast.xml"/>
+    <xi:include href="/META-INF/worksheet.xml"/>
+    <xi:include href="/META-INF/scala-devkit-integration.xml"/>
+
+    <!-- Include the ultimate part of our plugin -->
+    <xi:include href="/META-INF/scala-ultimate-plugin.xml">
+        <!-- Ignore if the file cannot be loaded (when only the community part is build) -->
+        <xi:fallback/>
+    </xi:include>
 </idea-plugin>

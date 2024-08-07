@@ -91,14 +91,19 @@ lazy val scalaCommunity: sbt.Project =
 lazy val pluginXml = newProject("pluginXml", file("pluginXml"))
   .settings(
     packageMethod := PackagingMethod.Standalone(),
+    packageFileMappings += {
+      val patchedVersionFile: File = Common.patchPluginXML(baseDirectory.value / "resources" / "META-INF" / "plugin.xml")
+      streams.value.log.info(s"patched version in file: ${patchedVersionFile.getPath}")
+      patchedVersionFile -> "lib/pluginXml.jar!/META-INF/plugin.xml"
+    },
   )
 
 lazy val scalaApi = newProject(
   "scala-api",
   file("scala/scala-api")
 ).settings(
-      idePackagePrefix := Some("org.jetbrains.plugins.scala"),
-    )
+  idePackagePrefix := Some("org.jetbrains.plugins.scala"),
+)
 
 lazy val workspaceEntities = newProjectWithKotlin("workspace-entities", file("sbt/sbt-impl/workspace-entities"))
   .settings(
