@@ -15,7 +15,7 @@ import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService
 import com.intellij.util.PathUtil
 import com.intellij.util.net.NetUtils
 import org.apache.commons.lang3.StringUtils
-import org.jetbrains.annotations.Nls
+import org.jetbrains.annotations.{Nls, TestOnly}
 import org.jetbrains.jps.cmdline.ClasspathBootstrap
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -50,6 +50,9 @@ object CompileServerLauncher {
   private def attachDebugAgent = false
   private def waitUntilDebuggerAttached = true
   private def debugAgentPort = "5006"
+
+  @TestOnly
+  private[compiler] var buildProcessParameters: Seq[String] = Seq.empty
 
   /* @see [[org.jetbrains.plugins.scala.compiler.ServerMediatorTask]] */
   private class Listener extends BuildManagerListener {
@@ -168,7 +171,7 @@ object CompileServerLauncher {
           // Duplicated --add-opens parameters are inherited from this extension point
           // through ScalaBuildProcessParametersProvider. This filtering also helps to not
           // pass --add-opens parameters to JDK 8 and lower.
-          val buildProcessParameters = BuildProcessParametersProvider.EP_NAME.getExtensions(project).asScala.iterator
+          buildProcessParameters = BuildProcessParametersProvider.EP_NAME.getExtensions(project).asScala.iterator
             .flatMap(_.getVMArguments.asScala).toSeq.diff(compileServerJvmAddOpensExtraParams)
           val extraJvmParameters = CompileServerVmOptionsProvider.implementations.iterator
             .flatMap(_.vmOptionsFor(project)).toSeq

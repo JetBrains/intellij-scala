@@ -1,11 +1,8 @@
 package org.jetbrains.sbt.project.data.service
 
-import com.intellij.openapi.module.{JavaModuleType, ModuleType}
-import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.sbt.project.ProjectStructureTestUtils.checkDisplayModuleNames
 import org.jetbrains.sbt.project.data.{ModuleNode, SbtDisplayModuleNameNode}
 import org.jetbrains.sbt.project.data.service.ExternalSystemDataDsl.{arbitraryNodes, externalConfigPath, ideDirectoryPath, javaModule, linkedProjectPath, moduleFileDirectoryPath, modules, name, project, projectId, projectURI}
-import org.jetbrains.sbt.project.settings.DisplayModuleName
-import org.junit.Assert.{assertEquals, fail}
 
 import java.io.File
 import java.net.URI
@@ -46,21 +43,6 @@ class DisplayModuleNameDataServiceTest extends SbtModuleDataServiceTestCase {
       "root" -> "root",
       "root.project1" -> "project1"
     )
-    checkDisplayModuleNames(expectedDisplayModuleNames)
-  }
-
-  private def checkDisplayModuleNames(expectedDisplayModuleNames: Map[String, String]): Unit = {
-    val project = getProject
-    val modules = project.modules.filter(ModuleType.get(_).getName == JavaModuleType.getModuleName)
-    assertEquals("The number of modules should be 2", 2, modules.size)
-    modules.foreach { module =>
-      val displayName = DisplayModuleName.getInstance(module).name
-      val expectedDisplayName = expectedDisplayModuleNames.get(module.getName)
-      expectedDisplayName match {
-        case Some(expectedName) =>
-          assertEquals("The expected display module name is different than the actual one", expectedName, displayName)
-        case _ => fail(s"The module name (${module.getName}) is not as expected")
-      }
-    }
+    checkDisplayModuleNames(getProject, expectedDisplayModuleNames)
   }
 }
