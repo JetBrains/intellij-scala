@@ -16,6 +16,8 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.isUnitTestMode
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{stubOrPsiNextSibling, stubOrPsiPrevSibling}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 
 abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(node)
@@ -150,4 +152,8 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](@
     }
   }
 
+  override def isEquivalentTo(another: PsiElement): Boolean = (this, another) match {
+    case (_: ScTypedDefinition, wrapper: PsiTypedDefinitionWrapper) => super.isEquivalentTo(wrapper.delegate)
+    case _ => super.isEquivalentTo(another)
+  }
 }
