@@ -4,6 +4,7 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
 import com.intellij.util.concurrency.AppExecutorUtil
+import org.jetbrains.plugins.scala.internal.ScalaDynamicPluginManager
 
 import java.util.concurrent.ExecutorService
 
@@ -24,6 +25,9 @@ private final class BackgroundExecutorService(project: Project) extends Disposab
 
 private object BackgroundExecutorService {
   def executeOnBackgroundThreadInNotDisposed(project: Project)(action: => Unit): Unit = {
+    if (ScalaDynamicPluginManager.isScalaPluginUnloading)
+      return
+
     instance(project).executeOnBackgroundThread(() => {
       if (!project.isDisposed) {
         action
