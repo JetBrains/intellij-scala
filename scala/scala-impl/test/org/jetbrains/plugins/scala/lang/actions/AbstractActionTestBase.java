@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.actions;
 
+import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
@@ -37,7 +38,7 @@ abstract public class AbstractActionTestBase extends ActionTestBase {
     assert myEditor != null;
     myEditor.getCaretModel().moveToOffset(offset);
 
-    final MyDataContext dataContext = getDataContext(psiFile);
+    final DataContext dataContext = getDataContext(psiFile);
     final EditorActionHandler handler = getMyHandler();
 
     try {
@@ -64,5 +65,4 @@ abstract public class AbstractActionTestBase extends ActionTestBase {
     final PsiFile psiFile = createLightFile(fileText, project);
     return processFile(psiFile, project);
   }
-
 }
