@@ -7,6 +7,7 @@ import com.intellij.execution.process.{ProcessAdapter, ProcessEvent}
 import com.intellij.notification.{Notification, NotificationListener, NotificationType, Notifications}
 import com.intellij.openapi.application.{ApplicationManager, PathManagerEx}
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.options.advanced.AdvancedSettings
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdkVersion, ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.ModuleRootManager
@@ -16,6 +17,7 @@ import com.intellij.util.PathUtil
 import com.intellij.util.net.NetUtils
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.{Nls, TestOnly}
+import org.jetbrains.jps.api.GlobalOptions
 import org.jetbrains.jps.cmdline.ClasspathBootstrap
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -167,6 +169,8 @@ object CompileServerLauncher {
         } else Nil
         val isScalaCompileServer = s"-D${CompileServerProperties.IsScalaCompileServer}=true"
 
+        val jpsUseUnifiedIC = isJpsUseUnifiedIC
+
         val vmOptions = if (isUnitTestMode && project == null) Seq.empty else {
           // Duplicated --add-opens parameters are inherited from this extension point
           // through ScalaBuildProcessParametersProvider. This filtering also helps to not
@@ -175,7 +179,12 @@ object CompileServerLauncher {
             .flatMap(_.getVMArguments.asScala).toSeq.diff(compileServerJvmAddOpensExtraParams)
           val extraJvmParameters = CompileServerVmOptionsProvider.implementations.iterator
             .flatMap(_.vmOptionsFor(project)).toSeq
-          buildProcessParameters ++ extraJvmParameters
+
+          val jpsOptions =
+            if (jpsUseUnifiedIC) Seq(s"-D${GlobalOptions.DEPENDENCY_GRAPH_ENABLED}=true")
+            else Seq.empty
+
+          buildProcessParameters ++ extraJvmParameters ++ jpsOptions
         }
 
         // SCL-18193
@@ -237,7 +246,16 @@ object CompileServerLauncher {
             }
 
             val watcher = new ProcessWatcher(project, process, "scalaCompileServer")
-            val instance = new ServerInstance(project, watcher, freePort, builder.directory(), jdk, userJvmParameters.toSet, incrementalCompiler)
+            val instance = new ServerInstance(
+              project = project,
+              watcher = watcher,
+              port = freePort,
+              workingDir = builder.directory(),
+              jdk = jdk,
+              jvmParameters = userJvmParameters.toSet,
+              jpsUseUnifiedIC = jpsUseUnifiedIC,
+              incrementalCompiler = incrementalCompiler
+            )
             LOG.assertTrue(serverInstance.isEmpty, "serverInstance is expected to be None")
             serverInstance = Some(instance)
             // initialize the compile server manager service instance for the project which holds the widget state
@@ -409,6 +427,8 @@ object CompileServerLauncher {
     xmx ++ otherParams ++ debugAgent
   }
 
+  private def isJpsUseUnifiedIC: Boolean = AdvancedSettings.getBoolean("compiler.unified.ic.implementation")
+
   /**
    * Same parameters as the ones provided by the IntelliJ platform to the JPS build process.
    *
@@ -569,6 +589,7 @@ object CompileServerLauncher {
         case _ => false
       }
       val jvmParametersChanged = jvmParameters.toSet != instance.jvmParameters
+      val jpsUseUnifiedICChanged = isJpsUseUnifiedIC != instance.jpsUseUnifiedIC
       val incrementalCompilerChanged = ScalaCompilerConfiguration(project).incrementalityType != instance.incrementalCompiler
       val reasons = mutable.ArrayBuffer.empty[String]
       if (!isUnitTestMode && instance.project.isDisposed) {
@@ -580,6 +601,7 @@ object CompileServerLauncher {
       if (workingDirChanged) reasons += "working dir changed"
       if (jdkChanged) reasons += "jdk changed"
       if (jvmParametersChanged) reasons += "jvm parameters changed"
+      if (jpsUseUnifiedICChanged) reasons += "jps unified incremental compilation setting changed"
       if (incrementalCompilerChanged) reasons += "incremental compiler changed"
       reasons.toSeq
     }.getOrElse(Seq.empty)
