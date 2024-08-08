@@ -56,7 +56,7 @@ object ProjectStructureTestUtils {
     val scalaVersionStr = scalaVersion.minor
 
     val sdkLibraryName = s"sbt: scala-sdk-$scalaVersionStr"
-    if (scalaVersion.languageLevel.isScala2)
+    if (Set("2.13.5", "2.13.6").contains(scalaVersionStr))
       new library(sdkLibraryName) {
         scalaSdkSettings := Some(ScalaSdkAttributes(
           scalaVersion.languageLevel,
@@ -69,6 +69,22 @@ object ProjectStructureTestUtils {
             s"org/scala-lang/scala-reflect/$scalaVersionStr/scala-reflect-$scalaVersionStr.jar",
           ),
           extraClasspath = Nil,
+        ))
+      }
+    else if (scalaVersionStr == "2.13.14")
+      new library(sdkLibraryName) {
+        scalaSdkSettings := Some(ScalaSdkAttributes(
+          scalaVersion.languageLevel,
+          classpath = coursierCacheArtifacts(
+            // expected classpath depending on scalaVersion 2.13.14, used in `NewPlaySbtProjectWizardTest`
+            "io/github/java-diff-utils/java-diff-utils/4.12/java-diff-utils-4.12.jar",
+            "net/java/dev/jna/jna/5.14.0/jna-5.14.0.jar",
+            "org/jline/jline/3.25.1/jline-3.25.1.jar",
+            "org/scala-lang/scala-compiler/2.13.14/scala-compiler-2.13.14.jar",
+            "org/scala-lang/scala-library/2.13.14/scala-library-2.13.14.jar",
+            "org/scala-lang/scala-reflect/2.13.14/scala-reflect-2.13.14.jar"
+          ),
+          extraClasspath = Nil
         ))
       }
     else if (scalaVersion.minor == "3.0.2")
