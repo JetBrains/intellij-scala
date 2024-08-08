@@ -4,7 +4,9 @@ import com.intellij.ide.plugins.{CannotUnloadPluginException, DynamicPluginListe
 import com.intellij.openapi.application.ApplicationManager
 import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier
 
-class ScalaPluginDynamicUnloadDenier extends DynamicPluginListener {
+import java.util.concurrent.atomic.AtomicBoolean
+
+class ScalaDynamicPluginManager extends DynamicPluginListener {
   override def checkUnloadPlugin(pluginDescriptor: IdeaPluginDescriptor): Unit = {
     /*
       This method is called before the plugin is loaded or unloaded,
@@ -32,4 +34,20 @@ class ScalaPluginDynamicUnloadDenier extends DynamicPluginListener {
       throw new CannotUnloadPluginException("Dynamically unloading the JetBrains Scala plugin is not supported yet")
     }
   }
+
+  override def beforePluginUnload(pluginDescriptor: IdeaPluginDescriptor, isUpdate: Boolean): Unit =
+    if (pluginDescriptor.getPluginId == ScalaPluginVersionVerifier.scalaPluginId) {
+      ScalaDynamicPluginManager._isScalaPluginUnloading.set(true)
+    }
+
+  override def pluginUnloaded(pluginDescriptor: IdeaPluginDescriptor, isUpdate: Boolean): Unit =
+    if (pluginDescriptor.getPluginId == ScalaPluginVersionVerifier.scalaPluginId) {
+      ScalaDynamicPluginManager._isScalaPluginUnloading.set(false)
+    }
+}
+
+object ScalaDynamicPluginManager {
+  private val _isScalaPluginUnloading = new AtomicBoolean(false)
+
+  def isScalaPluginUnloading: Boolean = _isScalaPluginUnloading.get()
 }
