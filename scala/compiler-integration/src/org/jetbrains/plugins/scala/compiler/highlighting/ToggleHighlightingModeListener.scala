@@ -9,7 +9,7 @@ import com.intellij.psi.impl.source.resolve.ResolveCache
 import org.jetbrains.plugins.scala.annotator.hints.AnnotatorHints
 import org.jetbrains.plugins.scala.compiler.CompileServerNotificationsService
 import org.jetbrains.plugins.scala.compiler.highlighting.BackgroundExecutorService.executeOnBackgroundThreadInNotDisposed
-import org.jetbrains.plugins.scala.extensions.{inReadAction, inWriteAction, invokeLater}
+import org.jetbrains.plugins.scala.extensions.{inReadAction, inWriteAction, invokeLater, invokeWhenSmart}
 import org.jetbrains.plugins.scala.settings.{CompilerHighlightingListener, ScalaHighlightingMode}
 
 /**
@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.settings.{CompilerHighlightingListener, Scala
  */
 abstract class ToggleHighlightingModeListener(project: Project) {
   protected def compileOrEraseHighlightings(): Unit =
-    DumbService.getInstance(project).runWhenSmart { () =>
+    invokeWhenSmart(project) {
       executeOnBackgroundThreadInNotDisposed(project) {
         if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
           inReadAction(AnnotatorHints.clearIn(project))

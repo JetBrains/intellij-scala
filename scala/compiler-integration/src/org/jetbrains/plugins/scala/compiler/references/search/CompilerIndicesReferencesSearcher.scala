@@ -186,7 +186,8 @@ object CompilerIndicesReferencesSearcher extends ExternalSearchScopeChecker {
               case _          => new CompilerIndicesFindUsagesHandler(target, config)
             })
 
-            val runnable: Runnable = () =>
+            pendingConnection.disconnect()
+            invokeWhenSmart(project) {
               findManager.getFindUsagesManager.findUsages(
                 handler.getPrimaryElements,
                 handler.getSecondaryElements,
@@ -194,9 +195,7 @@ object CompilerIndicesReferencesSearcher extends ExternalSearchScopeChecker {
                 handler.getFindUsagesOptions(),
                 false
               )
-
-            pendingConnection.disconnect()
-            DumbService.getInstance(project).runWhenSmart(runnable)
+            }
           }
         } else {
           lock.withLock(indexingFinishedCondition.signal())
