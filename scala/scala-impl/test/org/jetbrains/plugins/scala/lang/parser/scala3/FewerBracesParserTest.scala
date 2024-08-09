@@ -1809,6 +1809,134 @@ class FewerBracesParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
+  // SCL-22192 the second
+  def test_infix_outdent_in_braced_region(): Unit = checkTree(
+    """
+      |object Obj {
+      |  val seven = toInt:
+      |    "3"
+      |  + 4
+      |}
+      |
+      |object Obj2 { val bracedLazy = 0
+      |
+      |  val seven = toInt:
+      |    "3"
+      |  + 4
+      |}
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScObject: Obj
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(object)('object')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('Obj')
+      |    PsiWhiteSpace(' ')
+      |    ExtendsBlock
+      |      ScTemplateBody
+      |        PsiElement({)('{')
+      |        PsiWhiteSpace('\n  ')
+      |        ScPatternDefinition: seven
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(val)('val')
+      |          PsiWhiteSpace(' ')
+      |          ListOfPatterns
+      |            ReferencePattern: seven
+      |              PsiElement(identifier)('seven')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(=)('=')
+      |          PsiWhiteSpace(' ')
+      |          InfixExpression
+      |            MethodCall
+      |              ReferenceExpression: toInt
+      |                PsiElement(identifier)('toInt')
+      |              ArgumentList
+      |                BlockExpression
+      |                  PsiElement(:)(':')
+      |                  PsiWhiteSpace('\n    ')
+      |                  StringLiteral
+      |                    PsiElement(string content)('"3"')
+      |            PsiWhiteSpace('\n  ')
+      |            ReferenceExpression: +
+      |              PsiElement(identifier)('+')
+      |            PsiWhiteSpace(' ')
+      |            IntegerLiteral
+      |              PsiElement(integer)('4')
+      |        PsiWhiteSpace('\n')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n\n')
+      |  ScObject: Obj2
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(object)('object')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('Obj2')
+      |    PsiWhiteSpace(' ')
+      |    ExtendsBlock
+      |      ScTemplateBody
+      |        PsiElement({)('{')
+      |        PsiWhiteSpace(' ')
+      |        ScPatternDefinition: bracedLazy
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(val)('val')
+      |          PsiWhiteSpace(' ')
+      |          ListOfPatterns
+      |            ReferencePattern: bracedLazy
+      |              PsiElement(identifier)('bracedLazy')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(=)('=')
+      |          PsiWhiteSpace(' ')
+      |          IntegerLiteral
+      |            PsiElement(integer)('0')
+      |        PsiWhiteSpace('\n\n  ')
+      |        ScPatternDefinition: seven
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(val)('val')
+      |          PsiWhiteSpace(' ')
+      |          ListOfPatterns
+      |            ReferencePattern: seven
+      |              PsiElement(identifier)('seven')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(=)('=')
+      |          PsiWhiteSpace(' ')
+      |          InfixExpression
+      |            MethodCall
+      |              ReferenceExpression: toInt
+      |                PsiElement(identifier)('toInt')
+      |              ArgumentList
+      |                BlockExpression
+      |                  PsiElement(:)(':')
+      |                  PsiWhiteSpace('\n    ')
+      |                  StringLiteral
+      |                    PsiElement(string content)('"3"')
+      |            PsiWhiteSpace('\n  ')
+      |            ReferenceExpression: +
+      |              PsiElement(identifier)('+')
+      |            PsiWhiteSpace(' ')
+      |            IntegerLiteral
+      |              PsiElement(integer)('4')
+      |        PsiWhiteSpace('\n')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
   def test_match_infix_mix(): Unit = checkTree(
     """
       |class MyClass:
