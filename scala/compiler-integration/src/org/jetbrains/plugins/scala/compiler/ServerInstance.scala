@@ -12,6 +12,7 @@ private final class ServerInstance(
   val workingDir: File,
   val jdk: JDK,
   val jvmParameters: Set[String],
+  val jpsUseUnifiedIC: Boolean,
   val incrementalCompiler: IncrementalityType
 ) extends CompileServerManager.ErrorListener {
 
@@ -39,6 +40,7 @@ private final class ServerInstance(
       s", port: $port" +
       s", jdk: $jdk" +
       s", jvmParameters: ${jvmParameters.mkString(",")}" +
+      s", jpsUseUnifiedIC: $jpsUseUnifiedIC" +
       s", stopped: ${_stopped}" +
       s", running: $running" +
       s", errors: ${errorBuffer.toString}"
