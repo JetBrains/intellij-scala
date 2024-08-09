@@ -201,8 +201,34 @@ class ScalaPsiBuilderImpl(
     }
   }
 
-  override def allPreviousIndentations(region: IndentationRegion): Set[IndentationWidth] =
-    indentationRegionStack.find(_.region eq region).get.prevIndents
+  override def allPreviousIndentations(region: IndentationRegion): Set[IndentationWidth] = {
+    val it = indentationRegionStack.iterator
+
+    // skip all regions until the current one...
+    while (it.hasNext && (it.next().region ne region)) {}
+
+    // ... and then return the next region's previous indents
+    // this is important so that the same indent can be used within the same region
+    // for multiple infix expressions.
+    //
+    // Example:
+    // ```
+    //   block:
+    //      5
+    //    + 10    // this indentation is added to previous the indentations
+    //    + 15    // but shouldn't matter here
+    //      a
+    //    + b     // neither should it matter here
+    //      block:
+    //        c
+    //    +   d   // but it should matter here
+    // ```
+    if (it.hasNext) {
+      it.next().prevIndents
+    } else {
+      Set.empty
+    }
+  }
 
   private val indentationCache = mutable.HashMap.empty[Int, Option[IndentationWidth]]
 
@@ -246,6 +272,8 @@ object ScalaPsiBuilderImpl {
       saves = saves.dropWhile(_._1 > offset)
       cachedPrevIndents = saves.head._2
     }
+
+    override def toString: String = s"IndentationRegionHolder($region at $start, cachedPrevIndents: ${cachedPrevIndents.mkString(", ")})"
   }
 
   private object IndentationRegionHolder {
