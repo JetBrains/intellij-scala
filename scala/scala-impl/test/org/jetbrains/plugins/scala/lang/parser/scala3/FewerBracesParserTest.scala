@@ -1387,7 +1387,7 @@ class FewerBracesParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_infix_blub(): Unit = checkTree(
+  def test_infix_with_same_indent_as_previous(): Unit = checkTree(
     """
       |def test =
       |  1 +
@@ -1471,6 +1471,84 @@ class FewerBracesParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  // SCL-22929
+  def test_infix_without_same_indent_as_previous(): Unit = checkTree(
+    """
+      |def foo(x: Boolean):Int =
+      |  if x then
+      |      a
+      |    + b
+      |    + c
+      |  else d
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScFunctionDefinition: foo
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('foo')
+      |    Parameters
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        Parameter: x
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(identifier)('x')
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace(' ')
+      |          ParameterType
+      |            SimpleType: Boolean
+      |              CodeReferenceElement: Boolean
+      |                PsiElement(identifier)('Boolean')
+      |        PsiElement())(')')
+      |    PsiElement(:)(':')
+      |    SimpleType: Int
+      |      CodeReferenceElement: Int
+      |        PsiElement(identifier)('Int')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace('\n  ')
+      |    IfStatement
+      |      PsiElement(if)('if')
+      |      PsiWhiteSpace(' ')
+      |      ReferenceExpression: x
+      |        PsiElement(identifier)('x')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(then)('then')
+      |      PsiWhiteSpace('\n      ')
+      |      InfixExpression
+      |        InfixExpression
+      |          ReferenceExpression: a
+      |            PsiElement(identifier)('a')
+      |          PsiWhiteSpace('\n    ')
+      |          ReferenceExpression: +
+      |            PsiElement(identifier)('+')
+      |          PsiWhiteSpace(' ')
+      |          ReferenceExpression: b
+      |            PsiElement(identifier)('b')
+      |        PsiWhiteSpace('\n    ')
+      |        ReferenceExpression: +
+      |          PsiElement(identifier)('+')
+      |        PsiWhiteSpace(' ')
+      |        ReferenceExpression: c
+      |          PsiElement(identifier)('c')
+      |      PsiWhiteSpace('\n  ')
+      |      PsiElement(else)('else')
+      |      PsiWhiteSpace(' ')
+      |      ReferenceExpression: d
+      |        PsiElement(identifier)('d')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
 
   def test_infix_outdent(): Unit = checkTree(
     """
