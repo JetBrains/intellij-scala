@@ -4,7 +4,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.testFramework.EditorTestUtil.{CARET_TAG, SELECTION_END_TAG, SELECTION_START_TAG}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.overrideImplement.ScExtensionMethodMember
-import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
+import org.jetbrains.plugins.scala.util.{RevertableChange, TypeAnnotationSettings}
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.runner.RunWith
 
@@ -1097,6 +1097,51 @@ class ScalaOverrideImplementTest_3_Latest extends ScalaOverrideImplementTestBase
         |          override def myExt4(p: String): String = ???
         |""".stripMargin
     )
+  }
+
+  // SCL-22937
+  def testImplementExtensionUsingStandardSyntaxWithBracesWhenSettingIsOnAndNoIndentFlagPresent(): Unit = {
+    val fileText =
+      s"""
+         |package test
+         |
+         |trait Functor[F[_]] {
+         |  extension [T](ft: F[T]) {
+         |    def map[T1](f: T => T1): F[T1]
+         |  }
+         |}
+         |
+         |object Test {
+         |  def test(): Unit = {
+         |    new Functor$CARET[Option] {}
+         |  }
+         |}
+         |""".stripMargin
+    val expectedText =
+      s"""
+         |package test
+         |
+         |trait Functor[F[_]] {
+         |  extension [T](ft: F[T]) {
+         |    def map[T1](f: T => T1): F[T1]
+         |  }
+         |}
+         |
+         |object Test {
+         |  def test(): Unit = {
+         |    new Functor[Option] {
+         |      extension [T](ft: Option[T]) {
+         |        override def map[T1](f: T => T1): Option[T1] = $START???$END
+         |      }
+         |    }
+         |  }
+         |}
+         |""".stripMargin
+    val methodName: String = "map"
+    val isImplement = true
+    RevertableChange.withCompilerSettingsModified(getModule, s => s.copy(additionalCompilerOptions = s.additionalCompilerOptions :+ "-no-indent")) {
+      runTest(methodName, fileText, expectedText, isImplement, settingsWithIndentationBasedSyntax)
+    }
   }
 
   def testExtensionMethodMemberPresentableText(): Unit = {

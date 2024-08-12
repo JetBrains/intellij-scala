@@ -961,7 +961,8 @@ object ScalaPsiElementFactory {
     val extensionSignature = representativeMethod.extensionSignature.get
     appendExtensionSignatureText(builder, extensionSignature, representativeMethod.substitutor)
 
-    val addBraces = wrapMultipleExtensionsWithBraces && extensionMethodsInfos.size > 1
+    val addBraces = wrapMultipleExtensionsWithBraces && extensionMethodsInfos.size > 1 ||
+      !scalaFeatures.indentationBasedSyntaxEnabled
     if (addBraces)
       builder.append(" {")
 
