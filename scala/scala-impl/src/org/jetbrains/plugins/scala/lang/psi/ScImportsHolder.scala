@@ -573,8 +573,8 @@ trait ScImportsHolder extends ScImportsOrExportsHolder {
     ourPackageName.contains(otherPathQualifier.getOrElse(""))
   }
 
-  private def hasValidQualifier(importInfo: ImportInfo, place: PsiElement): Boolean = {
-    val ref = ScalaPsiElementFactory.createReferenceFromText(importInfo.prefixQualifier, this, place)
+  private def hasValidQualifier(importInfo: ImportInfo, place: PsiElement): Boolean = importInfo.prefixQualifier.exists { prefixQualifier =>
+    val ref = ScalaPsiElementFactory.createReferenceFromText(prefixQualifier, this, place)
     ref.multiResolveScala(false).nonEmpty
   }
 
