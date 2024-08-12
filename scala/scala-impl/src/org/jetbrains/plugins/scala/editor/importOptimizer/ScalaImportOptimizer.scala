@@ -315,7 +315,7 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
     }
 
     val importInfosTexts = importInfos.map { info =>
-      val index: Int = findGroupIndex(info.prefixQualifier, info.relative, settings)
+      val index: Int = info.prefixQualifier.fold(0)(findGroupIndex(_, info.relative, settings))
       val blankLines = groupSeparatorsBefore(index)
       prevGroupIndex = index
       blankLines + textCreator.getImportText(info, settings)
@@ -696,7 +696,7 @@ object ScalaImportOptimizer {
             .map(fixWildcardInSelector)
             .mkString(s"{$space", ", ", s"$space}")
         } else groupStrings.head
-      val prefix = s"$root${importInfo.relative.getOrElse(importInfo.prefixQualifier)}"
+      val prefix = s"$root${importInfo.relative.orElse(importInfo.prefixQualifier).getOrElse("")}"
       val dotOrNot = if (prefix.endsWith(".") || prefix.isEmpty) "" else "."
       ImportTextData(prefix, dotOrNot, postfix)
     }
@@ -735,9 +735,9 @@ object ScalaImportOptimizer {
 
     if (needReplaceWithFqnImports) {
       for ((info, i) <- importInfos.zipWithIndex) {
-        buffer(i) = settings.basePackage match {
-          case Some(base) if (info.prefixQualifier + ".").startsWith(base + ".") =>
-            info.copy(relative = Some(info.prefixQualifier.substring(base.length + 1)))
+        buffer(i) = (settings.basePackage, info.prefixQualifier) match {
+          case (Some(base), Some(prefixQualifier)) if (prefixQualifier + ".").startsWith(base + ".") =>
+            info.copy(relative = Some(prefixQualifier.substring(base.length + 1)))
           case _ =>
             info.withoutRelative
         }
@@ -780,7 +780,7 @@ object ScalaImportOptimizer {
 
     for (i <- importInfos.indices) {
       val info = importInfos(i)
-      if (info.canAddRoot && importedNames.contains(getFirstId(info.prefixQualifier))) {
+      if (info.canAddRoot && info.prefixQualifier.exists(prefixQualifier => importedNames.contains(getFirstId(prefixQualifier)))) {
         importInfos.update(i, info.withRootPrefix)
       }
 
@@ -918,7 +918,7 @@ object ScalaImportOptimizer {
   }
 
   /**
-   * This method is similar to [[insertImportInfos]], but it doesn't change shuffle already existing import statemtns in the rangeInfo
+   * This method is similar to [[insertImportInfos]], but it doesn't change shuffle already existing import statements in the rangeInfo
    */
   def bestPlaceToInsertNewImport(
     newInfo: ImportInfo,
@@ -941,7 +941,7 @@ object ScalaImportOptimizer {
       importStmtsWithInfos.iterator.scanLeft(0) { case (acc, (_, infos)) => acc + infos.size }.indexWhere(_ > infoIdx) - 1
 
     if (settings.collectImports) {
-      val indexWithSameQualifier = importInfos.indexWhere(_.prefixQualifier == newInfo.prefixQualifier)
+      val indexWithSameQualifier = importInfos.indexWhere(_.prefixQualifier == newInfo.prefixQualifier && newInfo.prefixQualifier.nonEmpty)
       if (indexWithSameQualifier >= 0) {
         val importStmtIdx = infoIdxToImportStmtIdx(indexWithSameQualifier)
         return ImportInsertionPlace.MergeInto(rangeInfo, importStmtIdx)
@@ -1017,14 +1017,15 @@ object ScalaImportOptimizer {
       for {
         oldInfo <- infos
         (name, newName) <- oldInfo.renames
+        renamerPrefix <- oldInfo.prefixQualifier
+        infoPrefix <- info.prefixQualifier
       } {
-        val renamerPrefix = oldInfo.prefixQualifier
         val oldPrefix = s"$renamerPrefix.$name"
-        if (info.prefixQualifier.startsWith(oldPrefix)) {
-          val stripped = info.prefixQualifier.stripPrefix(oldPrefix)
+        if (infoPrefix.startsWith(oldPrefix)) {
+          val stripped = infoPrefix.stripPrefix(oldPrefix)
           val newRelative = s"$newName$stripped"
           val newPrefix = s"$renamerPrefix.$newRelative"
-          return info.copy(prefixQualifier = newPrefix, relative = Some(newRelative), rootUsed = false)
+          return info.copy(prefixQualifier = Some(newPrefix), relative = Some(newRelative), rootUsed = false)
         }
       }
       info
@@ -1041,12 +1042,12 @@ object ScalaImportOptimizer {
       prefix -> singleNamesCount
     }.toMap
 
-    def tooManySingleNames(qualifier: String) =
+    def tooManySingleNames(qualifier: Option[String]) =
       addedPrefixesSingleNamesCount(qualifier) >= settings.classCountToUseImportOnDemand
 
     def insertSimpleInfo(info: ImportInfo, buffer: mutable.Buffer[ImportInfo]): Unit = {
-      val samePrefixInfos = buffer.filter(_.prefixQualifier == info.prefixQualifier)
-      if (settings.collectImports) {
+      val samePrefixInfos = buffer.filter(_.prefixQualifier == info.prefixQualifier && info.prefixQualifier.nonEmpty)
+      if (settings.collectImports && info.prefixQualifier.nonEmpty) {
         val merged = ImportInfo.merge(samePrefixInfos :+ info)
         replace(samePrefixInfos, merged.toSeq, buffer)
       }
@@ -1056,7 +1057,7 @@ object ScalaImportOptimizer {
     }
 
     def insertInfoWithWildcard(info: ImportInfo, buffer: mutable.Buffer[ImportInfo], usedNames: Set[String]): Unit = {
-      val (samePrefixInfos, otherInfos) = buffer.partition(_.prefixQualifier == info.prefixQualifier)
+      val (samePrefixInfos, otherInfos) = buffer.partition(_.prefixQualifier == info.prefixQualifier && info.prefixQualifier.nonEmpty)
       val samePrefixWithNewSplitted = samePrefixInfos.flatMap(_.split) ++ info.split
 
       val (simpleInfos, notSimpleInfos) = samePrefixWithNewSplitted.partition(_.singleNames.nonEmpty)
@@ -1125,15 +1126,15 @@ object ScalaImportOptimizer {
   }
 
   private def canSwapImports(first: ImportInfo, second: ImportInfo): Boolean = {
-    val firstPrefix: String = first.relative.getOrElse(first.prefixQualifier)
-    val firstPart: String = getFirstId(firstPrefix)
+    val firstPrefix: Option[String] = first.relative.orElse(first.prefixQualifier)
+    val firstPart: Option[String] = firstPrefix.map(getFirstId)
 
-    val secondPrefix: String = second.relative.getOrElse(second.prefixQualifier)
-    val secondPart: String = getFirstId(secondPrefix)
+    val secondPrefix: Option[String] = second.relative.orElse(second.prefixQualifier)
+    val secondPart: Option[String] = secondPrefix.map(getFirstId)
 
-    val condition1 = first.rootUsed || !second.allNames.contains(firstPart)
+    val condition1 = first.rootUsed || firstPart.forall(!second.allNames.contains(_))
     if (condition1)
-      second.rootUsed || !first.allNames.contains(secondPart)
+      second.rootUsed || secondPart.forall(!first.allNames.contains(_))
     else
       false
   }
@@ -1159,7 +1160,7 @@ object ScalaImportOptimizer {
 
       var j = i + 1
       while (j < infos.length) {
-        if (infos(j).prefixQualifier == infos(i).prefixQualifier) return j
+        if (infos(j).prefixQualifier == infos(i).prefixQualifier && infos(i).prefixQualifier.nonEmpty) return j
         j += 1
       }
       -1
@@ -1244,8 +1245,8 @@ object ScalaImportOptimizer {
   private def compare(lInfo: ImportInfo, rInfo: ImportInfo, settings: OptimizeImportSettings) = {
     val textCreator = new ImportTextCreator
 
-    val lIndex = findGroupIndex(lInfo.prefixQualifier, lInfo.relative, settings)
-    val rIndex = findGroupIndex(rInfo.prefixQualifier, rInfo.relative, settings)
+    val lIndex = lInfo.prefixQualifier.fold(0)(findGroupIndex(_, lInfo.relative, settings))
+    val rIndex = rInfo.prefixQualifier.fold(0)(findGroupIndex(_, rInfo.relative, settings))
 
     if (lIndex > rIndex)
       1
