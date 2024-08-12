@@ -27,12 +27,14 @@ import scala.collection.mutable.ArrayBuffer
 /**
  * TODO: add descriptions of all other params
  *
- * @param singleNames set of explicitly imported names<br>
- *                    example: in `import org.example.{A, B, _}` singleNames = [A, B]
- * @param hiddenNames names which are hidden using `=> _` rename (or `as _` in Scala3)<br>
- *                    (aka "excludedNames")
+ * @param prefixQualifier import qualifier<br>
+ *                        example: `Some("foo")` for `import foo.bar`; `None` for `import foo as bar`
+ * @param singleNames     set of explicitly imported names<br>
+ *                        example: in `import org.example.{A, B, _}` singleNames = [A, B]
+ * @param hiddenNames     names which are hidden using `=> _` rename (or `as _` in Scala3)<br>
+ *                        (aka "excludedNames")
  */
-case class ImportInfo(prefixQualifier: String,
+case class ImportInfo(prefixQualifier: Option[String],
                       relative: Option[String] = None,
                       allNames: Set[String] = Set.empty,
                       singleNames: Set[String] = Set.empty,
@@ -112,14 +114,16 @@ case class ImportInfo(prefixQualifier: String,
 
   def withAllNamesForWildcard(place: PsiElement): ImportInfo = {
     if (!hasWildcard || allNamesForWildcard.nonEmpty) this
-    else {
-      val (namesForWildcard, implicitNames) = ImportInfo.collectAllNamesAndImplicitsFromWildcard(prefixQualifier, place)
-      val hasWildcardImplicits = (implicitNames -- singleNames).nonEmpty
-      copy(
-        allNames = namesForWildcard -- hiddenNames -- renames.keys,
-        allNamesForWildcard = namesForWildcard,
-        wildcardHasUnusedImplicit = hasWildcardImplicits
-      )
+    else prefixQualifier match {
+      case Some(prefixQualifier) =>
+        val (namesForWildcard, implicitNames) = ImportInfo.collectAllNamesAndImplicitsFromWildcard(prefixQualifier, place)
+        val hasWildcardImplicits = (implicitNames -- singleNames).nonEmpty
+        copy(
+          allNames = namesForWildcard -- hiddenNames -- renames.keys,
+          allNamesForWildcard = namesForWildcard,
+          wildcardHasUnusedImplicit = hasWildcardImplicits
+        )
+      case _ => this
     }
   }
 }
@@ -198,7 +202,7 @@ object ImportInfo {
 
       Option.when(importsUsed.nonEmpty)(
         new ImportInfo(
-          prefixQualifier = "",
+          prefixQualifier = None,
           relative = None,
           allNames = allNames.toSet,
           singleNames = singleNames.toSet,
@@ -279,7 +283,7 @@ object ImportInfo {
 
       Option.when(importsUsed.nonEmpty)(
         new ImportInfo(
-          prefixQualifier,
+          Some(prefixQualifier),
           relativeQualifier,
           allNames.toSet,
           singleNames.toSet,

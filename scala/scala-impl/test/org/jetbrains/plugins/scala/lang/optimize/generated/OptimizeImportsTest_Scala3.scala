@@ -111,4 +111,113 @@ class OptimizeImportsTest_Scala3 extends OptimizeImportsTestBase {
       expectedNotificationText = "Removed 1 import"
     )
   }
+
+  def testUnqualifiedUsedRenamedScala3ImportsRearranged(): Unit = {
+    myFixture.addFileToProject("cat/package.scala",
+      """
+        |package object cat {
+        |  def text(s: String): Unit = println(s)
+        |}
+        |""".stripMargin
+    )
+
+    myFixture.addFileToProject("dog/package.scala",
+      """
+        |package object dog {
+        |  def text(s: String): Unit = println(s)
+        |}
+        |""".stripMargin
+    )
+
+    myFixture.addFileToProject("whale/package.scala",
+      """
+        |package object whale {
+        |  def text(s: String): Unit = println(s)
+        |}
+        |""".stripMargin
+    )
+
+    myFixture.addFileToProject("com/example/package.scala",
+      """
+        |package com
+        |package object example {
+        |  class Foo
+        |}
+        |""".stripMargin
+    )
+
+    val before =
+      """
+        |import cat as foo
+        |import whale as foo2
+        |import scala.collection.mutable
+        |import dog as foo1
+        |import java.util.function.Consumer
+        |import com.example.Foo
+        |
+        |@main
+        |def main(): Unit = {
+        |  val consumer: Consumer[Int] = ???
+        |  val map = mutable.LinkedHashMap.empty[String, Int]
+        |  foo.text("cat")
+        |  foo1.text("dog")
+        |  foo2.text("whale")
+        |  val foo3: Foo = ???
+        |}
+        |""".stripMargin
+
+    val after =
+      """
+        |import cat as foo
+        |import dog as foo1
+        |import whale as foo2
+        |
+        |import com.example.Foo
+        |
+        |import java.util.function.Consumer
+        |import scala.collection.mutable
+        |
+        |@main
+        |def main(): Unit = {
+        |  val consumer: Consumer[Int] = ???
+        |  val map = mutable.LinkedHashMap.empty[String, Int]
+        |  foo.text("cat")
+        |  foo1.text("dog")
+        |  foo2.text("whale")
+        |  val foo3: Foo = ???
+        |}
+        |""".stripMargin
+
+    doTest(before = before, after = after, expectedNotificationText = "Rearranged imports")
+  }
+
+  def testUnqualifiedUsedRenamedScala3ImportsNotChanged(): Unit = {
+    myFixture.addFileToProject("cat/package.scala",
+      """
+        |package object cat {
+        |  def text(s: String): Unit = println(s)
+        |}
+        |""".stripMargin
+    )
+
+    myFixture.addFileToProject("dog/package.scala",
+      """
+        |package object dog {
+        |  def text(s: String): Unit = println(s)
+        |}
+        |""".stripMargin
+    )
+
+    doTest(
+      """
+        |import cat as foo
+        |import dog as foo1
+        |
+        |@main
+        |def main(): Unit = {
+        |  foo.text("cat")
+        |  foo1.text("dog")
+        |}
+        |""".stripMargin)
+  }
 }

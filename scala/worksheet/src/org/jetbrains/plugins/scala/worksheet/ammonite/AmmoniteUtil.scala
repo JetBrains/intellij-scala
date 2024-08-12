@@ -169,7 +169,7 @@ object AmmoniteUtil {
 
   def isAmmoniteSpecificTextImport(expr: ScImportExpr): Boolean = isAmmoniteRefText(expr.getText)
 
-  def isAmmoniteSpecificImport(imp: ImportInfo): Boolean = isAmmoniteRefText(imp.prefixQualifier)
+  def isAmmoniteSpecificImport(imp: ImportInfo): Boolean = imp.prefixQualifier.exists(isAmmoniteRefText)
 
   def isAmmoniteSpecificImport(expr: ScImportExpr): Boolean = expr.getContainingFile match {
     case scalaFile: ScalaFile if isAmmoniteFile(scalaFile) => isAmmoniteSpecificTextImport(expr)
