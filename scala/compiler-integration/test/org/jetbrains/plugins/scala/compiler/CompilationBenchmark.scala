@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.compiler
 
-import com.intellij.compiler.CompilerConfiguration
+import com.intellij.compiler.{CompilerConfiguration, ParallelCompilationOption}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.util.SystemInfo
@@ -83,18 +83,20 @@ abstract class CompilationBenchmark
 
   private case class Params(compileInParallel: Boolean,
                             heapSize: Int,
-                            jvmOptions: String)
+                            jvmOptions: String) {
+    val parallelCompilationOption: ParallelCompilationOption =
+      if (compileInParallel) ParallelCompilationOption.ENABLED
+      else ParallelCompilationOption.DISABLED
+  }
 
   private case class BenchmarkResult(compilationTime: Double,
                                      meteringInfo: CompileServerMeteringInfo)
 
   private def benchmark(params: Params): Try[BenchmarkResult] = Try {
-    val Params(compileInParallel, heapSize, jvmOptions) = params
-
-    CompilerConfiguration.getInstance(myProject).setParallelCompilationEnabled(compileInParallel)
+    CompilerConfiguration.getInstance(myProject).setParallelCompilationOption(params.parallelCompilationOption)
     val settings = ScalaCompileServerSettings.getInstance
-    settings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE = heapSize.toString
-    settings.COMPILE_SERVER_JVM_PARAMETERS = jvmOptions
+    settings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE = params.heapSize.toString
+    settings.COMPILE_SERVER_JVM_PARAMETERS = params.jvmOptions
 
     ApplicationManager.getApplication.saveSettings()
     CompileServerLauncher.stopServerAndWait()

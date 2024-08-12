@@ -4,7 +4,7 @@ import ch.epfl.scala.bsp4j._
 import com.intellij.execution.configurations.{ModuleBasedConfiguration, RunConfiguration}
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.project.{DumbService, Project}
+import com.intellij.openapi.project.{DumbModeBlockedFunctionality, DumbService, Project}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{JavaPsiFacade, PsiFile}
 import org.jetbrains.annotations.Nls
@@ -239,7 +239,7 @@ object BspJvmEnvironment {
 
   private def readInSmartMode[A](project: Project)(block: => A): A = {
     val dumbService = DumbService.getInstance(project)
-    dumbService.runReadActionInSmartMode(() => block)
+    dumbService.tryRunReadActionInSmartMode(() => block, null, DumbModeBlockedFunctionality.Other)
   }
 
 }
