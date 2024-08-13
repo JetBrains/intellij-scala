@@ -30,3 +30,7 @@ scala/scala-impl/testdata/projectsForHighlightingTests/.coursier_cache
 scala/scala-impl/testdata/testingSupport
 
 tools/lexer/lib/
+
+# ui-test directories
+out/
+allure-results/
