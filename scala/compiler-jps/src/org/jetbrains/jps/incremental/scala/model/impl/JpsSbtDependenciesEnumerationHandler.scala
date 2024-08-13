@@ -30,9 +30,11 @@ object JpsSbtDependenciesEnumerationHandler {
 
   private val RecursiveDependenciesInstance = new JpsSbtDependenciesEnumerationHandler(true)
   private val NonRecursiveDependenciesInstance = new JpsSbtDependenciesEnumerationHandler(false)
+  private val jpsSbtExtensionService = JpsSbtExtensionService.getInstance
 
   final class SbtFactory extends JpsJavaDependenciesEnumerationHandler.Factory {
     override def createHandler(modules: util.Collection[JpsModule]): JpsJavaDependenciesEnumerationHandler = {
+      if (!isSbtProject(modules)) return null
       // note: if separate modules for prod/test are enabled and the module isn't of sbtSourceSet type,
       // then dependencies should be processed recursively. In all other cases, dependencies shouldn't be processed recursively.
       val recursiveRequired = modules.asScala.exists { module =>
@@ -44,8 +46,7 @@ object JpsSbtDependenciesEnumerationHandler {
     }
 
     private def isSbtSourceSetModule(module: JpsModule): Boolean = {
-      val service = JpsSbtExtensionService.getInstance
-      val sbtModuleExtension = service.getExtension(module)
+      val sbtModuleExtension = jpsSbtExtensionService.getExtension(module)
       sbtModuleExtension match {
         case Some(ext) =>
           ext.getModuleType.exists(_.equals(sbtSourceSetModuleType))
@@ -54,6 +55,9 @@ object JpsSbtDependenciesEnumerationHandler {
         case _ => true
       }
     }
+
+    private def isSbtProject(modules: util.Collection[JpsModule]): Boolean =
+      modules.asScala.exists(jpsSbtExtensionService.getExtension(_).isDefined)
 
     private def isBuiltWithSeparateProdTestSources(module: JpsModule): Boolean = {
       val project = module.getProject
