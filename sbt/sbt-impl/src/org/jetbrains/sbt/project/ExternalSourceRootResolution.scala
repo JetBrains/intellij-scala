@@ -86,13 +86,17 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
 
       val representativeProjectDependencies = representativeProject.dependencies
 
+      // create unmanaged dependencies, we need to know how many of them there are, they need to be ordered before
+      // the managed dependencies SCL-21852
+      val unmanagedLibraryDependencies = representativeProjectDependencies.jars
+      val unmanagedDependencies = createUnmanagedDependencies(unmanagedLibraryDependencies.forProduction)(moduleNode)
+
       //add library dependencies of the representative project
       val libraryDependencies = representativeProjectDependencies.modules
-      moduleNode.addAll(createLibraryDependencies(libraryDependencies.forProduction)(moduleNode, libraryNodes.map(_.data)))
+      moduleNode.addAll(createLibraryDependencies(libraryDependencies.forProduction)(moduleNode, libraryNodes.map(_.data), offset = unmanagedDependencies.size + 1))
 
       //add unmanaged jars/libraries dependencies of the representative project
-      val unmanagedLibraryDependencies = representativeProjectDependencies.jars
-      moduleNode.addAll(createUnmanagedDependencies(unmanagedLibraryDependencies.forProduction)(moduleNode))
+      moduleNode.addAll(unmanagedDependencies)
 
       //add project dependencies of the representative project
       val allSourceModules = projectToModuleNode.values.toSeq.map(_.parent)
@@ -474,14 +478,18 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
       if (sourceSetName == SourceSetType.TEST) deps.forTest
       else deps.forProduction
 
+    // create unmanaged dependencies, we need to know how many of them there are, they need to be ordered before
+    // the managed dependencies SCL-21852
+    val unmanagedLibraryDependencies = getScopedDependencies(representativeProjectDependencies.jars)
+    val unmanagedDependencies = createUnmanagedDependencies(unmanagedLibraryDependencies)(moduleNode)
+
     //add library dependencies of the representative project
     val librariesNodeData = libraryNodes.map(_.data)
     val libraryDependencies = getScopedDependencies(representativeProjectDependencies.modules)
-    moduleNode.addAll(createLibraryDependencies(libraryDependencies)(moduleNode, librariesNodeData))
+    moduleNode.addAll(createLibraryDependencies(libraryDependencies)(moduleNode, librariesNodeData, offset = unmanagedDependencies.size + 1))
 
     //add unmanaged jars/libraries dependencies of the representative project
-    val unmanagedLibraryDependencies = getScopedDependencies(representativeProjectDependencies.jars)
-    moduleNode.addAll(createUnmanagedDependencies(unmanagedLibraryDependencies)(moduleNode))
+    moduleNode.addAll(unmanagedDependencies)
 
     // add project dependencies of the representative project
     val moduleDependencies = getScopedDependencies(representativeProjectDependencies.projects)

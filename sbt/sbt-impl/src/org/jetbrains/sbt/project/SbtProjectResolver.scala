@@ -680,12 +680,11 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   private def createLibraries(data: sbtStructure.StructureData, projects: Seq[sbtStructure.ProjectData]): Seq[LibraryNode] = {
     val repositoryModules = data.repository.map(_.modules).getOrElse(Seq.empty)
     val (modulesWithoutBinaries, modulesWithBinaries) = repositoryModules.partition(_.binaries.isEmpty)
-    val otherModuleIds = projects.flatMap{ proj =>
+    val otherModuleIds = projects.flatMap { proj =>
       val dependencies = proj.dependencies.modules
       val prodAndTest = dependencies.forProduction ++ dependencies.forTest
       prodAndTest.map(_.id)
-    }.toSet --
-      repositoryModules.map(_.id).toSet
+    }.diff(repositoryModules.map(_.id))
 
     val libs = modulesWithBinaries.map(createResolvedLibrary) ++ otherModuleIds.map(createUnresolvedLibrary)
 
@@ -1033,12 +1032,16 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     // maybe it should be implemented in the future
     if (moduleType == LegacyModuleType) addSbtRelatedData(projectData, moduleNode)
 
-    val libraryDependenciesNodes = createLibraryDependencies(moduleDependencies)(moduleNode, librariesData)
+    // create unmanaged dependencies, we need to know how many of them there are, they need to be ordered before
+    // the managed dependencies SCL-21852
+    val unmanagedDependencies = createUnmanagedDependencies(jarDependencies)(moduleNode)
+
+    val libraryDependenciesNodes = createLibraryDependencies(moduleDependencies)(moduleNode, librariesData, offset = unmanagedDependencies.size + 1)
     moduleNode.addAll(libraryDependenciesNodes)
     moduleNode.add(createModuleExtData(projectData, moduleType))
     moduleNode.add(createScalaSdkData(projectData.scala))
     moduleNode.add(new SbtModuleNode(SbtModuleData(projectData.id, projectData.buildURI, projectData.base)))
-    moduleNode.addAll(createUnmanagedDependencies(jarDependencies)(moduleNode))
+    moduleNode.addAll(unmanagedDependencies)
     val unmanagedSourcesAndDocsLibrary = librariesData.find(_.getExternalName == Sbt.UnmanagedSourcesAndDocsName)
     unmanagedSourcesAndDocsLibrary.foreach { lib =>
       val dependency = new LibraryDependencyNode(moduleNode, lib, LibraryLevel.MODULE)
@@ -1242,7 +1245,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       val classes = build.classes.filter(_.exists).map(_.path)
       val docs = build.docs.filter(_.exists).map(_.path)
       val sources = build.sources.filter(_.exists).map(_.path)
-      createModuleLevelDependency(Sbt.BuildLibraryPrefix + sbtVersion, classes, docs, sources, DependencyScope.PROVIDED, None)(result)
+      createModuleLevelDependency(Sbt.BuildLibraryPrefix + sbtVersion, classes, docs, sources, DependencyScope.PROVIDED, 0)(result)
     }
 
     result.add(library)
@@ -1303,14 +1306,15 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   protected def createLibraryDependencies(dependencies: Seq[sbtStructure.ModuleDependencyData])
-                                         (moduleData: ModuleData, libraries: Seq[LibraryData]): Seq[LibraryDependencyNode] = {
+                                         (moduleData: ModuleData, libraries: Seq[LibraryData], offset: Int): Seq[LibraryDependencyNode] = {
     val dependenciesWithResolvedConflicts = resolveLibraryDependencyConflicts(dependencies)
-    dependenciesWithResolvedConflicts.map { dependency =>
+    dependenciesWithResolvedConflicts.zipWithIndex.map { case (dependency, index) =>
       val name = getNameForLibrary(dependency.id)
       val library = libraries.find(_.getExternalName == name).getOrElse(
         throw new ExternalSystemException("Library not found: " + name))
       val data = new LibraryDependencyNode(moduleData, library, LibraryLevel.PROJECT)
-      data.setOrder(2)
+      val order = index + offset
+      data.setOrder(order)
       data.setScope(scopeFor(dependency.configurations))
       data
     }
@@ -1318,13 +1322,21 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   protected def createUnmanagedDependencies(dependencies: Seq[sbtStructure.JarDependencyData])
                                            (moduleData: ModuleData): Seq[LibraryDependencyNode] = {
-    dependencies.groupBy(it => scopeFor(it.configurations)).toSeq.map { case (scope, dependency) =>
+    val scopesAndDeps = dependencies.map(dep => (scopeFor(dep.configurations), dep))
+    val groupedByScope = mutable.LinkedHashMap.empty[DependencyScope, Seq[JarDependencyData]]
+    scopesAndDeps.foreach { case (scope, dep) =>
+      val deps = groupedByScope.getOrElse(scope, Seq.empty)
+      groupedByScope(scope) = deps :+ dep
+    }
+
+    groupedByScope.toSeq.zipWithIndex.map { case ((scope, dependency), index) =>
       val name = scope match {
         case DependencyScope.COMPILE => Sbt.UnmanagedLibraryName
         case it => s"${Sbt.UnmanagedLibraryName}-${it.getDisplayName.toLowerCase}"
       }
       val files = dependency.map(_.file.path)
-      createModuleLevelDependency(name, files, Seq.empty, Seq.empty, scope, Some(1))(moduleData)
+      val order = index + 1
+      createModuleLevelDependency(name, files, Seq.empty, Seq.empty, scope, order)(moduleData)
     }
   }
 
@@ -1334,7 +1346,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     docs: Seq[String],
     sources: Seq[String],
     scope: DependencyScope,
-    order: Option[Int]
+    order: Int
   )(moduleData: ModuleData): LibraryDependencyNode = {
     val libraryNode = new LibraryNode(name, resolved = true)
     libraryNode.addPaths(LibraryPathType.BINARY, classes)
@@ -1342,7 +1354,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     libraryNode.addPaths(LibraryPathType.SOURCE, sources)
 
     val result = new LibraryDependencyNode(moduleData, libraryNode, LibraryLevel.MODULE)
-    order.foreach(result.setOrder)
+    result.setOrder(order)
     result.setScope(scope)
     result
   }
