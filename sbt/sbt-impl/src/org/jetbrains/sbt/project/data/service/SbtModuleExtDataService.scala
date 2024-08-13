@@ -38,7 +38,7 @@ final class SbtModuleExtDataService extends ScalaAbstractProjectDataService[SbtM
       importJavacOptions(module, javacOptions.asScala.toSeq)(project, modelsProvider)
 
       val contentEntries = modelsProvider.getModifiableRootModel(module).getContentEntries
-      contentEntries.foreach(_.getSourceFolders.foreach(_.setPackagePrefix(Option(packagePrefix).getOrElse(""))))
+//      contentEntries.foreach(_.getSourceFolders.foreach(_.setPackagePrefix(Option(packagePrefix).getOrElse(""))))
       ScalaProjectSettings.getInstance(project).setCustomBasePackage(module.getName, basePackage)
     }
   }

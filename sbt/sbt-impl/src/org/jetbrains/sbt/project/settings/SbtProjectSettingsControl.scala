@@ -10,7 +10,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, SdkTypeId}
 import com.intellij.openapi.roots.ui.configuration.JdkComboBox
 import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel
-import com.intellij.openapi.util.Condition
+import com.intellij.openapi.util.{Condition, Key}
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.util.messages.Topic
 import com.intellij.util.ui.{GridBag, JBUI}
@@ -172,4 +172,8 @@ private[jetbrains] object SbtProjectSettingsControl {
 
   private[jetbrains] val CompilerModeChangeTopic: Topic[CompilerModeChangeListener] =
     new Topic("Compiler references search compiler mode change topic", classOf[CompilerModeChangeListener])
+
+  private val SeparateModulesForProdTestSwitchedOn: Key[java.lang.Boolean.TRUE.type] = Key.create("SeparateModulesForProdTestSwitchedOn")
+  private val SeparateModulesForProdTestSwitchedOff: Key[java.lang.Boolean.TRUE.type] = Key.create("SeparateModulesForProdTestSwitchedOff")
+
 }

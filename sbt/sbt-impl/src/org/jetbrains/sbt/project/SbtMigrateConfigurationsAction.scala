@@ -4,6 +4,7 @@ import com.intellij.execution.application.ApplicationConfiguration
 import com.intellij.execution.configurations.{JavaRunConfigurationModule, ModuleBasedConfiguration, RunConfigurationModule}
 import com.intellij.openapi.actionSystem.{ActionPlaces, ActionUpdateThread, AnAction, AnActionEvent}
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.externalSystem.ExternalSystemModulePropertyManager
 import com.intellij.openapi.module.{Module, ModuleManager, ModuleType, ModuleTypeManager, ModuleUtilCore}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
@@ -12,8 +13,8 @@ import com.intellij.psi.{JavaPsiFacade, PsiDocumentManager}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.project.ModuleExt
+import org.jetbrains.plugins.scala.util.SbtModuleType
 import org.jetbrains.sbt.{SbtBundle, SbtUtil}
-import org.jetbrains.sbt.project.SbtMigrateConfigurationsAction.{ModuleHeuristicResult, extractMainClassName, isConfigurationInvalid, logger}
 import org.jetbrains.sbt.project.extensionPoints.ModuleBasedConfigurationMainClassExtractor
 
 import scala.util.Try
@@ -39,17 +40,20 @@ class SbtMigrateConfigurationsAction extends AnAction(
 
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
+  import org.jetbrains.sbt.project.SbtMigrateConfigurationsAction._
+
   override def actionPerformed(e: AnActionEvent): Unit = {
     val project = e.getProject
     if (project == null || project.isDefault) return
 
     val moduleBasedConfigurations = SbtUtil.getAllModuleBasedConfigurationsInProject(project)
     val modules = classPathProviderModules(project)
+    val prodTestSourcesSeparated = SbtUtil.isBuiltWithSeparateModulesForProdTest(project)
     val configToHeuristicResult = for {
       config <- moduleBasedConfigurations
       configurationModule = config.getConfigurationModule
       oldModuleName = configurationModule.getModuleName
-      if isConfigurationInvalid(config, configurationModule, oldModuleName)
+      if isConfigurationInvalid(config, configurationModule, oldModuleName, prodTestSourcesSeparated)
     } yield config -> mapConfigurationToHeuristicResult(config, oldModuleName, modules, project)
 
     if (configToHeuristicResult.isEmpty) {
@@ -84,7 +88,27 @@ class SbtMigrateConfigurationsAction extends AnAction(
   ): ModuleHeuristicResult  = {
     // finding new modules that end with old module name e.g.
     // oldModuleName = foo and some module in modules could be root.foo
-    val possibleModules = modules.filter(_.getName.endsWith(s".$oldModuleName")).toSeq
+    val prodTestSourcesSeparated = SbtUtil.isBuiltWithSeparateModulesForProdTest(project)
+
+    def cutSuffixWithRegex(str: String): String =
+      "(\\.test|\\.main)$".r.replaceAllIn(str, "")
+
+    def getPossibleModules: Seq[Module] =
+      modules.filter { module =>
+        val isSbtSourceSetModule = isSbtSourceSet(module)
+        val moduleName = module.getName
+        if (isSbtSourceSetModule) {
+          val moduleNameWithoutSourceSetPrefix = cutSuffixWithRegex(moduleName)
+          moduleNameWithoutSourceSetPrefix.endsWith(s".$oldModuleName") || moduleNameWithoutSourceSetPrefix == oldModuleName
+        } else {
+          val firstCondition = moduleName.endsWith(s".$oldModuleName")
+          val oldModuleNameWithoutSourceSetPrefix = cutSuffixWithRegex(oldModuleName)
+          val secondCond = oldModuleNameWithoutSourceSetPrefix == moduleName
+          firstCondition || secondCond
+        }
+      }.toSeq
+
+    val possibleModules = getPossibleModules
     val modulesForClass = getModulesInWhichMainClassExists(config, project)
     val combinedModules = (possibleModules ++ modulesForClass).distinct
     val productOfModuleSets = possibleModules.filter(modulesForClass.contains)
@@ -149,14 +173,37 @@ object SbtMigrateConfigurationsAction {
   def isConfigurationInvalid(
     config: ModuleBasedConfiguration[_, _],
     configurationModule: RunConfigurationModule,
-    oldModuleName: String
+    oldModuleName: String,
+    prodTestSourcesSeparated: Boolean
   ): Boolean = {
+    val module = configurationModule.getModule
     /*
     1. If oldModuleName is non-empty and configurationModule.getModule is not null, it's still possible that the configuration may still be broken.
     Check #isMainClassInConfigurationModule ScalaDoc for more details.
     2. If configuration doesn't have a module, then moduleName is empty
     */
-    oldModuleName.nonEmpty && (configurationModule.getModule == null || isMainClassAbsentInConfigurationModule(config))
+    def isConfigurationBroken: Boolean =
+      oldModuleName.nonEmpty && (module == null || isMainClassAbsentInConfigurationModule(config))
+
+    /*
+      If prod/test sources are enabled, then two situations could have happened:
+        1) the user switched on separate modules for prod/test and migration connected with grouping of modules WAS done earlier before
+        1) the user switched on separate modules for prod/test and migration connected with grouping of modules WASN'T done earlier before
+      In the 1) case, the current configuration module will exist (because e.g. before we had module roo )
+     */
+    def isConfigurationBrokenWhenProdTestSourcesSeparated: Boolean =
+      if (module != null) !isSbtSourceSet(module)
+      else isConfigurationBroken
+
+
+    // if separate modules for prod/test are enabled, then
+    if (prodTestSourcesSeparated) isConfigurationBrokenWhenProdTestSourcesSeparated
+    else isConfigurationBroken
+  }
+
+  private def isSbtSourceSet(module: Module): Boolean = {
+    val moduleType = ExternalSystemModulePropertyManager.getInstance(module).getExternalModuleType
+    moduleType == SbtModuleType.sbtSourceSetModuleType
   }
 
   /**

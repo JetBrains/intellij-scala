@@ -97,7 +97,7 @@ class ContentRootNode(override val data: ContentRootData)
   }
 
   def storePaths(sourceType: ExternalSystemSourceType, paths: Seq[String]): Unit = {
-    paths.foreach(data.storePath(sourceType, _))
+    paths.foreach(data.storePath(sourceType, _, "com.ola23"))
   }
 
   override protected def key: Key[ContentRootData] = ProjectKeys.CONTENT_ROOT
