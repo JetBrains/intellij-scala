@@ -226,15 +226,22 @@ public abstract class LayeredParser implements PsiParser {
     public void advanceLexer() {
       if (eof()) return;
 
-      BufferedTokenInfo currentValidInfo = getCurrentTokenInfo().isWhitespace() ? getValidTokenInfo(currentTokenNumber)
-              : getCurrentTokenInfo(); //because of VERY STRANGE behaviour of PsiBuilderImpl
+      BufferedTokenInfo tokenBeforeAdvance = getCurrentTokenInfo();
+      BufferedTokenInfo validTokenBeforeAdvance = tokenBeforeAdvance.isWhitespace()
+          ? getValidTokenInfo(currentTokenNumber)
+          : tokenBeforeAdvance; //because of VERY STRANGE behaviour of PsiBuilderImpl
+
       backStepToken = null;
       subAdvanceLexer();
 
       BufferedTokenInfo currentToken = getCurrentTokenInfo();
 
-      while (!eof() && (commentTokens.contains(currentToken.getTokenType()) || currentToken.isWhitespace()
-              || currentToken == currentValidInfo)) {
+      //skip whitespaces and comments
+      while (!eof() && (
+          commentTokens.contains(currentToken.getTokenType()) ||
+              currentToken.isWhitespace() ||
+              currentToken == validTokenBeforeAdvance
+      )) {
         if (myWhitespaceSkippedCallback != null) {
           myWhitespaceSkippedCallback.onSkip(currentToken.getTokenType(), currentToken.getTokenStart(), currentToken.getTokenEnd());
         }
@@ -257,7 +264,11 @@ public abstract class LayeredParser implements PsiParser {
     @Override
     public IElementType lookAhead(int steps) {
       final int index = getIndexWithStateFlusher(steps + currentTokenNumber);
-      return eof() || index >= filteredTokens.size() ? null : getValidTokenInfo(index).getTokenType();
+      if (eof() || index >= filteredTokens.size())
+        return null;
+
+      BufferedTokenInfo token = getValidTokenInfo(index);
+      return token.getTokenType();
     }
 
     @Override
@@ -475,7 +486,9 @@ public abstract class LayeredParser implements PsiParser {
     }
 
     private BufferedTokenInfo getTokenInfoByRelativeNumber(int index) {
-      return index < filteredTokens.size() ? originalTokens.get(filteredTokens.get(index)) : fakeEndToken;
+      return index < filteredTokens.size()
+          ? originalTokens.get(filteredTokens.get(index))
+          : fakeEndToken;
     }
 
     private BufferedTokenInfo getCurrentTokenInfo() {
@@ -487,10 +500,11 @@ public abstract class LayeredParser implements PsiParser {
     }
 
     private int getValidTokenNum(int filteredTokenNumber) {
-      if (filteredTokenNumber >= filteredTokens.size()) return originalTokens.size();
+      if (filteredTokenNumber >= filteredTokens.size())
+          return originalTokens.size();
 
       final int originalNumber = filteredTokens.get(filteredTokenNumber);
-      return originalNumber > originalTokens.size() ? originalTokens.size() : originalNumber;
+      return Math.min(originalNumber, originalTokens.size());
     }
 
     private BufferedTokenInfo getValidTokenInfo(int filteredTokenNumber) {
@@ -590,7 +604,9 @@ public abstract class LayeredParser implements PsiParser {
       int oldOriginalNumber = filteredTokens.get(currentTokenNumber) + 1;
       ++currentTokenNumber;
 
-      if (currentTokenNumber >= filteredTokens.size()) return;
+      if (currentTokenNumber >= filteredTokens.size())
+        return;
+
       int newOriginalNumber = filteredTokens.get(currentTokenNumber) - 1;
 
       for (int i = oldOriginalNumber; i <= newOriginalNumber; ++i) {
@@ -602,11 +618,17 @@ public abstract class LayeredParser implements PsiParser {
 
         if (myWhitespaceSkippedCallback != null) {
           if (tokenInfo.isWhitespace()) {
-            myWhitespaceSkippedCallback.onSkip(tokenInfo.getTokenType(), tokenInfo.getTokenStart(),
-                    tokenInfo.getTokenEnd());
+            myWhitespaceSkippedCallback.onSkip(
+                tokenInfo.getTokenType(),
+                tokenInfo.getTokenStart(),
+                tokenInfo.getTokenEnd()
+            );
           } else {
-            myWhitespaceSkippedCallback.onSkip(defaultWhitespaceToken, tokenInfo.getTokenStart(),
-                    originalTokens.get(i + 1).getTokenStart());
+            myWhitespaceSkippedCallback.onSkip(
+                defaultWhitespaceToken,
+                tokenInfo.getTokenStart(),
+                originalTokens.get(i + 1).getTokenStart()
+            );
           }
         }
       }
@@ -646,11 +668,13 @@ public abstract class LayeredParser implements PsiParser {
       }
 
       final FakeEndMarker endMarker = createEndMarker(fakeStartMarker, astElementType, currentTokenNumber, errorMessage);
-      BufferedTokenInfo currentTokenInfo = getCurrentTokenInfo().isWhitespace() ?
-              getValidTokenInfo(currentTokenNumber) : getCurrentTokenInfo();
+      BufferedTokenInfo tokenBeforeAdvance = getCurrentTokenInfo();
+      BufferedTokenInfo validTokenBeforeAdvance = tokenBeforeAdvance.isWhitespace()
+          ? getValidTokenInfo(currentTokenNumber)
+          : tokenBeforeAdvance;
       advanceMarker(endMarker);
 
-      if (currentTokenInfo == fakeEndToken && checkEofExtendedElement(astElementType, fakeStartMarker.getStartOffset())) {
+      if (validTokenBeforeAdvance == fakeEndToken && checkEofExtendedElement(astElementType, fakeStartMarker.getStartOffset())) {
         fakeEndToken.addProductionMarker(endMarker);
         return;
       }
@@ -662,7 +686,7 @@ public abstract class LayeredParser implements PsiParser {
         return;
       }
 
-      if (currentTokenInfo == fakeEndToken && filteredTokens.get(filteredTokens.size() - 1) < originalTokens.size() - 1 &&
+      if (validTokenBeforeAdvance == fakeEndToken && filteredTokens.get(filteredTokens.size() - 1) < originalTokens.size() - 1 &&
               fakeStartMarker.getStartOffset() != fakeEndToken.getTokenStart()) {
         int lastNonWsIndex = filteredTokens.size() - 1;//ugly, rewrite
         while (getTokenInfoByRelativeNumber(lastNonWsIndex).isWhitespace() &&
@@ -684,7 +708,7 @@ public abstract class LayeredParser implements PsiParser {
         }
       }
 
-      currentTokenInfo.addProductionMarker(endMarker);
+      validTokenBeforeAdvance.addProductionMarker(endMarker);
     }
 
     private void collapse(FakeMarker marker, IElementType astElementType) {
