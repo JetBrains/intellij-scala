@@ -261,14 +261,31 @@ public abstract class LayeredParser implements PsiParser {
       myWhitespaceSkippedCallback = callback;
     }
 
+    /**
+     * @apiNote it skips white spaces and comment tokens similar to ScalaPsiBuilderImpl#advanceLexer()
+     */
     @Override
-    public IElementType lookAhead(int steps) {
-      final int index = getIndexWithStateFlusher(steps + currentTokenNumber);
-      if (eof() || index >= filteredTokens.size())
-        return null;
+    public IElementType lookAhead(final int steps) {
+      IElementType resultTokenType = null;
 
-      BufferedTokenInfo token = getValidTokenInfo(index);
-      return token.getTokenType();
+      int currentSteps = steps;
+      while (true) {
+        final int index = getIndexWithStateFlusher(currentTokenNumber + currentSteps);
+        if (eof() || index >= filteredTokens.size()){
+          break;
+        }
+
+        BufferedTokenInfo token = getValidTokenInfo(index);
+        IElementType tokenType = token.getTokenType();
+        if (this.isWhitespaceOrComment(tokenType))
+          currentSteps += 1;
+        else {
+          resultTokenType = tokenType;
+          break;
+        }
+      }
+
+      return resultTokenType;
     }
 
     @Override
