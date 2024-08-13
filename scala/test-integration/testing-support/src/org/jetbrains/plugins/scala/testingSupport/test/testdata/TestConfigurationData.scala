@@ -2,9 +2,10 @@ package org.jetbrains.plugins.scala.testingSupport
 package test.testdata
 
 import com.intellij.execution.configurations.RuntimeConfigurationException
-import com.intellij.execution.{CommonProgramRunConfigurationParameters, ExternalizablePath, ShortenCommandLine}
+import com.intellij.execution.{CommonProgramRunConfigurationParameters, EnvFilesOptions, ExternalizablePath, ShortenCommandLine}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.{DumbService, Project}
+import com.intellij.util.xmlb.annotations.XCollection
 import com.intellij.util.xmlb.{Accessor, XmlSerializer}
 import org.apache.commons.lang3.StringUtils
 import org.jdom.Element
@@ -15,6 +16,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.ui.TestRunConfigurationFo
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, SearchForTest, TestKind, exceptions}
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 
+import java.util.Collections
 import java.{util => ju}
 import scala.beans.{BeanProperty, BooleanBeanProperty}
 import scala.jdk.CollectionConverters._
@@ -26,6 +28,7 @@ import scala.jdk.CollectionConverters._
 //noinspection ConvertNullInitializerToUnderscore
 abstract class TestConfigurationData(config: AbstractTestRunConfiguration)
   extends CommonProgramRunConfigurationParameters
+    with EnvFilesOptions
     with exceptions {
 
   type SelfType <: TestConfigurationData
@@ -59,6 +62,7 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration)
     setWorkingDirectory(form.getWorkingDirectory)
     setShortenClasspath(form.getShortenCommandLine)
     envs = form.getEnvironmentVariables
+    envFilePaths = form.getEnvironmentVariableFiles
     setPassParentEnvs(form.isPassParentEnvs)
   }
 
@@ -73,6 +77,7 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration)
     setWorkingDirectory(other.getWorkingDirectory)
     setShortenClasspath(other.shortenClasspath)
     envs = new java.util.HashMap(other.envs)
+    envFilePaths = new java.util.ArrayList(other.envFilePaths)
     setPassParentEnvs(other.passParentEnvs)
   }
 
@@ -114,6 +119,7 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration)
   @BeanProperty var javaOptions         : String                        = ""
   @BeanProperty var envs                : java.util.Map[String, String] = new java.util.HashMap[String, String]()
   @BeanProperty var shortenClasspath    : ShortenCommandLine            = null // null is valid value, see ConfigurationWithCommandLineShortener doc
+  @BeanProperty var envFilePaths        : ju.List[String]               = Collections.emptyList()
 
   @BooleanBeanProperty var passParentEnvs: Boolean = true
 
