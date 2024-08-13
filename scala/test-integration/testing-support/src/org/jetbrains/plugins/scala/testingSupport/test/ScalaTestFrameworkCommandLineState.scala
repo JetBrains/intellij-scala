@@ -4,7 +4,8 @@ import com.intellij.execution.configurations.{JavaCommandLineState, JavaParamete
 import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
 import com.intellij.execution.testframework.sm.SMTestRunnerConnectionUtil
 import com.intellij.execution.testframework.ui.BaseTestsOutputConsoleView
-import com.intellij.execution.{CommonProgramRunConfigurationParameters, ExecutionResult, Executor, JavaRunConfigurationExtensionManager, ShortenCommandLine}
+import com.intellij.execution.util.EnvFilesUtilKt.configureEnvsFromFiles
+import com.intellij.execution.{ExecutionResult, Executor, JavaRunConfigurationExtensionManager, ShortenCommandLine}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.util.Disposer
@@ -19,6 +20,7 @@ import org.jetbrains.plugins.scala.project.{ModuleExt, PathsListExt, ProjectExt}
 import org.jetbrains.plugins.scala.testingSupport.test.CustomTestRunnerBasedStateProvider.TestFrameworkRunnerInfo
 import org.jetbrains.plugins.scala.testingSupport.test.ScalaTestFrameworkCommandLineState._
 import org.jetbrains.plugins.scala.testingSupport.test.exceptions.executionException
+import org.jetbrains.plugins.scala.testingSupport.test.testdata.TestConfigurationData
 import org.jetbrains.plugins.scala.testingSupport.test.utils.{JavaParametersModified, RawProcessOutputDebugLogger}
 
 import java.io.{File, IOException, PrintStream}
@@ -226,8 +228,9 @@ class ScalaTestFrameworkCommandLineState(
      * Similar logic is located in [[com.intellij.execution.util.ProgramParametersConfigurator#configureConfiguration]]<br>
      * It might be Exported to some utility method in [[ProgramParametersUtil]]
      */
-    def getEnvVariablesExpanded(configuration: CommonProgramRunConfigurationParameters): Map[String, String] = {
+    def getEnvVariablesExpanded(configuration: TestConfigurationData): Map[String, String] = {
       val envs = new ju.HashMap[String, String](configuration.getEnvs)
+      envs.putAll(configureEnvsFromFiles(configuration, true))
       if (configuration.isPassParentEnvs) {
         EnvironmentUtil.inlineParentOccurrences(envs)
       }

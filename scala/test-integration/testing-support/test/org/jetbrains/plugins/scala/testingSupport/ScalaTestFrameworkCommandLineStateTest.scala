@@ -3,8 +3,6 @@ package org.jetbrains.plugins.scala.testingSupport
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.impl.{DefaultJavaProgramRunner, RunManagerImpl, RunnerAndConfigurationSettingsImpl}
 import com.intellij.execution.runners.ExecutionEnvironment
-import com.intellij.ide.`macro`.MacroManager
-import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext, LangDataKeys, PlatformCoreDataKeys}
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
@@ -22,6 +20,7 @@ import org.junit.Assert.{assertEquals, assertNotNull}
 
 import java.io.File
 import java.net.URI
+import java.nio.file.Files
 import java.util
 import scala.jdk.CollectionConverters.{CollectionHasAsScala, MapHasAsJava}
 
@@ -53,6 +52,7 @@ class ScalaTestFrameworkCommandLineStateTest extends HeavyPlatformTestCase {
         |-module_dir_deprecated=$MODULE_DIR$
         |-project_path=$PROJECT_DIR$
         |-D$EnvKey1$
+        |-D$EnvKey2$
         |""".stripMargin.trim
     val programArguments =
       """-programParam1
@@ -66,8 +66,20 @@ class ScalaTestFrameworkCommandLineStateTest extends HeavyPlatformTestCase {
       "EnvKey1" -> "EnvValue1"
     ).asJava
 
+    val envFileContent = "EnvKey2=EnvValue2"
+    val envFile = Files.createTempFile("intellij-scala", ".env")
+    Files.write(envFile, envFileContent.getBytes)
+    val envFilePaths = util.Collections.singletonList(envFile.toString)
+
     val (actualCommandLine, actualWorkingDir) =
-      getConfigurationCommandLineAndWorkingDirectory(myCustomModule, javaOptions, programArguments, workingDirectory, envs)
+      getConfigurationCommandLineAndWorkingDirectory(
+        myCustomModule,
+        javaOptions,
+        programArguments,
+        workingDirectory,
+        envs,
+        envFilePaths
+      )
 
     assertWorkingDirectory(s"/my/working/directory", actualWorkingDir)
     assertCommandLine(
@@ -78,6 +90,7 @@ class ScalaTestFrameworkCommandLineStateTest extends HeavyPlatformTestCase {
          |-module_dir_deprecated=${project.getBasePath}/myModuleName1
          |-project_path=${project.getBasePath}
          |-DEnvValue1
+         |-DEnvValue2
          |
          |-Dfile.encoding=UTF-8
          |
@@ -104,7 +117,7 @@ class ScalaTestFrameworkCommandLineStateTest extends HeavyPlatformTestCase {
     val myCustomModule = setupTestProjectAndModule(getProject)
     val workingDirectory = "$MODULE_WORKING_DIR$"
     val (_, actualWorkingDir) =
-      getConfigurationCommandLineAndWorkingDirectory(myCustomModule, "", "", workingDirectory, new util.HashMap())
+      getConfigurationCommandLineAndWorkingDirectory(myCustomModule, "", "", workingDirectory, new util.HashMap(), new util.ArrayList())
     assertWorkingDirectory(getProject.getBasePath + "/myModuleName1", actualWorkingDir)
   }
 
@@ -112,7 +125,7 @@ class ScalaTestFrameworkCommandLineStateTest extends HeavyPlatformTestCase {
     val myCustomModule = setupTestProjectAndModule(getProject)
     val workingDirectory = "$PROJECT_DIR$/some/relative/path"
     val (_, actualWorkingDir) =
-      getConfigurationCommandLineAndWorkingDirectory(myCustomModule, "", "", workingDirectory, new util.HashMap())
+      getConfigurationCommandLineAndWorkingDirectory(myCustomModule, "", "", workingDirectory, new util.HashMap(), new util.ArrayList())
     assertWorkingDirectory(getProject.getBasePath + "/some/relative/path", actualWorkingDir)
   }
 
@@ -123,7 +136,7 @@ class ScalaTestFrameworkCommandLineStateTest extends HeavyPlatformTestCase {
     val workingDirectory = ""
 
     val (_, actualWorkingDir) =
-      getConfigurationCommandLineAndWorkingDirectory(myCustomModule, "", "", workingDirectory, new util.HashMap())
+      getConfigurationCommandLineAndWorkingDirectory(myCustomModule, "", "", workingDirectory, new util.HashMap(), new util.ArrayList())
     assertWorkingDirectory(getProject.getBasePath, actualWorkingDir)
   }
 
@@ -134,7 +147,7 @@ class ScalaTestFrameworkCommandLineStateTest extends HeavyPlatformTestCase {
     val workingDirectory = "some/relative/path"
 
     val (_, actualWorkingDir) =
-      getConfigurationCommandLineAndWorkingDirectory(myCustomModule, "", "", workingDirectory, new util.HashMap())
+      getConfigurationCommandLineAndWorkingDirectory(myCustomModule, "", "", workingDirectory, new util.HashMap(), new util.ArrayList())
     assertWorkingDirectory(getProject.getBasePath + "/some/relative/path", actualWorkingDir)
   }
 
@@ -145,7 +158,7 @@ class ScalaTestFrameworkCommandLineStateTest extends HeavyPlatformTestCase {
     val workingDirectory = "./some/relative/path"
 
     val (_, actualWorkingDir) =
-      getConfigurationCommandLineAndWorkingDirectory(myCustomModule, "", "", workingDirectory, new util.HashMap())
+      getConfigurationCommandLineAndWorkingDirectory(myCustomModule, "", "", workingDirectory, new util.HashMap(), new util.ArrayList())
     assertWorkingDirectory(getProject.getBasePath + "/./some/relative/path", actualWorkingDir)
   }
 
@@ -155,6 +168,7 @@ class ScalaTestFrameworkCommandLineStateTest extends HeavyPlatformTestCase {
     programArguments: String,
     workingDirectory: String,
     envs: util.Map[String, String],
+    envFilePaths: util.List[String]
   ): (String, String) = {
     val project = module.getProject
     val configuration = new ScalaTestRunConfiguration(project, ScalaTestConfigurationType().confFactory, "test-conf-name")
@@ -163,6 +177,7 @@ class ScalaTestFrameworkCommandLineStateTest extends HeavyPlatformTestCase {
     configuration.testConfigurationData.setProgramParameters(programArguments)
     configuration.testConfigurationData.setWorkingDirectory(workingDirectory)
     configuration.testConfigurationData.setEnvs(envs)
+    configuration.testConfigurationData.setEnvFilePaths(envFilePaths)
 
     val state = buildCommandLineState(project, configuration)
     val javaParameters = state.getJavaParameters
