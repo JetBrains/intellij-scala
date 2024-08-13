@@ -6,6 +6,7 @@ import com.intellij.openapi.application.ApplicationNamesInfo
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.Service.Level
 import com.intellij.openapi.components.service
+import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.util.containers.orNull
 import io.ktor.client.plugins.*
 import kotlinx.coroutines.CoroutineScope
@@ -47,12 +48,23 @@ class PackageSearchClient(private val cs: CoroutineScope) {
         AsyncExpirableCache(cs) { searchByQuery(it) }
 
     private suspend fun searchById(id: String): ApiPackage? =
-        if (ApplicationManager.getApplication()?.isUnitTestMode != false) null
-        else apiClient.getPackageInfoByIds(setOf(id))[id]
+        runCatching(defaultValue = null) {
+            apiClient.getPackageInfoByIds(setOf(id))[id]
+        }
 
     private suspend fun searchByQuery(query: String): List<ApiPackage> =
-        if (ApplicationManager.getApplication()?.isUnitTestMode != false) emptyList()
-        else apiClient.searchPackages { searchQuery = query }
+        runCatching(defaultValue = emptyList()) {
+            apiClient.searchPackages { searchQuery = query }
+        }
+
+    private suspend fun <T> runCatching(defaultValue: T, block: suspend () -> T): T =
+        try {
+            if (ApplicationManager.getApplication()?.isUnitTestMode != false) defaultValue
+            else block()
+        } catch (e: Exception) {
+            if (e is ControlFlowException) throw e
+            defaultValue
+        }
 
     fun searchByQuery(
         groupId: String,
