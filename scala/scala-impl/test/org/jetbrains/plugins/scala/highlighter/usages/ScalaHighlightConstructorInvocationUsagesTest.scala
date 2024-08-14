@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.highlighter.usages
 
-class ScalaHighlightConstructorInvocationUsagesTest extends ScalaHighlightConstructorInvocationUsagesTestBase {
+class ScalaHighlightConstructorInvocationUsagesTest extends ScalaHighlightUsagesTestBase {
   def testClassDefinitionUsage(): Unit = {
     val code =
       s"""

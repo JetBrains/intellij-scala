@@ -1091,18 +1091,41 @@ object ScalaPsiUtil {
   /**
    * If `param` is a synthetic parameter with a corresponding real parameter, return Some(realParameter), otherwise None
    */
-  def parameterForSyntheticParameter(param: ScParameter): Option[ScParameter] =
-    param.parentOfType(classOf[ScFunction])
-      .filter(_.isSynthetic)
-      .flatMap {
-        case fun if fun.isCopyMethod => Option(fun.containingClass)
-        case fun if fun.isApplyMethod => getCompanionModule(fun.containingClass)
-        case _ => None
-      }.collect {
-      case td: ScClass if td.isCase => td
-    }.flatMap(_.constructor).toSeq
-      .flatMap(_.parameters)
-      .find(_.name == param.name) // TODO multiple parameter sections.
+  def parameterForSyntheticParameter(
+    param: ScParameter,
+    includingCaseClassCopyMethod: Boolean = true
+  ): Option[ScParameter] = {
+    val parentSyntheticFunction = param.owner match {
+      case f: ScFunction if f.isSynthetic => Some(f)
+      case _ => None
+    }
+    parentSyntheticFunction.flatMap(parameterForSyntheticParameter(param, _, includingCaseClassCopyMethod))
+  }
+
+  private def parameterForSyntheticParameter(
+    syntheticParameter: ScParameter,
+    syntheticFunction: ScFunction,
+    includingCaseClassCopyMethod: Boolean
+  ): Option[ScParameter] = {
+    val originalParametersOwner = Option(syntheticFunction.originalParametersOwner)
+      .orElse(originalParametersOwnerForCaseClassApplyOrCopyMethod(syntheticFunction, includingCaseClassCopyMethod))
+    val originalParameters = originalParametersOwner.toSeq.flatMap(_.parameters)
+    originalParameters.find(_.name == syntheticParameter.name)
+  }
+
+  private def originalParametersOwnerForCaseClassApplyOrCopyMethod(
+    syntheticFunction: ScFunction,
+    includingCaseClassCopyMethod: Boolean
+  ): Option[ScParameterOwner] = {
+    val containingClass = if (includingCaseClassCopyMethod && syntheticFunction.isCopyMethod)
+      Option(syntheticFunction.containingClass)
+    else if (syntheticFunction.isApplyMethod)
+      getCompanionModule(syntheticFunction.containingClass)
+    else
+      None
+    val containingCaseClass = containingClass.collect { case c: ScClass if c.isCase => c}
+    containingCaseClass.flatMap(_.constructor)
+  }
 
   def isReadonly(e: PsiElement): Boolean = {
     e match {
@@ -1168,30 +1191,27 @@ object ScalaPsiUtil {
 
 
     /**
-     * @return true if a method can be eta-expanded non-explicitly (without using of _, like `foo _`)
-     *         in presence of expected type
+     * @return true if the method can be eta-expanded automatically/non-explicitly in presence of an expected type.<br>
+     *        ("automatically" means without using of underscore `_`, like `foo _`)
      */
     private def canBeAutoEtaExpanded(m: PsiMethod): Boolean = {
       import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
       lazy val isScala211 = m.scalaLanguageLevelOrDefault == Scala_2_11
 
-      val res = m match {
+      m match {
         case f: ScFunctionDefinition =>
           val clauses = f.paramClauses.clauses
           val hasSomeNonEmptyClause = clauses.exists { clause =>
             val isEmptyClause =
               if (isScala211) false
               else clause.parameters.isEmpty
-            !clause.isImplicit && !isEmptyClause
+            !clause.isImplicitOrUsing && !isEmptyClause
           }
           hasSomeNonEmptyClause
         case _ =>
           // java method
           m.hasParameters || isScala211
       }
-      // debug info
-      //println(f"canBeEtaExpanded    (isScala211: $isScala211)    ${m.getName}%-16s    $res")
-      res
     }
 
     private def referencedMethod(

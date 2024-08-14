@@ -34,7 +34,7 @@ final class Associations private(override val associations: Array[Association])
              (filter: Seq[Binding] => Seq[Binding])
              (implicit project: Project, file: PsiFile): Unit = {
     val bindings = getBindingsForOffset(segment.getStartOffset)
-    val bindingsDistinct = bindings.distinctBy(_.path)
+    val bindingsDistinct = bindings.distinct
     val bindingsToRestore = filter(bindingsDistinct)
 
     if (bindingsToRestore.nonEmpty) {

@@ -6,8 +6,8 @@ import com.intellij.psi.{PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.extensions.Parent
 import org.jetbrains.plugins.scala.findUsages.factory.dialog.{ScalaOverridableMemberFindUsagesDialog, ScalaTypeDefinitionUsagesDialog}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScTypeAlias, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 
 class ScalaFindUsagesHandlerBase(
@@ -44,7 +44,17 @@ class ScalaFindUsagesHandlerBase(
     isSingleFile:     Boolean,
     toShowInNewTab:   Boolean,
     mustOpenInNewTab: Boolean
-  ): AbstractFindUsagesDialog =
+  ): AbstractFindUsagesDialog = {
+    def overridableDialog(member: ScMember) = new ScalaOverridableMemberFindUsagesDialog(
+      member,
+      getProject,
+      config.getMemberOptions,
+      toShowInNewTab,
+      mustOpenInNewTab,
+      isSingleFile,
+      this
+    )
+
     element match {
       case t: ScTypeDefinition =>
         new ScalaTypeDefinitionUsagesDialog(
@@ -56,27 +66,14 @@ class ScalaFindUsagesHandlerBase(
           isSingleFile,
           this
         )
-      case function: ScFunctionDefinition =>
-        new ScalaOverridableMemberFindUsagesDialog(
-          function,
-          getProject,
-          config.getMemberOptions,
-          toShowInNewTab,
-          mustOpenInNewTab,
-          isSingleFile,
-          this
-        )
-      case Parent(Parent(value: ScPatternDefinition)) =>
-        new ScalaOverridableMemberFindUsagesDialog(
-          value,
-          getProject,
-          config.getMemberOptions,
-          toShowInNewTab,
-          mustOpenInNewTab,
-          isSingleFile,
-          this
-        )
+      case function: ScFunction =>
+        overridableDialog(function)
+      case typeAlias: ScTypeAlias =>
+        overridableDialog(typeAlias)
+      case Parent(Parent(value: ScValueOrVariable)) =>
+        overridableDialog(value)
       case _ =>
         super.getFindUsagesDialog(isSingleFile, toShowInNewTab, mustOpenInNewTab)
     }
+  }
 }

@@ -123,6 +123,38 @@ class OptimizeImportsSimpleTestBase extends OptimizeImportsTestBase {
       "Removed 3 imports"
     )
   }
+
+  def testMultipleAliasesForTheSameName(): Unit = {
+    val before =
+      """import scala.util.{Random => RandomRenamed1}
+        |import scala.util.{Random => RandomRenamed2}
+        |import scala.util.Random
+        |
+        |object Main {
+        |  println(Random.nextInt())
+        |  println(RandomRenamed1.nextInt())
+        |  println(RandomRenamed2.nextInt())
+        |}
+        |""".stripMargin
+
+    //NOTE: separate imports are used because Scala doesn't support different names for the same entity in the same import statement
+    val after =
+      """import scala.util.Random
+        |import scala.util.{Random => RandomRenamed1}
+        |import scala.util.{Random => RandomRenamed2}
+        |
+        |object Main {
+        |  println(Random.nextInt())
+        |  println(RandomRenamed1.nextInt())
+        |  println(RandomRenamed2.nextInt())
+        |}
+        |""".stripMargin
+
+    doTest(before, after, "Rearranged imports")
+
+    //second optimize shouldn't change anything
+    doTest(after)
+  }
 }
 
 class OptimizeImportsSimpleTest_2_12 extends OptimizeImportsSimpleTestBase {
