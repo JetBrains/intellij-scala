@@ -241,35 +241,4 @@ class ScalaHighlightUsagesHandlerTest extends ScalaHighlightUsagesHandlerTestBas
        """.stripMargin
     doTest(code, Seq("trait", "object"))
   }
-
-// Handled by the default rather than a custom handler
-//  def testSCL20883(): Unit = {
-//    val code =
-//      s"""
-//         |enum Color {
-//         |  case Red
-//         |}
-//         |object A {
-//         |  Color.Re${CARET}d
-//         |}
-//         |""".stripMargin
-//
-//    doTest(code, Seq("Red", "Red"))
-//  }
-//
-//  def testSCL20883CaseClassCase(): Unit = {
-//    val code =
-//      s"""
-//         |enum Tree[+A] {
-//         |  case Leaf
-//         |  case Node(value: A, r: Tree[A], l: Tree[A])
-//         |}
-//         |
-//         |object A {
-//         |  val n = println(Tree.No${CARET}de(1, Tree.Leaf, Tree.Leaf))
-//         |}
-//         |""".stripMargin
-//
-//    doTest(code, Seq("Node", "Node"))
-//  }
 }

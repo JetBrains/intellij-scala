@@ -31,6 +31,7 @@ import scala.collection.mutable.ArrayBuffer
  *                        example: `Some("foo")` for `import foo.bar`; `None` for `import foo as bar`
  * @param singleNames     set of explicitly imported names<br>
  *                        example: in `import org.example.{A, B, _}` singleNames = [A, B]
+ * @param renames         contains information about names which are aliased using `=>` or `as`
  * @param hiddenNames     names which are hidden using `=> _` rename (or `as _` in Scala3)<br>
  *                        (aka "excludedNames")
  */
@@ -77,6 +78,8 @@ case class ImportInfo(prefixQualifier: Option[String],
       relative,
       this.allNames ++ second.allNames,
       this.singleNames ++ second.singleNames,
+      //NOTE: in practice, in "renames" map we expect same keys to contain same values
+      //(see org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer.canMerge)
       this.renames ++ second.renames,
       this.hiddenNames ++ second.hiddenNames,
       this.hasWildcard || second.hasWildcard,
@@ -181,7 +184,7 @@ object ImportInfo {
                   singleNames += refName
                   addAllNames(reference, refName)
                 } else {
-                  renames += ((refName, importedName))
+                  renames += refName -> importedName
                   addAllNames(reference, importedName)
                 }
               }

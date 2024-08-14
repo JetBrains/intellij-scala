@@ -13,19 +13,9 @@ class AnnotatorHolderMock(file: PsiFile) extends AnnotatorHolderMockBase[Message
 
   def errorAnnotations: List[Message.Error] = annotations.filterByType[Message.Error]
 
-  @nowarn("cat=deprecation")
-  private val severityMapping: Map[HighlightSeverity, (String, String) => Message] =
-    Map(
-      HighlightSeverity.ERROR -> Message.Error.apply,
-      HighlightSeverity.WARNING -> Message.Warning.apply,
-      HighlightSeverity.WEAK_WARNING -> Message.Warning.apply,
-      HighlightSeverity.INFORMATION -> Message.Info.apply,
-      HighlightSeverity.INFO -> Message.Info.apply
-    )
-
   override def createMockAnnotation(severity: HighlightSeverity, range: TextRange, message: String, enforcedAttributes: TextAttributesKey): Option[Message] = {
-    val transformer = severityMapping.get(severity)
-    transformer.map(_.apply(fileTextOf(range), message))
+    val constructor = Message.HighlightingSeverityToConstructor.get(severity)
+    constructor.map(_.apply(fileTextOf(range), message))
   }
 }
 

@@ -71,6 +71,30 @@ abstract class EmptyParamEtaExpansionTest_Since_2_11 extends EmptyParamEtaExpans
       |callFunc(helloWorld)
       |""".stripMargin
   )
+
+  def testAutoExpansionWithImplicitParameterClauses(): Unit = checkTextHasNoErrors(
+    """trait MyTrait0Methods[T]
+      |trait MyTrait1Methods[T] { def foo1(x: Int): Int }
+      |trait MyTrait2Methods[T] { def foo1(x: Int): Int ; def foo2(x: Int): Int }
+      |
+      |final class Builder[T] {
+      |  def build0(implicit tc: Context): MyTrait0Methods[T] = ???
+      |  def build1(implicit tc: Context): MyTrait1Methods[T] = ???
+      |  def build2(implicit tc: Context): MyTrait2Methods[T] = ???
+      |}
+      |
+      |trait Context
+      |
+      |object Scope {
+      |  implicit def defaultContext: Context = ???
+      |  def builder[T]: Builder[T] = ???
+      |
+      |  val encoder0: MyTrait0Methods[String] = builder.build0
+      |  val encoder1: MyTrait1Methods[String] = builder.build1
+      |  val encoder2: MyTrait2Methods[String] = builder.build2
+      |}
+      |""".stripMargin
+  )
 }
 
 abstract class EmptyParamEtaExpansionTest_Since_2_12 extends EmptyParamEtaExpansionTest_Since_2_11 {
@@ -109,4 +133,32 @@ class EmptyParamEtaExpansionTest_2_12 extends EmptyParamEtaExpansionTest_Since_2
 
 class EmptyParamEtaExpansionTest_2_13 extends EmptyParamEtaExpansionTest_Since_2_13 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_13
+}
+
+class EmptyParamEtaExpansionTest_3 extends EmptyParamEtaExpansionTest_Since_2_13 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version.isScala3
+
+  def testAutoExpansionWithImplicitParameterClauses_UsingAndGiven(): Unit = checkTextHasNoErrors(
+    """trait MyTrait0Methods[T]
+      |trait MyTrait1Methods[T] { def foo1(x: Int): Int }
+      |trait MyTrait2Methods[T] { def foo1(x: Int): Int ; def foo2(x: Int): Int }
+      |
+      |final class Builder[T] {
+      |  def build0(using tc: Context): MyTrait0Methods[T] = ???
+      |  def build1(using tc: Context): MyTrait1Methods[T] = ???
+      |  def build2(using tc: Context): MyTrait2Methods[T] = ???
+      |}
+      |
+      |trait Context
+      |
+      |object Scope {
+      |  given defaultContext: Context = ???
+      |  def builder[T]: Builder[T] = ???
+      |
+      |  val encoder0: MyTrait0Methods[String] = builder.build0
+      |  val encoder1: MyTrait1Methods[String] = builder.build1
+      |  val encoder2: MyTrait2Methods[String] = builder.build2
+      |}
+      |""".stripMargin
+  )
 }
