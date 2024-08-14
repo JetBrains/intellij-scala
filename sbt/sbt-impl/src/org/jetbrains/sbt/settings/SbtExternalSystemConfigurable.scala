@@ -19,5 +19,5 @@ class SbtExternalSystemConfigurable(project: Project)
   override def getId: String = "sbt.project.settings.configurable"
 
   override def getHelpTopic: String =
-    ScalaWebHelpProvider.HelpPrefix + "sbt_support.html"
+    ScalaWebHelpProvider.HelpPrefix + "sbt-support.html"
 }
