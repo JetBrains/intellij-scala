@@ -1100,18 +1100,41 @@ object ScalaPsiUtil {
   /**
    * If `param` is a synthetic parameter with a corresponding real parameter, return Some(realParameter), otherwise None
    */
-  def parameterForSyntheticParameter(param: ScParameter): Option[ScParameter] =
-    param.parentOfType(classOf[ScFunction])
-      .filter(_.isSynthetic)
-      .flatMap {
-        case fun if fun.isCopyMethod => Option(fun.containingClass)
-        case fun if fun.isApplyMethod => getCompanionModule(fun.containingClass)
-        case _ => None
-      }.collect {
-      case td: ScClass if td.isCase => td
-    }.flatMap(_.constructor).toSeq
-      .flatMap(_.parameters)
-      .find(_.name == param.name) // TODO multiple parameter sections.
+  def parameterForSyntheticParameter(
+    param: ScParameter,
+    includingCaseClassCopyMethod: Boolean = true
+  ): Option[ScParameter] = {
+    val parentSyntheticFunction = param.owner match {
+      case f: ScFunction if f.isSynthetic => Some(f)
+      case _ => None
+    }
+    parentSyntheticFunction.flatMap(parameterForSyntheticParameter(param, _, includingCaseClassCopyMethod))
+  }
+
+  private def parameterForSyntheticParameter(
+    syntheticParameter: ScParameter,
+    syntheticFunction: ScFunction,
+    includingCaseClassCopyMethod: Boolean
+  ): Option[ScParameter] = {
+    val originalParametersOwner = Option(syntheticFunction.originalParametersOwner)
+      .orElse(originalParametersOwnerForCaseClassApplyOrCopyMethod(syntheticFunction, includingCaseClassCopyMethod))
+    val originalParameters = originalParametersOwner.toSeq.flatMap(_.parameters)
+    originalParameters.find(_.name == syntheticParameter.name)
+  }
+
+  private def originalParametersOwnerForCaseClassApplyOrCopyMethod(
+    syntheticFunction: ScFunction,
+    includingCaseClassCopyMethod: Boolean
+  ): Option[ScParameterOwner] = {
+    val containingClass = if (includingCaseClassCopyMethod && syntheticFunction.isCopyMethod)
+      Option(syntheticFunction.containingClass)
+    else if (syntheticFunction.isApplyMethod)
+      getCompanionModule(syntheticFunction.containingClass)
+    else
+      None
+    val containingCaseClass = containingClass.collect { case c: ScClass if c.isCase => c}
+    containingCaseClass.flatMap(_.constructor)
+  }
 
   def isReadonly(e: PsiElement): Boolean = {
     e match {

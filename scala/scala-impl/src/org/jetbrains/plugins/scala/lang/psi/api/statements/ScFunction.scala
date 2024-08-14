@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements
 
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonName
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiTypeParameterList
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ObjectWithCaseClassCompanion
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
@@ -54,6 +55,18 @@ trait ScFunction
       }
     case _ => None
   }
+
+  /**
+   * Represents an original parameter owner corresponding to a synthetic function.
+   *
+   * Note, some native Scala synthetic members are handled without using this utility in multiple places.
+   * For example, case class apply/copy methods.
+   * It's done so mostly due to historically reasons. In theory these approaches could be somehow unify if really needed.
+   */
+  final def originalParametersOwner: ScParameterOwner =
+    getUserData(ScFunction.originalParametersOwnerKey)
+  final def originalParametersOwner_=(e: ScParameterOwner): Unit =
+    putUserData(ScFunction.originalParametersOwnerKey, e)
 
   def hasUnitResultType: Boolean
 
@@ -136,6 +149,8 @@ trait ScFunction
 }
 
 object ScFunction {
+
+  private val originalParametersOwnerKey = Key.create[ScParameterOwner]("ScFunction.originalParametersOwner")
 
   implicit class Ext(private val function: ScFunction) extends AnyVal {
 

@@ -6,6 +6,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.editor.ScalaEditorUtils
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
@@ -21,7 +22,7 @@ class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx2 with TargetE
 
   override def getElementByReference(ref: PsiReference, flags: Int): PsiElement = ref.getElement match {
     case isUnapplyFromVal(binding) => binding
-    case isCaseClassParameter(cp) => cp
+    case isCaseClassOrOtherSyntheticParameter(p) => p
     case isCaseClassApply(clazz) => clazz
     case isSyntheticObject(clazz) => clazz
     case isVarSetterFakeMethod(refPattern) => refPattern
@@ -71,22 +72,12 @@ class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx2 with TargetE
     }
   }
 
-  private object isCaseClassParameter {
+  private object isCaseClassOrOtherSyntheticParameter {
     def unapply(ref: ScReference): Option[ScParameter] = {
-      ref.resolve() match {
-        case p: ScParameter =>
-          p.owner match {
-            case a: ScFunctionDefinition if a.isApplyMethod && a.isSynthetic =>
-              a.containingClass match {
-                case obj: ScObject =>
-                  obj.fakeCompanionClassOrCompanionClass match {
-                    case cl: ScClass if cl.isCase => return cl.parameters.find(_.name == p.name)
-                    case _ =>
-                  }
-                case _ =>
-              }
-            case _ =>
-          }
+      val resolveResult = ref.resolve()
+      resolveResult match {
+        case param: ScParameter =>
+          return ScalaPsiUtil.parameterForSyntheticParameter(param, includingCaseClassCopyMethod = false)
         case _ =>
       }
       None
