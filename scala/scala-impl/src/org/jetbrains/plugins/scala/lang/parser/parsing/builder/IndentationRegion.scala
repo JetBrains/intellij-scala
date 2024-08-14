@@ -105,7 +105,15 @@ object IndentationRegion {
           case SingleExpr(outer) => outdents(outer)
           case Indented(outerIndent) => indent <= outerIndent || isOnPreviousIndent
           case BracelessCaseClause(outerIndent) => indent <= outerIndent.indentation || isOnPreviousIndent
-          case _: Braced => false
+          case Braced.Concrete(outerIndent) =>
+            // In Braced regions we just have to check for previous indentations
+            // Because the indentation of the region itself is not in the previous indentations,
+            // we have to check for it explicitly
+            indent == outerIndent || isOnPreviousIndent
+          case _: Braced.Lazy =>
+            // But the lazy version of the Braced region does have it in its previous indentations
+            // if it exists at all :)
+            isOnPreviousIndent
         }
 
         outerRegion.exists(outdents)
@@ -138,6 +146,8 @@ object IndentationRegion {
      */
     final case class Concrete(indentation: IndentationWidth) extends Braced {
       override def isIndent(indent: IndentationWidth): Boolean = indent > indentation
+
+      override def toString: String = s"Braced.Concrete($indentation)"
     }
 
     /**
@@ -211,6 +221,8 @@ object IndentationRegion {
             None
         }
       }
+
+      override def toString: String = s"Braced.Lazy($regionStartRawTokenIndex, ${foundIndentation.getOrElse("Indent not yet known")})"
     }
   }
 }
