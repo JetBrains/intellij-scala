@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.highlighter.usages
 
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
-class Scala3HighlightUniversalApplyConstructorInvocationUsagesTest extends ScalaHighlightConstructorInvocationUsagesTestBase {
+class Scala3HighlightUniversalApplyConstructorInvocationUsagesTest extends ScalaHighlightUsagesTestBase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
 

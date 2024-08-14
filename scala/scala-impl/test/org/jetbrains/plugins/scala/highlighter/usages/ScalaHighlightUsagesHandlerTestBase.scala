@@ -12,6 +12,9 @@ abstract class ScalaHighlightUsagesHandlerTestBase
   extends ScalaLightCodeInsightFixtureTestCase
     with AssertionMatchers {
 
+  //TODO: instead of testing specific handler, write more integration-like tests
+  // see ScalaHighlightUsagesTestBase
+  // Rewrite existing test classes
   def createHandler: HighlightUsagesHandlerBase[PsiElement]
 
   def assertHandlerIsNull(fileText: String): Unit = {
