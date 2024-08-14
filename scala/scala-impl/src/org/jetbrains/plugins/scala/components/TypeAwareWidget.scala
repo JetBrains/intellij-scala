@@ -62,8 +62,8 @@ private final class TypeAwareWidget(project: Project, factory: TypeAwareWidgetFa
     _ => ToggleTypeAwareHighlightingAction.toggleSettingAndRehighlight(project)
 
   override def updateWidget(): Unit = {
-    widgetsManager.updateWidget(factory)
     if (statusBar ne null) {
+      widgetsManager.updateWidget(factory)
       statusBar.updateWidget(ID())
     }
   }

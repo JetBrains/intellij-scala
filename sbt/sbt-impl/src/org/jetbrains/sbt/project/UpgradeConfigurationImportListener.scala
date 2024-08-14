@@ -6,6 +6,7 @@ import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.externalSystem.model.ExternalSystemDataKeys
 import com.intellij.openapi.externalSystem.service.project.manage.ProjectDataImportListener
 import com.intellij.openapi.project.{DumbService, Project}
+import org.jetbrains.plugins.scala.extensions.invokeWhenSmart
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.sbt.project.SbtMigrateConfigurationsAction.isConfigurationInvalid
 import org.jetbrains.sbt.{SbtBundle, SbtUtil}
@@ -25,12 +26,12 @@ class UpgradeConfigurationImportListener(project: Project) extends ProjectDataIm
     // (from com.intellij.execution.configurations.JavaRunConfigurationModule.findNotNullClass),
     // which for a project in a dumb mode returns null so we can get incorrect results.
     // TODO it could be written better with coroutineScope.launch && smartReadAction
-    DumbService.getInstance(project).runWhenSmart(() => {
+    invokeWhenSmart(project) {
       if (shouldShowNotification(project)) {
         showNotification()
       }
       setNotificationShown()
-    })
+    }
   }
 
   private def isNewlyCreatedProject(project: Project): Boolean = {

@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.extapi.psi.StubBasedPsiElementBase
-import com.intellij.ide.plugins.DynamicPluginListener
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ex.ApplicationUtil
@@ -13,7 +12,7 @@ import com.intellij.openapi.editor.{Editor, RangeMarker}
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util._
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
@@ -34,6 +33,7 @@ import com.intellij.util.{ArrayFactory, ExceptionUtil, Processor}
 import org.jetbrains.annotations.{Nls, NonNls, Nullable}
 import org.jetbrains.plugins.scala.caches.UserDataHolderDelegator
 import org.jetbrains.plugins.scala.extensions.implementation.iterator._
+import org.jetbrains.plugins.scala.internal.ScalaDynamicPluginManager
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaModifier, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isInheritorDeep
@@ -61,7 +61,7 @@ import org.jetbrains.plugins.scala.util.ScalaPluginUtils
 import java.io.File
 import java.lang.ref.Reference
 import java.lang.reflect.InvocationTargetException
-import java.nio.file.{Path, Paths}
+import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.{Callable, ScheduledFuture, TimeUnit, ConcurrentMap => JConcurrentMap, Future => JFuture}
 import java.util.regex.Pattern
@@ -1551,9 +1551,13 @@ package object extensions {
     TransactionGuard.getInstance().submitTransactionAndWait(() => body): @nowarn("cat=deprecation")
   }
 
-  def registerDynamicPluginListener(listener: DynamicPluginListener, parentDisposable: Disposable): Unit = {
-    val connection = ApplicationManager.getApplication.getMessageBus.connect(parentDisposable)
-    connection.subscribe(DynamicPluginListener.TOPIC, listener)
+  def invokeWhenSmart(project: Project)(body: => Unit): Unit = {
+    // We need to check for unloading here, because when the scala plugin tries to unload,
+    // it is not in smart mode, which means tasks might get scheduled but will not be executed until after
+    // the plugin is unloaded, which will fail, because the scheduled tasks prevent it from doing so.
+    if (!ScalaDynamicPluginManager.isScalaPluginUnloading) {
+      DumbService.getInstance(project).runWhenSmart(() => body)
+    }
   }
 
   def invokeOnDispose(parentDisposable: Disposable)(body: => Unit): Unit =

@@ -2002,7 +2002,7 @@
 
     <applicationListeners>
         <listener topic="com.intellij.ide.plugins.DynamicPluginListener"
-                  class="org.jetbrains.plugins.scala.internal.ScalaPluginDynamicUnloadDenier" />
+                  class="org.jetbrains.plugins.scala.internal.ScalaDynamicPluginManager" />
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.DeregisterSyntheticClassesListener"/>
 
