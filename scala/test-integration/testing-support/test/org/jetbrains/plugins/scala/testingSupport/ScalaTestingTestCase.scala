@@ -9,13 +9,12 @@ import com.intellij.execution.runners.{ExecutionEnvironmentBuilder, ProgramRunne
 import com.intellij.execution.testframework.AbstractTestProxy
 import com.intellij.execution.testframework.sm.runner.SMTRunnerEventsListener
 import com.intellij.execution.testframework.sm.runner.ui.SMTRunnerConsoleView
-import com.intellij.execution.ui.RunContentDescriptor
+import com.intellij.execution.ui.{ExecutionConsole, RunContentDescriptor}
 import com.intellij.execution.{Executor, PsiLocation, RunnerAndConfigurationSettings}
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModuleRootManager
-import com.intellij.profiler.ultimate.widget.JavaConsoleWithProfilerWidget
 import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.file.PsiDirectoryFactory
 import com.intellij.testFramework.EdtTestUtil
@@ -123,6 +122,11 @@ abstract class ScalaTestingTestCase
   )(implicit testOptions: TestRunOptions): TestRunResult =
     runTestFromConfig(runConfig, testOptions.duration)
 
+  // JavaConsoleWithProfilerWidget is an Ultimate-only class, we can only check it at runtime.
+  // Otherwise, the community repo cannot be built on its own.
+  private def isJavaConsoleWithProfilerWidget(console: ExecutionConsole): Boolean =
+    console.getClass.getName == "com.intellij.profiler.ultimate.widget.JavaConsoleWithProfilerWidget"
+
   override protected def runTestFromConfig(
     runConfig: RunnerAndConfigurationSettings,
     duration: FiniteDuration,
@@ -141,7 +145,7 @@ abstract class ScalaTestingTestCase
       val (handler, runContentDescriptor) = runProcess(runConfig, classOf[DefaultRunExecutor], runner, Seq(testResultListener))
 
       runContentDescriptor.getExecutionConsole match {
-        case widget: JavaConsoleWithProfilerWidget =>
+        case widget if isJavaConsoleWithProfilerWidget(widget) =>
           Try(widget.getClass.getDeclaredField("console")).foreach { consoleField =>
             Try {
               consoleField.setAccessible(true)
