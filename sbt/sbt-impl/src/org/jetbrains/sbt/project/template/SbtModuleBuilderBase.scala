@@ -25,7 +25,7 @@ import java.io.File
 abstract class SbtModuleBuilderBase
   extends AbstractExternalModuleBuilder[SbtProjectSettings](
     SbtProjectSystem.Id,
-    new SbtProjectSettings
+    SbtProjectSettings.default
   ) {
 
   protected val Log: Logger = Logger.getInstance(getClass)
