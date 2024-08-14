@@ -46,6 +46,9 @@ final class InvertIfConditionIntention extends PsiElementBaseIntentionAction {
     val ifStmt: ScIf = PsiTreeUtil.getParentOfType(element, classOf[ScIf], false)
     if (ifStmt == null || !ifStmt.isValid) return
 
+    implicit val ctx: ProjectContext = element.getManager
+    implicit val features: ScalaFeatures = element
+
     val condition = ifStmt.condition.orNull
     val thenExpression = ifStmt.thenExpression.orNull
     val elseExpression = ifStmt.elseExpression.orNull
@@ -81,9 +84,7 @@ final class InvertIfConditionIntention extends PsiElementBaseIntentionAction {
     val oldCaretWasOnElse = isCaretOnElse(thenExpression, elseExpression, caretModel.getOffset)
 
     IntentionPreviewUtils.write { () =>
-      implicit val ctx: ProjectContext = element.getManager
-      implicit val features: ScalaFeatures = element
-      val newIfStmtDummy = ScalaPsiUtil.convertIfToBracelessIfNeeded(createElementFromText[ScIf](newIfElseText, element), recursive = true)
+      val newIfStmtDummy = ScalaPsiUtil.convertIfToBracelessIfNeeded(createElementFromText[ScIf](newIfElseText, features), recursive = true)
       val newIfStmt = ifStmt.replaceExpression(newIfStmtDummy, removeParenthesis = true)
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
 
