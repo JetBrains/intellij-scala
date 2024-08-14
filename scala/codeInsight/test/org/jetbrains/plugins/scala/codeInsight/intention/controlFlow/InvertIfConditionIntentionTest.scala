@@ -921,4 +921,29 @@ class InvertIfConditionIntentionTest_Scala3 extends intentions.ScalaIntentionTes
 
     doTest(text, resultText)
   }
+
+  def testInvertIf_SCL22941(): Unit = {
+    val text =
+      s"""@main
+         |def main(): Unit = {
+         |  val bool = true
+         |  if !b${CARET}ool then
+         |    println("no")
+         |  else
+         |    println("yes")
+         |}
+         |""".stripMargin
+    val resultText =
+      s"""@main
+         |def main(): Unit = {
+         |  val bool = true
+         |  if bool then
+         |    println("yes")
+         |  else
+         |    println("no")
+         |}
+         |""".stripMargin
+
+    doTest(text, resultText)
+  }
 }
