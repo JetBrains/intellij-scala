@@ -42,7 +42,7 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
   /**
    * Extra java options.
    */
-  @BeanProperty var vmparams: String = "-Xms512M -Xmx1024M -Xss1M -XX:+CMSClassUnloadingEnabled"
+  @BeanProperty var vmparams: String = "-Xms512M -Xmx1024M -Xss1M"
 
   /**
    * Environment variables.
