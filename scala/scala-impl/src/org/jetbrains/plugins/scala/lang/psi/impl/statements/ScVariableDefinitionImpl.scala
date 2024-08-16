@@ -28,7 +28,7 @@ final class ScVariableDefinitionImpl private[psi] (
 
   override def expr: Option[ScExpression] = byPsiOrStub(findChild[ScExpression])(_.bodyExpression)
 
-  override def bindings: Seq[ScBindingPattern] = pList.patterns.flatMap(_.bindings)
+  override def bindings: Seq[ScBindingPattern] = pList.bindings
 
   override def isSimple: Boolean = pList.simplePatterns && bindings.size == 1
 

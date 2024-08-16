@@ -17,7 +17,11 @@ abstract class ScalaInvalidPropertyKeyInspectionTestBase extends ScalaInspection
 
   override def setUp(): Unit = {
     super.setUp()
+    // This cannot be removed, otherwise the inspection will not work
+    // That's because the inspection needs to look at the translation string to determine
+    // the number of arguments
     Registry.get("ast.loading.filter").setValue(false, getTestRootDisposable)
+
     myFixture.addFileToProject("i18n.properties",
       """
         |com.example.existing=Welcome to our App!

@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.structureView.ScalaStructureViewTestBase.*
 import org.jetbrains.plugins.scala.structureView.filter.ScalaPublicElementsFilter
 import org.jetbrains.plugins.scala.structureView.grouper.ScalaSuperTypesGrouper
 import org.jetbrains.plugins.scala.structureView.sorter.{ScalaAlphaSorter, ScalaVisibilitySorter}
-import org.jetbrains.plugins.scala.util.RevertableChange
 
 abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase {
 
@@ -1051,8 +1050,7 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
     })
   }
 
-  // TODO: SCL-22913
-  def testInheritedMembers(): Unit = RevertableChange.withModifiedRegistryValue("ast.loading.filter", false).run {
+  def testInheritedMembers(): Unit = {
     @Language("Scala")
     val baseClass =
       """package tests
