@@ -1001,17 +1001,6 @@ final class ScalaTypeMatchingEnumBasicCompletionTest_2_13 extends ScalaTypeMatch
 @RunWith(classOf[MultipleScalaVersionsRunner])
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
 final class ScalaTypeMatchingEnumBasicCompletionTest_3_Latest extends ScalaTypeMatchingEnumBasicCompletionTest {
-
-  // TODO: ERROR: Tree access disabled in org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.EnumMembersInjector#injectEnumCase
-  //       SCL-22912
-  private def withoutAstLoadingFilter(action: => Unit): Unit = {
-    val oldValue = Registry.get("ast.loading.filter").asBoolean()
-    try {
-      Registry.get("ast.loading.filter").setValue(false)
-      action
-    } finally Registry.get("ast.loading.filter").setValue(oldValue)
-  }
-
   private def configureScala3Enum(): Unit = myFixture.addFileToProject("completion/MyEnum.scala",
     """
       |package completion
@@ -1037,7 +1026,7 @@ final class ScalaTypeMatchingEnumBasicCompletionTest_3_Latest extends ScalaTypeM
 
   /// ---------- SCALA 3 ENUM ------------
 
-  def testScala3EnumInMatchByCaseName(): Unit = withoutAstLoadingFilter {
+  def testScala3EnumInMatchByCaseName(): Unit = {
     configureScala3Enum()
 
     doCompletionTest(
@@ -1071,7 +1060,7 @@ final class ScalaTypeMatchingEnumBasicCompletionTest_3_Latest extends ScalaTypeM
     )
   }
 
-  def testScala3EnumInMatchByEnumName(): Unit = withoutAstLoadingFilter {
+  def testScala3EnumInMatchByEnumName(): Unit = {
     configureScala3Enum()
 
     doCompletionTest(
@@ -1105,7 +1094,7 @@ final class ScalaTypeMatchingEnumBasicCompletionTest_3_Latest extends ScalaTypeM
     )
   }
 
-  def testScala3EnumInMatchWithTypeParams(): Unit = withoutAstLoadingFilter {
+  def testScala3EnumInMatchWithTypeParams(): Unit = {
     configureScala3Enum()
 
     doCompletionTest(
@@ -1139,7 +1128,7 @@ final class ScalaTypeMatchingEnumBasicCompletionTest_3_Latest extends ScalaTypeM
     )
   }
 
-  def testScala3EnumInMatchWithConstructorWithoutParams(): Unit = withoutAstLoadingFilter {
+  def testScala3EnumInMatchWithConstructorWithoutParams(): Unit = {
     configureScala3Enum()
 
     doCompletionTest(
@@ -1173,7 +1162,7 @@ final class ScalaTypeMatchingEnumBasicCompletionTest_3_Latest extends ScalaTypeM
     )
   }
 
-  def testScala3EnumInMatchWithConstructorWithParams(): Unit = withoutAstLoadingFilter {
+  def testScala3EnumInMatchWithConstructorWithParams(): Unit = {
     configureScala3Enum()
 
     doCompletionTest(
@@ -1207,7 +1196,7 @@ final class ScalaTypeMatchingEnumBasicCompletionTest_3_Latest extends ScalaTypeM
     )
   }
 
-  def testScala3EnumInValInitialization(): Unit = withoutAstLoadingFilter {
+  def testScala3EnumInValInitialization(): Unit = {
     configureScala3Enum()
 
     doCompletionTest(
@@ -1237,7 +1226,7 @@ final class ScalaTypeMatchingEnumBasicCompletionTest_3_Latest extends ScalaTypeM
     )
   }
 
-  def testScala3EnumInValInitializationWithTypeParams(): Unit = withoutAstLoadingFilter {
+  def testScala3EnumInValInitializationWithTypeParams(): Unit = {
     configureScala3Enum()
 
     doCompletionTest(
@@ -1267,7 +1256,7 @@ final class ScalaTypeMatchingEnumBasicCompletionTest_3_Latest extends ScalaTypeM
     )
   }
 
-  def testScala3EnumInValInitializationWithConstructorWithoutParams(): Unit = withoutAstLoadingFilter {
+  def testScala3EnumInValInitializationWithConstructorWithoutParams(): Unit = {
     configureScala3Enum()
 
     doCompletionTest(
@@ -1297,7 +1286,7 @@ final class ScalaTypeMatchingEnumBasicCompletionTest_3_Latest extends ScalaTypeM
     )
   }
 
-  def testScala3EnumInValInitializationWithConstructorWithParams(): Unit = withoutAstLoadingFilter {
+  def testScala3EnumInValInitializationWithConstructorWithParams(): Unit = {
     configureScala3Enum()
 
     doCompletionTest(
@@ -1327,7 +1316,7 @@ final class ScalaTypeMatchingEnumBasicCompletionTest_3_Latest extends ScalaTypeM
     )
   }
 
-  def testScala3EnumInMethodCall(): Unit = withoutAstLoadingFilter {
+  def testScala3EnumInMethodCall(): Unit = {
     configureScala3Enum()
 
     doCompletionTest(
@@ -1361,7 +1350,7 @@ final class ScalaTypeMatchingEnumBasicCompletionTest_3_Latest extends ScalaTypeM
     )
   }
 
-  def testScala3EnumInMethodCallWithNamedArgument(): Unit = withoutAstLoadingFilter {
+  def testScala3EnumInMethodCallWithNamedArgument(): Unit = {
     configureScala3Enum()
 
     doCompletionTest(
