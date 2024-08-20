@@ -1,0 +1,5 @@
+<idea-plugin>
+<!--    <extensions defaultExtensionNs="com.intellij">-->
+<!--        <newProjectWizard.scala.buildSystem implementation="org.jetbrains.scalaCli.project.template.wizard.ScalaCliNewProjectWizard" />-->
+<!--    </extensions>-->
+</idea-plugin>

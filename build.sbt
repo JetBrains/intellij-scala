@@ -71,6 +71,7 @@ lazy val scalaCommunity: sbt.Project =
       scalaLanguageUtils % "test->test;compile->compile",
       scalaLanguageUtilsRt % "test->test;compile->compile",
       pluginXml,
+      scalaCli % "test->test;compile->compile",
       //We need this explicit dependency in the root project to ensure the module is compiled before any other module
       //It matters when the project is built as a "Before Run" step when executing run configuration.
       //In this case, it actually builds the module with all its dependencies, not the whole project.
@@ -674,6 +675,9 @@ lazy val scalaCli =
   newProject("scala-cli", file("scala-cli"))
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
+      // TODO extract BuildSystemScalaNewProjectWizard etc. to separate module,
+      //  and then this dependency should be removed
+      sbtImpl % "test->test;compile->compile",
     )
 
 // Integration with other IDEA plugins

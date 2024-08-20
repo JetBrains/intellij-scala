@@ -67,4 +67,5 @@
     <xi:include href="/META-INF/uast.xml" xpointer="xpointer(/idea-plugin/*)"/>
     <xi:include href="/META-INF/worksheet.xml" xpointer="xpointer(/idea-plugin/*)"/>
     <xi:include href="/META-INF/scala-devkit-integration.xml" xpointer="xpointer(/idea-plugin/*)"/>
+    <xi:include href="/META-INF/scala-cli.xml" xpointer="xpointer(/idea-plugin/*)"/>
 </idea-plugin>
