@@ -26,6 +26,8 @@
         <extensionPoint qualifiedName="org.intellij.scala.findUsages.externalReferenceSearcher" interface="org.jetbrains.plugins.scala.findUsages.ExternalReferenceSearcher" dynamic="true"/>
         <extensionPoint qualifiedName="org.intellij.scala.findUsages.externalInheritorsSearcher" interface="org.jetbrains.plugins.scala.findUsages.ExternalInheritorsSearcher" dynamic="true"/>
         <extensionPoint qualifiedName="org.intellij.scala.findUsages.externalSearchScopeChecker" interface="org.jetbrains.plugins.scala.findUsages.ExternalSearchScopeChecker" dynamic="true"/>
+
+        <extensionPoint qualifiedName="org.intellij.scala.newScalaFileActionExtension" interface="org.jetbrains.plugins.scala.actions.NewScalaFileActionExtension" dynamic="true"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="org.intellij.scala">
