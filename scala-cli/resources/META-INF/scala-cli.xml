@@ -1,6 +1,7 @@
 <idea-plugin>
     <extensions defaultExtensionNs="com.intellij">
         <newProjectWizard.scala.buildSystem implementation="org.jetbrains.scalaCli.project.template.wizard.ScalaCliNewProjectWizard" />
+        <lang.inspectionSuppressor language="Scala" implementationClass="org.jetbrains.scalaCli.codeInspection.BspScalaCliInspectionSuppressor"/>
     </extensions>
 
     <extensions defaultExtensionNs="org.intellij">
