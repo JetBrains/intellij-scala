@@ -2,18 +2,15 @@ package org.jetbrains.sbt.project.template.wizard.buildSystem
 
 import com.intellij.ide.{JavaUiBundle, RecentProjectsManagerBase}
 import com.intellij.ide.projectWizard.NewProjectWizardCollector.BuildSystem.{INSTANCE => BSLog}
-import com.intellij.ide.wizard.AbstractNewProjectWizardStep
-import com.intellij.openapi.GitRepositoryInitializer
-import com.intellij.openapi.externalSystem.model.ExternalSystemDataKeys
-import com.intellij.openapi.externalSystem.service.project.manage.ExternalProjectsManagerImpl
 import com.intellij.openapi.module.{ModuleManager, StdModuleTypes}
-import com.intellij.openapi.observable.properties.{GraphProperty, ObservableProperty, PropertyGraph}
+import com.intellij.openapi.observable.properties.GraphProperty
 import com.intellij.openapi.observable.util.BindUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.impl.DependentSdkType
 import com.intellij.openapi.projectRoots.{JavaSdkType, Sdk, SdkTypeId}
 import com.intellij.openapi.roots.ui.configuration.{JdkComboBox, ProjectStructureConfigurable}
 import com.intellij.openapi.ui.ValidationInfo
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.UIBundle
 import com.intellij.ui.components.JBTextField
 import com.intellij.ui.dsl.builder._
@@ -25,30 +22,25 @@ import org.jetbrains.plugins.scala.extensions.{ObjectExt, ToNullSafe}
 import org.jetbrains.plugins.scala.project.Versions
 import org.jetbrains.plugins.scala.util.ui.extensions.JComboBoxOps
 import org.jetbrains.sbt.project.template.wizard.kotlin_interop.{ComboBoxKt_Wrapper, JdkComboBoxKt_Interop}
-import org.jetbrains.sbt.project.template.wizard.{SbtModuleStepLike, ScalaNewProjectWizardStep}
-import org.jetbrains.sbt.project.template.{SbtModuleBuilder, SbtModuleBuilderSelections}
+import org.jetbrains.sbt.project.template.wizard.{SbtModuleStepLike, ScalaNewProjectWizardMultiStep}
+import org.jetbrains.sbt.project.template.{ModuleBuilderBase, SbtModuleBuilder, SbtModuleBuilderSelections}
 
+import java.nio.file.Path
 import javax.swing.JLabel
 import scala.annotation.nowarn
 
 //noinspection ApiStatus,UnstableApiUsage
-final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
-  extends AbstractNewProjectWizardStep(parent)
+final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
+  extends ScalaNewProjectWizardStep(parent)
     with SbtScalaNewProjectWizardData
     with ScalaGitNewProjectWizardData
     with ScalaSampleCodeNewProjectWizardData
     with SbtModuleStepLike {
 
-  @inline private def propertyGraph: PropertyGraph = getPropertyGraph
-
   private var sdkComboBox: Cell[JdkComboBox] = _
   private val sdkProperty: GraphProperty[Sdk] = propertyGraph.property(null)
-  private val moduleNameProperty: GraphProperty[String] = propertyGraph.lazyProperty(() => parent.getName)
 
-  private val addSampleCodeProperty: GraphProperty[java.lang.Boolean] = propertyGraph.property(java.lang.Boolean.FALSE)
-  BindUtil.bindBooleanStorage(addSampleCodeProperty, "NewProjectWizard.addSampleCodeState")
   @TestOnly override private[project] def setAddSampleCode(value: java.lang.Boolean): Unit = addSampleCodeProperty.set(value)
-  private def needToAddSampleCode: Boolean = addSampleCodeProperty.get()
 
   private val generateOnboardingTipsProperty: GraphProperty[java.lang.Boolean] =
     propertyGraph.property(RecentProjectsManagerBase.getInstanceEx.getRecentPaths.isEmpty)
@@ -56,61 +48,36 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
   @TestOnly override private[project] def setGenerateOnboardingTips(value: java.lang.Boolean): Unit = generateOnboardingTipsProperty.set(value)
   private def needToGenerateOnboardingTips: Boolean = needToAddSampleCode && generateOnboardingTipsProperty.get()
 
-  private val gitProperty: GraphProperty[java.lang.Boolean] = propertyGraph.property(java.lang.Boolean.FALSE)
-  BindUtil.bindBooleanStorage(gitProperty, "NewProjectWizard.gitState")
   @TestOnly override private[project] def setGit(value: java.lang.Boolean): Unit = gitProperty.set(value)
-  private def isGitRepository: Boolean =
-    Option(GitRepositoryInitializer.getInstance()).isDefined && gitProperty.get()
-
   @TestOnly override private[project] def setScalaVersion(version: String): Unit = scalaVersionComboBox.setSelectedItemEnsuring(version)
   @TestOnly override private[project] def setSbtVersion(version: String): Unit = sbtVersionComboBox.setSelectedItemEnsuring(version)
   @TestOnly override private[project] def setPackagePrefix(prefix: String): Unit = packagePrefixTextField.setText(prefix)
 
-  def getSdk: Sdk = sdkProperty.get()
-  def getModuleName: String = moduleNameProperty.get()
+  override def getSdk: Option[Sdk] = Option(sdkProperty.get())
 
   override protected val selections: SbtModuleBuilderSelections = SbtModuleBuilderSelections.default
-
-  override protected lazy val defaultAvailableScalaVersions: Versions = Versions.Scala.allHardcodedVersions
 
   override protected lazy val defaultAvailableSbtVersions: Versions = Versions.SBT.allHardcodedVersions
   override protected lazy val defaultAvailableSbtVersionsForScala3: Versions = Versions.SBT.sbtVersionsForScala3(defaultAvailableSbtVersions)
 
   locally {
-    moduleNameProperty.dependsOn(parent.getNameProperty: ObservableProperty[String], (() => parent.getName): kotlin.jvm.functions.Function0[_ <: String])
-
     getData.putUserData(SbtScalaNewProjectWizardData.KEY, this)
     getData.putUserData(ScalaGitNewProjectWizardData.KEY, this)
     getData.putUserData(ScalaSampleCodeNewProjectWizardData.KEY, this)
   }
 
-  override def setupProject(project: Project): Unit = {
-    val builder = new SbtModuleBuilder(this.selections)
-    builder.setName(getModuleName)
-    val projectRoot = getContext.getProjectDirectory.toAbsolutePath
-    builder.setContentEntryPath(projectRoot.toString)
+  override def createBuilder(): ModuleBuilderBase[_] =
+    new SbtModuleBuilder(this.selections)
 
-    setProjectOrModuleSdk(project, parent, builder, Option(getSdk))
+  override protected def _addScalaSampleCode(project: Project, projectRoot: Path): Seq[VirtualFile] =
+    addScalaSampleCode(
+      project = project,
+      path = s"$projectRoot/src/main/scala",
+      isScala3 = this.selections.scalaVersion.exists(_.startsWith("3.")),
+      packagePrefix = this.selections.packagePrefix,
+      withOnboardingTips = needToGenerateOnboardingTips
+    )
 
-    ExternalProjectsManagerImpl.setupCreatedProject(project)
-    /** NEWLY_CREATED_PROJECT must be set up to prevent the call of markDirtyAllExternalProjects in ExternalProjectsDataStorage#load.
-     * As a result, NEWLY_IMPORTED_PROJECT must also be set to keep the same behaviour as before in ExternalSystemStartupActivity.kt:48 (do not call ExternalSystemUtil#refreshProjects).
-     * Similar thing is done in AbstractGradleModuleBuilder#setupModule */
-    project.putUserData(ExternalSystemDataKeys.NEWLY_CREATED_PROJECT, java.lang.Boolean.TRUE)
-    project.putUserData(ExternalSystemDataKeys.NEWLY_IMPORTED_PROJECT, java.lang.Boolean.TRUE)
-
-    if (needToAddSampleCode)
-      builder.openFileEditorAfterProjectOpened =
-        addScalaSampleCode(
-          project = project,
-          path = s"$projectRoot/src/main/scala",
-          isScala3 = this.selections.scalaVersion.exists(_.startsWith("3.")),
-          packagePrefix = this.selections.packagePrefix,
-          withOnboardingTips = needToGenerateOnboardingTips
-        )
-    if (isGitRepository) addGitIgnore(project, projectRoot.toString)
-    builder.commit(project)
-  }
 
   override def setupUI(panel: Panel): Unit = {
     panel.row(JavaUiBundle.message("label.project.wizard.new.project.jdk"), (row: Row) => {
@@ -128,24 +95,11 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
       KUnit
     })
 
-    panel.row(scalaLabelText, (row: Row) => {
-      row.layout(RowLayout.PARENT_GRID)
-      row.cell(scalaVersionComboBox).horizontalAlign(HorizontalAlign.FILL): @nowarn("cat=deprecation")
-      row.cell(downloadScalaSourcesCheckbox)
-      KUnit
-    })
+    setUpScalaUI(panel, downloadSourcesCheckbox = true)
 
     setupPackagePrefixUI(panel)
 
-    panel.row(null: JLabel, (row: Row) => {
-      val cb = row.checkBox(UIBundle.message("label.project.wizard.new.project.add.sample.code"))
-      ButtonKt.bindSelected(cb, addSampleCodeProperty: com.intellij.openapi.observable.properties.ObservableMutableProperty[java.lang.Boolean])
-      ButtonKt.whenStateChangedFromUi(cb, null, value => {
-        BSLog.logAddSampleCodeChanged(parent, value): @nowarn("cat=deprecation")
-        KUnit
-      })
-      KUnit
-    }).topGap(TopGap.SMALL)
+    setUpSampleCode(panel)
 
     panel.indent((p: Panel) => {
       p.row(null: JLabel, (row: Row) => {

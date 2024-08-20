@@ -41,7 +41,6 @@ package object buildSystem {
     }
   }
 
-  private[buildSystem]
   def addScalaSampleCode(project: Project, path: String, isScala3: Boolean, packagePrefix: Option[String], withOnboardingTips: Boolean): Seq[VirtualFile] = {
     val shouldRenderOnboardingTips: Boolean = Registry.is("doc.onboarding.tips.render")
     val advancedTipsEnabled = Registry.is("scala.advanced.onboarding.tips")

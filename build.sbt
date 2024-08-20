@@ -718,9 +718,7 @@ lazy val scalaCli =
   newProject("scala-cli", file("scala-cli"))
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
-      // TODO extract BuildSystemScalaNewProjectWizard etc. to separate module,
-      //  and then this dependency should be removed
-      sbtImpl % "test->test;compile->compile",
+      bsp % "test->test;compile->compile",
     )
 
 // Integration with other IDEA plugins
