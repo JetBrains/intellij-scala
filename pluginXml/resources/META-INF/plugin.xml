@@ -66,6 +66,8 @@
     <xi:include href="/META-INF/uast.xml"/>
     <xi:include href="/META-INF/worksheet.xml"/>
     <xi:include href="/META-INF/scala-devkit-integration.xml"/>
+    <xi:include href="/META-INF/scala-cli.xml"/>
+
 
     <!-- Include the ultimate part of our plugin -->
     <xi:include href="/META-INF/scala-ultimate-plugin.xml">
