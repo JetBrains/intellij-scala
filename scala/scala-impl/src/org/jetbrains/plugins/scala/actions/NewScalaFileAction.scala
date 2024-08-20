@@ -14,7 +14,6 @@ import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes
-import org.jetbrains.plugins.scala.actions.NewScalaFileAction._
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
@@ -27,33 +26,34 @@ import org.jetbrains.sbt.project.module.SbtModuleType
 import java.util.Properties
 
 final class NewScalaFileAction extends CreateTemplateInPackageAction[ScalaPsiElement](
-  () => actionText,
-  () => actionDescription,
+  ScalaBundle.message("newclassorfile.menu.action.text"),
+  ScalaBundle.message("newclassorfile.menu.action.description"),
   Icons.CLASS,
   JavaModuleSourceRootTypes.SOURCES
 ) with DumbAware {
-  override def update(e: AnActionEvent): Unit = {
-    super.update(e)
 
-    isInScala3Module =
-      Option(e.getDataContext.getData(PlatformCoreDataKeys.MODULE.getName))
-        .exists(_.asInstanceOf[Module].hasScala3)
-  }
+  override def getActionName(directory: PsiDirectory, newName: String, templateName: String): String =
+    ScalaBundle.message("newclassorfile.menu.action.text")
 
-  override protected def buildDialog(project: Project, directory: PsiDirectory,
-                                     builder: CreateFileFromTemplateDialog.Builder): Unit = {
+  override protected def buildDialog(
+    project: Project,
+    directory: PsiDirectory,
+    builder: CreateFileFromTemplateDialog.Builder
+  ): Unit = {
+
+    directory.module
 
     //noinspection ScalaExtractStringToBundle
     {
       builder.addKind("Class", Icons.CLASS, ScalaFileTemplateUtil.SCALA_CLASS)
       builder.addKind("Case Class", Icons.CASE_CLASS, ScalaFileTemplateUtil.SCALA_CASE_CLASS)
-      if (isInScala3Module) {
-        builder.addKind("File", Icons.SCALA_FILE, ScalaFileTemplateUtil.SCALA_FILE)
-      }
+      builder.addKind("File", Icons.SCALA_FILE, ScalaFileTemplateUtil.SCALA_FILE)
       builder.addKind("Object", Icons.OBJECT, ScalaFileTemplateUtil.SCALA_OBJECT)
       builder.addKind("Case Object", Icons.CASE_OBJECT, ScalaFileTemplateUtil.SCALA_CASE_OBJECT)
       builder.addKind("Trait", Icons.TRAIT, ScalaFileTemplateUtil.SCALA_TRAIT)
-      //place enum in the very end of the list SCL-20749
+
+      val isInScala3Module = directory.module.exists(_.hasScala3)
+      //place enum at the very end of the list SCL-20749
       if (isInScala3Module) {
         builder.addKind("Enum", Icons.ENUM, ScalaFileTemplateUtil.SCALA_ENUM)
       }
@@ -68,12 +68,7 @@ final class NewScalaFileAction extends CreateTemplateInPackageAction[ScalaPsiEle
       templateName = template.getName
     } builder.addKind(templateName, fileType.getIcon, templateName)
 
-    builder.setTitle(
-      if (isInScala3Module)
-        ScalaBundle.message("create.new.scala.class.or.file")
-      else
-        ScalaBundle.message("create.new.scala.class")
-    )
+    builder.setTitle(ScalaBundle.message("newclassorfile.menu.action.dialog.title"))
     builder.setValidator(new InputValidatorEx {
       override def getErrorText(inputString: String): String = {
         if (inputString.nonEmpty && !ScalaNamesUtil.isQualifiedName(inputString)) {
@@ -100,8 +95,6 @@ final class NewScalaFileAction extends CreateTemplateInPackageAction[ScalaPsiEle
       }
     })
   }
-
-  override def getActionName(directory: PsiDirectory, newName: String, templateName: String): String = actionText
 
   override def getNavigationElement(createdElement: ScalaPsiElement): PsiElement =
     createdElement match {
@@ -148,20 +141,6 @@ final class NewScalaFileAction extends CreateTemplateInPackageAction[ScalaPsiEle
 object NewScalaFileAction {
   @NonNls private[actions] val NAME_TEMPLATE_PROPERTY: String = "NAME"
   @NonNls private[actions] val LOW_CASE_NAME_TEMPLATE_PROPERTY: String = "lowCaseName"
-
-  private var isInScala3Module = false
-
-  def actionText: String =
-    if (isInScala3Module)
-      ScalaBundle.message("newclassorfile.menu.action.text")
-    else
-      ScalaBundle.message("newclass.menu.action.text")
-
-  def actionDescription: String =
-    if (isInScala3Module)
-      ScalaBundle.message("newclassorfile.menu.action.description")
-    else
-      ScalaBundle.message("newclass.menu.action.description")
 
   def createFromTemplate(directory: PsiDirectory, name: String, templateName: String, parameters: String*): PsiFile = {
     val project = directory.getProject
