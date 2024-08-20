@@ -670,6 +670,12 @@ lazy val bsp =
       buildInfoOptions += BuildInfoOption.ConstantValue
     )
 
+lazy val scalaCli =
+  newProject("scala-cli", file("scala-cli"))
+    .dependsOn(
+      scalaImpl % "test->test;compile->compile",
+    )
+
 // Integration with other IDEA plugins
 //TODO: rename the module module and maybe base packages (check external usages)
 // it actually doesn't have anything related to actual devkit integration, it doesn't depend on anything from it
