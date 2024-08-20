@@ -6,6 +6,6 @@
 
     <extensions defaultExtensionNs="org.intellij">
         <bsp.bspServerInfoProvider implementation="org.jetbrains.scalaCli.project.importing.ScalaCliServerProvider"/>
+        <scala.newScalaFileActionExtension implementation="org.jetbrains.scalaCli.actions.ScalaCliNewScalaFileActionExtension"/>
     </extensions>
-
 </idea-plugin>
