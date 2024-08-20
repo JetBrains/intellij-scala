@@ -1,12 +1,10 @@
-package org.jetbrains.bsp.codeInspection
+package org.jetbrains.scalaCli.codeInspection
 
 import com.intellij.codeInspection.{InspectionSuppressor, SuppressQuickFix}
-import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import org.jetbrains.bsp.codeInspection.BspScalaCliInspectionSuppressor.ScalaCliBspServerName
-import org.jetbrains.bsp.project.BspExternalSystemUtil
 import org.jetbrains.plugins.scala.codeInspection.packageNameInspection.ScalaPackageNameInspection
 import org.jetbrains.plugins.scala.lang.psi.api.ScFile
+import org.jetbrains.scalaCli.bsp.ScalaCliBspUtils
 
 final class BspScalaCliInspectionSuppressor extends InspectionSuppressor {
 
@@ -17,19 +15,10 @@ final class BspScalaCliInspectionSuppressor extends InspectionSuppressor {
   override def isSuppressedFor(element: PsiElement, toolId: String): Boolean =
     element match {
       case scalaFile: ScFile =>
-        suppressedToolIds.contains(toolId) && isBspScalaCliProject(scalaFile.getProject)
+        suppressedToolIds.contains(toolId) && ScalaCliBspUtils.isBspScalaCliProject(scalaFile.getProject)
       case _ =>
         false
     }
 
-  private def isBspScalaCliProject(project: Project): Boolean = {
-    val projectData = BspExternalSystemUtil.getBspProjectData(project)
-    projectData.exists(_.serverDisplayName == ScalaCliBspServerName)
-  }
-
   override def getSuppressActions(element: PsiElement, toolId: String): Array[SuppressQuickFix] = Array()
-}
-
-object BspScalaCliInspectionSuppressor {
-  private val ScalaCliBspServerName = "scala-cli"
 }
