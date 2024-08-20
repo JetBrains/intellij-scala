@@ -56,7 +56,7 @@ abstract class SbtModuleBuilderBase
 
   override def setupModule(module: Module): Unit = {
     super.setupModule(module)
-    Option(getContentEntryPath).foreach(SbtModuleBuilderUtil.tryToSetupModule(module, getExternalProjectSettings, _))
+    Option(getContentEntryPath).foreach(ModuleBuilderUtil.tryToSetupModule(module, getExternalProjectSettings, _, SbtProjectSystem.Id))
   }
 
   override def setupRootModel(model: ModifiableRootModel): Unit = {
@@ -66,7 +66,7 @@ abstract class SbtModuleBuilderBase
       if FileUtilRt.createDirectory(contentDir)
     } {
       val contentEntryFolders = createProjectTemplateIn(contentDir)
-      SbtModuleBuilderUtil.tryToSetupRootModel2(model, contentPath, contentEntryFolders)
+      ModuleBuilderUtil.tryToSetupRootModel2(model, contentPath, contentEntryFolders)
 
       //execute when current dialog is closed
       openEditorForCodeSampleOrBuildFile(model.getProject, contentDir)

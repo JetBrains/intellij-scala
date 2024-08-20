@@ -40,7 +40,8 @@ package object buildSystem {
     }
   }
 
-  private[buildSystem]
+  //TODO
+//  private[buildSystem]
   def addScalaSampleCode(project: Project, path: String, isScala3: Boolean, packagePrefix: Option[String], withOnboardingTips: Boolean): VirtualFile = {
     val manager = FileTemplateManager.getInstance(project)
     val shouldRenderOnboardingTips: Boolean = Registry.is("doc.onboarding.tips.render")
