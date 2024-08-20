@@ -10,7 +10,6 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileTypes.ex.FileTypeManagerEx
 import com.intellij.openapi.module.{Module, ModuleType}
 import com.intellij.openapi.project.{DumbAware, Project}
-import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.ui.InputValidatorEx
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
@@ -145,31 +144,23 @@ final class NewScalaFileAction extends CreateTemplateInPackageAction[ScalaPsiEle
   override def isAvailable(dataContext: DataContext): Boolean = {
     super.isAvailable(dataContext) && isUnderSourceRoots(dataContext)
   }
+  override def isAvailable(dataContext: DataContext): Boolean =
+    super.isAvailable(dataContext) && hasScalaInstalledInModule(dataContext)
 
-  private def isUnderSourceRoots(dataContext: DataContext): Boolean = {
-    val module: Module = dataContext.getData(PlatformCoreDataKeys.MODULE)
-    val validModule =
-      if (module == null) false
-      else
-        ModuleType.get(module) match {
-          case _: SbtModuleType => true
-          case _ => module.hasScala
-        }
-
-    validModule && isUnderSourceRoots0(dataContext)
+  private def hasScalaInstalledInModule(dataContext: DataContext): Boolean = {
+    val module = dataContext.getData(PlatformCoreDataKeys.MODULE)
+    module != null && hasScalaInstalledInModule(module)
   }
 
-  private def isUnderSourceRoots0(dataContext: DataContext) = {
-    val view = dataContext.getData(LangDataKeys.IDE_VIEW)
-    val project = dataContext.getData(CommonDataKeys.PROJECT)
-    if (view != null && project != null) {
-      val projectFileIndex = ProjectRootManager.getInstance(project).getFileIndex
-      val dirs = view.getDirectories
-      dirs.exists { dir =>
-        val aPackage = JavaDirectoryService.getInstance.getPackage(dir)
-        projectFileIndex.isInSourceContent(dir.getVirtualFile) && aPackage != null
-      }
-    } else false
+  private def hasScalaInstalledInModule(module: Module): Boolean = {
+    val moduleType = ModuleType.get(module)
+    moduleType match {
+      // Note: technically an sbt module might not have Scala SDK (scalaInstance) configured,
+      // but we still allow creating the files in such modules
+      // (it's some legacy behavior, which shouldn't hurt anyone)
+      case _: SbtModuleType => true
+      case _ => module.hasScala
+    }
   }
 
   private def createClassFromTemplate(directory: PsiDirectory, className: String, templateName: String,
