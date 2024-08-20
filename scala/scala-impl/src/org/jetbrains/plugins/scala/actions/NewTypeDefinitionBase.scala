@@ -1,14 +1,10 @@
 package org.jetbrains.plugins.scala.actions
 
-import com.intellij.ide.IdeView
 import com.intellij.ide.actions.CreateTemplateInPackageAction
 import com.intellij.ide.fileTemplates.{FileTemplateManager, JavaTemplateUtil}
-import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext, LangDataKeys, PlatformCoreDataKeys}
 import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.openapi.fileTypes.FileType
-import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.annotations.Nls
@@ -20,11 +16,10 @@ import javax.swing.Icon
 
 abstract class NewTypeDefinitionBase[T <: ScTemplateDefinition](@Nls txt: String, @Nls description: String, icon: Icon)
   extends CreateTemplateInPackageAction[T](txt, description, icon, JavaModuleSourceRootTypes.SOURCES) {
+
   override def checkPackageExists(psiDirectory: PsiDirectory): Boolean = JavaDirectoryService.getInstance.getPackage(psiDirectory) != null
 
   override def getNavigationElement(t: T): PsiElement = t.extendsBlock
-
-  override def isAvailable(dataContext: DataContext): Boolean = super.isAvailable(dataContext) && isUnderSourceRoots(dataContext)
 
   def createFromTemplate(directory: PsiDirectory, name: String, fileName: String, templateName: String,
                          parameters: String*): PsiFile = {
@@ -53,26 +48,6 @@ abstract class NewTypeDefinitionBase[T <: ScTemplateDefinition](@Nls txt: String
     CodeStyleManager.getInstance(project).reformat(file)
     directory.add(file).asInstanceOf[PsiFile]
   }
-
-  protected def isUnderSourceRoots(dataContext: DataContext): Boolean =
-    (dataContext getData PlatformCoreDataKeys.MODULE.getName, dataContext getData LangDataKeys.IDE_VIEW.getName,
-     dataContext getData CommonDataKeys.PROJECT.getName) match {
-      case (module: Module, view: IdeView, project: Project) =>
-        if (!Option(module).exists(checkModule)) return false
-
-        val projectFileIndex = ProjectRootManager.getInstance(project).getFileIndex
-        val dirs = view.getDirectories
-
-        for (dir <- dirs) {
-          if (projectFileIndex.isInSourceContent(dir.getVirtualFile) &&
-            JavaDirectoryService.getInstance.getPackage(dir) != null) return true
-        }
-
-        false
-      case _ => false
-    }
-
-  protected def checkModule(module: Module): Boolean
 
   protected def getFileType: FileType
 
