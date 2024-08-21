@@ -1,7 +1,7 @@
 import junit.framework.TestCase
 import org.junit.Assert
 
-class ScalacPatchesTest extends TestCase {
+class Scalac2PatchesTest extends TestCase {
 
   val compileTimeTest =
 """

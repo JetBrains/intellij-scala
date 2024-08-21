@@ -1,0 +1,4 @@
+<plugin>
+  <name>scalac2-patches</name>
+  <classname>Scalac2Patches</classname>
+</plugin>

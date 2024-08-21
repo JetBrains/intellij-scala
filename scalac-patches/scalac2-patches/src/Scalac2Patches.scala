@@ -2,28 +2,28 @@ import scala.tools.nsc.plugins.{Plugin, PluginComponent}
 import scala.tools.nsc.{Global, Phase}
 import scala.util.matching.Regex
 
-class ScalacPatches(val global: Global) extends Plugin {
+class Scalac2Patches(val global: Global) extends Plugin {
   import global._
 
-  override val name = "scalac-patches"
+  override val name = "scalac2-patches"
 
-  override val description = "scalac patches"
+  override val description = "scalac2 patches"
 
   override val components = List(new MyComponent(): PluginComponent)
 
   private class MyComponent extends PluginComponent {
-    override val global: ScalacPatches.this.global.type = ScalacPatches.this.global
+    override val global: Scalac2Patches.this.global.type = Scalac2Patches.this.global
 
     override val runsAfter = List[String]("parser")
 
     override val runsRightAfter = Some("parser")
 
-    override val phaseName = ScalacPatches.this.name
+    override val phaseName = Scalac2Patches.this.name
 
     override def newPhase(prev: Phase): Phase = new MyPhase(prev)
 
     private class MyPhase(prev: Phase) extends StdPhase(prev) {
-      override def name = ScalacPatches.this.name
+      override def name = Scalac2Patches.this.name
 
       private val CrLf = new Regex("\r\n")
 

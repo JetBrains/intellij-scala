@@ -1,4 +1,0 @@
-<plugin>
-  <name>scalac-patches</name>
-  <classname>ScalacPatches</classname>
-</plugin>

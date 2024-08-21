@@ -254,6 +254,7 @@ object Common {
         plugin % Provided
       )
       .settings(
+        // TODO Only Test / scalacOptions
         Compile / scalacOptions ++= Seq(
           s"-Xplugin:${(plugin / Compile / classDirectory).value}",
           s"-Xplugin-require:${(plugin / name).value}")
