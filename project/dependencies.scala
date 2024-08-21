@@ -177,6 +177,8 @@ object Dependencies {
     ExclusionRule(organization = "org.jetbrains.kotlinx"),
     ExclusionRule(organization = "org.slf4j"),
   )
+
+  val coursierApi = "io.get-coursier" % "interface" % "1.0.19" excludeAll ExclusionRule(organization = "org.slf4j")
 }
 
 object DependencyGroups {

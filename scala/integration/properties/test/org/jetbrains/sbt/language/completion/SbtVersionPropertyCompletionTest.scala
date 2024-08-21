@@ -3,7 +3,8 @@ package org.jetbrains.sbt.language.completion
 import com.intellij.lang.properties.PropertiesFileType
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase.DefaultInvocationCount
-import org.jetbrains.plugins.scala.packagesearch.api.{PackageSearchClient, PackageSearchClientTesting}
+import org.jetbrains.plugins.scala.packagesearch.api.PackageSearchClientTesting
+import org.jetbrains.plugins.scala.packagesearch.util.DependencyUtil
 import org.jetbrains.sbt.language.completion.SbtVersionCompletionContributor.{SbtGroupId, SbtLaunchArtifactId}
 
 final class SbtVersionPropertyCompletionTest
@@ -19,11 +20,8 @@ final class SbtVersionPropertyCompletionTest
   private val sbtStableVersion = "1.9.9"
   private val sbtVersions = Seq(sbtStableVersion, sbtUnstableVersion)
 
-  private def setupCaches(): Unit = {
-    PackageSearchClient.instance()
-      .updateByIdCache(SbtGroupId, SbtLaunchArtifactId,
-        apiMavenPackage(SbtGroupId, SbtLaunchArtifactId, versionsContainer(sbtUnstableVersion, Some(sbtStableVersion), sbtVersions)))
-  }
+  private def setupCaches(): Unit =
+    DependencyUtil.updateMockVersionCompletionCache((SbtGroupId -> SbtLaunchArtifactId) -> sbtVersions)
 
   private def doTest(fileText: String, resultText: String,
                      version: String, invocationCount: Int = DefaultInvocationCount): Unit = {

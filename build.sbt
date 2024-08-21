@@ -424,6 +424,8 @@ lazy val scalaImpl: sbt.Project =
         Dependencies.intellijIdeMetricsCollector % Test,
         Dependencies.intellijIdeUtilCommon % Test,
       ),
+      // for dependency version completion/inspections
+      libraryDependencies += Dependencies.coursierApi,
       resolvers += Versions.intellijRepository_ForManagedIntellijDependencies,
       intellijPlugins += "JUnit".toPlugin,
       intellijPluginJars := intellijPluginJars.value.map { case PluginJars(descriptor, root, cp) =>
