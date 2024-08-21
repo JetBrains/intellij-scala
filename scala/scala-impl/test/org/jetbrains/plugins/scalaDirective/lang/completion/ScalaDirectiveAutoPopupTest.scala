@@ -4,6 +4,7 @@ import com.intellij.codeInsight.editorActions.CompletionAutoPopupHandler
 import com.intellij.testFramework.{TestModeFlags, UsefulTestCase}
 import org.jetbrains.plugins.scala.base.ScalaCompletionAutoPopupTestCase
 import org.jetbrains.plugins.scala.packagesearch.api.{PackageSearchClient, PackageSearchClientTesting}
+import org.jetbrains.plugins.scala.packagesearch.util.DependencyUtil
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert.assertNull
 import org.junit.runner.RunWith
@@ -74,8 +75,7 @@ final class ScalaDirectiveAutoPopupTest
   }
 
   def testAutoPopupInDependencyAfterArtifactId(): Unit = {
-    PackageSearchClient.instance()
-      .updateByIdCache("foo", "bar", apiMavenPackage("foo", "bar", versionsContainer("1.2.3")))
+    DependencyUtil.updateMockVersionCompletionCache(("foo", "bar") -> Seq("1.2.3"))
     doTest(":", "foo:bar:1.2.3" :: Nil) {
       s"//> using dep foo:bar$CARET"
     }

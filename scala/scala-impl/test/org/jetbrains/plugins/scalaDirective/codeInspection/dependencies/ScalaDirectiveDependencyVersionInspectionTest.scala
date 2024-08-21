@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scalaDirective.codeInspection.dependencies
 
 import com.intellij.codeInspection.LocalInspectionTool
-import org.jetbrains.packagesearch.api.v3.{ApiMavenVersion, VersionsContainer}
 import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
-import org.jetbrains.plugins.scala.packagesearch.api.{PackageSearchClient, PackageSearchClientTesting}
+import org.jetbrains.plugins.scala.packagesearch.api.PackageSearchClientTesting
+import org.jetbrains.plugins.scala.packagesearch.util.DependencyUtil
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scalaDirective.ScalaDirectiveBundle
 
@@ -29,8 +29,6 @@ abstract class ScalaDirectiveDependencyVersionInspectionTestBase
   private val outdatedStableVersion = "1.0.9"
   private val outdatedUnstableVersion = "2.0.0-M6-1"
 
-  private val versionsContainer = super.versionsContainer(latestUnstableVersion, Some(latestStableVersion), versions)
-
   protected def scalaVersion: ScalaVersion
 
   protected def scalaVersionSuffix: String
@@ -48,20 +46,19 @@ abstract class ScalaDirectiveDependencyVersionInspectionTestBase
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == scalaVersion
 
-  protected def preparePackageSearchCache(artifactId: String, versions: Option[VersionsContainer[ApiMavenVersion]]): Unit =
-    PackageSearchClient.instance().updateByIdCache(groupId, artifactId,
-      versions.map(apiMavenPackage(groupId, artifactId, _)).orNull)
+  protected def preparePackageSearchCache(artifactId: String, availableVersions: Seq[String]): Unit =
+    DependencyUtil.updateMockVersionCompletionCache((groupId, artifactId) -> availableVersions)
 
   protected def doTest(text: String, expected: String,
                        artifactId: String = this.artifactId,
                        hint: String = quickFixHint(latestStableVersion)): Unit = {
-    preparePackageSearchCache(artifactId, Some(versionsContainer))
+    preparePackageSearchCache(artifactId, versions)
     checkTextHasError(text)
     testQuickFix(text, expected, hint)
   }
 
-  protected def doCheckNoErrors(text: String, versions: Option[VersionsContainer[ApiMavenVersion]] = Some(versionsContainer)): Unit = {
-    preparePackageSearchCache(artifactId, versions)
+  protected def doCheckNoErrors(text: String, availableVersions: Seq[String] = versions): Unit = {
+    preparePackageSearchCache(artifactId, availableVersions)
     checkTextHasNoErrors(text)
   }
 
@@ -141,7 +138,7 @@ abstract class ScalaDirectiveDependencyVersionInspectionTestBase
   )
 
   def testOutdatedDependenciesInMultipleDependencyList(): Unit = {
-    preparePackageSearchCache(artifactId, Some(versionsContainer))
+    preparePackageSearchCache(artifactId, versions)
 
     val text = s"//> using deps $START$groupId:$artifactId:$outdatedStableVersion$END $START$groupId:$artifactId:$outdatedUnstableVersion$END"
     checkTextHasError(text)
@@ -209,7 +206,7 @@ abstract class ScalaDirectiveDependencyVersionInspectionTestBase
 
   def testNoErrorsApiClientReturnedNothing(): Unit = doCheckNoErrors(
     text = s"//> using dep $groupId:$artifactId:$outdatedStableVersion",
-    versions = None
+    availableVersions = Seq.empty
   )
 
   def testNoErrorsWithoutVersionAndColon(): Unit = doCheckNoErrors(

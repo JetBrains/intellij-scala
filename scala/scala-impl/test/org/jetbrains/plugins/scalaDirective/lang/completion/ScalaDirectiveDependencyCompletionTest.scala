@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scalaDirective.lang.completion
 
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.packagesearch.api.{PackageSearchClient, PackageSearchClientTesting}
+import org.jetbrains.plugins.scala.packagesearch.util.DependencyUtil
 
 import java.util.Arrays.asList
 
@@ -165,7 +166,7 @@ final class ScalaDirectiveDependencyCompletionTest
   /// VERSIONS
 
   def testVersionCompletion(): Unit = {
-    PackageSearchClient.instance().updateByIdCache("foo", "bar", apiMavenPackage("foo", "bar", versionsContainer("1.2.3")))
+    DependencyUtil.updateMockVersionCompletionCache(("foo", "bar") -> Seq("1.2.3"))
     doCompletionTest(
       fileText = s"//> using dep foo:bar:$CARET",
       resultText = s"//> using dep foo:bar:1.2.3$CARET",
@@ -174,7 +175,7 @@ final class ScalaDirectiveDependencyCompletionTest
   }
 
   def testVersionCompletion2(): Unit = {
-    PackageSearchClient.instance().updateByIdCache("foo", "bar", apiMavenPackage("foo", "bar", versionsContainer("1.2.3")))
+    DependencyUtil.updateMockVersionCompletionCache(("foo", "bar") -> Seq("1.2.3"))
     doCompletionTest(
       fileText = s"//> using dep foo:bar:1.$CARET",
       resultText = s"//> using dep foo:bar:1.2.3$CARET",
@@ -183,7 +184,7 @@ final class ScalaDirectiveDependencyCompletionTest
   }
 
   def testVersionCompletion_inBetween(): Unit = {
-    PackageSearchClient.instance().updateByIdCache("foo", "bar", apiMavenPackage("foo", "bar", versionsContainer("1.2.3")))
+    DependencyUtil.updateMockVersionCompletionCache(("foo", "bar") -> Seq("1.2.3"))
     doCompletionTest(
       fileText = s"//> using dep foo:bar:1.${CARET}1.0",
       resultText = s"//> using dep foo:bar:1.2.3$CARET",
@@ -192,7 +193,7 @@ final class ScalaDirectiveDependencyCompletionTest
   }
 
   def testNoCompletionForVersionWhenPrefixIsDifferent(): Unit = {
-    PackageSearchClient.instance().updateByIdCache("foo", "bar", apiMavenPackage("foo", "bar", versionsContainer("1.2.3")))
+    DependencyUtil.updateMockVersionCompletionCache(("foo", "bar") -> Seq("1.2.3"))
     checkNoBasicCompletion(
       fileText = s"//> using dep foo:bar:2$CARET",
       item = "foo:bar:1.2.3"
@@ -200,7 +201,7 @@ final class ScalaDirectiveDependencyCompletionTest
   }
 
   def testNoCompletionForVersionWhenNoStableVersionsFound(): Unit = {
-    PackageSearchClient.instance().updateByIdCache("foo", "bar", apiMavenPackage("foo", "bar", versionsContainer("1.2.3-RC1", None)))
+    DependencyUtil.updateMockVersionCompletionCache(("foo", "bar") -> Seq("1.2.3-RC1"))
     checkNoBasicCompletion(
       fileText = s"//> using dep foo:bar:1$CARET",
       item = "foo:bar:1.2.3-RC1"
@@ -208,7 +209,7 @@ final class ScalaDirectiveDependencyCompletionTest
   }
 
   def testVersionCompletionWithUnstableOnSecondInvocation(): Unit = {
-    PackageSearchClient.instance().updateByIdCache("foo", "bar", apiMavenPackage("foo", "bar", versionsContainer("1.2.3-RC1", None)))
+    DependencyUtil.updateMockVersionCompletionCache(("foo", "bar") -> Seq("1.2.3-RC1"))
     doCompletionTest(
       fileText = s"//> using dep foo:bar:1.$CARET",
       resultText = s"//> using dep foo:bar:1.2.3-RC1$CARET",
@@ -218,7 +219,7 @@ final class ScalaDirectiveDependencyCompletionTest
   }
 
   def testNoCompletionForVersionWhenNothingFound(): Unit = {
-    PackageSearchClient.instance().updateByIdCache("foo", "bar", null)
+    DependencyUtil.updateMockVersionCompletionCache(("foo", "bar") -> Seq.empty)
     checkNoBasicCompletion(
       fileText = s"//> using dep foo:bar:2$CARET",
       item = "foo:bar:1.2.3-RC1"

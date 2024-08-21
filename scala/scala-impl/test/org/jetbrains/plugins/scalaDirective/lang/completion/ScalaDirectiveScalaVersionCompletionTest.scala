@@ -2,7 +2,8 @@ package org.jetbrains.plugins.scalaDirective.lang.completion
 
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase.DefaultInvocationCount
-import org.jetbrains.plugins.scala.packagesearch.api.{PackageSearchClient, PackageSearchClientTesting}
+import org.jetbrains.plugins.scala.packagesearch.api.PackageSearchClientTesting
+import org.jetbrains.plugins.scala.packagesearch.util.DependencyUtil
 import org.jetbrains.plugins.scala.packagesearch.util.DependencyUtil.{Scala2CompilerArtifactId, Scala3CompilerArtifactId, ScalaCompilerGroupId}
 
 final class ScalaDirectiveScalaVersionCompletionTest
@@ -16,14 +17,11 @@ final class ScalaDirectiveScalaVersionCompletionTest
   private val scala3StableVersion = "3.3.0"
   private val scala3Versions = Seq(scala3UnstableVersion, scala3StableVersion)
 
-  private def setupCaches(): Unit = {
-    PackageSearchClient.instance()
-      .updateByIdCache(ScalaCompilerGroupId, Scala2CompilerArtifactId,
-        apiMavenPackage(ScalaCompilerGroupId, Scala2CompilerArtifactId, versionsContainer(scala2UnstableVersion, Some(scala2StableVersion), scala2Versions)))
-    PackageSearchClient.instance()
-      .updateByIdCache(ScalaCompilerGroupId, Scala3CompilerArtifactId,
-        apiMavenPackage(ScalaCompilerGroupId, Scala3CompilerArtifactId, versionsContainer(scala3UnstableVersion, Some(scala3StableVersion), scala3Versions)))
-  }
+  private def setupCaches(): Unit =
+    DependencyUtil.updateMockVersionCompletionCache(
+      (ScalaCompilerGroupId, Scala2CompilerArtifactId) -> scala2Versions,
+      (ScalaCompilerGroupId, Scala3CompilerArtifactId) -> scala3Versions,
+    )
 
   private def doTest(fileText: String, resultText: String, version: String, invocationCount: Int = DefaultInvocationCount): Unit = {
     setupCaches()
