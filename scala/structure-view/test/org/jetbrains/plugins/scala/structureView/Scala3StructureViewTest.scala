@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.structureView
 
 import com.intellij.testFramework.PlatformTestUtil
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.extensions.{PsiNamedElementExt, StringExt}
+import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.icons.Icons.*
 import org.jetbrains.plugins.scala.structureView.ScalaStructureViewTestBase.Node
 import org.jetbrains.plugins.scala.structureView.grouper.ScalaSuperTypesGrouper
@@ -357,7 +357,7 @@ class Scala3StructureViewTest extends ScalaStructureViewCommonTests {
       |  @deprecated given f: Foo
       |  @deprecated given String = "foo"
       |
-      |""".stripMargin.withNormalizedSeparator,
+      |""".stripMargin,
 
     Node(ENUM, "E1", DeprecatedAttributesKey,
       Node(EnumCaseIcon, "A"),
@@ -386,7 +386,7 @@ class Scala3StructureViewTest extends ScalaStructureViewCommonTests {
     Node(CLASS,
       """Foo with {
         |  val foo = 1
-        |}""".stripMargin.withNormalizedSeparator, DeprecatedAttributesKey,
+        |}""".stripMargin, DeprecatedAttributesKey,
       Node(FIELD_VAL, "foo")
     ),
     Node(CLASS, "f", DeprecatedAttributesKey,
@@ -673,7 +673,7 @@ class Scala3StructureViewTest extends ScalaStructureViewCommonTests {
     Node(MethodIcon, "charAt(Int): Char"), // method charAt inside given cs
     Node(CLASS,
       """AutoCloseable with:
-        |    override def close(): Unit = {}""".stripMargin.withNormalizedSeparator), // given AutoCloseable...
+        |    override def close(): Unit = {}""".stripMargin), // given AutoCloseable...
     Node(MethodIcon, "close(): Unit"), // method close inside given AutoCloseable
     Node(TYPE_ALIAS, "MyTypeAlias"), // type MyTypeAlias
     Node(ABSTRACT_TYPE_ALIAS, "MyAbstractTypeAlias"), // type MyAbstractTypeAlias
