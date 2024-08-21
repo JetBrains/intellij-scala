@@ -100,8 +100,8 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
     project.putUserData(ExternalSystemDataKeys.NEWLY_IMPORTED_PROJECT, java.lang.Boolean.TRUE)
 
     if (needToAddSampleCode) {
-      val file = addScalaSampleCode(project, s"$projectRoot/src/main/scala", isScala3 = this.selections.scalaVersion.exists(_.startsWith("3.")), this.selections.packagePrefix, needToGenerateOnboardingTips)
-      builder.openFileEditorAfterProjectOpened = Some(file)
+      val files = addScalaSampleCode(project, s"$projectRoot/src/main/scala", isScala3 = this.selections.scalaVersion.exists(_.startsWith("3.")), this.selections.packagePrefix, needToGenerateOnboardingTips)
+      builder.openFileEditorAfterProjectOpened = files.headOption
     }
 
     if (isGitRepository) addGitIgnore(project, projectRoot.toString)
