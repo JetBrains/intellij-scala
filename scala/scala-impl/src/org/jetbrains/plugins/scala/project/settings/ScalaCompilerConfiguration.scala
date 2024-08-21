@@ -28,6 +28,7 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
 
   var customProfiles: Seq[ScalaCompilerSettingsProfile] = Seq.empty
 
+  // TODO the default value should be changed if separateProdTestSources is enabled by default
   var separateProdTestSources: Boolean = false
 
   @TestOnly
@@ -98,17 +99,26 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
     // yes, default profile options are currently serialized as root options of element node
     val configurationElement = XmlSerializer.serialize(defaultProfile.getSettings.toState, new SkipDefaultValuesSerializationFilters(): @nowarn("cat=deprecation"))
 
-    val optionElement = new Element(OptionAttr)
-
-    optionElement.setAttribute(NameAttr, SeparateProdTestSourcesAttr)
-    optionElement.setAttribute(ValueAttr, separateProdTestSources.toString)
+    // TODO if we only set the incrementalityType option element when `incrementalityType` value is different from SBT
+    //  and `separateProdTestSources` element when `separateProdTestSources` value is true,
+    //  then we can skip adding attribute values and we can only leave attribute names (without values).
+    //  The presence of the attribute with the given name will already indicate its value,
+    //  as `incrementalityType` and `separateProdTestSources` can only have two possible values.
 
     if (incrementalityType != IncrementalityType.SBT) {
+      val optionElement = new Element(OptionAttr)
       optionElement.setAttribute(NameAttr, IncrementalityTypeAttr)
       optionElement.setAttribute(ValueAttr, incrementalityType.toString)
+      configurationElement.addContent(optionElement)
     }
 
-    configurationElement.addContent(optionElement)
+    // TODO If `separateProdTestSources` is enabled by default, then this condition should changed to `separateProdTestSources` == `false`
+    if (separateProdTestSources) {
+      val optionElement = new Element(OptionAttr)
+      optionElement.setAttribute(NameAttr, SeparateProdTestSourcesAttr)
+      optionElement.setAttribute(ValueAttr, separateProdTestSources.toString)
+      configurationElement.addContent(optionElement)
+    }
 
     customProfiles.foreach { profile =>
       val profileElement = XmlSerializer.serialize(profile.getSettings.toState, new SkipDefaultValuesSerializationFilters(): @nowarn("cat=deprecation"))
