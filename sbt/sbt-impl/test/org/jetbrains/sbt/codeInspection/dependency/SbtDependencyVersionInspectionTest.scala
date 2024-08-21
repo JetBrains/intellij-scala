@@ -2,7 +2,8 @@ package org.jetbrains.sbt.codeInspection.dependency
 
 import com.intellij.openapi.fileTypes.LanguageFileType
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
-import org.jetbrains.plugins.scala.packagesearch.api.{PackageSearchClient, PackageSearchClientTesting}
+import org.jetbrains.plugins.scala.packagesearch.api.PackageSearchClientTesting
+import org.jetbrains.plugins.scala.packagesearch.util.DependencyUtil
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.codeInspection.SbtDependencyVersionInspection
 import org.jetbrains.sbt.language.SbtFileType
@@ -32,8 +33,7 @@ class SbtDependencyVersionInspectionTest
     val groupId = "org.scalatest"
     val artifactId = s"scalatest_${version.major}"
 
-    PackageSearchClient.instance().updateByIdCache(groupId, artifactId,
-      apiMavenPackage(groupId, artifactId, versionsContainer("3.0.8", Seq("3.0.7", "3.0.8", "3.0.6"))))
+    DependencyUtil.updateMockVersionCompletionCache((groupId -> artifactId) -> Seq("3.0.7", "3.0.8", "3.0.6"))
 
     val text =
       s"""
@@ -51,8 +51,7 @@ class SbtDependencyVersionInspectionTest
     val groupId = "org.scalatest"
     val artifactId = s"scalatest_${version.major}"
 
-    PackageSearchClient.instance().updateByIdCache(groupId, artifactId,
-      apiMavenPackage(groupId, artifactId, versionsContainer("3.0.8", Seq("3.0.7", "3.0.7-RC1", "3.0.8", "3.0.8-RC2", "3.0.6"))))
+    DependencyUtil.updateMockVersionCompletionCache((groupId -> artifactId) -> Seq("3.0.7", "3.0.7-RC1", "3.0.8", "3.0.8-RC2", "3.0.6"))
 
     val text =
       s"""
@@ -70,8 +69,7 @@ class SbtDependencyVersionInspectionTest
     val groupId = "org.scalatest"
     val artifactId = s"scalatest_${version.major}"
 
-    PackageSearchClient.instance().updateByIdCache(groupId, artifactId,
-      apiMavenPackage(groupId, artifactId, versionsContainer("3.0.8-RC2", Some("3.0.7"), Seq("3.0.7", "3.0.7-RC1", "3.0.8-RC2", "3.0.6"))))
+    DependencyUtil.updateMockVersionCompletionCache((groupId -> artifactId) -> Seq("3.0.7", "3.0.7-RC1", "3.0.8-RC2", "3.0.6"))
 
     val text =
       s"""
