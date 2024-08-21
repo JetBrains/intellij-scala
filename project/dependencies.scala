@@ -80,6 +80,7 @@ object Dependencies {
   val scala3Library: ModuleID = "org.scala-lang" % "scala3-library_3" % scala3Version
   val scalaReflect: ModuleID = "org.scala-lang" % "scala-reflect" % scalaVersion
   val scalaCompiler: ModuleID = "org.scala-lang" % "scala-compiler" % scalaVersion
+  val scala3Compiler: ModuleID = "org.scala-lang" % "scala3-compiler_3" % scala3Version
   val scalaXml: ModuleID = "org.scala-lang.modules" %% "scala-xml" % "2.3.0"
   val tastyCore: ModuleID = "org.scala-lang" % "tasty-core_3" % Versions.scala3Version
   val scalaParallelCollections: ModuleID = "org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0"
