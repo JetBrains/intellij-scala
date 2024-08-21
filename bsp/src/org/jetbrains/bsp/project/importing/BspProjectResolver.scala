@@ -7,7 +7,8 @@ import com.intellij.openapi.externalSystem.model.project._
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener}
 import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException}
 import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
-import org.jetbrains.bsp.BspUtil.{bloopConfigDir, _}
+import org.jetbrains.bsp.BspUtil._
+import org.jetbrains.bsp.project.ExternalBspServerProvider
 import org.jetbrains.bsp.project.importing.BspProjectResolver._
 import org.jetbrains.bsp.project.importing.BspResolverDescriptors._
 import org.jetbrains.bsp.project.importing.BspResolverLogic._
@@ -197,6 +198,11 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
   )(implicit reporter: BuildReporter): Try[BuildMessages] = {
     def isSbtProject(workspace: File) = new File(workspace, "build.sbt").exists()
 
+    def installBspWithExternalServerProvider: Try[BuildMessages] = {
+      val externalServerProvider = ExternalBspServerProvider.getExternalServerProvider(workspace)
+      externalServerProvider.map(_.bspInstall(workspace)).getOrElse(EmptyBuildMessagesSuccess)
+    }
+
     //TODO: runBloopInstall changes `importState` inside
     // however `MillProjectImportProvider.bspInstall(workspace)`
     // The latter was added by contributor, so this might be just a bug?
@@ -206,13 +212,12 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       case BspProjectSettings.AutoPreImport =>
         if (bspServerConfig == BspProjectSettings.AutoConfig && bloopConfigDir(workspace).isDefined && isSbtProject(workspace))
           runBloopInstall(workspace)
-        else if (MillProjectImportProvider.canImport(workspace))
-          MillProjectImportProvider.bspInstall(workspace)
-        else EmptyBuildMessagesSuccess
+        else
+          installBspWithExternalServerProvider
       case BspProjectSettings.BloopSbtPreImport =>
         runBloopInstall(workspace)
-      case BspProjectSettings.MillBspPreImport =>
-        MillProjectImportProvider.bspInstall(workspace)
+      case BspProjectSettings.ExternalBspPreImport =>
+        installBspWithExternalServerProvider
     }
   }
 

@@ -116,4 +116,9 @@ object BspUtil {
     }
   }
 
+  def findFileByName(dir: File, name: String): Option[File] =
+    Option(dir.listFiles())
+      .getOrElse(Array.empty)
+      .find(x => x.getName == name && !x.isDirectory)
+
 }
