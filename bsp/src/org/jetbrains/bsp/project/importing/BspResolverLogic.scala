@@ -1063,17 +1063,6 @@ private[importing] object BspResolverLogic {
   ): Unit =
     moduleKind match {
       case ModuleKind.ScalaModule(_, scalaSdkData) =>
-
-        val moduleData = moduleNode.getData
-
-        // the "library" serves just as a marker in the case of BSP, as the compiler is not used. We leave it empty to avoid conflicts when working on Scala itself.
-        val scalaSdkLibrary = new LibraryData(BSP.ProjectSystemId, s"${ScalaSdkData.LibraryName}-${scalaSdkData.scalaVersion}")
-        val scalaSdkLibraryDependencyData = new LibraryDependencyData(moduleData, scalaSdkLibrary, LibraryLevel.MODULE)
-        scalaSdkLibraryDependencyData.setScope(DependencyScope.COMPILE)
-
-        val scalaSdkLibraryNode = new DataNode[LibraryDependencyData](ProjectKeys.LIBRARY_DEPENDENCY, scalaSdkLibraryDependencyData, moduleNode)
-        moduleNode.addChild(scalaSdkLibraryNode)
-
         val scalaSdkNode = new DataNode[ScalaSdkData](ScalaSdkData.Key, scalaSdkData, moduleNode)
         moduleNode.addChild(scalaSdkNode)
 

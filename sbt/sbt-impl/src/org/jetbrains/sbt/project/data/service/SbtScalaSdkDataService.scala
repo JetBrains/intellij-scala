@@ -8,6 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries.Library
 import org.jetbrains.plugins.scala.project.LibraryExt
 import org.jetbrains.plugins.scala.project.external.{ScalaAbstractProjectDataService, ScalaSdkUtils}
+import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.data.SbtScalaSdkData
 
 import java.io.File
@@ -55,15 +56,7 @@ class SbtScalaSdkDataService extends ScalaAbstractProjectDataService[SbtScalaSdk
   )(
     implicit modelsProvider: IdeModifiableModelsProvider
   ): Unit = {
-    val scalaSDKLibraryName = s"sbt: scala-sdk-$compilerVersion"
-    val libraries = modelsProvider.getModifiableProjectLibrariesModel.getLibraries
-    val existingScalaSDKForSpecificVersion = libraries.find { lib =>
-      lib.getName == scalaSDKLibraryName && lib.isScalaSdk
-    }
-    val scalaSdkLibrary = existingScalaSDKForSpecificVersion.getOrElse {
-      val tableModel = modelsProvider.getModifiableProjectLibrariesModel
-      tableModel.createLibrary(scalaSDKLibraryName)
-    }
+    val scalaSdkLibrary = ScalaSdkUtils.getOrCreateScalaSdkLibrary(modelsProvider, SbtProjectSystem.Id, compilerVersion)
     ScalaSdkUtils.ensureScalaLibraryIsConvertedToScalaSdk(
       modelsProvider,
       scalaSdkLibrary,

@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.project.external
 
+import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.libraries.Library
@@ -10,6 +11,27 @@ import org.jetbrains.plugins.scala.project.{LibraryExt, ScalaLibraryProperties, 
 import java.io.File
 
 object ScalaSdkUtils {
+
+  /**
+   * @note the returned library can lack the required properties, [[ensureScalaLibraryIsConvertedToScalaSdk]] should be further called
+   */
+  def getOrCreateScalaSdkLibrary(
+    modelsProvider: IdeModifiableModelsProvider,
+    projectSystemId: ProjectSystemId,
+    compilerVersion: String,
+  ): Library = {
+    // Constructing a library name in the format similar to how it's done in
+    // com.intellij.openapi.externalSystem.model.project.LibraryData constructor
+    val scalaSdkLibraryName = s"$projectSystemId: scala-sdk-$compilerVersion"
+    val projectLibrariesModel = modelsProvider.getModifiableProjectLibrariesModel
+    val existingProjectScalaSdk = projectLibrariesModel.getLibraries.find { lib =>
+      lib.getName == scalaSdkLibraryName && lib.isScalaSdk
+    }
+    existingProjectScalaSdk.getOrElse {
+      val tableModel = modelsProvider.getModifiableProjectLibrariesModel
+      tableModel.createLibrary(scalaSdkLibraryName)
+    }
+  }
 
   def ensureScalaLibraryIsConvertedToScalaSdk(
     modelsProvider: IdeModifiableModelsProvider,

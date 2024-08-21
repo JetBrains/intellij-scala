@@ -6,6 +6,7 @@ import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsPr
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries.Library
+import org.jetbrains.bsp.BSP
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.external.{ScalaAbstractProjectDataService, ScalaSdkUtils}
 
@@ -39,19 +40,18 @@ class ScalaSdkService extends ScalaAbstractProjectDataService[ScalaSdkData, Libr
 
   private def configureScalaSdk(
     module: Module,
-    maybeVersion: Option[String],
+    scalaVersionOpt: Option[String],
     compilerClasspath: Seq[File]
   )(implicit modelsProvider: IdeModifiableModelsProvider): Unit = for {
-    presentation <- maybeVersion
-    if ScalaLanguageLevel.findByVersion(presentation).isDefined
-
-    library <- scalaLibraries(module, modelsProvider)
+    scalaVersion <- scalaVersionOpt
+    if ScalaLanguageLevel.findByVersion(scalaVersion).isDefined
   } {
-    val compilerBridgeBinaryJar = ScalaSdkUtils.resolveCompilerBridgeJar(presentation)
+    val scalaSdkLibrary = ScalaSdkUtils.getOrCreateScalaSdkLibrary(modelsProvider, BSP.ProjectSystemId, scalaVersion)
+    val compilerBridgeBinaryJar = ScalaSdkUtils.resolveCompilerBridgeJar(scalaVersion)
     ScalaSdkUtils.ensureScalaLibraryIsConvertedToScalaSdk(
       modelsProvider,
-      library,
-      maybeVersion = Some(presentation),
+      scalaSdkLibrary,
+      maybeVersion = Some(scalaVersion),
       compilerClasspath,
       // TODO: currently we agreed that BSP implementation should just omit Scala3 doc jars in `ScalaBuildTarget.jars` field
       //  and we should probably create a separate request to obtain scaladoc classpath
@@ -59,11 +59,8 @@ class ScalaSdkService extends ScalaAbstractProjectDataService[ScalaSdkData, Libr
       scaladocExtraClasspath = Nil,
       compilerBridgeBinaryJar = compilerBridgeBinaryJar
     )
-  }
 
-  private def scalaLibraries(module: Module, modelsProvider: IdeModifiableModelsProvider) =
-    modelsProvider.getModifiableRootModel(module)
-      .getModuleLibraryTable
-      .getLibraries
-      .find(_.getName.contains(ScalaSdkData.LibraryName))
+    val rootModel = modelsProvider.getModifiableRootModel(module)
+    rootModel.addLibraryEntry(scalaSdkLibrary)
+  }
 }
