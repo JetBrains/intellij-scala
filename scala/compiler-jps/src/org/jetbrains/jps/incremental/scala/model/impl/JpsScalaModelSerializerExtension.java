@@ -102,6 +102,7 @@ public class JpsScalaModelSerializerExtension extends JpsModelSerializerExtensio
           return Boolean.parseBoolean(option.getAttributeValue(ScalaCompilerConfigurationAttributes.ValueAttr()));
         }
       }
+      // TODO the default value should be changed if separateProdTestSources is enabled by default
       return false;
     }
 
