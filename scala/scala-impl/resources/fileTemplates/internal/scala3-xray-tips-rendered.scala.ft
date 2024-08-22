@@ -1,0 +1,75 @@
+#if ((${PACKAGE_NAME} && ${PACKAGE_NAME} != ""))package ${PACKAGE_NAME}
+
+#end
+/**
+ <b>Inlay Hints</b> are small chunks of text displayed by $ProductName to provide additional information about the code, e.g. line numbers,
+ inferred result types, parameter names, indentation guidelines, and method separators. All that info doesn’t have to be typed explicitly
+ in the Scala code – so the code can be more concise - but on the other hand, if you read it for the first time, you might have trouble
+ understanding what’s going on. In such cases, <b>Inlay Hints</b> can improve readability. But if you work on the code you already know,
+ you may find little need for all that additional information.
+
+ With <b>the X-Ray mode</b>, you can keep inlay hints and all the other additional information disabled or only partially enabled to the point
+ where you feel comfortable, and then press down the $COMMAND button two times and hold it – all
+ the other hints will appear, and will be displayed only for the length of time you keep $COMMAND down.
+
+ <b>The X-Ray mode</b> is also an alternative to two other actions:
+ * <b>Show Implicit Hints</b> ($ActionImplicitHints), and
+ * <b>Type Info</b> ($ActionTypeInfo).
+ In both cases, instead of memorizing the shortcuts for the respective actions, you can press $COMMAND.
+ */
+object InlayHintsAndXRay:
+  /**
+   <b>Type hints</b> are inlay hints showing inferred types of fields, parameters, as well as values created via destructuring,
+   lambda expressions, or stream operations.
+   */
+  private val foo = 1 + 2            // Field
+  Seq(1, 2, 3).map(x => x + 1)       // Lambda parameter
+  Seq(1, 2, 3).map(_ + 1)            // Lambda placeholder
+  private val (x, y) = (1, 2)        // Variable pattern
+  val sum: Int = (foo, x, y) match   // Pattern matching
+    case (a, b, c) => a + b + c
+
+  /**
+   <b>Method chains</b> are an idiomatic way of writing complex data transformations in Scala. They are
+   a great way to learn intermediate data types as you write a chain of transformations and avoid mistakes.
+   */
+  private val words = Seq("a", "sequence", "of", "words")
+  words
+    .view
+    .map(_.length)
+    .filter(_ > 3)
+    .toSeq
+
+  /**
+   Scala supports <b>implicit conversions</b> and <b>implicit parameters</b>, which can significantly reduce boilerplate code - but it might be
+   challenging to understand where values come from or how types are converted. Implicit hints show information about
+   implicit arguments and implicit conversions that the data in question will undergo during compilation.
+   The X-Ray mode may prove to be particularly useful in this case, letting you see implicit hints only for a moment when
+   you want to make sure what they are, and then they will disappear again.
+   */
+  enum Numbers:
+    case One, Two, Three
+
+  import Numbers.*
+  given Ordering[Numbers] = (x: Numbers, y: Numbers) =>
+    if x == y then 0 else x match
+      case One             => -1
+      case Two if y == One => 1
+      case Two             => -1
+      case Three           => 1
+
+  /**
+   If you use <b>X-Ray</b> you will see a hint about the implicit parameter used by the `sorted` method below.
+   */
+  val sortedNumbers: Seq[Numbers] = Seq(Two, Three, One).sorted
+
+  /**
+  You can configure <b>Inlay Hints</b> in <b>Settings | Editor | Inlay Hints</b> (press $ActionSettings to open <b>Settings</b>),
+  method separators and indent guides in <b>Settings | Editor | General | Appearance</b> and <b>The X-Ray mode</b> in <b>Settings | Languages & Frameworks | Scala | X-Ray Mode</b>.
+  Remember that if a given type of additional information is turned on permanently, it will be displayed regardless of your X-Ray settings.
+  On the other hand, you may use the $IconEye icon in the top-right corner of the editor to turn on and "pin" X-Ray temporarily, so you don't need to
+  keep $COMMAND down.
+  */
+  def unused(): Unit = {}
+
+end InlayHintsAndXRay

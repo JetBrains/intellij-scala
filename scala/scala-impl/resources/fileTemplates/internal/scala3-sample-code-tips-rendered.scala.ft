@@ -1,18 +1,16 @@
 #if ((${PACKAGE_NAME} && ${PACKAGE_NAME} != ""))package ${PACKAGE_NAME}
 
 #end
-#parse("File Header.java")
 
-//TIP ${RunComment1}
-// ${RunComment2}
+//TIP To <b>Run</b> code, press $ActionRun or
+// click the $IconExecute icon in the gutter.
 @main
 def main(): Unit =
-  //TIP ${ShowIntentionComment1}
-  // ${ShowIntentionComment2}
+  //TIP Press $ActionShowIntention with your caret at the highlighted text
+  // to see how $ProductName suggests fixing it.
   (1 to 5).map(println)
 
-  for (i <- 1 to 5) {
-    //TIP ${DebugComment1}
-    // ${DebugComment2}
+  for (i <- 1 to 5) do
+    //TIP Press $ActionDebug to start debugging your code. We have set one $IconBreakpoint breakpoint
+    // for you, but you can always add more by pressing $ActionSetBreakpoint.
     println(s"i = $i")
-  }
