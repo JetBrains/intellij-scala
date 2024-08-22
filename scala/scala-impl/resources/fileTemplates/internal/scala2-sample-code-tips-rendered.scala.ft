@@ -1,0 +1,19 @@
+#if ((${PACKAGE_NAME} && ${PACKAGE_NAME} != ""))package ${PACKAGE_NAME}
+
+#end
+
+//TIP To <b>Run</b> code, press $ActionRun or
+// click the $IconExecute icon in the gutter.
+object Main {
+  def main(args: Array[String]): Unit = {
+    //TIP Press $ActionShowIntention with your caret at the highlighted text
+    // to see how $ProductName suggests fixing it.
+    (1 to 5).map(println)
+
+    for (i <- 1 to 5) {
+      //TIP Press $ActionDebug to start debugging your code. We have set one $IconBreakpoint breakpoint
+      // for you, but you can always add more by pressing $ActionSetBreakpoint.
+      println(s"i = $i")
+    }
+  }
+}

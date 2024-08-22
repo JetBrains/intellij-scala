@@ -7,9 +7,12 @@
  * 2. Press $ActionShowIntention with your caret at the highlighted text to see how $ProductName suggests fixing it.
  * 3. Press $ActionDebug to start debugging your code. We have set one breakpoint for you, but you can always add more by pressing $ActionSetBreakpoint.
  */
-@main
-def main(): Unit =
-  (1 to 5).map(println)
+object Main {
+  def main(args: Array[String]): Unit = {
+    (1 to 5).map(println)
 
-  for i <- 1 to 5 do
-    println(s"i = $i")
+    for (i <- 1 to 5) {
+      println(s"i = $i")
+    }
+  }
+}
