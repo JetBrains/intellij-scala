@@ -2,8 +2,7 @@
 
 #end
 
-//TIP To <b>Run</b> code, press $ActionRun or
-// click the $IconExecute icon in the gutter.
+//TIP To <b>Run</b> code, press $ActionRun or click the $IconExecute icon in the gutter.
 @main
 def main(): Unit =
   //TIP Press $ActionShowIntention with your caret at the highlighted text
@@ -14,3 +13,5 @@ def main(): Unit =
     //TIP Press $ActionDebug to start debugging your code. We have set one $IconBreakpoint breakpoint
     // for you, but you can always add more by pressing $ActionSetBreakpoint.
     println(s"i = $i")
+
+//TIP Click on other tabs in the editor to see more onboarding tips.

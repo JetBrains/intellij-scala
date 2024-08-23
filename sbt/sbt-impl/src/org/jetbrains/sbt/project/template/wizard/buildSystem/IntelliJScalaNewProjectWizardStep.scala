@@ -1,7 +1,9 @@
 package org.jetbrains.sbt.project.template.wizard.buildSystem
 
 import com.intellij.ide.highlighter.ModuleFileType
+import com.intellij.ide.projectView.ProjectView
 import com.intellij.ide.projectWizard.generators.IntelliJNewProjectWizardStep
+import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.libraries.Library
@@ -10,6 +12,7 @@ import com.intellij.openapi.roots.ui.configuration.projectRoot.{LibrariesContain
 import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.openapi.ui.validation.DialogValidation
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.dsl.builder.{Panel, Row}
 import kotlin.Unit.{INSTANCE => KUnit}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
@@ -44,12 +47,15 @@ final class IntelliJScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
     builder.packagePrefix = Option(packagePrefixTextField.getText).filter(_.nonEmpty)
 
     /** copied from [[com.intellij.ide.projectWizard.generators.IntelliJJavaNewProjectWizard.Step#setupProject]] */
-    if (getAddSampleCode) {
-      val isScala3 = isScala3SdkLibrary(librarySettings.getSelectedLibrary)
-      val files = addScalaSampleCode(project, s"$getContentRoot/src", isScala3, builder.packagePrefix, getGenerateOnboardingTips)
-      builder.openFileEditorAfterProjectOpened = files.lastOption
-    }
-
+    if (getAddSampleCode)
+      builder.openFileEditorAfterProjectOpened =
+        addScalaSampleCode(
+          project = project,
+          path = s"$getContentRoot/src",
+          isScala3 = isScala3SdkLibrary(librarySettings.getSelectedLibrary),
+          packagePrefix = builder.packagePrefix,
+          withOnboardingTips = getGenerateOnboardingTips
+        )
     builder.commit(project)
   }
 
