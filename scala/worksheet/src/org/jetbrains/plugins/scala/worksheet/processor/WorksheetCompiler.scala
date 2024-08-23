@@ -16,7 +16,7 @@ import org.jetbrains.jps.incremental.scala.Client.PosInfo
 import org.jetbrains.jps.incremental.scala.{Client, DelegateClient, MessageKind}
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, JDK}
 import org.jetbrains.plugins.scala.extensions.LoggerExt
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsContributor, ScalaFile}
 import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaSdkNotConfiguredException}
 import org.jetbrains.plugins.scala.settings.{ScalaCompileServerSettings, ScalaProjectSettings}
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult.{CompileServerIsNotRunningError, Precondition, PreconditionError}
@@ -129,7 +129,7 @@ class WorksheetCompiler(
       )
       WorksheetWrapper.writeWrappedToFile(document.getText, tempFile)
       val connector = new RemoteServerConnector(module, worksheetFile, CompileOnly(tempFile, outputDir), InProcessServer)
-      val delegatingClient = new WrappedWorksheetCompilerMessagesFixer(new File(originalFilePath), client)
+      val delegatingClient = new WrappedWorksheetCompilerMessagesFixer(new File(originalFilePath), worksheetFile, client)
       connector.compileAndRun(virtualFile, delegatingClient)(callback)
     } catch {
       case NonFatal(ex) =>
@@ -442,12 +442,19 @@ object WorksheetCompiler {
       }
   }
 
+  private val Scala3NotFoundRegex = """Not found:\s+(.*?)""".r
+  private val Scala2NotFoundRegex = """not found:\s+value\s+(.*?)""".r
+
   /**
    * restores:
    * 1. message position in the original worksheet file
    * 2. original file pointer
    */
-  private class WrappedWorksheetCompilerMessagesFixer(originalFile: File, client: Client)
+  private class WrappedWorksheetCompilerMessagesFixer(
+    originalFile: File,
+    originalPsiFile: ScalaFile,
+    client: Client
+  )
     extends DelegateClient(client) {
 
     override def message(msg: Client.ClientMsg): Unit =
@@ -465,8 +472,30 @@ object WorksheetCompiler {
     //    val x = 42```
     // you will get:
     // "Double definition: val x: Int in class WorksheetWrapper at line 7 and val x: Int in class WorksheetWrapper at line 8"
-    private def needToHandleMessage(msg: Client.ClientMsg): Boolean =
-      msg.kind == MessageKind.Error
+    private def needToHandleMessage(msg: Client.ClientMsg): Boolean = {
+      msg.kind == MessageKind.Error && !muteMessage(msg)
+    }
+
+    private def muteMessage(message: Client.ClientMsg): Boolean = {
+      val firstLineText = getFirstLine(message.text)
+      val unresolvedIdentifier = firstLineText match {
+        case Scala3NotFoundRegex(identifier) => Some(identifier)
+        case Scala2NotFoundRegex(identifier) => Some(identifier)
+        case _ => None
+      }
+      unresolvedIdentifier.exists { symbol =>
+        val contributors = FileDeclarationsContributor.getAllFor(originalPsiFile)
+        contributors.exists(_.muteUnresolvedSymbolInCompilerBasedHighlighting(symbol))
+      }
+    }
+
+    private def getFirstLine(text: String): String = {
+      val newLineIdx = text.indexOf('\n')
+      if (newLineIdx >= 0)
+        text.substring(0, newLineIdx)
+      else
+        text
+    }
 
     // note that messages text will contain positions from the wrapped code
     private def fixMessage(msg: Client.ClientMsg): Client.ClientMsg = {
@@ -508,3 +537,4 @@ object WorksheetCompiler {
     }
   }
 }
+

@@ -3,6 +3,8 @@ package org.jetbrains.plugins.scala.compiler.highlighting
 import scala.util.matching.Regex
 
 private object CompilerMessages {
+  // Bsp message includes location
+  // Example: "Not found: res1 [16:1]"
   private val bspMessageTemplate: Regex = """^(.*)(\s\[\d+:\d+\])$""".r
 
   def description(message: String): String = {

@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
+import org.jetbrains.plugins.scala.worksheet.WorksheetFileDeclarationsContributor.ResNPattern
 import org.jetbrains.plugins.scala.worksheet.actions.repl.ResNUtils
 
 /**
@@ -103,4 +104,11 @@ final class WorksheetFileDeclarationsContributor extends FileDeclarationsContrib
       }
     }
   }
+
+  override def muteUnresolvedSymbolInCompilerBasedHighlighting(symbolName: String): Boolean =
+    ResNPattern.matches(symbolName)
+}
+
+object WorksheetFileDeclarationsContributor {
+  private val ResNPattern = """res\d+""".r
 }
