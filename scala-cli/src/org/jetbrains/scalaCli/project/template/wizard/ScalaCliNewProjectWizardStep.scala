@@ -1,23 +1,27 @@
 package org.jetbrains.scalaCli.project.template.wizard
 
 import com.intellij.ide.projectWizard.NewProjectWizardCollector.BuildSystem.{INSTANCE => BSLog}
-import com.intellij.ide.wizard.AbstractNewProjectWizardStep
+import com.intellij.ide.wizard.{AbstractNewProjectWizardStep, CommitStepException}
 import com.intellij.openapi.externalSystem.model.ExternalSystemDataKeys
 import com.intellij.openapi.externalSystem.service.project.manage.ExternalProjectsManagerImpl
 import com.intellij.openapi.observable.properties.{GraphProperty, ObservableProperty, PropertyGraph}
 import com.intellij.openapi.observable.util.BindUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ui.configuration.projectRoot.{LibrariesContainer, LibrariesContainerFactory}
-import com.intellij.ui.UIBundle
+
+import scala.util.Try
+import com.intellij.ui. UIBundle
 import com.intellij.ui.dsl.builder.{ButtonKt, Panel, Row, RowLayout, TopGap}
 import com.intellij.ui.dsl.gridLayout.HorizontalAlign
 import kotlin.Unit.{INSTANCE => KUnit}
+import scala.sys.process.{Process, ProcessLogger}
 import org.jetbrains.plugins.scala.project.Versions
 import org.jetbrains.plugins.scala.project.template.ScalaSDKStepLike
 import org.jetbrains.sbt.project.template.wizard.buildSystem.addScalaSampleCode
 import org.jetbrains.sbt.project.template.SbtModuleBuilderSelections
 import org.jetbrains.sbt.project.template.wizard.{ScalaModuleStepLike, ScalaNewProjectWizardStep}
 
+import java.io.File
 import javax.swing.JLabel
 import scala.annotation.nowarn
 
@@ -68,7 +72,22 @@ final class ScalaCliNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
     builder.commit(project)
   }
 
+  private def isScalaCliInstalled: Boolean = {
+    val command = "scala-cli version"
+    val workspace = new File(getContext.getProjectDirectory.toAbsolutePath.toString)
+    val work = Try(Process(command, workspace)! ProcessLogger(_ => (), _ => ()))
+    work.isSuccess
+  }
+
   override def setupUI(panel: Panel): Unit = {
+    panel.onApply(() => {
+      if (!isScalaCliInstalled) {
+        throw new CommitStepException("Scala CLI is not installed on machine")
+      } else {
+        KUnit
+      }
+    })
+
     panel.row(scalaLabelText, (row: Row) => {
       row.layout(RowLayout.PARENT_GRID)
       row.cell(scalaVersionComboBox).horizontalAlign(HorizontalAlign.FILL): @nowarn("cat=deprecation")
