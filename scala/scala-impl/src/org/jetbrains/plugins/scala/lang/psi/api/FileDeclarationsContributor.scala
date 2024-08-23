@@ -8,6 +8,8 @@ abstract class FileDeclarationsContributor {
   def accept(holder: PsiElement): Boolean
 
   def processAdditionalDeclarations(processor: PsiScopeProcessor, holder: PsiElement, state: ResolveState, lastParent: PsiElement): Unit
+
+  def muteUnresolvedSymbolInCompilerBasedHighlighting(symbolName: String): Boolean = false
 }
 
 object FileDeclarationsContributor
