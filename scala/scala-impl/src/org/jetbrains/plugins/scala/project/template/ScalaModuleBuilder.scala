@@ -23,7 +23,7 @@ class ScalaModuleBuilder extends JavaModuleBuilder {
 
   var libraryCompositionSettings: LibraryCompositionSettings = _
   var packagePrefix = Option.empty[String]
-  var openFileEditorAfterProjectOpened: Option[VirtualFile] = None
+  var openFileEditorAfterProjectOpened: Seq[VirtualFile] = Nil
 
   locally {
     addModuleConfigurationUpdater((_: Module, rootModel: ModifiableRootModel) => {
@@ -45,19 +45,19 @@ class ScalaModuleBuilder extends JavaModuleBuilder {
     new ScalaStep(settingsStep)
   }
 
-  private def openEditorForCodeSample(project: Project): Unit = {
+  private def openEditorForCodeSample(project: Project): Unit =
     //open code sample or buildSbt
-    val fileToOpen = openFileEditorAfterProjectOpened
-    fileToOpen.foreach { vFile =>
+    if (openFileEditorAfterProjectOpened.nonEmpty) {
       val psiManager = PsiManager.getInstance(project)
-      val psiFile = psiManager.findFile(vFile)
-      if (psiFile != null) {
-        invokeLater {
-          EditorHelper.openInEditor(psiFile)
-        }
+      openFileEditorAfterProjectOpened.foreach { file =>
+        Option(psiManager.findFile(file))
+          .foreach { psiFile =>
+            invokeLater {
+              EditorHelper.openInEditor(psiFile)
+            }
+          }
       }
     }
-  }
 
   private class ScalaStep(settingsStep: SettingsStep) extends ModuleWizardStep with ScalaSDKStepLike {
     private val javaStep = JavaModuleType.getModuleType.modifyProjectTypeStep(settingsStep, ScalaModuleBuilder.this)

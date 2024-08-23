@@ -48,15 +48,18 @@ package object buildSystem {
     val variables = onboardingTipsVariables(withOnboardingTips, shouldRenderOnboardingTips, packagePrefix).asJava
 
     val samples = templatesAndFiles(isScala3, withOnboardingTips, shouldRenderOnboardingTips)
-      .map { case Sample(templateName, fileName, breakpoint) =>
-        val sourceCode = manager.getInternalTemplate(templateName).getText(variables)
-        if (withOnboardingTips) installOnboardingTips(project, sourceCode, fileName, breakpoint)
-        (sourceCode, fileName)
-      }
+    val sourceAndFiles =
+      samples
+        .zipWithIndex // TODO: This is a hack to install onboarding tips in main.scala only; remove it when the platform allows for tips in multiple files
+        .map { case (Sample(templateName, fileName, breakpoint), index) =>
+          val sourceCode = manager.getInternalTemplate(templateName).getText(variables)
+          if (withOnboardingTips && index == samples.size - 1) installOnboardingTips(project, sourceCode, fileName, breakpoint)
+          (sourceCode, fileName)
+        }
 
     inWriteAction {
       val fileDirectory = createDirectoryIfMissing(path)
-      samples.map { case (sourceCode, fileName) =>
+      sourceAndFiles.map { case (sourceCode, fileName) =>
         val file: VirtualFile = fileDirectory.findOrCreateChildData(this, fileName)
         VfsUtil.saveText(file, sourceCode)
         file
@@ -85,24 +88,24 @@ package object buildSystem {
       case (true, true, true) =>
         Seq(
           Sample("scala3-xray-tips-rendered.scala", "InlayHintsAndXRay.scala"),
-          Sample("scala3-sample-code-tips-rendered.scala", "main.scala", """println(s"i = $i")""")
+          Sample("scala3-sample-code-tips-rendered.scala", "main.scala", """println(s"i = $i")"""),
         )
       case (true, true, false) =>
         Seq(
           Sample("scala3-xray-tips.scala", "InlayHintsAndXRay.scala"),
-          Sample("scala3-sample-code-tips.scala", "main.scala", """println(s"i = $i")""")
+          Sample("scala3-sample-code-tips.scala", "main.scala", """println(s"i = $i")"""),
         )
       case (true, false, _) =>
         Seq(Sample("scala3-sample-code.scala", "main.scala", """println(s"i = $i")"""))
       case (false, true, true) =>
         Seq(
           Sample("scala2-xray-tips-rendered.scala", "InlayHintsAndXRay.scala"),
-          Sample("scala2-sample-code-tips-rendered.scala","Main.scala", """println(s"i = $i")""")
+          Sample("scala2-sample-code-tips-rendered.scala","Main.scala", """println(s"i = $i")"""),
         )
       case (false, true, false) =>
         Seq(
           Sample("scala2-xray-tips.scala", "InlayHintsAndXRay.scala"),
-          Sample("scala2-sample-code-tips.scala", "Main.scala", """println(s"i = $i")""")
+          Sample("scala2-sample-code-tips.scala", "Main.scala", """println(s"i = $i")"""),
         )
       case (false, false, _) =>
         Seq(Sample("scala-sample-code.scala", "Main.scala", """println(s"i = $i")"""))

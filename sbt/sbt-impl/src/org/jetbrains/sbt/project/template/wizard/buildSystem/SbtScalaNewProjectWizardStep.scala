@@ -99,13 +99,16 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
     project.putUserData(ExternalSystemDataKeys.NEWLY_CREATED_PROJECT, java.lang.Boolean.TRUE)
     project.putUserData(ExternalSystemDataKeys.NEWLY_IMPORTED_PROJECT, java.lang.Boolean.TRUE)
 
-    if (needToAddSampleCode) {
-      val files = addScalaSampleCode(project, s"$projectRoot/src/main/scala", isScala3 = this.selections.scalaVersion.exists(_.startsWith("3.")), this.selections.packagePrefix, needToGenerateOnboardingTips)
-      builder.openFileEditorAfterProjectOpened = files.lastOption
-    }
-
+    if (needToAddSampleCode)
+      builder.openFileEditorAfterProjectOpened =
+        addScalaSampleCode(
+          project = project,
+          path = s"$projectRoot/src/main/scala",
+          isScala3 = this.selections.scalaVersion.exists(_.startsWith("3.")),
+          packagePrefix = this.selections.packagePrefix,
+          withOnboardingTips = needToGenerateOnboardingTips
+        )
     if (isGitRepository) addGitIgnore(project, projectRoot.toString)
-
     builder.commit(project)
   }
 

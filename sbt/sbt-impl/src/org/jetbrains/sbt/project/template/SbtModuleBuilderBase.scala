@@ -29,7 +29,7 @@ abstract class SbtModuleBuilderBase
   ) {
 
   protected val Log: Logger = Logger.getInstance(getClass)
-  var openFileEditorAfterProjectOpened: Option[VirtualFile] = None
+  var openFileEditorAfterProjectOpened: Seq[VirtualFile] = Nil
 
   //TODO: why is it JavaModuleType and not SbtModuleType?
   override def getModuleType: ModuleType[_ <: ModuleBuilder] = JavaModuleType.getModuleType
@@ -75,16 +75,21 @@ abstract class SbtModuleBuilderBase
 
   private def openEditorForCodeSampleOrBuildFile(project: Project, contentDir: File): Unit = {
     //open code sample or buildSbt
-    val fileToOpen = openFileEditorAfterProjectOpened.orElse {
-      Option(VirtualFileManager.getInstance().findFileByNioPath((contentDir / Sbt.BuildFile).toPath))
-    }
-    fileToOpen.foreach { vFile =>
+    val filesToOpen =
+      if (openFileEditorAfterProjectOpened.nonEmpty)
+        openFileEditorAfterProjectOpened
+      else
+        Option(VirtualFileManager.getInstance().findFileByNioPath((contentDir / Sbt.BuildFile).toPath)).toSeq
+
+    if (filesToOpen.nonEmpty) {
       val psiManager = PsiManager.getInstance(project)
-      val psiFile = psiManager.findFile(vFile)
-      if (psiFile != null) {
-        invokeLater {
-          EditorHelper.openInEditor(psiFile)
-        }
+      filesToOpen.foreach { file =>
+        Option(psiManager.findFile(file))
+          .foreach { psiFile =>
+            invokeLater {
+              EditorHelper.openInEditor(psiFile)
+            }
+          }
       }
     }
   }
