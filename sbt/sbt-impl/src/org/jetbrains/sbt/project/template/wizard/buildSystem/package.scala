@@ -88,27 +88,30 @@ package object buildSystem {
       case (true, true, true) =>
         Seq(
           Sample("scala3-xray-tips-rendered.scala", "InlayHintsAndXRay.scala"),
-          Sample("scala3-sample-code-tips-rendered.scala", "main.scala", """println(s"i = $i")"""),
+          Sample("scala3-collections-tips-rendered.scala", "collections.scala"),
+          Sample("scala3-main-tips-rendered.scala", "main.scala", """println(s"i = $i")"""),
         )
       case (true, true, false) =>
         Seq(
           Sample("scala3-xray-tips.scala", "InlayHintsAndXRay.scala"),
-          Sample("scala3-sample-code-tips.scala", "main.scala", """println(s"i = $i")"""),
+          Sample("scala3-collections-tips.scala", "collections.scala"),
+          Sample("scala3-main-tips.scala", "main.scala", """println(s"i = $i")"""),
         )
       case (true, false, _) =>
-        Seq(Sample("scala3-sample-code.scala", "main.scala", """println(s"i = $i")"""))
+        Seq(Sample("scala3-main.scala", "main.scala", """println(s"i = $i")"""))
       case (false, true, true) =>
         Seq(
           Sample("scala2-xray-tips-rendered.scala", "InlayHintsAndXRay.scala"),
-          Sample("scala2-sample-code-tips-rendered.scala","Main.scala", """println(s"i = $i")"""),
+          Sample("scala2-collections-tips-rendered.scala", "Collections.scala"),
+          Sample("scala2-main-tips-rendered.scala","Main.scala", """println(s"i = $i")"""),
         )
       case (false, true, false) =>
         Seq(
           Sample("scala2-xray-tips.scala", "InlayHintsAndXRay.scala"),
-          Sample("scala2-sample-code-tips.scala", "Main.scala", """println(s"i = $i")"""),
+          Sample("scala2-main-tips.scala", "Main.scala", """println(s"i = $i")"""),
         )
       case (false, false, _) =>
-        Seq(Sample("scala-sample-code.scala", "Main.scala", """println(s"i = $i")"""))
+        Seq(Sample("scala2-main.scala", "Main.scala", """println(s"i = $i")"""))
     }
 
   private def onboardingTipsVariables(withOnboardingTips: Boolean, shouldRenderOnboardingTips: Boolean, packagePrefix: Option[String]): Map[String, String] = {
@@ -133,24 +136,24 @@ package object buildSystem {
   private lazy val renderedVariables =
     Map(
       // actions
-      "ActionTypeInfo"      -> shortcut(ShowTypeInfoAction.ActionId),
-      "ActionImplicitHints" -> shortcut("Scala.ShowImplicits"), // TODO: Put action ids in one place
-      "ActionSettings"      -> shortcut(IdeActions.ACTION_SHOW_SETTINGS),
-      "ActionRun"           -> shortcut(IdeActions.ACTION_DEFAULT_RUNNER),
-      "ActionShowIntention" -> shortcut(IdeActions.ACTION_SHOW_INTENTION_ACTIONS),
-      "ActionDebug"         -> shortcut(IdeActions.ACTION_DEFAULT_DEBUGGER),
-      "ActionSetBreakpoint" -> shortcut(IdeActions.ACTION_TOGGLE_LINE_BREAKPOINT),
+      "ActionTypeInfo"            -> shortcut(ShowTypeInfoAction.ActionId),
+      "ActionImplicitHints"       -> shortcut("Scala.ShowImplicits"), // TODO: Put action ids in one place
+      "ActionSettings"            -> shortcut(IdeActions.ACTION_SHOW_SETTINGS),
+      "ActionRun"                 -> shortcut(IdeActions.ACTION_DEFAULT_RUNNER),
+      "ActionShowIntention"       -> shortcut(IdeActions.ACTION_SHOW_INTENTION_ACTIONS),
+      "ActionDebug"               -> shortcut(IdeActions.ACTION_DEFAULT_DEBUGGER),
+      "ActionSetBreakpoint"       -> shortcut(IdeActions.ACTION_TOGGLE_LINE_BREAKPOINT),
       "ActionSelectInProjectView" -> shortcut("SelectInProjectView"),
       // icons
-      "IconEye"             -> icon("AllIcons.General.InspectionsEye"),
-      "IconExecute"         -> icon("AllIcons.Actions.Execute"),
-      "IconBreakpoint"      -> icon("AllIcons.Debugger.Db_set_breakpoint"),
-      "IconLocate"          -> icon("AllIcons.General.Locate"),
+      "IconEye"                   -> icon("AllIcons.General.InspectionsEye"),
+      "IconExecute"               -> icon("AllIcons.Actions.Execute"),
+      "IconBreakpoint"            -> icon("AllIcons.Debugger.Db_set_breakpoint"),
+      "IconLocate"                -> icon("AllIcons.General.Locate"),
       // others
-      "META"                -> raw("META"),
-      "CONTROL"             -> raw("CONTROL"),
-      "COMMAND"             -> raw(if (SystemInfo.isMac) "META" else "CONTROL"),
-      "ProductName"         -> ApplicationNamesInfo.getInstance.getFullProductName
+      "META"                      -> raw("META"),
+      "CONTROL"                   -> raw("CONTROL"),
+      "COMMAND"                   -> raw(if (SystemInfo.isMac) "META" else "CONTROL"),
+      "ProductName"               -> ApplicationNamesInfo.getInstance.getFullProductName
     )
 
   private lazy val tipsContext = new KeymapTextContext {
@@ -160,18 +163,19 @@ package object buildSystem {
   private lazy val unrenderedVariables =
     Map(
       // actions
-      "ActionTypeInfo"      -> tipsContext.getShortcutText(ShowTypeInfoAction.ActionId),
-      "ActionImplicitHints" -> tipsContext.getShortcutText("Scala.ShowImplicits"),
-      "ActionSettings"      -> tipsContext.getShortcutText(IdeActions.ACTION_SHOW_SETTINGS),
-      "ActionRun"           -> tipsContext.getShortcutText(IdeActions.ACTION_DEFAULT_RUNNER),
-      "ActionShowIntention" -> tipsContext.getShortcutText(IdeActions.ACTION_SHOW_INTENTION_ACTIONS),
-      "ActionDebug"         -> tipsContext.getShortcutText(IdeActions.ACTION_DEFAULT_DEBUGGER),
-      "ActionSetBreakpoint" -> tipsContext.getShortcutText(IdeActions.ACTION_TOGGLE_LINE_BREAKPOINT),
+      "ActionTypeInfo"            -> tipsContext.getShortcutText(ShowTypeInfoAction.ActionId),
+      "ActionImplicitHints"       -> tipsContext.getShortcutText("Scala.ShowImplicits"),
+      "ActionSettings"            -> tipsContext.getShortcutText(IdeActions.ACTION_SHOW_SETTINGS),
+      "ActionRun"                 -> tipsContext.getShortcutText(IdeActions.ACTION_DEFAULT_RUNNER),
+      "ActionShowIntention"       -> tipsContext.getShortcutText(IdeActions.ACTION_SHOW_INTENTION_ACTIONS),
+      "ActionDebug"               -> tipsContext.getShortcutText(IdeActions.ACTION_DEFAULT_DEBUGGER),
+      "ActionSetBreakpoint"       -> tipsContext.getShortcutText(IdeActions.ACTION_TOGGLE_LINE_BREAKPOINT),
+      "ActionSelectInProjectView" -> tipsContext.getShortcutText("SelectInProjectView"),
       // others
-      "META"                -> "Meta",
-      "CONTROL"             -> "Control",
-      "COMMAND"             -> (if (SystemInfo.isMac) "Meta" else "Control"),
-      "ProductName"         -> ApplicationNamesInfo.getInstance.getFullProductName
+      "META"                      -> "Meta",
+      "CONTROL"                   -> "Control",
+      "COMMAND"                   -> (if (SystemInfo.isMac) "Meta" else "Control"),
+      "ProductName"               -> ApplicationNamesInfo.getInstance.getFullProductName
     )
 
   final private case class Sample(templateName: String, fileName: String, breakpoint: Function1[_ >: CharSequence, JInt])
