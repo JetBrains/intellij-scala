@@ -6,6 +6,11 @@
  * 1. Press $ActionRun or click the <b>Run</b> icon in the gutter to Run the code,
  * 2. Press $ActionShowIntention with your caret at the highlighted text to see how $ProductName suggests fixing it.
  * 3. Press $ActionDebug to start debugging your code. We have set one breakpoint for you, but you can always add more by pressing $ActionSetBreakpoint.
+ *
+ * Click on the other tabs in the editor to see more Scala files with onboarding tips.
+ * You can also see them in the <b>Project View</b> to the left. Use the $IconLocate in the top menu of the <b>Project View</b>
+ * or the $ActionSelectInProjectView shortcut to locate the currently open file. Take note that the icon might not be visible
+ * until you hover your mouse over the view
  */
 @main
 def main(): Unit =

@@ -2,8 +2,7 @@
 
 #end
 
-//TIP To <b>Run</b> code, press $ActionRun or
-// click the $IconExecute icon in the gutter.
+//TIP To <b>Run</b> code, press $ActionRun or click the $IconExecute icon in the gutter.
 object Main {
   def main(args: Array[String]): Unit = {
     //TIP Press $ActionShowIntention with your caret at the highlighted text
@@ -17,3 +16,8 @@ object Main {
     }
   }
 }
+
+//TIP Click on the other tabs in the editor to see more Scala files with onboarding tips.
+//TIP You can also see them in the <b>Project View</b> to the left. Use the $IconLocate in the top menu of the <b>Project View</b>
+//TIP or the $ActionSelectInProjectView shortcut to locate the currently open file. Take note that the icon might not be visible
+//TIP until you hover your mouse over the view

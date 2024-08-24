@@ -140,10 +140,12 @@ package object buildSystem {
       "ActionShowIntention" -> shortcut(IdeActions.ACTION_SHOW_INTENTION_ACTIONS),
       "ActionDebug"         -> shortcut(IdeActions.ACTION_DEFAULT_DEBUGGER),
       "ActionSetBreakpoint" -> shortcut(IdeActions.ACTION_TOGGLE_LINE_BREAKPOINT),
+      "ActionSelectInProjectView" -> shortcut("SelectInProjectView"),
       // icons
       "IconEye"             -> icon("AllIcons.General.InspectionsEye"),
       "IconExecute"         -> icon("AllIcons.Actions.Execute"),
       "IconBreakpoint"      -> icon("AllIcons.Debugger.Db_set_breakpoint"),
+      "IconLocate"          -> icon("AllIcons.General.Locate"),
       // others
       "META"                -> raw("META"),
       "CONTROL"             -> raw("CONTROL"),
