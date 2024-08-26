@@ -212,6 +212,116 @@ class SmartStepIntoTest_3 extends SmartStepIntoTest_2_13 {
       Breakpoint("InsideLambda.scala", "sum", 4) -> resume
     )
   }
+
+  addSourceFile("SmartStepIntoLambdaLocalToplevel.scala",
+    s"""@main
+       |def SmartStepIntoLambdaLocalToplevel(): Unit =
+       |  def multi(x: Double, y: Double): Double = x * y
+       |
+       |  def sum(x: Double, y: Double): Double = x + y
+       |
+       |  val celsiusDegrees = List(0, 20, 100)
+       |  val fahrenheitDegrees = celsiusDegrees.map(i => sum(multi(i, 1.8), 32)) $breakpoint ${lambdaOrdinal(0)}
+       |  println(fahrenheitDegrees)
+       |""".stripMargin)
+
+  def testSmartStepIntoLambdaLocalToplevel(): Unit = {
+    smartStepIntoTest()(
+      Target("sum(double, double)"),
+      Target("multi(double, double)")
+    )(
+      Breakpoint("SmartStepIntoLambdaLocalToplevel.scala", "$anonfun$1", 8) -> smartStepInto(Target("multi(double, double)")),
+      Breakpoint("SmartStepIntoLambdaLocalToplevel.scala", "multi$1", 3) -> stepOut,
+      Breakpoint("SmartStepIntoLambdaLocalToplevel.scala", "$anonfun$1", 8) -> smartStepInto(Target("sum(double, double)")),
+      Breakpoint("SmartStepIntoLambdaLocalToplevel.scala", "sum$1", 5) -> stepOut,
+      Breakpoint("SmartStepIntoLambdaLocalToplevel.scala", "$anonfun$1", 8) -> resume,
+      Breakpoint("SmartStepIntoLambdaLocalToplevel.scala", "$anonfun$1", 8) -> smartStepInto(Target("multi(double, double)")),
+      Breakpoint("SmartStepIntoLambdaLocalToplevel.scala", "multi$1", 3) -> stepOut,
+      Breakpoint("SmartStepIntoLambdaLocalToplevel.scala", "$anonfun$1", 8) -> smartStepInto(Target("sum(double, double)")),
+      Breakpoint("SmartStepIntoLambdaLocalToplevel.scala", "sum$1", 5) -> stepOut,
+      Breakpoint("SmartStepIntoLambdaLocalToplevel.scala", "$anonfun$1", 8) -> resume,
+      Breakpoint("SmartStepIntoLambdaLocalToplevel.scala", "$anonfun$1", 8) -> smartStepInto(Target("multi(double, double)")),
+      Breakpoint("SmartStepIntoLambdaLocalToplevel.scala", "multi$1", 3) -> stepOut,
+      Breakpoint("SmartStepIntoLambdaLocalToplevel.scala", "$anonfun$1", 8) -> smartStepInto(Target("sum(double, double)")),
+      Breakpoint("SmartStepIntoLambdaLocalToplevel.scala", "sum$1", 5) -> stepOut,
+      Breakpoint("SmartStepIntoLambdaLocalToplevel.scala", "$anonfun$1", 8) -> resume
+    )
+  }
+
+  addSourceFile("SmartStepIntoLambdaToplevel.scala",
+    s"""def multi(x: Double,y :Double): Double = x * y
+       |
+       |def sum(x: Double, y: Double): Double = x + y
+       |
+       |@main
+       |def SmartStepIntoLambdaToplevel(): Unit =
+       |  val celsiusDegrees = List(0, 20, 100)
+       |  val fahrenheitDegrees = celsiusDegrees.map(i => sum(multi(i, 1.8), 32)) $breakpoint ${lambdaOrdinal(0)}
+       |  println(fahrenheitDegrees)
+       |""".stripMargin)
+
+  def testSmartStepIntoLambdaToplevel(): Unit = {
+    smartStepIntoTest()(
+      Target("sum(double, double)"),
+      Target("multi(double, double)")
+    )(
+      Breakpoint("SmartStepIntoLambdaToplevel.scala", "$anonfun$1", 8) -> smartStepInto(Target("multi(double, double)")),
+      Breakpoint("SmartStepIntoLambdaToplevel.scala", "multi", 1) -> stepOut,
+      Breakpoint("SmartStepIntoLambdaToplevel.scala", "$anonfun$1", 8) -> smartStepInto(Target("sum(double, double)")),
+      Breakpoint("SmartStepIntoLambdaToplevel.scala", "sum", 3) -> stepOut,
+      Breakpoint("SmartStepIntoLambdaToplevel.scala", "$anonfun$1", 8) -> resume,
+      Breakpoint("SmartStepIntoLambdaToplevel.scala", "$anonfun$1", 8) -> smartStepInto(Target("multi(double, double)")),
+      Breakpoint("SmartStepIntoLambdaToplevel.scala", "multi", 1) -> stepOut,
+      Breakpoint("SmartStepIntoLambdaToplevel.scala", "$anonfun$1", 8) -> smartStepInto(Target("sum(double, double)")),
+      Breakpoint("SmartStepIntoLambdaToplevel.scala", "sum", 3) -> stepOut,
+      Breakpoint("SmartStepIntoLambdaToplevel.scala", "$anonfun$1", 8) -> resume,
+      Breakpoint("SmartStepIntoLambdaToplevel.scala", "$anonfun$1", 8) -> smartStepInto(Target("multi(double, double)")),
+      Breakpoint("SmartStepIntoLambdaToplevel.scala", "multi", 1) -> stepOut,
+      Breakpoint("SmartStepIntoLambdaToplevel.scala", "$anonfun$1", 8) -> smartStepInto(Target("sum(double, double)")),
+      Breakpoint("SmartStepIntoLambdaToplevel.scala", "sum", 3) -> stepOut,
+      Breakpoint("SmartStepIntoLambdaToplevel.scala", "$anonfun$1", 8) -> resume
+    )
+  }
+
+  addSourceFile("SmartStepIntoLambdaMainInObject.scala",
+    s"""package toplevel
+       |
+       |def multi(x: Double, y: Double): Double = x * y
+       |
+       |object SomeObject:
+       |  def sum(x: Double, y: Double): Double = x + y
+       |
+       |  val celsiusDegrees = List(0, 20, 100)
+       |  val fahrenheitDegrees = celsiusDegrees.map(i => sum(multi(i, 1.8), 32)) $breakpoint ${lambdaOrdinal(0)}
+       |
+       |
+       |  @main
+       |  def SmartStepIntoLambdaMainInObject(): Unit =
+       |    println(fahrenheitDegrees)
+       |""".stripMargin)
+
+  def testSmartStepIntoLambdaMainInObject(): Unit = {
+    smartStepIntoTest("toplevel.SmartStepIntoLambdaMainInObject")(
+      Target("sum(double, double)"),
+      Target("multi(double, double)")
+    )(
+      Breakpoint("SmartStepIntoLambdaMainInObject.scala", "$init$$$anonfun$1", 9) -> smartStepInto(Target("multi(double, double)")),
+      Breakpoint("SmartStepIntoLambdaMainInObject.scala", "multi", 3) -> stepOut,
+      Breakpoint("SmartStepIntoLambdaMainInObject.scala", "$init$$$anonfun$1", 9) -> smartStepInto(Target("sum(double, double)")),
+      Breakpoint("SmartStepIntoLambdaMainInObject.scala", "sum", 6) -> stepOut,
+      Breakpoint("SmartStepIntoLambdaMainInObject.scala", "$init$$$anonfun$1", 9) -> resume,
+      Breakpoint("SmartStepIntoLambdaMainInObject.scala", "$init$$$anonfun$1", 9) -> smartStepInto(Target("multi(double, double)")),
+      Breakpoint("SmartStepIntoLambdaMainInObject.scala", "multi", 3) -> stepOut,
+      Breakpoint("SmartStepIntoLambdaMainInObject.scala", "$init$$$anonfun$1", 9) -> smartStepInto(Target("sum(double, double)")),
+      Breakpoint("SmartStepIntoLambdaMainInObject.scala", "sum", 6) -> stepOut,
+      Breakpoint("SmartStepIntoLambdaMainInObject.scala", "$init$$$anonfun$1", 9) -> resume,
+      Breakpoint("SmartStepIntoLambdaMainInObject.scala", "$init$$$anonfun$1", 9) -> smartStepInto(Target("multi(double, double)")),
+      Breakpoint("SmartStepIntoLambdaMainInObject.scala", "multi", 3) -> stepOut,
+      Breakpoint("SmartStepIntoLambdaMainInObject.scala", "$init$$$anonfun$1", 9) -> smartStepInto(Target("sum(double, double)")),
+      Breakpoint("SmartStepIntoLambdaMainInObject.scala", "sum", 6) -> stepOut,
+      Breakpoint("SmartStepIntoLambdaMainInObject.scala", "$init$$$anonfun$1", 9) -> resume
+    )
+  }
 }
 
 class SmartStepIntoTest_3_RC extends SmartStepIntoTest_3 {
