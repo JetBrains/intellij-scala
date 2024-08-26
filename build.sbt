@@ -358,7 +358,7 @@ lazy val scalac2PatchesTest =
     .settings(
       projectDirectoriesSettings,
       scalaVersion := Versions.scalaVersion,
-      libraryDependencies ++= Seq(Dependencies.junit % Test, Dependencies.junitInterface % Test),
+      libraryDependencies ++= Seq(Dependencies.jupiterInterface % Test),
       packageMethod := PackagingMethod.Skip(),
       intellijMainJars := Nil,
       intellijTestJars := Nil
@@ -384,7 +384,7 @@ lazy val scalac3PatchesTest =
       projectDirectoriesSettings,
       scalaVersion := Versions.scala3Version,
       Compile / scalacOptions := globalScala3ScalacOptions,
-      libraryDependencies ++= Seq(Dependencies.junit % Test, Dependencies.junitInterface % Test),
+      libraryDependencies ++= Seq(Dependencies.jupiterInterface % Test),
       packageMethod := PackagingMethod.Skip(),
       intellijMainJars := Nil,
       intellijTestJars := Nil
