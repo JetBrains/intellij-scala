@@ -106,7 +106,10 @@ object Dependencies {
   val junit: ModuleID = "junit" % "junit" % junitVersion
   val junitInterface: ModuleID = "com.github.sbt" % "junit-interface" % junitInterfaceVersion
 
-  val jupiterInterface: ModuleID = "com.github.sbt.junit" % "jupiter-interface" % "0.11.4"
+  /**
+   * Needs to be in sync with `"com.github.sbt.junit" % "sbt-jupiter-interface" % "version"` in project/plugins.sbt.
+   */
+  val jupiterInterface: ModuleID = "com.github.sbt.junit" % "jupiter-interface" % "0.13.0"
 
   val ivy2: ModuleID = "org.apache.ivy" % "ivy" % "2.5.2"
 
