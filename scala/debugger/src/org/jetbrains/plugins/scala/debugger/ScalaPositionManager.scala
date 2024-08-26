@@ -47,7 +47,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.util.AnonymousFunction._
 import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants._
-import org.jetbrains.plugins.scala.util.TopLevelMembers.{findFileWithTopLevelMembers, topLevelMemberClassName}
+import org.jetbrains.plugins.scala.util.TopLevelMembers.{findEnclosingPackageOrFile, findFileWithTopLevelMembers, topLevelMemberClassName}
 
 import java.{util => ju}
 import scala.annotation.tailrec
@@ -232,13 +232,6 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       notLocalEnclosingTypeDefinition(element)
     }
 
-    def findEnclosingPackageOrFile: Option[Either[ScPackaging, ScalaFile]] =
-      nonWhitespaceElement(position).parentOfType(Seq(classOf[ScPackaging], classOf[ScalaFile]))
-        .map {
-          case pkg: ScPackaging => Left(pkg)
-          case file: ScalaFile => Right(file)
-        }
-
     def createClassPrepareRequests(classPrepareRequestor: ClassPrepareRequestor,
                                    classPreparePattern: String): Seq[ClassPrepareRequest] = {
       val reqManager = debugProcess.getRequestsManager
@@ -277,7 +270,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
             findTopmostEnclosingTypeDefinition match {
               case Some(td) => Some(ClassPattern.Nested(getSpecificNameForDebugger(td)))
               case None =>
-                findEnclosingPackageOrFile.map {
+                findEnclosingPackageOrFile(nonWhitespaceElement(position)).map {
                   case Left(pkg) => ClassPattern.Single(topLevelMemberClassName(pkg.getContainingFile, Some(pkg)))
                   case Right(file) => ClassPattern.Single(topLevelMemberClassName(file, None))
                 }

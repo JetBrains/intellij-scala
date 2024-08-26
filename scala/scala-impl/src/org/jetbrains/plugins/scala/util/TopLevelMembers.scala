@@ -6,7 +6,7 @@ import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.sun.jdi.ReferenceType
-import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt}
+import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
@@ -19,6 +19,13 @@ private[scala] object TopLevelMembers {
 
   def isSyntheticClassForTopLevelMembers(refType: ReferenceType): Boolean =
     refType.name.endsWith(TopLevelDefinitionsSingletonClassNameSuffix)
+
+  def findEnclosingPackageOrFile(element: PsiElement): Option[Either[ScPackaging, ScalaFile]] =
+    element.parentOfType(Seq(classOf[ScPackaging], classOf[ScalaFile]))
+      .map {
+        case pkg: ScPackaging => Left(pkg)
+        case file: ScalaFile => Right(file)
+      }
 
   def topLevelMemberClassName(file: PsiFile, packaging: Option[ScPackaging]): String = {
     val fileName    = ScalaNamesUtil.toJavaName(FileUtilRt.getNameWithoutExtension(file.getName))
