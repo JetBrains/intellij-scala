@@ -83,6 +83,7 @@ lazy val scalaCommunity: sbt.Project =
         repackagedZinc,
         worksheetReplInterfaceImpls,
         compileServer,
+        scalaCompilerPlugin,
         nailgunRunners,
         copyrightIntegration,
         javaDecompilerIntegration,
@@ -311,6 +312,19 @@ lazy val repl = newProject("repl", file("scala/repl"))
   )
   .withCompilerPluginIn(scalac3Patches)
 
+lazy val scalaCompilerPlugin: sbt.Project =
+  Project("compiler-plugin", file("scala/compiler-plugin"))
+    .settings(
+      name := "compiler-plugin",
+      projectDirectoriesSettings,
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions,
+      libraryDependencies ++= Seq(Dependencies.scala3Compiler),
+      packageMethod := PackagingMethod.Standalone("lib/jps/compiler-plugin.jar"),
+      intellijMainJars := Nil,
+      intellijTestJars := Nil
+    )
+
 lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
   .dependsOn(scalaLanguageUtils)
   .dependsOn(scalaLanguageUtilsRt)
@@ -474,6 +488,7 @@ lazy val compilerIntegration =
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
       sbtImpl % "test->test;compile->compile",
+      codeInsight % "test->test;compile->compile",
       jps,
       bsp
     )

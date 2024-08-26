@@ -19,16 +19,19 @@ import com.intellij.xml.util.XmlStringUtil
 import org.jetbrains.annotations.{Nls, Nullable}
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
 import org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider
+import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaOptimizeImportsFix
 import org.jetbrains.plugins.scala.compiler.diagnostics.Action
 import org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlighting.RangeInfo
 import org.jetbrains.plugins.scala.editor.DocumentExt
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, executeOnPooledThread, invokeLater}
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, PsiElementExt, executeOnPooledThread, inWriteAction, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed.UnusedImportReportedByCompilerKey
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportOrExportStmt, ScImportSelector}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.settings.{ProblemSolverUtils, ScalaHighlightingMode}
 import org.jetbrains.plugins.scala.util.{CompilationId, DocumentVersion}
 
@@ -85,6 +88,20 @@ private final class ExternalHighlightersService(project: Project) { self =>
           // Show red squiggly lines for errors in Project View.
           executeOnPooledThread(informWolf(errorFiles))
         }
+    }
+
+    virtualFiles.foreach { virtualFile =>
+      state.externalTypes(virtualFiles.head).foreach { case ((begin, end), tpe) =>
+        inWriteAction {
+          val file = PsiManager.getInstance(project).findFile(virtualFile)
+          def toOffset(pos: PosInfo): Int = file.getText.split('\n').take(pos.line - 1).map(_.length + 1).sum + pos.column - 1
+          file.elements.filterByType[ScMethodCall].find(e => e.getTextRange == new TextRange(toOffset(begin), toOffset(end))).foreach { expression =>
+            expression.putUserData(ScExpression.CompilerTypeKey, tpe)
+            ScalaPsiManager.instance(project).clearOnScalaElementChange(expression)
+            ImplicitHints.updateInAllEditors()
+          }
+        }
+      }
     }
 
     ReadAction
