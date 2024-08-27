@@ -11,8 +11,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.OrderEnumerator
 import com.intellij.psi.PsiElement
 import com.sun.jdi.{ArrayType, ClassLoaderReference, ClassType, ObjectReference, Value}
-import org.jetbrains.jps.incremental.scala.DummyClient
 import org.jetbrains.jps.incremental.scala.remote.CommandIds
+import org.jetbrains.jps.incremental.scala.{Client, DummyClient, MessageKind}
+import org.jetbrains.plugins.scala.NlsString
 import org.jetbrains.plugins.scala.compiler.data.ExpressionEvaluationArguments
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, RemoteServerRunner}
 import org.jetbrains.plugins.scala.debugger.evaluation.{EvaluationException, ExpressionCompilerResolverListener}
@@ -82,8 +83,32 @@ private[evaluation] final class ExpressionCompilerEvaluator(codeFragment: PsiEle
       val packageName = inReadAction(ScalaPositionManager.findPackageName(position.getElementAt)).getOrElse("")
       val arguments = ExpressionEvaluationArguments(outDir, classpath, scalacOptions, source, line, expression, localVariableNames.toSet, packageName)
 
-      val process = new RemoteServerRunner().buildProcess(CommandIds.EvaluateExpression, arguments.asStrings, new DummyClient())
+      val errors = Seq.newBuilder[NlsString]
+      val client = new DummyClient() {
+        override def message(msg: Client.ClientMsg): Unit = {
+          if (msg.kind == MessageKind.Error) {
+            errors += NlsString(msg.text)
+          }
+        }
+      }
+
+      val process = new RemoteServerRunner().buildProcess(CommandIds.EvaluateExpression, arguments.asStrings, client)
+
+      var result: Either[Seq[NlsString], Unit] = Right(())
+      process.addTerminationCallback { _ =>
+        val foundErrors = errors.result()
+        if (foundErrors.nonEmpty) {
+          result = Left(foundErrors)
+        }
+      }
       process.run()
+
+      result match {
+        case Left(errors) =>
+          val message = DebuggerBundle.message("expression.compilation.failed", errors.mkString(System.lineSeparator()))
+          throw EvaluationException(message)
+        case Right(()) =>
+      }
 
       val autoLoadContext = context.asInstanceOf[EvaluationContextImpl].withAutoLoadClasses(true)
       val classLoader = createClassLoader(outDir, autoLoadContext)
