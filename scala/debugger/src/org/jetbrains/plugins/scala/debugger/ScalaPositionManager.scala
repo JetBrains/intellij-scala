@@ -953,6 +953,10 @@ object ScalaPositionManager {
       elem match {
         case td: ScTypeDefinition if !isLocalClass(td) =>
           Some(getSpecificNameForDebugger(td))
+        case pkg: ScPackaging =>
+          Some(topLevelMemberClassName(pkg.getContainingFile, Some(pkg)))
+        case file: ScalaFile =>
+          Some(topLevelMemberClassName(file, None))
         case _ => None
       }
     }
