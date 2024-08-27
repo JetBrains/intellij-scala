@@ -19,6 +19,11 @@ object Versions {
 
   def isNightlyIntellijVersion: Boolean = intellijVersion.count(_ == '.') == 1
 
+  def pluginDependencySuffix: String = if (isNightlyIntellijVersion)
+    s":$intellijVersion:nightly"
+  else
+    "" // intellijVersion will be automatically used by sbt-idea-plugin
+
   val (
     intellijVersion_ForManagedIntellijDependencies,
     intellijRepository_ForManagedIntellijDependencies,
