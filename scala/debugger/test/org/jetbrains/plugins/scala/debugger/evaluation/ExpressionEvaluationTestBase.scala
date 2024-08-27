@@ -60,11 +60,24 @@ abstract class ExpressionEvaluationTestBase extends ScalaDebuggerTestCase {
   }
 
   protected def evalFailsWith(expression: String, message: String)(implicit context: SuspendContextImpl): Unit = {
+    assertEvalFailsWith(expression, message)(assertStartsWith)
+  }
+
+  protected def evalFailsWithContains(expression: String, message: String)(implicit context: SuspendContextImpl): Unit = {
+    val assertContains = { (expected: String, actual: String) =>
+      if (!actual.contains(expected)) {
+        fail(s"$actual does not contain $expected")
+      }
+    }
+    assertEvalFailsWith(expression, message)(assertContains)
+  }
+
+  private def assertEvalFailsWith(expression: String, message: String)(assertion: (String, String) => Unit)(implicit context: SuspendContextImpl): Unit = {
     try {
       evaluateExpressionToString(expression)
       fail(s"Expression $expression was supposed to fail with an EvaluateException, but didn't")
     } catch {
-      case e: EvaluateException => assertStartsWith(message, e.getMessage)
+      case e: EvaluateException => assertion(message, e.getMessage)
     }
   }
 
