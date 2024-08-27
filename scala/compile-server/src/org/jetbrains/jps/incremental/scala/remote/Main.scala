@@ -196,7 +196,7 @@ object Main {
         case CompileServerCommand.CompileDocument(arguments) =>
           compileDocumentLogic(arguments, client)
         case CompileServerCommand.EvaluateExpression(args) =>
-          evaluateExpressionLogic(args)
+          evaluateExpressionLogic(args, client)
         case CompileServerCommand.GetMetrics =>
           getMetricsLogic(client)
       }
@@ -228,7 +228,7 @@ object Main {
 
   private val expressionCompilerCache: Cache[Seq[Path], (AnyRef, Method)] = new Cache(3)
 
-  private def evaluateExpressionLogic(args: ExpressionEvaluationArguments): Unit = {
+  private def evaluateExpressionLogic(args: ExpressionEvaluationArguments, client: Client): Unit = {
     val ExpressionEvaluationArguments(outDir, classpath, scalacOptions, source, line, expression, localVariableNames, packageName) = args
 
     val (instance, method) = expressionCompilerCache.getOrUpdate(classpath) { () =>
@@ -239,7 +239,7 @@ object Main {
       (instance, method)
     }
 
-    val consumer: java.util.function.Consumer[String] = _ => ()
+    val consumer: java.util.function.Consumer[String] = client.error(_)
 
     method.invoke(instance, outDir, "CompiledExpression", classpath.mkString(File.pathSeparator), scalacOptions.toArray, source, line,
       expression, localVariableNames.asJava, packageName, consumer, false)
