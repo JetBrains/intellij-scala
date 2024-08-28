@@ -3,8 +3,6 @@ package org.jetbrains.plugins.scala.project.maven
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.libraries.Library
-import com.intellij.openapi.roots.{DependencyScope, LibraryOrderEntry}
 import com.intellij.openapi.util.Key
 import com.intellij.util.{JavaCoroutines, PairConsumer}
 import kotlin.coroutines.Continuation
@@ -93,87 +91,44 @@ final class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-s
 
       configuration.compilerVersion match {
         case Some(compilerVersion) =>
-          convertScalaLibraryToSdk(module, modelsProvider, Version(compilerVersion))
+          configureScalaSdk(module, modelsProvider, compilerVersion, mavenProject)
         case _ =>
       }
     }
   }
 
-  private def convertScalaLibraryToSdk(
+  /**
+   * There might be the case when scala library minor version is different from the minor version
+   * of the scala-compiler.
+   * This is so when there is no any explicit scala-library dependency in maven project.<br>
+   * In this case running `main` in maven (via mvn package exec:java -Dexec.mainClass=Main)
+   * will use the version from the explicit dependencies, not the version from the compiler.
+   *
+   * see [[implicitScalaLibraryIfNeeded]]
+   */
+  private def configureScalaSdk(
     module: Module,
     modelsProvider: IdeModifiableModelsProvider,
-    compilerVersion: Version,
+    compilerVersion: String,
+    mavenProject: MavenProject
   ): Unit = {
-    //TODO: unmark existing scala libraries (from previous project reloads) as SDK
-    // this might be the case when we upgrade scala version, but there is still some transitive dependency
-    // on the old version of library with some non-Compile scope
+    val compilerClasspathFull = mavenProject.getCachedValue(MavenFullCompilerClasspathKey)
 
-    /**
-     * Find compile-time scala-library dependency with the highest version.<br>
-     * Note: there might be the case when scala library minor version is different from the minor version
-     * of the scala-compiler which is attached to the library.
-     * This is so when there is no any explicit scala-library dependency in maven project.<br>
-     * In this case running `main` in maven (via mvn package exec:java -Dexec.mainClass=Main)
-     * will use hte version from the explicit dependencies, not the version form the compiler.
-     *
-     * @see [[implicitScalaLibraryIfNeeded]]
-     */
-    val scalaLibraryToMarkAsSdk: Option[(Library, Version)] = {
-      val expectedLibraryName = scalaCompilerArtifactName("library", compilerVersion.presentation)
-      val moduleModel = modelsProvider.getModifiableRootModel(module)
-
-      val libraryEntriesGroupedByScope: Seq[(DependencyScope, Seq[LibraryOrderEntry])] =
-        moduleModel.getOrderEntries.toSeq
-          .filterByType[LibraryOrderEntry]
-          .groupBy(_.getScope).toSeq
-          //first prioritise "Compile" then "Test" (see SCL-21701 with comments)
-          .sortBy(_._1)
-
-      def selectScalaLibrary(libraryEntries: Seq[LibraryOrderEntry]): Option[(Library, Version)] = {
-        val libraries = libraryEntries.map(_.getLibrary).filter(_ != null)
-
-        val scalaLibrariesWithVersions: Seq[(Library, Version)] = libraries.flatMap { lib =>
-          if (lib.getName.contains(expectedLibraryName))
-            lib.libraryVersion.map(v => (lib, Version(v)))
-          else
-            None
-        }
-
-        val compilerMajorVersion = compilerVersion.major(2)
-        val librariesWithSameMajorVersion = scalaLibrariesWithVersions.filter(_._2.major(2) == compilerMajorVersion)
-        librariesWithSameMajorVersion.maxByOption(_._2)
-      }
-
-      libraryEntriesGroupedByScope.iterator
-        .flatMap { case _ -> entries =>  selectScalaLibrary(entries) }
-        .nextOption()
+    val compilerBridgeBinaryJar = ScalaSdkUtils.compilerBridgeJarName(compilerVersion).flatMap { bridgeJarName =>
+        compilerClasspathFull.find(_.getName == bridgeJarName)
     }
 
-    scalaLibraryToMarkAsSdk match {
-      case Some((scalaLibrary, scalaLibraryVersion)) =>
-        val compilerClasspathFull = module.getProject.getUserData(MavenFullCompilerClasspathKey)
+    val classpath = compilerClasspathFull.diff(compilerBridgeBinaryJar.toSeq)
 
-        val compilerBridgeBinaryJar =
-          ScalaSdkUtils.compilerBridgeJarName(scalaLibraryVersion.presentation).flatMap { bridgeJarName =>
-            compilerClasspathFull.find(_.getName == bridgeJarName)
-          }
-
-        val classpath = compilerClasspathFull.diff(compilerBridgeBinaryJar.toSeq)
-
-        ScalaSdkUtils.ensureScalaLibraryIsConvertedToScalaSdk(
-          modelsProvider,
-          scalaLibrary,
-          Some(scalaLibraryVersion.presentation),
-          classpath,
-          scaladocExtraClasspath = Nil, // TODO SCL-17219
-          compilerBridgeBinaryJar = compilerBridgeBinaryJar
-        )
-      case None =>
-        val msg = s"Cannot find project Scala library ${compilerVersion.presentation} for module ${module.getName}"
-        val exception = new IllegalArgumentException(msg)
-        val console = MavenProjectsManager.getInstance(module.getProject).getSyncConsole
-        console.addException(exception)
-    }
+    ScalaSdkUtils.configureScalaSdk(
+      module,
+      compilerVersion,
+      classpath,
+      scaladocExtraClasspath = Nil,
+      compilerBridgeBinaryJar,
+      sdkPrefix = "Maven",
+      modelsProvider
+    )
   }
 
   // called before `process`
@@ -213,6 +168,7 @@ final class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-s
 
       // Scala Maven plugin can add scala-library to compilation classpath, without listing it as a project dependency.
       // Such an approach is probably incorrect, but we have to support that behaviour "as is".
+      // TODO check if it's still true (it was created in 2017)
       val implicitScalaLibrary = implicitScalaLibraryIfNeeded(configuration)
       implicitScalaLibrary.map(resolveJar).foreach(mavenProject.addDependency)
 
@@ -221,7 +177,8 @@ final class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-s
       // compiler classpath should be resolved transitively, e.g. Scala3 compiler contains quite a lot of jar files in the classpath
       val compilerClasspathWithTransitives: Seq[File] =
         resolveTransitively(configuration.compilerArtifact).map(_.getFile) ++ compilerBridgeJar
-      project.putUserData(MavenFullCompilerClasspathKey, compilerClasspathWithTransitives)
+
+      mavenProject.putCachedValue(MavenFullCompilerClasspathKey, compilerClasspathWithTransitives)
 
       configuration.plugins.foreach(resolveJar)
     }
@@ -247,7 +204,6 @@ final class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-s
    * Note: project can have transitive dependency on scala-library with non-"Compile" scope
    * (e.g. in Tests via dependency on some test framework).
    * We add implicit scala library only if there is no any Compile-time scala-library dependency.
-   * If some Compile-time dependency library exists, it will be used in [[convertScalaLibraryToSdk]]
    */
   private def implicitScalaLibraryIfNeeded(configuration: ScalaConfiguration): Option[MavenId] = {
     val scalaCompilerVersion = configuration.compilerVersionProperty
@@ -283,7 +239,8 @@ private object ScalaMavenImporter {
    * Hack Key to keep info about full compiler classpath after it's resolved in [[ScalaMavenImporter.resolve]]
    * to use it later in [[ScalaMavenImporter.process]] when creating Scala SDK
    *
-   * !!! NOTE: we assume that Maven project can have only single Scala SDK when using scala-maven-plugin
+   * This key is used for each Maven project/module (not the IntelliJ IDEA project),
+   * so in a multi-module project, each module can have a different compiler classpath.
    */
   private val MavenFullCompilerClasspathKey = Key.create[Seq[File]]("MavenFullCompilerClasspathKey")
 
