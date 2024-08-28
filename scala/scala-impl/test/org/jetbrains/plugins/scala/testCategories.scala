@@ -7,6 +7,11 @@ trait SlowTests
 
 trait DebuggerTests
 
+/**
+ * A subset of [[DebuggerTests]], that test expression evaluation. Roughly half of all debugger tests.
+ */
+trait DebuggerEvaluationTests
+
 trait ScalacTests
 
 trait TypecheckerTests

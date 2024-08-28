@@ -936,6 +936,7 @@ addCommandAlias("runCompletionTests", runTestsInTC(completionTests))
 addCommandAlias("runEditorTests", runTestsInTC(editorTests))
 addCommandAlias("runSlowTests", runTestsInTC(slowTests))
 addCommandAlias("runDebuggerTests", runTestsInTC(debuggerTests))
+addCommandAlias("runDebuggerEvaluationTests", runTestsInTC(debuggerEvaluationTests))
 addCommandAlias("runScalacTests", runTestsInTC(scalacTests))
 addCommandAlias("runTypeInferenceTests", runTestsInTC(typecheckerTests))
 addCommandAlias("runTestingSupportTests", runTestsInTC(testingSupportTests))
@@ -967,6 +968,7 @@ lazy val runFastTestsCommand = Command.single("runFastTestsCommand") { (state, g
     editorTests,
     slowTests,
     debuggerTests,
+    debuggerEvaluationTests,
     scalacTests,
     typecheckerTests,
     testingSupportTests,
