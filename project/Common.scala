@@ -293,6 +293,7 @@ object Common {
     val editorTests: String = cat("EditorTests")
     val slowTests: String = cat("SlowTests")
     val debuggerTests: String = cat("DebuggerTests")
+    val debuggerEvaluationTests: String = cat("DebuggerEvaluationTests")
     val scalacTests: String = cat("ScalacTests")
     val typecheckerTests: String = cat("TypecheckerTests")
     val testingSupportTests: String = cat("TestingSupportTests")

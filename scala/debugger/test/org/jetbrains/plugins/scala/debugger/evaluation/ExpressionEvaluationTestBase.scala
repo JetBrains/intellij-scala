@@ -6,11 +6,13 @@ import com.intellij.debugger.engine.evaluation.{CodeFragmentKind, EvaluateExcept
 import com.intellij.debugger.engine.{DebuggerUtils, SuspendContextImpl}
 import com.sun.jdi.VoidValue
 import org.junit.Assert.{assertTrue, fail}
+import org.junit.experimental.categories.Category
 
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.stream.Collectors
 import scala.jdk.CollectionConverters._
 
+@Category(Array(classOf[DebuggerEvaluationTests]))
 abstract class ExpressionEvaluationTestBase extends ScalaDebuggerTestCase {
 
   private val onBreakpointActionsQueue: ConcurrentLinkedQueue[SuspendContextImpl => Unit] = new ConcurrentLinkedQueue()
