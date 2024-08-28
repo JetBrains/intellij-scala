@@ -112,8 +112,41 @@ abstract class ScalaMavenImporterTest
       "projectWithScala2",
       Seq("src/main/scala", "src/main/java"),
       Seq("src/test/scala", "src/test/java"),
-      Seq(MavenScalaLibrary(Scala_2_13_6, isSdk = true))
+      Seq(MavenScalaLibrary(Scala_2_13_6), MavenScalaSdk(Scala_2_13_6))
     )
+
+  def testWithTwoModulesWithScala2And3(): Unit = {
+    runImportingTest(new project("testWithTwoModulesWithScala2And3") {
+      val mavenSdkScala2_13: library = MavenScalaSdk(Scala_2_13_6)
+      val mavenLibraryScala2_13: library = MavenScalaLibrary(Scala_2_13_6)
+      val mavenScalaSdkScala3_1: library = MavenScalaSdk(Scala_3_1_0)
+      val mavenLibraryScala3_1: library = MavenScalaLibrary(Scala_3_1_0)
+      val testProjectRoot: String = getTestProjectDirVFile.toNioPath.toAbsolutePath.toString
+      libraries := Seq(mavenSdkScala2_13, mavenLibraryScala2_13, mavenLibraryScala3_1, mavenScalaSdkScala3_1)
+      modules := Seq(
+        new module("projectWithTwoModulesWithScala2And3") {
+          contentRoots := Seq(testProjectRoot)
+          sources := Seq()
+          testSources := Seq()
+          resources := Seq()
+          testResources := Seq()
+          excluded := Seq("target")
+          libraryDependencies := Seq(mavenSdkScala2_13, mavenLibraryScala2_13).map(library2libraryDependency)
+          compileOrder := CompileOrder.Mixed
+        },
+        new module("scala3") {
+          contentRoots := Seq(s"$testProjectRoot/scala3")
+          sources := Seq("src/main/scala", "src/main/java")
+          testSources := Seq("src/test/scala", "src/test/java")
+          resources := Seq("src/main/resources")
+          testResources := Seq("src/test/resources")
+          excluded := Seq("target")
+          libraryDependencies := Seq(mavenScalaSdkScala3_1, mavenLibraryScala3_1, mavenLibraryScala2_13).map(library2libraryDependency)
+          compileOrder := CompileOrder.Mixed
+        }
+      )
+    })
+  }
 
   def testWithScala2_WithExplicitSourceDirectoriesSet(): Unit =
     runImportingTest_Common(
@@ -123,7 +156,7 @@ abstract class ScalaMavenImporterTest
       //default java source dirs are replaced
       Seq("src/main/scala"),
       Seq("src/test/scala"),
-      Seq(MavenScalaLibrary(Scala_2_13_6, isSdk = true))
+      Seq(MavenScalaLibrary(Scala_2_13_6), MavenScalaSdk(Scala_2_13_6))
     )
 
   def testWithScala2_WithoutScalaMavenPlugin(): Unit =
@@ -132,7 +165,7 @@ abstract class ScalaMavenImporterTest
       "projectWithScala2",
       Seq("src/main/java"),
       Seq("src/test/java"),
-      Seq(MavenScalaLibrary(Scala_2_13_6, isSdk = false))
+      Seq(MavenScalaLibrary(Scala_2_13_6))
     )
 
   def testWithScala3_0(): Unit = {
@@ -143,8 +176,9 @@ abstract class ScalaMavenImporterTest
       Seq("src/main/scala", "src/main/java"),
       Seq("src/test/scala", "src/test/java"),
       Seq(
-        MavenScalaLibrary(Scala_2_13_5, isSdk = false),
-        MavenScalaLibrary(Scala_3_0_0, isSdk = true)
+        MavenScalaLibrary(Scala_2_13_5),
+        MavenScalaLibrary(Scala_3_0_0),
+        MavenScalaSdk(Scala_3_0_0)
       )
     )
   }
@@ -156,8 +190,9 @@ abstract class ScalaMavenImporterTest
       Seq("src/main/scala", "src/main/java"),
       Seq("src/test/scala", "src/test/java"),
       Seq(
-        MavenScalaLibrary(Scala_2_13_6, isSdk = false),
-        MavenScalaLibrary(Scala_3_1_0, isSdk = true)
+        MavenScalaLibrary(Scala_2_13_6),
+        MavenScalaLibrary(Scala_3_1_0),
+        MavenScalaSdk(Scala_3_1_0),
       )
     )
   }
@@ -177,7 +212,8 @@ abstract class ScalaMavenImporterTest
 
   def testWithImplicitScalaLibraryDependency_compilerVersionLargest(): Unit = {
     val expectedLibraries = Seq(
-      MavenScalaLibrary(Scala_2_13_6, scalaSdkVersion = Scala_2_13_8)
+      MavenScalaLibrary(Scala_2_13_6),
+      MavenScalaSdk(Scala_2_13_8)
     ) ++ CommonLibrariesForImplicitScalaLibraryDependencyTests
 
     runImportingTest(new project("testWithImplicitScalaLibraryDependency_compilerVersionLargest") {
@@ -190,7 +226,8 @@ abstract class ScalaMavenImporterTest
 
   def testWithImplicitScalaLibraryDependency_compilerVersionInTheMiddle(): Unit = {
     val expectedLibraries = Seq(
-      MavenScalaLibrary(Scala_2_13_6, scalaSdkVersion = Scala_2_13_5)
+      MavenScalaLibrary(Scala_2_13_6),
+      MavenScalaSdk(Scala_2_13_5)
     ) ++ CommonLibrariesForImplicitScalaLibraryDependencyTests
 
     runImportingTest(new project("testWithImplicitScalaLibraryDependency_compilerVersionInTheMiddle") {
@@ -203,7 +240,8 @@ abstract class ScalaMavenImporterTest
 
   def testWithImplicitScalaLibraryDependency_compilerVersionSmallest(): Unit = {
     val expectedLibraries = Seq(
-      MavenScalaLibrary(Scala_2_13_6, scalaSdkVersion = Scala_2_13_0)
+      MavenScalaLibrary(Scala_2_13_6),
+      MavenScalaSdk(Scala_2_13_0)
     ) ++ CommonLibrariesForImplicitScalaLibraryDependencyTests
 
     runImportingTest(new project("testWithImplicitScalaLibraryDependency_compilerVersionSmallest") {
@@ -216,11 +254,12 @@ abstract class ScalaMavenImporterTest
 
   def testWithImplicitScalaLibraryDependency_compilerVersionSmallest_LibraryDependenciesHaveTestScope(): Unit = {
     val expectedCompileLibraries = Seq(
-      MavenScalaLibrary(Scala_2_13_0, isSdk = true)
+      MavenScalaLibrary(Scala_2_13_0),
+      MavenScalaSdk(Scala_2_13_0)
     )
 
     val expectedTestLibraries = Seq(
-      MavenScalaLibrary(Scala_2_13_6, isSdk = false)
+      MavenScalaLibrary(Scala_2_13_6)
     ) ++ CommonLibrariesForImplicitScalaLibraryDependencyTests
 
     runImportingTest(new project("testWithImplicitScalaLibraryDependency_compilerVersionSmallest_LibraryDependenciesHaveTestScope") {
@@ -233,14 +272,14 @@ abstract class ScalaMavenImporterTest
   }
 
   def testWithoutExplicitScalaVersion_LibraryDependenciesHaveTestScope(): Unit = {
-    val expectedLibraries = Seq(
-      MavenScalaLibrary(Scala_2_13_6, isSdk = true)
-    ) ++ CommonLibrariesForImplicitScalaLibraryDependencyTests
+    val expectedTestLibraries = CommonLibrariesForImplicitScalaLibraryDependencyTests
+    val scalaLibraries = Seq(MavenScalaLibrary(Scala_2_13_6), MavenScalaSdk(Scala_2_13_6))
 
     runImportingTest(new project("testWithoutExplicitScalaVersion_LibraryDependenciesHaveTestScope") {
-      libraries := expectedLibraries
+      libraries := scalaLibraries ++ expectedTestLibraries
       modules := Seq(new module("dummy-artifact-id") {
-        libraryDependencies := expectedLibraries.map(library2libraryDependency(_, Some(DependencyScope.TEST)))
+        libraryDependencies := expectedTestLibraries.map(library2libraryDependency(_, Some(DependencyScope.TEST))) ++
+          scalaLibraries.map(library2libraryDependency)
       })
     })
   }
