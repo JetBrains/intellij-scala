@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.project.external
 
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.libraries.Library
 import org.jetbrains.plugins.scala.DependencyManager
@@ -10,6 +11,37 @@ import org.jetbrains.plugins.scala.project.{LibraryExt, ScalaLibraryProperties, 
 import java.io.File
 
 object ScalaSdkUtils {
+
+  def configureScalaSdk(
+    module: Module,
+    compilerVersion: String,
+    scalacClasspath: Seq[File],
+    scaladocExtraClasspath: Seq[File],
+    compilerBridgeBinaryJar: Option[File],
+    sdkPrefix: String,
+    modelsProvider: IdeModifiableModelsProvider
+  ): Unit = {
+    val scalaSDKLibraryName = s"$sdkPrefix: scala-sdk-$compilerVersion"
+    val libraries = modelsProvider.getModifiableProjectLibrariesModel.getLibraries
+    val existingScalaSDKForSpecificVersion = libraries.find { lib =>
+      lib.getName == scalaSDKLibraryName && lib.isScalaSdk
+    }
+    val scalaSdkLibrary = existingScalaSDKForSpecificVersion.getOrElse {
+      val tableModel = modelsProvider.getModifiableProjectLibrariesModel
+      tableModel.createLibrary(scalaSDKLibraryName)
+    }
+    ScalaSdkUtils.ensureScalaLibraryIsConvertedToScalaSdk(
+      modelsProvider,
+      scalaSdkLibrary,
+      scalaSdkLibrary.libraryVersion,
+      scalacClasspath,
+      scaladocExtraClasspath,
+      compilerBridgeBinaryJar
+    )
+
+    val rootModel = modelsProvider.getModifiableRootModel(module)
+    rootModel.addLibraryEntry(scalaSdkLibrary)
+  }
 
   def ensureScalaLibraryIsConvertedToScalaSdk(
     modelsProvider: IdeModifiableModelsProvider,
