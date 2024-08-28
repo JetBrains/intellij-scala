@@ -44,19 +44,19 @@ trait ScBlock extends ScExpression
 
       implicit val resolveScope: GlobalSearchScope = this.resolveScope
 
-      getContext match {
+      return getContext match {
         case _: ScCatchBlock =>
           val manager = ScalaPsiManager.instance
           val funs = manager.getCachedClasses(resolveScope, PartialFunctionType.TypeName)
           val fun = funs.find(_.is[ScTrait]).getOrElse(return Failure(ScalaBundle.message("cannot.find.partialfunction.class")))
           val throwable = manager.getCachedClass(resolveScope, "java.lang.Throwable").orNull
           if (throwable == null) return Failure(ScalaBundle.message("cannot.find.throwable.class"))
-          return Right(ScParameterizedType(ScDesignatorType(fun), Seq(ScDesignatorType(throwable), clausesLubType)))
+          Right(ScParameterizedType(ScDesignatorType(fun), Seq(ScDesignatorType(throwable), clausesLubType)))
         case _ =>
           val et = this.expectedType(fromUnderscore = false)
             .getOrElse(return Failure(ScalaBundle.message("cannot.infer.type.without.expected.type")))
 
-          return et match {
+          et match {
             case FunctionType(_, params) =>
               Right(FunctionType(clausesLubType, params.map(_.removeVarianceAbstracts())))
             case PartialFunctionType(_, param) =>

@@ -70,6 +70,7 @@ object ElementAnnotator extends ElementAnnotator[ScalaPsiElement] {
       ScSymbolLiteralAnnotator ::
       ScFunctionalTypeElementAnnotator ::
       ScMacroDefAnnotator ::
+      ScMatchAnnotator ::
       ScEnumCaseAnnotator ::
       ScPolyFunctionTypeElementAnnotator ::
       ScPolyFunctionExprAnnotator ::

@@ -2,6 +2,11 @@ package org.jetbrains.plugins.scala.lang.psi.api.base.patterns
 
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 
+/**
+ * Compared to [[ScTypedPattern]] the Scala 3 version can have further potentially complicated subpatterns.
+ *
+ *  case (SubPattern): Type =>
+ */
 trait Sc3TypedPattern extends ScTypedPatternLike {
   def pattern: ScPattern
 }

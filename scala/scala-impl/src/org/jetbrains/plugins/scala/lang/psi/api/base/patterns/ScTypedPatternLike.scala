@@ -4,6 +4,13 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
+/**
+ * In Scala 2 ([[ScTypedPattern]]), a simple typed identifier or wildcard
+ *   case name: Type =>
+ *
+ * In Scala 3 ([[Sc3TypedPattern]]), it can also be a more complicated subpattern
+ *   case SubPattern: Type =>
+ */
 trait ScTypedPatternLike extends ScPattern {
   def typePattern: Option[ScTypePattern]
 }

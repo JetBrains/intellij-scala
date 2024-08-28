@@ -1051,6 +1051,11 @@ package object extensions {
       case _ => false
     }
 
+    def isTraitOrAbstract: Boolean = clazz match {
+      case _: ScTrait => true
+      case _ => clazz.hasModifierPropertyScala("abstract")
+    }
+
     /**
       * Second match branch is for Java only.
       */

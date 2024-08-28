@@ -1,6 +1,10 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base
 package patterns
 
+
+/**
+ * case name@SubPattern =>
+ */
 trait ScNamingPattern extends ScBindingPattern {
   def named: ScPattern = findChild[ScPattern].get
 }
