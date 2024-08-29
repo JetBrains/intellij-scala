@@ -638,7 +638,10 @@
 
         <registryKey key="scala.compiler.highlighting.suppress.java.highlighting" defaultValue="false" restartRequired="false"
                      description="If enabled, Scala 3 compiler based highlighting suppresses built-in highlighting of Java files in mixed Scala 3 and Java projects (Java are not highlighted)"/>
-        
+
+        <registryKey key="scala.advanced.onboarding.tips" defaultValue="false"  restartRequired="false"
+                     description="If enabled, New Project Wizard will generate additional onboarding tips files if 'onboarding tips' are set"/>
+
         <intentionAction>
             <language>Scala</language>
             <categoryKey>intention.category.scala.type</categoryKey>
