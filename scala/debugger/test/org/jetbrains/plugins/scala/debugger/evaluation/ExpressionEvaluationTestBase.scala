@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala
 package debugger
 package evaluation
 
-import com.intellij.debugger.engine.evaluation.{CodeFragmentKind, EvaluateException}
+import com.intellij.debugger.engine.evaluation.{CodeFragmentKind, EvaluateException, EvaluationContextImpl}
 import com.intellij.debugger.engine.{DebuggerUtils, SuspendContextImpl}
-import com.sun.jdi.VoidValue
+import com.sun.jdi.{ArrayReference, Value, VoidValue}
 import org.junit.Assert.{assertTrue, fail}
 import org.junit.experimental.categories.Category
 
@@ -94,10 +94,16 @@ abstract class ExpressionEvaluationTestBase extends ScalaDebuggerTestCase {
       if (expression.contains(System.lineSeparator())) CodeFragmentKind.CODE_BLOCK
       else CodeFragmentKind.EXPRESSION
 
-    evaluate(kind, expression, context) match {
-      case _: VoidValue => "undefined"
-      case v => DebuggerUtils.getValueAsString(createEvaluationContext(context), v)
-    }
+    val evaluationContext = createEvaluationContext(context)
+    val value = evaluate(kind, expression, context)
+    getValueAsString(evaluationContext, value)
+  }
+
+  private def getValueAsString(context: EvaluationContextImpl, value: Value): String = value match {
+    case _: VoidValue => "undefined"
+    case arrayRef: ArrayReference =>
+      arrayRef.getValues.asScala.map(getValueAsString(context, _)).mkString("[", ",", "]")
+    case v => DebuggerUtils.getValueAsString(context, v)
   }
 
   protected def failing(assertion: => Unit): Unit = {
