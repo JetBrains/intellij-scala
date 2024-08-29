@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventType}
 import org.jetbrains.plugins.scala.util.ObjectSerialization
 
 import java.io.{DataOutputStream, File, FileNotFoundException, FileOutputStream}
-import java.nio.file.Path
+import java.nio.file.{Path, Paths}
 import java.util.Collections
 import java.util.concurrent.ConcurrentMap
 import java.util.concurrent.atomic.AtomicBoolean
@@ -36,7 +36,7 @@ private object Jps {
     val lock = projectLock.computeIfAbsent(dataStorageRootPath, _ => new ReentrantLock())
     lock.lock()
     try {
-      val dataStorageRoot = new File(dataStorageRootPath)
+      val dataStorageRoot = Paths.get(dataStorageRootPath)
       val loader = new JpsModelLoaderImpl(projectPath, globalOptionsPath, false, null)
       val buildRunner = new BuildRunner(loader)
       buildRunner.setBuilderParams(Map(BuildParameters.BuildTriggeredByCBH -> true.toString).asJava)
