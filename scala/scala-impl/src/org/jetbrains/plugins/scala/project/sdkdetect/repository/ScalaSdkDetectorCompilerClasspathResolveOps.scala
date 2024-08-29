@@ -17,10 +17,13 @@ trait ScalaSdkDetectorCompilerClasspathResolveOps {
    * You just search the jars by name prefix in some folder (e.g. in "org.scala-lang" for Ivy OR "org" / "scala-lang" for Maven)
    * and group them by version.
    *
-   * In Scala3 things get different. Scala 3 compiler classpath has dependencies on some non-scala3 libraries which have their own versions.
+   * In Scala3 (before 3.5) things are different. Scala 3 compiler classpath has dependencies on some non-scala3 libraries which have their own versions.
    * Each minor/major Scala 3 version can have dependencies with different versions.
    * To detect the correct Scala 3 SDK we need to dynamically resolve those versions when building "SDK candidates" and check if they exist locally.
    * This logic is different for different detectors (Ivy, Maven, Brew...)
+   *
+   * In the case of "system detector", since Scala 3.5 the classpath is now read from jar files in the scala distribution<br>
+   * See https://github.com/scala/scala3/pull/20631
    *
    * @return new descriptor with extra jars attached to the compiler classpath and/or library/sources jars
    */
@@ -29,13 +32,9 @@ trait ScalaSdkDetectorCompilerClasspathResolveOps {
     val descriptorUpdated = if (descriptor.isScala3)
       resolveExtraRequiredJarsScala3(descriptor)
     else
-      resolveExtraRequiredJarsScala2(descriptor)
+      Right(descriptor)
     descriptorUpdated
   }
-
-  protected def resolveExtraRequiredJarsScala2(descriptor: ScalaSdkDescriptor)
-                                              (implicit indicator: ProgressIndicator): Either[Seq[CompilerClasspathResolveFailure], ScalaSdkDescriptor] =
-    Right(descriptor)
 
   protected def resolveExtraRequiredJarsScala3(descriptor: ScalaSdkDescriptor)
                                               (implicit indicator: ProgressIndicator): Either[Seq[CompilerClasspathResolveFailure], ScalaSdkDescriptor] =

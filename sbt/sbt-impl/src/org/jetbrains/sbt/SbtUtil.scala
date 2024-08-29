@@ -15,7 +15,7 @@ import org.jetbrains.annotations.VisibleForTesting
 import org.jetbrains.plugins.scala.build.BuildReporter
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, RichFile}
 import org.jetbrains.plugins.scala.project.Version
-import org.jetbrains.plugins.scala.util.ExternalSystemUtil
+import org.jetbrains.plugins.scala.util.{ExternalSystemUtil, JarManifestUtils}
 import org.jetbrains.sbt.Sbt.SbtModuleChildKeyInstance
 import org.jetbrains.sbt.buildinfo.BuildInfo
 import org.jetbrains.sbt.project.SbtProjectSystem
@@ -128,25 +128,10 @@ object SbtUtil {
   def detectSbtVersion(directory: File, sbtLauncher: => File): String =
     sbtVersionIn(directory)
       .orElse(sbtVersionInBootPropertiesOf(sbtLauncher))
-      .orElse(readManifestAttributeFrom(sbtLauncher, "Implementation-Version"))
+      .orElse(JarManifestUtils.readManifestAttributeFrom(sbtLauncher, "Implementation-Version"))
       .getOrElse(BuildInfo.sbtLatestVersion)
 
   def numbersOf(version: String): Seq[String] = version.split("\\D").toSeq
-
-  private def readManifestAttributeFrom(file: File, name: String): Option[String] = {
-    val jar = new JarFile(file)
-    try {
-      Option(jar.getJarEntry("META-INF/MANIFEST.MF")).flatMap { entry =>
-        val input = new BufferedInputStream(jar.getInputStream(entry))
-        val manifest = new java.util.jar.Manifest(input)
-        val attributes = manifest.getMainAttributes
-        Option(attributes.getValue(name))
-      }
-    }
-    finally {
-      jar.close()
-    }
-  }
 
   private def sbtVersionInBootPropertiesOf(jar: File): Option[String] = {
     val appProperties = readSectionFromBootPropertiesOf(jar, sectionName = "app")
