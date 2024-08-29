@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.editor.enterHandler.EnterHandlerUtils
 import org.jetbrains.plugins.scala.editor.{ScalaEditorUtils, ScalaIndentationSyntaxUtils}
 import org.jetbrains.plugins.scala.extensions.{&, ElementType, Parent, PrevElement, PsiFileExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
@@ -24,6 +25,7 @@ object ScalaGenerateMembersUtil {
     addOverrideModifierIfEnforcedBySettings: Boolean
   ): Seq[ScalaGenerationInfo] = {
     val sortedMembers = ScalaMemberChooser.sortedWithExtensionMethodsGrouped(members, templateDefinition).reverse
+    val typeAdjuster = new TypeAdjuster()
     val genInfos = sortedMembers.map { member =>
       val needsOverrideModifier = member match {
         case overridable: ScalaOverridableMember =>
@@ -31,10 +33,11 @@ object ScalaGenerateMembersUtil {
         case _ =>
           false
       }
-      new ScalaGenerationInfo(member, needsOverrideModifier)
+      new ScalaGenerationInfo(member, needsOverrideModifier, typeAdjuster)
     }
     val caretOffset = ScalaEditorUtils.caretOffsetWithFixedEof(editor)
     val inserted = GenerateMembersUtil.insertMembersAtOffset(templateDefinition, caretOffset, genInfos.asJava)
+    typeAdjuster.adjustTypes()
     inserted.asScala.toSeq
   }
 

@@ -1,11 +1,17 @@
 package org.jetbrains.plugins.scala.overrideImplement
 
+import com.intellij.codeInsight.FileModificationService
 import com.intellij.codeInsight.generation.{ClassMember => JClassMember}
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.ex.ApplicationManagerEx
+import com.intellij.openapi.command.{CommandProcessor, WriteCommandAction}
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbService, Project}
+import com.intellij.openapi.util.registry.Registry
 import com.intellij.psi._
-import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.{PsiTreeUtil, PsiUtilCore}
+import com.intellij.util.ThrowableRunnable
+import com.intellij.util.concurrency.annotations.RequiresEdt
 import org.jetbrains.annotations.{ApiStatus, VisibleForTesting}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
@@ -152,14 +158,43 @@ object ScalaOIUtil {
     Option(chooserDialog.getSelectedElements).map(_.asScala.toSeq).getOrElse(Seq.empty)
   }
 
+  /**
+   * @note Written according to [[com.intellij.codeInsight.generation.OverrideImplementUtil.showAndPerform]].
+   */
+  @RequiresEdt
   def runAction(selectedMembers: Seq[ClassMember],
                 isImplement: Boolean,
                 clazz: ScTemplateDefinition)
-               (implicit project: Project, editor: Editor): Unit =
-    executeWriteActionCommand(if (isImplement) ScalaBundle.message("action.implement.method") else ScalaBundle.message("action.override.method")) {
+               (implicit project: Project, editor: Editor): Unit = {
+    if (selectedMembers.isEmpty) return
+    PsiUtilCore.ensureValid(clazz)
+
+    val insertMembers: Runnable = { () =>
       val inserted = ScalaGenerateMembersUtil.insertMembersAtCaretPosition(selectedMembers, clazz, editor, addOverrideModifierIfEnforcedBySettings = true)
       ScalaGenerateMembersUtil.positionCaret(editor, inserted)
     }
+
+    val performImplementOverrideRunnable: ThrowableRunnable[RuntimeException] =
+      () => DumbService.getInstance(project).withAlternativeResolveEnabled(insertMembers)
+
+    if (Registry.is("run.refactorings.under.progress")) {
+      if (!FileModificationService.getInstance().preparePsiElementsForWrite(clazz)) return
+      val commandName = CommandProcessor.getInstance().getCurrentCommandName
+      val title = if (isImplement) ScalaBundle.message("action.implement.method") else ScalaBundle.message("action.override.method")
+      val runnable: Runnable = { () =>
+        //noinspection ApiStatus
+        ApplicationManagerEx.getApplicationEx.runWriteActionWithCancellableProgressInDispatchThread(
+          title, project, null, _ => performImplementOverrideRunnable.run())
+      }
+      if (commandName eq null) {
+        CommandProcessor.getInstance().executeCommand(project, runnable, title, null)
+      } else {
+        runnable.run()
+      }
+    } else {
+      WriteCommandAction.writeCommandAction(project, clazz.getContainingFile).run(performImplementOverrideRunnable)
+    }
+  }
 
   def getMembersToImplement(clazz: ScTemplateDefinition, withOwn: Boolean = false, withSelfType: Boolean = false): Seq[ClassMember] =
     classMembersWithFilter(clazz, withSelfType, isOverride = false)(needImplement(_, clazz, withOwn), needImplement(_, clazz, withOwn))

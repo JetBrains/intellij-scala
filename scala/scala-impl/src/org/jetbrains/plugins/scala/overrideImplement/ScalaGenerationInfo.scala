@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import java.util.Properties
 
-class ScalaGenerationInfo(classMember: ClassMember0, needsOverrideModifier: Boolean)
+class ScalaGenerationInfo(classMember: ClassMember0, needsOverrideModifier: Boolean, typeAdjuster: TypeAdjuster)
   extends GenerationInfoBase {
 
   private var myMember: PsiMember = classMember.getElement
@@ -48,24 +48,24 @@ class ScalaGenerationInfo(classMember: ClassMember0, needsOverrideModifier: Bool
 
     classMember match {
       case member: ScMethodMember =>
-        myMember = insertMethod(member, templDef, anchor, needsOverrideModifier)
+        myMember = insertMethod(member, templDef, anchor, needsOverrideModifier, typeAdjuster)
       case _: ScExtensionMethodMember =>
         throw new AssertionError("Unexpected extension method member. It's expected that all extension method members are grouped in ScMethodMember")
       case member: ScExtensionMember =>
-        myMember = insertExtension(member, templDef, anchor)
+        myMember = insertExtension(member, templDef, anchor, typeAdjuster)
       case ScAliasMember(alias, substitutor, _) =>
         val m = createOverrideImplementType(alias, substitutor, needsOverrideModifier, aClass, comment)(alias.getManager)
 
         val added = templDef.addMember(m, Option(anchor))
         addTargetNameAnnotationIfNeeded(added, alias)
         myMember = added
-        TypeAdjuster.markToAdjust(added)
+        typeAdjuster.markToAdjust(added)
       case member: ScValueOrVariableMember[_] =>
         val m: ScMember = createVariable(comment, member, aClass, needsOverrideModifier)
         val added = templDef.addMember(m, Option(anchor))
         addTargetNameAnnotationIfNeeded(added, if (member.element.is[ScClassParameter]) member.element else member.getElement)
         myMember = added
-        TypeAdjuster.markToAdjust(added)
+        typeAdjuster.markToAdjust(added)
       case _ =>
     }
   }
@@ -219,11 +219,11 @@ object ScalaGenerationInfo {
     template.getText(properties)
   }
 
-  def insertMethod(member: ScMethodMember, td: ScTemplateDefinition, anchor: PsiElement): ScFunction = {
-    insertMethod(member, td, anchor, needsOverrideModifier = member.isOverride || toAddOverrideToImplemented)
+  def insertMethod(member: ScMethodMember, td: ScTemplateDefinition, anchor: PsiElement, typeAdjuster: TypeAdjuster): ScFunction = {
+    insertMethod(member, td, anchor, needsOverrideModifier = member.isOverride || toAddOverrideToImplemented, typeAdjuster)
   }
 
-  private def insertMethod(member: ScMethodMember, td: ScTemplateDefinition, anchor: PsiElement, needsOverrideModifier: Boolean): ScFunction = {
+  private def insertMethod(member: ScMethodMember, td: ScTemplateDefinition, anchor: PsiElement, needsOverrideModifier: Boolean, typeAdjuster: TypeAdjuster): ScFunction = {
     val method: PsiMethod = member.getElement
     val ScMethodMember(signature, isOverride) = member
 
@@ -241,7 +241,7 @@ object ScalaGenerationInfo {
     val added = td.addMember(m, Option(anchor))
     addTargetNameAnnotationIfNeeded(added, method)
     TypeAnnotationUtil.removeTypeAnnotationIfNeeded(added, typeAnnotationsPolicy)
-    TypeAdjuster.markToAdjust(added)
+    typeAdjuster.markToAdjust(added)
     added.asInstanceOf[ScFunction]
   }
 
@@ -249,6 +249,7 @@ object ScalaGenerationInfo {
     member: ScExtensionMember,
     td: ScTemplateDefinition,
     anchor: PsiElement,
+    typeAdjuster: TypeAdjuster
   ): ScExtension = {
     val ScExtensionMember(extension, methodMembers) = member
 
@@ -274,7 +275,7 @@ object ScalaGenerationInfo {
     }
 
     //This automatically adjusts types in all child extension methods
-    TypeAdjuster.markToAdjust(addedExtension)
+    typeAdjuster.markToAdjust(addedExtension)
 
     addedExtension
   }
