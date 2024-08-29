@@ -2,9 +2,13 @@ package org.jetbrains.plugins.scala.lang.psi
 
 import com.intellij.openapi.application.{ApplicationListener, ApplicationManager}
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.util.concurrency.annotations.RequiresEdt
+import org.jetbrains.annotations.{Nls, Nullable}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
@@ -29,6 +33,36 @@ import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
 /**
+ * @note Not thread safe, must be used in a single thread. Currently marked as usable only on the UI thread.
+ */
+private[scala] final class TypeAdjuster {
+  private val markedElements: mutable.ArrayBuffer[SmartPsiElementPointer[PsiElement]] =
+    mutable.ArrayBuffer.empty[SmartPsiElementPointer[PsiElement]]
+
+  @RequiresEdt
+  def markToAdjust(element: PsiElement): Unit = {
+    if (element != null && element.isValid) {
+      markedElements += element.createSmartPointer
+    }
+  }
+
+  @RequiresEdt
+  def adjustTypes(): Unit = {
+    if (markedElements.nonEmpty) {
+      val head = markedElements.head
+      PsiDocumentManager.getInstance(head.getProject).commitAllDocuments()
+
+      val elements = markedElements.iterator.collect {
+        case ValidSmartPointer(element) => element
+      }.to(ArraySeq)
+      markedElements.clear()
+
+      TypeAdjuster.adjustFor(elements)
+    }
+  }
+}
+
+/**
  * ATTENTION: Description copied from commit message of commit 28489efa
  *
  * Type adjuster works in three steps:<br>
@@ -41,55 +75,78 @@ import scala.collection.mutable
  */
 object TypeAdjuster extends ApplicationListener {
 
-  private val LOG = Logger.getInstance(getClass)
+  private val LOG = Logger.getInstance(classOf[TypeAdjuster])
 
   {
     ApplicationManager.getApplication.addApplicationListener(this): @nowarn("cat=deprecation")
   }
 
-  private val markedElements = mutable.ArrayBuffer.empty[SmartPsiElementPointer[PsiElement]]
+  private val globalAdjuster: TypeAdjuster = new TypeAdjuster()
 
   override def writeActionFinished(action: Any): Unit = {
-    if (markedElements.nonEmpty) {
-      val head = markedElements.head
-      PsiDocumentManager.getInstance(head.getProject).commitAllDocuments()
+    globalAdjuster.adjustTypes()
+  }
 
-      val elements = markedElements.iterator.collect {
-        case ValidSmartPointer(element) => element
-      }.to(ArraySeq)
-      markedElements.clear()
+  def markToAdjust(element: PsiElement): Unit = {
+    globalAdjuster.markToAdjust(element)
+  }
 
-      adjustFor(elements)
+  def isMarkedForAdjustment(element: PsiElement): Boolean =
+    if (element != null) globalAdjuster.markedElements.contains(element.createSmartPointer)
+    else                 false
+
+  def adjustFor(elements: Seq[PsiElement], addImports: Boolean = true, useTypeAliases: Boolean = true): Unit = {
+    val progressManager = ProgressManager.getInstance()
+    @Nullable val indicator = progressManager.getProgressIndicator
+    if (indicator ne null) {
+      indicator.checkCanceled()
+      indicator.setText(ScalaBundle.message("adjusting.types.progress.title"))
+      indicator.setIndeterminate(false)
+      indicator.setFraction(0)
+    }
+
+    val indexedElements = elements.toIndexedSeq
+
+    val infos = {
+      updateText2(indicator, ScalaBundle.message("adjusting.types.progress.simplifying"))
+      val total = indexedElements.length
+      indexedElements.zipWithIndex.flatMap { case (element, index) =>
+        updateProgress(indicator, index, total)
+        collectAdjustableTypeElements(element).distinct.flatMap { typeElement =>
+          simplify(SimpleInfo(typeElement)).map { simplified =>
+            shortenReference(simplified, useTypeAliases)
+          }
+        }
+      }
+    }
+
+    val rewrittenInfos = rewriteInfosAsInfix(infos, indicator)
+
+    // Do not check for cancelation past this point, as PSI is being modified. Otherwise, it is possible to generate
+    // code that doesn't compile.
+    progressManager.executeNonCancelableSection { () =>
+      val replacedAndComputedImports = replaceAndAddImports(rewrittenInfos, addImports, indicator)
+      updateText2(indicator, ScalaBundle.message("adjusting.types.progress.imports"))
+      val total = replacedAndComputedImports.size
+      replacedAndComputedImports.zipWithIndex.foreach { case ((holder, pathsToAdd), index) =>
+        updateProgress(indicator, index, total)
+        holder.addImportsForPaths(pathsToAdd.toSeq, null)
+      }
     }
   }
 
-  def markToAdjust(element: PsiElement): Unit =
-    if (element != null && element.isValid) {
-      markedElements += element.createSmartPointer
+  private def updateText2(@Nullable indicator: ProgressIndicator, @Nls text: String): Unit = {
+    if (indicator ne null) {
+      indicator.checkCanceled()
+      indicator.setText2(text)
     }
+  }
 
-  def isMarkedForAdjustment(element: PsiElement): Boolean =
-    if (element != null) markedElements.contains(element.createSmartPointer)
-    else                 false
-
-  def adjustFor(elements: Seq[PsiElement],
-                addImports: Boolean = true,
-                useTypeAliases: Boolean = true): Unit = {
-    val infos = for {
-      element <- elements
-      typeElement <- collectAdjustableTypeElements(element).distinct
-
-      info = SimpleInfo(typeElement)
-      simplified <- simplify(info)
-
-      shortened = shortenReference(simplified, useTypeAliases)
-    } yield shortened
-
-    val rewrittenInfos = rewriteInfosAsInfix(infos)
-    for {
-      (holder, pathsToAdd) <- replaceAndAddImports(rewrittenInfos, addImports)
-    } {
-      holder.addImportsForPaths(pathsToAdd.toSeq, null)
+  private def updateProgress(@Nullable indicator: ProgressIndicator, index: Int, total: Int): Unit = {
+    if (indicator ne null) {
+      indicator.checkCanceled()
+      val fraction = (index + 1).toDouble / total
+      indicator.setFraction(fraction)
     }
   }
 
@@ -280,7 +337,7 @@ object TypeAdjuster extends ApplicationListener {
     }
   }
 
-  private def rewriteInfosAsInfix(infos: Seq[ReplacementInfo]): Seq[ReplacementInfo] = {
+  private def rewriteInfosAsInfix(infos: IndexedSeq[ReplacementInfo], @Nullable indicator: ProgressIndicator): IndexedSeq[ReplacementInfo] = {
     def infoToMappings(info: ReplacementInfo): List[(String, PsiElement)] = info match {
       case SimpleInfo(place, replacement, _, _) =>
         val maybePair = for {
@@ -335,7 +392,12 @@ object TypeAdjuster extends ApplicationListener {
       case compound: CompoundInfo => compound.map(rewriteAsInfix)
     }
 
-    infos.map(rewriteAsInfix)
+    val total = infos.length
+    updateText2(indicator, ScalaBundle.message("adjusting.types.progress.rewriting"))
+    infos.zipWithIndex.map { case (info, index) =>
+      updateProgress(indicator, index, total)
+      rewriteAsInfix(info)
+    }
   }
 
   private def collectImportHolders(infos: Set[ReplacementInfo]): Map[ReplacementInfo, ScImportsHolder] = {
@@ -366,11 +428,13 @@ object TypeAdjuster extends ApplicationListener {
   }
 
   private def replaceAndAddImports(
-    infos: Iterable[ReplacementInfo],
-    addImports: Boolean
+    infos: IndexedSeq[ReplacementInfo],
+    addImports: Boolean,
+    @Nullable indicator: ProgressIndicator
   ) = {
     assert(infos.forall(_.place.isValid), "Psi shouldn't be modified before this stage!")
 
+    updateText2(indicator, ScalaBundle.message("adjusting.types.progress.replacing"))
     val (
       sameResolve: Set[ReplacementInfo],
       otherResolve: Set[ReplacementInfo]
@@ -382,7 +446,9 @@ object TypeAdjuster extends ApplicationListener {
       .withDefaultValue(Set.empty)
 
     val infosFinal = if (addImports) infos else infos.filter(sameResolve.contains)
-    infosFinal.foreach { info =>
+    val total = infosFinal.length
+    infosFinal.zipWithIndex.foreach { case (info, index) =>
+      updateProgress(indicator, index, total)
       replaceElem(info)
 
       val pathsToImport = info.pathsToImport
@@ -452,7 +518,7 @@ object TypeAdjuster extends ApplicationListener {
       case simple: ScSimpleTypeElement => simple
       case projection: ScTypeProjection => projection
       case parameterized: ScParameterizedTypeElement => parameterized
-    }.toSeq
+    }.toIndexedSeq
 
   private sealed trait ReplacementInfo {
 
