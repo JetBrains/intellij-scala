@@ -30,7 +30,7 @@ abstract class ScalaSdkDetectorDependencyManagerBase extends ScalaSdkDetectorBas
 
     val sdkDescriptors: Seq[(Option[String], Either[Seq[String], ScalaSdkDescriptor])] =
       componentsByVersion.map { case (version, components) =>
-        val descriptor = buildFromComponents(components, None, indicator)
+        val descriptor = buildFromComponents(components, None, indicator = indicator)
         (version, descriptor.left.map(_.map(_.errorMessage)))
       }
 
