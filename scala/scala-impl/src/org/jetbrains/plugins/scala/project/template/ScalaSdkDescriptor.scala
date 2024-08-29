@@ -8,6 +8,7 @@ import java.io.File
  * @param label extra label which allows to distinguish between several SDKs with the same Scala version.
  *              For SystemDetector we can have several folders with Scala SDK with same version (see SCL-19219)
  *              For other detectors (Ivy, Maven, etc...) this value will be None
+ * @param systemRoot location of the scala sdk standalone distribution if the SDK was detected from such
  */
 final case class ScalaSdkDescriptor(version: Option[String], // Why is it Option? Shouldn't SDK version always be known?
                                     label: Option[String],
@@ -16,7 +17,8 @@ final case class ScalaSdkDescriptor(version: Option[String], // Why is it Option
                                     libraryFiles: Seq[File],
                                     sourceFiles: Seq[File],
                                     docFiles: Seq[File],
-                                    compilerBridgeJar: Option[File])
+                                    compilerBridgeJar: Option[File],
+                                    systemRoot: Option[File] = None)
   extends Ordered[ScalaSdkDescriptor] {
 
   def isScala3: Boolean = version.exists(_.startsWith("3"))

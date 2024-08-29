@@ -3,10 +3,13 @@ package org.jetbrains.plugins.scala.project.sdkdetect.repository
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.util.SystemInfo
+import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.ObjectExt
-import org.jetbrains.plugins.scala.project.sdkdetect.repository.CompilerClasspathResolveFailure.{AmbiguousArtifactsResolved, UnresolvedArtifact}
+import org.jetbrains.plugins.scala.project.external.ScalaSdkUtils
+import org.jetbrains.plugins.scala.project.sdkdetect.repository.CompilerClasspathResolveFailure.{AmbiguousArtifactsResolved, CantReadClasspathFromManifest, UnresolvedArtifact}
 import org.jetbrains.plugins.scala.project.template._
+import org.jetbrains.plugins.scala.util.JarManifestUtils
 
 import java.io.File
 import java.nio.file.{Path, Paths}
@@ -26,6 +29,16 @@ private[project] object SystemDetector extends ScalaSdkDetectorBase {
   private val BinFolder = "bin"
   private val LibFolder = "lib"
   private val scalaChildDirs = Set(BinFolder, LibFolder)
+
+  // Jar files storing information about the class path since scala 3.5.0
+  // NOTE: there is also "with_compiler.jar" but it seems we don't need it
+  // From https://github.com/scala/scala3/issues/20413:
+  // "there is also a scala3-tasty-inspector_3 jar to go alongside scala3-staging_3
+  //   these are not normally on the classpath for scala/scalac,
+  //   but are added to the classpath if the user passes the -with-compiler argument to the launcher.
+  //   (Typically the user would need to add explicit libraryDependencies to use them in sbt/mill)"
+  private val ScalaCompilerClasspathJarName = "scala.jar"
+  private val ScaladocClasspathJarName = "scaladoc.jar"
 
   private val scala2LibChildFiles  = Set(
     "scala-compiler.jar",
@@ -106,8 +119,10 @@ private[project] object SystemDetector extends ScalaSdkDetectorBase {
   private def getSystemRoots: Seq[Path] = (rootsFromPath ++ rootsFromEnv ++ rootsFromPrograms).filter(_.exists)
 
   override protected def collectSdkDescriptors(implicit indicator: ProgressIndicator): Seq[ScalaSdkDescriptor] = {
-    val jarStreams: Seq[(JStream[Path], Path)] =
-      buildJarStreams(indicator)
+    val scalaSdkRoots: Seq[Path] = findPotentialScalaSdkRoots
+    val jarStreams: Seq[(JStream[Path], Path)] = scalaSdkRoots.map { scalaSdkRoot =>
+      (collectJarFiles(scalaSdkRoot), scalaSdkRoot)
+    }
 
     val components: Seq[(Seq[ScalaSdkComponent], Path)] =
       jarStreams.map { case (jarStream, sdkRootPath) =>
@@ -116,7 +131,7 @@ private[project] object SystemDetector extends ScalaSdkDetectorBase {
 
     val sdkDescriptorsOrErrors: Seq[(Either[Seq[CompilerClasspathResolveFailure], ScalaSdkDescriptor], Path)] =
       components.map { case (components, sdkRootPath) =>
-        (buildFromComponents(components, None, indicator), sdkRootPath)
+        (buildFromComponents(components, None, systemRoot = Some(sdkRootPath.toFile), indicator = indicator), sdkRootPath)
       }
 
     val sdkDescriptors: Seq[(ScalaSdkDescriptor, Path)] = sdkDescriptorsOrErrors.flatMap {
@@ -134,7 +149,7 @@ private[project] object SystemDetector extends ScalaSdkDetectorBase {
     }
   }
 
-  protected final def logScalaSdkSkippedInPath(sdkRootPath: Path, errors: Seq[String]): Unit = {
+  private final def logScalaSdkSkippedInPath(sdkRootPath: Path, errors: Seq[String]): Unit = {
     Log.trace(
       s"Scala SDK Descriptor candidate is skipped" +
         s" (detector: ${this.getClass.getSimpleName}, sdkRootPath: $sdkRootPath)," +
@@ -142,11 +157,9 @@ private[project] object SystemDetector extends ScalaSdkDetectorBase {
     )
   }
 
-  private def buildJarStreams(implicit indicator: ProgressIndicator): Seq[(JStream[Path], Path)] = {
-    val roots = getSystemRoots
-
-    val scalaSdkFolders: Seq[Path] = roots.flatMap { root =>
-      // note: files stream must be closed
+  private def findPotentialScalaSdkRoots(implicit indicator: ProgressIndicator): Seq[Path] = {
+    val systemRoots = getSystemRoots
+    systemRoots.flatMap { root =>
       Using.resource(root.children) { childrenStream =>
         childrenStream
           .filter { path =>
@@ -156,42 +169,115 @@ private[project] object SystemDetector extends ScalaSdkDetectorBase {
           .iterator().asScala.toSeq
       }
     }
-
-    scalaSdkFolders.map { scalaSdkRoot =>
-      (collectJarFiles(scalaSdkRoot), scalaSdkRoot)
-    }
   }
 
   private def isScalaSdkFolder(path: Path): Boolean = {
     path.isDir &&
       path.getFileName.toString.toLowerCase.startsWith("scala") &&
       scalaChildDirs.forall(path.childExists) &&
-      containsRequiredScalaLibraryJars(path)
+      (containsRequiredScalaLibraryJars(path) || findCompilerClasspathJar(path.toFile).isDefined)
+  }
+
+  def buildSdkDescriptor(selectedFiles: Seq[VirtualFile]): Either[Seq[CompilerClasspathResolveFailure], ScalaSdkDescriptor] = {
+    val files = selectedFiles.map(VfsUtilCore.virtualToIoFile)
+
+    val systemRoot = files match {
+      case Seq(f) if f.isDirectory => Some(f)
+      case _ => None
+    }
+
+    val allFiles = files.filter(_.isFile) ++ files.flatMap(_.allFiles)
+    val components = ScalaSdkComponent.fromFiles(allFiles)
+    buildFromComponents(components, None, systemRoot = systemRoot)
   }
 
   override protected def resolveExtraRequiredJarsScala3(descriptor: ScalaSdkDescriptor)
                                                        (implicit indicator: ProgressIndicator): Either[Seq[CompilerClasspathResolveFailure], ScalaSdkDescriptor] = {
     // assuming that all libraries are located in the same `lib` folder
-    val systemRoot = descriptor.compilerClasspath.headOption.map(_.getParentFile) match {
+    val systemRoot = descriptor.systemRoot.orElse(guessSystemRootFromClasspath(descriptor)) match {
       case Some(root) => root
       case None =>
         return Right(descriptor)
     }
 
-    val jarArtifacts = systemRoot.children.flatMap(JarArtifact.from)
+    val jarWithScalaClassPath = findCompilerClasspathJar(systemRoot).orNull
+    if (jarWithScalaClassPath != null) //should be effectively true since 3.5.0
+      resolveUsingJarMetaInfo(systemRoot, jarWithScalaClassPath, descriptor) //TODO: think about fallback mechanism
+    else
+      resolveUsingHardcodedJarNames(systemRoot, descriptor)
+  }
+
+  private def findCompilerClasspathJar(systemRoot: File): Option[File] =
+    Option(systemRoot / LibFolder / ScalaCompilerClasspathJarName).filter(_.exists())
+
+  private def guessSystemRootFromClasspath(descriptor: ScalaSdkDescriptor): Option[File] =
+    descriptor.compilerClasspath.headOption //jar file
+      .map(_.getParentFile) //lib dir
+      .map(_.getParentFile) //system root
+
+  /**
+   * @note from scala 3.5.0, the scala distribution keeps information about the classpath in `*.jar/META-INF/MANIFEST.MF`
+   */
+  private def resolveUsingJarMetaInfo(
+    systemRoot: File,
+    jarWithScalaClassPath: File,
+    descriptor: ScalaSdkDescriptor
+  ): Either[Seq[CompilerClasspathResolveFailure], ScalaSdkDescriptor] = {
+    val compilerClasspath = readClassPath(jarWithScalaClassPath)
+    compilerClasspath.map { cp =>
+      val jarWithScaladocClasspath = systemRoot / LibFolder / ScaladocClasspathJarName
+      val scaladocClasspath = readClassPath(jarWithScaladocClasspath).getOrElse(Nil)
+      val scaladocExtraClasspath = scaladocClasspath.filterNot(cp.contains)
+
+      val compilerBridgeJar = descriptor.version.flatMap(findCompilerBridgeJarInSdkLocalMavenRepo(systemRoot, _))
+
+      //NOTE: library classes are assumed to be detected already
+      descriptor.copy(
+        compilerClasspath = cp,
+        scaladocExtraClasspath = scaladocExtraClasspath,
+        compilerBridgeJar = compilerBridgeJar
+      )
+    }
+  }
+
+  private def readClassPath(jarFile: File): Either[Seq[CompilerClasspathResolveFailure], Seq[File]] = {
+    val classPath = JarManifestUtils.readClassPath(jarFile).orNull
+    if (classPath != null) {
+      val missingFiles = classPath.filterNot(_.exists())
+      if (missingFiles.isEmpty)
+        Right(classPath)
+      else
+        Left(missingFiles.map(CompilerClasspathResolveFailure.FileNotFound.apply))
+    }
+    else {
+      Left(Seq(CantReadClasspathFromManifest(jarFile)))
+    }
+  }
+
+  // Since version 3.5.0, scala distribution keeps all the jars in the local maven2 directory, including the bridge jar.
+  // Note that even if no jar is found, it will be later downloaded dynamically when registering SDK
+  private def findCompilerBridgeJarInSdkLocalMavenRepo(systemRoot: File, version: String) : Option[File] = {
+    val jarFileName = ScalaSdkUtils.compilerBridgeJarName(version)
+    val jarFile = jarFileName.map(systemRoot / "maven2" / "org" / "scala-lang" / "scala3-sbt-bridge" / version / _)
+    jarFile.filter(_.exists())
+  }
+
+  private def resolveUsingHardcodedJarNames(
+    systemRoot: File,
+    descriptor: ScalaSdkDescriptor
+  ): Either[Seq[CompilerClasspathResolveFailure], ScalaSdkDescriptor] = {
+    val jarArtifacts = (systemRoot / LibFolder).children.flatMap(JarArtifact.from)
 
     val localResolveResults: Seq[Either[CompilerClasspathResolveFailure, JarArtifact]] =
-      Scala3ExtraCompilerClasspathArtifacts.map(resolve(_, jarArtifacts))
+      Scala3ExtraCompilerClasspathArtifacts.map(resolve(_, jarArtifacts)) ++
+        Scala3ExtraCompilerClasspathOptionalArtifacts.map(resolve(_, jarArtifacts)).filter(_.isRight)
 
     val (errors, jars) = localResolveResults.partitionMap(identity)
     if (errors.nonEmpty)
       Left(errors)
     else {
-      val scala2LibraryJar = jars.find(_.shortName == Scala2LibraryArtifactName).get
       Right(
-        descriptor
-          .withExtraCompilerClasspath(jars.map(_.file))
-          .withExtraLibraryFiles(Seq(scala2LibraryJar.file))
+        descriptor.withExtraCompilerClasspath(jars.map(_.file))
       )
     }
   }
@@ -212,7 +298,7 @@ private[project] object SystemDetector extends ScalaSdkDetectorBase {
     def from(file: File): Option[JarArtifact] = {
       val fileName = file.getName
       if (fileName.endsWith(".jar")) {
-        // extra strip ".jar"  just in case if some library doesn't have version (it's not the case for 3.0.0 though)
+        // extra strip ".jar" just in case if some library doesn't have version (it's not the case for 3.0.0 though)
         val shortName = JarExtensionWithVersionRegex.replaceFirstIn(fileName, "").stripSuffix(".jar")
         Some(JarArtifact(file, fileName, shortName))
       }
@@ -253,10 +339,13 @@ private[project] object SystemDetector extends ScalaSdkDetectorBase {
     "scala-asm",
     "compiler-interface",
     "util-interface",
-    "protobuf-java",
     "jline-reader",
     "jline-terminal",
     "jline-terminal-jna",
     "jna",
+  )
+  //This jar is not required in scala 3.3.x or 3.4.x
+  private val Scala3ExtraCompilerClasspathOptionalArtifacts = Seq(
+    "protobuf-java",
   )
 }
