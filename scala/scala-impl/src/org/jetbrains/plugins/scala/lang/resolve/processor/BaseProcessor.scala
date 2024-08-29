@@ -270,18 +270,24 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
         }
       case lit: ScLiteralType => processType(lit.wideType, place, state, updateWithProjectionSubst)
       case StdType(name, tSuper) =>
-        SyntheticClasses.get(place.getProject).byName(name) match {
-          case Some(c) =>
-            if (!c.processDeclarations(this, state, null, place) ||
-              !(tSuper match {
-                case Some(ts) => processTypeImpl(ts, place)
-                case _ => true
-              })) return false
+        val project = place.getProject
+
+        val scalaPsiManager = ScalaPsiManager.instance(project)
+        lazy val scope = place.resolveScope
+
+        val syntheticClassOpt = SyntheticClasses.get(project).byName(name)
+        val clazzOpt = syntheticClassOpt.orElse(scalaPsiManager.getScalaLibraryAnyValClass(scope, name))
+        clazzOpt match {
+          case Some(clazz) =>
+            if (!clazz.processDeclarations(this, state, null, place))
+              return false
+
+            if (!tSuper.forall(processTypeImpl(_, place)))
+              return false
           case None => //nothing to do
         }
 
-        val scope = place.resolveScope
-        val obj: PsiClass = ScalaPsiManager.instance(place.getProject).getCachedClass(scope, "java.lang.Object").orNull
+        val obj: PsiClass = scalaPsiManager.getCachedClass(scope, "java.lang.Object").orNull
         if (obj != null) {
           val namesSet = Set("hashCode", "toString", "equals", "getClass")
           val methods = obj.getMethods.iterator

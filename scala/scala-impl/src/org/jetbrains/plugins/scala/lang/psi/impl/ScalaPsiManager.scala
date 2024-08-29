@@ -39,7 +39,7 @@ import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.{ScPackageObjectFqnIndex, ScPackagingFqnIndex, ScStableTypeAliasFqnIndex, ScalaIndexKeys}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ParameterizedType, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ParameterizedType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil._
 import org.jetbrains.plugins.scala.lang.resolve.SyntheticClassProducer
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -437,8 +437,11 @@ class ScalaPsiManager(implicit val project: Project) extends Disposable {
             )
             .filterNot(p => p.is[ScTemplateDefinition] || p.is[PsiClassWrapper])
 
-          classes ++ SyntheticClassProducer.getAllClasses(fqn, scope)
-        } finally inJavaPsiFacade.value = false
+          val syntheticClasses = SyntheticClassProducer.getAllClasses(fqn, scope)
+          classes ++ syntheticClasses
+        } finally {
+          inJavaPsiFacade.value = false
+        }
       }
 
       if (DumbService.getInstance(project).isDumb) Array.empty[PsiClass]
@@ -457,6 +460,30 @@ class ScalaPsiManager(implicit val project: Project) extends Disposable {
             result
         }
       }
+    }
+  )
+
+
+  /**
+   * @param name short name of an AnyVal class. Examples: Int, Boolean, Unit
+   */
+  def getScalaLibraryAnyValClass(scope: GlobalSearchScope, name: String): Option[PsiClass] =
+    getScalaLibraryAnyValClassCached(scope, name)
+
+  private val getScalaLibraryAnyValClassCached: (GlobalSearchScope, String) => Option[PsiClass] = cachedWithoutModificationCount(
+    "getScalaLibraryAnyValClassCached",
+    // don't use soft reference, there should be not that many std lib classes
+    // (even if we have 1000 modules, it would be just 8000 entries, which shouldn't be that bad)
+    ValueWrapper.None,
+    // Invalidate the cache on project root model changes.
+    // We expect that definitions from the scala library can change only on project structure change
+    // (for example, when some module Scala version has changed).
+    // The difference between `getScalaClassNamesCached` is that this is not recalculated on every top-level change.
+    clearCacheOnRootsChange,
+    (scope: GlobalSearchScope, name: String) => {
+      val qualifiedName = s"scala.$name"
+      val manager = ScalaShortNamesCacheManager.getInstance(scope.getProject)
+      Option(manager.getClassByFQName(qualifiedName, scope))
     }
   )
 

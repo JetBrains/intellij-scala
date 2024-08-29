@@ -10,6 +10,7 @@ import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.IncorrectOperationException
 import com.intellij.util.containers.MultiMap
+import org.intellij.lang.annotations.Language
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.caches.cachedInUserData
 import org.jetbrains.plugins.scala.extensions._
@@ -17,7 +18,7 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction, ScTypeAlias}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
@@ -107,9 +108,9 @@ final class ScSyntheticClass(
     }
   }
 
-  override def getNavigationElement: PsiElement = cachedInUserData("ScSyntheticClass.getNavigationElement", this, ProjectRootManager.getInstance(getProject)) {
+  override def getNavigationElement: PsiElement = cachedInUserData("ScSyntheticClass.getNavigationElement", this, ProjectRootManager.getInstance(projectContext.project)) {
     val syntheticClassSourceMirror = for {
-      scalaPackagePsiDirectory <- findScalaPackageSourcesPsiDirectory(this.stdType.projectContext.project)
+      scalaPackagePsiDirectory <- findScalaPackageSourcesPsiDirectory(projectContext.project)
       //class Any -> Any.scala
       psiFile <- Option(scalaPackagePsiDirectory.findFile(s"$className.scala")).map(_.asInstanceOf[ScalaFile])
       classDef <- psiFile.typeDefinitions.headOption //expecting single class definition in the file
@@ -120,7 +121,7 @@ final class ScSyntheticClass(
   //TODO: current implementation might not work in a project with multiple scala versions. It depends on SCL-22349.
   private def findScalaPackageSourcesPsiDirectory(project: Project): Option[PsiDirectory] = cachedInUserData("ScSyntheticClass.findScalaPackageSourcesPsiDirectory", project, ProjectRootManager.getInstance(project)) {
     //Get some representative class from Scala standard library
-    val classFromStdLib = ScalaPsiManager.instance(this.stdType.projectContext).getCachedClass(GlobalSearchScope.allScope(this.stdType.projectContext.project), "scala.Array")
+    val classFromStdLib = ScalaPsiManager.instance(project).getCachedClass(GlobalSearchScope.allScope(project), "scala.Array")
     classFromStdLib.map { clazz =>
       //.../scala-library-2.13.11-sources.jar!/scala/Array.scala
       val navigationFile = clazz.getContainingFile.getNavigationElement.asInstanceOf[ScalaFile]
@@ -225,11 +226,11 @@ sealed class ScSyntheticFunction(
     null
   }
 
-  override def getNavigationElement: PsiElement = cachedInUserData("ScSyntheticFunction.getNavigationElement", this, ProjectRootManager.getInstance(retType.projectContext)) {
+  override def getNavigationElement: PsiElement = cachedInUserData("ScSyntheticFunction.getNavigationElement", this, ProjectRootManager.getInstance(projectContext.project)) {
     val syntheticFunctionSourceMirror = containingSyntheticClass.flatMap(_.getNavigationElement match {
       case classInSources: ScTemplateDefinition =>
         //NOTE: we search for the function with the same name ignoring overloaded functions
-        // in principle this is not entirely correct, but for the synthetic classes in Scala library
+        // in principle this is not entirely correct, but for the synthetic classes in the Scala library
         // it should work fine because it's known that there are no overloaded methods in those classes
         classInSources.members.filterByType[ScFunction].find(_.name == name)
       case _ => None
@@ -246,15 +247,10 @@ final class SyntheticClasses(project: Project) {
     if (classesInitialized) {
       sharedClasses.clear()
       scala3Classes.clear()
-      numeric.clear()
-      integer.clear()
-      objects.clear()
       aliases.clear()
     }
 
     stringPlusMethod = null
-    numeric = null
-    integer = null
     file = null
   }
 
@@ -267,10 +263,6 @@ final class SyntheticClasses(project: Project) {
 
   private val sharedClasses: mutable.Map[String, PsiClass] = mutable.HashMap.empty[String, PsiClass]
   private val scala3Classes: mutable.Map[String, PsiClass] = mutable.HashMap.empty[String, PsiClass]
-  private var numeric: mutable.Set[ScSyntheticClass]       = mutable.HashSet.empty[ScSyntheticClass]
-  private var integer: mutable.Set[ScSyntheticClass]       = mutable.HashSet.empty[ScSyntheticClass]
-
-  val objects: mutable.Map[String, ScObject] = mutable.HashMap.empty[String, ScObject]
   val aliases: mutable.Set[ScTypeAlias]      = mutable.HashSet.empty[ScTypeAlias]
 
   private[synthetic]
@@ -285,6 +277,12 @@ final class SyntheticClasses(project: Project) {
     val emptyScalaFile = PsiFileFactory.getInstance(project).createFileFromText(fileName, ScalaFileType.INSTANCE, "")
     file = emptyScalaFile
 
+    stringPlusMethod = new ScSyntheticFunction("+", _, Seq(Seq(Any)))
+
+    //
+    // Scala 2 library bootstrap classes, which are not present in the `.class` files
+    // https://github.com/scala/scala/tree/2.13.x/src/library-aux/scala
+    //
     val any = registerClass(Any, "Any")
     any.addMethod(new ScSyntheticFunction("==", Boolean, Seq(Seq(Any))))
     any.addMethod(new ScSyntheticFunction("!=", Boolean, Seq(Seq(Any))))
@@ -303,60 +301,9 @@ final class SyntheticClasses(project: Project) {
       override val retType: ScType = TypeParameterType(typeParams.head)
     })
 
-    registerClass(AnyKind, "AnyKind", isScala3 = true)
-    registerClass(AnyVal, "AnyVal")
     registerClass(Nothing, "Nothing")
     registerClass(Null, "Null")
     registerClass(Singleton, "Singleton")
-    registerClass(Unit, "Unit")
-
-    import SyntheticClasses._
-
-    val boolc = registerClass(Boolean, "Boolean")
-    for (op <- bool_other_bin_ops)
-      boolc.addMethod(new ScSyntheticFunction(op, Boolean, Seq(Seq(Boolean))))
-    boolc.addMethod(new ScSyntheticFunction("unary_!", Boolean, Nil))
-
-    for (op <- bool_bin_short_circuit_ops)
-      boolc.addMethod(new ScSyntheticFunction(op, Boolean, Seq(Seq(Boolean)), paramsByName = true))
-
-    registerIntegerClass(registerNumericClass(registerClass(Char, "Char")))
-    registerIntegerClass(registerNumericClass(registerClass(Int, "Int")))
-    registerIntegerClass(registerNumericClass(registerClass(Long, "Long")))
-    registerIntegerClass(registerNumericClass(registerClass(Byte, "Byte")))
-    registerIntegerClass(registerNumericClass(registerClass(Short, "Short")))
-    registerNumericClass(registerClass(Float, "Float"))
-    registerNumericClass(registerClass(Double, "Double"))
-
-    for (nc <- numeric) {
-      for (nc1 <- numeric; op <- numeric_comp_ops)
-        nc.addMethod(new ScSyntheticFunction(op, Boolean, Seq(Seq(nc1.stdType))))
-      for (nc1 <- numeric; op <- numeric_arith_ops)
-        nc.addMethod(new ScSyntheticFunction(op, op_type(nc, nc1), Seq(Seq(nc1.stdType))))
-      for (nc1 <- numeric)
-        nc.addMethod(new ScSyntheticFunction("to" + nc1.className, nc1.stdType, Nil))
-      for (un_op <- numeric_arith_unary_ops)
-        nc.addMethod(new ScSyntheticFunction("unary_" + un_op, nc.stdType match {
-          case Long | Double | Float => nc.stdType
-          case _ => Int
-        }, Nil))
-    }
-
-    for (ic <- integer) {
-      for (ic1 <- integer; op <- bitwise_bin_ops)
-        ic.addMethod(new ScSyntheticFunction(op, op_type(ic, ic1), Seq(Seq(ic1.stdType))))
-      ic.addMethod(new ScSyntheticFunction("unary_~", ic.stdType, Nil))
-
-      val ret = ic.stdType match {
-        case Long => Long
-        case _ => Int
-      }
-      for (op <- bitwise_shift_ops) {
-        ic.addMethod(new ScSyntheticFunction(op, ret, Seq(Seq(Int))))
-        ic.addMethod(new ScSyntheticFunction(op, ret, Seq(Seq(Long))))
-      }
-    }
-    stringPlusMethod = new ScSyntheticFunction("+", _, Seq(Seq(Any)))
 
     def createDummyFile(debugName: String, fileText: String) = {
       val fileName = s"dummy-synthetic-$debugName.scala"
@@ -364,14 +311,6 @@ final class SyntheticClasses(project: Project) {
         .getInstance(project)
         .createFileFromText(fileName, ScalaFileType.INSTANCE, fileText)
         .asInstanceOf[ScalaFile]
-    }
-
-    //register synthetic objects
-    //TODO: drop it (see https://youtrack.jetbrains.com/issue/SCL-20932)
-    def registerObject(debugName: String, fileText: String): Unit = {
-      val dummyFile = createDummyFile(debugName, fileText)
-      val obj = dummyFile.typeDefinitions.head.asInstanceOf[ScObject]
-      objects.put(obj.qualifiedName, obj)
     }
 
     def registerContextFunctionClass(debugName: String, fileText: String): Unit = {
@@ -395,205 +334,32 @@ final class SyntheticClasses(project: Project) {
       )
     }
 
-    registerObject("Boolean",
-      """
-package scala
-
-object Boolean {
- 	def box(x: _root_.scala.Boolean): _root_.java.lang.Boolean = ???
-
- 	def unbox(x: _root_.java.lang.Object): _root_.scala.Boolean = ???
-}
-"""
-    )
-
-    registerObject("Byte",
-      """
-package scala
-
-object Byte {
- 	def box(x: _root_.scala.Byte): _root_.java.lang.Byte = ???
-
- 	def unbox(x: _root_.java.lang.Object): _root_.scala.Byte = ???
-
-  final val MinValue = _root_.java.lang.Byte.MIN_VALUE
-
- 	final val MaxValue = _root_.java.lang.Byte.MAX_VALUE
-}
-"""
-    )
-
-    registerObject("Char",
-      """
-package scala
-
-object Char {
- 	def box(x: _root_.scala.Char): _root_.java.lang.Character = ???
-
- 	def unbox(x: _root_.java.lang.Object): _root_.scala.Char = ???
-
- 	final val MinValue = _root_.java.lang.Character.MIN_VALUE
-
- 	final val MaxValue = _root_.java.lang.Character.MAX_VALUE
-}
-"""
-    )
-
-    registerObject("Double",
-      """
-package scala
-
-object Double {
- 	def box(x: _root_.scala.Double): _root_.java.lang.Double = ???
-
- 	def unbox(x: _root_.java.lang.Object): _root_.scala.Double = ???
-
- 	@deprecated("use Double.MinNegativeValue instead")
- 	final val MinValue = -_root_.java.lang.Double.MAX_VALUE
-
- 	final val MinNegativeValue = -_root_.java.lang.Double.MAX_VALUE
-
- 	final val MaxValue = _root_.java.lang.Double.MAX_VALUE
-
- 	@deprecated("use Double.MinPositiveValue instead")
- 	final val Epsilon = _root_.java.lang.Double.MIN_VALUE
-
- 	final val MinPositiveValue = _root_.java.lang.Double.MIN_VALUE
-
- 	final val NaN = _root_.java.lang.Double.NaN
-
- 	final val PositiveInfinity = _root_.java.lang.Double.POSITIVE_INFINITY
-
- 	final val NegativeInfinity = _root_.java.lang.Double.NEGATIVE_INFINITY
-}
-"""
-    )
-
-    registerObject("Float",
-      """
-package scala
-
-object Float {
- 	def box(x: _root_.scala.Float): _root_.java.lang.Float = ???
-
- 	def unbox(x: _root_.java.lang.Object): _root_.scala.Float = ???
-
- 	@deprecated("use Float.MinNegativeValue instead")
- 	final val MinValue = -_root_.java.lang.Float.MAX_VALUE
-
-  final val MinNegativeValue = -_root_.java.lang.Float.MAX_VALUE
-
-  final val MaxValue = _root_.java.lang.Float.MAX_VALUE
-
-  @deprecated("use Float.MinPositiveValue instead")
- 	final val Epsilon = _root_.java.lang.Float.MIN_VALUE
-
-  final val MinPositiveValue = _root_.java.lang.Float.MIN_VALUE
-
-  final val NaN = _root_.java.lang.Float.NaN
-
-  final val PositiveInfinity = _root_.java.lang.Float.POSITIVE_INFINITY
-
-  final val NegativeInfinity = _root_.java.lang.Float.NEGATIVE_INFINITY
-}
-"""
-    )
-
-    registerObject("Int",
-      """
-package scala
-
-object Int {
- 	def box(x: _root_.scala.Int): _root_.java.lang.Integer = ???
-
-  def unbox(x: _root_.java.lang.Object): _root_.scala.Int = ???
-
-  final val MinValue = _root_.java.lang.Integer.MIN_VALUE
-
-  final val MaxValue = _root_.java.lang.Integer.MAX_VALUE
-}
-"""
-    )
-
-    registerObject("Long",
-      """
-package scala
-
-object Long {
- 	def box(x: _root_.scala.Long): _root_.java.lang.Long = ???
-
-  def unbox(x: _root_.java.lang.Object): _root_.scala.Long = ???
-
-  final val MinValue = _root_.java.lang.Long.MIN_VALUE
-
-  final val MaxValue = _root_.java.lang.Long.MAX_VALUE
-}
-"""
-    )
-
-    registerObject("Short",
-      """
-package scala
-
-object Short {
- 	def box(x: _root_.scala.Short): _root_.java.lang.Short = ???
-
-  def unbox(x: _root_.java.lang.Object): _root_.scala.Short = ???
-
-  final val MinValue = _root_.java.lang.Short.MIN_VALUE
-
-  final val MaxValue = _root_.java.lang.Short.MAX_VALUE
-}
-"""
-    )
-
-    registerObject("Unit",
-      """
-package scala
-
-object Unit
-"""
-    )
-
-    def registerAlias(text: String): Unit = {
+    def registerAlias(@Language("Scala") text: String): Unit = {
       val file  = ScalaPsiElementFactory.createScalaFileFromText(text, ScalaFeatures.default)
       val alias = file.members.head.asInstanceOf[ScTypeAlias]
       aliases += alias
     }
 
+    //
+    // Scala 3 library
+    //
+    // - https://www.scala-lang.org/api/3.0.2/scala/AnyKind.html
+    // - https://dotty.epfl.ch/docs/reference/other-new-features/kind-polymorphism.html
+    registerClass(AnyKind, "AnyKind", isScala3 = true)
     registerAlias(
-      """
-        |package scala
+      """package scala
         |
         |type &[A, B]
         |""".stripMargin
     )
-
     registerAlias(
-      """
-        |package scala
+      """package scala
         |
         |type |[A, B]
         |""".stripMargin
     )
 
-
     classesInitialized = true
-  }
-
-  def op_type (ic1 : ScSyntheticClass, ic2 : ScSyntheticClass): ValType = {
-    op_type(ic1.stdType, ic2.stdType)
-  }
-
-  def op_type(ic1: StdType, ic2: StdType): ValType = {
-    val stdTypes = ic1.projectContext.stdTypes
-    import stdTypes._
-    (ic1, ic2) match {
-      case (_, Double) | (Double, _) => Double
-      case (Float, _) | (_, Float) => Float
-      case (_, Long) | (Long, _)=> Long
-      case _ => Int
-    }
   }
 
   def registerClass(t: StdType, name: String, isScala3: Boolean = false): ScSyntheticClass = {
@@ -607,37 +373,33 @@ object Unit
     cls
   }
 
-  def registerIntegerClass(clazz : ScSyntheticClass): ScSyntheticClass = {integer += clazz; clazz}
-  def registerNumericClass(clazz : ScSyntheticClass): ScSyntheticClass = {numeric += clazz; clazz}
-
   def all: Iterable[PsiClass] = sharedClasses.values ++ scala3Classes.values
+
   @TestOnly
   def getScala3Classes: Iterable[PsiClass] = scala3Classes.values
 
   def sharedClassesOnly: Iterable[PsiClass] = sharedClasses.values
 
-  def byName(name: String): Option[PsiClass] = sharedClasses.get(name).orElse(scala3Classes.get(name))
+  def byName(name: String): Option[PsiClass] =
+    sharedClasses.get(name).orElse(scala3Classes.get(name))
 
   val prefix = "scala."
 
   def findClass(qName: String): PsiClass = {
     if (qName.startsWith(prefix)) {
       byName(qName.substring(prefix.length)) match {
-        case Some(c) => return c
+        case Some(c) =>
+          return c
         case _ =>
       }
     }
-    objects.get(qName).orNull
+    null
   }
 
   def findClasses(qName: String): Array[PsiClass] = {
-    val c = findClass(qName)
-    val obj = objects.get(qName).orNull
-
-    if (c != null && obj != null && c != obj)
-      Array(c, obj)
-    else if (c != null)
-      Array(c)
+    val clazz = findClass(qName)
+    if (clazz != null)
+      Array(clazz)
     else
       Array.empty
   }
@@ -661,16 +423,6 @@ object SyntheticClasses {
   def get(project: Project): SyntheticClasses = project.getService(classOf[SyntheticClasses])
 
   val TypeParameter = "TypeParameterForSyntheticFunction"
-
-  val numeric_comp_ops: List[String] = "==" :: "!=" :: "<" :: ">" :: "<=" :: ">=" :: Nil
-  val numeric_arith_ops: List[String] = "+" :: "-" :: "*" :: "/" :: "%" :: Nil
-  val numeric_arith_unary_ops: List[String] = "+" :: "-" :: Nil
-  val bool_bin_short_circuit_ops: List[String] = "&&" :: "||" :: Nil
-  val bool_other_bin_ops: List[String] = "&" :: "|" :: "==" :: "!=" :: "^" :: Nil
-  val bool_bin_ops: List[String] = bool_bin_short_circuit_ops ++ bool_other_bin_ops
-  val bitwise_bin_ops: List[String] = "&" :: "|" :: "^" :: Nil
-  val bitwise_shift_ops: List[String] = "<<" :: ">>" :: ">>>" :: Nil
-
 }
 
 final class RegisterSyntheticClassesStartupActivity extends StartupActivity.DumbAware {

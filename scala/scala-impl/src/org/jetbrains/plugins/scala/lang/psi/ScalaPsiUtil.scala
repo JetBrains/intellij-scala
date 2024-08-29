@@ -46,7 +46,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScPackageLike, ScalaFile, ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ApplyOrUpdateInvocation
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiElementFactory}
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
@@ -769,8 +768,8 @@ object ScalaPsiUtil {
   }
 
   def hasStablePath(o: PsiNamedElement): Boolean = {
-    o.nameContext match {
-      case synthetic: ScSyntheticClass => synthetic.stdType.is[ValType]
+    val nameContext = o.nameContext
+    nameContext match {
       case member: PsiMember => isStatic(member)
       case _: ScPackaging | _: PsiPackage => true
       case _ => false
