@@ -413,7 +413,12 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       def findPsiElementForIndyLambda(): Option[PsiElement] = {
         val lambdas = lambdasOnLine(file, lineNumber)
         val methods = indyLambdaMethodsOnLine(location.declaringType(), lineNumber)
-        val methodsToLambdas = methods.zip(lambdas).toMap
+        val lambdasSize = lambdas.size
+        val methodsSize = methods.size
+        val toDrop =
+          if (methodsSize > lambdasSize) methodsSize - lambdasSize
+          else 0
+        val methodsToLambdas = methods.drop(toDrop).zip(lambdas).toMap
         methodsToLambdas.get(currentMethod)
       }
 
