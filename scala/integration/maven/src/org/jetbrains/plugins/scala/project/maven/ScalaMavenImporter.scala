@@ -254,7 +254,16 @@ final class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-s
     scalaCompilerVersion.flatMap { compilerVersion =>
       val needNewLibrary = configuration.findScalaLibraryDependency match {
         case Some(existingLibraryDep) =>
-          existingLibraryDep.getScope.toLowerCase != "compile"
+          // note: it may lead to some issues, because if the scala version property is defined, then
+          // the scala library should be available at least for compilation
+          // (both for production and test sources, so the scala library should have a "compile" scope)
+
+          // I've checked the default scala-maven-plugin behaviour when there is no scala library in the dependencies
+          // (even transitive) but <scala.version> is present. In such a case the code can be compiled but cannot be run.
+          // But if there is any scala library in the dependencies with no matter what scope then the code also be run
+          // (e.g. if the scala library has Test scope, we can run a class in production sources).
+          // TODO create a more accurate solution to this problem
+          Option(existingLibraryDep.getScope).exists(_.toLowerCase != "compile")
         case _ =>
           true
       }
