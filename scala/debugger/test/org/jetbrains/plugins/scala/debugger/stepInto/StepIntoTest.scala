@@ -107,6 +107,12 @@ class StepIntoTest_2_11 extends StepIntoTestBase {
       Breakpoint("LambdaStepIntoMethod.scala", "LambdaStepIntoMethod$", "sum", 3) -> resume
     )
   }
+
+  override def testLineInLambdaWithLambdaOnLine(): Unit = {
+    stepIntoTest()(
+      Breakpoint("LineInLambdaWithLambdaOnLine.scala", "LineInLambdaWithLambdaOnLine$$anonfun$main$1", "apply$mcVI$sp", 15) -> resume
+    )
+  }
 }
 
 class StepIntoTest_2_12 extends StepIntoTestBase {
@@ -239,6 +245,11 @@ class StepIntoTest_3 extends StepIntoTest_2_13 {
     )
   }
 
+  override def testLineInLambdaWithLambdaOnLine(): Unit = {
+    stepIntoTest()(
+      Breakpoint("LineInLambdaWithLambdaOnLine.scala", "LineInLambdaWithLambdaOnLine$", "main$$anonfun$1", 15) -> resume
+    )
+  }
 }
 
 class StepIntoTest_3_RC extends StepIntoTest_3 {
@@ -890,6 +901,34 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
       Breakpoint("LambdaStepIntoMethod.scala", "LambdaStepIntoMethod$", "multi", 2) -> stepOut,
       Breakpoint("LambdaStepIntoMethod.scala", "LambdaStepIntoMethod$", "$anonfun$main$1", 7) -> stepInto,
       Breakpoint("LambdaStepIntoMethod.scala", "LambdaStepIntoMethod$", "sum", 3) -> resume
+    )
+  }
+
+  addSourceFile("LineInLambdaWithLambdaOnLine.scala",
+    s"""object LineInLambdaWithLambdaOnLine {
+       |  trait Test
+       |
+       |  class Suite {
+       |    def addTest(test: Test): Unit = ()
+       |  }
+       |
+       |  def tests: List[Test] = List(new Test() {}, new Test() {}, new Test() {})
+       |
+       |  def main(args: Array[String]): Unit = {
+       |    for {
+       |      _ <- List(1)
+       |    } {
+       |      val suite = new Suite()
+       |      (1 to 3).foreach(_ => tests.foreach(suite.addTest)) $breakpoint ${lambdaOrdinal(-1)}
+       |      println(suite)
+       |    }
+       |  }
+       |}
+       |""".stripMargin)
+
+  def testLineInLambdaWithLambdaOnLine(): Unit = {
+    stepIntoTest()(
+      Breakpoint("LineInLambdaWithLambdaOnLine.scala", "LineInLambdaWithLambdaOnLine$", "$anonfun$main$1", 15) -> resume
     )
   }
 }
