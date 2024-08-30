@@ -7,8 +7,7 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.concurrency.annotations.RequiresEdt
-import org.jetbrains.annotations.{Nls, Nullable}
-import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
@@ -100,7 +99,6 @@ object TypeAdjuster extends ApplicationListener {
     @Nullable val indicator = progressManager.getProgressIndicator
     if (indicator ne null) {
       indicator.checkCanceled()
-      indicator.setText(ScalaBundle.message("adjusting.types.progress.title"))
       indicator.setIndeterminate(false)
       indicator.setFraction(0)
     }
@@ -108,7 +106,6 @@ object TypeAdjuster extends ApplicationListener {
     val indexedElements = elements.toIndexedSeq
 
     val infos = {
-      updateText2(indicator, ScalaBundle.message("adjusting.types.progress.simplifying"))
       val total = indexedElements.length
       indexedElements.zipWithIndex.flatMap { case (element, index) =>
         updateProgress(indicator, index, total)
@@ -126,19 +123,11 @@ object TypeAdjuster extends ApplicationListener {
     // code that doesn't compile.
     progressManager.executeNonCancelableSection { () =>
       val replacedAndComputedImports = replaceAndAddImports(rewrittenInfos, addImports, indicator)
-      updateText2(indicator, ScalaBundle.message("adjusting.types.progress.imports"))
       val total = replacedAndComputedImports.size
       replacedAndComputedImports.zipWithIndex.foreach { case ((holder, pathsToAdd), index) =>
         updateProgress(indicator, index, total)
         holder.addImportsForPaths(pathsToAdd.toSeq, null)
       }
-    }
-  }
-
-  private def updateText2(@Nullable indicator: ProgressIndicator, @Nls text: String): Unit = {
-    if (indicator ne null) {
-      indicator.checkCanceled()
-      indicator.setText2(text)
     }
   }
 
@@ -393,7 +382,6 @@ object TypeAdjuster extends ApplicationListener {
     }
 
     val total = infos.length
-    updateText2(indicator, ScalaBundle.message("adjusting.types.progress.rewriting"))
     infos.zipWithIndex.map { case (info, index) =>
       updateProgress(indicator, index, total)
       rewriteAsInfix(info)
@@ -434,7 +422,6 @@ object TypeAdjuster extends ApplicationListener {
   ) = {
     assert(infos.forall(_.place.isValid), "Psi shouldn't be modified before this stage!")
 
-    updateText2(indicator, ScalaBundle.message("adjusting.types.progress.replacing"))
     val (
       sameResolve: Set[ReplacementInfo],
       otherResolve: Set[ReplacementInfo]
