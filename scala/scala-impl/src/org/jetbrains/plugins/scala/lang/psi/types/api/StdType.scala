@@ -6,8 +6,8 @@ import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, LeafType, NamedType, ScType, ScalaTypeVisitor}
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdType.Name
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, LeafType, NamedType, ScType, ScalaTypeVisitor}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import java.util.concurrent.atomic.AtomicReference
@@ -22,13 +22,29 @@ sealed class StdType private[api](
 
   override def visitType(visitor: ScalaTypeVisitor): Unit = visitor.visitStdType(this)
 
+  // We use extra caching field to avoid redundant accesses to SyntheticClasses.get
+  private var syntheticClassComputed: Option[PsiClass] = _
+
   /**
    * @return a synthetic class which represents this class if possible<br>
    *         None - in dunmb mode or before synthetic classes are registered
    */
   def syntheticClass: Option[PsiClass] = {
-    val classes = SyntheticClasses.get(projectContext)
-    if (classes.isClassesRegistered) classes.byName(name) else None
+    if (syntheticClassComputed == null) {
+      this.synchronized {
+        if (syntheticClassComputed == null) { //double-checked locking
+          val classes = SyntheticClasses.get(projectContext)
+          if (classes.isClassesRegistered) {
+            val result = classes.byName(name)
+            syntheticClassComputed = result
+            result
+          }
+          else None
+        }
+        else syntheticClassComputed
+      }
+    }
+    else syntheticClassComputed
   }
 
   override def equivInner(`type`: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
