@@ -63,8 +63,8 @@ class LambdaBreakpointsTest_2_13 extends LambdaBreakpointsTest_2_12 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 }
 
-class LambdaBreakpointsTest_3_0 extends LambdaBreakpointsTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_0
+class LambdaBreakpointsTest_3_3 extends LambdaBreakpointsTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_3
 
   override def testLambdaInClassConstructor(): Unit = {
     breakpointsTest()((9, "main"), (4, "<init>"), (4, "$init$$$anonfun$1"), (4, "$init$$$anonfun$1"), (4, "$init$$$anonfun$1"))
@@ -101,24 +101,6 @@ class LambdaBreakpointsTest_3_0 extends LambdaBreakpointsTestBase {
     breakpointsTest()((15, "main"), (8, "method"), (8, "method$$anonfun$1"), (8, "method$$anonfun$1"), (8, "method$$anonfun$1"))
   }
 
-  override def testLambdaInLocalMethod(): Unit = {
-    breakpointsTest()(
-      (21, "main"), (11, "func$1"),
-      (8, "func$2$$anonfun$1"), (9, "func$2$$anonfun$1"), (10, "func$2$$anonfun$1"), (11, "func$2$$anonfun$1"),
-      (8, "func$2$$anonfun$1"), (9, "func$2$$anonfun$1"), (10, "func$2$$anonfun$1"), (11, "func$2$$anonfun$1"),
-      (8, "func$2$$anonfun$1"), (9, "func$2$$anonfun$1"), (10, "func$2$$anonfun$1"), (11, "func$2$$anonfun$1"),
-    )
-  }
-
-  override def testLambdaInGuard(): Unit = {
-    breakpointsTest()(
-      (5, "main"), (6, "main"),
-      (5, "$anonfun$1"), (5, "$anonfun$3$$anonfun$1"),
-      (5, "$anonfun$1"), (5, "$anonfun$3$$anonfun$1"), (6, "$anonfun$2"),
-      (5, "$anonfun$1"), (5, "$anonfun$3$$anonfun$1"), (6, "$anonfun$2")
-    )
-  }
-
   addSourceFile("LambdaInExtension.scala",
     s"""
        |object LambdaInExtension:
@@ -152,10 +134,6 @@ class LambdaBreakpointsTest_3_0 extends LambdaBreakpointsTestBase {
   def testMainAnnotation(): Unit = {
     breakpointsTest("multipleBreakpoints")((4, "foo$1"))
   }
-}
-
-class LambdaBreakpointsTest_3_1 extends LambdaBreakpointsTest_3_0 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_1
 
   override def testLambdaInLocalMethod(): Unit = {
     breakpointsTest()(
@@ -176,15 +154,7 @@ class LambdaBreakpointsTest_3_1 extends LambdaBreakpointsTest_3_0 {
   }
 }
 
-class LambdaBreakpointsTest_3_2 extends LambdaBreakpointsTest_3_1 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_2
-}
-
-class LambdaBreakpointsTest_3_3 extends LambdaBreakpointsTest_3_1 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_3
-}
-
-class LambdaBreakpointsTest_3_4 extends LambdaBreakpointsTest_3_1 {
+class LambdaBreakpointsTest_3_4 extends LambdaBreakpointsTest_3_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_4
 
   override def testLambdaInNestedClassStatic(): Unit = {
