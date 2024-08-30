@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction, ScTypeAlias}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
@@ -265,6 +265,10 @@ final class SyntheticClasses(project: Project) {
   private val scala3Classes: mutable.Map[String, PsiClass] = mutable.HashMap.empty[String, PsiClass]
   val aliases: mutable.Set[ScTypeAlias]      = mutable.HashSet.empty[ScTypeAlias]
 
+  /** @see [[getBundledFallbackScalaLibraryClass]] */
+  private val fallbackScalaLibraryClasses: mutable.Map[String, ScClass] = mutable.HashMap.empty
+  private val fallbackScalaLibraryObjects: mutable.Map[String, ScObject] = mutable.HashMap.empty
+
   private[synthetic]
   var file : PsiFile = _
 
@@ -359,6 +363,49 @@ final class SyntheticClasses(project: Project) {
         |""".stripMargin
     )
 
+    def removeAllComments(file: PsiFile): Unit = {
+      val comments = file.elements.filter(_.is[PsiComment])
+      comments.foreach(_.delete())
+    }
+
+    /**
+     * @see [[getBundledFallbackScalaLibraryClass]]
+     */
+    def registerFallbackClasses(): Unit = {
+      val classLoader = this.getClass.getClassLoader
+
+      val fileNames = Seq(
+        "AnyVal.scala",
+        "AnyValCompanion.scala",
+        "Boolean.scala",
+        "Byte.scala",
+        "Char.scala",
+        "Double.scala",
+        "Float.scala",
+        "Int.scala",
+        "Long.scala",
+        "Short.scala",
+        "Unit.scala",
+      )
+      fileNames.foreach { fileName =>
+        val resourcePath = s"bundledFallbackScalaLibrarySources/$fileName"
+        Option(classLoader.getResourceAsStream(resourcePath)).foreach { stream =>
+          val fileText = scala.io.Source.fromInputStream(stream).mkString
+          val dummyFile = createDummyFile(fileName.toLowerCase, fileText)
+
+          // We remove all ScalaDoc comments just to confuse people who may think that projects "has" Scala SDK somewhere
+          removeAllComments(dummyFile)
+
+          val classes = dummyFile.typeDefinitions.filterByType[ScClass]
+          val objects = dummyFile.typeDefinitions.filterByType[ScObject]
+          classes.foreach(cls => fallbackScalaLibraryClasses.put(cls.name, cls))
+          objects.foreach(cls => fallbackScalaLibraryObjects.put(cls.name, cls))
+        }
+      }
+    }
+
+    registerFallbackClasses()
+
     classesInitialized = true
   }
 
@@ -376,12 +423,29 @@ final class SyntheticClasses(project: Project) {
   def all: Iterable[PsiClass] = sharedClasses.values ++ scala3Classes.values
 
   @TestOnly
-  def getScala3Classes: Iterable[PsiClass] = scala3Classes.values
+  def scala3ClassesOnly: Iterable[PsiClass] = scala3Classes.values
 
-  def sharedClassesOnly: Iterable[PsiClass] = sharedClasses.values
+  /**
+   * @note We include fallback scala library classes always, but it shouldn't affect files in modules with Scala SDK.
+   *       If Scala SDK exists, definitions from it will be preferred anyway.
+   */
+  def sharedClassesOnly: Iterable[PsiClass] = sharedClasses.values ++
+    fallbackScalaLibraryClasses.values ++
+    fallbackScalaLibraryObjects.values
 
   def byName(name: String): Option[PsiClass] =
     sharedClasses.get(name).orElse(scala3Classes.get(name))
+
+  /**
+   * The method returns "fallback" class for from a scala library bundled with scala plugin.
+   * These fallback classes exist in order we can highlight scala files with basic scala code outside modules with Scala SDK.
+   * It contains only a small subset of primitive classes. At the moment just AnyVal classes (like Int, Unit, Boolean).
+   *
+   * @note In theory, we could expand this and include more classes from the scala library.
+   *       When this was added, the primary purpose was to make work all existing "light tests" (without Scala SDK)
+   */
+  def getBundledFallbackScalaLibraryClass(name: String): Option[PsiClass] =
+    fallbackScalaLibraryClasses.get(name)
 
   val prefix = "scala."
 

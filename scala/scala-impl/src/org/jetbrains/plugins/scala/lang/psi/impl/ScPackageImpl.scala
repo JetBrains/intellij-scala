@@ -159,12 +159,11 @@ object ScPackageImpl {
       case _                      => false
     }
 
-    def classesToProcess(syntheticClasses: SyntheticClasses): Iterable[PsiClass] =
-      if (shouldProcessScala3Definitions) syntheticClasses.all
-      else syntheticClasses.sharedClassesOnly
-
     val syntheticClasses = SyntheticClasses.get(manager.project)
-    val syntheticElements = classesToProcess(syntheticClasses) ++ (if (shouldProcessScala3Definitions) syntheticClasses.aliases.iterator else Iterator.empty)
+    val syntheticElements = if (shouldProcessScala3Definitions)
+      syntheticClasses.all ++ syntheticClasses.aliases.iterator
+    else
+      syntheticClasses.sharedClassesOnly
 
     for {
       syntheticElement <- syntheticElements
@@ -175,7 +174,8 @@ object ScPackageImpl {
       if !namesSet(syntheticElement.name)
     } {
       ProgressManager.checkCanceled()
-      if (!processor.execute(syntheticElement, state)) return false
+      if (!processor.execute(syntheticElement, state))
+        return false
     }
 
     true

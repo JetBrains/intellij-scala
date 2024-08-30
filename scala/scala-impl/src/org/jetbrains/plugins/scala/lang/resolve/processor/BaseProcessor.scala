@@ -275,8 +275,10 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
         val scalaPsiManager = ScalaPsiManager.instance(project)
         lazy val scope = place.resolveScope
 
-        val syntheticClassOpt = SyntheticClasses.get(project).byName(name)
-        val clazzOpt = syntheticClassOpt.orElse(scalaPsiManager.getScalaLibraryAnyValClass(scope, name))
+        val syntheticClasses = SyntheticClasses.get(project)
+        val clazzOpt = syntheticClasses.byName(name)
+          .orElse(scalaPsiManager.getScalaLibraryAnyValClass(scope, name))
+          .orElse(syntheticClasses.getBundledFallbackScalaLibraryClass(name))
         clazzOpt match {
           case Some(clazz) =>
             if (!clazz.processDeclarations(this, state, null, place))
