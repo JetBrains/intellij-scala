@@ -106,9 +106,9 @@ object TypeAdjuster extends ApplicationListener {
     val indexedElements = elements.toIndexedSeq
 
     val infos = {
-      val total = indexedElements.length
+      val count = indexedElements.length
       indexedElements.zipWithIndex.flatMap { case (element, index) =>
-        updateProgress(indicator, index, total)
+        updateProgress(indicator, index, count, stage = 0)
         collectAdjustableTypeElements(element).distinct.flatMap { typeElement =>
           simplify(SimpleInfo(typeElement)).map { simplified =>
             shortenReference(simplified, useTypeAliases)
@@ -123,18 +123,20 @@ object TypeAdjuster extends ApplicationListener {
     // code that doesn't compile.
     progressManager.executeNonCancelableSection { () =>
       val replacedAndComputedImports = replaceAndAddImports(rewrittenInfos, addImports, indicator)
-      val total = replacedAndComputedImports.size
+      val count = replacedAndComputedImports.size
       replacedAndComputedImports.zipWithIndex.foreach { case ((holder, pathsToAdd), index) =>
-        updateProgress(indicator, index, total)
+        updateProgress(indicator, index, count, stage = 3)
         holder.addImportsForPaths(pathsToAdd.toSeq, null)
       }
     }
   }
 
-  private def updateProgress(@Nullable indicator: ProgressIndicator, index: Int, total: Int): Unit = {
+  private def updateProgress(@Nullable indicator: ProgressIndicator, index: Int, count: Int, stage: Int): Unit = {
     if (indicator ne null) {
       indicator.checkCanceled()
-      val fraction = (index + 1).toDouble / total
+      val offset = stage * 0.25
+      val stageFraction = ((index + 1).toDouble / count) * 0.25
+      val fraction = offset + stageFraction
       indicator.setFraction(fraction)
     }
   }
@@ -381,9 +383,9 @@ object TypeAdjuster extends ApplicationListener {
       case compound: CompoundInfo => compound.map(rewriteAsInfix)
     }
 
-    val total = infos.length
+    val count = infos.length
     infos.zipWithIndex.map { case (info, index) =>
-      updateProgress(indicator, index, total)
+      updateProgress(indicator, index, count, stage = 1)
       rewriteAsInfix(info)
     }
   }
@@ -433,9 +435,9 @@ object TypeAdjuster extends ApplicationListener {
       .withDefaultValue(Set.empty)
 
     val infosFinal = if (addImports) infos else infos.filter(sameResolve.contains)
-    val total = infosFinal.length
+    val count = infosFinal.length
     infosFinal.zipWithIndex.foreach { case (info, index) =>
-      updateProgress(indicator, index, total)
+      updateProgress(indicator, index, count, stage = 2)
       replaceElem(info)
 
       val pathsToImport = info.pathsToImport
