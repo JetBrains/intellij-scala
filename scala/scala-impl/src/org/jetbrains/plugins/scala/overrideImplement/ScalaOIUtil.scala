@@ -6,6 +6,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.command.{CommandProcessor, WriteCommandAction}
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.psi._
@@ -181,10 +182,17 @@ object ScalaOIUtil {
       if (!FileModificationService.getInstance().preparePsiElementsForWrite(clazz)) return
       val commandName = CommandProcessor.getInstance().getCurrentCommandName
       val title = if (isImplement) ScalaBundle.message("action.implement.method") else ScalaBundle.message("action.override.method")
+
+      val performUnderProgress: java.util.function.Consumer[ProgressIndicator] = { indicator =>
+        indicator.setIndeterminate(false)
+        indicator.setFraction(0)
+        performImplementOverrideRunnable.run()
+      }
+
       val runnable: Runnable = { () =>
         //noinspection ApiStatus
         ApplicationManagerEx.getApplicationEx.runWriteActionWithCancellableProgressInDispatchThread(
-          title, project, null, _ => performImplementOverrideRunnable.run())
+          title, project, null, performUnderProgress)
       }
       if (commandName eq null) {
         CommandProcessor.getInstance().executeCommand(project, runnable, title, null)
