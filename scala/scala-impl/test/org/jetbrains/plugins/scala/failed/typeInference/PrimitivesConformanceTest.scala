@@ -1,15 +1,24 @@
 package org.jetbrains.plugins.scala.failed.typeInference
 
-import org.jetbrains.plugins.scala.lang.typeConformance.TypeConformanceTestBase
+import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
 
-class PrimitivesConformanceTest extends TypeConformanceTestBase{
+class PrimitivesConformanceTest extends TypeInferenceTestBase {
 
-  override protected def shouldPass: Boolean = false
-
-  def testSCL5358(): Unit = doTest(
-      """
-        |final val x = 0
+  //SCL-5358
+  def testSCL5358(): Unit = assertErrorsText(
+      """final val x = 0
         |val y: Byte = x
-        |/* True */
-      """.stripMargin)
+        |""".stripMargin,
+    """Error(x,Expression of type Int doesn't conform to expected type Byte)"""
+  )
+
+  //SCL-19295
+  def testSCL19295(): Unit = {
+    doTest(
+      s"""val byte: Byte = 1
+        |${START}~byte$END
+        |//Int
+        |""".stripMargin
+    )
+  }
 }
