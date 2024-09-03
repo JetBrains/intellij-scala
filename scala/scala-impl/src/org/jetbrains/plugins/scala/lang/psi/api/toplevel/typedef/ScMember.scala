@@ -126,6 +126,12 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
 
   def isDefinedInClass: Boolean = containingClass != null
 
+  /**
+   * @return true for a top-level definition (semantically).
+   *         In the case of scala 3 extension, the method can be synthetically not top-level because it's located
+   *         in an additional ScExtension container, however if the extension is top level, the extension method is also
+   *         considered to be top-level
+   */
   def isTopLevel: Boolean = getContext match {
     case _: ScPackaging | _: ScFile => true
     case _                          => false
@@ -139,12 +145,15 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
    */
   def topLevelQualifier: Option[String] = {
     val parent = PsiTreeUtil.getStubOrPsiParent(this)
-    parent match {
+    topLevelQualifierOfContainer(parent)
+  }
+
+  protected def topLevelQualifierOfContainer(@Nullable container: PsiElement): Option[String] =
+    container match {
       case p: ScPackaging => Some(p.fullPackageName)
       case _: ScalaFile => Some("") //default package
       case _ => None
     }
-  }
 
   // TODO Should be unified, see ScModifierListOwner
   override def hasModifierProperty(name: String): Boolean = {

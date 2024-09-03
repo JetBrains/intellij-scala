@@ -52,23 +52,20 @@ trait ScPackageLike extends PsiElement {
     if (shouldStop) false
     else {
       val topLevelDefs = getTopLevelDefs(place)
-
       topLevelDefs.forall {
         case ext: ScExtension =>
           if (!processOnlyStable) {
-            val processedDeclared = ext.extensionMethods.forall(processor.execute(_, state))
-
-            if (!processedDeclared) false
-            else
-              ext.extensionBody.forall { body =>
-                body.processDeclarationsFromExports(
-                  processor,
-                  state.withExportedIn(body),
-                  lastParent,
-                  place
-                )
-              }
+            //note: the extension methods itself were are processed as functions because
+            //`topLevelDefs` returns them as well so there is no need to iterate over them
+            ext.extensionBody.forall { body =>
+              body.processDeclarationsFromExports(
+                processor,
+                state.withExportedIn(body),
+                lastParent,
+                place
+              )
             }
+          }
           else true
         case patDef: ScPatternDefinition  => patDef.bindings.forall(processWithStableFilter)
         case varDef: ScVariableDefinition => varDef.bindings.forall(processWithStableFilter)

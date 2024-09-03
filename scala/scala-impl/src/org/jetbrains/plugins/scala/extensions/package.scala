@@ -1016,6 +1016,10 @@ package object extensions {
       }
     }
 
+    /**
+     * See also [[org.jetbrains.plugins.scala.actions.ScalaQualifiedNameProvider]].<br>
+     * (Q: What is the difference? Shouldn't they be unified and one use another?)
+     */
     def qualifiedNameOpt: Option[String] = member match {
       case c: PsiClass => c.qualifiedName.toOption
       case _ =>
