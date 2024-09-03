@@ -5,6 +5,7 @@ import com.intellij.codeInsight.hint.HintManagerImpl
 import com.intellij.codeInsight.intention.PriorityAction
 import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
 import com.intellij.codeInspection.HintAction
+import com.intellij.idea.AppMode
 import com.intellij.model.SideEffectGuard.SideEffectNotAllowedException
 import com.intellij.openapi.application.{ApplicationManager, ReadAction}
 import com.intellij.openapi.components.Service
@@ -13,6 +14,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{ModificationTracker, TextRange}
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.concurrency.AppExecutorUtil
+import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.autoImport.quickFix.Presentation.htmlWithBody
 import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportElementFix._
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
@@ -187,7 +189,7 @@ abstract class ScalaImportElementFix[Element <: ElementToImport](val place: PsiE
     }
 
   private def isRelevant(editor: Editor): Boolean =
-    !editor.isDisposed && editor.getContentComponent.isFocusOwner
+    !editor.isDisposed && UIUtil.isShowing(editor.getContentComponent)
 
   private def currentModCount(): Long =
     if (place.isValid) BlockModificationTracker(place).getModificationCount
@@ -210,6 +212,11 @@ private object ScalaImportElementFix {
       place.getTextRange.grown(1).contains(editor.getCaretModel.getOffset)
 
     def visibleRange: TextRange = {
+      // There is no meaningful visible range for RemoteDev backend
+      if (AppMode.isRemoteDevHost) {
+        return TextRange.create(0, editor.getDocument.getTextLength)
+      }
+
       val visibleRectangle = editor.getScrollingModel.getVisibleArea
 
       val startPosition = editor.xyToLogicalPosition(visibleRectangle.getLocation)
