@@ -26,15 +26,12 @@ class SetConformanceTest_3 extends SetConformanceTestBase {
        |  }
        |}
        |//true
-    """.stripMargin)
-}
+    """.stripMargin
+  )
 
-
-class SetConformanceTest_3_Failing extends SetConformanceTestBase_Failing {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
-
+  ////TODO: replace with "checkTextHasNoErrors" when SCL-9738 is fixed
   def testSCL9738(): Unit = {
-    checkTextHasNoErrors(
+    checkErrorsText(
       s"""
          |sealed trait FeedbackReason
          |case object CostReason extends FeedbackReason
@@ -50,6 +47,8 @@ class SetConformanceTest_3_Failing extends SetConformanceTestBase_Failing {
          |    reasons ++ Map(OtherReason -> "Some other reason")
          |  }
          |}
-      """.stripMargin)
+      """.stripMargin,
+      """Error(},Expression of type Map[FeedbackReason & Product & Serializable, String] doesn't conform to expected type Map[FeedbackReason, String])"""
+    )
   }
 }

@@ -128,6 +128,17 @@ trait TypeInferenceDoTest extends TestCase with FailableTest with ScalaSdkOwner 
       .orElse(ScalaSdkOwner.allTestVersions.filter(_.major == versionStrWithDots).lastOption)
   }
 
+  /**
+   * Note, in some legacy type inference test a single test is used to define expected data for multiple scala versions
+   * For example: {{{
+   *   /*start*/1 + 1/*end*/
+   *   /*
+   *   Int
+   *   [Scala_2_13]2
+   *   */
+   * }}}
+  *
+   */
   private def extractTextForCurrentVersion(text: String, version: ScalaVersion): String = {
     val lines = text.split('\n')
     val ((lastVer, lastText), resultListWithoutLast) = lines
