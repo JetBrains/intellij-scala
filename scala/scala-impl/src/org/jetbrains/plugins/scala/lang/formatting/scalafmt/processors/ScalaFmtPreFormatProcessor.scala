@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.processors.ScalaFmtP
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigService, ScalafmtDynamicConfigServiceImpl, ScalafmtNotifications}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, TypeAdjuster}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScConstructorPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
@@ -76,7 +76,11 @@ class ScalaFmtPreFormatProcessor extends PreFormatProcessor {
     if (skip)
       range
     else {
-      try formatIfRequired(psiFile, shiftRange(psiFile, range)) catch {
+      try {
+        val typeAdjuster = new TypeAdjuster()
+        formatIfRequired(psiFile, shiftRange(psiFile, range), typeAdjuster)
+        typeAdjuster.adjustTypes()
+      } catch {
         case NonFatal(ex) =>
           val configVersion = configVersionForScalaFile(psiFile)
           reportUnknownError(ex, configVersion)
@@ -134,7 +138,7 @@ object ScalaFmtPreFormatProcessor {
     }.getOrElse(range)
   }
 
-  private def formatIfRequired(file: ScalaFile, range: TextRange): Unit = {
+  private def formatIfRequired(file: ScalaFile, range: TextRange, typeAdjuster: TypeAdjuster): Unit = {
     val (cachedRange, cachedFileTimeStamp, cachedConfigTimestamp) =
       file.getOrUpdateUserData(FORMATTED_RANGES_KEY, (new TextRanges, file.getModificationStamp, None))
 
@@ -154,7 +158,7 @@ object ScalaFmtPreFormatProcessor {
 
     implicit val context: ConfigContext = ConfigContext(config, file)
 
-    val result = formatRange(file, rangeUpdated)
+    val result = formatRange(file, rangeUpdated, typeAdjuster)
     if (result.isRight) {
       ScalafmtNotifications.hideAllFormatErrorNotifications()
     }
@@ -395,7 +399,7 @@ object ScalaFmtPreFormatProcessor {
     }
   }
 
-  private def formatRange(file: ScalaFile, range: TextRange)
+  private def formatRange(file: ScalaFile, range: TextRange, typeAdjuster: TypeAdjuster)
                          (implicit context: ConfigContext): Either[Unit, Option[Int]] = {
     implicit val project: Project = file.getProject
     val manager = PsiDocumentManager.getInstance(project)
@@ -416,7 +420,7 @@ object ScalaFmtPreFormatProcessor {
       }
     }
 
-    def processRange(elements: Seq[PsiElement], wrap: Boolean): Either[Unit, Int] = {
+    def processRange(elements: Seq[PsiElement], wrap: Boolean, typeAdjuster: TypeAdjuster): Either[Unit, Int] = {
       val hasRewriteRules = context.config.hasRewriteRules
       val rewriteElements: Seq[PsiElement] = if (hasRewriteRules) elements.flatMap(maybeRewriteElements(_, range)) else Seq.empty
       val rewriteElementsToFormatted = attachFormattedCode(rewriteElements)
@@ -427,7 +431,7 @@ object ScalaFmtPreFormatProcessor {
       val formattedInSingleFile = formatInSingleFile(elements, wrap)(project, newContext)
       formattedInSingleFile match {
         case Some(formatted) =>
-          replaceWithFormatted(elements, formatted, rewriteElementsToFormatted, range) match {
+          replaceWithFormatted(elements, formatted, rewriteElementsToFormatted, range, typeAdjuster) match {
             case Left(err) =>
               reportMarkerNotFound(file, err)
               Left(())
@@ -449,11 +453,11 @@ object ScalaFmtPreFormatProcessor {
         Left(())
       } else {
         //failed to wrap some elements, try the whole file
-        processRange(Seq(file), wrap = false).map(Some(_))
+        processRange(Seq(file), wrap = false, typeAdjuster).map(Some(_))
         Right(None)
       }
     } else {
-      processRange(elementsWrapped, wrap = true).map(Some(_))
+      processRange(elementsWrapped, wrap = true, typeAdjuster).map(Some(_))
     }
   }
 
@@ -682,7 +686,8 @@ object ScalaFmtPreFormatProcessor {
   private def replaceWithFormatted(elements: Iterable[PsiElement],
                                    formattedCode: WrappedCode,
                                    rewriteToFormatted: Seq[(PsiElement, WrappedCode)],
-                                   range: TextRange)
+                                   range: TextRange,
+                                   typeAdjuster: TypeAdjuster)
                                   (implicit project: Project, fileText: String): Either[CantFindMarkerElementInFormattedCode, Int] = {
     val elementsUnwrapped: Seq[PsiElement] = unwrapPsiFromFormattedFile(formattedCode) match {
       case Right(value) =>
@@ -706,7 +711,7 @@ object ScalaFmtPreFormatProcessor {
     val additionalIndent = if (formattedCode.wrappedInHelperClass) -ScalaFmtIndent else 0
 
     val changes = buildChangesList(elementsToTraverse, rewriteElementsToTraverse, range, additionalIndent)
-    Right(applyChanges(changes, range))
+    Right(applyChanges(changes, range, typeAdjuster))
   }
 
   private class AdjustIndentsVisitor(val additionalIndent: Int, val project: Project) extends PsiRecursiveElementVisitor {
@@ -858,7 +863,7 @@ object ScalaFmtPreFormatProcessor {
     originalNode != null && formattedNode != null && originalNode.getElementType == formattedNode.getElementType
   }
 
-  private def applyChanges(changes0: Seq[PsiChange], range: TextRange): Int = {
+  private def applyChanges(changes0: Seq[PsiChange], range: TextRange, typeAdjuster: TypeAdjuster): Int = {
     val changes1 = changes0.filter(_.isInRange(range))
     val changes2 = changes1.filter(_.isValid)
     // changes order: Inserts first, then Replaces and Removes ordered by offset
@@ -870,7 +875,7 @@ object ScalaFmtPreFormatProcessor {
 
     val changesWithNext = changesFinal.zipAll(changesFinal.drop(1), null, null)
     changesWithNext.foldLeft(0) { case (deltaAcc, (change, nextChange)) =>
-      val delta = change.applyAndGetDelta(nextChange)
+      val delta = change.applyAndGetDelta(nextChange, typeAdjuster)
       deltaAcc + delta
     }
   }

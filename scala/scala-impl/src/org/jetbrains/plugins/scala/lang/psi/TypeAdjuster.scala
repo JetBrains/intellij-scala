@@ -32,7 +32,7 @@ import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
 /**
- * @note Not thread safe, must be used in a single thread. Currently marked as usable only on the UI thread.
+ * @note Not thread safe, must be used in a single thread, and only the UI thread at that, because it modifies PSI.
  */
 private[scala] final class TypeAdjuster {
   private val markedElements: mutable.ArrayBuffer[SmartPsiElementPointer[PsiElement]] =
@@ -44,6 +44,11 @@ private[scala] final class TypeAdjuster {
       markedElements += element.createSmartPointer
     }
   }
+
+  @RequiresEdt
+  def isMarkedForAdjustment(element: PsiElement): Boolean =
+    if (element ne null) markedElements.contains(element.createSmartPointer)
+    else false
 
   @RequiresEdt
   def adjustTypes(): Unit = {
@@ -89,10 +94,6 @@ object TypeAdjuster extends ApplicationListener {
   def markToAdjust(element: PsiElement): Unit = {
     globalAdjuster.markToAdjust(element)
   }
-
-  def isMarkedForAdjustment(element: PsiElement): Boolean =
-    if (element != null) globalAdjuster.markedElements.contains(element.createSmartPointer)
-    else                 false
 
   def adjustFor(elements: Seq[PsiElement], addImports: Boolean = true, useTypeAliases: Boolean = true): Unit = {
     val progressManager = ProgressManager.getInstance()

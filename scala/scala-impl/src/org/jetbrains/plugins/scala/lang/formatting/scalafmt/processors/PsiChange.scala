@@ -10,11 +10,11 @@ import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 private sealed trait PsiChange {
   private var myIsValid = true
   def isValid: Boolean = myIsValid
-  final def applyAndGetDelta(nextChange: PsiChange): Int = {
+  final def applyAndGetDelta(nextChange: PsiChange, typeAdjuster: TypeAdjuster): Int = {
     myIsValid = false
-    doApply(nextChange)
+    doApply(nextChange, typeAdjuster)
   }
-  def doApply(nextChange: PsiChange): Int
+  def doApply(nextChange: PsiChange, typeAdjuster: TypeAdjuster): Int
   def isInRange(range: TextRange): Boolean
   def getStartOffset: Int
 }
@@ -40,12 +40,12 @@ private object PsiChange {
     parent.children.find(child => child.getTextRange.getStartOffset == offset && child.textMatches(formatted.getText))
 
   final class Insert(before: PsiElement, formatted: PsiElement) extends PsiChange {
-    override def doApply(nextChange: PsiChange): Int = {
+    override def doApply(nextChange: PsiChange, typeAdjuster: TypeAdjuster): Int = {
       if (!formatted.isValid) {
         return 0
       }
 
-      val originalMarkedForAdjustment = TypeAdjuster.isMarkedForAdjustment(before)
+      val originalMarkedForAdjustment = typeAdjuster.isMarkedForAdjustment(before)
       val parent = before.getParent
       val offset = before.getTextRange.getStartOffset
       formatted.accept(generatedVisitor)
@@ -59,7 +59,7 @@ private object PsiChange {
         .foreach(setNotGenerated)
 
       if (originalMarkedForAdjustment)
-        inserted.foreach(TypeAdjuster.markToAdjust)
+        inserted.foreach(typeAdjuster.markToAdjust)
 
       ScalaFmtPreFormatProcessor.addDelta(formatted, formatted.getTextLength)
     }
@@ -70,7 +70,7 @@ private object PsiChange {
   final class Replace(private[PsiChange] var original: PsiElement, formatted: PsiElement) extends PsiChange {
     //noinspection HardCodedStringLiteral
     override def toString: String = s"${original.getTextRange}: ${original.getText} -> ${formatted.getText}"
-    override def doApply(nextChange: PsiChange): Int = {
+    override def doApply(nextChange: PsiChange, typeAdjuster: TypeAdjuster): Int = {
       if (!formatted.isValid || !original.isValid) {
         return 0
       }
@@ -127,7 +127,7 @@ private object PsiChange {
   }
 
   final class Remove(private[PsiChange] var remove: PsiElement) extends PsiChange {
-    override def doApply(nextChange: PsiChange): Int = {
+    override def doApply(nextChange: PsiChange, typeAdjuster: TypeAdjuster): Int = {
       if (!remove.isValid) {
         return 0
       }
