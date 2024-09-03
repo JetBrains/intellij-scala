@@ -1,11 +1,13 @@
 package org.jetbrains.plugins.scala.lang.navigation
 
 import com.intellij.psi.PsiMember
+import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ScalaLibraryLoader}
-import org.jetbrains.plugins.scala.extensions.PsiMemberExt
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
+import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, PsiClassExt, PsiMemberExt}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticClass, SyntheticClasses}
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.junit.Assert.assertTrue
 
 /**
@@ -33,13 +35,29 @@ class ScalaSyntheticClassesNavigationalElementTest extends ScalaLightCodeInsight
     )
   }
 
+  //noinspection ScalaWrongPlatformMethodsUsage
+  def testThatAllScalaScalaLibraryClassesNavigationElementPointsToSourceElement(): Unit = {
+    val scalaPackage = ScPackageImpl.findPackage(getProject, "scala").get
+    val classes = ScalaPsiManager.instance(getProject)
+      .getClasses(scalaPackage)(GlobalSearchScope.everythingScope(getProject))
+      // this is an exceptional class in the standard library which is defined in `scala/reflect/package.scala`
+      // but has package `scala` so we can't detect the original source file
+      .filterNot(_.qualifiedName.contains("ScalaReflectionException"))
+
+    assertTrue(classes.exists(_.getQualifiedName == "scala.Boolean"))
+    assertTrue(classes.exists(_.getQualifiedName == "scala.Unit"))
+    assertTrue(classes.exists(_.getQualifiedName == "scala.Unit$"))
+
+    classes.foreach(assertNavigationElementPointsToSources)
+  }
+
   def testThatNavigationElementPointsToSourceElement_Scala2SyntheticLibraryClasses(): Unit = {
-    val scala3SyntheticClasses = SyntheticClasses.get(getProject).sharedClassesOnly
-    scala3SyntheticClasses.foreach(assertNavigationElementPointsToSources)
+    val sharedClasses = SyntheticClasses.get(getProject).sharedClassesOnly.filterByType[ScSyntheticClass]
+    sharedClasses.foreach(assertNavigationElementPointsToSources)
   }
 
   def testThatNavigationElementPointsToSourceElement_Scala3SyntheticLibraryClasses(): Unit = {
-    val scala3SyntheticClasses = SyntheticClasses.get(getProject).getScala3Classes.toSeq
+    val scala3SyntheticClasses = SyntheticClasses.get(getProject).scala3ClassesOnly.toSeq
     val scala3SyntheticClassesWithExpectedSources = scala3SyntheticClasses.filter { c =>
       val fqn = c.getQualifiedName
       !fqn.startsWith("scala.ContextFunction") && //scala.ContextFunctionN classes don't have any sources

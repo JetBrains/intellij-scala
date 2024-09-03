@@ -693,35 +693,37 @@ class ScopeAnnotatorTest_213 extends ScopeAnnotatorTestBase {
       """.stripMargin, "foo")
   }
 
-  def testDifferentReturnTypes(): Unit = {
+  def testDifferentReturnTypes1(): Unit =
     assert2Clashes(
-      """
-        |object Test {
+      """object Test {
         |  def test(a: Int): Int = 0
         |  def test(b: Int): Boolean = true
         |}
-      """.stripMargin, "test")
+        |""".stripMargin,
+      "test"
+    )
 
-    assertFine(
-      """
-        |trait Option[+X]
-        |object Test {
-        |  def test(a: Option[Int]): Int = 0
-        |  def test(b: Option[Boolean]): Boolean = true
-        |}
-      """.stripMargin)
-
+  def testDifferentReturnTypes2(): Unit =
     assert2Clashes(
-      """
-        |trait Option[+X]
+      """trait Option[+X]
         |object Test {
         |  type Opt[Y] = Option[Y]
         |  def test(a: Opt[Int]): Int = 0
         |  def test(b: Option[Int]): Boolean = true
         |}
-      """.stripMargin, "test")
+        |""".stripMargin,
+      "test"
+    )
 
-  }
+  def testDifferentReturnTypes3(): Unit =
+    assertFine(
+      """trait Option[+X]
+        |object Test {
+        |  def test(a: Option[Int]): Int = 0
+        |  def test(b: Option[Boolean]): Boolean = true
+        |}
+        |""".stripMargin
+    )
 }
 
 class ScopeAnnotatorTest_3 extends ScopeAnnotatorTest_213 {
@@ -782,7 +784,7 @@ class ScopeAnnotatorTest_3 extends ScopeAnnotatorTest_213 {
 
   def testEnumDuplicatedPrimaryConstructorParameters(): Unit = {
     assertClashes(
-    """enum MyEnum(name: Int, name: Int)(name: Int) { case MyCase1 extends MyEnum(1, 2)(3) }""",
+      """enum MyEnum(name: Int, name: Int)(name: Int) { case MyCase1 extends MyEnum(1, 2)(3) }""",
       "name", "name", "name"
     )
   }
@@ -817,7 +819,7 @@ class ScopeAnnotatorTest_3 extends ScopeAnnotatorTest_213 {
 
   def testTraitDuplicatedPrimaryConstructorParameters(): Unit = {
     assertClashes(
-    """trait MyTrait(name: Int, name: Int)(name: Int)""",
+      """trait MyTrait(name: Int, name: Int)(name: Int)""",
       "name", "name", "name"
     )
   }
