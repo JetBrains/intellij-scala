@@ -1,10 +1,10 @@
 package org.jetbrains.jps.incremental.scala.model.impl
 
 import org.jetbrains.jps.incremental.scala.SettingsManager
-import org.jetbrains.jps.incremental.scala.model.JpsSbtExtensionService
+import org.jetbrains.jps.incremental.scala.model.{JpsSbtExtensionService, JpsSbtModuleExtension}
 import org.jetbrains.jps.model.java.impl.JpsJavaDependenciesEnumerationHandler
 import org.jetbrains.jps.model.module.JpsModule
-import org.jetbrains.plugins.scala.util.SbtModuleType.sbtSourceSetModuleType
+import org.jetbrains.plugins.scala.util.SbtModuleType
 
 import java.util
 import scala.jdk.CollectionConverters.IterableHasAsScala
@@ -34,30 +34,29 @@ object JpsSbtDependenciesEnumerationHandler {
 
   final class SbtFactory extends JpsJavaDependenciesEnumerationHandler.Factory {
     override def createHandler(modules: util.Collection[JpsModule]): JpsJavaDependenciesEnumerationHandler = {
-      if (!isSbtProject(modules)) return null
+      val moduleToExtension = getModuleToExtension(modules)
+
+      val isNotSbtProject = moduleToExtension.isEmpty
+      if (isNotSbtProject) return null
       // note: if separate modules for prod/test are enabled and the module isn't of sbtSourceSet type,
       // then dependencies should be processed recursively. In all other cases, dependencies shouldn't be processed recursively.
-      val recursiveRequired = modules.asScala.exists { module =>
-        isBuiltWithSeparateProdTestSources(module) && !isSbtSourceSetModule(module)
+      val recursiveRequired = moduleToExtension.exists { case (module, ext) =>
+        // TODO consider moving #isBuiltWithSeparateProdTestSources outside of the loop when #SCL-22991 is done
+        isBuiltWithSeparateProdTestSources(module) && !isSbtSourceSetModule(ext)
       }
 
       if (recursiveRequired) RecursiveDependenciesInstance
       else NonRecursiveDependenciesInstance
     }
 
-    private def isSbtSourceSetModule(module: JpsModule): Boolean = {
-      val sbtModuleExtension = jpsSbtExtensionService.getExtension(module)
-      sbtModuleExtension match {
-        case Some(ext) =>
-          ext.getModuleType.exists(_.equals(sbtSourceSetModuleType))
-        // note: if for any reason sbtModuleExtension is None, then true is returned.
-        // It's done this way, because if true is returned, the dependency processing will be non-recursive, and it's the default behavior
-        case _ => true
-      }
-    }
+    private def getModuleToExtension(modules: util.Collection[JpsModule]): Map[JpsModule, JpsSbtModuleExtension] =
+      modules.asScala.toSeq
+        .map(jpsModule => jpsModule -> jpsSbtExtensionService.getExtension(jpsModule))
+        .collect { case (jpsModule, Some(ext)) => (jpsModule, ext) }
+        .toMap
 
-    private def isSbtProject(modules: util.Collection[JpsModule]): Boolean =
-      modules.asScala.exists(jpsSbtExtensionService.getExtension(_).isDefined)
+    private def isSbtSourceSetModule(extension: JpsSbtModuleExtension): Boolean =
+      extension.getModuleType.exists(_.equals(SbtModuleType.sbtSourceSetModuleType))
 
     private def isBuiltWithSeparateProdTestSources(module: JpsModule): Boolean = {
       val project = module.getProject
