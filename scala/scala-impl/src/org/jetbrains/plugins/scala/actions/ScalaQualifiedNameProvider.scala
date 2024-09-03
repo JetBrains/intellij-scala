@@ -4,10 +4,13 @@ import com.intellij.ide.actions.{JavaQualifiedNameProvider, QualifiedNameProvide
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 
+/**
+ * See also [[org.jetbrains.plugins.scala.extensions.PsiMemberExt.qualifiedNameOpt]]
+ * (Q: What is the difference? Shouldn't they be unified and one use another?)
+ */
 class ScalaQualifiedNameProvider extends QualifiedNameProvider {
 
   override def adjustElementToCopy(element: PsiElement): PsiElement = null
@@ -16,14 +19,30 @@ class ScalaQualifiedNameProvider extends QualifiedNameProvider {
     element match {
       case clazz: ScTypeDefinition => clazz.qualifiedName
       case named: ScNamedElement =>
-        val clazz = named.nameContext match {
+        val nameContext = named.nameContext
+        val containingClass = nameContext match {
           case member: ScMember => member.containingClass
           case _ => null
         }
-        if (clazz != null) {
-          clazz.qualifiedName + "#" + named.name
+
+        val name = named.name
+        if (containingClass != null) {
+          val separator = containingClass match {
+            case _: ScObject => "."
+            case _ => "#"
+          }
+          containingClass.qualifiedName + separator + name
         } else {
-          named.name
+          val topLevelQualifier = nameContext match {
+            case member: ScMember => //handle scala 3 top-level definitions
+              member.topLevelQualifier
+            case _ =>
+              None
+          }
+
+          topLevelQualifier
+            .filterNot(_.isEmpty) //ScMember.topLevelQualifier returns for a file without a package
+            .fold(name)(_ + "." + name)
         }
       case _ => null
     }

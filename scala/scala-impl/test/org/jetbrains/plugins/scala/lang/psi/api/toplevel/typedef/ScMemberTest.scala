@@ -7,6 +7,11 @@ import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiName
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.junit.Assert.{assertEquals, assertTrue, fail}
 
+/**
+ * Related tests:
+ *  - [[org.jetbrains.plugins.scala.actions.ScalaQualifiedNameProviderTest]]
+ *  - [[org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManagerTest]]
+ */
 class ScMemberTest extends ScalaLightCodeInsightFixtureTestCase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
@@ -16,7 +21,11 @@ class ScMemberTest extends ScalaLightCodeInsightFixtureTestCase {
     assertTrue("can't find scala file in project", file.is[ScalaFile])
 
     val member: ScMember = file.breadthFirst()
-      .collectFirst { case m: PsiNamedElement with ScMember if m.name == memberName => m }
+      .collectFirst {
+        case m: PsiNamedElement if m.name == memberName =>
+          //nameContext will return the whole val/var definition
+          m.nameContext.asInstanceOf[ScMember]
+      }
       .getOrElse(fail(s"couldn't find member with name `$memberName`").asInstanceOf[Nothing])
 
     val topLevelQualifier = member.topLevelQualifier
@@ -93,28 +102,28 @@ class ScMemberTest extends ScalaLightCodeInsightFixtureTestCase {
     doTestTopLevelQualifier("MyObject1", Some("org.example"))
     doTestTopLevelQualifier("MyTypeAlias1", Some("org.example"))
     doTestTopLevelQualifier("myFunction1", Some("org.example"))
-    //doTestForTopLevelApi("myValue1", Some("org.example"))
-    //doTestForTopLevelApi("myVariable1", Some("org.example"))
-    //doTestForTopLevelApi("myValueFromPattern11", Some("org.example"))
-    //doTestForTopLevelApi("myValueFromPattern12", Some("org.example"))
+    doTestTopLevelQualifier("myValue1", Some("org.example"))
+    doTestTopLevelQualifier("myVariable1", Some("org.example"))
+    doTestTopLevelQualifier("myValueFromPattern11", Some("org.example"))
+    doTestTopLevelQualifier("myValueFromPattern12", Some("org.example"))
     doTestTopLevelQualifier("MyEnum1", Some("org.example"))
     doTestTopLevelQualifier("MyEnum1Case1", None)
     doTestTopLevelQualifier("myGiven1", Some("org.example"))
-    doTestTopLevelQualifier("myExtension1", None)
+    doTestTopLevelQualifier("myExtension1", Some("org.example"))
 
     doTestTopLevelQualifier("MyClass2", Some("org.example.extra"))
     doTestTopLevelQualifier("MyTrait2", Some("org.example.extra"))
     doTestTopLevelQualifier("MyObject2", Some("org.example.extra"))
     doTestTopLevelQualifier("MyTypeAlias2", Some("org.example.extra"))
     doTestTopLevelQualifier("myFunction2", Some("org.example.extra"))
-    //doTestForTopLevelApi("myValue2", Some("org.example.extra"))
-    //doTestForTopLevelApi("myVariable2", Some("org.example.extra"))
-    //doTestForTopLevelApi("myValueFromPattern22", Some("org.example.extra"))
-    //doTestForTopLevelApi("myValueFromPattern22", Some("org.example.extra"))
+    doTestTopLevelQualifier("myValue2", Some("org.example.extra"))
+    doTestTopLevelQualifier("myVariable2", Some("org.example.extra"))
+    doTestTopLevelQualifier("myValueFromPattern22", Some("org.example.extra"))
+    doTestTopLevelQualifier("myValueFromPattern22", Some("org.example.extra"))
     doTestTopLevelQualifier("MyEnum2", Some("org.example.extra"))
     doTestTopLevelQualifier("MyEnum2Case2", None)
     doTestTopLevelQualifier("myGiven2", Some("org.example.extra"))
-    doTestTopLevelQualifier("myExtension2", None)
+    doTestTopLevelQualifier("myExtension2", Some("org.example.extra"))
   }
 
   def testApiMethods_TopLevelQualifier_WithoutPackageStatement(): Unit = {
@@ -128,14 +137,14 @@ class ScMemberTest extends ScalaLightCodeInsightFixtureTestCase {
     doTestTopLevelQualifier("MyObject1", Some(""))
     doTestTopLevelQualifier("MyTypeAlias1", Some(""))
     doTestTopLevelQualifier("myFunction1", Some(""))
-    //doTestForTopLevelApi("myValue1", Some(""))
-    //doTestForTopLevelApi("myVariable1", Some(""))
-    //doTestForTopLevelApi("myValueFromPattern11", Some(""))
-    //doTestForTopLevelApi("myValueFromPattern12", Some(""))
+    doTestTopLevelQualifier("myValue1", Some(""))
+    doTestTopLevelQualifier("myVariable1", Some(""))
+    doTestTopLevelQualifier("myValueFromPattern11", Some(""))
+    doTestTopLevelQualifier("myValueFromPattern12", Some(""))
     doTestTopLevelQualifier("MyEnum1", Some(""))
     doTestTopLevelQualifier("MyEnum1Case1", None)
     doTestTopLevelQualifier("myGiven1", Some(""))
-    doTestTopLevelQualifier("myExtension1", None)
+    doTestTopLevelQualifier("myExtension1", Some(""))
   }
 
   def testApiMethods_TopLevelQualifier_LocalMembers_WithPackageStatement(): Unit = {
@@ -157,10 +166,10 @@ class ScMemberTest extends ScalaLightCodeInsightFixtureTestCase {
     doTestTopLevelQualifier("MyObject1", None)
     doTestTopLevelQualifier("MyTypeAlias1", None)
     doTestTopLevelQualifier("myFunction1", None)
-    //doTestForTopLevelApi("myValue1", None)
-    //doTestForTopLevelApi("myVariable1", None)
-    //doTestForTopLevelApi("myValueFromPattern11", None)
-    //doTestForTopLevelApi("myValueFromPattern12", None)
+    doTestTopLevelQualifier("myValue1", None)
+    doTestTopLevelQualifier("myVariable1", None)
+    doTestTopLevelQualifier("myValueFromPattern11", None)
+    doTestTopLevelQualifier("myValueFromPattern12", None)
     doTestTopLevelQualifier("MyEnum1", None)
     doTestTopLevelQualifier("MyEnum1Case1", None)
     doTestTopLevelQualifier("myGiven1", None)
@@ -171,10 +180,10 @@ class ScMemberTest extends ScalaLightCodeInsightFixtureTestCase {
     doTestTopLevelQualifier("MyObject2", None)
     doTestTopLevelQualifier("MyTypeAlias2", None)
     doTestTopLevelQualifier("myFunction2", None)
-    //doTestForTopLevelApi("myValue2", None)
-    //doTestForTopLevelApi("myVariable2", None)
-    //doTestForTopLevelApi("myValueFromPattern22", None)
-    //doTestForTopLevelApi("myValueFromPattern22", None)
+    doTestTopLevelQualifier("myValue2", None)
+    doTestTopLevelQualifier("myVariable2", None)
+    doTestTopLevelQualifier("myValueFromPattern22", None)
+    doTestTopLevelQualifier("myValueFromPattern22", None)
     doTestTopLevelQualifier("MyEnum2", None)
     doTestTopLevelQualifier("myGiven2", None)
     doTestTopLevelQualifier("myExtension2", None)
@@ -197,10 +206,10 @@ class ScMemberTest extends ScalaLightCodeInsightFixtureTestCase {
     doTestTopLevelQualifier("MyObject1", None)
     doTestTopLevelQualifier("MyTypeAlias1", None)
     doTestTopLevelQualifier("myFunction1", None)
-    //doTestForTopLevelApi("myValue1", None)
-    //doTestForTopLevelApi("myVariable1", None)
-    //doTestForTopLevelApi("myValueFromPattern11", None)
-    //doTestForTopLevelApi("myValueFromPattern12", None)
+    doTestTopLevelQualifier("myValue1", None)
+    doTestTopLevelQualifier("myVariable1", None)
+    doTestTopLevelQualifier("myValueFromPattern11", None)
+    doTestTopLevelQualifier("myValueFromPattern12", None)
     doTestTopLevelQualifier("MyEnum1", None)
     doTestTopLevelQualifier("MyEnum1Case1", None)
     doTestTopLevelQualifier("myGiven1", None)
@@ -211,10 +220,10 @@ class ScMemberTest extends ScalaLightCodeInsightFixtureTestCase {
     doTestTopLevelQualifier("MyObject2", None)
     doTestTopLevelQualifier("MyTypeAlias2", None)
     doTestTopLevelQualifier("myFunction2", None)
-    //doTestForTopLevelApi("myValue2", None)
-    //doTestForTopLevelApi("myVariable2", None)
-    //doTestForTopLevelApi("myValueFromPattern22", None)
-    //doTestForTopLevelApi("myValueFromPattern22", None)
+    doTestTopLevelQualifier("myValue2", None)
+    doTestTopLevelQualifier("myVariable2", None)
+    doTestTopLevelQualifier("myValueFromPattern22", None)
+    doTestTopLevelQualifier("myValueFromPattern22", None)
     doTestTopLevelQualifier("MyEnum2", None)
     doTestTopLevelQualifier("myGiven2", None)
     doTestTopLevelQualifier("myExtension2", None)
