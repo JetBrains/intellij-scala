@@ -2,16 +2,21 @@ package org.jetbrains.plugins.scala.lang.completion
 
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup._
+import com.intellij.openapi.application.ex.ApplicationManagerEx
+import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.util.Iconable
+import com.intellij.openapi.util.registry.Registry
 import com.intellij.psi._
 import com.intellij.psi.filters._
 import com.intellij.psi.filters.position.{FilterPattern, LeftNeighbour}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ProcessingContext
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInspection.targetNameAnnotation.addTargetNameAnnotationIfNeeded
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiFileExt, PsiModifierListOwnerExt}
 import org.jetbrains.plugins.scala.lang.completion.filters.modifiers.ModifiersFilter
-import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
@@ -245,6 +250,30 @@ object ScalaOverrideContributor {
   private[this] class MyInsertHandler(hasOverride: Boolean) extends InsertHandler[LookupElement] {
 
     override def handleInsert(context: InsertionContext, item: LookupElement): Unit = {
+      val project = context.getProject
+      val insertRunnable: Runnable = () => doHandleInsert(context, item)
+
+      val performInsertRunnable: Runnable =
+        () => DumbService.getInstance(project).withAlternativeResolveEnabled(insertRunnable)
+
+      if (Registry.is("run.refactorings.under.progress")) {
+        val title = ScalaBundle.message("overriding.member.title")
+
+        val performUnderProgress: java.util.function.Consumer[ProgressIndicator] = { indicator =>
+          indicator.setIndeterminate(false)
+          indicator.setFraction(0)
+          performInsertRunnable.run()
+        }
+
+        //noinspection ApiStatus
+        ApplicationManagerEx.getApplicationEx.runWriteActionWithCancellableProgressInDispatchThread(
+          title, project, null, performUnderProgress)
+      } else {
+        performInsertRunnable.run()
+      }
+    }
+
+    private def doHandleInsert(context: InsertionContext, item: LookupElement): Unit = {
       val startElement = context.getFile.findElementAt(context.getStartOffset)
       val member = getContextOfType(startElement, classOf[ScModifierListOwner])
       member match {
@@ -261,7 +290,7 @@ object ScalaOverrideContributor {
         member.setModifierProperty("override")
       }
       addTargetNameAnnotationIfNeeded(member, item.getObject)
-      TypeAdjuster.markToAdjust(member)
+      ScalaPsiUtil.adjustTypes(member)
     }
   }
 
