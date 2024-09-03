@@ -71,7 +71,3 @@ class SetConformanceTest_2_13 extends SetConformanceTestBase {
        |//true
     """.stripMargin)
 }
-
-class SetConformanceTest_2_13_Failing extends SetConformanceTestBase_Failing {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
-}

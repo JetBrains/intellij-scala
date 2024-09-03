@@ -8,17 +8,22 @@ class TypeVariableScala3Test extends TypeInferenceTestBase {
    * After desugaring (which is needed to calculate type of the type element) we end up with
    * a new set of type variables, with typeIds different from the original ones (present in the source code).
    */
-  override protected def shouldPass = false
 
-  private final val Prefix =
-    "class Type; " +
-    "class &&[A, B]; "
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
 
-  override protected def supportedIn(version: ScalaVersion) = version >= LatestScalaVersions.Scala_3_0
+  def testInfix1(): Unit = assertErrorsText(
+    """class Type
+      |class &&[A, B]
+      |(??? : Unit && Type) match { case _: (t1 && t2) => val v: Type = ??? : t2 }""".stripMargin,
+    //FIXME: this is wrong expected data, see comment above
+    """Error(t2,Expression of type t2 doesn't conform to expected type Type)"""
+  )
 
-  def testInfix1(): Unit = checkTextHasNoErrors(Prefix +
-    "(??? : Unit && Type) match { case _: (t1 && t2) => val v: Type = ??? : t2 }")
-
-  def testInfix2(): Unit = checkTextHasNoErrors(Prefix +
-    "(??? : Unit && Type) match { case _: (t1 && t2) => val v: t2 = ??? : Type }")
+  def testInfix2(): Unit = assertErrorsText(
+    """class Type
+      |class &&[A, B]
+      |(??? : Unit && Type) match { case _: (t1 && t2) => val v: t2 = ??? : Type }""".stripMargin,
+    //FIXME: this is wrong expected data, see comment above
+    """Error(Type,Expression of type Type doesn't conform to expected type t2)"""
+  )
 }
