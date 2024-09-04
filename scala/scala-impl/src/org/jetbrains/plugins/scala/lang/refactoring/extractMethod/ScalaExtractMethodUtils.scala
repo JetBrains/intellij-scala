@@ -361,14 +361,15 @@ object ScalaExtractMethodUtils {
     returnTypeText
   }
 
-  def replaceWithMethodCall(settings: ScalaExtractMethodSettings, d: DuplicateMatch): Unit = {
-    replaceWithMethodCall(settings, d.candidates, d.parameterText, d.outputName)
+  def replaceWithMethodCall(settings: ScalaExtractMethodSettings, d: DuplicateMatch, typeAdjuster: TypeAdjuster): Unit = {
+    replaceWithMethodCall(settings, d.candidates, d.parameterText, d.outputName, typeAdjuster)
   }
 
   def replaceWithMethodCall(settings: ScalaExtractMethodSettings,
                             elements: Seq[PsiElement],
                             parameterText: ExtractMethodParameter => String,
-                            outputName: ExtractMethodOutput => String): Unit = {
+                            outputName: ExtractMethodOutput => String,
+                            typeAdjuster: TypeAdjuster): Unit = {
     implicit val projectContext: ProjectContext = settings.projectContext
 
     val target = elements.head
@@ -528,7 +529,7 @@ object ScalaExtractMethodUtils {
     val stmt = insertCallStmt()
     insertAssignsFromMultipleReturn(stmt)
     removeReplacedElements()
-    TypeAdjuster.markToAdjust(stmt.getParent)
+    typeAdjuster.markToAdjust(stmt.getParent)
   }
 
   private def typeParametersText(settings: ScalaExtractMethodSettings) =

@@ -15,9 +15,11 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
 import com.intellij.refactoring.RefactoringBundle
 import com.intellij.ui.ReplacePromptDialog
+import com.intellij.util.concurrency.annotations.RequiresEdt
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.{ScalaExtractMethodSettings, ScalaExtractMethodUtils}
 
@@ -77,7 +79,7 @@ object DuplicatesUtil {
     HighlightManager.getInstance(project).removeSegmentHighlighter(editor, highlighter.get(0))
   }
 
-  private def invokeDuplicateProcessing(duplicates: Seq[DuplicateMatch], settings: ScalaExtractMethodSettings)
+  private def invokeDuplicateProcessing(duplicates: Seq[DuplicateMatch], settings: ScalaExtractMethodSettings, typeAdjuster: TypeAdjuster)
                                        (implicit project: Project, editor: Editor): Unit = {
     var replaceAll = false
     var cancelled = false
@@ -87,9 +89,9 @@ object DuplicatesUtil {
           val dialog = showPromptDialog(settings.methodName, idx + 1, duplicates.size, project)
           dialog.getExitCode match {
             case FindManager.PromptResult.ALL =>
-              replaceDuplicate(settings, d)
+              replaceDuplicate(settings, d, typeAdjuster)
               replaceAll = true
-            case FindManager.PromptResult.OK => replaceDuplicate(settings, d)
+            case FindManager.PromptResult.OK => replaceDuplicate(settings, d, typeAdjuster)
             case FindManager.PromptResult.SKIP =>
             case FindManager.PromptResult.CANCEL => cancelled = true
           }
@@ -97,14 +99,14 @@ object DuplicatesUtil {
 
         if (cancelled) return
       }
-      else replaceDuplicate(settings, d)
+      else replaceDuplicate(settings, d, typeAdjuster)
     }
   }
 
-  private def replaceDuplicate(settings: ScalaExtractMethodSettings, d: DuplicateMatch)
+  private def replaceDuplicate(settings: ScalaExtractMethodSettings, d: DuplicateMatch, typeAdjuster: TypeAdjuster)
                               (implicit project: Project): Unit =
     inWriteCommandAction {
-      ScalaExtractMethodUtils.replaceWithMethodCall(settings, d)
+      ScalaExtractMethodUtils.replaceWithMethodCall(settings, d, typeAdjuster)
     }
 
   private def showPromptDialog(methodName: String, idx: Int, size: Int, project: Project) = {
@@ -114,6 +116,7 @@ object DuplicatesUtil {
     dialog
   }
 
+  @RequiresEdt
   def processDuplicates(duplicates: Seq[DuplicateMatch], settings: ScalaExtractMethodSettings)
                        (implicit project: Project, editor: Editor): Unit = {
     def showDuplicatesDialog(): Int = {
@@ -122,22 +125,26 @@ object DuplicatesUtil {
       Messages.showYesNoDialog(project, message, ScalaBundle.message("process.duplicates"), Messages.getQuestionIcon)
     }
 
+    val typeAdjuster = new TypeAdjuster()
+
     if (ApplicationManager.getApplication.isUnitTestMode) {
-      duplicates.foreach(replaceDuplicate(settings, _))
+      duplicates.foreach(replaceDuplicate(settings, _, typeAdjuster))
       return
     }
 
     if (duplicates.size == 1) {
       val duplicate = duplicates.head
       previewDuplicate(project, editor, duplicate) {
-        if (showDuplicatesDialog() == Messages.YES) replaceDuplicate(settings, duplicate)
+        if (showDuplicatesDialog() == Messages.YES) replaceDuplicate(settings, duplicate, typeAdjuster)
       }
       return
     }
 
     if (showDuplicatesDialog() == Messages.YES) {
-      invokeDuplicateProcessing(duplicates, settings)
+      invokeDuplicateProcessing(duplicates, settings, typeAdjuster)
     }
+
+    typeAdjuster.adjustTypes()
   }
 
   private def expandAllRegionsCoveringRange(project: Project, editor: Editor, textRange: TextRange): Unit = {
