@@ -78,8 +78,29 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
     assert(sourceFiles.isEmpty)
     val sb = new StringBuilder(1024 * 8)
     textOfPackage(sb, "", node)
-    (sourceFiles.headOption.getOrElse("Unknown.scala"), sb.toString)
+    val sourceFileName = sourceFiles.headOption.getOrElse {
+      //SourceFile annotation is used to specify the original source file of a tasty file.
+      //However, it can't be used for SourceFile annotation itself as it would lead to cyclic dependencies.
+      //So we simply hardcode it.
+      if (isSourceFileAnnotationTasty(node))
+        "SourceFile.scala"
+      else
+        "Unknown.scala"
+    }
+    (sourceFileName, sb.toString)
   }
+
+  /** @return true for scala/annotation/internal/SourceFile.tasty */
+  private def isSourceFileAnnotationTasty(node: Node): Boolean =
+    node match {
+      case Node3(PACKAGE, _, Seq(Node3(TERMREFpkg, Seq("scala.annotation.internal"), zxc), children: _*)) =>
+        children.filterNot(_.tag == IMPORT).exists {
+          case Node3(TYPEDEF, Seq("SourceFile"), _) => true
+          case _ => false
+        }
+      case _ =>
+        false
+    }
 
   // TODO partial function, no prefix (or before & after functions)?
   @tailrec private def textOfPackage(sb: StringBuilder, indent: String, node: Node, definition: Option[Node] = None, prefix: String = ""): Unit = node match {

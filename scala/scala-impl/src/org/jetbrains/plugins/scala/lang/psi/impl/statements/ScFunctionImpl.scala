@@ -22,9 +22,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypeParametersOwner}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypeParametersOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiReferenceList
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createIdentifier
@@ -377,6 +377,40 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
         }
         res
       case x => x
+    }
+  }
+
+  override protected def getSourceMirrorMember: ScMember = {
+    extensionMethodOwner match {
+      case Some(extension) =>
+        getSourceMirrorForExtensionMethod(extension)
+      case None =>
+        super.getSourceMirrorMember
+    }
+  }
+
+  private def getSourceMirrorForExtensionMethod(extension: ScExtension): ScMember = {
+    extension.getParent match {
+      case (_: ScTemplateBody) & Parent((_: ScExtendsBlock) & Parent(td: ScTypeDefinition)) =>
+        val navigationElement = td.getNavigationElement
+        navigationElement match {
+          case typeDefinition: ScTypeDefinition =>
+            val members = typeDefinition.extensions.flatMap(_.extensionMethods)
+            findMemberNavigationTarget(members)
+          case _ => this
+        }
+      case _: ScPackaging =>
+        //handle top-level definitions in Scala 3
+        //type definitions (class,trait,etc...) are handled in ScTypeDefinitionImpl.getSourceMirrorClass
+        val fileNavigationElement = getContainingFile.getNavigationElement
+        fileNavigationElement match {
+          case scalaFile: ScalaFile =>
+            val extensions = scalaFile.extensions.flatMap(_.extensionMethods)
+            findMemberNavigationTarget(extensions)
+          case _ => this
+        }
+      case _ =>
+        this
     }
   }
 
