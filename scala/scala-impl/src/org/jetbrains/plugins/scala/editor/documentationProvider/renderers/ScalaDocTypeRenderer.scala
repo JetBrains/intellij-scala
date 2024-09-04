@@ -4,7 +4,7 @@ import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement, PsiPackage}
 import org.apache.commons.text.StringEscapeUtils.escapeHtml4
 import org.jetbrains.plugins.scala.editor.documentationProvider.renderers.ScalaDocTypeRenderer.StaticJavaClassHolder
-import org.jetbrains.plugins.scala.editor.documentationProvider.{HtmlBuilderWrapper, ScalaDocQuickInfoGenerator}
+import org.jetbrains.plugins.scala.editor.documentationProvider.{HtmlBuilderWrapper, HtmlPsiUtils}
 import org.jetbrains.plugins.scala.extensions.{Model, ObjectExt, PsiMemberExt, PsiNamedElementExt, StringExt, StringsExt}
 import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
@@ -296,8 +296,8 @@ private [documentationProvider] object ScalaDocTypeRenderer {
       case clazz: PsiClass =>
         clazz
           .qualifiedNameOpt
-          .fold(escapeName(clazz.name)) { _ =>
-            classLinkWithLabel(clazz, clazz.name, addCodeTag = true, defLinkHighlight = false, isAnnotation = true, qualNameToType = projectContext.stdTypes.QualNameToType)
+          .fold(escapeName(clazz.name)) { fqn =>
+            psiElementLink(fqn, clazz.name, attributesKey = Some(DefaultHighlighter.ANNOTATION))
           }
       case _ =>
         psiElement(e, Some(e.name))
@@ -320,7 +320,7 @@ private [documentationProvider] object ScalaDocTypeRenderer {
         clazz
           .qualifiedNameOpt
           .fold(escapeName(clazz.name)) { _ =>
-            classLinkWithLabel(clazz, clazz.name, addCodeTag = addCodeTag, defLinkHighlight = false, qualNameToType = projectContext.stdTypes.QualNameToType)
+            classLinkWithLabel(clazz, clazz.name, addCodeTag = addCodeTag, qualNameToType = projectContext.stdTypes.QualNameToType)
           }
       case a: ScTypeAlias =>
         a.qualifiedNameOpt
@@ -344,7 +344,7 @@ private [documentationProvider] object ScalaDocTypeRenderer {
       case _: PsiPackage if withPoint => ""
       case clazz: PsiClass =>
         clazz.qualifiedNameOpt
-          .fold(escapeName(clazz.name))(_ => classLinkWithLabel(clazz, clazz.name, addCodeTag = addCodeTag, defLinkHighlight = !ScalaDocQuickInfoGenerator.EnableSyntaxHighlightingInQuickInfo))
+          .fold(escapeName(clazz.name))(fqn => HtmlPsiUtils.psiElementLink(fqn, clazz.name, addCodeTag = false))
       case a: ScTypeAlias =>
         a.qualifiedNameOpt
           .fold(escapeName(e.name))(psiElementLink(_, e.name, attributesKey = None, addCodeTag = addCodeTag))

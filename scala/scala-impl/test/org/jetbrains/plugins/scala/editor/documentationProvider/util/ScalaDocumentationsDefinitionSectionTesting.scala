@@ -22,6 +22,10 @@ trait ScalaDocumentationsSectionsTestingBase {
   protected val BodyStart = s"<body>"
   protected val BodyEnd = "</body>"
 
+  //see ScalaDocDefinitionGenerator.generateContainerInfoSection
+  protected val ContainerInfoStart = """<div class="bottom">"""
+  protected val ContainerInfoEnd = """</div>"""
+
   protected val DefinitionStart: String = DocumentationMarkup.DEFINITION_START
   protected val DefinitionEnd: String = DocumentationMarkup.DEFINITION_END
   protected val ContentStart: String = DocumentationMarkup.CONTENT_START
@@ -97,17 +101,37 @@ trait ScalaDocumentationsDefinitionSectionTesting extends ScalaDocumentationsSec
   }
 }
 
+trait ScalaDocumentationsContainerInfoSectionTesting extends ScalaDocumentationsSectionsTestingBase {
+  self: DocumentationProviderTestBase =>
+
+  protected def doGenerateDocContainerInfoTest(fileContent: String, expectedDefinition: String): Unit = {
+    val actualDoc = configureFileAndGenerateDoc(fileContent)
+    val actualPart = extractSectionInner(actualDoc, "container info", ContainerInfoStart, ContainerInfoEnd)
+    assertDocHtml(
+      expectedDefinition,
+      actualPart,
+      //don't ignore new lines, definition section is wrapped with `<pre>` tag
+      HtmlSpacesComparisonMode.DontIgnore
+    )
+  }
+}
+
 trait ScalaDocumentationsBodySectionTesting extends ScalaDocumentationsSectionsTestingBase {
   self: DocumentationProviderTestBase =>
 
-  protected def doGenerateDocBodyTest(
+  protected def doGenerateDocBodyTestWithoutContainerInfo(
     fileContent: String,
-    expectedBody: String,
+    expectedBodyWithoutContainerInfo: String,
     whitespacesMode: HtmlSpacesComparisonMode = HtmlSpacesComparisonMode.IgnoreNewLinesAndCollapseSpaces
   ): Unit = {
     val actualDoc = configureFileAndGenerateDoc(fileContent)
-    val actualPart = extractSectionInner(actualDoc, "body", BodyStart, BodyEnd)
-    assertDocHtml(expectedBody, actualPart, whitespacesMode)
+    val actualBody = extractSectionInner(actualDoc, "body", BodyStart, BodyEnd)
+    val containerInfoIndex = actualBody.indexOf(ContainerInfoStart)
+    val actualBodyWithoutContainerInfo = if (containerInfoIndex == 0)
+      actualBody.substring(actualBody.indexOf(ContainerInfoEnd) + ContainerInfoEnd.length)
+    else
+      actualBody
+    assertDocHtml(expectedBodyWithoutContainerInfo, actualBodyWithoutContainerInfo, whitespacesMode)
   }
 
   protected def doGenerateRenderedDocBodyTest(

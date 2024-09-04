@@ -9,15 +9,12 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
   with ScalaDocumentationsScalaDocContentTesting {
 
   def testMethod(): Unit =
-    doGenerateDocBodyTest(
+    doGenerateDocBodyTestWithoutContainerInfo(
       s"""class A {
          |  /** description of foo */
          |  def ${|}foo: String = ???
          |}""".stripMargin,
-      s"""
-         |$DefinitionStart<a href="psi_element://A"><code>A</code></a>
-         |
-         |<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">foo</span>: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>$DefinitionEnd
+      s"""$DefinitionStart<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">foo</span>: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>$DefinitionEnd
          |${ContentStart}description of foo$ContentEnd
          |""".stripMargin
     )
@@ -30,16 +27,13 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          |}
          |""".stripMargin
     )
-    doGenerateDocBodyTest(
+    doGenerateDocBodyTestWithoutContainerInfo(
       s"""class A extends BaseScalaClass {
          |  /** description of base method from A */
          |  def ${|}baseMethod: String = ???
          |}
          |""".stripMargin,
-      s"""
-         |$DefinitionStart<a href="psi_element://A"><code>A</code></a>
-         |
-         |<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">baseMethod</span>: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>$DefinitionEnd
+      s"""$DefinitionStart<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">baseMethod</span>: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>$DefinitionEnd
          |${ContentStart}description of base method from A$ContentEnd
          |""".stripMargin
     )
@@ -57,14 +51,11 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
     // TODO: do we need override keyword as text in <pre> section?
     //  Java uses `Overrides` section for that (e.g. Overrides: foo in class BaseClass)
     //  Maybe we leave the keyword but also add a "Overrides" section?
-    doGenerateDocBodyTest(
+    doGenerateDocBodyTestWithoutContainerInfo(
       s"""class A extends BaseScalaClass {
          |  override def ${|}baseMethod: String = ???
          |}""".stripMargin,
-      s"""
-         |$DefinitionStart<a href="psi_element://A"><code>A</code></a>
-         |
-         |<span style="color:#000080;font-weight:bold;">override</span> <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">baseMethod</span>: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>$DefinitionEnd
+      s"""$DefinitionStart<span style="color:#000080;font-weight:bold;">override</span> <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">baseMethod</span>: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>$DefinitionEnd
          |$ContentStart
          |<b>Description copied from class: </b>
          |<a href="psi_element://BaseScalaClass"><code>BaseScalaClass</code></a>
@@ -84,14 +75,12 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          |}
          |""".stripMargin
     )
-    doGenerateDocBodyTest(
+    doGenerateDocBodyTestWithoutContainerInfo(
       s"""class A extends BaseJavaClass {
          |  override def ${|}baseMethod: String = ???
          |}
          |""".stripMargin,
-      s"""$DefinitionStart<a href="psi_element://A"><code>A</code></a>
-         |
-         |<span style="color:#000080;font-weight:bold;">override</span> <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">baseMethod</span>: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>$DefinitionEnd
+      s"""$DefinitionStart<span style="color:#000080;font-weight:bold;">override</span> <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">baseMethod</span>: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>$DefinitionEnd
          |$ContentStart
          |<b>Description copied from class: </b>
          |<a href="psi_element://BaseJavaClass"><code>BaseJavaClass</code></a>
@@ -103,15 +92,13 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
   }
 
   def testMethod_WithEmptyDoc_OverridingJavaMethod_FromLibrary(): Unit = {
-    doGenerateDocBodyTest(
+    doGenerateDocBodyTestWithoutContainerInfo(
       s"""class A {
          |  //from java.lang.Object
          |  override def ${|}toString: String = super.toString
          |}
          |""".stripMargin,
-      s"""$DefinitionStart<a href="psi_element://A"><code>A</code></a>
-         |
-         |<span style="color:#000080;font-weight:bold;">override</span> <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">toString</span>: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>$DefinitionEnd
+      s"""$DefinitionStart<span style="color:#000080;font-weight:bold;">override</span> <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">toString</span>: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>$DefinitionEnd
          |$ContentStart
          |<b>Description copied from class: </b><a href="psi_element://java.lang.Object"><code>Object</code></a>$ContentEnd
          |$ContentStart Returns a string representation of the object. $ContentEnd
@@ -129,15 +116,12 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          |  String[] getModules() {  return null;  }
          |}""".stripMargin
     )
-    doGenerateDocBodyTest(
+    doGenerateDocBodyTestWithoutContainerInfo(
       s"""class A extends BaseJavaClass {
          |  override def ${|}getModules: String = ???
          |}
          |""".stripMargin,
-      s"""
-         |$DefinitionStart<a href="psi_element://A"><code>A</code></a>
-         |
-         |<span style="color:#000080;font-weight:bold;">override</span> <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">getModules</span>: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>$DefinitionEnd
+      s"""$DefinitionStart<span style="color:#000080;font-weight:bold;">override</span> <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">getModules</span>: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>$DefinitionEnd
          |$ContentStart
          |<b>Description copied from class: </b>
          |<a href="psi_element://BaseJavaClass"><code>BaseJavaClass</code></a>
@@ -160,7 +144,7 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
       s"""$DefinitionStart<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">x</span>: <span style="color:#000000;"><a href="psi_element://Trait2"><code>Trait2</code></a></span>[_, _]$DefinitionEnd
          |""".stripMargin
     }
-    doGenerateDocBodyTest(input1, expectedDoc)
+    doGenerateDocBodyTestWithoutContainerInfo(input1, expectedDoc)
   }
 
   private def sharedValVarDefinition(definitionBody: String): String = {
@@ -175,7 +159,7 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
   }
 
   private def doValVarTest(definitionBody: String, expectedDocDefinitionSection: String): Unit =
-    doGenerateDocBodyTest(
+    doGenerateDocBodyTestWithoutContainerInfo(
       sharedValVarDefinition(definitionBody),
       s"""$DefinitionStart$expectedDocDefinitionSection$DefinitionEnd
          |${ContentStart}some description$ContentEnd
@@ -187,27 +171,21 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
   def testMemberValue(): Unit =
     doValVarTest(
       s"""val ${|}v = 1""",
-      s"""<a href="psi_element://X"><code>X</code></a>
-         |
-         |<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">v</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>
+      s"""<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">v</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>
          |""".stripMargin.trim
     )
 
   def testMemberVariable(): Unit =
     doValVarTest(
       s"""var ${|}v = 1""",
-      s"""<a href="psi_element://X"><code>X</code></a>
-         |
-         |<span style="color:#000080;font-weight:bold;">var</span> <span style="color:#660e7a;font-style:italic;">v</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>
+      s"""<span style="color:#000080;font-weight:bold;">var</span> <span style="color:#660e7a;font-style:italic;">v</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>
          |""".stripMargin.trim
     )
 
   def testMemberValuePattern(): Unit =
     doValVarTest(
       s"""val (v1, ${|}v2) = (1, "str")""",
-      s"""<a href="psi_element://X"><code>X</code></a>
-         |
-         |<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">v2</span>: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
+      s"""<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">v2</span>: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
          |""".stripMargin.trim
     )
 
@@ -215,45 +193,35 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
     doValVarTest(
       s"""val Tuple2(v1, ${|}v2) = (1, "str")""",
       // java.lang.String cause it's an inferred type
-      s"""<a href="psi_element://X"><code>X</code></a>
-         |
-         |<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">v2</span>: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
+      s"""<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">v2</span>: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
          |""".stripMargin.trim
     )
 
   def testMemberVariablePattern(): Unit =
     doValVarTest(
       s"""var (v1, ${|}v2) = (1, "str")""",
-      s"""<a href="psi_element://X"><code>X</code></a>
-         |
-         |<span style="color:#000080;font-weight:bold;">var</span> <span style="color:#660e7a;font-style:italic;">v2</span>: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
+      s"""<span style="color:#000080;font-weight:bold;">var</span> <span style="color:#660e7a;font-style:italic;">v2</span>: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
          |""".stripMargin.trim
     )
 
   def testMemberVariablePattern_1(): Unit =
     doValVarTest(
       s"""var Tuple2(v1, ${|}v2) = (1, "str")""",
-      s"""<a href="psi_element://X"><code>X</code></a>
-         |
-         |<span style="color:#000080;font-weight:bold;">var</span> <span style="color:#660e7a;font-style:italic;">v2</span>: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
+      s"""<span style="color:#000080;font-weight:bold;">var</span> <span style="color:#660e7a;font-style:italic;">v2</span>: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
          |""".stripMargin.trim
     )
 
   def testMemberValue_Abstract(): Unit =
     doValVarTest(
       s"""val ${|}v: Int""",
-      s"""<a href="psi_element://X"><code>X</code></a>
-         |
-         |<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">v</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>
+      s"""<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">v</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>
          |""".stripMargin.trim
     )
 
   def testMemberVariable_Abstract(): Unit =
     doValVarTest(
       s"""var ${|}v: Int""",
-      s"""<a href="psi_element://X"><code>X</code></a>
-         |
-         |<span style="color:#000080;font-weight:bold;">var</span> <span style="color:#660e7a;font-style:italic;">v</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>
+      s"""<span style="color:#000080;font-weight:bold;">var</span> <span style="color:#660e7a;font-style:italic;">v</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>
          |""".stripMargin.trim
     )
 
@@ -325,12 +293,11 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          |class ${|}A {}
          |""".stripMargin
     val expectedDoc =
-      s"""
-         |$DefinitionStart<span style="color:#000080;font-weight:bold;">class</span> <span style="color:#000000;">A</span>$DefinitionEnd
+      s"""$DefinitionStart<span style="color:#000080;font-weight:bold;">class</span> <span style="color:#000000;">A</span>$DefinitionEnd
          |${ContentStart}Description$ContentEnd
          |""".stripMargin
 
-    doGenerateDocBodyTest(
+    doGenerateDocBodyTestWithoutContainerInfo(
       fileText,
       expectedDoc
     )
@@ -449,8 +416,7 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
 
   def testTags_ParamInUse(): Unit = {
     val fileText =
-      s"""
-         |/**
+      s"""/**
          |  * Method description
          |  *
          |  * @param initB initial boolean
@@ -467,8 +433,7 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
 
   def testTags_ValueInUse(): Unit = {
     val fileText =
-      s"""
-         |def foo(initB: Boolean): Seq[Int] = {
+      s"""def foo(initB: Boolean): Seq[Int] = {
          |  /**
          |    * this is a boolean
          |    */
@@ -477,19 +442,17 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          |}
          |""".stripMargin
     val expectedDoc =
-      s"""
-         |$DefinitionStart<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">b</span>: <span style=""><a href="psi_element://scala.Boolean"><code>Boolean</code></a></span>$DefinitionEnd
+      s"""$DefinitionStart<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">b</span>: <span style=""><a href="psi_element://scala.Boolean"><code>Boolean</code></a></span>$DefinitionEnd
          |$ContentStart
          |this is a boolean
          |$ContentEnd
          |""".stripMargin
-    doGenerateDocBodyTest(fileText, expectedDoc)
+    doGenerateDocBodyTestWithoutContainerInfo(fileText, expectedDoc)
   }
 
   def testTags_NestedMethodInUse(): Unit = {
     val fileText =
-      s"""
-         |def foo(): Int = {
+      s"""def foo(): Int = {
          |  /**
          |    * Increments the number
          |    * @param n the number to be incremented
@@ -501,8 +464,7 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          |}
          |""".stripMargin
     val expectedDoc =
-      s"""
-         |<tr><td valign='top' class='section'><p>Params:</td>
+      s"""<tr><td valign='top' class='section'><p>Params:</td>
          |<td valign='top'>n &ndash; the number to be incremented</td>
          |<tr><td valign='top' class='section'><p>Returns:</td><td valign='top'>the incremented number</td>
          |""".stripMargin
@@ -511,8 +473,7 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
 
   def testTags_VariableInUse(): Unit = {
     val fileText =
-      s"""
-         |def foo(initB: Boolean): Seq[Int] = {
+      s"""def foo(initB: Boolean): Seq[Int] = {
          |  /**
          |    * this is a boolean
          |    */
@@ -521,19 +482,17 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          |}
          |""".stripMargin
     val expectedDoc =
-      s"""
-         |$DefinitionStart<span style="color:#000080;font-weight:bold;">var</span> <span style="color:#660e7a;font-style:italic;">b</span>: <span style=""><a href="psi_element://scala.Boolean"><code>Boolean</code></a></span>$DefinitionEnd
+      s"""$DefinitionStart<span style="color:#000080;font-weight:bold;">var</span> <span style="color:#660e7a;font-style:italic;">b</span>: <span style=""><a href="psi_element://scala.Boolean"><code>Boolean</code></a></span>$DefinitionEnd
          |$ContentStart
          |this is a boolean
          |$ContentEnd
          |""".stripMargin
-    doGenerateDocBodyTest(fileText, expectedDoc)
+    doGenerateDocBodyTestWithoutContainerInfo(fileText, expectedDoc)
   }
 
   def testTags_TupleInUse(): Unit = {
     val fileText =
-      s"""
-         |/**
+      s"""/**
          |  * some description
          |  *
          |  * @note some note
@@ -543,8 +502,7 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          |val v = Vector(${|}v1)
          |""".stripMargin
     val expectedDoc =
-      s"""
-         |$DefinitionStart<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">v1</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>$DefinitionEnd
+      s"""$DefinitionStart<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">v1</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>$DefinitionEnd
          |$ContentStart
          |some description
          |$ContentEnd
@@ -552,12 +510,12 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          |<tr><td valign='top' class='section'><p>Note:</td><td valign='top'>some note</td>
          |$SectionsEnd
          |""".stripMargin
-    doGenerateDocBodyTest(fileText, expectedDoc)
+    doGenerateDocBodyTestWithoutContainerInfo(fileText, expectedDoc)
   }
 
 
   def testFontStyles_Nested_Underscore_Power_Italic(): Unit =
-    doGenerateDocBodyTest(
+    doGenerateDocBodyTestWithoutContainerInfo(
       s"""/**
          | * __xxx^yyy''zzz''yyy^xxx__
          | */
@@ -597,15 +555,14 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          |val ${|}a = 1
          |""".stripMargin
     val expectedDoc =
-      s"""
-         |$DefinitionStart<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">a</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>$DefinitionEnd
+      s"""$DefinitionStart<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">a</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>$DefinitionEnd
          |$ContentStart
          |<a href="http://example.org">http://example.org</a><br>
          | <a href="http://example.org">http://example.org</a><br>
          | <a href="http://example.org">http://example.org</a><br>
          | <a href="http://example.org">http://example.org</a><br>
          |$ContentEnd""".stripMargin
-    doGenerateDocBodyTest(fileText, expectedDoc)
+    doGenerateDocBodyTestWithoutContainerInfo(fileText, expectedDoc)
   }
 
   def testHttpLinks_WithDescription_Simple(): Unit = {
@@ -625,7 +582,7 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          | <a href="http://example.org">label with spaces </a><br>
          | <a href="http://example.org">label with spaces </a><br>
          |$ContentEnd""".stripMargin
-    doGenerateDocBodyTest(fileText, expectedDoc)
+    doGenerateDocBodyTestWithoutContainerInfo(fileText, expectedDoc)
   }
 
   def testHttpLinks_WithDescription_WithMarkupSyntax(): Unit = {
@@ -641,8 +598,7 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          |val ${|}a = 1
          |""".stripMargin
     val expectedDoc = {
-      s"""
-         |$DefinitionStart<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">a</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>$DefinitionEnd
+      s"""$DefinitionStart<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">a</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>$DefinitionEnd
          |$ContentStart
          |<a href="http://example.org"><b>label with markdown text 1</b></a><br>
          | <a href="http://example.org">label <b>with markdown text 2</b> </a><br>
@@ -652,7 +608,7 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          | <a href="http://example.org">label <b><u>with nested</u> markdown</b> text 6 </a><br>
          |$ContentEnd""".stripMargin
     }
-    doGenerateDocBodyTest(fileText, expectedDoc)
+    doGenerateDocBodyTestWithoutContainerInfo(fileText, expectedDoc)
   }
 
   def testHttpLinks_WithMarkupSyntaxOutside(): Unit = {
@@ -673,7 +629,7 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          | <a href="http://example.org">http://example.org</a> <sup><a href="http://example.org">http://example.org</a></sup><br>
          | <a href="http://example.org">label  1 </a> <sup><a href="http://example.org">label 2</a></sup><br>
          |$ContentEnd""".stripMargin
-    doGenerateDocBodyTest(fileText, expectedDoc)
+    doGenerateDocBodyTestWithoutContainerInfo(fileText, expectedDoc)
   }
 
   def testHttpLink_WithValidEqualSignInside(): Unit =
@@ -951,7 +907,7 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
   }
 
   def testMalformedFontStyles(): Unit =
-    doGenerateDocBodyTest(
+    doGenerateDocBodyTestWithoutContainerInfo(
       s"""/**
          | * ^blah-blah
          | *
@@ -969,7 +925,7 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
     )
 
   def testMalformedTags(): Unit =
-    doGenerateDocBodyTest(
+    doGenerateDocBodyTestWithoutContainerInfo(
       s"""/**
          |  * @gmm
          |  * @
@@ -979,8 +935,7 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          |  */
          |val ${|}a = 1
          |""".stripMargin,
-      s"""
-         |$DefinitionStart<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">a</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>$DefinitionEnd
+      s"""$DefinitionStart<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">a</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>$DefinitionEnd
          |$SectionsStart
          |<tr><td valign='top' class='section'><p>Note:</td>
          |<td valign='top'>aaaaa</td>
@@ -1009,17 +964,14 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          |""".stripMargin
 
     val expectedDoc = {
-      s"""
-         |$DefinitionStart<a href="psi_element://B"><code>B</code></a>
-         |
-         |<span style="color:#000080;font-weight:bold;">override</span> <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">f</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>$DefinitionEnd
+      s"""$DefinitionStart<span style="color:#000080;font-weight:bold;">override</span> <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">f</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>$DefinitionEnd
          |$ContentStart
          |Child description
          |<p>Parent description
          |<p>Extra child description
          |$ContentEnd""".stripMargin
     }
-    doGenerateDocBodyTest(fileText, expectedDoc)
+    doGenerateDocBodyTestWithoutContainerInfo(fileText, expectedDoc)
   }
 
   def testTags_InheritDoc_EmptyBaseContent(): Unit = {
@@ -1039,14 +991,12 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          |""".stripMargin
 
     val expectedDoc =
-      s"""$DefinitionStart<a href="psi_element://B"><code>B</code></a>
-         |
-         |<span style="color:#000080;font-weight:bold;">override</span> <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">f</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>$DefinitionEnd
+      s"""$DefinitionStart<span style="color:#000080;font-weight:bold;">override</span> <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">f</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>$DefinitionEnd
          |$ContentStart
          |Child description
          |<p>Extra child description
          |$ContentEnd""".stripMargin
-    doGenerateDocBodyTest(fileText, expectedDoc)
+    doGenerateDocBodyTestWithoutContainerInfo(fileText, expectedDoc)
   }
 
   def testTags_InheritDoc_EmptyBaseContent_1(): Unit = {
@@ -1065,15 +1015,12 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          |""".stripMargin
 
     val expectedDoc =
-      s"""
-         |$DefinitionStart<a href="psi_element://B"><code>B</code></a>
-         |
-         |<span style="color:#000080;font-weight:bold;">override</span> <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">f</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>$DefinitionEnd
+      s"""$DefinitionStart<span style="color:#000080;font-weight:bold;">override</span> <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">f</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>$DefinitionEnd
          |$ContentStart
          |Extra child description
          |$ContentEnd
          |""".stripMargin
-    doGenerateDocBodyTest(fileText, expectedDoc)
+    doGenerateDocBodyTestWithoutContainerInfo(fileText, expectedDoc)
   }
 
   def testTags_InheritDoc_EmptyOwnDescription(): Unit = {
@@ -1093,16 +1040,13 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          |""".stripMargin
 
     val expectedDoc = {
-      s"""
-         |$DefinitionStart<a href="psi_element://B"><code>B</code></a>
-         |
-         |<span style="color:#000080;font-weight:bold;">override</span> <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">f</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>$DefinitionEnd
+      s"""$DefinitionStart<span style="color:#000080;font-weight:bold;">override</span> <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">f</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>$DefinitionEnd
          |$ContentStart
          |Parent description
          |<p>Extra child description
          |$ContentEnd""".stripMargin
     }
-    doGenerateDocBodyTest(fileText, expectedDoc)
+    doGenerateDocBodyTestWithoutContainerInfo(fileText, expectedDoc)
   }
 
   def testTags_InheritDoc_WithMacro(): Unit = {
@@ -1135,9 +1079,7 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          |""".stripMargin
 
     val expectedDoc =
-      s"""$DefinitionStart<a href="psi_element://B"><code>B</code></a>
-         |
-         |<span style="color:#000080;font-weight:bold;">override</span> <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">f</span>(i: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>): <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>$DefinitionEnd
+      s"""$DefinitionStart<span style="color:#000080;font-weight:bold;">override</span> <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">f</span>(i: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>): <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>$DefinitionEnd
          |$ContentStart
          |The function f defined in B returns some integer without no special property. (previously defined in A)
          |<p>Some notes on implementation performance, the function runs in O(1).
@@ -1146,7 +1088,7 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          |<tr><td valign='top' class='section'><p>Params:</td>
          |<td valign='top'>i &ndash; An important parameter</td>
          |$SectionsEnd""".stripMargin
-    doGenerateDocBodyTest(fileText, expectedDoc)
+    doGenerateDocBodyTestWithoutContainerInfo(fileText, expectedDoc)
   }
 
   def testTags_InheritDoc_FromJavaClass(): Unit = {
@@ -1169,8 +1111,7 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          |""".stripMargin
 
     val expectedDoc = {
-      s"""
-         |$DefinitionStart<span style="color:#000080;font-weight:bold;">class</span> <span style="color:#000000;">ScalaClass</span>
+      s"""$DefinitionStart<span style="color:#000080;font-weight:bold;">class</span> <span style="color:#000000;">ScalaClass</span>
          |<span style="color:#000080;font-weight:bold;">extends</span> <span style="color:#000000;"><a href="psi_element://JavaClass"><code>JavaClass</code></a></span>$DefinitionEnd
          |$ContentStart
          |text from <u>scala</u><p> text from <b>java</b>
@@ -1180,11 +1121,11 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          |$ContentEnd
          |""".stripMargin
     }
-    doGenerateDocBodyTest(fileText, expectedDoc)
+    doGenerateDocBodyTestWithoutContainerInfo(fileText, expectedDoc)
   }
 
   def testMacro_Simple(): Unit =
-    doGenerateDocBodyTest(
+    doGenerateDocBodyTestWithoutContainerInfo(
       s"""/**
          | * @define THIS A
          | */
@@ -1195,16 +1136,13 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          |  def ${|}boo()
          |}
          |""".stripMargin,
-      s"""
-         |$DefinitionStart<a href="psi_element://A"><code>A</code></a>
-         |
-         |<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">boo</span>(): <span style=""><a href="psi_element://scala.Unit"><code>Unit</code></a></span>$DefinitionEnd
+      s"""$DefinitionStart<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">boo</span>(): <span style=""><a href="psi_element://scala.Unit"><code>Unit</code></a></span>$DefinitionEnd
          |${ContentStart}Function defined in A$ContentEnd
          |""".stripMargin
     )
 
   def testMacro_ResolveFromContainingClass_ForMethod(): Unit =
-    doGenerateDocBodyTest(
+    doGenerateDocBodyTestWithoutContainerInfo(
       s"""/**
          | * @define KEY1 VALUE1
          | */
@@ -1228,10 +1166,7 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          |  override def ${|}boo() = 2
          |}
          |""".stripMargin,
-      s"""
-         |$DefinitionStart<a href="psi_element://C"><code>C</code></a>
-         |
-         |<span style="color:#000080;font-weight:bold;">override</span> <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">boo</span>(): <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>$DefinitionEnd
+      s"""$DefinitionStart<span style="color:#000080;font-weight:bold;">override</span> <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">boo</span>(): <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>$DefinitionEnd
          |$ContentStart
          |a VALUE1 b VALUE2 c $$KEY_UNREACHED
          |$ContentEnd""".stripMargin
@@ -1358,7 +1293,7 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
     )
 
   def testMacro_Wiki(): Unit =
-    doGenerateDocBodyTest(
+    doGenerateDocBodyTestWithoutContainerInfo(
       s"""/**
          | * @define none `None`
          | */
@@ -1369,9 +1304,7 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          |   def ${|}foo() = {}
          |}
          |""".stripMargin,
-      s"""$DefinitionStart<a href="psi_element://A"><code>A</code></a>
-         |
-         |<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">foo</span>(): <span style=""><a href="psi_element://scala.Unit"><code>Unit</code></a></span>$DefinitionEnd
+      s"""$DefinitionStart<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">foo</span>(): <span style=""><a href="psi_element://scala.Unit"><code>Unit</code></a></span>$DefinitionEnd
          |$ContentStart<tt>None</tt>$ContentEnd
          |""".stripMargin
     )

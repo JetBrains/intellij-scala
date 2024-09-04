@@ -168,8 +168,12 @@ object ScalaDocQuickInfoGenerator {
   private def renderMemberHeader(buffer: StringBuilder, member: ScMember): Unit =
     if (member.getParent.is[ScTemplateBody] && member.getParent.getParent.getParent.is[ScTypeDefinition]) {
       val clazz = member.containingClass
+      if (clazz == null)
+        return
+
       // TODO: should we remove [] from getLocationString (see renderClassHeader and unify)
-      buffer.append(HtmlPsiUtils.classLinkWithLabel(clazz, clazz.name, addCodeTag = false, defLinkHighlight = !EnableSyntaxHighlightingInQuickInfo))
+      buffer
+        .append(HtmlPsiUtils.psiElementLink(clazz.qualifiedName, clazz.name, addCodeTag = false))
         .append(" ")
         .append(clazz.getPresentation.getLocationString)
         .append("\n")

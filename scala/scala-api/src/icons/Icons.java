@@ -31,13 +31,14 @@ public interface Icons {
     Icon CASE_OBJECT = OBJECT;
     Icon ABSTRACT_CLASS = getIcon("/org/jetbrains/plugins/scala/images/abstractClassScala.svg", Icons.class);
     Icon TRAIT = getIcon("/org/jetbrains/plugins/scala/images/traitScala.svg", Icons.class);
+    Icon ENUM = getIcon("/org/jetbrains/plugins/scala/images/enumScala.svg", Icons.class);
     Icon PACKAGE_OBJECT = getIcon("/org/jetbrains/plugins/scala/images/packageObject.svg", Icons.class);
+
+    //Mixed definition + companion object
     Icon CLASS_AND_OBJECT = getIcon("/org/jetbrains/plugins/scala/images/classObjectScala.svg", Icons.class);
     Icon ABSTRACT_CLASS_AND_OBJECT = getIcon("/org/jetbrains/plugins/scala/images/abstractClassObjectScala.svg", Icons.class);
     Icon TRAIT_AND_OBJECT = getIcon("/org/jetbrains/plugins/scala/images/traitObjectScala.svg", Icons.class);
     Icon ENUM_AND_OBJECT = getIcon("/org/jetbrains/plugins/scala/images/enumObjectScala.svg", Icons.class);
-
-    Icon ENUM = getIcon("/org/jetbrains/plugins/scala/images/enumScala.svg", Icons.class);
 
     //Companion gutter icons
     Icon CLASS_COMPANION = getIcon("/org/jetbrains/plugins/scala/images/classCompanion.svg", Icons.class);
