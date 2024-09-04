@@ -18,8 +18,8 @@ final class ScalaNewProjectWizard extends LanguageGeneratorNewProjectWizard {
 
   override def getName: String = NewProjectWizardConstants.Language.SCALA
 
-  override def createStep(parentStep: NewProjectWizardStep): ScalaNewProjectWizardStep =
-    new ScalaNewProjectWizardStep(parentStep)
+  override def createStep(parentStep: NewProjectWizardStep): ScalaNewProjectWizardMultiStep =
+    new ScalaNewProjectWizardMultiStep(parentStep)
 
   // Groovy is 200, we want to be right after it so in total the list is:
   // Java, Kotlin, Groovy, Scala, Python ...

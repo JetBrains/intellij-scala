@@ -19,14 +19,14 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.project.ScalaLibraryProperties
 import org.jetbrains.plugins.scala.project.template.{ScalaModuleBuilder, ScalaSDKStepLike}
 import org.jetbrains.sbt.SbtBundle
-import org.jetbrains.sbt.project.template.wizard.ScalaNewProjectWizardStep
+import org.jetbrains.sbt.project.template.wizard.ScalaNewProjectWizardMultiStep
 
 import java.nio.file.Paths
 import javax.swing.{JComboBox, JComponent}
 
 /** inspired by [[com.intellij.ide.projectWizard.generators.IntelliJJavaNewProjectWizard]] */
-final class IntelliJScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
-  extends IntelliJNewProjectWizardStep[ScalaNewProjectWizardStep](parent)
+final class IntelliJScalaNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
+  extends IntelliJNewProjectWizardStep[ScalaNewProjectWizardMultiStep](parent)
     with ScalaSDKStepLike {
 
   override protected val librariesContainer: LibrariesContainer =

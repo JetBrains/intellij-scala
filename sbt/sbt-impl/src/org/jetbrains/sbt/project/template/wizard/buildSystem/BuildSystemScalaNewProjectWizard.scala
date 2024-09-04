@@ -3,10 +3,10 @@ package org.jetbrains.sbt.project.template.wizard.buildSystem
 import com.intellij.ide.util.projectWizard.WizardContext
 import com.intellij.ide.wizard.NewProjectWizardMultiStepFactory
 import com.intellij.openapi.extensions.ExtensionPointName
-import org.jetbrains.sbt.project.template.wizard.ScalaNewProjectWizardStep
+import org.jetbrains.sbt.project.template.wizard.ScalaNewProjectWizardMultiStep
 
 /** analog of [[com.intellij.ide.projectWizard.generators.BuildSystemJavaNewProjectWizard]] */
-trait BuildSystemScalaNewProjectWizard extends NewProjectWizardMultiStepFactory[ScalaNewProjectWizardStep] {
+trait BuildSystemScalaNewProjectWizard extends NewProjectWizardMultiStepFactory[ScalaNewProjectWizardMultiStep] {
   override def isEnabled(wizardContext: WizardContext): Boolean = true
 }
 

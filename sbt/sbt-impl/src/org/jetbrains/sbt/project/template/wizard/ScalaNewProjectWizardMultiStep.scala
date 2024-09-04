@@ -15,15 +15,15 @@ import scala.annotation.nowarn
 //noinspection ApiStatus,UnstableApiUsage
 @nowarn("msg=LanguageNewProjectWizardData is deprecated")
 @nowarn("msg=LanguageNewProjectWizardData in package wizard is deprecated")
-final class ScalaNewProjectWizardStep(parent: NewProjectWizardStep)
-  extends AbstractNewProjectWizardMultiStep[ScalaNewProjectWizardStep, BuildSystemScalaNewProjectWizard](parent, BuildSystemScalaNewProjectWizard.EP_NAME)
+final class ScalaNewProjectWizardMultiStep(parent: NewProjectWizardStep)
+  extends AbstractNewProjectWizardMultiStep[ScalaNewProjectWizardMultiStep, BuildSystemScalaNewProjectWizard](parent, BuildSystemScalaNewProjectWizard.EP_NAME)
     with BuildSystemScalaNewProjectWizardData {
 
   locally {
     getData.putUserData(BuildSystemScalaNewProjectWizardData.KEY, this)
   }
 
-  override protected def getSelf: ScalaNewProjectWizardStep = this
+  override protected def getSelf: ScalaNewProjectWizardMultiStep = this
 
   override def getLabel: String = JavaUiBundle.message("label.project.wizard.new.project.build.system")
 
