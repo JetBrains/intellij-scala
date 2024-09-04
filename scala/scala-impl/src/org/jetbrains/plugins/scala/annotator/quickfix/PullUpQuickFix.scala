@@ -4,10 +4,16 @@ import com.intellij.codeInsight.intention.AbstractIntentionAction
 import com.intellij.codeInsight.navigation.NavigationUtil.getPsiElementPopup
 import com.intellij.ide.util.{PsiClassListCellRenderer, PsiElementListCellRenderer}
 import com.intellij.java.JavaBundle
+import com.intellij.openapi.application.ex.ApplicationManagerEx
+import com.intellij.openapi.command.{CommandProcessor, WriteCommandAction}
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.project.{DumbService, Project}
+import com.intellij.openapi.util.registry.Registry
 import com.intellij.psi.PsiFile
 import com.intellij.psi.search.PsiElementProcessor
+import com.intellij.util.ThrowableRunnable
+import com.intellij.util.concurrency.annotations.RequiresEdt
 import org.jetbrains.plugins.scala.{ScalaBundle, isUnitTestMode}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier.{ABSTRACT, OVERRIDE}
@@ -68,8 +74,38 @@ object PullUpQuickFix {
   private case class PullUpExecutor(memberToOverride: ScMember,
                                     sourceClass: ScTypeDefinition) {
 
-    def apply(targetClass: ScTypeDefinition)
-             (implicit project: Project): Unit = {
+    @RequiresEdt
+    def apply(targetClass: ScTypeDefinition)(implicit project: Project): Unit = {
+      val executeRunnable: Runnable = () => execute(targetClass, project)
+      val withAlternativeResolve: ThrowableRunnable[RuntimeException] =
+        () => DumbService.getInstance(project).withAlternativeResolveEnabled(executeRunnable)
+
+      if (Registry.is("run.refactorings.under.progress")) {
+        val commandName = CommandProcessor.getInstance().getCurrentCommandName
+        val title = ScalaBundle.message("pulling.member.to.supertype.progress.title")
+
+        val performUnderProgress: java.util.function.Consumer[ProgressIndicator] = { indicator =>
+          indicator.setIndeterminate(false)
+          indicator.setFraction(0)
+          withAlternativeResolve.run()
+        }
+
+        val writeActionRunnable: Runnable = { () =>
+          //noinspection ApiStatus
+          ApplicationManagerEx.getApplicationEx.runWriteActionWithCancellableProgressInDispatchThread(
+            title, project, null, performUnderProgress)
+        }
+        if (commandName eq null) {
+          CommandProcessor.getInstance().executeCommand(project, writeActionRunnable, title, null)
+        } else {
+          writeActionRunnable.run()
+        }
+      } else {
+        WriteCommandAction.writeCommandAction(project, targetClass.getContainingFile).run(withAlternativeResolve)
+      }
+    }
+
+    private def execute(targetClass: ScTypeDefinition, project: Project): Unit = {
       val info = new ScalaExtractMemberInfo(memberToOverride)
       info.setToAbstract(true)
       val typeAdjuster = new TypeAdjuster()
