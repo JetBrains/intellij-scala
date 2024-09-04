@@ -65,13 +65,13 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
     ScalaChangeSignatureUsageHandler.changeVisibility(member, visibility)
   }
 
-  protected def handleReturnTypeChange(change: ChangeInfo, usage: ScalaNamedElementUsageInfo): Unit = {
+  protected def handleReturnTypeChange(change: ChangeInfo, usage: ScalaNamedElementUsageInfo, typeAdjuster: TypeAdjuster): Unit = {
 
     def addType(element: ScNamedElement, oldTypeElem: Option[ScTypeElement], substType: ScType): Unit = {
       oldTypeElem match {
         case Some(te) =>
           val replaced = te.replace(createTypeElementFromText(substType.canonicalCodeText(element), element)(element))
-          TypeAdjuster.markToAdjust(replaced)
+          typeAdjuster.markToAdjust(replaced)
         case None =>
           val (context, anchor) = element.nameContext match {
             case f: ScFunction => (f, f.paramClauses)
@@ -124,7 +124,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
     }
   }
 
-  def handleAnonFunUsage(change: ChangeInfo, usage: AnonFunUsageInfo): Unit = {
+  def handleAnonFunUsage(change: ChangeInfo, usage: AnonFunUsageInfo, typeAdjuster: TypeAdjuster): Unit = {
     if (!change.isParameterSetOrOrderChanged) return
     val jChange = change match {
       case j: JavaChangeInfo => j
@@ -180,7 +180,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
       case _                                       => return
     }
 
-    TypeAdjuster.markToAdjust(replaced)
+    typeAdjuster.markToAdjust(replaced)
     replaced.result match {
       case Some(infix: ScInfixExpr) =>
         handleInfixUsage(change, InfixExprUsageInfo(infix))
@@ -190,7 +190,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
     }
   }
 
-  protected def handleChangedParameters(change: ChangeInfo, usage: ScalaNamedElementUsageInfo): Unit = {
+  protected def handleChangedParameters(change: ChangeInfo, usage: ScalaNamedElementUsageInfo, typeAdjuster: TypeAdjuster): Unit = {
     if (!change.isParameterNamesChanged && !change.isParameterSetOrOrderChanged && !change.isParameterTypesChanged) return
 
     val named = usage.namedElement
@@ -218,7 +218,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
       case Some(p) => p.replace(newClauses)
       case None => nameId.getParent.addAfter(newClauses, nameId)
     }
-    TypeAdjuster.markToAdjust(result)
+    typeAdjuster.markToAdjust(result)
   }
 
   protected def handleUsageArguments(change: ChangeInfo, usage: UsageInfo): Unit = {

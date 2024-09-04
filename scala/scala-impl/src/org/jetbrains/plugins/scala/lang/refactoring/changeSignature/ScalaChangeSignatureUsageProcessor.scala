@@ -11,6 +11,7 @@ import com.intellij.refactoring.rename.ResolveSnapshotProvider.ResolveSnapshot
 import com.intellij.usageView.UsageInfo
 import com.intellij.util.containers.MultiMap
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{AuxiliaryConstructor, ScConstructorInvocation, ScPrimaryConstructor, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -85,7 +86,9 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
     }
     methodUsageInfo match {
       case Some(usageInfo) =>
-        processNamedElementUsage(changeInfo, usageInfo)
+        val typeAdjuster = new TypeAdjuster()
+        processNamedElementUsage(changeInfo, usageInfo, typeAdjuster)
+        typeAdjuster.adjustTypes()
         true
       case None =>
         false
@@ -153,14 +156,15 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
       return false
     }
 
+    val typeAdjuster = new TypeAdjuster()
     if (beforeMethodChange) {
       usageInfo match {
         case namedInfo: ScalaNamedElementUsageInfo =>
-          processNamedElementUsage(changeInfo, namedInfo)
+          processNamedElementUsage(changeInfo, namedInfo, typeAdjuster)
         case paramInfo: ParameterUsageInfo =>
           handleParametersUsage(changeInfo, paramInfo)
         case anonFunUsage: AnonFunUsageInfo =>
-          handleAnonFunUsage(changeInfo, anonFunUsage)
+          handleAnonFunUsage(changeInfo, anonFunUsage, typeAdjuster)
         case _ =>
           processSimpleUsage(changeInfo, usageInfo)
       }
@@ -170,6 +174,7 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
       updateNamedElements()
       addArgumentsToDefaultParamInJava()
     }
+    typeAdjuster.adjustTypes()
     true
   }
 
@@ -203,20 +208,20 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
     handleUsageArguments(change, usage)
   }
 
-  private def processNamedElementUsage(change: ChangeInfo, usage: ScalaNamedElementUsageInfo): Unit = {
+  private def processNamedElementUsage(change: ChangeInfo, usage: ScalaNamedElementUsageInfo, typeAdjuster: TypeAdjuster): Unit = {
     usage.namedElement match {
       case AuxiliaryConstructor(_) =>
         handleVisibility(change, usage)
-        handleChangedParameters(change, usage)
+        handleChangedParameters(change, usage, typeAdjuster)
       case fun: ScFunction if fun.isSynthetic =>
       case _: ScClass =>
         handleVisibility(change, usage)
-        handleChangedParameters(change, usage)
+        handleChangedParameters(change, usage, typeAdjuster)
       case _ =>
         handleVisibility(change, usage)
         handleChangedName(change, usage.asInstanceOf[UsageInfo])
-        handleReturnTypeChange(change, usage)
-        handleChangedParameters(change, usage)
+        handleReturnTypeChange(change, usage, typeAdjuster)
+        handleChangedParameters(change, usage, typeAdjuster)
     }
   }
 
