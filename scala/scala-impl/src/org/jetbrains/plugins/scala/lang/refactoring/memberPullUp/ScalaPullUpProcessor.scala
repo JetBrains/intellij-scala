@@ -5,6 +5,7 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import com.intellij.refactoring.{BaseRefactoringProcessor, RefactoringBundle}
 import com.intellij.usageView.{UsageInfo, UsageViewDescriptor}
+import com.intellij.util.concurrency.annotations.RequiresEdt
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -15,9 +16,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
-import org.jetbrains.plugins.scala.lang.refactoring.{Associations, ScTypePresentationExt}
 import org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ScalaExtractMemberInfo
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeContextUtil
+import org.jetbrains.plugins.scala.lang.refactoring.{Associations, ScTypePresentationExt}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.mutable
@@ -36,10 +37,8 @@ final class ScalaPullUpProcessor(project: Project,
 
   override def findUsages(): Array[UsageInfo] = UsageInfo.EMPTY_ARRAY
 
-  /**
-    * Should be invoked in write action
-    **/
-  def moveMembersToBase(): Unit = {
+  @RequiresEdt
+  def moveMembersToBase(typeAdjuster: TypeAdjuster): Unit = {
     import ScalaChangeContextUtil._
 
     implicit val projectContext: ProjectContext = targetClass.projectContext
@@ -48,7 +47,7 @@ final class ScalaPullUpProcessor(project: Project,
     val anchor = templateBody.getLastChild
 
     memberInfos.collect {
-      case ScalaExtractMemberInfo(m, false) => m // extracted declarations are handled with ScalaPsiUtil.adjustTypes
+      case ScalaExtractMemberInfo(m, false) => m // extracted declarations are handled with typeAdjuster.adjustTypes()
     }.foreach(encodeContextInfo)
 
     withDisabledPostprocessFormatting(project) {
@@ -61,7 +60,7 @@ final class ScalaPullUpProcessor(project: Project,
 
         templateBody.addBefore(createNewLine(), anchor)
         val added = templateBody.addBefore(memberCopy, anchor).asInstanceOf[ScMember]
-        if (info.isToAbstract) TypeAdjuster.markToAdjust(added)
+        if (info.isToAbstract) typeAdjuster.markToAdjust(added)
         else movedDefinitions += added
       }
       templateBody.addBefore(createNewLine(), anchor)

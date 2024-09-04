@@ -11,6 +11,7 @@ import com.intellij.psi.search.PsiElementProcessor
 import org.jetbrains.plugins.scala.{ScalaBundle, isUnitTestMode}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier.{ABSTRACT, OVERRIDE}
+import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ScalaExtractMemberInfo
@@ -71,13 +72,16 @@ object PullUpQuickFix {
              (implicit project: Project): Unit = {
       val info = new ScalaExtractMemberInfo(memberToOverride)
       info.setToAbstract(true)
+      val typeAdjuster = new TypeAdjuster()
 
       new ScalaPullUpProcessor(
         project,
         sourceClass,
         targetClass,
         Seq(info)
-      ).moveMembersToBase()
+      ).moveMembersToBase(typeAdjuster)
+
+      typeAdjuster.adjustTypes()
     }
   }
 

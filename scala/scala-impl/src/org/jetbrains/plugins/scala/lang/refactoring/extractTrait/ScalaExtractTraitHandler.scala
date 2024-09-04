@@ -10,7 +10,7 @@ import com.intellij.util.containers.MultiMap
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, TypeAdjuster}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNewTemplateDefinition, ScSuperReference}
@@ -38,7 +38,9 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
     val element: PsiElement = file.findScalaLikeFile.map(_.findElementAt(offset)).orNull
     if (element == null) return
     val clazz = PsiTreeUtil.getParentOfType(element, classOf[ScTemplateDefinition])
-    invokeOnClass(clazz, project)
+    val typeAdjuster = new TypeAdjuster()
+    invokeOnClass(clazz, project, typeAdjuster)
+    typeAdjuster.adjustTypes()
   }
 
   override def invoke(elements: Array[PsiElement])
@@ -53,7 +55,9 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
     if (dataContext != null) {
       val editor: Editor = CommonDataKeys.EDITOR.getData(dataContext)
       if (editor != null && clazz != null) {
-        invokeOnClass(clazz, project)
+        val typeAdjuster = new TypeAdjuster()
+        invokeOnClass(clazz, project, typeAdjuster)
+        typeAdjuster.adjustTypes()
       }
     }
   }
@@ -83,11 +87,13 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
           added
         case _ => clazz.getParent.addAfter(newTrt, clazz).asInstanceOf[ScTrait]
       }
-      finishExtractTrait(newTrtAdded, extractInfo)
+      val typeAdjuster = new TypeAdjuster()
+      finishExtractTrait(newTrtAdded, extractInfo, typeAdjuster)
+      typeAdjuster.adjustTypes()
     }
   }
 
-  private def invokeOnClass(clazz: ScTemplateDefinition, project: Project): Unit = {
+  private def invokeOnClass(clazz: ScTemplateDefinition, project: Project, typeAdjuster: TypeAdjuster): Unit = {
     if (clazz == null) return
 
     ScalaRefactoringUsagesCollector.logExtractTrait(project)
@@ -108,22 +114,22 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
 
     inWriteCommandAction {
       val newTrait = createTraitFromTemplate(name, packName, clazz)
-      finishExtractTrait(newTrait, extractInfo)
+      finishExtractTrait(newTrait, extractInfo, typeAdjuster)
     }(project)
   }
 
-  private def finishExtractTrait(trt: ScTrait, extractInfo: ExtractInfo): Unit = {
+  private def finishExtractTrait(trt: ScTrait, extractInfo: ExtractInfo, typeAdjuster: TypeAdjuster): Unit = {
     val memberInfos = extractInfo.memberInfos
     val clazz = extractInfo.clazz
 
-    addSelfType(trt, extractInfo.selfTypeText)
+    addSelfType(trt, extractInfo.selfTypeText, typeAdjuster)
     addTypeParameters(trt, extractInfo.typeParameters)
     ExtractSuperUtil.addExtendsTo(clazz, trt, extractInfo.typeArgs)
     val pullUpProcessor = new ScalaPullUpProcessor(clazz.getProject, clazz, trt, memberInfos)
-    pullUpProcessor.moveMembersToBase()
+    pullUpProcessor.moveMembersToBase(typeAdjuster)
   }
 
-  private def addSelfType(trt: ScTrait, selfTypeText: Option[String]): Unit = {
+  private def addSelfType(trt: ScTrait, selfTypeText: Option[String], typeAdjuster: TypeAdjuster): Unit = {
     import trt.projectContext
 
     selfTypeText match {
@@ -139,7 +145,7 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
         val lBrace = templateBody.getFirstChild
         val ste = templateBody.addAfter(selfTypeElem, lBrace)
         templateBody.addAfter(createNewLine(), lBrace)
-        ScalaPsiUtil.adjustTypes(ste)
+        typeAdjuster.markToAdjust(ste)
     }
   }
 
