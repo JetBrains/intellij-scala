@@ -11,8 +11,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
 
   def testInline(): Unit = {
     val fileContent =
-      s"""
-         |inline def ${|}f: Int = 1
+      s"""inline def ${|}f: Int = 1
          |""".stripMargin
 
     val expectedContent =
@@ -23,8 +22,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
 
   def testOpaque(): Unit = {
     val fileContent =
-      s"""
-         |opaque type ${|}Foo = String
+      s"""opaque type ${|}Foo = String
          |""".stripMargin
 
     val expectedContent =
@@ -35,8 +33,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
 
   def testTransparent(): Unit = {
     val fileContent =
-      s"""
-         |transparent trait ${|}Foo
+      s"""transparent trait ${|}Foo
          |""".stripMargin
 
     val expectedContent =
@@ -47,8 +44,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
 
   def testOpen(): Unit = {
     val fileContent =
-      s"""
-         |open class ${|}Foo
+      s"""open class ${|}Foo
          |""".stripMargin
 
     val expectedContent =
@@ -59,8 +55,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
 
   def testInfix(): Unit = {
     val fileContent =
-      s"""
-         |extension (str: String)
+      s"""extension (str: String)
          |  infix def ${|}comp(str2: String): Boolean = str == str2
          |""".stripMargin
 
@@ -79,8 +74,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
 
   def testGiven(): Unit = {
     val fileContent =
-      s"""
-         |import scala.concurrent.ExecutionContext
+      s"""import scala.concurrent.ExecutionContext
          |given ${|}ec: ExecutionContext = ???
          |""".stripMargin
 
@@ -94,8 +88,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
 
   def testContextParameters(): Unit = {
     val fileContent =
-      s"""
-         |def ${|}foo(a: Int, b: Int)(using c: Int, d: Int): Unit = ???
+      s"""def ${|}foo(a: Int, b: Int)(using c: Int, d: Int): Unit = ???
          |""".stripMargin
 
     val expectedContent =
@@ -106,8 +99,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
 
   def testContextParameters_Anonymous(): Unit = {
     val fileContent =
-      s"""
-         |import scala.concurrent.ExecutionContext
+      s"""import scala.concurrent.ExecutionContext
          |def ${|}f()(using ExecutionContext): Int = ???
          |""".stripMargin
 
@@ -128,9 +120,8 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
     s"""<html>
        |${DocHtmlHead(myFixture.getFile)}
        |$BodyStart
-       |$DefinitionStart<icon src="AllIcons.Nodes.Package"/> <a href="psi_element://example"><code>example</code></a>
-       |
-       |<span style="color:#000080;font-weight:bold;">enum</span> <span style="color:#000000;">TestEnum</span>
+       |$ContainerInfoStart<icon src="AllIcons.Nodes.Package"/>&nbsp;<a href="psi_element://example"><code>example</code></a>$ContainerInfoEnd
+       |$DefinitionStart<span style="color:#000080;font-weight:bold;">enum</span> <span style="color:#000000;">TestEnum</span>
        |<span style="color:#000080;font-weight:bold;">extends</span> <span style="color:#000000;"><a href="psi_element://java.io.Serializable"><code>Serializable</code></a></span>$DefinitionEnd
        |$ContentStart
        |Description of TestEnum
@@ -182,9 +173,8 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
     s"""<html>
        |${DocHtmlHead(myFixture.getFile)}
        |$BodyStart
-       |$DefinitionStart<icon src="AllIcons.Nodes.Package"/> <a href="psi_element://example.MyEnum"><code>example.MyEnum</code></a>
-       |
-       |<span style="color:#000080;font-weight:bold;">case</span> <span style="color:#660e7a;font-style:italic;">MyEnumCase1</span>$DefinitionEnd
+       |$ContainerInfoStart<icon src="org.jetbrains.plugins.scala.icons.Icons.ENUM"/>&nbsp;<a href="psi_element://example.MyEnum"><code>example.MyEnum</code></a>$ContainerInfoEnd
+       |$DefinitionStart<span style="color:#000080;font-weight:bold;">case</span> <span style="color:#660e7a;font-style:italic;">MyEnumCase1</span>$DefinitionEnd
        |$ContentStart
        |Description of MyEnumCase1
        |$ContentEnd
@@ -235,9 +225,8 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
     s"""<html>
        |${DocHtmlHead(myFixture.getFile)}
        |$BodyStart
-       |$DefinitionStart<icon src="AllIcons.Nodes.Package"/> <a href="psi_element://example.MyEnum"><code>example.MyEnum</code></a>
-       |
-       |<span style="color:#000080;font-weight:bold;">case</span> <span style="color:#660e7a;font-style:italic;">MyEnumCase2</span>$DefinitionEnd
+       |$ContainerInfoStart<icon src="org.jetbrains.plugins.scala.icons.Icons.ENUM"/>&nbsp;<a href="psi_element://example.MyEnum"><code>example.MyEnum</code></a>$ContainerInfoEnd
+       |$DefinitionStart<span style="color:#000080;font-weight:bold;">case</span> <span style="color:#660e7a;font-style:italic;">MyEnumCase2</span>$DefinitionEnd
        |$ContentStart
        |Description of MyEnumCase1, MyEnumCase2
        |$ContentEnd
@@ -294,9 +283,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
          |  /** Description of MyEnumCase1 */
          |  case ${CARET}MyEnumCase1 extends MyEnum with MyTrait
          |""".stripMargin,
-      """<icon src="AllIcons.Nodes.Package"/> <a href="psi_element://example.MyEnum"><code>example.MyEnum</code></a>
-        |
-        |<span style="color:#000080;font-weight:bold;">case</span> <span style="color:#660e7a;font-style:italic;">MyEnumCase1</span>
+      """<span style="color:#000080;font-weight:bold;">case</span> <span style="color:#660e7a;font-style:italic;">MyEnumCase1</span>
         |<span style="color:#000080;font-weight:bold;">extends</span> <span style="color:#000000;"><a href="psi_element://example.MyEnum"><code>MyEnum</code></a></span>
         |<span style="color:#000080;font-weight:bold;">with</span> <span style="color:#000000;"><a href="psi_element://example.MyTrait"><code>MyTrait</code></a></span>""".stripMargin
     )
@@ -353,8 +340,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
 
   def testAnnotation_Number(): Unit = {
     val fileContent =
-      s"""
-         |@deprecated(42)
+      s"""@deprecated(42)
          |def ${|}foo() = {}
          |""".stripMargin
 
@@ -368,8 +354,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
 
   def testAnnotation_Boolean(): Unit = {
     val fileContent =
-      s"""
-         |@deprecated(true)
+      s"""@deprecated(true)
          |def ${|}foo() = {}
          |""".stripMargin
 
@@ -383,8 +368,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
 
   def testAbstractClass(): Unit = {
     val fileContent =
-      s"""
-         |abstract class ${|}AbstractClass
+      s"""abstract class ${|}AbstractClass
          |""".stripMargin
 
     val expectedContent =
@@ -396,8 +380,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
 
   def testAnnotation(): Unit = {
     val fileContent =
-      s"""
-         |@Source(url = "https://foo.com/")
+      s"""@Source(url = "https://foo.com/")
          |trait ${|}Foo
          |""".stripMargin
 
@@ -411,8 +394,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
 
   def testValWithFunctionType(): Unit = {
     val fileContent =
-      s"""
-         |val ${|}f = (x: Int) => x
+      s"""val ${|}f = (x: Int) => x
          |""".stripMargin
 
     val expectedContent =
@@ -425,8 +407,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
 
   def testImplicit(): Unit = {
     val fileContent =
-      s"""
-         |import scala.concurrent.ExecutionContext
+      s"""import scala.concurrent.ExecutionContext
          |def ${|}f()(implicit ec: ExecutionContext): Int = ???
          |""".stripMargin
 
@@ -439,8 +420,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
 
   def testTwoParameters(): Unit = {
     val fileContent =
-      s"""
-         |def ${|}foo(a: Int, b: Int): Unit = ???
+      s"""def ${|}foo(a: Int, b: Int): Unit = ???
          |""".stripMargin
 
     val expectedContent =
@@ -452,8 +432,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
 
   def testThreeParameters(): Unit = {
     val fileContent =
-      s"""
-         |def ${|}foo(a: Int, b: Int, c: Int): Unit = ???
+      s"""def ${|}foo(a: Int, b: Int, c: Int): Unit = ???
          |""".stripMargin
 
     val expectedContent =
@@ -465,8 +444,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
 
   def testImplicitParameters(): Unit = {
     val fileContent =
-      s"""
-         |def ${|}foo(a: Int, b: Int)(implicit c: Int, d: Int): Unit = ???
+      s"""def ${|}foo(a: Int, b: Int)(implicit c: Int, d: Int): Unit = ???
          |""".stripMargin
 
     val expectedContent =
@@ -481,14 +459,12 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
 
   def testTypeLambda(): Unit = {
     val fileContent =
-      s"""
-         |trait R
+      s"""trait R
          |type ${|}T = [X] =>> R
          |""".stripMargin
 
     val expectedContent =
-      s"""
-         |<span style="color:#000080;font-weight:bold;">type</span> <span style="color:#20999d;">T</span> = [<span style="color:#20999d;">X</span>] =>> <span style="color:#000000;"><a href="psi_element://R"><code>R</code></a></span>
+      s"""<span style="color:#000080;font-weight:bold;">type</span> <span style="color:#20999d;">T</span> = [<span style="color:#20999d;">X</span>] =>> <span style="color:#000000;"><a href="psi_element://R"><code>R</code></a></span>
          |""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
@@ -496,13 +472,11 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
 
   def testTypeLambda2(): Unit = {
     val fileContent =
-      s"""
-         |type ${|}TL = [X] =>> [Y] =>> (X, Y)
+      s"""type ${|}TL = [X] =>> [Y] =>> (X, Y)
          |""".stripMargin
 
     val expectedContent =
-      s"""
-         |<span style="color:#000080;font-weight:bold;">type</span> <span style="color:#20999d;">TL</span> = [<span style="color:#20999d;">X</span>] =>> [<span style="color:#20999d;">Y</span>] =>> (<span style="color:#20999d;">X</span>, <span style="color:#20999d;">Y</span>)
+      s"""<span style="color:#000080;font-weight:bold;">type</span> <span style="color:#20999d;">TL</span> = [<span style="color:#20999d;">X</span>] =>> [<span style="color:#20999d;">Y</span>] =>> (<span style="color:#20999d;">X</span>, <span style="color:#20999d;">Y</span>)
          |""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
@@ -510,16 +484,14 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
 
   def testUnionType(): Unit = {
     val fileContent =
-      s"""
-         |type UserName = String
+      s"""type UserName = String
          |type Password = Array[Char]
          |
          |def ${|}nameOrPwd(whichOne: Boolean): UserName | Password = ???
          |""".stripMargin
 
     val expectedContent =
-      s"""
-         |<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">nameOrPwd</span>(
+      s"""<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">nameOrPwd</span>(
          |whichOne: <span style=""><a href="psi_element://scala.Boolean"><code>Boolean</code></a></span>
          |): <span style="color:#20999d;"><a href="psi_element://.UserName"><code>UserName</code></a></span> <span style="color:#20999d;">|</span> <span style="color:#20999d;"><a href="psi_element://.Password"><code>Password</code></a></span>
          |""".stripMargin.withoutNewLines
@@ -529,16 +501,14 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
 
   def testProductType(): Unit = {
     val fileContent =
-      s"""
-         |type UserName = String
+      s"""type UserName = String
          |type Password = Array[Char]
          |
          |type ${|}NameAndPwd = UserName & Password
          |""".stripMargin
 
     val expectedContent =
-      s"""
-         |<span style="color:#000080;font-weight:bold;">type</span> <span style="color:#20999d;">NameAndPwd</span> =
+      s"""<span style="color:#000080;font-weight:bold;">type</span> <span style="color:#20999d;">NameAndPwd</span> =
          | <span style="color:#20999d;"><a href="psi_element://.UserName"><code>UserName</code></a></span>
          | <span style="color:#20999d;">&</span> <span style="color:#20999d;"><a href="psi_element://.Password"><code>Password</code></a></span>
          |""".stripMargin.withoutNewLines
@@ -548,15 +518,13 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
 
   def testDependentFunctionType(): Unit = {
     val fileContent =
-      s"""
-         |trait Entry { type Key; val key: Key }
+      s"""trait Entry { type Key; val key: Key }
          |
          |def ${|}extractKey(e: Entry): e.Key = e.key
          |""".stripMargin
 
     val expectedContent =
-      s"""
-         |<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">extractKey</span>(
+      s"""<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">extractKey</span>(
          |e: <span style="color:#000000;"><a href="psi_element://Entry"><code>Entry</code></a></span>
          |): e.<span style="color:#20999d;"><a href="psi_element://Entry.Key"><code>Key</code></a></span>
          |""".stripMargin.withoutNewLines
@@ -566,15 +534,13 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
 
   def testJavaType(): Unit = {
     val fileContent =
-      s"""
-         |import java.util.ArrayList
+      s"""import java.util.ArrayList
          |
          |val ${|}all = new ArrayList[String]
          |""".stripMargin
 
     val expectedContent =
-      s"""
-         |<span style="color:#000080;font-weight:bold;">val</span>
+      s"""<span style="color:#000080;font-weight:bold;">val</span>
          | <span style="color:#660e7a;font-style:italic;">all</span>:
          | <span style="color:#000000;"><a href="psi_element://java.util.ArrayList"><code>ArrayList</code></a></span>[
          |<span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
@@ -586,13 +552,11 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
 
   def testModifiersOrder(): Unit = {
     val inlineTransparent =
-      s"""
-         |inline transparent def ${|}foo(): Unit = {}
+      s"""inline transparent def ${|}foo(): Unit = {}
          |""".stripMargin
 
     val inlineTransparentExpected =
-      s"""
-         |<span style="color:#000080;font-weight:bold;">inline</span> <span style="color:#000080;font-weight:bold;">transparent</span>
+      s"""<span style="color:#000080;font-weight:bold;">inline</span> <span style="color:#000080;font-weight:bold;">transparent</span>
          | <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">foo</span>():
          | <span style=""><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
          |""".stripMargin.withoutNewLines
@@ -600,13 +564,11 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
     doGenerateDocDefinitionTest(inlineTransparent, inlineTransparentExpected)
 
     val transparentInline =
-      s"""
-         |transparent inline def ${|}foo(): Unit = {}
+      s"""transparent inline def ${|}foo(): Unit = {}
          |""".stripMargin
 
     val transparentInlineExpected =
-      s"""
-         |<span style="color:#000080;font-weight:bold;">transparent</span> <span style="color:#000080;font-weight:bold;">inline</span>
+      s"""<span style="color:#000080;font-weight:bold;">transparent</span> <span style="color:#000080;font-weight:bold;">inline</span>
          | <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">foo</span>():
          | <span style=""><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
          |""".stripMargin.withoutNewLines
@@ -616,8 +578,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
 
   def testInnerClass(): Unit = {
     val fileContent =
-      s"""
-         |object Bar:
+      s"""object Bar:
          |  class Baz(n: Int):
          |    case class FooFoo(foo: Int):
          |      val t: Int = 1
@@ -626,10 +587,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
          |""".stripMargin
 
     val expectedContent =
-      s"""
-         |<a href="psi_element://Bar"><code>Bar</code></a>
-         |
-         |<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">c</span>: <span style="color:#000000;"><a href="psi_element://Bar.Baz"><code>Baz</code></a></span>#<span style="color:#000000;"><a href="psi_element://Bar.Baz.FooFoo"><code>FooFoo</code></a></span>
+      s"""<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">c</span>: <span style="color:#000000;"><a href="psi_element://Bar.Baz"><code>Baz</code></a></span>#<span style="color:#000000;"><a href="psi_element://Bar.Baz.FooFoo"><code>FooFoo</code></a></span>
          |""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
@@ -637,16 +595,14 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
 
   def testClassInObject(): Unit = {
     val fileContent =
-      s"""
-         |object Bar:
+      s"""object Bar:
          |  class Baz(n: Int)
          |
          |val ${|}fff = Bar.Baz(1)
          |""".stripMargin
 
     val expectedContent =
-      s"""
-         |<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">fff</span>:
+      s"""<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">fff</span>:
          | <span style="color:#000000;"><a href="psi_element://Bar"><code>Bar</code></a></span>.<span style="color:#000000;"><a href="psi_element://Bar.Baz"><code>Baz</code></a></span>
          |""".stripMargin.withoutNewLines
 
@@ -655,8 +611,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
 
   def testInnerClassOfAnInstance(): Unit = {
     val fileContent =
-      s"""
-         |object Bar:
+      s"""object Bar:
          |  class Baz(n: Int):
          |    case class FooFoo(foo: Int):
          |      val t: Int = 1
@@ -667,8 +622,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
          |""".stripMargin
 
     val expectedContent =
-      s"""
-         |<span style="color:#000080;font-weight:bold;">val</span>
+      s"""<span style="color:#000080;font-weight:bold;">val</span>
          | <span style="color:#660e7a;font-style:italic;">ggg</span>:
          | fff.<span style="color:#000000;"><a href="psi_element://Bar.Baz.FooFoo"><code>FooFoo</code></a></span>
          |""".stripMargin.withoutNewLines
@@ -678,8 +632,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
 
   def testInnerClassOfAnAnonymousInstance(): Unit = {
     val fileContent =
-      s"""
-         |object Bar:
+      s"""object Bar:
          |  class Baz(n: Int):
          |    case class FooFoo(foo: Int)
          |
@@ -687,8 +640,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
          |""".stripMargin
 
     val expectedContent =
-      s"""
-         |<span style="color:#000080;font-weight:bold;">val</span>
+      s"""<span style="color:#000080;font-weight:bold;">val</span>
          | <span style="color:#660e7a;font-style:italic;">hhh</span>:
          | <span style="color:#000000;"><a href="psi_element://Bar"><code>Bar</code></a></span>.<span style="color:#000000;"><a href="psi_element://Bar.Baz"><code>Baz</code></a></span>#<span style="color:#000000;"><a href="psi_element://Bar.Baz.FooFoo"><code>FooFoo</code></a></span>
          |""".stripMargin.withoutNewLines

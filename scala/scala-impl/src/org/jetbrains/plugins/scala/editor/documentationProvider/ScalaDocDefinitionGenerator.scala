@@ -1,13 +1,16 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.lang.documentation.DocumentationMarkup
+import com.intellij.lang.documentation.DocumentationMarkup.BOTTOM_ELEMENT
+import com.intellij.openapi.util.NlsSafe
+import com.intellij.openapi.util.text.HtmlChunk
 import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
 import org.apache.commons.text.StringEscapeUtils.escapeHtml4
 import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
-import org.jetbrains.plugins.scala.editor.documentationProvider.HtmlPsiUtils.classLinkWithLabel
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationUtils.EmptyDoc
 import org.jetbrains.plugins.scala.editor.documentationProvider.renderers.{ScalaDocAnnotationRenderer, ScalaDocParametersRenderer, ScalaDocTypeParamsRenderer, ScalaDocTypeRenderer, WithHtmlPsiLink}
-import org.jetbrains.plugins.scala.extensions.{&, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.{&, OptionExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -16,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenDefinition.DesugaredTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGivenDefinition, ScMember, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGivenDefinition, ScMember, ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotationRenderer.ParameterTypeDecorator
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation._
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -61,18 +64,55 @@ private class ScalaDocDefinitionGenerator private(
     builder.append(DocumentationMarkup.DEFINITION_END)
   }
 
-  private def appendContainingClass(elem: ScMember): Unit =
-    for {
-      clazz   <- Option(elem.containingClass)
-      qn      <- Option(clazz.qualifiedName)
-      //TODO: actually <code> tag is not redundant in the definition section (check Java/Kotlin implementations)
-      psiLink =  classLinkWithLabel(clazz, qn, addCodeTag = true, defLinkHighlight = true)
-    } {
-      builder.append(psiLink)
-        .append(NewLineSeparatorInDefinitionSection)
-        //append extra line separator between the containing class and the main definition part (like in JavaDoc)
-        .append(NewLineSeparatorInDefinitionSection)
+  private def appendContainerInfoSection(member: ScMember): Unit = {
+    val containerInfo = generateContainerInfoSection(member)
+    containerInfo.foreach { section =>
+      section.appendTo(builder.underlying)
+      // This extra new line doesn't change anything visually in HTML as it's added between <div> tags.
+      // But makes it more convenient to write test data in tests.
+      builder.append("\n")
     }
+  }
+
+  private def generateContainerInfoSection(member: ScMember): Option[HtmlChunk.Element] =
+    for {
+      (container, fqn) <- getContainerWithQualifiedName(member)
+      iconFqn <- ContainerIconUtils.getContainerIconFqn(container)
+      psiLink = HtmlPsiUtils.psiElementLink(fqn = fqn, label = fqn)
+    } yield {
+      generateContainerInfoSection(iconFqn, psiLink)
+    }
+
+  private def generateContainerInfoSection(containerIconFqn: String, @NlsSafe containerLink: String): HtmlChunk.Element =
+    BOTTOM_ELEMENT.children(
+      HtmlChunk.tag("icon").attr("src", containerIconFqn),
+      HtmlChunk.nbsp,
+      HtmlChunk.raw(containerLink)
+    )
+
+  private def getContainerWithQualifiedName(member: ScMember) = {
+    //handle members of a type definition
+    val containerTypeDefinition = member match {
+      //containingClass for enum returns a synthetic object, but we need the synthetic container
+      case ec: ScEnumCase => Option(ec.enumParent)
+      case _ => Option(member.containingClass)
+    }
+
+    //handle top-level definitions
+    lazy val containerPackage: Option[ScPackaging] = {
+      val potentiallyTopLevelMember = member match {
+        case f: ScFunction => f.extensionMethodOwner.getOrElse(f)
+        case _ => member
+      }
+      Option(PsiTreeUtil.getStubOrPsiParent(potentiallyTopLevelMember)).filterByType[ScPackaging]
+    }
+
+    val container = containerTypeDefinition.orElse(containerPackage)
+    container.map {
+      case c: ScTemplateDefinition => (c, c.qualifiedName)
+      case p: ScPackaging => (p, p.fullPackageName)
+    }
+  }
 
   private def appendDeclMainSection(element: PsiElement): Unit =
     appendDeclMainSection2(element, element)
@@ -129,25 +169,16 @@ private class ScalaDocDefinitionGenerator private(
 
     element match {
       case DesugaredTypeDefinition(gvn) => typeAnnotationRenderer.render(builder, gvn)
-      case _: ScObject                  => // ignore, object doesn't need type annotation
+      case _: ScObject                  => // ignore, an object doesn't need type annotation
       case typed: ScTypedDefinition     => typeAnnotationRenderer.render(builder, typed)
       case typed: ScValueOrVariable     => typeAnnotationRenderer.render(builder, typed)
       case _                            =>
     }
   }
 
-  private def appendTypeDef(typedef: ScTypeDefinition): Unit =
+  private def appendTypeDef(typedef: ScTypeDefinition): Unit = {
+    appendContainerInfoSection(typedef)
     appendDefinitionSection {
-      val path = typedef.getPath
-      if (path.nonEmpty) {
-        builder
-          .append("<icon src=\"AllIcons.Nodes.Package\"/> ")
-          //TODO: actually <code> tag is not redundant in the definition section (check Java/Kotlin implementations)
-          .append(HtmlPsiUtils.psiElementLinkWithCodeTag(path, path))
-          .append(NewLineSeparatorInDefinitionSection)
-          //append extra line separator between the containing class and the main definition part (like in JavaDoc)
-          .append(NewLineSeparatorInDefinitionSection)
-      }
       appendDeclMainSection(typedef)
       val extendsListRendered = parseExtendsBlock(typedef.extendsBlock)
       if (extendsListRendered.nonEmpty) {
@@ -155,22 +186,25 @@ private class ScalaDocDefinitionGenerator private(
         builder.append(extendsListRendered)
       }
     }
+  }
 
-  private def appendGivenDef(givenDef: ScGivenDefinition): Unit =
+  private def appendGivenDef(givenDef: ScGivenDefinition): Unit = {
+    appendContainerInfoSection(givenDef)
     appendDefinitionSection {
-      appendContainingClass(givenDef)
       appendDeclMainSection(givenDef)
     }
+  }
 
-  private def appendFunction(fun: ScFunction): Unit =
+  private def appendFunction(fun: ScFunction): Unit = {
+    appendContainerInfoSection(fun)
     appendDefinitionSection {
-      appendContainingClass(fun)
       appendDeclMainSection(fun)
     }
+  }
 
-  private def appendTypeAlias(tpe: ScTypeAlias): Unit =
+  private def appendTypeAlias(tpe: ScTypeAlias): Unit = {
+    appendContainerInfoSection(tpe)
     appendDefinitionSection {
-      appendContainingClass(tpe)
       appendDeclMainSection(tpe)
       tpe match {
         case definition: ScTypeAliasDefinition =>
@@ -179,22 +213,20 @@ private class ScalaDocDefinitionGenerator private(
         case _ =>
       }
     }
+  }
 
-  private def appendValOrVar(decl: ScValueOrVariable): Unit =
+  private def appendValOrVar(decl: ScValueOrVariable): Unit = {
+    appendContainerInfoSection(decl)
     appendDefinitionSection {
-      decl match {
-        case decl: ScMember =>
-          appendContainingClass(decl)
-        case _ =>
-      }
       appendDeclMainSection(decl)
     }
+  }
 
   private def appendBindingPattern(pattern: ScBindingPattern): Unit =
     pattern.nameContext match {
       case (definition: ScValueOrVariable) & (_: ScPatternDefinition | _: ScVariableDefinition) =>
+        appendContainerInfoSection(definition)
         appendDefinitionSection {
-          appendContainingClass(definition)
           appendDeclMainSection2(pattern, definition)
         }
       case _  =>

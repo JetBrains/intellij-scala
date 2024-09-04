@@ -12,17 +12,14 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
          |
          |class ${|}A
          |""".stripMargin,
-      s"""<icon src="AllIcons.Nodes.Package"/> <a href="psi_element://a.b.c"><code>a.b.c</code></a>
-         |
-         |<span style="color:#000080;font-weight:bold;">class</span> <span style="color:#000000;">A</span>
+      s"""<span style="color:#000080;font-weight:bold;">class</span> <span style="color:#000000;">A</span>
          |""".stripMargin
     )
 
   def testClass_TopLevel(): Unit =
     doGenerateDocDefinitionTest(
       s"""class ${|}A""",
-      """
-        |<span style="color:#000080;font-weight:bold;">class</span> <span style="color:#000000;">A</span>
+      """<span style="color:#000080;font-weight:bold;">class</span> <span style="color:#000000;">A</span>
         |""".stripMargin
     )
 
@@ -31,9 +28,7 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
       s"""package a.b.c
          |
          |class ${|}A extends Exception""".stripMargin,
-      s"""<icon src="AllIcons.Nodes.Package"/> <a href="psi_element://a.b.c"><code>a.b.c</code></a>
-         |
-         |<span style="color:#000080;font-weight:bold;">class</span> <span style="color:#000000;">A</span>
+      s"""<span style="color:#000080;font-weight:bold;">class</span> <span style="color:#000000;">A</span>
          |<span style="color:#000080;font-weight:bold;">extends</span> <span style="color:#000000;"><a href="psi_element://java.lang.Exception"><code>Exception</code></a></span>
          |""".stripMargin
     )
@@ -44,9 +39,7 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
          |
          |trait ${|}T
          |""".stripMargin,
-      s"""<icon src="AllIcons.Nodes.Package"/> <a href="psi_element://a.b.c"><code>a.b.c</code></a>
-         |
-         |<span style="color:#000080;font-weight:bold;">trait</span> <span style="color:#000000;">T</span>
+      s"""<span style="color:#000080;font-weight:bold;">trait</span> <span style="color:#000000;">T</span>
          |""".stripMargin
     )
 
@@ -56,9 +49,7 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
          |
          |object ${|}O
          |""".stripMargin,
-      s"""<icon src="AllIcons.Nodes.Package"/> <a href="psi_element://a.b.c"><code>a.b.c</code></a>
-         |
-         |<span style="color:#000080;font-weight:bold;">object</span> <span style="color:#000000;">O</span>
+      s"""<span style="color:#000080;font-weight:bold;">object</span> <span style="color:#000000;">O</span>
          |""".stripMargin
     )
 
@@ -67,10 +58,7 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
       s"""object O {
          |  type ${|}MyType = java.lang.Exception
          |}""".stripMargin,
-      s"""
-         |<a href="psi_element://O"><code>O</code></a>
-         |
-         |<span style="color:#000080;font-weight:bold;">type</span> <span style="color:#20999d;">MyType</span> = <span style="color:#000000;"><a href="psi_element://java.lang.Exception"><code>Exception</code></a></span>
+      s"""<span style="color:#000080;font-weight:bold;">type</span> <span style="color:#20999d;">MyType</span> = <span style="color:#000000;"><a href="psi_element://java.lang.Exception"><code>Exception</code></a></span>
          |""".stripMargin
     )
 
@@ -80,9 +68,7 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
          |trait T1
          |trait T2
          |class ${|}A extends Exception with T1 with T2""".stripMargin,
-      s"""<icon src="AllIcons.Nodes.Package"/> <a href="psi_element://a.b.c"><code>a.b.c</code></a>
-         |
-         |<span style="color:#000080;font-weight:bold;">class</span> <span style="color:#000000;">A</span>
+      s"""<span style="color:#000080;font-weight:bold;">class</span> <span style="color:#000000;">A</span>
          |<span style="color:#000080;font-weight:bold;">extends</span> <span style="color:#000000;"><a href="psi_element://java.lang.Exception"><code>Exception</code></a></span>
          |<span style="color:#000080;font-weight:bold;">with</span> <span style="color:#000000;"><a href="psi_element://a.b.c.T1"><code>T1</code></a></span> <span style="color:#000080;font-weight:bold;">with</span> <span style="color:#000000;"><a href="psi_element://a.b.c.T2"><code>T2</code></a></span>
          |""".stripMargin
@@ -95,8 +81,7 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
          |class A
          |class ${|}B extends A
          |""".stripMargin,
-      s"""
-         |<span style="color:#000080;font-weight:bold;">class</span> <span style="color:#000000;">B</span>
+      s"""<span style="color:#000080;font-weight:bold;">class</span> <span style="color:#000000;">B</span>
          |<span style="color:#000080;font-weight:bold;">extends</span> <span style="color:#000000;"><a href="psi_element://A"><code>A</code></a></span>
          |""".stripMargin
     )
@@ -116,9 +101,7 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
          |  protected def ${|}f1 = 42
          |}
          |""".stripMargin,
-      s"""<a href="psi_element://X"><code>X</code></a>
-         |
-         |<span style="color:#000080;font-weight:bold;">protected</span> <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">f1</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>
+      s"""<span style="color:#000080;font-weight:bold;">protected</span> <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">f1</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>
          |""".stripMargin
     )
 
@@ -128,9 +111,7 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
          |  protected[this] def ${|}f1 = 42
          |}
          |""".stripMargin,
-      s"""<a href="psi_element://X"><code>X</code></a>
-         |
-         |<span style="color:#000080;font-weight:bold;">protected</span>[<span style="color:#000080;font-weight:bold;">this</span>] <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">f1</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>""".stripMargin
+      s"""<span style="color:#000080;font-weight:bold;">protected</span>[<span style="color:#000080;font-weight:bold;">this</span>] <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">f1</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>""".stripMargin
     )
 
   def testMethod_HigherKindedTypeParameters(): Unit =
@@ -138,9 +119,7 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
       s"""object O {
          |  def ${|}f[A[_, B]] = 42
          |}""".stripMargin,
-      s"""<a href="psi_element://O"><code>O</code></a>
-         |
-         |<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">f</span>[<span style="color:#20999d;">A</span>[<span style="color:#20999d;">_</span>, <span style="color:#20999d;">B</span>]]: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>
+      s"""<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">f</span>[<span style="color:#20999d;">A</span>[<span style="color:#20999d;">_</span>, <span style="color:#20999d;">B</span>]]: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>
          |""".stripMargin
     )
 
@@ -158,8 +137,7 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
          |  case Array(_, x, y) =>
          |    println(${|}x + y)
          |}""".stripMargin,
-      """
-        |Pattern: <span style="color:#008000;font-weight:bold;">x</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>
+      """Pattern: <span style="color:#008000;font-weight:bold;">x</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>
         |""".stripMargin
     )
 
@@ -168,8 +146,7 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
       s"""new Object {
          |  def ${|}foo = 42
          |}""".stripMargin,
-      """
-        |<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">foo</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>
+      """<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">foo</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>
         |""".stripMargin
     )
 
@@ -179,9 +156,7 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
          |  trait <:<[A,B]
          |  def ${|}f(a: Int <:< String): Unit = {}
          |}""".stripMargin,
-      s"""<a href="psi_element://A"><code>A</code></a>
-         |
-         |<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">f</span>(a: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span> <span style="color:#000000;"><a href="psi_element://A.&lt;:&lt;"><code>&lt;:&lt;</code></a></span> <span style="color:#000000;"><a href="psi_element://$stringClass"><code>String</code></a></span>): <span style=""><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
+      s"""<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">f</span>(a: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span> <span style="color:#000000;"><a href="psi_element://A.&lt;:&lt;"><code>&lt;:&lt;</code></a></span> <span style="color:#000000;"><a href="psi_element://$stringClass"><code>String</code></a></span>): <span style=""><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
          |""".stripMargin
     )
 
@@ -201,9 +176,7 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
          |}""".stripMargin
 
     val expectedDoc =
-      """<a href="psi_element://Outer"><code>Outer</code></a>
-        |
-        |<span style="color:#808000;">@</span><span style="color:#808000;"><a href="psi_element://scala.deprecated"><code>deprecated</code></a></span>(<span style="color:#008000;font-weight:bold;">&quot;use 'foo' instead&quot;</span>, <span style="color:#008000;font-weight:bold;">&quot;1.2.3&quot;</span>)
+      """<span style="color:#808000;">@</span><span style="color:#808000;"><a href="psi_element://scala.deprecated"><code>deprecated</code></a></span>(<span style="color:#008000;font-weight:bold;">&quot;use 'foo' instead&quot;</span>, <span style="color:#008000;font-weight:bold;">&quot;1.2.3&quot;</span>)
         |<span style="color:#808000;">@</span><span style="color:#808000;"><a href="psi_element://scala.transient"><code>transient</code></a></span>
         |<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">boo</span>(): <span style=""><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
         |""".stripMargin
@@ -218,9 +191,7 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
          |}""".stripMargin
 
     val expectedDoc =
-      """<a href="psi_element://Outer"><code>Outer</code></a>
-        |
-        |<span style="color:#808000;">@</span><span style="color:#808000;"><a href="psi_element://scala.deprecatedName"><code>deprecatedName</code></a></span>(<span style="color:#008000;font-weight:bold;">&quot;inner tags &lt;p&gt;example&lt;/p&gt;&quot;</span>, <span style="color:#008000;font-weight:bold;">&quot;since 2020&quot;</span>)
+      """<span style="color:#808000;">@</span><span style="color:#808000;"><a href="psi_element://scala.deprecatedName"><code>deprecatedName</code></a></span>(<span style="color:#008000;font-weight:bold;">&quot;inner tags &lt;p&gt;example&lt;/p&gt;&quot;</span>, <span style="color:#008000;font-weight:bold;">&quot;since 2020&quot;</span>)
         |<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">boo</span>(): <span style=""><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
         |""".stripMargin
     doGenerateDocDefinitionTest(fileContent, expectedDoc)
@@ -248,11 +219,9 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
 
   def testAnnotation_InterpolatedString(): Unit = {
     val fileContent =
-      """
-        |@deprecated(s"test ${42}")
-        |def """.stripMargin + | +
-        """foo() = {}
-          |""".stripMargin
+      s"""@deprecated(s"test $${42}")
+         |def ${|}foo() = {}
+         |""".stripMargin
 
     // For now interpolated strings are displayed in ScalaDoc popups as regular strings, with no additional highlighting
     val expectedDoc =
@@ -265,8 +234,7 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
 
   def testAnnotation_Number(): Unit = {
     val fileContent =
-      s"""
-         |@deprecated(42)
+      s"""@deprecated(42)
          |def ${|}foo() = {}
          |""".stripMargin
 
@@ -280,8 +248,7 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
 
   def testAnnotation_Boolean(): Unit = {
     val fileContent =
-      s"""
-         |@deprecated(true)
+      s"""@deprecated(true)
          |def ${|}foo() = {}
          |""".stripMargin
 
@@ -309,8 +276,7 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
 
   def testAbstractClass(): Unit = {
     val fileContent =
-      s"""
-         |abstract class ${|}AbstractClass
+      s"""abstract class ${|}AbstractClass
          |""".stripMargin
 
     val expectedContent =
@@ -322,8 +288,7 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
 
   def testAnnotation(): Unit = {
     val fileContent =
-      s"""
-         |@scala.io.Source(url = "https://foo.com/")
+      s"""@scala.io.Source(url = "https://foo.com/")
          |trait ${|}Foo
          |""".stripMargin
 
@@ -342,14 +307,7 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
          |}""".stripMargin
 
     val expectedContent =
-      """<a href="psi_element://Outer"><code>Outer</code></a>
-        |
-        |<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">f</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span> => <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>
-        |""".stripMargin
-
-    val expectedContent2 =
-      """
-        |<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">f</span>: <span style="color:#20999d;"><span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span> => <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span></span>
+      """<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">f</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span> => <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>
         |""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
@@ -357,8 +315,7 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
 
   def testImplicit(): Unit = {
     val fileContent =
-      s"""
-         |import scala.concurrent.ExecutionContext
+      s"""import scala.concurrent.ExecutionContext
          |def ${|}f()(implicit ec: ExecutionContext): Int = ???
          |""".stripMargin
 
@@ -371,8 +328,7 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
 
   def testTwoParameters(): Unit = {
     val fileContent =
-      s"""
-         |def ${|}foo(a: Int, b: Int): Unit = ???
+      s"""def ${|}foo(a: Int, b: Int): Unit = ???
          |""".stripMargin
 
     val expectedContent =
@@ -384,8 +340,7 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
 
   def testThreeParameters(): Unit = {
     val fileContent =
-      s"""
-         |def ${|}foo(a: Int, b: Int, c: Int): Unit = ???
+      s"""def ${|}foo(a: Int, b: Int, c: Int): Unit = ???
          |""".stripMargin
 
     val expectedContent =
@@ -397,8 +352,7 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
 
   def testImplicitParameters(): Unit = {
     val fileContent =
-      s"""
-         |def ${|}foo(a: Int, b: Int)(implicit c: Int, d: Int): Unit = ???
+      s"""def ${|}foo(a: Int, b: Int)(implicit c: Int, d: Int): Unit = ???
          |""".stripMargin
 
     val expectedContent =
@@ -416,23 +370,19 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
       s"""class A {
          |  def ${|}foo(i: Int, s: String = "default value", b: Boolean): String = ???
          |}""".stripMargin,
-      s"""<a href="psi_element://A"><code>A</code></a>
-         |
-         |<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">foo</span>(i: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>, s: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span> = …, b: <span style=""><a href="psi_element://scala.Boolean"><code>Boolean</code></a></span>): <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
+      s"""<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">foo</span>(i: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>, s: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span> = …, b: <span style=""><a href="psi_element://scala.Boolean"><code>Boolean</code></a></span>): <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
          |""".stripMargin
     )
 
   def testNestedTraits(): Unit = {
     val fileContent =
-      s"""
-       |trait MyTrait[T]
-       |abstract class Class1[T, V]
-       |class ${|}Class2[T]() extends Class1[T, MyTrait[T]]
-       |""".stripMargin
+      s"""trait MyTrait[T]
+         |abstract class Class1[T, V]
+         |class ${|}Class2[T]() extends Class1[T, MyTrait[T]]
+         |""".stripMargin
 
     val expectedContent =
-      s"""
-         |<span style="color:#000080;font-weight:bold;">class</span> <span style="color:#000000;">Class2</span>[<span style="color:#20999d;">T</span>]()
+      s"""<span style="color:#000080;font-weight:bold;">class</span> <span style="color:#000000;">Class2</span>[<span style="color:#20999d;">T</span>]()
          |<span style="color:#000080;font-weight:bold;">extends</span> <span style="color:#000000;"><a href="psi_element://Class1"><code>Class1</code></a></span>[<span style="color:#20999d;">T</span>, <span style="color:#000000;"><a href="psi_element://MyTrait"><code>MyTrait</code></a></span>[<span style="color:#20999d;">T</span>]]
          |""".stripMargin
 
@@ -446,9 +396,7 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
          |}""".stripMargin
 
     val expectedContent =
-      s"""<a href="psi_element://Outer"><code>Outer</code></a>
-         |
-         |<span style="color:#000080;font-weight:bold;">private</span> <span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">a</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>
+      s"""<span style="color:#000080;font-weight:bold;">private</span> <span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">a</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>
          |""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
@@ -461,9 +409,7 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
          |}""".stripMargin
 
     val expectedContent =
-      s"""<a href="psi_element://Outer"><code>Outer</code></a>
-         |
-         |<span style="color:#000080;font-weight:bold;">protected</span> <span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">a</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>
+      s"""<span style="color:#000080;font-weight:bold;">protected</span> <span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">a</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>
          |""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
@@ -476,9 +422,7 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
          |}""".stripMargin
 
     val expectedContent =
-      s"""<a href="psi_element://Outer"><code>Outer</code></a>
-         |
-         |<span style="color:#000080;font-weight:bold;">private</span> <span style="color:#000080;font-weight:bold;">lazy</span> <span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">a</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>
+      s"""<span style="color:#000080;font-weight:bold;">private</span> <span style="color:#000080;font-weight:bold;">lazy</span> <span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">a</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>
          |""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
@@ -493,9 +437,7 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
          |}""".stripMargin
 
     val expectedContent =
-      s"""<a href="psi_element://Outer"><code>Outer</code></a>
-         |
-         |<span style="color:#000080;font-weight:bold;">private</span> <span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">d</span>: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
+      s"""<span style="color:#000080;font-weight:bold;">private</span> <span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">d</span>: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
          |""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
@@ -503,13 +445,11 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
 
   def testPredefString(): Unit = {
     val fileContent =
-      s"""
-         |val ${|}x: Predef.String = ""
+      s"""val ${|}x: Predef.String = ""
          |""".stripMargin
 
     val expectedContent =
-      s"""
-         |<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">x</span>: <span style="color:#20999d;"><a href="psi_element://scala.Predef.String"><code>String</code></a></span>
+      s"""<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">x</span>: <span style="color:#20999d;"><a href="psi_element://scala.Predef.String"><code>String</code></a></span>
          |""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
@@ -517,8 +457,7 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
 
   def testMethodReturningNestedType(): Unit = {
     val fileContent =
-      s"""
-         |trait Encoder {
+      s"""trait Encoder {
          |  type Persisted
          |  def encode(p: Encoder): Persisted
          |}
@@ -527,13 +466,9 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
          |""".stripMargin
 
     val expectedContent =
-      s"""
-         |<a href="psi_element://Encoder"><code>Encoder</code></a>
-         |
-         |<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">encode</span>(p: <span style="color:#000000;"><a href="psi_element://Encoder"><code>Encoder</code></a></span>): <span style="color:#000000;"><a href="psi_element://Encoder"><code>Encoder</code></a></span>#<span style="color:#20999d;"><a href="psi_element://Encoder.Persisted"><code>Persisted</code></a></span>
+      s"""<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">encode</span>(p: <span style="color:#000000;"><a href="psi_element://Encoder"><code>Encoder</code></a></span>): <span style="color:#000000;"><a href="psi_element://Encoder"><code>Encoder</code></a></span>#<span style="color:#20999d;"><a href="psi_element://Encoder.Persisted"><code>Persisted</code></a></span>
          |""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
   }
-
 }
