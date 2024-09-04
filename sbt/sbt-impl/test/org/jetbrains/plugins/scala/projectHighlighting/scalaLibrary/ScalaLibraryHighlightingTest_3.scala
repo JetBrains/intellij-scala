@@ -11,13 +11,4 @@ class ScalaLibraryHighlightingTest_3 extends ScalaLibraryHighlightingTest {
   override protected val filesWithProblems: Map[String, Set[TextRange]] = Map()
 
   override protected def scalaLibraryJarName: String = "scala3-library_3"
-
-  import org.jetbrains.plugins.scala.util.assertions.assertFails
-
-  //Remove assertFails once SCL-20139 is fixed
-  override def testAllSourcesAreFoundByRelativeFile(): Unit = {
-    assertFails {
-      super.testAllSourcesAreFoundByRelativeFile()
-    }
-  }
 }

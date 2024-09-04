@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.api
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiClass
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScExtension
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.{ScExportsHolder, ScImportsHolder}
@@ -16,6 +17,8 @@ trait ScalaFile extends ScalaPsiElement
   def typeDefinitions: Seq[ScTypeDefinition]
 
   def members: Seq[ScMember]
+
+  def extensions: Seq[ScExtension]
 
   def packagingRanges: Seq[TextRange]
 

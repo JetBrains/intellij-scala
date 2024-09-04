@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.TokenSets._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
 import org.jetbrains.plugins.scala.lang.psi.ScDeclarationSequenceHolder
 import org.jetbrains.plugins.scala.lang.psi.api._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -313,6 +313,13 @@ class ScalaFileImpl(
     }
 
     members ++ packagings.flatMap(_.members)
+  }
+
+  override def extensions: Seq[ScExtension] = {
+    val extensions = foldStub(findChildren[ScExtension]) { stub =>
+      ArraySeq.unsafeWrapArray(stub.getChildrenByType(EXTENSION, JavaArrayFactoryUtil.ScExtensionFactory))
+    }
+    extensions ++ packagings.flatMap(_.extensions)
   }
 
   private def foldStub[R](byPsi: => R)(byStub: ScFileStub => R): R = getStub match {

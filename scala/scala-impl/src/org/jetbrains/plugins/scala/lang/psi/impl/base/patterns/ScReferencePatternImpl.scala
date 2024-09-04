@@ -4,7 +4,6 @@ package patterns
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.TokenSets
@@ -14,8 +13,10 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPatternList
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScValueOrVariable}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScPackaging, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createWildcardPattern
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScBindingPatternStub
@@ -60,19 +61,8 @@ class ScReferencePatternImpl private(stub: ScBindingPatternStub[ScReferencePatte
     PsiReferenceService.getService.getContributedReferences(this)
   }
 
-  override def getNavigationElement: PsiElement = getContainingFile match {
-    case sf: ScalaFile if sf.isCompiled =>
-      val parent = PsiTreeUtil.getParentOfType(this, classOf[ScMember]) // there is no complicated pattern-based declarations in decompiled files
-      if (parent != null) {
-        val navElem = parent.getNavigationElement
-        navElem match {
-          case holder: ScDeclaredElementsHolder => holder.declaredElements.find(_.name == name).getOrElse(navElem)
-          case x => x
-        }
-      }
-      else super.getNavigationElement
-    case _ => super.getNavigationElement
-  }
+  override def getNavigationElement: PsiElement =
+    ScReferencePatternImpl.getNavigationElementForValOrVarId(this).getOrElse(this)
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement, place: PsiElement): Boolean = {
     ScalaPsiUtil.processImportLastParent(processor, state, place, lastParent, `type`())
@@ -97,4 +87,48 @@ class ScReferencePatternImpl private(stub: ScBindingPatternStub[ScReferencePatte
   }
 
   override def getOriginalElement: PsiElement = super[ScReferencePattern].getOriginalElement
+}
+
+object ScReferencePatternImpl {
+
+  def getNavigationElementForValOrVarId(valOrVarId: ScNamedElement): Option[PsiElement] = {
+    val containingFile = valOrVarId.getContainingFile
+    containingFile match {
+      case sf: ScalaFile if sf.isCompiled =>
+        valOrVarId.nameContext match {
+          case v: ScValueOrVariable =>
+            val membersInContainerNavigationElement = v.getParent match {
+              case (_: ScTemplateBody) & Parent((_: ScExtendsBlock) & Parent(td: ScTypeDefinition)) =>
+                val navigationElement = td.getNavigationElement
+                navigationElement match {
+                  case typeDefinition: ScTypeDefinition => Some(typeDefinition.members)
+                  case _ => None
+                }
+              case _: ScPackaging =>
+                //handle top-level definitions in Scala 3
+                //type definitions (class,trait,etc...) are handled in ScTypeDefinitionImpl.getSourceMirrorClass
+                val fileNavigationElement = containingFile.getNavigationElement
+                fileNavigationElement match {
+                  case scalaFile: ScalaFile => Some(scalaFile.members)
+                  case _ => None
+                }
+              case _ => None
+            }
+
+            membersInContainerNavigationElement.flatMap(findNavigationTarget(valOrVarId, _))
+          case _ => None
+        }
+      case _ => None
+    }
+  }
+
+  private def findNavigationTarget(varOrVarId: ScNamedElement, members: Seq[ScMember]): Option[ScTypedDefinition] = {
+    import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.BacktickedName.stripBackticks
+    val bindings = members.collect { case v: ScValueOrVariable => v.declaredElements }.flatten
+    bindings.find { b =>
+      //example when it matters:
+      //`scala.caps#*` is defined as "val `*`" in sources, but in the decompiled version we use "val *"
+      stripBackticks(b.name) == stripBackticks(varOrVarId.name)
+    }
+  }
 }

@@ -184,37 +184,29 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
     }
   }
 
-  /**
-   * @param isStrictCheck false - Fast option to just check member names<br>
-   *                      true - Slow option which will check all function overloaded alternatives
-   *                      For that it needs to resolve all type paramers and check parameter types equivalence
-   */
-  protected def isSimilarMemberForNavigation(m: ScMember, isStrictCheck: Boolean) = false
-
   override def getNavigationElement: PsiElement = getContainingFile match {
     case s: ScalaFileImpl if s.isCompiled =>
       getSourceMirrorMember
     case _ => this
   }
 
-  private def getSourceMirrorMember: ScMember = getParent match {
+  protected def getSourceMirrorMember: ScMember = getParent match {
     case (_: ScTemplateBody) & Parent((_: ScExtendsBlock) & Parent(td: ScTypeDefinition)) =>
       val navigationElement = td.getNavigationElement
       navigationElement match {
         case typeDefinition: ScTypeDefinition =>
-          val membersIterator = typeDefinition.members.iterator
-
-          //use fast check to find candidates with matching name
-          val similarMembersFast = membersIterator.filter(isSimilarMemberForNavigation(_, isStrictCheck = false)).toSeq
-          if (similarMembersFast.isEmpty)
-            this
-          else if (similarMembersFast.length == 1)
-            similarMembersFast.head
-          else {
-            //multiple candidates (most likely overloaded functions), need to check signatures (slow check)
-            val similarMemberWithStrictCheck = similarMembersFast.find(isSimilarMemberForNavigation(_, isStrictCheck = true))
-            similarMemberWithStrictCheck.getOrElse(similarMembersFast.head)
-          }
+          val members = typeDefinition.members
+          findMemberNavigationTarget(members)
+        case _ => this
+      }
+    case _: ScPackaging =>
+      //handle top-level definitions in Scala 3
+      //type definitions (class,trait,etc...) are handled in ScTypeDefinitionImpl.getSourceMirrorClass
+      val fileNavigationElement = getContainingFile.getNavigationElement
+      fileNavigationElement match {
+        case scalaFile: ScalaFile =>
+          val members = scalaFile.members.filterNot(_.is[ScTypeDefinition])
+          findMemberNavigationTarget(members)
         case _ => this
       }
     case c: ScTypeDefinition if this.is[ScPrimaryConstructor] => //primary constructor
@@ -239,6 +231,27 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
       }
     case _ => this
   }
+
+  protected def findMemberNavigationTarget(members: Seq[ScMember]): ScMember = {
+    //use fast check to find candidates with matching name
+    val similarMembersFast = members.filter(isSimilarMemberForNavigation(_, isStrictCheck = false))
+    if (similarMembersFast.isEmpty)
+      this
+    else if (similarMembersFast.length == 1)
+      similarMembersFast.head
+    else {
+      //multiple candidates (most likely overloaded functions), need to check signatures (slow check)
+      val similarMemberWithStrictCheck = similarMembersFast.find(isSimilarMemberForNavigation(_, isStrictCheck = true))
+      similarMemberWithStrictCheck.getOrElse(similarMembersFast.head)
+    }
+  }
+
+  /**
+   * @param isStrictCheck false - Fast option to just check member names<br>
+   *                      true - Slow option which will check all function overloaded alternatives
+   *                      For that it needs to resolve all type paramers and check parameter types equivalence
+   */
+  protected def isSimilarMemberForNavigation(m: ScMember, isStrictCheck: Boolean) = false
 }
 
 object ScMember {
