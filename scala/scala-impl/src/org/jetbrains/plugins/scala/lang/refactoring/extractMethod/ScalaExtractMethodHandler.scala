@@ -311,43 +311,45 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
 
     def newLine = createNewLine()(method.getManager)
 
-    def addElementBefore(elem: PsiElement, nextSibling: PsiElement) = {
+    def addElementBefore(elem: PsiElement, nextSibling: PsiElement, typeAdjuster: TypeAdjuster) = {
       val added = nextSibling.getParent.addBefore(elem, nextSibling)
-      TypeAdjuster.markToAdjust(added)
+      typeAdjuster.markToAdjust(added)
       added
     }
 
-    def insertInnerClassBefore(anchorNext: PsiElement): Unit = {
+    def insertInnerClassBefore(anchorNext: PsiElement, typeAdjuster: TypeAdjuster): Unit = {
       if (!ics.needClass) return
 
       val classText = ics.classText(canonTextForTypes = true)
       val clazz = createTemplateDefinitionFromText(classText, anchorNext.getContext, anchorNext)
-      addElementBefore(clazz, anchorNext)
-      addElementBefore(newLine, anchorNext)
+      addElementBefore(clazz, anchorNext, typeAdjuster)
+      addElementBefore(newLine, anchorNext, typeAdjuster)
     }
 
-    def insertMethod() = {
+    def insertMethod(typeAdjuster: TypeAdjuster): PsiElement = {
       var insertedMethod: PsiElement = null
       settings.nextSibling match {
         case s childOf (_: ScTemplateBody) =>
           // put the extract method *below* the current code if it is added to a template body.
           val nextSibling = s.getNextSiblingNotWhitespaceComment
-          addElementBefore(newLine, nextSibling)
-          insertedMethod = addElementBefore(method, nextSibling)
-          addElementBefore(newLine, nextSibling)
+          addElementBefore(newLine, nextSibling, typeAdjuster)
+          insertedMethod = addElementBefore(method, nextSibling, typeAdjuster)
+          addElementBefore(newLine, nextSibling, typeAdjuster)
         case s =>
-          insertedMethod = addElementBefore(method, s)
-          addElementBefore(newLine, s)
+          insertedMethod = addElementBefore(method, s, typeAdjuster)
+          addElementBefore(newLine, s, typeAdjuster)
       }
       insertedMethod
     }
 
     PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
     inWriteCommandAction {
-      val method = insertMethod()
-      insertInnerClassBefore(method)
+      val typeAdjuster = new TypeAdjuster()
+      val method = insertMethod(typeAdjuster)
+      insertInnerClassBefore(method, typeAdjuster)
 
-      ScalaExtractMethodUtils.replaceWithMethodCall(settings, settings.elements.toSeq, param => param.oldName, output => output.paramName)
+      ScalaExtractMethodUtils.replaceWithMethodCall(settings, settings.elements.toSeq, param => param.oldName, output => output.paramName, typeAdjuster)
+      typeAdjuster.adjustTypes()
 
       CodeStyleManager.getInstance(project).reformat(method)
       editor.getSelectionModel.removeSelection()
