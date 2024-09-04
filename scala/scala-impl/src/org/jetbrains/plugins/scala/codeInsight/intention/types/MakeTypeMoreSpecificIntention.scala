@@ -5,7 +5,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle.message
-import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScTypedPatternLike, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScUnderscoreSection}
@@ -68,7 +68,7 @@ class MakeTypeMoreSpecificIntention extends AbstractTypeAnnotationIntention {
       val types = computeBaseTypes(declaredType, dynamicType).sortWith((t1, t2) => t1.conforms(t2))
       if (types.size == 1) {
         val replaced = te.replace(ScalaPsiElementFactory.createTypeElementFromText(types.head.canonicalText, te.getContext, te))
-        TypeAdjuster.markToAdjust(replaced)
+        ScalaPsiUtil.adjustTypes(replaced)
       } else if (!IntentionPreviewUtils.isPreviewElement(te)) {
         implicit val tpc: TypePresentationContext = TypePresentationContext(context)
         val texts = types.map(ScTypeText(_))

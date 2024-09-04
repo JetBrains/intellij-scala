@@ -49,4 +49,16 @@ class MakeTypeMoreSpecificIntentionTest extends ScalaIntentionTestBase {
 
     checkIntentionIsNotAvailable("def test(): Int = 3")
   }
+
+  def testOnlyOneMoreSpecificType(): Unit = {
+    doTest(
+      s"""
+         |val str${CARET}ing: CharSequence = "" + 1
+         |""".stripMargin,
+      """
+        |val string: String = "" + 1
+        |""".stripMargin,
+      Some(message("make.type.more.specific"))
+    )
+  }
 }
