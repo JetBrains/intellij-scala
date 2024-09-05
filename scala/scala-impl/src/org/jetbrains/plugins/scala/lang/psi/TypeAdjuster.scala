@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.psi
 
-import com.intellij.openapi.application.{ApplicationListener, ApplicationManager}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
 import com.intellij.openapi.util.Key
@@ -27,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolv
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.smartEquivalence
 
-import scala.annotation.{nowarn, tailrec}
+import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
@@ -74,26 +73,11 @@ private[scala] final class TypeAdjuster {
  * 2. replaces all type elements with simplified ones<br>
  * 3. adds imports for all replaced types<br>
  *
- * Caches are invalidated only twice, after 2) and 3)
- * Also it is possible to postpone adjusting types to the end of a write action.
+ * Caches are invalidated only twice, after 2. and 3.
  */
-object TypeAdjuster extends ApplicationListener {
+object TypeAdjuster {
 
   private val LOG = Logger.getInstance(classOf[TypeAdjuster])
-
-  {
-    ApplicationManager.getApplication.addApplicationListener(this): @nowarn("cat=deprecation")
-  }
-
-  private val globalAdjuster: TypeAdjuster = new TypeAdjuster()
-
-  override def writeActionFinished(action: Any): Unit = {
-    globalAdjuster.adjustTypes()
-  }
-
-  def markToAdjust(element: PsiElement): Unit = {
-    globalAdjuster.markToAdjust(element)
-  }
 
   def adjustFor(elements: Seq[PsiElement], addImports: Boolean = true, useTypeAliases: Boolean = true): Unit = {
     val progressManager = ProgressManager.getInstance()
