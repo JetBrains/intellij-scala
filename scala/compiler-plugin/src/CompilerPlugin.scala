@@ -26,6 +26,7 @@ private object CompilerPlugin:
 
     override def isRunnable(using Context): Boolean = true
 
+    // Only for "transparent inline" after the "typer" phase (but for any "inline" after the "inlining" phase)
     override def transformInlined(tree: tpd.Inlined)(using Context): tpd.Tree =
       report.inform("Type: " + ctx.printer.toText(tree.tpe).mkString(9000, false), tree.srcPos)
       super.transformInlined(tree)
