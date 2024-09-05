@@ -40,7 +40,7 @@ class SbtScalaSdkDataService extends ScalaAbstractProjectDataService[SbtScalaSdk
         scalacClasspath.asScala.toSeq,
         scaladocExtraClasspath.asScala.toSeq,
         Option(compilerBridgeBinaryJar),
-        sdkPrefix = "sbt",
+        sdkPrefix = SbtProjectSystem.Id.getReadableName,
         modelsProvider
       ))
     }
