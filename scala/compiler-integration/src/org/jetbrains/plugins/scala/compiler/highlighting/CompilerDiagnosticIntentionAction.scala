@@ -65,14 +65,15 @@ private final class CompilerDiagnosticIntentionAction private (
 
   private def growLeftAndRight(range: TextRange, document: Document): TextRange = {
     val text = document.getCharsSequence
+    val length = text.length()
 
     var startOffset = range.getStartOffset
-    while (!text.charAt(startOffset).isWhitespace) {
+    while (startOffset >= 0 && !text.charAt(startOffset).isWhitespace) {
       startOffset -= 1
     }
 
     var endOffset = range.getEndOffset
-    while (!text.charAt(endOffset).isWhitespace) {
+    while (endOffset < length && !text.charAt(endOffset).isWhitespace) {
       endOffset += 1
     }
 
