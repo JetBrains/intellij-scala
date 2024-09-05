@@ -252,4 +252,24 @@ class CompilerDiagnosticsTest_3 extends ScalaCompilerHighlightingTestBase with C
           |""".stripMargin
     )
   }
+
+  def testOutOfBounds(): Unit = {
+    runCompilerDiagnosticsTest(
+      fileName = "OutOfBounds.scala",
+      content =
+        """def foo: String = null
+          |val value1 = foo _""".stripMargin,
+      expectedResult = expectedResult(
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          range = Some(TextRange.create(36, 41)),
+          quickFixDescriptions = Seq("Rewrite to function value"),
+          msgPrefix = "Only function types can be followed by _ but the current expression has type String"
+        )
+      ),
+      expectedContent =
+        """def foo: String = null
+          |val value1 = (() => foo)""".stripMargin
+    )
+  }
 }
