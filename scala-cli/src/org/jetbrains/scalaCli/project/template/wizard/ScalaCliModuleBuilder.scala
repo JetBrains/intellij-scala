@@ -3,7 +3,6 @@ package org.jetbrains.scalaCli.project.template.wizard
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.plugins.scala.ScalaVersion
 
-import scala.sys.process._
 import org.jetbrains.bsp.BSP
 import org.jetbrains.bsp.settings.BspProjectSettings
 import org.jetbrains.plugins.scala.extensions._
@@ -11,9 +10,6 @@ import org.jetbrains.plugins.scala.extensions._
 import java.io.File
 import org.jetbrains.sbt.project.template.{DefaultModuleContentEntryFolders, ModuleBuilderBase, ScalaModuleBuilderSelections}
 import org.jetbrains.scalaCli.project.ScalaCliProjectUtils
-
-import scala.sys.process.{Process, ProcessLogger}
-import scala.util.Try
 
 class ScalaCliModuleBuilder (
   _selections: ScalaModuleBuilderSelections
@@ -37,7 +33,6 @@ class ScalaCliModuleBuilder (
       def ensureSingleNewLineAfter(text: String): String = text.stripTrailing() + "\n"
 
       FileUtil.writeToFile(buildFile, ensureSingleNewLineAfter(projectFileContent))
-      setUpBspDirectoryForScalaCli(root)
 
       Some(DefaultModuleContentEntryFolders(
         sources = Seq(),
@@ -49,13 +44,5 @@ class ScalaCliModuleBuilder (
       ))
     }
     else None
-  }
-
-  private def setUpBspDirectoryForScalaCli(workspace: File): Try[Int] = {
-    val command = "scala-cli setup-ide ."
-    // TODO add reporter
-    // TODO check whether it's needed here
-    // reporter.log(BspBundle.message("bsp.resolver.installing.mill.configuration.command", millCommand))
-    Try(Process(command, workspace)! ProcessLogger(stdout append _ + "\n", stderr append _ + "\n"))
   }
 }

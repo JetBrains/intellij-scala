@@ -7,10 +7,12 @@ import com.intellij.openapi.externalSystem.model.project._
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener}
 import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException}
 import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
-import org.jetbrains.bsp.BspUtil.{bloopConfigDir, _}
+import org.jetbrains.bsp.BspUtil._
+import org.jetbrains.bsp.project.BspProjectInstallProvider
 import org.jetbrains.bsp.project.importing.BspProjectResolver._
 import org.jetbrains.bsp.project.importing.BspResolverDescriptors._
 import org.jetbrains.bsp.project.importing.BspResolverLogic._
+import org.jetbrains.bsp.project.importing.bspConfigSteps.{ConfigSetup, MillSetup, ScalaCliSetup}
 import org.jetbrains.bsp.project.importing.preimport.{BloopPreImporter, PreImporter}
 import org.jetbrains.bsp.protocol.session.Bsp4JJobFailure
 import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, BuildServerInfo, NotificationAggregator}
@@ -197,6 +199,21 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
   )(implicit reporter: BuildReporter): Try[BuildMessages] = {
     def isSbtProject(workspace: File) = new File(workspace, "build.sbt").exists()
 
+    val bspProjectInstallers = BspProjectInstallProvider.getImplementations
+
+    def installBspFromInstaller(bspProjectInstaller: Option[BspProjectInstallProvider]): Try[BuildMessages] =
+      bspProjectInstaller.map(_.bspInstall(workspace)).getOrElse(EmptyBuildMessagesSuccess)
+
+    def installWithAnyBspProjectInstaller: Try[BuildMessages] = {
+      val installer = bspProjectInstallers.find(_.canImport(workspace))
+      installBspFromInstaller(installer)
+    }
+
+    def installForConfigSetup(configSetup: ConfigSetup): Try[BuildMessages] = {
+      val installer = bspProjectInstallers.find(_.getConfigSetup == configSetup)
+      installBspFromInstaller(installer)
+    }
+
     //TODO: runBloopInstall changes `importState` inside
     // however `MillProjectImportProvider.bspInstall(workspace)`
     // The latter was added by contributor, so this might be just a bug?
@@ -204,15 +221,17 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       case BspProjectSettings.NoPreImport =>
         EmptyBuildMessagesSuccess
       case BspProjectSettings.AutoPreImport =>
-        if (bspServerConfig == BspProjectSettings.AutoConfig && bloopConfigDir(workspace).isDefined && isSbtProject(workspace))
+        if (bspServerConfig == BspProjectSettings.AutoConfig && bloopConfigDir(workspace).isDefined && isSbtProject(workspace)) {
           runBloopInstall(workspace)
-        else if (MillProjectImportProvider.canImport(workspace))
-          MillProjectImportProvider.bspInstall(workspace)
-        else EmptyBuildMessagesSuccess
+        } else {
+          installWithAnyBspProjectInstaller
+        }
       case BspProjectSettings.BloopSbtPreImport =>
         runBloopInstall(workspace)
       case BspProjectSettings.MillBspPreImport =>
-        MillProjectImportProvider.bspInstall(workspace)
+        installForConfigSetup(MillSetup)
+      case BspProjectSettings.ScalaCliBspPreImport =>
+        installForConfigSetup(ScalaCliSetup)
     }
   }
 
