@@ -68,7 +68,7 @@ trait BspProjectInstallProvider {
 
 object BspProjectInstallProvider {
 
-  private val EP = ExtensionPointName.create[BspProjectInstallProvider]("org.intellij.bsp.bspServerInfoProvider")
+  private val EP = ExtensionPointName.create[BspProjectInstallProvider]("org.intellij.bsp.bspProjectInstallProvider")
 
   def canImport(workspace: File): Boolean =
     getImplementations.exists(_.canImport(workspace))

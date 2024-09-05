@@ -13,10 +13,7 @@ import scala.util.Try
 class ScalaCliProjectInstaller extends BspProjectInstallProvider {
 
   override def canImport(workspace: File): Boolean =
-    Option(workspace) match {
-      case Some(directory) if directory.isDirectory => isScalaCli(directory)
-      case _ => false
-    }
+    Option(workspace).filter(_.isDirectory).exists(isScalaCli)
 
   override def serverName: String = "Scala CLI"
 

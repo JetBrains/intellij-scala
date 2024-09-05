@@ -13,7 +13,7 @@
         <extensionPoint qualifiedName="com.intellij.bspVcsRootExtension"
                         interface="org.jetbrains.bsp.data.BspVcsRootExtension"
                         dynamic="true"/>
-        <extensionPoint qualifiedName="org.intellij.bsp.bspServerInfoProvider"
+        <extensionPoint qualifiedName="org.intellij.bsp.bspProjectInstallProvider"
                         interface="org.jetbrains.bsp.project.BspProjectInstallProvider"
                         dynamic="true"/>
 
@@ -23,7 +23,7 @@
         <scala.sbtUnlinkedProjectAwareHelper implementation="org.jetbrains.bsp.project.BspSbtUnlinkedProjectAwareHelper"/>
         <sbt.buildModuleUriProvider implementation="org.jetbrains.bsp.project.BspSbtBuildModuleUriProvider"/>
         <sbt.sbtVersionProvider implementation="org.jetbrains.bsp.project.BspSbtVersionProvider"/>
-        <bsp.bspServerInfoProvider implementation="org.jetbrains.bsp.project.importing.MillProjectInstaller"/>
+        <bsp.bspProjectInstallProvider implementation="org.jetbrains.bsp.project.importing.MillProjectInstaller"/>
     </extensions>
     
     <extensions defaultExtensionNs="com.intellij">

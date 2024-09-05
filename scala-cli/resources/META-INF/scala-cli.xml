@@ -5,7 +5,7 @@
     </extensions>
 
     <extensions defaultExtensionNs="org.intellij">
-        <bsp.bspServerInfoProvider implementation="org.jetbrains.scalaCli.project.importing.ScalaCliProjectInstaller"/>
+        <bsp.bspProjectInstallProvider implementation="org.jetbrains.scalaCli.project.importing.ScalaCliProjectInstaller"/>
         <scala.newScalaFileActionExtension implementation="org.jetbrains.scalaCli.actions.ScalaCliNewScalaFileActionExtension"/>
         <scala.fileDeclarationsContributor implementation="org.jetbrains.scalaCli.script.ScalaCliScriptFileDeclarationsContributor"/>
     </extensions>

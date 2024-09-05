@@ -256,8 +256,8 @@ object BspProjectOpenProcessor {
     // temporarily disable sbt importing via bloop from welcome screen (SCL-17359)
     val sbtProject = false
 
-    val externalBspProject = BspProjectInstallProvider.canImport(workspace.toNioPath.toFile)
+    val canImportWithInstaller = BspProjectInstallProvider.canImport(workspace.toNioPath.toFile)
 
-    bspConnectionProtocolSupported || bloopProject || bspConnectionProtocolSupported || sbtProject || externalBspProject
+    bspConnectionProtocolSupported || bloopProject || bspConnectionProtocolSupported || sbtProject || canImportWithInstaller
   }
 }

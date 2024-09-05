@@ -201,17 +201,17 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
 
     val bspProjectInstallers = BspProjectInstallProvider.getImplementations
 
-    def installBspFromInstaller(bspProjectInstaller: Option[BspProjectInstallProvider]): Try[BuildMessages] =
+    def installBspFrom(bspProjectInstaller: Option[BspProjectInstallProvider]): Try[BuildMessages] =
       bspProjectInstaller.map(_.bspInstall(workspace)).getOrElse(EmptyBuildMessagesSuccess)
 
     def installWithAnyBspProjectInstaller: Try[BuildMessages] = {
       val installer = bspProjectInstallers.find(_.canImport(workspace))
-      installBspFromInstaller(installer)
+      installBspFrom(installer)
     }
 
     def installForConfigSetup(configSetup: ConfigSetup): Try[BuildMessages] = {
       val installer = bspProjectInstallers.find(_.getConfigSetup == configSetup)
-      installBspFromInstaller(installer)
+      installBspFrom(installer)
     }
 
     //TODO: runBloopInstall changes `importState` inside
