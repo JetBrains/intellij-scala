@@ -3,10 +3,12 @@ package org.jetbrains.scalaCli.project.template.wizard
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.vfs.VirtualFile
+import kotlin.Unit.{INSTANCE => KUnit}
 import com.intellij.ui.dsl.builder.Panel
 import org.jetbrains.sbt.project.template.wizard.buildSystem.{ScalaNewProjectWizardStep, addScalaSampleCode}
 import org.jetbrains.sbt.project.template.{ModuleBuilderBase, ScalaModuleBuilderSelections}
 import org.jetbrains.sbt.project.template.wizard.ScalaNewProjectWizardMultiStep
+import org.jetbrains.scalaCli.ScalaCliUtils
 
 import java.nio.file.Path
 
@@ -17,6 +19,11 @@ final class ScalaCliNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
   override protected val selections: ScalaModuleBuilderSelections = ScalaModuleBuilderSelections.default
 
   override def setupUI(panel: Panel): Unit = {
+    panel.onApply(() => {
+      ScalaCliUtils.throwExceptionIfScalaCliNotInstalled(getContext.getProjectDirectory.toFile)
+      KUnit
+    })
+
     setUpScalaUI(panel, downloadSourcesCheckbox = false)
     setUpSampleCode(panel)
 
@@ -36,5 +43,4 @@ final class ScalaCliNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
       packagePrefix = None,
       withOnboardingTips = false
     )
-
 }

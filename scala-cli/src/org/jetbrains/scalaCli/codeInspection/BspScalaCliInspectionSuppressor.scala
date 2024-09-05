@@ -4,7 +4,7 @@ import com.intellij.codeInspection.{InspectionSuppressor, SuppressQuickFix}
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.packageNameInspection.ScalaPackageNameInspection
 import org.jetbrains.plugins.scala.lang.psi.api.ScFile
-import org.jetbrains.scalaCli.bsp.ScalaCliBspUtils
+import org.jetbrains.scalaCli.ScalaCliUtils
 
 final class BspScalaCliInspectionSuppressor extends InspectionSuppressor {
 
@@ -15,7 +15,7 @@ final class BspScalaCliInspectionSuppressor extends InspectionSuppressor {
   override def isSuppressedFor(element: PsiElement, toolId: String): Boolean =
     element match {
       case scalaFile: ScFile =>
-        suppressedToolIds.contains(toolId) && ScalaCliBspUtils.isBspScalaCliProject(scalaFile.getProject)
+        suppressedToolIds.contains(toolId) && ScalaCliUtils.isBspScalaCliProject(scalaFile.getProject)
       case _ =>
         false
     }
