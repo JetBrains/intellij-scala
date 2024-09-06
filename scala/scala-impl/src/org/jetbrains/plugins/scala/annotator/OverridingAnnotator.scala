@@ -211,7 +211,7 @@ trait OverridingAnnotator {
                   case _ => None
                 }
               }.map {
-                new AddWithKeyword(member, memberNameId, _)
+                new AddOverrideWithKeyword(member, memberNameId, _)
               }
             case _ => Some(new Add(member, memberNameId, Override))
           }
