@@ -54,7 +54,9 @@ private[annotator] object ModifierChecker {
           illegalModifier <- maybeIllegalModifier
         } {
           modifiers.add(illegalModifier)
-          val message = ScalaBundle.message("illegal.modifiers.combination", modifier.text(), illegalModifier.text())
+          val message =
+            if (modifier == illegalModifier) ScalaBundle.message("modifier.is.duplicated", modifier.text)
+            else ScalaBundle.message("illegal.modifiers.combination", modifier.text, illegalModifier.text)
           createErrorWithQuickFix(message, modifierElement, owner)
         }
 
