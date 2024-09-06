@@ -2,11 +2,11 @@ package org.jetbrains.plugins.scala.debugger.ui
 
 import com.intellij.debugger.DebuggerContext
 import com.intellij.debugger.engine.DebugProcessImpl
-import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
+import com.intellij.debugger.engine.evaluation.{EvaluateException, EvaluationContextImpl}
 import com.intellij.debugger.jdi.LocalVariableProxyImpl
-import com.intellij.debugger.ui.impl.watch.{ArrayElementDescriptorImpl, FieldDescriptorImpl, LocalVariableDescriptorImpl}
-import com.intellij.debugger.ui.tree.NodeDescriptor
+import com.intellij.debugger.ui.impl.watch.{ArrayElementDescriptorImpl, LocalVariableDescriptorImpl, ValueDescriptorImpl}
 import com.intellij.debugger.ui.tree.render.{NodeRenderer, OnDemandRenderer}
+import com.intellij.debugger.ui.tree.{DescriptorWithParentObject, NodeDescriptor}
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiExpression
@@ -30,8 +30,8 @@ private object LazyValDescriptor {
     val findInit = if (isScala3) findInitializerScala3 _ else findInitializerScala2 _
     val isInitialized = isInitializedFunction(ref, field, allFields)
     val init = findInit(field, allMethods)
-    if (isInitialized) new FieldLazyValDescriptor(project, ref, field, init)
-    else new NotInitializedFieldLazyValDescriptor(project, ref, field, init)
+    if (isInitialized) new FieldLazyValDescriptor(project, ref, init)
+    else new NotInitializedFieldLazyValDescriptor(project, ref, init)
   }
 
   private def isInitializedScala2(ref: ObjectReference, field: Field, allFields: mutable.Buffer[Field]): Boolean = {
@@ -78,8 +78,8 @@ private object LazyValDescriptor {
   }
 }
 
-private class FieldLazyValDescriptor(project: Project, ref: ObjectReference, field: Field, init: Method)
-  extends FieldDescriptorImpl(project, ref, field) {
+private class FieldLazyValDescriptor(project: Project, ref: ObjectReference, init: Method)
+  extends ValueDescriptorImpl(project) with DescriptorWithParentObject {
 
   override def getName: String = init.name()
 
@@ -87,22 +87,23 @@ private class FieldLazyValDescriptor(project: Project, ref: ObjectReference, fie
 
   override def getRenderer(process: DebugProcessImpl): CompletableFuture[NodeRenderer] =
     getRenderer(getType, process)
+
+  override def calcValue(evaluationContext: EvaluationContextImpl): Value =
+    evaluationContext.getDebugProcess.invokeMethod(evaluationContext, ref, init, Collections.emptyList())
+
+  override def getDescriptorEvaluation(context: DebuggerContext): PsiExpression =
+    throw new EvaluateException("Lazy val evaluation is not supported")
+
+  override def getObject: ObjectReference = ref
 }
 
-private final class NotInitializedFieldLazyValDescriptor(project: Project, ref: ObjectReference, field: Field, init: Method)
-  extends FieldLazyValDescriptor(project, ref, field, init) {
+private final class NotInitializedFieldLazyValDescriptor(project: Project, ref: ObjectReference, init: Method)
+  extends FieldLazyValDescriptor(project, ref, init) {
 
   OnDemandRenderer.ON_DEMAND_CALCULATED.set(this, false)
   setOnDemandPresentationProvider { node =>
     val typeName = init.returnTypeName()
-    node.setPresentation(icon, typeName, DebuggerBundle.message("lazy.val.not.initialized"), false)
-  }
-
-  private val icon: Icon = {
-    var base = AllIcons.Nodes.Field
-    if (field.isFinal) base = LayeredIcon.layeredIcon(Array(base, AllIcons.Nodes.FinalMark))
-    if (field.isStatic) base = LayeredIcon.layeredIcon(Array(base, AllIcons.Nodes.StaticMark))
-    base
+    node.setPresentation(AllIcons.Debugger.Value, typeName, DebuggerBundle.message("lazy.val.not.initialized"), false)
   }
 }
 
