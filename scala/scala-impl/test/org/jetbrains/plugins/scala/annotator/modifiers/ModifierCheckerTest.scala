@@ -92,7 +92,7 @@ abstract class ModifierCheckerTestBase extends SimpleTestCase {
       """private private object A
         |""".stripMargin)
     )(
-      Error("private", ScalaBundle.message("illegal.modifiers.combination", "private", "private")),
+      Error("private", ScalaBundle.message("modifier.is.duplicated", "private")),
     )
   }
 
@@ -101,7 +101,7 @@ abstract class ModifierCheckerTestBase extends SimpleTestCase {
       """final final object A
         |""".stripMargin)
     )(
-      Error("final", ScalaBundle.message("illegal.modifiers.combination", "final", "final")),
+      Error("final", ScalaBundle.message("modifier.is.duplicated", "final")),
     )
   }
 }
