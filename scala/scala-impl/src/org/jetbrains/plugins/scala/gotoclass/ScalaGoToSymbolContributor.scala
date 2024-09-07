@@ -77,8 +77,10 @@ class ScalaGoToSymbolContributor extends GotoClassContributor with PossiblyDumbA
     }
   }
 
+  import org.jetbrains.plugins.scala.extensions.PsiMemberExt
+
   override def getQualifiedName(item: NavigationItem): String = item match {
-    case clazz: ScTypeDefinition => clazz.qualifiedName
+    case member: ScMember => member.qualifiedNameOpt.orNull
     case named: ScNamedElement => named.name
     case _ => null
   }
