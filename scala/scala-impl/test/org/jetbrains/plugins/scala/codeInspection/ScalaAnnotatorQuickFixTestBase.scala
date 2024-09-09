@@ -32,6 +32,17 @@ abstract class ScalaAnnotatorQuickFixTestBase extends ScalaLightCodeInsightFixtu
     myFixture.checkResult(expectedFileText.withNormalizedSeparator.pipeIf(trimExpectedText)(_.trim), true)
   }
 
+  protected def testQuickFixes(text: String, expected: String, hint: String, trimExpectedText: Boolean = true): Unit = {
+    val actions = doFindQuickFixes(text, hint, failOnEmptyErrors = true)
+
+    executeWriteActionCommand() {
+      actions.foreach(_.invoke(getProject, getEditor, getFile))
+    }(getProject)
+
+    val expectedFileText = createTestText(expected)
+    myFixture.checkResult(expectedFileText.withNormalizedSeparator.pipeIf(trimExpectedText)(_.trim), true)
+  }
+
   protected def testQuickFixAllInFile(text: String, expected: String, hint: String): Unit =
     testQuickFixAllInFile(text, expected, Seq(hint))
 
