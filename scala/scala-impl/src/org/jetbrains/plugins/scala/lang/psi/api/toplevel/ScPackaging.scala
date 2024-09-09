@@ -4,7 +4,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.{ScBegin, ScPackageLike}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScOptionalBracesOwner, ScStableCodeReference}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaredElementsHolder
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScExtension}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 
 trait ScPackaging extends ScImportsHolder
@@ -72,6 +72,11 @@ trait ScPackaging extends ScImportsHolder
 
   def immediateMembers: Seq[ScMember]
 
+  def immediateExtensions: Seq[ScExtension]
+
   def members: Seq[ScMember] =
     immediateMembers ++ packagings.flatMap(_.members)
+
+  def extensions: Seq[ScExtension] =
+    immediateExtensions ++ packagings.flatMap(_.extensions)
 }

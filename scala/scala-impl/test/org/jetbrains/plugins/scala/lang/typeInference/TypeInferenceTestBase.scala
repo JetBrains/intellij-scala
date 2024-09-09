@@ -7,6 +7,7 @@ import com.intellij.openapi.vfs.CharsetToolkit
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.annotator.{Message, ScalaHighlightingTestLike}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
+import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.util.{PsiFileTestUtil, TestUtils}
@@ -33,13 +34,14 @@ abstract class TypeInferenceTestBase
     doTest()
   }
 
-  override def configureFromFileText(fileName: String, fileText: Option[String]): ScalaFile = {
-    val text = fileText.getOrElse {
+  override def configureFromFileText(fileName: String, fileTextOpt: Option[String]): ScalaFile = {
+    val fileText = fileTextOpt.getOrElse {
       val filePath = folderPath + fileName
       val ioFile: File = new File(filePath)
       FileUtil.loadFile(ioFile, CharsetToolkit.UTF8)
     }
-    configureFromFileText(ScalaFileType.INSTANCE, StringUtil.convertLineSeparators(text.trim))
+    val fileTextFinal = fileText.trim.withNormalizedSeparator
+    configureFromFileText(ScalaFileType.INSTANCE, fileTextFinal)
     getFile.asInstanceOf[ScalaFile]
   }
 

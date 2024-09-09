@@ -24,12 +24,9 @@ class SetConformanceTest_2_12 extends SetConformanceTestBase {
          |}
       """.stripMargin)
   }
-}
 
-class SetConformanceTest_2_12_Failing extends SetConformanceTestBase_Failing {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_12
-
-  def testSCL11139(): Unit = checkTextHasNoErrors(
+  //TODO: replace with "checkTextHasNoErrors" when SCL-11139  is fixed
+  def testSCL11139(): Unit = checkErrorsText(
     s"""
        |import scala.reflect.Manifest
        |object App {
@@ -50,6 +47,7 @@ class SetConformanceTest_2_12_Failing extends SetConformanceTestBase_Failing {
        |  }
        |}
        |//true
-    """.stripMargin)
-
+    """.stripMargin,
+    """Error(flatMap,Cannot resolve overloaded method 'flatMap')"""
+  )
 }

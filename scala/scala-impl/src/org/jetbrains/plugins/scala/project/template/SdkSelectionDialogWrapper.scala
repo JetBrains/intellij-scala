@@ -198,9 +198,9 @@ object SdkSelectionDialogWrapper {
   private def validateSdk(descriptor: ScalaSdkDescriptor): Either[SdkValidationError, Unit] = {
     for {
       _ <- assertNoDuplicates(descriptor.compilerClasspath, NlsString(ScalaBundle.message("scala.sdk.component.name.compiler.classpath")))
-      _ <- assertNoDuplicates(descriptor.compilerClasspath, NlsString(ScalaBundle.message("scala.sdk.component.name.library")))
-      _ <- assertNoDuplicates(descriptor.compilerClasspath, NlsString(ScalaBundle.message("scala.sdk.component.name.library.source")))
-      _ <- assertNoDuplicates(descriptor.compilerClasspath, NlsString(ScalaBundle.message("scala.sdk.component.name.library.scaladoc")))
+      _ <- assertNoDuplicates(descriptor.libraryFiles, NlsString(ScalaBundle.message("scala.sdk.component.name.library")))
+      _ <- assertNoDuplicates(descriptor.sourceFiles, NlsString(ScalaBundle.message("scala.sdk.component.name.library.source")))
+      _ <- assertNoDuplicates(descriptor.docFiles, NlsString(ScalaBundle.message("scala.sdk.component.name.library.scaladoc")))
     } yield ()
   }
 

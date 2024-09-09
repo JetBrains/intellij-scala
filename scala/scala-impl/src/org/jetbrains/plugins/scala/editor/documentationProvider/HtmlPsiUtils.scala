@@ -63,18 +63,16 @@ private [documentationProvider] object HtmlPsiUtils {
     }
   }
 
+
   //TODO: defLinkHighlight is a misleading name! rename it
-  def classLinkWithLabel(clazz: PsiClass,
-                         label: String,
-                         defLinkHighlight: Boolean,
-                         addCodeTag: Boolean,
-                         isAnnotation: Boolean = false,
-                         qualNameToType: Map[String, StdType] = Map.empty): String = {
-    val attributesKey =
-      if (defLinkHighlight) None
-      else if (isAnnotation) Some(DefaultHighlighter.ANNOTATION)
-      else Some(ScalaColorsSchemeUtils.textAttributesKey(clazz, qualNameToType = qualNameToType))
-    psiElementLink(clazz.qualifiedName, label, attributesKey = attributesKey, addCodeTag = addCodeTag)
+  def classLinkWithLabel(
+    clazz: PsiClass,
+    label: String,
+    addCodeTag: Boolean,
+    qualNameToType: Map[String, StdType] = Map.empty
+  ): String = {
+    val attributesKey = ScalaColorsSchemeUtils.textAttributesKey(clazz, qualNameToType = qualNameToType)
+    psiElementLink(clazz.qualifiedName, label, attributesKey = Some(attributesKey), addCodeTag = addCodeTag)
   }
 
   def withStyledSpan(text: String, attributesKey: TextAttributesKey): String =

@@ -9,7 +9,8 @@ import com.intellij.testFramework.{NeedsIndex, PlatformTestUtil}
 import com.intellij.util.concurrency.Semaphore
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithAllIndexingModes, RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithAllIndexingModes}
 import org.junit.Assert._
 import org.junit.runner.RunWith
 
@@ -71,14 +72,7 @@ abstract class GoToClassAndSymbolTestBase extends GoToTestBase {
   )
 }
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
-@RunWithAllIndexingModes
-@RunWithScalaVersions(Array(
-  TestScalaVersion.Scala_2_13,
-  TestScalaVersion.Scala_3_Latest,
-))
-class GoToClassAndSymbolTest extends GoToClassAndSymbolTestBase {
-  override protected def loadScalaLibrary = false
+abstract class GoToClassAndSymbolCommonTests extends GoToClassAndSymbolTestBase {
 
   @NeedsIndex.Full
   def testTrait(): Unit = {
@@ -113,9 +107,9 @@ class GoToClassAndSymbolTest extends GoToClassAndSymbolTestBase {
   @NeedsIndex.Full
   def testPackageObject(): Unit = {
     myFixture.addFileToProject("foo/somePackageName/package.scala",
-    """package foo
-      |
-      |package object somePackageName
+      """package foo
+        |
+        |package object somePackageName
     """.stripMargin)
 
     val elements = gotoClassElements("someP")
@@ -143,6 +137,49 @@ class GoToClassAndSymbolTest extends GoToClassAndSymbolTestBase {
       (is[ScTrait], "FooTrait"),
       (is[ScFunction], "fooMethod"),
       (is[ScFunction], "fooMethod")
+    )
+  }
+
+  @NeedsIndex.Full
+  def testGoToSymbolWithPackagePrefix_ShouldNotContainLocalDefinitions(): Unit = {
+    myFixture.addFileToProject("GoToSymbolWithPackagePrefix.scala",
+      """package org.example
+        |
+        |def myTopLevelDef(): Unit = {
+        |  class MyClass
+        |  object MyObject
+        |  trait MyTrait
+        |  enum MyEnum { case MyCase }
+        |
+        |  val myVal1 = 1
+        |  val (myVal2, myVal3) = (2, 3)
+        |
+        |  var myVar1 = 1
+        |  var (myVar2, myVar3) = (2, 3)
+        |
+        |  def myFunction: String = "42"
+        |
+        |  extension (s: String)
+        |    def myExtension: String = s
+        |
+        |  given myGivenAlias: String = "42"
+        |  given Short = 42
+        |  given myGivenDefinition: AnyRef with {}
+        |
+        |  type MyAlias = String
+        |}
+        |""".stripMargin)
+
+    val expectedNames = Seq(
+      "org.example.myTopLevelDef",
+    )
+
+    val elements = gotoSymbolElements("org.example.my")
+    val actualNames = elements.map(actualName).toSeq
+
+    assertCollectionEquals(
+      expectedNames.sorted,
+      actualNames.sorted
     )
   }
 
@@ -210,5 +247,76 @@ class GoToClassAndSymbolTest extends GoToClassAndSymbolTestBase {
 
     checkContainExpected(elements, (is[ScClass], "test.:::"), (is[ScFunction], ":::"))
     checkSize(elements, 2)
+  }
+}
+
+@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWithAllIndexingModes
+class GoToClassAndSymbolTest_Scala213 extends GoToClassAndSymbolCommonTests {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
+
+  override protected def loadScalaLibrary = false
+}
+
+@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWithAllIndexingModes
+class GoToClassAndSymbolTest_Scala3 extends GoToClassAndSymbolCommonTests {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version.isScala3
+
+  override protected def loadScalaLibrary = false
+
+  @NeedsIndex.Full
+  def testGoToSymbolWithPackagePrefix_ShouldContainAllTopLevelDefinitions(): Unit = {
+    myFixture.addFileToProject("GoToSymbolWithPackagePrefix.scala",
+      """package org.example
+        |
+        |class MyClass
+        |object MyObject
+        |trait MyTrait
+        |enum MyEnum { case MyCase }
+        |
+        |val myVal1 = 1
+        |val (myVal2, myVal3) = (2, 3)
+        |
+        |var myVar1 = 1
+        |var (myVar2, myVar3) = (2, 3)
+        |
+        |def myFunction: String = "42"
+        |
+        |extension (s: String)
+        |  def myExtension: String = s
+        |
+        |given myGivenAlias: String = "42"
+        |given Short = 42
+        |given myGivenDefinition: AnyRef with {}
+        |
+        |type MyAlias = String
+        |""".stripMargin)
+
+    val expectedNames = Seq(
+      "org.example.MyClass",
+      "org.example.MyObject",
+      "org.example.MyTrait",
+      "org.example.MyEnum",
+      "org.example.myVal1",
+      "org.example.myVal2",
+      "org.example.myVal3",
+      "org.example.myFunction",
+      "org.example.myExtension",
+      "org.example.myGivenAlias",
+      "org.example.given_Short",
+      "org.example.myGivenDefinition",
+      "org.example.MyAlias",
+    )
+
+    val elements = gotoSymbolElements("org.example.my")
+    val actualNames = elements.map(actualName).toSeq
+
+    assertCollectionEquals(
+      expectedNames.sorted,
+      actualNames.sorted
+    )
   }
 }

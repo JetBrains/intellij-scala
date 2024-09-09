@@ -107,9 +107,10 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
   }
 
   private def hasSameScalaKind(other: PsiClass) = (this, other) match {
-    case (_: ScTrait, _: ScTrait)
-            | (_: ScObject, _: ScObject)
-            | (_: ScClass, _: ScClass) => true
+    case (_: ScTrait, _: ScTrait) |
+         (_: ScObject, _: ScObject) |
+         (_: ScClass, _: ScClass) |
+         (_: ScGivenDefinition, _: ScGivenDefinition) => true
     case _ => false
   }
 
@@ -117,20 +118,33 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
     val classParent = PsiTreeUtil.getParentOfType(this, classOf[ScTypeDefinition], true)
     val name = this.name
     if (classParent == null) {
-      val classes: Array[PsiClass] = getContainingFile.getNavigationElement match {
+      val containingFile = getContainingFile
+      val fileNavigationElement = containingFile.getNavigationElement
+      val classes: Array[PsiClass] = fileNavigationElement match {
         case o: ScalaFile => o.typeDefinitions.toArray
         case o: PsiClassOwner => o.getClasses
       }
       val classesIterator = classes.iterator
       while (classesIterator.hasNext) {
         val c = classesIterator.next()
-        if (name == c.name && hasSameScalaKind(c)) return c
+        val className = c.name
+        val matches = name == className && hasSameScalaKind(c) || (c match {
+          //A "legacy" package object has the name `package`.
+          //However, when we decompile its class file, we use the package name.
+          //Thus, the condition "myName == className" returns false.
+          //Real world example: `scala.sys.process` package object in scala 2.13 (yes, they use "legacy" naming for some reason)
+          case o: ScObject => o.isPackageObjectLegacy && this.isPackageObject
+          case _ => false
+        })
+        if (matches)
+          return c
       }
     } else {
       val parentSourceMirror = classParent.asInstanceOf[ScTypeDefinitionImpl[_]].getSourceMirrorClass
       parentSourceMirror match {
-        case td: ScTypeDefinitionImpl[_] => for (i <- td.typeDefinitions if name == i.name && hasSameScalaKind(i))
-          return i
+        case td: ScTypeDefinitionImpl[_] =>
+          for (i <- td.typeDefinitions if name == i.name && hasSameScalaKind(i))
+            return i
         case _ =>
       }
     }

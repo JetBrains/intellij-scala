@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypedDeclaration, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScImportableDeclarationsOwner
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScReferencePatternImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFieldIdStub
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
@@ -47,4 +48,7 @@ class ScFieldIdImpl private(stub: ScFieldIdStub, node: ASTNode)
   override def isVar: Boolean = nameContext.isInstanceOf[ScVariable]
 
   override def isVal: Boolean = nameContext.isInstanceOf[ScValue]
+
+  override def getNavigationElement: PsiElement =
+    ScReferencePatternImpl.getNavigationElementForValOrVarId(this).getOrElse(this)
 }

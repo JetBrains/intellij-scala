@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.util
 
 import com.intellij.openapi.diagnostic.ControlFlowException
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 
 object LiteralEvaluationUtil {
 
@@ -128,10 +127,20 @@ object LiteralEvaluationUtil {
     }
   }
 
-  def evaluateConstInfix(left: Any, right: Any,
-                         name: String,
-                         allowToStringConversion: Boolean = false): Any = {
-    import SyntheticClasses._
+  private val numeric_comp_ops: List[String] = "==" :: "!=" :: "<" :: ">" :: "<=" :: ">=" :: Nil
+  private val numeric_arith_ops: List[String] = "+" :: "-" :: "*" :: "/" :: "%" :: Nil
+  private val bool_bin_short_circuit_ops: List[String] = "&&" :: "||" :: Nil
+  private val bool_other_bin_ops: List[String] = "&" :: "|" :: "==" :: "!=" :: "^" :: Nil
+  private val bool_bin_ops: List[String] = bool_bin_short_circuit_ops ++ bool_other_bin_ops
+  private val bitwise_bin_ops: List[String] = "&" :: "|" :: "^" :: Nil
+  private val bitwise_shift_ops: List[String] = "<<" :: ">>" :: ">>>" :: Nil
+
+  def evaluateConstInfix(
+    left: Any,
+    right: Any,
+    name: String,
+    allowToStringConversion: Boolean = false
+  ): Any = {
     val isNumericComp = numeric_comp_ops.contains(name)
     val isArithOp = numeric_arith_ops.contains(name)
     val isBitwiseOp = bitwise_bin_ops.contains(name)

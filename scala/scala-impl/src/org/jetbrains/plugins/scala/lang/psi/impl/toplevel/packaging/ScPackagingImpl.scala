@@ -15,10 +15,12 @@ import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ToNullSafe}
 import org.jetbrains.plugins.scala.lang.TokenSets.{MEMBERS, TYPE_DEFINITIONS}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.EXTENSION
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScExtension
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScBegin, ScPackageLike, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScPackageLike, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaStubBasedElementImpl}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPackagingStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
@@ -158,6 +160,9 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
 
   override def immediateMembers: Seq[ScMember] =
     getStubOrPsiChildren(MEMBERS, JavaArrayFactoryUtil.ScMemberFactory).toSeq
+
+  override def immediateExtensions: Seq[ScExtension] =
+    getStubOrPsiChildren(EXTENSION, JavaArrayFactoryUtil.ScExtensionFactory).toSeq
 
   private def findPackage(name: String): Option[ScPackageImpl] = {
     val found = JavaPsiFacade.getInstance(getProject).findPackage(name)
