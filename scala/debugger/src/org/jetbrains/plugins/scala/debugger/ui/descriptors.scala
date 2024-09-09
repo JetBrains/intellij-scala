@@ -26,15 +26,17 @@ private object LazyValDescriptor {
     val allFields = ref.referenceType().allFields().asScala
     val allMethods = ref.referenceType().allMethods().asScala
     val isScala3 = allFields.exists(_.name().startsWith(ScalaClassRenderer.Offset))
-    val isInitializedFunction = if (isScala3) isInitializedScala3 _ else isInitializedScala2 _
-    val findInit = if (isScala3) findInitializerScala3 _ else findInitializerScala2 _
-    val isInitialized = isInitializedFunction(ref, field, allFields)
-    val init = findInit(field, allMethods)
-    if (isInitialized) new FieldLazyValDescriptor(project, ref, init)
-    else new NotInitializedFieldLazyValDescriptor(project, ref, init)
+    val createDescriptor = if (isScala3) createLazyValDescriptorScala3 _ else createLazyValDescriptorScala2 _
+    createDescriptor(project, ref, field, allFields, allMethods)
   }
 
-  private def isInitializedScala2(ref: ObjectReference, field: Field, allFields: mutable.Buffer[Field]): Boolean = {
+  private def createLazyValDescriptorScala2(
+    project: Project,
+    ref: ObjectReference,
+    field: Field,
+    allFields: mutable.Buffer[Field],
+    allMethods: mutable.Buffer[Method]
+  ): NodeDescriptor = {
     val lazyValFields = allFields.filter(ScalaClassRenderer.isLazyVal(ref, _))
     val index = lazyValFields.indexOf(field)
     val bitmapNumber = index / 64
@@ -44,26 +46,40 @@ private object LazyValDescriptor {
     val bitmapField = allFields.find(_.name() == bitmapName).getOrElse(throw EvaluationException(DebuggerBundle.message("could.not.find.bitmap.field", bitmapName)))
     val bitmapValue = ref.getValue(bitmapField).asInstanceOf[PrimitiveValue].longValue()
     val bitmapMask = 1L << bitmapExponent
-    (bitmapValue & bitmapMask) != 0
+    val isInitialized = (bitmapValue & bitmapMask) != 0
+    val init = findInitializerScala2(field, allMethods)
+    if (isInitialized) new FieldLazyValDescriptor(project, ref, init)
+    else new NotInitializedFieldLazyValDescriptor(project, ref, init)
   }
 
-  private def isInitializedScala3(ref: ObjectReference, field: Field, allFields: mutable.Buffer[Field]): Boolean = {
+  private def createLazyValDescriptorScala3(
+    project: Project,
+    ref: ObjectReference,
+    field: Field,
+    allFields: mutable.Buffer[Field],
+    allMethods: mutable.Buffer[Method]
+  ): NodeDescriptor = {
     val lazyValFields = allFields.filter(ScalaClassRenderer.isLazyVal(ref, _))
     val index = lazyValFields.indexOf(field)
     val bitmapIndex = index / 32
     val bitmapExponent = index % 32
     val bitmapName = s"${bitmapIndex}bitmap$$"
     val bitmapField = allFields.find(_.name().contains(bitmapName))
+    val init = findInitializerScala3(field, allMethods)
 
     bitmapField match {
       case Some(bitmap) =>
         // Old lazy val encoding, Scala 3.0, 3.1 and 3.2
         val bitmapValue = ref.getValue(bitmap).asInstanceOf[PrimitiveValue].longValue()
         val bitmapMask = (1L << bitmapExponent) + (1L << (bitmapExponent + 1))
-        (bitmapValue & bitmapMask) == bitmapMask
+        val isInitialized = (bitmapValue & bitmapMask) == bitmapMask
+        if (isInitialized) new FieldLazyValDescriptor(project, ref, init)
+        else new NotInitializedFieldLazyValDescriptor(project, ref, init)
       case None =>
         // New lazy val encoding, Scala 3.3+
-        ref.getValue(field) ne null
+        val isInitialized = ref.getValue(field) ne null
+        if (isInitialized) new FieldLazyValDescriptor(project, ref, init)
+        else new NotInitializedFieldLazyValDescriptor(project, ref, init)
     }
   }
 
