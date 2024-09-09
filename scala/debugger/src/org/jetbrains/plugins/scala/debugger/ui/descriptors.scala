@@ -23,12 +23,12 @@ import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
 private object LazyValDescriptor {
-  def create(project: Project, ref: ObjectReference, field: Field): NodeDescriptor = {
+  def create(project: Project, ref: ObjectReference, field: Field, evaluationContext: EvaluationContextImpl): NodeDescriptor = {
     val allFields = ref.referenceType().allFields().asScala
     val allMethods = ref.referenceType().allMethods().asScala
     val isScala3 = allFields.exists(_.name().startsWith(ScalaClassRenderer.Offset))
-    val createDescriptor = if (isScala3) createLazyValDescriptorScala3 _ else createLazyValDescriptorScala2 _
-    createDescriptor(project, ref, field, allFields, allMethods)
+    if (isScala3) createLazyValDescriptorScala3(project, ref, field, allFields, allMethods, evaluationContext)
+    else createLazyValDescriptorScala2(project, ref, field, allFields, allMethods)
   }
 
   private def createLazyValDescriptorScala2(
@@ -50,7 +50,7 @@ private object LazyValDescriptor {
     val isInitialized = (bitmapValue & bitmapMask) != 0
     val init = findInitializerScala2(field, allMethods)
     if (isInitialized) new FieldLazyValDescriptor(project, ref, init)
-    else new NotInitializedFieldLazyValDescriptor(project, ref, init)
+    else new NotInitializedFieldLazyValDescriptor(project, ref, init, showInitializeAction = true)
   }
 
   private def createLazyValDescriptorScala3(
@@ -58,7 +58,8 @@ private object LazyValDescriptor {
     ref: ObjectReference,
     field: Field,
     allFields: mutable.Buffer[Field],
-    allMethods: mutable.Buffer[Method]
+    allMethods: mutable.Buffer[Method],
+    evaluationContext: EvaluationContextImpl
   ): NodeDescriptor = {
     val lazyValFields = allFields.filter(ScalaClassRenderer.isLazyVal(ref, _))
     val index = lazyValFields.indexOf(field)
@@ -75,11 +76,22 @@ private object LazyValDescriptor {
         val bitmapMask = (1L << bitmapExponent) + (1L << (bitmapExponent + 1))
         val isInitialized = (bitmapValue & bitmapMask) == bitmapMask
         if (isInitialized) new FieldLazyValDescriptor(project, ref, init)
-        else new NotInitializedFieldLazyValDescriptor(project, ref, init)
+        else new NotInitializedFieldLazyValDescriptor(project, ref, init, showInitializeAction = true)
       case None =>
         // New lazy val encoding, Scala 3.3+
         ref.getValue(field) match {
-          case null => new NotInitializedFieldLazyValDescriptor(project, ref, init)
+          case null =>
+            val frameProxy = evaluationContext.getFrameProxy
+            val isInitializable =
+              if (frameProxy eq null)
+                false
+              else
+                frameProxy.threadProxy().frames().asScala.forall { frame =>
+                  val methodName = frame.location().method().name()
+                  !methodName.contains("$lzyINIT")
+                }
+
+            new NotInitializedFieldLazyValDescriptor(project, ref, init, showInitializeAction = isInitializable)
           case obj: ObjectReference =>
             val name = obj.referenceType().name()
             name match {
@@ -122,13 +134,16 @@ private class FieldLazyValDescriptor(project: Project, ref: ObjectReference, ini
   override def getObject: ObjectReference = ref
 }
 
-private final class NotInitializedFieldLazyValDescriptor(project: Project, ref: ObjectReference, init: Method)
+private final class NotInitializedFieldLazyValDescriptor(project: Project, ref: ObjectReference, init: Method, showInitializeAction: Boolean)
   extends FieldLazyValDescriptor(project, ref, init) {
 
   OnDemandRenderer.ON_DEMAND_CALCULATED.set(this, false)
   setOnDemandPresentationProvider { node =>
     val typeName = init.returnTypeName()
     node.setPresentation(AllIcons.Debugger.Value, typeName, DebuggerBundle.message("lazy.val.not.initialized"), false)
+    if (showInitializeAction) {
+      node.setFullValueEvaluator(OnDemandRenderer.createFullValueEvaluator(DebuggerBundle.message("initialize.lazy.val")))
+    }
   }
 }
 

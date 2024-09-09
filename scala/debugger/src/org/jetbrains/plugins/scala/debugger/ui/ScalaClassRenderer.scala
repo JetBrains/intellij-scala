@@ -3,7 +3,7 @@ package ui
 
 import com.intellij.debugger.DebuggerContext
 import com.intellij.debugger.engine.DebuggerUtils
-import com.intellij.debugger.engine.evaluation.EvaluationContext
+import com.intellij.debugger.engine.evaluation.{EvaluationContext, EvaluationContextImpl}
 import com.intellij.debugger.impl.DebuggerUtilsAsync
 import com.intellij.debugger.settings.NodeRendererSettings
 import com.intellij.debugger.ui.impl.watch.FieldDescriptorImpl
@@ -55,7 +55,7 @@ class ScalaClassRenderer extends ClassRenderer {
       } else {
         val nodes = toShow.map { field =>
           val desc =
-            if (isLazyVal(ref, field)) LazyValDescriptor.create(project, ref, field)
+            if (isLazyVal(ref, field)) LazyValDescriptor.create(project, ref, field, context.asInstanceOf[EvaluationContextImpl])
             else new FieldDescriptorImpl(project, ref, field)
           nodeManager.createNode(desc, context)
         }
