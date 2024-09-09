@@ -18,7 +18,7 @@ class Scala3UnusedDeclarationQuickFixTest extends Scala3UnusedDeclarationInspect
          |  def ext1: Int = i + 0
          |0.ext1
          |""".stripMargin
-    testQuickFix(text, expected, removeUnusedElementHint)
+    testQuickFixes(text, expected, removeUnusedElementHint)
   }
 
   def test_enum(): Unit = testQuickFix("enum Foo { case Bar }", "", removeUnusedElementHint)
