@@ -60,7 +60,6 @@ lazy val scalaCommunity: sbt.Project =
       testingSupport % "test->test;compile->compile",
       devKitIntegration % "test->test;compile->compile",
       gradleIntegration % "test->test;compile->compile",
-      intellijBspIntegration % "test->test;compile->compile",
       intelliLangIntegration % "test->test;compile->compile",
       mavenIntegration % "test->test;compile->compile",
       junitIntegration % "test->test;compile->compile",
@@ -695,13 +694,6 @@ lazy val gradleIntegration =
         "com.intellij.gradle",     // required by Android
         "org.intellij.groovy",     // required by Gradle
         "com.intellij.properties").map(_.toPlugin) // required by Gradle
-    )
-
-lazy val intellijBspIntegration =
-  newProject("intellij-bsp", file("scala/integration/intellij-bsp"))
-    .dependsOn(scalaImpl)
-    .settings(
-      intellijPlugins += "org.jetbrains.bsp::nightly".toPlugin
     )
 
 lazy val intelliLangIntegration = newProject(
