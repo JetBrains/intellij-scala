@@ -12,6 +12,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiExpression
 import com.intellij.ui.LayeredIcon
 import com.sun.jdi._
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.debugger.DebuggerBundle
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 
@@ -77,9 +78,17 @@ private object LazyValDescriptor {
         else new NotInitializedFieldLazyValDescriptor(project, ref, init)
       case None =>
         // New lazy val encoding, Scala 3.3+
-        val isInitialized = ref.getValue(field) ne null
-        if (isInitialized) new FieldLazyValDescriptor(project, ref, init)
-        else new NotInitializedFieldLazyValDescriptor(project, ref, init)
+        ref.getValue(field) match {
+          case null => new NotInitializedFieldLazyValDescriptor(project, ref, init)
+          case obj: ObjectReference =>
+            val name = obj.referenceType().name()
+            name match {
+              case "scala.runtime.LazyVals$Evaluating$" | "scala.runtime.LazyVals$Waiting" =>
+                new IntermediateStateFieldLazyValDescriptor(project, ref, init, DebuggerBundle.message("lazy.val.being.initialized"))
+              case _ =>
+                new FieldLazyValDescriptor(project, ref, init)
+            }
+        }
     }
   }
 
@@ -120,6 +129,16 @@ private final class NotInitializedFieldLazyValDescriptor(project: Project, ref: 
   setOnDemandPresentationProvider { node =>
     val typeName = init.returnTypeName()
     node.setPresentation(AllIcons.Debugger.Value, typeName, DebuggerBundle.message("lazy.val.not.initialized"), false)
+  }
+}
+
+private final class IntermediateStateFieldLazyValDescriptor(project: Project, ref: ObjectReference, init: Method, @Nls presentation: String)
+  extends FieldLazyValDescriptor(project, ref, init) {
+
+  OnDemandRenderer.ON_DEMAND_CALCULATED.set(this, false)
+  setOnDemandPresentationProvider { node =>
+    val typeName = init.returnTypeName()
+    node.setPresentation(AllIcons.Debugger.Value, typeName, presentation, false)
   }
 }
 
