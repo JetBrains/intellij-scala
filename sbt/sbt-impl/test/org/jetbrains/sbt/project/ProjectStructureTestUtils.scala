@@ -13,8 +13,12 @@ import org.junit.Assert.{assertEquals, fail}
 object ProjectStructureTestUtils {
 
   private val systemHome = SystemProperties.getUserHome
-  private val ivyCacheRootHome = withoutPathSuffix(systemHome) + "/.ivy2/cache"
-  private val coursierCacheRoot = withoutPathSuffix(CoursierPaths.cacheDirectory.getAbsolutePath)
+  private val ivyCacheRootHome =
+    sys.env.get("TC_SBT_IVY_HOME").map(p => s"$p/cache")
+      .getOrElse(withoutPathSuffix(systemHome) + "/.ivy2/cache")
+  private val coursierCacheRoot =
+    sys.env.get("TC_SBT_COURSIER_HOME").map(p => s"$p/cache")
+      .getOrElse(withoutPathSuffix(CoursierPaths.cacheDirectory.getAbsolutePath))
 
   private def withoutPathSuffix(path: String) =
     path.stripSuffix("/").stripSuffix("\\")
