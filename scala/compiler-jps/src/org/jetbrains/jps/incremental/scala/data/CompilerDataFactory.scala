@@ -1,5 +1,6 @@
 package org.jetbrains.jps.incremental.scala.data
 
+import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.util.Key
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.incremental.CompileContext
@@ -117,7 +118,13 @@ object CompilerDataFactory
 
     val bootOptions = bootClasspathOptions(hasOldScala(modules))
     val semanticDBOptions = semanticDbOptionsFor(configuredOptions, chunk)
-    bootOptions ++ semanticDBOptions ++ configuredOptions
+
+    val pluginJpsRoot = new File(PathManager.getJarPathForClass(getClass)).getParentFile
+
+    bootOptions ++ semanticDBOptions ++ configuredOptions ++ Seq(
+      "-Xplugin:" + new File(pluginJpsRoot, "compiler-plugin.jar").getAbsolutePath, // TODO quote
+      "-Xplugin-require:compiler-plugin"
+    )
   }
 
   private def bootClasspathOptions(hasOldScala: Boolean): Seq[String] =
