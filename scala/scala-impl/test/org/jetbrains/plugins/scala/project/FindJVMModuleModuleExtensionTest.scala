@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.project
 
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike
+import org.jetbrains.sbt.project.{SbtCachesSetupUtil, SbtExternalSystemImportingTestLike}
 import org.junit.Assert.{assertNotNull, assertTrue}
 import com.intellij.openapi.module.Module
 import org.jetbrains.annotations.Nullable
@@ -13,6 +13,7 @@ class FindJVMModuleModuleExtensionTest extends SbtExternalSystemImportingTestLik
 
   override def setUp(): Unit = {
     super.setUp()
+    SbtCachesSetupUtil.setupCoursierAndIvyCache(getProject)
     importProject(false)
   }
 

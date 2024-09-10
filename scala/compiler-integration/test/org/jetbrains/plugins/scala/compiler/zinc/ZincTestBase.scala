@@ -15,14 +15,14 @@ import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
 import org.jetbrains.sbt.Sbt
-import org.jetbrains.sbt.project.SbtProjectSystem
+import org.jetbrains.sbt.project.{SbtCachesSetupUtil, SbtProjectSystem}
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.junit.Assert.{assertNotNull, assertTrue}
 
 import java.io.File
 import java.nio.file.Path
 
-abstract class ZincTestBase(separateProdAndTestSources: Boolean = false) extends ExternalSystemImportingTestCase  {
+abstract class ZincTestBase(separateProdAndTestSources: Boolean = false) extends ExternalSystemImportingTestCase {
 
   override def getExternalSystemId: ProjectSystemId = SbtProjectSystem.Id
 
@@ -59,6 +59,8 @@ abstract class ZincTestBase(separateProdAndTestSources: Boolean = false) extends
       settings.USE_DEFAULT_SDK = false
       res
     }
+
+    SbtCachesSetupUtil.setupCoursierAndIvyCache(getProject)
   }
 
   override def tearDown(): Unit = try {

@@ -36,6 +36,7 @@ abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImporti
   override def setUp(): Unit = {
     super.setUp()
     SbtProjectResolver.processOutputOfLatestStructureDump = ""
+    SbtCachesSetupUtil.setupCoursierAndIvyCache(getProject)
   }
 
   protected def runTest(expected: project, singleContentRootModules: Boolean = true): Unit = {

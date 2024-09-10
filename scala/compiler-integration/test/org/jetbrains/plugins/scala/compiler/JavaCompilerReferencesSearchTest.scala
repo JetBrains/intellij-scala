@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
 import org.jetbrains.sbt.Sbt
-import org.jetbrains.sbt.project.SbtProjectSystem
+import org.jetbrains.sbt.project.{SbtCachesSetupUtil, SbtProjectSystem}
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.junit.Assert.{assertEquals, assertNotNull, assertNull, assertTrue}
 import org.junit.experimental.categories.Category
@@ -63,6 +63,8 @@ abstract class JavaCompilerReferencesSearchTestBase(incrementality: Incrementali
       settings.USE_DEFAULT_SDK = false
       res
     }
+
+    SbtCachesSetupUtil.setupCoursierAndIvyCache(getProject)
 
     createProjectSubDirs("project", "src/main/java")
     createProjectSubFile("project/build.properties",
