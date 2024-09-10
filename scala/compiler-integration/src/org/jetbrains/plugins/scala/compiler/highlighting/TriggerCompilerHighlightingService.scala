@@ -204,7 +204,8 @@ private[scala] object TriggerCompilerHighlightingService {
   def get(project: Project): TriggerCompilerHighlightingService =
     project.getService(classOf[TriggerCompilerHighlightingService])
 
-  private def hasErrors(psiFile: PsiFile): Boolean = inReadAction {
-    psiFile.elements.findByType[PsiErrorElement].isDefined
-  }
+  // TODO Hide PSI parser errors, SCL-23012
+  private def hasErrors(psiFile: PsiFile): Boolean = false //inReadAction {
+//    psiFile.elements.findByType[PsiErrorElement].isDefined
+//  }
 }
