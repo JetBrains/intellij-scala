@@ -5,13 +5,13 @@ import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.incremental.CompileContext
-import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage, CustomBuilderMessage, FileDeletedEvent, ProgressMessage}
+import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage, FileDeletedEvent, ProgressMessage}
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
 import org.jetbrains.jps.incremental.scala.model.JpsSbtExtensionService
 import org.jetbrains.jps.incremental.scala.remote.CompileServerMetrics
 import org.jetbrains.jps.model.module.JpsModule
 import org.jetbrains.plugins.scala.compiler.{CompilationUnitId, CompilerEvent}
-import org.jetbrains.plugins.scala.util.{CompilationId, ObjectSerialization}
+import org.jetbrains.plugins.scala.util.CompilationId
 
 import java.io.File
 import java.util
@@ -21,8 +21,6 @@ import scala.util.Try
 abstract class IdeClient(compilerName: String,
                          context: CompileContext,
                          chunk: ModuleChunk) extends Client {
-
-  import IdeClient._
 
   private var hasErrors = false
   private val compilationId: CompilationId = CompilationId(timestamp = System.nanoTime(), documentVersion = None)
@@ -62,24 +60,24 @@ abstract class IdeClient(compilerName: String,
     // CompilerMessage expects 1-based line and column indices.
     context.processMessage(new CompilerMessage(name, jpsKind, text, sourcePath.orNull,
       -1L, -1L, -1L, line.getOrElse(-1L), column.getOrElse(-1L)))
-    context.processMessage(CompilerEvent.MessageEmitted(compilationId, compilationUnitId, uuid, msg).toCustomMessage)
+    context.processMessage(new Base64BuilderMessage(CompilerEvent.MessageEmitted(compilationId, compilationUnitId, uuid, msg)))
   }
 
   override def compilationStart(): Unit = {
     context.processMessage(new ProgressMessage(JpsBundle.message("compiling.progress.message", chunk.getPresentableShortName)))
-    context.processMessage(CompilerEvent.CompilationStarted(compilationId, compilationUnitId).toCustomMessage)
+    context.processMessage(new Base64BuilderMessage(CompilerEvent.CompilationStarted(compilationId, compilationUnitId)))
   }
 
   override def worksheetOutput(text: String): Unit = ()
 
   override def compilationPhase(name: String): Unit =
-    context.processMessage(CompilerEvent.CompilationPhase(compilationId, compilationUnitId, name).toCustomMessage)
+    context.processMessage(new Base64BuilderMessage(CompilerEvent.CompilationPhase(compilationId, compilationUnitId, name)))
 
   override def compilationUnit(path: String): Unit =
-    context.processMessage(CompilerEvent.CompilationUnit(compilationId, compilationUnitId, path).toCustomMessage)
+    context.processMessage(new Base64BuilderMessage(CompilerEvent.CompilationUnit(compilationId, compilationUnitId, path)))
 
   override def compilationEnd(sources: Set[File]): Unit =
-    context.processMessage(CompilerEvent.CompilationFinished(compilationId, compilationUnitId, sources).toCustomMessage)
+    context.processMessage(new Base64BuilderMessage(CompilerEvent.CompilationFinished(compilationId, compilationUnitId, sources)))
 
   override def processingEnd(): Unit = ()
 
@@ -93,7 +91,7 @@ abstract class IdeClient(compilerName: String,
 //      doneVal <- done
 //    } AggregateProgressLogger.log(context, unitId, doneVal)
     done.foreach { doneVal =>
-      context.processMessage(CompilerEvent.ProgressEmitted(compilationId, compilationUnitId, doneVal).toCustomMessage)
+      context.processMessage(new Base64BuilderMessage(CompilerEvent.ProgressEmitted(compilationId, compilationUnitId, doneVal)))
     }
   }
 
@@ -149,12 +147,4 @@ object IdeClient {
 
   private def shouldUseDisplayModuleNames: Boolean =
     Option(System.getProperty("use.module.display.name")).flatMap(_.toBooleanOption).getOrElse(false)
-
-  private[IdeClient] implicit class CompilerEventExt(private val compilerEvent: CompilerEvent) extends AnyVal {
-    def toCustomMessage: CustomBuilderMessage = new CustomBuilderMessage(
-      CompilerEvent.BuilderId,
-      compilerEvent.eventType.toString,
-      ObjectSerialization.toBase64(compilerEvent)
-    )
-  }
 }
