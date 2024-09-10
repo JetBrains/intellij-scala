@@ -297,7 +297,9 @@ abstract class DependencyManagerBase {
 object DependencyManagerBase {
 
   private val homePrefix: File = sys.props.get("tc.idea.prefix").orElse(Some(SystemProperties.getUserHome)).map(new File(_)).get
-  val ivyHome: File = sys.props.get("sbt.ivy.home").map(new File(_)).orElse(Option(new File(homePrefix, ".ivy2"))).get
+  val ivyHome: File = sys.props.get("sbt.ivy.home")
+    .orElse(sys.env.get("TC_SBT_IVY_HOME").filter(_ => isUnitTestMode))
+    .map(new File(_)).orElse(Option(new File(homePrefix, ".ivy2"))).get
 
   private val fileSystemOnlyIvySettingsURL: URL = {
     val clazz = classOf[DependencyManagerBase]
