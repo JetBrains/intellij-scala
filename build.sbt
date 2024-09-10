@@ -138,11 +138,6 @@ lazy val sbtApi =
 lazy val mill =
   newProject("mill", file("mill"))
     .dependsOn(scalaApi, compilerShared, workspaceEntities, scalaImpl % "test->test;compile->compile")
-//    .enablePlugins(BuildInfoPlugin)
-//    .settings(
-//      buildInfoPackage := "org.jetbrains.sbt.buildinfo",
-//      buildInfoOptions += BuildInfoOption.ConstantValue
-//    )
     .withCompilerPluginIn(scalacPatches)
 
 lazy val codeInsight = newProject(
