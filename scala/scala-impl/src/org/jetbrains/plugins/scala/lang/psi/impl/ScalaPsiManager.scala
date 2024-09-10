@@ -445,7 +445,7 @@ class ScalaPsiManager(implicit val project: Project) extends Disposable {
       else { // TODO Don't cache
         val classes = getCachedFacadeClasses(scope, cleanFqn(fqn))
         val fromScala = ScalaShortNamesCacheManager.getInstance(project).getClassesByFQName(fqn, scope)
-        val scalaSynthetic = SyntheticClasses.get(scope.getProject).findClasses(fqn)
+        val scalaSynthetic = SyntheticClasses.get(project).findClasses(fqn)
         val synthetic = SyntheticClassProducer.getAllClasses(fqn, scope)
 
         val result = Array.concat(fromScala.toArray, classes, synthetic, scalaSynthetic)
