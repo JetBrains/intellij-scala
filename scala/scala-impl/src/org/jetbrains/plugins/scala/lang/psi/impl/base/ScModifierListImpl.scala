@@ -75,12 +75,13 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
   }
 
   override def setModifierProperty(name: String, value: Boolean): Unit = {
+    def findAccessModifiers(): Seq[ScAccessModifier] = this.findChildren[ScAccessModifier]
+    def removeAllAccessModifiers(): Unit = findAccessModifiers().foreach(e => getNode.removeChild(e.getNode))
     checkSetModifierProperty(name, value)
 
     if (name == PsiModifier.PUBLIC) {
       if (value) {
-        setModifierProperty(PsiModifier.PRIVATE, value = false)
-        setModifierProperty(PsiModifier.PROTECTED, value = false)
+        removeAllAccessModifiers()
         return
       }
       else {
@@ -94,8 +95,8 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
     val mod = ScalaModifier.byText(name)
 
     if (value && (mod == ScalaModifier.Private || mod == ScalaModifier.Protected)) {
-      // when we set a new access modifier, we should remove the old one
-      accessModifier.foreach(e => getNode.removeChild(e.getNode))
+      // when we set a new access modifier, we should remove all old ones
+      removeAllAccessModifiers()
     } else if (mod == null || value == modifiers.contains(mod)) {
       return
     }
