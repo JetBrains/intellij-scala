@@ -178,8 +178,7 @@ private final class DocumentCompiler(project: Project) {
       var scalacOptions = CompilerOptions.scalacOptions(module)
       scalacOptions :++= Seq(
         "-Xplugin:" + ScalaPluginJars.compilerPluginJar.getAbsolutePath,
-        "-Xplugin-require:compiler-plugin",
-        "-verbose"
+        "-Xplugin-require:compiler-plugin"
       )
       if (!CompilerOptions.containsStopAfter(scalacOptions)) {
         val stopAfter = module.scalaLanguageLevel match {

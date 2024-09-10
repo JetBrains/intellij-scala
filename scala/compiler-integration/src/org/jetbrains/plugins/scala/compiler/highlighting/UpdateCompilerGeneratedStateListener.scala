@@ -39,7 +39,7 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
 
         CompilerGeneratedStateManager.update(project, newState)
 
-      case CompilerEvent.MessageEmitted(compilationId, _, _, msg) if msg.pointer.isDefined =>
+      case CompilerEvent.MessageEmitted(compilationId, _, _, msg) =>
         for {
           text <- Option(msg.text)
           source <- msg.source
