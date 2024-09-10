@@ -9,7 +9,7 @@ import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.findUsages.factory.{ScalaFindUsagesConfiguration, ScalaFindUsagesHandler, ScalaTypeDefinitionFindUsagesOptions}
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike
+import org.jetbrains.sbt.project.{SbtCachesSetupUtil, SbtExternalSystemImportingTestLike}
 import org.junit.Assert.{assertEquals, assertNotNull, fail}
 
 import scala.collection.mutable
@@ -23,6 +23,7 @@ class FindUsagesInSbtBuildModuleTest extends SbtExternalSystemImportingTestLike 
 
   override def setUp(): Unit = {
     super.setUp()
+    SbtCachesSetupUtil.setupCoursierAndIvyCache(getProject)
     importProject(false)
   }
 

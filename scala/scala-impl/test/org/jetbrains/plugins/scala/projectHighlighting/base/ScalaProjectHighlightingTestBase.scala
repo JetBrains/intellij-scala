@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.projectHighlighting.base
 
 import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
@@ -12,10 +11,9 @@ import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, IdeaTestFixt
 import org.jetbrains.plugins.scala.HighlightingTests
 import org.jetbrains.plugins.scala.performance.FixtureDelegate
 import org.jetbrains.plugins.scala.projectHighlighting.base.AllProjectHighlightingTest.relativePathOf
-import org.jetbrains.plugins.scala.projectHighlighting.base.ScalaProjectHighlightingTestBase.{dumpLogsOnException, patchIvyAndCoursierHomeDirsForSbt}
+import org.jetbrains.plugins.scala.projectHighlighting.base.ScalaProjectHighlightingTestBase.dumpLogsOnException
 import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProgressReporter
-import org.jetbrains.sbt.project.ScalaExternalSystemImportingTestBase
-import org.jetbrains.sbt.settings.SbtSettings
+import org.jetbrains.sbt.project.{SbtCachesSetupUtil, ScalaExternalSystemImportingTestBase}
 import org.junit.Assert.fail
 import org.junit.experimental.categories.Category
 
@@ -141,11 +139,7 @@ abstract class ScalaProjectHighlightingTestBase extends ScalaExternalSystemImpor
     reporter.notify(s"Finished $BuildSystemId setup, starting import")
 
     //patch homes before importing projects
-    patchIvyAndCoursierHomeDirsForSbt(
-      myProject,
-      ivyAndCoursierCachesRootPath = ProjectHighlightingTestUtils.projectsRootPath,
-      reporter
-    )
+    SbtCachesSetupUtil.setupCoursierAndIvyCache(getProject)
 
     Registry.get("ast.loading.filter").setValue(true, getTestRootDisposable)
 
@@ -167,29 +161,6 @@ abstract class ScalaProjectHighlightingTestBase extends ScalaExternalSystemImpor
 }
 
 object ScalaProjectHighlightingTestBase {
-
-  private def patchIvyAndCoursierHomeDirsForSbt(
-    project: Project,
-    ivyAndCoursierCachesRootPath: String,
-    reporter: HighlightingProgressReporter,
-  ): Unit = {
-    //TODO: ensure ivy caches are reused on the server
-    val sbtSettings = SbtSettings.getInstance(project)
-    val ivyHome = s"$ivyAndCoursierCachesRootPath/.ivy_cache"
-    val coursierHome = s"$ivyAndCoursierCachesRootPath/.coursier_cache"
-
-    reporter.notify(
-      s"""Patching Ivy and Coursier home directories:
-         |ivy home      : $ivyHome
-         |coursier home : $coursierHome
-         |""".stripMargin)
-
-    val vmOptionsUpdated = sbtSettings.vmParameters +
-      s" -Dsbt.ivy.home=$ivyHome" +
-      s" -Dsbt.coursier.home=$coursierHome"
-
-    sbtSettings.setVmParameters(vmOptionsUpdated)
-  }
 
   /**
    * This methods basically duplicates log dumping logic from [[com.intellij.testFramework.UsefulTestCase#wrapTestRunnable]].

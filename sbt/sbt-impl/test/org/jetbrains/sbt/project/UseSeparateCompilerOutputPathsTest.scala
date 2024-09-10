@@ -20,6 +20,7 @@ class UseSeparateCompilerOutputPathsTest extends SbtExternalSystemImportingTestL
   override def setUp(): Unit = {
     super.setUp()
     SbtProjectResolver.processOutputOfLatestStructureDump = ""
+    SbtCachesSetupUtil.setupCoursierAndIvyCache(getProject)
   }
 
   private val moduleDirectoryMapping: Map[String, String] = Map(

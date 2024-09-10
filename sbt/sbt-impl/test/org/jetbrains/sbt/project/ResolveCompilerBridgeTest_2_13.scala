@@ -16,6 +16,7 @@ class ResolveCompilerBridgeTest_2_13 extends SbtExternalSystemImportingTestLike 
   override def setUp(): Unit = {
     super.setUp()
     SbtProjectResolver.processOutputOfLatestStructureDump = ""
+    SbtCachesSetupUtil.setupCoursierAndIvyCache(getProject)
   }
 
   def testResolveCompilerBridge(): Unit = {

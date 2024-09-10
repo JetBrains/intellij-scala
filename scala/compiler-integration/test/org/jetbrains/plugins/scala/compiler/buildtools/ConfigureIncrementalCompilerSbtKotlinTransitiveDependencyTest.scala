@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
 import org.jetbrains.sbt.Sbt
-import org.jetbrains.sbt.project.SbtProjectSystem
+import org.jetbrains.sbt.project.{SbtCachesSetupUtil, SbtProjectSystem}
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.junit.Assert.assertEquals
 import org.junit.experimental.categories.Category
@@ -47,16 +47,18 @@ class ConfigureIncrementalCompilerSbtKotlinTransitiveDependencyTest extends Exte
       SmartJDKLoader.getOrCreateJDK(jdkVersion)
     }
 
+    SbtCachesSetupUtil.setupCoursierAndIvyCache(getProject)
+
     createProjectSubDirs("project", "src/main/scala")
     createProjectSubFile("project/build.properties",
       """sbt.version=1.9.7
         |""".stripMargin)
     createProjectSubFile("src/main/scala/HelloWorld.scala",
       """object HelloWorld {
-         |  def main(args: Array[String]): Unit = {
-         |    println("Hello, world!")
-         |  }
-         |}
+        |  def main(args: Array[String]): Unit = {
+        |    println("Hello, world!")
+        |  }
+        |}
         |""".stripMargin)
     createProjectConfig(
       """scalaVersion := "2.13.12"

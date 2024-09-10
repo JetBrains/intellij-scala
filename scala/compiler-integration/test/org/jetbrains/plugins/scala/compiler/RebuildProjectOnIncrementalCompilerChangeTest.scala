@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.jetbrains.sbt.Sbt
-import org.jetbrains.sbt.project.SbtProjectSystem
+import org.jetbrains.sbt.project.{SbtCachesSetupUtil, SbtProjectSystem}
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.junit.Assert.{assertEquals, assertNotNull, assertTrue}
 import org.junit.experimental.categories.Category
@@ -53,6 +53,8 @@ class RebuildProjectOnIncrementalCompilerChangeTest extends ExternalSystemImport
       settings.USE_DEFAULT_SDK = false
       res
     }
+
+    SbtCachesSetupUtil.setupCoursierAndIvyCache(getProject)
 
     createProjectSubDirs("project", "module1/src/main/scala", "module2/src/main/scala", "module3/src/main/scala")
     createProjectSubFile("project/build.properties",

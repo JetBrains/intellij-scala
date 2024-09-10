@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.projectHighlighting.base.AllProjectHighlightingTest
 import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProgressReporter
 import org.jetbrains.plugins.scala.util.{CompilerTestUtil, TestUtils}
-import org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike
+import org.jetbrains.sbt.project.{SbtCachesSetupUtil, SbtExternalSystemImportingTestLike}
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[HighlightingTests]))
@@ -24,6 +24,11 @@ final class SbtNoErrorsInProjectWithProvidedAndRuntimeDependenciesTest
 
   override protected def getTestProjectPath: String =
     s"${TestUtils.getTestDataPath}/sbt/compilation/projects/${getTestName(true)}"
+
+  override def setUp(): Unit = {
+    super.setUp()
+    SbtCachesSetupUtil.setupCoursierAndIvyCache(getProject)
+  }
 
   override def setUpFixtures(): Unit = {
     val factory = IdeaTestFixtureFactory.getFixtureFactory

@@ -6,7 +6,6 @@ import com.intellij.platform.externalSystem.testFramework.ExternalSystemImportin
 import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.extensions.inWriteAction
-import org.jetbrains.sbt.settings.SbtSettings
 import org.junit.Assert.assertNotNull
 
 import java.io.File
@@ -24,19 +23,6 @@ abstract class ScalaExternalSystemImportingTestBase extends ExternalSystemImport
   override def setUp(): Unit = {
     super.setUp()
     setupProjectJdk()
-
-    sys.env.get("TC_SBT_COURSIER_HOME").map(p => s"-Dsbt.coursier.home=$p").foreach { o =>
-      val settings = SbtSettings.getInstance(myProject)
-      val old = settings.sbtOptions
-      val newOpts = if (old.nonEmpty) s"$old $o" else o
-      settings.sbtOptions = newOpts
-    }
-    sys.env.get("TC_SBT_IVY_HOME").map(p => s"-Dsbt.ivy.home=$p").foreach { o =>
-      val settings = SbtSettings.getInstance(myProject)
-      val old = settings.sbtOptions
-      val newOpts = if (old.nonEmpty) s"$old $o" else o
-      settings.sbtOptions = newOpts
-    }
   }
 
   protected def setupProjectJdk(): Unit = {

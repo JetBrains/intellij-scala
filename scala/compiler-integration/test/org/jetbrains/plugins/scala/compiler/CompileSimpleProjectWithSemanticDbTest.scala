@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.compiler.ScalaCompilerTestBase.ListCompilerMe
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.util.{CompilerTestUtil, RevertableChange, TestUtils}
-import org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike
+import org.jetbrains.sbt.project.{SbtCachesSetupUtil, SbtExternalSystemImportingTestLike}
 import org.junit.Assert.{assertTrue, fail}
 
 import java.io.File
@@ -18,6 +18,11 @@ class CompileSimpleProjectWithSemanticDbTest extends SbtExternalSystemImportingT
 
   override protected lazy val getTestProjectPath: String =
     s"${TestUtils.getTestDataPath}/sbt/compilation/projects/${getTestName(true)}"
+
+  override def setUp(): Unit = {
+    super.setUp()
+    SbtCachesSetupUtil.setupCoursierAndIvyCache(getProject)
+  }
 
   @throws[Exception]
   override protected def setUpFixtures(): Unit = {
