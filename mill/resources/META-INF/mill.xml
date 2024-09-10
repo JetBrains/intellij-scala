@@ -1,9 +1,9 @@
 <idea-plugin>
 
     <extensions defaultExtensionNs="com.intellij">
-<!--        <fileType name="mill" language="mill" extensions="mill"-->
-<!--                  implementationClass="org.jetbrains.mill.language.MillFileType$" fieldName="MODULE$"/>-->
-<!--        <lang.parserDefinition language="mill" implementationClass="org.jetbrains.mill.language.MillParserDefinition"/>-->
+        <fileType name="mill" language="mill" extensions="mill"
+                  implementationClass="org.jetbrains.mill.language.MillFileType$" fieldName="MODULE$"/>
+        <lang.parserDefinition language="mill" implementationClass="org.jetbrains.mill.language.MillParserDefinition"/>
 <!--        <lang.fileViewProviderFactory language="mill"-->
 <!--                                      implementationClass="org.jetbrains.mill.language.MillFileViewProviderFactory"/>-->
     </extensions>

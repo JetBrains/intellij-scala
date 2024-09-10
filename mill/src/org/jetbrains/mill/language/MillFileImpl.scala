@@ -20,7 +20,7 @@ import org.jetbrains.sbt.project.module.SbtModule.{Build, Imports}
 import scala.jdk.CollectionConverters._
 
 final class MillFileImpl private[language](provider: FileViewProvider)
-  extends ScalaFileImpl(provider, MillFileType, MillLanguage.INSTANCE)
+  extends ScalaFileImpl(provider, MillFileType)
     with MillFile {
 
 
