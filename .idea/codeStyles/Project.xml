@@ -1,5 +1,10 @@
+<!-- NOTE: this codestyle should be in sync with Scala Plugin Ultimate repository -->
 <component name="ProjectCodeStyleConfiguration">
   <code_scheme name="Project" version="173">
+    <ScalaCodeStyleSettings>
+      <option name="classCountToUseImportOnDemand" value="15" />
+      <option name="INDENT_FIRST_PARAMETER" value="false" />
+    </ScalaCodeStyleSettings>
     <codeStyleSettings language="Scala">
       <option name="BLANK_LINES_AROUND_CLASS" value="0" />
     </codeStyleSettings>
