@@ -55,6 +55,7 @@ lazy val scalaCommunity: sbt.Project =
       scalaImpl % "test->test;compile->compile",
       structureView % "test->test;compile->compile",
       sbtImpl % "test->test;compile->compile",
+      mill % "test->test;compile->compile",
       compilerIntegration % "test->test;compile->compile",
       debugger % "test->test;compile->compile",
       testingSupport % "test->test;compile->compile",
@@ -130,6 +131,16 @@ lazy val sbtApi =
         "sbtStructurePath_1_2" -> relativeJarPath(sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, "1.2")),
         "sbtStructurePath_1_3" -> relativeJarPath(sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, "1.3"))
       ),
+      buildInfoOptions += BuildInfoOption.ConstantValue
+    )
+    .withCompilerPluginIn(scalacPatches)
+
+lazy val mill =
+  newProject("mill", file("mill"))
+    .dependsOn(scalaApi, compilerShared, workspaceEntities)
+    .enablePlugins(BuildInfoPlugin)
+    .settings(
+      buildInfoPackage := "org.jetbrains.sbt.buildinfo",
       buildInfoOptions += BuildInfoOption.ConstantValue
     )
     .withCompilerPluginIn(scalacPatches)
@@ -356,6 +367,7 @@ lazy val scalaImpl: sbt.Project =
       scalaApi,
       scalaLanguageUtils,
       sbtApi,
+      mill,
       decompiler % "test->test;compile->compile",
       tastyReader % "test->test;compile->compile",
       scalatestFinders,
@@ -422,7 +434,7 @@ lazy val scalaLanguageUtilsRt: sbt.Project =
 
 lazy val sbtImpl =
   newProject("sbt-impl", file("sbt/sbt-impl"))
-    .dependsOn(sbtApi, scalaImpl % "test->test;compile->compile")
+    .dependsOn(sbtApi, mill, scalaImpl % "test->test;compile->compile")
     .settings(
       intellijPlugins += "org.jetbrains.idea.maven".toPlugin
     )

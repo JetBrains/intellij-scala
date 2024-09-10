@@ -1,0 +1,7 @@
+<idea-plugin>
+
+    <extensions defaultExtensionNs="com.intellij">
+<!--        <fileType name="mill" language="mill" extensions="mill"-->
+<!--                  implementationClass="org.jetbrains.mill.language.MillFileType$" fieldName="MODULE$"/>-->
+    </extensions>
+</idea-plugin>
