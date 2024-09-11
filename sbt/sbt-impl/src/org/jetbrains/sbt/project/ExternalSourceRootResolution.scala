@@ -253,6 +253,8 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
     reprProjectModule: ModuleDataNodeType,
     moduleNodes: Option[ModuleDataNodeType]*
   ): Unit = {
+    //TODO handle a case when reprProjectModule is a root modules
+    // then we shouldn't strip suffix from the internal name because the internal name is the same as module name
     val reprProjectModulePrefix = Option(reprProjectModule.getInternalName.stripSuffix(reprProjectModule.getModuleName))
     moduleNodes.collect { case Some(moduleNode) =>
       val moduleNameWithGroupName = prependModuleNameWithGroupName(moduleNode.getInternalName, reprProjectModulePrefix)
@@ -266,7 +268,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
     projectToModuleNode: Map[sbtStructure.ProjectData, ModuleSourceSet]
   ): Option[ModuleDataNodeType] = {
     val rootProjectDataOpt = buildProjectsGroups
-      .find(_.projects.contains(representativeProject))
+      .find(group => (group.projects :+ group.rootProject).contains(representativeProject))
       .map(_.rootProject)
     rootProjectDataOpt.flatMap(projectToModuleNode.get).map(_.parent)
   }
