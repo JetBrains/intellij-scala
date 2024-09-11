@@ -1,18 +1,13 @@
 package org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate
 
-import com.intellij.psi.{PsiClass, PsiElement, PsiTypeParameter}
+import com.intellij.psi._
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.extensions.PsiMemberExt
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isInheritorDeep
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDeclaration
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScProjectionType, ScThisType}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType}
-import org.jetbrains.plugins.scala.lang.psi.types.{LeafType, ScCompoundType, ScType}
-import org.jetbrains.plugins.scala.lang.psi.types.BaseTypes
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import org.jetbrains.plugins.scala.lang.psi.api.statements._, params._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel._, typedef._
+import org.jetbrains.plugins.scala.lang.psi.types._, api._, designator._, nonvalue._
 
 import scala.annotation.tailrec
 
@@ -24,28 +19,26 @@ private case class ThisTypeSubstitution(target: ScType, @Nullable seenFromClass:
   }
 
   override protected val subst: PartialFunction[LeafType, ScType] = {
-    case th: ScThisType if !hasRecursiveThisType(target, th.element) => doUpdateThisType(th, target, seenFromClass)
+    case th: ScThisType if !hasRecursiveThisType(target, th.element) => doUpdateThisTypeFromClass(th, target, seenFromClass)
   }
 
   @tailrec
-  private def doUpdateThisType(thisTp: ScThisType, target: ScType, @Nullable clazz: PsiClass): ScType =
-    if (clazz == thisTp.element) target
-    else if (clazz == null) {
-      if (isMoreNarrow(target, thisTp, Set.empty)) target
-      else {
-        containingClassType(target) match {
-          case Some(targetContext) => doUpdateThisType(thisTp, targetContext, clazz)
-          case _                   => thisTp
-        }
+  private def doUpdateThisType(thisTp: ScThisType, target: ScType): ScType =
+    if (isMoreNarrow(target, thisTp, Set.empty)) target
+    else {
+      containingClassType(target) match {
+        case Some(targetContext) => doUpdateThisType(thisTp, targetContext)
+        case _                   => thisTp
       }
-    } else {
-      val classContext = clazz.containingClass
-      if (classContext == null) thisTp
-      else {
-        BaseTypes.iterator(target).find(_.extractClass.contains(clazz)).flatMap(containingClassType) match {
-          case Some(targetContext) => doUpdateThisType(thisTp, targetContext, classContext)
-          case _                   => thisTp
-        }
+    }
+
+  private def doUpdateThisTypeFromClass(thisTp: ScThisType, target: ScType, @Nullable clazz: PsiClass): ScType =
+    if (clazz == null || clazz == thisTp.element || clazz.containingClass == null)
+      doUpdateThisType(thisTp, target)
+    else {
+      BaseTypes.iterator(target).find(_.extractClass.contains(clazz)).flatMap(containingClassType) match {
+        case Some(targetContext) => doUpdateThisTypeFromClass(thisTp, targetContext, clazz.containingClass)
+        case _                   => thisTp
       }
     }
 
@@ -69,11 +62,12 @@ private case class ThisTypeSubstitution(target: ScType, @Nullable seenFromClass:
   private def isSameOrInheritor(clazz: PsiClass, thisTp: ScThisType): Boolean =
     clazz == thisTp.element || isInheritorDeep(clazz, thisTp.element)
 
-  private def hasSameOrInheritor(compound: ScCompoundType, thisTp: ScThisType) = {
+  private def hasSameOrInheritor(compound: ScCompoundType, thisTp: ScThisType): Boolean = {
     compound.components
       .exists {
-        _.extractDesignated(expandAliases = true)
+        extractAll(_)
           .exists {
+            case tp: ScCompoundType => hasSameOrInheritor(tp, thisTp)
             case tp: ScTypeParam =>
               (for {
                 upper <- tp.upperBound.toOption
@@ -87,7 +81,7 @@ private case class ThisTypeSubstitution(target: ScType, @Nullable seenFromClass:
 
   @tailrec
   private def isMoreNarrow(target: ScType, thisTp: ScThisType, visited: Set[PsiElement]): Boolean = {
-    target.extractDesignated(expandAliases = true) match {
+    extractAll(target) match {
       case Some(pat: ScBindingPattern) =>
         if (visited.contains(pat)) false
         else isMoreNarrow(pat.`type`().getOrAny, thisTp, visited + pat)
@@ -117,11 +111,36 @@ private case class ThisTypeSubstitution(target: ScType, @Nullable seenFromClass:
       case Some(td: ScTypeAliasDeclaration) => isMoreNarrow(td.upperBound.getOrAny, thisTp, visited)
       case Some(cl: PsiClass)               => isSameOrInheritor(cl, thisTp)
       case Some(named: ScTypedDefinition)   => isMoreNarrow(named.`type`().getOrAny, thisTp, visited)
-      case _ =>
-        target match {
-          case compound: ScCompoundType => hasSameOrInheritor(compound, thisTp)
-          case _                        => false
-        }
+      case Some(compound: ScCompoundType)   => hasSameOrInheritor(compound, thisTp)
+      case _                                => false
     }
+  }
+
+  private def extractAll(tp: ScType) = {
+    // Like tp.extractDesignated(expandAliases = true)
+    // But also return non-designator returns
+    // Such as ScCompoundType, after dealiasing and dereferencing.
+
+    def elem1(tp: DesignatorOwner) = tp match { case tp: ScProjectionType => tp.actualElement case _ => tp.element }
+    def subst(tp: DesignatorOwner) = tp match { case tp: ScProjectionType => tp.actualSubst   case _ => ScSubstitutor.empty }
+
+    def rec(tp: ScType, seen: Set[ScTypeAlias]): Either[ScType, PsiNamedElement] = tp match {
+      case tp: NonValueType      => rec(tp.inferValueType, seen)
+      case tp: DesignatorOwner   => elem1(tp) match {
+        case ta: ScTypeAliasDefinition if !seen(ta) => ta.aliasedType.map(subst(tp)).fold(_ => Left(tp), rec(_, seen + ta))
+        case tp                                     => Right(tp)
+      }
+      case tp: ParameterizedType => tp match {
+        case AliasType(ta: ScTypeAliasDefinition, _, Right(ub)) if !seen(ta) => rec(ub, seen + ta)
+        case _                                                               => rec(tp.designator, seen)
+      }
+      case tp: StdType           => tp.syntheticClass.toRight(tp)
+      case tp: ScExistentialType => rec(tp.quantified, seen)
+      case tp: TypeParameterType => Right(tp.psiTypeParameter)
+      case tp: ScCompoundType    => Left(tp)
+      case _                     => Left(tp)
+    }
+
+    rec(tp, Set.empty).fold(Some(_), Some(_))
   }
 }
