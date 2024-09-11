@@ -1,6 +1,7 @@
 package org.jetbrains.sbt.language.completion
 
 import com.intellij.codeInsight.completion.CompletionConfidence
+import com.intellij.openapi.editor.Editor
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.ThreeState
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
@@ -8,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScInfi
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 
 class EnableAutoPopupInDependencyStrings extends CompletionConfidence {
-  override def shouldSkipAutopopup(contextElement: PsiElement, psiFile: PsiFile, offset: Int): ThreeState = {
+  override def shouldSkipAutopopup(editor: Editor, contextElement: PsiElement, psiFile: PsiFile, offset: Int): ThreeState = {
     contextElement.getParent match {
       case str: ScStringLiteral =>
         str.getParent match {

@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.completion
 
 import com.intellij.codeInsight.completion.CompletionConfidence
+import com.intellij.openapi.editor.Editor
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.ThreeState
 import org.jetbrains.annotations.Nullable
@@ -14,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScOrType
 
 final class ScalaCompletionConfidence extends CompletionConfidence {
 
-  override def shouldSkipAutopopup(contextElement: PsiElement, psiFile: PsiFile, offset: Int): ThreeState = {
+  override def shouldSkipAutopopup(editor: Editor, contextElement: PsiElement, psiFile: PsiFile, offset: Int): ThreeState = {
     def typedChar(c: Char): Boolean = psiFile.charSequence.charAt(offset - 1) == c
 
     if (offset != 0) {
@@ -36,7 +37,7 @@ final class ScalaCompletionConfidence extends CompletionConfidence {
         }
       }
     }
-    super.shouldSkipAutopopup(contextElement, psiFile, offset)
+    super.shouldSkipAutopopup(editor, contextElement, psiFile, offset)
   }
 }
 

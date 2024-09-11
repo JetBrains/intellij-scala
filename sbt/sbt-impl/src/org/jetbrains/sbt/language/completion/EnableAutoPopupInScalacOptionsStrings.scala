@@ -15,7 +15,7 @@ import org.jetbrains.sbt.language.SbtFileImpl
 import org.jetbrains.sbt.language.utils.SbtScalacOptionUtils.withScalacOption
 
 class EnableAutoPopupInScalacOptionsStrings extends CompletionConfidence {
-  override def shouldSkipAutopopup(contextElement: PsiElement, psiFile: PsiFile, offset: Int): ThreeState =
+  override def shouldSkipAutopopup(editor: Editor, contextElement: PsiElement, psiFile: PsiFile, offset: Int): ThreeState =
     withScalacOption(contextElement)(onMismatch = ThreeState.UNSURE, onMatch = _ => ThreeState.NO)
 }
 
