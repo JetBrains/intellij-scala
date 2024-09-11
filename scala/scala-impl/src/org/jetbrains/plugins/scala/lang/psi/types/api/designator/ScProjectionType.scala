@@ -150,7 +150,7 @@ final class ScProjectionType private(val projected: ScType,
       processor.candidates match {
         case Array(candidate) => candidate.element match {
           case candidateElement: PsiNamedElement =>
-            val thisSubstitutor = ScSubstitutor(projected, candidateElement.findContextOfType(classOf[PsiClass]).orNull)
+            val thisSubstitutor = ScSubstitutor(projected, element.findContextOfType(classOf[PsiClass]).orNull)
             val defaultSubstitutor =
               projected match {
                 case _: ScThisType => candidate.substitutor
