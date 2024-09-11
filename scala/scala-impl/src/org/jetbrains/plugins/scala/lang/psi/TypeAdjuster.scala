@@ -7,6 +7,7 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.concurrency.annotations.RequiresEdt
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.caches.measure
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
@@ -79,7 +80,7 @@ object TypeAdjuster {
 
   private val LOG = Logger.getInstance(classOf[TypeAdjuster])
 
-  def adjustFor(elements: Seq[PsiElement], addImports: Boolean = true, useTypeAliases: Boolean = true): Unit = {
+  def adjustFor(elements: Seq[PsiElement], addImports: Boolean = true, useTypeAliases: Boolean = true): Unit = measure("TypeAdjuster.adjustFor") {
     val progressManager = ProgressManager.getInstance()
     @Nullable val indicator = progressManager.getProgressIndicator
     if (indicator ne null) {
