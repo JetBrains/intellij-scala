@@ -39,7 +39,7 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
   }
 
   def testSimple(): Unit = {
-    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk("2.13.5")
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk(useEnv = true)("2.13.5")
     runSimpleTest("simple", "2.13", scalaLibraries)
 
     // Adding the assertion here not to create a separate heavy test for such a tiny check
@@ -59,7 +59,7 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
 
   //noinspection RedundantDefaultArgument
   def testSimple_Scala3(): Unit = {
-    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibrary("2.13.6") +: ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk("3.0.2")
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibrary(useEnv = true)("2.13.6") +: ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk(useEnv = true)("3.0.2")
     runSimpleTest("simple-scala3", "3.0.2", scalaLibraries, DefaultSbtContentRootsScala3, DefaultMainSbtContentRootsScala3, DefaultTestSbtContentRootsScala3)
   }
 
@@ -68,7 +68,7 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
   def testTwoLinkedProjects(): Unit = {
     val originalProjectName = "twoLinkedProjects"
     val linkedProjectName = "simple"
-    val expectedScalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk("2.13.5")
+    val expectedScalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk(useEnv = true)("2.13.5")
     val linkedSbtProjectPath = generateTestProjectPath(linkedProjectName)
     linkSbtProject(linkedSbtProjectPath, prodTestSourcesSeparated = true)
     runTest(
@@ -227,7 +227,7 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
 
   def testUnmanagedDependency(): Unit = runTest(
     new project("unmanagedDependency") {
-      val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk("2.13.6")
+      val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk(useEnv = true)("2.13.6")
       val managedLibrary: library = new library("sbt: org.apache.commons:commons-compress:1.21:jar")
       libraries := scalaLibraries :+ managedLibrary
 
@@ -253,7 +253,7 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
 
   def testSharedSources(): Unit = runTest(
     new project("sharedSourcesProject") {
-      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk("2.13.6")
+      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk(useEnv = true)("2.13.6")
       libraries := scalaLibraries
 
       lazy val root: module = new module("sharedSourcesProject") {
@@ -1749,7 +1749,7 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
 
   def testSharedSourcesInsideMultiBuildProject(): Unit = runTest(
       new project("sharedSourcesInsideMultiBuildProject") {
-        lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk("2.13.6")
+        lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk(useEnv = true)("2.13.6")
         libraries := scalaLibraries
 
         val buildURI: URI = getTestProjectDir.getCanonicalFile.toURI
@@ -1889,7 +1889,7 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
   // In such case we should handle it and append number suffix to one of the module name
   def testMultiBuildProjectWithTheSameProjectIdFromIDEAPerspective(): Unit = runTest(
     new project("multiBuildProjectWithTheSameProjectIdFromIDEAPerspective") {
-      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk("2.13.6")
+      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk(useEnv = true)("2.13.6")
       libraries := scalaLibraries
 
       val buildURI: URI = getTestProjectDir.getCanonicalFile.toURI
@@ -1981,7 +1981,7 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
   //SCL-22637
   def testPackagePrefix(): Unit = runTest(
     new project("packagePrefix") {
-      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk("2.13.6")
+      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk(useEnv = true)("2.13.6")
       libraries := scalaLibraries
       packagePrefix := "com.example"
       lazy val root: module = new module("packagePrefix") {
