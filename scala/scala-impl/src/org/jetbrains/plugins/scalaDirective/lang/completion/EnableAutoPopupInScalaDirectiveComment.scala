@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scalaDirective.dependencies.ScalaDirectiveDependenc
 import org.jetbrains.plugins.scalaDirective.lang.completion.ScalaDirectiveAutoPopupCompletionHandler._
 
 final class EnableAutoPopupInScalaDirectiveComment extends CompletionConfidence {
-  override def shouldSkipAutopopup(contextElement: PsiElement, psiFile: PsiFile, offset: Int): ThreeState = contextElement match {
+  override def shouldSkipAutopopup(editor: Editor, contextElement: PsiElement, psiFile: PsiFile, offset: Int): ThreeState = contextElement match {
     case comment: PsiComment if isEmptyDirectiveComment(comment) =>
       ThreeState.NO
     case _ => ThreeState.UNSURE
