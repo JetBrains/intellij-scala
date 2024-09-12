@@ -78,4 +78,7 @@ public interface Icons {
 
     // X-Ray mode widget
     Icon PIN = getIcon("/org/jetbrains/plugins/scala/images/pin.svg", Icons.class);
+
+    // Mill file
+    Icon MILL_FILE = getIcon("/org/jetbrains/plugins/scala/images/millFile.svg", Icons.class);
 }
