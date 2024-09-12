@@ -1,12 +1,10 @@
 package org.jetbrains.plugins.scala
 
 import com.intellij.lang.Language
-import com.intellij.openapi.fileTypes.LanguageFileType
-import com.intellij.openapi.fileTypes.ex.FileTypeIdentifiableByVirtualFile
+import com.intellij.openapi.fileTypes.{FileTypeManager, LanguageFileType}
 import com.intellij.openapi.vfs.VirtualFile
 
-abstract class LanguageFileTypeBase(language: Language) extends LanguageFileType(language)
-  with FileTypeIdentifiableByVirtualFile {
+abstract class LanguageFileTypeBase(language: Language) extends LanguageFileType(language) {
 
   //noinspection ReferencePassedToNls
   override def getName: String = getLanguage.getID
@@ -20,10 +18,12 @@ abstract class LanguageFileTypeBase(language: Language) extends LanguageFileType
   // (FileTypeManagerImpl.isFileOfType is called from ScalaSourceFilterScope,
   //   while FileTypeManager contains no .scala pattern)
   // take into account: SCL-16417
-  override final def isMyFileType(file: VirtualFile): Boolean =
-    isMyFileExtension(file)
-
-  protected def isMyFileExtension(file: VirtualFile): Boolean =
-    getDefaultExtension == file.getExtension
+  // TODO maybe remove this method.
+  //  It's a legacy of LanguageFileTypeBase inheriting from the FileTypeIdentifiableByVirtualFile
+  private[jetbrains] def isMyFileType(file: VirtualFile): Boolean = {
+    val ext = file.getExtension
+    if (ext == null) return false
+    FileTypeManager.getInstance.getFileTypeByExtension(ext) == this
+  }
 }
 
