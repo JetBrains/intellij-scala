@@ -602,19 +602,18 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     )
 
     val parentModule = rootModuleSourceSet.parent
-    val rootProjectInternalName = Some(parentModule.getInternalName)
     val projectNameToProject = projects.groupBy(_.name)
     //note: from the SBT perspective using ModuleUniqueInternalNameGenerator for non-root projects would not be necessary at all (projects id must be unique inside single build),
     //but in IDEA in internal module names all "/" are replaced with "_" and it could happen that in one build the name of one project would be e.g. ro/t
     //and the other one would be ro_t and for SBT uniqueness would be maintained but not for IDEA.
     val moduleInternalNameRegistry = new ModuleUniqueInternalNameGenerator
     val projectToModuleForNonRootProjects = projects.map { project =>
-      val (moduleName, moduleGroup) = generateModuleAndGroupName(project, rootProjectInternalName, projectNameToProject)
+      val (moduleName, moduleGroup) = generateModuleAndGroupName(project, parentModule.getInternalName, projectNameToProject)
       val moduleSourceSet = createModule(
         project,
         moduleFilesDirectory,
         moduleName,
-        moduleGroup,
+        Some(moduleGroup),
         Some(moduleInternalNameRegistry),
         librariesData,
         true, //shouldCreateNestedModule
@@ -628,9 +627,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   private def generateModuleAndGroupName(
     projectData: ProjectData,
-    rootProjectInternalName: Option[String],
+    rootProjectInternalName: String,
     projectNameToProject: Map[String, Seq[ProjectData]],
-  ): (String, Option[String]) = {
+  ): (String, String) = {
     val projectName = projectData.name
     val projectsWithSameNameInBuild: Seq[ProjectData] = projectNameToProject.get(projectName).toSeq.flatten
 
@@ -640,9 +639,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       else projectData.id
 
     val groupNameInsideBuild = if (projectsWithSameNameInBuild.size > 1) Seq(projectName) else Nil
-    val moduleGroups = (rootProjectInternalName.toSeq ++ groupNameInsideBuild).mkString(".")
-    val moduleGroupOpt = if (moduleGroups.isEmpty) None else Some(moduleGroups)
-    (moduleName, moduleGroupOpt)
+    val moduleGroups = (rootProjectInternalName +: groupNameInsideBuild).mkString(".")
+    (moduleName, moduleGroups)
   }
 
   private def createBuildProjectGroups(projects: Seq[ProjectData]): Seq[BuildProjectsGroup] = {
