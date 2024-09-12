@@ -153,8 +153,8 @@
 
         <errorHandler implementation="org.jetbrains.plugins.scala.ScalaErrorReportSubmitter"/>
         <autoImportOptionsProvider instance="org.jetbrains.plugins.scala.editor.autoimport.ScalaAutoImportOptionsProvider"/>
-        <fileType name="Scala" language="Scala" extensions="scala"
-                  implementationClass="org.jetbrains.plugins.scala.ScalaFileType" fieldName="INSTANCE"/>
+        <fileType name="Scala" language="Scala" extensions="scala;mill"
+                  implementationClass="org.jetbrains.plugins.scala.ScalaFileType" fieldName="INSTANCE" />
         <editorHighlighterProvider filetype="Scala"
                                    implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaEditorHighlighterProvider"/>
 
