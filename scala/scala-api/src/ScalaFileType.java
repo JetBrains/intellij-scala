@@ -15,10 +15,12 @@
 
 package org.jetbrains.plugins.scala;
 
+import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.icons.Icons;
 
 import javax.swing.*;
+import java.util.Arrays;
 
 final public class ScalaFileType extends LanguageFileTypeBase {
 
@@ -36,5 +38,10 @@ final public class ScalaFileType extends LanguageFileTypeBase {
     @NotNull
     public Icon getIcon() {
         return Icons.SCALA_FILE;
+    }
+
+    @Override
+    public boolean isMyFileExtension(VirtualFile file) {
+        return Arrays.asList("scala", "mill").contains(file.getExtension());
     }
 }
