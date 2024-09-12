@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala
 import com.intellij.ide.projectView.ViewSettings
 import com.intellij.ide.util.treeView.AbstractTreeNode
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.io.FileUtilRt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
@@ -19,14 +20,25 @@ package object projectView {
     def apply(file: ScalaFile)
              (implicit project: Project, settings: ViewSettings): Node with IconableNode = {
       val fileType = file.getFileType
+      val isMill = isMillFile(file)
       fileType match {
-        case ScalaFileType.INSTANCE =>
+        case _ if isMill  =>
+          new MillFileNode(file)
+        case ScalaFileType.INSTANCE if !isMill =>
           val fileKind = FileKind.getForFile(file)
           val node = fileKind.flatMap(_.node)
           node.getOrElse(new ScalaFileNode(file))
         case fileType               =>
           new DialectFileNode(file, fileType)
       }
+    }
+
+    private def isMillFile(file: ScalaFile):Boolean = {
+      val vf = file.getContainingFile.getVirtualFile
+      if (vf == null) return false
+      val fileExt = FileUtilRt.getExtension(vf.getPath)
+      val millExt = ScalaBundle.message("scala.file.mill.extension")
+      fileExt == millExt
     }
   }
 

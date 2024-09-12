@@ -5,6 +5,7 @@ import com.intellij.ide.projectView.impl.nodes.PsiFileNode
 import com.intellij.ide.projectView.{PresentationData, ViewSettings}
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.tasty.TastyFileType
 
@@ -54,5 +55,12 @@ private[projectView] object FileNode {
     extends FileNode(file) {
 
     override def getIcon(flags: Int): Icon = fileType.getIcon
+  }
+
+  final class MillFileNode(override protected val file: ScalaFile)
+                          (implicit project: Project, settings: ViewSettings)
+    extends FileNode(file) {
+
+    override def getIcon(flags: Int): Icon = Icons.MILL_FILE
   }
 }
