@@ -257,11 +257,14 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
     reprProjectModule: ModuleDataNodeType,
     moduleNodes: Option[ModuleDataNodeType]*
   ): Unit = {
-    //TODO handle a case when reprProjectModule is a root modules
-    // then we shouldn't strip suffix from the internal name because the internal name is the same as module name
-    val reprProjectModulePrefix = Option(reprProjectModule.getInternalName.stripSuffix(reprProjectModule.getModuleName))
+    val reprProjectModulePrefix = reprProjectModule.getInternalName.stripSuffix(reprProjectModule.getModuleName)
+    // note: if reprProjectModulePrefix is blank, then it's a root module in the project,
+    // and simply the internal module should be used instead
+    val group =
+      if (reprProjectModulePrefix.isBlank) reprProjectModule.getInternalName
+      else reprProjectModulePrefix
     moduleNodes.collect { case Some(moduleNode) =>
-      val moduleNameWithGroupName = prependModuleNameWithGroupName(moduleNode.getInternalName, reprProjectModulePrefix)
+      val moduleNameWithGroupName = prependModuleNameWithGroupName(moduleNode.getInternalName, Option(group))
       moduleNode.setInternalName(moduleNameWithGroupName)
     }
   }
