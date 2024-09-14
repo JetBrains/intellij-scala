@@ -214,7 +214,7 @@ object SbtDependencyUtils {
         libDep => getLibraryDependenciesOrPlacesFromPsi(libDep, mode))
 
     def containsModuleName(proj: ScPatternDefinition, moduleName: String): Boolean =
-      proj.getText.toLowerCase.contains("\"" + moduleName + "\"".toLowerCase)
+      proj.getText.toLowerCase.contains(("\"" + moduleName + "\"").toLowerCase)
 
     val sbtProjectsInModule = getTopLevelSbtProjects(psiSbtFile).filter(proj => containsModuleName(proj, module.getName))
 
