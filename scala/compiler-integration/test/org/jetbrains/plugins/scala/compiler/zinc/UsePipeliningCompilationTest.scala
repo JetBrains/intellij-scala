@@ -52,6 +52,7 @@ class UsePipeliningCompilationTest extends ZincTestBase {
     createProjectConfig(
       s"""ThisBuild / scalaVersion := "${scalaVersion.minor}"
          |ThisBuild / usePipelining := true
+         |ThisBuild / resolvers += "scala-integration" at "https://scala-ci.typesafe.com/artifactory/scala-integration/"
          |
          |lazy val root = project.in(file("."))
          |  .aggregate(module1, module2, module3)
