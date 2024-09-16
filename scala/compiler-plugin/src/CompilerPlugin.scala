@@ -28,5 +28,6 @@ private object CompilerPlugin:
 
     // Only for "transparent inline" after the "typer" phase (but for any "inline" after the "inlining" phase)
     override def transformInlined(tree: tpd.Inlined)(using Context): tpd.Tree =
-      report.echo("Type: " + ctx.printer.toText(tree.tpe).mkString(9000, false), tree.srcPos)
+      val s = "Type: " + ctx.printer.toText(tree.tpe).mkString(9000, false)
+      report.echo(s, tree.srcPos)(using ctx.fresh.setSetting(ctx.settings.YshowSuppressedErrors, true))
       super.transformInlined(tree)
