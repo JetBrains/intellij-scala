@@ -333,9 +333,9 @@ class IntegerLiteralCheckTest3_5
   extends IntegerLiteralCheckTestBase(
     supportsOctal = false,
     supportsUnderscore = true,
-    supportsBinary = false, // TODO: change to true in Scala 3.5
+    supportsBinary = true,
     supports0Prefix = true,
   )
 {
-  override def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3 // TODO: change to Scala_3_5 if available
+  override def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3_5
 }
