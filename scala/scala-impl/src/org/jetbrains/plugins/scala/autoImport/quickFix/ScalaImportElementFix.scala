@@ -14,7 +14,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{ModificationTracker, TextRange}
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.concurrency.AppExecutorUtil
+import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import com.intellij.util.ui.UIUtil
+import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.autoImport.quickFix.Presentation.htmlWithBody
 import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportElementFix._
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
@@ -150,6 +152,21 @@ abstract class ScalaImportElementFix[Element <: ElementToImport](val place: PsiE
         createAddImportAction(editor)
       )
     }
+  }
+
+  /**
+   * Pre-computes elements to be potentially imported if the computation has not been scheduled yet.
+   *
+   * Could be useful in import fixer implementation to pre-compute elements
+   * and filter applicable fixes.
+   *
+   * Must be called from the background thread as it is a potentially long-running task.
+   */
+  @ApiStatus.Internal
+  @RequiresBackgroundThread
+  final def preComputeElements(): Unit = if (place.isValid && isComputationScheduled.compareAndSet(false, true)) {
+    val elementsToImport = findElementsToImport()
+    computedElements.set(elementsToImport)
   }
 
   private def isUpToDate: Boolean = currentModCount() == modificationCount
