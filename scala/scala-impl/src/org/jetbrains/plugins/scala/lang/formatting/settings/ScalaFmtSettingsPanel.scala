@@ -423,8 +423,10 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
 
     externalFormatterSettingsPath.getTextField.addFocusListener(focusListener)
     externalFormatterSettingsPath.addBrowseFolderListener(
-      customSettingsTitle, customSettingsTitle, projectOpt.orNull,
-      FileChooserDescriptorFactory.createSingleFileDescriptor("conf"),
+      projectOpt.orNull,
+      FileChooserDescriptorFactory.createSingleFileDescriptor("conf")
+        .withTitle(customSettingsTitle)
+        .withDescription(customSettingsTitle),
       textAccessor
     )
   }

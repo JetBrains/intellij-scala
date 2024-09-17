@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.project.template
 import com.intellij.framework.FrameworkTypeEx
 import com.intellij.framework.addSupport.{FrameworkSupportInModuleConfigurable, FrameworkSupportInModuleProvider}
 import com.intellij.ide.util.frameworkSupport.FrameworkSupportModel
-import com.intellij.ide.util.projectWizard.ModuleBuilder
 import com.intellij.openapi.module.{Module, ModuleType}
 import com.intellij.openapi.roots.ui.configuration.FacetsProvider
 import com.intellij.openapi.roots.{ModifiableModelsProvider, ModifiableRootModel}
@@ -28,7 +27,7 @@ final class ScalaFrameworkType extends FrameworkTypeEx(ScalaLanguage.INSTANCE.ge
 
     override def getIcon = getFrameworkType.getIcon
 
-    override def isEnabledForModuleType(moduleType: ModuleType[_ <: ModuleBuilder]): Boolean =
+    override def isEnabledForModuleType(moduleType: ModuleType[_]): Boolean =
       moduleType.getId match {
         case JAVA_MODULE_ENTITY_TYPE_ID_NAME |
              "PLUGIN_MODULE" => true // PluginModuleType.getInstance.getId

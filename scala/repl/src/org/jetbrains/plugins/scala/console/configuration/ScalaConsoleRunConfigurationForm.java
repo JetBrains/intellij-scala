@@ -95,8 +95,8 @@ public class ScalaConsoleRunConfigurationForm {
                 return super.isFileVisible(file, showHiddenFiles) && file.isDirectory();
             }
         };
-        fileChooserDescriptor.setTitle(title);
-        textField.addBrowseFolderListener(title, null, project, fileChooserDescriptor);
+        fileChooserDescriptor.withTitle(title);
+        textField.addBrowseFolderListener(project, fileChooserDescriptor);
     }
 
     {

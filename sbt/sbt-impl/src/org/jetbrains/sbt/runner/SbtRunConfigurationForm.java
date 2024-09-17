@@ -33,8 +33,9 @@ public class SbtRunConfigurationForm {
     public SbtRunConfigurationForm(final Project project, final SbtRunConfiguration configuration) {
         environmentVariables.setEnvs(configuration.environmentVariables());
         workingDirField.setText(configuration.getWorkingDir());
-        FileChooserDescriptor folderDescriptor = FileChooserDescriptorFactory.createSingleFolderDescriptor();
-        workingDirField.addBrowseFolderListener(SbtBundle.message("sbt.runner.choose.working.directory"), null, project, folderDescriptor);
+        FileChooserDescriptor folderDescriptor = FileChooserDescriptorFactory.createSingleFolderDescriptor()
+                .withTitle(SbtBundle.message("sbt.runner.choose.working.directory"));
+        workingDirField.addBrowseFolderListener(project, folderDescriptor);
 
         setCustomOptionsEnabled(!useSbtShellCheckBox.isSelected());
         useSbtShellCheckBox.addChangeListener(e -> setCustomOptionsEnabled(!useSbtShellCheckBox.isSelected()));
