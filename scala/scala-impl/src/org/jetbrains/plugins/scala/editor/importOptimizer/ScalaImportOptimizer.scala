@@ -740,7 +740,7 @@ object ScalaImportOptimizer {
     if (needReplaceWithFqnImports) {
       for ((info, i) <- importInfos.zipWithIndex) {
         buffer(i) = (settings.basePackage, info.prefixQualifier) match {
-          case (Some(base), Some(prefixQualifier)) if (prefixQualifier + ".").startsWith(base + ".") =>
+          case (Some(base), Some(prefixQualifier)) if (prefixQualifier + ".").startsWith(base + ".") && prefixQualifier.length > base.length =>
             info.copy(relative = Some(prefixQualifier.substring(base.length + 1)))
           case _ =>
             info.withoutRelative
