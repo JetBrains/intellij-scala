@@ -498,7 +498,7 @@ class ScalaUastGenerationTest extends ScalaLightCodeInsightFixtureTestCase {
     val uParameter = uClass.getMethods.find(_.getName == "method").get.getUastParameters.get(0)
 
     inWriteCommandAction {
-      generatePlugin.initializeField(uField, uParameter)
+      generatePlugin.initializeField(uField, uParameter, null, false)
     }(getProject)
 
     myFixture.checkResult(
@@ -530,7 +530,7 @@ class ScalaUastGenerationTest extends ScalaLightCodeInsightFixtureTestCase {
     val uParameter = uClass.getMethods.find(_.getName == "method").get.getUastParameters.get(0)
 
     inWriteCommandAction {
-      generatePlugin.initializeField(uField, uParameter)
+      generatePlugin.initializeField(uField, uParameter, null, false)
     }(getProject)
 
     myFixture.checkResult(
@@ -561,7 +561,7 @@ class ScalaUastGenerationTest extends ScalaLightCodeInsightFixtureTestCase {
     val uParameter = uClass.getMethods.find(m => m.isConstructor && !m.getUastParameters.isEmpty).get.getUastParameters.get(0)
 
     inWriteCommandAction {
-      generatePlugin.initializeField(uField, uParameter)
+      generatePlugin.initializeField(uField, uParameter, null, false)
     }(getProject)
 
     myFixture.checkResult(
@@ -592,7 +592,7 @@ class ScalaUastGenerationTest extends ScalaLightCodeInsightFixtureTestCase {
     val uParameter = uClass.getMethods.find(m => m.isConstructor && !m.getUastParameters.isEmpty).get.getUastParameters.get(0)
 
     inWriteCommandAction {
-      generatePlugin.initializeField(uField, uParameter)
+      generatePlugin.initializeField(uField, uParameter, null, false)
     }(getProject)
 
     myFixture.checkResult(
@@ -619,7 +619,7 @@ class ScalaUastGenerationTest extends ScalaLightCodeInsightFixtureTestCase {
     val uParameter = uClass.getMethods.find(m => m.isConstructor && !m.getUastParameters.isEmpty).get.getUastParameters.get(0)
 
     inWriteCommandAction {
-      generatePlugin.initializeField(uField, uParameter)
+      generatePlugin.initializeField(uField, uParameter, null, false)
     }(getProject)
 
     myFixture.checkResult(

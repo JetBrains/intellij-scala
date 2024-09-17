@@ -30,10 +30,9 @@ public abstract class ActionTestBase extends ScalaFileSetTestCase {
    */
   @ApiStatus.Internal
   public static @NotNull DataContext getDataContext(PsiFile file) throws InvalidDataException {
-    return CustomizedDataContext.withProvider(CustomizedDataContext.EMPTY_CONTEXT, dataId -> {
-      if (LangDataKeys.LANGUAGE.is(dataId)) return file.getLanguage();
-      if (PlatformCoreDataKeys.PROJECT.is(dataId)) return file.getProject();
-      return null;
+    return CustomizedDataContext.withSnapshot(CustomizedDataContext.EMPTY_CONTEXT, sink -> {
+      sink.set(LangDataKeys.LANGUAGE, file.getLanguage());
+      sink.set(PlatformCoreDataKeys.PROJECT, file.getProject());
     });
   }
 

@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.uast
 import com.intellij.lang.Language
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, SmartPointerManager}
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.codeInsight.intention.imports.ImportStableMemberIntention
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
@@ -65,7 +66,7 @@ final class ScalaUastCodeGenerationPlugin extends UastCodeGenerationPlugin {
     toUElement(e, classOf[UReferenceExpression])
   }
 
-  override def initializeField(uField: UField, uParameter: UParameter): UExpression = {
+  override def initializeField(uField: UField, uParameter: UParameter, @Nullable anchor: PsiElement, addBefore: Boolean): UExpression = {
     val uMethod = UastUtils.getParentOfType(uParameter, classOf[UMethod], false)
     if (uMethod == null) return null
 
@@ -126,11 +127,11 @@ final class ScalaUastCodeGenerationPlugin extends UastCodeGenerationPlugin {
 
         val psiElement = fn.body.map {
           case block: ScBlockExpr =>
-            addToBlock(block, createAssignment)
+            addToBlock(block, createAssignment, anchor, addBefore)
           case bodyExpr =>
             ScalaPsiElementFactory.createBlockWithGivenExpression(bodyExpr, bodyExpr) match {
               case block: ScBlockExpr =>
-                val assignment = addToBlock(block, createAssignment)
+                val assignment = addToBlock(block, createAssignment, anchor, addBefore)
                 bodyExpr.replace(block)
                 assignment
               case _ => return null
@@ -144,7 +145,16 @@ final class ScalaUastCodeGenerationPlugin extends UastCodeGenerationPlugin {
   // This method is about explicit Kotlin return labels
   override def changeLabel(uReturnExpression: UReturnExpression, psiElement: PsiElement): UReturnExpression = null
 
-  private def addToBlock(block: ScBlockExpr, element: PsiElement)(implicit pc: ProjectContext): PsiElement = {
+  private def addToBlock(block: ScBlockExpr, element: PsiElement, @Nullable _anchor: PsiElement, addBefore: Boolean)(implicit pc: ProjectContext): PsiElement = if (_anchor != null) {
+    val added = if (addBefore) {
+      val anchor = block.addBefore(createNewLine(), _anchor)
+      block.addBefore(element, anchor)
+    } else {
+      val anchor = block.addAfter(createNewLine(), _anchor)
+      block.addAfter(element, anchor)
+    }
+    added
+  } else {
     val rBrace = block.getRBrace.orNull
     val added = block.addBefore(element, rBrace)
     block.addBefore(createNewLine(), rBrace)

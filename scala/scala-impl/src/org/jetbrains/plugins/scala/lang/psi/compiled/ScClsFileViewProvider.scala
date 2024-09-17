@@ -62,7 +62,7 @@ object ScClsFileViewProvider {
     override protected def defaultFileResolveScope(file: VirtualFile): GlobalSearchScope = cachedInUserData("defaultFileResolveScope",  this, ProjectRootManager.getInstance(getProject), Tuple1(file)) {
       // this cache is very inefficient when orderEntries.size is large
       LibraryScopeCache.getInstance(manager.getProject)
-        .getLibraryScope(orderEntries(file))
+        .getLibraryScope(file)
     }
 
     def findSourceByRelativePath: Option[VirtualFile] = {
