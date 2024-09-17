@@ -34,13 +34,9 @@ package object projectView {
     }
 
     private def isMillFile(file: ScalaFile):Boolean = {
-      val psiFile = file.getContainingFile
-      if (psiFile == null) return false
-      val vf = psiFile.getVirtualFile
+      val vf = file.getVirtualFile
       if (vf == null) return false
-      val fileExt = FileUtilRt.getExtension(vf.getPath)
-      val millExt = ScalaBundle.message("scala.file.mill.extension")
-      fileExt == millExt
+      FileUtilRt.extensionEquals(vf.getPath, "mill")
     }
   }
 

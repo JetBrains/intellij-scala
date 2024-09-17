@@ -17,6 +17,7 @@ public interface Icons {
     Icon COMPILATION_CHARTS = getIcon("/org/jetbrains/plugins/scala/images/compilationCharts.svg", Icons.class);
 
     Icon SCALA_FILE = getIcon("/org/jetbrains/plugins/scala/images/fileScala.svg", Icons.class);
+    Icon MILL_FILE = getIcon("/org/jetbrains/plugins/scala/images/millFile.svg", Icons.class);
 
     Icon ADD_CLAUSE = getIcon("/org/jetbrains/plugins/scala/images/addClause.svg", Icons.class);
     Icon REMOVE_CLAUSE = getIcon("/org/jetbrains/plugins/scala/images/removeClause.svg", Icons.class);
@@ -77,7 +78,4 @@ public interface Icons {
 
     // X-Ray mode widget
     Icon PIN = getIcon("/org/jetbrains/plugins/scala/images/pin.svg", Icons.class);
-
-    // Mill file
-    Icon MILL_FILE = getIcon("/org/jetbrains/plugins/scala/images/millFile.svg", Icons.class);
 }
