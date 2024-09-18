@@ -115,7 +115,7 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          |$ContentStart
          |<b>Description copied from class: </b><a href="psi_element://java.lang.Object"><code>Object</code></a>$ContentEnd
          |$ContentStart Returns a string representation of the object. $ContentEnd
-         |$SectionsStart<tr><td valign='top' class='section'><p>Returns:</td><td valign='top'><p>a string representation of the object.</td><tr><td valign='top' class='section'><p>API Note:</td><td valign='top'><p> In general, the <code>toString</code> method returns a string that "textually represents" this object. The result should be a concise but informative representation that is easy for a person to read. It is recommended that all subclasses override this method. The string output is not necessarily stable over time or across JVM invocations. </td><tr><td valign='top' class='section'><p>Implementation<br>Requirements:</td><td valign='top'><p> The <code>toString</code> method for class <code>Object</code> returns a string consisting of the name of the class of which the object is an instance, the at-sign character `<code>@</code>', and the unsigned hexadecimal representation of the hash code of the object. In other words, this method returns a string equal to the value of: <blockquote> <pre>
+         |$SectionsStart<tr><td valign='top' class='section'><p>Returns:</td><td valign='top'><p>a string representation of the object.</td><tr><td valign='top' class='section'><p>API Note:</td><td valign='top'><p> In general, the <code><span style="">toString</span></code> method returns a string that "textually represents" this object. The result should be a concise but informative representation that is easy for a person to read. It is recommended that all subclasses override this method. The string output is not necessarily stable over time or across JVM invocations. </td><tr><td valign='top' class='section'><p>Implementation<br>Requirements:</td><td valign='top'><p> The <code><span style="">toString</span></code> method for class <code><span style="">Object</span></code> returns a string consisting of the name of the class of which the object is an instance, the at-sign character `<code><span style="">@</span></code>', and the unsigned hexadecimal representation of the hash code of the object. In other words, this method returns a string equal to the value of: <blockquote> <pre>
          |  getClass().getName() + '@' + Integer.toHexString(hashCode())
          |  </pre></blockquote> </td>$SectionsEnd
          |""".stripMargin
@@ -1174,7 +1174,7 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          |<span style="color:#000080;font-weight:bold;">extends</span> <span style="color:#000000;"><a href="psi_element://JavaClass"><code>JavaClass</code></a></span>$DefinitionEnd
          |$ContentStart
          |text from <u>scala</u><p> text from <b>java</b>
-         |<br> <code>code tag</code>
+         |<br> <code><span style="">code&#32;tag</span></code>
          |<br> <a href="psi_element://JavaClass"><code>JavaClass</code></a>
          |<br> <p>extra text from <u>scala</u>
          |$ContentEnd
