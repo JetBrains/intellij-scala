@@ -1,0 +1,47 @@
+<idea-plugin>
+    <extensionPoints>
+        <extensionPoint qualifiedName="org.intellij.scala.testWorkingDirectoryProvider" interface="org.jetbrains.plugins.scala.testingSupport.TestWorkingDirectoryProvider" dynamic="true"/>
+    </extensionPoints>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <deadCode implementation="org.jetbrains.plugins.scala.testingSupport.ScalaTestingFrameworkEntryPoint" />
+
+        <testCreator language="Scala" implementationClass="org.jetbrains.plugins.scala.testingSupport.ScalaTestCreator"/>
+        <testFinder implementation="org.jetbrains.plugins.scala.testingSupport.ScalaTestFinder"/>
+        <testGenerator language="Scala" implementationClass="org.jetbrains.plugins.scala.testingSupport.ScalaTestGenerator"/>
+
+        <exceptionFilter implementation="org.jetbrains.plugins.scala.testingSupport.util.scalatest.ScalaTestFailureLocationFilterFactory"/>
+
+        <runLineMarkerContributor implementationClass="org.jetbrains.plugins.scala.testingSupport.test.ui.ScalaTestRunLineMarkerProvider" language="Scala"/>
+
+        <testFramework implementation="org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2TestFramework" order="first"/>
+        <testFramework implementation="org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestTestFramework" order="first"/>
+        <testFramework implementation="org.jetbrains.plugins.scala.testingSupport.test.utest.UTestTestFramework" order="first"/>
+        <testFramework implementation="org.jetbrains.plugins.scala.testingSupport.test.munit.MUnitTestFramework"/>
+
+        <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2ConfigurationType"/>
+        <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestConfigurationType"/>
+        <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationType"/>
+        <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.test.munit.MUnitConfigurationType"/>
+
+        <runConfigurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2ConfigurationProducer"/>
+        <runConfigurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestConfigurationProducer"/>
+        <runConfigurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationProducer"/>
+        <runConfigurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.test.munit.MUnitConfigurationProducer"/>
+
+        <bspEnvironmentRunnerExtension implementation="org.jetbrains.plugins.scala.testingSupport.bsp.BspEnvironmentScalaTestRunnerExtension"/>
+    </extensions>
+
+    <extensions defaultExtensionNs="org.intellij.scala">
+        <!--suppress PluginXmlValidity -->
+        <structureViewModelProvider implementation="org.jetbrains.plugins.scala.testingSupport.TestStructureViewModelProvider"/>
+    </extensions>
+
+    <extensions defaultExtensionNs="com.intellij.sbt">
+        <configurationMainClassExtractor implementation="org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationMainClassExtractor"/>
+    </extensions>
+
+    <dependencies>
+        <module name="scalaCommunity.bsp"/>
+    </dependencies>
+</idea-plugin>

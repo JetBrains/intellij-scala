@@ -1,0 +1,11 @@
+<idea-plugin>
+    <extensions defaultExtensionNs="com.intellij">
+        <bspEnvironmentRunnerExtension implementation="org.jetbrains.bsp.project.test.environment.BspEnvironmentJUnitRunnerExtension"/>
+    </extensions>
+
+    <dependencies>
+        <plugin id="JUnit"/>
+        <module name="scalaCommunity.bsp"/>
+    </dependencies>
+
+</idea-plugin>
