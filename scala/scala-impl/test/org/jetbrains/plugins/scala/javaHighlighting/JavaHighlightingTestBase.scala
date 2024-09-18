@@ -2,9 +2,12 @@ package org.jetbrains.plugins.scala.javaHighlighting
 
 import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.lang.annotation.HighlightSeverity
+import com.intellij.openapi.projectRoots.Sdk
+import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.PsiFile
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.annotator.{Message, ScalaHighlightingTestBase}
+import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion, TypecheckerTests}
 import org.junit.experimental.categories.Category
 
@@ -13,6 +16,8 @@ abstract class JavaHighlightingTestBase extends ScalaHighlightingTestBase {
   import Message._
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version  >= LatestScalaVersions.Scala_2_11
+
+  override protected lazy val jdk: Sdk = SmartJDKLoader.createFilteredJdk(LanguageLevel.JDK_17, Seq("java.base", "java.sql"))
 
   private var myFilesCreated: Boolean = false
 

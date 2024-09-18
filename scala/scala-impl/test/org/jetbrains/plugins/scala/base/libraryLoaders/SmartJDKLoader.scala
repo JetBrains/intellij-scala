@@ -84,6 +84,12 @@ object SmartJDKLoader {
     }
   }
 
+  def createJdk(languageLevel: LanguageLevel): Sdk = {
+    val jdkVersion = JavaSdkVersion.fromLanguageLevel(languageLevel)
+    val jdkName = jdkVersion.getDescription
+    createNewJdk(jdkVersion, jdkName)
+  }
+
   /**
    * Creates a JDK that contains classes from the specified modules without registering it to the ProjectJdkTable.
    * Useful in subclasses of [[ScalaLightCodeInsightFixtureTestCase]] which require more classes than the mock JDKs
