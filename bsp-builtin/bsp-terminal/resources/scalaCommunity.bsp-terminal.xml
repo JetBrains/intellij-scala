@@ -1,0 +1,10 @@
+<idea-plugin>
+    <extensions defaultExtensionNs="com.intellij">
+        <bspVcsRootExtension implementation="org.jetbrains.bsp.data.TerminalStartDirectoryConfig"/>
+    </extensions>
+
+    <dependencies>
+        <plugin id="org.jetbrains.plugins.terminal"/>
+        <module name="scalaCommunity.bsp"/>
+    </dependencies>
+</idea-plugin>

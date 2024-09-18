@@ -52,17 +52,23 @@
     <depends optional="true" config-file="scala-junit-integration.xml">JUnit</depends>
     <!-- <depends optional="true" config-file="packagesearch.xml">com.jetbrains.packagesearch.intellij-plugin</depends> -->
 
+    <content>
+        <module name="scalaCommunity.intellij-bsp" />
+        <module name="scalaCommunity.bsp" />
+        <module name="scalaCommunity.bsp-junit" />
+        <module name="scalaCommunity.bsp-terminal" />
+        <module name="scalaCommunity.testing-support" />
+    </content>
+
     <xi:include href="/META-INF/sbt-api.xml"/>
     <xi:include href="/META-INF/scala-plugin-common.xml"/>
     <xi:include href="/META-INF/sbt.xml"/>
-    <xi:include href="/META-INF/BSP.xml"/>
     <xi:include href="/META-INF/codeInsight.xml"/>
     <xi:include href="/META-INF/conversion.xml"/>
     <xi:include href="/META-INF/compiler-integration.xml"/>
     <xi:include href="/META-INF/debugger.xml"/>
     <xi:include href="/META-INF/scala-repl.xml"/>
     <xi:include href="/META-INF/structure-view.xml"/>
-    <xi:include href="/META-INF/testing-support.xml"/>
     <xi:include href="/META-INF/uast.xml"/>
     <xi:include href="/META-INF/worksheet.xml"/>
     <xi:include href="/META-INF/scala-devkit-integration.xml"/>

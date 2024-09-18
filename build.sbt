@@ -44,6 +44,8 @@ lazy val scalaCommunity: sbt.Project =
   newProject("scalaCommunity", file("."))
     .dependsOn(
       bsp % "test->test;compile->compile",
+      bspJUnit % "test->test;compile->compile",
+      bspTerminal % "test->test;compile->compile",
       codeInsight % "test->test;compile->compile",
       conversion % "test->test;compile->compile",
       uast % "test->test;compile->compile",
@@ -107,13 +109,15 @@ lazy val scalaApi = newProject(
   file("scala/scala-api")
 ).settings(
   idePackagePrefix := Some("org.jetbrains.plugins.scala"),
+  packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity) // TODO: check if packaging into standalone is required
 )
 
 lazy val workspaceEntities = newProjectWithKotlin("workspace-entities", file("sbt/sbt-impl/workspace-entities"))
   .settings(
     Compile / unmanagedSourceDirectories ++= Seq(baseDirectory.value/"gen"),
     scalaVersion := Versions.scala3Version,
-    Compile / scalacOptions := globalScala3ScalacOptions
+    Compile / scalacOptions := globalScala3ScalacOptions,
+    packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity) // TODO: check if packaging into standalone is required
   )
 
 lazy val sbtApi =
@@ -133,7 +137,8 @@ lazy val sbtApi =
         "sbtStructurePath_1_2" -> relativeJarPath(sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, "1.2")),
         "sbtStructurePath_1_3" -> relativeJarPath(sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, "1.3"))
       ),
-      buildInfoOptions += BuildInfoOption.ConstantValue
+      buildInfoOptions += BuildInfoOption.ConstantValue,
+      packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity) // TODO: check if packaging into standalone is required
     )
     .withCompilerPluginIn(scalac2Patches)
 
@@ -296,6 +301,7 @@ lazy val structureView = newProject("structure-view", file("scala/structure-view
   .settings(
     scalaVersion := Versions.scala3Version,
     Compile / scalacOptions := globalScala3ScalacOptions,
+    packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity) // TODO: check if packaging into standalone is required
   )
   .withCompilerPluginIn(scalac3Patches)
 
@@ -328,7 +334,8 @@ lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
     libraryDependencies ++= Seq(
       Dependencies.junit % Test,
       Dependencies.junitInterface % Test,
-    )
+    ),
+    packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity) // TODO: check if packaging into standalone is required
   )
   .withCompilerPluginIn(scalac3Patches)
 
@@ -339,6 +346,7 @@ lazy val packageSearchClient: sbt.Project =
       Compile / scalacOptions := globalScala3ScalacOptions,
       resolvers += DependencyResolvers.PackageSearch,
       libraryDependencies += Dependencies.packageSearchClientJvm,
+      packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity), // TODO: check if packaging into standalone is required
     )
 
 lazy val scalac2Patches: sbt.Project =
@@ -438,7 +446,8 @@ lazy val scalaImpl: sbt.Project =
         Dependencies.scalaReflect                          -> Some("lib/scala-reflect.jar"),
         Dependencies.scalaLibrary                          -> None,
         Dependencies.scala3Library                         -> None,
-      )
+      ),
+      packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity) // TODO: check if packaging into standalone is required
     )
     .withCompilerPluginIn(scalac2Patches) // TODO Add automatically
 
@@ -467,7 +476,8 @@ lazy val sbtImpl =
   newProject("sbt-impl", file("sbt/sbt-impl"))
     .dependsOn(sbtApi, scalaImpl % "test->test;compile->compile")
     .settings(
-      intellijPlugins += "org.jetbrains.idea.maven".toPlugin
+      intellijPlugins += "org.jetbrains.idea.maven".toPlugin,
+      packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity) // TODO: check if packaging into standalone is required
     )
     .withCompilerPluginIn(scalac2Patches)
 
@@ -484,7 +494,8 @@ lazy val compilerIntegration =
         "com.intellij.gradle",
         "org.jetbrains.idea.maven"
       ).map(_.toPlugin), // Used only in tests
-      libraryDependencies += Dependencies.intellijMavenTestFramework % Test
+      libraryDependencies += Dependencies.intellijMavenTestFramework % Test,
+      packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity) // TODO: check if packaging into standalone is required
     )
     .withCompilerPluginIn(scalac2Patches)
 
@@ -595,7 +606,8 @@ lazy val testingSupport =
       compilerIntegration % "test->test;compile->compile"
     )
     .settings(
-      intellijPlugins += "JUnit".toPlugin
+      intellijPlugins += "JUnit".toPlugin,
+      packageMethod := PackagingMethod.Standalone("lib/modules/scalaCommunity.testing-support.jar"),
     )
     .withCompilerPluginIn(scalac2Patches)
 
@@ -697,20 +709,40 @@ lazy val decompiler =
       packageMethod := PackagingMethod.Standalone("lib/scalap.jar")
     )
 
+lazy val bspJUnit =
+  newProject("bsp-junit", file("bsp-builtin/bsp-junit"))
+    .dependsOn(
+      bsp % "test->test;compile->compile",
+    )
+    .settings(
+      intellijPlugins += "JUnit".toPlugin,
+      packageMethod := PackagingMethod.Standalone("lib/modules/scalaCommunity.bsp-junit.jar"),
+    )
+
+lazy val bspTerminal =
+  newProject("bsp-terminal", file("bsp-builtin/bsp-terminal"))
+    .dependsOn(
+      bsp % "test->test;compile->compile",
+    )
+    .settings(
+      intellijPlugins += "org.jetbrains.plugins.terminal".toPlugin,
+      packageMethod := PackagingMethod.Standalone("lib/modules/scalaCommunity.bsp-terminal.jar"),
+    )
+
 lazy val bsp =
-  newProject("bsp", file("bsp"))
+  newProject("bsp", file("bsp-builtin/bsp"))
     .enablePlugins(BuildInfoPlugin)
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
-      sbtImpl % "test->test;compile->compile"
+      sbtImpl % "test->test;compile->compile",
     )
     .settings(
       libraryDependencies ++= DependencyGroups.bsp,
-      intellijPlugins += "JUnit".toPlugin,
-      intellijPlugins += "org.jetbrains.plugins.terminal".toPlugin,
       buildInfoPackage := "org.jetbrains.bsp.buildinfo",
       buildInfoKeys := Seq("bloopVersion" -> Versions.bloopVersion),
-      buildInfoOptions += BuildInfoOption.ConstantValue
+      buildInfoOptions += BuildInfoOption.ConstantValue,
+      packageMethod := PackagingMethod.Standalone("lib/modules/scalaCommunity.bsp.jar"),
+      packageAssembleLibraries := true
     )
 
 // Integration with other IDEA plugins
