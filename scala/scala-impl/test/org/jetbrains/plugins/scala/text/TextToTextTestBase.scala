@@ -1,11 +1,13 @@
 package org.jetbrains.plugins.scala.text
 
+import com.intellij.openapi.projectRoots.Sdk
+import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.PsiPackage
 import com.intellij.util.AstLoadingFilter
 import org.jetbrains.plugins.scala.DependencyManagerBase.DependencyDescription
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
-import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, ScalaReflectLibraryLoader}
+import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, IvyManagedLoader, LibraryLoader, ScalaReflectLibraryLoader, ScalaSDKLoader, SmartJDKLoader}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
@@ -24,6 +26,8 @@ abstract class TextToTextTestBase(dependencies: Seq[DependencyDescription],
   override protected val includeCompilerAsLibrary = includeScalaCompiler
 
   override protected def supportedIn(version: ScalaVersion) = version >= scalaVersion
+
+  override protected lazy val jdk: Sdk = SmartJDKLoader.createJdk(LanguageLevel.JDK_17)
 
   override def librariesLoaders =
     super.librariesLoaders :+
