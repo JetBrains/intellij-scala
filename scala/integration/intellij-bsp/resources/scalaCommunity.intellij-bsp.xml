@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<idea-plugin>
+    <extensions defaultExtensionNs="org.jetbrains.bsp">
+        <bspProjectOpenProcessorExtension
+                implementation="org.jetbrains.plugins.scala.bsp.flow.open.MillScalaBspProjectOpenProcessorExtension"/>
+        <bspProjectAwareExtension
+                implementation="org.jetbrains.plugins.scala.bsp.config.MillScalaBspProjectAwareExtension"/>
+        <buildTargetClassifierExtension
+                implementation="org.jetbrains.plugins.scala.bsp.extension.MillScalaBuildTargetClassifier"/>
+        <buildToolAssetsExtension
+                implementation="org.jetbrains.plugins.scala.bsp.assets.MillAssetsExtension"/>
+        <scalaSdkExtension
+                implementation="org.jetbrains.plugins.scala.project.bsp.ScalaSdkExtensionImpl"/>
+        <connectionDetailsProviderExtensionJavaShim
+                implementation="org.jetbrains.plugins.scala.bsp.server.connection.MillScalaConnectionDetailsProvider"/>
+    </extensions>
+    <extensions defaultExtensionNs="com.intellij">
+        <projectOpenProcessor
+                implementation="org.jetbrains.plugins.scala.bsp.flow.open.MillScalaBspProjectOpenProcessor"/>
+    </extensions>
+    <dependencies>
+        <plugin id="org.jetbrains.bsp"/>
+    </dependencies>
+</idea-plugin>
