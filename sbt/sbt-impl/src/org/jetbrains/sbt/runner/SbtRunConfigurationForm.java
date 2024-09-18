@@ -14,6 +14,7 @@ import org.jetbrains.sbt.SbtBundle;
 import javax.swing.*;
 import java.awt.*;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 
@@ -32,6 +33,7 @@ public class SbtRunConfigurationForm {
 
     public SbtRunConfigurationForm(final Project project, final SbtRunConfiguration configuration) {
         environmentVariables.setEnvs(configuration.environmentVariables());
+        environmentVariables.setEnvFilePaths(configuration.envFilePaths());
         workingDirField.setText(configuration.getWorkingDir());
         FileChooserDescriptor folderDescriptor = FileChooserDescriptorFactory.createSingleFolderDescriptor()
                 .withTitle(SbtBundle.message("sbt.runner.choose.working.directory"));
@@ -66,6 +68,10 @@ public class SbtRunConfigurationForm {
         return environmentVariables.getEnvs();
     }
 
+    public List<String> getEnvFilePaths() {
+        return environmentVariables.getEnvFilePaths();
+    }
+
     public String getWorkingDir() {
         return workingDirField.getText();
     }
@@ -78,6 +84,7 @@ public class SbtRunConfigurationForm {
         tasksEditor.setText(configuration.getTasks());
         javaOptionsEditor.setText(configuration.getVmparams());
         environmentVariables.setEnvs(configuration.environmentVariables());
+        environmentVariables.setEnvFilePaths(configuration.envFilePaths());
         workingDirField.setText(configuration.getWorkingDir());
         useSbtShellCheckBox.setSelected(configuration.getUseSbtShell());
     }

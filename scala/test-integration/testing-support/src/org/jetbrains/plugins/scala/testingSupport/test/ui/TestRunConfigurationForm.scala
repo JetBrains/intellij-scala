@@ -153,6 +153,7 @@ final class TestRunConfigurationForm(val myProject: Project) {
   def getUseUiWithSbt: Boolean = myUseUiWithSbt.isSelected
   def getJavaOptions: String = myCommonScalaParameters.getVMParameters
   def getEnvironmentVariables: util.Map[String, String] = myCommonScalaParameters.getEnvironmentVariables
+  def getEnvironmentVariableFiles: util.List[String] = myCommonScalaParameters.getEnvironmentVariableFiles
   def isPassParentEnvs: Boolean = myCommonScalaParameters.isPassParentEnvs
   def getWorkingDirectory: String = myCommonScalaParameters.getWorkingDirectoryAccessor.getText
   def getTestArgs: String = myCommonScalaParameters.getProgramParameters

@@ -4,8 +4,9 @@ import com.intellij.execution.configuration.EnvironmentVariablesComponent
 import com.intellij.execution.configurations._
 import com.intellij.execution.process.ProcessEvent
 import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
+import com.intellij.execution.util.EnvFilesUtilKt.configureEnvsFromFiles
 import com.intellij.execution.util.JavaParametersUtil
-import com.intellij.execution.{ExecutionResult, Executor, OutputListener}
+import com.intellij.execution.{EnvFilesOptions, ExecutionResult, Executor, OutputListener}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
@@ -14,6 +15,7 @@ import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.execution.ParametersListUtil
 import com.intellij.util.xmlb.XmlSerializer
+import com.intellij.util.xmlb.annotations.XCollection
 import org.jdom.Element
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
@@ -31,7 +33,7 @@ import scala.util.Using
  * Run configuration of sbt tasks.
  */
 class SbtRunConfiguration(val project: Project, val configurationFactory: ConfigurationFactory, val name: String)
-        extends ModuleBasedConfiguration[RunConfigurationModule,Element](name, new RunConfigurationModule(project), configurationFactory) {
+        extends ModuleBasedConfiguration[RunConfigurationModule,Element](name, new RunConfigurationModule(project), configurationFactory) with EnvFilesOptions {
 
   /**
    * List of task to execute in format of sbt.
@@ -47,6 +49,10 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
    * Environment variables.
    */
   val environmentVariables: java.util.Map[String, String] = new java.util.HashMap[String, String]()
+
+  @XCollection
+  @BeanProperty
+  var envFilePaths: java.util.List[String] = new util.ArrayList[String]()
 
   @BeanProperty var workingDir: String = defaultWorkingDirectory
 
@@ -86,6 +92,8 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
     workingDir = params.getWorkingDir
     environmentVariables.clear()
     environmentVariables.putAll(params.getEnvironmentVariables)
+    envFilePaths.clear()
+    envFilePaths.addAll(params.getEnvFilePaths)
     useSbtShell = params.isUseSbtShell
   }
 
@@ -112,7 +120,7 @@ class SbtCommandLineState(val processedCommands: String, val configuration: SbtR
       val attributes = jf.getManifest.getMainAttributes
       Option(attributes.getValue("Main-Class")).getOrElse("xsbt.boot.Boot")
     }
-  
+
   override def createJavaParameters(): JavaParameters = {
     val project = configuration.getProject
     val params: JavaParameters = new JavaParameters
@@ -121,7 +129,11 @@ class SbtCommandLineState(val processedCommands: String, val configuration: SbtR
 
     val jdk: Sdk = JavaParametersUtil.createProjectJdk(project, null)
     params.configureByProject(project, JavaParameters.JDK_ONLY, jdk)
-    
+
+    val environmentVariables = new util.HashMap(configuration.environmentVariables)
+    environmentVariables.putAll(configureEnvsFromFiles(configuration, true))
+    params.setEnv(environmentVariables)
+
     val sbtSystemSettings = SbtSettings.getInstance(project).getState
     if (sbtSystemSettings.customLauncherEnabled) {
       params.getClassPath.add(sbtSystemSettings.customLauncherPath)
@@ -131,11 +143,10 @@ class SbtCommandLineState(val processedCommands: String, val configuration: SbtR
       params.getClassPath.add(launcher)
       params.setMainClass(determineMainClass(launcher.getAbsolutePath))
     }
-    
-    params.setEnv(configuration.environmentVariables)
+
     params.getVMParametersList.addParametersString(configuration.vmparams)
     params.getProgramParametersList.addParametersString(processedCommands)
-    
+
     params
   }
 }

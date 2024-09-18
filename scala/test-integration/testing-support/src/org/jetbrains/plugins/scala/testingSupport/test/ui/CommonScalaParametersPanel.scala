@@ -51,6 +51,8 @@ class CommonScalaParametersPanel extends CommonProgramParametersPanel {
 
   def getEnvironmentVariables: util.Map[String, String] = myEnvVariablesComponent.getEnvs
 
+  def getEnvironmentVariableFiles: util.List[String] = myEnvVariablesComponent.getEnvFilePaths
+
   def isPassParentEnvs: Boolean = myEnvVariablesComponent.isPassParentEnvs
 
   def getProgramParameters: String = getProgramParametersComponent.getComponent.getText
