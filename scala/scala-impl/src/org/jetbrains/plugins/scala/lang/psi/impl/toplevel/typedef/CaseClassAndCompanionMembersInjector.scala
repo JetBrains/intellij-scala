@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel
 package typedef
 
 import com.intellij.psi.{PsiClass, PsiElement}
-import org.jetbrains.plugins.scala.extensions.{Model, PsiElementExt, PsiModifierListOwnerExt, PsiNamedElementExt, StringsExt}
+import org.jetbrains.plugins.scala.extensions.{Model, NullSafe, PsiElementExt, PsiModifierListOwnerExt, PsiNamedElementExt, StringsExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames._
@@ -15,7 +15,7 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
   override def injectFunctions(source: ScTypeDefinition): Seq[String] = {
     source match {
       case ObjectWithCaseClassCompanion(_, cls: ScClass) =>
-        val className            = cls.name
+        val className            = NullSafe(cls.qualifiedName).map("_root_." + _).getOrElse(cls.name)
         val typeArgs             = typeArgsFromTypeParams(cls)
         val typeParamsDefinition = typeParamsString(cls.typeParameters)
         lazy val isScala3 = source.isInScala3File

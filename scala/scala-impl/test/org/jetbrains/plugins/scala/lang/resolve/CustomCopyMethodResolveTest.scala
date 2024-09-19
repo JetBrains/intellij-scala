@@ -15,4 +15,21 @@ class CustomCopyMethodResolveTest extends SimpleResolveTestBase {
        |}
        |""".stripMargin
   )
+
+  // SCL-23020
+  def testConflictingNameInCaseClassObject(): Unit = doResolveTest(
+    s"""
+       |case class Nest() {
+       |  def fa${REFTGT}il: Int = ???
+       |}
+       |
+       |object Nest {
+       |  trait Nest
+       |}
+       |
+       |object Test {
+       |  Nest().fa${REFSRC}il
+       |}
+       |""".stripMargin
+  )
 }
