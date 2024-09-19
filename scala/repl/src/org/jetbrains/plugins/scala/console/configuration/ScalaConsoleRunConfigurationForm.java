@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.console.configuration;
 
 import com.intellij.application.options.ModulesComboBox;
+import com.intellij.execution.configuration.EnvironmentVariablesComponent;
 import com.intellij.execution.ui.ConfigurationModuleSelector;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.module.Module;
@@ -17,6 +18,8 @@ import org.jetbrains.plugins.scala.console.ScalaReplBundle;
 import javax.swing.*;
 import java.awt.*;
 import java.lang.reflect.Method;
+import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 @SuppressWarnings("SameParameterValue")
@@ -26,6 +29,7 @@ public class ScalaConsoleRunConfigurationForm {
     private JPanel myPanel;
     private RawCommandLineEditor consoleArgsEditor;
     private TextFieldWithBrowseButton workingDirectoryField;
+    private EnvironmentVariablesComponent environmentVariables;
     private ModulesComboBox moduleComboBox;
 
     private final ConfigurationModuleSelector myModuleSelector;
@@ -43,6 +47,8 @@ public class ScalaConsoleRunConfigurationForm {
         VirtualFile baseDir = ProjectUtil.guessProjectDir(project);
         String path = baseDir != null ? baseDir.getPath() : "";
         workingDirectoryField.setText(path);
+        environmentVariables.setEnvs(configuration.environmentVariables());
+        environmentVariables.setEnvFilePaths(configuration.envFilePaths());
     }
 
     public JPanel getPanel() {
@@ -61,6 +67,8 @@ public class ScalaConsoleRunConfigurationForm {
         setJavaOptions(configuration.javaOptions());
         setConsoleArgs(configuration.consoleArgs());
         setWorkingDirectory(configuration.workingDirectory());
+        environmentVariables.setEnvs(configuration.environmentVariables());
+        environmentVariables.setEnvFilePaths(configuration.envFilePaths());
 
         myModuleSelector.applyTo(configuration);
     }
@@ -79,6 +87,14 @@ public class ScalaConsoleRunConfigurationForm {
 
     public void setWorkingDirectory(String s) {
         workingDirectoryField.setText(s);
+    }
+
+    public Map<String, String> getEnvironmentVariables() {
+        return environmentVariables.getEnvs();
+    }
+
+    public List<String> getEnvFilePaths() {
+        return environmentVariables.getEnvFilePaths();
     }
 
     public Module getModule() {
@@ -115,9 +131,9 @@ public class ScalaConsoleRunConfigurationForm {
      */
     private void $$$setupUI$$$() {
         myPanel = new JPanel();
-        myPanel.setLayout(new GridLayoutManager(9, 1, new Insets(0, 0, 0, 0), -1, -1));
+        myPanel.setLayout(new GridLayoutManager(10, 1, new Insets(0, 0, 0, 0), -1, -1));
         final Spacer spacer1 = new Spacer();
-        myPanel.add(spacer1, new GridConstraints(8, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        myPanel.add(spacer1, new GridConstraints(9, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         final JLabel label1 = new JLabel();
         this.$$$loadLabelText$$$(label1, this.$$$getMessageFromBundle$$$("messages/ScalaReplBundle", "scala.console.config.vm.options"));
         myPanel.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -137,9 +153,12 @@ public class ScalaConsoleRunConfigurationForm {
         myPanel.add(workingDirectoryField, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final JLabel label4 = new JLabel();
         this.$$$loadLabelText$$$(label4, this.$$$getMessageFromBundle$$$("messages/ScalaReplBundle", "scala.console.config.use.classpath.and.sdk.of.module"));
-        myPanel.add(label4, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        myPanel.add(label4, new GridConstraints(7, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         moduleComboBox = new ModulesComboBox();
-        myPanel.add(moduleComboBox, new GridConstraints(7, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        myPanel.add(moduleComboBox, new GridConstraints(8, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        environmentVariables = new EnvironmentVariablesComponent();
+        environmentVariables.setText(this.$$$getMessageFromBundle$$$("messages/ScalaReplBundle", "scala.console.config.env.vars"));
+        myPanel.add(environmentVariables, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     }
 
     private static Method $$$cachedGetBundleMethod$$$ = null;
