@@ -1,12 +1,16 @@
 import CompilerPlugin.*
 import dotty.tools.dotc.ast.tpd
 import dotty.tools.dotc.core.Contexts.{Context, ctx}
+import dotty.tools.dotc.core.Types.{SingletonType, Type, TypeRef}
 import dotty.tools.dotc.plugins.{PluginPhase, StandardPlugin}
+import dotty.tools.dotc.printing.PlainPrinter
+import dotty.tools.dotc.printing.Texts.Text
 import dotty.tools.dotc.report
 import dotty.tools.dotc.typer.TyperPhase
 import dotty.tools.dotc.util.Property
 
 import scala.annotation.nowarn
+import scala.language.implicitConversions
 
 class CompilerPlugin extends StandardPlugin:
   override val name = "compiler-plugin"
@@ -28,6 +32,17 @@ private object CompilerPlugin:
 
     // Only for "transparent inline" after the "typer" phase (but for any "inline" after the "inlining" phase)
     override def transformInlined(tree: tpd.Inlined)(using Context): tpd.Tree =
-      val s = "Type: " + ctx.printer.toText(tree.tpe).mkString(9000, false)
+      val printer = new TypePrinter(ctx.fresh.setSetting(ctx.settings.YtestPickler, true))
+      val s = "Type: " + printer.toText(tree.tpe).mkString(9000, false).replace("<root>.this.", "_root_.")
       report.echo(s, tree.srcPos)(using ctx.fresh.setSetting(ctx.settings.YshowSuppressedErrors, true))
       super.transformInlined(tree)
+
+    class TypePrinter(ctx: Context) extends PlainPrinter(ctx):
+      override def toText(tp: Type): Text =
+        homogenize(tp) match
+          case tp: TypeRef =>
+            toTextPrefixOf(tp) ~ selectionString(tp)
+          case tp => super.toText(tp)
+
+      override def toTextSingleton(tp: SingletonType): Text =
+        toTextRef(tp)
