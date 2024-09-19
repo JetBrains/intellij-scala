@@ -1,5 +1,6 @@
 package org.jetbrains.sbt.project
 
+import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.module.{JavaModuleType, ModuleType}
 import com.intellij.openapi.project.Project
 import com.intellij.util.SystemProperties
@@ -35,18 +36,38 @@ object ProjectStructureTestUtils {
   private def ivyCacheArtifacts(useEnv: Boolean)(relativePaths: String*): Seq[String] =
     relativePaths.map(ivyCacheArtifact(useEnv))
 
-  private def createScalaLibraryName(scalaVersion: ScalaVersion): String =
-    s"sbt: ${DependencyManagerBase.scalaLibraryDescription(scalaVersion)}:jar"
+  private def createScalaLibraryName(scalaVersion: ScalaVersion, projectSystemId: ProjectSystemId): String = {
+    val prefix = projectSystemId.getReadableName
+    val insideValue =
+      if (projectSystemId == SbtProjectSystem.Id) s"${DependencyManagerBase.scalaLibraryDescription(scalaVersion)}:jar"
+      else createScalaLibraryTitleBSP(scalaVersion)
 
-  def expectedScalaLibrary(useEnv: Boolean)(scalaVersion: String): library = {
-    val scalaVersionFromString = ScalaVersion.fromString(scalaVersion).get
-    expectedScalaLibraryFromCoursier(useEnv)(scalaVersionFromString, createScalaLibraryName(scalaVersionFromString))
+    s"$prefix: $insideValue"
   }
 
-  def expectedScalaLibraryWithScalaSdk(useEnv: Boolean)(scalaVersion: String): Seq[library] = {
+  private def createScalaLibraryTitleBSP(scalaVersion: ScalaVersion): String = {
+    val id =
+      if (scalaVersion.isScala3) "scala3-library_3"
+      else "scala-library"
+
+    s"$id-${scalaVersion.minor}"
+  }
+
+  def expectedScalaLibraryForSbt(useEnv: Boolean)(scalaVersion: String): library =
+    expectedScalaLibrary(useEnv)(scalaVersion, SbtProjectSystem.Id)
+
+  def expectedScalaLibrary(useEnv: Boolean)(scalaVersion: String, projectSystemId: ProjectSystemId): library = {
     val scalaVersionFromString = ScalaVersion.fromString(scalaVersion).get
-    val scalaLibrary = expectedScalaLibraryFromCoursier(useEnv)(scalaVersionFromString, createScalaLibraryName(scalaVersionFromString))
-    val scalaSdkLibrary = expectedScalaSdkLibraryFromCoursier(useEnv)(scalaVersionFromString)
+    expectedScalaLibraryFromCoursier(useEnv)(scalaVersionFromString, createScalaLibraryName(scalaVersionFromString, projectSystemId))
+  }
+
+  def expectedScalaLibraryWithScalaSdkForSbt(useEnv: Boolean)(scalaVersion: String): Seq[library] =
+    expectedScalaLibraryWithScalaSdk(useEnv)(scalaVersion, SbtProjectSystem.Id)
+
+  def expectedScalaLibraryWithScalaSdk(useEnv: Boolean)(scalaVersion: String, projectSystemId: ProjectSystemId): Seq[library] = {
+    val scalaVersionFromString = ScalaVersion.fromString(scalaVersion).get
+    val scalaLibrary = expectedScalaLibraryFromCoursier(useEnv: Boolean)(scalaVersionFromString, createScalaLibraryName(scalaVersionFromString, projectSystemId))
+    val scalaSdkLibrary = expectedScalaSdkLibraryFromCoursier(useEnv: Boolean)(scalaVersionFromString, projectSystemId)
     Seq(scalaLibrary, scalaSdkLibrary)
   }
 
@@ -61,10 +82,10 @@ object ProjectStructureTestUtils {
     }
   }
 
-  private def expectedScalaSdkLibraryFromCoursier(useEnv: Boolean)(scalaVersion: ScalaVersion): library = {
+  private def expectedScalaSdkLibraryFromCoursier(useEnv: Boolean)(scalaVersion: ScalaVersion, projectSystemId: ProjectSystemId): library = {
     val scalaVersionStr = scalaVersion.minor
 
-    val sdkLibraryName = s"sbt: scala-sdk-$scalaVersionStr"
+    val sdkLibraryName = s"${projectSystemId.getReadableName}: scala-sdk-$scalaVersionStr"
     if (Set("2.13.5", "2.13.6").contains(scalaVersionStr))
       new library(sdkLibraryName) {
         scalaSdkSettings := Some(ScalaSdkAttributes(
@@ -96,27 +117,11 @@ object ProjectStructureTestUtils {
           extraClasspath = Nil
         ))
       }
-    else if (scalaVersion.minor == "3.0.2")
-      new library(sdkLibraryName) {
-        scalaSdkSettings := Some(ScalaSdkAttributes(
-          scalaVersion.languageLevel,
-          classpath = coursierCacheArtifacts(useEnv)(
-            """org/scala-lang/scala-library/2.13.6/scala-library-2.13.6.jar
-              |org/scala-lang/scala3-library_3/3.0.2/scala3-library_3-3.0.2.jar
-              |com/google/protobuf/protobuf-java/3.7.0/protobuf-java-3.7.0.jar
-              |net/java/dev/jna/jna/5.3.1/jna-5.3.1.jar
-              |org/jline/jline-reader/3.19.0/jline-reader-3.19.0.jar
-              |org/jline/jline-terminal-jna/3.19.0/jline-terminal-jna-3.19.0.jar
-              |org/jline/jline-terminal/3.19.0/jline-terminal-3.19.0.jar
-              |org/scala-lang/modules/scala-asm/9.1.0-scala-1/scala-asm-9.1.0-scala-1.jar
-              |org/scala-lang/scala3-compiler_3/3.0.2/scala3-compiler_3-3.0.2.jar
-              |org/scala-lang/scala3-interfaces/3.0.2/scala3-interfaces-3.0.2.jar
-              |org/scala-lang/tasty-core_3/3.0.2/tasty-core_3-3.0.2.jar
-              |org/scala-sbt/compiler-interface/1.3.5/compiler-interface-1.3.5.jar
-              |org/scala-sbt/util-interface/1.3.0/util-interface-1.3.0.jar
-              |""".stripMargin.linesIterator.filter(_.nonEmpty).toSeq: _*
-          ),
-          extraClasspath = coursierCacheArtifacts(useEnv)(
+    else if (scalaVersion.minor == "3.0.2") {
+      // note: in BSP extraClasspath is always empty
+      val extraClasspath =
+        if (projectSystemId == SbtProjectSystem.Id) {
+          coursierCacheArtifacts(useEnv)(
             """com/fasterxml/jackson/core/jackson-annotations/2.2.3/jackson-annotations-2.2.3.jar
               |com/fasterxml/jackson/core/jackson-core/2.9.8/jackson-core-2.9.8.jar
               |com/fasterxml/jackson/core/jackson-databind/2.2.3/jackson-databind-2.2.3.jar
@@ -147,16 +152,39 @@ object ProjectStructureTestUtils {
               |org/scala-lang/scaladoc_3/3.0.2/scaladoc_3-3.0.2.jar
               |org/yaml/snakeyaml/1.23/snakeyaml-1.23.jar
               |""".stripMargin.stripMargin.linesIterator.filter(_.nonEmpty).toSeq: _*
+          )
+        } else {
+          Seq.empty
+        }
+      new library(sdkLibraryName) {
+        scalaSdkSettings := Some(ScalaSdkAttributes(
+          scalaVersion.languageLevel,
+          classpath = coursierCacheArtifacts(useEnv)(
+            """org/scala-lang/scala-library/2.13.6/scala-library-2.13.6.jar
+              |org/scala-lang/scala3-library_3/3.0.2/scala3-library_3-3.0.2.jar
+              |com/google/protobuf/protobuf-java/3.7.0/protobuf-java-3.7.0.jar
+              |net/java/dev/jna/jna/5.3.1/jna-5.3.1.jar
+              |org/jline/jline-reader/3.19.0/jline-reader-3.19.0.jar
+              |org/jline/jline-terminal-jna/3.19.0/jline-terminal-jna-3.19.0.jar
+              |org/jline/jline-terminal/3.19.0/jline-terminal-3.19.0.jar
+              |org/scala-lang/modules/scala-asm/9.1.0-scala-1/scala-asm-9.1.0-scala-1.jar
+              |org/scala-lang/scala3-compiler_3/3.0.2/scala3-compiler_3-3.0.2.jar
+              |org/scala-lang/scala3-interfaces/3.0.2/scala3-interfaces-3.0.2.jar
+              |org/scala-lang/tasty-core_3/3.0.2/tasty-core_3-3.0.2.jar
+              |org/scala-sbt/compiler-interface/1.3.5/compiler-interface-1.3.5.jar
+              |org/scala-sbt/util-interface/1.3.0/util-interface-1.3.0.jar
+              |""".stripMargin.linesIterator.filter(_.nonEmpty).toSeq: _*
           ),
+          extraClasspath
         ))
       }
-    else
+    } else
       throw new IllegalArgumentException(s"""Unsupported expected scala version: $scalaVersion""".stripMargin)
   }
 
   def expectedScalaLibraryWithScalaSdkFromIvy(useEnv: Boolean)(scalaVersion: String): Seq[library] = {
     val scalaVersionFromString = ScalaVersion.fromString(scalaVersion).get
-    val scalaLibrary = expectedScalaLibraryFromIvy(useEnv)(scalaVersionFromString, createScalaLibraryName(scalaVersionFromString))
+    val scalaLibrary = expectedScalaLibraryFromIvy(useEnv)(scalaVersionFromString, createScalaLibraryName(scalaVersionFromString, SbtProjectSystem.Id))
     val scalaSdkLibrary = expectedScalaSdkLibraryFromIvy(useEnv)(scalaVersionFromString, s"sbt: scala-sdk-$scalaVersion")
     Seq(scalaLibrary, scalaSdkLibrary)
   }

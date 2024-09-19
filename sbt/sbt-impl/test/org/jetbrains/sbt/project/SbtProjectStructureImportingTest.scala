@@ -27,7 +27,7 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureImportin
   import ProjectStructureDsl._
 
   def testSimple(): Unit = {
-    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk(useEnv = true)("2.13.5")
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.5")
     runSimpleTest("simple", scalaLibraries)
 
     // Adding the assertion here not to create a separate heavy test for such a tiny check
@@ -47,7 +47,7 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureImportin
 
   //noinspection RedundantDefaultArgument
   def testSimple_Scala3(): Unit = {
-    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibrary(useEnv = true)("2.13.6") +: ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk(useEnv = true)("3.0.2")
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryForSbt(useEnv = true)("2.13.6") +: ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("3.0.2")
     runSimpleTest("simple-scala3", scalaLibraries, DefaultSbtContentRootsScala3)
   }
 
@@ -90,7 +90,7 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureImportin
   def testTwoLinkedProjects(): Unit = {
     val originalProjectName = "twoLinkedProjects"
     val linkedProjectName = "simple"
-    val expectedScalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk(useEnv = true)("2.13.5")
+    val expectedScalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.5")
     val linkedSbtProjectPath = generateTestProjectPath(linkedProjectName)
     linkSbtProject(linkedSbtProjectPath, prodTestSourcesSeparated = false)
     runTest(
@@ -135,7 +135,7 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureImportin
 
   def testProjectWithUppercaseName(): Unit = runTest {
     new project("MyProjectWithUppercaseName") {
-      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk(useEnv = true)("2.13.6")
+      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.6")
       libraries ++= scalaLibraries
 
       modules := Seq(
@@ -170,7 +170,7 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureImportin
 
   def testUnmanagedDependency(): Unit = runTest(
     new project("unmanagedDependency") {
-      val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk(useEnv = true)("2.13.6")
+      val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.6")
       val managedLibrary: library = new library("sbt: org.apache.commons:commons-compress:1.21:jar")
       libraries := scalaLibraries :+ managedLibrary
 
@@ -188,7 +188,7 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureImportin
 
   def testSharedSources(): Unit = runTest(
     new project("sharedSourcesProject") {
-      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk(useEnv = true)("2.13.6")
+      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.6")
       libraries := scalaLibraries
 
       lazy val root: module = new module("sharedSourcesProject") {
@@ -235,7 +235,7 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureImportin
 
   def testSharedSourcesWithNestedProjectDependencies(): Unit = runTest(
     new project("sharedSourcesWithNestedProjectDependencies") {
-      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk(useEnv = true)("2.13.6")
+      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.6")
       libraries := scalaLibraries
 
       lazy val root: module = new module("sharedSourcesWithNestedProjectDependencies") {
@@ -967,7 +967,7 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureImportin
     val projectName = "sharedSourcesInsideMultiBuildProject"
     runTest(
       new project(projectName) {
-        lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk(useEnv = true)("2.13.6")
+        lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.6")
         libraries := scalaLibraries
 
         val buildURI: URI = getTestProjectDir.getCanonicalFile.toURI
@@ -1017,7 +1017,7 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureImportin
   // In such case we should handle it and append number suffix to one of the module name
   def testMultiBuildProjectWithTheSameProjectIdFromIDEAPerspective(): Unit = runTest(
     new project("multiBuildProjectWithTheSameProjectIdFromIDEAPerspective") {
-      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk(useEnv = true)("2.13.6")
+      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.6")
       libraries := scalaLibraries
 
       val buildURI: URI = getTestProjectDir.getCanonicalFile.toURI

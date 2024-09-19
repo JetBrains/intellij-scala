@@ -32,7 +32,7 @@ class NewSbtProjectWizardTest extends NewScalaProjectWizardTestBase with ExactMa
 
     //noinspection TypeAnnotation
     val expectedProject = new project(projectName) {
-      lazy val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk(useEnv = false)(scalaVersion)
+      lazy val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = false)(scalaVersion)
 
       libraries := scalaLibraries
       libraries.exactMatch()
