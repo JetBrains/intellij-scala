@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.console.configuration
 import com.intellij.execution.*
 import com.intellij.execution.configurations.*
 import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
+import com.intellij.execution.util.EnvFilesUtilKt.configureEnvsFromFiles
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
@@ -39,7 +40,7 @@ class ScalaConsoleRunConfiguration(
   name,
   new RunConfigurationModule(project),
   configurationFactory
-) {
+) with EnvFilesOptions {
 
   //language=Scala
   private val Scala2MainClass = "scala.tools.nsc.MainGenericRunner"
@@ -52,6 +53,11 @@ class ScalaConsoleRunConfiguration(
   @BeanProperty var myConsoleArgs: String = ""
   @BeanProperty var workingDirectory: String = Option(getProject.baseDir).map(_.getPath).getOrElse("")
   @BeanProperty var javaOptions: String = DefaultJavaOptions
+
+  @BeanProperty var environmentVariables: java.util.Map[String, String] = new java.util.HashMap()
+
+  @BeanProperty
+  var envFilePaths: java.util.List[String] = new java.util.ArrayList()
 
   def consoleArgs: String = ensureUsesJavaCpByDefault(this.myConsoleArgs)
 
@@ -71,6 +77,8 @@ class ScalaConsoleRunConfiguration(
     javaOptions = params.getJavaOptions
     consoleArgs = params.getConsoleArgs
     workingDirectory = params.getWorkingDirectory
+    environmentVariables = params.getEnvironmentVariables
+    envFilePaths = params.getEnvFilePaths
     setModule(params.getModule)
   }
 
@@ -156,7 +164,7 @@ class ScalaConsoleRunConfiguration(
   }
 
   private def disableJLineOption: String = {
-    import ScalaConsoleRunConfiguration.{Scala2_13_2, Scala2_13_14}
+    import ScalaConsoleRunConfiguration.{Scala2_13_14, Scala2_13_2}
     val scalaVersion: Option[ScalaVersion] = getModule.flatMap(_.scalaMinorVersion)
     if (scalaVersion.exists(v => Scala2_13_2 <= v && v < Scala2_13_14)) {
       // https://github.com/scala/scala/pull/8906
@@ -183,6 +191,11 @@ class ScalaConsoleRunConfiguration(
       params.setShortenCommandLine(getShortenCommandLineMethod(Option(params.getJdk)), project)
       params.getClassPath.addRunners()
       params.setWorkingDirectory(workingDirectory)
+
+      val envVars = new java.util.HashMap(environmentVariables)
+      //noinspection ApiStatus,UnstableApiUsage
+      envVars.putAll(configureEnvsFromFiles(this, true))
+      params.setEnv(envVars)
 
       val mainClass = if (module.hasScala3) Scala3MainClass else Scala2MainClass
       params.setMainClass(mainClass)
