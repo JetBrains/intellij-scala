@@ -27,7 +27,7 @@ class NewSbtProjectWizardTest extends NewScalaProjectWizardTestBase with ExactMa
     runSimpleCreateSbtProjectTest("project_name_with_dots spaces and-dashes and UPPERCASE")
 
   private def runSimpleCreateSbtProjectTest(projectName: String, packagePrefixOpt: Option[String] = None): Unit = {
-    val scalaVersion = "2.13.6"
+    val scalaVersion = "2.13.14"
     val sbtVersion = Versions.SBT.LatestSbtVersion
 
     //noinspection TypeAnnotation
