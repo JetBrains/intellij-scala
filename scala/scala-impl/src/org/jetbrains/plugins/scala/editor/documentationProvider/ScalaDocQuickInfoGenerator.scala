@@ -28,10 +28,6 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 //  (unify with Java behaviour)
 // TODO 3: add minimum required module/location, if class/method is in same scope, do not render module/location at all
 object ScalaDocQuickInfoGenerator {
-
-  //TODO: not supported yet
-  private[documentationProvider] val EnableSyntaxHighlightingInQuickInfo = false
-
   @HintText
   def getQuickNavigateInfo(element: PsiElement, originalElement: PsiElement): Option[String] = {
     val substitutor = originalElement match {
@@ -47,7 +43,59 @@ object ScalaDocQuickInfoGenerator {
 
   @HintText
   def getQuickNavigateInfo(element: PsiElement, originalElement: PsiElement, substitutor: ScSubstitutor): Option[String] = {
-    implicit val typeRenderer: TypeRenderer = ScalaDocTypeRenderer.forQuickInfo(originalElement, substitutor)(ProjectContext.fromPsi(element))
+    val typeRenderer: TypeRenderer = ScalaDocTypeRenderer.forQuickInfo(originalElement, substitutor)(ProjectContext.fromPsi(element))
+    val generator = new ScalaDocQuickInfoGenerator(typeRenderer)
+    generator.getQuickNavigateInfo(element)
+  }
+}
+
+class ScalaDocQuickInfoGenerator(
+  typeRenderer: TypeRenderer
+) {
+
+  //TODO: not supported yet
+  private[documentationProvider] val EnableSyntaxHighlightingInQuickInfo = false
+
+  private val modifiersRenderer: ModifiersRendererLike = (buffer, modListOwner) => {
+    import org.jetbrains.plugins.scala.util.EnumSet.EnumSetOps
+    modListOwner.getModifierList.modifiers.foreach { m =>
+      buffer.append(m.text).append(" ")
+    }
+  }
+
+  private val typeParamsRenderer: TypeParamsRenderer =
+    new TypeParamsRenderer(typeRenderer, TextEscaper.Html, stripContextTypeArgs = false)
+
+  private val parameterTypeDecoratorFull = new ParameterTypeDecorator(
+    showByNameArrow = true,
+    showDefaultValue = true
+  ) {
+    private val Ellipsis = '…'
+
+    override protected def renderDefaultValue(buffer: StringBuilder, param: ScParameter): Unit = {
+      param.getDefaultExpressionInSource match {
+        case Some(expr) =>
+          buffer.append(expr.getText)
+        case _ =>
+          buffer.append(Ellipsis)
+      }
+    }
+  }
+
+  private val typeAnnotationRendererSimple: TypeAnnotationRenderer =
+    new TypeAnnotationRenderer(typeRenderer, ParameterTypeDecorator.DecorateNone)
+  private val typeAnnotationRendererMinimized: TypeAnnotationRenderer =
+    new TypeAnnotationRenderer(typeRenderer, ParameterTypeDecorator.DecorateAllMinimized)
+  private val typeAnnotationRendererFull: TypeAnnotationRenderer =
+    new TypeAnnotationRenderer(typeRenderer, parameterTypeDecoratorFull)
+
+  private val functionParametersRenderer: ParametersRenderer = {
+    val paramRenderer = new ParameterRenderer(typeRenderer, WithHtmlPsiLink.modifiersRenderer, typeAnnotationRendererSimple)
+    new ParametersRenderer(paramRenderer, shouldRenderImplicitModifier = false)
+  }
+
+  @HintText
+  def getQuickNavigateInfo(element: PsiElement): Option[String] = {
     val buffer = new StringBuilder
     element match {
       case scGiven: ScGiven                              => generateGivenInfo(buffer, scGiven)
@@ -66,8 +114,7 @@ object ScalaDocQuickInfoGenerator {
     if (result.isEmpty) Option.empty else Option(result)
   }
 
-  private def generateClassInfo(buffer: StringBuilder, clazz: ScTypeDefinition)
-                               (implicit typeRenderer: TypeRenderer): Unit = {
+  private def generateClassInfo(buffer: StringBuilder, clazz: ScTypeDefinition): Unit = {
     renderClassHeader(buffer, clazz)
     modifiersRenderer.render(buffer, clazz)
     buffer.append(clazz.keywordPrefix)
@@ -98,7 +145,7 @@ object ScalaDocQuickInfoGenerator {
 
   // TODO: for case classes Product is displayed but Serializable is not, UNIFY1
   private def renderSuperTypes(clazz: ScTypeDefinition)
-                              (implicit typeRenderer: TypeRenderer): String = {
+                              : String = {
     val buffer = new StringBuilder()
 
     val superTypes = clazz.superTypes
@@ -143,8 +190,7 @@ object ScalaDocQuickInfoGenerator {
       case _                                 => false
     }
 
-  private def generateFunctionInfo(buffer: StringBuilder, function: ScFunction)
-                                  (implicit typeRenderer: TypeRenderer): Unit = {
+  private def generateFunctionInfo(buffer: StringBuilder, function: ScFunction): Unit = {
     renderMemberHeader(buffer, function)
     modifiersRenderer.render(buffer, function)
     // NOTE: currently it duplicates org.jetbrains.plugins.scala.lang.psi.types.api.presentation.FunctionRenderer
@@ -153,16 +199,15 @@ object ScalaDocQuickInfoGenerator {
     buffer.append(function.name)
     typeParamsRenderer.renderParams(buffer, function)
     functionParametersRenderer.renderClauses(buffer, function.paramClauses.clauses)
-    simpleTypeAnnotationRenderer.render(buffer, function)
+    typeAnnotationRendererSimple.render(buffer, function)
   }
 
-  private def generateGivenInfo(buffer: StringBuilder, scGiven: ScGiven)
-                               (implicit typeRenderer: TypeRenderer): Unit = {
+  private def generateGivenInfo(buffer: StringBuilder, scGiven: ScGiven): Unit = {
     renderMemberHeader(buffer, scGiven)
     modifiersRenderer.render(buffer, scGiven)
     buffer.append("given ")
     buffer.append(scGiven.name)
-    simpleTypeAnnotationRenderer.render(buffer, scGiven)
+    typeAnnotationRendererSimple.render(buffer, scGiven)
   }
 
   private def renderMemberHeader(buffer: StringBuilder, member: ScMember): Unit =
@@ -185,8 +230,7 @@ object ScalaDocQuickInfoGenerator {
    * @example member: `val (field1, field2) = (1, 2)`
    *          field: `field2`
    */
-  private def generateValueInfo(buffer: StringBuilder, field: PsiNamedElement, member: ScValueOrVariable)
-                               (implicit typeRenderer: TypeRenderer): Unit = {
+  private def generateValueInfo(buffer: StringBuilder, field: PsiNamedElement, member: ScValueOrVariable): Unit = {
     renderMemberHeader(buffer, member)
     modifiersRenderer.render(buffer, member)
     buffer.append(member.keyword).append(" ")
@@ -194,7 +238,7 @@ object ScalaDocQuickInfoGenerator {
 
     field match {
       case typed: ScTypedDefinition =>
-        richTypeAnnotationRenderer.render(buffer, typed)
+        typeAnnotationRendererMinimized.render(buffer, typed)
       case _ =>
     }
     member.definitionExpr match {
@@ -214,18 +258,6 @@ object ScalaDocQuickInfoGenerator {
     }
   }
 
-  private implicit class ScValueOrVariableOps(private val target: ScValueOrVariable) extends AnyVal {
-    def keyword: String  = target match {
-      case _: ScValue => "val"
-      case _          => "var"
-    }
-    def definitionExpr: Option[ScExpression] = target match {
-      case d: ScPatternDefinition  => d.expr
-      case d: ScVariableDefinition => d.expr
-      case _                       => None
-    }
-  }
-
   private def getOneLine(s: String): String = {
     val trimed = s.trim
     val newLineIdx = trimed.indexOf('\n')
@@ -233,15 +265,13 @@ object ScalaDocQuickInfoGenerator {
     else trimed.substring(0, newLineIdx) + " ..."
   }
 
-  private def generateBindingPatternInfo(buffer: StringBuilder, binding: ScBindingPattern)
-                                        (implicit typeRenderer: TypeRenderer): Unit = {
+  private def generateBindingPatternInfo(buffer: StringBuilder, binding: ScBindingPattern): Unit = {
     buffer.append("Pattern: ")
     buffer.append(binding.name)
-    richTypeAnnotationRenderer.render(buffer, binding)
+    typeAnnotationRendererMinimized.render(buffer, binding)
   }
 
-  private def generateTypeAliasInfo(buffer: StringBuilder, alias: ScTypeAlias)
-                                   (implicit typeRenderer: TypeRenderer): Unit = {
+  private def generateTypeAliasInfo(buffer: StringBuilder, alias: ScTypeAlias): Unit = {
     renderMemberHeader(buffer, alias)
     buffer.append("type ")
     buffer.append(alias.name)
@@ -255,8 +285,7 @@ object ScalaDocQuickInfoGenerator {
     }
   }
 
-  private def generateParameterInfo(buffer: StringBuilder, parameter: ScParameter)
-                                   (implicit typeRenderer: TypeRenderer): Unit =
+  private def generateParameterInfo(buffer: StringBuilder, parameter: ScParameter): Unit =
     ScalaPsiUtil.findSyntheticContextBoundInfo(parameter) match {
       case Some(ContextBoundInfo(typeParam, contextBoundType, _)) =>
         // this branch can be triggered when showing, test on this example (expand all implicit hints):
@@ -269,13 +298,12 @@ object ScalaDocQuickInfoGenerator {
         generateSimpleParameterInfo(buffer, parameter)
     }
 
-  private def generateSimpleParameterInfo(buffer: StringBuilder, parameter: ScParameter)
-                                         (implicit typeRenderer: TypeRenderer): Unit = {
+  private def generateSimpleParameterInfo(buffer: StringBuilder, parameter: ScParameter): Unit = {
     renderParameterHeader(buffer, parameter)
     if (parameter.isVal) buffer.appendKeyword("val ")
     else if (parameter.isVar) buffer.appendKeyword("var ")
     buffer.append(parameter.name)
-    richTypeAnnotationRenderer.render(buffer, parameter)
+    typeAnnotationRendererFull.render(buffer, parameter)
   }
 
   private def renderParameterHeader(buffer: StringBuilder, parameter: ScParameter): Unit =
@@ -294,24 +322,15 @@ object ScalaDocQuickInfoGenerator {
       }
   }
 
-  private def modifiersRenderer: ModifiersRendererLike = (buffer, modListOwner) => {
-    import org.jetbrains.plugins.scala.util.EnumSet.EnumSetOps
-    modListOwner.getModifierList.modifiers.foreach { m =>
-      buffer.append(m.text).append(" ")
+  private implicit class ScValueOrVariableOps(private val target: ScValueOrVariable) {
+    def keyword: String  = target match {
+      case _: ScValue => "val"
+      case _          => "var"
+    }
+    def definitionExpr: Option[ScExpression] = target match {
+      case d: ScPatternDefinition  => d.expr
+      case d: ScVariableDefinition => d.expr
+      case _                       => None
     }
   }
-
-  private def typeParamsRenderer(implicit typeRenderer: TypeRenderer): TypeParamsRenderer =
-    new TypeParamsRenderer(typeRenderer, TextEscaper.Html, stripContextTypeArgs = false)
-
-  private def functionParametersRenderer(implicit typeRenderer: TypeRenderer): ParametersRenderer = {
-    val paramRenderer = new ParameterRenderer(typeRenderer, WithHtmlPsiLink.modifiersRenderer, simpleTypeAnnotationRenderer)
-    new ParametersRenderer(paramRenderer, shouldRenderImplicitModifier = false)
-  }
-
-  private def richTypeAnnotationRenderer(implicit typeRenderer: TypeRenderer): TypeAnnotationRenderer =
-    new TypeAnnotationRenderer(typeRenderer, ParameterTypeDecorator.DecorateAllMinimized)
-
-  private def simpleTypeAnnotationRenderer(implicit typeRenderer: TypeRenderer): TypeAnnotationRenderer =
-    new TypeAnnotationRenderer(typeRenderer, ParameterTypeDecorator.DecorateNone)
 }
