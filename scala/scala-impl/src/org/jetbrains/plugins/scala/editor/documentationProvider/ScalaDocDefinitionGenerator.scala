@@ -2,18 +2,23 @@ package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.lang.documentation.DocumentationMarkup
 import com.intellij.lang.documentation.DocumentationMarkup.BOTTOM_ELEMENT
+import com.intellij.openapi.editor.colors.EditorColorsManager
+import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.util.NlsSafe
 import com.intellij.openapi.util.text.HtmlChunk
 import com.intellij.psi._
+import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.apache.commons.text.StringEscapeUtils.escapeHtml4
 import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationUtils.EmptyDoc
 import org.jetbrains.plugins.scala.editor.documentationProvider.renderers.{ScalaDocAnnotationRenderer, ScalaDocParametersRenderer, ScalaDocTypeParamsRenderer, ScalaDocTypeRenderer, WithHtmlPsiLink}
-import org.jetbrains.plugins.scala.extensions.{&, OptionExt, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.{&, ObjectExt, OptionExt, PsiElementExt}
+import org.jetbrains.plugins.scala.highlighter.{ScalaSyntaxHighlighter, ScalaSyntaxHighlighterFactory}
 import org.jetbrains.plugins.scala.lang.psi
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
@@ -41,6 +46,27 @@ private class ScalaDocDefinitionGenerator private(
   elementWithDoc: PsiElement,
   originalElement: Option[PsiElement],
 ) {
+
+  private lazy val syntaxHighlighter: ScalaSyntaxHighlighter = {
+    val file = elementWithDoc.getContainingFile
+    ScalaSyntaxHighlighterFactory.createScalaSyntaxHighlighter(
+      project = file.getProject,
+      file = file.getVirtualFile,
+      language = file.getLanguage
+    )
+  }
+  private lazy val colorScheme = EditorColorsManager.getInstance.getSchemeForCurrentUITheme
+
+  private def renderUsingSyntaxHighlighter(buffer: StringBuilder, expr: ScExpression): Unit = {
+    val leafElements = expr.elements.filter(_.is[LeafPsiElement]).toSeq
+    leafElements.foreach { leaf =>
+      val text: String = leaf.getText
+      val elementType = leaf.getNode.getElementType
+      val attributeKeys = syntaxHighlighter.getTokenHighlights(elementType)
+      val textAttributes = attributeKeys.map(colorScheme.getAttributes).foldLeft(new TextAttributes())(TextAttributes.merge)
+      buffer.appendAs(text, textAttributes)
+    }
+  }
 
   private implicit val projectContext: ProjectContext = elementWithDoc.projectContext
   private implicit val typeRenderer: TypeRenderer = ScalaDocTypeRenderer(originalElement)
@@ -170,6 +196,7 @@ private class ScalaDocDefinitionGenerator private(
     element match {
       case DesugaredTypeDefinition(gvn) => typeAnnotationRenderer.render(builder, gvn)
       case _: ScObject                  => // ignore, an object doesn't need type annotation
+      case p: ScParameter               => typeAnnotationRendererWithFullParameter.render(builder, p)
       case typed: ScTypedDefinition     => typeAnnotationRenderer.render(builder, typed)
       case typed: ScValueOrVariable     => typeAnnotationRenderer.render(builder, typed)
       case _                            =>
@@ -247,6 +274,26 @@ private class ScalaDocDefinitionGenerator private(
 
   private lazy val typeAnnotationRenderer: TypeAnnotationRenderer =
     new TypeAnnotationRenderer(typeRenderer, ParameterTypeDecorator.DecorateAllMinimized)
+
+  private lazy val typeAnnotationRendererWithFullParameter: TypeAnnotationRenderer =
+    new TypeAnnotationRenderer(typeRenderer, parameterTypeDecoratorFull)
+
+  private val parameterTypeDecoratorFull = new ParameterTypeDecorator(
+    showByNameArrow = true,
+    showDefaultValue = true
+  ) {
+    private val Ellipsis = '…'
+
+    override protected def renderDefaultValue(buffer: StringBuilder, param: ScParameter): Unit = {
+      param.getDefaultExpressionInSource match {
+        case Some(expr) =>
+          renderUsingSyntaxHighlighter(buffer, expr)
+        case _ =>
+          buffer.append(Ellipsis)
+      }
+    }
+  }
+
   private lazy val annotationsTypeRenderer =
     ScalaDocTypeRenderer.forAnnotations(originalElement)
   private lazy val annotationsRenderer =

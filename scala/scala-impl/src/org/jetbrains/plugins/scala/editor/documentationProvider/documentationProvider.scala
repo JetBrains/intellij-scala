@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.editor
 
 import com.intellij.openapi.editor.colors.{EditorColorsManager, TextAttributesKey}
+import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.editor.richcopy.HtmlSyntaxInfoUtil
 import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
 
@@ -13,6 +14,11 @@ package object documentationProvider {
 
     def appendAs(word: String, textAttributesKey: TextAttributesKey): StringBuilder = {
       val textAttributes = EditorColorsManager.getInstance.getGlobalScheme.getAttributes(textAttributesKey)
+      HtmlSyntaxInfoUtil.appendStyledSpan(delegate.underlying, textAttributes, word, 1.0f)
+      delegate
+    }
+
+    def appendAs(word: String, textAttributes: TextAttributes): StringBuilder = {
       HtmlSyntaxInfoUtil.appendStyledSpan(delegate.underlying, textAttributes, word, 1.0f)
       delegate
     }

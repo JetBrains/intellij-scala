@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
+import com.intellij.openapi.editor.DefaultLanguageHighlighterColors
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumClassCase, ScEnumSingletonCase, ScFunction, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScGiven, ScGivenDefinition, ScObject, ScTrait}
 
@@ -26,8 +27,9 @@ private object ScalaDocumentationUtils {
     case _: ScFunction                                               => ("def", DefaultHighlighter.METHOD_DECLARATION)
     case c: ScClassParameter if c.isVal                              => ("val", DefaultHighlighter.VALUES)
     case c: ScClassParameter if c.isVar                              => ("var", DefaultHighlighter.VARIABLES)
+    case _: ScParameter                                              => ("", DefaultHighlighter.PARAMETER)
     case _: ScValue                                                  => ("val", DefaultHighlighter.VALUES)
     case _: ScVariable                                               => ("var", DefaultHighlighter.VARIABLES)
-    case _                                                           => ("", DefaultHighlighter.STRING)
+    case _                                                           => ("", DefaultLanguageHighlighterColors.IDENTIFIER)
   }
 }
