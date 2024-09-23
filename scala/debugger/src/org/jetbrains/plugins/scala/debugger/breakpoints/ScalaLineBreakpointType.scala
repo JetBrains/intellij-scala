@@ -30,9 +30,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, Sc
 import org.jetbrains.plugins.scala.statistics.ScalaDebuggerUsagesCollector
 import org.jetbrains.plugins.scala.ScalaLanguage
 
-import java.util.{Collections, List => JList}
+import java.util.Collections
 import javax.swing.Icon
-import scala.jdk.CollectionConverters._
 
 class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", DebuggerBundle.message("line.breakpoints.tab.title")) {
 
@@ -67,8 +66,8 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
 
   private type JavaBPVariant = JavaLineBreakpointType#JavaBreakpointVariant
 
-  override def computeVariantsAsync(project: Project, position: XSourcePosition): Promise[JList[_ <: BreakpointVariant]] = {
-    val promise = new AsyncPromise[JList[_ <: BreakpointVariant]]()
+  override def computeVariantsAsync(project: Project, position: XSourcePosition): Promise[java.util.List[_ <: BreakpointVariant]] = {
+    val promise = new AsyncPromise[java.util.List[_ <: BreakpointVariant]]()
     executeOnPooledThread { inReadAction {
       val variants = computeVariants(project, position)
       promise.setResult(variants)
@@ -77,16 +76,14 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
   }
 
   @NotNull
-  override def computeVariants(@NotNull project: Project, @NotNull position: XSourcePosition): JList[JavaBPVariant] = {
-    val emptyList = Collections.emptyList[JavaBPVariant]
-
+  override def computeVariants(@NotNull project: Project, @NotNull position: XSourcePosition): java.util.List[JavaBPVariant] = {
     val dumbService = DumbService.getInstance(project)
-    if (dumbService.isDumb) return emptyList
+    if (dumbService.isDumb) return Collections.emptyList()
 
     val file = PsiManager.getInstance(project).findFile(position.getFile) match {
-      case null => return emptyList
+      case null => return Collections.emptyList()
       case sf: ScalaFile => sf
-      case _ => return emptyList
+      case _ => return Collections.emptyList()
     }
     val document = file.getFileDocument
     val line = position.getLine
@@ -102,18 +99,18 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
       case _ => true
     }
 
-    if (lambdas.isEmpty) return emptyList
+    if (lambdas.isEmpty) return Collections.emptyList()
 
     val elementAtLine = SourcePosition.createFromLine(file, line).getElementAt
 
-    var res: List[JavaBPVariant] = Nil
+    val res = new java.util.LinkedList[JavaBPVariant]()
 
     val method = DebuggerUtil.getContainingMethod(elementAtLine)
 
     var lineVariantWasAdded = false
     for ((lambda, ordinal) <- lambdas.zipWithIndex) {
       val isLine = method.contains(lambda)
-      res = res :+ new ExactScalaBreakpointVariant(XSourcePositionImpl.createByElement(lambda), lambda, isLine, ordinal)
+      res.addLast(new ExactScalaBreakpointVariant(XSourcePositionImpl.createByElement(lambda), lambda, isLine, ordinal))
       if (isLine) {
         assert(!lineVariantWasAdded)
         lineVariantWasAdded = true
@@ -121,13 +118,13 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
     }
     val lambdaVariantCount = lambdas.size - (if (lineVariantWasAdded) 1 else 0)
     if (!lineVariantWasAdded) {
-      res = new ExactScalaBreakpointVariant(position, method.orNull, isLine = true, -1) +: res
+      res.addFirst(new ExactScalaBreakpointVariant(position, method.orNull, isLine = true, -1))
     }
 
-    if (res.size <= 1) return emptyList
+    if (res.size <= 1) return Collections.emptyList()
 
-    res = new JavaBreakpointVariant(position, lambdaVariantCount) +: res //adding all variants
-    res.asJava
+    res.addFirst(new JavaBreakpointVariant(position, lambdaVariantCount)) //adding all variants
+    res
   }
 
   override def matchesPosition(@NotNull breakpoint: LineBreakpoint[_], @NotNull position: SourcePosition): Boolean = {
