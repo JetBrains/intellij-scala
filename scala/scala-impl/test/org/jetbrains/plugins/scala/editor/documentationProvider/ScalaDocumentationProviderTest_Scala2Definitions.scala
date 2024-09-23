@@ -137,7 +137,7 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
          |  case Array(_, x, y) =>
          |    println(${|}x + y)
          |}""".stripMargin,
-      """Pattern: <span style="color:#008000;font-weight:bold;">x</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>
+      """Pattern: <span style="color:#000000;">x</span>: <span style=""><a href="psi_element://scala.Int"><code>Int</code></a></span>
         |""".stripMargin
     )
 
@@ -470,5 +470,51 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
          |""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
+  }
+
+  def testParameterOfFunction(): Unit = {
+    doGenerateDocDefinitionTest(
+      s"""def foo(${|}name: String): Unit = {}""".stripMargin,
+      """<span style="color:#000000;">name</span>: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>"""
+    )
+  }
+
+  def testParameterOfClass(): Unit = {
+    doGenerateDocDefinitionTest(
+      s"""class A(${|}name: String):""".stripMargin,
+      """<span style="color:#000000;">name</span>: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>"""
+    )
+  }
+
+  def testParameterOfClass_Val(): Unit = {
+    doGenerateDocDefinitionTest(
+      s"""class A(val ${|}name: String):""".stripMargin,
+      """<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">name</span>: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>"""
+    )
+  }
+
+  def testParameterOfClass_Var(): Unit = {
+    doGenerateDocDefinitionTest(
+      s"""class A(var ${|}name: String):""".stripMargin,
+      """<span style="color:#000080;font-weight:bold;">var</span> <span style="color:#660e7a;font-style:italic;">name</span>: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>"""
+    )
+  }
+
+  def testParameterWithDefaultValue_OfFunction(): Unit = {
+    doGenerateDocDefinitionTest(
+      s"""def foo(name: String = "World", greeting: String = "Hello"): Unit = {
+         |   println(${|}greeting)
+         |}""".stripMargin,
+      """<span style="color:#000000;">greeting</span>: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span> = <span style="color:#008000;font-weight:bold;">"Hello"</span>"""
+    )
+  }
+
+  def testParameterWithDefaultValue_OfClass(): Unit = {
+    doGenerateDocDefinitionTest(
+      s"""class A(name: String = "World", greeting: String = "Hello") {
+         |   println(${|}greeting)
+         |}""".stripMargin,
+      """<span style="color:#000000;">greeting</span>: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span> = <span style="color:#008000;font-weight:bold;">"Hello"</span>""".stripMargin
+    )
   }
 }
