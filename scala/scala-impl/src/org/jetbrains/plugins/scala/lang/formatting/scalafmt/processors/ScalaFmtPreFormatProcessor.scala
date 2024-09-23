@@ -24,7 +24,6 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.processors.ScalaFmtP
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigService, ScalafmtDynamicConfigServiceImpl, ScalafmtNotifications}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, TypeAdjuster}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScConstructorPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
@@ -37,6 +36,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTy
 import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockImpl
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, TypeAdjuster}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.project.UserDataHolderExt
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType}
@@ -72,7 +72,7 @@ class ScalaFmtPreFormatProcessor extends PreFormatProcessor {
     rangesDeltaCache.remove(psiFile)
 
     val isSubrangeFormatting = range != psiFile.getTextRange
-    val skip = isSubrangeFormatting && getScalaSettings(psiFile).SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT
+    val skip = isSubrangeFormatting && getScalaSettings(psiFile).SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT && !ForceScalaFmtRangeFormatting.get()
     if (skip)
       range
     else {
@@ -1075,5 +1075,24 @@ object ScalaFmtPreFormatProcessor {
     def tryFormat(code: String)(implicit context: ConfigContext): Either[ScalafmtFormatError, String] =
       scalafmt.tryFormat(code, context.config, context.filePath)
         .toEither.left.map(x => ScalafmtFormatError(ReflectionException.flatten(x)))
+  }
+
+  private val ForceScalaFmtRangeFormatting: ThreadLocal[Boolean] = ThreadLocal.withInitial(() => false)
+
+  /**
+   * Ensures that scalafmt is used for range formatting regardless of the value of [[ScalaCodeStyleSettings#SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT]] setting.
+   *
+   * Use this method with care as in general scalafmt is not designed for range formatting.
+   *
+   * @note It only works if the underlying formatting is executed in the current thread.
+   *       This is because it uses [[java.lang.ThreadLocal]] under the hood.
+   */
+  def enforcingScalaFmtRangeFormatting[T](body: => T): T = {
+    try {
+      ForceScalaFmtRangeFormatting.set(true)
+      body
+    } finally {
+      ForceScalaFmtRangeFormatting.set(false)
+    }
   }
 }

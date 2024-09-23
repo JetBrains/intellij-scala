@@ -8,8 +8,10 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicServi
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader.DownloadProgressListener
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.TestUtils
+import org.junit.Assert.assertTrue
 import org.scalafmt.dynamic.ScalafmtVersion
 
+import java.io.File
 import scala.collection.mutable
 
 trait ScalaFmtTestBase extends AbstractScalaFormatterTestBase with ScalaFmtForTestsSetupOps {
@@ -61,7 +63,9 @@ trait ScalaFmtForTestsSetupOps extends UsefulTestCase {
   final def setScalafmtConfig(configFile: String): Unit = {
     if (configIsSet)
       throw new AssertionError("scalafmt config should be set only once")
-    getScalaCodeStyleSettings.SCALAFMT_CONFIG_PATH = scalafmtConfigsBasePath + configFile
+    val configPath = scalafmtConfigsBasePath + configFile
+    assertTrue(s"Scalafmt config file doesn't exist: $configPath", new File(configPath).exists())
+    getScalaCodeStyleSettings.SCALAFMT_CONFIG_PATH = configPath
     configIsSet = true
   }
 }
