@@ -163,6 +163,23 @@ class ExactBreakpointsTest_3 extends ExactBreakpointsTestBase {
     )
   }
 
+  addSourceFile("OnlyParametersOnLineWhitespace.scala",
+    s"""
+       |object OnlyParametersOnLineWhitespace:
+       |  val xs = Map(1 -> "one").map: (n, s) =>
+       |    s + n
+       |
+       |  val ys = Map(2 -> "two").map((n, s) =>
+       |    s + n)
+       |""".stripMargin)
+
+  def testOnlyParametersOnLineWhitespace(): Unit = {
+    checkVariants()(2)
+    checkVariants()(3)
+    checkVariants()(5)
+    checkVariants()(6)
+  }
+
   override def testConstructorAndClassParam(): Unit = {}
 
   override def testNestedLambdas(): Unit = {}
@@ -717,5 +734,50 @@ abstract class ExactBreakpointsTestBase extends ScalaDebuggerTestCase {
   def testForGuardMethodValueUnderscoresYield(): Unit = {
     checkVariants()(7, "Line and Lambdas", "line in function makeString", "if contains(Set(1, 2, 3)(_), i)", "Set(1, 2, 3)(_)", "i")
     checkVariants()(12, "Line and Lambda", "line in function main", "_ > 0")
+  }
+
+  addSourceFile("OnlyParametersOnLine.scala",
+    s"""
+       |object OnlyParametersOnLine {
+       |  val xs = Seq(1, 2, 3).flatMap { y =>
+       |    Seq(4, 5, 6).map(x =>
+       |      x
+       |    )
+       |  }
+       |
+       |  val ys =
+       |    Seq(1, 2, 3)
+       |      .filter(x => x
+       |        % 2 == 0)
+       |      .filter(_ %
+       |        2 == 0)
+       |      .filter(_ % 2 == 0)
+       |      .filter(x =>
+       |        x % 2 == 0)
+       |      .filter(
+       |        x => x % 2 == 0
+       |      )
+       |      .filter(
+       |        _ % 2 == 0
+       |      )
+       |}
+       |""".stripMargin)
+
+  def testOnlyParametersOnLine(): Unit = {
+    checkVariants()(2)
+    checkVariants()(3)
+    checkVariants()(10, "Line and Lambda", "line in containing block", s"x => x${System.lineSeparator()}        % 2 == 0")
+    checkVariants()(11)
+    checkVariants()(12, "Line and Lambda", "line in containing block", s"_ %${System.lineSeparator()}        2 == 0")
+    checkVariants()(13)
+    checkVariants()(14, "Line and Lambda", "line in containing block", s"_ % 2 == 0")
+    checkVariants()(15)
+    checkVariants()(16)
+    checkVariants()(17)
+    checkVariants()(18)
+    checkVariants()(19)
+    checkVariants()(20)
+    checkVariants()(21)
+    checkVariants()(22)
   }
 }

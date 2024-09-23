@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
@@ -88,9 +88,20 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
       case sf: ScalaFile => sf
       case _ => return emptyList
     }
+    val document = file.getFileDocument
     val line = position.getLine
 
-    val lambdas = ScalaPositionManager.lambdasOnLine(file, line)
+    val originalLambdas = ScalaPositionManager.lambdasOnLine(file, line)
+    val lambdas = originalLambdas.filter {
+      case f: ScFunctionExpr =>
+        f.result.exists { body =>
+          val range = body.getTextRange
+          val startLine = document.getLineNumber(range.getStartOffset)
+          startLine == line
+        }
+      case _ => true
+    }
+
     if (lambdas.isEmpty) return emptyList
 
     val elementAtLine = SourcePosition.createFromLine(file, line).getElementAt
