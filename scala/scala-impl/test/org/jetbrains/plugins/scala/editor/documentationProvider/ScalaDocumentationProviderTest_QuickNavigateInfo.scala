@@ -59,7 +59,7 @@ class ScalaDocumentationProviderTest_QuickNavigateInfo
   def testSimpleClassParamWithDefaultValue(): Unit =
     doGenerateQuickNavigateInfoBodyTest(
       s"""class MyClass(s${|}tr: String = "default value")""",
-      s"""MyClass <default><br>str: <a href="psi_element://java.lang.String">String</a> = …"""
+      s"""MyClass <default><br>str: <a href="psi_element://java.lang.String">String</a> = "default value""""
     )
 
   def testSimpleTypeAlias(): Unit =
@@ -264,4 +264,51 @@ class ScalaDocumentationProviderTest_QuickNavigateInfo
          |""".stripMargin,
       """[light_idea_test_case] default<br>class ClassWithGenericColons1[A &lt;: <a href="psi_element://MyTrait">MyTrait</a>[<a href="psi_element://scala.Int">Int</a> <a href="psi_element://:::">:::</a> <a href="psi_element://java.lang.String">String</a>]] extends <a href="psi_element://MyTrait">MyTrait</a>[<a href="psi_element://scala.Int">Int</a> <a href="psi_element://:::">:::</a> <a href="psi_element://java.lang.String">String</a>]"""
     )
+
+
+  def testParameterOfFunction(): Unit = {
+    doGenerateQuickNavigateInfoBodyTest(
+      s"""def foo(${|}name: String): Unit = {}""".stripMargin,
+      """name: <a href="psi_element://java.lang.String">String</a>"""
+    )
+  }
+
+  def testParameterOfClass(): Unit = {
+    doGenerateQuickNavigateInfoBodyTest(
+      s"""class A(${|}name: String):""".stripMargin,
+      """A <default><br>name: <a href="psi_element://java.lang.String">String</a>"""
+    )
+  }
+
+  def testParameterOfClass_Val(): Unit = {
+    doGenerateQuickNavigateInfoBodyTest(
+      s"""class A(val ${|}name: String):""".stripMargin,
+      """A <default><br><span style="color:#000080;font-weight:bold;">val </span>name: <a href="psi_element://java.lang.String">String</a>"""
+    )
+  }
+
+  def testParameterOfClass_Var(): Unit = {
+    doGenerateQuickNavigateInfoBodyTest(
+      s"""class A(var ${|}name: String):""".stripMargin,
+      """A <default><br><span style="color:#000080;font-weight:bold;">var </span>name: <a href="psi_element://java.lang.String">String</a>"""
+    )
+  }
+
+  def testParameterWithDefaultValue_OfFunction(): Unit = {
+    doGenerateQuickNavigateInfoBodyTest(
+      s"""def foo(name: String = "World", greeting: String = "Hello"): Unit = {
+         |   println(${|}greeting)
+         |}""".stripMargin,
+      """greeting: <a href="psi_element://java.lang.String">String</a> = "Hello""""
+    )
+  }
+
+  def testParameterWithDefaultValue_OfClass(): Unit = {
+    doGenerateQuickNavigateInfoBodyTest(
+      s"""class A(name: String = "World", greeting: String = "Hello") {
+         |   println(${|}greeting)
+         |}""".stripMargin,
+      """A <default><br>greeting: <a href="psi_element://java.lang.String">String</a> = "Hello"""".stripMargin
+    )
+  }
 }
