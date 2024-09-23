@@ -66,9 +66,6 @@
             <constraints>
               <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
-            <properties>
-              <text resource-bundle="messages/SbtBundle" key="sbt.runner.form.environmentVariables"/>
-            </properties>
           </component>
           <vspacer id="fe301">
             <constraints>

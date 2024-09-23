@@ -157,7 +157,6 @@ public class ScalaConsoleRunConfigurationForm {
         moduleComboBox = new ModulesComboBox();
         myPanel.add(moduleComboBox, new GridConstraints(8, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         environmentVariables = new EnvironmentVariablesComponent();
-        environmentVariables.setText(this.$$$getMessageFromBundle$$$("messages/ScalaReplBundle", "scala.console.config.env.vars"));
         myPanel.add(environmentVariables, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     }
 
