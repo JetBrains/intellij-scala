@@ -110,7 +110,11 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
     var lineVariantWasAdded = false
     for ((lambda, ordinal) <- lambdas.zipWithIndex) {
       val isLine = method.contains(lambda)
-      res.addLast(new ExactScalaBreakpointVariant(XSourcePositionImpl.createByElement(lambda), lambda, isLine, ordinal))
+      val element = lambda match {
+        case f: ScFunctionExpr => f.result.getOrElse(f)
+        case e => e
+      }
+      res.addLast(new ExactScalaBreakpointVariant(XSourcePositionImpl.createByElement(element), element, isLine, ordinal))
       if (isLine) {
         assert(!lineVariantWasAdded)
         lineVariantWasAdded = true
@@ -176,7 +180,10 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
           }
           null
         }
-        else Option(getContainingMethod(lineBp)).map(_.getTextRange).orNull
+        else Option(getContainingMethod(lineBp)).map {
+          case f: ScFunctionExpr => f.result.getOrElse(f).getTextRange
+          case e => e.getTextRange
+        }.orNull
       case _ => null
     }
 
