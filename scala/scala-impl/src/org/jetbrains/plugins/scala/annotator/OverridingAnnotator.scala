@@ -163,10 +163,8 @@ trait OverridingAnnotator {
         holder.createErrorAnnotation(
           memberNameId,
           ScalaBundle.message("member.overrides.nothing", memberType, namedElement.name),
-          Seq(
-            new Remove(member, memberNameId, Override),
-            new PullUpQuickFix(member, namedElement.name)
-          )
+          new Remove(member, memberNameId, Override) +:
+            PullUpQuickFix(member, namedElement.name).toSeq
         )
       }
     } else {
