@@ -766,9 +766,9 @@ abstract class ExactBreakpointsTestBase extends ScalaDebuggerTestCase {
   def testOnlyParametersOnLine(): Unit = {
     checkVariants()(2)
     checkVariants()(3)
-    checkVariants()(10, "Line and Lambda", "line in containing block", s"x${System.lineSeparator()}        % 2 == 0")
+    checkVariants()(10, "Line and Lambda", "line in containing block", s"x\n        % 2 == 0")
     checkVariants()(11)
-    checkVariants()(12, "Line and Lambda", "line in containing block", s"_ %${System.lineSeparator()}        2 == 0")
+    checkVariants()(12, "Line and Lambda", "line in containing block", s"_ %\n        2 == 0")
     checkVariants()(13)
     checkVariants()(14, "Line and Lambda", "line in containing block", s"_ % 2 == 0")
     checkVariants()(15)
