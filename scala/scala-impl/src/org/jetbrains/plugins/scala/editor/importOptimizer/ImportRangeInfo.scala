@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.editor.importOptimizer
 
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiAnchor, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 

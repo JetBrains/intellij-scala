@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.editor.importOptimizer
 
+import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.concurrency.JobLauncher
 import com.intellij.ide.scratch.ScratchUtil
@@ -9,8 +10,9 @@ import com.intellij.openapi.editor.Document
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
-import com.intellij.openapi.util.EmptyRunnable
+import com.intellij.openapi.util.{EmptyRunnable, TextRange}
 import com.intellij.psi._
+import com.intellij.psi.codeStyle.{ChangedRangesInfo, CodeStyleManager}
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.concurrency.annotations.RequiresWriteLock
@@ -21,6 +23,8 @@ import org.jetbrains.plugins.scala.console.ScalaLanguageConsoleUtils
 import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.processors.ScalaFmtPreFormatProcessor
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScReference, ScStableCodeReference}
@@ -182,6 +186,26 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
           optimizationResult += replaceWithNewImportInfos(range, importInfos, importsSettings, scalaFile)
         }
         documentManager.commitDocument(document)
+
+        if (CodeStyle.getCustomSettings(file, classOf[ScalaCodeStyleSettings]).USE_SCALAFMT_FORMATTER) {
+          val codeStyleManager = CodeStyleManager.getInstance(project)
+          val textRanges = ranges.map { case (rangeInfo, _) =>
+            // NOTE: adding extra 1 is a workaround.
+            // If we use the original range for imports, then the formatter might add a new lines before the imports.
+            // This can happen in local imports, even if the range doesn't include the space before the imports.
+            // However, if we shift the range 1 character, to the letter `m` in `import` the new line won't be added.
+            val start = rangeInfo.startOffset + 1
+            val end = rangeInfo.endOffset
+            TextRange.create(start, end)
+          }
+          val info = new ChangedRangesInfo(textRanges.asJava, null)
+
+          // We can force scalafmt formatting for imports ranges relatively safely because imports do not contain
+          // complex structure, and our workaround for range formatting should work fine
+          ScalaFmtPreFormatProcessor.enforcingScalaFmtRangeFormatting {
+            codeStyleManager.reformatChanges(file, info)
+          }
+        }
       }
 
       def sameInfosWithUpdatedRanges(): Seq[(ImportRangeInfo, Seq[ImportInfo])] = {
@@ -354,8 +378,9 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
       //originally added to reduce  number of invalidated elements during refactorings
       //(currently it may not be used in move refactoring)
       val finalResult = dummyFile.getNode.getChildren(null)
-      ImportOptimizationResult.calculate(buffer.asArray, finalResult)
-        .tap(_ => BufferUpdate.updateIncrementally(buffer, finalResult)(_.getText))
+      val optimizationResult = ImportOptimizationResult.calculate(buffer.asArray, finalResult)
+      BufferUpdate.updateIncrementally(buffer, finalResult)(_.getText)
+      optimizationResult
     }
   }
 
