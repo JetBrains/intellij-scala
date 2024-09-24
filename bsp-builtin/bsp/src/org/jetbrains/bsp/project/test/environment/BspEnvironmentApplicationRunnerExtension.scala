@@ -1,4 +1,5 @@
 package org.jetbrains.bsp.project.test.environment
+
 import com.intellij.execution.application.ApplicationConfiguration
 import com.intellij.execution.configurations.RunConfiguration
 

@@ -1,6 +1,5 @@
 package org.jetbrains.bsp.project.test.environment
 
-
 import scala.beans.BeanProperty
 
 import ch.epfl.scala.bsp4j.BuildTargetIdentifier

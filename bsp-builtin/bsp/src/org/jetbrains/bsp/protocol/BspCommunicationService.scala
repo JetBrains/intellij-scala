@@ -1,5 +1,4 @@
-package org.jetbrains.bsp
-package protocol
+package org.jetbrains.bsp.protocol
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
