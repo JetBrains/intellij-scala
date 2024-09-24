@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.console.configuration;
 
 import com.intellij.application.options.ModulesComboBox;
+import com.intellij.execution.ExecutionBundle;
 import com.intellij.execution.configuration.EnvironmentVariablesComponent;
 import com.intellij.execution.ui.ConfigurationModuleSelector;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
@@ -39,7 +40,7 @@ public class ScalaConsoleRunConfigurationForm {
         myModuleSelector = new ConfigurationModuleSelector(project, moduleComboBox);
         myModuleSelector.reset(configuration);
         moduleComboBox.setEnabled(true);
-        javaOptionsEditor.setName(ScalaReplBundle.message("scala.console.config.vm.options"));
+        javaOptionsEditor.setName(ExecutionBundle.message("run.configuration.java.vm.parameters.label"));
         javaOptionsEditor.setText("-Djline.terminal=NONE");
         consoleArgsEditor.setName(ScalaReplBundle.message("scala.console.config.console.arguments"));
         consoleArgsEditor.setText("-usejavacp");
@@ -135,7 +136,7 @@ public class ScalaConsoleRunConfigurationForm {
         final Spacer spacer1 = new Spacer();
         myPanel.add(spacer1, new GridConstraints(9, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         final JLabel label1 = new JLabel();
-        this.$$$loadLabelText$$$(label1, this.$$$getMessageFromBundle$$$("messages/ScalaReplBundle", "scala.console.config.vm.options"));
+        this.$$$loadLabelText$$$(label1, this.$$$getMessageFromBundle$$$("messages/ExecutionBundle", "run.configuration.java.vm.parameters.label"));
         myPanel.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         javaOptionsEditor = new RawCommandLineEditor();
         javaOptionsEditor.setText("-Djline.terminal=NONE");

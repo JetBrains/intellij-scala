@@ -18,7 +18,7 @@
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text resource-bundle="messages/ScalaReplBundle" key="scala.console.config.vm.options"/>
+          <text resource-bundle="messages/ExecutionBundle" key="run.configuration.java.vm.parameters.label"/>
         </properties>
       </component>
       <component id="2004f" class="com.intellij.ui.RawCommandLineEditor" binding="javaOptionsEditor" default-binding="true">
