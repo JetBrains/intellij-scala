@@ -1,17 +1,16 @@
 package org.jetbrains.jps.incremental.scala
 package local
 
-import java.io.File
-import java.util
-
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.{BuildRootDescriptor, BuildTarget}
+import org.jetbrains.jps.incremental.ModuleLevelBuilder.OutputConsumer
 import org.jetbrains.jps.incremental.fs.CompilationRound
 import org.jetbrains.jps.incremental.{CompileContext, FSOperations}
-import org.jetbrains.jps.incremental.ModuleLevelBuilder.OutputConsumer
 
+import java.io.File
+import java.util
 import scala.jdk.CollectionConverters._
 import scala.util.control.Exception._
 
@@ -45,9 +44,11 @@ class IdeClientSbt(compilerName: String,
   private def invalidateBoundForms(source: File): Unit = {
     FormsToCompileKey.foreach { key =>
       val boundForms: Option[Iterable[File]] = {
-        val sourceToForm = context.getProjectDescriptor.dataManager.getSourceToFormMap
+        val target = sourceToTarget(source).getOrElse(chunk.representativeTarget())
+        //noinspection ApiStatus
+        val sourceToForm = context.getProjectDescriptor.dataManager.getSourceToFormMap(target)
         val sourcePath = FileUtil.toCanonicalPath(source.getPath)
-        Option(sourceToForm.getState(sourcePath)).map(_.asScala.map(new File(_)))
+        Option(sourceToForm.getOutputs(sourcePath)).map(_.asScala.map(new File(_)))
       }
 
       boundForms.foreach { forms =>

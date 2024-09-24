@@ -150,7 +150,7 @@ object CompilationDataFactory
         yield (
           output.getCanonicalFile,
           new File(
-            paths.getTargetDataRoot(target).getCanonicalFile,
+            paths.getTargetDataRootDir(target).toFile.getCanonicalFile,
             s"cache-${target.getPresentableName}.zip")
         )
     }
