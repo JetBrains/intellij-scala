@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala.annotator.quickfix
 
 import com.intellij.codeInsight.intention.AbstractIntentionAction
-import com.intellij.codeInsight.navigation.NavigationUtil.getPsiElementPopup
-import com.intellij.ide.util.{PsiClassListCellRenderer, PsiElementListCellRenderer}
+import com.intellij.codeInsight.navigation.PsiTargetNavigator
 import com.intellij.java.JavaBundle
 import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.command.{CommandProcessor, WriteCommandAction}
@@ -14,7 +13,6 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.search.PsiElementProcessor
 import com.intellij.util.ThrowableRunnable
 import com.intellij.util.concurrency.annotations.RequiresEdt
-import org.jetbrains.plugins.scala.{ScalaBundle, isUnitTestMode}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier.{ABSTRACT, OVERRIDE}
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
@@ -22,18 +20,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition,
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ScalaExtractMemberInfo
 import org.jetbrains.plugins.scala.lang.refactoring.memberPullUp.ScalaPullUpProcessor
+import org.jetbrains.plugins.scala.{ScalaBundle, isUnitTestMode}
 
-final class PullUpQuickFix(member: ScMember, name: String) extends AbstractIntentionAction {
+final class PullUpQuickFix private(member: ScMember, override val getText: String) extends AbstractIntentionAction {
 
   import PullUpQuickFix._
 
   private val smartPointer = member.createSmartPointer
-
-  override val getText: String = member match {
-    case _: ScVariableDefinition => ScalaBundle.message("pull.variable.to", name)
-    case _: ScPatternDefinition => ScalaBundle.message("pull.value.to", name)
-    case _ => ScalaBundle.message("pull.method.to", name)
-  }
 
   override def startInWriteAction: Boolean = true
 
@@ -53,13 +46,12 @@ final class PullUpQuickFix(member: ScMember, name: String) extends AbstractInten
       superClasses.nextOption().foreach {
         executor(_)
       }
-    } else {
-      getPsiElementPopup(
-        superClasses.toArray,
-        (new PsiClassListCellRenderer).asInstanceOf[PsiElementListCellRenderer[ScTypeDefinition]],
-        JavaBundle.message("choose.class"),
-        new PullUpProcessor(executor)
-      ).showInBestPositionFor(editor)
+    } else invokeLater {
+      val navigator = new PsiTargetNavigator(superClasses.toArray)
+      val processor = new PullUpProcessor(executor)
+
+      if (editor == null) navigator.performSilently(processor)
+      else navigator.navigate(editor, JavaBundle.message("choose.super.class.popup.title"), new PullUpProcessor(executor))
     }
   }
 
@@ -70,6 +62,21 @@ final class PullUpQuickFix(member: ScMember, name: String) extends AbstractInten
 }
 
 object PullUpQuickFix {
+
+  def apply(member: ScMember, name: String): Option[PullUpQuickFix] = for {
+    containingClass <- member.containingClass.asOptionOf[ScTypeDefinition]
+    classesToPullUpTo = applicableScalaSupers(containingClass)
+    firstSuperClass <- classesToPullUpTo.nextOption()
+    needsPopup = classesToPullUpTo.hasNext
+    text = member match {
+      case _: ScVariableDefinition if needsPopup => ScalaBundle.message("pull.variable.up", name)
+      case _: ScVariableDefinition => ScalaBundle.message("pull.variable.to", name, firstSuperClass.name)
+      case _: ScPatternDefinition if needsPopup => ScalaBundle.message("pull.value.up", name)
+      case _: ScPatternDefinition => ScalaBundle.message("pull.value.to", name, firstSuperClass.name)
+      case _ if needsPopup => ScalaBundle.message("pull.method.up", name)
+      case _ => ScalaBundle.message("pull.method.to", name, firstSuperClass.name)
+    }
+  } yield new PullUpQuickFix(member, text)
 
   private case class PullUpExecutor(memberToOverride: ScMember,
                                     sourceClass: ScTypeDefinition) {
@@ -123,7 +130,7 @@ object PullUpQuickFix {
 
   private def applicableScalaSupers(sourceClass: ScTypeDefinition) = for {
     superClass <- sourceClass.allSupers.iterator
-    if superClass.isInstanceOf[ScTypeDefinition] &&
+    if superClass.is[ScTypeDefinition] &&
       superClass.hasModifierProperty(ABSTRACT) &&
       superClass.containingVirtualFile.exists(_.isWritable)
   } yield superClass.asInstanceOf[ScTypeDefinition]

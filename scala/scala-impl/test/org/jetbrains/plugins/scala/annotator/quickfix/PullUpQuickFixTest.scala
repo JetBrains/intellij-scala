@@ -27,7 +27,36 @@ abstract class PullUpQuickFixTest(keyword: String) extends ScalaAnnotatorQuickFi
          |  override $keyword ${START}sample$END: Int = 1
          |}
       """.stripMargin,
-      s"Pull $memberType 'sample' to..."
+      s"Pull $memberType 'sample' to 'A'"
+    )
+  }
+
+  def testPullUpWithMultipleWritableParents(): Unit = {
+    val code =
+      s"""
+         |trait A
+         |trait B
+         |class C extends B with A {
+         |   override $keyword ${START}sample$END: Int = 1
+         |}
+      """.stripMargin
+    checkTextHasError(code)
+
+    // select first parent in tests
+    testQuickFix(
+      code,
+      s"""trait A
+         |
+         |trait B {
+         |
+         |  $keyword sample: Int
+         |}
+         |
+         |class C extends B with A {
+         |  override $keyword ${START}sample$END: Int = 1
+         |}
+      """.stripMargin,
+      s"Pull $memberType 'sample' up"
     )
   }
 
@@ -39,7 +68,7 @@ abstract class PullUpQuickFixTest(keyword: String) extends ScalaAnnotatorQuickFi
          |}
       """.stripMargin
     checkTextHasError(code)
-    checkIsNotAvailable(code, s"Pull $memberType 'sample' to...")
+    checkNotFixable(code, hint => hint.startsWith(s"Pull $memberType "))
   }
 
   def testDoNotProposePullUpIfMemberExists(): Unit = {
