@@ -1,5 +1,4 @@
 package org.jetbrains.bsp.project.importing.setup
-
 import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, Sdk}
 import org.jetbrains.bsp.BspBundle
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}

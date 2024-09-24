@@ -1,5 +1,4 @@
 package org.jetbrains.bsp.project.importing.setup
-
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent}
 import com.intellij.openapi.application.{ApplicationManager, ModalityState}

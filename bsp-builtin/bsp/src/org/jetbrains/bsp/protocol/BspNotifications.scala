@@ -1,5 +1,6 @@
 package org.jetbrains.bsp.protocol
 
+
 /** Notifications adapter for bsp4j */
 object BspNotifications {
   import ch.epfl.scala.bsp4j
