@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, TypeAdjuster}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaRefactoringActionHandler
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMethodHandler.ChosenTargetScopeKey
-import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.DuplicatesUtil
+import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.{DuplicateMatch, DuplicatesUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
@@ -256,10 +256,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
           elements.toArray, hasReturn, ScalaApplicationSettings.ReturnTypeLevel.BY_CODE_STYLE, lastReturn, lastExprType, innerClassSettings)
       }
     val duplicates = DuplicatesUtil.findDuplicates(settings)
-    performRefactoring(settings, editor)
-    if (settings.returnType.isEmpty && settings.typeParameters.isEmpty) {
-      if (duplicates.nonEmpty) DuplicatesUtil.processDuplicates(duplicates, settings)(project, editor)
-    }
+    performRefactoring(settings, editor, duplicates)
   }
 
   private def getTextForElement(element: PsiElement): String = {
@@ -295,17 +292,18 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
     }
   }
 
-  private def performRefactoring(settings: ScalaExtractMethodSettings, editor: Editor): Unit = {
+  private def performRefactoring(settings: ScalaExtractMethodSettings, editor: Editor, duplicates: Seq[DuplicateMatch]): Unit = {
     implicit val project: Project = editor.getProject
     if (project == null) return
     ReadAction
       .nonBlocking(() => ScalaExtractMethodUtils.createMethodFromSettings(settings))
-      .finishOnUiThread(ModalityState.defaultModalityState, doPerformRefactoring(_, settings, editor))
+      .finishOnUiThread(ModalityState.defaultModalityState, doPerformRefactoring(_, settings, editor, duplicates))
       .expireWhen(() => project.isDisposed)
       .submit(AppExecutorUtil.getAppExecutorService)
   }
 
-  private def doPerformRefactoring(method: ScFunction, settings: ScalaExtractMethodSettings, editor: Editor)(implicit project: Project): Unit = {
+  private def doPerformRefactoring(method: ScFunction, settings: ScalaExtractMethodSettings, editor: Editor, duplicates: Seq[DuplicateMatch])
+                                  (implicit project: Project): Unit = {
     if (method == null) return
     val ics = settings.innerClassSettings
 
@@ -353,6 +351,10 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
 
       CodeStyleManager.getInstance(project).reformat(method)
       editor.getSelectionModel.removeSelection()
+
+      if (settings.returnType.isEmpty && settings.typeParameters.isEmpty && duplicates.nonEmpty) {
+        DuplicatesUtil.processDuplicates(duplicates, settings)(project, editor)
+      }
     }
   }
 }
