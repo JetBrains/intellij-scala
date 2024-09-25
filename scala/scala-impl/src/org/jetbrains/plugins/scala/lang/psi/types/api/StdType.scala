@@ -72,6 +72,7 @@ object StdType {
     val Double    = "Double"
 
     val AnyKind   = "AnyKind"
+    val Matchable = "Matchable"
   }
 }
 
@@ -112,6 +113,7 @@ class StdTypes(implicit private val projectContext: ProjectContext) extends Disp
   // - https://www.scala-lang.org/api/3.0.2/scala/AnyKind.html
   // - https://dotty.epfl.ch/docs/reference/other-new-features/kind-polymorphism.html
   lazy val AnyKind = new StdType(Name.AnyKind, None)
+  lazy val Matchable = new StdType(Name.Matchable, None)
 
   private lazy val all: Seq[StdType] = Seq(
     Any,

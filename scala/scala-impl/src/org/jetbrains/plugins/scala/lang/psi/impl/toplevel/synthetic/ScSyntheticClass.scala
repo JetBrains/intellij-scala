@@ -417,6 +417,9 @@ final class SyntheticClasses(project: Project) {
     // - https://www.scala-lang.org/api/3.0.2/scala/AnyKind.html
     // - https://dotty.epfl.ch/docs/reference/other-new-features/kind-polymorphism.html
     registerClass(AnyKind, "AnyKind", isScala3 = true)
+    //FIXME: in a scala library Matchable actually a "trait", not a "class"
+    // though right now it doesn't matter much as #SCL-15104 is not implemented
+    registerClass(Matchable, "Matchable", isScala3 = true)
     registerAlias(
       """package scala
         |
