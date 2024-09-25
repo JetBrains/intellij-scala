@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.util.DocumentVersion
 import scala.concurrent.duration._
 
 private sealed trait CompilationRequest {
-  val priority: Int
+  protected val priority: Int
   val virtualFile: VirtualFile
   val document: Document
   val debugReason: String
@@ -41,7 +41,7 @@ private object CompilationRequest {
     isFirstTimeHighlighting: Boolean,
     debugReason: String,
   ) extends CompilationRequest {
-    override val priority: Int = 1
+    override protected val priority: Int = 1
 
     override def delayed: WorksheetRequest = this.copy()
   }
@@ -54,7 +54,7 @@ private object CompilationRequest {
     psiFile: PsiFile,
     debugReason: String
   ) extends CompilationRequest {
-    override val priority: Int = 1
+    override protected val priority: Int = 1
 
     override def delayed: IncrementalRequest = this.copy()
   }
@@ -66,7 +66,7 @@ private object CompilationRequest {
     document: Document,
     debugReason: String
   ) extends CompilationRequest {
-    override val priority: Int = 2
+    override protected val priority: Int = 2
 
     override def delayed: DocumentRequest = this.copy()
   }
