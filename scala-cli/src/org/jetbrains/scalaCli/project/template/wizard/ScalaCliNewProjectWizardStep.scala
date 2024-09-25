@@ -1,5 +1,6 @@
 package org.jetbrains.scalaCli.project.template.wizard
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.vfs.VirtualFile
@@ -33,7 +34,13 @@ final class ScalaCliNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
 
   override def setupUI(panel: Panel): Unit = {
     panel.onApply(() => {
-      ScalaCliUtils.throwExceptionIfScalaCliNotInstalled(getContext.getProjectDirectory.toFile)
+      // note: if these are tests, `getContext.getProjectDirectory` does not return the exact root directory of the project.
+      // During tests, only the exact root directory contains the Scala CLI run script.
+      // Therefore, we cannot execute `throwExceptionIfScalaCliNotInstalled`, as it will fail.
+      // But it's not really required for tests because checking if Scala CLI is installed is also done in ScalaCliProjectInstaller#installCommand.
+      if (!ApplicationManager.getApplication.isUnitTestMode) {
+        ScalaCliUtils.throwExceptionIfScalaCliNotInstalled(getContext.getProjectDirectory.toFile)
+      }
       KUnit
     })
 
