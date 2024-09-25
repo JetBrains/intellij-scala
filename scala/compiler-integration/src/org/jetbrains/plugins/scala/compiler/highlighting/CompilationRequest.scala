@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.compiler.highlighting
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.PsiFile
 import org.jetbrains.jps.incremental.scala.remote.SourceScope
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
@@ -52,16 +51,13 @@ private object CompilationRequest {
   }
 
   final case class IncrementalRequest(
-    module: Module,
-    sourceScope: SourceScope,
-    virtualFile: VirtualFile,
-    document: Document,
-    psiFile: PsiFile,
+    fileCompilationScopes: Map[VirtualFile, FileCompilationScope],
     debugReason: String
   ) extends CompilationRequest {
     override protected val priority: Int = 1
 
-    override val originFiles: Map[VirtualFile, Document] = Map(virtualFile -> document)
+    override val originFiles: Map[VirtualFile, Document] =
+      fileCompilationScopes.map { case (vf, FileCompilationScope(_, _, _, document, _)) => vf -> document }
 
     override def delayed: IncrementalRequest = this.copy()
   }

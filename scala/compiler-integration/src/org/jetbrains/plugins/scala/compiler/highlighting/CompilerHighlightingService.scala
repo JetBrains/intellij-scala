@@ -26,6 +26,7 @@ import kotlinx.coroutines.{BuildersKt, CoroutineScope}
 import org.jetbrains.bsp.BspUtil
 import org.jetbrains.bsp.project.{BspProjectTaskRunner, CustomTaskArguments}
 import org.jetbrains.jps.incremental.scala.remote.SourceScope
+import org.jetbrains.jps.incremental.scala.remote.SourceScope.Production
 import org.jetbrains.plugins.scala.build.CompilerEventReporter
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerIntegrationBundle}
 import org.jetbrains.plugins.scala.extensions._
@@ -115,7 +116,8 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
       }
     } else {
       val sourceScope = calculateSourceScope(virtualFile)
-      schedule(CompilationRequest.IncrementalRequest(module, sourceScope, virtualFile, document, psiFile, debugReason))
+      val scope = FileCompilationScope(virtualFile, module, sourceScope, document, psiFile)
+      schedule(CompilationRequest.IncrementalRequest(Map(virtualFile -> scope), debugReason))
     }
   }
 
@@ -194,7 +196,8 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
       }
 
       val sourceScope = calculateSourceScope(virtualFile)
-      val incrementalRequest = CompilationRequest.IncrementalRequest(realModule, sourceScope, virtualFile, document, file, debugReason)
+      val scope = FileCompilationScope(virtualFile, realModule, sourceScope, document, file)
+      val incrementalRequest = CompilationRequest.IncrementalRequest(Map(virtualFile -> scope), debugReason)
       executeIncrementalCompilationRequest(incrementalRequest, runDocumentCompiler = false)
     }
 
@@ -235,16 +238,23 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     }
   }
 
+  private def mergeSourceScope(request: CompilationRequest.IncrementalRequest): SourceScope =
+    if (request.fileCompilationScopes.values.map(_.sourceScope).forall(_ == SourceScope.Production))
+      SourceScope.Production
+    else
+      SourceScope.Test
+
   private def doBspIncrementalCompilation(
     request: CompilationRequest.IncrementalRequest,
     client: CompilerEventGeneratingClient,
     runDocumentCompiler: Boolean
   ): Unit = {
-    val CompilationRequest.IncrementalRequest(module, sourceScope, virtualFile, _, psiFile, _) = request
+    val CompilationRequest.IncrementalRequest(fileCompilationScopes, _) = request
     val context = new ProjectTaskContext()
-    val representativeModule = module.findRepresentativeModuleForSharedSourceModuleOrSelf
+    val modules = fileCompilationScopes.values.map(_.module.findRepresentativeModuleForSharedSourceModuleOrSelf).toSet.toArray
+    val sourceScope = mergeSourceScope(request)
     val task = ProjectTaskManager.getInstance(project)
-      .createModulesBuildTask(Array(representativeModule), true, true, false, sourceScope == SourceScope.Test)
+      .createModulesBuildTask(modules, true, true, false, sourceScope == SourceScope.Test)
     val reporter = new CompilerEventReporter(project, client.compilationId)
     val arguments = CustomTaskArguments(
       CompilerIntegrationBundle.message("highlighting.compilation"),
@@ -257,8 +267,12 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     if (runDocumentCompiler && reporter.successful) {
       triggerDocumentCompilationInAllOpenEditors(Some(client))
     }
-    if (psiFile.is[ScalaFile] && reporter.successful && client.successful && !project.isDisposed) {
-      TriggerCompilerHighlightingService.get(project).enableDocumentCompiler(virtualFile)
+    if (reporter.successful && client.successful && !project.isDisposed) {
+      fileCompilationScopes.foreach { case (virtualFile, FileCompilationScope(_, _, _, _, psiFile)) =>
+        if (psiFile.is[ScalaFile]) {
+          TriggerCompilerHighlightingService.get(project).enableDocumentCompiler(virtualFile)
+        }
+      }
     }
   }
 
@@ -267,13 +281,19 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     client: CompilerEventGeneratingClient,
     runDocumentCompiler: Boolean
   ): Unit = {
-    val CompilationRequest.IncrementalRequest(module, sourceScope, virtualFile, _, psiFile, _) = request
-    IncrementalCompiler.compile(project, module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, client)
+    val CompilationRequest.IncrementalRequest(fileCompilationScopes, _) = request
+    val modules = fileCompilationScopes.values.map(_.module.findRepresentativeModuleForSharedSourceModuleOrSelf).toSet
+    val sourceScope = mergeSourceScope(request)
+    IncrementalCompiler.compile(project, modules.head, sourceScope, client)
     if (runDocumentCompiler && client.successful) {
       triggerDocumentCompilationInAllOpenEditors(Some(client))
     }
-    if (psiFile.is[ScalaFile] && client.successful && !project.isDisposed) {
-      TriggerCompilerHighlightingService.get(project).enableDocumentCompiler(virtualFile)
+    if (client.successful && !project.isDisposed) {
+      fileCompilationScopes.foreach { case (virtualFile, FileCompilationScope(_, _, _, _, psiFile)) =>
+        if (psiFile.is[ScalaFile]) {
+          TriggerCompilerHighlightingService.get(project).enableDocumentCompiler(virtualFile)
+        }
+      }
     }
   }
 
@@ -412,7 +432,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
       if (DumbService.isDumb(project)) return RequestState.NotReady
       request match {
         case CompilationRequest.WorksheetRequest(_, _, document, _, _) => canDocumentBeCompiled(document)
-        case CompilationRequest.IncrementalRequest(_, _, _, _, _, _) => RequestState.Ready
+        case CompilationRequest.IncrementalRequest(_, _) => RequestState.Ready
         case CompilationRequest.DocumentRequest(_, _, _, document, _) => canDocumentBeCompiled(document)
       }
     } else RequestState.NotReady
