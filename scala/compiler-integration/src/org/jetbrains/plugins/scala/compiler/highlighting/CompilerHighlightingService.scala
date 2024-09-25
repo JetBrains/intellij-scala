@@ -117,7 +117,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     } else {
       val sourceScope = calculateSourceScope(virtualFile)
       val scope = FileCompilationScope(virtualFile, module, sourceScope, document, psiFile)
-      schedule(CompilationRequest.IncrementalRequest(Map(virtualFile -> scope), debugReason))
+      schedule(CompilationRequest.IncrementalRequest(Map(virtualFile -> scope), debugReason, timestamp = System.nanoTime()))
     }
   }
 
@@ -128,7 +128,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     debugReason: String
   ): Unit = {
     val sourceScope = calculateSourceScope(virtualFile)
-    schedule(CompilationRequest.DocumentRequest(module, sourceScope, virtualFile, document, debugReason))
+    schedule(CompilationRequest.DocumentRequest(module, sourceScope, virtualFile, document, debugReason, timestamp = System.nanoTime()))
   }
 
   def triggerWorksheetCompilation(
@@ -138,7 +138,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     isFirstTimeHighlighting: Boolean,
     debugReason: String
   ): Unit =
-    schedule(CompilationRequest.WorksheetRequest(psiFile, virtualFile, document, isFirstTimeHighlighting, debugReason))
+    schedule(CompilationRequest.WorksheetRequest(psiFile, virtualFile, document, isFirstTimeHighlighting, debugReason, timestamp = System.nanoTime()))
 
   private[highlighting] def saveProjectOnNextCompilation(): Unit = {
     projectSaveTracker.set(true)
@@ -159,7 +159,8 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
 
   private def schedule(request: CompilationRequest): Unit = {
     priorityQueue.add(request)
-    scheduleCompilationTask(request.compilationDelay)
+    val compilationDelay = ScalaHighlightingMode.compilationDelay
+    scheduleCompilationTask(compilationDelay)
   }
 
   private def execute(request: CompilationRequest): Unit = request match {
@@ -172,7 +173,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
   }
 
   private def executeWorksheetCompilationRequest(request: CompilationRequest.WorksheetRequest): Unit = {
-    val CompilationRequest.WorksheetRequest(file, virtualFile, document, isFirstTimeHighlighting, debugReason) = request
+    val CompilationRequest.WorksheetRequest(file, virtualFile, document, isFirstTimeHighlighting, debugReason, _) = request
     debug(s"worksheetCompilation: $debugReason (isFirstTimeHighlighting: $isFirstTimeHighlighting)")
 
     //Note, we don't need to invoke `findRepresentativeModuleForSharedSourceModuleOrSelf`
@@ -197,7 +198,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
 
       val sourceScope = calculateSourceScope(virtualFile)
       val scope = FileCompilationScope(virtualFile, realModule, sourceScope, document, file)
-      val incrementalRequest = CompilationRequest.IncrementalRequest(Map(virtualFile -> scope), debugReason)
+      val incrementalRequest = CompilationRequest.IncrementalRequest(Map(virtualFile -> scope), debugReason, timestamp = System.nanoTime())
       executeIncrementalCompilationRequest(incrementalRequest, runDocumentCompiler = false)
     }
 
@@ -249,7 +250,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     client: CompilerEventGeneratingClient,
     runDocumentCompiler: Boolean
   ): Unit = {
-    val CompilationRequest.IncrementalRequest(fileCompilationScopes, _) = request
+    val CompilationRequest.IncrementalRequest(fileCompilationScopes, _, _) = request
     val context = new ProjectTaskContext()
     val modules = fileCompilationScopes.values.map(_.module.findRepresentativeModuleForSharedSourceModuleOrSelf).toSet.toArray
     val sourceScope = mergeSourceScope(request)
@@ -281,7 +282,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     client: CompilerEventGeneratingClient,
     runDocumentCompiler: Boolean
   ): Unit = {
-    val CompilationRequest.IncrementalRequest(fileCompilationScopes, _) = request
+    val CompilationRequest.IncrementalRequest(fileCompilationScopes, _, _) = request
     val modules = fileCompilationScopes.values.map(_.module.findRepresentativeModuleForSharedSourceModuleOrSelf).toSet
     val sourceScope = mergeSourceScope(request)
     IncrementalCompiler.compile(project, modules, sourceScope, client)
@@ -298,7 +299,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
   }
 
   private def executeDocumentCompilationRequest(request: CompilationRequest.DocumentRequest): Unit = {
-    val CompilationRequest.DocumentRequest(module, sourceScope, virtualFile, document, debugReason) = request
+    val CompilationRequest.DocumentRequest(module, sourceScope, virtualFile, document, debugReason, _) = request
     debug(s"documentCompilation: $debugReason")
     executeDocumentCompilationRequest(module, sourceScope, virtualFile, document, documentVersionsFor(request), await = true)
   }
@@ -428,12 +429,12 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
   private def isReadyForExecution(request: CompilationRequest): RequestState = {
     if (isExpired(request)) {
       RequestState.Expired
-    } else if (request.remaining < Duration.Zero) {
+    } else if (request.remaining <= Duration.Zero) {
       if (DumbService.isDumb(project)) return RequestState.NotReady
       request match {
-        case CompilationRequest.WorksheetRequest(_, _, document, _, _) => canDocumentBeCompiled(document)
-        case CompilationRequest.IncrementalRequest(_, _) => RequestState.Ready
-        case CompilationRequest.DocumentRequest(_, _, _, document, _) => canDocumentBeCompiled(document)
+        case CompilationRequest.WorksheetRequest(_, _, document, _, _, _) => canDocumentBeCompiled(document)
+        case CompilationRequest.IncrementalRequest(_, _, _) => RequestState.Ready
+        case CompilationRequest.DocumentRequest(_, _, _, document, _, _) => canDocumentBeCompiled(document)
       }
     } else RequestState.NotReady
   }
@@ -492,7 +493,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
             }
 
           case RequestState.NotReady =>
-            val delayed = request.delayed
+            val delayed = request.delayed(timestamp = System.nanoTime())
             priorityQueue.add(delayed)
 
           case RequestState.Expired =>

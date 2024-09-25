@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.util.DocumentVersion
 
 import scala.concurrent.duration._
 
-private sealed abstract class CompilationRequest(final val originFiles: Map[VirtualFile, Document]) {
+private sealed abstract class CompilationRequest(final val originFiles: Map[VirtualFile, Document], timestamp: Long) {
   protected val priority: Int
 
   final val documentVersions: Map[VirtualFile, DocumentVersion] = originFiles.map { case (vf, doc) =>
@@ -19,15 +19,11 @@ private sealed abstract class CompilationRequest(final val originFiles: Map[Virt
 
   val debugReason: String
 
-  final val compilationDelay: FiniteDuration = ScalaHighlightingMode.compilationDelay
-
-  private val timestamp: Long = System.nanoTime()
-
-  private val deadline: Deadline = Deadline(timestamp.nanoseconds + compilationDelay)
+  private val deadline: Deadline = Deadline(timestamp.nanoseconds + ScalaHighlightingMode.compilationDelay)
 
   def remaining: FiniteDuration = deadline.timeLeft
 
-  def delayed: CompilationRequest
+  def delayed(timestamp: Long): CompilationRequest
 }
 
 private object CompilationRequest {
@@ -40,21 +36,24 @@ private object CompilationRequest {
     document: Document,
     isFirstTimeHighlighting: Boolean,
     debugReason: String,
-  ) extends CompilationRequest(Map(virtualFile -> document)) {
+    timestamp: Long
+  ) extends CompilationRequest(Map(virtualFile -> document), timestamp) {
     override protected val priority: Int = 1
 
-    override def delayed: WorksheetRequest = this.copy()
+    override def delayed(timestamp: Long): CompilationRequest = copy(timestamp = timestamp)
   }
 
   final case class IncrementalRequest(
     fileCompilationScopes: Map[VirtualFile, FileCompilationScope],
-    debugReason: String
+    debugReason: String,
+    timestamp: Long
   ) extends CompilationRequest(
-    fileCompilationScopes.map { case (vf, FileCompilationScope(_, _, _, document, _)) => vf -> document }
+    fileCompilationScopes.map { case (vf, FileCompilationScope(_, _, _, document, _)) => vf -> document },
+    timestamp
   ) {
     override protected val priority: Int = 1
 
-    override def delayed: IncrementalRequest = this.copy()
+    override def delayed(timestamp: Long): CompilationRequest = copy(timestamp = timestamp)
   }
 
   final case class DocumentRequest(
@@ -62,11 +61,12 @@ private object CompilationRequest {
     sourceScope: SourceScope,
     virtualFile: VirtualFile,
     document: Document,
-    debugReason: String
-  ) extends CompilationRequest(Map(virtualFile -> document)) {
+    debugReason: String,
+    timestamp: Long
+  ) extends CompilationRequest(Map(virtualFile -> document), timestamp) {
     override protected val priority: Int = 2
 
-    override def delayed: DocumentRequest = this.copy()
+    override def delayed(timestamp: Long): CompilationRequest = copy(timestamp = timestamp)
   }
 
   /**
