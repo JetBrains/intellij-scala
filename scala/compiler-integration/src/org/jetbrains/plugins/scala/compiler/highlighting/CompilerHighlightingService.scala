@@ -284,7 +284,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     val CompilationRequest.IncrementalRequest(fileCompilationScopes, _) = request
     val modules = fileCompilationScopes.values.map(_.module.findRepresentativeModuleForSharedSourceModuleOrSelf).toSet
     val sourceScope = mergeSourceScope(request)
-    IncrementalCompiler.compile(project, modules.head, sourceScope, client)
+    IncrementalCompiler.compile(project, modules, sourceScope, client)
     if (runDocumentCompiler && client.successful) {
       triggerDocumentCompilationInAllOpenEditors(Some(client))
     }

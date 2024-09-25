@@ -28,13 +28,14 @@ object CompileServerCommandParser
             throwIllegalArgs(commandId, args)
         }
       case CommandIds.CompileJps =>
+        import org.jetbrains.plugins.scala.compiler.data.Extractors.StringToSequence
         args match {
-          case Seq(projectPath, globalOptionsPath, dataStorageRootPath, moduleName, sourceScope, other@_*) =>
+          case Seq(projectPath, globalOptionsPath, dataStorageRootPath, StringToSequence(moduleNames), sourceScope, other@_*) =>
             CompileServerCommand.CompileJps(
               projectPath = projectPath,
               globalOptionsPath = globalOptionsPath,
               dataStorageRootPath = dataStorageRootPath,
-              moduleName = moduleName,
+              moduleNames = moduleNames,
               sourceScope = SourceScope.fromString(sourceScope),
               externalProjectConfig = other.headOption
             )

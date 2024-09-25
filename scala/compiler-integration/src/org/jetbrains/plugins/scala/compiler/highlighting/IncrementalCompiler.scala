@@ -15,7 +15,7 @@ import java.io.File
 
 private object IncrementalCompiler {
 
-  def compile(project: Project, module: Module, sourceScope: SourceScope, client: Client): Unit = {
+  def compile(project: Project, modules: Set[Module], sourceScope: SourceScope, client: Client): Unit = {
     val projectPath = Option(project.getPresentableUrl)
       .map(VirtualFileManager.extractPath)
       .getOrElse(throw new IllegalStateException("Can't determine project path"))
@@ -30,11 +30,13 @@ private object IncrementalCompiler {
       if (ProjectUtilCore.isExternalStorageEnabled(project)) Some(ProjectUtil.getExternalConfigurationDir(project).toString)
       else None
 
+    val moduleNames = modules.map(_.getName)
+
     val command = CompileServerCommand.CompileJps(
       projectPath = projectPath,
       globalOptionsPath = globalOptionsPath,
       dataStorageRootPath = dataStorageRootPath,
-      moduleName = module.getName,
+      moduleNames = moduleNames.toSeq,
       sourceScope = sourceScope,
       externalProjectConfig = externalConfigurationDir
     )

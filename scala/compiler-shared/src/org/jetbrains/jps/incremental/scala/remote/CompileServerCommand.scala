@@ -1,5 +1,6 @@
 package org.jetbrains.jps.incremental.scala.remote
 
+import org.jetbrains.plugins.scala.compiler.data.serialization.SerializationUtils
 import org.jetbrains.plugins.scala.compiler.data.{Arguments, ComputeStampsArguments, DocumentCompilationArguments, ExpressionEvaluationArguments}
 
 sealed trait CompileServerCommand {
@@ -36,7 +37,7 @@ object CompileServerCommand {
   case class CompileJps(projectPath: String,
                         globalOptionsPath: String,
                         dataStorageRootPath: String,
-                        moduleName: String,
+                        moduleNames: Seq[String],
                         sourceScope: SourceScope,
                         externalProjectConfig: Option[String])
     extends CompileServerCommand {
@@ -47,7 +48,7 @@ object CompileServerCommand {
       projectPath,
       globalOptionsPath,
       dataStorageRootPath,
-      moduleName,
+      SerializationUtils.sequenceToString(moduleNames),
       sourceScope.toString,
     ) ++ externalProjectConfig
 

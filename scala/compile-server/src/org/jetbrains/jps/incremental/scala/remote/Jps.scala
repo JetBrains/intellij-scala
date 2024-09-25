@@ -32,7 +32,7 @@ private object Jps {
       Utils.setSystemRoot(scalaCompileServerSystemDir.toFile)
     }
 
-    val CompileServerCommand.CompileJps(projectPath, globalOptionsPath, dataStorageRootPath, moduleName, sourceScope, externalProjectConfig) = command
+    val CompileServerCommand.CompileJps(projectPath, globalOptionsPath, dataStorageRootPath, moduleNames, sourceScope, externalProjectConfig) = command
     val lock = projectLock.computeIfAbsent(dataStorageRootPath, _ => new ReentrantLock())
     lock.lock()
     try {
@@ -71,8 +71,7 @@ private object Jps {
           case SourceScope.Test => JavaModuleBuildTargetType.TEST
         }
 
-        val scope =
-          CmdlineProtoUtil.createTargetsScope(buildTargetType.getTypeId, Collections.singletonList(moduleName), false)
+        val scope = CmdlineProtoUtil.createTargetsScope(buildTargetType.getTypeId, moduleNames.asJava, false)
 
         if (client.isCanceled) return
 
