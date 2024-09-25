@@ -4,10 +4,20 @@ import com.intellij.ide.wizard.NewProjectWizardStep
 import com.intellij.openapi.util.Key
 import org.jetbrains.annotations.{Nullable, TestOnly}
 
-trait SbtScalaNewProjectWizardData {
+trait ScalaNewProjectWizardData {
   @TestOnly
-  private[project] def setScalaVersion(version: String): Unit
+  def setScalaVersion(version: String): Unit
+}
 
+object ScalaNewProjectWizardData {
+  val KEY: Key[ScalaNewProjectWizardData] = Key.create(classOf[ScalaNewProjectWizardData].getName)
+
+  @Nullable
+  def scalaData(step: NewProjectWizardStep): ScalaNewProjectWizardData =
+    step.getData.getUserData(KEY)
+}
+
+trait SbtScalaNewProjectWizardData extends ScalaNewProjectWizardData {
   @TestOnly
   private[project] def setSbtVersion(version: String): Unit
 

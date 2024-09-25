@@ -49,7 +49,7 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
   private def needToGenerateOnboardingTips: Boolean = needToAddSampleCode && generateOnboardingTipsProperty.get()
 
   @TestOnly override private[project] def setGit(value: java.lang.Boolean): Unit = gitProperty.set(value)
-  @TestOnly override private[project] def setScalaVersion(version: String): Unit = scalaVersionComboBox.setSelectedItemEnsuring(version)
+  @TestOnly override def setScalaVersion(version: String): Unit = scalaVersionComboBox.setSelectedItemEnsuring(version)
   @TestOnly override private[project] def setSbtVersion(version: String): Unit = sbtVersionComboBox.setSelectedItemEnsuring(version)
   @TestOnly override private[project] def setPackagePrefix(prefix: String): Unit = packagePrefixTextField.setText(prefix)
 
