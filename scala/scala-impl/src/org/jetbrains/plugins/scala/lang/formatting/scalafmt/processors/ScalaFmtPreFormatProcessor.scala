@@ -138,34 +138,35 @@ object ScalaFmtPreFormatProcessor {
     }.getOrElse(range)
   }
 
-  private def formatIfRequired(file: ScalaFile, range: TextRange, typeAdjuster: TypeAdjuster): Unit = {
-    val (cachedRange, cachedFileTimeStamp, cachedConfigTimestamp) =
-      file.getOrUpdateUserData(FORMATTED_RANGES_KEY, (new TextRanges, file.getModificationStamp, None))
+  private def formatIfRequired(psiFile: ScalaFile, range: TextRange, typeAdjuster: TypeAdjuster): Unit = {
+    val (cachedRange, cachedPsiFileModificationStamp, configUsedDuringLastFormatting) =
+      psiFile.getOrUpdateUserData(FORMATTED_RANGES_KEY, (new TextRanges, psiFile.getModificationStamp, None))
 
-    val (config, configTimestamp) = ScalafmtDynamicConfigService.instanceIn(file).configForFileWithTimestamp(file) match {
+    val config = ScalafmtDynamicConfigService.instanceIn(psiFile).configForFile(psiFile) match {
       case Some(result) => result
       case None =>
         return
     }
 
-    val nothingChanged = cachedFileTimeStamp == file.getModificationStamp &&
+    val nothingChanged = cachedPsiFileModificationStamp == psiFile.getModificationStamp &&
       cachedRange.contains(range) &&
-      cachedConfigTimestamp == configTimestamp
+      //if the returned config is the same instance, then it hasn't changed since last formatting
+      (configUsedDuringLastFormatting.orNull eq config)
     if (nothingChanged && !ApplicationManager.getApplication.isUnitTestMode)
       return
 
-    val rangeUpdated = fixRangeStartingOnPsiElement(file, range)
+    val rangeUpdated = fixRangeStartingOnPsiElement(psiFile, range)
 
-    implicit val context: ConfigContext = ConfigContext(config, file)
+    implicit val context: ConfigContext = ConfigContext(config, psiFile)
 
-    val result = formatRange(file, rangeUpdated, typeAdjuster)
+    val result = formatRange(psiFile, rangeUpdated, typeAdjuster)
     if (result.isRight) {
       ScalafmtNotifications.hideAllFormatErrorNotifications()
     }
     for {
       res <- result
       _ = if (ApplicationManager.getApplication.isUnitTestMode) {
-        formattedCountMap.merge(file.getVirtualFile, 1, (a, b) => a + b)
+        formattedCountMap.merge(psiFile.getVirtualFile, 1, (a, b) => a + b)
       }
       delta <- res
     } {
@@ -178,12 +179,12 @@ object ScalaFmtPreFormatProcessor {
       }
 
       val ranges =
-        if (cachedFileTimeStamp == file.getModificationStamp) moveRanges(cachedRange)
+        if (cachedPsiFileModificationStamp == psiFile.getModificationStamp) moveRanges(cachedRange)
         else new TextRanges
 
       if (rangeUpdated.getLength + delta > 0) {
-        val tuple = (ranges.union(rangeUpdated.grown(delta)), file.getModificationStamp, configTimestamp)
-        file.putUserData(FORMATTED_RANGES_KEY, tuple)
+        val tuple = (ranges.union(rangeUpdated.grown(delta)), psiFile.getModificationStamp, Some(config))
+        psiFile.putUserData(FORMATTED_RANGES_KEY, tuple)
       }
     }
   }
@@ -202,7 +203,7 @@ object ScalaFmtPreFormatProcessor {
     val startWs = startElement match {
       case ws: PsiWhiteSpace => ws
       case el if el != null && el.startOffset == range.getStartOffset =>
-        PsiTreeUtil.prevLeaf(startElement, true) match {
+        PsiTreeUtil.prevLeaf(el, true) match {
           case ws: PsiWhiteSpace => ws
           case _ => null
         }
@@ -968,7 +969,8 @@ object ScalaFmtPreFormatProcessor {
     }
   }
 
-  private val FORMATTED_RANGES_KEY: Key[(TextRanges, Long, Option[Long])] = Key.create("scala.fmt.formatted.ranges")
+  private val FORMATTED_RANGES_KEY: Key[(TextRanges, Long, Option[ScalafmtReflectConfig])] =
+    Key.create("scala.fmt.formatted.ranges")
 
   private val rangesDeltaCache: mutable.Map[PsiFile, mutable.TreeSet[(Int, Int)]] = mutable.WeakHashMap[PsiFile, mutable.TreeSet[(Int, Int)]]()
 
