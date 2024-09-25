@@ -10,16 +10,14 @@ import org.jetbrains.plugins.scala.util.DocumentVersion
 
 import scala.concurrent.duration._
 
-private sealed trait CompilationRequest {
+private sealed abstract class CompilationRequest(final val originFiles: Map[VirtualFile, Document]) {
   protected val priority: Int
-
-  val originFiles: Map[VirtualFile, Document]
-
-  val debugReason: String
 
   final val documentVersions: Map[VirtualFile, DocumentVersion] = originFiles.map { case (vf, doc) =>
     vf -> DocumentUtil.documentVersion(vf, doc)
   }
+
+  val debugReason: String
 
   final val compilationDelay: FiniteDuration = ScalaHighlightingMode.compilationDelay
 
@@ -42,10 +40,8 @@ private object CompilationRequest {
     document: Document,
     isFirstTimeHighlighting: Boolean,
     debugReason: String,
-  ) extends CompilationRequest {
+  ) extends CompilationRequest(Map(virtualFile -> document)) {
     override protected val priority: Int = 1
-
-    override val originFiles: Map[VirtualFile, Document] = Map(virtualFile -> document)
 
     override def delayed: WorksheetRequest = this.copy()
   }
@@ -53,11 +49,10 @@ private object CompilationRequest {
   final case class IncrementalRequest(
     fileCompilationScopes: Map[VirtualFile, FileCompilationScope],
     debugReason: String
-  ) extends CompilationRequest {
+  ) extends CompilationRequest(
+    fileCompilationScopes.map { case (vf, FileCompilationScope(_, _, _, document, _)) => vf -> document }
+  ) {
     override protected val priority: Int = 1
-
-    override val originFiles: Map[VirtualFile, Document] =
-      fileCompilationScopes.map { case (vf, FileCompilationScope(_, _, _, document, _)) => vf -> document }
 
     override def delayed: IncrementalRequest = this.copy()
   }
@@ -68,10 +63,8 @@ private object CompilationRequest {
     virtualFile: VirtualFile,
     document: Document,
     debugReason: String
-  ) extends CompilationRequest {
+  ) extends CompilationRequest(Map(virtualFile -> document)) {
     override protected val priority: Int = 2
-
-    override val originFiles: Map[VirtualFile, Document] = Map(virtualFile -> document)
 
     override def delayed: DocumentRequest = this.copy()
   }
