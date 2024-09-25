@@ -81,8 +81,6 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
   private String[] INSPECTION_LIKE_OPTION_CLASSES = OperationOnCollectionInspectionBase.likeOptionClassesDefault();
   private String[] INSPECTION_LIKE_COLLECTION_CLASSES = OperationOnCollectionInspectionBase.likeCollectionClassesDefault();
 
-  public boolean SUGGEST_IN_EDITOR_DOC_RENDERING = true;
-
   public boolean SUGGEST_AUTOBRACE_INSERTION = true;
 
   public boolean SUGGEST_LEGACY_IMPORT_LAYOUT = true;
