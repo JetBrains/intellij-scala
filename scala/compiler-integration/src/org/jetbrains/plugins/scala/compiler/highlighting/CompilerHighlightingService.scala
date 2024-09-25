@@ -26,7 +26,6 @@ import kotlinx.coroutines.{BuildersKt, CoroutineScope}
 import org.jetbrains.bsp.BspUtil
 import org.jetbrains.bsp.project.{BspProjectTaskRunner, CustomTaskArguments}
 import org.jetbrains.jps.incremental.scala.remote.SourceScope
-import org.jetbrains.jps.incremental.scala.remote.SourceScope.Production
 import org.jetbrains.plugins.scala.build.CompilerEventReporter
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerIntegrationBundle}
 import org.jetbrains.plugins.scala.extensions._
@@ -41,6 +40,7 @@ import java.util.concurrent.{ConcurrentSkipListSet, ScheduledExecutorService, Sc
 import scala.collection.immutable
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future, Promise}
+import scala.jdk.CollectionConverters.IteratorHasAsScala
 import scala.util.control.NonFatal
 
 @Service(Array(Service.Level.PROJECT))
@@ -473,18 +473,56 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
         isReadyForExecution(request) match {
           case RequestState.Ready =>
             try {
-              val requestFilesSet = request.originFiles.keySet
-              // The request with the highest priority is ready for execution. We need to also remove all requests from the
-              // priority queue that are subsumed by this request. The `tailSet` returns all compilation requests that
-              // have equal or smaller priority than the current one. Out of those, we only remove the requests for the same
-              // source file, as less important requests for unrelated files are still useful and should be executed.
-              priorityQueue.tailSet(request).forEach { r =>
-                // remove less important compilation requests for the same files
-                if (r.originFiles.keySet.subsetOf(requestFilesSet)) {
-                  priorityQueue.remove(r)
-                }
+              request match {
+                case CompilationRequest.WorksheetRequest(file, virtualFile, document, isFirstTimeHighlighting, debugReason, timestamp) =>
+                  val otherWorksheetRequests = priorityQueue.tailSet(request).iterator().asScala.collect {
+                    case wr: CompilationRequest.WorksheetRequest if wr.virtualFile == virtualFile => wr
+                  }.toSeq
+                  val firstTime = if (isFirstTimeHighlighting) true else otherWorksheetRequests.exists(_.isFirstTimeHighlighting)
+                  val lastOne = otherWorksheetRequests.maxByOption(_.timestamp).getOrElse(request)
+                  val newTimestamp = timestamp max lastOne.timestamp
+                  otherWorksheetRequests.foreach(priorityQueue.remove)
+                  val newRequest = CompilationRequest.WorksheetRequest(file, virtualFile, document, firstTime, debugReason, timestamp = newTimestamp)
+                  if (isReadyForExecution(newRequest) == RequestState.Ready) {
+                    execute(newRequest)
+                  } else {
+                    priorityQueue.add(newRequest)
+                  }
+                case CompilationRequest.DocumentRequest(module, sourceScope, virtualFile, document, debugReason, timestamp) =>
+                  val otherDocumentRequests = priorityQueue.tailSet(request).iterator().asScala.collect {
+                    case dr: CompilationRequest.DocumentRequest if dr.virtualFile == virtualFile => dr
+                  }.toSeq
+                  val lastOne = otherDocumentRequests.maxByOption(_.timestamp).getOrElse(request)
+                  val newTimestamp = timestamp max lastOne.timestamp
+                  otherDocumentRequests.foreach(priorityQueue.remove)
+                  val newRequest = CompilationRequest.DocumentRequest(module, sourceScope, virtualFile, document, debugReason, timestamp = newTimestamp)
+                  if (isReadyForExecution(newRequest) == RequestState.Ready) {
+                    execute(newRequest)
+                  } else {
+                    priorityQueue.add(newRequest)
+                  }
+                case CompilationRequest.IncrementalRequest(fileCompilationScopes, debugReason, timestamp) =>
+                  val fileSet = fileCompilationScopes.keySet
+                  val otherRequests = priorityQueue.tailSet(request).iterator().asScala.collect {
+                    case dr: CompilationRequest.DocumentRequest => dr
+                    case ir: CompilationRequest.IncrementalRequest => ir
+                  }.toSeq
+                  val toMerge = otherRequests.collect {
+                    case ir: CompilationRequest.IncrementalRequest if ir.fileCompilationScopes.keySet.subsetOf(fileSet) => ir
+                  }
+                  otherRequests.foreach(priorityQueue.remove)
+                  val lastOne = toMerge.maxByOption(_.timestamp).getOrElse(request)
+                  val newTimestamp = timestamp max lastOne.timestamp
+                  val scopes = toMerge.foldLeft(fileCompilationScopes)(_ ++ _.fileCompilationScopes)
+                  val newRequest = CompilationRequest.IncrementalRequest(scopes, debugReason, timestamp = newTimestamp)
+                  if (isReadyForExecution(newRequest) == RequestState.Ready) {
+                    execute(newRequest)
+                  } else {
+                    priorityQueue.add(newRequest)
+                  }
               }
-              execute(request)
+
+
             } catch {
               case _: ProcessCanceledException | _: InterruptedException =>
                 // Do not log PCE or InterruptedException.

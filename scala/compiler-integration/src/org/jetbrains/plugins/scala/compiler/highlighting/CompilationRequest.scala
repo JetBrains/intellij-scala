@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.util.DocumentVersion
 
 import scala.concurrent.duration._
 
-private sealed abstract class CompilationRequest(final val originFiles: Map[VirtualFile, Document], timestamp: Long) {
+private sealed abstract class CompilationRequest(final val originFiles: Map[VirtualFile, Document], val timestamp: Long) {
   protected val priority: Int
 
   final val documentVersions: Map[VirtualFile, DocumentVersion] = originFiles.map { case (vf, doc) =>
@@ -36,7 +36,7 @@ private object CompilationRequest {
     document: Document,
     isFirstTimeHighlighting: Boolean,
     debugReason: String,
-    timestamp: Long
+    override val timestamp: Long
   ) extends CompilationRequest(Map(virtualFile -> document), timestamp) {
     override protected val priority: Int = 1
 
@@ -46,7 +46,7 @@ private object CompilationRequest {
   final case class IncrementalRequest(
     fileCompilationScopes: Map[VirtualFile, FileCompilationScope],
     debugReason: String,
-    timestamp: Long
+    override val timestamp: Long
   ) extends CompilationRequest(
     fileCompilationScopes.map { case (vf, FileCompilationScope(_, _, _, document, _)) => vf -> document },
     timestamp
@@ -62,7 +62,7 @@ private object CompilationRequest {
     virtualFile: VirtualFile,
     document: Document,
     debugReason: String,
-    timestamp: Long
+    override val timestamp: Long
   ) extends CompilationRequest(Map(virtualFile -> document), timestamp) {
     override protected val priority: Int = 2
 
