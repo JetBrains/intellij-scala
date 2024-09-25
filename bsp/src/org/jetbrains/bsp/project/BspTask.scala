@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.util.{CompilationId, ExternalSystemVfsUtil}
 
 import java.net.URI
 import java.util.concurrent.CompletableFuture
+import scala.collection.immutable
 import scala.collection.mutable
 import scala.concurrent.{Future, Promise}
 import scala.jdk.CollectionConverters._
@@ -88,7 +89,7 @@ class BspTask[T](project: Project,
         .getOrElse {
           new CompositeReporter(
             new BuildToolWindowReporter(project, bspTaskId, BspBundle.message("bsp.task.build"), new CancelBuildAction(resultPromise)),
-            new CompilerEventReporter(project, CompilationId(timestamp = System.nanoTime(), documentVersion = None)),
+            new CompilerEventReporter(project, CompilationId(timestamp = System.nanoTime(), documentVersions = immutable.HashMap.empty)),
             new IndicatorReporter(indicator)
           )
         }

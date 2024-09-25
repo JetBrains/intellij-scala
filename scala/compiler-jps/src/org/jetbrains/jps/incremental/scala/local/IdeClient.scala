@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.util.CompilationId
 import java.io.File
 import java.util
 import java.util.UUID
+import scala.collection.immutable
 import scala.util.Try
 
 abstract class IdeClient(compilerName: String,
@@ -23,7 +24,7 @@ abstract class IdeClient(compilerName: String,
                          chunk: ModuleChunk) extends Client {
 
   private var hasErrors = false
-  private val compilationId: CompilationId = CompilationId(timestamp = System.nanoTime(), documentVersion = None)
+  private val compilationId: CompilationId = CompilationId(timestamp = System.nanoTime(), documentVersions = immutable.HashMap.empty)
   private val compilationUnitId = Some(IdeClient.getCompilationUnitId(chunk))
 
   override def message(msg: Client.ClientMsg): Unit = {

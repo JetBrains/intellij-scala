@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUs
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed.UnusedImportReportedByCompilerKey
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportOrExportStmt, ScImportSelector}
 import org.jetbrains.plugins.scala.settings.{ProblemSolverUtils, ScalaHighlightingMode}
-import org.jetbrains.plugins.scala.util.{CompilationId, DocumentVersion}
+import org.jetbrains.plugins.scala.util.{CanonicalPath, CompilationId, DocumentVersion}
 
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
@@ -117,7 +117,7 @@ private final class ExternalHighlightersService(project: Project) { self =>
   }
 
   private def stillValid(compilationId: CompilationId): Boolean =
-    compilationId.documentVersion.forall { case DocumentVersion(path, version) =>
+    compilationId.documentVersions.forall { case (CanonicalPath(path), version) =>
       val url = URLDecoder.decode(Path.of(path).toUri.toString, StandardCharsets.UTF_8)
       val virtualFile = VirtualFileManager.getInstance().findFileByUrl(url)
       if (virtualFile eq null) false

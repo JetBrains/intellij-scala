@@ -32,11 +32,12 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
-import org.jetbrains.plugins.scala.util.DocumentVersion
+import org.jetbrains.plugins.scala.util.{CanonicalPath, DocumentVersion}
 
 import java.io.EOFException
 import java.util.concurrent.atomic.{AtomicBoolean, AtomicReference}
 import java.util.concurrent.{ConcurrentSkipListSet, ScheduledExecutorService, ScheduledFuture, TimeUnit}
+import scala.collection.immutable
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future, Promise}
 import scala.util.control.NonFatal
@@ -198,11 +199,16 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     }
 
     prepareCompilation(await = true) {
-      performCompilation(Some(request.documentVersion), delayIndicator = true, refreshVfs = false) { client =>
+      performCompilation(documentVersionsFor(request), delayIndicator = true, refreshVfs = false) { client =>
         WorksheetHighlightingCompiler.compile(file, document, module, client)
       }
     }
   }
+
+  private def documentVersionsFor(request: CompilationRequest): Map[CanonicalPath, Long] with Serializable =
+    request.documentVersions.map { case (_, DocumentVersion(path, version)) =>
+      path -> version
+    }.to(immutable.HashMap.mapFactory[CanonicalPath, Long])
 
   private def executeIncrementalCompilationRequest(request: CompilationRequest.IncrementalRequest, runDocumentCompiler: Boolean): Unit = {
     debug(s"incrementalCompilation: ${request.debugReason}")
@@ -215,7 +221,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
           else {
             TriggerCompilerHighlightingService.get(project).beforeIncrementalCompilation()
             // Perform the rest of the execution of this incremental compilation on a background thread.
-            performCompilation(Some(request.documentVersion), delayIndicator = false, refreshVfs = true) { client =>
+            performCompilation(documentVersionsFor(request), delayIndicator = false, refreshVfs = true) { client =>
               if (BspUtil.isBspProject(project)) {
                 doBspIncrementalCompilation(request, client, runDocumentCompiler)
               } else {
@@ -274,7 +280,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
   private def executeDocumentCompilationRequest(request: CompilationRequest.DocumentRequest): Unit = {
     val CompilationRequest.DocumentRequest(module, sourceScope, virtualFile, document, debugReason) = request
     debug(s"documentCompilation: $debugReason")
-    executeDocumentCompilationRequest(module, sourceScope, virtualFile, document, Some(request.documentVersion), await = true)
+    executeDocumentCompilationRequest(module, sourceScope, virtualFile, document, documentVersionsFor(request), await = true)
   }
 
   private def executeDocumentCompilationRequest(
@@ -282,11 +288,11 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     sourceScope: SourceScope,
     virtualFile: VirtualFile,
     document: Document,
-    version: Option[DocumentVersion],
+    versions: Map[CanonicalPath, Long] with Serializable,
     await: Boolean
   ): Unit = {
     prepareCompilation(await) {
-      performCompilation(version, delayIndicator = true, refreshVfs = false) { client =>
+      performCompilation(versions, delayIndicator = true, refreshVfs = false) { client =>
         DocumentCompiler.get(project)
           .compile(module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, document, virtualFile, client)
       }
@@ -320,7 +326,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
         case Some(c) =>
           DocumentCompiler.get(project).compile(module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, document, virtualFile, c)
         case None =>
-          executeDocumentCompilationRequest(module, sourceScope, virtualFile, document, None, await = false)
+          executeDocumentCompilationRequest(module, sourceScope, virtualFile, document, immutable.HashMap.empty, await = false)
       }
     }
   }
@@ -344,8 +350,9 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     }
   }
 
-  private def performCompilation(documentVersion: Option[DocumentVersion], delayIndicator: Boolean, refreshVfs: Boolean)
-                                (compile: CompilerEventGeneratingClient => Unit): Future[Unit] = {
+  private def performCompilation(documentVersions: Map[CanonicalPath, Long] with Serializable,
+                                 delayIndicator: Boolean,
+                                 refreshVfs: Boolean)(compile: CompilerEventGeneratingClient => Unit): Future[Unit] = {
     val promise = Promise[Unit]()
     val taskMsg = CompilerIntegrationBundle.message("highlighting.compilation")
 
@@ -355,7 +362,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
 
         try {
           progressIndicator.set(indicator)
-          val client = new CompilerEventGeneratingClient(project, indicator, Log, refreshVfs, documentVersion)
+          val client = new CompilerEventGeneratingClient(project, indicator, Log, refreshVfs, documentVersions)
           CompilerLockService.instance(project).withCompilerLock(indicator) {
             compile(client)
           }
@@ -390,8 +397,16 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     }
   }
 
+  private def isExpired(request: CompilationRequest): Boolean = {
+    request.originFiles.keys.exists(!_.isValid) ||
+      request.documentVersions.exists { case (virtualFile, DocumentVersion(_, version)) =>
+        val document = request.originFiles(virtualFile)
+        version != DocumentUtil.version(document)
+      }
+  }
+
   private def isReadyForExecution(request: CompilationRequest): RequestState = {
-    if (!request.virtualFile.isValid || request.documentVersion.version != DocumentUtil.version(request.document)) {
+    if (isExpired(request)) {
       RequestState.Expired
     } else if (request.remaining < Duration.Zero) {
       if (DumbService.isDumb(project)) return RequestState.NotReady
@@ -437,13 +452,14 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
         isReadyForExecution(request) match {
           case RequestState.Ready =>
             try {
+              val requestFilesSet = request.originFiles.keySet
               // The request with the highest priority is ready for execution. We need to also remove all requests from the
               // priority queue that are subsumed by this request. The `tailSet` returns all compilation requests that
               // have equal or smaller priority than the current one. Out of those, we only remove the requests for the same
               // source file, as less important requests for unrelated files are still useful and should be executed.
               priorityQueue.tailSet(request).forEach { r =>
-                // remove less important compilation requests for the same file
-                if (r.virtualFile.getCanonicalPath == request.virtualFile.getCanonicalPath) {
+                // remove less important compilation requests for the same files
+                if (r.originFiles.keySet.subsetOf(requestFilesSet)) {
                   priorityQueue.remove(r)
                 }
               }

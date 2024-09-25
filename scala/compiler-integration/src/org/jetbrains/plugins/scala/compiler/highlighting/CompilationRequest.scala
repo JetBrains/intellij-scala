@@ -13,11 +13,14 @@ import scala.concurrent.duration._
 
 private sealed trait CompilationRequest {
   protected val priority: Int
-  val virtualFile: VirtualFile
-  val document: Document
+
+  val originFiles: Map[VirtualFile, Document]
+
   val debugReason: String
 
-  final val documentVersion: DocumentVersion = DocumentUtil.documentVersion(virtualFile, document)
+  final val documentVersions: Map[VirtualFile, DocumentVersion] = originFiles.map { case (vf, doc) =>
+    vf -> DocumentUtil.documentVersion(vf, doc)
+  }
 
   final val compilationDelay: FiniteDuration = ScalaHighlightingMode.compilationDelay
 
@@ -43,6 +46,8 @@ private object CompilationRequest {
   ) extends CompilationRequest {
     override protected val priority: Int = 1
 
+    override val originFiles: Map[VirtualFile, Document] = Map(virtualFile -> document)
+
     override def delayed: WorksheetRequest = this.copy()
   }
 
@@ -56,6 +61,8 @@ private object CompilationRequest {
   ) extends CompilationRequest {
     override protected val priority: Int = 1
 
+    override val originFiles: Map[VirtualFile, Document] = Map(virtualFile -> document)
+
     override def delayed: IncrementalRequest = this.copy()
   }
 
@@ -67,6 +74,8 @@ private object CompilationRequest {
     debugReason: String
   ) extends CompilationRequest {
     override protected val priority: Int = 2
+
+    override val originFiles: Map[VirtualFile, Document] = Map(virtualFile -> document)
 
     override def delayed: DocumentRequest = this.copy()
   }
@@ -83,18 +92,12 @@ private object CompilationRequest {
    * file will already be compiled by the incremental compilation request.
    *
    * @note Two compilation requests are first compared by their priority field. If the priorities are the same, they are
-   *       then ordered by their deadlines. If it happens that the deadlines match, ties are broken by the path of the
-   *       file they are scheduled for.
+   *       then ordered by their deadlines.
    */
   implicit val compilationRequestOrdering: Ordering[CompilationRequest] = { (x, y) =>
     if (x.priority != y.priority)
       implicitly[Ordering[Int]].compare(x.priority, y.priority)
-    else {
-      val byDeadline = implicitly[Ordering[Deadline]].compare(x.deadline, y.deadline)
-      if (byDeadline != 0)
-        byDeadline
-      else
-        implicitly[Ordering[String]].compare(x.virtualFile.getCanonicalPath, y.virtualFile.getCanonicalPath)
-    }
+    else
+      implicitly[Ordering[Deadline]].compare(x.deadline, y.deadline)
   }
 }
