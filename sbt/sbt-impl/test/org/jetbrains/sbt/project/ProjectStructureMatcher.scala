@@ -25,6 +25,7 @@ import org.junit.{Assert, ComparisonFailure}
 
 import java.io.File
 import scala.jdk.CollectionConverters._
+import scala.util.matching.Regex
 
 trait ProjectStructureMatcher {
 
@@ -93,7 +94,11 @@ trait ProjectStructureMatcher {
     pairs.foreach { case(exp, actual) => assertModulesEqual(exp, actual, singleContentRootModules) }
   }
 
-  private def assertModulesEqual(expected: module, actual: Module, singleContentRootModules: Boolean): Unit = {
+  private def assertModulesEqual(
+    expected: module,
+    actual: Module,
+    singleContentRootModules: Boolean
+  )(implicit compareOptions: ProjectComparisonOptions): Unit = {
     import ProjectStructureDsl._
 
     expected.foreach(contentRoots)(assertModuleContentRootsEqual(actual))
@@ -252,14 +257,16 @@ trait ProjectStructureMatcher {
     }
   }
 
-  private def assertModuleDependenciesEqual(module: Module)(expected: Seq[dependency[module]])(mt: Option[MatchType]): Unit = {
+  private def assertModuleDependenciesEqual(module: Module)(expected: Seq[dependency[module]])(mt: Option[MatchType])
+                                           (implicit compareOptions: ProjectComparisonOptions): Unit = {
     val actualModuleEntries = roots.OrderEnumerator.orderEntries(module).moduleEntries
     assertNamesEqualIgnoreOrder(s"Module dependency of module `${module.getName}`", expected.map(_.reference), actualModuleEntries.map(_.getModule))(mt)
     val paired = pairModules(expected, actualModuleEntries)
     paired.foreach((assertDependencyScopeAndExportedFlagEqual _).tupled)
   }
 
-  private def assertLibraryDependenciesEqual(module: Module)(expected: Seq[dependency[library]])(mt: Option[MatchType]): Unit = {
+  private def assertLibraryDependenciesEqual(module: Module)(expected: Seq[dependency[library]])(mt: Option[MatchType])
+                                            (implicit compareOptions: ProjectComparisonOptions): Unit = {
     val actualLibraryEntries = roots.OrderEnumerator.orderEntries(module).libraryEntries
     assertNamesEqualIgnoreOrder(s"Library dependency of module `${module.getName}`", expected.map(_.reference), actualLibraryEntries.map(_.getLibrary))(mt)
     assertUnmanagedLibraryIsAboveOtherLibrariesIfExists(actualLibraryEntries)
@@ -277,7 +284,8 @@ trait ProjectStructureMatcher {
     expected.foreach0(scope)(it => assertEquals("Dependency scope", it, actual.getScope))
   }
 
-  private def assertProjectLibrariesEqual(project: Project)(expectedLibraries: Seq[library])(mt: Option[MatchType]): Unit = {
+  private def assertProjectLibrariesEqual(project: Project)(expectedLibraries: Seq[library])(mt: Option[MatchType])
+                                         (implicit compareOptions: ProjectComparisonOptions): Unit = {
     val actualLibraries = project.libraries
     assertNamesEqualIgnoreOrder("Project library", expectedLibraries, actualLibraries)(mt)
     pairByName(expectedLibraries, actualLibraries).foreach { case (expected, actual) =>
@@ -326,7 +334,8 @@ trait ProjectStructureMatcher {
     }
   }
 
-  private def assertModuleLibrariesEqual(module: Module)(expectedLibraries: Seq[library])(mt: Option[MatchType]): Unit = {
+  private def assertModuleLibrariesEqual(module: Module)(expectedLibraries: Seq[library])(mt: Option[MatchType])
+                                        (implicit compareOptions: ProjectComparisonOptions): Unit = {
     val actualLibraries = roots.OrderEnumerator.orderEntries(module).libraryEntries.filter(_.isModuleLevel).map(_.getLibrary)
     assertNamesEqualIgnoreOrder("Module library", expectedLibraries, actualLibraries)(mt)
     pairByName(expectedLibraries, actualLibraries).foreach { case (expected, actual) =>
@@ -337,18 +346,35 @@ trait ProjectStructureMatcher {
 
   private def assertNamesEqualIgnoreOrder[T](what: String, expected: Seq[Named], actual: Seq[T])
                                             (mt: Option[MatchType])
-                                            (implicit nameOf: HasName[T]): Unit =
-    assertMatchWithIgnoredOrder(what, expected.map(_.name), actual.map(s => nameOf(s)))(mt)
+                                            (implicit nameOf: HasName[T], compareOptions: ProjectComparisonOptions): Unit = {
+    val actualNames = actual.map(s => convertIfScalaCli(nameOf(s)))
+    assertMatchWithIgnoredOrder(what, expected.map(_.name), actualNames)(mt)
+  }
+
+  /**
+   * In case of a Scala CLI project any occurrence of project name with a <code>_hash</code> suffix should be changed to just a project name.
+   * It's not possible to predict a hash before tests, so it's necessary to compare the names of modules, libraries or dependencies.
+   *
+   * @see [[ScalaCliStructureHelper]]
+   */
+  private def convertIfScalaCli(name: String)(implicit compareOptions: ProjectComparisonOptions): String =
+    compareOptions.scalaCliStructureHelper match {
+      case Some(ScalaCliStructureHelper(pattern)) =>
+        pattern.replaceAllIn(name, m => m.group(1))
+      case _ => name
+    }
 
   private def assertEquals[T](what: String, expected: T, actual: T): Unit = {
     org.junit.Assert.assertEquals(s"$what mismatch", expected, actual)
   }
 
-  private def pairModules[T <: Attributed, U](expected: Seq[T], actual: Seq[U])(implicit nameOfT: HasName[T], nameOfU: HasName[U]) =
+  private def pairModules[T <: Attributed, U](expected: Seq[T], actual: Seq[U])
+                                             (implicit nameOfT: HasName[T], nameOfU: HasName[U], compareOptions: ProjectComparisonOptions): Seq[(T, U)] =
     pairByName(expected, actual)
 
-  private def pairByName[T, U](expected: Seq[T], actual: Seq[U])(implicit nameOfT: HasName[T], nameOfU: HasName[U]): Seq[(T, U)] =
-    expected.flatMap(e => actual.find(a => nameOfU(a) == nameOfT(e)).map((e, _)))
+  private def pairByName[T, U](expected: Seq[T], actual: Seq[U])
+                              (implicit nameOfT: HasName[T], nameOfU: HasName[U], compareOptions: ProjectComparisonOptions): Seq[(T, U)] =
+    expected.flatMap(e => actual.find(a => convertIfScalaCli(nameOfU(a)) == nameOfT(e)).map((e, _)))
 
   protected def assertNoNotificationsShown(myProject: Project): Unit = {
     myProject.getUserData(ShownNotificationsKey) match {
@@ -429,16 +455,46 @@ object ProjectStructureMatcher {
   }
 
   /**
+   * In the Scala CLI project only the root project module is created (at least at this point).
+   * It contains a project directory name with a suffix <code>_hash</code>.
+   * The hash is created based on options passed <code>setup-ide</code> command.
+   * The hash can change when:
+   * <ul>
+   * <li>the options passed to <code>setup-ide</code> are changed</li>
+   * <li>the options are changed on the Scala CLI side (e.g. they add or remove some)</li>
+   * </ul>
+   *
+   * @param projectNameRegex a grouped regular expression in a form <code>($scalaCliProjectName)_[a-zA-Z0-9]+</code>.
+   *                         The group with the scala CLI project name will be later reused to change the value in a module/library/dependency name from e.g.
+   *                         <code>myProjectName_0987hjks3a</code> to <code>myProjectName</code>.
+   * @see [[org.jetbrains.sbt.project.ProjectStructureMatcher#convertIfScalaCli]]
+   */
+  case class ScalaCliStructureHelper(projectNameRegex: Regex)
+
+  object ScalaCliStructureHelper {
+    def apply(scalaCliProjectName: String): ScalaCliStructureHelper = {
+      val projectNameRegex = s"($scalaCliProjectName)_[a-zA-Z0-9]+".r
+      ScalaCliStructureHelper(projectNameRegex)
+    }
+  }
+
+  /**
    * @param strictCheckForBuildModules if `false` then if expected project structure doesn't contain `-build` modules it will not be considered as a test failure<br>
    *                                   if `true` then all the modules will be checked
    * @note there is also [[org.jetbrains.sbt.DslUtils.MatchType]]
    */
-  case class ProjectComparisonOptions(strictCheckForBuildModules: Boolean)
+  case class ProjectComparisonOptions(strictCheckForBuildModules: Boolean, scalaCliStructureHelper: Option[ScalaCliStructureHelper])
 
   object ProjectComparisonOptions {
     object Implicit {
-      implicit def default: ProjectComparisonOptions = ProjectComparisonOptions(strictCheckForBuildModules = false)
+      implicit def default: ProjectComparisonOptions = ProjectComparisonOptions(strictCheckForBuildModules = false, scalaCliStructureHelper = None)
     }
+
+    def apply(strictCheckForBuildModules: Boolean): ProjectComparisonOptions =
+      ProjectComparisonOptions(strictCheckForBuildModules, scalaCliStructureHelper = None)
+
+    def apply(scalaCliProjectName: String): ProjectComparisonOptions =
+      ProjectComparisonOptions(strictCheckForBuildModules = false, scalaCliStructureHelper = Some(ScalaCliStructureHelper(scalaCliProjectName)))
   }
 }
 
