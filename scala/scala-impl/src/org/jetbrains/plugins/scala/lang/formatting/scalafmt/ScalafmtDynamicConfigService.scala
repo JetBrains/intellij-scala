@@ -16,22 +16,18 @@ trait ScalafmtDynamicConfigService {
 
   def clearCaches(): Unit
 
-  def configForFileWithTimestamp(
-    psiFile: PsiFile,
-    verbosity: FmtVerbosity = FmtVerbosity.Verbose,
-    resolveFast: Boolean = false
-  ): Option[(ScalafmtReflectConfig, Option[Long])]
-
+  /**
+   * @return virtual file of a scalafmt configuration which describes the formatting rules for a given `psiFile`
+   */
   def configFileForFile(
     psiFile: PsiFile
   ): Option[VirtualFile]
 
-  final def configForFile(
+  def configForFile(
     psiFile: PsiFile,
     verbosity: FmtVerbosity = FmtVerbosity.Verbose,
     resolveFast: Boolean = false
-  ): Option[ScalafmtReflectConfig] =
-    configForFileWithTimestamp(psiFile, verbosity, resolveFast).map(_._1)
+  ): Option[ScalafmtReflectConfig]
 
   def resolveConfigAsync(
     configFile: VirtualFile,

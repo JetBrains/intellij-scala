@@ -23,6 +23,7 @@ trait ScalaFmtTestBase extends AbstractScalaFormatterTestBase with ScalaFmtForTe
     super.setUp()
     ScalaFmtForTestsSetupOps.ensureDownloaded(
       DefaultVersion,
+      ScalafmtVersion.parse("3.8.3").get,
       ScalafmtVersion(2, 7, 5),
       ScalafmtVersion(2, 5, 3)
     )
@@ -60,12 +61,17 @@ trait ScalaFmtForTestsSetupOps extends UsefulTestCase {
 
   private var configIsSet = false
 
-  final def setScalafmtConfig(configFile: String): Unit = {
+  final def setScalafmtConfig(configFileName: String): Unit = {
     if (configIsSet)
       throw new AssertionError("scalafmt config should be set only once")
-    val configPath = scalafmtConfigsBasePath + configFile
-    assertTrue(s"Scalafmt config file doesn't exist: $configPath", new File(configPath).exists())
-    getScalaCodeStyleSettings.SCALAFMT_CONFIG_PATH = configPath
+    val configFile = new File(scalafmtConfigsBasePath, configFileName)
+    assertTrue(
+      s"""Scalafmt config file doesn't exist: $configFile.
+         |Possible files in parent directory:
+         |${configFile.getParentFile.listFiles().map(_.getPath).mkString("\n")}""".stripMargin,
+      configFile.exists()
+    )
+    getScalaCodeStyleSettings.SCALAFMT_CONFIG_PATH = configFile.getPath
     configIsSet = true
   }
 }
