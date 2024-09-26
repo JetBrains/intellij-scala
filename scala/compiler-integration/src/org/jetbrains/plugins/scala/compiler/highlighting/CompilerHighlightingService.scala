@@ -474,27 +474,40 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
             try {
               request match {
                 case CompilationRequest.WorksheetRequest(file, virtualFile, document, isFirstTimeHighlighting, debugReason, timestamp) =>
+                  // Worksheet requests for the same file are debounced and deduplicated from the queue.
                   val otherWorksheetRequests = priorityQueue.tailSet(request).iterator().asScala.collect {
                     case wr: CompilationRequest.WorksheetRequest if wr.virtualFile == virtualFile => wr
                   }.toSeq
+                  // If any of the requests have `isFirstTimeHighlighting = true`, the debounced request will also have the same value.
                   val firstTime = if (isFirstTimeHighlighting) true else otherWorksheetRequests.exists(_.isFirstTimeHighlighting)
+                  // Look for the request scheduled furthest in the future.
                   val lastOne = otherWorksheetRequests.maxByOption(_.timestamp).getOrElse(request)
+                  // Its timestamp becomes the new timestamp of the debounced request.
                   val newTimestamp = timestamp max lastOne.timestamp
+                  // All worksheet requests for the same file are removed from the queue.
                   otherWorksheetRequests.foreach(priorityQueue.remove)
+                  // Instantiate the new worksheet request.
                   val newRequest = CompilationRequest.WorksheetRequest(file, virtualFile, document, firstTime, debugReason, timestamp = newTimestamp)
+                  // Execute it if ready, schedule it if not.
                   if (isReadyForExecution(newRequest) == RequestState.Ready) {
                     execute(newRequest)
                   } else {
                     priorityQueue.add(newRequest)
                   }
                 case CompilationRequest.DocumentRequest(module, sourceScope, virtualFile, document, debugReason, timestamp) =>
+                  // Document requests for the same file are debounced and deduplicated from the queue.
                   val otherDocumentRequests = priorityQueue.tailSet(request).iterator().asScala.collect {
                     case dr: CompilationRequest.DocumentRequest if dr.virtualFile == virtualFile => dr
                   }.toSeq
+                  // Look for the request scheduled furthest in the future.
                   val lastOne = otherDocumentRequests.maxByOption(_.timestamp).getOrElse(request)
+                  // Its timestamp becomes the new timestamp of the debounced request.
                   val newTimestamp = timestamp max lastOne.timestamp
+                  // All document requests for the same file are removed from the queue.
                   otherDocumentRequests.foreach(priorityQueue.remove)
+                  // Instantiate the new document request.
                   val newRequest = CompilationRequest.DocumentRequest(module, sourceScope, virtualFile, document, debugReason, timestamp = newTimestamp)
+                  // Execute it if ready, scheduled it if not.
                   if (isReadyForExecution(newRequest) == RequestState.Ready) {
                     execute(newRequest)
                   } else {
