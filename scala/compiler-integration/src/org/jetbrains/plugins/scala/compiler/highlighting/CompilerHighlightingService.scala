@@ -225,11 +225,12 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
           else {
             TriggerCompilerHighlightingService.get(project).beforeIncrementalCompilation()
             // Perform the rest of the execution of this incremental compilation on a background thread.
-            performCompilation(documentVersionsFor(request), delayIndicator = false, refreshVfs = true) { client =>
+            val documentVersions = documentVersionsFor(request)
+            performCompilation(documentVersions, delayIndicator = false, refreshVfs = true) { client =>
               if (BspUtil.isBspProject(project)) {
-                doBspIncrementalCompilation(request, client, runDocumentCompiler)
+                doBspIncrementalCompilation(request, client, documentVersions, runDocumentCompiler)
               } else {
-                doJpsIncrementalCompilation(request, client, runDocumentCompiler)
+                doJpsIncrementalCompilation(request, client, documentVersions, runDocumentCompiler)
               }
             }
           }
@@ -248,6 +249,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
   private def doBspIncrementalCompilation(
     request: CompilationRequest.IncrementalRequest,
     client: CompilerEventGeneratingClient,
+    documentVersions: Map[CanonicalPath, Long] with Serializable,
     runDocumentCompiler: Boolean
   ): Unit = {
     val CompilationRequest.IncrementalRequest(fileCompilationScopes, _, _) = request
@@ -265,6 +267,8 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     val promise = taskRunner.run(project, context, task)
     promise.blockingGet(1, TimeUnit.DAYS)
 
+    if (!DocumentUtil.stillValid(documentVersions)) return
+
     if (runDocumentCompiler && reporter.successful) {
       triggerDocumentCompilationInAllOpenEditors(Some(client))
     }
@@ -276,12 +280,16 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
   private def doJpsIncrementalCompilation(
     request: CompilationRequest.IncrementalRequest,
     client: CompilerEventGeneratingClient,
+    documentVersions: Map[CanonicalPath, Long] with Serializable,
     runDocumentCompiler: Boolean
   ): Unit = {
     val CompilationRequest.IncrementalRequest(fileCompilationScopes, _, _) = request
     val modules = fileCompilationScopes.values.map(_.module.findRepresentativeModuleForSharedSourceModuleOrSelf).toSet
     val sourceScope = mergeSourceScope(request)
     IncrementalCompiler.compile(project, modules, sourceScope, client)
+
+    if (!DocumentUtil.stillValid(documentVersions)) return
+
     if (runDocumentCompiler && client.successful) {
       triggerDocumentCompilationInAllOpenEditors(Some(client))
     }

@@ -69,7 +69,7 @@ private final class ExternalHighlightersService(project: Project) { self =>
 
     val applyHighlightingInfo: Consumer[(Seq[HighlightingData], Set[VirtualFile])] = {
       case (infos, errorFiles) =>
-        if (!project.isDisposed && stillValid(compilationId)) {
+        if (!project.isDisposed && DocumentUtil.stillValid(compilationId.documentVersions)) {
           // If the results are still valid, they will be applied to the editor.
           infos.foreach { case HighlightingData(editor, document, psiFile, highlightInfos) =>
             val collection = highlightInfos.asJavaCollection
@@ -90,7 +90,7 @@ private final class ExternalHighlightersService(project: Project) { self =>
     ReadAction
       .nonBlocking(readActionCallable)
       .inSmartMode(project)
-      .expireWhen(() => project.isDisposed || !stillValid(compilationId))
+      .expireWhen(() => project.isDisposed || !DocumentUtil.stillValid(compilationId.documentVersions))
       .coalesceBy(compilationId)
       .finishOnUiThread(ModalityState.nonModal(), applyHighlightingInfo)
       .submit(BackgroundExecutorService.instance(project).executor)
@@ -115,17 +115,6 @@ private final class ExternalHighlightersService(project: Project) { self =>
     }
     ProblemSolverUtils.clearAllProblemsFromExternalSource(project, self)
   }
-
-  private def stillValid(compilationId: CompilationId): Boolean =
-    compilationId.documentVersions.forall { case (CanonicalPath(path), version) =>
-      val url = URLDecoder.decode(Path.of(path).toUri.toString, StandardCharsets.UTF_8)
-      val virtualFile = VirtualFileManager.getInstance().findFileByUrl(url)
-      if (virtualFile eq null) false
-      else {
-        val document = FileDocumentManager.getInstance().getCachedDocument(virtualFile)
-        if (document eq null) false else version == DocumentUtil.version(document)
-      }
-    }
 
   private def informWolf(errorFiles: Set[VirtualFile]): Unit = {
     if (!project.isDisposed && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
