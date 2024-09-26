@@ -268,12 +268,8 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     if (runDocumentCompiler && reporter.successful) {
       triggerDocumentCompilationInAllOpenEditors(Some(client))
     }
-    if (reporter.successful && client.successful && !project.isDisposed) {
-      fileCompilationScopes.foreach { case (virtualFile, FileCompilationScope(_, _, _, _, psiFile)) =>
-        if (psiFile.is[ScalaFile]) {
-          TriggerCompilerHighlightingService.get(project).enableDocumentCompiler(virtualFile)
-        }
-      }
+    if (reporter.successful && client.successful) {
+      enableDocumentCompiler(fileCompilationScopes)
     }
   }
 
@@ -289,11 +285,15 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     if (runDocumentCompiler && client.successful) {
       triggerDocumentCompilationInAllOpenEditors(Some(client))
     }
-    if (client.successful && !project.isDisposed) {
-      fileCompilationScopes.foreach { case (virtualFile, FileCompilationScope(_, _, _, _, psiFile)) =>
-        if (psiFile.is[ScalaFile]) {
-          TriggerCompilerHighlightingService.get(project).enableDocumentCompiler(virtualFile)
-        }
+    if (client.successful) {
+      enableDocumentCompiler(fileCompilationScopes)
+    }
+  }
+
+  private def enableDocumentCompiler(fileCompilationScopes: Map[VirtualFile, FileCompilationScope]): Unit = {
+    fileCompilationScopes.foreach { case (virtualFile, FileCompilationScope(_, _, _, _, psiFile)) =>
+      if (psiFile.is[ScalaFile] && !project.isDisposed) {
+        TriggerCompilerHighlightingService.get(project).enableDocumentCompiler(virtualFile)
       }
     }
   }
