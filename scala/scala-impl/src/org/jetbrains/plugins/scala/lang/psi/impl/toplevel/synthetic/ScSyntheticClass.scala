@@ -5,6 +5,7 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.{Project, ProjectManagerListener}
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.startup.StartupActivity
+import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.search.GlobalSearchScope
@@ -19,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction, ScTypeAlias}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
@@ -52,6 +53,55 @@ abstract sealed class SyntheticNamedElement(name: String)
 
   override def getNameIdentifier: PsiIdentifier = null
 }
+
+object SyntheticNamedElement {
+
+  //1: source file name
+  //2: is scala 3 library definition
+  val ScalaLibrarySyntheticDefinitionSourceFileName: Key[(String, Boolean)] = Key.create("SyntheticNamedElement.ScalaLibrarySyntheticDefinitionSourceFileName")
+
+  def getNavigationElementForSyntheticScalaLibraryDefinition(
+    project: Project,
+    element: PsiElement,
+    sourceFileName: String,
+    isScala3LibraryDefinition: Boolean
+  ): Option[ScMember] = cachedInUserData(
+    "getNavigationElementForSyntheticScalaLibraryDefinition",
+    element,
+    ProjectRootManager.getInstance(project)
+  ) {
+    for {
+      scalaPackagePsiDirectory <-
+        if (isScala3LibraryDefinition) findScala3LibrarySourcesPsiDirectoryCached(project)
+        else findScala2LibrarySourcesPsiDirectoryCached(project)
+      psiFile <- Option(scalaPackagePsiDirectory.findFile(sourceFileName)).map(_.asInstanceOf[ScalaFile])
+      topLevelDef <- psiFile.members.headOption //expecting single top-level definition in the file
+    } yield topLevelDef
+  }
+
+
+  //TODO: current implementation might not work in a project with multiple scala versions. It depends on SCL-22349.
+  private def findScala2LibrarySourcesPsiDirectoryCached(project: Project): Option[PsiDirectory] = cachedInUserData("findScala2LibrarySourcesPsiDirectory", project, ProjectRootManager.getInstance(project)) {
+    findScalaLibrarySourcesPsiDirectoryInner(project, "scala.Array")
+  }
+  private def findScala3LibrarySourcesPsiDirectoryCached(project: Project): Option[PsiDirectory] = cachedInUserData("findScala3LibrarySourcesPsiDirectory", project, ProjectRootManager.getInstance(project)) {
+    findScalaLibrarySourcesPsiDirectoryInner(project, "scala.Tuple")
+  }
+
+  private def findScalaLibrarySourcesPsiDirectoryInner(
+    project: Project,
+    scalaLibraryRepresentativeClass: String
+  ): Option[PsiDirectory] = {
+    val classFromStdLib = ScalaPsiManager.instance(project).getCachedClass(GlobalSearchScope.allScope(project), scalaLibraryRepresentativeClass)
+    classFromStdLib.map { clazz =>
+      //.../scala-library-2.13.11-sources.jar!/scala/Array.scala
+      val navigationFile = clazz.getContainingFile.getNavigationElement.asInstanceOf[ScalaFile]
+      //.../scala-library-2.13.11-sources.jar!/scala
+      navigationFile.getParent;
+    }
+  }
+}
+
 
 final class ScSyntheticTypeParameter(override val name: String, override val owner: ScFun)
   extends SyntheticNamedElement(name)(owner.projectContext) with ScTypeParam with PsiClassFake {
@@ -90,7 +140,8 @@ final class ScSyntheticTypeParameter(override val name: String, override val own
 // with class types, but it is simpler to indicate types corresponding to synthetic classes explicitly
 final class ScSyntheticClass(
   val className: String,
-  val stdType: StdType
+  val stdType: StdType,
+  isScala3LibraryClass: Boolean = false
 )(implicit projectContext: ProjectContext)
   extends SyntheticNamedElement(className)
     with PsiClassAdapter
@@ -109,26 +160,11 @@ final class ScSyntheticClass(
     }
   }
 
-  override def getNavigationElement: PsiElement = cachedInUserData("ScSyntheticClass.getNavigationElement", this, ProjectRootManager.getInstance(projectContext.project)) {
-    val syntheticClassSourceMirror = for {
-      scalaPackagePsiDirectory <- findScalaPackageSourcesPsiDirectory(projectContext.project)
-      //class Any -> Any.scala
-      psiFile <- Option(scalaPackagePsiDirectory.findFile(s"$className.scala")).map(_.asInstanceOf[ScalaFile])
-      classDef <- psiFile.typeDefinitions.headOption //expecting single class definition in the file
-    } yield classDef
-    syntheticClassSourceMirror.getOrElse(super.getNavigationElement)
-  }
-
-  //TODO: current implementation might not work in a project with multiple scala versions. It depends on SCL-22349.
-  private def findScalaPackageSourcesPsiDirectory(project: Project): Option[PsiDirectory] = cachedInUserData("ScSyntheticClass.findScalaPackageSourcesPsiDirectory", project, ProjectRootManager.getInstance(project)) {
-    //Get some representative class from Scala standard library
-    val classFromStdLib = ScalaPsiManager.instance(project).getCachedClass(GlobalSearchScope.allScope(project), "scala.Array")
-    classFromStdLib.map { clazz =>
-      //.../scala-library-2.13.11-sources.jar!/scala/Array.scala
-      val navigationFile = clazz.getContainingFile.getNavigationElement.asInstanceOf[ScalaFile]
-      //.../scala-library-2.13.11-sources.jar!/scala
-      navigationFile.getParent;
-    }
+  override def getNavigationElement: PsiElement = {
+    val result = SyntheticNamedElement.getNavigationElementForSyntheticScalaLibraryDefinition(
+      projectContext.project, this, s"$className.scala", isScala3LibraryClass
+    )
+    result.getOrElse(super.getNavigationElement)
   }
 
   override def getNameIdentifier: PsiIdentifier = null
@@ -405,9 +441,14 @@ final class SyntheticClasses(project: Project) {
       )
     }
 
-    def registerAlias(@Language("Scala") text: String): Unit = {
+    def registerAlias(
+      @Language("Scala") text: String,
+      sourceFileName: String,
+    ): Unit = {
       val file  = ScalaPsiElementFactory.createScalaFileFromText(text, ScalaFeatures.default)
       val alias = file.members.head.asInstanceOf[ScTypeAlias]
+      val isScala3 = true
+      alias.putUserData(SyntheticNamedElement.ScalaLibrarySyntheticDefinitionSourceFileName, (sourceFileName, isScala3))
       aliases += alias
     }
 
@@ -424,20 +465,22 @@ final class SyntheticClasses(project: Project) {
       """package scala
         |
         |type &[A, B]
-        |""".stripMargin
+        |""".stripMargin,
+      "andType.scala"
     )
     registerAlias(
       """package scala
         |
         |type |[A, B]
-        |""".stripMargin
+        |""".stripMargin,
+      "orType.scala"
     )
 
     classesInitialized = true
   }
 
   def registerClass(t: StdType, name: String, isScala3: Boolean = false): ScSyntheticClass = {
-    val cls = new ScSyntheticClass(name, t)
+    val cls = new ScSyntheticClass(name, t, isScala3LibraryClass = isScala3)
 
     if (isScala3)
       scala3Classes += ((name, cls))

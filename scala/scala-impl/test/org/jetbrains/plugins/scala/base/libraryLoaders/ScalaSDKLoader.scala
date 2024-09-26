@@ -12,14 +12,20 @@ import org.jetbrains.plugins.scala.{DependencyManager, DependencyManagerBase, Sc
 import org.junit.Assert._
 
 import java.io.File
-import java.{util => ju}
 
-/** @param includeScalaReflectIntoCompilerClasspath also see [[ScalaReflectLibraryLoader]] */
+/**
+ * @param includeScalaReflectIntoCompilerClasspath also see [[ScalaReflectLibraryLoader]]
+ * @param includeScalaLibraryTransitiveDependencies for scala 3 library, also includes scala 2 library
+ */
 case class ScalaSDKLoader(
   includeScalaReflectIntoCompilerClasspath: Boolean = false,
   //TODO: drop this parameter and fix tests
   includeScalaCompilerIntoLibraryClasspath: Boolean = false,
-  includeLibraryFilesInSdk: Boolean = true,
+  includeScalaLibraryTransitiveDependencies: Boolean = true,
+  includeScalaLibraryFilesInSdk: Boolean = true,
+  //TODO: by default sources are not needed in all tests
+  // make it "false" by default, check which tests fail and set it to true in those tests
+  includeScalaLibrarySources: Boolean = true,
   compilerBridgeBinaryJar: Option[File] = None,
   dependencyManager: DependencyManagerBase = DependencyManager
 ) extends LibraryLoader {
@@ -39,7 +45,7 @@ case class ScalaSDKLoader(
     if (version.languageLevel.isScala3) {
       List(
         scalaCompilerDescription.transitive(),
-        scalaLibraryDescription.transitive(),
+        if (includeScalaLibraryTransitiveDependencies) scalaLibraryDescription.transitive() else scalaLibraryDescription,
         DependencyDescription("org.scala-lang", "scala3-interfaces", version.minor),
       )
     }
@@ -51,12 +57,21 @@ case class ScalaSDKLoader(
       ) ++ maybeScalaReflect
     }
 
-  protected def sourcesDependency(implicit version: ScalaVersion): DependencyDescription =
-    scalaLibraryDescription % Types.SRC
+  /**
+   * Resolves scala library sources for a given version and returns it's jars.
+   * For Scala 3 version it returns two roots - for Scala 2 and Scala 3 libraries
+   */
+  final def scalaLibrarySources(implicit version: ScalaVersion): Seq[VirtualFile] = {
+    val sourceDependency = scalaLibraryDescription % Types.SRC
+    val sourceDependencyActual = if (includeScalaLibraryTransitiveDependencies) sourceDependency.transitive() else sourceDependency
 
-  final def sourceRoot(implicit version: ScalaVersion): VirtualFile = {
-    val ResolvedDependency(_, file) = dependencyManager.resolveSingle(sourcesDependency)
-    findJarFile(file)
+    val resolved = dependencyManager.resolve(sourceDependencyActual)
+    // This second pass is necessary to resolve Scala 2 library sources, when it's a transitive dependency of a Scala 3 library.
+    // For some reason, if I tell Ivy to download dependency sources and set transitive="true" it doesn't download sources for transitive dependencies.
+    // Instead, it downloads regular class file jars.
+    // As a workaround, I do another pass where I download sources for each such class files jar file independently, non-transitively.
+    val resolvedSecondPass = if (resolved.size == 1) resolved else resolved.map(_.info).map(d => dependencyManager.resolveSingle(d.sources()))
+    resolvedSecondPass.map(_.file).map(findJarFile)
   }
 
   override final def init(implicit module: Module, version: ScalaVersion): Unit = {
@@ -95,7 +110,7 @@ case class ScalaSDKLoader(
     }
 
     val scalaLibraryClasses: Seq[VirtualFile] =
-      if (includeLibraryFilesInSdk) {
+      if (includeScalaLibraryFilesInSdk) {
         val files =
           if (includeScalaCompilerIntoLibraryClasspath) compilerClasspath
           else compilerClasspath.filter(_.getName.matches(".*(scala-library|scala3-library).*"))
@@ -103,8 +118,8 @@ case class ScalaSDKLoader(
       }
       else Nil
 
-    val scalaLibrarySources =
-      if (includeLibraryFilesInSdk) Seq(sourceRoot)
+    val scalaLibrarySourcesActual: Seq[VirtualFile] =
+      if (includeScalaLibrarySources) scalaLibrarySources
       else Nil
 
     val libraryTable = LibraryTablesRegistrar.getInstance.getLibraryTable(module.getProject)
@@ -117,7 +132,7 @@ case class ScalaSDKLoader(
         module,
         scalaSdkName,
         scalaLibraryClasses.asJava,
-        scalaLibrarySources.asJava
+        scalaLibrarySourcesActual.asJava
       )
 
     val library =

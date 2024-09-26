@@ -10,8 +10,16 @@ final class ScalaVersion(
   val minorSuffix: String
 ) extends Ordered[ScalaVersion] with MinorVersionGenerator[ScalaVersion] {
 
+  /**
+   * @return a major scala version.<br>
+   *         Examples: 2.12, 2.13, 3.3, 3.5
+   */
   def major: String = languageLevel.getVersion
 
+  /**
+   * @return full scala version<br>
+   *         Examples: 2.12.15, 3.3.3, 3.5.2-RC1
+   */
   def minor: String = major + "." + minorSuffix
 
   @inline def isScala2: Boolean = languageLevel.isScala2
@@ -23,7 +31,8 @@ final class ScalaVersion(
   override def compare(that: ScalaVersion): Int =
     (languageLevel, minorVersion) compare (that.languageLevel, that.minorVersion)
 
-  def withMinor(newMinorSuffix: Int): ScalaVersion = new ScalaVersion(languageLevel, newMinorSuffix.toString)
+  def withMinor(newMinorSuffix: Int): ScalaVersion = withMinor(newMinorSuffix.toString)
+  def withMinor(newMinorSuffix: String): ScalaVersion = new ScalaVersion(languageLevel, newMinorSuffix)
 
   override def equals(other: Any): Boolean = other match {
     case that: ScalaVersion =>
@@ -45,7 +54,7 @@ object ScalaVersion {
   def Latest: LatestScalaVersions.type = LatestScalaVersions
 
   def default: ScalaVersion =
-    LatestScalaVersions.all.find(_.languageLevel == ScalaLanguageLevel.getDefault).get
+    LatestScalaVersions.allStableWithoutScalaNext.find(_.languageLevel == ScalaLanguageLevel.getDefault).get
 
   private val versionRegex = """(\d)\.(\d\d?)\.(.+)""".r
 
@@ -97,6 +106,7 @@ object LatestScalaVersions {
   // Release candidates
   //
   // Scala LTS RC
+  //TODO: rename to Scala_3_LTS_RC
   val Scala_3_RC = new ScalaVersion(ScalaLanguageLevel.Scala_3_3, "4-RC4")
 
   // Scala Next RC
@@ -117,12 +127,16 @@ object LatestScalaVersions {
     Scala_3_3
   )
 
-  val scalaNext: Seq[ScalaVersion] = Seq(
+  val allStableWithoutScalaNext: Seq[ScalaVersion] =
+    allScala2 ++ allScala3
+
+  val allScalaNext: Seq[ScalaVersion] = Seq(
     Scala_3_4,
-    Scala_3_Next_RC,
-    Scala_3_RC
+    Scala_3_5,
   )
 
-  val all: Seq[ScalaVersion] = allScala2 ++ allScala3
-
+  val allReleaseCandidates: Seq[ScalaVersion] = Seq(
+    Scala_3_RC,
+    Scala_3_Next_RC,
+  )
 }
