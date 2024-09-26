@@ -1,8 +1,11 @@
 package org.jetbrains.plugins.scala.autoImport.quickFix
 
 import com.intellij.psi.{PsiClass, PsiDocCommentOwner, PsiElement, PsiNamedElement}
+import com.intellij.util.SlowOperations
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiNamedElementExt}
+
+import scala.util.Using
 
 object Presentation {
   //noinspection ScalaExtractStringToBundle
@@ -26,18 +29,21 @@ object Presentation {
 
   def withDeprecations(element: PsiNamedElement, owner: PsiElement, pathToOwner: String): String =
     decoratedQualifiedName(element, owner, pathToOwner) {
-      case (member: PsiDocCommentOwner, string) if member.isDeprecated => asDeprecated(string)
-      case (_, string)                                                 => string
+      case (member: PsiDocCommentOwner, string) if isDeprecated(member) => asDeprecated(string)
+      case (_, string)                                                  => string
     }
 
   def withDeprecation(element: PsiElement, path: String): String = element match {
-    case member: PsiDocCommentOwner if member.isDeprecated => asDeprecated(path)
-    case _                                                 => path
+    case member: PsiDocCommentOwner if isDeprecated(member) => asDeprecated(path)
+    case _                                                  => path
   }
 
   def withDeprecation(psiClass: PsiClass): String = {
-    if (psiClass.isDeprecated) asDeprecated(psiClass.qualifiedName)
+    if (isDeprecated(psiClass)) asDeprecated(psiClass.qualifiedName)
     else psiClass.qualifiedName
   }
 
+  private def isDeprecated(element: PsiDocCommentOwner): Boolean = Using.resource(SlowOperations.knownIssue("SCL-23057")) { _ =>
+    element.isDeprecated
+  }
 }
