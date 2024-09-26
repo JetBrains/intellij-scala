@@ -19,7 +19,7 @@ class ImportedEvaluationTest_3 extends ImportedEvaluationTestBase {
 }
 
 class ImportedEvaluationTest_3_RC extends ImportedEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_LTS_RC
 }
 
 class ImportedEvaluationTest_3_Next_RC extends ImportedEvaluationTestBase {

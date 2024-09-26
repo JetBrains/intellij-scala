@@ -106,8 +106,7 @@ object LatestScalaVersions {
   // Release candidates
   //
   // Scala LTS RC
-  //TODO: rename to Scala_3_LTS_RC
-  val Scala_3_RC = new ScalaVersion(ScalaLanguageLevel.Scala_3_3, "4-RC4")
+  val Scala_3_LTS_RC: ScalaVersion = Scala_3_3.withMinor("4-RC4")
 
   // Scala Next RC
   val Scala_3_Next_RC = new ScalaVersion(ScalaLanguageLevel.Scala_3_5, "2-RC1")
@@ -136,7 +135,7 @@ object LatestScalaVersions {
   )
 
   val allReleaseCandidates: Seq[ScalaVersion] = Seq(
-    Scala_3_RC,
+    Scala_3_LTS_RC,
     Scala_3_Next_RC,
   )
 }

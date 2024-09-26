@@ -325,7 +325,7 @@ class SmartStepIntoTest_3 extends SmartStepIntoTest_2_13 {
 }
 
 class SmartStepIntoTest_3_RC extends SmartStepIntoTest_3 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_LTS_RC
 }
 
 class SmartStepIntoTest_3_Next_RC extends SmartStepIntoTest_3 {

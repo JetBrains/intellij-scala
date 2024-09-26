@@ -28,7 +28,7 @@ class ObjectEvaluationTest_3 extends ObjectEvaluationTestBase {
 }
 
 class ObjectEvaluationTest_3_RC extends ObjectEvaluationTest_3 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_LTS_RC
 }
 
 class ObjectEvaluationTest_3_Next_RC extends ObjectEvaluationTest_3 {

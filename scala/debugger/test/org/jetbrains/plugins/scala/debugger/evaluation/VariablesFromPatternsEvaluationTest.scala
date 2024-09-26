@@ -29,7 +29,7 @@ class VariablesFromPatternsEvaluationTest_3 extends VariablesFromPatternsEvaluat
 }
 
 class VariablesFromPatternsEvaluationTest_3_RC extends VariablesFromPatternsEvaluationTest_3 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_LTS_RC
 }
 
 class VariablesFromPatternsEvaluationTest_3_Next_RC extends VariablesFromPatternsEvaluationTest_3_RC {

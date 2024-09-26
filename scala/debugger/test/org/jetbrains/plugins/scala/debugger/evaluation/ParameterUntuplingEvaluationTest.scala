@@ -7,7 +7,7 @@ class ParameterUntuplingEvaluationTest_3 extends ParameterUntuplingEvaluationTes
 }
 
 class ParameterUntuplingEvaluationTest_3_RC extends ParameterUntuplingEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_LTS_RC
 }
 
 class ParameterUntuplingEvaluationTest_3_Next_RC extends ParameterUntuplingEvaluationTestBase {

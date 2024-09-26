@@ -17,7 +17,7 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[SlowTests]))
 class ResolveCompilerBridgeTest extends ExternalSystemImportingTestCase {
 
-  private val scalaVersion: String = ScalaVersion.Latest.Scala_3_RC.minor
+  private val scalaVersion: String = ScalaVersion.Latest.Scala_3_LTS_RC.minor
 
   private var sdk: Sdk = _
 

@@ -107,7 +107,7 @@ class ScalaSourcePositionProviderTest_3 extends ScalaSourcePositionProviderTestB
 }
 
 class ScalaSourcePositionProviderTest_3_RC extends ScalaSourcePositionProviderTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_LTS_RC
 }
 
 class ScalaSourcePositionProviderTest_3_Next_RC extends ScalaSourcePositionProviderTestBase {
