@@ -161,6 +161,10 @@ object ScalaBundleSorting {
       rootPath = scalaModDir / "worksheet",
       bundleMessagesRelativePath = "ScalaWorksheetBundle.properties",
     ),
+    ModuleWithBundleInfo(
+      rootPath = communityDir / "scala-cli",
+      bundleMessagesRelativePath = "ScalaCliBundle.properties",
+    )
   )
 
   def main(args: Array[String]): Unit = {
