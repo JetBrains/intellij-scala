@@ -19,9 +19,9 @@ class ScalaGeneralTroubleInfoCollectorTest extends TestCase {
 
   def testBuildText_SingleVersion(): Unit = {
     assertEquals(
-      """Scala versions: 2.13.14
-        |SBT version: 1.9.2
-        |""".stripMargin.trim,
+      s"""Scala versions: ${ScalaVersion.Latest.Scala_2_13.minor}
+         |SBT version: 1.9.2
+         |""".stripMargin.trim,
       ScalaGeneralTroubleInfoCollector.buildText(
         Map(ScalaVersion.Latest.Scala_2_13 -> Seq(1)),
         Map(Version("1.9.2") -> Seq(1)),
@@ -31,9 +31,9 @@ class ScalaGeneralTroubleInfoCollectorTest extends TestCase {
 
   def testBuildText_MultipleVersions(): Unit = {
     assertEquals(
-      """Scala versions: 3.3.3 (2), 2.13.14 (3), 2.12.20 (2), 2.11.12
-        |SBT version: 1.9.2 (3), 1.9.1
-        |""".stripMargin.trim,
+      s"""Scala versions: ${ScalaVersion.Latest.Scala_3_3.minor} (2), ${ScalaVersion.Latest.Scala_2_13.minor} (3), ${ScalaVersion.Latest.Scala_2_12.minor} (2), ${ScalaVersion.Latest.Scala_2_11.minor}
+         |SBT version: 1.9.2 (3), 1.9.1
+         |""".stripMargin.trim,
       ScalaGeneralTroubleInfoCollector.buildText(
         Map(
           ScalaVersion.Latest.Scala_3_3 -> Seq(1, 1),
