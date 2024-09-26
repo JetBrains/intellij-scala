@@ -18,7 +18,7 @@ import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.util.CommonRefactoringUtil
-import com.intellij.util.Consumer
+import com.intellij.util.{Consumer, SlowOperations}
 import org.jetbrains.annotations.{Nls, TestOnly}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
@@ -56,6 +56,7 @@ import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.jdk.CollectionConverters._
+import scala.util.Using
 
 object ScalaRefactoringUtil {
 
@@ -295,7 +296,9 @@ object ScalaRefactoringUtil {
           .exists(block => !PsiTreeUtil.hasErrorElements(block) && block.statements.lengthIs == 1))
         .getOrElse(createFunction(true))
 
-    definitionWithoutType.`type`().getOrAny
+    Using.resource(SlowOperations.knownIssue("SCL-23056")) { _ =>
+      definitionWithoutType.`type`().getOrAny
+    }
   }
 
   private def ensureFileWritable(file: PsiFile)
