@@ -1,32 +1,28 @@
 package org.jetbrains.plugins.scala.editor.smartEnter.fixers
 
-import com.intellij.openapi.editor.Editor
-import com.intellij.psi._
-import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.openapi.editor.{Document, Editor}
 import org.jetbrains.plugins.scala.editor.smartEnter.ScalaSmartEnterProcessor
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFor
 
-class ScalaMissingForBodyFixer  extends ScalaFixer {
-  override def apply(editor: Editor, processor: ScalaSmartEnterProcessor, psiElement: PsiElement): OperationPerformed = {
-    val forStatement = PsiTreeUtil.getParentOfType(psiElement, classOf[ScFor], false)
-    if (forStatement == null) return NoOperation
-
-    val doc = editor.getDocument
-
+// TODO(SCL-23041): indentation-based syntax support
+final class ScalaMissingForBodyFixer extends ScalaForStatementFixerBase {
+  override def doApply(forStatement: ScFor)(implicit editor: Editor, document: Document,
+                                            processor: ScalaSmartEnterProcessor): OperationPerformed = {
     forStatement.body match {
       case None =>
-        val (eltToInsertAfter, text) = forStatement.getRightParenthesis match {
-          case None => (forStatement, ") {}")
-          case Some(parenth) =>
-            moveToEnd(editor, parenth)
-            (parenth, " {}")
+        val (anchor, text) = forStatement.getRightBracket match {
+          case None =>
+            val bracketText = forStatement.getLeftBracket.fold("")(matchingBracketText)
+            val text = s"$bracketText {}"
+            (forStatement, text)
+          case Some(bracket) =>
+            moveToEnd(editor, bracket)
+            (bracket, " {}")
         }
-
-
-        doc.insertString(eltToInsertAfter.getTextRange.getEndOffset, text)
+        document.insertString(anchor.endOffset, text)
         WithEnter(text.length - 1)
       case Some(_) => NoOperation
     }
   }
 }
-

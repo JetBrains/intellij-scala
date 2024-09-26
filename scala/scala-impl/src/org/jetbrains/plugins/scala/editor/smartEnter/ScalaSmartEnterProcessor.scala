@@ -103,6 +103,11 @@ class ScalaSmartEnterProcessor extends SmartEnterProcessor {
     super.reformat(atCaretAdjusted)
   }
 
+  private[smartEnter] def reformatWithoutAdjustment(caret: PsiElement): Unit = {
+    if (caret == null) return
+    super.reformat(caret)
+  }
+
   private def doEnter(caret: PsiElement, editor: Editor): Unit = {
     var atCaret = caret
     val psiFile = atCaret.getContainingFile
