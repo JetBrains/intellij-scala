@@ -7,6 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.util.SlowOperations
 import com.intellij.util.concurrency.AppExecutorUtil
 import org.jetbrains.annotations.{Nullable, TestOnly}
 import org.jetbrains.plugins.scala.extensions._
@@ -32,6 +33,8 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.statistics.ScalaRefactoringUsagesCollector
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
+
+import scala.util.Using
 
 class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
   private val REFACTORING_NAME: String = ScalaBundle.message("extract.method.title")
@@ -226,7 +229,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
                            lastExprType: Option[ScType])
                           (implicit project: Project, editor: Editor): Unit = {
 
-    val info = ReachingDefinitionsCollector.collectVariableInfo(elements, sibling)
+    val info = Using.resource(SlowOperations.knownIssue("SCL-23055"))(_ => ReachingDefinitionsCollector.collectVariableInfo(elements, sibling))
 
     val input = info.inputVariables
     val output = info.outputVariables
