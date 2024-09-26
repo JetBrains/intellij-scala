@@ -17,6 +17,9 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import scala.util.matching.Regex
 
 private class UpdateCompilerGeneratedStateListener(project: Project) extends CompilerEventListener {
+  private final val CompilerPluginTypePrefix = "<type>" // CompilerPlugin.TypePrefix
+
+  private final val CompilerPluginTypeSuffix = "</type>" // CompilerPlugin.TypeSuffix
 
   override def eventReceived(event: CompilerEvent): Unit = {
     val oldState = CompilerGeneratedStateManager.get(project)
@@ -25,11 +28,11 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
         val newHighlightOnCompilationFinished = oldState.toHighlightingState.filesWithHighlightings
         val newState = oldState.copy(highlightOnCompilationFinished = newHighlightOnCompilationFinished)
         CompilerGeneratedStateManager.update(project, newState)
-      case CompilerEvent.MessageEmitted(compilationId, _, _, msg) if msg.text.startsWith("Type: ") =>
+      case CompilerEvent.MessageEmitted(compilationId, _, _, msg) if msg.kind == MessageKind.Info && msg.text.startsWith(CompilerPluginTypePrefix) =>
         val virtualFile = msg.source.get.toVirtualFile.get
 
         val range = (msg.problemStart.get, msg.problemEnd.get)
-        val tpe = msg.text.substring(6)
+        val tpe = msg.text.substring(CompilerPluginTypePrefix.length, msg.text.indexOf(CompilerPluginTypeSuffix).ensuring(_ != -1))
         val fileState = FileCompilerGeneratedState(compilationId, Set.empty, Map((range, tpe)))
         val newState = replaceOrAppendFileState(oldState, virtualFile, fileState)
 

@@ -21,6 +21,10 @@ class CompilerPlugin extends StandardPlugin:
   override def init(options: List[String]): List[PluginPhase] = List(new Patches1())
 
 private object CompilerPlugin:
+  private final val TypePrefix = "<type>"
+
+  private final val TypeSuffix = "</type>"
+
   private val MultilinePart = Property.Key[Unit]
 
   private class Patches1 extends PluginPhase:
@@ -33,7 +37,7 @@ private object CompilerPlugin:
     // Only for "transparent inline" after the "typer" phase (but for any "inline" after the "inlining" phase)
     override def transformInlined(tree: tpd.Inlined)(using Context): tpd.Tree =
       val printer = new TypePrinter(ctx.fresh.setSetting(ctx.settings.YtestPickler, true))
-      val s = "Type: " + printer.toText(tree.tpe).mkString(9000, false).replace("<root>.this.", "_root_.")
+      val s = TypePrefix + printer.toText(tree.tpe).mkString(Int.MaxValue, false).replace("<root>.this.", "_root_.") + TypeSuffix
       report.echo(s, tree.srcPos)(using ctx.fresh.setSetting(ctx.settings.YshowSuppressedErrors, true))
       super.transformInlined(tree)
 
