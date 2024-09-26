@@ -85,8 +85,8 @@ private object CompilationRequest {
    */
   implicit val compilationRequestOrdering: Ordering[CompilationRequest] = { (x, y) =>
     if (x.priority != y.priority)
-      implicitly[Ordering[Int]].compare(x.priority, y.priority)
+      java.lang.Integer.compare(x.priority, y.priority)
     else
-      implicitly[Ordering[Deadline]].compare(x.deadline, y.deadline)
+      java.lang.Long.compare(x.timestamp, y.timestamp)
   }
 }
