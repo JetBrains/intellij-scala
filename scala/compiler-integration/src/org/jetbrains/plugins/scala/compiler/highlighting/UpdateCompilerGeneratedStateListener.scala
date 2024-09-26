@@ -29,11 +29,7 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
         val virtualFile = msg.source.get.toVirtualFile.get
 
         val range = (msg.problemStart.get, msg.problemEnd.get)
-        val LiteralType = new Regex("\\((.*) : .*\\)")
-        val tpe = msg.text.drop(6).takeWhile(c => c != '\r' && c != '\n') match {
-          case LiteralType(t) => t
-          case t => t
-        }
+        val tpe = msg.text.substring(6)
         val fileState = FileCompilerGeneratedState(compilationId, Set.empty, Map((range, tpe)))
         val newState = replaceOrAppendFileState(oldState, virtualFile, fileState)
 
