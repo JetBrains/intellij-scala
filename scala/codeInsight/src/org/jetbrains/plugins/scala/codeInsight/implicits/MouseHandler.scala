@@ -7,6 +7,7 @@ import com.intellij.openapi.editor.event._
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Disposer, Key, SystemInfo}
 import com.intellij.ui.AncestorListenerAdapter
+import com.intellij.util.SlowOperations
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.annotator.hints.{ErrorTooltip, Text, TooltipUI}
@@ -22,6 +23,7 @@ import java.awt.event._
 import javax.swing.event.AncestorEvent
 import javax.swing.{SwingUtilities, Timer}
 import scala.jdk.CollectionConverters._
+import scala.util.Using
 
 private final class MouseHandler extends ProjectActivity {
 
@@ -55,7 +57,7 @@ private final class MouseHandler extends ProjectActivity {
               inlay.getRenderer.asOptionOfUnsafe[TextPartsHintRenderer].foreach { renderer =>
                 e.consume()
                 deactivateActiveFolding(e.getEditor)
-                renderer.expand(text)
+                Using.resource(SlowOperations.knownIssue("SCL-23054"))(_ => renderer.expand(text))
                 inlay.update()
                 if (!ImplicitHints.expanded) {
                   addEscKeyListenerTo(editor)
