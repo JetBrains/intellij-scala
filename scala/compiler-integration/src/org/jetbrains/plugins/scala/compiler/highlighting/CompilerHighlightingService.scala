@@ -475,6 +475,14 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     }
   }
 
+  private def shouldMerge(openFiles: Array[VirtualFile])(request: CompilationRequest): Boolean = request match {
+    case CompilationRequest.WorksheetRequest(_, _, _, _, _, _) => false
+    case CompilationRequest.IncrementalRequest(fileCompilationScopes, _, _) =>
+      fileCompilationScopes.keys.exists(openFiles.contains)
+    case CompilationRequest.DocumentRequest(scope, _, _) =>
+      openFiles.contains(scope.virtualFile)
+  }
+
   private final class CompilationTask extends Runnable {
     override def run(): Unit = {
       val request = priorityQueue.pollFirst()
@@ -517,26 +525,51 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
                   otherDocumentRequests.foreach(priorityQueue.remove)
                   // Instantiate the new document request.
                   val newRequest = CompilationRequest.DocumentRequest(FileCompilationScope(virtualFile, module, sourceScope, document, psiFile), debugReason, timestamp = newTimestamp)
-                  // Execute it if ready, scheduled it if not.
+                  // Execute it if ready, schedule it if not.
                   if (isReadyForExecution(newRequest) == RequestState.Ready) {
                     execute(newRequest)
                   } else {
                     priorityQueue.add(newRequest)
                   }
                 case CompilationRequest.IncrementalRequest(fileCompilationScopes, debugReason, timestamp) =>
-                  val fileSet = fileCompilationScopes.keySet
+                  // Gather all other document and incremental compilation requests.
                   val otherRequests = priorityQueue.tailSet(request).iterator().asScala.collect {
                     case dr: CompilationRequest.DocumentRequest => dr
                     case ir: CompilationRequest.IncrementalRequest => ir
                   }.toSeq
-                  val toMerge = otherRequests.collect {
-                    case ir: CompilationRequest.IncrementalRequest if ir.fileCompilationScopes.keySet.subsetOf(fileSet) => ir
-                  }
+
+                  // Merge only those requests which have a file open in any visible editor.
+                  val openFiles = FileEditorManager.getInstance(project).getSelectedFiles
+                  // Find all other requests that need to be merged with the current one.
+                  val toMerge = otherRequests.filter(shouldMerge(openFiles))
+                  // All other requests are removed from the queue.
                   otherRequests.foreach(priorityQueue.remove)
+                  // Look for the request scheduled furthest in the future.
                   val lastOne = toMerge.maxByOption(_.timestamp).getOrElse(request)
+                  // Its timestamp becomes the new timestamp of the debounced request.
                   val newTimestamp = timestamp max lastOne.timestamp
-                  val scopes = toMerge.foldLeft(fileCompilationScopes)(_ ++ _.fileCompilationScopes)
-                  val newRequest = CompilationRequest.IncrementalRequest(scopes, debugReason, timestamp = newTimestamp)
+                  // Merge the compilation scopes. The logic here is the following.
+                  // Worksheet requests are something separate and not taken into account (technically, they are not
+                  // even present in the toMerge list, but needed for exhaustivity.
+                  // Incremental requests are broken down into their individual files that need to be highlighted which
+                  // are already open in an editor. Only those files are added to the merged compilation scope.
+                  // Same for document requests, except they only contain one file and have already been filtered before
+                  // in `shouldMerge` and are just included here as is.
+                  // We do not need to do additional module deduplication or filtering. We're essentially compiling
+                  // all leaf modules necessary to show error-highlighting information for the currently opened
+                  // files visible to the user. The JPS incremental compilation algorithm will take care of computing
+                  // all necessary module dependencies which also need to be compiled to achieve that.
+                  val mergedScopes = toMerge.foldLeft(fileCompilationScopes) {
+                    case (acc, CompilationRequest.WorksheetRequest(_, _, _, _, _, _)) =>
+                      acc
+                    case (acc, CompilationRequest.IncrementalRequest(scopes, _, _)) =>
+                      acc ++ scopes.filter { case (vf, _) => openFiles.contains(vf) }
+                    case (acc, CompilationRequest.DocumentRequest(scope, _, _)) =>
+                      acc + (scope.virtualFile -> scope)
+                  }
+                  // Instantiate the new incremental compilation request.
+                  val newRequest = CompilationRequest.IncrementalRequest(mergedScopes, debugReason, timestamp = newTimestamp)
+                  // Execute it if ready, schedule it if not.
                   if (isReadyForExecution(newRequest) == RequestState.Ready) {
                     execute(newRequest)
                   } else {
