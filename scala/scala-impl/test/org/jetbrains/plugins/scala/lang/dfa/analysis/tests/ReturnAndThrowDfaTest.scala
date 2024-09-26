@@ -1,6 +1,6 @@
-package org.jetbrains.plugins.scala.lang.dfa.analysis.tests
+/*package org.jetbrains.plugins.scala.lang.dfa.analysis.tests
 
-/*import org.jetbrains.plugins.scala.lang.dfa.Messages._
+import org.jetbrains.plugins.scala.lang.dfa.Messages._
 import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaDfaTestBase
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.InterproceduralAnalysis.InterproceduralAnalysisDepthLimit
 
