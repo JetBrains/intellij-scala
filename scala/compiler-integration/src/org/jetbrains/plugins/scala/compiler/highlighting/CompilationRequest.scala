@@ -8,20 +8,21 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.util.DocumentVersion
 
-import scala.concurrent.duration._
+import java.util.concurrent.TimeUnit
 
 private sealed abstract class CompilationRequest(final val originFiles: Map[VirtualFile, Document], val timestamp: Long) {
   protected val priority: Int
 
-  final val documentVersions: Map[VirtualFile, DocumentVersion] = originFiles.map { case (vf, doc) =>
-    vf -> DocumentUtil.documentVersion(vf, doc)
-  }
+  final val documentVersions: Map[VirtualFile, DocumentVersion] =
+    originFiles.map { case (vf, doc) => vf -> DocumentUtil.documentVersion(vf, doc) }
 
   val debugReason: String
 
-  private val deadline: Deadline = Deadline(timestamp.nanoseconds + ScalaHighlightingMode.compilationDelay)
-
-  def remaining: FiniteDuration = deadline.timeLeft
+  final def remaining: Long = {
+    val delay = TimeUnit.MILLISECONDS.toNanos(ScalaHighlightingMode.compilationDelayMillis)
+    val now = System.nanoTime()
+    timestamp + delay - now
+  }
 
   def delayed(timestamp: Long): CompilationRequest
 }

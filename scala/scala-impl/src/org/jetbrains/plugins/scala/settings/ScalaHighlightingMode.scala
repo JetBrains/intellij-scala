@@ -84,8 +84,8 @@ object ScalaHighlightingMode {
   private def nonNegativeDuration(key: String): FiniteDuration =
     math.max(Registry.intValue(key), 0).millis
 
-  def compilationDelay: FiniteDuration =
-    nonNegativeDuration("scala.highlighting.compilation.delay.millis")
+  def compilationDelayMillis: Long =
+    Math.max(Registry.intValue("scala.highlighting.compilation.delay.millis"), 0).toLong
 
   def compilationTimeoutToShowProgress: FiniteDuration =
     nonNegativeDuration("scala.highlighting.compilation.timeout.to.show.progress.millis")

@@ -159,7 +159,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
 
   private def schedule(request: CompilationRequest): Unit = {
     priorityQueue.add(request)
-    val compilationDelay = ScalaHighlightingMode.compilationDelay
+    val compilationDelay = ScalaHighlightingMode.compilationDelayMillis
     scheduleCompilationTask(compilationDelay)
   }
 
@@ -429,7 +429,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
   private def isReadyForExecution(request: CompilationRequest): RequestState = {
     if (isExpired(request)) {
       RequestState.Expired
-    } else if (request.remaining <= Duration.Zero) {
+    } else if (request.remaining <= 0L) {
       if (DumbService.isDumb(project)) return RequestState.NotReady
       request match {
         case CompilationRequest.WorksheetRequest(_, _, document, _, _, _) => canDocumentBeCompiled(document)
@@ -457,9 +457,8 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     }
   }
 
-  private def scheduleCompilationTask(compilationDelay: FiniteDuration): Unit = {
-    val Duration(delay, unit) = compilationDelay
-    val future = executor.schedule(new CompilationTask(), delay, unit)
+  private def scheduleCompilationTask(delayMillis: Long): Unit = {
+    val future = executor.schedule(new CompilationTask(), delayMillis, TimeUnit.MILLISECONDS)
     val previous = compilationTask.getAndSet(future)
     if (previous ne null) {
       previous.cancel(false)
