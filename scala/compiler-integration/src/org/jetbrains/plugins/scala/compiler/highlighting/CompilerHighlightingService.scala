@@ -125,10 +125,12 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     virtualFile: VirtualFile,
     module: Module,
     document: Document,
+    psiFile: PsiFile,
     debugReason: String
   ): Unit = {
     val sourceScope = calculateSourceScope(virtualFile)
-    schedule(CompilationRequest.DocumentRequest(module, sourceScope, virtualFile, document, debugReason, timestamp = System.nanoTime()))
+    val scope = FileCompilationScope(virtualFile, module, sourceScope, document, psiFile)
+    schedule(CompilationRequest.DocumentRequest(scope, debugReason, timestamp = System.nanoTime()))
   }
 
   def triggerWorksheetCompilation(
@@ -307,7 +309,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
   }
 
   private def executeDocumentCompilationRequest(request: CompilationRequest.DocumentRequest): Unit = {
-    val CompilationRequest.DocumentRequest(module, sourceScope, virtualFile, document, debugReason, _) = request
+    val CompilationRequest.DocumentRequest(FileCompilationScope(virtualFile, module, sourceScope, document, _), debugReason, _) = request
     debug(s"documentCompilation: $debugReason")
     executeDocumentCompilationRequest(module, sourceScope, virtualFile, document, documentVersionsFor(request), await = true)
   }
@@ -442,7 +444,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
       request match {
         case CompilationRequest.WorksheetRequest(_, _, document, _, _, _) => canDocumentBeCompiled(document)
         case CompilationRequest.IncrementalRequest(_, _, _) => RequestState.Ready
-        case CompilationRequest.DocumentRequest(_, _, _, document, _, _) => canDocumentBeCompiled(document)
+        case CompilationRequest.DocumentRequest(FileCompilationScope(_, _, _, document, _), _, _) => canDocumentBeCompiled(document)
       }
     } else RequestState.NotReady
   }
@@ -502,10 +504,10 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
                   } else {
                     priorityQueue.add(newRequest)
                   }
-                case CompilationRequest.DocumentRequest(module, sourceScope, virtualFile, document, debugReason, timestamp) =>
+                case CompilationRequest.DocumentRequest(FileCompilationScope(virtualFile, module, sourceScope, document, psiFile), debugReason, timestamp) =>
                   // Document requests for the same file are debounced and deduplicated from the queue.
                   val otherDocumentRequests = priorityQueue.tailSet(request).iterator().asScala.collect {
-                    case dr: CompilationRequest.DocumentRequest if dr.virtualFile == virtualFile => dr
+                    case dr: CompilationRequest.DocumentRequest if dr.scope.virtualFile == virtualFile => dr
                   }.toSeq
                   // Look for the request scheduled furthest in the future.
                   val lastOne = otherDocumentRequests.maxByOption(_.timestamp).getOrElse(request)
@@ -514,7 +516,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
                   // All document requests for the same file are removed from the queue.
                   otherDocumentRequests.foreach(priorityQueue.remove)
                   // Instantiate the new document request.
-                  val newRequest = CompilationRequest.DocumentRequest(module, sourceScope, virtualFile, document, debugReason, timestamp = newTimestamp)
+                  val newRequest = CompilationRequest.DocumentRequest(FileCompilationScope(virtualFile, module, sourceScope, document, psiFile), debugReason, timestamp = newTimestamp)
                   // Execute it if ready, scheduled it if not.
                   if (isReadyForExecution(newRequest) == RequestState.Ready) {
                     execute(newRequest)

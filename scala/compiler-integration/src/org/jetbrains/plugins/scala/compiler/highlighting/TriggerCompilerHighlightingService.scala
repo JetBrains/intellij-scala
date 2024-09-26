@@ -84,7 +84,7 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
           doTriggerWorksheetCompilation(virtualFile, psiFile.asInstanceOf[ScalaFile], document, debugReason)
         } else {
           if (documentCompilerAvailable.contains(virtualFile)) {
-            doTriggerDocumentCompilation(virtualFile, document, debugReason)
+            doTriggerDocumentCompilation(virtualFile, document, psiFile, debugReason)
           } else {
             doTriggerIncrementalCompilation(debugReason, virtualFile, document, psiFile)
           }
@@ -176,11 +176,12 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
   private def doTriggerDocumentCompilation(
     virtualFile: VirtualFile,
     document: Document,
+    psiFile: PsiFile,
     debugReason: String
   ): Unit = {
     val module = inReadAction(ProjectRootManager.getInstance(project).getFileIndex.getModuleForFile(virtualFile))
     if (module ne null) {
-      CompilerHighlightingService.get(project).triggerDocumentCompilation(virtualFile, module, document, debugReason)
+      CompilerHighlightingService.get(project).triggerDocumentCompilation(virtualFile, module, document, psiFile, debugReason)
     }
   }
 

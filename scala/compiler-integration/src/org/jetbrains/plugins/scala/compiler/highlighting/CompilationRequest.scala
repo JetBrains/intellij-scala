@@ -58,13 +58,10 @@ private object CompilationRequest {
   }
 
   final case class DocumentRequest(
-    module: Module,
-    sourceScope: SourceScope,
-    virtualFile: VirtualFile,
-    document: Document,
+    scope: FileCompilationScope,
     debugReason: String,
     override val timestamp: Long
-  ) extends CompilationRequest(Map(virtualFile -> document), timestamp) {
+  ) extends CompilationRequest(Map(scope.virtualFile -> scope.document), timestamp) {
     override protected val priority: Int = 2
 
     override def delayed(timestamp: Long): CompilationRequest = copy(timestamp = timestamp)
