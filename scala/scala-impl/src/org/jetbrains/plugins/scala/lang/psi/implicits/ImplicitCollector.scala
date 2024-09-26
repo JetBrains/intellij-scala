@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.implicits
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
+import com.intellij.util.SlowOperations
 import org.jetbrains.plugins.scala.caches.measure
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
@@ -30,6 +31,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.collection.mutable
+import scala.util.Using
 
 object ImplicitCollector {
 
@@ -62,7 +64,8 @@ object ImplicitCollector {
                            fullInfo: Boolean,
                            previousRecursionState: Option[ImplicitsRecursionGuard.RecursionMap]) {
 
-    def presentableTypeText: String = tp.presentableText(place)
+    def presentableTypeText: String =
+      Using.resource(SlowOperations.knownIssue("SCL-23054"))(_ => tp.presentableText(place))
   }
 
   def probableArgumentsFor(parameter: ScalaResolveResult): Seq[(ScalaResolveResult, FullInfoResult)] = {
