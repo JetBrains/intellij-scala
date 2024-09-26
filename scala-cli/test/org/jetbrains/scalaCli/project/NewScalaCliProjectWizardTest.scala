@@ -39,9 +39,9 @@ class NewScalaCliProjectWizardTest extends NewScalaProjectWizardTestBase with Ex
   private val projectName = "scalaCliProjectName"
 
   override protected def setUp(): Unit = {
-    super.setUp()
     //note: ignores tests if the operating system is not Linux
     Assume.assumeTrue("The operating system is not Linux", SystemInfo.isLinux)
+    super.setUp()
     installScalaCli()
   }
 
