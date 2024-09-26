@@ -6,7 +6,7 @@ import com.intellij.openapi.application.{ModalityState, ReadAction}
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.{Document, Editor, EditorFactory}
-import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager}
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util.TextRange
@@ -90,10 +90,10 @@ private final class ExternalHighlightersService(project: Project) { self =>
         }
     }
 
-    virtualFiles.foreach { virtualFile =>
-      state.externalTypes(virtualFiles.head).foreach { case ((begin, end), tpe) =>
+    Option(FileEditorManager.getInstance(project).getFocusedEditor).foreach { editor =>
+      state.externalTypes(editor.getFile).foreach { case ((begin, end), tpe) =>
         inWriteAction {
-          val file = PsiManager.getInstance(project).findFile(virtualFile)
+          val file = PsiManager.getInstance(project).findFile(editor.getFile)
           def toOffset(pos: PosInfo): Int = file.getText.split('\n').take(pos.line - 1).map(_.length + 1).sum + pos.column - 1
           file.elements.filterByType[ScMethodCall].find(e => e.getTextRange == new TextRange(toOffset(begin), toOffset(end))).foreach { expression =>
             expression.putUserData(ScExpression.CompilerTypeKey, tpe)
