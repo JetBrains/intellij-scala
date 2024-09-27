@@ -98,7 +98,7 @@ class MethodEvaluationTest_3 extends MethodEvaluationTestBase {
 
   override def testNonStaticFunction(): Unit = {
     expressionEvaluationTest() { implicit ctx =>
-      failing(evalStartsWith("goo", "2"))
+      evalStartsWith("goo", "2")
     }
   }
 
@@ -168,12 +168,6 @@ class MethodEvaluationTest_3 extends MethodEvaluationTestBase {
 
 class MethodEvaluationTest_3_RC extends MethodEvaluationTest_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
-
-  override def testNonStaticFunction(): Unit = {
-    expressionEvaluationTest() { implicit ctx =>
-      evalStartsWith("goo", "2")
-    }
-  }
 }
 
 class MethodEvaluationTest_3_Next_RC extends MethodEvaluationTest_3_RC {

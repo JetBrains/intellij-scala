@@ -23,23 +23,13 @@ class VariablesFromPatternsEvaluationTest_3 extends VariablesFromPatternsEvaluat
       evalEquals("args", "[]")
       evalEquals("some", "Some(a)")
       evalEquals("a", "a")
-      failing(evalEquals("i", "10"))
+      evalEquals("i", "10")
     }
   }
 }
 
 class VariablesFromPatternsEvaluationTest_3_RC extends VariablesFromPatternsEvaluationTest_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
-
-  override def testAnonymousInMatch(): Unit = {
-    expressionEvaluationTest() { implicit ctx =>
-      evalEquals("name", "name")
-      evalEquals("args", "[]")
-      evalEquals("some", "Some(a)")
-      evalEquals("a", "a")
-      evalEquals("i", "10")
-    }
-  }
 }
 
 class VariablesFromPatternsEvaluationTest_3_Next_RC extends VariablesFromPatternsEvaluationTest_3_RC {

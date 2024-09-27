@@ -168,8 +168,7 @@ class StepIntoTest_3 extends StepIntoTest_2_13 {
 
   override def testLazyVal(): Unit = {
     stepIntoTest()(
-      Breakpoint("LazyVal.scala", "LazyVal$", "main", 5) -> stepInto,
-      Breakpoint("LazyVal.scala", "LazyVal$", "main", 6) -> resume
+      Breakpoint("LazyVal.scala", "LazyVal$", "main", 5) -> stepInto
     )
   }
 
@@ -254,9 +253,6 @@ class StepIntoTest_3 extends StepIntoTest_2_13 {
 
 class StepIntoTest_3_RC extends StepIntoTest_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
-
-  // TODO: Revisit lazy vals in Scala 3.4+
-  override def testLazyVal(): Unit = {}
 }
 
 class StepIntoTest_3_Next_RC extends StepIntoTest_3_RC {

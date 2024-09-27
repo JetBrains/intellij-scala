@@ -258,7 +258,7 @@ class EvaluationTest_3 extends EvaluationTests_2_13_And_Later {
 
   override def testPrefixedThis(): Unit = {
     expressionEvaluationTest() { implicit ctx =>
-      failing(evalEquals("This.this.x", "1"))
+      evalEquals("This.this.x", "1")
     }
   }
 
@@ -272,12 +272,6 @@ class EvaluationTest_3 extends EvaluationTests_2_13_And_Later {
 
 class EvaluationTest_3_RC extends EvaluationTest_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
-
-  override def testPrefixedThis(): Unit = {
-    expressionEvaluationTest() { implicit ctx =>
-      evalEquals("This.this.x", "1")
-    }
-  }
 }
 
 class EvaluationTest_3_Next_RC extends EvaluationTest_3_RC {

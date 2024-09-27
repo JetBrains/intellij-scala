@@ -15,6 +15,7 @@ class ScalaCompilerTest extends TextToTextTestBase(
     "dotty.tools.dotc.core.OrderingConstraint", // TODO Cannot resolve OrderingConstraint.ParamBounds
     "dotty.tools.dotc.parsing.Scanners", // TODO Enum cases in companion object
     "dotty.tools.dotc.quoted.PickledQuotes", // TODO Enum cases in companion object
+    "dotty.tools.dotc.rewrites.Rewrites", // New error since Scala 3.3.4
     "dotty.tools.dotc.semanticdb.Scala3", // Order in enum
     "dotty.tools.dotc.transform.LambdaLift", // TODO Unknown type
 //    "dotty.tools.dotc.transform.init.Semantic", // Semantic.Cache.TreeWrapper is Any // No longer an error since Scala 3.3.1
