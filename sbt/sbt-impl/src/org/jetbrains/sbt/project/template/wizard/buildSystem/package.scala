@@ -44,10 +44,21 @@ package object buildSystem {
   private[buildSystem]
   def addScalaSampleCode(project: Project, path: String, isScala3: Boolean, packagePrefix: Option[String], withOnboardingTips: Boolean): Seq[VirtualFile] = {
     val shouldRenderOnboardingTips: Boolean = Registry.is("doc.onboarding.tips.render")
+    val advancedTipsEnabled = Registry.is("scala.advanced.onboarding.tips")
     val manager = FileTemplateManager.getInstance(project)
-    val variables = onboardingTipsVariables(withOnboardingTips, shouldRenderOnboardingTips, packagePrefix).asJava
+    val variables = onboardingTipsVariables(
+      withOnboardingTips = withOnboardingTips,
+      shouldRenderOnboardingTips = shouldRenderOnboardingTips,
+      advancedTipsEnabled = advancedTipsEnabled,
+      packagePrefix = packagePrefix
+    ).asJava
 
-    val samples = templatesAndFiles(isScala3, withOnboardingTips, shouldRenderOnboardingTips)
+    val samples = templatesAndFiles(
+      isScala3 = isScala3,
+      withOnboardingTips = withOnboardingTips,
+      shouldRenderOnboardingTips = shouldRenderOnboardingTips,
+      advancedTipsEnabled = advancedTipsEnabled
+    )
     val sourceAndFiles =
       samples
         .zipWithIndex // TODO: This is a hack to install onboarding tips in main.scala only; remove it when the platform allows for tips in multiple files
@@ -83,42 +94,65 @@ package object buildSystem {
     Option(VfsUtil.createDirectoryIfMissing(path))
       .getOrElse(throw new IllegalStateException("Unable to create src directory"))
 
-  private def templatesAndFiles(isScala3: Boolean, withOnboardingTips: Boolean, shouldRenderOnboardingTips: Boolean): Seq[Sample] =
-    (isScala3, withOnboardingTips, shouldRenderOnboardingTips) match {
-      case (true, true, true) =>
+  private def templatesAndFiles(isScala3: Boolean,
+                                withOnboardingTips: Boolean,
+                                shouldRenderOnboardingTips: Boolean,
+                                advancedTipsEnabled: Boolean): Seq[Sample] =
+    (isScala3, withOnboardingTips, shouldRenderOnboardingTips, advancedTipsEnabled) match {
+      case (true, true, true, true) =>
         Seq(
           Sample("scala3-xray-tips-rendered.scala", "InlayHintsAndXRay.scala"),
           Sample("scala3-collections-tips-rendered.scala", "collections.scala"),
           Sample("scala3-main-tips-rendered.scala", "main.scala", """println(s"i = $i")"""),
         )
-      case (true, true, false) =>
+      case (true, true, true, false) =>
+        Seq(
+          Sample("scala3-main-tips-rendered.scala", "main.scala", """println(s"i = $i")"""),
+        )
+      case (true, true, false, true) =>
         Seq(
           Sample("scala3-xray-tips.scala", "InlayHintsAndXRay.scala"),
           Sample("scala3-collections-tips.scala", "collections.scala"),
           Sample("scala3-main-tips.scala", "main.scala", """println(s"i = $i")"""),
         )
-      case (true, false, _) =>
+      case (true, true, false, false) =>
+        Seq(
+          Sample("scala3-main-tips.scala", "main.scala", """println(s"i = $i")"""),
+        )
+      case (true, false, _, _) =>
         Seq(Sample("scala3-main.scala", "main.scala", """println(s"i = $i")"""))
-      case (false, true, true) =>
+      case (false, true, true, true) =>
         Seq(
           Sample("scala2-xray-tips-rendered.scala", "InlayHintsAndXRay.scala"),
           Sample("scala2-collections-tips-rendered.scala", "Collections.scala"),
           Sample("scala2-main-tips-rendered.scala","Main.scala", """println(s"i = $i")"""),
         )
-      case (false, true, false) =>
+      case (false, true, true, false) =>
+        Seq(
+          Sample("scala2-main-tips-rendered.scala","Main.scala", """println(s"i = $i")"""),
+        )
+      case (false, true, false, true) =>
         Seq(
           Sample("scala2-xray-tips.scala", "InlayHintsAndXRay.scala"),
+          Sample("scala2-collections-tips.scala", "Collections.scala"),
           Sample("scala2-main-tips.scala", "Main.scala", """println(s"i = $i")"""),
         )
-      case (false, false, _) =>
+      case (false, true, false, false) =>
+        Seq(
+          Sample("scala2-main-tips.scala", "Main.scala", """println(s"i = $i")"""),
+        )
+      case (false, false, _, _) =>
         Seq(Sample("scala2-main.scala", "Main.scala", """println(s"i = $i")"""))
     }
 
-  private def onboardingTipsVariables(withOnboardingTips: Boolean, shouldRenderOnboardingTips: Boolean, packagePrefix: Option[String]): Map[String, String] = {
+  private def onboardingTipsVariables(withOnboardingTips: Boolean,
+                                      shouldRenderOnboardingTips: Boolean,
+                                      advancedTipsEnabled: Boolean,
+                                      packagePrefix: Option[String]): Map[String, String] = {
     if (withOnboardingTips) {
       if (shouldRenderOnboardingTips) renderedVariables else unrenderedVariables
     } else Map.empty[String, String]
-  } ++ packagePrefix.map(prefix => Map("PACKAGE_NAME" -> prefix)).getOrElse(Map.empty)
+  } ++ packagePrefix.map(prefix => Map("PACKAGE_NAME" -> prefix, "advancedTipsEnabled" -> advancedTipsEnabled.toString)).getOrElse(Map.empty)
 
   private def installOnboardingTips(project: Project, sourceCode: String, fileName: String, breakpoint: Function1[_ >: CharSequence, JInt]): Unit = {
     val onboardingInfo = new OnboardingTipsInstallationInfo(sourceCode, fileName, breakpoint)
