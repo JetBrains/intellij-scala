@@ -559,7 +559,8 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
                   // all leaf modules necessary to show error-highlighting information for the currently opened
                   // files visible to the user. The JPS incremental compilation algorithm will take care of computing
                   // all necessary module dependencies which also need to be compiled to achieve that.
-                  val mergedScopes = toMerge.foldLeft(fileCompilationScopes) {
+                  val initialFiltering = fileCompilationScopes.filter { case (vf, _) => openFiles.contains(vf) }
+                  val mergedScopes = toMerge.foldLeft(initialFiltering) {
                     case (acc, CompilationRequest.WorksheetRequest(_, _, _, _, _, _)) =>
                       acc
                     case (acc, CompilationRequest.IncrementalRequest(scopes, _, _)) =>
@@ -567,17 +568,21 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
                     case (acc, CompilationRequest.DocumentRequest(scope, _, _)) =>
                       acc + (scope.virtualFile -> scope)
                   }
-                  // Instantiate the new incremental compilation request.
-                  val newRequest = CompilationRequest.IncrementalRequest(mergedScopes, debugReason, timestamp = newTimestamp)
-                  // Execute it if ready, schedule it if not.
-                  if (isReadyForExecution(newRequest) == RequestState.Ready) {
-                    execute(newRequest)
-                  } else {
-                    priorityQueue.add(newRequest)
+
+                  // It might happen that the merged scope has nothing to compile, for example, if there are no files
+                  // open for editing. This is fine, as the project will be incrementally compiled the next time a file
+                  // is opened. If the merged scope is empty (no modules to compile), we simply drop the request.
+                  if (mergedScopes.nonEmpty) {
+                    // Instantiate the new incremental compilation request.
+                    val newRequest = CompilationRequest.IncrementalRequest(mergedScopes, debugReason, timestamp = newTimestamp)
+                    // Execute it if ready, schedule it if not.
+                    if (isReadyForExecution(newRequest) == RequestState.Ready) {
+                      execute(newRequest)
+                    } else {
+                      priorityQueue.add(newRequest)
+                    }
                   }
               }
-
-
             } catch {
               case _: ProcessCanceledException | _: InterruptedException =>
                 // Do not log PCE or InterruptedException.
