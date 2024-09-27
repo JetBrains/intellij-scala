@@ -82,7 +82,7 @@ object LatestScalaVersions {
   val Scala_3_0  = new ScalaVersion(ScalaLanguageLevel.Scala_3_0, "2")
   val Scala_3_1  = new ScalaVersion(ScalaLanguageLevel.Scala_3_1, "3")
   val Scala_3_2  = new ScalaVersion(ScalaLanguageLevel.Scala_3_2, "2")
-  val Scala_3_3 = new ScalaVersion(ScalaLanguageLevel.Scala_3_3, "3")
+  val Scala_3_3 = new ScalaVersion(ScalaLanguageLevel.Scala_3_3, "4")
   val Scala_3_4 = new ScalaVersion(ScalaLanguageLevel.Scala_3_4, "2")
   val Scala_3_5 = new ScalaVersion(ScalaLanguageLevel.Scala_3_5, "1")
 
@@ -97,7 +97,7 @@ object LatestScalaVersions {
   // Release candidates
   //
   // Scala LTS RC
-  val Scala_3_RC = new ScalaVersion(ScalaLanguageLevel.Scala_3_3, "4-RC3")
+  val Scala_3_RC = new ScalaVersion(ScalaLanguageLevel.Scala_3_3, "4-RC4")
 
   // Scala Next RC
   val Scala_3_Next_RC = new ScalaVersion(ScalaLanguageLevel.Scala_3_5, "2-RC1")
