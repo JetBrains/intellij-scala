@@ -544,10 +544,6 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
                   val toMerge = otherRequests.filter(shouldMerge(openFiles))
                   // All other requests are removed from the queue.
                   otherRequests.foreach(priorityQueue.remove)
-                  // Look for the request scheduled furthest in the future.
-                  val lastOne = toMerge.maxByOption(_.timestamp).getOrElse(request)
-                  // Its timestamp becomes the new timestamp of the debounced request.
-                  val newTimestamp = timestamp max lastOne.timestamp
                   // Merge the compilation scopes. The logic here is the following.
                   // Worksheet requests are something separate and not taken into account (technically, they are not
                   // even present in the toMerge list, but needed for exhaustivity.
@@ -573,6 +569,10 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
                   // open for editing. This is fine, as the project will be incrementally compiled the next time a file
                   // is opened. If the merged scope is empty (no modules to compile), we simply drop the request.
                   if (mergedScopes.nonEmpty) {
+                    // Look for the request scheduled furthest in the future.
+                    val lastOne = toMerge.maxByOption(_.timestamp).getOrElse(request)
+                    // Its timestamp becomes the new timestamp of the debounced request.
+                    val newTimestamp = timestamp max lastOne.timestamp
                     // Instantiate the new incremental compilation request.
                     val newRequest = CompilationRequest.IncrementalRequest(mergedScopes, debugReason, timestamp = newTimestamp)
                     // Execute it if ready, schedule it if not.
