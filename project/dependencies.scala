@@ -5,7 +5,7 @@ import sbt.*
 
 object Versions {
   val scalaVersion: String = "2.13.15"
-  val scala3Version: String = "3.3.3"
+  val scala3Version: String = "3.3.4"
 
   // ATTENTION: when updating sbtVersion also update versions in MockSbt_1_0
   // NOTE: sbt-launch / bloop-launcher won't be fetched on refresh.
