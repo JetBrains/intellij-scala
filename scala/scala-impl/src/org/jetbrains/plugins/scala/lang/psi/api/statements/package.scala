@@ -42,7 +42,7 @@ package object statements {
       }
 
       val allReturnStatements: Set[ScReturn] = {
-        body.depthFirst(!_.isInstanceOf[ScFunction])
+        body.depthFirst(!_.is[ScFunction])
           .collect { case statement: ScReturn => statement }
           .toSet
       }
@@ -81,7 +81,7 @@ package object statements {
         case _: ScStableCodeReference =>
           reference.getParent match {
             case ChildOf(_: ScConstructorInvocation) =>
-              function.isConstructor && function.containingClass.name == refName
+              function.isConstructor && function.containingClass.nullSafe.exists(_.name == refName)
             case ScConstructorPattern(`reference`, _) |
                  ScInfixPattern(_, `reference`, _) =>
               function.isUnapplyMethod
