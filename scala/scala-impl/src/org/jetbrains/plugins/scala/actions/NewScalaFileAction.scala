@@ -5,6 +5,8 @@ import com.intellij.ide.fileTemplates.{FileTemplate, FileTemplateManager, JavaTe
 import com.intellij.ide.projectView.impl.ProjectRootsUtil
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.diagnostic.ControlFlowException
+import com.intellij.openapi.editor.LogicalPosition
+import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileTypes.ex.FileTypeManagerEx
 import com.intellij.openapi.module.{Module, ModuleType}
 import com.intellij.openapi.project.{DumbAware, Project}
@@ -13,7 +15,7 @@ import com.intellij.openapi.ui.InputValidatorEx
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
-import org.jetbrains.annotations.NonNls
+import org.jetbrains.annotations.{NonNls, Nullable}
 import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes
 import org.jetbrains.plugins.scala.actions.NewScalaFileAction._
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
@@ -26,6 +28,7 @@ import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType}
 import org.jetbrains.sbt.project.module.SbtModuleType
 
 import java.util.Properties
+import java.{util => ju}
 
 final class NewScalaFileAction extends CreateTemplateInPackageAction[ScalaPsiElement](
   () => actionText,
@@ -104,11 +107,32 @@ final class NewScalaFileAction extends CreateTemplateInPackageAction[ScalaPsiEle
 
   override def getActionName(directory: PsiDirectory, newName: String, templateName: String): String = actionText
 
+  @Nullable
   override def getNavigationElement(createdElement: ScalaPsiElement): PsiElement =
     createdElement match {
       case typeDefinition: ScTypeDefinition => typeDefinition.extendsBlock
-      case _ => createdElement
+      case _ => null
     }
+
+  override def postProcess(createdElement: ScalaPsiElement, templateName: String, customProperties: ju.Map[String, String]): Unit = {
+    super.postProcess(createdElement, templateName, customProperties)
+    createdElement match {
+      case file: ScalaFile =>
+        val project = file.getProject
+        val editor = FileEditorManager.getInstance(project).getSelectedTextEditor
+        if (editor != null) {
+          val document = editor.getDocument
+          if (document == file.getViewProvider.getDocument) {
+            val lineCount = document.getLineCount
+            if (lineCount > 0) {
+              // move the caret to the beginning of the last line
+              editor.getCaretModel.moveToLogicalPosition(new LogicalPosition(lineCount - 1, 0))
+            }
+          }
+        }
+      case _ =>
+    }
+  }
 
   override def doCreate(directory: PsiDirectory, newName: String, templateName: String): ScalaPsiElement = {
     createClassFromTemplate(directory, newName, templateName) match {
