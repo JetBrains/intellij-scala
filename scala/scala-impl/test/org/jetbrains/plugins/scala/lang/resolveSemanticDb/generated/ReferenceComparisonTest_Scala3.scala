@@ -15,6 +15,10 @@ import org.junit.experimental.categories.Category
 //noinspection NameBooleanParameters
 @Category(Array(classOf[ScalacTests]))
 class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 {
+
+  // Mute "Tree access disabled" exceptions as workaround for #SCL-22994
+  override protected def includeScalaLibrarySources: Boolean = false
+
   def test_1567(): Unit = doTest("1567", true)
   def test_3190(): Unit = doTest("3190", true)
   def test_6322(): Unit = doTest("6322", false) // #matchType

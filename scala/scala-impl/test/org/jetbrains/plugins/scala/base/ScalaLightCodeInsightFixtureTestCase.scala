@@ -50,13 +50,13 @@ abstract class ScalaLightCodeInsightFixtureTestCase
   protected def loadScalaLibrary: Boolean = true
 
   protected def includeReflectLibrary: Boolean = false
-
   protected def includeCompilerAsLibrary: Boolean = false
+  protected def includeScalaLibrarySources: Boolean = true
 
   protected def additionalLibraries: Seq[LibraryLoader] = Seq.empty
 
   override protected def librariesLoaders: Seq[LibraryLoader] = {
-    val scalaSdkLoader = ScalaSDKLoader(includeReflectLibrary, includeCompilerAsLibrary)
+    val scalaSdkLoader = ScalaSDKLoader(includeReflectLibrary, includeCompilerAsLibrary, includeScalaLibrarySources = includeScalaLibrarySources)
     //note: do we indeed need to register it as libraries?
     // shouldn't source roots be registered just as source roots?
     val sourceLoaders = Option(sourceRootPath).map(SourcesLoader).toSeq
