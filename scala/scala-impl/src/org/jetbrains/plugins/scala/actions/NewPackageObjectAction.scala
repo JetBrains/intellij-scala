@@ -1,12 +1,14 @@
 package org.jetbrains.plugins.scala.actions
 
+import com.intellij.ide.actions.CreateFromTemplateAction.moveCaretAfterNameIdentifier
 import com.intellij.ide.fileTemplates.actions.AttributesDefaults
 import com.intellij.ide.fileTemplates.ui.CreateFromTemplateDialog
+import com.intellij.ide.fileTemplates.{FileTemplate, FileTemplateManager}
 import com.intellij.openapi.actionSystem._
-import com.intellij.openapi.fileEditor.{FileEditorManager, TextEditor}
 import com.intellij.openapi.module.Module
-import com.intellij.psi.{JavaDirectoryService, PsiElement}
+import com.intellij.psi.{JavaDirectoryService, PsiDirectory, PsiElement}
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.project._
 
@@ -40,12 +42,33 @@ class NewPackageObjectAction extends LazyFileTemplateAction(
   override def getAttributesDefaults(dataContext: DataContext): AttributesDefaults =
     new AttributesDefaults("package").withFixedName(true)
 
-  override def elementCreated(dialog: CreateFromTemplateDialog, createdElement: PsiElement): Unit = {
-    super.elementCreated(dialog, createdElement)
+  override def getReplacedAction(selectedTemplate: FileTemplate): AnAction = event => {
+    val dataContext = event.getDataContext
+
     for {
-      project <- Option(createdElement.getProject)
-      manager <- Option(FileEditorManager.getInstance(project))
-      editor  <- Option(manager.getSelectedEditor).collectFirst { case te: TextEditor => te.getEditor }
-    } editor.getCaretModel.moveToOffset(createdElement.getTextRange.getEndOffset)
+      view           <- LangDataKeys.IDE_VIEW.getData(dataContext).toOption
+      dir            <- getTargetDirectory(dataContext, view).toOption
+      defaults        = getAttributesDefaults(dataContext)
+      createdElement <- createElement(selectedTemplate, dir, defaults)
+      _               = view.selectElement(createdElement)
+      file           <- createdElement.containingScalaFile
+      obj            <- file.typeDefinitions.headOption
+    } moveCaretAfterNameIdentifier(obj)
+  }
+
+  private def createElement(
+    selectedTemplate: FileTemplate,
+    directory: PsiDirectory,
+    defaults: AttributesDefaults
+  ): Option[PsiElement] = {
+    val project = directory.getProject
+    FileTemplateManager.getInstance(project).addRecentName(selectedTemplate.getName)
+    val properties = if (defaults != null) defaults.getDefaultProperties else null
+    val dialog = new CreateFromTemplateDialog(project, directory, selectedTemplate, defaults, properties)
+    val createdElement = dialog.create()
+    if (createdElement != null) {
+      elementCreated(dialog, createdElement)
+      Some(createdElement)
+    } else None
   }
 }
