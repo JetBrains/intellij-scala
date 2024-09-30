@@ -1,9 +1,11 @@
 package org.jetbrains.plugins.scala.actions
 
 import com.intellij.ide.fileTemplates.actions.AttributesDefaults
+import com.intellij.ide.fileTemplates.ui.CreateFromTemplateDialog
 import com.intellij.openapi.actionSystem._
+import com.intellij.openapi.fileEditor.{FileEditorManager, TextEditor}
 import com.intellij.openapi.module.Module
-import com.intellij.psi.JavaDirectoryService
+import com.intellij.psi.{JavaDirectoryService, PsiElement}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.project._
@@ -37,4 +39,13 @@ class NewPackageObjectAction extends LazyFileTemplateAction(
 
   override def getAttributesDefaults(dataContext: DataContext): AttributesDefaults =
     new AttributesDefaults("package").withFixedName(true)
+
+  override def elementCreated(dialog: CreateFromTemplateDialog, createdElement: PsiElement): Unit = {
+    super.elementCreated(dialog, createdElement)
+    for {
+      project <- Option(createdElement.getProject)
+      manager <- Option(FileEditorManager.getInstance(project))
+      editor  <- Option(manager.getSelectedEditor).collectFirst { case te: TextEditor => te.getEditor }
+    } editor.getCaretModel.moveToOffset(createdElement.getTextRange.getEndOffset)
+  }
 }
