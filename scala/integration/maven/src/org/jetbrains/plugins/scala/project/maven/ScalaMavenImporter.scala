@@ -25,6 +25,7 @@ import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 import scala.util.Try
 
+@nowarn("cat=deprecation") // TODO(SCL-23074): migrate to new API
 final class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-plugin")
   with MavenProjectResolutionContributor {
 
