@@ -150,8 +150,6 @@ class ScalaSyntheticClassesNavigationalElementTest extends ScalaLightCodeInsight
         case m => Seq(m)
       }
 
-    //TODO: ideally we shouldn't disable the filter, see SCL-22994
-    Registry.get("ast.loading.filter").setValue(false, getTestRootDisposable)
     assertNavigationElementPointsToSources(allNonPrivateMembers)
   }
 

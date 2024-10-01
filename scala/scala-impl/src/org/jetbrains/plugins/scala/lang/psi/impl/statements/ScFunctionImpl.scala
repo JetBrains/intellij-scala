@@ -417,8 +417,12 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
   override protected def isSimilarMemberForNavigation(m: ScMember, isStrictCheck: Boolean): Boolean = m match {
     case f: ScFunction => f.name == name && {
       if (isStrictCheck) {
-        val signature = new PhysicalMethodSignature(this, ScSubstitutor.empty)
-        signature.paramTypesEquiv(new PhysicalMethodSignature(f, ScSubstitutor.empty))
+        // Compare parameter types "as written" to avoid resolving references and inferring types.in library sources
+        parameters.length == f.parameters.length && parameters.zip(f.parameters).forall { case (p1, p2) =>
+          val t1 = p1.`type`().toOption.map(_.presentableText(p1)).mkString // Stub (compiled)
+          val t2 = p2.typeElement.map(_.getText).mkString // AST (source)
+          t1 == t2
+        }
       }
       else true
     }
