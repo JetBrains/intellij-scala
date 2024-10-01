@@ -1,4 +1,5 @@
 package org.jetbrains.plugins.scala.annotator
+
 import com.intellij.codeInsight.daemon.HighlightDisplayKey
 import com.intellij.codeInsight.intention.CommonIntentionAction
 import com.intellij.codeInspection.{LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
@@ -19,6 +20,7 @@ abstract class DummyScalaAnnotationBuilder(severity: HighlightSeverity, @Nullabl
   private var rangeTransformer: TextRange => TextRange = identity
   private var range: TextRange = _
   private var enforcedAttributes: TextAttributesKey = _
+  private val fixes = Seq.newBuilder[CommonIntentionAction]
 
   override def setRangeTransformer(transformer: TextRange => TextRange): this.type = {
     rangeTransformer = transformer
@@ -45,29 +47,59 @@ abstract class DummyScalaAnnotationBuilder(severity: HighlightSeverity, @Nullabl
     this
   }
 
-  def onCreate(severity: HighlightSeverity, @Nls message: String, range: TextRange, enforcedAttributes: TextAttributesKey): Unit
+  def onCreate(severity: HighlightSeverity, @Nls message: String, range: TextRange,
+               enforcedAttributes: TextAttributesKey, fixes: Seq[CommonIntentionAction]): Unit
 
-  override def create(): Unit =
-    onCreate(severity, message, rangeTransformer(range), enforcedAttributes)
+  override def create(): Unit = {
+    onCreate(severity, message, rangeTransformer(range), enforcedAttributes, fixes.result())
+    fixes.clear()
+  }
 
   override def highlightType(highlightType: ProblemHighlightType): this.type = this
-  override def afterEndOfLine: this.type = this
-  override def fileLevel: this.type = this
-  override def gutterIconRenderer(gutterIconRenderer: GutterIconRenderer): this.type = this
-  override def problemGroup(problemGroup: ProblemGroup): this.type = this
-  override def enforcedTextAttributes(enforcedAttributes: TextAttributes): this.type = this
-  override def tooltip(tooltip: String): this.type = this
-  override def needsUpdateOnTyping: this.type = this
-  override def needsUpdateOnTyping(value: Boolean): this.type = this
-  override def withFix(fix: CommonIntentionAction): this.type = this
-  override def newFix(fix: CommonIntentionAction): ScalaAnnotationBuilder.FixBuilder = DummyFixBuilder
-  override def newLocalQuickFix(fix: LocalQuickFix, problemDescriptor: ProblemDescriptor): ScalaAnnotationBuilder.FixBuilder = DummyFixBuilder
 
-  private object DummyFixBuilder extends ScalaAnnotationBuilder.FixBuilder {
+  override def afterEndOfLine: this.type = this
+
+  override def fileLevel: this.type = this
+
+  override def gutterIconRenderer(gutterIconRenderer: GutterIconRenderer): this.type = this
+
+  override def problemGroup(problemGroup: ProblemGroup): this.type = this
+
+  override def enforcedTextAttributes(enforcedAttributes: TextAttributes): this.type = this
+
+  override def tooltip(tooltip: String): this.type = this
+
+  override def needsUpdateOnTyping: this.type = this
+
+  override def needsUpdateOnTyping(value: Boolean): this.type = this
+
+  override def withFix(fix: CommonIntentionAction): this.type = {
+    fixes += fix
+    this
+  }
+
+  override def newFix(fix: CommonIntentionAction): ScalaAnnotationBuilder.FixBuilder = new DummyFixBuilder(fix)
+
+  override def newLocalQuickFix(fix: LocalQuickFix, problemDescriptor: ProblemDescriptor): ScalaAnnotationBuilder.FixBuilder =
+    new DummyFixBuilder
+
+  private final class DummyFixBuilder(@Nullable private val fix: CommonIntentionAction) extends ScalaAnnotationBuilder.FixBuilder {
+    def this() = this(null) // TODO: track local quick-fixes as well
+
     override def range(range: TextRange): ScalaAnnotationBuilder.FixBuilder = this
+
     override def key(key: HighlightDisplayKey): ScalaAnnotationBuilder.FixBuilder = this
+
     override def batch: ScalaAnnotationBuilder.FixBuilder = this
+
     override def universal: ScalaAnnotationBuilder.FixBuilder = this
-    override def registerFix: DummyScalaAnnotationBuilder.this.type = DummyScalaAnnotationBuilder.this
+
+    override def registerFix: DummyScalaAnnotationBuilder.this.type = {
+      if (fix != null) {
+        DummyScalaAnnotationBuilder.this.fixes += fix
+      }
+
+      DummyScalaAnnotationBuilder.this
+    }
   }
 }

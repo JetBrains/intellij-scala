@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.annotator
 
+import com.intellij.codeInsight.intention.CommonIntentionAction
 import com.intellij.lang.annotation.{AnnotationSession, HighlightSeverity}
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.util.TextRange
@@ -65,7 +66,8 @@ abstract class AnnotatorHolderMockBase[T : Ordering](file: PsiFile) extends Scal
   private class DummyAnnotationBuilder(severity: HighlightSeverity, @Nullable @Nls message: String)
     extends DummyScalaAnnotationBuilder(severity, message) {
 
-    override def onCreate(severity: HighlightSeverity, message: String, range: TextRange, enforcedAttributes: TextAttributesKey): Unit =
+    override def onCreate(severity: HighlightSeverity, message: String, range: TextRange,
+                          enforcedAttributes: TextAttributesKey, fixes: Seq[CommonIntentionAction]): Unit =
       myAnnotations :::= createMockAnnotation(severity, range, message, enforcedAttributes).toList.map(range -> _)
   }
 
