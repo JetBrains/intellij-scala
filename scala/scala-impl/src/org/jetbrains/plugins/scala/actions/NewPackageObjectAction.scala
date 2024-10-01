@@ -72,3 +72,7 @@ class NewPackageObjectAction extends LazyFileTemplateAction(
     } else None
   }
 }
+
+object NewPackageObjectAction {
+  val ID: String = "Scala.NewPackageObject"
+}
