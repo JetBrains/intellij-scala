@@ -3,17 +3,20 @@ package org.jetbrains.plugins.scala.text
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.PsiPackage
+import com.intellij.testFramework.TestLoggerKt
 import com.intellij.util.AstLoadingFilter
 import org.jetbrains.plugins.scala.DependencyManagerBase.DependencyDescription
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
-import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, IvyManagedLoader, LibraryLoader, ScalaReflectLibraryLoader, ScalaSDKLoader, SmartJDKLoader}
+import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, ScalaReflectLibraryLoader, SmartJDKLoader}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 import org.junit.Assert
+
+import scala.annotation.nowarn
 
 // SCL-21078
 abstract class TextToTextTestBase(dependencies: Seq[DependencyDescription],
@@ -38,9 +41,11 @@ abstract class TextToTextTestBase(dependencies: Seq[DependencyDescription],
     try {
       ScalaApplicationSettings.PRECISE_TEXT = true
       if (astLoadingFilter) {
-        AstLoadingFilter.disallowTreeLoading { () =>
-          doTestTextToText()
-        }
+        TestLoggerKt.rethrowLoggedErrorsIn { () =>
+          AstLoadingFilter.disallowTreeLoading { () =>
+            doTestTextToText()
+          }
+        }: @nowarn("cat=deprecation")
       } else {
         doTestTextToText()
       }
