@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.text
 
 import com.intellij.openapi.projectRoots.Sdk
+import com.intellij.openapi.util.Ref
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.PsiPackage
 import com.intellij.testFramework.TestLoggerKt
@@ -72,9 +73,11 @@ abstract class TextToTextTestBase(dependencies: Seq[DependencyDescription],
       println(f"$i%04d/$total%s: ${cls.qualifiedName}")
 
       val actual = try {
+        val ref = Ref.create[String]
         TestLoggerKt.rethrowLoggedErrorsIn { () =>
-          textOfCompilationUnit(cls)
+          ref.set(textOfCompilationUnit(cls))
         }: @nowarn("cat=deprecation")
+        ref.get()
       } catch {
         case e: Throwable => e.toString
       }
