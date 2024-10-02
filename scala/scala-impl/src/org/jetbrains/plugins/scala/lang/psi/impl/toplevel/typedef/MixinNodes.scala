@@ -11,6 +11,7 @@ import com.intellij.util.containers.{ContainerUtil, SmartHashSet}
 import com.intellij.util.{AstLoadingFilter, SmartList}
 import it.unimi.dsi.fastutil.Hash
 import it.unimi.dsi.fastutil.objects.{Object2ObjectMap, Object2ObjectMaps, Object2ObjectOpenCustomHashMap}
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.caches.{ModTracker, cachedInUserData, cachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
@@ -133,31 +134,33 @@ object MixinNodes {
           case newTd: ScNewTemplateDefinition => MixinNodes.linearization(newTd)
           case _                              => MixinNodes.linearization(thisClass).drop(1)
         }
-        val thisTypeSubst = thisClass match {
-          case td: ScTemplateDefinition => ScSubstitutor(ScThisType(td))
-          case _                        => ScSubstitutor.empty
+        val thisType = thisClass match {
+          case td: ScTemplateDefinition => ScThisType(td)
+          case _                        => null
         }
-        SuperTypesData(superTypes, thisTypeSubst)
+        SuperTypesData(superTypes, thisType)
       }
 
     def apply(cp: ScCompoundType, compoundThisType: Option[ScType]): SuperTypesData = {
       val superTypes = MixinNodes.linearization(cp)
-      val thisTypeSubst = ScSubstitutor(compoundThisType.getOrElse(cp))
-      SuperTypesData(superTypes, thisTypeSubst)
+      val thisType = compoundThisType.getOrElse(cp)
+      SuperTypesData(superTypes, thisType)
     }
 
-    private def apply(superTypes: Seq[ScType], thisTypeSubst: ScSubstitutor): SuperTypesData = {
+    private def apply(superTypes: Seq[ScType], @Nullable thisType: ScType): SuperTypesData = {
       val substitutorsBuilder = SeqMap.newBuilder[PsiClass, ScSubstitutor]
       val refinementsBuilder = List.newBuilder[ScCompoundType]
 
       for (superType <- superTypes) {
         superType.extractClassType match {
           case Some((superClass, s)) =>
+            val seenFromClass = if (thisType == null) null else superClass
             val dependentSubst = superType match {
-              case p @ ScProjectionType(proj, _)                       => ScSubstitutor(proj).followed(p.actualSubst)
-              case ParameterizedType(p @ ScProjectionType(proj, _), _) => ScSubstitutor(proj).followed(p.actualSubst)
+              case p @ ScProjectionType(proj, _)                       => ScSubstitutor(proj, seenFromClass).followed(p.actualSubst)
+              case ParameterizedType(p @ ScProjectionType(proj, _), _) => ScSubstitutor(proj, seenFromClass).followed(p.actualSubst)
               case _                                                   => ScSubstitutor.empty
             }
+            val thisTypeSubst = if (thisType == null) ScSubstitutor.empty else ScSubstitutor(thisType, seenFromClass)
             val newSubst = combine(s, superClass).followed(thisTypeSubst).followed(dependentSubst)
             substitutorsBuilder += superClass -> newSubst
           case _ =>

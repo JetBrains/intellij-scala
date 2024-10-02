@@ -67,7 +67,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
       val accessible = isNamedParameter || isAccessible(namedElement, ref)
       if (accessibility && !accessible) return true
 
-      val s = state.substitutorWithThisType
+      val s = state.substitutorWithThisType(namedElement.findContextOfType(classOf[PsiClass]).orNull)
       val resultBuilder: PsiNamedElement => ScalaResolveResult = e =>
         new ScalaResolveResult(
           e,
