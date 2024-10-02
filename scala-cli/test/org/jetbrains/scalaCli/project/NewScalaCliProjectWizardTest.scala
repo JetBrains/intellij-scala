@@ -1,12 +1,14 @@
 package org.jetbrains.scalaCli.project
 
 import com.intellij.ide.projectWizard.NewProjectWizardConstants
+import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener, ExternalSystemTaskType}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.testFramework.FixtureRuleKt.useProject
 import com.intellij.testFramework.JUnit38AssumeSupportRunner
 import org.jetbrains.bsp.BSP
+import org.jetbrains.bsp.protocol.BspCommunicationService
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.sbt.project.{ExactMatch, NewScalaProjectWizardTestBase, ProjectStructureTestUtils}
 import org.jetbrains.sbt.project.ProjectStructureDsl._
@@ -41,6 +43,18 @@ class NewScalaCliProjectWizardTest extends NewScalaProjectWizardTestBase with Ex
     ignoreTestIfSystemIsNotAllowed()
     super.setUp()
     installScalaCli()
+    // note: it's a workaround for #SCL-23061.
+    // Closing all BSP sessions cannot be achieved by overriding #waitForConfiguration and closing the sessions there,
+    // because the project refresh in ModuleBuilderUtil.doSetupModule is executed asynchronously.
+    val closeAllBspInstancesAfterReload = new ExternalSystemTaskNotificationListener {
+      override def onSuccess(id: ExternalSystemTaskId): Unit = {
+        val isProjectResolveTask = id.getType == ExternalSystemTaskType.RESOLVE_PROJECT
+        if (isProjectResolveTask) {
+          BspCommunicationService.getInstance.closeAll
+        }
+      }
+    }
+    ExternalSystemTaskNotificationListener.EP_NAME.getPoint.registerExtension(closeAllBspInstancesAfterReload, getTestRootDisposable)
   }
 
   override def tearDown(): Unit = {
