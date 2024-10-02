@@ -26,8 +26,7 @@ import scala.util.Try
 //  - test .gitignore creation
 //  - check added sample code
 /**
- *  The Scala CLI tests are only performed if they are run on a Linux machine.
- *  If they are run on any other operating system, they will be ignored.
+ *  The Scala CLI tests are executed only on Linux or macOS machines; on other systems, they are ignored.
  */
 @RunWith(classOf[JUnit38AssumeSupportRunner])
 class NewScalaCliProjectWizardTest extends NewScalaProjectWizardTestBase with ExactMatch {
@@ -39,8 +38,7 @@ class NewScalaCliProjectWizardTest extends NewScalaProjectWizardTestBase with Ex
   private val projectName = "scalaCliProjectName"
 
   override protected def setUp(): Unit = {
-    //note: ignores tests if the operating system is not Linux
-    Assume.assumeTrue("The operating system is not Linux", SystemInfo.isLinux)
+    ignoreTestIfSystemIsNotAllowed()
     super.setUp()
     installScalaCli()
   }
@@ -114,8 +112,12 @@ class NewScalaCliProjectWizardTest extends NewScalaProjectWizardTestBase with Ex
     // it is only created directly inside the test, but we already need this path to be able to add the Scala CLI script there.
     Files.createDirectories(projectDirectory)
 
-    //note: for testing locally on macOS use this link https://github.com/Virtuslab/scala-cli/releases/latest/download/scala-cli-aarch64-apple-darwin.gz"
-    val curlCommand = Seq("curl", "--fail", "--location", "https://github.com/Virtuslab/scala-cli/releases/latest/download/scala-cli-x86_64-pc-linux.gz")
+    //note: only Linux and macOS systems are allowed
+    val archiveName =
+      if (SystemInfo.isLinux) "scala-cli-x86_64-pc-linux.gz"
+      else "scala-cli-aarch64-apple-darwin.gz"
+
+    val curlCommand = s"curl --fail --location https://github.com/Virtuslab/scala-cli/releases/latest/download/$archiveName"
     val gzipCommand = "gzip --decompress"
     val curlProcess = Process(curlCommand) #| Process(gzipCommand, projectDirectory.toFile)
 
@@ -127,5 +129,13 @@ class NewScalaCliProjectWizardTest extends NewScalaProjectWizardTestBase with Ex
     if (!setupScalaCliScript.containsZero) {
       throw new Exception(s"Cannot install Scala CLI \n $stderr")
     }
+  }
+
+  /**
+   * Ignores test if the operating system is not Linux or Mac
+   */
+  private def ignoreTestIfSystemIsNotAllowed(): Unit = {
+    val isAllowed = SystemInfo.isLinux || SystemInfo.isMac
+    Assume.assumeTrue("The operating system is not allowed (Linux/macOS)", isAllowed)
   }
 }
