@@ -41,11 +41,9 @@ abstract class TextToTextTestBase(dependencies: Seq[DependencyDescription],
     try {
       ScalaApplicationSettings.PRECISE_TEXT = true
       if (astLoadingFilter) {
-        TestLoggerKt.rethrowLoggedErrorsIn { () =>
-          AstLoadingFilter.disallowTreeLoading { () =>
-            doTestTextToText()
-          }
-        }: @nowarn("cat=deprecation")
+        AstLoadingFilter.disallowTreeLoading { () =>
+          doTestTextToText()
+        }
       } else {
         doTestTextToText()
       }
@@ -74,7 +72,9 @@ abstract class TextToTextTestBase(dependencies: Seq[DependencyDescription],
       println(f"$i%04d/$total%s: ${cls.qualifiedName}")
 
       val actual = try {
-        textOfCompilationUnit(cls)
+        TestLoggerKt.rethrowLoggedErrorsIn { () =>
+          textOfCompilationUnit(cls)
+        }: @nowarn("cat=deprecation")
       } catch {
         case e: Throwable => e.toString
       }
