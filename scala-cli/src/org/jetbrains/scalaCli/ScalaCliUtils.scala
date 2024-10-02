@@ -1,13 +1,12 @@
 package org.jetbrains.scalaCli
 
-import com.intellij.ide.wizard.CommitStepException
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import org.jetbrains.bsp.project.BspExternalSystemUtil
 
 import java.io.File
 import scala.sys.process.{Process, ProcessLogger}
-import scala.util.{Success, Try}
+import scala.util.Try
 
 object ScalaCliUtils {
 
@@ -18,18 +17,15 @@ object ScalaCliUtils {
     projectData.exists(_.serverDisplayName == BspServerName)
   }
 
-  def throwExceptionIfScalaCliNotInstalled(workspace: File): Unit = {
+  def isScalaCliInstalled(workspace: File): Boolean = {
     val command = s"$getScalaCliCommand version"
     val work = Try(Process(command, workspace)! ProcessLogger(_ => (), _ => ()))
-    work.ifNonZero(throw new CommitStepException(ScalaCliBundle.message("scala.cli.not.installed")))
+    work.containsZero
   }
 
-  implicit class TryIntOps(workResult: Try[Int]) {
-    def ifNonZero[U](onFailureAction: => U): Unit =
-      workResult match {
-        case Success(0) =>
-        case _ => onFailureAction
-      }
+  implicit class TryIntOps(result: Try[Int]) {
+    def containsZero: Boolean =
+      result.map(_ == 0).getOrElse(false)
   }
 
   /**

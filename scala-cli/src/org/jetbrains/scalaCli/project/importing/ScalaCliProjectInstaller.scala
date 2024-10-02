@@ -9,7 +9,7 @@ import org.jetbrains.scalaCli.ScalaCliUtils.getScalaCliCommand
 import org.jetbrains.scalaCli.project.ScalaCliProjectUtils.ProjectDefinitionFileName
 
 import java.io.File
-import scala.util.Try
+import scala.util.{Try, Success, Failure}
 
 class ScalaCliProjectInstaller extends BspProjectInstallProvider {
 
@@ -18,9 +18,14 @@ class ScalaCliProjectInstaller extends BspProjectInstallProvider {
 
   override def serverName: String = "Scala CLI"
 
-  override def installCommand(workspace: File): Try[String] =
-    Try(ScalaCliUtils.throwExceptionIfScalaCliNotInstalled(workspace))
-      .map(_ => s"$getScalaCliCommand setup-ide .")
+  override def installCommand(workspace: File): Try[String] = {
+    val isScalaCliInstalled = ScalaCliUtils.isScalaCliInstalled(workspace)
+    if (isScalaCliInstalled) {
+      Success(s"$getScalaCliCommand setup-ide .")
+    } else {
+      Failure(new IllegalStateException("Unable to install BSP, because Scala CLI is not installed"))
+    }
+  }
 
   override def getConfigSetup: bspConfigSteps.ConfigSetup = ScalaCliSetup
 

@@ -124,6 +124,8 @@ class NewScalaCliProjectWizardTest extends NewScalaProjectWizardTestBase with Ex
     val stderr = new StringBuilder
     val processChain = curlProcess #> outputFile #&& Process(s"chmod +x $outputFile")
     val setupScalaCliScript = Try(processChain! ProcessLogger(_ => (), stderr append _ + "\n"))
-    setupScalaCliScript.ifNonZero(throw new Exception(s"Cannot install Scala CLI \n $stderr"))
+    if (!setupScalaCliScript.containsZero) {
+      throw new Exception(s"Cannot install Scala CLI \n $stderr")
+    }
   }
 }

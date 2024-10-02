@@ -1,5 +1,6 @@
 package org.jetbrains.scalaCli.project.template.wizard
 
+import com.intellij.ide.wizard.CommitStepException
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.Sdk
@@ -11,7 +12,7 @@ import org.jetbrains.plugins.scala.util.ui.extensions.JComboBoxOps
 import org.jetbrains.sbt.project.template.wizard.buildSystem.{ScalaNewProjectWizardData, ScalaNewProjectWizardStep, ScalaSampleCodeNewProjectWizardData, addScalaSampleCode}
 import org.jetbrains.sbt.project.template.{ModuleBuilderBase, ScalaModuleBuilderSelections}
 import org.jetbrains.sbt.project.template.wizard.ScalaNewProjectWizardMultiStep
-import org.jetbrains.scalaCli.ScalaCliUtils
+import org.jetbrains.scalaCli.{ScalaCliBundle, ScalaCliUtils}
 
 import java.nio.file.Path
 
@@ -39,7 +40,10 @@ final class ScalaCliNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
       // Therefore, we cannot execute `throwExceptionIfScalaCliNotInstalled`, as it will fail.
       // But it's not really required for tests because checking if Scala CLI is installed is also done in ScalaCliProjectInstaller#installCommand.
       if (!ApplicationManager.getApplication.isUnitTestMode) {
-        ScalaCliUtils.throwExceptionIfScalaCliNotInstalled(getContext.getProjectDirectory.toFile)
+        val isScalaCliInstalled = ScalaCliUtils.isScalaCliInstalled(getContext.getProjectDirectory.toFile)
+        if (!isScalaCliInstalled) {
+          throw new CommitStepException(ScalaCliBundle.message("scala.cli.not.installed"))
+        }
       }
       KUnit
     })
