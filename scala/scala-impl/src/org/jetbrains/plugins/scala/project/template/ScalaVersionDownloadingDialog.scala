@@ -4,19 +4,19 @@ import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicato
 import com.intellij.openapi.ui.Messages
 import org.apache.ivy.util.MessageLogger
 import org.jetbrains.annotations.VisibleForTesting
-import org.jetbrains.plugins.scala.{DependencyManagerBase, ScalaBundle, ScalaVersion}
 import org.jetbrains.plugins.scala.components.libextensions.ProgressIndicatorLogger
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, withProgressSynchronouslyTry}
 import org.jetbrains.plugins.scala.project.external.ScalaSdkUtils
 import org.jetbrains.plugins.scala.project.template.Artifact.ScalaLibrary
+import org.jetbrains.plugins.scala.project.template.ScalaVersionDownloadingDialog.{ScalaVersionResolveResult, preselectLatestScala2Version, tryDownloadScalaWithProgress}
 import org.jetbrains.plugins.scala.project.{Version, Versions}
-import org.jetbrains.plugins.scala.project.template.ScalaVersionDownloadingDialog.{ScalaVersionResolveResult, createScalaVersionResolveResult, preselectLatestScala2Version}
+import org.jetbrains.plugins.scala.{DependencyManagerBase, ScalaBundle, ScalaVersion}
 import org.jetbrains.sbt.project.template.SComboBox
 
 import java.awt.Point
 import java.io.File
 import javax.swing.{JComponent, JPopupMenu, JScrollPane}
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 final class ScalaVersionDownloadingDialog(parent: JComponent) extends VersionDialogBase(parent) {
 
@@ -51,26 +51,21 @@ final class ScalaVersionDownloadingDialog(parent: JComponent) extends VersionDia
         return None
       }
 
-      val tri: Try[ScalaVersionResolveResult] = withProgressSynchronouslyTry(ScalaBundle.message("downloading.scala.version", scalaVersionStr), canBeCanceled = true) { manager =>
-        val indicator = manager.getProgressIndicator
-        val dependencyManager = new DependencyManagerBase {
-          override protected def progressIndicator: Option[ProgressIndicator] = Some(indicator)
-          override def createLogger: MessageLogger = new ProgressIndicatorLogger(indicator)
-        }
-        createScalaVersionResolveResult(scalaVersion, dependencyManager)
-      }
-      tri.fold({
-        case _: ProcessCanceledException =>
+      val tri = tryDownloadScalaWithProgress(scalaVersion)
+      tri match {
+        case Success(value) =>
+          Some(value)
+        case Failure(_: ProcessCanceledException) =>
           None
-        case exception =>
+        case Failure(exception) =>
           //noinspection ReferencePassedToNls
           Messages.showErrorDialog(
             parent,
             exception.getMessage,
-            ScalaBundle.message("error.downloading.scala.version", scalaVersionStr)
+            ScalaBundle.message("error.downloading.scala.version", scalaVersion.minor)
           )
           None
-      }, Some(_))
+      }
     }
     else None
 }
@@ -78,6 +73,17 @@ final class ScalaVersionDownloadingDialog(parent: JComponent) extends VersionDia
 object ScalaVersionDownloadingDialog {
 
   final case class ScalaVersionResolveResult(scalaVersion: String, compilerClassPathJars: Seq[File], librarySourcesJars: Seq[File], compilerBridgeJar: Option[File])
+
+  def tryDownloadScalaWithProgress(scalaVersion: ScalaVersion): Try[ScalaVersionResolveResult] = {
+    withProgressSynchronouslyTry(ScalaBundle.message("downloading.scala.version", scalaVersion.minor), canBeCanceled = true) { manager =>
+      val indicator = manager.getProgressIndicator
+      val dependencyManager = new DependencyManagerBase {
+        override protected def progressIndicator: Option[ProgressIndicator] = Some(indicator)
+        override def createLogger: MessageLogger = new ProgressIndicatorLogger(indicator)
+      }
+      createScalaVersionResolveResult(scalaVersion, dependencyManager)
+    }
+  }
 
   /**
    * While Scala 3 support is WIP we do not want preselect Scala 3 version

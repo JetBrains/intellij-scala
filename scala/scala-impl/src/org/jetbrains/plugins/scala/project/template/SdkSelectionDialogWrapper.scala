@@ -11,7 +11,7 @@ import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager}
 import org.jetbrains.plugins.scala.project.sdkdetect.ScalaSdkProvider
 import org.jetbrains.plugins.scala.project.sdkdetect.repository.ScalaSdkDetector
 import org.jetbrains.plugins.scala.project.template.ScalaVersionDownloadingDialog.ScalaVersionResolveResult
-import org.jetbrains.plugins.scala.project.template.SdkSelectionDialogWrapper.{showDuplicatedFilesError, validateSdk}
+import org.jetbrains.plugins.scala.project.template.SdkSelectionDialogWrapper.{convertScalaResolveResultToScalaSdkDescriptor, showDuplicatedFilesError, validateSdk}
 import org.jetbrains.plugins.scala.project.template.sdk_browse.ExplicitSdkSelection
 import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 
@@ -102,16 +102,10 @@ class SdkSelectionDialogWrapper(contextDirectory: VirtualFile) extends DialogWra
     Array(downloadAction, browseAction)
   }
 
-  private val ScalaLibraryFileNames = Artifact.ScalaLibraryAndModulesArtifacts.map(_.prefix)
-
   private def onDownload(): Unit = {
     val resolvedScalaVersion = new ScalaVersionDownloadingDialog(this.getContentPanel).showAndGetSelected()
-    resolvedScalaVersion.foreach { case ScalaVersionResolveResult(version, compilerJars, librarySourcesJars, compilerBridgeJar) =>
-      val libraryJars = compilerJars.filter(f => ScalaLibraryFileNames.exists(f.getName.startsWith(_)))
-      val scaladocExtraClasspath = Nil // TODO SCL-17219
-      val sdkDescriptor = ScalaSdkDescriptor(Some(version), None, compilerJars, scaladocExtraClasspath, libraryJars, librarySourcesJars, Nil /*docs are not downloaded*/, compilerBridgeJar)
-      closeDialogGracefully(Some(sdkDescriptor))
-    }
+    val maybeScalaSdkDescriptor = resolvedScalaVersion.map(convertScalaResolveResultToScalaSdkDescriptor)
+    maybeScalaSdkDescriptor.foreach(d => closeDialogGracefully(Some(d)))
   }
 
   private def onBrowse(): Unit = {
@@ -228,4 +222,21 @@ object SdkSelectionDialogWrapper {
     Messages.showErrorDialog(component, message, title)
   }
 
+  private val ScalaLibraryFileNames = Artifact.ScalaLibraryAndModulesArtifacts.map(_.prefix)
+
+  def convertScalaResolveResultToScalaSdkDescriptor(scalaVersionResolveResult: ScalaVersionResolveResult): ScalaSdkDescriptor = {
+    val compilerJars = scalaVersionResolveResult.compilerClassPathJars
+    val libraryJars = compilerJars.filter(f => ScalaLibraryFileNames.exists(f.getName.startsWith(_)))
+    val scaladocExtraClasspath = Nil // TODO SCL-17219
+    ScalaSdkDescriptor(
+      version = Some(scalaVersionResolveResult.scalaVersion),
+      label = None,
+      compilerClasspath = compilerJars,
+      scaladocExtraClasspath = scaladocExtraClasspath,
+      libraryFiles = libraryJars,
+      sourceFiles = scalaVersionResolveResult.librarySourcesJars,
+      docFiles = Nil, // docs are not downloaded
+      compilerBridgeJar = scalaVersionResolveResult.compilerBridgeJar
+    )
+  }
 }

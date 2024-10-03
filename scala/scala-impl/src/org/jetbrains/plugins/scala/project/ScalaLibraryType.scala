@@ -88,7 +88,7 @@ object ScalaLibraryType {
 
     override def getDefaultLevel = projectRoot.LibrariesContainer.LibraryLevel.GLOBAL
 
-    private def createNewScalaLibrary(descriptor: ScalaSdkDescriptor) = {
+    def createNewScalaLibrary(descriptor: ScalaSdkDescriptor): NewLibraryConfiguration = {
       val ScalaSdkDescriptor(version, _, compilerClasspath, scaladocExtraClasspath, libraryFiles, sourceFiles, docFiles, compilerBridgeJar, _) = descriptor
 
       val compilerBridge = compilerBridgeJar.orElse {
