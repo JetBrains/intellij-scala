@@ -3,7 +3,7 @@ package org.jetbrains.jps.incremental.scala.model.impl
 import org.jetbrains.jps.incremental.scala.SettingsManager
 import org.jetbrains.jps.incremental.scala.model.{JpsSbtExtensionService, JpsSbtModuleExtension}
 import org.jetbrains.jps.model.java.impl.JpsJavaDependenciesEnumerationHandler
-import org.jetbrains.jps.model.module.JpsModule
+import org.jetbrains.jps.model.module.{JpsDependencyElement, JpsModule}
 import org.jetbrains.plugins.scala.util.SbtModuleType
 
 import java.util
@@ -24,6 +24,10 @@ final class JpsSbtDependenciesEnumerationHandler(processDependenciesRecursively:
 
   override def shouldProcessDependenciesRecursively: Boolean =
     processDependenciesRecursively
+
+  //note: the code based on JpsGradleDependenciesEnumerationHandler#isProductionOnTestsDependency
+  override def isProductionOnTestsDependency(element: JpsDependencyElement): Boolean =
+    JpsSbtExtensionService.getInstance.isProductionOnTestDependency(element)
 }
 
 object JpsSbtDependenciesEnumerationHandler {

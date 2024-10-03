@@ -4,6 +4,7 @@ import org.jdom.Content;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jps.incremental.scala.model.JpsSbtExtensionService;
+import org.jetbrains.jps.model.module.JpsDependencyElement;
 import org.jetbrains.jps.model.module.JpsModule;
 import org.jetbrains.jps.model.serialization.JpsModelSerializerExtension;
 import org.jetbrains.jps.model.serialization.module.JpsModulePropertiesSerializer;
@@ -18,6 +19,11 @@ public class JpsSbtModelSerializerExtension extends JpsModelSerializerExtension 
 
   // should be in sync with org.jetbrains.sbt.project.SbtProjectSystem.Id
   private static final String SBT_SYSTEM_ID = "SBT";
+  /**
+   * The attribute name that is used in <code>ModuleImlFileEntitiesSerializer#saveDependencyItem</code>
+   * Remove when <a href="https://youtrack.jetbrains.com/issue/IDEA-360113/Extract-production-on-test-attribute-name-to-some-variable">IDEA-360113</a> is fixed
+   */
+  private static final String PRODUCTION_ON_TEST_ATTRIBUTE = "production-on-test";
 
   @NotNull
   @Override
@@ -34,6 +40,14 @@ public class JpsSbtModelSerializerExtension extends JpsModelSerializerExtension 
       Option<String> displayModuleName = getDisplayModuleName(rootElement);
       Option<String> type = Option.apply(rootElement.getAttributeValue("external.system.module.type"));
       JpsSbtExtensionService.getInstance().getOrCreateExtension(module, type, displayModuleName);
+    }
+  }
+
+  //note: the code based on JpsGradleModelSerializationExtension#loadModuleDependencyProperties
+  @Override
+  public void loadModuleDependencyProperties(JpsDependencyElement dependency, Element orderEntry) {
+    if (orderEntry.getAttributeValue(PRODUCTION_ON_TEST_ATTRIBUTE) != null) {
+      JpsSbtExtensionService.getInstance().setProductionOnTestDependency(dependency, true);
     }
   }
 

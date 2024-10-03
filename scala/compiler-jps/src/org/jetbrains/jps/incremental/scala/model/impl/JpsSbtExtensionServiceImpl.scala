@@ -1,7 +1,10 @@
 package org.jetbrains.jps.incremental.scala.model.impl
 
+import org.jetbrains.jps.incremental.scala.model.impl.JpsSbtModuleExtensionImpl.ProductionOnTestRole
 import org.jetbrains.jps.incremental.scala.model.{JpsSbtExtensionService, JpsSbtModuleExtension}
-import org.jetbrains.jps.model.module.JpsModule
+import org.jetbrains.jps.model.JpsElementFactory
+import org.jetbrains.jps.model.java.impl.JpsJavaAwareProject
+import org.jetbrains.jps.model.module.{JpsDependencyElement, JpsModule}
 
 final class JpsSbtExtensionServiceImpl extends JpsSbtExtensionService {
 
@@ -18,4 +21,26 @@ final class JpsSbtExtensionServiceImpl extends JpsSbtExtensionService {
       case extension =>
         extension
     }
+
+  //note: the code based on JpsGradleExtensionServiceImpl#isProductionOnTestDependency
+  override def isProductionOnTestDependency(dependency: JpsDependencyElement): Boolean = {
+    val project = dependency.getContainingModule.getProject
+    project match {
+      case javaAwareProject: JpsJavaAwareProject =>
+        javaAwareProject.isProductionOnTestDependency(dependency)
+      case _ =>
+        val child = dependency.getContainer.getChild(ProductionOnTestRole)
+        child != null && child.getData
+    }
+  }
+
+  //note: the code based on JpsGradleExtensionServiceImpl#setProductionOnTestDependency
+  override def setProductionOnTestDependency(dependency: JpsDependencyElement, value: Boolean): Unit = {
+    val container = dependency.getContainer
+    if (value) {
+      container.setChild(ProductionOnTestRole, JpsElementFactory.getInstance.createSimpleElement(true))
+    } else {
+      container.removeChild(ProductionOnTestRole)
+    }
+  }
 }
