@@ -247,6 +247,11 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
   protected def addModuleDependencyNode(ownerModule: ModuleDataNodeType, module: ModuleDataNodeType, dependencyScope: DependencyScope, exported: Boolean = true): Unit = {
     val node = new ModuleDependencyNode(ownerModule, module)
     node.setScope(dependencyScope)
+    module match {
+      case sourceSetNode: SbtSourceSetModuleNode if sourceSetNode.sourceSetType == SourceSetType.TEST =>
+        node.data.setProductionOnTestDependency(true)
+      case _ =>
+    }
     node.setExported(exported)
     ownerModule.add(node)
   }
