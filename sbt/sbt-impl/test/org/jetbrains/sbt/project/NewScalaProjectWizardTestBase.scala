@@ -28,6 +28,7 @@ abstract class NewScalaProjectWizardTestBase extends NewProjectWizardTestCase
   protected def createScalaProject(
     templateGroup: String,
     projectName: String,
+    checkJDK: Boolean = true
   )(configureStep: NewProjectWizardStep => Unit): Project = {
     val project = createProjectFromTemplate(
       templateGroup,
@@ -39,12 +40,14 @@ abstract class NewScalaProjectWizardTestBase extends NewProjectWizardTestCase
 
     assertNotNull(project)
 
-    val projectJdk = ProjectRootManager.getInstance(project).getProjectSdk
-    assertNotNull(projectJdk)
+    if (checkJDK) {
+      val projectJdk = ProjectRootManager.getInstance(project).getProjectSdk
+      assertNotNull(projectJdk)
 
-    val jdkVersion = JavaSdk.getInstance.getVersion(projectJdk)
-    assertNotNull(jdkVersion)
-    Assert.assertEquals(jdkVersion.getMaxLanguageLevel, LanguageLevelProjectExtension.getInstance(project).getLanguageLevel)
+      val jdkVersion = JavaSdk.getInstance.getVersion(projectJdk)
+      assertNotNull(jdkVersion)
+      Assert.assertEquals(jdkVersion.getMaxLanguageLevel, LanguageLevelProjectExtension.getInstance(project).getLanguageLevel)
+    }
 
     assertNoNotificationsShown(project)
 

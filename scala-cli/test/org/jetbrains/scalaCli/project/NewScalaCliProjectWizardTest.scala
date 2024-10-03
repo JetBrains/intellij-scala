@@ -111,7 +111,7 @@ class NewScalaCliProjectWizardTest extends NewScalaProjectWizardTestBase with Ex
   }
 
   private def runCreateScalaCliProjectTest(scalaVersion: String, expectedProject: project): Unit = {
-    val project = createScalaProject(NewProjectWizardConstants.Language.SCALA, projectName) { step =>
+    val project = createScalaProject(NewProjectWizardConstants.Language.SCALA, projectName, checkJDK = false) { step =>
       scalaBuildSystemData(step).setBuildSystem("Scala CLI")
       scalaData(step).setScalaVersion(scalaVersion)
     }
