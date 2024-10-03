@@ -56,10 +56,8 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
         .find(_.getId == ModuleNode.combinedId(dependencyId.project, dependencyId.buildURI))
         .getOrElse(throw new ExternalSystemException("Cannot find project dependency: " + dependencyId.project))
 
-      val dependencyNode = new ModuleDependencyNode(moduleNode, dependency)
-      dependencyNode.setScope(scopeFor(dependencyId.configurations.distinct))
-      dependencyNode.setExported(false)
-      moduleNode.add(dependencyNode)
+      val scope = scopeFor(dependencyId.configurations.distinct)
+      addModuleDependencyNode(moduleNode, dependency, scope, exported = false)
     }
   }
 

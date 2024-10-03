@@ -456,19 +456,11 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   private def configureBuildModuleDependencies(buildModules: Seq[BuildModuleNodeWithBuildBaseDir]): Unit = {
     if (buildModules.size == 2) {
       val Seq(module1, module2) = buildModules
-
-      def addModuleDependency(parentModule: ModuleDataNodeType, childModule: ModuleDataNodeType): Unit = {
-        val dependencyNode = new ModuleDependencyNode(parentModule, childModule)
-        dependencyNode.setScope(DependencyScope.COMPILE)
-        dependencyNode.setExported(true)
-        parentModule.add(dependencyNode)
-      }
-
       if (isChild(module1.buildBaseDir.toPath, module2.buildBaseDir.toPath)) {
-        addModuleDependency(module2.moduleNode, module1.moduleNode)
+        addModuleDependencyNode(module2.moduleNode, module1.moduleNode, DependencyScope.COMPILE)
       }
       else if (isChild(module2.buildBaseDir.toPath, module1.buildBaseDir.toPath)) {
-        addModuleDependency(module1.moduleNode, module2.moduleNode)
+        addModuleDependencyNode(module1.moduleNode, module2.moduleNode, DependencyScope.COMPILE)
       }
       else {
         //modules are not hierarchical? Not sure if such case possible but will leave the empty branch here
