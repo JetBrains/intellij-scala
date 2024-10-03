@@ -11,6 +11,8 @@ class FindJVMModuleModuleExtensionTest extends SbtExternalSystemImportingTestLik
   override protected def getTestProjectPath: String =
     s"${TestUtils.getTestDataPath}/sbt/projects/${getTestName(true)}"
 
+  override protected def enableSeparateModulesForProdTest: Boolean = false
+
   override def setUp(): Unit = {
     super.setUp()
     SbtCachesSetupUtil.setupCoursierAndIvyCache(getProject)

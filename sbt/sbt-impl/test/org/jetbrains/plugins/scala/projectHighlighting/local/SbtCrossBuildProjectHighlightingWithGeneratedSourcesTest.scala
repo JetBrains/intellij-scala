@@ -11,6 +11,8 @@ class SbtCrossBuildProjectHighlightingWithGeneratedSourcesTest extends SbtProjec
 
   override def projectName = "sbt-crossproject-test-project-with-generated-sources"
 
+  override protected def enableSeparateModulesForProdTest: Boolean = false
+
   override protected def highlightSingleFile(
     virtualFile: VirtualFile,
     psiFile: PsiFile,

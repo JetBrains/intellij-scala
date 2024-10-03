@@ -13,6 +13,8 @@ abstract class SbtCrossBuildProjectHighlightingTestBase extends SbtProjectHighli
 
   override def projectName = "sbt-crossproject-test-project"
 
+  override protected def enableSeparateModulesForProdTest: Boolean = false
+
   override def setUp(): Unit = {
     super.setUp()
 

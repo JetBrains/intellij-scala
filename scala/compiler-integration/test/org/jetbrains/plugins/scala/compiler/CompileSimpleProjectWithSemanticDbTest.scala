@@ -19,6 +19,8 @@ class CompileSimpleProjectWithSemanticDbTest extends SbtExternalSystemImportingT
   override protected lazy val getTestProjectPath: String =
     s"${TestUtils.getTestDataPath}/sbt/compilation/projects/${getTestName(true)}"
 
+  override protected def enableSeparateModulesForProdTest: Boolean = false
+
   override def setUp(): Unit = {
     super.setUp()
     SbtCachesSetupUtil.setupCoursierAndIvyCache(getProject)
