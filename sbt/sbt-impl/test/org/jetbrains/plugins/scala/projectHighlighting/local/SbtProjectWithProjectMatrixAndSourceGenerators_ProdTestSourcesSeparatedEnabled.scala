@@ -18,12 +18,6 @@ class SbtProjectWithProjectMatrixAndSourceGenerators_ProdTestSourcesSeparatedEna
 
   override protected val projectFileName = projectName
 
-  override def setUp(): Unit = {
-    val externalProjectSettings = getCurrentExternalProjectSettings
-    externalProjectSettings.setSeparateProdAndTestSources(true)
-    super.setUp()
-  }
-
   override def testHighlighting(): Unit =
     super.testHighlighting()
 
