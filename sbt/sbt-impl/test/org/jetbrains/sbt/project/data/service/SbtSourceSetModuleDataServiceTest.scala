@@ -2,6 +2,7 @@ package org.jetbrains.sbt.project.data.service
 
 import com.intellij.openapi.module.{ModuleManager, StdModuleTypes}
 import org.jetbrains.plugins.scala.util.SbtModuleType.{sbtNestedModuleType, sbtSourceSetModuleType}
+import org.jetbrains.sbt.project.SourceSetType
 import org.jetbrains.sbt.project.data.service.ExternalSystemDataDsl._
 import org.jetbrains.sbt.project.data.{ModuleNode, NestedModuleNode, SbtSourceSetModuleNode}
 import org.junit.Assert.assertTrue
@@ -24,14 +25,14 @@ class SbtSourceSetModuleDataServiceTest extends SbtModuleDataServiceTestCase {
         new SbtSourceSetModuleNode(
           StdModuleTypes.JAVA.getId,
           ModuleNode.combinedId("project1:main", Option(c1URI)),
-          "c1.project1.main",
+          SourceSetType.MAIN,
           getProject.getBasePath + "/c1/project1",
           getProject.getBasePath + "/c1/project1"
         ),
         new SbtSourceSetModuleNode(
           StdModuleTypes.JAVA.getId,
           ModuleNode.combinedId("project1:test", Option(c1URI)),
-          "c1.project1.test",
+          SourceSetType.TEST,
           getProject.getBasePath + "/c1/project1",
           getProject.getBasePath + "/c1/project1"
         )
@@ -57,14 +58,14 @@ class SbtSourceSetModuleDataServiceTest extends SbtModuleDataServiceTestCase {
           new SbtSourceSetModuleNode(
             StdModuleTypes.JAVA.getId,
             ModuleNode.combinedId("c1:main", Option(c1URI)),
-            "c1.main",
+            SourceSetType.MAIN,
             getProject.getBasePath + "/c1",
             getProject.getBasePath + "/c1"
           ),
           new SbtSourceSetModuleNode(
             StdModuleTypes.JAVA.getId,
             ModuleNode.combinedId("c1:test", Option(c1URI)),
-            "c1.test",
+            SourceSetType.TEST,
             getProject.getBasePath + "/c1",
             getProject.getBasePath + "/c1"
           )
@@ -82,14 +83,14 @@ class SbtSourceSetModuleDataServiceTest extends SbtModuleDataServiceTestCase {
           new SbtSourceSetModuleNode(
             StdModuleTypes.JAVA.getId,
             ModuleNode.combinedId("root:main", Option(buildURI)),
-            "root.main",
+            SourceSetType.MAIN,
             getProject.getBasePath,
             getProject.getBasePath
           ),
           new SbtSourceSetModuleNode(
             StdModuleTypes.JAVA.getId,
             ModuleNode.combinedId("root:test", Option(buildURI)),
-            "root.test",
+            SourceSetType.TEST,
             getProject.getBasePath,
             getProject.getBasePath
           )

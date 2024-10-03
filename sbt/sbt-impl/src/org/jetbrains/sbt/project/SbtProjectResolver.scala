@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByName, SdkRe
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 import org.jetbrains.sbt.SbtUtil._
 import org.jetbrains.sbt.project.SbtProjectResolver.{ModuleType, _}
+import org.jetbrains.sbt.project.SourceSetType.SourceSetType
 import org.jetbrains.sbt.project.data._
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings._
@@ -949,7 +950,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     moduleFilesDirectoryPath: String,
     moduleNameWithGroup: String
   ): (SbtSourceSetModuleNode, SbtSourceSetModuleNode) = {
-    def sbtSourceSetModule(sourceSetName: String): SbtSourceSetModuleNode = {
+    def sbtSourceSetModule(sourceSetName: SourceSetType): SbtSourceSetModuleNode = {
       val moduleId = ModuleNode.combinedId(s"${project.id}:$sourceSetName", Option(project.buildURI))
       val moduleNode = new SbtSourceSetModuleNode(
         StdModuleTypes.JAVA.getId,
@@ -962,7 +963,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       moduleNode
     }
 
-    (sbtSourceSetModule(SourceSetType.MAIN.toString), sbtSourceSetModule(SourceSetType.TEST.toString))
+    (sbtSourceSetModule(SourceSetType.MAIN), sbtSourceSetModule(SourceSetType.TEST))
   }
 
   private def setCompileOutputPathsForLegacyModule(

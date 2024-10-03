@@ -436,7 +436,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
     val moduleNode = new SbtSourceSetModuleNode(
       SharedSourcesModuleType.instance.getId,
       internalModuleName,
-      sourceSetName.toString,
+      sourceSetName,
       moduleFilesDirectory.path,
       group.base.canonicalPath
     )

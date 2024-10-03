@@ -3,6 +3,7 @@ package project.data
 
 import com.intellij.openapi.externalSystem.model.project._
 import com.intellij.openapi.externalSystem.model.{DataNode, Key, ProjectKeys}
+import org.jetbrains.sbt.project.SourceSetType.SourceSetType
 import org.jetbrains.sbt.project.{SbtProjectSystem, SharedSourcesOwnersData}
 import org.jetbrains.sbt.project.module.{SbtNestedModuleData, SbtSourceSetData}
 
@@ -51,11 +52,11 @@ class NestedModuleNode(override val data: SbtNestedModuleData)
   override protected def key: Key[SbtNestedModuleData] = SbtNestedModuleData.Key
 }
 
-class SbtSourceSetModuleNode(override val data: SbtSourceSetData)
+class SbtSourceSetModuleNode(override val data: SbtSourceSetData, val sourceSetType: SourceSetType)
   extends Node[SbtSourceSetData] {
 
-  def this(typeId: String, projectId: String, externalName: String, moduleFileDirectoryPath: String, externalConfigPath: String) = {
-    this(SbtSourceSetData(projectId, externalName, moduleFileDirectoryPath, externalConfigPath, typeId))
+  def this(typeId: String, projectId: String, sourceSetType: SourceSetType, moduleFileDirectoryPath: String, externalConfigPath: String) = {
+    this(SbtSourceSetData(projectId, sourceSetType.toString, moduleFileDirectoryPath, externalConfigPath, typeId), sourceSetType)
   }
 
   override protected def key: Key[SbtSourceSetData] = SbtSourceSetData.Key
