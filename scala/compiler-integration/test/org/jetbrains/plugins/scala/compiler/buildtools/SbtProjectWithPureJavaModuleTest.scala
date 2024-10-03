@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.compiler.buildtools
 import com.intellij.openapi.compiler.CompilerMessageCategory
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.module.ModuleManager
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.platform.externalSystem.testFramework.ExternalSystemImportingTestCase
 import com.intellij.testFramework.CompilerTester
@@ -23,7 +24,7 @@ import org.junit.experimental.categories.Category
 import scala.jdk.CollectionConverters._
 
 @Category(Array(classOf[CompilationTests]))
-abstract class SbtProjectWithPureJavaModuleTestBase(incrementality: IncrementalityType) extends ExternalSystemImportingTestCase {
+abstract class SbtProjectWithPureJavaModuleTestBase(incrementality: IncrementalityType, separateModulesForProdTest: Boolean) extends ExternalSystemImportingTestCase {
 
   private var sdk: Sdk = _
 
@@ -31,6 +32,7 @@ abstract class SbtProjectWithPureJavaModuleTestBase(incrementality: Incrementali
 
   override lazy val getCurrentExternalProjectSettings: SbtProjectSettings = {
     val settings = new SbtProjectSettings()
+    settings.separateProdAndTestSources = separateModulesForProdTest
     settings.jdk = sdk.getName
     settings
   }
@@ -122,6 +124,14 @@ abstract class SbtProjectWithPureJavaModuleTestBase(incrementality: Incrementali
       errorsAndWarnings.isEmpty
     )
 
+    if (separateModulesForProdTest) {
+      findClassFilesAssertions_separateModulesForProdTest(modules)
+    } else {
+      findClassFilesAssertions(modules)
+    }
+  }
+
+  private def findClassFilesAssertions(modules: Array[Module]): Unit = {
     val module1 = modules.find(_.getName == "root.module1").orNull
     assertNotNull("Could not find module with name 'root.module1'", module1)
     val module2 = modules.find(_.getName == "root.module2").orNull
@@ -136,8 +146,28 @@ abstract class SbtProjectWithPureJavaModuleTestBase(incrementality: Incrementali
     val helloWorldGreeterModule = compiler.findClassFile("HelloWorldGreeter$", module2)
     assertNotNull("Could not find compiled class file HelloWorldGreeter$", helloWorldGreeterModule)
   }
+
+  private def findClassFilesAssertions_separateModulesForProdTest(modules: Array[Module]): Unit = {
+    val module1Main = modules.find(_.getName == "root.module1.main").orNull
+    assertNotNull("Could not find module with name 'root.module1.main'", module1Main)
+    val module2Main = modules.find(_.getName == "root.module2.main").orNull
+    assertNotNull("Could not find module with name 'root.module2.main'", module2Main)
+
+    val greeter = compiler.findClassFile("Greeter", module1Main)
+    assertNotNull("Could not find compiled class file Greeter", greeter)
+
+    val helloWorldGreeter = compiler.findClassFile("HelloWorldGreeter", module2Main)
+    assertNotNull("Could not find compiled class file HelloWorldGreeter", helloWorldGreeter)
+
+    val helloWorldGreeterModule = compiler.findClassFile("HelloWorldGreeter$", module2Main)
+    assertNotNull("Could not find compiled class file HelloWorldGreeter$", helloWorldGreeterModule)
+  }
 }
 
-class SbtProjectWithPureJavaModuleTest_IDEA extends SbtProjectWithPureJavaModuleTestBase(IncrementalityType.IDEA)
+class SbtProjectWithPureJavaModuleTest_IDEA extends SbtProjectWithPureJavaModuleTestBase(IncrementalityType.IDEA, separateModulesForProdTest = false)
 
-class SbtProjectWithPureJavaModuleTest_Zinc extends SbtProjectWithPureJavaModuleTestBase(IncrementalityType.SBT)
+class SbtProjectWithPureJavaModuleTest_Zinc extends SbtProjectWithPureJavaModuleTestBase(IncrementalityType.SBT, separateModulesForProdTest = false)
+
+class SbtProjectWithPureJavaModuleTest_separateModulesForProdTest_IDEA extends SbtProjectWithPureJavaModuleTestBase(IncrementalityType.IDEA, separateModulesForProdTest = true)
+
+class SbtProjectWithPureJavaModuleTest_separateModulesForProdTest_Zinc extends SbtProjectWithPureJavaModuleTestBase(IncrementalityType.SBT, separateModulesForProdTest = true)

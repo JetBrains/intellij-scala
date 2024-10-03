@@ -17,6 +17,8 @@ class UseSeparateCompilerOutputPathsTest extends SbtExternalSystemImportingTestL
   override protected def getTestProjectPath: String =
     s"${TestUtils.getTestDataPath}/sbt/projects/separateCompilerOutputPaths"
 
+  override protected def enableSeparateModulesForProdTest: Boolean = false
+
   override def setUp(): Unit = {
     super.setUp()
     SbtProjectResolver.processOutputOfLatestStructureDump = ""

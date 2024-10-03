@@ -37,13 +37,26 @@ class NewSbtProjectWizardTest extends NewScalaProjectWizardTestBase with ExactMa
       libraries := scalaLibraries
       libraries.exactMatch()
 
+      lazy val mainModule = new module(s"$projectName.main") {
+        libraryDependencies := scalaLibraries
+        sources := Seq("scala")
+      }
+
+      lazy val testModule = new module(s"$projectName.test") {
+        libraryDependencies := scalaLibraries
+        testSources := Seq("scala")
+        moduleDependencies += new dependency(mainModule) { isExported := false }
+      }
+
       modules := Seq(
         new module(projectName) {
-          libraryDependencies := scalaLibraries
-          sources := Seq("src/main/scala")
-          testSources := Seq("src/test/scala")
           excluded := Seq("target")
+          moduleDependencies:= Seq(
+            new dependency(mainModule) { isExported := false },
+            new dependency(testModule) { isExported := false }
+          )
         },
+        mainModule, testModule,
         new module(s"$projectName.$projectName-build") {
           // TODO: why `-build` module contains empty string? in UI the `project` folder is marked as `sources`.
           //  Is it some implicit IntelliJ behaviour?
@@ -86,6 +99,6 @@ class NewSbtProjectWizardTest extends NewScalaProjectWizardTestBase with ExactMa
       scalaGitData(step).setGit(false)
     }
 
-    useProject(project, false, assertProjectsEqual(expectedProject, _: Project))
+    useProject(project, false, assertProjectsEqual(expectedProject, _: Project, singleContentRootModules = false))
   }
 }

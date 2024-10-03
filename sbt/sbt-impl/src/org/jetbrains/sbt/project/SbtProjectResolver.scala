@@ -305,7 +305,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val dummyRootProject = ProjectData(
       projectTmpName, projectUri, projectTmpName, s"org.$projectName", "0.0", projectRoot, None, Seq.empty,
       new File(projectRoot, "target"), Seq(dummyConfigurationData), Option(dummyJavaData), None, CompileOrder.Mixed.toString,
-      dummyDependencyData, Set.empty, None, Seq.empty, Seq.empty, Seq.empty, Seq(new File(projectRoot, "src/test")), Seq(new File(projectRoot, "src/main"))
+      dummyDependencyData, Set.empty, None, Seq.empty, Seq.empty, Seq.empty, Seq(), Seq()
     )
 
     val projects = Seq(dummyRootProject)

@@ -7,12 +7,6 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[SlowTests]))
 final class DisplayModuleNamesTest_ProdTestSourcesSeparated extends SbtProjectStructureImportingLike {
 
-  override def setUp(): Unit = {
-    super.setUp()
-    val projectSettings = getCurrentExternalProjectSettings
-    projectSettings.setSeparateProdAndTestSources(true)
-  }
-
   def testMultiBuildProjectWithTheSameProjectIdsInBuilds(): Unit = {
     importProject(false)
     val expectedDisplayModuleNames = Map(

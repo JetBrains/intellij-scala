@@ -39,7 +39,7 @@ abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImporti
     SbtCachesSetupUtil.setupCoursierAndIvyCache(getProject)
   }
 
-  protected def runTest(expected: project, singleContentRootModules: Boolean = true): Unit = {
+  protected def runTest(expected: project): Unit = {
     importProject(false)
 
     val projectData = ProjectDataManager.getInstance.getExternalProjectsData(getProject, getExternalSystemId).asScala.toSeq
@@ -53,7 +53,7 @@ abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImporti
         }
     }
 
-    assertProjectsEqual(expected, myProject, singleContentRootModules)(ProjectComparisonOptions.Implicit.default)
+    assertProjectsEqual(expected, myProject, !enableSeparateModulesForProdTest)(ProjectComparisonOptions.Implicit.default)
     assertNoNotificationsShown(myProject)
   }
 

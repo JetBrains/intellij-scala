@@ -33,6 +33,7 @@ class RebuildProjectOnIncrementalCompilerChangeTest extends ExternalSystemImport
 
   override lazy val getCurrentExternalProjectSettings: SbtProjectSettings = {
     val settings = new SbtProjectSettings()
+    settings.separateProdAndTestSources = false
     settings.jdk = sdk.getName
     settings
   }

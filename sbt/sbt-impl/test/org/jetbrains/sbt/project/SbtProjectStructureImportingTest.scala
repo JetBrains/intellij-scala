@@ -26,6 +26,8 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureImportin
 
   import ProjectStructureDsl._
 
+  override protected def enableSeparateModulesForProdTest: Boolean = false
+
   def testSimple(): Unit = {
     val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.5")
     runSimpleTest("simple", scalaLibraries)

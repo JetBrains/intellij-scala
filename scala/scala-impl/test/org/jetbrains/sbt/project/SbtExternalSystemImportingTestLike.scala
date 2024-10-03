@@ -11,9 +11,16 @@ trait SbtExternalSystemImportingTestLike extends ScalaExternalSystemImportingTes
 
   override protected def getExternalSystemId: ProjectSystemId = SbtProjectSystem.Id
 
+  protected def enableSeparateModulesForProdTest: Boolean = true
+
   override protected def setupProjectJdk(): Unit = {
     super.setupProjectJdk()
     getCurrentExternalProjectSettings.jdk = getJdkConfiguredForTestCase.getName
+  }
+
+  override def setUp(): Unit = {
+    getCurrentExternalProjectSettings.separateProdAndTestSources = enableSeparateModulesForProdTest
+    super.setUp()
   }
 
   override protected def setUpFixtures(): Unit = {
