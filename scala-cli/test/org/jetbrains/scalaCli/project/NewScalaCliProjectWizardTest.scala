@@ -46,8 +46,17 @@ class NewScalaCliProjectWizardTest extends NewScalaProjectWizardTestBase with Ex
     // note: it's a workaround for #SCL-23061.
     // Closing all BSP sessions cannot be achieved by overriding #waitForConfiguration and closing the sessions there,
     // because the project refresh in ModuleBuilderUtil.doSetupModule is executed asynchronously.
+
+    // (!!) It may happen that in the testing terminal something like this will appear:
+    // Caused by: java.lang.RuntimeException: BSP server not initialized yet
+    // It's caused by "build/exit" request, which is called when closing all BSP sessions.
+    // This issue also occurs in production if you click "close" on the BSP session quickly after the reload (this usually happens on the first reload).
+    // However, it is not reported to the users.
+    // It seems to me as a bug on the server side.
+    // The bsp server should be initialized - BSP sessions are closed after the reload,
+    // so the endpoint to download all targets has already been triggered, and the response has been received.
     val closeAllBspInstancesAfterReload = new ExternalSystemTaskNotificationListener {
-      override def onSuccess(id: ExternalSystemTaskId): Unit = {
+      override def onEnd(id: ExternalSystemTaskId): Unit = {
         val isProjectResolveTask = id.getType == ExternalSystemTaskType.RESOLVE_PROJECT
         if (isProjectResolveTask) {
           BspCommunicationService.getInstance.closeAll
