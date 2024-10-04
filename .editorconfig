@@ -1,0 +1,10 @@
+root = true
+
+[{*.kt,*.kts}]
+end_of_line = lf
+indent_style = space
+indent_size = 2
+ij_continuation_indent_size = 2
+max_line_length = 140
+tab_width = 2
+ij_kotlin_code_style_defaults = KOTLIN_OLD_DEFAULTS
