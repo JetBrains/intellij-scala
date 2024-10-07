@@ -940,6 +940,35 @@ final class UnusedImportTest_3 extends UnusedImportTestBase {
       messages(text)
     )
   }
+
+  def testSCL22596(): Unit = {
+    val text =
+      """
+        |package org.example
+        |
+        |import some_package.{derived, FooWithExtensionDerive, Foo}
+        |
+        |case class Bar1() derives Foo
+        |case class Bar2() derives FooWithExtensionDerive
+        |
+        |package some_package {
+        |  trait Foo[A]
+        |  object Foo {
+        |    def derived[A]: Foo[A] = ???
+        |  }
+        |
+        |  trait FooWithExtensionDerive[A]
+        |  object FooWithExtensionDerive
+        |  extension (foo: FooWithExtensionDerive.type)
+        |    def derived[A]: FooWithExtensionDerive[A] = ???
+        |}
+        |""".stripMargin
+
+    assertCollectionEquals(
+      Seq[HighlightMessage](),
+      messages(text)
+    )
+  }
 }
 
 // TODO(SCL-21608):

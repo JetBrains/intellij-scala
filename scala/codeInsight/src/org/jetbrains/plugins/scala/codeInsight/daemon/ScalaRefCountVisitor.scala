@@ -18,6 +18,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScDerivesClause
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.DerivesUtil
 
 final class ScalaRefCountVisitor(project: Project) extends HighlightVisitor {
   private val LOG = Logger.getInstance(classOf[ScalaRefCountVisitor])
@@ -76,6 +78,15 @@ final class ScalaRefCountVisitor(project: Project) extends HighlightVisitor {
   private def registerElementsAndImportsUsed(element: PsiElement): Unit = {
     analyzedWholeFile ||= element.is[PsiFile]
     element match {
+      case derives: ScDerivesClause =>
+        for {
+          tcRef         <- derives.derivedReferences
+          tc            <- DerivesUtil.resolveTypeClassReference(tcRef).toSeq
+          companion     <- tc.baseCompanion.toSeq
+        } {
+          val derivedMethods = DerivesUtil.findDerivedMethods(companion, derives.owner)
+          registerUsedElementsAndImports(derives, derivedMethods, checkWrite = false)
+        }
       case ref: ScReference =>
         val resolve = ref.multiResolveScala(false)
         registerUsedElementsAndImports(ref, resolve, checkWrite = true)
