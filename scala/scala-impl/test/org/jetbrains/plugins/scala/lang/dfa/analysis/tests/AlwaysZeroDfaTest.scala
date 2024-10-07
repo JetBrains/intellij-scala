@@ -20,13 +20,13 @@ class AlwaysZeroDfaTest extends ScalaDfaTestBase {
       |t != 0
       |0
       |-0
+      |-(0)
       |+0
       |""".stripMargin
   })(
     "5 + -3 + 2 + 1 - 7 + 2" -> ExpressionAlwaysZero,
-    "-0" -> ExpressionAlwaysZero,
+    "-(0)" -> ExpressionAlwaysZero,
     "+0" -> ExpressionAlwaysZero,
-    "-0" -> ExpressionAlwaysZero,
     "2 - 2 + 0" -> ExpressionAlwaysZero,
     "2 - 2" -> ExpressionAlwaysZero,
     "64 % 2" -> ExpressionAlwaysZero,

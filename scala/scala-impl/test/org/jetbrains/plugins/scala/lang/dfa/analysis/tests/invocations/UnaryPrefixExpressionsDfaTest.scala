@@ -27,8 +27,6 @@ class UnaryPrefixExpressionsDfaTest extends ScalaDfaTestBase {
     "5 + +5 + (+9) + -2 == 17" -> ConditionAlwaysTrue,
     "z" -> ExpressionAlwaysZero,
     "+0" -> ExpressionAlwaysZero,
-    "-0" -> ExpressionAlwaysZero,
-    "-0" -> ExpressionAlwaysZero
   )
 
   def testLogicalUnaryOperators(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
