@@ -93,12 +93,16 @@ private final class ExternalHighlightersService(project: Project) { self =>
     Option(FileEditorManager.getInstance(project).getFocusedEditor).foreach { editor =>
       state.externalTypes(editor.getFile).foreach { case ((begin, end), tpe) =>
         inWriteAction {
-          val file = PsiManager.getInstance(project).findFile(editor.getFile)
-          val document = PsiDocumentManager.getInstance(project).getDocument(file)
-          def toOffset(pos: PosInfo): Int = document.getLineStartOffset(pos.line - 1) + pos.column - 1
-          file.elements.filterByType[ScMethodCall].find(e => e.getTextRange == new TextRange(toOffset(begin), toOffset(end))).foreach { expression =>
-            expression.putUserData(ScExpression.CompilerTypeKey, tpe)
-            ScalaPsiManager.instance(project).clearOnScalaElementChange(expression)
+          val expression = {
+            val psiFile = PsiManager.getInstance(project).findFile(editor.getFile)
+            val document = PsiDocumentManager.getInstance(project).getDocument(psiFile)
+            def toOffset(pos: PosInfo): Int = document.getLineStartOffset(pos.line - 1) + pos.column - 1
+            val range = new TextRange(toOffset(begin), toOffset(end))
+            psiFile.depthFirst(_.getTextRange.contains(range)).filter(_.getTextRange == range).findByType[ScMethodCall]
+          }
+          expression.foreach { e =>
+            e.putUserData(ScExpression.CompilerTypeKey, tpe)
+            ScalaPsiManager.instance(project).clearOnScalaElementChange(e)
             ImplicitHints.updateInAllEditors()
           }
         }
