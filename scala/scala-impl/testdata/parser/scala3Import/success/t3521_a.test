@@ -35,11 +35,9 @@ ScalaFile
                       PsiElement(identifier)('DoubleValue')
                   ArgumentList
                     PsiElement(()('(')
-                    PrefixExpression
-                      ReferenceExpression: -
-                        PsiElement(identifier)('-')
-                      DoubleLiteral
-                        PsiElement(double)('0.05')
+                    DoubleLiteral
+                      PsiElement(identifier)('-')
+                      PsiElement(double)('0.05')
                     PsiElement())(')')
           Modifiers
             <empty list>

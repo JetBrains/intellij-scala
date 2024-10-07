@@ -41,17 +41,13 @@ ScalaFile
         StringLiteral
           PsiElement(string content)('"one"')
         PsiWhiteSpace('\n  ')
-        PrefixExpression
-          ReferenceExpression: -
-            PsiElement(identifier)('-')
-          IntegerLiteral
-            PsiElement(integer)('1')
+        IntegerLiteral
+          PsiElement(identifier)('-')
+          PsiElement(integer)('1')
         PsiWhiteSpace('\n  ')
-        PrefixExpression
-          ReferenceExpression: -
-            PsiElement(identifier)('-')
-          DoubleLiteral
-            PsiElement(double)('1.0')
+        DoubleLiteral
+          PsiElement(identifier)('-')
+          PsiElement(double)('1.0')
         PsiWhiteSpace('\n  ')
         CharLiteral
           PsiElement(Character)(''a'')

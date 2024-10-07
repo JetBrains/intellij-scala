@@ -42,11 +42,9 @@ ScalaFile
             PsiWhiteSpace(' ')
             PsiElement(=)('=')
             PsiWhiteSpace(' ')
-            PrefixExpression
-              ReferenceExpression: -
-                PsiElement(identifier)('-')
-              IntegerLiteral
-                PsiElement(integer)('1')
+            IntegerLiteral
+              PsiElement(identifier)('-')
+              PsiElement(integer)('1')
           PsiElement(,)(',')
           PsiWhiteSpace(' ')
           ClassParameter: jvmArgs

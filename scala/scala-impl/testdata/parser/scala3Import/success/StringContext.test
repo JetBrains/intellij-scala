@@ -2119,11 +2119,9 @@ ScalaFile
                       PsiElement())(')')
                   ArgumentList
                     PsiElement(()('(')
-                    PrefixExpression
-                      ReferenceExpression: -
-                        PsiElement(identifier)('-')
-                      IntegerLiteral
-                        PsiElement(integer)('1')
+                    IntegerLiteral
+                      PsiElement(identifier)('-')
+                      PsiElement(integer)('1')
                     PsiElement())(')')
               PsiWhiteSpace('\n    ')
               ScPatternDefinition: matchEnds
@@ -2153,11 +2151,9 @@ ScalaFile
                       PsiElement())(')')
                   ArgumentList
                     PsiElement(()('(')
-                    PrefixExpression
-                      ReferenceExpression: -
-                        PsiElement(identifier)('-')
-                      IntegerLiteral
-                        PsiElement(integer)('1')
+                    IntegerLiteral
+                      PsiElement(identifier)('-')
+                      PsiElement(integer)('1')
                     PsiElement())(')')
               PsiWhiteSpace('\n\n    ')
               ScPatternDefinition: nameLength
@@ -2390,11 +2386,9 @@ ScalaFile
                             PsiWhiteSpace(' ')
                             PsiElement(=)('=')
                             PsiWhiteSpace(' ')
-                            PrefixExpression
-                              ReferenceExpression: -
-                                PsiElement(identifier)('-')
-                              IntegerLiteral
-                                PsiElement(integer)('1')
+                            IntegerLiteral
+                              PsiElement(identifier)('-')
+                              PsiElement(integer)('1')
                           PsiWhiteSpace('\n          ')
                           InfixExpression
                             ReferenceExpression: i
@@ -2518,11 +2512,9 @@ ScalaFile
                           PsiElement())(')')
                       ArgumentList
                         PsiElement(()('(')
-                        PrefixExpression
-                          ReferenceExpression: -
-                            PsiElement(identifier)('-')
-                          IntegerLiteral
-                            PsiElement(integer)('1')
+                        IntegerLiteral
+                          PsiElement(identifier)('-')
+                          PsiElement(integer)('1')
                         PsiElement())(')')
                   PsiWhiteSpace('\n      ')
                   ScVariableDefinition: i
@@ -4544,11 +4536,9 @@ ScalaFile
                         ReferenceExpression: ==
                           PsiElement(identifier)('==')
                         PsiWhiteSpace(' ')
-                        PrefixExpression
-                          ReferenceExpression: -
-                            PsiElement(identifier)('-')
-                          IntegerLiteral
-                            PsiElement(integer)('1')
+                        IntegerLiteral
+                          PsiElement(identifier)('-')
+                          PsiElement(integer)('1')
                       PsiWhiteSpace(' ')
                       ReferenceExpression: ||
                         PsiElement(identifier)('||')

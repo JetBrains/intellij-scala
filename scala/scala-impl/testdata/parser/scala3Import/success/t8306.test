@@ -93,11 +93,9 @@ ScalaFile
                     ReferenceExpression: !=
                       PsiElement(identifier)('!=')
                     PsiWhiteSpace(' ')
-                    PrefixExpression
-                      ReferenceExpression: -
-                        PsiElement(identifier)('-')
-                      IntegerLiteral
-                        PsiElement(integer)('1')
+                    IntegerLiteral
+                      PsiElement(identifier)('-')
+                      PsiElement(integer)('1')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
                 PsiWhiteSpace(' ')
