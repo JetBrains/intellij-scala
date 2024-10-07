@@ -167,7 +167,7 @@ class MethodEvaluationTest_3 extends MethodEvaluationTestBase {
 }
 
 class MethodEvaluationTest_3_RC extends MethodEvaluationTest_3 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_LTS_RC
 }
 
 class MethodEvaluationTest_3_Next_RC extends MethodEvaluationTest_3_RC {

@@ -19,7 +19,7 @@ class FieldEvaluationTest_3 extends FieldEvaluationTestBase {
 }
 
 class FieldEvaluationTest_3_RC extends FieldEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_LTS_RC
 }
 
 class FieldEvaluationTest_3_Next_RC extends FieldEvaluationTestBase {

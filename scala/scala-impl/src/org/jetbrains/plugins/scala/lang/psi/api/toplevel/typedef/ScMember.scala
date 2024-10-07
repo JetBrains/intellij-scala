@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlo
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScPackaging}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticNamedElement
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScMemberOrLocal
 import org.jetbrains.plugins.scala.util.BaseIconProvider
 
@@ -187,8 +188,20 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
   override def getNavigationElement: PsiElement = getContainingFile match {
     case s: ScalaFileImpl if s.isCompiled =>
       getSourceMirrorMember
-    case _ => this
+    case _ =>
+      val resultForSyntheticDefinition = getNavigationElementForScalaLibrarySyntheticDefinition
+      resultForSyntheticDefinition.getOrElse(this)
   }
+
+  private def getNavigationElementForScalaLibrarySyntheticDefinition: Option[ScMember] =
+    SyntheticNamedElement.ScalaLibrarySyntheticDefinitionSourceFileName.get(this) match {
+      case (sourceFileName, isScala3LibraryDefinition) =>
+        SyntheticNamedElement.getNavigationElementForSyntheticScalaLibraryDefinition(
+          getProject, element = this, sourceFileName, isScala3LibraryDefinition
+        )
+      case _ =>
+        None
+    }
 
   protected def getSourceMirrorMember: ScMember = getParent match {
     case (_: ScTemplateBody) & Parent((_: ScExtendsBlock) & Parent(td: ScTypeDefinition)) =>

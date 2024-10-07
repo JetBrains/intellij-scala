@@ -94,7 +94,7 @@ class RunToCursorTest_3 extends RunToCursorTestBase {
 }
 
 class RunToCursorTest_3_RC extends RunToCursorTest_3 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_LTS_RC
 }
 
 class RunToCursorTest_3_Next_RC extends RunToCursorTest_3 {

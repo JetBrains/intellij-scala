@@ -271,7 +271,7 @@ class EvaluationTest_3 extends EvaluationTests_2_13_And_Later {
 }
 
 class EvaluationTest_3_RC extends EvaluationTest_3 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_LTS_RC
 }
 
 class EvaluationTest_3_Next_RC extends EvaluationTest_3_RC {

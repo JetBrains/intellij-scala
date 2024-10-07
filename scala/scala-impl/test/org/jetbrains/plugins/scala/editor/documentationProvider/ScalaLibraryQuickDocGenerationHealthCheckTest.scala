@@ -7,7 +7,7 @@ import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
 import com.intellij.psi.{PsiComment, PsiManager, PsiNamedElement}
 import org.jetbrains.plugins.scala.base.libraryLoaders.ScalaSDKLoader
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocContentGenerator.UnresolvedMacroInfo
-import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaLibraryQuickDocGenerationHealthCheckTest.{KnownProblem, relativeFilePath}
+import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaLibraryQuickDocGenerationHealthCheckTest.relativeFilePath
 import org.jetbrains.plugins.scala.extensions.{ArrayExt, PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwner
@@ -26,16 +26,20 @@ class ScalaLibraryQuickDocGenerationHealthCheckTest extends base.ScalaLightCodeI
     ScalaDocContentGenerator.unresolvedMacro.clear()
 
     val scalaSdkLoader = librariesLoaders.toArray.findByType[ScalaSDKLoader].get
-    val scalaLibrarySourcesRoot = scalaSdkLoader.sourceRoot
+    val scalaLibrarySourcesRoots = scalaSdkLoader.scalaLibrarySources
 
-    VfsUtilCore.processFilesRecursively(
-      scalaLibrarySourcesRoot,
-      (file: VirtualFile) => {
-        //println(s"processing: ${relativeFilePath(file)}")
-        generateAllDocs(file)
-        true
-      }
-    )
+    for {
+      scalaLibrarySourcesRoot <- scalaLibrarySourcesRoots
+    } {
+      VfsUtilCore.processFilesRecursively(
+        scalaLibrarySourcesRoot,
+        (file: VirtualFile) => {
+          //println(s"processing: ${relativeFilePath(file)}")
+          generateAllDocs(file)
+          true
+        }
+      )
+    }
 
     val unresolvedMacro = ScalaDocContentGenerator.unresolvedMacro
     if (unresolvedMacro.nonEmpty) {

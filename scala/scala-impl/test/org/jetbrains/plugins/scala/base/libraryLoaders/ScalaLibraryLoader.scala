@@ -79,7 +79,7 @@ object ScalaLibraryLoader {
     val scala3LibraryLoader = ScalaLibraryLoader(scala3Version)
 
     //We use resolveScalaLibraryTransitiveDependencies = false in order to use the latest 2.13.14 RC version
-    val scala3SdkLoader = ScalaSDKLoader(includeLibraryFilesInSdk = false)
+    val scala3SdkLoader = ScalaSDKLoader(includeScalaLibraryFilesInSdk = false)
 
     Seq(
       scala3LibraryLoader,

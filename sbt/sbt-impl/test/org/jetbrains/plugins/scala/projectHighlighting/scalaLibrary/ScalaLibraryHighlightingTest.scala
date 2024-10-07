@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProg
 import org.jetbrains.plugins.scala.util.RevertableChange
 import org.jetbrains.plugins.scala.{HighlightingTests, ScalaFileType}
 import org.junit.Assert
+import org.junit.Assert.assertTrue
 import org.junit.experimental.categories.Category
 
 import scala.collection.mutable
@@ -25,9 +26,9 @@ import scala.collection.mutable
 @Category(Array(classOf[HighlightingTests]))
 abstract class ScalaLibraryHighlightingTest extends ScalaLightCodeInsightFixtureTestCase {
 
-  private val CustomScalaSdkLoader = ScalaSDKLoader()
+  protected def customScalaSdkLoader = ScalaSDKLoader()
 
-  override def librariesLoaders: Seq[LibraryLoader] = Seq(CustomScalaSdkLoader)
+  override def librariesLoaders: Seq[LibraryLoader] = Seq(customScalaSdkLoader)
 
   protected def filesWithProblems: Map[String, Set[TextRange]] = Map()
 
@@ -45,28 +46,36 @@ abstract class ScalaLibraryHighlightingTest extends ScalaLightCodeInsightFixture
   //org.jetbrains.plugins.scala.projectHighlighting.base.AllProjectHighlightingTest.doAllProjectHighlightingTest
   def testHighlightScalaLibrary(): Unit = {
     val reporter = HighlightingProgressReporter.newInstance(getClass.getSimpleName, filesWithProblems)
-    val sourceRoot = CustomScalaSdkLoader.sourceRoot
-
+    val sourceRoots = customScalaSdkLoader.scalaLibrarySources
     try {
-      val scalaFiles = ScalaLibraryHighlightingTest.findAllScalaFiles(sourceRoot).sortBy(_.getPath)
+      for {
+        sourceRoot <- sourceRoots
+      } {
+        val scalaFiles = ScalaLibraryHighlightingTest.findAllScalaFiles(sourceRoot).sortBy(_.getPath)
+        assertTrue(s"Couldn't find any scala source files in $sourceRoot", scalaFiles.nonEmpty)
 
-      val fileManager = PsiManager.getInstance(getProject).asInstanceOf[PsiManagerEx].getFileManager
+        val fileManager = PsiManager.getInstance(getProject).asInstanceOf[PsiManagerEx].getFileManager
 
-      AllProjectHighlightingTest.warnIfUsingRandomizedTests(reporter)
 
-      val filesTotal = scalaFiles.size
-      for ((file, fileIndex) <- scalaFiles.zipWithIndex) {
-        val psiFile = fileManager.findFile(file)
+        AllProjectHighlightingTest.warnIfUsingRandomizedTests(reporter)
 
-        val fileRelativePath = VfsUtilCore.getRelativePath(file, sourceRoot)
-        reporter.notifyHighlightingProgress(fileIndex, filesTotal, fileRelativePath)
+        val filesTotal = scalaFiles.size
+        for ((file, fileIndex) <- scalaFiles.zipWithIndex) {
+          val psiFile = fileManager.findFile(file)
 
-        AllProjectHighlightingTest.annotateScalaFile(psiFile, reporter, fileRelativePath)
+          val fileRelativePath = VfsUtilCore.getRelativePath(file, sourceRoot)
+          reporter.notifyHighlightingProgress(fileIndex, filesTotal, fileRelativePath)
+
+          AllProjectHighlightingTest.annotateScalaFile(psiFile, reporter, fileRelativePath)
+        }
       }
 
       reporter.reportFinalResults()
     } finally {
-      System.err.println(s"### sourceRoot: $sourceRoot")
+      System.err.println(
+        s"""### sourceRoots:
+           |${sourceRoots.mkString("\n")}""".stripMargin
+      )
     }
   }
 

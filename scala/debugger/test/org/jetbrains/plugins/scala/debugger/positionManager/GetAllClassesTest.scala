@@ -69,7 +69,7 @@ class GetAllClassesTest_3 extends GetAllClassesTest_2_13 {
 }
 
 class GetAllClassesTest_3_RC extends GetAllClassesTest_3 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_LTS_RC
 }
 
 class GetAllClassesTest_3_Next_RC extends GetAllClassesTest_3 {

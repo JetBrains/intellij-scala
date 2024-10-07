@@ -19,7 +19,7 @@ class InAnonFunEvaluationTest_3 extends InAnonFunEvaluationTest_2_13 {
 }
 
 class InAnonFunEvaluationTest_3_RC extends InAnonFunEvaluationTest_3 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_LTS_RC
 }
 
 class InAnonFunEvaluationTest_3_Next_RC extends InAnonFunEvaluationTest_3 {

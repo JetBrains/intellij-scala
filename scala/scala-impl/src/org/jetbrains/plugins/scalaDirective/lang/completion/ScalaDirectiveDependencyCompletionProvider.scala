@@ -78,8 +78,7 @@ final class ScalaDirectiveDependencyCompletionProvider extends CompletionProvide
 
 object ScalaDirectiveDependencyCompletionProvider {
   private[this] val CrossPublishedArtifact = "^(.+)_(\\d+.*)$".r
-  private[this] val Scala2MajorVersions = LatestScalaVersions.all
-    .collect { case version if version.isScala2 => version.major }
+  private[this] val Scala2MajorVersions = LatestScalaVersions.allScala2.map(_.major)
   private[this] val ScalaMajorVersions = Scala2MajorVersions :+ "3"
 
   private def toArtifactStringWithoutVersion(pkg: ApiMavenPackage): String = {

@@ -186,7 +186,7 @@ class ExactBreakpointsTest_3 extends ExactBreakpointsTestBase {
 }
 
 class ExactBreakpointsTest_3_RC extends ExactBreakpointsTest_3 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_RC
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_LTS_RC
 }
 
 class ExactBreakpointsTest_3_Next_RC extends ExactBreakpointsTest_3 {
