@@ -412,7 +412,7 @@ final class SyntheticClasses(project: Project) {
             sharedClasses.put(cls.name, cls)
           }
           objects.foreach { obj =>
-            anyValCompanionObjects.put(obj.name, obj)
+            anyValCompanionObjects.put(obj.qualifiedName, obj)
           }
         }
       }
