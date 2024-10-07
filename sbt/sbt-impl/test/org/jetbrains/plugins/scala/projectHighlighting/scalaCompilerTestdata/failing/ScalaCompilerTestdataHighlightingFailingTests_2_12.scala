@@ -24,10 +24,6 @@ class ScalaCompilerTestdataHighlightingFailingTests_2_12 extends ScalaCompilerTe
 
   def `test_cycle-jsoup`(): Unit = doTest()
 
-  def test_depmet_implicit_oopsla_session(): Unit = doTest()
-
-  def test_depmet_implicit_oopsla_session_2(): Unit = doTest()
-
   def test_depmet_implicit_oopsla_session_simpler(): Unit = doTest()
 
   def test_infer_override_def_args(): Unit = doTest()
