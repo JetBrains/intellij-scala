@@ -44,9 +44,6 @@ class ScalaLibraryHighlightingTest_2_12 extends ScalaLibraryHighlightingTest {
     "scala/collection/parallel/ParIterableLike.scala" -> Set(
       (36189,36191), // Type mismatch, expected: T <:< (Nothing, Nothing), actual: T <:< (K, V)
     ),
-    "scala/collection/parallel/RemainsIterator.scala" -> Set(
-      (20818,20819), // Expression of type Seq[Zipped[S]] doesn't conform to expected type Seq[SeqSplitter[(U, S)]]
-    ),
     "scala/concurrent/duration/DurationConversions.scala" -> Set(
       (1420,1434), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
       (1497,1511), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
