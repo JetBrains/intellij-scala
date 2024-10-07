@@ -99,13 +99,9 @@ public class ScaladocConsoleRunConfigurationForm {
   private void addFileChooser(final String title,
                               final TextFieldWithBrowseButton textField,
                               final Project project) {
-    final FileChooserDescriptor fileChooserDescriptor = new FileChooserDescriptor(false, true, false, false, false, false) {
-      @Override
-      public boolean isFileVisible(VirtualFile file, boolean showHiddenFiles) {
-        return super.isFileVisible(file, showHiddenFiles) && file.isDirectory();
-      }
-    };
-    fileChooserDescriptor.withTitle(title);
+    final var fileChooserDescriptor = new FileChooserDescriptor(false, true, false, false, false, false)
+            .withTitle(title)
+            .withFileFilter(VirtualFile::isDirectory);
     textField.addBrowseFolderListener(project, fileChooserDescriptor);
   }
 
