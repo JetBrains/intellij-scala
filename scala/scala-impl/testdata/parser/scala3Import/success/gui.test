@@ -1483,11 +1483,9 @@ ScalaFile
                     PsiElement(identifier)('inset')
                   ArgumentList
                     PsiElement(()('(')
-                    PrefixExpression
-                      ReferenceExpression: -
-                        PsiElement(identifier)('-')
-                      IntegerLiteral
-                        PsiElement(integer)('2')
+                    IntegerLiteral
+                      PsiElement(identifier)('-')
+                      PsiElement(integer)('2')
                     PsiElement())(')')
               PsiElement(;)(';')
               PsiWhiteSpace('\n\n    ')

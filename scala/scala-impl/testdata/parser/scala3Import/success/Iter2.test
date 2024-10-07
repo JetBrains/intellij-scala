@@ -728,11 +728,9 @@ ScalaFile
                           PsiWhiteSpace('\n      ')
                           PsiElement(})('}')
                       PsiWhiteSpace('\n      ')
-                      PrefixExpression
-                        ReferenceExpression: -
-                          PsiElement(identifier)('-')
-                        IntegerLiteral
-                          PsiElement(integer)('1')
+                      IntegerLiteral
+                        PsiElement(identifier)('-')
+                        PsiElement(integer)('1')
                       PsiWhiteSpace('\n    ')
                       PsiElement(})('}')
                   PsiWhiteSpace('\n    ')
