@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScDer
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitConversionResolveResult
 import org.jetbrains.plugins.scala.lang.psi.types.TypeVariableUnification
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState
+import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState}
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 
 object DerivesUtil {
@@ -167,7 +167,7 @@ object DerivesUtil {
           Left(ScalaBundle.message("derives.type.has.no.companion.object", tc.name))
         case Some(companion) =>
 
-          if (!hasDerivedMethod(companion, owner))
+          if (findDerivedMethods(companion, owner).isEmpty)
             Left(ScalaBundle.message("derives.no.member.named.derived", tc.name))
           else {
             DerivesUtil.deriveSingleParameterTypeClass(refName, tc, owner).toRight(
@@ -178,7 +178,7 @@ object DerivesUtil {
     }
   }
 
-  private def hasDerivedMethod(companion: ScTypeDefinition, place: PsiElement): Boolean = {
+  def findDerivedMethods(companion: ScTypeDefinition, place: PsiElement): Set[ScalaResolveResult] = {
     val processor = new MethodResolveProcessor(
       place,
       "derived",
@@ -205,12 +205,12 @@ object DerivesUtil {
         forCompletion = false
       )(identity)(place)
 
-      processor.candidatesS.nonEmpty
-    } else true
+      processor.candidatesS
+    } else candidatesWithoutImplicits
   }
 
   def resolveTypeClassReference(ref: ScReference): Either[String, ScTypeDefinition] =
-    ref.bind().toRight("").flatMap {
+    ref.bind().toRight(ScalaBundle.message("derives.scala.no.resolve")).flatMap {
       srr => srr.element match {
         case tc: ScClass => Right(tc)
         case tc: ScTrait => Right(tc)
