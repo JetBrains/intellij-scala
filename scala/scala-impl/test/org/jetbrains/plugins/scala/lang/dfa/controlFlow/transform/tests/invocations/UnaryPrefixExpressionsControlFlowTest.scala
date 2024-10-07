@@ -6,7 +6,7 @@ class UnaryPrefixExpressionsControlFlowTest extends ScalaDfaControlFlowBuilderTe
 
   def testNumericUnaryOperators(): Unit = doTest(codeFromMethodBody(returnType = "Boolean") {
     """
-      |(-3) + 5 == 2
+      |-(3) + 5 == 2
       |5 - -3 == 9
       |+0 == -0
       |""".stripMargin
@@ -21,23 +21,19 @@ class UnaryPrefixExpressionsControlFlowTest extends ScalaDfaControlFlowBuilderTe
       |6: BOOLEAN_OP ==
       |7: POP
       |8: PUSH_VAL 5
-      |9: PUSH_VAL 0
-      |10: PUSH_VAL 3
-      |11: NUMERIC_OP -
-      |12: NUMERIC_OP -
-      |13: PUSH_VAL 9
-      |14: BOOLEAN_OP ==
-      |15: POP
-      |16: PUSH_VAL 0
+      |9: PUSH_VAL -3
+      |10: NUMERIC_OP -
+      |11: PUSH_VAL 9
+      |12: BOOLEAN_OP ==
+      |13: POP
+      |14: PUSH_VAL 0
+      |15: PUSH_VAL 0
+      |16: NUMERIC_OP +
       |17: PUSH_VAL 0
-      |18: NUMERIC_OP +
-      |19: PUSH_VAL 0
-      |20: PUSH_VAL 0
-      |21: NUMERIC_OP -
-      |22: BOOLEAN_OP ==
-      |23: POP
-      |24: FINISH BlockExpression
-      |25: RETURN
+      |18: BOOLEAN_OP ==
+      |19: POP
+      |20: FINISH BlockExpression
+      |21: RETURN
       |""".stripMargin
   }
 
@@ -65,34 +61,32 @@ class UnaryPrefixExpressionsControlFlowTest extends ScalaDfaControlFlowBuilderTe
       |12: BOOLEAN_OP <=
       |13: RESULT_OF ScalaStatementAnchor(InfixExpression)
       |14: NOT
-      |15: IF_EQ false 21
+      |15: IF_EQ false 19
       |16: FINISH ; flushing [y]
-      |17: PUSH_VAL 0
-      |18: PUSH_VAL 9
-      |19: NUMERIC_OP -
-      |20: GOTO 25
-      |21: FINISH ; flushing [y]
-      |22: PUSH_VAL 0
-      |23: PUSH_VAL 3
-      |24: NUMERIC_OP -
-      |25: FINISH IfStatement
-      |26: ASSIGN_TO x
-      |27: POP
-      |28: PUSH_VAL 2
-      |29: PUSH_VAL 3
-      |30: BOOLEAN_OP >
-      |31: ASSIGN_TO p1
-      |32: POP
-      |33: PUSH p1
-      |34: NOT
-      |35: POP
-      |36: FINISH BlockExpression
-      |37: RETURN
+      |17: PUSH_VAL -9
+      |18: GOTO 21
+      |19: FINISH ; flushing [y]
+      |20: PUSH_VAL -3
+      |21: FINISH IfStatement
+      |22: ASSIGN_TO x
+      |23: POP
+      |24: PUSH_VAL 2
+      |25: PUSH_VAL 3
+      |26: BOOLEAN_OP >
+      |27: ASSIGN_TO p1
+      |28: POP
+      |29: PUSH p1
+      |30: NOT
+      |31: POP
+      |32: FINISH BlockExpression
+      |33: RETURN
       |""".stripMargin
   }
 
   def testUnaryFloatingPoint(): Unit = doTest(codeFromMethodBody(returnType = "Unit") {
     """
+      |-(1.0)
+      |-(1.0F)
       |-1.0
       |-1.0F
       |""".stripMargin
@@ -105,8 +99,12 @@ class UnaryPrefixExpressionsControlFlowTest extends ScalaDfaControlFlowBuilderTe
       |5: PUSH_VAL 1.0
       |6: NUMERIC_OP -
       |7: POP
-      |8: FINISH BlockExpression
-      |9: RETURN
+      |8: PUSH_VAL -1.0
+      |9: POP
+      |10: PUSH_VAL -1.0
+      |11: POP
+      |12: FINISH BlockExpression
+      |13: RETURN
       |""".stripMargin
   }
 
