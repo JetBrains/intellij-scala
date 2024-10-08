@@ -22,10 +22,7 @@ trait ScDocCommentOwner extends PsiDocCommentOwner {
   override def getDocComment: PsiDocComment = docComment.orNull
 
   override def isDeprecated: Boolean = this match {
-    case holder: ScAnnotationsHolder =>
-      holder.hasAnnotation("scala.deprecated") ||
-        holder.hasAnnotation("java.lang.Deprecated") ||
-        holder.hasAnnotation("kotlin.Deprecated")
+    case holder: ScAnnotationsHolder => holder.isDeprecatedByAnnotation
     case _ => false
   }
 }

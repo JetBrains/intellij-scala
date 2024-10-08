@@ -101,6 +101,27 @@ class ScalaDeprecationInspectionTest extends ScalaDeprecationInspectionTestBase 
     """.stripMargin
   )
 
+  // SCL-13533
+  def test_deprecated_case_class_parameter(): Unit = checkTextHasError(
+    s"""
+       |case class Fruit(
+       |  name: String,
+       |  @deprecated("reason", "since") colour: String
+       |) {
+       |  @deprecated("reason", "since") def method: String = ???
+       |}
+       |
+       |//noinspection ScalaUnusedExpression
+       |object Main {
+       |  val fruit = Fruit("apple", "red")
+       |  //fruit.name
+       |  fruit.${START}colour$END
+       |  fruit.${START}method$END
+       |}
+       |
+       |""".stripMargin
+  )
+
   def test_apply(): Unit = checkTextHasError(
     s"""
       |object Test {

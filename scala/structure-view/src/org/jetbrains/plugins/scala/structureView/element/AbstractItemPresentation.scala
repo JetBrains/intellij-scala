@@ -4,8 +4,8 @@ import com.intellij.navigation.ColoredItemPresentation
 import com.intellij.openapi.editor.colors.{CodeInsightColors, TextAttributesKey}
 import com.intellij.openapi.project.IndexNotReadyException
 import com.intellij.openapi.util.Iconable
-import com.intellij.psi.PsiDocCommentOwner
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
+import com.intellij.psi.PsiMember
+import org.jetbrains.plugins.scala.extensions.PsiMemberExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumCase
 
 import javax.swing.*
@@ -28,14 +28,9 @@ trait AbstractItemPresentation extends ColoredItemPresentation { self: Element =
     }
 
   private def isDeprecated: Boolean = element match {
-    case enumCase: ScEnumCase =>
-      enumCase.enumCases.isDeprecated
-    case docCommentOwner: PsiDocCommentOwner =>
-      docCommentOwner.isDeprecated
-    case holder: ScAnnotationsHolder =>
-      holder.hasAnnotation("scala.deprecated") ||
-        holder.hasAnnotation("java.lang.Deprecated")
-    case _ => false
+    case enumCase: ScEnumCase       => enumCase.enumCases.isDeprecated
+    case docCommentOwner: PsiMember => docCommentOwner.isDeprecated
+    case _                          => false
   }
 }
 

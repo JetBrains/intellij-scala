@@ -35,11 +35,11 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
         case named: PsiNamedElement =>
           val context = named.nameContext
 
-          val deprecatedElement = context.asOptionOf[PsiDocCommentOwner].flatMap {
+          val deprecatedElement = context match {
             case Constructor(constr) if constr.isDeprecated => Some(constr)
             case Constructor.ofClass(clazz) if clazz.isDeprecated => Some(clazz)
             case func@ScFunction.inSynthetic(clazz) if func.isApplyMethod && clazz.isDeprecated => Some(clazz)
-            case other if other.isDeprecated => Some(other)
+            case other: PsiMember if other.isDeprecated => Some(other)
             case obj: ScObject =>
               obj.fakeCompanionClassOrCompanionClass match {
                 case enum: ScEnum if enum.isDeprecated => Option(obj)
