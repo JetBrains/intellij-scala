@@ -15,11 +15,13 @@ import org.jetbrains.sbt.project.ProjectStructureDsl._
 import org.jetbrains.sbt.project.ProjectStructureMatcher.ProjectComparisonOptions
 import org.jetbrains.sbt.project.template.wizard.buildSystem.BuildSystemScalaNewProjectWizardData.scalaBuildSystemData
 import org.jetbrains.sbt.project.template.wizard.buildSystem.ScalaNewProjectWizardData.scalaData
-import org.jetbrains.scalaCli.ScalaCliUtils.TryIntOps
 import org.junit.Assume
 import org.junit.runner.RunWith
 
 import java.nio.file.Files
+import java.util.concurrent.TimeUnit
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
 import scala.sys.process.{Process, ProcessLogger}
 import scala.util.Try
 
@@ -148,8 +150,18 @@ class NewScalaCliProjectWizardTest extends NewScalaProjectWizardTestBase with Ex
 
     val stderr = new StringBuilder
     val processChain = curlProcess #> outputFile #&& Process(s"chmod +x $outputFile")
-    val setupScalaCliScript = Try(processChain! ProcessLogger(_ => (), stderr append _ + "\n"))
-    if (!setupScalaCliScript.containsZero) {
+
+    import scala.concurrent.ExecutionContext.Implicits.global
+    val processFuture = Future {
+      processChain! ProcessLogger(_ => (), stderr append _ + "\n")
+    }
+
+    val isSuccess = Try {
+      val exitCode = Await.result(processFuture, Duration(2, TimeUnit.MINUTES))
+      exitCode == 0
+    }.getOrElse(false)
+
+    if (!isSuccess) {
       throw new Exception(s"Cannot install Scala CLI \n $stderr")
     }
   }

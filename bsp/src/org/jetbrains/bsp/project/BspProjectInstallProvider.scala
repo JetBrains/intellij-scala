@@ -2,6 +2,7 @@ package org.jetbrains.bsp.project
 
 import com.intellij.build.events.EventResult
 import com.intellij.build.events.impl.{FailureResultImpl, SuccessResultImpl}
+import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.openapi.extensions.ExtensionPointName
 import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.bsp.BspBundle
@@ -11,8 +12,8 @@ import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter, External
 
 import java.io.File
 import java.util.UUID
-import scala.jdk.CollectionConverters.IteratorHasAsScala
-import scala.sys.process.{Process, ProcessLogger}
+import scala.io.Source
+import scala.jdk.CollectionConverters.{IteratorHasAsScala, SeqHasAsJava}
 import scala.util.{Failure, Success, Try}
 
 //TODO maybe BloopPreImporter should also be included in this logic?
@@ -21,25 +22,35 @@ trait BspProjectInstallProvider {
 
   def canImport(workspace: File): Boolean
   def serverName: String
-  def installCommand(workspace: File): Try[String]
+  def installCommand(workspace: File): Try[Seq[String]]
   def getConfigSetup: ConfigSetup
 
   def bspInstall(workspace: File)(implicit reporter: BuildReporter): Try[BuildMessages] = {
-    val stdout = new StringBuilder
     val stderr = new StringBuilder
 
     val dumpTaskId = EventId(s"dump:${UUID.randomUUID()}")
-    reporter.startTask(dumpTaskId, None, BspBundle.message("bsp.resolver.installing.mill.configuration", serverName))
+    reporter.startTask(dumpTaskId, None, BspBundle.message("bsp.resolver.installing.configuration", serverName))
 
-    def executeCommand(command: String): Try[Int] = {
-      reporter.log(BspBundle.message("bsp.resolver.installing.mill.configuration.command", command))
-      Try(Process(command, workspace)! ProcessLogger(stdout append _ + "\n", stderr append _ + "\n"))
+    def executeCommand(command: Seq[String]): Try[Int] = {
+      reporter.log(BspBundle.message("bsp.resolver.installing.configuration.command", command.mkString(" ")))
+
+      Try {
+        val generalCommandLine = new GeneralCommandLine(command.asJava)
+          .withWorkDirectory(workspace)
+        val process = generalCommandLine.toProcessBuilder.start()
+        process.waitFor()
+
+        val stderrText = Source.fromInputStream(process.getErrorStream).mkString.trim
+        stderr.append(stderrText)
+
+        process.exitValue()
+      }
     }
 
     val command = installCommand(workspace)
     val work = command.flatMap(executeCommand)
 
-    def finishMillInstallTask(errorMsg: Option[String], result: EventResult, status: BuildMessages.BuildStatus): Try[BuildMessages] = {
+    def finishInstallTask(errorMsg: Option[String], result: EventResult, status: BuildMessages.BuildStatus): Try[BuildMessages] = {
       val logError: String => Unit = (msg: String) => reporter match {
         case reporter: ExternalSystemNotificationReporter => reporter.logErr(msg)
         case _ => reporter.log(msg)
@@ -49,7 +60,7 @@ trait BspProjectInstallProvider {
         logError(msg)
         buildMessages.addError(msg)
       }
-      reporter.finishTask(dumpTaskId, BspBundle.message("bsp.resolver.installing.mill.configuration", serverName), result)
+      reporter.finishTask(dumpTaskId, BspBundle.message("bsp.resolver.installing.configuration", serverName), result)
       Try(buildMessages)
     }
 
@@ -58,7 +69,7 @@ trait BspProjectInstallProvider {
       case Success(_) => (Some(stderr.toString()), new FailureResultImpl(), BuildMessages.Error)
       case Failure(exc) => (Some(exc.getMessage), new FailureResultImpl(), BuildMessages.Error)
     }
-    finishMillInstallTask(errorMsg, eventResult, buildMessages)
+    finishInstallTask(errorMsg, eventResult, buildMessages)
   }
 
   private def getConfigSetupIfImportable(workspace: File): Option[ConfigSetup] =

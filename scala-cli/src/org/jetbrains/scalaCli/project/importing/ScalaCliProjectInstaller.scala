@@ -18,10 +18,10 @@ class ScalaCliProjectInstaller extends BspProjectInstallProvider {
 
   override def serverName: String = "Scala CLI"
 
-  override def installCommand(workspace: File): Try[String] = {
+  override def installCommand(workspace: File): Try[Seq[String]] = {
     val isScalaCliInstalled = ScalaCliUtils.isScalaCliInstalled(workspace)
     if (isScalaCliInstalled) {
-      Success(s"$getScalaCliCommand setup-ide .")
+      Success(Seq(getScalaCliCommand, "setup-ide", "."))
     } else {
       Failure(new IllegalStateException("Unable to install BSP, because Scala CLI is not installed"))
     }
