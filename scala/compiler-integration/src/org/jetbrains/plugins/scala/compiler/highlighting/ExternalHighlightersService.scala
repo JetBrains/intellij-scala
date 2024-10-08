@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaOpt
 import org.jetbrains.plugins.scala.compiler.diagnostics.Action
 import org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlighting.RangeInfo
 import org.jetbrains.plugins.scala.editor.DocumentExt
-import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, PsiElementExt, executeOnPooledThread, inWriteAction, invokeLater}
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, PsiElementExt, executeOnPooledThread, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
@@ -52,7 +52,7 @@ private final class ExternalHighlightersService(project: Project) { self =>
   def applyHighlightingState(virtualFiles: Set[VirtualFile], state: HighlightingState, compilationId: CompilationId): Unit = {
     if (project.isDisposed) return
 
-    val readActionCallable: Callable[(Seq[HighlightingData], Set[VirtualFile])] = { () =>
+    val readActionCallable: Callable[(Seq[HighlightingData], Set[VirtualFile], Seq[ScExpression])] = { () =>
       val filteredVirtualFiles = filterFilesToHighlightBasedOnFileLevel(virtualFiles)
       val psiManager = PsiManager.getInstance(project)
       val data = for {
@@ -67,11 +67,30 @@ private final class ExternalHighlightersService(project: Project) { self =>
         HighlightingData(editor, document, psiFile, highlightInfos)
       }
       val errorFiles = filterFilesToHighlightBasedOnFileLevel(state.filesWithHighlightings(errorTypes))
-      (data, errorFiles)
+
+      var expressions = List.empty[ScExpression]
+      Option(FileEditorManager.getInstance(project).getFocusedEditor).foreach { editor =>
+        state.externalTypes(editor.getFile).foreach { case ((begin, end), tpe) =>
+          val psiFile = PsiManager.getInstance(project).findFile(editor.getFile)
+          val document = PsiDocumentManager.getInstance(project).getDocument(psiFile)
+          def toOffset(pos: PosInfo): Int = document.getLineStartOffset(pos.line - 1) + pos.column - 1
+          val range = new TextRange(toOffset(begin), toOffset(end))
+          psiFile
+            .depthFirst(_.getTextRange.contains(range))
+            .filter(_.getTextRange == range)
+            .findByType[ScMethodCall]
+            .foreach { e =>
+              e.putUserData(ScExpression.CompilerTypeKey, tpe)
+              expressions ::= e
+            }
+        }
+      }
+
+      (data, errorFiles, expressions)
     }
 
-    val applyHighlightingInfo: Consumer[(Seq[HighlightingData], Set[VirtualFile])] = {
-      case (infos, errorFiles) =>
+    val applyHighlightingInfo: Consumer[(Seq[HighlightingData], Set[VirtualFile], Seq[ScExpression])] = {
+      case (infos, errorFiles, expressions) =>
         if (!project.isDisposed && stillValid(compilationId)) {
           // If the results are still valid, they will be applied to the editor.
           infos.foreach { case HighlightingData(editor, document, psiFile, highlightInfos) =>
@@ -87,26 +106,14 @@ private final class ExternalHighlightersService(project: Project) { self =>
           }
           // Show red squiggly lines for errors in Project View.
           executeOnPooledThread(informWolf(errorFiles))
-        }
-    }
 
-    Option(FileEditorManager.getInstance(project).getFocusedEditor).foreach { editor =>
-      state.externalTypes(editor.getFile).foreach { case ((begin, end), tpe) =>
-        inWriteAction {
-          val expression = {
-            val psiFile = PsiManager.getInstance(project).findFile(editor.getFile)
-            val document = PsiDocumentManager.getInstance(project).getDocument(psiFile)
-            def toOffset(pos: PosInfo): Int = document.getLineStartOffset(pos.line - 1) + pos.column - 1
-            val range = new TextRange(toOffset(begin), toOffset(end))
-            psiFile.depthFirst(_.getTextRange.contains(range)).filter(_.getTextRange == range).findByType[ScMethodCall]
-          }
-          expression.foreach { e =>
-            e.putUserData(ScExpression.CompilerTypeKey, tpe)
-            ScalaPsiManager.instance(project).clearOnScalaElementChange(e)
+          if (expressions.nonEmpty) {
+            expressions.foreach { e =>
+              ScalaPsiManager.instance(project).clearOnScalaElementChange(e)
+            }
             ImplicitHints.updateInAllEditors()
           }
         }
-      }
     }
 
     ReadAction
