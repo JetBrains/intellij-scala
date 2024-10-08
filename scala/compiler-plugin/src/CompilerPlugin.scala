@@ -1,7 +1,7 @@
 import CompilerPlugin.*
 import dotty.tools.dotc.ast.tpd
 import dotty.tools.dotc.core.Contexts.{Context, ctx}
-import dotty.tools.dotc.core.Types.{SingletonType, Type, TypeRef}
+import dotty.tools.dotc.core.Types.{ErrorType, SingletonType, Type, TypeRef}
 import dotty.tools.dotc.plugins.{PluginPhase, StandardPlugin}
 import dotty.tools.dotc.printing.PlainPrinter
 import dotty.tools.dotc.printing.Texts.Text
@@ -46,6 +46,7 @@ private object CompilerPlugin:
         homogenize(tp) match
           case tp: TypeRef =>
             toTextPrefixOf(tp) ~ selectionString(tp)
+          case tp: ErrorType => "_root_.scala.Nothing"
           case tp => super.toText(tp)
 
       override def toTextSingleton(tp: SingletonType): Text =
