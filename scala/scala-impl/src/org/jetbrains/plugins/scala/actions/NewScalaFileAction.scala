@@ -10,6 +10,7 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileTypes.ex.FileTypeManagerEx
 import com.intellij.openapi.module.{Module, ModuleType}
 import com.intellij.openapi.project.{DumbAware, Project}
+import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.ui.InputValidatorEx
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
@@ -44,8 +45,6 @@ final class NewScalaFileAction extends CreateTemplateInPackageAction[ScalaPsiEle
     builder: CreateFileFromTemplateDialog.Builder
   ): Unit = {
 
-    directory.module
-
     //noinspection ScalaExtractStringToBundle
     {
       builder.addKind("Class", Icons.CLASS, ScalaFileTemplateUtil.SCALA_CLASS)
@@ -55,7 +54,8 @@ final class NewScalaFileAction extends CreateTemplateInPackageAction[ScalaPsiEle
       builder.addKind("Case Object", Icons.CASE_OBJECT, ScalaFileTemplateUtil.SCALA_CASE_OBJECT)
       builder.addKind("Trait", Icons.TRAIT, ScalaFileTemplateUtil.SCALA_TRAIT)
 
-      val isInScala3Module = directory.module.exists(_.hasScala3)
+      val module = Option(ProjectRootManager.getInstance(project).getFileIndex.getModuleForFile(directory.getVirtualFile))
+      val isInScala3Module = module.exists(_.hasScala3)
       //place enum at the very end of the list SCL-20749
       if (isInScala3Module) {
         builder.addKind("Enum", Icons.ENUM, ScalaFileTemplateUtil.SCALA_ENUM)
