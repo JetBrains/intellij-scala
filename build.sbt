@@ -66,15 +66,7 @@ lazy val scalaCommunity: sbt.Project =
       scalaLanguageUtils % "test->test;compile->compile",
       scalaLanguageUtilsRt % "test->test;compile->compile",
       pluginXml,
-      scalaCli % "test->test;compile->compile",
-      //We need this explicit dependency in the root project to ensure the module is compiled before any other module
-      //It matters when the project is built as a "Before Run" step when executing run configuration.
-      //In this case, it actually builds the module with all its dependencies, not the whole project.
-      scalac2Patches % Provided,
-      scalac3Patches % Provided,
-      //To include in run configuration classpath
-      scalac2PatchesTest % "test->test",
-      scalac3PatchesTest % "test->test"
+      scalaCli % "test->test;compile->compile"
     )
     .settings(MainProjectSettings *)
     .settings(
@@ -136,7 +128,6 @@ lazy val sbtApi =
       ),
       buildInfoOptions += BuildInfoOption.ConstantValue
     )
-    .withCompilerPluginIn(scalac2Patches)
 
 lazy val codeInsight = newProject(
   "codeInsight",
@@ -151,7 +142,6 @@ lazy val conversion = newProject(
 ).dependsOn(
   codeInsight % "test->test;compile->compile"
 )
-.withCompilerPluginIn(scalac2Patches)
 
 lazy val uast = newProject(
   "uast",
@@ -298,7 +288,6 @@ lazy val structureView = newProject("structure-view", file("scala/structure-view
     scalaVersion := Versions.scala3Version,
     Compile / scalacOptions := globalScala3ScalacOptions,
   )
-  .withCompilerPluginIn(scalac3Patches)
 
 lazy val repl = newProject("repl", file("scala/repl"))
   .dependsOn(
@@ -310,7 +299,6 @@ lazy val repl = newProject("repl", file("scala/repl"))
     Compile / scalacOptions := globalScala3ScalacOptions,
     packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity)
   )
-  .withCompilerPluginIn(scalac3Patches)
 
 lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
   .dependsOn(scalaLanguageUtils)
@@ -331,7 +319,6 @@ lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
       Dependencies.junitInterface % Test,
     )
   )
-  .withCompilerPluginIn(scalac3Patches)
 
 lazy val packageSearchClient: sbt.Project =
   newProjectWithKotlin("package-search-client", file("scala/package-search-client"))
@@ -341,56 +328,6 @@ lazy val packageSearchClient: sbt.Project =
       resolvers += DependencyResolvers.PackageSearch,
       libraryDependencies += Dependencies.packageSearchClientJvm,
     )
-
-lazy val scalac2Patches: sbt.Project =
-  Project("scalac2-patches", file("scalac-patches/scalac2-patches"))
-    .settings(
-      name := "scalac2-patches",
-      projectDirectoriesSettings,
-      scalaVersion := Versions.scalaVersion,
-      libraryDependencies ++= Seq(Dependencies.scalaCompiler),
-      packageMethod := PackagingMethod.Skip(),
-      intellijMainJars := Nil,
-      intellijTestJars := Nil
-    )
-
-lazy val scalac2PatchesTest =
-  Project("scalac2-patches-test", file("scalac-patches/scalac2-patches-test"))
-    .settings(
-      projectDirectoriesSettings,
-      scalaVersion := Versions.scalaVersion,
-      libraryDependencies ++= Seq(Dependencies.jupiterInterface % Test),
-      packageMethod := PackagingMethod.Skip(),
-      intellijMainJars := Nil,
-      intellijTestJars := Nil
-    )
-    .withCompilerPluginIn(scalac2Patches)
-
-lazy val scalac3Patches: sbt.Project =
-  Project("scalac3-patches", file("scalac-patches/scalac3-patches"))
-    .settings(
-      name := "scalac3-patches",
-      projectDirectoriesSettings,
-      scalaVersion := Versions.scala3Version,
-      Compile / scalacOptions := globalScala3ScalacOptions,
-      libraryDependencies ++= Seq(Dependencies.scala3Compiler),
-      packageMethod := PackagingMethod.Skip(),
-      intellijMainJars := Nil,
-      intellijTestJars := Nil
-    )
-
-lazy val scalac3PatchesTest =
-  Project("scalac3-patches-test", file("scalac-patches/scalac3-patches-test"))
-    .settings(
-      projectDirectoriesSettings,
-      scalaVersion := Versions.scala3Version,
-      Compile / scalacOptions := globalScala3ScalacOptions,
-      libraryDependencies ++= Seq(Dependencies.jupiterInterface % Test),
-      packageMethod := PackagingMethod.Skip(),
-      intellijMainJars := Nil,
-      intellijTestJars := Nil
-    )
-    .withCompilerPluginIn(scalac3Patches)
 
 lazy val scalaImpl: sbt.Project =
   newProject("scala-impl", file("scala/scala-impl"))
@@ -441,7 +378,6 @@ lazy val scalaImpl: sbt.Project =
         Dependencies.scala3Library                         -> None,
       )
     )
-    .withCompilerPluginIn(scalac2Patches) // TODO Add automatically
 
 /**
  * Utilities which only depend on the Scala standard library and do not depend on other libraries or IntelliJ SDK
@@ -470,7 +406,6 @@ lazy val sbtImpl =
     .settings(
       intellijPlugins += "org.jetbrains.idea.maven".toPlugin
     )
-    .withCompilerPluginIn(scalac2Patches)
 
 lazy val compilerIntegration =
   newProject("compiler-integration", file("scala/compiler-integration"))
@@ -487,7 +422,6 @@ lazy val compilerIntegration =
       ).map(_.toPlugin), // Used only in tests
       libraryDependencies += Dependencies.intellijMavenTestFramework % Test
     )
-    .withCompilerPluginIn(scalac2Patches)
 
 lazy val debugger =
   newProject("debugger", file("scala/debugger"))
@@ -495,7 +429,6 @@ lazy val debugger =
       scalaImpl % "test->test;compile->compile",
       compilerIntegration % "test->test;compile->compile"
     )
-    .withCompilerPluginIn(scalac2Patches)
 
 
 lazy val compileServer =
@@ -598,7 +531,6 @@ lazy val testingSupport =
     .settings(
       intellijPlugins += "JUnit".toPlugin
     )
-    .withCompilerPluginIn(scalac2Patches)
 
 lazy val testRunners: Project =
   newProject("test-runners", file("scala/test-integration/test-runners"))
@@ -829,7 +761,6 @@ lazy val textAnalysis =
         ("org.languagetool" % "language-it" % Versions.LanguageToolVersion % Runtime).exclude("org.languagetool", "languagetool-core"),
       )
     )
-    .withCompilerPluginIn(scalac3Patches)
 
 lazy val featuresTrainerIntegration =
   newProject("features-trainer", file("scala/integration/features-trainer"))

@@ -4,9 +4,9 @@ import junit.framework.TestCase
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
 
-import java.io.{File => jFile}
-import scala.io.Codec
-import scala.tools.nsc.io.File
+import java.io.File
+import java.nio.charset.StandardCharsets
+import java.nio.file.{Files, Path}
 
 // TODO Use .sig files rather than .class files.
 trait DecompilerTestBase extends TestCase {
@@ -16,7 +16,7 @@ trait DecompilerTestBase extends TestCase {
     val classFilePath = getClassFilePath(fileName, getName)
     val expectedFilePath: String = classFilePath + ".test"
 
-    val expectedResult = new File(new jFile(expectedFilePath))(Codec.UTF8).slurp().replace("\r","").trim.replace("_root_.scala.Predef", "scala.Predef")
+    val expectedResult = Files.readString(Path.of(expectedFilePath), StandardCharsets.UTF_8).trim.replace("_root_.scala.Predef", "scala.Predef")
 
     Assert.assertEquals(expectedResult, decompile(classFilePath).replace("_root_.", ""))
   }
@@ -31,8 +31,9 @@ trait DecompilerTestBase extends TestCase {
   }
 
   protected final def decompile(classFilePath: String): String = {
-    val file = new File(new jFile(classFilePath))(Codec.UTF8)
-    val Some((_, sourceText)) = Decompiler.sourceNameAndText(file.name, file.toByteArray())
+    val file = new File(classFilePath)
+    val bytes = Files.readAllBytes(file.toPath)
+    val Some((_, sourceText)) = Decompiler.sourceNameAndText(file.getName, bytes)
     sourceText
   }
 }
