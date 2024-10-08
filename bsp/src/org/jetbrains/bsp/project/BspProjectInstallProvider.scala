@@ -29,10 +29,10 @@ trait BspProjectInstallProvider {
     val stderr = new StringBuilder
 
     val dumpTaskId = EventId(s"dump:${UUID.randomUUID()}")
-    reporter.startTask(dumpTaskId, None, BspBundle.message("bsp.resolver.installing.mill.configuration", serverName))
+    reporter.startTask(dumpTaskId, None, BspBundle.message("bsp.resolver.installing.configuration", serverName))
 
     def executeCommand(command: Seq[String]): Try[Int] = {
-      reporter.log(BspBundle.message("bsp.resolver.installing.mill.configuration.command", command.mkString(" ")))
+      reporter.log(BspBundle.message("bsp.resolver.installing.configuration.command", command.mkString(" ")))
 
       Try {
         val generalCommandLine = new GeneralCommandLine(command.asJava)
@@ -50,7 +50,7 @@ trait BspProjectInstallProvider {
     val command = installCommand(workspace)
     val work = command.flatMap(executeCommand)
 
-    def finishMillInstallTask(errorMsg: Option[String], result: EventResult, status: BuildMessages.BuildStatus): Try[BuildMessages] = {
+    def finishInstallTask(errorMsg: Option[String], result: EventResult, status: BuildMessages.BuildStatus): Try[BuildMessages] = {
       val logError: String => Unit = (msg: String) => reporter match {
         case reporter: ExternalSystemNotificationReporter => reporter.logErr(msg)
         case _ => reporter.log(msg)
@@ -60,7 +60,7 @@ trait BspProjectInstallProvider {
         logError(msg)
         buildMessages.addError(msg)
       }
-      reporter.finishTask(dumpTaskId, BspBundle.message("bsp.resolver.installing.mill.configuration", serverName), result)
+      reporter.finishTask(dumpTaskId, BspBundle.message("bsp.resolver.installing.configuration", serverName), result)
       Try(buildMessages)
     }
 
@@ -69,7 +69,7 @@ trait BspProjectInstallProvider {
       case Success(_) => (Some(stderr.toString()), new FailureResultImpl(), BuildMessages.Error)
       case Failure(exc) => (Some(exc.getMessage), new FailureResultImpl(), BuildMessages.Error)
     }
-    finishMillInstallTask(errorMsg, eventResult, buildMessages)
+    finishInstallTask(errorMsg, eventResult, buildMessages)
   }
 
   private def getConfigSetupIfImportable(workspace: File): Option[ConfigSetup] =
