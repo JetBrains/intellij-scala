@@ -21,7 +21,7 @@ trait BspProjectInstallProvider {
 
   def canImport(workspace: File): Boolean
   def serverName: String
-  def installCommand(workspace: File): Try[String]
+  def installCommand(workspace: File): Try[Seq[String]]
   def getConfigSetup: ConfigSetup
 
   def bspInstall(workspace: File)(implicit reporter: BuildReporter): Try[BuildMessages] = {

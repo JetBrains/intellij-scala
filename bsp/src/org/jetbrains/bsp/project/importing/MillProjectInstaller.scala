@@ -24,16 +24,16 @@ class MillProjectInstaller extends BspProjectInstallProvider {
 
   override def serverName: String = "Mill"
 
-  override def installCommand(workspace: File): Try[String] = {
+  override def installCommand(workspace: File): Try[Seq[String]] = {
     // note: The legacy part is only executed for mill bootstrap script so it is not applicable for Windows.
     // Maybe it could be, but we decided to support mill.bat file only for the newer bsp approach
     val isLegacyMill = !SystemInfo.isWindows && isLegacyBspCompatible(workspace)
     val millFileOpt = getMillFile(workspace)
     millFileOpt match {
       case Some(file) if isMillFileBspCompatible(file, workspace) =>
-        Success(s"${file.getAbsolutePath} -i mill.bsp.BSP/install")
+        Success(Seq(file.getAbsolutePath, "-i", "mill.bsp.BSP/install"))
       case Some(file) if isLegacyMill =>
-        Success(s"${file.getAbsolutePath} -i mill.contrib.BSP/install")
+        Success(Seq(file.getAbsolutePath, "-i", "mill.contrib.BSP/install"))
       case _ => Failure(new IllegalStateException("Unable to install BSP as this is not a Mill project"))
     }
   }
