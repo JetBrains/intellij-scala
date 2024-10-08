@@ -36,13 +36,11 @@ trait ScExpression extends ScBlockStatement
 
   import ScExpression._
 
-  override def `type`(): TypeResult = {
-    Option(CompilerTypeKey.get(this)) match {
-      case Some(t) =>
-        Right(ScalaPsiElementFactory.createTypeFromText(t, this, null).get)
-      case None =>
-        this.getTypeAfterImplicitConversion().tr
-    }
+  override def `type`(): TypeResult = Option(CompilerTypeKey.get(this)) match {
+    case Some(s) =>
+      Right(ScalaPsiElementFactory.createTypeFromText(s, this, null).get)
+    case None =>
+      this.getTypeAfterImplicitConversion().tr
   }
 
   override protected def updateImplicitArguments(): Unit = {
