@@ -6,7 +6,7 @@ import org.jetbrains.packagesearch.api.v3.{ApiMavenPackage, ApiMavenVersion, Ver
 import java.util.Collections.{emptyList, emptySet}
 import scala.jdk.CollectionConverters.SeqHasAsJava
 
-trait PackageSearchClientTesting:
+trait PackageSearchClientTesting {
   protected def mavenVersion(version: String): ApiMavenVersion = new MavenVersion(
     /*normalized*/ NormalizedVersionCompanionProxy.from(version),
     /*repositoryIds*/ emptySet(),
@@ -55,4 +55,4 @@ trait PackageSearchClientTesting:
     artifactId,
     /*scm*/ null,
   )
-end PackageSearchClientTesting
+}
