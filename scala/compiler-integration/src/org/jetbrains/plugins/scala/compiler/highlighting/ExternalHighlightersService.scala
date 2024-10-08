@@ -80,8 +80,11 @@ private final class ExternalHighlightersService(project: Project) { self =>
             .filter(_.getTextRange == range)
             .findByType[ScMethodCall]
             .foreach { e =>
-              e.putUserData(ScExpression.CompilerTypeKey, tpe)
-              expressions ::= e
+              val value = e.getUserData(ScExpression.CompilerTypeKey)
+              if (value != tpe) {
+                e.putUserData(ScExpression.CompilerTypeKey, tpe)
+                expressions ::= e
+              }
             }
         }
       }
