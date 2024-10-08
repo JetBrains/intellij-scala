@@ -1045,6 +1045,16 @@ package object extensions {
           name <- names.headOption
         } yield s"$containerFqn.$name"
     }
+
+    def isDeprecated: Boolean = member match {
+      case docCommentOwner: PsiDocCommentOwner => docCommentOwner.isDeprecated
+      case _ => member.isDeprecatedByAnnotation
+    }
+
+    def isDeprecatedByAnnotation: Boolean =
+      member.hasAnnotation("scala.deprecated") ||
+        member.hasAnnotation("java.lang.Deprecated") ||
+        member.hasAnnotation("kotlin.Deprecated")
   }
 
   implicit class PsiClassExt(val clazz: PsiClass) extends AnyVal {
