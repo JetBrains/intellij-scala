@@ -4,8 +4,11 @@ package project
 import com.intellij.ide.actions.OpenProjectFileChooserDescriptor
 import com.intellij.openapi.vfs.VirtualFile
 
+import scala.annotation.nowarn
+
 class SbtOpenProjectDescriptor extends OpenProjectFileChooserDescriptor(true) {
 
+  @nowarn("cat=deprecation")
   override def isFileVisible(file: VirtualFile, showHiddenFiles: Boolean): Boolean =
     super.isFileVisible(file, showHiddenFiles) &&
       (file.isDirectory || language.SbtFileType.isMyFileType(file))

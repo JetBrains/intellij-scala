@@ -4,7 +4,7 @@ ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" 
 addSbtPlugin("org.jetbrains.scala" % "sbt-ide-settings" % "1.1.2")
 addSbtPlugin("org.jetbrains" % "sbt-idea-plugin" % "4.0.0-RC22")
 addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.11.0")
-addSbtPlugin("org.jetbrains.scala" % "sbt-kotlin-plugin" % "3.0.3")
+addSbtPlugin("org.jetbrains.scala" % "sbt-kotlin-plugin" % "3.0.4")
 addSbtPlugin("com.github.sbt.junit" % "sbt-jupiter-interface" % "0.13.0")
 
 // Only used for local development purposes, not in CI/CD.
