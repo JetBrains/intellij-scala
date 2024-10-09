@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.extensions.{inWriteAction, invokeAndWait}
 import org.jetbrains.plugins.scala.util.CompilerTestUtil.runWithErrorsFromCompiler
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert.{assertEquals, assertTrue}
+import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 
 import java.io.File
@@ -32,6 +33,7 @@ import scala.concurrent.{Await, Promise}
   TestScalaVersion.Scala_3_Latest
 ))
 @RunWith(classOf[MultipleScalaVersionsRunner])
+@Category(Array(classOf[CompilerHighlightingTests]))
 abstract class HighlightingCompilerConflictsBase(compileServerLanguageLevel: LanguageLevel,
                                                  buildProcessLanguageLevel: LanguageLevel)
   extends ScalaCompilerTestBase {

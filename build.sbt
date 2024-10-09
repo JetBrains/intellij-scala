@@ -871,6 +871,7 @@ def runTestsInTC(category: String): String = s"runTestCategory $category"
 
 addCommandAlias("runFileSetTests", runTestsInTC(fileSetTests))
 addCommandAlias("runCompilationTests", runTestsInTC(compilationTests))
+addCommandAlias("runCompilerHighlightingTests", runTestsInTC(compilerHighlightingTests))
 addCommandAlias("runCompletionTests", runTestsInTC(completionTests))
 addCommandAlias("runEditorTests", runTestsInTC(editorTests))
 addCommandAlias("runSlowTests", runTestsInTC(slowTests))
@@ -903,6 +904,7 @@ lazy val runFastTestsCommand = Command.single("runFastTestsCommand") { (state, g
   val categoriesToExclude = List(
     fileSetTests,
     compilationTests,
+    compilerHighlightingTests,
     completionTests,
     editorTests,
     slowTests,
