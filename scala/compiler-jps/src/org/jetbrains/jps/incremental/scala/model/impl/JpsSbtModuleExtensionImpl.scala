@@ -12,5 +12,5 @@ class JpsSbtModuleExtensionImpl(moduleType: Option[String], displayModuleName: O
 
 object JpsSbtModuleExtensionImpl {
   val Role: JpsElementChildRole[JpsSbtModuleExtension] = JpsElementChildRoleBase.create("sbt")
-  val ProductionOnTestRole: JpsElementChildRole[JpsSimpleElement[Boolean]] = JpsElementChildRoleBase.create("sbt production on test")
+  val ProductionOnTestRole: JpsElementChildRole[JpsSimpleElement[Boolean]] = JpsElementChildRoleBase.create("sbt production on test module dependency")
 }
