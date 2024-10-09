@@ -36,12 +36,8 @@ trait ScExpression extends ScBlockStatement
 
   import ScExpression._
 
-  override def `type`(): TypeResult = Option(CompilerTypeKey.get(this)) match {
-    case Some(s) =>
-      Right(ScalaPsiElementFactory.createTypeFromText(s, this, null).get)
-    case None =>
-      this.getTypeAfterImplicitConversion().tr
-  }
+  override def `type`(): TypeResult =
+    this.getTypeAfterImplicitConversion().tr
 
   override protected def updateImplicitArguments(): Unit = {
     if (ScUnderScoreSectionUtil.isUnderscoreFunction(this))
@@ -291,6 +287,15 @@ object ScExpression {
     ): TypeResult = cachedWithRecursionGuard("getTypeWithoutImplicits", expr, Failure(NlsString.force("Recursive getTypeWithoutImplicits")), BlockModificationTracker(expr), (ignoreBaseType, fromUnderscore)) {
       ProgressManager.checkCanceled()
 
+      Option(CompilerTypeKey.get(expr)) match {
+        case Some(s) =>
+          Right(ScalaPsiElementFactory.createTypeFromText(s, expr, null).get)
+        case None =>
+          getTypeWithoutImplicits0(ignoreBaseType, fromUnderscore)
+      }
+    }
+
+    private def getTypeWithoutImplicits0(ignoreBaseType: Boolean, fromUnderscore: Boolean): TypeResult = {
       expr match {
         case literals.ScNullLiteral(typeWithoutImplicits) => Right(typeWithoutImplicits)
         case _ =>
