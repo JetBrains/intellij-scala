@@ -76,6 +76,7 @@ lazy val scalaCommunity: sbt.Project =
         repackagedZinc,
         worksheetReplInterfaceImpls,
         compileServer,
+        scalaCompilerPlugin,
         nailgunRunners,
         copyrightIntegration,
         javaDecompilerIntegration,
@@ -411,6 +412,7 @@ lazy val compilerIntegration =
   newProject("compiler-integration", file("scala/compiler-integration"))
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
+      codeInsight % "test->test;compile->compile",
       sbtImpl % "test->test;compile->compile",
       jps,
       bsp
@@ -446,6 +448,15 @@ lazy val compileServer =
       //(in order we do not accidentally use any classes which are not available in JPS process)<br>
       //At runtime the classpath will be constructed in by Platform.
       Compile / unmanagedJars ++= Common.jpsClasspath.value
+    )
+
+lazy val scalaCompilerPlugin: sbt.Project =
+  newPlainScalaProject("compiler-plugin", file("scala/compiler-plugin"))
+    .settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions,
+      libraryDependencies ++= Seq(Dependencies.scala3Compiler),
+      packageMethod := PackagingMethod.Standalone("lib/jps/compiler-plugin.jar"),
     )
 
 lazy val compilerJps =

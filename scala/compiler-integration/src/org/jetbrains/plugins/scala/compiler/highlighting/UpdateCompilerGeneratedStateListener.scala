@@ -15,6 +15,9 @@ import org.jetbrains.plugins.scala.project.template.FileExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 private class UpdateCompilerGeneratedStateListener(project: Project) extends CompilerEventListener {
+  private final val CompilerPluginTypePrefix = "<type>" // CompilerPlugin.TypePrefix
+
+  private final val CompilerPluginTypeSuffix = "</type>" // CompilerPlugin.TypeSuffix
 
   override def eventReceived(event: CompilerEvent): Unit = {
     val oldState = CompilerGeneratedStateManager.get(project)
@@ -23,6 +26,15 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
       case CompilerEvent.CompilationStarted(_, _) =>
         val newHighlightOnCompilationFinished = oldState.toHighlightingState.filesWithHighlightings
         val newState = oldState.copy(highlightOnCompilationFinished = newHighlightOnCompilationFinished)
+        CompilerGeneratedStateManager.update(project, newState)
+      case CompilerEvent.MessageEmitted(compilationId, _, _, msg) if msg.kind == MessageKind.Info && msg.text.startsWith(CompilerPluginTypePrefix) =>
+        val virtualFile = msg.source.get.toVirtualFile.get
+
+        val range = (msg.problemStart.get, msg.problemEnd.get)
+        val tpe = msg.text.substring(CompilerPluginTypePrefix.length, msg.text.indexOf(CompilerPluginTypeSuffix).ensuring(_ != -1))
+        val fileState = FileCompilerGeneratedState(compilationId, Set.empty, Map((range, tpe)))
+        val newState = replaceOrAppendFileState(oldState, virtualFile, fileState)
+
         CompilerGeneratedStateManager.update(project, newState)
       case CompilerEvent.MessageEmitted(compilationId, _, _, msg) =>
         for {
@@ -56,7 +68,7 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
             rangeInfo = rangeInfo,
             diagnostics = msg.diagnostics
           )
-          val fileState = FileCompilerGeneratedState(compilationId, Set(highlighting))
+          val fileState = FileCompilerGeneratedState(compilationId, Set(highlighting), Map.empty)
           val newState = replaceOrAppendFileState(oldState, virtualFile, fileState)
 
           CompilerGeneratedStateManager.update(project, newState)
@@ -69,7 +81,7 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
           source <- sources
           virtualFile <- source.toVirtualFile
         } yield virtualFile
-        val emptyState = FileCompilerGeneratedState(compilationId, Set.empty)
+        val emptyState = FileCompilerGeneratedState(compilationId, Set.empty, Map.empty)
         val intermediateState = vFiles.foldLeft(oldState) { case (acc, file) =>
           replaceOrAppendFileState(acc, file, emptyState)
         }
@@ -158,7 +170,7 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
                                        fileState: FileCompilerGeneratedState): CompilerGeneratedState = {
     val newFileState = oldState.files.get(file) match {
       case Some(oldFileState) if oldFileState.compilationId == fileState.compilationId =>
-        oldFileState.withExtraHighlightings(fileState.highlightings)
+        oldFileState.withExtraHighlightings(fileState.highlightings).withExtraTypes(fileState.types)
       case _ =>
         fileState
     }

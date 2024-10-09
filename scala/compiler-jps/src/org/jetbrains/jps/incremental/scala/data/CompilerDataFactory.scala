@@ -117,7 +117,19 @@ object CompilerDataFactory
 
     val bootOptions = bootClasspathOptions(hasOldScala(modules))
     val semanticDBOptions = semanticDbOptionsFor(configuredOptions, chunk)
-    bootOptions ++ semanticDBOptions ++ configuredOptions
+
+    val options = bootOptions ++ semanticDBOptions ++ configuredOptions
+
+//    if (compilerHighlightingScala3 && hasScala3 && compilerTypesEnabled) {
+//      val pluginJpsRoot = new File(PathManager.getJarPathForClass(getClass)).getParentFile
+//
+//      options :++= Seq(
+//        "-Xplugin:" + new File(pluginJpsRoot, "compiler-plugin.jar").getAbsolutePath,
+//        "-Xplugin-require:compiler-plugin"
+//      )
+//    }
+
+    options
   }
 
   private def bootClasspathOptions(hasOldScala: Boolean): Seq[String] =

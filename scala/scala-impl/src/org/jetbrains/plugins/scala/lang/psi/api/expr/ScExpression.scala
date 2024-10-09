@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
 import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
@@ -35,8 +36,12 @@ trait ScExpression extends ScBlockStatement
 
   import ScExpression._
 
-  override def `type`(): TypeResult =
-    this.getTypeAfterImplicitConversion().tr
+  override def `type`(): TypeResult = Option(CompilerTypeKey.get(this)) match {
+    case Some(s) =>
+      Right(ScalaPsiElementFactory.createTypeFromText(s, this, null).get)
+    case None =>
+      this.getTypeAfterImplicitConversion().tr
+  }
 
   override protected def updateImplicitArguments(): Unit = {
     if (ScUnderScoreSectionUtil.isUnderscoreFunction(this))
@@ -189,6 +194,8 @@ trait ScExpression extends ScBlockStatement
 }
 
 object ScExpression {
+  val CompilerTypeKey: Key[String] = Key.create("SCALA_COMPILER_TYPE_KEY")
+
   final case class ExpressionTypeResult(
     tr:                 TypeResult,
     importsUsed:        Set[ImportUsed] = Set.empty,

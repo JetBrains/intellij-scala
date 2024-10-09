@@ -6,7 +6,7 @@ import com.intellij.openapi.application.{ModalityState, ReadAction}
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.{Document, Editor, EditorFactory}
-import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager}
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util.TextRange
@@ -19,16 +19,19 @@ import com.intellij.xml.util.XmlStringUtil
 import org.jetbrains.annotations.{Nls, Nullable}
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
 import org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider
+import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaOptimizeImportsFix
 import org.jetbrains.plugins.scala.compiler.diagnostics.Action
 import org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlighting.RangeInfo
 import org.jetbrains.plugins.scala.editor.DocumentExt
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, executeOnPooledThread, invokeLater}
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, PsiElementExt, executeOnPooledThread, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed.UnusedImportReportedByCompilerKey
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportOrExportStmt, ScImportSelector}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.settings.{ProblemSolverUtils, ScalaHighlightingMode}
 import org.jetbrains.plugins.scala.util.{CanonicalPath, CompilationId, DocumentVersion}
 
@@ -49,7 +52,7 @@ private final class ExternalHighlightersService(project: Project) { self =>
   def applyHighlightingState(virtualFiles: Set[VirtualFile], state: HighlightingState, compilationId: CompilationId): Unit = {
     if (project.isDisposed) return
 
-    val readActionCallable: Callable[(Seq[HighlightingData], Set[VirtualFile])] = { () =>
+    val readActionCallable: Callable[(Seq[HighlightingData], Set[VirtualFile], Seq[ScExpression])] = { () =>
       val filteredVirtualFiles = filterFilesToHighlightBasedOnFileLevel(virtualFiles)
       val psiManager = PsiManager.getInstance(project)
       val data = for {
@@ -64,11 +67,33 @@ private final class ExternalHighlightersService(project: Project) { self =>
         HighlightingData(editor, document, psiFile, highlightInfos)
       }
       val errorFiles = filterFilesToHighlightBasedOnFileLevel(state.filesWithHighlightings(errorTypes))
-      (data, errorFiles)
+
+      var expressions = Vector.empty[ScExpression]
+      Option(FileEditorManager.getInstance(project).getFocusedEditor).foreach { editor =>
+        state.externalTypes(editor.getFile).foreach { case ((begin, end), tpe) =>
+          val psiFile = PsiManager.getInstance(project).findFile(editor.getFile)
+          val document = PsiDocumentManager.getInstance(project).getDocument(psiFile)
+          def toOffset(pos: PosInfo): Int = document.getLineStartOffset(pos.line - 1) + pos.column - 1
+          val range = new TextRange(toOffset(begin), toOffset(end))
+          psiFile
+            .depthFirst(_.getTextRange.contains(range))
+            .filter(_.getTextRange == range)
+            .findByType[ScMethodCall]
+            .foreach { e =>
+              val value = e.getUserData(ScExpression.CompilerTypeKey)
+              if (value != tpe) {
+                e.putUserData(ScExpression.CompilerTypeKey, tpe)
+                expressions :+= e
+              }
+            }
+        }
+      }
+
+      (data, errorFiles, expressions)
     }
 
-    val applyHighlightingInfo: Consumer[(Seq[HighlightingData], Set[VirtualFile])] = {
-      case (infos, errorFiles) =>
+    val applyHighlightingInfo: Consumer[(Seq[HighlightingData], Set[VirtualFile], Seq[ScExpression])] = {
+      case (infos, errorFiles, expressions) =>
         if (!project.isDisposed && DocumentUtil.stillValid(compilationId.documentVersions)) {
           // If the results are still valid, they will be applied to the editor.
           infos.foreach { case HighlightingData(editor, document, psiFile, highlightInfos) =>
@@ -84,6 +109,13 @@ private final class ExternalHighlightersService(project: Project) { self =>
           }
           // Show red squiggly lines for errors in Project View.
           executeOnPooledThread(informWolf(errorFiles))
+
+          if (expressions.nonEmpty) {
+            expressions.foreach { e =>
+              ScalaPsiManager.instance(project).clearOnScalaElementChange(e)
+            }
+            ImplicitHints.updateInAllEditors()
+          }
         }
     }
 
