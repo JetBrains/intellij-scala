@@ -27,8 +27,6 @@ import scala.util.control.NonFatal
 @Service(Array(Service.Level.PROJECT))
 private[scala] final class TriggerCompilerHighlightingService(project: Project) extends Disposable {
 
-  import TriggerCompilerHighlightingService._
-
   private val documentCompilerAvailable: TrieMap[VirtualFile, java.lang.Boolean] = TrieMap.empty
 
   project.getMessageBus.connect(this).subscribe[FileHighlightingSettingListener](
@@ -74,8 +72,7 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
     val process = isHighlightingEnabled &&
       !virtualFile.isInstanceOf[VirtualFileWindow] && //injected fragments
       virtualFile.isValid &&
-      isHighlightingEnabledFor(psiFile, virtualFile) &&
-      !hasErrors(psiFile)
+      isHighlightingEnabledFor(psiFile, virtualFile)
     if (process) {
       val debugReason = s"file content changed: ${psiFile.name}"
       val document = inReadAction(FileDocumentManager.getInstance().getDocument(virtualFile))
@@ -97,7 +94,7 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
     //file could be deleted (this code is called in background activity)
     if (isHighlightingEnabled && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project) && virtualFile.isValid) {
       val psiFile = inReadAction(PsiManager.getInstance(project).findFile(virtualFile))
-      if ((psiFile ne null) && isHighlightingEnabledFor(psiFile, virtualFile) && !hasErrors(psiFile)) {
+      if ((psiFile ne null) && isHighlightingEnabledFor(psiFile, virtualFile)) {
         val document = inReadAction(FileDocumentManager.getInstance().getDocument(virtualFile))
         if (document ne null) {
           val debugReason = s"focused editor changed: ${virtualFile.getName}"
@@ -204,8 +201,4 @@ private[scala] object TriggerCompilerHighlightingService {
 
   def get(project: Project): TriggerCompilerHighlightingService =
     project.getService(classOf[TriggerCompilerHighlightingService])
-
-  private def hasErrors(psiFile: PsiFile): Boolean = inReadAction {
-    psiFile.elements.findByType[PsiErrorElement].isDefined
-  }
 }

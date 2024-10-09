@@ -119,6 +119,36 @@ class ScalaCompilerHighlightingTest_2_13 extends ScalaCompilerHighlightingTestBa
   def testUnusedLocalDefinitions_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
     runTestUnusedLocalDefinitions()
   }
+
+  private def runTestCompilationWithParserError(): Unit = {
+    runTestCase(
+      fileName = "ParserError.scala",
+      content =
+        """object ParserError {
+          |  def parserError(): Unit = {
+          |    val x = Seq(1, 2, 3
+          |    val y = Seq(2, 3, 4)
+          |  }
+          |}
+          |""".stripMargin,
+      expectedResult = expectedResult(
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          range = Some(TextRange.create(79, 82)),
+          quickFixDescriptions = Seq.empty,
+          msgPrefix = "')' expected but 'val' found."
+        )
+      )
+    )
+  }
+
+  def testCompilationWithParserError(): Unit = {
+    runTestCompilationWithParserError()
+  }
+
+  def testCompilationWithParserError_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
+    runTestCompilationWithParserError()
+  }
 }
 
 class ScalaCompilerHighlightingTest_3_0 extends ScalaCompilerHighlightingTest_3 {
@@ -356,6 +386,34 @@ abstract class ScalaCompilerHighlightingTest_3 extends ScalaCompilerHighlighting
 
   def testWrongReturnType_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
     runTestWrongReturnType(29)
+  }
+
+  private def runTestCompilationWithParserError(): Unit = {
+    runTestCase(
+      fileName = "ParserError.scala",
+      content =
+        """object ParserError:
+          |  def parserError(): Unit =
+          |    val x = Seq(1, 2, 3
+          |    val y = Seq(2, 3, 4)
+          |""".stripMargin,
+      expectedResult = expectedResult(
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          range = Some(TextRange.create(76, 79)),
+          quickFixDescriptions = Seq.empty,
+          msgPrefix = "')' expected, but 'val' found"
+        )
+      )
+    )
+  }
+
+  def testCompilationWithParserError(): Unit = {
+    runTestCompilationWithParserError()
+  }
+
+  def testCompilationWithParserError_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
+    runTestCompilationWithParserError()
   }
 }
 
