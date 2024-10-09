@@ -12,16 +12,22 @@ import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 class ScalaDefaultHighlightingSettingProvider extends DefaultHighlightingSettingProvider {
 
   /** used e.g. in [[com.intellij.codeInsight.daemon.impl.analysis.HighlightingSettingsPerFile.getDefaultHighlightingSetting]] */
-  override def getDefaultSetting(project: Project, file: VirtualFile): FileHighlightingSetting =
+  override def getDefaultSetting(project: Project, file: VirtualFile): FileHighlightingSetting = {
     if (ApplicationManager.getApplication.isUnitTestMode)
       null
     else if (!ScalaHighlightingMode.showCompilerErrorsScala3(project))
       null
     else if (!Registry.is("scala.compiler.highlighting.suppress.java.highlighting")) null
-    else
-      Option(PsiManager.getInstance(project).findFile(file)).filter(_.isInScala3Module)
-        .collect {
-          case _: PsiJavaFile => FileHighlightingSetting.SKIP_HIGHLIGHTING
-        }
-        .orNull
+    else if (file.isValid) {
+      val psiManager = PsiManager.getInstance(project)
+      val psiFile = psiManager.findFile(file)
+      psiFile match {
+        case file: PsiJavaFile if file.isInScala3Module =>
+          FileHighlightingSetting.SKIP_HIGHLIGHTING
+        case _ =>
+          null
+      }
+    }
+    else null
+  }
 }
