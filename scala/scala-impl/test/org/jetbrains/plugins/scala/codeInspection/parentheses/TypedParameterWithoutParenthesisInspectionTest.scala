@@ -22,13 +22,16 @@ class TypedParameterWithoutParenthesisInspectionTest extends InspectionSeverityF
 
   val hint = ScalaInspectionBundle.message("surround.with.parenthesis")
 
+
   def test_typed_brace(): Unit = {
     val selected =
       s"""
          |test { ${START}a: Int$END => a }
          |""".stripMargin.withNormalizedSeparator
     checkTextHasError(selected)
+  }
 
+  def test_typed_brace_quickfix(): Unit = {
     val text =
       s"""
          |test { ${CARET_MARKER}a: Int => a }
