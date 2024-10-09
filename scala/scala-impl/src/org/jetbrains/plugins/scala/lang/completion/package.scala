@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScStableCodeReference}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockExpr, ScExpression, ScNewTemplateDefinition, ScPostfixExpr, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockExpr, ScExpression, ScMethodCall, ScNewTemplateDefinition, ScPostfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
@@ -263,6 +263,13 @@ package object completion {
         val copy = expressionToCopy.copy().asInstanceOf[ScExpression]
         copy.context = anchor.getContext
         copy.child = anchor
+
+        (anchor, expressionToCopy) match {
+          case (c1: ScMethodCall, (_: ScReferenceExpression) & FirstChild(c2: ScMethodCall)) =>
+            val compilerType = c1.getCopyableUserData(ScExpression.CompilerTypeKey)
+            c2.putCopyableUserData(ScExpression.CompilerTypeKey, compilerType)
+          case _ =>
+        }
 
         val newOffset = positionInCompletionFile.startOffset - expressionToCopy.startOffset + copy.startOffset
         copy.getContainingFile.findElementAt(newOffset)

@@ -80,9 +80,9 @@ private final class ExternalHighlightersService(project: Project) { self =>
             .filter(_.getTextRange == range)
             .findByType[ScMethodCall]
             .foreach { e =>
-              val value = e.getUserData(ScExpression.CompilerTypeKey)
+              val value = e.getCopyableUserData(ScExpression.CompilerTypeKey)
               if (value != tpe) {
-                e.putUserData(ScExpression.CompilerTypeKey, tpe)
+                e.putCopyableUserData(ScExpression.CompilerTypeKey, tpe)
                 expressions :+= e
               }
             }

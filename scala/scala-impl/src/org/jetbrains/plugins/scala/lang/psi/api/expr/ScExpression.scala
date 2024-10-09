@@ -287,7 +287,7 @@ object ScExpression {
     ): TypeResult = cachedWithRecursionGuard("getTypeWithoutImplicits", expr, Failure(NlsString.force("Recursive getTypeWithoutImplicits")), BlockModificationTracker(expr), (ignoreBaseType, fromUnderscore)) {
       ProgressManager.checkCanceled()
 
-      Option(CompilerTypeKey.get(expr)) match {
+      Option(expr.getCopyableUserData(CompilerTypeKey)) match {
         case Some(s) =>
           Right(ScalaPsiElementFactory.createTypeFromText(s, expr, null).get)
         case None =>
