@@ -289,6 +289,7 @@ object Common {
 
     val fileSetTests: String = cat("FileSetTests")
     val compilationTests: String = cat("CompilationTests")
+    val compilerHighlightingTests: String = cat("CompilerHighlightingTests")
     val completionTests: String = cat("CompletionTests")
     val editorTests: String = cat("EditorTests")
     val slowTests: String = cat("SlowTests")

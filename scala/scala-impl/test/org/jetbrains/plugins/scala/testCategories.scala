@@ -49,3 +49,9 @@ trait CompletionTests
 trait EditorTests
 
 trait CompilationTests
+
+/**
+ * Applied to tests in the `org.jetbrains.plugins.scala.compiler.highlighting` package in
+ * the `compiler-integration` module.
+ */
+trait CompilerHighlightingTests

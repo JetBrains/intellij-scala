@@ -11,7 +11,7 @@ import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import com.intellij.testFramework.{EdtTestUtil, IndexingTestUtil}
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.{Description, Matcher}
-import org.jetbrains.plugins.scala.SlowTests
+import org.jetbrains.plugins.scala.CompilerHighlightingTests
 import org.jetbrains.plugins.scala.compiler.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.extensions.{HighlightInfoExt, inReadAction, invokeAndWait}
 import org.jetbrains.plugins.scala.project.VirtualFileExt
@@ -24,7 +24,7 @@ import org.junit.experimental.categories.Category
 import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
 
-@Category(Array(classOf[SlowTests]))
+@Category(Array(classOf[CompilerHighlightingTests]))
 abstract class ScalaCompilerHighlightingTestBase
   extends ScalaCompilerTestBase
     with HamcrestMatchers {
