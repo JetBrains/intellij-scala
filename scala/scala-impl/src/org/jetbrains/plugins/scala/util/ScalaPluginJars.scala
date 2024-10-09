@@ -35,6 +35,7 @@ object ScalaPluginJars {
   val incrementalCompilerJar = new File(jpsRoot, "incremental-compiler.jar")
   val compileServerJar       = new File(jpsRoot, "compile-server.jar")
   val compilerJpsJar         = new File(jpsRoot, "compiler-jps.jar")
+  val compilerPluginJar      = new File(jpsRoot, "compiler-plugin.jar")
 }
 
 

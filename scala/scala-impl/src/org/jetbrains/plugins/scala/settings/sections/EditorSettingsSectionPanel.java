@@ -39,6 +39,7 @@ public class EditorSettingsSectionPanel extends SettingsSectionPanel {
     private JComboBox<ScalaProjectSettings.AliasExportSemantics> aliasSemantics;
     private JPanel useCompilerRangesHelp;
     private JCheckBox useCompilerRanges;
+    private JCheckBox useCompilerTypes;
     private JCheckBox showTypeMismatchHintsCheckBox;
     private JPanel rootPanel;
     private JComboBox<ScalaProjectSettings.TypeChecker> typeCheckerScala2;
@@ -72,7 +73,7 @@ public class EditorSettingsSectionPanel extends SettingsSectionPanel {
         typeCheckerScala2Section.setVisible(hasScala2);
         typeCheckerScala3Section.setVisible(hasScala3);
 
-        enableCompilerRangesCheckbox();
+        updateCompilerSettings();
 
         useCompilerRangesHelp.add(ContextHelpLabel.create(ScalaBundle.message("use.compiler.ranges.help")));
 
@@ -96,16 +97,19 @@ public class EditorSettingsSectionPanel extends SettingsSectionPanel {
                 Pair.create(ScalaProjectSettings.TypeChecker.BuiltIn, ScalaBundle.message("type.checker.built.in")),
                 Pair.create(ScalaProjectSettings.TypeChecker.Compiler, ScalaBundle.message("type.checker.compiler"))
         ));
-        typeChecker.addActionListener(__ -> enableCompilerRangesCheckbox());
+        typeChecker.addActionListener(__ -> updateCompilerSettings());
         typeCheckerHelp.add(ContextHelpLabel.create(ScalaBundle.message("type.checker.help")));
     }
 
-    private void enableCompilerRangesCheckbox() {
-        final var hasScala2 = ScalaProjectUtil.hasScala2(myProject);
-        final var hasScala3 = ScalaProjectUtil.hasScala3(myProject);
-        final var enabled = (hasScala2 && typeCheckerScala2.getSelectedItem() == ScalaProjectSettings.TypeChecker.Compiler) ||
-                (hasScala3 && typeCheckerScala3.getSelectedItem() == ScalaProjectSettings.TypeChecker.Compiler);
-        useCompilerRanges.setEnabled(enabled);
+    private void updateCompilerSettings() {
+        boolean forScala2 = ScalaProjectUtil.hasScala2(myProject) &&
+                typeCheckerScala2.getSelectedItem() == ScalaProjectSettings.TypeChecker.Compiler;
+
+        boolean forScala3 = ScalaProjectUtil.hasScala3(myProject) &&
+                typeCheckerScala3.getSelectedItem() == ScalaProjectSettings.TypeChecker.Compiler;
+
+        useCompilerRanges.setEnabled(forScala2 || forScala3);
+        useCompilerTypes.setEnabled(forScala3);
     }
 
     @Override
@@ -137,7 +141,8 @@ public class EditorSettingsSectionPanel extends SettingsSectionPanel {
 
                 scalaProjectSettings.isCompilerHighlightingScala2() != (typeCheckerScala2.getSelectedItem() == ScalaProjectSettings.TypeChecker.Compiler) ||
                 scalaProjectSettings.isCompilerHighlightingScala3() != (typeCheckerScala3.getSelectedItem() == ScalaProjectSettings.TypeChecker.Compiler) ||
-                scalaProjectSettings.isUseCompilerRanges() != useCompilerRanges.isSelected()
+                scalaProjectSettings.isUseCompilerRanges() != useCompilerRanges.isSelected() ||
+                scalaProjectSettings.isUseCompilerTypes() != useCompilerTypes.isSelected()
                 ;
     }
 
@@ -172,6 +177,7 @@ public class EditorSettingsSectionPanel extends SettingsSectionPanel {
         scalaProjectSettings.setCompilerHighlightingScala2(typeCheckerScala2.getSelectedItem() == ScalaProjectSettings.TypeChecker.Compiler);
         scalaProjectSettings.setCompilerHighlightingScala3(typeCheckerScala3.getSelectedItem() == ScalaProjectSettings.TypeChecker.Compiler);
         scalaProjectSettings.setUseCompilerRanges(useCompilerRanges.isSelected());
+        scalaProjectSettings.setUseCompilerTypes(useCompilerTypes.isSelected());
     }
 
     @Override
@@ -199,7 +205,8 @@ public class EditorSettingsSectionPanel extends SettingsSectionPanel {
         typeCheckerScala2.setSelectedItem(scalaProjectSettings.isCompilerHighlightingScala2() ? ScalaProjectSettings.TypeChecker.Compiler : ScalaProjectSettings.TypeChecker.BuiltIn);
         typeCheckerScala3.setSelectedItem(scalaProjectSettings.isCompilerHighlightingScala3() ? ScalaProjectSettings.TypeChecker.Compiler : ScalaProjectSettings.TypeChecker.BuiltIn);
         useCompilerRanges.setSelected(scalaProjectSettings.isUseCompilerRanges());
-        enableCompilerRangesCheckbox();
+        useCompilerTypes.setSelected(scalaProjectSettings.isUseCompilerTypes());
+        updateCompilerSettings();
     }
 
     private class ScalaTestHighlightingDialog extends DialogWrapper {
@@ -319,7 +326,7 @@ public class EditorSettingsSectionPanel extends SettingsSectionPanel {
         this.$$$loadButtonText$$$(showTypeMismatchHintsCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.show.type.mismatch.hints"));
         rootPanel.add(showTypeMismatchHintsCheckBox, new GridConstraints(3, 0, 1, 5, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         errorHighlightingSection = new JPanel();
-        errorHighlightingSection.setLayout(new GridLayoutManager(4, 1, new Insets(0, 0, 0, 0), -1, -1));
+        errorHighlightingSection.setLayout(new GridLayoutManager(5, 1, new Insets(0, 0, 0, 0), -1, -1));
         rootPanel.add(errorHighlightingSection, new GridConstraints(0, 0, 1, 5, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, true));
         final TitledSeparator titledSeparator4 = new TitledSeparator();
         titledSeparator4.setText(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.error.highlighting"));
@@ -355,6 +362,9 @@ public class EditorSettingsSectionPanel extends SettingsSectionPanel {
         useCompilerRanges = new JCheckBox();
         this.$$$loadButtonText$$$(useCompilerRanges, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.error.highlighting.use.compiler.ranges"));
         panel3.add(useCompilerRanges, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        useCompilerTypes = new JCheckBox();
+        this.$$$loadButtonText$$$(useCompilerTypes, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.compiler.types"));
+        errorHighlightingSection.add(useCompilerTypes, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     private static Method $$$cachedGetBundleMethod$$$ = null;

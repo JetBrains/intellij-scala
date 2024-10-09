@@ -15,6 +15,8 @@ import org.jetbrains.plugins.scala.compiler.data.{CompilerData, CompilerJarsFact
 import org.jetbrains.plugins.scala.compiler.{RemoteServerConnectorBase, RemoteServerRunner}
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLanguageLevel, VirtualFileExt}
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.util.ScalaPluginJars
 
 import java.io.File
 import java.nio.file.{Files, Path}
@@ -175,6 +177,12 @@ private final class DocumentCompiler(project: Project) {
 
     override protected def scalaParameters: Seq[String] = {
       var scalacOptions = CompilerOptions.scalacOptions(module)
+      if (module.scalaLanguageLevel.exists(_.isScala3) && ScalaProjectSettings.getInstance(project).isUseCompilerTypes) {
+        scalacOptions :++= Seq(
+          "-Xplugin:" + ScalaPluginJars.compilerPluginJar.getAbsolutePath,
+          "-Xplugin-require:compiler-plugin"
+        )
+      }
       if (!CompilerOptions.containsStopAfter(scalacOptions)) {
         val stopAfter = module.scalaLanguageLevel match {
           case Some(ScalaLanguageLevel.Scala_2_10) => Some("-Ystop-after:dce")
