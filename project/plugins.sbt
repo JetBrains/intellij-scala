@@ -13,5 +13,5 @@ addSbtPlugin("com.github.sbt.junit" % "sbt-jupiter-interface" % "0.13.0")
 addSbtPlugin("org.scoverage" %% "sbt-scoverage" % "2.0.12")
 
 libraryDependencies ++= Seq(
-  "io.get-coursier" %% "coursier-sbt-maven-repository" % "2.1.10"
+  "io.get-coursier" %% "coursier-sbt-maven-repository" % "2.1.13"
 )
