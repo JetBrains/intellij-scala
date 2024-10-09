@@ -6,6 +6,7 @@ import com.intellij.psi._
 import com.intellij.psi.javadoc.PsiDocComment
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
@@ -19,10 +20,18 @@ trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinit
   def isWildcard: Boolean = name == "_"
 
   override def isStable: Boolean = {
-    val typedPattern = this.getParent match {
-      case typedPattern: ScTypedPatternLike =>
-        typedPattern.typePattern
-      case _ => None
+    val typedPattern = {
+      val parent =
+        ScalaPsiUtil
+          .stub(this)
+          .fold(this.getParent) {
+            stub => stub.getParentStub.getPsi
+          }
+      parent match {
+        case typedPattern: ScTypedPatternLike =>
+          typedPattern.typePattern
+        case _ => None
+      }
     }
     typedPattern match {
       case Some(typeElement) =>
