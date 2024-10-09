@@ -273,3 +273,7 @@ class CompilerDiagnosticsTest_3 extends ScalaCompilerHighlightingTestBase with C
     )
   }
 }
+
+class CompilerDiagnosticsTest_3_5 extends CompilerDiagnosticsTest_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_5
+}
