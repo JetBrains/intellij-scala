@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.highlighter
 
+import com.intellij.codeInsight.daemon.impl.HighlightInfoType
 import com.intellij.codeInspection.util.InspectionMessage
-import com.intellij.lang.annotation.{AnnotationHolder, Annotator, HighlightSeverity}
+import com.intellij.lang.annotation.{AnnotationHolder, Annotator}
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
@@ -226,9 +227,9 @@ object ScalaColorSchemeAnnotator {
   )(implicit holder: ScalaAnnotationHolder): Unit = {
     val builder =
       if (message == null)
-        holder.newSilentAnnotation(HighlightSeverity.INFORMATION)
+        holder.newSilentAnnotation(HighlightInfoType.SYMBOL_TYPE_SEVERITY)
       else
-        holder.newAnnotation(HighlightSeverity.INFORMATION, message)
+        holder.newAnnotation(HighlightInfoType.SYMBOL_TYPE_SEVERITY, message)
     builder
       .range(psiElement)
       .textAttributes(attributes)
@@ -239,7 +240,7 @@ object ScalaColorSchemeAnnotator {
     range: TextRange,
     attributes: TextAttributesKey,
   )(implicit holder: ScalaAnnotationHolder): Unit = {
-    val builder = holder.newSilentAnnotation(HighlightSeverity.INFORMATION)
+    val builder = holder.newSilentAnnotation(HighlightInfoType.SYMBOL_TYPE_SEVERITY)
     builder
       .range(range)
       .textAttributes(attributes)
