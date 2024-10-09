@@ -11,6 +11,8 @@
         <trafficLightRendererContributor implementation="org.jetbrains.plugins.scala.compiler.highlighting.CustomTrafficLightRendererContributor"/>
         <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.compiler.highlighting.EraseCompilerProcessJdkOnce"/>
 
+        <highlightErrorFilter implementation="org.jetbrains.plugins.scala.compiler.highlighting.CompilerHighlightingErrorFilter"/>
+
         <!--
         Define extra classpath for JPS
         NOTE: there is also Scala Compile Server, it's classpath is defined in
