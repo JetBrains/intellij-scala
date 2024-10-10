@@ -3,17 +3,20 @@ package org.jetbrains.plugins.scala.compiler
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.testFramework.CompilerTester
 import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory
+import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.compiler.ScalaCompilerTestBase.ListCompilerMessageExt
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.util.{CompilerTestUtil, RevertableChange, TestUtils}
 import org.jetbrains.sbt.project.{SbtCachesSetupUtil, SbtExternalSystemImportingTestLike}
 import org.junit.Assert.{assertTrue, fail}
+import org.junit.experimental.categories.Category
 
 import java.io.File
 import java.nio.file.{Files, Path}
 import scala.jdk.CollectionConverters.IteratorHasAsScala
 
+@Category(Array(classOf[SlowTests]))
 class CompileSimpleProjectWithSemanticDbTest extends SbtExternalSystemImportingTestLike {
 
   override protected lazy val getTestProjectPath: String =
