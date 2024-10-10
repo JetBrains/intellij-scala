@@ -6,7 +6,8 @@ import com.intellij.psi.tree.IElementType
 abstract class ScalaStringLiteralRawAwareLexer(
   quoteChar: Char,
   originalLiteralToken: IElementType,
-  canEscapeEolOrFramingSpaces: Boolean = false
+  supportsUnicodeEscapeSequence: Boolean,
+  canEscapeEolOrFramingSpaces: Boolean = false,
 ) extends ScalaStringLiteralLexer(quoteChar, originalLiteralToken, canEscapeEolOrFramingSpaces) {
 
   /**
@@ -27,7 +28,7 @@ abstract class ScalaStringLiteralRawAwareLexer(
 
     // handle unicode escape sequences: \u0025
     val nextChar = myBuffer.charAt(myStart + 1)
-    if (nextChar == 'u')
+    if (nextChar == 'u' && supportsUnicodeEscapeSequence)
       getUnicodeEscapeSequenceType
     else
       myOriginalLiteralToken

@@ -4,18 +4,24 @@ import com.intellij.psi.StringEscapesTokenTypes
 import com.intellij.psi.tree.IElementType
 
 /**
- * @param isRawOpt Some(..) when the lexer is used to parse tokens from a single string,
- *                 and when lexer is not reused in some nested injected strings
- *                 (like raw"outer ${s"inner"} outer").<br>
- *                 This hint is required when buffer passed to the lexer doesn't include the interpolator prefix itself and
- *                 starts directly from quotes.
+ * @param isRawLiteral true when the lexer is used to parse tokens from a single string,
+ *                     and when lexer is not reused in some nested injected strings
+ *                     (like raw"outer ${s"inner"} outer").<br>
+ *                     This hint is required when the buffer passed to the lexer doesn't include
+ *                     the interpolator prefix itself and starts directly from quotes.
  */
-class ScalaInterpolatedStringLiteralLexer(
+final class ScalaInterpolatedStringLiteralLexer(
   quoteChar: Char,
   originalLiteralToken: IElementType,
   isRawLiteral: Boolean,
   isMultiline: Boolean,
-) extends ScalaStringLiteralRawAwareLexer(quoteChar, originalLiteralToken, canEscapeEolOrFramingSpaces = isMultiline) {
+  noUnicodeEscapesInRawStrings: Boolean
+) extends ScalaStringLiteralRawAwareLexer(
+  quoteChar,
+  originalLiteralToken,
+  supportsUnicodeEscapeSequence = if (isRawLiteral) !noUnicodeEscapesInRawStrings else true,
+  canEscapeEolOrFramingSpaces = isMultiline,
+) {
 
   override def getTokenType: IElementType =
     if (isRawLiteral)

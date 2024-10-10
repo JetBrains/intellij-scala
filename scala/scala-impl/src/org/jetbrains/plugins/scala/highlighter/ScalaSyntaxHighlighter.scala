@@ -45,7 +45,7 @@ final class ScalaSyntaxHighlighter(
       scalaLexer,
       scalaDocHighlighter.getHighlightingLexer,
       scalaDirectiveHighlighter.getHighlightingLexer,
-      htmlHighlighter.getHighlightingLexer
+      htmlHighlighter.getHighlightingLexer,
     )
 
   override def getTokenHighlights(elementType: IElementType): Array[TextAttributesKey] = elementType match {
@@ -278,15 +278,16 @@ object ScalaSyntaxHighlighter {
       .toMap
 
   private class CompoundLexer(
-    scalaLexer: Lexer,
+    scalaLexer: CustomScalaLexer,
     scalaDocLexer: Lexer,
     scalaDirectiveLexer: Lexer,
-    htmlLexer: Lexer
+    htmlLexer: Lexer,
   ) extends com.intellij.lexer.LayeredLexer(scalaLexer) {
 
     init()
 
     private def init(): Unit = {
+      val noUnicodeEscapesInRawStrings = scalaLexer.noUnicodeEscapesInRawStrings
       //char literal highlighting
       registerSelfStoppingLayer(
         new ScalaStringLiteralLexer('\'', tSTRING),
@@ -302,7 +303,7 @@ object ScalaSyntaxHighlighter {
       )
       //multiline string highlighting
       registerSelfStoppingLayer(
-        new ScalaMultilineStringLiteralLexer(StringLiteralLexer.NO_QUOTE_CHAR, tMULTILINE_STRING),
+        new ScalaMultilineStringLiteralLexer(StringLiteralLexer.NO_QUOTE_CHAR, tMULTILINE_STRING, noUnicodeEscapesInRawStrings = noUnicodeEscapesInRawStrings),
         Array(tMULTILINE_STRING),
         IElementType.EMPTY_ARRAY
       )
@@ -314,6 +315,7 @@ object ScalaSyntaxHighlighter {
           tINTERPOLATED_STRING,
           isRawLiteral = false,
           isMultiline = false,
+          noUnicodeEscapesInRawStrings = noUnicodeEscapesInRawStrings,
         )),
         tINTERPOLATED_STRING
       )
@@ -323,6 +325,7 @@ object ScalaSyntaxHighlighter {
           tINTERPOLATED_STRING,
           isRawLiteral = true,
           isMultiline = false,
+          noUnicodeEscapesInRawStrings = noUnicodeEscapesInRawStrings,
         )),
         tINTERPOLATED_RAW_STRING
       )
@@ -334,6 +337,7 @@ object ScalaSyntaxHighlighter {
           tINTERPOLATED_MULTILINE_STRING,
           isRawLiteral = false,
           isMultiline = true,
+          noUnicodeEscapesInRawStrings = noUnicodeEscapesInRawStrings,
         )),
         tINTERPOLATED_MULTILINE_STRING
       )
@@ -343,6 +347,7 @@ object ScalaSyntaxHighlighter {
           tINTERPOLATED_MULTILINE_STRING,
           isRawLiteral = true,
           isMultiline = true,
+          noUnicodeEscapesInRawStrings = noUnicodeEscapesInRawStrings,
         )),
         tINTERPOLATED_MULTILINE_RAW_STRING
       )
@@ -363,8 +368,11 @@ object ScalaSyntaxHighlighter {
     }
   }
 
-  private[highlighter] class CustomScalaLexer(delegate: ScalaLexer, isScala3: Boolean)
-    extends DelegateLexer(delegate) {
+  private[highlighter] class CustomScalaLexer(
+    delegate: ScalaLexer,
+    val isScala3: Boolean,
+    val noUnicodeEscapesInRawStrings: Boolean
+  ) extends DelegateLexer(delegate) {
 
     private var openingTags = new ju.Stack[String]
     private var tagMatch = false

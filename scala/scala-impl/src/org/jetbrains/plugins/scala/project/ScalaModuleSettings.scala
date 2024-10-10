@@ -128,6 +128,9 @@ private class ScalaModuleSettings private(
   val isSource3Enabled: Boolean =
     source3Options.isSource3Enabled
 
+  val noUnicodeEscapesInRawStrings: Boolean =
+    scalaLanguageLevel.isScala3 || isSource3 && source3Options.unicodeEscapesRaw
+
   val hasSourceFutureFlag: Boolean =
     additionalCompilerOptions.contains("-source:future") || additionalCompilerOptions.contains("--source:future")
 
@@ -149,7 +152,7 @@ private class ScalaModuleSettings private(
       case YnoPredefOrNoImports(imports)                         => imports
     }
 
-  def isSource3 = source3Options.isSource3Enabled
+  def isSource3: Boolean = source3Options.isSource3Enabled
 
   val features: SerializableScalaFeatures =
     ScalaFeatures(
@@ -197,9 +200,10 @@ private object ScalaModuleSettings {
         .forEachLibrary(processor)
       val scalaSdk = processor.getFoundValue.asInstanceOf[LibraryEx]
 
-      Option(scalaSdk)
-        .map(ScalaVersionProvider.FromScalaSdk)
-        .map(new ScalaModuleSettings(module, isBuildModule = false, _))
+      val scalaVersionProvider: Option[ScalaVersionProvider] = Option(scalaSdk).map(ScalaVersionProvider.FromScalaSdk).orElse(
+        Option(module.getUserData(UserDataKeys.LightTestScalaVersion)).map(ScalaVersionProvider.Explicit(_, None))
+      )
+      scalaVersionProvider.map(new ScalaModuleSettings(module, isBuildModule = false, _))
     }
   }
 

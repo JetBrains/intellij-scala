@@ -2,10 +2,19 @@ package org.jetbrains.plugins.scala.highlighter.lexer
 
 import com.intellij.psi.tree.IElementType
 
-class ScalaMultilineStringLiteralLexer(
+/**
+ * Can parse a non-interpolated multiline string literal """..."""
+ */
+final class ScalaMultilineStringLiteralLexer(
   quoteChar: Char,
   originalLiteralToken: IElementType,
-) extends ScalaStringLiteralRawAwareLexer(quoteChar, originalLiteralToken, canEscapeEolOrFramingSpaces = true) {
+  noUnicodeEscapesInRawStrings: Boolean
+) extends ScalaStringLiteralRawAwareLexer(
+  quoteChar,
+  originalLiteralToken,
+  supportsUnicodeEscapeSequence = !noUnicodeEscapesInRawStrings, //SCL-18631
+  canEscapeEolOrFramingSpaces = true
+) {
 
   /** Only unicode escape sequences are not supported in NON-interpolated multiline strings */
   override def getTokenType: IElementType =

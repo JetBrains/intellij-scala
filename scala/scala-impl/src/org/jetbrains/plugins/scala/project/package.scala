@@ -27,9 +27,9 @@ import org.jetbrains.plugins.scala.project.ScalaFeatures.SerializableScalaFeatur
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings, ScalaCompilerSettingsProfile}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.{ScalaPluginJars, UnloadAwareDisposable}
-import org.jetbrains.sbt.{Sbt, WorkspaceModelUtil}
 import org.jetbrains.sbt.language.SbtFile
 import org.jetbrains.sbt.project.module.SbtModuleType
+import org.jetbrains.sbt.{Sbt, WorkspaceModelUtil}
 
 import java.io.File
 import java.net.URL
@@ -48,6 +48,10 @@ package object project {
      * Such files are located outside any module scope and behave as Scala Worksheets by default
      */
     val SCALA_ATTACHED_MODULE = new Key[Reference[Module]]("ScalaAttachedModule")
+
+    /** Designed to be used in light tests without any libraries */
+    @TestOnly
+    val LightTestScalaVersion: Key[ScalaLanguageLevel] = Key.create("light-test-scala-version")
   }
 
   implicit class LibraryExt(private val library: Library) extends AnyVal {
@@ -362,6 +366,8 @@ package object project {
     def source3Options: Source3Options = scalaModuleSettings.fold(Source3Options.none)(_.source3Options)
     def isSource3Enabled: Boolean      = source3Options.isSource3Enabled
 
+    def noUnicodeEscapesInRawStrings: Boolean = scalaModuleSettings.exists(_.noUnicodeEscapesInRawStrings)
+
     def features: SerializableScalaFeatures =
       scalaModuleSettings.fold(ScalaFeatures.default)(_.features)
 
@@ -607,6 +613,7 @@ package object project {
 
     def source3Options: Source3Options = module.fold(Source3Options.none)(_.source3Options)
     def isSource3Enabled: Boolean = isDefinedInModuleOrProject(_.isSource3Enabled)
+    def noUnicodeEscapesInRawStrings: Boolean = isDefinedInModuleOrProject(_.noUnicodeEscapesInRawStrings)
 
     def isScala3OrSource3Enabled: Boolean = isDefinedInModuleOrProject(m => m.hasScala3 || m.isSource3Enabled)
 

@@ -1,0 +1,42 @@
+"string\u0023 \n"
+s"string\u0023 \n"
+raw"string\u0023 \n"
+"""string\u0023 \r"""
+raw"""string\u0023 \n"""
+-----
+string content {"string}
+VALID_STRING_ESCAPE_TOKEN {\u0023}
+string content { }
+VALID_STRING_ESCAPE_TOKEN {\n}
+string content {"}
+white space in line {
+}
+interpolated string id {s}
+interpolated string {"string}
+VALID_STRING_ESCAPE_TOKEN {\u0023}
+interpolated string { }
+VALID_STRING_ESCAPE_TOKEN {\n}
+interpolated string end {"}
+white space in line {
+}
+interpolated string id {raw}
+interpolated string {"string}
+interpolated string {\u0023}
+interpolated string { }
+interpolated string {\n}
+interpolated string end {"}
+white space in line {
+}
+multiline string {"""string}
+multiline string {\u0023}
+multiline string { }
+multiline string {\r}
+multiline string {"""}
+white space in line {
+}
+interpolated string id {raw}
+interpolated multiline string {"""string}
+interpolated multiline string {\u0023}
+interpolated multiline string { }
+interpolated multiline string {\n}
+interpolated string end {"""}

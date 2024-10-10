@@ -48,10 +48,11 @@ object ScStringLiteralAnnotator extends ElementAnnotator[ScStringLiteral] {
     }
 
     val isRaw = literal.asOptionOf[ScInterpolatedStringLiteral].exists(_.kind == ScInterpolatedStringLiteral.Raw)
+    val noUnicodeEscapesInRawStrings = literal.noUnicodeEscapesInRawStrings
     val lexer: ScalaStringLiteralLexer = (isInterpolated, isMultiline) match {
       case (false, false) => new ScalaStringLiteralLexer(StringLiteralLexer.NO_QUOTE_CHAR, tokenType)
-      case (false, true)  => new ScalaMultilineStringLiteralLexer(StringLiteralLexer.NO_QUOTE_CHAR, tokenType)
-      case (true, _)  => new ScalaInterpolatedStringLiteralLexer(StringLiteralLexer.NO_QUOTE_CHAR, tokenType, isRaw, isMultiline)
+      case (false, true)  => new ScalaMultilineStringLiteralLexer(StringLiteralLexer.NO_QUOTE_CHAR, tokenType, noUnicodeEscapesInRawStrings = noUnicodeEscapesInRawStrings)
+      case (true, _)  => new ScalaInterpolatedStringLiteralLexer(StringLiteralLexer.NO_QUOTE_CHAR, tokenType, isRaw, isMultiline, noUnicodeEscapesInRawStrings = noUnicodeEscapesInRawStrings)
     }
 
     val stringLeafNodes = literal.getNode.getChildren(tokenSet)
