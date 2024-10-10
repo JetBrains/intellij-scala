@@ -177,6 +177,8 @@ private final class DocumentCompiler(project: Project) {
 
     override protected def scalaParameters: Seq[String] = {
       var scalacOptions = CompilerOptions.scalacOptions(module)
+      // The compiler plugin is currently only compatible with Scala 3.3+ (see CompilerPlugin)
+      // Although the UI setting is disabled for earlier versions, it's per-project rather than per-module and the versions can be modified independently
       if (module.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_3_3) && ScalaProjectSettings.getInstance(project).isUseCompilerTypes) {
         scalacOptions :++= Seq(
           "-Xplugin:" + ScalaPluginJars.compilerPluginJar.getAbsolutePath,

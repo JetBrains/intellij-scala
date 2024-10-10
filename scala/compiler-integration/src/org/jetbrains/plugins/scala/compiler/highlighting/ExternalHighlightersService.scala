@@ -69,6 +69,9 @@ private final class ExternalHighlightersService(project: Project) { self =>
       val errorFiles = filterFilesToHighlightBasedOnFileLevel(state.filesWithHighlightings(errorTypes))
 
       var expressions = Vector.empty[ScExpression]
+      // Add types only to a file opened in the current editor
+      // In principle, JPS can process arbitrary files (currently disabled) unless we implement a filter (see CompilerDataFactory.scalaOptionsFor)
+      // Can be extended to all opened editors
       Option(FileEditorManager.getInstance(project).getFocusedEditor).foreach { editor =>
         state.externalTypes(editor.getFile).foreach { case ((begin, end), tpe) =>
           val psiFile = PsiManager.getInstance(project).findFile(editor.getFile)
@@ -76,12 +79,14 @@ private final class ExternalHighlightersService(project: Project) { self =>
           def toOffset(pos: PosInfo): Int = document.getLineStartOffset(pos.line - 1) + pos.column - 1
           val range = new TextRange(toOffset(begin), toOffset(end))
           psiFile
-            .depthFirst(_.getTextRange.contains(range))
+            .depthFirst(_.getTextRange.contains(range)) // Optimized iteration
             .filter(_.getTextRange == range)
-            .findByType[ScMethodCall]
+            .findByType[ScMethodCall] // In principle, can be for arbitrary expressions (or elements)
             .foreach { e =>
               val value = e.getCopyableUserData(ScExpression.CompilerTypeKey)
+              // Skip if the same value already exists
               if (value != tpe) {
+                // Doesn't require a write action
                 e.putCopyableUserData(ScExpression.CompilerTypeKey, tpe)
                 expressions :+= e
               }
@@ -111,9 +116,11 @@ private final class ExternalHighlightersService(project: Project) { self =>
           executeOnPooledThread(informWolf(errorFiles))
 
           if (expressions.nonEmpty) {
+            // We change the type of the expression without changing the PSI, so we trigger the update manually (see ScalaPsiChangeListener)
             expressions.foreach { e =>
               ScalaPsiManager.instance(project).clearOnScalaElementChange(e)
             }
+            // Also update hints (type hints, implicit hints, x-ray mode, etc.)
             ImplicitHints.updateInAllEditors()
           }
         }

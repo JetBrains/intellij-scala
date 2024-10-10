@@ -120,6 +120,10 @@ object CompilerDataFactory
 
     val options = bootOptions ++ semanticDBOptions ++ configuredOptions
 
+    // The compiler plugin is currently only compatible with Scala 3.3+ (see CompilerPlugin)
+    // For those versions, we run DocumentCompiler in addition to JPS compilation (see AbstractRemoteServerConnector.scalaParameters)
+    // In principle, we may enable the compiler plugin in JPS, but we need to do that conditionally (and possibly supply a set of files as a filter)
+
 //    if (compilerHighlightingScala3 && hasScala3 && compilerTypesEnabled) {
 //      val pluginJpsRoot = new File(PathManager.getJarPathForClass(getClass)).getParentFile
 //

@@ -120,6 +120,7 @@ public class EditorSettingsSectionPanel extends SettingsSectionPanel {
         boolean forScala3_3 = typeCheckerScala3.getSelectedItem() == ScalaProjectSettings.TypeChecker.Compiler &&
                 ScalaProjectUtil.hasScala(myProject, ScalaLanguageLevel.Scala_3_3);
 
+        // Always show the (possibly disabled) option for Scala 3.* to clarify that it requires Scala 3.3+
         useCompilerTypes.setEnabled(forScala3_3);
     }
 
