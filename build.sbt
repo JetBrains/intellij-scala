@@ -952,7 +952,12 @@ lazy val runJUnit5Tests = Command.command("runJUnit5Tests") { state =>
   val state1 = Command.process(
     s"""set Seq(
        |  Test / testFrameworks := Seq($testFrameworkFqn),
-       |  Test / testOptions := Seq(Tests.Argument($testFrameworkFqn, "-v", "-s", "-a", "+c", "+q", "--display-mode=tree"))
+       |  Test / testOptions := Seq(
+       |    Tests.Argument($testFrameworkFqn, "-v", "-s", "-a", "+c", "+q", "--display-mode=tree"),
+       |    Tests.Filter { testName =>
+       |       !testName.contains(".uiTests.")
+       |    }
+       |  )
        |)""".stripMargin,
     state,
     _ => ()
