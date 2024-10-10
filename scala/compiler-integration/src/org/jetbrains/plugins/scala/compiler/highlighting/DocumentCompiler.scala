@@ -177,7 +177,7 @@ private final class DocumentCompiler(project: Project) {
 
     override protected def scalaParameters: Seq[String] = {
       var scalacOptions = CompilerOptions.scalacOptions(module)
-      if (module.scalaLanguageLevel.exists(_.isScala3) && ScalaProjectSettings.getInstance(project).isUseCompilerTypes) {
+      if (module.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_3_3) && ScalaProjectSettings.getInstance(project).isUseCompilerTypes) {
         scalacOptions :++= Seq(
           "-Xplugin:" + ScalaPluginJars.compilerPluginJar.getAbsolutePath,
           "-Xplugin-require:compiler-plugin"

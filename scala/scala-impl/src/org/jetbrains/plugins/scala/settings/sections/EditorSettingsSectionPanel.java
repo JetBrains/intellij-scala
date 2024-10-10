@@ -11,6 +11,7 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel;
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings;
 import org.jetbrains.plugins.scala.settings.SimpleMappingListCellRenderer;
 
@@ -109,7 +110,11 @@ public class EditorSettingsSectionPanel extends SettingsSectionPanel {
                 typeCheckerScala3.getSelectedItem() == ScalaProjectSettings.TypeChecker.Compiler;
 
         useCompilerRanges.setEnabled(forScala2 || forScala3);
-        useCompilerTypes.setEnabled(forScala3);
+
+        boolean forScala3_3 = typeCheckerScala3.getSelectedItem() == ScalaProjectSettings.TypeChecker.Compiler &&
+                ScalaProjectUtil.hasScala(myProject, ScalaLanguageLevel.Scala_3_3);
+
+        useCompilerTypes.setEnabled(forScala3_3);
     }
 
     @Override
