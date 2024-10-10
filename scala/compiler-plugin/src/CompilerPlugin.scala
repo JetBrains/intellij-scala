@@ -38,8 +38,11 @@ private object CompilerPlugin:
     override def transformInlined(tree: tpd.Inlined)(using Context): tpd.Tree =
       if (!tree.call.isEmpty) {
         val printer = new TypePrinter(ctx.fresh.setSetting(ctx.settings.YtestPickler, true))
-        val s = TypePrefix + printer.toText(tree.expansion.tpe).mkString(Int.MaxValue, false).replace("<root>.this.", "_root_.") + TypeSuffix
-        report.echo(s, tree.srcPos)(using ctx.fresh.setSetting(ctx.settings.YshowSuppressedErrors, true))
+        val tpe = tree.expansion.tpe
+        val s = printer.toText(tpe).mkString(Int.MaxValue, false)
+          .replace("<root>.this.", "_root_.")
+          .replace("$.this.", ".")
+        report.echo(TypePrefix + s + TypeSuffix, tree.srcPos)(using ctx.fresh.setSetting(ctx.settings.YshowSuppressedErrors, true))
       }
       super.transformInlined(tree)
 
