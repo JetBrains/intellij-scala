@@ -1,6 +1,7 @@
 -XX:MaxMetaspaceSize=1g
 -Xss1m
--Xms1536m
+-Xms2G
 -Xmx2G
 -XX:ReservedCodeCacheSize=256m
 -Dfile.encoding=UTF8
+--add-opens=java.base/java.lang=ALL-UNNAMED
