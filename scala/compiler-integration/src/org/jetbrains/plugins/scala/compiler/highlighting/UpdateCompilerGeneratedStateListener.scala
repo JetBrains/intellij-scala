@@ -6,7 +6,7 @@ import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import org.apache.commons.lang3.StringUtils
-import org.jetbrains.jps.incremental.scala.Client.PosInfo
+import org.jetbrains.jps.incremental.scala.Client.{ClientMsg, PosInfo}
 import org.jetbrains.jps.incremental.scala.MessageKind
 import org.jetbrains.plugins.scala.compiler.highlighting.BackgroundExecutorService.executeOnBackgroundThreadInNotDisposed
 import org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlighting.RangeInfo
@@ -27,14 +27,11 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
         val newHighlightOnCompilationFinished = oldState.toHighlightingState.filesWithHighlightings
         val newState = oldState.copy(highlightOnCompilationFinished = newHighlightOnCompilationFinished)
         CompilerGeneratedStateManager.update(project, newState)
-      case CompilerEvent.MessageEmitted(compilationId, _, _, msg) if msg.kind == MessageKind.Info && msg.text.startsWith(CompilerPluginTypePrefix) =>
-        val virtualFile = msg.source.get.toVirtualFile.get
-
-        val range = (msg.problemStart.get, msg.problemEnd.get)
-        val tpe = msg.text.substring(CompilerPluginTypePrefix.length, msg.text.indexOf(CompilerPluginTypeSuffix).ensuring(_ != -1))
-        val fileState = FileCompilerGeneratedState(compilationId, Set.empty, Map((range, tpe)))
+      case CompilerEvent.MessageEmitted(compilationId, _, _, ClientMsg(MessageKind.Info, text, Some(source), _, Some(begin), Some(end), _)) if text.startsWith(CompilerPluginTypePrefix) =>
+        val virtualFile = source.toVirtualFile.get
+        val tpe = text.substring(CompilerPluginTypePrefix.length, text.indexOf(CompilerPluginTypeSuffix).ensuring(_ != -1))
+        val fileState = FileCompilerGeneratedState(compilationId, Set.empty, Map(((begin, end), tpe)))
         val newState = replaceOrAppendFileState(oldState, virtualFile, fileState)
-
         CompilerGeneratedStateManager.update(project, newState)
       case CompilerEvent.MessageEmitted(compilationId, _, _, msg) =>
         for {
