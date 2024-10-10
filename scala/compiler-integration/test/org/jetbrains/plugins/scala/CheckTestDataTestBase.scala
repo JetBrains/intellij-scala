@@ -6,9 +6,11 @@ import org.jetbrains.plugins.scala.compiler.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.util.CompilerTestUtil.runWithErrorsFromCompiler
 import org.jetbrains.plugins.scala.util.GeneratedTestSuiteFactory
 import org.jetbrains.plugins.scala.util.GeneratedTestSuiteFactory.TestData
+import org.junit.experimental.categories.Category
 
 import scala.jdk.CollectionConverters.IterableHasAsScala
 
+@Category(Array(classOf[SlowTests]))
 abstract class CheckTestDataTestBase(testData: Seq[TestData], minScalaVersion: ScalaVersion)
   extends ScalaCompilerTestBase
 {
