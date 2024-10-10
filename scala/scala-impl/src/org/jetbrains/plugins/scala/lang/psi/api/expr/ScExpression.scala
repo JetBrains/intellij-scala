@@ -289,6 +289,8 @@ object ScExpression {
 
       Option(expr.getCopyableUserData(CompilerTypeKey)) match {
         case Some(s) =>
+          // In principle, we may clean the compiler type and keep only the cached type
+          //expr.putCopyableUserData(CompilerTypeKey, null)
           Right(ScalaPsiElementFactory.createTypeFromText(s, expr, null).get)
         case None =>
           getTypeWithoutImplicits0(ignoreBaseType, fromUnderscore)

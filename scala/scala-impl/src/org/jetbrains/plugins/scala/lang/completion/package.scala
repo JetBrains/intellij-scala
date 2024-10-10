@@ -264,7 +264,9 @@ package object completion {
         copy.context = anchor.getContext
         copy.child = anchor
 
-        (anchor, expressionToCopy) match {
+        // Copy the compiler type (see ScExpression.getTypeWithoutImplicits)
+        (placeInOriginalFile.parent.map(_.getParent).orNull, positionInCompletionFile.getParent) match {
+          // In principle, can be not just for method calls
           case (c1: ScMethodCall, (_: ScReferenceExpression) & FirstChild(c2: ScMethodCall)) =>
             val compilerType = c1.getCopyableUserData(ScExpression.CompilerTypeKey)
             c2.putCopyableUserData(ScExpression.CompilerTypeKey, compilerType)
