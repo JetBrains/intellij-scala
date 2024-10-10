@@ -27,6 +27,9 @@ private object VfsUtil {
   @RequiresReadLock
   private def findModulesForSources(project: Project, sources: Set[File]): Array[Module] = {
     val fileIndex = ProjectFileIndex.getInstance(project)
-    sources.toArray.flatMap(_.toVirtualFile).map(fileIndex.getModuleForFile)
+    sources.toArray
+      .flatMap(_.toVirtualFile)
+      .map(fileIndex.getModuleForFile)
+      .filter(_ != null) // getModuleForFile is nullable and getOutputPaths doesn't accept nulls
   }
 }
