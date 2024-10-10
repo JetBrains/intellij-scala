@@ -1,12 +1,14 @@
 package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.TypecheckerTests
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, StringExt}
 import org.jetbrains.plugins.scala.highlighter.ScalaColorSchemeAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert.assertEquals
+import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 
 import scala.collection.immutable.ListSet
@@ -26,6 +28,7 @@ import scala.collection.immutable.ListSet
   TestScalaVersion.Scala_2_13,
   TestScalaVersion.Scala_3_Latest
 ))
+@Category(Array(classOf[TypecheckerTests]))
 abstract class ScalaColorSchemeAnnotatorTestBase[T] extends ScalaLightCodeInsightFixtureTestCase {
 
   protected def needToAnnotateElement(element: PsiElement): Boolean

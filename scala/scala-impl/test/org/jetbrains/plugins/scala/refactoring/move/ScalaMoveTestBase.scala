@@ -6,14 +6,17 @@ import com.intellij.openapi.roots.ModuleRootModificationUtil
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil, VirtualFile}
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.testFramework.PsiTestUtil
+import org.jetbrains.plugins.scala.EditorTests
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.util.TestUtils
+import org.junit.experimental.categories.Category
 
 import java.io.File
 import java.nio.file.Path
 import java.util
 
+@Category(Array(classOf[EditorTests]))
 abstract class ScalaMoveTestBase extends ScalaLightCodeInsightFixtureTestCase {
   protected def getTestDataRoot: String = TestUtils.getTestDataPath + "/refactoring/move/"
 
