@@ -39,6 +39,7 @@ public class EditorSettingsSectionPanel extends SettingsSectionPanel {
     private JCheckBox showAmbiguousImplicitArgumentsCheckBox;
     private JComboBox<ScalaProjectSettings.AliasExportSemantics> aliasSemantics;
     private JPanel useCompilerRangesHelp;
+    private JPanel useCompilerTypesHelp;
     private JCheckBox useCompilerRanges;
     private JCheckBox useCompilerTypes;
     private JCheckBox showTypeMismatchHintsCheckBox;
@@ -77,6 +78,7 @@ public class EditorSettingsSectionPanel extends SettingsSectionPanel {
         updateCompilerSettings();
 
         useCompilerRangesHelp.add(ContextHelpLabel.create(ScalaBundle.message("use.compiler.ranges.help")));
+        useCompilerTypesHelp.add(ContextHelpLabel.create(ScalaBundle.message("use.compiler.types.help")));
 
         aliasSemantics.setModel(new DefaultComboBoxModel<>(ScalaProjectSettings.AliasExportSemantics.values()));
         aliasSemantics.setRenderer(SimpleMappingListCellRenderer.create(
@@ -367,9 +369,15 @@ public class EditorSettingsSectionPanel extends SettingsSectionPanel {
         useCompilerRanges = new JCheckBox();
         this.$$$loadButtonText$$$(useCompilerRanges, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.error.highlighting.use.compiler.ranges"));
         panel3.add(useCompilerRanges, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JPanel panel4 = new JPanel();
+        panel4.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
+        errorHighlightingSection.add(panel4, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_VERTICAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         useCompilerTypes = new JCheckBox();
         this.$$$loadButtonText$$$(useCompilerTypes, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.compiler.types"));
-        errorHighlightingSection.add(useCompilerTypes, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel4.add(useCompilerTypes, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        useCompilerTypesHelp = new JPanel();
+        useCompilerTypesHelp.setLayout(new BorderLayout(0, 0));
+        panel4.add(useCompilerTypesHelp, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     private static Method $$$cachedGetBundleMethod$$$ = null;
