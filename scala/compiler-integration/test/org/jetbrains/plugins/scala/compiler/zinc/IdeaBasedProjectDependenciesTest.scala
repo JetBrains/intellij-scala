@@ -4,17 +4,20 @@ import com.intellij.ide.util.projectWizard.ModuleBuilder
 import com.intellij.openapi.module.{JavaModuleType, Module, ModuleType}
 import com.intellij.openapi.roots.{LibraryOrderEntry, ModuleRootModificationUtil}
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.HeavyPlatformTestCase.createChildDirectory
 import com.intellij.testFramework.{PsiTestUtil, VfsTestUtil}
-import org.jetbrains.plugins.scala.CompilationTests
+import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.base.libraryLoaders.IvyManagedLoader
 import org.jetbrains.plugins.scala.compiler.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.junit.experimental.categories.Category
 
-@Category(Array(classOf[CompilationTests]))
+@Category(Array(classOf[SlowTests]))
 class IdeaBasedProjectDependenciesTest extends ScalaCompilerTestBase  {
+
+  override def defaultJdkVersion: LanguageLevel = LanguageLevel.JDK_17
 
   override protected def incrementalityType = IncrementalityType.IDEA
 
