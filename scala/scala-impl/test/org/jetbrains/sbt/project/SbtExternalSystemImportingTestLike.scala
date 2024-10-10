@@ -1,10 +1,13 @@
 package org.jetbrains.sbt.project
 
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
+import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.projectHighlighting.base.ProjectHighlightingTestUtils
 import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
+import org.junit.experimental.categories.Category
 
+@Category(Array(classOf[SlowTests]))
 trait SbtExternalSystemImportingTestLike extends ScalaExternalSystemImportingTestBase {
 
   override protected def getExternalSystemConfigFileName: String = Sbt.BuildFile
