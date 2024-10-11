@@ -7,7 +7,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.bsp.protocol.utils.ParsersKt
 import org.jetbrains.plugins.bsp.config.BuildToolId
 import org.jetbrains.plugins.bsp.impl.server.connection.ConnectionDetailsProviderExtensionJavaShim
-import org.jetbrains.plugins.scala.bsp.ScalaBspMetadataStorage
+import org.jetbrains.plugins.scala.bsp.{MillBspBundle, ScalaBspMetadataStorage}
 import org.jetbrains.plugins.scala.bsp.config.MillScalaPluginConstants.BUILD_TOOL_ID
 
 import java.lang
@@ -51,7 +51,7 @@ class MillScalaConnectionDetailsProvider extends ConnectionDetailsProviderExtens
       if (process.exitValue() != 0) {
         val processInput = process.inputReader.lines.toList.asScala.mkString
         val processError = process.errorReader.lines.toList.asScala.mkString
-        throw new RuntimeException(s"Sbt bsp file genration with coursier failed. stdout=[$processInput], stderr=[$processError]")
+        throw new RuntimeException(MillBspBundle.message("mill.connection.file.generation.failed", processInput, processError))
       }
 
       getConnectionFile(projectPath).isDefined
@@ -79,14 +79,14 @@ class MillScalaConnectionDetailsProvider extends ConnectionDetailsProviderExtens
     val projectRootPath = maybeProjectRootPath match {
       case Some(projectRootPath) => projectRootPath
       case None =>
-        error("Cannot obtain project path, please reimport the project.")
+        error(MillBspBundle.message("mill.root.not.found"))
         return null
     }
 
     val connectionFile = getChild(projectRootPath, List.apply(".bsp", "mill-bsp.json")) match {
       case Some(connectionFile) => connectionFile
       case None =>
-        error("BSP connection file does not exist, please reimport the project or generate the file manually.")
+        error(MillBspBundle.message("mill.connection.file.not.exist"))
         return null
     }
 
