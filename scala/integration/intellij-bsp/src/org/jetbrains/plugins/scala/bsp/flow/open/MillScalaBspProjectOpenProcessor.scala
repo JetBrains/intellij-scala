@@ -12,10 +12,10 @@ class MillScalaBspProjectOpenProcessor extends BaseBspProjectOpenProcessor(MillS
     projectPath != null && projectPath.findChild(MillScalaPluginConstants.MILL_CONFIG_FILE) != null
 
   override def calculateProjectFolderToOpen(virtualFile: VirtualFile): VirtualFile = {
-    Iterator.iterate(virtualFile.getParent)(_.getParent)
-      .takeWhile(_ != null)
-      .find(canOpenProject)
-      .getOrElse(throw new IllegalStateException(MillBspBundle.message("mill.no.project.found", virtualFile)))
+    virtualFile
+      .getParent
+      .ensuring(_.getName == MillScalaPluginConstants.BSP_CONNECTION_DIR, MillBspBundle.message("mill.no.project.found", virtualFile))
+      .getParent
   }
 }
 
