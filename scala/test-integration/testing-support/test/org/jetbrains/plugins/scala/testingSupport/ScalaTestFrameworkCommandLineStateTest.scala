@@ -8,6 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.testFramework.HeavyPlatformTestCase
+import org.jetbrains.plugins.scala.TestingSupportTests
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.extensions.{StringExt, inWriteAction}
 import org.jetbrains.plugins.scala.testingSupport.test.CustomTestRunnerBasedStateProvider.TestFrameworkRunnerInfo
@@ -17,6 +18,7 @@ import org.jetbrains.sbt.project.data.ModuleNode
 import org.jetbrains.sbt.project.data.service.ExternalSystemDataDsl._
 import org.jetbrains.sbt.project.data.service.ProjectDataServiceTestCase
 import org.junit.Assert.{assertEquals, assertNotNull}
+import org.junit.experimental.categories.Category
 
 import java.io.File
 import java.net.URI
@@ -24,6 +26,7 @@ import java.nio.file.Files
 import java.util
 import scala.jdk.CollectionConverters.{CollectionHasAsScala, MapHasAsJava}
 
+@Category(Array(classOf[TestingSupportTests]))
 class ScalaTestFrameworkCommandLineStateTest extends HeavyPlatformTestCase {
 
   private lazy val jdk = SmartJDKLoader.getOrCreateJDK()

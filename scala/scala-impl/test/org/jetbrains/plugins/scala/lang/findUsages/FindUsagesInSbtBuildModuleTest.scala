@@ -6,14 +6,17 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiFile, PsiManager, PsiNamedElement}
 import com.intellij.usageView.UsageInfo
 import com.intellij.util.Processor
+import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.findUsages.factory.{ScalaFindUsagesConfiguration, ScalaFindUsagesHandler, ScalaTypeDefinitionFindUsagesOptions}
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.project.{SbtCachesSetupUtil, SbtExternalSystemImportingTestLike}
 import org.junit.Assert.{assertEquals, assertNotNull, fail}
+import org.junit.experimental.categories.Category
 
 import scala.collection.mutable
 
+@Category(Array(classOf[SlowTests]))
 class FindUsagesInSbtBuildModuleTest extends SbtExternalSystemImportingTestLike {
 
   override protected def getTestProjectPath: String =

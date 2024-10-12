@@ -5,7 +5,10 @@ import org.jetbrains.sbt.project.{SbtCachesSetupUtil, SbtExternalSystemImporting
 import org.junit.Assert.{assertNotNull, assertTrue}
 import com.intellij.openapi.module.Module
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.SlowTests
+import org.junit.experimental.categories.Category
 
+@Category(Array(classOf[SlowTests]))
 class FindJVMModuleModuleExtensionTest extends SbtExternalSystemImportingTestLike {
 
   override protected def getTestProjectPath: String =

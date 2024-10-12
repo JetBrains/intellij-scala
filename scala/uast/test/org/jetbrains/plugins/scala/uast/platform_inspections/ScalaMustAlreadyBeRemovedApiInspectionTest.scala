@@ -5,10 +5,13 @@ import com.intellij.openapi.roots.{ModifiableRootModel, ModuleRootModificationUt
 import com.intellij.testFramework.PsiTestUtil
 import com.intellij.util.PathUtil
 import org.jetbrains.annotations.ApiStatus
+import org.jetbrains.plugins.scala.EditorTests
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
+import org.junit.experimental.categories.Category
 
 import java.util.Arrays.asList
 
+@Category(Array(classOf[EditorTests]))
 class ScalaMustAlreadyBeRemovedApiInspectionTest extends ScalaLightCodeInsightFixtureTestCase {
   private val pastVersion = "2.3"
   private val currentVersion = "3.0"
