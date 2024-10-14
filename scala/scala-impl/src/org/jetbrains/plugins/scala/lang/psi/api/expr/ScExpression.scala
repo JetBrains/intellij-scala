@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.{Scala_2_11, Scala_2_13}
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.SAMUtil
 import org.jetbrains.plugins.scala.{NlsString, ScalaBundle, Tracing}
 
@@ -289,9 +290,13 @@ object ScExpression {
 
       Option(expr.getCopyableUserData(CompilerTypeKey)) match {
         case Some(s) =>
-          // In principle, we may clean the compiler type and keep only the cached type
-          //expr.putCopyableUserData(CompilerTypeKey, null)
-          Right(ScalaPsiElementFactory.createTypeFromText(s, expr, null).get)
+          val settings = ScalaProjectSettings.getInstance(expr.getProject)
+          if (settings.isCompilerHighlightingScala3 && settings.isUseCompilerTypes) {
+            Right(ScalaPsiElementFactory.createTypeFromText(s, expr, null).get)
+          } else {
+            expr.putCopyableUserData(CompilerTypeKey, null)
+            getTypeWithoutImplicits0(ignoreBaseType, fromUnderscore)
+          }
         case None =>
           getTypeWithoutImplicits0(ignoreBaseType, fromUnderscore)
       }
