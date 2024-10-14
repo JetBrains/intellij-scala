@@ -234,41 +234,43 @@ package object completion {
         case element => locallyStableParent(element.getParent)
       }
 
-    cachedInUserData("mirrorPosition", originalFile, CachesUtil.fileModTracker(originalFile), Tuple1(positionInCompletionFile)) {
-      val placeOffset = positionInCompletionFile match {
-        case ElementType(ScalaTokenTypes.tIDENTIFIER) => positionInCompletionFile.getParent.startOffset
-        case _                                        => positionInCompletionFile.startOffset
-      }
-      /**
-       * TODO(SCL-21582): seems like this might change the context if nothing was typed.
-       * E.g.:
-       * {{{
-       *   def main(): Unit = {
-       *     val test: Int = <caret>
-       *   }
-       * }}}
-       *
-       * `copy.context` will probably be `main` instead of `test` because original position is a whitespace
-       * with `main` as a parent. Therefore places that rely on expected type will get wrong results
-       * (`Unit` instead of `Int` in this example)
-       */
-      val placeInOriginalFile = originalFile.findElementAt(placeOffset)
+    val placeOffset = positionInCompletionFile match {
+      case ElementType(ScalaTokenTypes.tIDENTIFIER) => positionInCompletionFile.getParent.startOffset
+      case _                                        => positionInCompletionFile.startOffset
+    }
+    /**
+     * TODO(SCL-21582): seems like this might change the context if nothing was typed.
+     * E.g.:
+     * {{{
+     *   def main(): Unit = {
+     *     val test: Int = <caret>
+     *   }
+     * }}}
+     *
+     * `copy.context` will probably be `main` instead of `test` because original position is a whitespace
+     * with `main` as a parent. Therefore places that rely on expected type will get wrong results
+     * (`Unit` instead of `Int` in this example)
+     */
+    val placeInOriginalFile = originalFile.findElementAt(placeOffset)
 
+    var compilerType: String = null
+
+    // Copy the compiler type (see ScExpression.getTypeWithoutImplicits)
+    (Option(placeInOriginalFile).flatMap(_.parent).map(_.getParent).orNull, positionInCompletionFile.getParent) match {
+      // In principle, can be not just for method calls
+      case (c1: ScMethodCall, (_: ScReferenceExpression) & FirstChild(c2: ScMethodCall)) =>
+        compilerType = c1.getCopyableUserData(ScExpression.CompilerTypeKey)
+        c2.putCopyableUserData(ScExpression.CompilerTypeKey, compilerType)
+      case _ =>
+    }
+
+    // A possible modification of CompilerTypeKey user data is not a PSI modification
+    cachedInUserData("mirrorPosition", originalFile, CachesUtil.fileModTracker(originalFile), Tuple1(positionInCompletionFile, compilerType)) {
       //todo: we may probably choose a smaller fragment to copy in many cases SCL-17106
       for {
         anchor           <- locallyStableParent(placeInOriginalFile)
         expressionToCopy <- locallyStableParent(positionInCompletionFile)
       } yield {
-
-        // Copy the compiler type (see ScExpression.getTypeWithoutImplicits)
-        (placeInOriginalFile.parent.map(_.getParent).orNull, positionInCompletionFile.getParent) match {
-          // In principle, can be not just for method calls
-          case (c1: ScMethodCall, (_: ScReferenceExpression) & FirstChild(c2: ScMethodCall)) =>
-            val compilerType = c1.getCopyableUserData(ScExpression.CompilerTypeKey)
-            c2.putCopyableUserData(ScExpression.CompilerTypeKey, compilerType)
-          case _ =>
-        }
-
         val copy = expressionToCopy.copy().asInstanceOf[ScExpression]
         copy.context = anchor.getContext
         copy.child = anchor
