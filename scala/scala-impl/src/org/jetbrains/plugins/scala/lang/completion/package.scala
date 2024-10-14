@@ -260,10 +260,6 @@ package object completion {
         expressionToCopy <- locallyStableParent(positionInCompletionFile)
       } yield {
 
-        val copy = expressionToCopy.copy().asInstanceOf[ScExpression]
-        copy.context = anchor.getContext
-        copy.child = anchor
-
         // Copy the compiler type (see ScExpression.getTypeWithoutImplicits)
         (placeInOriginalFile.parent.map(_.getParent).orNull, positionInCompletionFile.getParent) match {
           // In principle, can be not just for method calls
@@ -272,6 +268,10 @@ package object completion {
             c2.putCopyableUserData(ScExpression.CompilerTypeKey, compilerType)
           case _ =>
         }
+
+        val copy = expressionToCopy.copy().asInstanceOf[ScExpression]
+        copy.context = anchor.getContext
+        copy.child = anchor
 
         val newOffset = positionInCompletionFile.startOffset - expressionToCopy.startOffset + copy.startOffset
         copy.getContainingFile.findElementAt(newOffset)
