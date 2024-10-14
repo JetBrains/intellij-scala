@@ -83,7 +83,8 @@ lazy val scalaCommunity: sbt.Project =
         runtimeDependencies
       ),
       // all sub-project tests need to be run within main project's classpath
-      Test / definedTests := definedTests.all(definedTestsScopeFilter).value.flatten
+      Test / definedTests := definedTests.all(definedTestsScopeFilter).value.flatten,
+      cleanAll := Common.cleanAllTask(None).value
     )
 
 lazy val pluginXml = newProject("pluginXml", file("pluginXml"))
