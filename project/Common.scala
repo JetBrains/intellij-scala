@@ -77,6 +77,11 @@ object Common {
     Test / unmanagedSourceDirectories := Nil,
   )
 
+  val compilationCacheSettings: Seq[Setting[?]] = Seq(
+    Compile / pushRemoteCacheConfiguration ~= { _.withOverwrite(true) },
+    Test / pushRemoteCacheConfiguration ~= { _.withOverwrite(true) }
+  )
+
   private val NewProjectBaseSettings: Seq[Setting[?]] = Seq(
     organization := "JetBrains",
     scalaVersion := Versions.scalaVersion,
@@ -91,7 +96,8 @@ object Common {
       Dependencies.junitInterface % Test,
       Dependencies.jupiterInterface % Test
     ),
-  ) ++ projectDirectoriesSettings
+  ) ++ projectDirectoriesSettings ++
+    compilationCacheSettings
 
   val intellijPluginsScopeFilter: ScopeFilter =
     ScopeFilter(inDependencies(ThisProject, includeRoot = false))
