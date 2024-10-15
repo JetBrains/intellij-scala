@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.project.template
 import com.intellij.facet.impl.ui.libraries.LibraryOptionsPanel
 import com.intellij.framework.library.FrameworkLibraryVersionFilter
 import com.intellij.openapi.roots.ui.configuration.projectRoot.LibrariesContainer
-import com.intellij.ui.components.{ComponentsKt, JBTextField}
+import com.intellij.ui.components.JBTextField
 import com.intellij.ui.dsl.builder.AlignX
 import com.intellij.util.ui.UI
 import org.jetbrains.annotations.Nls
@@ -55,7 +55,7 @@ trait PackagePrefixStepLike {
   protected val packagePrefixLabelText: String = ScalaBundle.message("package.prefix.label")
 
   private val packagePrefixLabel: JLabel =
-    ComponentsKt.Label(packagePrefixLabelText, null, null, false, null)
+    new JLabel(packagePrefixLabelText)
 
   protected def setupPackagePrefixUI(panel: com.intellij.ui.dsl.builder.Panel): Unit = {
     panel.row(packagePrefixLabel, (row: com.intellij.ui.dsl.builder.Row) => {
