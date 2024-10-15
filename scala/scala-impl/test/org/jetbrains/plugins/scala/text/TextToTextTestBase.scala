@@ -67,6 +67,8 @@ abstract class TextToTextTestBase(dependencies: Seq[DependencyDescription],
 
     Assert.assertTrue(s"The number of classes: $total < $minClassCount", total >= minClassCount)
 
+    Assert.assertEquals("Class not found", Set.empty, classExceptions -- classes.map(_.qualifiedName).toSet)
+
     println(s"Testing $total classes:")
 
     classes.zipWithIndex.foreach { case (cls, i) =>
