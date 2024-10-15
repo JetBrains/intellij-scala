@@ -1058,6 +1058,7 @@ private object TreePrinter {
     "do",
     "else",
     "enum",
+    "export",
     "extends",
     "extension",
     "false",

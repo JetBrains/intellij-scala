@@ -10,11 +10,5 @@ class CirceTest extends TextToTextTestBase(
     "io.circe" %% "circe-parser" % "0.14.1",
   ),
   Seq("io.circe"), Set.empty, 63,
-  Set(
-    "io.circe.Encoder", // export
-    "io.circe.Exported", // export
-    "io.circe.LowPriorityDecoders", // export
-    "io.circe.LowPriorityEncoders", // export
-    "io.circe.generic.AutoDerivation", // export
-  )
+  Set.empty
 )

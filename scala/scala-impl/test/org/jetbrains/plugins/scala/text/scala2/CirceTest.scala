@@ -11,10 +11,10 @@ class CirceTest extends TextToTextTestBase(
   ),
   Seq("io.circe"), Set.empty, 73,
   Set(
-    "io.circe.Encoder", // export
-    "io.circe.LowPriorityDecoders", // export
-    "io.circe.LowPriorityEncoders", // export
-    "io.circe.generic.AutoDerivation", // export
+    "io.circe.Encoder", // export (correct, see ScalaNamesValidator)
+    "io.circe.LowPriorityDecoders", // export (correct, see ScalaNamesValidator)
+    "io.circe.LowPriorityEncoders", // export (correct, see ScalaNamesValidator)
+    "io.circe.generic.AutoDerivation", // export (correct, see ScalaNamesValidator)
     "io.circe.generic.Deriver", // Cannot resolve reference
     "io.circe.generic.GenericJsonCodecMacros", // Cannot resolve reference
     "io.circe.generic.util.macros.DerivationMacros", // Cannot resolve reference

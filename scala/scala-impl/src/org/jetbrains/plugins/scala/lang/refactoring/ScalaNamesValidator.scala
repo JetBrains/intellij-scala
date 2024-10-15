@@ -49,6 +49,7 @@ object ScalaNamesValidator {
   def isSoftKeyword(name: String): Boolean =
     softKeywords(name)
 
+  // TODO distinguish between Scala 2 & 3
   private def validator: NamesValidator =
     LanguageNamesValidation.INSTANCE.forLanguage(ScalaLanguage.INSTANCE)
 
