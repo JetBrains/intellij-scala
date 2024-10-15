@@ -56,3 +56,7 @@ There are multiple ways how to find the correct test suite:
    When you make changes in some files you can browse commit history of the files
    using [git blame](https://www.jetbrains.com/help/idea/investigate-changes.html#annotate_blame) or [file history](https://www.jetbrains.com/help/idea/investigate-changes.html#file-history). In that commit history you might see related test files. One of them might be the one you need.
 3. If you struggle to find any suitable test you can ask for help in our [discord channel](https://discord.gg/aUKpZzeHCK)
+
+### Useful sbt commands
+- Use `sbt cleanAll` to clean the `target` directories of all subprojects within the Scala Plugin repository.
+  - **Note:** Using `sbt clean` will only clean the `target` directory of the current project in `sbt`. This is because the sbt subprojects are not aggregated.
