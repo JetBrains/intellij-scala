@@ -1,5 +1,8 @@
 package org.jetbrains.plugins.scala.lang.findUsages
 
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.ex.ApplicationManagerEx
+import com.intellij.openapi.application.impl.NonBlockingReadActionImpl
 import com.intellij.openapi.util.{Segment, TextRange}
 import com.intellij.usageView.UsageInfo
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
@@ -77,5 +80,6 @@ abstract class FindUsagesTestBase extends ScalaFixtureTestCase with Markers {
     val handler = factory.createFindUsagesHandler(myFixture.getElementAtCaret, forHighlightUsages = false)
     val dialog = handler.getFindUsagesDialog(true, false, false)
     Assertions.assertInstanceOf(implicitly[ClassTag[T]].runtimeClass, dialog)
+    NonBlockingReadActionImpl.waitForAsyncTaskCompletion()
   }
 }
