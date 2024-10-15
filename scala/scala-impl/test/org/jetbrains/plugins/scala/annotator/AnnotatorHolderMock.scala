@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.annotator
 
+import com.intellij.codeInsight.daemon.impl.HighlightInfoType
 import com.intellij.codeInsight.intention.CommonIntentionAction
 import com.intellij.lang.annotation.{AnnotationSession, HighlightSeverity}
 import com.intellij.openapi.editor.colors.TextAttributesKey
@@ -30,7 +31,8 @@ class AnnotatorHolderExtendedMock(file: PsiFile) extends AnnotatorHolderMockBase
       HighlightSeverity.WARNING -> Message2.Warning.apply,
       HighlightSeverity.WEAK_WARNING -> Message2.Warning.apply,
       HighlightSeverity.INFORMATION -> Message2.Info.apply,
-      HighlightSeverity.INFO -> Message2.Info.apply
+      HighlightSeverity.INFO -> Message2.Info.apply,
+      HighlightInfoType.SYMBOL_TYPE_SEVERITY -> Message2.Info.apply,
     )
 
   override def createMockAnnotation(severity: HighlightSeverity, range: TextRange, message: String, enforcedAttributes: TextAttributesKey): Option[Message2] = {
