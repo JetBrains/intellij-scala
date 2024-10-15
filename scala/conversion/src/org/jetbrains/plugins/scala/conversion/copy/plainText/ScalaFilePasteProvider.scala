@@ -7,6 +7,7 @@ import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.ui.MessageDialogBuilder
 import com.intellij.openapi.ui.Messages.showErrorDialog
 import com.intellij.openapi.vfs.VfsUtil
@@ -16,8 +17,9 @@ import com.intellij.util.IncorrectOperationException
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.conversion.ScalaConversionBundle
 import org.jetbrains.plugins.scala.conversion.copy.plainText.ScalaFilePasteProvider._
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiMemberExt, ToNullSafe, inWriteCommandAction, startCommand}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiMemberExt, ToNullSafe, inWriteCommandAction, startCommand}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.expr.MethodInvocation
 import org.jetbrains.plugins.scala.project.ModuleExt
 
 import java.awt.datatransfer.DataFlavor
@@ -28,9 +30,11 @@ import scala.util.Try
 import scala.util.control.NonFatal
 
 /**
- * The class is responsible for pasting Scala files in Project View.
- * If the content which is pasted to Project View is a Scala content
- * this class tries to calculate the best file name for the newly-created Scala file
+ * The class is responsible for pasting Scala/Worksheet/Sbt files in the Project View.
+ * If the content which is pasted to Project View is a valid Scala code,
+ * this class tries to calculate the best file name for the newly created Scala file which can be one of the follows:
+ *  - regular file (*.scala)
+ *  - worksheet file (*.sc), created when the code contains top-level expressions
  *
  * For a similar Java implementation see [[com.intellij.ide.JavaFilePasteProvider]]
  */
@@ -60,19 +64,49 @@ final class ScalaFilePasteProvider extends PasteProvider {
       copiedText <- CopyPasteManager.getInstance.copiedText
       module <- context.maybeModuleWithScala
       directory <- context.maybeIdeView.flatMap(_.getOrChooseDirectory.toOption)
-      fileName <- suggestedScalaFileNameForText(copiedText, module)
+      fileName <- suggestedScalaFileNameForText(copiedText, module, Some(directory))
     } {
       createFileInDirectory(fileName, copiedText, directory)(module.getProject)
     }
   }
 
   @TestOnly
-  def suggestedScalaFileNameForText(copiedText: String, module: Module): Option[FileNameWithExtension] =
+  def suggestedScalaFileNameForText(
+    copiedText: String,
+    module: Module,
+    directory: Option[PsiDirectory] = None
+  ): Option[FileNameWithExtension] = {
     for {
       scalaFile <- PlainTextCopyUtil.createDummyScalaFile(copiedText, module)
     } yield {
-      fileNameAndExtension(scalaFile)
+      if (directory.exists(shouldCreatePluginsSbtFile(scalaFile, module, _))) {
+        FileNameWithExtension("plugins", "sbt")
+      }
+      else {
+        val firstMemberName = scalaFile.members.headOption.flatMap(_.names.headOption)
+        firstMemberName
+          .map(FileNameWithExtension(_, "scala"))
+          .getOrElse(FileNameWithExtension("worksheet", "sc"))
+      }
     }
+  }
+
+  private def shouldCreatePluginsSbtFile(
+    scalaFile: ScalaFile,
+    module: Module,
+    directory: PsiDirectory
+  ): Boolean = {
+    // true if we paste to the `project/` directory in a sbt project
+    val isSbtBuildModuleRoot = module.isBuildModule && ModuleRootManager.getInstance(module).getSourceRoots.contains(directory.getVirtualFile)
+    if (!isSbtBuildModuleRoot)
+      return false
+
+    val `has addSbtPlugin top-level call` = scalaFile.children.exists {
+      case MethodInvocation((ref, _)) => ref.textMatches("addSbtPlugin")
+      case _ => false
+    }
+    `has addSbtPlugin top-level call`
+  }
 
   private def createFileInDirectory(
     fileNameAndExtension: FileNameWithExtension,
@@ -81,10 +115,12 @@ final class ScalaFilePasteProvider extends PasteProvider {
   )(implicit project: Project): Unit = try {
     val FileNameWithExtension(name, extension) = fileNameAndExtension
 
-    val isWorksheet = extension == "sc"
-    //allow creating multiple worksheets in same directory: worksheet.sc, worksheet1.sc, worksheet2.sc, etc...
+    val allowCreateMultipleFilesWithSameName = extension == "sc" || extension == "sbt"
+    // For some file types, allow creating multiple worksheets in the same directory:
+    //  - worksheet.sc, worksheet1.sc, worksheet2.sc, etc...
+    //  - plugins.sbt, plugins1.sbt
     val fileName: String =
-      if (isWorksheet) VfsUtil.getNextAvailableName(targetPsiDir.getVirtualFile, name, extension)
+      if (allowCreateMultipleFilesWithSameName) VfsUtil.getNextAvailableName(targetPsiDir.getVirtualFile, name, extension)
       else s"$name.$extension"
 
     //If the file with same name already exists ask the user whether s/he wants to replace it
@@ -137,13 +173,6 @@ final class ScalaFilePasteProvider extends PasteProvider {
       )
     case NonFatal(ex) =>
       throw ex
-  }
-
-  private def fileNameAndExtension(scalaFile: ScalaFile): FileNameWithExtension = {
-    val firstMemberName = scalaFile.members.headOption.flatMap(_.names.headOption)
-    firstMemberName
-      .map(FileNameWithExtension(_, "scala"))
-      .getOrElse(FileNameWithExtension("worksheet", "sc"))
   }
 
   private def updatePackageStatement(file: ScalaFile, targetDir: PsiDirectory)
