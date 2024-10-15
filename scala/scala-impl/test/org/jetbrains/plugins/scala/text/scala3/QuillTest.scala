@@ -23,8 +23,6 @@ class QuillTest extends TextToTextTestBase(
     "io.getquill.ToDynamicQuery", // Top-level definitions
     "io.getquill.ToDynamicUpdate", // Top-level definitions
     "io.getquill.ast.EqualityOperator", // No case object _==
-    "io.getquill.dsl.MetaDsl", // No parentheses for repeated function type
-    "io.getquill.dsl.QueryDsl", // No parentheses for repeated function type
     "io.getquill.context.InsertUpdateMacro", // Enum
     "io.getquill.context.LiftMacro", // Function1
     "io.getquill.context.QueryExecutionBatch", // AST loading filter
