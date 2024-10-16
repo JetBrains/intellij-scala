@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
@@ -12,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes.ParameterType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, InferUtil, ScalaPsiElement, ScalaRecursiveElementVisitor}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.{CompilerType, ScalaPsiElementFactory}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
 import org.jetbrains.plugins.scala.lang.psi.light.LightContextFunctionParameter
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -191,8 +190,6 @@ trait ScExpression extends ScBlockStatement
 }
 
 object ScExpression {
-  val CompilerTypeKey: Key[String] = Key.create("SCALA_COMPILER_TYPE_KEY")
-
   final case class ExpressionTypeResult(
     tr:                 TypeResult,
     importsUsed:        Set[ImportUsed] = Set.empty,
@@ -288,13 +285,13 @@ object ScExpression {
     ): TypeResult = cachedWithRecursionGuard("getTypeWithoutImplicits", expr, Failure(NlsString.force("Recursive getTypeWithoutImplicits")), BlockModificationTracker(expr), (ignoreBaseType, fromUnderscore)) {
       ProgressManager.checkCanceled()
 
-      Option(expr.getCopyableUserData(CompilerTypeKey)) match {
+      CompilerType(expr) match {
         case Some(s) =>
           val settings = ScalaProjectSettings.getInstance(expr.getProject)
           if (settings.isCompilerHighlightingScala3 && settings.isUseCompilerTypes) {
             Right(ScalaPsiElementFactory.createTypeFromText(s, expr, null).get)
           } else {
-            expr.putCopyableUserData(CompilerTypeKey, null)
+            CompilerType(expr) = None
             getTypeWithoutImplicits0(ignoreBaseType, fromUnderscore)
           }
         case None =>
