@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.impl.{CompilerType, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
@@ -254,7 +254,7 @@ package object completion {
      */
     val placeInOriginalFile = originalFile.findElementAt(placeOffset)
 
-    var compilerType: String = null
+    var compilerType: Option[String] = None
 
     // Copy the compiler type (see ScExpression.getTypeWithoutImplicits)
     val settings = ScalaProjectSettings.getInstance(originalFile.getProject)
@@ -267,8 +267,8 @@ package object completion {
         case (_: ScReferenceExpression) & FirstChild(c: ScMethodCall) => c
       }
       call1.zip(call2).foreach { case (c1, c2) =>
-        compilerType = c1.getCopyableUserData(ScExpression.CompilerTypeKey)
-        c2.putCopyableUserData(ScExpression.CompilerTypeKey, compilerType)
+        compilerType = CompilerType(c1)
+        CompilerType(c2) = compilerType
       }
     }
 

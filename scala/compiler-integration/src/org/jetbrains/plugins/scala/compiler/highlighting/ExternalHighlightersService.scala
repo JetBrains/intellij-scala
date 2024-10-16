@@ -31,7 +31,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed.UnusedImportReportedByCompilerKey
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportOrExportStmt, ScImportSelector}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.impl.{CompilerType, ScalaPsiManager}
 import org.jetbrains.plugins.scala.settings.{ProblemSolverUtils, ScalaHighlightingMode}
 import org.jetbrains.plugins.scala.util.{CanonicalPath, CompilationId, DocumentVersion}
 
@@ -83,11 +83,10 @@ private final class ExternalHighlightersService(project: Project) { self =>
             .filter(_.getTextRange == range)
             .findByType[ScMethodCall] // In principle, can be for arbitrary expressions (or elements)
             .foreach { e =>
-              val value = e.getCopyableUserData(ScExpression.CompilerTypeKey)
               // Skip if the same value already exists
-              if (value != tpe) {
+              if (!CompilerType(e).contains(tpe)) {
                 // Doesn't require a write action
-                e.putCopyableUserData(ScExpression.CompilerTypeKey, tpe)
+                CompilerType(e) = Some(tpe)
                 expressions :+= e
               }
             }
