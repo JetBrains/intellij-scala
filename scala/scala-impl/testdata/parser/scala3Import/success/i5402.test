@@ -240,11 +240,9 @@ ScalaFile
               PsiElement(=>)('=>')
               PsiWhiteSpace(' ')
               BlockOfExpressions
-                PrefixExpression
-                  ReferenceExpression: -
-                    PsiElement(identifier)('-')
-                  IntegerLiteral
-                    PsiElement(integer)('1')
+                IntegerLiteral
+                  PsiElement(identifier)('-')
+                  PsiElement(integer)('1')
           PsiWhiteSpace('\n  ')
           PsiElement(})('}')
         PsiWhiteSpace('\n\n  ')
@@ -343,11 +341,9 @@ ScalaFile
               PsiElement(=>)('=>')
               PsiWhiteSpace(' ')
               BlockOfExpressions
-                PrefixExpression
-                  ReferenceExpression: -
-                    PsiElement(identifier)('-')
-                  IntegerLiteral
-                    PsiElement(integer)('1')
+                IntegerLiteral
+                  PsiElement(identifier)('-')
+                  PsiElement(integer)('1')
           PsiWhiteSpace('\n  ')
           PsiElement(})('}')
         PsiWhiteSpace('\n\n  ')

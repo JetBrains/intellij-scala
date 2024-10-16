@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala.project.sdkdetect
 
 import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 
+import java.io.File
+
 package object repository {
 
   sealed trait CompilerClasspathResolveFailure {
@@ -13,6 +15,8 @@ package object repository {
       case UnresolvedArtifact(artifactName)                    => s"unresolved artifact: $artifactName"
       case AmbiguousArtifactsResolved(fileNames)               => s"ambiguous artifact resolved: ${fileNames.mkString(", ")}"
       case UnknownResolveIssue(resolveProblems)                => s"unknown resolve issues: ${resolveProblems.zipWithIndex.mkString(", ")}"
+      case CantReadClasspathFromManifest(file)                 => s"cant read classpath from file $file"
+      case FileNotFound(file)                                  => s"cant find classpath file $file"
       case UnknownException(exception)                         => s"unknown exception: ${exception.getMessage}"
     }
 
@@ -25,6 +29,8 @@ package object repository {
         case UnresolvedArtifact(artifactName)      => Some(NlsString(ScalaBundle.message("unresolved.artifact", artifactName)))
         case AmbiguousArtifactsResolved(fileNames) => Some(NlsString(ScalaBundle.message("ambiguous.artifact.resolved", fileNames.mkString(", "))))
         case UnknownResolveIssue(resolveProblems)  => Some(NlsString(ScalaBundle.message("unknown.resolve.issues", resolveProblems.zipWithIndex.mkString(", "))))
+        case CantReadClasspathFromManifest(file)   => Some(NlsString(ScalaBundle.message("can.t.read.classpath.from.file", file)))
+        case FileNotFound(file)                    => Some(NlsString(ScalaBundle.message("can.t.find.classpath.file.file", file)))
         case UnknownException(exception)           => Some(NlsString(ScalaBundle.message("unknown.exception", exception.getMessage)))
       }
     }
@@ -36,5 +42,7 @@ package object repository {
     case class NotSupportedForScalaVersion(scalaVersion: String, detector: ScalaSdkDetector) extends CompilerClasspathResolveFailure
     case class UnknownResolveIssue(resolveProblems: Seq[String]) extends CompilerClasspathResolveFailure
     case class UnknownException(exception: Throwable) extends CompilerClasspathResolveFailure
+    case class CantReadClasspathFromManifest(jarFile: File) extends CompilerClasspathResolveFailure
+    case class FileNotFound(file: File) extends CompilerClasspathResolveFailure
   }
 }

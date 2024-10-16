@@ -133,6 +133,9 @@ object MavenProjectStructureTestUtils {
     ScalaSdkAttributes(version.languageLevel, classpath, extraClasspath = Nil)
   }
 
+  private def getSdkName(scalaVersion: ScalaVersion): String =
+    s"Maven: scala-sdk-${scalaVersion.minor}"
+
   private def getScalaLibraryName(scalaVersion: ScalaVersion): String =
     s"Maven: ${DependencyManagerBase.scalaLibraryDescription(scalaVersion)}"
 
@@ -144,16 +147,11 @@ object MavenProjectStructureTestUtils {
       mavenLocalArtifact(s"org/scala-lang/scala3-library_3/$versionStr/scala3-library_3-$versionStr.jar")
   }
 
-  def MavenScalaLibrary(scalaVersion: ScalaVersion, isSdk: Boolean): library = new library(getScalaLibraryName(scalaVersion)) {
+  def MavenScalaLibrary(scalaVersion: ScalaVersion): library = new library(getScalaLibraryName(scalaVersion)) {
     libClasses := Seq(getScalaLibraryPath(scalaVersion))
-    scalaSdkSettings := Option.when(isSdk)(getScalaSdkAttributes(scalaVersion))
   }
 
-  def MavenScalaLibrary(
-    scalaLibraryVersion: ScalaVersion,
-    scalaSdkVersion: ScalaVersion
-  ): library = new library(getScalaLibraryName(scalaLibraryVersion)) {
-    libClasses := Seq(getScalaLibraryPath(scalaLibraryVersion))
-    scalaSdkSettings := Some(getScalaSdkAttributes(scalaSdkVersion))
+  def MavenScalaSdk(scalaVersion: ScalaVersion): library = new library(getSdkName(scalaVersion)) {
+    scalaSdkSettings := Some(getScalaSdkAttributes(scalaVersion))
   }
 }

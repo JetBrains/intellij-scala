@@ -57,11 +57,9 @@ ScalaFile
               PsiElement(identifier)('meth')
             ArgumentList
               PsiElement(()('(')
-              PrefixExpression
-                ReferenceExpression: -
-                  PsiElement(identifier)('-')
-                IntegerLiteral
-                  PsiElement(integer)('1')
+              IntegerLiteral
+                PsiElement(identifier)('-')
+                PsiElement(integer)('1')
               PsiElement())(')')
         PsiWhiteSpace('\n  ')
         ScFunctionDefinition: meth

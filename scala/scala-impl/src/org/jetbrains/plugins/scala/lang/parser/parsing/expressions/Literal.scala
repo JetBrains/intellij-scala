@@ -29,14 +29,14 @@ object Literal extends ParsingRule {
     val marker = builder.mark()
 
     def advanceAndMarkDone(elementType: ScExpressionElementType,
-                           @Nullable @Nls errorMessage: String = null) = {
+                           @Nullable @Nls errorMessage: String = null): Boolean = {
       builder.advanceLexer()
       if (errorMessage != null) builder.error(errorMessage)
       marker.done(elementType)
       true
     }
 
-    def matchNumber(tokenType: IElementType) = tokenType match {
+    def matchNumber(@Nullable tokenType: IElementType) = tokenType match {
       case Long =>
         advanceAndMarkDone(LongLiteral)
       case Integer =>

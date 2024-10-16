@@ -1114,12 +1114,10 @@ ScalaFile
                   PsiElement(integer)('0')
               PsiElement())(')')
               PsiWhiteSpace(' ')
-              PrefixExpression
-                ReferenceExpression: -
-                  PsiElement(identifier)('-')
+              IntegerLiteral
+                PsiElement(identifier)('-')
                 PsiWhiteSpace(' ')
-                IntegerLiteral
-                  PsiElement(integer)('1')
+                PsiElement(integer)('1')
               PsiWhiteSpace('        ')
               PsiComment(comment)('// was: value - is not a member of Boolean')
               PsiWhiteSpace('\n    ')
@@ -1175,12 +1173,10 @@ ScalaFile
                 PsiElement(integer)('0')
             PsiElement())(')')
             PsiWhiteSpace(' ')
-            PrefixExpression
-              ReferenceExpression: -
-                PsiElement(identifier)('-')
+            IntegerLiteral
+              PsiElement(identifier)('-')
               PsiWhiteSpace(' ')
-              IntegerLiteral
-                PsiElement(integer)('42')
+              PsiElement(integer)('42')
         PsiWhiteSpace('         ')
         PsiComment(comment)('// was: value - is not a member of Boolean')
         PsiWhiteSpace('\n')

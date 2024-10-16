@@ -417,18 +417,14 @@ ScalaFile
                   PsiElement(integer)('1')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                PrefixExpression
-                  ReferenceExpression: -
-                    PsiElement(identifier)('-')
-                  IntegerLiteral
-                    PsiElement(integer)('2')
+                IntegerLiteral
+                  PsiElement(identifier)('-')
+                  PsiElement(integer)('2')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                PrefixExpression
-                  ReferenceExpression: -
-                    PsiElement(identifier)('-')
-                  IntegerLiteral
-                    PsiElement(integer)('3')
+                IntegerLiteral
+                  PsiElement(identifier)('-')
+                  PsiElement(integer)('3')
                 PsiElement())(')')
           PsiWhiteSpace('\n    ')
           ScFunctionDefinition: y

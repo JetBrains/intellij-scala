@@ -438,4 +438,67 @@ class SimpleParserTest extends SimpleScalaParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  // SCL-14476
+  def test_minus_prefix(): Unit = checkTree(
+    """
+      |-1.toString
+      |-1.0.toString
+      |-1.0f.toString
+      |-1000000000000000L.toString
+      |
+      |+1.toString
+      |-true.toString
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ReferenceExpression: -1.toString
+      |    IntegerLiteral
+      |      PsiElement(identifier)('-')
+      |      PsiElement(integer)('1')
+      |    PsiElement(.)('.')
+      |    PsiElement(identifier)('toString')
+      |  PsiWhiteSpace('\n')
+      |  ReferenceExpression: -1.0.toString
+      |    DoubleLiteral
+      |      PsiElement(identifier)('-')
+      |      PsiElement(double)('1.0')
+      |    PsiElement(.)('.')
+      |    PsiElement(identifier)('toString')
+      |  PsiWhiteSpace('\n')
+      |  ReferenceExpression: -1.0f.toString
+      |    FloatLiteral
+      |      PsiElement(identifier)('-')
+      |      PsiElement(float)('1.0f')
+      |    PsiElement(.)('.')
+      |    PsiElement(identifier)('toString')
+      |  PsiWhiteSpace('\n')
+      |  ReferenceExpression: -1000000000000000L.toString
+      |    LongLiteral
+      |      PsiElement(identifier)('-')
+      |      PsiElement(long)('1000000000000000L')
+      |    PsiElement(.)('.')
+      |    PsiElement(identifier)('toString')
+      |  PsiWhiteSpace('\n\n')
+      |  PrefixExpression
+      |    ReferenceExpression: +
+      |      PsiElement(identifier)('+')
+      |    ReferenceExpression: 1.toString
+      |      IntegerLiteral
+      |        PsiElement(integer)('1')
+      |      PsiElement(.)('.')
+      |      PsiElement(identifier)('toString')
+      |  PsiWhiteSpace('\n')
+      |  PrefixExpression
+      |    ReferenceExpression: -
+      |      PsiElement(identifier)('-')
+      |    ReferenceExpression: true.toString
+      |      BooleanLiteral
+      |        PsiElement(true)('true')
+      |      PsiElement(.)('.')
+      |      PsiElement(identifier)('toString')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }

@@ -56,11 +56,9 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          PrefixExpression
-            ReferenceExpression: -
-              PsiElement(identifier)('-')
-            LongLiteral
-              PsiElement(long)('1l')
+          LongLiteral
+            PsiElement(identifier)('-')
+            PsiElement(long)('1l')
         PsiElement(;)(';')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

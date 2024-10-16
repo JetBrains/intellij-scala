@@ -1120,11 +1120,9 @@ ScalaFile
                           PsiElement(identifier)('y')
                       PsiElement())(')')
                       PsiWhiteSpace(' ')
-                      PrefixExpression
-                        ReferenceExpression: -
-                          PsiElement(identifier)('-')
-                        IntegerLiteral
-                          PsiElement(integer)('1')
+                      IntegerLiteral
+                        PsiElement(identifier)('-')
+                        PsiElement(integer)('1')
                       PsiWhiteSpace(' ')
                       PsiElement(else)('else')
                       PsiWhiteSpace(' ')
@@ -1332,11 +1330,9 @@ ScalaFile
                           PsiElement(=>)('=>')
                           PsiWhiteSpace(' ')
                           BlockOfExpressions
-                            PrefixExpression
-                              ReferenceExpression: -
-                                PsiElement(identifier)('-')
-                              IntegerLiteral
-                                PsiElement(integer)('1')
+                            IntegerLiteral
+                              PsiElement(identifier)('-')
+                              PsiElement(integer)('1')
                         PsiWhiteSpace('\n      ')
                         CaseClause
                           PsiElement(case)('case')
@@ -3691,11 +3687,9 @@ ScalaFile
                           PsiElement(identifier)('y')
                       PsiElement())(')')
                       PsiWhiteSpace(' ')
-                      PrefixExpression
-                        ReferenceExpression: -
-                          PsiElement(identifier)('-')
-                        IntegerLiteral
-                          PsiElement(integer)('1')
+                      IntegerLiteral
+                        PsiElement(identifier)('-')
+                        PsiElement(integer)('1')
                       PsiWhiteSpace(' ')
                       PsiElement(else)('else')
                       PsiWhiteSpace(' ')
@@ -3891,11 +3885,9 @@ ScalaFile
                           PsiElement(=>)('=>')
                           PsiWhiteSpace(' ')
                           BlockOfExpressions
-                            PrefixExpression
-                              ReferenceExpression: -
-                                PsiElement(identifier)('-')
-                              IntegerLiteral
-                                PsiElement(integer)('1')
+                            IntegerLiteral
+                              PsiElement(identifier)('-')
+                              PsiElement(integer)('1')
                         PsiWhiteSpace('\n      ')
                         CaseClause
                           PsiElement(case)('case')
@@ -4643,11 +4635,9 @@ ScalaFile
                           PsiElement(identifier)('y')
                       PsiElement())(')')
                       PsiWhiteSpace(' ')
-                      PrefixExpression
-                        ReferenceExpression: -
-                          PsiElement(identifier)('-')
-                        IntegerLiteral
-                          PsiElement(integer)('1')
+                      IntegerLiteral
+                        PsiElement(identifier)('-')
+                        PsiElement(integer)('1')
                       PsiWhiteSpace(' ')
                       PsiElement(else)('else')
                       PsiWhiteSpace(' ')
@@ -4849,11 +4839,9 @@ ScalaFile
                           PsiElement(=>)('=>')
                           PsiWhiteSpace(' ')
                           BlockOfExpressions
-                            PrefixExpression
-                              ReferenceExpression: -
-                                PsiElement(identifier)('-')
-                              IntegerLiteral
-                                PsiElement(integer)('1')
+                            IntegerLiteral
+                              PsiElement(identifier)('-')
+                              PsiElement(integer)('1')
                         PsiWhiteSpace('\n      ')
                         CaseClause
                           PsiElement(case)('case')
