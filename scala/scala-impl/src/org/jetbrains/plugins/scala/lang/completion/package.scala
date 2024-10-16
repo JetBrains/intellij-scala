@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockExpr, ScExpression, ScMethodCall, ScNewTemplateDefinition, ScPostfixExpr, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
@@ -267,6 +267,14 @@ package object completion {
         case (_: ScReferenceExpression) & FirstChild(c: ScMethodCall) => c
       }
       call1.zip(call2).foreach { case (c1, c2) =>
+        // If it's a transparent inline method call and a compiler type is absent, request it
+        if (CompilerType(c1).isEmpty) {
+          c1.target.map(_.element) match {
+            case Some(f: ScFunction) if f.hasModifierProperty("transparent") && f.hasModifierProperty("inline") =>
+              CompilerType.requestFor(c1)
+            case _ =>
+          }
+        }
         compilerType = CompilerType(c1)
         CompilerType(c2) = compilerType
       }
