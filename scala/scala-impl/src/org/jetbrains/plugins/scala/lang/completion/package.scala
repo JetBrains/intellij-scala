@@ -33,6 +33,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import java.util.function.Predicate
 
@@ -256,12 +257,15 @@ package object completion {
     var compilerType: String = null
 
     // Copy the compiler type (see ScExpression.getTypeWithoutImplicits)
-    (Option(placeInOriginalFile).flatMap(_.parent).map(_.getParent).orNull, positionInCompletionFile.getParent) match {
-      // In principle, can be not just for method calls
-      case (c1: ScMethodCall, (_: ScReferenceExpression) & FirstChild(c2: ScMethodCall)) =>
-        compilerType = c1.getCopyableUserData(ScExpression.CompilerTypeKey)
-        c2.putCopyableUserData(ScExpression.CompilerTypeKey, compilerType)
-      case _ =>
+    val settings = ScalaProjectSettings.getInstance(originalFile.getProject)
+    if (settings.isCompilerHighlightingScala3 && settings.isUseCompilerTypes) {
+      (Option(placeInOriginalFile).flatMap(_.parent).map(_.getParent).orNull, positionInCompletionFile.getParent) match {
+        // In principle, can be not just for method calls
+        case (c1: ScMethodCall, (_: ScReferenceExpression) & FirstChild(c2: ScMethodCall)) =>
+          compilerType = c1.getCopyableUserData(ScExpression.CompilerTypeKey)
+          c2.putCopyableUserData(ScExpression.CompilerTypeKey, compilerType)
+        case _ =>
+      }
     }
 
     // A possible modification of CompilerTypeKey user data is not a PSI modification
