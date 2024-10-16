@@ -259,12 +259,16 @@ package object completion {
     // Copy the compiler type (see ScExpression.getTypeWithoutImplicits)
     val settings = ScalaProjectSettings.getInstance(originalFile.getProject)
     if (settings.isCompilerHighlightingScala3 && settings.isUseCompilerTypes) {
-      (Option(placeInOriginalFile).flatMap(_.parent).map(_.getParent).orNull, positionInCompletionFile.getParent) match {
-        // In principle, can be not just for method calls
-        case (c1: ScMethodCall, (_: ScReferenceExpression) & FirstChild(c2: ScMethodCall)) =>
-          compilerType = c1.getCopyableUserData(ScExpression.CompilerTypeKey)
-          c2.putCopyableUserData(ScExpression.CompilerTypeKey, compilerType)
-        case _ =>
+      // In principle, can be not just for method calls
+      val call1 = Option(placeInOriginalFile).flatMap { e =>
+        e.parentsInFile.findByType[ScMethodCall].filter(_.getInvokedExpr.elements.contains(e))
+      }
+      val call2 = positionInCompletionFile.parent.collect {
+        case (_: ScReferenceExpression) & FirstChild(c: ScMethodCall) => c
+      }
+      call1.zip(call2).foreach { case (c1, c2) =>
+        compilerType = c1.getCopyableUserData(ScExpression.CompilerTypeKey)
+        c2.putCopyableUserData(ScExpression.CompilerTypeKey, compilerType)
       }
     }
 
