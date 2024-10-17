@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.compiler.zinc
 
-import com.intellij.openapi.compiler.{CompilerMessage, CompilerMessageCategory}
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
@@ -15,9 +14,9 @@ import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
 import org.jetbrains.sbt.Sbt
-import org.jetbrains.sbt.project.{SbtCachesSetupUtil, SbtProjectSystem}
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
-import org.junit.Assert.{assertNotNull, assertTrue}
+import org.jetbrains.sbt.project.{SbtCachesSetupUtil, SbtProjectSystem}
+import org.junit.Assert.assertNotNull
 
 import java.io.File
 import java.nio.file.Path
@@ -74,14 +73,6 @@ abstract class ZincTestBase(separateProdAndTestSources: Boolean = false) extends
     super.tearDown()
   }
 
-  protected def assertNoErrorsOrWarnings(messages: Seq[CompilerMessage]): Unit = {
-    val errorsAndWarnings = messages.filter { message =>
-      val category = message.getCategory
-      category == CompilerMessageCategory.ERROR || category == CompilerMessageCategory.WARNING
-    }
-    assertTrue(s"Expected no compilation errors or warnings, got: ${errorsAndWarnings.mkString(System.lineSeparator())}", errorsAndWarnings.isEmpty)
-  }
-
   protected def findClassFileInRootModule(name: String): Path =
     findClassFile(rootModule, name)
 
@@ -96,17 +87,6 @@ abstract class ZincTestBase(separateProdAndTestSources: Boolean = false) extends
     inWriteAction {
       virtualFile.delete(null)
     }
-  }
-
-  protected def assertCompilingScalaSources(messages: Seq[CompilerMessage], number: Int): Unit = {
-    val message = messages.find { message =>
-      val text = message.getMessage
-      text.contains("compiling") && text.contains("Scala source")
-    }.orNull
-    assertNotNull("Could not find Compiling Scala sources message", message)
-    val expected = s"compiling $number Scala source"
-    val text = message.getMessage
-    assertTrue(s"Compiling wrong number of Scala sources, expected '$expected', got '$text'", text.contains(expected))
   }
 
   /**
