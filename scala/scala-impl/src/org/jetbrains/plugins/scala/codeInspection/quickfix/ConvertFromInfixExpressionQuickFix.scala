@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.quickfix
 
 import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.plugins.scala.codeInspection.quickfix.ConvertFromInfixExpressionQuickFix.message
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, ScalaInspectionBundle}
@@ -10,7 +10,9 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenericCall, ScInfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
-final class ConvertFromInfixExpressionQuickFix(expr: ScInfixExpr) extends AbstractFixOnPsiElement(message, expr) {
+final class ConvertFromInfixExpressionQuickFix(expr: ScInfixExpr)
+  extends AbstractFixOnPsiElement(message, expr)
+    with DumbAware {
   override protected def doApplyFix(infixExpr: ScInfixExpr)(implicit project: Project): Unit = {
     val editor = infixExpr.openTextEditor.getOrElse(return)
     ConvertFromInfixExpressionQuickFix.applyFix(infixExpr, editor)
