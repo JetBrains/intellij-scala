@@ -27,8 +27,8 @@ import org.jetbrains.plugins.scala.compiler.diagnostics.Action
 import org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlighting.RangeInfo
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, PsiElementExt, executeOnPooledThread, invokeLater}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed.UnusedImportReportedByCompilerKey
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportOrExportStmt, ScImportSelector}
@@ -53,7 +53,7 @@ private final class ExternalHighlightersService(project: Project) { self =>
   def applyHighlightingState(virtualFiles: Set[VirtualFile], state: HighlightingState, compilationId: CompilationId): Unit = {
     if (project.isDisposed) return
 
-    val readActionCallable: Callable[(Seq[HighlightingData], Set[VirtualFile], Seq[ScExpression])] = { () =>
+    val readActionCallable: Callable[(Seq[HighlightingData], Set[VirtualFile], Seq[PsiElement])] = { () =>
       val filteredVirtualFiles = filterFilesToHighlightBasedOnFileLevel(virtualFiles)
       val psiManager = PsiManager.getInstance(project)
       val data = for {
@@ -69,7 +69,7 @@ private final class ExternalHighlightersService(project: Project) { self =>
       }
       val errorFiles = filterFilesToHighlightBasedOnFileLevel(state.filesWithHighlightings(errorTypes))
 
-      var expressions = Vector.empty[ScExpression]
+      var elements = Vector.empty[PsiElement]
       // Add types only to a file opened in the current editor
       // In principle, JPS can process arbitrary files (currently disabled) unless we implement a filter (see CompilerDataFactory.scalaOptionsFor)
       // Can be extended to all opened editors
@@ -82,22 +82,22 @@ private final class ExternalHighlightersService(project: Project) { self =>
           psiFile
             .depthFirst(_.getTextRange.contains(range)) // Optimized iteration
             .filter(_.getTextRange == range)
-            .findByType[ScMethodCall] // In principle, can be for arbitrary expressions (or elements)
+            .find(e => e.is[ScMethodCall, ScStableCodeReference])
             .foreach { e =>
               // Skip if the same value already exists
               if (!CompilerType(e).contains(tpe)) {
                 // Doesn't require a write action
                 CompilerType(e) = Some(tpe)
-                expressions :+= e
+                elements :+= e
               }
             }
         }
       }
 
-      (data, errorFiles, expressions)
+      (data, errorFiles, elements)
     }
 
-    val applyHighlightingInfo: Consumer[(Seq[HighlightingData], Set[VirtualFile], Seq[ScExpression])] = {
+    val applyHighlightingInfo: Consumer[(Seq[HighlightingData], Set[VirtualFile], Seq[PsiElement])] = {
       case (infos, errorFiles, expressions) =>
         if (!project.isDisposed && DocumentUtil.stillValid(compilationId.documentVersions)) {
           // If the results are still valid, they will be applied to the editor.
