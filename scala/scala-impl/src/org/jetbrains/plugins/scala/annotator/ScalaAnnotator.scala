@@ -210,12 +210,14 @@ class ScalaAnnotator extends Annotator
     }
 
     element match {
-      case templateDefinition: ScTemplateDefinition if !isDumbMode =>
-        checkBoundsVariance(templateDefinition, templateDefinition.nameId, templateDefinition.nameId, Covariant)
+      case templateDefinition: ScTemplateDefinition =>
+        if (!isDumbMode) {
+          checkBoundsVariance(templateDefinition, templateDefinition.nameId, templateDefinition.nameId, Covariant)
+        }
 
         templateDefinition match {
           case cls: ScClass => CaseClassWithoutParamList.annotate(cls, typeAware)
-          case trt: ScTrait => TraitHasImplicitBound.annotate(trt, typeAware)
+          case trt: ScTrait if !isDumbMode => TraitHasImplicitBound.annotate(trt, typeAware)
           case _ =>
         }
       case _ =>

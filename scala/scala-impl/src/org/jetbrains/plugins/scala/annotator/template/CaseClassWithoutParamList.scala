@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.annotator.template
 import com.intellij.codeInsight.intention.{FileModifier, IntentionAction}
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaLanguageLevel}
 
-object CaseClassWithoutParamList extends AnnotatorPart[ScClass] {
+object CaseClassWithoutParamList extends AnnotatorPart[ScClass] with DumbAware {
 
   override def annotate(element: ScClass, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
@@ -31,13 +31,15 @@ object CaseClassWithoutParamList extends AnnotatorPart[ScClass] {
 
     if (element.isCase && !element.clauses.exists(_.clauses.nonEmpty)) {
       val nameId = element.nameId
-      val fixes = Seq(new ConvertToObjectFix(element), new AddEmptyParenthesesToPrimaryConstructorFix(element))
-      createAnnotation(nameId, fixes)
+      if (nameId != null) {
+        val fixes = Seq(new ConvertToObjectFix(element), new AddEmptyParenthesesToPrimaryConstructorFix(element))
+        createAnnotation(nameId, fixes)
+      }
     }
   }
 }
 
-final class AddEmptyParenthesesToPrimaryConstructorFix(c: ScClass) extends IntentionAction {
+final class AddEmptyParenthesesToPrimaryConstructorFix(c: ScClass) extends IntentionAction with DumbAware {
 
   override def getFamilyName: String = ScalaBundle.message("family.name.add.empty.parentheses")
 
@@ -55,7 +57,7 @@ final class AddEmptyParenthesesToPrimaryConstructorFix(c: ScClass) extends Inten
     new AddEmptyParenthesesToPrimaryConstructorFix(PsiTreeUtil.findSameElementInCopy(c, target))
 }
 
-final class ConvertToObjectFix(c: ScClass) extends IntentionAction {
+final class ConvertToObjectFix(c: ScClass) extends IntentionAction with DumbAware {
   override def getFamilyName: String = ScalaBundle.message("family.name.convert.to.object")
 
   override def getText: String = getFamilyName
