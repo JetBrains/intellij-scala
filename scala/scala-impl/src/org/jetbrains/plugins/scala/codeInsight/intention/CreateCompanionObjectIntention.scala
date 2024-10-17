@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInsight.intention
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
   * mattfowler
   * 5/21/2016
   */
-class CreateCompanionObjectIntention extends PsiElementBaseIntentionAction {
+class CreateCompanionObjectIntention extends PsiElementBaseIntentionAction with DumbAware {
   override def getText: String = ScalaBundle.message("create.companion.object.for.class")
 
   override def invoke(project: Project, editor: Editor, psiElement: PsiElement): Unit = {
@@ -34,9 +34,7 @@ class CreateCompanionObjectIntention extends PsiElementBaseIntentionAction {
   }
 
   override def isAvailable(project: Project, editor: Editor, psiElement: PsiElement): Boolean =
-    getClassIfAvailable(psiElement).exists {
-      _. baseCompanion.isEmpty
-    }
+    getClassIfAvailable(psiElement).exists(_.baseCompanion.isEmpty)
 
   private def moveCaret(project: Project, editor: Editor, obj: PsiElement): Unit = {
     val document = editor.getDocument
