@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.editor.documentationProvider.actions
 import com.intellij.codeInsight.intention.PriorityAction.Priority
 import com.intellij.codeInsight.intention.{IntentionAction, PriorityAction}
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
@@ -11,7 +11,10 @@ import org.jetbrains.plugins.scala.extensions.{&, ElementType, Parent}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwner
 
-final class CreateScalaDocStubIntentionAction extends IntentionAction  with PriorityAction {
+final class CreateScalaDocStubIntentionAction
+  extends IntentionAction
+    with PriorityAction
+    with DumbAware {
 
   override def getText: String = ScalaEditorBundle.message("add.scaladoc.intention.action.text")
 
@@ -45,7 +48,7 @@ final class CreateScalaDocStubIntentionAction extends IntentionAction  with Prio
     }
   }
 
-  // If false is returned the action itself is responsible for starting write action
+  // If false is returned, the action itself is responsible for starting write action
   override def startInWriteAction(): Boolean = false
 
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {

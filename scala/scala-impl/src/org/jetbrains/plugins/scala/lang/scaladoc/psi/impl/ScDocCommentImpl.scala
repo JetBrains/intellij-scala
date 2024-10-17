@@ -7,7 +7,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
@@ -58,8 +58,7 @@ final class ScDocCommentImpl(buffer: CharSequence,
 
   override def descriptionParts: Seq[ScDocDescriptionPart] =
     descriptionElements
-      .filter(_.isInstanceOf[ScDocDescriptionPart])
-      .map(_.asInstanceOf[ScDocDescriptionPart])
+      .filterByType[ScDocDescriptionPart]
       .toSeq
 
   private def descriptionElements: Iterator[PsiElement] = {
@@ -80,7 +79,7 @@ final class ScDocCommentImpl(buffer: CharSequence,
   }
 
   override def tags: Seq[ScDocTag] =
-    this.children.filter(_.isInstanceOf[ScDocTag]).map(_.asInstanceOf[ScDocTag]).toSeq
+    this.children.filterByType[ScDocTag].toSeq
 
   override def findTagsByName(name: String): Array[PsiDocTag] =
     findTagsByName(_ == name)
