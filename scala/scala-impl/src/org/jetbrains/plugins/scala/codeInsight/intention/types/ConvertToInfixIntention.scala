@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInsight.intention.types
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.command.undo.UndoUtil
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeE
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
 
 /** Converts type element `@@[A, B]` to `(A @@ B)` */
-class ConvertToInfixIntention extends PsiElementBaseIntentionAction {
+class ConvertToInfixIntention extends PsiElementBaseIntentionAction with DumbAware {
   override def getFamilyName: String = ScalaBundle.message("family.name.use.infix.type.syntax")
 
   override def getText: String = getFamilyName
