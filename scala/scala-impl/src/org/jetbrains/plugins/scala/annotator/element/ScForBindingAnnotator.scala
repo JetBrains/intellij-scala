@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.annotator.element
 import com.intellij.codeInsight.intention.{FileModifier, IntentionAction}
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.Remov
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScForBinding, ScPatternedEnumerator}
 
-object ScForBindingAnnotator extends ElementAnnotator[ScForBinding] {
+object ScForBindingAnnotator extends ElementAnnotator[ScForBinding] with DumbAware {
 
   override def annotate(element: ScForBinding, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
@@ -37,8 +37,9 @@ object ScForBindingAnnotator extends ElementAnnotator[ScForBinding] {
     }
   }
 
-  final class RemoveCaseFromPatternedEnumeratorFix(enumerator: ScPatternedEnumerator) extends IntentionAction {
-
+  final class RemoveCaseFromPatternedEnumeratorFix(enumerator: ScPatternedEnumerator)
+    extends IntentionAction
+      with DumbAware {
     override def getFamilyName: String = ScalaBundle.message("family.name.remove.case.from.enumerator")
 
     override def getText: String = ScalaBundle.message("remove.case")

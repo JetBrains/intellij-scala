@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection
 
 import com.intellij.codeInsight.intention.{FileModifier, IntentionAction}
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.psi.PsiFile
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil
@@ -24,8 +24,7 @@ class RemoveValQuickFix(param: ScClassParameter)
   }
 }
 
-final class RemoveValFromForBindingIntentionAction(forBinding: ScForBinding) extends IntentionAction {
-
+final class RemoveValFromForBindingIntentionAction(forBinding: ScForBinding) extends IntentionAction with DumbAware {
   override def getText: String = ScalaInspectionBundle.message("remove.unnecessary.val")
 
   override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = true
