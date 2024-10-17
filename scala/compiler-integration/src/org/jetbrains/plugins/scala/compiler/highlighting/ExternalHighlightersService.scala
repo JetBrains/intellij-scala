@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.compiler.highlighting
 
 import com.intellij.codeInsight.daemon.impl.{ErrorStripeUpdateManager, HighlightInfo, HighlightInfoType, UpdateHighlightersUtil}
 import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.codeInsight.lookup.LookupManager
 import com.intellij.openapi.application.{ModalityState, ReadAction}
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
@@ -26,13 +27,13 @@ import org.jetbrains.plugins.scala.compiler.diagnostics.Action
 import org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlighting.RangeInfo
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, PsiElementExt, executeOnPooledThread, invokeLater}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed.UnusedImportReportedByCompilerKey
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportOrExportStmt, ScImportSelector}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.settings.{ProblemSolverUtils, ScalaHighlightingMode}
+import org.jetbrains.plugins.scala.lang.psi.impl.{CompilerType, ScalaPsiManager}
+import org.jetbrains.plugins.scala.settings.{ProblemSolverUtils, ScalaHighlightingMode, ScalaProjectSettings}
 import org.jetbrains.plugins.scala.util.{CanonicalPath, CompilationId, DocumentVersion}
 
 import java.net.URLDecoder
@@ -52,7 +53,7 @@ private final class ExternalHighlightersService(project: Project) { self =>
   def applyHighlightingState(virtualFiles: Set[VirtualFile], state: HighlightingState, compilationId: CompilationId): Unit = {
     if (project.isDisposed) return
 
-    val readActionCallable: Callable[(Seq[HighlightingData], Set[VirtualFile], Seq[ScExpression])] = { () =>
+    val readActionCallable: Callable[(Seq[HighlightingData], Set[VirtualFile], Seq[PsiElement])] = { () =>
       val filteredVirtualFiles = filterFilesToHighlightBasedOnFileLevel(virtualFiles)
       val psiManager = PsiManager.getInstance(project)
       val data = for {
@@ -68,7 +69,7 @@ private final class ExternalHighlightersService(project: Project) { self =>
       }
       val errorFiles = filterFilesToHighlightBasedOnFileLevel(state.filesWithHighlightings(errorTypes))
 
-      var expressions = Vector.empty[ScExpression]
+      var elements = Vector.empty[PsiElement]
       // Add types only to a file opened in the current editor
       // In principle, JPS can process arbitrary files (currently disabled) unless we implement a filter (see CompilerDataFactory.scalaOptionsFor)
       // Can be extended to all opened editors
@@ -81,36 +82,39 @@ private final class ExternalHighlightersService(project: Project) { self =>
           psiFile
             .depthFirst(_.getTextRange.contains(range)) // Optimized iteration
             .filter(_.getTextRange == range)
-            .findByType[ScMethodCall] // In principle, can be for arbitrary expressions (or elements)
+            .find(e => e.is[ScMethodCall, ScStableCodeReference])
             .foreach { e =>
-              val value = e.getCopyableUserData(ScExpression.CompilerTypeKey)
               // Skip if the same value already exists
-              if (value != tpe) {
+              if (!CompilerType(e).contains(tpe)) {
                 // Doesn't require a write action
-                e.putCopyableUserData(ScExpression.CompilerTypeKey, tpe)
-                expressions :+= e
+                CompilerType(e) = Some(tpe)
+                elements :+= e
               }
             }
         }
       }
 
-      (data, errorFiles, expressions)
+      (data, errorFiles, elements)
     }
 
-    val applyHighlightingInfo: Consumer[(Seq[HighlightingData], Set[VirtualFile], Seq[ScExpression])] = {
+    val applyHighlightingInfo: Consumer[(Seq[HighlightingData], Set[VirtualFile], Seq[PsiElement])] = {
       case (infos, errorFiles, expressions) =>
         if (!project.isDisposed && DocumentUtil.stillValid(compilationId.documentVersions)) {
           // If the results are still valid, they will be applied to the editor.
           infos.foreach { case HighlightingData(editor, document, psiFile, highlightInfos) =>
-            val collection = highlightInfos.asJavaCollection
-            UpdateHighlightersUtil.setHighlightersToEditor(
-              project,
-              document, 0, document.getTextLength,
-              collection,
-              editor.getColorsScheme,
-              ScalaCompilerPassId
-            )
-            ErrorStripeUpdateManager.getInstance(project).repaintErrorStripePanel(editor, psiFile)
+            // If autocomplete is in progress, apply only types but not errors (see CompilerTypeRequestListener)
+            val settings = ScalaProjectSettings.getInstance(project)
+            if (!(settings.isCompilerHighlightingScala3 && settings.isUseCompilerTypes) || LookupManager.getActiveLookup(editor) == null) {
+              val collection = highlightInfos.asJavaCollection
+              UpdateHighlightersUtil.setHighlightersToEditor(
+                project,
+                document, 0, document.getTextLength,
+                collection,
+                editor.getColorsScheme,
+                ScalaCompilerPassId
+              )
+              ErrorStripeUpdateManager.getInstance(project).repaintErrorStripePanel(editor, psiFile)
+            }
           }
           // Show red squiggly lines for errors in Project View.
           executeOnPooledThread(informWolf(errorFiles))
