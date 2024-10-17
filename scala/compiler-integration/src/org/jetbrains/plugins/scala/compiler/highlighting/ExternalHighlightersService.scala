@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.compiler.highlighting
 
 import com.intellij.codeInsight.daemon.impl.{ErrorStripeUpdateManager, HighlightInfo, HighlightInfoType, UpdateHighlightersUtil}
 import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.codeInsight.lookup.LookupManager
 import com.intellij.openapi.application.{ModalityState, ReadAction}
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
@@ -32,7 +33,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUs
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed.UnusedImportReportedByCompilerKey
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportOrExportStmt, ScImportSelector}
 import org.jetbrains.plugins.scala.lang.psi.impl.{CompilerType, ScalaPsiManager}
-import org.jetbrains.plugins.scala.settings.{ProblemSolverUtils, ScalaHighlightingMode}
+import org.jetbrains.plugins.scala.settings.{ProblemSolverUtils, ScalaHighlightingMode, ScalaProjectSettings}
 import org.jetbrains.plugins.scala.util.{CanonicalPath, CompilationId, DocumentVersion}
 
 import java.net.URLDecoder
@@ -101,15 +102,19 @@ private final class ExternalHighlightersService(project: Project) { self =>
         if (!project.isDisposed && DocumentUtil.stillValid(compilationId.documentVersions)) {
           // If the results are still valid, they will be applied to the editor.
           infos.foreach { case HighlightingData(editor, document, psiFile, highlightInfos) =>
-            val collection = highlightInfos.asJavaCollection
-            UpdateHighlightersUtil.setHighlightersToEditor(
-              project,
-              document, 0, document.getTextLength,
-              collection,
-              editor.getColorsScheme,
-              ScalaCompilerPassId
-            )
-            ErrorStripeUpdateManager.getInstance(project).repaintErrorStripePanel(editor, psiFile)
+            // If autocomplete is in progress, apply only types but not errors (see CompilerTypeRequestListener)
+            val settings = ScalaProjectSettings.getInstance(project)
+            if (!(settings.isCompilerHighlightingScala3 && settings.isUseCompilerTypes) || LookupManager.getActiveLookup(editor) == null) {
+              val collection = highlightInfos.asJavaCollection
+              UpdateHighlightersUtil.setHighlightersToEditor(
+                project,
+                document, 0, document.getTextLength,
+                collection,
+                editor.getColorsScheme,
+                ScalaCompilerPassId
+              )
+              ErrorStripeUpdateManager.getInstance(project).repaintErrorStripePanel(editor, psiFile)
+            }
           }
           // Show red squiggly lines for errors in Project View.
           executeOnPooledThread(informWolf(errorFiles))
