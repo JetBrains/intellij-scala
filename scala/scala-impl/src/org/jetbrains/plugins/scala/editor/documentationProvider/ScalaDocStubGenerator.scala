@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.psi.PsiDocCommentOwner
 import com.intellij.psi.javadoc.{PsiDocComment, PsiDocTag}
-import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt, PsiClassExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScParameterOwner, ScTypeAlias}
@@ -22,7 +22,7 @@ import scala.collection.mutable
 object ScalaDocStubGenerator {
 
   def createScalaDocStub(commentOwner: PsiDocCommentOwner): String = {
-    if (!commentOwner.getContainingFile.isInstanceOf[ScalaFile])
+    if (!commentOwner.getContainingFile.is[ScalaFile])
       return ""
 
     val buffer = new java.lang.StringBuilder
@@ -33,10 +33,12 @@ object ScalaDocStubGenerator {
 
     import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing._
 
-    def registerInheritedParam(allParams: mutable.HashMap[String, PsiDocTag], param: PsiDocTag): Unit =
-      if (!allParams.contains(param.getValueElement.getText)) {
-        allParams.put(param.getValueElement.getText, param)
+    def registerInheritedParam(allParams: mutable.HashMap[String, PsiDocTag], param: PsiDocTag): Unit = {
+      val valueElement = param.getValueElement
+      if (valueElement != null && !allParams.contains(valueElement.getText)) {
+        allParams.put(valueElement.getText, param)
       }
+    }
 
     def processProbablyJavaDocCommentWithOwner(owner: PsiDocCommentOwner): Unit = {
       owner.getDocComment match {
@@ -47,11 +49,15 @@ object ScalaDocStubGenerator {
               case TYPE_PARAM_TAG => registerInheritedParam(inheritedTParams, docTag)
             }
         case javaComment: PsiDocComment =>
-          for (paramTag <- javaComment.findTagsByName("param"))
-            if (paramTag.getValueElement.getText.startsWith("<"))
-              registerInheritedParam(inheritedTParams, paramTag)
-            else
-              registerInheritedParam(inheritedParams, paramTag)
+          for (paramTag <- javaComment.findTagsByName("param")) {
+            val valueElement = paramTag.getValueElement
+            if (valueElement != null) {
+              if (valueElement.getText.startsWith("<"))
+                registerInheritedParam(inheritedTParams, paramTag)
+              else
+                registerInheritedParam(inheritedParams, paramTag)
+            }
+          }
         case _ =>
       }
     }
@@ -147,8 +153,9 @@ object ScalaDocStubGenerator {
         }
       case scType: ScTypeAlias =>
         val parents = ScalaPsiUtil.superTypeMembers(scType)
-        for (parent <- parents if parent.isInstanceOf[ScTypeAlias]) {
-          processProbablyJavaDocCommentWithOwner(parent.asInstanceOf[ScTypeAlias])
+        val parentAliases = parents.filterByType[ScTypeAlias]
+        parentAliases.foreach { parent =>
+          processProbablyJavaDocCommentWithOwner(parent)
         }
         processTypeParams(scType)
       case traitt: ScTrait =>
