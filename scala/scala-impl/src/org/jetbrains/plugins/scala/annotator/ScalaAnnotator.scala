@@ -217,7 +217,7 @@ class ScalaAnnotator extends Annotator
 
         templateDefinition match {
           case cls: ScClass => CaseClassWithoutParamList.annotate(cls, typeAware)
-          case trt: ScTrait if !isDumbMode => TraitHasImplicitBound.annotate(trt, typeAware)
+          case trt: ScTrait => TraitHasImplicitBound.annotate(trt, typeAware)
           case _ =>
         }
       case _ =>
