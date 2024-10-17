@@ -819,7 +819,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       project,
       result,
       LegacyModuleType,
-      parentModuleUniqueName
+      parentModuleUniqueName,
+      separateModulesForProdTest = false
     )
     setCompileOutputPathsForLegacyModule(result, project.configurations, useSeparateCompilerOutputPaths)
 
@@ -907,7 +908,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       project,
       prodModule,
       ProductionModuleType,
-      createDisplayName(prodModule)
+      createDisplayName(prodModule),
+      separateModulesForProdTest = true
     )
     setCompileOutputPaths(
       prodModule,
@@ -924,7 +926,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       project,
       testModule,
       TestModuleType,
-      createDisplayName(testModule)
+      createDisplayName(testModule),
+      separateModulesForProdTest = true
     )
     setCompileOutputPaths(
       testModule,
@@ -1008,7 +1011,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     projectData: ProjectData,
     moduleNode: ModuleDataNodeType,
     moduleType: ModuleType,
-    displayName: String
+    displayName: String,
+    separateModulesForProdTest: Boolean
   ): Unit = {
     val contentRootNodes = moduleType match {
       case ProductionModuleType => createProductionContentRoot(projectData)
@@ -1027,7 +1031,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     // the managed dependencies SCL-21852
     val unmanagedDependencies = createUnmanagedDependencies(jarDependencies)(moduleNode)
 
-    val libraryDependenciesNodes = createLibraryDependencies(moduleDependencies)(moduleNode, librariesData, offset = unmanagedDependencies.size + 1)
+    val libraryDependenciesNodes = createLibraryDependencies(moduleDependencies)(moduleNode, librariesData, offset = unmanagedDependencies.size + 1, separateModulesForProdTest)
     moduleNode.addAll(libraryDependenciesNodes)
     moduleNode.add(createModuleExtData(projectData, moduleType))
     moduleNode.add(createScalaSdkData(projectData.scala))
@@ -1297,9 +1301,11 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   protected def createLibraryDependencies(dependencies: Seq[sbtStructure.ModuleDependencyData])
-                                         (moduleData: ModuleData, libraries: Seq[LibraryData], offset: Int): Seq[LibraryDependencyNode] = {
-    val dependenciesWithResolvedConflicts = resolveLibraryDependencyConflicts(dependencies)
-    dependenciesWithResolvedConflicts.zipWithIndex.map { case (dependency, index) =>
+                                         (moduleData: ModuleData, libraries: Seq[LibraryData], offset: Int, separateModulesForProdTest: Boolean): Seq[LibraryDependencyNode] = {
+    val resolvedDependencies =
+      if (!separateModulesForProdTest) resolveLibraryDependencyConflicts(dependencies)
+      else dependencies
+    resolvedDependencies.zipWithIndex.map { case (dependency, index) =>
       val name = getNameForLibrary(dependency.id)
       val library = libraries.find(_.getExternalName == name).getOrElse(
         throw new ExternalSystemException("Library not found: " + name))
