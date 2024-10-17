@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScNamingPattern, 
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaFeatures}
 
-object ScPatternTypeUnawareAnnotator extends ElementAnnotator[ScPattern] {
+object ScPatternTypeUnawareAnnotator extends ElementAnnotator[ScPattern] with DumbAware {
 
   override def annotate(pattern: ScPattern, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit =
