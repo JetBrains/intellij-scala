@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInsight.intention.comprehension
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.psi.{PsiElement, TokenType}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInsight.intention.comprehension.ConvertToParenthesesIntention._
@@ -17,7 +17,7 @@ object ConvertToParenthesesIntention {
   val FamilyName: String = ScalaBundle.message("intention.for.comprehension.convert.to.parentheses")
 }
 
-class ConvertToParenthesesIntention extends PsiElementBaseIntentionAction {
+class ConvertToParenthesesIntention extends PsiElementBaseIntentionAction with DumbAware {
   override def getFamilyName: String = FamilyName
 
   override def getText: String = getFamilyName
