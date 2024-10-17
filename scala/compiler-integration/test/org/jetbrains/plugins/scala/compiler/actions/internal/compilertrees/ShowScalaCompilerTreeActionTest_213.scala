@@ -117,6 +117,8 @@ abstract class ShowScalaCompilerTreeActionTestBase extends ScalaCompilerTestBase
 class ShowScalaCompilerTreeActionTest_210 extends ShowScalaCompilerTreeActionTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_10
 
+  override protected def reuseCompileServerProcessBetweenTests: Boolean = false
+
   def testParsePhasesAndTreesFromCompilerOutput(): Unit = {
     testCompilerPhasesAndTreesAreParsedAndDisplayed(
       s"MyClass.scala",
