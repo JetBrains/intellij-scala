@@ -6,7 +6,7 @@ import com.intellij.codeInsight.intention.{FileModifier, IntentionAction}
 import com.intellij.codeInsight.template.TemplateBuilderImpl
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createPs
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator
 
-object ScGivenAliasDeclarationAnnotator extends ElementAnnotator[ScGivenAliasDeclaration] {
+object ScGivenAliasDeclarationAnnotator extends ElementAnnotator[ScGivenAliasDeclaration] with DumbAware {
   override def annotate(decl: ScGivenAliasDeclaration, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit =
     checkAnonymousGivenDeclaration(decl)
@@ -37,7 +37,9 @@ object ScGivenAliasDeclarationAnnotator extends ElementAnnotator[ScGivenAliasDec
     }
 }
 
-private[element] abstract class AnonymousGivenAliasDeclarationQuickFix(declaration: ScGivenAliasDeclaration) extends IntentionAction {
+private[element] abstract class AnonymousGivenAliasDeclarationQuickFix(declaration: ScGivenAliasDeclaration)
+  extends IntentionAction
+    with DumbAware {
   override def startInWriteAction(): Boolean = true
 
   override def getText: String = getFamilyName
