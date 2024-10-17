@@ -83,16 +83,17 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
         "BaseDataReader: error stream of scalaCompileServer",
         "scalaCompileServer"
       )
+    } else {
+      // We don't want to reuse the compile server in this test class, but it may have already been started.
+      // We should shut it down first.
+      stopCompileServer()
     }
   }
 
   override protected def tearDown(): Unit = try {
     compilerTester.tearDown()
     if (!reuseCompileServerProcessBetweenTests) {
-      compileServerShutdownTimeout match {
-        case _: Duration.Infinite => CompileServerLauncher.stopServerAndWait()
-        case duration: FiniteDuration => CompileServerLauncher.stopServerAndWaitFor(duration)
-      }
+      stopCompileServer()
     } else {
       //  server will be stopped when Application shuts down (see ShutDownTracker in CompileServerLauncher)
     }
@@ -181,6 +182,13 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
 
   protected implicit def listCompilerMessage2Ext(messages: JList[CompilerMessage]): ListCompilerMessageExt =
     new ListCompilerMessageExt(messages)
+
+  private def stopCompileServer(): Unit = {
+    compileServerShutdownTimeout match {
+      case _: Duration.Infinite => CompileServerLauncher.stopServerAndWait()
+      case duration: FiniteDuration => CompileServerLauncher.stopServerAndWaitFor(duration)
+    }
+  }
 }
 
 object ScalaCompilerTestBase {
