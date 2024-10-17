@@ -3,7 +3,6 @@ package compiler
 
 import com.intellij.compiler.CompilerConfiguration
 import com.intellij.compiler.server.BuildManager
-import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.compiler._
 import com.intellij.openapi.projectRoots._
