@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.annotator.element
 
 import com.intellij.codeInsight.intention.{FileModifier, IntentionAction}
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScEnumerators
 
-object ScEnumeratorsAnnotator extends ElementAnnotator[ScEnumerators] {
+object ScEnumeratorsAnnotator extends ElementAnnotator[ScEnumerators] with DumbAware {
 
   override def annotate(enumerators: ScEnumerators, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
@@ -21,8 +21,9 @@ object ScEnumeratorsAnnotator extends ElementAnnotator[ScEnumerators] {
     }
   }
 
-  private final class RemoveErrorSemicolonIntentionAction(enumerators: ScEnumerators) extends IntentionAction {
-
+  private final class RemoveErrorSemicolonIntentionAction(enumerators: ScEnumerators)
+    extends IntentionAction
+      with DumbAware {
     override def getText: String = ScalaBundle.message("remove.all.erroneous.semicolons.from.forexpression")
 
     override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = true
