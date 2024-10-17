@@ -2,14 +2,16 @@ package org.jetbrains.plugins.scala.annotator.quickfix
 
 import com.intellij.codeInsight.intention.{FileModifier, IntentionAction}
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScSymbolLiteral
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
-final class ConvertToExplicitSymbolQuickFix(symbolLiteral: ScSymbolLiteral) extends IntentionAction {
+final class ConvertToExplicitSymbolQuickFix(symbolLiteral: ScSymbolLiteral)
+  extends IntentionAction
+    with DumbAware {
   private val symbolText = symbolLiteral.contentText
 
   override def getText: String = ScalaBundle.message("convert.to.explicit.symbol", symbolText)
