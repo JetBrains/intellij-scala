@@ -11,6 +11,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiNamedElement}
 import com.intellij.refactoring.rename.inplace.MyLookupExpression
+import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 
 import scala.collection.immutable.ArraySeq
@@ -18,7 +19,7 @@ import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.jdk.CollectionConverters._
 
-class InplaceRenameHelper(parent: PsiElement) {
+class InplaceRenameHelper(@NotNull private val parent: PsiElement) {
   private val builder: TemplateBuilderImpl = TemplateBuilderFactory.getInstance().
           createTemplateBuilder(parent).asInstanceOf[TemplateBuilderImpl]
   private val primaries = mutable.ArrayBuffer[PsiElement]()
@@ -133,4 +134,3 @@ class InplaceRenameHelper(parent: PsiElement) {
     PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
   }
 }
-
