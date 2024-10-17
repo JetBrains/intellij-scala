@@ -2,13 +2,13 @@ package org.jetbrains.plugins.scala.codeInsight.intention
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition}
@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 /**
   * Jason Zaugg
   */
-final class RemoveBracesIntention extends PsiElementBaseIntentionAction {
+final class RemoveBracesIntention extends PsiElementBaseIntentionAction with DumbAware {
 
   import RemoveBracesIntention._
 
@@ -53,11 +53,9 @@ object RemoveBracesIntention {
     }
 
     def getElements(it: Iterator[PsiElement]) = {
-      def acceptableElem(elem: PsiElement) = {
-        (elem.isInstanceOf[PsiComment] || elem.isInstanceOf[PsiWhiteSpace]) && !hasLineBreaks(elem)
-      }
+      def acceptableElem(elem: PsiElement) = elem.is[PsiComment, PsiWhiteSpace] && !hasLineBreaks(elem)
 
-      it.takeWhile { a => acceptableElem(a) }.filter(a => a.isInstanceOf[PsiComment]).toSeq
+      it.takeWhile(acceptableElem).filterByType[PsiComment].toSeq
     }
 
     CommentsAroundElement(getElements(element.prevSiblings).reverse, getElements(element.nextSiblings).reverse)
