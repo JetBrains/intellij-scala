@@ -2,12 +2,11 @@ package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.lang.annotation._
 import com.intellij.lang.injection.InjectedLanguageManager
-import com.intellij.openapi.project.DumbAware
+import com.intellij.openapi.project.{DumbAware, DumbService, Project}
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.{ScalaBundle, Tracing}
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils._
 import org.jetbrains.plugins.scala.annotator.annotationHolder.ScalaAnnotationHolderAdapter
 import org.jetbrains.plugins.scala.annotator.element.ElementAnnotator
@@ -31,10 +30,12 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.statistics.ScalaAnnotatorUsagesCollector
+import org.jetbrains.plugins.scala.{ScalaBundle, Tracing}
 
 class ScalaAnnotator extends Annotator
   with FunctionAnnotator
-  with OverridingAnnotator {
+  with OverridingAnnotator
+  with DumbAware {
 
   override def annotate(element: PsiElement, holder: AnnotationHolder): Unit = {
     val file = element.getContainingFile
@@ -202,10 +203,14 @@ class ScalaAnnotator extends Annotator
         super.visitTemplateParents(tp)
       }
     }
-    element.accept(visitor)
+
+    implicit val project: Project = element.getProject
+    if (!isDumbMode) {
+      element.accept(visitor)
+    }
 
     element match {
-      case templateDefinition: ScTemplateDefinition =>
+      case templateDefinition: ScTemplateDefinition if !isDumbMode =>
         checkBoundsVariance(templateDefinition, templateDefinition.nameId, templateDefinition.nameId, Covariant)
 
         templateDefinition match {
@@ -405,5 +410,9 @@ class ScalaAnnotator extends Annotator
       ProcessSubtypes
     }
     typeParam.recursiveVarianceUpdate(variance)(functionToSendIn)
+  }
+
+  private def isDumbMode(implicit project: Project): Boolean = inReadAction {
+    DumbService.isDumb(project)
   }
 }
