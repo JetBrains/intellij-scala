@@ -136,7 +136,7 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
 
   //TODO: set to "true" by default, because it reflects the default behaviour of IDEA
   // (review extended classes and set to "false" where needed)
-  protected def useCompileServer: Boolean = false
+  protected def useCompileServer: Boolean = true
   protected def reuseCompileServerProcessBetweenTests: Boolean = true
   protected def compileServerShutdownTimeout: Duration = Duration.Inf
 
