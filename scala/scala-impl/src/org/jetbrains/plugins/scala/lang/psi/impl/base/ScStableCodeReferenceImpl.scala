@@ -31,7 +31,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypedDe
 import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScPackage, ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.{PatternTypeInference, ScReferenceImpl}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.impl.{CompilerType, ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
@@ -41,6 +41,7 @@ import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, CompletionProcessor, ExtractorResolveProcessor}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocResolvableCodeReference, ScDocSyntaxElement}
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.annotation.tailrec
 
@@ -422,7 +423,20 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         val result2 = result.flatMap(processQualifierResolveResult(q, _, processor, isExportInExtension))
         result2
       case Some(q: ScStableCodeReference) =>
-        q.bind() match {
+        // Handle `foo: prefix.Type` where `prefix` is a reference to a transparent inline method
+        val symbol = CompilerType(q) match {
+          case Some(s) =>
+            val settings = ScalaProjectSettings.getInstance(getProject)
+            if (settings.isCompilerHighlightingScala3 && settings.isUseCompilerTypes) {
+              ScalaPsiElementFactory.createReferenceFromText(s.stripSuffix(".type"), q, null).bind()
+            } else {
+              CompilerType(this) = None
+              q.bind()
+            }
+          case None =>
+            q.bind()
+        }
+        symbol match {
           case Some(res) =>
             processQualifierResolveResult(q, res, processor, isExportInExtension)
           case _ =>
