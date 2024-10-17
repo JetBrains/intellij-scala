@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.methodSignature
 
 import com.intellij.codeInspection.{LocalQuickFix, ProblemHighlightType}
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.ui.CompilerInspectionOptions
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, ScalaInspectionBundle}
@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFuncti
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
-sealed abstract class UnitMethodInspection extends AbstractMethodSignatureInspection {
+sealed abstract class UnitMethodInspection extends AbstractMethodSignatureInspection with DumbAware {
 
   override protected def isApplicable(function: ScFunction): Boolean =
     function.hasUnitResultType
@@ -57,7 +57,7 @@ object UnitMethodInspection {
       val quickFix = new AbstractFixOnPsiElement(
         ScalaInspectionBundle.message("convert.to.function.syntax"),
         function.asInstanceOf[ScFunctionDefinition]
-      ) {
+      ) with DumbAware {
         override protected def doApplyFix(function: ScFunctionDefinition)(implicit project: Project): Unit = {
           removeAssignment(function)
           removeTypeElement(function)
@@ -79,7 +79,7 @@ object UnitMethodInspection {
       val quickFix = new AbstractFixOnPsiElement(
         ScalaInspectionBundle.message("convert.to.function.syntax"),
         function
-      ) {
+      ) with DumbAware {
         override protected def doApplyFix(function: ScFunction)(implicit project: Project): Unit = {
           def addChildNode(element: PsiElement): Unit =
             function.getNode.addChild(element.getNode)
