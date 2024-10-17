@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.annotator.quickfix
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -14,8 +14,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScIntegerLiteral,
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 
-sealed abstract class NumberLiteralQuickFix[L <: Numeric](private[this] val literal: L) extends IntentionAction {
-
+sealed abstract class NumberLiteralQuickFix[L <: Numeric](private[this] val literal: L)
+  extends IntentionAction
+    with DumbAware {
   protected def transformText(text: String): String
 
   override final def getFamilyName: String = ScalaBundle.message("numeric.literal.family")
