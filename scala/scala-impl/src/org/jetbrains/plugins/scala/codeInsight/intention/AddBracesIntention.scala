@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInsight.intention
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.util.PsiTreeUtil
@@ -18,8 +18,7 @@ import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 /**
  * Jason Zaugg
  */
-
-class AddBracesIntention extends PsiElementBaseIntentionAction {
+class AddBracesIntention extends PsiElementBaseIntentionAction with DumbAware {
   override def getFamilyName: String = ScalaBundle.message("family.name.add.braces")
 
   override def getText: String = ScalaBundle.message("add.braces.around.single.line.expression")
