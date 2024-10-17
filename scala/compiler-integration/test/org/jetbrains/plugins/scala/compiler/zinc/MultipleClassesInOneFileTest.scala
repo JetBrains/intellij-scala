@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.compiler.zinc
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.testFramework.CompilerTester
 import org.jetbrains.plugins.scala.CompilationTests
+import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.{assertCompilingScalaSources, assertNoErrorsOrWarnings}
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.junit.Assert.{assertNotNull, assertTrue}

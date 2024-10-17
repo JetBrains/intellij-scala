@@ -4,6 +4,7 @@ import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.testFramework.CompilerTester
 import org.jetbrains.plugins.scala.CompilationTests
+import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.{assertCompilingScalaSources, assertNoErrorsOrWarnings}
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration

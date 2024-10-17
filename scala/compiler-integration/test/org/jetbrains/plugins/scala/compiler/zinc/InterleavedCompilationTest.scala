@@ -6,6 +6,7 @@ import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.platform.externalSystem.testFramework.ExternalSystemTestCase
 import com.intellij.testFramework.{CompilerTester, VfsTestUtil}
 import org.jetbrains.plugins.scala.CompilationTests
+import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.{assertCompilingScalaSources, assertNoErrorsOrWarnings}
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
