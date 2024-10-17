@@ -3,6 +3,8 @@ package compiler
 
 import com.intellij.compiler.CompilerConfiguration
 import com.intellij.compiler.server.BuildManager
+import com.intellij.openapi.Disposable
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.compiler._
 import com.intellij.openapi.projectRoots._
 import com.intellij.openapi.roots._
@@ -10,6 +12,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs._
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework._
+import com.intellij.testFramework.common.ThreadLeakTracker
 //noinspection ApiStatus
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders._
@@ -68,6 +71,19 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
     // We need to enforce calculating of the versionString value to ensure presence of it in the JPS-process (╥﹏╥)
     getTestProjectJdk.getVersionString
     addOutRoot()
+  }
+
+  override protected def setUp(): Unit = {
+    super.setUp()
+    if (reuseCompileServerProcessBetweenTests) {
+      //noinspection ApiStatus,UnstableApiUsage
+      ThreadLeakTracker.longRunningThreadCreated(
+        ApplicationManager.getApplication,
+        "BaseDataReader: output stream of scalaCompileServer",
+        "BaseDataReader: error stream of scalaCompileServer",
+        "scalaCompileServer"
+      )
+    }
   }
 
   override protected def tearDown(): Unit = try {
