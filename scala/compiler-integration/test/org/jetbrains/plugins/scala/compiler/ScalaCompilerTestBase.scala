@@ -5,6 +5,7 @@ import com.intellij.compiler.CompilerConfiguration
 import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.compiler._
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots._
 import com.intellij.openapi.roots._
 import com.intellij.openapi.util.text.StringUtil
@@ -12,6 +13,8 @@ import com.intellij.openapi.vfs._
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework._
 import com.intellij.testFramework.common.ThreadLeakTracker
+
+import java.nio.file.Path
 //noinspection ApiStatus
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders._
@@ -187,6 +190,12 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
       case _: Duration.Infinite => CompileServerLauncher.stopServerAndWait()
       case duration: FiniteDuration => CompileServerLauncher.stopServerAndWaitFor(duration)
     }
+  }
+
+  protected def findClassFile(name: String): Path = {
+    val cls = compiler.findClassFile(name, getModule)
+    assertNotNull(s"Could not find compiled class file $name", cls)
+    cls.toPath
   }
 }
 

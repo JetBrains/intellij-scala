@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.compiler
 
-import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.JavaCompilerConfigurationProxy
@@ -11,7 +10,6 @@ import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.junit.Assert.{assertEquals, assertNotNull}
 
 import java.net.URLClassLoader
-import java.nio.file.Path
 import scala.jdk.CollectionConverters._
 
 abstract class JavacOptionsTestBase(
@@ -39,7 +37,7 @@ abstract class JavacOptionsTestBase(
     val messages = compiler.make().asScala.toSeq
     assertNoErrorsOrWarnings(messages)
 
-    val fooClassFile = findClassFile(getModule, "org.example.Foo")
+    val fooClassFile = findClassFile("org.example.Foo")
     assertNotNull("Could not find class file 'org.example.Foo' in 'module1'", fooClassFile)
 
     val classLoader = new URLClassLoader(Array(fooClassFile.getParent.getParent.getParent.toUri.toURL))
@@ -66,7 +64,7 @@ abstract class JavacOptionsTestBase(
     val messages = compiler.make().asScala.toSeq
     assertNoErrorsOrWarnings(messages)
 
-    val barClassFile = findClassFile(getModule, "org.example.Bar")
+    val barClassFile = findClassFile("org.example.Bar")
     assertNotNull("Could not find class file 'org.example.Bar' in 'module2'", barClassFile)
 
     val classLoader = new URLClassLoader(Array(barClassFile.getParent.getParent.getParent.toUri.toURL))
@@ -74,12 +72,6 @@ abstract class JavacOptionsTestBase(
 
     val barParameter = barClass.getMethods.find(_.getName == "getInt").orNull.getParameters.head.getName
     assertEquals("Wrong compiled parameter name in class 'org.example.Bar'", "arg0", barParameter)
-  }
-
-  private def findClassFile(module: Module, name: String): Path = {
-    val cls = compiler.findClassFile(name, module)
-    assertNotNull(s"Could not find compiled class file $name", cls)
-    cls.toPath
   }
 }
 
