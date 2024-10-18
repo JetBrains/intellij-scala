@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.scaladoc
 
 import com.intellij.codeInspection._
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, ScalaInspectionBundle}
@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocInlinedTag
 
-final class ScalaDocInlinedTagInspection extends LocalInspectionTool {
+final class ScalaDocInlinedTagInspection extends LocalInspectionTool with DumbAware {
   override def isEnabledByDefault: Boolean = true
 
   override def getDisplayName: String = ScalaInspectionBundle.message("display.name.inlined.tag")
@@ -29,25 +29,21 @@ final class ScalaDocInlinedTagInspection extends LocalInspectionTool {
     }
 }
 
-
 final class ScalaDocInlinedTagDeleteQuickFix(inlinedTag: ScDocInlinedTag)
-  extends AbstractFixOnPsiElement(ScalaBundle.message("delete.inlined.tag"), inlinedTag) {
-
+  extends AbstractFixOnPsiElement(ScalaBundle.message("delete.inlined.tag"), inlinedTag)
+    with DumbAware {
   override def getFamilyName: String = FamilyName
 
-  override protected def doApplyFix(tag: ScDocInlinedTag)
-                                   (implicit project: Project): Unit = {
+  override protected def doApplyFix(tag: ScDocInlinedTag)(implicit project: Project): Unit =
     tag.delete()
-  }
 }
 
 final class ScalaDocInlinedTagReplaceQuickFix(inlinedTag: ScDocInlinedTag)
-  extends AbstractFixOnPsiElement(ScalaBundle.message("replace.with.wiki.syntax"), inlinedTag) {
-
+  extends AbstractFixOnPsiElement(ScalaBundle.message("replace.with.wiki.syntax"), inlinedTag)
+    with DumbAware {
   override def getFamilyName: String = FamilyName
 
-  override protected def doApplyFix(tag: ScDocInlinedTag)
-                                   (implicit project: Project): Unit = {
+  override protected def doApplyFix(tag: ScDocInlinedTag)(implicit project: Project): Unit = {
     val textNew = tag.valueText.map(escaped).getOrElse("")
     val elementNew = tag.name match {
       case "code" =>
