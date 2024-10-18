@@ -6,7 +6,7 @@ package controlFlow
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScIf, ScInfi
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createElementFromText
 import org.jetbrains.plugins.scala.project.ScalaFeatures
 
-final class SplitIfIntention extends PsiElementBaseIntentionAction {
+final class SplitIfIntention extends PsiElementBaseIntentionAction with DumbAware {
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =
     element.parentOfType(classOf[ScIf], strict = false).exists {
