@@ -1,32 +1,27 @@
-package org.jetbrains.plugins.scala.compiler.zinc
+package org.jetbrains.plugins.scala.compiler
 
 import com.intellij.compiler.CompilerMessageImpl
 import com.intellij.openapi.compiler.CompilerMessageCategory
-import com.intellij.openapi.module.ModuleManager
-import com.intellij.testFramework.CompilerTester
-import org.jetbrains.plugins.scala.CompilationTests
+import com.intellij.pom.java.LanguageLevel
+import com.intellij.testFramework.IdeaTestUtil
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
-import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.{CompilationTests, ScalaVersion}
 import org.junit.Assert.{assertEquals, assertTrue}
 import org.junit.experimental.categories.Category
 
 import scala.jdk.CollectionConverters._
 
 @Category(Array(classOf[CompilationTests]))
-class JavacErrorsPositionTest extends ZincTestBase {
+abstract class JavacErrorPositionsTestBase(
+  override protected val incrementalityType: IncrementalityType
+) extends ScalaCompilerTestBase {
 
-  def testJavacErrorsPosition_Zinc(): Unit = {
-    runJavacErrorsPositionTest(IncrementalityType.SBT)
-  }
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 
-  def testJavacErrorsPosition_IDEA(): Unit = {
-    runJavacErrorsPositionTest(IncrementalityType.IDEA)
-  }
+  def testJavacErrorsPosition(): Unit = {
+    IdeaTestUtil.setProjectLanguageLevel(getProject, LanguageLevel.JDK_1_8)
 
-  private def runJavacErrorsPositionTest(incrementality: IncrementalityType): Unit = {
-    createProjectSubDirs("project", "src/main/java")
-    createProjectSubFile("project/build.properties", "sbt.version=1.10.1")
-    createProjectSubFile("src/main/java/StringFactorial.java",
+    addFileToProjectSources("src/main/java/StringFactorial.java",
       """import java.math.BigInteger;
         |
         |public final class StringFactorial {
@@ -39,16 +34,6 @@ class JavacErrorsPositionTest extends ZincTestBase {
         |    }
         |}
         |""".stripMargin)
-    createProjectConfig(
-      """lazy val root = project.in(file("."))
-        |  .settings(scalaVersion := "2.13.14")
-        |""".stripMargin)
-
-    importProject(false)
-    ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType = incrementality
-    val modules = ModuleManager.getInstance(myProject).getModules
-    rootModule = modules.find(_.getName == "root").orNull
-    compiler = new CompilerTester(myProject, java.util.Arrays.asList(modules: _*), null, false)
 
     val errors = compiler.make().asScala.toSeq.filter(_.getCategory == CompilerMessageCategory.ERROR)
     assertEquals(3, errors.size)
@@ -70,3 +55,7 @@ class JavacErrorsPositionTest extends ZincTestBase {
     assertEquals(16, error3.getColumn)
   }
 }
+
+class JavacErrorPositionsTest_Zinc extends JavacErrorPositionsTestBase(IncrementalityType.SBT)
+
+class JavacErrorsPositionsTest_IDEA extends JavacErrorPositionsTestBase(IncrementalityType.IDEA)
