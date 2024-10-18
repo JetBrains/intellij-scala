@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInsight.intention.booleans
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
 
 import scala.util.chaining.scalaUtilChainingOps
 
-final class FlipComparisonInMethodCallExprIntention extends PsiElementBaseIntentionAction {
+final class FlipComparisonInMethodCallExprIntention extends PsiElementBaseIntentionAction with DumbAware {
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     val methodCallExpr: ScMethodCall = PsiTreeUtil.getParentOfType(element, classOf[ScMethodCall], false)
