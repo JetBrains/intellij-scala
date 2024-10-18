@@ -1,16 +1,16 @@
 package org.jetbrains.plugins.scala.codeInspection.xml
 
 import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemsHolder}
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInspection.AbstractFixOnPsiElement
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.{ScXmlEndTag, ScXmlStartTag}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 
-class ScalaXmlUnmatchedTagInspection extends LocalInspectionTool{
+final class ScalaXmlUnmatchedTagInspection extends LocalInspectionTool with DumbAware {
   override def isEnabledByDefault: Boolean = true
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
@@ -18,11 +18,10 @@ class ScalaXmlUnmatchedTagInspection extends LocalInspectionTool{
       override def visitXmlStartTag(s: ScXmlStartTag): Unit = {
         if (s.getTextRange.isEmpty) return
 
-        val endTag = s.getClosingTag
-        def register(fixes: LocalQuickFix*): Unit = {
+        def register(fixes: LocalQuickFix*): Unit =
           holder.registerProblem(s, ScalaBundle.message("xml.no.closing.tag"), fixes: _*)
-        }
 
+        val endTag = s.getClosingTag
         if (endTag == null) {
           register(new DeleteUnmatchedTagQuickFix(s))
         } else if (endTag.getTagName != s.getTagName) {
@@ -31,11 +30,10 @@ class ScalaXmlUnmatchedTagInspection extends LocalInspectionTool{
       }
 
       override def visitXmlEndTag(s: ScXmlEndTag): Unit = {
-        val startTag = s.getOpeningTag
-        def register(fixes: LocalQuickFix*): Unit = {
+        def register(fixes: LocalQuickFix*): Unit =
           holder.registerProblem(s, ScalaBundle.message("xml.no.opening.tag"), fixes: _*)
-        }
 
+        val startTag = s.getOpeningTag
         if (startTag == null) {
           register(new DeleteUnmatchedTagQuickFix(s))
         } else if (startTag.getTagName != s.getTagName) {
@@ -46,42 +44,36 @@ class ScalaXmlUnmatchedTagInspection extends LocalInspectionTool{
   }
 }
 
-class DeleteUnmatchedTagQuickFix(s: ScalaPsiElement)
-        extends AbstractFixOnPsiElement(ScalaBundle.message("xml.delete.unmatched.tag"), s) {
-
+final class DeleteUnmatchedTagQuickFix(s: ScalaPsiElement)
+  extends AbstractFixOnPsiElement(ScalaBundle.message("xml.delete.unmatched.tag"), s)
+    with DumbAware {
   override def getFamilyName: String = FamilyName
 
   override protected def doApplyFix(elem: ScalaPsiElement)
-                                   (implicit project: Project): Unit = {
+                                   (implicit project: Project): Unit =
     elem.delete()
-  }
 }
 
-class RenameClosingTagQuickFix(s: ScXmlStartTag)
-        extends AbstractFixOnPsiElement(ScalaBundle.message("xml.rename.closing.tag"), s) {
-
+final class RenameClosingTagQuickFix(s: ScXmlStartTag)
+  extends AbstractFixOnPsiElement(ScalaBundle.message("xml.rename.closing.tag"), s)
+    with DumbAware {
   override def getFamilyName: String = FamilyName
 
   override protected def doApplyFix(elem: ScXmlStartTag)
-                                   (implicit project: Project): Unit = {
+                                   (implicit project: Project): Unit =
     elem.getClosingTag.replace(createXmlEndTag(elem.getTagName))
-  }
 }
 
-class RenameOpeningTagQuickFix(s: ScXmlEndTag)
-        extends AbstractFixOnPsiElement(ScalaBundle.message("xml.rename.opening.tag"), s) {
-
+final class RenameOpeningTagQuickFix(s: ScXmlEndTag)
+  extends AbstractFixOnPsiElement(ScalaBundle.message("xml.rename.opening.tag"), s)
+    with DumbAware {
   override def getFamilyName: String = FamilyName
-
 
   override protected def doApplyFix(elem: ScXmlEndTag)
                                    (implicit project: Project): Unit = {
     val openingTag = elem.getOpeningTag
     val attributes = openingTag.findChildrenByType(ScalaElementType.XML_ATTRIBUTE).map(_.getText)
-
-    elem.getOpeningTag.replace(createXmlStartTag(elem.getTagName,
-      if (attributes.isEmpty) "" else attributes.mkString(" ", " ", "")))
+    val attributesText = if (attributes.isEmpty) "" else attributes.mkString(" ", " ", "")
+    openingTag.replace(createXmlStartTag(elem.getTagName, attributesText))
   }
 }
-
-
