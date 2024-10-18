@@ -6,11 +6,11 @@ package stringLiteral
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 
-final class AddReplaceSlashRToMLStringIntention extends PsiElementBaseIntentionAction {
+final class AddReplaceSlashRToMLStringIntention extends PsiElementBaseIntentionAction with DumbAware {
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =
     element.getNode.getElementType match {
