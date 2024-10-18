@@ -5,7 +5,7 @@ package argument
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
-final class BlockExpressionToArgumentIntention extends PsiElementBaseIntentionAction {
+final class BlockExpressionToArgumentIntention extends PsiElementBaseIntentionAction with DumbAware {
   override def getFamilyName: String = ScalaCodeInsightBundle.message("family.name.convert.to.argument.in.parentheses")
 
   override def getText: String = getFamilyName
@@ -28,12 +28,12 @@ final class BlockExpressionToArgumentIntention extends PsiElementBaseIntentionAc
       case _ => false
     }
 
-
   private def producesSameResult(block: ScBlockExpr, element: PsiElement): Boolean = {
     def withoutBlock(e: PsiElement): Seq[PsiElement] = e match {
       case block: ScBlock => block.statements.flatMap(withoutBlock)
       case _ => Seq(e)
     }
+
     def withoutFunctionExpr(e: PsiElement): Seq[PsiElement] = e match {
       case ScFunctionExpr(_, Some(result)) =>
         result.asOptionOf[ScBlock]
@@ -64,6 +64,7 @@ final class BlockExpressionToArgumentIntention extends PsiElementBaseIntentionAc
         .filterNot(_.isWhitespaceOrComment)
         .map(_.toString.filterNot(_.isWhitespace))
         .to(LazyList)
+
     convert(a) == convert(b)
   }
 
