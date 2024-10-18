@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.annotator.element
 
+import com.intellij.openapi.project.DumbAware
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
@@ -8,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScSelfInvocation}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
-object ScConstrBlockExprAnnotator extends ElementAnnotator[ScFunctionDefinition] {
+object ScConstrBlockExprAnnotator extends ElementAnnotator[ScFunctionDefinition] with DumbAware {
 
   override def annotate(fun: ScFunctionDefinition, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
