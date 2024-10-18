@@ -2,10 +2,11 @@ package org.jetbrains.plugins.scala.codeInspection.redundantClassParamClause
 
 import com.intellij.codeInspection.ProblemHighlightType.LIKE_UNUSED_SYMBOL
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
+import com.intellij.openapi.project.DumbAware
 import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 
-class RedundantClassParamClauseInspection extends LocalInspectionTool {
+final class RedundantClassParamClauseInspection extends LocalInspectionTool with DumbAware {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case c: ScClass if !c.isCase =>
       for {
