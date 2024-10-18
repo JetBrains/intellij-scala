@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.compiler
 
+import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.vfs.VfsUtil
 import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.{assertCompilingScalaSources, assertNoErrorsOrWarnings}
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
@@ -15,6 +16,8 @@ import scala.jdk.CollectionConverters._
 class MultipleClassesInOneFileTest extends ScalaCompilerTestBase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
+
+  override protected def buildProcessJdk: Sdk = CompileServerLauncher.defaultSdk(getProject)
 
   override protected val incrementalityType: IncrementalityType = IncrementalityType.SBT
 
