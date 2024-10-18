@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.syntacticSimplification
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions._
@@ -9,14 +9,11 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createScalaFileFromText
 
-class ScalaUnnecessarySemicolonInspection extends LocalInspectionTool {
+final class ScalaUnnecessarySemicolonInspection extends LocalInspectionTool with DumbAware {
   override def isEnabledByDefault: Boolean = false
 
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
-
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor =
     new ScalaElementVisitor {
-      def startOffset(element: PsiElement): Int = element.getTextRange.getStartOffset
-      def endOffset(element: PsiElement): Int = element.getTextRange.getEndOffset
       def shiftInNewFile(offset: Int, semicolonOffset: Int): Int = offset + (if (offset > semicolonOffset) 1 else 0)
 
       override def visitElement(element: PsiElement): Unit = {
@@ -25,32 +22,32 @@ class ScalaUnnecessarySemicolonInspection extends LocalInspectionTool {
           val canRemove = element.nextLeaf match {
             case None => true
             case Some(nextLeaf) if nextLeaf.getText.contains("\n") =>
-              val whitespaceOffset = endOffset(nextLeaf)
-              val offset = startOffset(element)
+              val whitespaceOffset = nextLeaf.endOffset
+              val offset = element.startOffset
               val textWithoutSemicolon = removeChar(file.charSequence, offset)
               val newFile = createScalaFileFromText(textWithoutSemicolon, element)(element.getManager)
               var elem1 = file.findElementAt(offset - 1)
               var elem2 = newFile.findElementAt(offset - 1)
-              while (elem1 != null && endOffset(elem1) <= offset && elem2 != null) {
+              while (elem1 != null && elem1.endOffset <= offset && elem2 != null) {
                 if (!elem1.textMatches(elem2.getText)) return
                 if (elem1.getNode.getElementType != elem2.getNode.getElementType) return
                 elem1 = elem1.getParent
                 elem2 = elem2.getParent
               }
               if (elem2 == null) return
-              if (shiftInNewFile(startOffset(elem2), offset) > startOffset(elem1) ||
-                      shiftInNewFile(endOffset(elem2), offset) < endOffset(elem1)) return
+              if (shiftInNewFile(elem2.startOffset, offset) > elem1.startOffset ||
+                shiftInNewFile(elem2.endOffset, offset) < elem1.endOffset) return
               elem1 = file.findElementAt(whitespaceOffset)
               elem2 = newFile.findElementAt(whitespaceOffset - 1)
-              while (elem1 != null && startOffset(elem1) >= whitespaceOffset && elem2 != null) {
+              while (elem1 != null && elem1.startOffset >= whitespaceOffset && elem2 != null) {
                 if (!elem1.textMatches(elem2.getText)) return
                 if (elem1.getNode.getElementType != elem2.getNode.getElementType) return
                 elem1 = elem1.getParent
                 elem2 = elem2.getParent
               }
               if (elem2 == null) return
-              if (shiftInNewFile(startOffset(elem2), offset) > startOffset(elem1) ||
-                      shiftInNewFile(endOffset(elem2), offset) < endOffset(elem1)) return
+              if (shiftInNewFile(elem2.startOffset, offset) > elem1.startOffset ||
+                shiftInNewFile(elem2.endOffset, offset) < elem1.endOffset) return
               true
             case _ =>
               false
@@ -64,7 +61,6 @@ class ScalaUnnecessarySemicolonInspection extends LocalInspectionTool {
         super.visitElement(element)
       }
     }
-  }
 
   private def removeChar(cs: CharSequence, offset: Int): String = {
     val builder = new java.lang.StringBuilder(cs.length() - 1)
@@ -74,10 +70,10 @@ class ScalaUnnecessarySemicolonInspection extends LocalInspectionTool {
   }
 }
 
-class RemoveSemicolonFix(element: PsiElement) extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("remove.unnecessary.semicolon"), element) {
-
+final class RemoveSemicolonFix(element: PsiElement)
+  extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("remove.unnecessary.semicolon"), element)
+    with DumbAware {
   override protected def doApplyFix(elem: PsiElement)
-                                   (implicit project: Project): Unit = {
+                                   (implicit project: Project): Unit =
     elem.delete()
-  }
 }
