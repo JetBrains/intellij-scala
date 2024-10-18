@@ -25,7 +25,7 @@ class VeryLongClassNameTest extends ScalaCompilerTestBase {
   override protected def buildProcessJdk: Sdk = CompileServerLauncher.defaultSdk(getProject)
 
   def testVertLongClassFileName(): Unit = {
-    addFileToProjectSources("src/main/scala/LongNames.scala",
+    addFileToProjectSources("LongNames.scala",
       """object LongNames {
         |  object OuterLevelWithVeryVeryVeryLongClassName1 {
         |    object OuterLevelWithVeryVeryVeryLongClassName2 {

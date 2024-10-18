@@ -33,7 +33,7 @@ abstract class JavacOptionsTestBase(
     IdeaTestUtil.setProjectLanguageLevel(getProject, LanguageLevel.JDK_1_8)
     JavaCompilerConfigurationProxy.setAdditionalOptions(getProject, getModule, java.util.Collections.singletonList("-parameters"))
 
-    addFileToProjectSources("src/main/java/org/example/Foo.java",
+    addFileToProjectSources("org/example/Foo.java",
       """package org.example;
         |
         |public class Foo {
@@ -60,7 +60,7 @@ abstract class JavacOptionsTestBase(
     IdeaTestUtil.setProjectLanguageLevel(getProject, LanguageLevel.JDK_1_8)
     JavaCompilerConfigurationProxy.setAdditionalOptions(getProject, getModule, java.util.Collections.emptyList())
 
-    addFileToProjectSources("src/main/java/org/example/Bar.java",
+    addFileToProjectSources("org/example/Bar.java",
       """package org.example;
         |
         |public class Bar {

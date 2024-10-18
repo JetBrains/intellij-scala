@@ -31,7 +31,7 @@ abstract class JavacErrorPositionsTestBase(
   def testJavacErrorsPosition(): Unit = {
     IdeaTestUtil.setProjectLanguageLevel(getProject, LanguageLevel.JDK_1_8)
 
-    addFileToProjectSources("src/main/java/StringFactorial.java",
+    addFileToProjectSources("StringFactorial.java",
       """import java.math.BigInteger;
         |
         |public final class StringFactorial {
