@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.redundantBlock
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.codeInspection.parentheses.registerRedundantParensProblem
 import org.jetbrains.plugins.scala.codeInspection.redundantBlock.RedundantBlockInspection.{InCaseClauseQuickFix, UnwrapExpressionQuickFix}
@@ -11,14 +11,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
-class RedundantBlockInspection extends LocalInspectionTool {
-
+final class RedundantBlockInspection extends LocalInspectionTool with DumbAware {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case (block: ScBlock) childOf ((blockOfExpr: ScBlock) childOf (_: ScCaseClause))
       if block.hasRBrace && block.getFirstChild.textMatches("{") &&
-        blockOfExpr.getChildren.length == 1 && !block.getChildren.exists(_.is[ScCaseClauses]) =>
+        blockOfExpr.getChildren.lengthIs == 1 && !block.getChildren.exists(_.is[ScCaseClauses]) =>
       registerRedundantParensProblem(ScalaInspectionBundle.message("redundant.braces.in.case.clause"), block, new InCaseClauseQuickFix(block), holder, isOnTheFly)
-    case block: ScBlockExpr if block.statements.length == 1 =>
+    case block: ScBlockExpr if block.statements.lengthIs == 1 =>
       if (RedundantBlockInspection.isRedundantBlock(block)) {
         registerRedundantParensProblem(ScalaInspectionBundle.message("the.enclosing.block.is.redundant"), block, new UnwrapExpressionQuickFix(block), holder, isOnTheFly)
       }
@@ -27,16 +26,17 @@ class RedundantBlockInspection extends LocalInspectionTool {
 }
 
 object RedundantBlockInspection {
-  private class UnwrapExpressionQuickFix(_block: ScBlockExpr) extends AbstractFixOnPsiElement[ScBlockExpr](ScalaInspectionBundle.message("unwrap.the.expression"), _block) {
-
+  private final class UnwrapExpressionQuickFix(_block: ScBlockExpr)
+    extends AbstractFixOnPsiElement[ScBlockExpr](ScalaInspectionBundle.message("unwrap.the.expression"), _block)
+      with DumbAware {
     override protected def doApplyFix(block: ScBlockExpr)
-                                     (implicit project: Project): Unit = {
-      block.replace(block.lastStatement.get)
-    }
+                                     (implicit project: Project): Unit =
+      block.lastStatement.foreach(block.replace)
   }
 
-  private class InCaseClauseQuickFix(block: ScBlock) extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("remove.redundant.braces"), block) {
-
+  private final class InCaseClauseQuickFix(block: ScBlock)
+    extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("remove.redundant.braces"), block)
+      with DumbAware {
     override protected def doApplyFix(bl: ScBlock)
                                      (implicit project: Project): Unit = {
       val children = bl.getChildren.drop(1).dropRight(1)
@@ -61,7 +61,7 @@ object RedundantBlockInspection {
       parent match {
         case _: ScArgumentExprList => false
         case _ if next == null && !hasWhitespacesInBlock => true
-        case _: ScInterpolatedStringLiteral =>
+        case _: ScInterpolatedStringLiteral if next != null =>
           val text = child.getText
           val nextLetter = next.getText.headOption.getOrElse(' ')
           val checkId = isInterpolatedStringIdentifier(text) && (nextLetter == '$' || !isInterpolatedStringIdentifier(text + nextLetter))
@@ -71,7 +71,7 @@ object RedundantBlockInspection {
     } else false
   }
 
-  def isInterpolatedStringIdentifier(name: String): Boolean =
+  private def isInterpolatedStringIdentifier(name: String): Boolean =
     name.nonEmpty &&
       Character.isJavaIdentifierStart(name.head) &&
       name.forall(Character.isJavaIdentifierPart)
