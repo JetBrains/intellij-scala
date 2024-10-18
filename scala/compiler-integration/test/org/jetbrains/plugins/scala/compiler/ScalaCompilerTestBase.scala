@@ -197,6 +197,13 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
     assertNotNull(s"Could not find compiled class file $name", cls)
     cls.toPath
   }
+
+  protected def removeFile(path: Path): Unit = {
+    val virtualFile = VfsUtil.findFileByIoFile(path.toFile, true)
+    inWriteAction {
+      virtualFile.delete(null)
+    }
+  }
 }
 
 object ScalaCompilerTestBase {
