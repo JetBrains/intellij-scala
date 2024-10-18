@@ -25,8 +25,7 @@ class ScDocInlinedTagImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
       .dropWhile(c => c.is[PsiErrorElement] || c.elementType == ScalaDocTokenType.DOC_WHITESPACE)
       .takeWhile(_.elementType != ScalaDocTokenType.DOC_INLINE_TAG_END)
     val result =
-      if (valueElements.isEmpty) None
-      else Some(valueElements.map(_.getText).mkString)
+      Option.unless(valueElements.isEmpty)(valueElements.map(_.getText).mkString)
     result
   }
 
