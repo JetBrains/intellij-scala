@@ -5,15 +5,14 @@ package booleans
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.isOpCharacter
 
-final class DeMorganLawIntention extends PsiElementBaseIntentionAction {
+final class DeMorganLawIntention extends PsiElementBaseIntentionAction with DumbAware {
 
   import DeMorganLawIntention._
 
@@ -35,11 +34,11 @@ final class DeMorganLawIntention extends PsiElementBaseIntentionAction {
     val infixExpr@ScInfixExpr(_, op, _) = PsiTreeUtil.getParentOfType(element, classOf[ScInfixExpr], false)
     val targetOpName = op.refName
     val upperMostInfixExpr: ScInfixExpr = infixExpr
-        .withParents
-        .takeWhile(_.is[ScInfixExpr])
-        .filterByType[ScInfixExpr]
-        .takeWhile(_.operation.refName == targetOpName)
-        .lastOption.get
+      .withParents
+      .takeWhile(_.is[ScInfixExpr])
+      .filterByType[ScInfixExpr]
+      .takeWhile(_.operation.refName == targetOpName)
+      .lastOption.get
     if (upperMostInfixExpr == null || !upperMostInfixExpr.isValid) return
 
     def inner(expr: ScExpression): String = expr match {
