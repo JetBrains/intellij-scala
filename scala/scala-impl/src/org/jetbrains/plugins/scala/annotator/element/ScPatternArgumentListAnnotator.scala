@@ -1,11 +1,12 @@
 package org.jetbrains.plugins.scala.annotator.element
 
 import com.intellij.codeInspection.ProblemHighlightType
+import com.intellij.openapi.project.DumbAware
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScNamingPattern, ScPattern, ScPatternArgumentList, ScSeqWildcardPattern}
 
-object ScPatternArgumentListAnnotator extends ElementAnnotator[ScPatternArgumentList] {
+object ScPatternArgumentListAnnotator extends ElementAnnotator[ScPatternArgumentList] with DumbAware {
 
   override def annotate(element: ScPatternArgumentList, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
@@ -13,7 +14,7 @@ object ScPatternArgumentListAnnotator extends ElementAnnotator[ScPatternArgument
 
     def process(pattern: ScPattern): Unit =
       pattern match {
-        case seqWildcard: ScSeqWildcardPattern if iterator.hasNext=>
+        case seqWildcard: ScSeqWildcardPattern if iterator.hasNext =>
           holder.createWarningAnnotation(
             seqWildcard,
             ScalaBundle.message("vararg.pattern.must.be.last.pattern"),
