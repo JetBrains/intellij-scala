@@ -5,7 +5,7 @@ package argument
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.psi.PsiElement
 import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.plugins.scala.extensions._
@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScBloc
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createAnonFunBlockFromFunExpr, createBlockFromExpr}
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
-final class ArgumentToBlockExpressionIntention extends PsiElementBaseIntentionAction {
+final class ArgumentToBlockExpressionIntention extends PsiElementBaseIntentionAction with DumbAware {
 
   import ArgumentToBlockExpressionIntention.{FunctionExpression, argListForElement}
 
