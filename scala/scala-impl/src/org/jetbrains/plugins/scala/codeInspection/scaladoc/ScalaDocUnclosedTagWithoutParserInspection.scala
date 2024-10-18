@@ -1,11 +1,9 @@
 package org.jetbrains.plugins.scala.codeInspection.scaladoc
 
 import com.intellij.codeInspection._
-import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElementVisitor
-import org.apache.commons.lang3.StringUtils
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
@@ -14,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxE
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocSyntaxElement
 
-class ScalaDocUnclosedTagWithoutParserInspection extends LocalInspectionTool {
+final class ScalaDocUnclosedTagWithoutParserInspection extends LocalInspectionTool with DumbAware {
   override def isEnabledByDefault: Boolean = true
 
   override def getDisplayName: String = ScalaInspectionBundle.message("display.name.unclosed.tag")
@@ -35,20 +33,20 @@ class ScalaDocUnclosedTagWithoutParserInspection extends LocalInspectionTool {
   }
 }
 
-
-class ScalaDocEscapeTagQuickFix(s: ScDocSyntaxElement)
-        extends AbstractFixOnPsiElement(ScalaBundle.message("replace.tag.with.esc.seq"), s) {
-
+final class ScalaDocEscapeTagQuickFix(s: ScDocSyntaxElement)
+  extends AbstractFixOnPsiElement(ScalaBundle.message("replace.tag.with.esc.seq"), s)
+    with DumbAware {
   override def getFamilyName: String = FamilyName
 
   override protected def doApplyFix(syntElem: ScDocSyntaxElement)
                                    (implicit project: Project): Unit = {
-    val replaceText = if (syntElem.getFirstChild.getText.contains("=")) {
-      StringUtils.repeat(MyScaladocParsing.escapeSequencesForWiki("="), syntElem.getFirstChild.getText.length())
+    val firstChildText = syntElem.getFirstChild.getText
+    val replaceText = if (firstChildText.contains("=")) {
+      MyScaladocParsing.escapeSequencesForWiki("=") * firstChildText.length()
     } else {
-      MyScaladocParsing.escapeSequencesForWiki(syntElem.getFirstChild.getText)
+      MyScaladocParsing.escapeSequencesForWiki(firstChildText)
     }
-    val doc = FileDocumentManager.getInstance().getDocument(syntElem.getContainingFile.getVirtualFile)
+    val doc = syntElem.getContainingFile.getViewProvider.getDocument
     val range: TextRange = syntElem.getFirstChild.getTextRange
     doc.replaceString(range.getStartOffset, range.getEndOffset, replaceText)
   }
