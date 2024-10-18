@@ -1,11 +1,12 @@
 package org.jetbrains.plugins.scala.codeInspection.deprecation
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
+import com.intellij.openapi.project.DumbAware
 import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 
-class ScalaDeprecatedIdentifierInspection extends LocalInspectionTool {
+final class ScalaDeprecatedIdentifierInspection extends LocalInspectionTool with DumbAware {
   import ScalaDeprecatedIdentifierInspection._
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
