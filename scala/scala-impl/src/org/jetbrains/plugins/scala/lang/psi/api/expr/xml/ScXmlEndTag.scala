@@ -3,10 +3,13 @@ package xml
 
 trait ScXmlEndTag extends ScXmlPairedTag {
   def getOpeningTag: ScXmlStartTag = {
-    if (getParent != null && getParent.getFirstChild.isInstanceOf[ScXmlStartTag]) {
-      return getParent.getFirstChild.asInstanceOf[ScXmlStartTag]
-    }
-    null
+    val parent = getParent
+    if (parent != null) {
+      parent.getFirstChild match {
+        case tag: ScXmlStartTag => tag
+        case _ => null
+      }
+    } else null
   }
 
   override def getMatchedTag: ScXmlPairedTag = getOpeningTag
