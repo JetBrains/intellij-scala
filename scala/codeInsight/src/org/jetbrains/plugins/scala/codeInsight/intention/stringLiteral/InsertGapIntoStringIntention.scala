@@ -3,13 +3,13 @@ package org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.{tMULTILINE_STRING, tSTRING}
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 
-final class InsertGapIntoStringIntention extends PsiElementBaseIntentionAction {
+final class InsertGapIntoStringIntention extends PsiElementBaseIntentionAction with DumbAware {
 
   import InsertGapIntoStringIntention._
 
