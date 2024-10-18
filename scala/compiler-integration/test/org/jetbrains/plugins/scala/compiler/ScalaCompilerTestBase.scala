@@ -5,7 +5,6 @@ import com.intellij.compiler.CompilerConfiguration
 import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.compiler._
-import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots._
 import com.intellij.openapi.roots._
 import com.intellij.openapi.util.text.StringUtil
