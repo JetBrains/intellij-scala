@@ -91,7 +91,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
 
       //add library dependencies of the representative project
       val libraryDependencies = representativeProjectDependencies.modules
-      moduleNode.addAll(createLibraryDependencies(libraryDependencies.forProduction)(moduleNode, libraryNodes.map(_.data), offset = unmanagedDependencies.size + 1))
+      moduleNode.addAll(createLibraryDependencies(libraryDependencies.forProduction)(moduleNode, libraryNodes.map(_.data), offset = unmanagedDependencies.size + 1, separateModulesForProdTest = false))
 
       //add unmanaged jars/libraries dependencies of the representative project
       moduleNode.addAll(unmanagedDependencies)
@@ -494,7 +494,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
     //add library dependencies of the representative project
     val librariesNodeData = libraryNodes.map(_.data)
     val libraryDependencies = getScopedDependencies(representativeProjectDependencies.modules)
-    moduleNode.addAll(createLibraryDependencies(libraryDependencies)(moduleNode, librariesNodeData, offset = unmanagedDependencies.size + 1))
+    moduleNode.addAll(createLibraryDependencies(libraryDependencies)(moduleNode, librariesNodeData, offset = unmanagedDependencies.size + 1, separateModulesForProdTest = true))
 
     //add unmanaged jars/libraries dependencies of the representative project
     moduleNode.addAll(unmanagedDependencies)
