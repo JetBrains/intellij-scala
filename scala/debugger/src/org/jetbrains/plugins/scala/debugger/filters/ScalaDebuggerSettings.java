@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.debugger.filters;
 
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.SimpleConfigurable;
-import com.intellij.openapi.util.Getter;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.intellij.xdebugger.settings.DebuggerSettingsCategory;
 import com.intellij.xdebugger.settings.XDebuggerSettings;
@@ -11,10 +10,11 @@ import org.jetbrains.plugins.scala.debugger.DebuggerBundle;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.function.Supplier;
 
 import static java.util.Collections.singletonList;
 
-public class ScalaDebuggerSettings extends XDebuggerSettings<ScalaDebuggerSettings> implements Getter<ScalaDebuggerSettings> {
+public class ScalaDebuggerSettings extends XDebuggerSettings<ScalaDebuggerSettings> implements Supplier<ScalaDebuggerSettings> {
 
   public boolean DEBUG_DISABLE_SPECIFIC_SCALA_METHODS = true;
   public boolean FRIENDLY_COLLECTION_DISPLAY_ENABLED = true;
