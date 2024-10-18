@@ -8,10 +8,10 @@ import org.jetbrains.annotations.{Nls, NotNull}
 import org.jetbrains.plugins.scala.extensions.ValidSmartPointer
 
 /**
-  * The purpose of this class is to avoid holding references to instances of PsiElement in a quickfix.
-  * Quickfix may be invoked after reparsing of the file so psiElements which existed when quickfix was created may
-  * be invalidated.
-  */
+ * The purpose of this class is to avoid holding references to instances of PsiElement in a quickfix.
+ * Quickfix may be invoked after reparsing of the file so psiElements which existed when quickfix was created may
+ * be invalidated.
+ */
 abstract class AbstractFixOnPsiElement[T <: PsiElement](@Nls name: String, element: T)
   extends LocalQuickFixOnPsiElement(element) {
 
@@ -50,8 +50,14 @@ abstract class AbstractFixOnTwoPsiElements[T <: PsiElement, S <: PsiElement](@Nl
   override final def invoke(project: Project, file: PsiFile, startElement: PsiElement, endElement: PsiElement): Unit = {
     if (!IntentionPreviewUtils.prepareElementForWrite(file)) return
 
-    (myStartElement, myEndElement) match {
-      case (ValidSmartPointer(first: T@unchecked), ValidSmartPointer(second: S@unchecked)) => doApplyFix(first, second)(project)
+    myStartElement match {
+      case ValidSmartPointer(first: T @unchecked) =>
+        myEndElement match {
+          // myEndElement is null when start and end elements are equal in LocalQuickFixOnPsiElement's constructor
+          case null => doApplyFix(first, first.asInstanceOf[S])(project)
+          case ValidSmartPointer(second: S @unchecked) => doApplyFix(first, second)(project)
+          case _ =>
+        }
       case _ =>
     }
   }

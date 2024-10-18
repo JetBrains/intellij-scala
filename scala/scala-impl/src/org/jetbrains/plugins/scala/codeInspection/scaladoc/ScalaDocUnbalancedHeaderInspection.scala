@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.scaladoc
 
 import com.intellij.codeInspection._
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -12,8 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocSyntaxElement
 
-class ScalaDocUnbalancedHeaderInspection extends LocalInspectionTool {
-
+final class ScalaDocUnbalancedHeaderInspection extends LocalInspectionTool with DumbAware {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor =
     new ScalaElementVisitor {
       override def visitWikiSyntax(syntaxElement: ScDocSyntaxElement): Unit = {
@@ -39,7 +38,7 @@ class ScalaDocUnbalancedHeaderInspection extends LocalInspectionTool {
         val siblingElementsOnSameLine = syntaxElement.nextSiblings.takeWhile(!isDocLineBreak(_)).toSeq
         if (siblingElementsOnSameLine.nonEmpty) {
           val isJustAWhitespace =
-            siblingElementsOnSameLine.size == 1 &&
+            siblingElementsOnSameLine.sizeIs == 1 &&
               siblingElementsOnSameLine.head.elementType == ScalaDocTokenType.DOC_WHITESPACE
 
           if (!isJustAWhitespace) {
@@ -71,10 +70,9 @@ object ScalaDocUnbalancedHeaderInspection {
   }
 }
 
-
-class ScalaDocHeaderBalanceQuickFix(opening: PsiElement, closing: PsiElement)
-  extends AbstractFixOnTwoPsiElements(ScalaBundle.message("balance.header"), opening, closing) {
-
+final class ScalaDocHeaderBalanceQuickFix(opening: PsiElement, closing: PsiElement)
+  extends AbstractFixOnTwoPsiElements(ScalaBundle.message("balance.header"), opening, closing)
+    with DumbAware {
   override def getFamilyName: String = FamilyName
 
   override protected def doApplyFix(openTag: PsiElement, closeTag: PsiElement)
@@ -86,11 +84,9 @@ class ScalaDocHeaderBalanceQuickFix(opening: PsiElement, closing: PsiElement)
   }
 }
 
-class ScalaDocMoveTextToNewLineQuickFix(
-  startElement: PsiElement,
-  endElement: PsiElement
-) extends AbstractFixOnTwoPsiElements(ScalaBundle.message("move.text.after.header.to.new.line"), startElement, endElement) {
-
+final class ScalaDocMoveTextToNewLineQuickFix(startElement: PsiElement, endElement: PsiElement)
+  extends AbstractFixOnTwoPsiElements(ScalaBundle.message("move.text.after.header.to.new.line"), startElement, endElement)
+    with DumbAware {
   override def getFamilyName: String = FamilyName
 
   override protected def doApplyFix(first: PsiElement, second: PsiElement)(implicit project: Project): Unit = {

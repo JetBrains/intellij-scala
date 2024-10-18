@@ -40,6 +40,18 @@ class ScalaDocUnbalancedHeaderInspection2Test extends ScalaInspectionTestBase {
       hintMoveAfter
     )
 
+  def testMoveTextAfterHeader_Multiline(): Unit =
+    testQuickFix(
+      """/**
+        | * ==header 1== some text after
+        | */""".stripMargin,
+      """/**
+        | * ==header 1==
+        | * some text after
+        | */""".stripMargin,
+      hintMoveAfter
+    )
+
   def testNoMoveTextAfterHeaderInspection_NoTextAfterHeader(): Unit = {
     checkNotFixable(
       """/**==header==*/
