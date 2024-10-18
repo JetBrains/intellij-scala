@@ -5,19 +5,26 @@ import com.intellij.openapi.compiler.CompilerMessageCategory
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.IdeaTestUtil
+import org.jetbrains.plugins.scala.CompilationTests
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
-import org.jetbrains.plugins.scala.{CompilationTests, ScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithJdkVersions, RunWithScalaVersions, TestJdkVersion, TestScalaVersion}
 import org.junit.Assert.{assertEquals, assertTrue}
 import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
 
 import scala.jdk.CollectionConverters._
 
+@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_2_13))
+@RunWithJdkVersions(Array(
+  TestJdkVersion.JDK_1_8,
+  TestJdkVersion.JDK_11,
+  TestJdkVersion.JDK_17
+))
 @Category(Array(classOf[CompilationTests]))
 abstract class JavacErrorPositionsTestBase(
   override protected val incrementalityType: IncrementalityType
 ) extends ScalaCompilerTestBase {
-
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 
   override protected def buildProcessJdk: Sdk = CompileServerLauncher.defaultSdk(getProject)
 
