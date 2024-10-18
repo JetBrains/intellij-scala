@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.compiler
 
-import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.JavaCompilerConfigurationProxy
 import com.intellij.testFramework.IdeaTestUtil
@@ -26,8 +25,6 @@ import scala.jdk.CollectionConverters._
 abstract class JavacOptionsTestBase(
   override protected val incrementalityType: IncrementalityType
 ) extends ScalaCompilerTestBase {
-
-  override protected def buildProcessJdk: Sdk = CompileServerLauncher.defaultSdk(getProject)
 
   def testJavacOptions_Parameters(): Unit = {
     IdeaTestUtil.setProjectLanguageLevel(getProject, LanguageLevel.JDK_1_8)

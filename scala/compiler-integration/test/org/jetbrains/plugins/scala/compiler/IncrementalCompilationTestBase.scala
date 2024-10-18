@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.compiler
 
-import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.CompilerModuleExtension
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.testFramework.VfsTestUtil
@@ -36,8 +35,6 @@ import java.io.File
 abstract class IncrementalCompilationTestBase(override protected val incrementalityType: IncrementalityType,
                                               override protected val useCompileServer: Boolean = false)
   extends ScalaCompilerTestBase {
-
-  override protected def buildProcessJdk: Sdk = CompileServerLauncher.defaultSdk(getProject)
 
   def testRecompileOnlyAffectedFiles(): Unit = {
     val sources = initBuildProject(

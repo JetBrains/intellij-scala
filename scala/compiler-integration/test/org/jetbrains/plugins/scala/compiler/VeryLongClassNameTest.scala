@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.compiler
 
-import com.intellij.openapi.projectRoots.Sdk
 import org.jetbrains.plugins.scala.CompilationTests
 import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.{assertCompilingScalaSources, assertNoErrorsOrWarnings}
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
@@ -21,8 +20,6 @@ import scala.jdk.CollectionConverters._
 class VeryLongClassNameTest extends ScalaCompilerTestBase {
 
   override protected def incrementalityType: IncrementalityType = IncrementalityType.SBT
-
-  override protected def buildProcessJdk: Sdk = CompileServerLauncher.defaultSdk(getProject)
 
   def testVertLongClassFileName(): Unit = {
     addFileToProjectSources("LongNames.scala",

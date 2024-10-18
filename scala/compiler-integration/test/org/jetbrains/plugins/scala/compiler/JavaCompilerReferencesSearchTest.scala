@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.compiler
 
 import com.intellij.compiler.{CompilerDirectHierarchyInfo, CompilerReferenceService}
 import com.intellij.ide.highlighter.JavaFileType
-import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFileUtil}
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.PsiClass
@@ -30,8 +29,6 @@ import scala.jdk.CollectionConverters._
 abstract class JavaCompilerReferencesSearchTestBase(
   override protected val incrementalityType: IncrementalityType
 ) extends ScalaCompilerTestBase {
-
-  override protected def buildProcessJdk: Sdk = CompileServerLauncher.defaultSdk(getProject)
 
   def testCompilerReferencesSearch(): Unit = {
     IdeaTestUtil.setProjectLanguageLevel(getProject, LanguageLevel.JDK_1_8)

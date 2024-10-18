@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.compiler
 
-import com.intellij.openapi.projectRoots.Sdk
 import org.jetbrains.plugins.scala.CompilationTests
 import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.{assertCompilingScalaSources, assertNoErrorsOrWarnings}
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
@@ -20,8 +19,6 @@ import scala.jdk.CollectionConverters._
 ))
 @Category(Array(classOf[CompilationTests]))
 abstract class EncodingCompilationTestBase(override val incrementalityType: IncrementalityType) extends ScalaCompilerTestBase {
-
-  override protected def buildProcessJdk: Sdk = CompileServerLauncher.defaultSdk(getProject)
 
   def testEncoding1(): Unit = {
     runEncodingTest(Seq("-encoding", "UTF-8"))
