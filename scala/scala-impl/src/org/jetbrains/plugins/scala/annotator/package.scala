@@ -1,10 +1,12 @@
 package org.jetbrains.plugins.scala
 
+import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi.PsiElement
 import com.intellij.util.text.LiteralFormatUtil
 import com.intellij.util.ui.StartupUiUtil
 import com.intellij.xml.util.XmlStringUtil.escapeString
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaLanguageLevel}
 
 package object annotator {
@@ -110,5 +112,9 @@ package object annotator {
       format(expectedTree, bold, bold),
       format(actualType, red, underline)
     )
+  }
+
+  private[annotator] def isDumbMode(implicit project: Project): Boolean = inReadAction {
+    DumbService.isDumb(project)
   }
 }

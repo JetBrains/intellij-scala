@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.annotator.quickfix
 import com.intellij.codeInsight._
 import com.intellij.modcommand.{ActionContext, ModCommand, PsiBasedModCommandAction}
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.project.DumbAware
 import com.intellij.psi.PsiElement
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.tree.IElementType
@@ -15,10 +16,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 import java.util.Collections
 
-
 sealed abstract class ModifierQuickFix(listOwner: ScModifierListOwner)
   extends PsiBasedModCommandAction[ScModifierListOwner](listOwner)
-{
+    with DumbAware {
   override def perform(context: ActionContext, listOwner: ScModifierListOwner): ModCommand = {
     listOwner.getModifierList match {
       case null =>

@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala.annotator.element
 
-import com.intellij.openapi.project.{DumbAware, DumbService}
-import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationHolder, ScopeAnnotator}
-import org.jetbrains.plugins.scala.extensions.inReadAction
+import com.intellij.openapi.project.DumbAware
+import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationHolder, ScopeAnnotator, isDumbMode}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 
 import java.util.concurrent.atomic.AtomicReference
@@ -86,7 +85,7 @@ object ElementAnnotator extends ElementAnnotator[ScalaPsiElement] {
     new AtomicReference(Map.empty)
 
   override def annotate(element: ScalaPsiElement, typeAware: Boolean)
-                       (implicit holder: ScalaAnnotationHolder): Unit = if (inReadAction(DumbService.isDumb(element.getProject))) {
+                       (implicit holder: ScalaAnnotationHolder): Unit = if (isDumbMode(element.getProject)) {
     // run only `DumbAware` annotators during indexing
     // don't cache to get others when indexing finishes
     Instances.withFilter(_.isInstanceOf[DumbAware])
