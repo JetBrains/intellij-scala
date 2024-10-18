@@ -5,14 +5,14 @@ package booleans
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScInfixExpr
 
-final class NegateComparisonIntention extends PsiElementBaseIntentionAction {
+final class NegateComparisonIntention extends PsiElementBaseIntentionAction with DumbAware {
 
   import NegateComparisonIntention._
 
@@ -41,7 +41,6 @@ final class NegateComparisonIntention extends PsiElementBaseIntentionAction {
 
   override def getFamilyName: String = ScalaCodeInsightBundle.message("family.name.negate.comparison")
 }
-
 
 object NegateComparisonIntention {
   private val Replacement = Map(
