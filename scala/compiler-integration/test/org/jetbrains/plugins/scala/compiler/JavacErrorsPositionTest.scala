@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.compiler
 
 import com.intellij.compiler.CompilerMessageImpl
 import com.intellij.openapi.compiler.CompilerMessageCategory
+import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.IdeaTestUtil
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
@@ -17,6 +18,8 @@ abstract class JavacErrorPositionsTestBase(
 ) extends ScalaCompilerTestBase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
+
+  override protected def buildProcessJdk: Sdk = CompileServerLauncher.defaultSdk(getProject)
 
   def testJavacErrorsPosition(): Unit = {
     IdeaTestUtil.setProjectLanguageLevel(getProject, LanguageLevel.JDK_1_8)
