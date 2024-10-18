@@ -2,20 +2,27 @@ package org.jetbrains.plugins.scala.compiler
 
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.vfs.VfsUtil
+import org.jetbrains.plugins.scala.CompilationTests
 import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.{assertCompilingScalaSources, assertNoErrorsOrWarnings}
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.extensions.inWriteAction
-import org.jetbrains.plugins.scala.{CompilationTests, ScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithJdkVersions, RunWithScalaVersions, TestJdkVersion, TestScalaVersion}
 import org.junit.Assert.assertTrue
 import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
 
 import java.nio.file.{Files, Path}
 import scala.jdk.CollectionConverters._
 
+@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_2_13))
+@RunWithJdkVersions(Array(
+  TestJdkVersion.JDK_1_8,
+  TestJdkVersion.JDK_11,
+  TestJdkVersion.JDK_17
+))
 @Category(Array(classOf[CompilationTests]))
 class MultipleClassesInOneFileTest extends ScalaCompilerTestBase {
-
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 
   override protected def buildProcessJdk: Sdk = CompileServerLauncher.defaultSdk(getProject)
 
