@@ -6,7 +6,7 @@ package booleans
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScInfixExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
-final class ReplaceEqualsOrEqualityInInfixExprIntention extends PsiElementBaseIntentionAction {
+final class ReplaceEqualsOrEqualityInInfixExprIntention extends PsiElementBaseIntentionAction with DumbAware {
 
   import ReplaceEqualsOrEqualityInInfixExprIntention._
 
