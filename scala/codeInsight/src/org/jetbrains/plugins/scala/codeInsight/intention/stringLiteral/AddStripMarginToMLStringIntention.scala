@@ -7,19 +7,19 @@ import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.MultilineStringUtil.{hasMarginChars, hasStripMarginCall}
 
-final class AddStripMarginToMLStringIntention extends PsiElementBaseIntentionAction {
+final class AddStripMarginToMLStringIntention extends PsiElementBaseIntentionAction with DumbAware {
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =
     element.getNode.getElementType match {
       case lang.lexer.ScalaTokenTypes.tMULTILINE_STRING if element.getText.contains("\n") =>
         !hasStripMarginCall(element) && hasMarginChars(element, getMarginChar(project))
       case _ => false
-  }
+    }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     val suffix = getMarginChar(project) match {
