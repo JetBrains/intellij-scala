@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.lang.annotation._
 import com.intellij.lang.injection.InjectedLanguageManager
-import com.intellij.openapi.project.{DumbAware, DumbService, Project}
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightElement
@@ -412,9 +412,5 @@ class ScalaAnnotator extends Annotator
       ProcessSubtypes
     }
     typeParam.recursiveVarianceUpdate(variance)(functionToSendIn)
-  }
-
-  private def isDumbMode(implicit project: Project): Boolean = inReadAction {
-    DumbService.isDumb(project)
   }
 }

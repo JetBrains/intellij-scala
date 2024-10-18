@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.annotator.template
 
+import com.intellij.openapi.project.DumbAware
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.{AnnotatorPart, ScalaAnnotationHolder}
@@ -8,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 
-object PrivateBeanProperty extends AnnotatorPart[ScAnnotation] {
+object PrivateBeanProperty extends AnnotatorPart[ScAnnotation] with DumbAware {
 
   override def annotate(annotation: ScAnnotation, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit =
