@@ -27,7 +27,7 @@ class MultipleClassesInOneFileTest extends ScalaCompilerTestBase {
   override protected val incrementalityType: IncrementalityType = IncrementalityType.SBT
 
   def testRemoveOneClassFileAndCompileAgain(): Unit = {
-    addFileToProjectSources("src/main/scala/foo.scala",
+    addFileToProjectSources("foo.scala",
       """class Foo
         |class Bar
         |class Baz

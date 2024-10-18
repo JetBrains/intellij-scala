@@ -30,11 +30,11 @@ class RemovedClassFilesTest extends ScalaCompilerTestBase {
 
   override protected def setUp(): Unit = {
     super.setUp()
-    addFileToProjectSources("src/main/scala/A.scala", "class A { def foo = 5 }")
-    addFileToProjectSources("src/main/scala/B.scala", "class B")
-    addFileToProjectSources("src/main/scala/C.scala", "class C")
-    addFileToProjectSources("src/main/scala/D.scala", "class D")
-    addFileToProjectSources("src/main/scala/E.scala", "class E")
+    addFileToProjectSources("A.scala", "class A { def foo = 5 }")
+    addFileToProjectSources("B.scala", "class B")
+    addFileToProjectSources("C.scala", "class C")
+    addFileToProjectSources("D.scala", "class D")
+    addFileToProjectSources("E.scala", "class E")
   }
 
   def testRemoveAllClassFilesAndCompileAgain(): Unit = {
@@ -98,7 +98,7 @@ class RemovedClassFilesTest extends ScalaCompilerTestBase {
 
     removeFile(firstClassFiles.head) // delete A.class
 
-    val bSourcePath = getSourceRootDir.toNioPath.resolve(Path.of("src", "main", "scala", "B.scala"))
+    val bSourcePath = getSourceRootDir.toNioPath.resolve(Path.of("B.scala"))
     val bSource = VfsUtil.findFileByIoFile(bSourcePath.toFile, true)
     inWriteAction {
       VfsUtil.saveText(bSource, """class B { new A().foo }""")

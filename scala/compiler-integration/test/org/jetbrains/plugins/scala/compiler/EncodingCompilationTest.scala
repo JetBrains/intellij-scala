@@ -40,7 +40,7 @@ abstract class EncodingCompilationTestBase(override val incrementalityType: Incr
   }
 
   private def runEncodingTest(encodingSettings: Seq[String]): Unit = {
-    addFileToProjectSources("src/main/scala/Foo.scala", "class Foo")
+    addFileToProjectSources("Foo.scala", "class Foo")
     val profile = getModule.scalaCompilerSettingsProfile
     val newSettings = profile.getSettings.copy(
       additionalCompilerOptions = encodingSettings
