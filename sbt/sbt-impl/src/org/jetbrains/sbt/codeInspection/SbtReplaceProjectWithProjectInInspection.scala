@@ -1,8 +1,8 @@
 package org.jetbrains.sbt
 package codeInspection
 
-import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
-import com.intellij.openapi.project.Project
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
+import com.intellij.openapi.project.{DumbAware, Project}
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
@@ -12,8 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.project.ScalaFeatures
 
-class SbtReplaceProjectWithProjectInInspection extends LocalInspectionTool {
-
+final class SbtReplaceProjectWithProjectInInspection extends LocalInspectionTool with DumbAware {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case defn: ScPatternDefinition if defn.getContainingFile.getFileType.getName == Sbt.Name =>
       (defn.expr, defn.bindings) match {
@@ -32,7 +31,7 @@ class SbtReplaceProjectWithProjectInInspection extends LocalInspectionTool {
       override def visitMethodCallExpression(call: ScMethodCall): Unit = call match {
         case ScMethodCall(expr, Seq(ScStringLiteral(name), _))
           if expr.textMatches("Project") && name == projectName =>
-            placeToFix = Some(call)
+          placeToFix = Some(call)
         case _ =>
           super.visitMethodCallExpression(call)
       }
@@ -42,9 +41,9 @@ class SbtReplaceProjectWithProjectInInspection extends LocalInspectionTool {
   }
 }
 
-class SbtReplaceProjectWithProjectInQuickFix(call: ScMethodCall)
-        extends AbstractFixOnPsiElement(SbtBundle.message("sbt.inspection.projectIn.name"), call) {
-
+final class SbtReplaceProjectWithProjectInQuickFix(call: ScMethodCall)
+  extends AbstractFixOnPsiElement(SbtBundle.message("sbt.inspection.projectIn.name"), call)
+    with DumbAware {
   override protected def doApplyFix(element: ScMethodCall)
                                    (implicit project: Project): Unit = {
     element match {
