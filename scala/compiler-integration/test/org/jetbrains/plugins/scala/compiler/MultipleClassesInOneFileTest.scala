@@ -1,17 +1,15 @@
 package org.jetbrains.plugins.scala.compiler
 
 import com.intellij.openapi.projectRoots.Sdk
-import com.intellij.openapi.vfs.VfsUtil
 import org.jetbrains.plugins.scala.CompilationTests
 import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.{assertCompilingScalaSources, assertNoErrorsOrWarnings}
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
-import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithJdkVersions, RunWithScalaVersions, TestJdkVersion, TestScalaVersion}
 import org.junit.Assert.assertTrue
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 
-import java.nio.file.{Files, Path}
+import java.nio.file.Files
 import scala.jdk.CollectionConverters._
 
 @RunWith(classOf[MultipleScalaVersionsRunner])
@@ -55,12 +53,5 @@ class MultipleClassesInOneFileTest extends ScalaCompilerTestBase {
 
     val recompiled = firstTimestamps.zip(secondTimestamps).forall { case (x, y) => x < y }
     assertTrue("Not all source files were recompiled", recompiled)
-  }
-
-  private def removeFile(path: Path): Unit = {
-    val virtualFile = VfsUtil.findFileByIoFile(path.toFile, true)
-    inWriteAction {
-      virtualFile.delete(null)
-    }
   }
 }
