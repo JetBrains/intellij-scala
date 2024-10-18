@@ -188,6 +188,7 @@ lazy val worksheetReplInterfaceImpls: Project =
     .settings(
       (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
       (Compile / scalacOptions) := outOfIDEAProcessScalacOptions,
+      crossPaths := false,
       packageMethod := PackagingMethod.Standalone("worksheet-repl-interface/impls.jar", static = true),
       packageAdditionalProjects := Seq(
         worksheetReplInterfaceImpl_2_12,
@@ -203,6 +204,7 @@ lazy val worksheetReplInterfaceImpls: Project =
 
 def worksheetReplInterfaceImplCommonSettings(scalaVer: String): Seq[Setting[?]] = Seq(
   scalaVersion := scalaVer,
+  crossPaths := false,
   // protobuf-java is excluded to avoid showing outdated vulnerable dependencies, and it is also not necessary for
   // compiling the worksheet repl interfaces
   libraryDependencies += {
