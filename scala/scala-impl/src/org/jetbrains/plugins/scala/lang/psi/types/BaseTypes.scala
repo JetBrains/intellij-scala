@@ -132,7 +132,15 @@ private class BaseTypesIterator(tp: ScType) extends Iterator[ScType] {
           }
           else None
         case ScThisType(clazz) =>
-          clazz.getTypeWithProjections().toOption
+          // Given:
+          //   trait Father[A] { trait Son }
+          //   trait Charles extends Father[Int] {
+          //     trait William extends Father[String] with Son
+          //   }
+          // then William.this.type.baseType(trait Son)
+          // should return Charles.this.Son not Charles#Son
+          // (what `clazz.getTypeWithProjections()` returns)
+          clazz.`type`().toOption
         case tpt: TypeParameterType =>
           Some(tpt.upperType)
         case ScExistentialArgument(_, Nil, _, upper) =>
