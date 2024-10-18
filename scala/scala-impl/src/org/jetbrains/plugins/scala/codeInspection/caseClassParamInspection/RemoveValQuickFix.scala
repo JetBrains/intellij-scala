@@ -12,9 +12,9 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScForBinding, ScGenerator}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 
-class RemoveValQuickFix(param: ScClassParameter)
-        extends AbstractFixOnPsiElement(ScalaBundle.message("remove.val"), param) {
-
+final class RemoveValQuickFix(param: ScClassParameter)
+  extends AbstractFixOnPsiElement(ScalaBundle.message("remove.val"), param)
+    with DumbAware {
   override protected def doApplyFix(p: ScClassParameter)
                                    (implicit project: Project): Unit = {
     p.findChildrenByType(ScalaTokenTypes.kVAL).foreach(_.delete())
