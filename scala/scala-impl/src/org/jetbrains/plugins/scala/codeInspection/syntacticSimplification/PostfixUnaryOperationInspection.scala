@@ -1,14 +1,14 @@
 package org.jetbrains.plugins.scala.codeInspection.syntacticSimplification
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbAware, Project}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.PostfixUnaryOperationInspection.{createQuickfix, isPostfixUnaryOperation}
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnTwoPsiElements, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScPostfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
-class PostfixUnaryOperationInspection extends LocalInspectionTool {
+final class PostfixUnaryOperationInspection extends LocalInspectionTool with DumbAware {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case ref: ScReferenceExpression if isPostfixUnaryOperation(ref) =>
       holder.registerProblem(ref.nameId, getDisplayName, createQuickfix(ref, ref.qualifier.get, ref.refName))
@@ -65,7 +65,7 @@ object PostfixUnaryOperationInspection {
                                                                        target: ScExpression,
                                                                        operand: ScExpression,
                                                                        operator: String)
-    extends AbstractFixOnTwoPsiElements(name, target, operand) {
+    extends AbstractFixOnTwoPsiElements(name, target, operand) with DumbAware {
 
     override protected def doApplyFix(target: ScExpression, operand: ScExpression)(implicit project: Project): Unit = {
       val unaryExpr =
