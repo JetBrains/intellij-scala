@@ -6,7 +6,7 @@ package booleans
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
 
 import scala.annotation.tailrec
 
-final class ReplaceEqualsOrEqualityInMethodCallExprIntention extends PsiElementBaseIntentionAction {
+final class ReplaceEqualsOrEqualityInMethodCallExprIntention extends PsiElementBaseIntentionAction with DumbAware {
 
   import ReplaceEqualsOrEqualityInMethodCallExprIntention._
 
@@ -42,7 +42,6 @@ final class ReplaceEqualsOrEqualityInMethodCallExprIntention extends PsiElementB
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
-
     val methodCallExpr: ScMethodCall = PsiTreeUtil.getParentOfType(element, classOf[ScMethodCall], false)
     if (methodCallExpr == null || !methodCallExpr.isValid) return
 
@@ -81,7 +80,7 @@ object ReplaceEqualsOrEqualityInMethodCallExprIntention {
 
     val suffix = if (desiredOper == "==") {
       val processArgs =
-      //accounts for tuples
+        //accounts for tuples
         if (methodCallArgs.getChildren.length == 1) methodCallArgsText.drop(1).dropRight(1)
         else methodCallArgsText
 
