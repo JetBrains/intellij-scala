@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.packagesearch.codeInspection
 
 import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemsHolder}
+import com.intellij.openapi.project.PossiblyDumbAware
 import com.intellij.psi.PsiElement
 import org.apache.maven.artifact.versioning.ComparableVersion
 import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
@@ -10,7 +11,7 @@ import org.jetbrains.plugins.scala.packagesearch.util.DependencyUtil
 
 import scala.math.Ordered.orderingToOrdered
 
-abstract class DependencyVersionInspection extends LocalInspectionTool {
+abstract class DependencyVersionInspection extends LocalInspectionTool with PossiblyDumbAware {
   protected def isAvailable(element: PsiElement): Boolean
 
   protected def createDependencyDescriptor(element: PsiElement): Option[DependencyDescriptor]

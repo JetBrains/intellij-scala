@@ -1,13 +1,14 @@
 package org.jetbrains.plugins.scalaDirective.codeInspection.dependencies
 
 import com.intellij.codeInspection.LocalQuickFix
+import com.intellij.openapi.project.DumbAware
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.packagesearch.codeInspection.DependencyVersionInspection
 import org.jetbrains.plugins.scala.packagesearch.codeInspection.DependencyVersionInspection.DependencyDescriptor
 import org.jetbrains.plugins.scalaDirective.dependencies.{ScalaDirectiveDependencyDescriptor, ScalaDirectiveDependencyPattern}
 import org.jetbrains.plugins.scalaDirective.util.ScalaDirectiveValueKind
 
-final class ScalaDirectiveDependencyVersionInspection extends DependencyVersionInspection {
+final class ScalaDirectiveDependencyVersionInspection extends DependencyVersionInspection with DumbAware {
   override protected def isAvailable(element: PsiElement): Boolean =
     ScalaDirectiveDependencyPattern.accepts(element)
 
