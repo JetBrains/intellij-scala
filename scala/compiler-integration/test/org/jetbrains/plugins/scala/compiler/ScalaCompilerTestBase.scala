@@ -12,6 +12,8 @@ import com.intellij.openapi.vfs._
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework._
 import com.intellij.testFramework.common.ThreadLeakTracker
+
+import java.nio.file.Path
 //noinspection ApiStatus
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders._
@@ -125,7 +127,7 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
 
   protected def compileServerJdk: Sdk = getTestProjectJdk
 
-  protected def buildProcessJdk: Sdk = getTestProjectJdk
+  protected def buildProcessJdk: Sdk = CompileServerLauncher.defaultSdk(getProject)
 
   protected def additionalLibraries: Seq[LibraryLoader] = Seq.empty
 
@@ -186,6 +188,19 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
     compileServerShutdownTimeout match {
       case _: Duration.Infinite => CompileServerLauncher.stopServerAndWait()
       case duration: FiniteDuration => CompileServerLauncher.stopServerAndWaitFor(duration)
+    }
+  }
+
+  protected def findClassFile(name: String): Path = {
+    val cls = compiler.findClassFile(name, getModule)
+    assertNotNull(s"Could not find compiled class file $name", cls)
+    cls.toPath
+  }
+
+  protected def removeFile(path: Path): Unit = {
+    val virtualFile = VfsUtil.findFileByIoFile(path.toFile, true)
+    inWriteAction {
+      virtualFile.delete(null)
     }
   }
 }

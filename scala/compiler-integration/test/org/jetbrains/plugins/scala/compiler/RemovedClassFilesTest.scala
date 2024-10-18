@@ -1,46 +1,37 @@
-package org.jetbrains.plugins.scala.compiler.zinc
+package org.jetbrains.plugins.scala.compiler
 
-import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.vfs.VfsUtil
-import com.intellij.testFramework.CompilerTester
 import org.jetbrains.plugins.scala.CompilationTests
 import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.{assertCompilingScalaSources, assertNoErrorsOrWarnings}
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.extensions.inWriteAction
-import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.junit.Assert.{assertNotNull, assertTrue}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithJdkVersions, RunWithScalaVersions, TestJdkVersion, TestScalaVersion}
+import org.junit.Assert.assertTrue
 import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
 
 import java.nio.file.{Files, Path}
 import scala.jdk.CollectionConverters._
 
+@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_2_13))
+@RunWithJdkVersions(Array(
+  TestJdkVersion.JDK_1_8,
+  TestJdkVersion.JDK_11,
+  TestJdkVersion.JDK_17
+))
 @Category(Array(classOf[CompilationTests]))
-class RemovedClassFilesTest extends ZincTestBase {
+class RemovedClassFilesTest extends ScalaCompilerTestBase {
 
-  override def setUp(): Unit = {
+  override protected def incrementalityType: IncrementalityType = IncrementalityType.SBT
+
+  override protected def setUp(): Unit = {
     super.setUp()
-
-    createProjectSubDirs("project", "src/main/scala")
-    createProjectSubFile("project/build.properties", "sbt.version=1.9.7")
-    createProjectSubFile("src/main/scala/A.scala", "class A { def foo = 5 }")
-    createProjectSubFile("src/main/scala/B.scala", "class B")
-    createProjectSubFile("src/main/scala/C.scala", "class C")
-    createProjectSubFile("src/main/scala/D.scala", "class D")
-    createProjectSubFile("src/main/scala/E.scala", "class E")
-    createProjectConfig(
-      """lazy val root = project.in(file("."))
-        |  .settings(
-        |    scalaVersion := "2.13.12"
-        |  )
-        |""".stripMargin)
-
-    importProject(false)
-    ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType = IncrementalityType.SBT
-
-    val modules = ModuleManager.getInstance(myProject).getModules
-    rootModule = modules.find(_.getName == "root").orNull
-    assertNotNull("Could not find module with name 'root'", rootModule)
-    compiler = new CompilerTester(myProject, java.util.Arrays.asList(modules: _*), null, false)
+    addFileToProjectSources("A.scala", "class A { def foo = 5 }")
+    addFileToProjectSources("B.scala", "class B")
+    addFileToProjectSources("C.scala", "class C")
+    addFileToProjectSources("D.scala", "class D")
+    addFileToProjectSources("E.scala", "class E")
   }
 
   def testRemoveAllClassFilesAndCompileAgain(): Unit = {
@@ -50,7 +41,7 @@ class RemovedClassFilesTest extends ZincTestBase {
 
     val classFileNames = List("A", "B", "C", "D", "E")
 
-    val firstClassFiles = classFileNames.map(findClassFileInRootModule)
+    val firstClassFiles = classFileNames.map(findClassFile)
     val firstTimestamps = firstClassFiles.map(Files.getLastModifiedTime(_).toMillis)
 
     firstClassFiles.foreach(removeFile)
@@ -59,7 +50,7 @@ class RemovedClassFilesTest extends ZincTestBase {
     assertNoErrorsOrWarnings(messages2)
     assertCompilingScalaSources(messages2, 5)
 
-    val secondClassFiles = classFileNames.map(findClassFileInRootModule)
+    val secondClassFiles = classFileNames.map(findClassFile)
     val secondTimestamps = secondClassFiles.map(Files.getLastModifiedTime(_).toMillis)
 
     val recompiled = firstTimestamps.zip(secondTimestamps).forall { case (a, b) => a < b }
@@ -73,7 +64,7 @@ class RemovedClassFilesTest extends ZincTestBase {
 
     val classFileNames = List("A", "B", "C", "D", "E")
 
-    val firstClassFiles = classFileNames.map(findClassFileInRootModule)
+    val firstClassFiles = classFileNames.map(findClassFile)
     val firstTimestamps = firstClassFiles.map(Files.getLastModifiedTime(_).toMillis)
 
     removeFile(firstClassFiles(2)) // delete C.class
@@ -82,7 +73,7 @@ class RemovedClassFilesTest extends ZincTestBase {
     assertNoErrorsOrWarnings(messages2)
     assertCompilingScalaSources(messages2, 1)
 
-    val secondClassFiles = classFileNames.map(findClassFileInRootModule)
+    val secondClassFiles = classFileNames.map(findClassFile)
     val secondTimestamps = secondClassFiles.map(Files.getLastModifiedTime(_).toMillis)
 
     val correct = firstTimestamps.zip(secondTimestamps).zipWithIndex.forall {
@@ -99,12 +90,12 @@ class RemovedClassFilesTest extends ZincTestBase {
 
     val classFileNames = List("A", "B", "C", "D", "E")
 
-    val firstClassFiles = classFileNames.map(findClassFileInRootModule)
+    val firstClassFiles = classFileNames.map(findClassFile)
     val firstTimestamps = firstClassFiles.map(Files.getLastModifiedTime(_).toMillis)
 
     removeFile(firstClassFiles.head) // delete A.class
 
-    val bSourcePath = Path.of(getProjectPath).resolve(Path.of("src", "main", "scala", "B.scala"))
+    val bSourcePath = getSourceRootDir.toNioPath.resolve(Path.of("B.scala"))
     val bSource = VfsUtil.findFileByIoFile(bSourcePath.toFile, true)
     inWriteAction {
       VfsUtil.saveText(bSource, """class B { new A().foo }""")
@@ -114,7 +105,7 @@ class RemovedClassFilesTest extends ZincTestBase {
     assertNoErrorsOrWarnings(messages2)
     assertCompilingScalaSources(messages2, 2)
 
-    val secondClassFiles = classFileNames.map(findClassFileInRootModule)
+    val secondClassFiles = classFileNames.map(findClassFile)
     val secondTimestamps = secondClassFiles.map(Files.getLastModifiedTime(_).toMillis)
 
     val correct = firstTimestamps.zip(secondTimestamps).zipWithIndex.forall {

@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.util
+package org.jetbrains.plugins.scala.compiler
 
 import java.util.concurrent.TimeUnit
 
