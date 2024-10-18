@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.modifiers
 
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, ScalaInspectionBundle}
@@ -8,9 +8,9 @@ import org.jetbrains.plugins.scala.codeInspection.modifiers.SetModifierQuickfix.
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 
-class SetModifierQuickfix(_modifierListOwner: ScModifierListOwner, modifierText: ScalaModifier, set: Boolean)
+final class SetModifierQuickfix(_modifierListOwner: ScModifierListOwner, modifierText: ScalaModifier, set: Boolean)
   extends AbstractFixOnPsiElement[ScModifierListOwner](makeName(modifierText, set), _modifierListOwner)
-{
+    with DumbAware {
   override protected def doApplyFix(modifierListOwner: ScModifierListOwner)(implicit project: Project): Unit = {
     val ml = modifierListOwner.getModifierList
     ml.setModifierProperty(modifierText.text(), set)
