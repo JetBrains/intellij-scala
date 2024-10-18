@@ -6,7 +6,7 @@ package controlFlow
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
 
 import scala.collection.mutable
 
-final class SplitElseIfIntention extends PsiElementBaseIntentionAction {
+final class SplitElseIfIntention extends PsiElementBaseIntentionAction with DumbAware {
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     val ifStmt: ScIf = PsiTreeUtil.getParentOfType(element, classOf[ScIf], false)
@@ -32,11 +32,7 @@ final class SplitElseIfIntention extends PsiElementBaseIntentionAction {
       return false
 
     val elseIfExpr = ifStmt.elseExpression.orNull
-    if (elseIfExpr.is[ScIf]) {
-      return true
-    }
-
-    false
+    elseIfExpr.is[ScIf]
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
