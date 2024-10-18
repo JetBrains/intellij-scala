@@ -127,7 +127,7 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
 
   protected def compileServerJdk: Sdk = getTestProjectJdk
 
-  protected def buildProcessJdk: Sdk = getTestProjectJdk
+  protected def buildProcessJdk: Sdk = CompileServerLauncher.defaultSdk(getProject)
 
   protected def additionalLibraries: Seq[LibraryLoader] = Seq.empty
 
