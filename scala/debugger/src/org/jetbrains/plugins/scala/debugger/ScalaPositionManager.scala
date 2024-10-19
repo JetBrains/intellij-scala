@@ -79,10 +79,10 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
         loc <- location.toOption
         psiFile <- getPsiFileByReferenceType(loc.declaringType).toOption
         lineNumber = exactLineNumber(location)
-        if lineNumber >= 0
       } yield {
-        calcPosition(psiFile, location, lineNumber).getOrElse {
-          SourcePosition.createFromLine(psiFile, lineNumber)
+        val normalizedLineNumber = if (lineNumber < -1) -1 else lineNumber
+        calcPosition(psiFile, location, normalizedLineNumber).getOrElse {
+          SourcePosition.createFromLine(psiFile, normalizedLineNumber)
         }
       }
     position.getOrThrow(NoDataException.INSTANCE)
