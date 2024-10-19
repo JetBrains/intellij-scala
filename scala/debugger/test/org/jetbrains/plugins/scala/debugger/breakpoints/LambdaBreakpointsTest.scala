@@ -161,6 +161,25 @@ class LambdaBreakpointsTest_3_3 extends LambdaBreakpointsTestBase {
       (5, "$anonfun$1"), (5, "$anonfun$1$$anonfun$1"), (6, "$anonfun$2")
     )
   }
+
+  addSourceFile("LambdaInToplevelMain.scala",
+    s"""
+       |@main
+       |def lambdaInToplevelMain(): Unit =
+       |  for (i <- 1 to 5) do
+       |    println(i) $breakpoint
+       |    println(i)
+       |""".stripMargin)
+
+  def testLambdaInToplevelMain(): Unit = {
+    breakpointsTest("lambdaInToplevelMain")(
+      (4, "lambdaInToplevelMain$$anonfun$1"),
+      (4, "lambdaInToplevelMain$$anonfun$1"),
+      (4, "lambdaInToplevelMain$$anonfun$1"),
+      (4, "lambdaInToplevelMain$$anonfun$1"),
+      (4, "lambdaInToplevelMain$$anonfun$1")
+    )
+  }
 }
 
 class LambdaBreakpointsTest_3_4 extends LambdaBreakpointsTest_3_3 {

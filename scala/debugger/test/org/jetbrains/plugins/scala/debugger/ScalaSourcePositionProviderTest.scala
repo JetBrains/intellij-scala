@@ -1,9 +1,13 @@
 package org.jetbrains.plugins.scala.debugger
 
-import com.intellij.debugger.engine.{JavaValue, SourcePositionProvider}
+import com.intellij.debugger.PositionManager
+import com.intellij.debugger.engine.{CompoundPositionManager, DebuggerManagerThreadImpl, JavaValue, PositionManagerImpl, SourcePositionProvider}
 import com.intellij.xdebugger.XDebuggerTestUtil
+import junit.framework.TestCase.assertNotNull
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.extensions.inReadAction
+import org.jetbrains.plugins.scala.extensions.{PsiNamedElementExt, inReadAction}
+
+import scala.jdk.CollectionConverters._
 
 abstract class ScalaSourcePositionProviderTestBase extends ScalaDebuggerTestCase {
 
@@ -104,6 +108,51 @@ class ScalaSourcePositionProviderTest_2_13 extends ScalaSourcePositionProviderTe
 
 class ScalaSourcePositionProviderTest_3 extends ScalaSourcePositionProviderTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
+
+  addSourceFile("LambdaInToplevelMain.scala",
+    s"""
+       |@main
+       |def lambdaInToplevelMain(): Unit =
+       |  for (i <- 1 to 5) do
+       |    println(i) $breakpoint
+       |    println(i)
+       |""".stripMargin)
+
+  def testLambdaInToplevelMain(): Unit = {
+    createLocalProcess("lambdaInToplevelMain")
+
+    onBreakpoint { implicit context =>
+      val threadProxy = context.getFrameProxy.threadProxy()
+      val location0 = threadProxy.frame(0).location()
+      val location1 = threadProxy.frame(1).location()
+
+      val scalaPositionManager = {
+        val compoundPositionManager = context.getDebugProcess.getPositionManager
+
+        val field = compoundPositionManager.getClass.getDeclaredField("myPositionManagers")
+        field.setAccessible(true)
+        val myPositionManagers = field.get(compoundPositionManager).asInstanceOf[java.util.List[PositionManager]]
+
+        val manager = myPositionManagers.asScala.collectFirst {
+          case pm: ScalaPositionManager => pm
+        }.orNull
+
+        assertNotNull("Could not obtain an instance of ScalaPositionManager", manager)
+        manager
+      }
+
+      val sourcePosition0 = inReadAction(scalaPositionManager.getSourcePosition(location0))
+      assertEquals("LambdaInToplevelMain.scala", sourcePosition0.getFile.name)
+      assertEquals(4, sourcePosition0.getLine)
+      assertEquals("println(i)", inReadAction(sourcePosition0.getElementAt.getText))
+
+      val sourcePosition1 = inReadAction(scalaPositionManager.getSourcePosition(location1))
+      assertEquals("LambdaInToplevelMain.scala", sourcePosition1.getFile.name)
+      assertEquals(-1, sourcePosition1.getLine)
+
+      resume(context)
+    }
+  }
 }
 
 class ScalaSourcePositionProviderTest_3_RC extends ScalaSourcePositionProviderTestBase {
