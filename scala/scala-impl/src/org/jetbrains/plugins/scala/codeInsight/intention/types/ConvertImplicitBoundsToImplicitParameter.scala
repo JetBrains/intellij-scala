@@ -4,11 +4,10 @@ import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.command.undo.UndoUtil
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.{ScalaBundle, isUnitTestMode}
 import org.jetbrains.plugins.scala.codeInsight.intention.types.ConvertImplicitBoundsToImplicitParameter._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
@@ -18,11 +17,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeBoundsOwner, ScT
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createImplicitClauseFromTextWithContext
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
 import org.jetbrains.plugins.scala.lang.refactoring.util.InplaceRenameHelper
+import org.jetbrains.plugins.scala.{ScalaBundle, isUnitTestMode}
 
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
-class ConvertImplicitBoundsToImplicitParameter extends PsiElementBaseIntentionAction {
+//@TODO: review and adapt to 3.6+ new context bounds
+class ConvertImplicitBoundsToImplicitParameter extends PsiElementBaseIntentionAction with DumbAware {
   override def getFamilyName: String = ScalaBundle.message("family.name.convert.implicit.bounds")
 
   override def getText: String = ScalaBundle.message("convert.view.and.context.bounds.to.implicit.parameters")
@@ -66,11 +67,12 @@ object ConvertImplicitBoundsToImplicitParameter {
     val existingParams = existingClause.iterator.flatMap(_.parameters).toSeq
 
     val candidates = for {
-      tp <- parameterOwner.typeParameters
-      cb <- tp.contextBoundTypeElement
-      cbText = cb.getText
-      cbName = cbText.lowercased
-      typeText = cbText.parenthesize(!ScalaNamesValidator.isIdentifier(cbText))
+      tp       <- parameterOwner.typeParameters
+      cb       <- tp.contextBounds
+      cbTe     = cb.typeElement
+      teText   = cbTe.getText
+      cbName   = cb.name.getOrElse(teText.lowercased)
+      typeText = teText.parenthesize(!ScalaNamesValidator.isIdentifier(teText))
     } yield (cbName.escapeNonIdentifiers, (cbName + tp.name.capitalize).escapeNonIdentifiers, s"$typeText[${tp.name}]")
 
     val isUniqueName = candidates.groupBy(_._1).filter(_._2.sizeIs == 1).keySet
@@ -102,6 +104,8 @@ object ConvertImplicitBoundsToImplicitParameter {
     if (params.isEmpty) return
 
     val parent = PsiTreeUtil.findCommonParent(params.asJava)
+    if (parent == null) return
+
     val helper = new InplaceRenameHelper(parent)
     params.foreach(p => helper.addGroup(p, Seq.empty, Seq.empty))
     helper.startRenaming()

@@ -36,8 +36,8 @@ object ContextAppliedUtil {
       val parameterNames = parameters.map(_.name)
 
       val paramsWithContextBounds = typeParameters.collect {
-        case tp if !parameterNames.contains(tp.name) && tp.contextBoundTypeElement.nonEmpty =>
-          tp.name -> tp.contextBoundTypeElement
+        case tp if !parameterNames.contains(tp.name) && tp.contextBounds.nonEmpty =>
+          tp.name -> tp.contextBounds.map(_.typeElement)
       }
 
       paramsWithContextBounds.map {

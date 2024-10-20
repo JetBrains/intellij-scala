@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.base
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScContextBound, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
@@ -19,7 +19,7 @@ trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
 
   override def viewBound: Seq[ScType] = viewTypeElement.flatMap(_.`type`().toOption)
 
-  override def contextBound: Seq[ScType] = contextBoundTypeElement.flatMap(_.`type`().toOption)
+  override def contextBound: Seq[ScType] = contextBounds.flatMap(_.typeElement.`type`().toOption)
 
   override def upperTypeElement: Option[ScTypeElement] =
     findLastChildByTypeScala[PsiElement](ScalaTokenTypes.tUPPER_BOUND)
@@ -37,12 +37,7 @@ trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
     } yield t
   }
 
-  override def contextBoundTypeElement: Seq[ScTypeElement] = {
-    for {
-      v <- findChildrenByType(ScalaTokenTypes.tCOLON)
-      t <- v.nextSiblingOfType[ScTypeElement]
-    } yield t
-  }
+  override def contextBounds: Seq[ScContextBound] = findChildren[ScContextBound]
 
   override def removeImplicitBounds(): Unit = {
     var node = getNode.getFirstChildNode

@@ -114,7 +114,7 @@ private[declarationRedundancy] object SymbolEscaping {
       typeParam.viewTypeElement ++
         typeParam.upperTypeElement ++
         typeParam.lowerTypeElement ++
-        typeParam.contextBoundTypeElement
+        typeParam.contextBounds.map(_.typeElement)
     }.flatMap(_.`type`().toSeq)
 
   final class EscapeInfo(val member: ScMember, val types: Seq[ScType])

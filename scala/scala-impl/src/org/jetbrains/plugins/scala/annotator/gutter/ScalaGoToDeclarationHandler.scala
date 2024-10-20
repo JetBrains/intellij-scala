@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.IsTemplateDefinition
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{ContextBoundInfo, findSyntheticContextBoundInfo}
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
 import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScEnd, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScEnumerator, ScSelfInvocation}
@@ -246,12 +247,18 @@ object ScalaGoToDeclarationHandler {
 
   private def syntheticTarget(element: PsiElement): Seq[PsiElement] =
     element match {
-      case ScGivenDefinition.DesugaredTypeDefinition(gvn)      => Seq(gvn)
-      case function: ScFunction                                => Option(function.syntheticNavigationElement).toSeq
-      case scObject: ScObject if scObject.isSyntheticObject    => getCompanionModule(scObject).toSeq
+      case ScGivenDefinition.DesugaredTypeDefinition(gvn)         => Seq(gvn)
+      case function: ScFunction                                   => Option(function.syntheticNavigationElement).toSeq
+      case scObject: ScObject if scObject.isSyntheticObject       => getCompanionModule(scObject).toSeq
       case definition: ScTypeDefinition if definition.isSynthetic => Option(definition.syntheticContainingClass).toSeq
-      case parameter: ScParameter                                 => parameterForSyntheticParameter(parameter).toSeq
-      case _                                                      => Seq.empty
+      case parameter: ScParameter                                 =>
+        val contextBound = findSyntheticContextBoundInfo(parameter).flatMap {
+          case ContextBoundInfo(typeParam, _, idx, _) =>
+            typeParam.contextBounds(idx).nameId
+        }
+
+        parameterForSyntheticParameter(parameter).toSeq ++ contextBound
+      case _ => Seq.empty
     }
 
   @Nullable

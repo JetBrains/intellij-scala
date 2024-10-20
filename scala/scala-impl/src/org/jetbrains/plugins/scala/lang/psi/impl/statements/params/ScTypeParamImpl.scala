@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.TokenSets
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScContextBound, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumCases, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
@@ -136,8 +136,8 @@ class ScTypeParamImpl private (stub: ScTypeParamStub, node: ASTNode)
   override def viewTypeElement: Seq[ScTypeElement] =
     byPsiOrStub(super.viewTypeElement)(_.viewBoundsTypeElements)
 
-  override def contextBoundTypeElement: Seq[ScTypeElement] =
-    byPsiOrStub(super.contextBoundTypeElement)(_.contextBoundsTypeElements)
+  override def contextBounds: Seq[ScContextBound] =
+    byPsiOrStub(super.contextBounds)(_.contextBounds)
 
   override def lowerTypeElement: Option[ScTypeElement] =
     byPsiOrStub(super.lowerTypeElement)(_.lowerBoundTypeElement)

@@ -54,6 +54,7 @@ trait ScalaFeatures extends Any {
   def `named tuples`: Boolean
   def usingInArgumentsEnabled: Boolean
   def noUnicodeEscapesInRawStrings: Boolean
+  def `new context bounds and givens`: Boolean
 }
 
 object ScalaFeatures {
@@ -119,6 +120,9 @@ object ScalaFeatures {
     def `named tuples`: Boolean =
       languageLevel >= ScalaLanguageLevel.Scala_3_5
 
+    override def `new context bounds and givens`: Boolean =
+      languageLevel >= ScalaLanguageLevel.Scala_3_6
+
     def copy(
       version:                        ScalaVersion,
       isSource3:                      Boolean = this.isSource3,
@@ -171,6 +175,7 @@ object ScalaFeatures {
     override def noUnicodeEscapesInRawStrings: Boolean           = delegate.noUnicodeEscapesInRawStrings
     override def `optional braces for method arguments`: Boolean = delegate.`optional braces for method arguments`
     override def `named tuples`: Boolean                         = delegate.`named tuples`
+    override def `new context bounds and givens`: Boolean        = delegate.`named tuples`
   }
 
   private val minorVersion6  = Version("6")

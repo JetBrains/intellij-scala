@@ -112,7 +112,7 @@ object ScalaPsiUtil {
     }
 
     if (withContextBounds) {
-      param.contextBoundTypeElement.foreach(tp => paramText = paramText + " : " + tp.getText)
+      param.contextBounds.foreach(cb => paramText = paramText + " : " + cb.getText)
     }
 
     paramText
@@ -1365,13 +1365,14 @@ object ScalaPsiUtil {
 
   /**
    * Example: lets consider T2 in this code {{{
-   * def foo[T1, T2 : Show : Render](x: T2): String = ???
+   * def foo[T1, T2 : Show : Render as r](x: T2): String = ???
    * }}}
    * typeParam   ~ T2 <br>
    * contextType ~ Show OR Render <br>
    * boundIndex  ~ 0 OR 1 <br>
+   * naem        ~ None or r
    */
-  case class ContextBoundInfo(typeParam: ScTypeParam, contextType: ScTypeElement, boundIndex: Int)
+  case class ContextBoundInfo(typeParam: ScTypeParam, contextType: ScTypeElement, boundIndex: Int, name: Option[String])
 
   /**
    * @param parameter physical parameter OR
@@ -1393,11 +1394,11 @@ object ScalaPsiUtil {
     val contextBounds: Seq[ContextBoundInfo] = for {
       owner <- maybeOwner.toSeq
       typeParameter <- owner.typeParameters
-      (bound, idx) <- typeParameter.contextBoundTypeElement.zipWithIndex
-    } yield ContextBoundInfo(typeParameter, bound, idx)
+      (bound, idx) <- typeParameter.contextBounds.zipWithIndex
+    } yield ContextBoundInfo(typeParameter, bound.typeElement, idx, bound.name)
 
-    contextBounds.find { case ContextBoundInfo(typeParameter, typeElement, index) =>
-      val currentParameterName = contextBoundParameterName(typeParameter, typeElement, index)
+    contextBounds.find { case ContextBoundInfo(typeParameter, typeElement, index, name) =>
+      val currentParameterName = name.getOrElse(contextBoundParameterName(typeParameter, typeElement, index))
       contextParameter.name == currentParameterName
     }
   }
@@ -1418,22 +1419,24 @@ object ScalaPsiUtil {
     paramClauses: ScParameters,
     isClassParameter: Boolean
   ): Option[ScParameterClause] = {
-    val namedTypeParameters = parameterOwner.typeParameters.zipMapped(_.name)
-    if (namedTypeParameters.isEmpty) return None
+    val tparams = parameterOwner.typeParameters
+    if (tparams.isEmpty) return None
 
-    case class ParameterDescriptor(typeParameter: ScTypeParam,
-                                   name: String,
-                                   typeElement: ScTypeElement,
-                                   index: Int)
+    case class ParameterDescriptor(
+      typeParameter: ScTypeParam,
+      typeElement: ScTypeElement,
+      index: Int,
+      name: Option[String]
+    )
 
-    val views = namedTypeParameters.flatMap {
-      case (typeParameter, name) => typeParameter.viewTypeElement.map((typeParameter, name, _))
+    val views = tparams.flatMap {
+      tparam => tparam.viewTypeElement.map((tparam, _))
     }.zipWithIndex.map {
-      case ((typeParameter, name, typeElement), index) => ParameterDescriptor(typeParameter, name, typeElement, index + 1)
+      case ((typeParameter, typeElement), index) => ParameterDescriptor(typeParameter, typeElement, index + 1, None)
     }
 
     val viewsTexts = views.map {
-      case ParameterDescriptor(_, name, typeElement, index) =>
+      case ParameterDescriptor(tparam, typeElement, index, _) =>
         val needParenthesis = typeElement match {
           case _: ScCompoundTypeElement |
                _: ScInfixTypeElement |
@@ -1442,17 +1445,18 @@ object ScalaPsiUtil {
           case _ => false
         }
         import typeElement.projectContext
-        s"ev$$$index: $name $functionArrow ${typeElement.getText.parenthesize(needParenthesis)}"
+        s"ev$$$index: ${tparam.name} $functionArrow ${typeElement.getText.parenthesize(needParenthesis)}"
     }
 
     val bounds = for {
-      (typeParameter, name) <- namedTypeParameters
-      (typeElement, index) <- typeParameter.contextBoundTypeElement.zipWithIndex
-    } yield ParameterDescriptor(typeParameter, name, typeElement, index)
+      typeParameter <- tparams
+      (cb, index) <- typeParameter.contextBounds.zipWithIndex
+    } yield ParameterDescriptor(typeParameter, cb.typeElement, index, cb.name)
 
     val boundsTexts = bounds.map {
-      case ParameterDescriptor(typeParameter, name, typeElement, index) =>
-        s"${contextBoundParameterName(typeParameter, typeElement, index)} : (${typeElement.getText})[$name]"
+      case ParameterDescriptor(typeParameter, typeElement, index, name) =>
+        val boundName = name.getOrElse(contextBoundParameterName(typeParameter, typeElement, index))
+        s"$boundName: (${typeElement.getText})[${typeParameter.name}]"
     }
 
     val clausesTexts = viewsTexts ++ boundsTexts
@@ -1463,7 +1467,7 @@ object ScalaPsiUtil {
       .flatMap(_.typeElement)
       .zip(views ++ bounds)
       .foreach {
-        case (typeElement, ParameterDescriptor(_, _, context, _)) => context.analog = typeElement
+        case (typeElement, ParameterDescriptor(_, context, _, _)) => context.analog = typeElement
       }
 
     Some(result)

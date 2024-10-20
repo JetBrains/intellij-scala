@@ -4,7 +4,7 @@ package org.jetbrains.plugins.scala.lang.psi.stubs.impl
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.util.SofterReference
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScContextBound, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeParamStub
@@ -24,7 +24,7 @@ class ScTypeParamStubImpl(parent: StubElement[_ <: PsiElement],
     with ScTypeParamStub with ScBoundsOwnerStub[ScTypeParam] {
 
   private var viewElementsReferences: SofterReference[Seq[ScTypeElement]] = _
-  private var contextElementsReferences: SofterReference[Seq[ScTypeElement]] = _
+  private var contextElementsReferences: SofterReference[Seq[ScContextBound]] = _
 
   override def viewBoundsTypeElements: Seq[ScTypeElement] = {
     getFromReference(viewElementsReferences) {
@@ -35,11 +35,11 @@ class ScTypeParamStubImpl(parent: StubElement[_ <: PsiElement],
     } (viewElementsReferences = _)
   }
 
-  override def contextBoundsTypeElements: Seq[ScTypeElement] = {
+  override def contextBounds: Seq[ScContextBound] = {
     getFromReference(contextElementsReferences) {
       case (context, child) =>
         contextBoundsTexts.map {
-          createTypeElementFromText(_, context, child)
+          createContextBoundFromText(_, context, child)
         }.toSeq
     } (contextElementsReferences = _)
   }

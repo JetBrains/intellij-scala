@@ -51,7 +51,7 @@ class ScTypeParamElementType extends ScStubElementType[ScTypeParamStub, ScTypePa
       lowerBoundText = lowerBoundText,
       upperBoundText = upperBoundText,
       viewBoundsTexts = typeParam.viewTypeElement.asStrings(),
-      contextBoundsTexts = typeParam.contextBoundTypeElement.asStrings(),
+      contextBoundsTexts = typeParam.contextBounds.asStrings(),
       isCovariant = typeParam.isCovariant,
       isContravariant = typeParam.isContravariant,
       containingFileName = typeParam.getContainingFileName,

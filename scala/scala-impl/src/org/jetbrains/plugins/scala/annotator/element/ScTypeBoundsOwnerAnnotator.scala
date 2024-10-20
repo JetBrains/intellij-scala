@@ -35,19 +35,21 @@ object ScTypeBoundsOwnerAnnotator extends ElementAnnotator[ScTypeBoundsOwner] {
 
     element match {
       case tparam: ScTypeParam =>
-        element.contextBoundTypeElement.foreach { cbTypeElem =>
-          val cbType = cbTypeElem.getTypeNoConstructor.toOption
+        element.contextBounds.foreach { cb =>
+          val cbTypeElem = cb.typeElement
+          val cbType     = cbTypeElem.getTypeNoConstructor.toOption
           implicit val tpc: TypePresentationContext = tparam
+
           cbType.foreach { tpe =>
-              ScParameterizedTypeElementAnnotator.annotateTypeArgs[PsiElement](
-                extractTypeParameters(tpe),
-                Seq(tparam.nameId),
-                cbTypeElem.getTextRange,
-                ScSubstitutor.empty,
-                tpe.presentableText(cbTypeElem),
-                _ => Right(TypeParameterType(TypeParameter(tparam))),
-                isForContextBound = true
-              )
+            ScParameterizedTypeElementAnnotator.annotateTypeArgs[PsiElement](
+              extractTypeParameters(tpe),
+              Seq(tparam.nameId),
+              cbTypeElem.getTextRange,
+              ScSubstitutor.empty,
+              tpe.presentableText(cbTypeElem),
+              _ => Right(TypeParameterType(TypeParameter(tparam))),
+              isForContextBound = true
+            )
           }
         }
       case _ => ()

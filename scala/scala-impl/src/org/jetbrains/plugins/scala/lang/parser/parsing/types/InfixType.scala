@@ -4,7 +4,7 @@ import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.Associativity
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
@@ -158,7 +158,11 @@ trait InfixType {
         parseInfixWildcardType() || parseTypeVariable() || componentType(star, isPattern)
 
       override protected def shouldContinue(implicit builder: ScalaPsiBuilder): Boolean =
-        (!isPattern || typeVariables || builder.getTokenText != "|") && super.shouldContinue
+        (!isPattern ||
+          typeVariables ||
+          builder.getTokenText != "|") &&
+          !(builder.features.`new context bounds and givens` && builder.getTokenText == "as") &&
+          super.shouldContinue
 
     private def parseTypeVariable(): Boolean = if (isPattern && typeVariables && builder.getTokenType == ScalaTokenTypes.tIDENTIFIER) {
         val firstChar = builder.getTokenText.charAt(0)

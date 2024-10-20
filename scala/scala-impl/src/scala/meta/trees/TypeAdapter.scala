@@ -252,7 +252,7 @@ trait TypeAdapter {
   }
 
   def contextBounds(tp: ScTypeBoundsOwner): List[m.Type] = {
-    tp.contextBoundTypeElement.map(toType).toList
+    tp.contextBounds.map(cb => toType(cb.typeElement)).toList
   }
 
   def typeBounds(tp: ScTypeBoundsOwner): m.Type.Bounds = {

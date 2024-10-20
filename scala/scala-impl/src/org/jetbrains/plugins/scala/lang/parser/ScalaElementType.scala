@@ -198,6 +198,7 @@ object ScalaElementType {
   val TYPE_CASE_CLAUSES: ScalaElementType = new ScalaElementType("match type cases")
 
   val TYPE_CASE_CLAUSE: ScalaElementType = new ScalaElementType("match type case")
+  val CONTEXT_BOUND: ScalaElementType = new ScalaElementType("context bound")
   val NAMED_TUPLE_TYPE_COMPONENT: ScalaElementType = new ScalaElementType("named tuple type component")
 
   /** ********************************************************************************** */

@@ -1558,6 +1558,12 @@ object ScalaPsiElementFactory {
       )(_)
     )
 
+  def createContextBoundFromText(
+    @NonNls text:      String,
+    @Nullable context: PsiElement,
+    @Nullable child:   PsiElement
+  ): ScContextBound =
+    createElementWithContext[ScContextBound](text, context, child)(types.ContextBound()(_))
 
   def createTypedPatternFromText(@NonNls text: String, context: PsiElement, child: PsiElement): ScTypeElement =
     createElementWithContext[ScTypeElement](text, context, child)(types.Type(isPattern = true)(_))
