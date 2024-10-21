@@ -1,18 +1,25 @@
 package org.jetbrains.plugins.scala
 package debugger.renderers
 
-import org.jetbrains.plugins.scala.util.runners._
-import org.junit.runner.RunWith
+class ScalaRuntimeRefRendererTest_2_12 extends ScalaRuntimeRefRendererTestBase(ScalaVersion.Latest.Scala_2_12)
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
-@RunWithScalaVersions(Array(
-  TestScalaVersion.Scala_2_12,
-  TestScalaVersion.Scala_2_13,
-  TestScalaVersion.Scala_3_Latest,
-  TestScalaVersion.Scala_3_Latest_RC,
-  TestScalaVersion.Scala_3_Next_RC
-))
-class ScalaRuntimeRefRendererTest extends RendererTestBase {
+class ScalaRuntimeRefRendererTest_2_13 extends ScalaRuntimeRefRendererTestBase(ScalaVersion.Latest.Scala_2_13)
+
+class ScalaRuntimeRefRendererTest_3_3 extends ScalaRuntimeRefRendererTestBase(ScalaVersion.Latest.Scala_3_3)
+
+class ScalaRuntimeRefRendererTest_3_4 extends ScalaRuntimeRefRendererTestBase(ScalaVersion.Latest.Scala_3_4)
+
+class ScalaRuntimeRefRendererTest_3_5 extends ScalaRuntimeRefRendererTestBase(ScalaVersion.Latest.Scala_3_5)
+
+class ScalaRuntimeRefRendererTest_3_6 extends ScalaRuntimeRefRendererTestBase(ScalaVersion.Latest.Scala_3_6)
+
+class ScalaRuntimeRefRendererTest_3_LTS_RC extends ScalaRuntimeRefRendererTestBase(ScalaVersion.Latest.Scala_3_LTS_RC)
+
+class ScalaRuntimeRefRendererTest_3_Next_RC extends ScalaRuntimeRefRendererTestBase(ScalaVersion.Latest.Scala_3_Next_RC)
+
+abstract class ScalaRuntimeRefRendererTestBase(scalaVersion: ScalaVersion) extends RendererTestBase {
+  
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == scalaVersion
 
   addSourceFile("IntRef.scala",
     s"""object IntRef {
