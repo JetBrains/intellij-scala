@@ -159,7 +159,7 @@ object Scala3IndentationBasedSyntaxEnterHandler {
     val withLineCommentSkipped = beforeWhitespace match {
       // for line comment we use prevCodeLeaf instead of prevSibling
       // because currently line comments are not attached to the line in indentation-based block
-      case c: PsiComment if !c.startsFromNewLine() => PsiTreeUtil.prevCodeLeaf(c) match {
+      case c: PsiComment => PsiTreeUtil.prevCodeLeaf(c) match {
         case null => c
         case prev => prev
       }

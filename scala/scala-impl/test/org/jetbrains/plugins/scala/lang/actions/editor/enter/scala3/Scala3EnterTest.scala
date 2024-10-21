@@ -1020,6 +1020,46 @@ class Scala3EnterTest extends DoEditorStateTestOps with Scala2AndScala3EnterActi
     )
   }
 
+  def testAfterUnindentedLineComment(): Unit = {
+    checkGeneratedTextAfterEnter(
+      s"""def foo =
+         |  def bar =
+         |    111
+         |//  line comment$CARET
+         |    333
+         |""".stripMargin,
+      s"""def foo =
+         |  def bar =
+         |    111
+         |//  line comment
+         |    $CARET
+         |    333
+         |""".stripMargin
+    )
+  }
+
+  def testAfterUnindentedLineComment_MultipleComments(): Unit = {
+    checkGeneratedTextAfterEnter(
+      s"""def foo =
+         |  def bar =
+         |    111
+         |//  line comment 1
+         |//  line comment 2
+         |//  line comment 3$CARET
+         |    333
+         |""".stripMargin,
+      s"""def foo =
+         |  def bar =
+         |    111
+         |//  line comment 1
+         |//  line comment 2
+         |//  line comment 3
+         |    $CARET
+         |    333
+         |""".stripMargin,
+    )
+  }
+
   // FIXME when we fix parsing // line comments (we should attach them to the element on the line)
   //  def testBeforeLineCommentAfterIndentedCodeOnSameLine(): Unit = {
   //    runEnterTestInContexts(
