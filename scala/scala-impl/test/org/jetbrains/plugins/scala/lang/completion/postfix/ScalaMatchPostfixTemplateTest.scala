@@ -2,15 +2,15 @@ package org.jetbrains.plugins.scala.lang
 package completion
 package postfix
 
-import com.intellij.testFramework.NeedsIndex
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithAllIndexingModes, RunWithScalaVersions, TestScalaVersion}
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion, WithIndexingMode}
 import org.junit.runner.RunWith
 
 @RunWith(classOf[MultipleScalaVersionsRunner])
-@RunWithAllIndexingModes
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_13
 ))
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 class ScalaMatchPostfixTemplateTest extends PostfixTemplateTest {
 
   override def testPath(): String = super.testPath() + "match/"
@@ -25,16 +25,16 @@ class ScalaMatchPostfixTemplateTest extends PostfixTemplateTest {
 
   def testInnerMatchInfixExpr(): Unit = doTest()
 
-  @NeedsIndex.SmartMode(reason = "exhaustive match needs type inference")
+  @WithIndexingMode(mode = IndexingMode.SMART, reason = "exhaustive match needs type inference")
   def testExhaustiveSealed(): Unit = doTest()
 
-  @NeedsIndex.SmartMode(reason = "exhaustive match needs type inference")
+  @WithIndexingMode(mode = IndexingMode.SMART, reason = "exhaustive match needs type inference")
   def testExhaustiveJavaEnum(): Unit = doTest()
 
-  @NeedsIndex.SmartMode(reason = "exhaustive match needs type inference")
+  @WithIndexingMode(mode = IndexingMode.SMART, reason = "exhaustive match needs type inference")
   def testExhaustiveScalaEnum(): Unit = doTest()
 
-  @NeedsIndex.SmartMode(reason = "exhaustive match needs type inference")
+  @WithIndexingMode(mode = IndexingMode.SMART, reason = "exhaustive match needs type inference")
   def testExhaustiveScalaEnum2(): Unit = doTest()
 
   def testNoFunctionExprParent(): Unit = doNotApplicableTest()

@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala.lang.completion.postfix
 
-import com.intellij.testFramework.NeedsIndex
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
+import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 
-@NeedsIndex.SmartMode(reason = "`notnull` needs type inference to check conformance with AnyRef")
+@WithIndexingMode(mode = IndexingMode.SMART, reason = "`notnull` needs type inference to check conformance with AnyRef")
 class ScalaNotNullPostfixTemplateTest extends PostfixTemplateTest {
   override def testPath(): String = super.testPath() + "notnull/"
 
