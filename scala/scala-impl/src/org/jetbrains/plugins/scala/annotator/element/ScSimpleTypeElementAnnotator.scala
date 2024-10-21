@@ -20,7 +20,9 @@ object ScSimpleTypeElementAnnotator extends ElementAnnotator[ScSimpleTypeElement
   override def annotate(element: ScSimpleTypeElement, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
     //todo: check bounds conformance for parameterized type
-    checkAbsentTypeArgs(element)
+    if (typeAware) {
+      checkAbsentTypeArgs(element)
+    }
   }
 
   private def checkAbsentTypeArgs(typeElement: ScSimpleTypeElement)
