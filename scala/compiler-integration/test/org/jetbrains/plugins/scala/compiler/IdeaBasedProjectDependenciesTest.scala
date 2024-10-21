@@ -1,16 +1,14 @@
-package org.jetbrains.plugins.scala.compiler.zinc
+package org.jetbrains.plugins.scala.compiler
 
 import com.intellij.ide.util.projectWizard.ModuleBuilder
 import com.intellij.openapi.module.{JavaModuleType, Module, ModuleType}
 import com.intellij.openapi.roots.{LibraryOrderEntry, ModuleRootModificationUtil}
-import com.intellij.openapi.util.text.StringUtil
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.HeavyPlatformTestCase.createChildDirectory
 import com.intellij.testFramework.{PsiTestUtil, VfsTestUtil}
-import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.DependencyManagerBase._
+import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.base.libraryLoaders.IvyManagedLoader
-import org.jetbrains.plugins.scala.compiler.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.junit.experimental.categories.Category
 
@@ -22,7 +20,7 @@ class IdeaBasedProjectDependenciesTest extends ScalaCompilerTestBase  {
   override protected def incrementalityType = IncrementalityType.IDEA
 
   def testMultiModuleIDEABasedProjectWithDependencies(): Unit = {
-    addFileToProjectSources("AbstractGreeter.scala", StringUtil.convertLineSeparators(
+    addFileToProjectSources("AbstractGreeter.scala",
       s"""
          |import org.apache.commons.text.AlphabetConverter
          |
@@ -31,7 +29,7 @@ class IdeaBasedProjectDependenciesTest extends ScalaCompilerTestBase  {
          |}
          |
           """.stripMargin
-    ))
+    )
 
     val abstractModule = createAbstractModule()
     ModuleRootModificationUtil.addDependency(getModule, abstractModule)
@@ -60,7 +58,7 @@ class IdeaBasedProjectDependenciesTest extends ScalaCompilerTestBase  {
          |  def greeting: String
          |}
           """.stripMargin
-    VfsTestUtil.createFile(moduleDirectory, "Greeter.scala", StringUtil.convertLineSeparators(fileContent))
+    VfsTestUtil.createFile(moduleDirectory, "Greeter.scala", fileContent)
 
     module
   }
