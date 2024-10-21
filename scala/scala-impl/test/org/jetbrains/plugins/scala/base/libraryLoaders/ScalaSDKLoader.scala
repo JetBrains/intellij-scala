@@ -7,7 +7,7 @@ import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.testFramework.PsiTestUtil
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, inWriteAction}
 import org.jetbrains.plugins.scala.project.external.ScalaSdkUtils
-import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLibraryProperties, ScalaLibraryType, template}
+import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLibraryProperties, ScalaLibraryType, Version, template}
 import org.jetbrains.plugins.scala.{DependencyManager, DependencyManagerBase, ScalaVersion}
 import org.junit.Assert._
 
@@ -74,6 +74,12 @@ case class ScalaSDKLoader(
     resolvedSecondPass.map(_.file).map(findJarFile)
   }
 
+  private def resolveCompilerBridge(version: ScalaVersion): Option[File] = {
+    if (version >= ScalaVersion.fromString("2.13.12").get)
+      ScalaSdkUtils.resolveCompilerBridgeJar(version.minor)
+    else None
+  }
+
   override final def init(implicit module: Module, version: ScalaVersion): Unit = {
     val dependencies = binaryDependencies
     val resolved = dependencyManager.resolve(dependencies: _*)
@@ -94,7 +100,7 @@ case class ScalaSDKLoader(
     val compilerClasspath = resolvedOk.map(_.file)
 
     // Manually resolve a compiler bridge only if it hasn't been provided. This allows testing with a custom bridge.
-    val compilerBridge = compilerBridgeBinaryJar.orElse(ScalaSdkUtils.resolveCompilerBridgeJar(version.minor))
+    val compilerBridge = compilerBridgeBinaryJar.orElse(resolveCompilerBridge(version))
 
     assertTrue(
       s"Some SDK jars were resolved but for some reason do not exist:\n$resolvedMissing",
