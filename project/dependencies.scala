@@ -12,7 +12,7 @@ object Versions {
   // run runtimeDependencies/update manually
   val sbtVersion: String = Sbt.latest
   val bloopVersion = "1.5.6"
-  val zincVersion = "1.10.2"
+  val zincVersion = "1.10.3"
 
   // ATTENTION: check the comment in `Common.newProjectWithKotlin` when updating this version
   val intellijVersion = "243.20847.16"
