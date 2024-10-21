@@ -1,18 +1,28 @@
 package org.jetbrains.plugins.scala.debugger.renderers
 
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
-import org.junit.runner.RunWith
+import org.jetbrains.plugins.scala.ScalaVersion
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
-@RunWithScalaVersions(Array(
-  TestScalaVersion.Scala_2_11,
-  TestScalaVersion.Scala_2_12,
-  TestScalaVersion.Scala_2_13,
-  TestScalaVersion.Scala_3_Latest,
-  TestScalaVersion.Scala_3_Latest_RC,
-  TestScalaVersion.Scala_3_Next_RC
-))
-class ScalaStringBuilderRendererTest extends RendererTestBase {
+class ScalaStringBuilderRendererTest_2_11 extends ScalaStringBuilderRendererTestBase(ScalaVersion.Latest.Scala_2_11)
+
+class ScalaStringBuilderRendererTest_2_12 extends ScalaStringBuilderRendererTestBase(ScalaVersion.Latest.Scala_2_12)
+
+class ScalaStringBuilderRendererTest_2_13 extends ScalaStringBuilderRendererTestBase(ScalaVersion.Latest.Scala_2_13)
+
+class ScalaStringBuilderRendererTest_3_3 extends ScalaStringBuilderRendererTestBase(ScalaVersion.Latest.Scala_3_3)
+
+class ScalaStringBuilderRendererTest_3_4 extends ScalaStringBuilderRendererTestBase(ScalaVersion.Latest.Scala_3_4)
+
+class ScalaStringBuilderRendererTest_3_5 extends ScalaStringBuilderRendererTestBase(ScalaVersion.Latest.Scala_3_5)
+
+class ScalaStringBuilderRendererTest_3_6 extends ScalaStringBuilderRendererTestBase(ScalaVersion.Latest.Scala_3_6)
+
+class ScalaStringBuilderRendererTest_3_LTS_RC extends ScalaStringBuilderRendererTestBase(ScalaVersion.Latest.Scala_3_LTS_RC)
+
+class ScalaStringBuilderRendererTest_3_Next_RC extends ScalaStringBuilderRendererTestBase(ScalaVersion.Latest.Scala_3_Next_RC)
+
+abstract class ScalaStringBuilderRendererTestBase(scalaVersion: ScalaVersion) extends RendererTestBase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == scalaVersion
 
   addSourceFile("StringBuilders.scala",
     s"""object StringBuilders {
