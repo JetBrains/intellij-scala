@@ -2,22 +2,30 @@ package org.jetbrains.plugins.scala
 package debugger.renderers
 
 import com.intellij.debugger.settings.NodeRendererSettings
-import org.jetbrains.plugins.scala.util.runners._
-import org.junit.runner.RunWith
 
 import java.nio.file.Path
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
-@RunWithScalaVersions(Array(
-  TestScalaVersion.Scala_2_11,
-  TestScalaVersion.Scala_2_12,
-  TestScalaVersion.Scala_2_13,
-  TestScalaVersion.Scala_3_3,
-  TestScalaVersion.Scala_3_4,
-  TestScalaVersion.Scala_3_Latest_RC,
-  TestScalaVersion.Scala_3_Next_RC
-))
-class ScalaClassRendererTest extends RendererTestBase {
+class ScalaClassRendererTest_2_11 extends ScalaClassRendererTestBase(ScalaVersion.Latest.Scala_2_11)
+
+class ScalaClassRendererTest_2_12 extends ScalaClassRendererTestBase(ScalaVersion.Latest.Scala_2_12)
+
+class ScalaClassRendererTest_2_13 extends ScalaClassRendererTestBase(ScalaVersion.Latest.Scala_2_13)
+
+class ScalaClassRendererTest_3_3 extends ScalaClassRendererTestBase(ScalaVersion.Latest.Scala_3_3)
+
+class ScalaClassRendererTest_3_4 extends ScalaClassRendererTestBase(ScalaVersion.Latest.Scala_3_4)
+
+class ScalaClassRendererTest_3_5 extends ScalaClassRendererTestBase(ScalaVersion.Latest.Scala_3_5)
+
+class ScalaClassRendererTest_3_6 extends ScalaClassRendererTestBase(ScalaVersion.Latest.Scala_3_6)
+
+class ScalaClassRendererTest_3_LTS_RC extends ScalaClassRendererTestBase(ScalaVersion.Latest.Scala_3_LTS_RC)
+
+class ScalaClassRendererTest_3_Next_RC extends ScalaClassRendererTestBase(ScalaVersion.Latest.Scala_3_Next_RC)
+
+abstract class ScalaClassRendererTestBase(scalaVersion: ScalaVersion) extends RendererTestBase {
+  
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == scalaVersion
 
   addSourceFile(Path.of("test", "ScalaObject.scala").toString,
     s"""package test
