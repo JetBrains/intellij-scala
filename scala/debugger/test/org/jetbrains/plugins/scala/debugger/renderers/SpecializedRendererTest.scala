@@ -1,18 +1,25 @@
 package org.jetbrains.plugins.scala
 package debugger.renderers
 
-import org.jetbrains.plugins.scala.util.runners._
-import org.junit.runner.RunWith
+class SpecializedRendererTest_2_12 extends SpecializedRendererTestBase(ScalaVersion.Latest.Scala_2_12)
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
-@RunWithScalaVersions(Array(
-  TestScalaVersion.Scala_2_12,
-  TestScalaVersion.Scala_2_13,
-  TestScalaVersion.Scala_3_Latest,
-  TestScalaVersion.Scala_3_Latest_RC,
-  TestScalaVersion.Scala_3_Next_RC
-))
-class SpecializedRendererTest extends RendererTestBase {
+class SpecializedRendererTest_2_13 extends SpecializedRendererTestBase(ScalaVersion.Latest.Scala_2_13)
+
+class SpecializedRendererTest_3_3 extends SpecializedRendererTestBase(ScalaVersion.Latest.Scala_3_3)
+
+class SpecializedRendererTest_3_4 extends SpecializedRendererTestBase(ScalaVersion.Latest.Scala_3_4)
+
+class SpecializedRendererTest_3_5 extends SpecializedRendererTestBase(ScalaVersion.Latest.Scala_3_5)
+
+class SpecializedRendererTest_3_6 extends SpecializedRendererTestBase(ScalaVersion.Latest.Scala_3_6)
+
+class SpecializedRendererTest_3_LTS_RC extends SpecializedRendererTestBase(ScalaVersion.Latest.Scala_3_LTS_RC)
+
+class SpecializedRendererTest_3_Next_RC extends SpecializedRendererTestBase(ScalaVersion.Latest.Scala_3_Next_RC)
+
+abstract class SpecializedRendererTestBase(scalaVersion: ScalaVersion) extends RendererTestBase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == scalaVersion
 
   addSourceFile("SpecializedTuple.scala",
     s"""object SpecializedTuple {

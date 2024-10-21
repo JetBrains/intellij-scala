@@ -5,19 +5,16 @@ package evaluator
 package compiling
 
 import com.intellij.openapi.util.io.FileUtil.loadFile
-import com.intellij.openapi.util.text.StringUtil.convertLineSeparators
-import com.intellij.openapi.vfs.CharsetToolkit
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.plugins.scala.util.runners._
 import org.junit.Assert.{assertEquals, fail}
 import org.junit.experimental.categories.Category
-import org.junit.runner.RunWith
 
 import java.io.File
+import java.nio.charset.StandardCharsets
 
 @Category(Array(classOf[DebuggerTests]))
 abstract class GeneratedClassTestBase extends ScalaLightCodeInsightFixtureTestCase {
@@ -31,7 +28,7 @@ abstract class GeneratedClassTestBase extends ScalaLightCodeInsightFixtureTestCa
 
   private def loadFileText(): String = {
     val path = testDataBasePath + getTestName(true) + ".test"
-    convertLineSeparators(loadFile(new File(path), CharsetToolkit.UTF8))
+    loadFile(new File(path), StandardCharsets.UTF_8)
   }
 
   private def parseTestData(): TestData =
@@ -69,16 +66,28 @@ object GeneratedClassTestBase {
   final case class TestData(fileText: String, codeFragment: String, additionalImports: Seq[String], resultText: String)
 }
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
-@RunWithScalaVersions(Array(
-  TestScalaVersion.Scala_2_11,
-  TestScalaVersion.Scala_2_12,
-  TestScalaVersion.Scala_2_13,
-  TestScalaVersion.Scala_3_Latest,
-  TestScalaVersion.Scala_3_Latest_RC,
-  TestScalaVersion.Scala_3_Next_RC
-))
-final class GeneratedClassTest extends GeneratedClassTestBase {
+class GeneratedClassTest_Scala2_2_11 extends GeneratedClassTest_Scala2_Base(ScalaVersion.Latest.Scala_2_11)
+
+class GeneratedClassTest_Scala2_2_12 extends GeneratedClassTest_Scala2_Base(ScalaVersion.Latest.Scala_2_12)
+
+class GeneratedClassTest_Scala2_2_13 extends GeneratedClassTest_Scala2_Base(ScalaVersion.Latest.Scala_2_13)
+
+class GeneratedClassTest_Scala2_3_3 extends GeneratedClassTest_Scala2_Base(ScalaVersion.Latest.Scala_3_3)
+
+class GeneratedClassTest_Scala2_3_4 extends GeneratedClassTest_Scala2_Base(ScalaVersion.Latest.Scala_3_4)
+
+class GeneratedClassTest_Scala2_3_5 extends GeneratedClassTest_Scala2_Base(ScalaVersion.Latest.Scala_3_5)
+
+class GeneratedClassTest_Scala2_3_6 extends GeneratedClassTest_Scala2_Base(ScalaVersion.Latest.Scala_3_6)
+
+class GeneratedClassTest_Scala2_3_LTS_RC extends GeneratedClassTest_Scala2_Base(ScalaVersion.Latest.Scala_3_LTS_RC)
+
+class GeneratedClassTest_Scala2_3_Next_RC extends GeneratedClassTest_Scala2_Base(ScalaVersion.Latest.Scala_3_Next_RC)
+
+abstract class GeneratedClassTest_Scala2_Base(scalaVersion: ScalaVersion) extends GeneratedClassTestBase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == scalaVersion
+
   def testFromPattern(): Unit = doTest()
 
   def testInConstructor(): Unit = doTest()
@@ -90,13 +99,22 @@ final class GeneratedClassTest extends GeneratedClassTestBase {
   def testSimplePlace(): Unit = doTest()
 }
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
-@RunWithScalaVersions(Array(
-  TestScalaVersion.Scala_3_Latest,
-  TestScalaVersion.Scala_3_Latest_RC,
-  TestScalaVersion.Scala_3_Next_RC
-))
-final class GeneratedClassTest_Scala_3 extends GeneratedClassTestBase {
+class GeneratedClassTest_Scala3_3_3 extends GeneratedClassTest_Scala3_Base(ScalaVersion.Latest.Scala_3_3)
+
+class GeneratedClassTest_Scala3_3_4 extends GeneratedClassTest_Scala3_Base(ScalaVersion.Latest.Scala_3_4)
+
+class GeneratedClassTest_Scala3_3_5 extends GeneratedClassTest_Scala3_Base(ScalaVersion.Latest.Scala_3_5)
+
+class GeneratedClassTest_Scala3_3_6 extends GeneratedClassTest_Scala3_Base(ScalaVersion.Latest.Scala_3_6)
+
+class GeneratedClassTest_Scala3_3_LTS_RC extends GeneratedClassTest_Scala3_Base(ScalaVersion.Latest.Scala_3_LTS_RC)
+
+class GeneratedClassTest_Scala3_3_Next_RC extends GeneratedClassTest_Scala3_Base(ScalaVersion.Latest.Scala_3_Next_RC)
+
+abstract class GeneratedClassTest_Scala3_Base(scalaVersion: ScalaVersion) extends GeneratedClassTestBase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == scalaVersion
+
   override protected def testDataBasePath: String = super.testDataBasePath + "scala3/"
 
   def testFromPattern(): Unit = doTest()
