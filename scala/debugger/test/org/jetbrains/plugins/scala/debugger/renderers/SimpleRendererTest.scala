@@ -1,19 +1,28 @@
 package org.jetbrains.plugins.scala
 package debugger.renderers
 
-import org.jetbrains.plugins.scala.util.runners._
-import org.junit.runner.RunWith
+class SimpleRendererTest_2_11 extends SimpleRendererTestBase(ScalaVersion.Latest.Scala_2_11)
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
-@RunWithScalaVersions(Array(
-  TestScalaVersion.Scala_2_11,
-  TestScalaVersion.Scala_2_12,
-  TestScalaVersion.Scala_2_13,
-  TestScalaVersion.Scala_3_Latest,
-  TestScalaVersion.Scala_3_Latest_RC,
-  TestScalaVersion.Scala_3_Next_RC
-))
-class SimpleRendererTest extends RendererTestBase {
+class SimpleRendererTest_2_12 extends SimpleRendererTestBase(ScalaVersion.Latest.Scala_2_12)
+
+class SimpleRendererTest_2_13 extends SimpleRendererTestBase(ScalaVersion.Latest.Scala_2_13)
+
+class SimpleRendererTest_3_3 extends SimpleRendererTestBase(ScalaVersion.Latest.Scala_3_3)
+
+class SimpleRendererTest_3_4 extends SimpleRendererTestBase(ScalaVersion.Latest.Scala_3_4)
+
+class SimpleRendererTest_3_5 extends SimpleRendererTestBase(ScalaVersion.Latest.Scala_3_5)
+
+class SimpleRendererTest_3_6 extends SimpleRendererTestBase(ScalaVersion.Latest.Scala_3_6)
+
+class SimpleRendererTest_3_LTS_RC extends SimpleRendererTestBase(ScalaVersion.Latest.Scala_3_LTS_RC)
+
+class SimpleRendererTest_3_Next_RC extends SimpleRendererTestBase(ScalaVersion.Latest.Scala_3_Next_RC)
+
+abstract class SimpleRendererTestBase(scalaVersion: ScalaVersion) extends RendererTestBase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == scalaVersion
+
   protected def checkLabelRendering(variableToExpectedLabel: (String, String)*): Unit = {
     rendererTest() { implicit ctx =>
       variableToExpectedLabel.foreach { case (variable, expected) =>
