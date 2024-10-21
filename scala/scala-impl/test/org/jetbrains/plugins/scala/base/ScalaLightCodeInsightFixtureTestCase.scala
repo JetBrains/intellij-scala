@@ -13,6 +13,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
 import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import com.intellij.testFramework.fixtures.{JavaCodeInsightTestFixture, LightJavaCodeInsightFixtureTestCase}
 import com.intellij.testFramework.{EditorTestUtil, IdeaTestUtil, LightProjectDescriptor}
 import com.intellij.util.lang.JavaVersion
@@ -40,11 +41,21 @@ abstract class ScalaLightCodeInsightFixtureTestCase
   protected val START = EditorTestUtil.SELECTION_START_TAG
   protected val END = EditorTestUtil.SELECTION_END_TAG
 
-  protected lazy val scalaFixture: ScalaCodeInsightTestFixture = new ScalaCodeInsightTestFixture(getFixture)
+  // var is needed to pick up updated java fixture in setUp
+  private[this] var _scalaFixture: ScalaCodeInsightTestFixture = _
+  protected def scalaFixture: ScalaCodeInsightTestFixture = _scalaFixture
 
   override def getTestDataPath: String = TestUtils.getTestDataPath + "/"
 
   protected def sourceRootPath: String = null
+
+  //start section: indexing mode setup
+  private[this] var indexingMode: IndexingMode = IndexingMode.SMART
+
+  // SCL-21849
+  override def getIndexingMode: IndexingMode = indexingMode
+  override def setIndexingMode(mode: IndexingMode): Unit = indexingMode = mode
+  //end section: indexing mode setup
 
   //start section: project libraries configuration
   protected def loadScalaLibrary: Boolean = true
@@ -125,8 +136,16 @@ abstract class ScalaLightCodeInsightFixtureTestCase
   //end section: project descriptor
 
   override protected def setUp(): Unit = {
+    // initialize indexing mode before java test fixture in super.setUp()
+    /** see also [[com.intellij.testFramework.fixtures.JavaIndexingModeCodeInsightTestFixture]] */
+    indexingMode = this.findIndexingModeAnnotation()
+      .fold(IndexingMode.SMART)(_.mode())
+
     super.setUp()
-    scalaFixture //init fixture lazy val
+
+    // pick up updated java fixture after super.setUp()
+    _scalaFixture = new ScalaCodeInsightTestFixture(getFixture)
+
     Registry.get("ast.loading.filter").setValue(true, getTestRootDisposable)
   }
 
