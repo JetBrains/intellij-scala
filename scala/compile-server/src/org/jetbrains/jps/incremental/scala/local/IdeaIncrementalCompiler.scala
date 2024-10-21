@@ -6,10 +6,10 @@ import sbt.internal.inc.{AnalyzingCompiler, CompileOutput, StringVirtualFile}
 import xsbti._
 import xsbti.api.{ClassLike, DependencyContext}
 import xsbti.compile.DependencyChanges
+import xsbti.compile.analysis.{ReadSourceInfos, SourceInfo}
 
 import java.io.File
 import java.nio.file.Path
-import java.util
 import java.util.Optional
 import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
@@ -122,7 +122,7 @@ private class ClientCallback(client: Client, output: Path, converter: FileConver
   override def enabled(): Boolean = false
 }
 
-abstract class ClientCallbackBase(converter: FileConverter) extends xsbti.AnalysisCallback2 {
+abstract class ClientCallbackBase(converter: FileConverter) extends xsbti.AnalysisCallback3 {
 
   override def isPickleJava: Boolean = false
 
@@ -156,7 +156,7 @@ abstract class ClientCallbackBase(converter: FileConverter) extends xsbti.Analys
 
   override def classDependency(onClassName: String, sourceClassName: String, context: DependencyContext): Unit = {}
 
-  override def classesInOutputJar(): util.Set[String] =
+  override def classesInOutputJar(): java.util.Set[String] =
     Set.empty[String].asJava
 
   //noinspection ScalaDeprecation
@@ -185,8 +185,8 @@ abstract class ClientCallbackBase(converter: FileConverter) extends xsbti.Analys
     reported: Boolean,
     rendered: Optional[String],
     diagnosticCode: Optional[DiagnosticCode],
-    diagnosticRelatedInformation: util.List[DiagnosticRelatedInformation],
-    actions: util.List[Action]
+    diagnosticRelatedInformation: java.util.List[DiagnosticRelatedInformation],
+    actions: java.util.List[Action]
   ): Unit = {}
 
   override def startSource(source: VirtualFile): Unit = {}
@@ -195,7 +195,7 @@ abstract class ClientCallbackBase(converter: FileConverter) extends xsbti.Analys
   final override def startSource(source: File): Unit =
     startSource(converter.toVirtualFile(source.toPath))
 
-  override def usedName(className: String, name: String, useScopes: util.EnumSet[xsbti.UseScope]): Unit = {}
+  override def usedName(className: String, name: String, useScopes: java.util.EnumSet[xsbti.UseScope]): Unit = {}
 
   override def apiPhaseCompleted(): Unit = {}
 
@@ -208,6 +208,20 @@ abstract class ClientCallbackBase(converter: FileConverter) extends xsbti.Analys
   //noinspection ScalaDeprecation
   final override def mainClass(sourceFile: File, className: String): Unit =
     mainClass(converter.toVirtualFile(sourceFile.toPath), className)
+
+  override def toVirtualFile(path: Path): VirtualFile = converter.toVirtualFile(path)
+
+  override def getSourceInfos: ReadSourceInfos = new ReadSourceInfos {
+    private val emptySourceInfo: SourceInfo = new SourceInfo {
+      override def getReportedProblems: Array[Problem] = Array.empty
+      override def getUnreportedProblems: Array[Problem] = Array.empty
+      override def getMainClasses: Array[String] = Array.empty
+    }
+
+    override def get(sourceFile: VirtualFileRef): SourceInfo = emptySourceInfo
+
+    override def getAllSourceInfos: java.util.Map[VirtualFileRef, SourceInfo] = java.util.Collections.emptyMap()
+  }
 }
 
 private object emptyChanges extends DependencyChanges {
