@@ -6,7 +6,7 @@ import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.openapi.util.TextRange
 import com.intellij.profile.codeInspection.InspectionProfileManager
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture.CARET_MARKER
-import org.jetbrains.plugins.scala.codeInspection.ScalaAnnotatorQuickFixTestBase.{ExpectedHighlight, TestPrepareResult}
+import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestFixture.{ExpectedHighlight, TestPrepareResult}
 import org.jetbrains.plugins.scala.extensions.TextRangeExt
 
 abstract class ScalaUnnecessaryParenthesesInspectionTestBase extends ScalaInspectionTestBase {
@@ -49,7 +49,8 @@ abstract class ScalaUnnecessaryParenthesesInspectionTestBase extends ScalaInspec
   }
 
   protected def checkTextHasErrors(text: String): Unit = {
-    val TestPrepareResult(fileText, expectedHighlights, actualHighlights) = configureByText(text)
+    val expectedHighlights = configureByText(text)
+    val actualHighlights = findMatchingHighlightings(text)
     val expectedParenthesesHighlights: Seq[ExpectedHighlight] = {
       val ExpectedHighlight(range) = expectedHighlights.head
       val left = TextRange.from(range.getStartOffset, 1)
@@ -62,7 +63,7 @@ abstract class ScalaUnnecessaryParenthesesInspectionTestBase extends ScalaInspec
       }
       ranges.map(ExpectedHighlight)
     }
-    super.checkTextHasError(expectedParenthesesHighlights, actualHighlights, allowAdditionalHighlights = true, fileText)
+    super.assertTextHasError(expectedParenthesesHighlights, actualHighlights, allowAdditionalHighlights = true)
   }
 }
 

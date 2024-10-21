@@ -7,7 +7,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.testFramework.PsiTestUtil
 import com.intellij.util.PathUtil
-import org.jetbrains.plugins.scala.codeInspection.{ScalaAnnotatorQuickFixTestBase, ScalaInspectionTestBase}
+import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionTestBase, ScalaQuickFixTestFixture}
 import org.jetbrains.plugins.scala.uast.platform_inspections.NonExtendableApiUsageInspectionTest.HighlightMessage
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 
@@ -131,9 +131,8 @@ class NonExtendableApiUsageInspectionTest extends ScalaInspectionTestBase {
         |}
         |""".stripMargin
 
-    //NOTE: here I use `configureByText` not as it was originally intended by configureByText
-    // this is because I want to test each inspection message more fine-grainy
-    val ScalaAnnotatorQuickFixTestBase.TestPrepareResult(_, _, actualHighlights) = configureByText(text)
+    configureByText(text)
+    val actualHighlights = findMatchingHighlightings(text)
 
     val actualHighlightMessages: Seq[HighlightMessage] = actualHighlights.map(HighlightMessage.apply)
     assertCollectionEquals(
@@ -185,9 +184,8 @@ class NonExtendableApiUsageInspectionTest extends ScalaInspectionTestBase {
         |trait MyTopicTrait extends Topic
         |""".stripMargin
 
-    //NOTE: here I use `configureByText` not as it was originally intended by configureByText
-    // this is because I want to test each inspection message more fine-grainy
-    val ScalaAnnotatorQuickFixTestBase.TestPrepareResult(_, _, actualHighlights) = configureByText(text)
+    configureByText(text)
+    val actualHighlights = findMatchingHighlightings(text)
 
     val actualHighlightMessages: Seq[HighlightMessage] = actualHighlights.map(HighlightMessage.apply)
     assertCollectionEquals(

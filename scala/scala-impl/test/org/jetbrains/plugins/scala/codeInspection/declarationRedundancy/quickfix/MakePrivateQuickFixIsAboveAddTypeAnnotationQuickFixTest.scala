@@ -68,7 +68,8 @@ class MakePrivateQuickFixIsAboveAddTypeAnnotationQuickFixTest extends ScalaAnnot
 
   //noinspection SameParameterValue
   private def configureByTextAndGetHighlightsFor(fileText: String, highlightedElementText: String): Seq[HighlightInfo] = {
-    val highlightsAllInFile = configureByText(fileText).actualHighlights
+    configureByText(fileText)
+    val highlightsAllInFile = findMatchingHighlightings(fileText)
     highlightsAllInFile.filter(_.getText == highlightedElementText).filter(_.getDescription != null)
   }
 

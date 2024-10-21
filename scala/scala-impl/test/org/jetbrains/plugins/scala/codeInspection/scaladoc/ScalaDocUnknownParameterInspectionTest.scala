@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.scaladoc
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.lang.annotation.HighlightSeverity
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.codeInspection.ScalaAnnotatorQuickFixTestBase.TestPrepareResult
+import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestFixture.TestPrepareResult
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 
@@ -133,9 +133,8 @@ class ScalaDocUnknownParameterInspectionTest extends ScalaDocUnknownParameterIns
   private case class ExpectedHighlight(severity: HighlightSeverity, text: String, description: String)
 
   private def assertTextHasMessages(text: String, expectedHighlights: Seq[ExpectedHighlight]): Seq[HighlightInfo] = {
-    val configured: TestPrepareResult = configureByText(text)
-
-    val actualHighlights = configured.actualHighlights
+    configureByText(text)
+    val actualHighlights = findMatchingHighlightings(text)
     val actualHighlightsShort = actualHighlights.map { h => ExpectedHighlight(h.getSeverity, h.getText, h.getDescription) }
     assertCollectionEquals(
       expectedHighlights,

@@ -9,7 +9,9 @@ class ReferencePassedToNlsInspectionTest extends ScalaInspectionTestBase {
 
   override protected val description = ScalaI18nBundle.message("internal.expression.without.nls.passed.to.nls")
 
-  override protected def configureByText(text: String): ScalaAnnotatorQuickFixTestBase.TestPrepareResult = {
+  protected override def setUp(): Unit = {
+    super.setUp()
+
     myFixture.addFileToProject(
       "org/jetbrains/annotations/nls.java",
       """
@@ -26,7 +28,6 @@ class ReferencePassedToNlsInspectionTest extends ScalaInspectionTestBase {
         |
         |""".stripMargin
     )
-    super.configureByText(text)
   }
 
   override protected def createTestText(text: String): String =
