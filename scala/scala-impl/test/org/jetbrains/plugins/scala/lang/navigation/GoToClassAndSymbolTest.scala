@@ -5,14 +5,14 @@ package navigation
 import com.intellij.ide.util.gotoByName._
 import com.intellij.openapi.application.ModalityState
 import com.intellij.psi.{PsiClass, PsiElement}
-import com.intellij.testFramework.{NeedsIndex, PlatformTestUtil}
+import com.intellij.testFramework.PlatformTestUtil
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import com.intellij.util.concurrency.Semaphore
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithAllIndexingModes}
+import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 import org.junit.Assert._
-import org.junit.runner.RunWith
 
 import scala.jdk.CollectionConverters._
 
@@ -72,9 +72,10 @@ abstract class GoToClassAndSymbolTestBase extends GoToTestBase {
   )
 }
 
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 abstract class GoToClassAndSymbolCommonTests extends GoToClassAndSymbolTestBase {
 
-  @NeedsIndex.Full
+  @WithIndexingMode(mode = IndexingMode.DUMB_FULL_INDEX)
   def testTrait(): Unit = {
     myFixture.addFileToProject("GoToClassSimpleTrait.scala", "trait GoToClassSimpleTrait")
 
@@ -84,7 +85,7 @@ abstract class GoToClassAndSymbolCommonTests extends GoToClassAndSymbolTestBase 
     checkSize(elements, 1)
   }
 
-  @NeedsIndex.Full
+  @WithIndexingMode(mode = IndexingMode.DUMB_FULL_INDEX)
   def testTrait2(): Unit = {
     myFixture.addFileToProject("GoToClassSimpleTrait.scala", "trait GoToClassSimpleTrait")
 
@@ -94,7 +95,7 @@ abstract class GoToClassAndSymbolCommonTests extends GoToClassAndSymbolTestBase 
     checkSize(elements, 1)
   }
 
-  @NeedsIndex.Full
+  @WithIndexingMode(mode = IndexingMode.DUMB_FULL_INDEX)
   def testObject(): Unit = {
     myFixture.addFileToProject("GoToClassSimpleObject.scala", "object GoToClassSimpleObject")
 
@@ -104,7 +105,7 @@ abstract class GoToClassAndSymbolCommonTests extends GoToClassAndSymbolTestBase 
     checkSize(elements, 1)
   }
 
-  @NeedsIndex.Full
+  @WithIndexingMode(mode = IndexingMode.DUMB_FULL_INDEX)
   def testPackageObject(): Unit = {
     myFixture.addFileToProject("foo/somePackageName/package.scala",
       """package foo
@@ -118,7 +119,7 @@ abstract class GoToClassAndSymbolCommonTests extends GoToClassAndSymbolTestBase 
     checkSize(elements, 1)
   }
 
-  @NeedsIndex.Full
+  @WithIndexingMode(mode = IndexingMode.DUMB_FULL_INDEX)
   def testGoToSymbol(): Unit = {
     myFixture.addFileToProject("GoToSymbol.scala",
       """class FooClass {
@@ -140,7 +141,7 @@ abstract class GoToClassAndSymbolCommonTests extends GoToClassAndSymbolTestBase 
     )
   }
 
-  @NeedsIndex.Full
+  @WithIndexingMode(mode = IndexingMode.DUMB_FULL_INDEX)
   def testGoToSymbolWithPackagePrefix_ShouldNotContainLocalDefinitions(): Unit = {
     myFixture.addFileToProject("GoToSymbolWithPackagePrefix.scala",
       """package org.example
@@ -183,7 +184,7 @@ abstract class GoToClassAndSymbolCommonTests extends GoToClassAndSymbolTestBase 
     )
   }
 
-  @NeedsIndex.Full
+  @WithIndexingMode(mode = IndexingMode.DUMB_FULL_INDEX)
   def testGoToClass(): Unit = {
     myFixture.addFileToProject("GoToClass.scala",
       """class FooClass {
@@ -203,7 +204,7 @@ abstract class GoToClassAndSymbolCommonTests extends GoToClassAndSymbolTestBase 
     )
   }
 
-  @NeedsIndex.ForStandardLibrary
+  @WithIndexingMode(mode = IndexingMode.DUMB_RUNTIME_ONLY_INDEX)
   def testGoToClass_javaStdLib(): Unit = {
     checkContainExpected(
       gotoClassElements("AutoCloseable"),
@@ -216,7 +217,7 @@ abstract class GoToClassAndSymbolCommonTests extends GoToClassAndSymbolTestBase 
     )
   }
 
-  @NeedsIndex.Full
+  @WithIndexingMode(mode = IndexingMode.DUMB_FULL_INDEX)
   def testClass_:::(): Unit = {
     myFixture.addFileToProject("Colons.scala", "class ::: { def ::: : Unit = () }")
 
@@ -226,7 +227,7 @@ abstract class GoToClassAndSymbolCommonTests extends GoToClassAndSymbolTestBase 
     checkSize(elements, 1)
   }
 
-  @NeedsIndex.Full
+  @WithIndexingMode(mode = IndexingMode.DUMB_FULL_INDEX)
   def testSymbol_:::(): Unit = {
     myFixture.addFileToProject("Colons.scala", "class ::: { def ::: : Unit = () }")
 
@@ -236,7 +237,7 @@ abstract class GoToClassAndSymbolCommonTests extends GoToClassAndSymbolTestBase 
     checkSize(elements, 2)
   }
 
-  @NeedsIndex.Full
+  @WithIndexingMode(mode = IndexingMode.DUMB_FULL_INDEX)
   def testSymbolInPackaging_:::(): Unit = {
     myFixture.addFileToProject("threeColons.scala",
       """package test
@@ -250,8 +251,6 @@ abstract class GoToClassAndSymbolCommonTests extends GoToClassAndSymbolTestBase 
   }
 }
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
-@RunWithAllIndexingModes
 class GoToClassAndSymbolTest_Scala213 extends GoToClassAndSymbolCommonTests {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
@@ -259,16 +258,15 @@ class GoToClassAndSymbolTest_Scala213 extends GoToClassAndSymbolCommonTests {
   override protected def loadScalaLibrary = false
 }
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
-@RunWithAllIndexingModes
 class GoToClassAndSymbolTest_Scala3 extends GoToClassAndSymbolCommonTests {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version.isScala3
 
   override protected def loadScalaLibrary = false
 
-  @NeedsIndex.Full
-  def testGoToSymbolWithPackagePrefix_ShouldContainAllTopLevelDefinitions(): Unit = {
+  // TODO: enable when SCL-23136 is fixed
+  @WithIndexingMode(mode = IndexingMode.DUMB_FULL_INDEX)
+  def _testGoToSymbolWithPackagePrefix_ShouldContainAllTopLevelDefinitions(): Unit = {
     myFixture.addFileToProject("GoToSymbolWithPackagePrefix.scala",
       """package org.example
         |

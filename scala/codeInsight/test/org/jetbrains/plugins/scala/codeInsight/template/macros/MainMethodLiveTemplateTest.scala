@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.codeInsight.template.macros
 
 import com.intellij.codeInsight.template.impl.LiveTemplateCompletionContributor
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.base.ScalaCodeInsightTestFixture
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestFixture
 
 class MainMethodLiveTemplateTest extends ScalaLiveTemplateTestBase {
@@ -12,13 +11,15 @@ class MainMethodLiveTemplateTest extends ScalaLiveTemplateTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version == ScalaVersion.Latest.Scala_3
 
-  private lazy val scalaCompletionFixture: ScalaCompletionTestFixture =
-    new ScalaCompletionTestFixture(new ScalaCodeInsightTestFixture(myFixture))
+  private[this] var _scalaCompletionFixture: ScalaCompletionTestFixture = _
+  private def scalaCompletionFixture: ScalaCompletionTestFixture = _scalaCompletionFixture
 
   override def setUp(): Unit = {
     super.setUp()
-    //initialize lazy val fixtures
-    scalaCompletionFixture
+
+    // pick up updated scala and java fixtures after super.setUp()
+    _scalaCompletionFixture = new ScalaCompletionTestFixture(scalaFixture)
+
     LiveTemplateCompletionContributor.setShowTemplatesInTests(true, this.getTestRootDisposable)
   }
 

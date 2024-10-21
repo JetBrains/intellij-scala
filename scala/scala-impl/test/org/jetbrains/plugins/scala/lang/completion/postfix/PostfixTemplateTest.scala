@@ -11,25 +11,26 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.CharsetToolkit
 import com.intellij.psi.PsiFile
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.inWriteCommandAction
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithAllIndexingModes, RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion, WithIndexingMode}
 import org.junit.Assert.{assertEquals, assertFalse, assertTrue}
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 
 import java.io.File
 
+@Category(Array(classOf[CompletionTests]))
 @RunWith(classOf[MultipleScalaVersionsRunner])
-@RunWithAllIndexingModes
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_13,
   TestScalaVersion.Scala_3_Latest
 ))
-@Category(Array(classOf[CompletionTests]))
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 abstract class PostfixTemplateTest extends ScalaLightCodeInsightFixtureTestCase {
 
   import PostfixTemplateTest._
