@@ -1527,6 +1527,12 @@ object ScalaPsiElementFactory {
   def createComma(implicit ctx: ProjectContext): PsiElement =
     createScalaFileFromText(",", ScalaFeatures.default).findChildrenByType(tCOMMA).head
 
+  def createLBrace(implicit ctx: ProjectContext): PsiElement =
+    createElementFromText[ScBlockExpr]("{}", ScalaFeatures.default).getLBrace.get
+
+  def createRBrace(implicit ctx: ProjectContext): PsiElement =
+    createElementFromText[ScBlockExpr]("{}", ScalaFeatures.default).getRBrace.get
+
   def createAssign(implicit ctx: ProjectContext): PsiElement =
     createElementFromText("val x = 0", ScalaFeatures.default)
 

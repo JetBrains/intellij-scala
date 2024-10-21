@@ -329,7 +329,7 @@ class ScalaDocQuickInfoGenerator(
 
   private def generateParameterInfo(buffer: StringBuilder, parameter: ScParameter): Unit =
     ScalaPsiUtil.findSyntheticContextBoundInfo(parameter) match {
-      case Some(ContextBoundInfo(typeParam, contextBoundType, _)) =>
+      case Some(ContextBoundInfo(typeParam, contextBoundType, _, _)) =>
         // this branch can be triggered when showing, test on this example (expand all implicit hints):
         // trait Show[T]
         //  def foo[T : Show](x: T): String = implicitly

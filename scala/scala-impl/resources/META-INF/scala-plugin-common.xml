@@ -1250,6 +1250,12 @@
                          groupPath="Scala" groupKey="group.general"
                          shortName="DeprecatedViewBound" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.implicits.OldStyleAggregateContextBoundsInspection"
+                         bundle="messages.ScalaInspectionBundle"
+                         key="displayname.old.style.aggregate.context.bounds.are.deprecated"
+                         groupPath="Scala" groupKey="group.general"
+                         shortName="DeprecatedAggregateContextBounds" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.modifiers.RedundantFinalOnToplevelObjectInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="final.modifier.is.redundant.for.toplevel.objects"
