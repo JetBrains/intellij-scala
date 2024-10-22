@@ -1,9 +1,12 @@
 package org.jetbrains.plugins.scala.codeInspection.modifier
 
 import com.intellij.codeInspection.LocalInspectionTool
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import org.jetbrains.plugins.scala.codeInspection.modifiers.MarkInnerCaseObjectsAsFinal
 import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
+import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 class MarkInnerCaseObjectsAsFinalTest extends ScalaInspectionTestBase {
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =

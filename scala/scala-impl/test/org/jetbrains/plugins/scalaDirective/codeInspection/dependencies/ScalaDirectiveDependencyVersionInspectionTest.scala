@@ -1,12 +1,15 @@
 package org.jetbrains.plugins.scalaDirective.codeInspection.dependencies
 
 import com.intellij.codeInspection.LocalInspectionTool
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
 import org.jetbrains.plugins.scala.packagesearch.api.PackageSearchClientTesting
 import org.jetbrains.plugins.scala.packagesearch.util.DependencyUtil
+import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scalaDirective.ScalaDirectiveBundle
 
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 abstract class ScalaDirectiveDependencyVersionInspectionTestBase
   extends ScalaInspectionTestBase
     with PackageSearchClientTesting {

@@ -1,7 +1,10 @@
 package org.jetbrains.plugins.scala.codeInspection.scaladoc
 
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
+import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 class ScalaDocUnbalancedHeaderInspection1Test extends ScalaInspectionTestBase {
 
   override protected val classOfInspection = classOf[ScalaDocUnbalancedHeaderInspection]

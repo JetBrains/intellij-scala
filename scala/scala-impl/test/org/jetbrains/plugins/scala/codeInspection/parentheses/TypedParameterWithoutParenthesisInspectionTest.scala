@@ -4,10 +4,13 @@ package parentheses
 
 import com.intellij.codeHighlighting.HighlightDisplayLevel
 import com.intellij.codeInspection.LocalInspectionTool
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.codeInspection.parameters.TypedParameterWithoutParenthesisInspection
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 class TypedParameterWithoutParenthesisInspectionTest extends InspectionSeverityForcingScalaInspectionTestBase {
 
   import CodeInsightTestFixture.CARET_MARKER
@@ -21,7 +24,6 @@ class TypedParameterWithoutParenthesisInspectionTest extends InspectionSeverityF
     HighlightDisplayLevel.WARNING
 
   val hint = ScalaInspectionBundle.message("surround.with.parenthesis")
-
 
   def test_typed_brace(): Unit = {
     val selected =

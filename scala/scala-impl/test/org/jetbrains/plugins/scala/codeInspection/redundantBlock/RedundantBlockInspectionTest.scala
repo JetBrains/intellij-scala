@@ -1,7 +1,10 @@
 package org.jetbrains.plugins.scala.codeInspection.redundantBlock
 
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
+import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 class RedundantBlockInspectionTest extends ScalaInspectionTestBase {
   override protected val classOfInspection = classOf[RedundantBlockInspection]
   override protected val description =

@@ -3,7 +3,10 @@ package codeInspection
 package xml
 
 import com.intellij.codeInspection.LocalInspectionTool
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
+import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 abstract class XmlUnmatchedTagInspectionTest extends ScalaInspectionTestBase {
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
