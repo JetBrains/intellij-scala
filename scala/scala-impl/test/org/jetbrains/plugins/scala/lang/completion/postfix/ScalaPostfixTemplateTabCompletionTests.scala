@@ -7,20 +7,22 @@ import com.intellij.codeInsight.template.postfix.completion.PostfixTemplateLooku
 import com.intellij.codeInsight.template.postfix.templates.PostfixTemplate
 import com.intellij.openapi.application.impl.NonBlockingReadActionImpl
 import com.intellij.openapi.util.Condition
+import com.intellij.testFramework.EdtTestUtil
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import com.intellij.testFramework.UsefulTestCase.{assertNotEmpty, assertSize}
-import com.intellij.testFramework.{EdtTestUtil, NeedsIndex}
 import com.intellij.util.containers.ContainerUtil
 import junit.framework.TestCase.{assertNotNull, assertNull, fail}
 import org.jetbrains.plugins.scala.base.ScalaCompletionAutoPopupTestCase
 import org.jetbrains.plugins.scala.lang.completion.postfix.templates.{ScalaExhaustiveMatchPostfixTemplate, ScalaMatchPostfixTemplate}
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestFixture.lookupItemsDebugText
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithAllIndexingModes, RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion, WithIndexingMode}
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 @Category(Array(classOf[CompletionTests]))
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 abstract class ScalaPostfixTemplateTabCompletionTestBase extends ScalaCompletionAutoPopupTestCase {
   private val tab = "\t"
   private val resultFilePostfix = "-after.scala"
@@ -65,29 +67,28 @@ abstract class ScalaPostfixTemplateTabCompletionTestBase extends ScalaCompletion
 }
 
 @RunWith(classOf[MultipleScalaVersionsRunner])
-@RunWithAllIndexingModes
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_13,
   TestScalaVersion.Scala_3_Latest,
 ))
 class ScalaPostfixTemplateTabCompletionTest extends ScalaPostfixTemplateTabCompletionTestBase {
 
-  @NeedsIndex.SmartMode(reason = "`assert` needs type inference to check conformance with Boolean")
+  @WithIndexingMode(mode = IndexingMode.SMART, reason = "`assert` needs type inference to check conformance with Boolean")
   def testAssert(): Unit = doTestUniqueKeyTemplate()()
 
   def testCast(): Unit = doTestUniqueKeyTemplate()()
 
-  @NeedsIndex.SmartMode(reason = "`for` needs type inference to check sameOrInheritor")
+  @WithIndexingMode(mode = IndexingMode.SMART, reason = "`for` needs type inference to check sameOrInheritor")
   def testFor(): Unit = doTestUniqueKeyTemplate()()
 
   def testField(): Unit = doTestUniqueKeyTemplate()()
 
   def testVar(): Unit = doTestUniqueKeyTemplate()()
 
-  @NeedsIndex.SmartMode(reason = "`not` needs type inference to check conformance with Boolean")
+  @WithIndexingMode(mode = IndexingMode.SMART, reason = "`not` needs type inference to check conformance with Boolean")
   def testNot(): Unit = doTestUniqueKeyTemplate()()
 
-  @NeedsIndex.SmartMode(reason = "`!` needs type inference to check conformance with Boolean")
+  @WithIndexingMode(mode = IndexingMode.SMART, reason = "`!` needs type inference to check conformance with Boolean")
   def testNotBang(): Unit = doTestUniqueKeyTemplate("not")("!")
 
   def testPar(): Unit = doTestUniqueKeyTemplate()()
@@ -98,22 +99,22 @@ class ScalaPostfixTemplateTabCompletionTest extends ScalaPostfixTemplateTabCompl
 
   def testPrtln(): Unit = doTestUniqueKeyTemplate("println")(".prtln")
 
-  @NeedsIndex.SmartMode(reason = "`throw` needs type inference to check sameOrInheritor")
+  @WithIndexingMode(mode = IndexingMode.SMART, reason = "`throw` needs type inference to check sameOrInheritor")
   def testThrow(): Unit = doTestUniqueKeyTemplate()()
 
-  @NeedsIndex.SmartMode(reason = "`while` needs type inference to check conformance with Boolean")
+  @WithIndexingMode(mode = IndexingMode.SMART, reason = "`while` needs type inference to check conformance with Boolean")
   def testWhile(): Unit = doTestUniqueKeyTemplate()()
 
-  @NeedsIndex.SmartMode(reason = "`do-while` needs type inference to check conformance with Boolean")
+  @WithIndexingMode(mode = IndexingMode.SMART, reason = "`do-while` needs type inference to check conformance with Boolean")
   def testDoWhile(): Unit = doTestUniqueKeyTemplate()(".dowhile")
 
-  @NeedsIndex.SmartMode(reason = "`null` needs type inference to check conformance with AnyRef")
+  @WithIndexingMode(mode = IndexingMode.SMART, reason = "`null` needs type inference to check conformance with AnyRef")
   def testIsNull(): Unit = doTestUniqueKeyTemplate()(".null")
 
-  @NeedsIndex.SmartMode(reason = "`notnull` needs type inference to check conformance with AnyRef")
+  @WithIndexingMode(mode = IndexingMode.SMART, reason = "`notnull` needs type inference to check conformance with AnyRef")
   def testNotNull(): Unit = doTestUniqueKeyTemplate()(".notnull")
 
-  @NeedsIndex.SmartMode(reason = "`nn` needs type inference to check conformance with AnyRef")
+  @WithIndexingMode(mode = IndexingMode.SMART, reason = "`nn` needs type inference to check conformance with AnyRef")
   def testNotNullNn(): Unit = doTestUniqueKeyTemplate("notNull")(".nn")
 
   def testOption(): Unit = doTestUniqueKeyTemplate()(".Option")
@@ -138,13 +139,12 @@ class ScalaPostfixTemplateTabCompletionTest extends ScalaPostfixTemplateTabCompl
   }
 }
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
-@RunWithAllIndexingModes
-@RunWithScalaVersions(Array(TestScalaVersion.Scala_2_13))
 class ScalaPostfixTemplateTabCompletionTest_2_13 extends ScalaPostfixTemplateTabCompletionTestBase {
+  override def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
+
   def testMatch(): Unit = doTest(classOf[ScalaMatchPostfixTemplate])()
 
-  @NeedsIndex.SmartMode(reason = "exhaustive match needs type inference")
+  @WithIndexingMode(mode = IndexingMode.SMART, reason = "exhaustive match needs type inference")
   def testExhaustiveMatch(): Unit = doTest(classOf[ScalaExhaustiveMatchPostfixTemplate])(".match")
 
   def testTry(): Unit = doTestUniqueKeyTemplate()()
@@ -154,15 +154,14 @@ class ScalaPostfixTemplateTabCompletionTest_2_13 extends ScalaPostfixTemplateTab
   def testIf(): Unit = doTestUniqueKeyTemplate()()
 }
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
-@RunWithAllIndexingModes
-@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
 class ScalaPostfixTemplateTabCompletionTest_3_Latest extends ScalaPostfixTemplateTabCompletionTestBase {
+  override def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
+
   override def getTestDataPath: String = super.getTestDataPath + "/scala3"
 
   def testMatch(): Unit = doTest(classOf[ScalaMatchPostfixTemplate])()
 
-  @NeedsIndex.SmartMode(reason = "exhaustive match needs type inference")
+  @WithIndexingMode(mode = IndexingMode.SMART, reason = "exhaustive match needs type inference")
   def testExhaustiveMatch(): Unit = doTest(classOf[ScalaExhaustiveMatchPostfixTemplate])(".match")
 
   def testTry(): Unit = doTestUniqueKeyTemplate()()
