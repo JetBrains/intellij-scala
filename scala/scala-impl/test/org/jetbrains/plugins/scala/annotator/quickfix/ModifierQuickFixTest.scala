@@ -1,11 +1,14 @@
 package org.jetbrains.plugins.scala.annotator.quickfix
 
 import com.intellij.psi.{PsiElement, PsiFile}
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inWriteAction, inWriteCommandAction}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
+import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 class ModifierQuickFixTest extends ScalaLightCodeInsightFixtureTestCase {
   private def doTestWithModifier(makeQuickfix: PsiFile => ModifierQuickFix)
                                 (before: String, after: String): Unit = {

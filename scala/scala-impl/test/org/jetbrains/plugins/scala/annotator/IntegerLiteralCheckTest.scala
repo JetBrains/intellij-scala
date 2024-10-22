@@ -1,22 +1,37 @@
 package org.jetbrains.plugins.scala
 package annotator
 
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
+import com.intellij.codeInsight.daemon.impl.DaemonCodeAnalyzerImpl
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScIntegerLiteral
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
+import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 
 import scala.collection.immutable.SortedMap
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 abstract class IntegerLiteralCheckTestBase(supportsOctal: Boolean,
                                            supportsUnderscore: Boolean,
                                            supportsBinary: Boolean,
                                            supports0Prefix: Boolean)
-  extends ScalaLightCodeInsightFixtureTestCase with AssertionMatchers
-{
+  extends ScalaLightCodeInsightFixtureTestCase
+    with AssertionMatchers {
+  override protected def setUp(): Unit = {
+    super.setUp()
+
+    // SCL-21849
+    if (getIndexingMode != IndexingMode.SMART) {
+      DaemonCodeAnalyzer.getInstance(getProject())
+        .asOptionOf[DaemonCodeAnalyzerImpl]
+        .foreach(_.mustWaitForSmartMode(false, getTestRootDisposable))
+    }
+  }
+
   def test0(): Unit = checkTextHasNoErrors("0")
 
   def testFine(): Unit = {
@@ -76,7 +91,6 @@ abstract class IntegerLiteralCheckTestBase(supportsOctal: Boolean,
       .flatMap(appendL)
 
     val allStrings = overflowLongStrings ++ overflowLongStringsWithL ++ Seq("9223372036854775808l", "-9223372036854775809l")
-
 
     val messages =
       highlightingInfos(

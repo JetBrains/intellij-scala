@@ -7,13 +7,15 @@ import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
 import com.intellij.openapi.roots.ModuleRootModificationUtil
 import com.intellij.openapi.util.registry.Registry
-import com.intellij.testFramework.fixtures.CodeInsightFixtureTestCase
-import com.intellij.testFramework.{EditorTestUtil, IdeaTestUtil, IndexingTestUtil}
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
+import com.intellij.testFramework.builders.ModuleFixtureBuilder
+import com.intellij.testFramework.fixtures.{CodeInsightFixtureTestCase, IndexingModeCodeInsightTestFixture}
+import com.intellij.testFramework.{EditorTestUtil, IdeaTestUtil}
 import com.intellij.util.lang.JavaVersion
 import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ScalaSDKLoader}
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 
-abstract class ScalaFixtureTestCase extends CodeInsightFixtureTestCase with ScalaSdkOwner {
+abstract class ScalaFixtureTestCase extends CodeInsightFixtureTestCase[ModuleFixtureBuilder[_]] with ScalaSdkOwner {
 
   protected val CARET = EditorTestUtil.CARET_TAG
 
@@ -40,11 +42,27 @@ abstract class ScalaFixtureTestCase extends CodeInsightFixtureTestCase with Scal
     }
   )
 
+  //start section: indexing mode setup
+  private[this] var indexingMode: IndexingMode = IndexingMode.SMART
+
+  // SCL-21849
+  protected def getIndexingMode: IndexingMode = indexingMode
+  protected def setIndexingMode(mode: IndexingMode): Unit = indexingMode = mode
+  //end section: indexing mode setup
+
   override protected def setUp(): Unit = {
     super.setUp()
     setUpLibraries(myModule)
-    IndexingTestUtil.waitUntilIndexesAreReady(getProject)
+
     Registry.get("ast.loading.filter").setValue(true, getTestRootDisposable)
+  }
+
+  override def tuneFixture(moduleBuilder: ModuleFixtureBuilder[_]): Unit = {
+    super.tuneFixture(moduleBuilder)
+
+    indexingMode = this.findIndexingModeAnnotation()
+      .fold(IndexingMode.SMART)(_.mode())
+    myFixture = IndexingModeCodeInsightTestFixture.Companion.wrapFixture(myFixture, indexingMode)
   }
 
   override def tearDown(): Unit = {

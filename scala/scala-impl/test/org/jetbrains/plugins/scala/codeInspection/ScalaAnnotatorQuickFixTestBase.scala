@@ -1,14 +1,16 @@
 package org.jetbrains.plugins.scala.codeInspection
 
-import com.intellij.codeInsight.daemon.impl.HighlightInfo
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
+import com.intellij.codeInsight.daemon.impl.{DaemonCodeAnalyzerImpl, HighlightInfo}
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.ide.scratch.ScratchRootType
 import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.codeInspection.ScalaAnnotatorQuickFixTestBase.{ExpectedHighlight, TestPrepareResult, checkOffset}
-import org.jetbrains.plugins.scala.extensions.{HighlightInfoExt, NonNullObjectExt, StringExt, executeWriteActionCommand}
+import org.jetbrains.plugins.scala.extensions.{HighlightInfoExt, NonNullObjectExt, ObjectExt, StringExt, executeWriteActionCommand}
 import org.jetbrains.plugins.scala.util.MarkersUtils
 import org.jetbrains.plugins.scala.{EditorTests, ScalaFileType}
 import org.junit.Assert.{assertFalse, assertTrue, fail}
@@ -18,6 +20,17 @@ import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 @Category(Array(classOf[EditorTests]))
 abstract class ScalaAnnotatorQuickFixTestBase extends ScalaLightCodeInsightFixtureTestCase {
+
+  override protected def setUp(): Unit = {
+    super.setUp()
+
+    // SCL-21849
+    if (getIndexingMode != IndexingMode.SMART) {
+      DaemonCodeAnalyzer.getInstance(getProject())
+        .asOptionOf[DaemonCodeAnalyzerImpl]
+        .foreach(_.mustWaitForSmartMode(false, getTestRootDisposable))
+    }
+  }
 
   import ScalaAnnotatorQuickFixTestBase.quickFixes
 

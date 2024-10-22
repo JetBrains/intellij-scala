@@ -1,16 +1,16 @@
 package org.jetbrains.plugins.scala.annotator
 
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import org.jetbrains.plugins.scala.DependencyManagerBase._
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaBundle, ScalaVersion}
 import org.jetbrains.plugins.scala.annotator.Message._
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaBundle, ScalaVersion}
 
 abstract class ForComprehensionHighlightingTestBase extends ScalaHighlightingTestBase
 
 class ForComprehensionHighlightingTest extends ForComprehensionHighlightingTestBase {
-
-
   def test_guard_type(): Unit = {
     val code =
       """
@@ -277,8 +277,6 @@ class ForComprehensionHighlightingTest extends ForComprehensionHighlightingTestB
 }
 
 class ForComprehensionHighlightingTest_with_cats_2_12 extends ForComprehensionHighlightingTestBase {
-
-
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 
   override def librariesLoaders: Seq[LibraryLoader] =
@@ -303,8 +301,6 @@ class ForComprehensionHighlightingTest_with_cats_2_12 extends ForComprehensionHi
 }
 
 class ForComprehensionHighlightingTest_without_filter extends ForComprehensionHighlightingTestBase {
-
-
   override protected def supportedIn(version: ScalaVersion): Boolean = version > LatestScalaVersions.Scala_2_11
 
   def test_filterOnly(): Unit = {
@@ -330,8 +326,6 @@ class ForComprehensionHighlightingTest_without_filter extends ForComprehensionHi
 }
 
 class ForComprehensionHighlightingTest_with_filter extends ForComprehensionHighlightingTestBase {
-
-
   override protected def supportedIn(version: ScalaVersion): Boolean = version <= LatestScalaVersions.Scala_2_11
 
   def testSCL17260(): Unit = assertNothing(errorsFromScalaCode(
@@ -452,8 +446,6 @@ class ForComprehensionHighlightingTest_with_filter extends ForComprehensionHighl
 }
 
 class ForComprehensionHighlightingTest_with_BetterMonadicFor extends ForComprehensionHighlightingTestBase {
-
-
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= LatestScalaVersions.Scala_2_12 && version < LatestScalaVersions.Scala_3_0
 
@@ -486,6 +478,7 @@ class ForComprehensionHighlightingTest_with_BetterMonadicFor extends ForComprehe
   }
 }
 
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 class ForComprehensionSemicolonTest extends ForComprehensionHighlightingTestBase {
 
   import org.junit.Assert.assertEquals
@@ -512,7 +505,6 @@ class ForComprehensionSemicolonTest extends ForComprehensionHighlightingTestBase
 }
 
 abstract class ForComprehensionRefutabilityTestBase_3 extends ForComprehensionHighlightingTestBase {
-
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_3
 
   def test_case_simple(): Unit = {
@@ -605,7 +597,6 @@ class ForComprehensionRefutabilityTest_3_3_future extends ForComprehensionRefuta
 }
 
 class ForComprehensionRefutabilityTest_From_3_4 extends ForComprehensionRefutabilityTestBase_3 {
-
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_4
 
   override def test_missing_withFilter(): Unit = {
