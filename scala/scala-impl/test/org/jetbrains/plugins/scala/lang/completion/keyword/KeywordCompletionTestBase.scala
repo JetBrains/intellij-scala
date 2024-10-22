@@ -7,11 +7,13 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.testFramework.EditorTestUtil
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaKeywordLookupItem.KeywordInsertHandler
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.TestUtils.ExpectedResultFromLastComment
+import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 import org.jetbrains.plugins.scala.{CompletionTests, ScalaVersion}
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
@@ -25,6 +27,7 @@ import scala.jdk.CollectionConverters._
  *  - [[org.jetbrains.plugins.scala.lang.completion3.Scala3KeywordCompletionTest]]
  */
 @Category(Array(classOf[CompletionTests]))
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 abstract class KeywordCompletionTestBase extends ScalaLightCodeInsightFixtureTestCase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_2_13
