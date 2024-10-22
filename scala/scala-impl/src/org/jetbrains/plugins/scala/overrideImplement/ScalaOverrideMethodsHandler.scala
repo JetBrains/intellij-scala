@@ -6,6 +6,9 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.ScalaCodeInsightActionHandler
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil.invokeOverrideImplement
 
+/**
+ * Handler for "Override methods" action (Ctrl + O)
+ */
 class ScalaOverrideMethodsHandler extends ScalaCodeInsightActionHandler {
   override def startInWriteAction: Boolean = false
 

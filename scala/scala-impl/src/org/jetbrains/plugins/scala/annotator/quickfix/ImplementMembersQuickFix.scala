@@ -16,7 +16,7 @@ final class ImplementMembersQuickFix(clazz: ScTemplateDefinition) extends Intent
     clazz.isValid && file.isWritable
 
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit =
-    ScalaOIUtil.invokeOverrideImplement(file, isImplement = true)(project, editor)
+    ScalaOIUtil.invokeOverrideImplement(clazz, isImplement = true, methodName = None)(project, editor)
 
   override def getFamilyName: String = ScalaBundle.message("implement.members.fix")
 }

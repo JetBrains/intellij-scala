@@ -13,7 +13,7 @@ import com.intellij.psi.PsiFile
 import com.intellij.testFramework.EditorTestUtil
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.ScalaFileType
-import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestFixture.{ExpectedHighlight, TestPrepareResult, checkOffset, findRegisteredQuickFixes}
+import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestFixture.{ExpectedHighlight, checkOffset, findRegisteredQuickFixes}
 import org.jetbrains.plugins.scala.extensions.{HighlightInfoExt, NonNullObjectExt, StringExt, executeWriteActionCommand}
 import org.jetbrains.plugins.scala.util.MarkersUtils
 import org.junit.Assert.{assertFalse, assertTrue, fail}
@@ -36,7 +36,8 @@ final class ScalaQuickFixTestFixture(
   isScratchFile: Boolean = false,
   @deprecated shouldPass: Boolean = true,
   onFileCreated: PsiFile => Unit = _ => (),
-  createTestText: String => String = identity
+  createTestText: String => String = identity,
+  trimExpectedText: Boolean = true
 ) {
 
   var descriptionMatcher: String => Boolean = _ == description.withNormalizedSeparator.trim
@@ -51,14 +52,14 @@ final class ScalaQuickFixTestFixture(
   protected val END: String = EditorTestUtil.SELECTION_END_TAG
   protected val CARET: String = EditorTestUtil.CARET_TAG
 
-  def testQuickFix(text: String, expected: String, hint: String, trimExpectedText: Boolean = true): Unit = {
+  def testQuickFix(text: String, expected: String, hint: String): Unit = {
     val action = doFindQuickFix(text, hint)
-    applyQuickFixesAndCheckExpected(Seq(action), expected, trimExpectedText)
+    applyQuickFixesAndCheckExpected(Seq(action), expected)
   }
 
-  def testQuickFixes(text: String, expected: String, hint: String, trimExpectedText: Boolean = true): Unit = {
+  def testQuickFixes(text: String, expected: String, hint: String): Unit = {
     val actions: Seq[IntentionAction] = doFindQuickFixes(text, hint)
-    applyQuickFixesAndCheckExpected(actions, expected, trimExpectedText)
+    applyQuickFixesAndCheckExpected(actions, expected)
   }
 
   def testQuickFixAllInFile(text: String, expected: String, hint: String): Unit =
@@ -71,8 +72,7 @@ final class ScalaQuickFixTestFixture(
 
   def applyQuickFixesAndCheckExpected(
     actions: Seq[IntentionAction],
-    expected: String,
-    trimExpectedText: Boolean = true
+    expected: String
   ): Unit = {
     executeWriteActionCommand() {
       actions.foreach(_.invoke(getProject, getEditor, getFile))

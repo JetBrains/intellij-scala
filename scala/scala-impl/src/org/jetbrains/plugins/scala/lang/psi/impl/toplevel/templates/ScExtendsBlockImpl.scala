@@ -73,9 +73,26 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
       }
     }
 
-    templateParents match {
-      case Some(parents: ScTemplateParents) => parents.superTypes.foreach(addType)
-      case _ => syntheticTypeElements.map(_.`type`().getOrAny).foreach(addType)
+    val typesFromSupers = templateParents match {
+      case Some(parents: ScTemplateParents) =>
+        parents.superTypes
+      case _ =>
+        syntheticTypeElements.map(_.`type`().getOrAny)
+    }
+    typesFromSupers.foreach(addType)
+
+    if (buffer.isEmpty) {
+      // Handle empty base class after the "new" keyword.
+      // Example: `def live: Test = new { def pure[A](value: A) = () }`
+      // In Scala 3, if there is no name of the base class in the of the anonymous class,
+      // we can use the class name of the expected type (see SCL-22565).
+      // In this case we highlight the "new" keyword.
+      this.getParent match {
+        case newTd: ScNewTemplateDefinition if this.isInScala3File =>
+          val expectedType = newTd.expectedType()
+          expectedType.filterByType[ScDesignatorType].foreach(addType)
+        case _ =>
+      }
     }
 
     if (isUnderCaseClass && !isInEnumCase) {

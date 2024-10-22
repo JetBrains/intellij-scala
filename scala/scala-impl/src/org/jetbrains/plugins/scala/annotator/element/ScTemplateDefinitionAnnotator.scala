@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.annotator.quickfix.{ImplementMembersQuickFix, ModifierQuickFix}
 import org.jetbrains.plugins.scala.annotator.template._
 import org.jetbrains.plugins.scala.extensions.{&, _}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaModifier, ScalaTokenType}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -227,14 +227,33 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
                                       (implicit holder: ScalaAnnotationHolder): Unit = {
     if (!element.is[ScNewTemplateDefinition, ScObject] || element.is[ScEnumSingletonCase]) return
 
-    val refs = superRefs(element)
+    //(1: text range to use for error highlighting, 2: corresponding class
+    val _superRefs: Seq[(TextRange, PsiClass)] = if (element.extendsBlock.templateParents.nonEmpty)
+      superRefs(element)
+    else {
+      // Handle empty base class after the "new" keyword.
+      // Example: `def live: Test = new { def pure[A](value: A) = () }`
+      // In Scala 3, if there is no name of the base class in the of the anonymous class,
+      // we can use the class name of the expected type (see SCL-22565).
+      // In this case we highlight the "new" keyword.
+      element match {
+        case newTd: ScNewTemplateDefinition if element.isInScala3File =>
+          (for {
+            expectedType <- newTd.expectedType()
+            clazz <- expectedType.extractClass
+            newKeyword <- newTd.findFirstChildByType(ScalaTokenType.NewKeyword)
+          } yield (newKeyword.getTextRange, clazz)).toSeq
+        case _ =>
+          Nil
+      }
+    }
 
-    val hasAbstract = refs.exists {
+    val hasAbstract= _superRefs.exists {
       case (_, clazz) => isAbstract(clazz)
     }
 
     if (hasAbstract) {
-      refs match {
+      _superRefs match {
         case (defaultRange, _) :: _ =>
           val undefined = for {
             member <- ScalaOIUtil.getMembersToImplement(element)

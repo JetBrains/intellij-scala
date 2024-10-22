@@ -387,9 +387,11 @@ class SimplifyBooleanMatchInspectionTest_Scala3 extends SimplifyBooleanMatchInsp
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= LatestScalaVersions.Scala_3_0
 
+  override protected def trimExpectedText: Boolean = false
+
   //noinspection JUnitMalformedDeclaration
   private def testQuickFix(text: String, result: String): Unit =
-    testQuickFix(text, result, hint, trimExpectedText = false)
+    testQuickFix(text, result, hint)
 
   def test_SingleTrueWithParenthesis_lessPatternSimpleBranches(): Unit = {
     val selectedText =

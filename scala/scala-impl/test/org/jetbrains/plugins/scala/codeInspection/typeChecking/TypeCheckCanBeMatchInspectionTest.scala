@@ -12,9 +12,11 @@ abstract class TypeCheckCanBeMatchInspectionTestBase extends ScalaInspectionTest
 
   private val hint: String = TypeCheckCanBeMatchInspection.inspectionName
 
+  override protected def trimExpectedText: Boolean = false
+
   //noinspection JUnitMalformedDeclaration
   protected def testQuickFix(text: String, result: String): Unit = {
-    testQuickFix(text, result, hint, trimExpectedText = false)
+    testQuickFix(text, result, hint)
   }
 }
 

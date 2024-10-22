@@ -106,7 +106,7 @@ object ScalaOIUtil {
                              (implicit project: Project, editor: Editor): Unit =
     invokeOverrideImplement(clazz, isImplement, None)
 
-  private def invokeOverrideImplement(
+  def invokeOverrideImplement(
     clazz: ScTemplateDefinition,
     isImplement: Boolean,
     methodName: Option[String]

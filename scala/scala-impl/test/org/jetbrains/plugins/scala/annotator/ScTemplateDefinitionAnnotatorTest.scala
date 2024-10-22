@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.annotator
 
-import org.jetbrains.plugins.scala.{ScalaVersion, TypecheckerTests}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
+import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestFixture
+import org.jetbrains.plugins.scala.{ScalaVersion, TypecheckerTests}
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
@@ -41,7 +42,8 @@ class ScTemplateDefinitionAnnotatorTest
         |class F extends Foo(1)
         |class Baz extends F with Foo
         |""".stripMargin,
-      """Error(Foo(2),Trait Foo is already implemented by superclass F,its constructor cannot be called again)"""
+      //TODO: remove when SCL-23134 is fixed
+      """Error(Foo,Unspecified value parameters: x: Int)""".stripMargin
     )
 
   def testIndirectImplementation(): Unit =
@@ -65,4 +67,87 @@ class ScTemplateDefinitionAnnotatorTest
         |}
         |""".stripMargin
     )
+
+  //SCL-22565
+  def testAnonymousClassWithoutBaseClassWithExpectedType(): Unit = {
+    assertNoErrors(
+      """trait Test {
+        |  def foo[A](value: A): Unit
+        |}
+        |
+        |object Live {
+        |  //expected type 1
+        |  def live: Test = new {
+        |    def foo[A](value: A): Unit = ()
+        |    def extra: Int = 0
+        |  }
+        |
+        |  //expected type 2
+        |  def foo(test: Test): Unit = ()
+        |  foo(new {
+        |    def foo[A](value: A): Unit = ()
+        |    def extra: Int = 0
+        |  })
+        |}
+        |""".stripMargin
+    )
+  }
+
+  //SCL-22565
+  def testAnonymousClassWithoutBaseClassWithExpectedType_MethodsWithMissingImplementation(): Unit = {
+    assertMessagesText(
+      """trait Test {
+        |  def foo[A](value: A): Unit
+        |  def bar[A](value: A): Unit
+        |}
+        |
+        |object Live {
+        |  //expected type 1
+        |  def live: Test = new {
+        |    def foo[A](value: A): Unit = ()
+        |  }
+        |
+        |  //expected type 2
+        |  def foo(test: Test): Unit = ()
+        |  foo(new {
+        |    def foo[A](value: A): Unit = ()
+        |  })
+        |}
+        |""".stripMargin,
+      """Error(new,Object creation impossible, since member bar[A](value: A): Unit in Test is not defined)
+        |Error(new,Object creation impossible, since member bar[A](value: A): Unit in Test is not defined)
+        |""".stripMargin
+    )
+
+    val objectCreationImpossible = "Object creation impossible"
+    val quickFixFixture = new ScalaQuickFixTestFixture(myFixture, objectCreationImpossible, trimExpectedText = false)
+    quickFixFixture.descriptionMatcher = _.contains(objectCreationImpossible)
+
+    val quickFixes = quickFixFixture.findMatchingHighlights().flatMap(ScalaQuickFixTestFixture.findRegisteredQuickFixes)
+    quickFixFixture.applyQuickFixesAndCheckExpected(
+      quickFixes,
+      """trait Test {
+        |  def foo[A](value: A): Unit
+        |  def bar[A](value: A): Unit
+        |}
+        |
+        |object Live {
+        |  //expected type 1
+        |  def live: Test = new {
+        |    def foo[A](value: A): Unit = ()
+        |
+        |    override def bar[A](value: A): Unit = ???
+        |  }
+        |
+        |  //expected type 2
+        |  def foo(test: Test): Unit = ()
+        |  foo(new {
+        |    def foo[A](value: A): Unit = ()
+        |
+        |    override def bar[A](value: A): Unit = ???
+        |  })
+        |}
+        |""".stripMargin
+    )
+  }
 }

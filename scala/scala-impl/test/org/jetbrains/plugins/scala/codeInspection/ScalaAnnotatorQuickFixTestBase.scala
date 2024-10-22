@@ -31,7 +31,8 @@ abstract class ScalaAnnotatorQuickFixTestBase extends ScalaLightCodeInsightFixtu
       isScratchFile = isScratchFile,
       shouldPass = shouldPass,
       onFileCreated = onFileCreated,
-      createTestText = createTestText
+      createTestText = createTestText,
+      trimExpectedText = trimExpectedText
     )
 
     scalaQuickFixFixture.descriptionMatcher = descriptionMatches
@@ -43,6 +44,7 @@ abstract class ScalaAnnotatorQuickFixTestBase extends ScalaLightCodeInsightFixtu
   protected def descriptionMatches(s: String): Boolean = s == description.withNormalizedSeparator.trim
   protected def onFileCreated(file: PsiFile): Unit = ()
   protected def createTestText(text: String): String = text
+  protected def trimExpectedText: Boolean = true
 
   protected override def checkTextHasNoErrors(text: String): Unit = {
     configureByText(text)
@@ -63,13 +65,13 @@ abstract class ScalaAnnotatorQuickFixTestBase extends ScalaLightCodeInsightFixtu
     scalaQuickFixFixture.configureByText(text)
 
   protected def findMatchingHighlightings(text: String): Seq[HighlightInfo] =
-    scalaQuickFixFixture.findMatchingHighlightings(text)
+    scalaQuickFixFixture.findMatchingHighlights(text)
 
-  protected def testQuickFix(text: String, expected: String, hint: String, trimExpectedText: Boolean = true): Unit =
-    scalaQuickFixFixture.testQuickFix(text, expected, hint, trimExpectedText)
+  protected def testQuickFix(text: String, expected: String, hint: String): Unit =
+    scalaQuickFixFixture.testQuickFix(text, expected, hint)
 
-  protected def testQuickFixes(text: String, expected: String, hint: String, trimExpectedText: Boolean = true): Unit =
-    scalaQuickFixFixture.testQuickFixes(text, expected, hint, trimExpectedText)
+  protected def testQuickFixes(text: String, expected: String, hint: String): Unit =
+    scalaQuickFixFixture.testQuickFixes(text, expected, hint)
 
   protected def testQuickFixAllInFile(text: String, expected: String, hint: String): Unit =
     scalaQuickFixFixture.testQuickFixAllInFile(text, expected, hint)
