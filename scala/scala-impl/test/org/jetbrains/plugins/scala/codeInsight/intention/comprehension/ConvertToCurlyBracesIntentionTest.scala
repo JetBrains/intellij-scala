@@ -1,7 +1,10 @@
 package org.jetbrains.plugins.scala.codeInsight.intention.comprehension
 
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
+import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 class ConvertToCurlyBracesIntentionTest extends ScalaIntentionTestBase {
 
   override def familyName: String = "Convert to curly braces"

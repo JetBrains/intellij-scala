@@ -3,8 +3,10 @@ package codeInsight
 package intention
 package booleans
 
-import com.intellij.testFramework.EditorTestUtil
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
+import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 class ReplaceEqualsOrEqualityInMethodCallExprIntentionTest extends intentions.ScalaIntentionTestBase {
 
   override def familyName = ScalaCodeInsightBundle.message("family.name.replace.equals.or.equality.in.method.call.expression")

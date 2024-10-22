@@ -1,11 +1,9 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
-import com.intellij.codeInsight.daemon.impl.DaemonCodeAnalyzerImpl
 import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
@@ -21,16 +19,6 @@ abstract class IntegerLiteralCheckTestBase(supportsOctal: Boolean,
                                            supports0Prefix: Boolean)
   extends ScalaLightCodeInsightFixtureTestCase
     with AssertionMatchers {
-  override protected def setUp(): Unit = {
-    super.setUp()
-
-    // SCL-21849
-    if (getIndexingMode != IndexingMode.SMART) {
-      DaemonCodeAnalyzer.getInstance(getProject())
-        .asOptionOf[DaemonCodeAnalyzerImpl]
-        .foreach(_.mustWaitForSmartMode(false, getTestRootDisposable))
-    }
-  }
 
   def test0(): Unit = checkTextHasNoErrors("0")
 

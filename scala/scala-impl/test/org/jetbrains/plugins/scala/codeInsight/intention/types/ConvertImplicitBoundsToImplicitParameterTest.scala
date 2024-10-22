@@ -1,8 +1,11 @@
 package org.jetbrains.plugins.scala.codeInsight.intention.types
 
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
+import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaBundle, ScalaVersion}
 
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 abstract class ConvertImplicitBoundsToImplicitParameterTestBase extends ScalaIntentionTestBase {
 
   override def familyName: String = ScalaBundle.message("family.name.convert.implicit.bounds")

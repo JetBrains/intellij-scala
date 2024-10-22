@@ -1,14 +1,16 @@
 package org.jetbrains.plugins.scala.codeInsight.intention.argument
 
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightBundle, intentions}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion, WithIndexingMode}
 import org.junit.runner.RunWith
 
 import scala.annotation.nowarn
 
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 abstract class ArgumentToBlockExpressionIntentionTestBase extends intentions.ScalaIntentionTestBase {
   override def familyName = ScalaCodeInsightBundle.message("family.name.convert.to.block.expression")
 
@@ -95,8 +97,7 @@ final class ArgumentToBlockExpressionIntentionTest extends ArgumentToBlockExpres
 }
 
 final class ArgumentToBlockExpressionIntentionTest_Scala3 extends ArgumentToBlockExpressionIntentionTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean =
-    version >= LatestScalaVersions.Scala_3_0
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
 
   def testMultiline(): Unit = {
     val text =

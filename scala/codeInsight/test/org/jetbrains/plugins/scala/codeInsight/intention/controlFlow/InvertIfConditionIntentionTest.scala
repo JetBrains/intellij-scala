@@ -3,6 +3,10 @@ package codeInsight
 package intention
 package controlFlow
 
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
+import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
+
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 class InvertIfConditionIntentionTest extends intentions.ScalaIntentionTestBase {
 
   override def familyName = ScalaCodeInsightBundle.message("family.name.invert.if.condition")
@@ -463,10 +467,10 @@ class InvertIfConditionIntentionTest extends intentions.ScalaIntentionTestBase {
   }
 }
 
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 class InvertIfConditionIntentionTest_Scala3 extends intentions.ScalaIntentionTestBase {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean =
-    version >= LatestScalaVersions.Scala_3_0
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
 
   override def familyName = ScalaCodeInsightBundle.message("family.name.invert.if.condition")
 

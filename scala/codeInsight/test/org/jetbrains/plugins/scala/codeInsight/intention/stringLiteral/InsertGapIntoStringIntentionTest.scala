@@ -1,8 +1,11 @@
 package org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral
 
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
+import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 class InsertGapIntoStringIntentionTest extends ScalaIntentionTestBase {
 
   override def familyName: String = ScalaCodeInsightBundle.message("family.name.insert.gap")

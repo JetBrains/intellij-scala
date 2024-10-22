@@ -1,8 +1,11 @@
 package org.jetbrains.plugins.scala.codeInsight.intention.comprehension
 
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
+import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 class ConvertToParenthesesIntentionTest extends ScalaIntentionTestBase {
 
   import CodeInsightTestFixture.CARET_MARKER

@@ -3,9 +3,11 @@ package codeInsight
 package intention
 package argument
 
-import com.intellij.openapi.project.Project
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
+import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 abstract class BlockExpressionToArgumentIntentionTestBase extends ScalaIntentionTestBase {
   override def familyName: String = ScalaCodeInsightBundle.message("family.name.convert.to.argument.in.parentheses")
 

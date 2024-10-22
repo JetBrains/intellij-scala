@@ -1,9 +1,12 @@
 package org.jetbrains.plugins.scala.codeInsight.intention.booleans
 
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
+import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 abstract class FlipComparisonInInfixExprIntentionTestBase extends ScalaIntentionTestBase {
   override def familyName = ScalaCodeInsightBundle.message("family.name.flip.comparison.in.infix.expression")
 }
@@ -89,8 +92,7 @@ class FlipComparisonInInfixExprIntentionTest extends FlipComparisonInInfixExprIn
 }
 
 class FlipComparisonInInfixExprIntentionTest_Scala3 extends FlipComparisonInInfixExprIntentionTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean =
-    version >= LatestScalaVersions.Scala_3_0
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
 
   def testFewerBracesAddParentheses(): Unit = {
     val text =
