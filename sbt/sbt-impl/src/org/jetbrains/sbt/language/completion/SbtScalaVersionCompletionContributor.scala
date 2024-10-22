@@ -4,6 +4,7 @@ import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.completion.impl.RealPrefixMatchingWeigher
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.lang.Language
+import com.intellij.openapi.project.DumbAware
 import com.intellij.patterns.ElementPattern
 import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
@@ -58,7 +59,7 @@ private object SbtScalaVersionCompletionContributor {
   }
 }
 
-private class ScalaVersionCompletionContributor extends SbtScalaVersionCompletionContributor {
+private class ScalaVersionCompletionContributor extends SbtScalaVersionCompletionContributor with DumbAware {
   override protected def pattern: ElementPattern[_ <: PsiElement] =
     (SbtPsiElementPatterns.sbtFilePattern || SbtPsiElementPatterns.scalaFilePattern) &&
       psiElement().inside(SbtPsiElementPatterns.versionPattern)
