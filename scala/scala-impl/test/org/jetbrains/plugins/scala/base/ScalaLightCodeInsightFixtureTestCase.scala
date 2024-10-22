@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.base
 
 import com.intellij.application.options.CodeStyle
-import com.intellij.codeInsight.daemon.impl.HighlightInfo
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
+import com.intellij.codeInsight.daemon.impl.{DaemonCodeAnalyzerImpl, HighlightInfo}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.module.Module
@@ -20,7 +21,7 @@ import com.intellij.util.lang.JavaVersion
 import org.intellij.lang.annotations.Language
 import org.jetbrains.jps.model.java.JavaSourceRootType
 import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ScalaSDKLoader, SourcesLoader}
-import org.jetbrains.plugins.scala.extensions.StringExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, StringExt}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -145,6 +146,13 @@ abstract class ScalaLightCodeInsightFixtureTestCase
 
     // pick up updated java fixture after super.setUp()
     _scalaFixture = new ScalaCodeInsightTestFixture(getFixture)
+
+    // SCL-21849
+    if (getIndexingMode != IndexingMode.SMART) {
+      DaemonCodeAnalyzer.getInstance(getProject())
+        .asOptionOf[DaemonCodeAnalyzerImpl]
+        .foreach(_.mustWaitForSmartMode(false, getTestRootDisposable))
+    }
 
     Registry.get("ast.loading.filter").setValue(true, getTestRootDisposable)
   }

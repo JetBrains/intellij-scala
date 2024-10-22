@@ -1,8 +1,11 @@
 package org.jetbrains.plugins.scala
 package codeInsight.intentions.expression
 
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
+import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 abstract class ConvertToInfixExpressionIntentionTestBase extends ScalaIntentionTestBase {
   override val familyName = ScalaBundle.message("family.name.convert.to.infix.expression")
 }

@@ -1,15 +1,16 @@
 package org.jetbrains.plugins.scala.codeInsight.intentions.companionObject
 
-import org.jetbrains.plugins.scala.ScalaBundle
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
-import org.junit.runner.RunWith
+import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
+import org.jetbrains.plugins.scala.{ScalaBundle, ScalaVersion}
 
 /**
   * mattfowler
   * 5/21/2016
   */
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 class CreateCompanionObjectIntentionTest extends ScalaIntentionTestBase {
   override val familyName = ScalaBundle.message("family.name.create.companion.object")
 
@@ -92,9 +93,10 @@ class CreateCompanionObjectIntentionTest extends ScalaIntentionTestBase {
        """.stripMargin)
 }
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
-@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 class CreateCompanionObjectIntentionTest_3_Latest extends ScalaIntentionTestBase {
+  override def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
+
   override val familyName = ScalaBundle.message("family.name.create.companion.object")
 
   private def doTest(text: String, expected: String, useIndentationBasedSyntax: Boolean): Unit = {

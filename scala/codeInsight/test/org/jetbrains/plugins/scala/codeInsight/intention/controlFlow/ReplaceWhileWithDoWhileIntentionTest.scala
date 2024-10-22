@@ -3,6 +3,10 @@ package codeInsight
 package intention
 package controlFlow
 
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
+import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
+
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 class ReplaceWhileWithDoWhileIntentionTest extends intentions.ScalaIntentionTestBase {
 
   override def familyName = ScalaCodeInsightBundle.message("family.name.replace.while.with.do.while")

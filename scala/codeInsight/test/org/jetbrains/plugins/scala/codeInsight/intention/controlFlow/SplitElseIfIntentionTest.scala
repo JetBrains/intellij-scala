@@ -3,11 +3,11 @@ package codeInsight
 package intention
 package controlFlow
 
-import com.intellij.testFramework.EditorTestUtil
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
+import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 class SplitElseIfIntentionTest extends intentions.ScalaIntentionTestBase {
-
-  import EditorTestUtil.{CARET_TAG => CARET}
 
   override def familyName = ScalaCodeInsightBundle.message("family.name.split.else.if")
 
