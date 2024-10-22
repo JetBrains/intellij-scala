@@ -1,13 +1,14 @@
 package org.jetbrains.plugins.scalaDirective.lang.completion
 
 import com.intellij.codeInsight.completion.{CompletionInitializationContext, CompletionParameters, CompletionProvider, CompletionResultSet, CompletionType}
+import com.intellij.openapi.project.DumbAware
 import com.intellij.patterns.PlatformPatterns.psiComment
 import com.intellij.patterns.StandardPatterns
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.lang.completion.{ScalaCompletionContributor, positionFromParameters}
 import org.jetbrains.plugins.scalaDirective.lang.completion.lookups.ScalaDirectiveLookupItem
 
-final class ScalaDirectiveCompletionContributor extends ScalaCompletionContributor {
+final class ScalaDirectiveCompletionContributor extends ScalaCompletionContributor with DumbAware {
   private val pattern = psiComment.withText(StandardPatterns.string.startsWith(DirectivePrefix))
 
   extend(CompletionType.BASIC, pattern, new CompletionProvider[CompletionParameters] {

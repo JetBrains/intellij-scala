@@ -1,11 +1,14 @@
 package org.jetbrains.plugins.scalaDirective.lang.completion
 
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase.DefaultInvocationCount
 import org.jetbrains.plugins.scala.packagesearch.api.PackageSearchClientTesting
 import org.jetbrains.plugins.scala.packagesearch.util.DependencyUtil
 import org.jetbrains.plugins.scala.packagesearch.util.DependencyUtil.{Scala2CompilerArtifactId, Scala3CompilerArtifactId, ScalaCompilerGroupId}
+import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 final class ScalaDirectiveScalaVersionCompletionTest
   extends ScalaCompletionTestBase
     with PackageSearchClientTesting {
