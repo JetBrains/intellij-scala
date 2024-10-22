@@ -13,10 +13,8 @@ import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener, ScalaCompilerTestBase}
 import org.jetbrains.plugins.scala.extensions.{inWriteAction, invokeAndWait}
 import org.jetbrains.plugins.scala.util.CompilerTestUtil.runWithErrorsFromCompiler
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert.{assertEquals, assertTrue}
 import org.junit.experimental.categories.Category
-import org.junit.runner.RunWith
 
 import java.io.File
 import scala.concurrent.duration.DurationInt
@@ -28,15 +26,14 @@ import scala.concurrent.{Await, Promise}
  *
  * @see SCL-17676
  */
-@RunWithScalaVersions(Array(
-  TestScalaVersion.Scala_2_13,
-  TestScalaVersion.Scala_3_Latest
-))
-@RunWith(classOf[MultipleScalaVersionsRunner])
 @Category(Array(classOf[CompilerHighlightingTests]))
-abstract class HighlightingCompilerConflictsBase(compileServerLanguageLevel: LanguageLevel,
-                                                 buildProcessLanguageLevel: LanguageLevel)
-  extends ScalaCompilerTestBase {
+abstract class HighlightingCompilerConflictsBase(
+  scalaVersion: ScalaVersion,
+  compileServerLanguageLevel: LanguageLevel,
+  buildProcessLanguageLevel: LanguageLevel
+) extends ScalaCompilerTestBase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == scalaVersion
 
   override protected def useCompileServer: Boolean = true
 
@@ -120,12 +117,26 @@ abstract class HighlightingCompilerConflictsBase(compileServerLanguageLevel: Lan
   }
 }
 
-class HighlightingCompilerConflictsDifferentJdksTest extends HighlightingCompilerConflictsBase(
+class HighlightingCompilerConflictsDifferentJdksTest_2_13 extends HighlightingCompilerConflictsBase(
+  scalaVersion = ScalaVersion.Latest.Scala_2_13,
   compileServerLanguageLevel = LanguageLevel.JDK_11, // CBH runs the JPS code inside the SCS which demands at least JDK 11
   buildProcessLanguageLevel = LanguageLevel.JDK_17
 )
 
-class HighlightingCompilerConflictsSameJdksTest extends HighlightingCompilerConflictsBase(
+class HighlightingCompilerConflictsDifferentJdksTest_3 extends HighlightingCompilerConflictsBase(
+  scalaVersion = ScalaVersion.Latest.Scala_3,
+  compileServerLanguageLevel = LanguageLevel.JDK_11, // CBH runs the JPS code inside the SCS which demands at least JDK 11
+  buildProcessLanguageLevel = LanguageLevel.JDK_17
+)
+
+class HighlightingCompilerConflictsSameJdksTest_2_13 extends HighlightingCompilerConflictsBase(
+  scalaVersion = ScalaVersion.Latest.Scala_2_13,
+  compileServerLanguageLevel = LanguageLevel.JDK_17,
+  buildProcessLanguageLevel = LanguageLevel.JDK_17
+)
+
+class HighlightingCompilerConflictsSameJdksTest_3 extends HighlightingCompilerConflictsBase(
+  scalaVersion = ScalaVersion.Latest.Scala_3,
   compileServerLanguageLevel = LanguageLevel.JDK_17,
   buildProcessLanguageLevel = LanguageLevel.JDK_17
 )
