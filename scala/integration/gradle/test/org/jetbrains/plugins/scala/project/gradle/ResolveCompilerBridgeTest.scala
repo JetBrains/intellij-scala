@@ -37,6 +37,8 @@ class ResolveCompilerBridgeTest extends ExternalSystemImportingTestCase {
   override def setUp(): Unit = {
     super.setUp()
 
+    GradleTestUtil.setupGradleHome(getProject)
+
     sdk = SmartJDKLoader.getOrCreateJDK(LanguageLevel.JDK_17)
 
     createProjectSubFile("settings.gradle",

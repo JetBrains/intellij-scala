@@ -46,6 +46,8 @@ class ConfigureScalaCompilerPluginTest extends ExternalSystemImportingTestCase {
   override def setUp(): Unit = {
     super.setUp()
 
+    GradleTestUtil.setupGradleHome(getProject)
+
     ScalaCompileServerSettings.getInstance().COMPILE_SERVER_ENABLED = false
 
     sdk = SmartJDKLoader.getOrCreateJDK(LanguageLevel.JDK_17)

@@ -420,7 +420,8 @@ lazy val compilerIntegration =
       codeInsight % "test->test;compile->compile",
       sbtImpl % "test->test;compile->compile",
       jps,
-      bsp
+      bsp,
+      gradleIntegration % "test->test"
     )
     .settings(
       intellijPlugins ++= Seq(

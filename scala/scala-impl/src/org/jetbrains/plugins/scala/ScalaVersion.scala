@@ -93,7 +93,7 @@ object LatestScalaVersions {
   val Scala_3_2  = new ScalaVersion(ScalaLanguageLevel.Scala_3_2, "2")
   val Scala_3_3 = new ScalaVersion(ScalaLanguageLevel.Scala_3_3, "4")
   val Scala_3_4 = new ScalaVersion(ScalaLanguageLevel.Scala_3_4, "2")
-  val Scala_3_5 = new ScalaVersion(ScalaLanguageLevel.Scala_3_5, "1")
+  val Scala_3_5 = new ScalaVersion(ScalaLanguageLevel.Scala_3_5, "2")
   val Scala_3_6 = new ScalaVersion(ScalaLanguageLevel.Scala_3_6, "1")
 
   //
