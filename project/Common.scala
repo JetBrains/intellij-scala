@@ -77,9 +77,13 @@ object Common {
     Test / unmanagedSourceDirectories := Nil,
   )
 
+  private def prependIntellijVersion(s: String): String = Versions.intellijVersion + "-" + s
+
   val compilationCacheSettings: Seq[Setting[?]] = Seq(
     Compile / pushRemoteCacheConfiguration ~= { _.withOverwrite(true) },
-    Test / pushRemoteCacheConfiguration ~= { _.withOverwrite(true) }
+    Test / pushRemoteCacheConfiguration ~= { _.withOverwrite(true) },
+    Compile / remoteCacheId ~= prependIntellijVersion,
+    Test / remoteCacheId ~= prependIntellijVersion
   )
 
   private val NewProjectBaseSettings: Seq[Setting[?]] = Seq(
