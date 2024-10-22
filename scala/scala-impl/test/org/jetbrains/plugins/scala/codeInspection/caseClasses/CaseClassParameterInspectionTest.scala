@@ -3,8 +3,11 @@ package codeInspection
 package caseClasses
 
 import com.intellij.codeInspection.LocalInspectionTool
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.CaseClassParamInspection
+import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 class CaseClassParameterInspectionTest extends ScalaInspectionTestBase {
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[CaseClassParamInspection]
 

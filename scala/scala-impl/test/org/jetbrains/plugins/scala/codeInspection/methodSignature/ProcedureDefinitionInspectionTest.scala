@@ -3,8 +3,11 @@ package codeInspection
 package methodSignature
 
 import com.intellij.codeInspection.LocalInspectionTool
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
+import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 class ProcedureDefinitionInspectionTest extends ScalaInspectionTestBase {
 
   import CodeInsightTestFixture.CARET_MARKER

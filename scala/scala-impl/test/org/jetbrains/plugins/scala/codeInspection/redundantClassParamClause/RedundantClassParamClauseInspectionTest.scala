@@ -1,7 +1,10 @@
 package org.jetbrains.plugins.scala.codeInspection.redundantClassParamClause
 
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
+import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 class RedundantClassParamClauseInspectionTest extends ScalaInspectionTestBase {
   override protected val classOfInspection = classOf[RedundantClassParamClauseInspection]
   override protected val description = ScalaInspectionBundle.message("empty.parameter.clause.is.redundant")
