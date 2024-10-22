@@ -4,6 +4,7 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.lang.Language
 import com.intellij.lang.properties.PropertiesLanguage
 import com.intellij.lang.properties.psi.impl.PropertyValueImpl
+import com.intellij.openapi.project.DumbAware
 import com.intellij.patterns.ElementPattern
 import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
@@ -13,7 +14,7 @@ import org.jetbrains.plugins.scala.packagesearch.util.DependencyUtil
 import org.jetbrains.sbt.language.completion.SbtScalaVersionCompletionContributor.SbtScalaVersionCompletionProvider
 import org.jetbrains.sbt.language.completion.SbtVersionCompletionContributor.{SbtGroupId, SbtLaunchArtifactId}
 
-private class SbtVersionCompletionContributor extends SbtScalaVersionCompletionContributor {
+private class SbtVersionCompletionContributor extends SbtScalaVersionCompletionContributor with DumbAware {
   override protected def pattern: ElementPattern[_ <: PsiElement] =
     SbtPsiElementPatterns.propertiesFilePattern && psiElement().inside(SbtPsiElementPatterns.versionPropertyPattern)
 
