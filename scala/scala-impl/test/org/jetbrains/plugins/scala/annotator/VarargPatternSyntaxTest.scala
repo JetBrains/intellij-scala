@@ -1,8 +1,11 @@
 package org.jetbrains.plugins.scala.annotator
 
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import org.jetbrains.plugins.scala.codeInspection.ScalaAnnotatorQuickFixTestBase
+import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 abstract class VarargPatternSyntaxTestBase extends ScalaAnnotatorQuickFixTestBase
 
 // Scala2

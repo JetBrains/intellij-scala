@@ -1,8 +1,11 @@
 package org.jetbrains.plugins.scala
 package annotator
 
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import org.jetbrains.plugins.scala.codeInspection.ScalaAnnotatorQuickFixTestBase
+import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 abstract class SymbolLiteralAnnotatorTestBase extends ScalaAnnotatorQuickFixTestBase {
   val symbolName = "symb"
 

@@ -37,9 +37,7 @@ object ScGivenAliasDeclarationAnnotator extends ElementAnnotator[ScGivenAliasDec
     }
 }
 
-private[element] abstract class AnonymousGivenAliasDeclarationQuickFix(declaration: ScGivenAliasDeclaration)
-  extends IntentionAction
-    with DumbAware {
+private[element] abstract class AnonymousGivenAliasDeclarationQuickFix(declaration: ScGivenAliasDeclaration) extends IntentionAction {
   override def startInWriteAction(): Boolean = true
 
   override def getText: String = getFamilyName
@@ -60,7 +58,8 @@ private[element] abstract class AnonymousGivenAliasDeclarationQuickFix(declarati
 }
 
 private[element] final class ImplementAnonymousAbstractGivenFix(declaration: ScGivenAliasDeclaration)
-  extends AnonymousGivenAliasDeclarationQuickFix(declaration) {
+  extends AnonymousGivenAliasDeclarationQuickFix(declaration)
+    with DumbAware {
   override def getFamilyName: String = ScalaBundle.message("family.name.implement.anonymous.abstract.given")
 
   override def getFileModifierForPreview(target: PsiFile): FileModifier =

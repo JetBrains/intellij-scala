@@ -1,7 +1,10 @@
 package org.jetbrains.plugins.scala.annotator
 
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import org.jetbrains.plugins.scala.codeInspection.ScalaAnnotatorQuickFixTestBase
+import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 class VarargPatternPositionTest extends ScalaAnnotatorQuickFixTestBase {
 
   override protected val description = "_* can be used only for last argument"

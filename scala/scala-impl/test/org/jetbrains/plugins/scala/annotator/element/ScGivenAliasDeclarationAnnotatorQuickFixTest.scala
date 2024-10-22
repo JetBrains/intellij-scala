@@ -1,8 +1,11 @@
 package org.jetbrains.plugins.scala.annotator.element
 
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import org.jetbrains.plugins.scala.codeInspection.ScalaAnnotatorQuickFixTestBase
+import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaBundle, ScalaVersion}
 
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 abstract class ScGivenAliasDeclarationAnnotatorQuickFixTest extends ScalaAnnotatorQuickFixTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= LatestScalaVersions.Scala_3_0
@@ -30,6 +33,7 @@ final class ImplementAnonymousAbstractGivenFixTest extends ScGivenAliasDeclarati
   )
 }
 
+@WithIndexingMode(mode = IndexingMode.SMART, reason = "NameSuggester needs type inference")
 final class NameAnonymousAbstractGivenFixTest extends ScGivenAliasDeclarationAnnotatorQuickFixTest {
   private val hint: String = ScalaBundle.message("family.name.give.a.name.to.anonymous.abstract.given")
 

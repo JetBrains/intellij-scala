@@ -2,13 +2,14 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import com.intellij.psi.PsiElement
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.annotator.element.{ScParameterAnnotator, ScParametersAnnotator}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
+import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 abstract class ParametersAnnotatorTestBase extends ScalaHighlightingTestBase {
-  import Message._
-
   final val Header = "class A; class B; class C;\n"
 
   protected def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
@@ -113,7 +114,6 @@ class ParametersAnnotatorTest_without_callByName_implicit_parameter extends Para
     }
   }
 }
-
 
 class ParametersAnnotatorTest_with_callByName_implicit_parameter extends ParametersAnnotatorTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_13
