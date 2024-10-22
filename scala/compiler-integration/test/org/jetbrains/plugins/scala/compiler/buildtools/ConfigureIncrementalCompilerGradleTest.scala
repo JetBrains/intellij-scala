@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.CompilationTests
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.extensions.inWriteAction
+import org.jetbrains.plugins.scala.project.gradle.GradleTestUtil
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
 import org.junit.Assert.assertEquals
@@ -38,6 +39,8 @@ class ConfigureIncrementalCompilerGradleTest extends ExternalSystemImportingTest
 
   override def setUp(): Unit = {
     super.setUp()
+
+    GradleTestUtil.setupGradleHome(getProject)
 
     sdk = {
       val jdkVersion =
