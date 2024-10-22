@@ -21,18 +21,19 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockExpr, ScExpression, ScMethodCall, ScNewTemplateDefinition, ScPostfixExpr, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.impl.{CompilerType, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import java.util.function.Predicate
 
@@ -253,15 +254,30 @@ package object completion {
      */
     val placeInOriginalFile = originalFile.findElementAt(placeOffset)
 
-    var compilerType: String = null
+    var compilerType: Option[String] = None
 
     // Copy the compiler type (see ScExpression.getTypeWithoutImplicits)
-    (Option(placeInOriginalFile).flatMap(_.parent).map(_.getParent).orNull, positionInCompletionFile.getParent) match {
+    val settings = ScalaProjectSettings.getInstance(originalFile.getProject)
+    if (settings.isCompilerHighlightingScala3 && settings.isUseCompilerTypes) {
       // In principle, can be not just for method calls
-      case (c1: ScMethodCall, (_: ScReferenceExpression) & FirstChild(c2: ScMethodCall)) =>
-        compilerType = c1.getCopyableUserData(ScExpression.CompilerTypeKey)
-        c2.putCopyableUserData(ScExpression.CompilerTypeKey, compilerType)
-      case _ =>
+      val call1 = Option(placeInOriginalFile).flatMap { e =>
+        e.parentsInFile.findByType[ScMethodCall].filter(_.getInvokedExpr.elements.contains(e))
+      }
+      val call2 = positionInCompletionFile.parent.collect {
+        case (_: ScReferenceExpression) & FirstChild(c: ScMethodCall) => c
+      }
+      call1.zip(call2).foreach { case (c1, c2) =>
+        // If it's a transparent inline method call and a compiler type is absent, request it
+        if (CompilerType(c1).isEmpty) {
+          c1.target.map(_.element) match {
+            case Some(f: ScFunction) if f.hasModifierProperty("transparent") && f.hasModifierProperty("inline") =>
+              CompilerType.requestFor(c1)
+            case _ =>
+          }
+        }
+        compilerType = CompilerType(c1)
+        CompilerType(c2) = compilerType
+      }
     }
 
     // A possible modification of CompilerTypeKey user data is not a PSI modification

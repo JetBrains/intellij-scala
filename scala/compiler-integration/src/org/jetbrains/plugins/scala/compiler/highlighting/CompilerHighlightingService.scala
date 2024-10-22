@@ -308,7 +308,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     }
   }
 
-  private def executeDocumentCompilationRequest(request: CompilationRequest.DocumentRequest): Unit = {
+  def executeDocumentCompilationRequest(request: CompilationRequest.DocumentRequest): Unit = {
     val CompilationRequest.DocumentRequest(FileCompilationScope(virtualFile, module, sourceScope, document, _), debugReason, _) = request
     debug(s"documentCompilation: $debugReason")
     executeDocumentCompilationRequest(module, sourceScope, virtualFile, document, documentVersionsFor(request), await = true)
