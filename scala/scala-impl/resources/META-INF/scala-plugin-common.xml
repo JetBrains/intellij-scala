@@ -246,6 +246,10 @@
                     factoryClass="org.jetbrains.plugins.scala.caches.stats.InternalProfilerToolWindowFactory"/>
 
         <framework.type implementation="org.jetbrains.plugins.scala.project.template.ScalaFrameworkType"/>
+
+        <codeInsight.wordCompletionFilter language="Scala"
+                                          implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaWordCompletionFilter"/>
+
         <completion.contributor language="Scala" id="keywordCompletionContributor"
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaKeywordCompletionContributor"
                                 order="before caseClauseCompletionContributor"/>
