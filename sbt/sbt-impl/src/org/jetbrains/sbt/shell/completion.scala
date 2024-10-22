@@ -2,17 +2,16 @@ package org.jetbrains.sbt.shell
 
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.LookupElementBuilder
+import com.intellij.openapi.project.DumbAware
 import com.intellij.patterns.PlatformPatterns
 import com.intellij.util.ProcessingContext
 import org.jetbrains.annotations.NonNls
 
-class SbtShellCompletionContributor extends CompletionContributor {
-
+final class SbtShellCompletionContributor extends CompletionContributor with DumbAware {
   extend(
     CompletionType.BASIC,
     PlatformPatterns.psiElement().withLanguage(SbtShellLanguage),
     SbtShellCompletionProvider)
-
 }
 
 object SbtShellCompletionProvider extends CompletionProvider[CompletionParameters] {
@@ -32,14 +31,9 @@ object SbtShellCompletionProvider extends CompletionProvider[CompletionParameter
 
   override def addCompletions(parameters: CompletionParameters,
                               context: ProcessingContext,
-                              result: CompletionResultSet): Unit = {
-
-
+                              result: CompletionResultSet): Unit =
     all.foreach { key =>
       val elem = LookupElementBuilder.create(key)
       result.addElement(elem)
     }
-
-  }
-
 }
