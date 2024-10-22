@@ -1,7 +1,10 @@
 package org.jetbrains.plugins.scalaDirective.lang.completion
 
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
+import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 final class ScalaDirectiveKeyCompletionTest extends ScalaCompletionTestBase {
 
   private def checkCompletion(key: String): Unit = {

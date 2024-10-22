@@ -1,11 +1,12 @@
 package org.jetbrains.plugins.scalaDirective.lang.completion
 
 import com.intellij.codeInsight.editorActions.CompletionAutoPopupHandler
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import com.intellij.testFramework.{TestModeFlags, UsefulTestCase}
 import org.jetbrains.plugins.scala.base.ScalaCompletionAutoPopupTestCase
 import org.jetbrains.plugins.scala.packagesearch.api.{PackageSearchClient, PackageSearchClientTesting}
 import org.jetbrains.plugins.scala.packagesearch.util.DependencyUtil
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion, WithIndexingMode}
 import org.junit.Assert.assertNull
 import org.junit.runner.RunWith
 
@@ -16,6 +17,7 @@ import java.util.Arrays.asList
   TestScalaVersion.Scala_2_13,
   TestScalaVersion.Scala_3_Latest
 ))
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 final class ScalaDirectiveAutoPopupTest
   extends ScalaCompletionAutoPopupTestCase
     with PackageSearchClientTesting {

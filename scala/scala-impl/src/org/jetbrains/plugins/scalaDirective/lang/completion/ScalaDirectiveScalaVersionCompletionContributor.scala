@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scalaDirective.lang.completion
 
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.completion.impl.RealPrefixMatchingWeigher
+import com.intellij.openapi.project.DumbAware
 import com.intellij.util.ProcessingContext
 import org.apache.maven.artifact.versioning.ComparableVersion
 import org.jetbrains.plugins.scala.lang.completion.positionFromParameters
@@ -13,7 +14,7 @@ import org.jetbrains.plugins.scalaDirective.util.ScalaDirectiveValueKind
 
 import scala.jdk.CollectionConverters.IterableHasAsJava
 
-final class ScalaDirectiveScalaVersionCompletionContributor extends CompletionContributor {
+final class ScalaDirectiveScalaVersionCompletionContributor extends CompletionContributor with DumbAware {
   extend(CompletionType.BASIC, ScalaDirectiveScalaVersionPattern, new CompletionProvider[CompletionParameters] {
     override def addCompletions(params: CompletionParameters, processingContext: ProcessingContext, resultSet: CompletionResultSet): Unit = {
       val place = positionFromParameters(params)

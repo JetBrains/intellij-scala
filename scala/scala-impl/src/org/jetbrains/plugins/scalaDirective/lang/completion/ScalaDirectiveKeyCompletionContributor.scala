@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scalaDirective.lang.completion
 
 import com.intellij.codeInsight.completion.{CompletionParameters, CompletionProvider, CompletionResultSet, CompletionType}
+import com.intellij.openapi.project.DumbAware
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionContributor
 import org.jetbrains.plugins.scalaDirective.dependencies.ScalaDirectiveDependencyKeys
@@ -8,7 +9,7 @@ import org.jetbrains.plugins.scalaDirective.lang.completion.lookups.ScalaDirecti
 
 import scala.jdk.CollectionConverters.IterableHasAsJava
 
-final class ScalaDirectiveKeyCompletionContributor extends ScalaCompletionContributor {
+final class ScalaDirectiveKeyCompletionContributor extends ScalaCompletionContributor with DumbAware {
   register(ScalaDirectiveDependencyKeys)
   register(ScalaDirectiveScalaKey)
 
