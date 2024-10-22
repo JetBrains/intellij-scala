@@ -1,10 +1,12 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.lookup.Lookup
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion, WithIndexingMode}
 import org.junit.runner.RunWith
 
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
 
   def testPrivateVal(): Unit = doCompletionTest(
