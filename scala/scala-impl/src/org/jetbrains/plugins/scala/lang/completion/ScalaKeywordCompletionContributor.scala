@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.completion
 
 import com.intellij.codeInsight.completion._
+import com.intellij.openapi.project.DumbAware
 import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi.filters.position.FilterPattern
 import com.intellij.psi.filters.{AndFilter, ElementFilter, NotFilter, OrFilter}
@@ -11,7 +12,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.completion.filters.toplevel.IsTopLevelElementInProductionScalaFileFilter
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
-final class ScalaKeywordCompletionContributor extends ScalaCompletionContributor {
+final class ScalaKeywordCompletionContributor extends ScalaCompletionContributor with DumbAware {
 
   import ScalaKeyword._
   import ScalaKeywordCompletionContributor._
