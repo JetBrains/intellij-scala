@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.compiler.buildtools
+package org.jetbrains.plugins.scala.project.gradle
 
 import com.intellij.openapi.application.impl.NonBlockingReadActionImpl
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
@@ -9,17 +9,16 @@ import com.intellij.platform.externalSystem.testFramework.ExternalSystemImportin
 import com.intellij.testFramework.IndexingTestUtil
 import org.jetbrains.plugins.gradle.settings.GradleProjectSettings
 import org.jetbrains.plugins.gradle.util.GradleConstants
-import org.jetbrains.plugins.scala.CompilationTests
+import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.extensions.inWriteAction
-import org.jetbrains.plugins.scala.project.gradle.GradleTestUtil
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
 import org.junit.Assert.assertEquals
 import org.junit.experimental.categories.Category
 
-@Category(Array(classOf[CompilationTests]))
+@Category(Array(classOf[SlowTests]))
 class ConfigureIncrementalCompilerGradleTest extends ExternalSystemImportingTestCase {
 
   private var sdk: Sdk = _
