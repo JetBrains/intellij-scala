@@ -4,24 +4,43 @@ import com.intellij.codeInsight.CodeInsightUtilCore
 import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.codeInsight.intention.{FileModifier, IntentionAction}
 import com.intellij.codeInsight.template.TemplateBuilderImpl
+import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationHolder, TemplateUtils}
 import org.jetbrains.plugins.scala.codeInsight.intention.types.ChooseValueExpression
-import org.jetbrains.plugins.scala.extensions.NonNullObjectExt
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGivenAliasDeclaration, ScGivenAliasDefinition}
+import org.jetbrains.plugins.scala.extensions.{NonNullObjectExt, ObjectExt}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGivenAliasDeclaration, ScGivenAliasDefinition, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createPsiElementFromText
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 
 object ScGivenAliasDeclarationAnnotator extends ElementAnnotator[ScGivenAliasDeclaration] {
   override def annotate(decl: ScGivenAliasDeclaration, typeAware: Boolean)
-                       (implicit holder: ScalaAnnotationHolder): Unit =
+                       (implicit holder: ScalaAnnotationHolder): Unit = {
+    if (decl.features.`new context bounds and givens`) {
+      val maybeFix =
+        Option(decl.getContainingClass)
+          .filter(_.is[ScTrait])
+          .map(_ => new ReplaceWithDeferredGivenQuickFix(decl))
+
+      holder.createWarningAnnotation(
+        decl,
+        ScalaBundle.message("abstract.given.is.deprecated"),
+        ProblemHighlightType.LIKE_DEPRECATED,
+        maybeFix
+      )
+    }
+
     checkAnonymousGivenDeclaration(decl)
+  }
 
   private def checkAnonymousGivenDeclaration(decl: ScGivenAliasDeclaration)
                                             (implicit holder: ScalaAnnotationHolder): Unit =
@@ -35,6 +54,30 @@ object ScGivenAliasDeclarationAnnotator extends ElementAnnotator[ScGivenAliasDec
         holder.createErrorAnnotation(decl, ScalaBundle.message("given.alias.declaration.must.be.named"), fixes)
       case _ =>
     }
+
+  private class ReplaceWithDeferredGivenQuickFix(
+    decl: ScGivenAliasDeclaration
+  ) extends IntentionAction with DumbAware {
+    override def startInWriteAction(): Boolean = true
+    override def getFamilyName: String         = fixDescription
+    override def getText: String               = fixDescription
+
+    override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean =
+      decl.isValid
+
+    override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
+      val deferredGiven =
+        ScalaPsiElementFactory.createMethodFromText(
+          decl.getText + " = scala.compiletime.deferred",
+          ScalaFeatures.forPsiOrDefault(decl)
+        )(decl)
+
+      decl.replace(deferredGiven)
+    }
+  }
+
+  @Nls
+  val fixDescription: String = ScalaBundle.message("replace.with.deferred.given")
 }
 
 private[element] abstract class AnonymousGivenAliasDeclarationQuickFix(declaration: ScGivenAliasDeclaration) extends IntentionAction {
