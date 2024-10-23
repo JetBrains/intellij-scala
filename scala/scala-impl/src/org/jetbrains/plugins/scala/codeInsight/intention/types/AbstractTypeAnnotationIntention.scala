@@ -147,7 +147,12 @@ object AbstractTypeAnnotationIntention {
         case p@ScTypedPatternLike(_) =>
           return strategy.patternWithType(p)
         case p: ScReferencePattern =>
-          return strategy.patternWithoutType(p)
+          p.getParent match {
+            case typed: ScTypedPatternLike =>
+              return strategy.patternWithType(typed)
+            case _ =>
+              return strategy.patternWithoutType(p)
+          }
         case _ =>
       }
     }

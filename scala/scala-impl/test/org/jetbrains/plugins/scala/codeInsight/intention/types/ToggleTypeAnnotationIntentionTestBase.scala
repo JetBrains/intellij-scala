@@ -238,18 +238,18 @@ abstract class ToggleTypeAnnotationIntentionTestBase extends ScalaIntentionTestB
 
   def testRemoveBaseClassesSerializableAndProduct(): Unit = doTest(
     s"""sealed trait MyTrait
-      |
-      |case object MyObject1 extends MyTrait
-      |
-      |case object MyObject2 extends MyTrait
-      |
-      |object Usage {
-      |  val map$caretTag = Map(
-      |    MyObject1 -> "111",
-      |    MyObject2 -> "222"
-      |  )
-      |}
-      |""".stripMargin,
+       |
+       |case object MyObject1 extends MyTrait
+       |
+       |case object MyObject2 extends MyTrait
+       |
+       |object Usage {
+       |  val map$caretTag = Map(
+       |    MyObject1 -> "111",
+       |    MyObject2 -> "222"
+       |  )
+       |}
+       |""".stripMargin,
     s"""sealed trait MyTrait
        |
        |case object MyObject1 extends MyTrait
@@ -348,5 +348,149 @@ abstract class ToggleTypeAnnotationIntentionTestBase extends ScalaIntentionTestB
   def testRemoveTypeAnnotationToLambdaParameter_CaretInTheMiddleOfParameter_TypeWithDot(): Unit = doTest(
     s"""Seq(1, 2).map((x: scala$CARET.Int) => x.toString)""",
     s"""Seq(1, 2).map(x$CARET => x.toString)""",
+  )
+
+  def testAddTypeAnnotationToBindingPattern(): Unit = doTest(
+    s"""Seq(1, 2).map { case ${CARET}x => "42" }""",
+    s"""Seq(1, 2).map { case ${CARET}x: Int => "42" }""",
+  )
+
+  def testAddTypeAnnotationToBindingPattern_Nested(): Unit = doTest(
+    s"""case class SomeCaseClass(foo: Int, bar: String, baz: String)
+       |(null : SomeCaseClass) match {
+       |  case Some(SomeCaseClass(${CARET}foo, bar, _)) =>
+       |}
+       |""".stripMargin,
+    s"""case class SomeCaseClass(foo: Int, bar: String, baz: String)
+       |(null : SomeCaseClass) match {
+       |  case Some(SomeCaseClass(${CARET}foo: Int, bar, _)) =>
+       |}
+       |""".stripMargin,
+  )
+
+  def testAddTypeAnnotationToBindingPattern_Nested_CaretBeforeComma(): Unit = doTest(
+    s"""case class SomeCaseClass(foo: Int, bar: String, baz: String)
+       |(null : SomeCaseClass) match {
+       |  case Some(SomeCaseClass(foo$CARET, bar, _)) =>
+       |}
+       |""".stripMargin,
+    s"""case class SomeCaseClass(foo: Int, bar: String, baz: String)
+       |(null : SomeCaseClass) match {
+       |  case Some(SomeCaseClass(foo$CARET: Int, bar, _)) =>
+       |}
+       |""".stripMargin,
+  )
+
+  def testAddTypeAnnotationToBindingPattern_InValDefinition(): Unit = doTest(
+    s"""val (v1, ${CARET}v2) = (1, "42")""".stripMargin,
+    s"""val (v1, ${CARET}v2: String) = (1, "42")""".stripMargin,
+  )
+
+  def testRemoveTypeAnnotationFromBindingPattern(): Unit = doTest(
+    s"""Seq(1, 2).map { case ${CARET}x: Int => "42" }""",
+    s"""Seq(1, 2).map { case ${CARET}x => "42" }""",
+  )
+
+  def testRemoveTypeAnnotationFromBindingPattern_Nested(): Unit = doTest(
+    s"""case class SomeCaseClass(foo: Int, bar: String, baz: String)
+       |(null : SomeCaseClass) match {
+       |  case Some(SomeCaseClass(${CARET}foo: Int, bar, _)) =>
+       |}
+       |""".stripMargin,
+    s"""case class SomeCaseClass(foo: Int, bar: String, baz: String)
+       |(null : SomeCaseClass) match {
+       |  case Some(SomeCaseClass(${CARET}foo, bar, _)) =>
+       |}
+       |""".stripMargin,
+  )
+
+  def testRemoveTypeAnnotationFromBindingPattern_Nested_CaretBeforeComma(): Unit = doTest(
+    s"""case class SomeCaseClass(foo: Int, bar: String, baz: String)
+       |(null : SomeCaseClass) match {
+       |  case Some(SomeCaseClass(foo$CARET: Int, bar, _)) =>
+       |}
+       |""".stripMargin,
+    s"""case class SomeCaseClass(foo: Int, bar: String, baz: String)
+       |(null : SomeCaseClass) match {
+       |  case Some(SomeCaseClass(foo$CARET, bar, _)) =>
+       |}
+       |""".stripMargin,
+  )
+
+  def testRemoveTypeAnnotationFromBindingPattern_InValDefinition(): Unit = doTest(
+    s"""val (v1, ${CARET}v2: String) = (1, "42")""".stripMargin,
+    s"""val (v1, ${CARET}v2) = (1, "42")""".stripMargin,
+  )
+
+  def testAddTypeAnnotationToWildcardPattern(): Unit = doTest(
+    s"""Seq(1, 2).map { case ${CARET}_ => "42" }""",
+    s"""Seq(1, 2).map { case ${CARET}_: Int => "42" }""",
+  )
+
+  def testAddTypeAnnotationToWildcardPattern_Nested(): Unit = doTest(
+    s"""case class SomeCaseClass(foo: Int, bar: String, baz: String)
+       |(null : SomeCaseClass) match {
+       |  case Some(SomeCaseClass(${CARET}_, bar, _)) =>
+       |}
+       |""".stripMargin,
+    s"""case class SomeCaseClass(foo: Int, bar: String, baz: String)
+       |(null : SomeCaseClass) match {
+       |  case Some(SomeCaseClass(${CARET}_: Int, bar, _)) =>
+       |}
+       |""".stripMargin,
+  )
+
+  def testAddTypeAnnotationToWildcardPattern_Nested_CaretBeforeComma(): Unit = doTest(
+    s"""case class SomeCaseClass(foo: Int, bar: String, baz: String)
+       |(null : SomeCaseClass) match {
+       |  case Some(SomeCaseClass(_$CARET, bar, _)) =>
+       |}
+       |""".stripMargin,
+    s"""case class SomeCaseClass(foo: Int, bar: String, baz: String)
+       |(null : SomeCaseClass) match {
+       |  case Some(SomeCaseClass(_$CARET: Int, bar, _)) =>
+       |}
+       |""".stripMargin,
+  )
+
+  def testAddTypeAnnotationToWildcardPattern_InValDefinition(): Unit = doTest(
+    s"""val (v1, ${CARET}_) = (1, "42")""".stripMargin,
+    s"""val (v1, ${CARET}_: String) = (1, "42")""".stripMargin,
+  )
+
+  def testRemoveTypeAnnotationFromWildcardPattern(): Unit = doTest(
+    s"""Seq(1, 2).map { case ${CARET}_: Int => "42" }""",
+    s"""Seq(1, 2).map { case ${CARET}_ => "42" }""",
+  )
+
+  def testRemoveTypeAnnotationFromWildcardPattern_Nested(): Unit = doTest(
+    s"""case class SomeCaseClass(foo: Int, bar: String, baz: String)
+       |(null : SomeCaseClass) match {
+       |  case Some(SomeCaseClass(${CARET}_: Int, bar, _)) =>
+       |}
+       |""".stripMargin,
+    s"""case class SomeCaseClass(foo: Int, bar: String, baz: String)
+       |(null : SomeCaseClass) match {
+       |  case Some(SomeCaseClass(${CARET}_, bar, _)) =>
+       |}
+       |""".stripMargin,
+  )
+
+  def testRemoveTypeAnnotationFromWildcardPattern_Nested_CaretBeforeComma(): Unit = doTest(
+    s"""case class SomeCaseClass(foo: Int, bar: String, baz: String)
+       |(null : SomeCaseClass) match {
+       |  case Some(SomeCaseClass(_$CARET: Int, bar, _)) =>
+       |}
+       |""".stripMargin,
+    s"""case class SomeCaseClass(foo: Int, bar: String, baz: String)
+       |(null : SomeCaseClass) match {
+       |  case Some(SomeCaseClass(_$CARET, bar, _)) =>
+       |}
+       |""".stripMargin,
+  )
+
+  def testRemoveTypeAnnotationFromWildcardPattern_InValDefinition(): Unit = doTest(
+    s"""val (v1, ${CARET}v2: String) = (1, "42")""".stripMargin,
+    s"""val (v1, ${CARET}v2) = (1, "42")""".stripMargin,
   )
 }
