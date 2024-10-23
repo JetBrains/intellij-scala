@@ -189,6 +189,95 @@ abstract class ShowTypeInfoActionTestBase extends ScalaLightCodeInsightFixtureTe
     s"""Seq(1, 2).map{ case ${CARET}_ => "42" }""",
     "Int"
   )
+
+  //example from SCL-20245
+  def testUnderscoreWildcardPattern_SCL_20245(): Unit = doShowTypeInfoTest(
+    s"""case class SomeCaseClass(foo: Int, bar: String, baz: String)
+       |val x = Option(SomeCaseClass(1, "a", "b"))
+       |
+       |x match {
+       |  case Some(SomeCaseClass(foo, bar, ${CARET}_)) => // the underscore to the left here
+       |  case None                             => // ...
+       |}
+       |""".stripMargin,
+    "String"
+  )
+
+  def testNestedBindingPattern_WithSelection(): Unit = doShowTypeInfoTest(
+    s"""val value: Option[Either[Int, String]] = None
+      |value match {
+      |  case Some(Right($CARET${START}value$END)) => ???
+      |  case None => ???
+      |} {}
+      |""".stripMargin,
+    "Type: String"
+  )
+
+  def testNestedBindingPattern_WithoutSelection(): Unit = doShowTypeInfoTest(
+    s"""val value: Option[Either[Int, String]] = None
+      |value match {
+      |  case Some(Right(${CARET}value)) => ???
+      |  case None => ???
+      |} {}
+      |""".stripMargin,
+    "String"
+  )
+
+  def testNestedWildcardPattern_WithSelection(): Unit = doShowTypeInfoTest(
+    s"""val value: Option[Either[Int, String]] = None
+      |value match {
+      |  case Some(Right($CARET${START}_$END)) => ???
+      |  case None => ???
+      |} {}
+      |""".stripMargin,
+    "Type: String"
+  )
+
+  def testNestedWildcardPattern_WithoutSelection(): Unit = doShowTypeInfoTest(
+    s"""val value: Option[Either[Int, String]] = None
+      |value match {
+      |  case Some(Right(${CARET}_)) => ???
+      |  case None => ???
+      |} {}
+      |""".stripMargin,
+    "String"
+  )
+
+  def testPatternInForGenerator_WithSelection(): Unit = doShowTypeInfoTest(
+    s"""val value: Option[String] = None
+      |for {
+      |  $CARET${START}xxx$END <- value
+      |} {}
+      |""".stripMargin,
+    "Type: String"
+  )
+
+  def testPatternInForGenerator_WithoutSelection(): Unit = doShowTypeInfoTest(
+    s"""val value: Option[String] = None
+      |for {
+      |  ${CARET}xxx <- value
+      |} {}
+      |""".stripMargin,
+    "String"
+  )
+
+  def testWildcardPatternInForGenerator_WithSelection(): Unit = doShowTypeInfoTest(
+    s"""val value: Option[String] = None
+      |for {
+      |  $CARET${START}_$END <- value
+      |} {}
+      |""".stripMargin,
+    "Type: String"
+  )
+
+  def testWildcardPatternInForGenerator_WithoutSelection(): Unit = doShowTypeInfoTest(
+    s"""val value: Option[String] = None
+      |for {
+      |  ${CARET}xxx <- value
+      |} {}
+      |""".stripMargin,
+    "String"
+  )
 }
 
 class ShowTypeInfoActionTest_Scala2 extends ShowTypeInfoActionTestBase {
