@@ -10,6 +10,7 @@ import com.intellij.openapi.roots.ui.configuration.JdkComboBox;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.RawCommandLineEditor;
 import com.intellij.ui.TitledSeparator;
+import com.intellij.ui.components.fields.IntegerField;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
@@ -34,7 +35,7 @@ import java.util.ResourceBundle;
 public class ScalaCompileServerForm implements Configurable {
     private JPanel myJvmSettingsPanel;
     private RawCommandLineEditor myCompilationServerJvmParameters;
-    private JTextField myCompilationServerMaximumHeapSize;
+    private IntegerField myCompilationServerMaximumHeapSize;
     private JCheckBox myEnableCompileServer;
     private JPanel myContentPanel;
     private final JdkComboBox myCompilationServerSdk;
@@ -53,6 +54,8 @@ public class ScalaCompileServerForm implements Configurable {
     private final ScalaCompileServerSettings mySettings;
     private final ProjectSdksModelWithDefault sdkModel;
 
+    private static final int HEAP_SIZE_NOT_SET = -1;
+
     public static final class SearchFilter {
         // TODO: will not work with localized IDEA
         public static String USE_COMPILE_SERVER_FOR_SCALA = "use scala compile server";
@@ -60,6 +63,13 @@ public class ScalaCompileServerForm implements Configurable {
 
     public ScalaCompileServerForm(Project project) {
         mySettings = ScalaCompileServerSettings.getInstance();
+
+        // Accept only positive values.
+        myCompilationServerMaximumHeapSize.setMinValue(1);
+        // If the user provides an incorrect (or empty) value, `HEAP_SIZE_NOT_SET` is returned instead as a sentinel value.
+        myCompilationServerMaximumHeapSize.setDefaultValue(HEAP_SIZE_NOT_SET);
+        // Allow the field to be empty, in which case the -Xmx VM option will not be generated.
+        myCompilationServerMaximumHeapSize.setCanBeEmpty(true);
 
         myProjectHomeChb = new JCheckBox(CompilerIntegrationBundle.message("compile.server.use.project.home"));
         myUseProjectHomePanel.add(UI.PanelFactory.panel(myProjectHomeChb).withTooltip(CompilerIntegrationBundle.message("compile.server.new.project.restart")).createPanel());
@@ -133,6 +143,15 @@ public class ScalaCompileServerForm implements Configurable {
         }
     }
 
+    /**
+     * Serializes the maximum heap size text field value to a string.
+     * @return the heap size as string if valid, otherwise an empty string if it matches the sentinel value
+     */
+    private String heapSizeAsString() {
+        final var size = myCompilationServerMaximumHeapSize.getValue();
+        return size == HEAP_SIZE_NOT_SET ? "" : size.toString();
+    }
+
     @Override
     @Nls
     public String getDisplayName() {
@@ -159,7 +178,7 @@ public class ScalaCompileServerForm implements Configurable {
         return !(myEnableCompileServer.isSelected() == mySettings.COMPILE_SERVER_ENABLED &&
                 sdkModel.isDefault(sdk) == mySettings.USE_DEFAULT_SDK &&
                 ComparatorUtil.equalsNullable(sdkName, mySettings.COMPILE_SERVER_SDK) &&
-                myCompilationServerMaximumHeapSize.getText().equals(mySettings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE) &&
+                heapSizeAsString().equals(mySettings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE) &&
                 myCompilationServerJvmParameters.getText().equals(mySettings.COMPILE_SERVER_JVM_PARAMETERS) &&
                 myProjectHomeChb.isSelected() == mySettings.USE_PROJECT_HOME_AS_WORKING_DIR &&
                 myShutdownServerCheckBox.isSelected() == mySettings.COMPILE_SERVER_SHUTDOWN_IDLE &&
@@ -182,7 +201,7 @@ public class ScalaCompileServerForm implements Configurable {
         mySettings.USE_DEFAULT_SDK = sdkModel.isDefault(sdk);
         mySettings.COMPILE_SERVER_SDK = sdk == null ? null : sdk.getName();
 
-        mySettings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE = myCompilationServerMaximumHeapSize.getText();
+        mySettings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE = heapSizeAsString();
         mySettings.COMPILE_SERVER_JVM_PARAMETERS = myCompilationServerJvmParameters.getText();
 
         mySettings.USE_PROJECT_HOME_AS_WORKING_DIR = myProjectHomeChb.isSelected();
@@ -294,7 +313,7 @@ public class ScalaCompileServerForm implements Configurable {
         label4.setEnabled(true);
         this.$$$loadLabelText$$$(label4, this.$$$getMessageFromBundle$$$("messages/CompilerIntegrationBundle", "jvm.maximum.heap.size.mb"));
         myJvmSettingsPanel.add(label4, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        myCompilationServerMaximumHeapSize = new JTextField();
+        myCompilationServerMaximumHeapSize = new IntegerField();
         myCompilationServerMaximumHeapSize.setColumns(5);
         myCompilationServerMaximumHeapSize.setEnabled(true);
         myJvmSettingsPanel.add(myCompilationServerMaximumHeapSize, new GridConstraints(2, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
