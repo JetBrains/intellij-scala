@@ -60,6 +60,15 @@ trait ScalaEquivalence extends api.Equivalence {
           return des.equivInner(tpt, empty, falseUndef)
         case (des: DesignatorOwner, AliasType(_, Right(tpt: ScTypePolymorphicType), _)) =>
           return des.equivInner(tpt, empty, falseUndef)
+        /**
+         * A workaround for `type Foo <: Nothing`, if an abstract type has `Nothing` as its upper bound
+         * it can be no other type, but `Nothing` itself. A big of a weird edge-case, but it affects zio users.
+         * See: https://youtrack.jetbrains.com/issue/SCL-22598/Extension-methods-are-not-resolved-for-abstract-type-ZNothing-Nothing
+         */
+        case (AliasType(_, _, Right(upper)), nothing) if nothing.isNothing && upper.isNothing =>
+          return ConstraintSystem.empty
+        case (nothing, AliasType(_, _, Right(upper))) if nothing.isNothing && upper.isNothing =>
+          return ConstraintSystem.empty
         case _ =>
       }
 

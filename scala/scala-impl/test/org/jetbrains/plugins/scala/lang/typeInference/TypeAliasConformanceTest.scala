@@ -76,3 +76,40 @@ class TypeAliasConformanceTest extends ScalaLightCodeInsightFixtureTestCase {
     """.stripMargin
   )
 }
+
+@Category(Array(classOf[TypecheckerTests]))
+class TypeAliasScala3ConformanceTest extends ScalaLightCodeInsightFixtureTestCase {
+  override protected def supportedIn(version: ScalaVersion) = version >= LatestScalaVersions.Scala_3
+
+  def testSCL22598(): Unit = checkTextHasNoErrors(
+    """
+      |object Test {
+      |  type ZNothing <: Nothing
+      |
+      |  trait Endpoint[E]
+      |
+      |  def main(args: Array[String]): Unit =
+      |    val value1: Endpoint[Nothing] = null
+      |    value1.extension0
+      |    value1.extension1
+      |    value1.extension2
+      |    value1.extension3
+      |    value1.extension4
+      |
+      |    //Error with Abstract type `ZNothing`
+      |    val value2: Endpoint[ZNothing] = null
+      |    value2.extension0
+      |    value2.extension1
+      |    value1.extension2
+      |    value1.extension3
+      |    value1.extension4
+      |
+      |  extension (endpoint: Endpoint[Nothing]) def extension0: String = null
+      |  extension (endpoint: Endpoint[ZNothing]) def extension1: String = null
+      |  extension [Error](endpoint: Endpoint[Error]) def extension2: String = null
+      |  extension [Error <: Any](endpoint: Endpoint[Error]) def extension3: String = null
+      |  extension [Error <: Nothing](endpoint: Endpoint[Error]) def extension4: String = null
+      |}
+      |""".stripMargin
+  )
+}
