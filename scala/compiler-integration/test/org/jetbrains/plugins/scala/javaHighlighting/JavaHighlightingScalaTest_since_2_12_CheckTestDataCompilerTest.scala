@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.javaHighlighting
 
 import org.jetbrains.plugins.scala.compiler.ScalaCompilerTestBase
-import org.jetbrains.plugins.scala.{CompilationTests, ScalaVersion}
+import org.jetbrains.plugins.scala.{ScalaVersion, SlowTests}
 import org.junit.experimental.categories.Category
 
 class JavaHighlightingScalaTest_since_2_12_CheckTestDataCompilerTest_2_10
@@ -35,7 +35,7 @@ class JavaHighlightingScalaTest_since_2_12_CheckTestDataCompilerTest_3_Next_RC
   extends JavaHighlightingScalaTest_since_2_12_CheckTestDataCompilerTestBase(ScalaVersion.Latest.Scala_3_Next_RC)
 
 /** see [[org.jetbrains.plugins.scala.javaHighlighting.JavaHighlightingScalaTest_since_2_12]] */
-@Category(Array(classOf[CompilationTests]))
+@Category(Array(classOf[SlowTests]))
 abstract class JavaHighlightingScalaTest_since_2_12_CheckTestDataCompilerTestBase(scalaVersion: ScalaVersion)
   extends ScalaCompilerTestBase {
 

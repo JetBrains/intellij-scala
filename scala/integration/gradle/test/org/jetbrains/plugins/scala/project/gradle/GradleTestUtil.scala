@@ -5,10 +5,8 @@ import org.jetbrains.plugins.gradle.settings.GradleSettings
 
 object GradleTestUtil {
   def setupGradleHome(project: Project): Unit = {
-    sys.props.get("gradle.test.home") match {
-      case Some(home) =>
-        GradleSettings.getInstance(project).setServiceDirectoryPath(home)
-      case None =>
+    sys.env.get("TC_GRADLE_TEST_HOME").foreach { home =>
+      GradleSettings.getInstance(project).setServiceDirectoryPath(home)
     }
   }
 }

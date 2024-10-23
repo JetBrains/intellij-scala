@@ -6,6 +6,7 @@ import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.ModuleRootModificationUtil
 import com.intellij.platform.externalSystem.testFramework.ExternalSystemImportingTestCase
+import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.IndexingTestUtil
 import org.jetbrains.plugins.gradle.settings.GradleProjectSettings
 import org.jetbrains.plugins.gradle.util.GradleConstants
@@ -14,7 +15,6 @@ import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
 import org.junit.Assert.assertEquals
 import org.junit.experimental.categories.Category
 
@@ -41,15 +41,7 @@ class ConfigureIncrementalCompilerGradleTest extends ExternalSystemImportingTest
 
     GradleTestUtil.setupGradleHome(getProject)
 
-    sdk = {
-      val jdkVersion =
-        Option(System.getProperty("filter.test.jdk.version"))
-          .map(TestJdkVersion.valueOf)
-          .getOrElse(TestJdkVersion.JDK_17)
-          .toProductionVersion
-
-      SmartJDKLoader.getOrCreateJDK(jdkVersion)
-    }
+    sdk = SmartJDKLoader.getOrCreateJDK(LanguageLevel.JDK_17)
 
     createProjectSubDirs("module1/src/main/java", "module2/src/main/scala", "module3/src/main/kotlin")
     createProjectSubFile("settings.gradle",
