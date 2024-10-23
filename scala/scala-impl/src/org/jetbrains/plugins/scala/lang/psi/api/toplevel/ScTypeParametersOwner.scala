@@ -5,12 +5,8 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.caches.{ModTracker, cached}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScParameterOwner
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
-import org.jetbrains.plugins.scala.lang.psi.stubs.{ScParamClausesStub, ScTypeParamClauseStub}
-
-import scala.jdk.CollectionConverters.ListHasAsScala
 
 trait ScTypeParametersOwner extends ScalaPsiElement {
 
@@ -25,14 +21,6 @@ trait ScTypeParametersOwner extends ScalaPsiElement {
 
   def typeParametersClause: Option[ScTypeParamClause] = {
     this match {
-      // SCL-21205
-      case st: ScalaStubBasedElementImpl[_, _] with ScParameterOwner =>
-        Option(st.getStub).map(
-          _.getChildrenStubs.asScala
-            .takeWhile(!_.isInstanceOf[ScParamClausesStub])
-            .find(_.isInstanceOf[ScTypeParamClauseStub])
-            .map(_.getPsi.asInstanceOf[ScTypeParamClause]))
-          .getOrElse(findChild[ScTypeParamClause])
       case st: ScalaStubBasedElementImpl[_, _] =>
         Option(st.getStubOrPsiChild(ScalaElementType.TYPE_PARAM_CLAUSE))
       case _ =>
