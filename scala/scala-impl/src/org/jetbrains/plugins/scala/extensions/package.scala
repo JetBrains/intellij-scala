@@ -505,14 +505,6 @@ package object extensions {
     def withNormalizedSeparator: String =
       StringUtil.convertLineSeparators(string)
 
-    def toIntOpt: Option[Int] = parseNumeric(string.toInt)
-
-    def toFloatOpt: Option[Float] = parseNumeric(string.toFloat)
-
-    @inline private def parseNumeric[T: Numeric](parse: => T): Option[T] = try Some(parse) catch {
-      case _: NumberFormatException => None
-    }
-
     // TODO: remove, and use stripTrailing() (available since JDK 11)
     //  (search for similar methods definitions in project)
     def trimRight: String = StringExt.TrimRightRegex.replaceFirstIn(string, "")

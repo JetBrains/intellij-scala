@@ -15,7 +15,7 @@ import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.ui.JBSplitter
 import com.intellij.util.concurrency.annotations.RequiresEdt
 import org.jetbrains.annotations.TestOnly
-import org.jetbrains.plugins.scala.extensions.{StringExt, invokeLater}
+import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.util.ui.extensions.JComponentExt
 import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
@@ -160,7 +160,7 @@ object WorksheetEditorPrinterFactory {
 
   def loadWorksheetEvaluation(file: VirtualFile): Option[(String, Float)] = {
     val ratioAttribute = FileAttributeUtilCache.readAttribute(LAST_WORKSHEET_RUN_RATIO, file)
-    val ratio = ratioAttribute.flatMap(_.toFloatOpt).getOrElse(DEFAULT_WORKSHEET_VIEWERS_RATIO)
+    val ratio = ratioAttribute.flatMap(_.toFloatOption).getOrElse(DEFAULT_WORKSHEET_VIEWERS_RATIO)
     FileAttributeUtilCache.readAttribute(LAST_WORKSHEET_RUN_RESULT, file).map(s => (s, ratio))
   }
 

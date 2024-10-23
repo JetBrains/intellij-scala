@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala.worksheet.processor
 
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{JavaDirectoryService, PsiElement, PsiErrorElement, PsiFile, _}
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, StringExt}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypedPattern
@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScBlock, ScE
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, _}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.AccessModifierRenderer
 import org.jetbrains.plugins.scala.project.{ScalaLanguageLevel, _}
@@ -673,8 +673,8 @@ object WorksheetDefaultSourcePreprocessor {
       startWithEnd match {
         case Array(start, end) =>
           for {
-            s <- start.toIntOpt
-            e <- end.toIntOpt
+            s <- start.toIntOption
+            e <- end.toIntOption
             if s != -1 && e != -1
           } yield (s, e)
         case _ => None
