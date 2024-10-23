@@ -26,7 +26,7 @@ public class ScalaCompileServerSettings implements PersistentStateComponent<Scal
 
   public boolean USE_DEFAULT_SDK = true;
 
-  public String COMPILE_SERVER_MAXIMUM_HEAP_SIZE = "2048";
+  public String COMPILE_SERVER_MAXIMUM_HEAP_SIZE = Integer.toString(ScalaCompileServerDefaults.DefaultHeapSize());
   public String COMPILE_SERVER_JVM_PARAMETERS = "-server -Xss2m -XX:+UseParallelGC -XX:MaxInlineLevel=20";
   public int COMPILE_SERVER_PARALLELISM = 4;
   public boolean COMPILE_SERVER_PARALLEL_COMPILATION = true;
