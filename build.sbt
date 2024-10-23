@@ -36,6 +36,9 @@ ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" 
 
 (Global / scalacOptions) := globalScalacOptions
 
+// Muted lint warnings for keys used by the IDE, but not by sbt (coming from sbt-ide-settings)
+Global / excludeLintKeys ++= Set(idePackagePrefix, ideSkipProject, ideExcludedDirectories, ideaConfigOptions)
+
 val definedTestsScopeFilter: ScopeFilter =
   ScopeFilter(inDependencies(scalaCommunity, includeRoot = false), inConfigurations(Test))
 
