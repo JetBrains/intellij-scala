@@ -118,19 +118,18 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
         case None => (ScCompoundType.signaturesFromPsi(earlyHolders), Map.empty[String, TypeAliasSignature])
       }
 
-    val superTypes = extendsBlock.superTypes
+    val pt                = this.expectedType()
     val superTypeElements = extendsBlock.templateParents.fold(Seq.empty[ScTypeElement])(_.allTypeElements)
+
+    val superTypes =
+      if (superTypeElements.isEmpty && this.isInScala3File) pt.toSeq
+      else                                                  extendsBlock.superTypes
 
     if (superTypeElements.length > 1 || termSignatures.nonEmpty || typeSignatures.nonEmpty) {
       Right(ScCompoundType(superTypes, termSignatures, typeSignatures))
     } else if (superTypeElements.length == 1) {
       superTypeElements.head.getNonValueType()
-    } else {
-      superTypes.headOption match {
-        case Some(t) => Right(t)
-        case None    => Right(AnyRef) //this is new {} case
-      }
-    }
+    } else superTypes.headOption.asTypeResult
   }
 
   override def desugaredApply: Option[ScExpression] = {
