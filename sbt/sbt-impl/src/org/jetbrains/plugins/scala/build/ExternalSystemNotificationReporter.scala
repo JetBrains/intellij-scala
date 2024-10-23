@@ -29,14 +29,14 @@ class ExternalSystemNotificationReporter(workingDir: String,
   private var isFinished: Boolean = false
 
   override def start(): Unit = {
-    notifications.onStart(taskId, workingDir)
+    notifications.onStart(workingDir, taskId)
   }
 
   override def finish(messages: BuildMessages): Unit = {
     isFinished = true
     if (messages.status == BuildMessages.OK && messages.errors.isEmpty) {
-      notifications.onEnd(taskId)
-      notifications.onSuccess(taskId)
+      notifications.onEnd(workingDir, taskId)
+      notifications.onSuccess(workingDir, taskId)
     }
     else if (messages.status == BuildMessages.Canceled) {
       finishCanceled()
@@ -56,8 +56,8 @@ class ExternalSystemNotificationReporter(workingDir: String,
 
   override def finishWithFailure(err: Throwable): Unit = {
     isFinished = true
-    notifications.onFailure(taskId, throwableToException(err))
-    notifications.onEnd(taskId)
+    notifications.onFailure(workingDir, taskId, throwableToException(err))
+    notifications.onEnd(workingDir, taskId)
   }
 
   override def finishCanceled(): Unit = {
@@ -67,7 +67,7 @@ class ExternalSystemNotificationReporter(workingDir: String,
       val result = new com.intellij.build.events.impl.SkippedResultImpl
       finishTask(id, SbtBundle.message("report.build.task.canceled"), result, time)
     }
-    notifications.onCancel(taskId)
+    notifications.onCancel(workingDir, taskId)
   }
 
   override def warning(message: String, position: Option[FilePosition]): Unit =

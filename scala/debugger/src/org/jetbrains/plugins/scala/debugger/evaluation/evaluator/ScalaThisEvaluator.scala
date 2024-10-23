@@ -83,7 +83,7 @@ class ScalaThisEvaluator(iterations: Int = 0) extends Evaluator {
   def findInOtherFrame(context: EvaluationContextImpl, rt: ReferenceType): Option[Value] = {
     val threadProxy = context.getFrameProxy.threadProxy()
     threadProxy.frames().asScala.collectFirst {
-      case frame if frame.thisObject() != null && DebuggerUtilsEx.isAssignableFrom(rt.name(), frame.thisObject().referenceType()) =>
+      case frame if frame.thisObject() != null && (DebuggerUtilsEx.isAssignableFrom(rt.name(), frame.thisObject().referenceType()): @nowarn("cat=deprecation")) => // TODO: SCL-23148
         frame.thisObject()
     }
   }

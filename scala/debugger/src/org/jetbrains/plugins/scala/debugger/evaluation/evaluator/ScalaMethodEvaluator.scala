@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants.TraitImplementationClassSuffix_211
 
+import scala.annotation.nowarn
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 import scala.util.{Success, Try}
@@ -142,7 +143,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator,
       def invokeStaticMethod(jdiMethod: Method): AnyRef = {
         def fixArguments(): Seq[Value] = {
           def correctArgType(arg: AnyRef, typeName: String) = arg match {
-            case objRef: ObjectReference => DebuggerUtilsEx.isAssignableFrom(typeName, objRef.referenceType())
+            case objRef: ObjectReference => DebuggerUtilsEx.isAssignableFrom(typeName, objRef.referenceType()): @nowarn("cat=deprecation") // TODO: SCL-23148
             case primValue: PrimitiveValue => primValue.`type`().name() == typeName
             case _ => true
           }
