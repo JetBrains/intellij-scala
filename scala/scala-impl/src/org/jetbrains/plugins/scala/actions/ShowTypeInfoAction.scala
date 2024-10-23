@@ -7,10 +7,12 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtilBase}
+import org.jetbrains.plugins.scala.actions.ShowTypeInfoAction.typeTextOf
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScWildcardPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScUnderscoreSection
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
@@ -51,9 +53,13 @@ class ShowTypeInfoAction extends AnAction(
 
     val selectionModel = editor.getSelectionModel
     if (selectionModel.hasSelection) {
+      val start = selectionModel.getSelectionStart
+      val end = selectionModel.getSelectionEnd
+
       def hintForPattern: Option[String] = {
-        val pattern = PsiTreeUtil.findElementOfClassAtRange(file, selectionModel.getSelectionStart, selectionModel.getSelectionEnd, classOf[ScBindingPattern])
-        ShowTypeInfoAction.typeInfoFromPattern(pattern).map("Type: " + _)
+        val pattern = Option(PsiTreeUtil.findElementOfClassAtRange(file, start, end, classOf[ScBindingPattern]))
+          .orElse(Option(PsiTreeUtil.findElementOfClassAtRange(file, start, end, classOf[ScWildcardPattern])))
+        pattern.flatMap(p => typeTextOf(p, ScSubstitutor.empty)(p).map("Type: " + _))
       }
 
       implicit val project: Project = file.getProject
@@ -83,9 +89,21 @@ class ShowTypeInfoAction extends AnAction(
           case _ => ScalaBundle.message("could.not.find.type.for.selection")
         }
       }
-      val hint = (hintForPattern orElse hintForExpression).map(StringUtil.escapeXmlEntities)
-      hint.foreach(ScalaActionUtil.showHint(editor, _))
 
+      def hintForParameter: Option[String] = {
+        val parameter = PsiTreeUtil.findElementOfClassAtRange(file, start, end, classOf[ScParameter])
+        if (parameter == null) None
+        else {
+          val scType = parameter.ofNamedElement(ScSubstitutor.empty)
+          scType.map(_.presentableText(parameter: TypePresentationContext))
+        }
+      }
+
+      val hint = hintForPattern
+        .orElse(hintForExpression)
+        .orElse(hintForParameter)
+      val hintEscaped = hint.map(StringUtil.escapeXmlEntities)
+      hintEscaped.foreach(ScalaActionUtil.showHint(editor, _))
     } else {
       val offset = TargetElementUtil.adjustOffset(file, editor.getDocument,
         editor.logicalPositionToOffset(editor.getCaretModel.getLogicalPosition))
@@ -104,31 +122,37 @@ object ShowTypeInfoAction {
       case _ =>
         val element = file.findElementAt(offset)
         if (element == null) return None
-        if (element.getNode.getElementType != ScalaTokenTypes.tIDENTIFIER) return None
+
+        element.elementType match {
+          case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER =>
+          case _ =>
+            return None
+        }
+
         element match {
           case Parent(p) => typeTextOf(p, ScSubstitutor.empty)(element)
           case _         => None
         }
     }
 
-    val pattern =
-      PsiTreeUtil.findElementOfClassAtOffset(file, offset, classOf[ScBindingPattern], false)
-
-    typeInfoFromRef.orElse(typeInfoFromPattern(pattern))
+    typeInfoFromRef.orElse {
+      val pattern = PsiTreeUtil.findElementOfClassAtOffset(file, offset, classOf[ScBindingPattern], false)
+      if (pattern != null)
+        typeTextOf(pattern, ScSubstitutor.empty)(pattern)
+      else
+        None
+    }
   }
 
-  private def typeInfoFromPattern(p: ScBindingPattern): Option[String] =
-    p match {
-      case null => None
-      case _    => typeTextOf(p, ScSubstitutor.empty)(p)
-    }
-
-  private[this] def typeTextOf(elem: PsiElement, subst: ScSubstitutor)
+  private def typeTextOf(elem: PsiElement, subst: ScSubstitutor)
                               (implicit context: TypePresentationContext): Option[String] = {
-    //NOTE: type alias handled here, not inside `org.jetbrains.plugins.scala.extensions.PsiElementExt.ofNamedElement$extension`
-    //because it's not directly clear how it will effect other usage places of ofNamedElement
-    //(mainly org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterHandler)
-    val scType = elem.ofNamedElement(subst)
+    val scType = elem.ofNamedElement(subst).orElse {
+      elem match {
+        case under: ScUnderscoreSection => under.`type`().toOption
+        case under: ScWildcardPattern => under.`type`().toOption
+        case _ => None
+      }
+    }
     scType.map(TypePresentation.withoutAliases)
   }
 

@@ -119,6 +119,76 @@ abstract class ShowTypeInfoActionTestBase extends ScalaLightCodeInsightFixtureTe
     //NOTE: ideally it could also strip `Scope.` in this context
     "Scope.<wbr>ScopeInner.<wbr>myValue.<wbr>type"
   )
+
+  def testUnderscoreParameter_WithSelection(): Unit = doShowTypeInfoTest(
+    s"""Seq(1, 2).map($CARET${START}_$END.toString)""",
+    "Int"
+  )
+
+  def testUnderscoreParameter_WithoutSelection_CaretBeforeUnderscore(): Unit = doShowTypeInfoTest(
+    s"""Seq(1, 2).map(${CARET}_.toString)""",
+    "Int"
+  )
+
+  def testUnderscoreParameter_WithoutSelection_CaretAfterUnderscore(): Unit = doShowTypeInfoTest(
+    s"""Seq(1, 2).map(_$CARET.toString)""",
+    "Int"
+  )
+
+  def testUnderscoreParameterWithType_WithSelection(): Unit = doShowTypeInfoTest(
+    s"""Seq(1, 2).map(($CARET${START}_$END: Int).toString)""",
+    "Int"
+  )
+
+  def testUnderscoreParameterWithType_WithoutSelection_CaretBeforeUnderscore(): Unit = doShowTypeInfoTest(
+    s"""Seq(1, 2).map((${CARET}_: Int).toString)""",
+    "Int"
+  )
+
+  def testUnderscoreParameterWithType_WithoutSelection_CaretAfterUnderscore(): Unit = doShowTypeInfoTest(
+    s"""Seq(1, 2).map((_$CARET: Int).toString)""",
+    "Int"
+  )
+
+  def testLambdaParameter_WithSelection(): Unit = doShowTypeInfoTest(
+    s"""Seq(1, 2).map($CARET${START}x$END => x.toString)""",
+    "Int"
+  )
+
+  def testLambdaParameter_WithoutSelection(): Unit = doShowTypeInfoTest(
+    s"""Seq(1, 2).map(${CARET}x => x.toString)""",
+    "Int"
+  )
+
+  def testLambdaParameter_WithSelection_WithCase_MultipleParams(): Unit = doShowTypeInfoTest(
+    s"""Seq((1, 2)).map { case (a, $CARET${START}b$END) => "42" }""",
+    "Type: Int"
+  )
+
+  def testLambdaParameter_WithoutSelection_WithCase_MultipleParams(): Unit = doShowTypeInfoTest(
+    s"""Seq((1, 2)).map { case (a, ${CARET}b) => "42" }""",
+    "Int"
+  )
+
+  def testAnonymousLambdaParameter_WithSelection(): Unit = doShowTypeInfoTest(
+    s"""Seq(1, 2).map($CARET${START}_$END => "42")""",
+    "Int"
+  )
+
+  def testAnonymousLambdaParameter_WithoutSelection(): Unit = doShowTypeInfoTest(
+    s"""Seq(1, 2).map(${CARET}_ => "42")""",
+    "Int"
+  )
+
+  def testUnderscoreWildcardPattern_WithSelection(): Unit = doShowTypeInfoTest(
+    s"""Seq(1, 2).map { case $CARET${START}_$END => "42" }""",
+    "Type: Int"
+  )
+
+  def testUnderscoreWildcardPattern_WithoutSelection(): Unit = doShowTypeInfoTest(
+    s"""Seq(1, 2).map{ case ${CARET}_ => "42" }""",
+    "Int"
+  )
 }
 
 class ShowTypeInfoActionTest_Scala2 extends ShowTypeInfoActionTestBase {
@@ -140,5 +210,15 @@ class ShowTypeInfoActionTest_Scala3 extends ShowTypeInfoActionTest_Scala2 {
        |  val color: ${CARET}Color = ???
        |}""".stripMargin,
     """red.<wbr>type | green.<wbr>type | "blue""""
+  )
+
+  def testLambdaParameter_WithSelection_WithoutCase_MultipleParams(): Unit = doShowTypeInfoTest(
+    s"""Seq((1, 2)).map((a, $CARET${START}b$END) => "42")""",
+    "Int"
+  )
+
+  def testLambdaParameter_WithoutSelection_WithoutCase_MultipleParams(): Unit = doShowTypeInfoTest(
+    s"""Seq((1, 2)).map((a, ${CARET}b) => "42")""",
+    "Int"
   )
 }
