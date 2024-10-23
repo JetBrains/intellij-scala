@@ -413,7 +413,7 @@ object CompileServerLauncher {
   def jvmParameters: Seq[String] = {
     val settings = ScalaCompileServerSettings.getInstance()
     val size = settings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE
-    val xmx = if (size.isEmpty) Nil else List(s"-Xmx${size}m")
+    val xmx = size.toIntOption.map(sz => s"-Xmx${sz}m").toList
 
     val paramsParsed = settings.COMPILE_SERVER_JVM_PARAMETERS.split(" ").filter(StringUtils.isNotBlank)
     val (_, otherParams) = paramsParsed.partition(_.contains("-XX:MaxPermSize"))

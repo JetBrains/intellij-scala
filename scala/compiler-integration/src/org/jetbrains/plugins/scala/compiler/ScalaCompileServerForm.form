@@ -164,7 +164,7 @@
               <text resource-bundle="messages/CompilerIntegrationBundle" key="jvm.maximum.heap.size.mb"/>
             </properties>
           </component>
-          <component id="91057" class="javax.swing.JTextField" binding="myCompilationServerMaximumHeapSize">
+          <component id="9482b" class="com.intellij.ui.components.fields.IntegerField" binding="myCompilationServerMaximumHeapSize">
             <constraints>
               <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
