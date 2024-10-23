@@ -50,6 +50,8 @@ class AddOrRemoveStrategy(editor: Option[Editor] = None) extends AddOnlyStrategy
   }
 
   override def parameterWithType(parameter: ScParameter): Boolean = {
+    val caretWasBeforeParameter = editor.exists(_.getCaretModel.getOffset <= parameter.getTextOffset)
+
     import parameter.projectContext
 
     val newParameter = createFunctionParameterFromText(parameter.name)
@@ -68,13 +70,29 @@ class AddOrRemoveStrategy(editor: Option[Editor] = None) extends AddOnlyStrategy
       (parameter, newParameter)
     }
 
-    element.replace(replacement)
+    val replaced = element.replace(replacement)
+    // in case caret was here: Seq(1, 2).map((<caret>x: Int) => x.toString)
+    // we need it to be here after the action is invoked: Seq(1, 2).map(<caret>x => x.toString)
+    if (caretWasBeforeParameter) {
+      editor.foreach(_.getCaretModel.moveToOffset(replaced.getTextOffset))
+    }
 
     true
   }
 
   override def underscoreSectionWithType(underscore: ScUnderscoreSection): Boolean = {
-    underscore.getParent.getParent.replace(underscore)
+    val caretWasBeforeUnderscore = editor.exists(_.getCaretModel.getOffset <= underscore.getTextOffset)
+
+    // Example: Seq(1, 2).map((_: Int).toString)
+    // PSI structure: ExpressionInParenthesis -> TypedExpression -> UnderscoreSection
+    val parExpr = underscore.getParent.getParent
+    val replaced = parExpr.replace(underscore)
+
+    // in case caret was here: Seq(1, 2).map((<caret>_: Int).toString)
+    // we need it to be here after the action is invoked: Seq(1, 2).map(<caret>_.toString)
+    if (caretWasBeforeUnderscore) {
+      editor.foreach(_.getCaretModel.moveToOffset(replaced.getTextOffset))
+    }
 
     true
   }

@@ -289,4 +289,64 @@ abstract class ToggleTypeAnnotationIntentionTestBase extends ScalaIntentionTestB
        |}
        |""".stripMargin
   )
+
+  def testAddTypeAnnotationToUnderscoreParameter_CaretBeforeUnderscore(): Unit = doTest(
+    s"""Seq(1, 2).map(${CARET}_.toString)""",
+    s"""Seq(1, 2).map($CARET(_: Int).toString)""",
+  )
+
+  def testAddTypeAnnotationToUnderscoreParameter_CaretAfterUnderscore(): Unit = doTest(
+    s"""Seq(1, 2).map(_${CARET}.toString)""",
+    s"""Seq(1, 2).map((_: Int)$CARET.toString)""",
+  )
+
+  def testRemoveTypeAnnotationToUnderscoreParameter_CaretBeforeUnderscoreSection(): Unit = doTest(
+    s"""Seq(1, 2).map((${CARET}_: Int).toString)""",
+    s"""Seq(1, 2).map(${CARET}_.toString)""",
+  )
+
+  def testRemoveTypeAnnotationToUnderscoreParameter_CaretAfterUnderscoreSection(): Unit = doTest(
+    s"""Seq(1, 2).map((_: Int$CARET).toString)""",
+    s"""Seq(1, 2).map(_${CARET}.toString)""",
+  )
+
+  def testRemoveTypeAnnotationToUnderscoreParameter_CaretInTheMiddleOfUnderscoreSection(): Unit = doTest(
+    s"""Seq(1, 2).map((_: ${CARET}Int).toString)""",
+    s"""Seq(1, 2).map(_$CARET.toString)""",
+  )
+
+  def testRemoveTypeAnnotationToUnderscoreParameter_CaretInTheMiddleOfUnderscoreSection_TypeWithDot(): Unit = doTest(
+    s"""Seq(1, 2).map((_: scala$CARET.Int).toString)""",
+    s"""Seq(1, 2).map(_$CARET.toString)""",
+  )
+
+  def testAddTypeAnnotationToLambdaParameter_CaretBeforeParameterName(): Unit = doTest(
+    s"""Seq(1, 2).map(${CARET}x => x.toString)""",
+    s"""Seq(1, 2).map($CARET(x: Int) => x.toString)""",
+  )
+
+  def testAddTypeAnnotationToLambdaParameter_CaretAfterParameterName(): Unit = doTest(
+    s"""Seq(1, 2).map(x${CARET} => x.toString)""",
+    s"""Seq(1, 2).map((x: Int)$CARET => x.toString)""",
+  )
+
+  def testRemoveTypeAnnotationToLambdaParameter_CaretBeforeParameterName(): Unit = doTest(
+    s"""Seq(1, 2).map((${CARET}x: Int) => x.toString)""",
+    s"""Seq(1, 2).map(${CARET}x => x.toString)""",
+  )
+
+  def testRemoveTypeAnnotationToLambdaParameter_CaretAfterParameterName(): Unit = doTest(
+    s"""Seq(1, 2).map((x: Int$CARET) => x.toString)""",
+    s"""Seq(1, 2).map(x$CARET => x.toString)""",
+  )
+
+  def testRemoveTypeAnnotationToLambdaParameter_CaretInTheMiddleOfParameter(): Unit = doTest(
+    s"""Seq(1, 2).map((x: ${CARET}Int) => x.toString)""",
+    s"""Seq(1, 2).map(x$CARET => x.toString)""",
+  )
+
+  def testRemoveTypeAnnotationToLambdaParameter_CaretInTheMiddleOfParameter_TypeWithDot(): Unit = doTest(
+    s"""Seq(1, 2).map((x: scala$CARET.Int) => x.toString)""",
+    s"""Seq(1, 2).map(x$CARET => x.toString)""",
+  )
 }
