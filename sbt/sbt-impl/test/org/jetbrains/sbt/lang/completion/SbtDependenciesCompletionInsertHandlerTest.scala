@@ -1,7 +1,10 @@
 package org.jetbrains.sbt.lang.completion
 
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import org.jetbrains.plugins.scala.packagesearch.api.{PackageSearchClient, PackageSearchClientTesting}
+import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 class SbtDependenciesCompletionInsertHandlerTest
   extends SbtCompletionTestBase
     with PackageSearchClientTesting {
