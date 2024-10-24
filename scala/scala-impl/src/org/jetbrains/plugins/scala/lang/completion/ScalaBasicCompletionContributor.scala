@@ -10,9 +10,4 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
     PlatformPatterns.psiElement(),
     new ScalaBasicCompletionProvider
   )
-
-  override def beforeCompletion(context: CompletionInitializationContext): Unit = {
-    context.setDummyIdentifier(dummyIdentifier(context.getFile, context.getStartOffset - 1))
-    super.beforeCompletion(context)
-  }
 }
