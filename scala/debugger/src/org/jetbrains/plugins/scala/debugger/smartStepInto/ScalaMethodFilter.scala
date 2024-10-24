@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.debugger.smartStepInto
 
 import com.intellij.debugger.engine._
-import com.intellij.debugger.impl.DebuggerUtilsEx
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.Range
 import com.sun.jdi.Location
@@ -15,8 +14,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants.TraitImplementationClassSuffix_211
 import org.jetbrains.plugins.scala.util.TopLevelMembers.{findEnclosingPackageOrFile, topLevelMemberClassName}
-
-import scala.annotation.nowarn
 
 class ScalaMethodFilter(function: ScMethodLike, callingExpressionLines: Range[Integer]) extends MethodFilter {
   private val unknownName: String = "!unknownName!"
@@ -56,7 +53,7 @@ class ScalaMethodFilter(function: ScMethodLike, callingExpressionLines: Range[In
     else if (myTargetMethodSignature != null && method.signature() != myTargetMethodSignature.getName(process))
       false
     else
-      (DebuggerUtilsEx.isAssignableFrom(locationTypeName, location.declaringType): @nowarn("cat=deprecation")) && // TODO: SCL-23148
+      DebuggerUtils.instanceOf(location.declaringType(), locationTypeName) &&
         !ScalaPositionManager.shouldSkip(location, process)
   }
 

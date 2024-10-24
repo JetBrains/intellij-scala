@@ -1,15 +1,14 @@
 package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 
 import com.intellij.debugger.JavaDebuggerBundle
+import com.intellij.debugger.engine.DebuggerUtils
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.Evaluator
-import com.intellij.debugger.impl.DebuggerUtilsEx
 import com.intellij.debugger.jdi.{LocalVariableProxyImpl, StackFrameProxyImpl}
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.DebuggerBundle
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 
-import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
 class ScalaThisEvaluator(iterations: Int = 0) extends Evaluator {
@@ -83,7 +82,7 @@ class ScalaThisEvaluator(iterations: Int = 0) extends Evaluator {
   def findInOtherFrame(context: EvaluationContextImpl, rt: ReferenceType): Option[Value] = {
     val threadProxy = context.getFrameProxy.threadProxy()
     threadProxy.frames().asScala.collectFirst {
-      case frame if frame.thisObject() != null && (DebuggerUtilsEx.isAssignableFrom(rt.name(), frame.thisObject().referenceType()): @nowarn("cat=deprecation")) => // TODO: SCL-23148
+      case frame if frame.thisObject() != null && DebuggerUtils.instanceOf(frame.thisObject().referenceType(), rt.name()) =>
         frame.thisObject()
     }
   }
