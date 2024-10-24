@@ -20,7 +20,7 @@ public class IntellijSourcesAttachListener implements ExternalSystemTaskNotifica
     private static final Logger LOG = Logger.getInstance(IntellijSourcesAttachListener.class);
 
     @Override
-    public void onSuccess(@NotNull ExternalSystemTaskId id) {
+    public void onSuccess(@NotNull String projectPath, @NotNull ExternalSystemTaskId id) {
         Project project = id.findProject();
         if (project == null || project.isDisposed())
             return;

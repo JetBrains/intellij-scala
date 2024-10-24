@@ -113,7 +113,7 @@ private final class ExternalHighlightersService(project: Project) { self =>
                 editor.getColorsScheme,
                 ScalaCompilerPassId
               )
-              ErrorStripeUpdateManager.getInstance(project).repaintErrorStripePanel(editor, psiFile)
+              ErrorStripeUpdateManager.getInstance(project).launchRepaintErrorStripePanel(editor, psiFile)
             }
           }
           // Show red squiggly lines for errors in Project View.

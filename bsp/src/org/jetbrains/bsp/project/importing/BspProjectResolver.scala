@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter, External
 import java.io.File
 import java.util.Collections
 import java.util.concurrent.CompletableFuture
-import scala.annotation.tailrec
+import scala.annotation.{nowarn, tailrec}
 import scala.concurrent.duration._
 import scala.concurrent.{Await, TimeoutException}
 import scala.jdk.CollectionConverters._
@@ -266,7 +266,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       listener.beforeCancel(taskId)
       f
       importState = Inactive
-      listener.onCancel(taskId)
+      listener.onCancel(taskId): @nowarn("cat=deprecation") // TODO: SCL-23147
       true
     }
 
