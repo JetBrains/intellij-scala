@@ -1,5 +1,6 @@
 package org.jetbrains.sbt.project.settings
 
+import com.intellij.icons.AllIcons
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.{JBColor, TitledSeparator}
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
@@ -48,12 +49,17 @@ final class SbtExtraControls {
       false
     )
 
+    val separateProdTestModulesWithBadge: JPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0))
+    separateProdTestModulesWithBadge.add(separateProdTestModules)
+    separateProdTestModulesWithBadge.add(Box.createHorizontalStrut(5))
+    separateProdTestModulesWithBadge.add(new JBLabel(AllIcons.General.Beta))
+    
     content.add(new JBLabel(SbtBundle.message("sbt.settings.download")), new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(80, 16), null, 0, false))
     content.add(resolveClassifiersCheckBox.panelWithTooltip, gc(0, 1, 1, 1))
     content.add(resolveSbtClassifiersCheckBox.panelWithTooltip, gc(1, 1, 1, 1))
     content.add(scalaVersionPreferenceCheckBox.panelWithTooltip, gc(2, 0, 1, 2))
     content.add(useSeparateCompilerOutputPaths.panelWithTooltip, gc(3, 0, 1, 2))
-    content.add(separateProdTestModules, gc(4, 0, 1, 2))
+    content.add(separateProdTestModulesWithBadge, gc(4, 0, 1, 2))
     content.add(useSeparateCompilerOutputPathsWarning, warningConstraints)
     content.add(new TitledSeparator(SbtBundle.message("sbt.settings.shell.title")), new GridConstraints(6, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false))
     content.add(new JBLabel(SbtBundle.message("sbt.settings.useShell")), new GridConstraints(7, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false))
