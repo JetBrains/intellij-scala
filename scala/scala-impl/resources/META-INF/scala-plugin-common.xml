@@ -253,6 +253,8 @@
         <completion.contributor language="Scala" id="keywordCompletionContributor"
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaKeywordCompletionContributor"
                                 order="before caseClauseCompletionContributor"/>
+        <completion.contributor language="Scala" id="scalaDumbAwareCompletionContributor"
+                                implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaDumbAwareCompletionContributor"/>
         <completion.contributor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaSmartCompletionContributor"/>
         <completion.contributor language="Scala"
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionContributor"/>
