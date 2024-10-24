@@ -4,7 +4,7 @@ import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.completion.impl.RealPrefixMatchingWeigher
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder, LookupElementPresentation}
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi.PsiElement
 import com.intellij.util.ProcessingContext
@@ -19,7 +19,7 @@ import org.jetbrains.sbt.language.utils.SbtDependencyUtils.GetMode.GetDep
 import org.jetbrains.sbt.language.utils._
 
 // TODO(SCL-19130, SCL-22206): refactor
-class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionContributor {
+class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionContributor with DumbAware {
 
   private val PATTERN = (SbtPsiElementPatterns.sbtFilePattern || SbtPsiElementPatterns.scalaFilePattern) &&
       psiElement.inside(SbtPsiElementPatterns.sbtModuleIdPattern)
