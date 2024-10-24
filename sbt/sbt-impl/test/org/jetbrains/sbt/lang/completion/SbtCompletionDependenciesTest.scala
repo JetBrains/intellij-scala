@@ -1,9 +1,12 @@
 package org.jetbrains.sbt
 package lang.completion
 
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import org.jetbrains.plugins.scala.packagesearch.api.{PackageSearchClient, PackageSearchClientTesting}
 import org.jetbrains.plugins.scala.packagesearch.util.DependencyUtil
+import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 class SbtCompletionDependenciesTest
   extends SbtFileTestDataCompletionTestBase
     with MockSbt_1_0
