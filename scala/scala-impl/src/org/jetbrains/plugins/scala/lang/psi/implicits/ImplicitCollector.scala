@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, TypeParamIdOwner}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.implicits.ExtensionConversionHelper.extensionConversionCheck
@@ -99,6 +99,7 @@ object ImplicitCollector {
 /**
  * @param place The call site
  * @param tp    Search for an implicit definition of this type. May have type variables.
+ * @param forDeferredGivenInClass Template definition for which deferred given instance search was initiated
  */
 class ImplicitCollector(
   place:                      PsiElement,
@@ -106,12 +107,13 @@ class ImplicitCollector(
   expandedTp:                 ScType,
   coreElement:                Option[ScNamedElement],
   isImplicitConversion:       Boolean,
-  searchImplicitsRecursively: Int = 0,
-  extensionData:              Option[ExtensionConversionData] = None,
-  fullInfo:                   Boolean = false,
+  searchImplicitsRecursively: Int                                          = 0,
+  extensionData:              Option[ExtensionConversionData]              = None,
+  fullInfo:                   Boolean                                      = false,
   previousRecursionState:     Option[ImplicitsRecursionGuard.RecursionMap] = None,
-  withExtensions:             Boolean = false,
-  forCompletion:              Boolean = false
+  withExtensions:             Boolean                                      = false,
+  forCompletion:              Boolean                                      = false,
+  forDeferredGivenInClass:    Option[ScTemplateDefinition]                 = None
 ) {
   def this(state: ImplicitState) = {
     this(state.place, state.tp, state.expandedTp, state.coreElement, state.isImplicitConversion,
@@ -187,7 +189,15 @@ class ImplicitCollector(
             //Step 1: Process only extension candidates in lexical scope
             //Step 2: Try implicits/givens from lexical scope and extensions inside given definitions
             //Step 3: Try implicits/givens/extension from implicit scope and extension inside given definitions
-            val visible = visibleNamesCandidates()
+            val additionalClassParameters =
+              forDeferredGivenInClass.collect {
+                case cls: ScClass =>
+                  cls.parameters.collect {
+                    case p if p.isImplicitOrContextParameter => new ScalaResolveResult(p)
+                  }
+              }.getOrElse(Seq.empty)
+
+            val visible = visibleNamesCandidates() ++ additionalClassParameters
 
             val (visibleExtensions, otherVisibleCandidates) = visible.partition(_.isExtensionCall)
 

@@ -13,11 +13,12 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotationsHolder, ScPrimaryConstructor, ScStableCodeReference}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScNewTemplateDefinition, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaration, ScEnumCase, ScEnumSingletonCase, ScFunctionDefinition, ScTypeAliasDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
-import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, TypePresentationContext, ValueClassType}
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
+import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScType, TermSignature, TypePresentationContext, ValueClassType}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.overrideImplement.{ScMethodMember, ScalaOIUtil, ScalaTypedMember}
 import org.jetbrains.plugins.scala.{NlsString, ScalaBundle, overrideImplement}
@@ -43,8 +44,88 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
       annotateIllegalInheritance(element)
       annotateObjectCreationImpossible(element)
       annotateEnumCaseCreationImpossible(element)
+      annotateDeferredGivens(element)
     }
   }
+
+  /**
+   * If super trait(s) have deferred givens, perform an implicit search to check if
+   * proper substitution exists.
+   */
+  private def annotateDeferredGivens(
+    tdef: ScTemplateDefinition
+  )(implicit
+    holder: ScalaAnnotationHolder
+  ): Unit = {
+    def findEvidenceForDeferredGivenOfType(
+      tp:         ScType,
+      sig:        TermSignature,
+      superTrait: PsiClass
+    ): Unit = {
+      val collector = new ImplicitCollector(
+        tdef.getContext,
+        tp,
+        tp,
+        None,
+        isImplicitConversion    = false,
+        forDeferredGivenInClass = Option(tdef)
+      )
+
+      collector.collect() match {
+        case Seq(_) => ()
+        case _ =>
+          val givenName = sig.name
+          val superName = superTrait.name
+
+          holder.createErrorAnnotation(
+            highlightRange(tdef),
+            ScalaBundle.message("no.given.instance.for.deferred", tp.presentableText(tdef), givenName, superName)
+          )
+      }
+    }
+
+    def isDeferredGivenSig(sig: TermSignature): Boolean = {
+      val elem = sig.namedElement
+
+      elem match {
+        case gvn: ScGivenAliasDefinition =>
+          (
+            for {
+              refExpr          <- gvn.body.collect { case ref: ScReferenceExpression => ref }
+              srr              <- refExpr.bind()
+              deferredFunction <- srr.element.asOptionOf[ScFunctionDefinition]
+              fqn              <- deferredFunction.qualifiedNameOpt
+            } yield fqn == "scala.compiletime.deferred"
+          ).getOrElse(false)
+        case _ => false
+      }
+    }
+
+    tdef match {
+      case _: ScTrait => ()
+      case _ =>
+        val nodes = TypeDefinitionMembers.getSignatures(tdef).allNodes
+
+        nodes.foreach { node =>
+          val sig = node.info
+
+          if (isDeferredGivenSig(sig)) {
+            val parentTrait = sig.containingClass
+
+            val isImplementedInParent =
+              tdef.superClass.exists(ScalaPsiUtil.isInheritorDeep(_, parentTrait))
+
+            if (!isImplementedInParent) {
+              val subst      = sig.substitutor
+              val element    = sig.namedElement.asInstanceOf[ScGivenAliasDefinition]
+              val returnType = element.returnType.getOrNothing
+              findEvidenceForDeferredGivenOfType(subst(returnType), sig, parentTrait)
+            }
+          }
+        }
+    }
+  }
+
 
   /**
    * 1. If a class C extends a parameterized trait T, and its superclass does not, C must pass arguments to T.
