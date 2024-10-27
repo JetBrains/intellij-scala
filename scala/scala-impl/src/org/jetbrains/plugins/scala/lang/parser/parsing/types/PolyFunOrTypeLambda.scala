@@ -14,7 +14,11 @@ object PolyFunOrTypeLambda {
     if (!builder.isScala3) false
     else {
       val marker = builder.mark()
-      if (!TypeParamClause(mayHaveViewBounds = false, mayHaveContextBounds = false, mayHaveVariance = false)) {
+      if (!TypeParamClause(
+        mayHaveViewBounds    = false,
+        mayHaveContextBounds = builder.features.`new context bounds and givens`,
+        mayHaveVariance      = false
+      )) {
         marker.rollbackTo()
         false
       } else {

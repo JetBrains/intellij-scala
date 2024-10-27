@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScParenthesizedElement.InnermostElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParenthesisedTypeElement.InnermostTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScFunctionalTypeElement, ScPolyFunctionTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScDependentFunctionTypeElement, ScFunctionalTypeElement, ScPolyFunctionTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFunctionExpr, ScPolyFunctionExpr}
 
 object ScPolyFunctionExprAnnotator extends ElementAnnotator[ScPolyFunctionExpr] {
@@ -30,7 +30,7 @@ object ScPolyFunctionTypeElementAnnotator extends ElementAnnotator[ScPolyFunctio
   )(implicit
     holder: ScalaAnnotationHolder
   ): Unit = element.resultTypeElement match {
-    case None | Some(InnermostTypeElement(_: ScFunctionalTypeElement)) => ()
+    case None | Some(InnermostTypeElement(_: ScFunctionalTypeElement | _: ScDependentFunctionTypeElement)) => ()
     case Some(nonFn) =>
       holder.createErrorAnnotation(
         nonFn,

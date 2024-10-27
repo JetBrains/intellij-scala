@@ -9,11 +9,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterCla
 trait ScDependentFunctionTypeElement extends ScTypeElement {
   override protected val typeName: String = "DependentFunctionType"
 
-  def paramTypeElement: ScParameterClause
+  def parameterClause: ScParameterClause
   def returnTypeElement: Option[ScTypeElement]
 }
 
 object ScDependentFunctionTypeElement {
   def unapply(arg: ScDependentFunctionTypeElement): Some[(ScParameterClause, Option[ScTypeElement])] =
-    Some(arg.paramTypeElement, arg.returnTypeElement)
+    Some(arg.parameterClause, arg.returnTypeElement)
 }

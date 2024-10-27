@@ -148,7 +148,7 @@ trait FileDeclarationsHolder
             // Do nothing
           case _ =>
             //mind SCL-20534
-            if (lastParent.defaultImports.exists(s => s == "scala" || s == "scala.Predef") && !isInsidePackage("scala")) {
+            if (this.defaultImports.exists(s => s == "scala" || s == "scala.Predef") && !isInsidePackage("scala")) {
               if (aliasImports.exists(!_.processDeclarations(processor, state, lastParent, place)))
                 return false
             }

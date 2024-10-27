@@ -80,7 +80,9 @@ trait ScParameter extends ScTypedDefinition
       classOf[ScFunction],
       classOf[ScPrimaryConstructor],
       classOf[ScExtension],
-      classOf[ScGivenDefinition]
+      classOf[ScGivenDefinition],
+      classOf[ScPolyFunctionExpr],
+      classOf[ScDependentFunctionTypeElement]
     )
 
   //TODO: Review all usages of `isImplicitParameter` and replace with `isImplicitOrContextParameter` if needed

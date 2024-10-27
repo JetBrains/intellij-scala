@@ -58,7 +58,10 @@ object Expr extends ParsingRule {
         else {
           exprMarker.drop()
         }
-      case InScala3(ScalaTokenTypes.tLSQBRACKET) if TypeParamClause(mayHaveViewBounds = false, mayHaveContextBounds = false) =>
+      case InScala3(ScalaTokenTypes.tLSQBRACKET) if TypeParamClause(
+        mayHaveViewBounds    = false,
+        mayHaveContextBounds = builder.features.`new context bounds and givens`
+      ) =>
         builder.getTokenType match {
           case ScalaTokenTypes.tFUNTYPE =>
             builder.advanceLexer() // ate =>
