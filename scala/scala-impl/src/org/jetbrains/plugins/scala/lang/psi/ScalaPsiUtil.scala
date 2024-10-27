@@ -1042,7 +1042,7 @@ object ScalaPsiUtil {
     case scalaFile: ScalaFile => !scalaFile.isMultipleDeclarationsAllowed || includeFilesWithAllowedDefinitionNameCollisions
     case _: ScBlock | _: ScTemplateBody | _: ScPackaging | _: ScParameters |
          _: ScTypeParamClause | _: ScCaseClause | _: ScFor | _: ScExistentialClause |
-         _: ScEarlyDefinitions | _: ScRefinement => true
+         _: ScEarlyDefinitions | _: ScRefinement | _: ScDependentFunctionTypeElement => true
     case e: ScPatternDefinition if e.getContext.is[ScCaseClause] => true // {case a => val a = 1}
     case _ => false
   }
@@ -1405,21 +1405,21 @@ object ScalaPsiUtil {
 
   /** Creates a synthetic parameter clause based on view and context bounds */
   def syntheticParamClause(
-    parameterOwner: ScTypeParametersOwner,
-    paramClauses: ScParameters,
-    isClassParameter: Boolean
-  )(hasImplicit: Boolean = paramClauses.clauses.exists(_.isImplicitOrUsing)): Option[ScParameterClause] =
+    tparams:          Seq[ScTypeParam],
+    context:          PsiElement,
+    isClassParameter: Boolean,
+    hasImplicit:      Boolean
+  ): Option[ScParameterClause] =
     if (!hasImplicit)
-      syntheticParamClauseNonImplicit(parameterOwner, paramClauses, isClassParameter)
+      syntheticParamClauseNonImplicit(tparams, context, isClassParameter)
     else
       None
 
   private def syntheticParamClauseNonImplicit(
-    parameterOwner: ScTypeParametersOwner,
-    paramClauses: ScParameters,
+    tparams:          Seq[ScTypeParam],
+    context:          PsiElement,
     isClassParameter: Boolean
   ): Option[ScParameterClause] = {
-    val tparams = parameterOwner.typeParameters
     if (tparams.isEmpty) return None
 
     case class ParameterDescriptor(
@@ -1462,7 +1462,7 @@ object ScalaPsiUtil {
     val clausesTexts = viewsTexts ++ boundsTexts
     if (clausesTexts.isEmpty) return None
 
-    val result = createImplicitClauseFromTextWithContext(clausesTexts, paramClauses, isClassParameter)
+    val result = createImplicitClauseFromTextWithContext(clausesTexts, context, isClassParameter)
     result.parameters
       .flatMap(_.typeElement)
       .zip(views ++ bounds)

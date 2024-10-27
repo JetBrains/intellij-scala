@@ -58,46 +58,78 @@ object ConvertImplicitBoundsToImplicitParameter {
       .getOrElse(return Seq.empty)
 
     val (function, isClass) = parameterOwner match {
-      case function: ScFunction => (function, false)
+      case function: ScFunction                   => (function, false)
       case ScConstructorOwner.constructor(constr) => (constr, true)
-      case _ => return Seq.empty
+      case _                                      => return Seq.empty
     }
 
-    val existingClause = parameterOwner.allClauses.lastOption.filter(_.isImplicitOrUsing)
+    val clauses        = parameterOwner.allClauses
+    val typeParameters = parameterOwner.typeParameters
+
+    val usageIndex = ScParameterOwner.contextBoundUsageInParameterListIndex(clauses, typeParameters)
+
+    //TODO: new expansion rules in SIP-64
+    val existingClause = clauses.lastOption.filter(_.isImplicitOrUsing)
     val existingParams = existingClause.iterator.flatMap(_.parameters).toSeq
 
     val candidates = for {
-      tp       <- parameterOwner.typeParameters
+      tp       <- typeParameters
       cb       <- tp.contextBounds
       cbTe     = cb.typeElement
       teText   = cbTe.getText
       cbName   = cb.name.getOrElse(teText.lowercased)
       typeText = teText.parenthesize(!ScalaNamesValidator.isIdentifier(teText))
-    } yield (cbName.escapeNonIdentifiers, (cbName + tp.name.capitalize).escapeNonIdentifiers, s"$typeText[${tp.name}]")
+    } yield (
+      cbName.escapeNonIdentifiers,
+      (cbName + tp.name.capitalize).escapeNonIdentifiers,
+      s"$typeText[${tp.name}]"
+    )
 
     val isUniqueName = candidates.groupBy(_._1).filter(_._2.sizeIs == 1).keySet
+    val nextNumber   = mutable.Map.empty[String, Int]
 
-    val nextNumber = mutable.Map.empty[String, Int]
     val newParamsTexts = for {
       (primaryName, altName, typeText) <- candidates
       name = if (isUniqueName(primaryName)) primaryName else altName
       suffix = nextNumber.updateWith(name)(old => Some(old.getOrElse(-1) + 1)).filter(_ >= 1).fold("")(_.toString)
     } yield s"$name$suffix: $typeText"
 
-    // remove old clause
-    existingClause.foreach(_.delete())
+    val newClause =
+      if (usageIndex == -1) {
+        // context bounds are not referenced in parameters => add to the last clause
+        // remove old clause
+        existingClause.foreach(_.delete())
 
-    // add clause
-    val clause = createImplicitClauseFromTextWithContext(existingParams.map(_.getText) ++ newParamsTexts, parameterOwner, isClass)
-    CodeEditUtil.setNodeGeneratedRecursively(clause.getNode, true)
-    function.parameterList.addClause(clause)
+        // add clause
+        val clause = createImplicitClauseFromTextWithContext(
+          existingParams.map(_.getText) ++ newParamsTexts,
+          parameterOwner,
+          isClass
+        )
+
+        CodeEditUtil.setNodeGeneratedRecursively(clause.getNode, true)
+        function.parameterList.addClause(clause)
+        clause
+      } else {
+        // usage in parameters found => insert before the first usage
+        val clause = createImplicitClauseFromTextWithContext(
+          newParamsTexts,
+          parameterOwner,
+          isClass
+        )
+
+        CodeEditUtil.setNodeGeneratedRecursively(clause.getNode, true)
+        val clauseAtIdx = clauses(usageIndex)
+        function.parameterList.addBefore(clause, clauseAtIdx)
+        clause
+      }
 
     // remove bounds
     parameterOwner.typeParameters.foreach(_.removeImplicitBounds())
 
     UndoUtil.markPsiFileForUndo(function.getContainingFile)
 
-    clause.parameters.takeRight(newParamsTexts.size)
+    newClause.parameters.takeRight(newParamsTexts.size)
   }
 
   def runRenamingTemplate(params: Seq[ScParameter]): Unit = {

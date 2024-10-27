@@ -57,14 +57,15 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
   import com.intellij.psi.scope.PsiScopeProcessor
   import com.intellij.psi.{PsiElement, ResolveState}
 
-  override def syntheticContextAppliedDefs: Seq[ScalaPsiElement] = cachedInUserData("syntheticContextAppliedDefs", this, BlockModificationTracker(this)) {
-    ContextAppliedUtil.createSyntheticElementsFor(
-      this,
-      this,
-      this.constructor.fold(Seq.empty[ScParameter])(_.parameters),
-      this.typeParameters
-    )
-  }
+  override def syntheticContextAppliedDefs: Seq[ScalaPsiElement] =
+    cachedInUserData("syntheticContextAppliedDefs", this, BlockModificationTracker(this)) {
+      ContextAppliedUtil.createSyntheticElementsFor(
+        this,
+        this,
+        this.constructor.fold(Seq.empty[ScParameter])(_.parameters),
+        this.typeParameters
+      )
+    }
 
   override def processDeclarationsForTemplateBody(processor: PsiScopeProcessor,
                                                   state: ResolveState,

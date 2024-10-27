@@ -105,9 +105,12 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     if (!super[SyntheticElementsOwner].processDeclarations(processor, state, lastParent, place))
       return false
 
+    /**
+     * TODO: what is the problem with doing processParameters unconditionally?
+     */
     if (lastParent != null && shouldProcessParameters(lastParent))
       processParameters(processor, state)
-    else true
+    else processNamedContextBounds(typeParameters, processor, state)
   }
 
   // to resolve parameters in return type, type parameter context bounds and body;
@@ -237,17 +240,20 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
 
   override def effectiveParameterClauses: Seq[ScParameterClause] =
     cachedInUserData("effectiveParameterClauses", this, BlockModificationTracker(this)) {
-      val maybeOwner = if (isConstructor) {
-        containingClass match {
-          case owner: ScTypeParametersOwner => Some(owner)
-          case _                            => None
-        }
-      } else Option(this)
+      val typeParams =
+        if (isConstructor) {
+          containingClass match {
+            case owner: ScTypeParametersOwner => owner.typeParameters
+            case _                            => Seq.empty
+          }
+        } else typeParameters
 
-      paramClauses.clauses ++
-        maybeOwner.flatMap {
-          ScalaPsiUtil.syntheticParamClause(_, paramClauses, isClassParameter = false)()
-        }
+      ScParameterOwner.insertSyntheticParameterClause(
+        paramClauses,
+        paramClauses.clauses,
+        typeParams,
+        isClassParameter = false
+      )
     }
 
   /**

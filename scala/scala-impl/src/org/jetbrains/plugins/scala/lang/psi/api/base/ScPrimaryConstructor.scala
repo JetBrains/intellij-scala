@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.base
 
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cached, cachedInUserData}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScParameterOwner
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -37,19 +38,24 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike {
    *
    * In addition, view and context bounds generate an additional implicit parameter section.
    */
-  override def effectiveParameterClauses: Seq[ScParameterClause] = cachedInUserData("effectiveParameterClauses", this, BlockModificationTracker(this)) {
-    def emptyParameterList: ScParameterClause =
-      ScalaPsiElementFactory.createEmptyClassParamClauseWithContext(parameterList)
+  override def effectiveParameterClauses: Seq[ScParameterClause] =
+    cachedInUserData("effectiveParameterClauses", this, BlockModificationTracker(this)) {
+      def emptyParameterList: ScParameterClause =
+        ScalaPsiElementFactory.createEmptyClassParamClauseWithContext(parameterList)
 
-    val clausesWithInitialEmpty = parameterList.clauses match {
-      case Seq()                                   => Seq(emptyParameterList)
-      case Seq(clause) if clause.isImplicitOrUsing => Seq(emptyParameterList, clause)
-      case clauses                                 => clauses
+      val clausesWithInitialEmpty = parameterList.clauses match {
+        case Seq()                                   => Seq(emptyParameterList)
+        case Seq(clause) if clause.isImplicitOrUsing => Seq(emptyParameterList, clause)
+        case clauses                                 => clauses
+      }
+
+      ScParameterOwner.insertSyntheticParameterClause(
+        parameterList,
+        clausesWithInitialEmpty,
+        containingClass.typeParameters,
+        isClassParameter = true
+      )
     }
-
-    clausesWithInitialEmpty ++
-      ScalaPsiUtil.syntheticParamClause(containingClass, parameterList, isClassParameter = true)()
-  }
 
   def effectiveFirstParameterSection: Seq[ScClassParameter] = effectiveParameterClauses.head.unsafeClassParameters
 

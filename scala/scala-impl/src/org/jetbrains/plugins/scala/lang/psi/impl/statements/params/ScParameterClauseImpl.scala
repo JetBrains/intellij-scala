@@ -36,14 +36,14 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
     getStubOrPsiChildren[ScParameter](TokenSets.PARAMETERS, JavaArrayFactoryUtil.ScParameterFactory).toSeq
   })
 
-  override def effectiveParameters: Seq[ScParameter] = cachedInUserData("effectiveParameters", this, BlockModificationTracker(this)) {
-    if (isImplicitOrUsing) {
-      val syntheticParameters = getSyntheticParameters
-      syntheticParameters ++ parameters
-    } else {
-      parameters
+  override def effectiveParameters: Seq[ScParameter] =
+    cachedInUserData("effectiveParameters", this, BlockModificationTracker(this)) {
+      if (isImplicitOrUsing) {
+        val syntheticParameters = getSyntheticParameters
+        syntheticParameters ++ parameters
+      } else
+        parameters
     }
-  }
 
   private def getSyntheticParameters: Seq[ScParameter] = {
     //getParent is sufficient (not getContext), for synthetic clause, getParent will return other PSI,
@@ -55,13 +55,19 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
           case p: ScPrimaryConstructor =>
             p.containingClass match {
               case c: ScClass => Some((c, true))
-              case _ => None
+              case _          => None
             }
           case _ => None
         }
+
         maybeOwner.flatMap {
           case (owner, isClassParameter) =>
-            ScalaPsiUtil.syntheticParamClause(owner, clauses, isClassParameter)(hasImplicit = false)
+            ScalaPsiUtil.syntheticParamClause(
+              owner.typeParameters,
+              clauses,
+              isClassParameter,
+              hasImplicit = false
+            )
         }
       case _ => None
     }
