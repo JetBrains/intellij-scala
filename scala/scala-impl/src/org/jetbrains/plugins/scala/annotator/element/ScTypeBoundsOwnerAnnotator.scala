@@ -6,11 +6,11 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, ScTypeParamClause}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamClause
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, TypeParameterType}
-import org.jetbrains.plugins.scala.lang.psi.types.{TypePresentationContext, extractTypeParameters}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.{TypePresentationContext, extractTypeParameters}
 
 object ScTypeBoundsOwnerAnnotator extends ElementAnnotator[ScTypeBoundsOwner] {
 
@@ -33,26 +33,31 @@ object ScTypeBoundsOwnerAnnotator extends ElementAnnotator[ScTypeBoundsOwner] {
       }
     }
 
-    element match {
-      case tparam: ScTypeParam =>
-        element.contextBounds.foreach { cb =>
-          val cbTypeElem = cb.typeElement
-          val cbType     = cbTypeElem.getTypeNoConstructor.toOption
-          implicit val tpc: TypePresentationContext = tparam
+    element.contextBounds.foreach { cb =>
+      val cbTypeElem = cb.typeElement
+      val cbType     = cbTypeElem.getTypeNoConstructor.toOption
+      implicit val tpc: TypePresentationContext = element
 
-          cbType.foreach { tpe =>
-            ScParameterizedTypeElementAnnotator.annotateTypeArgs[PsiElement](
-              extractTypeParameters(tpe),
-              Seq(tparam.nameId),
-              cbTypeElem.getTextRange,
-              ScSubstitutor.empty,
-              tpe.presentableText(cbTypeElem),
-              _ => Right(TypeParameterType(TypeParameter(tparam))),
-              isForContextBound = true
+      cbType.foreach { tpe =>
+        ScParameterizedTypeElementAnnotator.annotateTypeArgs[PsiElement](
+          extractTypeParameters(tpe),
+          Seq(element.nameId),
+          cbTypeElem.getTextRange,
+          ScSubstitutor.empty,
+          tpe.presentableText(cbTypeElem),
+          _ => Right(
+            TypeParameterType(
+              TypeParameter.light(
+                element.name,
+                element.typeParameters.map(TypeParameter(_)),
+                element.lowerBound.getOrNothing,
+                element.upperBound.getOrAny
+              )
             )
-          }
-        }
-      case _ => ()
+          ),
+          isForContextBound = true
+        )
+      }
     }
   }
 }

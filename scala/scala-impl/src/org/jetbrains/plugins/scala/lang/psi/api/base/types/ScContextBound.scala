@@ -16,3 +16,10 @@ trait ScContextBound extends ScalaPsiElement {
 
   def name: Option[String] = nameId.map(_.getText)
 }
+
+object ScContextBound {
+  object Named {
+    def unapply(bound: ScContextBound): Option[(ScTypeElement, String)] =
+      bound.name.map(bound.typeElement -> _)
+  }
+}

@@ -5,10 +5,10 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.TypeParamClause
-import org.jetbrains.plugins.scala.lang.parser.parsing.types.Bounds
+import org.jetbrains.plugins.scala.lang.parser.parsing.types.{Bounds, ContextBounds}
 
 /*
- * TypeDcl ::= id [TypeParamClause] ['>:' Type] ['<:' Type]
+ * TypeDcl ::= id [TypeParamClause] ['>:' Type] ['<:' Type] [`:` ContextBounds]
  */
 object TypeDcl extends ParsingRule {
 
@@ -31,6 +31,9 @@ object TypeDcl extends ParsingRule {
     }
     TypeParamClause()
     Bounds.parseSubtypeBounds()
+
+    if (builder.features.`new context bounds and givens`) ContextBounds()
+
     returnMarker.drop()
     builder.getTokenType match {
       case ScalaTokenTypes.tASSIGN =>
