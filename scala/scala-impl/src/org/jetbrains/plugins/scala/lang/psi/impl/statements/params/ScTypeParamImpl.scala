@@ -134,7 +134,7 @@ class ScTypeParamImpl private (stub: ScTypeParamStub, node: ASTNode)
   override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
 
   override def viewTypeElement: Seq[ScTypeElement] =
-    byPsiOrStub(super.viewTypeElement)(_.viewBoundsTypeElements)
+    byPsiOrStub(super.viewTypeElement)(_.viewBounds)
 
   override def contextBounds: Seq[ScContextBound] =
     byPsiOrStub(super.contextBounds)(_.contextBounds)

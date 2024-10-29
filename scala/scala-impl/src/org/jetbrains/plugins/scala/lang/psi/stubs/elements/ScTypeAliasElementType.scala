@@ -18,6 +18,7 @@ abstract class ScTypeAliasElementType[Func <: ScTypeAlias](debugName: String)
     dataStream.writeOptionName(stub.typeText)
     dataStream.writeOptionName(stub.lowerBoundText)
     dataStream.writeOptionName(stub.upperBoundText)
+    dataStream.writeNames(stub.contextBoundsTexts)
     dataStream.writeBoolean(stub.isLocal)
     dataStream.writeBoolean(stub.isDeclaration)
     dataStream.writeBoolean(stub.isStableQualifier)
@@ -31,17 +32,18 @@ abstract class ScTypeAliasElementType[Func <: ScTypeAlias](debugName: String)
     new ScTypeAliasStubImpl(
       parentStub.asInstanceOf[StubElement[PsiElement]],
       this,
-      name              = dataStream.readNameString,
-      typeText          = dataStream.readOptionName,
-      lowerBoundText    = dataStream.readOptionName,
-      upperBoundText    = dataStream.readOptionName,
-      isLocal           = dataStream.readBoolean,
-      isDeclaration     = dataStream.readBoolean,
-      isStableQualifier = dataStream.readBoolean,
-      stableQualifier   = dataStream.readOptionName,
-      isTopLevel        = dataStream.readBoolean,
-      topLevelQualifier = dataStream.readOptionName,
-      classType         = dataStream.readOptionName
+      name               = dataStream.readNameString,
+      typeText           = dataStream.readOptionName,
+      lowerBoundText     = dataStream.readOptionName,
+      upperBoundText     = dataStream.readOptionName,
+      contextBoundsTexts = dataStream.readNames,
+      isLocal            = dataStream.readBoolean,
+      isDeclaration      = dataStream.readBoolean,
+      isStableQualifier  = dataStream.readBoolean,
+      stableQualifier    = dataStream.readOptionName,
+      isTopLevel         = dataStream.readBoolean,
+      topLevelQualifier  = dataStream.readOptionName,
+      classType          = dataStream.readOptionName
     )
 
   override def createStubImpl(alias: ScTypeAlias, parentStub: StubElement[_ <: PsiElement]): ScTypeAliasStub = {
@@ -82,17 +84,18 @@ abstract class ScTypeAliasElementType[Func <: ScTypeAlias](debugName: String)
     new ScTypeAliasStubImpl(
       parentStub,
       this,
-      name              = alias.name,
-      typeText          = aliasedTypeText,
-      lowerBoundText    = lowerBoundText,
-      upperBoundText    = upperBoundText,
-      isLocal           = maybeContainingClass.isEmpty,
-      isDeclaration     = maybeDeclaration.isDefined,
-      isStableQualifier = stableQualifier.isDefined,
-      stableQualifier   = stableQualifier,
-      isTopLevel        = alias.isTopLevel,
-      topLevelQualifier = alias.topLevelQualifier,
-      classType         = classTypeShort
+      name               = alias.name,
+      typeText           = aliasedTypeText,
+      lowerBoundText     = lowerBoundText,
+      upperBoundText     = upperBoundText,
+      contextBoundsTexts = alias.contextBounds.asStrings(),
+      isLocal            = maybeContainingClass.isEmpty,
+      isDeclaration      = maybeDeclaration.isDefined,
+      isStableQualifier  = stableQualifier.isDefined,
+      stableQualifier    = stableQualifier,
+      isTopLevel         = alias.isTopLevel,
+      topLevelQualifier  = alias.topLevelQualifier,
+      classType          = classTypeShort
     )
   }
 
