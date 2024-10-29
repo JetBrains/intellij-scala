@@ -3,7 +3,7 @@ import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 class ImplicitParametersScala3Test extends ImplicitParametersTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean =
-    version >= LatestScalaVersions.Scala_3
+    version >= LatestScalaVersions.Scala_3_6
 
   def testSCL21117(): Unit = checkNoImplicitParameterProblems(
     s"""
@@ -98,4 +98,48 @@ class ImplicitParametersScala3Test extends ImplicitParametersTestBase {
          |""".stripMargin
     )
   }
+
+  def testPolyFunctionContextBound(): Unit = checkNoImplicitParameterProblems(
+    s"""
+      |trait Ord[A]
+      |def compare[A: Ord](x: A, y: A): Int = ???
+      |val comparer = [X: Ord as o] => (x: X, y: X) => ${START}compare(x, y)$END
+      |""".stripMargin
+  )
+
+  def testNewStyleGivenParameters1(): Unit = checkNoImplicitParameterProblems(
+    s"""
+       |trait Ord[A] { def compare(x: A, y: A): Int }
+       |given [A] => Ord[A] => Ord[List[A]] {
+       |  override def compare(xs: List[A], ys: List[A]): Int = {
+       |    ${START}summon[Ord[A]]$END
+       |    1
+       |  }
+       |}
+       |""".stripMargin
+  )
+
+  def testNewStyleGivenParameters2(): Unit = checkNoImplicitParameterProblems(
+    s"""
+       |trait Ord[A] { def compare(x: A, y: A): Int }
+       |given [A] => (ord: Ord[A]) => Ord[List[A]] {
+       |  override def compare(xs: List[A], ys: List[A]): Int = {
+       |    ${START}summon[Ord[A]]$END
+       |    1
+       |  }
+       |}
+       |""".stripMargin
+  )
+
+  def testNewStyleGivenParameters3(): Unit = checkNoImplicitParameterProblems(
+    s"""
+       |trait Ord[A] { def compare(x: A, y: A): Int }
+       |given [A: Ord as ord] => Ord[List[A]] {
+       |  override def compare(xs: List[A], ys: List[A]): Int = {
+       |    ${START}summon[Ord[A]]$END
+       |    1
+       |  }
+       |}
+       |""".stripMargin
+  )
 }

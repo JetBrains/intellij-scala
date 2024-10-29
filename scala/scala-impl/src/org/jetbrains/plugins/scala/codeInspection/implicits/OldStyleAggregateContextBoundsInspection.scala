@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.implicits
 
-import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.Nls
@@ -14,7 +14,12 @@ final class OldStyleAggregateContextBoundsInspection extends LocalInspectionTool
     case boundsOwner: ScTypeBoundsOwner if boundsOwner.contextBounds.size > 1
       && boundsOwner.features.`new context bounds and givens`
       && hasOldStyleContextBounds(boundsOwner) =>
-      holder.registerProblem(boundsOwner, description, new ConvertToNewStyleAggregateBoundsQuickFix(boundsOwner))
+      holder.registerProblem(
+        boundsOwner,
+        description,
+        ProblemHighlightType.LIKE_DEPRECATED,
+        new ConvertToNewStyleAggregateBoundsQuickFix(boundsOwner)
+      )
     case _ =>
   }
 

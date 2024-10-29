@@ -1,8 +1,11 @@
 package org.jetbrains.plugins.scala.codeInsight.intention.types
 
+import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
+import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaBundle, ScalaVersion}
 
+@WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 abstract class ConvertImplicitBoundsToImplicitParameterTestBase extends ScalaIntentionTestBase {
 
   override def familyName: String = ScalaBundle.message("family.name.convert.implicit.bounds")
@@ -58,5 +61,36 @@ class ConvertImplicitBoundsToImplicitParameterTest_Scala3 extends ConvertImplici
   def test_already_existing_clause_implicit(): Unit = doTest(
     s"def test[${CARET}T: A, TT: B](implicit x: X): Unit = ()",
     "def test[T, TT](using x: X, a: A[T], b: B[TT]): Unit = ()"
+  )
+}
+
+class ConvertImplicitBoundsToImplicitParameterTest_Scala3_6 extends ConvertImplicitBoundsToImplicitParameterTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= LatestScalaVersions.Scala_3_6
+
+  override def doCommonTest(text: String, expected: String): Unit = {
+    val textWithUsing = text.replace("implicit", "using")
+    val expectedWithUsing = expected.replace("implicit", "using")
+    super.doCommonTest(textWithUsing, expectedWithUsing)
+  }
+
+  def test_already_existing_clause_using(): Unit = doTest(
+    s"def test[${CARET}T: A, TT: B](using x: X): Unit = ()",
+    "def test[T, TT](using x: X, a: A[T], b: B[TT]): Unit = ()"
+  )
+
+  def test_already_existing_clause_implicit(): Unit = doTest(
+    s"def test[${CARET}T: A, TT: B](implicit x: X): Unit = ()",
+    "def test[T, TT](using x: X, a: A[T], b: B[TT]): Unit = ()"
+  )
+
+  def testClauseReference(): Unit = doTest(
+    s"def foo[${CARET}A : Parser as p](in: p.In): p.Out = ???",
+    s"def foo[A](using p: Parser[A])(in: p.In): p.Out = ???",
+  )
+
+  def testClauseReferenceMiddle(): Unit = doTest(
+    s"def foo[${CARET}A : Parser as p](x: NoRefHere)(in: p.In): p.Out = ???",
+    s"def foo[A](x: NoRefHere)(using p: Parser[A])(in: p.In): p.Out = ???",
   )
 }

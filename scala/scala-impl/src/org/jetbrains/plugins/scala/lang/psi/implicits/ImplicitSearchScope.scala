@@ -84,6 +84,7 @@ object ImplicitSearchScope {
       case (_: ScParameters) childOf (m: ScMethodLike)                    => hasImplicitClause(m)
       case pc: ScPrimaryConstructor                                       => hasImplicitClause(pc)
       case (ps: ScParameters) childOf (_: ScFunctionExpr)                 => ps.params.exists(_.isImplicitOrContextParameter)
+      case polyFun: ScPolyFunctionExpr                                    => polyFun.typeParameters.exists(_.contextBounds.nonEmpty)
       case p: ScParameter                                                 => p.isImplicitOrContextParameter
       case m: ScMember                                                    => m.hasModifierProperty("implicit")
       case _: ScTemplateParents                                           => true

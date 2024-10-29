@@ -56,7 +56,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
     tdef: ScTemplateDefinition
   )(implicit
     holder: ScalaAnnotationHolder
-  ): Unit = {
+  ): Unit = if (tdef.features.`new context bounds and givens`) {
     def findEvidenceForDeferredGivenOfType(
       tp:         ScType,
       sig:        TermSignature,
@@ -84,21 +84,9 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
       }
     }
 
-    def isDeferredGivenSig(sig: TermSignature): Boolean = {
-      val elem = sig.namedElement
-
-      elem match {
-        case gvn: ScGivenAliasDefinition =>
-          (
-            for {
-              refExpr          <- gvn.body.collect { case ref: ScReferenceExpression => ref }
-              srr              <- refExpr.bind()
-              deferredFunction <- srr.element.asOptionOf[ScFunctionDefinition]
-              fqn              <- deferredFunction.qualifiedNameOpt
-            } yield fqn == "scala.compiletime.deferred"
-          ).getOrElse(false)
-        case _ => false
-      }
+    def isDeferredGivenSig(sig: TermSignature): Boolean = sig.namedElement match {
+      case gvn: ScGivenAliasDefinition => ScGivenAliasDefinitionAnnotator.isDeferredGiven(gvn)
+      case _                           => false
     }
 
     tdef match {
