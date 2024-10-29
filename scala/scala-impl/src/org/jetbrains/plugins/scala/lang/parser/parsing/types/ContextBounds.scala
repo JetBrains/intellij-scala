@@ -24,7 +24,7 @@ object ContextBounds {
 
       while (ContextBound()) {
         if (builder.getTokenType == ScalaTokenTypes.tCOLON ||
-          builder.getTokenType == ScalaTokenTypes.tCOMMA) {
+          (isNewStyle && builder.getTokenType == ScalaTokenTypes.tCOMMA)) {
           builder.advanceLexer() // `:` or `,`
         }
       }

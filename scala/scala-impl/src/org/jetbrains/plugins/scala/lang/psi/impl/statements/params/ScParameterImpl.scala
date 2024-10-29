@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGiven
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ParameterExpectedTypesUtil._
 import org.jetbrains.plugins.scala.lang.psi.stubs._
@@ -95,13 +96,14 @@ class ScParameterImpl protected(
     val clause = PsiTreeUtil.getParentOfType(this, classOf[ScParameterClause])
     if (clause == null) return false
 
-    clause.isUsing || isInsideContextFunction
+    clause.isUsing || isInsideContextFunctionOrGiven
   }
 
   //Example: `param` in `val init: Int ?=> Unit = param ?=> { summon[Int] }`
-  private def isInsideContextFunction = owner match {
+  private def isInsideContextFunctionOrGiven = owner match {
+    case _: ScGiven          => true
     case fun: ScFunctionExpr => fun.isContext
-    case _ => false
+    case _                   => false
   }
 
   override def isAnonimousContextParameter: Boolean =

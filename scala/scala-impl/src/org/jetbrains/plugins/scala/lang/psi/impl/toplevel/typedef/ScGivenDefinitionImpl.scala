@@ -9,7 +9,7 @@ import com.intellij.psi.{PsiElement, PsiNamedElement, ResolveState}
 import org.jetbrains.plugins.scala.caches.{ModTracker, cached, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions.{Model, ObjectExt, StringsExt}
 import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.PARAM_CLAUSES
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -71,7 +71,26 @@ class ScGivenDefinitionImpl(
   override def parameters: Seq[ScParameter] =
     clauses.fold(Seq.empty[ScParameter])(_.params)
 
-  def parametersText: String = byStubOrPsi(_.givenDefinitionParameterText)(clauses.fold("")(_.getText))
+  def parametersText: String = byStubOrPsi(_.givenDefinitionParameterText) {
+    clauses.fold("") { parameterClauses =>
+      parameterClauses.clauses.foldLeft("") {
+        case (acc, singleClause) =>
+          // is this a pre 3.6 normal parameter clause
+          val isOldStyleParameterClause =
+            singleClause.getFirstChild.getNode.getElementType == ScalaTokenTypes.tLPARENTHESIS &&
+              singleClause.getLastChild.getNode.getElementType == ScalaTokenTypes.tRPARENTHESIS
+
+          val clauseText =
+            if (isOldStyleParameterClause) singleClause.getText
+            else { // 3.6+ case, when parameters are introduced as conditionals with `=>`
+              val parametersString = singleClause.parameters.map(_.getText).mkString(", ")
+              s"(using $parametersString)"
+            }
+
+          acc + clauseText
+      }
+    }
+  }
 
   override def desugaredDefinitions: Seq[ScMember] =
     cachedInUserData("desugaredDefinitions", this, ModTracker.libraryAware(this)) {

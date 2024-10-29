@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumCases, ScFunction}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumCases, ScFunction, ScTypeAliasDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -425,21 +425,25 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
   override def getOriginalElement: PsiElement =
     ScalaPsiImplementationHelper.getOriginalClass(this)
 
-  override def syntheticTypeDefinitions: Seq[ScTypeDefinition] = cachedWithRecursionGuard("syntheticTypeDefinitions", this, Seq.empty[ScTypeDefinition], BlockModificationTracker(this)) {
-    SyntheticMembersInjector.injectInners(this)
-  }
+  override def syntheticTypeDefinitions: Seq[ScTypeDefinition] =
+    cachedWithRecursionGuard("syntheticTypeDefinitions", this, Seq.empty[ScTypeDefinition], BlockModificationTracker(this)) {
+      SyntheticMembersInjector.injectInners(this)
+    }
 
-  override def syntheticMembers: Seq[ScMember] = cachedWithRecursionGuard("syntheticMembers", this, Seq.empty[ScMember], BlockModificationTracker(this)) {
-    SyntheticMembersInjector.injectMembers(this)
-  }
+  override def syntheticMembers: Seq[ScMember] =
+    cachedWithRecursionGuard("syntheticMembers", this, Seq.empty[ScMember], BlockModificationTracker(this)) {
+      SyntheticMembersInjector.injectMembers(this)
+    }
 
-  override def syntheticMethods: Seq[ScFunction] = cachedWithRecursionGuard("syntheticMethods", this, Seq.empty[ScFunction], BlockModificationTracker(this)) {
-    SyntheticMembersInjector.inject(this)
-  }
+  override def syntheticMethods: Seq[ScFunction] =
+    cachedWithRecursionGuard("syntheticMethods", this, Seq.empty[ScFunction], BlockModificationTracker(this)) {
+      SyntheticMembersInjector.inject(this)
+    }
 
-  override def psiMethods: Array[PsiMethod] = cachedWithRecursionGuard("psiMethods", this, PsiMethod.EMPTY_ARRAY, ModTracker.libraryAware(this)) {
-    getAllMethods.filter(_.containingClass == this)
-  }
+  override def psiMethods: Array[PsiMethod] =
+    cachedWithRecursionGuard("psiMethods", this, PsiMethod.EMPTY_ARRAY, ModTracker.libraryAware(this)) {
+      getAllMethods.filter(_.containingClass == this)
+    }
 }
 
 object ScTypeDefinitionImpl {
