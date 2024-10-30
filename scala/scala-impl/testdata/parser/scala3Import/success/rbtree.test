@@ -750,9 +750,10 @@ ScalaFile
                     PsiElement(identifier)('A')
                     PsiElement(:)(':')
                     PsiWhiteSpace(' ')
-                    SimpleType: Ordering
-                      CodeReferenceElement: Ordering
-                        PsiElement(identifier)('Ordering')
+                    ScContextBoundImpl(context bound)
+                      SimpleType: Ordering
+                        CodeReferenceElement: Ordering
+                          PsiElement(identifier)('Ordering')
                   PsiElement(])(']')
                 Parameters
                   ParametersClause
@@ -837,9 +838,10 @@ ScalaFile
                     PsiElement(identifier)('A')
                     PsiElement(:)(':')
                     PsiWhiteSpace(' ')
-                    SimpleType: Ordering
-                      CodeReferenceElement: Ordering
-                        PsiElement(identifier)('Ordering')
+                    ScContextBoundImpl(context bound)
+                      SimpleType: Ordering
+                        CodeReferenceElement: Ordering
+                          PsiElement(identifier)('Ordering')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
                   TypeParameter: B
@@ -1663,9 +1665,10 @@ ScalaFile
                     PsiElement(identifier)('A')
                     PsiElement(:)(':')
                     PsiWhiteSpace(' ')
-                    SimpleType: Ordering
-                      CodeReferenceElement: Ordering
-                        PsiElement(identifier)('Ordering')
+                    ScContextBoundImpl(context bound)
+                      SimpleType: Ordering
+                        CodeReferenceElement: Ordering
+                          PsiElement(identifier)('Ordering')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
                   TypeParameter: B
@@ -1812,9 +1815,10 @@ ScalaFile
                     PsiElement(identifier)('A')
                     PsiElement(:)(':')
                     PsiWhiteSpace(' ')
-                    SimpleType: Ordering
-                      CodeReferenceElement: Ordering
-                        PsiElement(identifier)('Ordering')
+                    ScContextBoundImpl(context bound)
+                      SimpleType: Ordering
+                        CodeReferenceElement: Ordering
+                          PsiElement(identifier)('Ordering')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
                   TypeParameter: B
@@ -1915,9 +1919,10 @@ ScalaFile
                     PsiElement(identifier)('A')
                     PsiElement(:)(':')
                     PsiWhiteSpace(' ')
-                    SimpleType: Ordering
-                      CodeReferenceElement: Ordering
-                        PsiElement(identifier)('Ordering')
+                    ScContextBoundImpl(context bound)
+                      SimpleType: Ordering
+                        CodeReferenceElement: Ordering
+                          PsiElement(identifier)('Ordering')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
                   TypeParameter: B
@@ -2196,9 +2201,10 @@ ScalaFile
                     PsiElement(identifier)('A')
                     PsiElement(:)(':')
                     PsiWhiteSpace(' ')
-                    SimpleType: Ordering
-                      CodeReferenceElement: Ordering
-                        PsiElement(identifier)('Ordering')
+                    ScContextBoundImpl(context bound)
+                      SimpleType: Ordering
+                        CodeReferenceElement: Ordering
+                          PsiElement(identifier)('Ordering')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
                   TypeParameter: B
@@ -2317,9 +2323,10 @@ ScalaFile
                     PsiElement(identifier)('A')
                     PsiElement(:)(':')
                     PsiWhiteSpace(' ')
-                    SimpleType: Ordering
-                      CodeReferenceElement: Ordering
-                        PsiElement(identifier)('Ordering')
+                    ScContextBoundImpl(context bound)
+                      SimpleType: Ordering
+                        CodeReferenceElement: Ordering
+                          PsiElement(identifier)('Ordering')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
                   TypeParameter: B
@@ -2420,9 +2427,10 @@ ScalaFile
                     PsiElement(identifier)('A')
                     PsiElement(:)(':')
                     PsiWhiteSpace(' ')
-                    SimpleType: Ordering
-                      CodeReferenceElement: Ordering
-                        PsiElement(identifier)('Ordering')
+                    ScContextBoundImpl(context bound)
+                      SimpleType: Ordering
+                        CodeReferenceElement: Ordering
+                          PsiElement(identifier)('Ordering')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
                   TypeParameter: B
@@ -2523,9 +2531,10 @@ ScalaFile
                     PsiElement(identifier)('A')
                     PsiElement(:)(':')
                     PsiWhiteSpace(' ')
-                    SimpleType: Ordering
-                      CodeReferenceElement: Ordering
-                        PsiElement(identifier)('Ordering')
+                    ScContextBoundImpl(context bound)
+                      SimpleType: Ordering
+                        CodeReferenceElement: Ordering
+                          PsiElement(identifier)('Ordering')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
                   TypeParameter: B
@@ -2626,9 +2635,10 @@ ScalaFile
                     PsiElement(identifier)('A')
                     PsiElement(:)(':')
                     PsiWhiteSpace(' ')
-                    SimpleType: Ordering
-                      CodeReferenceElement: Ordering
-                        PsiElement(identifier)('Ordering')
+                    ScContextBoundImpl(context bound)
+                      SimpleType: Ordering
+                        CodeReferenceElement: Ordering
+                          PsiElement(identifier)('Ordering')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
                   TypeParameter: B
@@ -2729,9 +2739,10 @@ ScalaFile
                     PsiElement(identifier)('A')
                     PsiElement(:)(':')
                     PsiWhiteSpace(' ')
-                    SimpleType: Ordering
-                      CodeReferenceElement: Ordering
-                        PsiElement(identifier)('Ordering')
+                    ScContextBoundImpl(context bound)
+                      SimpleType: Ordering
+                        CodeReferenceElement: Ordering
+                          PsiElement(identifier)('Ordering')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
                   TypeParameter: B
@@ -2832,9 +2843,10 @@ ScalaFile
                     PsiElement(identifier)('A')
                     PsiElement(:)(':')
                     PsiWhiteSpace(' ')
-                    SimpleType: Ordering
-                      CodeReferenceElement: Ordering
-                        PsiElement(identifier)('Ordering')
+                    ScContextBoundImpl(context bound)
+                      SimpleType: Ordering
+                        CodeReferenceElement: Ordering
+                          PsiElement(identifier)('Ordering')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
                   TypeParameter: B
@@ -3820,9 +3832,10 @@ ScalaFile
                     PsiElement(identifier)('A')
                     PsiElement(:)(':')
                     PsiWhiteSpace(' ')
-                    SimpleType: Ordering
-                      CodeReferenceElement: Ordering
-                        PsiElement(identifier)('Ordering')
+                    ScContextBoundImpl(context bound)
+                      SimpleType: Ordering
+                        CodeReferenceElement: Ordering
+                          PsiElement(identifier)('Ordering')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
                   TypeParameter: B
@@ -3939,9 +3952,10 @@ ScalaFile
                     PsiElement(identifier)('A')
                     PsiElement(:)(':')
                     PsiWhiteSpace(' ')
-                    SimpleType: Ordering
-                      CodeReferenceElement: Ordering
-                        PsiElement(identifier)('Ordering')
+                    ScContextBoundImpl(context bound)
+                      SimpleType: Ordering
+                        CodeReferenceElement: Ordering
+                          PsiElement(identifier)('Ordering')
                   PsiElement(])(']')
                 Parameters
                   ParametersClause
@@ -4044,9 +4058,10 @@ ScalaFile
                     PsiElement(identifier)('A')
                     PsiElement(:)(':')
                     PsiWhiteSpace(' ')
-                    SimpleType: Ordering
-                      CodeReferenceElement: Ordering
-                        PsiElement(identifier)('Ordering')
+                    ScContextBoundImpl(context bound)
+                      SimpleType: Ordering
+                        CodeReferenceElement: Ordering
+                          PsiElement(identifier)('Ordering')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
                   TypeParameter: B
@@ -16697,9 +16712,10 @@ ScalaFile
                     PsiElement(identifier)('A')
                     PsiElement(:)(':')
                     PsiWhiteSpace(' ')
-                    SimpleType: Ordering
-                      CodeReferenceElement: Ordering
-                        PsiElement(identifier)('Ordering')
+                    ScContextBoundImpl(context bound)
+                      SimpleType: Ordering
+                        CodeReferenceElement: Ordering
+                          PsiElement(identifier)('Ordering')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
                   TypeParameter: B
@@ -16884,9 +16900,10 @@ ScalaFile
                     PsiElement(identifier)('A')
                     PsiElement(:)(':')
                     PsiWhiteSpace(' ')
-                    SimpleType: Ordering
-                      CodeReferenceElement: Ordering
-                        PsiElement(identifier)('Ordering')
+                    ScContextBoundImpl(context bound)
+                      SimpleType: Ordering
+                        CodeReferenceElement: Ordering
+                          PsiElement(identifier)('Ordering')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
                   TypeParameter: B
@@ -17052,9 +17069,10 @@ ScalaFile
                     PsiElement(identifier)('A')
                     PsiElement(:)(':')
                     PsiWhiteSpace(' ')
-                    SimpleType: Ordering
-                      CodeReferenceElement: Ordering
-                        PsiElement(identifier)('Ordering')
+                    ScContextBoundImpl(context bound)
+                      SimpleType: Ordering
+                        CodeReferenceElement: Ordering
+                          PsiElement(identifier)('Ordering')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
                   TypeParameter: B

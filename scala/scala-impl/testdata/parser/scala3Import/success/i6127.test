@@ -79,9 +79,10 @@ ScalaFile
               PsiElement(identifier)('X')
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
-              SimpleType: ClassTag
-                CodeReferenceElement: ClassTag
-                  PsiElement(identifier)('ClassTag')
+              ScContextBoundImpl(context bound)
+                SimpleType: ClassTag
+                  CodeReferenceElement: ClassTag
+                    PsiElement(identifier)('ClassTag')
             PsiElement(])(']')
           Parameters
             <empty list>
@@ -156,9 +157,10 @@ ScalaFile
               PsiElement(identifier)('X')
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
-              SimpleType: ClassTag
-                CodeReferenceElement: ClassTag
-                  PsiElement(identifier)('ClassTag')
+              ScContextBoundImpl(context bound)
+                SimpleType: ClassTag
+                  CodeReferenceElement: ClassTag
+                    PsiElement(identifier)('ClassTag')
             PsiElement(])(']')
           Parameters
             <empty list>

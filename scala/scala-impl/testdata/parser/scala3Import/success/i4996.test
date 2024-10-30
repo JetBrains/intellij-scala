@@ -65,9 +65,10 @@ ScalaFile
               PsiWhiteSpace(' ')
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
-              SimpleType: M
-                CodeReferenceElement: M
-                  PsiElement(identifier)('M')
+              ScContextBoundImpl(context bound)
+                SimpleType: M
+                  CodeReferenceElement: M
+                    PsiElement(identifier)('M')
             PsiElement(])(']')
           Parameters
             ParametersClause

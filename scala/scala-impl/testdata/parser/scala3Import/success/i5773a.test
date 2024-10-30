@@ -214,9 +214,10 @@ ScalaFile
               PsiElement(identifier)('T')
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
-              SimpleType: Semigroup
-                CodeReferenceElement: Semigroup
-                  PsiElement(identifier)('Semigroup')
+              ScContextBoundImpl(context bound)
+                SimpleType: Semigroup
+                  CodeReferenceElement: Semigroup
+                    PsiElement(identifier)('Semigroup')
             PsiElement(])(']')
           Parameters
             <empty list>

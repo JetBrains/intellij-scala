@@ -263,9 +263,10 @@ ScalaFile
         PsiElement(identifier)('E')
         PsiElement(:)(':')
         PsiWhiteSpace(' ')
-        SimpleType: Manifest
-          CodeReferenceElement: Manifest
-            PsiElement(identifier)('Manifest')
+        ScContextBoundImpl(context bound)
+          SimpleType: Manifest
+            CodeReferenceElement: Manifest
+              PsiElement(identifier)('Manifest')
       PsiElement(])(']')
     PrimaryConstructor
       AnnotationsList
@@ -327,9 +328,10 @@ ScalaFile
         PsiElement(identifier)('E')
         PsiElement(:)(':')
         PsiWhiteSpace(' ')
-        SimpleType: Manifest
-          CodeReferenceElement: Manifest
-            PsiElement(identifier)('Manifest')
+        ScContextBoundImpl(context bound)
+          SimpleType: Manifest
+            CodeReferenceElement: Manifest
+              PsiElement(identifier)('Manifest')
       PsiElement(])(']')
     PrimaryConstructor
       AnnotationsList

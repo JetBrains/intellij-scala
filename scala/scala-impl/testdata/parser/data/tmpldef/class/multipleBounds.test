@@ -35,15 +35,17 @@ ScalaFile
         PsiWhiteSpace(' ')
         PsiElement(:)(':')
         PsiWhiteSpace(' ')
-        SimpleType: D
-          CodeReferenceElement: D
-            PsiElement(identifier)('D')
+        ScContextBoundImpl(context bound)
+          SimpleType: D
+            CodeReferenceElement: D
+              PsiElement(identifier)('D')
         PsiWhiteSpace(' ')
         PsiElement(:)(':')
         PsiWhiteSpace(' ')
-        SimpleType: E
-          CodeReferenceElement: E
-            PsiElement(identifier)('E')
+        ScContextBoundImpl(context bound)
+          SimpleType: E
+            CodeReferenceElement: E
+              PsiElement(identifier)('E')
       PsiElement(])(']')
     PrimaryConstructor
       AnnotationsList

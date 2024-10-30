@@ -51,9 +51,10 @@ ScalaFile
               PsiElement(identifier)('A')
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
-              SimpleType: OptManifest
-                CodeReferenceElement: OptManifest
-                  PsiElement(identifier)('OptManifest')
+              ScContextBoundImpl(context bound)
+                SimpleType: OptManifest
+                  CodeReferenceElement: OptManifest
+                    PsiElement(identifier)('OptManifest')
             PsiElement(])(']')
           Parameters
             <empty list>

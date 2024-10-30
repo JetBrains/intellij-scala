@@ -203,9 +203,10 @@ ScalaFile
                 PsiElement(])(']')
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
-              SimpleType: CodecTypeProjection
-                CodeReferenceElement: CodecTypeProjection
-                  PsiElement(identifier)('CodecTypeProjection')
+              ScContextBoundImpl(context bound)
+                SimpleType: CodecTypeProjection
+                  CodeReferenceElement: CodecTypeProjection
+                    PsiElement(identifier)('CodecTypeProjection')
             PsiElement(])(']')
           Parameters
             <empty list>
@@ -279,9 +280,10 @@ ScalaFile
                 PsiElement(])(']')
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
-              SimpleType: CodecTypeProjection
-                CodeReferenceElement: CodecTypeProjection
-                  PsiElement(identifier)('CodecTypeProjection')
+              ScContextBoundImpl(context bound)
+                SimpleType: CodecTypeProjection
+                  CodeReferenceElement: CodecTypeProjection
+                    PsiElement(identifier)('CodecTypeProjection')
             PsiElement(])(']')
           Parameters
             ParametersClause

@@ -52,9 +52,10 @@ ScalaFile
               PsiElement(_)('_')
             PsiElement(])(']')
           PsiElement(:)(':')
-          SimpleType: CpsAsyncMonad
-            CodeReferenceElement: CpsAsyncMonad
-              PsiElement(identifier)('CpsAsyncMonad')
+          ScContextBoundImpl(context bound)
+            SimpleType: CpsAsyncMonad
+              CodeReferenceElement: CpsAsyncMonad
+                PsiElement(identifier)('CpsAsyncMonad')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
         TypeParameter: A

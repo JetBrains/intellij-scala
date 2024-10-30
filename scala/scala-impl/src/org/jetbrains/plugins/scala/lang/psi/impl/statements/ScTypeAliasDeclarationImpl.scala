@@ -54,7 +54,7 @@ final class ScTypeAliasDeclarationImpl private(stub: ScTypeAliasStub, node: ASTN
   }
 
   override def contextBounds: Seq[ScContextBound] =
-    byPsiOrStub(findChildren[ScContextBound])(_.contextBounds)
+    byStubOrPsi(_.contextBounds)(findChildren[ScContextBound])
 
   override def upperTypeElement: Option[ScTypeElement] =
     byPsiOrStub(boundElement(tUPPER_BOUND))(_.upperBoundTypeElement)

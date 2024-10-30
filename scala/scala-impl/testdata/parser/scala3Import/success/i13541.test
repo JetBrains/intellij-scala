@@ -153,9 +153,10 @@ ScalaFile
         PsiElement(identifier)('A')
         PsiElement(:)(':')
         PsiWhiteSpace(' ')
-        SimpleType: F
-          CodeReferenceElement: F
-            PsiElement(identifier)('F')
+        ScContextBoundImpl(context bound)
+          SimpleType: F
+            CodeReferenceElement: F
+              PsiElement(identifier)('F')
       PsiElement(])(']')
     Parameters
       <empty list>
@@ -200,9 +201,10 @@ ScalaFile
         PsiElement(identifier)('A')
         PsiElement(:)(':')
         PsiWhiteSpace(' ')
-        SimpleType: F
-          CodeReferenceElement: F
-            PsiElement(identifier)('F')
+        ScContextBoundImpl(context bound)
+          SimpleType: F
+            CodeReferenceElement: F
+              PsiElement(identifier)('F')
       PsiElement(])(']')
     Parameters
       ParametersClause

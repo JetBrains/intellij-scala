@@ -503,9 +503,10 @@ ScalaFile
                     PsiElement(identifier)('A')
                     PsiElement(:)(':')
                     PsiWhiteSpace(' ')
-                    SimpleType: Obj
-                      CodeReferenceElement: Obj
-                        PsiElement(identifier)('Obj')
+                    ScContextBoundImpl(context bound)
+                      SimpleType: Obj
+                        CodeReferenceElement: Obj
+                          PsiElement(identifier)('Obj')
                   PsiElement(])(']')
                 Parameters
                   <empty list>
@@ -814,12 +815,13 @@ ScalaFile
                       PsiElement(identifier)('A')
                       PsiElement(:)(':')
                       PsiWhiteSpace(' ')
-                      SimpleType: this.Obj
-                        CodeReferenceElement: this.Obj
-                          ThisReference
-                            PsiElement(this)('this')
-                          PsiElement(.)('.')
-                          PsiElement(identifier)('Obj')
+                      ScContextBoundImpl(context bound)
+                        SimpleType: this.Obj
+                          CodeReferenceElement: this.Obj
+                            ThisReference
+                              PsiElement(this)('this')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('Obj')
                     PsiElement(])(']')
                   Parameters
                     <empty list>

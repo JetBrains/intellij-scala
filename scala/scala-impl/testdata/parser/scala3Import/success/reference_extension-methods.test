@@ -729,9 +729,10 @@ ScalaFile
               PsiElement(identifier)('T')
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
-              SimpleType: Numeric
-                CodeReferenceElement: Numeric
-                  PsiElement(identifier)('Numeric')
+              ScContextBoundImpl(context bound)
+                SimpleType: Numeric
+                  CodeReferenceElement: Numeric
+                    PsiElement(identifier)('Numeric')
             PsiElement(])(']')
           Parameters
             ParametersClause
@@ -2301,9 +2302,10 @@ ScalaFile
                     PsiElement(identifier)('T')
                     PsiElement(:)(':')
                     PsiWhiteSpace(' ')
-                    SimpleType: Ord
-                      CodeReferenceElement: Ord
-                        PsiElement(identifier)('Ord')
+                    ScContextBoundImpl(context bound)
+                      SimpleType: Ord
+                        CodeReferenceElement: Ord
+                          PsiElement(identifier)('Ord')
                   PsiElement(])(']')
                 Parameters
                   <empty list>

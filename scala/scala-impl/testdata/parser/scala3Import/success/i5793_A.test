@@ -98,9 +98,10 @@ ScalaFile
                     PsiElement(identifier)('T')
                     PsiElement(:)(':')
                     PsiWhiteSpace(' ')
-                    SimpleType: Runner
-                      CodeReferenceElement: Runner
-                        PsiElement(identifier)('Runner')
+                    ScContextBoundImpl(context bound)
+                      SimpleType: Runner
+                        CodeReferenceElement: Runner
+                          PsiElement(identifier)('Runner')
                   PsiElement(])(']')
                 Parameters
                   ParametersClause

@@ -50,9 +50,10 @@ ScalaFile
           PsiElement(])(']')
         PsiElement(:)(':')
         PsiWhiteSpace(' ')
-        SimpleType: Applicative
-          CodeReferenceElement: Applicative
-            PsiElement(identifier)('Applicative')
+        ScContextBoundImpl(context bound)
+          SimpleType: Applicative
+            CodeReferenceElement: Applicative
+              PsiElement(identifier)('Applicative')
       PsiElement(,)(',')
       PsiWhiteSpace(' ')
       TypeParameter: A

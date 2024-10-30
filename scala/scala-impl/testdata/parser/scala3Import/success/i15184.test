@@ -232,9 +232,10 @@ ScalaFile
         PsiElement(identifier)('A1')
         PsiElement(:)(':')
         PsiWhiteSpace(' ')
-        SimpleType: JsonFormat
-          CodeReferenceElement: JsonFormat
-            PsiElement(identifier)('JsonFormat')
+        ScContextBoundImpl(context bound)
+          SimpleType: JsonFormat
+            CodeReferenceElement: JsonFormat
+              PsiElement(identifier)('JsonFormat')
       PsiElement(])(']')
     PrimaryConstructor
       AnnotationsList

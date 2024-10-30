@@ -112,9 +112,10 @@ ScalaFile
           PsiElement(])(']')
         PsiElement(:)(':')
         PsiWhiteSpace(' ')
-        SimpleType: Contravariant
-          CodeReferenceElement: Contravariant
-            PsiElement(identifier)('Contravariant')
+        ScContextBoundImpl(context bound)
+          SimpleType: Contravariant
+            CodeReferenceElement: Contravariant
+              PsiElement(identifier)('Contravariant')
       PsiElement(,)(',')
       PsiWhiteSpace(' ')
       TypeParameter: L
@@ -579,9 +580,10 @@ ScalaFile
                 PsiElement(])(']')
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
-              SimpleType: Contravariant
-                CodeReferenceElement: Contravariant
-                  PsiElement(identifier)('Contravariant')
+              ScContextBoundImpl(context bound)
+                SimpleType: Contravariant
+                  CodeReferenceElement: Contravariant
+                    PsiElement(identifier)('Contravariant')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
             TypeParameter: A

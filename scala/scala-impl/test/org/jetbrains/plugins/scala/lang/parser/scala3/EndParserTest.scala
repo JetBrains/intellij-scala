@@ -461,9 +461,10 @@ class EndParserTest extends SimpleScala3ParserTestBase with PsiSelectionUtil wit
       |                  PsiElement(identifier)('U')
       |                  PsiElement(:)(':')
       |                  PsiWhiteSpace(' ')
-      |                  SimpleType: Numeric
-      |                    CodeReferenceElement: Numeric
-      |                      PsiElement(identifier)('Numeric')
+      |                  ScContextBoundImpl(context bound)
+      |                    SimpleType: Numeric
+      |                      CodeReferenceElement: Numeric
+      |                        PsiElement(identifier)('Numeric')
       |                PsiElement(])(']')
       |              Parameters
       |                ParametersClause

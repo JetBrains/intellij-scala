@@ -1902,9 +1902,10 @@ ScalaFile
                 PsiElement(])(']')
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
-              SimpleType: Monad
-                CodeReferenceElement: Monad
-                  PsiElement(identifier)('Monad')
+              ScContextBoundImpl(context bound)
+                SimpleType: Monad
+                  CodeReferenceElement: Monad
+                    PsiElement(identifier)('Monad')
             PsiElement(,)(',')
             TypeParameter: A
               PsiElement(identifier)('A')
@@ -1961,9 +1962,10 @@ ScalaFile
                 PsiElement(])(']')
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
-              SimpleType: Monad
-                CodeReferenceElement: Monad
-                  PsiElement(identifier)('Monad')
+              ScContextBoundImpl(context bound)
+                SimpleType: Monad
+                  CodeReferenceElement: Monad
+                    PsiElement(identifier)('Monad')
             PsiElement(])(']')
           Parameters
             <empty list>

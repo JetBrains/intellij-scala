@@ -29,7 +29,7 @@ class ScEnumCaseAnnotatorTest extends ScalaHighlightingTestBase {
     )(
       // TODO Show only a single error
       Error("Foo", "Extending enums is prohibited"),
-      Error("Foo", "Object creation impossible, since member ordinal: Int in scala.reflect.Enum is not defined")
+      Error("Foo", "Object creation is impossible since member ordinal: Int in scala.reflect.Enum is not defined")
     )
 
   def testInheritFromEnumClass(): Unit =

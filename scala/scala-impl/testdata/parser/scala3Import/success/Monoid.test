@@ -182,9 +182,10 @@ ScalaFile
                       PsiElement(identifier)('T')
                       PsiElement(:)(':')
                       PsiWhiteSpace(' ')
-                      SimpleType: SemiGroup
-                        CodeReferenceElement: SemiGroup
-                          PsiElement(identifier)('SemiGroup')
+                      ScContextBoundImpl(context bound)
+                        SimpleType: SemiGroup
+                          CodeReferenceElement: SemiGroup
+                            PsiElement(identifier)('SemiGroup')
                     PsiElement(])(']')
                   PrimaryConstructor
                     AnnotationsList
@@ -556,9 +557,10 @@ ScalaFile
                       PsiElement(identifier)('T')
                       PsiElement(:)(':')
                       PsiWhiteSpace(' ')
-                      SimpleType: Ring
-                        CodeReferenceElement: Ring
-                          PsiElement(identifier)('Ring')
+                      ScContextBoundImpl(context bound)
+                        SimpleType: Ring
+                          CodeReferenceElement: Ring
+                            PsiElement(identifier)('Ring')
                     PsiElement(])(']')
                   PrimaryConstructor
                     AnnotationsList

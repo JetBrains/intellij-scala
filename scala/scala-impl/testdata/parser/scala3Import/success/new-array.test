@@ -112,12 +112,13 @@ ScalaFile
               PsiElement(identifier)('T')
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
-              SimpleType: reflect.ClassTag
-                CodeReferenceElement: reflect.ClassTag
-                  CodeReferenceElement: reflect
-                    PsiElement(identifier)('reflect')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('ClassTag')
+              ScContextBoundImpl(context bound)
+                SimpleType: reflect.ClassTag
+                  CodeReferenceElement: reflect.ClassTag
+                    CodeReferenceElement: reflect
+                      PsiElement(identifier)('reflect')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('ClassTag')
             PsiElement(])(']')
           Parameters
             <empty list>
@@ -325,12 +326,13 @@ ScalaFile
               PsiElement(identifier)('T')
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
-              SimpleType: reflect.ClassTag
-                CodeReferenceElement: reflect.ClassTag
-                  CodeReferenceElement: reflect
-                    PsiElement(identifier)('reflect')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('ClassTag')
+              ScContextBoundImpl(context bound)
+                SimpleType: reflect.ClassTag
+                  CodeReferenceElement: reflect.ClassTag
+                    CodeReferenceElement: reflect
+                      PsiElement(identifier)('reflect')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('ClassTag')
             PsiElement(])(']')
           Parameters
             <empty list>

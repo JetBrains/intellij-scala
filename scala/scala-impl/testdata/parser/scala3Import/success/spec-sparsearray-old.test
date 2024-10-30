@@ -87,9 +87,10 @@ ScalaFile
         PsiWhiteSpace(' ')
         PsiElement(identifier)('T')
         PsiElement(:)(':')
-        SimpleType: ClassManifest
-          CodeReferenceElement: ClassManifest
-            PsiElement(identifier)('ClassManifest')
+        ScContextBoundImpl(context bound)
+          SimpleType: ClassManifest
+            CodeReferenceElement: ClassManifest
+              PsiElement(identifier)('ClassManifest')
       PsiElement(])(']')
     PrimaryConstructor
       AnnotationsList

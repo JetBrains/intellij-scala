@@ -3732,9 +3732,10 @@ ScalaFile
               PsiElement(identifier)('T')
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
-              SimpleType: Ord
-                CodeReferenceElement: Ord
-                  PsiElement(identifier)('Ord')
+              ScContextBoundImpl(context bound)
+                SimpleType: Ord
+                  CodeReferenceElement: Ord
+                    PsiElement(identifier)('Ord')
             PsiElement(])(']')
           Parameters
             <empty list>
@@ -4440,9 +4441,10 @@ ScalaFile
               PsiElement(identifier)('T')
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
-              SimpleType: Monoid
-                CodeReferenceElement: Monoid
-                  PsiElement(identifier)('Monoid')
+              ScContextBoundImpl(context bound)
+                SimpleType: Monoid
+                  CodeReferenceElement: Monoid
+                    PsiElement(identifier)('Monoid')
             PsiElement(])(']')
           Parameters
             ParametersClause
@@ -4681,9 +4683,10 @@ ScalaFile
               PsiElement(identifier)('T')
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
-              SimpleType: Ord
-                CodeReferenceElement: Ord
-                  PsiElement(identifier)('Ord')
+              ScContextBoundImpl(context bound)
+                SimpleType: Ord
+                  CodeReferenceElement: Ord
+                    PsiElement(identifier)('Ord')
             PsiElement(])(']')
           PrimaryConstructor
             AnnotationsList
@@ -4970,9 +4973,10 @@ ScalaFile
               PsiElement(identifier)('T')
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
-              SimpleType: Ord
-                CodeReferenceElement: Ord
-                  PsiElement(identifier)('Ord')
+              ScContextBoundImpl(context bound)
+                SimpleType: Ord
+                  CodeReferenceElement: Ord
+                    PsiElement(identifier)('Ord')
             PsiElement(])(']')
           Parameters
             <empty list>

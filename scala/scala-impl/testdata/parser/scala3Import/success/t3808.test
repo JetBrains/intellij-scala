@@ -122,9 +122,10 @@ ScalaFile
                   PsiWhiteSpace(' ')
                   PsiElement(:)(':')
                   PsiWhiteSpace(' ')
-                  SimpleType: TC
-                    CodeReferenceElement: TC
-                      PsiElement(identifier)('TC')
+                  ScContextBoundImpl(context bound)
+                    SimpleType: TC
+                      CodeReferenceElement: TC
+                        PsiElement(identifier)('TC')
                 PsiElement(])(']')
               Parameters
                 <empty list>

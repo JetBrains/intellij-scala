@@ -881,12 +881,13 @@ ScalaFile
               PsiElement(identifier)('T')
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
-              SimpleType: math.Ordering
-                CodeReferenceElement: math.Ordering
-                  CodeReferenceElement: math
-                    PsiElement(identifier)('math')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('Ordering')
+              ScContextBoundImpl(context bound)
+                SimpleType: math.Ordering
+                  CodeReferenceElement: math.Ordering
+                    CodeReferenceElement: math
+                      PsiElement(identifier)('math')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Ordering')
             PsiElement(])(']')
           Parameters
             ParametersClause

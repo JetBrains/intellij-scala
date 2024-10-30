@@ -100,9 +100,10 @@ ScalaFile
         PsiElement(identifier)('T')
         PsiElement(:)(':')
         PsiWhiteSpace(' ')
-        SimpleType: Wrappable
-          CodeReferenceElement: Wrappable
-            PsiElement(identifier)('Wrappable')
+        ScContextBoundImpl(context bound)
+          SimpleType: Wrappable
+            CodeReferenceElement: Wrappable
+              PsiElement(identifier)('Wrappable')
       PsiElement(])(']')
     PrimaryConstructor
       AnnotationsList
@@ -292,9 +293,10 @@ ScalaFile
         PsiElement(identifier)('T')
         PsiElement(:)(':')
         PsiWhiteSpace(' ')
-        SimpleType: Wrappable
-          CodeReferenceElement: Wrappable
-            PsiElement(identifier)('Wrappable')
+        ScContextBoundImpl(context bound)
+          SimpleType: Wrappable
+            CodeReferenceElement: Wrappable
+              PsiElement(identifier)('Wrappable')
       PsiElement(])(']')
     Parameters
       <empty list>
@@ -356,9 +358,10 @@ ScalaFile
         PsiElement(identifier)('H')
         PsiElement(:)(':')
         PsiWhiteSpace(' ')
-        SimpleType: Wrappable
-          CodeReferenceElement: Wrappable
-            PsiElement(identifier)('Wrappable')
+        ScContextBoundImpl(context bound)
+          SimpleType: Wrappable
+            CodeReferenceElement: Wrappable
+              PsiElement(identifier)('Wrappable')
       PsiElement(,)(',')
       PsiWhiteSpace(' ')
       TypeParameter: T
@@ -505,9 +508,10 @@ ScalaFile
         PsiElement(identifier)('R')
         PsiElement(:)(':')
         PsiWhiteSpace(' ')
-        SimpleType: Wrappable
-          CodeReferenceElement: Wrappable
-            PsiElement(identifier)('Wrappable')
+        ScContextBoundImpl(context bound)
+          SimpleType: Wrappable
+            CodeReferenceElement: Wrappable
+              PsiElement(identifier)('Wrappable')
       PsiElement(])(']')
     Parameters
       ParametersClause

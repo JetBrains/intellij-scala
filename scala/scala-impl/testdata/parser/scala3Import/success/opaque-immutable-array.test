@@ -141,9 +141,10 @@ ScalaFile
                     PsiElement(identifier)('A')
                     PsiElement(:)(':')
                     PsiWhiteSpace(' ')
-                    SimpleType: ClassTag
-                      CodeReferenceElement: ClassTag
-                        PsiElement(identifier)('ClassTag')
+                    ScContextBoundImpl(context bound)
+                      SimpleType: ClassTag
+                        CodeReferenceElement: ClassTag
+                          PsiElement(identifier)('ClassTag')
                   PsiElement(])(']')
                 Parameters
                   ParametersClause
@@ -379,12 +380,13 @@ ScalaFile
                     PsiWhiteSpace(' ')
                     PsiElement(:)(':')
                     PsiWhiteSpace(' ')
-                    SimpleType: math.Ordering
-                      CodeReferenceElement: math.Ordering
-                        CodeReferenceElement: math
-                          PsiElement(identifier)('math')
-                        PsiElement(.)('.')
-                        PsiElement(identifier)('Ordering')
+                    ScContextBoundImpl(context bound)
+                      SimpleType: math.Ordering
+                        CodeReferenceElement: math.Ordering
+                          CodeReferenceElement: math
+                            PsiElement(identifier)('math')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Ordering')
                   PsiElement(])(']')
                 Parameters
                   ParametersClause

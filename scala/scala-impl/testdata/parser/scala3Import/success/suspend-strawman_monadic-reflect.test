@@ -413,9 +413,10 @@ ScalaFile
           PsiElement(])(']')
         PsiElement(:)(':')
         PsiWhiteSpace(' ')
-        SimpleType: Monad
-          CodeReferenceElement: Monad
-            PsiElement(identifier)('Monad')
+        ScContextBoundImpl(context bound)
+          SimpleType: Monad
+            CodeReferenceElement: Monad
+              PsiElement(identifier)('Monad')
       PsiElement(])(']')
     ExtendsBlock
       ScTemplateBody

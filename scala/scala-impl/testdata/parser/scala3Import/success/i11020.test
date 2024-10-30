@@ -167,9 +167,10 @@ ScalaFile
         PsiElement(identifier)('T')
         PsiElement(:)(':')
         PsiWhiteSpace(' ')
-        SimpleType: B
-          CodeReferenceElement: B
-            PsiElement(identifier)('B')
+        ScContextBoundImpl(context bound)
+          SimpleType: B
+            CodeReferenceElement: B
+              PsiElement(identifier)('B')
       PsiElement(])(']')
     Parameters
       ParametersClause
@@ -204,9 +205,10 @@ ScalaFile
             PsiElement(identifier)('U')
             PsiElement(:)(':')
             PsiWhiteSpace(' ')
-            SimpleType: B
-              CodeReferenceElement: B
-                PsiElement(identifier)('B')
+            ScContextBoundImpl(context bound)
+              SimpleType: B
+                CodeReferenceElement: B
+                  PsiElement(identifier)('B')
           PsiElement(])(']')
         Parameters
           ParametersClause

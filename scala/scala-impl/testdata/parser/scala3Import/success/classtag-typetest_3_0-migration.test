@@ -46,9 +46,10 @@ ScalaFile
         PsiElement(identifier)('T')
         PsiElement(:)(':')
         PsiWhiteSpace(' ')
-        SimpleType: ClassTag
-          CodeReferenceElement: ClassTag
-            PsiElement(identifier)('ClassTag')
+        ScContextBoundImpl(context bound)
+          SimpleType: ClassTag
+            CodeReferenceElement: ClassTag
+              PsiElement(identifier)('ClassTag')
       PsiElement(])(']')
     Parameters
       ParametersClause

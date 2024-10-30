@@ -227,9 +227,10 @@ ScalaFile
               PsiElement(identifier)('A')
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
-              SimpleType: AdditiveSemigroup
-                CodeReferenceElement: AdditiveSemigroup
-                  PsiElement(identifier)('AdditiveSemigroup')
+              ScContextBoundImpl(context bound)
+                SimpleType: AdditiveSemigroup
+                  CodeReferenceElement: AdditiveSemigroup
+                    PsiElement(identifier)('AdditiveSemigroup')
             PsiElement(])(']')
           Parameters
             ParametersClause

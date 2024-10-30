@@ -444,17 +444,18 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |    PsiWhiteSpace(' ')
       |    Parameters
       |      ParametersClause
-      |        ParameterType
-      |          ParametrizedType: Ord[A]
-      |            SimpleType: Ord
-      |              CodeReferenceElement: Ord
-      |                PsiElement(identifier)('Ord')
-      |            TypeArgumentsList
-      |              PsiElement([)('[')
-      |              SimpleType: A
-      |                CodeReferenceElement: A
-      |                  PsiElement(identifier)('A')
-      |              PsiElement(])(']')
+      |        Parameter: <anonymous>
+      |          ParameterType
+      |            ParametrizedType: Ord[A]
+      |              SimpleType: Ord
+      |                CodeReferenceElement: Ord
+      |                  PsiElement(identifier)('Ord')
+      |              TypeArgumentsList
+      |                PsiElement([)('[')
+      |                SimpleType: A
+      |                  CodeReferenceElement: A
+      |                    PsiElement(identifier)('A')
+      |                PsiElement(])(']')
       |      PsiWhiteSpace(' ')
       |      PsiElement(=>)('=>')
       |    PsiWhiteSpace(' ')
@@ -691,17 +692,18 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |    PsiWhiteSpace(' ')
       |    Parameters
       |      ParametersClause
-      |        ParameterType
-      |          ParametrizedType: Ord[A]
-      |            SimpleType: Ord
-      |              CodeReferenceElement: Ord
-      |                PsiElement(identifier)('Ord')
-      |            TypeArgumentsList
-      |              PsiElement([)('[')
-      |              SimpleType: A
-      |                CodeReferenceElement: A
-      |                  PsiElement(identifier)('A')
-      |              PsiElement(])(']')
+      |        Parameter: <anonymous>
+      |          ParameterType
+      |            ParametrizedType: Ord[A]
+      |              SimpleType: Ord
+      |                CodeReferenceElement: Ord
+      |                  PsiElement(identifier)('Ord')
+      |              TypeArgumentsList
+      |                PsiElement([)('[')
+      |                SimpleType: A
+      |                  CodeReferenceElement: A
+      |                    PsiElement(identifier)('A')
+      |                PsiElement(])(']')
       |      PsiWhiteSpace(' ')
       |      PsiElement(=>)('=>')
       |    PsiWhiteSpace(' ')

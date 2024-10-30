@@ -383,9 +383,10 @@ ScalaFile
               PsiWhiteSpace(' ')
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
-              SimpleType: GetResult
-                CodeReferenceElement: GetResult
-                  PsiElement(identifier)('GetResult')
+              ScContextBoundImpl(context bound)
+                SimpleType: GetResult
+                  CodeReferenceElement: GetResult
+                    PsiElement(identifier)('GetResult')
             PsiElement(])(']')
           Parameters
             <empty list>

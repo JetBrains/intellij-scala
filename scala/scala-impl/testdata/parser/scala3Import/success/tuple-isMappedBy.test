@@ -82,16 +82,17 @@ ScalaFile
                   PsiElement(identifier)('Tuple')
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
-              ParametrizedType: IsMappedBy[F]
-                SimpleType: IsMappedBy
-                  CodeReferenceElement: IsMappedBy
-                    PsiElement(identifier)('IsMappedBy')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: F
-                    CodeReferenceElement: F
-                      PsiElement(identifier)('F')
-                  PsiElement(])(']')
+              ScContextBoundImpl(context bound)
+                ParametrizedType: IsMappedBy[F]
+                  SimpleType: IsMappedBy
+                    CodeReferenceElement: IsMappedBy
+                      PsiElement(identifier)('IsMappedBy')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: F
+                      CodeReferenceElement: F
+                        PsiElement(identifier)('F')
+                    PsiElement(])(']')
             PsiElement(])(']')
           Parameters
             <empty list>

@@ -50,9 +50,10 @@ ScalaFile
               PsiElement(identifier)('A')
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
-              SimpleType: Arbitrary
-                CodeReferenceElement: Arbitrary
-                  PsiElement(identifier)('Arbitrary')
+              ScContextBoundImpl(context bound)
+                SimpleType: Arbitrary
+                  CodeReferenceElement: Arbitrary
+                    PsiElement(identifier)('Arbitrary')
             PsiElement(])(']')
           Parameters
             <empty list>

@@ -74,9 +74,10 @@ ScalaFile
               PsiElement(identifier)('T')
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
-              SimpleType: Numeric
-                CodeReferenceElement: Numeric
-                  PsiElement(identifier)('Numeric')
+              ScContextBoundImpl(context bound)
+                SimpleType: Numeric
+                  CodeReferenceElement: Numeric
+                    PsiElement(identifier)('Numeric')
             PsiElement(])(']')
           Parameters
             ParametersClause
@@ -156,9 +157,10 @@ ScalaFile
               PsiElement(identifier)('T')
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
-              SimpleType: Ordering
-                CodeReferenceElement: Ordering
-                  PsiElement(identifier)('Ordering')
+              ScContextBoundImpl(context bound)
+                SimpleType: Ordering
+                  CodeReferenceElement: Ordering
+                    PsiElement(identifier)('Ordering')
             PsiElement(])(']')
           Parameters
             ParametersClause
@@ -306,9 +308,10 @@ ScalaFile
               PsiElement(identifier)('T')
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
-              SimpleType: Integral
-                CodeReferenceElement: Integral
-                  PsiElement(identifier)('Integral')
+              ScContextBoundImpl(context bound)
+                SimpleType: Integral
+                  CodeReferenceElement: Integral
+                    PsiElement(identifier)('Integral')
             PsiElement(])(']')
           Parameters
             ParametersClause
@@ -398,9 +401,10 @@ ScalaFile
               PsiElement(identifier)('T')
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
-              SimpleType: Ordering
-                CodeReferenceElement: Ordering
-                  PsiElement(identifier)('Ordering')
+              ScContextBoundImpl(context bound)
+                SimpleType: Ordering
+                  CodeReferenceElement: Ordering
+                    PsiElement(identifier)('Ordering')
             PsiElement(])(']')
           Parameters
             ParametersClause
@@ -548,9 +552,10 @@ ScalaFile
               PsiElement(identifier)('T')
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
-              SimpleType: Fractional
-                CodeReferenceElement: Fractional
-                  PsiElement(identifier)('Fractional')
+              ScContextBoundImpl(context bound)
+                SimpleType: Fractional
+                  CodeReferenceElement: Fractional
+                    PsiElement(identifier)('Fractional')
             PsiElement(])(']')
           Parameters
             ParametersClause
@@ -640,9 +645,10 @@ ScalaFile
               PsiElement(identifier)('T')
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
-              SimpleType: Ordering
-                CodeReferenceElement: Ordering
-                  PsiElement(identifier)('Ordering')
+              ScContextBoundImpl(context bound)
+                SimpleType: Ordering
+                  CodeReferenceElement: Ordering
+                    PsiElement(identifier)('Ordering')
             PsiElement(])(']')
           Parameters
             ParametersClause

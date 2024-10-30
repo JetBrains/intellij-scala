@@ -25,9 +25,10 @@ ScalaFile
         PsiElement(identifier)('X')
         PsiElement(:)(':')
         PsiWhiteSpace(' ')
-        SimpleType: Numeric
-          CodeReferenceElement: Numeric
-            PsiElement(identifier)('Numeric')
+        ScContextBoundImpl(context bound)
+          SimpleType: Numeric
+            CodeReferenceElement: Numeric
+              PsiElement(identifier)('Numeric')
       PsiElement(])(']')
     ExtendsBlock
       <empty list>
@@ -160,9 +161,10 @@ ScalaFile
               PsiElement(identifier)('X')
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
-              SimpleType: Numeric
-                CodeReferenceElement: Numeric
-                  PsiElement(identifier)('Numeric')
+              ScContextBoundImpl(context bound)
+                SimpleType: Numeric
+                  CodeReferenceElement: Numeric
+                    PsiElement(identifier)('Numeric')
             PsiElement(])(']')
           PrimaryConstructor
             AnnotationsList
@@ -202,9 +204,10 @@ ScalaFile
               PsiElement(identifier)('X')
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
-              SimpleType: Numeric
-                CodeReferenceElement: Numeric
-                  PsiElement(identifier)('Numeric')
+              ScContextBoundImpl(context bound)
+                SimpleType: Numeric
+                  CodeReferenceElement: Numeric
+                    PsiElement(identifier)('Numeric')
             PsiElement(])(']')
           PrimaryConstructor
             AnnotationsList
@@ -249,9 +252,10 @@ ScalaFile
               PsiElement(identifier)('X')
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
-              SimpleType: Numeric
-                CodeReferenceElement: Numeric
-                  PsiElement(identifier)('Numeric')
+              ScContextBoundImpl(context bound)
+                SimpleType: Numeric
+                  CodeReferenceElement: Numeric
+                    PsiElement(identifier)('Numeric')
             PsiElement(])(']')
           PrimaryConstructor
             AnnotationsList

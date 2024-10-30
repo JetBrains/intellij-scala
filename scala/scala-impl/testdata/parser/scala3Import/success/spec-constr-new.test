@@ -58,9 +58,10 @@ ScalaFile
         PsiWhiteSpace(' ')
         PsiElement(identifier)('T')
         PsiElement(:)(':')
-        SimpleType: ClassTag
-          CodeReferenceElement: ClassTag
-            PsiElement(identifier)('ClassTag')
+        ScContextBoundImpl(context bound)
+          SimpleType: ClassTag
+            CodeReferenceElement: ClassTag
+              PsiElement(identifier)('ClassTag')
       PsiElement(])(']')
     PrimaryConstructor
       AnnotationsList

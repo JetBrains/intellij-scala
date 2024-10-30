@@ -206,9 +206,10 @@ ScalaFile
                 PsiElement(])(']')
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
-              SimpleType: Baz
-                CodeReferenceElement: Baz
-                  PsiElement(identifier)('Baz')
+              ScContextBoundImpl(context bound)
+                SimpleType: Baz
+                  CodeReferenceElement: Baz
+                    PsiElement(identifier)('Baz')
             PsiElement(])(']')
           Parameters
             <empty list>
@@ -305,9 +306,10 @@ ScalaFile
                 PsiElement(])(']')
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
-              SimpleType: Foo
-                CodeReferenceElement: Foo
-                  PsiElement(identifier)('Foo')
+              ScContextBoundImpl(context bound)
+                SimpleType: Foo
+                  CodeReferenceElement: Foo
+                    PsiElement(identifier)('Foo')
             PsiElement(])(']')
           Parameters
             <empty list>

@@ -55,15 +55,16 @@ ScalaFile
         PsiElement(identifier)('A')
         PsiElement(:)(':')
         PsiWhiteSpace(' ')
-        SimpleType: scala.reflect.ClassManifest
-          CodeReferenceElement: scala.reflect.ClassManifest
-            CodeReferenceElement: scala.reflect
-              CodeReferenceElement: scala
-                PsiElement(identifier)('scala')
+        ScContextBoundImpl(context bound)
+          SimpleType: scala.reflect.ClassManifest
+            CodeReferenceElement: scala.reflect.ClassManifest
+              CodeReferenceElement: scala.reflect
+                CodeReferenceElement: scala
+                  PsiElement(identifier)('scala')
+                PsiElement(.)('.')
+                PsiElement(identifier)('reflect')
               PsiElement(.)('.')
-              PsiElement(identifier)('reflect')
-            PsiElement(.)('.')
-            PsiElement(identifier)('ClassManifest')
+              PsiElement(identifier)('ClassManifest')
       PsiElement(])(']')
     PrimaryConstructor
       AnnotationsList

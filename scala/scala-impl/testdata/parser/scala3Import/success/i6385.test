@@ -213,9 +213,10 @@ ScalaFile
                   PsiElement(])(']')
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
-              SimpleType: PinTypeTo
-                CodeReferenceElement: PinTypeTo
-                  PsiElement(identifier)('PinTypeTo')
+              ScContextBoundImpl(context bound)
+                SimpleType: PinTypeTo
+                  CodeReferenceElement: PinTypeTo
+                    PsiElement(identifier)('PinTypeTo')
             PsiElement(])(']')
           Parameters
             <empty list>
