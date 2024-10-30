@@ -100,10 +100,11 @@ object GivenConditional {
     {
       val paramClauseMarker = builder.mark()
       val paramMarker       = builder.mark()
-      val paramTypeMarker       = builder.mark()
+      val paramTypeMarker   = builder.mark()
 
       val parsedParamType = AnnotType(isPattern = false)
       if (!parsedParamType) {
+        paramTypeMarker.drop()
         paramMarker.drop()
         paramClauseMarker.drop()
       } else {

@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala.annotator
 
+import org.jetbrains.plugins.scala.annotator.Message.Error
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestFixture
-import org.jetbrains.plugins.scala.{ScalaVersion, TypecheckerTests}
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaBundle, ScalaVersion, TypecheckerTests}
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
@@ -150,4 +151,130 @@ class ScTemplateDefinitionAnnotatorTest
         |""".stripMargin
     )
   }
+}
+
+@Category(Array(classOf[TypecheckerTests]))
+class ScTemplateDefinitionAnnotatorTest3_6
+  extends ScalaLightCodeInsightFixtureTestCase
+    with ScalaHighlightingTestLike {
+
+
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= LatestScalaVersions.Scala_3_6
+
+  private def errorMessage(targetType: String, givenName: String, traitName: String): String =
+    ScalaBundle.message("no.given.instance.for.deferred", targetType, givenName, traitName)
+
+  def testTraitDeferredGivenSimple(): Unit =
+    assertMessages(
+      """
+        |trait Ord[A]
+        |trait Foo {
+        |  given ordInt: Ord[Int] = scala.compiletime.deferred
+        |}
+        |
+        |object FooImpl extends Foo
+        |""".stripMargin,
+      Error("object FooImpl extends Foo", errorMessage("Ord[Int]", "ordInt", "Foo"))
+    )
+
+  def testTraitDeferredGivenAlias(): Unit =
+    assertMessages(
+      """
+        |trait Ord[A]
+        |trait Foo {
+        |  type Self : Ord as ord
+        |}
+        |
+        |object FooImpl extends Foo {
+        |  type Self = String
+        |}
+        |""".stripMargin,
+      Error("object FooImpl extends Foo", errorMessage("Ord[FooImpl.Self]", "ord", "Foo"))
+    )
+
+  def testDeferredGivenWithEv(): Unit =
+    assertNoMessages(
+      """trait Ord[A]
+        |trait Foo {
+        |  type Self : Ord
+        |}
+        |
+        |class FooImpl[A](using Ord[A]) extends Foo {
+        |  type Self = A
+        |}
+        |""".stripMargin
+    )
+
+  def testDeferredGivenWithEv2(): Unit =
+    assertNoMessages(
+      """
+        |trait Show[A]
+        |trait Foo {
+        |  type Elem
+        |  given Show[Elem] = scala.compiletime.deferred
+        |}
+        |
+        |given Show[String] = ???
+        |class FooImpl extends Foo {
+        |  type Elem = String
+        |}
+        |""".stripMargin
+    )
+
+  def testNoImplicitSearchInClassContext(): Unit =
+    assertMessages(
+      """trait Show[A]
+        |trait Foo {
+        |  type Elem
+        |  given Show[Elem] = scala.compiletime.deferred
+        |}
+        |
+        |class FooImpl extends Foo {
+        |  given Show[String] = ???
+        |  type Elem = String
+        |}
+        |""".stripMargin,
+      Error("class FooImpl extends Foo", errorMessage("Show[FooImpl.this.Elem]", "given_Show_Elem", "Foo"))
+    )
+
+  def testExplicitOverride(): Unit =
+    assertNoMessages(
+      """trait Ord[A]
+        |trait Foo {
+        |  given ordInt: Ord[Int] = scala.compiletime.deferred
+        |}
+        |
+        |object FooImpl extends Foo {
+        |  override given ordInt: Ord[Int] = ???
+        |}
+        |""".stripMargin
+    )
+
+  def testOnlyShowErrorInSuper(): Unit =
+    assertMessages(
+      """
+        |trait Ord[A]
+        |trait Foo {
+        |  given ordInt: Ord[Int] = scala.compiletime.deferred
+        |}
+        |
+        |class Bar extends Foo
+        |class Baz extends Bar
+        |""".stripMargin,
+      Error("class Bar extends Foo", errorMessage("Ord[Int]", "ordInt", "Foo"))
+    )
+
+  def testParameterized(): Unit =
+    assertMessages(
+      """
+        |trait Ord[A]
+        |trait Foo {
+        |  given ordInt[A]: Ord[A] = scala.compiletime.deferred
+        |}
+        |
+        |object FooImpl extends Foo
+        |""".stripMargin,
+      Error("object FooImpl extends Foo", ScalaBundle.message("parameterized.deferred.given", "ordInt", "Foo"))
+    )
 }

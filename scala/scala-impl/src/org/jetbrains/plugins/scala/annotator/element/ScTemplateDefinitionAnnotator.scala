@@ -89,6 +89,9 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
       case _                           => false
     }
 
+    def isParameterized(sig: TermSignature): Boolean =
+      sig.typeParams.nonEmpty || sig.paramLength > 0
+
     tdef match {
       case _: ScTrait => ()
       case _ =>
@@ -104,10 +107,17 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
               tdef.superClass.exists(ScalaPsiUtil.isInheritorDeep(_, parentTrait))
 
             if (!isImplementedInParent) {
-              val subst      = sig.substitutor
-              val element    = sig.namedElement.asInstanceOf[ScGivenAliasDefinition]
-              val returnType = element.returnType.getOrNothing
-              findEvidenceForDeferredGivenOfType(subst(returnType), sig, parentTrait)
+              if (isParameterized(sig)) {
+                holder.createErrorAnnotation(
+                  highlightRange(tdef),
+                  ScalaBundle.message("parameterized.deferred.given", sig.name, parentTrait.name)
+                )
+              } else {
+                val subst      = sig.substitutor
+                val element    = sig.namedElement.asInstanceOf[ScGivenAliasDefinition]
+                val returnType = element.returnType.getOrNothing
+                findEvidenceForDeferredGivenOfType(subst(returnType), sig, parentTrait)
+              }
             }
           }
         }
