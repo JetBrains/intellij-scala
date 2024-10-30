@@ -2,10 +2,6 @@ package org.jetbrains.plugins.scala.highlighter.usages
 
 import com.intellij.codeInsight.highlighting.{HighlightUsagesHandler, HighlightUsagesHandlerBase}
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
-import org.junit.Assert
-
-import scala.jdk.CollectionConverters.ListHasAsScala
 
 class ScalaHighlightImplicitUsagesHandlerTest extends ScalaHighlightUsagesHandlerTestBase {
 

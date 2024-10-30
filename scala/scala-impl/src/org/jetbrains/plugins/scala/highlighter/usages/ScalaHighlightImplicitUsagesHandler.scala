@@ -9,7 +9,7 @@ import com.intellij.util.Consumer
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.highlighter.usages.ScalaHighlightImplicitUsagesHandler.TargetKind
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScContextBound, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
@@ -78,8 +78,8 @@ object ScalaHighlightImplicitUsagesHandler {
       case _                                                 => None
     }
 
-    implicit val contextBoundKind: TargetKind[(ScTypeParam, ScTypeElement)] = {
-      case (_, typeElem) => contextBoundImplicitTarget(typeElem)
+    implicit val contextBoundKind: TargetKind[(ScTypeParam, ScContextBound)] = {
+      case (typeParam, cb) => contextBoundImplicitTarget(typeParam, cb.typeElement)
     }
 
     private def target(named: PsiNamedElement): Option[PsiNamedElement] = named match {
@@ -89,10 +89,9 @@ object ScalaHighlightImplicitUsagesHandler {
       case _                                               => None
     }
 
-    private def contextBoundImplicitTarget(typeElem: ScTypeElement): Option[ScParameter] = {
+    private def contextBoundImplicitTarget(typeParam: ScTypeParam, typeElem: ScTypeElement): Option[ScParameter] = {
       if (!typeElem.isValid) return None
 
-      val typeParam = typeElem.getParent.asInstanceOf[ScTypeParam]
       val methodLike = typeParam.getOwner match {
         case fun: ScFunction => Some(fun)
         case c: ScClass => c.constructor

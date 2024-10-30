@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.highlighter.usages.ScalaHighlightImplicitUsag
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScContextBound, ScSimpleTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -144,7 +144,7 @@ object ImplicitUtil {
 
   object contextBoundElement {
 
-    def unapply(e: PsiElement): Option[(ScTypeParam, ScTypeElement)] =
+    def unapply(e: PsiElement): Option[(ScTypeParam, ScContextBound)] =
       (for {
         element <- NullSafe(e)
         if ScalaPsiUtil.stub(e).isNull && e.getLanguage.isKindOf(ScalaLanguage.INSTANCE)
@@ -157,8 +157,8 @@ object ImplicitUtil {
         typeParameter = parent.asInstanceOf[ScTypeParam]
 
         sibling = element.getNextSiblingNotWhitespaceComment
-        if sibling.isInstanceOf[ScTypeElement]
-        typeElement = sibling.asInstanceOf[ScTypeElement]
+        if sibling.isInstanceOf[ScContextBound]
+        typeElement = sibling.asInstanceOf[ScContextBound]
       } yield (typeParameter, typeElement)).toOption
   }
 }

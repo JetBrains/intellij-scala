@@ -119,7 +119,7 @@ class ScTemplateDefinitionAnnotatorTest
         |""".stripMargin
     )
 
-    val objectCreationImpossible = "Object creation impossible"
+    val objectCreationImpossible = "Object creation is impossible"
     val quickFixFixture = new ScalaQuickFixTestFixture(myFixture, objectCreationImpossible, trimExpectedText = false)
     quickFixFixture.descriptionMatcher = _.contains(objectCreationImpossible)
 

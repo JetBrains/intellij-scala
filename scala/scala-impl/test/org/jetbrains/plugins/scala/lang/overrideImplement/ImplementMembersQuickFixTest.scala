@@ -14,7 +14,7 @@ class ImplementMembersQuickFixTest extends ScalaAnnotatorQuickFixTestBase {
   override protected def descriptionMatches(s: String): Boolean =
     s != null && {
       s.contains("must either be declared abstract or implement abstract member") ||
-        s.startsWith("Object creation impossible, since member") && s.endsWith("is not defined")
+        s.startsWith("Object creation is impossible since member") && s.endsWith("is not defined")
     }
 
   def testProperDefaultValueForVariousMemberTypes(): Unit = {
