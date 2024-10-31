@@ -94,6 +94,7 @@ class TastyReaderTest extends TestCase {
   def testParameterIdentifiers(): Unit = doTest("parameter/Identifiers")
   def testParameterInlineModifier(): Unit = doTest("parameter/InlineModifier")
   def testParameterModifiers(): Unit = doTest("parameter/Modifiers")
+  def testParameterNamedContextBounds(): Unit = doTest("parameter/NamedContextBounds")
   def testParameterQualifier(): Unit = doTest("parameter/Qualifier")
   def testParameterRepeated(): Unit = doTest("parameter/Repeated")
   def testParameterTrait(): Unit = doTest("parameter/Trait")

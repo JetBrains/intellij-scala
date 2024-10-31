@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.tasty.reader
 import dotty.tools.tasty.TastyBuffer.Addr
 import dotty.tools.tasty.TastyFormat
 
-class Node(val addr: Addr, val tag: Int, val names: Seq[String], children0: () => Seq[Node]) {
+class Node(val addr: Addr, val tag: Int, val names: Seq[String], children0: () => Seq[Node], val position: () => Option[Int]) {
   lazy val children: Seq[Node] = children0()
 
   def firstChild: Node = children.head

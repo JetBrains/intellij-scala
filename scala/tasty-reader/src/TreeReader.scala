@@ -4,7 +4,7 @@ import dotty.tools.tasty.TastyBuffer.{Addr, NameRef}
 import dotty.tools.tasty.TastyFormat.*
 import dotty.tools.tasty.{TastyReader, UnpickleException}
 
-private class TreeReader(nameAtRef: NameTable) {
+private class TreeReader(nameAtRef: NameTable, positions: Map[Addr, Int]) {
   private def readNat(in: TastyReader): Int = in.readNat()
 
   private def nameToString(name: Name): String = name.toString
@@ -92,7 +92,7 @@ private class TreeReader(nameAtRef: NameTable) {
       case SHAREDterm => readTree(in.subReader(Addr(nat), in.endAddr)) // TODO cache?
       case INLINED => children().head
       case _ =>
-        val node = new Node(addr, tag, names, children)
+        val node = new Node(addr, tag, names, children, () => positions.get(addr))
         tag match {
           case TYPEREFsymbol | TYPEREFdirect | TERMREFsymbol | TERMREFdirect =>
             val in0 = in.subReader(Addr(nat), in.endAddr)
@@ -113,17 +113,54 @@ object TreeReader {
   def treeFrom(bytes: Array[Byte]): Node = {
     val in = new TastyReader(bytes)
 
-    new HeaderReader(in).readFullHeader()
+    val header = new HeaderReader(in).readFullHeader()
 
     val nameTableReader = new NameTableReader(in)
     nameTableReader.read()
     val nameTable = nameTableReader.nameAtRef
 
-    val sectionName = nameTable.apply(NameRef(in.readNat()))
-    val sectionEnd = in.readEnd()
-    if (sectionName.asSimpleName.toString != "ASTs") {
-      throw new UnpickleException("No ASTs section")
+    if (nameTable.apply(NameRef(in.readNat())).asSimpleName.toString != "ASTs") throw new UnpickleException("No ASTs section")
+    val astSectionEnd = in.readEnd()
+    val astSectionBegin = in.currentAddr
+
+    val positions = if (header.minorVersion < 6) Map.empty[Addr, Int] else {
+      in.goto(astSectionEnd)
+
+      if (nameTable.apply(NameRef(in.readNat())).asSimpleName.toString != "Positions") throw new UnpickleException("No Positions section")
+      val positionSectionEnd = in.readEnd()
+      val positionSectionBegin = in.currentAddr
+
+      readPositions(in.subReader(positionSectionBegin, positionSectionEnd))
     }
-    new TreeReader(nameTable).readTree(new TastyReader(bytes, in.currentAddr.index, sectionEnd.index, in.currentAddr.index))
+
+    new TreeReader(nameTable, positions).readTree(new TastyReader(bytes, astSectionBegin.index, astSectionEnd.index, astSectionBegin.index))
+  }
+
+  private def readPositions(in: TastyReader): Map[Addr, Int] = {
+    var result = Map[Addr, Int]()
+
+    val lines = in.readNat()
+    var i = 0; while (i < lines) { in.readNat(); i += 1 }
+
+    var curIndex = 0
+    var curStart = 0
+    while (!in.isAtEnd) {
+      val header = in.readInt()
+      if (header == SOURCE) {
+        in.readNameRef()
+      } else {
+        val addrDelta = header >> 3
+        val hasStart = (header & 4) != 0
+        val hasEnd = (header & 2) != 0
+        val hasPoint = (header & 1) != 0
+        curIndex += addrDelta
+        if (hasStart) curStart += in.readInt()
+        if (hasEnd) in.readInt()
+        result += (Addr(curIndex), curStart)
+        if (hasPoint) in.readInt()
+      }
+    }
+
+    result
   }
 }
