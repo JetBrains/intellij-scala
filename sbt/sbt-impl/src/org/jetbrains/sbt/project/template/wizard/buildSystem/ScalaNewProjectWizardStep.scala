@@ -2,7 +2,6 @@ package org.jetbrains.sbt.project.template.wizard.buildSystem
 
 import com.intellij.ide.projectWizard.NewProjectWizardCollector.BuildSystem.{INSTANCE => BSLog}
 import com.intellij.ide.wizard.AbstractNewProjectWizardStep
-import com.intellij.openapi.GitRepositoryInitializer
 import com.intellij.openapi.externalSystem.model.ExternalSystemDataKeys
 import com.intellij.openapi.externalSystem.service.project.manage.ExternalProjectsManagerImpl
 import com.intellij.openapi.observable.properties.{GraphProperty, ObservableProperty, PropertyGraph}
@@ -40,9 +39,6 @@ abstract class ScalaNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
   protected val addSampleCodeProperty: GraphProperty[java.lang.Boolean] = propertyGraph.property(java.lang.Boolean.FALSE)
   BindUtil.bindBooleanStorage(addSampleCodeProperty, "NewProjectWizard.addSampleCodeState")
 
-  protected val gitProperty: GraphProperty[java.lang.Boolean] = propertyGraph.property(java.lang.Boolean.FALSE)
-  BindUtil.bindBooleanStorage(gitProperty, "NewProjectWizard.gitState")
-
   protected def needToAddSampleCode: Boolean = addSampleCodeProperty.get()
 
   protected def getSdk: Option[Sdk]
@@ -71,7 +67,6 @@ abstract class ScalaNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
     if (needToAddSampleCode)
       builder.openFileEditorAfterProjectOpened = _addScalaSampleCode(project, projectRoot)
 
-    if (isGitRepository) addGitIgnore(project, projectRoot.toString)
     builder.commit(project)
   }
 
@@ -95,9 +90,6 @@ abstract class ScalaNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
       })
       KUnit
     }).topGap(TopGap.SMALL)
-
-  private def isGitRepository: Boolean =
-    Option(GitRepositoryInitializer.getInstance()).isDefined && gitProperty.get()
 
   private def getModuleName: String = moduleNameProperty.get()
 }

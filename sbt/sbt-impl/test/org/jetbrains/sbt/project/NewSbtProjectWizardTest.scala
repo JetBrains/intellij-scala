@@ -7,7 +7,6 @@ import org.jetbrains.plugins.scala.project.Versions
 import org.jetbrains.sbt.project.ProjectStructureDsl._
 import org.jetbrains.sbt.project.template.wizard.buildSystem.BuildSystemScalaNewProjectWizardData.scalaBuildSystemData
 import org.jetbrains.sbt.project.template.wizard.buildSystem.SbtScalaNewProjectWizardData.scalaSbtData
-import org.jetbrains.sbt.project.template.wizard.buildSystem.ScalaGitNewProjectWizardData.scalaGitData
 import org.jetbrains.sbt.project.template.wizard.buildSystem.ScalaSampleCodeNewProjectWizardData.scalaSampleCodeData
 
 // TODO:
@@ -83,7 +82,6 @@ class NewSbtProjectWizardTest extends NewScalaProjectWizardTestBase with ExactMa
 
       // TODO: test different values
       scalaSampleCodeData(step).setAddSampleCode(false)
-      scalaGitData(step).setGit(false)
     }
 
     useProject(project, false, assertProjectsEqual(expectedProject, _: Project))

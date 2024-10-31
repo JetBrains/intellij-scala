@@ -33,7 +33,6 @@ import scala.annotation.nowarn
 final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
   extends ScalaNewProjectWizardStep(parent)
     with SbtScalaNewProjectWizardData
-    with ScalaGitNewProjectWizardData
     with ScalaSampleCodeNewProjectWizardData
     with SbtModuleStepLike {
 
@@ -48,7 +47,6 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
   @TestOnly override private[project] def setGenerateOnboardingTips(value: java.lang.Boolean): Unit = generateOnboardingTipsProperty.set(value)
   private def needToGenerateOnboardingTips: Boolean = needToAddSampleCode && generateOnboardingTipsProperty.get()
 
-  @TestOnly override private[project] def setGit(value: java.lang.Boolean): Unit = gitProperty.set(value)
   @TestOnly override def setScalaVersion(version: String): Unit = scalaVersionComboBox.setSelectedItemEnsuring(version)
   @TestOnly override private[project] def setSbtVersion(version: String): Unit = sbtVersionComboBox.setSelectedItemEnsuring(version)
   @TestOnly override private[project] def setPackagePrefix(prefix: String): Unit = packagePrefixTextField.setText(prefix)
@@ -62,7 +60,6 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
 
   locally {
     getData.putUserData(SbtScalaNewProjectWizardData.KEY, this)
-    getData.putUserData(ScalaGitNewProjectWizardData.KEY, this)
     getData.putUserData(ScalaSampleCodeNewProjectWizardData.KEY, this)
   }
 
