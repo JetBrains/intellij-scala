@@ -747,7 +747,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
     val isPrivateConstructor = node.is(DEFDEF) && node.names == Seq("<init>") && node.contains(PRIVATE)
 
     lazy val contextBounds = if (!privateMembers && isPrivateConstructor) Seq.empty else node.children.collect {
-      case param @ Node3(PARAM, Seq(name), Seq(tail, _: _*)) if name.startsWith("evidence$") && param.contains(IMPLICIT) && hasSingleArgument(tail) =>
+      case param @ Node3(PARAM, Seq(name), Seq(tail, _: _*)) if name.startsWith("evidence$") && (param.contains(IMPLICIT) || param.contains(GIVEN)) && hasSingleArgument(tail) =>
         val Seq(designator, argument) = tail.children
         (simple(textOfType(argument)), simple(textOfType(designator)))
     }
@@ -851,7 +851,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
         sb ++= ")"
         open = false
         isFirstClause = false
-      case node @ Node3(PARAM, Seq(name), children) if !(name.startsWith("evidence$") && node.contains(IMPLICIT) && hasSingleArgument(children.head)) =>
+      case node @ Node3(PARAM, Seq(name), children) if !(name.startsWith("evidence$") && (node.contains(IMPLICIT) || node.contains(GIVEN)) && hasSingleArgument(children.head)) =>
         if (!open) {
           sb ++= "("
           open = true
