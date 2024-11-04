@@ -59,6 +59,7 @@ class TastyReaderTest extends TestCase {
   def testMemberDef(): Unit = doTest("member/Def")
   def testMemberExtensionMethod(): Unit = doTest("member/ExtensionMethod")
   def testMemberGiven(): Unit = doTest("member/Given")
+  def testMemberGivenDeferred(): Unit = doTest("member/GivenDeferred")
   def testMemberIdentifiers(): Unit = doTest("member/Identifiers")
   def testMemberInlineModifier(): Unit = doTest("member/InlineModifier")
   def testMemberModifiers(): Unit = doTest("member/Modifiers")

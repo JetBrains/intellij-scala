@@ -471,10 +471,15 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
             case None =>
               sb ++= simple("") // TODO implement
           }
-          val isDeclaration = children.drop(1).forall(_.isModifier)
-          if (!isDeclaration) {
+          if (node.contains(HASDEFAULT)) {
             sb ++= " = "
-            sb ++= CompiledCode
+            sb ++= "_root_.scala.compiletime.deferred"
+          } else {
+            val isDeclaration = children.drop(1).forall(_.isModifier)
+            if (!isDeclaration) {
+              sb ++= " = "
+              sb ++= CompiledCode
+            }
           }
       }
     }
