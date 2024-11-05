@@ -251,7 +251,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
           if (node.contains(OPAQUE)) {
             sb ++= "\"" + CompiledCode + "\""
           } else {
-            repr.children.findLast(_.isTypeTree).orElse(repr.children.find(_.is(TYPEBOUNDS)).flatMap(_.children.headOption)) match {
+            repr.children.findLast(it => it.isTypeTree || it.isSharedType).orElse(repr.children.find(_.is(TYPEBOUNDS)).flatMap(_.children.headOption)) match {
               case Some(t) =>
                 sb ++= simple(textOfType(t))
               case None =>
@@ -301,7 +301,8 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
       sb ++= ": "
     }
     if (isInGiven) {
-      sb ++= parents.mkString(" with ") + " with"
+      sb ++= (if (parents.nonEmpty) parents.mkString(" with ") else "{}")
+      sb ++= " with"
     } else {
       // TODO enum Enum[+A] { case Case extends Enum[Nothing] }
       // TODO enum Enum[-A] { case Case extends Enum[Any] }

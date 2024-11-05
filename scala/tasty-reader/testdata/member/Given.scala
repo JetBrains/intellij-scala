@@ -11,7 +11,11 @@ trait Given {
 
   given abstractInstance: T1
 
-  given instance: T1 with {}
+  given instance1: T1 with {}
+
+  given instance2: {} with {}
 
   given T2 with {}
+
+  given {} with {}
 }
