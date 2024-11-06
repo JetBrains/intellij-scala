@@ -1030,7 +1030,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
         sb ++= " >: " + simple(l)
       }
       val u = textOfType(upper)
-      if (u.nonEmpty && u != "_root_.scala.Any") {
+      if (u.nonEmpty && u != "_root_.scala.Any" && u != "_root_.`<special-ops>`.`<FromJavaObject>`") {
         sb ++= " <: " + simple(u)
       }
     case _ => // TODO exhaustive match

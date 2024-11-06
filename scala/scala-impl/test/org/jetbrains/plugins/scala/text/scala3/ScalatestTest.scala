@@ -9,12 +9,10 @@ class ScalatestTest extends TextToTextTestBase(
   ),
   Seq("org.scalatest"), Set.empty, 660,
   Set(
-    "org.scalatest.Suite", // FromJavaObject
     "org.scalatest.enablers.InspectorAsserting", // Tuple2 type argument
     "org.scalatest.matchers.must.Matchers", // No this. prefix
     "org.scalatest.matchers.should.Matchers", // No this. prefix
     "org.scalatest.tools.Framework", // Any
-    "org.scalatest.tools.Runner", // FromJavaObject
     "org.scalatest.tools.ScalaTestAntTask", // Cannot resolve reference
     "org.scalatest.tools.ScalaTestFramework", // Any
   )
