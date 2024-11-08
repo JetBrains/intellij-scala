@@ -6,7 +6,6 @@ class ScalaCompilerTest extends TextToTextTestBase(
   Seq.empty,
   Seq("dotty", "org.scalajs.ir", "scala.quoted.runtime.impl"), Set.empty, 919,
   Set(
-//    "dotty.tools.backend.jvm.BCodeIdiomatic", // TODO No .type // No longer an error since Scala 3.3.1
     "dotty.tools.backend.jvm.BTypesFromSymbols", // New error since Scala 3.3.1
     "dotty.tools.backend.jvm.CodeGen", // New error since Scala 3.3.1
     "dotty.tools.backend.sjs.ScopedVar", // Cannot resolve AssignmentStackElement (private class)
