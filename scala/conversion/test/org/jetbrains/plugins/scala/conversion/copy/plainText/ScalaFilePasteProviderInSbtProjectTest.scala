@@ -64,6 +64,10 @@ class ScalaFilePasteProviderInSbtProjectTest extends SbtExternalSystemImportingT
     assertExpectedFileName(PastedCodeWithAddSbtPlugin, "", SomeOtherName)
   }
 
+  def testAutoCreatePluginSbtFileWithAlreadyExistingPluginsSbt(): Unit = {
+    assertExpectedFileName(PastedCodeWithAddSbtPlugin, "project", "plugins_1.sbt")
+  }
+
   private def assertExpectedFileName(
     pastedCode: String,
     relativeDirPath: String,
