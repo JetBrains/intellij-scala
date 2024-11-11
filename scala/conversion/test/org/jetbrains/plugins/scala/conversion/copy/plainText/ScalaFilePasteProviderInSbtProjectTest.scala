@@ -10,7 +10,7 @@ import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
 import com.intellij.psi.{PsiDirectory, PsiManager}
 import com.intellij.util.ui.TextTransferable
 import org.jetbrains.plugins.scala.SlowTests
-import org.jetbrains.plugins.scala.extensions.inWriteAction
+import org.jetbrains.plugins.scala.extensions.{StringExt, inWriteAction}
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 import org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike
 import org.junit.Assert.{assertEquals, assertNotNull, assertTrue}
@@ -21,6 +21,8 @@ class ScalaFilePasteProviderInSbtProjectTest extends SbtExternalSystemImportingT
 
   override protected def getTestProjectPath: String =
     s"scala/conversion/testdata/sbt_projects_for_paste/${getTestName(true)}"
+
+  override protected def copyTestProjectToTemporaryDir: Boolean = true
 
   override def setUp(): Unit = {
     super.setUp()
@@ -124,11 +126,11 @@ class ScalaFilePasteProviderInSbtProjectTest extends SbtExternalSystemImportingT
       newFileNames
     )
 
-    val fileContent = new String(newFiles.head.contentsToByteArray()).trim
+    val fileContent = new String(newFiles.head.contentsToByteArray())
     assertEquals(
       "Newly created file content should equal to the pasted content",
-      pastedCode.trim,
-      fileContent
+      pastedCode.withNormalizedSeparator.trim,
+      fileContent.withNormalizedSeparator.trim
     )
   }
 
