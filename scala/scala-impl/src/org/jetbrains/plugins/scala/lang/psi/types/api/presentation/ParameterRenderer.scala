@@ -63,7 +63,7 @@ class ParameterRenderer(
   }
 
   protected def renderParameterNameAndType(buffer: StringBuilder, param: ScParameter): Unit = {
-    if (param.isAnonimousContextParameter) {
+    if (param.isAnonymousContextParameter) {
       //example: Int in `def f(using Int)`
       typeAnnotationRenderer.renderWithoutColon(buffer, param)
     } else {

@@ -106,7 +106,7 @@ class ScParameterImpl protected(
     case _                   => false
   }
 
-  override def isAnonimousContextParameter: Boolean =
+  override def isAnonymousContextParameter: Boolean =
     isContextParameter && isAnonimous
 
   private def isAnonimous: Boolean =

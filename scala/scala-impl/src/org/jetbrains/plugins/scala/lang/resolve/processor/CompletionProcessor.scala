@@ -103,7 +103,7 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
     //Do not show anonymous using parameters in completion,
     //we shouldn't promote their usage, x$N parameter names is a compiler implementation detail
     namedElement match {
-      case p: ScParameter if p.isAnonimousContextParameter =>
+      case p: ScParameter if p.isAnonymousContextParameter =>
         return true
       case _ =>
     }

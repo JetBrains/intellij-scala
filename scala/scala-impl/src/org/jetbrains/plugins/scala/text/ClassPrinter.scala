@@ -209,7 +209,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ") {
     val name = p.name
     val byName = if (p.isCallByNameParameter) "=> " else ""
     val tpe = textOf(p.`type`())
-    val isAnonymous = p.isAnonimousContextParameter
+    val isAnonymous = p.isAnonymousContextParameter
     val repeated = if (p.isRepeatedParameter) "*" else ""
     val default = if (p.baseDefaultParam) " = ???" else ""
     (if (annotations.isEmpty) "" else annotations + " ") + modifiers + keyword + (if (isAnonymous) "" else name + spaceAfter(name) + ": ") + byName + tpe + repeated + default
