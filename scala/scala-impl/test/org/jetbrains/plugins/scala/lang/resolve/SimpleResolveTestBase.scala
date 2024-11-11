@@ -41,7 +41,7 @@ abstract class SimpleResolveTestBase extends ScalaLightCodeInsightFixtureTestCas
     res match {
       //In example `(using MyContext)`
       //there are 3 elements with same range, we want to select the most-outer element representing the whole parameter
-      case Parent(Parent(Parent(p: ScParameter))) if p.isAnonimousContextParameter => p
+      case Parent(Parent(Parent(p: ScParameter))) if p.isAnonymousContextParameter => p
       case _ => res
     }
   }

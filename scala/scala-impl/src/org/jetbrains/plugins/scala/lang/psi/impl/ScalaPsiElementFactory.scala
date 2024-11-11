@@ -1245,7 +1245,7 @@ object ScalaPsiElementFactory {
         val name = param.name
         val tpe = param.`type`().map(substitutor).getOrAny
 
-        if (param.isAnonimousContextParameter)
+        if (param.isAnonymousContextParameter)
           s"$arrow${tpe.canonicalText}"
         else
           s"$name${colon(name)} $arrow${tpe.canonicalText}$asterisk"
