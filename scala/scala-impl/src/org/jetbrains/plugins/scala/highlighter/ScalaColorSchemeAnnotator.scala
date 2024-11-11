@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.highlighter
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfoType
 import com.intellij.codeInspection.util.InspectionMessage
-import com.intellij.lang.annotation.{AnnotationHolder, Annotator, HighlightSeverity}
+import com.intellij.lang.annotation.{AnnotationHolder, Annotator}
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScAssignment}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScAssignment, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
@@ -170,13 +170,13 @@ object ScalaColorSchemeAnnotator {
       case _: ScInterpolatedExpressionPrefix =>
       case r: ScReference  =>
         r.getParent match {
-          case (a: ScAssignment) & Parent(_: ScArgumentExprList) if a.leftExpression eq r =>
+          case NamedArgument(a: ScAssignment) if a.leftExpression eq r =>
             //parameter reference in the named argument is handled separately below
           case _ =>
             highlightReferenceElement(r)
         }
       //highlight parameter reference in named arguments
-      case (a: ScAssignment) & Parent(_: ScArgumentExprList) =>
+      case NamedArgument(a: ScAssignment) =>
         //TODO: this highlighting should be applied even when annotators are disabled and just syntax is highlighted
         // kotlin has org.jetbrains.kotlin.idea.highlighter.BeforeResolveHighlightingVisitor
         val parameterRefRange = a.leftExpression.getNode.getTextRange
@@ -195,6 +195,22 @@ object ScalaColorSchemeAnnotator {
           .foreach(createInfoAnnotation(element, _))
       case _ =>
     }
+
+  private object NamedArgument {
+    def unapply(psiElement: PsiElement): Option[ScAssignment] = psiElement match {
+      case (a: ScAssignment) & Parent(_: ScArgumentExprList) =>
+        a.leftExpression match {
+          //NOTE: this ignores underscore lambdas with assignment, that represented as an ScAssignment as well.
+          //Example: foo(_.field = null)
+          //It's a much more lightweight alternative to using ScUnderScoreSectionUtil.isUnderscoreFunction
+          case ref: ScReferenceExpression if ref.qualifier.isEmpty =>
+            Some(a)
+          case _ => None
+        }
+      case _ =>
+        None
+    }
+  }
 
   private def isSoftKeyword(element: PsiElement): Boolean = {
     import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.SOFT_KEYWORDS

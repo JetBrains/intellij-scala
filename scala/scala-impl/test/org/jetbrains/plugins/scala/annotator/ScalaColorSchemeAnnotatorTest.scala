@@ -483,4 +483,80 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
         |""".stripMargin
     )
   }
+
+  def testUnderscoreLambdaWithAssignmentInParameterPosition(): Unit = {
+    addScalaFileToProject("defs.scala",
+      """class MyClass {
+        |  var field: MyClass = ???
+        |}
+        |
+        |def foo(set: MyClass => Unit): Unit = ???
+        |""".stripMargin
+    )
+
+    //language=Scala
+    val text =
+      """foo(_.field = null)
+        |foo(_.field.field.field = null)
+        |""".stripMargin
+
+    //adding more keys which I think could be accidentally used, but not too many to keep test data compact
+    val keysOfInterest: Set[TextAttributesKey] = Set(
+      DefaultHighlighter.VALUES,
+      DefaultHighlighter.LOCAL_VALUES,
+      DefaultHighlighter.LOCAL_VARIABLES,
+      DefaultHighlighter.VARIABLES,
+      DefaultHighlighter.PARAMETER,
+      DefaultHighlighter.NAMED_ARGUMENT,
+      DefaultHighlighter.PARAMETER_OF_ANONIMOUS_FUNCTION,
+      DefaultHighlighter.TYPEPARAM,
+    )
+    testAnnotations(
+      text,
+      keysOfInterest,
+      """Info((6,11),field,Scala Template var)
+        |Info((26,31),field,Scala Template var)
+        |Info((32,37),field,Scala Template var)
+        |Info((38,43),field,Scala Template var)""".stripMargin
+    )
+  }
+
+  def testAssignmentToField(): Unit = {
+    addScalaFileToProject("defs.scala",
+      """class MyClass {
+        |  var field: MyClass = ???
+        |}
+        |""".stripMargin
+    )
+
+    //language=Scala
+    val text =
+      """val myClass = new MyClass()
+        |myClass.field = null
+        |val x: MyClass => Unit = _.field.field.field = null
+        |""".stripMargin
+
+    //adding more keys which I think could be accidentally used, but not too many to keep test data compact
+    val keysOfInterest: Set[TextAttributesKey] = Set(
+      DefaultHighlighter.VALUES,
+      DefaultHighlighter.LOCAL_VALUES,
+      DefaultHighlighter.LOCAL_VARIABLES,
+      DefaultHighlighter.VARIABLES,
+      DefaultHighlighter.PARAMETER,
+      DefaultHighlighter.NAMED_ARGUMENT,
+      DefaultHighlighter.PARAMETER_OF_ANONIMOUS_FUNCTION,
+      DefaultHighlighter.TYPEPARAM,
+    )
+    testAnnotations(
+      text,
+      keysOfInterest,
+      """Info((4,11),myClass,Scala Local value)
+        |Info((28,35),myClass,Scala Local value)
+        |Info((36,41),field,Scala Template var)
+        |Info((53,54),x,Scala Local value)
+        |Info((76,81),field,Scala Template var)
+        |Info((82,87),field,Scala Template var)
+        |Info((88,93),field,Scala Template var)""".stripMargin
+    )
+  }
 }
