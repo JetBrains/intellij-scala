@@ -92,7 +92,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, keyword: String)
           val bl = materializeSyntheticObject(obj).extendsBlock
           createEntity(bl, text, ref)
         case Some(it) => createEntity(it, text, ref)
-        case None => createEntity(ref, text)
+        case None => createEntityAndAddToFile(ref, text)
       }
 
       for (entity <- maybeEntity) {
@@ -196,7 +196,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, keyword: String)
     }
   }
 
-  private def createEntity(ref: ScReferenceExpression, text: String): Option[PsiElement] =
+  private def createEntityAndAddToFile(ref: ScReferenceExpression, text: String): Option[PsiElement] =
     for (anchor <- anchorForUnqualified(ref)) yield {
       val holder = anchor.getParent
 
@@ -208,7 +208,9 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, keyword: String)
         holder.addAfter(createNewLine("\n\n"), entity)
         entity
       } else {
-        holder.addAfter(createElementFromText(s"private $text", ref), anchor)
+        val entity = holder.addAfter(createElementFromText(s"private $text", ref), anchor)
+        holder.addBefore(createNewLine(), entity)
+        entity
       }
     }
 
