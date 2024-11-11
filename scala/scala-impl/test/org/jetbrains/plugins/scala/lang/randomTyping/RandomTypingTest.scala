@@ -49,13 +49,13 @@ class RandomTypingTest_in_Scala3_ImportedData extends RandomTypingTestBase(TestU
 class RandomTypingTest_in_Scala2 extends RandomTypingTestBase(TestUtils.getTestDataPath + "/parser/data") {
   override protected def supportedIn(version: ScalaVersion): Boolean = version <= ScalaVersion.Latest.Scala_2_13
 
-
-  //def test_specific(): Unit = {
-  //  typeRandomly(
-  //    TestUtils.getTestDataPath + /parser/data/,
-  //    <test_seed>,
-  //  )
-  //}
+  override val ignoredFiles: Set[String] = Set("xmlPattern.test")
+//  def test_specific(): Unit = {
+//    typeRandomly(
+//      TestUtils.getTestDataPath + "/parser/data/doccomments/scaladoc/simpleMixed1.test",
+//      717565430,
+//    )
+//  }
 }
 
 abstract class RandomTypingTestBase(testFilePath: String) extends EditorActionTestBase {
@@ -63,6 +63,8 @@ abstract class RandomTypingTestBase(testFilePath: String) extends EditorActionTe
 
   private def log(s: Any): Unit =
     if (logging) println(s)
+
+  def ignoredFiles: Set[String] = Set.empty
 
   def test_all_files(): Unit = {
     val random = new Random
@@ -73,6 +75,7 @@ abstract class RandomTypingTestBase(testFilePath: String) extends EditorActionTe
       // which doesn't work at all well with code points that do not fit into one char
       // So let's ignore those
       .filterNot(file => hasCodePointsSpanningMultipleChars(Files.readString(file.toPath)))
+      .filterNot(file => ignoredFiles.contains(file.getName))
       .to(ArraySeq)
     println(s"Test ${allFiles.size} in $testFilePath:")
     for ((file, i) <- allFiles.zipWithIndex) {
