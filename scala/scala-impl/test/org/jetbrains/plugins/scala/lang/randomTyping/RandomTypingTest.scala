@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.randomTyping
 
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.psi.PsiDocumentManager
+import com.intellij.testFramework.{ErrorLog, TestLoggerKt}
 import com.intellij.util.lang.CompoundRuntimeException
 import com.intellij.util.ui.EDT
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
@@ -95,6 +96,7 @@ abstract class RandomTypingTestBase(testFilePath: String) extends EditorActionTe
 
     try {
       typeRandomly(targetText, new Random(seed))
+      TestLoggerKt.getErrorLog.takeLoggedErrors().forEach(throw _)
     } catch {
       case e: Throwable =>
         def ignoreException(e: Throwable): Boolean = e match {
