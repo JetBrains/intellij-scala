@@ -53,7 +53,7 @@ class ScTemplateDefinitionAnnotatorTest
         |trait FormalGreeting extends Greeting
         |class E extends FormalGreeting
         |""".stripMargin,
-      """Error(E,Parameterized trait Greeting is indirectly implemented,needs to be implemented directly so that arguments can be passed)
+      """Error(E,Parameterized trait Greeting is indirectly implemented, needs to be implemented directly so that arguments can be passed)
         |""".stripMargin
     )
 
@@ -115,8 +115,8 @@ class ScTemplateDefinitionAnnotatorTest
         |  })
         |}
         |""".stripMargin,
-      """Error(new,Object creation impossible, since member bar[A](value: A): Unit in Test is not defined)
-        |Error(new,Object creation impossible, since member bar[A](value: A): Unit in Test is not defined)
+      """Error(new,Object creation is impossible since member bar[A](value: A): Unit in Test is not defined)
+        |Error(new,Object creation is impossible since member bar[A](value: A): Unit in Test is not defined)
         |""".stripMargin
     )
 
