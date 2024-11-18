@@ -33,10 +33,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportStmt}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScDerivesClause
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.DerivesUtil
 import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
@@ -1393,6 +1395,15 @@ object ScalaImportOptimizer {
         }
       case ref: ScReference if ScalaPsiUtil.getParentImportStatement(ref) == null =>
         ref.multiResolveScala(false).foreach(addWithImplicits(_, ref))
+      case derives: ScDerivesClause =>
+        for {
+          tcRef         <- derives.derivedReferences
+          tc            <- DerivesUtil.resolveTypeClassReference(tcRef).toSeq
+          companion     <- tc.baseCompanion.toSeq
+        } {
+          val derivedMethods = DerivesUtil.findDerivedMethods(companion, derives.owner)
+          derivedMethods.foreach(addWithImplicits(_, derives))
+        }
       case c: ScConstructorInvocation =>
         c.findImplicitArguments match {
           case Some(parameters) =>
@@ -1427,7 +1438,7 @@ object ScalaImportOptimizer {
 
   //utilities
   private def canElementUseImport(element: PsiElement): Boolean =
-    element.is[ScReference, ImplicitArgumentsOwner]
+    element.is[ScReference, ImplicitArgumentsOwner, ScDerivesClause]
 
   private def isLocalImportHolder(holder: ScImportsHolder): Boolean =
     !holder.is[ScalaFile, ScPackaging]
