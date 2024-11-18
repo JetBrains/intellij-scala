@@ -18,21 +18,25 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor.ScTypeForDynamicProcessorEx
 
 class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScGenericCall {
-  private def processApplyOrUpdateMethod(tp: ScType, isShape: Boolean): ScType =
-    getContext match {
-      case _: MethodInvocation => tp
-      case _ =>
-        val srrs = this.tryResolveApplyMethod(this, tp, isShape = isShape, stripTypeArgs = false)
+  private def processApplyOrUpdateMethod(tp: ScType, shapesOnly: Boolean): ScType = {
+    val applyCandidates = this.resolveApplyMethod(
+      this,
+      tp,
+      shapesOnly    = shapesOnly,
+      stripTypeArgs = false,
+      withImplicits = true
+    )
 
-        srrs match {
-          case Array(srr @ ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor)) =>
-            fun
-              .methodTypeProvider(elementScope)
-              .polymorphicType(s)
-              .updateTypeOfDynamicCall(srr.isDynamic)
-          case _ => Nothing
-        }
+    applyCandidates match {
+      case Array(srr @ ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor)) =>
+        fun
+          .methodTypeProvider(elementScope)
+          .polymorphicType(s)
+          .updateTypeOfDynamicCall(srr.isDynamic)
+      case _ =>
+        Nothing
     }
+  }
 
   private def substPolymorphicType: ScType => ScType = {
     case ScTypePolymorphicType(internal, tps) =>

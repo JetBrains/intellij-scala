@@ -81,25 +81,25 @@ class AbsentTypeArgumentAnnotatorTest_Scala2 extends AbsentTypeArgumentAnnotator
     }
 
     assertMatches(messagesInContext("val x = new A1[A1]()")){
-      case List(Error(_, "Type A1 takes type parameters")) =>
+      case List(Error(_, "Type constructor Test.A1 does not conform to X ")) =>
     }
   }
 
   def testInTypeArg(): Unit = {
     assertMatches(messagesInContext("val x: A1[A1] = null")){
-      case List(Error(_, "Type A1 takes type parameters")) =>
+      case List(Error(_, "Type constructor A1 does not conform to X ")) =>
     }
 
     assertMatches(messagesInContext("val x: A1[A1] = null")){
-      case List(Error(_, "Type A1 takes type parameters")) =>
+      case List(Error(_, "Type constructor A1 does not conform to X ")) =>
     }
 
     assertMatches(messagesInContext("val x: A1[A2] = null")){
-      case List(Error(_, "Type A2 takes type parameters")) =>
+      case List(Error(_, "Type constructor A2 does not conform to X  ")) =>
     }
 
     assertMatches(messagesInContext("val x: A2[A1, A0] = null")){
-      case List(Error(_, "Type A1 takes type parameters")) =>
+      case List(Error(_, "Type constructor A1 does not conform to X ")) =>
     }
 
     assertMatches(messagesInContext("val x: A2[A0, A1[_]] = null")){
@@ -117,7 +117,7 @@ class AbsentTypeArgumentAnnotatorTest_Scala2 extends AbsentTypeArgumentAnnotator
     }
 
     assertMatches(messagesInContext("val x: Any = null; x match { case _: A1[A1] => }")) {
-      case List(Error(_, "Type A1 takes type parameters")) =>
+      case List(Error(_, "Type constructor A1 does not conform to X ")) =>
     }
 
     assertMatches(messagesInContext("val x: Any = null; x match { case _: A1[_] => }")) {

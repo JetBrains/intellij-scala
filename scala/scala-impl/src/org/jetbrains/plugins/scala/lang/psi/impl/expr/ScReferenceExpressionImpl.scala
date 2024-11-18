@@ -315,7 +315,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     val matchClauseSubst         = bind.matchClauseSubstitutor
     val extensionOwner           = bind.exportedInExtension
 
-    val inner: ScType = bind match {
+    val inner: ScType = bind.innerResolveResult.getOrElse(bind) match {
       case ScalaResolveResult(fun: ScFun, s) =>
         fun.polymorphicType(s)
       //prevent infinite recursion for recursive pattern reference
