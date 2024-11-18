@@ -30,6 +30,23 @@ final class RandomZioHighlightingBugs_Scala3 extends RandomZioHighlightingBugsBa
       |        def invoke(event: String) = ???
       |""".stripMargin
   )
+
+  def testSCL22570(): Unit = checkTextHasNoErrors(
+    """
+      |import zio.http.codec.HttpCodecType.Content
+      |import zio.http.codec.{HttpCodec, HttpCodecType}
+      |import zio.http.endpoint.{Endpoint, EndpointMiddleware}
+      |
+      |class C:
+      |  val value1: Endpoint[Int, Long, _ <: Nothing, String, EndpointMiddleware] = ???
+      |  val value2: HttpCodec[HttpCodecType.Status & Content, String] = ???
+      |
+      |  //IntelliJ type : Endpoint[Int, Long, Either[String, Error], String, EndpointMiddleware]
+      |  //Compiler type : Endpoint[Int, Long, String, String, EndpointMiddleware]
+      |  val value3: Endpoint[Int, Long, String, String, EndpointMiddleware] =
+      |    value1.outErrors[String].apply(value2, value2)
+      |""".stripMargin
+  )
 }
 
 @Category(Array(classOf[TypecheckerTests]))
@@ -37,7 +54,8 @@ abstract class RandomZioHighlightingBugsBase extends ScalaLightCodeInsightFixtur
 
   override protected def librariesLoaders: Seq[LibraryLoader] = super.librariesLoaders :+ IvyManagedLoader(
     "dev.zio" %% "zio" % "2.1.0",
-    "dev.zio" %% "zio-mock" % "1.0.0-RC12"
+    "dev.zio" %% "zio-mock" % "1.0.0-RC12",
+    "dev.zio" %% "zio-http" % "3.0.0-RC7"
   )
 
   //SCL-20982

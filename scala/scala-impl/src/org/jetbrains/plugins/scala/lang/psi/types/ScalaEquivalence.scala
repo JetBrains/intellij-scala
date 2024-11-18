@@ -63,6 +63,17 @@ trait ScalaEquivalence extends api.Equivalence {
         case _ =>
       }
 
+      def isNothingBounded(tp: ScType): Boolean =
+        tp.isNothing || (tp match {
+          case AliasType(_, _, Right(upper)) => upper.isNothing
+          case tpt: TypeParameterType        => tpt.upperType.isNothing
+          case exArg: ScExistentialArgument  => exArg.upper.isNothing
+          case _                             => false
+        })
+
+      if (isNothingBounded(left) && isNothingBounded(right))
+        return ConstraintSystem.empty
+
       right match {
         case AliasType(_: ScTypeAliasDefinition, Right(right), _) =>
           return equivInner(left, right, falseUndef = falseUndef)
