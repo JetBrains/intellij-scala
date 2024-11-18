@@ -506,7 +506,13 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         def traverseInvokedExprs(call: ScExpression, dropped: Int): Unit = call match {
           case mc: MethodInvocation =>
             val tp            = mc.`type`().getOrAny
-            val applyResolves = mc.tryResolveApplyMethod(mc, tp, isShape = false, stripTypeArgs = false)
+            val applyResolves = mc.resolveApplyMethod(
+              mc,
+              tp,
+              shapesOnly = false,
+              stripTypeArgs = false,
+              withImplicits = true
+            )
 
             applyResolves.foreach(processNamedParameterOf(_, dropped))
             if (processor.candidates.isEmpty) traverseInvokedExprs(mc.getEffectiveInvokedExpr, dropped + 1)

@@ -68,23 +68,9 @@ object ScSimpleTypeElementAnnotator extends ElementAnnotator[ScSimpleTypeElement
         return false
 
       typeElement.parents.find(!_.is[ScParenthesisedTypeElement]).orNull match {
-        case ScParameterizedTypeElement(_, _)                        => false
+        case ScParameterizedTypeElement(_, _)  => false\
         case tp: ScTypeParam if tp.contextBoundTypeElement.contains(typeElement) => false
-        case (_: ScTypeArgs) childOf (gc: ScGenericCall) =>
-          gc.referencedExpr match {
-            case ResolvesTo(f: ScFunction) => noHigherKinds(f)
-            case _                         => false
-          }
-        case (_: ScTypeArgs) childOf (parameterized: ScParameterizedTypeElement) =>
-          parameterized.typeElement match {
-            case ScSimpleTypeElement(ResolvesTo(target)) =>
-              target match {
-                case cons: ScPrimaryConstructor      => noHigherKinds(cons.containingClass)
-                case owner: ScTypeParametersOwner    => noHigherKinds(owner)
-                case _                               => false
-              }
-            case _ => false
-          }
+        case _: ScTypeArgs                     => false
         case infix: ScInfixTypeElement if infix.left == typeElement || infix.rightOption.contains(typeElement) =>
           infix.operation.resolve() match {
             case owner: ScTypeParametersOwner => noHigherKinds(owner)

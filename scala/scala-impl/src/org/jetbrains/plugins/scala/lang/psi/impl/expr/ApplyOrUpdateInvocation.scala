@@ -1,27 +1,29 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
+import com.intellij.psi.PsiTypeParameterListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScAssignment, ScExpression, ScGenericCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitConversionResolveResult
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, UndefinedType}
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
-import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor.{conformsToDynamic, getDynamicNameForMethodInvocation}
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
+import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor.getDynamicNameForMethodInvocation
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState}
 
 //data collected to resolve update/apply/dynamic calls
 case class ApplyOrUpdateInvocation(
-  argClauses:   List[Seq[ScExpression]],
-  baseExpr:     ScExpression,
-  baseExprType: ScType,
-  typeArgs:     Seq[ScTypeElement],
-  expectedType: () => Option[ScType],
-  isDynamic:    Boolean,
-  isUpdate:     Boolean
+  argClauses:        List[Seq[ScExpression]],
+  baseExpr:          ScExpression,
+  targetType:        ScType,
+  curriedTypeParams: Seq[TypeParameter],
+  typeArgs:          Seq[ScTypeElement],
+  expectedType:      () => Option[ScType],
+  isDynamic:         Boolean,
+  isUpdate:          Boolean
 ) {
 
   def collectCandidates(isShape: Boolean, withImplicits: Boolean = true): Array[ScalaResolveResult] = {
@@ -33,38 +35,23 @@ case class ApplyOrUpdateInvocation(
         methodName,
         argClauses,
         typeArgs,
-        Seq.empty,
+        curriedTypeParams,
         expectedOption    = expectedType,
         isShapeResolve    = isShape,
         enableTupling     = true,
         nameArgForDynamic = nameArgForDynamic
       )
 
-    val simpleCandidates = candidatesNoImplicit(processor)
+    val simpleCandidates = candidatesFromType(processor, targetType)
 
-    if (isDynamic) simpleCandidates.toArray
-    else {
-      val candidates =
-        if (simpleCandidates.forall(!_.isApplicable()) && withImplicits) {
-          val noImplicitsForArgs = simpleCandidates.nonEmpty
-          candidatesWithConversion(processor, noImplicitsForArgs)
-        } else simpleCandidates
+    val candidates =
+      if (simpleCandidates.forall(!_.isApplicable()) && withImplicits) {
+        val noImplicitsForArgs = simpleCandidates.nonEmpty
+        candidatesWithConversion(processor, noImplicitsForArgs)
+      } else simpleCandidates
 
-      candidates.toArray
-    }
+    candidates.toArray
   }
-
-  private def candidatesNoImplicit(processor: MethodResolveProcessor): Set[ScalaResolveResult] =
-    baseExprType match {
-      case ScTypePolymorphicType(_: ScMethodType | _: UndefinedType, _) =>
-        Set.empty
-      case ScTypePolymorphicType(internal, tparams) if shouldProcess(internal) =>
-        val cands = candidatesFromType(processor, internal)
-        cands.map(_.copy(unresolvedTypeParameters = tparams.toOption))
-      case other =>
-        if (shouldProcess(other)) candidatesFromType(processor, other)
-        else                      Set.empty
-    }
 
   private def candidatesWithConversion(
     processor:          MethodResolveProcessor,
@@ -76,7 +63,7 @@ case class ApplyOrUpdateInvocation(
       Option(processor.refName),
       baseExpr,
       processor,
-      Option(baseExprType.inferValueType),
+      Option(targetType.inferValueType),
       noImplicitsForArgs,
       forCompletion = false
     ) {
@@ -91,9 +78,6 @@ case class ApplyOrUpdateInvocation(
     else if (isDynamic) getDynamicNameForMethodInvocation(argClauses.flatten)
     else                CommonNames.Apply
 
-  private def shouldProcess(fromType: ScType): Boolean =
-    !isDynamic || conformsToDynamic(fromType, baseExpr.resolveScope)
-
   private def candidatesFromType(processor: MethodResolveProcessor, fromType: ScType): Set[ScalaResolveResult] = {
     processor.processType(fromType, baseExpr, ScalaResolveState.withFromType(fromType))
     processor.candidatesS
@@ -101,16 +85,23 @@ case class ApplyOrUpdateInvocation(
 }
 
 object ApplyOrUpdateInvocation {
-  def apply(gen: ScGenericCall, tp: ScType, stripTypeArgs: Boolean): ApplyOrUpdateInvocation =
+  def apply(
+    gen: ScGenericCall,
+    tp: ScType,
+    isDynamic: Boolean,
+    stripTypeArgs: Boolean
+  ): ApplyOrUpdateInvocation = {
     ApplyOrUpdateInvocation(
       List.empty,
       gen.referencedExpr,
-      if (stripTypeArgs) unpackPolyType(tp) else tp,
-      if (stripTypeArgs) Seq.empty          else gen.typeArgs.typeArgs,
+      if (stripTypeArgs) unpackPolyType(tp)._1 else tp,
+      Seq.empty,
+      if (stripTypeArgs) Seq.empty else gen.typeArgs.typeArgs,
       () => gen.expectedType(),
-      isDynamic = false,
+      isDynamic = isDynamic,
       isUpdate = false
     )
+  }
 
   def apply(
     call:           MethodInvocation,
@@ -120,18 +111,21 @@ object ApplyOrUpdateInvocation {
   ): ApplyOrUpdateInvocation = {
     val argClauses = argumentClauses(call, isDynamic)
 
-    val (baseExpr, baseTp, typeArgs) =
+    val (baseExpr, baseTp, curriedTypeParams, typeArgs) =
       call.getEffectiveInvokedExpr match {
         case gen: ScGenericCall =>
-          if (stripTypeArgs) (gen, unpackPolyType(tp), Seq.empty)
-          else               (gen.referencedExpr, tp, gen.arguments)
-        case expression => (expression, tp, Seq.empty)
+          if (stripTypeArgs) (gen, unpackPolyType(tp)._1, Seq.empty, Seq.empty)
+          else               (gen.referencedExpr, tp, Seq.empty, gen.arguments)
+        case expression =>
+          val (targetType, curried) = unpackPolyType(tp)
+          (expression, targetType, curried, Seq.empty)
       }
 
     ApplyOrUpdateInvocation(
       argClauses,
       baseExpr,
       baseTp,
+      curriedTypeParams,
       typeArgs,
       () => call.expectedType(),
       isDynamic,
@@ -139,9 +133,9 @@ object ApplyOrUpdateInvocation {
     )
   }
 
-  private def unpackPolyType(tp: ScType): ScType = tp match {
-    case tpt: ScTypePolymorphicType => tpt.internalType
-    case other                      => other
+  private def unpackPolyType(tp: ScType): (ScType, Seq[TypeParameter]) = tp match {
+    case ScTypePolymorphicType(internal, tparams) => (internal, tparams)
+    case other                                    => (other, Seq.empty)
   }
 
   private def argumentClauses(call: MethodInvocation, isDynamic: Boolean): List[Seq[ScExpression]] = {
@@ -162,4 +156,13 @@ object ApplyOrUpdateInvocation {
       List(Seq(emptyStringExpression), arguments)
     }
   }
+
+  def innerSrrHasTypeParameters(srr: ScalaResolveResult): Boolean =
+    srr.name == CommonNames.Apply && srr.innerResolveResult.exists {
+      _.element match {
+        case tpo: PsiTypeParameterListOwner => tpo.getTypeParameters.nonEmpty
+        case tpo: ScTypeParametersOwner     => tpo.typeParameters.nonEmpty
+        case _                              => false
+      }
+    }
 }

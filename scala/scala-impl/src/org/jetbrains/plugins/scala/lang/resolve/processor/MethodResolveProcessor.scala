@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwn
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.ApplyOrUpdateInvocation
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.{ConformanceExtResult, Expression}
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -22,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
+import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.ScExpressionForExpectedTypesEx
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
@@ -641,34 +641,28 @@ object MethodResolveProcessor {
 
     def applyMethodsFor(tp: ScType): Set[(ScalaResolveResult, Boolean)] = {
       val (substitutor, cleanTypeArguments) = invocationInfo(r.element)
+      val call = ref.getContext.asOptionOf[ScExpression].toArray
 
-      def applyResolver(e: PsiElement): Option[ApplyOrUpdateInvocation] = {
-        def methodCallApplyResolver(mc: MethodInvocation): ApplyOrUpdateInvocation =
-          ApplyOrUpdateInvocation(mc, substitutor(tp), isDynamic, stripTypeArgs = cleanTypeArguments)
+      val applyCandidates = call.flatMap(e =>
+        e.resolveApplyMethod(
+          e,
+          substitutor(tp),
+          shapesOnly    = isShapeResolve,
+          stripTypeArgs = cleanTypeArguments,
+          withImplicits = false
+        )
+      )
 
-        e match {
-          case mc: MethodInvocation => methodCallApplyResolver(mc).toOption
-          case gc: ScGenericCall    =>
-            gc.getContext match {
-              case mc: MethodInvocation => methodCallApplyResolver(mc).toOption
-              case _                    => ApplyOrUpdateInvocation(gc, substitutor(tp), stripTypeArgs = cleanTypeArguments).toOption
-            }
-          case _ => None
-        }
-      }
-
-      val result = applyResolver(ref.getContext) match {
-        case Some(proc: ApplyOrUpdateInvocation) =>
-          val cands = proc.collectCandidates(isShape = isShapeResolve, withImplicits = false)
-
-          if (cands.isEmpty) Set((r, false))
-          else               cands.view.collect {
-            case rr if !accessibility || isAccessible(rr.element, ref) =>
-              (rr.copy(innerResolveResult = Option(r), parentElement = r.element.toOption), cleanTypeArguments)
-          }.toSet
-        case _ => Set((r, false))
-      }
-      result
+      if (applyCandidates.isEmpty)
+        Set((r, false))
+      else
+        applyCandidates.view.collect {
+          case rr if !accessibility || isAccessible(rr.element, ref) =>
+            (rr.copy(
+              innerResolveResult = Option(r),
+              parentElement      = r.element.toOption
+            ), cleanTypeArguments)
+        }.toSet
     }
 
     if (r.name == CommonNames.Apply) {
