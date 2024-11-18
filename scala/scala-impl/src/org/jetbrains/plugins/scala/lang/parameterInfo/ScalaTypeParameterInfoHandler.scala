@@ -152,11 +152,17 @@ class ScalaTypeParameterInfoHandler extends ScalaParameterInfoHandler[ScTypeArgs
 
   private def fromResolved(ref: ScReference, useActualElement: Boolean = false): Option[(PsiElement, ScSubstitutor)] = {
     ref.bind() match {
+      case Some(srr @ ScalaResolveResult.ApplyMethodInnerResolve(inner)) =>
+        val (elem, subst) =
+          if (inner.elementHasTypeParameters) (inner.element, inner.substitutor)
+          else                                (srr.element, srr.substitutor)
+
+        Option((elem, subst))
       case Some(r @ ScalaResolveResult(m: PsiMethod, substitutor)) =>
         val element = if (useActualElement) r.getActualElement else m
-        Some((element, substitutor))
+        Option((element, substitutor))
       case Some(ScalaResolveResult(element @ (_: PsiClass | _: ScTypeParametersOwner), substitutor)) =>
-        Some((element, substitutor))
+        Option((element, substitutor))
       case Some(srr) =>
         srr.innerResolveResult.map(x => (x.getActualElement, x.substitutor))
       case _ => None
