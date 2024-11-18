@@ -442,22 +442,6 @@ object DebuggerUtil {
     }
   }
 
-  def getContainingMethod(elem: PsiElement): Option[PsiElement] = {
-    elem.withParentsInFile.collectFirst {
-      case c if ScalaPositionManager.isLambda(c) => c
-      case m: PsiMethod => m
-      case tb: ScTemplateBody => tb
-      case ed: ScEarlyDefinitions => ed
-      case c: ScClass => c
-    }
-  }
-
-  def inTheMethod(pos: SourcePosition, method: PsiElement): Boolean = {
-    val elem: PsiElement = pos.getElementAt
-    if (elem == null) return false
-    getContainingMethod(elem).contains(method)
-  }
-
   def getSignificantElement(elem: PsiElement): PsiElement = {
     elem match {
       case _: ScAnnotationsHolder | _: ScCommentOwner =>

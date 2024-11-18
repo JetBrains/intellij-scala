@@ -62,7 +62,7 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
 
     val element = position.getElementAt
 
-    val lineStart = position.getOffset
+    val lineStart = element.getTextRange.getStartOffset
     val lineRange = new TextRange(lineStart, document.getLineEndOffset(line))
     val maxElement = maxElementOnLine(element, lineStart)
 

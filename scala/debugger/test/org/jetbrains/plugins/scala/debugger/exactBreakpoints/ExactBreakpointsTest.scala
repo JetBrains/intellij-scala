@@ -466,8 +466,8 @@ abstract class ExactBreakpointsTestBase extends ScalaDebuggerTestCase {
 
   def testWholeLineIsLambda(): Unit = {
     checkVariants()(3) //no variants
-    checkVariants()(6, "Line and Lambda", "line in containing block", "_ + 1")
-    checkVariants()(9, "Line and Lambdas", "line in containing block", "_ + 1", "_ + 2")
+    checkVariants()(6, "Line and Lambdas", "line in function main", "Seq(4).map(_ + 1)", "_ + 1")
+    checkVariants()(9, "Line and Lambdas", "line in function main", "Seq(4).map(_ + 1).map(_ + 2)", "_ + 1", "_ + 2")
   }
 
   addSourceFile("PartialFunctionArg.scala",
@@ -760,6 +760,12 @@ abstract class ExactBreakpointsTestBase extends ScalaDebuggerTestCase {
        |      .filter(
        |        _ % 2 == 0
        |      )
+       |      .filter(
+       |        { x => x % 2 == 0 }
+       |      )
+       |      .filter {
+       |        (_ % 2 == 0)
+       |      }
        |}
        |""".stripMargin)
 
@@ -774,10 +780,12 @@ abstract class ExactBreakpointsTestBase extends ScalaDebuggerTestCase {
     checkVariants()(15)
     checkVariants()(16)
     checkVariants()(17)
-    checkVariants()(18)
+    checkVariants()(18, "Line and Lambda", "line in containing block", "x % 2 == 0")
     checkVariants()(19)
     checkVariants()(20)
-    checkVariants()(21)
+    checkVariants()(21, "Line and Lambda", "line in containing block", "_ % 2 == 0")
     checkVariants()(22)
+    checkVariants()(24, "Line and Lambda", "line in containing block", "x % 2 == 0")
+    checkVariants()(27, "Line and Lambda", "line in containing block", "_ % 2 == 0")
   }
 }
