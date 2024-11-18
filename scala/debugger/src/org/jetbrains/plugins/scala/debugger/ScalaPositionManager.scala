@@ -82,7 +82,8 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       } yield {
         val normalizedLineNumber = if (lineNumber < -1) -1 else lineNumber
         calcPosition(psiFile, location, normalizedLineNumber).getOrElse {
-          SourcePosition.createFromLine(psiFile, normalizedLineNumber)
+          val position = SourcePosition.createFromLine(psiFile, normalizedLineNumber)
+          new ScalaSourcePositionWithWholeLineHighlighted(position)
         }
       }
     position.getOrThrow(NoDataException.INSTANCE)
@@ -404,7 +405,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       }
     }
 
-    def calcElement(): Option[PsiElement] = {
+    def calcElement(): Option[(PsiElement, Boolean)] = {
       val possiblePositions = positionsOnLine(file, lineNumber)
       val currentMethod = location.method()
 
@@ -422,36 +423,44 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
         methodsToLambdas.get(currentMethod)
       }
 
-      def functionExprBody(element: PsiElement): PsiElement = element match {
-        case ScFunctionExpr(_, Some(body)) => body
-        case _ => element
-      }
-
       if (possiblePositions.size <= 1) {
-        possiblePositions.headOption
+        possiblePositions.headOption.map { element =>
+          val lambda = isLambda(element) && isAnonfun(currentMethod)
+          (element, lambda)
+        }
       }
       else if (isIndyLambda(currentMethod)) {
-        findPsiElementForIndyLambda().map(functionExprBody)
+        findPsiElementForIndyLambda().map((_, true))
       }
       else if (isDefaultArg) {
-        findDefaultArg(possiblePositions, defaultArgIndex)
+        findDefaultArg(possiblePositions, defaultArgIndex).map((_, false))
       }
       else if (!isAnonfun(currentMethod)) {
         possiblePositions.find {
           case e: PsiElement if isLambda(e) => false
           case (_: ScExpression) childOf (_: ScParameter) => false
           case _ => true
-        }
+        }.map((_, false))
       }
       else {
         val generatingPsiElem = findElementByReferenceType(location.declaringType())
         possiblePositions
           .find(p => generatingPsiElem.contains(findGeneratingClassOrMethodParent(p)))
-          .map(functionExprBody)
+          .map(e => (e, isLambda(e)))
       }
     }
 
-    calcElement().filter(_.isValid).map(SourcePosition.createFromElement)
+    def functionExprBody(element: PsiElement): PsiElement = element match {
+      case f: ScFunctionExpr => f.result.getOrElse(f)
+      case e => e
+    }
+
+    calcElement().filter(_._1.isValid).map { case (element, lambda) =>
+      val elementForPlatformPosition = functionExprBody(element)
+      val position = SourcePosition.createFromElement(elementForPlatformPosition)
+      if (lambda) new ScalaLambdaSourcePosition(position, element)
+      else new ScalaSourcePositionWithWholeLineHighlighted(position)
+    }
   }
 
   @Nullable

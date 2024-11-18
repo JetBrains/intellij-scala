@@ -17,18 +17,18 @@ import com.intellij.xdebugger.{XDebuggerUtil, XSourcePosition}
 import org.jetbrains.annotations.{Nls, NotNull, Nullable}
 import org.jetbrains.concurrency.{AsyncPromise, Promise}
 import org.jetbrains.java.debugger.breakpoints.properties.JavaLineBreakpointProperties
-import org.jetbrains.plugins.scala.debugger.{DebuggerBundle, ScalaPositionManager}
-import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
+import org.jetbrains.plugins.scala.ScalaLanguage
+import org.jetbrains.plugins.scala.debugger.{DebuggerBundle, ScalaLambdaSourcePosition, ScalaPositionManager, ScalaSourcePositionWithWholeLineHighlighted}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
 import org.jetbrains.plugins.scala.statistics.ScalaDebuggerUsagesCollector
-import org.jetbrains.plugins.scala.ScalaLanguage
 
 import java.util.Collections
 import javax.swing.Icon
@@ -105,32 +105,30 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
 
     val res = new java.util.LinkedList[JavaBPVariant]()
 
-    val method = DebuggerUtil.getContainingMethod(elementAtLine)
+    val method = findContainingDefinition(elementAtLine, lambdas)
 
-    var lineVariantWasAdded = false
     for ((lambda, ordinal) <- lambdas.zipWithIndex) {
-      val isLine = method.contains(lambda)
       val element = lambda match {
         case f: ScFunctionExpr => f.result.getOrElse(f)
         case e => e
       }
-      res.addLast(new ExactScalaBreakpointVariant(XSourcePositionImpl.createByElement(element), element, isLine, ordinal))
-      if (isLine) {
-        assert(!lineVariantWasAdded)
-        lineVariantWasAdded = true
-      }
+      res.addLast(new ExactScalaBreakpointVariant(XSourcePositionImpl.createByElement(element), element, ordinal))
     }
-    val lambdaVariantCount = lambdas.size - (if (lineVariantWasAdded) 1 else 0)
-    if (!lineVariantWasAdded) {
-      res.addFirst(new ExactScalaBreakpointVariant(position, method.orNull, isLine = true, -1))
-    }
-
-    if (res.size <= 1) return Collections.emptyList()
-
-    res.addFirst(new JavaBreakpointVariant(position, lambdaVariantCount)) //adding all variants
+    res.addFirst(new ExactScalaBreakpointVariant(position, method.orNull, -1))
+    res.addFirst(new JavaBreakpointVariant(position, lambdas.size)) //adding all variants
     res
   }
 
+  private def findContainingDefinition(elem: PsiElement, lambdas: Seq[PsiElement]): Option[PsiElement] =
+    elem.withParentsInFile.collect {
+      case c if ScalaPositionManager.isLambda(c) => c
+      case m: PsiMethod => m
+      case tb: ScTemplateBody => tb
+      case ed: ScEarlyDefinitions => ed
+      case c: ScClass => c
+    }.find(!lambdas.contains(_))
+
+  //noinspection InstanceOf
   override def matchesPosition(@NotNull breakpoint: LineBreakpoint[_], @NotNull position: SourcePosition): Boolean = {
     val method = getContainingMethod(breakpoint)
     if (method == null) return false
@@ -139,9 +137,14 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
 
     if (isLambda(breakpoint)) {
       ScalaDebuggerUsagesCollector.logLambdaBreakpoint(breakpoint.getProject)
+      if (!position.isInstanceOf[ScalaLambdaSourcePosition]) return false
+      val element = position.asInstanceOf[ScalaLambdaSourcePosition].lambda
+      position.isInstanceOf[ScalaLambdaSourcePosition] &&
+        ScalaPositionManager.isLambda(element) && element.getTextRange == method.getTextRange
+    } else {
+      position.isInstanceOf[ScalaSourcePositionWithWholeLineHighlighted] &&
+        position.getLine == position.getElementAt.getLineNumber
     }
-
-    DebuggerUtil.inTheMethod(position, method)
   }
 
   @Nullable
@@ -151,9 +154,10 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
 
     val ordinal = lambdaOrdinal(breakpoint)
     val lambdas = ScalaPositionManager.lambdasOnLine(position.getFile, position.getLine)
-    if (!isLambda(breakpoint) || ordinal > lambdas.size - 1)
-      DebuggerUtil.getContainingMethod(position.getElementAt).orNull
-    else lambdas(ordinal)
+    if (!isLambda(breakpoint) || ordinal > lambdas.size - 1) {
+      val element = position.getElementAt
+      findContainingDefinition(element, lambdas).orNull
+    } else lambdas(ordinal)
   }
 
   override def getHighlightRange(breakpoint: XLineBreakpoint[JavaLineBreakpointProperties]): TextRange = {
@@ -209,21 +213,22 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
 
   override def getPriority: Int = super.getPriority + 1
 
-  private class ExactScalaBreakpointVariant(position: XSourcePosition, @Nullable element: PsiElement, isLine: Boolean, lambdaOrdinal: Integer)
+  private class ExactScalaBreakpointVariant(position: XSourcePosition, @Nullable element: PsiElement, @Nullable lambdaOrdinal: Integer)
     extends ExactJavaBreakpointVariant(position, element, lambdaOrdinal) {
 
+    private val isLambda: Boolean = (lambdaOrdinal ne null) && lambdaOrdinal > -1
+
     override def getIcon: Icon = {
-      if (!isLine) AllIcons.Nodes.Function
+      if (isLambda) AllIcons.Nodes.Function
       else element match {
         case e @ (_: PsiMethod | _: PsiClass | _: PsiFile) => e.getIcon(0)
         case _ => AllIcons.Debugger.Db_set_breakpoint
       }
-
     }
 
     @Nls
     override def getText: String = {
-      if (!isLine) super.getText
+      if (isLambda) super.getText
       else {
         element match {
           case c: ScClass => DebuggerBundle.message("breakpoint.location.constructor.of", c.name)

@@ -57,10 +57,49 @@ class LambdaBreakpointsTest_2_12 extends LambdaBreakpointsTestBase {
       (5, "$anonfun$main$1"), (5, "$anonfun$main$2"), (6, "$anonfun$main$3")
     )
   }
+
+  override def testVariousLambdas(): Unit = {
+    breakpointsTest()(
+      (3, "<init>"),
+      (7, "main"), (3, "$anonfun$plusTwo$1"),
+      (8, "main"), (8, "$anonfun$main$1"),
+      (9, "main"), (9, "$anonfun$main$2"),
+      (10, "main"), (10, "$anonfun$main$3"),
+      (11, "main"), (11, "$anonfun$main$4"),
+      (12, "main"), (12, "$anonfun$main$5"),
+      (14, "main"), (14, "$anonfun$main$6"),
+      (16, "main"), (16, "$anonfun$main$7"),
+      (18, "main"), (18, "$anonfun$main$8"),
+      (20, "$anonfun$main$9")
+    )
+  }
+
+  override def testByNameInExtensionMethod(): Unit = {
+    breakpointsTest()(
+      (4, "doubleIt$extension"),
+      (4, "$anonfun$doubleIt$extension$1")
+    )
+  }
 }
 
 class LambdaBreakpointsTest_2_13 extends LambdaBreakpointsTest_2_12 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
+
+  override def testVariousLambdas(): Unit = {
+    breakpointsTest()(
+      (3, "<clinit>"),
+      (7, "main"), (3, "$anonfun$plusTwo$1"),
+      (8, "main"), (8, "$anonfun$main$1"),
+      (9, "main"), (9, "$anonfun$main$2"),
+      (10, "main"), (10, "$anonfun$main$3"),
+      (11, "main"), (11, "$anonfun$main$4"),
+      (12, "main"), (12, "$anonfun$main$5"),
+      (14, "main"), (14, "$anonfun$main$6"),
+      (16, "main"), (16, "$anonfun$main$7"),
+      (18, "main"), (18, "$anonfun$main$8"),
+      (20, "$anonfun$main$9")
+    )
+  }
 }
 
 class LambdaBreakpointsTest_3_3 extends LambdaBreakpointsTestBase {
@@ -180,6 +219,29 @@ class LambdaBreakpointsTest_3_3 extends LambdaBreakpointsTestBase {
       (4, "lambdaInToplevelMain$$anonfun$1")
     )
   }
+
+  override def testVariousLambdas(): Unit = {
+    breakpointsTest()(
+      (3, "<clinit>"),
+      (7, "main"), (3, "$init$$$anonfun$1"),
+      (8, "main"), (8, "main$$anonfun$1"),
+      (9, "main"), (9, "main$$anonfun$2"),
+      (10, "main"), (10, "main$$anonfun$3"),
+      (11, "main"), (11, "main$$anonfun$4"),
+      (12, "main"), (12, "main$$anonfun$5"),
+      (14, "main"), (14, "main$$anonfun$6"),
+      (16, "main"), (16, "main$$anonfun$7"),
+      (18, "main"), (18, "main$$anonfun$8"),
+      (20, "main$$anonfun$9")
+    )
+  }
+
+  override def testByNameInExtensionMethod(): Unit = {
+    breakpointsTest()(
+      (4, "doubleIt$extension"),
+      (4, "ByNameInExtensionMethod$IntOpt$$$_$doubleIt$extension$$anonfun$1")
+    )
+  }
 }
 
 class LambdaBreakpointsTest_3_4 extends LambdaBreakpointsTest_3_3 {
@@ -234,6 +296,22 @@ class LambdaBreakpointsTest_3_4 extends LambdaBreakpointsTest_3_3 {
   override def testLambdaInObjectConstructor(): Unit = {
     breakpointsTest()((9, "main"), (4, "<clinit>"), (4, "$init$$$anonfun$1"), (4, "$init$$$anonfun$1"), (4, "$init$$$anonfun$1"))
   }
+
+  override def testVariousLambdas(): Unit = {
+    breakpointsTest()(
+      (3, "<clinit>"),
+      (7, "main"), (3, "$init$$$anonfun$1"),
+      (8, "main"), (8, "main$$anonfun$1"),
+      (9, "main"), (9, "main$$anonfun$2"),
+      (10, "main"), (10, "main$$anonfun$3"),
+      (11, "main"), (11, "main$$anonfun$4"),
+      (12, "main"), (12, "main$$anonfun$5"),
+      (14, "main"), (14, "main$$anonfun$6"),
+      (16, "main"), (16, "main$$anonfun$7"),
+      (18, "main"), (18, "main$$anonfun$8"),
+      (20, "main"), (20, "main$$anonfun$9")
+    )
+  }
 }
 
 class LambdaBreakpointsTest_3_RC extends LambdaBreakpointsTest_3_4 {
@@ -286,6 +364,22 @@ class LambdaBreakpointsTest_3_RC extends LambdaBreakpointsTest_3_4 {
   override def testLambdaInExtension(): Unit = {
     breakpointsTest()((8, "main"), (4, "blah$$anonfun$1"), (4, "blah$$anonfun$1"), (4, "blah$$anonfun$1"))
   }
+
+  override def testVariousLambdas(): Unit = {
+    breakpointsTest()(
+      (3, "<clinit>"),
+      (7, "main"), (3, "$init$$$anonfun$1"),
+      (8, "main"), (8, "main$$anonfun$1"),
+      (9, "main"), (9, "main$$anonfun$2"),
+      (10, "main"), (10, "main$$anonfun$3"),
+      (11, "main"), (11, "main$$anonfun$4"),
+      (12, "main"), (12, "main$$anonfun$5"),
+      (14, "main"), (14, "main$$anonfun$6"),
+      (16, "main"), (16, "main$$anonfun$7"),
+      (18, "main"), (18, "main$$anonfun$8"),
+      (20, "main$$anonfun$9")
+    )
+  }
 }
 
 class LambdaBreakpointsTest_3_Next_RC extends LambdaBreakpointsTest_3_RC {
@@ -306,10 +400,6 @@ abstract class LambdaBreakpointsTestBase extends ScalaDebuggerTestCase {
     } finally {
       super.tearDown()
     }
-  }
-
-  protected def breakpointsTest2(className: String = getTestName(false))(lines: Int*): Unit = {
-    breakpointsTest(className)(lines.map(l => (l, "blah")): _*)
   }
 
   protected def breakpointsTest(className: String = getTestName(false))(linesAndMethods: (Int, String)*): Unit = {
@@ -524,6 +614,72 @@ abstract class LambdaBreakpointsTestBase extends ScalaDebuggerTestCase {
       (5, "apply$mcZI$sp"), (5, "apply$mcZI$sp"),
       (5, "apply$mcZI$sp"), (5, "apply$mcZI$sp"), (6, "apply$mcII$sp"),
       (5, "apply$mcZI$sp"), (5, "apply$mcZI$sp"), (6, "apply$mcII$sp")
+    )
+  }
+
+  addSourceFile(s"VariousLambdas.scala",
+    s"""
+       |object VariousLambdas {
+       |  private val plusTwo: Int => Int =
+       |    x => x + 2 $breakpoint
+       |
+       |  def main(args: Array[String]): Unit = {
+       |    Seq(1)
+       |      .map(plusTwo) $breakpoint
+       |      .map(x => x + 2) $breakpoint
+       |      .map(_ + 2) $breakpoint
+       |      .map { x => x + 2 } $breakpoint
+       |      .map({ x => x + 2 }) $breakpoint
+       |      .map({ _ + 2 }) $breakpoint
+       |      .map {
+       |        _ + 2 $breakpoint
+       |      }.map {
+       |        x => x + 2 $breakpoint
+       |      }.map {
+       |        (_ + 2) $breakpoint
+       |      }.map { x =>
+       |        x + 2 $breakpoint
+       |      }
+       |  }
+       |}
+       |""".stripMargin
+  )
+
+  def testVariousLambdas(): Unit = {
+    breakpointsTest()(
+      (3, "<init>"),
+      (7, "main"), (3, "apply$mcII$sp"),
+      (8, "main"), (8, "apply$mcII$sp"),
+      (9, "main"), (9, "apply$mcII$sp"),
+      (10, "main"), (10, "apply$mcII$sp"),
+      (11, "main"), (11, "apply$mcII$sp"),
+      (12, "main"), (12, "apply$mcII$sp"),
+      (14, "main"), (14, "apply$mcII$sp"),
+      (16, "main"), (16, "apply$mcII$sp"),
+      (18, "main"), (18, "apply$mcII$sp"),
+      (20, "apply$mcII$sp")
+    )
+  }
+
+  addSourceFile("ByNameInExtensionMethod.scala",
+    s"""
+       |object ByNameInExtensionMethod {
+       |  implicit class IntOpt(private val n: Int) extends AnyVal {
+       |    def doubleIt: Int = None.getOrElse(
+       |      n * 2 $breakpoint
+       |    )
+       |  }
+       |
+       |  def main(args: Array[String]): Unit = {
+       |    println(2.doubleIt)
+       |  }
+       |}
+       |""".stripMargin)
+
+  def testByNameInExtensionMethod(): Unit = {
+    breakpointsTest()(
+      (4, "doubleIt$extension"),
+      (4, "apply$mcI$sp")
     )
   }
 }
