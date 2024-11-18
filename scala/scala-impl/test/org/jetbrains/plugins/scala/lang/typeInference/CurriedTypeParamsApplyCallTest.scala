@@ -27,4 +27,20 @@ class CurriedTypeParamsApplyCallTest extends TypeInferenceTestBase {
        |//Int => (String, Boolean)
        |""".stripMargin
   )
+
+  def testSCL23327(): Unit = doTest(
+    s"""
+       |object Main {
+       |    trait IO[A]
+       |    trait GenSpawn[F[_], E]
+       |    trait Async[F[_]] extends GenSpawn[F, Throwable]
+       |    def apply[F[_], E](implicit F: GenSpawn[F, E]): F.type = F
+       |    def apply[F[_]](implicit F: GenSpawn[F, _], d: DummyImplicit): F.type = F
+       |    implicit val x: Async[IO] = ???
+       |
+       |    ${START}apply[IO]$END
+       |}
+       |//Main.Async[Main.IO]
+       |""".stripMargin
+  )
 }

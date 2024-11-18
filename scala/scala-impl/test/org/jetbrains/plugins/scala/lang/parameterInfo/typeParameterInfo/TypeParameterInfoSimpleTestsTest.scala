@@ -7,8 +7,9 @@ class TypeParameterInfoSimpleTestsTest extends TypeParameterInfoTestBase {
 
   def testApplyMethodA(): Unit = doTest()
 
-  // TODO
-  // def testApplyMethodB = doTest
+  def testApplyMethodB(): Unit = doTest()
+
+  def testApplyTypeParams(): Unit = doTest()
 
   def testContravariant(): Unit = doTest()
 
