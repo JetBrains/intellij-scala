@@ -120,10 +120,18 @@ final case class ScCompoundType private (
 
 object ScCompoundType {
   def apply(
-    components:   Seq[ScType],
-    signatureMap: Map[TermSignature, ScType]      = Map.empty,
-    typesMap:     Map[String, TypeAliasSignature] = Map.empty
-  )(implicit projectContext: ProjectContext): ScCompoundType = {
+    components:           Seq[ScType],
+    signatureMap:         Map[TermSignature, ScType]      = Map.empty,
+    typesMap:             Map[String, TypeAliasSignature] = Map.empty,
+  )(implicit projectContext: ProjectContext): ScType =
+      ScCompoundType(components, forceEmptyRefinement = false, signatureMap, typesMap)
+
+  def apply(
+    components:           Seq[ScType],
+    forceEmptyRefinement: Boolean,
+    signatureMap:         Map[TermSignature, ScType],
+    typesMap:             Map[String, TypeAliasSignature]
+  )(implicit projectContext: ProjectContext): ScType = {
     val (comps, sigs, types) =
       components.foldLeft((Seq.empty[ScType], signatureMap, typesMap)) {
         case (acc, compound: ScCompoundType) =>
@@ -131,7 +139,12 @@ object ScCompoundType {
         case (acc, otherTpe) => (acc._1 :+ otherTpe, acc._2, acc._3)
       }
 
-    new ScCompoundType(comps.distinct, sigs, types)
+    val distincComps = comps.distinct
+
+    if (sigs.isEmpty && types.isEmpty && distincComps.size == 1 && !forceEmptyRefinement)
+      distincComps.head
+    else
+      new ScCompoundType(comps.distinct, sigs, types)
   }
 
   def fromPsi(
@@ -140,14 +153,17 @@ object ScCompoundType {
     typeDecls:  Seq[ScTypeAlias]
   )(implicit
     projectContext: ProjectContext
-  ): ScCompoundType = {
+  ): ScType = {
     val components1 = if (components.isEmpty) Seq(projectContext.stdTypes.AnyRef) else components
 
     val signatureMapVal = signaturesFromPsi(decls)
 
-    ScCompoundType(components1, signatureMapVal, typeDecls.map { typeDecl =>
-      (typeDecl.name, TypeAliasSignature(typeDecl))
-    }.toMap)
+    ScCompoundType(
+      components1,
+      forceEmptyRefinement = true,
+      signatureMapVal,
+      typeDecls.map { typeDecl => (typeDecl.name, TypeAliasSignature(typeDecl)) }.toMap,
+    )
   }
 
   def signaturesFromPsi(
