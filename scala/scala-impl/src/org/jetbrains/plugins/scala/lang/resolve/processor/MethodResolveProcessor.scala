@@ -672,9 +672,12 @@ object MethodResolveProcessor {
     if (r.name == CommonNames.Apply) {
       //This is the case when previous shapeResolve has already extracted an apply method
       //we still need to calculate if type args are relevant or not.
-      val originalElement = r.innerResolveResult.getOrElse(r).element
-      val (_, cleanTypeArgs) = invocationInfo(originalElement)
-      Set((r, cleanTypeArgs))
+      r.innerResolveResult match {
+        case None           => Set((r, false))
+        case Some(innerSrr) =>
+          val (_, cleanTypeArgs) = invocationInfo(innerSrr.element)
+          Set((r, cleanTypeArgs))
+      }
     } else if (argumentClauses.isEmpty && typeArgElements.isEmpty)
       Set((r, false))
     else {
