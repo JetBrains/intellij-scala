@@ -846,19 +846,20 @@ object ScalaPositionManager {
     isGenerateAnonfun211(element) && !isInsideMacro(element)
   }
 
-  def lambdasOnLine(file: PsiFile, lineNumber: Int): Seq[PsiElement] = {
+  def lambdasOnLine(file: PsiFile, lineNumber: Int): Seq[PsiElement] =
+    filterLambdasOnLine(file, lineNumber, positionsOnLine(file, lineNumber))
+
+  def filterLambdasOnLine(file: PsiFile, lineNumber: Int, positions: Seq[PsiElement]): Seq[PsiElement] = {
     val document = file.getFileDocument
-    positionsOnLine(file, lineNumber)
-      .filter(isLambda)
-      .filter {
-        case f: ScFunctionExpr =>
-          f.result.exists { body =>
-            val range = body.getTextRange
-            val startLine = document.getLineNumber(range.getStartOffset)
-            startLine == lineNumber
-          }
-        case _ => true
-      }
+    positions.filter(isLambda).filter {
+      case f: ScFunctionExpr =>
+        f.result.exists { body =>
+          val range = body.getTextRange
+          val startLine = document.getLineNumber(range.getStartOffset)
+          startLine == lineNumber
+        }
+      case _ => true
+    }
   }
 
   def isIndyLambda(m: Method): Boolean = {
