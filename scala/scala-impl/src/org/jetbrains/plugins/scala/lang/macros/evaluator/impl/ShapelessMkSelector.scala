@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType}
 
 /**
@@ -33,6 +34,8 @@ object ShapelessMkSelector extends ScalaMacroTypeable with ShapelessUtils {
         doFind(l.components.last)
       case ParameterizedType(des, Seq(l: ScCompoundType, r)) if des.canonicalText == fqKeyTag =>
         if (extractKey(l).contains(name)) Some(r) else None
+      case desOwner: DesignatorOwner =>
+        findValType(name)(desOwner.tryExtractDesignatorSingleton)
       case t: ScCompoundType =>
         findValType(name)(t.components.last)
       case _ => None

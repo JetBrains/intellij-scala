@@ -423,7 +423,7 @@ object ResolveUtils {
 
   implicit class ScExpressionForExpectedTypesEx(private val expr: ScExpression) extends AnyVal {
 
-    def resolveApplyMethod(
+    def resolveApplyOrUpdateMethod(
       call:          ScExpression,
       tp:            ScType,
       shapesOnly:    Boolean,
@@ -435,7 +435,7 @@ object ResolveUtils {
         expr,
         Array.empty[ScalaResolveResult],
         BlockModificationTracker(expr),
-        (call, shapesOnly, withImplicits)
+        (call, tp, shapesOnly, withImplicits)
       ) {
 
         val cands =

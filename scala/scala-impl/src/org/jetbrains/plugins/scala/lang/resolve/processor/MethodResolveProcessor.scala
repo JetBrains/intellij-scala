@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwn
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.{ConformanceExtResult, Expression}
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -369,7 +370,10 @@ object MethodResolveProcessor {
 
         addExpectedTypeProblems()
       } else {
-        val args                 = argumentClauses.headOption.toList
+        val args                 =
+          if (c.nameArgForDynamic.nonEmpty) List(Seq(createExpressionFromText("\"\"", ref)))
+          else                              argumentClauses.headOption.toList
+
         val expectedTypeProblems = addExpectedTypeProblems()
 
         val expectedTypeSubst =
@@ -639,12 +643,12 @@ object MethodResolveProcessor {
       case _ => (r.substitutor, false)
     }
 
-    def applyMethodsFor(tp: ScType): Set[(ScalaResolveResult, Boolean)] = {
+    def applyOrUpdateMethodsFor(tp: ScType): Set[(ScalaResolveResult, Boolean)] = {
       val (substitutor, cleanTypeArguments) = invocationInfo(r.element)
       val call = ref.getContext.asOptionOf[ScExpression].toArray
 
       val applyCandidates = call.flatMap(e =>
-        e.resolveApplyMethod(
+        e.resolveApplyOrUpdateMethod(
           e,
           substitutor(tp),
           shapesOnly    = isShapeResolve,
@@ -680,12 +684,12 @@ object MethodResolveProcessor {
       r.element match {
         case synthetic: ScSyntheticFunction =>
           if (!hasParams && (argumentClauses.nonEmpty || mismatchedTypeArgs))
-            applyMethodsFor(synthetic.polymorphicType())
+            applyOrUpdateMethodsFor(synthetic.polymorphicType())
           else
             Set((r, false))
         case f: PsiMethod =>
           if (!hasParams && (argumentClauses.nonEmpty || mismatchedTypeArgs))
-            applyMethodsFor(
+            applyOrUpdateMethodsFor(
               f.methodTypeProvider(proc.ref.elementScope)
                .polymorphicType(dropExtensionClauses = r.isExtensionCall)
             )
@@ -700,9 +704,9 @@ object MethodResolveProcessor {
               }
             else b.`type`().toOption
 
-          tpe.map(applyMethodsFor).getOrElse(Set.empty)
+          tpe.map(applyOrUpdateMethodsFor).getOrElse(Set.empty)
         case b: PsiField => // See SCL-3055
-          applyMethodsFor(b.getType.toScType())
+          applyOrUpdateMethodsFor(b.getType.toScType())
         case _ => Set((r, false))
       }
     }

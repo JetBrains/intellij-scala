@@ -62,6 +62,13 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
 
   override final def applyOrUpdateElement: Option[ScalaResolveResult] = innerTypeExt match {
     case syntheticCase: SyntheticCase if syntheticCase.isApplyOrUpdate => Some(syntheticCase.resolveResult)
+    case regularCase: RegularCase =>
+      regularCase.target.filter {
+        srr =>
+          val nameFits  = srr.name == CommonNames.Apply || srr.name == CommonNames.Update
+          val isSugared = srr.innerResolveResult.isDefined
+          nameFits && isSugared
+      }
     case _ => None
   }
 
@@ -108,7 +115,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
                 case _                  => true
               }
 
-            val applyOrUpdateCands = this.resolveApplyMethod(
+            val applyOrUpdateCands = this.resolveApplyOrUpdateMethod(
               this,
               nonValueType,
               shapesOnly    = false,

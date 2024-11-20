@@ -606,7 +606,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
       typeParams:    Seq[TypeParameter]
     ): Option[(TypeResult, Boolean)] = {
       val applySrr = call.map(c =>
-        c.resolveApplyMethod(
+        c.resolveApplyOrUpdateMethod(
           c,
           internalType,
           shapesOnly = true,
