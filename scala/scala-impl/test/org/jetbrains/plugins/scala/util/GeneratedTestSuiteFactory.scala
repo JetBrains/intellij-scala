@@ -45,7 +45,7 @@ abstract class GeneratedTestSuiteFactory {
   protected abstract class SimpleActualTest(testData: TestData, minScalaVersion: ScalaVersion) extends SimpleTestCase with AssertionMatchers {
     this.setName(testData.testName)
 
-    override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_3
+    override protected def scalaVersion: ScalaVersion = minScalaVersion
 
     override def runTestRunnable(testRunnable: ThrowableRunnable[Throwable]): Unit = runActualTest()
     def runActualTest(): Unit

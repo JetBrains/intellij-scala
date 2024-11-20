@@ -1734,6 +1734,7 @@ object ScalaPsiUtil {
     def transform(isRoot: Boolean)(te: ScTypeElement): String = te match {
       case _: ScLiteralTypeElement | _: ScWildcardTypeElement => ""
       case tt: ScTupleTypeElement => tt.components.map(transformInner).mkString("_")
+      case tt: ScNamedTupleTypeElement => tt.components.flatMap(_.typeElement).map(transformInner).mkString("_")
       case te: ScParenthesisedTypeElement => te.innerElement.fold("")(transform(isRoot))
       case ScSimpleTypeElement(ref) if te.isSingleton => s"${ref.refName}_type"
       case ScSimpleTypeElement(ref) => ref.refName

@@ -273,6 +273,18 @@ object GenerateGivenNameTest extends GeneratedTestSuiteFactory {
         |""".stripMargin,
       "given_Set_Map"
     ),
+    GivenNameTestData(
+      """
+        |given (x: Int, y: Int) = null
+        |""".stripMargin,
+      "given_Int_Int"
+    ),
+    GivenNameTestData(
+      """
+        |given (x: Set[Int], y: Map[Int, Int]) = null
+        |""".stripMargin,
+      "given_Set_Map"
+    ),
 
     //////////////////// Annonymous Classes /////////////////
     GivenNameTestData(
@@ -402,9 +414,9 @@ object GenerateGivenNameTest extends GeneratedTestSuiteFactory {
   }
 
   override def makeActualTest(testData: GivenNameTestData): Test =
-    new SimpleActualTest(testData, ScalaVersion.Latest.Scala_3) {
+    new SimpleActualTest(testData, ScalaVersion.Latest.Scala_3_6) {
       override def runActualTest(): Unit = {
-        val tree = testData.testCode.parse[ScFile]
+        val tree = testData.testCode.parse(this.scalaVersion)
 
         tree.hasParseError shouldBe false
 
