@@ -85,19 +85,9 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
       case sf: ScalaFile => sf
       case _ => return Collections.emptyList()
     }
-    val document = file.getFileDocument
     val line = position.getLine
 
-    val originalLambdas = ScalaPositionManager.lambdasOnLine(file, line)
-    val lambdas = originalLambdas.filter {
-      case f: ScFunctionExpr =>
-        f.result.exists { body =>
-          val range = body.getTextRange
-          val startLine = document.getLineNumber(range.getStartOffset)
-          startLine == line
-        }
-      case _ => true
-    }
+    val lambdas = ScalaPositionManager.lambdasOnLine(file, line)
 
     if (lambdas.isEmpty) return Collections.emptyList()
 

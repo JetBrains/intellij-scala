@@ -847,7 +847,18 @@ object ScalaPositionManager {
   }
 
   def lambdasOnLine(file: PsiFile, lineNumber: Int): Seq[PsiElement] = {
-    positionsOnLine(file, lineNumber).filter(isLambda)
+    val document = file.getFileDocument
+    positionsOnLine(file, lineNumber)
+      .filter(isLambda)
+      .filter {
+        case f: ScFunctionExpr =>
+          f.result.exists { body =>
+            val range = body.getTextRange
+            val startLine = document.getLineNumber(range.getStartOffset)
+            startLine == lineNumber
+          }
+        case _ => true
+      }
   }
 
   def isIndyLambda(m: Method): Boolean = {
