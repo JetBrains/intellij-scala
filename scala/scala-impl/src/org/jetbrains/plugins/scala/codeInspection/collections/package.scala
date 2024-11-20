@@ -378,9 +378,9 @@ package object collections {
     Option(expr).collect {
       case ref: ScReferenceExpression => ref.resolve()
     }.flatMap {
-      case obj: ScObject => Some(obj)
+      case obj: ScObject     => Some(obj)
       case member: PsiMember => Option(member.containingClass)
-      case _ => None
+      case _                 => None
     }.exists {
       qualifiedNameFitToPatterns(_, patterns)
     }
@@ -495,7 +495,9 @@ package object collections {
       def hasUnitReturnType(ref: ScReferenceExpression): Boolean = {
         ref match {
           case MethodRepr(Typeable(FunctionType(_, _)), _, _, _) => false
-          case ResolvesTo(fun: ScFunction) => fun.hasUnitResultType
+          case ResolvesTo(fun: ScFunction) =>
+            fun.name != CommonNames.Update && // update calls are handled separately, avoid showing duplicate highlights
+              fun.hasUnitResultType
           case ResolvesTo(m: PsiMethod) => m.getReturnType == PsiTypeConstants.Void
           case _ => false
         }
@@ -513,15 +515,15 @@ package object collections {
         } yield e
       }
 
-      val predicate: PsiElement => Boolean = {
-        case `expr` => true
-        case (ScFunctionExpr(_, _) | _: ScCaseClauses) childOf `expr` => true
+      val isSameLevel: PsiElement => Boolean = {
+        case `expr`                                                                              => true
+        case (ScFunctionExpr(_, _) | _: ScCaseClauses) childOf `expr`                            => true
         case (e: ScExpression) childOf `expr` if ScUnderScoreSectionUtil.underscores(e).nonEmpty => true
-        case _: ScFunctionDefinition => false
+        case _: ScFunctionDefinition                                                             => false
         case elem: PsiElement => !AnonymousFunction.isGenerateClass(elem)
       }
 
-      val sameLevelIterator = expr.depthFirst(predicate).filter(predicate)
+      val sameLevelIterator = expr.depthFirst(isSameLevel).filter(isSameLevel)
 
       sameLevelIterator.collect {
         case assign @ ScAssignment(definedOutside(ScalaPsiUtil.inNameContext(_: ScVariable)), _) =>
@@ -531,8 +533,10 @@ package object collections {
         case infix @ ScInfixExpr(definedOutside(ScalaPsiUtil.inNameContext(_: ScVariable)), _, _) if infix.isAssignmentOperator =>
           infix
         case MethodRepr(itself, Some(definedOutside(ScalaPsiUtil.inNameContext(_ : ScVariable | _: ScValue))), Some(ref), _)
-          if isSideEffectCollectionMethod(ref) || isSetter(ref) || hasUnitReturnType(ref) => itself
-        case MethodRepr(itself, None, Some(ref @ definedOutside(_)), _) if hasUnitReturnType(ref) => itself
+          if isSideEffectCollectionMethod(ref) || isSetter(ref) || hasUnitReturnType(ref) =>
+          itself
+        case MethodRepr(itself, None, Some(ref @ definedOutside(_)), _) if hasUnitReturnType(ref) =>
+          itself
       }.toSeq
     }
   }

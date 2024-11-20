@@ -453,19 +453,22 @@ package object types {
     }
   }
 
-  def extractTypeParameters(ty: ScType): Seq[TypeParameter] = ty match {
+  def extractTypeParameters(ty: ScType, visited: Set[ScTypeAlias] = Set.empty): Seq[TypeParameter] = ty match {
+    case _: ScThisType                    => Seq.empty
     case designatorOwner: DesignatorOwner =>
       designatorOwner.extractDesignated(false) match {
         case Some(ta: ScTypeAlias) =>
-          if (ta.typeParameters.isEmpty) ta.lowerBound.toSeq.flatMap(extractTypeParameters)
-          else                           ta.typeParameters.map(TypeParameter(_))
+          if (ta.typeParameters.isEmpty) ta.lowerBound.toSeq.flatMap(extractTypeParameters(_, visited))
+          else ta.typeParameters.map(TypeParameter(_))
         case Some(cls: PsiClass) => cls.getTypeParameters.instantiate
         case _                   => Seq.empty
       }
-    case typeParameter: TypeParameterType                         => typeParameter.typeParameters
-    case u: UndefinedType                                         => u.typeParameter.typeParameters
-    case tpt: ScTypePolymorphicType                               => tpt.typeParameters
-    case (_: ScParameterizedType) & AliasType(_, Right(lower), _) => extractTypeParameters(lower)
-    case _                                                        => Seq.empty
+    case typeParameter: TypeParameterType                             => typeParameter.typeParameters
+    case u: UndefinedType                                             => u.typeParameter.typeParameters
+    case tpt: ScTypePolymorphicType                                   => tpt.typeParameters
+    case (_: ScParameterizedType) & AliasType(alias, Right(lower), _) =>
+      if (visited.contains(alias)) Seq.empty
+      else                         extractTypeParameters(lower, visited + alias)
+    case _                                                            => Seq.empty
   }
 }

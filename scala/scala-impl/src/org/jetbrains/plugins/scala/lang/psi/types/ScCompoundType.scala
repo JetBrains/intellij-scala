@@ -8,10 +8,16 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.HashBuilder._
 
+/**
+ * @param forceRefinement One would think `T` is completely equivalent to `T {}`, which is almost true,
+ *                        except the compiler does not widen literal types inside compound types.
+ *                        That means we cannot unconditionaly discard empty refinements.
+ */
 final case class ScCompoundType private (
-  components:   Seq[ScType],
-  signatureMap: Map[TermSignature, ScType]      = Map.empty,
-  typesMap:     Map[String, TypeAliasSignature] = Map.empty
+  components:      Seq[ScType],
+  signatureMap:    Map[TermSignature, ScType]      = Map.empty,
+  typesMap:        Map[String, TypeAliasSignature] = Map.empty,
+  forceRefinement: Boolean                         = false
 )(implicit
   override val projectContext: ProjectContext
 ) extends ScalaType with api.ValueType {
@@ -119,18 +125,22 @@ final case class ScCompoundType private (
 }
 
 object ScCompoundType {
-  def apply(
-    components:           Seq[ScType],
-    signatureMap:         Map[TermSignature, ScType]      = Map.empty,
-    typesMap:             Map[String, TypeAliasSignature] = Map.empty,
-  )(implicit projectContext: ProjectContext): ScType =
-      ScCompoundType(components, forceEmptyRefinement = false, signatureMap, typesMap)
+  def unapply(ct: ScCompoundType): Option[(Seq[ScType], Map[TermSignature, ScType], Map[String, TypeAliasSignature])] =
+    Option((ct.components, ct.signatureMap, ct.typesMap))
 
   def apply(
-    components:           Seq[ScType],
-    forceEmptyRefinement: Boolean,
-    signatureMap:         Map[TermSignature, ScType],
-    typesMap:             Map[String, TypeAliasSignature]
+    components:      Seq[ScType],
+    signatureMap:    Map[TermSignature, ScType]      = Map.empty,
+    typesMap:        Map[String, TypeAliasSignature] = Map.empty,
+    forceRefinement: Boolean                         = false
+  )(implicit projectContext: ProjectContext): ScType =
+      ScCompoundType(components, forceRefinement, signatureMap, typesMap)
+
+  def apply(
+    components:      Seq[ScType],
+    forceRefinement: Boolean,
+    signatureMap:    Map[TermSignature, ScType],
+    typesMap:        Map[String, TypeAliasSignature]
   )(implicit projectContext: ProjectContext): ScType = {
     val (comps, sigs, types) =
       components.foldLeft((Seq.empty[ScType], signatureMap, typesMap)) {
@@ -141,10 +151,10 @@ object ScCompoundType {
 
     val distincComps = comps.distinct
 
-    if (sigs.isEmpty && types.isEmpty && distincComps.size == 1 && !forceEmptyRefinement)
+    if (sigs.isEmpty && types.isEmpty && distincComps.size == 1 && !forceRefinement)
       distincComps.head
     else
-      new ScCompoundType(comps.distinct, sigs, types)
+      new ScCompoundType(comps.distinct, sigs, types, forceRefinement)
   }
 
   def fromPsi(
@@ -160,7 +170,7 @@ object ScCompoundType {
 
     ScCompoundType(
       components1,
-      forceEmptyRefinement = true,
+      forceRefinement = true,
       signatureMapVal,
       typeDecls.map { typeDecl => (typeDecl.name, TypeAliasSignature(typeDecl)) }.toMap,
     )

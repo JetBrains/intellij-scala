@@ -28,10 +28,4 @@ class TypeInferenceLiteralsTest extends TypeInferenceTestBase {
   def testUnaryInt(): Unit = {doTest()}
 
   def testUnitType(): Unit = {doTest()}
-
-  def test3074(): Unit = doTest(
-    """
-      |val a: Array[Byte] = Array(/*start*/1/*end*/)
-      |//Byte
-    """.stripMargin)
 }

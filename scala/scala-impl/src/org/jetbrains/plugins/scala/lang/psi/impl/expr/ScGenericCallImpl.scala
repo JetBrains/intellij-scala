@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcesso
 
 class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScGenericCall {
   private def processApplyOrUpdateMethod(tp: ScType, shapesOnly: Boolean): ScType = {
-    val applyCandidates = this.resolveApplyMethod(
+    val applyCandidates = this.resolveApplyOrUpdateMethod(
       this,
       tp,
       shapesOnly    = shapesOnly,

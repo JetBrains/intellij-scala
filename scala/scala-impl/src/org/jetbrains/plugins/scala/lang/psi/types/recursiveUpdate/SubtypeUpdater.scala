@@ -47,7 +47,12 @@ private abstract class SubtypeUpdater(needVariance: Boolean, needUpdate: Boolean
     }
     val updatedComponents = ct.components.smartMap(substitutor.recursiveUpdateImpl(_, variance))
 
-    ScCompoundType(updatedComponents, forceEmptyRefinement = true, updSignatureMap, updatedTypes)(ct.projectContext)
+    ScCompoundType(
+      updatedComponents,
+      forceRefinement = ct.forceRefinement,
+      updSignatureMap,
+      updatedTypes
+    )(ct.projectContext)
   }
 
   private def updateExistentialArg(exArg: ScExistentialArgument,

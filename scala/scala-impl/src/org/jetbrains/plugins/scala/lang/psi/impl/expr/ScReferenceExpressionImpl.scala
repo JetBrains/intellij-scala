@@ -310,12 +310,17 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
   }
 
   protected def convertBindToType(bind: ScalaResolveResult): TypeResult = {
-    val fromType                 = bind.fromType
-    val unresolvedTypeParameters = bind.unresolvedTypeParameters.getOrElse(Seq.empty)
-    val matchClauseSubst         = bind.matchClauseSubstitutor
-    val extensionOwner           = bind.exportedInExtension
+    val srr = bind match {
+      case ScalaResolveResult.ApplyMethodInnerResolve(inner) => inner
+      case _                                                 => bind
+    }
 
-    val inner: ScType = bind.innerResolveResult.getOrElse(bind) match {
+    val fromType                 = srr.fromType
+    val unresolvedTypeParameters = srr.unresolvedTypeParameters.getOrElse(Seq.empty)
+    val matchClauseSubst         = srr.matchClauseSubstitutor
+    val extensionOwner           = srr.exportedInExtension
+
+    val inner: ScType = srr match {
       case ScalaResolveResult(fun: ScFun, s) =>
         fun.polymorphicType(s)
       //prevent infinite recursion for recursive pattern reference

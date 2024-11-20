@@ -506,7 +506,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         def traverseInvokedExprs(call: ScExpression, dropped: Int): Unit = call match {
           case mc: MethodInvocation =>
             val tp            = mc.`type`().getOrAny
-            val applyResolves = mc.resolveApplyMethod(
+            val applyResolves = mc.resolveApplyOrUpdateMethod(
               mc,
               tp,
               shapesOnly = false,

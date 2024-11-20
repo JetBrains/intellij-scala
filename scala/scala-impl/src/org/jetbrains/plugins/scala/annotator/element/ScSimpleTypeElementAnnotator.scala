@@ -68,7 +68,7 @@ object ScSimpleTypeElementAnnotator extends ElementAnnotator[ScSimpleTypeElement
         return false
 
       typeElement.parents.find(!_.is[ScParenthesisedTypeElement]).orNull match {
-        case ScParameterizedTypeElement(_, _)  => false\
+        case ScParameterizedTypeElement(_, _)  => false
         case tp: ScTypeParam if tp.contextBoundTypeElement.contains(typeElement) => false
         case _: ScTypeArgs                     => false
         case infix: ScInfixTypeElement if infix.left == typeElement || infix.rightOption.contains(typeElement) =>

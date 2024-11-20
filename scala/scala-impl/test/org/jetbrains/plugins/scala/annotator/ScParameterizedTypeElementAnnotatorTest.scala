@@ -146,7 +146,7 @@ class ScParameterizedTypeElementAnnotatorTest_scala_2 extends ScParameterizedTyp
 
     assertNothing(messages(
       """
-        |trait M[F]
+        |trait M[F[_]]
         |trait S[X[A] <: M[X]]
         |
         |class Test[Y[_] <: M[Y]] extends S[Y]
