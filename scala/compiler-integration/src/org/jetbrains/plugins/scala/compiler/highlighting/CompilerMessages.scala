@@ -14,7 +14,8 @@ private object CompilerMessages {
       case bspMessageTemplate(_, position) => position
       case line => line
     }
-    trimmedMessage.stripSuffix(suffix).trim
+    val noSuffix = trimmedMessage.stripSuffix(suffix).trim
+    if (noSuffix.isBlank) trimmedMessage else noSuffix
   }
 
   def isUnusedImport(description: String): Boolean =
