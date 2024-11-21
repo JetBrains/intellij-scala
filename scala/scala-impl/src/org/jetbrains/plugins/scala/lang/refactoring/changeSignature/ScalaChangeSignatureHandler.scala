@@ -40,7 +40,7 @@ class ScalaChangeSignatureHandler extends ChangeSignatureHandler with ScalaRefac
 
     def isSupportedFor(fun: ScMethodLike): Boolean = {
       fun match {
-        case fun: ScFunction if fun.paramClauses.clauses.exists(_.isImplicit) =>
+        case fun: ScFunction if fun.paramClauses.clauses.exists(_.isImplicitOrUsing) =>
           val message = ScalaBundle.message("change.signature.not.supported.implicit.parameters")
           showErrorHint(message)
           false
