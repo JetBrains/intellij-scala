@@ -174,4 +174,49 @@ final class RemoveApplyIntentionTest_Scala3 extends RemoveApplyIntentionTestBase
          |  .ap${CARET}ply:
          |    1""".stripMargin
   )
+
+  def testUsingClause(): Unit =
+    doTest(
+      s"""
+         |trait Result {
+         |  def apply(): Unit = ()
+         |}
+         |
+         |def implicitly[T](using x: Int): Result = ???
+         |
+         |implicitly[Result].ap${CARET}ply()
+         |""".stripMargin,
+      s"""
+         |trait Result {
+         |  def apply(): Unit = ()
+         |}
+         |
+         |def implicitly[T](using x: Int): Result = ???
+         |
+         |implicitly[Result]$CARET()
+         |""".stripMargin
+    )
+
+
+  def testUsingClause_WithExplicitUse(): Unit =
+    doTest(
+      s"""
+         |trait Result {
+         |  def apply(): Unit = ()
+         |}
+         |
+         |def implicitly[T](using x: Int): Result = ???
+         |
+         |implicitly[Result](using 1).ap${CARET}ply()
+         |""".stripMargin,
+      s"""
+         |trait Result {
+         |  def apply(): Unit = ()
+         |}
+         |
+         |def implicitly[T](using x: Int): Result = ???
+         |
+         |implicitly[Result](using 1)$CARET()
+         |""".stripMargin
+    )
 }
