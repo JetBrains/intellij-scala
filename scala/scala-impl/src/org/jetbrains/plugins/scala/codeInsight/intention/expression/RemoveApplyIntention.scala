@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScalaConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScParameterOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
@@ -57,11 +57,11 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
   }
 
   private def buildReplacement(expr: ScMethodCall): Option[(String, Int)] = {
-    def countMethodCall(call: ScMethodCall): Int = {
-      call.getInvokedExpr match {
-        case call: ScMethodCall => 1 + countMethodCall(call)
-        case _ => 1
-      }
+    def countNonUsingMethodCall(call: ScMethodCall): Int = {
+      (if (call.args.isUsing) 0 else 1) + (call.getInvokedExpr match {
+        case call: ScMethodCall => countNonUsingMethodCall(call)
+        case _ => 0
+      })
     }
 
     @tailrec
@@ -77,17 +77,27 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
     var start = qualifier.endOffset
     buf.append(qualifier.getText)
 
-    def checkFun(fun: ScFunction, currentCalledClauses: Int): Boolean = {
-      // TODO: this needs probably be fixed for using clauses
+    /**
+     * Checks whether the call is using an implicit argument without giving it explicitly.
+     *
+     * For example 'implicitly[Int].apply()' should not be transformed into 'implicitly[Int]()'
+     * But 'implicitly[Int](1).apply()' can be transformed into 'implicitly[Int](1)()
+     *
+     * This also applies in Scala 3! But there we have to take using clauses into account as well.
+     *
+     * For example 'summon[Int].apply()' can be transformed into 'summon[Int]()'
+     * because explicitly providing the implicit Int would look like 'summon[Int](using 1)()'
+     */
+    def usesImplicitArg(fun: ScParameterOwner.WithContextBounds, nonUsingCallClauses: Int): Boolean = {
       val clauses = fun.effectiveParameterClauses
-      clauses.lastOption.exists(_.isImplicit) && clauses.length == currentCalledClauses + 1
+      clauses.lastOption.exists(_.isImplicit) && clauses.count(!_.isUsing) == nonUsingCallClauses + 1
     }
 
     dig(qualifier) match {
       case ref: ScReferenceExpression =>
         val resolved = ref.resolve()
         resolved match {
-          case fun: ScFunction if checkFun(fun, 0) =>
+          case fun: ScFunction if usesImplicitArg(fun, 0) =>
             return None
           case namedElement: PsiNamedElement =>
             val name = namedElement.name
@@ -137,9 +147,8 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
         }
 
       case call: ScMethodCall =>
-        val cmc = countMethodCall(call)
         call.deepestInvokedExpr match {
-          case ResolvesTo(fun: ScFunction) if checkFun(fun, cmc) =>
+          case ResolvesTo(fun: ScFunction) if usesImplicitArg(fun, countNonUsingMethodCall(call)) =>
               return None
           case _ => //all is ok
         }
@@ -152,9 +161,8 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
         } {
           ref.resolve() match {
             case ScalaConstructor(constr) =>
-              val argsCount = constrInvocation.arguments.length
-              val clauses = constr.effectiveParameterClauses
-              if (clauses.length > 1 && clauses.last.isImplicit && clauses.length == argsCount + 1) {
+              val nonUsingArgCount = constrInvocation.arguments.count(!_.isUsing)
+              if (usesImplicitArg(constr, nonUsingArgCount)) {
                 return None
               }
             case _ =>
