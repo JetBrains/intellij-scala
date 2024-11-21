@@ -237,8 +237,7 @@ object MethodResolveProcessor {
         case Constructor.ofClass(cls) =>
           substitutor(ScalaPsiUtil.constructTypeForPsiClass(cls)((tp, _) => TypeParameterType(tp)))
         case f: ScFunction
-          if f.paramClauses.clauses.length > 1 &&
-            !f.paramClauses.clauses(1).isImplicit =>
+          if f.paramClauses.clauses.count(!_.isImplicitOrUsing) > 1 =>
           problems += ExpectedTypeMismatch //do not check expected types for more than one param clauses
           Nothing
         case f: ScFunction => substitutor(f.returnType.getOrNothing)
