@@ -30,6 +30,8 @@ final class ScalaInlineMethodHandler extends ScalaInlineActionHandler {
         showErrorHint(ScalaBundle.message("cannot.inline.function.multiple.clauses"))
       else if (funDef.paramClauses.clauses.exists(_.isImplicit))
         showErrorHint(ScalaBundle.message("cannot.inline.function.implicit.parameters"))
+      else if (funDef.paramClauses.clauses.exists(_.isUsing))
+        showErrorHint(ScalaBundle.message("cannot.inline.function.using.parameters"))
       else if (funDef.parameters.exists(_.isVarArgs))
         showErrorHint(ScalaBundle.message("cannot.inline.function.varargs"))
       else if (funDef.isSpecial)
