@@ -12,7 +12,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.{EmptyRunnable, TextRange}
 import com.intellij.psi._
-import com.intellij.psi.codeStyle.{ChangedRangesInfo, CodeStyleManager}
+import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.concurrency.annotations.RequiresWriteLock
@@ -184,6 +184,14 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
             sameInfosWithUpdatedRanges()
           else optimized
 
+        // create range markers before modifications to be able to use proper ranges during reformat action
+        val markers = ranges.map { case (rangeInfo, _) =>
+          val marker = document.createRangeMarker(rangeInfo.startOffset, rangeInfo.endOffset)
+          marker.setGreedyToLeft(true)
+          marker.setGreedyToRight(true)
+          marker
+        }
+
         for ((range, importInfos) <- ranges.reverseIterator) {
           optimizationResult += replaceWithNewImportInfos(range, importInfos, importsSettings, scalaFile)
         }
@@ -191,21 +199,23 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
 
         if (CodeStyle.getCustomSettings(file, classOf[ScalaCodeStyleSettings]).USE_SCALAFMT_FORMATTER) {
           val codeStyleManager = CodeStyleManager.getInstance(project)
-          val textRanges = ranges.map { case (rangeInfo, _) =>
-            // NOTE: adding extra 1 is a workaround.
-            // If we use the original range for imports, then the formatter might add a new lines before the imports.
-            // This can happen in local imports, even if the range doesn't include the space before the imports.
-            // However, if we shift the range 1 character, to the letter `m` in `import` the new line won't be added.
-            val start = rangeInfo.startOffset + 1
-            val end = rangeInfo.endOffset
-            TextRange.create(start, end)
-          }
-          val info = new ChangedRangesInfo(textRanges.asJava, null)
 
           // We can force scalafmt formatting for imports ranges relatively safely because imports do not contain
           // complex structure, and our workaround for range formatting should work fine
           ScalaFmtPreFormatProcessor.enforcingScalaFmtRangeFormatting {
-            codeStyleManager.reformatChanges(file, info)
+            // format ranges one by one to restore markers properly
+            markers.withFilter(_.isValid).foreach { marker =>
+              // NOTE: adding extra 1 is a workaround.
+              // If we use the original range for imports, then the formatter might add a new lines before the imports.
+              // This can happen in local imports, even if the range doesn't include the space before the imports.
+              // However, if we shift the range 1 character, to the letter `m` in `import` the new line won't be added.
+              val start = marker.getStartOffset + 1
+              val end = marker.getEndOffset
+
+              if (TextRange.isProperRange(start, end)) {
+                codeStyleManager.reformatText(file, start, end)
+              }
+            }
           }
         }
       }
@@ -377,7 +387,7 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
 
     withDisabledPostprocessFormatting(file.getProject) {
       //replace import statements incrementally instead of replacing the whole range
-      //originally added to reduce  number of invalidated elements during refactorings
+      //originally added to reduce the number of invalidated elements during refactorings
       //(currently it may not be used in move refactoring)
       val finalResult = dummyFile.getNode.getChildren(null)
       val optimizationResult = ImportOptimizationResult.calculate(buffer.asArray, finalResult)
