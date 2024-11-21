@@ -9,6 +9,7 @@ import com.intellij.util.Consumer
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.highlighter.usages.ScalaHighlightImplicitUsagesHandler.TargetKind
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement.calcType
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScContextBound, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -122,14 +123,14 @@ object ScalaHighlightImplicitUsagesHandler {
       }
       def implicitParams(ml: ScMethodLike) =
         ml.effectiveParameterClauses
-          .filter(_.isImplicit)
+          .filter(_.isImplicitOrUsing)
           .flatMap(_.effectiveParameters)
 
       val implicits = methodLike.map(implicitParams).getOrElse(Seq.empty)
-      implicits.find { param =>
-        (param.typeElement, typeElem.analog) match {
-          case (Some(t1), Some(t2)) if t1.calcType == t2.calcType => true
-          case _                                                  => false
+      typeElem.analog.flatMap { analog =>
+        lazy val analogType = analog.calcType
+        implicits.find { param =>
+          param.typeElement.exists(_.calcType == analogType)
         }
       }
     }

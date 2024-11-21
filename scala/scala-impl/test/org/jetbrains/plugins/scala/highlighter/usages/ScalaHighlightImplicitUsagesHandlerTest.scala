@@ -2,8 +2,9 @@ package org.jetbrains.plugins.scala.highlighter.usages
 
 import com.intellij.codeInsight.highlighting.{HighlightUsagesHandler, HighlightUsagesHandlerBase}
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.ScalaVersion
 
-class ScalaHighlightImplicitUsagesHandlerTest extends ScalaHighlightUsagesHandlerTestBase {
+abstract class ScalaHighlightImplicitUsagesHandlerTestBase extends ScalaHighlightUsagesHandlerTestBase {
 
   override def createHandler: HighlightUsagesHandlerBase[PsiElement] =
     HighlightUsagesHandler.createCustomHandler(getEditor, getFile).asInstanceOf[HighlightUsagesHandlerBase[PsiElement]]
@@ -241,22 +242,6 @@ class ScalaHighlightImplicitUsagesHandlerTest extends ScalaHighlightUsagesHandle
     doTest(code, Seq("converter", "111", "converter"))
   }
 
-  def testApplyFromConversion(): Unit = {
-    val code =
-      s"""
-         |import java.util
-         |import scala.collection.JavaConversions.${CARET}mapAsScalaMap
-         |
-         |object Test {
-         |  def env: util.Map[String, String] = System.getenv() // Java map
-         |  val term: String = env("TERM")
-         |  val term2: String = env.apply("TERM")
-         |}
-        """.stripMargin
-
-    doTest(code, Seq("mapAsScalaMap", "env", "env"))
-  }
-
   def testChainedImplicitParameters1(): Unit = {
     val code =
       s"""
@@ -346,4 +331,30 @@ class ScalaHighlightImplicitUsagesHandlerTest extends ScalaHighlightUsagesHandle
 
     doTest(code, Seq("bToC", "5", "new A(5)", "new B(5, 5)"))
   }
+}
+
+class ScalaHighlightImplicitUsagesHandlerTest extends ScalaHighlightImplicitUsagesHandlerTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version <= ScalaVersion.Latest.Scala_2
+
+  def testApplyFromConversion(): Unit = {
+    val code =
+      s"""
+         |import java.util
+         |import scala.collection.JavaConversions.${CARET}mapAsScalaMap
+         |
+         |object Test {
+         |  def env: util.Map[String, String] = System.getenv() // Java map
+         |  val term: String = env("TERM")
+         |  val term2: String = env.apply("TERM")
+         |}
+        """.stripMargin
+
+    doTest(code, Seq("mapAsScalaMap", "env", "env"))
+  }
+
+}
+
+
+class ScalaHighlightImplicitUsagesHandlerTest_Scala3 extends ScalaHighlightImplicitUsagesHandlerTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3_6
 }
