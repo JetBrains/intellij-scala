@@ -58,22 +58,30 @@ final class LocalServer extends Server {
   override def computeStamps(outputFiles: Seq[Path], analysisFile: Path, client: Client): Right[Server.ServerError, ExitCode] = {
     val analysisStore = AnalysisStoreFactory.createAnalysisStore(analysisFile)
 
-    analysisStore.get().toScala.filter(_.getAnalysis.isInstanceOf[Analysis]).foreach { analysisContents =>
-      val analysis = analysisContents.getAnalysis.asInstanceOf[Analysis]
-      val originalStamps = analysis.stamps
-      var newStamps = originalStamps
-      val stamper = StampReader.Instance
-      outputFiles.foreach { classFile =>
-        val virtualFile = PlainVirtualFileConverter.converter.toVirtualFile(classFile)
-        val oldStamp = originalStamps.product(virtualFile)
-        val stamp = stamper.product(virtualFile)
-        if (oldStamp != stamp) {
-          newStamps = newStamps.markProduct(virtualFile, stamp)
+    analysisStore.get().toScala match {
+      case Some(analysisContents) =>
+        analysisContents.getAnalysis match {
+          case analysis: Analysis =>
+            val originalStamps = analysis.stamps
+            var newStamps = originalStamps
+            val stamper = StampReader.Instance
+            val converter = PlainVirtualFileConverter.converter
+            val iterator = outputFiles.iterator
+            while (iterator.hasNext) {
+              val classFile = iterator.next()
+              val virtualFile = converter.toVirtualFile(classFile)
+              val oldStamp = originalStamps.product(virtualFile)
+              val stamp = stamper.product(virtualFile)
+              if (oldStamp != stamp) {
+                newStamps = newStamps.markProduct(virtualFile, stamp)
+              }
+            }
+            val newAnalysis = analysis.copy(stamps = newStamps)
+            val newAnalysisContents = AnalysisContents.create(newAnalysis, analysisContents.getMiniSetup)
+            analysisStore.set(newAnalysisContents)
+          case _ =>
         }
-      }
-      val newAnalysis = analysis.copy(stamps = newStamps)
-      val newAnalysisContents = AnalysisContents.create(newAnalysis, analysisContents.getMiniSetup)
-      analysisStore.set(newAnalysisContents)
+      case _ =>
     }
 
     Right(ExitCode.Ok)
