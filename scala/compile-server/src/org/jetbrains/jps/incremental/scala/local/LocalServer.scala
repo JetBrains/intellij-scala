@@ -1,9 +1,9 @@
 package org.jetbrains.jps.incremental.scala.local
 
-import org.jetbrains.jps.incremental.scala.local.zinc.AnalysisStoreFactory
+import org.jetbrains.jps.incremental.scala.local.zinc.{AnalysisStoreFactory, StampReader}
 import org.jetbrains.jps.incremental.scala.{Client, CompileServerBundle, DelegateClient, ExitCode, Server}
 import org.jetbrains.plugins.scala.compiler.data.{CompilationData, CompilerData, DocumentCompilationArguments, SbtData}
-import sbt.internal.inc.{Analysis, PlainVirtualFileConverter, Stamper}
+import sbt.internal.inc.{Analysis, PlainVirtualFileConverter}
 import xsbti.compile.{AnalysisContents, AnalysisStore}
 
 import java.io.File
@@ -60,12 +60,16 @@ final class LocalServer extends Server {
 
     analysisStore.get().toScala.filter(_.getAnalysis.isInstanceOf[Analysis]).foreach { analysisContents =>
       val analysis = analysisContents.getAnalysis.asInstanceOf[Analysis]
-      var newStamps = analysis.stamps
-      val stamper = Stamper.forHashInRootPaths(PlainVirtualFileConverter.converter)
+      val originalStamps = analysis.stamps
+      var newStamps = originalStamps
+      val stamper = StampReader.Instance
       outputFiles.foreach { classFile =>
         val virtualFile = PlainVirtualFileConverter.converter.toVirtualFile(classFile)
-        val stamp = stamper(virtualFile)
-        newStamps = newStamps.markProduct(virtualFile, stamp)
+        val oldStamp = originalStamps.product(virtualFile)
+        val stamp = stamper.product(virtualFile)
+        if (oldStamp != stamp) {
+          newStamps = newStamps.markProduct(virtualFile, stamp)
+        }
       }
       val newAnalysis = analysis.copy(stamps = newStamps)
       val newAnalysisContents = AnalysisContents.create(newAnalysis, analysisContents.getMiniSetup)
