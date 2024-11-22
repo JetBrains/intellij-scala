@@ -23,6 +23,7 @@ import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.LatestScalaVersions.Scala_2_12
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt, _}
 import org.jetbrains.plugins.scala.externalLibraries.bm4.Implicit0Binding
@@ -60,7 +61,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor._
-import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt, ProjectPsiElementExt, ScalaFeatures}
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt, ProjectPsiElementExt, ScalaFeatures, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.{SAMUtil, ScEquivalenceUtil}
 
 import java.{util => ju}
@@ -1540,10 +1541,17 @@ object ScalaPsiUtil {
     } else None
   }
 
-  def isViableForAssignmentFunction(fun: ScFunction): Boolean = {
-    val clauses = fun.paramClauses.clauses
-    clauses.isEmpty || (clauses.length == 1 && clauses.head.isImplicit)
-  }
+  /**
+   * In Scala <= 2.12 setters were only considered when the getter didn't
+   * have non-implicit parameter clauses (this also included empty parameter lists)
+   *
+   * Starting from Scala >= 2.13 this restriction was lifted
+   */
+  def isViableForAssignmentFunction(fun: ScFunction): Boolean =
+    fun.scalaLanguageLevelOrDefault >= ScalaLanguageLevel.Scala_2_13 || {
+      val clauses = fun.paramClauses.clauses
+      clauses.isEmpty || (clauses.length == 1 && clauses.head.isImplicit)
+    }
 
   def padWithWhitespaces(element: PsiElement): Unit = {
     val range: TextRange = element.getTextRange

@@ -73,4 +73,26 @@ class Scala3HighlightingTestsMix extends ScalaHighlightingTestBase {
         |""".stripMargin
     )
   }
+
+  // SCL-21795
+  def testSetterWithUsingParameters() = {
+    val code =
+      """
+        |class Foo {
+        |  private var _x = 1
+        |  def x(using String): Int = _x
+        |  def x_=(y: Int)(using String): Unit = _x = y
+        |}
+        |
+        |object Foo {
+        |  def main(args: Array[String]): Unit = {
+        |    val foo = Foo()
+        |    given String = "foo"
+        |    foo.x = 5
+        |  }
+        |}
+        |""".stripMargin
+
+    assertNothing(errorsFromScalaCode(code))
+  }
 }
