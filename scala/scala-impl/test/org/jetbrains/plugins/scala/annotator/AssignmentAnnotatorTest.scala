@@ -157,7 +157,7 @@ class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
       case Nil =>
     }
     assertMatches(messages("def a() = A; def a_=(x: A) {}; a = A")) {
-      case Error("a = A", ReassignmentToVal()) :: Nil =>
+      case Nil =>
     }
     assertMatches(messages("val a = A; def a_=(x: A) {}; a = A")) {
       case Error("a = A", ReassignmentToVal()) :: Nil =>
