@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.resolve2
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.junit.Ignore
 
 class Bug3Test_2_11 extends Bug3TestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_11
@@ -11,7 +10,7 @@ class Bug3Test_2_12 extends Bug3TestBase {
 class Bug3Test_2_13 extends Bug3TestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 
-  @Ignore // canBuildFrom is not available in 2.13
+  // canBuildFrom is not available in 2.13
   override def testSCL7142(): Unit = ()
 
   // new deprecatedName constructor

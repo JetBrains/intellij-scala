@@ -431,8 +431,7 @@ class MethodCallChainsTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  @Ignore("waiting for https://youtrack.jetbrains.com/issue/SCL-15163")
-  def ignore_MethodCallChain_Align_DoNotWrap_FirstNewLineCallIsMultiline(): Unit = {
+  def testIgnore_MethodCallChain_Align_DoNotWrap_FirstNewLineCallIsMultiline(): Unit = {
     getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
     getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP
     setupRightMargin(

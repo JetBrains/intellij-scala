@@ -1,56 +1,13 @@
 package org.jetbrains.plugins.scala.injection
 
-import com.intellij.openapi.module.Module
 import com.intellij.patterns.compiler.PatternCompilerImpl.LazyPresentablePattern
 import org.intellij.plugins.intelliLang.inject.config.{BaseInjection, InjectionPlace}
 import org.jetbrains.plugins.scala.injection.InjectionTestUtils._
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.junit.Assert._
 
 import scala.jdk.CollectionConverters._
 
-class ScalaLanguageInjectorTest extends ScalaLanguageInjectionTestBase {
-
-  private val Quotes = "\"\"\""
-  private lazy val LanguageAnnotationDef = scalaInjectionTestFixture.LanguageAnnotationDef
-
-  override def setUpLibraries(implicit module: Module): Unit = {
-    super.setUpLibraries
-
-    val settings = ScalaProjectSettings.getInstance(module.getProject)
-    val interpolatorToLangId = Map("json" -> JsonLangId).asJava
-    settings.setIntInjectionMapping(interpolatorToLangId)
-    settings.setDisableLangInjection(false)
-  }
-
-  protected def doTestInBody(languageId: String, classBody: String, injectedFileExpectedText: String): Unit = {
-    val classBodyWithIndent = classBody.replaceAll("\n", "\n  ")
-    val text =
-      s"""class A {
-         |  $classBodyWithIndent
-         |}
-         |""".stripMargin
-    scalaInjectionTestFixture.doTest(languageId, text, injectedFileExpectedText)
-  }
-
-  protected def doAnnotationTestInBody(languageId: String, classBody: String, injectedFileExpectedText: String): Unit = {
-    val classBodyWithIndent = classBody.replaceAll("\n", "\n  ")
-    val text =
-      s"""$LanguageAnnotationDef
-         |class A {
-         |  $classBodyWithIndent
-         |}
-         |""".stripMargin
-    scalaInjectionTestFixture.doTest(languageId, text, injectedFileExpectedText)
-  }
-
-  protected def doAnnotationTest(languageId: String, text: String, injectedFileExpectedText: String): Unit = {
-    val textFinal =
-      s"""$LanguageAnnotationDef
-         |$text
-         |""".stripMargin
-    scalaInjectionTestFixture.doTest(languageId, textFinal, injectedFileExpectedText)
-  }
+class ScalaLanguageInjectorTest extends InjectionInBodyTestBase {
 
   ////////////////////////////////////////
   // @Language annotation injection tests
