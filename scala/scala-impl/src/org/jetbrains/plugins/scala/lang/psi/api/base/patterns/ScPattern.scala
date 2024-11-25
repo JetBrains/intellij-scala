@@ -216,7 +216,7 @@ object ScPattern {
             case _: ArrayIndexOutOfBoundsException => None // workaround for meta parser failure on malformed quasiquotes
           }
         case Some(ScalaResolveResult(fun: ScFunction, substitutor: ScSubstitutor))
-          if fun.name == CommonNames.Unapply && fun.parameters.count(!_.isImplicitParameter) == 1 =>
+          if fun.name == CommonNames.Unapply && fun.parameters.count(!_.isUsingOrImplicitParameter) == 1 =>
 
           val subst = expected match {
             case Some(tp) => substitutor.followed(PatternTypeInference.doTypeInference(contextPattern, tp))
@@ -232,7 +232,7 @@ object ScPattern {
             case _ => None
           }
         case Some(ScalaResolveResult(fun: ScFunction, substitutor: ScSubstitutor))
-          if fun.name == CommonNames.UnapplySeq && fun.parameters.count(!_.isImplicitParameter) == 1 =>
+          if fun.name == CommonNames.UnapplySeq && fun.parameters.count(!_.isUsingOrImplicitParameter) == 1 =>
 
           val subst = expected match {
             case Some(tp) => substitutor.followed(PatternTypeInference.doTypeInference(contextPattern, tp))
