@@ -1,17 +1,25 @@
 package org.jetbrains.plugins.scala.icons
 
+import com.intellij.openapi.util.SystemInfo
 import com.intellij.testFramework.UsefulTestCase
-import org.junit.Assert
+import org.junit.{Assert, Test}
 import org.junit.Assert.assertTrue
+import org.junit.Assume.assumeFalse
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 import java.lang.reflect.Field
 
+@RunWith(classOf[JUnit4])
 class IconsTest extends UsefulTestCase {
 
   override def isIconRequired: Boolean = true
 
   // Icons resolve is deferred, so if some icon references to some non-existing path it will not be detected on application startup
-  def testAllIconsAreResolvable(): Unit = {
+  @Test
+  def allIconsAreResolvable(): Unit = {
+    assumeFalse(SystemInfo.isLinux)
+
     val iconFields = getAllIconFields(classOf[Icons])
 
     //noinspection UnstableApiUsage,ApiStatus

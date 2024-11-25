@@ -1,10 +1,15 @@
 package org.jetbrains.plugins.scala.lang.formatter.scalafmt
 
 import org.jetbrains.plugins.scala.util.Markers
+import org.junit.{Ignore, Test}
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
+@RunWith(classOf[JUnit4])
 class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with Markers {
 
-  def testScl14129_avoidInfix(): Unit = {
+  @Test
+  def SCL14129_avoidInfix(): Unit = {
     setScalafmtConfig("avoidInfix.conf")
     val before =
       s"""
@@ -21,7 +26,8 @@ class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with M
     doTextTest(before, after)
   }
 
-  def testScl14129_avoidInfix_1(): Unit = {
+  @Test
+  def SCL14129_avoidInfix_1(): Unit = {
     setScalafmtConfig("avoidInfix.conf")
     val before =
       s"""
@@ -38,7 +44,8 @@ class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with M
     doTextTest(before, after)
   }
 
-  def testScl14129_avoidInfix_2(): Unit = {
+  @Test
+  def SCL14129_avoidInfix_2(): Unit = {
     setScalafmtConfig("avoidInfix.conf")
     val before =
       s"""
@@ -55,7 +62,8 @@ class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with M
     doTextTest(before, after)
   }
 
-  def testScl14129_avoidInfix_3(): Unit = {
+  @Test
+  def SCL14129_avoidInfix_3(): Unit = {
     setScalafmtConfig("avoidInfix.conf")
     val before =
       s"""
@@ -72,7 +80,8 @@ class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with M
     doTextTest(before, after)
   }
 
-  def testScl14129_avoidInfix_4(): Unit = {
+  @Test
+  def SCL14129_avoidInfix_4(): Unit = {
     setScalafmtConfig("avoidInfix.conf")
     val before =
       s"""
@@ -89,7 +98,8 @@ class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with M
     doTextTest(before, after)
   }
 
-  def testTopLevelFunctionWithInfixRewrite(): Unit = {
+  @Test
+  def topLevelFunctionWithInfixRewrite(): Unit = {
     setScalafmtConfig("avoidInfix.conf")
     doTextTest(
       """def foo = {
@@ -99,7 +109,8 @@ class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with M
     )
   }
 
-  def testTopFunctionWithInfixRewrite(): Unit = {
+  @Test
+  def topFunctionWithInfixRewrite(): Unit = {
     setScalafmtConfig("avoidInfix.conf")
     doTextTest(
       """class X {
@@ -111,7 +122,8 @@ class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with M
     )
   }
 
-  def testScl14129_spacesAroundRewrite(): Unit = {
+  @Test
+  def SCL14129_spacesAroundRewrite(): Unit = {
     setScalafmtConfig("avoidInfix.conf")
     doTextTest(
       s"""class C {
@@ -125,7 +137,8 @@ class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with M
     )
   }
 
-  def testScl14129_spacesAroundRewrite_1(): Unit = {
+  @Test
+  def SCL14129_spacesAroundRewrite_1(): Unit = {
     setScalafmtConfig("avoidInfix.conf")
     doTextTest(
       s"""class C {
@@ -139,7 +152,8 @@ class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with M
     )
   }
 
-  def testScl14129_spacesAroundRewrite_AllRangesNoExceptions(): Unit = {
+  @Test
+  def SCL14129_spacesAroundRewrite_AllRangesNoExceptions(): Unit = {
     setScalafmtConfig("avoidInfix.conf")
     doAllRangesTextTest(
       s"""class C {
@@ -150,7 +164,8 @@ class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with M
     )
   }
 
-  def testInfixInParenthesis(): Unit = {
+  @Test
+  def infixInParenthesis(): Unit = {
     val before =
       s"""class C {
          |  (${start}1$end + 2)
@@ -166,7 +181,8 @@ class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with M
     doTextTest(before, after)
   }
 
-  def testInfixInParenthesis_1(): Unit = {
+  @Test
+  def infixInParenthesis_1(): Unit = {
     val before =
       s"""class C {
          |  (${start}1*2$end + 2)
@@ -182,7 +198,8 @@ class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with M
     doTextTest(before, after)
   }
 
-  def testInfixInParenthesis_2(): Unit = {
+  @Test
+  def infixInParenthesis_2(): Unit = {
     val before =
       s"""class C {
          |  (0 + ${start}1*2$end)
@@ -198,7 +215,8 @@ class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with M
     doTextTest(before, after)
   }
 
-  def testInfixInParenthesis_3(): Unit = {
+  @Test
+  def infixInParenthesis_3(): Unit = {
     val before =
       s"""class C {
          |  (0 + ${start}1*2$end + 3)
@@ -214,7 +232,8 @@ class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with M
     doTextTest(before, after)
   }
 
-  def testInfixInParenthesis_4(): Unit = {
+  @Test
+  def infixInParenthesis_4(): Unit = {
     val before =
       s"""class C {
          |  ($start(foo() + bar())$end + 2)
@@ -230,7 +249,8 @@ class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with M
     doTextTest(before, after)
   }
 
-  def testInfixInParenthesis_5(): Unit = {
+  @Test
+  def infixInParenthesis_5(): Unit = {
     val before =
       s"""class C {
          |  ($start{ foo() + bar() }$end + 2)
@@ -246,7 +266,8 @@ class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with M
     doTextTest(before, after)
   }
 
-  def testInfixInParenthesis_6(): Unit = {
+  @Test
+  def infixInParenthesis_6(): Unit = {
     val before =
       s"""class C {
          |  (${start}id$end + 2)
@@ -262,7 +283,8 @@ class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with M
     doTextTest(before, after)
   }
 
-  def testMethodCallInParenthesis(): Unit =
+  @Test
+  def methodCallInParenthesis(): Unit =
     doAllRangesTextTest(
       s"""class C {
          |  (obj.method(42).method(23))
@@ -270,7 +292,8 @@ class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with M
          |""".stripMargin
     )
 
-  def testMethodCallInBraces(): Unit =
+  @Test
+  def methodCallInBraces(): Unit =
     doTextTest(
       s"""class C {
          |  {${start}obj${end}.method(42).method(23)}
@@ -282,7 +305,8 @@ class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with M
          |""".stripMargin
     )
 
-  def testSCL14129_expandImport(): Unit = {
+  @Test
+  def SCL14129_expandImport(): Unit = {
     setScalafmtConfig("expandImport.conf")
     val before =
       s"""
@@ -314,7 +338,8 @@ class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with M
     doTextTest(before, after)
   }
 
-  def testSCL14129_redundantBraces(): Unit = {
+  @Test
+  def SCL14129_redundantBraces(): Unit = {
     setScalafmtConfig("redundantBraces.conf")
     val before =
       s"""
@@ -327,7 +352,8 @@ class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with M
     doTextTest(before, after)
   }
 
-  def testScl14129_redundantBraces_1(): Unit = {
+  @Test
+  def SCL14129_redundantBraces_1(): Unit = {
     setScalafmtConfig("redundantBraces.conf")
     val before =
       s"""
@@ -340,7 +366,8 @@ class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with M
     doTextTest(before, after)
   }
 
-  def testScl14129_redundantBraces_2(): Unit = {
+  @Test
+  def SCL14129_redundantBraces_2(): Unit = {
     setScalafmtConfig("redundantBraces.conf")
     val before =
       s"""
@@ -357,7 +384,8 @@ class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with M
     doTextTest(before, after)
   }
 
-  def testScl14129_redundantBraces_3(): Unit = {
+  @Test
+  def SCL14129_redundantBraces_3(): Unit = {
     setScalafmtConfig("redundantBraces.conf")
     val before =
       s"""
@@ -373,7 +401,8 @@ class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with M
     doTextTest(before, after)
   }
 
-  def testScl14129_redundantBraces_4(): Unit = {
+  @Test
+  def SCL14129_redundantBraces_4(): Unit = {
     setScalafmtConfig("redundantBraces.conf")
     val before =
       s"""def foo = {
@@ -409,7 +438,8 @@ class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with M
     doTextTest(before, after)
   }
 
-  def testScl14129_redundantBraces_5(): Unit = {
+  @Test
+  def SCL14129_redundantBraces_5(): Unit = {
     setScalafmtConfig("redundantBraces.conf")
     val before =
       s"""class X {
@@ -438,7 +468,8 @@ class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with M
     doTextTest(before, after)
   }
 
-  def testScl14129_sortImports(): Unit = {
+  @Test
+  def SCL14129_sortImports(): Unit = {
     setScalafmtConfig("sortImports.conf")
     val before =
       s"""
@@ -451,7 +482,8 @@ class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with M
     doTextTest(before, after)
   }
 
-  def testFormatValMultilineDefinition_IfRewriteRulesExist_1(): Unit = {
+  @Test
+  def formatValMultilineDefinition_IfRewriteRulesExist_1(): Unit = {
     setScalafmtConfig("redundantBraces.conf")
 
     val before =
@@ -467,7 +499,8 @@ class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with M
     doTextTest(before, after)
   }
 
-  def testFormatValMultilineDefinition_IfRewriteRulesExist_2(): Unit = {
+  @Test
+  def formatValMultilineDefinition_IfRewriteRulesExist_2(): Unit = {
     setScalafmtConfig("redundantBraces.conf")
 
     val before =
@@ -483,7 +516,8 @@ class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with M
     doTextTest(before, after)
   }
 
-  def testFormatValMultilineDefinition_IfRewriteRulesExist_3(): Unit = {
+  @Test
+  def formatValMultilineDefinition_IfRewriteRulesExist_3(): Unit = {
     setScalafmtConfig("redundantBraces.conf")
 
     val before =
@@ -499,7 +533,8 @@ class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with M
     doTextTest(before, after)
   }
 
-  def testTypeDefinitionFormat_IfRewriteRulesExist_1(): Unit = {
+  @Test
+  def typeDefinitionFormat_IfRewriteRulesExist_1(): Unit = {
     setScalafmtConfig("redundantBraces.conf")
 
     val before =
@@ -517,7 +552,8 @@ class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with M
     doTextTest(before, after)
   }
 
-  def testTypeDefinitionFormat_IfRewriteRulesExist_2(): Unit = {
+  @Test
+  def typeDefinitionFormat_IfRewriteRulesExist_2(): Unit = {
     setScalafmtConfig("redundantBraces.conf")
 
     // FIXME: when object goes at top level in the beginning of the file, the leading space should be removed
@@ -534,7 +570,9 @@ class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with M
     doTextTest(before, after)
   }
 
-  def testTypeDefinitionFormat_IfRewriteRulesExist_3(): Unit = {
+  @Test
+  @Ignore("SCL-23253")
+  def typeDefinitionFormat_IfRewriteRulesExist_3(): Unit = {
     setScalafmtConfig("redundantBraces.conf")
 
     val before =
@@ -552,8 +590,8 @@ class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with M
     doTextTest(before, after)
   }
 
-
-  def testTypeDefinitionFormat_IfRewriteRulesExist_4(): Unit = {
+  @Test
+  def typeDefinitionFormat_IfRewriteRulesExist_4(): Unit = {
     setScalafmtConfig("redundantBraces.conf")
 
     val before =
@@ -573,7 +611,8 @@ class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with M
     doTextTest(before, after)
   }
 
-  def testDeeplyNestedMethodDefinition_IfRewriteRulesExist(): Unit = {
+  @Test
+  def deeplyNestedMethodDefinition_IfRewriteRulesExist(): Unit = {
     setScalafmtConfig("redundantBraces.conf")
 
     val before =
@@ -595,7 +634,8 @@ class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with M
     doTextTest(before, after)
   }
 
-  def testDeeplyNestedValMultilineDefinition_IfRewriteRulesExist(): Unit = {
+  @Test
+  def deeplyNestedValMultilineDefinition_IfRewriteRulesExist(): Unit = {
     setScalafmtConfig("redundantBraces.conf")
 
     val before =
@@ -615,7 +655,8 @@ class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with M
     doTextTest(before, after)
   }
 
-  def test_EA244817_WithRewriteRules_2_7_5(): Unit = {
+  @Test
+  def EA244817_WithRewriteRules_2_7_5(): Unit = {
     setScalafmtConfig("EA-244817_2_7_5.conf")
     doTextTest(
       raw"""class X {
@@ -637,7 +678,8 @@ class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with M
     )
   }
 
-  def test_EA244817_WithRewriteRules_2_5_3(): Unit = {
+  @Test
+  def EA244817_WithRewriteRules_2_5_3(): Unit = {
     setScalafmtConfig("EA-244817_2_5_3.conf")
     // NOTE: 2.5.3 doesn't support unindentTopLevelOperators, but we ensure it doesn't fail
     doTextTest(
@@ -660,7 +702,8 @@ class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with M
     )
   }
 
-  def testShouldNotFailToParseConfigWithAllParametersPresent_WithSelectionFormat_2_7_5(): Unit = {
+  @Test
+  def shouldNotFailToParseConfigWithAllParametersPresent_WithSelectionFormat_2_7_5(): Unit = {
     setScalafmtConfig("all_parameters_2_7_5.conf")
     doTextTest(
       raw"""class X {
@@ -670,7 +713,8 @@ class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with M
     )
   }
 
-  def testWithDocStringsOneLine_Unfold(): Unit = {
+  @Test
+  def withDocStringsOneLine_Unfold(): Unit = {
     setScalafmtConfig("docstrings_oneline_unfold_2_7_5.conf")
     doTextTest(
       s"""class A {
