@@ -114,7 +114,7 @@ object TestNodeProvider {
   @NonNls val PendingSuffix: String = " (pending)"
 
   private def getInnerInfixExprs(expr: ScInfixExpr) = {
-    expr.getLastChild.getChildren.filter(_.isInstanceOf[ScInfixExpr]).map(_.asInstanceOf[ScInfixExpr])
+    expr.getLastChild.getChildren.filter(_.is[ScInfixExpr]).map(_.asInstanceOf[ScInfixExpr])
   }
 
   private def extractTestViewElementInfix(expr: ScInfixExpr, clazz: ScTypeDefinition, project: Project): Option[Test] = {
@@ -135,7 +135,7 @@ object TestNodeProvider {
 
   private def extractTestViewElementPatternDef(pDef: ScPatternDefinition, clazz: ScTypeDefinition): Option[Test] = {
     import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil.isInheritor
-    if (isInheritor(clazz, "utest.framework.TestSuite") && pDef.getLastChild.isInstanceOf[ScMethodCall]) {
+    if (isInheritor(clazz, "utest.framework.TestSuite") && pDef.getLastChild.is[ScMethodCall]) {
       val methodCall = pDef.getLastChild.asInstanceOf[ScMethodCall]
       checkScMethodCall(methodCall, "apply")
       None
@@ -177,7 +177,7 @@ object TestNodeProvider {
   }
 
   private def getInnerMethodCalls(expr: ScMethodCall) = {
-    expr.args.getLastChild.getChildren.filter(_.isInstanceOf[ScMethodCall]).map(_.asInstanceOf[ScMethodCall])
+    expr.args.getLastChild.getChildren.filter(_.is[ScMethodCall]).map(_.asInstanceOf[ScMethodCall])
   }
 
   private def getInnerExprs(expr: PsiElement) = {
@@ -185,7 +185,7 @@ object TestNodeProvider {
       case _: ScInfixExpr => expr.getLastChild.getChildren
       case methodCall: ScMethodCall => methodCall.args.getLastChild.getChildren
       case _ => Array[ScExpression]()
-    }).filter(_.isInstanceOf[ScExpression]).map(_.asInstanceOf[ScExpression])
+    }).filter(_.is[ScExpression]).map(_.asInstanceOf[ScExpression])
   }
 
   private def checkMethodCallPending(expr: ScMethodCall): Boolean = {
@@ -228,7 +228,7 @@ object TestNodeProvider {
   }
 
   private def checkClauses(clauses: Seq[ScParameterClause], paramNames: Seq[Seq[String]]): Boolean = {
-    val filteredClauses = clauses.filterNot(_.parameters.forall(_.isImplicitParameter))
+    val filteredClauses = clauses.filterNot(_.parameters.forall(_.isUsingOrImplicitParameter))
     filteredClauses.length == paramNames.length && (filteredClauses zip paramNames).forall {
       case (clause, names) =>
         clause.parameters.length == names.length && (clause.parameters zip names).forall {
@@ -239,7 +239,7 @@ object TestNodeProvider {
 
   private def checkScInfixExpr(expr: ScInfixExpr, funName: String, paramNames: Option[Seq[List[String]]]): Boolean = {
     val methodExpr = expr.getEffectiveInvokedExpr
-    methodExpr.isInstanceOf[ScReferenceExpression] && checkRefExpr(methodExpr.asInstanceOf[ScReferenceExpression],
+    methodExpr.is[ScReferenceExpression] && checkRefExpr(methodExpr.asInstanceOf[ScReferenceExpression],
       funName, None, paramNames)
   }
 
@@ -310,7 +310,7 @@ object TestNodeProvider {
 
   private def checkIgnoreExpr(expr: ScInfixExpr): Boolean = {
     expr.getFirstChild match {
-      case infixExpr: ScInfixExpr if infixExpr.getFirstChild.isInstanceOf[ScReferenceExpression] =>
+      case infixExpr: ScInfixExpr if infixExpr.getFirstChild.is[ScReferenceExpression] =>
         infixExpr.getFirstChild.asInstanceOf[ScReferenceExpression].resolve() match {
           case pattern: ScReferencePattern if pattern.getName == "ignore" => true
           case _ => false
@@ -579,7 +579,7 @@ object TestNodeProvider {
   }
 
   def getUTestLeftHandTestDefinition(element: PsiElement): Option[ScMethodCall] = findListOfPatternsWithIndex(element) match {
-    case Some((pattern, indexOpt)) if pattern.getParent != null && pattern.getParent.isInstanceOf[ScPatternDefinition] =>
+    case Some((pattern, indexOpt)) if pattern.getParent != null && pattern.getParent.is[ScPatternDefinition] =>
       ((pattern.getParent.getLastChild, indexOpt) match {
         case (suiteMethodCall: ScMethodCall, None) => suiteMethodCall //left-hand is a simple pattern
         case (tuple: ScTuple, Some((index, size))) if size == tuple.exprs.size =>
@@ -609,7 +609,7 @@ object TestNodeProvider {
 
     val nodeProvider = new TestNodeProvider
 
-    val isUTest = configurationProducer.isInstanceOf[UTestConfigurationProducer]
+    val isUTest = configurationProducer.is[UTestConfigurationProducer]
     val elements: Iterable[TreeElement] =
       if (isUTest) {
         val children = new TypeDefinition(aSuite).getChildren
