@@ -1,11 +1,12 @@
 package org.jetbrains.plugins.scala.refactoring.introduceVariable
 
+import com.intellij.lang.Language
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.actions.ActionTestBase
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 
-final class IntroduceVariableTestSuite(path: String) extends ActionTestBase(path) {
+final class IntroduceVariableTestSuite(path: String, language: Language) extends ActionTestBase(path) {
   override protected def needsSdk: Boolean = true
 
   private var myFixture: ScalaIntroduceVariableTestFixture = _
@@ -14,7 +15,7 @@ final class IntroduceVariableTestSuite(path: String) extends ActionTestBase(path
     super.setUp(project)
 
     val alwaysAddTypeSettings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(project))
-    myFixture = new ScalaIntroduceVariableTestFixture(project, Some(alwaysAddTypeSettings))
+    myFixture = new ScalaIntroduceVariableTestFixture(project, Some(alwaysAddTypeSettings), language)
     myFixture.setUp()
   }
 
