@@ -1,59 +1,31 @@
-name: Scala Plugin Build & Test
-
 on:
   push:
-    branches: [ idea242.x idea243.x ]
+    branches: [ idea243.x ]
   pull_request:
-    branches: [ idea242.x idea243.x ]
+    branches: [ idea243.x ]
 
 jobs:
   build_and_test:
-
+    name: Scala Plugin Build & Test
     runs-on: ubuntu-latest
-
+    env:
+      JAVA_OPTS: -Xmx8192m -XX:ReservedCodeCacheSize=512m
     steps:
-    - uses: actions/checkout@v2
-    - uses: olafurpg/setup-scala@v10
-      with:
-        java-version: adopt@1.11
-    - name: Install JDK 8
-      run: jabba install adopt@1.8.0-242
-    - name: Install JDK 11
-      run: jabba install adopt@1.11.0-6
-    - name: Cache coursier cache
-      uses: actions/cache@v1
-      with:
-        path: ~/.coursier/cache
-        key: ${{ runner.os }}-coursier-cache-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('project/**/*.scala') }}
-        restore-keys: |
-          ${{ runner.os }}-coursier-cache-${{ hashFiles('**/*.sbt') }}
-          ${{ runner.os }}-coursier-cache
-    - name: Cache ivy cache
-      uses: actions/cache@v1
-      with:
-        path: ~/.ivy2/cache
-        key: ${{ runner.os }}-ivy-cache-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('project/**/*.scala') }}
-        restore-keys: |
-          ${{ runner.os }}-ivy-cache-${{ hashFiles('**/*.sbt') }}
-          ${{ runner.os }}-ivy-cache
-    - name: Cache sbt
-      uses: actions/cache@v1
-      with:
-        path: ~/.sbt
-        key: ${{ runner.os }}-sbt-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('project/**/*.scala') }}
-        restore-keys: |
-          ${{ runner.os }}-sbt-${{ hashFiles('**/*.sbt') }}
-          ${{ runner.os }}-sbt
-    - name: Cache IntelliJ IDEA SDK
-      uses: actions/cache@v1
-      with:
-        path: ~/.ScalaPluginIC/sdk
-        key: ${{ runner.os }}-idea-${{ hashFiles('project/**/*.scala') }}
-        restore-keys: |
-          ${{ runner.os }}-idea
-    - name: compile & package
-      run: sbt -no-colors clean packagePlugin test:compile
-    - name: typechecker tests
-      run: sbt -no-colors runTypeInferenceTests
-    - name: assorted tests
-      run: sbt -no-colors runFastTests
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: |
+            8
+            11
+            17
+      - uses: sbt/setup-sbt@v1
+      - uses: coursier/cache-action@v6
+      - name: Compile and package
+        run: sbt clean packageArtifact Test/compile
+      - name: Run internationalization bundle tests
+        run: sbt runJUnit5Tests
+      - name: Run typechecker tests
+        run: sbt runTypeInferenceTests
+      - name: Run assorted tests
+        run: sbt runFastTests
