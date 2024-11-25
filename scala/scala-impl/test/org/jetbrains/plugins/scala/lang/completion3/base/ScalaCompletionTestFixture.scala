@@ -132,6 +132,17 @@ class ScalaCompletionTestFixture(
     lookups
   }
 
+  final def checkLookupItemsExist(fileText: String,
+                                  completionType: CompletionType = CompletionType.BASIC,
+                                  invocationCount: Int = DefaultInvocationCount)
+                                 (expectedItems: String*): Unit = {
+    val (_, items) = activeLookupWithItems(fileText, completionType, invocationCount)
+    val itemWasFound = items.map(_.getLookupString).toSet
+    val expectedButNotFound = expectedItems.filterNot(itemWasFound)
+    assert(expectedButNotFound.isEmpty,
+           s"Expected items were not found: ${expectedButNotFound.mkString(", ")}")
+  }
+
   final def activeLookupWithItems(
     fileText: String,
     completionType: CompletionType = CompletionType.BASIC,
