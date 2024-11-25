@@ -248,7 +248,7 @@ object ReferenceComparisonTestBase {
       case m: ScModifierList if m.isOpaque                    => all += "opaque"
       case _: ScTypeLambdaTypeElement                         => all += "typeLambda"
       case _: ScExtension                                     => all += "extension"
-      case t: ScTypeElement if t.textMatches("AnyKind") => all += "anykind"
+      case t: ScTypeElement if t.textMatches("AnyKind")       => all += "anykind"
       case p: ScParameter if isByNameImplicit(p)              => all += "byNameImplicit"
       case _: ScEnum                                          => all += "enum"
       case _: ScDerivesClause                                 => all += "derives"
@@ -257,7 +257,7 @@ object ReferenceComparisonTestBase {
     all.toSeq
   }
 
-  private def isByNameImplicit(p: ScParameter) = p.isImplicitParameter && p.isCallByNameParameter
+  private def isByNameImplicit(p: ScParameter) = p.isUsingOrImplicitParameter && p.isCallByNameParameter
 
   trait RefTarget {
     def element: PsiNamedElement
