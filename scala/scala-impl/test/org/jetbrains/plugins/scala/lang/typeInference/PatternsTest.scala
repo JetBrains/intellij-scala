@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.typeInference
 
+import org.jetbrains.plugins.scala.ScalaVersion
+
 class PatternsTest extends TypeInferenceTestBase {
   override def folderPath: String = super.folderPath + "bugs5/"
 
@@ -100,4 +102,20 @@ class PatternsTest extends TypeInferenceTestBase {
         """.stripMargin
     checkTextHasNoErrors(text)
   }
+}
+
+class PatternsTest_Scala3 extends TypeInferenceTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version.isScala3
+
+  def testUnapplyWithUsing(): Unit = doTest(
+    s"""
+       |object Test {
+       |  def unapply(x: Int)(using Int): Option[Int] = Some(x)
+       |}
+       |
+       |val x@Test(_) = 1
+       |println(${START}x$END)
+       |//Int
+       |""".stripMargin
+  )
 }

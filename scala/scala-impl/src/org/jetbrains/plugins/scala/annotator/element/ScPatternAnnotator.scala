@@ -243,7 +243,7 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
       patternRef.bind() match {
         case Some(srr) =>
           srr.getElement match {
-            case fun: ScFunction if fun.parameters.count(!_.isImplicitParameter) == 1 =>
+            case fun: ScFunction if fun.parameters.count(!_.isUsingOrImplicitParameter) == 1 =>
               fun.parametersTypes.headOption
                 .map(srr.substitutor)
             case _ => None
