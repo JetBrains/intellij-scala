@@ -19,6 +19,20 @@ trait ScMethodCall extends ScExpression with MethodInvocation {
     case _ => 1
   }
 
+  final def nonUsingArgumentListCount: Int = {
+    @tailrec
+    def loop(call: ScMethodCall, acc: Int): Int = {
+      val newAcc =
+        if (call.args.isUsing) acc
+        else acc + 1
+      call.getEffectiveInvokedExpr match {
+        case call: ScMethodCall => loop(call, newAcc)
+        case _ => newAcc
+      }
+    }
+    loop(this, 0)
+  }
+
   def args: ScArgumentExprList = findChild[ScArgumentExprList].get
 
   override def isUpdateCall: Boolean = getContext match {
