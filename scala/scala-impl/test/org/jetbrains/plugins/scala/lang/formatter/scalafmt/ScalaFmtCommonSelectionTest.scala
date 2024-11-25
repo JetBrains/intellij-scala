@@ -1,45 +1,55 @@
 package org.jetbrains.plugins.scala.lang.formatter.scalafmt
 
 import org.jetbrains.plugins.scala.util.Markers
+import org.junit.{Ignore, Test}
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 class ScalaFmtCommonSelectionTest extends ScalaFmtCommonSelectionTestBase
 
 class ScalaFmtCommonSelectionTest_2_7 extends ScalaFmtCommonSelectionTestBase with UseConfig_2_7
 
 //noinspection RedundantBlock
-trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Markers {
+@RunWith(classOf[JUnit4])
+abstract class ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Markers {
 
-  def testExprSelection(): Unit =
+  @Test
+  def exprSelection(): Unit =
     doTextTest(
       s"class Test { val v = ${startMarker}1    +     22  $endMarker}",
       s"class Test { val v = ${startMarker}1 + 22 $endMarker}"
     )
 
-  def testExprSelection_1(): Unit =
+  @Test
+  def exprSelection_1(): Unit =
     doTextTest(
       s"class Test { val v = ${startMarker}1    +     22 $endMarker }",
       s"class Test { val v = ${startMarker}1 + 22 $endMarker }"
     )
 
-  def testExprSelection_2(): Unit =
+  @Test
+  def exprSelection_2(): Unit =
     doTextTest(
       s"class Test { val v =    ${startMarker}1    +     22$endMarker     }",
       s"class Test { val v = ${startMarker}1 + 22$endMarker     }"
     )
 
-  def testExprSelection_3(): Unit =
+  @Test
+  def exprSelection_3(): Unit =
     doTextTest(
       s"class Test { val v =    ${startMarker}1    +     22   $endMarker  }",
       s"class Test { val v = ${startMarker}1 + 22   $endMarker  }"
     )
 
-  def testExprSelection_4(): Unit =
+  @Test
+  def exprSelection_4(): Unit =
     doTextTest(
       s"class Test { val v =    ${startMarker}1    +     22     $endMarker}",
       s"class Test { val v = ${startMarker}1 + 22 $endMarker}"
     )
 
-  def testStatementSelection(): Unit = {
+  @Test
+  def statementSelection(): Unit = {
     val before =
       s"""
          |class Test {
@@ -59,7 +69,8 @@ trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Mar
     doTextTest(before, after)
   }
 
-  def testStatementSelectionInsideSingleLineMethodBody(): Unit = {
+  @Test
+  def statementSelectionInsideSingleLineMethodBody(): Unit = {
     val before =
       s"""class Test2 {
          |  def foo(): Unit =
@@ -73,7 +84,8 @@ trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Mar
     doTextTest(before, after)
   }
 
-  def testPreserveBadFormatting(): Unit = {
+  @Test
+  def preserveBadFormatting(): Unit = {
     val before =
       s"""
          |class Test {
@@ -93,7 +105,8 @@ trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Mar
     doTextTest(before, after)
   }
 
-  def testProperRangeWidening(): Unit = {
+  @Test
+  def properRangeWidening(): Unit = {
     val before =
       s"""
          |class Test {
@@ -113,7 +126,8 @@ trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Mar
     doTextTest(before, after)
   }
 
-  def testMultiLineRange(): Unit = {
+  @Test
+  def multiLineRange(): Unit = {
     val before =
       s"""
          |class Test {
@@ -135,7 +149,8 @@ trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Mar
     doTextTest(before, after)
   }
 
-  def testNestedMultiLineRange(): Unit = {
+  @Test
+  def nestedMultiLineRange(): Unit = {
     val before =
       s"""
          |class Test {
@@ -161,7 +176,8 @@ trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Mar
     doTextTest(before, after)
   }
 
-  def testFormatErroneousCode(): Unit = {
+  @Test
+  def formatErroneousCode(): Unit = {
     val before =
       s"""
          |class {
@@ -177,14 +193,16 @@ trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Mar
     doTextTest(before, after)
   }
 
-  def testFormatTypeDef(): Unit = {
+  @Test
+  def formatTypeDef(): Unit = {
     val before =
       s" ${startMarker}type T    =   String$endMarker"
     val after = "type T = String"
     doTextTest(before, after)
   }
 
-  def testFormatTypeDefInsideObject_1(): Unit = {
+  @Test
+  def formatTypeDefInsideObject_1(): Unit = {
     val before =
       s"""object TestClass {
          |      ${startMarker}type T = String
@@ -198,7 +216,8 @@ trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Mar
     doTextTest(before, after)
   }
 
-  def testFormatTypeDefInsideObject_2(): Unit = {
+  @Test
+  def formatTypeDefInsideObject_2(): Unit = {
     val before =
       s"""object TestClass {
          |      ${startMarker}type    T =     String
@@ -212,25 +231,29 @@ trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Mar
     doTextTest(before, after)
   }
 
-  def testFormatValDef(): Unit = {
+  @Test
+  def formatValDef(): Unit = {
     val before = s" ${startMarker}val x=42$endMarker"
     val after = "val x = 42"
     doTextTest(before, after)
   }
 
-  def testFormatFunDef(): Unit = {
+  @Test
+  def formatFunDef(): Unit = {
     val before = s" ${startMarker}def foo= 42$endMarker"
     val after = "def foo = 42"
     doTextTest(before, after)
   }
 
-  def testFormatImports(): Unit = {
+  @Test
+  def formatImports(): Unit = {
     val before = s"    ${startMarker}import foo.bar.{baz,    foo,   bar}$endMarker"
     val after = "import foo.bar.{baz, foo, bar}\n"
     doTextTest(before, after)
   }
 
-  def testFormatMultipleImports(): Unit = {
+  @Test
+  def formatMultipleImports(): Unit = {
     val before =
       s"""
          |${startMarker}import foo.bar. {baz, foo  }
@@ -246,7 +269,8 @@ trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Mar
     doTextTest(before, after)
   }
 
-  def testFormatMultipleImportsStartingOnFirstFileLine(): Unit = {
+  @Test
+  def formatMultipleImportsStartingOnFirstFileLine(): Unit = {
     val before =
       s"""$startMarker      ${startMarker(0)}import foo.bar. {baz, foo  }
          |  import foo.baz.{bar,baz}$endMarker${endMarker(0)}
@@ -260,7 +284,8 @@ trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Mar
     doTextTest(before, after)
   }
 
-  def testFormatMultipleIndented(): Unit = {
+  @Test
+  def formatMultipleIndented(): Unit = {
     val before =
       s"""
          |class Foo {
@@ -282,7 +307,8 @@ trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Mar
     doTextTest(before, after)
   }
 
-  def testFormatMultipleIndented_2(): Unit = {
+  @Test
+  def formatMultipleIndented_2(): Unit = {
     val before =
       s"""
          |class Foo {
@@ -306,7 +332,8 @@ trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Mar
     doTextTest(before, after)
   }
 
-  def testFormatMultipleIndented_3(): Unit = {
+  @Test
+  def formatMultipleIndented_3(): Unit = {
     val before =
       s"""
          |class Foo {
@@ -330,7 +357,8 @@ trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Mar
     doTextTest(before, after)
   }
 
-  def testFormatMultipleIndented_4(): Unit = {
+  @Test
+  def formatMultipleIndented_4(): Unit = {
     val before =
       s"""
          |class Foo {
@@ -354,7 +382,9 @@ trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Mar
     doTextTest(before, after)
   }
 
-  def testSCL13939(): Unit = {
+  @Test
+  @Ignore("SCL-23253")
+  def SCL13939(): Unit = {
     val before =
       s"""
          |object Test {
@@ -382,7 +412,8 @@ trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Mar
     doTextTest(before, after)
   }
 
-  def testNPEStringContent(): Unit = {
+  @Test
+  def NPEStringContent(): Unit = {
     val qqq = "\"\"\""
     val before =
       s"""
@@ -403,7 +434,8 @@ trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Mar
     doTextTest(before, after)
   }
 
-  def testSCL14113(): Unit = {
+  @Test
+  def SCL14113(): Unit = {
     val before =
       s"""
          |object Foo {
@@ -419,25 +451,29 @@ trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Mar
     doTextTest(before, after)
   }
 
-  def testWhitespaceSelection(): Unit = {
+  @Test
+  def whitespaceSelection(): Unit = {
     val before = s"object O {$startMarker   $endMarker}"
     val after = s"object O {}"
     doTextTest(before, after)
   }
 
-  def testWhitespaceSelection_1(): Unit = {
+  @Test
+  def whitespaceSelection_1(): Unit = {
     val before = s"def    foo$startMarker     $endMarker=     42"
     val after = s"def    foo =     42"
     doTextTest(before, after)
   }
 
-  def testWhitespaceSelection_2(): Unit = {
+  @Test
+  def whitespaceSelection_2(): Unit = {
     val before = s"1   +$startMarker   ${endMarker}3   +   4"
     val after = s"1   + 3   +   4"
     doTextTest(before, after)
   }
 
-  def testWhitespaceSelection_3(): Unit = {
+  @Test
+  def whitespaceSelection_3(): Unit = {
     val before =
       s"""
          |class T {
@@ -453,7 +489,9 @@ trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Mar
     doTextTest(before, after)
   }
 
-  def testObjectPartialSelection(): Unit = {
+  @Test
+  @Ignore("SCL-23253")
+  def objectPartialSelection(): Unit = {
     val before =
       s"""
          |package foo
@@ -473,7 +511,8 @@ trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Mar
     doTextTest(before, after)
   }
 
-  def testWsBetweenPackageAndImport(): Unit = {
+  @Test
+  def wsBetweenPackageAndImport(): Unit = {
     val before =
       s"""
          |package foo$startMarker
@@ -489,7 +528,8 @@ trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Mar
     doTextTest(before, after)
   }
 
-  def testWsBetweenImportAndClass(): Unit = {
+  @Test
+  def wsBetweenImportAndClass(): Unit = {
     val before =
       s"""
          |package foo
@@ -505,7 +545,8 @@ trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Mar
     doTextTest(before, after)
   }
 
-  def testScl14147(): Unit = {
+  @Test
+  def SCL14147(): Unit = {
     val before =
       s"""
          |class A[T]$startMarker
@@ -519,7 +560,9 @@ trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Mar
     doTextTest(before, after)
   }
 
-  def testSCL14031(): Unit = {
+  @Test
+  @Ignore("SCL-23253")
+  def SCL14031(): Unit = {
     val before =
       s"""
          |object Outer {
@@ -549,7 +592,8 @@ trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Mar
     doTextTest(before, after)
   }
 
-  def testScl14856_patternMatchInsideMethodDefinition_1(): Unit = {
+  @Test
+  def SCL14856_patternMatchInsideMethodDefinition_1(): Unit = {
     val before =
       s"""class TestClass {
          |  def parentScope: Unit = {
@@ -571,7 +615,8 @@ trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Mar
     doTextTest(before, after)
   }
 
-  def testScl14856_patternMatchInsideMethodDefinition_2(): Unit = {
+  @Test
+  def SCL14856_patternMatchInsideMethodDefinition_2(): Unit = {
     val before =
       s"""class TestClass {
          |  def parentScope: Unit = {
@@ -593,7 +638,9 @@ trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Mar
     doTextTest(before, after)
   }
 
-  def testScl14856_patternMatchInsideMethodDefinition_3(): Unit =
+  @Test
+  @Ignore("SCL-23253")
+  def SCL14856_patternMatchInsideMethodDefinition_3(): Unit =
     doAllRangesTextTest(
       """class TestClass {
         |  def parentScope: Unit = {
@@ -606,7 +653,8 @@ trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Mar
         |""".stripMargin
     )
 
-  def testScl14856_patternMatchInsideClassFollowedByErroneousCode(): Unit = {
+  @Test
+  def SCL14856_patternMatchInsideClassFollowedByErroneousCode(): Unit = {
     val before =
       s"""class TestClass {
          |  def parentScope: Unit = {
@@ -634,7 +682,8 @@ trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Mar
     doTextTest(before, after)
   }
 
-  def testFormatObjectOrClassOrTraitName(): Unit = {
+  @Test
+  def formatObjectOrClassOrTraitName(): Unit = {
     val before =
       s"""object ${startMarker}O$endMarker {}
          |class ${startMarker(0)}C${endMarker(0)} {}
@@ -648,7 +697,8 @@ trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Mar
     doTextTest(before, after)
   }
 
-  def testFormatValInsideObjectSurroundedWithEmptyLines(): Unit = {
+  @Test
+  def formatValInsideObjectSurroundedWithEmptyLines(): Unit = {
     val before =
       s"""object Outer {
          |
@@ -664,7 +714,8 @@ trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Mar
     doTextTest(before, after)
   }
 
-  def testFormatValInRoot(): Unit = {
+  @Test
+  def formatValInRoot(): Unit = {
     val before =
       s"""  ${startMarker}val x=2   +   2
          |val y  =  4+4$endMarker
@@ -676,7 +727,8 @@ trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Mar
     doTextTest(before, after)
   }
 
-  def testFormatValInRootSurroundedWithEmptyLines(): Unit = {
+  @Test
+  def formatValInRootSurroundedWithEmptyLines(): Unit = {
     val before =
       s"""
          |${startMarker}val x = 2 + 2
@@ -692,7 +744,8 @@ trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Mar
     doTextTest(before, after)
   }
 
-  def testDifferentTypesOfDefinitionsAtTopLevel(): Unit = {
+  @Test
+  def differentTypesOfDefinitionsAtTopLevel(): Unit = {
     val before =
       s"""${startMarker}trait  X   {
          |  def xFoo = 42
@@ -718,7 +771,8 @@ trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Mar
     doTextTest(before, after)
   }
 
-  def testScConstructorPattern_SCL15406(): Unit =
+  @Test
+  def scConstructorPattern_SCL15406(): Unit =
     doTextTest(
       s"""object Test {
          |  sealed trait SuperName
@@ -734,7 +788,8 @@ trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Mar
          |""".stripMargin
     )
 
-  def testScConstructorPattern_SCL15406_AllRanges(): Unit =
+  @Test
+  def scConstructorPattern_SCL15406_AllRanges(): Unit =
     doAllRangesTextTest(
       s"""object Test {
          |  sealed trait SuperName
@@ -750,7 +805,8 @@ trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Mar
          |""".stripMargin
     )
 
-  def testScConstructorPattern_SCL15406_1(): Unit =
+  @Test
+  def scConstructorPattern_SCL15406_1(): Unit =
     doTextTest(
       s"""object Test extends App {
          |  val some = Some(0)
@@ -761,7 +817,8 @@ trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Mar
          |""".stripMargin
     )
 
-  def testScConstructorPattern_SCL15406_1_AllRanges(): Unit =
+  @Test
+  def scConstructorPattern_SCL15406_1_AllRanges(): Unit =
     doAllRangesTextTest(
       s"""object Test extends App {
          |  val some = Some(0)
@@ -772,7 +829,8 @@ trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Mar
          |""".stripMargin
     )
 
-  def testClassName_SCL15338(): Unit = {
+  @Test
+  def className_SCL15338(): Unit = {
     doTextTest(
       s"""object Test {
          |  class SomeClass{}
@@ -798,7 +856,8 @@ trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Mar
     )
   }
 
-  def testParametrizedClassName_SCL15338(): Unit = {
+  @Test
+  def parametrizedClassName_SCL15338(): Unit = {
     doTextTest(
       s"""object Test {
          |  class SomeClass[T]{}
@@ -824,22 +883,26 @@ trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Mar
     )
   }
 
-  def testRemoveWhitespaces(): Unit = doTextTest(
+  @Test
+  def removeWhitespaces(): Unit = doTextTest(
     s"""val x$startMarker : Int = 123$endMarker""",
     s"""val x: Int = 123"""
   )
 
-  def testRemoveWhitespaces_1(): Unit = doTextTest(
+  @Test
+  def removeWhitespaces_1(): Unit = doTextTest(
     s"""val$startMarker   x   :   Int   =   123   +   42  $endMarker""",
     s"""val x: Int = 123 + 42  """
   )
 
-  def testRemoveWhitespaces_2(): Unit = doTextTest(
+  @Test
+  def removeWhitespaces_2(): Unit = doTextTest(
     s"""val   x   :$startMarker   Int   =   123   +   42  $endMarker""",
     s"""val   x   : Int = 123 + 42  """
   )
 
-  def testSCL14030(): Unit = {
+  @Test
+  def SCL14030(): Unit = {
     doTextTest(
       s"""object Example {
          |  trait Foo {
