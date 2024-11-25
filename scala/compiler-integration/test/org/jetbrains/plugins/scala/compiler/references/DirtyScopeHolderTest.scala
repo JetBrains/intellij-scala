@@ -9,7 +9,6 @@ import com.intellij.testFramework.PsiTestUtil
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.compiler.references.ScalaDirtyScopeHolder.ScopedModule
 import org.junit.Assert._
-import org.junit.Ignore
 
 class DirtyScopeHolderTest_IdeaIncrementality extends DirtyScopeHolderTestBase {
   override protected def incrementalityType: IncrementalityType = IncrementalityType.IDEA
@@ -87,7 +86,6 @@ abstract class DirtyScopeHolderTestBase extends ScalaCompilerReferenceServiceFix
     assertEmptyScopes(dirtyScopes)
   }
 
-  @Ignore
   def testModulePathRename(): Unit = {
     myFixture.addFileToProject("A/Foo.scala", "trait Foo")
     buildProject()
