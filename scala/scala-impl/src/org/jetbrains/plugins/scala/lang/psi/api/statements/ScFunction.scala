@@ -175,9 +175,8 @@ object ScFunction {
       val isImplicit = function.hasModifierProperty("implicit")
       val hasSingleNonImplicitParam = {
         val clauses = function.paramClauses.clauses
-        clauses.nonEmpty &&
-          clauses.head.parameters.size == 1 && !clauses.head.isImplicit &&
-          clauses.drop(1).forall(_.isImplicit)
+        val nonImplicitOrUsing = clauses.filterNot(_.isImplicitOrUsing)
+        nonImplicitOrUsing.size == 1 && nonImplicitOrUsing.head.parameters.size == 1
       }
       isImplicit && hasSingleNonImplicitParam
     }

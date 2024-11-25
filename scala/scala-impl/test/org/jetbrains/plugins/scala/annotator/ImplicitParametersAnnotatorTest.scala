@@ -563,6 +563,25 @@ class ImplicitParameterFailingTest extends ScalaLightCodeInsightFixtureTestCase 
     """.stripMargin)
 }
 
+@Category(Array(classOf[TypecheckerTests]))
+class ImplicitParametersAnnotatorHeavyTest_Scala3 extends ScalaLightCodeInsightFixtureTestCase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3_4
+
+  def testUsingInImplicitMethod(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |def test = {
+        |  implicit def foo(using Int)(int: Int)(implicit imp: Int): Boolean = true
+        |
+        |  given Int = 1
+        |
+        |  val b: Boolean = 1
+        |}
+        |""".stripMargin
+    )
+  }
+}
+
 class ImplicitParametersAnnotatorFailingTest extends ImplicitParametersAnnotatorTestBase {
   import Message._
 
