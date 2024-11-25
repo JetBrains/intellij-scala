@@ -151,7 +151,7 @@ class ConvertibleToMethodValueInspection extends LocalInspectionTool {
 
   private def hasByNameOrImplicitParam(elem: PsiElement): Boolean = {
     elem match {
-      case fun: ScMethodLike => fun.parameterList.params.exists(p => p.isCallByNameParameter || p.isImplicitParameter)
+      case fun: ScMethodLike => fun.parameterList.params.exists(p => p.isCallByNameParameter || p.isUsingOrImplicitParameter)
       case _ => false
     }
   }

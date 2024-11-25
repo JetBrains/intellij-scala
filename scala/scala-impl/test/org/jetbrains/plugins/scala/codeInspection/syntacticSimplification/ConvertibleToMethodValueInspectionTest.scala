@@ -1,15 +1,20 @@
 package org.jetbrains.plugins.scala.codeInspection.syntacticSimplification
 
 import com.intellij.codeInspection.LocalInspectionTool
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
 
-class ConvertibleToMethodValueInspectionTest extends ScalaInspectionTestBase {
+abstract class ConvertibleToMethodValueInspectionTestBase extends ScalaInspectionTestBase {
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[ConvertibleToMethodValueInspection]
 
   override val description = ScalaInspectionBundle.message("displayname.anonymous.function.convertible.to.a.method.value")
   val hintAnon = ScalaInspectionBundle.message("convertible.to.method.value.anonymous.hint")
   val hintEta = ScalaInspectionBundle.message("convertible.to.method.value.eta.hint")
+}
+
+class ConvertibleToMethodValueInspectionTest_Scala2 extends ConvertibleToMethodValueInspectionTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version.isScala2
 
   def test_methodCallUntyped(): Unit = {
     val selected = s"""object A {
@@ -503,5 +508,23 @@ class ConvertibleToMethodValueInspectionTest extends ScalaInspectionTestBase {
       |  test(${START}func _$END)
       |}
     """.stripMargin
+  )
+}
+
+class ConvertibleToMethodValueInspectionTest_Scala3 extends ConvertibleToMethodValueInspectionTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version.isScala3
+
+  def test_UsingParameters(): Unit = checkTextHasNoErrors(
+    """
+      |import scala.language.implicitConversions
+      |
+      |object TupleMethod extends App {
+      |  def test(i: Int)(using Int): Boolean = true
+      |
+      |  given Int = 3
+      |
+      |  Seq(1).forall(test(_))
+      |}
+      """.stripMargin
   )
 }
