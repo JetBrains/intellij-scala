@@ -92,6 +92,12 @@ class ScParameterImpl protected(
     clause.isImplicit
   }
 
+  override def isUsingParameter: Boolean = {
+    val clause = PsiTreeUtil.getParentOfType(this, classOf[ScParameterClause])
+    if (clause == null) return false
+    clause.isUsing
+  }
+
   override def isContextParameter: Boolean = {
     val clause = PsiTreeUtil.getParentOfType(this, classOf[ScParameterClause])
     if (clause == null) return false

@@ -89,9 +89,13 @@ trait ScParameter extends ScTypedDefinition
   // This is basically the same comment as for `ScParameterClause.isImplicit`
   def isImplicitParameter: Boolean
 
+  def isUsingParameter: Boolean
+
+  final def isUsingOrImplicitParameter: Boolean = isUsingParameter || isImplicitParameter
+
   def isContextParameter: Boolean
 
-  def isImplicitOrContextParameter: Boolean = isImplicitParameter || isContextParameter
+  final def isImplicitOrContextParameter: Boolean = isImplicitParameter || isContextParameter
 
   /**
    * @return true - for `String` in `def foo(using String): Unit = ()`<br>
