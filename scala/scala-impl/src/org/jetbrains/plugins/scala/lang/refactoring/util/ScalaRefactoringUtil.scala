@@ -266,8 +266,7 @@ object ScalaRefactoringUtil {
     @tailrec
     def needToLift(srr: ScalaResolveResult): Boolean = srr match {
       case ScalaResolveResult.ApplyMethodInnerResolve(inner) => needToLift(inner)
-      case ScalaResolveResult(fun: ScFunction, _) if fun.paramClauses.clauses.nonEmpty &&
-        fun.paramClauses.clauses.head.isImplicit => false
+      case ScalaResolveResult(fun: ScFunction, _) if fun.paramClauses.clauses.forall(_.isImplicitOrUsing) => false
       case ScalaResolveResult(method: PsiMethod, _) if method.hasParameters => true
       case _                                                                => false
     }
