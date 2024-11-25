@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
+import com.intellij.codeInsight.completion.CompletionType
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 
@@ -24,4 +25,40 @@ class Scala3CompletionTest extends ScalaCompletionTestBase {
       "x$23"
     )
   }
+
+  def testSecondCompletionForMethodWithImplicitParams(): Unit = checkLookupItemsExist(
+    s"""
+       |object Test {
+       |  class Blub {
+       |    def xxx: Int = 3
+       |  }
+       |
+       |  def blubImplicit(implicit i: Int): Blub = ???
+       |
+       |  def hehe(i: Int) = 0
+       |
+       |  hehe(b$CARET)
+       |}
+       |""".stripMargin,
+    invocationCount = 2,
+    completionType = CompletionType.SMART
+  )("blubImplicit.xxx")
+
+  def testSecondCompletionForMethodWithUsingParams(): Unit = checkLookupItemsExist(
+    s"""
+       |object Test {
+       |  class Blub {
+       |    def xxx: Int = 3
+       |  }
+       |
+       |  def blubUsing(using Int): Blub = ???
+       |
+       |  def hehe(i: Int) = 0
+       |
+       |  hehe(b$CARET)
+       |}
+       |""".stripMargin,
+    invocationCount = 2,
+    completionType = CompletionType.SMART
+  )("blubUsing.xxx")
 }
