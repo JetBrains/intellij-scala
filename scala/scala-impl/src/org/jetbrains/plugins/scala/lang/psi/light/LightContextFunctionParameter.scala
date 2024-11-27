@@ -40,7 +40,7 @@ final case class LightContextFunctionParameter(project: Project, syntheticName: 
   override def isImplicitParameter: Boolean                     = false
   override def isUsingParameter: Boolean                        = false
   override def isContextParameter: Boolean                      = true
-  override def isAnonymousContextParameter: Boolean             = false
+  override def isAnonymous: Boolean                             = true
 
   override def getContainingFile: PsiFile =
     DummyHolderFactory.createHolder(PsiManager.getInstance(project), null)

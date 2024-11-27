@@ -16,7 +16,7 @@ class ScParameterStubImpl(
   override val isVal: Boolean,
   override val isVar: Boolean,
   override val isCallByNameParameter: Boolean,
-  override val isAnonimous: Boolean,
+  override val isAnonymous: Boolean,
   override val bodyText: Option[String],
   override val deprecatedName: Option[String],
   override val implicitClassNames: Array[String],
