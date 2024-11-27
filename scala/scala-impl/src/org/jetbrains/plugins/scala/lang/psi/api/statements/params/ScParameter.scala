@@ -98,10 +98,10 @@ trait ScParameter extends ScTypedDefinition
   final def isImplicitOrContextParameter: Boolean = isImplicitParameter || isContextParameter
 
   /**
-   * @return true - for `String` in `def foo(using String): Unit = ()`<br>
+   * @return true - for `String` in `def foo(using String): Unit = ()` and `String ?=> Unit`<br>
    *         false - for `p: String` in `def foo(p: String): Unit = ()`
    */
-  def isAnonymousContextParameter: Boolean
+  def isAnonymous: Boolean
 
   def index: Int = getParent.getParent match {
     case parameters: ScParameters => parameters.params.indexOf(this)

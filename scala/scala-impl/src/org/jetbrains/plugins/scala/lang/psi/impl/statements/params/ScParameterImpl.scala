@@ -112,11 +112,8 @@ class ScParameterImpl protected(
     case _                   => false
   }
 
-  override def isAnonymousContextParameter: Boolean =
-    isContextParameter && isAnonimous
-
-  private def isAnonimous: Boolean =
-    byPsiOrStub(nameId == null)(_.isAnonimous)
+  override def isAnonymous: Boolean =
+    byPsiOrStub(nameId == null)(_.isAnonymous)
 
   override def getTypeElement: PsiTypeElement = null
 

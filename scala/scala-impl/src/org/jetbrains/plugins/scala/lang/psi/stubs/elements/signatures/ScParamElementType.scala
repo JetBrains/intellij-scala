@@ -19,7 +19,7 @@ abstract class ScParamElementType[P <: ScParameter](debugName: String) extends S
     dataStream.writeBoolean(stub.isVal)
     dataStream.writeBoolean(stub.isVar)
     dataStream.writeBoolean(stub.isCallByNameParameter)
-    dataStream.writeBoolean(stub.isAnonimous)
+    dataStream.writeBoolean(stub.isAnonymous)
     dataStream.writeOptionName(stub.bodyText)
     dataStream.writeOptionName(stub.deprecatedName)
     dataStream.writeNames(stub.implicitClassNames)
@@ -35,7 +35,7 @@ abstract class ScParamElementType[P <: ScParameter](debugName: String) extends S
       isVal = dataStream.readBoolean,
       isVar = dataStream.readBoolean,
       isCallByNameParameter = dataStream.readBoolean,
-      isAnonimous = dataStream.readBoolean,
+      isAnonymous = dataStream.readBoolean,
       bodyText = dataStream.readOptionName,
       deprecatedName = dataStream.readOptionName,
       implicitClassNames = dataStream.readNames,
@@ -53,7 +53,7 @@ abstract class ScParamElementType[P <: ScParameter](debugName: String) extends S
     val defaultExprText = parameter.getActualDefaultExpression.map {
       _.getText
     }
-    val isAnonimous = parameter.nameId == null
+    val isAnonymous = parameter.nameId == null
 
     new ScParameterStubImpl(parentStub, this,
       name = parameter.name,
@@ -67,7 +67,7 @@ abstract class ScParamElementType[P <: ScParameter](debugName: String) extends S
       bodyText = defaultExprText,
       deprecatedName = parameter.deprecatedName,
       implicitClassNames = implicitClassNames,
-      isAnonimous = isAnonimous
+      isAnonymous = isAnonymous
     )
   }
 }
