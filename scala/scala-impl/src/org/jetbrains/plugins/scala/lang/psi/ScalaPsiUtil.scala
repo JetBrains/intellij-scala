@@ -1550,7 +1550,7 @@ object ScalaPsiUtil {
   def isViableForAssignmentFunction(fun: ScFunction): Boolean =
     fun.scalaLanguageLevelOrDefault >= ScalaLanguageLevel.Scala_2_13 || {
       val clauses = fun.paramClauses.clauses
-      clauses.isEmpty || (clauses.length == 1 && clauses.head.isImplicit)
+      clauses.isEmpty || (clauses.length == 1 && clauses.head.hasImplicitKeyword)
     }
 
   def padWithWhitespaces(element: PsiElement): Unit = {

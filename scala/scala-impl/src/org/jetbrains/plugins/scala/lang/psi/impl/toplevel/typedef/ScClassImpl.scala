@@ -137,7 +137,7 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
           case Some(expr) => s"$paramText = ${expr.getText}"
           case _          => paramText
         }
-      }.mkString(if (clause.isImplicit) "(implicit " else "(", ", ", ")")
+      }.mkString(if (clause.hasImplicitKeyword) "(implicit " else "(", ", ", ")")
     }.mkString
     val accessModifier = getModifierList.accessModifier.map(am => AccessModifierRenderer.simpleTextHtmlEscaped(am) + " ").getOrElse("")
     s"${accessModifier}implicit def $name$typeParametersText$parametersText : $returnType = throw new Error()"

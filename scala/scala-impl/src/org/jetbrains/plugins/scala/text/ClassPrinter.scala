@@ -200,7 +200,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ") {
   }
 
   private def textOf(clause: ScParameterClause): String =
-    clause.parameters.map(textOf).mkString(if (clause.isImplicit) "(implicit " else if (clause.isUsing) "(using " else "(", ", ", ")")
+    clause.parameters.map(textOf).mkString(if (clause.hasImplicitKeyword) "(implicit " else if (clause.hasUsingKeyword) "(using " else "(", ", ", ")")
 
   private def textOf(p: ScParameter): String = {
     val annotations = p.annotations.map(textOf).mkString(" ")

@@ -609,7 +609,7 @@ object TestNodeProvider {
 
     val nodeProvider = new TestNodeProvider
 
-    val isUTest = configurationProducer.is[UTestConfigurationProducer]
+    val isUTest = configurationProducer.isInstanceOf[UTestConfigurationProducer]
     val elements: Iterable[TreeElement] =
       if (isUTest) {
         val children = new TypeDefinition(aSuite).getChildren

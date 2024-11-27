@@ -112,8 +112,8 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
     def clauseText(clause: ScParameterClause) = {
       val paramsText = clause.parameters.map(paramText).commaSeparated()
       val modifier =
-        if (clause.isImplicit)   "implicit"
-        else if (clause.isUsing) "using"
+        if (clause.hasImplicitKeyword)   "implicit"
+        else if (clause.hasUsingKeyword) "using"
         else                     ""
 
       "(" + modifier + " " + paramsText + ")"

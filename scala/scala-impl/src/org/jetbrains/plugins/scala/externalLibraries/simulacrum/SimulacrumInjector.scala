@@ -147,10 +147,10 @@ object SimulacrumInjector {
 
     def clauseText(p: ScParameterClause): String = {
       val parameters =
-        p.parameters.map(parameterText) ++ (if (p.isImplicit) conformanceEvidences else Seq.empty)
+        p.parameters.map(parameterText) ++ (if (p.hasImplicitKeyword) conformanceEvidences else Seq.empty)
 
       parameters
-        .mkString("(" + (if (p.isImplicit) s"implicit " else ""), ", ", ")")
+        .mkString("(" + (if (p.hasImplicitKeyword) s"implicit " else ""), ", ", ")")
     }
 
     def conformanceEvidenceClause: String = {
@@ -167,8 +167,8 @@ object SimulacrumInjector {
     val headParams         = prototype.paramClauses.clauses.head.parameters.tail.map(parameterText)
     val restHeadClause     = if (headParams.isEmpty) "" else headParams.mkString("(", ", ", ")")
     val restClauses        = prototype.paramClauses.clauses.tail
-    val regularClausesText = restClauses.filterNot(_.isImplicit).map(clauseText).mkString
-    val implicitClauseText = restClauses.find(_.isImplicit).fold(conformanceEvidenceClause)(clauseText)
+    val regularClausesText = restClauses.filterNot(_.hasImplicitKeyword).map(clauseText).mkString
+    val implicitClauseText = restClauses.find(_.hasImplicitKeyword).fold(conformanceEvidenceClause)(clauseText)
     val returnType         = subst(prototype.returnType.getOrAny).canonicalText
 
     s"def $name$typeParamsText$restHeadClause$regularClausesText$implicitClauseText: $returnType = ???"

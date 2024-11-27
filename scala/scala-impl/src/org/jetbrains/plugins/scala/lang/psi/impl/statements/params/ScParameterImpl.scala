@@ -89,20 +89,20 @@ class ScParameterImpl protected(
   override def isImplicitParameter: Boolean = {
     val clause = PsiTreeUtil.getParentOfType(this, classOf[ScParameterClause])
     if (clause == null) return false
-    clause.isImplicit
+    clause.hasImplicitKeyword
   }
 
   override def isUsingParameter: Boolean = {
     val clause = PsiTreeUtil.getParentOfType(this, classOf[ScParameterClause])
     if (clause == null) return false
-    clause.isUsing
+    clause.hasUsingKeyword
   }
 
   override def isContextParameter: Boolean = {
     val clause = PsiTreeUtil.getParentOfType(this, classOf[ScParameterClause])
     if (clause == null) return false
 
-    clause.isUsing || isInsideContextFunctionOrGiven
+    clause.hasUsingKeyword || isInsideContextFunctionOrGiven
   }
 
   //Example: `param` in `val init: Int ?=> Unit = param ?=> { summon[Int] }`

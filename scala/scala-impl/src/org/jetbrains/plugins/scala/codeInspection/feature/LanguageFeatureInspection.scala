@@ -39,7 +39,7 @@ class LanguageFeatureInspection extends LocalInspectionTool {
     Feature(ScalaInspectionBundle.message("language.feature.implicit.conversion"), "scala.language", "implicitConversions", _.implicitConversions, _.copy(implicitConversions = true)) {
       case e: ScFunctionDefinition if e.getModifierList.isImplicit &&
         e.parameters.size == 1 &&
-        !e.parameterList.clauses.exists(_.isImplicit) =>
+        !e.parameterList.clauses.exists(_.hasImplicitKeyword) =>
         e.getModifierList.findFirstChildByType(ScalaTokenTypes.kIMPLICIT).getOrElse(e)
     },
     Feature(ScalaInspectionBundle.message("language.feature.higher.kinded.type"), "scala.language", "higherKinds", _.higherKinds, _.copy(higherKinds = true),

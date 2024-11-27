@@ -21,6 +21,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScParamClauseStub
 
+import scala.annotation.nowarn
+
 class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, ScalaElementType.PARAM_CLAUSE, node) with ScParameterClause {
 
@@ -83,9 +85,11 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
     getFirstChild.elementType == ScalaTokenTypes.tLPARENTHESIS &&
       getLastChild.elementType == ScalaTokenTypes.tRPARENTHESIS
 
-  override def isImplicit: Boolean = _isImplicit()
+  // TODO: rename to hasImplicitKeyword
+  @nowarn("msg=overriding method isImplicit in trait ScParameterClause is deprecated")
+  override def isImplicit: Boolean = _hasImplicitKeyword()
 
-  private val _isImplicit = cached("isImplicit", ModTracker.anyScalaPsiChange, () => {
+  private val _hasImplicitKeyword = cached("isImplicit", ModTracker.anyScalaPsiChange, () => {
     import ScModifierList._
 
     def hasImplicitKeyword =
@@ -93,16 +97,18 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
         findChild[ScClassParameter]
           .exists(_.getModifierList.isImplicit)
 
-    byStubOrPsi(_.isImplicit)(hasImplicitKeyword)
+    byStubOrPsi(_.hasImplicitKeyword)(hasImplicitKeyword)
   })
 
-  override def isUsing: Boolean = _isUsing()
+  // TODO: rename to hasUsingKeyword
+  @nowarn("msg=overriding method isUsing in trait ScParameterClause is deprecated")
+  override def isUsing: Boolean = _hasUsingKeyword()
 
-  private val _isUsing = cached("isUsing", ModTracker.anyScalaPsiChange, () => {
+  private val _hasUsingKeyword = cached("isUsing", ModTracker.anyScalaPsiChange, () => {
     def hasUsingKeyword =
       findChildByType(ScalaTokenType.UsingKeyword) != null
 
-    byStubOrPsi(_.isUsing)(hasUsingKeyword)
+    byStubOrPsi(_.hasUsingKeyword)(hasUsingKeyword)
   })
 
   override def addParameter(param: ScParameter): ScParameterClause = {

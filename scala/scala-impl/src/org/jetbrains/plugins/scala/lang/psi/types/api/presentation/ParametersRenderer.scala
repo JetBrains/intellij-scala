@@ -41,12 +41,12 @@ class ParametersRenderer(
   }
 
   protected def renderImplicitOrUsingModifier(buffer: StringBuilder, clause: ScParameterClause, shouldRenderImplicitModifier: Boolean): Unit = {
-    if (shouldRenderImplicitModifier && clause.isImplicit) {
+    if (shouldRenderImplicitModifier && clause.hasImplicitKeyword) {
       buffer.append("implicit ")
     }
     //Always render `using` if it exists mostly to handle anonymous context parameters `(using Int)`
     //in order we don't end up in strange situation when we render just `(Int)`, which looks unclear without `using` prefix
-    if (clause.isUsing) {
+    if (clause.hasUsingKeyword) {
       buffer.append("using ")
     }
   }

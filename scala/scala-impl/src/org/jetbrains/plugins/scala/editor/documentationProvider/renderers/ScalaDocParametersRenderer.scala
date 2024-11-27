@@ -9,13 +9,13 @@ final private [documentationProvider] class ScalaDocParametersRenderer(parameter
   extends ParametersRenderer(parameterRenderer, true) {
 
   override protected def renderImplicitOrUsingModifier(buffer: StringBuilder, clause: ScParameterClause, shouldRenderImplicitModifier: Boolean): Unit = {
-    if (clause.isImplicit) {
+    if (clause.hasImplicitKeyword) {
       buffer.appendKeyword("implicit").append(" ")
     }
 
     //Always render `using` if it exists mostly to handle anonymous context parameters `(using Int)`
     //in order we don't end up in strange situation when we render just `(Int)`, which looks unclear without `using` prefix
-    if (clause.isUsing) {
+    if (clause.hasUsingKeyword) {
       buffer.appendKeyword("using").append(" ")
     }
   }

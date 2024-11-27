@@ -335,7 +335,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
                                 subst: ScSubstitutor,
                                 clause: ScParameterClause,
                                 canBeNaming: Boolean)(args: PsiElement, buffer: StringBuilder, index: Int): Boolean = {
-    val clauseModifiersText = if (clause.isImplicit) "implicit " else if (clause.isUsing) "using " else ""
+    val clauseModifiersText = if (clause.hasImplicitKeyword) "implicit " else if (clause.hasUsingKeyword) "using " else ""
     applyToParameters(parameters, subst, canBeNaming, clauseModifiersText)(args, buffer, index)
   }
 

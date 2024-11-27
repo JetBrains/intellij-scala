@@ -1252,9 +1252,9 @@ object ScalaPsiElementFactory {
       }
 
       builder.append("(")
-      if (paramClause.isImplicit)
+      if (paramClause.hasImplicitKeyword)
         builder.append("implicit ")
-      else if (paramClause.isUsing)
+      else if (paramClause.hasUsingKeyword)
         builder.append("using ")
       builder.append(parameters.mkString(", "))
       builder.append(")")
