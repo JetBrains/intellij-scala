@@ -120,8 +120,7 @@ object InvocationInfo {
       .getOrElse(fun.paramClauses)
 
     for {
-      firstClause <- parameters.clauses.headOption
-      if !firstClause.isImplicit
+      firstClause <- parameters.clauses.filterNot(_.isImplicitOrUsing).headOption
       params = firstClause.parameters
       if params.size == 1
       param <- params.headOption
