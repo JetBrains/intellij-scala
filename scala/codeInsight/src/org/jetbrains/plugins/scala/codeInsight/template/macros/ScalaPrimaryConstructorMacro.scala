@@ -52,8 +52,8 @@ object ScalaPrimaryConstructorMacro {
 
       val paramsStr = params.commaSeparated()
       // we do not private/final/val/var etc... but we would like to preserve implicits in apply definition
-      if (clause.isImplicit) s"implicit $paramsStr"
-      else if (clause.isUsing) s"using $paramsStr"
+      if (clause.hasImplicitKeyword) s"implicit $paramsStr"
+      else if (clause.hasUsingKeyword) s"using $paramsStr"
       else paramsStr
     }
   }

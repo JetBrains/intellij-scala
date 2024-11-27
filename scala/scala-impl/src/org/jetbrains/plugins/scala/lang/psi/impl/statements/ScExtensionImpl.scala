@@ -34,7 +34,7 @@ class ScExtensionImpl(@Nullable stub: ScExtensionStub, @Nullable node: ASTNode)
     Icons.EXTENSION
 
   override def targetParameter: Option[ScParameter] =
-    allClauses.find(!_.isUsing).flatMap(_.parameters.headOption)
+    allClauses.find(!_.hasUsingKeyword).flatMap(_.parameters.headOption)
 
   override def targetTypeElement: Option[ScTypeElement] =
     targetParameter.flatMap(_.typeElement)

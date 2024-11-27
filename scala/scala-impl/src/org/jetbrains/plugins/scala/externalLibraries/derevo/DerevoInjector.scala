@@ -119,7 +119,7 @@ class DerevoInjector extends SyntheticMembersInjector {
     }
 
     def checkParamClauses(f: ScFunction) =
-      f.paramClauses.clauses.forall(c => c.isImplicit || c.parameters.isEmpty)
+      f.paramClauses.clauses.forall(c => c.hasImplicitKeyword || c.parameters.isEmpty)
 
     expr match {
       case r: ScReferenceExpression =>

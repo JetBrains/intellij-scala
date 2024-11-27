@@ -90,7 +90,7 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
      */
     def usesImplicitArg(fun: ScParameterOwner.WithContextBounds, nonUsingCallClauses: Int): Boolean = {
       val clauses = fun.effectiveParameterClauses
-      clauses.lastOption.exists(_.isImplicit) && clauses.count(!_.isUsing) == nonUsingCallClauses + 1
+      clauses.lastOption.exists(_.hasImplicitKeyword) && clauses.count(!_.hasUsingKeyword) == nonUsingCallClauses + 1
     }
 
     dig(qualifier) match {

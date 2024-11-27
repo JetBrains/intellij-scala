@@ -11,20 +11,20 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScParamClauseStubImpl
 
 class ScParamClauseElementType extends ScStubElementType[ScParamClauseStub, ScParameterClause]("parameter clause") {
   override def serialize(stub: ScParamClauseStub, dataStream: StubOutputStream): Unit = {
-    dataStream.writeBoolean(stub.isImplicit)
-    dataStream.writeBoolean(stub.isUsing)
+    dataStream.writeBoolean(stub.hasImplicitKeyword)
+    dataStream.writeBoolean(stub.hasUsingKeyword)
   }
 
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScParamClauseStub =
     new ScParamClauseStubImpl(parentStub, this,
-      isImplicit = dataStream.readBoolean,
-      isUsing = dataStream.readBoolean,
+      hasImplicitKeyword = dataStream.readBoolean,
+      hasUsingKeyword = dataStream.readBoolean,
     )
 
   override def createStubImpl(parameterClause: ScParameterClause, parentStub: StubElement[_ <: PsiElement]): ScParamClauseStub =
     new ScParamClauseStubImpl(parentStub, this,
-      isImplicit = parameterClause.isImplicit,
-      isUsing = parameterClause.isUsing,
+      hasImplicitKeyword = parameterClause.hasImplicitKeyword,
+      hasUsingKeyword = parameterClause.hasUsingKeyword,
     )
 
   override def createElement(node: ASTNode): ScParameterClause = new ScParameterClauseImpl(node)
