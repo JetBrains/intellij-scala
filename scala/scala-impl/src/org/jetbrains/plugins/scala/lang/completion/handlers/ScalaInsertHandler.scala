@@ -47,7 +47,7 @@ object ScalaInsertHandler {
       if (clauses.isEmpty) (-1, false)
       else {
         val clause = clauses.head
-        if (clause.isImplicitOrUsing) (-1, false)
+        if (clause.isImplicit) (-1, false)
         else (clause.parameters.length, false)
       }
     case method: PsiMethod =>

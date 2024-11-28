@@ -140,7 +140,7 @@ class ScalaFindUsagesHandler(
             case c: ScClass =>
               for {
                 constructor <- c.constructor.toSeq
-                clause      <- constructor.effectiveParameterClauses if !clause.isImplicitOrUsing
+                clause      <- constructor.effectiveParameterClauses if !clause.isImplicit
                 param       <- clause.effectiveParameters
               } yield param
             case _ =>

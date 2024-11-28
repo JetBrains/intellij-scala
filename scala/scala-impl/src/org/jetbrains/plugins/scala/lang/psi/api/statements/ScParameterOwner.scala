@@ -124,7 +124,7 @@ object ScParameterOwner {
         typeParameters,
         parameters,
         isClassParameter,
-        parameters.clauses.exists(_.isImplicitOrUsing)
+        parameters.clauses.exists(_.isImplicit)
       )
 
     if (clauseIdxWithBoundUsage == -1)

@@ -21,8 +21,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScParamClauseStub
 
-import scala.annotation.nowarn
-
 class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, ScalaElementType.PARAM_CLAUSE, node) with ScParameterClause {
 
@@ -40,7 +38,7 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
 
   override def effectiveParameters: Seq[ScParameter] =
     cachedInUserData("effectiveParameters", this, BlockModificationTracker(this)) {
-      if (isImplicitOrUsing) {
+      if (isImplicit) {
         val syntheticParameters = getSyntheticParameters
         syntheticParameters ++ parameters
       } else
@@ -85,9 +83,7 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
     getFirstChild.elementType == ScalaTokenTypes.tLPARENTHESIS &&
       getLastChild.elementType == ScalaTokenTypes.tRPARENTHESIS
 
-  // TODO: rename to hasImplicitKeyword
-  @nowarn("msg=overriding method isImplicit in trait ScParameterClause is deprecated")
-  override def isImplicit: Boolean = _hasImplicitKeyword()
+  override def hasImplicitKeyword: Boolean = _hasImplicitKeyword()
 
   private val _hasImplicitKeyword = cached("isImplicit", ModTracker.anyScalaPsiChange, () => {
     import ScModifierList._
@@ -100,9 +96,7 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
     byStubOrPsi(_.hasImplicitKeyword)(hasImplicitKeyword)
   })
 
-  // TODO: rename to hasUsingKeyword
-  @nowarn("msg=overriding method isUsing in trait ScParameterClause is deprecated")
-  override def isUsing: Boolean = _hasUsingKeyword()
+  override def hasUsingKeyword: Boolean = _hasUsingKeyword()
 
   private val _hasUsingKeyword = cached("isUsing", ModTracker.anyScalaPsiChange, () => {
     def hasUsingKeyword =

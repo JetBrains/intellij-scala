@@ -87,7 +87,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
               Option(p),
               defaultType
             )
-          }), clauses.lastOption.exists(_.isImplicitOrUsing))
+          }), clauses.lastOption.exists(_.isImplicit))
         case JavaConstructor(c) =>
           (Seq(c.parameters.map { p =>
             Parameter(p.paramType(), isRepeated = p.isVarArgs, index = p.index)

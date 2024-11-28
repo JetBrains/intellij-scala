@@ -306,7 +306,7 @@ class ImplicitCollector(
 
         val clauses = fun.effectiveParameterClauses
         //to avoid checking implicit functions in case of simple implicit parameter search
-        val hasNonImplicitClause = clauses.exists(!_.isImplicitOrUsing)
+        val hasNonImplicitClause = clauses.exists(!_.isImplicit)
         if (!c.isExtensionCall && hasNonImplicitClause) {
           val clause = clauses.head
           val paramsCount = clause.parameters.size
@@ -825,7 +825,7 @@ class ImplicitCollector(
   private def hasExplicitClause(srr: ScalaResolveResult): Boolean = srr.element match {
     case fun: ScFunction =>
       val exportedInExtension = srr.exportedInExtension
-      fun.parameterClausesWithExtension(exportedInExtension).exists(!_.isImplicitOrUsing)
+      fun.parameterClausesWithExtension(exportedInExtension).exists(!_.isImplicit)
     case _ => false
   }
 

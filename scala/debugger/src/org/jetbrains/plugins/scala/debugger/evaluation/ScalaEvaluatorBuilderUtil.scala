@@ -469,7 +469,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   def implicitArgEvaluator(fun: ScMethodLike, param: ScParameter, owner: ImplicitArgumentsOwner): Evaluator = {
     assert(param.owner == fun)
     val implicitParameters = fun.effectiveParameterClauses.lastOption match {
-      case Some(clause) if clause.isImplicitOrUsing => clause.effectiveParameters
+      case Some(clause) if clause.isImplicit => clause.effectiveParameters
       case _ => Seq.empty
     }
     val i = implicitParameters.indexOf(param)

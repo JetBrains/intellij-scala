@@ -63,7 +63,7 @@ private object NonValueFunctionTypes {
     val typeParameters = fun.typeParametersWithExtension(exportedInExtension)
     //@TODO: multiple using clauses
     val clauses        = fun.parameterClausesWithExtension(exportedInExtension)
-    val implicitClause = clauses.find(_.isImplicitOrUsing)
+    val implicitClause = clauses.find(_.isImplicit)
 
     if (typeParameters.isEmpty && implicitClause.isEmpty) {
       None
