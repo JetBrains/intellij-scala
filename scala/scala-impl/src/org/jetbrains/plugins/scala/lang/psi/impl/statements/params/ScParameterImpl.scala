@@ -88,7 +88,7 @@ class ScParameterImpl protected(
 
   override def isImplicit: Boolean = {
     val clause = PsiTreeUtil.getParentOfType(this, classOf[ScParameterClause])
-    clause != null && clause.isImplicitOrUsing || (owner match {
+    clause != null && clause.isImplicit || (owner match {
       case _: ScGiven          => true
       case fun: ScFunctionExpr => fun.isContext
       case _                   => false

@@ -237,7 +237,7 @@ object MethodResolveProcessor {
         case Constructor.ofClass(cls) =>
           substitutor(ScalaPsiUtil.constructTypeForPsiClass(cls)((tp, _) => TypeParameterType(tp)))
         case f: ScFunction
-          if f.paramClauses.clauses.count(!_.isImplicitOrUsing) > 1 =>
+          if f.paramClauses.clauses.count(!_.isImplicit) > 1 =>
           problems += ExpectedTypeMismatch //do not check expected types for more than one param clauses
           Nothing
         case f: ScFunction => substitutor(f.returnType.getOrNothing)
@@ -421,7 +421,7 @@ object MethodResolveProcessor {
         ConformanceExtResult(problems.result())
       case fun: ScFunction if (typeArgElements.isEmpty ||
         typeArgElements.length == fun.typeParameters.length) && fun.paramClauses.clauses.length == 1 &&
-        fun.paramClauses.clauses.head.isImplicitOrUsing && //@TODO: multiple using clauses ???
+        fun.paramClauses.clauses.head.isImplicit && //@TODO: multiple using clauses ???
         argumentClauses.isEmpty =>
         addExpectedTypeProblems()
       //eta expansion

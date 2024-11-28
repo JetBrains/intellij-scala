@@ -176,7 +176,7 @@ object ScalaGenerationInfo {
             case _ => Nil
           }
           val paramClauses: Seq[ScParameterClause] = extensionParams ++ fun.paramClauses.clauses
-          val clauses = paramClauses.filter(!_.isImplicitOrUsing)
+          val clauses = paramClauses.filter(!_.isImplicit)
           clauses.map(_.parameters.map(_.name).mkString("(", ", ", ")")).mkString
         case method: PsiMethod =>
           if (method.isAccessor && method.getParameterList.getParametersCount == 0) ""

@@ -45,7 +45,7 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike {
 
       val clausesWithInitialEmpty = parameterList.clauses match {
         case Seq()                                   => Seq(emptyParameterList)
-        case Seq(clause) if clause.isImplicitOrUsing => Seq(emptyParameterList, clause)
+        case Seq(clause) if clause.isImplicit => Seq(emptyParameterList, clause)
         case clauses                                 => clauses
       }
 

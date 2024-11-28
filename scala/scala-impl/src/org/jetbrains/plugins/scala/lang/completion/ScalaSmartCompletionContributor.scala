@@ -423,7 +423,7 @@ object ScalaSmartCompletionContributor {
               }
               val infer = if (chainVariant) ScSubstitutor.empty else ScalaPsiUtil.undefineMethodTypeParams(fun)
               val second = checkForSecondCompletion &&
-                fun.paramClauses.clauses.filterNot(_.isImplicitOrUsing).forall(_.parameters.isEmpty)
+                fun.paramClauses.clauses.filterNot(_.isImplicit).forall(_.parameters.isEmpty)
               val added = fun.returnType match {
                 case Right(tp) => checkType(tp, infer, second)
                 case _ => false

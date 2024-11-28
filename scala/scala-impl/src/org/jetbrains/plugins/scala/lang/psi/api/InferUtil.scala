@@ -780,7 +780,7 @@ object InferUtil {
     var idx = clauses.length - 1
     while (idx >= 0) {
       val cl = clauses(idx)
-      if (!cl.isImplicitOrUsing) {
+      if (!cl.isImplicit) {
         val parameters = cl.parameters
         val paramTypes = parameters.flatMap(_.`type`().toOption)
 

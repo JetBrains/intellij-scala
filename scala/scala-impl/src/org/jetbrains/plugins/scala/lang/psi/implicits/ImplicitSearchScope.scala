@@ -97,5 +97,5 @@ object ImplicitSearchScope {
       case _ => false
     }
 
-  private def hasImplicitClause(m: ScMethodLike): Boolean = m.effectiveParameterClauses.exists(_.isImplicitOrUsing)
+  private def hasImplicitClause(m: ScMethodLike): Boolean = m.effectiveParameterClauses.exists(_.isImplicit)
 }

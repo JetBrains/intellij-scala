@@ -1226,7 +1226,7 @@ object ScalaPsiUtil {
             val isEmptyClause =
               if (isScala211) false
               else clause.parameters.isEmpty
-            !clause.isImplicitOrUsing && !isEmptyClause
+            !clause.isImplicit && !isEmptyClause
           }
           hasSomeNonEmptyClause
         case _ =>

@@ -8,7 +8,7 @@ package object element {
   private[structureView]
   object FromStubsParameterRenderer extends ParametersRenderer(RenderParameterTypeAndDefaultValuePlaceholderFromStub, shouldRenderImplicitModifier = true) {
     override protected def renderImplicitOrUsingModifier(buffer: StringBuilder, clause: ScParameterClause, shouldRenderImplicitModifier: Boolean): Unit =
-      if (shouldRenderImplicitModifier && clause.isImplicitOrUsing) {
+      if (shouldRenderImplicitModifier && clause.isImplicit) {
         buffer.append("?=> ")
       }
   }

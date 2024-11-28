@@ -69,7 +69,7 @@ object ConvertImplicitBoundsToImplicitParameter {
     val usageIndex = ScParameterOwner.contextBoundUsageInParameterListIndex(clauses, typeParameters)
 
     //TODO: new expansion rules in SIP-64
-    val existingClause = clauses.lastOption.filter(_.isImplicitOrUsing)
+    val existingClause = clauses.lastOption.filter(_.isImplicit)
     val existingParams = existingClause.iterator.flatMap(_.parameters).toSeq
 
     val candidates = for {

@@ -242,7 +242,7 @@ package object ml {
   }
 
   private[ml] def argumentsCount(element: PsiElement): Int = element match {
-    case function: ScFunction => function.paramClauses.clauses.headOption.filterNot(_.isImplicitOrUsing).map(_.parameters.size).getOrElse(0)
+    case function: ScFunction => function.paramClauses.clauses.headOption.filterNot(_.isImplicit).map(_.parameters.size).getOrElse(0)
     case method: PsiMethod => method.getParameterList.getParametersCount
     case syntheticFunction: ScSyntheticFunction => syntheticFunction.paramClauses.headOption.map(_.size).getOrElse(0)
     case Typeable(FunctionType(_, argumentTypes)) => argumentTypes.size

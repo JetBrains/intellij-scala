@@ -76,7 +76,7 @@ trait ScalaMethodTypeProvider[+T <: ScalaPsiElement] extends MethodTypeProvider[
   protected final def constructMethodType(rtpe: ScType, clauses: Seq[ScParameterClause]): ScType =
     if (clauses.nonEmpty)
       clauses.foldRight[ScType](rtpe) { (clause: ScParameterClause, tp: ScType) =>
-        ScMethodType(tp, clause.getSmartParameters, clause.isImplicitOrUsing)
+        ScMethodType(tp, clause.getSmartParameters, clause.isImplicit)
       }
     else ScMethodType(rtpe, Seq.empty, isImplicit = false)
 }
@@ -186,7 +186,7 @@ object MethodTypeProvider {
       if (clauses.isEmpty) return ScMethodType(retType, Seq.empty, isImplicit = false)
 
       clauses.foldRight[ScType](retType) { (clause: ScParameterClause, tp: ScType) =>
-        ScMethodType(tp, clause.getSmartParameters, clause.isImplicitOrUsing)
+        ScMethodType(tp, clause.getSmartParameters, clause.isImplicit)
       }
     }
 
