@@ -14,8 +14,7 @@
   -->
 
 <idea-plugin url="https://confluence.jetbrains.com/display/SCA/Scala+Plugin+for+IntelliJ+IDEA"
-             xmlns:xi="http://www.w3.org/2001/XInclude"
-             require-restart="true">
+             xmlns:xi="http://www.w3.org/2001/XInclude">
     <id>org.intellij.scala</id>
     <name>Scala</name>
     <description>
