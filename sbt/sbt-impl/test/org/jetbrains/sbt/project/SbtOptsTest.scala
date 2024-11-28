@@ -12,6 +12,12 @@ import java.io.File
 
 class SbtOptsTest {
 
+  import org.junit.Assert.assertTrue
+  @Test
+  def dummyFailingTest(): Unit = {
+    assertTrue(false)
+  }
+
   @Test
   def testLoad(): Unit = {
     val input =
