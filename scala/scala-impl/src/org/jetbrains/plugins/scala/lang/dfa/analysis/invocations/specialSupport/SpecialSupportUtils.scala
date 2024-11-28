@@ -76,8 +76,8 @@ object SpecialSupportUtils {
     case _ => None
   }
 
-  def isUsingOrImplicitParametersPresent(invocationInfo: InvocationInfo): Boolean = invocationInfo.invokedElement match {
-    case Some(method: ScFunction) => method.parameters.exists(_.isImplicitParameter)
+  def isImplicitParametersPresent(invocationInfo: InvocationInfo): Boolean = invocationInfo.invokedElement match {
+    case Some(method: ScFunction) => method.parameters.exists(_.isImplicit)
     case _ => false
   }
 

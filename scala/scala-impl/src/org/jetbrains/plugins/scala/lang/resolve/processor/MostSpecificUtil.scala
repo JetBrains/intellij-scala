@@ -260,7 +260,7 @@ case class MostSpecificUtil(place: PsiElement, length: Int) {
   ): Boolean = {
     def hasImplicitParameters(isrr: InnerScalaResolveResult[T]): Boolean =
       isrr.element match {
-        case fn: ScFunction => fn.parameters.exists(_.isImplicitOrContextParameter)
+        case fn: ScFunction => fn.parameters.exists(_.isImplicit)
         case _              => false
       }
 

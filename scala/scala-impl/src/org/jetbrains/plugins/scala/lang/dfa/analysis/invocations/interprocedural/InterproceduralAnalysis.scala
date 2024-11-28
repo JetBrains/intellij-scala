@@ -10,7 +10,7 @@ import com.intellij.codeInspection.dataFlow.value.{DfaValue, DfaValueFactory}
 import com.intellij.psi.{PsiModifier, PsiModifierListOwner}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiModifierListOwnerExt}
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.MethodEffect
-import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.SpecialSupportUtils.{byNameParametersPresent, isUsingOrImplicitParametersPresent}
+import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.SpecialSupportUtils.{byNameParametersPresent, isImplicitParametersPresent}
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform.ResultReq
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaDfaVariableDescriptor}
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
@@ -63,7 +63,7 @@ object InterproceduralAnalysis {
                                               currentAnalysedMethodInfo: AnalysedMethodInfo): Boolean = {
     val isInsideFinalClassOrObject = hasFinalOrPrivateModifier(function.containingClass) || function.containingClass.is[ScObject]
     val isEffectivelyFinal = hasFinalOrPrivateModifier(function) || isInsideFinalClassOrObject || function.isLocal
-    val containsUnsupportedFeatures = isUsingOrImplicitParametersPresent(invocationInfo) || byNameParametersPresent(invocationInfo)
+    val containsUnsupportedFeatures = isImplicitParametersPresent(invocationInfo) || byNameParametersPresent(invocationInfo)
     val isRecursionOrToDeep = function == currentAnalysedMethodInfo.method ||
       currentAnalysedMethodInfo.invocationDepth + 1 > InterproceduralAnalysisDepthLimit ||
       (currentAnalysedMethodInfo.invocationDepth + 1 > 2 && longerThanDeepBodySizeLimit(function))

@@ -533,7 +533,7 @@ trait TreeAdapter {
   }
 
   protected def convertParam(param: params.ScParameter): m.Term.Param = {
-    val mods = convertMods(param) ++ (if (param.isImplicitParameter) Seq(m.Mod.Implicit()) else Seq.empty)
+    val mods = convertMods(param) ++ (if (param.isImplicit) Seq(m.Mod.Implicit()) else Seq.empty)
     val default = param.getActualDefaultExpression.map(expression)
     if (param.isVarArgs)
       m.Term.Param(mods, toTermName(param), param.typeElement.map(tp => m.Type.Repeated(toType(tp))), default)

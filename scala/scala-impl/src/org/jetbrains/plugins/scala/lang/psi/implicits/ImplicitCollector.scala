@@ -193,7 +193,7 @@ class ImplicitCollector(
               forDeferredGivenInClass.collect {
                 case cls: ScClass =>
                   cls.parameters.collect {
-                    case p if p.isImplicitOrContextParameter => new ScalaResolveResult(p)
+                    case p if p.isImplicit => new ScalaResolveResult(p)
                   }
               }.getOrElse(Seq.empty)
 

@@ -29,7 +29,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
     ref.bind() match {
       case Some(ScalaResolveResult(fun: ScFunction, _)) if
         (fun.name == CommonNames.Unapply || fun.name == CommonNames.UnapplySeq) &&
-          fun.parameters.count(!_.isUsingOrImplicitParameter) == 1 =>
+          fun.parameters.count(!_.isImplicit) == 1 =>
 
         val subst =
           this.expectedType.fold(

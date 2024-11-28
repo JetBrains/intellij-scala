@@ -12,7 +12,7 @@ import com.intellij.util.ThreeState
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaNullAccessProblem
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.AnalysedMethodInfo
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.InterproceduralAnalysis.tryInterpretExternalMethod
-import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.SpecialSupportUtils.{byNameParametersPresent, isUsingOrImplicitParametersPresent}
+import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.SpecialSupportUtils.{byNameParametersPresent, isImplicitParametersPresent}
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaVariableDescriptor
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.InvocationInfo
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
@@ -49,7 +49,7 @@ class ScalaInvocationInstruction(invocationInfo: InvocationInfo,
     val finder = MethodEffectFinder(invocationInfo)
     val methodEffect = finder.findMethodEffect(interpreter, stateBefore, argumentValues, qualifier)
 
-    if (!methodEffect.isPure || byNameParametersPresent(invocationInfo) || isUsingOrImplicitParametersPresent(invocationInfo)) {
+    if (!methodEffect.isPure || byNameParametersPresent(invocationInfo) || isImplicitParametersPresent(invocationInfo)) {
       argumentValues.values.foreach(JavaDfaHelpers.dropLocality(_, stateBefore))
       stateBefore.flushFields()
     }
