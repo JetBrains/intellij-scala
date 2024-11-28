@@ -65,7 +65,7 @@ object ScParameterAnnotator extends ElementAnnotator[ScParameter] with DumbAware
       case cp: ScClassParameter if cp.isVal => errorWithMessageAbout("""'val'""")
       case cp: ScClassParameter if cp.isVar => errorWithMessageAbout("""'var'""")
       case cp: ScClassParameter if cp.isCaseClassPrimaryParameter => errorWithMessageAbout("case class")
-      case p if p.isImplicitParameter && p.scalaLanguageLevel.forall(_ < ScalaLanguageLevel.Scala_2_13) =>
+      case p if p.isInClauseWithImplicit && p.scalaLanguageLevel.forall(_ < ScalaLanguageLevel.Scala_2_13) =>
         errorWithMessageAbout("implicit")
       case _ =>
     }

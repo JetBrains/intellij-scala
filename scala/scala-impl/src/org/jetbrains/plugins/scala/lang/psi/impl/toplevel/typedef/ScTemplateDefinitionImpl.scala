@@ -553,7 +553,7 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
               //they are "inserted" by the compiler at instantiation site.
               //Skip everything that is indirectly implemented by super class.
               if (
-                parameters.nonEmpty && parameters.forall(_.isImplicitOrContextParameter) &&
+                parameters.nonEmpty && parameters.forall(_.isImplicit) &&
                   !isImplementedBySuperClass(trt) && !isDirectParent(trt)
               ) {
                 injectedConstructors.add((cons, subst))

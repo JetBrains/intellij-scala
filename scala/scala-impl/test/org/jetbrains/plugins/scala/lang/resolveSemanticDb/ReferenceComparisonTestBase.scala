@@ -257,7 +257,7 @@ object ReferenceComparisonTestBase {
     all.toSeq
   }
 
-  private def isByNameImplicit(p: ScParameter) = p.isUsingOrImplicitParameter && p.isCallByNameParameter
+  private def isByNameImplicit(p: ScParameter) = p.isImplicit && p.isCallByNameParameter
 
   trait RefTarget {
     def element: PsiNamedElement

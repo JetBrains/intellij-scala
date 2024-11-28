@@ -1640,7 +1640,7 @@ object ScalaPsiUtil {
     }
 
   def hasImplicitModifier(modifierListOwner: ScModifierListOwner): Boolean = modifierListOwner match {
-    case p: ScParameter => p.isImplicitOrContextParameter
+    case p: ScParameter => p.isImplicit
     case _ => modifierListOwner.hasModifierProperty("implicit")
   }
 

@@ -36,9 +36,7 @@ final class ScClassParameterImpl private(stub: ScParameterStub, node: ASTNode)
    *       }}}
    *       NOTE: this is only actual for `implicit` modifier but not for `using`
    */
-  override def isImplicitParameter: Boolean = super.isImplicitParameter || getModifierList.isImplicit
-
-  override def isUsingParameter: Boolean = super.isUsingParameter || getModifierList.isUsing
+  override def isImplicit: Boolean = super.isImplicit || getModifierList.isImplicit
 
   override def isPrivateThis: Boolean = {
     if (!isClassMember) return true

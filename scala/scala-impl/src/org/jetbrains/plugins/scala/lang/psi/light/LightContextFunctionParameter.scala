@@ -37,9 +37,11 @@ final case class LightContextFunctionParameter(project: Project, syntheticName: 
   override def toString: String                                 = syntheticName
   override def nameId: PsiElement                               = null
   override def name: String                                     = syntheticName
-  override def isImplicitParameter: Boolean                     = false
-  override def isUsingParameter: Boolean                        = false
-  override def isContextParameter: Boolean                      = true
+  override def isImplicit: Boolean                              = true
+  override def isInClauseWithImplicit: Boolean                  = false
+  override def isInClauseWithUsing: Boolean                     = false
+  override def isInContextFunction: Boolean                     = true
+  override def isGivenConditional: Boolean                      = false
   override def isAnonymous: Boolean                             = true
 
   override def getContainingFile: PsiFile =
