@@ -55,6 +55,7 @@
         <module name="scalaCommunity.bsp" />
         <module name="scalaCommunity.bsp-junit" />
         <module name="scalaCommunity.bsp-terminal" />
+        <module name="scalaCommunity.intellij-bsp" />
     </content>
 
     <xi:include href="/META-INF/sbt-api.xml"/>
