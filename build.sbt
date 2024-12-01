@@ -50,6 +50,7 @@ lazy val scalaCommunity: sbt.Project =
       bsp % "test->test;compile->compile",
       bspJUnit % "test->test;compile->compile",
       bspTerminal % "test->test;compile->compile",
+      intellijBspIntegration % "test->test;compile->compile",
       codeInsight % "test->test;compile->compile",
       conversion % "test->test;compile->compile",
       uast % "test->test;compile->compile",
@@ -716,6 +717,14 @@ lazy val bsp =
       buildInfoOptions += BuildInfoOption.ConstantValue,
       packageMethod := PackagingMethod.Standalone("lib/modules/scalaCommunity.bsp.jar"),
       packageAssembleLibraries := true
+    )
+
+lazy val intellijBspIntegration =
+  newProject("intellij-bsp", file("scala/integration/intellij-bsp"))
+    .dependsOn(scalaImpl, sbtImpl)
+    .settings(
+      intellijPlugins += "org.jetbrains.bsp::nightly".toPlugin,
+      packageMethod := PackagingMethod.Standalone("lib/modules/scalaCommunity.intellij-bsp.jar")
     )
 
 lazy val scalaCli =
