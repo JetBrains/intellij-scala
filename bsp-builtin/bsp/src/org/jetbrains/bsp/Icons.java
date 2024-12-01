@@ -10,6 +10,6 @@ public interface Icons {
     //NOTE: there is no dedicated icon in old UI, however there is a dedicated icon in New UI
     //See BSPIconMappings.json and `buildServerProtocolLoadChanges.svg`
     Icon BSP_LOAD_CHANGES = IconLoader.getIcon("/org/jetbrains/plugins/scala/bsp/images/refresh.svg", Icons.class);
-    @SuppressWarnings("unused") // used from BSP.xml
+    @SuppressWarnings("unused") // used from scalaCommunity.bsp.xml
     Icon BSP_TOOLWINDOW = IconLoader.getIcon("/org/jetbrains/plugins/scala/bsp/images/toolWindowBuildServerProtocol.svg", Icons.class);
 }

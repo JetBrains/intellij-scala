@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 
 <idea-plugin>
-    <depends optional="true" config-file="BSP-JUnit.xml">JUnit</depends>
-    <depends optional="true" config-file="BSP-Terminal.xml">org.jetbrains.plugins.terminal</depends>
     <extensionPoints>
         <extensionPoint qualifiedName="com.intellij.bspEnvironmentRunnerExtension"
                         interface="org.jetbrains.bsp.project.test.environment.BspEnvironmentRunnerExtension"
