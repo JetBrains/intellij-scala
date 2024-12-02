@@ -29,13 +29,13 @@ private final class TypeAwareWidget(project: Project, factory: TypeAwareWidgetFa
 
   override def ID(): String = TypeAwareWidgetFactory.ID
 
-  override def install(statusBar: StatusBar): Unit = {
+  override def install(statusBar: StatusBar): Unit = synchronized {
     this.statusBar = statusBar
     connection.subscribe(TypeAwareWidgetFactory.Topic, this)
     subscribeToRootsChange()
   }
 
-  override def dispose(): Unit = {
+  override def dispose(): Unit = synchronized {
     connection.dispose()
     statusBar = null
   }
@@ -61,7 +61,7 @@ private final class TypeAwareWidget(project: Project, factory: TypeAwareWidgetFa
   override def getClickConsumer: Consumer[MouseEvent] =
     _ => ToggleTypeAwareHighlightingAction.toggleSettingAndRehighlight(project)
 
-  override def updateWidget(): Unit = {
+  override def updateWidget(): Unit = synchronized {
     if (statusBar ne null) {
       widgetsManager.updateWidget(factory)
       statusBar.updateWidget(ID())
