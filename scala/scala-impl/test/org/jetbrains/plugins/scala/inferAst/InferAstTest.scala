@@ -26,8 +26,19 @@ class InferAstTest extends ScalaLightCodeInsightFixtureTestCase {
       )
     }
 
+    def copyFileFromScalaImpl(p: String): VirtualFile = {
+      val path = scalaImplSrcPath / p
+      assert(path.startsWith(scalaImplSrcPath), s"$path is not in scala-impl/src")
+      myFixture.copyFileToProject(
+        testDataDir.relativize(path).toString,
+        scalaImplSrcPath.relativize(path).toString
+      )
+    }
+
     myFixture.copyDirectoryToProject("inferAst", "")
 
+    copyFileFromScalaImpl("org/jetbrains/plugins/scala/ScalaBundle.java")
+    copyDirFromScalaImpl("org/jetbrains/plugins/scala/lang/lexer")
     val parserVF = copyDirFromScalaImpl("org/jetbrains/plugins/scala/lang/parser")
 
     val blubVFile = parserVF.findFileByRelativePath("parsing/Blub.scala")

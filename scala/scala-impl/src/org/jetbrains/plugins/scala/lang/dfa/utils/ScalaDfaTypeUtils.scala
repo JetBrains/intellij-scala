@@ -7,7 +7,7 @@ import com.intellij.codeInspection.dataFlow.rangeSet.LongRangeSet
 import com.intellij.codeInspection.dataFlow.types._
 import com.intellij.codeInspection.dataFlow.value.{DfaValue, DfaValueFactory}
 import com.intellij.codeInspection.dataFlow.{DfaPsiUtil, Mutability}
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiClass, PsiElement, PsiField}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.extensions._
@@ -115,6 +115,9 @@ object ScalaDfaTypeUtils {
     case _: ScVariable => false
     case valueOrVariable: ScValueOrVariable => valueOrVariable.isStable
     case typedDefinition: ScTypedDefinition => typedDefinition.isStable && !typedDefinition.isVar
+    case field: PsiField =>
+      field.hasFinalModifier
+    case _: PsiClass => true
     case _ => false
   }
 

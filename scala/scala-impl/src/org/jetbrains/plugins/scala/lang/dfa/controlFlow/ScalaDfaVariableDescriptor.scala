@@ -1,9 +1,11 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow
 
+import com.intellij.codeInsight.Nullability
+import com.intellij.codeInspection.dataFlow.DfaUtil
 import com.intellij.codeInspection.dataFlow.jvm.descriptors.JvmVariableDescriptor
-import com.intellij.codeInspection.dataFlow.types.DfType
+import com.intellij.codeInspection.dataFlow.types.{DfType, DfTypes}
 import com.intellij.codeInspection.dataFlow.value.DfaVariableValue
-import com.intellij.psi.{PsiElement, PsiNamedElement}
+import com.intellij.psi.{PsiClass, PsiElement, PsiField, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{isStableElement, scTypeToDfType}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
@@ -23,6 +25,7 @@ case class ScalaDfaVariableDescriptor(variable: PsiElement,
 
   override def getDfType(qualifier: DfaVariableValue): DfType = variable match {
     case typeable: Typeable => scTypeToDfType(typeable.`type`().getOrAny)
+    case field: PsiField => DfTypes.typedObject(field.getType, Nullability.UNKNOWN)
     case _ => DfType.TOP
   }
 }
