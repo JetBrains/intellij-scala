@@ -2,11 +2,12 @@ package org.jetbrains.bsp.project.test.environment
 
 import ch.epfl.scala.bsp4j._
 import com.intellij.execution.configurations.{ModuleBasedConfiguration, RunConfiguration}
+import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.project.{DumbModeBlockedFunctionality, DumbService, Project}
+import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.{JavaPsiFacade, PsiFile}
+import com.intellij.psi.{JavaPsiFacade, PsiClass, PsiFile}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.bsp.BspBundle
 import org.jetbrains.bsp.BspUtil._
@@ -19,7 +20,7 @@ import org.jetbrains.plugins.scala.extensions.invokeAndWait
 
 import java.net.URI
 import java.nio.file.Paths
-import java.util.concurrent.CompletableFuture
+import java.util.concurrent.{Callable, CompletableFuture}
 import scala.concurrent.Promise
 import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success, Try}
@@ -106,7 +107,10 @@ object BspJvmEnvironment {
     def sourceFileForClass(className: String): Option[PsiFile] = {
       val psiFacade = JavaPsiFacade.getInstance(project)
       val scope = GlobalSearchScope.allScope(project)
-      val matchedClasses = invokeAndWait(readInSmartMode(project)(psiFacade.findClasses(className, scope)))
+      val matchedClasses = ReadAction.nonBlocking[Array[PsiClass]](() => psiFacade.findClasses(className, scope))
+        .inSmartMode(project)
+        .expireWhen(() => project.isDisposed)
+        .executeSynchronously()
       matchedClasses match {
         case Array(matchedClass) => Option(matchedClass.getContainingFile)
         case _ => None
@@ -236,10 +240,4 @@ object BspJvmEnvironment {
       case _ => None
     }
   }
-
-  private def readInSmartMode[A](project: Project)(block: => A): A = {
-    val dumbService = DumbService.getInstance(project)
-    dumbService.tryRunReadActionInSmartMode(() => block, null, DumbModeBlockedFunctionality.Other)
-  }
-
 }
