@@ -823,8 +823,43 @@ class UnusedImportTest_213_XSource3 extends UnusedImportTest_Common_2 {
   }
 }
 
-final class UnusedImportTest_3 extends UnusedImportTestBase {
+final class UnusedImportTest_3 extends UnusedImportTestBase with MatcherAssertions {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
+
+  // SCL-20097
+  def testUsedUniversalApply(): Unit = {
+    val text =
+      """
+        |object Source {
+        |  class Foo
+        |}
+        |
+        |object Target {
+        |  import Source.Foo
+        |  Foo()
+        |}
+      """.stripMargin
+
+    assertNothing(messages(text))
+  }
+
+  // SCL-20097
+  def testUsedUniversalApplyWithCompanion(): Unit = {
+    val text =
+      """
+        |object Source {
+        |  class Foo
+        |  object Foo
+        |}
+        |
+        |object Target {
+        |  import Source.Foo
+        |  Foo()
+        |}
+      """.stripMargin
+
+    assertNothing(messages(text))
+  }
 
   def testUnusedGivenWildcard_noGivensOrImplicitsUsed(): Unit = {
     val text =
