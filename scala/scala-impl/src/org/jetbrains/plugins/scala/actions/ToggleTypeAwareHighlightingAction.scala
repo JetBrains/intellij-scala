@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.util.FileContentUtil
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.actions.ToggleTypeAwareHighlightingAction.toggleSettingAndRehighlight
-import org.jetbrains.plugins.scala.components.TypeAwareWidgetFactory
+import org.jetbrains.plugins.scala.components.TypeAwareWidgetUpdater
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
@@ -35,9 +35,7 @@ object ToggleTypeAwareHighlightingAction {
     val settings = ScalaProjectSettings.getInstance(project)
     settings.toggleTypeAwareHighlighting()
 
-    project.getMessageBus
-      .syncPublisher(TypeAwareWidgetFactory.Topic)
-      .updateWidget()
+    TypeAwareWidgetUpdater.updateWidget(project)
 
     invokeLater(ModalityState.nonModal()) {
       reparseActiveFiles(project)

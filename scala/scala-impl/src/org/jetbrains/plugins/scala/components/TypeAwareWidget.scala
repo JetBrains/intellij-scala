@@ -3,42 +3,21 @@ package org.jetbrains.plugins.scala.components
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.keymap.KeymapUtil
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.wm.StatusBarWidget
 import com.intellij.openapi.wm.StatusBarWidget.WidgetPresentation
-import com.intellij.openapi.wm.impl.status.widget.StatusBarWidgetsManager
-import com.intellij.openapi.wm.{StatusBar, StatusBarWidget}
 import com.intellij.util.Consumer
-import com.intellij.util.messages.MessageBusConnection
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.actions.ToggleTypeAwareHighlightingAction
-import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import java.awt.event.MouseEvent
 import javax.swing.Icon
 
-private final class TypeAwareWidget(project: Project, factory: TypeAwareWidgetFactory)
-  extends StatusBarWidget
-    with StatusBarWidget.IconPresentation
-    with TypeAwareWidgetFactory.UpdateListener {
-
-  private var statusBar: StatusBar = _
-  private val connection: MessageBusConnection = project.getMessageBus.connect()
-  private val widgetsManager: StatusBarWidgetsManager = project.getService(classOf[StatusBarWidgetsManager])
+private final class TypeAwareWidget(project: Project)
+  extends StatusBarWidget with StatusBarWidget.IconPresentation {
 
   override def ID(): String = TypeAwareWidgetFactory.ID
-
-  override def install(statusBar: StatusBar): Unit = synchronized {
-    this.statusBar = statusBar
-    connection.subscribe(TypeAwareWidgetFactory.Topic, this)
-    subscribeToRootsChange()
-  }
-
-  override def dispose(): Unit = synchronized {
-    connection.dispose()
-    statusBar = null
-  }
 
   override def getPresentation: WidgetPresentation = this
 
@@ -61,26 +40,11 @@ private final class TypeAwareWidget(project: Project, factory: TypeAwareWidgetFa
   override def getClickConsumer: Consumer[MouseEvent] =
     _ => ToggleTypeAwareHighlightingAction.toggleSettingAndRehighlight(project)
 
-  override def updateWidget(): Unit = synchronized {
-    if (statusBar ne null) {
-      widgetsManager.updateWidget(factory)
-      statusBar.updateWidget(ID())
-    }
-  }
-
   private def isEnabled: Boolean =
     ScalaProjectSettings.getInstance(project).isTypeAwareHighlightingEnabled
 
   private def shortcutText: Option[String] = {
     val action = ActionManager.getInstance().getAction("Scala.EnableErrors")
     action.getShortcutSet.getShortcuts.headOption.map(KeymapUtil.getShortcutText)
-  }
-
-  private def subscribeToRootsChange(): Unit = {
-    project.subscribeToModuleRootChanged() { _ =>
-      invokeLater {
-        updateWidget()
-      }
-    }
   }
 }
