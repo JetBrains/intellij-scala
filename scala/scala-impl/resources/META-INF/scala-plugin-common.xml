@@ -2035,6 +2035,9 @@
                   class="org.jetbrains.plugins.scala.components.TypeAwareWidgetFactory$Listener"/>
 
         <listener topic="com.intellij.openapi.roots.ModuleRootListener"
+                  class="org.jetbrains.plugins.scala.components.TypeAwareWidgetModuleRootListener"/>
+
+        <listener topic="com.intellij.openapi.roots.ModuleRootListener"
                   class="org.jetbrains.plugins.scala.project.ConfigureIncrementalCompilerModuleRootListener"/>
 
         <listener topic="com.intellij.openapi.roots.ModuleRootListener"
