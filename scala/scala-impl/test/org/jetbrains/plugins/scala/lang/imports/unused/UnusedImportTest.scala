@@ -557,6 +557,47 @@ abstract class UnusedImportTest_Common_2 extends UnusedImportTestBase with Match
       messages(text)
     )
   }
+
+  // SCL-23289
+  def testUsedImport_ApplyCall(): Unit = {
+    val text =
+      """
+        |object Source {
+        |  object Foo {
+        |    def apply(i: Int): Unit = {}
+        |  }
+        |}
+        |
+        |object Target {
+        |  import Source.Foo
+        |  Foo(0)
+        |}
+      """.stripMargin
+
+    assertNothing(messages(text))
+  }
+
+  // SCL-23289
+  def testUnusedImport_ApplyCall(): Unit = {
+    val text =
+      """
+        |object Source {
+        |  object Foo {
+        |    def apply(i: Int): Unit = {}
+        |  }
+        |}
+        |
+        |object Target {
+        |  import Source.Foo
+        |  import Source.Foo.apply
+        |  apply(0)
+        |}
+      """.stripMargin
+
+    assertMatches(messages(text).toList) {
+      case HighlightMessage("import Source.Foo", UnusedImportStatement) :: Nil =>
+    }
+  }
 }
 
 class UnusedImportTest_212 extends UnusedImportTest_Common_2 {
