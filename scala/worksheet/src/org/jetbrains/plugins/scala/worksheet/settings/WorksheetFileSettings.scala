@@ -69,25 +69,22 @@ final class WorksheetFileSettings private(
   def getModuleName: Option[String] = getModule.map(_.getName)
 
   def getModule: Option[Module] = {
-    // We don't allow changing worksheet module if it is already located in some module (non-scratch-files)
-    val fixedModule =
-      if (!WorksheetUtils.isScratchWorksheet(project, file)) {
-        val fromIndex = ScalaUtil.getModuleForFile(file)(project)
-        fromIndex
-      } else {
-        None
-      }
-    val maybeModule1 = fixedModule.orElse(moduleFromPersistedSettings)
-    val maybeModule2 = maybeModule1.orElse(anyScalaSdkModule)
-    maybeModule2
-  }
+    def moduleFromPersistedSettings: Option[Module] =
+      persistedSetting(_.getModuleName, _.getModuleName).flatMap(findModule)
 
-  private def anyScalaSdkModule: Option[Module] =
-    WorksheetModuleUtil.allProductionModulesWithScalaSdk(project).headOption
+    def anyScalaSdkModule: Option[Module] =
+      WorksheetModuleUtil.allProductionModulesWithScalaSdk(project).headOption
 
-  private def moduleFromPersistedSettings: Option[Module] = {
-    val moduleName = persistedSetting(_.getModuleName, _.getModuleName)
-    moduleName.flatMap(findModule)
+    if (WorksheetUtils.isScratchWorksheet(project, file)) {
+      moduleFromPersistedSettings
+        .filterNot(WorksheetModuleUtil.isStale)
+        .orElse(anyScalaSdkModule)
+        .filterNot(WorksheetModuleUtil.isStale)
+    } else {
+      // We don't allow changing the worksheet module if it is already located in some module (non-scratch files)
+      val fixedModule = ScalaUtil.getModuleForFile(file)(project)
+      fixedModule.orElse(moduleFromPersistedSettings).orElse(anyScalaSdkModule)
+    }
   }
 
   private def findModule(moduleName: String): Option[Module] =
