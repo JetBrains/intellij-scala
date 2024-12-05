@@ -664,7 +664,8 @@ object MethodResolveProcessor {
           case rr if !accessibility || isAccessible(rr.element, ref) =>
             (rr.copy(
               innerResolveResult = Option(r),
-              parentElement      = r.element.toOption
+              parentElement      = r.element.toOption,
+              importsUsed        = r.importsUsed,
             ), cleanTypeArguments)
         }.toSet
     }
