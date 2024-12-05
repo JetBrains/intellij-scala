@@ -22,7 +22,7 @@ class InferAstDfaInterpreter(cfg: ControlFlow) extends StandardDataFlowInterpret
     val index = instruction.getIndex
     val memoryState = instructionState.getMemoryState.asInstanceOf[InferAstDfaMemoryState]
 
-    println(s"Processing instruction $index: ${instruction.toString}")
+    println(s"Processing instruction $index (${memoryState.getStackSize}): ${instruction.toString}")
 
     instruction match {
       case invocation: ScalaInvocationInstruction =>
@@ -58,6 +58,8 @@ class InferAstDfaInterpreter(cfg: ControlFlow) extends StandardDataFlowInterpret
     "SyntaxTreeBuilder#advanceLexer" -> `SyntaxTreeBuilder#advanceLexer`,
     "PsiBuilder#mark" -> `PsiBuilder#mark`,
     "Marker#done" -> `Marker#done`,
+    "Marker#rollbackTo" -> `Marker#rollbackTo`,
+    "Marker#drop" -> `Marker#drop`,
     "SyntaxTreeBuilder#getTokenType" -> `SyntaxTreeBuilder#getTokenType`,
     "ScalaBundle#message" -> `ScalaBundle#message`,
     "SyntaxTreeBuilder#error" -> `SyntaxTreeBuilder#error`,
@@ -112,6 +114,33 @@ class InferAstDfaInterpreter(cfg: ControlFlow) extends StandardDataFlowInterpret
     state
   }
 
+
+  private def `Marker#rollbackTo`(state: InferAstDfaMemoryState, index: Int): InferAstDfaMemoryState = {
+    val marker = state.pop()
+
+    val actions = extractEqs(state, marker).collect {
+      case MarkerDescriptor(index) => AstAction.Rollback(index)
+    }
+
+    state.addActions(index, actions)
+
+    state.push(getFactory.getUnknown)
+    state
+  }
+
+  private def `Marker#drop`(state: InferAstDfaMemoryState, index: Int): InferAstDfaMemoryState = {
+    val marker = state.pop()
+
+    val actions = extractEqs(state, marker).collect {
+      case MarkerDescriptor(index) => AstAction.Drop(index)
+    }
+
+    state.addActions(index, actions)
+
+    state.push(getFactory.getUnknown)
+    state
+  }
+
   private def `SyntaxTreeBuilder#getTokenType`(state: InferAstDfaMemoryState, index: Int): InferAstDfaMemoryState = {
     state.pop() // builder
     state.push(currentTokenVariable)
@@ -127,6 +156,7 @@ class InferAstDfaInterpreter(cfg: ControlFlow) extends StandardDataFlowInterpret
 
   private def `SyntaxTreeBuilder#error`(state: InferAstDfaMemoryState, index: Int): InferAstDfaMemoryState = {
     val error = state.pop()
+    state.pop() // builder
     val errorString = Option(error.getDfType.getConstantOfType(classOf[String]))
     state.addAction(index, AstAction.Error(errorString.get))
     state.push(getFactory.getUnknown)

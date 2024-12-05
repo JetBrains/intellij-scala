@@ -8,14 +8,21 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 object Blub extends ParsingRule {
 
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
-    val m = builder.mark()
-    if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER) {
+    while (builder.getTokenType == ScalaTokenTypes.tRBRACE) {
+      val m = builder.mark()
       builder.advanceLexer()
-      builder.advanceLexer()
-    } else {
-      builder.error(ScalaBundle.message("identifier.expected"))
+      if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER) {
+        builder.advanceLexer()
+        m.rollbackTo()
+        builder.advanceLexer()
+      } else if (builder.getTokenType == ScalaTokenTypes.kIF) {
+        builder.advanceLexer()
+        m.drop()
+      } else {
+        builder.error(ScalaBundle.message("identifier.expected"))
+        m.done(ScalaElementType.BLOCK)
+      }
     }
-    m.done(ScalaElementType.BLOCK)
     true
   }
 }

@@ -1,16 +1,16 @@
 package org.jetbrains.plugins.scala.inferAst
 
-import org.jetbrains.plugins.scala.inferAst.AstAction.{Exit, Start}
+import org.jetbrains.plugins.scala.inferAst.AstAutomaton.StartExitActionProvider
 
 import scala.collection.mutable
 
-class AstAutomaton {
+class AstAutomaton[A: StartExitActionProvider] {
   private var nextIdx = 0
 
-  val start: Node = new Node(AstAction.Start)
-  val exit: Node = new Node(AstAction.Exit)
+  val start: Node = new Node(implicitly[StartExitActionProvider[A]].start)
+  val exit: Node = new Node(implicitly[StartExitActionProvider[A]].exit)
 
-  class Node(val action: AstAction) {
+  class Node(val action: A) {
     private var _to: Set[Node] = Set.empty
     private var _from: Set[Node] = Set.empty
 
@@ -60,7 +60,7 @@ class AstAutomaton {
     result.toString()
   }
 
-  def merge(other: AstAutomaton): Unit = {
+  def merge(other: AstAutomaton[A]): Unit = {
     val processed = mutable.Map.empty[other.Node, this.Node]
 
     def process(node: other.Node): this.Node = {
@@ -84,7 +84,10 @@ class AstAutomaton {
     process(other.start)
   }
 
-  def forwardMinimized(): AstAutomaton = {
+  def forwardMinimized(): AstAutomaton[A] = {
+    val startAction = implicitly[StartExitActionProvider[A]].start
+    val exitAction = implicitly[StartExitActionProvider[A]].exit
+
     val result = new AstAutomaton
     val processed = mutable.Map.empty[Set[Node], result.Node]
 
@@ -96,8 +99,8 @@ class AstAutomaton {
         case None =>
           val newNode =
             action match {
-              case Start => result.start
-              case Exit => result.exit
+              case `startAction` => result.start
+              case `exitAction` => result.exit
               case _ => new result.Node(action)
             }
           processed += nodes -> newNode
@@ -115,7 +118,10 @@ class AstAutomaton {
     result
   }
 
-  def backwardMinimized(): AstAutomaton = {
+  def backwardMinimized(): AstAutomaton[A] = {
+    val startAction = implicitly[StartExitActionProvider[A]].start
+    val exitAction = implicitly[StartExitActionProvider[A]].exit
+
     val result = new AstAutomaton
     val processed = mutable.Map.empty[Set[Node], result.Node]
 
@@ -127,8 +133,8 @@ class AstAutomaton {
         case None =>
           val newNode =
             action match {
-              case Start => result.start
-              case Exit => result.exit
+              case `startAction` => result.start
+              case `exitAction` => result.exit
               case _ => new result.Node(action)
             }
           processed += nodes -> newNode
@@ -144,5 +150,12 @@ class AstAutomaton {
     process(Set(exit))
 
     result
+  }
+}
+
+object AstAutomaton {
+  trait StartExitActionProvider[A] {
+    def start: A
+    def exit: A
   }
 }

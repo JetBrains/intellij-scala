@@ -51,14 +51,15 @@ private class GlobalAnalysis(project: Project) {
 
   def analyze(item: AnalysisItem): Unit = {
     val cfg = getCfg(item.method)
-
+    println(cfg.toString)
 
     val interpreter = new InferAstDfaInterpreter(cfg)
     val initialState = InferAstDfaMemoryState(valueFactory)
     interpreter.interpret(initialState)
 
     val result = interpreter.resultingStates
-    val automaton = result.foldLeft(new AstAutomaton) { (acc, state) => acc.merge(state.buildAstAutomaton()); acc }
+    println("result.size: " + result.size)
+    val automaton = result.foldLeft(new AstAutomaton[AstAction]) { (acc, state) => acc.merge(state.buildAstAutomaton()); acc }
     println(automaton.forwardMinimized().backwardMinimized().toGraphviz)
   }
 }

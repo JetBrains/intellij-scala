@@ -94,8 +94,10 @@ class ScalaInvocationInstruction(val invocationInfo: InvocationInfo,
     else exceptionTransfer.map(_.dispatch(exceptionalState, interpreter).asScala).getOrElse(Nil)
 
     val normalResult = methodEffect.returnValue match {
-      case DfType.BOTTOM => None
-      case _ => pushResult(interpreter, stateBefore, methodEffect.returnValue)
+      case DfType.BOTTOM =>
+        None
+      case _ =>
+        pushResult(interpreter, stateBefore, methodEffect.returnValue)
         Some(nextState(interpreter, stateBefore))
     }
 
