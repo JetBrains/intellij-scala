@@ -143,7 +143,7 @@ object RunWorksheetAction {
 
   private def doRunCompiler(editor: Editor, psiFile: WorksheetFile, auto: Boolean)
                            (promise: Promise[RunWorksheetActionResult]): Unit = {
-    val module = psiFile.module
+    val module = WorksheetFileSettings(psiFile).getModule
     module match {
       case Some(module) =>
         val fileSettings = WorksheetFileSettings(psiFile)

@@ -21,4 +21,11 @@ private object WorksheetModuleUtil {
     // If the project has separate production and test modules enabled, only offer the production modules as a choice.
     if (separate) modules.filter(_.getName.endsWith(".main")) else modules
   }
+
+  def isStale(module: Module): Boolean = {
+    val name = module.getName
+    val separate = SbtUtil.isBuiltWithSeparateModulesForProdTest(module.getProject)
+    val isMainOrTest = name.endsWith(".main") || name.endsWith(".test")
+    if (separate) !isMainOrTest else isMainOrTest
+  }
 }
