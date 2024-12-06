@@ -114,7 +114,7 @@ object Dependencies {
   /**
    * Needs to be in sync with `"com.github.sbt.junit" % "sbt-jupiter-interface" % "version"` in project/plugins.sbt.
    */
-  val jupiterInterface: ModuleID = "com.github.sbt.junit" % "jupiter-interface" % "0.13.1"
+  val jupiterInterface: ModuleID = "com.github.sbt.junit" % "jupiter-interface" % "0.13.3"
 
   val jupiterParams: String => ModuleID = (version: String) =>"org.junit.jupiter" % "junit-jupiter-params" % version
 
