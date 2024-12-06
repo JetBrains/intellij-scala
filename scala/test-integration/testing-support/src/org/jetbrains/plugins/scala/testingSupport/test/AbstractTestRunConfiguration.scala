@@ -6,6 +6,7 @@ import com.intellij.execution.configurations._
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.testframework.actions.ConsolePropertiesProvider
 import com.intellij.execution.testframework.sm.runner.SMTRunnerConsoleProperties
+import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.components.PathMacroManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.{Module, ModuleManager}
@@ -142,7 +143,10 @@ abstract class AbstractTestRunConfiguration(
   @Nullable
   protected[test] def getClazz(path: String): PsiClass = {
     val scope = configurationScope
-    val classes = ScalaPsiManager.instance(project).getCachedClasses(scope, path)
+    val classes = ReadAction
+      .nonBlocking[Array[PsiClass]](() => ScalaPsiManager.instance(project).getCachedClasses(scope, path))
+      .expireWhen(() => project.isDisposed)
+      .executeSynchronously()
     val (objects, nonObjects) = classes.partition(_.isInstanceOf[ScObject])
     if (nonObjects.nonEmpty) nonObjects(0)
     else if (objects.nonEmpty) objects(0)
