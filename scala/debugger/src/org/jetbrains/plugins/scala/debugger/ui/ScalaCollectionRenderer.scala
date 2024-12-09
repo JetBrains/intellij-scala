@@ -122,13 +122,15 @@ class ScalaCollectionRenderer extends ScalaClassRenderer {
 }
 
 private object ScalaCollectionRenderer {
-  private def isCollection(ct: ClassType): Boolean = {
-    def isView: Boolean =
-      DebuggerUtils.instanceOf(ct, "scala.collection.View") ||
-        DebuggerUtils.instanceOf(ct, "scala.collection.IterableView")
+  private def isView(ct: ClassType): Boolean =
+    DebuggerUtils.instanceOf(ct, "scala.collection.View") ||
+      DebuggerUtils.instanceOf(ct, "scala.collection.IterableView")
 
-    DebuggerUtils.instanceOf(ct, "scala.collection.Iterable") && !isView
-  }
+  private def isCollection(ct: ClassType): Boolean =
+    DebuggerUtils.instanceOf(ct, "scala.collection.Iterable") && !isView(ct)
+
+  def isSeq(ct: ClassType): Boolean =
+    DebuggerUtils.instanceOf(ct, "scala.collection.Seq") && !isView(ct)
 
   def evaluateHasDefiniteSize(ref: ObjectReference, context: EvaluationContext): Boolean =
     ScalaMethodEvaluator(
@@ -146,7 +148,7 @@ private object ScalaCollectionRenderer {
       Seq.empty
     ).asExpressionEvaluator.evaluate(context).asInstanceOf[IntegerValue].value()
 
-  private def evaluateNonEmpty(ref: ObjectReference, context: EvaluationContext): Boolean =
+  def evaluateNonEmpty(ref: ObjectReference, context: EvaluationContext): Boolean =
     ScalaMethodEvaluator(
       new IdentityEvaluator(ref),
       "nonEmpty",
