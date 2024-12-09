@@ -1,6 +1,10 @@
 package org.jetbrains.plugins.scala.debugger.ui
 
+import com.intellij.debugger.collections.visualizer.CollectionVisualizerEvaluator
+import com.intellij.debugger.engine.FullValueEvaluatorProvider
+import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.impl.DebuggerUtilsAsync
+import com.intellij.debugger.ui.impl.watch.ValueDescriptorImpl
 import com.intellij.debugger.ui.tree.render.{ChildrenRenderer, CompoundRendererProvider, ValueLabelRenderer}
 import com.sun.jdi.Type
 
@@ -22,4 +26,8 @@ abstract class ScalaRendererProvider(private val renderer: ScalaClassRenderer) e
 
 class ScalaClassRendererProvider extends ScalaRendererProvider(new ScalaClassRenderer())
 
-class ScalaCollectionRendererProvider extends ScalaRendererProvider(new ScalaCollectionRenderer())
+class ScalaCollectionRendererProvider extends ScalaRendererProvider(new ScalaCollectionRenderer()) {
+  override def getFullValueEvaluatorProvider: FullValueEvaluatorProvider =
+    (evaluationContext: EvaluationContextImpl, valueDescriptor: ValueDescriptorImpl) =>
+      CollectionVisualizerEvaluator.createFor(evaluationContext, valueDescriptor)
+}
