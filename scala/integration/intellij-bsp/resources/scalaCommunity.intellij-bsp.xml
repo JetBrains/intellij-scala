@@ -1,5 +1,25 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <idea-plugin>
+    <extensions defaultExtensionNs="org.jetbrains.bsp">
+        <bspProjectOpenProcessorExtension
+                implementation="org.jetbrains.plugins.scala.bsp.flow.open.MillBspProjectOpenProcessorExtension"/>
+        <bspProjectAwareExtension
+                implementation="org.jetbrains.plugins.scala.bsp.config.MillBspProjectAwareExtension"/>
+        <buildTargetClassifierExtension
+                implementation="org.jetbrains.plugins.scala.bsp.extension.MillBspBuildTargetClassifier"/>
+        <buildToolAssetsExtension
+                implementation="org.jetbrains.plugins.scala.bsp.assets.MillBspAssetsExtension"/>
+        <scalaSdkExtension
+                implementation="org.jetbrains.plugins.scala.project.bsp.ScalaSdkExtensionImpl"/>
+        <connectionDetailsProviderExtensionJavaShim
+                implementation="org.jetbrains.plugins.scala.bsp.server.connection.MillBspConnectionDetailsProvider"/>
+    </extensions>
+    <extensions defaultExtensionNs="com.intellij">
+        <registryKey key="scala.bsp.plugin.mill.support" defaultValue="false" restartRequired="true"
+                     description="Enable option to import a Mill Scala project with the experimental BSP plugin"/>
+        <projectOpenProcessor
+                implementation="org.jetbrains.plugins.scala.bsp.flow.open.MillBspProjectOpenProcessor"/>
+    </extensions>
     <dependencies>
         <plugin id="org.jetbrains.bsp"/>
     </dependencies>
