@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.packagesearch.util
 
+import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.openapi.progress.util.ProgressIndicatorUtils
 import com.intellij.psi.PsiElement
 import com.intellij.util.concurrency.AppExecutorUtil
@@ -15,6 +16,7 @@ import org.jetbrains.plugins.scala.project.{ProjectExt, ProjectPsiElementExt}
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicReference
 import scala.jdk.CollectionConverters.ListHasAsScala
+import scala.util.control.NonFatal
 
 object DependencyUtil {
   private[this] val versionCompletion = VersionCompletion.instance()
@@ -49,7 +51,8 @@ object DependencyUtil {
         val result = ProgressIndicatorUtils.awaitWithCheckCanceled(resultFuture)
         result.getCompletions.asScala.toSeq
       } catch {
-        case _: coursierapi.error.CoursierError => Seq.empty
+        case e: ControlFlowException => throw e
+        case NonFatal(_) => Seq.empty
       }
     }
   }
