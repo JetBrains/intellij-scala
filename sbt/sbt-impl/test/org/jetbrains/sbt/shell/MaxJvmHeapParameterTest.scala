@@ -12,7 +12,7 @@ class MaxJvmHeapParameterTest {
 
   val hiddenDefaultSize = JvmMemorySize.Megabytes(1500)
   val hiddenDefaultParam = "-Xmx" + hiddenDefaultSize
-  val superShellDisabled = "-Dsbt.supershell=false"
+  val hardcoded = List("-Dsbt.supershell=false", "-Djdk.console=java.base")
 
   def buildParamSeq(userOpts: String*)(jvmOpts: String*)(implicit testInfo: TestInfo): Seq[String] = {
     val workingDir = FileUtil.createTempDirectory("maxHeapJvmParamTest", testInfo.getDisplayName, true)
@@ -55,7 +55,7 @@ class MaxJvmHeapParameterTest {
   @Test
   def userSettingsSmallerThanHiddenDefault(implicit testInfo: TestInfo): Unit = {
     assertEquals(
-      Seq(superShellDisabled,"-Xmx4g", "-Xms4g", "-Xmx1g"),
+      hardcoded ++ Seq("-Xmx4g", "-Xms4g", "-Xmx1g"),
       buildParamSeq("-Xmx1g")("-Xmx4g", "-Xms4g")
     )
   }
@@ -63,7 +63,7 @@ class MaxJvmHeapParameterTest {
   @Test
   def userSettingsGreaterThanHiddenDefault(implicit testInfo: TestInfo): Unit = {
     assertEquals(
-      Seq(superShellDisabled,"-Xmx4g", "-Xms4g", "-Xmx2g"),
+      hardcoded ++ Seq("-Xmx4g", "-Xms4g", "-Xmx2g"),
       buildParamSeq("-Xmx2g")("-Xmx4g", "-Xms4g")
     )
   }
@@ -71,7 +71,7 @@ class MaxJvmHeapParameterTest {
   @Test
   def noSettings(implicit testInfo: TestInfo): Unit = {
     assertEquals(
-      Seq(hiddenDefaultParam, superShellDisabled),
+      hiddenDefaultParam +: hardcoded,
       buildParamSeq()()
     )
   }
@@ -79,7 +79,7 @@ class MaxJvmHeapParameterTest {
   @Test
   def noSettingsWithXmsSmallerThanDefaultParam(implicit testInfo: TestInfo): Unit = {
     assertEquals(
-      Seq(hiddenDefaultParam, superShellDisabled, "-Xms1g"),
+      hiddenDefaultParam +: hardcoded :+ "-Xms1g",
       buildParamSeq("-Xms1g")()
     )
   }
@@ -87,7 +87,7 @@ class MaxJvmHeapParameterTest {
   @Test
   def noSettingsWithXmsGreaterThanDefaultParam(implicit testInfo: TestInfo): Unit = {
     assertEquals(
-      Seq(superShellDisabled, "-Xms2g"),
+      hardcoded :+ "-Xms2g",
       buildParamSeq("-Xms2g")()
     )
   }
