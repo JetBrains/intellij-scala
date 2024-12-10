@@ -524,7 +524,9 @@ object SbtProcessManager {
 
   private[shell]
   def buildVMParameters(sbtSettings: SbtExecutionSettings, workingDir: File, sbtOpts: Seq[String]): Seq[String] = {
-    val hardcoded = List("-Dsbt.supershell=false")
+    //TODO #SCL-22878 "-Djdk.console=java.base" is needed due to modifications made to the System.console() after JDK 21,
+    // which are not yet fully supported in sbt
+    val hardcoded = List("-Dsbt.supershell=false", "-Djdk.console=java.base")
     val jvmOpts = hardcoded ++
       SbtUtil.collectAllOptionsFromJava(workingDir, sbtSettings.vmOptions, sbtSettings.passParentEnvironment, sbtSettings.userSetEnvironment) ++
       sbtOpts
