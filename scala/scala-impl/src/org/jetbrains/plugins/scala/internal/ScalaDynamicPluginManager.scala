@@ -5,6 +5,7 @@ import com.intellij.openapi.application.ApplicationManager
 import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier
 
 import java.util.concurrent.atomic.AtomicBoolean
+import scala.annotation.nowarn
 
 class ScalaDynamicPluginManager extends DynamicPluginListener {
   override def checkUnloadPlugin(pluginDescriptor: IdeaPluginDescriptor): Unit = {
@@ -31,7 +32,7 @@ class ScalaDynamicPluginManager extends DynamicPluginListener {
     }
 
     if (pluginDescriptor.getPluginId == ScalaPluginVersionVerifier.scalaPluginId) {
-      throw new CannotUnloadPluginException("Dynamically unloading the JetBrains Scala plugin is not supported yet")
+      throw new CannotUnloadPluginException("Dynamically unloading the JetBrains Scala plugin is not supported yet"): @nowarn("cat=deprecation")
     }
   }
 
