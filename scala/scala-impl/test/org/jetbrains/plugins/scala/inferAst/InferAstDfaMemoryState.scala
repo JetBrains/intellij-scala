@@ -7,22 +7,17 @@ import scala.collection.mutable
 
 sealed abstract class AstAction
 object AstAction {
-  case object Start extends AstAction
   case class Token(token: String) extends AstAction
   case class Mark(index: Int) extends AstAction
   case class Done(index: Int, elementType: String) extends AstAction
+  case class Collapse(index: Int, token: String) extends AstAction
   case class Rollback(index: Int) extends AstAction
   case class Drop(index: Int) extends AstAction
   case class Precede(oldIndex: Int, newIndex: Int) extends AstAction
   case class Error(error: String) extends AstAction
-  case object Exit extends AstAction
-
-
-  implicit val startExitProvider: AstAutomaton.StartExitActionProvider[AstAction] =
-    new AstAutomaton.StartExitActionProvider[AstAction] {
-      override def start: AstAction = AstAction.Start
-      override def exit: AstAction = AstAction.Exit
-    }
+  case object Empty extends AstAction {
+    override def toString: String = "<>"
+  }
 }
 
 
@@ -105,7 +100,6 @@ class InferAstDfaMemoryState private(prev: DfaMemoryStateImpl) extends DfaMemory
   def buildAstAutomaton(): AstAutomaton[AstAction] = {
     val result = new AstAutomaton[AstAction]
     val indexToNodes = mutable.Map.empty[Int, Set[result.Node]]
-    indexToNodes(-1) = Set(result.start)
 
     def buildNode(index: Int): Set[result.Node] = {
       val isNew = !indexToNodes.contains(index)
@@ -113,12 +107,22 @@ class InferAstDfaMemoryState private(prev: DfaMemoryStateImpl) extends DfaMemory
       if (isNew) {
         val predIndices = predecessors.getOrElse(index, Set.empty)
 
-        assert(predIndices.nonEmpty, s"No predecessors for index $index")
         if (predIndices.isEmpty) {
-          result.start ~> nodes
+          ???
+          nodes.foreach(_.markStart())
         } else {
-          predIndices.foreach { predIdx =>
-            buildNode(predIdx).foreach { predNode => predNode ~> nodes }
+          val target =
+            if (predIndices.count(_ != -1) == 1) {
+              nodes
+            } else {
+              val mergeNode = new result.Node(AstAction.Empty)
+              mergeNode ~> nodes
+              Set(mergeNode)
+            }
+
+          predIndices.foreach {
+            case -1 => target.foreach(_.markStart())
+            case predIdx => buildNode(predIdx).foreach { predNode => predNode ~> target }
           }
         }
       }
@@ -126,10 +130,10 @@ class InferAstDfaMemoryState private(prev: DfaMemoryStateImpl) extends DfaMemory
     }
 
     for {
-      idx <- lastActions
+      idx <- lastActions if idx != -1
       node <- buildNode(idx)
     } {
-      node ~> result.exit
+      node.markExit()
     }
 
     assert(lastActions.nonEmpty)

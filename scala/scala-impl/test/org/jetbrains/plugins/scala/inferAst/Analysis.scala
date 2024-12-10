@@ -59,8 +59,18 @@ private class GlobalAnalysis(project: Project) {
 
     val result = interpreter.resultingStates
     println("result.size: " + result.size)
-    val automaton = result.foldLeft(new AstAutomaton[AstAction]) { (acc, state) => acc.merge(state.buildAstAutomaton()); acc }
-    println(automaton.forwardMinimized().backwardMinimized().toGraphviz)
+    val automaton = AstAutomaton.squash(result.map(_.buildAstAutomaton())).minimized
+    println(automaton.toGraphviz)
+
+    println("----------------")
+    val (main, inners) = ElementAst.from(automaton)
+    println(main.toGraphviz)
+    println("----------------")
+    inners.foreach { case (name, a) =>
+      println(name + ":")
+      println(a.toGraphviz)
+      println("----------------")
+    }
   }
 }
 
