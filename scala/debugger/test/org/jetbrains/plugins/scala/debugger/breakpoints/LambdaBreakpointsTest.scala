@@ -314,72 +314,8 @@ class LambdaBreakpointsTest_3_4 extends LambdaBreakpointsTest_3_3 {
   }
 }
 
-class LambdaBreakpointsTest_3_RC extends LambdaBreakpointsTest_3_4 {
+class LambdaBreakpointsTest_3_RC extends LambdaBreakpointsTest_3_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_LTS_RC
-
-  override def testLambdaInClassConstructor(): Unit = {
-    breakpointsTest()((9, "main"), (4, "$init$$$anonfun$1"), (4, "$init$$$anonfun$1"), (4, "$init$$$anonfun$1"))
-  }
-
-  override def testLambdaInObjectConstructor(): Unit = {
-    breakpointsTest()((9, "main"), (4, "$init$$$anonfun$1"), (4, "$init$$$anonfun$1"), (4, "$init$$$anonfun$1"))
-  }
-
-  override def testLambdaInNestedObject(): Unit = {
-    breakpointsTest()(
-      (15, "main"),
-      (8, "LambdaInNestedObject$Outer$Inner$$$_$method$$anonfun$1"),
-      (8, "LambdaInNestedObject$Outer$Inner$$$_$method$$anonfun$1"),
-      (8, "LambdaInNestedObject$Outer$Inner$$$_$method$$anonfun$1")
-    )
-  }
-
-  override def testLambdaInNestedClass(): Unit = {
-    breakpointsTest()(
-      (15, "main"),
-      (8, "LambdaInNestedClass$Outer$Inner$$_$method$$anonfun$1"),
-      (8, "LambdaInNestedClass$Outer$Inner$$_$method$$anonfun$1"),
-      (8, "LambdaInNestedClass$Outer$Inner$$_$method$$anonfun$1")
-    )
-  }
-
-  override def testLambdaInLocalMethod(): Unit = {
-    breakpointsTest()(
-      (21, "main"),
-      (8, "func$1$$anonfun$1"), (9, "func$1$$anonfun$1"), (10, "func$1$$anonfun$1"), (11, "func$1$$anonfun$1"),
-      (8, "func$1$$anonfun$1"), (9, "func$1$$anonfun$1"), (10, "func$1$$anonfun$1"), (11, "func$1$$anonfun$1"),
-      (8, "func$1$$anonfun$1"), (9, "func$1$$anonfun$1"), (10, "func$1$$anonfun$1"), (11, "func$1$$anonfun$1"),
-    )
-  }
-
-  override def testLambdaInGuard(): Unit = {
-    breakpointsTest()(
-      (5, "main"),
-      (5, "$anonfun$1"), (5, "$anonfun$1$$anonfun$1"),
-      (5, "$anonfun$1"), (5, "$anonfun$1$$anonfun$1"), (6, "$anonfun$2"),
-      (5, "$anonfun$1"), (5, "$anonfun$1$$anonfun$1"), (6, "$anonfun$2")
-    )
-  }
-
-  override def testLambdaInExtension(): Unit = {
-    breakpointsTest()((8, "main"), (4, "blah$$anonfun$1"), (4, "blah$$anonfun$1"), (4, "blah$$anonfun$1"))
-  }
-
-  override def testVariousLambdas(): Unit = {
-    breakpointsTest()(
-      (3, "<clinit>"),
-      (7, "main"), (3, "$init$$$anonfun$1"),
-      (8, "main"), (8, "main$$anonfun$1"),
-      (9, "main"), (9, "main$$anonfun$2"),
-      (10, "main"), (10, "main$$anonfun$3"),
-      (11, "main"), (11, "main$$anonfun$4"),
-      (12, "main"), (12, "main$$anonfun$5"),
-      (14, "main"), (14, "main$$anonfun$6"),
-      (16, "main"), (16, "main$$anonfun$7"),
-      (18, "main"), (18, "main$$anonfun$8"),
-      (20, "main$$anonfun$9")
-    )
-  }
 }
 
 class LambdaBreakpointsTest_3_Next_RC extends LambdaBreakpointsTest_3_RC {
