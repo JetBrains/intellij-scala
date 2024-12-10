@@ -47,6 +47,12 @@ class AstAutomaton[A] {
 
     def remove(connectAdjacent: Boolean): Unit = {
       if (connectAdjacent) {
+        if (isStart) {
+          _to.foreach(_.markStart())
+        }
+        if (isExit) {
+          _from.foreach(_.markExit())
+        }
         _from.foreach(_._to ++= _to)
         _to.foreach(_._from ++= _from)
       }

@@ -100,6 +100,7 @@ object ElementAst {
             val doneNode = new resultA.Node(ElementAstAction.Empty)
             nodeMapping += node -> Nil
             if (marker.contains(foundMarker)) {
+              doneNode.markExit()
               resultExits += node -> ExitResult.Done(elementType, doneNode)
             }
             Seq(doneNode)
