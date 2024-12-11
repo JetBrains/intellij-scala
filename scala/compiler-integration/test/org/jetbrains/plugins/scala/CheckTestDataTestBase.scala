@@ -30,14 +30,15 @@ abstract class CheckTestDataTestBase(testData: Seq[TestData], minScalaVersion: S
        |""".stripMargin.trim
   }
 
+  def buildCompleteSucceedingTestCode(): String =
+    testData
+      .filterNot(_.isFailing)
+      .zipWithIndex
+      .map(wrapIntoObject)
+      .mkString("\n\n")
+
   def test(): Unit = runWithErrorsFromCompiler(getProject) {
-    val completeSucceedingTestCode: String =
-      testData
-        .filterNot(_.isFailing)
-        .zipWithIndex
-        .map(wrapIntoObject)
-        .mkString("\n\n")
-    addFileToProjectSources("test.scala", completeSucceedingTestCode)
+    addFileToProjectSources("test.scala", buildCompleteSucceedingTestCode())
     compiler.make().assertNoProblems(allowWarnings = true)
   }
 
