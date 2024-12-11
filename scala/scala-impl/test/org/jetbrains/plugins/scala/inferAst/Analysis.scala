@@ -11,10 +11,11 @@ import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform.ResultReq
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 
 import scala.collection.mutable
 
-case class AnalysisItem(method: ScFunctionDefinition)
+case class AnalysisItem(method: ScFunctionDefinition, obj: ScObject, args: Seq[Any])
 
 private class GlobalAnalysis(project: Project) {
   private val valueFactory = new DfaValueFactory(project)
@@ -22,9 +23,6 @@ private class GlobalAnalysis(project: Project) {
   private val missingItems = mutable.Queue.empty[AnalysisItem]
   private val doneItems = mutable.Map.empty[AnalysisItem, Unit]
   private val cfgs = mutable.Map.empty[ScFunctionDefinition, ControlFlow]
-
-  def addToAnalysis(m: ScFunctionDefinition): Unit =
-    addToAnalysis(AnalysisItem(m))
 
   def addToAnalysis(item: AnalysisItem): Unit = {
     if (addedItems.add(item)) {

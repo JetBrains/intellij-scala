@@ -41,9 +41,6 @@ case class InvocationInfo(invokedElement: Option[InvokedElement],
    */
   val properArguments: List[List[Argument]] = argListsInEvaluationOrder.map(_.filter(_.kind.is[ProperArgument]))
 
-  def argumentExpressionsInEvaluationOrder: List[Option[ScExpression]] =
-    argListsInEvaluationOrder.flatMap(_.iterator.filter(_.passingMechanism == PassByValue).map(_.content))
-
   /**
    * If ```paramToProperArgMapping(paramIndex) == argIndex```, then the returned mapping maps
    * the parameter on position ```paramIndex``` in order in the function's parameter sequence

@@ -22,7 +22,7 @@ class InferAstDfaInterpreter(cfg: ControlFlow) extends StandardDataFlowInterpret
     val index = instruction.getIndex
     val memoryState = instructionState.getMemoryState.asInstanceOf[InferAstDfaMemoryState]
 
-    println(s"Processing instruction $index (${memoryState.getStackSize}): ${instruction.toString}")
+    //println(s"Processing instruction $index (${memoryState.getStackSize}): ${instruction.toString}")
 
     instruction match {
       case invocation: ScalaInvocationInstruction =>
@@ -38,7 +38,10 @@ class InferAstDfaInterpreter(cfg: ControlFlow) extends StandardDataFlowInterpret
             val after = effect(memoryState, index)
             Array(new DfaInstructionState(getInstruction(index + 1), after))
           case None if ignoredFunctions.contains(invokedName) => super.acceptInstruction(instructionState)
-          case None => throw new Exception(s"Cannot process call to $invokedName")
+          case None =>
+            val args = invocation.collectArgumentValuesFromStack(memoryState)(getFactory)
+            ???
+          //case None => throw new Exception(s"Cannot process call to $invokedName")
         }
       case _: ReturnInstruction =>
         _resultingStates += memoryState

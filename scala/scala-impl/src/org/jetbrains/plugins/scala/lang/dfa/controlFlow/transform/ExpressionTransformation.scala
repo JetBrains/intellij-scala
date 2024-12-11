@@ -52,6 +52,7 @@ trait ExpressionTransformation { this: ScalaDfaControlFlowBuilder =>
       case parenthesised: ScParenthesisedExpr => transformParenthesisedExpression(parenthesised, rreq)
       case tryExpression: ScTry => transformTryExpression(tryExpression, rreq)
       case invocation: MethodInvocation => transformInvocation(invocation, rreq)
+      case thisExpr: ScThisReference => transformThis(thisExpr, rreq)
       case literal: ScLiteral => transformLiteral(literal, rreq)
       case ifExpression: ScIf => transformIfExpression(ifExpression, rreq)
       case reference: ScReferenceExpression => transformReference(reference, rreq)
@@ -128,7 +129,11 @@ trait ExpressionTransformation { this: ScalaDfaControlFlowBuilder =>
       util.List.of(new DfaInstructionState(interpreter.getInstruction(offset.getInstructionOffset), state))
   }
 
-  def transformLiteral(literal: ScLiteral, rreq: ResultReq): rreq.Result = rreq.result {
+  final def transformThis(thisExpr: ScThisReference, rreq: ResultReq): rreq.Result = rreq.result {
+    pushThisValue(thisExpr)
+  }
+
+  final def transformLiteral(literal: ScLiteral, rreq: ResultReq): rreq.Result = rreq.result {
     if (literal.is[ScInterpolatedStringLiteral]) {
       buildUnknownCall(ResultReq.Required)
     } else {

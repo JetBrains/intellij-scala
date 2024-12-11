@@ -8,9 +8,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 trait TransformerUtils { this: ScalaDfaControlFlowBuilder =>
-  def assignVariableValue(descriptor: ScalaDfaVariableDescriptor,
-                          valueExpression: Option[ScExpression],
-                          definedType: ScType): Unit = {
+  final def assignVariableValue(descriptor: ScalaDfaVariableDescriptor,
+                                valueExpression: Option[ScExpression],
+                                definedType: ScType): Unit = {
     val dfaVariable = createVariable(descriptor)
     val anchor = valueExpression.map(ScalaStatementAnchor(_)).orNull
 
@@ -25,7 +25,7 @@ trait TransformerUtils { this: ScalaDfaControlFlowBuilder =>
     assign(dfaVariable, value, anchor)
   }
 
-  def convertPrimitiveIfNeeded(value: StackValue, fromType: Option[ScType], toType: Option[ScType]): StackValue = {
+  final def convertPrimitiveIfNeeded(value: StackValue, fromType: Option[ScType], toType: Option[ScType]): StackValue = {
     (fromType, toType) match {
       case (Some(fromType), Some(toType)) =>
         toType.toPsiType match {
@@ -37,5 +37,9 @@ trait TransformerUtils { this: ScalaDfaControlFlowBuilder =>
       case _ =>
         value
     }
+  }
+
+  final def pushThisValue(place: ScExpression): StackValue = {
+    ???
   }
 }

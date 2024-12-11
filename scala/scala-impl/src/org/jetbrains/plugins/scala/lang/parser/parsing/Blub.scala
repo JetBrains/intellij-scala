@@ -20,9 +20,16 @@ object Blub extends ParsingRule {
         m.drop()
       } else {
         builder.error(ScalaBundle.message("identifier.expected"))
+        other()
         m.done(ScalaElementType.BLOCK)
       }
     }
     true
+  }
+
+  def other()(implicit builder: ScalaPsiBuilder): Unit = {
+    val m = builder.mark()
+    builder.advanceLexer()
+    m.done(ScalaElementType.CLASS_PARAM)
   }
 }

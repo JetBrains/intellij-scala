@@ -104,8 +104,8 @@ class ScalaInvocationInstruction(val invocationInfo: InvocationInfo,
     (exceptionalResult ++ normalResult).toArray
   }
 
-  private def collectArgumentValuesFromStack(stateBefore: DfaMemoryState)
-                                            (implicit factory: DfaValueFactory): Map[Argument, DfaValue] = {
+  def collectArgumentValuesFromStack(stateBefore: DfaMemoryState)
+                                    (implicit factory: DfaValueFactory): Map[Argument, DfaValue] = {
     invocationInfo.argListsInEvaluationOrder.flatten
       .reverseIterator
       .filter(_.passingMechanism == PassByValue)
