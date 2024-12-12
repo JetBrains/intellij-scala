@@ -68,9 +68,7 @@ class ScalaCollectionRenderer extends ScalaClassRenderer {
 
   private def renderStrictCollection(ref: ObjectReference, builder: ChildrenBuilder, context: EvaluationContext, index: Int): CompletableFuture[Unit] =
     onDebuggerManagerThread(context) {
-      val dropped = evaluateDrop(ref, index, context)
-      val taken = evaluateTake(dropped, 100, context)
-      val vector = evaluateToVector(taken, context)
+      val vector = evaluateVectorSlice(ref, index, 100, context)
       val vectorSize = evaluateSize(vector, context)
       val descs = (0 until vectorSize).map { i =>
         val v = evaluateVectorApply(vector, i, context)
@@ -91,9 +89,7 @@ class ScalaCollectionRenderer extends ScalaClassRenderer {
   private def renderNonStrictCollection(ref: ObjectReference, builder: ChildrenBuilder, context: EvaluationContext, index: Int): CompletableFuture[Unit] =
     onDebuggerManagerThread(context) {
       def renderNextElement(index: Int): CompletableFuture[Unit] = onDebuggerManagerThread(context) {
-        val dropped = evaluateDrop(ref, index, context)
-        val taken = evaluateTake(dropped, 1, context)
-        val vector = evaluateToVector(taken, context)
+        val vector = evaluateVectorSlice(ref, index, 1, context)
         val length = evaluateSize(vector, context)
         if (length == 1) {
           val desc = new CollectionElementDescriptor(context.getProject, index, evaluateVectorApply(vector, 0, context))
@@ -164,19 +160,25 @@ private object ScalaCollectionRenderer {
       Seq(new IntEvaluator(n))
     ).asExpressionEvaluator.evaluate(context).asInstanceOf[ObjectReference]
 
-  def evaluateDrop(ref: ObjectReference, n: Int, context: EvaluationContext): ObjectReference =
+  private def evaluateDrop(ref: ObjectReference, n: Int, context: EvaluationContext): ObjectReference =
     evaluateIterableOperation("drop")(ref, n, context)
 
-  def evaluateTake(ref: ObjectReference, n: Int, context: EvaluationContext): ObjectReference =
+  private def evaluateTake(ref: ObjectReference, n: Int, context: EvaluationContext): ObjectReference =
     evaluateIterableOperation("take")(ref, n, context)
 
-  def evaluateToVector(ref: ObjectReference, context: EvaluationContext): ObjectReference =
+  private def evaluateToVector(ref: ObjectReference, context: EvaluationContext): ObjectReference =
     ScalaMethodEvaluator(
       new IdentityEvaluator(ref),
       "toVector",
       JVMNameUtil.getJVMRawText("()Lscala/collection/immutable/Vector;"),
       Seq.empty
     ).asExpressionEvaluator.evaluate(context).asInstanceOf[ObjectReference]
+
+  def evaluateVectorSlice(ref: ObjectReference, offset: Int, length: Int, context: EvaluationContext): ObjectReference = {
+    val dropped = evaluateDrop(ref, offset, context)
+    val taken = evaluateTake(dropped, length, context)
+    evaluateToVector(taken, context)
+  }
 
   def evaluateVectorApply(ref: ObjectReference, n: Int, context: EvaluationContext): Value =
     ScalaMethodEvaluator(
