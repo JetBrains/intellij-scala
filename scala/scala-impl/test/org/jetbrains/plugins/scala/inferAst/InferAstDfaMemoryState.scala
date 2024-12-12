@@ -10,7 +10,9 @@ object AstAction {
   case class Token(token: String) extends AstAction
   case class Mark(index: Int) extends AstAction
   case class Done(index: Int, elementType: String) extends AstAction
-  case class Call(analysisItem: AnalysisItem) extends AstAction
+  case class Call(analysisItem: AnalysisItem, result: Option[Boolean]) extends AstAction {
+    override def toString: String = s"Call(${analysisItem.obj.name}::${analysisItem.method.name}, ${result.fold("None")(_.toString)})"
+  }
   case class Collapse(index: Int, token: String) extends AstAction
   case class Rollback(index: Int) extends AstAction
   case class Drop(index: Int) extends AstAction

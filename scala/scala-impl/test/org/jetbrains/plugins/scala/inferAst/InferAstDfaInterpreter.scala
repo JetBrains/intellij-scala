@@ -1,18 +1,24 @@
 package org.jetbrains.plugins.scala.inferAst
 
 import com.intellij.codeInspection.dataFlow.interpreter.StandardDataFlowInterpreter
+import com.intellij.codeInspection.dataFlow.jvm.descriptors.ThisDescriptor
 import com.intellij.codeInspection.dataFlow.lang.DfaListener
 import com.intellij.codeInspection.dataFlow.lang.ir.{ControlFlow, DfaInstructionState, ReturnInstruction}
-import com.intellij.codeInspection.dataFlow.value.{DfaValue, VariableDescriptor}
+import com.intellij.codeInspection.dataFlow.types.{DfType, DfTypes}
+import com.intellij.codeInspection.dataFlow.value.{DfaValue, DfaVariableValue, VariableDescriptor}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.{ScalaDfaAnchor, ScalaDfaAnchorWithPsiElement}
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.ScalaInvocationInstruction
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaObjectVariableDescriptor, ScalaDfaVariableDescriptor}
+import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument.ThisArgument
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScMethodCall}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.IteratorHasAsScala
 
-class InferAstDfaInterpreter(cfg: ControlFlow) extends StandardDataFlowInterpreter(cfg, DfaListener.EMPTY) {
+class InferAstDfaInterpreter(cfg: ControlFlow, thisObject: ScObject) extends StandardDataFlowInterpreter(cfg, DfaListener.EMPTY) {
   private val _resultingStates = mutable.Buffer.empty[InferAstDfaMemoryState]
 
   def resultingStates: Seq[InferAstDfaMemoryState] = _resultingStates.toSeq
@@ -40,7 +46,52 @@ class InferAstDfaInterpreter(cfg: ControlFlow) extends StandardDataFlowInterpret
           case None if ignoredFunctions.contains(invokedName) => super.acceptInstruction(instructionState)
           case None =>
             val args = invocation.collectArgumentValuesFromStack(memoryState)(getFactory)
-            ???
+            val thisValue = args
+              .collectFirst { case (arg, value) if arg.kind == ThisArgument => value }
+              .getOrElse(throw new Exception(s"Cannot process call to unknown method $invokedName"))
+
+            val called = extractEqsValue(memoryState, thisValue) {
+              case obj: ScalaDfaObjectVariableDescriptor => obj.obj
+              case _: ThisDescriptor => thisObject
+            }
+
+            val method = invocation.invocationInfo.invokedElement.get.psiElement.asInstanceOf[ScFunction]
+            called match {
+              case Some(called: ScObject) =>
+                val realFunction = method match {
+                  case fun: ScFunctionDefinition =>
+                    fun
+                  case _ =>
+                    val Seq(fun) = called.allMethods
+                      .filter(_.method.findSuperMethods(method.containingClass).contains(method))
+                      .flatMap(_.method.asOptionOf[ScFunctionDefinition])
+                      .toSeq
+                    fun
+                }
+                if (method.returnType.exists(_.isBoolean)) {
+                  val trueAction = AstAction.Call(AnalysisItem(realFunction, called, Seq.empty), Some(true))
+                  val falseAction = trueAction.copy(result = Some(false))
+
+                  val trueState = memoryState.createCopy()
+                  val falseState = memoryState
+                  trueState.addAction(index, trueAction)
+                  falseState.addAction(index, falseAction)
+                  trueState.push(getFactory.fromDfType(DfTypes.TRUE))
+                  falseState.push(getFactory.fromDfType(DfTypes.FALSE))
+                  Array(
+                    new DfaInstructionState(getInstruction(index + 1), trueState),
+                    new DfaInstructionState(getInstruction(index + 1), falseState)
+                  )
+                } else {
+                  val item = AstAction.Call(AnalysisItem(realFunction, called, Seq.empty), None)
+                  memoryState.addAction(index, item)
+                  memoryState.push(getFactory.getUnknown)
+                  Array(new DfaInstructionState(getInstruction(index + 1), memoryState))
+                }
+              case _ =>
+                throw new Exception(s"Cannot process method $invokedName")
+            }
+
           //case None => throw new Exception(s"Cannot process call to $invokedName")
         }
       case _: ReturnInstruction =>
@@ -68,6 +119,17 @@ class InferAstDfaInterpreter(cfg: ControlFlow) extends StandardDataFlowInterpret
     "SyntaxTreeBuilder#error" -> `SyntaxTreeBuilder#error`,
   )
 
+  private def extractEqsValue[T](state: InferAstDfaMemoryState, value: DfaValue)(f: PartialFunction[VariableDescriptor, T]): Option[T] = {
+    extractEqs(state, value).collect(f) match {
+      case Seq(value) => Some(value)
+      case _ =>
+        value match {
+          case v: DfaVariableValue => f.lift(v.getDescriptor)
+          case _ => None
+        }
+    }
+  }
+
   private def extractEqs(state: InferAstDfaMemoryState, value: DfaValue): Seq[VariableDescriptor] = {
     val idx = state.getEqClassIndex(value)
     if (idx >= 0) {
@@ -79,17 +141,11 @@ class InferAstDfaInterpreter(cfg: ControlFlow) extends StandardDataFlowInterpret
   private def `SyntaxTreeBuilder#advanceLexer`(state: InferAstDfaMemoryState, index: Int): InferAstDfaMemoryState = {
     state.pop() // builder
 
-    // TODO: really true?
-    val actions = extractEqs(state, currentTokenVariable)
-      .map(_.toString)
-      .filter(_.startsWith("ScalaTokenType"))
-      .map(AstAction.Token)
-
-    if (actions.nonEmpty) {
-      state.addActions(index, actions)
-    } else {
-      state.addAction(index, AstAction.Token("unknown"))
+    val action = extractEqsValue(state, currentTokenVariable) {
+      case v: ScalaDfaVariableDescriptor if v.toString.startsWith("ScalaTokenType") => v.toString
     }
+
+    state.addAction(index, AstAction.Token(action.getOrElse("unknown")))
 
     state.push(getFactory.getUnknown)
     state.flushVariable(currentTokenVariable)
@@ -107,9 +163,11 @@ class InferAstDfaInterpreter(cfg: ControlFlow) extends StandardDataFlowInterpret
     val elementType = state.pop()
     val marker = state.pop()
 
-    val actions = extractEqs(state, marker).collect {
+    val actions = extractEqsValue(state, marker) {
       case MarkerDescriptor(index) => AstAction.Done(index, elementType.toString)
     }
+
+    assert(actions.isDefined, s"Cannot find marker $marker")
 
     state.addActions(index, actions)
 

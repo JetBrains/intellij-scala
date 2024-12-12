@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform
 
-import com.intellij.psi.{PsiClass, PsiMember, PsiMethod, PsiNamedElement}
+import com.intellij.psi.{PsiClass, PsiMember, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiMemberExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaPsiElementDfaAnchor
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform.InstructionBuilder.StackValue
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform.ResultReq.Required
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaDfaVariableDescriptor, TransformationFailedException}
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.ArgumentFactory.ArgumentCountLimit
@@ -110,13 +110,13 @@ trait InvocationTransformation { this: ScalaDfaControlFlowBuilder =>
       case Argument(None, Argument.ThisArgument, _, _) =>
         invocationInfo.invokedElement
           .flatMap(_.psiElement.asOptionOf[PsiMember])
-          .flatMap(member => Option(member.containingClass))
-          .fold(pushUnknownValue()) {
-            case obj: ScObject => pushVariable(ScalaDfaVariableDescriptor.fromObject(obj), expression)
-            case cls: PsiClass => pushThisValue(expression)
-            case _ => pushUnknownValue()
-          }
-      case Argument(content, _, Argument.PassByName, _) =>
+          .flatMap { invoked =>
+            Option(invoked.containingClass).collect {
+              case obj: ScObject => pushVariable(ScalaDfaVariableDescriptor.fromObject(obj), ScalaPsiElementDfaAnchor(expression))
+              case cls: PsiClass => pushThis(cls, expression)
+            }
+          }.getOrElse(pushUnknownValue())
+      case Argument(content, _, Argument.PassByValue, _) =>
         f(content)
     }
   }

@@ -130,7 +130,10 @@ trait ExpressionTransformation { this: ScalaDfaControlFlowBuilder =>
   }
 
   final def transformThis(thisExpr: ScThisReference, rreq: ResultReq): rreq.Result = rreq.result {
-    pushThisValue(thisExpr)
+    thisExpr.`type`().toOption.flatMap(_.extractClass) match {
+      case Some(psiClass) => pushThis(psiClass, thisExpr)
+      case None => pushUnknownValue()
+    }
   }
 
   final def transformLiteral(literal: ScLiteral, rreq: ResultReq): rreq.Result = rreq.result {

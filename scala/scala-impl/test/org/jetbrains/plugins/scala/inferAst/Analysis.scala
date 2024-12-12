@@ -1,12 +1,8 @@
 package org.jetbrains.plugins.scala.inferAst
 
-import com.intellij.codeInspection.dataFlow.interpreter.StandardDataFlowInterpreter
-import com.intellij.codeInspection.dataFlow.java.inst.AssignInstruction
-import com.intellij.codeInspection.dataFlow.lang.{DfaAnchor, DfaListener}
-import com.intellij.codeInspection.dataFlow.lang.ir.{ControlFlow, FinishElementInstruction, Instruction, PopInstruction, PushInstruction, PushValueInstruction, ReturnInstruction, SimpleAssignmentInstruction}
-import com.intellij.codeInspection.dataFlow.value.{DfaValue, DfaValueFactory}
+import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow
+import com.intellij.codeInspection.dataFlow.value.DfaValueFactory
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.ScalaInvocationInstruction
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.AnalysedMethodInfo
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform.ResultReq
@@ -15,13 +11,19 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 
 import scala.collection.mutable
 
-case class AnalysisItem(method: ScFunctionDefinition, obj: ScObject, args: Seq[Any])
+case class AnalysisItem(method: ScFunctionDefinition, obj: ScObject, args: Seq[Any]) {
+  override def toString: String = s"AnalysisItem(${method.name} in ${obj.name}, [${args.mkString(", ")}])"
+}
+
+case class AnalysisResult(trueResult: AstAutomaton[ElementAstAction],
+                          falseResult: AstAutomaton[ElementAstAction])
 
 private class GlobalAnalysis(project: Project) {
   private val valueFactory = new DfaValueFactory(project)
   private val addedItems = mutable.Set.empty[AnalysisItem]
   private val missingItems = mutable.Queue.empty[AnalysisItem]
-  private val doneItems = mutable.Map.empty[AnalysisItem, Unit]
+  private val doneItems = mutable.Map.empty[AnalysisItem, AnalysisResult]
+  private val elements: mutable.Map[String, AstAutomaton[ElementAstAction]] = mutable.Map.empty
   private val cfgs = mutable.Map.empty[ScFunctionDefinition, ControlFlow]
 
   def addToAnalysis(item: AnalysisItem): Unit = {
@@ -48,10 +50,14 @@ private class GlobalAnalysis(project: Project) {
     })
 
   def analyze(item: AnalysisItem): Unit = {
+    if (doneItems.contains(item)) {
+      return
+    }
+    println("Analyzing " + item)
     val cfg = getCfg(item.method)
-    println(cfg.toString)
+    println(cfg)
 
-    val interpreter = new InferAstDfaInterpreter(cfg)
+    val interpreter = new InferAstDfaInterpreter(cfg, item.obj)
     val initialState = InferAstDfaMemoryState(valueFactory)
     interpreter.interpret(initialState)
 

@@ -3,16 +3,17 @@ package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform
 import com.intellij.codeInspection.dataFlow.java.JavaClassDef
 import com.intellij.codeInspection.dataFlow.java.inst.{BooleanBinaryInstruction, EnsureIndexInBoundsInstruction, NotInstruction, NumericBinaryInstruction, PrimitiveConversionInstruction, ThrowInstruction}
 import com.intellij.codeInspection.dataFlow.jvm.TrapTracker
+import com.intellij.codeInspection.dataFlow.jvm.descriptors.ThisDescriptor
 import com.intellij.codeInspection.dataFlow.jvm.problems.IndexOutOfBoundsProblem
 import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.{ControlFlowOffset, DeferredOffset, FixedOffset}
 import com.intellij.codeInspection.dataFlow.lang.ir._
 import com.intellij.codeInspection.dataFlow.lang.{DfaAnchor, UnsatisfiedConditionProblem}
 import com.intellij.codeInspection.dataFlow.rangeSet.LongRangeBinOp
 import com.intellij.codeInspection.dataFlow.types.DfType
-import com.intellij.codeInspection.dataFlow.value.{DfaControlTransferValue, DfaValueFactory, DfaVariableValue, RelationType}
-import com.intellij.psi.{CommonClassNames, PsiElement, PsiPrimitiveType}
+import com.intellij.codeInspection.dataFlow.value.{DfaControlTransferValue, DfaValueFactory, DfaVariableValue, RelationType, VariableDescriptor}
+import com.intellij.psi.{CommonClassNames, PsiClass, PsiElement, PsiPrimitiveType}
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnchor
+import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.{ScalaDfaAnchor, ScalaPsiElementDfaAnchor, ScalaStatementAnchor}
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.ScalaInvocationInstruction
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.AnalysedMethodInfo
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaVariableDescriptor
@@ -77,7 +78,7 @@ abstract class InstructionBuilder(factory: DfaValueFactory,
     }
   }
 
-  def createVariable(descriptor: ScalaDfaVariableDescriptor): DfaVariableValue = factory.getVarFactory.createVariableValue(descriptor)
+  def createVariable(descriptor: VariableDescriptor): DfaVariableValue = factory.getVarFactory.createVariableValue(descriptor)
 
   def flushFields(): Unit = addInstruction(new FlushFieldsInstruction)
 
@@ -94,9 +95,16 @@ abstract class InstructionBuilder(factory: DfaValueFactory,
   def pop(firstValue: StackValue, restValues: StackValue*): Unit =
     pop(firstValue +: restValues)
 
-  def pushVariable(descriptor: ScalaDfaVariableDescriptor, expression: ScExpression): StackValue = {
+  def pushVariable(descriptor: VariableDescriptor, anchor: ScalaDfaAnchor): StackValue = {
     val dfaVariable = createVariable(descriptor)
-    addPushingInstruction(new PushInstruction(dfaVariable, ScalaStatementAnchor(expression)))
+    addPushingInstruction(new PushInstruction(dfaVariable, anchor))
+  }
+
+  def pushVariable(descriptor: ScalaDfaVariableDescriptor, expression: ScExpression): StackValue =
+    pushVariable(descriptor, ScalaStatementAnchor(expression))
+
+  def pushThis(psiClass: PsiClass, anchor: PsiElement): StackValue = {
+    pushVariable(new ThisDescriptor(psiClass), ScalaPsiElementDfaAnchor(anchor))
   }
 
   def pop(values: Seq[StackValue]): Unit = {

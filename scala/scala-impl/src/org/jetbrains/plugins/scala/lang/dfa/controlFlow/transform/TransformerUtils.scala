@@ -38,8 +38,4 @@ trait TransformerUtils { this: ScalaDfaControlFlowBuilder =>
         value
     }
   }
-
-  final def pushThisValue(place: ScExpression): StackValue = {
-    ???
-  }
 }

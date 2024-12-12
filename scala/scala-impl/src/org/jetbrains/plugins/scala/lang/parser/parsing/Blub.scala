@@ -29,6 +29,7 @@ object Blub extends ParsingRule {
 
   def other()(implicit builder: ScalaPsiBuilder): Unit = {
     val m = builder.mark()
+
     builder.advanceLexer()
     m.done(ScalaElementType.CLASS_PARAM)
   }

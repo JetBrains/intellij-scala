@@ -4,7 +4,7 @@ import com.intellij.codeInsight.Nullability
 import com.intellij.codeInspection.dataFlow.DfaUtil
 import com.intellij.codeInspection.dataFlow.jvm.descriptors.JvmVariableDescriptor
 import com.intellij.codeInspection.dataFlow.types.{DfType, DfTypes}
-import com.intellij.codeInspection.dataFlow.value.DfaVariableValue
+import com.intellij.codeInspection.dataFlow.value.{DfaVariableValue, VariableDescriptor}
 import com.intellij.psi.{PsiClass, PsiElement, PsiField, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{isStableElement, scTypeToDfType}
@@ -45,9 +45,9 @@ object ScalaDfaVariableDescriptor {
         isStableElement(element) && qualifierVariable.forall(qualifier => isStableElement(qualifier.variable))))
   }
 
-  def fromObject(obj: ScObject): ScalaDfaVariableDescriptor = {
+  def fromObject(obj: ScObject): VariableDescriptor = {
     val qualifier =
       obj.containingClass.asOptionOf[ScObject].map(fromObject)
-    ScalaDfaVariableDescriptor(obj, qualifier, isStable = true)
+    ScalaDfaObjectVariableDescriptor(obj)(qualifier)
   }
 }
