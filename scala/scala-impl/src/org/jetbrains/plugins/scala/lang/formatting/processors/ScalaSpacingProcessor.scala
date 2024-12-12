@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.TokenSets
 import org.jetbrains.plugins.scala.lang.formatting.ScalaBlock
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.lexer.{ScalaKeywordTokenType, ScalaTokenType, ScalaTokenTypes, ScalaTokenTypesEx, ScalaXmlTokenTypes}
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes, ScalaTokenTypesEx, ScalaXmlTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -39,6 +39,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 import org.jetbrains.plugins.scalaDirective.lang.parser.ScalaDirectiveElementTypes
+import org.jetbrains.plugins.scalaDirective.psi.api.ScDirectiveToken
 
 import scala.annotation.{nowarn, tailrec}
 
@@ -1057,7 +1058,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     if (rightBlockString.startsWith(".") &&
       rightElementType != ScalaTokenType.Float &&
       rightElementType != ScalaTokenType.Double &&
-      !rightPsi.isInstanceOf[ScLiteral]) {
+      !rightPsi.is[ScLiteral, ScDirectiveToken]) {
       return WITHOUT_SPACING
     }
     if (rightBlockString.startsWith(",")) {
