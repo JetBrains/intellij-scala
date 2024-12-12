@@ -102,4 +102,16 @@ class ScalaDirectiveFormattingTest extends AbstractScalaFormatterTestBase {
       |// Foo
       |""".stripMargin
   )
+
+  // SCL-23326
+  def test_do_not_merge_tokens_starting_with_dot(): Unit = doTextTest(
+    """
+      |//> using file ../common/util.scala
+      |//>   using  file     ../common/util.scala
+      |""".stripMargin,
+    """
+      |//> using file ../common/util.scala
+      |//> using file ../common/util.scala
+      |""".stripMargin
+  )
 }
