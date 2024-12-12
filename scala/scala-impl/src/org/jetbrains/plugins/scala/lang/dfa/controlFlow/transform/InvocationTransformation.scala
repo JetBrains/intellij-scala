@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform
 import com.intellij.psi.{PsiClass, PsiMember, PsiMethod, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiMemberExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform.InstructionBuilder.StackValue
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform.ResultReq.Required
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaDfaVariableDescriptor, TransformationFailedException}
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.ArgumentFactory.ArgumentCountLimit
@@ -72,7 +73,7 @@ trait InvocationTransformation { this: ScalaDfaControlFlowBuilder =>
                                         expression: ScExpression): StackValue = {
     buildCollectionAccessAssertions(invocationInfo)
 
-    val args = transformArguments(invocationInfo, transformExpression, expression)
+    val args = transformArguments(invocationInfo, transformExpression(_, ResultReq.Required), expression)
     invoke(args, invocationInfo, instanceQualifier, analysedMethodInfo)
   }
 
@@ -92,7 +93,7 @@ trait InvocationTransformation { this: ScalaDfaControlFlowBuilder =>
   final def transformImplicitConversionInvocation(e: PsiNamedElement, expr: ScExpression): StackValue = {
     e.asOptionOf[ScFunction].flatMap(InvocationInfo.tryFromImplicitConversion(_, expr)) match {
       case Some(invocationInfo) =>
-        val args = transformArguments(invocationInfo, transformExpressionBeforeConversion, expr)
+        val args = transformArguments(invocationInfo, transformExpressionBeforeConversion(_, ResultReq.Required), expr)
         invoke(args, invocationInfo, None, analysedMethodInfo)
       case _ =>
         unsupported(TransformationFailedException(expr, s"Cannot handle transformation of implicit conversion targeting ${e.name}")) {
@@ -103,7 +104,7 @@ trait InvocationTransformation { this: ScalaDfaControlFlowBuilder =>
   }
 
   private def transformArguments(invocationInfo: InvocationInfo,
-                                 f: (Option[ScExpression], ResultReq.Required.type) => ResultReq.Required.Result,
+                                 f: Option[ScExpression] => ResultReq.Required.Result,
                                  expression: ScExpression): Seq[ResultReq.Required.Result] = {
     invocationInfo.argListsInEvaluationOrder.flatten.collect {
       case Argument(None, Argument.ThisArgument, _, _) =>
@@ -116,7 +117,7 @@ trait InvocationTransformation { this: ScalaDfaControlFlowBuilder =>
             case _ => pushUnknownValue()
           }
       case Argument(content, _, Argument.PassByName, _) =>
-        f(content, ResultReq.Required)
+        f(content)
     }
   }
 

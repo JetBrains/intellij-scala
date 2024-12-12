@@ -9,6 +9,7 @@ object ElementAstAction {
   case class Token(token: String) extends ElementAstAction
   case class SubElement(element: String) extends ElementAstAction
   case class Error(error: String) extends ElementAstAction
+  case class Call(analysisItem: AnalysisItem) extends ElementAstAction
   case object Empty extends ElementAstAction
 }
 
@@ -48,6 +49,11 @@ object ElementAst {
           case AstAction.Empty => processNexts()
           case AstAction.Token(token) =>
             val newNode = new resultA.Node(ElementAstAction.Token(token))
+            nodeMapping += node -> Seq(newNode)
+            newNode ~> processNexts()
+            Seq(newNode)
+          case AstAction.Call(item) =>
+            val newNode = new resultA.Node(ElementAstAction.Call(item))
             nodeMapping += node -> Seq(newNode)
             newNode ~> processNexts()
             Seq(newNode)
