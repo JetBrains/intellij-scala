@@ -717,7 +717,7 @@ lazy val intellijBspIntegration =
     .dependsOn(scalaImpl, sbtImpl)
     .settings(
       intellijPlugins += "org.jetbrains.bsp::nightly".toPlugin,
-      packageMethod := PackagingMethod.Standalone("lib/modules/scalaCommunity.intellij-bsp.jar")
+      packageMethod := PackagingMethod.PluginModule("scalaCommunity.intellij-bsp")
     )
 
 lazy val scalaCli =
