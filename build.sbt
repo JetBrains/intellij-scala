@@ -111,16 +111,14 @@ lazy val scalaApi = newProject(
   "scala-api",
   file("scala/scala-api")
 ).settings(
-  idePackagePrefix := Some("org.jetbrains.plugins.scala"),
-  packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity) // TODO: check if packaging into standalone is required
+  idePackagePrefix := Some("org.jetbrains.plugins.scala")
 )
 
 lazy val workspaceEntities = newProjectWithKotlin("workspace-entities", file("sbt/sbt-impl/workspace-entities"))
   .settings(
     Compile / unmanagedSourceDirectories ++= Seq(baseDirectory.value/"gen"),
     scalaVersion := Versions.scala3Version,
-    Compile / scalacOptions := globalScala3ScalacOptions,
-    packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity) // TODO: check if packaging into standalone is required
+    Compile / scalacOptions := globalScala3ScalacOptions
   )
 
 lazy val sbtApi =
@@ -140,8 +138,7 @@ lazy val sbtApi =
         "sbtStructurePath_1_2" -> relativeJarPath(sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, "1.2")),
         "sbtStructurePath_1_3" -> relativeJarPath(sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, "1.3"))
       ),
-      buildInfoOptions += BuildInfoOption.ConstantValue,
-      packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity) // TODO: check if packaging into standalone is required
+      buildInfoOptions += BuildInfoOption.ConstantValue
     )
 
 lazy val codeInsight = newProject(
@@ -336,8 +333,7 @@ lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
     libraryDependencies ++= Seq(
       Dependencies.junit % Test,
       Dependencies.junitInterface % Test,
-    ),
-    packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity) // TODO: check if packaging into standalone is required
+    )
   )
   .settings(compilationCacheSettings)
 
@@ -348,7 +344,6 @@ lazy val packageSearchClient: sbt.Project =
       Compile / scalacOptions := globalScala3ScalacOptions,
       resolvers += DependencyResolvers.PackageSearch,
       libraryDependencies += Dependencies.packageSearchClientJvm,
-      packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity) // TODO: check if packaging into standalone is required
     )
 
 lazy val scalaImpl: sbt.Project =
@@ -400,8 +395,7 @@ lazy val scalaImpl: sbt.Project =
         Dependencies.scalaParserCombinators -> Some("lib/scala-parser-combinators.jar"),
         Dependencies.scalaLibrary           -> None,
         Dependencies.scala3Library          -> None
-      ),
-      packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity) // TODO: check if packaging into standalone is required
+      )
     )
 
 /**
@@ -440,8 +434,7 @@ lazy val sbtImpl =
   newProject("sbt-impl", file("sbt/sbt-impl"))
     .dependsOn(sbtApi, scalaImpl % "test->test;compile->compile")
     .settings(
-      intellijPlugins += "org.jetbrains.idea.maven".toPlugin,
-      packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity) // TODO: check if packaging into standalone is required
+      intellijPlugins += "org.jetbrains.idea.maven".toPlugin
     )
 
 lazy val compilerIntegration =
@@ -690,7 +683,7 @@ lazy val bspJUnit =
     )
     .settings(
       intellijPlugins += "JUnit".toPlugin,
-      packageMethod := PackagingMethod.Standalone("lib/modules/scalaCommunity.bsp-junit.jar"),
+      packageMethod := PackagingMethod.PluginModule("scalaCommunity.bsp-junit")
     )
 
 lazy val bspTerminal =
@@ -700,7 +693,7 @@ lazy val bspTerminal =
     )
     .settings(
       intellijPlugins += "org.jetbrains.plugins.terminal".toPlugin,
-      packageMethod := PackagingMethod.Standalone("lib/modules/scalaCommunity.bsp-terminal.jar"),
+      packageMethod := PackagingMethod.PluginModule("scalaCommunity.bsp-terminal")
     )
 
 lazy val bsp =
@@ -715,7 +708,7 @@ lazy val bsp =
       buildInfoPackage := "org.jetbrains.bsp.buildinfo",
       buildInfoKeys := Seq("bloopVersion" -> Versions.bloopVersion),
       buildInfoOptions += BuildInfoOption.ConstantValue,
-      packageMethod := PackagingMethod.Standalone("lib/modules/scalaCommunity.bsp.jar"),
+      packageMethod := PackagingMethod.PluginModule("scalaCommunity.bsp"),
       packageAssembleLibraries := true
     )
 
