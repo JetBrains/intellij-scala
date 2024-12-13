@@ -8,10 +8,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.backwardRefs.index.CompilerReferenceIndex
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.indices.protocol.CompilationInfo
 import org.jetbrains.plugins.scala.indices.protocol.jps.JpsCompilationInfo
-import org.jetbrains.plugins.scala.indices.protocol.sbt.SbtCompilationInfo
+import org.jetbrains.plugins.scala.indices.protocol.sbt.{Configuration, SbtCompilationInfo}
 import org.jetbrains.sbt.project.data.ModuleNode
 
 import java.io.File
@@ -42,13 +41,22 @@ package object references {
     }
 
   implicit class CompilationInfoExt(private val info: CompilationInfo) extends AnyVal {
-    def affectedModules(project: Project): Set[Module] = {
+    def affectedModules(project: Project): Set[(Module, ModuleScope)] = {
       val manager = ModuleManager.getInstance(project)
 
       info match {
-        case jinfo: JpsCompilationInfo   => jinfo.affectedModules.flatMap(manager.findModuleByName(_).toOption)
-        case sbtInfo: SbtCompilationInfo => findIdeaModule(project, sbtInfo.projectId).toSet
-        case _                           => Set.empty
+        case jinfo: JpsCompilationInfo =>
+          jinfo.affectedModules
+            .flatMap(ModuleScope.parse)
+            .flatMap { case (name, scope) => Option(manager.findModuleByName(name)).map((_, scope)) }
+        case sbtInfo: SbtCompilationInfo =>
+          val scope = sbtInfo.configuration match {
+            case Configuration.Compile => ModuleScope.Production
+            case Configuration.Test => ModuleScope.Test
+          }
+          findIdeaModule(project, sbtInfo.projectId).map((_, scope)).toSet
+        case _ =>
+          Set.empty
       }
     }
   }

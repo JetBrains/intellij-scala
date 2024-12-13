@@ -79,7 +79,7 @@ private class ScalaDirtyScopeHolder(
   }
 
   private[references] def compilationInfoIndexed(info: CompilationInfo): Unit = {
-    val modules = info.affectedModules(project)
+    val modules = info.affectedModules(project).map(_._1)
 
     val scopes = info match {
       case sbti: SbtCompilationInfo => modules.map(ScopedModule(_, sbti.configuration))
