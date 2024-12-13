@@ -1,12 +1,13 @@
 package org.jetbrains.plugins.scala.compiler.references
 
+import com.intellij.openapi.module.Module
 import com.intellij.util.messages.Topic
 
 import java.util.EventListener
 
 trait CompilerReferenceServiceStatusListener extends EventListener {
   def onIndexingPhaseStarted(): Unit                       = ()
-  def onCompilationInfoIndexed(modules: Set[String]): Unit = ()
+  def onCompilationInfoIndexed(modules: Set[(Module, ModuleScope)]): Unit = ()
   def onIndexingPhaseFinished(success:  Boolean): Unit     = ()
 }
 

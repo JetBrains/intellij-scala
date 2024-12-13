@@ -128,12 +128,12 @@ final private[references] class ScalaCompilerReferenceService(project: Project) 
     }
 
     override def processCompilationInfo(info: CompilationInfo, isOffline: Boolean): Unit = {
-      val modules = info.affectedModules(project).map(_.getName)
+      val modules = info.affectedModules(project)
       logger.debug(s"[compiler indices] processCompilationInfo. offline: $isOffline")
 
       indexerScheduler.schedule(ProcessCompilationInfo(info, () => {
         if (!isOffline) { // do not mark modules as up-to-date when indexing 'offline' sbt compilations
-          modules.foreach(compilationTimestamps.put(_, info.startTimestamp))
+          modules.foreach { case (m, _) => compilationTimestamps.put(m.getName, info.startTimestamp) }
           logger.debug(s"[compiler indices] Reindexed ${info.generatedClasses.size} classfiles.")
           dirtyScopeHolder.compilationInfoIndexed(info)
           messageBus.syncPublisher(CompilerReferenceServiceStatusListener.topic).onCompilationInfoIndexed(modules)
@@ -202,8 +202,8 @@ final private[references] class ScalaCompilerReferenceService(project: Project) 
           )
           onIndexCorruption()
         } else {
-          reader = ScalaCompilerReferenceReaderFactory(project)
           messageBus.syncPublisher(CompilerReferenceServiceStatusListener.topic).onIndexingPhaseFinished(indexingSuccessful)
+          reader = ScalaCompilerReferenceReaderFactory(project)
         }
       }
 

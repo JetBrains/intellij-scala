@@ -1,7 +1,5 @@
 package org.jetbrains.jps.incremental.scala
 
-import java.io.File
-import java.{util => jutil}
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.java.{JavaModuleBuildTargetType, JavaSourceRootDescriptor}
@@ -11,9 +9,12 @@ import org.jetbrains.jps.incremental.scala.InitialScalaBuilder.{hasScala, isScal
 import org.jetbrains.jps.incremental.{BuilderCategory, CompileContext, ModuleBuildTarget, ModuleLevelBuilder}
 import org.jetbrains.plugins.scala.compiler.references.Builder.rebuildPropertyKey
 import org.jetbrains.plugins.scala.compiler.references.Messages._
+import org.jetbrains.plugins.scala.compiler.references.ModuleScope
 import org.jetbrains.plugins.scala.indices.protocol.CompiledClass
 import org.jetbrains.plugins.scala.indices.protocol.jps.JpsCompilationInfo
 
+import java.io.File
+import java.{util => jutil}
 import scala.jdk.CollectionConverters._
 
 class ScalaCompilerReferenceIndexBuilder extends ModuleLevelBuilder(BuilderCategory.CLASS_POST_PROCESSOR) {
@@ -38,7 +39,12 @@ class ScalaCompilerReferenceIndexBuilder extends ModuleLevelBuilder(BuilderCateg
     if (shouldBeNonIncremental) {
       val pd                      = context.getProjectDescriptor
       val (allClasses, timestamp) = getAllClassesInfo(context)
-      val allModules = pd.getProject.getModules.asScala.filter(hasScala(context, _)).map(_.getName).toSet
+      val allModules = pd.getProject.getModules.asScala.filter(hasScala(context, _))
+        .flatMap { m =>
+          val name = m.getName
+          Seq(ModuleScope.Production, ModuleScope.Test).map(_.appendScopeSuffix(name))
+        }
+        .toSet
 
       val info = JpsCompilationInfo(
         allModules,
@@ -72,7 +78,11 @@ class ScalaCompilerReferenceIndexBuilder extends ModuleLevelBuilder(BuilderCateg
       return ExitCode.OK
 
     if (!shouldBeNonIncremental) {
-      val affectedModules = chunk.getModules.asScala.filter(hasScala(context, _)).map(_.getName).toSet
+      val affectedModules = chunk.getTargets.asScala.map { target =>
+        val scope = if (target.isTests) ModuleScope.Test else ModuleScope.Production
+        val name = target.getModule.getName
+        scope.appendScopeSuffix(name)
+      }.toSet
 
       val compiledClasses =
         outputConsumer.getCompiledClasses

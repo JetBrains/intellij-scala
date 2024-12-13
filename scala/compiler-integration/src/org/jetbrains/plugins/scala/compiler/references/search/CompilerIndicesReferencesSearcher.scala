@@ -4,7 +4,7 @@ import com.intellij.find.FindManager
 import com.intellij.find.impl.FindManagerImpl
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.project.{DumbService, Project}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.ui.{DialogWrapper, Messages}
 import com.intellij.psi._
@@ -15,10 +15,11 @@ import com.intellij.util.containers.ContainerUtil
 import com.intellij.util.messages.MessageBusConnection
 import com.intellij.util.ui.EDT
 import org.jetbrains.plugins.scala.compiler.CompilerIntegrationBundle
-import org.jetbrains.plugins.scala.compiler.references.{CompilerReferenceServiceStatusListener, ScalaCompilerReferenceService, UsagesInFile, task, upToDateCompilerIndexExists}
+import org.jetbrains.plugins.scala.compiler.references.{CompilerReferenceServiceStatusListener, ModuleScope, ScalaCompilerReferenceService, UsagesInFile, task, upToDateCompilerIndexExists}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.findUsages.SearchTargetExtractors.SAMType
 import org.jetbrains.plugins.scala.findUsages.factory.ScalaFindUsagesConfiguration
+
 //noinspection ApiStatus
 import org.jetbrains.plugins.scala.compiler.references.indices.ScalaCompilerIndices
 import org.jetbrains.plugins.scala.compiler.references.search.ImplicitUsagesSearchDialogs._
@@ -163,42 +164,39 @@ object CompilerIndicesReferencesSearcher extends ExternalSearchScopeChecker {
     pendingConnection = project.getMessageBus.connect(project.unloadAwareDisposable)
 
     pendingConnection.subscribe(CompilerReferenceServiceStatusListener.topic, new CompilerReferenceServiceStatusListener {
-      private[this] val targetModuleNames = ContainerUtil.newConcurrentSet[String]
+      private[this] val modulesInCurrentBuild = ContainerUtil.newConcurrentSet[(String, ModuleScope)]
 
-      targetModuleNames.addAll(targetModules.collect {
+      modulesInCurrentBuild.addAll(targetModules.collect {
         case module if module.isSourceModule => module.getName
-      }.asJavaCollection)
+      }.flatMap(m => Seq((m, ModuleScope.Production), (m, ModuleScope.Test))).asJavaCollection)
 
       override def onIndexingPhaseStarted(): Unit = showProgressIndicator(project)
 
-      override def onCompilationInfoIndexed(modules: Set[String]): Unit =
-        targetModuleNames.removeAll(modules.asJava)
+      override def onCompilationInfoIndexed(modules: Set[(Module, ModuleScope)]): Unit =
+        modulesInCurrentBuild.removeAll(modules.map { case (m, scope) => (m.getName, scope) }.asJava)
 
       override def onIndexingPhaseFinished(success: Boolean): Unit = {
-        if (success) {
-          if (targetModuleNames.isEmpty) {
-            lock.withLock(indexingFinishedCondition.signal())
-            val findManager = FindManager.getInstance(project).asInstanceOf[FindManagerImpl]
-            val config      = ScalaFindUsagesConfiguration.getInstance(project)
+        lock.withLock(indexingFinishedCondition.signal())
+        if (success && modulesInCurrentBuild.isEmpty) {
+          val findManager = FindManager.getInstance(project).asInstanceOf[FindManagerImpl]
+          val config      = ScalaFindUsagesConfiguration.getInstance(project)
 
-            val handler = inReadAction(target match {
-              case SAMType(_) => new ScalaFindUsagesHandler(target, config)
-              case _          => new CompilerIndicesFindUsagesHandler(target, config)
-            })
+          val handler = inReadAction(target match {
+            case SAMType(_) => new ScalaFindUsagesHandler(target, config)
+            case _          => new CompilerIndicesFindUsagesHandler(target, config)
+          })
 
-            pendingConnection.disconnect()
-            invokeWhenSmart(project) {
-              findManager.getFindUsagesManager.findUsages(
-                handler.getPrimaryElements,
-                handler.getSecondaryElements,
-                handler,
-                handler.getFindUsagesOptions(),
-                false
-              )
-            }
+          pendingConnection.disconnect()
+          invokeWhenSmart(project) {
+            findManager.getFindUsagesManager.findUsages(
+              handler.getPrimaryElements,
+              handler.getSecondaryElements,
+              handler,
+              handler.getFindUsagesOptions(),
+              false
+            )
           }
         } else {
-          lock.withLock(indexingFinishedCondition.signal())
           pendingConnection.disconnect()
         }
       }
