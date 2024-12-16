@@ -285,7 +285,11 @@ trait ExpressionTransformation { this: ScalaDfaControlFlowBuilder =>
   }
 
   private def transformReturnStatement(returnStatement: ScReturn, rreq: ResultReq): rreq.Result = {
-    transformExpression(returnStatement.expr, ResultReq.None)
+    returnStatement.expr.foreach { expr =>
+      val value = transformExpression(expr, ResultReq.Required)
+      reportFuncResultHere(value, ScalaStatementAnchor(returnStatement))
+      pop(value)
+    }
 
     ret(returnStatement.expr)
     pushUnknownValue(rreq)

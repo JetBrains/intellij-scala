@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 /**
  * [[ClassParamClauses]] ::= { [[ClassParamClause]] }
- * [ [nl] '(' 'implicit' ClassParams ')' ]
+ *                           [ [nl] '(' 'implicit' ClassParams ')' ]
  */
 object ClassParamClauses extends ParsingRule {
 

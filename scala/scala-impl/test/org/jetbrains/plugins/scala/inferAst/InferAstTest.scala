@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.util.TestUtils
 
 import java.nio.file.Paths
+import scala.collection.mutable
 
 class InferAstTest extends ScalaLightCodeInsightFixtureTestCase {
   def testInferRun(): Unit = {
@@ -54,13 +55,9 @@ class InferAstTest extends ScalaLightCodeInsightFixtureTestCase {
       else psiManager.findFile(vf).asOptionOf[ScFile].toSeq
     }
 
-//    allFiles(parserVF.findFileByRelativePath("parsing"))
-//      .flatMap(findParseMethods)
-//      .filter(isParseMethod)
-//      .foreach(analysis => println(s"${analysis.obj.qualifiedName}: ${analysis.method.qualifiedNameOpt.get}"))
-
 
     println("Gather functions...")
+    val analysis = new GlobalAnalysis(getProject)
 
 
     val allMethods =
@@ -72,16 +69,67 @@ class InferAstTest extends ScalaLightCodeInsightFixtureTestCase {
 
     //allMethods.keys.toSeq.sorted.foreach(println)
 
-    println("Run analysis...")
-    val analysis = new GlobalAnalysis(getProject)
     val blubMethod = allMethods("org.jetbrains.plugins.scala.lang.parser.parsing.Blub.parse")
     val obj = blubMethod.containingClass.asInstanceOf[ScObject]
     analysis.addToAnalysis(AnalysisItem(blubMethod, obj, Seq.empty))
 
+
+//    allFiles(parserVF.findFileByRelativePath("parsing"))
+//      .flatMap(findParseMethods)
+//      .filter(isParseMethod)
+//      .foreach { item =>
+//        println(s"${item.obj.qualifiedName}: ${item.method.qualifiedNameOpt.get}")
+//        analysis.addToAnalysis(item)
+//      }
+
+
+    println("Run analysis...")
     analysis.run()
+
+    val resultItems = analysis.resultItems
+
+    val functionResults = mutable.Map.empty[AnalysisItem, (AstAutomaton[ElementAstAction], Option[AstAutomaton[ElementAstAction]])]
+    val elementResults = mutable.Map.empty[String, AstAutomaton[ElementAstAction]]
+
+    def addElementResult(name: String, automaton: AstAutomaton[ElementAstAction]): Unit =
+      elementResults.get(name) match {
+        case Some(existing) => existing.merge(automaton)
+        case None => elementResults.put(name, automaton)
+      }
+
+    for ((item, result) <- resultItems) {
+      val (trueMain, trueElementTypes) = ElementAst.from(result.trueResult)
+      trueElementTypes.foreach { case (name, aut) => addElementResult(name, aut) }
+
+      val falseMain = result.falseResult.map { falseResult =>
+        val (falseMain, falseElementTypes) = ElementAst.from(falseResult)
+        falseElementTypes.foreach { case (name, aut) => addElementResult(name, aut) }
+        falseMain
+      }
+      functionResults.put(item, (trueMain, falseMain))
+    }
+
+    println("Before Inlining Function Result:")
+    functionResults.foreach { case (item, (trueMain, falseMain)) =>
+      println(s"Before inlining $item (${if (falseMain.isDefined) "(true)" else ""})")
+      println(trueMain.toGraphviz)
+      println()
+
+      falseMain.foreach { falseMain =>
+        println(s"Before inlining $item (false)")
+        println(falseMain.toGraphviz)
+      }
+    }
+
+    println("Before Inlining Element Result:")
+    elementResults.foreach { case (name, aut) =>
+      println(s"Before inlining $name")
+      println(aut.toGraphviz)
+      println()
+    }
   }
 
-  def findParseMethods(file: ScFile): Seq[AnalysisItem] =
+  private def findParseMethods(file: ScFile): Seq[AnalysisItem] =
     file
       .depthFirst(e => !e.is[ScObject])
       .collect { case obj: ScObject => obj }
@@ -93,8 +141,9 @@ class InferAstTest extends ScalaLightCodeInsightFixtureTestCase {
       }
       .toSeq
 
-  def isParseMethod(analysisItem: AnalysisItem): Boolean = {
+  private def isParseMethod(analysisItem: AnalysisItem): Boolean = {
     val m = analysisItem.method
-    m.parameters.forall(p => p.isImplicit && p.getType.getCanonicalText == "org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder")
+    m.parameters.forall(p => p.getType.getCanonicalText == "org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder")
   }
+
 }

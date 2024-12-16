@@ -83,7 +83,6 @@ final class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInf
       pushUnknownValue()
     }
 
-
   def buildUnknownCall(rreq: ResultReq, args: Seq[StackValue] = Seq.empty, anchor: ScalaDfaAnchor = null): rreq.Result = rreq.result {
     pop(args)
     val result = push(DfType.TOP, anchor)

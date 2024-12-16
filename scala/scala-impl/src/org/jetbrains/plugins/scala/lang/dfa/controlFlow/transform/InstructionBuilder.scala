@@ -13,6 +13,7 @@ import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.{DfaControlTransferValue, DfaValueFactory, DfaVariableValue, RelationType, VariableDescriptor}
 import com.intellij.psi.{CommonClassNames, PsiClass, PsiElement, PsiPrimitiveType}
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaReportReturnInstruction
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.{ScalaDfaAnchor, ScalaPsiElementDfaAnchor, ScalaStatementAnchor}
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.ScalaInvocationInstruction
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.AnalysedMethodInfo
@@ -215,6 +216,11 @@ abstract class InstructionBuilder(factory: DfaValueFactory,
     val Left(stacks) = label.stacksOrIndex
     label.stacksOrIndex = Right(index)
     stacks.foreach(addIncomingStack(label, _))
+  }
+
+  def reportFuncResultHere(stackValue: StackValue, anchor: ScalaDfaAnchor): Unit = {
+    stack.checkTop(stackValue)
+    addInstruction(new ScalaReportReturnInstruction(anchor))
   }
 
   def ret(expression: Option[ScExpression]): Unit =

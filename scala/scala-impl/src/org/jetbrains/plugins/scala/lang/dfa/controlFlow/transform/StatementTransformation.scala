@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform
 
+import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, TransformationFailedException}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockStatement, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaration, ScDefinitionWithAssignment}
@@ -24,5 +25,11 @@ trait StatementTransformation { this: ScalaDfaControlFlowBuilder =>
     }
 
     result
+  }
+
+  def transformAndReportStatement(stmt: ScBlockStatement): Unit = {
+    val result = transformStatement(stmt, ResultReq.Required)
+    reportFuncResultHere(result, ScalaStatementAnchor(stmt))
+    pop(result)
   }
 }

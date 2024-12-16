@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.inferAst
 
 import com.intellij.codeInspection.dataFlow.memory.{DfaMemoryState, DfaMemoryStateImpl}
+import com.intellij.codeInspection.dataFlow.types.DfTypes
 import com.intellij.codeInspection.dataFlow.value.DfaValueFactory
 
 import scala.collection.mutable
@@ -23,11 +24,15 @@ object AstAction {
   }
 }
 
+trait ActionPos
+case object StartActionPos extends ActionPos
+case class IndexActionPos(index: Int) extends ActionPos
+case class AfterCallActionPos(index: Int, result: Boolean) extends ActionPos
 
 class InferAstDfaMemoryState private(prev: DfaMemoryStateImpl) extends DfaMemoryStateImpl(prev) {
-  private var lastActions: Set[Int] = Set(-1)
-  private var actions: Map[Int, Set[AstAction]] = Map.empty
-  private var predecessors: Map[Int, Set[Int]] = Map.empty
+  private var lastActions: Set[ActionPos] = Set(StartActionPos)
+  private var actions: Map[ActionPos, Set[AstAction]] = Map.empty
+  private var predecessors: Map[ActionPos, Set[ActionPos]] = Map.empty
 
   def this(prev: InferAstDfaMemoryState) = {
     this(prev: DfaMemoryStateImpl)
@@ -48,7 +53,7 @@ class InferAstDfaMemoryState private(prev: DfaMemoryStateImpl) extends DfaMemory
 
   override def tryJoinExactly(other: DfaMemoryState): DfaMemoryState = {
     other match {
-      case other: InferAstDfaMemoryState =>
+      case other: InferAstDfaMemoryState if isEmptyStack =>
         val result = super.tryJoinExactly(other)
         if (result eq this) this.mergeActions(other)
         else if (result eq other) other.mergeActions(this)
@@ -58,8 +63,10 @@ class InferAstDfaMemoryState private(prev: DfaMemoryStateImpl) extends DfaMemory
     }
   }
 
+  override def merge(that: DfaMemoryState): Unit = super.merge(that)
+
   private def mergeActions(other: InferAstDfaMemoryState): Unit = {
-    def mergeMap[T](a: Map[Int, Set[T]], b: Map[Int, Set[T]]): Map[Int, Set[T]] =
+    def mergeMap[K, T](a: Map[K, Set[T]], b: Map[K, Set[T]]): Map[K, Set[T]] =
       (a.keySet | b.keySet).iterator
         .map { key => key -> (a.getOrElse(key, Set.empty) | b.getOrElse(key, Set.empty)) }
         .toMap
@@ -89,22 +96,22 @@ class InferAstDfaMemoryState private(prev: DfaMemoryStateImpl) extends DfaMemory
   }
 
 
-  def addAction(index: Int, action: AstAction): Unit =
-    addActions(index, List(action))
+  def addAction(pos: ActionPos, action: AstAction): Unit =
+    addActions(pos, List(action))
 
-  def addActions(index: Int, actions: IterableOnce[AstAction]): Unit = {
+  def addActions(pos: ActionPos, actions: IterableOnce[AstAction]): Unit = {
     val actionIt = actions.iterator
     if (!actionIt.hasNext) return
-    predecessors += index -> (predecessors.getOrElse(index, Set.empty) | lastActions)
-    lastActions = Set(index)
-    this.actions += index -> (this.actions.getOrElse(index, Set.empty) ++ actionIt)
+    predecessors += pos -> (predecessors.getOrElse(pos, Set.empty) | lastActions)
+    lastActions = Set(pos)
+    this.actions += pos -> (this.actions.getOrElse(pos, Set.empty) ++ actionIt)
   }
 
   def buildAstAutomaton(): AstAutomaton[AstAction] = {
     val result = new AstAutomaton[AstAction]
-    val indexToNodes = mutable.Map.empty[Int, Set[result.Node]]
+    val indexToNodes = mutable.Map.empty[ActionPos, Set[result.Node]]
 
-    def buildNode(index: Int): Set[result.Node] = {
+    def buildNode(index: ActionPos): Set[result.Node] = {
       val isNew = !indexToNodes.contains(index)
       val nodes = indexToNodes.getOrElseUpdate(index, actions(index).map(new result.Node(_)))
       if (isNew) {
@@ -115,7 +122,7 @@ class InferAstDfaMemoryState private(prev: DfaMemoryStateImpl) extends DfaMemory
           nodes.foreach(_.markStart())
         } else {
           val target =
-            if (predIndices.count(_ != -1) == 1) {
+            if (predIndices.count(_ != StartActionPos) == 1) {
               nodes
             } else {
               val mergeNode = new result.Node(AstAction.Empty)
@@ -124,7 +131,7 @@ class InferAstDfaMemoryState private(prev: DfaMemoryStateImpl) extends DfaMemory
             }
 
           predIndices.foreach {
-            case -1 => target.foreach(_.markStart())
+            case StartActionPos => target.foreach(_.markStart())
             case predIdx => buildNode(predIdx).foreach { predNode => predNode ~> target }
           }
         }
@@ -133,7 +140,7 @@ class InferAstDfaMemoryState private(prev: DfaMemoryStateImpl) extends DfaMemory
     }
 
     for {
-      idx <- lastActions if idx != -1
+      idx <- lastActions if idx != StartActionPos
       node <- buildNode(idx)
     } {
       node.markExit()

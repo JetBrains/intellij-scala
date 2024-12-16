@@ -1,8 +1,12 @@
 package org.jetbrains.plugins.scala.inferAst
 
+import com.github.sbt.junit.jupiter.internal.TestLogger
 import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow
-import com.intellij.codeInspection.dataFlow.value.DfaValueFactory
+import com.intellij.codeInspection.dataFlow.types.DfTypes
+import com.intellij.codeInspection.dataFlow.value.{DfaCondition, DfaValueFactory}
 import com.intellij.openapi.project.Project
+import com.intellij.testFramework.TestLoggerKt
+import com.jetbrains.rd.util.threading.CompoundThrowable
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.AnalysedMethodInfo
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform.ResultReq
@@ -15,16 +19,19 @@ case class AnalysisItem(method: ScFunctionDefinition, obj: ScObject, args: Seq[A
   override def toString: String = s"AnalysisItem(${method.name} in ${obj.name}, [${args.mkString(", ")}])"
 }
 
-case class AnalysisResult(trueResult: AstAutomaton[ElementAstAction],
-                          falseResult: AstAutomaton[ElementAstAction])
+case class AnalysisResult(trueResult: AstAutomaton[AstAction],
+                          falseResult: Option[AstAutomaton[AstAction]])
 
 private class GlobalAnalysis(project: Project) {
   private val valueFactory = new DfaValueFactory(project)
   private val addedItems = mutable.Set.empty[AnalysisItem]
   private val missingItems = mutable.Queue.empty[AnalysisItem]
   private val doneItems = mutable.Map.empty[AnalysisItem, AnalysisResult]
-  private val elements: mutable.Map[String, AstAutomaton[ElementAstAction]] = mutable.Map.empty
   private val cfgs = mutable.Map.empty[ScFunctionDefinition, ControlFlow]
+
+  val exceptions: mutable.Buffer[Throwable] = mutable.Buffer.empty
+
+  def resultItems: Map[AnalysisItem, AnalysisResult] = doneItems.toMap
 
   def addToAnalysis(item: AnalysisItem): Unit = {
     if (addedItems.add(item)) {
@@ -33,10 +40,25 @@ private class GlobalAnalysis(project: Project) {
   }
 
   def run(): Unit = {
+    var success = 0
     while (missingItems.nonEmpty) {
       val item = missingItems.dequeue()
-      analyze(item)
+      //try {
+        analyze(item)
+        val errors = TestLoggerKt.getErrorLog.takeLoggedErrors()
+        if (!errors.isEmpty) {
+          throw new CompoundThrowable(errors)
+        }
+        success += 1
+      //} catch {
+      //  case e: Throwable =>
+      //    exceptions += e
+      //}
     }
+
+    println(s"Successes: $success")
+    println(s"Failures:  ${exceptions.length}")
+    println(exceptions.groupBy(_.getClass.getName).map{ case (name, exps) => s"$name: ${exps.length}"}.mkString("\n"))
   }
 
   def getCfg(fun: ScFunctionDefinition): ControlFlow =
@@ -45,7 +67,7 @@ private class GlobalAnalysis(project: Project) {
       val analysedMethodInfo = AnalysedMethodInfo(fun, 1)
       val controlFlowBuilder = new ScalaDfaControlFlowBuilder(analysedMethodInfo, valueFactory, body, buildUnsupportedPsiElements = false)
 
-      controlFlowBuilder.transformStatement(body, ResultReq.None)
+      controlFlowBuilder.transformAndReportStatement(body)
       controlFlowBuilder.build()
     })
 
@@ -61,20 +83,67 @@ private class GlobalAnalysis(project: Project) {
     val initialState = InferAstDfaMemoryState(valueFactory)
     interpreter.interpret(initialState)
 
-    val result = interpreter.resultingStates
-    println("result.size: " + result.size)
-    val automaton = AstAutomaton.squash(result.map(_.buildAstAutomaton())).minimized
-    println(automaton.toGraphviz)
+    val resultStates = interpreter.resultingStates
 
-    println("----------------")
-    val (main, inners) = ElementAst.from(automaton)
-    println(main.toGraphviz)
-    println("----------------")
-    inners.foreach { case (name, a) =>
-      println(name + ":")
-      println(a.toGraphviz)
-      println("----------------")
-    }
+    val result =
+      if (item.method.returnType.exists(_.isBoolean)) {
+        val trueAutomatons = mutable.Buffer.empty[AstAutomaton[AstAction]]
+        val falseAutomatons = mutable.Buffer.empty[AstAutomaton[AstAction]]
+        resultStates.foreach { state =>
+          val automaton = state.buildAstAutomaton()
+
+          automaton.reachableNodes.map(_.action).foreach {
+            case AstAction.Call(item, _) => addToAnalysis(item)
+            case _ =>
+          }
+
+          val result = state.peek().eq(DfTypes.TRUE)
+          if (result != DfaCondition.getFalse) {
+            trueAutomatons += automaton
+          }
+          if (result != DfaCondition.getTrue) {
+            falseAutomatons += automaton
+          }
+        }
+
+        val trueAutomaton = AstAutomaton.squash(trueAutomatons).minimized
+        val falseAutomaton = AstAutomaton.squash(falseAutomatons).minimized
+
+        println(s"Result $item (true):")
+        println(trueAutomaton.toGraphviz)
+        println()
+
+        println(s"Result $item (false):")
+        println(falseAutomaton.toGraphviz)
+        println()
+
+        AnalysisResult(trueAutomaton, Some(falseAutomaton))
+      } else {
+        val automaton = AstAutomaton.squash(resultStates.map(_.buildAstAutomaton())).minimized
+        println(s"Result $item (non-boolean):")
+        println(automaton.toGraphviz)
+        println()
+        AnalysisResult(automaton, None)
+      }
+
+    doneItems.put(item, result)
+
+
+//    println("result.size: " + result.size)
+//    val automaton = AstAutomaton.squash(result.map(_.buildAstAutomaton())).minimized
+//    println(automaton.toGraphviz)
+//
+//    println("----------------")
+//    val (main, inners) = ElementAst.from(automaton)
+//    println(main.toGraphviz)
+//    println("----------------")
+//    inners.foreach { case (name, a) =>
+//      println(name + ":")
+//      println(a.toGraphviz)
+//      println("----------------")
+//    }
+
+
   }
 }
 

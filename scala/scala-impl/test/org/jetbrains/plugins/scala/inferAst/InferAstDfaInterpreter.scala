@@ -5,8 +5,9 @@ import com.intellij.codeInspection.dataFlow.jvm.descriptors.ThisDescriptor
 import com.intellij.codeInspection.dataFlow.lang.DfaListener
 import com.intellij.codeInspection.dataFlow.lang.ir.{ControlFlow, DfaInstructionState, ReturnInstruction}
 import com.intellij.codeInspection.dataFlow.types.{DfType, DfTypes}
-import com.intellij.codeInspection.dataFlow.value.{DfaValue, DfaVariableValue, VariableDescriptor}
+import com.intellij.codeInspection.dataFlow.value.{DfaCondition, DfaValue, DfaVariableValue, VariableDescriptor}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaReportReturnInstruction
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.{ScalaDfaAnchor, ScalaDfaAnchorWithPsiElement}
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.ScalaInvocationInstruction
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaObjectVariableDescriptor, ScalaDfaVariableDescriptor}
@@ -63,19 +64,21 @@ class InferAstDfaInterpreter(cfg: ControlFlow, thisObject: ScObject) extends Sta
                     fun
                   case _ =>
                     val Seq(fun) = called.allMethods
-                      .filter(_.method.findSuperMethods(method.containingClass).contains(method))
+                      .filter(_.method.findSuperMethods().contains(method))
                       .flatMap(_.method.asOptionOf[ScFunctionDefinition])
                       .toSeq
                     fun
                 }
+
+                memoryState.flushVariable(currentTokenVariable)
                 if (method.returnType.exists(_.isBoolean)) {
                   val trueAction = AstAction.Call(AnalysisItem(realFunction, called, Seq.empty), Some(true))
                   val falseAction = trueAction.copy(result = Some(false))
 
                   val trueState = memoryState.createCopy()
                   val falseState = memoryState
-                  trueState.addAction(index, trueAction)
-                  falseState.addAction(index, falseAction)
+                  trueState.addAction(AfterCallActionPos(index, true), trueAction)
+                  falseState.addAction(AfterCallActionPos(index, false), falseAction)
                   trueState.push(getFactory.fromDfType(DfTypes.TRUE))
                   falseState.push(getFactory.fromDfType(DfTypes.FALSE))
                   Array(
@@ -84,7 +87,7 @@ class InferAstDfaInterpreter(cfg: ControlFlow, thisObject: ScObject) extends Sta
                   )
                 } else {
                   val item = AstAction.Call(AnalysisItem(realFunction, called, Seq.empty), None)
-                  memoryState.addAction(index, item)
+                  memoryState.addAction(IndexActionPos(index), item)
                   memoryState.push(getFactory.getUnknown)
                   Array(new DfaInstructionState(getInstruction(index + 1), memoryState))
                 }
@@ -94,12 +97,12 @@ class InferAstDfaInterpreter(cfg: ControlFlow, thisObject: ScObject) extends Sta
 
           //case None => throw new Exception(s"Cannot process call to $invokedName")
         }
-      case _: ReturnInstruction =>
+      case _: ScalaReportReturnInstruction =>
         _resultingStates += memoryState
-        val result = super.acceptInstruction(instructionState)
+        //val result = super.acceptInstruction(instructionState)
 
-        assert(result.isEmpty, "If this fails the return logic has to be reworked :) have fun")
-        result
+        //assert(result.isEmpty, "If this fails the return logic has to be reworked :) have fun")
+        Array.empty
       case _ =>
         super.acceptInstruction(instructionState)
     }
@@ -145,7 +148,7 @@ class InferAstDfaInterpreter(cfg: ControlFlow, thisObject: ScObject) extends Sta
       case v: ScalaDfaVariableDescriptor if v.toString.startsWith("ScalaTokenType") => v.toString
     }
 
-    state.addAction(index, AstAction.Token(action.getOrElse("unknown")))
+    state.addAction(IndexActionPos(index), AstAction.Token(action.getOrElse("unknown")))
 
     state.push(getFactory.getUnknown)
     state.flushVariable(currentTokenVariable)
@@ -154,7 +157,7 @@ class InferAstDfaInterpreter(cfg: ControlFlow, thisObject: ScObject) extends Sta
 
   private def `PsiBuilder#mark`(state: InferAstDfaMemoryState, index: Int): InferAstDfaMemoryState = {
     state.pop() // builder
-    state.addAction(index, AstAction.Mark(index))
+    state.addAction(IndexActionPos(index), AstAction.Mark(index))
     state.push(getFactory.getVarFactory.createVariableValue(MarkerDescriptor(index)))
     state
   }
@@ -169,7 +172,7 @@ class InferAstDfaInterpreter(cfg: ControlFlow, thisObject: ScObject) extends Sta
 
     assert(actions.isDefined, s"Cannot find marker $marker")
 
-    state.addActions(index, actions)
+    state.addActions(IndexActionPos(index), actions)
 
     state.push(getFactory.getUnknown)
     state
@@ -183,8 +186,9 @@ class InferAstDfaInterpreter(cfg: ControlFlow, thisObject: ScObject) extends Sta
       case MarkerDescriptor(index) => AstAction.Rollback(index)
     }
 
-    state.addActions(index, actions)
+    state.addActions(IndexActionPos(index), actions)
 
+    state.flushVariable(currentTokenVariable)
     state.push(getFactory.getUnknown)
     state
   }
@@ -196,7 +200,7 @@ class InferAstDfaInterpreter(cfg: ControlFlow, thisObject: ScObject) extends Sta
       case MarkerDescriptor(index) => AstAction.Drop(index)
     }
 
-    state.addActions(index, actions)
+    state.addActions(IndexActionPos(index), actions)
 
     state.push(getFactory.getUnknown)
     state
@@ -219,7 +223,7 @@ class InferAstDfaInterpreter(cfg: ControlFlow, thisObject: ScObject) extends Sta
     val error = state.pop()
     state.pop() // builder
     val errorString = Option(error.getDfType.getConstantOfType(classOf[String]))
-    state.addAction(index, AstAction.Error(errorString.get))
+    state.addAction(IndexActionPos(index), AstAction.Error(errorString.get))
     state.push(getFactory.getUnknown)
     state
   }

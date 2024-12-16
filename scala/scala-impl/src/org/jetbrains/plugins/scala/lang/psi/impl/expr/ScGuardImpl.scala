@@ -13,3 +13,22 @@ class ScGuardImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScGuard 
   override def enumeratorToken: Option[PsiElement] =
     findFirstChildByType(ScalaTokenTypes.kIF)
 }
+
+
+
+object Test {
+  class ScGuard(node: ASTNode) extends ScalaPsiElementImpl(node) {
+    def ifKeyword: PsiElement =
+      findFirstChildByType(ScalaTokenTypes.kIF).get // Why get?
+
+    def expr: Option[ScExpression] =
+      findChild[ScExpression] // Why no get?
+  }
+
+  def test(guard: ScGuard): Unit = {
+    val ifKeyword = guard.ifKeyword
+    val expr = guard.expr
+    val parent = guard.getParent
+  }
+
+}
