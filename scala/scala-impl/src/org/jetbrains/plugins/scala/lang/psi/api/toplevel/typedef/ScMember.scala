@@ -4,7 +4,7 @@ import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.openapi.util.Key
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement, PsiMember, PsiModifier}
-import org.jetbrains.annotations.Nullable
+import org.jetbrains.annotations.{Nullable, TestOnly}
 import org.jetbrains.plugins.scala.caches.{ModTracker, cached}
 import org.jetbrains.plugins.scala.extensions.{&, ObjectExt, Parent, StubBasedExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -202,6 +202,13 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
       case _ =>
         None
     }
+
+  /**
+   * Can be invoked on source elements in tests.
+   * It's handy to call it directly because there is no need to have a compiled class file
+   */
+  @TestOnly
+  final def getSourceMirrorMemberForTests: ScMember = getSourceMirrorMember
 
   protected def getSourceMirrorMember: ScMember = getParent match {
     case (_: ScTemplateBody) & Parent((_: ScExtendsBlock) & Parent(td: ScTypeDefinition)) =>
