@@ -2,14 +2,15 @@ package org.jetbrains.plugins.scala.lang.search
 
 import com.intellij.psi.PsiClass
 import com.intellij.psi.search.searches.ClassInheritorsSearch
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt}
 import org.junit.Assert.{assertEquals, assertTrue}
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
-class InheritorsSearchTest extends ScalaLightCodeInsightFixtureTestCase {
-  private def doTest(fileText: String, expectedSubclassNames: String*): Unit = {
+abstract class InheritorsSearchTestBase extends ScalaLightCodeInsightFixtureTestCase {
+  protected def doTest(fileText: String, expectedSubclassNames: String*): Unit = {
     val file = configureFromFileText(fileText)
     val caretOffset = getEditor.getCaretModel.getOffset
     assertTrue("Caret position is missing", caretOffset > 0)
@@ -62,6 +63,29 @@ class InheritorsSearchTest extends ScalaLightCodeInsightFixtureTestCase {
        |""".stripMargin,
     "AA2", "AA3"
   )
+
+  // SCL-23294
+  def testPackageAliasImport(): Unit = {
+    myFixture.addFileToProject(
+      "bar/X.scala",
+      """package bar
+        |
+        |import _root_.{foo => F}
+        |
+        |class X extends F.C
+        |""".stripMargin
+    )
+
+    doTest(
+      s"""package foo
+         |
+         |class ${CARET}C {
+         |  def hello(): Unit = println("Hello")
+         |}
+         |""".stripMargin,
+      "X"
+    )
+  }
 
   def testTypeAlias_WithAliasedFullyQualifiedName_1(): Unit = doTest(
     s"""package org.example
@@ -128,7 +152,6 @@ class InheritorsSearchTest extends ScalaLightCodeInsightFixtureTestCase {
        |""".stripMargin,
     "AA2", "AA3")
 
-
   def testImportAlias(): Unit = doTest(
     s"""
        |object X {
@@ -166,7 +189,6 @@ class InheritorsSearchTest extends ScalaLightCodeInsightFixtureTestCase {
        |""".stripMargin,
     "B1", "B2")
 
-
   //SCL-18672
   def testPrivateSealedTrait(): Unit = doTest(
     s"""
@@ -197,4 +219,35 @@ class InheritorsSearchTest extends ScalaLightCodeInsightFixtureTestCase {
        |}
        |""".stripMargin,
     "SuccessResult", "NotFoundResult", "WrongResult")
+}
+
+final class InheritorsSearchTest extends InheritorsSearchTestBase {
+  override def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
+}
+
+final class InheritorsSearchTest_Scala3 extends InheritorsSearchTestBase {
+  override def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
+
+  // SCL-23294
+  def testPackageAliasUnqualifiedImport(): Unit = {
+    myFixture.addFileToProject(
+      "bar/X.scala",
+      """package bar
+        |
+        |import foo as F
+        |
+        |class X extends F.C
+        |""".stripMargin
+    )
+
+    doTest(
+      s"""package foo
+         |
+         |class ${CARET}C {
+         |  def hello(): Unit = println("Hello")
+         |}
+         |""".stripMargin,
+      "X"
+    )
+  }
 }
