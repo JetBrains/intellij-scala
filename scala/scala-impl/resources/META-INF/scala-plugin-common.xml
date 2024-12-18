@@ -2013,8 +2013,6 @@
         <postStartupActivity implementation="org.jetbrains.plugins.scala.annotator.TypeMismatchTooltipsHandler"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.components.Scala3Disclaimer$ProjectListener"/>"
 
-        <resolveScopeProvider implementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaOutOfSourcesResolveScopeProvider"/>
-
         <iconMapper mappingFile="ScalaIconMappings.json" />
 
         <generalTroubleInfoCollector implementation="org.jetbrains.plugins.scala.internal.ScalaGeneralTroubleInfoCollector"/>

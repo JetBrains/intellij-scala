@@ -18,6 +18,7 @@ import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.worksheet.actions.repl.WorksheetReplRunAction
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.StopWorksheetAction.StoppableProcess
@@ -78,6 +79,8 @@ object WorksheetFileHook {
           scalaFile.incContextModificationStamp()
         case _ =>
       }
+      ScalaPsiManager.instance(project).clearAllCachesAndWait()
+      PsiManager.getInstance(project).dropPsiCaches()
       DaemonCodeAnalyzerEx.getInstanceEx(project).restart(psiFile)
     }
   }

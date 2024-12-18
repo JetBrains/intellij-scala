@@ -67,6 +67,8 @@
         <actionPromoter implementation="org.jetbrains.plugins.scala.worksheet.actions.repl.WorksheetReplRunActionPromoter"/>
         <actionPromoter implementation="org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetActionPromoter"/>
 
+        <resolveScopeProvider implementation="org.jetbrains.plugins.scala.worksheet.ScalaOutOfSourcesResolveScopeProvider"/>
+
         <!--suppress PluginXmlCapitalization -->
         <notificationGroup id="scala.worksheet" displayType="BALLOON" bundle="messages.ScalaWorksheetBundle" key="scala.worksheet.notification.group.display.name"/>
     </extensions>
