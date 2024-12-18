@@ -59,9 +59,7 @@ class ScalaDirectClassInheritorsSearcher extends QueryExecutor[PsiClass, DirectC
     }
 
     for (candidate <- candidates if inReadAction { candidate.showAsInheritor }) {
-      ProgressManager.checkCanceled()
-      if (inReadAction(candidate.isInheritor(clazz, false)))
-        add(candidate)
+      add(candidate)
     }
 
     if (map.nonEmpty) {
