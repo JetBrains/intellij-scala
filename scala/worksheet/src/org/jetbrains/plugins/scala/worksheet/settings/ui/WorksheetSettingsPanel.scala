@@ -60,7 +60,7 @@ private final class WorksheetSettingsPanel(
 
   private def initData(settingsData: WorksheetSettingsData): Unit = {
     import scala.jdk.CollectionConverters._
-    val availableModules = WorksheetModuleUtil.allProductionModulesWithScalaSdk(project)
+    val availableModules = WorksheetModuleUtil.allModulesWithScalaSdk(project)
     moduleComboBox.setModules(availableModules.asJavaCollection)
     // NOTE: this allows the selection to be empty only after combo box initialization
     // FIXME: Currently you can't unselect selected module, see: SCL-18054, IDEA-239791

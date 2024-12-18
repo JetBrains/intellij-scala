@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.psi.impl
+package org.jetbrains.plugins.scala.worksheet
 
 import com.intellij.ide.scratch.ScratchUtil
 import com.intellij.lang.LanguageUtil
@@ -9,15 +9,17 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiManager, ResolveScopeProvider}
 import org.jetbrains.plugins.scala.ScalaLanguage
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaOutOfSourcesResolveScopeProvider._
 import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.worksheet.ScalaOutOfSourcesResolveScopeProvider._
+import org.jetbrains.plugins.scala.worksheet.actions.WorksheetSyntheticModule
+import org.jetbrains.sbt.SbtUtil
 
 /**
  * See [[com.intellij.psi.impl.file.impl.ResolveScopeManagerImpl]]
  *
  * Also see related (but different) entity: [[org.jetbrains.plugins.scala.lang.psi.impl.ScalaSharedSourcesResolveScopeEnlarger]]
  */
-class ScalaOutOfSourcesResolveScopeProvider extends ResolveScopeProvider {
+private final class ScalaOutOfSourcesResolveScopeProvider extends ResolveScopeProvider {
 
   /** @return null to rely on [[com.intellij.psi.impl.file.impl.ResolveScopeManagerImpl#getDefaultResolveScope]] logic */
   override def getResolveScope(file: VirtualFile, project: Project): GlobalSearchScope = {
@@ -26,7 +28,13 @@ class ScalaOutOfSourcesResolveScopeProvider extends ResolveScopeProvider {
       psiFile.scratchFileModule match {
         case Some(module) if module.getProject == project =>
           // scratch file created from one project can be opened in another project manually =/
-          GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module, /*includeTests=*/ false)
+          val underlying = module match {
+            case s: WorksheetSyntheticModule => s.cpModule
+            case m => m
+          }
+          val separate = SbtUtil.isBuiltWithSeparateModulesForProdTest(project)
+          val needsTests = separate && underlying.getName.endsWith(".test")
+          GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module, /*includeTests=*/ needsTests)
         case _ =>
           scalaFileScope(file, project)
       }
@@ -48,7 +56,7 @@ class ScalaOutOfSourcesResolveScopeProvider extends ResolveScopeProvider {
     }
 }
 
-object ScalaOutOfSourcesResolveScopeProvider {
+private object ScalaOutOfSourcesResolveScopeProvider {
 
   private def isScalaScratchFile(file: VirtualFile, project: Project): Boolean =
     ScratchUtil.isScratch(file) && {
