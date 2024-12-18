@@ -70,7 +70,8 @@ lazy val scalaCommunity: sbt.Project =
       scalaLanguageUtils % "test->test;compile->compile",
       scalaLanguageUtilsRt % "test->test;compile->compile",
       pluginXml,
-      scalaCli % "test->test;compile->compile"
+      scalaCli % "test->test;compile->compile",
+      javaDecompilerIntegration % "test->test" //add only test dependency to run tests from this module
     )
     .settings(MainProjectSettings)
     .settings(
@@ -750,7 +751,7 @@ lazy val propertiesIntegration =
 
 lazy val javaDecompilerIntegration =
   newProject("java-decompiler", file("scala/integration/java-decompiler"))
-    .dependsOn(scalaImpl)
+    .dependsOn(scalaImpl % "compile->compile;test->test")
     .settings(
       intellijPlugins += "org.jetbrains.java.decompiler".toPlugin,
       packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity)
