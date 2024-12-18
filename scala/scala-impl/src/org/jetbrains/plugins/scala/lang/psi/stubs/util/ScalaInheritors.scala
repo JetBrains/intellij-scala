@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs.util
 
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
 import com.intellij.psi.search.searches.ClassInheritorsSearch
@@ -87,44 +88,30 @@ object ScalaInheritors {
 
     val inheritorsBuilder = ArraySeq.newBuilder[ScTemplateDefinition]
 
-    def possibleAliases: List[(String, String)] = {
+    val possibleNames: List[String] = {
       val typeAliases =
-        ALIASED_CLASS_NAME_KEY.elements(name, scope).map(ta => (ta.name, ta.qualifiedNameOpt.getOrElse(ta.name)))
+        ALIASED_CLASS_NAME_KEY.elements(name, scope).map(_.name)
           .toList
       val importAliases =
-        ALIASED_IMPORT_KEY.elements(name, scope).flatMap(_.aliasName.map(x => (x, x)))
-          .toList
+        ALIASED_IMPORT_KEY.elements(name, scope).flatMap(_.aliasName).toList
 
-      typeAliases ::: importAliases
+      name :: typeAliases ::: importAliases
     }
 
-    def addCandidates(superName: String, superQName: String): Unit = {
-
+    possibleNames.foreach { superName =>
       val extendsBlockIterable = SUPER_CLASS_NAME_KEY.elements(superName, scope)
       val extendsBlocks = extendsBlockIterable.iterator
 
       while (extendsBlocks.hasNext) {
+        ProgressManager.checkCanceled()
+
         val extendsBlock = extendsBlocks.next()
         extendsBlock.getParent match {
-          case tp: ScTemplateDefinition =>
-            // simple names are stored in index, but in decompiled files they are qualified
-            val superReferenceTexts =
-              directSuperReferenceTexts(extendsBlock)
-                .iterator
-                .map(_.stripPrefix("_root_.").stripPrefix("super."))
-
-            if (superReferenceTexts.exists(superQName.endsWith)) {
-              inheritorsBuilder += tp
-            }
+          case tp: ScTemplateDefinition if tp.isInheritor(clazz, false) =>
+            inheritorsBuilder += tp
           case _ =>
         }
       }
-    }
-
-    val qName = clazz.qualifiedNameOpt.getOrElse(name)
-    val nameWithPossibleAliases = (name, qName) :: possibleAliases
-    nameWithPossibleAliases.foreach {
-      case (name, qName) => addCandidates(name, qName)
     }
 
     inheritorsBuilder.result()
@@ -216,7 +203,7 @@ object ScalaInheritors {
 
         clazz match {
           case td: ScTypeDefinition if !td.isEffectivelyFinal =>
-            val directInheritors = directInheritorCandidates(clazz, clazz.resolveScope).filter(_.isInheritor(td, false))
+            val directInheritors = directInheritorCandidates(clazz, clazz.resolveScope)
             directInheritors.foreach(inner)
 
           //todo collect inheritors of java classes
