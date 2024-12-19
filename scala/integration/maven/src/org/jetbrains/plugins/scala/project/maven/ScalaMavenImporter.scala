@@ -30,7 +30,7 @@ import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 import scala.util.Try
 
-final class ScalaMavenImporter extends MavenApplicableConfigurator("org.scala-tools", "maven-scala-plugin")
+final class ScalaMavenImporter extends MavenApplicableConfigurator(PluginGroupId, PluginArtifactId)
   with MavenProjectResolutionContributor with MavenWorkspaceConfigurator {
 
   override def getAdditionalFolders(
@@ -51,26 +51,24 @@ final class ScalaMavenImporter extends MavenApplicableConfigurator("org.scala-to
   }
 
   private def getSourceFolders(mavenProject: MavenProject): Seq[String] =
-    getSourceOrTestFolders(mavenProject, "add-source", "sourceDir", "src/main/scala")
+    getSourceOrTestFolders(mavenProject, "sourceDir", "src/main/scala")
 
   private def getTestFolders(mavenProject: MavenProject): Seq[String] =
-    getSourceOrTestFolders(mavenProject, "add-source", "testSourceDir", "src/test/scala")
+    getSourceOrTestFolders(mavenProject, "testSourceDir", "src/test/scala")
 
   private def getSourceOrTestFolders(
     mavenProject: MavenProject,
-    goal: String,
     goalPath: String,
     defaultDir: String,
   ): Seq[String] = {
-    val goalConfigValue = findGoalConfigValue(mavenProject, goal, goalPath)
+    def findGoalConfigValue(): String = {
+      val goalConfig = mavenProject.getPluginGoalConfiguration(PluginGroupId, PluginArtifactId, "add-source")
+      MavenJDOMUtil.findChildValueByPath(goalConfig, goalPath)
+    }
+
+    val goalConfigValue = findGoalConfigValue()
     val result = if (goalConfigValue == null) defaultDir else goalConfigValue
     Seq(result)
-  }
-
-  //TODO remove it, when it's implemented on the platform side
-  private def findGoalConfigValue(mavenProject: MavenProject, goal: String, goalPath: String): String = {
-    val goalConfig = mavenProject.getPluginGoalConfiguration("org.scala-tools", "maven-scala-plugin", goal)
-    MavenJDOMUtil.findChildValueByPath(goalConfig, goalPath)
   }
 
   // exclude "default" plugins, should be done inside IDEA's MavenImporter itself
@@ -259,6 +257,8 @@ final class ScalaMavenImporter extends MavenApplicableConfigurator("org.scala-to
 
 private object ScalaMavenImporter {
 
+  private val PluginGroupId = "org.scala-tools"
+  private val PluginArtifactId = "maven-scala-plugin"
   /**
    * Hack Key to keep info about full compiler classpath after it's resolved in [[ScalaMavenImporter.resolve]]
    * to use it later in [[ScalaMavenImporter.beforeModelApplied]] when creating Scala SDK
