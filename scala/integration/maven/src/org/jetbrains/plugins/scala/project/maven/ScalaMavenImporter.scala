@@ -2,12 +2,15 @@ package org.jetbrains.plugins.scala.project.maven
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
-import com.intellij.platform.workspace.jps.entities.ModuleEntity
+import com.intellij.platform.backend.workspace.WorkspaceModel
+import com.intellij.platform.workspace.jps.entities.LibraryRoot.InclusionOptions
+import com.intellij.platform.workspace.jps.entities.{LibraryEntity, LibraryRoot, ModuleEntity}
 import com.intellij.platform.workspace.storage.MutableEntityStorage
 import com.intellij.util.JavaCoroutines
+import org.jetbrains.plugins.scala.project.external.CompanionProxyUtils.LibraryRootTypeIdCompanion
 import kotlin.coroutines.Continuation
 import org.jdom.Element
-import org.jetbrains.idea.maven.importing.MavenWorkspaceConfigurator.{AdditionalFolder, FolderType, FoldersContext, MutableMavenProjectContext}
+import org.jetbrains.idea.maven.importing.MavenWorkspaceConfigurator.{AdditionalFolder, FolderType, FoldersContext, MutableModelContext}
 import org.jetbrains.idea.maven.importing.{MavenApplicableConfigurator, MavenWorkspaceConfigurator}
 import org.jetbrains.idea.maven.model.{MavenArtifact, MavenArtifactInfo, MavenPlugin}
 import org.jetbrains.idea.maven.project._
@@ -73,31 +76,48 @@ final class ScalaMavenImporter extends MavenApplicableConfigurator("org.scala-to
   // exclude "default" plugins, should be done inside IDEA's MavenImporter itself
   override def isApplicable(mavenProject: MavenProject): Boolean = validConfigurationIn(mavenProject).isDefined
 
-  override def configureMavenProject(context: MutableMavenProjectContext): Unit = {
-    val mavenProjectWithModules = context.getMavenProjectWithModules
+  override def beforeModelApplied(context: MutableModelContext): Unit = {
+    val mavenProjectsWithModules = context.getMavenProjectsWithModules.iterator().asScala
+    mavenProjectsWithModules.foreach { mavenProjectWithModules =>
+      val mavenProject = mavenProjectWithModules.getMavenProject
+      validConfigurationIn(mavenProject).foreach { configuration =>
+        // TODO configuration.vmOptions
+        val compilerOptions = {
+          val plugins = configuration.plugins.map(id => mavenProject.localPathTo(id))
+          configuration.compilerOptions ++ plugins.map(path => "-Xplugin:" + path.toString)
+        }
 
-    val mavenProject = mavenProjectWithModules.getMavenProject
-    validConfigurationIn(mavenProject).foreach { configuration =>
-      // TODO configuration.vmOptions
-      val compilerOptions = {
-        val plugins = configuration.plugins.map(id => mavenProject.localPathTo(id))
-        configuration.compilerOptions ++ plugins.map(path => "-Xplugin:" + path.toString)
-      }
+        val compileOrder = configuration.compileOrder.getOrElse(CompileOrder.Mixed)
+        val project = context.getProject
+        val storage = context.getStorage
 
-      val compileOrder = configuration.compileOrder.getOrElse(CompileOrder.Mixed)
-      val project = context.getProject
-      val moduleEntityTypes = mavenProjectWithModules.getModules.asScala
-      moduleEntityTypes.foreach { moduleEntityType =>
-        val moduleEntity = moduleEntityType.getModule
-        moduleEntity.configureScalaCompilerSettingsFrom(project, "Maven", compilerOptions, compileOrder)
+        val implicitScalaLibrary = addImplicitScalaLibraryIfNeeded(mavenProject, project, storage)
+        val modules = mavenProjectWithModules.getModules.asScala
+        modules.foreach { module =>
+          val moduleEntity = module.getModule
+          moduleEntity.configureScalaCompilerSettingsFrom(project, "Maven", compilerOptions, compileOrder)
 
-        configuration.compilerVersion match {
-          case Some(compilerVersion) =>
-            configureScalaSdk(moduleEntity, context.getStorage, project, compilerVersion, mavenProject)
-          case _ =>
+          implicitScalaLibrary.foreach(moduleEntity.addLibraryDependency(storage, _))
+
+          configuration.compilerVersion match {
+            case Some(compilerVersion) =>
+              configureScalaSdk(moduleEntity, storage, project, compilerVersion, mavenProject)
+            case _ =>
+          }
         }
       }
     }
+  }
+
+  private def addImplicitScalaLibraryIfNeeded(mavenProject: MavenProject, project: Project, storage: MutableEntityStorage): Option[LibraryEntity] = {
+    val implicitScalaLibraryInfo = mavenProject.getCachedValue(MavenImplicitScalaLibraryInfo)
+    if (implicitScalaLibraryInfo != null) {
+      val vfUrlManager = WorkspaceModel.getInstance(project).getVirtualFileUrlManager
+      val jarUrl = vfUrlManager.getOrCreateFromUrl(s"jar://${implicitScalaLibraryInfo.path}!/")
+
+      val libraryRoot = new LibraryRoot(jarUrl, LibraryRootTypeIdCompanion.getCOMPILED, InclusionOptions.ROOT_ITSELF)
+      Option(storage.addLibraryEntity(implicitScalaLibraryInfo.libraryName, project, SerializationConstants.MAVEN_EXTERNAL_SOURCE_ID, Seq(libraryRoot)))
+    } else None
   }
 
   /**
@@ -137,7 +157,7 @@ final class ScalaMavenImporter extends MavenApplicableConfigurator("org.scala-to
     )
   }
 
-  // called before `configureMavenProject`
+  // called before `beforeModelApplied`
   def resolve(mavenProject: MavenProject, embedder: MavenEmbedderWrapper): Unit = {
     val configuration = validConfigurationIn(mavenProject)
     configuration.foreach { configuration =>
@@ -169,9 +189,12 @@ final class ScalaMavenImporter extends MavenApplicableConfigurator("org.scala-to
 
       // Scala Maven plugin can add scala-library to compilation classpath, without listing it as a project dependency.
       // Such an approach is probably incorrect, but we have to support that behaviour "as is".
-      // TODO check if it's still true (it was created in 2017)
-      val implicitScalaLibrary = implicitScalaLibraryIfNeeded(configuration)
-      implicitScalaLibrary.map(resolveJar).foreach(mavenProject.addDependency): @nowarn("cat=deprecation") //TODO SCL-23050
+      // TODO even the maintainer is not sure if it should be supported https://github.com/davidB/scala-maven-plugin/discussions/803
+      val implicitScalaLibraryInfo = {
+        val implicitScalaLibrary = implicitScalaLibraryIfNeeded(configuration)
+        val mavenArtifact = implicitScalaLibrary.map(resolveJar)
+        mavenArtifact.map { m => ImplicitScalaLibraryInfo(m.getLibraryName, Path.of(m.getPath)) }
+      }
 
       val compilerBridgeJar = configuration.compilerBridgeArtifact.map(resolveJar).map(a => Path.of(a.getPath))
 
@@ -180,6 +203,7 @@ final class ScalaMavenImporter extends MavenApplicableConfigurator("org.scala-to
         resolveTransitively(configuration.compilerArtifact).map(a => Path.of(a.getPath)) ++ compilerBridgeJar
 
       mavenProject.putCachedValue(MavenFullCompilerClasspathKey, compilerClasspathWithTransitives)
+      mavenProject.putCachedValue(MavenImplicitScalaLibraryInfo, implicitScalaLibraryInfo.orNull)
 
       configuration.plugins.foreach(resolveJar)
     }
@@ -237,12 +261,15 @@ private object ScalaMavenImporter {
 
   /**
    * Hack Key to keep info about full compiler classpath after it's resolved in [[ScalaMavenImporter.resolve]]
-   * to use it later in [[ScalaMavenImporter.process]] when creating Scala SDK
+   * to use it later in [[ScalaMavenImporter.beforeModelApplied]] when creating Scala SDK
    *
    * This key is used for each Maven project/module (not the IntelliJ IDEA project),
    * so in a multi-module project, each module can have a different compiler classpath.
    */
   private val MavenFullCompilerClasspathKey = Key.create[Seq[Path]]("MavenFullCompilerClasspathKey")
+
+  private case class ImplicitScalaLibraryInfo(libraryName: String, path: Path)
+  private val MavenImplicitScalaLibraryInfo = Key.create[ImplicitScalaLibraryInfo]("MavenImplicitScalaLibraryInfo")
 
   private final val OrgScalaLang = "org.scala-lang"
 
