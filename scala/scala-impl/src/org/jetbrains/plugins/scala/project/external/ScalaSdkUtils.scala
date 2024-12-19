@@ -3,18 +3,15 @@ package org.jetbrains.plugins.scala.project.external
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.ExternalProjectSystemRegistry
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.libraries.Library
-import org.jetbrains.plugins.scala.project.{LibraryBase, LibraryEntityExt, LibraryExt, ModuleEntityExt, ScalaLibraryProperties, ScalaLibraryType, Version}
-import com.intellij.platform.workspace.jps.entities.{LibraryEntity, LibraryTableId, ModuleEntity}
+import org.jetbrains.plugins.scala.project.{LibraryBase, LibraryEntityExt, LibraryExt, ModuleEntityExt, MutableEntityStorageExt, ScalaLibraryProperties, ScalaLibraryType, Version}
+import com.intellij.platform.workspace.jps.entities.{LibraryEntity, ModuleEntity}
 import com.intellij.platform.workspace.storage.MutableEntityStorage
-import org.jetbrains.jps.model.serialization.SerializationConstants
 import org.jetbrains.plugins.scala.DependencyManager
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 
 import java.io.File
-import java.util.Collections.emptyList
 import scala.jdk.CollectionConverters.IteratorHasAsScala
 import scala.language.implicitConversions
 
@@ -55,12 +52,13 @@ object ScalaSdkUtils {
     sdkPrefix: String,
     storage: MutableEntityStorage,
     project: Project,
+    scalaSdkSourceId: String
   ): Unit = {
     val scalaSDKLibraryName = scalaSdkLibraryName(sdkPrefix, compilerVersion)
     doConfigureScalaSdk(
       libraries = storage.entities(classOf[LibraryEntity]).iterator().asScala.toSeq,
       isApplicable = (library: LibraryEntity) => isApplicableScalaSdk(library, scalaSDKLibraryName),
-      createLibrary = addLibraryEntity(scalaSDKLibraryName, project, storage),
+      createLibrary = storage.addLibraryEntity(scalaSDKLibraryName, project, scalaSdkSourceId),
       ensureConvertedToScalaSdk = (library: LibraryEntity) => ScalaSdkUtils.ensureScalaLibraryIsConvertedToScalaSdk(
         library,
         storage,
@@ -70,14 +68,6 @@ object ScalaSdkUtils {
       ),
       addToModule = (library: LibraryEntity) => module.addLibraryDependency(storage, library)
     )
-  }
-
-  def addLibraryEntity(libraryName: String, project: Project, storage: MutableEntityStorage): LibraryEntity = {
-    val externalSource = ExternalProjectSystemRegistry.getInstance().getSourceById(SerializationConstants.MAVEN_EXTERNAL_SOURCE_ID)
-    val legacyBridgeModifiableBase = CompanionProxyUtils.LegacyBridgeJpsEntitySourceFactoryCompanion.getInstance(project)
-    val librarySource = legacyBridgeModifiableBase.createEntitySourceForProjectLibrary(externalSource)
-    val libraryEntity = LibraryEntity.create(libraryName, LibraryTableId.ProjectLibraryTableId.INSTANCE, emptyList(), librarySource)
-    storage.addEntity[LibraryEntity.Builder, LibraryEntity](libraryEntity)
   }
 
   private def isApplicableScalaSdk(library: LibraryBase, scalaSDKLibraryName: String): Boolean =

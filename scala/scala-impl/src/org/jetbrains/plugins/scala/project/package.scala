@@ -14,7 +14,7 @@ import com.intellij.openapi.roots.libraries.{Library, LibraryTablesRegistrar}
 import com.intellij.openapi.util.{Key, UserDataHolder, UserDataHolderEx}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.platform.workspace.jps.entities.DependenciesKt.setLibraryProperties
-import com.intellij.platform.workspace.jps.entities.{DependenciesKt, DependencyScope, LibraryDependency, LibraryEntity, LibraryId, LibraryPropertiesEntity, LibraryTypeId, Library_extensionsKt, ModuleEntity, ModuleEntityAndExtensions, ModuleExtensions}
+import com.intellij.platform.workspace.jps.entities.{DependenciesKt, DependencyScope, LibraryDependency, LibraryEntity, LibraryId, LibraryPropertiesEntity, LibraryRoot, LibraryTableId, LibraryTypeId, Library_extensionsKt, ModuleEntity, ModuleEntityAndExtensions, ModuleExtensions}
 import com.intellij.platform.workspace.storage.MutableEntityStorage
 import com.intellij.psi.{LanguageSubstitutors, PsiElement, PsiFile}
 import com.intellij.util.PathsList
@@ -33,6 +33,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.PrecedenceTypes
 import org.jetbrains.plugins.scala.project.LibraryExt.guessLibraryVersionFromName
 import org.jetbrains.plugins.scala.project.ScalaFeatures.SerializableScalaFeatures
+import org.jetbrains.plugins.scala.project.external.CompanionProxyUtils
 import org.jetbrains.plugins.scala.project.external.CompanionProxyUtils.LegacyBridgeModifiableBaseCompanion
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings, ScalaCompilerSettingsProfile}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
@@ -117,6 +118,21 @@ package object project {
     def properties: ScalaLibraryProperties = library.getProperties match {
       case properties: ScalaLibraryProperties => properties
       case _ => throw new IllegalStateException("Library is not a Scala SDK: " + library.getName)
+    }
+  }
+
+  implicit class MutableEntityStorageExt(private val storage: MutableEntityStorage) extends AnyVal {
+    def addLibraryEntity(libraryName: String, project: Project, sourceId: String, roots: Seq[LibraryRoot] = Seq.empty): LibraryEntity = {
+      val libraryId = new LibraryId(libraryName, LibraryTableId.ProjectLibraryTableId.INSTANCE)
+      val existingLibrary = storage.resolve(libraryId)
+      if (existingLibrary != null) existingLibrary
+      else {
+        val externalSource = ExternalProjectSystemRegistry.getInstance().getSourceById(sourceId)
+        val legacyBridgeModifiableBase = CompanionProxyUtils.LegacyBridgeJpsEntitySourceFactoryCompanion.getInstance(project)
+        val librarySource = legacyBridgeModifiableBase.createEntitySourceForProjectLibrary(externalSource)
+        val libraryEntity = LibraryEntity.create(libraryName, LibraryTableId.ProjectLibraryTableId.INSTANCE, roots.asJava, librarySource)
+        storage.addEntity[LibraryEntity.Builder, LibraryEntity](libraryEntity)
+      }
     }
   }
 

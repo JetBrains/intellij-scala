@@ -13,6 +13,7 @@ import org.jetbrains.idea.maven.model.{MavenArtifact, MavenArtifactInfo, MavenPl
 import org.jetbrains.idea.maven.project._
 import org.jetbrains.idea.maven.server.{MavenArtifactResolutionRequest, MavenEmbedderWrapper}
 import org.jetbrains.idea.maven.utils.MavenJDOMUtil
+import org.jetbrains.jps.model.serialization.SerializationConstants
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project._
@@ -131,7 +132,8 @@ final class ScalaMavenImporter extends MavenApplicableConfigurator("org.scala-to
       compilerBridgeBinaryJar.map(_.toFile),
       sdkPrefix = "Maven",
       storage,
-      project
+      project,
+      scalaSdkSourceId = SerializationConstants.MAVEN_EXTERNAL_SOURCE_ID
     )
   }
 
