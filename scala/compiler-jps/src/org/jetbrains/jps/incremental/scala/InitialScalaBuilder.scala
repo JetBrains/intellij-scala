@@ -7,6 +7,7 @@ import org.jetbrains.jps.builders.DirtyFilesHolder
 import org.jetbrains.jps.builders.java.{JavaBuilderUtil, JavaSourceRootDescriptor}
 import org.jetbrains.jps.builders.storage.BuildDataCorruptedException
 import org.jetbrains.jps.incremental._
+import org.jetbrains.jps.incremental.resources.ResourcesBuilder
 import org.jetbrains.jps.incremental.scala.data.CompilerDataFactory
 import org.jetbrains.jps.model.java.JpsJavaExtensionService
 import org.jetbrains.jps.model.module.JpsModule
@@ -48,6 +49,9 @@ class InitialScalaBuilder extends ModuleLevelBuilder(BuilderCategory.INITIAL) { 
         val replaced = configuration.getJavaCompilerId
         CompilerDataFactory.ReplacedJavaCompilerId.set(context, replaced)
         configuration.setJavaCompilerId(ZincCompilerId)
+        // Register special resource handling when the Zinc incremental compiler is enabled.
+        // The regular JPS ResourcesBuilder will handle non-Scala modules.
+        ResourcesBuilder.registerEnabler(module => !ZincResourceBuilder.isEnabled(context, module))
       }
 
       previousIncrementalityType match {

@@ -3,15 +3,11 @@ package org.jetbrains.jps.incremental.scala
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.jps.incremental._
 import org.jetbrains.jps.incremental.resources.ResourcesBuilder
-import org.jetbrains.jps.incremental.scala.sources.{SbtModuleType, SharedSourcesModuleType}
 
 import _root_.java.{util => jutil}
 
 class ScalaBuilderService extends BuilderService {
-  ResourcesBuilder.registerEnabler(module => {
-    val moduleType = module.getModuleType
-    moduleType != SbtModuleType.INSTANCE && moduleType != SharedSourcesModuleType.INSTANCE
-  })
+  ResourcesBuilder.registerEnabler(!ZincResourceBuilder.shouldSkip(_))
 
   @NotNull
   override def createModuleLevelBuilders: jutil.List[_ <: ModuleLevelBuilder] =
@@ -23,4 +19,7 @@ class ScalaBuilderService extends BuilderService {
       new ScalaCompilerReferenceIndexBuilder,
       new ScalaClassPostProcessorBuilder()
     )
+
+  override def createBuilders(): jutil.List[_ <: TargetBuilder[_, _]] =
+    jutil.Collections.singletonList(new ZincResourceBuilder())
 }
