@@ -48,6 +48,7 @@ class UsePipeliningCompilationTest(scalaVersion: TestScalaVersion, jdkVersion: T
     createProjectConfig(
       s"""ThisBuild / scalaVersion := "${scalaVersion.toProductionVersion.minor}"
          |ThisBuild / usePipelining := true
+         |ThisBuild / resolvers += "scala-integration" at "https://scala-ci.typesafe.com/artifactory/scala-integration/"
          |
          |lazy val root = project.in(file("."))
          |  .aggregate(module1, module2, module3)

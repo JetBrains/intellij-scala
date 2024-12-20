@@ -91,7 +91,8 @@ object ScalaSdkOwner {
   //       that should already work in newest version (SCL-15634)
   val defaultSdkVersion: ScalaVersion = LatestScalaVersions.Scala_2_10 // ScalaVersion.default
   val preferableSdkVersion: ScalaVersion = LatestScalaVersions.Scala_2_13
-  val allTestVersions: SortedSet[ScalaVersion] = SortedSet.from(LatestScalaVersions.allStableWithoutScalaNext.flatMap(_.generateAllMinorVersions))
+  val allTestVersions: SortedSet[ScalaVersion] = SortedSet.from(LatestScalaVersions.allStableWithoutScalaNext.flatMap(_.generateAllMinorVersions)) ++
+    Seq(LatestScalaVersions.Scala_2_13)
 
   private def selectVersion(wantedVersion: ScalaVersion, possibleVersions0: SortedSet[ScalaVersion]): Option[ScalaVersion] = {
     val possibleVersions = possibleVersions0.iteratorFrom(wantedVersion).toSeq
