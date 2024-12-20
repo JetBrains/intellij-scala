@@ -26,10 +26,8 @@ package object parser {
       val marker = repr.mark()
       repr.advanceLexer()
 
-      val result = parse(repr)
-      marker.rollbackTo()
-
-      result
+      try parse(repr)
+      finally marker.rollbackTo()
     }
 
     def checkedAdvanceLexer(): Unit = if (!repr.eof) {
@@ -52,20 +50,16 @@ package object parser {
     }
 
     def lookBack(expected: IElementType): Boolean = {
-      val (newSteps, _) = skipWhiteSpacesAndComments(1)
-      val (_, actual) = skipWhiteSpacesAndComments(newSteps + 1)
+      val (newSteps, actual) = skipWhiteSpacesAndCommentsBack(1)
       expected == actual
     }
 
     @annotation.tailrec
-    def skipWhiteSpacesAndComments(steps: Int, accumulator: IElementType = null): (Int, IElementType) =
-      repr.getCurrentOffset match {
-        case offset if steps < offset =>
-          repr.rawLookup(-steps) match {
-            case whiteSpace if lexer.ScalaTokenTypes.WHITES_SPACES_AND_COMMENTS_TOKEN_SET.contains(whiteSpace) => skipWhiteSpacesAndComments(steps + 1, whiteSpace)
-            case result => (steps, result)
-          }
-        case _ => (steps, accumulator)
+    def skipWhiteSpacesAndCommentsBack(steps: Int, accumulator: IElementType = null): (Int, IElementType) =
+      repr.rawLookup(-steps) match {
+        case whiteSpace if lexer.ScalaTokenTypes.WHITES_SPACES_AND_COMMENTS_TOKEN_SET.contains(whiteSpace) =>
+          skipWhiteSpacesAndCommentsBack(steps + 1)
+        case result => (steps, result)
       }
 
     def invalidVarId: Boolean = !validVarId
@@ -131,7 +125,7 @@ package object parser {
       else body
 
     def findPreviousNewLine: Option[String] = {
-      val (steps, _) = repr.skipWhiteSpacesAndComments(1)
+      val (steps, _) = repr.skipWhiteSpacesAndCommentsBack(1)
 
       val originalSubText = repr.getOriginalText.subSequence(
         repr.rawTokenTypeStart(1 - steps),

@@ -75,6 +75,7 @@ abstract class PrecedenceClimbingInfixParsingRule extends ParsingRule {
 
       // try to parse the operand
       if (builder.twoNewlinesBeforeCurrentToken || !parseOperand()) {
+        beforeOperandMarker.drop()
         beforeOpMarker.rollbackTo()
         infixMarker.drop()
         finishOpStack(restOpStack)
