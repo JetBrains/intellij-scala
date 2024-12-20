@@ -34,6 +34,7 @@ class ScalaCompilerTest extends TextToTextTestBase(
     "scala.tools.nsc.typechecker.Analyzer", // Reference to object without this. prefix
     "scala.tools.nsc.typechecker.AnalyzerPlugins", // Cannot resolve reference
     "scala.tools.nsc.typechecker.ContextErrors", // No _root_ qualifier
+    "scala.tools.nsc.typechecker.Contexts", // Cannot resolve reference Position
     "scala.tools.nsc.typechecker.Implicits", // Cannot resolve reference
     "scala.tools.nsc.typechecker.Namers", // Different .this qualifier
     "scala.tools.nsc.typechecker.TreeCheckers", // Reference to object without this. prefix
