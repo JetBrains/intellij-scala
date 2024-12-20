@@ -156,9 +156,9 @@ ScalaFile
                 CodeReferenceElement: Arrow
                   PsiElement(identifier)('Arrow')
             PsiElement(])(']')
+          PsiElement(:)(':')
           Parameters
             <empty list>
-          PsiElement(:)(':')
           PsiWhiteSpace(' ')
           ExtendsBlock
             TemplateParents

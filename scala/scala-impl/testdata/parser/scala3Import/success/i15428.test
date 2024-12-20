@@ -118,6 +118,8 @@ ScalaFile
     Modifiers
       <empty list>
     PsiElement(given)('given')
+    Parameters
+      <empty list>
     PsiWhiteSpace(' ')
     ParametrizedType: Bar[Foo]
       SimpleType: Bar
@@ -129,8 +131,6 @@ ScalaFile
           CodeReferenceElement: Foo
             PsiElement(identifier)('Foo')
         PsiElement(])(']')
-    Parameters
-      <empty list>
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
     PsiWhiteSpace(' ')

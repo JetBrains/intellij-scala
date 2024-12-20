@@ -245,6 +245,8 @@ ScalaFile
     Modifiers
       <empty list>
     PsiElement(given)('given')
+    Parameters
+      <empty list>
     PsiWhiteSpace(' ')
     ParametrizedType: scala.reflect.TypeTest[Statement, DefDef]
       SimpleType: scala.reflect.TypeTest
@@ -267,8 +269,6 @@ ScalaFile
           CodeReferenceElement: DefDef
             PsiElement(identifier)('DefDef')
         PsiElement(])(']')
-    Parameters
-      <empty list>
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
     PsiWhiteSpace(' ')

@@ -112,12 +112,12 @@ ScalaFile
         Modifiers
           <empty list>
         PsiElement(given)('given')
+        Parameters
+          <empty list>
         PsiWhiteSpace(' ')
         SimpleType: QC
           CodeReferenceElement: QC
             PsiElement(identifier)('QC')
-        Parameters
-          <empty list>
         PsiWhiteSpace(' ')
         PsiElement(=)('=')
         PsiWhiteSpace(' ')
@@ -193,6 +193,8 @@ ScalaFile
         Modifiers
           <empty list>
         PsiElement(given)('given')
+        Parameters
+          <empty list>
         PsiWhiteSpace(' ')
         ExtendsBlock
           TemplateParents

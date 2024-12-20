@@ -38,12 +38,12 @@ ScalaFile
     Modifiers
       <empty list>
     PsiElement(given)('given')
+    Parameters
+      <empty list>
     PsiWhiteSpace(' ')
     SimpleType: A
       CodeReferenceElement: A
         PsiElement(identifier)('A')
-    Parameters
-      <empty list>
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
     PsiWhiteSpace(' ')

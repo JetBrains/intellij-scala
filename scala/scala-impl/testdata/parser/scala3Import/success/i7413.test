@@ -277,9 +277,9 @@ ScalaFile
           PsiElement(given)('given')
           PsiWhiteSpace(' ')
           PsiElement(identifier)('conv')
+          PsiElement(:)(':')
           Parameters
             <empty list>
-          PsiElement(:)(':')
           PsiWhiteSpace(' ')
           ExtendsBlock
             TemplateParents

@@ -212,14 +212,14 @@ ScalaFile
           Modifiers
             <empty list>
           PsiElement(given)('given')
+          Parameters
+            <empty list>
           PsiWhiteSpace(' ')
           SimpleType: graph.type
             CodeReferenceElement: graph
               PsiElement(identifier)('graph')
             PsiElement(.)('.')
             PsiElement(type)('type')
-          Parameters
-            <empty list>
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')

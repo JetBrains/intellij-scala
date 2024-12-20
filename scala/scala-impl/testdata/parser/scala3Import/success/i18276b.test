@@ -107,9 +107,9 @@ ScalaFile
     PsiElement(given)('given')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('f')
+    PsiElement(:)(':')
     Parameters
       <empty list>
-    PsiElement(:)(':')
     PsiWhiteSpace(' ')
     ParametrizedType: Conversion[Int => Int, () => Int]
       SimpleType: Conversion

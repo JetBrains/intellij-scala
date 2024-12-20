@@ -28,6 +28,8 @@ ScalaFile
     Modifiers
       <empty list>
     PsiElement(given)('given')
+    Parameters
+      <empty list>
     PsiWhiteSpace(' ')
     ParametrizedType: Conversion[String, Int]
       SimpleType: Conversion
@@ -44,8 +46,6 @@ ScalaFile
           CodeReferenceElement: Int
             PsiElement(identifier)('Int')
         PsiElement(])(']')
-    Parameters
-      <empty list>
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
     PsiWhiteSpace(' ')
@@ -61,6 +61,8 @@ ScalaFile
     Modifiers
       <empty list>
     PsiElement(given)('given')
+    Parameters
+      <empty list>
     PsiWhiteSpace(' ')
     ParametrizedType: Conversion[Int, String]
       SimpleType: Conversion
@@ -77,8 +79,6 @@ ScalaFile
           CodeReferenceElement: String
             PsiElement(identifier)('String')
         PsiElement(])(']')
-    Parameters
-      <empty list>
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
     PsiWhiteSpace(' ')
@@ -94,6 +94,8 @@ ScalaFile
     Modifiers
       <empty list>
     PsiElement(given)('given')
+    Parameters
+      <empty list>
     PsiWhiteSpace(' ')
     ParametrizedType: Conversion[Int, Date]
       SimpleType: Conversion
@@ -110,8 +112,6 @@ ScalaFile
           CodeReferenceElement: Date
             PsiElement(identifier)('Date')
         PsiElement(])(']')
-    Parameters
-      <empty list>
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
     PsiWhiteSpace(' ')

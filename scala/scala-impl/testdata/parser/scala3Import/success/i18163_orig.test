@@ -377,6 +377,8 @@ ScalaFile
           Modifiers
             <empty list>
           PsiElement(given)('given')
+          Parameters
+            <empty list>
           PsiWhiteSpace(' ')
           ParametrizedType: ContravariantMonoidal[Foo]
             SimpleType: ContravariantMonoidal
@@ -388,8 +390,6 @@ ScalaFile
                 CodeReferenceElement: Foo
                   PsiElement(identifier)('Foo')
               PsiElement(])(']')
-          Parameters
-            <empty list>
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
@@ -402,6 +402,8 @@ ScalaFile
           Modifiers
             <empty list>
           PsiElement(given)('given')
+          Parameters
+            <empty list>
           PsiWhiteSpace(' ')
           ParametrizedType: ContravariantMonoidal[Bar]
             SimpleType: ContravariantMonoidal
@@ -413,8 +415,6 @@ ScalaFile
                 CodeReferenceElement: Bar
                   PsiElement(identifier)('Bar')
               PsiElement(])(']')
-          Parameters
-            <empty list>
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')

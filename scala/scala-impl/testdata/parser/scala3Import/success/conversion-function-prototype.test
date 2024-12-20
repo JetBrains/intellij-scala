@@ -286,6 +286,8 @@ ScalaFile
               Modifiers
                 <empty list>
               PsiElement(given)('given')
+              Parameters
+                <empty list>
               PsiWhiteSpace(' ')
               ParametrizedType: ConversionFunction[Int => String]
                 SimpleType: ConversionFunction
@@ -304,8 +306,6 @@ ScalaFile
                       CodeReferenceElement: String
                         PsiElement(identifier)('String')
                   PsiElement(])(']')
-              Parameters
-                <empty list>
               PsiWhiteSpace(' ')
               PsiElement(=)('=')
               PsiWhiteSpace(' ')
@@ -442,6 +442,8 @@ ScalaFile
               Modifiers
                 <empty list>
               PsiElement(given)('given')
+              Parameters
+                <empty list>
               PsiWhiteSpace(' ')
               ParametrizedType: ConversionFunction[(x: X) => x.T]
                 SimpleType: ConversionFunction
@@ -470,8 +472,6 @@ ScalaFile
                         PsiElement(.)('.')
                         PsiElement(identifier)('T')
                   PsiElement(])(']')
-              Parameters
-                <empty list>
               PsiWhiteSpace(' ')
               PsiElement(=)('=')
               PsiWhiteSpace(' ')
@@ -578,6 +578,8 @@ ScalaFile
               Modifiers
                 <empty list>
               PsiElement(given)('given')
+              Parameters
+                <empty list>
               PsiWhiteSpace(' ')
               ParametrizedType: ConversionFunction[(x: X) => x.T]
                 SimpleType: ConversionFunction
@@ -606,8 +608,6 @@ ScalaFile
                         PsiElement(.)('.')
                         PsiElement(identifier)('T')
                   PsiElement(])(']')
-              Parameters
-                <empty list>
               PsiWhiteSpace(' ')
               PsiElement(=)('=')
               PsiWhiteSpace(' ')

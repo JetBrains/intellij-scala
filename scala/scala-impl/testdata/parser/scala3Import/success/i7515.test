@@ -7,6 +7,8 @@ ScalaFile
     Modifiers
       <empty list>
     PsiElement(given)('given')
+    Parameters
+      <empty list>
     PsiWhiteSpace(' ')
     TypeInParenthesis: (Int => Int)
       PsiElement(()('(')
@@ -21,8 +23,6 @@ ScalaFile
           CodeReferenceElement: Int
             PsiElement(identifier)('Int')
       PsiElement())(')')
-    Parameters
-      <empty list>
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
     PsiWhiteSpace(' ')

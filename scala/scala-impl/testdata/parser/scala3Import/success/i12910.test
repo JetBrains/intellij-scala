@@ -68,6 +68,8 @@ ScalaFile
     Modifiers
       <empty list>
     PsiElement(given)('given')
+    Parameters
+      <empty list>
     PsiWhiteSpace(' ')
     ExtendsBlock
       TemplateParents
@@ -373,9 +375,9 @@ ScalaFile
             TypeParameter: X
               PsiElement(identifier)('X')
             PsiElement(])(']')
+          PsiElement(:)(':')
           Parameters
             <empty list>
-          PsiElement(:)(':')
           PsiWhiteSpace(' ')
           ExtendsBlock
             TemplateParents

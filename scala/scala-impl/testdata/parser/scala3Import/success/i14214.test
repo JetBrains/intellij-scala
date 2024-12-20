@@ -40,12 +40,12 @@ ScalaFile
     Modifiers
       <empty list>
     PsiElement(given)('given')
+    Parameters
+      <empty list>
     PsiWhiteSpace(' ')
     SimpleType: Dummy
       CodeReferenceElement: Dummy
         PsiElement(identifier)('Dummy')
-    Parameters
-      <empty list>
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
     PsiWhiteSpace(' ')
@@ -71,9 +71,9 @@ ScalaFile
     PsiElement(given)('given')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('foo')
+    PsiElement(:)(':')
     Parameters
       <empty list>
-    PsiElement(:)(':')
     PsiWhiteSpace(' ')
     SimpleType: Foo
       CodeReferenceElement: Foo

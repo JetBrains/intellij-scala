@@ -320,12 +320,12 @@ ScalaFile
           Modifiers
             <empty list>
           PsiElement(given)('given')
+          Parameters
+            <empty list>
           PsiWhiteSpace(' ')
           SimpleType: Configuration
             CodeReferenceElement: Configuration
               PsiElement(identifier)('Configuration')
-          Parameters
-            <empty list>
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
@@ -338,6 +338,8 @@ ScalaFile
           Modifiers
             <empty list>
           PsiElement(given)('given')
+          Parameters
+            <empty list>
           PsiWhiteSpace(' ')
           ParametrizedType: Codec[URI]
             SimpleType: Codec
@@ -349,8 +351,6 @@ ScalaFile
                 CodeReferenceElement: URI
                   PsiElement(identifier)('URI')
               PsiElement(])(']')
-          Parameters
-            <empty list>
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')

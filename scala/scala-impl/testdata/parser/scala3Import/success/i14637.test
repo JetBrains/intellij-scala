@@ -59,9 +59,9 @@ ScalaFile
           PsiElement(given)('given')
           PsiWhiteSpace(' ')
           PsiElement(identifier)('cOrdering')
+          PsiElement(:)(':')
           Parameters
             <empty list>
-          PsiElement(:)(':')
           PsiWhiteSpace(' ')
           ExtendsBlock
             TemplateParents

@@ -51,12 +51,12 @@ ScalaFile
         Modifiers
           <empty list>
         PsiElement(given)('given')
+        Parameters
+          <empty list>
         PsiWhiteSpace(' ')
         SimpleType: Int
           CodeReferenceElement: Int
             PsiElement(identifier)('Int')
-        Parameters
-          <empty list>
         PsiWhiteSpace(' ')
         PsiElement(=)('=')
         PsiWhiteSpace(' ')
@@ -100,12 +100,12 @@ ScalaFile
         Modifiers
           <empty list>
         PsiElement(given)('given')
+        Parameters
+          <empty list>
         PsiWhiteSpace(' ')
         SimpleType: Int
           CodeReferenceElement: Int
             PsiElement(identifier)('Int')
-        Parameters
-          <empty list>
         PsiWhiteSpace(' ')
         PsiElement(=)('=')
         PsiWhiteSpace(' ')

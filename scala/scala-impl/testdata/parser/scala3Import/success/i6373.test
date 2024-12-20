@@ -156,9 +156,9 @@ ScalaFile
                 PsiElement(given)('given')
                 PsiWhiteSpace(' ')
                 PsiElement(identifier)('ctx')
+                PsiElement(:)(':')
                 Parameters
                   <empty list>
-                PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 SimpleType: Context
                   CodeReferenceElement: Context

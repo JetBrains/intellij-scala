@@ -45,9 +45,9 @@ ScalaFile
       PsiElement(given)('given')
       PsiWhiteSpace(' ')
       PsiElement(identifier)('A')
+      PsiElement(:)(':')
       Parameters
         <empty list>
-      PsiElement(:)(':')
       PsiWhiteSpace(' ')
       SimpleType: A
         CodeReferenceElement: A
@@ -77,9 +77,9 @@ ScalaFile
       PsiElement(given)('given')
       PsiWhiteSpace(' ')
       PsiElement(identifier)('B')
+      PsiElement(:)(':')
       Parameters
         <empty list>
-      PsiElement(:)(':')
       PsiWhiteSpace(' ')
       SimpleType: B
         CodeReferenceElement: B
@@ -109,9 +109,9 @@ ScalaFile
       PsiElement(given)('given')
       PsiWhiteSpace(' ')
       PsiElement(identifier)('C')
+      PsiElement(:)(':')
       Parameters
         <empty list>
-      PsiElement(:)(':')
       PsiWhiteSpace(' ')
       SimpleType: C
         CodeReferenceElement: C
@@ -141,9 +141,9 @@ ScalaFile
       PsiElement(given)('given')
       PsiWhiteSpace(' ')
       PsiElement(identifier)('D')
+      PsiElement(:)(':')
       Parameters
         <empty list>
-      PsiElement(:)(':')
       PsiWhiteSpace(' ')
       SimpleType: D
         CodeReferenceElement: D
@@ -173,9 +173,9 @@ ScalaFile
       PsiElement(given)('given')
       PsiWhiteSpace(' ')
       PsiElement(identifier)('E')
+      PsiElement(:)(':')
       Parameters
         <empty list>
-      PsiElement(:)(':')
       PsiWhiteSpace(' ')
       SimpleType: E
         CodeReferenceElement: E
@@ -205,9 +205,9 @@ ScalaFile
       PsiElement(given)('given')
       PsiWhiteSpace(' ')
       PsiElement(identifier)('F')
+      PsiElement(:)(':')
       Parameters
         <empty list>
-      PsiElement(:)(':')
       PsiWhiteSpace(' ')
       SimpleType: F
         CodeReferenceElement: F

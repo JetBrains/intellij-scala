@@ -731,9 +731,9 @@ ScalaFile
                 CodeReferenceElement: k
                   PsiElement(identifier)('k')
             PsiElement(])(']')
+          PsiElement(:)(':')
           Parameters
             <empty list>
-          PsiElement(:)(':')
           PsiWhiteSpace(' ')
           ParametrizedType: Conversion[(K[C], V[C]), DPair[k, K, V]]
             SimpleType: Conversion

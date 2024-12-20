@@ -45,9 +45,9 @@ ScalaFile
             TypeParameter: T
               PsiElement(identifier)('T')
             PsiElement(])(']')
+          PsiElement(:)(':')
           Parameters
             <empty list>
-          PsiElement(:)(':')
           PsiWhiteSpace(' ')
           ExtendsBlock
             TemplateParents
@@ -92,9 +92,9 @@ ScalaFile
             TypeParameter: U
               PsiElement(identifier)('U')
             PsiElement(])(']')
+          PsiElement(:)(':')
           Parameters
             <empty list>
-          PsiElement(:)(':')
           PsiWhiteSpace(' ')
           ExtendsBlock
             TemplateParents
@@ -145,9 +145,9 @@ ScalaFile
             TypeParameter: V
               PsiElement(identifier)('V')
             PsiElement(])(']')
+          PsiElement(:)(':')
           Parameters
             <empty list>
-          PsiElement(:)(':')
           PsiWhiteSpace(' ')
           ExtendsBlock
             TemplateParents

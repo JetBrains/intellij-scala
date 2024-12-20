@@ -1036,9 +1036,9 @@ ScalaFile
           PsiElement(given)('given')
           PsiWhiteSpace(' ')
           PsiElement(identifier)('intOrd')
+          PsiElement(:)(':')
           Parameters
             <empty list>
-          PsiElement(:)(':')
           PsiWhiteSpace(' ')
           ExtendsBlock
             TemplateParents
@@ -1646,9 +1646,9 @@ ScalaFile
           PsiElement(given)('given')
           PsiWhiteSpace(' ')
           PsiElement(identifier)('listMonad')
+          PsiElement(:)(':')
           Parameters
             <empty list>
-          PsiElement(:)(':')
           PsiWhiteSpace(' ')
           ExtendsBlock
             TemplateParents
@@ -1836,9 +1836,9 @@ ScalaFile
             TypeParameter: Ctx
               PsiElement(identifier)('Ctx')
             PsiElement(])(']')
+          PsiElement(:)(':')
           Parameters
             <empty list>
-          PsiElement(:)(':')
           PsiWhiteSpace(' ')
           ExtendsBlock
             TemplateParents
@@ -2814,9 +2814,9 @@ ScalaFile
                 PsiElement(given)('given')
                 PsiWhiteSpace(' ')
                 PsiElement(identifier)('symDeco')
+                PsiElement(:)(':')
                 Parameters
                   <empty list>
-                PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 SimpleType: SymDeco
                   CodeReferenceElement: SymDeco
@@ -2865,9 +2865,9 @@ ScalaFile
                 PsiElement(given)('given')
                 PsiWhiteSpace(' ')
                 PsiElement(identifier)('symDeco')
+                PsiElement(:)(':')
                 Parameters
                   <empty list>
-                PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 ExtendsBlock
                   TemplateParents
@@ -3004,12 +3004,12 @@ ScalaFile
                           Modifiers
                             <empty list>
                           PsiElement(given)('given')
+                          Parameters
+                            <empty list>
                           PsiWhiteSpace(' ')
                           SimpleType: Context
                             CodeReferenceElement: Context
                               PsiElement(identifier)('Context')
-                          Parameters
-                            <empty list>
                           PsiWhiteSpace(' ')
                           PsiElement(=)('=')
                           PsiWhiteSpace(' ')
@@ -3074,12 +3074,12 @@ ScalaFile
                           Modifiers
                             <empty list>
                           PsiElement(given)('given')
+                          Parameters
+                            <empty list>
                           PsiWhiteSpace(' ')
                           SimpleType: Context
                             CodeReferenceElement: Context
                               PsiElement(identifier)('Context')
-                          Parameters
-                            <empty list>
                           PsiWhiteSpace(' ')
                           PsiElement(=)('=')
                           PsiWhiteSpace(' ')
@@ -3128,9 +3128,9 @@ ScalaFile
                             TypeParameter: T
                               PsiElement(identifier)('T')
                             PsiElement(])(']')
+                          PsiElement(:)(':')
                           Parameters
                             <empty list>
-                          PsiElement(:)(':')
                           PsiWhiteSpace(' ')
                           ExtendsBlock
                             TemplateParents
@@ -3301,9 +3301,9 @@ ScalaFile
                 PsiElement(given)('given')
                 PsiWhiteSpace(' ')
                 PsiElement(identifier)('StringToToken')
+                PsiElement(:)(':')
                 Parameters
                   <empty list>
-                PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 ExtendsBlock
                   TemplateParents
@@ -3606,6 +3606,8 @@ ScalaFile
           Modifiers
             <empty list>
           PsiElement(given)('given')
+          Parameters
+            <empty list>
           PsiWhiteSpace(' ')
           ExtendsBlock
             TemplateParents
@@ -3737,9 +3739,9 @@ ScalaFile
                   CodeReferenceElement: Ord
                     PsiElement(identifier)('Ord')
             PsiElement(])(']')
+          PsiElement(:)(':')
           Parameters
             <empty list>
-          PsiElement(:)(':')
           PsiWhiteSpace(' ')
           ExtendsBlock
             TemplateParents
@@ -4323,6 +4325,8 @@ ScalaFile
           Modifiers
             <empty list>
           PsiElement(given)('given')
+          Parameters
+            <empty list>
           PsiWhiteSpace(' ')
           ExtendsBlock
             TemplateParents
@@ -5958,10 +5962,10 @@ ScalaFile
                 PsiElement(given)('given')
                 PsiWhiteSpace(' ')
                 PsiElement(identifier)('fromString')
-                Parameters
-                  <empty list>
                 PsiWhiteSpace('    ')
                 PsiElement(:)(':')
+                Parameters
+                  <empty list>
                 PsiWhiteSpace(' ')
                 ParametrizedType: Conversion[String, CompletionArg]
                   SimpleType: Conversion
@@ -5998,10 +6002,10 @@ ScalaFile
                 PsiElement(given)('given')
                 PsiWhiteSpace(' ')
                 PsiElement(identifier)('fromFuture')
-                Parameters
-                  <empty list>
                 PsiWhiteSpace('    ')
                 PsiElement(:)(':')
+                Parameters
+                  <empty list>
                 PsiWhiteSpace(' ')
                 ParametrizedType: Conversion[Future[HttpResponse], CompletionArg]
                   SimpleType: Conversion
@@ -6045,9 +6049,9 @@ ScalaFile
                 PsiElement(given)('given')
                 PsiWhiteSpace(' ')
                 PsiElement(identifier)('fromStatusCode')
+                PsiElement(:)(':')
                 Parameters
                   <empty list>
-                PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 ParametrizedType: Conversion[Future[StatusCode], CompletionArg]
                   SimpleType: Conversion

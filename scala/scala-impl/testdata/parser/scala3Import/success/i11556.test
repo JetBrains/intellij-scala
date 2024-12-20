@@ -443,14 +443,14 @@ ScalaFile
     Modifiers
       <empty list>
     PsiElement(given)('given')
+    Parameters
+      <empty list>
     PsiWhiteSpace(' ')
     SimpleType: graphObj.type
       CodeReferenceElement: graphObj
         PsiElement(identifier)('graphObj')
       PsiElement(.)('.')
       PsiElement(type)('type')
-    Parameters
-      <empty list>
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
     PsiWhiteSpace(' ')

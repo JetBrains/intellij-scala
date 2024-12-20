@@ -140,9 +140,9 @@ ScalaFile
           PsiElement(given)('given')
           PsiWhiteSpace(' ')
           PsiElement(identifier)('g1')
+          PsiElement(:)(':')
           Parameters
             <empty list>
-          PsiElement(:)(':')
           PsiWhiteSpace(' ')
           ParametrizedType: TC[Optional]
             SimpleType: TC
@@ -168,9 +168,9 @@ ScalaFile
           PsiElement(given)('given')
           PsiWhiteSpace(' ')
           PsiElement(identifier)('g2')
+          PsiElement(:)(':')
           Parameters
             <empty list>
-          PsiElement(:)(':')
           PsiWhiteSpace(' ')
           ParametrizedType: TC[Option]
             SimpleType: TC

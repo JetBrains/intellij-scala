@@ -245,6 +245,8 @@ ScalaFile
           Modifiers
             <empty list>
           PsiElement(given)('given')
+          Parameters
+            <empty list>
           PsiWhiteSpace(' ')
           ParametrizedType: Liftable[Int]
             SimpleType: Liftable
@@ -256,8 +258,6 @@ ScalaFile
                 CodeReferenceElement: Int
                   PsiElement(identifier)('Int')
               PsiElement(])(']')
-          Parameters
-            <empty list>
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
@@ -270,6 +270,8 @@ ScalaFile
           Modifiers
             <empty list>
           PsiElement(given)('given')
+          Parameters
+            <empty list>
           PsiWhiteSpace(' ')
           ParametrizedType: Liftable[String]
             SimpleType: Liftable
@@ -281,8 +283,6 @@ ScalaFile
                 CodeReferenceElement: String
                   PsiElement(identifier)('String')
               PsiElement(])(']')
-          Parameters
-            <empty list>
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
@@ -518,6 +518,8 @@ ScalaFile
           Modifiers
             <empty list>
           PsiElement(given)('given')
+          Parameters
+            <empty list>
           PsiWhiteSpace(' ')
           ParametrizedType: Liftable[Int]
             SimpleType: Liftable
@@ -529,8 +531,6 @@ ScalaFile
                 CodeReferenceElement: Int
                   PsiElement(identifier)('Int')
               PsiElement(])(']')
-          Parameters
-            <empty list>
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
@@ -543,6 +543,8 @@ ScalaFile
           Modifiers
             <empty list>
           PsiElement(given)('given')
+          Parameters
+            <empty list>
           PsiWhiteSpace(' ')
           ParametrizedType: Liftable[String]
             SimpleType: Liftable
@@ -554,8 +556,6 @@ ScalaFile
                 CodeReferenceElement: String
                   PsiElement(identifier)('String')
               PsiElement(])(']')
-          Parameters
-            <empty list>
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')

@@ -115,9 +115,9 @@ ScalaFile
                 CodeReferenceElement: Int
                   PsiElement(identifier)('Int')
             PsiElement(])(']')
+          PsiElement(:)(':')
           Parameters
             <empty list>
-          PsiElement(:)(':')
           PsiWhiteSpace(' ')
           ParametrizedType: Fail[X, Y]
             SimpleType: Fail
@@ -245,9 +245,9 @@ ScalaFile
           PsiElement(given)('given')
           PsiWhiteSpace(' ')
           PsiElement(identifier)('ev1')
+          PsiElement(:)(':')
           Parameters
             <empty list>
-          PsiElement(:)(':')
           PsiWhiteSpace(' ')
           ParametrizedType: Fail[a.type, 2]
             SimpleType: Fail

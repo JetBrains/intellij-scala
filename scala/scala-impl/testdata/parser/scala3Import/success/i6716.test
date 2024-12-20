@@ -68,6 +68,8 @@ ScalaFile
           Modifiers
             <empty list>
           PsiElement(given)('given')
+          Parameters
+            <empty list>
           PsiWhiteSpace(' ')
           ExtendsBlock
             TemplateParents
@@ -126,6 +128,8 @@ ScalaFile
           Modifiers
             <empty list>
           PsiElement(given)('given')
+          Parameters
+            <empty list>
           PsiWhiteSpace(' ')
           ParametrizedType: Monad[Bar]
             SimpleType: Monad
@@ -137,8 +141,6 @@ ScalaFile
                 CodeReferenceElement: Bar
                   PsiElement(identifier)('Bar')
               PsiElement(])(']')
-          Parameters
-            <empty list>
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')

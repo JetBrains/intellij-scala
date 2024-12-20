@@ -60,9 +60,9 @@ ScalaFile
       TypeParameter: B
         PsiElement(identifier)('B')
       PsiElement(])(']')
+    PsiElement(:)(':')
     Parameters
       <empty list>
-    PsiElement(:)(':')
     PsiWhiteSpace(' ')
     SimpleType: RunDSL
       CodeReferenceElement: RunDSL
@@ -86,9 +86,9 @@ ScalaFile
       TypeParameter: B
         PsiElement(identifier)('B')
       PsiElement(])(']')
+    PsiElement(:)(':')
     Parameters
       <empty list>
-    PsiElement(:)(':')
     PsiWhiteSpace(' ')
     ExtendsBlock
       TemplateParents

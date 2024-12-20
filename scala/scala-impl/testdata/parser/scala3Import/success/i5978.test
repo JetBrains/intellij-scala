@@ -182,9 +182,9 @@ ScalaFile
               PsiElement(given)('given')
               PsiWhiteSpace(' ')
               PsiElement(identifier)('TP')
+              PsiElement(:)(':')
               Parameters
                 <empty list>
-              PsiElement(:)(':')
               PsiWhiteSpace(' ')
               ExtendsBlock
                 TemplateParents
@@ -582,9 +582,9 @@ ScalaFile
                     PsiElement(given)('given')
                     PsiWhiteSpace(' ')
                     PsiElement(identifier)('XXX')
+                    PsiElement(:)(':')
                     Parameters
                       <empty list>
-                    PsiElement(:)(':')
                     PsiWhiteSpace(' ')
                     ParametrizedType: Conversion[Char, Position[CharSequence]]
                       SimpleType: Conversion
@@ -1360,6 +1360,8 @@ ScalaFile
                     Modifiers
                       <empty list>
                     PsiElement(given)('given')
+                    Parameters
+                      <empty list>
                     PsiWhiteSpace(' ')
                     ParametrizedType: Conversion[Char, Position[CharSequence]]
                       SimpleType: Conversion
@@ -1383,8 +1385,6 @@ ScalaFile
                                 PsiElement(identifier)('CharSequence')
                             PsiElement(])(']')
                         PsiElement(])(']')
-                    Parameters
-                      <empty list>
                     PsiWhiteSpace(' ')
                     PsiElement(=)('=')
                     PsiWhiteSpace(' ')
@@ -1431,9 +1431,9 @@ ScalaFile
                       PsiElement(given)('given')
                       PsiWhiteSpace(' ')
                       PsiElement(identifier)('XXX')
+                      PsiElement(:)(':')
                       Parameters
                         <empty list>
-                      PsiElement(:)(':')
                       PsiWhiteSpace(' ')
                       ParametrizedType: Conversion[Char, Position[CharSequence]]
                         SimpleType: Conversion
@@ -1536,9 +1536,9 @@ ScalaFile
         PsiElement(given)('given')
         PsiWhiteSpace(' ')
         PsiElement(identifier)('A')
+        PsiElement(:)(':')
         Parameters
           <empty list>
-        PsiElement(:)(':')
         PsiWhiteSpace(' ')
         ExtendsBlock
           TemplateParents
@@ -1575,9 +1575,9 @@ ScalaFile
           TypeParameter: Y
             PsiElement(identifier)('Y')
           PsiElement(])(']')
+        PsiElement(:)(':')
         Parameters
           <empty list>
-        PsiElement(:)(':')
         PsiWhiteSpace(' ')
         ExtendsBlock
           TemplateParents

@@ -11,9 +11,9 @@ ScalaFile
     PsiElement(given)('given')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('s')
+    PsiElement(:)(':')
     Parameters
       <empty list>
-    PsiElement(:)(':')
     PsiWhiteSpace(' ')
     LiteralType: "literal"
       StringLiteral
@@ -32,12 +32,12 @@ ScalaFile
     Modifiers
       <empty list>
     PsiElement(given)('given')
+    Parameters
+      <empty list>
     PsiWhiteSpace(' ')
     LiteralType: "foo"
       StringLiteral
         PsiElement(string content)('"foo"')
-    Parameters
-      <empty list>
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
     PsiWhiteSpace(' ')
@@ -52,9 +52,9 @@ ScalaFile
     PsiElement(given)('given')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('x')
+    PsiElement(:)(':')
     Parameters
       <empty list>
-    PsiElement(:)(':')
     PsiWhiteSpace(' ')
     LiteralType: 1
       IntegerLiteral

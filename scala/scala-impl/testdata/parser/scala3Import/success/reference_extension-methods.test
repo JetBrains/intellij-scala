@@ -1762,9 +1762,9 @@ ScalaFile
               PsiElement(given)('given')
               PsiWhiteSpace(' ')
               PsiElement(identifier)('ops1')
+              PsiElement(:)(':')
               Parameters
                 <empty list>
-              PsiElement(:)(':')
               PsiWhiteSpace(' ')
               ExtendsBlock
                 TemplateParents
@@ -2095,6 +2095,8 @@ ScalaFile
                 Modifiers
                   <empty list>
                 PsiElement(given)('given')
+                Parameters
+                  <empty list>
                 PsiWhiteSpace(' ')
                 ExtendsBlock
                   TemplateParents
@@ -2307,9 +2309,9 @@ ScalaFile
                         CodeReferenceElement: Ord
                           PsiElement(identifier)('Ord')
                   PsiElement(])(']')
+                PsiElement(:)(':')
                 Parameters
                   <empty list>
-                PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 ExtendsBlock
                   TemplateParents

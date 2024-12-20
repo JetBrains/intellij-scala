@@ -62,6 +62,8 @@ ScalaFile
           Modifiers
             <empty list>
           PsiElement(given)('given')
+          Parameters
+            <empty list>
           PsiWhiteSpace(' ')
           ParametrizedType: Foo[Unit]
             SimpleType: Foo
@@ -73,8 +75,6 @@ ScalaFile
                 CodeReferenceElement: Unit
                   PsiElement(identifier)('Unit')
               PsiElement(])(']')
-          Parameters
-            <empty list>
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
@@ -325,6 +325,8 @@ ScalaFile
           Modifiers
             <empty list>
           PsiElement(given)('given')
+          Parameters
+            <empty list>
           PsiWhiteSpace(' ')
           SimpleType: S.Permissions
             CodeReferenceElement: S.Permissions
@@ -332,8 +334,6 @@ ScalaFile
                 PsiElement(identifier)('S')
               PsiElement(.)('.')
               PsiElement(identifier)('Permissions')
-          Parameters
-            <empty list>
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
@@ -346,6 +346,8 @@ ScalaFile
           Modifiers
             <empty list>
           PsiElement(given)('given')
+          Parameters
+            <empty list>
           PsiWhiteSpace(' ')
           ParametrizedType: Show[S.Permissions]
             SimpleType: Show
@@ -360,8 +362,6 @@ ScalaFile
                   PsiElement(.)('.')
                   PsiElement(identifier)('Permissions')
               PsiElement(])(']')
-          Parameters
-            <empty list>
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')

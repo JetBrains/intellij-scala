@@ -114,6 +114,8 @@ ScalaFile
     Modifiers
       <empty list>
     PsiElement(given)('given')
+    Parameters
+      <empty list>
     PsiWhiteSpace(' ')
     ParametrizedType: CanEqual[Something, Something]
       SimpleType: CanEqual
@@ -130,8 +132,6 @@ ScalaFile
           CodeReferenceElement: Something
             PsiElement(identifier)('Something')
         PsiElement(])(']')
-    Parameters
-      <empty list>
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
     PsiWhiteSpace(' ')

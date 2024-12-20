@@ -332,6 +332,8 @@ ScalaFile
           Modifiers
             <empty list>
           PsiElement(given)('given')
+          Parameters
+            <empty list>
           PsiWhiteSpace(' ')
           ParametrizedType: G[H[Int]]
             SimpleType: G
@@ -350,8 +352,6 @@ ScalaFile
                       PsiElement(identifier)('Int')
                   PsiElement(])(']')
               PsiElement(])(']')
-          Parameters
-            <empty list>
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
@@ -393,6 +393,8 @@ ScalaFile
                 Modifiers
                   <empty list>
                 PsiElement(given)('given')
+                Parameters
+                  <empty list>
                 PsiWhiteSpace(' ')
                 ParametrizedType: H[Int]
                   SimpleType: H
@@ -404,8 +406,6 @@ ScalaFile
                       CodeReferenceElement: Int
                         PsiElement(identifier)('Int')
                     PsiElement(])(']')
-                Parameters
-                  <empty list>
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
                 PsiWhiteSpace(' ')

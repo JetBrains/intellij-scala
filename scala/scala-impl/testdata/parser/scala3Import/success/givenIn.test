@@ -124,12 +124,12 @@ ScalaFile
                     Modifiers
                       <empty list>
                     PsiElement(given)('given')
+                    Parameters
+                      <empty list>
                     PsiWhiteSpace(' ')
                     SimpleType: Context
                       CodeReferenceElement: Context
                         PsiElement(identifier)('Context')
-                    Parameters
-                      <empty list>
                     PsiWhiteSpace(' ')
                     PsiElement(=)('=')
                     PsiWhiteSpace(' ')

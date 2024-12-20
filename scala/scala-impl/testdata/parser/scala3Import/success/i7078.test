@@ -54,9 +54,9 @@ ScalaFile
     PsiElement(given)('given')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('tc')
+    PsiElement(:)(':')
     Parameters
       <empty list>
-    PsiElement(:)(':')
     PsiWhiteSpace(' ')
     SimpleType: A
       CodeReferenceElement: A
