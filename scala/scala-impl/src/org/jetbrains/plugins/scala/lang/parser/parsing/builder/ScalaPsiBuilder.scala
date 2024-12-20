@@ -51,6 +51,13 @@ trait ScalaPsiBuilder extends PsiBuilder {
   def allPreviousIndentations(region: IndentationRegion): Set[IndentationWidth]
 
   /**
+   * Parses `body` and returns how many errors were created while parsing.
+   * Markers from the outside should not be used inside and markers from the inside
+   * should be completed before returning.
+   */
+  def countDoneErrorsIn[T](body: => T): (Int, T)
+
+  /**
    * Instead of using this method consider using more specific error when possible
    */
   final def wrongExpressionError(): Unit = {

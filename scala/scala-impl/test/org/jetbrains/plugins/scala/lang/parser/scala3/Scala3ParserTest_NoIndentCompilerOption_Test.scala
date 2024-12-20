@@ -489,9 +489,9 @@ class Scala3ParserTest_NoIndentCompilerOption_Test
       |          PsiElement(given)('given')
       |          PsiWhiteSpace(' ')
       |          PsiElement(identifier)('stringParser')
+      |          PsiElement(:)(':')
       |          Parameters
       |            <empty list>
-      |          PsiElement(:)(':')
       |          PsiWhiteSpace(' ')
       |          ParametrizedType: StringParser[String]
       |            SimpleType: StringParser
@@ -1109,9 +1109,9 @@ class Scala3ParserTest_NoIndentCompilerOption_Test
       |    PsiElement(given)('given')
       |    PsiWhiteSpace(' ')
       |    PsiElement(identifier)('intOrd')
+      |    PsiElement(:)(':')
       |    Parameters
       |      <empty list>
-      |    PsiElement(:)(':')
       |    PsiWhiteSpace(' ')
       |    ExtendsBlock
       |      TemplateParents
@@ -1139,9 +1139,9 @@ class Scala3ParserTest_NoIndentCompilerOption_Test
       |    PsiElement(given)('given')
       |    PsiWhiteSpace(' ')
       |    PsiElement(identifier)('intOrd')
+      |    PsiElement(:)(':')
       |    Parameters
       |      <empty list>
-      |    PsiElement(:)(':')
       |    PsiWhiteSpace(' ')
       |    ExtendsBlock
       |      TemplateParents
