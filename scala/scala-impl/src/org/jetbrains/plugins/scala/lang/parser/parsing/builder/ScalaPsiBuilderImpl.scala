@@ -250,6 +250,79 @@ class ScalaPsiBuilderImpl(
     }
     super.advanceLexer()
   }
+
+
+  private val errorMarkerStack = new mutable.Stack[ErrorTrackingMarkerParent]
+
+  override def countDoneErrorsIn[T](body: => T): (Int, T) = {
+    object ErrorCounter extends ErrorTrackingMarkerParent {
+      var errors = 0
+
+      override def reportErrors(errorCount: Int): Unit = errors += errorCount
+      override def dropFromStack(): Nothing = throw new IllegalStateException("Completed marker from outer stack")
+    }
+
+    errorMarkerStack.push(ErrorCounter)
+
+    val result = body
+    val old = errorMarkerStack.pop()
+    assert(old eq ErrorCounter)
+
+    ErrorCounter.errors -> result
+  }
+
+  private[builder] def pushPrecedeErrorTrackingMarker(precedingMarker: ErrorTrackingMarker, before: ErrorTrackingMarker): Unit = {
+    val idx = errorMarkerStack.indexOf(before)
+    if (idx == -1) {
+      errorMarkerStack.push(precedingMarker)
+    } else {
+      errorMarkerStack.insert(idx + 1, precedingMarker)
+    }
+  }
+
+  private[builder] def finishErrorTrackingMarker(marker: ErrorTrackingMarker,
+                                                 isDrop: Boolean = false,
+                                                 isRollback: Boolean = false): Unit = {
+    if (isDrop) {
+      val markerIdx = errorMarkerStack.indexOf(marker)
+
+      if (marker.droppedFromStack) {
+        assert(markerIdx == -1, "Marker was not dropped from stack?")
+      } else {
+        assert(markerIdx >= 0, "Marker was not found in stack")
+        errorMarkerStack.remove(markerIdx)
+        errorMarkerStack(markerIdx).reportErrors(marker.errors)
+      }
+    } else {
+      var droppedErrors = marker.errors
+      errorMarkerStack.dropWhileInPlace {
+        case `marker` => false
+        case m =>
+          droppedErrors += m.dropFromStack()
+          true
+      }
+      errorMarkerStack.pop()
+      if (!isRollback) {
+        errorMarkerStack.top.reportErrors(droppedErrors)
+      }
+    }
+  }
+
+  override def mark(): PsiBuilder.Marker = {
+    val original = super.mark()
+    if (errorMarkerStack.isEmpty) {
+      original
+    } else {
+      val wrapped = new ErrorTrackingMarker(original, this)
+      errorMarkerStack.push(wrapped)
+      wrapped
+    }
+  }
+
+  override def error(message: String): Unit = {
+    super.error(message)
+    errorMarkerStack.headOption.foreach(_.reportErrors(1))
+  }
 }
 
 object ScalaPsiBuilderImpl {

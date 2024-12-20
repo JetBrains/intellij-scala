@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top
 
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.{kWITH, tCOMMA}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
@@ -12,9 +13,10 @@ import scala.annotation.tailrec
 
 sealed abstract class Parents(
   val allowCommaSeparatedParentsInScala3: Boolean = true,
-  val allowEmptyParents:                  Boolean = false
+  val allowEmptyParents:                  Boolean = false,
+  val allowRefinement:                    Boolean = true,
 ) extends ParsingRule {
-  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): true = {
     val marker = builder.mark()
 
     if (parseParent()) {
@@ -28,9 +30,14 @@ sealed abstract class Parents(
   @tailrec
   private def parseNextSimpleTypes()(implicit builder: ScalaPsiBuilder): Unit =
     builder.getTokenType match {
+      case `kWITH` if !allowRefinement && ScalaTokenTypes.LBRACE_OR_COLON_TOKEN_SET.contains(builder.lookAhead(1)) =>
+        // for old given syntax
       case `kWITH` | CommaIfAllowed() =>
+        val wasWith = builder.getTokenType == kWITH
         builder.advanceLexer() // Ate with
-        if (parseParent()) {
+        if (wasWith && builder.newlineBeforeCurrentToken) {
+          builder.error(ScalaBundle.message("type.expected"))
+        } else if ( parseParent()) {
           parseNextSimpleTypes()
         }
       case _ =>
@@ -54,3 +61,4 @@ sealed abstract class Parents(
 
 object NewTemplateDefParents extends Parents(allowCommaSeparatedParentsInScala3 = false, allowEmptyParents = true)
 object TypeDefinitionParents extends Parents
+object GivenParents extends Parents(allowRefinement = false)

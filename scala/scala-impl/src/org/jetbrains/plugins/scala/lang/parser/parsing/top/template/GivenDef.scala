@@ -2,15 +2,15 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top
 package template
 
 import com.intellij.lang.PsiBuilder
-import com.intellij.psi.tree.TokenSet
+import com.intellij.psi.tree.{IElementType, TokenSet}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.{Constructor, End}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.ExprInIndentationRegion
-import org.jetbrains.plugins.scala.lang.parser.parsing.params.{ParamClause, ParamClauses, TypeParamClause}
-import org.jetbrains.plugins.scala.lang.parser.parsing.types.AnnotType
+import org.jetbrains.plugins.scala.lang.parser.parsing.params.{ParamClause, ParamClauses, TypeParamClause, TypesAsParams}
+import org.jetbrains.plugins.scala.lang.parser.parsing.types.{AnnotType, InfixType, Type}
 import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
 
 import scala.annotation.tailrec
@@ -18,16 +18,22 @@ import scala.annotation.tailrec
 /**
  * {{{
  * TmplDef            ::= given (OldGivenDef | NewGivenDef) |  ...
+ *
  * OldGivenDef        ::= [OldGivenSig] (AnnotType [‘=’ Expr] | StructuralInstance)
  * StructuralInstance ::= Constructor {'with' Constructor} ['with' GivenTemplateBody]
  * OldGivenSig        ::= [id] [DefTypeParamClause] {UsingParamClause} ‘:’         -- one of `id`, `DefParamClause`, `UsingParamClause` must be present
+ *
  * NewGivenDef        ::= [id `:`] NewGivenSig
- * NewGivenSig        ::= {GivenConditional '=>'} GivenImpl
- * GivenImpl          ::= AnnotType '=' Expr
- *                      | TypeDefinitionParents [GivenTemplateBody]
- * GivenConditional   ::= TypeParamClause
- *                      | ParamClause
- *                      | AnnotType
+ * NewGivenSig        ::=  GivenImpl
+ *                      |  '(' ')' '=>' GivenImpl
+ *                      |  GivenConditional '=>' GivenSig
+ * GivenImpl          ::=  GivenType ([‘=’ Expr] | TemplateBody)
+ *                      |  ConstrApps TemplateBody
+ * GivenConditional   ::=  DefTypeParamClause
+ *                      |  DefTermParamClause
+ *                      |  '(' FunArgTypes ')'
+ *                      |  GivenType
+ * GivenType         ::=  AnnotType {id [nl] AnnotType}
  * }}}
  */
 object GivenDef {
@@ -37,18 +43,60 @@ object GivenDef {
 
     builder.advanceLexer() // ate given
 
-    OldGivenDef.parse(templateMarker) || {
-      if (builder.features.`new context bounds and givens`) NewGivenDef.parse(templateMarker)
-      else {
+    val elementType =
+      if (builder.features.`new context bounds and givens`) {
+        val firstTryMarker = builder.mark()
+
+        def isEndOfStatementNow(x: Any): Boolean =
+          builder.eof() ||
+            builder.newlineBeforeCurrentToken ||
+            builder.getTokenType == ScalaTokenTypes.tSEMICOLON ||
+            builder.getTokenType == ScalaTokenTypes.tRBRACE
+
+        // try parsing the new given def first, but if that encounters any error, rollback
+        // then try the old given def and if that fails rollback again
+        // then parse the new given def again, but this time eat what you can and don't rollback
+        val (newDefErrors, elementType) = builder.countDoneErrorsIn {
+          Some(NewGivenDef.parse())
+            .filter(isEndOfStatementNow)
+        }
+
+        if (elementType.nonEmpty && newDefErrors == 0) {
+          firstTryMarker.drop()
+          elementType
+        } else {
+          firstTryMarker.rollbackTo()
+          val secondTryMarker = builder.mark()
+          val (secondOldErrors, elementType) = builder.countDoneErrorsIn {
+            OldGivenDef.parse()
+              .filter(isEndOfStatementNow)
+          }
+
+          if (elementType.nonEmpty && secondOldErrors == 0) {
+            secondTryMarker.drop()
+            elementType
+          } else {
+            secondTryMarker.rollbackTo()
+            Some(NewGivenDef.parse())
+          }
+        }
+      } else {
+        OldGivenDef.parse()
+      }
+
+    elementType match {
+      case Some(elementType) =>
+        templateMarker.done(elementType)
+        true
+      case None =>
         templateMarker.drop()
         false
-      }
     }
   }
 }
 
 object NewGivenDef {
-  def parse(templateMarker: PsiBuilder.Marker)(implicit builder: ScalaPsiBuilder): Boolean = {
+  def parse()(implicit builder: ScalaPsiBuilder): IElementType = {
     val nameIdMarker = builder.mark()
 
     if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER) {
@@ -56,124 +104,203 @@ object NewGivenDef {
 
       if (builder.getTokenType == ScalaTokenTypes.tCOLON) {
         builder.advanceLexer() // ate `:`
-        nameIdMarker.drop()
+        if (builder.newlineBeforeCurrentToken) {
+          // if there is a newline after the colon we have to parse a given definition alá
+          // given Test:
+          //   def test() = 3
+          nameIdMarker.rollbackTo()
+        } else {
+          nameIdMarker.drop()
+        }
       } else nameIdMarker.rollbackTo()
     } else nameIdMarker.rollbackTo()
 
-    NewGivenSig.parse(templateMarker)
+    NewGivenSig()
   }
 }
 
 object NewGivenSig {
-  @tailrec
-  def parse(
-    marker:             PsiBuilder.Marker,
-    allowTypeParams:    Boolean                   = true,
-    paramClausesMarker: Option[PsiBuilder.Marker] = None
-  )(implicit
-    builder: ScalaPsiBuilder
-  ): Boolean = {
-    val typeParamClauseFollows = builder.getTokenType == ScalaTokenTypes.tLSQBRACKET
-
-    val clausesMarker =
-      paramClausesMarker.orElse(
-        Option.when(!typeParamClauseFollows)(builder.mark())
-      )
-
-    if (GivenConditional.parse(allowTypeParams)) {
-      val hasTypeParams = builder.lookBack(ScalaTokenTypes.tRSQBRACKET)
-      NewGivenSig.parse(marker, allowTypeParams = allowTypeParams && !hasTypeParams, clausesMarker)
-    } else {
-      clausesMarker.foreach(_.done(ScalaElementType.PARAM_CLAUSES))
-      GivenImpl.parse(marker)
-    }
-  }
-}
-
-object GivenConditional {
-  def parse(allowTypeParams: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
-    val fallbackMarker = builder.mark()
-
-    val parsed =
-      (allowTypeParams && TypeParamClause()) ||
-        ParamClause() ||
-    {
-      val paramClauseMarker = builder.mark()
-      val paramMarker       = builder.mark()
-      val paramTypeMarker   = builder.mark()
-
-      val parsedParamType = AnnotType(isPattern = false)
-      if (!parsedParamType) {
-        paramTypeMarker.drop()
-        paramMarker.drop()
-        paramClauseMarker.drop()
+  def apply()(implicit builder: ScalaPsiBuilder): IElementType = {
+    // first try to parse one type param clause alá `[T]`
+    if (TypeParamClause()) {
+      if (builder.getTokenType == ScalaTokenTypes.tFUNTYPE) {
+        builder.advanceLexer() // ate =>
       } else {
-        paramTypeMarker.done(ScalaElementType.PARAM_TYPE)
-        paramMarker.done(ScalaElementType.PARAM)
-        paramClauseMarker.done(ScalaElementType.PARAM_CLAUSE)
+        builder.error(ScalaBundle.message("fun.sign.expected"))
       }
-
-      parsedParamType
     }
 
-    if (!parsed) {
-      fallbackMarker.drop()
-      false
-    } else {
-      val hasFunSign = builder.getTokenType == ScalaTokenTypes.tFUNTYPE
+    val clausesMarker = builder.mark()
 
-      if (hasFunSign) {
-        fallbackMarker.drop()
-        builder.advanceLexer() // ate `=>`
-      } else fallbackMarker.rollbackTo()
+    while ({
+      val rollbackMarker = builder.mark()
 
-      hasFunSign
-    }
+      val isParamClause =
+        builder.getTokenType == ScalaTokenTypes.tLPARENTHESIS &&
+        builder.predict { builder =>
+          if (builder.getTokenText == "using") {
+            builder.advanceLexer()
+          }
+
+          builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && {
+            builder.advanceLexer()
+            builder.getTokenType == ScalaTokenTypes.tCOLON
+          }
+        }
+
+      val parsed =
+        if (isParamClause) {
+          //   (x: Int, y: Int) =>
+          ParamClause()
+        } else {
+          //   (Int, Int) =>
+          // or
+          //   Int =>
+          parseFunParams() ||
+            parseSingleGivenType()
+        }
+
+      if (parsed) {
+        if (builder.getTokenType == ScalaTokenTypes.tFUNTYPE) {
+          builder.advanceLexer() // ate =>
+          rollbackMarker.drop()
+          true
+        } else if (isParamClause) {
+          // Parsing `()` or `(x: Int)` etc cannot be the beginning of a GivenImpl,
+          // so we know it was supposed to be a GivenConditional
+          rollbackMarker.drop()
+          builder.error(ScalaBundle.message("fun.sign.expected"))
+          true
+        } else {
+          // after parsing `(Int, Int)` (or more importantly `(Int)`) or `Int`, we don't know whether that was supposed to
+          // be a GivenConditional or part of the GivenImpl, so we rollback and try to parse there
+          rollbackMarker.rollbackTo()
+          false
+        }
+      } else {
+        rollbackMarker.rollbackTo()
+        false
+      }
+    }) ()
+
+    clausesMarker.done(ScalaElementType.PARAM_CLAUSES)
+
+    NewGivenImpl()
   }
-}
 
-object GivenImpl {
-  private def parseStructuralCase(
-    templateMarker: PsiBuilder.Marker
-  )(implicit builder: ScalaPsiBuilder): Boolean = {
-    val extendsBlockMarker = builder.mark()
+  private def parseFunParams()(implicit builder: ScalaPsiBuilder): Boolean = {
+    if (builder.getTokenType != ScalaTokenTypes.tLPARENTHESIS) {
+      return false
+    }
 
-    if (TypeDefinitionParents()) {
-      TemplateBody()
-      extendsBlockMarker.done(ScalaElementType.EXTENDS_BLOCK)
-      End()
-      templateMarker.done(ScalaElementType.GivenDefinition)
+    val parameterClause = builder.mark()
+    builder.advanceLexer() // eat (
+
+    val parsedUsing = builder.tryParseSoftKeyword(ScalaTokenType.UsingKeyword)
+
+    if (builder.getTokenType != ScalaTokenTypes.tRPARENTHESIS && !TypesAsParams() && !parsedUsing) {
+      parameterClause.rollbackTo()
+      return false
+    }
+
+    builder.getTokenType match {
+      case ScalaTokenTypes.tRPARENTHESIS =>
+        builder.advanceLexer() //Ate )
+      case _ =>
+        builder error ScalaBundle.message("rparenthesis.expected")
+    }
+
+    parameterClause.done(ScalaElementType.PARAM_CLAUSE)
+    true
+  }
+
+  private def parseSingleGivenType()(implicit builder: ScalaPsiBuilder): Boolean = {
+    val paramClauseMarker = builder.mark()
+    val paramMarker       = builder.mark()
+    val paramTypeMarker   = builder.mark()
+
+    if (GivenType()) {
+      paramTypeMarker.done(ScalaElementType.PARAM_TYPE)
+      paramMarker.done(ScalaElementType.PARAM)
+      paramClauseMarker.done(ScalaElementType.PARAM_CLAUSE)
       true
     } else {
-      extendsBlockMarker.drop()
-      templateMarker.drop()
+      paramTypeMarker.drop()
+      paramMarker.drop()
+      paramClauseMarker.rollbackTo()
       false
     }
   }
+}
 
-  def parse(templateMarker: PsiBuilder.Marker)(implicit builder: ScalaPsiBuilder): Boolean = {
-    val fallbackMarker = builder.mark()
+object NewGivenImpl {
+  def apply()(implicit builder: ScalaPsiBuilder): IElementType = {
+    val constructorInvocation = builder.mark()
 
-    if (AnnotType(isPattern = false)) {
-      if (builder.getTokenType == ScalaTokenTypes.tASSIGN) {
-        builder.advanceLexer() // ate `=`
-        fallbackMarker.drop()
-        if (!ExprInIndentationRegion()) builder.error(ErrMsg("expression.expected"))
-        templateMarker.done(ScalaElementType.GIVEN_ALIAS_DEFINITION)
-        true
-      } else {
-        fallbackMarker.rollbackTo()
-        parseStructuralCase(templateMarker)
+    val givenTypeIsMissingInAlias = builder.getTokenType == ScalaTokenTypes.tASSIGN
+    if (givenTypeIsMissingInAlias) {
+      builder.error(ErrMsg("type.expected"))
+    }
+    if (givenTypeIsMissingInAlias || GivenType()) {
+      builder.getTokenType match {
+        case ScalaTokenTypes.tASSIGN =>
+          constructorInvocation.drop()
+          builder.advanceLexer() // ate `=`
+          if (!ExprInIndentationRegion()) builder.error(ErrMsg("expression.expected"))
+          ScalaElementType.GIVEN_ALIAS_DEFINITION
+        case ScalaTokenTypes.tCOLON | ScalaTokenTypes.tLBRACE =>
+          constructorInvocation.done(ScalaElementType.CONSTRUCTOR)
+
+          val templateParents = constructorInvocation.precede()
+          templateParents.done(ScalaElementType.TEMPLATE_PARENTS)
+
+          TemplateBody()
+
+          val extendsBlock = templateParents.precede()
+          extendsBlock.done(ScalaElementType.EXTENDS_BLOCK)
+          ScalaElementType.GivenDefinition
+        case _ =>
+          constructorInvocation.rollbackTo()
+          parseStructuralCase()
       }
     } else {
-      fallbackMarker.drop()
-      parseStructuralCase(templateMarker)
+      constructorInvocation.drop()
+      parseStructuralCase()
     }
   }
+
+  private def parseStructuralCase()(implicit builder: ScalaPsiBuilder): IElementType = {
+    val extendsBlockMarker = builder.mark()
+    builder.getProductions
+    if (builder.getTokenType == ScalaTokenTypes.kWITH) {
+      builder.error(ScalaBundle.message("type.expected"))
+      builder.advanceLexer()
+    }
+
+    GivenParents()
+
+    if (builder.getTokenType == ScalaTokenTypes.kWITH) {
+      builder.error(ScalaBundle.message("expected.more.types"))
+      builder.advanceLexer()
+    }
+
+    TemplateBody()
+    extendsBlockMarker.done(ScalaElementType.EXTENDS_BLOCK)
+    End()
+    ScalaElementType.GivenDefinition
+  }
+}
+
+object GivenType extends InfixType {
+  override protected def parseSubType(star: Boolean, isPattern: Boolean, typeVariables: Boolean)
+                                     (implicit builder: ScalaPsiBuilder): Boolean =
+    AnnotType(isPattern = false)
+
+  override protected def errorMessage: String = ScalaBundle.message("type.expected")
 }
 
 object OldGivenDef {
-  def parse(templateMarker: PsiBuilder.Marker)(implicit builder: ScalaPsiBuilder): Boolean = {
+  def parse()(implicit builder: ScalaPsiBuilder): Option[IElementType] = {
     val sigMarker = {
       val marker = builder.mark()
 
@@ -184,18 +311,24 @@ object OldGivenDef {
       }
     }
 
-    parseGivenAlias(templateMarker, sigMarker) ||
-      parseGivenDefinition(templateMarker, sigMarker)
+    if (sigMarker.nonEmpty && builder.newlineBeforeCurrentToken) {
+      sigMarker.foreach(_.drop())
+      builder.error(ScalaBundle.message("type.expected"))
+      return Some(ScalaElementType.GIVEN_ALIAS_DECLARATION)
+    }
+
+    val elementType = parseGivenAlias(hasSignature = sigMarker.nonEmpty)
+    if (elementType.nonEmpty) {
+      sigMarker.foreach(_.drop())
+      elementType
+    } else {
+      parseGivenDefinition(sigMarker)
+    }
   }
 
-  private def parseGivenAlias(
-    templateMarker: PsiBuilder.Marker,
-    sigMarker:      Option[PsiBuilder.Marker]
-  )(implicit
-    builder: ScalaPsiBuilder
-  ): Boolean = {
+  private def parseGivenAlias(hasSignature: Boolean)
+                             (implicit builder: ScalaPsiBuilder): Option[IElementType] = {
     val aliasMarker  = builder.mark()
-    val hasSignature = sigMarker.nonEmpty
 
     //NOTE: using AnnotType instead of Type, because
     //Type would parse `given Foo with { ... }` as a CompoundType instead of ExtendsBlock
@@ -204,13 +337,6 @@ object OldGivenDef {
     val tokenType = builder.getTokenType
 
     val isAliasDefinition = tokenType == ScalaTokenTypes.tASSIGN
-
-    if (!isAliasDefinition && !hasSignature && builder.features.`new context bounds and givens`) {
-      //3.6+ unnamed abstract givens are parsed as empty ScGivenDefinitions instead
-      aliasMarker.rollbackTo()
-      return false
-    }
-
     val isAliasDeclaration = !LPAREN_WITH_TOKEN_SET.contains(tokenType)
     val isGivenAlias = isAliasDefinition || isAliasDeclaration
 
@@ -218,45 +344,37 @@ object OldGivenDef {
       if (hasSignature && isGivenAlias) {
         //parse incomplete given alias definition during typing:
         //given value: <Caret> =
-        builder.error(ScalaBundle.message("wrong.type"))
+        builder.error(ScalaBundle.message("type.expected"))
       } else {
         aliasMarker.rollbackTo()
-        return false
+        return None
       }
     }
 
     if (isGivenAlias) {
-      if (!hasSignature)
-        builder.mark().done(ScalaElementType.PARAM_CLAUSES)
+      val elementType =
+        if (isAliasDefinition) {
+          builder.advanceLexer() // ate =
 
-      val elementType = if (isAliasDefinition) {
-        builder.advanceLexer() // ate =
+          if (!ExprInIndentationRegion())
+            builder.error(ScalaBundle.message("expression.expected"))
 
-        if (!ExprInIndentationRegion())
-          builder.error(ScalaBundle.message("expression.expected"))
-
-        End()
-        ScalaElementType.GIVEN_ALIAS_DEFINITION
-      } else ScalaElementType.GIVEN_ALIAS_DECLARATION
+          End()
+          ScalaElementType.GIVEN_ALIAS_DEFINITION
+        } else ScalaElementType.GIVEN_ALIAS_DECLARATION
 
       aliasMarker.drop()
-      sigMarker.foreach(_.drop())
-      templateMarker.done(elementType)
-      true
+      Some(elementType)
     } else {
       aliasMarker.rollbackTo()
-      false
+      None
     }
   }
 
   private val nonConstructorStartId = ScalaTokenTypes.SOFT_KEYWORDS.getTypes.map(_.toString).toSet
 
-  private def parseGivenDefinition(
-    templateMarker: PsiBuilder.Marker,
-    sigMarker:      Option[PsiBuilder.Marker]
-  )(implicit
-    builder: ScalaPsiBuilder
-  ): Boolean = {
+  private def parseGivenDefinition(sigMarker: Option[PsiBuilder.Marker])
+                                  (implicit builder: ScalaPsiBuilder): Option[IElementType] = {
     val extendsBlockMarker = builder.mark()
     val templateParents = builder.mark()
 
@@ -264,13 +382,14 @@ object OldGivenDef {
       if (builder.getTokenType == ScalaTokenTypes.kWITH) {
         //parse incomplete given structural instance during typing:
         //given value: <CARET> with MyTrait with {}
-        builder.error(ScalaBundle.message("wrong.type"))
+        builder.error(ScalaBundle.message("type.expected"))
       }
       else {
         templateParents.drop()
         extendsBlockMarker.drop()
-        sigMarker.foreach(_.rollbackTo())
-        return false
+        sigMarker.foreach(_.drop())
+        builder.error(ScalaBundle.message("identifier.expected"))
+        return Some(ScalaElementType.GIVEN_ALIAS_DECLARATION)
       }
     }
 
@@ -296,15 +415,6 @@ object OldGivenDef {
       }
     }
 
-    if (builder.features.`new context bounds and givens` &&
-      builder.getTokenType == ScalaTokenTypes.tFUNTYPE) {
-      // this is a GivenConditional, new style given should be parsed instead
-      templateParents.drop()
-      extendsBlockMarker.drop()
-      sigMarker.foreach(_.rollbackTo())
-      return false
-    }
-
     parseConstructors()
 
     templateParents.done(ScalaElementType.TEMPLATE_PARENTS)
@@ -313,19 +423,17 @@ object OldGivenDef {
       val parsedWith = builder.getTokenType == ScalaTokenTypes.kWITH
       if (parsedWith) builder.advanceLexer() // ate `with`
       parsedWith
-    } || builder.features.`new context bounds and givens`
+    }
 
-
-    if (canParseBody) {
-      if (!GivenTemplateBody()) builder.error(ScalaBundle.message("lbrace.expected"))
+    if (canParseBody && !GivenTemplateBody()) {
+      builder.error(ScalaBundle.message("lbrace.expected"))
     }
 
     extendsBlockMarker.done(ScalaElementType.EXTENDS_BLOCK)
 
     End()
     sigMarker.foreach(_.drop())
-    templateMarker.done(ScalaElementType.GivenDefinition)
-    true
+    Some(ScalaElementType.GivenDefinition)
   }
 
   private val LPAREN_WITH_TOKEN_SET = TokenSet.create(
@@ -356,25 +464,36 @@ object OldGivenSig extends ParsingRule {
       isSignatureForSure ||= !hasIdentifier
     }
 
-    if (builder.getTokenType == ScalaTokenTypes.tLPARENTHESIS) {
-      // parsing just a `(` it could be a paranthesised type
-      // but if there is a `using` it cannot be a type so we can assume that this is a parameter clause
-      // except if there was an identifier, then it could be a constructor invocation `given Foo(using 3);`
-      isSignatureForSure ||= !hasIdentifier && builder.predict(_.getTokenText == "using")
-    }
+    val hasParamClauses =
+      if (builder.getTokenType == ScalaTokenTypes.tLPARENTHESIS) {
+        // parsing just a `(` it could be a paranthesised type
+        // but if there is a `using` it cannot be a type so we can assume that this is a parameter clause
+        // except if there was an identifier, then it could be a constructor invocation `given Foo(using 3);`
+        isSignatureForSure ||= !hasIdentifier && builder.predict(_.getTokenText == "using")
 
-    ParamClauses()
+        ParamClauses()
+      } else false
+
+    def addEmptyParamClausesIfNecessary(): Unit =
+      if (!hasParamClauses) {
+        // if there was no physical param clause add empty PARAM_CLAUSES
+        // after the colon... this makes no sense to the old syntax, but is conformant with the new syntax
+        builder.mark().done(ScalaElementType.PARAM_CLAUSES)
+      }
 
     if (builder.getTokenType == ScalaTokenTypes.tCOLON) {
       builder.advanceLexer() // ate :
       givenSigMarker.drop()
+      addEmptyParamClausesIfNecessary()
       true
     } else if (isSignatureForSure) {
       builder.error(ScalaBundle.message("colon.expected"))
       givenSigMarker.drop()
+      addEmptyParamClausesIfNecessary()
       true
     } else {
       givenSigMarker.rollbackTo()
+      builder.mark().done(ScalaElementType.PARAM_CLAUSES)
       false
     }
   }

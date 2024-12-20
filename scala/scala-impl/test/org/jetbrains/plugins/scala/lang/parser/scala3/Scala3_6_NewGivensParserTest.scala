@@ -14,6 +14,8 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |    Modifiers
       |      <empty list>
       |    PsiElement(given)('given')
+      |    Parameters
+      |      <empty list>
       |    PsiWhiteSpace(' ')
       |    ExtendsBlock
       |      TemplateParents
@@ -32,8 +34,9 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
 
   def testStillParsedAsAbstract(): Unit = checkTree(
     "given ord: Ord[Int]",
-    """ScalaFile
-      |  ScGivenAliasDeclaration: ord
+    """
+      |ScalaFile
+      |  ScGivenDefinition: ord
       |    AnnotationsList
       |      <empty list>
       |    Modifiers
@@ -41,88 +44,100 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |    PsiElement(given)('given')
       |    PsiWhiteSpace(' ')
       |    PsiElement(identifier)('ord')
+      |    PsiElement(:)(':')
       |    Parameters
       |      <empty list>
-      |    PsiElement(:)(':')
       |    PsiWhiteSpace(' ')
-      |    ParametrizedType: Ord[Int]
-      |      SimpleType: Ord
-      |        CodeReferenceElement: Ord
-      |          PsiElement(identifier)('Ord')
-      |      TypeArgumentsList
-      |        PsiElement([)('[')
-      |        SimpleType: Int
-      |          CodeReferenceElement: Int
-      |            PsiElement(identifier)('Int')
-      |        PsiElement(])(']')""".stripMargin
+      |    ExtendsBlock
+      |      TemplateParents
+      |        ConstructorInvocation
+      |          ParametrizedType: Ord[Int]
+      |            SimpleType: Ord
+      |              CodeReferenceElement: Ord
+      |                PsiElement(identifier)('Ord')
+      |            TypeArgumentsList
+      |              PsiElement([)('[')
+      |              SimpleType: Int
+      |                CodeReferenceElement: Int
+      |                  PsiElement(identifier)('Int')
+      |              PsiElement(])(']')
+      |""".stripMargin
   )
 
   def testSimpleInstance(): Unit = checkTree(
     """given Ord[Int]:
       |  def compare(x: Int, y: Int) = ???""".stripMargin,
-    """ScalaFile
-      |  ScGivenAliasDeclaration: Ord
+    """
+      |ScalaFile
+      |  ScGivenDefinition: given_Ord_Int
       |    AnnotationsList
       |      <empty list>
       |    Modifiers
       |      <empty list>
       |    PsiElement(given)('given')
-      |    PsiWhiteSpace(' ')
-      |    PsiElement(identifier)('Ord')
-      |    TypeParameterClause
-      |      PsiElement([)('[')
-      |      TypeParameter: Int
-      |        PsiElement(identifier)('Int')
-      |      PsiElement(])(']')
       |    Parameters
       |      <empty list>
-      |    PsiElement(:)(':')
-      |    PsiErrorElement:Wrong type
-      |      <empty list>
-      |  PsiWhiteSpace('\n  ')
-      |  ScFunctionDefinition: compare
-      |    AnnotationsList
-      |      <empty list>
-      |    Modifiers
-      |      <empty list>
-      |    PsiElement(def)('def')
       |    PsiWhiteSpace(' ')
-      |    PsiElement(identifier)('compare')
-      |    Parameters
-      |      ParametersClause
-      |        PsiElement(()('(')
-      |        Parameter: x
+      |    ExtendsBlock
+      |      TemplateParents
+      |        ConstructorInvocation
+      |          ParametrizedType: Ord[Int]
+      |            SimpleType: Ord
+      |              CodeReferenceElement: Ord
+      |                PsiElement(identifier)('Ord')
+      |            TypeArgumentsList
+      |              PsiElement([)('[')
+      |              SimpleType: Int
+      |                CodeReferenceElement: Int
+      |                  PsiElement(identifier)('Int')
+      |              PsiElement(])(']')
+      |      ScTemplateBody
+      |        PsiElement(:)(':')
+      |        PsiWhiteSpace('\n  ')
+      |        ScFunctionDefinition: compare
       |          AnnotationsList
       |            <empty list>
       |          Modifiers
       |            <empty list>
-      |          PsiElement(identifier)('x')
-      |          PsiElement(:)(':')
+      |          PsiElement(def)('def')
       |          PsiWhiteSpace(' ')
-      |          ParameterType
-      |            SimpleType: Int
-      |              CodeReferenceElement: Int
-      |                PsiElement(identifier)('Int')
-      |        PsiElement(,)(',')
-      |        PsiWhiteSpace(' ')
-      |        Parameter: y
-      |          AnnotationsList
-      |            <empty list>
-      |          Modifiers
-      |            <empty list>
-      |          PsiElement(identifier)('y')
-      |          PsiElement(:)(':')
+      |          PsiElement(identifier)('compare')
+      |          Parameters
+      |            ParametersClause
+      |              PsiElement(()('(')
+      |              Parameter: x
+      |                AnnotationsList
+      |                  <empty list>
+      |                Modifiers
+      |                  <empty list>
+      |                PsiElement(identifier)('x')
+      |                PsiElement(:)(':')
+      |                PsiWhiteSpace(' ')
+      |                ParameterType
+      |                  SimpleType: Int
+      |                    CodeReferenceElement: Int
+      |                      PsiElement(identifier)('Int')
+      |              PsiElement(,)(',')
+      |              PsiWhiteSpace(' ')
+      |              Parameter: y
+      |                AnnotationsList
+      |                  <empty list>
+      |                Modifiers
+      |                  <empty list>
+      |                PsiElement(identifier)('y')
+      |                PsiElement(:)(':')
+      |                PsiWhiteSpace(' ')
+      |                ParameterType
+      |                  SimpleType: Int
+      |                    CodeReferenceElement: Int
+      |                      PsiElement(identifier)('Int')
+      |              PsiElement())(')')
       |          PsiWhiteSpace(' ')
-      |          ParameterType
-      |            SimpleType: Int
-      |              CodeReferenceElement: Int
-      |                PsiElement(identifier)('Int')
-      |        PsiElement())(')')
-      |    PsiWhiteSpace(' ')
-      |    PsiElement(=)('=')
-      |    PsiWhiteSpace(' ')
-      |    ReferenceExpression: ???
-      |      PsiElement(identifier)('???')""".stripMargin
+      |          PsiElement(=)('=')
+      |          PsiWhiteSpace(' ')
+      |          ReferenceExpression: ???
+      |            PsiElement(identifier)('???')
+      |""".stripMargin
   )
 
   def testSimpleInstanceNamed(): Unit = checkTree(
@@ -137,9 +152,9 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |    PsiElement(given)('given')
       |    PsiWhiteSpace(' ')
       |    PsiElement(identifier)('ordInt')
+      |    PsiElement(:)(':')
       |    Parameters
       |      <empty list>
-      |    PsiElement(:)(':')
       |    PsiWhiteSpace(' ')
       |    ExtendsBlock
       |      TemplateParents

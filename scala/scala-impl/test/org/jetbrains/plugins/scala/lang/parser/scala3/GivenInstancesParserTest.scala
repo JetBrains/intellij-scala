@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.lang.parser.scala3
 
-class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
+import org.jetbrains.plugins.scala.ScalaVersion
 
+abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
   def test_indentation(): Unit = checkTree(
     """
       |given Test with
@@ -16,6 +17,8 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |    Modifiers
       |      <empty list>
       |    PsiElement(given)('given')
+      |    Parameters
+      |      <empty list>
       |    PsiWhiteSpace(' ')
       |    ExtendsBlock
       |      TemplateParents
@@ -65,6 +68,8 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |    Modifiers
       |      <empty list>
       |    PsiElement(given)('given')
+      |    Parameters
+      |      <empty list>
       |    PsiWhiteSpace(' ')
       |    ExtendsBlock
       |      TemplateParents
@@ -121,6 +126,8 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |    Modifiers
       |      <empty list>
       |    PsiElement(given)('given')
+      |    Parameters
+      |      <empty list>
       |    PsiWhiteSpace(' ')
       |    ExtendsBlock
       |      TemplateParents
@@ -200,9 +207,9 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |    PsiElement(given)('given')
       |    PsiWhiteSpace(' ')
       |    PsiElement(identifier)('intOrd3')
+      |    PsiElement(:)(':')
       |    Parameters
       |      <empty list>
-      |    PsiElement(:)(':')
       |    PsiWhiteSpace(' ')
       |    ExtendsBlock
       |      TemplateParents
@@ -252,152 +259,6 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(integer)('2')
       |      PsiElement())(')')
       |  PsiWhiteSpace('\n')""".stripMargin
-  )
-
-  def test_incomplete_given_alias_declaration_without_type_annotation(): Unit = checkTree(
-    """given value:
-      |given value(x: Int):
-      |""".stripMargin,
-    """ScalaFile
-      |  ScGivenAliasDeclaration: value
-      |    AnnotationsList
-      |      <empty list>
-      |    Modifiers
-      |      <empty list>
-      |    PsiElement(given)('given')
-      |    PsiWhiteSpace(' ')
-      |    PsiElement(identifier)('value')
-      |    Parameters
-      |      <empty list>
-      |    PsiElement(:)(':')
-      |    PsiErrorElement:Wrong type
-      |      <empty list>
-      |  PsiWhiteSpace('\n')
-      |  ScGivenAliasDeclaration: value
-      |    AnnotationsList
-      |      <empty list>
-      |    Modifiers
-      |      <empty list>
-      |    PsiElement(given)('given')
-      |    PsiWhiteSpace(' ')
-      |    PsiElement(identifier)('value')
-      |    Parameters
-      |      ParametersClause
-      |        PsiElement(()('(')
-      |        Parameter: x
-      |          AnnotationsList
-      |            <empty list>
-      |          Modifiers
-      |            <empty list>
-      |          PsiElement(identifier)('x')
-      |          PsiElement(:)(':')
-      |          PsiWhiteSpace(' ')
-      |          ParameterType
-      |            SimpleType: Int
-      |              CodeReferenceElement: Int
-      |                PsiElement(identifier)('Int')
-      |        PsiElement())(')')
-      |    PsiElement(:)(':')
-      |    PsiErrorElement:Wrong type
-      |      <empty list>
-      |  PsiWhiteSpace('\n')
-      |""".stripMargin
-  )
-
-  def test_incomplete_given_alias_definition_without_type_annotation(): Unit = checkTree(
-    """given value: = ???
-      |given value(x: Int): = ???
-      |""".stripMargin,
-    """ScalaFile
-      |  ScGivenAliasDefinition: value
-      |    AnnotationsList
-      |      <empty list>
-      |    Modifiers
-      |      <empty list>
-      |    PsiElement(given)('given')
-      |    PsiWhiteSpace(' ')
-      |    PsiElement(identifier)('value')
-      |    Parameters
-      |      <empty list>
-      |    PsiElement(:)(':')
-      |    PsiErrorElement:Wrong type
-      |      <empty list>
-      |    PsiWhiteSpace(' ')
-      |    PsiElement(=)('=')
-      |    PsiWhiteSpace(' ')
-      |    ReferenceExpression: ???
-      |      PsiElement(identifier)('???')
-      |  PsiWhiteSpace('\n')
-      |  ScGivenAliasDefinition: value
-      |    AnnotationsList
-      |      <empty list>
-      |    Modifiers
-      |      <empty list>
-      |    PsiElement(given)('given')
-      |    PsiWhiteSpace(' ')
-      |    PsiElement(identifier)('value')
-      |    Parameters
-      |      ParametersClause
-      |        PsiElement(()('(')
-      |        Parameter: x
-      |          AnnotationsList
-      |            <empty list>
-      |          Modifiers
-      |            <empty list>
-      |          PsiElement(identifier)('x')
-      |          PsiElement(:)(':')
-      |          PsiWhiteSpace(' ')
-      |          ParameterType
-      |            SimpleType: Int
-      |              CodeReferenceElement: Int
-      |                PsiElement(identifier)('Int')
-      |        PsiElement())(')')
-      |    PsiElement(:)(':')
-      |    PsiErrorElement:Wrong type
-      |      <empty list>
-      |    PsiWhiteSpace(' ')
-      |    PsiElement(=)('=')
-      |    PsiWhiteSpace(' ')
-      |    ReferenceExpression: ???
-      |      PsiElement(identifier)('???')
-      |  PsiWhiteSpace('\n')
-      |""".stripMargin
-  )
-
-  def test_incomplete_given_structural_instance_without_constructor_invocation(): Unit = checkTree(
-    """given value: with MyTrait with {}
-      |""".stripMargin,
-    """ScalaFile
-      |  ScGivenDefinition: value
-      |    AnnotationsList
-      |      <empty list>
-      |    Modifiers
-      |      <empty list>
-      |    PsiElement(given)('given')
-      |    PsiWhiteSpace(' ')
-      |    PsiElement(identifier)('value')
-      |    Parameters
-      |      <empty list>
-      |    PsiElement(:)(':')
-      |    PsiWhiteSpace(' ')
-      |    ExtendsBlock
-      |      TemplateParents
-      |        PsiErrorElement:Wrong type
-      |          <empty list>
-      |        PsiElement(with)('with')
-      |        PsiWhiteSpace(' ')
-      |        ConstructorInvocation
-      |          SimpleType: MyTrait
-      |            CodeReferenceElement: MyTrait
-      |              PsiElement(identifier)('MyTrait')
-      |      PsiWhiteSpace(' ')
-      |      PsiElement(with)('with')
-      |      PsiWhiteSpace(' ')
-      |      ScTemplateBody
-      |        PsiElement({)('{')
-      |        PsiElement(})('}')
-      |  PsiWhiteSpace('\n')
-      |""".stripMargin
   )
 
   def test_full(): Unit = checkTree(
@@ -603,9 +464,9 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |      TypeParameter: T
       |        PsiElement(identifier)('T')
       |      PsiElement(])(']')
+      |    PsiElement(:)(':')
       |    Parameters
       |      <empty list>
-      |    PsiElement(:)(':')
       |    PsiWhiteSpace(' ')
       |    ExtendsBlock
       |      TemplateParents
@@ -649,9 +510,9 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |      TypeParameter: T
       |        PsiElement(identifier)('T')
       |      PsiElement(])(']')
+      |    PsiElement(:)(':')
       |    Parameters
       |      <empty list>
-      |    PsiElement(:)(':')
       |    PsiWhiteSpace(' ')
       |    ExtendsBlock
       |      TemplateParents
@@ -691,9 +552,9 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |    PsiElement(given)('given')
       |    PsiWhiteSpace(' ')
       |    PsiElement(identifier)('Test')
+      |    PsiElement(:)(':')
       |    Parameters
       |      <empty list>
-      |    PsiElement(:)(':')
       |    PsiWhiteSpace(' ')
       |    ExtendsBlock
       |      TemplateParents
@@ -731,6 +592,8 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |    Modifiers
       |      <empty list>
       |    PsiElement(given)('given')
+      |    Parameters
+      |      <empty list>
       |    PsiWhiteSpace(' ')
       |    ExtendsBlock
       |      TemplateParents
@@ -758,6 +621,8 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |    Modifiers
       |      <empty list>
       |    PsiElement(given)('given')
+      |    Parameters
+      |      <empty list>
       |    PsiWhiteSpace(' ')
       |    ExtendsBlock
       |      TemplateParents
@@ -795,6 +660,8 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |    Modifiers
       |      <empty list>
       |    PsiElement(given)('given')
+      |    Parameters
+      |      <empty list>
       |    PsiWhiteSpace(' ')
       |    ExtendsBlock
       |      TemplateParents
@@ -1007,9 +874,9 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |      TypeParameter: T
       |        PsiElement(identifier)('T')
       |      PsiElement(])(']')
+      |    PsiElement(:)(':')
       |    Parameters
       |      <empty list>
-      |    PsiElement(:)(':')
       |    PsiWhiteSpace(' ')
       |    ParametrizedType: Ord[Int]
       |      SimpleType: Ord
@@ -1049,9 +916,9 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |      TypeParameter: T
       |        PsiElement(identifier)('T')
       |      PsiElement(])(']')
+      |    PsiElement(:)(':')
       |    Parameters
       |      <empty list>
-      |    PsiElement(:)(':')
       |    PsiWhiteSpace(' ')
       |    ParametrizedType: Ord[T]
       |      SimpleType: Ord
@@ -1087,9 +954,9 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |    PsiElement(given)('given')
       |    PsiWhiteSpace(' ')
       |    PsiElement(identifier)('Test')
+      |    PsiElement(:)(':')
       |    Parameters
       |      <empty list>
-      |    PsiElement(:)(':')
       |    PsiWhiteSpace(' ')
       |    ParametrizedType: Ord[Int]
       |      SimpleType: Ord
@@ -1123,6 +990,8 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |    Modifiers
       |      <empty list>
       |    PsiElement(given)('given')
+      |    Parameters
+      |      <empty list>
       |    PsiWhiteSpace(' ')
       |    ParametrizedType: Ord[Int]
       |      SimpleType: Ord
@@ -1134,8 +1003,6 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |          CodeReferenceElement: Int
       |            PsiElement(identifier)('Int')
       |        PsiElement(])(']')
-      |    Parameters
-      |      <empty list>
       |    PsiWhiteSpace(' ')
       |    PsiElement(=)('=')
       |    PsiWhiteSpace(' ')
@@ -1158,12 +1025,12 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |    Modifiers
       |      <empty list>
       |    PsiElement(given)('given')
+      |    Parameters
+      |      <empty list>
       |    PsiWhiteSpace(' ')
       |    SimpleType: Test
       |      CodeReferenceElement: Test
       |        PsiElement(identifier)('Test')
-      |    Parameters
-      |      <empty list>
       |    PsiWhiteSpace(' ')
       |    PsiElement(=)('=')
       |    PsiWhiteSpace(' ')
@@ -1172,7 +1039,6 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
-
   /********************************** alias declarations *********************************************/
 
   def test_full_alias_declaration(): Unit = checkTree(
@@ -1351,9 +1217,9 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |      TypeParameter: T
       |        PsiElement(identifier)('T')
       |      PsiElement(])(']')
+      |    PsiElement(:)(':')
       |    Parameters
       |      <empty list>
-      |    PsiElement(:)(':')
       |    PsiWhiteSpace(' ')
       |    ParametrizedType: Ord[Int]
       |      SimpleType: Ord
@@ -1388,9 +1254,9 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |      TypeParameter: T
       |        PsiElement(identifier)('T')
       |      PsiElement(])(']')
+      |    PsiElement(:)(':')
       |    Parameters
       |      <empty list>
-      |    PsiElement(:)(':')
       |    PsiWhiteSpace(' ')
       |    ParametrizedType: Ord[T]
       |      SimpleType: Ord
@@ -1406,6 +1272,270 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
+  def test_given_definition_that_looks_like_given_signature(): Unit = checkTree(
+    """
+      |object B {
+      |  given test[T](using 3)   // <- given definition
+      |  given test(using 3)      // <- given definition
+      |  given test(using 3): Int // <- given alias
+      |}
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScObject: B
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(object)('object')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('B')
+      |    PsiWhiteSpace(' ')
+      |    ExtendsBlock
+      |      ScTemplateBody
+      |        PsiElement({)('{')
+      |        PsiWhiteSpace('\n  ')
+      |        ScGivenDefinition: given_test_T
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(given)('given')
+      |          Parameters
+      |            <empty list>
+      |          PsiWhiteSpace(' ')
+      |          ExtendsBlock
+      |            TemplateParents
+      |              ConstructorInvocation
+      |                ParametrizedType: test[T]
+      |                  SimpleType: test
+      |                    CodeReferenceElement: test
+      |                      PsiElement(identifier)('test')
+      |                  TypeArgumentsList
+      |                    PsiElement([)('[')
+      |                    SimpleType: T
+      |                      CodeReferenceElement: T
+      |                        PsiElement(identifier)('T')
+      |                    PsiElement(])(']')
+      |                ArgumentList
+      |                  PsiElement(()('(')
+      |                  PsiElement(using)('using')
+      |                  PsiWhiteSpace(' ')
+      |                  IntegerLiteral
+      |                    PsiElement(integer)('3')
+      |                  PsiElement())(')')
+      |        PsiWhiteSpace('   ')
+      |        PsiComment(comment)('// <- given definition')
+      |        PsiWhiteSpace('\n  ')
+      |        ScGivenDefinition: given_test
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(given)('given')
+      |          Parameters
+      |            <empty list>
+      |          PsiWhiteSpace(' ')
+      |          ExtendsBlock
+      |            TemplateParents
+      |              ConstructorInvocation
+      |                SimpleType: test
+      |                  CodeReferenceElement: test
+      |                    PsiElement(identifier)('test')
+      |                ArgumentList
+      |                  PsiElement(()('(')
+      |                  PsiElement(using)('using')
+      |                  PsiWhiteSpace(' ')
+      |                  IntegerLiteral
+      |                    PsiElement(integer)('3')
+      |                  PsiElement())(')')
+      |        PsiWhiteSpace('      ')
+      |        PsiComment(comment)('// <- given definition')
+      |        PsiWhiteSpace('\n  ')
+      |        ScGivenAliasDeclaration: test
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(given)('given')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(identifier)('test')
+      |          Parameters
+      |            ParametersClause
+      |              PsiElement(()('(')
+      |              PsiElement(using)('using')
+      |              PsiWhiteSpace(' ')
+      |              Parameter: <anonymous>
+      |                ParameterType
+      |                  LiteralType: 3
+      |                    IntegerLiteral
+      |                      PsiElement(integer)('3')
+      |              PsiElement())(')')
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace(' ')
+      |          SimpleType: Int
+      |            CodeReferenceElement: Int
+      |              PsiElement(identifier)('Int')
+      |        PsiWhiteSpace(' ')
+      |        PsiComment(comment)('// <- given alias')
+      |        PsiWhiteSpace('\n')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+}
+
+class GivenOldSyntaxParserTest_WithoutNewSyntax extends GivenOldSyntaxParserTestBase {
+  override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_3_5
+
+  def test_incomplete_given_alias_declaration_without_type_annotation(): Unit = checkTree(
+    """given value:
+      |given value(x: Int):
+      |""".stripMargin,
+    """ScalaFile
+      |  ScGivenAliasDeclaration: value
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(given)('given')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('value')
+      |    PsiElement(:)(':')
+      |    Parameters
+      |      <empty list>
+      |    PsiErrorElement:Type expected
+      |      <empty list>
+      |  PsiWhiteSpace('\n')
+      |  ScGivenAliasDeclaration: value
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(given)('given')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('value')
+      |    Parameters
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        Parameter: x
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(identifier)('x')
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace(' ')
+      |          ParameterType
+      |            SimpleType: Int
+      |              CodeReferenceElement: Int
+      |                PsiElement(identifier)('Int')
+      |        PsiElement())(')')
+      |    PsiElement(:)(':')
+      |    PsiErrorElement:Type expected
+      |      <empty list>
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_incomplete_given_alias_definition_without_type_annotation(): Unit = checkTree(
+    """given value: = ???
+      |given value(x: Int): = ???
+      |""".stripMargin,
+    """ScalaFile
+      |  ScGivenAliasDefinition: value
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(given)('given')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('value')
+      |    PsiElement(:)(':')
+      |    Parameters
+      |      <empty list>
+      |    PsiErrorElement:Type expected
+      |      <empty list>
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    ReferenceExpression: ???
+      |      PsiElement(identifier)('???')
+      |  PsiWhiteSpace('\n')
+      |  ScGivenAliasDefinition: value
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(given)('given')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('value')
+      |    Parameters
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        Parameter: x
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(identifier)('x')
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace(' ')
+      |          ParameterType
+      |            SimpleType: Int
+      |              CodeReferenceElement: Int
+      |                PsiElement(identifier)('Int')
+      |        PsiElement())(')')
+      |    PsiElement(:)(':')
+      |    PsiErrorElement:Type expected
+      |      <empty list>
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    ReferenceExpression: ???
+      |      PsiElement(identifier)('???')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_incomplete_given_structural_instance_without_constructor_invocation(): Unit = checkTree(
+    """given value: with MyTrait with {}
+      |""".stripMargin,
+    """ScalaFile
+      |  ScGivenDefinition: value
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(given)('given')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('value')
+      |    PsiElement(:)(':')
+      |    Parameters
+      |      <empty list>
+      |    PsiWhiteSpace(' ')
+      |    ExtendsBlock
+      |      TemplateParents
+      |        PsiErrorElement:Type expected
+      |          <empty list>
+      |        PsiElement(with)('with')
+      |        PsiWhiteSpace(' ')
+      |        ConstructorInvocation
+      |          SimpleType: MyTrait
+      |            CodeReferenceElement: MyTrait
+      |              PsiElement(identifier)('MyTrait')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(with)('with')
+      |      PsiWhiteSpace(' ')
+      |      ScTemplateBody
+      |        PsiElement({)('{')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  // in new syntax this is a given definition that is named Test and instantiates Ord[Int]
   def test_alias_declaration_with_only_name(): Unit = checkTree(
     """
       |given Test: Ord[Int]
@@ -1421,54 +1551,26 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |    PsiElement(given)('given')
       |    PsiWhiteSpace(' ')
       |    PsiElement(identifier)('Test')
-      |    Parameters
-      |      <empty list>
       |    PsiElement(:)(':')
-      |    PsiWhiteSpace(' ')
-      |    ParametrizedType: Ord[Int]
-      |      SimpleType: Ord
-      |        CodeReferenceElement: Ord
-      |          PsiElement(identifier)('Ord')
-      |      TypeArgumentsList
-      |        PsiElement([)('[')
-      |        SimpleType: Int
-      |          CodeReferenceElement: Int
-      |            PsiElement(identifier)('Int')
-      |        PsiElement(])(']')
-      |  PsiWhiteSpace('\n')
-      |""".stripMargin
-  )
-
-  def test_anonymous_alias_declaration_plain(): Unit = checkTree(
-    """
-      |given Ord[Int]
-      |""".stripMargin,
-    """
-      |ScalaFile
-      |  PsiWhiteSpace('\n')
-      |  ScGivenAliasDeclaration: given_Ord_Int
-      |    AnnotationsList
-      |      <empty list>
-      |    Modifiers
-      |      <empty list>
-      |    PsiElement(given)('given')
-      |    PsiWhiteSpace(' ')
-      |    ParametrizedType: Ord[Int]
-      |      SimpleType: Ord
-      |        CodeReferenceElement: Ord
-      |          PsiElement(identifier)('Ord')
-      |      TypeArgumentsList
-      |        PsiElement([)('[')
-      |        SimpleType: Int
-      |          CodeReferenceElement: Int
-      |            PsiElement(identifier)('Int')
-      |        PsiElement(])(']')
       |    Parameters
       |      <empty list>
+      |    PsiWhiteSpace(' ')
+      |    ParametrizedType: Ord[Int]
+      |      SimpleType: Ord
+      |        CodeReferenceElement: Ord
+      |          PsiElement(identifier)('Ord')
+      |      TypeArgumentsList
+      |        PsiElement([)('[')
+      |        SimpleType: Int
+      |          CodeReferenceElement: Int
+      |            PsiElement(identifier)('Int')
+      |        PsiElement(])(']')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
 
+
+  // in new syntax this is an anonymous given-definition that instantiates Ord[Int]
   def test_alias_declaration_without_sig(): Unit = checkTree(
     """
       |given Test
@@ -1482,12 +1584,43 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |    Modifiers
       |      <empty list>
       |    PsiElement(given)('given')
+      |    Parameters
+      |      <empty list>
       |    PsiWhiteSpace(' ')
       |    SimpleType: Test
       |      CodeReferenceElement: Test
       |        PsiElement(identifier)('Test')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  // in new syntax a definition
+  def test_anonymous_alias_declaration_plain(): Unit = checkTree(
+    """
+      |given Ord[Int]
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScGivenAliasDeclaration: given_Ord_Int
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(given)('given')
       |    Parameters
       |      <empty list>
+      |    PsiWhiteSpace(' ')
+      |    ParametrizedType: Ord[Int]
+      |      SimpleType: Ord
+      |        CodeReferenceElement: Ord
+      |          PsiElement(identifier)('Ord')
+      |      TypeArgumentsList
+      |        PsiElement([)('[')
+      |        SimpleType: Int
+      |          CodeReferenceElement: Int
+      |            PsiElement(identifier)('Int')
+      |        PsiElement(])(']')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
@@ -1525,12 +1658,12 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |          Modifiers
       |            <empty list>
       |          PsiElement(given)('given')
+      |          Parameters
+      |            <empty list>
       |          PsiWhiteSpace(' ')
       |          TypeInParenthesis: ()
       |            PsiElement(()('(')
       |            PsiElement())(')')
-      |          Parameters
-      |            <empty list>
       |        PsiWhiteSpace('\n  ')
       |        ScGivenAliasDeclaration: given_
       |          AnnotationsList
@@ -1694,9 +1827,9 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |            PsiErrorElement:Wrong parameter
       |              <empty list>
       |            PsiElement(])(']')
-      |          Parameters
-      |            <empty list>
       |          PsiErrorElement:':' expected
+      |            <empty list>
+      |          Parameters
       |            <empty list>
       |        PsiWhiteSpace('\n  ')
       |        ScGivenAliasDeclaration: given_
@@ -1711,9 +1844,9 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |            TypeParameter: T
       |              PsiElement(identifier)('T')
       |            PsiElement(])(']')
-      |          Parameters
-      |            <empty list>
       |          PsiErrorElement:':' expected
+      |            <empty list>
+      |          Parameters
       |            <empty list>
       |        PsiWhiteSpace('\n  ')
       |        ScGivenAliasDeclaration: given_
@@ -1762,113 +1895,83 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+}
 
+class GivenOldSyntaxParserTest_WithNewSyntax extends GivenOldSyntaxParserTestBase {
+  override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_3_6
 
-  def test_given_definition_that_looks_like_given_signature(): Unit = checkTree(
-    """
-      |object B {
-      |  given test[T](using 3)   // <- given definition
-      |  given test(using 3)      // <- given definition
-      |  given test(using 3): Int // <- given alias
-      |}
+  def test_incomplete_given_structural_instance_without_constructor_invocation(): Unit = checkTree(
+    """given value: with MyTrait with {}
       |""".stripMargin,
     """
       |ScalaFile
-      |  PsiWhiteSpace('\n')
-      |  ScObject: B
+      |  ScGivenDefinition: value
       |    AnnotationsList
       |      <empty list>
       |    Modifiers
       |      <empty list>
-      |    PsiElement(object)('object')
+      |    PsiElement(given)('given')
       |    PsiWhiteSpace(' ')
-      |    PsiElement(identifier)('B')
+      |    PsiElement(identifier)('value')
+      |    PsiElement(:)(':')
+      |    Parameters
+      |      <empty list>
       |    PsiWhiteSpace(' ')
       |    ExtendsBlock
+      |      PsiErrorElement:Type expected
+      |        <empty list>
+      |      PsiElement(with)('with')
+      |      PsiWhiteSpace(' ')
+      |      TemplateParents
+      |        ConstructorInvocation
+      |          SimpleType: MyTrait
+      |            CodeReferenceElement: MyTrait
+      |              PsiElement(identifier)('MyTrait')
+      |      PsiErrorElement:Expected more types
+      |        <empty list>
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(with)('with')
+      |      PsiWhiteSpace(' ')
       |      ScTemplateBody
       |        PsiElement({)('{')
-      |        PsiWhiteSpace('\n  ')
-      |        ScGivenDefinition: given_test_T
-      |          AnnotationsList
-      |            <empty list>
-      |          Modifiers
-      |            <empty list>
-      |          PsiElement(given)('given')
-      |          PsiWhiteSpace(' ')
-      |          ExtendsBlock
-      |            TemplateParents
-      |              ConstructorInvocation
-      |                ParametrizedType: test[T]
-      |                  SimpleType: test
-      |                    CodeReferenceElement: test
-      |                      PsiElement(identifier)('test')
-      |                  TypeArgumentsList
-      |                    PsiElement([)('[')
-      |                    SimpleType: T
-      |                      CodeReferenceElement: T
-      |                        PsiElement(identifier)('T')
-      |                    PsiElement(])(']')
-      |                ArgumentList
-      |                  PsiElement(()('(')
-      |                  PsiElement(using)('using')
-      |                  PsiWhiteSpace(' ')
-      |                  IntegerLiteral
-      |                    PsiElement(integer)('3')
-      |                  PsiElement())(')')
-      |        PsiWhiteSpace('   ')
-      |        PsiComment(comment)('// <- given definition')
-      |        PsiWhiteSpace('\n  ')
-      |        ScGivenDefinition: given_test
-      |          AnnotationsList
-      |            <empty list>
-      |          Modifiers
-      |            <empty list>
-      |          PsiElement(given)('given')
-      |          PsiWhiteSpace(' ')
-      |          ExtendsBlock
-      |            TemplateParents
-      |              ConstructorInvocation
-      |                SimpleType: test
-      |                  CodeReferenceElement: test
-      |                    PsiElement(identifier)('test')
-      |                ArgumentList
-      |                  PsiElement(()('(')
-      |                  PsiElement(using)('using')
-      |                  PsiWhiteSpace(' ')
-      |                  IntegerLiteral
-      |                    PsiElement(integer)('3')
-      |                  PsiElement())(')')
-      |        PsiWhiteSpace('      ')
-      |        PsiComment(comment)('// <- given definition')
-      |        PsiWhiteSpace('\n  ')
-      |        ScGivenAliasDeclaration: test
-      |          AnnotationsList
-      |            <empty list>
-      |          Modifiers
-      |            <empty list>
-      |          PsiElement(given)('given')
-      |          PsiWhiteSpace(' ')
-      |          PsiElement(identifier)('test')
-      |          Parameters
-      |            ParametersClause
-      |              PsiElement(()('(')
-      |              PsiElement(using)('using')
-      |              PsiWhiteSpace(' ')
-      |              Parameter: <anonymous>
-      |                ParameterType
-      |                  LiteralType: 3
-      |                    IntegerLiteral
-      |                      PsiElement(integer)('3')
-      |              PsiElement())(')')
-      |          PsiElement(:)(':')
-      |          PsiWhiteSpace(' ')
-      |          SimpleType: Int
-      |            CodeReferenceElement: Int
-      |              PsiElement(identifier)('Int')
-      |        PsiWhiteSpace(' ')
-      |        PsiComment(comment)('// <- given alias')
-      |        PsiWhiteSpace('\n')
       |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  // in new syntax this is a given definition that is named Test and instantiates Ord[Int]
+  def test_definition_that_looks_like_alias_declaration_with_only_name(): Unit = checkTree(
+    """
+      |given Test: Ord[Int]
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScGivenDefinition: Test
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(given)('given')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('Test')
+      |    PsiElement(:)(':')
+      |    Parameters
+      |      <empty list>
+      |    PsiWhiteSpace(' ')
+      |    ExtendsBlock
+      |      TemplateParents
+      |        ConstructorInvocation
+      |          ParametrizedType: Ord[Int]
+      |            SimpleType: Ord
+      |              CodeReferenceElement: Ord
+      |                PsiElement(identifier)('Ord')
+      |            TypeArgumentsList
+      |              PsiElement([)('[')
+      |              SimpleType: Int
+      |                CodeReferenceElement: Int
+      |                  PsiElement(identifier)('Int')
+      |              PsiElement(])(']')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )

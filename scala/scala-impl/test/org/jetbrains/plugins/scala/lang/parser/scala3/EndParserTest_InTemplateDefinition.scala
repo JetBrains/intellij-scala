@@ -287,6 +287,8 @@ class EndParserTest_InTemplateDefinition extends SimpleScala3ParserTestBase with
       |    Modifiers
       |      <empty list>
       |    PsiElement(given)('given')
+      |    Parameters
+      |      <empty list>
       |    PsiWhiteSpace(' ')
       |    ExtendsBlock
       |      TemplateParents
@@ -327,6 +329,8 @@ class EndParserTest_InTemplateDefinition extends SimpleScala3ParserTestBase with
       |    Modifiers
       |      <empty list>
       |    PsiElement(given)('given')
+      |    Parameters
+      |      <empty list>
       |    PsiWhiteSpace(' ')
       |    ExtendsBlock
       |      TemplateParents
@@ -529,12 +533,12 @@ class EndParserTest_InTemplateDefinition extends SimpleScala3ParserTestBase with
       |    Modifiers
       |      <empty list>
       |    PsiElement(given)('given')
+      |    Parameters
+      |      <empty list>
       |    PsiWhiteSpace(' ')
       |    SimpleType: foo
       |      CodeReferenceElement: foo
       |        PsiElement(identifier)('foo')
-      |    Parameters
-      |      <empty list>
       |    PsiWhiteSpace(' ')
       |    PsiElement(=)('=')
       |    PsiErrorElement:Expression expected

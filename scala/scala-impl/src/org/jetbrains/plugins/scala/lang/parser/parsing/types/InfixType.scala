@@ -14,12 +14,15 @@ import org.jetbrains.plugins.scala.lang.parser.util.PrecedenceClimbingInfixParsi
  * InfixType ::= CompoundType {id [nl] CompoundType}
  */
 object InfixType extends InfixType {
-  override protected def componentType: Type = CompoundType
+  override protected def parseSubType(star: Boolean, isPattern: Boolean, typeVariables: Boolean)
+                                     (implicit builder: ScalaPsiBuilder): Boolean =
+    CompoundType(star, isPattern)
   override protected def errorMessage: String = ScalaBundle.message("compound.type.expected")
 }
 
 trait InfixType {
-  protected def componentType: Type
+  protected def parseSubType(star: Boolean, isPattern: Boolean, typeVariables: Boolean)
+                            (implicit builder: ScalaPsiBuilder): Boolean
   @Nls
   protected def errorMessage: String
 
@@ -46,7 +49,7 @@ trait InfixType {
           return false
         case _ =>
       }
-    } else if (!componentType(star, isPattern)) {
+    } else if (!parseSubType(star, isPattern, typeVariables)) {
       infixTypeMarker.rollbackTo()
       return false
     }
@@ -89,7 +92,7 @@ trait InfixType {
       if (builder.twoNewlinesBeforeCurrentToken) {
         builder.error(errorMessage)
       }
-      if (!parseInfixWildcardType() && !componentType(star, isPattern)) {
+      if (!parseInfixWildcardType() && !parseSubType(star, isPattern, typeVariables)) {
         builder.error(errorMessage)
       }
 
@@ -151,11 +154,11 @@ trait InfixType {
             case _ => true
           }
         } else {
-          parseTypeVariable() || componentType(star, isPattern)
+          parseTypeVariable() || parseSubType(star, isPattern, typeVariables)
         }
 
       override protected def parseOperand()(implicit builder: ScalaPsiBuilder): Boolean =
-        parseInfixWildcardType() || parseTypeVariable() || componentType(star, isPattern)
+        parseInfixWildcardType() || parseTypeVariable() || parseSubType(star, isPattern, typeVariables)
 
       override protected def shouldContinue(implicit builder: ScalaPsiBuilder): Boolean =
         (!isPattern ||
