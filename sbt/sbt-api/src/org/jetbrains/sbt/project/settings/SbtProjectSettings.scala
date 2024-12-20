@@ -117,6 +117,13 @@ object SbtProjectSettings {
     settings
   }
 
+  def default(separateProdAndTestSources: Boolean): SbtProjectSettings = {
+    val settings = new SbtProjectSettings()
+    settings.converterVersion = ConverterVersion
+    settings.separateProdAndTestSources = separateProdAndTestSources
+    settings
+  }
+
   def forProject(project: Project): Option[SbtProjectSettings] = {
     val settings = SbtSettings.getInstance(project)
     Option(project.getBasePath)
