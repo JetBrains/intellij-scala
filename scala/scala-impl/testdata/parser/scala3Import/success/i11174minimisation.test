@@ -374,9 +374,9 @@ ScalaFile
             TypeParameter: T
               PsiElement(identifier)('T')
             PsiElement(])(']')
+          PsiElement(:)(':')
           Parameters
             <empty list>
-          PsiElement(:)(':')
           PsiWhiteSpace(' ')
           ParametrizedType: EnumerateNames[T]
             SimpleType: EnumerateNames

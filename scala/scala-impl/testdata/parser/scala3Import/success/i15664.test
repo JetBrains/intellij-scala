@@ -504,9 +504,9 @@ ScalaFile
       TypeParameter: E
         PsiElement(identifier)('E')
       PsiElement(])(']')
+    PsiElement(:)(':')
     Parameters
       <empty list>
-    PsiElement(:)(':')
     PsiWhiteSpace(' ')
     ParametrizedType: CpsMonadInstanceContext[ForZManaged[R, E]]
       SimpleType: CpsMonadInstanceContext

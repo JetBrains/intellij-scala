@@ -150,9 +150,9 @@ ScalaFile
                 CodeReferenceElement: Singleton
                   PsiElement(identifier)('Singleton')
             PsiElement(])(']')
+          PsiElement(:)(':')
           Parameters
             <empty list>
-          PsiElement(:)(':')
           PsiWhiteSpace(' ')
           ParametrizedType: Conversion[T, Inlined[T]]
             SimpleType: Conversion
@@ -215,9 +215,9 @@ ScalaFile
             TypeParameter: Wide
               PsiElement(identifier)('Wide')
             PsiElement(])(']')
+          PsiElement(:)(':')
           Parameters
             <empty list>
-          PsiElement(:)(':')
           PsiWhiteSpace(' ')
           ParametrizedType: Conversion[Wide, Inlined[Wide]]
             SimpleType: Conversion

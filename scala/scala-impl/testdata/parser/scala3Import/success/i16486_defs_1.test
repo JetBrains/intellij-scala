@@ -95,6 +95,8 @@ ScalaFile
     Modifiers
       <empty list>
     PsiElement(given)('given')
+    Parameters
+      <empty list>
     PsiWhiteSpace(' ')
     ParametrizedType: Conversion[String | Temporal, JsValue]
       SimpleType: Conversion
@@ -119,8 +121,6 @@ ScalaFile
           CodeReferenceElement: JsValue
             PsiElement(identifier)('JsValue')
         PsiElement(])(']')
-    Parameters
-      <empty list>
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
     PsiWhiteSpace('  ')

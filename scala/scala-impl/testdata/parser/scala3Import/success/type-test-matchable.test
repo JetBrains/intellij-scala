@@ -113,6 +113,8 @@ ScalaFile
           Modifiers
             <empty list>
           PsiElement(given)('given')
+          Parameters
+            <empty list>
           PsiWhiteSpace(' ')
           ParametrizedType: TypeTest[X, Y]
             SimpleType: TypeTest
@@ -129,8 +131,6 @@ ScalaFile
                 CodeReferenceElement: Y
                   PsiElement(identifier)('Y')
               PsiElement(])(']')
-          Parameters
-            <empty list>
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')

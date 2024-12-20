@@ -924,9 +924,9 @@ ScalaFile
             TypeParameter: A
               PsiElement(identifier)('A')
             PsiElement(])(']')
+          PsiElement(:)(':')
           Parameters
             <empty list>
-          PsiElement(:)(':')
           PsiWhiteSpace(' ')
           ParametrizedType: Schema[A]
             SimpleType: Schema

@@ -68,6 +68,8 @@ ScalaFile
           Modifiers
             <empty list>
           PsiElement(given)('given')
+          Parameters
+            <empty list>
           PsiWhiteSpace(' ')
           ParametrizedType: scala.reflect.ClassTag[Term]
             SimpleType: scala.reflect.ClassTag
@@ -85,8 +87,6 @@ ScalaFile
                 CodeReferenceElement: Term
                   PsiElement(identifier)('Term')
               PsiElement(])(']')
-          Parameters
-            <empty list>
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
@@ -99,6 +99,8 @@ ScalaFile
           Modifiers
             <empty list>
           PsiElement(given)('given')
+          Parameters
+            <empty list>
           PsiWhiteSpace(' ')
           ParametrizedType: scala.reflect.ClassTag[Select]
             SimpleType: scala.reflect.ClassTag
@@ -116,8 +118,6 @@ ScalaFile
                 CodeReferenceElement: Select
                   PsiElement(identifier)('Select')
               PsiElement(])(']')
-          Parameters
-            <empty list>
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')

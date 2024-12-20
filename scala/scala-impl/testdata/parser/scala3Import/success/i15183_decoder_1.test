@@ -62,6 +62,8 @@ ScalaFile
           Modifiers
             <empty list>
           PsiElement(given)('given')
+          Parameters
+            <empty list>
           PsiWhiteSpace(' ')
           ParametrizedType: Decoder[Double]
             SimpleType: Decoder
@@ -73,8 +75,6 @@ ScalaFile
                 CodeReferenceElement: Double
                   PsiElement(identifier)('Double')
               PsiElement(])(']')
-          Parameters
-            <empty list>
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
@@ -95,9 +95,9 @@ ScalaFile
             TypeParameter: H
               PsiElement(identifier)('H')
             PsiElement(])(']')
+          PsiElement(:)(':')
           Parameters
             <empty list>
-          PsiElement(:)(':')
           PsiWhiteSpace(' ')
           ParametrizedType: Tuple.Map[EmptyTuple.type, Decoder]
             SimpleType: Tuple.Map

@@ -42,9 +42,9 @@ ScalaFile
     PsiElement(given)('given')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('fail1')
+    PsiElement(:)(':')
     Parameters
       <empty list>
-    PsiElement(:)(':')
     PsiWhiteSpace(' ')
     ExtendsBlock
       TemplateParents
@@ -99,9 +99,9 @@ ScalaFile
       TypeParameter: X
         PsiElement(identifier)('X')
       PsiElement(])(']')
+    PsiElement(:)(':')
     Parameters
       <empty list>
-    PsiElement(:)(':')
     PsiWhiteSpace(' ')
     ExtendsBlock
       TemplateParents
@@ -212,9 +212,9 @@ ScalaFile
     PsiElement(given)('given')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('ok1')
+    PsiElement(:)(':')
     Parameters
       <empty list>
-    PsiElement(:)(':')
     PsiWhiteSpace(' ')
     SimpleType: T
       CodeReferenceElement: T
@@ -277,9 +277,9 @@ ScalaFile
       TypeParameter: X
         PsiElement(identifier)('X')
       PsiElement(])(']')
+    PsiElement(:)(':')
     Parameters
       <empty list>
-    PsiElement(:)(':')
     PsiWhiteSpace(' ')
     SimpleType: T
       CodeReferenceElement: T

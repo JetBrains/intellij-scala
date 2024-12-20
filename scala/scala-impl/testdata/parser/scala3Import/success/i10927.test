@@ -167,6 +167,8 @@ ScalaFile
     Modifiers
       <empty list>
     PsiElement(given)('given')
+    Parameters
+      <empty list>
     PsiWhiteSpace(' ')
     TypeInParenthesis: (A ==> B)
       PsiElement(()('(')
@@ -182,8 +184,6 @@ ScalaFile
           CodeReferenceElement: B
             PsiElement(identifier)('B')
       PsiElement())(')')
-    Parameters
-      <empty list>
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
     PsiWhiteSpace(' ')
@@ -198,6 +198,8 @@ ScalaFile
     Modifiers
       <empty list>
     PsiElement(given)('given')
+    Parameters
+      <empty list>
     PsiWhiteSpace(' ')
     TypeInParenthesis: (A ==> C)
       PsiElement(()('(')
@@ -213,8 +215,6 @@ ScalaFile
           CodeReferenceElement: C
             PsiElement(identifier)('C')
       PsiElement())(')')
-    Parameters
-      <empty list>
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
     PsiWhiteSpace(' ')

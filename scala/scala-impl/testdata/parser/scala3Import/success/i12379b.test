@@ -231,10 +231,10 @@ ScalaFile
           CodeReferenceElement: Int
             PsiElement(identifier)('Int')
       PsiElement(])(']')
-    Parameters
-      <empty list>
     PsiWhiteSpace(' ')
     PsiElement(:)(':')
+    Parameters
+      <empty list>
     PsiWhiteSpace(' ')
     ParametrizedType: Conversion[T, Bar[T]]
       SimpleType: Conversion

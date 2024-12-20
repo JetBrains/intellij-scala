@@ -323,9 +323,9 @@ ScalaFile
             TypeParameter: X
               PsiElement(identifier)('X')
             PsiElement(])(']')
+          PsiElement(:)(':')
           Parameters
             <empty list>
-          PsiElement(:)(':')
           PsiWhiteSpace(' ')
           ParametrizedType: Conversion[(A, B) => X, (A ~ B) => X]
             SimpleType: Conversion

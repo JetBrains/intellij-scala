@@ -31,9 +31,9 @@ ScalaFile
       TypeParameter: A
         PsiElement(identifier)('A')
       PsiElement(])(']')
+    PsiElement(:)(':')
     Parameters
       <empty list>
-    PsiElement(:)(':')
     PsiWhiteSpace(' ')
     ParametrizedType: Conversion[NOTHING.type, Option[A]]
       SimpleType: Conversion

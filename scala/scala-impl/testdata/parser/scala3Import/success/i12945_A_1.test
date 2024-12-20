@@ -106,9 +106,9 @@ ScalaFile
                       CodeReferenceElement: Int
                         PsiElement(identifier)('Int')
                   PsiElement(])(']')
+                PsiElement(:)(':')
                 Parameters
                   <empty list>
-                PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 ExtendsBlock
                   TemplateParents

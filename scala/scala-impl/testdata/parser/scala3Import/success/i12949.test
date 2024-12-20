@@ -126,9 +126,9 @@ ScalaFile
                       CodeReferenceElement: String
                         PsiElement(identifier)('String')
                   PsiElement(])(']')
+                PsiElement(:)(':')
                 Parameters
                   <empty list>
-                PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 ParametrizedType: TC[V]
                   SimpleType: TC
@@ -168,9 +168,9 @@ ScalaFile
                       CodeReferenceElement: Double
                         PsiElement(identifier)('Double')
                   PsiElement(])(']')
+                PsiElement(:)(':')
                 Parameters
                   <empty list>
-                PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 ParametrizedType: TC[V]
                   SimpleType: TC
@@ -238,9 +238,9 @@ ScalaFile
                       CodeReferenceElement: Int
                         PsiElement(identifier)('Int')
                   PsiElement(])(']')
+                PsiElement(:)(':')
                 Parameters
                   <empty list>
-                PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 ExtendsBlock
                   TemplateParents

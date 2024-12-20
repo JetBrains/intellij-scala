@@ -418,9 +418,9 @@ ScalaFile
                     CodeReferenceElement: Singleton
                       PsiElement(identifier)('Singleton')
               PsiElement(])(']')
+            PsiElement(:)(':')
             Parameters
               <empty list>
-            PsiElement(:)(':')
             PsiWhiteSpace(' ')
             ParametrizedType: Mul[TL, TR]
               SimpleType: Mul
@@ -573,9 +573,9 @@ ScalaFile
                     CodeReferenceElement: Singleton
                       PsiElement(identifier)('Singleton')
               PsiElement(])(']')
+            PsiElement(:)(':')
             Parameters
               <empty list>
-            PsiElement(:)(':')
             PsiWhiteSpace(' ')
             ParametrizedType: Mul[Two, TR]
               SimpleType: Mul

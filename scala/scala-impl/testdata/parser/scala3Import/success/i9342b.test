@@ -69,9 +69,9 @@ ScalaFile
       TypeParameter: A
         PsiElement(identifier)('A')
       PsiElement(])(']')
+    PsiElement(:)(':')
     Parameters
       <empty list>
-    PsiElement(:)(':')
     PsiWhiteSpace(' ')
     ParametrizedType: Label[A]
       SimpleType: Label

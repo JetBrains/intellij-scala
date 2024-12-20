@@ -265,6 +265,8 @@ ScalaFile
     Modifiers
       <empty list>
     PsiElement(given)('given')
+    Parameters
+      <empty list>
     PsiWhiteSpace(' ')
     ParametrizedType: PartialId[B]
       SimpleType: PartialId
@@ -276,8 +278,6 @@ ScalaFile
           CodeReferenceElement: B
             PsiElement(identifier)('B')
         PsiElement(])(']')
-    Parameters
-      <empty list>
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
     PsiWhiteSpace(' ')

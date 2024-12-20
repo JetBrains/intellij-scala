@@ -141,9 +141,9 @@ ScalaFile
       TypeParameter: C
         PsiElement(identifier)('C')
       PsiElement(])(']')
+    PsiElement(:)(':')
     Parameters
       <empty list>
-    PsiElement(:)(':')
     PsiWhiteSpace(' ')
     ExtendsBlock
       TemplateParents
@@ -220,9 +220,9 @@ ScalaFile
       TypeParameter: A
         PsiElement(identifier)('A')
       PsiElement(])(']')
+    PsiElement(:)(':')
     Parameters
       <empty list>
-    PsiElement(:)(':')
     PsiWhiteSpace(' ')
     ExtendsBlock
       TemplateParents
