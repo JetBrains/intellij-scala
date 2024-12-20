@@ -12,8 +12,10 @@ import java.io.File
 import java.{util => ju}
 
 /**
- * The loader loads and registers only nscala library (with sources) without transitive dependencies
+ * The loader loads and registers only a scala library (with sources) without transitive dependencies
  * It doesn't load compiler classpath jars and creates a simple library
+ *
+ * @see [[ScalaSDKLoader]]
  */
 final case class ScalaLibraryLoader(
   scalaVersion: ScalaVersion,

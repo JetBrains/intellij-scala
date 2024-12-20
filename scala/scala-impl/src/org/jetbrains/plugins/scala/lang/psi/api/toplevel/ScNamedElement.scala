@@ -8,6 +8,7 @@ import com.intellij.psi.stubs.{NamedStub, StubElement}
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.caches.{ModTracker, cached}
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
@@ -126,26 +127,32 @@ trait ScNamedElement extends ScalaPsiElement
   }
 
   override def getPresentation: ItemPresentation = {
-    val clazz: ScTemplateDefinition = nameContext match {
-      case null =>
-        // can be null e.g. in bad `for` generator: for { x } {} (notice no `<-`)
+    val _nameContext = nameContext
+    val classContainer: ScTemplateDefinition = if (_nameContext == null) null else {
+      val parent = _nameContext.getParent
+      if (parent.is[ScTemplateBody, ScEarlyDefinitions] || this.is[ScClassParameter])
+        PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition], true)
+      else
         null
-      case context =>
-        context.getParent match {
-          case _: ScTemplateBody | _: ScEarlyDefinitions =>
-            PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition], true)
-          case _ if this.isInstanceOf[ScClassParameter]  =>
-            PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition], true)
-          case _ => null
-        }
     }
     val parentMember = Option(PsiTreeUtil.getParentOfType(this, classOf[ScMember], false))
     new ItemPresentation {
       override def getPresentableText: String = name
-      override def getLocationString: String = clazz match {
-        case _: ScTypeDefinition => "(" + clazz.qualifiedName + ")"
+      override def getLocationString: String = classContainer match {
+        case _: ScTypeDefinition => "(" + classContainer.qualifiedName + ")"
         case _: ScNewTemplateDefinition => s"($AnonymousPlaceholder)"
-        case _ => parentMember.map(m => StringUtil.first(m.getText, 30, true)).getOrElse("")
+        case _ =>
+          //Note, the location of the parent member and name context member can be different.
+          //When we have a top-level definition, we use the top-level qualifier.
+          //When we have some local element, we just show the closest member text.
+          val maybeTopLevelQualifier = _nameContext match {
+            case member: ScMember => member.topLevelQualifier
+            case _ => None
+          }
+          maybeTopLevelQualifier.getOrElse {
+            val parentMemberTextShort = parentMember.map(m => StringUtil.first(m.getText, 30, true))
+            parentMemberTextShort.getOrElse("")
+          }
       }
       override def getIcon(open: Boolean): Icon = parentMember.map(_.getIcon(0)).orNull
     }

@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala
 package lang
 package navigation
 
-import com.intellij.psi.{PsiClass, PsiElement, PsiMember, PsiNamedElement, PsiPackage}
-import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiMemberExt, PsiNamedElementExt}
+import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement, PsiPackage}
+import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiMemberExt, PsiNamedElementExt, invokeAndWait}
 import org.jetbrains.plugins.scala.lang.psi.api.ScFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
@@ -13,7 +13,17 @@ import scala.reflect.ClassTag
 
 abstract class GoToTestBase extends base.ScalaLightCodeInsightFixtureTestCase {
 
-  protected final def actualName(actual: Any): String = {
+  protected final def actualName(actual: Any): String = invokeAndWait {
+    //NOTE: using extra method to avoid issues with NonLocalReturnControl thrown from inside invokeAndWait
+    //`invokeAndWait` wraps exceptions into extra RuntimeException and knows nothing about Scala NonLocalReturnControl.
+    //Thus, Scala code can't catch the exception and throw it back to the test code.
+    //
+    //We could also handle it by handling RuntimeException in `extensions.preservingControlFlow` or asking the platform
+    // to throw InvocationTargetException instead of RuntimeExceptions (to please preservingControlFlow)
+    actualNameImpl(actual)
+  }
+
+  private def actualNameImpl(actual: Any): String = {
     actual match {
       case member: ScMember =>
         if (member.isTopLevel) {

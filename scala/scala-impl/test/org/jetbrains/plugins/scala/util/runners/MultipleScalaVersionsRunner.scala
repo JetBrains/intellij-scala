@@ -62,12 +62,17 @@ private object MultipleScalaVersionsRunner {
           val description = makeDescription(test.getClass, test)
           val shouldRun = filter.shouldRun(description)
           if (!shouldRun) {
+            markSkipped(test, description)
             mutedTestsIndexes ::= testIdx
           }
       }
 
       //the list is already in the reversed order
       mutedTestsIndexes.foreach(myTests.remove)
+    }
+
+    private def markSkipped(test: Test, description: Description): Unit = {
+      println(s"Test skipped: ${description.getDisplayName}")
     }
 
     private val myTests: util.List[Test] = new util.ArrayList[Test]
@@ -135,8 +140,8 @@ private object MultipleScalaVersionsRunner {
       }
     }
 
+    //NOTE: the tests can be empty only if there were some filters specified (e.g. JDK filter)
     val childTests = childTestsByScalaVersion(allTestCases)
-    // val childTests = childTestsByName(allTests)
     childTests.foreach { childTest =>
       suite.addTest(childTest)
     }
@@ -256,8 +261,15 @@ private object MultipleScalaVersionsRunner {
     d.getChildren.forEach(debugLog(_, deep + 1))
   }
 
+  private def isTestSkipped(test: TestCase): Boolean = {
+    // Implement logic to determine if the test is skipped (e.g., based on annotations or configuration)
+    false
+  }
+
   // Copied from JUnit38ClassRunner, added "Category" annotation propagation for ScalaVersionTestSuite
   private def makeDescription(klass: Class[_], test: Test): Description = test match {
+    case tc: TestCase if isTestSkipped(tc) =>
+      Description.createSuiteDescription(s"[SKIPPED] ${tc.getName}", tc.getClass)
     case ts: TestSuite =>
       val name = Option(ts.getName).getOrElse(createSuiteDescriptionName(ts))
       val annotations =  findAnnotation(klass, classOf[Category]).toSeq
