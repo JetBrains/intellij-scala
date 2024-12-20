@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
-import org.jetbrains.plugins.scala.lang.navigation.GoToClassAndSymbolTestBase
+import org.jetbrains.plugins.scala.lang.navigation.ChooseClassOrSymbolByNameTestBase
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.runner.RunWith
@@ -68,6 +68,7 @@ private[search] trait ScalaLibraryClassSearchTestBase extends ScalaLightCodeInsi
 class ScalaCompleteLibraryClassTest
   extends ScalaCompletionTestBase
     with ScalaLibraryClassSearchTestBase {
+
   private def checkLookupItems(fileText: String, expectedDescriptors: Seq[ClassDescriptor]): Unit = {
     val (_, lookupItems) = activeLookupWithItems(fileText, CompletionType.BASIC)
     val actual = lookupItems.toList.map(item => (item.getLookupString, name(item.getPsiElement)))
@@ -102,12 +103,13 @@ class ScalaCompleteLibraryClassTest
   TestScalaVersion.Scala_3_Latest
 ))
 class ScalaGoToLibraryClassTest
-  extends GoToClassAndSymbolTestBase
+  extends ChooseClassOrSymbolByNameTestBase
     with ScalaLibraryClassSearchTestBase {
+
   private def checkClassElements(text: String, expectedDescriptors: Seq[ClassDescriptor]): Unit = {
     val elements = gotoClassElements(text)
     val expected = expectedDescriptors.map(d => (d.predicate, d.fqn))
-    super[GoToClassAndSymbolTestBase].checkContainExpected(elements, expected: _*)
+    super[ChooseClassOrSymbolByNameTestBase].checkContainExpected(elements, expected: _*)
   }
 
   def testGoToClassScalatestShortName(): Unit =

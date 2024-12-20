@@ -1,35 +1,32 @@
-package org.jetbrains.plugins.scala
-package lang
-package navigation
+package org.jetbrains.plugins.scala.lang.navigation
 
-import com.intellij.ide.actions.searcheverywhere.PSIPresentationBgRendererWrapper.PsiItemWithPresentation
-import com.intellij.ide.actions.searcheverywhere.{FoundItemDescriptor, PSIPresentationBgRendererWrapper, SearchEverywhereContributor, SearchEverywhereUI, SymbolSearchEverywhereContributor}
-import com.intellij.ide.util.gotoByName._
-import com.intellij.ide.util.scopeChooser.ScopeDescriptor
-import com.intellij.openapi.actionSystem.impl.SimpleDataContext
-import com.intellij.openapi.actionSystem.{ActionUiKind, AnActionEvent, Presentation}
-import com.intellij.openapi.application.{ApplicationManager, ModalityState}
-import com.intellij.openapi.progress.EmptyProgressIndicator
-import com.intellij.openapi.project.Project
+import com.intellij.ide.util.gotoByName.{ChooseByNameModel, ChooseByNamePopup, GotoClassModel2, GotoSymbolModel2, SelectMostRelevant}
+import com.intellij.openapi.application.ModalityState
 import com.intellij.psi.{PsiClass, PsiElement}
 import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
-import com.intellij.util.CommonProcessors
 import com.intellij.util.concurrency.Semaphore
-import com.intellij.util.indexing.FindSymbolParameters
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
-import org.jetbrains.plugins.scala.lang.navigation.GoToClassAndSymbolTestBase.MyTestSymbolSearchEverywhereContributor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 import org.junit.Assert._
 
-import java.util
-import java.util.concurrent.{Future, TimeUnit}
 import scala.jdk.CollectionConverters._
 
-abstract class GoToClassAndSymbolTestBase extends GoToTestBase {
+/**
+ * The test tests "Search By Name" functionality. Note, it's not available as a direct action by that name.
+ * This functionality is available as part of other features, for example in "Run Configurations" when you select
+ * a main class for "Application" configuration
+ *
+ * It's different from [[GoToSymbolTestBase]],
+ * though both of the test classes test implementations of [[com.intellij.navigation.GotoClassContributor]]
+ *
+ * If you want to test "Go To Symbol" functionality available in "Search Everywhere" please consider using [[GoToSymbolTestBase]]
+ */
+abstract class ChooseClassOrSymbolByNameTestBase extends GoToTestBase {
   private var myPopup: ChooseByNamePopup = _
 
   private def createPopup(model: ChooseByNameModel): ChooseByNamePopup = {
@@ -51,55 +48,6 @@ abstract class GoToClassAndSymbolTestBase extends GoToTestBase {
   protected def gotoClassElements(text: String): Set[Any] = getPopupElements(new GotoClassModel2(getProject), text)
 
   protected def gotoSymbolElements(text: String): Set[Any] = getPopupElements(new GotoSymbolModel2(getProject, getTestRootDisposable), text)
-
-  /**
-   * @param presentableText primary text displayed in the list
-   * @param containerText the text of the container displayed as grey hint text
-   */
-  protected case class GoToElementData(presentableText: String, containerText: String) {
-    override def toString: String = this.productIterator.mkString("(", ", ", ")")
-  }
-
-  /**
-   * This method is more advanced alternative of [[myFixture.getGotoSymbolResults]].
-   * This implementation is closer to the actual behavior in the IDE.
-   * It has more data for every item shown in the list: psi element, presentable text, container text (shown as a gray hint).
-   * It also tests behaviour [[com.intellij.ide.actions.searcheverywhere.SEResultsEqualityProvider]] implementations
-   *
-   * Ideally it would be nice to have some API in the platform, see IJPL-174061
-   */
-  protected def getGotoSymbolE2EResults(text: String): Seq[GoToElementData] = {
-    val contributor: SymbolSearchEverywhereContributor = {
-      val dataContext = SimpleDataContext.getProjectContext(this.getProject)
-      val event = AnActionEvent.createEvent(dataContext, null.asInstanceOf[Presentation], "fake-place-for-tests", ActionUiKind.NONE, null)
-      new MyTestSymbolSearchEverywhereContributor(getProject, event, everywhere = false)
-    }
-
-    val processor = new CommonProcessors.CollectProcessor[FoundItemDescriptor[AnyRef]]()
-
-    val indicator = new EmptyProgressIndicator
-    val presentationWrapper = new PSIPresentationBgRendererWrapper(contributor)
-    presentationWrapper.fetchWeightedElements(text, indicator, processor)
-
-    //NOTE: wee need to create `SearchEverywhereUI` on UI thread, otherwise there will be some exceptions
-    val elementsFuture: Future[util.List[AnyRef]] =
-      invokeAndWait {
-        val ui = new SearchEverywhereUI(getProject, List(presentationWrapper).asJava.asInstanceOf[util.List[SearchEverywhereContributor[_]]])
-        ui.findElementsForPattern(text)
-      }
-
-    assert(!ApplicationManager.getApplication.isDispatchThread, "This method must not be called on EDT as it waits for UI elements to appear")
-
-    val items: Seq[PsiItemWithPresentation] =
-      elementsFuture.get(10, TimeUnit.SECONDS).asScala.map(_.asInstanceOf[PsiItemWithPresentation]).toSeq
-
-    items.map { element =>
-      GoToElementData(
-        element.second.getPresentableText,
-        element.second.getContainerText
-      )
-    }
-  }
 
   private def getPopupElements(model: ChooseByNameModel, text: String): Set[Any] = {
     calcPopupElements(createPopup(model), text)
@@ -134,21 +82,8 @@ abstract class GoToClassAndSymbolTestBase extends GoToTestBase {
   )
 }
 
-object GoToClassAndSymbolTestBase {
-  //NOTE: using a separate class just to be able
-  // to easily notice its name in variable watcher during debugging
-  private class MyTestSymbolSearchEverywhereContributor(
-    project: Project,
-    event: AnActionEvent,
-    everywhere: Boolean
-  ) extends SymbolSearchEverywhereContributor(event: AnActionEvent) {
-
-    this.myScopeDescriptor = new ScopeDescriptor(FindSymbolParameters.searchScopeFor(project, everywhere))
-  }
-}
-
 @WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
-abstract class GoToClassAndSymbolCommonTests extends GoToClassAndSymbolTestBase {
+abstract class ChooseClassOrSymbolByNameCommonTests extends ChooseClassOrSymbolByNameTestBase {
 
   @WithIndexingMode(mode = IndexingMode.DUMB_FULL_INDEX)
   def testTrait(): Unit = {
@@ -327,91 +262,10 @@ abstract class GoToClassAndSymbolCommonTests extends GoToClassAndSymbolTestBase 
   }
 }
 
-class GoToClassAndSymbolTest_Scala213 extends GoToClassAndSymbolCommonTests {
-
+class ChooseClassOrSymbolByNameTest_Scala213 extends ChooseClassOrSymbolByNameCommonTests {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 }
 
-class GoToClassAndSymbolTest_Scala3 extends GoToClassAndSymbolCommonTests {
-
+class ChooseClassOrSymbolByNameTest_Scala3 extends ChooseClassOrSymbolByNameCommonTests {
   override protected def supportedIn(version: ScalaVersion): Boolean = version.isScala3
-
-  // We don't run on EDT because we test UI logic, and we use a future to wait for "Search Everywhere" dialog to appear
-  override def runInDispatchThread() = false
-
-  @WithIndexingMode(mode = IndexingMode.DUMB_FULL_INDEX)
-  def testGoToSymbolWithPackagePrefix_ShouldContainAllTopLevelDefinitions(): Unit = {
-    val TopLevelDefinitions =
-      """class MyClass {
-        |  val myValField: Int = 1
-        |  var myVarField: Int = 1
-        |
-        |  def foo(): Unit = {
-        |    //These local definitions exist just to ensure they don't appear in the result list
-        |    val myValLocal = 1
-        |    def myDefLocal = 1
-        |    class MyClassLocal
-        |  }
-        |}
-        |object MyObject
-        |trait MyTrait
-        |enum MyEnum { case MyCase }
-        |
-        |val myVal1 = 1
-        |val (myVal2, myVal3) = (2, 3)
-        |
-        |var myVar1 = 1
-        |var (myVar2, myVar3) = (2, 3)
-        |
-        |def myFunction: String = "42"
-        |
-        |extension (s: String)
-        |  def myExtension: String = s
-        |
-        |given myGivenAlias: String = "42"
-        |given Short = 42
-        |given myGivenDefinition: AnyRef with {}
-        |
-        |type MyAlias = String"""
-
-    myFixture.addFileToProject("org/example/GoToSymbolWithPackagePrefix.scala",
-      s"""package org.example
-         |
-         |$TopLevelDefinitions
-         |""".stripMargin
-    )
-    myFixture.addFileToProject("some/other/unrelated_package/GoToSymbolWithPackagePrefix.scala",
-      s"""package some.other.unrelated_package
-         |
-         |$TopLevelDefinitions
-         |""".stripMargin
-    )
-
-    val expectedElements: Seq[GoToElementData] = Seq(
-      GoToElementData("MyAlias", "org.example"),
-      GoToElementData("MyCase", "org.example.MyEnum"),
-      GoToElementData("MyClass", "org.example"),
-      GoToElementData("MyEnum", "org.example"),
-      GoToElementData("MyObject", "org.example"),
-      GoToElementData("MyTrait", "org.example"),
-      GoToElementData("myExtension", "org.example"),
-      GoToElementData("myFunction", "org.example"),
-      GoToElementData("myGivenAlias", "org.example"),
-      GoToElementData("myGivenDefinition", "org.example"),
-      GoToElementData("myVal1", "org.example"),
-      GoToElementData("myVal2", "org.example"),
-      GoToElementData("myVal3", "org.example"),
-      GoToElementData("myValField", "org.example.MyClass"),
-      GoToElementData("myVar1", "org.example"),
-      GoToElementData("myVar2", "org.example"),
-      GoToElementData("myVar3", "org.example"),
-      GoToElementData("myVarField", "org.example.MyClass"),
-    )
-
-    val actualElements = getGotoSymbolE2EResults("org.example.my")
-    assertCollectionEquals(
-      expectedElements.sortBy(_.presentableText),
-      actualElements.sortBy(_.presentableText)
-    )
-  }
 }
