@@ -1,7 +1,7 @@
 package org.jetbrains.sbt.project
 
 import com.intellij.ide.projectView.PresentationData
-import com.intellij.openapi.externalSystem.model.project.ModuleData
+import com.intellij.openapi.externalSystem.model.project.{ModuleData, ModuleDependencyData}
 import com.intellij.openapi.externalSystem.model.{DataNode, Key, ProjectSystemId}
 import com.intellij.openapi.externalSystem.view.{ExternalProjectsView, ExternalSystemNode, ExternalSystemViewContributor, ModuleNode}
 import com.intellij.util.SmartList
@@ -21,6 +21,14 @@ class SbtViewContributor extends ExternalSystemViewContributor {
   override def getSystemId: ProjectSystemId = SbtProjectSystem.Id
 
   override def getKeys: util.List[Key[_]] = keys.asJava
+
+  override def getDisplayName(node: DataNode[_]): String =
+    node.getData match {
+      case moduleDependencyData: ModuleDependencyData =>
+        val target = moduleDependencyData.getTarget
+        target.getInternalName
+      case _ => super.getDisplayName(node)
+    }
 
   override def createNodes(externalProjectsView: ExternalProjectsView,
                            dataNodes: MultiMap[Key[_], DataNode[_]]): util.List[ExternalSystemNode[_]] = {
