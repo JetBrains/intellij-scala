@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScGiv
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScReferencePatternImpl
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
-final class GoToDeclarationGivenImportTest extends GotoDeclarationTestBase {
+final class GoToDeclarationGivenImportTest extends GoToDeclarationTestBase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= LatestScalaVersions.Scala_3_0

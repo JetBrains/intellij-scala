@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumCase
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScEnum
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
-class GoToDeclarationEnumTest extends GotoDeclarationTestBase {
+class GoToDeclarationEnumTest extends GoToDeclarationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= LatestScalaVersions.Scala_3_0
 
