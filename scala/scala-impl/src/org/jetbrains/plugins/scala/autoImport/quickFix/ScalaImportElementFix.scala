@@ -5,11 +5,12 @@ import com.intellij.codeInsight.hint.HintManagerImpl
 import com.intellij.codeInsight.intention.PriorityAction
 import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
 import com.intellij.codeInspection.HintAction
+import com.intellij.codeWithMe.ClientId
 import com.intellij.idea.AppMode
 import com.intellij.model.SideEffectGuard.SideEffectNotAllowedException
 import com.intellij.openapi.application.{ApplicationManager, ReadAction}
 import com.intellij.openapi.components.Service
-import com.intellij.openapi.editor.{Editor, LogicalPosition}
+import com.intellij.openapi.editor.{ClientEditorManager, Editor, LogicalPosition}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{ModificationTracker, TextRange}
 import com.intellij.psi.{PsiElement, PsiFile}
@@ -229,8 +230,11 @@ private object ScalaImportElementFix {
       place.getTextRange.grown(1).contains(editor.getCaretModel.getOffset)
 
     def visibleRange: TextRange = {
-      // There is no meaningful visible range for RemoteDev backend
-      if (AppMode.isRemoteDevHost) {
+      // 1. There is no meaningful visible range for RemoteDev backend
+      // 2. For non-local editor its visible area is unreliable
+      //    (see IJPL-163871 Intentions sometimes don't appear in Remote Dev and Code With Me)
+      //    (see SCL-19639 Code With Me: Auto-import quick-fix is offered only after some code editing on host)
+      if (AppMode.isRemoteDevHost || !ClientId.isLocal(ClientEditorManager.getClientId(editor))) {
         return TextRange.create(0, editor.getDocument.getTextLength)
       }
 
