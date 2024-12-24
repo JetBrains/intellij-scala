@@ -57,7 +57,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
       content.add(label, labelConstraints)
       content.add(jdkPanel, fillLineConstraints)
 
-      extraControls.remoteDebugSbtShellCheckBox.panelWithTooltip.setVisible(false)
+      extraControls.remoteDebugSbtShellCheckBox.panel.setVisible(false)
     } else {
       // This scroll pane was introduced, because when we consider the scenario that these settings will be used
       // in "Settings | Build, Execution, Deployment | Build Tools | sbt" and the user minimizes the window as much as possible,
