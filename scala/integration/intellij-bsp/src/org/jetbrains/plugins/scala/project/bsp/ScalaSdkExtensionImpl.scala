@@ -22,7 +22,6 @@ class ScalaSdkExtensionImpl extends ScalaSdkExtension {
     ScalaSdkUtils.ensureScalaLibraryIsConvertedToScalaSdk(
       modelsProvider = ideModifiableModelsProvider,
       library = scalaLibrary,
-      maybeVersion = Some(scalaSdk.getScalaVersion),
       compilerClasspath = sdkJars.toSeq,
       scaladocExtraClasspath = Nil,
       compilerBridgeBinaryJar = None
