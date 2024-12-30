@@ -61,6 +61,7 @@
         <module name="scalaCommunity.scala-cli" />
         <module name="scalaCommunity.worksheet" />
         <module name="scalaCommunity.debugger" />
+        <module name="scalaCommunity.compiler-integration" />
     </content>
 
     <xi:include href="/META-INF/sbt-api.xml"/>
@@ -68,7 +69,6 @@
     <xi:include href="/META-INF/sbt.xml"/>
     <xi:include href="/META-INF/codeInsight.xml"/>
     <xi:include href="/META-INF/conversion.xml"/>
-    <xi:include href="/META-INF/compiler-integration.xml"/>
     <xi:include href="/META-INF/scala-repl.xml"/>
     <xi:include href="/META-INF/structure-view.xml"/>
     <xi:include href="/META-INF/scala-meta-impl.xml"/>

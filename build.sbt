@@ -454,7 +454,8 @@ lazy val compilerIntegration =
         "com.intellij.gradle",
         "org.jetbrains.idea.maven"
       ).map(_.toPlugin), // Used only in tests
-      libraryDependencies += Dependencies.intellijMavenTestFramework % Test
+      libraryDependencies += Dependencies.intellijMavenTestFramework % Test,
+      packageMethod := PackagingMethod.PluginModule("scalaCommunity.compiler-integration")
     )
 
 lazy val debugger =

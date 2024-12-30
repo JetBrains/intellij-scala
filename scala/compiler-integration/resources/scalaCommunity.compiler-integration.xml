@@ -115,4 +115,10 @@
                 class="org.jetbrains.plugins.scala.compiler.actions.internal.compilertrees.ShowScalaCompilerTreeAction"
                 internal="true"/>
     </actions>
+
+    <dependencies>
+        <module name="scalaCommunity.bsp"/>
+        <plugin id="com.intellij.gradle"/>
+        <plugin id="org.jetbrains.idea.maven"/>
+    </dependencies>
 </idea-plugin>
