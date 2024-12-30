@@ -56,6 +56,11 @@
         <module name="scalaCommunity.bsp-junit" />
         <module name="scalaCommunity.bsp-terminal" />
         <module name="scalaCommunity.intellij-bsp" />
+
+        <module name="scalaCommunity.testing-support" />
+        <module name="scalaCommunity.scala-cli" />
+        <module name="scalaCommunity.worksheet" />
+        <module name="scalaCommunity.debugger" />
     </content>
 
     <xi:include href="/META-INF/sbt-api.xml"/>
@@ -64,16 +69,12 @@
     <xi:include href="/META-INF/codeInsight.xml"/>
     <xi:include href="/META-INF/conversion.xml"/>
     <xi:include href="/META-INF/compiler-integration.xml"/>
-    <xi:include href="/META-INF/debugger.xml"/>
     <xi:include href="/META-INF/scala-repl.xml"/>
     <xi:include href="/META-INF/structure-view.xml"/>
     <xi:include href="/META-INF/scala-meta-impl.xml"/>
     <xi:include href="/META-INF/scalastyle-integration.xml"/>
-    <xi:include href="/META-INF/testing-support.xml"/>
     <xi:include href="/META-INF/uast.xml"/>
-    <xi:include href="/META-INF/worksheet.xml"/>
     <xi:include href="/META-INF/scala-devkit-integration.xml"/>
-    <xi:include href="/META-INF/scala-cli.xml"/>
 
 
     <!-- Include the ultimate part of our plugin -->

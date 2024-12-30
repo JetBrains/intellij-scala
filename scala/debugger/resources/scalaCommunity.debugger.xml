@@ -37,4 +37,8 @@
         <listener topic="com.intellij.debugger.impl.DebuggerManagerListener"
                   class="org.jetbrains.plugins.scala.debugger.evaluation.ExpressionCompilerResolverListener"/>
     </projectListeners>
+
+    <dependencies>
+        <module name="scalaCommunity.bsp"/>
+    </dependencies>
 </idea-plugin>

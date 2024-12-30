@@ -40,4 +40,9 @@
     <extensions defaultExtensionNs="com.intellij.sbt">
         <configurationDetailsExtractor implementation="org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationDetailsExtractor"/>
     </extensions>
+
+    <dependencies>
+        <module name="scalaCommunity.bsp"/>
+        <module name="scalaCommunity.bsp-junit"/>
+    </dependencies>
 </idea-plugin>

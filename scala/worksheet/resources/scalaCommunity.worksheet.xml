@@ -108,4 +108,8 @@
         <action id="Scala.CleanWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.topmenu.CleanWorksheetAction" />
         <action id="Scala.CopyWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.topmenu.CopyWorksheetAction" />
     </actions>
+
+    <dependencies>
+        <module name="scalaCommunity.bsp"/>
+    </dependencies>
 </idea-plugin>

@@ -9,4 +9,8 @@
         <scala.newScalaFileActionExtension implementation="org.jetbrains.scalaCli.actions.ScalaCliNewScalaFileActionExtension"/>
         <scala.fileDeclarationsContributor implementation="org.jetbrains.scalaCli.script.ScalaCliScriptFileDeclarationsContributor"/>
     </extensions>
+
+    <dependencies>
+        <module name="scalaCommunity.bsp"/>
+    </dependencies>
 </idea-plugin>
