@@ -15,6 +15,7 @@ sealed abstract class Parents(
   val allowCommaSeparatedParentsInScala3: Boolean = true,
   val allowEmptyParents:                  Boolean = false,
   val allowRefinement:                    Boolean = true,
+  val allowNewlineBeforeParent:           Boolean = true,
 ) extends ParsingRule {
   override def parse(implicit builder: ScalaPsiBuilder): true = {
     val marker = builder.mark()
@@ -33,12 +34,17 @@ sealed abstract class Parents(
       case `kWITH` if !allowRefinement && ScalaTokenTypes.LBRACE_OR_COLON_TOKEN_SET.contains(builder.lookAhead(1)) =>
         // for old given syntax
       case `kWITH` | CommaIfAllowed() =>
+        val withRollback = builder.mark()
         val wasWith = builder.getTokenType == kWITH
         builder.advanceLexer() // Ate with
-        if (wasWith && builder.newlineBeforeCurrentToken) {
-          builder.error(ScalaBundle.message("type.expected"))
-        } else if ( parseParent()) {
-          parseNextSimpleTypes()
+        if (wasWith && !allowNewlineBeforeParent && builder.newlineBeforeCurrentToken) {
+          // for given parents
+          withRollback.rollbackTo()
+        } else {
+          withRollback.drop()
+          if ( parseParent()) {
+            parseNextSimpleTypes()
+          }
         }
       case _ =>
     }
@@ -61,4 +67,4 @@ sealed abstract class Parents(
 
 object NewTemplateDefParents extends Parents(allowCommaSeparatedParentsInScala3 = false, allowEmptyParents = true)
 object TypeDefinitionParents extends Parents
-object GivenParents extends Parents(allowRefinement = false)
+object GivenParents extends Parents(allowRefinement = false, allowNewlineBeforeParent = false)
