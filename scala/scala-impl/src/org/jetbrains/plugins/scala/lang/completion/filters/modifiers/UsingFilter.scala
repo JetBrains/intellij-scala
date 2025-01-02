@@ -12,23 +12,21 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
 
 class UsingFilter extends ElementFilter {
   override def isAcceptable(element: Object, @Nullable context: PsiElement): Boolean = {
     if (context == null || !context.isInScala3File || context.is[PsiComment, PsiIdentifier]) return false
     val leaf = PsiTreeUtil.getDeepestFirst(context)
 
-    if (leaf != null) {
-      leaf.getParent match {
-        case param: ScParameter => isAfterLeftParen(param)
-        case arg: ScReferenceExpression if arg.getParent.is[ScArgumentExprList] =>
-          isAfterLeftParen(arg)
-        case (_: ScStableCodeReference) & Parent(tpe: ScSimpleTypeElement) if isAfterLeftParen(tpe) =>
-          isAfterGiven(tpe.getPrevSibling)
-        case _ => false
-      }
-    } else false
+    leaf.getParent match {
+      case param: ScParameter => isAfterLeftParen(param)
+      case arg: ScReferenceExpression if arg.getParent.is[ScArgumentExprList] =>
+        isAfterLeftParen(arg)
+      case (_: ScStableCodeReference) & Parent(tpe: ScSimpleTypeElement) if isAfterLeftParen(tpe) =>
+        isAfterGiven(tpe.getPrevSibling)
+      case _ => false
+    }
   }
 
   override def isClassAcceptable(hintClass: Class[_]): Boolean = true
@@ -39,7 +37,7 @@ class UsingFilter extends ElementFilter {
 
 object UsingFilter {
   private def isAfterGiven(elem: PsiElement): Boolean =
-    elem.prevLeafs.filterNot(_.is[PsiComment, PsiWhiteSpace]).nextOption() match {
+    elem.prevLeafs.filterNot(_.is[PsiComment, PsiWhiteSpace, ScParameters]).nextOption() match {
       case Some(e) if e.getNode != null => e.getNode.getElementType == ScalaTokenType.GivenKeyword
       case _ => false
     }
