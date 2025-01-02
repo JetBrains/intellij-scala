@@ -98,6 +98,7 @@ object GivenDef {
 object NewGivenDef {
   def parse()(implicit builder: ScalaPsiBuilder): IElementType = {
     val nameIdMarker = builder.mark()
+    var hadId = false
 
     if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER) {
       builder.advanceLexer() // ate id
@@ -111,16 +112,17 @@ object NewGivenDef {
           nameIdMarker.rollbackTo()
         } else {
           nameIdMarker.drop()
+          hadId = true
         }
       } else nameIdMarker.rollbackTo()
     } else nameIdMarker.rollbackTo()
 
-    NewGivenSig()
+    NewGivenSig(hadId)
   }
 }
 
 object NewGivenSig {
-  def apply()(implicit builder: ScalaPsiBuilder): IElementType = {
+  def apply(hadId: Boolean)(implicit builder: ScalaPsiBuilder): IElementType = {
     // first try to parse one type param clause alá `[T]`
     if (TypeParamClause()) {
       if (builder.getTokenType == ScalaTokenTypes.tFUNTYPE) {
@@ -185,7 +187,7 @@ object NewGivenSig {
 
     clausesMarker.done(ScalaElementType.PARAM_CLAUSES)
 
-    NewGivenImpl()
+    NewGivenImpl(hadId)
   }
 
   private def parseFunParams()(implicit builder: ScalaPsiBuilder): Boolean = {
@@ -234,7 +236,7 @@ object NewGivenSig {
 }
 
 object NewGivenImpl {
-  def apply()(implicit builder: ScalaPsiBuilder): IElementType = {
+  def apply(hadId: Boolean)(implicit builder: ScalaPsiBuilder): IElementType = {
     val constructorInvocation = builder.mark()
 
     val givenTypeIsMissingInAlias = builder.getTokenType == ScalaTokenTypes.tASSIGN
@@ -260,6 +262,9 @@ object NewGivenImpl {
           val extendsBlock = templateParents.precede()
           extendsBlock.done(ScalaElementType.EXTENDS_BLOCK)
           ScalaElementType.GivenDefinition
+        case _ if hadId && isDeclarationEndingHere =>
+          constructorInvocation.drop()
+          ScalaElementType.GIVEN_ALIAS_DECLARATION
         case _ =>
           constructorInvocation.rollbackTo()
           parseStructuralCase()
@@ -268,6 +273,15 @@ object NewGivenImpl {
       constructorInvocation.drop()
       parseStructuralCase()
     }
+  }
+
+  private def isDeclarationEndingHere(implicit builder: ScalaPsiBuilder): Boolean = {
+    val tokenType = builder.getTokenType
+    (tokenType == null) || (if (builder.newlineBeforeCurrentToken) {
+      builder.getTokenType != ScalaTokenTypes.kWITH
+    } else {
+      builder.getTokenType == ScalaTokenTypes.tSEMICOLON
+    })
   }
 
   private def parseStructuralCase()(implicit builder: ScalaPsiBuilder): IElementType = {
