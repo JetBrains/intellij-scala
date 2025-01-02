@@ -1150,4 +1150,77 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(})('}')
       |  PsiWhiteSpace('\n')""".stripMargin
   )
+
+  def test_given_alias_end_marker(): Unit = checkTree(
+    """
+      |object C:
+      |  given C =
+      |    new C:
+      |     a
+      |    end new
+      |  end given
+      |end C
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScObject: C
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(object)('object')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('C')
+      |    ExtendsBlock
+      |      ScTemplateBody
+      |        PsiElement(:)(':')
+      |        PsiWhiteSpace('\n  ')
+      |        ScGivenAliasDefinition: given_C
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(given)('given')
+      |          Parameters
+      |            <empty list>
+      |          PsiWhiteSpace(' ')
+      |          SimpleType: C
+      |            CodeReferenceElement: C
+      |              PsiElement(identifier)('C')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(=)('=')
+      |          PsiWhiteSpace('\n    ')
+      |          ScNewTemplateDefinition: <anonymous>
+      |            PsiElement(new)('new')
+      |            PsiWhiteSpace(' ')
+      |            ExtendsBlock
+      |              TemplateParents
+      |                ConstructorInvocation
+      |                  SimpleType: C
+      |                    CodeReferenceElement: C
+      |                      PsiElement(identifier)('C')
+      |              ScTemplateBody
+      |                PsiElement(:)(':')
+      |                PsiWhiteSpace('\n     ')
+      |                ReferenceExpression: a
+      |                  PsiElement(identifier)('a')
+      |                PsiWhiteSpace('\n    ')
+      |                End: new
+      |                  PsiElement(end)('end')
+      |                  PsiWhiteSpace(' ')
+      |                  PsiElement(new)('new')
+      |          PsiWhiteSpace('\n  ')
+      |          End: given
+      |            PsiElement(end)('end')
+      |            PsiWhiteSpace(' ')
+      |            PsiElement(given)('given')
+      |        PsiWhiteSpace('\n')
+      |        End: C
+      |          PsiElement(end)('end')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(identifier)('C')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }
