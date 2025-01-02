@@ -36,7 +36,7 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
     "given ord: Ord[Int]",
     """
       |ScalaFile
-      |  ScGivenDefinition: ord
+      |  ScGivenAliasDeclaration: ord
       |    AnnotationsList
       |      <empty list>
       |    Modifiers
@@ -48,19 +48,16 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |    Parameters
       |      <empty list>
       |    PsiWhiteSpace(' ')
-      |    ExtendsBlock
-      |      TemplateParents
-      |        ConstructorInvocation
-      |          ParametrizedType: Ord[Int]
-      |            SimpleType: Ord
-      |              CodeReferenceElement: Ord
-      |                PsiElement(identifier)('Ord')
-      |            TypeArgumentsList
-      |              PsiElement([)('[')
-      |              SimpleType: Int
-      |                CodeReferenceElement: Int
-      |                  PsiElement(identifier)('Int')
-      |              PsiElement(])(']')
+      |    ParametrizedType: Ord[Int]
+      |      SimpleType: Ord
+      |        CodeReferenceElement: Ord
+      |          PsiElement(identifier)('Ord')
+      |      TypeArgumentsList
+      |        PsiElement([)('[')
+      |        SimpleType: Int
+      |          CodeReferenceElement: Int
+      |            PsiElement(identifier)('Int')
+      |        PsiElement(])(']')
       |""".stripMargin
   )
 
@@ -1220,6 +1217,68 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |          PsiElement(end)('end')
       |          PsiWhiteSpace(' ')
       |          PsiElement(identifier)('C')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_declaration_vs_definition(): Unit = checkTree(
+    """
+      |trait Foo:
+      |  given A
+      |  given a: A
+      |end Foo
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScTrait: Foo
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(trait)('trait')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('Foo')
+      |    ExtendsBlock
+      |      ScTemplateBody
+      |        PsiElement(:)(':')
+      |        PsiWhiteSpace('\n  ')
+      |        ScGivenDefinition: given_A
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(given)('given')
+      |          Parameters
+      |            <empty list>
+      |          PsiWhiteSpace(' ')
+      |          ExtendsBlock
+      |            TemplateParents
+      |              ConstructorInvocation
+      |                SimpleType: A
+      |                  CodeReferenceElement: A
+      |                    PsiElement(identifier)('A')
+      |        PsiWhiteSpace('\n  ')
+      |        ScGivenAliasDeclaration: a
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(given)('given')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(identifier)('a')
+      |          PsiElement(:)(':')
+      |          Parameters
+      |            <empty list>
+      |          PsiWhiteSpace(' ')
+      |          SimpleType: A
+      |            CodeReferenceElement: A
+      |              PsiElement(identifier)('A')
+      |        PsiWhiteSpace('\n')
+      |        End: Foo
+      |          PsiElement(end)('end')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(identifier)('Foo')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )

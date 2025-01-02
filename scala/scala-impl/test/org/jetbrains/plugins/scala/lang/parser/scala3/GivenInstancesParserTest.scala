@@ -1975,41 +1975,4 @@ class GivenOldSyntaxParserTest_WithNewSyntax extends GivenOldSyntaxParserTestBas
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
-
-  // in new syntax this is a given definition that is named Test and instantiates Ord[Int]
-  def test_definition_that_looks_like_alias_declaration_with_only_name(): Unit = checkTree(
-    """
-      |given Test: Ord[Int]
-      |""".stripMargin,
-    """
-      |ScalaFile
-      |  PsiWhiteSpace('\n')
-      |  ScGivenDefinition: Test
-      |    AnnotationsList
-      |      <empty list>
-      |    Modifiers
-      |      <empty list>
-      |    PsiElement(given)('given')
-      |    PsiWhiteSpace(' ')
-      |    PsiElement(identifier)('Test')
-      |    PsiElement(:)(':')
-      |    Parameters
-      |      <empty list>
-      |    PsiWhiteSpace(' ')
-      |    ExtendsBlock
-      |      TemplateParents
-      |        ConstructorInvocation
-      |          ParametrizedType: Ord[Int]
-      |            SimpleType: Ord
-      |              CodeReferenceElement: Ord
-      |                PsiElement(identifier)('Ord')
-      |            TypeArgumentsList
-      |              PsiElement([)('[')
-      |              SimpleType: Int
-      |                CodeReferenceElement: Int
-      |                  PsiElement(identifier)('Int')
-      |              PsiElement(])(']')
-      |  PsiWhiteSpace('\n')
-      |""".stripMargin
-  )
 }
