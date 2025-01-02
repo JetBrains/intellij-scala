@@ -1384,6 +1384,43 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  def test_identifier_after_with(): Unit = checkTree(
+    """
+      |given A with
+      |  println()
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScGivenDefinition: given_A
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(given)('given')
+      |    Parameters
+      |      <empty list>
+      |    PsiWhiteSpace(' ')
+      |    ExtendsBlock
+      |      TemplateParents
+      |        ConstructorInvocation
+      |          SimpleType: A
+      |            CodeReferenceElement: A
+      |              PsiElement(identifier)('A')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(with)('with')
+      |      PsiWhiteSpace('\n  ')
+      |      ScTemplateBody
+      |        MethodCall
+      |          ReferenceExpression: println
+      |            PsiElement(identifier)('println')
+      |          ArgumentList
+      |            PsiElement(()('(')
+      |            PsiElement())(')')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }
 
 class GivenOldSyntaxParserTest_WithoutNewSyntax extends GivenOldSyntaxParserTestBase {
