@@ -247,6 +247,7 @@ object NewGivenImpl {
           constructorInvocation.drop()
           builder.advanceLexer() // ate `=`
           if (!ExprInIndentationRegion()) builder.error(ErrMsg("expression.expected"))
+          End()
           ScalaElementType.GIVEN_ALIAS_DEFINITION
         case ScalaTokenTypes.tCOLON | ScalaTokenTypes.tLBRACE =>
           constructorInvocation.done(ScalaElementType.CONSTRUCTOR)
