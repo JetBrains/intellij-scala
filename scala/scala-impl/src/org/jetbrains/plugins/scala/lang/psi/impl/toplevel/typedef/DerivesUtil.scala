@@ -146,9 +146,10 @@ object DerivesUtil {
     val rightParams = prependSuffixToName(ownerTypeParams, "R")
     val allParamsText = typeParamsString(leftParams ++ rightParams)
 
-    s"""given derived$$CanEqual$allParamsText$pairwiseInstances:
-       |CanEqual[${owner.name}${typeParamsString(leftParams)},
-       |         ${owner.name}${typeParamsString(rightParams)}] = ???""".stripMargin
+    s"""given derived$$CanEqual$allParamsText$pairwiseInstances: CanEqual[
+       |  ${owner.name}${typeParamsString(leftParams)},
+       |  ${owner.name}${typeParamsString(rightParams)}
+       |] = ???""".stripMargin
   }
 
   /**
