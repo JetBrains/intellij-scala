@@ -629,8 +629,7 @@ package object extensions {
 
     def projectContext: ProjectContext = element.getProject
 
-    //TODO: better name? "typeOfNamedElement"?
-    def ofNamedElement(substitutor: ScSubstitutor = ScSubstitutor.empty, scalaScope: Option[ElementScope] = None): Option[ScType] = {
+    def typeOfNamedElement(substitutor: ScSubstitutor = ScSubstitutor.empty, scalaScope: Option[ElementScope] = None): Option[ScType] = {
       def lift(`type`: PsiType) = Option(`type`.toScType())
 
       val scope = scalaScope.getOrElse(elementScope)
@@ -643,6 +642,7 @@ package object extensions {
         case e: PsiMethod        => e.functionType(scope)
         case e: PsiVariable      => lift(e.getType)
         case e: ScTypeAliasDefinition => e.aliasedType.toOption
+        case e: ScObject         => e.`type`().toOption
         case _                   => None
       }).map(substitutor)
     }
