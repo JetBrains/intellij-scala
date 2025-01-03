@@ -56,4 +56,47 @@ class Scala3NamedTuplesTest extends TypeInferenceTestBase {
        |//Int
        |""".stripMargin
   )
+
+  def testNamedTupleExprComponents(): Unit = doTest(
+    s"""
+       |val tuple = (x = 1, y = 2)
+       |${START}tuple.x$END
+       |//Int
+       |""".stripMargin
+  )
+
+  def testNamedTupleExprComponents2(): Unit = doTest(
+    s"""
+       |val tuple = (x = 1, y = "x")
+       |${START}tuple.y$END
+       |//String
+       |""".stripMargin
+  )
+
+  def testNamedTupleTypeComponents(): Unit = doTest(
+    s"""
+       |val tuple: (x: Int, y: String) = ???
+       |${START}tuple.x$END
+       |//Int
+       |""".stripMargin
+  )
+
+  def testNamedTupleTypeComponents2(): Unit = doTest(
+    s"""
+       |val tuple: (x: Int, y: String) = ???
+       |${START}tuple.y$END
+       |//String
+       |""".stripMargin
+  )
+
+  // SCL-23328
+  def testInCaseClass(): Unit = doTest(
+    s"""
+       |case class C(p: (x: Range, y: Range), o: (Range, Range)) {
+       |  def xp = ${START}p.x.size$END
+       |  def xo = o._1.size
+       |}
+       |//Int
+       |""".stripMargin
+  )
 }
