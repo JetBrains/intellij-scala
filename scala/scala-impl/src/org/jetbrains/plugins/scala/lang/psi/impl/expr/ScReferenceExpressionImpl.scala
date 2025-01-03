@@ -4,13 +4,12 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
-import org.jetbrains.plugins.scala.{ScalaBundle, Tracing}
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaModifier, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScSimpleTypeElement, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScPrimaryConstructor, ScReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScNamedTupleComponent, ScPrimaryConstructor, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
@@ -29,6 +28,7 @@ import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor.ScTypeForDynamicProcessorEx
 import org.jetbrains.plugins.scala.lang.resolve.processor._
+import org.jetbrains.plugins.scala.{ScalaBundle, Tracing}
 
 import scala.collection.mutable
 
@@ -389,9 +389,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         r.fromType match {
           case Some(fT) if param.isVal && stableTypeRequired => ScProjectionType(fT, param)
           case Some(ScThisType(clazz)) if owner != null && PsiTreeUtil.isContextAncestor(owner, this, true) &&
-            stableTypeRequired && owner.isInstanceOf[ScTypeDefinition] && owner == clazz => ScalaType.designator(param) //todo: think about projection from this type?
+            stableTypeRequired && owner.is[ScTypeDefinition] && owner == clazz => ScalaType.designator(param) //todo: think about projection from this type?
           case _ if owner != null && PsiTreeUtil.isContextAncestor(owner, this, true) &&
-            stableTypeRequired && !owner.isInstanceOf[ScTypeDefinition] => ScalaType.designator(param)
+            stableTypeRequired && !owner.is[ScTypeDefinition] => ScalaType.designator(param)
           case _ =>
             owner match {
               case function: ScFunction if PsiTreeUtil.isContextAncestor(function, this, true) &&
@@ -430,11 +430,10 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
           )
           .updateTypeOfDynamicCall(result.isDynamic)
       case ScalaResolveResult(param: ScParameter, s) if param.isRepeatedParameter =>
-        val result = param.`type`()
-        val computeType = s(result match {
-          case Right(tp) => tp
-          case _ => return result
-        })
+        val computeType = param.`type`() match {
+          case Right(tp) => s(tp)
+          case result => return result
+        }
         computeType.tryWrapIntoSeqType
       case ScalaResolveResult(obj: ScObject, _) =>
         def tail = {
@@ -475,10 +474,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
           } else s(tp)
         }.getOrElse(return result)
       case ScalaResolveResult(typed: ScTypedDefinition, s) =>
-        val result = typed.`type`()
-        result match {
+        typed.`type`() match {
           case Right(tp) => s(tp)
-          case _ => return result
+          case result => return result
         }
       case ScalaResolveResult(pack: PsiPackage, _) => ScalaType.designator(pack)
       case ScalaResolveResult(clazz: ScClass, s) if clazz.isCase =>
@@ -492,6 +490,14 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       case ScalaResolveResult(clazz: PsiClass, _) => ScDesignatorType.static(clazz) //static Java class
       case ScalaResolveResult(field: PsiField, s) =>
         s(field.getType.toScType())
+      case ScalaResolveResult(c: ScNamedTupleComponent, s) =>
+        c.`type`() match {
+          case Right(tp) if c.is[ScNamedTupleExprComponent] =>
+            // even (x = "x").x is String
+            s(tp.widenIfLiteral)
+          case Right(tp) => s(tp)
+          case result => return result
+        }
       case srr @ ScalaResolveResult(method: PsiMethod, s) =>
         val returnType = srr.intersectedReturnType.orElse(
           Option(method.containingClass).filter {
