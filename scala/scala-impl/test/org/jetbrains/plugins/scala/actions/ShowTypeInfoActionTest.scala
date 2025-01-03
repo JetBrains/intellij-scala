@@ -310,4 +310,43 @@ class ShowTypeInfoActionTest_Scala3 extends ShowTypeInfoActionTest_Scala2 {
     s"""Seq((1, 2)).map((a, ${CARET}b) => "42")""",
     "Int"
   )
+
+  def testObject(): Unit = doShowTypeInfoTest(
+    s"""object Foo {
+       |  ${CARET}Foo
+       |}""".stripMargin,
+    "Foo.<wbr>type"
+  )
+
+  def testAnonymousGivenAlias(): Unit = doShowTypeInfoTest(
+    s"""given Int = 0
+       |${CARET}given_Int
+       |""".stripMargin,
+    "Int"
+  )
+
+  def testNamedGivenAlias(): Unit = doShowTypeInfoTest(
+    s"""given int: Int = 0
+       |${CARET}int
+       |""".stripMargin,
+    "Int"
+  )
+
+  def testAnonymousGivenDefinition(): Unit = doShowTypeInfoTest(
+    s"""trait A
+       |given A with
+       |  def test = 0
+       |${CARET}given_A
+       |""".stripMargin,
+    "given_A.<wbr>type"
+  )
+
+  def testNamedGivenDefinition(): Unit = doShowTypeInfoTest(
+    s"""trait A
+       |given a: A with
+       |  def test = 0
+       |${CARET}a
+       |""".stripMargin,
+    "a.<wbr>type"
+  )
 }

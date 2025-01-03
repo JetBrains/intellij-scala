@@ -94,7 +94,7 @@ class ShowTypeInfoAction extends AnAction(
         val parameter = PsiTreeUtil.findElementOfClassAtRange(file, start, end, classOf[ScParameter])
         if (parameter == null) None
         else {
-          val scType = parameter.ofNamedElement(ScSubstitutor.empty)
+          val scType = parameter.typeOfNamedElement(ScSubstitutor.empty)
           scType.map(_.presentableText(parameter: TypePresentationContext))
         }
       }
@@ -146,7 +146,7 @@ object ShowTypeInfoAction {
 
   private def typeTextOf(elem: PsiElement, subst: ScSubstitutor)
                               (implicit context: TypePresentationContext): Option[String] = {
-    val scType = elem.ofNamedElement(subst).orElse {
+    val scType = elem.typeOfNamedElement(subst).orElse {
       elem match {
         case under: ScUnderscoreSection => under.`type`().toOption
         case under: ScWildcardPattern => under.`type`().toOption
