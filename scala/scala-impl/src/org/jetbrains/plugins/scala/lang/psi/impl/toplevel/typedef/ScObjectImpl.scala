@@ -42,11 +42,14 @@ class ScObjectImpl(
   override def getNavigationElement: PsiElement = {
     if (isSyntheticObject) {
       getCompanionModule(this) match {
-        case Some(clazz) => return clazz.getNavigationElement
-        case _ =>
+        case Some(clazz) => clazz.getNavigationElement
+        case _ => super.getNavigationElement
       }
+    } else {
+      val synthetic = syntheticNavigationElement
+      if (synthetic != null) synthetic.getNavigationElement
+      else super.getNavigationElement
     }
-    super.getNavigationElement
   }
 
   override def getContainingFile: PsiFile = {
