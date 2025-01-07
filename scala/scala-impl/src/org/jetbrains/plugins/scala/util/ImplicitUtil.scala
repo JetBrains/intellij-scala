@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.annotation.tailrec
@@ -27,10 +28,10 @@ import scala.annotation.tailrec
 object ImplicitUtil {
   implicit class ImplicitTargetExt(private val targetImplicit: PsiElement) extends AnyVal {
     private def isTarget(srr: ScalaResolveResult): Boolean = srr.element match {
-      case `targetImplicit`                                                => true
-      case f: ScFunction if targetImplicit == f.syntheticNavigationElement => true
-      case f: ScFunction if f.name == CommonNames.Apply            => srr.innerResolveResult.exists(isTarget)
-      case _                                                               => false
+      case `targetImplicit`                                              => true
+      case f: ScMember if targetImplicit == f.syntheticNavigationElement => true
+      case f: ScFunction if f.name == CommonNames.Apply                  => srr.innerResolveResult.exists(isTarget)
+      case _                                                             => false
     }
 
     private def matches(srr: ScalaResolveResult): Boolean =
@@ -153,11 +154,11 @@ object ImplicitUtil {
         if node.getElementType == ScalaTokenTypes.tCOLON
 
         parent = element.getParent
-        if parent.isInstanceOf[ScTypeParam]
+        if parent.is[ScTypeParam]
         typeParameter = parent.asInstanceOf[ScTypeParam]
 
         sibling = element.getNextSiblingNotWhitespaceComment
-        if sibling.isInstanceOf[ScContextBound]
+        if sibling.is[ScContextBound]
         typeElement = sibling.asInstanceOf[ScContextBound]
       } yield (typeParameter, typeElement)).toOption
   }
