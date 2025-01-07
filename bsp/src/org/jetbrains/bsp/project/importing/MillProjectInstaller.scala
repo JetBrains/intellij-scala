@@ -16,7 +16,11 @@ class MillProjectInstaller extends BspProjectInstallProvider {
 
   override def canImport(workspace: File): Boolean =
     Option(workspace) match {
-      case Some(directory) if directory.isDirectory => isBspCompatible(directory) || isLegacyBspCompatible(directory) || BspUtil.findFileByName(directory, "build.mill").isDefined || BspUtil.findFileByName(directory, "build.mill.scala").isDefined || BspUtil.findFileByName(directory, "build.sc").isDefined
+      case Some(directory) if directory.isDirectory =>
+        isBspCompatible(directory) ||
+          isLegacyBspCompatible(directory) ||
+          BspUtil.findFileByName(directory, "build.mill").isDefined ||
+          BspUtil.findFileByName(directory, "build.mill.scala").isDefined
       case _ => false
     }
 
@@ -34,7 +38,7 @@ class MillProjectInstaller extends BspProjectInstallProvider {
         Success(Seq(file.getAbsolutePath, "-i", "mill.bsp.BSP/install"))
       case Some(file) if isLegacyMill =>
         Success(Seq(file.getAbsolutePath, "-i", "mill.contrib.BSP/install"))
-      case None =>
+      case _ =>
         Success(Seq("mill", "-i", "mill.bsp.BSP/install"))
     }
   }
