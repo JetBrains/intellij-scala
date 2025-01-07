@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScGiven, ScGivenDefinition, ScMember}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.util.ImplicitUtil._
 
@@ -59,8 +59,19 @@ class ScalaHighlightImplicitUsagesHandler[T](editor: Editor, file: PsiFile, data
     }
 
   private def nameId(target: PsiElement): Option[TextRange] = target match {
-    case named: ScNamedElement if named.getContainingFile == file => named.nameId.toOption.map(_.getTextRange)
-    case _ => None
+    case target if target.getContainingFile != file =>
+      None
+    case givenDefinition: ScGivenDefinition =>
+      givenDefinition.nameElement
+        .orElse(
+          givenDefinition.extendsBlock.templateParents
+            .flatMap(_.firstParentClause.map(_.typeElement))
+        )
+        .map(_.getTextRange)
+    case named: ScNamedElement =>
+      named.nameId.toOption.map(_.getTextRange)
+    case _ =>
+      None
   }
 }
 
@@ -85,8 +96,20 @@ object ScalaHighlightImplicitUsagesHandler {
     private def target(named: PsiNamedElement): Option[PsiNamedElement] = named match {
       case _ if !named.isValid                             => None
       case c: ScClass                                      => c.getSyntheticImplicitMethod
-      case n: ScNamedElement if ScalaPsiUtil.isImplicit(n) => Option(n)
-      case _                                               => None
+      case member: ScMember =>
+        member.syntheticNavigationElement match {
+          case given: ScGivenDefinition =>
+            Some(given)
+          case given: ScGiven =>
+            Some(given)
+          case _ if ScalaPsiUtil.isImplicit(member) =>
+            Some(member)
+          case _ => None
+        }
+      case n: ScNamedElement if ScalaPsiUtil.isImplicit(n) =>
+        Some(n)
+      case _ =>
+        None
     }
 
     private def contextBoundImplicitTarget(typeParam: ScTypeParam, typeElem: ScTypeElement): Option[ScParameter] = {

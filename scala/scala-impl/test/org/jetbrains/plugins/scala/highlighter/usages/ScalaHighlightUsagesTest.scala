@@ -80,4 +80,49 @@ class ScalaHighlightUsagesTest extends ScalaHighlightUsagesTestBase {
          |}
          |""".stripMargin
     )
+
+  // SCL-21803
+  def testGivenAlias(): Unit = doTest(
+    s"""
+       |trait Semigroup[T]
+       |
+       |given ${start}Semigroup[String]$end = null //given alias
+       |
+       |class usage {
+       |  ${start}summon[Semigroup[String]]$end
+       |
+       |  ${start}given_${CARET}Semigroup_String$end
+       |}
+       |""".stripMargin
+  )
+
+  // SCL-21803
+  def testGivenDefinition(): Unit = doTest(
+    s"""
+       |abstract class Semigroup[T](int: Int)
+       |
+       |given ${start}Semigroup[String]$end(1) with {} //given definition
+       |
+       |class usage {
+       |  ${start}summon[Semigroup[String]]$end
+       |
+       |  ${start}given_${CARET}Semigroup_String$end
+       |}
+       |""".stripMargin
+  )
+
+  // SCL-21803
+  def testGivenDefinitionWithNameId(): Unit = doTest(
+    s"""
+       |abstract class Semigroup[T](int: Int)
+       |
+       |given ${start}semigroup_String$end: Semigroup[String](1) with {} //given definition
+       |
+       |class usage {
+       |  ${start}summon[Semigroup[String]]$end
+       |
+       |  ${start}semigroup${CARET}_String$end
+       |}
+       |""".stripMargin
+  )
 }
