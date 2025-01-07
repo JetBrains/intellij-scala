@@ -17,10 +17,10 @@ class MillProjectInstaller extends BspProjectInstallProvider {
   override def canImport(workspace: File): Boolean =
     Option(workspace) match {
       case Some(directory) if directory.isDirectory =>
-        isBspCompatible(directory) ||
-          isLegacyBspCompatible(directory) ||
-          BspUtil.findFileByName(directory, "build.mill").isDefined ||
-          BspUtil.findFileByName(directory, "build.mill.scala").isDefined
+        BspUtil.findFileByName(directory, "build.mill").isDefined ||
+          BspUtil.findFileByName(directory, "build.mill.scala").isDefined ||
+          isBspCompatible(directory) ||
+          isLegacyBspCompatible(directory)
       case _ => false
     }
 
@@ -28,18 +28,18 @@ class MillProjectInstaller extends BspProjectInstallProvider {
 
   override def serverName: String = "Mill"
 
-  override def installCommand(workspace: File): Try[Seq[String]] = {
+  override def installCommand(workspace: File): Try[Seq[String]] = Try {
     // note: The legacy part is only executed for mill bootstrap script so it is not applicable for Windows.
     // Maybe it could be, but we decided to support mill.bat file only for the newer bsp approach
     val isLegacyMill = !SystemInfo.isWindows && isLegacyBspCompatible(workspace)
     val millFileOpt = getMillFile(workspace)
     millFileOpt match {
-      case Some(file) if isMillFileBspCompatible(file, workspace) =>
-        Success(Seq(file.getAbsolutePath, "-i", "mill.bsp.BSP/install"))
-      case Some(file) if isLegacyMill =>
-        Success(Seq(file.getAbsolutePath, "-i", "mill.contrib.BSP/install"))
+      case Some(file) if isLegacyMill && !isMillFileBspCompatible(file, workspace) =>
+        Seq(file.getAbsolutePath, "-i", "mill.contrib.BSP/install")
+      case Some(file) => // executes if isMillFileBspCompatible
+        Seq(file.getAbsolutePath, "-i", "mill.bsp.BSP/install")
       case _ =>
-        Success(Seq("mill", "-i", "mill.bsp.BSP/install"))
+        Seq("mill", "-i", "mill.bsp.BSP/install")
     }
   }
 
