@@ -21,6 +21,9 @@ private object CompilerMessages {
   def isUnusedImport(description: String): Boolean =
     description.trim.equalsIgnoreCase("unused import")
 
+  def isNeedsToBeAbstract(description: String): Boolean =
+    description.contains("needs to be abstract")
+
   def isNoWarningsCanBeIncurred(description: String): Boolean =
     description.trim.equalsIgnoreCase("No warnings can be incurred under -Werror (or -Xfatal-warnings)")
 

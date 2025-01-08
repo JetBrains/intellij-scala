@@ -1,5 +1,0 @@
-trait MyTrait {
-  def foo(): Unit
-}
-
-class MyClass<spot></spot> extends MyTrait

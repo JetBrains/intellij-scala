@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.annotator.element
 
+import com.intellij.codeInsight.intention.CommonIntentionAction
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiClass, PsiMethod, PsiModifier, PsiModifierList}
 import org.jetbrains.annotations.Nls
@@ -445,18 +446,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
             )
           )
       }.foreach { message =>
-        val nameId = element.nameId
-        val fixes = {
-          val maybeModifierFix = element match {
-            case cls: ScClass => Some(new ModifierQuickFix.Add(cls, nameId, ScalaModifier.Abstract))
-            case _ => None
-          }
-
-          val maybeImplementFix =
-            Option.when(ScalaOIUtil.getMembersToImplement(element).nonEmpty)(new ImplementMembersQuickFix(element))
-
-          maybeModifierFix ++ maybeImplementFix
-        }
+        val fixes = needsToBeAbstractFixes(element)
         holder.createErrorAnnotation(highlightRange(element), message.nls, fixes)
       }
   }
@@ -510,6 +500,19 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
       case (first, second) => ScalaBundle.message("member.is.not.defined", first, second)
     }.mkString("; ")
     ScalaBundle.message("object.creation.impossible.since", reasons)
+  }
+
+  def needsToBeAbstractFixes(element: ScTemplateDefinition): Iterable[CommonIntentionAction] = {
+    val nameId = element.nameId
+    val maybeModifierFix = element match {
+      case cls: ScClass => Some(new ModifierQuickFix.Add(cls, nameId, ScalaModifier.Abstract))
+      case _ => None
+    }
+
+    val maybeImplementFix =
+      Option.when(ScalaOIUtil.getMembersToImplement(element).nonEmpty)(new ImplementMembersQuickFix(element))
+
+    maybeModifierFix ++ maybeImplementFix
   }
 
   private def highlightRange(definition: ScTemplateDefinition): TextRange =
