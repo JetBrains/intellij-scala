@@ -32,9 +32,10 @@ import scala.util.control.NonFatal
 /**
  * The class is responsible for pasting Scala/Worksheet/Sbt files in the Project View.
  * If the content which is pasted to Project View is a valid Scala code,
- * this class tries to calculate the best file name for the newly created Scala file which can be one of the follows:
+ * this class tries to calculate the best file name for the newly created Scala file which can be one of these:
  *  - regular file (*.scala)
  *  - worksheet file (*.sc), created when the code contains top-level expressions
+ *  - plugins.sbt file when the content contains addSbtPlugin and is pasted to the build module root
  *
  * For a similar Java implementation see [[com.intellij.ide.JavaFilePasteProvider]]
  */

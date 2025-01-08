@@ -173,7 +173,7 @@ object ParenthesizedElement {
   }
 
   @tailrec
-  private def getInnermostNonParen(node: ScalaPsiElement): ScalaPsiElement = node match {
+  private[scala] def getInnermostNonParen(node: ScalaPsiElement): ScalaPsiElement = node match {
     // since we go down, it can only be the same tree
     case ScParenthesizedElement(inner) => getInnermostNonParen(inner)
     case _                             => node

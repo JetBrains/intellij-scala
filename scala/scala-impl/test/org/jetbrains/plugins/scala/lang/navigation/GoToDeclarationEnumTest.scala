@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.lang.navigation
 
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumCase
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScEnum
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
-class GoToDeclarationEnumTest extends GotoDeclarationTestBase {
+class GoToDeclarationEnumTest extends GoToDeclarationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= LatestScalaVersions.Scala_3_0
 
@@ -71,7 +72,7 @@ class GoToDeclarationEnumTest extends GotoDeclarationTestBase {
        |  case None       extends Option[Nothing]
        |}
        |""".stripMargin,
-    expected = (is[ScEnum], "Option")
+    expected = (x => is[ScPrimaryConstructor](x) && is[ScEnum](x.getParent), "Option")
   )
 
   def testImportSimpleCase(): Unit = doTest(
@@ -113,6 +114,6 @@ class GoToDeclarationEnumTest extends GotoDeclarationTestBase {
        |  case Scissors extends Move(3)
        |}
        |""".stripMargin,
-    expected = (is[ScEnum], "Move")
+    expected = (x => is[ScPrimaryConstructor](x) && is[ScEnum](x.getParent), "Move")
   )
 }

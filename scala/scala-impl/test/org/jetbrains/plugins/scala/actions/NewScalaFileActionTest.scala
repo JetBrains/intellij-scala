@@ -49,7 +49,7 @@ abstract class NewScalaFileActionTestBase extends ScalaFileTemplateTestBase {
   }
 }
 
-class NewScalaFileActionTestBase_Scala2 extends NewScalaFileActionTestBase {
+class NewScalaFileActionTest_Scala2 extends NewScalaFileActionTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 
   //we ensure that the behavior is not effected by the setting is ignored in Scala 2
@@ -79,7 +79,7 @@ class NewScalaFileActionTestBase_Scala2 extends NewScalaFileActionTestBase {
   }
 }
 
-class NewScalaFileActionTestBase_Scala3 extends NewScalaFileActionTestBase {
+class NewScalaFileActionTest_Scala3 extends NewScalaFileActionTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version.isScala3
 
   //we ensure that the behavior is not effected by the setting is ignored in Scala 2

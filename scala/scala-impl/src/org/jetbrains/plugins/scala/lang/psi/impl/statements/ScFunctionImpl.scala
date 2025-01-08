@@ -424,10 +424,10 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     case f: ScFunction => f.name == name && {
       if (isStrictCheck) {
         // Compare parameter types "as written" to avoid resolving references and inferring types.in library sources
-        parameters.length == f.parameters.length && parameters.zip(f.parameters).forall { case (p1, p2) =>
-          val t1 = p1.`type`().toOption.map(_.presentableText(p1)).mkString // Stub (compiled)
-          val t2 = p2.typeElement.map(_.getText).mkString // AST (source)
-          t1 == t2
+        parameters.length == f.parameters.length && parameters.zip(f.parameters).forall { case (paramFromStub, paramFromSource) =>
+          val typeTextFromStub = paramFromStub.`type`().toOption.map(_.presentableText(paramFromStub)).mkString
+          val typeTextFromSource = paramFromSource.typeElement.map(ParenthesizedElement.getInnermostNonParen).map(_.getText).mkString
+          typeTextFromStub == typeTextFromSource
         }
       }
       else true

@@ -1,15 +1,28 @@
 package org.jetbrains.plugins.scala.conversion.copy.plainText
 
+import com.intellij.ide.IdeView
+import com.intellij.openapi.actionSystem.impl.SimpleDataContext
+import com.intellij.openapi.actionSystem.{LangDataKeys, PlatformCoreDataKeys}
+import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
-import com.intellij.psi.PsiManager
+import com.intellij.psi.{PsiDirectory, PsiManager}
+import com.intellij.util.ui.TextTransferable
+import org.jetbrains.plugins.scala.SlowTests
+import org.jetbrains.plugins.scala.extensions.{StringExt, inWriteAction}
+import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 import org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike
-import org.junit.Assert.{assertEquals, assertNotNull, fail}
+import org.junit.Assert.{assertEquals, assertNotNull, assertTrue}
+import org.junit.experimental.categories.Category
 
+@Category(Array(classOf[SlowTests]))
 class ScalaFilePasteProviderInSbtProjectTest extends SbtExternalSystemImportingTestLike {
 
   override protected def getTestProjectPath: String =
     s"scala/conversion/testdata/sbt_projects_for_paste/${getTestName(true)}"
+
+  override protected def copyTestProjectToTemporaryDir: Boolean = true
 
   override def setUp(): Unit = {
     super.setUp()
@@ -55,33 +68,85 @@ class ScalaFilePasteProviderInSbtProjectTest extends SbtExternalSystemImportingT
       |""".stripMargin
 
   def testAutoCreatePluginSbtFile(): Unit = {
-    assertExpectedFileName(PastedCodeWithAddSbtPlugin, "project", "plugins.sbt")
+    doPasteToDirectoryTest(PastedCodeWithAddSbtPlugin, "project", "plugins.sbt")
 
     val SomeOtherName = "worksheet.sc"
-    assertExpectedFileName(PastedCodeWithoutAddSbtPlugin, "project", SomeOtherName)
-    assertExpectedFileName(PastedCodeWithAddSbtPlugin, "project/inner", SomeOtherName)
-    assertExpectedFileName(PastedCodeWithAddSbtPlugin, "src/main/scala", SomeOtherName)
-    assertExpectedFileName(PastedCodeWithAddSbtPlugin, "", SomeOtherName)
+    doPasteToDirectoryTest(PastedCodeWithoutAddSbtPlugin, "project", SomeOtherName)
+    doPasteToDirectoryTest(PastedCodeWithAddSbtPlugin, "project/inner", SomeOtherName)
+    doPasteToDirectoryTest(PastedCodeWithAddSbtPlugin, "src/main/scala", SomeOtherName)
+    doPasteToDirectoryTest(PastedCodeWithAddSbtPlugin, "", SomeOtherName)
   }
 
-  private def assertExpectedFileName(
+  def testAutoCreatePluginSbtFileWithAlreadyExistingPluginsSbt(): Unit = {
+    doPasteToDirectoryTest(PastedCodeWithAddSbtPlugin, "project", "plugins_1.sbt")
+  }
+
+  private def doPasteToDirectoryTest(
     pastedCode: String,
     relativeDirPath: String,
     expectedFileName: String
   ): Unit = {
+    val psiDirectory = findPsiDirectory(relativeDirPath)
+    val module = ModuleUtilCore.findModuleForPsiElement(psiDirectory)
+
+    // Prepare context before invoking paste action
+    val dataContext = SimpleDataContext.builder()
+      .add(PlatformCoreDataKeys.MODULE, module)
+      .add(LangDataKeys.IDE_VIEW, new IdeView {
+        override def getDirectories: Array[PsiDirectory] = Array(psiDirectory)
+
+        override def getOrChooseDirectory(): PsiDirectory = psiDirectory
+      })
+      .build()
+    CopyPasteManager.getInstance.setContents(new TextTransferable(pastedCode))
+
+    // Invoke paste action
+    val pasteProvider = new ScalaFilePasteProvider()
+    assertTrue(
+      "Paste action is not enabled in the context",
+      pasteProvider.isPasteEnabled(dataContext)
+    )
+
+    val filesBeforePaste = psiDirectory.getVirtualFile.getChildren
+    inWriteAction {
+      pasteProvider.performPaste(dataContext)
+    }
+    val filesAfterPaste = psiDirectory.getVirtualFile.getChildren
+    val newFiles = (filesAfterPaste.toSet -- filesBeforePaste.toSet).toSeq
+
+    //We need to save documents to files to test their contents
+    inWriteAction {
+      saveDocumentContentsToDisk(newFiles)
+    }
+
+    val newFileNames = newFiles.map(_.getName)
+    assertCollectionEquals(
+      "Wrong file names are created after pasting to directory",
+      Seq(expectedFileName),
+      newFileNames
+    )
+
+    val fileContent = new String(newFiles.head.contentsToByteArray())
+    assertEquals(
+      "Newly created file content should equal to the pasted content",
+      pastedCode.withNormalizedSeparator.trim,
+      fileContent.withNormalizedSeparator.trim
+    )
+  }
+
+  private def saveDocumentContentsToDisk(newFiles: Seq[VirtualFile]): Unit = {
+    val fileDocumentManager = FileDocumentManager.getInstance
+    val newDocuments = newFiles.map(FileDocumentManager.getInstance().getDocument)
+    newDocuments.foreach(fileDocumentManager.saveDocument)
+  }
+
+  private def findPsiDirectory(relativeDirPath: String): PsiDirectory = {
     val pathParts = relativeDirPath.split('/').filter(_.nonEmpty) // findRelativeFile accepts varargs
     val directory: VirtualFile = VfsUtil.findRelativeFile(myProjectRoot, pathParts: _*)
     assertNotNull(s"Can't find directory `$relativeDirPath` in `$myProjectRoot`", directory)
 
     val psiDirectory = PsiManager.getInstance(getProject).findDirectory(directory)
     assertNotNull(s"Can't find psi directory for directory ${directory.getPath}", psiDirectory)
-
-    val module = ModuleUtilCore.findModuleForPsiElement(psiDirectory)
-
-    val provider = new ScalaFilePasteProvider()
-    val nameWithExtension = provider.suggestedScalaFileNameForText(pastedCode, module, Some(psiDirectory)).getOrElse {
-      fail("Can't create scala file for pasted code").asInstanceOf[Nothing]
-    }
-    assertEquals("Suggested file name", expectedFileName, nameWithExtension.fullName)
+    psiDirectory
   }
 }

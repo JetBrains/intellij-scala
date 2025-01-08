@@ -84,6 +84,14 @@ The "fast tests" can take over an hour. To get a quick feedback on project healt
 
     > runTypeInferenceTests
 
+### Running a single test / test class with testOnly
+Scala Plugin project configuration is different from the standard sbt project.
+One of the differences is that you don't need to add the sbt project name before the test name. 
+Just run `testOnly <test name>` without the project prefix. \
+For example:
+
+    > testOnly org.jetbrains.plugins.scala.annotator.Scala3HighlightingTestsMix
+
 ### GitHub Actions build
 
 The project is configured to build and run the typeInference tests and fast tests with Github Actions. \

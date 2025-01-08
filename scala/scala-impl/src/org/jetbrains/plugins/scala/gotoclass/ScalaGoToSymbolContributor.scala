@@ -5,8 +5,9 @@ import com.intellij.openapi.project.{PossiblyDumbAware, Project}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.StubIndex
 import com.intellij.util.indexing.DumbModeAccessType
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
@@ -14,6 +15,10 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import java.util
 import scala.collection.mutable.ArrayBuffer
 
+/**
+ * Other typical contributors which contribute to the final result in Scala code:
+ *  - [[com.intellij.ide.util.gotoByName.DefaultSymbolNavigationContributor]]
+ */
 class ScalaGoToSymbolContributor extends GotoClassContributor with PossiblyDumbAware {
 
   override def getNames(project: Project, includeNonProjectItems: Boolean): Array[String] = {
@@ -79,8 +84,12 @@ class ScalaGoToSymbolContributor extends GotoClassContributor with PossiblyDumbA
 
   import org.jetbrains.plugins.scala.extensions.PsiMemberExt
 
+  /**
+   * @inheritdoc
+   * @note this method is only used during filtering but not for displaying
+   */
   override def getQualifiedName(item: NavigationItem): String = item match {
-    case member: ScMember => member.qualifiedNameOpt.orNull
+    case inNameContext(member: ScMember) => member.qualifiedNameOpt.orNull
     case named: ScNamedElement => named.name
     case _ => null
   }

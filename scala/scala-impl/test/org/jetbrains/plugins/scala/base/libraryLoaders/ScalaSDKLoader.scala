@@ -7,7 +7,7 @@ import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.testFramework.PsiTestUtil
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, inWriteAction}
 import org.jetbrains.plugins.scala.project.external.ScalaSdkUtils
-import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLibraryProperties, ScalaLibraryType, Version, template}
+import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLibraryProperties, ScalaLibraryType, template}
 import org.jetbrains.plugins.scala.{DependencyManager, DependencyManagerBase, ScalaVersion}
 import org.junit.Assert._
 
@@ -16,6 +16,7 @@ import java.io.File
 /**
  * @param includeScalaReflectIntoCompilerClasspath also see [[ScalaReflectLibraryLoader]]
  * @param includeScalaLibraryTransitiveDependencies for scala 3 library, also includes scala 2 library
+ * @see [[ScalaLibraryLoader]]
  */
 case class ScalaSDKLoader(
   includeScalaReflectIntoCompilerClasspath: Boolean = false,

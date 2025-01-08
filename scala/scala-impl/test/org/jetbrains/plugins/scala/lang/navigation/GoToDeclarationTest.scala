@@ -1,43 +1,24 @@
-package org.jetbrains.plugins.scala
-package lang
-package navigation
+package org.jetbrains.plugins.scala.lang.navigation
 
-import com.intellij.codeInsight.navigation.actions.GotoDeclarationAction.findAllTargetElements
 import com.intellij.psi.{PsiElement, PsiPackage}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames.Apply
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
-import org.junit.Assert._
 
-abstract class GotoDeclarationTestBase extends GoToTestBase {
-  protected def doTest(fileText: String, expected: (PsiElement => Boolean, String)*): Unit = {
-    configureFromFileText(fileText)
+class GoToDeclarationTest extends GoToDeclarationTestBase {
 
-    val editor = getEditor
-    val targets =
-      findAllTargetElements(getProject, editor, editor.getCaretModel.getOffset)
-        .map(_.getNavigationElement)
-        .toSet
-
-    checkTargets(targets, expected)
-  }
-
-  protected def checkTargets(targets: Iterable[PsiElement], expected: Seq[(PsiElement => Boolean, String)]): Unit = {
-    assertEquals("Wrong number of targets: ", expected.size, targets.size)
-
-    val wrongTargets = for {
-      (actualElement, (predicate, expectedName)) <- targets.zip(expected)
-      actualName = this.actualName(actualElement)
-
-      if !predicate(actualElement) || actualName != expectedName
-    } yield actualElement -> actualName
-
-    assertTrue("Wrong targets: " + wrongTargets, wrongTargets.isEmpty)
-  }
-}
-
-class GoToDeclarationTest extends GotoDeclarationTestBase {
+  def testConstructorInvocationViaNew(): Unit = doTest(
+    s"""
+       |class Test(i: Int)
+       |
+       |object Test {
+       |  def apply(boolean: Boolean) = new ${CARET}Test(0)
+       |}
+      """.stripMargin,
+    expected = (is[ScPrimaryConstructor], "Test")
+  )
 
   def testSyntheticApply(): Unit = doTest(
     s"""

@@ -1,6 +1,7 @@
 package org.jetbrains.sbt.project
 
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
+import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.platform.externalSystem.testFramework.ExternalSystemImportingTestCase
 import com.intellij.pom.java.LanguageLevel
@@ -35,11 +36,35 @@ abstract class ScalaExternalSystemImportingTestBase extends ExternalSystemImport
    */
   protected def getTestProjectPath: String
 
+  /**
+   * When set to true:
+   *   - the test will be run on a copy of the project directory from test data
+   *   - the original test data project directory will be untouched,
+   *
+   * When set to false:
+   *   - the test will run in the original project directory from test data
+   *   - after test is run, the original test data directory can have modified/deleted/new files
+   *     which can make the next test run invalid
+   *
+   * @todo make tru by default for all inherited classes and rerun tests
+   */
+  protected def copyTestProjectToTemporaryDir: Boolean = false
+
   /** Same as [[getTestProjectPath]] but as a File */
-  protected final def getTestProjectDir: File = new File(getTestProjectPath)
+  protected final def getTestProjectDir: File = {
+    val originalTestDataProjectDir = new File(getTestProjectPath)
+    if (!copyTestProjectToTemporaryDir)
+      originalTestDataProjectDir
+    else {
+      val tempProjectDir = FileUtil.createTempDirectory(s"temp_projects/${originalTestDataProjectDir.getName}", "", false)
+      println(s"Test project copied to the temporary directory: $tempProjectDir")
+      FileUtil.copyDir(originalTestDataProjectDir, tempProjectDir)
+      tempProjectDir
+    }
+  }
 
   override protected def setUpProjectRoot(): Unit = {
-    val testProjectPath = new File(getTestProjectPath)
+    val testProjectPath = getTestProjectDir
     myProjectRoot = LocalFileSystem.getInstance.refreshAndFindFileByIoFile(testProjectPath)
     assertNotNull(s"test project root was not found: $testProjectPath", myProjectRoot)
   }

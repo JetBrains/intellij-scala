@@ -517,6 +517,7 @@
                               order="first"/>
         <gotoSymbolContributor implementation="org.jetbrains.plugins.scala.gotoclass.ScalaGoToSymbolContributor"
                                order="first"/>
+        <searchEverywhereResultsEqualityProvider implementation="org.jetbrains.plugins.scala.gotoclass.ScalaSearchEverywhereEqualityProvider"/>
         <lang.importOptimizer language="Scala" implementationClass="org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer"/>
         <lang.namesValidator language="Scala"
                              implementationClass="org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator"/>
