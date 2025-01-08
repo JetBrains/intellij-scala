@@ -35,10 +35,13 @@ class MillProjectInstaller extends BspProjectInstallProvider {
     val millFileOpt = getMillFile(workspace)
     millFileOpt match {
       case Some(file) if isLegacyMill && !isMillFileBspCompatible(file, workspace) =>
+        // run this only if we're confident this is legacy Mill
         Seq(file.getAbsolutePath, "-i", "mill.contrib.BSP/install")
-      case Some(file) => // executes if isMillFileBspCompatible
+      case Some(file) =>
+        // otherwise run the normal BSP install command
         Seq(file.getAbsolutePath, "-i", "mill.bsp.BSP/install")
       case _ =>
+        // as a fallback, use Mill from PATH in case we couldn't find launcher in the project root
         Seq("mill", "-i", "mill.bsp.BSP/install")
     }
   }
