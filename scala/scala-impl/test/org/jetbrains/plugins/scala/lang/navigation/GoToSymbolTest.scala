@@ -1,15 +1,13 @@
 package org.jetbrains.plugins.scala.lang.navigation
 
 import com.intellij.ide.actions.searcheverywhere.PSIPresentationBgRendererWrapper.PsiItemWithPresentation
-import com.intellij.ide.actions.searcheverywhere.{AbstractGotoSEContributor, FoundItemDescriptor, PSIPresentationBgRendererWrapper, SearchEverywhereContributor, SearchEverywhereUI, SymbolSearchEverywhereContributor}
+import com.intellij.ide.actions.searcheverywhere.{AbstractGotoSEContributor, PSIPresentationBgRendererWrapper, SearchEverywhereContributor, SearchEverywhereUI, SymbolSearchEverywhereContributor}
 import com.intellij.ide.util.scopeChooser.ScopeDescriptor
 import com.intellij.openapi.actionSystem.impl.SimpleDataContext
 import com.intellij.openapi.actionSystem.{ActionUiKind, AnActionEvent, Presentation}
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
-import com.intellij.util.CommonProcessors
 import com.intellij.util.indexing.FindSymbolParameters
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
@@ -25,7 +23,7 @@ import scala.jdk.CollectionConverters._
 
 /**
  * The test covers functionality of "Go to Symbol" action
- * (also available voa "Search Everywhere" in "Symbols" tab)
+ * (also available via "Search Everywhere" in the "Symbols" tab)
  *
  * It's different from [[ChooseClassOrSymbolByNameTestBase]]
  * Both of the test classes test implementations of [[com.intellij.navigation.GotoClassContributor]].
@@ -40,7 +38,7 @@ abstract class GoToSymbolTestBase extends ScalaLightCodeInsightFixtureTestCase {
    * It has more data for every item shown in the list: psi element, presentable text, container text (shown as a gray hint).
    * It also tests behaviour [[com.intellij.ide.actions.searcheverywhere.SEResultsEqualityProvider]] implementations
    *
-   * Ideally it would be nice to have some API in the platform, see IJPL-174061
+   * Ideally, it would be nice to have some API in the platform, see IJPL-174061
    */
   protected def getGotoSymbolE2EResults(
     text: String,
@@ -52,11 +50,13 @@ abstract class GoToSymbolTestBase extends ScalaLightCodeInsightFixtureTestCase {
       new MyTestSymbolSearchEverywhereContributor(getProject, event, everywhere = false)
     }
 
-    //NOTE: wee need to create `SearchEverywhereUI` on UI thread, otherwise there will be some exceptions
+    
+    //NOTE: we need to create `SearchEverywhereUI` on the UI thread, otherwise there will be some exceptions
+    var ui: SearchEverywhereUI = null
     val elementsFuture: Future[util.List[AnyRef]] =
       invokeAndWait {
         val presentationWrapper = new PSIPresentationBgRendererWrapper(contributor)
-        val ui = new SearchEverywhereUI(getProject, List(presentationWrapper).asJava.asInstanceOf[util.List[SearchEverywhereContributor[_]]])
+        ui = new SearchEverywhereUI(getProject, List(presentationWrapper).asJava.asInstanceOf[util.List[SearchEverywhereContributor[_]]])
         ui.findElementsForPattern(text)
       }
 
@@ -64,6 +64,10 @@ abstract class GoToSymbolTestBase extends ScalaLightCodeInsightFixtureTestCase {
 
     val items: Seq[PsiItemWithPresentation] =
       elementsFuture.get(waitTimeout.toSeconds, TimeUnit.SECONDS).asScala.map(_.asInstanceOf[PsiItemWithPresentation]).toSeq
+
+    invokeAndWait {
+      ui.dispose()
+    }
 
     items.map { element =>
       GoToElementData(
@@ -99,7 +103,8 @@ class GoToSymbolTest_Scala3 extends GoToSymbolTestBase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version.isScala3
 
-  // We don't run on EDT because we test UI logic, and we use a future to wait for "Search Everywhere" dialog to appear
+  // We don't run on EDT because we test UI logic,
+  // and we use a future to wait for the "Search Everywhere" dialog to appear
   override def runInDispatchThread() = false
 
   @WithIndexingMode(mode = IndexingMode.DUMB_FULL_INDEX)
