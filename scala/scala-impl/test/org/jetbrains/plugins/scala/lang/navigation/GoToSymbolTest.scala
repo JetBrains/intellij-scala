@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.navigation
 
 import com.intellij.ide.actions.searcheverywhere.PSIPresentationBgRendererWrapper.PsiItemWithPresentation
-import com.intellij.ide.actions.searcheverywhere.{AbstractGotoSEContributor, PSIPresentationBgRendererWrapper, SearchEverywhereContributor, SearchEverywhereUI, SymbolSearchEverywhereContributor}
+import com.intellij.ide.actions.searcheverywhere.{SearchEverywhereManager, SearchEverywhereManagerImpl, SearchEverywhereUI, SymbolSearchEverywhereContributor}
 import com.intellij.ide.util.scopeChooser.ScopeDescriptor
 import com.intellij.openapi.actionSystem.impl.SimpleDataContext
 import com.intellij.openapi.actionSystem.{ActionUiKind, AnActionEvent, Presentation}
@@ -12,7 +12,7 @@ import com.intellij.util.indexing.FindSymbolParameters
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
-import org.jetbrains.plugins.scala.lang.navigation.GoToSymbolTestBase.{GoToElementData, MyTestSymbolSearchEverywhereContributor}
+import org.jetbrains.plugins.scala.lang.navigation.GoToSymbolTestBase.GoToElementData
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 
@@ -41,32 +41,34 @@ abstract class GoToSymbolTestBase extends ScalaLightCodeInsightFixtureTestCase {
    * Ideally, it would be nice to have some API in the platform, see IJPL-174061
    */
   protected def getGotoSymbolE2EResults(
-    text: String,
+    searchText: String,
     waitTimeout: Duration = 10.seconds
   ): Seq[GoToElementData] = {
-    val contributor: AbstractGotoSEContributor = {
-      val dataContext = SimpleDataContext.getProjectContext(this.getProject)
-      val event = AnActionEvent.createEvent(dataContext, null.asInstanceOf[Presentation], "fake-place-for-tests", ActionUiKind.NONE, null)
-      new MyTestSymbolSearchEverywhereContributor(getProject, event, everywhere = false)
+    assert(!ApplicationManager.getApplication.isDispatchThread, "This method must not be called on EDT as it waits for UI elements to appear")
+
+    //NOTE: we need to create `SearchEverywhereUI` on the UI thread, otherwise there will be some exceptions
+    val ui: SearchEverywhereUI = invokeAndWait {
+      val searchManager = SearchEverywhereManager.getInstance(getProject).asInstanceOf[SearchEverywhereManagerImpl]
+      val tabId = classOf[SymbolSearchEverywhereContributor].getSimpleName
+      val event = createDummyActionEvent
+      searchManager.show(tabId, "", event)
+      searchManager.getCurrentlyShownUI
     }
 
-    
-    //NOTE: we need to create `SearchEverywhereUI` on the UI thread, otherwise there will be some exceptions
-    var ui: SearchEverywhereUI = null
-    val elementsFuture: Future[util.List[AnyRef]] =
-      invokeAndWait {
-        val presentationWrapper = new PSIPresentationBgRendererWrapper(contributor)
-        ui = new SearchEverywhereUI(getProject, List(presentationWrapper).asJava.asInstanceOf[util.List[SearchEverywhereContributor[_]]])
-        ui.findElementsForPattern(text)
-      }
+    // Wait until "SearchEverywhereUI.rebuildList" is invoked (see SearchEverywhereUI.scheduleRebuildList)
+    // to avoid exceptions like "SymbolSearchEverywhereContributor has already been disposed"
+    Thread.sleep(200)
 
-    assert(!ApplicationManager.getApplication.isDispatchThread, "This method must not be called on EDT as it waits for UI elements to appear")
+    val elementsFuture: Future[util.List[AnyRef]] = invokeAndWait {
+      ui.findElementsForPattern(searchText)
+    }
 
     val items: Seq[PsiItemWithPresentation] =
       elementsFuture.get(waitTimeout.toSeconds, TimeUnit.SECONDS).asScala.map(_.asInstanceOf[PsiItemWithPresentation]).toSeq
 
+    // Free the popup to avoid memory leaks
     invokeAndWait {
-      ui.dispose()
+      ui.closePopup()
     }
 
     items.map { element =>
@@ -76,20 +78,14 @@ abstract class GoToSymbolTestBase extends ScalaLightCodeInsightFixtureTestCase {
       )
     }
   }
+
+  private def createDummyActionEvent: AnActionEvent = {
+    val context = SimpleDataContext.getProjectContext(this.getProject)
+    AnActionEvent.createEvent(context, null.asInstanceOf[Presentation], "fake-place-for-tests", ActionUiKind.NONE, null)
+  }
 }
 
 object GoToSymbolTestBase {
-  //NOTE: using a separate class just to be able
-  // to easily notice its name in variable watcher during debugging
-  private class MyTestSymbolSearchEverywhereContributor(
-    project: Project,
-    event: AnActionEvent,
-    everywhere: Boolean
-  ) extends SymbolSearchEverywhereContributor(event: AnActionEvent) {
-
-    this.myScopeDescriptor = new ScopeDescriptor(FindSymbolParameters.searchScopeFor(project, everywhere))
-  }
-
   /**
    * @param presentableText primary text displayed in the list
    * @param containerText   the text of the container displayed as grey hint text
