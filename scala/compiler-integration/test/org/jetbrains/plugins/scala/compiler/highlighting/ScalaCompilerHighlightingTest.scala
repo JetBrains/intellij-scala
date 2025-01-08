@@ -32,28 +32,6 @@ class ScalaCompilerHighlightingTest_2_13 extends ScalaCompilerHighlightingTestBa
     runTestFunctionLiteral(50)
   }
 
-  private def runTestErrorHighlighting(): Unit = runTestCase(
-    fileName = "AbstractMethodInClassError.scala",
-    content =
-      """
-        |class AbstractMethodInClassError {
-        |  def method: Int
-        |}
-        |""".stripMargin,
-    expectedResult = expectedResult(ExpectedHighlighting(
-      severity = HighlightSeverity.ERROR,
-      range = Some(TextRange.create(7, 33)),
-      quickFixDescriptions = Seq.empty,
-      msgPrefix = "class AbstractMethodInClassError needs to be abstract"
-    ))
-  )
-
-  def testErrorHighlighting(): Unit = runTestErrorHighlighting()
-
-  def testErrorHighlighting_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
-    runTestErrorHighlighting()
-  }
-
   private def runTestWrongReturnType(startOffset: Int): Unit = runTestCase(
     fileName = "WrongReturnType.scala",
     content =
@@ -354,28 +332,6 @@ abstract class ScalaCompilerHighlightingTest_3 extends ScalaCompilerHighlighting
     runTestFunctionLiteral()
   }
 
-  private def runTestErrorHighlighting(): Unit = runTestCase(
-    fileName = "AbstractMethodInClassError.scala",
-    content =
-      """
-        |class AbstractMethodInClassError {
-        |  def method: Int
-        |}
-        |""".stripMargin,
-    expectedResult = expectedResult(ExpectedHighlighting(
-      severity = HighlightSeverity.ERROR,
-      range = Some(TextRange.create(7, 33)),
-      quickFixDescriptions = Seq.empty,
-      msgPrefix = "class AbstractMethodInClassError needs to be abstract"
-    ))
-  )
-
-  def testErrorHighlighting(): Unit = runTestErrorHighlighting()
-
-  def testErrorHighlighting_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
-    runTestErrorHighlighting()
-  }
-
   private def runTestWrongReturnType(startOffset: Int): Unit = runTestCase(
     fileName = "WrongReturnType.scala",
     content =
@@ -423,6 +379,30 @@ abstract class ScalaCompilerHighlightingTest_3 extends ScalaCompilerHighlighting
   def testCompilationWithParserError_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
     runTestCompilationWithParserError()
   }
+
+  // SCL-19751
+  private def runTestNotImplementedMembers(): Unit = runTestCase(
+    fileName = "NotImplementedMembers.scala",
+    content =
+      """
+        |trait Something(x: Int):
+        |  def implementMe: Unit
+        |
+        |class X extends Something(10)
+        |""".stripMargin,
+    expectedResult = expectedResult(ExpectedHighlighting(
+      severity = HighlightSeverity.ERROR,
+      range = Some(TextRange.create(57, 58)),
+      quickFixDescriptions = Seq("Make 'X' abstract", "Implement members"),
+      msgPrefix = "class X needs to be abstract, since def implementMe: Unit in trait Something is not defined"
+    ))
+  )
+
+  def testNotImplementedMembers(): Unit = runTestNotImplementedMembers()
+
+  def testNotImplementedMembers_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
+    runTestNotImplementedMembers()
+  }
 }
 
 trait ScalaCompilerHighlightingCommonScala2Scala3Test {
@@ -451,5 +431,27 @@ trait ScalaCompilerHighlightingCommonScala2Scala3Test {
 
   def testWarningHighlighting_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
     runTestWarningHighlighting(Seq.empty)
+  }
+
+  protected def runTestAbstractMethodInClass(): Unit = runTestCase(
+    fileName = "AbstractMethodInClassError.scala",
+    content =
+      """
+        |class AbstractMethodInClassError {
+        |  def method: Int
+        |}
+        |""".stripMargin,
+    expectedResult = expectedResult(ExpectedHighlighting(
+      severity = HighlightSeverity.ERROR,
+      range = Some(TextRange.create(7, 33)),
+      quickFixDescriptions = Seq("Make 'AbstractMethodInClassError' abstract"),
+      msgPrefix = "class AbstractMethodInClassError needs to be abstract"
+    ))
+  )
+
+  def testAbstractMethodInClass(): Unit = runTestAbstractMethodInClass()
+
+  def testAbstractMethodInClass_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
+    runTestAbstractMethodInClass()
   }
 }
