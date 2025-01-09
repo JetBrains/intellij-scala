@@ -462,9 +462,10 @@ package object collections {
   @tailrec
   private def isExpressionOfType(fqns: String*)(tpbl: Typeable): Boolean = tpbl match {
     case Resolved(srr @ ScalaResolveResult(fun: ScFunction, _)) if fun.name == CommonNames.Apply =>
-      isExpressionOfType(fqns: _*)(
-        srr.getActualElement.asInstanceOf[Typeable]
-      )
+      srr.getActualElement match {
+        case element: Typeable => isExpressionOfType(fqns: _*)(element)
+        case _ => false
+      }
     case Typeable(scType) => fqns.exists(conformsToTypeFromClass(scType, _)(scType.projectContext))
     case _                => false
   }
