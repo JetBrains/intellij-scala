@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala.lang.psi.api.statements
 package params
 
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.extensions.{NullSafe, ObjectExt}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGiven, ScGivenDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
@@ -22,9 +24,9 @@ trait ScParameterClause extends ScalaPsiElement {
 
   /**
    * Whether the parameters of this clause take contextual arguments and provide contextual values.
-   * It's the case if the clause is either marked with using or implicit.
+   * It's the case if the clause is either marked with using, with implicit, or if it is a given conditional.
    */
-  def isImplicit: Boolean = hasImplicitKeyword || hasUsingKeyword
+  def isImplicit: Boolean = hasImplicitKeyword || hasUsingKeyword || isGivenConditionalClause
 
   /**
    * Checks whether this parameter clause has an implicit keyword.
@@ -43,6 +45,17 @@ trait ScParameterClause extends ScalaPsiElement {
    * @return true if this parameter clause has a using keyword
    */
   def hasUsingKeyword: Boolean
+
+  /**
+   * like in
+   *   given Int => String = ???   // here Int is wrapped in a ScParameterClause as well
+   *         |-|
+   * or
+   *   given (a: Int) => String = ???
+   *         |------|
+   */
+  def isGivenConditionalClause: Boolean =
+    NullSafe(this.getParent).exists(_.getParent.is[ScGiven])
 
   def hasRepeatedParam: Boolean = parameters.lastOption.exists(_.isRepeatedParameter)
 
