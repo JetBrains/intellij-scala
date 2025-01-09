@@ -382,11 +382,7 @@ class Scala3StructureViewTest extends ScalaStructureViewCommonTests {
       Node(ABSTRACT_FIELD_VAL, "foo: Int")
     ),
 
-    // TODO: better rendering for givens (SCL-19360)
-    Node(CLASS,
-      """Foo with {
-        |  val foo = 1
-        |}""".stripMargin, DeprecatedAttributesKey,
+    Node(CLASS, "Foo", DeprecatedAttributesKey,
       Node(FIELD_VAL, "foo")
     ),
     Node(CLASS, "f", DeprecatedAttributesKey,
@@ -671,9 +667,7 @@ class Scala3StructureViewTest extends ScalaStructureViewCommonTests {
     Node(MethodIcon, "given_Long: Long"), // given Long
     Node(CLASS, "cs"), // given cs: CharSequence...
     Node(MethodIcon, "charAt(Int): Char"), // method charAt inside given cs
-    Node(CLASS,
-      """AutoCloseable with:
-        |    override def close(): Unit = {}""".stripMargin), // given AutoCloseable...
+    Node(CLASS, "AutoCloseable"), // given AutoCloseable...
     Node(MethodIcon, "close(): Unit"), // method close inside given AutoCloseable
     Node(TYPE_ALIAS, "MyTypeAlias"), // type MyTypeAlias
     Node(ABSTRACT_TYPE_ALIAS, "MyAbstractTypeAlias"), // type MyAbstractTypeAlias
