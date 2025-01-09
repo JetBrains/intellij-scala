@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGivenAliasDefinition, ScGivenDefinition}
 
-class GotoGivenTest extends GotoDeclarationTestBase {
+class GoToGivenTest extends GoToDeclarationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version.isScala3
 
   // ========================== Aliases ==============================
