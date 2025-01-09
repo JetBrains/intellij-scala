@@ -75,7 +75,8 @@ final class ScalaFileNameInspection extends LocalInspectionTool {
       new RenameFileQuickFix(scalaFile, clazz.name + "." + ScalaFileType.INSTANCE.getDefaultExtension)
     )
 
-    manager.createProblemDescriptor(clazz.nameId,
+    manager.createProblemDescriptor(
+      Option(clazz.nameId).getOrElse(clazz),
       getDisplayName,
       isOnTheFly,
       localQuickFixes,
