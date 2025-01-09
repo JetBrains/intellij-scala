@@ -1,8 +1,0 @@
-*.class
-*.log
-.idea
-target
-project/target
-.virtualenv
-__pycache__
-*.pyc
