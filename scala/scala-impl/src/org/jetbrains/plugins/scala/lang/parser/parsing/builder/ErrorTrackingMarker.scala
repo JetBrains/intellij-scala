@@ -13,6 +13,8 @@ class ErrorTrackingMarker(inner: PsiBuilder.Marker, builder: ScalaPsiBuilderImpl
   var errors = 0
   var droppedFromStack = false
 
+  private var wasFinishedWithError = false
+
   override def reportErrors(errorCount: Int): Unit =
     errors += errorCount
 
@@ -33,9 +35,10 @@ class ErrorTrackingMarker(inner: PsiBuilder.Marker, builder: ScalaPsiBuilderImpl
   }
 
   override def error(message: String): Unit = {
-    errors += 1
+    wasFinishedWithError = true
     inner.error(message)
-    builder.finishErrorTrackingMarker(this)
+    // We do not finish this tracker here because it can still be dropped afterward
+    //builder.finishErrorTrackingMarker(this)
   }
 
   override def errorBefore(message: String, before: PsiBuilder.Marker): Unit = {
@@ -70,7 +73,8 @@ class ErrorTrackingMarker(inner: PsiBuilder.Marker, builder: ScalaPsiBuilderImpl
     inner.setCustomEdgeTokenBinders(left, right)
 
   override def dropFromStack(): Int = {
+    val additionalErrors = if (wasFinishedWithError) 1 else 0
     droppedFromStack = true
-    errors
+    errors + additionalErrors
   }
 }
