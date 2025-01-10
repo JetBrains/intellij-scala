@@ -1014,32 +1014,45 @@ package object extensions {
       }
     }
 
+    def qualifier: Option[String] = {
+      val containingClassFqn = member.containingClass.toOption.flatMap(_.qualifiedName.toOption)
+      containingClassFqn.orElse(member match {
+        case sm: ScMember => sm.topLevelQualifier
+        case _ => None
+      })
+    }
+
     /**
      * See also [[org.jetbrains.plugins.scala.actions.ScalaQualifiedNameProvider]].<br>
-     * (Q: What is the difference? Shouldn't they be unified and one use another?)
+     * (Q: What is the difference? Shouldn't they be unified, and one would use another?)
+     *
+     * @note for pattern definition it returns the qualified name of the first pattern<br>
+     *       Example:
+     *       input: `package example ; val (xxx, yyy) = ...`
+     *       output: example.xxx
+     * @todo This is conceptually wrong.
+     *       Consider example: `val (xxx, yyy) = (1, 2)`
+     *       The whole val element is represented by a ScPatternDefinition (which is a ScMember)
+     *       Every single pattern (xxx or yyy) is represented by ScReferencePattern
+     *       Currently `qualifiedNameOpt` returns non-null value for teh whole ScPatternDefinition with the first name in the pattern list.
+     *       It seems it's wrong because ScPatternDefinition doesn't represent single definition, it represents all of them.
+     *       The non-null value corresponds to ScReferencePattern
+     *       \
+     *       The issue with `ScReferencePattern` is that currently it's not an instance of ScMember
+     *       and it's not clear whether it should be.
+     *       At the same time it's convenient to have `ScPatternDefinition` as a `ScMember`.
+     *       At a syntax level it's easy to distinguish the whole `val` as a member.
+     *       We might refactor our psi hierarchy to have two kind of members: SyntaxMember and RealMember or something like that...
+     *       \
+     *       The same is applicable to scala 3 extensions
+     *       Currently ScExtension is instance of ScMember and `names` returns names of all extension methods inside
      */
     def qualifiedNameOpt: Option[String] = member match {
       case c: PsiClass => c.qualifiedName.toOption
       case _ =>
-        //TODO: shouldn't we use name/getName instead of names?
-        // It looks like for ScPatternDefinition, fqn should be null.
-        // It should be not-null when called on inner element ScReferencePattern
-        // Example: `val (x, y) = (1, 2)`
-        // fqn for the whole ScPatternDefinition (entire line of code) doesn't make any sense
-        // fqn should be called on ScReferencePattern instead (e.g. on x or y)
-        // The issue with `ScReferencePattern` is that currently it's not a instance of ScMember
-        // and it's not clear whether it should be
-        // ----
-        // The same is applicable to extensions
-        // Currently ScExtension is instance of ScMember and `names` returns names of all extension methods inside
-        val containingClassFqn = member.containingClass.toOption.flatMap(_.qualifiedName.toOption)
-        val containerFqnOpt = containingClassFqn.orElse(member match {
-          case sm: ScMember => sm.topLevelQualifier
-          case _ => None
-        })
-
         for {
-          containerFqn <- containerFqnOpt
+          containerFqn <- qualifier
+          //Get the first name from the names (conceptually wrong, see scaladoc notes)
           name <- names.headOption
         } yield s"$containerFqn.$name"
     }

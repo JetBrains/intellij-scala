@@ -248,7 +248,12 @@ object UpdateScalacOptionsInfo {
         case VersionTag =>
           (Some(defaultScalaVersionStr(setting)), ArgType.OneAfterColon)
         case StringTag =>
-          val prefix = prefixField.get(setting).asInstanceOf[String]
+          val prefix = prefixField.get(setting) match {
+            case s: String => s
+            case opt =>
+              // since 3.4 the prefix field is an Option[String]
+              toOption(opt).map(_.asInstanceOf[String]).getOrElse("")
+          }
           val argType =
             if (prefix.nonEmpty) ArgType.OneAfterPrefix(prefix)
             else if (choices.nonEmpty) ArgType.OneAfterColon
@@ -364,17 +369,29 @@ object UpdateScalacOptionsInfo {
     val additionalMapping =
       Option.when(langLevel.isScala2 && langLevel > ScalaLanguageLevel.Scala_2_11)(getSecondElementOfTuple2(_))
 
+    def settingsInstanceByClass(settingsClass: Class[_]): Option[Any] =
+      settingsClass.getDeclaredConstructors
+        .sortBy(_.getParameterCount)
+        .headOption
+        .map(constructor => constructor.newInstance(Seq.fill(constructor.getParameterCount)(null): _*))
+
+    def settingsInstanceByObject(settingsClass: Class[_]): Option[Any] = {
+      val objectClass = loadClass(settingsClass.getName + "$")
+      Option(objectClass.getDeclaredField("MODULE$").get(null))
+    }
+
     val settingsClassName =
       if (langLevel.isScala3) "dotty.tools.dotc.config.ScalaSettings"
       else "scala.tools.nsc.doc.Settings"
+
     val settingsClass = loadClass(settingsClassName)
 
-    settingsClass.getDeclaredConstructors
-      .sortBy(_.getParameterCount)
-      .headOption
-      .map { constructor =>
-        val settingsInstance = constructor.newInstance(Seq.fill(constructor.getParameterCount)(null): _*)
+    val settingsInstance =
+      if (langLevel >= ScalaLanguageLevel.Scala_3_4) settingsInstanceByObject(settingsClass)
+      else settingsInstanceByClass(settingsClass)
 
+    settingsInstance
+      .map { settingsInstance =>
         val allSettingsMethod = settingsClass.getMethod("allSettings")
         val allSettings = allSettingsMethod.invoke(settingsInstance)
 

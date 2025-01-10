@@ -88,11 +88,17 @@ class ScalaGoToSymbolContributor extends GotoClassContributor with PossiblyDumbA
    * @inheritdoc
    * @note this method is only used during filtering but not for displaying
    */
-  override def getQualifiedName(item: NavigationItem): String = item match {
-    case inNameContext(member: ScMember) => member.qualifiedNameOpt.orNull
-    case named: ScNamedElement => named.name
-    case _ => null
-  }
+  override def getQualifiedName(item: NavigationItem): String =
+    item match {
+      case named: ScNamedElement =>
+        val qualifier = named.nameContext match {
+          case member: ScMember => member.qualifier
+          case _ => None
+        }
+        val name = named.name
+        qualifier.fold(name)(_ + "." + name)
+      case _ => null
+    }
 
   override def getQualifiedNameSeparator: String = "."
 

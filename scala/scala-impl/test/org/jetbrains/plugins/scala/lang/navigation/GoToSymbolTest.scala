@@ -2,13 +2,10 @@ package org.jetbrains.plugins.scala.lang.navigation
 
 import com.intellij.ide.actions.searcheverywhere.PSIPresentationBgRendererWrapper.PsiItemWithPresentation
 import com.intellij.ide.actions.searcheverywhere.{SearchEverywhereManager, SearchEverywhereManagerImpl, SearchEverywhereUI, SymbolSearchEverywhereContributor}
-import com.intellij.ide.util.scopeChooser.ScopeDescriptor
 import com.intellij.openapi.actionSystem.impl.SimpleDataContext
 import com.intellij.openapi.actionSystem.{ActionUiKind, AnActionEvent, Presentation}
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.project.Project
 import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
-import com.intellij.util.indexing.FindSymbolParameters
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
@@ -122,7 +119,7 @@ class GoToSymbolTest_Scala3 extends GoToSymbolTestBase {
         |enum MyEnum { case MyCase }
         |
         |val myVal1 = 1
-        |val (myVal2, myVal3) = (2, 3)
+        |val (myVal2, myVal3, Some(myVal4)) = (2, 3, Option(4))
         |
         |var myVar1 = 1
         |var (myVar2, myVar3) = (2, 3)
@@ -165,6 +162,7 @@ class GoToSymbolTest_Scala3 extends GoToSymbolTestBase {
       GoToElementData("myVal1", "org.example"),
       GoToElementData("myVal2", "org.example"),
       GoToElementData("myVal3", "org.example"),
+      GoToElementData("myVal4", "org.example"),
       GoToElementData("myValField", "org.example.MyClass"),
       GoToElementData("myVar1", "org.example"),
       GoToElementData("myVar2", "org.example"),
@@ -172,10 +170,98 @@ class GoToSymbolTest_Scala3 extends GoToSymbolTestBase {
       GoToElementData("myVarField", "org.example.MyClass"),
     )
 
-    val actualElements = getGotoSymbolE2EResults("org.example.my")
+    doToToSymbolTest("org.example.my", expectedElements)
+  }
+
+  private def doToToSymbolTest(searchText: String, expectedElements: Seq[GoToElementData]): Unit = {
+    val actualElements = getGotoSymbolE2EResults(searchText)
     assertCollectionEquals(
       expectedElements.sortBy(_.presentableText),
       actualElements.sortBy(_.presentableText)
     )
+  }
+
+  private val ValVarPatternDefinitionsTopLevel =
+    """package org.example
+      |
+      |val myVal1 = 1
+      |val (myVal2, myVal3, Some(myVal4)) = (2, 3, Option(4))
+      |
+      |var myVar1 = 1
+      |var (myVar2, myVar3, Some(myVar4)) = (2, 3, Option(4))
+      |""".stripMargin
+
+  @WithIndexingMode(mode = IndexingMode.DUMB_FULL_INDEX)
+  def testDetectAllIdentifiersFromValVarPatternDefinition_TopLevel_FullyQualifiedName(): Unit = {
+    myFixture.addFileToProject("org/example/definitions.scala", ValVarPatternDefinitionsTopLevel)
+
+    doToToSymbolTest("org.example.myVal1", Seq(GoToElementData("myVal1", "org.example")))
+    doToToSymbolTest("org.example.myVal2", Seq(GoToElementData("myVal2", "org.example")))
+    doToToSymbolTest("org.example.myVal3", Seq(GoToElementData("myVal3", "org.example")))
+    doToToSymbolTest("org.example.myVal4", Seq(GoToElementData("myVal4", "org.example")))
+
+    doToToSymbolTest("org.example.myVar1", Seq(GoToElementData("myVar1", "org.example")))
+    doToToSymbolTest("org.example.myVar2", Seq(GoToElementData("myVar2", "org.example")))
+    doToToSymbolTest("org.example.myVar3", Seq(GoToElementData("myVar3", "org.example")))
+    doToToSymbolTest("org.example.myVar4", Seq(GoToElementData("myVar4", "org.example")))
+  }
+
+  @WithIndexingMode(mode = IndexingMode.DUMB_FULL_INDEX)
+  def testDetectAllIdentifiersFromValVarPatternDefinition_TopLevel_ShortName(): Unit = {
+    myFixture.addFileToProject("org/example/definitions.scala", ValVarPatternDefinitionsTopLevel)
+
+    doToToSymbolTest("myVal1", Seq(GoToElementData("myVal1", "org.example")))
+    doToToSymbolTest("myVal2", Seq(GoToElementData("myVal2", "org.example")))
+    doToToSymbolTest("myVal3", Seq(GoToElementData("myVal3", "org.example")))
+    doToToSymbolTest("myVal4", Seq(GoToElementData("myVal4", "org.example")))
+
+    doToToSymbolTest("myVar1", Seq(GoToElementData("myVar1", "org.example")))
+    doToToSymbolTest("myVar2", Seq(GoToElementData("myVar2", "org.example")))
+    doToToSymbolTest("myVar3", Seq(GoToElementData("myVar3", "org.example")))
+    doToToSymbolTest("myVar4", Seq(GoToElementData("myVar4", "org.example")))
+  }
+
+  private val ValVarPatternDefinitionsNested =
+    """package org.example
+      |
+      |object MyObject {
+      |  object Inner {
+      |    val myVal1 = 1
+      |    val (myVal2, myVal3, Some(myVal4)) = (2, 3, Option(4))
+      |
+      |    var myVar1 = 1
+      |    var (myVar2, myVar3, Some(myVar4)) = (2, 3, Option(4))
+      |  }
+      |}
+      |""".stripMargin
+
+  @WithIndexingMode(mode = IndexingMode.DUMB_FULL_INDEX)
+  def testDetectAllIdentifiersFromValVarPatternDefinition_Nested_FullyQualifiedName(): Unit = {
+    myFixture.addFileToProject("org/example/definitions.scala", ValVarPatternDefinitionsNested)
+
+    doToToSymbolTest("org.example.MyObject.Inner.myVal1", Seq(GoToElementData("myVal1", "org.example.MyObject.Inner")))
+    doToToSymbolTest("org.example.MyObject.Inner.myVal2", Seq(GoToElementData("myVal2", "org.example.MyObject.Inner")))
+    doToToSymbolTest("org.example.MyObject.Inner.myVal3", Seq(GoToElementData("myVal3", "org.example.MyObject.Inner")))
+    doToToSymbolTest("org.example.MyObject.Inner.myVal4", Seq(GoToElementData("myVal4", "org.example.MyObject.Inner")))
+
+    doToToSymbolTest("org.example.MyObject.Inner.myVar1", Seq(GoToElementData("myVar1", "org.example.MyObject.Inner")))
+    doToToSymbolTest("org.example.MyObject.Inner.myVar2", Seq(GoToElementData("myVar2", "org.example.MyObject.Inner")))
+    doToToSymbolTest("org.example.MyObject.Inner.myVar3", Seq(GoToElementData("myVar3", "org.example.MyObject.Inner")))
+    doToToSymbolTest("org.example.MyObject.Inner.myVar4", Seq(GoToElementData("myVar4", "org.example.MyObject.Inner")))
+  }
+
+  @WithIndexingMode(mode = IndexingMode.DUMB_FULL_INDEX)
+  def testDetectAllIdentifiersFromValVarPatternDefinition_Nested_ShortName(): Unit = {
+    myFixture.addFileToProject("org/example/definitions.scala", ValVarPatternDefinitionsNested)
+
+    doToToSymbolTest("myVal1", Seq(GoToElementData("myVal1", "org.example.MyObject.Inner")))
+    doToToSymbolTest("myVal2", Seq(GoToElementData("myVal2", "org.example.MyObject.Inner")))
+    doToToSymbolTest("myVal3", Seq(GoToElementData("myVal3", "org.example.MyObject.Inner")))
+    doToToSymbolTest("myVal4", Seq(GoToElementData("myVal4", "org.example.MyObject.Inner")))
+
+    doToToSymbolTest("myVar1", Seq(GoToElementData("myVar1", "org.example.MyObject.Inner")))
+    doToToSymbolTest("myVar2", Seq(GoToElementData("myVar2", "org.example.MyObject.Inner")))
+    doToToSymbolTest("myVar3", Seq(GoToElementData("myVar3", "org.example.MyObject.Inner")))
+    doToToSymbolTest("myVar4", Seq(GoToElementData("myVar4", "org.example.MyObject.Inner")))
   }
 }
