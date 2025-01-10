@@ -8,8 +8,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 
 /**
- * See also [[org.jetbrains.plugins.scala.extensions.PsiMemberExt.qualifiedNameOpt]]
- * (Q: What is the difference? Shouldn't they be unified and one use another?)
+ * See also [[org.jetbrains.plugins.scala.extensions.PsiMemberExt.qualifiedNameOpt]]<br>
+ * (Q: What is the difference? Shouldn't they be unified, and one would use another?)
  */
 class ScalaQualifiedNameProvider extends QualifiedNameProvider {
 
