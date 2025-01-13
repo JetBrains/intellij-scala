@@ -3,3 +3,4 @@ rm -rf .bsp
 rm -rf .idea
 rm -rf .sbt
 rm -rf *.ipr
+rm -rf *.iws

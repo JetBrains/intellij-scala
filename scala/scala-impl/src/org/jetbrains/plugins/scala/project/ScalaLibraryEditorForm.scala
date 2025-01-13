@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.project
 
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
 import com.intellij.openapi.roots.libraries.ui
 import com.intellij.openapi.roots.ui.distribution.DistributionComboBox
@@ -90,7 +91,14 @@ class ScalaLibraryEditorForm(
   def isValid: Boolean =
     compilerBridgeValidator.forall(_.getValidationInfo == null)
 
-  def languageLevel: ScalaLanguageLevel = myLanguageLevel.getSelectedItem.asInstanceOf[ScalaLanguageLevel]
+  def languageLevel: ScalaLanguageLevel = {
+    val selectedItem = myLanguageLevel.getSelectedItem
+    if (selectedItem == null) {
+      //not expected to be null, but we try to catch SCL-23437
+      Log.error("selected language item is null")
+    }
+    selectedItem.asInstanceOf[ScalaLanguageLevel]
+  }
   def languageLevel_=(languageLevel: ScalaLanguageLevel): Unit = {
     // in case some new major release candidate version of the scala compiler is used
     // we want to display it's language level anyway (it's not added to the combobox when creating new SDK)
@@ -128,6 +136,8 @@ class ScalaLibraryEditorForm(
 }
 
 private object ScalaLibraryEditorForm {
+  private val Log = Logger.getInstance(classOf[ScalaLibraryEditorForm])
+
   private val publishedScalaLanguageLevels = ScalaLanguageLevel.publishedVersions.reverse
 
   implicit class ComboBoxOps[T](private val target: ComboBox[T]) extends AnyVal {

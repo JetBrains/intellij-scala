@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.project
 
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.roots.libraries.LibraryProperties
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VfsUtilCore
@@ -60,7 +61,12 @@ final class ScalaLibraryProperties private(
   }
 
   override def loadState(state: ScalaLibraryPropertiesState): Unit = {
-    languageLevel = state.getLanguageLevel
+    val newLanguageLevel = state.getLanguageLevel
+    if (newLanguageLevel == null) {
+      //not expected to be null, but we try to catch SCL-23437
+      Log.error("languageLevel is null")
+    }
+    languageLevel = newLanguageLevel
     compilerClasspath = state.getCompilerClasspath.map(urlToFile).toSeq
     scaladocExtraClasspath = state.getScaladocExtraClasspath.map(urlToFile).toSeq
     compilerBridgeBinaryJar = Option(state.getCompilerBridgeBinaryJar).map(urlToFile)
@@ -88,6 +94,8 @@ final class ScalaLibraryProperties private(
 }
 
 object ScalaLibraryProperties {
+
+  private val Log = Logger.getInstance(classOf[ScalaLibraryProperties])
 
   import ScalaLanguageLevel._
 
