@@ -46,4 +46,17 @@ final class ToggleTypeAnnotationIntentionTest_Scala3 extends ToggleTypeAnnotatio
        |}
        |""".stripMargin
   )
+
+  def testAddTypeToFewerBracesParameter(): Unit = doTest(
+    s"""
+       |class Example:
+       |  Seq(1, 2, 3).foreach: x$caretTag =>
+       |    println(x)
+       |""".stripMargin,
+    s"""
+       |class Example:
+       |  Seq(1, 2, 3).foreach: (x: Int)$caretTag =>
+       |    println(x)
+       |""".stripMargin,
+  )
 }
