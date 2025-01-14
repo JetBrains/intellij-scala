@@ -27,8 +27,11 @@ import scala.collection.mutable.ArrayBuffer
 trait ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
 
   override def annotate(element: ScalaPsiElement, typeAware: Boolean)
-                       (implicit holder: ScalaAnnotationHolder): Unit =
-    annotateScope(element)
+                       (implicit holder: ScalaAnnotationHolder): Unit = {
+    if (typeAware) {
+      annotateScope(element)
+    }
+  }
 
   //Do not process class parameters, template body and early definitions separately
   //process them in a single pass for the whole template definition
