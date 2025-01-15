@@ -1138,7 +1138,7 @@
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.no.targetname.annotation.for.operator.like.definition"
                          groupPath="Scala" groupKey="group.general" shortName="NoTargetNameAnnotationForOperatorLikeDefinition"
-                         id="NoTargetNameAnnotationForOperatorLikeDefinition" level="WEAK WARNING" enabledByDefault="true" language="Scala"/>
+                         id="NoTargetNameAnnotationForOperatorLikeDefinition" level="WEAK WARNING" enabledByDefault="false" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.targetNameAnnotation.MultipleTargetNameAnnotationsInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.multiple.targetname.annotations"
