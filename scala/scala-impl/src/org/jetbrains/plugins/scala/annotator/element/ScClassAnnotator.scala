@@ -44,7 +44,7 @@ object ScClassAnnotator extends ElementAnnotator[ScClass] {
     containingClass match {
       case Some(obj: ScObject) => annotateContainingClass(valueClass, Option(obj.containingClass)) //keep going
       case Some(_) => //value class is inside a trait or a class, need to highlight it
-        holder.createErrorAnnotation(valueClass.nameId, ScalaBundle.message("value.classes.may.not.be.member.of.another.class"))
+        holder.createErrorAnnotation(valueClass.nameId.forHighlighting, ScalaBundle.message("value.classes.may.not.be.member.of.another.class"))
       case _ => //we are done, value class is either top level or inside a statically accessible object
     }
   }
@@ -52,22 +52,22 @@ object ScClassAnnotator extends ElementAnnotator[ScClass] {
   private def annotateInnerMembers(valueClass: ScClass)
                                   (implicit holder: ScalaAnnotationHolder): Unit = {
     valueClass.allInnerTypeDefinitions.foreach { td =>
-      holder.createErrorAnnotation(td.nameId, ScalaBundle.message("value.classes.cannot.have.nested.objects"))
+      holder.createErrorAnnotation(td.nameId.forHighlighting, ScalaBundle.message("value.classes.cannot.have.nested.objects"))
     }
     valueClass.functions.foreach {
       case fun if fun.name == "equals" || fun.name == "hashCode" =>
-        holder.createErrorAnnotation(fun.nameId, ScalaBundle.message("value.classes.cannot.redefine.equals.hashcode"))
+        holder.createErrorAnnotation(fun.nameId.forHighlighting, ScalaBundle.message("value.classes.cannot.redefine.equals.hashcode"))
       case _ =>
     }
     valueClass.members.foreach {
       case pat: ScPatternDefinition => pat.declaredElements.foreach { named =>
-        holder.createErrorAnnotation(named.nameId, ScalaBundle.message("value.classes.can.have.only.defs"))
+        holder.createErrorAnnotation(named.nameId.forHighlighting, ScalaBundle.message("value.classes.can.have.only.defs"))
       }
       case valDef: ScValueDeclaration => valDef.declaredElements.foreach { named =>
-        holder.createErrorAnnotation(named.nameId, ScalaBundle.message("value.classes.can.have.only.defs"))
+        holder.createErrorAnnotation(named.nameId.forHighlighting, ScalaBundle.message("value.classes.can.have.only.defs"))
       }
       case varDef: ScVariableDefinition => varDef.declaredElements.foreach { named =>
-        holder.createErrorAnnotation(named.nameId, ScalaBundle.message("value.classes.can.have.only.defs"))
+        holder.createErrorAnnotation(named.nameId.forHighlighting, ScalaBundle.message("value.classes.can.have.only.defs"))
       }
       case _ =>
     }
@@ -99,13 +99,13 @@ object ScClassAnnotator extends ElementAnnotator[ScClass] {
               holder.createErrorAnnotation(param, ScalaBundle.message("value.class.can.have.only.val.parameter"))
             }
           case _ =>
-            holder.createErrorAnnotation(valueClass.nameId, ScalaBundle.message("value.class.can.have.only.one.parameter"))
+            holder.createErrorAnnotation(valueClass.nameId.forHighlighting, ScalaBundle.message("value.class.can.have.only.one.parameter"))
         }
       case _ => //when is this possible?
     }
 
     valueClass.secondaryConstructors.foreach { constr =>
-      holder.createErrorAnnotation(constr.nameId, ScalaBundle.message("illegal.secondary.constructors.value.class"))
+      holder.createErrorAnnotation(constr.nameId.forHighlighting, ScalaBundle.message("illegal.secondary.constructors.value.class"))
     }
   }
 
@@ -114,7 +114,7 @@ object ScClassAnnotator extends ElementAnnotator[ScClass] {
     case Some(tpClause) => tpClause.typeParameters.filter(_.hasAnnotation("scala.specialized")).foreach {
       tpParam =>
         val message: String = ScalaBundle.message("type.parameter.value.class.may.not.be.specialized")
-        holder.createErrorAnnotation(tpParam.nameId, message)
+        holder.createErrorAnnotation(tpParam.nameId.forHighlighting, message)
     }
     case _ =>
   }

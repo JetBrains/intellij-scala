@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPatternList
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement.NameId
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScPackaging, ScTypedDefinition}
@@ -37,7 +38,12 @@ class ScReferencePatternImpl private(stub: ScBindingPatternStub[ScReferencePatte
 
   override def isIrrefutableForImpl(t: Option[ScType]): Boolean = true
 
-  override def nameId: PsiElement = findChildByType[PsiElement](TokenSets.ID_SET)
+  override def nameId: NameId.Placed = {
+    findLastChildByType(TokenSets.ID_SET) match {
+      case Some(id) => NameId.fromIdSetToken(id)
+      case None => new NameId.Error(findLastChildByType(TokenType.ERROR_ELEMENT))
+    }
+  }
 
   override def toString: String = "ReferencePattern: " + ifReadAllowed(name)("")
 

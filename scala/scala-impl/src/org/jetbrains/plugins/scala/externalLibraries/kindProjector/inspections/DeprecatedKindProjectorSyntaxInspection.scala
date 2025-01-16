@@ -11,13 +11,14 @@ import org.jetbrains.plugins.scala.externalLibraries.kindProjector.inspections.D
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement.NameId
 import org.jetbrains.plugins.scala.project._
 
 class DeprecatedKindProjectorSyntaxInspection extends LocalInspectionTool {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case DeprecatedIdentifier(e, qf, message) =>
       //noinspection ReferencePassedToNls
-      holder.registerProblem(e, message, qf.toArray[LocalQuickFix]: _*)
+      holder.registerProblem(e.forHighlighting, message, qf.toArray[LocalQuickFix]: _*)
     case _ =>
   }
 }
@@ -32,14 +33,14 @@ object DeprecatedKindProjectorSyntaxInspection {
       else ScalaInspectionBundle.message("kind.projector.deprecated.tip.with.update")
 
   object DeprecatedIdentifier {
-    def unapply(e: PsiElement): Option[(PsiElement, Option[LocalQuickFix], String)] =
+    def unapply(e: PsiElement): Option[(NameId, Option[LocalQuickFix], String)] =
       if (!e.kindProjectorPluginEnabled) None
       else
         e match {
           case (ref: ScReference) & Parent(_: ScSimpleTypeElement)
               if kindProjectorDeprecatedNames.contains(ref.refName) =>
             val (msg, quickFix) = deprecationMessageAndQuickFix(ref)
-            Option((ref.nameId, quickFix, msg))
+            Some((ref.nameId, quickFix, msg))
           case _ => None
         }
   }

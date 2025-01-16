@@ -39,7 +39,7 @@ object AddTailRecursionAnnotationIntention {
   object CanBeTailRecursive {
 
     def unapply(element: PsiElement): Option[ScFunctionDefinition] = element.getParent match {
-      case function: ScFunctionDefinition if function.nameId == element &&
+      case function: ScFunctionDefinition if function.nameId.isElement(element) &&
         findTailRecursionAnnotation(function).isEmpty &&
         function.recursiveReferencesGrouped.tailRecursionOnly => Some(function)
       case _ => None

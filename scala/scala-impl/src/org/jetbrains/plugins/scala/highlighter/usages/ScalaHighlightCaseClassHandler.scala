@@ -23,7 +23,7 @@ class ScalaHighlightCaseClassHandler(reference: ScReference, caseClass: ScClass,
   override protected def addOccurrence(element: PsiElement): Unit = {
     if (element != null && element.getContainingFile == file)
       super.addOccurrence(element match {
-        case ref: ScStableCodeReference => ref.nameId
+        case ref: ScStableCodeReference => ref.nameId.placeElement
         case e => e
       })
   }
@@ -33,7 +33,7 @@ class ScalaHighlightCaseClassHandler(reference: ScReference, caseClass: ScClass,
     val manager = new ScalaFindUsagesHandler(caseClass, config)
     val localSearchScope = new LocalSearchScope(file)
 
-    addOccurrence(caseClass.nameId)
+    caseClass.nameId.place.foreach(addOccurrence)
 
     //highlight references to the constructor or class
     val references = manager.findReferencesToHighlight(caseClass, localSearchScope)

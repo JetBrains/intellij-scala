@@ -20,15 +20,19 @@ class ApiStatusInspection extends LocalInspectionTool {
       fun.superMethod.collectFirst {
         case Status(status) & sup if !elementsAreInTheSameModule(fun, sup) =>
           val name = fun.name
-          holder.registerProblem(fun.nameId, ScalaInspectionBundle.message("super.method.name.is.marked.as.status", name, status))
+          holder.registerProblem(
+            fun.nameId.forHighlighting,
+            ScalaInspectionBundle.message("super.method.name.is.marked.as.status", name, status)
+          )
       }
     case ref: ScReference if !ScalaPsiUtil.isInsideImportExpression(ref) =>
       ref match {
         case ResolvesTo(target@WithApiStatus(status)) if !elementsAreInTheSameModule(ref, target)  =>
-            ref.nameId.toOption.map { elementToHighlight =>
-              val name = ref.refName
-              holder.registerProblem(elementToHighlight, ScalaInspectionBundle.message("symbol.name.is.marked.as.status", name, status))
-            }
+          val name = ref.refName
+          holder.registerProblem(
+            ref.nameId.forHighlighting,
+            ScalaInspectionBundle.message("symbol.name.is.marked.as.status", name, status)
+          )
         case _ =>
       }
     case _ =>

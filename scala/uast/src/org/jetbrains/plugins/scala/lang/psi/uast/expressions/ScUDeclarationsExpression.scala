@@ -34,7 +34,7 @@ final class ScUValOrVarDeclarationsExpression(
   override def getDeclarations: util.List[UDeclaration] = {
     val declarations = for {
       elem <- scElement.declaredElements
-      refPattern <- Option(elem.nameId.getParent)
+      refPattern <- elem.nameId.place.map(_.getParent)
       // does not specify parent as `this` here to allow `UField`
       // to skip this uDeclaration as a parent and return `UClass` instead
       valOrVar <- refPattern.convertWithParentTo[UDeclaration]()

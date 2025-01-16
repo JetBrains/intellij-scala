@@ -150,7 +150,7 @@ object Associations extends AssociationsData.Companion(classOf[Associations], "S
     override val path: String
   ) extends BindingLike {
     override val aliasName: Option[String] = {
-      val referenceText = Option(reference.nameId).map(_.getText)
+      val referenceText = reference.nameId.name
       val lastNameInFqn = getInitAndLast._2
       referenceText.filter(_ != lastNameInFqn)
     }

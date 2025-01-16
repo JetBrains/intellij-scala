@@ -19,7 +19,7 @@ import scala.annotation.tailrec
 abstract class OverridingTargetNameInspectionBase extends TargetNameInspectionBase {
   override protected val findProblemElement: PartialFunction[PsiElement, ProblemElement] = Function.unlift {
     case param: ScClassParameter if !param.isVar && checkAnnotation(param) =>
-      findProblemElement(param, param.nameId, superValsSignatures(param))
+      findProblemElement(param, param.nameId.forHighlighting, superValsSignatures(param))
     case value: ScValueDeclaration if value.getIdList.fieldIds.sizeIs == 1 && checkAnnotation(value) =>
       val fieldId = value.declaredElements.head
       findProblemElement(value, fieldId, superValsSignatures(fieldId))
@@ -30,9 +30,9 @@ abstract class OverridingTargetNameInspectionBase extends TargetNameInspectionBa
       val binding = valOrVar.bindings.head
       findProblemElement(valOrVar, binding, superValsSignatures(binding))
     case function: ScFunction if checkAnnotation(function) =>
-      findProblemElement(function, function.nameId, function.superSignaturesIncludingSelfType)
+      findProblemElement(function, function.nameId.forHighlighting, function.superSignaturesIncludingSelfType)
     case typeAlias: ScTypeAlias if checkAnnotation(typeAlias) =>
-      findProblemElement(typeAlias, typeAlias.nameId, superTypeSignatures(typeAlias))
+      findProblemElement(typeAlias, typeAlias.nameId.forHighlighting, superTypeSignatures(typeAlias))
     case _ => None
   }
 

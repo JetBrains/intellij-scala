@@ -68,5 +68,5 @@ final class ScUAnnotation(override protected val scElement: ScAnnotation,
 
   @Nullable
   override def getUastAnchor: UIdentifier =
-    scReference.map(ref => createUIdentifier(ref.nameId, this)).orNull
+    scReference.map(ref => createUIdentifier(ref.nameId.placeElement, this)).orNull
 }

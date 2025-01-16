@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement.NameId
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
@@ -106,7 +107,7 @@ object SyntheticNamedElement {
 final class ScSyntheticTypeParameter(override val name: String, override val owner: ScFun)
   extends SyntheticNamedElement(name)(owner.projectContext) with ScTypeParam with PsiClassFake {
 
-  override def nameId: PsiElement = null
+  override def nameId: NameId = new NameId.SyntheticName(name)
 
   override def typeParameterText: String = name
 

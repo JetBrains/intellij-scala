@@ -18,7 +18,7 @@ class ConvertFromInfixExpressionIntention extends PsiElementBaseIntentionAction 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     val infixExpr = PsiTreeUtil.getParentOfType(element, classOf[ScInfixExpr], false)
     if (infixExpr == null) return false
-    val range: TextRange = infixExpr.operation.nameId.getTextRange
+    val range: TextRange = infixExpr.operation.nameId.textRange
     val offset = editor.getCaretModel.getOffset
     range.getStartOffset <= offset && offset <= range.getEndOffset
   }

@@ -139,8 +139,8 @@ final class ScalaLineMarkerProvider extends LineMarkerProviderDescriptor {
     }
 
     if (isIdentifier && notReference) {
-      def containsNamedElement(holder: ScDeclaredElementsHolder) =
-        holder.declaredElements.exists(_.asInstanceOf[ScNamedElement].nameId == element)
+      def containsNamedElement(holder: ScValueOrVariable) =
+        holder.declaredElements.exists(_.nameId.isElement(element))
 
       val text = element.getText
 
@@ -299,8 +299,6 @@ private object GutterUtil {
   def collectInheritingClassesMarker(aClass: ScTypeDefinition): Option[LineMarkerInfo[_ <: PsiElement]] = {
     val inheritor = ClassInheritorsSearch.search(aClass, false).findFirst.toOption
     inheritor.map { _ =>
-      val range = aClass.nameId.getTextRange
-
       val icon = aClass match {
         case _: ScTrait => ImplementedMethod
         case _ => OverridenMethod
@@ -310,9 +308,10 @@ private object GutterUtil {
         return None
       }
 
+      val nameId = aClass.nameId
       val info = new LineMarkerInfo(
-        aClass.nameId,
-        range,
+        nameId.forNavigation,
+        nameId.forHighlighting.getTextRange,
         icon,
         subclassedClass.tooltipProvider,
         subclassedClass.navigationHandler,
@@ -400,11 +399,18 @@ private object GutterUtil {
             identifier.getTextRange,
             iconFor(typeDefinition, swapped),
             (_: PsiElement) =>
-              GutterTooltipHelper.getTooltipText(singletonList(companion.nameId.getPrevSiblingNotWhitespace), ScalaBundle.message("has.companion", nameOf(companion)), false, IdeActions.ACTION_GOTO_DECLARATION)
-                .replace("to navigate", "on the keyword to navigate"), // Not internationalizable (which is somewhat OK).
+              GutterTooltipHelper.getTooltipText(
+                  singletonList(companion.targetToken),
+                  ScalaBundle.message("has.companion", nameOf(companion)),
+                  false,
+                  IdeActions.ACTION_GOTO_DECLARATION
+              ).replace("to navigate", "on the keyword to navigate"), // Not internationalizable (which is somewhat OK).
             (_: MouseEvent, _: PsiElement) =>
-              Option(PsiNavigationSupport.getInstance.createNavigatable(companion.getProject,
-                companion.getContainingFile.getVirtualFile, companion.nameId.getPrevSiblingNotWhitespace.startOffset)).foreach(_.navigate(true)),
+              Option(PsiNavigationSupport.getInstance.createNavigatable(
+                companion.getProject,
+                companion.getContainingFile.getVirtualFile,
+                companion.targetToken.startOffset,
+              )).foreach(_.navigate(true)),
             Alignment.LEFT,
             ScalaBundle.message("go.to.companion", nameOf(companion))          )
           NavigateAction.setNavigateAction(info, ScalaBundle.message("go.to.companion", nameOf(companion)), IdeActions.ACTION_GOTO_DECLARATION)

@@ -41,7 +41,7 @@ object ScTypeBoundsOwnerAnnotator extends ElementAnnotator[ScTypeBoundsOwner] {
       cbType.foreach { tpe =>
         ScParameterizedTypeElementAnnotator.annotateTypeArgs[PsiElement](
           extractTypeParameters(tpe),
-          Seq(element.nameId),
+          Seq(element.nameId.forHighlighting),
           cbTypeElem.getTextRange,
           ScSubstitutor.empty,
           tpe.presentableText(cbTypeElem),

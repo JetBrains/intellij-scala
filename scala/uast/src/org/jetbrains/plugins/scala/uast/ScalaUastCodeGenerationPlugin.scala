@@ -39,7 +39,7 @@ final class ScalaUastCodeGenerationPlugin extends UastCodeGenerationPlugin {
     val source = reference.getSourcePsi.asOptionOf[ScReference].orNull
     if (source == null) return null
 
-    val ptr = SmartPointerManager.createPointer(source.nameId)
+    val ptr = SmartPointerManager.createPointer(source.nameId.placeElement)
 
     ImportStableMemberIntention.invokeOn(source)(source.getProject)
 

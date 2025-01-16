@@ -70,9 +70,9 @@ class ExpandPatternIntention extends PsiElementBaseIntentionAction {
             .flatMap(nestedPatternText)
 
           patText.map { patText =>
-            nameId.getText match {
-              case "_"  => (typedPattern, patText)
-              case name => (typedPattern, s"$name@$patText")
+            nameId.name match {
+              case Some(name) => (typedPattern, s"$name@$patText")
+              case None => (typedPattern, patText)
             }
           }
         case _ => None

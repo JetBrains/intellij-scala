@@ -252,7 +252,7 @@ object AddOnlyStrategy {
         }
 
         parameter
-          .nameId
+          .nameId.prepareToReplace()
           .appendSiblings(
             createColon,
             createWhitespace,

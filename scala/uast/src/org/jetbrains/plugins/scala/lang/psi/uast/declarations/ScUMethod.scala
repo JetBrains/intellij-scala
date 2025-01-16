@@ -68,9 +68,9 @@ final class ScUMethod(override protected val scElement: ScMethodLike,
   @Nullable
   override def getUastAnchor: UIdentifier = getSourcePsi match {
     case pc: ScPrimaryConstructor =>
-      createUIdentifier(pc.containingClass.nameId, this)
+      createUIdentifier(pc.containingClass.nameId.place.orNull, this)
     case named: ScNamedElement =>
-      createUIdentifier(named.nameId, this)
+      createUIdentifier(named.nameId.place.orNull, this)
     case nameId: PsiNameIdentifierOwner =>
       createUIdentifier(nameId.getNameIdentifier, this)
     case otherwise =>

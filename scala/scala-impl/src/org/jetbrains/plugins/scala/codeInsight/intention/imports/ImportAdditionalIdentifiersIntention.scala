@@ -5,6 +5,7 @@ import com.intellij.codeInsight.intention.preview.{IntentionPreviewInfo, Intenti
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiWhiteSpace}
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
@@ -41,18 +42,18 @@ class ImportAdditionalIdentifiersIntention extends PsiElementBaseIntentionAction
   }
 
   @tailrec
-  private def check(project: Project, editor: Editor, element: PsiElement): Option[() => Unit] = {
+  private def check(project: Project, editor: Editor, @Nullable element: PsiElement): Option[() => Unit] = {
     element match {
       case _: PsiWhiteSpace if element.getPrevSibling != null &&
         editor.getCaretModel.getOffset == element.getPrevSibling.getTextRange.getEndOffset =>
         val prev = element.getContainingFile.findElementAt(element.getPrevSibling.getTextRange.getEndOffset - 1)
         check(project, editor, prev)
       case null => None
-      case ChildOf(id: ScStableCodeReference) if id.nameId == element =>
+      case ChildOf(id: ScStableCodeReference) if id.nameId.isElement(element) =>
         id.getParent match {
           case imp@ScImportExpr.qualifier(qualifier) if imp.selectorSet.isEmpty =>
             val doIt = () => {
-              val name = s"${qualifier.getText}.{${id.nameId.getText}}"
+              val name = s"${qualifier.getText}.{${id.nameId.forcedName}}"
 
               IntentionPreviewUtils.write { () =>
                 val replaced = imp.replace(ScalaPsiElementFactory.createImportExprFromText(name, element))

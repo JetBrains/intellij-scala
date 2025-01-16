@@ -21,7 +21,7 @@ class VariablePatternShadowInspection extends LocalInspectionTool {
         new ConvertToStableIdentifierPatternFix(refPat),
         new RenameVariablePatternFix(refPat)
       )
-      holder.registerProblem(refPat.nameId, description, quickFixes: _*)
+      holder.registerProblem(refPat.nameId.forHighlighting, description, quickFixes: _*)
     case _ =>
   }
 }

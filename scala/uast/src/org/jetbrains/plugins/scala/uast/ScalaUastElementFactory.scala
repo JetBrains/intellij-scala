@@ -90,9 +90,9 @@ final class ScalaUastElementFactory(project: Project) extends UastElementFactory
 
     callExpr.getInvokedExpr match {
       case named: ScNamedElement =>
-        named.nameId.replace(methodIdentifier)
+        named.nameId.prepareToReplace().replace(methodIdentifier)
       case ref: ScReference =>
-        ref.nameId.replace(methodIdentifier)
+        ref.nameId.prepareToReplace().replace(methodIdentifier)
       case _ =>
     }
 

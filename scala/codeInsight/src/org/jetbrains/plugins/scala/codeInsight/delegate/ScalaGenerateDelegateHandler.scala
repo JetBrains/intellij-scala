@@ -89,7 +89,7 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
       val typeParams = prototype.typeParameters
       val parametersAndRetType = prototype.parameters ++ prototype.returnTypeElement
       if (typeParams.exists(!typeParameterUsedIn(_, parametersAndRetType))) {
-        typeParams.map(_.nameId.getText).commaSeparated(Model.SquareBrackets)
+        typeParams.map(_.nameId.forcedName).commaSeparated(Model.SquareBrackets)
       }
       else ""
     }

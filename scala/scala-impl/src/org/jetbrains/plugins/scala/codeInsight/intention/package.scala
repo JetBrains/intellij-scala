@@ -71,7 +71,7 @@ package object intention {
 
   def caretIsInRange(operation: ScReferenceExpression)
                     (implicit editor: Editor): Boolean = {
-    val range = operation.nameId.getTextRange
+    val range = operation.nameId.textRange
     val offset = editor.getCaretModel.getOffset
     range.getStartOffset <= offset && offset <= range.getEndOffset
   }

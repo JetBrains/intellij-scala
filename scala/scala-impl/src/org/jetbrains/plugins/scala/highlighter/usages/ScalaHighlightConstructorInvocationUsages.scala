@@ -39,7 +39,7 @@ class ScalaHighlightConstructorInvocationUsages(reference: Option[ScReference], 
   override protected def addOccurrence(element: PsiElement): Unit = {
     if (element != null && element.getContainingFile == file)
       super.addOccurrence(element match {
-        case ref: ScStableCodeReference => ref.nameId
+        case ref: ScStableCodeReference => ref.nameId.placeElement
         case e => e
       })
   }

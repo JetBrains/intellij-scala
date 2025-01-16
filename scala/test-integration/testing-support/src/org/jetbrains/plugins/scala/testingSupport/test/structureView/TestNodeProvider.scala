@@ -77,7 +77,10 @@ class TestNodeProvider extends FileStructureNodeProvider[TreeElement] {
               case _ => tryTupledId(valElement.element)
             }
           case named: ScNamedElement =>
-            tryTupledId(named.nameId)
+            named.nameId.place match {
+              case Some(nameId) => tryTupledId(nameId)
+              case _ => emptyList
+            }
           case _ =>
             emptyList
         }

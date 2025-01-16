@@ -76,7 +76,7 @@ final class ScalaMoveMemberHandler extends MoveJavaMemberHandler {
       case importExpr: ScImportExpr => importExpr.deleteExpr()
       case importSelector: ScImportSelector => importSelector.deleteSelector(removeRedundantBraces = true)
       case _ =>
-        val identifier = ref.nameId
+        val identifier = ref.nameId.placeElement
         val beforeId = identifier.getPrevSibling
         ref.deleteChildRange(qualifier, beforeId)
     }

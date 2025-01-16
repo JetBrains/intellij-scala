@@ -8,6 +8,6 @@ object ScVariableDeclarationAnnotator extends ElementAnnotator[ScVariableDeclara
 
   override def annotate(element: ScVariableDeclaration, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
-    checkAbstractMemberPrivateModifier(element, element.declaredElements.map(_.nameId))
+    checkAbstractMemberPrivateModifier(element, element.declaredElements.map(_.nameId.forHighlighting))
   }
 }

@@ -114,9 +114,9 @@ final class CopyTypeAction extends AnAction(ScalaBundle.message("copy.scala.type
         e match {
           case e: ScalaPsiElement with Typeable  =>
             return Some(e)
-          case Parent(p: ScTypeDefinition) if p.nameId == e =>
+          case Parent(p: ScTypeDefinition) if p.nameId.isElement(e) =>
             return Some(p)
-          case Parent(f: ScFunction) if f.nameId == e =>
+          case Parent(f: ScFunction) if f.nameId.isElement(e) =>
             return Some(f)
           case _ =>
         }

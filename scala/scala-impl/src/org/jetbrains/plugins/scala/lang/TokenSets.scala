@@ -29,9 +29,13 @@ object TokenSets {
     TYPED_PATTERN
   )
 
+  val TYPE_WILDCARD_SET: TokenSet = TokenSet.create(tUNDER, WildcardTypeQuestionMark)
+
   val ID_SET: TokenSet = TokenSet.create(tIDENTIFIER, tUNDER)
 
   val SELF_TYPE_ID: TokenSet = TokenSet.create(kTHIS, tIDENTIFIER, tUNDER)
+
+  val FUNCTION_OR_SECONDARY_CONSTRUCTOR_ID_SET: TokenSet = TokenSet.create(tIDENTIFIER, kTHIS)
 
   val ALIASES_SET: TokenSet = TokenSet.create(TYPE_DECLARATION, TYPE_DEFINITION)
 

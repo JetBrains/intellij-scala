@@ -178,12 +178,8 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
 
           val isOk = isDirectlyImplemented || hasOnlyImplicitOrDefaultParameters(cons) || isExtendedBySuperClass
           if (!isOk) {
-            val anchor =
-              if (tdef.is[ScNewTemplateDefinition]) tdef.getFirstChild
-              else                                  tdef.nameId
-
             holder.createErrorAnnotation(
-              anchor,
+              tdef.nameId.forHighlighting,
               ScalaBundle.message("parameterised.trait.is.implemented.indirectly", tr.name)
             )
           }
@@ -474,7 +470,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
           for {
             place <- element match {
               case _ if !flag => None
-              case typeDefinition: ScTypeDefinition => Some(typeDefinition.nameId)
+              case typeDefinition: ScTypeDefinition => Some(typeDefinition.nameId.forHighlighting)
               case templateDefinition: ScNewTemplateDefinition =>
                 templateDefinition.extendsBlock.templateParents
                   .flatMap(_.typeElements.headOption)
@@ -503,9 +499,8 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
   }
 
   def needsToBeAbstractFixes(element: ScTemplateDefinition): Iterable[CommonIntentionAction] = {
-    val nameId = element.nameId
     val maybeModifierFix = element match {
-      case cls: ScClass => Some(new ModifierQuickFix.Add(cls, nameId, ScalaModifier.Abstract))
+      case cls: ScClass => Some(new ModifierQuickFix.Add(cls, element.nameId.name, ScalaModifier.Abstract))
       case _ => None
     }
 
@@ -520,11 +515,11 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
 
   private def getHighlightingStartOffset(definition: ScTemplateDefinition): Int =
     definition match {
-      case enumCase: ScEnumCase => enumCase.nameId.startOffset
+      case enumCase: ScEnumCase => enumCase.nameId.forHighlighting.startOffset
       case _ =>
         definition.getModifierList
           .pipe { modifierList =>
-            if (modifierList == null) definition.nameId.startOffset
+            if (modifierList == null) definition.nameId.forHighlighting.startOffset
             else stripAnnotationsFromModifierList(modifierList)
           }
     }

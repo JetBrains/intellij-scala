@@ -112,7 +112,7 @@ class ScalaChangeSignatureHandler extends ChangeSignatureHandler with ScalaRefac
   override def getTargetNotFoundMessage: String = ScalaBundle.message("error.wrong.caret.position.method.name")
 
   override def findTargetMember(element: PsiElement): PsiElement = {
-    if (element.isInstanceOf[PsiMethod]) return element
+    if (element.is[PsiMethod]) return element
 
     def resolvedMethod = PsiTreeUtil.getParentOfType(element, classOf[ScReference]) match {
       case null => null
@@ -130,7 +130,8 @@ class ScalaChangeSignatureHandler extends ChangeSignatureHandler with ScalaRefac
       case c: ScClass =>
         c.constructor match {
           case Some(constr)
-            if PsiTreeUtil.isAncestor(c.nameId, element, false) || PsiTreeUtil.isAncestor(constr, element, false) => constr
+            if c.nameId.place.exists(_.isAncestorOf(element, strict = false)) || PsiTreeUtil.isAncestor(constr, element, false) =>
+            constr
           case _ => null
         }
     }
@@ -140,7 +141,7 @@ class ScalaChangeSignatureHandler extends ChangeSignatureHandler with ScalaRefac
   override def findTargetMember(file: PsiFile, editor: Editor): PsiElement = {
     val offset = editor.getCaretModel.getOffset
     val element = file.findElementAt(offset)
-    Option(findTargetMember(element)) getOrElse {
+    Option(element).map(findTargetMember).getOrElse {
       file.findReferenceAt(offset) match {
         case ResolvesTo(m: PsiMethod) => m
         case _ => null

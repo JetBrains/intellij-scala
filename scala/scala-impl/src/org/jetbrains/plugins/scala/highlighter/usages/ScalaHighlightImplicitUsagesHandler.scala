@@ -36,7 +36,11 @@ class ScalaHighlightImplicitUsagesHandler[T](editor: Editor, file: PsiFile, data
     val usages = targets.asScala
       .flatMap(findUsages(file, _))
       .flatMap(ReferenceRange.getAbsoluteRanges(_).asScala)
-    val targetIds = targets.asScala.flatMap(nameId)
+    val targetIds = targets.asScala
+      .filterByType[ScNamedElement]
+      .filter(_.getContainingFile == file)
+      .map(_.nameId.forHighlighting)
+      .map(_.getTextRange)
     myReadUsages.addAll((targetIds ++ usages).asJava)
   }
 
@@ -57,22 +61,6 @@ class ScalaHighlightImplicitUsagesHandler[T](editor: Editor, file: PsiFile, data
     ScalaHighlightUsagesHandlerFactory.implicitHighlightingEnabled.withValue(false) {
       HighlightUsagesHandler.invoke(editor.getProject, editor, file)
     }
-
-  private def nameId(target: PsiElement): Option[TextRange] = target match {
-    case target if target.getContainingFile != file =>
-      None
-    case givenDefinition: ScGivenDefinition =>
-      givenDefinition.nameElement
-        .orElse(
-          givenDefinition.extendsBlock.templateParents
-            .flatMap(_.firstParentClause.map(_.typeElement))
-        )
-        .map(_.getTextRange)
-    case named: ScNamedElement =>
-      named.nameId.toOption.map(_.getTextRange)
-    case _ =>
-      None
-  }
 }
 
 object ScalaHighlightImplicitUsagesHandler {

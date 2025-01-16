@@ -46,14 +46,14 @@ final class FlipComparisonInInfixExprIntention extends PsiElementBaseIntentionAc
 
     val ScInfixExpr.withAssoc(ElementText(baseText), operation, ElementText(argumentText)) = infixExpr
 
-    val start = infixExpr.getTextRange.getStartOffset
-    val diff = editor.getCaretModel.getOffset - operation.nameId.getTextRange.getStartOffset
+    val start = infixExpr.startOffset
+    val diff = editor.getCaretModel.getOffset - operation.nameId.startOffset
 
     import infixExpr.projectContext
     val newInfixExpr = createFlippedInfixExpr(baseText, operation, argumentText)(element)
 
-    val size = newInfixExpr.operation.nameId.getTextRange.getStartOffset -
-      newInfixExpr.getTextRange.getStartOffset
+    val size = newInfixExpr.operation.nameId.startOffset -
+      newInfixExpr.startOffset
 
     IntentionPreviewUtils.write { () =>
       infixExpr.replace(newInfixExpr)

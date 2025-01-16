@@ -34,7 +34,7 @@ class TypeParameterShadowInspection extends LocalInspectionTool {
     isShadowing(typeParam) match {
       case Some(_) =>
         //noinspection ScalaExtractStringToBundle,ReferencePassedToNls
-        holder.registerProblem(typeParam.nameId, getDisplayName + ": " + typeParam.name, new RenameTypeParameterFix(typeParam))
+        holder.registerProblem(typeParam.nameId.forHighlighting, getDisplayName + ": " + typeParam.name, new RenameTypeParameterFix(typeParam))
       case _ =>
     }
   }

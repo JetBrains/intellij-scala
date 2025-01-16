@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.highlighter
 import com.intellij.openapi.editor.DefaultLanguageHighlighterColors
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.{PsiClass, PsiElement, PsiField, PsiMethod, PsiModifierListOwner}
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiMemberExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
@@ -59,7 +60,7 @@ object ScalaColorsSchemeUtils {
       case _ => None
     }
 
-  def textAttributesKey(resolvedElement: PsiElement,
+  def textAttributesKey(@Nullable resolvedElement: PsiElement,
                         refElement: Option[ScReference] = None,
                         qualNameToType: Map[String, StdType] = Map.empty): TextAttributesKey =
     resolvedElement match {

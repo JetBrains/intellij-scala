@@ -1,3 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base.patterns
 
-trait ScWildcardPattern extends ScPattern
+import com.intellij.psi.PsiElement
+
+trait ScWildcardPattern extends ScPattern {
+  def underscoreToken: PsiElement
+}

@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.TokenSets
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement.NameId
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScBindingPatternStub
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -27,7 +28,7 @@ class ScSeqWildcardPatternImpl private(stub: ScBindingPatternStub[ScSeqWildcardP
   //   ScConstructorPattern.extractsRepeatedParameterIrrefutably
   override def isIrrefutableForImpl(t: Option[ScType]): Boolean = false
 
-  override def nameId: PsiElement = findChildByType[PsiElement](TokenSets.ID_SET)
+  override def nameId: NameId.Placed = NameId.fromIdSetToken(findChildByType[PsiElement](TokenSets.ID_SET))
 
   override def toString: String = "SequenceWildcardPattern: " + ifReadAllowed(name)("")
 

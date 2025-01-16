@@ -5,6 +5,7 @@ import com.intellij.psi.{PsiElement, PsiTypeParameterListOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement.NameId
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
 import org.jetbrains.plugins.scala.lang.psi.types.api
@@ -41,7 +42,16 @@ class DummyLightTypeParam(override val name: String)(implicit pc: ProjectContext
 
   override def owner: ScTypeParametersOwner = notSupported
 
-  override def nameId: PsiElement = notSupported
+  override def nameId: NameId.NonAnonymous = new NameId.NonAnonymous {
+    override def name: Some[String] = Some(DummyLightTypeParam.this.name)
+    override def explicitName: Option[String] = Some(DummyLightTypeParam.this.name)
+    override def forcedName: String = DummyLightTypeParam.this.name
+    override def forHighlighting: PsiElement = DummyLightTypeParam.this
+    override def explicitIdentifier: Option[PsiElement] = None
+    override def place: Option[PsiElement] = None
+    override def isElement(element: PsiElement): Boolean = false
+    override def prepareToReplace(): PsiElement = notSupported
+  }
 
   override protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = notSupported
 
@@ -49,5 +59,5 @@ class DummyLightTypeParam(override val name: String)(implicit pc: ProjectContext
 
   override def getOwner: PsiTypeParameterListOwner = notSupported
 
-  private def notSupported = throw new UnsupportedOperationException("Operation on light existential type parameter")
+  private def notSupported: Nothing = throw new UnsupportedOperationException("Operation on light existential type parameter")
 }

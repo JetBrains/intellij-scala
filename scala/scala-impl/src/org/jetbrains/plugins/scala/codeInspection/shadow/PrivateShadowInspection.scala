@@ -56,7 +56,7 @@ final class PrivateShadowInspection extends LocalInspectionTool {
     if (!fatalWarningsCompilerOption)
       fixes.addOne(LocalQuickFix.from(new UpdateInspectionOptionFix(this, fatalWarningsPropertyName, ScalaInspectionBundle.message("fix.private.shadow.fatal.warnings.label"), true)))
     manager.createProblemDescriptor(
-      elem.nameId,
+      elem.nameId.forHighlighting,
       description,
       isOnTheFly,
       fixes.result(),

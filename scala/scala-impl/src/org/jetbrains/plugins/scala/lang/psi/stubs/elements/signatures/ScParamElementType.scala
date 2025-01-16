@@ -53,7 +53,7 @@ abstract class ScParamElementType[P <: ScParameter](debugName: String) extends S
     val defaultExprText = parameter.getActualDefaultExpression.map {
       _.getText
     }
-    val isAnonymous = parameter.nameId == null
+    val isAnonymous = parameter.nameId.isAnonymous
 
     new ScParameterStubImpl(parentStub, this,
       name = parameter.name,

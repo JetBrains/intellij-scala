@@ -32,7 +32,7 @@ private final class ScalaDeclarationUsageGroupingRule(forTypeDefinition: Boolean
       .filterByType[ScMember]
       .filterNot(_.isLocal)
       .filter {
-        case n: ScNamedElement => n.nameId != null
+        case n: ScNamedElement => !n.nameId.isAnonymous
         case v: ScValueOrVariable => v.declaredNames.size == 1 //show only simple val/var with single declaration
         case _ => false
       }.toSeq

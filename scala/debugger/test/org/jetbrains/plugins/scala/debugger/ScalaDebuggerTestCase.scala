@@ -11,7 +11,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.xdebugger.{XDebuggerManager, XDebuggerUtil}
 import org.jetbrains.java.debugger.breakpoints.properties.JavaLineBreakpointProperties
 import org.jetbrains.plugins.scala.compiler.ScalaExecutionTestCase
-import org.jetbrains.plugins.scala.extensions.{inReadAction, inWriteAction}
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inReadAction, inWriteAction}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.project._
@@ -128,7 +128,7 @@ abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaExecutio
       val file = method.get.getContainingFile
       val document = PsiDocumentManager.getInstance(getProject).getDocument(file)
       val vFile = file.getVirtualFile
-      val methodDefLine = method.get.nameId.getTextRange.getStartOffset
+      val methodDefLine = method.get.nameId.forNavigation.startOffset
       val methodLine = document.getLineNumber(methodDefLine)
       val lineNumber = methodLine + 1
 

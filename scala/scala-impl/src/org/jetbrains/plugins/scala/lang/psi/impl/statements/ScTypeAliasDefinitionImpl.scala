@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createIdentifier
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement.NameId
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.ScTopLevelStubBasedElement
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaStubBasedElementImpl}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeAliasStub
@@ -33,16 +33,11 @@ final class ScTypeAliasDefinitionImpl private(stub: ScTypeAliasStub, node: ASTNo
 
   def this(stub: ScTypeAliasStub) = this(stub, null)
 
-  override def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER) match {
-    case null =>
-      val name = getGreenStub.getName
-      val id = createIdentifier(name)
-      if (id == null) {
-        throw new AssertionError(s"Id is null. Name: $name. Text: $getText. Parent text: ${getParent.getText}.")
-      }
-      id.getPsi
-    case n => n
-  }
+  override def nameId: NameId =
+    findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER) match {
+      case null => new NameId.SyntheticName(getGreenStub.getName)
+      case n => new NameId.Name(n)
+    }
 
   override def isOpaqueIn(place: PsiElement): Boolean =
     isOpaque && (getContainingFile != place.getContainingFile || !place.parentsInFile.contains(getParent))

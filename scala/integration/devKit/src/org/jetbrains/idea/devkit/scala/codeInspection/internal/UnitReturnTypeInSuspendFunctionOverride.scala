@@ -14,8 +14,10 @@ final class UnitReturnTypeInSuspendFunctionOverride extends LocalInspectionTool 
     case function: ScFunction if function.hasModifierPropertyScala(ScalaModifier.OVERRIDE) && function.hasUnitResultType =>
       function.superMethod.foreach { method =>
         if (isSuspendFunction(method)) {
-          holder.registerProblem(function.nameId,
-            ScalaDevkitBundle.message("overridden.suspend.function.with.unit.return.type"))
+          holder.registerProblem(
+            function.nameId.forHighlighting,
+            ScalaDevkitBundle.message("overridden.suspend.function.with.unit.return.type")
+          )
         }
       }
     case _ =>

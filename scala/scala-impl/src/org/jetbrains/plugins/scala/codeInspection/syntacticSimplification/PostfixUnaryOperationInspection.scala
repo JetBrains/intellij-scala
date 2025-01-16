@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 final class PostfixUnaryOperationInspection extends LocalInspectionTool with DumbAware {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case ref: ScReferenceExpression if isPostfixUnaryOperation(ref) =>
-      holder.registerProblem(ref.nameId, getDisplayName, createQuickfix(ref, ref.qualifier.get, ref.refName))
+      holder.registerProblem(ref.nameId.forHighlighting, getDisplayName, createQuickfix(ref, ref.qualifier.get, ref.refName))
     case postfix: ScPostfixExpr if isPostfixUnaryOperation(postfix) =>
       holder.registerProblem(postfix.operation, getDisplayName, createQuickfix(postfix, postfix.operand, postfix.operation.refName))
     case _ =>

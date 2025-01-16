@@ -71,7 +71,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, keyword: String)
     val genericParams = genericParametersFor(ref)
     val parameters = parametersFor(ref)
 
-    val methodName = ref.nameId.getText
+    val methodName = ref.nameId.forcedName
     val params = (genericParams ++ parameters).mkString
     val typeAnnotation = if (entityType.isDefined) ": Int" else ""
     val unimplementedBody = " = ???"

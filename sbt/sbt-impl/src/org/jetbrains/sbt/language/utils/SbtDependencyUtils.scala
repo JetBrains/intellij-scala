@@ -645,7 +645,7 @@ object SbtDependencyUtils {
       elem match {
         case call: ScMethodCall =>
           call.getEffectiveInvokedExpr match {
-            case expr: ScReferenceExpression => expr.nameId.getTextOffset
+            case expr: ScReferenceExpression => expr.nameId.startOffset
             case _ => elem.getTextOffset
           }
         case _ => elem.getTextOffset

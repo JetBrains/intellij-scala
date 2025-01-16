@@ -20,7 +20,7 @@ abstract class AbstractMethodSignatureInspection extends LocalInspectionTool {
 
   protected def isApplicable(function: ScFunction): Boolean
 
-  protected def findProblemElement(function: ScFunction): Option[PsiElement] = Some(function.nameId)
+  protected def findProblemElement(function: ScFunction): Option[PsiElement] = Some(function.nameId.forHighlighting)
 
   protected def createQuickFix(function: ScFunction): Option[LocalQuickFix] = None
 }

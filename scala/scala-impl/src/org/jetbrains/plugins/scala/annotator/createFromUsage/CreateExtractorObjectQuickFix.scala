@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createMe
 class CreateExtractorObjectQuickFix(ref: ScReference, p: ScPattern)
   extends CreateTypeDefinitionQuickFix(ref, Object) {
 
-  override val getText: String = ScalaBundle.message("create.extractor.object.named", ref.nameId.getText)
+  override val getText: String = ScalaBundle.message("create.extractor.object.named", ref.nameId.forcedName)
   override val getFamilyName: String = ScalaBundle.message("family.name.create.extractor.object")
 
   override protected def afterCreationWork(clazz: ScTypeDefinition)(editor: Editor): Unit = {

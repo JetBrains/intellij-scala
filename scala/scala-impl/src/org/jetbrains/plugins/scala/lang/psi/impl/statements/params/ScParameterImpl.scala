@@ -4,7 +4,6 @@ package params
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.TokenSets
@@ -17,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScStringLiteral, 
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement.NameId
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGiven
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ParameterExpectedTypesUtil._
@@ -44,12 +43,7 @@ class ScParameterImpl protected(
 
   def this(stub: ScParameterStub) = this(stub, ScalaElementType.PARAM, null)
 
-  override def toString: String = "Parameter: " + ifReadAllowed {
-    if (nameId != null)
-      name
-    else
-      ScNamedElement.AnonymousPlaceholder
-  }("")
+  override def toString: String = "Parameter: " + ifReadAllowed(nameId.forcedName)("")
 
   override def isCallByNameParameter: Boolean = byStubOrPsi(_.isCallByNameParameter)(paramType.exists(_.isCallByNameParameter))
 
@@ -71,18 +65,21 @@ class ScParameterImpl protected(
    * @return `param` - in `def foo(param: Int)`<br>
    *         `null` - in anonymous context parameter: `def foo(using Int)`
    */
-  @Nullable
-  override def nameId: PsiElement =
-    findChildByType[PsiElement](TokenSets.ID_SET)
-
-  override protected def nameInner: String = {
-    val nameId = this.nameId
-    if (nameId != null)
-      nameId.getText
-    else {
-      //Anonimous Scala 3 using parameter (example: `(using String)`)
-      //Compiler uses `x$N` names for anonimous parameters, where `N` - position of the parameter among all parameters
-      s"x$$${index + 1}"
+  override def nameId: NameId = {
+    val token = findChildByType[PsiElement](TokenSets.ID_SET)
+    if (token == null) {
+      new NameId.Immaterial {
+        override def isAnonymous: Boolean = false
+        override def name: Some[String] = Some(forcedName)
+        override lazy val forcedName: String =
+          //Anonymous Scala 3 using parameter (example: `(using String)`)
+          //Compiler uses `x$N` names for anonimous parameters, where `N` - position of the parameter among all parameters
+          s"x$$${index + 1}"
+        override def forHighlighting: PsiElement = typeElement.getOrElse(ScParameterImpl.this)
+        override def prepareToReplace(): PsiElement = ???
+      }
+    } else {
+      NameId.fromIdSetToken(token)
     }
   }
 
@@ -115,7 +112,7 @@ class ScParameterImpl protected(
   override def isGivenConditional: Boolean = owner.is[ScGiven]
 
   override def isAnonymous: Boolean =
-    byPsiOrStub(nameId == null)(_.isAnonymous)
+    byPsiOrStub(nameId.isAnonymous)(_.isAnonymous)
 
   override def getTypeElement: PsiTypeElement = null
 

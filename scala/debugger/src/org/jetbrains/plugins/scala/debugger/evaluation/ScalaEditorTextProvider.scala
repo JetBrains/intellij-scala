@@ -38,8 +38,8 @@ class ScalaEditorTextProvider extends EditorTextProvider {
       case (_: ScReferenceExpression) childOf (mc: ScMethodCall) => allowed(mc)
       case (ref: ScReferenceExpression) childOf (inf: ScInfixExpr) if inf.operation == ref => allowed(inf)
       case expr: ScExpression => allowed(expr)
-      case b: ScBindingPattern => Some(b.nameId)
-      case p: ScParameter if !p.isCallByNameParameter || allowMethodCalls => Some(p.nameId)
+      case b: ScBindingPattern => b.nameId.place
+      case p: ScParameter if !p.isCallByNameParameter || allowMethodCalls => p.nameId.place
       case _ => None
     }
   }

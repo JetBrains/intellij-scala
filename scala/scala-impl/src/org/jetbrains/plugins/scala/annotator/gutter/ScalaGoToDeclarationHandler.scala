@@ -53,7 +53,9 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
         PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition]) match {
           case null => null
           case typeDefinition =>
-            typeDefinition.baseCompanion.map(_.nameId.getPrevSiblingNotWhitespace).toArray
+            typeDefinition.baseCompanion
+              .map(_.targetToken)
+              .toArray
         }
 
       case ScalaTokenTypes.tASSIGN =>

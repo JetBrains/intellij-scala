@@ -1,9 +1,11 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement.NameId
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
 trait ScNewTemplateDefinition extends ScExpression with ScTemplateDefinition {
+  override def nameId: NameId.NoName
   def firstConstructorInvocation: Option[ScConstructorInvocation]
 
   //It's very rare case, when we need to desugar apply first.

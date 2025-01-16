@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement.NameId
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGivenDefinition, ScMember}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, canNotBeOverridden}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.ScalaPsiElementCreationException
@@ -40,30 +41,24 @@ class ScGivenDefinitionImpl(
 
   override protected def targetTokenType: ScalaTokenType = ScalaTokenType.GivenKeyword
 
-  override def declaredElements: Seq[PsiNamedElement] = Seq(this)
+  override def declaredElements: Seq[ScNamedElement] = Seq(this)
 
   override def isObject: Boolean = typeParametersClause.isEmpty && parameters.isEmpty
 
-  override def nameId: PsiElement = {
-    def typeElement =
-      extendsBlock.templateParents
-        .flatMap(_.firstParentClause)
-        .map(_.typeElement)
-    nameElement
-      .orElse(typeElement)
-      .orNull
-  }
+  override def nameId: NameId.NonAnonymous =
+    new ScGivenImpl.GivenNameId[ScGivenDefinitionImpl](this) {
+      override def generateName: String = ScalaPsiUtil.generateGivenName(givenImpl.typeElements)
+      override def forHighlighting: PsiElement =
+        givenImpl.nameElement
+          .orElse(givenImpl.typeElements.headOption)
+          .getOrElse(givenImpl.givenToken)
+    }
 
   override def givenType(): TypeResult =
     typeElements
       .headOption
       .map(_.`type`())
       .getOrElse(`type`())
-
-  override protected def nameInner: String =
-    nameElement
-      .map(_.getText)
-      .getOrElse(ScalaPsiUtil.generateGivenName(typeElements: _*))
 
   private def typeElements: Seq[ScTypeElement] =
     extendsBlock

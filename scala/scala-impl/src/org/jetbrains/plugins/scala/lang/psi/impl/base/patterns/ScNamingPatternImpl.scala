@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.TokenSets
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement.NameId
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScBindingPatternStub
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -25,7 +26,7 @@ class ScNamingPatternImpl private(stub: ScBindingPatternStub[ScNamingPattern], n
 
   override def toString: String = "NamingPattern: " + ifReadAllowed(name)("")
 
-  override def nameId: PsiElement = findChildByType[PsiElement](TokenSets.ID_SET)
+  override def nameId: NameId.Placed = NameId.fromIdSetToken(findChildByType[PsiElement](TokenSets.ID_SET))
 
   // seq-wildcard patterns are handled in ScSeqWildcardPattern
   override def `type`(): TypeResult =

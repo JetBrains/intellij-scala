@@ -58,7 +58,7 @@ trait ScUClassCommon extends UClass with ScUAnnotated {
       case valOrVar: ScValueOrVariable =>
         for {
           elem <- valOrVar.declaredElements
-          refPattern <- Option(elem.nameId.getParent)
+          refPattern <- elem.nameId.place.map(_.getParent)
           uFieldFromValOrVarClause <- refPattern.convertTo[UField](this)
         } uFields += uFieldFromValOrVarClause
 

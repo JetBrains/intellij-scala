@@ -86,6 +86,14 @@ trait ScalaPsiElement extends PsiElement
     builder.result()
   }
 
+  def findFirstChildByType(set: tree.TokenSet): Option[PsiElement] = {
+    var node = getNode.getFirstChildNode
+    while (node != null && !set.contains(node.getElementType)) {
+      node = node.getTreeNext
+    }
+    Option(node).map(_.getPsi)
+  }
+
   def findLastChildByType(set: tree.TokenSet): Option[PsiElement] = {
     var node = getNode.getLastChildNode
     while (node != null && !set.contains(node.getElementType)) {

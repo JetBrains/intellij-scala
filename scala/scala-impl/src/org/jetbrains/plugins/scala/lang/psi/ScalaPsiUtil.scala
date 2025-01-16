@@ -1740,7 +1740,7 @@ object ScalaPsiUtil {
     parentNode.removeChild(elementNode)
   }
 
-  def generateGivenName(tes: ScTypeElement*): String = {
+  def generateGivenName(tes: Seq[ScTypeElement]): String = {
     // refercne: https://docs.scala-lang.org/scala3/reference/contextual/relationship-implicits.html#
 
     def fallback(te: ScTypeElement): String =

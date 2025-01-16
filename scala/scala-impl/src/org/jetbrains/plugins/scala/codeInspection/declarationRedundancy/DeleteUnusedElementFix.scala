@@ -59,8 +59,8 @@ private class DeleteUnusedElementFix(e: ScNamedElement, override val getText: St
           // val (_, b) = t
           ref.replace(createWildcardPattern(project))
       }
-      case typed: ScTypedPattern => typed.nameId.replace(wildcard)
-      case p: ScParameter => p.nameId.replace(wildcard)
+      case typed: ScTypedPattern => typed.nameId.placeElement.replace(wildcard)
+      case p: ScParameter => p.nameId.place.foreach(_.replace(wildcard))
       case naming: ScNamingPattern => naming.replace(naming.named)
       case _ => startElement.delete()
     }

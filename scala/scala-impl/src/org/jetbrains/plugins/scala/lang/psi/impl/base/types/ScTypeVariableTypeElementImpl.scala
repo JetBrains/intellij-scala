@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base.types
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.extensions.{ToNullSafe, ifReadAllowed}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.extensions.ifReadAllowed
+import org.jetbrains.plugins.scala.lang.TokenSets
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeVariableTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement.NameId
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing, TypeParameter, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -14,9 +14,7 @@ class ScTypeVariableTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(n
 
   override def innerType: TypeResult = Right(tvType)
 
-  override def nameId: PsiElement =
-    findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER).nullSafe
-      .getOrElse(findChildByType[PsiElement](ScalaTokenTypes.tUNDER))
+  override def nameId: NameId = NameId.fromIdSetToken(findChildByType(TokenSets.ID_SET))
 
   override def toString: String = s"$typeName: ${ifReadAllowed(name)("")}"
 }

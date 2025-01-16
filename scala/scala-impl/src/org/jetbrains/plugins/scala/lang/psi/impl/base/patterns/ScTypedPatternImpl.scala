@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.TokenSets
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement.NameId
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.PatternTypeInference
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScBindingPatternStub
@@ -26,7 +27,7 @@ class ScTypedPatternImpl private(stub: ScBindingPatternStub[ScTypedPattern], nod
 
   def this(stub: ScBindingPatternStub[ScTypedPattern]) = this(stub, null)
 
-  override def nameId: PsiElement = findChildByType[PsiElement](TokenSets.ID_SET)
+  override def nameId: NameId.Placed = NameId.fromIdSetToken(findChildByType[PsiElement](TokenSets.ID_SET))
 
   override def typePattern: Option[ScTypePattern] = findChild[ScTypePattern]
 

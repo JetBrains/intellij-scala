@@ -16,7 +16,7 @@ private class CompanionHighlightHandler(keyword: PsiElement, definition: ScTypeD
   extends HighlightUsagesHandlerBase[PsiElement](editor, file) {
 
   override def computeUsages(targets: util.List[_ <: PsiElement]): Unit =
-    definition.baseCompanion.map(_.nameId.getPrevSiblingNotWhitespace).foreach { companionKeyword =>
+    definition.baseCompanion.map(_.targetToken).foreach { companionKeyword =>
       definition match {
         case ScBegin(_, Some(_)) if CodeInsightSettings.getInstance.HIGHLIGHT_BRACES => // Highlight as "brace" rather than "usage" (in ScalaBlockSupportHandler)
         case _ => myReadUsages.add(keyword.getTextRange)

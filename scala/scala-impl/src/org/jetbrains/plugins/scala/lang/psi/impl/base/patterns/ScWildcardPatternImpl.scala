@@ -1,13 +1,16 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base.patterns
 
 import com.intellij.lang.ASTNode
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 class ScWildcardPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScPatternImpl with ScWildcardPattern {
+  override def underscoreToken: PsiElement = findFirstChildByType(ScalaTokenTypes.tUNDER).get
 
   override def isIrrefutableForImpl(t: Option[ScType]): Boolean = true
 

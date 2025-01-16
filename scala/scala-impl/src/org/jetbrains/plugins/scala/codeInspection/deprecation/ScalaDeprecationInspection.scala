@@ -27,7 +27,8 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
 
-    def checkDeprecated(element: PsiElement, result: ScalaResolveResult, elementToHighlight: PsiElement, name: String, isImplicitConversion: Boolean): Unit = {
+    def checkDeprecated(element: PsiElement, result: ScalaResolveResult, ref: ScReference, name: String, isImplicitConversion: Boolean): Unit = {
+      val elementToHighlight = ref.nameId.forHighlighting
       element match {
         case param: ScParameter if result.isNamedParameter && !ScalaNamesUtil.equivalent(param.name, name) =>
           param.deprecatedName.foreach { deprecatedName =>
@@ -64,11 +65,11 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
       }
     }
 
-    def checkDeprecatedInheritance(result: ScalaResolveResult, elementToHighlight: PsiElement, name: String): Unit = {
+    def checkDeprecatedInheritance(result: ScalaResolveResult, ref: ScReference, name: String): Unit = {
       result.getActualElement match {
         case owner: PsiAnnotationOwner if owner.hasAnnotation("scala.deprecatedInheritance") =>
           val message = deprecationMessage(owner).getOrElse("")
-          holder.registerProblem(elementToHighlight, ScalaInspectionBundle.message("inheriting.form.name.is.deprecated.message", name, message))
+          holder.registerProblem(ref.nameId.forHighlighting, ScalaInspectionBundle.message("inheriting.form.name.is.deprecated.message", name, message))
         case _ =>
       }
     }
@@ -77,10 +78,10 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
       superMethod match {
         case owner if owner.isDeprecated =>
           val message = deprecationMessage(owner).getOrElse("")
-          holder.registerProblem(method.nameId, ScalaInspectionBundle.message("super.method.name.is.deprecated.with.message", method.name, message))
+          holder.registerProblem(method.nameId.forHighlighting, ScalaInspectionBundle.message("super.method.name.is.deprecated.with.message", method.name, message))
         case owner  if owner.hasAnnotation("scala.deprecatedOverriding") =>
           val message = deprecationMessage(owner).getOrElse("")
-          holder.registerProblem(method.nameId, ScalaInspectionBundle.message("overriding.is.deprecated", method.name, message))
+          holder.registerProblem(method.nameId.forHighlighting, ScalaInspectionBundle.message("overriding.is.deprecated", method.name, message))
         case _ =>
       }
     }
@@ -109,17 +110,17 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
                 //   new Test
               case Parent(Parent((_: ScConstructorInvocation) & Parent(Parent(exb: ScExtendsBlock))))
                 if !exb.getParent.is[ScNewTemplateDefinition] || exb.isAnonymousClass =>
-                checkDeprecatedInheritance(rr, ref.nameId, ref.refName)
+                checkDeprecatedInheritance(rr, ref, ref.refName)
               case _ =>
             }
-            checkDeprecated(rr.element, rr, ref.nameId, ref.refName, isImplicitConversion = false)
+            checkDeprecated(rr.element, rr, ref, ref.refName, isImplicitConversion = false)
 
             rr.implicitConversion.foreach { convRr =>
               val element = convRr.element match {
                 case member: ScMember => NullSafe(member.syntheticNavigationElement).getOrElse(member)
                 case _ => convRr.element
               }
-              checkDeprecated(element, convRr, ref.nameId, convRr.name, isImplicitConversion = true)
+              checkDeprecated(element, convRr, ref, convRr.name, isImplicitConversion = true)
             }
           }
         }

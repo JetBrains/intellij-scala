@@ -18,7 +18,7 @@ class ScalaWrongPlatformMethodsUsageInspection extends LocalInspectionTool {
   import ScalaWrongPlatformMethodsUsageInspection._
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
-    if (!holder.getFile.isInstanceOf[ScalaFile]) return PsiElementVisitor.EMPTY_VISITOR
+    if (!holder.getFile.is[ScalaFile]) return PsiElementVisitor.EMPTY_VISITOR
 
     new ScalaElementVisitor {
       override def visitReferenceExpression(ref: ScReferenceExpression): Unit = {
@@ -56,7 +56,7 @@ class ScalaWrongPlatformMethodsUsageInspection extends LocalInspectionTool {
                         "or use \"for Java only\" text in bounded doc comment owner ScalaDoc." +
                         properMethodText +
                         "</html>"
-                      holder.registerProblem(ref.nameId, message)
+                      holder.registerProblem(ref.nameId.forHighlighting, message)
                     }
                   case _ =>
                 }

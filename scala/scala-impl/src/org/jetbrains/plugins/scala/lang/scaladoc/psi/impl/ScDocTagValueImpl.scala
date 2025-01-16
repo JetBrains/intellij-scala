@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCases, ScParameterOwner}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement.NameId
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeParametersOwner}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceImpl
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
@@ -26,7 +27,7 @@ final class ScDocTagValueImpl(node: ASTNode)
 
   import ResolveTargets._
 
-  override def nameId: PsiElement = this
+  override def nameId: NameId.Name = new NameId.Name(this)
 
   override def getName: String = getText
 

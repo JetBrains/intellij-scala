@@ -52,9 +52,13 @@ object SelfType extends ParsingRule {
         builder.advanceLexer() //Ate identifier
         handleLastPart()
       case ScalaTokenTypes.tLPARENTHESIS =>
-         if (ParserUtils.parseBalancedParenthesis(TokenSets.SELF_TYPE_ID))
-           handleLastPart() else selfTypeMarker.rollbackTo()
-      case _ => selfTypeMarker.rollbackTo()
+         if (ParserUtils.parseBalancedParenthesis(TokenSets.SELF_TYPE_ID)) {
+           handleLastPart()
+         } else {
+           selfTypeMarker.rollbackTo()
+         }
+      case _ =>
+        selfTypeMarker.rollbackTo()
     }
     true
   }

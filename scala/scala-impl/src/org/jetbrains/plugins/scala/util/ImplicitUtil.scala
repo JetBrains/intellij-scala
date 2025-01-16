@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement.NameId
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
@@ -68,9 +69,8 @@ object ImplicitUtil {
   private def range(usage: PsiElement): TextRange = {
     val simpleRange = usage.getTextRange
 
-    def startingFrom(elem: PsiElement): TextRange = {
-      val start = elem.getTextRange.getStartOffset
-      TextRange.create(start, simpleRange.getEndOffset)
+    def startingFrom(nameId: NameId.Placed): TextRange = {
+      TextRange.create(nameId.startOffset, simpleRange.getEndOffset)
     }
 
     def forTypeElem(typeElem: ScSimpleTypeElement) = {

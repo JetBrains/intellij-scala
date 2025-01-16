@@ -11,14 +11,14 @@ import org.jetbrains.plugins.scala.lang.TokenSets
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScContextBound, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumCases, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumCases, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement.NameId
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScTypeBoundsOwnerImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeParamStub
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameter, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
@@ -129,9 +129,8 @@ class ScTypeParamImpl private (stub: ScTypeParamStub, node: ASTNode)
     }
   }
 
-  override def nameId: PsiElement = findLastChildByType(TokenSets.ID_SET).orNull
-
-  override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
+  override def nameId: NameId =
+    NameId.fromIdSetToken(findLastChildByType(TokenSets.ID_SET).get)
 
   override def viewTypeElement: Seq[ScTypeElement] =
     byPsiOrStub(super.viewTypeElement)(_.viewBounds)

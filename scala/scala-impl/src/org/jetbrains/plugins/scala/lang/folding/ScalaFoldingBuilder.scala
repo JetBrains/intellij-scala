@@ -468,7 +468,10 @@ object TypeLambda {
   def unapply(psi: PsiElement): Option[(String, ScTypeParamClause, ScTypeElement)] = psi match {
     case tp: ScTypeProjection =>
       val element = tp.typeElement
-      val nameId = tp.nameId
+      val name = tp.nameId.name match {
+        case Some(name) => name
+        case None => return None
+      }
       element match {
         case pte: ScParenthesisedTypeElement =>
           pte.innerElement match {
@@ -476,10 +479,10 @@ object TypeLambda {
               cte.refinement match {
                 case Some(ref) =>
                   (ref.holders, ref.types) match {
-                    case (scala.Seq(), scala.Seq(tad: ScTypeAliasDefinitionImpl)) if nameId.textMatches(tad.name) =>
+                    case (scala.Seq(), scala.Seq(tad: ScTypeAliasDefinitionImpl)) if name == tad.name =>
                       (tad.typeParametersClause, tad.aliasedTypeElement) match {
                         case (Some(tpc), Some(ate)) =>
-                          return Some((nameId.getText, tpc, ate))
+                          return Some((name, tpc, ate))
                         case _ =>
                       }
                     case _ =>

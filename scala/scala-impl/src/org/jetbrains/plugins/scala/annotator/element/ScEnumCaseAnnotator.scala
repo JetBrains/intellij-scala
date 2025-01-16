@@ -36,7 +36,7 @@ object ScEnumCaseAnnotator extends ElementAnnotator[ScEnumCase] {
       nonVariantTypeParameter.foreach { tp =>
         if (parents.isEmpty)
           holder.createErrorAnnotation(
-            cse.nameId,
+            cse.nameId.forHighlighting,
             ScalaBundle.message("annotator.error.enum.nonvariant.type.param,in.enum", enumDef.name, tp.name)
           )
       }
@@ -57,7 +57,7 @@ object ScEnumCaseAnnotator extends ElementAnnotator[ScEnumCase] {
     //an explicit extends clause must be provided
     if (enumDef.hasTypeParameters && cse.physicalTypeParameters.nonEmpty && parents.isEmpty) {
       holder.createErrorAnnotation(
-        cse.nameId,
+        cse.nameId.forHighlighting,
         ScalaBundle.message("annotator.error.enum.two.type.parameter.clauses")
       )
     }

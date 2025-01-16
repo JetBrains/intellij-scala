@@ -5,6 +5,7 @@ import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement.NameId
 import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.ScUElement
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.declarations.{ScUVariable, ScUVariableCommon}
@@ -89,7 +90,7 @@ final class ScULocalFunction(funDef: ScFunctionDefinition,
   override def getSourcePsi: PsiElement = funDef
 
   override protected def lightVariable: PsiVariable = _lightVariable
-  override protected def nameId: PsiElement = funDef.nameId
+  override protected def nameId: NameId = funDef.nameId
   override protected def typeElem: Option[ScTypeElement] = None
   override protected def initializer: Option[ScBlockStatement] = Some(funDef)
 

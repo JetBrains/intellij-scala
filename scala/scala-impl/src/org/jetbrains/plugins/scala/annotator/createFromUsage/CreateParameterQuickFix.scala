@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterHandler
 
 final class CreateParameterQuickFix(ref: ScReferenceExpression) extends CreateFromUsageQuickFixBase(ref) {
-  override def getText: String = ScalaBundle.message("create.parameter.named", ref.nameId.getText)
+  override def getText: String = ScalaBundle.message("create.parameter.named", ref.nameId.forcedName)
 
   override def getFamilyName: String = ScalaBundle.message("family.name.create.parameter")
 

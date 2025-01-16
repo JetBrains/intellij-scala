@@ -30,12 +30,12 @@ class TypeAnnotationInspection extends LocalInspectionTool {
         && !method.isConstructor
         // Mill build files often elide type annotations of tasks
         && !method.containingScalaFile.exists(_.isMillFile) =>
-      inspect(method, method.nameId, method.body, holder)
+      inspect(method, method.nameId.forHighlighting, method.body, holder)
     case (parameter: ScParameter) & Parent(Parent(Parent(_: ScFunctionExpr))) if parameter.typeElement.isEmpty =>
-      inspect(parameter, parameter.nameId, implementation = None, holder)
+      inspect(parameter, parameter.nameId.forHighlighting, implementation = None, holder)
     case (underscore: ScUnderscoreSection) & Parent(parent) if underscore.getTextRange.getLength == 1 &&
-      !parent.isInstanceOf[ScTypedExpression] && !parent.isInstanceOf[ScFunctionDefinition] &&
-      !parent.isInstanceOf[ScPatternDefinition] && !parent.isInstanceOf[ScVariableDefinition] =>
+      !parent.is[ScTypedExpression, ScFunctionDefinition] &&
+      !parent.is[ScPatternDefinition, ScVariableDefinition] =>
       inspect(underscore, underscore, implementation = None, holder)
     case _ =>
   }

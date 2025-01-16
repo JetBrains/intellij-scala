@@ -5,6 +5,7 @@ import com.intellij.psi._
 import com.intellij.psi.codeStyle.JavaCodeStyleManager
 import com.intellij.refactoring.changeSignature.JavaParameterInfo
 import com.intellij.refactoring.util.CanonicalTypes
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
@@ -18,7 +19,7 @@ import scala.beans.{BeanProperty, BooleanBeanProperty}
 
 class ScalaParameterInfo(@BeanProperty var name: String,
                          @BeanProperty val oldIndex: Int,
-                         var scType: ScType,
+                         @Nullable var scType: ScType,
                          val project: Project,
                          var isRepeatedParameter: Boolean,
                          var isByName: Boolean,
@@ -95,8 +96,8 @@ object ScalaParameterInfo {
   def apply(project: Project) = new ScalaParameterInfo("", -1, null, project, false, false)
 
   def keywordsAndAnnotations(p: ScParameter): String = {
-    val nameId = p.nameId
-    val elems = p.children.takeWhile(_ != nameId)
+    val stop = p.nameId.place.getOrElse(p.getTypeElement)
+    val elems = p.children.takeWhile(_ != stop)
     elems.map(_.getText).mkString
   }
 

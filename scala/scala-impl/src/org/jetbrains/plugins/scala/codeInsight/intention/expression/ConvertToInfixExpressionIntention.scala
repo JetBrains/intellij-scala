@@ -10,7 +10,7 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInsight.intention.expression.ConvertToInfixExpressionIntention.{createInfix, qualifiedRef}
 import org.jetbrains.plugins.scala.extensions.ParenthesizedElement.Ops
-import org.jetbrains.plugins.scala.extensions.{ElementText, ObjectExt}
+import org.jetbrains.plugins.scala.extensions.{ElementText, ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
@@ -30,7 +30,7 @@ final class ConvertToInfixExpressionIntention extends PsiElementBaseIntentionAct
       case _ => return false
     }
 
-    val range: TextRange = referenceExpr.nameId.getTextRange
+    val range: TextRange = referenceExpr.nameId.textRange
     val offset = editor.getCaretModel.getOffset
     range.getStartOffset <= offset && offset <= range.getEndOffset
   }
@@ -45,10 +45,10 @@ final class ConvertToInfixExpressionIntention extends PsiElementBaseIntentionAct
     }
 
     val start = methodCallExpr.getTextRange.getStartOffset
-    val diff = editor.getCaretModel.getOffset - referenceExpr.nameId.getTextRange.getStartOffset
+    val diff = editor.getCaretModel.getOffset - referenceExpr.nameId.startOffset
 
     createInfix(methodCallExpr).foreach { infix =>
-      val size = infix.operation.nameId.getTextRange.getStartOffset - infix.getTextRange.getStartOffset
+      val size = infix.operation.nameId.startOffset - infix.startOffset
 
       IntentionPreviewUtils.write { () =>
         methodCallExpr.replaceExpression(infix, removeParenthesis = true)
@@ -77,7 +77,7 @@ object ConvertToInfixExpressionIntention {
         import call.projectContext
 
         val qualifierText = qualifier.getText
-        val refText = referenceExpr.nameId.getText
+        val refText = referenceExpr.nameId.forcedName
 
         val (operationText, argumentsFirst) = call.getInvokedExpr match {
           case call: ScGenericCall =>

@@ -2,12 +2,13 @@ package org.jetbrains.plugins.scala.lang.psi.impl.base
 package types
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions.ifReadAllowed
+import org.jetbrains.plugins.scala.extensions.{ElementType, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.TokenSets
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement.NameId
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScSelfTypeElementStub
@@ -25,7 +26,12 @@ class ScSelfTypeElementImpl private(stub: ScSelfTypeElementStub, node: ASTNode)
 
   override def toString: String = "SelfType: " + ifReadAllowed(name)("")
 
-  override def nameId: PsiElement = findChildByType[PsiElement](TokenSets.SELF_TYPE_ID)
+  override def nameId: NameId = {
+    findFirstChildByType(TokenSets.SELF_TYPE_ID).get match {
+      case nameElement@ElementType(ScalaTokenTypes.kTHIS) => new NameId.Placeholder(nameElement)
+      case nameElement => NameId.fromIdSetToken(nameElement)
+    }
+  }
 
   override def `type`(): TypeResult = {
     val parent = PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition])

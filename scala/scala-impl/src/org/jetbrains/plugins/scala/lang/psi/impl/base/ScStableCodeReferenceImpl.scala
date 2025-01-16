@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMatch, ScReferenceExpres
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtensionBody, ScFunction, ScMacroDefinition, ScTypeAlias, ScValue}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement.NameId
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScDerivesClause, ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -114,9 +115,10 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     else result
   }
 
-  override def nameId: PsiElement = {
+  override def nameId: NameId.Placed = {
     val id = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
-    if (id != null) id else findChildByType[PsiElement](TokenType.ERROR_ELEMENT) // foo.bar.
+    if (id != null) new NameId.Name(id)
+    else new NameId.Error(findChildByType[PsiElement](TokenType.ERROR_ELEMENT)) // foo.bar.
   }
 
   @throws(classOf[IncorrectOperationException])
@@ -195,7 +197,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
             reportWrongKind(elementToImport, suitableKinds)
           }
 
-          if (!nameId.textMatches(elementToImport.name)) {
+          if (!nameId.name.contains(elementToImport.name)) {
             val refNew = ScalaPsiElementFactory.createReferenceFromText(elementToImport.name)
             val refNewReplaced = this.replace(refNew).asInstanceOf[ScStableCodeReferenceImpl]
             val result = refNewReplaced.bindToElement(elementToImport.element)

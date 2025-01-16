@@ -1,16 +1,16 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement.NameId
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 final class ScInterpolatedExpressionPrefix(node: ASTNode) extends ScReferenceExpressionImpl(node) {
 
   import ScalaResolveResult.EMPTY_ARRAY
 
-  override def nameId: PsiElement = this
+  override def nameId: NameId.Name = new NameId.Name(this)
 
   override def toString = s"InterpolatedExpressionPrefix: $getText"
 

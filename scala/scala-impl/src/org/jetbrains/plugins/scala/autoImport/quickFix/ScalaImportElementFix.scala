@@ -119,25 +119,25 @@ abstract class ScalaImportElementFix[Element <: ElementToImport](val place: PsiE
   override def generatePreview(project: Project, editor: Editor, file: PsiFile): IntentionPreviewInfo =
     IntentionPreviewInfo.EMPTY
 
-  protected def getHintRange: (Int, Int) = hintRange(place)
+  protected def getHintRange: TextRange = hintRange(place)
 
-  private def hintRange(element: PsiElement): (Int, Int) = {
+  private def hintRange(element: PsiElement): TextRange = {
     element match {
-      case ref: ScReference     => (ref.nameId.startOffset, ref.nameId.endOffset)
-      case gcall: ScGenericCall => (hintRange(gcall.referencedExpr)._1, gcall.endOffset)
-      case _                    => (element.startOffset, element.endOffset)
+      case ref: ScReference     => ref.nameId.textRange
+      case gcall: ScGenericCall => new TextRange(hintRange(gcall.referencedExpr).getStartOffset, gcall.endOffset)
+      case _                    => element.getTextRange
     }
   }
 
   private def showHintWithAction(editor: Editor): Unit = {
     val hintManager = HintManagerImpl.getInstanceImpl
-    val (elementStart, elementEnd) = getHintRange
+    val range = getHintRange
 
     if (place.isValid &&
       elements.nonEmpty &&
       !hintManager.hasShownHintsThatWillHideByOtherHint(true) &&
-      editor.visibleRange.containsOffset(elementStart) &&
-      elementEnd < editor.getDocument.getTextLength) {
+      editor.visibleRange.containsOffset(range.getStartOffset) &&
+      range.getEndOffset < editor.getDocument.getTextLength) {
 
       val hintText = ScalaBundle.message(
         "import.hint.text",
@@ -148,8 +148,8 @@ abstract class ScalaImportElementFix[Element <: ElementToImport](val place: PsiE
       hintManager.showQuestionHint(
         editor,
         htmlWithBody(hintText),
-        elementStart,
-        elementEnd,
+        range.getStartOffset,
+        range.getEndOffset,
         createAddImportAction(editor)
       )
     }

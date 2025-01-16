@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement.NameId
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenAlias
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTypeElementOwnerStub
@@ -26,17 +27,12 @@ trait ScGivenAliasDeclarationOrDefinitionImpl extends ScFunction
   override def typeElement: Option[ScTypeElement] =
     byPsiOrStub(findChildByClassScala(classOf[ScTypeElement]).toOption)(_.typeElement)
 
-  override protected def nameInner: String = {
-    val explicitName = nameElement.map(_.getText)
-
-    explicitName
-      .getOrElse(ScalaPsiUtil.generateGivenName(typeElement.toSeq: _*))
-  }
-
-
-  override def nameId: PsiElement = {
-    // TODO: returning this is a hack to not return null and has to be improved later
-    //       see SCL-21867 for further details
-    nameElement.orElse(typeElement).getOrElse(this)
-  }
+  override def nameId: NameId.NonAnonymous =
+    new ScGivenImpl.GivenNameId[ScGivenAliasDeclarationOrDefinitionImpl](this) {
+      override def generateName: String = ScalaPsiUtil.generateGivenName(givenImpl.typeElement.toSeq)
+      override def forHighlighting: PsiElement =
+        givenImpl.nameElement
+          .orElse(givenImpl.typeElement)
+          .getOrElse(givenImpl.givenToken)
+    }
 }

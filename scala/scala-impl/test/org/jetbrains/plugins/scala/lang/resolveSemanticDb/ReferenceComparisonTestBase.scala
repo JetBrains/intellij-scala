@@ -317,7 +317,7 @@ object ReferenceComparisonTestBase {
       val problems = None
       RefInfo(
         ref.refName,
-        TextPos.of(ref.nameId),
+        TextPos.of(ref.nameId.placeElement),
         resolveResult,
         ref.getContainingFile.name,
         problems,

@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker,
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.externalLibraries.contextApplied.{ContextApplied, ContextAppliedUtil}
 import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.TokenSets
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -22,16 +23,16 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement.NameId
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScTrait, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypeParametersOwner}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScPackaging, ScTypeParametersOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiReferenceList
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createIdentifier
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScFunctionImpl.isJavaVarargs
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.ScTopLevelStubBasedElement
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{JavaIdentifier, SyntheticClasses}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
@@ -63,20 +64,19 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
       this.isInScala3File && returnTypeElement.exists(_.isSingleton)
   }
 
-  override def nameId: PsiElement = {
-    val n = getNode.findChildByType(ScalaTokenTypes.tIDENTIFIER) match {
-      case null => getNode.findChildByType(ScalaTokenTypes.kTHIS)
-      case notNull => notNull
+  override def nameId: NameId = {
+    findChildByType[PsiElement](TokenSets.FUNCTION_OR_SECONDARY_CONSTRUCTOR_ID_SET) match {
+      case null =>
+        val stubName = Option(getGreenStub).map(_.getName)
+        new NameId.Synthetic {
+          override def name: Option[String] = stubName
+          override def isAnonymous: Boolean = stubName.isEmpty
+          override def explicitName: Option[String] = stubName
+          override def forcedName: String = stubName.getOrElse(ScNamedElement.AnonymousPlaceholder)
+        }
+      case nameNode =>
+        new NameId.Name(nameNode)
     }
-    if (n == null) {
-      val stub = getGreenStub
-      if (stub == null) {
-        val message = ScalaBundle.message("both.stub.and.name.identifier.node.are.null", getClass.getSimpleName, getText)
-        throw new NullPointerException(message)
-      }
-      return createIdentifier(getGreenStub.getName).getPsi
-    }
-    n.getPsi
   }
 
   override def paramClauses: ScParameters = _paramClauses()
@@ -302,8 +302,6 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
   }
 
   override def hasAssign: Boolean = getNode.getChildren(TokenSet.create(ScalaTokenTypes.tASSIGN)).nonEmpty
-
-  override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
 
   override def findDeepestSuperMethod: PsiMethod = {
     val s = superMethods

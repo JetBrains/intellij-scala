@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement.NameId
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
@@ -31,23 +32,23 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
   protected def handleChangedName(change: ChangeInfo, usage: UsageInfo): Unit = {
     if (!change.isNameChanged) return
 
-    val nameId = usage match {
-      case ScalaNamedElementUsageInfo(scUsage) => scUsage.namedElement.nameId
-      case MethodCallUsageInfo(ref, _) => ref.nameId
-      case RefExpressionUsage(r) => r.nameId
-      case InfixExprUsageInfo(i) => i.operation.nameId
-      case PostfixExprUsageInfo(p) => p.operation.nameId
-      case AnonFunUsageInfo(_, ref) => ref.nameId
-      case ImportUsageInfo(ref) => ref.nameId
-      case _ => null
+    def changeNameId(nameId: NameId): Unit = {
+      val newName = change.getNewName
+      replaceNameId(nameId.prepareToReplace(), newName)
     }
 
-    nameId match {
-      case null =>
-      case ChildOf(ref: ScReference) if ScalaRenameUtil.isAliased(ref) =>
+    def changeRef(ref: ScReference): Unit =
+      if (!ScalaRenameUtil.isAliased(ref)) changeNameId(ref.nameId)
+
+    usage match {
+      case ScalaNamedElementUsageInfo(scUsage) => changeNameId(scUsage.namedElement.nameId)
+      case MethodCallUsageInfo(ref, _) => changeRef(ref)
+      case RefExpressionUsage(r) => changeRef(r)
+      case InfixExprUsageInfo(i) => changeRef(i.operation)
+      case PostfixExprUsageInfo(p) => changeRef(p.operation)
+      case AnonFunUsageInfo(_, ref) => changeRef(ref)
+      case ImportUsageInfo(ref) => changeRef(ref)
       case _ =>
-        val newName = change.getNewName
-        replaceNameId(nameId, newName)
     }
   }
 
@@ -207,7 +208,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
     }
 
     val paramsText = parameterListText(change, usage)
-    val nameId = named.nameId
+    val nameId = named.nameId.prepareToReplace()
     val newClauses = named match {
       case cl: ScClass =>
         createClassParamClausesWithContext(paramsText, cl)
@@ -414,7 +415,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
     elem match {
       case scRef: ScReference =>
         val newId = createIdentifier(newName).getPsi
-        scRef.nameId.replace(newId)
+        scRef.nameId.prepareToReplace().replace(newId)
       case jRef: PsiReferenceExpression =>
         jRef.getReferenceNameElement match {
           case nameId: PsiIdentifier =>

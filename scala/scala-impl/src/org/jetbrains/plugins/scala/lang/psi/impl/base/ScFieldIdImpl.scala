@@ -2,12 +2,13 @@ package org.jetbrains.plugins.scala.lang.psi.impl.base
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.extensions.ifReadAllowed
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.FIELD_ID
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypedDeclaration, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScImportableDeclarationsOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement.NameId
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScReferencePatternImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFieldIdStub
@@ -27,7 +28,10 @@ class ScFieldIdImpl private(stub: ScFieldIdStub, node: ASTNode)
     //partial matching
   }
 
-  override def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
+  override def nameId: NameId.Name = {
+    // ScFieldIdImpl will always be parsed with an identifier
+    new NameId.Name(findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER))
+  }
 
   override def isStable: Boolean = getContext match {
     case l: ScIdList => l.getContext match {
@@ -45,9 +49,9 @@ class ScFieldIdImpl private(stub: ScFieldIdStub, node: ASTNode)
     }
   }
 
-  override def isVar: Boolean = nameContext.isInstanceOf[ScVariable]
+  override def isVar: Boolean = nameContext.is[ScVariable]
 
-  override def isVal: Boolean = nameContext.isInstanceOf[ScValue]
+  override def isVal: Boolean = nameContext.is[ScValue]
 
   override def getNavigationElement: PsiElement =
     ScReferencePatternImpl.getNavigationElementForValOrVarId(this).getOrElse(this)

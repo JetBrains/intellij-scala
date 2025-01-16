@@ -165,7 +165,7 @@ class ConvertUnderscoreToParameterIntention extends PsiElementBaseIntentionActio
         case f: ScFunctionExpr =>
           for (parameter <- f.parameters) {
             val lookupExpr = new MyLookupExpression(parameter.name, null, parameter, f, false, null)
-            builder.replaceElement(parameter.nameId, parameter.name, lookupExpr, true)
+            builder.replaceElement(parameter.nameId.prepareToReplace(), parameter.name, lookupExpr, true)
 
             val dependantParam = file.findElementAt(offsets(parameter.name) + diff)
             builder.replaceElement(dependantParam, parameter.name + "_1", parameter.name, false)

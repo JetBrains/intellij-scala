@@ -61,7 +61,7 @@ object NoTargetNameAnnotationForOperatorLikeDefinitionInspection {
       !isEndMarkerTarget(element)
 
     private def accepts(maybeNameElement: PsiElement, element: ScAnnotationsHolder with ScNamedElement): Boolean =
-      element.nameId == maybeNameElement && accepts(element, element.name)
+      element.nameId.isElement(maybeNameElement) && accepts(element, element.name)
 
     private def accepts(maybeNameElement: PsiElement, element: ScValueOrVariable): Boolean = element match {
       case valOrVal: ScValueOrVariableDefinition if valOrVal.pList == maybeNameElement && valOrVal.isSimple =>

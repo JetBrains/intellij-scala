@@ -19,7 +19,7 @@ final class FieldFromDelayedInitInspection extends LocalInspectionTool {
         FieldInDelayedInit(delayedInitClass) <- ref.bind()
         parents = parentDefinitions(ref)
         if !parents.exists(_.sameOrInheritor(delayedInitClass))
-      } holder.registerProblem(ref.nameId, ScalaInspectionBundle.message("field.defined.in.delayedinit.is.likely.to.be.null"))
+      } holder.registerProblem(ref.nameId.forHighlighting, ScalaInspectionBundle.message("field.defined.in.delayedinit.is.likely.to.be.null"))
     case _ =>
   }
 }

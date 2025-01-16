@@ -15,7 +15,7 @@ class Scala3DeprecatedPackageObjectInspection extends LocalInspectionTool {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case obj: ScObject if obj.isPackageObject && obj.isInScala3Module =>
       val fix = unwrapPackageObjectQuickFix(obj).toSeq
-      holder.registerProblem(obj.nameId, message, fix: _*)
+      holder.registerProblem(obj.nameId.forHighlighting, message, fix: _*)
     case _ =>
   }
 }

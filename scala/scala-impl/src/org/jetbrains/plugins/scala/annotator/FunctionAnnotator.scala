@@ -40,15 +40,15 @@ trait FunctionAnnotator {
     } {
       val removeAnnotationFix = new RemoveAnnotationQuickFix(annotation)
 
-      val functionNameId = function.nameId
+      val nameId = function.nameId
 
       if (!canBeTailRecursive(function)) {
         holder.createErrorAnnotation(
-          functionNameId,
+          nameId.forHighlighting,
           ScalaBundle.message("method.annotated.with.tailrec.is.neither.private.nor.final"),
           Seq(
-            new ModifierQuickFix.Add(function, functionNameId, ScalaModifier.Private),
-            new ModifierQuickFix.Add(function, functionNameId, ScalaModifier.Final),
+            new ModifierQuickFix.Add(function, nameId.name, ScalaModifier.Private),
+            new ModifierQuickFix.Add(function, nameId.name, ScalaModifier.Final),
             removeAnnotationFix
           )
         )
@@ -58,7 +58,7 @@ trait FunctionAnnotator {
         function.recursiveReferencesGrouped match {
           case references if references.noRecursion =>
             holder.createErrorAnnotation(
-              functionNameId,
+              nameId.forHighlighting,
               ScalaBundle.message("method.annotated.with.tailrec.contains.no.recursive.calls"),
               Seq(removeAnnotationFix)
             )

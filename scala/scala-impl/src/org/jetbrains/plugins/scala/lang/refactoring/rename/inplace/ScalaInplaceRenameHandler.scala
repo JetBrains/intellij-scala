@@ -109,10 +109,6 @@ trait ScalaInplaceRenameHandler {
 
     val selected = Option(getElementAtCaret(editor))
       .flatMap(_.nonStrictParentOfType(Seq(classOf[ScReference], classOf[ScNamedElement])))
-    val nameId = selected.collect {
-      case ref: ScReference => ref.nameId
-      case named: ScNamedElement => named.nameId
-    }
 
     val actualElementToRename = elementToRename match {
       case Target(ScEnd(Some(begin), _)) =>
@@ -131,16 +127,17 @@ trait ScalaInplaceRenameHandler {
         specialMethodPopup(fun)
         null
       case e =>
-        nameId.map(_.getParent) match {
+        selected match {
           case Some(ref: ScReference) if ScalaRenameUtil.isAliased(ref) =>
             aliasedElementPopup()
             null
-          case _ =>
-            ScalaRenameUtil.findSubstituteElement(e)
-              .map { subst =>
-                inplaceRename(subst)
-              }
+          case Some(ref: ScReference) => inplaceRename(ref)
+          case Some(named: ScNamedElement) =>
+            ScalaRenameUtil.findSubstituteElement(named)
+              .map(inplaceRename)
               .orNull
+          case _ =>
+            null
         }
     }
   }

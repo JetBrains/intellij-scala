@@ -20,7 +20,7 @@ object UnusedDeclarationVerboseProblemInfoMessage {
       case _ => false
     }
 
-    val name = unusedElement.nameId.getText
+    val name = unusedElement.nameId.forcedName
 
     val message = unusedElement match {
       case _: ScParameter =>

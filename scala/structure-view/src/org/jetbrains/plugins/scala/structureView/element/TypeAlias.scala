@@ -17,6 +17,8 @@ private class TypeAlias(alias: ScTypeAlias, inherited: Boolean)
 
   @Nls
   private def getTypeAliasPresentableText(typeAlias: ScTypeAlias): String =
-    if (typeAlias.nameId != null) NlsString.force(typeAlias.nameId.getText)
-    else ScalaStructureViewBundle.message("type.unnamed")
+    typeAlias.nameId.explicitName match {
+      case Some(name) => NlsString.force(name)
+      case None => ScalaStructureViewBundle.message("type.unnamed")
+    }
 }

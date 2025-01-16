@@ -42,7 +42,7 @@ final class ScalaTypeParametersWithoutBoundsMacro extends ScalaMacro {
 
   override def calculateResult(params: Array[Expression], context: ExpressionContext): Result = {
     val owner = ScalaTypeParametersMacro.typeOwner(params, context).getOrElse(return null)
-    val typeParams = owner.typeParameters.map(_.nameId).map(_.getText)
+    val typeParams = owner.typeParameters.map(_.nameId.place.fold("_")(_.getText))
     val result =
       if (typeParams.isEmpty) ""
       else typeParams.mkString("[", ", ", "]")

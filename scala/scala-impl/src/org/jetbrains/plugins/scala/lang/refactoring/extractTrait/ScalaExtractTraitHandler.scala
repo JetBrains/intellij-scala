@@ -151,8 +151,9 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
 
   private def addTypeParameters(trt: ScTrait, typeParamsText: String): Unit = {
     if (typeParamsText == null || typeParamsText.isEmpty) return
-    val clause = createTypeParameterClauseFromTextWithContext(typeParamsText, trt, trt.nameId)
-    trt.addAfter(clause, trt.nameId)
+    val nameId = trt.nameId.prepareToReplace()
+    val clause = createTypeParameterClauseFromTextWithContext(typeParamsText, trt, nameId)
+    trt.addAfter(clause, nameId)
   }
 
   private def createTraitFromTemplate(name: String, packageName: String, clazz: ScTemplateDefinition): ScTrait = {

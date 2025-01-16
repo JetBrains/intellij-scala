@@ -620,11 +620,11 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
                 case t: ScTemplateBody => t.getParent
               }
               val startElement = extendsBlock.getParent match {
-                case b: ScTypeDefinition => b.nameId
+                case b: ScTypeDefinition => b.nameId.place.getOrElse(b)
                 case _: ScTemplateDefinition => extendsBlock
                 case b => b
               }
-              val startOffset = startElement.getTextRange.getStartOffset
+              val startOffset = startElement.startOffset
               val range = new TextRange(startOffset, rightPsi.getTextRange.getStartOffset)
               if (settings.SPACE_BEFORE_CLASS_LBRACE) WITH_SPACING_DEPENDENT(range)
               else WITHOUT_SPACING_DEPENDENT(range)
@@ -645,8 +645,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
             val (needSpace, braceStyle, startElement) =
               parent match {
                 case fun: ScFunction =>
-                  (settings.SPACE_BEFORE_METHOD_LBRACE, settings.METHOD_BRACE_STYLE, fun.nameId)
-                case _: ScMethodCall if rightPsi.isInstanceOf[ScArguments] =>
+                  (settings.SPACE_BEFORE_METHOD_LBRACE, settings.METHOD_BRACE_STYLE, fun.nameId.place.getOrElse(fun))
+                case _: ScMethodCall if rightPsi.is[ScArguments] =>
                   val style = settings.BRACE_STYLE
                   //Extra check is an optimization not to check `isInScala3File` all the time when default code style is used
                   //TODO (minor) we ask `isInScala3File` for every block, which is not optimal (it requires tree traversal to parent every time)
@@ -1068,7 +1068,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     if (rightElementType == ScalaTokenTypes.tCOLON) {
       val result = rightPsiParent match {
         case tp: ScTypeParam =>
-          val tpNode     = tp.nameId.getNode
+          val tpNode     = tp.nameId.place.get.getNode
           val tpNodeNext = tpNode.getTreeNext
 
           val isLeadingContextBound = tpNode.eq(leftNode)

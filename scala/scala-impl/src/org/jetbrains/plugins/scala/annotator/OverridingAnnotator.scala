@@ -157,13 +157,13 @@ trait OverridingAnnotator {
     import ScalaModifier.{OVERRIDE, Override}
     import quickfix.ModifierQuickFix._
 
-    val memberNameId = namedElement.nameId
+    val nameId = namedElement.nameId
     if (superSignaturesWithSelfType.isEmpty) {
       if (member.hasModifierProperty(OVERRIDE)) {
         holder.createErrorAnnotation(
-          memberNameId,
+          nameId.forHighlighting,
           ScalaBundle.message("member.overrides.nothing", memberType, namedElement.name),
-          new Remove(member, memberNameId, Override) +:
+          new Remove(member, nameId.name, Override) +:
             PullUpQuickFix(member, namedElement.name).toSeq
         )
       }
@@ -173,7 +173,7 @@ trait OverridingAnnotator {
           case fn: ScFunction if fn.isExtensionMethod =>
             if (superSignatures.exists(!isExtension(_))) {
               holder.createErrorAnnotation(
-                memberNameId,
+                nameId.forHighlighting,
                 ScalaBundle.message("extension.method.overrides.regular", namedElement.name)
               )
               true
@@ -181,7 +181,7 @@ trait OverridingAnnotator {
           case _ =>
             if (superSignatures.exists(isExtension)) {
               holder.createErrorAnnotation(
-                memberNameId,
+                nameId.forHighlighting,
                 ScalaBundle.message("regular.method.overrides.extension", namedElement.name)
               )
               true
@@ -210,13 +210,13 @@ trait OverridingAnnotator {
                   case _ => None
                 }
               }.map {
-                new AddOverrideWithKeyword(member, memberNameId, _)
+                new AddOverrideWithKeyword(member, nameId.name, _)
               }
-            case _ => Some(new Add(member, memberNameId, Override))
+            case _ => Some(new Add(member, nameId.name, Override))
           }
 
           holder.createErrorAnnotation(
-            memberNameId,
+            nameId.forHighlighting,
             ScalaBundle.message("member.needs.override.modifier", memberType, namedElement.name),
             maybeQuickFix
           )
@@ -236,14 +236,18 @@ trait OverridingAnnotator {
           }
         }
         if (overridesFinal) {
-          holder.createErrorAnnotation(memberNameId,
-            ScalaBundle.message("can.not.override.final", memberType, namedElement.name))
+          holder.createErrorAnnotation(
+            nameId.forHighlighting,
+            ScalaBundle.message("can.not.override.final", memberType, namedElement.name)
+          )
         }
 
         def annotateVarFromVal(): Unit = {
           def addAnnotation(): Unit = {
-            holder.createErrorAnnotation(memberNameId,
-              ScalaBundle.message("var.cannot.override.val", namedElement.name))
+            holder.createErrorAnnotation(
+              nameId.forHighlighting,
+              ScalaBundle.message("var.cannot.override.val", namedElement.name)
+            )
           }
 
           for (signature <- superSignatures) {
@@ -262,8 +266,10 @@ trait OverridingAnnotator {
 
         def annotateFunFromValOrVar(): Unit = {
           def annotVal(): Unit = {
-            holder.createErrorAnnotation(memberNameId,
-              ScalaBundle.message("member.cannot.override.val", namedElement.name))
+            holder.createErrorAnnotation(
+              nameId.forHighlighting,
+              ScalaBundle.message("member.cannot.override.val", namedElement.name)
+            )
           }
 
           for (signature <- superSignatures) {
@@ -351,7 +357,7 @@ trait OverridingAnnotator {
         })
       }
 
-      implicit val tpc: TypePresentationContext = TypePresentationContext(memberNameId)
+      implicit val tpc: TypePresentationContext = TypePresentationContext(nameId.forHighlighting)
 
       if (!isMismatchedExtension) {
         for {
@@ -361,7 +367,7 @@ trait OverridingAnnotator {
           if !overrideTypeMatchesBase(baseType, overridingType, superSig, superSig.namedElement.name)
         } {
           holder.createErrorAnnotation(
-            memberNameId,
+            nameId.forHighlighting,
             ScalaBundle.message(
               "override.types.not.conforming",
               overridingType.presentableText,

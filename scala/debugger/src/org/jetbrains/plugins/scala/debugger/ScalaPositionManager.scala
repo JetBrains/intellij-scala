@@ -825,7 +825,7 @@ object ScalaPositionManager {
           case _: ScExpression => true
           case _: ScConstructorPattern | _: ScInfixPattern | _: ScBindingPattern => true
           case callRefId childOf ((ref: ScReferenceExpression) childOf (_: ScMethodCall))
-            if ref.nameId == callRefId && ref.getTextRange.getStartOffset < startLine => true
+            if ref.nameId.isElement(callRefId) && ref.getTextRange.getStartOffset < startLine => true
           case _: ScTypeDefinition => true
           case _ => false
         }

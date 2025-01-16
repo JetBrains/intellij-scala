@@ -96,7 +96,7 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
 
           Seq(
             ProblemInfo(
-              named.nameId,
+              named.nameId.forHighlighting,
               message,
               DeleteUnusedElementFix.quickfixesFor(named) ++
                 dontReportPublicDeclarationsQuickFix ++

@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.autoImport.quickFix
 
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiClass, PsiNamedElement}
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -44,9 +45,9 @@ final class ImportImplicitInstanceFix private (notFoundImplicitParams: () => Seq
   override def getFamilyName: String =
     ScalaBundle.message("import.implicit")
 
-  override protected def getHintRange: (Int, Int) = {
+  override protected def getHintRange: TextRange = {
     val endOffset = owner.endOffset
-    (endOffset, endOffset)
+    TextRange.from(endOffset, 0)
   }
 }
 

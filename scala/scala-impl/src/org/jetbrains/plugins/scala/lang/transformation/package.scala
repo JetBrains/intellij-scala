@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement.NameId
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
@@ -94,15 +95,16 @@ package object transformation {
 
   object RenamedReference {
     def unapply(r: ScReference): Option[(String, String)] = {
-      val id = r.nameId
+      lazy val id = r.nameId
+      lazy val name = id.placeElement
       r.bind().map(_.element) collect  {
-        case target: PsiNamedElement if !id.textMatches(target.name) => (id.getText, target.name)
+        case target: PsiNamedElement if !name.textMatches(target.name) => (name.getText, target.name)
       }
     }
   }
 
   object QualifiedReference {
-    def unapply(r: ScReference): Some[(Option[ScalaPsiElement], PsiElement)] =
+    def unapply(r: ScReference): Some[(Option[ScalaPsiElement], NameId)] =
       Some(r.qualifier, r.nameId)
   }
 }

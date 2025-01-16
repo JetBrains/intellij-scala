@@ -128,7 +128,7 @@ class ScalaAnnotator extends Annotator
       }
 
       override def visitFunctionDeclaration(fun: ScFunctionDeclaration): Unit = {
-        checkAbstractMemberPrivateModifier(fun, Seq(fun.nameId))
+        checkAbstractMemberPrivateModifier(fun, Seq(fun.nameId.forHighlighting))
         super.visitFunctionDeclaration(fun)
       }
 
@@ -158,7 +158,7 @@ class ScalaAnnotator extends Annotator
       override def visitTypeAlias(alias: ScTypeAlias): Unit = {
         if (typeAware && !compiled) checkOverrideTypeAliases(alias)
 
-        if (!compoundType(alias)) checkBoundsVariance(alias, alias.nameId, alias, checkTypeDeclaredSameBracket = false)
+        if (!compoundType(alias)) checkBoundsVariance(alias, alias.nameId.forHighlighting, alias, checkTypeDeclaredSameBracket = false)
         super.visitTypeAlias(alias)
       }
 
@@ -177,7 +177,7 @@ class ScalaAnnotator extends Annotator
       }
 
       override def visitValueDeclaration(v: ScValueDeclaration): Unit = {
-        checkAbstractMemberPrivateModifier(v, v.declaredElements.map(_.nameId))
+        checkAbstractMemberPrivateModifier(v, v.declaredElements.map(_.nameId.forHighlighting))
         super.visitValueDeclaration(v)
       }
 
@@ -215,7 +215,12 @@ class ScalaAnnotator extends Annotator
     element match {
       case templateDefinition: ScTemplateDefinition =>
         if (!isDumbMode) {
-          checkBoundsVariance(templateDefinition, templateDefinition.nameId, templateDefinition.nameId, Covariant)
+          checkBoundsVariance(
+            templateDefinition,
+            templateDefinition.nameId.forHighlighting,
+            templateDefinition.nameId.forHighlighting,
+            Covariant
+          )
         }
 
         templateDefinition match {
@@ -241,7 +246,7 @@ class ScalaAnnotator extends Annotator
     toCheck match {
       case paramOwner: ScTypeParametersOwner =>
         for (param <- paramOwner.typeParameters) {
-          checkBoundsVariance(param, param.nameId, checkParentOf, -upperV)
+          checkBoundsVariance(param, param.nameId.forHighlighting, checkParentOf, -upperV)
         }
       case _ =>
     }
@@ -273,11 +278,11 @@ class ScalaAnnotator extends Annotator
   private def checkFunctionForVariance(fun: ScFunction)
                                       (implicit holder: ScalaAnnotationHolder): Unit = {
     if (!modifierIsThis(fun) && !compoundType(fun)) { //if modifier contains [this] or if it is a compound type we do not highlight it
-      checkBoundsVariance(fun, fun.nameId, fun.getParent)
+      checkBoundsVariance(fun, fun.nameId.forHighlighting, fun.getParent)
       if (!childHasAnnotation(fun.returnTypeElement, "uncheckedVariance")) {
         fun.returnType match {
           case Right(returnType) =>
-            checkVariance(ScalaType.expandAliases(returnType).getOrElse(returnType), Covariant, fun.nameId,
+            checkVariance(ScalaType.expandAliases(returnType).getOrElse(returnType), Covariant, fun.nameId.forHighlighting,
               fun.getParent)
           case _ =>
         }
@@ -286,7 +291,7 @@ class ScalaAnnotator extends Annotator
         parameter.typeElement match {
           case Some(te) if !childHasAnnotation(Some(te), "uncheckedVariance") =>
             checkVariance(ScalaType.expandAliases(te.calcType).getOrElse(te.calcType), Contravariant,
-              parameter.nameId, fun.getParent)
+              parameter.nameId.forHighlighting, fun.getParent)
           case _ =>
         }
       }
@@ -309,11 +314,11 @@ class ScalaAnnotator extends Annotator
                                  (implicit holder: ScalaAnnotationHolder): Unit = {
     if (!modifierIsThis(toCheck) && !childHasAnnotation(Some(toCheck), "uncheckedVariance")) {
       if (toCheck.isVar) {
-        checkTypeVariance(toCheck, Contravariant, toCheck.nameId, toCheck)
-        checkTypeVariance(toCheck, Covariant, toCheck.nameId, toCheck)
+        checkTypeVariance(toCheck, Contravariant, toCheck.nameId.forHighlighting, toCheck)
+        checkTypeVariance(toCheck, Covariant, toCheck.nameId.forHighlighting, toCheck)
       }
       else if (toCheck.isValEffectively) {
-        checkTypeVariance(toCheck, Covariant, toCheck.nameId, toCheck)
+        checkTypeVariance(toCheck, Covariant, toCheck.nameId.forHighlighting, toCheck)
       }
     }
   }
@@ -331,7 +336,7 @@ class ScalaAnnotator extends Annotator
                                    (implicit holder: ScalaAnnotationHolder): Unit = {
     if (!modifierIsThis(toCheck)) {
       for (element <- declaredElements) {
-        checkTypeVariance(element, variance, element.nameId, toCheck)
+        checkTypeVariance(element, variance, element.nameId.forHighlighting, toCheck)
       }
     }
   }
@@ -363,9 +368,9 @@ class ScalaAnnotator extends Annotator
       if (positionV != elementV && elementV != Invariant) {
         val typePName = typeParam.toString
         val pos =
-          if (toHighlight.isInstanceOf[ScVariable]) toHighlight.getText + "_="
+          if (toHighlight.is[ScVariable]) toHighlight.getText + "_="
           else toHighlight.getText
-        val isMethod = toHighlight.isInstanceOf[ScFunction] // "method" else "value"
+        val isMethod = toHighlight.is[ScFunction] // "method" else "value"
         val elementVariance = elementV.name
         val posVariance = positionV.name
 
@@ -394,14 +399,14 @@ class ScalaAnnotator extends Annotator
               val compareTo = scTypeParam.owner
               val parentIt = checkParentOf.parents
               //if it's a function inside function we do not highlight it unless trait or class is defined inside this function
-              parentIt.find(e => e == compareTo || e.isInstanceOf[ScFunction]) match {
+              parentIt.find(e => e == compareTo || e.is[ScFunction]) match {
                 case Some(_: ScFunction) =>
                 case _ =>
                   def findVariance: Variance = {
                     if (!checkIfTypeIsInSameBrackets) return v
                     if (PsiTreeUtil.isAncestor(scTypeParam.getParent, toHighlight, false))
                     //we do not highlight element if it was declared inside parameterized type.
-                      if (!scTypeParam.getParent.getParent.isInstanceOf[ScTemplateDefinition]) return scTypeParam.variance
+                      if (!scTypeParam.getParent.getParent.is[ScTemplateDefinition]) return scTypeParam.variance
                       else return -v
                     if (toHighlight.getParent == scTypeParam.getParent.getParent) return -v
                     v

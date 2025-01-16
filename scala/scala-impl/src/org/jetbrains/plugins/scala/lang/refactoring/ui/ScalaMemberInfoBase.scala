@@ -64,10 +64,10 @@ abstract class ScalaMemberInfoBase[Member <: PsiElement](member: Member) extends
 object ScalaMemberInfoBase {
 
   private def getTypeDefinitionPresentableText(typeDefinition: ScTypeDefinition): String =
-    if (typeDefinition.nameId != null) typeDefinition.nameId.getText else ScalaBundle.message("presentable.definition.unnamed")
+    typeDefinition.nameId.name.getOrElse(ScalaBundle.message("presentable.definition.unnamed"))
 
   private def getTypeAliasPresentableText(typeAlias: ScTypeAlias): String =
-    if (typeAlias.nameId != null) typeAlias.nameId.getText else ScalaBundle.message("presentable.type.unnamed")
+    typeAlias.nameId.name.getOrElse(ScalaBundle.message("presentable.type.unnamed"))
 
   private def getValOrVarPresentableText(elem: ScNamedElement): String = {
     val typeText = elem match {

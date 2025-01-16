@@ -36,10 +36,11 @@ final class ScalaRainbowVisitor extends RainbowVisitor {
   override def visit(element: PsiElement): Unit = {
     if (!isVisible(element)) return
 
-    Some(element).collect {
-      case tagValue: ScDocTagValue => (tagValue, tagValue)
-      case named@NameContext(context) => (context, named.nameId)
-      case reference@ScReferenceExpression(NameContext(context)) => (context, reference.nameId)
+    Some(element).flatMap {
+      case tagValue: ScDocTagValue => Some((tagValue, tagValue))
+      case named@NameContext(context) => named.nameId.place.map((context, _))
+      case reference@ScReferenceExpression(NameContext(context)) => Some((context, reference.nameId.placeElement))
+      case _ => None
     }.collect {
       case (ColorKey(PsiContext(context), colorKey), rainbowElement) =>
         getInfo(context, rainbowElement, rainbowElement.getText, colorKey)

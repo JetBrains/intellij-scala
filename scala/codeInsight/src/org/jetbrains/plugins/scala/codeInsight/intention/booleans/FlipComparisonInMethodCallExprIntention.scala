@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.codeInsight.intention.booleans.FlipComparisonInMethodCallExprIntention.{Replacement, createFlippedCall}
 import org.jetbrains.plugins.scala.codeInsight.intention.caretIsInRange
 import org.jetbrains.plugins.scala.extensions.ParenthesizedElement.Ops
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
@@ -53,14 +54,14 @@ final class FlipComparisonInMethodCallExprIntention extends PsiElementBaseIntent
       case _ => return
     }
 
-    val start = methodCallExpr.getTextRange.getStartOffset
-    val diff = editor.getCaretModel.getOffset - operation.nameId.getTextRange.getStartOffset
+    val start = methodCallExpr.startOffset
+    val diff = editor.getCaretModel.getOffset - operation.nameId.startOffset
 
     import methodCallExpr.projectContext
     val flipped = createFlippedCall(qualifier.getText, operation, argumentExpr)(element)
 
-    val size = flipped.getInvokedExpr.asInstanceOf[ScReferenceExpression].nameId.
-      getTextRange.getStartOffset - flipped.getTextRange.getStartOffset
+    val size = flipped.getInvokedExpr.asInstanceOf[ScReferenceExpression].nameId.startOffset -
+      flipped.startOffset
 
     IntentionPreviewUtils.write { () =>
       methodCallExpr.replaceExpression(flipped, removeParenthesis = true)

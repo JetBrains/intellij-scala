@@ -782,11 +782,11 @@ object ScalaSmartCompletionContributor {
         case f: ScFunctionExpr =>
           for (parameter <- f.parameters) {
             parameter.typeElement.foreach(seekAbstracts(_))
-            builder.replaceElement(parameter.nameId, parameter.name)
+            builder.replaceElement(parameter.nameId.prepareToReplace(), parameter.name)
           }
           f.result.foreach {
             case qMarks: ScReferenceExpression if qMarks.refName == NotImplementedError =>
-              builder.replaceElement(qMarks.nameId, qMarks.refName)
+              builder.replaceElement(qMarks.nameId.prepareToReplace(), qMarks.refName)
             case _ =>
           }
         case c: ScCaseClause => c.pattern match {
@@ -797,7 +797,7 @@ object ScalaSmartCompletionContributor {
                 case _ =>
               }
 
-              builder.replaceElement(binding.nameId, binding.name)
+              builder.replaceElement(binding.nameId.prepareToReplace(), binding.name)
             }
           case _ =>
         }

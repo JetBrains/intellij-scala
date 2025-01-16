@@ -4,6 +4,7 @@ package typedef
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScCommentOwner, ScDeclaredElementsHolder, ScParameterOwner}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement.NameId
 
 trait ScGiven extends ScalaPsiElement
   with ScNamedElement
@@ -14,6 +15,8 @@ trait ScGiven extends ScalaPsiElement
   with ScDocCommentOwner
   with ScParameterOwner.WithContextBounds
   with ScDeclaredElementsHolder {
+
+  override def nameId: NameId.NonAnonymous
 
   // TODO Why it's a subtype of ScNamedElement if there might be no name?
   def nameElement: Option[PsiElement]

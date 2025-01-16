@@ -30,11 +30,8 @@ object CaseClassWithoutParamList extends AnnotatorPart[ScClass] with DumbAware {
     }
 
     if (element.isCase && !element.clauses.exists(_.clauses.nonEmpty)) {
-      val nameId = element.nameId
-      if (nameId != null) {
-        val fixes = Seq(new ConvertToObjectFix(element), new AddEmptyParenthesesToPrimaryConstructorFix(element))
-        createAnnotation(nameId, fixes)
-      }
+      val fixes = Seq(new ConvertToObjectFix(element), new AddEmptyParenthesesToPrimaryConstructorFix(element))
+      createAnnotation(element.nameId.forHighlighting, fixes)
     }
   }
 }

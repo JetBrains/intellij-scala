@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithR
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement.NameId
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceImpl
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -35,8 +36,8 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScReferenceImpl(node) with ScT
     doResolve(new ResolveProcessor(getKinds(incomplete), ScTypeProjectionImpl.this, refName))
   }
 
-  override def bindToElement(p1: PsiElement) = throw new IncorrectOperationException("NYI")
-  override def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
+  override def bindToElement(p1: PsiElement): PsiElement = throw new IncorrectOperationException("NYI")
+  override def nameId: NameId.Name = new NameId.Name(findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER))
   override def qualifier: Option[ScalaPsiElement] = None
 
   override def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ScalaResolveResult] = {

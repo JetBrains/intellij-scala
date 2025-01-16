@@ -58,7 +58,7 @@ class InplaceRenameHelper(@NotNull private val parent: PsiElement) {
   }
 
   def addGroup(primary: ScNamedElement, dependents: Seq[PsiElement], suggestedNames: Iterable[String]): Unit = {
-    addGroup(primary.nameId, primary.name, dependents.map((_, null)), suggestedNames)
+    addGroup(primary.nameId.prepareToReplace(), primary.name, dependents.map((_, null)), suggestedNames)
   }
 
   def startRenaming(): Unit = {

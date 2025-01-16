@@ -18,7 +18,7 @@ class TypeDefinition(definition: ScTypeDefinition) extends AbstractTreeElementDe
     ScalaElementPresentationUtil.getTypeDefinitionIconWithKind(definition)
 
   override def getPresentableText: String = {
-    val name = Option(definition.nameId).map(_.getText)
+    val name = definition.nameId.forcedName
 
     val typeParameters = definition.typeParametersClause.map(_.typeParameters.map(_.name).mkString("[", ", ", "]"))
 
@@ -28,7 +28,7 @@ class TypeDefinition(definition: ScTypeDefinition) extends AbstractTreeElementDe
       }
     }
 
-    NlsString.force(name.getOrElse("") + typeParameters.getOrElse("") + valueParameters.getOrElse(""))
+    NlsString.force(name + typeParameters.getOrElse("") + valueParameters.getOrElse(""))
   }
 
   override def children: Seq[PsiElement] = childrenOf(definition)

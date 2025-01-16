@@ -17,7 +17,7 @@ import javax.swing.Icon
 
 trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinition with NavigationItem with PsiDocCommentOwner {
 
-  def isWildcard: Boolean = name == "_"
+  def isWildcard: Boolean = nameId.isAnonymous
 
   override def isStable: Boolean = {
     val typedPattern = {

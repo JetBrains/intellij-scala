@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement.NameId
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, UndefinedType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
@@ -35,7 +36,7 @@ final case class LightContextFunctionParameter(project: Project, syntheticName: 
   override def deprecatedName: Option[String]                   = None
   override def expectedParamType: Option[ScType]                = None
   override def toString: String                                 = syntheticName
-  override def nameId: PsiElement                               = null
+  override def nameId: NameId                                   = new NameId.SyntheticName(syntheticName)
   override def name: String                                     = syntheticName
   override def isImplicit: Boolean                              = true
   override def isInClauseWithImplicit: Boolean                  = false

@@ -552,13 +552,13 @@ package object collections {
     val endOffset = parent.end
 
     val startOffset = expr match {
-      case _ childOf ScInfixExpr(`expr`, op, _) => op.nameId.getTextOffset
+      case _ childOf ScInfixExpr(`expr`, op, _) => op.nameId.startOffset
       case _ childOf (pfix @ ScPostfixExpr(`expr`, op))  =>
-        if (pfix.getContext == pfix.getParent) op.nameId.getTextOffset
+        if (pfix.getContext == pfix.getParent) op.startOffset
         else
           pfix.getContext.getTextOffset + op.getTextRangeInParent.getStartOffset
       case _ childOf (ref @ ScReferenceExpression.withQualifier(`expr`)) =>
-        ref.nameId.getTextOffset
+        ref.nameId.startOffset
       case _ => expr.getTextRange.getEndOffset
     }
     TextRange.create(startOffset, endOffset).shiftRight( - parent.getTextOffset)
@@ -567,7 +567,7 @@ package object collections {
   @tailrec
   def refNameId(expr: ScExpression): Option[PsiElement] = stripped(expr) match {
     case MethodRepr(_: ScMethodCall, Some(base), None, _) => refNameId(base)
-    case MethodRepr(_, _,Some(ref), _) => Some(ref.nameId)
+    case MethodRepr(_, _,Some(ref), _) => Some(ref.nameId.placeElement)
     case _ => None
   }
 

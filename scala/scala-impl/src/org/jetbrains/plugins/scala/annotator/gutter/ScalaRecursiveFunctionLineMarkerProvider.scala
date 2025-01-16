@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement.NameId
 
 import javax.swing.Icon
 
@@ -46,14 +47,14 @@ final class ScalaRecursiveFunctionLineMarkerProvider extends LineMarkerProvider 
 }
 
 object ScalaRecursiveFunctionLineMarkerProvider {
-  private def createLineMarkerInfo(icon: Icon, psiElemToTooltip: String => String, element: PsiElement): LineMarkerInfo[PsiElement] =
+  private def createLineMarkerInfo(icon: Icon, psiElemToTooltip: String => String, nameId: NameId): LineMarkerInfo[PsiElement] =
     new LineMarkerInfo(
-      element,
-      element.getTextRange,
+      nameId.forNavigation,
+      nameId.forHighlighting.getTextRange,
       icon,
       (e: PsiElement) => psiElemToTooltip(e.getText),
       null,
       Alignment.LEFT,
-      () => psiElemToTooltip(element.getText)
+      () => psiElemToTooltip(nameId.forcedName)
     )
 }

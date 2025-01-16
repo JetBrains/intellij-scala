@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.TYPE_DECLARATION
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScContextBound, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createIdentifier
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement.NameId
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeAliasStub
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing}
@@ -36,9 +36,9 @@ final class ScTypeAliasDeclarationImpl private(stub: ScTypeAliasStub, node: ASTN
     }
   }
 
-  override def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER) match {
-    case null => createIdentifier(getGreenStub.getName).getPsi
-    case n => n
+  override def nameId: NameId = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER) match {
+    case null => new NameId.SyntheticName(getGreenStub.getName)
+    case n => new NameId.Name(n)
   }
 
   override def toString: String = "ScTypeAliasDeclaration: " + ifReadAllowed(name)("")

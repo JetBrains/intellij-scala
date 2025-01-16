@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockStatement, ScExpres
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScValue, ScValueOrVariable, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement.NameId
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.ScUElement
@@ -29,7 +30,7 @@ trait ScUVariableCommon extends ScUElement with UAnchorOwner with UAnnotated {
 
   //region Abstract elements section
   protected def lightVariable: PsiVariable
-  protected def nameId: PsiElement
+  protected def nameId: NameId
   protected def typeElem: Option[ScTypeElement]
   protected def initializer: Option[ScBlockStatement]
   //endregion
@@ -42,7 +43,7 @@ trait ScUVariableCommon extends ScUElement with UAnchorOwner with UAnnotated {
   def getUastInitializer: UExpression =
     initializer.map(_.convertToUExpressionOrEmpty(this)).orNull
 
-  override def getUastAnchor: UIdentifier = createUIdentifier(nameId, this)
+  override def getUastAnchor: UIdentifier = createUIdentifier(nameId.place.orNull, this)
 
   override def getUAnnotations: util.List[UAnnotation] =
     lightVariable.getAnnotations
@@ -59,7 +60,7 @@ trait ScUVariableCommon extends ScUElement with UAnchorOwner with UAnnotated {
   */
 final class ScUField(override protected val lightVariable: PsiField,
                      @Nullable sourcePsi: PsiElement,
-                     override protected val nameId: PsiElement,
+                     override protected val nameId: NameId,
                      override protected val typeElem: Option[ScTypeElement],
                      override protected val initializer: Option[ScExpression],
                      override protected val parent: LazyUElement)
@@ -83,7 +84,7 @@ final class ScUField(override protected val lightVariable: PsiField,
 final class ScULocalVariable(
   override protected val lightVariable: PsiLocalVariable,
   @Nullable sourcePsi: PsiElement,
-  override protected val nameId: PsiElement,
+  override protected val nameId: NameId,
   override protected val typeElem: Option[ScTypeElement],
   override protected val initializer: Option[ScExpression],
   override protected val parent: LazyUElement

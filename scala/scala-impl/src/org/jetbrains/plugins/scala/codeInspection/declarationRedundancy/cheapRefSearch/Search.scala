@@ -342,7 +342,7 @@ private[declarationRedundancy] object Search {
         case e: ScalaPsiElement if e.module.exists(_.isBuildModule) => false
         case e: PsiElement if UnusedDeclarationInspectionBase.isDeclaredAsEntryPoint(e) => false
         case obj: ScObject if ScalaMainMethodUtil.hasScala2MainMethod(obj) => false
-        case n: ScNamedElement if n.nameId == null || n.name == "_" || isOverridingOrOverridden(n) => false
+        case n: ScNamedElement if n.nameId.isAnonymous || isOverridingOrOverridden(n) => false
         case n: ScNamedElement =>
           n match {
             case p: ScModifierListOwner if hasOverrideModifier(p) => false

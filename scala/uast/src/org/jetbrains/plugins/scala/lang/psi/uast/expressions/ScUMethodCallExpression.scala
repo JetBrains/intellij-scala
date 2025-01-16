@@ -35,7 +35,7 @@ trait ScUMethodCallCommon
 
   @Nullable
   override def getMethodIdentifier: UIdentifier =
-    scReference.map(ref => createUIdentifier(ref.nameId, this)).orNull
+    scReference.map(ref => createUIdentifier(ref.nameId.placeElement, this)).orNull
 
   @Nullable
   override def getMethodName: String = scReference.map(_.refName).orNull

@@ -65,7 +65,7 @@ object ModifierQuickFix {
     override def getFamilyName: String = ScalaBundle.message("remove.named.modifier.fix", modifierElement.getText)
   }
 
-  final class Remove(listOwner: ScModifierListOwner, @Nullable nameId: PsiElement, modifier: ScalaModifier) extends ModifierQuickFix(listOwner) {
+  final class Remove(listOwner: ScModifierListOwner, name: Option[String], modifier: ScalaModifier) extends ModifierQuickFix(listOwner) {
     override def onModifierList(modifierList: ScModifierList): Unit = {
       modifierList.setModifierProperty(modifier.text, false)
 
@@ -73,12 +73,13 @@ object ModifierQuickFix {
       formatModifierList(modifierList)
     }
 
-    override def getFamilyName: String =
-      if (nameId == null) ScalaBundle.message("remove.named.modifier.fix", modifier.text)
-      else daemon.QuickFixBundle.message("remove.modifier.fix", nameId.getText, modifier.text)
+    override def getFamilyName: String = name match {
+      case Some(name) => daemon.QuickFixBundle.message("remove.modifier.fix", name, modifier.text)
+      case None => ScalaBundle.message("remove.named.modifier.fix", modifier.text)
+    }
   }
 
-  sealed class Add(listOwner: ScModifierListOwner, @Nullable nameId: PsiElement, modifier: ScalaModifier)
+  sealed class Add(listOwner: ScModifierListOwner, name: Option[String], modifier: ScalaModifier)
     extends ModifierQuickFix(listOwner) {
 
     override def onModifierList(modifierList: ScModifierList): Unit = {
@@ -86,12 +87,14 @@ object ModifierQuickFix {
     }
 
     override def getFamilyName: String =
-      if (nameId == null) ScalaBundle.message("add.modifier.fix.without.name", modifier.text)
-      else daemon.QuickFixBundle.message("add.modifier.fix", nameId.getText, modifier.text)
+      name match {
+        case Some(name) => daemon.QuickFixBundle.message("add.modifier.fix", name, modifier.text)
+        case None =>  ScalaBundle.message("add.modifier.fix.without.name", modifier.text)
+      }
   }
 
-  final class AddOverrideWithKeyword(listOwner: ScModifierListOwner, nameId: PsiElement, keywordType: IElementType)
-    extends Add(listOwner, nameId, Override) {
+  final class AddOverrideWithKeyword(listOwner: ScModifierListOwner, name: Option[String], keywordType: IElementType)
+    extends Add(listOwner, name, Override) {
 
     override def onModifierList(modifierList: ScModifierList): Unit = {
       val keyword = ScalaPsiElementFactory.createDeclarationFromText(

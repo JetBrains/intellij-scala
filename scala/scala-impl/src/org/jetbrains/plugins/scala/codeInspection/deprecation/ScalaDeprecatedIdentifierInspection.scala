@@ -12,12 +12,12 @@ final class ScalaDeprecatedIdentifierInspection extends LocalInspectionTool with
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case ref: ScReference if deprecatedNames.contains(ref.refName) =>
       holder.registerProblem(
-        ref.nameId,
+        ref.nameId.forHighlighting,
         ScalaInspectionBundle.message("usage.of.deprecatedname.as.identifier.is.deprecated", ref.refName),
       )
     case named: ScNamedElement if deprecatedNames.contains(named.name) =>
       holder.registerProblem(
-        named.nameId,
+        named.nameId.forHighlighting,
         ScalaInspectionBundle.message("usage.of.deprecatedname.as.identifier.is.deprecated", named.name),
       )
     case _ =>

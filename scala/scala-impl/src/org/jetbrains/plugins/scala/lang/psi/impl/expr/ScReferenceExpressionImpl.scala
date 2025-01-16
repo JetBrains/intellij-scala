@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScNamedTupleCom
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement.NameId
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaElementVisitor, ScalaFile, ScalaRecursiveElementVisitor}
@@ -39,9 +40,10 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
 
   override def toString: String = "ReferenceExpression: " + ifReadAllowed(getText)("")
 
-  override def nameId: PsiElement = {
+  override def nameId: NameId.Placed = {
     val id = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
-    if (id != null) id else findChildByType[PsiElement](TokenType.ERROR_ELEMENT) // foo.bar.
+    if (id != null) new NameId.Name(id)
+    else new NameId.Error(findChildByType[PsiElement](TokenType.ERROR_ELEMENT)) // foo.bar.
   }
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {

@@ -101,7 +101,7 @@ object CreateFromUsageUtil {
 
   def addTypeParametersToTemplate(elem: PsiElement, builder: TemplateBuilder): Unit = {
     elem.depthFirst().filterByType[ScTypeParam].foreach { tp =>
-      builder.replaceElement(tp.nameId, tp.name)
+      builder.replaceElement(tp.nameId.prepareToReplace(), tp.name)
     }
   }
 

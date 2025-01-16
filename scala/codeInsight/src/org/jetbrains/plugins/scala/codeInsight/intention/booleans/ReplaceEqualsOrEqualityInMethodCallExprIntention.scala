@@ -29,10 +29,10 @@ final class ReplaceEqualsOrEqualityInMethodCallExprIntention extends PsiElementB
 
     val invokedExpression: ScReferenceExpression = methodCallExpr.getInvokedExpr.asInstanceOf[ScReferenceExpression]
 
-    val oper = invokedExpression.nameId.getText
+    val oper = invokedExpression.nameId.forcedName
     if (!replaceOper.contains(oper)) return false
 
-    val range: TextRange = invokedExpression.nameId.getTextRange
+    val range: TextRange = invokedExpression.nameId.textRange
     val offset = editor.getCaretModel.getOffset
     if (range.getStartOffset > offset || range.getEndOffset < offset) return false
 
@@ -46,7 +46,7 @@ final class ReplaceEqualsOrEqualityInMethodCallExprIntention extends PsiElementB
     if (methodCallExpr == null || !methodCallExpr.isValid) return
 
     val scReferenceExpression: ScReferenceExpression = methodCallExpr.getInvokedExpr.asInstanceOf[ScReferenceExpression]
-    val oper = scReferenceExpression.nameId.getText
+    val oper = scReferenceExpression.nameId.forcedName
     val desiredOper: String = replaceOper(oper)
 
     val convertedExpr: String = convertExpression(methodCallExpr, scReferenceExpression, desiredOper)
@@ -70,7 +70,7 @@ object ReplaceEqualsOrEqualityInMethodCallExprIntention {
   private def findCaretOffset(expr: ScExpression): Int = expr match {
     case ScParenthesisedExpr(inner) => findCaretOffset(inner)
     case ScInfixExpr(_, op, _) => op.getTextRange.getStartOffset
-    case ScMethodCall(ref: ScReferenceExpression, _) => ref.nameId.getTextRange.getStartOffset
+    case ScMethodCall(ref: ScReferenceExpression, _) => ref.nameId.startOffset
     case _ => expr.getTextRange.getStartOffset
   }
 

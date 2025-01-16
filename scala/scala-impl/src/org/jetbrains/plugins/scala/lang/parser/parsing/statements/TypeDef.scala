@@ -23,7 +23,7 @@ object TypeDef extends ParsingRule {
       case ScalaTokenTypes.tIDENTIFIER =>
         builder.advanceLexer() //Ate identifier
       case _ =>
-        builder.error(ScalaBundle.message("identifier.expected"))
+        //builder.error(ScalaBundle.message("identifier.expected"))
         faultMarker.rollbackTo()
         return false
     }

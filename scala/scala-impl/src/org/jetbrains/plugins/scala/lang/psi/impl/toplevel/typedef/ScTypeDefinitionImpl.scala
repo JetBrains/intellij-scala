@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumCases, ScFunction, ScTypeAliasDeclaration}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement.NameId
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -156,7 +157,8 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
       super.isLocal && PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition]) != null
     }
 
-  override def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
+  override def nameId: NameId =
+    NameId.fromIdSetToken(findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER))
 
   override def getContainingClass: PsiClass = {
     super[ScTypeDefinition].getContainingClass match {

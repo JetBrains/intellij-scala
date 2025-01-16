@@ -198,7 +198,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
     } else {
       def showError(): Unit = {
         val error = ScalaBundle.message("forward.reference.detected")
-        holder.createErrorAnnotation(refElement.nameId, error)
+        holder.createErrorAnnotation(refElement.nameId.forHighlighting, error)
       }
 
       refElement.getContainingFile match {
@@ -287,7 +287,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
           }
 
           holder.createErrorAnnotation(
-            refElement.nameId,
+            refElement.nameId.forHighlighting,
             message,
             ReportHighlightingErrorQuickFix :: typeDefFix
           )
@@ -300,10 +300,10 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
         case _: ScImportSelector if resolve.length > 0 => return
         case _: ScMethodCall if resolve.length > 1 =>
           val error = ScalaBundle.message("cannot.resolve.overloaded", refElement.refName)
-          holder.createErrorAnnotation(refElement.nameId, error)
+          holder.createErrorAnnotation(refElement.nameId.forHighlighting, error)
         case _: ScMethodCall if resolve.length > 1 =>
           val error = ScalaBundle.message("cannot.resolve.overloaded", refElement.refName)
-          holder.createErrorAnnotation(refElement.nameId, error)
+          holder.createErrorAnnotation(refElement.nameId.forHighlighting, error)
         case mc: ScMethodCall if addCreateApplyOrUnapplyFix(
           ScalaBundle.message("cannot.resolve.apply.method", _),
           td => new CreateApplyQuickFix(td, mc)
@@ -321,15 +321,15 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
 
   private def createUnknownSymbolProblem(reference: ScReference)
                                         (implicit holder: ScalaAnnotationHolder): Unit = {
-    val identifier = reference.nameId
+    val nameId = reference.nameId
     val fixes =
       UnresolvedReferenceFixProvider.fixesFor(reference) :+
         ReportHighlightingErrorQuickFix :++
         createFixesByUsages(reference) // TODO We can now use UnresolvedReferenceFixProvider to decoupte custom fixes from the annotator
 
     holder.createErrorAnnotation(
-      identifier,
-      ScalaBundle.message("cannot.resolve", identifier.getText),
+      nameId.forHighlighting,
+      ScalaBundle.message("cannot.resolve", nameId.forcedName),
       ProblemHighlightType.LIKE_UNKNOWN_SYMBOL,
       fixes
     )
@@ -339,13 +339,13 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
                                        (implicit holder: ScalaAnnotationHolder): Unit = {
     val isRootRef = !scalaDocRef.getParent.is[ScDocResolvableCodeReference]
     if (resolveResult.isEmpty && isRootRef) {
-      val elementToAnnotate = scalaDocRef.nameId
-      val message = ScalaBundle.message("cannot.resolve", elementToAnnotate.getText)
+      val nameId = scalaDocRef.nameId
+      val message = ScalaBundle.message("cannot.resolve", nameId.forcedName)
       val fix = ScalaImportTypeFix(scalaDocRef)
       if (HighlightUnresolvedScalaDocLinksAsErrors) {
-        holder.createErrorAnnotation(elementToAnnotate, message, fix)
+        holder.createErrorAnnotation(nameId.forHighlighting, message, fix)
       } else {
-        holder.createWarningAnnotation(elementToAnnotate, message, fix)
+        holder.createWarningAnnotation(nameId.forHighlighting, message, fix)
       }
     }
   }
@@ -388,7 +388,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
           return
         case _: ScMethodCall if resolveCount > 1 =>
           val error = ScalaBundle.message("cannot.resolve.overloaded", refElement.refName)
-          holder.createErrorAnnotation(refElement.nameId, error)
+          holder.createErrorAnnotation(refElement.nameId.forHighlighting, error)
         case _ =>
           createUnknownSymbolProblem(refElement)
       }
@@ -450,7 +450,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
 
   private def highlightImplicitMethod(refElement: ScReference)
                                      (implicit holder: ScalaAnnotationHolder): Unit = {
-    highlightImplicitView(refElement.nameId)
+    highlightImplicitView(refElement.nameId.forHighlighting)
   }
 
   private def checkAccessForReference(resolve: Array[ScalaResolveResult], refElement: ScReference)
@@ -466,7 +466,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
     resolve(0) match {
       case r if !r.isAccessible =>
         val error = ScalaBundle.message("symbol.is.inaccessible.from.this.place", r.element.name)
-        holder.createErrorAnnotation(refElement.nameId, error)
+        holder.createErrorAnnotation(refElement.nameId.forHighlighting, error)
       //todo: add fixes
       case _ =>
     }

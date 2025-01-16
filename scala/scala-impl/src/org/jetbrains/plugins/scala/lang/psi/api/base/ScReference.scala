@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base
 
 import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.util.TextRangeScalarUtil.startOffset
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.Nullable
@@ -10,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScStableReferenceP
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement.NameId
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -24,11 +26,11 @@ import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
   override def getReference: ScReference = this
 
-  def nameId: PsiElement
+  def nameId: NameId.Placed
 
   def refName: String = {
     assert(nameId != null, s"nameId is null for reference with text $getText; parent: ${getParent.getText}")
-    nameId.getText
+    nameId.explicitName.getOrElse("")
   }
 
   def multiResolveScala(incomplete: Boolean): Array[ScalaResolveResult]
@@ -38,12 +40,12 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
 
   def bind(): Option[ScalaResolveResult]
 
-  private def patternNeedBackticks(name: String) = name != "" && name.charAt(0).isLower && getParent.isInstanceOf[ScStableReferencePattern]
+  private def patternNeedBackticks(name: String) = name != "" && name.charAt(0).isLower && getParent.is[ScStableReferencePattern]
 
   override def getElement: ScReference = this
 
   override def getRangeInElement: TextRange = {
-    val start = nameId.getTextRange.getStartOffset - getTextRange.getStartOffset
+    val start = nameId.startOffset - this.startOffset
     val len = getTextLength
     new TextRange(start, len)
   }
@@ -64,7 +66,7 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
     val needBackticks = patternNeedBackticks(newElementName) || isKeyword(newElementName)
     val newName = if (needBackticks) "`" + newElementName + "`" else newElementName
     if (!isIdentifier(newName)) return this
-    val id = nameId.getNode
+    val id = nameId.placeElement.getNode
     val parent = id.getTreeParent
     parent.replaceChild(id, createIdentifier(newName))
     this

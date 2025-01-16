@@ -209,7 +209,7 @@ object ScalaExtractMethodUtils {
     }
     newVisitor.visitScalaElement(method)
     for ((named, newName) <- bindTo) {
-      val id = named.asInstanceOf[ScNamedElement].nameId
+      val id = named.asInstanceOf[ScNamedElement].nameId.prepareToReplace()
       id.getParent.getNode.replaceChild(id.getNode, createIdentifier(newName)(id.getManager))
     }
     method

@@ -76,7 +76,7 @@ final class ScalaFileNameInspection extends LocalInspectionTool {
     )
 
     manager.createProblemDescriptor(
-      Option(clazz.nameId).getOrElse(clazz),
+      clazz.nameId.forHighlighting,
       getDisplayName,
       isOnTheFly,
       localQuickFixes,

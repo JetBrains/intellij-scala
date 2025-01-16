@@ -24,15 +24,15 @@ object ConvertFromInfixExpressionQuickFix {
 
   def applyFix(infixExpr: ScInfixExpr, editor: Editor)(implicit project: Project): Unit = {
     val start = infixExpr.getTextRange.getStartOffset
-    val diff = editor.getCaretModel.getOffset - infixExpr.operation.nameId.getTextRange.getStartOffset
+    val diff = editor.getCaretModel.getOffset - infixExpr.operation.nameId.startOffset
 
     val methodCallExpr = ScalaPsiElementFactory.createEquivMethodCall(infixExpr)
     val referenceExpr = methodCallExpr.getInvokedExpr match {
       case ref: ScReferenceExpression => ref
       case ScGenericCall(ref, _) => ref
     }
-    val size = referenceExpr.nameId.getTextRange.getStartOffset -
-      methodCallExpr.getTextRange.getStartOffset
+    val size = referenceExpr.nameId.startOffset -
+      methodCallExpr.startOffset
 
     IntentionPreviewUtils.write { () =>
       infixExpr.replaceExpression(methodCallExpr, removeParenthesis = true)

@@ -21,6 +21,8 @@ import org.jetbrains.plugins.scala.console.ScalaLanguageConsole.*
 import org.jetbrains.plugins.scala.console.actions.ScalaConsoleExecuteAction
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement.NameId
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.project.ModuleExt
@@ -212,7 +214,8 @@ class ScalaLanguageConsole(module: Module, language: Language)
     val types  = new mutable.HashMap[String, TextRange]
     val values = new mutable.HashMap[String, (TextRange, Boolean)]
 
-    def addValue(name: String, range: TextRange, replaceWithPlaceholder: Boolean): Unit = {
+    def addValue(nameId: NameId, replaceWithPlaceholder: Boolean): Unit = nameId.place.foreach { place =>
+      val name = nameId.forcedName
       values.get(name) match {
         case Some((oldRange, r)) =>
           val newText =
@@ -222,10 +225,11 @@ class ScalaLanguageConsole(module: Module, language: Language)
         case None =>
       }
 
-      values.put(name, (range, replaceWithPlaceholder))
+      values.put(name, (place.getTextRange, replaceWithPlaceholder))
     }
 
-    def addType(name: String, range: TextRange): Unit = {
+    def addType(nameId: NameId): Unit = nameId.place.foreach  { place =>
+      val name = nameId.forcedName
       types.get(name) match {
         case Some(oldRange) =>
           val newText = StringUtil.repeatSymbol(' ', oldRange.getLength)
@@ -233,17 +237,17 @@ class ScalaLanguageConsole(module: Module, language: Language)
         case None =>
       }
 
-      types.put(name, range)
+      types.put(name, place.getTextRange)
     }
 
     scalaFile.getChildren.foreach {
-      case v: ScValue     => v.declaredElements.foreach(td => addValue(td.name, td.nameId.getTextRange, replaceWithPlaceholder = true))
-      case v: ScVariable  => v.declaredElements.foreach(td => addValue(td.name, td.nameId.getTextRange, replaceWithPlaceholder = true))
-      case f: ScFunction  => addValue(f.name, f.getTextRange, replaceWithPlaceholder = false)
-      case o: ScObject    => addValue(o.name, o.getTextRange, replaceWithPlaceholder = false)
-      case c: ScClass     => addType(c.name, c.nameId.getTextRange)
-      case c: ScTrait     => addType(c.name, c.nameId.getTextRange)
-      case t: ScTypeAlias => addType(t.name, t.nameId.getTextRange)
+      case v: ScValue     => v.declaredElements.foreach(td => addValue(td.nameId, replaceWithPlaceholder = true))
+      case v: ScVariable  => v.declaredElements.foreach(td => addValue(td.nameId, replaceWithPlaceholder = true))
+      case f: ScFunction  => addValue(f.nameId, replaceWithPlaceholder = false)
+      case o: ScObject    => addValue(o.nameId, replaceWithPlaceholder = false)
+      case c: ScClass     => addType(c.nameId)
+      case c: ScTrait     => addType(c.nameId)
+      case t: ScTypeAlias => addType(t.nameId)
       case _              => //do nothing
     }
 

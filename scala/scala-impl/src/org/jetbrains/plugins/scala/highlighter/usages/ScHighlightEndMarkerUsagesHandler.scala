@@ -7,21 +7,22 @@ import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement.NameId
 
 import java.util
 import java.util.Collections
 
 abstract class ScHighlightEndMarkerUsagesHandler private(element: ScalaPsiElement, editor: Editor, file: PsiFile) extends HighlightUsagesHandlerBase[PsiElement](editor, file) {
-  protected def elementNameId: PsiElement
+  protected def elementNameId: NameId
 
-  override def getTargets: util.List[PsiElement] = Collections.singletonList(elementNameId)
+  override def getTargets: util.List[PsiElement] = Collections.singletonList(elementNameId.forNavigation)
 
   override def selectTargets(targets: util.List[_ <: PsiElement], selectionConsumer: com.intellij.util.Consumer[_ >: util.List[_ <: PsiElement]]): Unit = {
     selectionConsumer.consume(targets)
   }
 
   override def computeUsages(targets: util.List[_ <: PsiElement]): Unit = {
-    myReadUsages.add(elementNameId.getTextRange)
+    myReadUsages.add(elementNameId.forHighlighting.getTextRange)
 
     element.containingFile.foreach { file =>
       file.elements
@@ -36,12 +37,12 @@ abstract class ScHighlightEndMarkerUsagesHandler private(element: ScalaPsiElemen
 object ScHighlightEndMarkerUsagesHandler {
   private class NamedHighlightEndMarkerUsagesHandler(element: ScNamedElement, editor: Editor, file: PsiFile)
     extends ScHighlightEndMarkerUsagesHandler(element, editor, file) {
-    override protected def elementNameId: PsiElement = element.nameId
+    override protected def elementNameId: NameId = element.nameId
   }
 
   private class StableRefHighlightEndMarkerUsagesHandler(element: ScStableCodeReference, editor: Editor, file: PsiFile)
     extends ScHighlightEndMarkerUsagesHandler(element, editor, file) {
-    override protected def elementNameId: PsiElement = element.nameId
+    override protected def elementNameId: NameId = element.nameId
   }
 
   def apply(element: ScNamedElement, editor: Editor, file: PsiFile): ScHighlightEndMarkerUsagesHandler =

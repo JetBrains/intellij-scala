@@ -30,12 +30,12 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
     val methodCallExpr: ScMethodCall = PsiTreeUtil.getParentOfType(element, classOf[ScMethodCall], false)
     Option(methodCallExpr).map(_.getInvokedExpr) match {
       case Some(ref: ScReferenceExpression) =>
-        val range: TextRange = ref.nameId.getTextRange
+        val range: TextRange = ref.nameId.textRange
         val offset = editor.getCaretModel.getOffset
 
         (range.getStartOffset <= offset && offset <= range.getEndOffset) &&
           ref.isQualified &&
-          ref.nameId.textMatches("apply") &&
+          ref.nameId.name.contains("apply") &&
           ref.qualifier.filterByType[ScMethodCall].forall(!_.args.isColonArgs) &&
           buildReplacement(methodCallExpr).isDefined
       case _ =>

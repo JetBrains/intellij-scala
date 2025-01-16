@@ -6,7 +6,7 @@ import com.intellij.lang.annotation.{AnnotationHolder, Annotator}
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
-import org.jetbrains.annotations.Nls
+import org.jetbrains.annotations.{Nls, Nullable}
 import org.jetbrains.plugins.scala.EditorArea.isVisible
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScAssignment, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement.NameId
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedExpressionPrefix
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, ScalaType, TypePresentationContext}
@@ -73,7 +74,7 @@ object ScalaColorSchemeAnnotator {
     }
   }
 
-  private def textAttributesKey(refElement: ScReference, resolvedElement: PsiNamedElement): TextAttributesKey =
+  private def textAttributesKey(refElement: ScReference, @Nullable resolvedElement: PsiNamedElement): TextAttributesKey =
     ScalaColorsSchemeUtils.textAttributesKey(
       resolvedElement,
       Some(refElement),
@@ -117,7 +118,7 @@ object ScalaColorSchemeAnnotator {
       }
 
       def simpleAnnotate(@Nls annotationText: String, annotationAttributes: TextAttributesKey): Unit = {
-        if (SCALA_FACTORY_METHODS_NAMES.contains(refElement.nameId.getText)) {
+        if (SCALA_FACTORY_METHODS_NAMES.contains(refElement.nameId.forcedName)) {
           return
         }
         createInfoAnnotation(refElement.nameId, annotationAttributes, annotationText)
@@ -226,23 +227,36 @@ object ScalaColorSchemeAnnotator {
   }
 
   private def visitTypeAlias(typeAlias: ScTypeAlias)(implicit holder: ScalaAnnotationHolder): Unit =
-    createInfoAnnotation(typeAlias.nameId, TYPE_ALIAS)
+    createInfoAnnotation(typeAlias.nameId.forHighlighting, TYPE_ALIAS)
 
   private def visitParameter(param: ScParameter)(implicit holder: ScalaAnnotationHolder): Unit = {
-    val nameId = param.nameId
-
-    //in scala 3 there are anonymous context parameters which don't have name identifier
-    if (nameId == null)
-      return
-
     val attributesKey = ScalaColorsSchemeUtils.parameterAttributes(param)
-    createInfoAnnotation(nameId, attributesKey)
+    createInfoAnnotation(param.nameId, attributesKey)
   }
+
+  private def createInfoAnnotation(
+    nameId: NameId,
+    attributes: TextAttributesKey,
+  )(implicit holder: ScalaAnnotationHolder): Unit =
+    createInfoAnnotation(nameId, attributes, message = null)
+
+  private def createInfoAnnotation(
+    nameId: NameId,
+    attributes: TextAttributesKey,
+    @Nullable @InspectionMessage message: String = null
+  )(implicit holder: ScalaAnnotationHolder): Unit =
+    nameId.place.foreach(createInfoAnnotation(_, attributes, message))
 
   private def createInfoAnnotation(
     psiElement: PsiElement,
     attributes: TextAttributesKey,
-    @InspectionMessage message: String = null
+  )(implicit holder: ScalaAnnotationHolder): Unit =
+    createInfoAnnotation(psiElement, attributes, message = null)
+
+  private def createInfoAnnotation(
+    psiElement: PsiElement,
+    attributes: TextAttributesKey,
+    @Nullable @InspectionMessage message: String
   )(implicit holder: ScalaAnnotationHolder): Unit = {
     val builder =
       if (message == null)
