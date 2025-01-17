@@ -161,8 +161,7 @@ private object ScalaTreeStructureProvider {
         // then the existence of such a content root should not determine whether the module should be displayed under the module group.
         // This implementation is different from GradleTreeStructureProvider,
         // but they don't have a problem with modules whose content root is the same as the module path
-        if (isNotAncestorOfModulePath && isContentRootUnderDisplayedPaths) false
-        else isNotAncestorOfModulePath
+        isNotAncestorOfModulePath && !isContentRootUnderDisplayedPaths
       }
 
   private def isAncestor(ancestor: String, file: String): Boolean =
