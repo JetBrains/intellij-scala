@@ -15,7 +15,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
 import com.intellij.psi.PsiDirectory
 import com.intellij.ui.SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES
-import org.jetbrains.annotations.Nullable
+import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.sbt.project.SbtProjectSystem
@@ -52,7 +52,7 @@ final class ScalaTreeStructureProvider extends TreeStructureProvider with DumbAw
 private object ScalaTreeStructureProvider {
 
   private def transformProjectViewModuleGroupNodeChildren(children: Seq[Node])(implicit project: Project): Seq[Node] = {
-    val nodeToModule = children.map {
+    val nodeToModule = children.collect {
       case projectViewModuleNode: ProjectViewModuleNode =>
         // note: in Gradle when #showUnderModuleGroup returns true for the given module, it is possible to create a special object -
         // GradleProjectViewModuleNode. Later explicit handling for it is done. In sbt I couldn't find a case in which it would be needed.
@@ -61,28 +61,30 @@ private object ScalaTreeStructureProvider {
         (projectViewModuleNode, projectViewModuleNode.getValue)
       case psiDirectoryNode: PsiDirectoryNode =>
         (psiDirectoryNode, getModuleFromVirtualFile(psiDirectoryNode.getValue.getVirtualFile))
-      case node => (node, null)
     }
 
+    val collectedNodes = nodeToModule.map(_._1)
+    val otherNodes = children.diff(collectedNodes)
+
     val sortedByModulePath = nodeToModule
-      .map { case (node, module) => (node, module, getExternalProjectPath(module))}
+      .map { case (node, module) => (node, module, getExternalProjectPath(module)) }
+      .filter { case (_, _, externalModulePath) => externalModulePath != null }
       .sortBy(_._3)
 
     val displayedModulePaths = ListBuffer.empty[String]
-    def shouldDisplayNode(module: Module, path: String): Boolean = {
-      val shouldShow = showUnderModuleGroup(module, displayedModulePaths.toSeq)
+    def shouldDisplayNode(module: Module, externalModulePath: String): Boolean = {
+      val shouldShow = showUnderModuleGroup(module, externalModulePath, displayedModulePaths.toSeq)
       if (shouldShow) {
-        displayedModulePaths += path
+        displayedModulePaths += externalModulePath
       }
       shouldShow
     }
 
-    sortedByModulePath.foldLeft(Seq.empty[Node]) { case (nodes, current) =>
-      val (node, module, path) = current
-      val shouldDisplay = shouldDisplayNode(module, path)
-      if (shouldDisplay) nodes :+ node
-      else nodes
+    val nodesToDisplay = sortedByModulePath.collect {
+      case (node, module, externalModulePath) if shouldDisplayNode(module, externalModulePath) => node
     }
+
+    nodesToDisplay ++ otherNodes
   }
 
   /**
@@ -149,23 +151,19 @@ private object ScalaTreeStructureProvider {
   /**
    * It is partially written based on [[org.jetbrains.plugins.gradle.projectView.GradleTreeStructureProvider#showUnderModuleGroup]]
    */
-  private def showUnderModuleGroup(module: Module, displayedModulePaths: Seq[String]): Boolean =
-    !isExternalSystemAwareModule(SbtProjectSystem.Id, module) || {
-      val modulePath = getExternalProjectPath(module)
-
-      modulePath != null &&
-        ModuleRootManager.getInstance(module).getContentRoots.exists { root =>
-          val contentRootPath = root.getPath
-          val isNotAncestorOfModulePath = !isAncestor(modulePath, contentRootPath)
-          val isContentRootUnderDisplayedPaths = displayedModulePaths.exists(isAncestor(_, contentRootPath))
-          // note: if content root is not an ancestor of a module path, but content Root lies under the directory which is already displayed,
-          // then the existence of such a content root should not determine whether the module should be displayed under the module group.
-          // This implementation is different from GradleTreeStructureProvider,
-          // but they don't have a problem with modules whose content root is the same as the module path
-          if (isNotAncestorOfModulePath && isContentRootUnderDisplayedPaths) false
-          else isNotAncestorOfModulePath
-        }
-    }
+  private def showUnderModuleGroup(module: Module, @NotNull externalModulePath: String, displayedModulePaths: Seq[String]): Boolean =
+    !isExternalSystemAwareModule(SbtProjectSystem.Id, module) ||
+      ModuleRootManager.getInstance(module).getContentRoots.exists { root =>
+        val contentRootPath = root.getPath
+        val isNotAncestorOfModulePath = !isAncestor(externalModulePath, contentRootPath)
+        val isContentRootUnderDisplayedPaths = displayedModulePaths.exists(isAncestor(_, contentRootPath))
+        // note: if content root is not an ancestor of a module path, but content Root lies under the directory which is already displayed,
+        // then the existence of such a content root should not determine whether the module should be displayed under the module group.
+        // This implementation is different from GradleTreeStructureProvider,
+        // but they don't have a problem with modules whose content root is the same as the module path
+        if (isNotAncestorOfModulePath && isContentRootUnderDisplayedPaths) false
+        else isNotAncestorOfModulePath
+      }
 
   private def isAncestor(ancestor: String, file: String): Boolean =
     //note: true parameter in #isAncestor means that the file cannot be an ancestor of itself
