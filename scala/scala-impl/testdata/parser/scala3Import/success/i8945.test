@@ -279,7 +279,7 @@ ScalaFile
                     PsiElement(()('(')
                     PsiElement(using)('using')
                     PsiWhiteSpace(' ')
-                    Parameter: <anonymous>
+                    Parameter: x$1
                       ParameterType
                         SimpleType: quoted.Quotes
                           CodeReferenceElement: quoted.Quotes

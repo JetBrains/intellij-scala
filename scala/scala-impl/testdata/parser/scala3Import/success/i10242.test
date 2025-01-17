@@ -538,7 +538,7 @@ ScalaFile
               PsiElement(()('(')
               PsiElement(using)('using')
               PsiWhiteSpace(' ')
-              Parameter: <anonymous>
+              Parameter: x$3
                 ParameterType
                   InfixType: NumElements[From] =:= NumElements[To]
                     ParametrizedType: NumElements[From]

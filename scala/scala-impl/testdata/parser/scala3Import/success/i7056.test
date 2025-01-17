@@ -167,7 +167,7 @@ ScalaFile
         PsiElement(()('(')
         PsiElement(using)('using')
         PsiWhiteSpace(' ')
-        Parameter: <anonymous>
+        Parameter: x$1
           ParameterType
             ParametrizedType: PartialId[T]
               SimpleType: PartialId

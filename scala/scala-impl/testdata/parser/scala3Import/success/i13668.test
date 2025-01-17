@@ -173,7 +173,7 @@ ScalaFile
         PsiElement(()('(')
         PsiElement(using)('using')
         PsiWhiteSpace(' ')
-        Parameter: <anonymous>
+        Parameter: x$2
           ParameterType
             ParametrizedType: Candidate[L]
               SimpleType: Candidate

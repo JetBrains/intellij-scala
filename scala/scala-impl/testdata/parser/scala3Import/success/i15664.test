@@ -560,7 +560,7 @@ ScalaFile
         PsiElement(()('(')
         PsiElement(using)('using')
         PsiWhiteSpace('\n    ')
-        Parameter: <anonymous>
+        Parameter: x$1
           ParameterType
             ParametrizedType: CpsMonad[ForZManaged[R, E]]
               SimpleType: CpsMonad
@@ -672,7 +672,7 @@ ScalaFile
         PsiElement(()('(')
         PsiElement(using)('using')
         PsiWhiteSpace('\n    ')
-        Parameter: <anonymous>
+        Parameter: x$1
           ParameterType
             ParametrizedType: CpsMonad[ForZManaged[R, E]]
               SimpleType: CpsMonad

@@ -211,7 +211,7 @@ ScalaFile
         PsiElement(()('(')
         PsiElement(using)('using')
         PsiWhiteSpace(' ')
-        Parameter: <anonymous>
+        Parameter: x$1
           ParameterType
             ParametrizedType: Foo[Unit][A]
               ParametrizedType: Foo[Unit]
