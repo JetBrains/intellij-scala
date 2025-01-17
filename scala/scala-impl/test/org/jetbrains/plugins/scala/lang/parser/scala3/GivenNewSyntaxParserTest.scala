@@ -50,7 +50,7 @@ class GivenNewSyntaxParserTest extends SimpleScala3ParserTestBase {
       |    PsiWhiteSpace(' ')
       |    Parameters
       |      ParametersClause
-      |        Parameter: <anonymous>
+      |        Parameter: x$1
       |          ParameterType
       |            SimpleType: A
       |              CodeReferenceElement: A
@@ -129,14 +129,14 @@ class GivenNewSyntaxParserTest extends SimpleScala3ParserTestBase {
       |    Parameters
       |      ParametersClause
       |        PsiElement(()('(')
-      |        Parameter: <anonymous>
+      |        Parameter: x$1
       |          ParameterType
       |            SimpleType: A
       |              CodeReferenceElement: A
       |                PsiElement(identifier)('A')
       |        PsiElement(,)(',')
       |        PsiWhiteSpace(' ')
-      |        Parameter: <anonymous>
+      |        Parameter: x$2
       |          ParameterType
       |            SimpleType: B
       |              CodeReferenceElement: B
@@ -252,7 +252,7 @@ class GivenNewSyntaxParserTest extends SimpleScala3ParserTestBase {
       |    PsiWhiteSpace(' ')
       |    Parameters
       |      ParametersClause
-      |        Parameter: <anonymous>
+      |        Parameter: x$1
       |          ParameterType
       |            SimpleType: A
       |              CodeReferenceElement: A
@@ -313,14 +313,14 @@ class GivenNewSyntaxParserTest extends SimpleScala3ParserTestBase {
       |    Parameters
       |      ParametersClause
       |        PsiElement(()('(')
-      |        Parameter: <anonymous>
+      |        Parameter: x$1
       |          ParameterType
       |            SimpleType: A
       |              CodeReferenceElement: A
       |                PsiElement(identifier)('A')
       |        PsiElement(,)(',')
       |        PsiWhiteSpace(' ')
-      |        Parameter: <anonymous>
+      |        Parameter: x$2
       |          ParameterType
       |            SimpleType: B
       |              CodeReferenceElement: B
@@ -427,7 +427,7 @@ class GivenNewSyntaxParserTest extends SimpleScala3ParserTestBase {
       |    PsiWhiteSpace(' ')
       |    Parameters
       |      ParametersClause
-      |        Parameter: <anonymous>
+      |        Parameter: x$1
       |          ParameterType
       |            SimpleType: A
       |              CodeReferenceElement: A
@@ -509,14 +509,14 @@ class GivenNewSyntaxParserTest extends SimpleScala3ParserTestBase {
       |    Parameters
       |      ParametersClause
       |        PsiElement(()('(')
-      |        Parameter: <anonymous>
+      |        Parameter: x$1
       |          ParameterType
       |            SimpleType: A
       |              CodeReferenceElement: A
       |                PsiElement(identifier)('A')
       |        PsiElement(,)(',')
       |        PsiWhiteSpace(' ')
-      |        Parameter: <anonymous>
+      |        Parameter: x$2
       |          ParameterType
       |            SimpleType: B
       |              CodeReferenceElement: B
@@ -636,7 +636,7 @@ class GivenNewSyntaxParserTest extends SimpleScala3ParserTestBase {
       |    PsiWhiteSpace(' ')
       |    Parameters
       |      ParametersClause
-      |        Parameter: <anonymous>
+      |        Parameter: x$1
       |          ParameterType
       |            SimpleType: A
       |              CodeReferenceElement: A
@@ -699,14 +699,14 @@ class GivenNewSyntaxParserTest extends SimpleScala3ParserTestBase {
       |    Parameters
       |      ParametersClause
       |        PsiElement(()('(')
-      |        Parameter: <anonymous>
+      |        Parameter: x$1
       |          ParameterType
       |            SimpleType: A
       |              CodeReferenceElement: A
       |                PsiElement(identifier)('A')
       |        PsiElement(,)(',')
       |        PsiWhiteSpace(' ')
-      |        Parameter: <anonymous>
+      |        Parameter: x$2
       |          ParameterType
       |            SimpleType: B
       |              CodeReferenceElement: B
@@ -849,7 +849,7 @@ class GivenNewSyntaxParserTest extends SimpleScala3ParserTestBase {
       |    PsiWhiteSpace(' ')
       |    Parameters
       |      ParametersClause
-      |        Parameter: <anonymous>
+      |        Parameter: x$1
       |          ParameterType
       |            SimpleType: A
       |              CodeReferenceElement: A
@@ -997,14 +997,14 @@ class GivenNewSyntaxParserTest extends SimpleScala3ParserTestBase {
       |    Parameters
       |      ParametersClause
       |        PsiElement(()('(')
-      |        Parameter: <anonymous>
+      |        Parameter: x$1
       |          ParameterType
       |            SimpleType: A
       |              CodeReferenceElement: A
       |                PsiElement(identifier)('A')
       |        PsiElement(,)(',')
       |        PsiWhiteSpace(' ')
-      |        Parameter: <anonymous>
+      |        Parameter: x$2
       |          ParameterType
       |            SimpleType: B
       |              CodeReferenceElement: B
@@ -1212,7 +1212,7 @@ class GivenNewSyntaxParserTest extends SimpleScala3ParserTestBase {
       |    PsiWhiteSpace(' ')
       |    Parameters
       |      ParametersClause
-      |        Parameter: <anonymous>
+      |        Parameter: x$1
       |          ParameterType
       |            SimpleType: A
       |              CodeReferenceElement: A
@@ -1319,14 +1319,14 @@ class GivenNewSyntaxParserTest extends SimpleScala3ParserTestBase {
       |    Parameters
       |      ParametersClause
       |        PsiElement(()('(')
-      |        Parameter: <anonymous>
+      |        Parameter: x$1
       |          ParameterType
       |            SimpleType: A
       |              CodeReferenceElement: A
       |                PsiElement(identifier)('A')
       |        PsiElement(,)(',')
       |        PsiWhiteSpace(' ')
-      |        Parameter: <anonymous>
+      |        Parameter: x$2
       |          ParameterType
       |            SimpleType: B
       |              CodeReferenceElement: B
@@ -1510,7 +1510,7 @@ class GivenNewSyntaxParserTest extends SimpleScala3ParserTestBase {
       |    PsiWhiteSpace(' ')
       |    Parameters
       |      ParametersClause
-      |        Parameter: <anonymous>
+      |        Parameter: x$1
       |          ParameterType
       |            SimpleType: A
       |              CodeReferenceElement: A
@@ -1649,14 +1649,14 @@ class GivenNewSyntaxParserTest extends SimpleScala3ParserTestBase {
       |    Parameters
       |      ParametersClause
       |        PsiElement(()('(')
-      |        Parameter: <anonymous>
+      |        Parameter: x$1
       |          ParameterType
       |            SimpleType: A
       |              CodeReferenceElement: A
       |                PsiElement(identifier)('A')
       |        PsiElement(,)(',')
       |        PsiWhiteSpace(' ')
-      |        Parameter: <anonymous>
+      |        Parameter: x$2
       |          ParameterType
       |            SimpleType: B
       |              CodeReferenceElement: B
@@ -1852,7 +1852,7 @@ class GivenNewSyntaxParserTest extends SimpleScala3ParserTestBase {
       |    PsiWhiteSpace(' ')
       |    Parameters
       |      ParametersClause
-      |        Parameter: <anonymous>
+      |        Parameter: x$1
       |          ParameterType
       |            SimpleType: A
       |              CodeReferenceElement: A
@@ -1953,14 +1953,14 @@ class GivenNewSyntaxParserTest extends SimpleScala3ParserTestBase {
       |    Parameters
       |      ParametersClause
       |        PsiElement(()('(')
-      |        Parameter: <anonymous>
+      |        Parameter: x$1
       |          ParameterType
       |            SimpleType: A
       |              CodeReferenceElement: A
       |                PsiElement(identifier)('A')
       |        PsiElement(,)(',')
       |        PsiWhiteSpace(' ')
-      |        Parameter: <anonymous>
+      |        Parameter: x$2
       |          ParameterType
       |            SimpleType: B
       |              CodeReferenceElement: B
@@ -2092,7 +2092,7 @@ class GivenNewSyntaxParserTest extends SimpleScala3ParserTestBase {
       |      PsiWhiteSpace(' ')
       |      ParametersClause
       |        PsiElement(()('(')
-      |        Parameter: <anonymous>
+      |        Parameter: x$1
       |          ParameterType
       |            SimpleType: T
       |              CodeReferenceElement: T
@@ -2102,7 +2102,7 @@ class GivenNewSyntaxParserTest extends SimpleScala3ParserTestBase {
       |      PsiElement(=>)('=>')
       |      PsiWhiteSpace(' ')
       |      ParametersClause
-      |        Parameter: <anonymous>
+      |        Parameter: x$2
       |          ParameterType
       |            ParametrizedType: Ord[T]
       |              SimpleType: Ord
@@ -2486,7 +2486,7 @@ class GivenNewSyntaxParserTest extends SimpleScala3ParserTestBase {
       |    Parameters
       |      ParametersClause
       |        PsiElement(()('(')
-      |        Parameter: <anonymous>
+      |        Parameter: x$1
       |          ParameterType
       |            ParametrizedType: Ord[T]
       |              SimpleType: Ord
@@ -2581,7 +2581,7 @@ class GivenNewSyntaxParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(()('(')
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
-      |        Parameter: <anonymous>
+      |        Parameter: x$1
       |          ParameterType
       |            ParametrizedType: Ord[T]
       |              SimpleType: Ord

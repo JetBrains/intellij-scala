@@ -27,7 +27,7 @@ class ScTypedPatternImpl private(stub: ScBindingPatternStub[ScTypedPattern], nod
 
   def this(stub: ScBindingPatternStub[ScTypedPattern]) = this(stub, null)
 
-  override def nameId: NameId.Placed = NameId.fromIdSetToken(findChildByType[PsiElement](TokenSets.ID_SET))
+  override def nameId: NameId.Placed = NameId.fromToken(findChildByType[PsiElement](TokenSets.ID_SET))
 
   override def typePattern: Option[ScTypePattern] = findChild[ScTypePattern]
 

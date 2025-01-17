@@ -130,7 +130,7 @@ class ScTypeParamImpl private (stub: ScTypeParamStub, node: ASTNode)
   }
 
   override def nameId: NameId =
-    NameId.fromIdSetToken(findLastChildByType(TokenSets.ID_SET).get)
+    NameId.fromToken(findLastChildByType(TokenSets.ID_SET).get)
 
   override def viewTypeElement: Seq[ScTypeElement] =
     byPsiOrStub(super.viewTypeElement)(_.viewBounds)

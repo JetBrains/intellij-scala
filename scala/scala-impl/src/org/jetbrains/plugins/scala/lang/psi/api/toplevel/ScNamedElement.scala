@@ -11,7 +11,7 @@ import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.caches.{ModTracker, cached}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
@@ -271,11 +271,18 @@ object ScNamedElement {
       override def prepareToReplace(): PsiElement = throw new UnsupportedOperationException("Element cannot have a name")
     }
 
-    // For tokens gathered with TokenSets.ID_SET
-    def fromIdSetToken(token: PsiElement): NameId.Placed = {
+    // For tokens gathered with TokenSets.ID_SET, TokenSets.SELF_TYPE_ID, and TokenSets.TYPE_WILDCARD_SET
+    def fromToken(token: PsiElement): NameId.Placed = {
       token.elementType match {
-        case ScalaTokenTypes.tIDENTIFIER => new Name(token)
-        case ScalaTokenTypes.tUNDER => new Placeholder(token)
+        case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.kTHIS => new Name(token)
+        case ScalaTokenTypes.tUNDER =>
+          new Placeholder(token) {
+            override def forcedName: String = "_"
+          }
+        case ScalaTokenType.WildcardTypeQuestionMark =>
+          new Placeholder(token) {
+            override def forcedName: String = "?"
+          }
       }
     }
   }

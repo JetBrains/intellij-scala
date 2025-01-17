@@ -26,11 +26,8 @@ class ScSelfTypeElementImpl private(stub: ScSelfTypeElementStub, node: ASTNode)
 
   override def toString: String = "SelfType: " + ifReadAllowed(name)("")
 
-  override def nameId: NameId = {
-    findFirstChildByType(TokenSets.SELF_TYPE_ID).get match {
-      case nameElement@ElementType(ScalaTokenTypes.kTHIS) => new NameId.Placeholder(nameElement)
-      case nameElement => NameId.fromIdSetToken(nameElement)
-    }
+  override def nameId: NameId.Placed = {
+    NameId.fromToken(findFirstChildByType(TokenSets.SELF_TYPE_ID).get)
   }
 
   override def `type`(): TypeResult = {

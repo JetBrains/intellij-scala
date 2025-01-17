@@ -40,7 +40,7 @@ class ScReferencePatternImpl private(stub: ScBindingPatternStub[ScReferencePatte
 
   override def nameId: NameId.Placed = {
     findLastChildByType(TokenSets.ID_SET) match {
-      case Some(id) => NameId.fromIdSetToken(id)
+      case Some(id) => NameId.fromToken(id)
       case None => new NameId.Error(findLastChildByType(TokenType.ERROR_ELEMENT))
     }
   }

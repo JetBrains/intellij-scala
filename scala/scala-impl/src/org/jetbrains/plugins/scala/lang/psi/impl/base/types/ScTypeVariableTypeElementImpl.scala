@@ -14,7 +14,7 @@ class ScTypeVariableTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(n
 
   override def innerType: TypeResult = Right(tvType)
 
-  override def nameId: NameId = NameId.fromIdSetToken(findChildByType(TokenSets.ID_SET))
+  override def nameId: NameId = NameId.fromToken(findChildByType(TokenSets.ID_SET))
 
   override def toString: String = s"$typeName: ${ifReadAllowed(name)("")}"
 }

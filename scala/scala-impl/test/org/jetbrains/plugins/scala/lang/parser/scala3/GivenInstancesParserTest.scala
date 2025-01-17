@@ -286,7 +286,7 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |        PsiElement(()('(')
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
-      |        Parameter: <anonymous>
+      |        Parameter: x$1
       |          ParameterType
       |            ParametrizedType: Ord[T]
       |              SimpleType: Ord
@@ -348,7 +348,7 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |        PsiElement(()('(')
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
-      |        Parameter: <anonymous>
+      |        Parameter: x$1
       |          ParameterType
       |            ParametrizedType: Ord[T]
       |              SimpleType: Ord
@@ -406,7 +406,7 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |        PsiElement(()('(')
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
-      |        Parameter: <anonymous>
+      |        Parameter: x$1
       |          ParameterType
       |            ParametrizedType: Ord[Int]
       |              SimpleType: Ord
@@ -708,7 +708,7 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |        PsiElement(()('(')
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
-      |        Parameter: <anonymous>
+      |        Parameter: x$1
       |          ParameterType
       |            ParametrizedType: Ord[T]
       |              SimpleType: Ord
@@ -766,7 +766,7 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |        PsiElement(()('(')
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
-      |        Parameter: <anonymous>
+      |        Parameter: x$1
       |          ParameterType
       |            ParametrizedType: Ord[T]
       |              SimpleType: Ord
@@ -820,7 +820,7 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |        PsiElement(()('(')
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
-      |        Parameter: <anonymous>
+      |        Parameter: x$1
       |          ParameterType
       |            ParametrizedType: Ord[Int]
       |              SimpleType: Ord
@@ -1066,7 +1066,7 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |        PsiElement(()('(')
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
-      |        Parameter: <anonymous>
+      |        Parameter: x$1
       |          ParameterType
       |            ParametrizedType: Ord[T]
       |              SimpleType: Ord
@@ -1119,7 +1119,7 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |        PsiElement(()('(')
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
-      |        Parameter: <anonymous>
+      |        Parameter: x$1
       |          ParameterType
       |            ParametrizedType: Ord[T]
       |              SimpleType: Ord
@@ -1168,7 +1168,7 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |        PsiElement(()('(')
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
-      |        Parameter: <anonymous>
+      |        Parameter: x$1
       |          ParameterType
       |            ParametrizedType: Ord[Int]
       |              SimpleType: Ord
@@ -1366,7 +1366,7 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
       |              PsiElement(()('(')
       |              PsiElement(using)('using')
       |              PsiWhiteSpace(' ')
-      |              Parameter: <anonymous>
+      |              Parameter: x$1
       |                ParameterType
       |                  LiteralType: 3
       |                    IntegerLiteral
@@ -1732,7 +1732,7 @@ class GivenOldSyntaxParserTest_WithoutNewSyntax extends GivenOldSyntaxParserTest
       |              PsiElement(()('(')
       |              PsiElement(using)('using')
       |              PsiWhiteSpace(' ')
-      |              Parameter: <anonymous>
+      |              Parameter: x$1
       |                ParameterType
       |                  SimpleType: String
       |                    CodeReferenceElement: String
@@ -1753,7 +1753,7 @@ class GivenOldSyntaxParserTest_WithoutNewSyntax extends GivenOldSyntaxParserTest
       |              PsiElement(()('(')
       |              PsiElement(using)('using')
       |              PsiWhiteSpace(' ')
-      |              Parameter: <anonymous>
+      |              Parameter: x$1
       |                ParameterType
       |                  SimpleType: String
       |                    CodeReferenceElement: String
@@ -1777,7 +1777,7 @@ class GivenOldSyntaxParserTest_WithoutNewSyntax extends GivenOldSyntaxParserTest
       |              PsiElement(()('(')
       |              PsiElement(using)('using')
       |              PsiWhiteSpace(' ')
-      |              Parameter: <anonymous>
+      |              Parameter: x$1
       |                ParameterType
       |                  SimpleType: String
       |                    CodeReferenceElement: String
@@ -1805,7 +1805,7 @@ class GivenOldSyntaxParserTest_WithoutNewSyntax extends GivenOldSyntaxParserTest
       |              PsiElement(()('(')
       |              PsiElement(using)('using')
       |              PsiWhiteSpace(' ')
-      |              Parameter: <anonymous>
+      |              Parameter: x$1
       |                ParameterType
       |                  SimpleType: String
       |                    CodeReferenceElement: String

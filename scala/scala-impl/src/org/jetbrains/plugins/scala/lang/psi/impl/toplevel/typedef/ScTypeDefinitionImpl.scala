@@ -158,7 +158,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
     }
 
   override def nameId: NameId =
-    NameId.fromIdSetToken(findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER))
+    NameId.fromToken(findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER))
 
   override def getContainingClass: PsiClass = {
     super[ScTypeDefinition].getContainingClass match {

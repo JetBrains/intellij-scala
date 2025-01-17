@@ -79,7 +79,7 @@ class ScParameterImpl protected(
         override def prepareToReplace(): PsiElement = ???
       }
     } else {
-      NameId.fromIdSetToken(token)
+      NameId.fromToken(token)
     }
   }
 

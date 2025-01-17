@@ -456,7 +456,7 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |    PsiWhiteSpace(' ')
       |    Parameters
       |      ParametersClause
-      |        Parameter: <anonymous>
+      |        Parameter: x$1
       |          ParameterType
       |            ParametrizedType: Ord[A]
       |              SimpleType: Ord
@@ -704,7 +704,7 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |    PsiWhiteSpace(' ')
       |    Parameters
       |      ParametersClause
-      |        Parameter: <anonymous>
+      |        Parameter: x$1
       |          ParameterType
       |            ParametrizedType: Ord[A]
       |              SimpleType: Ord

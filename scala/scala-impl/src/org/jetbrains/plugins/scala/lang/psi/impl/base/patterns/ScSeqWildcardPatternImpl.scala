@@ -28,7 +28,7 @@ class ScSeqWildcardPatternImpl private(stub: ScBindingPatternStub[ScSeqWildcardP
   //   ScConstructorPattern.extractsRepeatedParameterIrrefutably
   override def isIrrefutableForImpl(t: Option[ScType]): Boolean = false
 
-  override def nameId: NameId.Placed = NameId.fromIdSetToken(findChildByType[PsiElement](TokenSets.ID_SET))
+  override def nameId: NameId.Placed = NameId.fromToken(findChildByType[PsiElement](TokenSets.ID_SET))
 
   override def toString: String = "SequenceWildcardPattern: " + ifReadAllowed(name)("")
 

@@ -26,7 +26,7 @@ class ScNamingPatternImpl private(stub: ScBindingPatternStub[ScNamingPattern], n
 
   override def toString: String = "NamingPattern: " + ifReadAllowed(name)("")
 
-  override def nameId: NameId.Placed = NameId.fromIdSetToken(findChildByType[PsiElement](TokenSets.ID_SET))
+  override def nameId: NameId.Placed = NameId.fromToken(findChildByType[PsiElement](TokenSets.ID_SET))
 
   // seq-wildcard patterns are handled in ScSeqWildcardPattern
   override def `type`(): TypeResult =
