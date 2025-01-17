@@ -3,12 +3,10 @@ package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.{DisableGC, Evaluator}
 import com.intellij.debugger.engine.{DebugProcess, DebugProcessImpl, DebuggerUtils, JVMName}
-import com.intellij.debugger.impl.DebuggerUtilsEx
 import com.intellij.debugger.{JavaDebuggerBundle, SourcePosition}
 import com.sun.jdi._
 import com.sun.tools.jdi.{ConcreteMethodImpl, TypeComponentImpl}
-import org.jetbrains.plugins.scala.debugger.DebuggerBundle
-import org.jetbrains.plugins.scala.debugger.ScalaPositionManager
+import org.jetbrains.plugins.scala.debugger.{DebuggerBundle, ScalaPositionManager}
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.extensions._
@@ -142,7 +140,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator,
       def invokeStaticMethod(jdiMethod: Method): AnyRef = {
         def fixArguments(): Seq[Value] = {
           def correctArgType(arg: AnyRef, typeName: String) = arg match {
-            case objRef: ObjectReference => DebuggerUtilsEx.isAssignableFrom(typeName, objRef.referenceType())
+            case objRef: ObjectReference => DebuggerUtils.instanceOf(objRef.referenceType(), typeName)
             case primValue: PrimitiveValue => primValue.`type`().name() == typeName
             case _ => true
           }

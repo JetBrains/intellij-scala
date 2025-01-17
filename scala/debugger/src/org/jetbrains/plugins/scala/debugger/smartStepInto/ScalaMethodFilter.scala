@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.debugger.smartStepInto
 
 import com.intellij.debugger.engine._
-import com.intellij.debugger.impl.DebuggerUtilsEx
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.Range
 import com.sun.jdi.Location
@@ -54,7 +53,7 @@ class ScalaMethodFilter(function: ScMethodLike, callingExpressionLines: Range[In
     else if (myTargetMethodSignature != null && method.signature() != myTargetMethodSignature.getName(process))
       false
     else
-      DebuggerUtilsEx.isAssignableFrom(locationTypeName, location.declaringType) &&
+      DebuggerUtils.instanceOf(location.declaringType(), locationTypeName) &&
         !ScalaPositionManager.shouldSkip(location, process)
   }
 
