@@ -106,6 +106,9 @@ trait ScNamedElement extends ScalaPsiElement
   override def getNameIdentifier: PsiIdentifier =
     nameId.explicitIdentifier.map(new JavaIdentifier(_)).orNull
 
+  override def getIdentifyingElement: PsiElement =
+    nameId.explicitIdentifier.orNull
+
   override def setName(name: String): PsiElement = nameId.explicitIdentifier match {
     case Some(nameId) =>
       val id = nameId.getNode
@@ -165,7 +168,7 @@ object ScNamedElement {
     // the name with which the corresponding ScNamedElement can be referenced (so it's None if the element is anonymous)
     def name: Option[String]
     // Whether the corresponding ScNamedElement can be referenced with a name (exactly true iff name is None)
-    def isAnonymous: Boolean
+    def hasName: Boolean
     // An actual name written by the user (So None for anonymous elements or givens without explicit names)
     def explicitName: Option[String]
     // use this if you need some kind of name-representation
@@ -188,12 +191,12 @@ object ScNamedElement {
 
   object NameId {
     trait NonAnonymous extends NameId {
-      override def isAnonymous: false = false
+      override def hasName: true = true
       override def name: Some[String]
     }
 
     trait Anonymous extends NameId {
-      override def isAnonymous: true = true
+      override def hasName: false = false
       override def name: None.type = None
       override def explicitName: None.type = None
       override def explicitIdentifier: None.type = None
@@ -225,19 +228,16 @@ object ScNamedElement {
       override def forcedName: String = nameElement.getText
     }
 
-    class Placeholder(val placeholderElement: PsiElement) extends Placed {
+    class Placeholder(val placeholderElement: PsiElement) extends Placed with Anonymous {
       assert(placeholderElement != null)
 
       override def placeElement: PsiElement = placeholderElement
-      override def isAnonymous: true = true
-      override def forcedName: String = AnonymousPlaceholder
-      override def explicitIdentifier: Option[PsiElement] = None
     }
 
     class Error(val errorElement: PsiElement) extends Placed {
       assert(errorElement != null)
 
-      override def isAnonymous: true = true
+      override def hasName: false = false
       override def placeElement: PsiElement = errorElement
       override def forcedName: String = MissingNamePlaceholder
       override def explicitIdentifier: Option[PsiElement] = None

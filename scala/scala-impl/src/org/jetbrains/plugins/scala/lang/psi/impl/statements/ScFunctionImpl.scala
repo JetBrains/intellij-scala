@@ -70,7 +70,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
         val stubName = Option(getGreenStub).map(_.getName)
         new NameId.Synthetic {
           override def name: Option[String] = stubName
-          override def isAnonymous: Boolean = stubName.isEmpty
+          override def hasName: Boolean = stubName.nonEmpty
           override def explicitName: Option[String] = stubName
           override def forcedName: String = stubName.getOrElse(ScNamedElement.AnonymousPlaceholder)
         }

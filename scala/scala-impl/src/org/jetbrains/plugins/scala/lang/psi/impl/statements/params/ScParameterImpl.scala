@@ -69,7 +69,7 @@ class ScParameterImpl protected(
     val token = findChildByType[PsiElement](TokenSets.ID_SET)
     if (token == null) {
       new NameId.Immaterial {
-        override def isAnonymous: Boolean = false
+        override def hasName: true = true
         override def name: Some[String] = Some(forcedName)
         override lazy val forcedName: String =
           //Anonymous Scala 3 using parameter (example: `(using String)`)
@@ -112,7 +112,7 @@ class ScParameterImpl protected(
   override def isGivenConditional: Boolean = owner.is[ScGiven]
 
   override def isAnonymous: Boolean =
-    byPsiOrStub(nameId.isAnonymous)(_.isAnonymous)
+    byPsiOrStub(nameId.explicitIdentifier.isEmpty)(_.isAnonymous)
 
   override def getTypeElement: PsiTypeElement = null
 

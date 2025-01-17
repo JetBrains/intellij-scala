@@ -19,7 +19,7 @@ final class ScGivenPatternImpl(node: ASTNode)
   override def `type`(): TypeResult       = typeElement.`type`()
   override def isWildcard: Boolean        = false
   override def nameId: NameId.Immaterial  = new NameId.Immaterial {
-    override def isAnonymous: Boolean = false
+    override def hasName: true = true
     override def name: Some[String] = Some(forcedName)
     override def forcedName: String = ScalaPsiUtil.generateGivenName(Seq(typeElement))
     override def forHighlighting: PsiElement = typeElement
