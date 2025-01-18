@@ -99,4 +99,29 @@ class Scala3NamedTuplesTest extends TypeInferenceTestBase {
        |//Int
        |""".stripMargin
   )
+
+  def testNamedTupleToNormalTuple(): Unit = doTest(
+    s"""
+       |val (x, _) = (a = (y = 1), b = 2)
+       |${START}x$END
+       |
+       |//(y: Int)
+       |""".stripMargin
+  )
+
+  def testTypeInference(): Unit = doTest(
+    s"""(a = "") match {
+       |  case (a = x) => ${START}x$END
+       |}
+       |//String
+       |""".stripMargin
+  )
+
+  def testTypeInferenceToNormalTuple(): Unit = doTest(
+    s"""(a = 1, b = "") match {
+       |  case (_, x) => ${START}x$END
+       |}
+       |//String
+       |""".stripMargin
+  )
 }

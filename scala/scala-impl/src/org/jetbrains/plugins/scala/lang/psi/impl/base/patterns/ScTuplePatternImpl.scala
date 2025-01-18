@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.extensions.ClassQualifiedName
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
+import org.jetbrains.plugins.scala.lang.psi.types.api.{NamedTupleType, ParameterizedType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 
 class ScTuplePatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPatternImpl with ScTuplePattern {
@@ -14,6 +14,13 @@ class ScTuplePatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
     case Some(parameterizedType@ParameterizedType(ScDesignatorType(ClassQualifiedName(qName)), _)) if qName == s"scala.Tuple${subpatterns.length}" =>
       subpatterns.corresponds(parameterizedType.typeArguments) {
         case (pattern, ty) => pattern.isIrrefutableFor(Some(ty))
+      }
+    case Some(NamedTupleType(incomingComps)) =>
+      incomingComps.corresponds(subpatterns) {
+        case ((_, incomingTy), expectedPattern) =>
+          expectedPattern.isIrrefutableFor(Some(incomingTy))
+        case _ =>
+          false
       }
     case _ => false
   }

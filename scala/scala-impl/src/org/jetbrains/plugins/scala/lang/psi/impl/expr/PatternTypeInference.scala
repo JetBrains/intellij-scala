@@ -93,6 +93,11 @@ object PatternTypeInference {
           case (acc, (pattern, scrutinee)) =>
             acc.followed(doTypeInference(pattern, scrutinee))
         }
+      case NamedTupleType(comps) if comps.size == patterns.size =>
+        patterns.zip(comps).foldLeft(ScSubstitutor.empty) {
+          case (acc, (pattern, (_, scrutinee))) =>
+            acc.followed(doTypeInference(pattern, scrutinee))
+        }
       case _ => ScSubstitutor.empty
     }
   }

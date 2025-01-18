@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.irrefutability
 
 import org.intellij.lang.annotations.Language
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
@@ -8,6 +9,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMatch}
 
 class IrrefutabilityTest extends ScalaLightCodeInsightFixtureTestCase {
+  override def supportedIn(version: ScalaVersion): Boolean =
+    version >= ScalaVersion.Latest.Scala_3_6
 
   private object MatchWithOneCasePatternMatch {
     def unapply(arg: ScMatch): Option[(ScPattern, ScExpression)] =
@@ -94,6 +97,32 @@ class IrrefutabilityTest extends ScalaLightCodeInsightFixtureTestCase {
     assertIsNotIrrefutable("(A, B, B) match { case (a, b) => }")
     assertIsNotIrrefutable("(B, A) match { case (a: A, b: B) => }")
     assertIsNotIrrefutable("(A, B -> A) match { case (_, (a: A, b: B)) => }")
+  }
+
+  def testNamedTupleToNormalTuplePattern(): Unit = {
+    assertIsIrrefutable("(a = A, b = B) match { case (a, b) => }")
+    assertIsIrrefutable("(a = A, b = A -> B) match { case (a, b) => }")
+    assertIsIrrefutable("(a = A, b = A -> B) match { case (a, (a2, b)) => }")
+    assertIsIrrefutable("(a = A, b = A -> B) match { case (a:A, (a2:A, b: B)) => }")
+
+    assertIsNotIrrefutable("A match { case (a, b) => }")
+    assertIsNotIrrefutable("(a = A, b = B, c = B) match { case (a, b) => }")
+    assertIsNotIrrefutable("(a = B, b = A) match { case (a: A, b: B) => }")
+    assertIsNotIrrefutable("(a = A, b = B -> A) match { case (_, (a: A, b: B)) => }")
+  }
+
+  def testNamedTuplePattern(): Unit = {
+    assertIsIrrefutable("(a = A, b = B) match { case (a = a, b = b) => }")
+    assertIsIrrefutable("(a = A, b = A -> B) match { case (a = a, b = b) => }")
+    assertIsIrrefutable("(a = A, b = A -> B) match { case (a = a, b = (a2, b)) => }")
+    assertIsIrrefutable("(a = A, b = A -> B) match { case (a = a:A, b = (a2:A, b: B)) => }")
+
+    assertIsNotIrrefutable("A match { case (a = a, b = b) => }")
+    assertIsNotIrrefutable("(a = A, b = B, c = B) match { case (a = a, b = b) => }")
+    assertIsNotIrrefutable("(a = B, b = A) match { case (a = a: A, b = b: B) => }")
+    assertIsNotIrrefutable("(a = A, b = B) match { case (b = b, a = A) => }")
+    assertIsNotIrrefutable("(a = A, b = B -> A) match { case (a = _, b = (a: A, b: B)) => }")
+    assertIsNotIrrefutable("(A, B) match { case (b = _, a = _) => }")
   }
 
   def testConstructorPattern(): Unit = {

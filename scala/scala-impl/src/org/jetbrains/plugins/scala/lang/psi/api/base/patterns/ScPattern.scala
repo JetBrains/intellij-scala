@@ -103,8 +103,11 @@ object ScPattern {
             def handleTupleSubpatternExpectedType(tupleExpectedType: ScType): Option[ScType] =
               tupleExpectedType match {
                 case TupleType(comps) =>
-                  val idx = patternList.patterns.indexWhere(_ == pattern)
+                  val idx = patternList.patterns.indexOf(pattern)
                   comps.lift(idx)
+                case NamedTupleType(comps) =>
+                  val idx = patternList.patterns.indexOf(pattern)
+                  comps.lift(idx).map { case (_, ty) => ty }
                 case et0 if et0.isAnyRef || et0.isAny => Some(Any)
                 case ex: ScExistentialType =>
                   val simplified = ex.simplify()
