@@ -99,13 +99,25 @@ class IrrefutabilityTest extends ScalaLightCodeInsightFixtureTestCase {
     assertIsNotIrrefutable("(A, B -> A) match { case (_, (a: A, b: B)) => }")
   }
 
+  def testNamedTupleToNormalTuplePattern(): Unit = {
+    assertIsIrrefutable("(a = A, b = B) match { case (a, b) => }")
+    assertIsIrrefutable("(a = A, b = A -> B) match { case (a, b) => }")
+    assertIsIrrefutable("(a = A, b = A -> B) match { case (a, (a2, b)) => }")
+    assertIsIrrefutable("(a = A, b = A -> B) match { case (a:A, (a2:A, b: B)) => }")
+
+    assertIsNotIrrefutable("A match { case (a, b) => }")
+    assertIsNotIrrefutable("(a = A, b = B, c = B) match { case (a, b) => }")
+    assertIsNotIrrefutable("(a = B, b = A) match { case (a: A, b: B) => }")
+    assertIsNotIrrefutable("(a = A, b = B -> A) match { case (_, (a: A, b: B)) => }")
+  }
+
   def testNamedTuplePattern(): Unit = {
     assertIsIrrefutable("(a = A, b = B) match { case (a = a, b = b) => }")
     assertIsIrrefutable("(a = A, b = A -> B) match { case (a = a, b = b) => }")
     assertIsIrrefutable("(a = A, b = A -> B) match { case (a = a, b = (a2, b)) => }")
     assertIsIrrefutable("(a = A, b = A -> B) match { case (a = a:A, b = (a2:A, b: B)) => }")
 
-    assertIsNotIrrefutable("A match { case (a, b) => }")
+    assertIsNotIrrefutable("A match { case (a = a, b = b) => }")
     assertIsNotIrrefutable("(a = A, b = B, c = B) match { case (a = a, b = b) => }")
     assertIsNotIrrefutable("(a = B, b = A) match { case (a = a: A, b = b: B) => }")
     assertIsNotIrrefutable("(a = A, b = B) match { case (b = b, a = A) => }")
