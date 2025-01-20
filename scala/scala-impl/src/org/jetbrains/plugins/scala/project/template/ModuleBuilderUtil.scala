@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.project.template
 
+import com.intellij.ide.util.EditorHelper
 import com.intellij.openapi.externalSystem.ExternalSystemModulePropertyManager
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
@@ -10,9 +11,12 @@ import com.intellij.openapi.externalSystem.settings.{AbstractExternalSystemSetti
 import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil, ExternalSystemUtil}
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.Module
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{ContentEntry, ModifiableRootModel}
+import com.intellij.openapi.startup.StartupManager
 import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
+import com.intellij.psi.PsiManager
 import org.jetbrains.annotations.{ApiStatus, Nullable}
 import org.jetbrains.jps.model.java.{JavaResourceRootType, JavaSourceRootType}
 import org.jetbrains.plugins.scala.extensions._
@@ -92,6 +96,21 @@ object ModuleBuilderUtil {
     } {
       doSetupRootModel(model, vFile, contentEntryFolders)
     }
+  }
+
+  def openFilesInEditor(files: Seq[VirtualFile], project: Project): Unit = {
+    if (files.isEmpty) return
+    val psiManager = PsiManager.getInstance(project)
+    StartupManager.getInstance(project).runAfterOpened(() =>
+      files.foreach { file =>
+        val psiFile = inReadAction { psiManager.findFile(file) }
+        if (psiFile != null) {
+          invokeLater {
+            EditorHelper.openInEditor(psiFile)
+          }
+        }
+      }
+    )
   }
 
   private def doSetupRootModel(

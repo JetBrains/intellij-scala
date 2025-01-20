@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.project.template
 
 import com.intellij.facet.impl.ui.libraries.LibraryCompositionSettings
-import com.intellij.ide.util.EditorHelper
 import com.intellij.ide.util.projectWizard.{JavaModuleBuilder, ModuleWizardStep, SettingsStep}
 import com.intellij.openapi.module.{JavaModuleType, Module}
 import com.intellij.openapi.project.Project
@@ -10,8 +9,6 @@ import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.roots.ui.configuration.projectRoot.{LibrariesContainer, LibrariesContainerFactory}
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.PsiManager
-import org.jetbrains.plugins.scala.extensions.invokeLater
 
 import java.{util => ju}
 import javax.swing.JComponent
@@ -45,19 +42,9 @@ class ScalaModuleBuilder extends JavaModuleBuilder {
     new ScalaStep(settingsStep)
   }
 
+  //open code sample or buildSbt
   private def openEditorForCodeSample(project: Project): Unit =
-    //open code sample or buildSbt
-    if (openFileEditorAfterProjectOpened.nonEmpty) {
-      val psiManager = PsiManager.getInstance(project)
-      openFileEditorAfterProjectOpened.foreach { file =>
-        Option(psiManager.findFile(file))
-          .foreach { psiFile =>
-            invokeLater {
-              EditorHelper.openInEditor(psiFile)
-            }
-          }
-      }
-    }
+    ModuleBuilderUtil.openFilesInEditor(openFileEditorAfterProjectOpened, project)
 
   private class ScalaStep(settingsStep: SettingsStep) extends ModuleWizardStep with ScalaSDKStepLike {
     private val javaStep = JavaModuleType.getModuleType.modifyProjectTypeStep(settingsStep, ScalaModuleBuilder.this)

@@ -1,6 +1,5 @@
 package org.jetbrains.sbt.project.template
 
-import com.intellij.ide.util.EditorHelper
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
@@ -11,8 +10,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
-import com.intellij.psi.PsiManager
-import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.project.template.{DefaultModuleContentEntryFolders, FileExt, ModuleBuilderUtil}
 import org.jetbrains.plugins.scala.util.ScalaPluginUtils
 import org.jetbrains.sbt.Sbt
@@ -80,17 +77,7 @@ abstract class ModuleBuilderBase[T <: ExternalProjectSettings](
       else
         Option(VirtualFileManager.getInstance().findFileByNioPath((contentDir / externalSystemConfigFile).toPath)).toSeq
 
-    if (filesToOpen.nonEmpty) {
-      val psiManager = PsiManager.getInstance(project)
-      filesToOpen.foreach { file =>
-        Option(psiManager.findFile(file))
-          .foreach { psiFile =>
-            invokeLater {
-              EditorHelper.openInEditor(psiFile)
-            }
-          }
-      }
-    }
+    ModuleBuilderUtil.openFilesInEditor(filesToOpen, project)
   }
 
   protected def externalSystemConfigFile: String
