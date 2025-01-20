@@ -9,7 +9,7 @@ lazy val root = (project in file("."))
 
 // projects with non-file/git uris should import correctly
 
-lazy val uriSchemeGit = RootProject(uri("https://github.com/JetBrains/sbt-idea-plugin.git#master"))
+lazy val uriSchemeGit = RootProject(uri("https://github.com/JetBrains/sbt-idea-plugin.git#v4.0.3"))
 
 lazy val uriSchemeGitWithBranch = RootProject(uri("https://github.com/JetBrains/sbt-idea-shell.git#master"))
 
