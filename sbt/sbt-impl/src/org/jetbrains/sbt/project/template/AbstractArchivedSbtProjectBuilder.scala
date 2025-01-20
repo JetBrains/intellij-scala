@@ -6,6 +6,7 @@ import com.intellij.openapi.projectRoots.{JavaSdk, SdkTypeId}
 import com.intellij.platform.templates.github.ZipUtil
 import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.project.template.DefaultModuleContentEntryFolders
 import org.jetbrains.sbt.project.template.AbstractArchivedSbtProjectBuilder.{replacePatterns, replacePatterns2}
 
 import java.io.File

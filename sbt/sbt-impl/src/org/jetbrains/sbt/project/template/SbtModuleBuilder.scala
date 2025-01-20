@@ -8,7 +8,7 @@ import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.annotations.{ApiStatus, NonNls, TestOnly}
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.project.template.patchProjectLabels
+import org.jetbrains.plugins.scala.project.template.{DefaultModuleContentEntryFolders, patchProjectLabels}
 import org.jetbrains.plugins.scala.project.{ScalaLanguageLevel, Version, Versions}
 import org.jetbrains.plugins.scala.util.ui.extensions.JComboBoxOps
 import org.jetbrains.sbt.project.template.wizard.SbtModuleStepLike

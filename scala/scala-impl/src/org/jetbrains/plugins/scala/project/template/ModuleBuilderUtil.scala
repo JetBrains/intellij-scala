@@ -1,4 +1,4 @@
-package org.jetbrains.sbt.project.template
+package org.jetbrains.plugins.scala.project.template
 
 import com.intellij.openapi.externalSystem.ExternalSystemModulePropertyManager
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder

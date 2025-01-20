@@ -1,4 +1,4 @@
-package org.jetbrains.sbt.project.template
+package org.jetbrains.plugins.scala.project.template
 
 /**
  * Represents set of folders to be marked as "source", "resource", "excluded" folders just after project is created.
