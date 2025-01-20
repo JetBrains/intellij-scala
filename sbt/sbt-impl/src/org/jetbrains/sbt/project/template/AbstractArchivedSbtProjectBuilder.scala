@@ -43,7 +43,7 @@ abstract class AbstractArchivedSbtProjectBuilder extends SbtModuleBuilderBase {
       testSources = Seq("src/test/scala"),
       resources = Seq("resources"),
       testResources = Seq(),
-      excluded = DefaultModuleContentEntryFolders.RootTargets,
+      excluded = DefaultModuleContentEntryFolders.SbtRootTargets,
     ))
   }
 

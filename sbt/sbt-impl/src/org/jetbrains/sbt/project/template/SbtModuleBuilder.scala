@@ -225,6 +225,7 @@ object SbtModuleBuilder {
         Seq(testSourcesPath),
         Nil,
         Nil,
+        DefaultModuleContentEntryFolders.SbtRootTargets
       ))
     }
     else None
