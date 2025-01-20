@@ -94,6 +94,14 @@ class LambdaBreakpointsTest_2_12 extends LambdaBreakpointsTestBase {
       (4, "$anonfun$fooInTrait$1"), (4, "$anonfun$fooInTrait$1"), (5, "fooInTrait")
     )
   }
+
+  override def testLineInLambdaWithLambdaOnLineInTrait(): Unit = {
+    breakpointsTest()(
+      (5, "$anonfun$fooInTrait$1"), (6, "$anonfun$fooInTrait$1"), (6, "$anonfun$fooInTrait$2"),
+      (5, "$anonfun$fooInTrait$1"), (6, "$anonfun$fooInTrait$1"), (6, "$anonfun$fooInTrait$2"),
+      (8, "fooInTrait")
+    )
+  }
 }
 
 class LambdaBreakpointsTest_2_13 extends LambdaBreakpointsTest_2_12 {
@@ -270,6 +278,14 @@ class LambdaBreakpointsTest_3_3 extends LambdaBreakpointsTestBase {
       (4, "$anonfun$1"), (4, "$anonfun$1"), (5, "fooInTrait")
     )
   }
+
+  override def testLineInLambdaWithLambdaOnLineInTrait(): Unit = {
+    breakpointsTest()(
+      (5, "$anonfun$1"), (6, "$anonfun$1"), (6, "$anonfun$1$$anonfun$1"),
+      (5, "$anonfun$1"), (6, "$anonfun$1"), (6, "$anonfun$1$$anonfun$1"),
+      (8, "fooInTrait")
+    )
+  }
 }
 
 class LambdaBreakpointsTest_3_4 extends LambdaBreakpointsTest_3_3 {
@@ -349,6 +365,15 @@ class LambdaBreakpointsTest_3_4 extends LambdaBreakpointsTest_3_3 {
       (33, "$anonfun$3"), (34, "$anonfun$3"), (33, "$anonfun$3"), (34, "$anonfun$3"), (36, "fooFromAbstractClass"),
       (12, "fooFromMain"),
       (11, "$anonfun$1"), (12, "$anonfun$1"), (11, "$anonfun$1"), (12, "$anonfun$1"), (14, "fooFromMain"),
+    )
+  }
+
+  override def testLineInLambdaWithLambdaOnLineInTrait(): Unit = {
+    breakpointsTest()(
+      (6, "fooInTrait"),
+      (5, "$anonfun$1"), (6, "$anonfun$1"), (6, "$anonfun$1$$anonfun$1"),
+      (5, "$anonfun$1"), (6, "$anonfun$1"), (6, "$anonfun$1$$anonfun$1"),
+      (8, "fooInTrait")
     )
   }
 }
@@ -736,6 +761,34 @@ abstract class LambdaBreakpointsTestBase extends ScalaDebuggerTestCase {
   def testOneLineLambdaInTrait(): Unit = {
     breakpointsTest()(
       (4, "apply$mcII$sp"), (4, "apply$mcII$sp"), (5, "fooInTrait")
+    )
+  }
+
+  addSourceFile("LineInLambdaWithLambdaOnLineInTrait.scala",
+    s"""
+       |trait MyTraitWithLambdaWithLambdaOnLine {
+       |  def fooInTrait(): Unit = {
+       |    val seq = 1 to 2
+       |    val seqNew = seq.flatMap { item =>
+       |      val x = 1 + 1 $breakpoint
+       |      Seq(item).map(_ + x) $breakpoint
+       |    }
+       |    println(seqNew) $breakpoint
+       |  }
+       |}
+       |
+       |object LineInLambdaWithLambdaOnLineInTrait extends MyTraitWithLambdaWithLambdaOnLine {
+       |  def main(args: Array[String]): Unit = {
+       |    fooInTrait()
+       |  }
+       |}
+       |""".stripMargin)
+
+  def testLineInLambdaWithLambdaOnLineInTrait(): Unit = {
+    breakpointsTest()(
+      (5, "apply"), (6, "apply"), (6, "apply$mcII$sp"),
+      (5, "apply"), (6, "apply"), (6, "apply$mcII$sp"),
+      (8, "fooInTrait")
     )
   }
 }
