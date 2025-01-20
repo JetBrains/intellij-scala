@@ -135,7 +135,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
         val qName = getSpecificNameForDebugger(td)
         val additional = td match {
           case _: ScTrait =>
-            qName.stripSuffix(TraitImplementationClassSuffix_211) :: Nil
+            qName :: Nil
           case c: ScClass if ValueClassType.isValueClass(c) =>
             s"$qName$$" :: Nil
           case c if isDelayedInit(c) =>
@@ -909,7 +909,6 @@ object ScalaPositionManager {
 
     td match {
       case _: ScObject => name + "$"
-      case _: ScTrait => name + TraitImplementationClassSuffix_211 //is valid only before scala 2.12
       case _ => name
     }
   }
@@ -1063,7 +1062,7 @@ object ScalaPositionManager {
       val name = refType.name()
 
       exactName match {
-        case Some(qName) => qName == name || qName.stripSuffix(TraitImplementationClassSuffix_211) == name
+        case Some(qName) => qName == name
         case None => checkParts(name)
       }
     }
