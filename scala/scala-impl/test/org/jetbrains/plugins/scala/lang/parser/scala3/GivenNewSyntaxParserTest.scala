@@ -2859,4 +2859,122 @@ class GivenNewSyntaxParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  // SCL-23314
+  def testInfixAs(): Unit = checkTree(
+    """
+      |val conv: (String as Int) = ???
+      |given instance: (String as Int) = ???
+      |def test(ev: (String as Int)) = ???
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScPatternDefinition: conv
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(val)('val')
+      |    PsiWhiteSpace(' ')
+      |    ListOfPatterns
+      |      ReferencePattern: conv
+      |        PsiElement(identifier)('conv')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    TypeInParenthesis: (String as Int)
+      |      PsiElement(()('(')
+      |      InfixType: String as Int
+      |        SimpleType: String
+      |          CodeReferenceElement: String
+      |            PsiElement(identifier)('String')
+      |        PsiWhiteSpace(' ')
+      |        CodeReferenceElement: as
+      |          PsiElement(identifier)('as')
+      |        PsiWhiteSpace(' ')
+      |        SimpleType: Int
+      |          CodeReferenceElement: Int
+      |            PsiElement(identifier)('Int')
+      |      PsiElement())(')')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    ReferenceExpression: ???
+      |      PsiElement(identifier)('???')
+      |  PsiWhiteSpace('\n')
+      |  ScGivenAliasDefinition: instance
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(given)('given')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('instance')
+      |    PsiElement(:)(':')
+      |    Parameters
+      |      <empty list>
+      |    PsiWhiteSpace(' ')
+      |    TypeInParenthesis: (String as Int)
+      |      PsiElement(()('(')
+      |      InfixType: String as Int
+      |        SimpleType: String
+      |          CodeReferenceElement: String
+      |            PsiElement(identifier)('String')
+      |        PsiWhiteSpace(' ')
+      |        CodeReferenceElement: as
+      |          PsiElement(identifier)('as')
+      |        PsiWhiteSpace(' ')
+      |        SimpleType: Int
+      |          CodeReferenceElement: Int
+      |            PsiElement(identifier)('Int')
+      |      PsiElement())(')')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    ReferenceExpression: ???
+      |      PsiElement(identifier)('???')
+      |  PsiWhiteSpace('\n')
+      |  ScFunctionDefinition: test
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('test')
+      |    Parameters
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        Parameter: ev
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(identifier)('ev')
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace(' ')
+      |          ParameterType
+      |            TypeInParenthesis: (String as Int)
+      |              PsiElement(()('(')
+      |              InfixType: String as Int
+      |                SimpleType: String
+      |                  CodeReferenceElement: String
+      |                    PsiElement(identifier)('String')
+      |                PsiWhiteSpace(' ')
+      |                CodeReferenceElement: as
+      |                  PsiElement(identifier)('as')
+      |                PsiWhiteSpace(' ')
+      |                SimpleType: Int
+      |                  CodeReferenceElement: Int
+      |                    PsiElement(identifier)('Int')
+      |              PsiElement())(')')
+      |        PsiElement())(')')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    ReferenceExpression: ???
+      |      PsiElement(identifier)('???')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }

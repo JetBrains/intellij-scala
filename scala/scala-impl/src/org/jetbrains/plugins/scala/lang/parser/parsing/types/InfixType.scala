@@ -18,6 +18,8 @@ object InfixType extends InfixType {
                                      (implicit builder: ScalaPsiBuilder): Boolean =
     CompoundType(star, isPattern)
   override protected def errorMessage: String = ScalaBundle.message("compound.type.expected")
+
+  override protected def `allow 'as' operator`: Boolean = true
 }
 
 trait InfixType {
@@ -26,15 +28,21 @@ trait InfixType {
   @Nls
   protected def errorMessage: String
 
+  protected def `allow 'as' operator`: Boolean
+
   private val varargStarFollowSet = TokenSet.create(
     ScalaTokenTypes.tRPARENTHESIS,  // def test(x: Int*)       -- standard case
     ScalaTokenTypes.tASSIGN,        // def test(x: Int* = 3)   -- this is allowed by syntax, but not by semantics
     ScalaTokenTypes.tCOMMA,         // def test(x: Int*,)      -- especially with trailing comma
   )
 
-  final def apply(star: Boolean = false, isPattern: Boolean = false, typeVariables: Boolean = false)(implicit builder: ScalaPsiBuilder): Boolean = {
+  final def apply(star: Boolean = false,
+                  isPattern: Boolean = false,
+                  typeVariables: Boolean = false,
+                  inContextBound: Boolean = false)
+                 (implicit builder: ScalaPsiBuilder): Boolean = {
     if (builder.isScala3) {
-      return parseInScala3(star, isPattern, typeVariables)(builder)
+      return parseInScala3(star, isPattern, typeVariables, inContextBound)(builder)
     }
 
     var markerList = List.empty[PsiBuilder.Marker] //This list consist of markers for right-associated op
@@ -141,7 +149,10 @@ trait InfixType {
     }
   }
 
-  private def parseInScala3(star: Boolean, isPattern: Boolean, typeVariables: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
+  private def parseInScala3(star: Boolean,
+                            isPattern: Boolean,
+                            typeVariables: Boolean,
+                            inContextBound: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
     val infixParsingRule = new PrecedenceClimbingInfixParsingRule {
       override protected def referenceElementType: IElementType = ScalaElementType.REFERENCE
       override protected def infixElementType: IElementType = ScalaElementType.INFIX_TYPE
@@ -164,7 +175,7 @@ trait InfixType {
         (!isPattern ||
           typeVariables ||
           builder.getTokenText != "|") &&
-          !(builder.features.`new context bounds and givens` && builder.getTokenText == "as") &&
+          !(inContextBound && builder.features.`new context bounds and givens` && builder.getTokenText == "as") &&
           super.shouldContinue
 
     private def parseTypeVariable(): Boolean = if (isPattern && typeVariables && builder.getTokenType == ScalaTokenTypes.tIDENTIFIER) {
