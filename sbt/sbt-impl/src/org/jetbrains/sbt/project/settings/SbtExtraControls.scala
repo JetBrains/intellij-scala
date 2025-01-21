@@ -2,6 +2,7 @@ package org.jetbrains.sbt.project.settings
 
 import com.intellij.icons.AllIcons
 import com.intellij.ide.browsers.BrowserLauncher
+import com.intellij.openapi.ui.panel.ComponentPanelBuilder
 import com.intellij.ui.components.{ActionLink, JBLabel}
 import com.intellij.ui.{JBColor, TitledSeparator}
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
@@ -116,8 +117,8 @@ final class SbtExtraControls {
     panel.add(parentPanel, gc(0, 0, 1, 1))
 
     val comment = new JBLabel(text)
-    comment.setComponentStyle(UIUtil.ComponentStyle.SMALL)
-    comment.setForeground(UIUtil.getLabelFontColor(UIUtil.FontColor.BRIGHTER))
+    comment.setFont(ComponentPanelBuilder.getCommentFont(comment.getFont)): @nowarn("cat=deprecation")
+    comment.setForeground(JBUI.CurrentTheme.ContextHelp.FOREGROUND)
     val leftOffset = UIUtil.getCheckBoxTextHorizontalOffset(checkBox)
     comment.setBorder(JBUI.Borders.emptyLeft(leftOffset))
     panel.add(comment, gc(1, 0, 1, 1))
