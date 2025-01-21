@@ -17,8 +17,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type.parseWildcardS
  * }}}
  */
 object Type extends Type {
-  override protected def infixType: InfixType = InfixType
-
   // TODO: handle changes for later Dotty versions https://dotty.epfl.ch/docs/reference/changed-features/wildcards.html
   //   In Scala 3.0, both _ and ? are legal names for wildcards.
   //   In Scala 3.1, _ is deprecated in favor of ? as a name for a wildcard. A -rewrite option is available to rewrite one to the other.
@@ -37,12 +35,14 @@ object Type extends Type {
 }
 
 trait Type {
-  protected def infixType: InfixType
-
-  def apply(star: Boolean = false, isPattern: Boolean = false, typeVariables: Boolean = false)(implicit builder: ScalaPsiBuilder): Boolean = {
+  def apply(star: Boolean = false,
+            isPattern: Boolean = false,
+            typeVariables: Boolean = false,
+            inContextBound: Boolean = false)
+           (implicit builder: ScalaPsiBuilder): Boolean = {
     val typeMarker = builder.mark()
 
-    if (InfixTypePrefix(star, isPattern, typeVariables)) {
+    if (InfixTypePrefix(star, isPattern, typeVariables, inContextBound)) {
       typeMarker.drop()
       true
     } else if (PolyFunOrTypeLambda(star, isPattern)) {

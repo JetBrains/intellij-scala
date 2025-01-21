@@ -312,6 +312,8 @@ object GivenType extends InfixType {
     AnnotType(isPattern = false)
 
   override protected def errorMessage: String = ScalaBundle.message("type.expected")
+
+  override protected def `allow 'as' operator`: Boolean = true
 }
 
 object OldGivenDef {

@@ -45,7 +45,7 @@ object ContextBounds {
 object ContextBound {
   def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val contextBoundMarker = builder.mark()
-    if (!Type()) {
+    if (!Type(inContextBound = true)) {
       contextBoundMarker.rollbackTo()
       false
     } else {
