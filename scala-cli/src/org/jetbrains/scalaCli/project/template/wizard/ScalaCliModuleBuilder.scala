@@ -6,9 +6,10 @@ import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.bsp.BSP
 import org.jetbrains.bsp.settings.BspProjectSettings
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.project.template.DefaultModuleContentEntryFolders
 
 import java.io.File
-import org.jetbrains.sbt.project.template.{DefaultModuleContentEntryFolders, ModuleBuilderBase, ScalaModuleBuilderSelections}
+import org.jetbrains.sbt.project.template.{ModuleBuilderBase, ScalaModuleBuilderSelections}
 import org.jetbrains.scalaCli.project.ScalaCliProjectUtils
 
 class ScalaCliModuleBuilder (
