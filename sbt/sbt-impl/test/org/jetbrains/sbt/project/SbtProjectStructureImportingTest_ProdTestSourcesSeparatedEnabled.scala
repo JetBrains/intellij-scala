@@ -655,7 +655,8 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
         createModuleWithSourceSet("sbt-idea-plugin", sbtIdeaPluginGroup) ++
         createModuleWithSourceSet("sbt-declarative-core", sbtIdeaPluginGroup) ++
         createModuleWithSourceSet("sbt-declarative-packaging", sbtIdeaPluginGroup) ++
-        createModuleWithSourceSet("sbt-declarative-visualizer", sbtIdeaPluginGroup)
+        createModuleWithSourceSet("sbt-declarative-visualizer", sbtIdeaPluginGroup) ++
+        createModuleWithSourceSet("test-utils", sbtIdeaPluginGroup)
     }
   )
 
