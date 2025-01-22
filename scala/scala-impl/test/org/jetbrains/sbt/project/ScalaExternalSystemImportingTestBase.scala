@@ -7,6 +7,7 @@ import com.intellij.platform.externalSystem.testFramework.ExternalSystemImportin
 import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.extensions.inWriteAction
+import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert.assertNotNull
 
 import java.io.File
@@ -23,6 +24,7 @@ abstract class ScalaExternalSystemImportingTestBase extends ExternalSystemImport
 
   override def setUp(): Unit = {
     super.setUp()
+    TestUtils.suppressSemanticSearchLeakedThreads()
     setupProjectJdk()
   }
 

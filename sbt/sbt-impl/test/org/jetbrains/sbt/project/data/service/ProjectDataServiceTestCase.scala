@@ -10,6 +10,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ex.ProjectRootManagerEx
 import com.intellij.testFramework.HeavyPlatformTestCase
 import org.jetbrains.plugins.scala.project.external.{ShownNotification, ShownNotificationsKey}
+import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 
 import scala.annotation.nowarn
@@ -18,6 +19,11 @@ import scala.annotation.nowarn
  * TestCase class to use when testing ProjectDataService implementations
  */
 abstract class ProjectDataServiceTestCase extends HeavyPlatformTestCase {
+
+  override def setUp() = {
+    super.setUp()
+    TestUtils.suppressSemanticSearchLeakedThreads()
+  }
 
   protected def importProjectData(projectData: DataNode[ProjectData]): Unit =
     ProjectDataServiceTestCase.importProjectData(projectData, getProject)

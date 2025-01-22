@@ -12,6 +12,7 @@ import com.intellij.openapi.vfs._
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework._
 import com.intellij.testFramework.common.ThreadLeakTracker
+import org.jetbrains.plugins.scala.util.TestUtils
 
 import java.nio.file.Path
 //noinspection ApiStatus
@@ -76,6 +77,8 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
 
   override protected def setUp(): Unit = {
     super.setUp()
+    TestUtils.suppressSemanticSearchLeakedThreads()
+
     if (reuseCompileServerProcessBetweenTests) {
       //noinspection ApiStatus,UnstableApiUsage
       ThreadLeakTracker.longRunningThreadCreated(

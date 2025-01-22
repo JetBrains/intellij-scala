@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.compiler
 import com.intellij.debugger.impl.OutputChecker
 import com.intellij.execution.ExecutionTestCase
 import com.intellij.execution.configurations.JavaParameters
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.vfs.LocalFileSystem
@@ -96,6 +97,7 @@ trait ScalaExecutionTestCase extends ExecutionTestCase with ScalaSdkOwner {
     }
 
     super.setUp()
+    TestUtils.suppressSemanticSearchLeakedThreads()
 
     LocalFileSystem.getInstance().refreshIoFiles(srcPath.toFile.listFiles().toList.asJava)
     compileProject()
