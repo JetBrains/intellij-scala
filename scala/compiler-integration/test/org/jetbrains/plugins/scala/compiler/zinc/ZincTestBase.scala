@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
+import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
 import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
@@ -44,6 +45,7 @@ abstract class ZincTestBase(separateProdAndTestSources: Boolean = false) extends
 
   override def setUp(): Unit = {
     super.setUp()
+    TestUtils.suppressSemanticSearchLeakedThreads()
 
     sdk = {
       val jdkVersion =

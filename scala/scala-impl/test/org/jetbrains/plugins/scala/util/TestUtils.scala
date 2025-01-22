@@ -1,11 +1,13 @@
 package org.jetbrains.plugins.scala.util
 
+import com.intellij.openapi.application.{ApplicationManager, PathManagerEx}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.{Project, ProjectUtil}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiComment, PsiFile, PsiManager}
+import com.intellij.testFramework.common.ThreadLeakTracker
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.junit.Assert
@@ -199,5 +201,25 @@ object TestUtils {
     PsiManager.getInstance(project).findFile(vFile).tap { psiFile =>
       assertNotNull(s"Can't psi file for $vFile", psiFile)
     }
+  }
+
+  /**
+   * Suppresses leaked threads by the semantic search embeddings server.
+   * We currently get these test failures in 243 only. This code is not ported to 251.
+   */
+  def suppressSemanticSearchLeakedThreads(): Unit = {
+    val testSystemDir = PathManagerEx.getAppSystemDir
+    val semanticSearchPathPrefix = testSystemDir.toRealPath().toString
+
+    val threadNames = Seq(
+      semanticSearchPathPrefix,
+      "BaseDataReader: error stream of embeddings-server",
+      "BaseDataReader: output stream of embeddings-server",
+      "embeddings-server",
+      "grpc-nio-worker-",
+      "semantic-search"
+    )
+    //noinspection ApiStatus,UnstableApiUsage
+    ThreadLeakTracker.longRunningThreadCreated(ApplicationManager.getApplication, threadNames: _*)
   }
 }
