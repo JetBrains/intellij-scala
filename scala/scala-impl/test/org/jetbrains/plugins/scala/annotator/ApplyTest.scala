@@ -262,4 +262,23 @@ class ApplyTest extends AnnotatorLightCodeInsightFixtureTestAdapter {
       |class SX {def test(): Unit = {}}
       |""".stripMargin
   )
+
+  def testSCL23412(): Unit = checkTextHasNoErrors(
+    """
+      |class GenLens[A] {
+      |  def apply[B](field: A => B): Option[A] = null
+      |}
+      |object GenLens {
+      |  def apply[A]: GenLens[A] = null
+      |}
+      |
+      |case class Params(value: String)
+      |
+      |object main {
+      |  GenLens[Params](_.value)
+      |  //the same as
+      |  GenLens[Params].apply(_.value)
+      |}
+      |""".stripMargin
+  )
 }

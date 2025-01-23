@@ -114,9 +114,9 @@ case class ApplyOrUpdateInvocation(
 
 object ApplyOrUpdateInvocation {
   def apply(
-    gen: ScGenericCall,
-    tp: ScType,
-    isDynamic: Boolean,
+    gen:           ScGenericCall,
+    tp:            ScType,
+    isDynamic:     Boolean,
     stripTypeArgs: Boolean
   ): ApplyOrUpdateInvocation = {
     ApplyOrUpdateInvocation(
@@ -186,11 +186,6 @@ object ApplyOrUpdateInvocation {
   }
 
   def innerSrrHasTypeParameters(srr: ScalaResolveResult): Boolean =
-    srr.name == CommonNames.Apply && srr.innerResolveResult.exists {
-      _.element match {
-        case tpo: PsiTypeParameterListOwner => tpo.getTypeParameters.nonEmpty
-        case tpo: ScTypeParametersOwner     => tpo.typeParameters.nonEmpty
-        case _                              => false
-      }
-    }
+    srr.name == CommonNames.Apply &&
+      srr.innerResolveResult.fold(false)(_.elementHasTypeParameters)
 }
