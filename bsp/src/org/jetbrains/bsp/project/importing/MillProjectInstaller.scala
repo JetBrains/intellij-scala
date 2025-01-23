@@ -17,8 +17,7 @@ class MillProjectInstaller extends BspProjectInstallProvider {
   override def canImport(workspace: File): Boolean =
     Option(workspace) match {
       case Some(directory) if directory.isDirectory =>
-        BspUtil.findFileByName(directory, "build.mill").isDefined ||
-          BspUtil.findFileByName(directory, "build.mill.scala").isDefined ||
+        BspUtil.directoryContainsFile(directory, "build.mill", "build.mill.scala") ||
           isBspCompatible(directory) ||
           isLegacyBspCompatible(directory)
       case _ => false
