@@ -611,15 +611,15 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
 
         // NOTE: sbtIdeaPlugin also has inner module named `sbt-idea-plugin` (with dashes), but it's separate, non-root module
         new module("sbtIdeaPlugin") {
-          sbtBuildURI := new URI("https://github.com/JetBrains/sbt-idea-plugin.git")
+          sbtBuildURI := new URI("https://github.com/JetBrains/sbt-idea-plugin.git#master")
           sbtProjectId := "sbtIdeaPlugin"
         },
         new module("sbtIdeaPlugin.main") {
-          sbtBuildURI := new URI("https://github.com/JetBrains/sbt-idea-plugin.git")
+          sbtBuildURI := new URI("https://github.com/JetBrains/sbt-idea-plugin.git#master")
           sbtProjectId := "sbtIdeaPlugin"
         },
         new module("sbtIdeaPlugin.test") {
-          sbtBuildURI := new URI("https://github.com/JetBrains/sbt-idea-plugin.git")
+          sbtBuildURI := new URI("https://github.com/JetBrains/sbt-idea-plugin.git#master")
           sbtProjectId := "sbtIdeaPlugin"
         },
         new module("sbtIdeaPlugin-build", sbtIdeaPluginGroup),
