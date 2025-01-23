@@ -16,7 +16,10 @@ class MillProjectInstaller extends BspProjectInstallProvider {
 
   override def canImport(workspace: File): Boolean =
     Option(workspace) match {
-      case Some(directory) if directory.isDirectory => isBspCompatible(directory) || isLegacyBspCompatible(directory)
+      case Some(directory) if directory.isDirectory =>
+        BspUtil.directoryContainsFile(directory, "build.mill", "build.mill.scala") ||
+          isBspCompatible(directory) ||
+          isLegacyBspCompatible(directory)
       case _ => false
     }
 
@@ -30,13 +33,23 @@ class MillProjectInstaller extends BspProjectInstallProvider {
     val isLegacyMill = !SystemInfo.isWindows && isLegacyBspCompatible(workspace)
     val millFileOpt = getMillFile(workspace)
     millFileOpt match {
-      case Some(file) if isMillFileBspCompatible(file, workspace) =>
-        Success(Seq(file.getAbsolutePath, "-i", "mill.bsp.BSP/install"))
-      case Some(file) if isLegacyMill =>
+      case Some(file) if isLegacyMill && !isMillFileBspCompatible(file, workspace) =>
+        // run this only if we're confident this is legacy Mill
         Success(Seq(file.getAbsolutePath, "-i", "mill.contrib.BSP/install"))
-      case _ => Failure(new IllegalStateException("Unable to install BSP as this is not a Mill project"))
+      case Some(file) =>
+        // otherwise run the normal BSP install command
+        Success(Seq(file.getAbsolutePath, "-i", "mill.bsp.BSP/install"))
+      //TODO: consider verifying Mill's installation in the #canImport to prevent its
+      // display in BspSetupConfigStepUi if not installed (the same in ScalaCliProjectInstaller)
+      case _ if isMillInstalled(workspace) =>
+        // If the launcher is not found in the project root but Mill is available in the PATH, then we can use it.
+        Success(Seq("mill", "-i", "mill.bsp.BSP/install"))
+      case _ => Failure(new IllegalStateException("Installation of BSP is unable to proceed as the Mill executable is missing from both the project root and the PATH."))
     }
   }
+
+  private def isMillInstalled(workspace: File): Boolean =
+    BspUtil.checkIfToolIsInstalled(workspace, "mill")
 
   private def getMillFile(workspace: File): Option[File] =
     if (SystemInfo.isWindows) BspUtil.findFileByName(workspace, "mill.bat")
