@@ -5,6 +5,7 @@ import java.net.URI
 import java.nio.file.{Path, Paths}
 import java.util.concurrent.CompletableFuture
 import com.intellij.build.events.impl.{FailureResultImpl, SkippedResultImpl, SuccessResultImpl}
+import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.{Project, ProjectUtil}
@@ -128,4 +129,13 @@ object BspUtil {
     Option(directory.listFiles())
       .getOrElse(Array.empty)
       .exists(x => !x.isDirectory && fileNames.contains(x.getName))
+
+  def checkIfToolIsInstalled(workspace: File, toolCommand: String): Boolean =
+    Try {
+      val generalCommandLine = new GeneralCommandLine(toolCommand, "version")
+        .withWorkDirectory(workspace)
+      val process = generalCommandLine.toProcessBuilder.start()
+      val exitValue = process.waitFor()
+      exitValue == 0
+    }.getOrElse(false)
 }
