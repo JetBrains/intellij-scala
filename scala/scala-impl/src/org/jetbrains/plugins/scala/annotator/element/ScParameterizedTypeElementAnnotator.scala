@@ -25,6 +25,8 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
   )(implicit
     holder: ScalaAnnotationHolder
   ): Unit = {
+    if (!typeAware) return
+
     val prefixType = element.typeElement.getTypeNoConstructor.toOption
 
     val projSubstitutor = element.typeElement.`type`().toOption match {

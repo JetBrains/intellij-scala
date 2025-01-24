@@ -16,6 +16,8 @@ object ScTypeBoundsOwnerAnnotator extends ElementAnnotator[ScTypeBoundsOwner] {
 
   override def annotate(element: ScTypeBoundsOwner, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
+    if (!typeAware) return
+
     val typeParamClause  = PsiTreeUtil.getParentOfType(element, classOf[ScTypeParamClause]).toOption
     val isFunctionClause = typeParamClause.flatMap(_.parent).exists(_.is[ScFunction])
 
