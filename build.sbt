@@ -74,6 +74,7 @@ lazy val scalaCommunity: sbt.Project =
       mlCompletionIntegration % "test->test;compile->compile",
       featuresTrainerIntegration % "test->test;compile->compile",
       textAnalysis % "test->test;compile->compile",
+      kotlinUtils % "test->test;compile->compile",
       scalaLanguageUtils % "test->test;compile->compile",
       scalaLanguageUtilsRt % "test->test;compile->compile",
       pluginXml,
@@ -412,6 +413,17 @@ lazy val scalaMetaImpl: sbt.Project =
     .settings(
       scalaVersion := Versions.scalaVersion,
       libraryDependencies += Dependencies.scalaMetaCore,
+    )
+
+/**
+ * Utilities for Kotlin-Scala interop written in Kotlin
+ */
+lazy val kotlinUtils: sbt.Project =
+  newProjectWithKotlin("kotlin-utils", file("scala/kotlin-utils"))
+    .dependsOn(scalaLanguageUtils)
+    .settings(
+      idePackagePrefix := Some("org.jetbrains.plugins.scala.kotlin.util"),
+      packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity),
     )
 
 /**
