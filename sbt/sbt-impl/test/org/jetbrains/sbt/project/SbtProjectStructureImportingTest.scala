@@ -476,7 +476,6 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureImportin
         new module("sbt-declarative-packaging", sbtIdeaPluginGroup),
         new module("sbt-declarative-visualizer", sbtIdeaPluginGroup),
         new module("sbtIdeaPlugin-build", sbtIdeaPluginGroup),
-        new module("test-utils", sbtIdeaPluginGroup),
         sbtIdeaShell,
         new module("sbt-idea-shell-build", sbtIdeaShellGroup),
         sbtIdeSettings,

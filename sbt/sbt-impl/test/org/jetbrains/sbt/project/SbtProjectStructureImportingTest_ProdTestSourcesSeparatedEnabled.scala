@@ -611,15 +611,15 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
 
         // NOTE: sbtIdeaPlugin also has inner module named `sbt-idea-plugin` (with dashes), but it's separate, non-root module
         new module("sbtIdeaPlugin") {
-          sbtBuildURI := new URI("https://github.com/JetBrains/sbt-idea-plugin.git#master")
+          sbtBuildURI := new URI("https://github.com/JetBrains/sbt-idea-plugin.git#v4.0.3")
           sbtProjectId := "sbtIdeaPlugin"
         },
         new module("sbtIdeaPlugin.main") {
-          sbtBuildURI := new URI("https://github.com/JetBrains/sbt-idea-plugin.git#master")
+          sbtBuildURI := new URI("https://github.com/JetBrains/sbt-idea-plugin.git#v4.0.3")
           sbtProjectId := "sbtIdeaPlugin"
         },
         new module("sbtIdeaPlugin.test") {
-          sbtBuildURI := new URI("https://github.com/JetBrains/sbt-idea-plugin.git#master")
+          sbtBuildURI := new URI("https://github.com/JetBrains/sbt-idea-plugin.git#v4.0.3")
           sbtProjectId := "sbtIdeaPlugin"
         },
         new module("sbtIdeaPlugin-build", sbtIdeaPluginGroup),
@@ -655,8 +655,7 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
         createModuleWithSourceSet("sbt-idea-plugin", sbtIdeaPluginGroup) ++
         createModuleWithSourceSet("sbt-declarative-core", sbtIdeaPluginGroup) ++
         createModuleWithSourceSet("sbt-declarative-packaging", sbtIdeaPluginGroup) ++
-        createModuleWithSourceSet("sbt-declarative-visualizer", sbtIdeaPluginGroup) ++
-        createModuleWithSourceSet("test-utils", sbtIdeaPluginGroup)
+        createModuleWithSourceSet("sbt-declarative-visualizer", sbtIdeaPluginGroup)
     }
   )
 
