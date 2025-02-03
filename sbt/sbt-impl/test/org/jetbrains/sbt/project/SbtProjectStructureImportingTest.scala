@@ -435,7 +435,7 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureImportin
 
       // NOTE: sbtIdeaPlugin also has inner module named `sbt-idea-plugin` (with dashes), but it's separate, non-root module
       val sbtIdeaPlugin = new module("sbtIdeaPlugin") {
-        sbtBuildURI := new URI("https://github.com/JetBrains/sbt-idea-plugin.git#master")
+        sbtBuildURI := new URI("https://github.com/JetBrains/sbt-idea-plugin.git#v4.0.3")
         sbtProjectId := "sbtIdeaPlugin"
       }
 
@@ -476,7 +476,6 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureImportin
         new module("sbt-declarative-packaging", sbtIdeaPluginGroup),
         new module("sbt-declarative-visualizer", sbtIdeaPluginGroup),
         new module("sbtIdeaPlugin-build", sbtIdeaPluginGroup),
-        new module("test-utils", sbtIdeaPluginGroup),
         sbtIdeaShell,
         new module("sbt-idea-shell-build", sbtIdeaShellGroup),
         sbtIdeSettings,
