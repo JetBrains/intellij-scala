@@ -53,12 +53,18 @@ object Tracing {
 //    trace(s"Modification $tracker: $count")
   }
 
-  def resolve(reference: ScReference, result: Array[ScalaResolveResult]): Unit = if (parameters.resolve) {
-    trace("Resolve: " + reference.asText + " → " + result.map(_.asText).mkString(", "))
+  def resolve(reference: ScReference, result: Array[ScalaResolveResult]): Unit = {
+    if (parameters.resolve) {
+      trace("Resolve: " + reference.asText + " → " + result.map(_.asText).mkString(", "))
+    }
+    incremental.Tracing.trace(reference, "Resolve")
   }
 
-  def inference(expression: ScExpression, result: ExpressionTypeResult): Unit = if (parameters.inference) {
-    trace("Inference: " + expression.asText + " → " + result.asText)
+  def inference(expression: ScExpression, result: ExpressionTypeResult): Unit = {
+    if (parameters.inference) {
+      trace("Inference: " + expression.asText + " → " + result.asText)
+    }
+    incremental.Tracing.trace(expression, "Inference")
   }
 
   private val psiTreeChangeListener = new PsiTreeChangeAdapter {

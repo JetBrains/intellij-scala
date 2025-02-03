@@ -7,6 +7,7 @@ import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.highlighter.{DefaultHighlighter, ScalaColorsSchemeUtils}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
@@ -33,6 +34,8 @@ final class ScalaRainbowVisitor extends RainbowVisitor {
   }
 
   override def visit(element: PsiElement): Unit = {
+    if (!element.isVisible) return
+
     Some(element).collect {
       case tagValue: ScDocTagValue => (tagValue, tagValue)
       case named@NameContext(context) => (context, named.nameId)

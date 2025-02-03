@@ -182,6 +182,7 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
   private boolean TYPE_AWARE_HIGHLIGHTING_ENABLED = true;
   private boolean COMPILER_HIGHLIGHTING_SCALA2 = false;
   private boolean COMPILER_HIGHLIGHTING_SCALA3 = true;
+  private boolean INCREMENTAL_HIGHLIGHTING = false;
   private boolean USE_COMPILER_RANGES = true;
   private boolean USE_COMPILER_TYPES = false;
 
@@ -389,6 +390,14 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
   }
   public boolean isCompilerHighlightingScala3() {
     return COMPILER_HIGHLIGHTING_SCALA3;
+  }
+
+  public boolean isIncrementalHighlighting() {
+    return INCREMENTAL_HIGHLIGHTING;
+  }
+
+  public void setIncrementalHighlighting(boolean value) {
+    INCREMENTAL_HIGHLIGHTING = value;
   }
 
   public boolean isUseCompilerRanges() {

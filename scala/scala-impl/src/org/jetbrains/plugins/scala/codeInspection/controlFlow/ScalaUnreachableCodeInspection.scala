@@ -4,6 +4,7 @@ import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.codeInsight.unwrap.{ScalaUnwrapContext, ScalaWhileUnwrapper}
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractFixOnTwoPsiElements, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
@@ -50,9 +51,13 @@ final class ScalaUnreachableCodeInspection extends LocalInspectionTool {
 
     private val descriptionTemplate = getDisplayName
 
-    override def visitElement(element: PsiElement): Unit = for {
-      descriptor <- problemDescriptors(element, descriptionTemplate)(holder.getManager, isOnTheFly)
-    } holder.registerProblem(descriptor)
+    override def visitElement(element: PsiElement): Unit = {
+      if (!element.isVisible) return
+
+      for {
+        descriptor <- problemDescriptors(element, descriptionTemplate)(holder.getManager, isOnTheFly)
+      } holder.registerProblem(descriptor)
+    }
   }
 }
 

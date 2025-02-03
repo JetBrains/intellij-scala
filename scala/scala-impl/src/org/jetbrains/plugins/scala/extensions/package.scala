@@ -715,6 +715,8 @@ package object extensions {
 
     def elements: Iterator[PsiElement] = depthFirst()
 
+    def elements(p: PsiElement => Boolean = _ => true): Iterator[PsiElement] = depthFirst(p).filter(p)
+
     def depthFirst(shouldProcessChildren: PsiElement => Boolean = _ => true): Iterator[PsiElement] =
       new DepthFirstIterator(element, shouldProcessChildren)
 

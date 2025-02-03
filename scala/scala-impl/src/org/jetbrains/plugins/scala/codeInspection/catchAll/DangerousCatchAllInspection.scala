@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.catchAll
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.DumbAware
 import com.intellij.psi.PsiElementVisitor
+import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
@@ -15,6 +16,8 @@ final class DangerousCatchAllInspection extends LocalInspectionTool with DumbAwa
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new ScalaElementVisitor {
       override def visitCatchBlock(catchBlock: ScCatchBlock): Unit = {
+        if (!catchBlock.isVisible) return
+
         catchBlock.expression match {
           case Some(block: ScBlockExpr) =>
             for {

@@ -7,6 +7,7 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils._
 import org.jetbrains.plugins.scala.annotator.annotationHolder.ScalaAnnotationHolderAdapter
 import org.jetbrains.plugins.scala.annotator.element.ElementAnnotator
@@ -42,6 +43,8 @@ class ScalaAnnotator extends Annotator
 
     if (InjectedLanguageManager.getInstance(element.getProject).isInjectedFragment(file))
       return
+
+    if (!element.isVisible) return
 
     val typeAware =
       if ((file ne null) && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(file)) false
