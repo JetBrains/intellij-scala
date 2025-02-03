@@ -23,7 +23,7 @@ object MavenProjectStructureTestUtils {
       mavenHomeDirectoryFromUserHome
     }.stripSuffix("/").stripSuffix("\\")
 
-    val repositoryRoot = (mavenRoot + "/repository").replace("\\", "/")
+    val repositoryRoot = mavenRoot.replace("\\", "/").stripSuffix("/repository") ++ "/repository"
     println(
       s"""### Detected maven repository root: $repositoryRoot
          |### mavenRootFromMavenOpts: $mavenRootFromMavenOpts
