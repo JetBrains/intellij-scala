@@ -83,9 +83,9 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
 
   //this method works for ScInfixExpression and ScMethodCall
   private def tryToGetInnerTypeExt(implicit useExpectedType: Boolean): InvocationData = {
-    def updateImplicitParameters(regularCase: RegularCase, srr: Option[ScalaResolveResult]) = {
+    def updateImplicitArguments(regularCase: RegularCase, srr: Option[ScalaResolveResult]) = {
       val RegularCase(inferredType, target, problems, matched) = regularCase
-      val (newType, arguments) = this.updatedWithImplicitParameters(inferredType, useExpectedType)
+      val (newType, arguments) = this.updatedWithImplicitArguments(inferredType, useExpectedType)
       setImplicitArguments(arguments)
       val actualType = srr.fold(newType)(widenEnumCaseCopyOrApplyMethod(newType, _))
       RegularCase(actualType, target, problems, matched)
@@ -106,7 +106,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
         }
 
         checkApplication(nonValueType, invokedResolveResult) match {
-          case Some(regularCase) => updateImplicitParameters(regularCase, invokedResolveResult)
+          case Some(regularCase) => updateImplicitArguments(regularCase, invokedResolveResult)
           case _ =>
             val stripTypeArgs =
               getEffectiveInvokedExpr match {
@@ -138,7 +138,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
                 }
 
                 SyntheticCase(
-                  updateImplicitParameters(regularCase, invokedResolveResult),
+                  updateImplicitArguments(regularCase, invokedResolveResult),
                   srr,
                   maybeRegularCase.isDefined
                 )

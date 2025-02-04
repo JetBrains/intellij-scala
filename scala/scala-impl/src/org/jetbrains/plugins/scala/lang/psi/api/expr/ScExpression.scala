@@ -376,7 +376,7 @@ object ScExpression {
 
     //has side effect!
     private[ScExpression] def updateWithImplicitParameters(tpe: ScType, checkExpectedType: Boolean, fromUnderscore: Boolean): ScType = {
-      val (newType, params) = updatedWithImplicitParameters(tpe, checkExpectedType)
+      val (newType, params) = updatedWithImplicitArguments(tpe, checkExpectedType)
 
       if (ScUnderScoreSectionUtil.isUnderscoreFunction(expr) == fromUnderscore) {
         expr.setImplicitArguments(params)
@@ -385,7 +385,7 @@ object ScExpression {
       newType
     }
 
-    def updatedWithImplicitParameters(tpe: ScType, checkExpectedType: Boolean): (ScType, Option[Seq[ScalaResolveResult]]) = {
+    def updatedWithImplicitArguments(tpe: ScType, checkExpectedType: Boolean): (ScType, Option[Seq[ScalaResolveResult]]) = {
       val checkImplicitParameters = ScalaPsiUtil.withEtaExpansion(expr)
       if (checkImplicitParameters) {
         val (updatedType, implicits, _) =

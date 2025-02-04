@@ -39,4 +39,21 @@ class HKExpectedTypeConformanceTest extends ScalaLightCodeInsightFixtureTestCase
       """.stripMargin
     checkTextHasNoErrors(text)
   }
+
+  def testSCL23561(): Unit = checkTextHasNoErrors(
+    """
+      |object Test {
+      |  trait BuildFrom[-From, -A, +C]
+      |  def useBuildFrom[B, That](b: B)(bf: BuildFrom[Seq[Any], B, That]): That = ???
+      |  def buildFromIterableOps[CC[X] <: Iterable[X], A0, A]: BuildFrom[CC[A0], A, CC[A]] = ???
+      |  def acceptSeq[A](as: Seq[A]): Seq[A] = ???
+      |
+      |  acceptSeq {
+      |    useBuildFrom("")(buildFromIterableOps)
+      |  }
+      |    .head
+      |    .chars() // Good code red
+      |}
+      |""".stripMargin
+  )
 }
