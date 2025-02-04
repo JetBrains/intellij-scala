@@ -20,7 +20,7 @@ trait TypeVariableUnification { self: ScalaConformance with ProjectContextOwner 
     * {{{
     * TC1[T1,..., TN] <: TC2[T'1,...,T'K]
     * }}},
-    * where at least one of (TC1, TC2) is a higher-kinede type variable
+    * where at least one of (TC1, TC2) is a higher-kinded type variable
     * (i.e. parameterized type with [[org.jetbrains.plugins.scala.lang.psi.types.api.UndefinedType]] as its designator)
     */
   private[this] def unifyTypeVariable(
@@ -50,27 +50,40 @@ trait TypeVariableUnification { self: ScalaConformance with ProjectContextOwner 
     val des  = tpe.designator
 
     val captureLength        = args.length - tvArgs.length
-    val abstractedTypeParams = TypeVariableUnification.extractTypeParameters(des).drop(captureLength)
+    val tpeTypeParameters    = TypeVariableUnification.extractTypeParameters(des)
+    val abstractedTypeParams = tpeTypeParameters.drop(captureLength)
     val tvTypeParameters     = tvDes.typeParameters
+
+    val (lhsArgs, rhsArgs, lhsTypeParams) = boundKind match {
+      case Bound.Upper => (args, tvArgs, tpeTypeParameters)
+      case _           => (tvArgs, args, tvTypeParameters)
+    }
 
     if (!unifiableKinds(abstractedTypeParams, tvTypeParameters))
       ConstraintsResult.Left
     else if (captureLength == 0) {
        /** Higher-kinded type var with same arity as `tpe` */
       checkParameterizedType(
-        tvTypeParameters,
-        tvArgs, args,
+        lhsTypeParams,
+        lhsArgs,
+        rhsArgs,
         addBound(constraints, des),
-        visited, checkWeak, boundKind == Bound.Equivalence
+        visited,
+        checkWeak,
+        boundKind == Bound.Equivalence
       )
     } else if (captureLength > 0 && projectContext.project.isPartialUnificationEnabled) {
       /** Partial unification */
-      val (captured, abstracted) = args.splitAt(captureLength)
+      val (captured, abstracted) = rhsArgs.splitAt(captureLength)
       val conformance =
         checkParameterizedType(
           tvTypeParameters,
-          tvArgs, abstracted, constraints,
-          visited, checkWeak, boundKind == Bound.Equivalence
+          lhsArgs,
+          abstracted,
+          constraints,
+          visited,
+          checkWeak,
+          boundKind == Bound.Equivalence
         )
       if (conformance.isRight) {
         val abstractedTypeParams = abstracted.indices.map(

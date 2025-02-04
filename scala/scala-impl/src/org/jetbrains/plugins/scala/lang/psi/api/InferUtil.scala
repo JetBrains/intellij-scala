@@ -360,7 +360,7 @@ object InferUtil {
 
     def implicitSearchFails(tp: ScType): Boolean = expr match {
       case e: ScExpression =>
-        val implicitArgs = e.updatedWithImplicitParameters(tp, checkExpectedType = false)._2.toSeq.flatten
+        val implicitArgs = e.updatedWithImplicitArguments(tp, checkExpectedType = false)._2.toSeq.flatten
         implicitArgs.exists {
           case srr if srr.isNotFoundImplicitParameter  => true
           case srr if srr.isAmbiguousImplicitParameter =>
