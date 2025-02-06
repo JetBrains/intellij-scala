@@ -4,6 +4,7 @@ package compiler.highlighting
 import com.intellij.codeInsight.daemon.QuickFixBundle
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.util.TextRange
+import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 
 class ScalaCompilerHighlightingTest_2_13 extends ScalaCompilerHighlightingTestBase with ScalaCompilerHighlightingCommonScala2Scala3Test {
@@ -381,27 +382,145 @@ abstract class ScalaCompilerHighlightingTest_3 extends ScalaCompilerHighlighting
   }
 
   // SCL-19751
-  private def runTestNotImplementedMembers(): Unit = runTestCase(
-    fileName = "NotImplementedMembers.scala",
-    content =
+  override protected def runTestNotImplementedMembers(): Unit = {
+    @Language("Scala 3")
+    val fileText =
       """
-        |trait Something(x: Int):
-        |  def implementMe: Unit
+        |trait Something1(x: Int):
+        |  def implementMe(): Unit
         |
-        |class X extends Something(10)
-        |""".stripMargin,
-    expectedResult = expectedResult(ExpectedHighlighting(
-      severity = HighlightSeverity.ERROR,
-      range = Some(TextRange.create(57, 58)),
-      quickFixDescriptions = Seq("Make 'X' abstract", "Implement members"),
-      msgPrefix = "class X needs to be abstract, since def implementMe: Unit in trait Something is not defined"
-    ))
-  )
+        |trait Something2(y: Int):
+        |  def implementMe1(): Unit
+        |  def implementMe2(): Unit
+        |  def implementMe3(): Unit
+        |
+        |object Test:
+        |  val v1 = new Something1(1) {}
+        |  val v2 = new Something2(2) {}
+        |  val v3 = new Something1(3) with Something2(4) {}
+        |
+        |  class C1 extends Something1(5)
+        |  class C2 extends Something2(6)
+        |  class C3 extends Something1(7) with Something2(8)
+        |
+        |  object O1 extends Something1(9)
+        |  object O2 extends Something2(10)
+        |  object O3 extends Something1(11) with Something2(12)
+        |
+        |  given Something1(13) with {}
+        |  given Something2(14) with {}
+        |  given Something1(15) with Something2(16) with {}
+        |end Test
+        |""".stripMargin
 
-  def testNotImplementedMembers(): Unit = runTestNotImplementedMembers()
+    val objectCreationImpossible = "object creation impossible,"
+    def classNeedsToBeAbstract(name: String) = s"class $name needs to be abstract,"
 
-  def testNotImplementedMembers_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
-    runTestNotImplementedMembers()
+    def makeAbstract(name: String) = s"Make '$name' abstract"
+    val implementMembers = "Implement members"
+
+    runTestCase(
+      fileName = "Test.scala",
+      content = fileText,
+      expectedResult = expectedResult(
+        // val v1 = ...
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          // highlights `new` in Scala 3
+          range = Some(TextRange.create(186, 189)),
+          quickFixDescriptions = Seq(implementMembers),
+          msgPrefix = objectCreationImpossible,
+        ),
+        // val v2 = ...
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          // highlights `new` in Scala 3
+          range = Some(TextRange.create(218, 221)),
+          quickFixDescriptions = Seq(implementMembers),
+          msgPrefix = objectCreationImpossible,
+        ),
+        // val v3 = ...
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          // highlights `new` in Scala 3
+          range = Some(TextRange.create(250, 253)),
+          quickFixDescriptions = Seq(implementMembers),
+          msgPrefix = objectCreationImpossible,
+        ),
+        // class C1 ...
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          // highlights `C1`
+          range = Some(TextRange.create(299, 301)),
+          quickFixDescriptions = Seq(makeAbstract("C1"), implementMembers),
+          msgPrefix = classNeedsToBeAbstract("C1"),
+        ),
+        // class C2 ...
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          // highlights `C2`
+          range = Some(TextRange.create(332, 334)),
+          quickFixDescriptions = Seq(makeAbstract("C2"), implementMembers),
+          msgPrefix = classNeedsToBeAbstract("C2"),
+        ),
+        // class C3 ...
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          // highlights `C3`
+          range = Some(TextRange.create(365, 367)),
+          quickFixDescriptions = Seq(makeAbstract("C3"), implementMembers),
+          msgPrefix = classNeedsToBeAbstract("C3"),
+        ),
+        // object O1 ...
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          // highlights `O1`
+          range = Some(TextRange.create(419, 421)),
+          quickFixDescriptions = Seq(implementMembers),
+          msgPrefix = objectCreationImpossible,
+        ),
+        // object O2 ...
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          // highlights `O2`
+          range = Some(TextRange.create(453, 455)),
+          quickFixDescriptions = Seq(implementMembers),
+          msgPrefix = objectCreationImpossible,
+        ),
+        // object O3 ...
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          // highlights `O3`
+          range = Some(TextRange.create(488, 490)),
+          quickFixDescriptions = Seq(implementMembers),
+          msgPrefix = objectCreationImpossible,
+        ),
+        // given Something1 ...
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          // highlights `Something1`
+          range = Some(TextRange.create(543, 553)),
+          quickFixDescriptions = Seq(implementMembers),
+          msgPrefix = objectCreationImpossible,
+        ),
+        // given Something2 ...
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          // highlights `Something2`
+          range = Some(TextRange.create(574, 584)),
+          quickFixDescriptions = Seq(implementMembers),
+          msgPrefix = objectCreationImpossible,
+        ),
+        // given Something1(...) with Something2 ...
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          // highlights `Something1`
+          range = Some(TextRange.create(605, 615)),
+          quickFixDescriptions = Seq(implementMembers),
+          msgPrefix = objectCreationImpossible,
+        ),
+      )
+    )
   }
 }
 
@@ -453,5 +572,127 @@ trait ScalaCompilerHighlightingCommonScala2Scala3Test {
 
   def testAbstractMethodInClass_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
     runTestAbstractMethodInClass()
+  }
+
+  // SCL-19751
+  protected def runTestNotImplementedMembers(): Unit = {
+    @Language("Scala")
+    val fileText =
+      """
+        |trait Something1 {
+        |  def implementMe(): Unit
+        |}
+        |
+        |trait Something2 {
+        |  def implementMe1(): Unit
+        |  def implementMe2(): Unit
+        |  def implementMe3(): Unit
+        |}
+        |
+        |object Test {
+        |  val v1 = new Something1 {}
+        |  val v2 = new Something2 {}
+        |  val v3 = new Something1 with Something2 {}
+        |
+        |  class C1 extends Something1
+        |  class C2 extends Something2
+        |  class C3 extends Something1 with Something2
+        |
+        |  object O1 extends Something1
+        |  object O2 extends Something2
+        |  object O3 extends Something1 with Something2
+        |}
+        |""".stripMargin
+
+    val objectCreationImpossible = "object creation impossible."
+    def classNeedsToBeAbstract(name: String) = s"class $name needs to be abstract."
+
+    def makeAbstract(name: String) = s"Make '$name' abstract"
+    val implementMembers = "Implement members"
+
+    runTestCase(
+      fileName = "Test.scala",
+      content = fileText,
+      expectedResult = expectedResult(
+        // val v1 = ...
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          // highlights `Something1 {}` in Scala 2
+          range = Some(TextRange.create(181, 194)),
+          quickFixDescriptions = Seq(implementMembers),
+          msgPrefix = objectCreationImpossible,
+        ),
+        // val v2 = ...
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          // highlights `Something2 {}` in Scala 2
+          range = Some(TextRange.create(210, 223)),
+          quickFixDescriptions = Seq(implementMembers),
+          msgPrefix = objectCreationImpossible,
+        ),
+        // val v3 = ...
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          // highlights `Something1 with Something2 {}` in Scala 2
+          range = Some(TextRange.create(239, 268)),
+          quickFixDescriptions = Seq(implementMembers),
+          msgPrefix = objectCreationImpossible,
+        ),
+        // class C1 ...
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          // highlights `C1`
+          range = Some(TextRange.create(278, 280)),
+          quickFixDescriptions = Seq(makeAbstract("C1"), implementMembers),
+          msgPrefix = classNeedsToBeAbstract("C1"),
+        ),
+        // class C2 ...
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          // highlights `C2`
+          range = Some(TextRange.create(308, 310)),
+          quickFixDescriptions = Seq(makeAbstract("C2"), implementMembers),
+          msgPrefix = classNeedsToBeAbstract("C2"),
+        ),
+        // class C3 ...
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          // highlights `C3`
+          range = Some(TextRange.create(338, 340)),
+          quickFixDescriptions = Seq(makeAbstract("C3"), implementMembers),
+          msgPrefix = classNeedsToBeAbstract("C3"),
+        ),
+        // object O1 ...
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          // highlights `O1`
+          range = Some(TextRange.create(386, 388)),
+          quickFixDescriptions = Seq(implementMembers),
+          msgPrefix = objectCreationImpossible,
+        ),
+        // object O2 ...
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          // highlights `O2`
+          range = Some(TextRange.create(417, 419)),
+          quickFixDescriptions = Seq(implementMembers),
+          msgPrefix = objectCreationImpossible,
+        ),
+        // object O3 ...
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          // highlights `O3`
+          range = Some(TextRange.create(448, 450)),
+          quickFixDescriptions = Seq(implementMembers),
+          msgPrefix = objectCreationImpossible,
+        ),
+      )
+    )
+  }
+
+  def testNotImplementedMembers(): Unit = runTestNotImplementedMembers()
+
+  def testNotImplementedMembers_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
+    runTestNotImplementedMembers()
   }
 }

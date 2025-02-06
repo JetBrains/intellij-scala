@@ -21,8 +21,12 @@ private object CompilerMessages {
   def isUnusedImport(description: String): Boolean =
     description.trim.equalsIgnoreCase("unused import")
 
-  def isNeedsToBeAbstract(description: String): Boolean =
-    description.contains("needs to be abstract")
+  def isNeedsToBeAbstract(description: String): Boolean = {
+    val trimmedDescription = description.trim
+
+    trimmedDescription.contains("needs to be abstract") ||
+      trimmedDescription.startsWith("object creation impossible")
+  }
 
   def isNoWarningsCanBeIncurred(description: String): Boolean =
     description.trim.equalsIgnoreCase("No warnings can be incurred under -Werror (or -Xfatal-warnings)")
