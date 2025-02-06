@@ -40,36 +40,36 @@ final class ScProjectionType private(val projected: ScType,
             ta.aliasedType match {
               case Right(tp) if tp == this => // recursive type alias
                 return Some(AliasType(ta, Right(this), Right(this)))
-              case Right(tp) =>
-                actualSubst(tp) match {
-                  case target @ ParameterizedType(des, typeArgs) =>
-                    val tParams = ta.typeParameters
-                    val sameParams = tParams.length == typeArgs.length && tParams.zip(typeArgs).forall {
-                      case (tParam: ScTypeParam, TypeParameterType.ofPsi(param)) if tParam.typeParamId == param.typeParamId => true
-                      case _                                                                                                => false
-                    }
-
-                    if (sameParams) return Some(AliasType(ta, Right(des), Right(des)))
-                    else {
-                      val typeConsuctor = ScTypePolymorphicType(target, tParams.map(TypeParameter.apply))
-                      return Option(AliasType(ta, Right(typeConsuctor), Right(typeConsuctor)))
-                    }
-                  case _ =>
-                }
               case _ =>
             }
           case _ =>
         }
-        val existentialArgs = ta.typeParameters
-          .map(tp => ScExistentialArgument(tp.name + "$$", Nil, Nothing, Any))
-          .toList
 
-        val genericSubst = ScSubstitutor.bind(ta.typeParameters, existentialArgs)
+        val tParams = ta.typeParameters
 
-        val s = actualSubst.followed(genericSubst)
-        Some(AliasType(ta,
-          ta.lowerBound.map(scType => ScExistentialType(s(scType))),
-          ta.upperBound.map(scType => ScExistentialType(s(scType)))))
+        def extractBound(tp: ScType): ScType = {
+          actualSubst(tp) match {
+            case target @ ParameterizedType(des, typeArgs) =>
+              val sameParams = tParams.length == typeArgs.length && tParams.zip(typeArgs).forall {
+                case (tParam: ScTypeParam, TypeParameterType.ofPsi(param)) if tParam.typeParamId == param.typeParamId => true
+                case _                                                                                                => false
+              }
+
+              if (sameParams) des
+              else
+                ScTypePolymorphicType(target, tParams.map(TypeParameter.apply))
+            case other =>
+              ScTypePolymorphicType(other, tParams.map(TypeParameter.apply))
+          }
+        }
+
+        Option(
+          AliasType(
+            ta,
+            ta.lowerBound.map(extractBound),
+            ta.upperBound.map(extractBound)
+          )
+        )
       case _ => None
     }
   }

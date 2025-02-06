@@ -123,6 +123,59 @@ class ScTypeBoundsOwnerAnnotatorTest extends AnnotatorSimpleTestCase {
     )
   }
 
+  def testSCL23575(): Unit = assertNothing(
+    messages(
+      """
+        |sealed trait MyTrait[V <: Ordered[V]] {
+        |  def minor(v: V): String
+        |}
+        |
+        |object MyExample {
+        |  def foo[V <: Ordered[V] : MyTrait](version: V): String = ???
+        |}
+        |""".stripMargin
+    )
+  )
+
+  def testSCL22501(): Unit = {
+    assertNothing(
+      messages(
+        """
+          |trait MyIterable[+A]
+          |
+          |trait Aggregate1[F[_] <: MyIterable[_]]
+          |trait Aggregate2[F[A] <: MyIterable[A]]
+          |
+          |//noinspection NotImplementedCode
+          |object Example {
+          |  //without type alias
+          |  val aOk1: Aggregate1[MyIterable] = ???
+          |  val aOk2: Aggregate2[MyIterable] = ???
+          |
+          |  type AggregateValue[T] <: MyIterable[T]
+          |
+          |  //with type alias
+          |  val aBad1: Aggregate1[AggregateValue] = ???
+          |  val aBad2: Aggregate2[AggregateValue] = ???
+          |}
+          |""".stripMargin
+      )
+    )
+
+    assertNothing(
+      messages(
+        """
+          |trait Key[T]
+          |trait Keyed[K[T] <: Key[T]]
+          |trait HasKey {
+          |  type K[T] <: Key[T]
+          |  def keyed: Keyed[K]
+          |}
+          |""".stripMargin
+      )
+    )
+  }
+
   def messages(@Language("Scala")code: String): List[Message] = {
     val file =
       s"""
