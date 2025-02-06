@@ -163,9 +163,9 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
       var res = false
 
       tpe.recursiveUpdate {
-        case _: ScExistentialType => Stop
+        case _: ScExistentialType     => Stop
         case _: ScExistentialArgument => res = true; Stop
-        case _ => ProcessSubtypes
+        case _                        => ProcessSubtypes
       }
 
       res
