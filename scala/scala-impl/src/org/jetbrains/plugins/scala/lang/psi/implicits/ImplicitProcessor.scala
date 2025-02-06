@@ -411,7 +411,7 @@ object ImplicitProcessor {
 
   def isDeclaredOrExportedInExtension(element: PsiNamedElement, state: ResolveState): Boolean =
     element match {
-      case fn: ScFunction => fn.isExtensionMethod || state.exportedIn.exists(_.is[ScExtensionBody])
+      case fn: ScFunction => fn.isExtensionMethod || state.exportedInfo.exists(_.exportedIn.is[ScExtensionBody])
       case _              => false
     }
 }

@@ -62,7 +62,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
     def extensionContext: Option[ScExtension] = state.extensionContext
     def intersectedReturnType: Option[ScType] = state.intersectedReturnType
     def importsUsed = state.importsUsed
-    def exportedIn = state.exportedIn
+    def exportedInfo = state.exportedInfo
 
     if (nameMatches(namedElement) || constructorResolve) {
       val accessible = isNamedParameter || isAccessible(namedElement, ref)
@@ -86,7 +86,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
           extensionContext         = extensionContext,
           matchClauseSubstitutor   = state.matchClauseSubstitutor,
           intersectedReturnType    = intersectedReturnType,
-          exportedIn               = exportedIn
+          exportedInfo             = exportedInfo
         )
 
       namedElement match {

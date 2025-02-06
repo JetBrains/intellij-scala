@@ -428,4 +428,25 @@ class ExportsResolveTest extends SimpleResolveTestBase {
       |}
       |""".stripMargin
   )
+
+  def testSCL23562(): Unit = checkTextHasNoErrors(
+    """
+      |object TypesShared {
+      |  case class C(x: Int)
+      |}
+      |
+      |object Types {
+      |  export TypesShared.*
+      |}
+      |
+      |object Main {
+      |  def process(c: Types.C): String = c.toString
+      |
+      |  def main(args: Array[String]): Unit = {
+      |    val c = Types.C(0)
+      |    process(c)
+      |  }
+      |}
+      |""".stripMargin
+  )
 }

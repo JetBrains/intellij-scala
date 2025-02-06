@@ -27,7 +27,7 @@ final class ExtensionProcessor(place: PsiElement, name: String, forCompletion: B
           implicitScopeObject      = state.implicitScopeObject,
           unresolvedTypeParameters = state.unresolvedTypeParams,
           isExtensionCall          = true,
-          exportedIn               = state.exportedIn
+          exportedInfo             = state.exportedInfo
         )
       )
     }

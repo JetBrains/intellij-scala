@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
 import com.intellij.openapi.util.Key
-import com.intellij.psi.{ PsiClass, ResolveState }
+import com.intellij.psi.{PsiClass, ResolveState}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
-import org.jetbrains.plugins.scala.lang.psi.ScExportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScExtension
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Signature}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ResolveStateOps._
@@ -83,8 +82,8 @@ trait ResolveStateOps extends Any {
   def withIntersectedReturnType(tpe: ScType): ResolveState =
     resolveState.put(INTERSECTED_RETURN_TYPE, tpe)
 
-  def withExportedIn(owner: ScExportsHolder): ResolveState =
-    resolveState.put(EXPORTED_IN, owner)
+  def withExportedInfo(info: Signature.ExportedSigInfo): ResolveState =
+    resolveState.put(EXPORTED_INFO, info)
 
   //
   // Getters
@@ -147,14 +146,14 @@ trait ResolveStateOps extends Any {
   def intersectedReturnType: Option[ScType] =
     option(INTERSECTED_RETURN_TYPE)
 
-  def exportedIn: Option[ScExportsHolder] =
-    option(EXPORTED_IN)
+  def exportedInfo: Option[Signature.ExportedSigInfo] =
+    option(EXPORTED_INFO)
 }
 
 /**
  * Most of these keys have are meant to store intermediate resolve data, that will eventually make it into
  * [[ScalaResolveResult]] fields. In case of confusion, it can be useful to refer to the corresponding field's
- * documentation (e.g. [[ResolveStateOps.EXPORTED_IN]] corresponds to [[ScalaResolveResult#exportedIn]]).
+ * documentation (e.g. [[ResolveStateOps.EXPORTED_INFO]] corresponds to [[ScalaResolveResult#exportedInfo]]).
  */
 private object ResolveStateOps {
   private object TRUE
@@ -195,5 +194,5 @@ private object ResolveStateOps {
 
   private val INTERSECTED_RETURN_TYPE: Key[ScType] = Key.create("scala.intersected.return.type")
 
-  private val EXPORTED_IN: Key[ScExportsHolder] = Key.create("scala.exported.in")
+  private val EXPORTED_INFO: Key[Signature.ExportedSigInfo] = Key.create("scala.exported.info")
 }

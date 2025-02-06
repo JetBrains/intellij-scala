@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScType
 import org.jetbrains.plugins.scala.lang.psi.api.{PropertyMethods, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
+import org.jetbrains.plugins.scala.lang.psi.types.Signature.ExportedSigInfo
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{ExtensionSignatureInfo, PhysicalMethodSignature, ScCompoundType, Signature, TermSignature, TypeSignature}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
@@ -110,9 +111,17 @@ object TypesCollector extends SignatureProcessor[TypeSignature] {
         else {
           val accesible    = isAccessible(namedElement, place)
           val updatedSubst = state.substitutorWithThisType.followed(subst)
+          val exportedInfo = ExportedSigInfo(owner, state.fromType)
 
           if (accesible) {
-            processSig(TypeSignature(namedElement, updatedSubst, state.renamed, exportedIn = Option(owner)))
+            processSig(
+              TypeSignature(
+                namedElement,
+                updatedSubst,
+                state.renamed,
+                exportedInfo = exportedInfo.toOption
+              )
+            )
           }
 
           true
@@ -187,10 +196,17 @@ sealed abstract class TermsCollector extends SignatureProcessor[TermSignature] {
         val accesible          = isAccessible(namedElement, place)
         val renamed            = state.renamed
         val updatedSubst       = state.substitutorWithThisType.followed(subst)
+        val exportedInfo       = ExportedSigInfo(owner, state.fromType)
 
         if (accesible) {
           val signatures = namedElement match {
-            case pat: ScBindingPattern if !onlyMethods => propertySignatures(pat, updatedSubst, renamed, exportedIn = Option(owner))
+            case pat: ScBindingPattern if !onlyMethods =>
+              propertySignatures(
+                pat,
+                updatedSubst,
+                renamed,
+                exportedInfo = exportedInfo.toOption
+              )
             case _                     =>
               if (onlyMethods && !namedElement.is[ScFunctionDefinition]) Seq.empty
               else
@@ -198,7 +214,7 @@ sealed abstract class TermsCollector extends SignatureProcessor[TermSignature] {
                   namedElement,
                   updatedSubst,
                   renamed,
-                  exportedIn         = Option(owner),
+                  exportedInfo       = exportedInfo.toOption,
                   extensionSignature = extensionSignature
                 )
           }
@@ -213,11 +229,18 @@ sealed abstract class TermsCollector extends SignatureProcessor[TermSignature] {
     e:                  PsiElement,
     subst:              ScSubstitutor,
     name:               Option[String]                 = None,
-    exportedIn:         Option[ScExportsHolder]        = None,
+    exportedInfo:       Option[ExportedSigInfo]        = None,
     extensionSignature: Option[ExtensionSignatureInfo] = None
   ): Seq[TermSignature] = e match {
-    case v: ScValueOrVariable         => v.declaredElements.flatMap(propertySignatures(_, subst, exportedIn = exportedIn))
-    case constr: ScPrimaryConstructor => constr.parameters.flatMap(propertySignatures(_, subst, exportedIn = exportedIn))
+    case v: ScValueOrVariable         =>
+      v.declaredElements.flatMap(
+        propertySignatures(
+          _,
+          subst,
+          exportedInfo = exportedInfo,
+        )
+      )
+    case constr: ScPrimaryConstructor => constr.parameters.flatMap(propertySignatures(_, subst, exportedInfo = exportedInfo))
     case f: ScFunction                =>
       val extensionSig = extensionSignature.orElse(
         f.extensionMethodOwner.map { ext =>
@@ -230,14 +253,14 @@ sealed abstract class TermsCollector extends SignatureProcessor[TermSignature] {
           f,
           subst,
           renamed = name,
-          exportedIn = exportedIn,
+          exportedInfo = exportedInfo,
           extensionSignature = extensionSig
         )
     )
-    case o: ScObject         => Seq(TermSignature(o, subst, renamed = name, exportedIn = exportedIn))
+    case o: ScObject         => Seq(TermSignature(o, subst, renamed = name, exportedInfo = exportedInfo))
     case c: ScTypeDefinition => syntheticSignaturesFromInnerClass(c, subst)
     case cp: ScClassParameter if cp.isClassMember =>
-      propertySignatures(cp, subst, exportedIn = exportedIn)
+      propertySignatures(cp, subst, exportedInfo = exportedInfo)
     case ext: ScExtension =>
       val extensionSig = Option(ExtensionSignatureInfo(ext, ext.typeParameters, ext.allClauses))
 
@@ -248,7 +271,7 @@ sealed abstract class TermsCollector extends SignatureProcessor[TermSignature] {
             subst,
             extensionSignature = extensionSig,
             renamed            = name,
-            exportedIn         = exportedIn
+            exportedInfo       = exportedInfo
           )
         )
 
@@ -309,28 +332,28 @@ sealed abstract class TermsCollector extends SignatureProcessor[TermSignature] {
    * @param named is class parameter, or part of ScValue or ScVariable
    * */
   private def propertySignatures(
-    named:      ScTypedDefinition,
-    subst:      ScSubstitutor,
-    renamed:    Option[String]          = None,
-    exportedIn: Option[ScExportsHolder] = None
+    named:        ScTypedDefinition,
+    subst:        ScSubstitutor,
+    renamed:      Option[String]          = None,
+    exportedInfo: Option[ExportedSigInfo] = None
   ): Seq[TermSignature] =
     PropertyMethods.allRoles
       .filter(isApplicable(_, named, noResolve = true))
-      .map(signature(named, subst, _, renamed, exportedIn))
+      .map(signature(named, subst, _, renamed, exportedInfo))
 
   private def signature(
-    named:      ScTypedDefinition,
-    subst:      ScSubstitutor,
-    role:       DefinitionRole,
-    renamed:    Option[String],
-    exportedIn: Option[ScExportsHolder]
+    named:        ScTypedDefinition,
+    subst:        ScSubstitutor,
+    role:         DefinitionRole,
+    renamed:      Option[String],
+    exportedInfo: Option[ExportedSigInfo]
   ): TermSignature = {
     val name = methodName(named.name, role)
     val actualRenamed = renamed.map(methodName(_, role))
 
     role match {
-      case SETTER | EQ => TermSignature.setter(name, named, subst, actualRenamed, exportedIn)
-      case _           => TermSignature.withoutParams(name, subst, named, actualRenamed, exportedIn)
+      case SETTER | EQ => TermSignature.setter(name, named, subst, actualRenamed, exportedInfo)
+      case _           => TermSignature.withoutParams(name, subst, named, actualRenamed, exportedInfo)
     }
   }
 

@@ -29,7 +29,7 @@ private abstract class SubtypeUpdater(needVariance: Boolean, needUpdate: Boolean
         tParams,
         s.substitutor.followed(substitutor),
         s.namedElement,
-        s.exportedIn,
+        s.exportedInfo,
         s.hasRepeatedParam
       )
 
