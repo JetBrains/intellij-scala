@@ -324,11 +324,10 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       case ScalaResolveResult(fun: ScFun, s) =>
         fun.polymorphicType(s)
       //prevent infinite recursion for recursive pattern reference
-      case ScalaResolveResult(self: ScSelfTypeElement, _) =>
-        val clazz = PsiTreeUtil.getContextOfType(self, true, classOf[ScTemplateDefinition])
-        ScThisReferenceImpl.getThisTypeForTypeDefinition(clazz, this) match {
-          case Right(value) => value
-          case failure => return failure
+      case ScalaResolveResult(self: ScSelfTypeElement, s) =>
+        self.`type`() match {
+          case Right(tp) => s(tp)
+          case failure    => return failure
         }
       case r@ScalaResolveResult(refPatt: ScBindingPattern, s) =>
         refPatt.nameContext match {
