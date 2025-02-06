@@ -4,7 +4,7 @@ package types
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions.ifReadAllowed
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.TokenSets
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -30,12 +30,15 @@ class ScSelfTypeElementImpl private(stub: ScSelfTypeElementStub, node: ASTNode)
   override def `type`(): TypeResult = {
     val parent = PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition])
     assert(parent != null)
+
     typeElement match {
       case Some(ste) =>
         for {
           templateType <- parent.`type`()
-          selfType <- ste.`type`()
-        } yield ScCompoundType(Seq(templateType, selfType))
+          selfType     <- ste.`type`()
+        } yield
+          if (this.isInScala3File) ScAndType(templateType, selfType)
+          else                     ScCompoundType(Seq(templateType, selfType))
       case None => parent.`type`()
     }
   }

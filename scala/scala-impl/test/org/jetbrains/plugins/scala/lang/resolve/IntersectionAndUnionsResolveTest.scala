@@ -107,4 +107,21 @@ class IntersectionAndUnionsResolveTest extends SimpleResolveTestBase {
     myFixture.configureByText("Foo.scala", code)
     assertNoThrowable(() => myFixture.doHighlighting())
   }
+
+  def testSCL21142(): Unit = checkTextHasNoErrors(
+    s"""
+       |trait IndividualType:
+       |  type Individual
+       |
+       |trait FitnessType:
+       |  type Fitness
+       |
+       |trait ExampleIndividual extends IndividualType:
+       |  override type Individual = Array[Boolean]
+       |
+       |trait FitnessFunction:
+       |  self: IndividualType & FitnessType =>
+       |  def computeFitness(ind: Individual): Fitness
+       |""".stripMargin
+  )
 }

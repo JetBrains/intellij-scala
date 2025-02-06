@@ -41,8 +41,8 @@ object ScThisReferenceImpl {
   def getThisTypeForTypeDefinition(td: ScTemplateDefinition, expr: ScExpression): TypeResult = {
     import td.projectContext
     // SLS 6.5:  If the expression’s expected type is a stable type,
-    // or C .this occurs as the prefix of a selection, its type is C.this.type,
-    // otherwise it is the self type of class C .
+    // or C.this occurs as the prefix of a selection, its type is C.this.type,
+    // otherwise it is the self type of class C.
     val result = expr.getContext match {
       case ref: ScStableCodeReference if ref.pathQualifier.contains(expr) => ScThisType(td)
       case referenceExpression: ScReferenceExpression if referenceExpression.qualifier.contains(expr) =>
@@ -51,7 +51,6 @@ object ScThisReferenceImpl {
         case Some(designatorOwner: DesignatorOwner) if designatorOwner.isStable =>
           ScThisType(td)
         case _ =>
-
           td.getTypeWithProjections(thisProjections = true)
             .map(scType => td.selfType.map(scType.glb(_))
               .getOrElse(scType)

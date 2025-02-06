@@ -186,17 +186,22 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
             true
           case Some(selfType) =>
             val clazzType = clazz.getTypeWithProjections().getOrElse(return true)
+
             if (selfType.conforms(clazzType)) {
-              val newState = state
-                .withCompoundOrSelfType(t)
-                .withSubstitutor(ScSubstitutor(ScThisType(clazz)))
+              val newState =
+                state
+                  .withCompoundOrSelfType(t)
+                  .withSubstitutor(ScSubstitutor(ScThisType(clazz)))
+
               processTypeImpl(selfType, place, newState)
-            }
-            else if (clazzType.conforms(selfType)) {
+            } else if (clazzType.conforms(selfType)) {
               processElement(clazz, ScSubstitutor.empty, place, state)
-            }
-            else {
-              val glb = selfType.glb(clazzType)
+            } else {
+              //@TODO: temporary fix, should be removed once lub/glb is implemented in a version specific manner
+              val glb =
+                if (place.isInScala3File) ScAndType(clazzType, selfType)
+                else                      selfType.glb(clazzType)
+
               val newState = state.withCompoundOrSelfType(t)
               processTypeImpl(glb, place, newState)
             }
