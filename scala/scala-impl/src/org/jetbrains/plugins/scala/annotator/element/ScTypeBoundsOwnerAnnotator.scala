@@ -5,11 +5,13 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamClause
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, ScTypeParamClause}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.result.Failure
 import org.jetbrains.plugins.scala.lang.psi.types.{TypePresentationContext, extractTypeParameters}
 
 object ScTypeBoundsOwnerAnnotator extends ElementAnnotator[ScTypeBoundsOwner] {
@@ -47,16 +49,20 @@ object ScTypeBoundsOwnerAnnotator extends ElementAnnotator[ScTypeBoundsOwner] {
           cbTypeElem.getTextRange,
           ScSubstitutor.empty,
           tpe.presentableText(cbTypeElem),
-          _ => Right(
-            TypeParameterType(
-              TypeParameter.light(
-                element.name,
-                element.typeParameters.map(TypeParameter(_)),
-                element.lowerBound.getOrNothing,
-                element.upperBound.getOrAny
-              )
-            )
-          ),
+          _ => element match {
+            case tparam: ScTypeParam => Right(TypeParameterType(tparam))
+            case alias: ScTypeAlias =>
+              val projection = for {
+                containingClass <- alias.containingClass.toOption
+                tpe             <- containingClass.getTypeWithProjections().toOption
+              } yield ScProjectionType(tpe, alias)
+
+              Right(projection.getOrElse(ScDesignatorType(alias)))
+            case _ =>
+              Failure(
+                ScalaBundle.message("invalid.context.bounds.owner", element.getText)
+              )(element)
+          },
           isForContextBound = true
         )
       }
