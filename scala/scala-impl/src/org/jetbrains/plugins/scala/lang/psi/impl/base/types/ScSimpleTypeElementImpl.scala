@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSimpleTypeElementImpl._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
+import org.jetbrains.plugins.scala.lang.psi.types.Signature.ExportedSigInfo
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, Nothing, TypeParameter, TypeParameterType, UndefinedType}
@@ -400,8 +401,15 @@ object ScSimpleTypeElementImpl {
         val typeFromMacro = macroEvaluator.checkMacro(f, MacroContext(ref, None))
         return typeFromMacro.map(Right(_)).getOrElse(Failure(ScalaBundle.message("unknown.macro.in.type.position")))
       case Some(srr @ ScalaResolveResult(named: PsiNamedElement, _)) =>
-        if (srr.exportedIn.nonEmpty) (named, None)
-        else                         (named, srr.fromType)
+        srr.exportedInfo match {
+          case Some(ExportedSigInfo(_, fromType)) =>
+            return Right(
+              fromType.fold(ScalaType.designator(srr.element))(tpe =>
+                ScProjectionType(tpe, srr.element)
+              )
+            )
+          case None => (named, srr.fromType)
+        }
       case _ => return Failure(ScalaBundle.message("cannot.resolve.ref", ref.refName))
     }
 

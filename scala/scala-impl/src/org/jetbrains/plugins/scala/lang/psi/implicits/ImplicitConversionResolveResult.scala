@@ -95,7 +95,7 @@ object ImplicitConversionResolveResult {
             .withImportsUsed(srr.importsUsed)
             .withUnresolvedTypeParams(srr.unresolvedTypeParameters.getOrElse(Seq.empty))
 
-          val exportedInState = srr.exportedIn.fold(state)(state.withExportedIn)
+          val exportedInState = srr.exportedInfo.fold(state)(state.withExportedInfo)
           processor.execute(srr.element, exportedInState)
         case conversion =>
           for {

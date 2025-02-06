@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScAccessModifier
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
+import org.jetbrains.plugins.scala.lang.psi.types.Signature.ExportedSigInfo
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 
 /**
@@ -35,9 +36,12 @@ trait Signature {
 
   def isExtensionMethod: Boolean = false
 
-  def exportedIn: Option[ScExportsHolder]
+  def exportedInfo: Option[ExportedSigInfo]
 
-  def exportedInCls: Option[ScTemplateDefinition] = exportedIn.flatMap(_.getContext.getContext.asOptionOf[ScTemplateDefinition])
+  def exportedInCls: Option[ScTemplateDefinition] =
+    exportedInfo.flatMap(
+      _.exportedIn.getContext.getContext.asOptionOf[ScTemplateDefinition]
+    )
 
   def isPrivate: Boolean = namedElement match {
     case param: ScClassParameter if !param.isClassMember => true
@@ -55,9 +59,14 @@ trait Signature {
   def equiv(other: Signature): Boolean
 
   def equivHashCode: Int
-
 }
 
 object Signature {
   def unapply(arg: Signature): Option[(PsiNamedElement, ScSubstitutor)] = Some((arg.namedElement, arg.substitutor))
+
+
+  case class ExportedSigInfo(
+    exportedIn:   ScExportsHolder,
+    exportedFrom: Option[ScType]
+  )
 }

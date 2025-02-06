@@ -32,7 +32,7 @@ private[implicits] final class ImplicitParametersProcessor(override protected va
           importsUsed         = state.importsUsed,
           implicitScopeObject = state.implicitScopeObject,
           isExtensionCall     = isDeclaredOrExportedInExtension,
-          exportedIn          = state.exportedIn
+          exportedInfo        = state.exportedInfo
         )
       )
     }

@@ -313,7 +313,7 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
 
     val fromType =
       if (ScalaPsiUtil.isPlaceTdAncestor(this, place)) ScThisType(this)
-      else ScalaType.designator(this)
+      else                                             ScalaType.designator(this)
 
     val state = oldState.withFromType(fromType)
 

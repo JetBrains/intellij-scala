@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScExportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.types.Signature
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.ProcessorUtils
 import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
@@ -60,7 +61,7 @@ trait ScPackageLike extends PsiElement {
             ext.extensionBody.forall { body =>
               body.processDeclarationsFromExports(
                 processor,
-                state.withExportedIn(body),
+                state.withExportedInfo(Signature.ExportedSigInfo(body, None)),
                 lastParent,
                 place
               )

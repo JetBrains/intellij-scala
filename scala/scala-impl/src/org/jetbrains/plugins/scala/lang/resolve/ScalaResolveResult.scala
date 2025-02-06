@@ -5,6 +5,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ArrayFactory
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
@@ -16,11 +17,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTy
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScPackaging}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.{ImplicitResult, ImplicitState, NoResult}
+import org.jetbrains.plugins.scala.lang.psi.types.Signature.ExportedSigInfo
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
-import org.jetbrains.plugins.scala.lang.psi.{ScExportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.PrecedenceTypes
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 import org.jetbrains.plugins.scala.util.HashBuilder._
@@ -35,8 +36,9 @@ import scala.annotation.tailrec
  * @param matchClauseSubstitutor substitutor accumulated during upwards context traversal
  *                               of [[org.jetbrains.plugins.scala.lang.psi.api.expr.ScMatch]] expressions,
  *                               see [[https://www.scala-lang.org/files/archive/spec/2.13/08-pattern-matching.html#type-parameter-inference-in-patterns Type Inference in Patterns]]
- * @param exportedIn if this [[element]] was resolved through export statement,
- *                   the owner of this statement (extension or template body)
+ * @param exportedInfo if this [[element]] was resolved through export statement,
+ *                     the owner of this statement (extension or template body) and
+ *                     the type of the export statement qualifier
  */
 class ScalaResolveResult(
   val element:                  PsiNamedElement,
@@ -69,7 +71,7 @@ class ScalaResolveResult(
   val extensionContext:         Option[ScExtension]        = None,
   val intersectedReturnType:    Option[ScType]             = None,
   val matchClauseSubstitutor:   ScSubstitutor              = ScSubstitutor.empty,
-  val exportedIn:               Option[ScExportsHolder]    = None
+  val exportedInfo:             Option[ExportedSigInfo]    = None
 ) extends ResolveResult
     with ProjectContextOwner {
   if (element == null) throw new NullPointerException("element is null")
@@ -107,7 +109,7 @@ class ScalaResolveResult(
    * to calculate type of this function has to rely on is being extension method or not, which is
    * now (with the introduction of exports in extensions) not as simple as just calling .extensionMethodOwner.
    */
-  def exportedInExtension: Option[ScExtension] = exportedIn.flatMap(_.getContext.asOptionOf[ScExtension])
+  def exportedInExtension: Option[ScExtension] = exportedInfo.flatMap(_.exportedIn.getContext.asOptionOf[ScExtension])
 
   override def isValidResult: Boolean = isAccessible && isApplicable()
 
@@ -146,7 +148,7 @@ class ScalaResolveResult(
     extensionContext:         Option[ScExtension]        = extensionContext,
     matchClauseSubstitutor:   ScSubstitutor              = matchClauseSubstitutor,
     intersectedReturnType:    Option[ScType]             = intersectedReturnType,
-    exportedIn:               Option[ScExportsHolder]    = exportedIn,
+    exportedInfo:             Option[ExportedSigInfo]    = exportedInfo,
     parentElement:            Option[PsiNamedElement]    = parentElement
   ): ScalaResolveResult =
     new ScalaResolveResult(
@@ -179,7 +181,7 @@ class ScalaResolveResult(
       extensionContext         = extensionContext,
       matchClauseSubstitutor   = matchClauseSubstitutor,
       intersectedReturnType    = intersectedReturnType,
-      exportedIn               = exportedIn
+      exportedInfo             = exportedInfo
     )
 
   override def equals(other: Any): Boolean = other match {
@@ -189,7 +191,7 @@ class ScalaResolveResult(
         implicitFunction == rr.implicitFunction &&
         innerResolveResult == rr.innerResolveResult &&
         implicitScopeObject == rr.implicitScopeObject &&
-        exportedIn == rr.exportedIn
+        exportedInfo == rr.exportedInfo
     case _ => false
   }
 
