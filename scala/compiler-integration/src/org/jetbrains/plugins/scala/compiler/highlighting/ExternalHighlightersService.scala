@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaOpt
 import org.jetbrains.plugins.scala.compiler.diagnostics.Action
 import org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlighting.RangeInfo
 import org.jetbrains.plugins.scala.editor.DocumentExt
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, Parent, PsiElementExt, executeOnPooledThread, invokeLater}
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, Parent, PsiElementExt, executeOnPooledThread, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
@@ -264,16 +264,26 @@ private final class ExternalHighlightersService(project: Project) { self =>
               .registerFix(new ScalaOptimizeImportsFix, null, null, unusedImportRange, null)
           } else standardBuilder
         } else if (highlighting.diagnostics.isEmpty && CompilerMessages.isNeedsToBeAbstract(description)) {
+          def builderWithNeedsToBeAbstractFixes(td: ScTemplateDefinition) = {
+            val fixes = ScTemplateDefinitionAnnotator.needsToBeAbstractFixes(td)
+            fixes.foldLeft(standardBuilder) {
+              case (builder, fix: ModCommandAction) =>
+                //noinspection ApiStatus
+                builder.registerFix(fix, null, null, highlightRange, null)
+              case (builder, fix: IntentionAction) =>
+                builder.registerFix(fix, null, null, highlightRange, null)
+              case (builder, _) => builder
+            }
+          }
+
           psiFile.findElementAt(highlightRange.getStartOffset) match {
-            case Parent(td: ScTemplateDefinition) =>
-              val fixes = ScTemplateDefinitionAnnotator.needsToBeAbstractFixes(td)
-              fixes.foldLeft(standardBuilder) {
-                case (builder, fix: ModCommandAction) =>
-                  //noinspection ApiStatus
-                  builder.registerFix(fix, null, null, highlightRange, null)
-                case (builder, fix: IntentionAction) =>
-                  builder.registerFix(fix, null, null, highlightRange, null)
-                case (builder, _) => builder
+            // [class|object] <startOffset>Foo ...
+            case Parent(td: ScTemplateDefinition) => builderWithNeedsToBeAbstractFixes(td)
+            case Parent(ref: ScStableCodeReference) =>
+              ref.parentsInFile.findByType[ScTemplateDefinition] match {
+                // [new|given] <startOffset>Foo ...
+                case Some(td) => builderWithNeedsToBeAbstractFixes(td)
+                case _ => standardBuilder
               }
             case _ => standardBuilder
           }

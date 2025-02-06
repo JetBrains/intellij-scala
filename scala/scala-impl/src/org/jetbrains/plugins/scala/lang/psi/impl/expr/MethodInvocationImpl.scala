@@ -111,7 +111,11 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
             val stripTypeArgs =
               getEffectiveInvokedExpr match {
                 case gen: ScGenericCall =>
-                  gen.bindInvokedExpr.forall(ApplyOrUpdateInvocation.innerSrrHasTypeParameters)
+                  val invoked = gen.bindInvokedExpr
+                  invoked.forall { srr =>
+                    ApplyOrUpdateInvocation.innerSrrHasTypeParameters(srr) ||
+                      srr.elementHasTypeParameters
+                  }
                 case _                  => true
               }
 
