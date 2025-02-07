@@ -2,14 +2,15 @@ package org.jetbrains.plugins.scala.highlighter.usages
 
 import com.intellij.codeInsight.highlighting.HighlightUsagesHandlerBase
 import com.intellij.openapi.editor.Editor
-import com.intellij.psi.search.LocalSearchScope
+import com.intellij.psi.search.{LocalSearchScope, SearchScope}
 import com.intellij.psi.{PsiClass, PsiElement, PsiFile, PsiMethod}
 import com.intellij.util.Consumer
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.findUsages.factory.{ScalaFindUsagesConfiguration, ScalaFindUsagesHandler}
+import org.jetbrains.plugins.scala.incremental
+import org.jetbrains.plugins.scala.incremental.Highlighting.ElementHighlightingExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScConstructorInvocation, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScSelfInvocation
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScEnum
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import java.util
@@ -47,7 +48,11 @@ class ScalaHighlightConstructorInvocationUsages(reference: Option[ScReference], 
   override def computeUsages(targets: util.List[_ <: PsiElement]): Unit = elementsToHighlight.foreach { case (classToHighlight, constructor) =>
     val config = ScalaFindUsagesConfiguration.getInstance(file.getProject)
     val manager = new ScalaFindUsagesHandler(classToHighlight, config)
-    val localSearchScope = new LocalSearchScope(file)
+    val localSearchScope =
+      if (incremental.Highlighting.enabledIn(file.getProject))
+        file.elements(_.isVisible).map(new LocalSearchScope(_)).foldLeft[SearchScope](LocalSearchScope.EMPTY)(_.union(_))
+      else
+        new LocalSearchScope(file)
 
     //highlight references to the constructor or class
     val target = constructor.getOrElse(classToHighlight)
