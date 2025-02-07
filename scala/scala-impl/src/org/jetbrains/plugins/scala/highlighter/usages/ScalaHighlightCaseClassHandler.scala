@@ -2,10 +2,13 @@ package org.jetbrains.plugins.scala.highlighter.usages
 
 import com.intellij.codeInsight.highlighting.HighlightUsagesHandlerBase
 import com.intellij.openapi.editor.Editor
-import com.intellij.psi.search.LocalSearchScope
+import com.intellij.psi.search.{LocalSearchScope, SearchScope}
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.Consumer
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.findUsages.factory.{ScalaFindUsagesConfiguration, ScalaFindUsagesHandler}
+import org.jetbrains.plugins.scala.incremental
+import org.jetbrains.plugins.scala.incremental.Highlighting.ElementHighlightingExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScSelfInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
@@ -31,7 +34,11 @@ class ScalaHighlightCaseClassHandler(reference: ScReference, caseClass: ScClass,
   override def computeUsages(targets: util.List[_ <: PsiElement]): Unit = {
     val config = ScalaFindUsagesConfiguration.getInstance(file.getProject)
     val manager = new ScalaFindUsagesHandler(caseClass, config)
-    val localSearchScope = new LocalSearchScope(file)
+    val localSearchScope =
+      if (incremental.Highlighting.enabledIn(file.getProject))
+        file.elements(_.isVisible).map(new LocalSearchScope(_)).foldLeft[SearchScope](LocalSearchScope.EMPTY)(_.union(_))
+      else
+        new LocalSearchScope(file)
 
     addOccurrence(caseClass.nameId)
 

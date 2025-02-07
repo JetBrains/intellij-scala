@@ -4,6 +4,7 @@ import com.intellij.codeInsight.highlighting.HighlightUsagesHandlerBase
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
+import org.jetbrains.plugins.scala.incremental.Highlighting.ElementHighlightingExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
@@ -24,7 +25,7 @@ abstract class ScHighlightEndMarkerUsagesHandler private(element: ScalaPsiElemen
     myReadUsages.add(elementNameId.getTextRange)
 
     element.containingFile.foreach { file =>
-      file.elements
+      file.elements(_.isVisible)
         .filterByType[ScReference]
         .filter(_.isReferenceTo(element))
         .map(_.getTextRange)
