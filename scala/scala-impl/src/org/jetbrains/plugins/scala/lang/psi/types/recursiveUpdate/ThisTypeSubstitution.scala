@@ -136,7 +136,6 @@ private case class ThisTypeSubstitution(target: ScType, @Nullable seenFromClass:
       }
       case tp: StdType           => tp.syntheticClass.toRight(tp)
       case tp: ScExistentialType => rec(tp.quantified, seen)
-      case tp: TypeParameterType => Right(tp.psiTypeParameter)
       case tp: ScCompoundType    => Left(tp)
       case _                     => Left(tp)
     }

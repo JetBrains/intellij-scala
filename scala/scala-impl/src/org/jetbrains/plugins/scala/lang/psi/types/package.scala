@@ -364,8 +364,6 @@ package object types {
           }
         case ScExistentialType(quantified, _) =>
           extractFrom(quantified, visitedAliases)
-        case TypeParameterType.ofPsi(psiTypeParameter) =>
-          filter(psiTypeParameter, ScSubstitutor.empty)
         case _ => None
       }
     }
@@ -475,7 +473,6 @@ package object types {
         case Some(cls: PsiClass) => cls.getTypeParameters.instantiate
         case _                   => Seq.empty
       }
-    case typeParameter: TypeParameterType                             => typeParameter.typeParameters
     case u: UndefinedType                                             => u.typeParameter.typeParameters
     case tpt: ScTypePolymorphicType                                   => tpt.typeParameters
     case (_: ScParameterizedType) & AliasType(alias, Right(lower), _) =>

@@ -10,11 +10,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.ValueType
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 trait DesignatorOwner extends ValueType {
-  val element: PsiNamedElement
+  def element: PsiNamedElement
 
   override implicit def projectContext: ProjectContext = element
 
-  val isSingleton: Boolean = element match {
+  def isSingleton: Boolean = element match {
     case typedDefinition: ScTypedDefinition => typedDefinition.isStable
     case _                                  => false
   }

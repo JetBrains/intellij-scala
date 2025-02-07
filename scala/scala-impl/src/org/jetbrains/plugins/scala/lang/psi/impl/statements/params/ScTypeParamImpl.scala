@@ -164,4 +164,5 @@ class ScTypeParamImpl private (stub: ScTypeParamStub, node: ASTNode)
   override def isHigherKindedTypeParameter: Boolean =
     this.parent.filter(_.is[ScTypeParamClause]).flatMap(_.parent).exists(_.is[ScTypeParam])
 
+  override def psiTypeParameters: Array[PsiTypeParameter] = typeParameters.toArray
 }
