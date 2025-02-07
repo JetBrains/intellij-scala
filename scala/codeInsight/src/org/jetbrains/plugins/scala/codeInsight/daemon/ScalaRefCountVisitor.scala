@@ -28,8 +28,11 @@ final class ScalaRefCountVisitor(project: Project) extends HighlightVisitor {
   override def suitableForFile(file: PsiFile): Boolean =
     HighlightingAdvisor.shouldInspect(file)
 
-  override def visit(element: PsiElement): Unit =
+  override def visit(element: PsiElement): Unit = {
+    if (incremental.Highlighting.enabledIn(project)) return
+
     registerElementsAndImportsUsed(element)
+  }
 
   override def analyze(file: PsiFile,
                        updateWholeFile: Boolean,
@@ -44,6 +47,9 @@ final class ScalaRefCountVisitor(project: Project) extends HighlightVisitor {
       return true
 
     clearDirtyAnnotatorHintsIn(scalaFile)
+
+    if (incremental.Highlighting.enabledIn(project)) return true
+
     val success = if (updateWholeFile) {
       analyzedWholeFile = false
 

@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.deprecation
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.psi._
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.deprecation.ScalaDeprecationInspection._
 import org.jetbrains.plugins.scala.extensions._
@@ -86,12 +87,17 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
 
     new ScalaElementVisitor {
 
-      override def visitFunction(fun: ScFunction): Unit =
+      override def visitFunction(fun: ScFunction): Unit = {
+        if (!fun.isVisible) return
+
         if (fun.isDefinedInClass) {
           fun.superMethods.foreach(checkOverridingDeprecated(_, fun))
         }
+      }
 
-      override def visitReference(ref: ScReference): Unit =
+      override def visitReference(ref: ScReference): Unit = {
+        if (!ref.isVisible) return
+
         if (ref.isValid) {
           val resolveResult = ref.bind()
           resolveResult.foreach { rr =>
@@ -117,9 +123,19 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
             }
           }
         }
+      }
 
-      override def visitReferenceExpression(ref: ScReferenceExpression): Unit = visitReference(ref)
-      override def visitTypeProjection(proj: ScTypeProjection): Unit = visitReference(proj)
+      override def visitReferenceExpression(ref: ScReferenceExpression): Unit = {
+        if (!ref.isVisible) return
+
+        visitReference(ref)
+      }
+
+      override def visitTypeProjection(proj: ScTypeProjection): Unit = {
+        if (!proj.isVisible) return
+
+        visitReference(proj)
+      }
     }
   }
 }

@@ -8,6 +8,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.EditorColorsScheme
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.annotator.TypeMismatchHints
 import org.jetbrains.plugins.scala.annotator.hints.Hint.MenuProvider
 import org.jetbrains.plugins.scala.annotator.hints.{Corners, Hint, Text}
@@ -41,7 +42,7 @@ private[codeInsight] trait ScalaTypeHintsPass {
       Seq.empty
     } else {
       (for {
-        element <- root.elements
+        element <- root.elements(_.isVisible)
         definition = Definition(element) // NB: "definition" might be in fact _any_ PsiElement (e.g. ScalaFile)
         (tpe, body, menu) <- typeAndBodyOf(definition)
         if !(settings.preserveIndents && (!element.textContains('\n') && definition.hasCustomIndents || adjacentDefinitionsHaveCustomIndent(element)))
@@ -52,7 +53,7 @@ private[codeInsight] trait ScalaTypeHintsPass {
     }.toSeq
   }
 
-  private def collectXRayHints(editor: Editor, root: PsiElement) = root.elements.flatMap {
+  private def collectXRayHints(editor: Editor, root: PsiElement) = root.elements(_.isVisible).flatMap {
     case e @ Typeable(t) => xRayHintsFor(e, t)(editor.getColorsScheme, TypePresentationContext(e), settings)
     case _ => Seq.empty
   }

@@ -11,6 +11,7 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
+import org.jetbrains.plugins.scala.incremental.Highlighting;
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel;
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings;
 import org.jetbrains.plugins.scala.settings.SimpleMappingListCellRenderer;
@@ -38,6 +39,8 @@ public class EditorSettingsSectionPanel extends SettingsSectionPanel {
     private JComboBox<ScalaProjectSettings.ScalaCollectionHighlightingLevel> collectionHighlightingChooser;
     private JCheckBox showAmbiguousImplicitArgumentsCheckBox;
     private JComboBox<ScalaProjectSettings.AliasExportSemantics> aliasSemantics;
+    private JCheckBox incrementalHighlighting;
+    private JPanel incrementalHighlightingHelp;
     private JPanel useCompilerRangesHelp;
     private JPanel useCompilerTypesHelp;
     private JCheckBox useCompilerRanges;
@@ -77,6 +80,7 @@ public class EditorSettingsSectionPanel extends SettingsSectionPanel {
 
         updateCompilerSettings();
 
+        incrementalHighlightingHelp.add(ContextHelpLabel.create(ScalaBundle.message("incremental.highlighting.help")));
         useCompilerRangesHelp.add(ContextHelpLabel.create(ScalaBundle.message("use.compiler.ranges.help")));
         useCompilerTypesHelp.add(ContextHelpLabel.create(ScalaBundle.message("use.compiler.types.help")));
 
@@ -110,6 +114,9 @@ public class EditorSettingsSectionPanel extends SettingsSectionPanel {
 
         boolean forScala3 = ScalaProjectUtil.hasScala3(myProject) &&
                 typeCheckerScala3.getSelectedItem() == ScalaProjectSettings.TypeChecker.Compiler;
+
+        incrementalHighlighting.setVisible(!forScala2 || !forScala3);
+        incrementalHighlightingHelp.setVisible(!forScala2 || !forScala3);
 
         useCompilerRanges.setVisible(forScala2 || forScala3);
         useCompilerRangesHelp.setVisible(forScala2 || forScala3);
@@ -153,6 +160,7 @@ public class EditorSettingsSectionPanel extends SettingsSectionPanel {
 
                 scalaProjectSettings.isCompilerHighlightingScala2() != (typeCheckerScala2.getSelectedItem() == ScalaProjectSettings.TypeChecker.Compiler) ||
                 scalaProjectSettings.isCompilerHighlightingScala3() != (typeCheckerScala3.getSelectedItem() == ScalaProjectSettings.TypeChecker.Compiler) ||
+                scalaProjectSettings.isIncrementalHighlighting() != incrementalHighlighting.isSelected() ||
                 scalaProjectSettings.isUseCompilerRanges() != useCompilerRanges.isSelected() ||
                 scalaProjectSettings.isUseCompilerTypes() != useCompilerTypes.isSelected()
                 ;
@@ -188,6 +196,12 @@ public class EditorSettingsSectionPanel extends SettingsSectionPanel {
 
         scalaProjectSettings.setCompilerHighlightingScala2(typeCheckerScala2.getSelectedItem() == ScalaProjectSettings.TypeChecker.Compiler);
         scalaProjectSettings.setCompilerHighlightingScala3(typeCheckerScala3.getSelectedItem() == ScalaProjectSettings.TypeChecker.Compiler);
+        boolean wasEnabled = scalaProjectSettings.isIncrementalHighlighting();
+        boolean enabled = incrementalHighlighting.isSelected();
+        scalaProjectSettings.setIncrementalHighlighting(enabled);
+        if (enabled != wasEnabled) {
+            Highlighting.update(enabled, myProject);
+        }
         scalaProjectSettings.setUseCompilerRanges(useCompilerRanges.isSelected());
         scalaProjectSettings.setUseCompilerTypes(useCompilerTypes.isSelected());
     }
@@ -216,6 +230,7 @@ public class EditorSettingsSectionPanel extends SettingsSectionPanel {
 
         typeCheckerScala2.setSelectedItem(scalaProjectSettings.isCompilerHighlightingScala2() ? ScalaProjectSettings.TypeChecker.Compiler : ScalaProjectSettings.TypeChecker.BuiltIn);
         typeCheckerScala3.setSelectedItem(scalaProjectSettings.isCompilerHighlightingScala3() ? ScalaProjectSettings.TypeChecker.Compiler : ScalaProjectSettings.TypeChecker.BuiltIn);
+        incrementalHighlighting.setSelected(scalaProjectSettings.isIncrementalHighlighting());
         useCompilerRanges.setSelected(scalaProjectSettings.isUseCompilerRanges());
         useCompilerTypes.setSelected(scalaProjectSettings.isUseCompilerTypes());
         updateCompilerSettings();
@@ -366,14 +381,20 @@ public class EditorSettingsSectionPanel extends SettingsSectionPanel {
         typeCheckerScala3Help.setLayout(new BorderLayout(0, 0));
         typeCheckerScala3Section.add(typeCheckerScala3Help, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel3 = new JPanel();
-        panel3.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
+        panel3.setLayout(new GridLayoutManager(2, 2, new Insets(0, 0, 0, 0), -1, -1));
         errorHighlightingSection.add(panel3, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_VERTICAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         useCompilerRangesHelp = new JPanel();
         useCompilerRangesHelp.setLayout(new BorderLayout(0, 0));
-        panel3.add(useCompilerRangesHelp, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel3.add(useCompilerRangesHelp, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         useCompilerRanges = new JCheckBox();
         this.$$$loadButtonText$$$(useCompilerRanges, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.error.highlighting.use.compiler.ranges"));
-        panel3.add(useCompilerRanges, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel3.add(useCompilerRanges, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        incrementalHighlighting = new JCheckBox();
+        this.$$$loadButtonText$$$(incrementalHighlighting, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "incremental.highlighting"));
+        panel3.add(incrementalHighlighting, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        incrementalHighlightingHelp = new JPanel();
+        incrementalHighlightingHelp.setLayout(new BorderLayout(0, 0));
+        panel3.add(incrementalHighlightingHelp, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel4 = new JPanel();
         panel4.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
         errorHighlightingSection.add(panel4, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_VERTICAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));

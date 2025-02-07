@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.scaladoc
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.psi.PsiElementVisitor
+import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
@@ -18,6 +19,8 @@ final class ScalaDocInlinedTagInspection extends LocalInspectionTool with DumbAw
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor =
     new ScalaElementVisitor {
       override def visitInlinedTag(inlinedTag: ScDocInlinedTag): Unit = {
+        if (!inlinedTag.isVisible) return
+
         val problem = holder.getManager.createProblemDescriptor(
           inlinedTag, getDisplayName, true,
           ProblemHighlightType.GENERIC_ERROR_OR_WARNING, isOnTheFly,

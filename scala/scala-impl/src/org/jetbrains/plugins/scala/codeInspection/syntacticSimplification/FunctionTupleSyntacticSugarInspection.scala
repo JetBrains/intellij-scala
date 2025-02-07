@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.syntacticSimplification
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiClass, PsiElement, PsiElementVisitor}
+import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions._
@@ -34,6 +35,8 @@ class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
 
     new ScalaElementVisitor {
       override def visitScalaElement(elem: ScalaPsiElement): Unit = {
+        if (!elem.isVisible) return
+
         elem match {
           case te: ScParameterizedTypeElement =>
             te.typeElement match {

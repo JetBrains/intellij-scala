@@ -9,6 +9,7 @@ import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, ActionUpda
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.{PsiElement, PsiMethod}
 import com.intellij.util.containers.ContainerUtil
+import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.ScalaLanguage.{INSTANCE => ScalaLanguage}
 import org.jetbrains.plugins.scala.annotator.hints.Hint.MenuProvider
 import org.jetbrains.plugins.scala.annotator.hints.{Hint, Text}
@@ -33,7 +34,7 @@ trait ScalaInlayParameterHintsPass {
 
   protected def collectParameterHints(editor: Editor, root: PsiElement): Seq[Hint] = {
     val filter = hintInfoFilterFor(ScalaLanguage, ScalaInlayParameterHintsProvider)
-    root.elements.flatMap(getParameterHints(_, filter)).toSeq
+    root.elements(_.isVisible).flatMap(getParameterHints(_, filter)).toSeq
   }
 
   private def getParameterHints(element: PsiElement, filter: HintInfoFilter): Seq[Hint] = {

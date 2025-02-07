@@ -5,6 +5,7 @@ import com.intellij.icons.AllIcons
 import com.intellij.openapi.editor.markup.GutterIconRenderer
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{ChildOf, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -15,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition
 
 import java.util
 import scala.collection.mutable
+import scala.jdk.CollectionConverters.ListHasAsScala
 
 class ScalaRecursiveCallLineMarkerProvider extends LineMarkerProvider {
 
@@ -27,7 +29,7 @@ class ScalaRecursiveCallLineMarkerProvider extends LineMarkerProvider {
     if (!GutterUtil.RecursionOption.isEnabled) return
 
     val visitedLines = mutable.HashSet.empty[Int]
-    elements.forEach { element =>
+    elements.asScala.filter(_.isVisible).foreach { element =>
       ProgressManager.checkCanceled()
       val lineNumber = element.getLineNumber
       element match {

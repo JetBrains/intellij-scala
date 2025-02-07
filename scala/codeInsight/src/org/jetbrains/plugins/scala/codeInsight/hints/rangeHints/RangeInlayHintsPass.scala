@@ -9,6 +9,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Disposer, Key}
 import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement}
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.annotator.hints.Hint.MenuProvider
 import org.jetbrains.plugins.scala.annotator.hints.Text
 import org.jetbrains.plugins.scala.codeInsight.hints.rangeHints.RangeInlayHintsPass._
@@ -41,7 +42,7 @@ trait RangeInlayHintsPass {
       }
 
   private def gatherRangeHints(editor: Editor, root: PsiFile): Seq[HintTemplate] =
-    root.depthFirst().flatMap { element =>
+    root.elements(_.isVisible).flatMap { element =>
       element match {
         case ScInfixExpr(left, ref, right@InfixArgs(args)) if settings.showRangeHintsForToAndUntil =>
           val upperOffset = args match {

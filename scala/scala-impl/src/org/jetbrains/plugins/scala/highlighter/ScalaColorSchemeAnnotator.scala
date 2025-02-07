@@ -7,6 +7,7 @@ import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.annotator.annotationHolder.ScalaAnnotationHolderAdapter
@@ -33,6 +34,8 @@ final class ScalaColorSchemeAnnotator extends Annotator {
   import ScalaColorSchemeAnnotator._
 
   override def annotate(element: PsiElement, holder: AnnotationHolder): Unit = {
+    if (!element.isVisible) return
+
     highlightElement(element)(new ScalaAnnotationHolderAdapter(holder))
   }
 }

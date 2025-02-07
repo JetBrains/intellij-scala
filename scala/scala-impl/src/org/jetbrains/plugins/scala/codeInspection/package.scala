@@ -5,6 +5,7 @@ import com.intellij.openapi.fileEditor.{FileEditorManager, TextEditor}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement, PsiElementVisitor}
+import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses}
@@ -97,7 +98,11 @@ package object codeInspection {
   }
 
   abstract class PsiElementVisitorSimple extends PsiElementVisitor {
-    override final def visitElement(element: PsiElement): Unit = visitPsiElement(element)
+    override final def visitElement(element: PsiElement): Unit = {
+      if (!element.isVisible) return
+
+      visitPsiElement(element)
+    }
 
     def visitPsiElement(element: PsiElement): Unit
   }
