@@ -31,6 +31,8 @@ private class Updater(editor: Editor) {
   }
 
   private def update(): Unit = {
+    VisibleRange.saveIn(editor)
+
     val visibleRange = VisibleRange.in(editor)
 
     val editorEx = editor.asInstanceOf[EditorEx]
