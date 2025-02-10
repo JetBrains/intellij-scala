@@ -5,10 +5,10 @@ import com.intellij.psi.{PsiClass, PsiElement, PsiPackage}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeConstructorOps
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ScType, ScTypeExt}
 
 object ScEquivalenceUtil {
   def areClassesEquivalent(clazz1: PsiClass, clazz2: PsiClass): Boolean = {
@@ -67,14 +67,13 @@ object ScEquivalenceUtil {
     }
 
   /**
-   * Checks if provided [[DesignatorOwner]] references class/type alias
-   * and so is equivalent to it's "eta expansion" poly type in a higher-kinded
-   * scenario. e.g. `F[Option]` and `F[[A] Option[A]]`.
+   * Is polymorphic eta-expansion of this designator (class, type alias or type parameter)
+   * equivalent to `poly`.
    */
-  def isDesignatorEqiuivalentToPolyType(
-    des:         DesignatorOwner,
+  def isTypeConstructorEquivalentToPolyType(
+    tc:          ScType,
     poly:        ScTypePolymorphicType,
     constraints: ConstraintSystem,
     falseUndef:  Boolean
-  ): Option[ConstraintsResult] = des.polyTypeOption.map(_.equiv(poly, constraints, falseUndef))
+  ): Option[ConstraintsResult] = tc.typeConstructor.map(_.equiv(poly, constraints, falseUndef))
 }

@@ -42,11 +42,6 @@ class ScalaLibraryHighlightingTest_2_13 extends ScalaLibraryHighlightingTest {
       (3011, 3033), // Cannot resolve symbol InvalidEscapeException
       (7221, 7243), // Cannot resolve symbol InvalidEscapeException
     ),
-    "scala/collection/Map.scala" -> Set(
-      (4126, 4130), // Type mismatch, expected: MapView.SomeMapOps[NotInferredK, NotInferredV], actual: MapOps[K, V, CC, C]
-      (11350, 11354), // Type mismatch, expected: MapView.SomeMapOps[NotInferredK, NotInferredV], actual: MapOps[K, V, CC, C]
-      (11895, 11899), // Type mismatch, expected: MapView.SomeMapOps[NotInferredK, NotInferredV], actual: MapOps[K, V, CC, C]
-    ),
     "scala/collection/immutable/SortedMap.scala" -> Set(
       (7427, 7521), // Expression of type mutable.Builder[(K, Nothing), WithDefault[K, V]] doesn't conform to expected type mutable.Builder[(K, V), WithDefault[K, V]]
     ),

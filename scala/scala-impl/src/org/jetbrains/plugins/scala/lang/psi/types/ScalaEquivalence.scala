@@ -48,34 +48,22 @@ trait ScalaEquivalence extends api.Equivalence {
 
       (left, right) match {
         /** It is important to handle the following cases here, because
-         * dealising type might be the wrong thing to do in a higher-kinded
+         * eagerly dealising type might be the wrong thing to do in a higher-kinded
          * scenario, e.g. for `type F[A] = A` type `F` in `Functor[F]` is not equivalent
          * to just `A`, but is equivalent to `[A] F[A]`.
          * */
-        case (tpt: ScTypePolymorphicType, des: DesignatorOwner) =>
-          return des.equivInner(tpt, empty, falseUndef)
-        case (des: ScDesignatorType, tpt: ScTypePolymorphicType) =>
-          return des.equivInner(tpt, empty, falseUndef)
-        case (AliasType(_, Right(tpt: ScTypePolymorphicType), _), des: DesignatorOwner) =>
-          return des.equivInner(tpt, empty, falseUndef)
-        case (des: DesignatorOwner, AliasType(_, Right(tpt: ScTypePolymorphicType), _)) =>
-          return des.equivInner(tpt, empty, falseUndef)
-        /**
-         * A workaround for `type Foo <: Nothing`, if an abstract type has `Nothing` as its upper bound
-         * it can be no other type, but `Nothing` itself. A big of a weird edge-case, but it affects zio users.
-         * See: https://youtrack.jetbrains.com/issue/SCL-22598/Extension-methods-are-not-resolved-for-abstract-type-ZNothing-Nothing
-         */
-        case (AliasType(_, _, Right(upper)), nothing) if nothing.isNothing && upper.isNothing =>
-          return ConstraintSystem.empty
-        case (tpt: TypeParameterType, nothing) if nothing.isNothing && tpt.upperType.isNothing =>
-          return ConstraintSystem.empty
-        case (nothing, AliasType(_, _, Right(upper))) if nothing.isNothing && upper.isNothing =>
-          return ConstraintSystem.empty
-        case (nothing, tpt: TypeParameterType) if nothing.isNothing && tpt.upperType.isNothing =>
-          return ConstraintSystem.empty
+        case (tpt: ScTypePolymorphicType, TypeConstructor(tc)) =>
+          return tc.equivInner(tpt, empty, falseUndef)
+        case (TypeConstructor(tc), tpt: ScTypePolymorphicType) =>
+          return tc.equivInner(tpt, empty, falseUndef)
         case _ =>
       }
 
+      /**
+       * A workaround for `type Foo <: Nothing`, if an abstract type has `Nothing` as its upper bound
+       * it can be no other type, but `Nothing` itself. A big of a weird edge-case, but it affects zio users.
+       * See: https://youtrack.jetbrains.com/issue/SCL-22598/Extension-methods-are-not-resolved-for-abstract-type-ZNothing-Nothing
+       */
       def isNothingBounded(tp: ScType): Boolean =
         tp.isNothing || (tp match {
           case AliasType(_, _, Right(upper)) => upper.isNothing

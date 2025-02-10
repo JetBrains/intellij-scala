@@ -2,12 +2,13 @@ package org.jetbrains.plugins.scala.lang.psi.types.nonvalue
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
 import org.jetbrains.plugins.scala.lang.psi.types.ConstraintSystem.SubstitutionBounds
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ScAbstractType, ScType, ScalaTypeVisitor}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.ProcessSubtypes
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ScAbstractType, ScType, ScalaTypeVisitor}
 import org.jetbrains.plugins.scala.project.ProjectContext
+
+import scala.annotation.tailrec
 
 final case class ScTypePolymorphicType private (
   internalType: ScType,
@@ -145,6 +146,7 @@ final case class ScTypePolymorphicType private (
     polymorphicTypeSubstitutor(internalType.inferValueType).asInstanceOf[ValueType]
   }
 
+  @tailrec
   override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
     var lastConstraints = constraints
     r match {
@@ -162,13 +164,11 @@ final case class ScTypePolymorphicType private (
         }
         val subst = ScSubstitutor.bind(typeParameters, p.typeParameters)(TypeParameterType(_))
         subst(internalType).equiv(p.internalType, lastConstraints, falseUndef)
-      case des: ScDesignatorType =>
-        /** Consider simple designator type `Option` in `F[Option]`
-           and `[A] Option[A]` in `F[[A] Option[A]]`,
-           the arguments should obviously be equivalent.
-           [[ScDesignatorType.equivInner()]] is tailored to deal with such cases. */
-        des.equiv(this, constraints, falseUndef)
-      case _ => ConstraintsResult.Left
+      case _ =>
+        r.typeConstructor match {
+          case Some(tc) => equivInner(tc, constraints, falseUndef)
+          case None     => ConstraintsResult.Left
+        }
     }
   }
 

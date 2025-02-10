@@ -1,9 +1,47 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
-import com.intellij.psi.PsiTypeParameter
+import com.intellij.psi.{PsiClass, PsiNamedElement, PsiTypeParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 package object api {
+  object TypeConstructor {
+    def unapply(downer: ScType): Option[ScTypePolymorphicType] =
+      downer.typeConstructor
+  }
+
+  implicit class TypeConstructorOps(private val tpe: ScType) extends AnyVal {
+    def typeConstructor: Option[ScTypePolymorphicType] = {
+      val canBeEtaExpanded = tpe match {
+        case downer: DesignatorOwner => Option(downer)
+        case tpt: TypeParameterType  => Option(tpt)
+        case abs: ScAbstractType     => Option(abs)
+        case _                       => None
+      }
+
+      def extractTypeParams(des: PsiNamedElement): Option[Seq[TypeParameter]] =
+        des match {
+          case alias: ScTypeParametersOwner  => Option(alias.typeParameters.map(TypeParameter(_)))
+          case cls: PsiClass                 => Option(cls.getTypeParameters.instantiate)
+          case _                             => None
+        }
+
+      for {
+        tc      <- canBeEtaExpanded
+        des     <- tc.extractDesignated(false)
+        tparams <- extractTypeParams(des)
+        if tparams.nonEmpty
+      } yield {
+        val appliedToParams = ScParameterizedType(tc, tparams.map(TypeParameterType(_)))
+        ScTypePolymorphicType(appliedToParams, tparams)
+      }
+    }
+  }
+
 
   implicit class TypeParametersArrayExt(private val typeParameters: Array[TypeParameter]) extends AnyVal {
     def depth: Int = typeParameters.toSeq.depth
