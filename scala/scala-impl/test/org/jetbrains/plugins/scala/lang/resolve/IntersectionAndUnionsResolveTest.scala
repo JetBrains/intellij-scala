@@ -124,4 +124,15 @@ class IntersectionAndUnionsResolveTest extends SimpleResolveTestBase {
        |  def computeFitness(ind: Individual): Fitness
        |""".stripMargin
   )
+
+  def testIntersectionWithRefinement(): Unit = checkTextHasNoErrors(
+    """
+      |trait A { def f: Any }
+      |trait B
+      |object Test {
+      |  val z: B & A { def f: Int } = ???
+      |  z.f
+      |}
+      |""".stripMargin
+  )
 }

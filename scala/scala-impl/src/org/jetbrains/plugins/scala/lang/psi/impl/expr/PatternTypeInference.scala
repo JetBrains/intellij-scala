@@ -156,8 +156,6 @@ object PatternTypeInference {
 
             val typeVarsBuilder = Seq.newBuilder[TypeParameter]
 
-
-
             /**
              * (1)
              * The initial constraints set `C0` reflects just the bounds of type variables.

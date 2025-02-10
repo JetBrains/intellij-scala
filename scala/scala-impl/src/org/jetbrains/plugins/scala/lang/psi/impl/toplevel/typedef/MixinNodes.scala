@@ -71,8 +71,9 @@ abstract class MixinNodes[T <: Signature](signatureCollector: SignatureProcessor
 
   def build(andTpe: ScAndType): Map = {
     def collectChildrenNodes(tp: ScType): Seq[Map] = tp match {
-      case ScAndType(lhs, rhs) => collectChildrenNodes(lhs) ++ collectChildrenNodes(rhs)
-      case other               =>
+      case ScAndType(lhs, rhs)  => collectChildrenNodes(lhs) ++ collectChildrenNodes(rhs)
+      case comp: ScCompoundType => Seq(build(comp, None))
+      case other                =>
         extractClassOrUpperBoundClass(other) match {
           case Some((cls, subst)) => Seq(build(cls, withSupers = true, subst = subst))
           case _                  => Seq.empty

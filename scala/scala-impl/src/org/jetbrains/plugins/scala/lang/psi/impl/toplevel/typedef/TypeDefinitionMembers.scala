@@ -330,7 +330,7 @@ object TypeDefinitionMembers {
         val intersectedReturnType     = signature.asOptionOf[TermSignature].flatMap(_.intersectedReturnType)
         val withIntersectedReturnType = intersectedReturnType.fold(withRenamed)(withRenamed.withIntersectedReturnType)
 
-        val withExportedInfo          =
+        val withExportedInfo =
           signature.exportedInfo.fold(withIntersectedReturnType)(withIntersectedReturnType.withExportedInfo)
 
         processor.execute(signature.namedElement, withExportedInfo)
