@@ -4,6 +4,7 @@ package incremental
 import incremental.Updater._
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.EditorColorsScheme
 import com.intellij.openapi.editor.ex.{EditorEx, MarkupModelEx}
@@ -13,7 +14,7 @@ import com.intellij.psi.PsiManager
 import java.awt.Color
 import javax.swing.Timer
 
-private class Updater(editor: Editor) {
+private class Updater(editor: Editor) extends Disposable {
   private val updateTimer = {
     val timer = new Timer(UPDATE_DELAY, _ => update())
     timer.setRepeats(false)
@@ -50,6 +51,10 @@ private class Updater(editor: Editor) {
     daemon.stopProcess(/* restart = */ true)
 
     previousVisibleRange = visibleRange
+  }
+
+  override def dispose(): Unit = {
+    updateTimer.stop()
   }
 }
 
