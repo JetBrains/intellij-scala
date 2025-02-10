@@ -9,6 +9,7 @@ import com.intellij.openapi.editor.ex.{FoldingListener, FoldingModelEx}
 import com.intellij.openapi.editor.{Editor, EditorFactory, FoldRegion}
 import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Disposer
 
 import java.awt.event.{KeyAdapter, KeyEvent}
 
@@ -57,9 +58,10 @@ class Listener extends EditorFactoryListener {
   }
 
   private def connectTo(editor: Editor): Unit = {
-    updaters += editor -> new Updater(editor)
-    editor.getScrollingModel.addVisibleAreaListener(visibleAreaListener)
-    editor.getFoldingModel.asInstanceOf[FoldingModelEx].addListener(foldingListener, editor.getProject.unloadAwareDisposable)
+    val updater = new Updater(editor)
+    updaters += editor -> updater
+    editor.getScrollingModel.addVisibleAreaListener(visibleAreaListener, updater)
+    editor.getFoldingModel.asInstanceOf[FoldingModelEx].addListener(foldingListener, updater)
     editor.getContentComponent.addKeyListener(keyListener)
   }
 
@@ -72,9 +74,9 @@ class Listener extends EditorFactoryListener {
   }
 
   private def disconnectFrom(editor: Editor): Unit = {
-    updaters -= editor
-    editor.getScrollingModel.removeVisibleAreaListener(visibleAreaListener)
     editor.getContentComponent.removeKeyListener(keyListener)
+    Disposer.dispose(updaters(editor))
+    updaters -= editor
   }
 }
 
