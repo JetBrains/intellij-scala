@@ -3,6 +3,19 @@
   <code_scheme name="Project" version="173">
     <ScalaCodeStyleSettings>
       <option name="classCountToUseImportOnDemand" value="15" />
+      <option name="importLayout">
+        <array>
+          <option value="base package imports" />
+          <option value="_______ blank line _______" />
+          <option value="all other imports" />
+          <option value="_______ blank line _______" />
+          <option value="java" />
+          <option value="javax" />
+          <option value="kotlin" />
+          <option value="kotlinx" />
+          <option value="scala" />
+        </array>
+      </option>
       <option name="INDENT_FIRST_PARAMETER" value="false" />
     </ScalaCodeStyleSettings>
     <codeStyleSettings language="Scala">
