@@ -5,6 +5,8 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScContextBound, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
@@ -57,6 +59,11 @@ trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
       case Some(elem) =>
         if (ScalaApplicationSettings.PRECISE_TEXT) elem.`type`() // SCL-21151
         else elem.`type`().map(extractBound(_, isLower))
-      case None => Right(if (isLower) api.Nothing else api.Any)
+      case None =>
+        val rawDefaultBound = if (isLower) api.Nothing else api.Any
+
+        if (typeParameters.isEmpty) Right(rawDefaultBound)
+        else
+          Right(ScTypePolymorphicType(rawDefaultBound, typeParameters.map(TypeParameter(_))))
     }
 }

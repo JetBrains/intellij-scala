@@ -811,9 +811,12 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
         case rhs: ScTypePolymorphicType =>
           proj.polyTypeOption match {
             case Some(lhs) =>
-              conformsInner(lhs, rhs, visited, constraints)
-              if (result != null) return
-            case None      => ()
+              val conforms = conformsInner(lhs, rhs, visited, constraints)
+              if (conforms.isRight) {
+                result = conforms
+                return
+              }
+            case None => ()
           }
         case _ => ()
       }
@@ -1290,7 +1293,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       }
 
       rightVisitor = new ExistentialSimplification with ExistentialArgumentVisitor
-        with ParameterizedExistentialArgumentVisitor with OtherNonvalueTypesVisitor with TypeParameterTypeNothingNullVisitor {}
+        with ParameterizedExistentialArgumentVisitor with TypeParameterTypeNothingNullVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 

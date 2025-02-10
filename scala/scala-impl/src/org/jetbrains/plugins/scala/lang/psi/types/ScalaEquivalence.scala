@@ -56,9 +56,9 @@ trait ScalaEquivalence extends api.Equivalence {
           return des.equivInner(tpt, empty, falseUndef)
         case (des: ScDesignatorType, tpt: ScTypePolymorphicType) =>
           return des.equivInner(tpt, empty, falseUndef)
-        case (AliasType(_, Right(tpt: ScTypePolymorphicType), _), des: DesignatorOwner) =>
+        case (AliasType(_: ScTypeAliasDefinition, Right(tpt: ScTypePolymorphicType), _), des: DesignatorOwner) =>
           return des.equivInner(tpt, empty, falseUndef)
-        case (des: DesignatorOwner, AliasType(_, Right(tpt: ScTypePolymorphicType), _)) =>
+        case (des: DesignatorOwner, AliasType(_: ScTypeAliasDefinition, Right(tpt: ScTypePolymorphicType), _)) =>
           return des.equivInner(tpt, empty, falseUndef)
         /**
          * A workaround for `type Foo <: Nothing`, if an abstract type has `Nothing` as its upper bound
