@@ -165,7 +165,7 @@
         <postStartupActivity implementation="org.jetbrains.plugins.scala.incremental.Tracing$StartupActivity"/>
         <highlightInfoPostFilter implementation="org.jetbrains.plugins.scala.incremental.Filter"/>
         <registryKey key="scala.highlighting.tracing" defaultValue="false" description="Trace resolve and type inference"/>
-        <registryKey key="scala.incremental.highlighting.lookaround" defaultValue="0" description="Number of lines to highlight beyond the visible area"/>
+        <registryKey key="scala.incremental.highlighting.lookaround" defaultValue="15" description="Number of lines to highlight beyond the visible area"/>
 
         <highlightingPassFactory implementation="org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaLocalVarCouldBeValPassFactory"/>
         <highlightingPassFactory implementation="org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaUnusedImportsPassFactory"/>

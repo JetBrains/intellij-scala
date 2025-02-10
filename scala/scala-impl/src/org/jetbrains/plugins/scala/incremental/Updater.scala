@@ -35,10 +35,11 @@ private class Updater(editor: Editor) {
 
     val visibleRange = VisibleRange.in(editor)
 
+    val exactVisibleRange = VisibleRange.exactIn(editor)
     val editorEx = editor.asInstanceOf[EditorEx]
     Seq(editorEx.getMarkupModel, editorEx.getFilteredDocumentMarkupModel).foreach { model =>
-      concealErrorStripeMarksOutside(visibleRange, model, editor.getColorsScheme)
-      revealErrorStripeMarksInside(visibleRange, model)
+      concealErrorStripeMarksOutside(exactVisibleRange, model, editor.getColorsScheme)
+      revealErrorStripeMarksInside(exactVisibleRange, model)
     }
 
     val newlyVisibleRange = if (previousVisibleRange == null) visibleRange else visibleRange.diff(previousVisibleRange)

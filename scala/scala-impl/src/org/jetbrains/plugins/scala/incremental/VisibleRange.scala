@@ -11,6 +11,8 @@ import java.awt.Point
 private object VisibleRange {
   private val VISIBLE_RANGE_KEY = Key.create[TextRange]("editor_visible_range")
 
+  private val EXACT_VISIBLE_RANGE_KEY = Key.create[TextRange]("editor_exact_visible_range")
+
   private def lookaround: Int = Registry.intValue("scala.incremental.highlighting.lookaround")
 
   def isVisible(e: PsiElement): Boolean = {
@@ -42,10 +44,14 @@ private object VisibleRange {
 
   def saveIn(editor: Editor): Unit = {
     editor.putUserData(VisibleRange.VISIBLE_RANGE_KEY, visibleRangeIn(editor, lookaround))
+    editor.putUserData(VisibleRange.EXACT_VISIBLE_RANGE_KEY, visibleRangeIn(editor, lookaround = 0))
   }
 
   def in(editor: Editor): TextRange =
     editor.getUserData(VisibleRange.VISIBLE_RANGE_KEY)
+
+  def exactIn(editor: Editor): TextRange =
+    editor.getUserData(VisibleRange.EXACT_VISIBLE_RANGE_KEY)
 
   private def visibleRangeIn(editor: Editor, lookaround: Int): TextRange = {
     val visibleRectangle = editor.getScrollingModel.getVisibleArea

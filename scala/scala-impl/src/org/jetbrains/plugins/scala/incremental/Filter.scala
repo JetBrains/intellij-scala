@@ -12,7 +12,7 @@ class Filter extends HighlightInfoPostFilter {
 
     if (!incremental.Highlighting.enabledIn(editor.getProject)) return true
 
-    val visibleRange = VisibleRange.in(editor)
+    val visibleRange = VisibleRange.exactIn(editor)
     if (visibleRange == null) return true
 
     val highlightRange = TextRange.create(highlightInfo.startOffset, highlightInfo.endOffset)
