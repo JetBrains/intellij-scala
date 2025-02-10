@@ -7,20 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, Constraints
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
-/**
-  * This type means type, which depends on place, where you want to get expression type.
-  * For example
-  *
-  * class A       {
-  * def foo: this.type = this
-  * }
-  *
-  * class B extneds A       {
-  * val z = foo // <- type in this place is B.this.type, not A.this.type
-  * }
-  *
-  * So when expression is typed, we should replace all such types be return value.
-  */
 final case class ScThisType(override val element: ScTemplateDefinition) extends DesignatorOwner with LeafType {
   element.getClass
   //throw NPE if clazz is null...

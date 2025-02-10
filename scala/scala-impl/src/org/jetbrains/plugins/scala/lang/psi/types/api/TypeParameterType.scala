@@ -3,8 +3,10 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 import com.intellij.psi.PsiTypeParameter
 import org.jetbrains.plugins.scala.lang.psi.light.DummyLightTypeParam
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType.isMaskedExtensionTypeParameter
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, LeafType, NamedType, ScType, ScalaTypeVisitor}
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 class TypeParameterType private (val typeParameter: TypeParameter)
   extends ValueType with NamedType with LeafType {
@@ -50,6 +52,10 @@ class TypeParameterType private (val typeParameter: TypeParameter)
             constraints
           else ConstraintsResult.Left
         }
+      case tpt: ScTypePolymorphicType =>
+        ScEquivalenceUtil
+          .isTypeConstructorEquivalentToPolyType(this, tpt, constraints, falseUndef)
+          .getOrElse(ConstraintsResult.Left)
       case _ => ConstraintsResult.Left
     }
 

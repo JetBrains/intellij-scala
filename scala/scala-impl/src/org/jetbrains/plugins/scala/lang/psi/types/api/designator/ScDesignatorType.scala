@@ -2,13 +2,12 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 package designator
 
 import com.intellij.psi.{PsiClass, PsiNamedElement}
-import org.jetbrains.plugins.scala.extensions.PsiClassExt
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ConstraintSystem, ConstraintsResult, LeafType, ScExistentialArgument, ScExistentialType, ScType, ScalaTypeVisitor}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ConstraintSystem, ConstraintsResult, LeafType, ScType, ScalaTypeVisitor}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.smartEquivalence
 
@@ -24,42 +23,7 @@ final case class ScDesignatorType(override val element: PsiNamedElement) extends
   private def setStatic(): Unit = static = true
   def isStatic: Boolean = static
 
-  override protected def calculateAliasType: Option[AliasType] = {
-    element match {
-      case ta: ScTypeAlias if ta.typeParameters.isEmpty =>
-        Some(AliasType(ta, ta.lowerBound, ta.upperBound))
-      case ta: ScTypeAlias => //higher kind case
-        ta match {
-          case ta: ScTypeAliasDefinition => //hack for simple cases, it doesn't cover more complicated examples
-            ta.aliasedType match {
-              case Right(tp) if tp == this => // recursive type alias
-                return Some(AliasType(ta, Right(this), Right(this)))
-              case Right(tp) =>
-                tp match {
-                  case ParameterizedType(des, typeArgs) =>
-                    val taArgs = ta.typeParameters
-                    if (taArgs.length == typeArgs.length && taArgs.zip(typeArgs).forall {
-                      case (tParam: ScTypeParam, TypeParameterType.ofPsi(param)) if tParam == param => true
-                      case _ => false
-                    }) return Some(AliasType(ta, Right(des), Right(des)))
-                  case _ =>
-                }
-              case _ =>
-            }
-          case _ =>
-        }
-        val existentialArgs = ta.typeParameters
-          .map(tp => ScExistentialArgument(tp.name + "$$", Nil, Nothing, Any))
-          .toList
-
-        val genericSubst = ScSubstitutor.bind(ta.typeParameters, existentialArgs)
-        Some(AliasType(ta,
-          ta.lowerBound.map(scType => ScExistentialType(genericSubst(scType))),
-          ta.upperBound.map(scType => ScExistentialType(genericSubst(scType))))
-        )
-      case _ => None
-    }
-  }
+  override protected def calculateAliasType: Option[AliasType] = calculateAliasTypeAux(element, ScSubstitutor.empty)
 
   def getValType: Option[StdType] = element match {
     case clazz: PsiClass if !clazz.isInstanceOf[ScObject] =>
@@ -78,8 +42,8 @@ final case class ScDesignatorType(override val element: PsiNamedElement) extends
 
     (`type` match {
       case rhs: ScTypePolymorphicType =>
-        ScEquivalenceUtil.isDesignatorEqiuivalentToPolyType(this, rhs, constraints, falseUndef)
-      case _ if element.isInstanceOf[ScTypeAliasDefinition] =>
+        ScEquivalenceUtil.isTypeConstructorEquivalentToPolyType(this, rhs, constraints, falseUndef)
+      case _ if element.is[ScTypeAliasDefinition] =>
         element.asInstanceOf[ScTypeAliasDefinition].aliasedType.toOption.map(
           _.equiv(`type`, constraints, falseUndef)
         )

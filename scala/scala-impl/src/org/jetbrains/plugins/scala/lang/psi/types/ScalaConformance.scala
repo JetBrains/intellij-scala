@@ -129,7 +129,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
           else constraints = y.constraints
         //this case filter out such cases like undefined type
         case _ =>
-          (lhs, rhs) match {
+            (lhs, rhs) match {
             case (l: UndefinedType, r: UndefinedType) =>
               val lId = l.typeParameter.typeParamId
               val rId = r.typeParameter.typeParamId
@@ -546,7 +546,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
     }
 
     trait PolymorphicDesignatorVisitor extends ScalaTypeVisitor {
-      private def visitDesignatorOwner(downer: DesignatorOwner): Unit = downer.polyTypeOption match {
+      private def visitDesignatorOwner(downer: DesignatorOwner): Unit = downer.typeConstructor match {
         case Some(tpt: ScTypePolymorphicType) => result = conformsInner(l, tpt, visited, constraints, checkWeak)
         case None                             => ()
       }
@@ -809,11 +809,14 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
 
       r match {
         case rhs: ScTypePolymorphicType =>
-          proj.polyTypeOption match {
+          proj.typeConstructor match {
             case Some(lhs) =>
-              conformsInner(lhs, rhs, visited, constraints)
-              if (result != null) return
-            case None      => ()
+              val conforms = conformsInner(lhs, rhs, visited, constraints)
+              if (conforms.isRight) {
+                result = conforms
+                return
+              }
+            case None => ()
           }
         case _ => ()
       }
@@ -1017,14 +1020,14 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
             case (_, t: TypeParameterType) if t.typeParameters.length == p2.typeArguments.length =>
               val upper = {
                 val upper = t.upperType
-                upper.asOptionOf[DesignatorOwner]
-                  .flatMap(_.polyTypeOption)
-                  .getOrElse(upper)
+                upper.typeConstructor.getOrElse(upper)
               }
+
               val subst = upper match {
                 case ScTypePolymorphicType(_, tparams) => ScSubstitutor.bind(tparams, p2.typeArguments)
-                case _ => ScSubstitutor.bind(t.typeParameters, p2.typeArguments)
+                case _                                 => ScSubstitutor.bind(t.typeParameters, p2.typeArguments)
               }
+
               result = conformsInner(ScTypePolymorphicType(p, t.typeParameters), subst(upper), visited, constraints, checkWeak)
             case (proj1: ScProjectionType, proj2: ScProjectionType)
               if smartEquivalence(proj1.actualElement, proj2.actualElement) =>
@@ -1253,7 +1256,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
 
       r match {
         case rhs: ScTypePolymorphicType =>
-          des.polyTypeOption match {
+          des.typeConstructor match {
             case Some(lhs) =>
               result = conformsInner(lhs, rhs, visited, constraints)
               if (result != null) return
@@ -1290,7 +1293,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       }
 
       rightVisitor = new ExistentialSimplification with ExistentialArgumentVisitor
-        with ParameterizedExistentialArgumentVisitor with OtherNonvalueTypesVisitor with TypeParameterTypeNothingNullVisitor {}
+        with ParameterizedExistentialArgumentVisitor with TypeParameterTypeNothingNullVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
