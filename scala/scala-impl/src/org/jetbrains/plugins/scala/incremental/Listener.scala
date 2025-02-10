@@ -31,7 +31,6 @@ class Listener extends EditorFactoryListener {
 
   private def handleEvent(editor: Editor, delta: Boolean): Unit = {
     Highlighting.editor = editor
-    VisibleRange.saveIn(editor)
     updaters(editor).scheduleUpdate(delta)
   }
 
