@@ -14,6 +14,7 @@ import org.intellij.plugins.intelliLang.inject.config.BaseInjection
 import org.intellij.plugins.intelliLang.inject.java.JavaLanguageInjectionSupport
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.incremental.Highlighting.ElementHighlightingExt
 import org.jetbrains.plugins.scala.injection.ScalaInjectionInfosCollector.InjectionSplitResult
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.readAttribute
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
@@ -58,6 +59,8 @@ final class ScalaLanguageInjector extends MultiHostInjector {
     implicit val projectSettings: ScalaProjectSettings = ScalaProjectSettings.getInstance(project)
     if (injectUsingInterpolatedStringPrefix(host, literals, projectSettings.getIntInjectionMapping))
       return
+
+    if (!host.isVisible) return
 
     //TODO: make this check earlier? when exactly? should we support explicit injection via intention or comment?
     if (projectSettings.isDisableLangInjection)

@@ -57,7 +57,7 @@ class Listener extends EditorFactoryListener {
     connectTo(editor)
   }
 
-  private def connectTo(editor: Editor): Unit = {
+  private def connectTo(editor: Editor): Unit = if (!updaters.contains(editor)) {
     val updater = new Updater(editor)
     updaters += editor -> updater
     editor.getScrollingModel.addVisibleAreaListener(visibleAreaListener, updater)
@@ -73,7 +73,7 @@ class Listener extends EditorFactoryListener {
     disconnectFrom(editor)
   }
 
-  private def disconnectFrom(editor: Editor): Unit = {
+  private def disconnectFrom(editor: Editor): Unit = if (updaters.contains(editor)) {
     editor.getContentComponent.removeKeyListener(keyListener)
     Disposer.dispose(updaters(editor))
     updaters -= editor
