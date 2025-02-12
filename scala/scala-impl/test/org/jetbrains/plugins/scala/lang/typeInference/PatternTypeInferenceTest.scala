@@ -263,6 +263,19 @@ class PatternTypeInferenceTest extends ScalaLightCodeInsightFixtureTestCase {
       |""".stripMargin
   )
 
+  def testSCL23584(): Unit = checkTextHasNoErrors(
+    """
+      |class InferTest {
+      |  def f[T <: Option[Int]](x: T): Int = {
+      |    x match {
+      |      case Some(i) => i
+      |      case None => 0
+      |    }
+      |  }
+      |G}
+      |""".stripMargin
+  )
+
   //@TODO: in scala 3 type parameters of enclosing enums (only?) are also instantiated
 //  def testEnum(): Unit = checkTextHasNoErrors(
 //    """

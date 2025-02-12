@@ -1503,10 +1503,16 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
           val internalType2   = t2.internalType
           val subst           = ScSubstitutor.bind(typeParameters1, typeParameters2)(TypeParameterType(_))
 
+          if (internalType2.isNothing || internalType1.isAny) {
+            result = constraints
+            return
+          }
+
           if (typeParameters1.length != typeParameters2.length) {
             result = ConstraintsResult.Left
             return
           }
+
           var i = 0
           while (i < typeParameters1.length) {
             var t =
@@ -1544,6 +1550,8 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
           }
           constraints = t.constraints
           result = constraints
+        case anyOrNothing if anyOrNothing.isAny || anyOrNothing.isNothing =>
+          result = conformsInner(t1.internalType, anyOrNothing, visited, constraints)
         case _ =>
           result = ConstraintsResult.Left
       }

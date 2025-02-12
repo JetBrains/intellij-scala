@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
 import org.jetbrains.plugins.scala.lang.psi.types.api._
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.ExpandedExtractorResolveProcessor
@@ -129,98 +130,106 @@ object PatternTypeInference {
   def doTypeInference(
     pattern:       ScPattern,
     scrutineeType: ScType
-  ): ScSubstitutor = pattern match {
-    case tuple: ScTuplePattern => doForTuplePattern(tuple, scrutineeType)
-    case tuple: ScNamedTuplePattern => doForNamedTuplePattern(tuple, scrutineeType)
-    case _ =>
-      cachedInUserData(
-        "doTypeInference",
-        pattern,
-        BlockModificationTracker(pattern),
-        Tuple1(scrutineeType),
-      ) {
-        getPatternType(pattern, scrutineeType) match {
-          case Left(subst) => subst
-          case Right((tpe, unapplySubst)) =>
-            // For constructor patterns type inference searches for max solution
-            val shouldSolveForMaxType = pattern.is[ScExtractorPattern]
-            val typeVariablesNames    = pattern.typeVariables.map(_.name).toSet
+  ): ScSubstitutor = {
+    val noTopLevelTypeVariables = scrutineeType.removeAliasDefinitions().recursiveUpdate {
+      case abs: ScAbstractType    => ReplaceWith(abs.upper) //arguments inside are considered bound
+      case tpt: TypeParameterType => ReplaceWith(tpt.upperType)
+      case _                      => Stop
+    }
 
-            implicit val ctx: ProjectContext = pattern.projectContext
+    pattern match {
+      case tuple: ScTuplePattern => doForTuplePattern(tuple, noTopLevelTypeVariables)
+      case tuple: ScNamedTuplePattern => doForNamedTuplePattern(tuple, noTopLevelTypeVariables)
+      case _ =>
+        cachedInUserData(
+          "doTypeInference",
+          pattern,
+          BlockModificationTracker(pattern),
+          Tuple1(noTopLevelTypeVariables),
+        ) {
+          getPatternType(pattern, noTopLevelTypeVariables) match {
+            case Left(subst) => subst
+            case Right((tpe, unapplySubst)) =>
+              // For constructor patterns type inference searches for max solution
+              val shouldSolveForMaxType = pattern.is[ScExtractorPattern]
+              val typeVariablesNames    = pattern.typeVariables.map(_.name).toSet
 
-            val (classTypeParams, boundsSubst) =
-              (for {
-                (ctpe, subst) <- tpe.extractClassType
-                tparams       = ctpe.getTypeParameters.instantiate
-              } yield (tparams, subst)).getOrElse(Seq.empty -> ScSubstitutor.empty)
+              implicit val ctx: ProjectContext = pattern.projectContext
 
-            val typeVarsBuilder = Seq.newBuilder[TypeParameter]
+              val (classTypeParams, boundsSubst) =
+                (for {
+                  (ctpe, subst) <- tpe.extractClassType
+                  tparams       = ctpe.getTypeParameters.instantiate
+                } yield (tparams, subst)).getOrElse(Seq.empty -> ScSubstitutor.empty)
 
-            /**
-             * (1)
-             * The initial constraints set `C0` reflects just the bounds of type variables.
-             * That is, assuming `tpe` has bound type variables `a1, ..., an`
-             * which correspond to class type parameters `a'1, ..., a'n`
-             * with lower bounds `L1, ..., Ln` and upper bounds `U1, ..., Un`
-             */
-            def collectConstraintsAndTypeParams(tpe: ScType): ConstraintSystem = tpe match {
-              case ScAndType(lhs, rhs) =>
-                collectConstraintsAndTypeParams(lhs) + collectConstraintsAndTypeParams(rhs)
-              case ScOrType(lhs, rhs) =>
-                collectConstraintsAndTypeParams(lhs) + collectConstraintsAndTypeParams(rhs)
-              case ScCompoundType(comps, _, _) =>
-                comps.foldLeft(ConstraintSystem.empty) {
-                  case (acc, comp) => acc + collectConstraintsAndTypeParams(comp)
-                }
-              case ParameterizedType(_, targs) if targs.size == classTypeParams.size =>
-                targs.zip(classTypeParams).foldLeft(ConstraintSystem.empty) {
-                  case (acc, (tpt: TypeParameterType, tp: TypeParameter)) =>
-                    val tParam = tpt.typeParameter
+              val typeVarsBuilder = Seq.newBuilder[TypeParameter]
 
-                    //@TODO: should we add constraints from unapply type parameters too
-                    //       (in case of custom unapply)???
-                    if (typeVariablesNames.contains(tParam.name) || shouldSolveForMaxType) {
-                      typeVarsBuilder += tParam
-                      addTypeParamBounds(acc, tParam, tp, boundsSubst.followed(unapplySubst))
-                    } else acc
-                  case (acc, _) => acc
-                }
-              case _ => ConstraintSystem.empty
-            }
+              /**
+               * (1)
+               * The initial constraints set `C0` reflects just the bounds of type variables.
+               * That is, assuming `tpe` has bound type variables `a1, ..., an`
+               * which correspond to class type parameters `a'1, ..., a'n`
+               * with lower bounds `L1, ..., Ln` and upper bounds `U1, ..., Un`
+               */
+              def collectConstraintsAndTypeParams(tpe: ScType): ConstraintSystem = tpe match {
+                case ScAndType(lhs, rhs) =>
+                  collectConstraintsAndTypeParams(lhs) + collectConstraintsAndTypeParams(rhs)
+                case ScOrType(lhs, rhs) =>
+                  collectConstraintsAndTypeParams(lhs) + collectConstraintsAndTypeParams(rhs)
+                case ScCompoundType(comps, _, _) =>
+                  comps.foldLeft(ConstraintSystem.empty) {
+                    case (acc, comp) => acc + collectConstraintsAndTypeParams(comp)
+                  }
+                case ParameterizedType(_, targs) if targs.size == classTypeParams.size =>
+                  targs.zip(classTypeParams).foldLeft(ConstraintSystem.empty) {
+                    case (acc, (tpt: TypeParameterType, tp: TypeParameter)) =>
+                      val tParam = tpt.typeParameter
 
-            val constraints = collectConstraintsAndTypeParams(tpe)
-            val typeVars    = typeVarsBuilder.result()
-
-            val subst =
-              /*(2)*/
-              if (tpe.conforms(scrutineeType)) solve(constraints, shouldSolveForMaxType, typeVars, Seq.empty)
-              else {
-                /*(3)*/
-                val undefSubst  = ScSubstitutor.undefineTypeParams(typeVars)
-                val conformance = undefSubst(tpe).conforms(scrutineeType, constraints)
-                val maybeSubst  = solve(conformance, shouldSolveForMaxType, typeVars, Seq.empty)
-
-                maybeSubst.orElse {
-                  /*(4)*/
-                  val enclosingFun          = pattern.parentOfType[ScFunctionDefinition]
-                  val enclosingTypeParams   = enclosingFun.fold(Seq.empty[TypeParameter])(_.typeParameters.map(TypeParameter(_)))
-                  val constraintsWithBounds = enclosingTypeParams.foldLeft(constraints)((acc, tp) => addTypeParamBounds(acc, tp, tp))
-                  val undefScrutinee        = ScSubstitutor.undefineTypeParams(enclosingTypeParams)
-
-                  val conformance =
-                    isIntersectionPopulated(
-                      undefSubst(tpe),
-                      undefScrutinee(scrutineeType),
-                      constraintsWithBounds
-                    )
-
-                  solve(conformance, shouldSolveForMaxType, typeVars, enclosingTypeParams)
-                }
+                      //@TODO: should we add constraints from unapply type parameters too
+                      //       (in case of custom unapply)???
+                      if (typeVariablesNames.contains(tParam.name) || shouldSolveForMaxType) {
+                        typeVarsBuilder += tParam
+                        addTypeParamBounds(acc, tParam, tp, boundsSubst.followed(unapplySubst))
+                      } else acc
+                    case (acc, _) => acc
+                  }
+                case _ => ConstraintSystem.empty
               }
 
-            unapplySubst.followed(subst.getOrElse(ScSubstitutor.empty))
+              val constraints = collectConstraintsAndTypeParams(tpe)
+              val typeVars    = typeVarsBuilder.result()
+
+              val subst =
+                /*(2)*/
+                if (tpe.conforms(noTopLevelTypeVariables)) solve(constraints, shouldSolveForMaxType, typeVars, Seq.empty)
+                else {
+                  /*(3)*/
+                  val undefSubst  = ScSubstitutor.undefineTypeParams(typeVars)
+                  val conformance = undefSubst(tpe).conforms(noTopLevelTypeVariables, constraints)
+                  val maybeSubst  = solve(conformance, shouldSolveForMaxType, typeVars, Seq.empty)
+
+                  maybeSubst.orElse {
+                    /*(4)*/
+                    val enclosingFun          = pattern.parentOfType[ScFunctionDefinition]
+                    val enclosingTypeParams   = enclosingFun.fold(Seq.empty[TypeParameter])(_.typeParameters.map(TypeParameter(_)))
+                    val constraintsWithBounds = enclosingTypeParams.foldLeft(constraints)((acc, tp) => addTypeParamBounds(acc, tp, tp))
+                    val undefScrutinee        = ScSubstitutor.undefineTypeParams(enclosingTypeParams)
+
+                    val conformance =
+                      isIntersectionPopulated(
+                        undefSubst(tpe),
+                        undefScrutinee(noTopLevelTypeVariables),
+                        constraintsWithBounds
+                      )
+
+                    solve(conformance, shouldSolveForMaxType, typeVars, enclosingTypeParams)
+                  }
+                }
+
+              unapplySubst.followed(subst.getOrElse(ScSubstitutor.empty))
+          }
         }
-      }
+    }
   }
 
   private def addTypeParamBounds(
