@@ -12,7 +12,7 @@ private object WorksheetModuleUtil {
       val libraries = module.libraries
       libraries.exists { library =>
         val name = library.getName
-        name.contains("scala-library") || name.contains("scala3-library")
+        (name ne null) && (name.contains("scala-library") || name.contains("scala3-library"))
       }
     }
     // In case there are no modules left, just use the non-filtered list. Some tests also start to fail in this case.
