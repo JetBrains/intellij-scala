@@ -3,10 +3,10 @@ package org.jetbrains.plugins.scala.highlighter
 import com.intellij.openapi.editor.DefaultLanguageHighlighterColors
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.{PsiClass, PsiElement, PsiField, PsiMethod, PsiModifierListOwner}
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiMemberExt}
+import org.jetbrains.plugins.scala.extensions.{&, ObjectExt, Parent, PsiClassExt, PsiMemberExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScForBinding, ScFunctionExpr, ScGenerator, ScMethodCall, ScNameValuePair, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScAssignment, ScForBinding, ScFunctionExpr, ScGenerator, ScMethodCall, ScNameValuePair, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumClassCase, ScEnumSingletonCase, ScFunction, ScFunctionDeclaration, ScFunctionDefinition, ScMacroDefinition, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
@@ -193,4 +193,20 @@ object ScalaColorsSchemeUtils {
         m.names.headOption.orNull,
         m.getProject
       )
+
+  object NamedArgument {
+    def unapply(psiElement: PsiElement): Option[ScAssignment] = psiElement match {
+      case (a: ScAssignment) & Parent(_: ScArgumentExprList) =>
+        a.leftExpression match {
+          //NOTE: this ignores underscore lambdas with assignment, that represented as an ScAssignment as well.
+          //Example: foo(_.field = null)
+          //It's a much more lightweight alternative to using ScUnderScoreSectionUtil.isUnderscoreFunction
+          case ref: ScReferenceExpression if ref.qualifier.isEmpty =>
+            Some(a)
+          case _ => None
+        }
+      case _ =>
+        None
+    }
+  }
 }
