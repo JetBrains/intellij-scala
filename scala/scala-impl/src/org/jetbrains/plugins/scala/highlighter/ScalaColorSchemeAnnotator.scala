@@ -7,17 +7,16 @@ import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.annotator.annotationHolder.ScalaAnnotationHolderAdapter
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.highlighter.ScalaColorsSchemeUtils.NamedArgument
+import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScAssignment, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAssignment
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedExpressionPrefix
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, ScalaType, TypePresentationContext}
@@ -28,6 +27,7 @@ import org.jetbrains.plugins.scala.statistics.ScalaAnnotatorUsagesCollector
 
 /**
  * @see [[org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter]]
+ * @see [[org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlightingVisitor]]
  * @see [[org.jetbrains.plugins.scala.codeInsight.daemon.ScalaRainbowVisitor]]
  */
 final class ScalaColorSchemeAnnotator extends Annotator {
@@ -178,66 +178,8 @@ object ScalaColorSchemeAnnotator {
           case _ =>
             highlightReferenceElement(r)
         }
-      //highlight parameter reference in named arguments
-      case NamedArgument(a: ScAssignment) =>
-        //TODO: this highlighting should be applied even when annotators are disabled and just syntax is highlighted
-        // kotlin has org.jetbrains.kotlin.idea.highlighter.BeforeResolveHighlightingVisitor
-        val parameterRefRange = a.leftExpression.getNode.getTextRange
-        val start = parameterRefRange.getStartOffset
-        val end = a.assignmentToken.map(_.endOffset).getOrElse(parameterRefRange.getEndOffset)
-        createInfoAnnotation(TextRange.create(start, end), DefaultHighlighter.NAMED_ARGUMENT)
-
-      case x: ScAnnotation => visitAnnotation(x)
-      case x: ScParameter  => visitParameter(x)
-      case x: ScTypeAlias  => visitTypeAlias(x)
-      case _ if isSoftKeyword(element) =>
-        createInfoAnnotation(element, KEYWORD)
-      case _ if element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER =>
-        ScalaColorsSchemeUtils
-          .findAttributesKeyByParent(element)
-          .foreach(createInfoAnnotation(element, _))
       case _ =>
     }
-
-  private object NamedArgument {
-    def unapply(psiElement: PsiElement): Option[ScAssignment] = psiElement match {
-      case (a: ScAssignment) & Parent(_: ScArgumentExprList) =>
-        a.leftExpression match {
-          //NOTE: this ignores underscore lambdas with assignment, that represented as an ScAssignment as well.
-          //Example: foo(_.field = null)
-          //It's a much more lightweight alternative to using ScUnderScoreSectionUtil.isUnderscoreFunction
-          case ref: ScReferenceExpression if ref.qualifier.isEmpty =>
-            Some(a)
-          case _ => None
-        }
-      case _ =>
-        None
-    }
-  }
-
-  private def isSoftKeyword(element: PsiElement): Boolean = {
-    import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.SOFT_KEYWORDS
-    SOFT_KEYWORDS.contains(element.getNode.getElementType)
-  }
-
-  private def visitAnnotation(annotation: ScAnnotation)(implicit holder: ScalaAnnotationHolder): Unit = {
-    createInfoAnnotation(annotation.getFirstChild, ANNOTATION)
-    createInfoAnnotation(annotation.annotationExpr.constructorInvocation.typeElement, ANNOTATION)
-  }
-
-  private def visitTypeAlias(typeAlias: ScTypeAlias)(implicit holder: ScalaAnnotationHolder): Unit =
-    createInfoAnnotation(typeAlias.nameId, TYPE_ALIAS)
-
-  private def visitParameter(param: ScParameter)(implicit holder: ScalaAnnotationHolder): Unit = {
-    val nameId = param.nameId
-
-    //in scala 3 there are anonymous context parameters which don't have name identifier
-    if (nameId == null)
-      return
-
-    val attributesKey = ScalaColorsSchemeUtils.parameterAttributes(param)
-    createInfoAnnotation(nameId, attributesKey)
-  }
 
   private def createInfoAnnotation(
     psiElement: PsiElement,
