@@ -5,7 +5,7 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.bsp.BspUtil
 import org.jetbrains.bsp.project.BspExternalSystemUtil
 
-import java.io.File
+import java.nio.file.Path
 
 object ScalaCliUtils {
 
@@ -16,8 +16,8 @@ object ScalaCliUtils {
     projectData.exists(_.serverDisplayName == BspServerName)
   }
 
-  def isScalaCliInstalled(workspace: File): Boolean =
-    BspUtil.checkIfToolIsInstalled(workspace, getScalaCliCommand)
+  def isScalaCliInstalled(directory: Path): Boolean =
+    BspUtil.checkIfToolIsInstalled(directory, getScalaCliCommand)
 
   /**
    * If these are tests, the Scala CLI is not installed globally - the script is only available in the project root directory,

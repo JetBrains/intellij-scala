@@ -19,7 +19,7 @@ class ScalaCliProjectInstaller extends BspProjectInstallProvider {
   override def serverName: String = "Scala CLI"
 
   override def installCommand(workspace: File): Try[Seq[String]] = {
-    val isScalaCliInstalled = ScalaCliUtils.isScalaCliInstalled(workspace)
+    val isScalaCliInstalled = ScalaCliUtils.isScalaCliInstalled(workspace.toPath)
     if (isScalaCliInstalled) {
       Success(Seq(getScalaCliCommand, "setup-ide", "."))
     } else {
