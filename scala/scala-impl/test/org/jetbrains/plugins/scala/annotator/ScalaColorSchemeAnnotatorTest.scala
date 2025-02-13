@@ -559,4 +559,24 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
         |Info((88,93),field,Scala Template var)""".stripMargin
     )
   }
+
+  def testAbstractVariables(): Unit = {
+    testAnnotations(
+      //language=Scala
+      """class Foo {
+        |  val x: Int
+        |  var y: Int
+        |}
+        |""".stripMargin,
+      Set(
+        DefaultHighlighter.VALUES,
+        DefaultHighlighter.VARIABLES,
+        DefaultHighlighter.LOCAL_VALUES,
+        DefaultHighlighter.LOCAL_VARIABLES,
+      ),
+      """Info((18,19),x,Scala Template val)
+        |Info((31,32),y,Scala Template var)""".stripMargin
+    )
+  }
+
 }

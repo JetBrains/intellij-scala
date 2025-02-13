@@ -1,10 +1,12 @@
 package org.jetbrains.plugins.scala.annotator
 
+import com.intellij.codeInsight.daemon.impl.analysis.HighlightInfoHolder
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.TypecheckerTests
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, StringExt}
-import org.jetbrains.plugins.scala.highlighter.ScalaColorSchemeAnnotator
+import org.jetbrains.plugins.scala.highlighter.{ScalaColorSchemeAnnotator, ScalaSyntaxHighlightingVisitor}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert.assertEquals
@@ -38,15 +40,24 @@ abstract class ScalaColorSchemeAnnotatorTestBase[T] extends ScalaLightCodeInsigh
 
     val scalaFile = getFile.asInstanceOf[ScalaFile]
 
-    val holder = new AnnotatorHolderExtendedMock(scalaFile)
+    val infoHolder = new HighlightInfoHolder(scalaFile)
+    val annotationHolder = new AnnotatorHolderExtendedMock(scalaFile)
 
-    scalaFile.breadthFirst().foreach { element =>
-      if (needToAnnotateElement(element)) {
-        ScalaColorSchemeAnnotator.highlightElement(element)(holder)
+    val highlightingVisitor = new ScalaSyntaxHighlightingVisitor()
+
+    highlightingVisitor.analyze(scalaFile, updateWholeFile = true, infoHolder, () => {
+      scalaFile.breadthFirst().foreach { element =>
+        if (needToAnnotateElement(element)) {
+          highlightingVisitor.visit(element)
+          ScalaColorSchemeAnnotator.highlightElement(element)(annotationHolder)
+        }
       }
-    }
+    })
 
-    holder.annotations.sortBy(_.range.getStartOffset)
+    val infoHolderAnnotations = (0 until infoHolder.size).map(infoHolder.get).map(it =>
+      Message2.Info(TextRange.create(it.getStartOffset, it.getEndOffset), text.substring(it.getStartOffset, it.getEndOffset), "", it.forcedTextAttributesKey, Seq.empty))
+
+    (infoHolderAnnotations ++ annotationHolder.annotations).sortBy(_.range.getStartOffset)
   }
 
   protected def testHasNoAnnotations(

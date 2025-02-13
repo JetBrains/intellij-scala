@@ -3,16 +3,16 @@ package org.jetbrains.plugins.scala.highlighter
 import com.intellij.openapi.editor.DefaultLanguageHighlighterColors
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.{PsiClass, PsiElement, PsiField, PsiMethod, PsiModifierListOwner}
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiMemberExt}
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScForBinding, ScFunctionExpr, ScGenerator, ScMethodCall, ScNameValuePair, ScReferenceExpression}
+import org.jetbrains.plugins.scala.extensions.{&, ObjectExt, Parent, PsiClassExt, PsiMemberExt}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause, ScReferencePattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScReference, ScStableCodeReference}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScAssignment, ScForBinding, ScFunctionExpr, ScGenerator, ScMethodCall, ScNameValuePair, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumClassCase, ScEnumSingletonCase, ScFunction, ScFunctionDeclaration, ScFunctionDefinition, ScMacroDefinition, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenDefinition.DesugaredTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScGiven, ScMember, ScObject, ScTrait}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, StdType}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocResolvableCodeReference, ScDocTagValue}
@@ -30,8 +30,8 @@ object ScalaColorsSchemeUtils {
       case c: ScClass                                 => Some(DefaultHighlighter.CLASS)
       case _: ScObject                                => Some(DefaultHighlighter.OBJECT)
       case _: ScTrait                                 => Some(DefaultHighlighter.TRAIT)
-      case x: ScBindingPattern =>
-        x.nameContext match {
+      case x @ (_: ScReferencePattern | _: ScFieldId) =>
+        x.asInstanceOf[ScNamedElement].nameContext match {
           case r@(_: ScValue | _: ScVariable) =>
             getParentByStub(r) match {
               case _: ScTemplateBody | _: ScEarlyDefinitions =>
@@ -193,4 +193,20 @@ object ScalaColorsSchemeUtils {
         m.names.headOption.orNull,
         m.getProject
       )
+
+  object NamedArgument {
+    def unapply(psiElement: PsiElement): Option[ScAssignment] = psiElement match {
+      case (a: ScAssignment) & Parent(_: ScArgumentExprList) =>
+        a.leftExpression match {
+          //NOTE: this ignores underscore lambdas with assignment, that represented as an ScAssignment as well.
+          //Example: foo(_.field = null)
+          //It's a much more lightweight alternative to using ScUnderScoreSectionUtil.isUnderscoreFunction
+          case ref: ScReferenceExpression if ref.qualifier.isEmpty =>
+            Some(a)
+          case _ => None
+        }
+      case _ =>
+        None
+    }
+  }
 }
