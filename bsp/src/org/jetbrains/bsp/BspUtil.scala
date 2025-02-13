@@ -6,6 +6,7 @@ import java.nio.file.{Path, Paths}
 import java.util.concurrent.CompletableFuture
 import com.intellij.build.events.impl.{FailureResultImpl, SkippedResultImpl, SuccessResultImpl}
 import com.intellij.execution.configurations.GeneralCommandLine
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.{Project, ProjectUtil}
@@ -18,9 +19,13 @@ import org.jetbrains.bsp.settings.BspSettings
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.BuildReporter
 
+import scala.io.Source
+import scala.jdk.CollectionConverters.SeqHasAsJava
 import scala.util.{Failure, Success, Try}
 
 object BspUtil {
+
+  private val log = Logger.getInstance(getClass)
   
   val BloopConfigDirName = ".bloop"
 
@@ -130,12 +135,42 @@ object BspUtil {
       .getOrElse(Array.empty)
       .exists(x => !x.isDirectory && fileNames.contains(x.getName))
 
-  def checkIfToolIsInstalled(workspace: File, toolCommand: String): Boolean =
-    Try {
-      val generalCommandLine = new GeneralCommandLine(toolCommand, "version")
-        .withWorkDirectory(workspace)
+  /**
+   *
+   * @param directory where the tool installation will be checked
+   */
+  def checkIfToolIsInstalled(directory: Path, toolCommand: String): Boolean = {
+    val work = runCommand(directory, toolCommand, "version")
+    work.fold(
+      exc => {
+        log.error(s"The $toolCommand is not installed in $directory - ${exc.getMessage}")
+        false
+      },
+      _ => true
+    )
+  }
+
+  /**
+   * @return Right, if the process exit value is 0; otherwise, return Left with the exception.
+   */
+  def runCommand(directory: Path, command: String*): Either[Throwable, Int] = {
+    val stderr = new StringBuilder
+    val work = Try {
+      val generalCommandLine = new GeneralCommandLine(command.asJava)
+        .withWorkDirectory(directory.toString)
       val process = generalCommandLine.toProcessBuilder.start()
-      val exitValue = process.waitFor()
-      exitValue == 0
-    }.getOrElse(false)
+      process.waitFor()
+
+      val stderrText = Source.fromInputStream(process.getErrorStream).mkString.trim
+      stderr.append(stderrText)
+
+      process.exitValue()
+    }
+
+    work match {
+      case Success(0) => Right(0)
+      case Success(_) => Left(new Exception(stderr.toString()))
+      case Failure(exc) => Left(exc)
+    }
+  }
 }
