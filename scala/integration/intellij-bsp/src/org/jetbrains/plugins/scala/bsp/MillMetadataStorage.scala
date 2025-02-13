@@ -7,14 +7,14 @@ import com.intellij.openapi.vfs.VirtualFile
 import scala.beans.BeanProperty
 
 @State(
-  name = "ScalaBspMetadataStorage",
+  name = "MillMetadataStorage",
   storages = Array(new Storage(StoragePathMacros.WORKSPACE_FILE))
 )
 @Service(Array(Service.Level.PROJECT))
 final class MillMetadataStorage extends PersistentStateComponent[MillMetadataStorage] {
 
   @BeanProperty
-  var projectFilePath: Option[VirtualFile] = None
+  var projectFilePath: String = ""
 
   override def getState: MillMetadataStorage = this
 
