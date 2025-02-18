@@ -114,22 +114,23 @@ final class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-s
     mavenProject: MavenProject
   ): Unit = {
     val compilerClasspathFull = mavenProject.getCachedValue(MavenFullCompilerClasspathKey)
-
-    val compilerBridgeBinaryJar = ScalaSdkUtils.compilerBridgeJarName(compilerVersion).flatMap { bridgeJarName =>
+    if (compilerClasspathFull != null) {
+      val compilerBridgeBinaryJar = ScalaSdkUtils.compilerBridgeJarName(compilerVersion).flatMap { bridgeJarName =>
         compilerClasspathFull.find(_.getName == bridgeJarName)
+      }
+
+      val classpath = compilerClasspathFull.diff(compilerBridgeBinaryJar.toSeq)
+
+      ScalaSdkUtils.configureScalaSdk(
+        module,
+        compilerVersion,
+        classpath,
+        scaladocExtraClasspath = Nil,
+        compilerBridgeBinaryJar,
+        sdkPrefix = "Maven",
+        modelsProvider
+      )
     }
-
-    val classpath = compilerClasspathFull.diff(compilerBridgeBinaryJar.toSeq)
-
-    ScalaSdkUtils.configureScalaSdk(
-      module,
-      compilerVersion,
-      classpath,
-      scaladocExtraClasspath = Nil,
-      compilerBridgeBinaryJar,
-      sdkPrefix = "Maven",
-      modelsProvider
-    )
   }
 
   // called before `process`
