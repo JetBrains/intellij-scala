@@ -64,11 +64,12 @@ private object Updater {
   private val ERROR_STRIPE_MARK_COLOR_KEY = Key.create[Color]("error_stripe_mark_color")
 
   private def concealErrorStripeMarksOutside(visibleRange: TextRange, markupModel: MarkupModelEx, colorScheme: EditorColorsScheme): Unit = {
+    val backgroundColor = colorScheme.getDefaultBackground
     markupModel.processRangeHighlightersOutside(visibleRange.getStartOffset, visibleRange.getEndOffset, highlighter => {
       val actualColor = highlighter.getErrorStripeMarkColor(colorScheme)
-      if (!highlighter.isThinErrorStripeMark && actualColor != null) {
+      if (!highlighter.isThinErrorStripeMark && actualColor != null && actualColor != backgroundColor) {
         highlighter.putUserData(ERROR_STRIPE_MARK_COLOR_KEY, actualColor)
-        highlighter.setErrorStripeMarkColor(null)
+        highlighter.setErrorStripeMarkColor(backgroundColor)
       }
       true
     })
