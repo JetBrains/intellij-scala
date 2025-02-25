@@ -8,11 +8,12 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.psi._
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScPackaging}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScObjectImpl
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
@@ -30,6 +31,9 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
     file match {
       case file: ScalaFile if IntentionAvailabilityChecker.checkInspection(this, file) =>
         if (file.isWorksheetFile) return null
+
+        if (file.firstPackaging.isDefined && file.elements(_.isVisible).findByType[ScPackaging].isEmpty) return null
+
         val members = file.members
         if (members.isEmpty) return null
 

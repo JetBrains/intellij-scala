@@ -4,6 +4,7 @@ import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
+import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnTwoPsiElements, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
@@ -17,6 +18,7 @@ class ScalaDocUnbalancedHeaderInspection extends LocalInspectionTool {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor =
     new ScalaElementVisitor {
       override def visitWikiSyntax(syntaxElement: ScDocSyntaxElement): Unit = {
+        if (!syntaxElement.isVisible) return
 
         val firstChild = syntaxElement.getFirstChild
         val lastChild = syntaxElement.getLastChild

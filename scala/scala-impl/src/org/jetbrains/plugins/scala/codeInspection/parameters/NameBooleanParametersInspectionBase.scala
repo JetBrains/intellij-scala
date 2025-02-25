@@ -4,6 +4,7 @@ import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, P
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.codeInsight.intention.addNameToArgumentsFix
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions._
@@ -24,6 +25,8 @@ abstract class NameBooleanParametersInspectionBase extends LocalInspectionTool {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new ScalaElementVisitor {
       override def visitMethodCallExpression(mc: ScMethodCall): Unit = {
+        if (!mc.isVisible) return
+
         if (mc.isInScala3File) return // TODO Handle Scala 3 code (`using` arguments, etc.), SCL-19602
         val argList = mc.args
         if (argList.exprs.isEmpty) return

@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.scaladoc
 
 import com.intellij.codeInspection._
 import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiErrorElement}
+import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
@@ -16,6 +17,8 @@ class ScalaDocParserErrorInspection extends LocalInspectionTool {
       }
 
       override def visitScaladocElement(element: ScalaPsiElement): Unit = {
+        if (!element.isVisible) return
+
         for (child <- element.getChildren) {
           child match {
             case a: PsiErrorElement => 

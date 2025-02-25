@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.xml
 import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElementVisitor
+import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInspection.AbstractFixOnPsiElement
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
@@ -16,6 +17,8 @@ class ScalaXmlUnmatchedTagInspection extends LocalInspectionTool{
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new ScalaElementVisitor {
       override def visitXmlStartTag(s: ScXmlStartTag): Unit = {
+        if (!s.isVisible) return
+
         if (s.getTextRange.isEmpty) return
 
         val endTag = s.getClosingTag
@@ -31,6 +34,8 @@ class ScalaXmlUnmatchedTagInspection extends LocalInspectionTool{
       }
 
       override def visitXmlEndTag(s: ScXmlEndTag): Unit = {
+        if (!s.isVisible) return
+
         val startTag = s.getOpeningTag
         def register(fixes: LocalQuickFix*): Unit = {
           holder.registerProblem(s, ScalaBundle.message("xml.no.opening.tag"), fixes: _*)

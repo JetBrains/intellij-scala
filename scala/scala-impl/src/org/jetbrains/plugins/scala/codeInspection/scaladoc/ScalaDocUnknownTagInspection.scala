@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.scaladoc
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElementVisitor
+import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
@@ -16,6 +17,8 @@ class ScalaDocUnknownTagInspection extends LocalInspectionTool {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new ScalaElementVisitor {
       override def visitTag(s: ScDocTag): Unit = {
+        if (!s.isVisible) return
+
         val tagNameElement = s.getNameElement
         assert(tagNameElement != null)
         assert(tagNameElement.getNode.getElementType == ScalaDocTokenType.DOC_TAG_NAME)

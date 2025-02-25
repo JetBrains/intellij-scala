@@ -10,6 +10,7 @@ import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.annotations.{Nls, NonNls}
+import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.quickfix.RenameElementQuickfix
 import org.jetbrains.plugins.scala.codeInspection.ui.CompilerInspectionOptions._
@@ -28,12 +29,16 @@ final class PrivateShadowInspection extends LocalInspectionTool {
   import PrivateShadowInspection._
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = new PsiElementVisitor {
-    override def visitElement(element: PsiElement): Unit = element match {
-      case elem: ScNamedElement if
-        isInspectionAllowed(elem, privateShadowCompilerOption, "-Xlint:private-shadow") &&
-          isClassParamWithoutAccessModsAndOverride(elem) && isElementShadowing(elem) =>
-        holder.registerProblem(createProblemDescriptor(elem, annotationDescription)(holder.getManager, isOnTheFly))
-      case _ =>
+    override def visitElement(element: PsiElement): Unit = {
+      if (!element.isVisible) return
+
+      element match {
+        case elem: ScNamedElement if
+          isInspectionAllowed(elem, privateShadowCompilerOption, "-Xlint:private-shadow") &&
+            isClassParamWithoutAccessModsAndOverride(elem) && isElementShadowing(elem) =>
+          holder.registerProblem(createProblemDescriptor(elem, annotationDescription)(holder.getManager, isOnTheFly))
+        case _ =>
+      }
     }
   }
 

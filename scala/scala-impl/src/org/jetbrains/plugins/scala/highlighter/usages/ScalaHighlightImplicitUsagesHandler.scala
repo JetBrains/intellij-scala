@@ -8,6 +8,7 @@ import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement, PsiReference, Ref
 import com.intellij.util.Consumer
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.highlighter.usages.ScalaHighlightImplicitUsagesHandler.TargetKind
+import org.jetbrains.plugins.scala.incremental.Highlighting.ElementHighlightingExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement.calcType
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScContextBound, ScTypeElement}
@@ -146,7 +147,7 @@ object ScalaHighlightImplicitUsagesHandler {
     }
 
     file
-      .depthFirst()
+      .elements(_.isVisible)
       .filter(inUseScope)
       .flatMap(target.refOrImplicitRefIn)
       .toSeq
