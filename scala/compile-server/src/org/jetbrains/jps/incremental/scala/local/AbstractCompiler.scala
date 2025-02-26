@@ -161,12 +161,21 @@ abstract class AbstractCompiler extends Compiler {
     }
   }
 
-  // The compiler can return a fake position such as "<macro>" in Scala 2.
-  // On Windows, this throws InvalidPathExceptions.
-  // This code snippet matches the fix for the same problem in sbt.
-  // https://youtrack.jetbrains.com/issue/SCL-23636
-  // https://github.com/sbt/sbt/issues/6720
-  // https://github.com/sbt/sbt/pull/6730
+  /**
+   * The Scala 2 compiler compiles Scala 2 macros in a compilation unit with a dummy path named `"<macro>"`.
+   * When calling [[Paths.get]] with this string as an argument, a [[java.nio.file.InvalidPathException]] is thrown
+   * on Windows.
+   *
+   * This code snippet matches the fix for the same problem in sbt.
+   * https://youtrack.jetbrains.com/issue/SCL-23636
+   * https://github.com/sbt/sbt/issues/6720
+   * https://github.com/sbt/sbt/pull/6730
+   *
+   * @param s a file path as a string
+   * @return a [[java.nio.file.Path]] instance of the same path string, if it can be converted safely
+   *
+   * @see [[scala.reflect.macros.contexts.Parsers.parse]]
+   */
   private def toSafePath(s: String): Option[Path] =
     if (s.contains("<")) None
     else Some(Paths.get(s))
