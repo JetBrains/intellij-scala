@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.compiler.diagnostics
 import xsbti._
 import xsbti.compile._
 
-import java.nio.file.Paths
+import java.nio.file.{Path, Paths}
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.function.Supplier
 import scala.jdk.CollectionConverters._
@@ -147,7 +147,7 @@ abstract class AbstractCompiler extends Compiler {
         }.toList
 
     private def logInClient(msg: String, pos: Position, kind: MessageKind, actions: List[diagnostics.Action]): Unit = {
-      val source = pos.sourcePath().map(Paths.get(_)).toScala
+      val source = pos.sourcePath().toScala.flatMap(toSafePath)
 
       // xsbti.Position#line, xsbti.Position#startLine and xsbti.Position#endLine contain 1-based line information.
       // xsbti.Position#pointer, xsbti.Position#startColumn and xsbti.Position#endColumn contain 0-based column information.
@@ -160,6 +160,16 @@ abstract class AbstractCompiler extends Compiler {
       client.message(kind, msg, source.map(_.toFile), pointer, problemStart, problemEnd, actions)
     }
   }
+
+  // The compiler can return a fake position such as "<macro>" in Scala 2.
+  // On Windows, this throws InvalidPathExceptions.
+  // This code snippet matches the fix for the same problem in sbt.
+  // https://youtrack.jetbrains.com/issue/SCL-23636
+  // https://github.com/sbt/sbt/issues/6720
+  // https://github.com/sbt/sbt/pull/6730
+  private def toSafePath(s: String): Option[Path] =
+    if (s.contains("<")) None
+    else Some(Paths.get(s))
 
   private def createPointer(position: Position): Option[PosInfo] = for {
     line <- position.line().toScala
