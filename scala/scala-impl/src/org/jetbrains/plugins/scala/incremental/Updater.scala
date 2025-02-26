@@ -8,6 +8,7 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.EditorColorsScheme
 import com.intellij.openapi.editor.ex.{EditorEx, MarkupModelEx}
+import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.psi.PsiManager
 
@@ -64,15 +65,19 @@ private object Updater {
   private val ERROR_STRIPE_MARK_COLOR_KEY = Key.create[Color]("error_stripe_mark_color")
 
   private def concealErrorStripeMarksOutside(visibleRange: TextRange, markupModel: MarkupModelEx, colorScheme: EditorColorsScheme): Unit = {
-    val backgroundColor = colorScheme.getDefaultBackground
     markupModel.processRangeHighlightersOutside(visibleRange.getStartOffset, visibleRange.getEndOffset, highlighter => {
-      val actualColor = highlighter.getErrorStripeMarkColor(colorScheme)
-      if (!highlighter.isThinErrorStripeMark && actualColor != null && actualColor != backgroundColor) {
-        highlighter.putUserData(ERROR_STRIPE_MARK_COLOR_KEY, actualColor)
-        highlighter.setErrorStripeMarkColor(backgroundColor)
-      }
+      concealErrorStripeMark(highlighter, colorScheme)
       true
     })
+  }
+
+  def concealErrorStripeMark(highlighter: RangeHighlighter, colorScheme: EditorColorsScheme): Unit = {
+    val backgroundColor = colorScheme.getDefaultBackground
+    val actualColor = highlighter.getErrorStripeMarkColor(colorScheme)
+    if (!highlighter.isThinErrorStripeMark && actualColor != null && actualColor != backgroundColor) {
+      highlighter.putUserData(ERROR_STRIPE_MARK_COLOR_KEY, actualColor)
+      highlighter.setErrorStripeMarkColor(backgroundColor)
+    }
   }
 
   private def revealErrorStripeMarksInside(visibleRange: TextRange, markupModel: MarkupModelEx): Unit = {
