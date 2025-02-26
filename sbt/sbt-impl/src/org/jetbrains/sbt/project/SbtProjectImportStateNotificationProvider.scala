@@ -4,11 +4,10 @@ import com.intellij.openapi.fileEditor.FileEditor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiManager
+import com.intellij.psi.impl.IncompleteModelUtil
 import com.intellij.ui.EditorNotificationProvider
 import com.intellij.util.concurrency.annotations.RequiresReadLock
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.project.ScalaProjectConfigurationService
-import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.codeInsight.daemon.SbtProblemHighlightFilter
 import org.jetbrains.sbt.language.SbtFile
 
@@ -32,7 +31,8 @@ private final class SbtProjectImportStateNotificationProvider extends EditorNoti
     // The sbt file is not a part of the current project, do not show any notifications.
     if (!SbtProblemHighlightFilter.shouldHighlightSbtFile(sbtFile)) return null
     // Project reload is already in progress, do not show any notifications.
-    if (ScalaProjectConfigurationService.getInstance(project).isSyncInProgress) return null
+    //noinspection ApiStatus,UnstableApiUsage
+    if (IncompleteModelUtil.isIncompleteModel(sbtFile)) return null
     // The project is fully imported, do not show any notifications.
     if (SbtProjectImportStateService.instance(project).isImported(sbtFile)) return null
 

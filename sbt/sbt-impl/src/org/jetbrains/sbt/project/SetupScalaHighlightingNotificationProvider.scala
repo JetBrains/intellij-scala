@@ -7,13 +7,14 @@ import com.intellij.openapi.fileEditor.FileEditor
 import com.intellij.openapi.module.{JavaModuleType, Module, ModuleType, ModuleUtilCore}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.impl.IncompleteModelUtil
 import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.ui.{EditorNotificationPanel, EditorNotificationProvider}
 import com.intellij.util.concurrency.annotations.{RequiresEdt, RequiresReadLock}
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.project.notification.isScalaSourceFile
 import org.jetbrains.plugins.scala.project.template.ScalaFrameworkType
-import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaProjectConfigurationService}
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.codeInsight.daemon.SbtProjectImportStateProblemHighlightFilter
 
@@ -38,10 +39,8 @@ private final class SetupScalaHighlightingNotificationProvider extends EditorNot
       // We do not track the file type of this source file, do not show any notifications.
       if (!SbtProjectImportStateProblemHighlightFilter.isTrackedFileType(file.getFileType)) return null
       // Project reload is already in progress, do not show any notifications.
-      if (ScalaProjectConfigurationService.getInstance(project).isSyncInProgress) return null
-
-      val psiFile = PsiManager.getInstance(project).findFile(file)
-      if (psiFile eq null) return null
+      //noinspection ApiStatus,UnstableApiUsage
+      if (IncompleteModelUtil.isIncompleteModel(psiFile)) return null
 
       // The currently open file is not a writable project source, do not show any notifications.
       // This check filters out files created from reconstructed VCS history,
@@ -61,7 +60,8 @@ private final class SetupScalaHighlightingNotificationProvider extends EditorNot
       val isScalaSource = isScalaSourceFile(file, project)
       if (isScalaSource && !hasDeveloperKit(file, project)) {
         // No notification while project sync is in progress
-        if (ScalaProjectConfigurationService.getInstance(project).isSyncInProgress) {
+        //noinspection ApiStatus,UnstableApiUsage
+        if (IncompleteModelUtil.isIncompleteModel(psiFile)) {
           null
         } else {
           (fileEditor: FileEditor) => createPanel(project, fileEditor)
