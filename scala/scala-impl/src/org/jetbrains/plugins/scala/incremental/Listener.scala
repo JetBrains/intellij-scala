@@ -1,11 +1,10 @@
 package org.jetbrains.plugins.scala
 package incremental
 
-import project.ProjectExt
-
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.editor.event.{EditorFactoryEvent, EditorFactoryListener, VisibleAreaEvent, VisibleAreaListener}
-import com.intellij.openapi.editor.ex.{FoldingListener, FoldingModelEx}
+import com.intellij.openapi.editor.ex.{FoldingListener, FoldingModelEx, MarkupModelEx, RangeHighlighterEx}
+import com.intellij.openapi.editor.impl.event.MarkupModelListener
 import com.intellij.openapi.editor.{Editor, EditorFactory, FoldRegion}
 import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.project.Project
@@ -17,6 +16,18 @@ class Listener extends EditorFactoryListener {
   private val MaxDoubleKeyPressDuration = 500L * 1000000L // ns (0.5 s)
 
   private var updaters = Map.empty[Editor, Updater]
+
+  private def markupModelListenerFor(editor: Editor) = new MarkupModelListener {
+    override def afterAdded(highlighter: RangeHighlighterEx): Unit = {
+      val visibleRange = VisibleRange.exactIn(editor)
+
+      if (visibleRange == null) return
+
+      if (!highlighter.getTextRange.intersects(visibleRange)) {
+        Updater.concealErrorStripeMark(highlighter, editor.getColorsScheme)
+      }
+    }
+  }
 
   private val visibleAreaListener = new VisibleAreaListener {
     override def visibleAreaChanged(e: VisibleAreaEvent): Unit = {
@@ -60,6 +71,7 @@ class Listener extends EditorFactoryListener {
   private def connectTo(editor: Editor): Unit = if (!updaters.contains(editor)) {
     val updater = new Updater(editor)
     updaters += editor -> updater
+    editor.getMarkupModel.asInstanceOf[MarkupModelEx].addMarkupModelListener(updater, markupModelListenerFor(editor))
     editor.getScrollingModel.addVisibleAreaListener(visibleAreaListener, updater)
     editor.getFoldingModel.asInstanceOf[FoldingModelEx].addListener(foldingListener, updater)
     editor.getContentComponent.addKeyListener(keyListener)
