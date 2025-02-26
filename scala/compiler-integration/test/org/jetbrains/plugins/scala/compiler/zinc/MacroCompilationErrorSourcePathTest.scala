@@ -14,11 +14,34 @@ import org.junit.experimental.categories.Category
 import scala.jdk.CollectionConverters._
 
 @Category(Array(classOf[CompilationTests]))
-abstract class MacroCompilationTestBase(incrementalityType: IncrementalityType) extends ZincTestBase {
+class MacroCompilationErrorSourcePathTest extends ZincTestBase {
 
-  override def setUp(): Unit = {
-    super.setUp()
+  def testMacroCompilationErrorSourcePath_Zinc(): Unit = {
+    runMacroCompilationErrorSourcePathTest(IncrementalityType.SBT)
+  }
 
+  def testMacroCompilationErrorSourcePath_IDEA(): Unit = {
+    runMacroCompilationErrorSourcePathTest(IncrementalityType.IDEA)
+  }
+
+  private def runMacroCompilationErrorSourcePathTest(incrementalityType: IncrementalityType): Unit = {
+    setUpSbtProject(incrementalityType)
+
+    val messages = compiler.make().asScala.toSeq
+    val errors = messages.filter(_.getCategory == CompilerMessageCategory.ERROR)
+    val errorsCount = errors.size
+    assertEquals(s"Expected 1 error message, got: $errorsCount", 1, errorsCount)
+
+    val error = errors.head
+    assertNull("The macro compilation error should not point to any particular source", error.getVirtualFile)
+
+    val message = error.getMessage
+    assertThat(message, containsString("not found: value extremelySpecificCompilationError"))
+    assertThat(message, not(containsString("java.nio.file.InvalidPathException")))
+    assertThat(message, not(containsString("<macro>")))
+  }
+
+  private def setUpSbtProject(incrementalityType: IncrementalityType): Unit = {
     createProjectSubDirs("project", "src/main/scala", "macros/src/main/scala")
     createProjectSubFile("project/build.properties", "sbt.version=1.10.7")
     createProjectSubFile("macros/src/main/scala/Macros.scala",
@@ -61,23 +84,4 @@ abstract class MacroCompilationTestBase(incrementalityType: IncrementalityType) 
     val modules = ModuleManager.getInstance(getProject).getModules
     compiler = new CompilerTester(getProject, java.util.Arrays.asList(modules: _*), null, false)
   }
-
-  def testMacroCompilationErrorSourcePath(): Unit = {
-    val messages = compiler.make().asScala.toSeq
-    val errors = messages.filter(_.getCategory == CompilerMessageCategory.ERROR)
-    val errorsCount = errors.size
-    assertEquals(s"Expected 1 error message, got: $errorsCount", 1, errorsCount)
-
-    val error = errors.head
-    assertNull(error.getVirtualFile)
-
-    val message = error.getMessage
-    assertThat(message, containsString("not found: value extremelySpecificCompilationError"))
-    assertThat(message, not(containsString("java.nio.file.InvalidPathException")))
-    assertThat(message, not(containsString("<macro>")))
-  }
 }
-
-class MacroCompilationTest_Zinc extends MacroCompilationTestBase(IncrementalityType.SBT)
-
-class MacroCompilationTest_IDEA extends MacroCompilationTestBase(IncrementalityType.IDEA)
