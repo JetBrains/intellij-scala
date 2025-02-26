@@ -3,7 +3,7 @@ package project
 
 import com.intellij.notification._
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener, ExternalSystemTaskType}
-import org.jetbrains.plugins.scala.project.ScalaProjectConfigurationService
+import org.jetbrains.plugins.scala.project.{ScalaProjectConfigurationService, ScalaProjectConfigurationUtil}
 
 // TODO Rely on the immediate UI interaction API when IDEA-123007 will be implemented
 /** @see [[ScalaProjectConfigurationService]] */
@@ -23,7 +23,7 @@ class SbtNotificationListener extends ExternalSystemTaskNotificationListener {
     val projectConfigService = ScalaProjectConfigurationService.getInstance(project)
     //noinspection ApiStatus
     projectConfigService.onSyncStarted()
-    projectConfigService.refreshEditorNotifications()
+    ScalaProjectConfigurationUtil.refreshEditorNotifications(project)
   }
 
   override def onEnd(projectPath: String, id: ExternalSystemTaskId): Unit = {
@@ -34,7 +34,7 @@ class SbtNotificationListener extends ExternalSystemTaskNotificationListener {
     val projectConfigService = ScalaProjectConfigurationService.getInstance(project)
     //noinspection ApiStatus
     projectConfigService.onSyncEnded()
-    projectConfigService.refreshEditorNotifications()
+    ScalaProjectConfigurationUtil.refreshEditorNotifications(project)
     SbtProjectImportStateService.instance(project).reset()
   }
 

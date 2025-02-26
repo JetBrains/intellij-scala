@@ -1,12 +1,8 @@
 package org.jetbrains.plugins.scala.project
 
 import com.intellij.openapi.components.Service
-import com.intellij.openapi.fileEditor.FileEditorManager
-import com.intellij.openapi.fileTypes.FileTypeRegistry
 import com.intellij.openapi.project.Project
-import com.intellij.ui.EditorNotifications
 import org.jetbrains.annotations.ApiStatus
-import org.jetbrains.plugins.scala.ScalaFileType
 
 /**
  * A service to track project sync and suppress editor notifications/highlighlings while it is in progress.
@@ -29,15 +25,6 @@ final class ScalaProjectConfigurationService(private val project: Project) {
 
   @ApiStatus.Internal
   private[jetbrains] def onSyncEnded(): Unit = syncInProgress = false
-
-  def refreshEditorNotifications(): Unit = {
-    val openFiles = FileEditorManager.getInstance(project).getOpenFiles
-    val openScalaFiles = openFiles.filter(FileTypeRegistry.getInstance.isFileOfType(_, ScalaFileType.INSTANCE))
-    if (openScalaFiles.isEmpty) return
-
-    val editorNotifications = EditorNotifications.getInstance(project)
-    openScalaFiles.foreach(editorNotifications.updateNotifications)
-  }
 }
 
 object ScalaProjectConfigurationService {
