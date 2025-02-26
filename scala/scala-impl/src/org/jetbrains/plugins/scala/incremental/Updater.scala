@@ -45,11 +45,12 @@ private class Updater(editor: Editor) extends Disposable {
     }
 
     val newlyVisibleRange = if (previousVisibleRange == null) visibleRange else visibleRange.diff(previousVisibleRange)
-
-    val document = PsiManager.getInstance(editor.getProject).findFile(editor.getVirtualFile).getViewProvider.getDocument
-    val daemon = DaemonCodeAnalyzer.getInstance(editor.getProject)
-    daemon.combineDirtyScopes(document, newlyVisibleRange)
-    daemon.stopProcess(/* restart = */ true)
+    if (!newlyVisibleRange.isEmpty) {
+      val document = PsiManager.getInstance(editor.getProject).findFile(editor.getVirtualFile).getViewProvider.getDocument
+      val daemon = DaemonCodeAnalyzer.getInstance(editor.getProject)
+      daemon.combineDirtyScopes(document, newlyVisibleRange)
+      daemon.stopProcess(/* restart = */ true)
+    }
 
     previousVisibleRange = visibleRange
   }
