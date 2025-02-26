@@ -3,7 +3,7 @@ package incremental
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.editor.event.{EditorFactoryEvent, EditorFactoryListener, VisibleAreaEvent, VisibleAreaListener}
-import com.intellij.openapi.editor.ex.{FoldingListener, FoldingModelEx, MarkupModelEx, RangeHighlighterEx}
+import com.intellij.openapi.editor.ex.{EditorEx, FoldingListener, FoldingModelEx, MarkupModelEx, RangeHighlighterEx}
 import com.intellij.openapi.editor.impl.event.MarkupModelListener
 import com.intellij.openapi.editor.{Editor, EditorFactory, FoldRegion}
 import com.intellij.openapi.extensions.ExtensionPointName
@@ -19,8 +19,19 @@ class Listener extends EditorFactoryListener {
 
   private def markupModelListenerFor(editor: Editor) = new MarkupModelListener {
     override def afterAdded(highlighter: RangeHighlighterEx): Unit = {
-      val visibleRange = VisibleRange.exactIn(editor)
+      handleEvent(highlighter)
+    }
 
+    override def attributesChanged(highlighter: RangeHighlighterEx, renderersChanged: Boolean, fontStyleChanged: Boolean): Unit = {
+      handleEvent(highlighter)
+    }
+
+    private def handleEvent(highlighter: RangeHighlighterEx): Unit = {
+      if (incremental.Highlighting.suppress) return
+
+      if (highlighter.getErrorStripeTooltip == null) return
+
+      val visibleRange = VisibleRange.exactIn(editor)
       if (visibleRange == null) return
 
       if (!highlighter.getTextRange.intersects(visibleRange)) {
@@ -71,7 +82,9 @@ class Listener extends EditorFactoryListener {
   private def connectTo(editor: Editor): Unit = if (!updaters.contains(editor)) {
     val updater = new Updater(editor)
     updaters += editor -> updater
-    editor.getMarkupModel.asInstanceOf[MarkupModelEx].addMarkupModelListener(updater, markupModelListenerFor(editor))
+    val markupModelListener = markupModelListenerFor(editor)
+    editor.getMarkupModel.asInstanceOf[MarkupModelEx].addMarkupModelListener(updater, markupModelListener)
+    editor.asInstanceOf[EditorEx].getFilteredDocumentMarkupModel.addMarkupModelListener(updater, markupModelListener)
     editor.getScrollingModel.addVisibleAreaListener(visibleAreaListener, updater)
     editor.getFoldingModel.asInstanceOf[FoldingModelEx].addListener(foldingListener, updater)
     editor.getContentComponent.addKeyListener(keyListener)
