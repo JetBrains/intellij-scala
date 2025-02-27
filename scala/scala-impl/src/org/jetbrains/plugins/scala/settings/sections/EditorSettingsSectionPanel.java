@@ -120,6 +120,9 @@ public class EditorSettingsSectionPanel extends SettingsSectionPanel {
                         ScalaProjectUtil.hasScala3(myProject) && typeCheckerScala3.getSelectedItem() == ScalaProjectSettings.TypeChecker.BuiltIn;
         incrementalHighlighting.setVisible(incrementalHighlightingAvailable);
         incrementalHighlightingHelp.setVisible(incrementalHighlightingAvailable);
+        if (!incrementalHighlightingAvailable) {
+            incrementalHighlighting.setSelected(false);
+        }
 
         useCompilerRanges.setVisible(forScala2 || forScala3);
         useCompilerRangesHelp.setVisible(forScala2 || forScala3);
