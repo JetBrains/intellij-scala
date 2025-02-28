@@ -32,7 +32,8 @@ class BspCommunicationService extends Disposable {
   private val timeout = 10.minutes
   private val cleanerPause = 10.seconds
 
-  private val comms: TrieMap[(URI, BspServerConfig), BspCommunication] = TrieMap.empty
+  private type ConnectionFileHash = Int
+  private val comms: TrieMap[(URI, BspServerConfig), (BspCommunication, ConnectionFileHash)] = TrieMap.empty
 
   private val executorService = AppExecutorUtil.getAppScheduledExecutorService
 
@@ -42,27 +43,48 @@ class BspCommunicationService extends Disposable {
   private def closeIdleSessions(): Unit = {
     val now = System.currentTimeMillis()
     comms.values.foreach { comm =>
-      if (comm.isIdle(now, timeout))
-        comm.closeSession()
+      if (comm._1.isIdle(now, timeout))
+        comm._1.closeSession()
     }
     updateWidget()
   }
 
-  private[protocol] def communicate(base: Path, config: BspServerConfig): BspCommunication =
-    comms.getOrElseUpdate(
-      (base.toCanonicalPath.toUri, config),
-      {
-        val comm = new BspCommunication(base, config)
-        Disposer.register(this, comm)
-        updateWidget()
+  private[protocol] final def communicate(base: Path, config: BspServerConfig): BspCommunication = {
+    val baseUri = base.toCanonicalPath.toUri
+    val configKey = (baseUri, config)
+    val currentHash = BspConnectionConfig.workspaceBspConfigsHash(base)
+
+    comms.get(configKey) match {
+      case Some((comm, previousHash)) if previousHash == currentHash =>
         comm
-      }
-    )
+      case Some(_) =>
+        // Configuration file changed, restart communication
+        closeCommunication(baseUri, config)
+        createAndRegisterCommunication(base, config, configKey, currentHash)
+      case None =>
+        createAndRegisterCommunication(base, config, configKey, currentHash)
+    }
+  }
+
+  private def createAndRegisterCommunication(
+    base: Path,
+    config: BspServerConfig,
+    configKey: (URI, BspServerConfig),
+    currentHash: Int
+  ): BspCommunication = {
+    val comm = new BspCommunication(base, config)
+    Disposer.register(this, comm)
+    updateWidget()
+
+    val entry = (comm, currentHash)
+    comms.put(configKey, entry)
+    comm
+  }
 
   def listOpenComms: Iterable[(URI, BspServerConfig)] = comms.keys
 
   def isAlive(base: URI, config: BspServerConfig): Boolean =
-    comms.get((base, config)).exists(_.alive)
+    comms.get((base, config)).exists(_._1.alive)
 
   /** Close BSP connection if there is an open one associated with `base`. */
   def closeCommunication(base: URI, config: BspServerConfig): Future[Unit] = {
@@ -71,7 +93,7 @@ class BspCommunicationService extends Disposable {
       .toTry
 
     Future.fromTry(tryComm)
-      .flatMap(_.closeSession())(ExecutionContext.global)
+      .flatMap(_._1.closeSession())(ExecutionContext.global)
       .map(_ => updateWidget())(ExecutionContext.global)
   }
 
@@ -79,16 +101,16 @@ class BspCommunicationService extends Disposable {
     comms.get(base, config)
       .toRight(new NoSuchElementException)
       .toTry
-      .map(_.exitCommands)
+      .map(_._1.exitCommands)
   }
 
   def closeAll: Future[Unit] = {
     import ExecutionContext.Implicits.global
-    Future.traverse(comms.values)(_.closeSession()).map(_ => updateWidget())
+    Future.traverse(comms.values)(_._1.closeSession()).map(_ => updateWidget())
   }
 
   override def dispose(): Unit = {
-    comms.values.foreach(_.closeSession())
+    comms.values.foreach(_._1.closeSession())
     commCleaner.cancel(true)
     updateWidget()
   }
@@ -98,7 +120,7 @@ class BspCommunicationService extends Disposable {
       path <- projectPath(project)
       uri = Paths.get(path).toUri
       session <- comms.view.filterKeys(_._1 == uri).values
-    } session.closeSession().map(_ => updateWidget())(ExecutionContext.global)
+    } session._1.closeSession().map(_ => updateWidget())(ExecutionContext.global)
   }
 }
 

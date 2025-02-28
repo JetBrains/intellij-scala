@@ -24,6 +24,10 @@ object BspConnectionConfig {
     }
     else List.empty
   }
+  
+  private[protocol] def workspaceBspConfigsHash(workspace: Path): Int = {
+    workspaceBspConfigs(workspace).map(f => f.hashCode()).sum
+  }
 
   /** Find all BSP connection configs for a workspace. */
   def workspaceBspConfigs(workspace: Path): List[(Path, BspConnectionDetails)] = {
