@@ -51,6 +51,11 @@
     <depends optional="true" config-file="scala-junit-integration.xml">JUnit</depends>
     <!-- <depends optional="true" config-file="packagesearch.xml">com.jetbrains.packagesearch.intellij-plugin</depends> -->
 
+    <content>
+        <!-- integrations -->
+        <module name="scalaCommunity.markdown" />
+    </content>
+
     <xi:include href="/META-INF/sbt-api.xml"/>
     <xi:include href="/META-INF/scala-plugin-common.xml"/>
     <xi:include href="/META-INF/sbt.xml"/>

@@ -63,6 +63,7 @@ lazy val scalaCommunity: sbt.Project =
       devKitIntegration % "test->test;compile->compile",
       gradleIntegration % "test->test;compile->compile",
       intelliLangIntegration % "test->test;compile->compile",
+      markdownIntegration % "test->test;compile->compile",
       mavenIntegration % "test->test;compile->compile",
       junitIntegration % "test->test;compile->compile",
       propertiesIntegration % "test->test;compile->compile",
@@ -720,6 +721,17 @@ lazy val intelliLangIntegration = newProject(
 //  addCompilerPlugin(Dependencies.macroParadise),
   intellijPlugins += "org.intellij.intelliLang".toPlugin
 )
+
+lazy val markdownIntegration =
+  newProject("markdown", file("scala/integration/markdown"))
+    .dependsOn(scalaImpl % "test->test;compile->compile")
+    .settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions,
+      idePackagePrefix := Some("org.jetbrains.plugins.scala.markdown"),
+      intellijPlugins += "org.intellij.plugins.markdown".toPlugin,
+      packageMethod := PackagingMethod.PluginModule("scalaCommunity.markdown"),
+    )
 
 lazy val mavenIntegration =
   newProject("maven", file("scala/integration/maven"))
