@@ -724,7 +724,7 @@ lazy val intelliLangIntegration = newProject(
 
 lazy val markdownIntegration =
   newProject("markdown", file("scala/integration/markdown"))
-    .dependsOn(scalaImpl % "test->test;compile->compile")
+    .dependsOn(scalaApi)
     .settings(
       scalaVersion := Versions.scala3Version,
       Compile / scalacOptions := globalScala3ScalacOptions,
