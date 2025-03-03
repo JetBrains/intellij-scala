@@ -64,6 +64,22 @@ class ScalaFilePasteProviderTest extends ScalaLightCodeInsightFixtureTestCase {
     assertSuggestedFileName("given myGiven: String = ???", "myGiven.scala")
   }
 
+  def testSuggestedFileNameFileWithoutMembersButWithPackage_WithImports(): Unit = {
+    assertSuggestedFileName(
+      """package org.example
+        |
+        |import org.example.O.*
+        |""".stripMargin, "definitions.scala")
+  }
+
+  def testSuggestedFileNameFileWithoutMembersButWithPackage_WithExports(): Unit = {
+    assertSuggestedFileName(
+      """package org.example
+        |
+        |export org.example.O.*
+        |""".stripMargin, "definitions.scala")
+  }
+
   def testSuggestedFileNameForExtensions(): Unit = {
     assertSuggestedFileName(
       """extension (s: String)
