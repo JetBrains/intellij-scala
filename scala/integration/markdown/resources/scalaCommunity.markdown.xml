@@ -1,0 +1,9 @@
+<idea-plugin package="org.jetbrains.plugins.scala.markdown">
+    <dependencies>
+        <plugin id="org.intellij.plugins.markdown"/>
+    </dependencies>
+
+    <extensions defaultExtensionNs="org.intellij.markdown">
+        <fenceLanguageProvider implementation="org.jetbrains.plugins.scala.markdown.ScalaCodeFenceLanguageProvider"/>
+    </extensions>
+</idea-plugin>
