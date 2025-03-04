@@ -43,7 +43,8 @@ class CompilerPlugin(val global: Global) extends Plugin {
               // If there's a type mismatch, the type checker replaces the tree type with an ErrorType (see TyperErrorGen.issueError)
               val tpe = if (expanded.tpe.isError) typer.typed(expandee).tpe else expanded.tpe
               val s = LiteralTypePattern.replaceAllIn(tpe.toString, _.group(1))
-              reporter.echo(expandee.pos, TypePrefix + s + TypeSuffix)
+              // echo is not binary compatible between 2.13.11 and 2.13.12 (overloading vs default argument)
+              reporter.info(expandee.pos, TypePrefix + s + TypeSuffix, force = true)
             case _ =>
           }
           super.transform(tree)
