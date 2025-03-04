@@ -500,13 +500,13 @@ lazy val compileServer =
 
 lazy val scalaCompilerPlugin_2_13: sbt.Project =
   newPlainScalaProject("compiler-plugin-2_13", file("scala/compiler-plugin/scala-2.13")).settings(
-    scalaVersion := "2.13.15", libraryDependencies += "org.scala-lang" % "scala-compiler" % "2.13.15", Compile / scalacOptions := globalScalacOptions,
+    scalaVersion := "2.13.15", libraryDependencies += "org.scala-lang" % "scala-compiler" % "2.13.15", Compile / scalacOptions := Seq("--release", "8"),
     packageMethod := PackagingMethod.Standalone("lib/jps/compiler-plugin-2.13.jar"),
   )
 
 lazy val scalaCompilerPlugin_3_3: sbt.Project =
   newPlainScalaProject("compiler-plugin-3_3", file("scala/compiler-plugin/scala-3.3")).settings(
-    scalaVersion := "3.3.4", libraryDependencies += "org.scala-lang" %% "scala3-compiler" % "3.3.4", Compile / scalacOptions := globalScala3ScalacOptions,
+    scalaVersion := "3.3.4", libraryDependencies += "org.scala-lang" %% "scala3-compiler" % "3.3.4", Compile / scalacOptions := Seq("--release", "8"),
     packageMethod := PackagingMethod.Standalone("lib/jps/compiler-plugin-3.3.jar"),
   )
 
