@@ -38,6 +38,8 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
   private val log = Logger.getInstance(classOf[BspCommunication])
 
   private val session: AtomicReference[Option[BspSession]] = new AtomicReference[Option[BspSession]](None)
+  
+  private[protocol] val connectionFileHash = BspConnectionConfig.workspaceBspConfigsHash(base)
 
   lazy val exitCommands: List[List[String]] = {
     val workspace = base.toCanonicalPath
