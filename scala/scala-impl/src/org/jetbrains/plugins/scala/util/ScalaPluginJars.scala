@@ -34,6 +34,7 @@ object ScalaPluginJars {
   val incrementalCompilerJar: Path = jpsRoot / "incremental-compiler.jar"
   val compileServerJar: Path = jpsRoot / "compile-server.jar"
   val compilerJpsJar: Path = jpsRoot / "compiler-jps.jar"
+  val compilerPluginJar_2_12: Path = jpsRoot / "compiler-plugin-2.12.jar"
   val compilerPluginJar_2_13: Path = jpsRoot / "compiler-plugin-2.13.jar"
   val compilerPluginJar_3_3: Path = jpsRoot / "compiler-plugin-3.3.jar"
 }
