@@ -180,12 +180,16 @@ private final class DocumentCompiler(project: Project) {
       // The setting is per-project rather than per-module
       if (ScalaProjectSettings.getInstance(project).isUseCompilerTypes) {
         val compilerPluginJar: Option[Path] = module.scalaLanguageLevel.flatMap {
+          case ScalaLanguageLevel.Scala_2_12 if module.scalaMinorVersion.exists(_ >= ScalaVersion.fromString("2.12.13").get) => Some(ScalaPluginJars.compilerPluginJar_2_12)
           case ScalaLanguageLevel.Scala_2_13 if module.scalaMinorVersion.exists(_ >= ScalaVersion.fromString("2.13.1").get) => Some(ScalaPluginJars.compilerPluginJar_2_13)
           case level if level >= ScalaLanguageLevel.Scala_3_3 => Some(ScalaPluginJars.compilerPluginJar_3_3)
           case _ => None
         }
         compilerPluginJar.foreach { jar =>
           scalacOptions :++= Seq("-Xplugin:" + jar.toAbsolutePath.toString, "-Xplugin-require:intellij-compiler-plugin")
+          if (module.scalaLanguageLevel.contains(ScalaLanguageLevel.Scala_2_12)) {
+            scalacOptions :+= "-Yrangepos"
+          }
         }
       }
       if (!CompilerOptions.containsStopAfter(scalacOptions)) {
