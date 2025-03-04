@@ -11,6 +11,7 @@ import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.jps.incremental.scala.remote.{CommandIds, SerializablePath, SourceScope}
 import org.jetbrains.jps.incremental.scala.{Client, DelegateClient}
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.compiler.data.{CompilerData, CompilerJarsFactory, DocumentCompilationArguments, DocumentCompilationData, IncrementalityType}
 import org.jetbrains.plugins.scala.compiler.{RemoteServerConnectorBase, RemoteServerRunner}
 import org.jetbrains.plugins.scala.editor.DocumentExt
@@ -179,7 +180,7 @@ private final class DocumentCompiler(project: Project) {
       // The setting is per-project rather than per-module
       if (ScalaProjectSettings.getInstance(project).isUseCompilerTypes) {
         val compilerPluginJar: Option[Path] = module.scalaLanguageLevel.flatMap {
-          case ScalaLanguageLevel.Scala_2_13                  => Some(ScalaPluginJars.compilerPluginJar_2_13)
+          case ScalaLanguageLevel.Scala_2_13 if module.scalaMinorVersion.exists(_ >= ScalaVersion.fromString("2.13.1").get) => Some(ScalaPluginJars.compilerPluginJar_2_13)
           case level if level >= ScalaLanguageLevel.Scala_3_3 => Some(ScalaPluginJars.compilerPluginJar_3_3)
           case _ => None
         }

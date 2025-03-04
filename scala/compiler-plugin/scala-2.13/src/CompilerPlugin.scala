@@ -20,7 +20,7 @@ class CompilerPlugin(val global: Global) extends Plugin {
   private var suppressErrors = true
 
   // Control whether to run the next phase (see Global.compileUnitsInternal)
-  global.reporter = new ForwardingReporter(global.reporter) {
+  global.reporter = new ForwardingReporter(global.reporter) { // This class is available since 2.13.1
     override def hasErrors = !suppressErrors && super.hasErrors
   }
 
