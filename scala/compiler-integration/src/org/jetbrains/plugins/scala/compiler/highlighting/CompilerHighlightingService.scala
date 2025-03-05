@@ -26,7 +26,7 @@ import org.jetbrains.bsp.BspUtil
 import org.jetbrains.bsp.project.{BspProjectTaskRunner, CustomTaskArguments}
 import org.jetbrains.jps.incremental.scala.remote.SourceScope
 import org.jetbrains.plugins.scala.build.CompilerEventReporter
-import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerIntegrationBundle, WriteScalaJpsProjectMetadataCompileTask}
+import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerIntegrationBundle}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLanguageLevel}
@@ -288,7 +288,6 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     val CompilationRequest.IncrementalRequest(fileCompilationScopes, _, _) = request
     val modules = fileCompilationScopes.values.map(_.module.findRepresentativeModuleForSharedSourceModuleOrSelf).toSet
     val sourceScope = mergeSourceScope(request)
-    WriteScalaJpsProjectMetadataCompileTask.writeJpsProjectMetadata(force = false, runInBuildManagerThread = false, project)
     IncrementalCompiler.compile(project, modules, sourceScope, client)
 
     if (!DocumentUtil.stillValid(documentVersions)) return

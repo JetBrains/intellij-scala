@@ -2,24 +2,18 @@ package org.jetbrains.jps.incremental.scala.model
 package impl
 
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.util.JDOMUtil
-import com.intellij.util.containers.FileCollectionFactory
+import com.intellij.openapi.util.{JDOMUtil, Key}
 import org.jetbrains.jps.incremental.CompileContext
-import org.jetbrains.jps.incremental.scala.model.impl.JpsScalaProjectMetadataExtensionServiceImpl.Log
 import org.jetbrains.jps.incremental.scala.{ScalaJpsProjectMetadataConstants, SettingsManager}
 import org.jetbrains.jps.model.module.JpsModule
 
 import java.nio.file.Path
-import java.util.concurrent.locks.{Lock, ReentrantLock}
-import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
 private final class JpsScalaProjectMetadataExtensionServiceImpl extends JpsScalaProjectMetadataExtensionService {
 
-  private val loadedConfigs: mutable.Map[Path, Set[String]] = FileCollectionFactory.createCanonicalPathMap[Set[String]]().asScala
-
-  private val lock: Lock = new ReentrantLock()
+  import JpsScalaProjectMetadataExtensionServiceImpl.{Log, ModulesWithScalaSdkKey}
 
   override def projectHasScala(context: CompileContext): Boolean =
     loadConfig(context).nonEmpty
@@ -30,12 +24,22 @@ private final class JpsScalaProjectMetadataExtensionServiceImpl extends JpsScala
   }
 
   private def loadConfig(context: CompileContext): Set[String] = {
-    val paths = context.getProjectDescriptor.dataManager.getDataPaths
-    val dataStorageDir = paths.getDataStorageDir
-    val configFilePath = dataStorageDir.resolve(ScalaJpsProjectMetadataConstants.ScalaJpsProjectMetadataFileName)
-    lock.lock()
-    try loadedConfigs.getOrElseUpdate(configFilePath, computeConfig(configFilePath, context))
-    finally lock.unlock()
+    val alreadyComputedModules = context.getUserData(ModulesWithScalaSdkKey)
+    if (alreadyComputedModules ne null) return alreadyComputedModules
+
+    val forceManualSearch = JpsScalaProjectMetadataExtensionService.isCBH(context)
+
+    val modulesWithScalaSdk =
+      if (forceManualSearch) manualSearchFallback(context)
+      else {
+        val paths = context.getProjectDescriptor.dataManager.getDataPaths
+        val dataStorageDir = paths.getDataStorageDir
+        val configFilePath = dataStorageDir.resolve(ScalaJpsProjectMetadataConstants.ScalaJpsProjectMetadataFileName)
+        computeConfig(configFilePath, context)
+      }
+
+    context.putUserData(ModulesWithScalaSdkKey, modulesWithScalaSdk)
+    modulesWithScalaSdk
   }
 
   private def computeConfig(configFilePath: Path, context: CompileContext): Set[String] =
@@ -62,5 +66,7 @@ private final class JpsScalaProjectMetadataExtensionServiceImpl extends JpsScala
 }
 
 private object JpsScalaProjectMetadataExtensionServiceImpl {
-  val Log: Logger = Logger.getInstance(classOf[JpsScalaProjectMetadataExtensionServiceImpl])
+  private val Log: Logger = Logger.getInstance(classOf[JpsScalaProjectMetadataExtensionServiceImpl])
+
+  private val ModulesWithScalaSdkKey: Key[Set[String]] = Key.create("jps.scala.modulesWithScalaSdk")
 }

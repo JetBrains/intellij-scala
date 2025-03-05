@@ -8,7 +8,7 @@ import org.jetbrains.jps.builders.storage.BuildDataCorruptedException
 import org.jetbrains.jps.incremental._
 import org.jetbrains.jps.incremental.resources.ResourcesBuilder
 import org.jetbrains.jps.incremental.scala.data.CompilerDataFactory
-import org.jetbrains.jps.incremental.scala.model.JpsScalaProjectMetadataExtensionService.projectHasScala
+import org.jetbrains.jps.incremental.scala.model.JpsScalaProjectMetadataExtensionService.{isCBH, projectHasScala}
 import org.jetbrains.jps.model.java.JpsJavaExtensionService
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 
@@ -69,8 +69,7 @@ class InitialScalaBuilder extends ModuleLevelBuilder(BuilderCategory.INITIAL) { 
         case Some(_) =>
           // Not a full rebuild, and incremental compiler setting has been changed since the last build, forcing a rebuild
           Log.info("Previous incremental compiler setting does not match current project setting and the build is not a full rebuild, forcing a project rebuild")
-          val isCBH = Option(context.getBuilderParameter(BuildParameters.BuildTriggeredByCBH)).flatMap(_.toBooleanOption).getOrElse(false)
-          if (isCBH) {
+          if (isCBH(context)) {
             // Compiler based highlighting specific workaround. Because of the way we create the compilation scopes in
             // CBH to be as minimal as possible, JPS does not propagate the rebuild requested exception that we throw
             // in this case. This might be a bug, I plan to speak to the JPS team about this.

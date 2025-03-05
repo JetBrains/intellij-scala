@@ -17,29 +17,24 @@ import java.nio.file.{Files, Path, StandardOpenOption}
 import scala.util.Using
 
 private final class WriteScalaJpsProjectMetadataCompileTask extends ScalaCompileTask {
-  import WriteScalaJpsProjectMetadataCompileTask._
+  import WriteScalaJpsProjectMetadataCompileTask.Log
 
   override protected def run(context: CompileContext): Boolean = {
-    writeJpsProjectMetadata(force = context.isRebuild, runInBuildManagerThread = true, context.getProject)
+    writeJpsProjectMetadata(force = context.isRebuild, context.getProject)
     true
   }
 
   override protected def presentableName: String = "Writing Scala JPS project metadata to disk"
 
   override protected def log: Logger = Log
-}
-
-private[compiler] object WriteScalaJpsProjectMetadataCompileTask {
-  val Log: Logger = Logger.getInstance(classOf[WriteScalaJpsProjectMetadataCompileTask])
 
   /**
    * Writes the Scala project metadata to disk which the JPS process expects while runinng the build.
    *
    * @param force write the latest project metadata regardless of the previous state on disk
-   * @param runInBuildManagerThread `true` for regular builds, `false` for CBH
    * @param project the project instance
    */
-  def writeJpsProjectMetadata(force: Boolean, runInBuildManagerThread: Boolean, project: Project): Unit = {
+  private def writeJpsProjectMetadata(force: Boolean, project: Project): Unit = {
     val buildManager = BuildManager.getInstance()
     val projectSystemDirectory = buildManager.getProjectSystemDir(project)
 
@@ -89,13 +84,13 @@ private[compiler] object WriteScalaJpsProjectMetadataCompileTask {
       }
     }
 
-    if (runInBuildManagerThread) {
-      buildManager.runCommand(writeToDiskTask)
-    } else {
-      writeToDiskTask.run()
-    }
+    buildManager.runCommand(writeToDiskTask)
   }
 
   private def readLastCrcFromDisk(crcFilePath: Path): Long =
     Using.resource(new DataInputStream(Files.newInputStream(crcFilePath, StandardOpenOption.READ)))(_.readLong())
+}
+
+private object WriteScalaJpsProjectMetadataCompileTask {
+  private val Log: Logger = Logger.getInstance(classOf[WriteScalaJpsProjectMetadataCompileTask])
 }

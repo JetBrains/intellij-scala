@@ -2,6 +2,7 @@ package org.jetbrains.jps.incremental.scala.model
 
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.incremental.CompileContext
+import org.jetbrains.jps.incremental.scala.BuildParameters
 import org.jetbrains.jps.model.module.JpsModule
 import org.jetbrains.jps.service.JpsServiceManager
 
@@ -36,4 +37,7 @@ object JpsScalaProjectMetadataExtensionService {
 
   def projectHasScala(context: CompileContext): Boolean =
     instance().projectHasScala(context)
+
+  def isCBH(context: CompileContext): Boolean =
+    Option(context.getBuilderParameter(BuildParameters.BuildTriggeredByCBH)).flatMap(_.toBooleanOption).getOrElse(false)
 }
