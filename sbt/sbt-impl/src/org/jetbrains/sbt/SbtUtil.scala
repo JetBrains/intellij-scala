@@ -330,7 +330,8 @@ object SbtUtil {
         // After the Scala plugin is installed, the project will initially have an empty `externalRootProjectPath` until
         // it is imported as an sbt project using the external system machinery.
         val message = s"Can't calculate external root project path for project `${project.getName}`, fallback to `ProjectUtil.guessProjectDir`"
-        log.warn(message)
+        if (!isInTest)
+          log.warn(message)
         Option(ProjectUtil.guessProjectDir(project)).map(_.getCanonicalPath)
       }
   }
