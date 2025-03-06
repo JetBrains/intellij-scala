@@ -80,19 +80,28 @@ class CompilerMessageKindsTest {
   }
 
   @Test
-  def warningUnusedImportFatalWarningsWithFlag(): Unit = {
+  def upgradeWarningUnusedImportFatalWarningsWithFlag(): Unit = {
     val text = "Unused import"
     val kind = MessageKind.Warning
-    val expected = HighlightInfoType.WARNING
+    val expected = HighlightInfoType.ERROR
     val actual = CompilerMessageKinds.highlightInfoType(kind, text, fatalWarningsFlag = true, unusedImportsFlag = true)
     assertEquals(expected, actual)
   }
 
   @Test
-  def warningUnusedImportWerrorWithFlag(): Unit = {
+  def warningUnusedImportNoFatalWarningsWithFlag(): Unit = {
     val text = "Unused import"
     val kind = MessageKind.Warning
     val expected = HighlightInfoType.WARNING
+    val actual = CompilerMessageKinds.highlightInfoType(kind, text, fatalWarningsFlag = false, unusedImportsFlag = true)
+    assertEquals(expected, actual)
+  }
+
+  @Test
+  def upgradeWarningUnusedImportWerrorWithFlag(): Unit = {
+    val text = "Unused import"
+    val kind = MessageKind.Warning
+    val expected = HighlightInfoType.ERROR
     val actual = CompilerMessageKinds.highlightInfoType(kind, text, fatalWarningsFlag = true, unusedImportsFlag = true)
     assertEquals(expected, actual)
   }
@@ -121,6 +130,15 @@ class CompilerMessageKindsTest {
     val kind = MessageKind.Warning
     val expected = HighlightInfoType.WARNING
     val actual = CompilerMessageKinds.highlightInfoType(kind, text, fatalWarningsFlag = false, unusedImportsFlag = false)
+    assertEquals(expected, actual)
+  }
+
+  @Test
+  def upgradeRegularWarningToErrorFatalWarnings(): Unit = {
+    val text = "Some random compiler warning"
+    val kind = MessageKind.Warning
+    val expected = HighlightInfoType.ERROR
+    val actual = CompilerMessageKinds.highlightInfoType(kind, text, fatalWarningsFlag = true, unusedImportsFlag = false)
     assertEquals(expected, actual)
   }
 

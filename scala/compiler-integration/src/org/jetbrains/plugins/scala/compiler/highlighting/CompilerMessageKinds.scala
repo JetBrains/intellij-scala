@@ -23,13 +23,18 @@ private object CompilerMessageKinds {
     case MessageKind.Error =>
       HighlightInfoType.ERROR
     case MessageKind.Warning if isUnusedImportMessage(text) =>
-      if (unusedImportsFlag) {
-        // The project has enabled unused imports. Keep the warning.
+      if (fatalWarningsFlag && unusedImportsFlag) {
+        // The project has enabled fatal warnings and unused imports. We need to report an error here.
+        HighlightInfoType.ERROR
+      } else if (unusedImportsFlag) {
+        // The project has enabled unused imports, and fatal warnings are not enabled. Keep the warning.
         HighlightInfoType.WARNING
       } else {
         // Silent unused imports added by us.
         HighlightInfoType.UNUSED_SYMBOL
       }
+    case MessageKind.Warning if fatalWarningsFlag =>
+      HighlightInfoType.ERROR
     case MessageKind.Warning =>
       HighlightInfoType.WARNING
     case MessageKind.Info =>
