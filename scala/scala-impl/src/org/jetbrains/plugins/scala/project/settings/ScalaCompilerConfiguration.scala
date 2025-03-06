@@ -180,9 +180,3 @@ object ScalaCompilerConfiguration extends SimpleModificationTracker {
   override def incModificationCount(): Unit = super.incModificationCount()
 
 }
-
-trait CompilerProfileAwareModule {
-  this: Module =>
-
-  def compilerProfileName: String
-}

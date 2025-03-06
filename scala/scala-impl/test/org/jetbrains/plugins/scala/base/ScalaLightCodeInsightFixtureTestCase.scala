@@ -81,7 +81,10 @@ abstract class ScalaLightCodeInsightFixtureTestCase
 
   protected def projectJdk: Sdk = IdeaTestUtil.getMockJdk(JavaVersion.compose(17))
 
-  override protected def getProjectDescriptor: LightProjectDescriptor = new ScalaLightProjectDescriptor(sharedProjectToken) {
+  override protected def getProjectDescriptor: LightProjectDescriptor = new MyProjectDescriptor()
+
+  protected class MyProjectDescriptor extends ScalaLightProjectDescriptor(sharedProjectToken) {
+
     override def tuneModule(module: Module, project: Project): Unit = {
       afterSetUpProject(project, module)
     }
@@ -94,6 +97,7 @@ abstract class ScalaLightCodeInsightFixtureTestCase
       else
         JavaSourceRootType.SOURCE
   }
+
 
   protected def placeSourceFilesInTestContentRoot: Boolean = false
 
