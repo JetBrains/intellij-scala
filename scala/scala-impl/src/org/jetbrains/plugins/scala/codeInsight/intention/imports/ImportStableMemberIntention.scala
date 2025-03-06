@@ -33,7 +33,12 @@ class ImportStableMemberIntention extends PsiElementBaseIntentionAction {
 object ImportStableMemberIntention {
   def invokeOn(ref: ScReference)(implicit project: Project): Unit = {
     if (ref == null || !checkReference(ref)) return
-    ref.resolve() match {
+    val element = ref.resolve() match {
+      case constructor: PsiMethod if constructor.isConstructor => constructor.containingClass
+      case e => e
+    }
+
+    element match {
       case named: PsiNamedElement =>
         val importHolder = ScImportsHolder(ref)
         val usages = ReferencesSearch.search(named, new LocalSearchScope(importHolder)).findAll()
