@@ -110,7 +110,12 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
 
   private def kindToHighlightInfoType(kind: MessageKind, text: String, virtualFile: VirtualFile): HighlightInfoType = {
     val scalacOptions = scalacOptionsForFile(virtualFile)
-    CompilerMessageKinds.highlightInfoType(kind, text, scalacOptions)
+    CompilerMessageKinds.highlightInfoType(
+      kind = kind,
+      text = text,
+      fatalWarningsFlag = CompilerOptions.containsFatalWarnings(scalacOptions),
+      unusedImportsFlag = CompilerOptions.containsUnusedImports(scalacOptions)
+    )
   }
 
   private def scalacOptionsForFile(virtualFile: VirtualFile): Seq[String] = {

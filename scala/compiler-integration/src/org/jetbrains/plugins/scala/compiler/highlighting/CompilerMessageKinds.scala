@@ -5,13 +5,11 @@ import org.apache.commons.lang3.StringUtils
 import org.jetbrains.jps.incremental.scala.MessageKind
 
 private object CompilerMessageKinds {
-  def highlightInfoType(kind: MessageKind, text: String, scalacOptions: Seq[String]): HighlightInfoType = kind match {
+  def highlightInfoType(kind: MessageKind, text: String, fatalWarningsFlag: Boolean, unusedImportsFlag: Boolean): HighlightInfoType = kind match {
     case MessageKind.Error if isErrorMessageAboutWrongRef(text) =>
       HighlightInfoType.WRONG_REF
     case MessageKind.Error if isUnusedImportMessage(text) =>
-      val fatalWarnings = CompilerOptions.containsFatalWarnings(scalacOptions)
-      val unusedImports = CompilerOptions.containsUnusedImports(scalacOptions)
-      if (fatalWarnings && unusedImports) {
+      if (fatalWarningsFlag && unusedImportsFlag) {
         // The project has enabled fatal warnings and unused imports. We need to report an error here.
         HighlightInfoType.ERROR
       } else {
@@ -25,8 +23,7 @@ private object CompilerMessageKinds {
     case MessageKind.Error =>
       HighlightInfoType.ERROR
     case MessageKind.Warning if isUnusedImportMessage(text) =>
-      val unusedImports = CompilerOptions.containsUnusedImports(scalacOptions)
-      if (unusedImports) {
+      if (unusedImportsFlag) {
         // The project has enabled unused imports. Keep the warning.
         HighlightInfoType.WARNING
       } else {

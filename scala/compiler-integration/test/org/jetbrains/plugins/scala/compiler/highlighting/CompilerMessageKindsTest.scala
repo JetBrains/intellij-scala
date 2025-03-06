@@ -12,7 +12,7 @@ class CompilerMessageKindsTest {
     val text = "Value myValue is not a member of MyType"
     val kind = MessageKind.Error
     val expected = HighlightInfoType.WRONG_REF
-    val actual = CompilerMessageKinds.highlightInfoType(kind, text, scalacOptions = Seq.empty)
+    val actual = CompilerMessageKinds.highlightInfoType(kind, text, fatalWarningsFlag = false, unusedImportsFlag = false)
     assertEquals(expected, actual)
   }
 
@@ -21,7 +21,7 @@ class CompilerMessageKindsTest {
     val text = "Not found: myValue"
     val kind = MessageKind.Error
     val expected = HighlightInfoType.WRONG_REF
-    val actual = CompilerMessageKinds.highlightInfoType(kind, text, scalacOptions = Seq.empty)
+    val actual = CompilerMessageKinds.highlightInfoType(kind, text, fatalWarningsFlag = false, unusedImportsFlag = false)
     assertEquals(expected, actual)
   }
 
@@ -30,47 +30,43 @@ class CompilerMessageKindsTest {
     val text = "Cannot find symbol myValue"
     val kind = MessageKind.Error
     val expected = HighlightInfoType.WRONG_REF
-    val actual = CompilerMessageKinds.highlightInfoType(kind, text, scalacOptions = Seq.empty)
+    val actual = CompilerMessageKinds.highlightInfoType(kind, text, fatalWarningsFlag = false, unusedImportsFlag = false)
     assertEquals(expected, actual)
   }
 
   @Test
   def errorUnusedImportFatalWarningsWithFlag(): Unit = {
     val text = "Unused import"
-    val scalacOptions = Seq("-Xfatal-warnings", "-Wunused:privates,locals", "-Wunused:explicits,imports,implicits", "-Wunused:params,patvars")
     val kind = MessageKind.Error
     val expected = HighlightInfoType.ERROR
-    val actual = CompilerMessageKinds.highlightInfoType(kind, text, scalacOptions)
+    val actual = CompilerMessageKinds.highlightInfoType(kind, text, fatalWarningsFlag = true, unusedImportsFlag = true)
     assertEquals(expected, actual)
   }
 
   @Test
   def errorUnusedImportWerrorWithFlag(): Unit = {
     val text = "Unused import"
-    val scalacOptions = Seq("-Werror", "-Wunused:privates,locals", "-Wunused:explicits,imports,implicits", "-Wunused:params,patvars")
     val kind = MessageKind.Error
     val expected = HighlightInfoType.ERROR
-    val actual = CompilerMessageKinds.highlightInfoType(kind, text, scalacOptions)
+    val actual = CompilerMessageKinds.highlightInfoType(kind, text, fatalWarningsFlag = true, unusedImportsFlag = true)
     assertEquals(expected, actual)
   }
 
   @Test
   def errorUnusedImportNoFlag(): Unit = {
     val text = "Unused import"
-    val scalacOptions = Seq("-Xfatal-warnings", "-Wunused:privates,locals", "-Wunused:params,patvars")
     val kind = MessageKind.Error
     val expected = HighlightInfoType.UNUSED_SYMBOL
-    val actual = CompilerMessageKinds.highlightInfoType(kind, text, scalacOptions)
+    val actual = CompilerMessageKinds.highlightInfoType(kind, text, fatalWarningsFlag = true, unusedImportsFlag = false)
     assertEquals(expected, actual)
   }
 
   @Test
   def errorUnusedImportNoFatalWarningsNoFlag(): Unit = {
     val text = "Unused import"
-    val scalacOptions = Seq("-Wunused:privates,locals", "-Wunused:params,patvars")
     val kind = MessageKind.Error
     val expected = HighlightInfoType.UNUSED_SYMBOL
-    val actual = CompilerMessageKinds.highlightInfoType(kind, text, scalacOptions)
+    val actual = CompilerMessageKinds.highlightInfoType(kind, text, fatalWarningsFlag = false, unusedImportsFlag = false)
     assertEquals(expected, actual)
   }
 
@@ -79,47 +75,43 @@ class CompilerMessageKindsTest {
     val text = "Some random compiler error"
     val kind = MessageKind.Error
     val expected = HighlightInfoType.ERROR
-    val actual = CompilerMessageKinds.highlightInfoType(kind, text, scalacOptions = Seq.empty)
+    val actual = CompilerMessageKinds.highlightInfoType(kind, text, fatalWarningsFlag = false, unusedImportsFlag = false)
     assertEquals(expected, actual)
   }
 
   @Test
   def warningUnusedImportFatalWarningsWithFlag(): Unit = {
     val text = "Unused import"
-    val scalacOptions = Seq("-Xfatal-warnings", "-Wunused:privates,locals", "-Wunused:explicits,imports,implicits", "-Wunused:params,patvars")
     val kind = MessageKind.Warning
     val expected = HighlightInfoType.WARNING
-    val actual = CompilerMessageKinds.highlightInfoType(kind, text, scalacOptions)
+    val actual = CompilerMessageKinds.highlightInfoType(kind, text, fatalWarningsFlag = true, unusedImportsFlag = true)
     assertEquals(expected, actual)
   }
 
   @Test
   def warningUnusedImportWerrorWithFlag(): Unit = {
     val text = "Unused import"
-    val scalacOptions = Seq("-Werror", "-Wunused:privates,locals", "-Wunused:explicits,imports,implicits", "-Wunused:params,patvars")
     val kind = MessageKind.Warning
     val expected = HighlightInfoType.WARNING
-    val actual = CompilerMessageKinds.highlightInfoType(kind, text, scalacOptions)
+    val actual = CompilerMessageKinds.highlightInfoType(kind, text, fatalWarningsFlag = true, unusedImportsFlag = true)
     assertEquals(expected, actual)
   }
 
   @Test
   def warningUnusedImportNoFlag(): Unit = {
     val text = "Unused import"
-    val scalacOptions = Seq("-Xfatal-warnings", "-Wunused:privates,locals", "-Wunused:params,patvars")
     val kind = MessageKind.Warning
     val expected = HighlightInfoType.UNUSED_SYMBOL
-    val actual = CompilerMessageKinds.highlightInfoType(kind, text, scalacOptions)
+    val actual = CompilerMessageKinds.highlightInfoType(kind, text, fatalWarningsFlag = true, unusedImportsFlag = false)
     assertEquals(expected, actual)
   }
 
   @Test
   def warningUnusedImportNoFatalWarningsNoFlag(): Unit = {
     val text = "Unused import"
-    val scalacOptions = Seq("-Wunused:privates,locals", "-Wunused:params,patvars")
     val kind = MessageKind.Warning
     val expected = HighlightInfoType.UNUSED_SYMBOL
-    val actual = CompilerMessageKinds.highlightInfoType(kind, text, scalacOptions)
+    val actual = CompilerMessageKinds.highlightInfoType(kind, text, fatalWarningsFlag = false, unusedImportsFlag = false)
     assertEquals(expected, actual)
   }
 
@@ -128,7 +120,7 @@ class CompilerMessageKindsTest {
     val text = "Some random compiler warning"
     val kind = MessageKind.Warning
     val expected = HighlightInfoType.WARNING
-    val actual = CompilerMessageKinds.highlightInfoType(kind, text, scalacOptions = Seq.empty)
+    val actual = CompilerMessageKinds.highlightInfoType(kind, text, fatalWarningsFlag = false, unusedImportsFlag = false)
     assertEquals(expected, actual)
   }
 
@@ -137,7 +129,7 @@ class CompilerMessageKindsTest {
     val text = "Some random compiler info"
     val kind = MessageKind.Info
     val expected = HighlightInfoType.WEAK_WARNING
-    val actual = CompilerMessageKinds.highlightInfoType(kind, text, scalacOptions = Seq.empty)
+    val actual = CompilerMessageKinds.highlightInfoType(kind, text, fatalWarningsFlag = false, unusedImportsFlag = false)
     assertEquals(expected, actual)
   }
 
@@ -146,7 +138,7 @@ class CompilerMessageKindsTest {
     val text = "Some random compiler internal builder error"
     val kind = MessageKind.InternalBuilderError
     val expected = HighlightInfoType.INFORMATION
-    val actual = CompilerMessageKinds.highlightInfoType(kind, text, scalacOptions = Seq.empty)
+    val actual = CompilerMessageKinds.highlightInfoType(kind, text, fatalWarningsFlag = false, unusedImportsFlag = false)
     assertEquals(expected, actual)
   }
 
@@ -155,7 +147,7 @@ class CompilerMessageKindsTest {
     val text = "Some random jps info"
     val kind = MessageKind.JpsInfo
     val expected = HighlightInfoType.INFORMATION
-    val actual = CompilerMessageKinds.highlightInfoType(kind, text, scalacOptions = Seq.empty)
+    val actual = CompilerMessageKinds.highlightInfoType(kind, text, fatalWarningsFlag = false, unusedImportsFlag = false)
     assertEquals(expected, actual)
   }
 
@@ -164,7 +156,7 @@ class CompilerMessageKindsTest {
     val text = "Some random progress message"
     val kind = MessageKind.Progress
     val expected = HighlightInfoType.INFORMATION
-    val actual = CompilerMessageKinds.highlightInfoType(kind, text, scalacOptions = Seq.empty)
+    val actual = CompilerMessageKinds.highlightInfoType(kind, text, fatalWarningsFlag = false, unusedImportsFlag = false)
     assertEquals(expected, actual)
   }
 
@@ -173,7 +165,7 @@ class CompilerMessageKindsTest {
     val text = "Some random other message"
     val kind = MessageKind.Other
     val expected = HighlightInfoType.INFORMATION
-    val actual = CompilerMessageKinds.highlightInfoType(kind, text, scalacOptions = Seq.empty)
+    val actual = CompilerMessageKinds.highlightInfoType(kind, text, fatalWarningsFlag = false, unusedImportsFlag = false)
     assertEquals(expected, actual)
   }
 }
