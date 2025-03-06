@@ -192,4 +192,34 @@ abstract class ImportStableMemberIntentionBaseTest extends ScalaIntentionTestBas
     checkIntentionIsNotAvailable(text)
   }
 
+  // SCL-23083
+  def testResolvesToConstructor(): Unit = {
+    val text =
+      s"""object A {
+        |  println(new scala.util.matching.${CARET}Regex(???))
+        |}""".stripMargin
+    val result =
+      s"""import scala.util.matching.Regex
+        |
+        |object A {
+        |  println(new ${CARET}Regex(???))
+        |}""".stripMargin
+    doTest(text, result)
+  }
+
+  // SCL-23083
+  def testResolvesToJavaConstructor(): Unit = {
+    val text =
+      s"""object A {
+         |  println(new java.util.${CARET}Random(???))
+         |}""".stripMargin
+    val result =
+      s"""import java.util.Random
+         |
+         |object A {
+         |  println(new ${CARET}Random(???))
+         |}""".stripMargin
+    doTest(text, result)
+  }
+
 }

@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.codeInsight.intention.imports
 
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
@@ -35,15 +36,21 @@ object ImportMembersUtil {
     }
   }
 
-  def resolvesToStablePath(ref: ScReference): Boolean = {
+  def resolvesToStablePath(@Nullable ref: ScReference): Boolean = {
     if (ref == null) return false
 
-    ref.resolve() match {
+    @tailrec
+    def inner(@Nullable element: PsiElement): Boolean = element match {
+      case null => false
+      case constructor: PsiMethod if constructor.isConstructor =>
+        inner(constructor.containingClass)
       case (member: PsiMember) & (named: PsiNamedElement) =>
         ScalaPsiUtil.hasStablePath(named) && (member.hasModifierProperty(PsiModifier.STATIC) || member.containingClass == null)
       case named: PsiNamedElement => ScalaPsiUtil.hasStablePath(named)
       case _ => false
     }
+
+    inner(ref.resolve())
   }
 
   @tailrec
