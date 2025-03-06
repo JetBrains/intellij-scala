@@ -260,7 +260,11 @@ private final class ExternalHighlightersService(project: Project) { self =>
           val unusedImportRange = unusedImportElementRange(leaf)
           if (unusedImportRange != null) {
             // modify highlighting info to mimic Scala 2 unused import highlighting in Scala 3
-            highlightInfoBuilder(document, HighlightInfoType.UNUSED_SYMBOL, unusedImportRange, ScalaInspectionBundle.message("unused.import.statement"), Nil)
+            val infoType =
+              if (highlighting.highlightType == HighlightInfoType.ERROR) HighlightInfoType.ERROR
+              else HighlightInfoType.UNUSED_SYMBOL
+
+            highlightInfoBuilder(document, infoType, unusedImportRange, ScalaInspectionBundle.message("unused.import.statement"), Nil)
               .registerFix(new ScalaOptimizeImportsFix, null, null, unusedImportRange, null)
           } else standardBuilder
         } else if (highlighting.diagnostics.isEmpty && CompilerMessages.isNeedsToBeAbstract(description)) {
