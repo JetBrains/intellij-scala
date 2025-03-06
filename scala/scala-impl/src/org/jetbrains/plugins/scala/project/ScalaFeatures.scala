@@ -187,7 +187,7 @@ object ScalaFeatures {
 
   private val ScalaVersion_2_12_2 = ScalaVersion.Latest.Scala_2_12.withMinor(2)
 
-  def deserializeFromInt(bits: Int): SerializableScalaFeatures = new SerializableScalaFeatures(bits)
+  def deserializeFromInt(bits: Int): ScalaFeatures = new SerializableScalaFeatures(bits)
 
   def apply(
     version: ScalaVersion,
