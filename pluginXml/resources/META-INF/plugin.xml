@@ -63,6 +63,7 @@
         <module name="scalaCommunity.compiler-integration" />
 
         <!-- integrations -->
+        <module name="scalaCommunity.intellij-bazel" />
         <module name="scalaCommunity.markdown" />
         <module name="scalaCommunity.maven" />
     </content>

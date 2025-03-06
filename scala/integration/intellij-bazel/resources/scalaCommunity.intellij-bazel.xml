@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<idea-plugin>
+    <dependencies>
+        <plugin id="org.jetbrains.bazel"/>
+    </dependencies>
+
+    <extensions defaultExtensionNs="org.jetbrains.bazel">
+        <scalaSdkExtension implementation="org.jetbrains.plugins.scala.bazel.ScalaSdkExtensionImpl"/>
+    </extensions>
+</idea-plugin>

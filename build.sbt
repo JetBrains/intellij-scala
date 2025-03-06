@@ -67,6 +67,7 @@ lazy val scalaCommunity: sbt.Project =
       testingSupport % "test->test;compile->compile",
       devKitIntegration % "test->test;compile->compile",
       gradleIntegration % "test->test;compile->compile",
+      intellijBazelIntegration % "test->test;compile->compile",
       intelliLangIntegration % "test->test;compile->compile",
       markdownIntegration % "test->test;compile->compile",
       mavenIntegration % "test->test;compile->compile",
@@ -795,6 +796,14 @@ lazy val gradleIntegration =
         "com.intellij.gradle",     // required by Android
         "org.intellij.groovy",     // required by Gradle
         "com.intellij.properties").map(_.toPlugin) // required by Gradle
+    )
+
+lazy val intellijBazelIntegration =
+  newProject("intellij-bazel", file("scala/integration/intellij-bazel"))
+    .dependsOn(scalaImpl, sbtImpl)
+    .settings(
+      intellijPlugins += "org.jetbrains.bazel::nightly".toPlugin,
+      packageMethod := PackagingMethod.PluginModule("scalaCommunity.intellij-bazel")
     )
 
 lazy val intelliLangIntegration = newProject(
