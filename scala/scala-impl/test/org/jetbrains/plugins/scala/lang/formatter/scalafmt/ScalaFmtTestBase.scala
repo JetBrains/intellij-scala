@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.formatter.scalafmt
 
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.StandardFileSystems
 import com.intellij.testFramework.UsefulTestCase
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
@@ -74,6 +75,11 @@ trait ScalaFmtForTestsSetupOps extends UsefulTestCase {
     )
     getScalaCodeStyleSettings.SCALAFMT_CONFIG_PATH = configFile.toString
     configIsSet = true
+
+    // This is mostly needed during local testing when you add new config files
+    // Without this call, we would need to drop the "test_system" directory
+    // because IntelliJ wouldn't detect any changes in the test data directories
+    StandardFileSystems.local().refresh(false)
   }
 }
 

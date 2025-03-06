@@ -54,6 +54,22 @@ final class OptimizeImportsWithScalafmtFormatter extends OptimizeImportsWithScal
     scalaCodeStyleSettings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT = true
     doTest()
   }
+
+  def testSCL21765(): Unit = {
+    scalaCodeStyleSettings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT = false
+    doTest()
+
+    scalaCodeStyleSettings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT = true
+    doTest()
+  }
+
+  def testSCL21765_LocalImports(): Unit = {
+    scalaCodeStyleSettings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT = false
+    doTest()
+
+    scalaCodeStyleSettings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT = true
+    doTest()
+  }
 }
 
 final class OptimizeImportsWithScalafmtFormatterWithLibraries extends OptimizeImportsWithScalafmtFormatterBase {

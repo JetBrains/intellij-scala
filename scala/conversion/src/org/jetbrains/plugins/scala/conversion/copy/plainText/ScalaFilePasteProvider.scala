@@ -83,13 +83,20 @@ final class ScalaFilePasteProvider extends PasteProvider {
         FileNameWithExtension("plugins", "sbt")
       }
       else {
-        val firstMemberName = scalaFile.members.headOption.flatMap(_.names.headOption)
-        firstMemberName
-          .map(FileNameWithExtension(_, "scala"))
-          .getOrElse(FileNameWithExtension("worksheet", "sc"))
+        // Creates a file name that equals to the first top level member file name, otherwise a worksheet file.
+        // If the file contains some package, it can't be a worksheet, so we always create a scala file
+        val members = scalaFile.members
+        val firstMemberName = members.headOption.flatMap(_.names.headOption)
+        val firstMemberFileName = firstMemberName.map(FileNameWithExtension(_, "scala"))
+        val regularScalaFileName = firstMemberFileName.orElse {
+          if (scalaFile.firstPackaging.isDefined) Some(FileNameWithExtension("definitions", "scala"))
+          else None
+        }
+        regularScalaFileName.getOrElse(FileNameWithExtension("worksheet", "sc"))
       }
     }
   }
+
 
   private def shouldCreatePluginsSbtFile(
     scalaFile: ScalaFile,

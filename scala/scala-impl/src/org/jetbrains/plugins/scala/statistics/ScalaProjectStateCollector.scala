@@ -61,11 +61,18 @@ class ScalaProjectStateCollector extends ProjectUsagesCollector {
   }
 }
 
+//noinspection UnstableApiUsage
 object ScalaProjectStateCollector {
 
   private final val Group = new EventLogGroup("scala.project.state", 1)
 
-  //noinspection UnstableApiUsage
+  /**
+   * See also [[org.jetbrains.plugins.scala.statistics.SbtShellCommandsUsagesCollector]]
+   *
+   * This event is supposed to be replaced by:
+   * [[org.jetbrains.plugins.scala.statistics.SbtSettingsCollector.Events.SbtVersion]]
+   * TODO: remove it in ~ 2025.3, once there are 3 full releases that use `SbtSettingsCollector`
+   */
   private final val SbtInfoEvent = Group.registerEvent("sbt.info",
     StringValidatedByRegexpReference("version", "version")
   )

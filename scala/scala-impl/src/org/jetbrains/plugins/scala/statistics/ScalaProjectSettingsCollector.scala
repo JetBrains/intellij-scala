@@ -61,8 +61,11 @@ class ScalaProjectSettingsCollector extends ProjectUsagesCollector {
 private object ScalaProjectSettingsCollector {
   private val Group = new EventLogGroup("scala.project.settings", 1)
 
+  // NOTE: collecting this info might be redundant here as it's already collected in "SbtSettingsCollector"
+  // But at the same time it might be convenient to have them here, near other compiler-related settings
   private val SbtShellBuildEvent = Group.registerEvent("sbt.shell.build")
   private val SbtIdeaBuildEvent = Group.registerEvent("sbt.idea.build")
+
   private val CompilerIncTypeUsedSbtEvent = Group.registerEvent("compiler.inc.type.used.sbt")
   private val CompilerIncTypeUsedIdeaEvent = Group.registerEvent("compiler.inc.type.used.idea")
   private val CompilerCompileServerUsedEvent = Group.registerEvent("compiler.compile.server.used")

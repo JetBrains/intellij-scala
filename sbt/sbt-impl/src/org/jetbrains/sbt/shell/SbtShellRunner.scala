@@ -17,7 +17,7 @@ import com.intellij.ui.content.{Content, ContentFactory}
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.extensions.{executeOnPooledThread, invokeLater}
 import org.jetbrains.plugins.scala.project.ProjectExt
-import org.jetbrains.plugins.scala.statistics.ScalaSbtUsagesCollector
+import org.jetbrains.plugins.scala.statistics.SbtShellCommandsUsagesCollector
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.icons.Icons
 import org.jetbrains.sbt.shell.SbtShellRunner._
@@ -203,9 +203,9 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
     setAddCurrentToHistory(false)
 
     override def execute(text: String, console: LanguageConsoleView): Unit = {
-      ScalaSbtUsagesCollector.logShellCommand(project)
+      SbtShellCommandsUsagesCollector.logShellCommand(project)
       if (isTestCommand(text)) {
-        ScalaSbtUsagesCollector.logShellTestCommand(project)
+        SbtShellCommandsUsagesCollector.logShellTestCommand(project)
       }
 
       EditorUtil.scrollToTheEnd(console.getHistoryViewer)
