@@ -5,7 +5,6 @@ import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import org.apache.commons.lang3.StringUtils
 import org.jetbrains.jps.incremental.scala.Client.{ClientMsg, PosInfo}
 import org.jetbrains.jps.incremental.scala.MessageKind
 import org.jetbrains.plugins.scala.compiler.highlighting.BackgroundExecutorService.executeOnBackgroundThreadInNotDisposed
@@ -109,52 +108,9 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
     }
   }
 
-  private def kindToHighlightInfoType(kind: MessageKind, text: String, virtualFile: VirtualFile): HighlightInfoType = kind match {
-    case MessageKind.Error if isErrorMessageAboutWrongRef(text) =>
-      HighlightInfoType.WRONG_REF
-    case MessageKind.Error if isUnusedImportMessage(text) =>
-      val scalacOptions = scalacOptionsForFile(virtualFile)
-      val fatalWarnings = CompilerOptions.containsFatalWarnings(scalacOptions)
-      val unusedImports = CompilerOptions.containsUnusedImports(scalacOptions)
-      if (fatalWarnings && unusedImports) {
-        // The project has enabled fatal warnings and unused imports. We need to report an error here.
-        HighlightInfoType.ERROR
-      } else {
-        // In all other cases, report an unused symbol instead of an error.
-        // The else case contains the following cases:
-        //   1. fatalWarnings && !unusedImports (silent unused imports added by us) => UNUSED_SYMBOL
-        //   2. !fatalWarnings && unusedImports (cannot happen, because the unused import will be a warning, not an error)
-        //   3. !fatalWarnings && !unusedImports (silent unused imports added by us) => UNUSED_SYMBOL
-        HighlightInfoType.UNUSED_SYMBOL
-      }
-    case MessageKind.Error =>
-      HighlightInfoType.ERROR
-    case MessageKind.Warning if isUnusedImportMessage(text) =>
-      val scalacOptions = scalacOptionsForFile(virtualFile)
-      val unusedImports = CompilerOptions.containsUnusedImports(scalacOptions)
-      if (unusedImports) {
-        // The project has enabled unused imports. Keep the warning.
-        HighlightInfoType.WARNING
-      } else {
-        // Silent unused imports added by us.
-        HighlightInfoType.UNUSED_SYMBOL
-      }
-    case MessageKind.Warning =>
-      HighlightInfoType.WARNING
-    case MessageKind.Info =>
-      HighlightInfoType.WEAK_WARNING
-    case _ =>
-      HighlightInfoType.INFORMATION
-  }
-
-  private def isErrorMessageAboutWrongRef(text: String): Boolean =
-    StringUtils.startsWithIgnoreCase(text, "value") && text.contains("is not a member of") ||
-      StringUtils.startsWithIgnoreCase(text, "not found:") ||
-      StringUtils.startsWithIgnoreCase(text, "cannot find symbol")
-
-  private def isUnusedImportMessage(text: String): Boolean = {
-    val description = CompilerMessages.description(text)
-    CompilerMessages.isUnusedImport(description)
+  private def kindToHighlightInfoType(kind: MessageKind, text: String, virtualFile: VirtualFile): HighlightInfoType = {
+    val scalacOptions = scalacOptionsForFile(virtualFile)
+    CompilerMessageKinds.highlightInfoType(kind, text, scalacOptions)
   }
 
   private def scalacOptionsForFile(virtualFile: VirtualFile): Seq[String] = {
