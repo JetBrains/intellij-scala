@@ -49,8 +49,6 @@ object Versions {
 
   val java9rtExportVersion: String = "0.1.0"
 
-  val scalaExpressionCompiler: String = "3.1.6"
-
   /**
    * For `"org.jetbrains.intellij.deps.languagetool" % "language-*"` dependencies
    *
