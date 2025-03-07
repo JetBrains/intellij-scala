@@ -88,6 +88,13 @@ private object SbtSettingsCollector {
    */
   private val Group = new EventLogGroup("scala.sbt.state", 1)
 
+  locally {
+    //initialize the fields eagerly in order scheme generation works
+    //when running the idea with "buildEventsScheme --outputFile=scheme.json --pluginId=org.intellij.scala" arguments
+    //otherwise we will get an error "Group should contain at least one event"
+    Events
+  }
+
   //noinspection TypeAnnotation
   private object Events {
     val ResolveClassifiers = Group.registerEvent("resolveClassifiers", EventFields.Enabled)
