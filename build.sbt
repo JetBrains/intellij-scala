@@ -62,6 +62,7 @@ lazy val scalaCommunity: sbt.Project =
       sbtImpl % "test->test;compile->compile",
       sbtProjectImportingTests % "test->test",
       compilerIntegration % "test->test;compile->compile",
+      scalaCompilerPluginTests % "test->test;compile->compile",
       debugger % "test->test;compile->compile",
       testingSupport % "test->test;compile->compile",
       devKitIntegration % "test->test;compile->compile",
@@ -529,6 +530,10 @@ lazy val scalaCompilerPlugin_3_3: sbt.Project =
     scalaVersion := "3.3.4", libraryDependencies += "org.scala-lang" %% "scala3-compiler" % "3.3.4", Compile / scalacOptions := Seq("--release", "8"),
     packageMethod := PackagingMethod.Standalone("lib/jps/compiler-plugin-3.3.jar"),
   )
+
+lazy val scalaCompilerPluginTests: sbt.Project =
+  newProject("compiler-plugin-tests", file("scala/compiler-plugin/tests"))
+    .dependsOn(scalaImpl)
 
 lazy val compilerJps =
   newPlainScalaProject("compiler-jps", file("scala/compiler-jps"))
