@@ -56,19 +56,19 @@ class InitialScalaBuilder extends ModuleLevelBuilder(BuilderCategory.INITIAL) { 
         case _ if JavaBuilderUtil.isForcedRecompilationAllJavaModules(context) =>
           // Forced rebuild, save current incremental compiler setting to disk and continue.
           // This case is entered after the rebuild requested exception is thrown later in the file.
-          Log.info("Forced project rebuild initiated, saving incremental compiler setting to disk and continuing")
+          Log.info(s"Forced project rebuild initiated, saving incremental compiler setting ($incrementalityType) to disk and continuing")
           writeIncrementalityType(context, incrementalityType)
         case None =>
-          Log.warn("Previous incremental compiler setting was not read from disk, continuing with the current incremental compiler project setting, compilation errors are possible")
+          Log.warn(s"Previous incremental compiler setting was not read from disk, continuing with the current incremental compiler project setting ($incrementalityType), compilation errors are possible")
         case Some(`incrementalityType`) =>
-          Log.info("Previous incremental compiler setting matches the current incremental compiler project setting, continuing")
+          Log.info(s"Previous incremental compiler setting matches the current incremental compiler project setting ($incrementalityType), continuing")
         case Some(_) if isMakeProject(context) =>
           // All build targets are affected, full rebuild, save current incremental compiler setting to disk and continue
-          Log.info("Full project rebuild, saving incremental compiler setting to disk and continuing")
+          Log.info(s"Full project rebuild, saving incremental compiler setting ($incrementalityType) to disk and continuing")
           writeIncrementalityType(context, incrementalityType)
         case Some(_) =>
           // Not a full rebuild, and incremental compiler setting has been changed since the last build, forcing a rebuild
-          Log.info("Previous incremental compiler setting does not match current project setting and the build is not a full rebuild, forcing a project rebuild")
+          Log.info(s"Previous incremental compiler setting ($previousIncrementalityType) does not match current project setting ($incrementalityType) and the build is not a full rebuild, forcing a project rebuild")
           if (isCBH(context)) {
             // Compiler based highlighting specific workaround. Because of the way we create the compilation scopes in
             // CBH to be as minimal as possible, JPS does not propagate the rebuild requested exception that we throw
