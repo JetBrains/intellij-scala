@@ -37,11 +37,11 @@ class InitialScalaBuilder extends ModuleLevelBuilder(BuilderCategory.INITIAL) { 
         // sources. For that reason, it is important that the JavaBuilder does not run for our project. However,
         // disabling the JavaBuilder through the JavaBuilder.IS_ENABLED global key is not ideal. There are other
         // JPS builders who are also implicitly disabled by this action, such as the KotlinBuilder and the
-        // GradleResourcesBuilder. Thus, we want to instruct the JavaBuilder to not run for our project, but keep it
+        // GradleResourcesBuilder. Thus, we want to instruct the JavaBuilder to not run for our project but keep it
         // enabled, such that the other builders can run. This can be achieved through the Java Compiler ID mechanism.
         // We set the Java Compiler ID to our custom Zinc ID, an ID which is unique to the Scala plugin and for which
         // a compiler does not exist in the IDEA Platform. In this case, the JavaBuilder will not have a compiler
-        // instance to run, and therefore it will not do anything in our project, but remain officially enabled.
+        // instance to run, and therefore it will not do anything in our project but remain officially enabled.
         val project = context.getProjectDescriptor.getProject
         val configuration = JpsJavaExtensionService.getInstance().getCompilerConfiguration(project)
         val replaced = configuration.getJavaCompilerId
@@ -54,8 +54,8 @@ class InitialScalaBuilder extends ModuleLevelBuilder(BuilderCategory.INITIAL) { 
 
       previousIncrementalityType match {
         case _ if JavaBuilderUtil.isForcedRecompilationAllJavaModules(context) =>
-          // Forced rebuild, save current incremental compiler setting to disk and continue.
-          // This case is entered after the rebuild requested exception is thrown later in the file.
+          // Forced rebuild, save the current incremental compiler setting to disk and continue.
+          // This case is entered after the rebuild-requested exception is thrown later in the file.
           Log.info(s"Forced project rebuild initiated, saving incremental compiler setting ($incrementalityType) to disk and continuing")
           writeIncrementalityType(context, incrementalityType)
         case None =>
@@ -63,16 +63,18 @@ class InitialScalaBuilder extends ModuleLevelBuilder(BuilderCategory.INITIAL) { 
         case Some(`incrementalityType`) =>
           Log.info(s"Previous incremental compiler setting matches the current incremental compiler project setting ($incrementalityType), continuing")
         case Some(_) if isMakeProject(context) =>
-          // All build targets are affected, full rebuild, save current incremental compiler setting to disk and continue
+          // All build targets are affected, full rebuild,
+          // save the current incremental compiler setting to disk and continue
           Log.info(s"Full project rebuild, saving incremental compiler setting ($incrementalityType) to disk and continuing")
           writeIncrementalityType(context, incrementalityType)
         case Some(_) =>
           // Not a full rebuild, and incremental compiler setting has been changed since the last build, forcing a rebuild
           Log.info(s"Previous incremental compiler setting ($previousIncrementalityType) does not match current project setting ($incrementalityType) and the build is not a full rebuild, forcing a project rebuild")
           if (isCBH(context)) {
-            // Compiler based highlighting specific workaround. Because of the way we create the compilation scopes in
-            // CBH to be as minimal as possible, JPS does not propagate the rebuild requested exception that we throw
-            // in this case. This might be a bug, I plan to speak to the JPS team about this.
+            // Compiler-based highlighting specific workaround.
+            // Because we create the compilation scopes in CBH to be as minimal as possible,
+            // JPS does not propagate the rebuild-requested exception that we throw in this case.
+            // This might be a bug, I plan to speak to the JPS team about this.
             writeIncrementalityType(context, incrementalityType)
           }
           val message = JpsBundle.message("incremental.compiler.changed.rebuild")
