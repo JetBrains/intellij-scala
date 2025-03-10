@@ -2,19 +2,9 @@ package org.jetbrains.plugins.scala.components
 
 import com.intellij.ide.plugins.cl.PluginClassLoader
 import com.intellij.ide.plugins.{org => _, _}
-import com.intellij.notification._
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.diagnostic.{ControlFlowException, Logger}
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.PluginId
-import com.intellij.util.PathUtil
-import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.{PathExt, invokeLater}
-import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
-
-import java.nio.file.Paths
-import javax.swing.event.HyperlinkEvent
-import scala.annotation.nowarn
+import org.jetbrains.plugins.scala.extensions.invokeLater
 
 object ScalaPluginVersionVerifier {
 
@@ -68,75 +58,9 @@ class ScalaPluginVersionVerifierActivity extends RunOnceStartupActivity {
   override def doRunActivity(): Unit = {
     invokeLater {
       ScalaPluginUpdater.askUpdatePluginBranchIfNeeded()
-      checkHaskForcePlugin()
       ScalaPluginUpdater.postCheckIdeaCompatibility()
     }
   }
 
   override protected def doCleanup(): Unit = {}
-
-  private def showIncompatiblePluginNotification(@Nls message: String)(callback: String => Unit): Unit = {
-    if (ApplicationManager.getApplication.isUnitTestMode) {
-      ScalaPluginVersionVerifier.LOG.error(message)
-    } else {
-      val notification = ScalaNotificationGroups.scalaPluginVerifier.createNotification(ScalaBundle.message("incompatible.plugin.detected"), message, NotificationType.ERROR)
-      //TODO
-      notification.setListener((notification: Notification, event: HyperlinkEvent) => {
-        notification.expire()
-        val description = event.getDescription
-        callback(description)
-      }): @nowarn("cat=deprecation")
-
-      Notifications.Bus.notify(notification)
-    }
-  }
-
-  private def checkHaskForcePlugin(): Unit = {
-    val haskforceId = PluginId.findId("com.haskforce")
-    val plugin = PluginManagerCore.getPlugin(haskforceId)
-    if (plugin == null || !plugin.isEnabled)
-      return
-
-    val hasScala211 = try {
-      val scalaClass = plugin.getPluginClassLoader.loadClass("scala.Option")
-      val pathToJar = PathUtil.getJarPathForClass(scalaClass)
-      val path = Paths.get(pathToJar)
-      path.nameContains("-2.11")
-    } catch {
-      case c: ControlFlowException => throw c
-      case _: ClassNotFoundException => false
-      case e: Exception =>
-        ScalaPluginVersionVerifier.LOG.debug(e)
-        false
-    }
-    if (hasScala211) {
-      val DisableHaskForcePlugin = "Disable HaskForce Plugin"
-      val DisableScalaPlugin = "Disable Scala Plugin"
-      val Ignore = "Ignore"
-      val message =
-        s"""Plugin ${plugin.getName} of version ${plugin.getVersion} is
-           |incompatible with Scala Plugin for IDEA 2017.3
-           |${hyperlink(DisableHaskForcePlugin)}
-           |${hyperlink(DisableScalaPlugin)}
-           |${hyperlink(Ignore)}
-           |""".stripMargin
-      showIncompatiblePluginNotification(message) {
-        case DisableHaskForcePlugin =>
-          disablePlugin(haskforceId)
-        case DisableScalaPlugin =>
-          disablePlugin(ScalaPluginVersionVerifier.scalaPluginId)
-        case Ignore =>
-        case _ =>
-      }
-    }
-
-  }
-
-  private def hyperlink(description: String): String =
-    s"""<p/><a href="$description">$description</a>"""
-
-  private def disablePlugin(id: PluginId) = {
-    PluginManagerCore.disablePlugin(id)
-    PluginManagerConfigurable.showRestartDialog()
-  }
 }
