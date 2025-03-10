@@ -1,31 +1,23 @@
 package org.jetbrains.plugins.scala.components
 
 import com.intellij.ide.plugins.{org => _, _}
-import com.intellij.ide.util.PropertiesComponent
 import com.intellij.notification._
 import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent}
-import com.intellij.openapi.application.{ApplicationInfo, ApplicationManager, PermanentInstallationID}
+import com.intellij.openapi.application.{ApplicationInfo, ApplicationManager}
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.editor.EditorFactory
-import com.intellij.openapi.editor.event.{DocumentEvent, DocumentListener}
-import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.updateSettings.impl._
 import com.intellij.openapi.util.NlsActions.ActionText
-import com.intellij.openapi.util.{BuildNumber, JDOMUtil, SystemInfo}
-import com.intellij.openapi.vfs.CharsetToolkit
+import com.intellij.openapi.util.{BuildNumber, JDOMUtil}
 import com.intellij.platform.ide.customization.ExternalProductResourceUrls
 import com.intellij.util.io.HttpRequests
-import com.intellij.util.io.HttpRequests.Request
 import org.jdom.JDOMException
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.pluginBranch
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.pluginBranch._
-import org.jetbrains.plugins.scala.util.{ScalaNotificationGroups, UnloadAwareDisposable}
-import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType, extensions}
+import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
+import org.jetbrains.plugins.scala.{ScalaBundle, extensions}
 
-import java.net.URLEncoder
-import java.util.concurrent.TimeUnit
 import scala.xml.XML
 
 class InvalidRepoException(what: String) extends Exception(what)
@@ -35,55 +27,23 @@ object ScalaPluginUpdater {
   private val LOG = Logger.getInstance(getClass)
   private val scalaPluginId = "1347"
   private val baseUrl: String = "https://plugins.jetbrains.com/plugins/%s/" + scalaPluginId
-  private var doneUpdating = false
   private def pluginDescriptor: IdeaPluginDescriptorImpl = ScalaPluginVersionVerifier.getPluginDescriptor
 
-  // *_OLD versions are for legacy repository format.
-  // Need to keep track of them to upgrade to new repository format automatically
-  // Remove eventually, when no significant amount of users will have older ones.
-  private val CASSIOPEIA_OLD    = "cassiopeia_old"
-  private val FOURTEEN_ONE_OLD  = "14.1_old"
-  private val FOURTEEN_ONE      = "14.1"
-
-  private val knownVersions = Map(
-    CASSIOPEIA_OLD   -> Map(
-      Release -> "DUMMY",
-      EAP     -> "https://www.jetbrains.com/idea/plugins/scala-eap-cassiopeia.xml",
-      Nightly -> "https://www.jetbrains.com/idea/plugins/scala-nightly-cassiopeia.xml"
-    ),
-    FOURTEEN_ONE_OLD -> Map(
-      Release -> "DUMMY",
-      EAP     -> "https://www.jetbrains.com/idea/plugins/scala-eap-14.1.xml",
-      Nightly -> ""
-    ),
-    FOURTEEN_ONE -> Map(
-      Release -> "DUMMY",
-      EAP     -> baseUrl.format("eap"),
-      Nightly -> baseUrl.format("nightly")
-    )
+  private def currentRepo: Map[pluginBranch, String] = Map(
+    Release -> "DUMMY",
+    EAP     -> baseUrl.format("eap"),
+    Nightly -> baseUrl.format("nightly")
   )
-
-  private val currentVersion: String = FOURTEEN_ONE
-
-  private def currentRepo: Map[pluginBranch, String] = knownVersions(currentVersion)
 
   private def NotificationGroup = ScalaNotificationGroups.scalaPluginUpdater
 
   // save plugin version before patching to restore it when switching back
   private var savedPluginVersion = ""
 
-  private val updateListener = new DocumentListener {
-    override def documentChanged(e: DocumentEvent): Unit = {
-      val file = FileDocumentManager.getInstance().getFile(e.getDocument)
-      if (file != null && file.getFileType == ScalaFileType.INSTANCE)
-        scheduleUpdate()
-    }
-  }
-
   @throws(classOf[InvalidRepoException])
   def doUpdatePluginHosts(branch: ScalaApplicationSettings.pluginBranch, descriptor: IdeaPluginDescriptorImpl): AnyVal = {
-    if(currentRepo(branch).isEmpty)
-      throw new InvalidRepoException(s"Branch $branch is unavailable for IDEA version $currentVersion")
+    if (currentRepo(branch).isEmpty)
+      throw new InvalidRepoException(s"Branch $branch is unavailable")
 
     // update hack - set plugin version to 0 when downgrading
     // also unpatch it back if user changed mind about downgrading
@@ -121,7 +81,7 @@ object ScalaPluginUpdater {
     else Release
   }
 
-  def pluginIsEap: Boolean = {
+  private def pluginIsEap: Boolean = {
     val updateSettings = UpdateSettings.getInstance()
     updateSettings.getStoredPluginHosts.contains(currentRepo(EAP))
   }
@@ -131,28 +91,7 @@ object ScalaPluginUpdater {
     updateSettings.getStoredPluginHosts.contains(currentRepo(Nightly))
   }
 
-  def pluginIsRelease: Boolean = !pluginIsEap && !pluginIsNightly
-
-  def upgradeRepo(): Unit = {
-    val updateSettings = UpdateSettings.getInstance()
-    for {
-      (version, repo) <- knownVersions
-      if version != currentVersion
-    } {
-      if (updateSettings.getStoredPluginHosts.contains(repo(EAP))) {
-        updateSettings.getStoredPluginHosts.remove(repo(EAP))
-        if (currentRepo(EAP).nonEmpty)
-          updateSettings.getStoredPluginHosts.add(currentRepo(EAP))
-      }
-      if (updateSettings.getStoredPluginHosts.contains(repo(Nightly))) {
-        updateSettings.getStoredPluginHosts.remove(repo(Nightly))
-        if (currentRepo(Nightly).nonEmpty)
-          updateSettings.getStoredPluginHosts.add(currentRepo(Nightly))
-        else if (currentRepo(EAP).nonEmpty)
-          updateSettings.getStoredPluginHosts.add(currentRepo(EAP))
-      }
-    }
-  }
+  private def pluginIsRelease: Boolean = !pluginIsEap && !pluginIsNightly
 
   def postCheckIdeaCompatibility(branch: ScalaApplicationSettings.pluginBranch): Unit = {
     val infoImpl = ApplicationInfo.getInstance()
@@ -203,6 +142,8 @@ object ScalaPluginUpdater {
 
     def getPlatformUpdateResult: Option[PlatformUpdates] = {
       val url = ExternalProductResourceUrls.getInstance.getUpdateMetadataUrl
+      if (url == null)
+        return None
 
       val info: Option[Product] = HttpRequests.request(url).connect { request =>
         val productCode = ApplicationInfo.getInstance().getBuild.getProductCode
@@ -220,35 +161,6 @@ object ScalaPluginUpdater {
     }
 
     notification.foreach(Notifications.Bus.notify)
-  }
-
-  private def scheduleUpdate(): Unit = {
-    val key = "scala.last.updated"
-    val lastUpdateTime = PropertiesComponent.getInstance().getLong(key , 0)
-    EditorFactory.getInstance().getEventMulticaster.removeDocumentListener(updateListener)
-    if (lastUpdateTime == 0L || System.currentTimeMillis() - lastUpdateTime > TimeUnit.DAYS.toMillis(1)) {
-      ApplicationManager.getApplication.executeOnPooledThread(new Runnable {
-        override def run(): Unit = {
-          val buildNumber = ApplicationInfo.getInstance().getBuild.asString()
-          val pluginVersion = pluginDescriptor.getVersion
-          val os = URLEncoder.encode(SystemInfo.OS_NAME + " " + SystemInfo.OS_VERSION, CharsetToolkit.UTF8)
-          val uid: String = PermanentInstallationID.get()
-          val url = s"https://plugins.jetbrains.com/plugins/list?pluginId=$scalaPluginId&build=$buildNumber&pluginVersion=$pluginVersion&os=$os&uuid=$uid"
-          PropertiesComponent.getInstance().setValue(key, System.currentTimeMillis().toString)
-          doneUpdating = true
-          try {
-            HttpRequests.request(url).connect((request: Request) => JDOMUtil.load(request.getReader()))
-          } catch {
-            case e: Throwable => LOG.warn(e)
-          }
-        }
-      })
-    }
-  }
-
-  def setupReporter(): Unit = {
-    if (ApplicationManager.getApplication.isUnitTestMode) return
-    EditorFactory.getInstance().getEventMulticaster.addDocumentListener(updateListener, UnloadAwareDisposable.scalaPluginDisposable)
   }
 
   // this hack uses reflection to downgrade plugin version
