@@ -19,9 +19,6 @@ class SbtShellCommandsUsagesCollector extends CounterUsagesCollector {
 object SbtShellCommandsUsagesCollector {
   /**
    * See also [[SbtSettingsCollector.Group]]
-   *
-   * @todo once AP-4992 is implemented, we can rename the group to "build.sbt.actions"
-   *       (to be consistent with SbtSettingsCollector.Group and GradleActionsUsagesCollector.GROUP)
    */
   private val Group = new EventLogGroup("scala.sbt", 1)
 

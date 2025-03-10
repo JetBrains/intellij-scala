@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.text.TextToTextTestBase
 
 class PlayTest extends TextToTextTestBase(
   Seq(
-    "com.typesafe.play" %% "play" % "2.9.0-M4",
+    "com.typesafe.play" %% "play" % "2.9.6",
   ),
   Seq("controllers", "models", "play", "views"), Set.empty, 620,
   Set(
