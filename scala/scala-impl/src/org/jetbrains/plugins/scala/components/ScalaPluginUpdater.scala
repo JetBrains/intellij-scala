@@ -29,34 +29,11 @@ object ScalaPluginUpdater {
   private val baseUrl: String = "https://plugins.jetbrains.com/plugins/%s/" + scalaPluginId
   private def pluginDescriptor: IdeaPluginDescriptorImpl = ScalaPluginVersionVerifier.getPluginDescriptor
 
-  // *_OLD versions are for legacy repository format.
-  // Need to keep track of them to upgrade to new repository format automatically
-  // Remove eventually, when no significant amount of users will have older ones.
-  private val CASSIOPEIA_OLD    = "cassiopeia_old"
-  private val FOURTEEN_ONE_OLD  = "14.1_old"
-  private val FOURTEEN_ONE      = "14.1"
-
-  private val knownVersions = Map(
-    CASSIOPEIA_OLD   -> Map(
-      Release -> "DUMMY",
-      EAP     -> "https://www.jetbrains.com/idea/plugins/scala-eap-cassiopeia.xml",
-      Nightly -> "https://www.jetbrains.com/idea/plugins/scala-nightly-cassiopeia.xml"
-    ),
-    FOURTEEN_ONE_OLD -> Map(
-      Release -> "DUMMY",
-      EAP     -> "https://www.jetbrains.com/idea/plugins/scala-eap-14.1.xml",
-      Nightly -> ""
-    ),
-    FOURTEEN_ONE -> Map(
-      Release -> "DUMMY",
-      EAP     -> baseUrl.format("eap"),
-      Nightly -> baseUrl.format("nightly")
-    )
+  private def currentRepo: Map[pluginBranch, String] = Map(
+    Release -> "DUMMY",
+    EAP     -> baseUrl.format("eap"),
+    Nightly -> baseUrl.format("nightly")
   )
-
-  private val currentVersion: String = FOURTEEN_ONE
-
-  private def currentRepo: Map[pluginBranch, String] = knownVersions(currentVersion)
 
   private def NotificationGroup = ScalaNotificationGroups.scalaPluginUpdater
 
@@ -65,8 +42,8 @@ object ScalaPluginUpdater {
 
   @throws(classOf[InvalidRepoException])
   def doUpdatePluginHosts(branch: ScalaApplicationSettings.pluginBranch, descriptor: IdeaPluginDescriptorImpl): AnyVal = {
-    if(currentRepo(branch).isEmpty)
-      throw new InvalidRepoException(s"Branch $branch is unavailable for IDEA version $currentVersion")
+    if (currentRepo(branch).isEmpty)
+      throw new InvalidRepoException(s"Branch $branch is unavailable")
 
     // update hack - set plugin version to 0 when downgrading
     // also unpatch it back if user changed mind about downgrading
@@ -115,27 +92,6 @@ object ScalaPluginUpdater {
   }
 
   private def pluginIsRelease: Boolean = !pluginIsEap && !pluginIsNightly
-
-  def upgradeRepo(): Unit = {
-    val updateSettings = UpdateSettings.getInstance()
-    for {
-      (version, repo) <- knownVersions
-      if version != currentVersion
-    } {
-      if (updateSettings.getStoredPluginHosts.contains(repo(EAP))) {
-        updateSettings.getStoredPluginHosts.remove(repo(EAP))
-        if (currentRepo(EAP).nonEmpty)
-          updateSettings.getStoredPluginHosts.add(currentRepo(EAP))
-      }
-      if (updateSettings.getStoredPluginHosts.contains(repo(Nightly))) {
-        updateSettings.getStoredPluginHosts.remove(repo(Nightly))
-        if (currentRepo(Nightly).nonEmpty)
-          updateSettings.getStoredPluginHosts.add(currentRepo(Nightly))
-        else if (currentRepo(EAP).nonEmpty)
-          updateSettings.getStoredPluginHosts.add(currentRepo(EAP))
-      }
-    }
-  }
 
   def postCheckIdeaCompatibility(branch: ScalaApplicationSettings.pluginBranch): Unit = {
     val infoImpl = ApplicationInfo.getInstance()

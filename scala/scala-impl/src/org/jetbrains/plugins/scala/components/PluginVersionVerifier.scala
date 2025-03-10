@@ -67,7 +67,6 @@ object ScalaPluginVersionVerifier {
 class ScalaPluginVersionVerifierActivity extends RunOnceStartupActivity {
   override def doRunActivity(): Unit = {
     invokeLater {
-      ScalaPluginUpdater.upgradeRepo()
       ScalaPluginUpdater.askUpdatePluginBranchIfNeeded()
       checkHaskForcePlugin()
       ScalaPluginUpdater.postCheckIdeaCompatibility()
