@@ -71,7 +71,6 @@ class ScalaPluginVersionVerifierActivity extends RunOnceStartupActivity {
       ScalaPluginUpdater.askUpdatePluginBranchIfNeeded()
       checkHaskForcePlugin()
       ScalaPluginUpdater.postCheckIdeaCompatibility()
-      ScalaPluginUpdater.setupReporter()
     }
   }
 
