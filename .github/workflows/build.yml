@@ -1,8 +1,8 @@
 on:
   push:
-    branches: [ idea243.x ]
+    branches: [ idea243.x, idea251.x ]
   pull_request:
-    branches: [ idea243.x ]
+    branches: [ idea243.x, idea251.x ]
 
 jobs:
   build_and_test:
