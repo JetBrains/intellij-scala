@@ -46,6 +46,12 @@ class CompilerPluginTest {
     "val _ = id(Set(1, 2, 3))")(
     info("id(Set(1, 2, 3))", tpe("_root_.scala.collection.immutable.Set[_root_.scala.Int]")))
 
+  // Expected type
+
+  @Test def expectedType(): Unit = assertMessagesAre(Id,
+    "val _ = id(123): Int")(
+    info("id(123)", tpe("123")))
+
   // Multiple
 
   @Test def multipleTypes(): Unit = assertMessagesAre(Id,
