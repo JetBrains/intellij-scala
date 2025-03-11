@@ -54,6 +54,12 @@ class CompilerPluginTest {
     usage("val v = Macros.id(Set(1, 2, 3))"))(
     info("Macros.id(Set(1, 2, 3))", tpe("scala.collection.immutable.Set[Int]")))
 
+  // Expected type
+
+  @Test def expectedType(): Unit = assertMessagesAre(Id,
+    usage("val v = Macros.id(123): Int"))(
+    info("Macros.id(123)", tpe("123")))
+
   // Multiple
 
   @Test def multipleTypes(): Unit = assertMessagesAre(Id,

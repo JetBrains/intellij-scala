@@ -5,6 +5,15 @@ import java.nio.file.{Files, Path, Paths}
 import java.util.jar.JarInputStream
 import scala.util.chaining.scalaUtilChainingOps
 
+/**
+ * A helper to quickly assess the effect of non-trivial ScalaSigPrinter modifications.
+ *
+ * Although the corresponding code is tested both by the DecompilerTest (unit) and TextToTextTestBase (integration) tests,
+ * the former rely on predefined test cases, while the latter only ensure correctness, without a diff.
+ *
+ * You may only want to use this if you intend to modify the decompiler implementation extensively.
+ * First, you should run the TextToTextTestBase tests to download the Ivy artifacts and also to adjust the OutputDir.
+ */
 object Main {
   sealed abstract class Mode
   object Mode {

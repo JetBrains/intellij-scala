@@ -31,7 +31,7 @@ import org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlighting.Ra
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, Parent, PsiElementExt, executeOnPooledThread, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
+import org.jetbrains.plugins.scala.lang.psi.api.expr.MethodInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed.UnusedImportReportedByCompilerKey
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportOrExportStmt, ScImportSelector}
@@ -83,7 +83,7 @@ private final class ExternalHighlightersService(project: Project) { self =>
           psiFile
             .depthFirst(_.getTextRange.contains(range)) // Optimized iteration
             .filter(_.getTextRange == range)
-            .find(e => e.is[ScMethodCall, ScStableCodeReference])
+            .find(e => e.is[MethodInvocation, ScStableCodeReference])
             .foreach { e =>
               // Skip if the same value already exists
               if (!CompilerType(e).contains(tpe)) {
