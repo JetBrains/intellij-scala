@@ -7,4 +7,7 @@
     <extensions defaultExtensionNs="org.jetbrains.bazel">
         <scalaSdkExtension implementation="org.jetbrains.plugins.scala.bazel.ScalaSdkExtensionImpl"/>
     </extensions>
+    <extensions defaultExtensionNs="org.intellij.scala">
+        <newScalaFileActionExtension implementation="org.jetbrains.plugins.scala.bazel.BazelNewScalaFileActionExtension"/>
+    </extensions>
 </idea-plugin>
