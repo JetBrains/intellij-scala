@@ -18,6 +18,7 @@ import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.util.PsiTreeUtil
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.{NonNls, TestOnly}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.processors.PsiChange._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.processors.ScalaFmtPreFormatProcessor._
@@ -38,9 +39,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockImpl
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, TypeAdjuster}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
-import org.jetbrains.plugins.scala.project.UserDataHolderExt
+import org.jetbrains.plugins.scala.project.{ScalaFeatures, UserDataHolderExt}
 import org.jetbrains.plugins.scala.scalaMeta.ScalaMetaParseException
-import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType}
 import org.scalafmt.dynamic.exceptions.{PositionExceptionImpl, ReflectionException}
 import org.scalafmt.dynamic.{ScalafmtReflect, ScalafmtReflectConfig, ScalafmtVersion}
 
@@ -49,6 +49,7 @@ import javax.swing.event.HyperlinkEvent
 import scala.annotation.{nowarn, tailrec}
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.util.Try
 import scala.util.control.NonFatal
 import scala.util.matching.Regex
@@ -422,7 +423,7 @@ object ScalaFmtPreFormatProcessor {
       }
     }
 
-    def processRange(elements: Seq[PsiElement], wrap: Boolean, typeAdjuster: TypeAdjuster): Either[Unit, Int] = {
+    def processRange(elements: Seq[PsiElement], features: ScalaFeatures, wrap: Boolean, typeAdjuster: TypeAdjuster): Either[Unit, Int] = {
       val hasRewriteRules = context.config.hasRewriteRules
       val rewriteElements: Seq[PsiElement] = if (hasRewriteRules) elements.flatMap(maybeRewriteElements(_, range)) else Seq.empty
       val rewriteElementsToFormatted = attachFormattedCode(rewriteElements)
@@ -433,7 +434,7 @@ object ScalaFmtPreFormatProcessor {
       val formattedInSingleFile = formatInSingleFile(elements, wrap)(project, newContext)
       formattedInSingleFile match {
         case Some(formatted) =>
-          replaceWithFormatted(elements, formatted, rewriteElementsToFormatted, range, typeAdjuster) match {
+          replaceWithFormatted(elements, formatted, rewriteElementsToFormatted, features, range, typeAdjuster) match {
             case Left(err) =>
               reportMarkerNotFound(file, err)
               Left(())
@@ -455,11 +456,11 @@ object ScalaFmtPreFormatProcessor {
         Left(())
       } else {
         //failed to wrap some elements, try the whole file
-        processRange(Seq(file), wrap = false, typeAdjuster).map(Some(_))
+        processRange(Seq(file), file.features, wrap = false, typeAdjuster).map(Some(_))
         Right(None)
       }
     } else {
-      processRange(elementsWrapped, wrap = true, typeAdjuster).map(Some(_))
+      processRange(elementsWrapped, file.features, wrap = true, typeAdjuster).map(Some(_))
     }
   }
 
@@ -478,23 +479,29 @@ object ScalaFmtPreFormatProcessor {
   private def getText(range: TextRange)(implicit fileText: String): String =
     fileText.substring(range.getStartOffset, range.getEndOffset)
 
-  private def unwrap(wrapFile: PsiFile)(implicit project: Project): Either[CantFindMarkerElementInFormattedCode, Seq[PsiElement]] = {
+  private def unwrap(wrapFile: ScalaFile)(implicit project: Project): Either[CantFindMarkerElementInFormattedCode, Seq[PsiElement]] = {
     val text = wrapFile.getText
 
     val startMarkerIdx = findMarker(text, StartMarkerFormattedRegex)
     // I don't know when it can be the case that start/end element are null, but handling it just to avoid exceptions
-    val startElement = wrapFile.findElementAt(startMarkerIdx)
-    if (startElement == null)
-      return Left(CantFindMarkerElementInFormattedCode(true))
+    if (startMarkerIdx == -1)
+      return Left(CantFindMarkerElementInFormattedCode(isStartMarker = true))
 
     val endMarkerIdx = findMarker(text, EndMarkerFormattedRegex)
-    val endElement = wrapFile.findElementAt(endMarkerIdx)
-    if (endElement == null)
-      return Left(CantFindMarkerElementInFormattedCode(true))
+    if (endMarkerIdx == -1)
+      return Left(CantFindMarkerElementInFormattedCode(isStartMarker = false))
 
-    // we need to call extra `getParent` because findElementAt returns DOC_COMMENT_START
-    val startMarker = startElement.getParent
-    val endMarker = endElement.getParent
+    val docComments = PsiTreeUtil.findChildrenOfType(wrapFile, classOf[ScDocComment]).asScala
+
+    val startMarker = docComments.find(e => e.getTextOffset == startMarkerIdx && StartMarkerFormattedRegex.matches(e.getText)) match {
+      case None => return Left(CantFindMarkerElementInFormattedCode(isStartMarker = true))
+      case Some(marker) => marker
+    }
+
+    val endMarker = docComments.find(e => e.getTextOffset == endMarkerIdx && EndMarkerFormattedRegex.matches(e.getText)) match {
+      case None => return Left(CantFindMarkerElementInFormattedCode(isStartMarker = false))
+      case Some(marker) => marker
+    }
 
     assert(startMarker.is[ScDocComment])
     assert(endMarker.is[ScDocComment])
@@ -664,9 +671,10 @@ object ScalaFmtPreFormatProcessor {
   }
 
   private def unwrapPsiFromFormattedFile(
-    formattedCode: WrappedCode
+    formattedCode: WrappedCode,
+    features: ScalaFeatures
   )(implicit project: Project): Either[CantFindMarkerElementInFormattedCode, RewriteElements] = {
-    val wrapFile = PsiFileFactory.getInstance(project).createFileFromText(DummyWrapperClassName, ScalaFileType.INSTANCE, formattedCode.text)
+    val wrapFile = ScalaPsiElementFactory.createScalaFileFromText(formattedCode.text, features, shouldTrimText = false)
     val elementsUnwrapped: Either[CantFindMarkerElementInFormattedCode, Seq[PsiElement]] =
       if (formattedCode.wrapped) unwrap(wrapFile)
       else Right(Seq(wrapFile))
@@ -676,10 +684,11 @@ object ScalaFmtPreFormatProcessor {
   }
 
   private def unwrapPsiFromFormattedElements(
-    elementsToFormatted: Seq[(PsiElement, WrappedCode)]
+    elementsToFormatted: Seq[(PsiElement, WrappedCode)],
+    features: ScalaFeatures
   )(implicit project: Project): Seq[(PsiElement, Either[CantFindMarkerElementInFormattedCode, RewriteElements])] = {
     val withUnwrapped = elementsToFormatted.map { case (element, formattedCode) =>
-      val unwrapped = unwrapPsiFromFormattedFile(formattedCode)
+      val unwrapped = unwrapPsiFromFormattedFile(formattedCode, features)
       (element, unwrapped)
     }
     withUnwrapped.sortBy(_._1.getTextRange.getStartOffset)
@@ -688,10 +697,11 @@ object ScalaFmtPreFormatProcessor {
   private def replaceWithFormatted(elements: Iterable[PsiElement],
                                    formattedCode: WrappedCode,
                                    rewriteToFormatted: Seq[(PsiElement, WrappedCode)],
+                                   features: ScalaFeatures,
                                    range: TextRange,
                                    typeAdjuster: TypeAdjuster)
                                   (implicit project: Project, fileText: String): Either[CantFindMarkerElementInFormattedCode, Int] = {
-    val elementsUnwrapped: Seq[PsiElement] = unwrapPsiFromFormattedFile(formattedCode) match {
+    val elementsUnwrapped: Seq[PsiElement] = unwrapPsiFromFormattedFile(formattedCode, features) match {
       case Right(value) =>
         value.elements
       case Left(err)    =>
@@ -699,7 +709,7 @@ object ScalaFmtPreFormatProcessor {
     }
     val elementsToTraverse: Iterable[(PsiElement, PsiElement)] = elements.zip(elementsUnwrapped)
     val rewriteElementsToTraverse0: Seq[(PsiElement, Either[CantFindMarkerElementInFormattedCode, RewriteElements])] =
-      unwrapPsiFromFormattedElements(rewriteToFormatted)
+      unwrapPsiFromFormattedElements(rewriteToFormatted, features)
 
     rewriteElementsToTraverse0.find(_._2.isLeft) match {
       case Some((_, Left(err))) =>

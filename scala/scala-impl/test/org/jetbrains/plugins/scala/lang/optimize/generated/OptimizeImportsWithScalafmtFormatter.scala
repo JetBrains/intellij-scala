@@ -91,3 +91,22 @@ final class OptimizeImportsWithScalafmtFormatterWithLibraries extends OptimizeIm
     doTest()
   }
 }
+
+class OptimizeImportsWithScalafmtFormatterRenamedImportsSource3 extends OptimizeImportsWithScalafmtFormatterBase {
+  override protected def scalafmtVersion: String = "3.8.3"
+
+  def testSCL23689_NoChange(): Unit = runSCL23689Test()
+
+  def testSCL23689_Optimize(): Unit = runSCL23689Test()
+
+  private def runSCL23689Test(): Unit = RevertableChange.withCompilerSettingsModified(
+    getModule,
+    s => s.copy(additionalCompilerOptions = s.additionalCompilerOptions :+ "-Xsource:3")
+  ) {
+    scalaCodeStyleSettings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT = false
+    doTest()
+
+    scalaCodeStyleSettings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT = true
+    doTest()
+  }
+}
