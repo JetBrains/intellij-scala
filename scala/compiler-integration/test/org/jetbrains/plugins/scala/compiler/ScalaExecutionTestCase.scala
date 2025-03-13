@@ -102,21 +102,27 @@ trait ScalaExecutionTestCase extends ExecutionTestCase with ScalaSdkOwner {
 
     super.setUp()
 
+    if (reuseCompileServerProcessBetweenTests) {
+      //noinspection ApiStatus,UnstableApiUsage
+      ThreadLeakTracker.longRunningThreadCreated(
+        ApplicationManager.getApplication,
+        "BaseDataReader: output stream of scalaCompileServer",
+        "BaseDataReader: error stream of scalaCompileServer",
+        "scalaCompileServer"
+      )
+    } else {
+      // We don't want to reuse the compile server in this test class, but it may have already been started.
+      // We should shut it down first.
+      CompileServerLauncher.stopServerAndWait()
+    }
+
     LocalFileSystem.getInstance().refreshIoFiles(srcPath.toFile.listFiles().toList.asJava)
     compileProject()
   }
 
   override protected def tearDown(): Unit = {
     try {
-      if (reuseCompileServerProcessBetweenTests) {
-        //noinspection ApiStatus,UnstableApiUsage
-        ThreadLeakTracker.longRunningThreadCreated(
-          ApplicationManager.getApplication,
-          "BaseDataReader: output stream of scalaCompileServer",
-          "BaseDataReader: error stream of scalaCompileServer",
-          "scalaCompileServer"
-        )
-      } else {
+      if (!reuseCompileServerProcessBetweenTests) {
         CompileServerLauncher.stopServerAndWait()
       }
       EdtTestUtil.runInEdtAndWait { () =>
