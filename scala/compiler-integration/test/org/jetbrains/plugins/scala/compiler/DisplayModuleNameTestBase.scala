@@ -6,6 +6,8 @@ import org.junit.Assert.fail
 
 abstract class DisplayModuleNameTestBase(separateProdAndTestSources: Boolean = false) extends SbtProjectCompilationTestBase(separateProdAndTestSources) {
 
+  override protected def reuseCompileServerProcessBetweenTests: Boolean = false
+
   protected def runTest(expectedValue: Boolean): Unit = {
     importProject(false)
     val modules = ModuleManager.getInstance(myProject).getModules
