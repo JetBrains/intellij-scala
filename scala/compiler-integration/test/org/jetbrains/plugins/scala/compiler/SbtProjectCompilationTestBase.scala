@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.compiler
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
@@ -7,6 +8,7 @@ import com.intellij.openapi.roots.{CompilerModuleExtension, ModuleRootManager}
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.platform.externalSystem.testFramework.ExternalSystemImportingTestCase
 import com.intellij.testFramework.CompilerTester
+import com.intellij.testFramework.common.ThreadLeakTracker
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.extensions.inWriteAction
@@ -50,6 +52,8 @@ abstract class SbtProjectCompilationTestBase(separateProdAndTestSources: Boolean
 
   override def getTestsTempDir: String = this.getClass.getSimpleName
 
+  protected def reuseCompileServerProcessBetweenTests: Boolean = true
+
   override def setUp(): Unit = {
     super.setUp()
 
@@ -63,10 +67,26 @@ abstract class SbtProjectCompilationTestBase(separateProdAndTestSources: Boolean
     }
 
     SbtCachesSetupUtil.setupCoursierAndIvyCache(getProject)
+
+    if (reuseCompileServerProcessBetweenTests) {
+      //noinspection ApiStatus,UnstableApiUsage
+      ThreadLeakTracker.longRunningThreadCreated(
+        ApplicationManager.getApplication,
+        "BaseDataReader: output stream of scalaCompileServer",
+        "BaseDataReader: error stream of scalaCompileServer",
+        "scalaCompileServer"
+      )
+    } else {
+      // We don't want to reuse the compile server in this test class, but it may have already been started.
+      // We should shut it down first.
+      CompileServerLauncher.stopServerAndWait()
+    }
   }
 
   override def tearDown(): Unit = try {
-    CompileServerLauncher.stopServerAndWait()
+    if (!reuseCompileServerProcessBetweenTests) {
+      CompileServerLauncher.stopServerAndWait()
+    }
     compiler.tearDown()
     val settings = ScalaCompileServerSettings.getInstance()
     settings.USE_DEFAULT_SDK = true
