@@ -196,10 +196,15 @@ object TypeDefinitionMembers {
     if (shouldProcessMethods(processor) && !processEnum(clazz, processor.execute(_, state)))
       return false
 
-    if (place.isInScala3File)
-      stdLibPatches(clazz).foreach {
+    if (place.isInScala3File) {
+      val member = processor match {
+        case p: ResolveProcessor => p.name
+        case _ => ""
+      }
+      stdLibPatches(clazz, member).foreach {
         processClassDeclarations(_, processor, state, lastParent, place)
       }
+    }
 
     true
   }
@@ -561,13 +566,14 @@ object TypeDefinitionMembers {
   private object stdLibPatches {
     private val map = Map(
       "scala.Predef" -> "scala.runtime.stdLibPatches.Predef",
-      "scala.language" -> "scala.runtime.stdLibPatches.language"
+      "scala.language" -> "scala.runtime.stdLibPatches.language",
+      "scala.language.experimental" -> "scala.runtime.stdLibPatches.language.experimental"
     )
 
-    def apply(clazz: PsiClass): Option[ScObject] =
+    def apply(clazz: PsiClass, member: String): Option[ScObject] =
       for {
         obj       <- clazz.asOptionOf[ScObject]
-        patchName <- map.get(obj.qualifiedName)
+        patchName <- map.get(obj.qualifiedName) if !map.contains(obj.qualifiedName + "." + member)
         patchObj  <- clazz.elementScope.getCachedObject(patchName)
       } yield patchObj
 
