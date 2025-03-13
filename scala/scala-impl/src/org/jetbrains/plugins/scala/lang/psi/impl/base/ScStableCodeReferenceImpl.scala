@@ -77,13 +77,22 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         //Since scala 2.11 it's possible macro implementations not only as static methods,
         //but also inside certain classes, so qualifier of a macro impl reference may resolve to a class
         //see https://docs.scala-lang.org/overviews/macros/bundles.html
-        if (isMacroImplReference(contextRef)) stableQualOrClass
-        else stableQualRef
+        if (isMacroImplReference(contextRef))
+          stableQualOrClass
+        else {
+          //stableQualRef
+          //when resolving scala.quoted.quotes in `import scala.quoted.quotes.reflect`
+          stableQualRefCandidates
+        }
 
-      case e: ScImportExpr => if (e.selectorSet.isDefined
+      case e: ScImportExpr =>
         //import Class._ is not allowed
-        || qualifier.isEmpty || e.hasWildcardSelector) stableQualRef
-      else stableImportSelector
+        if (e.selectorSet.isDefined || qualifier.isEmpty || e.hasWildcardSelector) {
+          //stableQualRef
+          //when resolving `import scala.quoted.quotes._`
+          stableQualRefCandidates
+        } else
+          stableImportSelector
 
       case ste: ScSimpleTypeElement =>
         if (incomplete)
@@ -486,9 +495,23 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         val exportedType = subst(fn.returnType.getOrNothing)
         processor.processType(exportedType, this, ScalaResolveState.withSubstitutor(subst))
       case ScalaResolveResult(fun: ScFunction, _) =>
-        val macroEvaluator = ScalaMacroEvaluator.getInstance(fun.getProject)
-        val typeFromMacro = macroEvaluator.checkMacro(fun, MacroContext(qualifier, None))
-        typeFromMacro.foreach(processor.processType(_, qualifier))
+        val modifiers = fun.getModifierList
+        val isTransparentInline = modifiers.isTransparent && modifiers.isInline
+        if (isTransparentInline) {
+          if (fun.isStable) { //only when the return type is stable, there are no parameters or only context parameters
+            //TODO: ensure that during the resolve we doesn't search for the implicit in imports
+            // (looks like the compiler doesn't do it when processing stable identifiers)
+            // It's needed at least for
+            val ref = ScalaPsiElementFactory.createReferenceExpressionFromText(qualifier.getText)
+            ref.context = this.getContext
+            //val args = ref.findImplicitArguments
+            ref.`type`().foreach(processor.processType(_, qualifier))
+          }
+        } else {
+          val macroEvaluator = ScalaMacroEvaluator.getInstance(fun.getProject)
+          val typeFromMacro = macroEvaluator.checkMacro(fun, MacroContext(qualifier, None))
+          typeFromMacro.foreach(processor.processType(_, qualifier))
+        }
       case ScalaResolveResult((_: ScTypedDefinition) & Typeable(tp), s) =>
         val fromType = s(tp)
         val state = ScalaResolveState.withFromType(fromType)
@@ -550,6 +573,9 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     }
   }
 
+  /**
+   * @see [[processQualifier]]
+   */
   override def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ScalaResolveResult] = {
     def candidatesFilter(result: ScalaResolveResult): Boolean = {
       result.element match {

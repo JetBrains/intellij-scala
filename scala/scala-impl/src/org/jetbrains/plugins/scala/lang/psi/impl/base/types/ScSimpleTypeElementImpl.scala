@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScSuperReference, ScThisReference, ScUnderScoreSectionUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGivenAlias, ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, ScalaElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSimpleTypeElementImpl._
@@ -349,6 +349,11 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
                     (calculateReferenceType(ref), ScSubstitutor.empty)
                 }
                 updateImplicitsWithoutLocalTypeInference(result, ss)
+              case ScalaResolveResult(scGivenAlias: ScGivenAlias, _)  =>
+                if (scGivenAlias.isStable)
+                  Right(ScDesignatorType(scGivenAlias))
+                else
+                  Right(scGivenAlias.returnType.getOrAny)
               case ScalaResolveResult(fun: ScFunction, _)  => //SCL-19477
                 Right(fun.returnType.getOrAny)
               case _ =>
