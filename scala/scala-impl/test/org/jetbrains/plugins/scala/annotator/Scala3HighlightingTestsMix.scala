@@ -103,4 +103,17 @@ class Scala3HighlightingTestsMix extends ScalaHighlightingTestBase {
       Error("f(1)", "Expression of type Boolean doesn't conform to expected type Int")
     )
   }
+
+  def testStdLibPatches(): Unit = assertNothing(errorsFromScalaCode(
+    s"""import scala.language.dynamics
+       |import _root_.scala.language.dynamics
+       |
+       |import scala.language.experimental.macros
+       |import _root_.scala.language.experimental.macros
+       |
+       |import scala.language.noAutoTupling
+       |import _root_.scala.language.noAutoTupling
+       |
+       |import scala.language.experimental.namedTypeArguments
+       |import _root_.scala.language.experimental.namedTypeArguments""".stripMargin))
 }
