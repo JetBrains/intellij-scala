@@ -521,9 +521,11 @@ object ScalaRefactoringUtil {
         .addListener(chooserModel.highlighterPopupListener)
         .setItemChosenCallback(chooserModel.elementChosen)
         .setItemSelectedCallback { item =>
-          val psiElement = toHighlight(item)
-          if (psiElement != null) {
-            chooserModel.highlightPsi.accept(psiElement)
+          if (item != null) {
+            val psiElement = toHighlight(item)
+            if (psiElement != null) {
+              chooserModel.highlightPsi.accept(psiElement)
+            }
           }
         }
         .setRenderer(new DefaultListCellRenderer {
