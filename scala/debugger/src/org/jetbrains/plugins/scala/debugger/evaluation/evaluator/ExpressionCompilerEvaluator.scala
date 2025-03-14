@@ -48,14 +48,18 @@ private[evaluation] final class ExpressionCompilerEvaluator(codeFragment: PsiEle
         throw EvaluationException(DebuggerBundle.message("could.not.determine.scala.version", module.getName))
     }
 
-    val expressionCompilerJar = {
+    val expressionCompilerType = {
       import ExpressionCompilerResolverListener.{ExpressionCompilers, ScalaExpressionCompilerVersion}
-      context.getProject.getUserData(ExpressionCompilers).get(scalaVersion) match {
-        case Some(jar) => jar
-        case None =>
-          throw EvaluationException(DebuggerBundle.message("could.not.resolve.scala.expression.compiler", ScalaExpressionCompilerVersion, scalaVersion.minor))
-      }
+      context.getProject.getUserData(ExpressionCompilers)
+        .getOrElse(scalaVersion, throw EvaluationException(DebuggerBundle.message("could.not.resolve.scala.expression.compiler", ScalaExpressionCompilerVersion, scalaVersion.minor)))
     }
+
+    import ExpressionCompilerResolverListener.ExpressionCompilerType
+    val expressionCompilerJar = expressionCompilerType match {
+      case ExpressionCompilerType.BuiltIn => Seq.empty
+      case ExpressionCompilerType.ResolvedJar(path) => Seq(path)
+    }
+    val useBuiltInExpressionCompiler = expressionCompilerType == ExpressionCompilerType.BuiltIn
 
     try {
       def stripJarPathSuffix(path: String): String =
@@ -64,7 +68,7 @@ private[evaluation] final class ExpressionCompilerEvaluator(codeFragment: PsiEle
       val enumerator = OrderEnumerator.orderEntries(module).compileOnly().recursively()
       val classpath =
         module.scalaCompilerClasspath ++
-          enumerator.getClassesRoots.map(_.getCanonicalPath).map(stripJarPathSuffix).map(Path.of(_)) :+
+          enumerator.getClassesRoots.map(_.getCanonicalPath).map(stripJarPathSuffix).map(Path.of(_)) ++
           expressionCompilerJar
       val scalacOptions = module.scalaCompilerSettings.getOptionsAsStrings(module.hasScala3)
       val source = Path.of(position.getFile.getVirtualFile.getCanonicalPath)
@@ -81,7 +85,7 @@ private[evaluation] final class ExpressionCompilerEvaluator(codeFragment: PsiEle
       val thisObject = stackFrame.thisObject()
 
       val packageName = inReadAction(ScalaPositionManager.findPackageName(position.getElementAt)).getOrElse("")
-      val arguments = ExpressionEvaluationArguments(outDir, classpath, scalacOptions, source, line, expression, localVariableNames.toSet, packageName)
+      val arguments = ExpressionEvaluationArguments(useBuiltInExpressionCompiler, outDir, classpath, scalacOptions, source, line, expression, localVariableNames.toSet, packageName)
 
       val errors = Seq.newBuilder[NlsString]
       val client = new DummyClient() {

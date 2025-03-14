@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.debugger.DebuggerBundle
-import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt}
+import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.{DependencyManagerBase, ScalaVersion}
 
 import java.nio.file.Path
@@ -29,13 +29,13 @@ private final class ExpressionCompilerResolverListener(project: Project) extends
             .flatMap(_.scalaMinorVersion)
             .filter(_.isScala3)
             .flatMap { v =>
-              resolveExpressionCompilerJar(v, indicator) match {
-                case Some(jar) => Some(v -> jar)
-                case None => None
-              }
+              if (v.languageLevel >= ScalaLanguageLevel.Scala_3_7)
+                Some(v -> ExpressionCompilerType.BuiltIn)
+              else
+                resolveExpressionCompilerJar(v, indicator).map(jar => v -> ExpressionCompilerType.ResolvedJar(jar))
             }.toMap
         } catch {
-          case NonFatal(_) => Map.empty[ScalaVersion, Path]
+          case NonFatal(_) => Map.empty[ScalaVersion, ExpressionCompilerType]
         }
 
         project.putUserData(ExpressionCompilers, expressionCompilers)
@@ -53,7 +53,23 @@ private final class ExpressionCompilerResolverListener(project: Project) extends
 }
 
 private object ExpressionCompilerResolverListener {
-  final val ExpressionCompilers: Key[Map[ScalaVersion, Path]] = Key.create("scala_debugger_expression_compilers")
+
+  sealed trait ExpressionCompilerType
+  object ExpressionCompilerType {
+    /**
+     * Scala 3.7 ships the debugger expression compiler as part of the scala3-compiler.jar. We do not need to manually
+     * resolve a separate expression compiler jar.
+     */
+    case object BuiltIn extends ExpressionCompilerType
+
+    /**
+     * Scala 3.0 to Scala 3.6 use a separate jar which hosts the debugger expression compiler which needs to be
+     * manually resolved.
+     */
+    case class ResolvedJar(path: Path) extends ExpressionCompilerType
+  }
+
+  final val ExpressionCompilers: Key[Map[ScalaVersion, ExpressionCompilerType]] = Key.create("scala_debugger_expression_compilers")
 
   final val ScalaExpressionCompilerVersion = "4.2.4"
 }

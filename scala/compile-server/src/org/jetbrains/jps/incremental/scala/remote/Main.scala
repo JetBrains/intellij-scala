@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.compiler.data.{Arguments, ComputeStampsArgume
 import org.jetbrains.plugins.scala.server.CompileServerToken
 
 import java.io.{IOException, PrintStream}
-import java.lang.reflect.Method
 import java.net.URLClassLoader
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
@@ -226,23 +225,69 @@ object Main {
     server.compileDocument(arguments, client)
   }
 
-  private val expressionCompilerCache: Cache[Seq[Path], (AnyRef, Method)] = new Cache(3)
+  private val classLoaderCache: Cache[Seq[Path], ClassLoader] = new Cache(3)
 
   private def evaluateExpressionLogic(args: ExpressionEvaluationArguments, client: Client): Unit = {
-    val ExpressionEvaluationArguments(outDir, classpath, scalacOptions, source, line, expression, localVariableNames, packageName) = args
+    val ExpressionEvaluationArguments(useBuiltInExpressionCompiler, outDir, classpath, scalacOptions, source, line, expression, localVariableNames, packageName) = args
 
-    val (instance, method) = expressionCompilerCache.getOrUpdate(classpath) { () =>
-      val classLoader = new URLClassLoader(classpath.map(_.toUri.toURL).toArray, this.getClass.getClassLoader)
-      val bridgeClass = Class.forName("dotty.tools.dotc.ExpressionCompilerBridge", true, classLoader)
-      val instance = bridgeClass.getDeclaredConstructor().newInstance().asInstanceOf[AnyRef]
-      val method = bridgeClass.getMethods.find(_.getName == "run").get
-      (instance, method)
+    val classLoader = classLoaderCache.getOrUpdate(classpath) { () =>
+      new URLClassLoader(classpath.map(_.toUri.toURL).toArray, this.getClass.getClassLoader)
     }
 
-    val consumer: java.util.function.Consumer[String] = client.error(_)
+    val bridgeClassName =
+      if (useBuiltInExpressionCompiler) "dotty.tools.debug.ExpressionCompilerBridge"
+      else "dotty.tools.dotc.ExpressionCompilerBridge"
 
-    method.invoke(instance, outDir, "CompiledExpression", classpath.mkString(java.io.File.pathSeparator), scalacOptions.toArray, source, line,
-      expression, localVariableNames.asJava, packageName, consumer, false)
+    val bridgeClass = Class.forName(bridgeClassName, true, classLoader)
+    val bridgeInstance = bridgeClass.getDeclaredConstructor().newInstance().asInstanceOf[AnyRef]
+    val runMethod = bridgeClass.getMethods.find(_.getName == "run").get
+
+    val consumer: java.util.function.Consumer[String] = client.error(_)
+    val expressionClassName = "CompiledExpression"
+    val classpathString = classpath.mkString(java.io.File.pathSeparator)
+    val scalacOptionsArray = scalacOptions.toArray
+    val localVariableNamesJavaSet = localVariableNames.asJava
+
+    if (useBuiltInExpressionCompiler) {
+      val config = assembleExpressionCompilerConfig(classLoader, packageName, expressionClassName, line, expression, localVariableNamesJavaSet, consumer)
+      runMethod.invoke(bridgeInstance, outDir, classpathString, scalacOptionsArray, source, config)
+    } else {
+      runMethod.invoke(bridgeInstance, outDir, expressionClassName, classpathString, scalacOptionsArray, source, line,
+        expression, localVariableNamesJavaSet, packageName, consumer, true)
+    }
+  }
+
+  private def assembleExpressionCompilerConfig(
+    classLoader: ClassLoader,
+    packageName: String,
+    outputClassName: String,
+    breakpointLine: Int,
+    expression: String,
+    localVariables: java.util.Set[String],
+    errorReporter: java.util.function.Consumer[String]
+  ): AnyRef = {
+    val configClass = Class.forName("dotty.tools.debug.ExpressionCompilerConfig", true, classLoader)
+    var configInstance = configClass.getDeclaredConstructor().newInstance().asInstanceOf[AnyRef]
+
+    val withPackageNameMethod = configClass.getDeclaredMethod("withPackageName", classOf[String])
+    configInstance = withPackageNameMethod.invoke(configInstance, packageName)
+
+    val withOutputClassNameMethod = configClass.getDeclaredMethod("withOutputClassName", classOf[String])
+    configInstance = withOutputClassNameMethod.invoke(configInstance, outputClassName)
+
+    val withBreakpointLineMethod = configClass.getDeclaredMethod("withBreakpointLine", classOf[Int])
+    configInstance = withBreakpointLineMethod.invoke(configInstance, breakpointLine)
+
+    val withExpressionMethod = configClass.getDeclaredMethod("withExpression", classOf[String])
+    configInstance = withExpressionMethod.invoke(configInstance, expression)
+
+    val withLocalVariablesMethod = configClass.getDeclaredMethod("withLocalVariables", classOf[java.util.Set[String]])
+    configInstance = withLocalVariablesMethod.invoke(configInstance, localVariables)
+
+    val withErrorReporterMethod = configClass.getDeclaredMethod("withErrorReporter", classOf[java.util.function.Consumer[String]])
+    configInstance = withErrorReporterMethod.invoke(configInstance, errorReporter)
+
+    configInstance
   }
 
   private def getMetricsLogic(client: Client): Unit = {

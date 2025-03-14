@@ -5,6 +5,7 @@ import org.jetbrains.jps.incremental.scala.Extractor
 import java.nio.file.Path
 
 case class ExpressionEvaluationArguments(
+  useBuiltInExpressionCompiler: Boolean,
   outDir: Path,
   classpath: Seq[Path],
   scalacOptions: Seq[String],
@@ -18,6 +19,7 @@ case class ExpressionEvaluationArguments(
 
   def asStrings: Seq[String] =
     Seq(
+      useBuiltInExpressionCompiler.toString,
       pathToString(outDir),
       pathsToString(classpath),
       sequenceToString(scalacOptions),
@@ -34,6 +36,7 @@ object ExpressionEvaluationArguments {
 
   def parse(strings: Seq[String]): Option[ExpressionEvaluationArguments] = strings match {
     case Seq(
+      s2b(useBuiltInExpressionCompiler),
       StringToPath(outDir),
       StringToPaths(classpath),
       StringToSequence(scalacOptions),
@@ -43,9 +46,11 @@ object ExpressionEvaluationArguments {
       stringToSet(localVariableNames),
       packageName
     ) =>
-      Some(ExpressionEvaluationArguments(outDir, classpath, scalacOptions, source, line, expression, localVariableNames, packageName))
+      Some(ExpressionEvaluationArguments(useBuiltInExpressionCompiler, outDir, classpath, scalacOptions, source, line, expression, localVariableNames, packageName))
     case _ => None
   }
+
+  private val s2b: Extractor[String, Boolean] = _.toBoolean
 
   private val stringToSet: Extractor[String, Set[String]] = StringToSequence.andThen(_.toSet)(_)
 
