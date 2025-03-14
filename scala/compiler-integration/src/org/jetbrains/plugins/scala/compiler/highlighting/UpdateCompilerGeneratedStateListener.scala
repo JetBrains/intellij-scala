@@ -1,16 +1,19 @@
 package org.jetbrains.plugins.scala.compiler.highlighting
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfoType
-import com.intellij.openapi.module.ModuleUtilCore
+import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.{PsiFile, PsiManager}
+import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.jetbrains.jps.incremental.scala.Client.{ClientMsg, PosInfo}
 import org.jetbrains.jps.incremental.scala.MessageKind
 import org.jetbrains.plugins.scala.compiler.highlighting.BackgroundExecutorService.executeOnBackgroundThreadInNotDisposed
 import org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlighting.RangeInfo
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
 import org.jetbrains.plugins.scala.extensions.PathExt
+import org.jetbrains.plugins.scala.project.ProjectPsiFileExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 private class UpdateCompilerGeneratedStateListener(project: Project) extends CompilerEventListener {
@@ -119,9 +122,21 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
   }
 
   private def scalacOptionsForFile(virtualFile: VirtualFile): Seq[String] = {
-    val module = ModuleUtilCore.findModuleForFile(virtualFile, project)
-    CompilerOptions.scalacOptions(module)
+    val psiFileOpt = findPsiFile(virtualFile)
+    val moduleOpt = psiFileOpt.flatMap(_.module)
+    moduleOpt match {
+      case Some(module) => CompilerOptions.scalacOptions(module)
+      case None => Seq.empty
+    }
   }
+
+  @RequiresBackgroundThread
+  private def findPsiFile(virtualFile: VirtualFile): Option[PsiFile] =
+    ReadAction
+      .nonBlocking[Option[PsiFile]](() => Option(PsiManager.getInstance(project).findFile(virtualFile)))
+      .inSmartMode(project)
+      .expireWhen(() => project.isDisposed)
+      .executeSynchronously()
 
   private def replaceOrAppendFileState(oldState: CompilerGeneratedState,
                                        file: VirtualFile,
