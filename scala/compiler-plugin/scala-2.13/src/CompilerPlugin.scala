@@ -1,5 +1,6 @@
 import CompilerPlugin._
 
+import scala.reflect.internal.util.RangePosition
 import scala.tools.nsc.plugins.{Plugin, PluginComponent}
 import scala.tools.nsc.reporters.ForwardingReporter
 import scala.tools.nsc.{Global, Phase}
@@ -39,7 +40,7 @@ class CompilerPlugin(val global: Global) extends Plugin {
       private val transformer = new Transformer() {
         override def transform(tree: Tree): Tree = {
           tree.attachments.get[analyzer.MacroExpansionAttachment] match {
-            case Some(analyzer.MacroExpansionAttachment(expandee, expanded: Tree)) if isWhiteboxMacro(global)(expandee.symbol) =>
+            case Some(analyzer.MacroExpansionAttachment(expandee, expanded: Tree)) if expandee.pos.isInstanceOf[RangePosition] && isWhiteboxMacro(global)(expandee.symbol) =>
               // If there's a type mismatch, the type checker replaces the tree type with an ErrorType (see TyperErrorGen.issueError)
               val tpe = if (tree.tpe.isError) typer.typed(expandee).tpe else tree.tpe
               val s = LiteralTypePattern.replaceAllIn(tpe.toString, _.group(1))

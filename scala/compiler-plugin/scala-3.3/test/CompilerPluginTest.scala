@@ -58,6 +58,26 @@ class CompilerPluginTest {
     "val _ = id(1); val _ = id(2)")(
     info("id(1)", tpe("1")), info("id(2)", tpe("2")))
 
+  // Sequence
+
+  @Test def sequence1(): Unit = assertMessagesAre(
+    "transparent inline def f(x: Any): Any = x",
+    "transparent inline def g(y: Any): Any = y",
+    "val _ = g(f(123))")(
+    info("g(f(123))", tpe("123")))//, info("f(123)", tpe("123"))) TODO implement
+
+
+  @Test def sequence2(): Unit = assertMessagesAre(
+    "transparent inline def f(x: Any): Any = x",
+    "transparent inline def g(y: Any): Any = f(y)",
+    "val _ = g(123)")(
+    info("g(123)", tpe("123")))
+
+  // TODO implement
+//  @Test def sequence3(): Unit = assertMessagesAre(
+//    "transparent inline def f(x: Any): Any = x; transparent inline def g(y: Any): Any = f(y); val _ = g(123)")(
+//    info("g(123)", tpe("123")))
+
   // Complex
 
   @Test def complexMethod(): Unit = assertMessagesAre(
