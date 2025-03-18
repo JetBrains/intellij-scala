@@ -37,9 +37,9 @@ private object CompilerPlugin:
     // Print types even if there are errors
     override def isRunnable(using Context): Boolean = true
 
-    override def transformInlined(tree: tpd.Inlined)(using Context): tpd.Tree =
+    override def transformInlined(tree: tpd.Inlined)(using context: Context): tpd.Tree =
       // Skip recursive inlining
-      if (!tree.call.isEmpty) {
+      if (!tree.call.isEmpty && tree.source == context.compilationUnit.source) {
         // Use -Ytest-pickler to print canonical types (see PlainPrinter.homogenizedView)
         val printer = new TypePrinter(ctx.fresh.setSetting(ctx.settings.YtestPickler, true))
         // Handle possible ErrorType("Type mismatch"), e.g. val x: Foo = bar()

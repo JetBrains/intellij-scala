@@ -66,6 +66,30 @@ class CompilerPluginTest {
     usage("val v1 = Macros.id(1); val v2 = Macros.id(2)"))(
     info("Macros.id(1)", tpe("1")), info("Macros.id(2)", tpe("2")))
 
+  // Sequence
+
+  @Test def sequence1(): Unit = assertMessagesAre(
+    """object Macros {
+      |  def f_impl(c: scala.reflect.macros.whitebox.Context)(x: c.Expr[Any]): c.Expr[Any] = x
+      |  def f(x: Any): Any = macro f_impl
+      |  def g_impl(c: scala.reflect.macros.whitebox.Context)(y: c.Expr[Any]): c.Expr[Any] = y
+      |  def g(y: Any): Any = macro g_impl
+      |}""".stripMargin,
+    usage("val v = Macros.g(Macros.f(123))"))(
+    info("Macros.g(Macros.f(123))", tpe("123")))//, info("Macros.f(123)", tpe("123"))) TODO implement
+
+  @Test def sequence2(): Unit = assertMessagesAre(
+    """object Macros1 {
+      |  def f_impl(c: scala.reflect.macros.whitebox.Context)(x: c.Expr[Any]): c.Expr[Any] = x
+      |  def f(x: Any): Any = macro f_impl
+      |}""".stripMargin,
+    """object Macros2 {
+      |  def g_impl(c: scala.reflect.macros.whitebox.Context)(y: c.Expr[Any]): c.Tree = { import c.universe._; q"{ (); Macros1.f($y) }" }
+      |  def g(y: Any): Any = macro g_impl
+      |}""".stripMargin,
+    usage("val v = Macros2.g(123)"))(
+    info("Macros2.g(123)", tpe("123")))
+
   // Type parameter
 
   @Test def typeParameter(): Unit = assertMessagesAre(
