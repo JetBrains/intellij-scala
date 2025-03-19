@@ -77,10 +77,12 @@ object CompileServerLauncher {
     }
   }
 
-  ScalaShutDownTracker.registerShutdownTask(() => {
-    LOG.info("Shutdown event triggered, stopping server")
-    stopServerAndWaitFor(Duration.Zero)
-  })
+  executeOnPooledThread {
+    ScalaShutDownTracker.registerShutdownTask(() => {
+      LOG.info("Shutdown event triggered, stopping server")
+      stopServerAndWaitFor(Duration.Zero)
+    })
+  }
 
   private def isUnitTestMode: Boolean =
     ApplicationManager.getApplication.isUnitTestMode
