@@ -33,7 +33,9 @@ trait ScalaInlayParameterHintsPass {
   protected implicit def settings: ScalaHintsSettings
 
   protected def collectParameterHints(editor: Editor, root: PsiElement): Seq[Hint] = {
-    val filter = hintInfoFilterFor(ScalaLanguage, ScalaInlayParameterHintsProvider)
+    val filter: HintInfoFilter =
+      if (ScalaHintsSettings.xRayMode && ScalaApplicationSettings.XRAY_FOR_ALL_PARAMETERS) _ => true
+      else hintInfoFilterFor(ScalaLanguage, ScalaInlayParameterHintsProvider)
     root.elements(_.isVisible).flatMap(getParameterHints(_, filter)).toSeq
   }
 
@@ -119,8 +121,8 @@ object ScalaInlayParameterHintsPass {
     (regular ++ varargs.headOption).filter {
       case (argument, _) if !isNameable(argument) => false
       case (_: ScUnderscoreSection, _) => false
-      case (_, parameter) if parameter.name.isEmpty || !ScalaHintsSettings.xRayMode && parameter.name.length == 1 => false
-      case (argument, _) => isUnclear(argument)
+      case (_, parameter) if parameter.name.isEmpty || !(ScalaHintsSettings.xRayMode && ScalaApplicationSettings.XRAY_FOR_ALL_PARAMETERS) && parameter.name.length == 1 => false
+      case (argument, _) => (ScalaHintsSettings.xRayMode && ScalaApplicationSettings.XRAY_FOR_ALL_PARAMETERS) || isUnclear(argument)
       case _ => true
     }.map {
       case (argument, parameter) =>
