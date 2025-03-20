@@ -10,7 +10,6 @@ import com.intellij.openapi.editor.colors.EditorColorsScheme
 import com.intellij.openapi.editor.ex.{EditorEx, MarkupModelEx}
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.util.{Key, TextRange}
-import com.intellij.psi.PsiManager
 
 import java.awt.Color
 import javax.swing.Timer
@@ -46,7 +45,7 @@ private class Updater(editor: Editor) extends Disposable {
 
     val newlyVisibleRange = if (previousVisibleRange == null) visibleRange else visibleRange.diff(previousVisibleRange)
     if (!newlyVisibleRange.isEmpty) {
-      val document = PsiManager.getInstance(editor.getProject).findFile(editor.getVirtualFile).getViewProvider.getDocument
+      val document = editor.getDocument
       val daemon = DaemonCodeAnalyzer.getInstance(editor.getProject)
       daemon.combineDirtyScopes(document, newlyVisibleRange)
       daemon.stopProcess(/* restart = */ true)
