@@ -10,6 +10,7 @@ import com.intellij.openapi.editor.colors.EditorColorsScheme
 import com.intellij.openapi.editor.ex.{EditorEx, MarkupModelEx}
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.util.{Key, TextRange}
+import org.jetbrains.plugins.scala.extensions.inReadAction
 
 import java.awt.Color
 import javax.swing.Timer
@@ -47,7 +48,7 @@ private class Updater(editor: Editor) extends Disposable {
     if (!newlyVisibleRange.isEmpty) {
       val document = editor.getDocument
       val daemon = DaemonCodeAnalyzer.getInstance(editor.getProject)
-      daemon.combineDirtyScopes(document, newlyVisibleRange)
+      inReadAction(daemon.combineDirtyScopes(document, newlyVisibleRange))
       daemon.stopProcess(/* restart = */ true)
     }
 
