@@ -16,7 +16,6 @@ import com.intellij.openapi.roots.ui.configuration.SdkLookupProvider
 import com.intellij.openapi.roots.ui.configuration.SdkLookupProvider.SdkInfo
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.sbt.SbtBundle
-import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.settings.SbtSettings
 
 class SbtExecutionAware extends ExternalSystemExecutionAware {
@@ -48,17 +47,16 @@ class SbtExecutionAware extends ExternalSystemExecutionAware {
     //  the import does not wait for the download to finish.
     //  2. After resolution we can verify if the JDK is correct - it could be useful because, currently,
     //  if the SDK is resolved but broken, no meaningful message is displayed.
-    resolveJdk(project, projectSettings, externalSystemTask, taskNotificationListener)
+    resolveJdk(project, externalSystemTask, taskNotificationListener)
   }
 
   private def resolveJdk(
     project: Project,
-    projectSettings: SbtProjectSettings,
     task: ExternalSystemTask,
     taskNotificationListener: ExternalSystemTaskNotificationListener,
   ): Unit = {
     val provider = SdkLookupProvider.getInstance(project, DefaultSdkLookupId)
-    val sdkInfo = nonblockingResolveJdk(provider, project, projectSettings.jdkName)
+    val sdkInfo = nonblockingResolveJdk(provider, project)
     val isResolved = sdkInfo.is[SdkInfo.Resolved]
     if (!isResolved) {
       waitForJvmResolving(provider, task, taskNotificationListener)
@@ -127,15 +125,9 @@ class SbtExecutionAware extends ExternalSystemExecutionAware {
 
   private def nonblockingResolveJdk(
     provider: SdkLookupProvider,
-    project: Project,
-    projectSettingsJdkName: Option[String]
+    project: Project
   ): SdkInfo = {
-    val jdkReference = projectSettingsJdkName match {
-      case Some(value) => value
-      case None => ExternalSystemJdkUtil.USE_PROJECT_JDK
-    }
-
     val projectSdk = ProjectRootManager.getInstance(project).getProjectSdk
-    ExternalSystemJdkUtilKt.nonblockingResolveJdkInfo(provider, projectSdk, jdkReference)
+    ExternalSystemJdkUtilKt.nonblockingResolveJdkInfo(provider, projectSdk, ExternalSystemJdkUtil.USE_PROJECT_JDK)
   }
 }
