@@ -57,8 +57,8 @@ class SbtExecutionAware extends ExternalSystemExecutionAware {
   ): Unit = {
     val provider = SdkLookupProvider.getInstance(project, DefaultSdkLookupId)
     val sdkInfo = nonblockingResolveJdk(provider, project)
-    val isResolved = sdkInfo.is[SdkInfo.Resolved]
-    if (!isResolved) {
+    val isResolving = sdkInfo.is[SdkInfo.Resolving]
+    if (isResolving) {
       waitForJvmResolving(provider, task, taskNotificationListener)
     }
   }
