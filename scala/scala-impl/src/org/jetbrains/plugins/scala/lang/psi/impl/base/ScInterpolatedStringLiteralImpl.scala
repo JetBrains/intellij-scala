@@ -47,7 +47,7 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode,
   override def referenceName: String = reference.refName
 
   override def hasValidClosingQuotes: Boolean =
-    getNode.getLastChildNode.getElementType == tINTERPOLATED_STRING_END
+    getNode.findChildByType(tINTERPOLATED_STRING_END) != null
 
   override def isMultiLineString: Boolean = hasValidClosingQuotes && {
     val next = firstNode.getTreeNext
@@ -77,16 +77,23 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode,
         }
         val methodParameters = injectionsValues.commaSeparated(Model.Parentheses)
 
+        val closeQuotes = getNode.findChildByType(tINTERPOLATED_STRING_END)
+        val argumentExprs = if(closeQuotes.getTreeNext != null) {
+          closeQuotes.getTreeNext.getText
+        } else {
+          ""
+        }
+
         val expression =
           try {
             // FIXME: fails on s"aaa /* ${s"ccc s${s"/*"} ddd"} bbb" (SCL-17625, SCL-18706)
-            val text = s"$StringContextCanonical$constructorParameters.$methodName$methodParameters"
+            val text = s"$StringContextCanonical$constructorParameters.$methodName$methodParameters$argumentExprs"
             ScalaPsiElementFactory.createExpressionWithContextFromText(text, context, this).asInstanceOf[ScMethodCall]
           } catch {
             case e: IncorrectOperationException =>
               throw new IncorrectOperationException(s"Couldn't desugar interpolated string ${this.getText}", e: Throwable)
           }
-        Some(expression.getInvokedExpr.asInstanceOf[ScReferenceExpression], expression)
+        Some(expression.deepestInvokedExpr.asInstanceOf[ScReferenceExpression], expression)
       case _ => None
     }
   }

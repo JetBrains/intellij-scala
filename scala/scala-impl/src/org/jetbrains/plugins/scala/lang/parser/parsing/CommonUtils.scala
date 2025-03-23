@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.BlockExpr
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{ArgumentExprs, BlockExpr}
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.Pattern
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
@@ -86,6 +86,8 @@ object CommonUtils {
 
     if (!builder.eof())
       builder.advanceLexer()
+
+    ArgumentExprs()
   }
 
   /** see comments to [[ScalaTokenTypes.tINTERPOLATED_RAW_STRING]] and [[ScalaTokenTypes.tINTERPOLATED_MULTILINE_RAW_STRING]] */
