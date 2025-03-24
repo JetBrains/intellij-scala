@@ -72,6 +72,11 @@ abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep) extends Abs
 
       val sbtVersionComboBoxCell = row.cell(sbtVersionComboBox).horizontalAlign(HorizontalAlign.FILL): @nowarn("cat=deprecation")
       sbtVersionComboBoxCell
+        .validationRequestor(new DialogValidationRequestor() {
+          // Initiate one-time validation when the build system panel is shown
+          override def subscribe(disposable: Disposable, validate: functions.Function0[kotlin.Unit]): Unit =
+            validate.invoke()
+        })
         .validationRequestor(RequestorsKt.getWHEN_PROPERTY_CHANGED.invoke(sbtVersionProperty))
         .validationRequestor(RequestorsKt.getWHEN_PROPERTY_CHANGED.invoke(sdkProperty))
         .validationRequestor(RequestorsKt.getWHEN_PROPERTY_CHANGED.invoke(sdkDownloadTaskProperty))
@@ -109,6 +114,11 @@ abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep) extends Abs
         (javaVersion: JavaVersion, _: String) => jdkWithSbtValidation(javaVersion)
       )
       jdkComboBoxCell
+        .validationRequestor(new DialogValidationRequestor() {
+          // Initiate one-time validation when the build system panel is shown
+          override def subscribe(disposable: Disposable, validate: functions.Function0[kotlin.Unit]): Unit =
+            validate.invoke()
+        })
         .validationRequestor(RequestorsKt.getWHEN_PROPERTY_CHANGED.invoke(sbtVersionProperty))
         .validationRequestor(RequestorsKt.getWHEN_PROPERTY_CHANGED.invoke(sdkProperty))
         .validationRequestor(RequestorsKt.getWHEN_PROPERTY_CHANGED.invoke(sdkDownloadTaskProperty))
