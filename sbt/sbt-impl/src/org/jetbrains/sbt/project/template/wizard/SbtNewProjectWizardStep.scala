@@ -7,14 +7,14 @@ import com.intellij.ide.projectWizard.{ProjectWizardJdkComboBox, ProjectWizardJd
 import com.intellij.ide.wizard.NewProjectWizardBaseData.getBaseData
 import com.intellij.ide.wizard.{AbstractNewProjectWizardStep, NewProjectWizardStep}
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.observable.properties.{GraphProperty, ObservableProperty, PropertyGraph}
+import com.intellij.openapi.observable.properties.{GraphProperty, PropertyGraph}
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.impl.jdkDownloader.JdkDownloadTask
 import com.intellij.openapi.projectRoots.{JavaSdkVersion, Sdk}
 import com.intellij.openapi.roots.ui.configuration.projectRoot.SdkDownloadTask
 import com.intellij.openapi.ui.ValidationInfo
-import com.intellij.openapi.ui.validation.DialogValidationRequestor
+import com.intellij.openapi.ui.validation.{DialogValidationRequestor, RequestorsKt}
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.dsl.builder.{BottomGap, Panel, Row, RowLayout}
 import com.intellij.ui.dsl.gridLayout.HorizontalAlign
@@ -72,9 +72,9 @@ abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep) extends Abs
 
       val sbtVersionComboBoxCell = row.cell(sbtVersionComboBox).horizontalAlign(HorizontalAlign.FILL): @nowarn("cat=deprecation")
       sbtVersionComboBoxCell
-        .validationRequestor(afterPropertyChange(sdkProperty))
-        .validationRequestor(afterPropertyChange(sdkDownloadTaskProperty))
-        .validationRequestor(afterPropertyChange(sbtVersionProperty))
+        .validationRequestor(RequestorsKt.getWHEN_PROPERTY_CHANGED.invoke(sbtVersionProperty))
+        .validationRequestor(RequestorsKt.getWHEN_PROPERTY_CHANGED.invoke(sdkProperty))
+        .validationRequestor(RequestorsKt.getWHEN_PROPERTY_CHANGED.invoke(sdkDownloadTaskProperty))
         .validationOnInput(() => sbtWithJdkValidation())
       val downloadSbtSourcesCheckboxCell = row.cell(downloadSbtSourcesCheckbox)
 
@@ -83,14 +83,6 @@ abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep) extends Abs
 
       KUnit
     })
-
-  protected def afterPropertyChange[T](property: GraphProperty[T]): DialogValidationRequestor =
-    new DialogValidationRequestor.WithParameter[ObservableProperty[T]] {
-      override def invoke(observable: ObservableProperty[T]): DialogValidationRequestor = {
-        (disposable: Disposable, validate: functions.Function0[kotlin.Unit]) =>
-          observable.afterChange(disposable, (_: T) => validate.invoke())
-      }
-    }.invoke(property)
 
   protected def startJdkDownloadIfNeeded(project: Project): Unit =
     sdkDownloadTask.collect { case task: JdkDownloadTask =>
@@ -117,9 +109,9 @@ abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep) extends Abs
         (javaVersion: JavaVersion, _: String) => jdkWithSbtValidation(javaVersion)
       )
       jdkComboBoxCell
-        .validationRequestor(afterPropertyChange(sbtVersionProperty))
-        .validationRequestor(afterPropertyChange(sdkProperty))
-        .validationRequestor(afterPropertyChange(sdkDownloadTaskProperty))
+        .validationRequestor(RequestorsKt.getWHEN_PROPERTY_CHANGED.invoke(sbtVersionProperty))
+        .validationRequestor(RequestorsKt.getWHEN_PROPERTY_CHANGED.invoke(sdkProperty))
+        .validationRequestor(RequestorsKt.getWHEN_PROPERTY_CHANGED.invoke(sdkDownloadTaskProperty))
 
       jdkComboBox = jdkComboBoxCell.getComponent
 
