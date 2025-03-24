@@ -1,6 +1,4 @@
 on:
-  push:
-    branches: [ idea243.x, idea251.x ]
   pull_request:
     branches: [ idea243.x, idea251.x ]
 
