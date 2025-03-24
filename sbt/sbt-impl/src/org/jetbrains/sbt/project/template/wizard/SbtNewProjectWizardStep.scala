@@ -145,8 +145,8 @@ abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep) extends Abs
     if (jdkVersion == null) return null
     val sbtVersion = sbtVersionProperty.get()
     val javaVersion = JavaVersion.compose(jdkVersion.getMaxLanguageLevel.feature())
-    val lowestIncompatibleJdk = JdkSbtCompatibilityChecker.getLowestIncompatibleJdkForSbt(javaVersion, sbtVersion)
-    lowestIncompatibleJdk.map { version =>
+    val highestCompatibleJdk = JdkSbtCompatibilityChecker.getHighestCompatibleJdkForSbt(javaVersion, sbtVersion)
+    highestCompatibleJdk.map { version =>
       new ValidationInfo(SbtBundle.message("sbt.incompatible.versions.message", sbtVersion.minor, version.toFeatureString), sbtVersionComboBox).asWarning()
     }.orNull
   }

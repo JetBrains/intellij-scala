@@ -20,11 +20,11 @@ class JdkSbtCompatibilityCheckerTest {
   }
 
   @ParameterizedTest
-  @MethodSource(Array("org.jetbrains.sbt.project.JdkSbtCompatibilityCheckerTest#testDataLowestIncompatibleJdkForSbt"))
-  def testLowestIncompatibleJdkForSbt(data: (JavaVersion, SbtVersion, Option[SbtVersion])): Unit = {
+  @MethodSource(Array("org.jetbrains.sbt.project.JdkSbtCompatibilityCheckerTest#testDataHighestCompatibleJdkForSbt"))
+  def testHighestCompatibleJdkForSbt(data: (JavaVersion, SbtVersion, Option[SbtVersion])): Unit = {
     val (jdk, sbt, expectedResult) = data
-    val minimumCompatibleVersion = JdkSbtCompatibilityChecker.getLowestIncompatibleJdkForSbt(jdk, sbt)
-    assertEquals(expectedResult, minimumCompatibleVersion)
+    val highestCompatibleVersion = JdkSbtCompatibilityChecker.getHighestCompatibleJdkForSbt(jdk, sbt)
+    assertEquals(expectedResult, highestCompatibleVersion)
   }
 }
 
@@ -44,16 +44,16 @@ object JdkSbtCompatibilityCheckerTest {
     ).asJava.stream()
   }
 
-  def testDataLowestIncompatibleJdkForSbt(): java.util.stream.Stream[(JavaVersion, SbtVersion, Option[JavaVersion])] = {
+  def testDataHighestCompatibleJdkForSbt(): java.util.stream.Stream[(JavaVersion, SbtVersion, Option[JavaVersion])] = {
     Seq(
       (JavaVersion.compose(6), SbtVersion("1.0.0"), None), // not present in the compatibility hardcoded table
       (JavaVersion.compose(8), SbtVersion("1.0.0"), None),
-      (JavaVersion.compose(11),  SbtVersion("1.0.4"), Some(JavaVersion.compose(11))),
+      (JavaVersion.compose(11),  SbtVersion("1.0.4"), Some(JavaVersion.compose(10))),
       (JavaVersion.compose(11),  SbtVersion("1.1.1"), None),
       (JavaVersion.compose(18),  SbtVersion("1.6.5"), None),
-      (JavaVersion.compose(18),  SbtVersion("1.5.5"), Some(JavaVersion.compose(17))),
-      (JavaVersion.compose(22),  SbtVersion("1.8.0"), Some(JavaVersion.compose(21))),
-      (JavaVersion.compose(23),  SbtVersion("1.8.5"), Some(JavaVersion.compose(21))),
+      (JavaVersion.compose(18),  SbtVersion("1.5.5"), Some(JavaVersion.compose(16))),
+      (JavaVersion.compose(22),  SbtVersion("1.8.0"), Some(JavaVersion.compose(20))),
+      (JavaVersion.compose(23),  SbtVersion("1.8.5"), Some(JavaVersion.compose(20))),
       (JavaVersion.compose(23),  SbtVersion("1.9.2"), None),
       (JavaVersion.compose(25),  SbtVersion("1.9.0"), None), // not present in the compatibility hardcoded table
     ).asJava.stream()
