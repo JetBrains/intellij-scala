@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.annotator.element
 import com.intellij.openapi.module.Module
 import com.intellij.psi.PsiFile
 import junit.framework.Test
+import org.jetbrains.plugins.scala.FileSetTests
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderExtendedMock, Message2, ScalaHighlightingTestLike}
 import org.jetbrains.plugins.scala.base.{ScalaFileSetTestCase, ScalaLightCodeInsightFixtureTestCase}
 import org.jetbrains.plugins.scala.editor.DocumentExt
@@ -10,13 +11,11 @@ import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, PsiElementExt, e
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.junit.Assert.assertEquals
-import org.junit.runner.RunWith
-import org.junit.runners.AllTests
+import org.junit.experimental.categories.Category
 
 import java.nio.file.Path
 import scala.jdk.CollectionConverters.ListHasAsScala
 
-@RunWith(classOf[AllTests])
 abstract class ScStringLiteralAnnotatorTestBase(testDataPath: String)
   extends ScalaFileSetTestCase(testDataPath) {
 
@@ -31,7 +30,9 @@ abstract class ScStringLiteralAnnotatorTestBase(testDataPath: String)
   override protected def constructTestCase(testFile: Path): Test =
     new MyTest(testFile)
 
-  private class MyTest(override val myTestFile: Path)
+  //noinspection JUnitMalformedDeclaration
+  @Category(Array(classOf[FileSetTests]))
+  private final class MyTest(override val myTestFile: Path)
     extends ScalaLightCodeInsightFixtureTestCase
       with ScalaLightCodeInsightFixtureTest_ForFileTestTests
       with ScalaHighlightingTestLike {

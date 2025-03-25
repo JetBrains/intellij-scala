@@ -17,9 +17,9 @@ raw"\u0025 \u000A \u000D"
 //// with injections
 raw"aaa \x ${ raw"bbb \y ${42} \y bbb" } \x aaa"
 -----
-Warning((217,223),Unicode escapes in raw interpolations are deprecated)
-Warning((224,230),Unicode escapes in raw interpolations are deprecated)
-Warning((231,237),Unicode escapes in raw interpolations are deprecated)
+Warning((217,223),Unicode escape sequences in raw interpolations are deprecated)
+Warning((224,230),Unicode escape sequences in raw interpolations are deprecated)
+Warning((231,237),Unicode escape sequences in raw interpolations are deprecated)
 -----
 raw""
 raw"aaa"
