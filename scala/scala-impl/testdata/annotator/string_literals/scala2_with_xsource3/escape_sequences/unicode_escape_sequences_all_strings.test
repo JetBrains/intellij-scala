@@ -5,12 +5,12 @@ s"""string\u0023\u0024 \n"""
 raw"""string\u0023\u0024 \n"""
 raw"string\u0023\u0024 \n"
 ---------
-Error((33,39),Unicode escapes in triple quoted strings are ignored in Scala 3 (or with -Xsource-features:unicode-escapes-raw))
-Error((39,45),Unicode escapes in triple quoted strings are ignored in Scala 3 (or with -Xsource-features:unicode-escapes-raw))
-Error((118,124),Unicode escapes in raw interpolations are ignored in Scala 3 (or with -Xsource-features:unicode-escapes-raw))
-Error((124,130),Unicode escapes in raw interpolations are ignored in Scala 3 (or with -Xsource-features:unicode-escapes-raw))
-Error((147,153),Unicode escapes in raw interpolations are ignored in Scala 3 (or with -Xsource-features:unicode-escapes-raw))
-Error((153,159),Unicode escapes in raw interpolations are ignored in Scala 3 (or with -Xsource-features:unicode-escapes-raw))
+Error((33,39),Unicode escape sequences in triple quoted strings are ignored in Scala 3 (or with -Xsource-features:unicode-escapes-raw))
+Error((39,45),Unicode escape sequences in triple quoted strings are ignored in Scala 3 (or with -Xsource-features:unicode-escapes-raw))
+Error((118,124),Unicode escape sequences in raw interpolations are ignored in Scala 3 (or with -Xsource-features:unicode-escapes-raw))
+Error((124,130),Unicode escape sequences in raw interpolations are ignored in Scala 3 (or with -Xsource-features:unicode-escapes-raw))
+Error((147,153),Unicode escape sequences in raw interpolations are ignored in Scala 3 (or with -Xsource-features:unicode-escapes-raw))
+Error((153,159),Unicode escape sequences in raw interpolations are ignored in Scala 3 (or with -Xsource-features:unicode-escapes-raw))
 ---------
 "string\u0023\u0024 \n"
 """string#$ \r"""

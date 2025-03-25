@@ -15,9 +15,9 @@
 //// unicode escape
 """\u0025 \u000A \u000D"""
 -----
-Warning((233,239),Unicode escapes in triple quoted strings are deprecated)
-Warning((240,246),Unicode escapes in triple quoted strings are deprecated)
-Warning((247,253),Unicode escapes in triple quoted strings are deprecated)
+Warning((233,239),Unicode escape sequences in triple quoted strings are deprecated)
+Warning((240,246),Unicode escape sequences in triple quoted strings are deprecated)
+Warning((247,253),Unicode escape sequences in triple quoted strings are deprecated)
 -----
 """"""
 """aaa"""

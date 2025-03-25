@@ -18,9 +18,9 @@ raw"aaa \x ${ raw"bbb \y ${42} \y bbb" } \x aaa"
 //// with injections
 raw"""aaa \x ${ raw"""bbb \y ${42} \y bbb""" } \x aaa"""
 -----
-Warning((272,278),Unicode escapes in raw interpolations are deprecated)
-Warning((279,285),Unicode escapes in raw interpolations are deprecated)
-Warning((286,292),Unicode escapes in raw interpolations are deprecated)
+Warning((272,278),Unicode escape sequences in raw interpolations are deprecated)
+Warning((279,285),Unicode escape sequences in raw interpolations are deprecated)
+Warning((286,292),Unicode escape sequences in raw interpolations are deprecated)
 -----
 raw""""""
 raw"""aaa"""

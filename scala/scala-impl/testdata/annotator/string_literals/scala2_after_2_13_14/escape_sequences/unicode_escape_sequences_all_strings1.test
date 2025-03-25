@@ -5,12 +5,12 @@ s"""string\u0023\u0024 \n"""
 raw"""string\u0023\u0024 \n"""
 raw"string\u0023\u0024 \n"
 -----
-Warning((33,39),Unicode escapes in triple quoted strings are deprecated)
-Warning((39,45),Unicode escapes in triple quoted strings are deprecated)
-Warning((118,124),Unicode escapes in raw interpolations are deprecated)
-Warning((124,130),Unicode escapes in raw interpolations are deprecated)
-Warning((147,153),Unicode escapes in raw interpolations are deprecated)
-Warning((153,159),Unicode escapes in raw interpolations are deprecated)
+Warning((33,39),Unicode escape sequences in triple quoted strings are deprecated)
+Warning((39,45),Unicode escape sequences in triple quoted strings are deprecated)
+Warning((118,124),Unicode escape sequences in raw interpolations are deprecated)
+Warning((124,130),Unicode escape sequences in raw interpolations are deprecated)
+Warning((147,153),Unicode escape sequences in raw interpolations are deprecated)
+Warning((153,159),Unicode escape sequences in raw interpolations are deprecated)
 -----
 "string\u0023\u0024 \n"
 """string#$ \r"""
