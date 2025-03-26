@@ -216,6 +216,7 @@
             </constraints>
             <properties>
               <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.xray.for.all.parameters"/>
+              <toolTipText resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.xray.for.all.parameters.tooltip"/>
             </properties>
           </component>
           <component id="6cc4" class="javax.swing.JCheckBox" binding="myForAllTypesCheckbox">
@@ -224,6 +225,7 @@
             </constraints>
             <properties>
               <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.xray.for.all.types"/>
+              <toolTipText resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.xray.for.all.types.tooltip"/>
             </properties>
           </component>
           <component id="d983b" class="javax.swing.JCheckBox" binding="myForAllChainsCheckbox">
@@ -232,6 +234,7 @@
             </constraints>
             <properties>
               <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.xray.for.all.chains"/>
+              <toolTipText resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.xray.for.all.chains.tooltip"/>
             </properties>
           </component>
           <component id="bd9a2" class="javax.swing.JCheckBox" binding="myShowApplyMethodHintsCheckbox">
