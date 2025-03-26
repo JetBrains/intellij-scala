@@ -262,12 +262,15 @@ public class XRayModeSettingsSectionPanel extends SettingsSectionPanel {
         panel2.add(myShowArgumentHintsCheckbox, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
         myForAllParametersCheckbox = new JCheckBox();
         this.$$$loadButtonText$$$(myForAllParametersCheckbox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.xray.for.all.parameters"));
+        myForAllParametersCheckbox.setToolTipText(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.xray.for.all.parameters.tooltip"));
         panel2.add(myForAllParametersCheckbox, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myForAllTypesCheckbox = new JCheckBox();
         this.$$$loadButtonText$$$(myForAllTypesCheckbox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.xray.for.all.types"));
+        myForAllTypesCheckbox.setToolTipText(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.xray.for.all.types.tooltip"));
         panel2.add(myForAllTypesCheckbox, new GridConstraints(4, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myForAllChainsCheckbox = new JCheckBox();
         this.$$$loadButtonText$$$(myForAllChainsCheckbox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.xray.for.all.chains"));
+        myForAllChainsCheckbox.setToolTipText(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.xray.for.all.chains.tooltip"));
         panel2.add(myForAllChainsCheckbox, new GridConstraints(11, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myShowApplyMethodHintsCheckbox = new JCheckBox();
         this.$$$loadButtonText$$$(myShowApplyMethodHintsCheckbox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.xray.apply.method.hints"));
