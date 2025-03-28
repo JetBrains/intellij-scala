@@ -26,6 +26,9 @@ object ScAssignmentAnnotator extends ElementAnnotator[ScAssignment] {
     element.leftExpression match {
       case _: ScMethodCall =>
       case ref: ScReferenceExpression =>
+        if (!typeAware)
+          return
+
         ref.bind() match {
           case Some(r) if r.isDynamic && r.name == DynamicResolveProcessor.UPDATE_DYNAMIC => //ignore
           case Some(r) if !r.isNamedParameter =>
