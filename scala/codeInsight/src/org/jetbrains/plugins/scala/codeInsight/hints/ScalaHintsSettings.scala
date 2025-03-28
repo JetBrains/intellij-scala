@@ -64,9 +64,9 @@ object ScalaHintsSettings {
     override def showLocalVariableType: Boolean = (xRayMode && applicationSettings.XRAY_SHOW_TYPE_HINTS && applicationSettings.XRAY_SHOW_LOCAL_VARIABLE_HINTS) || settings.showLocalVariableType
     override def showMethodChainInlayHints: Boolean = (xRayMode && applicationSettings.XRAY_SHOW_METHOD_CHAIN_HINTS) || settings.showMethodChainInlayHints
     override def alignMethodChainInlayHints: Boolean = settings.alignMethodChainInlayHints
-    override def uniqueTypesToShowMethodChains: Int = if (xRayMode && applicationSettings.XRAY_FOR_ALL_CHAINS) 1 else settings.uniqueTypesToShowMethodChains
+    override def uniqueTypesToShowMethodChains: Int = if (xRayMode) 1 else settings.uniqueTypesToShowMethodChains
     override def presentationLength: Int = settings.presentationLength
-    override def showObviousType: Boolean = (xRayMode && applicationSettings.XRAY_FOR_ALL_TYPES) || settings.showObviousType
+    override def showObviousType: Boolean = xRayMode || settings.showObviousType
     override def preserveIndents: Boolean = settings.preserveIndents
     override def showRangeHintsForToAndUntil: Boolean = xRayMode || settings.showRangeHintsForToAndUntil
     override def showExclusiveRangeHint: Boolean = xRayMode || settings.showExclusiveRangeHint
