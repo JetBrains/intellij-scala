@@ -90,7 +90,7 @@
           <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.xray.widget"/>
         </properties>
       </component>
-      <grid id="e4db3" layout-manager="GridLayoutManager" row-count="15" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+      <grid id="e4db3" layout-manager="GridLayoutManager" row-count="16" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
         <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
           <grid row="4" column="0" row-span="14" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="2" indent="0" use-parent-layout="false"/>
@@ -108,7 +108,7 @@
           </component>
           <component id="c2735" class="javax.swing.JCheckBox" binding="myShowMethodChainHintsCheckbox">
             <constraints>
-              <grid row="11" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+              <grid row="12" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.xray.method.chain.hints"/>
@@ -116,7 +116,7 @@
           </component>
           <component id="11b9" class="javax.swing.JCheckBox" binding="myShowIndentGuidesCheckbox">
             <constraints>
-              <grid row="13" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+              <grid row="14" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.xray.indent.guides"/>
@@ -124,7 +124,7 @@
           </component>
           <component id="2e3dd" class="javax.swing.JCheckBox" binding="myShowMethodSeparatorsCheckbox">
             <constraints>
-              <grid row="14" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+              <grid row="15" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.xray.method.separators"/>
@@ -132,7 +132,7 @@
           </component>
           <component id="cb34d" class="javax.swing.JCheckBox" binding="myShowImplicitHintsCheckbox">
             <constraints>
-              <grid row="12" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+              <grid row="13" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.xray.implicit.hints"/>
@@ -140,7 +140,7 @@
           </component>
           <component id="e9533" class="javax.swing.JCheckBox" binding="myShowTypeHintsCheckbox">
             <constraints>
-              <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+              <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.xray.type.hints"/>
@@ -148,7 +148,7 @@
           </component>
           <component id="60d43" class="javax.swing.JCheckBox" binding="myShowMethodResultsCheckbox">
             <constraints>
-              <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="2" use-parent-layout="false"/>
+              <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="2" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.xray.method.results"/>
@@ -156,7 +156,7 @@
           </component>
           <component id="fdd19" class="javax.swing.JCheckBox" binding="myShowMemberVariablesCheckbox">
             <constraints>
-              <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="2" use-parent-layout="false"/>
+              <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="2" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.xray.member.variables"/>
@@ -164,7 +164,7 @@
           </component>
           <component id="77772" class="javax.swing.JCheckBox" binding="myShowLocalVariablesCheckbox">
             <constraints>
-              <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="2" use-parent-layout="false"/>
+              <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="2" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.xray.local.variables"/>
@@ -172,7 +172,7 @@
           </component>
           <component id="c67ba" class="javax.swing.JCheckBox" binding="myShowLambdaParametersCheckbox">
             <constraints>
-              <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="2" use-parent-layout="false"/>
+              <grid row="9" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="2" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.xray.lambda.parameters"/>
@@ -180,7 +180,7 @@
           </component>
           <component id="ba88a" class="javax.swing.JCheckBox" binding="myShowLambdaPlaceholdersCheckbox">
             <constraints>
-              <grid row="9" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="2" use-parent-layout="false"/>
+              <grid row="10" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="2" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.xray.lambda.placeholders"/>
@@ -188,7 +188,7 @@
           </component>
           <component id="9e5e8" class="javax.swing.JCheckBox" binding="myShowVariablePatternsCheckbox">
             <constraints>
-              <grid row="10" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="2" use-parent-layout="false"/>
+              <grid row="11" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="2" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.xray.variable.patterns"/>
@@ -196,7 +196,7 @@
           </component>
           <component id="5a8c6" class="javax.swing.JCheckBox" binding="myShowParameterHintsCheckbox">
             <constraints>
-              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.xray.parameter.name.hints"/>
@@ -212,34 +212,16 @@
           </component>
           <component id="4c123" class="javax.swing.JCheckBox" binding="myForAllParametersCheckbox">
             <constraints>
-              <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="2" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.xray.for.all.parameters"/>
               <toolTipText resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.xray.for.all.parameters.tooltip"/>
             </properties>
           </component>
-          <component id="6cc4" class="javax.swing.JCheckBox" binding="myForAllTypesCheckbox">
-            <constraints>
-              <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.xray.for.all.types"/>
-              <toolTipText resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.xray.for.all.types.tooltip"/>
-            </properties>
-          </component>
-          <component id="d983b" class="javax.swing.JCheckBox" binding="myForAllChainsCheckbox">
-            <constraints>
-              <grid row="11" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.xray.for.all.chains"/>
-              <toolTipText resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.xray.for.all.chains.tooltip"/>
-            </properties>
-          </component>
           <component id="bd9a2" class="javax.swing.JCheckBox" binding="myShowApplyMethodHintsCheckbox">
             <constraints>
-              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+              <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.xray.apply.method.hints"/>
