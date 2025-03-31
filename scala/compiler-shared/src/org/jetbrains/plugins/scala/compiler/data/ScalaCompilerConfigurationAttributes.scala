@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.compiler.data
 object ScalaCompilerConfigurationAttributes {
   val IncrementalityTypeAttr = "incrementalityType"
   val SeparateProdTestSourcesAttr = "separateProdTestSources"
+  val ExternalRootPath = "externalRootPath"
   val OptionAttr = "option"
   val NameAttr = "name"
   val ValueAttr = "value"
