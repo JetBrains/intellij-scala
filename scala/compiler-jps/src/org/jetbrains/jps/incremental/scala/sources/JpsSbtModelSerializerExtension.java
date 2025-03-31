@@ -39,7 +39,8 @@ public class JpsSbtModelSerializerExtension extends JpsModelSerializerExtension 
     if (isSbtModule) {
       Option<String> displayModuleName = getDisplayModuleName(rootElement);
       Option<String> type = Option.apply(rootElement.getAttributeValue("external.system.module.type"));
-      JpsSbtExtensionService.getInstance().getOrCreateExtension(module, type, displayModuleName);
+      Option<String> externalRootProjectPath = Option.apply(rootElement.getAttributeValue("external.root.project.path"));
+      JpsSbtExtensionService.getInstance().getOrCreateExtension(module, type, displayModuleName, externalRootProjectPath);
     }
   }
 
