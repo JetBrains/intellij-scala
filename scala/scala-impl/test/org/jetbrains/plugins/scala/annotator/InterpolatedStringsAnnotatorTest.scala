@@ -45,6 +45,10 @@ class InterpolatedStringsAnnotatorTest extends base.ScalaLightCodeInsightFixture
     emptyMessages("c\"blah blah $s1 ${s2}\"")
   }
 
+  def testCorrectArgumentInt(): Unit = {
+    emptyMessages("e\"\"(i1)")
+  }
+
   def testMultiResolve(): Unit = {
     messageExists("_\"blah $s1 blah $s2 blah\"", "Error(_,Value '_' is not a member of StringContext)")
   }
@@ -55,6 +59,14 @@ class InterpolatedStringsAnnotatorTest extends base.ScalaLightCodeInsightFixture
 
   def testMultipleResolve2(): Unit = {
     messageExists("c\"blah $i1 blah $s1 $i2\"", "Error(i2,Too many arguments for method c(String, String))")
+  }
+
+  def testInvalidArgumentString(): Unit = {
+    messageExists("e\"\"(s1)", "Error(e,Type mismatch, expected: Int, actual: String)")
+  }
+
+  def testTooManyArguments(): Unit = {
+    messageExists("e\"\"(i1, i2)", "Error(e,Too many arguments)")
   }
 }
 
@@ -68,6 +80,7 @@ object InterpolatedStringsAnnotatorTest {
        |  def c(s1: String, s2: String) = s1 + s2
        |  def d(i1: Int, s1: String) = i1 + s1.length
        |  def d(i1: Int, i2: Int) = i1 + i2
+       |  def e(args: Any*)(i: Int) = i
        |}
        |
        |implicit def extendStrContext(ctx: StringContext) = new ExtendedContext

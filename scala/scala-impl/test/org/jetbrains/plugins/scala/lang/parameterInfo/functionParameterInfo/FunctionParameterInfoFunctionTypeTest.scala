@@ -4,6 +4,8 @@ class FunctionParameterInfoFunctionTypeTest extends FunctionParameterInfoTestBas
   override def getTestDataPath: String =
     s"${super.getTestDataPath}functionType/"
 
+  def testCustomInterpolatorFunctionType(): Unit = doTest()
+
   def testFunctionType(): Unit = doTest()
 
   def testFunctionTypeTwo(): Unit = doTest()
