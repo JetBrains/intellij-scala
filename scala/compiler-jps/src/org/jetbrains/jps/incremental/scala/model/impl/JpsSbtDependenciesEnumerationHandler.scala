@@ -46,7 +46,7 @@ object JpsSbtDependenciesEnumerationHandler {
       // then dependencies should be processed recursively. In all other cases, dependencies shouldn't be processed recursively.
       val recursiveRequired = moduleToExtension.exists { case (module, ext) =>
         // TODO consider moving #isBuiltWithSeparateProdTestSources outside of the loop when #SCL-22991 is done
-        isBuiltWithSeparateProdTestSources(module, ext) && !isSbtSourceSetModule(ext)
+        isBuiltWithSeparateProdTestSources(module) && !isSbtSourceSetModule(ext)
       }
 
       if (recursiveRequired) RecursiveDependenciesInstance
@@ -62,11 +62,10 @@ object JpsSbtDependenciesEnumerationHandler {
     private def isSbtSourceSetModule(extension: JpsSbtModuleExtension): Boolean =
       extension.getModuleType.exists(_.equals(SbtModuleType.sbtSourceSetModuleType))
 
-    private def isBuiltWithSeparateProdTestSources(module: JpsModule, ext: JpsSbtModuleExtension): Boolean = {
+    private def isBuiltWithSeparateProdTestSources(module: JpsModule): Boolean = {
       val project = module.getProject
       val projectSettings = SettingsManager.getProjectSettings(project)
-      val externalProjectRootPath = ext.getExternalProjectRootPath
-      projectSettings.getExternalRootPathToSeparateMainTestModules(externalProjectRootPath.orNull)
+      projectSettings.getSeparateProdTestSources
     }
   }
 }

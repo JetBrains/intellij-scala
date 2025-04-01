@@ -109,7 +109,7 @@ class SbtProjectSettings extends ExternalProjectSettings {
 
 object SbtProjectSettings {
   // Increment if the converter algorithm is updated to trigger a reloading of previously opened projects.
-  val ConverterVersion = 3
+  val ConverterVersion = 2
 
   def default: SbtProjectSettings = {
     val settings = new SbtProjectSettings()
