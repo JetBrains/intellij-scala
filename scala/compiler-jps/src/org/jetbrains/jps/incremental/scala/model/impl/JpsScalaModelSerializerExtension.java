@@ -66,7 +66,7 @@ public class JpsScalaModelSerializerExtension extends JpsModelSerializerExtensio
     @Override
     public void loadExtension(@NotNull JpsProject jpsProject, @NotNull Element componentTag) {
       IncrementalityType incrementalityType = loadIncrementalityType(componentTag);
-      Map<String, Boolean> externalRootPathToSeparateMainTest = loadSeparateProdTestSources(componentTag);
+      Boolean separateProdTestSources = loadSeparateProdTestSources(componentTag);
       CompilerSettingsImpl defaultSetting = loadSettings(componentTag);
 
       Map<String, String> moduleToProfile = new HashMap<>();
@@ -83,7 +83,7 @@ public class JpsScalaModelSerializerExtension extends JpsModelSerializerExtensio
         }
       }
 
-      ProjectSettings configuration = new ProjectSettingsImpl(incrementalityType, defaultSetting, externalRootPathToSeparateMainTest, profileToSettings, moduleToProfile);
+      ProjectSettings configuration = new ProjectSettingsImpl(incrementalityType, defaultSetting, separateProdTestSources, profileToSettings, moduleToProfile);
 
       SettingsManager.setProjectSettings(jpsProject, configuration);
     }
@@ -97,18 +97,14 @@ public class JpsScalaModelSerializerExtension extends JpsModelSerializerExtensio
       return IncrementalityType.SBT;
     }
 
-    private static Map<String, Boolean> loadSeparateProdTestSources(Element componentTag) {
-      Map<String, Boolean> myMap = new HashMap<>();
+    private static Boolean loadSeparateProdTestSources(Element componentTag) {
       for (Element option : componentTag.getChildren(ScalaCompilerConfigurationAttributes.OptionAttr())) {
         if (ScalaCompilerConfigurationAttributes.SeparateProdTestSourcesAttr().equals(option.getAttributeValue(ScalaCompilerConfigurationAttributes.NameAttr()))) {
-          String externalRootProjectPath = option.getAttributeValue(ScalaCompilerConfigurationAttributes.ExternalRootPath());
-          Boolean value = Boolean.parseBoolean(option.getAttributeValue(ScalaCompilerConfigurationAttributes.ValueAttr()));
-          if (externalRootProjectPath != null) {
-            myMap.put(externalRootProjectPath, value);
-          }
+          return Boolean.parseBoolean(option.getAttributeValue(ScalaCompilerConfigurationAttributes.ValueAttr()));
         }
       }
-      return myMap;
+      // TODO the default value should be changed if separateProdTestSources is enabled by default
+      return false;
     }
 
     private static CompilerSettingsImpl loadSettings(Element componentTag) {

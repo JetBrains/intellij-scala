@@ -1,6 +1,6 @@
 package org.jetbrains.jps.incremental.scala.model.impl;
 
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jps.ModuleChunk;
 import org.jetbrains.jps.incremental.scala.model.CompilerSettings;
 import org.jetbrains.jps.incremental.scala.model.ProjectSettings;
@@ -12,31 +12,28 @@ import java.util.Map;
 
 public class ProjectSettingsImpl extends JpsElementBase<ProjectSettingsImpl> implements ProjectSettings {
 
-  // TODO change the default value if separate main/test modules will be disabled by default
-  public static final Boolean defaultSeparateMainTestModules = true;
-
   public static final ProjectSettingsImpl DEFAULT =
       new ProjectSettingsImpl(
               IncrementalityType.SBT,
               CompilerSettingsImpl.DEFAULT,
-              new HashMap<>(),
+              false,
               new HashMap<>(),
               new HashMap<>()
       );
 
   private final IncrementalityType myIncrementalityType;
-  private final Map<String, Boolean> myExternalRootPathToSeparateMainTestModules;
+  private final Boolean mySeparateProdTestSources;
   private final CompilerSettingsImpl myDefaultSettings;
   private final Map<String, CompilerSettingsImpl> myProfileToSettings;
   private final Map<String, String> myModuleToProfile;
 
   public ProjectSettingsImpl(IncrementalityType incrementalityType,
                              CompilerSettingsImpl defaultSettings,
-                             Map<String, Boolean> separateProdTestSources,
+                             Boolean separateProdTestSources,
                              Map<String, CompilerSettingsImpl> profileToSettings,
                              Map<String, String> moduleToProfile) {
     myIncrementalityType = incrementalityType;
-    myExternalRootPathToSeparateMainTestModules = separateProdTestSources;
+    mySeparateProdTestSources = separateProdTestSources;
     myDefaultSettings = defaultSettings;
     myProfileToSettings = profileToSettings;
     myModuleToProfile = moduleToProfile;
@@ -55,9 +52,7 @@ public class ProjectSettingsImpl extends JpsElementBase<ProjectSettingsImpl> imp
   }
 
   @Override
-  public Boolean getExternalRootPathToSeparateMainTestModules(@Nullable String externalRootPath) {
-    return (externalRootPath == null || !myExternalRootPathToSeparateMainTestModules.containsKey(externalRootPath))
-            ? defaultSeparateMainTestModules
-            : myExternalRootPathToSeparateMainTestModules.get(externalRootPath);
+  public Boolean getSeparateProdTestSources() {
+    return mySeparateProdTestSources;
   }
 }
