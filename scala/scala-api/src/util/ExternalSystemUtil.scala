@@ -18,9 +18,8 @@ object ExternalSystemUtil {
     projectSystemId: ProjectSystemId,
     project: Project,
     key: Key[K],
-    rootProjectPath: Option[String] = None
   ): Either[String, Iterable[K]] = {
-    val nodes = getProjectDataNodes(projectSystemId, project, key, rootProjectPath)
+    val nodes = getProjectDataNodes(projectSystemId, project, key)
     nodes.map(_.map(_.getData))
   }
 
@@ -28,11 +27,12 @@ object ExternalSystemUtil {
     projectSystemId: ProjectSystemId,
     project: Project,
     key: Key[K],
-    rootProjectPath: Option[String]
   ): Either[String, Iterable[DataNode[K]]] = {
     val dataManager = ProjectDataManager.getInstance()
-    val externalProjectInfo = getExternalProjectInfoAndData(dataManager, projectSystemId, project, rootProjectPath.orElse(Option(project.getBasePath)))
-    val (_, projectDataNode: DataNode[ProjectData]) = externalProjectInfo match {
+    // TODO - instead of project.getBasePath, proper rootProjectPath should be passed to #getExternalProjectInfoAndData.
+    //  Otherwise, for multiple separate projects imported via e.g. with "Module from existing sources" or "Link project"
+    //  this will lead to incorrect values (see how it is done in #getModuleData). See more info in #SCL-22087
+    val (_, projectDataNode: DataNode[ProjectData]) = getExternalProjectInfoAndData(dataManager, projectSystemId, project, Option(project.getBasePath)) match {
       case Right(value) => value
       case Left(error) =>
         return Left(error)
