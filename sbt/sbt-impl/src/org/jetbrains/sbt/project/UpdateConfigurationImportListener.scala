@@ -12,8 +12,6 @@ import org.jetbrains.sbt.project.SbtMigrateConfigurationsAction.{ModuleConfigura
 import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.project.settings.ShouldUpdateRunConfigurations
 
-import scala.collection.mutable
-
 
 /**
  * Project import listener created to detect whether a notification with upgrade configuration action should be displayed.
@@ -21,27 +19,23 @@ import scala.collection.mutable
  */
 class UpdateConfigurationImportListener(project: Project) extends ProjectDataImportListener {
 
-  private val separateProdTestSources: mutable.Map[String, Boolean] = mutable.Map.empty
+  private var separateProdTestSources: Boolean = _
 
   override def onImportStarted(projectPath: String): Unit =
-    if (isAllowed) {
-      separateProdTestSources.update(projectPath, getSeparateProdTestSourcesValue(projectPath))
-    }
+    separateProdTestSources = getSeparateProdTestSourcesValue
 
   override def onImportFinished(projectPath: String): Unit = {
-    if (!isAllowed) return
+    val isTrustedProject = TrustedProjects.isTrusted(project)
+    if (!(SbtUtil.isSbtProject(project) && isTrustedProject)) return
 
-    val newSeparateProdTestSourcesValue = getSeparateProdTestSourcesValue(projectPath)
-    val oldSeparateProdTestSourcesValue = separateProdTestSources.get(projectPath)
-    if (oldSeparateProdTestSourcesValue.isEmpty) return
-
-    val separateProdTestSourcesChanged = newSeparateProdTestSourcesValue != oldSeparateProdTestSourcesValue.get
+    val newSeparateProdTestSourcesValue = getSeparateProdTestSourcesValue
+    val separateProdTestSourcesChanged = newSeparateProdTestSourcesValue != separateProdTestSources
     val shouldUpdate = shouldUpdateRunConfigurations(project, separateProdTestSourcesChanged)
 
     // If separate prod/test sources were enabled before the reload and are disabled now,
     // it means this feature has been switched off, indicating a downgrade.
     // For more details check org.jetbrains.sbt.project.SbtMigrateConfigurationsAction.IsDowngradingFromSeparateMainTestModules
-    val isDowngrading = oldSeparateProdTestSourcesValue.get && !newSeparateProdTestSourcesValue
+    val isDowngrading = separateProdTestSources && !newSeparateProdTestSourcesValue
 
     // Updating the state before calling #update ensures that if the project is closed before the indexes are ready,
     // the notification will still be displayed when the project is reopened.
@@ -58,29 +52,12 @@ class UpdateConfigurationImportListener(project: Project) extends ProjectDataImp
     }
   }
 
-  private def isAllowed: Boolean = {
-    val isTrustedProject = TrustedProjects.isTrusted(project)
-    SbtUtil.isSbtProject(project) && isTrustedProject
-  }
-
   // ScalaCompilerConfiguration.separateProdTestSources was initially created to record whether a project was imported
   // with separate modules for production and test, and to use this information when initializing ProjectSettingsImpl.
   // However, it is also useful here because in #onImportStarted, the old value of ScalaCompilerConfiguration.separateProdTestSources is read
   // (before it's updated in SbtProjectDataService.updateSeparateProdTestSources) and in #onImportFinished, the updated value is read.
-  private def getSeparateProdTestSourcesValue(projectPath: String): Boolean = {
-    val scalaCompilerConfiguration = ScalaCompilerConfiguration.instanceIn(project)
-    val externalRootPathToSeparateMainTestModules = scalaCompilerConfiguration.externalRootPathToSeparateMainTestModules
-
-    if (externalRootPathToSeparateMainTestModules.containsKey(projectPath)) {
-      externalRootPathToSeparateMainTestModules.get(projectPath)
-    } else {
-      // If 'externalRootPathToSeparateMainTestModules' doesn't contain a key with the `projectPath`,
-      // it essentially means that the project is being reloaded for the first time with the new implementation of 'ScalaCompilerConfiguration',
-      // which stores the setting for main/test modules individually for each external project.
-      // In such a case, taking the separate main/test modules from `SbtProjectData` should sufficient.
-      SbtUtil.isBuiltWithSeparateModulesForProdTest(project, Option(projectPath))
-    }
-  }
+  private def getSeparateProdTestSourcesValue: Boolean =
+    ScalaCompilerConfiguration.instanceIn(project).separateProdTestSources
 
   private def isNewlyCreatedProject(project: Project): Boolean = {
     val isNew = project.getUserData(ExternalSystemDataKeys.NEWLY_CREATED_PROJECT)

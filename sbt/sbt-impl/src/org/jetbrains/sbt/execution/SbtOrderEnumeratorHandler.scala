@@ -1,6 +1,5 @@
 package org.jetbrains.sbt.execution
 
-import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.roots.OrderEnumerationHandler.AddDependencyType
 import com.intellij.openapi.roots._
@@ -99,8 +98,7 @@ class SbtOrderEnumeratorHandlerFactory extends OrderEnumerationHandler.Factory {
 
   override def createHandler(module: Module): OrderEnumerationHandler = {
     val recursiveRequired = {
-      val rootProjectPath = Option(ExternalSystemApiUtil.getExternalRootProjectPath(module))
-      val separateModulesForProdTest = SbtUtil.isBuiltWithSeparateModulesForProdTest(module.getProject, rootProjectPath)
+      val separateModulesForProdTest = SbtUtil.isBuiltWithSeparateModulesForProdTest(module.getProject)
       separateModulesForProdTest && !isSbtSourceSetModule(module)
     }
 
