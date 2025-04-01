@@ -115,6 +115,25 @@ final class ConvertToInfixExpressionIntentionTest extends ConvertToInfixExpressi
 
     doTest(text, resultText)
   }
+
+  def testSCL23735(): Unit = doTest(
+    text =
+      s"""
+        |object Test {
+        |  def test(): Unit = {
+        |    (for (i <- 1 to 100) yield i).fore${CARET}ach(println)
+        |  }
+        |}
+        |""".stripMargin,
+    resultText =
+      s"""
+        |object Test {
+        |  def test(): Unit = {
+        |    (for (i <- 1 to 100) yield i) fore${CARET}ach println
+        |  }
+        |}
+        |""".stripMargin
+  )
 }
 
 final class ConvertToInfixExpressionIntentionTest_FewerBraces extends ConvertToInfixExpressionIntentionTestBase {
