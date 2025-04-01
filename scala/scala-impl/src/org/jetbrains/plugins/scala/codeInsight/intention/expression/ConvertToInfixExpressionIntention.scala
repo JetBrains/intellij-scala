@@ -117,7 +117,17 @@ object ConvertToInfixExpressionIntention {
 
   private[this] def stripUnnecessaryParentheses(expr: ScExpression): Unit = expr match {
     case e: ScParenthesisedExpr if e.isParenthesisRedundant =>
-      e.doStripParentheses()
+      // Even if isParenthesisRedundant is true, it can be false on the innermost
+      // element in case parentheses are nested.
+      // E.g. `((for (i <- 1 to 100) yield i))` - true
+      // but   `(for (i <- 1 to 100) yield i)`  - false.
+      // See SCL-23735
+      e.doStripParentheses(keepOnePair = e.isNestingParenthesis) match {
+        // Remove the last level of parentheses if it is in fact redundant
+        case e: ScParenthesisedExpr if e.isParenthesisRedundant =>
+          e.doStripParentheses()
+        case _ =>
+      }
     case _ =>
   }
 }
