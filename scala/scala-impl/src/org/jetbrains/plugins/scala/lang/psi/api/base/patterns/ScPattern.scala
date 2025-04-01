@@ -135,8 +135,8 @@ object ScPattern {
           def handleNamedTupleSubpatternExpectedType(tupleExpectedType: ScType): Option[ScType] =
             tupleExpectedType match {
               case NamedTupleType(components) =>
-                val idx = namedTuplePattern.components.indexWhere(_ == comp)
-                components.lift(idx).map(_._2)
+                val name = comp.name
+                components.collectFirst { case (NamedTupleType.NameType(`name`), ty) => ty }
               case ex: ScExistentialType =>
                 val simplified = ex.simplify()
                 if (simplified != ex) handleNamedTupleSubpatternExpectedType(simplified)

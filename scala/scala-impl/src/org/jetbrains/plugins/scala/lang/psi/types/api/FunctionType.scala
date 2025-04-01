@@ -144,6 +144,11 @@ object NamedTupleType extends FunctionTypeFactory[ScClass, Seq[(ScType, ScType)]
   def isUnaliasedNamedTupleType(typ: ScType): Boolean =
     typ.aliasType.exists(_.ta.qualifiedNameOpt.contains(TypeName))
 
+  def makeComponentMap(components: Seq[(ScType, ScType)]): Map[String, ScType] =
+    components.iterator
+      .collect { case (NameType(name), ty) => name -> ty }
+      .toMap
+
   object NameType {
     def apply(name: String, psiElement: PsiElement)(implicit context: ProjectContext): ScType =
       ScLiteralType(ScStringLiteralImpl.Value(name), psiElement = psiElement)(context.project)

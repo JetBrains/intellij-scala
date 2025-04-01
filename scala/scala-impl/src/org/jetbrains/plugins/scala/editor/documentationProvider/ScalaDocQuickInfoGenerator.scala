@@ -290,8 +290,9 @@ class ScalaDocQuickInfoGenerator(
         case Some(expr) => findCorrespondingExpr(rest, expr)
         case None => None
       }
-    case (ScNamedTuplePattern(patternComps) :: (comp: ScNamedTuplePatternComponent) :: rest, ScNamedTuple(exprsComps)) if patternComps.size == exprsComps.size =>
-      exprsComps.lift(patternComps.indexOf(comp)).flatMap(_.expr) match {
+    case ((_: ScNamedTuplePattern) :: (comp: ScNamedTuplePatternComponent) :: rest, ScNamedTuple(exprsComps)) =>
+      val name = comp.name
+      exprsComps.find(_.name == name).flatMap(_.expr) match {
         case Some(expr) => findCorrespondingExpr(rest, expr)
         case None => None
       }
