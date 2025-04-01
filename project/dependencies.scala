@@ -242,6 +242,11 @@ object DependencyGroups {
     scalaCheck
   )
 
+  val newSbtShell: Seq[ModuleID] = Seq(
+    "com.typesafe.play" %% "play-json" % "2.10.6",
+    "com.github.jnr" % "jnr-unixsocket" % "0.38.23"
+  )
+
   val decompiler: Seq[ModuleID] = Seq(
     scalaLibrary,
     scalaReflect,

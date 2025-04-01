@@ -61,6 +61,7 @@
         <module name="scalaCommunity.worksheet" />
         <module name="scalaCommunity.debugger" />
         <module name="scalaCommunity.compiler-integration" />
+        <module name="scalaCommunity.sbt-new-shell"/>
 
         <!-- integrations -->
         <module name="scalaCommunity.markdown" />

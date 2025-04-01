@@ -57,6 +57,7 @@ lazy val scalaCommunity: sbt.Project =
       uast % "test->test;compile->compile",
       worksheet % "test->test;compile->compile",
       scalaImpl % "test->test;compile->compile",
+      sbtNewShell % "test->test;compile->compile",
       scalaMetaImpl % "test->test;compile->compile",
       structureView % "test->test;compile->compile",
       sbtImpl % "test->test;compile->compile",
@@ -146,6 +147,14 @@ lazy val sbtApi =
       ),
       buildInfoOptions += BuildInfoOption.ConstantValue
     )
+
+lazy val sbtNewShell =
+  newProject("sbt-new-shell", file("sbt/sbt-new-shell"))
+    .settings(
+      libraryDependencies ++= DependencyGroups.newSbtShell,
+      packageMethod := PackagingMethod.PluginModule("scalaCommunity.sbt-new-shell")
+    )
+
 
 lazy val codeInsight = newProject(
   "codeInsight",
