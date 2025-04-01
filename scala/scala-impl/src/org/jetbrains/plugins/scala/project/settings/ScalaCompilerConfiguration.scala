@@ -8,12 +8,14 @@ import com.intellij.openapi.util.{ModificationTracker, SimpleModificationTracker
 import com.intellij.util.xmlb.{SkipDefaultValuesSerializationFilters, XmlSerializer}
 import org.jdom.Element
 import org.jetbrains.annotations.TestOnly
-import org.jetbrains.plugins.scala.compiler.data.ScalaCompilerConfigurationAttributes.{IncrementalityTypeAttr, ModulesAttr, NameAttr, OptionAttr, ProfileAttr, SeparateProdTestSourcesAttr, ValueAttr}
+import org.jetbrains.plugins.scala.compiler.data.ScalaCompilerConfigurationAttributes.{ExternalRootPath, IncrementalityTypeAttr, ModulesAttr, NameAttr, OptionAttr, ProfileAttr, SeparateProdTestSourcesAttr, ValueAttr}
 import org.jetbrains.plugins.scala.compiler.data.{IncrementalityType, ScalaCompilerSettingsState}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration.DefaultProfileName
 
 import scala.annotation.{nowarn, tailrec}
 import scala.jdk.CollectionConverters._
+
+import java.util.{HashMap => JHashMap}
 
 @State(
   name = "ScalaCompilerConfiguration",
@@ -28,8 +30,7 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
 
   var customProfiles: Seq[ScalaCompilerSettingsProfile] = Seq.empty
 
-  // TODO the default value should be changed if separateProdTestSources is enabled by default
-  var separateProdTestSources: Boolean = false
+  var externalRootPathToSeparateMainTestModules: JHashMap[String, Boolean] = new JHashMap()
 
   @TestOnly
   def createCustomProfileForModule(profileName: String, module: Module): ScalaCompilerSettingsProfile = {
@@ -103,11 +104,9 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
     val configurationElement = XmlSerializer.serialize(defaultProfile.getSettings.toState, new SkipDefaultValuesSerializationFilters(): @nowarn("cat=deprecation"))
 
     // TODO if we only set the incrementalityType option element when `incrementalityType` value is different from SBT
-    //  and `separateProdTestSources` element when `separateProdTestSources` value is true,
     //  then we can skip adding attribute values and we can only leave attribute names (without values).
     //  The presence of the attribute with the given name will already indicate its value,
-    //  as `incrementalityType` and `separateProdTestSources` can only have two possible values.
-
+    //  as `incrementalityType` can only have two possible values.
     if (incrementalityType != IncrementalityType.SBT) {
       val optionElement = new Element(OptionAttr)
       optionElement.setAttribute(NameAttr, IncrementalityTypeAttr)
@@ -115,11 +114,11 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
       configurationElement.addContent(optionElement)
     }
 
-    // TODO If `separateProdTestSources` is enabled by default, then this condition should changed to `separateProdTestSources` == `false`
-    if (separateProdTestSources) {
+    externalRootPathToSeparateMainTestModules.forEach { (path, value) =>
       val optionElement = new Element(OptionAttr)
       optionElement.setAttribute(NameAttr, SeparateProdTestSourcesAttr)
-      optionElement.setAttribute(ValueAttr, separateProdTestSources.toString)
+      optionElement.setAttribute(ExternalRootPath, path)
+      optionElement.setAttribute(ValueAttr, value.toString)
       configurationElement.addContent(optionElement)
     }
 
@@ -142,9 +141,16 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
       .map(it => IncrementalityType.valueOf(it.getAttributeValue(ValueAttr)))
       .getOrElse(IncrementalityType.SBT)
 
-    separateProdTestSources = optionElements
-      .find(_.getAttributeValue(NameAttr) == SeparateProdTestSourcesAttr)
-      .exists(it => it.getAttributeValue(ValueAttr).toBoolean)
+    externalRootPathToSeparateMainTestModules = new JHashMap(
+      optionElements
+        .filter(_.getAttributeValue(NameAttr) == SeparateProdTestSourcesAttr)
+        .flatMap { ele =>
+          for {
+            externalRootPath <- Option(ele.getAttributeValue(ExternalRootPath))
+            value <- Option(ele.getAttributeValue(ValueAttr))
+          } yield externalRootPath -> value.toBoolean
+        }.toMap.asJava
+    )
 
     defaultProfile.setSettings(ScalaCompilerSettings.fromState(XmlSerializer.deserialize(configurationElement, classOf[ScalaCompilerSettingsState])))
 

@@ -5,4 +5,5 @@ import org.jetbrains.jps.model.JpsElement
 trait JpsSbtModuleExtension extends JpsElement {
   def getModuleType: Option[String]
   def getDisplayModuleName: Option[String]
+  def getExternalProjectRootPath: Option[String]
 }

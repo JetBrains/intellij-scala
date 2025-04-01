@@ -74,7 +74,7 @@ class SbtProjectDataService extends ScalaAbstractProjectDataService[SbtProjectDa
     setDefaultJavacOptions(project)
     setSbtVersion(project, data)
     updateIncrementalityType(project, modelsProvider)
-    updateSeparateProdTestSources(project, data.prodTestSourcesSeparated)
+    updateSeparateProdTestSources(project, data)
   }
 
   private def configureJdk(project: Project, data: SbtProjectData): Unit = executeProjectChangeAction(project) {
@@ -125,8 +125,10 @@ class SbtProjectDataService extends ScalaAbstractProjectDataService[SbtProjectDa
     Option(SbtSettings.getInstance(project).getLinkedProjectSettings(data.projectPath))
       .foreach(s => s.sbtVersion = data.sbtVersion)
 
-  private def updateSeparateProdTestSources(project: Project, separateProdTestSources: Boolean): Unit =
-    ScalaCompilerConfiguration.instanceIn(project).separateProdTestSources = separateProdTestSources
+  private def updateSeparateProdTestSources(project: Project, data: SbtProjectData): Unit = {
+    val scalaCompilerConfiguration = ScalaCompilerConfiguration.instanceIn(project)
+    scalaCompilerConfiguration.externalRootPathToSeparateMainTestModules.put(data.projectPath, data.prodTestSourcesSeparated)
+  }
 
   private def updateIncrementalityType(project: Project, modelsProvider: IdeModifiableModelsProvider): Unit = {
     val modules = modelsProvider.getModules

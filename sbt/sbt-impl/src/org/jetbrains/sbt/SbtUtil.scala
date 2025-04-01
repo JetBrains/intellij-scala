@@ -93,8 +93,8 @@ object SbtUtil {
     defaultGlobalBase / sbtVersion.binaryVersion.presentation
   }
 
-  def isBuiltWithSeparateModulesForProdTest(project: Project): Boolean = {
-    val sbtProjectDataOpt = getSbtProjectData(project)
+  def isBuiltWithSeparateModulesForProdTest(project: Project, externalRootPath: Option[String] = None): Boolean = {
+    val sbtProjectDataOpt = getSbtProjectData(project, externalRootPath)
     sbtProjectDataOpt.exists(_.prodTestSourcesSeparated)
   }
 
@@ -211,8 +211,8 @@ object SbtUtil {
     file << deep
   }
 
-  private def getSbtProjectData(project: Project): Option[SbtProjectData] = {
-    val dataEither = ExternalSystemUtil.getProjectData(SbtProjectSystem.Id, project, SbtProjectData.Key)
+  private def getSbtProjectData(project: Project, rootProjectPath: Option[String]): Option[SbtProjectData] = {
+    val dataEither = ExternalSystemUtil.getProjectData(SbtProjectSystem.Id, project, SbtProjectData.Key, rootProjectPath)
     dataEither.toSeq.flatten.headOption
   }
 

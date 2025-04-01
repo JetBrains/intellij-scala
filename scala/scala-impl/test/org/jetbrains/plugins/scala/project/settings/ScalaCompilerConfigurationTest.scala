@@ -13,6 +13,8 @@ import org.jetbrains.plugins.scala.extensions.PathExt
 import org.junit.Assert._
 
 import java.nio.file.Path
+import java.util.{HashMap => JHashMap}
+import scala.jdk.CollectionConverters.MapHasAsJava
 
 //noinspection ApiStatus,UnstableApiUsage,DfaNullableToNotNullParam
 class ScalaCompilerConfigurationTest extends ScalaLightCodeInsightFixtureTestCase {
@@ -43,7 +45,7 @@ class ScalaCompilerConfigurationTest extends ScalaLightCodeInsightFixtureTestCas
       |      <plugin path="compilerPlugin2" />
       |    </plugins>
       |    <option name="incrementalityType" value="IDEA" />
-      |    <option name="separateProdTestSources" value="true" />
+      |    <option name="separateProdTestSources" externalRootPath="some_path" value="true" />
       |    <profile name="profile1" modules="light_idea_test_case">
       |      <option name="compileOrder" value="JavaThenScala" />
       |      <option name="nameHashing" value="false" />
@@ -98,7 +100,7 @@ class ScalaCompilerConfigurationTest extends ScalaLightCodeInsightFixtureTestCas
     assertEquals(expectedCompilerConfiguration.incrementalityType, compilerConfiguration.incrementalityType)
     assertScalaCompilerSettingsProfilesEquals(expectedCompilerConfiguration.customProfiles, compilerConfiguration.customProfiles)
     assertScalaCompilerSettingsProfileEquals(expectedCompilerConfiguration.defaultProfile, compilerConfiguration.defaultProfile)
-    assertEquals(expectedCompilerConfiguration.separateProdTestSources, compilerConfiguration.separateProdTestSources)
+    assertEquals(expectedCompilerConfiguration.externalRootPathToSeparateMainTestModules, compilerConfiguration.externalRootPathToSeparateMainTestModules)
   }
 
   private def assertScalaCompilerSettingsProfilesEquals(expectedSeq: Seq[ScalaCompilerSettingsProfile], actualSeq: Seq[ScalaCompilerSettingsProfile]): Unit = {
@@ -143,8 +145,7 @@ class ScalaCompilerConfigurationTest extends ScalaLightCodeInsightFixtureTestCas
     configuration.incrementalityType = IncrementalityType.IDEA
     configuration.customProfiles = Seq(createTestCompilerSettingsProfile("profile1"))
     configuration.defaultProfile = createTestCompilerSettingsProfile("defaultProfile")
-    // use non default value
-    configuration.separateProdTestSources = !configuration.separateProdTestSources
+    configuration.externalRootPathToSeparateMainTestModules = new JHashMap(Map("some_path" -> true).asJava)
   }
 
   private def createTestCompilerSettingsProfile(profileName: String): ScalaCompilerSettingsProfile = {
