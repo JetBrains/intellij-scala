@@ -552,7 +552,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val sharedSourceRoots: Map[SourceRoot.Scope, Map[SourceRoot.Kind, Set[String]]] = sharedRoots.map(_.sourceRoot)
       .groupBy(_.scope)
-      .view.mapValues(_.groupBy(_.kind).view.mapValues(_.map(_.directory.getPath).toSet).toMap)
+      .view.mapValues(_.groupBy(_.kind).view.mapValues(_.map(sr => FileUtil.toSystemIndependentName(sr.directory.getPath)).toSet).toMap)
       .toMap
 
     val projectToModule: Iterable[(ProjectData, ModuleSourceSet)] = projectsGrouped.flatMap { buildProjectsGroup =>
