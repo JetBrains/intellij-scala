@@ -6,12 +6,13 @@ import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.{DependencyScope, ProjectRootManager}
+import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
 import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
-import org.jetbrains.plugins.scala.extensions.inWriteAction
+import org.jetbrains.plugins.scala.extensions.{PathExt, inWriteAction}
 import org.jetbrains.plugins.scala.project.maven.MavenProjectStructureTestUtils._
 import org.jetbrains.plugins.scala.project.{LibraryExExt, LibraryExt, ProjectExt}
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -99,7 +100,7 @@ abstract class ScalaMavenImporterTest
     runImportingTest(new project(expectedProjectName) {
       libraries := expectedLibraries
       modules := Seq(new module(expectedModuleName) {
-        contentRoots := Seq(getTestProjectDirVFile.toNioPath.toAbsolutePath.toString)
+        contentRoots := Seq(FileUtil.toSystemIndependentName(getTestProjectDirVFile.toNioPath.toCanonicalPath.toString))
         sources := expectedSourceDirectories
         testSources := expectedTestSourceDirectories
         resources := Seq("src/main/resources")
@@ -125,7 +126,7 @@ abstract class ScalaMavenImporterTest
       val mavenLibraryScala2_13: library = MavenScalaLibrary(Scala_2_13_6)
       val mavenScalaSdkScala3_1: library = MavenScalaSdk(Scala_3_1_0)
       val mavenLibraryScala3_1: library = MavenScalaLibrary(Scala_3_1_0)
-      val testProjectRoot: String = getTestProjectDirVFile.toNioPath.toAbsolutePath.toString
+      val testProjectRoot: String = FileUtil.toSystemIndependentName(getTestProjectDirVFile.toNioPath.toCanonicalPath.toString)
       libraries := Seq(mavenSdkScala2_13, mavenLibraryScala2_13, mavenLibraryScala3_1, mavenScalaSdkScala3_1)
       modules := Seq(
         new module("projectWithTwoModulesWithScala2And3") {

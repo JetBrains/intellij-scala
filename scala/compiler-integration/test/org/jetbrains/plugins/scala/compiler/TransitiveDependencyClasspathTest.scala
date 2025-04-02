@@ -23,7 +23,7 @@ class TransitiveDependencyClasspathTest extends ScalaCompilerReferenceServiceFix
     val libLoader = IvyManagedLoader("org.scalatest" %% "scalatest" % "3.2.0")
     libLoader.init(moduleB, version)
 
-    val remoteServerConnectorBase = new TestRemoteServerConnectorBase(moduleA, Path.of("/", "tmp"))
+    val remoteServerConnectorBase = new TestRemoteServerConnectorBase(moduleA, Path.of(System.getProperty("java.io.tmpdir")))
 
     val r = remoteServerConnectorBase.result()
     assertTrue(r.exists(_.toString.contains("scalatest")))
