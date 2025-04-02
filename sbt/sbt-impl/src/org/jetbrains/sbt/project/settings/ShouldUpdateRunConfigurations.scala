@@ -3,6 +3,8 @@ package org.jetbrains.sbt.project.settings
 import com.intellij.openapi.components.{PersistentStateComponent, Service, State, Storage, StoragePathMacros}
 import com.intellij.openapi.project.Project
 import com.intellij.util.xmlb.XmlSerializerUtil
+import java.lang.{Boolean => JBoolean}
+import org.jetbrains.annotations.Nullable
 
 import scala.beans.BeanProperty
 
@@ -17,7 +19,8 @@ final class ShouldUpdateRunConfigurations extends PersistentStateComponent[Shoul
   var shouldUpdate: Boolean = false
 
   @BeanProperty
-  var isDowngrading: Boolean = false
+  @Nullable
+  var isDowngrading: JBoolean = JBoolean.FALSE
 
   override def getState: ShouldUpdateRunConfigurations = this
 
@@ -34,9 +37,9 @@ object ShouldUpdateRunConfigurations {
     notification.shouldUpdate = false
   }
   
-  def updateState(project: Project, maybeShowTheNotification: Boolean, isDowngrading: Boolean): Unit = {
+  def updateState(project: Project, maybeShowTheNotification: Boolean, isDowngrading: Option[Boolean]): Unit = {
     val notification = getInstance(project)
     notification.shouldUpdate = maybeShowTheNotification
-    notification.isDowngrading = isDowngrading
+    notification.isDowngrading = isDowngrading.map(JBoolean.valueOf).orNull
   }
 }

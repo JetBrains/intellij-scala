@@ -347,7 +347,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       settings.jdk.map(JdkByName),
       context.sbtVersion.minor,
       projectPath,
-      prodTestSourcesSeparated = false
+      prodTestSourcesSeparated = false,
+      isPreview = true
     )
     projectNode.add(new SbtProjectNode(dummySbtProjectData))
     val modules = projectToModule.values.map(_.parent)

@@ -109,10 +109,11 @@ case class SbtProjectData @PropertyMapping(Array("jdk", /*"javacOptions",*/ "sbt
   //javacOptions: JList[String], // see the commit message, why we don't need javacOptions at the project level
   sbtVersion: String,
   projectPath: String,
-  prodTestSourcesSeparated: Boolean
+  prodTestSourcesSeparated: Boolean,
+  isPreview: Boolean
 ) extends SbtEntityData {
   //Default constructor is needed in order intellij can deserialize data in old format with some fields missing
-  def this() = this(null, "1.0.0", ".", false)
+  def this() = this(null, "1.0.0", ".", false, false)
 }
 
 object SbtProjectData {
@@ -122,13 +123,15 @@ object SbtProjectData {
     jdk: Option[SdkReference],
     sbtVersion: String,
     projectPath: String,
-    prodTestSourcesSeparated: Boolean
+    prodTestSourcesSeparated: Boolean,
+    isPreview: Boolean = false
   ): SbtProjectData =
     SbtProjectData(
       jdk.orNull,
       sbtVersion,
       projectPath,
-      prodTestSourcesSeparated
+      prodTestSourcesSeparated,
+      isPreview
     )
 }
 

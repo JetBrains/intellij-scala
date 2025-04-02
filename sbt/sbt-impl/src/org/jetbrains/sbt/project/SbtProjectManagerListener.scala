@@ -4,7 +4,7 @@ import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMode
 import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.extensions.invokeLater
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, invokeLater}
 import org.jetbrains.sbt.project.settings.ShouldUpdateRunConfigurations
 import org.jetbrains.plugins.scala.startup.ProjectActivity
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
@@ -22,7 +22,8 @@ private final class SbtProjectManagerListener extends ProjectActivity {
 
     val shouldUpdateRunConfigurations = ShouldUpdateRunConfigurations.getInstance(project)
     if (shouldUpdateRunConfigurations.shouldUpdate) {
-      UpdateConfigurationImportListener.update(shouldUpdateRunConfigurations.isDowngrading, project)
+      val isDowngrading = shouldUpdateRunConfigurations.isDowngrading.toOption.map(Boolean.unbox)
+      UpdateConfigurationImportListener.update(isDowngrading, project)
     }
   }
 }

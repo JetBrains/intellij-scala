@@ -98,6 +98,11 @@ object SbtUtil {
     sbtProjectDataOpt.exists(_.prodTestSourcesSeparated)
   }
 
+  def isPreview(project: Project, projectPath: String): Boolean = {
+    val sbtProjectDataOpt = getSbtProjectData(project, Some(projectPath))
+    sbtProjectDataOpt.forall(_.isPreview)
+  }
+
   def getSbtModuleDataNode(module: Module): Option[DataNode[_ <: ModuleData]] = {
     val moduleId = Option(ExternalSystemApiUtil.getExternalProjectId(module))
     moduleId.flatMap { id =>
@@ -211,8 +216,8 @@ object SbtUtil {
     file << deep
   }
 
-  private def getSbtProjectData(project: Project): Option[SbtProjectData] = {
-    val dataEither = ExternalSystemUtil.getProjectData(SbtProjectSystem.Id, project, SbtProjectData.Key)
+  private def getSbtProjectData(project: Project, rootProjectPath: Option[String] = None): Option[SbtProjectData] = {
+    val dataEither = ExternalSystemUtil.getProjectData(SbtProjectSystem.Id, project, SbtProjectData.Key, rootProjectPath)
     dataEither.toSeq.flatten.headOption
   }
 

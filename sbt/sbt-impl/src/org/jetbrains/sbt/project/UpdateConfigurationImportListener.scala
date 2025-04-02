@@ -12,9 +12,8 @@ import org.jetbrains.sbt.project.SbtMigrateConfigurationsAction.{ModuleConfigura
 import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.project.settings.ShouldUpdateRunConfigurations
 
-
 /**
- * Project import listener created to detect whether a notification with upgrade configuration action should be displayed.
+ * Project import listener created to detect whether a notification with an update configuration action should be displayed.
  * The notification is displayed only once for non-new sbt projects.
  */
 class UpdateConfigurationImportListener(project: Project) extends ProjectDataImportListener {
@@ -22,11 +21,12 @@ class UpdateConfigurationImportListener(project: Project) extends ProjectDataImp
   private var separateProdTestSources: Boolean = _
 
   override def onImportStarted(projectPath: String): Unit =
-    separateProdTestSources = getSeparateProdTestSourcesValue
+    if (isListenerAllowed(projectPath)) {
+      separateProdTestSources = getSeparateProdTestSourcesValue
+    }
 
   override def onImportFinished(projectPath: String): Unit = {
-    val isTrustedProject = TrustedProjects.isTrusted(project)
-    if (!(SbtUtil.isSbtProject(project) && isTrustedProject)) return
+    if (!isListenerAllowed(projectPath)) return
 
     val newSeparateProdTestSourcesValue = getSeparateProdTestSourcesValue
     val separateProdTestSourcesChanged = newSeparateProdTestSourcesValue != separateProdTestSources
@@ -35,7 +35,11 @@ class UpdateConfigurationImportListener(project: Project) extends ProjectDataImp
     // If separate prod/test sources were enabled before the reload and are disabled now,
     // it means this feature has been switched off, indicating a downgrade.
     // For more details check org.jetbrains.sbt.project.SbtMigrateConfigurationsAction.IsDowngradingFromSeparateMainTestModules
-    val isDowngrading = separateProdTestSources && !newSeparateProdTestSourcesValue
+    // For newly created projects, we cannot determine if it is an upgrade or downgrade, which is why None is returned.
+    val isNew = isNewlyCreatedProject(project)
+    val isDowngrading =
+      if (isNew) None
+      else Some(separateProdTestSources && !newSeparateProdTestSourcesValue)
 
     // Updating the state before calling #update ensures that if the project is closed before the indexes are ready,
     // the notification will still be displayed when the project is reopened.
@@ -52,6 +56,12 @@ class UpdateConfigurationImportListener(project: Project) extends ProjectDataImp
     }
   }
 
+  private def isListenerAllowed(projectPath: String): Boolean = {
+    val isTrustedProject = TrustedProjects.isTrusted(project)
+    val isPreview = SbtUtil.isPreview(project, projectPath)
+    SbtUtil.isSbtProject(project) && isTrustedProject && !isPreview
+  }
+
   // ScalaCompilerConfiguration.separateProdTestSources was initially created to record whether a project was imported
   // with separate modules for production and test, and to use this information when initializing ProjectSettingsImpl.
   // However, it is also useful here because in #onImportStarted, the old value of ScalaCompilerConfiguration.separateProdTestSources is read
@@ -65,22 +75,25 @@ class UpdateConfigurationImportListener(project: Project) extends ProjectDataImp
   }
 
   private def shouldUpdateRunConfigurations(project: Project, prodTestSourcesHasChanged: Boolean): Boolean = {
-    val isNew = isNewlyCreatedProject(project)
+    // 'isMigrateConfigurationsNotificationShown' was primarily used to run the configuration update ONCE for each project when dealing with grouping migration.
+    // Now, in addition to this use case (because it's still accurate, as someone may update from a plugin version without the new grouping),
+    // it is also used to trigger a configuration update for all new projects.
+    // Because 'isMigrateConfigurationsNotificationShown' is stored per IDEA project and not individually for each imported external project,
+    // it may happen that when the user links a new project, a configuration update will not be triggered for them.
     val isMigrateConfigurationsNotificationShown = ScalaProjectSettings.getInstance(project).isMigrateConfigurationsNotificationShown
-
-    !isNew && (!isMigrateConfigurationsNotificationShown || prodTestSourcesHasChanged)
+    !isMigrateConfigurationsNotificationShown || prodTestSourcesHasChanged
   }
 }
 
 object UpdateConfigurationImportListener {
 
-  def update(isDowngrading: Boolean, project: Project): Unit = {
+  def update(isDowngrading: Option[Boolean], project: Project): Unit = {
     // note: we need to wait until the project switches to smart mode before executing
     // this logic, because under the hood it calls JavaExecutionUtil#findMainClass
     // (from com.intellij.execution.configurations.JavaRunConfigurationModule.findNotNullClass),
     // which for a project in a dumb mode returns null so we can get incorrect results.
     invokeWhenSmart(project) {
-      val configToHeuristicResult = getConfigurationToHeuristicResult(project, Some(isDowngrading))
+      val configToHeuristicResult = getConfigurationToHeuristicResult(project, isDowngrading)
       /*
       The listener only updates the run configurations in advance and not whenever the user calls `SbtMigrateConfigurationsAction` because:
        1. The heuristic is less accurate when the user calls this action from all actions - since it's unclear what exactly happened;
@@ -90,7 +103,7 @@ object UpdateConfigurationImportListener {
       val notModifiedConfigurations = applyHeuristicResultsIfPossible(configToHeuristicResult)
       val containsNonTemporaryConfigs = notModifiedConfigurations.exists {  case (config, _) => !config.isTemporary }
       if (containsNonTemporaryConfigs) {
-        showNotification(Some(isDowngrading), project)
+        showNotification(isDowngrading, project)
       } else {
         ShouldUpdateRunConfigurations.getInstance(project).shouldUpdate = false
       }
