@@ -147,6 +147,7 @@ object ASTNodeToPsiElement {
       case SCALA3_TYPED_PATTERN => new Sc3TypedPatternImpl(node)
       case NAMED_TUPLE_PATTERN => new ScNamedTuplePatternImpl(node)
       case NAMED_TUPLE_PATTERN_COMPONENT => new ScNamedTuplePatternComponentImpl(node)
+      case NAMED_CONSTRUCTOR_ARG_PATTERN => new ScNamedConstructorArgPatternImpl(node)
 
       /* Type patterns */
       case TYPE_PATTERN => new ScTypePatternImpl(node)

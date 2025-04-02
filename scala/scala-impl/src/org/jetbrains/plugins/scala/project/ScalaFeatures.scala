@@ -52,6 +52,7 @@ trait ScalaFeatures extends Any {
   def `case in pattern bindings`: Boolean
   def `optional braces for method arguments`: Boolean
   def `named tuples`: Boolean
+  final def `general pattern matching with named fields `: Boolean = `named tuples`
   def usingInArgumentsEnabled: Boolean
   def `new context bounds and givens`: Boolean
   def noUnicodeEscapesInRawStrings: Boolean
