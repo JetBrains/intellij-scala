@@ -5,6 +5,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.roots.DependencyScope
+import com.intellij.openapi.util.io.FileUtil
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.IdeaTestUtil
 import org.jetbrains.annotations.Nullable
@@ -126,7 +127,7 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureImportin
       new project("testTwoLinkedProjects") {
         modules := Seq(
           new module(originalProjectName) {
-            contentRoots += getProjectPath
+            contentRoots += FileUtil.toSystemIndependentName(getProjectPath)
             excluded := Seq("target")
             sources := Seq("src/main/scala", "src/main/java")
             resources := Seq("src/main/resources")
@@ -141,7 +142,7 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureImportin
             moduleFileDirectoryPath := "twoLinkedProjects"
           },
           new module(linkedProjectName) {
-            contentRoots += linkedSbtProjectPath
+            contentRoots += FileUtil.toSystemIndependentName(linkedSbtProjectPath)
             excluded := Seq("target")
             sources := Seq("src/main/scala", "src/main/java")
             resources := Seq("src/main/resources")
