@@ -6,7 +6,7 @@ import com.intellij.compiler.CompilerWorkspaceConfiguration
 import com.intellij.compiler.server.BuildManager
 import com.intellij.configurationStore.StoreUtilKt
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.application.{ApplicationManager, ReadAction}
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.{Document, EditorFactory}
@@ -146,18 +146,9 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     projectSaveTracker.set(true)
   }
 
-  private def calculateSourceScope(virtualFile: VirtualFile): SourceScope = {
-    def sourceScope: SourceScope =
-      if (TestSourcesFilter.isTestSources(virtualFile, project)) SourceScope.Test
-      else SourceScope.Production
-
-    ReadAction
-      .nonBlocking(() => sourceScope)
-      .expireWith(this) // Cancel when this service is disposed.
-      .expireWhen(() => project.isDisposed) // Cancel when this project is disposed.
-      .inSmartMode(project) // TestSourcesFilter.isTestSources can access file indices, so smart mode is required.
-      .executeSynchronously() // Already running in a background thread, execute in place.
-  }
+  private def calculateSourceScope(virtualFile: VirtualFile): SourceScope =
+    if (TestSourcesFilter.isTestSources(virtualFile, project)) SourceScope.Test
+    else SourceScope.Production
 
   private def schedule(request: CompilationRequest): Unit = {
     priorityQueue.add(request)
