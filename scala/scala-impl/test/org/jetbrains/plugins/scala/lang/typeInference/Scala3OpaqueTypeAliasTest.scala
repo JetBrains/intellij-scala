@@ -71,6 +71,108 @@ class Scala3OpaqueTypeAliasTest extends ScalaLightCodeInsightFixtureTestCase {
     )
   }
 
+  def testTransitive1(): Unit = {
+    checkTextHasNoErrors(
+      s"""
+         |object Inside:
+         |  opaque type T = Int
+         |  val v: Int = ??? : Outside.T
+         |object Outside:
+         |  type T = Inside.T
+      """.stripMargin
+    )
+  }
+
+//  def testTransitive2(): Unit = {
+//    checkHasErrorAroundCaret(
+//      s"""
+//         |object Inside:
+//         |  opaque type T = Int
+//         |object Outside:
+//         |  type T = Inside.T
+//         |  val v: Int = ??? : ${CARET}T
+//      """.stripMargin
+//    )
+//  }
+
+  def testComponent1(): Unit = {
+    checkTextHasNoErrors(
+      s"""
+         |object Inside:
+         |  opaque type T = Int
+         |  val v: Option[Int] = ??? : Option[T]
+      """.stripMargin
+    )
+  }
+
+  def testComponent2(): Unit = {
+    checkHasErrorAroundCaret(
+      s"""
+         |object Inside:
+         |  opaque type T = Int
+         |object Outside:
+         |  val v: Option[Int] = ??? : ${CARET}Option[Inside.T]
+      """.stripMargin
+    )
+  }
+
+  def testComposite1(): Unit = {
+    checkTextHasNoErrors(
+      s"""
+         |object Inside:
+         |  opaque type TC[A] = Option[A]
+         |  val v: Option[Int] = ??? : TC[Int]
+      """.stripMargin
+    )
+  }
+
+  def testComposite2(): Unit = {
+    checkHasErrorAroundCaret(
+      s"""
+         |object Inside:
+         |  opaque type TC[A] = Option[A]
+         |object Outside:
+         |  val v: Option[Int] = ??? : ${CARET}Inside.TC[Int]
+      """.stripMargin
+    )
+  }
+
+  def testCompositeAndComponent1(): Unit = {
+    checkTextHasNoErrors(
+      s"""
+         |object Inside:
+         |  opaque type T = Int
+         |  opaque type TC[A] = Option[A]
+         |  val v: Option[Int] = ??? : TC[T]
+      """.stripMargin
+    )
+  }
+
+  def testCompositeAndComponent2(): Unit = {
+    checkHasErrorAroundCaret(
+      s"""
+         |object Inside:
+         |  opaque type T = Int
+         |  opaque type TC[A] = Option[A]
+         |object Outside:
+         |  val v: Option[Int] = ??? : ${CARET}Inside.TC[Inside.T]
+      """.stripMargin
+    )
+  }
+
+//  def testSuperType(): Unit = {
+//    checkHasErrorAroundCaret(
+//      s"""
+//         |class TC[A]
+//         |object Inside:
+//         |  opaque type T = Int
+//         |  class Foo extends TC[T]
+//         |object Outside:
+//         |  val v: TC[Int] = ??? : ${CARET}Inside.Foo
+//      """.stripMargin
+//    )
+//  }
+
   def testExpression(): Unit = {
     checkHasErrorAroundCaret(
       s"""
