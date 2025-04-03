@@ -223,11 +223,12 @@ class IrrefutabilityTest_Scala3 extends IrrefutabilityTestBase {
   def testNamedTuplePattern(): Unit = {
     assertIsIrrefutable("(x = A, y = B) match { case (x = a, y = b) => }")
     assertIsIrrefutable("(x = 1) match { case (x = _) => }")
+    assertIsIrrefutable("(x = 1, y = 2) match { case (x = _) => }")
+    assertIsIrrefutable("(x = 1, y = 2) match { case (y = _) => }")
+    assertIsIrrefutable("(x = 1, y = 2) match { case (y = _, x = _) => }")
 
     assertIsNotIrrefutable("(x = 1) match { case (y = _) => }")
     assertIsNotIrrefutable("(x = 1) match { case (x = 2) => }")
-    assertIsNotIrrefutable("(x = 1, y = 2) match { case (x = _) => }")
-    assertIsNotIrrefutable("(x = 1, y = 2) match { case (y = _) => }")
     assertIsNotIrrefutable("(x = 1, y = 2) match { case (y = _, v = _) => }")
 
     // check nothing
@@ -239,9 +240,9 @@ class IrrefutabilityTest_Scala3 extends IrrefutabilityTestBase {
     assertIsIrrefutable("(a = A, b = A -> B) match { case (a = a, b = b) => }")
     assertIsIrrefutable("(a = A, b = A -> B) match { case (a = a, b = (a2, b)) => }")
     assertIsIrrefutable("(a = A, b = A -> B) match { case (a = a:A, b = (a2:A, b: B)) => }")
+    assertIsIrrefutable("(a = A, b = B, c = B) match { case (a = a, b = b) => }")
 
     assertIsNotIrrefutable("A match { case (a, b) => }")
-    assertIsNotIrrefutable("(a = A, b = B, c = B) match { case (a = a, b = b) => }")
     assertIsNotIrrefutable("(a = B, b = A) match { case (a = a: A, b = b: B) => }")
     assertIsNotIrrefutable("(a = A, b = B) match { case (b = b, a = A) => }")
     assertIsNotIrrefutable("(a = A, b = B -> A) match { case (a = _, b = (a: A, b: B)) => }")

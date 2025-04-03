@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expr.PatternTypeInference
 import org.jetbrains.plugins.scala.lang.psi.types.ComparingUtil.{isNeverSubClass, isNeverSubType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, AnyVal, Nothing, Null, TupleType, TypeParameterType, arrayType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, AnyVal, NamedTupleType, Nothing, Null, TupleType, TypeParameterType, arrayType}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScParameterizedType, ScType, ScalaType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 
 import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
+import scala.collection.mutable
 
 object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
 
@@ -119,6 +120,27 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
       case _: ScTuplePattern | _: ScInfixPattern if neverMatches =>
         val message = ScalaBundle.message("pattern.type.incompatible.with.expected", patType, exprType)
         holder.createErrorAnnotation(pattern, message)
+      case nt: ScNamedTuplePattern =>
+        exprType match {
+          case NamedTupleType(comps) =>
+            val map = NamedTupleType.makeComponentMap(comps)
+            val seen = mutable.Set.empty[String]
+            nt.components.foreach {
+              case comp@ScNamedTuplePatternComponent(name, _) =>
+                val nameElement = comp.nameElement.get
+                if (!seen.add(name)) {
+                  holder.createErrorAnnotation(nameElement, ScalaBundle.message("duplicated.name.extractor.name", name))
+                }
+                if (!map.contains(name)) {
+                  val message = ScalaBundle.message("cannot.extract.name.from.selector.type", name, exprType.presentableText)
+                  holder.createErrorAnnotation(nameElement, message)
+                }
+              case _: ScNamedConstructorArgPattern => // for when the name element was omitted
+              case pat =>
+                holder.createErrorAnnotation(pat, ScalaBundle.message("cannot.use.positional.pattern.when.named.patterns.are.used"))
+            }
+          case _ =>
+        }
       case _  if patType.isFinalType && neverMatches =>
         val (exprTypeText, patTypeText) = TypePresentation.different(exprType, patType)
         val message = ScalaBundle.message("pattern.type.incompatible.with.expected", patTypeText, exprTypeText)
@@ -140,8 +162,10 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
         }
       case _: ScInterpolationPattern => //do not check interpolated patterns for number of arguments
       case _: ScConstructorPattern | _: ScInfixPattern => //check number of arguments
-        val (reference, numPatterns) = pattern match {
-          case constr: ScConstructorPattern => (Option(constr.ref), constr.args.patterns.length)
+        val (reference, numPatterns, constructorArgPatterns) = pattern match {
+          case constr: ScConstructorPattern =>
+            val patterns = constr.subpatterns
+            (Option(constr.ref), patterns.length, patterns)
           case infix: ScInfixPattern =>
             val numPatterns: Int = infix.rightOption match {
               case Some(_: ScInfixPattern | _: ScConstructorPattern) => 2
@@ -151,24 +175,48 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
               }
               case _ => 1
             }
-            (Option(infix.operation), numPatterns)
+            (Option(infix.operation), numPatterns, Seq.empty)
         }
         reference match {
           case Some(ref) =>
             ref.bind() match {
-              case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "unapply" => fun.returnType match {
+              case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "unapply" && !fun.is[ScMacroDefinition] => fun.returnType match {
                 case Right(rt) =>
                   val substitutor = PatternTypeInference.doTypeInference(pattern, exprType)
                   val unapplyType = substitutor(rt)
                   val matches = ScPattern.unapplyExtractorMatches(unapplyType, pattern, fun)
-                  if (!matches.exists(_.isApplicable(numPatterns)) && !fun.is[ScMacroDefinition]) {
-                    if (matches.isEmpty) {
-                      holder.createErrorAnnotation(pattern, ScalaBundle.message("type.is.not.a.valid.result.type.of.an.unapply.method", unapplyType.presentableText))
-                    } else {
-                      val expected = matches.map(_.productTypes.length).max
-                      val message = ScalaBundle.message("wrong.number.arguments.extractor", numPatterns.toString, expected)
-                      holder.createErrorAnnotation(pattern, message)
+                  val hasNamedArgs = constructorArgPatterns.exists(_.is[ScNamedConstructorArgPattern])
+
+                  if (matches.isEmpty) {
+                    holder.createErrorAnnotation(pattern, ScalaBundle.message("type.is.not.a.valid.result.type.of.an.unapply.method", unapplyType.presentableText))
+                  } else if (hasNamedArgs) {
+                    val extractorMatch = matches.find(_.supportsNamedPatterns)
+                    extractorMatch match {
+                      case Some(extractorMatch) =>
+                        val namedPatterns = extractorMatch.namedPatternTypes(pattern)
+                        val seen = mutable.Set.empty[String]
+                        constructorArgPatterns.foreach {
+                          case pat@ScNamedConstructorArgPattern(name, _) =>
+                            val nameElement = pat.nameElement.get
+                            if (!seen.add(name)) {
+                              holder.createErrorAnnotation(nameElement, ScalaBundle.message("duplicated.name.extractor.name", name))
+                            }
+                            if (!namedPatterns.contains(name)) {
+                              val message = ScalaBundle.message("cannot.extract.name.from.selector.type", name, extractorMatch.selectorType.presentableText)
+                              holder.createErrorAnnotation(nameElement, message)
+                            }
+                          case _: ScNamedConstructorArgPattern => // for when the name element was omitted
+                          case pat =>
+                            holder.createErrorAnnotation(pat, ScalaBundle.message("cannot.use.positional.pattern.when.named.patterns.are.used"))
+                        }
+                      case None =>
+                        val message = ScalaBundle.message("type.does.not.support.named.patterns", unapplyType.presentableText)
+                        holder.createErrorAnnotation(pattern, message)
                     }
+                  } else if (!matches.exists(_.isApplicable(numPatterns))) {
+                    val expected = matches.map(_.productTypes.length).max
+                    val message = ScalaBundle.message("wrong.number.arguments.extractor", numPatterns.toString, expected)
+                    holder.createErrorAnnotation(pattern, message)
                   }
                 case _ =>
               }
