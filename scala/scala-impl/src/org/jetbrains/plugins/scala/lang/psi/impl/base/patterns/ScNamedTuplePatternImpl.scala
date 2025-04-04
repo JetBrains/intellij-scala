@@ -11,13 +11,15 @@ class ScNamedTuplePatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 
   override def isIrrefutableForImpl(t: Option[ScType]): Boolean = t.exists {
     case NamedTupleType(incomingComps) =>
-      incomingComps.corresponds(components) {
-        case (
-              (NamedTupleType.NameType(incomingName), incomingTy),
-              ScNamedTuplePatternComponent(expectedName, expectedPattern)
-            ) if incomingName == expectedName =>
+      val incoming = NamedTupleType.makeComponentMap(incomingComps)
+      components.forall {
+        case ScNamedTuplePatternComponent(expectedName, expectedPattern)  =>
 
-          expectedPattern.isIrrefutableFor(Some(incomingTy))
+          incoming
+            .get(expectedName)
+            .exists(
+              incomingTy => expectedPattern.isIrrefutableFor(Some(incomingTy))
+            )
         case _ =>
           false
       }

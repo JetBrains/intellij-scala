@@ -48,12 +48,66 @@ class Scala3NamedTuplesTest extends TypeInferenceTestBase {
        |""".stripMargin
   )
 
-  def testComponentPatternInference(): Unit = doTest(
+  def testSingleComponentPatternInference(): Unit = doTest(
     s"""
        |val (x = value) = (x = 1)
        |${START}value$END
        |
        |//Int
+       |""".stripMargin
+  )
+
+  def testComponentPatternInference1(): Unit = doTest(
+    s"""
+       |val (x = value, y = _) = (x = 1, y = "")
+       |${START}value$END
+       |
+       |//Int
+       |""".stripMargin
+  )
+
+  def testComponentPatternInference2(): Unit = doTest(
+    s"""
+       |val (x = _, y = value) = (x = 1, y = "")
+       |${START}value$END
+       |
+       |//String
+       |""".stripMargin
+  )
+
+  def testReversedComponentPatternInference1(): Unit = doTest(
+    s"""
+       |val (y = _, x = value) = (x = 1, y = "")
+       |${START}value$END
+       |
+       |//Int
+       |""".stripMargin
+  )
+
+  def testReversedComponentPatternInference2(): Unit = doTest(
+    s"""
+       |val (y = value, x = _) = (x = 1, y = "")
+       |${START}value$END
+       |
+       |//String
+       |""".stripMargin
+  )
+
+  def testOmittedComponentPatternInference1(): Unit = doTest(
+    s"""
+       |val (x = value) = (x = 1, y = "")
+       |${START}value$END
+       |
+       |//Int
+       |""".stripMargin
+  )
+
+  def testOmittedComponentPatternInference2(): Unit = doTest(
+    s"""
+       |val (y = value) = (x = 1, y = "")
+       |${START}value$END
+       |
+       |//String
        |""".stripMargin
   )
 
@@ -109,11 +163,67 @@ class Scala3NamedTuplesTest extends TypeInferenceTestBase {
        |""".stripMargin
   )
 
-  def testTypeInference(): Unit = doTest(
+  def testSingleComponentTypeInference(): Unit = doTest(
     s"""(a = "") match {
        |  case (a = x) => ${START}x$END
        |}
        |//String
+       |""".stripMargin
+  )
+
+  def testTypeInference1(): Unit = doTest(
+    s"""(a = 1, b = "") match {
+       |  case (a = x, b = _) => ${START}x$END
+       |}
+       |//Int
+       |""".stripMargin
+  )
+
+  def testTypeInference2(): Unit = doTest(
+    s"""(a = 1, b = "") match {
+       |  case (a = _, b = x) => ${START}x$END
+       |}
+       |//String
+       |""".stripMargin
+  )
+
+  def testReversedTypeInference1(): Unit = doTest(
+    s"""(a = 1, b = "") match {
+       |  case (b = _, a = x) => ${START}x$END
+       |}
+       |//Int
+       |""".stripMargin
+  )
+
+  def testReversedTypeInference2(): Unit = doTest(
+    s"""(a = 1, b = "") match {
+       |  case (b = x, a = _) => ${START}x$END
+       |}
+       |//String
+       |""".stripMargin
+  )
+
+  def testOmittedTypeInference1(): Unit = doTest(
+    s"""(a = 1, b = "") match {
+       |  case (a = x) => ${START}x$END
+       |}
+       |//Int
+       |""".stripMargin
+  )
+
+  def testOmittedTypeInference2(): Unit = doTest(
+    s"""(a = 1, b = "") match {
+       |  case (b = x) => ${START}x$END
+       |}
+       |//String
+       |""".stripMargin
+  )
+
+  def testScrambledTypeInference(): Unit = doTest(
+    s"""(a = 1, b = "", c = true) match {
+       |  case (c = z, a = x) => $START(x, z)$END
+       |}
+       |//(Int, Boolean)
        |""".stripMargin
   )
 

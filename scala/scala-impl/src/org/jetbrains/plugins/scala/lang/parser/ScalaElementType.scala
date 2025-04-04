@@ -291,6 +291,7 @@ object ScalaElementType {
   val SCALA3_TYPED_PATTERN: ScalaElementType = new ScalaElementType("Scala 3 Typed Pattern")
   val NAMED_TUPLE_PATTERN: ScalaElementType = new ScalaElementType("named tuple pattern")
   val NAMED_TUPLE_PATTERN_COMPONENT: ScalaElementType = new ScalaElementType("named tuple pattern component")
+  val NAMED_CONSTRUCTOR_ARG_PATTERN: ScalaElementType = new ScalaElementType("named constructor argument pattern")
 
   /** ************************************ TYPE PATTERNS ******************************* */
 

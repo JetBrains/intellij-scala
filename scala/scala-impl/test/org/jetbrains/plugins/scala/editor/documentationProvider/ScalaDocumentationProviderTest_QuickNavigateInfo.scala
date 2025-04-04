@@ -402,6 +402,27 @@ class ScalaDocumentationProviderTest_QuickNavigateInfo_Scala3 extends ScalaDocum
     )
   }
 
+  def testNamedTupleReversed(): Unit = {
+    doGenerateQuickNavigateInfoBodyTest(
+      s"""
+         |object Blub {
+         |  val (y = _, x = ${|}test) = (x = 1, y = "blub")
+         |}
+         |""".stripMargin,
+      """<a href="psi_element://Blub">Blub</a> <default><br>val test: <a href="psi_element://scala.Int">Int</a> = 1"""
+    )
+
+
+    doGenerateQuickNavigateInfoBodyTest(
+      s"""
+         |object Blub {
+         |  val (y = ${|}test, x = _) = (x = 1, y = "blub")
+         |}
+         |""".stripMargin,
+      """<a href="psi_element://Blub">Blub</a> <default><br>val test: <a href="psi_element://java.lang.String">String</a> = "blub""""
+    )
+  }
+
   def testNamedTupleComponent(): Unit = {
     doGenerateQuickNavigateInfoBodyTest(
       s"""

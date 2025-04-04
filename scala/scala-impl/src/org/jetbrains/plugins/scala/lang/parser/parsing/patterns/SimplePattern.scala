@@ -228,11 +228,36 @@ object SimplePattern extends ParsingRule {
 
           def parseSeqWildcardAny(): Boolean = parseSeqWildcard() ||  parseSeqWildcardBindingScala3_old() || parseSeqWildcardBindingScala3_new() || parseSeqWildcardBinding()
 
-          if (parseSeqWildcardAny() || Pattern()) {
+          val namedPatternsAllowed = builder.features.`general pattern matching with named fields `
+
+          def patternOrNamedPattern(): Boolean = {
+            if (namedPatternsAllowed) {
+              val marker = builder.mark()
+              if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER) {
+                builder.advanceLexer()
+              } else {
+                builder.error(ErrMsg("identifier.expected"))
+              }
+
+              if (builder.getTokenType == ScalaTokenTypes.tASSIGN) {
+                builder.advanceLexer()
+                if (!Pattern()) {
+                  builder.error(ErrMsg("pattern.expected"))
+                }
+                marker.done(ScalaElementType.NAMED_CONSTRUCTOR_ARG_PATTERN)
+                true
+              } else {
+                marker.rollbackTo()
+                Pattern()
+              }
+            } else Pattern()
+          }
+
+          if (parseSeqWildcardAny() || patternOrNamedPattern()) {
             while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
               builder.advanceLexer() // eat comma
               if (!parseSeqWildcardAny()) {
-                Pattern()
+                patternOrNamedPattern()
               }
             }
           }
