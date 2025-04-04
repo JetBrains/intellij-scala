@@ -77,4 +77,17 @@ class NamedTupleResolveTest extends SimpleResolveTestBase {
          |}
          |""".stripMargin
     )
+
+  def testNameIsAlias(): Unit =
+    doResolveTest(
+      s"""
+         |object Test {
+         |  type Name = $REFTGT"x"
+         |  type Tup = NamedTuple.NamedTuple[(Name, "y"), (Int, Int)]
+         |  val tup: Tup = ???
+         |
+         |  tup.${REFSRC}x
+         |}
+         |""".stripMargin
+    )
 }

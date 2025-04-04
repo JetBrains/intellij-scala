@@ -1069,7 +1069,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
   }
 
   private def boundsIn(sb: StringBuilder, node: Node): Unit = node match {
-    case Node3(TYPEBOUNDStpt | TYPEBOUNDS, _, Seq(lower, upper)) =>
+    case Node3(TYPEBOUNDStpt | TYPEBOUNDS, _, Seq(lower, upper, _*)) =>
       val l = textOfType(lower)
       if (l.nonEmpty && l != "_root_.scala.Nothing") {
         sb ++= " >: " + simple(l)

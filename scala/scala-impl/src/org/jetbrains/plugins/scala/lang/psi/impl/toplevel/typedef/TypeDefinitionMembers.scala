@@ -490,7 +490,7 @@ object TypeDefinitionMembers {
     p match {
       case NamedTupleType(comps) =>
         comps.forall {
-          case (lit@NamedTupleType.NameType(name), typ) =>
+          case (NamedTupleType.NameType.WithLiteral(name, lit), typ) =>
             lit.psiElement match {
               case Some(named: ScNamedElement) =>
                 execute(named)

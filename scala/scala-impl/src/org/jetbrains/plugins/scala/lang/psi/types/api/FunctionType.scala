@@ -153,19 +153,27 @@ object NamedTupleType extends FunctionTypeFactory[ScClass, Seq[(ScType, ScType)]
     def apply(name: String, psiElement: PsiElement)(implicit context: ProjectContext): ScType =
       ScLiteralType(ScStringLiteralImpl.Value(name), psiElement = psiElement)(context.project)
 
-    def from(scLiteralType: ScLiteralType): Option[String] = {
-      scLiteralType.value match {
-        case ScStringLiteralImpl.Value(string) => Some(string)
-        case _ => None
-      }
-    }
-
-    def unapply(scLiteralType: ScLiteralType): Option[String] = from(scLiteralType)
+    def unapply(scType: ScType): Option[String] = from(scType)
 
     def from(ty: ScType): Option[String] =
-      ty match {
-        case NameType(name) => Some(name)
+      getLiteralType(ty).flatMap(_.value match {
+        case ScStringLiteralImpl.Value(string) => Some(string)
         case _ => None
-      }
+      })
+
+    object WithLiteral {
+      def unapply(ty: ScType): Option[(String, ScLiteralType)] =
+        getLiteralType(ty).flatMap(lit => lit.value match {
+          case ScStringLiteralImpl.Value(string) => Some(string -> lit)
+          case _ => None
+        })
+    }
+
+    @tailrec
+    private def getLiteralType(ty: ScType): Option[ScLiteralType] = ty match {
+      case lit: ScLiteralType => Some(lit)
+      case _ if ty.isAliasType => getLiteralType(ty.removeAliasDefinitions())
+      case _ => None
+    }
   }
 }
