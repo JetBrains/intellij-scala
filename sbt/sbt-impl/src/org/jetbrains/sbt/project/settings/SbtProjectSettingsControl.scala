@@ -120,6 +120,12 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     settings.useSbtShellForImport = extraControls.useSbtShellForImportCheckBox.isSelected
     settings.enableDebugSbtShell = extraControls.remoteDebugSbtShellCheckBox.isSelected
     settings.preferScala2 = extraControls.scalaVersionPreferenceCheckBox.isSelected
+
+    val hasChanged = getInitialSettings.separateProdAndTestSources != extraControls.separateProdTestModules.isSelected
+    if (hasChanged) {
+      settings.isSeparateProdAndTestSourcesExplicitlySet = hasChanged
+    }
+
     settings.separateProdAndTestSources = extraControls.separateProdTestModules.isSelected
     settings.useSeparateCompilerOutputPaths = extraControls.useSeparateCompilerOutputPaths.isSelected
 

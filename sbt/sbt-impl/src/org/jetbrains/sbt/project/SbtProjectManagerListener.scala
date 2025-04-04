@@ -4,6 +4,7 @@ import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMode
 import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, invokeLater}
 import org.jetbrains.sbt.project.settings.ShouldUpdateRunConfigurations
 import org.jetbrains.plugins.scala.startup.ProjectActivity
@@ -11,6 +12,15 @@ import org.jetbrains.sbt.project.settings.SbtProjectSettings
 
 private final class SbtProjectManagerListener extends ProjectActivity {
   override def execute(project: Project): Unit = invokeLater {
+    val linkedProjectSettings = SbtProjectSettings.getAllLinked(project)
+    linkedProjectSettings.foreach { settings =>
+      val isExplicitGiven = settings.isSeparateProdAndTestSourcesExplicitlySet
+      if (!isExplicitGiven) {
+        val isInUse = ScalaCompilerConfiguration(project).separateProdTestSources
+        settings.separateProdAndTestSources = isInUse || SbtProjectSettings.DefaultImplicitSeparateProdAndTestSources
+      }
+    }
+
     SbtProjectSettings.forProject(project).foreach { settings =>
       if (settings.converterVersion < SbtProjectSettings.ConverterVersion) {
         // TODO Only do this if auto-import is enabled? (more predictable, on the other hand, it's not about "build scripts", as the setting claims)
