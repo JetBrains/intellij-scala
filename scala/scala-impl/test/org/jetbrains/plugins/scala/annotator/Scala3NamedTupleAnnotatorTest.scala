@@ -12,4 +12,19 @@ class Scala3NamedTupleAnnotatorTest extends ScalaHighlightingTestBase{
       |type NT = NamedTuple.Concat[(hi: Int), (str: String)]
       |""".stripMargin
   )
+
+  // SCL-23684
+  def testSoeOnReverse(): Unit = assertNoErrors(
+    """
+      |object NamedTupleExamples:
+      |  type NT1 = (name: String, age: Int, city: String)
+      |  type NT2 = (country: String, hobby: String)
+      |
+      |  type Reversed = NamedTuple.Reverse[NT1]
+      |
+      |  def exampleReverse(namedTuple: NT1): Reversed =
+      |    namedTuple.reverse
+      |
+      |""".stripMargin
+  )
 }
