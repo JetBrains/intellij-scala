@@ -1,6 +1,7 @@
 package org.jetbrains.bsp.project.test
 
-import ch.epfl.scala.bsp4j.TaskDataKind._
+import ch.epfl.scala.bsp4j.TaskStartDataKind._
+import ch.epfl.scala.bsp4j.TaskFinishDataKind._
 import ch.epfl.scala.bsp4j.TestStatus._
 import ch.epfl.scala.bsp4j._
 import com.google.gson.{Gson, JsonObject}

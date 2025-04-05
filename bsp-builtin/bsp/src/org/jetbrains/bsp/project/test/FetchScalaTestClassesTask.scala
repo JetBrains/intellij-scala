@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter, BuildToo
 import java.nio.file.Paths
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
+import scala.annotation.nowarn
 import scala.concurrent.Promise
 import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success, Try}
@@ -81,6 +82,7 @@ class FetchScalaTestClassesTask(project: Project,
     }
   }
 
+  @nowarn("cat=deprecation")
   private def requestTestClasses(
     params: ScalaTestClassesParams
   )(bsp: BspServer, serverInfo: BuildServerInfo): CompletableFuture[ScalaTestClassesResult] =

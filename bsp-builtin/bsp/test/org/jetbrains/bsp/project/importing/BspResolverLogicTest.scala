@@ -16,7 +16,13 @@ class BspResolverLogicTest {
     val target = new BuildTarget(
       new BuildTargetIdentifier("ePzqj://jqke:540/n/ius7/jDa/t/z78"),
       List("bla").asJava, null, List.empty.asJava,
-      new BuildTargetCapabilities(true,true,true)
+      {
+        val cap = new BuildTargetCapabilities()
+        cap.setCanCompile(true)
+        cap.setCanTest(true)
+        cap.setCanRun(true)
+        cap
+      }
     )
 
     val descriptions = BspResolverLogic.calculateModuleDescriptions(List(target), Nil, Nil, Nil, Nil, Nil, Nil)
@@ -34,7 +40,13 @@ class BspResolverLogicTest {
     val target = new BuildTarget(
       new BuildTargetIdentifier(id),
       emptyList, null, emptyList,
-      new BuildTargetCapabilities(true, true, true)
+      {
+        val cap = new BuildTargetCapabilities()
+        cap.setCanCompile(true)
+        cap.setCanTest(true)
+        cap.setCanRun(true)
+        cap
+      }
     )
     target.setDisplayName(displayName)
     target

@@ -165,7 +165,6 @@ class BspSession private(bspPID: Long,
       .create()
     val listening = launcher.startListening()
     val bspServer = cancellationSafeBspServer(launcher.getRemoteProxy)
-    localClient.onConnectWithServer(bspServer)
 
     val messageHandler = new BspProcessMessageHandler(bspErr)
     val messageHandlerRunning = AppExecutorUtil.getAppExecutorService.submit(messageHandler)
@@ -359,8 +358,6 @@ class BspSession private(bspPID: Long,
     }
 
     // build-level notifications
-    override def onConnectWithServer(server: bsp4j.BuildServer): Unit = super.onConnectWithServer(server)
-
     override def onBuildTargetDidChange(didChange: bsp4j.DidChangeBuildTarget): Unit = {
       updateLastActivity()
       val event = DidChangeBuildTarget(didChange)

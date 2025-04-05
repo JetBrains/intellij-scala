@@ -13,7 +13,7 @@ object Versions {
   // NOTE: sbt-launch / bloop-launcher won't be fetched on refresh.
   // run runtimeDependencies/update manually
   val sbtVersion: String = "1.10.7"
-  val bloopVersion = "1.5.6"
+  val bloopVersion = "2.0.9"
   val zincVersion = "1.10.7"
 
   // ATTENTION: check the comment in `Common.newProjectWithKotlin` when updating this version
@@ -29,7 +29,7 @@ object Versions {
   val (
     intellijVersion_ForManagedIntellijDependencies,
     intellijRepository_ForManagedIntellijDependencies,
-  ) = detectIntellijArtifactVersionAndRepository(intellijVersion)
+    ) = detectIntellijArtifactVersionAndRepository(intellijVersion)
 
   private def detectIntellijArtifactVersionAndRepository(intellijVersion: String): (String, MavenRepository) = {
     val locationDescriptor = IntellijVersionUtils.detectArtifactLocation(BuildInfo(intellijVersion, IdeaCommunity), ".zip")
@@ -42,7 +42,7 @@ object Versions {
   val junitVersion: String = "4.13.2"
   val junitInterfaceVersion: String = "0.13.3"
 
-  val bspVersion = "2.1.0-M3"
+  val bspVersion = "2.1.1"
   val sbtStructureVersion: String = "2025.1.5"
   val sbtIdeaShellVersion: String = "2025.1.4"
   val compilerIndicesVersion = "1.0.16"
@@ -117,7 +117,7 @@ object Dependencies {
    */
   val jupiterInterface: ModuleID = "com.github.sbt.junit" % "jupiter-interface" % "0.13.3"
 
-  val jupiterParams: String => ModuleID = (version: String) =>"org.junit.jupiter" % "junit-jupiter-params" % version
+  val jupiterParams: String => ModuleID = (version: String) => "org.junit.jupiter" % "junit-jupiter-params" % version
 
   val ivy2: ModuleID = "org.apache.ivy" % "ivy" % "2.5.2"
 
@@ -210,6 +210,7 @@ object Dependencies {
 }
 
 object DependencyGroups {
+
   import Dependencies.*
   import Versions.*
 
@@ -238,6 +239,7 @@ object DependencyGroups {
   )
 
   val bsp: Seq[ModuleID] = Seq(
+    ("ch.epfl.scala" %% "bloop-rifle" % bloopVersion).excludeAll(bspExclusions *),
     ("ch.epfl.scala" % "bsp4j" % bspVersion).excludeAll(bspExclusions *),
     ("ch.epfl.scala" %% "bsp-testkit" % bspVersion).excludeAll(bspExclusions *) % Test,
     scalaCheck

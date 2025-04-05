@@ -188,13 +188,13 @@ object BspJvmEnvironment {
       case ExecutionEnvironmentType.RUN =>
         environment[JvmRunEnvironmentResult](
           _.getJvmRunEnvironmentProvider,
-          targets => server.jvmRunEnvironment(new JvmRunEnvironmentParams(targets)),
+          targets => server.buildTargetJvmRunEnvironment(new JvmRunEnvironmentParams(targets)),
           _.getItems,
           "buildTarget/jvmRunEnvironment")
       case ExecutionEnvironmentType.TEST =>
         environment[JvmTestEnvironmentResult](
           _.getJvmTestEnvironmentProvider,
-          targets => server.jvmTestEnvironment(new JvmTestEnvironmentParams(targets)),
+          targets => server.buildTargetJvmTestEnvironment(new JvmTestEnvironmentParams(targets)),
           _.getItems,
           "buildTarget/jvmTestEnvironment")
     }

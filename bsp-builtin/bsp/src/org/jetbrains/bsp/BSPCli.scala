@@ -21,6 +21,7 @@ import java.nio.file.Path
 import java.util
 import java.util.concurrent.CompletableFuture
 import java.util.{Collections, UUID}
+import scala.annotation.nowarn
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.io.StdIn
@@ -188,6 +189,7 @@ object BSPCli extends App {
   }
 
 
+  @nowarn("cat=deprecation")
   def testClasses(targets: BuildIds)(server: BspServer): CompletableFuture[ScalaTestClassesResult] = {
     val params = new bsp4j.ScalaTestClassesParams(targets)
     params.setOriginId(UUID.randomUUID().toString)

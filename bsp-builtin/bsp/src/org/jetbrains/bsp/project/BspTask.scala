@@ -191,7 +191,9 @@ class BspTask[T](project: Project,
     else {
       cleanRequest(targetsToClean)
       .exceptionally { err =>
-        new CleanCacheResult(BspBundle.message("bsp.task.server.does.not.support.cleaning.build.cache", err.getMessage), false)
+        val res = new CleanCacheResult(false)
+        res.setMessage(BspBundle.message("bsp.task.server.does.not.support.cleaning.build.cache", err.getMessage))
+        res
       }
       .thenCompose { cleaned =>
         if (cleaned.getCleaned) compileRequest(targetsWithCompileCap)
@@ -239,7 +241,7 @@ class BspTask[T](project: Project,
       case WARNING =>
         reporter.warning(textNoAnsi, None)
         buildMessages.addWarning(textNoAnsi)
-      case INFORMATION =>
+      case INFO =>
         buildMessages
       case LOG =>
         buildMessages
