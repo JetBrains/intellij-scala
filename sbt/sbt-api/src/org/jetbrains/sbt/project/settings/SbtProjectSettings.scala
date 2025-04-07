@@ -8,6 +8,7 @@ import org.jetbrains.sbt.project.settings.SbtProjectSettings.canonical
 import org.jetbrains.sbt.settings.SbtSettings
 
 import scala.beans.BeanProperty
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 /**
  * Represents multiple kinds of SBT settings: (per single imported sbt project)
@@ -65,6 +66,19 @@ class SbtProjectSettings extends ExternalProjectSettings {
   @BeanProperty var preferScala2 = true
   @BeanProperty
   var useSeparateCompilerOutputPaths: Boolean = false
+
+  /**
+   * Represents whether [[SbtProjectSettings.separateProdAndTestSources]] setting was explicitly configured either through
+   * user interaction or system configuration (e.g., during New Project Wizard initialization)
+   */
+  @BeanProperty
+  var separateProdAndTestSourcesIsExplicit: Boolean = false
+
+  /**
+   * IMPORTANT: Don't change the default value directly. If there is a need to manipulate its value to modify:
+   *  - [[SbtProjectSettings.DefaultSeparateProdAndTestSources]]
+   *  - [[org.jetbrains.sbt.project.SbtProjectManagerListener.execute]]
+   * */
   @BeanProperty
   var separateProdAndTestSources: Boolean = true
 
@@ -103,24 +117,42 @@ class SbtProjectSettings extends ExternalProjectSettings {
     result.preferScala2 = preferScala2
     result.useSeparateCompilerOutputPaths = useSeparateCompilerOutputPaths
     result.separateProdAndTestSources = separateProdAndTestSources
+    result.separateProdAndTestSourcesIsExplicit = separateProdAndTestSourcesIsExplicit
     result
   }
 }
 
 object SbtProjectSettings {
+  /**
+   * The default value for separate main and test modules setting.
+   * This constant allows the default value of [[SbtProjectSettings.separateProdAndTestSources]] to be adjusted programmatically in a more controlled manner.
+   *
+   * This value is effectively used for:
+   *  - projects where [[SbtProjectSettings.separateProdAndTestSources]] was not explicit
+   * (see [[org.jetbrains.sbt.project.SbtProjectManagerListener.execute]])
+   *  - new projects, except those created via New Project Wizards where the setting is always enabled
+   */
+  val DefaultSeparateProdAndTestSources = true
   // Increment if the converter algorithm is updated to trigger a reloading of previously opened projects.
   val ConverterVersion = 2
 
   def default: SbtProjectSettings = {
     val settings = new SbtProjectSettings()
+    settings.separateProdAndTestSources = DefaultSeparateProdAndTestSources
     settings.converterVersion = ConverterVersion
     settings
   }
 
-  def default(separateProdAndTestSources: Boolean): SbtProjectSettings = {
+  /**
+   * Create a [[SbtProjectSettings]] used in the NPWs
+   */
+  def defaultForNewProjectWizard: SbtProjectSettings = {
     val settings = new SbtProjectSettings()
     settings.converterVersion = ConverterVersion
-    settings.separateProdAndTestSources = separateProdAndTestSources
+    // Prevent the algorithm in org.jetbrains.sbt.project.SbtProjectManagerListener.execute
+    // from overriding the explicitly set value
+    settings.separateProdAndTestSourcesIsExplicit = true
+    settings.separateProdAndTestSources = true
     settings
   }
 
@@ -128,6 +160,11 @@ object SbtProjectSettings {
     val settings = SbtSettings.getInstance(project)
     Option(project.getBasePath)
       .flatMap(path => Option(settings.getLinkedProjectSettings(path)))
+  }
+
+  def allForProject(project: Project): Seq[SbtProjectSettings] = {
+    val settings = SbtSettings.getInstance(project)
+    settings.getLinkedProjectsSettings.asScala.toSeq
   }
 
   private def canonical(path: String) =
