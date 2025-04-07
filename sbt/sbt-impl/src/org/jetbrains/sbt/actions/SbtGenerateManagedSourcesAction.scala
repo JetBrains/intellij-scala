@@ -4,8 +4,9 @@ import com.intellij.build.events.impl.{FailureResultImpl, FinishBuildEventImpl, 
 import com.intellij.build.{DefaultBuildDescriptor, SyncViewManager}
 import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent}
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskType}
+import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.progress.{ProgressIndicator, Task}
-import com.intellij.openapi.vfs.VirtualFileManager
+import com.intellij.openapi.vfs.{VfsUtil, VirtualFileManager}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.build.BuildMessages
 import org.jetbrains.sbt.buildinfo.BuildInfo
@@ -120,7 +121,8 @@ private final class SbtGenerateManagedSourcesAction extends AnAction(
                   val generatedSources = lines.collect { case s"[info] * $path" => path }
                     .flatMap(path => Try(Path.of(path).toRealPath()).filter(realFile).toOption)
                   val fileManager = VirtualFileManager.getInstance()
-                  generatedSources.foreach(fileManager.refreshAndFindFileByNioPath)
+                  val virtualFiles = generatedSources.flatMap(p => Option(fileManager.refreshAndFindFileByNioPath(p)))
+                  VfsUtil.markDirtyAndRefresh(false, false, true, virtualFiles: _*)
                   val output = lines.mkString(start = "", sep = System.lineSeparator(), end = System.lineSeparator())
                   viewManager.onEvent(taskId, new OutputBuildEventImpl(taskId, null, output, true))
                   val successWord = SbtBundle.message("sbt.generate.managed.sources.task.result.success")
@@ -140,6 +142,8 @@ private final class SbtGenerateManagedSourcesAction extends AnAction(
       }
     }
 
+    // Make sure all modified files are saved to disk before invoking sbt.
+    FileDocumentManager.getInstance().saveAllDocuments()
     task.queue()
   }
 
