@@ -12,12 +12,11 @@ import org.jetbrains.sbt.project.settings.SbtProjectSettings
 
 private final class SbtProjectManagerListener extends ProjectActivity {
   override def execute(project: Project): Unit = invokeLater {
-    val linkedProjectSettings = SbtProjectSettings.getAllLinked(project)
+    val linkedProjectSettings = SbtProjectSettings.allForProject(project)
     linkedProjectSettings.foreach { settings =>
-      val isExplicitGiven = settings.isSeparateProdAndTestSourcesExplicitlySet
-      if (!isExplicitGiven) {
+      if (!settings.separateProdAndTestSourcesIsExplicit) {
         val isInUse = ScalaCompilerConfiguration(project).separateProdTestSources
-        settings.separateProdAndTestSources = isInUse || SbtProjectSettings.DefaultImplicitSeparateProdAndTestSources
+        settings.separateProdAndTestSources = isInUse || SbtProjectSettings.DefaultSeparateProdAndTestSources
       }
     }
 

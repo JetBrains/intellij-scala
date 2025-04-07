@@ -8,7 +8,7 @@ import org.jetbrains.sbt.project.settings.SbtProjectSettings
 @ApiStatus.Experimental
 abstract class SbtModuleBuilderBase extends ModuleBuilderBase[SbtProjectSettings](
   SbtProjectSystem.Id,
-  SbtProjectSettings.defaultSettingsForNPW
+  SbtProjectSettings.defaultForNewProjectWizard
 ) {
   override protected def externalSystemConfigFile: String = Sbt.BuildFile
 }

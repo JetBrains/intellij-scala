@@ -68,16 +68,16 @@ class SbtProjectSettings extends ExternalProjectSettings {
   var useSeparateCompilerOutputPaths: Boolean = false
 
   /**
-   * Tracks whether [[SbtProjectSettings.separateProdAndTestSources]] setting was explicitly configured either through
+   * Represents whether [[SbtProjectSettings.separateProdAndTestSources]] setting was explicitly configured either through
    * user interaction or system configuration (e.g., during New Project Wizard initialization)
    */
   @BeanProperty
-  var isSeparateProdAndTestSourcesExplicitlySet: Boolean = false
+  var separateProdAndTestSourcesIsExplicit: Boolean = false
 
   /**
-   * IMPORTANT: This value must remain unmodified. To change the behavior, modify:
-   *  - [[SbtProjectSettings.DefaultImplicitSeparateProdAndTestSources]] for the default value
-   *  - [[org.jetbrains.sbt.project.SbtProjectManagerListener.execute]] for the adjustment logic
+   * IMPORTANT: Don't change the default value directly. If there is a need to manipulate its value to modify:
+   *  - [[SbtProjectSettings.DefaultSeparateProdAndTestSources]]
+   *  - [[org.jetbrains.sbt.project.SbtProjectManagerListener.execute]]
    * */
   @BeanProperty
   var separateProdAndTestSources: Boolean = true
@@ -117,28 +117,28 @@ class SbtProjectSettings extends ExternalProjectSettings {
     result.preferScala2 = preferScala2
     result.useSeparateCompilerOutputPaths = useSeparateCompilerOutputPaths
     result.separateProdAndTestSources = separateProdAndTestSources
-    result.isSeparateProdAndTestSourcesExplicitlySet = isSeparateProdAndTestSourcesExplicitlySet
+    result.separateProdAndTestSourcesIsExplicit = separateProdAndTestSourcesIsExplicit
     result
   }
 }
 
 object SbtProjectSettings {
   /**
-   * The default implicit value for separate main and test modules setting.
-   * This constant allows seamless adjustment of [[SbtProjectSettings.separateProdAndTestSources]] without interfering its default state.
+   * The default value for separate main and test modules setting.
+   * This constant allows the default value of [[SbtProjectSettings.separateProdAndTestSources]] to be adjusted programmatically in a more controlled manner.
    *
    * This value is effectively used for:
    *  - projects where [[SbtProjectSettings.separateProdAndTestSources]] was not explicit
    * (see [[org.jetbrains.sbt.project.SbtProjectManagerListener.execute]])
    *  - new projects, except those created via New Project Wizards where the setting is always enabled
    */
-  val DefaultImplicitSeparateProdAndTestSources = true
+  val DefaultSeparateProdAndTestSources = true
   // Increment if the converter algorithm is updated to trigger a reloading of previously opened projects.
   val ConverterVersion = 2
 
   def default: SbtProjectSettings = {
     val settings = new SbtProjectSettings()
-    settings.separateProdAndTestSources = DefaultImplicitSeparateProdAndTestSources
+    settings.separateProdAndTestSources = DefaultSeparateProdAndTestSources
     settings.converterVersion = ConverterVersion
     settings
   }
@@ -146,10 +146,12 @@ object SbtProjectSettings {
   /**
    * Create a [[SbtProjectSettings]] used in the NPWs
    */
-  def defaultSettingsForNPW: SbtProjectSettings = {
+  def defaultForNewProjectWizard: SbtProjectSettings = {
     val settings = new SbtProjectSettings()
     settings.converterVersion = ConverterVersion
-    settings.isSeparateProdAndTestSourcesExplicitlySet = true
+    // Prevent the algorithm in org.jetbrains.sbt.project.SbtProjectManagerListener.execute
+    // from overriding the explicitly set value
+    settings.separateProdAndTestSourcesIsExplicit = true
     settings.separateProdAndTestSources = true
     settings
   }
@@ -160,7 +162,7 @@ object SbtProjectSettings {
       .flatMap(path => Option(settings.getLinkedProjectSettings(path)))
   }
 
-  def getAllLinked(project: Project): Seq[SbtProjectSettings] = {
+  def allForProject(project: Project): Seq[SbtProjectSettings] = {
     val settings = SbtSettings.getInstance(project)
     settings.getLinkedProjectsSettings.asScala.toSeq
   }

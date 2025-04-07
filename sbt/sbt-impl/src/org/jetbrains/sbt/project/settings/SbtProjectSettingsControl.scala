@@ -5,7 +5,7 @@ import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMode
 import com.intellij.openapi.externalSystem.service.settings.AbstractExternalProjectSettingsControl
 import com.intellij.openapi.externalSystem.util.ExternalSystemUiUtil._
-import com.intellij.openapi.externalSystem.util.{ExternalSystemUtil, PaintAwarePanel}
+import com.intellij.openapi.externalSystem.util.{ExternalSystemUiUtil, ExternalSystemUtil, PaintAwarePanel}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, SdkTypeId}
 import com.intellij.openapi.roots.ui.configuration.JdkComboBox
@@ -121,9 +121,14 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     settings.enableDebugSbtShell = extraControls.remoteDebugSbtShellCheckBox.isSelected
     settings.preferScala2 = extraControls.scalaVersionPreferenceCheckBox.isSelected
 
-    val hasChanged = getInitialSettings.separateProdAndTestSources != extraControls.separateProdTestModules.isSelected
-    if (hasChanged) {
-      settings.isSeparateProdAndTestSourcesExplicitlySet = hasChanged
+    // The #getInitialSettings is used for 'separateProdAndTestSourcesChanged' because whenever the user clicks Apply/OK in the UI settings,
+    // the #applyExtraSettings method is called with a brand new `SbtProjectSettings` instance, which is then overridden with values from the control.
+    // If we compared the default value of `SbtProjectSettings.separateProdAndTestSources` with the value from the control,
+    // then, if the user upgraded the settings, 'separateProdAndTestSourcesChanged' would be 'false',
+    // as the value from the control ('true') would match the default value of 'SbtProjectSettings.separateProdAndTestSources' ('true').
+    val separateProdAndTestSourcesChanged = getInitialSettings.separateProdAndTestSources != extraControls.separateProdTestModules.isSelected
+    if (separateProdAndTestSourcesChanged) {
+      settings.separateProdAndTestSourcesIsExplicit = separateProdAndTestSourcesChanged
     }
 
     settings.separateProdAndTestSources = extraControls.separateProdTestModules.isSelected
