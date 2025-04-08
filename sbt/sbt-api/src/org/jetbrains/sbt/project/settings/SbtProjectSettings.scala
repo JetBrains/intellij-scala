@@ -132,7 +132,7 @@ object SbtProjectSettings {
    * (see [[org.jetbrains.sbt.project.SbtProjectManagerListener.execute]])
    *  - new projects, except those created via New Project Wizards where the setting is always enabled
    */
-  val DefaultSeparateProdAndTestSources = true
+  val DefaultSeparateProdAndTestSources = false
   // Increment if the converter algorithm is updated to trigger a reloading of previously opened projects.
   val ConverterVersion = 2
 
