@@ -21,5 +21,5 @@ trait Literal {
     def f1[T]: T =:= true = ???
   }
 
-  /**/export LiteralsToBeExported.f1/*final def f1[T]: T =:= Unknown = ???*/
+  /**/export LiteralsToBeExported.f1/*final def f1[T]: T =:= true = ???*/
 }
