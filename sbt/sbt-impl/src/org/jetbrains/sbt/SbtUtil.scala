@@ -1,6 +1,7 @@
 package org.jetbrains.sbt
 
 import com.intellij.execution.configurations.ParametersList
+import com.intellij.ide.browsers.BrowserLauncher
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.project.ModuleData
@@ -9,7 +10,6 @@ import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.{Project, ProjectUtil}
 import com.intellij.platform.workspace.storage.{EntityStorage, SymbolicEntityId, WorkspaceEntityWithSymbolicId}
-import com.intellij.psi.PsiFile
 import com.intellij.util.net.{ProxyConfiguration, ProxyCredentialStore, ProxyCredentialStoreKt, ProxySettings, ProxyUtils}
 import com.intellij.util.{EnvironmentUtil, SystemProperties}
 import org.jetbrains.annotations.VisibleForTesting
@@ -353,4 +353,7 @@ object SbtUtil {
       s"Global / $command"
     else
       s"*/*:$command"
+
+  def openSeparateMainTestModulesBlogPost(): Unit =
+    BrowserLauncher.getInstance().open("https://blog.jetbrains.com/scala/2024/11/19/new-module-layout-for-sbt/")
 }
