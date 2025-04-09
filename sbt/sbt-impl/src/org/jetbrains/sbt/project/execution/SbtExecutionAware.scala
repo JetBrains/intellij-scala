@@ -18,6 +18,8 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.settings.SbtSettings
 
+import scala.annotation.nowarn
+
 class SbtExecutionAware extends ExternalSystemExecutionAware {
 
   private val log = Logger.getInstance(getClass)
@@ -128,6 +130,6 @@ class SbtExecutionAware extends ExternalSystemExecutionAware {
     project: Project
   ): SdkInfo = {
     val projectSdk = ProjectRootManager.getInstance(project).getProjectSdk
-    ExternalSystemJdkUtilKt.nonblockingResolveJdkInfo(provider, projectSdk, ExternalSystemJdkUtil.USE_PROJECT_JDK)
+    ExternalSystemJdkUtilKt.nonblockingResolveJdkInfo(provider, projectSdk, ExternalSystemJdkUtil.USE_PROJECT_JDK): @nowarn("cat=deprecation")
   }
 }
