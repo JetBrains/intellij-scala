@@ -1,17 +1,10 @@
-package org.jetbrains.plugins.scala
-package lang.typeInference
+package org.jetbrains.plugins.scala.lang.typeInference.shims
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
-import org.jetbrains.plugins.scala.project.ScalaFeatures
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
-import org.junit.Assert.assertEquals
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion, TypecheckerTests}
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
-class CompileTimeOpsTest extends ScalaLightCodeInsightFixtureTestCase {
+class CompileTimeOpsTest extends TypeIntrinsicsTestBase {
   private final val AnyOps =     "import scala.compiletime.ops.any.*; "
   private final val BooleanOps = "import scala.compiletime.ops.boolean.*; "
   private final val IntOps =     "import scala.compiletime.ops.int.*; "
@@ -44,7 +37,7 @@ class CompileTimeOpsTest extends ScalaLightCodeInsightFixtureTestCase {
     "type T = 1 + 2", "3")
 
   def testNotResolved(): Unit = assertTypeIs(
-    "type T = 1 + 2", "")
+    "type T = 1 + 2", "<error>")
 
   def testDifferentOperator(): Unit = assertTypeIs(
     "class +[L, R]; type T = 1 + 2", "1 + 2")
@@ -565,11 +558,4 @@ class CompileTimeOpsTest extends ScalaLightCodeInsightFixtureTestCase {
 
   def testStringNotEvaluated(): Unit = assertTypeIs(StringOps +
     "type T[C] = Length[C]", "Length[C]")
-
-  private def assertTypeIs(code: String, tpe: String): Unit = {
-    val file = ScalaPsiElementFactory.createScalaFileFromText(code, ScalaFeatures.onlyByVersion(version))(getProject)
-    val typeElement = file.getLastChild.getLastChild.asInstanceOf[ScTypeElement]
-    val actual = typeElement.`type`().toOption.fold("")(_.presentableText(TypePresentationContext(typeElement)))
-    assertEquals(tpe, actual)
-  }
 }

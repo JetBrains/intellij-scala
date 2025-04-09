@@ -1,43 +1,15 @@
-package org.jetbrains.plugins.scala.lang.psi.types
+package org.jetbrains.plugins.scala.lang.psi.types.intrinsics
 
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.extensions.ObjectExt
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDeclaration
-import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStringLiteralImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.{ScBooleanLiteralImpl, ScCharLiteralImpl, ScDoubleLiteralImpl, ScFloatLiteralImpl, ScIntegerLiteralImpl, ScLongLiteralImpl}
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
 
 import java.util.regex.PatternSyntaxException
 import scala.annotation.switch
 
 /** @see [[scala.compiletime.ops]] */
-private object CompileTimeOps {
-  def apply(designator: ScType, arguments: Seq[ScType]): Option[ScLiteralType] = designator match {
-    case ScProjectionType.withActual(alias: ScTypeAliasDeclaration, _) =>
-      implicit def project: Project = designator.projectContext.project
-
-      val containingClassName = Option(alias.containingClass).map(_.qualifiedName).orNull
-
-      //TODO: question of de-aliasing/reducing type aliases is more general and complicated
-      // For example see SCL-21176 and SCL-20263)
-      // For now (in Scala 3.2.1-RC4) it's done for scala.compiletime.ops
-      // But ideally it should be done more uniformly.
-      // See also: https://github.com/lampepfl/dotty/pull/14586
-      lazy val argumentsDealiased = arguments.map(_.removeAliasDefinitions())
-      (containingClassName: @switch) match {
-        case "scala.compiletime.ops.any" => anyOp(alias.name, argumentsDealiased)
-        case "scala.compiletime.ops.boolean" => booleanOp(alias.name, argumentsDealiased)
-        case "scala.compiletime.ops.int" => intOp(alias.name, argumentsDealiased)
-        case "scala.compiletime.ops.long" => longOp(alias.name, argumentsDealiased)
-        case "scala.compiletime.ops.float" => floatOp(alias.name, argumentsDealiased)
-        case "scala.compiletime.ops.double" => doubleOp(alias.name, argumentsDealiased)
-        case "scala.compiletime.ops.string" => stringOp(alias.name, argumentsDealiased)
-        case _ => None
-      }
-    case _ => None
-  }
-
-  private def stringOp(operator: String, operands: Seq[ScType])(implicit project: Project): Option[ScLiteralType] = operands match {
+private object CompileTimeOpsIntrinsics {
+  def stringOp(operator: String, operands: Seq[ScType])(implicit project: Project): Option[ScLiteralType] = operands match {
     case Seq(StringValue(l), StringValue(r)) => (operator: @switch) match {
       case "+" => Some(StringValue(l + r))
       case "Matches" =>
@@ -70,7 +42,7 @@ private object CompileTimeOps {
     case _ => None
   }
 
-  private def intOp(operator: String, operands: Seq[ScType])(implicit project: Project): Option[ScLiteralType] = operands match {
+  def intOp(operator: String, operands: Seq[ScType])(implicit project: Project): Option[ScLiteralType] = operands match {
     case Seq(IntValue(i)) => (operator: @switch) match {
       case "S" => Some(IntValue(i + 1))
       case "Abs" => Some(IntValue(i.abs))
@@ -108,7 +80,7 @@ private object CompileTimeOps {
     case _ => None
   }
 
-  private def longOp(operator: String, operands: Seq[ScType])(implicit project: Project): Option[ScLiteralType] = operands match {
+  def longOp(operator: String, operands: Seq[ScType])(implicit project: Project): Option[ScLiteralType] = operands match {
     case Seq(LongValue(v)) => (operator: @switch) match {
       case "S" => Some(LongValue(v + 1))
       case "Abs" => Some(LongValue(v.abs))
@@ -145,7 +117,7 @@ private object CompileTimeOps {
     case _ => None
   }
 
-  private def floatOp(operator: String, operands: Seq[ScType])(implicit project: Project): Option[ScLiteralType] = operands match {
+  def floatOp(operator: String, operands: Seq[ScType])(implicit project: Project): Option[ScLiteralType] = operands match {
     case Seq(FloatValue(v)) => (operator: @switch) match {
       case "Abs" => Some(FloatValue(v.abs))
       case "Negate" => Some(FloatValue(-v))
@@ -175,7 +147,7 @@ private object CompileTimeOps {
     case _ => None
   }
 
-  private def doubleOp(operator: String, operands: Seq[ScType])(implicit project: Project): Option[ScLiteralType] = operands match {
+  def doubleOp(operator: String, operands: Seq[ScType])(implicit project: Project): Option[ScLiteralType] = operands match {
     case Seq(DoubleValue(v)) => (operator: @switch) match {
       case "Abs" => Some(DoubleValue(v.abs))
       case "Negate" => Some(DoubleValue(-v))
@@ -205,7 +177,7 @@ private object CompileTimeOps {
     case _ => None
   }
 
-  private def booleanOp(operator: String, operands: Seq[ScType])(implicit project: Project) = operands match {
+  def booleanOp(operator: String, operands: Seq[ScType])(implicit project: Project): Option[ScLiteralType] = operands match {
     case Seq(BooleanValue(b)) => (operator: @switch) match {
       case "!" => Some(BooleanValue(!b))
       case _ => None
@@ -219,7 +191,7 @@ private object CompileTimeOps {
     case _ => None
   }
 
-  private def anyOp(operator: String, operands: Seq[ScType])(implicit project: Project): Option[ScLiteralType] = operands match {
+  def anyOp(operator: String, operands: Seq[ScType])(implicit project: Project): Option[ScLiteralType] = operands match {
     case Seq(AnyValue(l), AnyValue(r)) => (operator: @switch) match {
       case "==" => Some(BooleanValue(l == r))
       case "!=" => Some(BooleanValue(l != r))
@@ -239,72 +211,5 @@ private object CompileTimeOps {
         case _ => None
       }
     case _ => None
-  }
-
-  private object AnyValue {
-    def unapply(t: ScLiteralType): Option[Any] = Some(t.value.value)
-  }
-
-  private object BooleanValue {
-    def apply(v: Boolean)(implicit context: Project): ScLiteralType = ScLiteralType(ScBooleanLiteralImpl.Value(v))
-
-    def unapply(t: ScLiteralType): Option[Boolean] = t.value match {
-      case ScBooleanLiteralImpl.Value(v) => Some(v)
-      case _ => None
-    }
-  }
-
-  private object IntValue {
-    def apply(v: Int)(implicit context: Project): ScLiteralType = ScLiteralType(ScIntegerLiteralImpl.Value(v))
-
-    def unapply(t: ScLiteralType): Option[Int] = t.value match {
-      case ScIntegerLiteralImpl.Value(v) => Some(v)
-      case _ => None
-    }
-  }
-
-  private object StringValue {
-    def apply(v: String)(implicit context: Project): ScLiteralType = ScLiteralType(ScStringLiteralImpl.Value(v))
-
-    def unapply(t: ScLiteralType): Option[String] = t.value match {
-      case ScStringLiteralImpl.Value(v) => Some(v)
-      case _ => None
-    }
-  }
-
-  private object CharValue {
-    def apply(v: Char)(implicit context: Project): ScLiteralType = ScLiteralType(ScCharLiteralImpl.Value(v))
-
-    def unapply(t: ScLiteralType): Option[Char] = t.value match {
-      case ScCharLiteralImpl.Value(v) => Some(v)
-      case _ => None
-    }
-  }
-
-  private object LongValue {
-    def apply(v: Long)(implicit context: Project): ScLiteralType = ScLiteralType(ScLongLiteralImpl.Value(v))
-
-    def unapply(t: ScLiteralType): Option[Long] = t.value match {
-      case ScLongLiteralImpl.Value(v) => Some(v)
-      case _ => None
-    }
-  }
-
-  private object FloatValue {
-    def apply(v: Float)(implicit context: Project): ScLiteralType = ScLiteralType(ScFloatLiteralImpl.Value(v))
-
-    def unapply(t: ScLiteralType): Option[Float] = t.value match {
-      case ScFloatLiteralImpl.Value(v) => Some(v)
-      case _ => None
-    }
-  }
-
-  private object DoubleValue {
-    def apply(v: Double)(implicit context: Project): ScLiteralType = ScLiteralType(ScDoubleLiteralImpl.Value(v))
-
-    def unapply(t: ScLiteralType): Option[Double] = t.value match {
-      case ScDoubleLiteralImpl.Value(v) => Some(v)
-      case _ => None
-    }
   }
 }
