@@ -17,6 +17,9 @@
     <projectListeners>
         <listener class="org.jetbrains.sbt.project.UpdateConfigurationImportListener"
                   topic="com.intellij.openapi.externalSystem.service.project.manage.ProjectDataImportListener"/>
+        <listener class="org.jetbrains.sbt.project.SeparateMainTestModulesNotificationListener"
+                  topic="com.intellij.openapi.externalSystem.service.project.manage.ProjectDataImportListener"/>
+
 
         <listener topic="com.intellij.openapi.roots.ModuleRootListener"
                   class="org.jetbrains.sbt.project.SbtProjectImportStateModuleRootListener"/>
@@ -93,6 +96,7 @@
 
         <notificationGroup id="sbt.configuration.migration" displayType="STICKY_BALLOON" bundle="messages.SbtBundle" key="sbt.configuration.upgrade.id"/>
         <notificationGroup id="sbt.legacy.version.detected" displayType="STICKY_BALLOON" bundle="messages.SbtBundle" key="sbt.notification.group.id.legacy.version.detected"/>
+        <notificationGroup id="sbt.main.test.modules.enabled" displayType="BALLOON" bundle="messages.SbtBundle" key="sbt.main.test.modules.enabled.id"/>
 
         <psi.referenceContributor language="sbt" implementation="org.jetbrains.sbt.language.references.SbtReferenceContributor" order="first"/>
 

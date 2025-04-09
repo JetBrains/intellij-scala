@@ -16,6 +16,12 @@ private final class SbtProjectManagerListener extends ProjectActivity {
     linkedProjectSettings.foreach { settings =>
       if (!settings.separateProdAndTestSourcesIsExplicit) {
         val isInUse = ScalaCompilerConfiguration(project).separateProdTestSources
+        // Displaying a notification here is required for projects where the separate modules for main/test was implicitly enabled in the past.
+        // This will also cause the notification to be displayed for projects where the user manually configured the setting
+        // in UI. However, since the notification is only displayed once, it’s not a significant issue.
+        if (isInUse) {
+          SeparateMainTestModulesNotificationListener.showNotificationIfNecessary(settings, project)
+        }
         settings.separateProdAndTestSources = isInUse || SbtProjectSettings.DefaultSeparateProdAndTestSources
       }
     }
