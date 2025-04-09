@@ -16,4 +16,10 @@ trait Literal {
   type T7 = 'c'
 
   type T8 = "String"
+
+  object LiteralsToBeExported {
+    def f1[T]: T =:= true = ???
+  }
+
+  /**/export LiteralsToBeExported.f1/*final def f1[T]: T =:= Unknown = ???*/
 }
