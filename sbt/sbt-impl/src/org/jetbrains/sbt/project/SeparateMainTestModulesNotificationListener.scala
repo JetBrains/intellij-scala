@@ -26,7 +26,7 @@ import org.jetbrains.sbt.{SbtBundle, SbtUtil}
 class SeparateMainTestModulesNotificationListener(project: Project) extends ProjectDataImportListener {
 
   override def onImportFinished(projectPath: String): Unit = {
-    val sbtProjectSettings = SbtProjectSettings.forExternalRootPath(projectPath, project)
+    val sbtProjectSettings = SbtProjectSettings.`for`(project, projectPath)
     sbtProjectSettings.foreach(showNotificationIfNecessary(_, project))
   }
 }
