@@ -1,6 +1,7 @@
 package org.jetbrains.sbt.project
 
 import com.intellij.ide.impl.TrustedProjects
+import com.intellij.ide.util.RunOnceUtil
 import com.intellij.notification.{Notification, NotificationAction, NotificationGroupManager, NotificationType, Notifications}
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.externalSystem.ExternalSystemConfigurableAware
@@ -11,7 +12,7 @@ import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.Project
 import org.jetbrains.annotations.Nls
 import org.jetbrains.sbt.project.SeparateMainTestModulesNotificationListener._
-import org.jetbrains.sbt.project.settings.{SbtProjectSettings, SeparateMainTestModulesNotification}
+import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.{SbtBundle, SbtUtil}
 
 /**
@@ -32,6 +33,8 @@ class SeparateMainTestModulesNotificationListener(project: Project) extends Proj
 }
 
 object SeparateMainTestModulesNotificationListener {
+  private val Key = "sbt.separate.main.test.modules.notification.shown"
+
   /**
    * Displays the separate modules notification if all the following conditions are met:
    *  - The project is trusted
@@ -41,26 +44,25 @@ object SeparateMainTestModulesNotificationListener {
    */
   def showNotificationIfNecessary(sbtProjectSettings: SbtProjectSettings, project: Project): Unit =
     if (shouldShow(sbtProjectSettings, project)) {
-      show(sbtProjectSettings.getExternalProjectPath, project)
+      RunOnceUtil.runOnceForApp(Key, () => show(sbtProjectSettings.getExternalProjectPath, project))
     }
 
   private def shouldShow(sbtProjectSettings: SbtProjectSettings, project: Project): Boolean = {
     val isTrusted = TrustedProjects.isTrusted(project)
-    val isPreview = SbtUtil.isPreview(project, sbtProjectSettings.getExternalProjectPath)
-    isTrusted && !isPreview && {
-      val isShown = SeparateMainTestModulesNotification.isShown
-      !isShown && sbtProjectSettings.separateProdAndTestSources && !sbtProjectSettings.separateProdAndTestSourcesIsExplicit
+    isTrusted && {
+      val isPreview = SbtUtil.isPreview(project, sbtProjectSettings.getExternalProjectPath)
+      !isPreview && sbtProjectSettings.separateProdAndTestSources && !sbtProjectSettings.separateProdAndTestSourcesIsExplicit
     }
   }
 
   private def show(projectPath: String, project: Project): Unit = {
     val notificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("sbt.main.test.modules.enabled")
     val notification = notificationGroup
-        .createNotification(
-          SbtBundle.message("separate.modules.main.test.notification.title"),
-          SbtBundle.message("separate.modules.main.test.notification"),
-          NotificationType.INFORMATION
-        )
+      .createNotification(
+        SbtBundle.message("separate.modules.main.test.notification.title"),
+        SbtBundle.message("separate.modules.main.test.notification"),
+        NotificationType.INFORMATION
+      )
 
     val readMoreAction = createNotificationAction(
       action = SbtUtil.openSeparateMainTestModulesBlogPost(),
@@ -74,7 +76,6 @@ object SeparateMainTestModulesNotificationListener {
     Seq(readMoreAction, openSbtSettingsAction).foreach(notification.addAction)
 
     Notifications.Bus.notify(notification)
-    SeparateMainTestModulesNotification.setShown()
   }
 
   private def createNotificationAction(action: => Unit, @Nls text: String): NotificationAction = new NotificationAction(text) {
