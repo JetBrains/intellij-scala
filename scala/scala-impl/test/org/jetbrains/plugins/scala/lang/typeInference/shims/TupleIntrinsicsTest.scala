@@ -759,26 +759,20 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
 
   def testUnion_simple(): Unit =
     assertTypeIs(
-      "type T = Tuple.Union[(Int, String), (Boolean, Double)]",
-      "(Int | Boolean, String | Double)"
+      "type T = Tuple.Union[(Int, String)]",
+      "Int | String"
     )
 
   def testUnion_same(): Unit =
     assertTypeIs(
-      "type T = Tuple.Union[(Int, String), (Int, String)]",
-      "(Int, String)"
-    )
-
-  def testUnion_with_abstract(): Unit =
-    assertTypeIs(
-      "type T[X] = Tuple.Union[X, (Int, String)]",
-      "Tuple.Union[X, (Int, String)]"
+      "type T = Tuple.Union[(Int, Int)]",
+      "Int"
     )
 
   def testUnion_with_abstract_inner(): Unit =
     assertTypeIs(
-      "type T[X] = Tuple.Union[(X, X), (Int, String)]",
-      "(X | Int, X | String)"
+      "type T[X] = Tuple.Union[(X, String)]",
+      "X | String"
     )
 
 

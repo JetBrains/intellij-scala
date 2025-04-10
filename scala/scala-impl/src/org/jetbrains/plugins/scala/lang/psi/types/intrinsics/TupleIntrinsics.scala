@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.types.intrinsics
 
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
-import org.jetbrains.plugins.scala.lang.psi.types.api.{NamedTupleType, TupleType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{NamedTupleType, StdTypes, TupleType}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScOrType, ScParameterizedType, ScType}
 
 import scala.annotation.switch
@@ -145,8 +145,12 @@ object TupleIntrinsics {
         }
       case "Union" =>
         operands match {
-          case Seq(TupleType(fst), TupleType(snd)) =>
-            Some(TupleType(fst.zip(snd).map { case (a, b) => ScOrType(a, b) }))
+          case Seq(TupleType(comps)) =>
+            Some(
+              comps
+                .reduceOption[ScType] { case (a, b) => ScOrType(a, b) }
+                .getOrElse(StdTypes.instance.Nothing)
+            )
           case _ => None
         }
       case "Contains" =>
