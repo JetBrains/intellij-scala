@@ -19,6 +19,10 @@ private final class SbtProjectManagerListener extends ProjectActivity {
         // Displaying a notification here is required for projects where the separate modules for main/test was implicitly enabled in the past.
         // This will also cause the notification to be displayed for projects where the user manually configured the setting
         // in UI. However, since the notification is only displayed once, it’s not a significant issue.
+        // It is required to call the logic responsible for displaying the notification before overriding the separateProdAndTestSources setting.
+        // Otherwise, if the mode is enabled by default and a project is opened where the separateProdAndTestSources would be overridden with true,
+        // the notification would be shown even though the project structure wouldn’t have separate modules for main/test applied.
+        // It's caused by https://youtrack.jetbrains.com/issue/SCL-23760/Separate-modules-for-main-test-reload-the-project-if-its-implicitly-enabled
         if (isInUse) {
           SeparateMainTestModulesNotificationListener.showNotificationIfNecessary(settings, project)
         }
