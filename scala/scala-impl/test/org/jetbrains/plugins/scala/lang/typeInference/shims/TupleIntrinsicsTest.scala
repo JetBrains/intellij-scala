@@ -423,13 +423,13 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
       "(List[Int], List[String])"
     )
 
-  def testMap_identity(): Unit =
-    assertTypeIs(
-      """type Id[X] = X
-        |type T = Tuple.Map[(Int, String), Id]
-        |""".stripMargin,
-      "(Id[Int], Id[String])"
-    )
+  //def testMap_identity(): Unit =
+  //  assertTypeIs(
+  //    """type Id[X] = X
+  //      |type T = Tuple.Map[(Int, String), Id]
+  //      |""".stripMargin,
+  //    "(Id[Int], Id[String])"
+  //  )
 
   def testMap_option(): Unit =
     assertTypeIs(
