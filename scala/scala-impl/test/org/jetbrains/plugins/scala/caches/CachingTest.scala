@@ -3,8 +3,10 @@ package org.jetbrains.plugins.scala.caches
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.Tracing.{Parameters, tracing}
+import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, ScalaAnnotator}
+import org.jetbrains.plugins.scala.annotator.Message.Error
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
-import org.jetbrains.plugins.scala.extensions.inWriteCommandAction
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inWriteCommandAction}
 import org.junit.Assert._
 
 class CachingTest extends ScalaFixtureTestCase {
@@ -34,6 +36,26 @@ class CachingTest extends ScalaFixtureTestCase {
     assertEquals("Resolve: Seq(1).map → scala.collection.IterableOps.map", trace)
   }
 
+  def testEquivalence(): Unit = {
+    open("class A; class Foo { val x1: A = new A(); val x2: A = new A() }")
+
+    val trace = tracing(myFixture.getProject, Parameters(equivalence = true)) {
+      highlightSequentially()
+    }
+
+    assertEquals("Equivalence: (A, Unit) → Left", trace)
+  }
+
+  def testConformance(): Unit = {
+    open("class A; class B extends A; class Foo { val x1: A = new B(); val x2: A = new B() }")
+
+    val trace = tracing(myFixture.getProject, Parameters(conformance = true)) {
+      highlightSequentially()
+    }
+
+    assertEquals("Conformance: (A, B) → ConstraintSystemImpl(LongMap(),LongMap(),Set())", trace)
+  }
+
   private def open(@Language("Scala") code: String): Any =
     myFixture.configureByText("Foo.scala", code)
 
@@ -48,5 +70,12 @@ class CachingTest extends ScalaFixtureTestCase {
     inWriteCommandAction {
       document.replaceString(i, i + s1.length, s2)
     }
+  }
+
+  private def highlightSequentially(): Seq[Error] = {
+    val annotator = new ScalaAnnotator()
+    val holder = new AnnotatorHolderMock(getFile)
+    getFile.elements.foreach(e => annotator.annotate(e)(holder))
+    holder.errorAnnotations
   }
 }

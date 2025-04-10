@@ -1832,8 +1832,8 @@ class ReferenceComparisonTest_Scala3_Newest extends ReferenceComparisonTestBase(
   def test_i21189_alt(): Unit = doTest("i21189-alt", false)
   def test_i21212(): Unit = doTest("i21212", false)
   def test_i21215(): Unit = doTest("i21215", false)
-  def test_i21239(): Unit = doTest("i21239", false) // #opaque, #extension
-  def `test_i21239.alt`(): Unit = doTest("i21239.alt", false) // #opaque, #extension
+  def test_i21239(): Unit = doTest("i21239", true) // #opaque, #extension
+  def `test_i21239.alt`(): Unit = doTest("i21239.alt", true) // #opaque, #extension
   def test_i21275(): Unit = doTest("i21275", true)
   def test_i21282(): Unit = doTest("i21282", false) // #spliced/quoted
   def test_i21295(): Unit = doTest("i21295", true) // #matchType

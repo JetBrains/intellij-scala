@@ -28,19 +28,19 @@ package object types {
     private def projectContext = scType.projectContext
     private def stdTypes = projectContext.stdTypes
 
-    def equiv(`type`: ScType): Boolean = {
+    def equiv(`type`: ScType)(implicit context: Context): Boolean = {
       typeSystem.equiv(scType, `type`)
     }
 
-    def equiv(`type`: ScType, constraints: ConstraintSystem, falseUndef: Boolean = true): ConstraintsResult = {
+    def equiv(`type`: ScType, constraints: ConstraintSystem, falseUndef: Boolean = true)(implicit context: Context): ConstraintsResult = {
       typeSystem.equivInner(scType, `type`, constraints, falseUndef)
     }
 
-    def conforms(`type`: ScType): Boolean = {
+    def conforms(`type`: ScType)(implicit context: Context): Boolean = {
       typeSystem.conformsInner(`type`, scType).isRight
     }
 
-    def weakConforms(`type`: ScType): Boolean = {
+    def weakConforms(`type`: ScType)(implicit context: Context): Boolean = {
       typeSystem.conformsInner(`type`, scType, checkWeak = true).isRight
     }
 
@@ -70,7 +70,7 @@ package object types {
 
     def conforms(`type`: ScType,
                  constraints: ConstraintSystem,
-                 checkWeak: Boolean = false): ConstraintsResult = {
+                 checkWeak: Boolean = false)(implicit context: Context): ConstraintsResult = {
       typeSystem.conformsInner(`type`, scType, constraints = constraints, checkWeak = checkWeak)
     }
 
@@ -160,7 +160,7 @@ package object types {
         .extractFrom(scType).map(_._1)
     }
 
-    def extractClassType: Option[(PsiClass, ScSubstitutor)] = {
+    def extractClassType(implicit context: Context): Option[(PsiClass, ScSubstitutor)] = {
       new ClassTypeExtractor(needSubstitutor = true)
         .extractFrom(scType)
     }
@@ -199,14 +199,15 @@ package object types {
         case _ => true
       }
     }
-    def removeAliasDefinitions(expandableOnly: Boolean = false, place: Option[PsiElement] = None, opaqueOnly: Boolean = false): ScType = {
+
+    def removeAliasDefinitionsIn(place: PsiElement): ScType =
+      removeAliasDefinitions()(Context(place))
+
+    def removeAliasDefinitions(expandableOnly: Boolean = false)(implicit context: Context): ScType = {
       def needExpand(ta: ScTypeAliasDefinition) = !expandableOnly || shouldExpand(ta)
 
       def innerUpdate(tp: ScType, visited: Set[ScType]): ScType = {
         tp.recursiveUpdate {
-          case AliasType(tdef: ScTypeAliasDefinition, _, _) & ScProjectionType(tpe, _) if place.exists(tdef.isOpaqueIn) =>
-            ReplaceWith(ScProjectionType(tpe, tdef.toDeclaration))
-          case _ if opaqueOnly => ProcessSubtypes
           case AliasType(_: ScTypeAliasDefinition, Right(_: ScTypePolymorphicType), _) => ProcessSubtypes
           case AliasType(ta: ScTypeAliasDefinition, _, Failure(_)) if needExpand(ta) =>
             ReplaceWith(projectContext.stdTypes.Any)
@@ -227,17 +228,11 @@ package object types {
       innerUpdate(scType, Set.empty)
     }
 
-    def conformsIn(place: PsiElement, that: ScType): Boolean = {
-      val thisType = this.removeAliasDefinitions(place = Some(place), opaqueOnly = true)
-      val thatType = that.removeAliasDefinitions(place = Some(place), opaqueOnly = true)
-      thisType.conforms(thatType)
-    }
+    def conformsIn(place: PsiElement, that: ScType): Boolean =
+      this.conforms(that)(Context(place))
 
-    def conformsIn(place: PsiElement, that: ScType, constraints: ConstraintSystem, checkWeak: Boolean = false): ConstraintsResult = {
-      val thisType = this.removeAliasDefinitions(place = Some(place), opaqueOnly = true)
-      val thatType = that.removeAliasDefinitions(place = Some(place), opaqueOnly = true)
-      thisType.conforms(thatType, constraints, checkWeak)
-    }
+    def conformsIn(place: PsiElement, that: ScType, constraints: ConstraintSystem, checkWeak: Boolean = false): ConstraintsResult =
+      this.conforms(that, constraints, checkWeak)(Context(place))
 
     /**
      * @example {{{
@@ -314,7 +309,7 @@ package object types {
     def needSubstitutor: Boolean
 
     def extractFrom(scType: ScType,
-                    visitedAliases: Set[ScTypeAlias] = Set.empty): Option[(T, ScSubstitutor)] = {
+                    visitedAliases: Set[ScTypeAlias] = Set.empty)(implicit context: Context): Option[(T, ScSubstitutor)] = {
 
       def needExpand(definition: ScTypeAliasDefinition) = expandAliases && !visitedAliases(definition)
 
@@ -326,7 +321,7 @@ package object types {
           val actualSubst = projType.actualSubst
           val actualElement = projType.actualElement
           actualElement match {
-            case definition: ScTypeAliasDefinition if needExpand(definition) =>
+            case definition: ScTypeAliasDefinition if needExpand(definition) && (!definition.isOpaque || context.isInScopeOf(definition)) =>
               definition.aliasedType.toOption match {
                 case Some(ParameterizedType(des, _)) if !needSubstitutor =>
                   extractFrom(actualSubst(des), visitedAliases + definition.physical)

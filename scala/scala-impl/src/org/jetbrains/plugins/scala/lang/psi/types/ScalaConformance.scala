@@ -26,7 +26,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
   typeSystem: api.TypeSystem =>
 
   override protected def conformsComputable(key: Key,
-                                            visited: Set[PsiClass]): Supplier[ConstraintsResult] =
+                                            visited: Set[PsiClass])(implicit context: Context): Supplier[ConstraintsResult] =
     new Supplier[ConstraintsResult] {
       override def get(): ConstraintsResult = {
         val Key(left, right, checkWeak) = key
@@ -94,7 +94,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
     visited:            Set[PsiClass],
     checkWeak:          Boolean,
     checkEquivalence:   Boolean = false
-  ): ConstraintsResult = {
+  )(implicit context: Context): ConstraintsResult = {
     var constraints = _constraints
 
     def addAbstract(upper: ScType, lower: ScType, tp: ScType): Boolean = {
@@ -169,7 +169,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
     constraints
   }
 
-  private class LeftConformanceVisitor(key: Key, visited: Set[PsiClass]) extends ScalaTypeVisitor {
+  private class LeftConformanceVisitor(key: Key, visited: Set[PsiClass])(implicit context: Context) extends ScalaTypeVisitor {
 
     private val Key(l, r, checkWeak) = key
 
@@ -289,7 +289,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       }
     }
 
-    private def checkEquiv(): Unit = {
+    private def checkEquiv()(implicit context: Context): Unit = {
       val equiv = l.equiv(r, constraints)
       if (equiv.isRight) result = equiv
     }

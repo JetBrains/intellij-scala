@@ -167,6 +167,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
 
 object MethodResolveProcessor {
   private def problemsFor(
+    place:                  PsiElement,
     c:                      ScalaResolveResult,
     checkWithImplicits:     Boolean,
     ref:                    PsiElement,
@@ -180,6 +181,7 @@ object MethodResolveProcessor {
   ): ConformanceExtResult = {
 
     implicit val ctx: ProjectContext = c.element
+    implicit val context: Context = Context(place)
 
     val problems = Seq.newBuilder[ApplicabilityProblem]
     val element  = c.element
@@ -737,6 +739,7 @@ object MethodResolveProcessor {
         else                    typeArgElements
 
       val conformanceResult = problemsFor(
+        getPlace,
         r,
         checkWithImplicits,
         ref,

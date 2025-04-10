@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticC
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ConstraintSystem, ConstraintsResult, ScCompoundType, ScLiteralType, ScType, ScalaTypeVisitor}
+import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ConstraintSystem, ConstraintsResult, Context, ScCompoundType, ScLiteralType, ScType, ScalaTypeVisitor}
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult, ScalaResolveState}
 import org.jetbrains.plugins.scala.util.HashBuilder._
@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 final class ScProjectionType private(val projected: ScType,
                                      override val element: PsiNamedElement) extends DesignatorOwner {
 
-  override protected def calculateAliasType: Option[AliasType] = calculateAliasTypeAux(actualElement, actualSubst)
+  override protected def calculateAliasType(implicit context: Context): Option[AliasType] = calculateAliasTypeAux(actualElement, actualSubst)
 
   override def isStable: Boolean = (projected match {
     case designatorOwner: DesignatorOwner => designatorOwner.isStable
@@ -147,7 +147,7 @@ final class ScProjectionType private(val projected: ScType,
   def actualElement: PsiNamedElement = actual()._1
   def actualSubst: ScSubstitutor = actual()._2
 
-  override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
+  override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean)(implicit context: Context): ConstraintsResult = {
     def isEligibleForPrefixUnification(proj: ScType): Boolean = proj.subtypeExists {
       case _: UndefinedType => true
       case _                => false

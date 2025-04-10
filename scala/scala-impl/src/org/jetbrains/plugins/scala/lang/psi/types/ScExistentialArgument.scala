@@ -22,7 +22,7 @@ trait ScExistentialArgument extends NamedType with ValueType {
 
   def typeParamOfRawArg: Option[TypeParameter] = None
 
-  override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
+  override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean)(implicit context: Context): ConstraintsResult = {
     r match {
       case arg: ScExistentialArgument =>
         val s = ScSubstitutor.bind(arg.typeParameters, typeParameters)(TypeParameterType(_))
@@ -94,7 +94,7 @@ object ScExistentialArgument {
     override def isLazy: Boolean     = true
     override def isDeferred: Boolean = true
 
-    override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
+    override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean)(implicit context: Context): ConstraintsResult = {
       assertInitialized()
       super.equivInner(r, constraints, falseUndef)
     }

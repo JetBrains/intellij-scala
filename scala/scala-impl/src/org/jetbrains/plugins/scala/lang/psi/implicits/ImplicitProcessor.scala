@@ -135,7 +135,7 @@ abstract class ImplicitProcessor(
     val objects =
       ImplicitProcessor
         .findImplicitObjects(
-          expandedType.removeAliasDefinitions(place = Option(getPlace)),
+          expandedType.removeAliasDefinitionsIn(getPlace),
           getPlace.resolveScope,
           includePackagePrefix
         )

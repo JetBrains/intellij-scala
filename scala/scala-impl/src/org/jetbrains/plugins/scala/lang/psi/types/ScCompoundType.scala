@@ -50,7 +50,7 @@ final case class ScCompoundType private (
     else componentsDepth
   }
 
-  override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
+  override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean)(implicit context: Context): ConstraintsResult = {
     var lastConstraints = constraints
     r match {
       case r: ScCompoundType =>

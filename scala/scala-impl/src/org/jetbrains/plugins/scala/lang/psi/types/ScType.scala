@@ -3,8 +3,8 @@ package org.jetbrains.plugins.scala.lang.psi.types
 import com.intellij.openapi.progress.ProgressManager
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions.ifReadAllowed
-import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation.PresentationOptions
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.NameRenderer
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation.PresentationOptions
 import org.jetbrains.plugins.scala.project.ProjectContextOwner
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 
@@ -14,17 +14,18 @@ trait ScType extends ProjectContextOwner {
 
   def typeSystem: api.TypeSystem = projectContext.typeSystem
 
-  private var aliasTypeInner: Option[AliasType] = _
+  private var cachedAliasType = new ContextDependent[Option[AliasType]]()
 
-  final def aliasType: Option[AliasType] = {
-    if (aliasTypeInner == null) {
+  final def aliasType(implicit context: Context): Option[AliasType] = cachedAliasType.get match {
+    case Some(value) => value
+    case None =>
       ProgressManager.checkCanceled()
-      aliasTypeInner = calculateAliasType
-    }
-    aliasTypeInner
+      val (value, valueInContext) = cachedAliasType.updatedUsing(ctx => calculateAliasType(ctx))
+      cachedAliasType = valueInContext
+      value
   }
 
-  final def isAliasType: Boolean = aliasType.isDefined
+  final def isAliasType(implicit context: Context): Boolean = aliasType.isDefined
 
   private var unpacked: ScType = _
 
@@ -36,7 +37,7 @@ trait ScType extends ProjectContextOwner {
     unpacked
   }
 
-  protected def calculateAliasType: Option[AliasType] = None
+  protected def calculateAliasType(implicit context: Context): Option[AliasType] = None
 
   // TODO: we must not override toString which does such a complex stuff (resolve, tree traversal etc...)
   //  for such things we should always use explicit methods oText/mkString/presentableText/etc...
@@ -56,7 +57,7 @@ trait ScType extends ProjectContextOwner {
     case ex                                                                => ex
   }
 
-  def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
+  def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean)(implicit context: Context): ConstraintsResult = {
     ConstraintsResult.Left
   }
 

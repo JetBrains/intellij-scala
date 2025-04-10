@@ -19,7 +19,7 @@ final case class ScOrType private (lhs: ScType, rhs: ScType) extends ScalaType w
     r:           ScType,
     constraints: ConstraintSystem,
     falseUndef:  Boolean
-  ): ConstraintsResult = r match {
+  )(implicit context: Context): ConstraintsResult = r match {
     case ScOrType(rLhs, rRhs) =>
       if (r eq this) constraints
       else {

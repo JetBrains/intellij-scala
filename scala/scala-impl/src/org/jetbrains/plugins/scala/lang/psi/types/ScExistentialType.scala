@@ -21,11 +21,11 @@ final class ScExistentialType private (
 
   override implicit def projectContext: ProjectContext = quantified.projectContext
 
-  override protected def calculateAliasType: Option[AliasType] = {
+  override protected def calculateAliasType(implicit context: Context): Option[AliasType] = {
     quantified.aliasType.map(a => a.copy(lower = a.lower.map(_.unpackedType), upper = a.upper.map(_.unpackedType)))
   }
 
-  override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
+  override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean)(implicit context: Context): ConstraintsResult = {
     if (r.equiv(Nothing)) return quantified.equiv(Nothing, constraints)
     val simplified = simplify()
     if (this != simplified) return simplified.equiv(r, constraints, falseUndef)

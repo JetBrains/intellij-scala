@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ConstraintSystem, ConstraintsResult, LeafType, ScType, ScalaTypeVisitor}
+import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ConstraintSystem, ConstraintsResult, Context, LeafType, ScType, ScalaTypeVisitor}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.smartEquivalence
 
@@ -23,7 +23,7 @@ final case class ScDesignatorType(override val element: PsiNamedElement) extends
   private def setStatic(): Unit = static = true
   def isStatic: Boolean = static
 
-  override protected def calculateAliasType: Option[AliasType] = calculateAliasTypeAux(element, ScSubstitutor.empty)
+  override protected def calculateAliasType(implicit context: Context): Option[AliasType] = calculateAliasTypeAux(element, ScSubstitutor.empty)
 
   def getValType: Option[StdType] = element match {
     case clazz: PsiClass if !clazz.isInstanceOf[ScObject] =>
@@ -31,7 +31,7 @@ final case class ScDesignatorType(override val element: PsiNamedElement) extends
     case _ => None
   }
 
-  override def equivInner(`type`: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
+  override def equivInner(`type`: ScType, constraints: ConstraintSystem, falseUndef: Boolean)(implicit context: Context): ConstraintsResult = {
     def equivSingletons(left: DesignatorOwner, right: DesignatorOwner) =
       left.designatorSingletonType.filter {
         case designatorOwner: DesignatorOwner if designatorOwner.isSingleton => true

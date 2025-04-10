@@ -7,7 +7,7 @@ import com.intellij.psi._
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil.getNextSiblingOfType
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedInUserData}
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, ifReadAllowed}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.tUPPER_BOUND
@@ -43,9 +43,6 @@ final class ScTypeAliasDefinitionImpl private(stub: ScTypeAliasStub, node: ASTNo
       id.getPsi
     case n => n
   }
-
-  override def isOpaqueIn(place: PsiElement): Boolean =
-    isOpaque && (getContainingFile != place.getContainingFile || !place.parentsInFile.contains(getParent))
 
   override def upperTypeElement: Option[ScTypeElement] =
     byPsiOrStub(boundElement(tUPPER_BOUND))(_.upperBoundTypeElement)
@@ -89,9 +86,4 @@ final class ScTypeAliasDefinitionImpl private(stub: ScTypeAliasStub, node: ASTNo
   }
 
   override def isEffectivelyFinal: Boolean = true
-
-  override def toDeclaration: ScTypeAliasDeclaration = cachedInUserData("toDeclaration", this, BlockModificationTracker(this)) {
-    val text = new ClassPrinter(this.isScala3, extendsSeparator = " ").declarationOf(this)
-    ScalaPsiElementFactory.createTypeAliasDeclarationFromText(text, getContext, null)
-  }
 }

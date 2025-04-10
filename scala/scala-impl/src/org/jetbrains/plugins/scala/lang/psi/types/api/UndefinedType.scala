@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 
 import com.intellij.psi.PsiTypeParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, TypeParamIdOwner}
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, LeafType, ScType, ScalaTypeVisitor}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, Context, LeafType, ScType, ScalaTypeVisitor}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -27,7 +27,7 @@ trait UndefinedType extends NonValueType with LeafType {
 
   def dependentParameterType: Option[ValueType] = None
 
-  override def equivInner(`type`: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult =
+  override def equivInner(`type`: ScType, constraints: ConstraintSystem, falseUndef: Boolean)(implicit context: Context): ConstraintsResult =
     if (falseUndef) ConstraintsResult.Left
     else
       `type` match {

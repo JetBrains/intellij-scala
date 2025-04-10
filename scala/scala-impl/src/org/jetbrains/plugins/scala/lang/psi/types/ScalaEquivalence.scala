@@ -10,7 +10,7 @@ import java.util.function.Supplier
 trait ScalaEquivalence extends api.Equivalence {
   typeSystem: api.TypeSystem =>
 
-  override protected def equivComputable(key: Key): Supplier[ConstraintsResult] = new Supplier[ConstraintsResult] {
+  override protected def equivComputable(key: Key)(implicit context: Context): Supplier[ConstraintsResult] = new Supplier[ConstraintsResult] {
     import ConstraintSystem.empty
 
     override def get(): ConstraintsResult = {

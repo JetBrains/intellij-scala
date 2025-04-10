@@ -14,7 +14,7 @@ import scala.collection.mutable
 
 object BaseTypes {
 
-  def iterator(tp: ScType): Iterator[ScType] = new BaseTypesIterator(tp)
+  def iterator(tp: ScType)(implicit context: Context): Iterator[ScType] = new BaseTypesIterator(tp)
 
   def get(t: ScType): Seq[ScType] = reduce(iterator(t).toList)
 
@@ -40,7 +40,7 @@ object BaseTypes {
   }
 }
 
-private class BaseTypesIterator(tp: ScType) extends Iterator[ScType] {
+private class BaseTypesIterator(tp: ScType)(implicit context: Context) extends Iterator[ScType] {
   import tp.projectContext
 
   private val initialCapacity = 4
@@ -122,7 +122,7 @@ private class BaseTypesIterator(tp: ScType) extends Iterator[ScType] {
       seenTypes += tp
 
       tp match {
-        case IsTypeAlias(ta, s) =>
+        case IsTypeAlias(ta, s) if !ta.isOpaque || context.isInScopeOf(ta) =>
           if (!visitedAliases.contains(ta)) {
             visitedAliases += ta.physical
             ta.aliasedType match {

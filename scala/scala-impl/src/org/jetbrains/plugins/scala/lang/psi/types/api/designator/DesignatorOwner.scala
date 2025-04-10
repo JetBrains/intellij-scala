@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeConstructorOps, TypeParameter, ValueType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, Context, ScType}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 trait DesignatorOwner extends ValueType {
@@ -36,8 +36,10 @@ trait DesignatorOwner extends ValueType {
     case _                                                    => None
   }
 
-  protected def calculateAliasTypeAux(actualElement: PsiElement, subst: ScSubstitutor): Option[AliasType] = {
+  protected def calculateAliasTypeAux(actualElement: PsiElement, subst: ScSubstitutor)(implicit context: Context): Option[AliasType] = {
     actualElement match {
+      case ta: ScTypeAliasDefinition if ta.isOpaque && !context.isInScopeOf(ta) =>
+        None
       case ta: ScTypeAlias if ta.typeParameters.isEmpty =>
         Some(AliasType(ta, ta.lowerBound.map(subst), ta.upperBound.map(subst)))
       case ta: ScTypeAlias => //higher kind case

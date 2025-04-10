@@ -18,9 +18,13 @@ final class ScParameterizedType private (override val designator: ScType, overri
     extends ParameterizedType
     with ScalaType {
 
-  override protected def calculateAliasType: Option[AliasType] =
+  override protected def calculateAliasType(implicit context: Context): Option[AliasType] =
     designator match {
+      case ScDesignatorType(ta: ScTypeAliasDefinition)
+        if ta.isOpaque && !context.isInScopeOf(ta)             => None
       case ScDesignatorType(ta: ScTypeAlias)                   => computeAliasType(ta, ta.lowerBound, ta.upperBound)
+      case ScProjectionType.withActual(ta: ScTypeAliasDefinition, _)
+        if ta.isOpaque && !context.isInScopeOf(ta)             => None
       case ScProjectionType.withActual(ta: ScTypeAlias, subst) => computeAliasType(ta, ta.lowerBound, ta.upperBound, subst)
       case p: ScParameterizedType =>
         //@TODO: scala 3 only
@@ -37,7 +41,7 @@ final class ScParameterizedType private (override val designator: ScType, overri
     upper:                      TypeResult,
     subst:                      ScSubstitutor = ScSubstitutor.empty,
     isGuaranteedToBeTypeLambda: Boolean       = false
-  ): Some[AliasType] = {
+  )(implicit context: Context): Some[AliasType] = {
     @tailrec
     def stripParamsFromTypeLambdas(ta: ScTypeAlias, t: ScType): (ScType, Seq[TypeParameter]) =
       if (!isGuaranteedToBeTypeLambda && ta.typeParameters.nonEmpty)
@@ -103,7 +107,7 @@ final class ScParameterizedType private (override val designator: ScType, overri
     }
   }
 
-  override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
+  override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean)(implicit context: Context): ConstraintsResult = {
     val Conformance: ScalaConformance = typeSystem
     val Nothing = projectContext.stdTypes.Nothing
 

@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintsResult, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
@@ -65,6 +65,18 @@ object Tracing {
       trace("Inference: " + expression.asText + " → " + result.asText)
     }
     incremental.Tracing.trace(expression, "Inference")
+  }
+
+  def equivalence(left: ScType, right: ScType, result: ConstraintsResult): Unit = {
+    if (parameters.equivalence) {
+      trace("Equivalence: (" + left + ", " + right + ") → " + result)
+    }
+  }
+
+  def conformance(left: ScType, right: ScType, result: ConstraintsResult): Unit = {
+    if (parameters.conformance) {
+      trace("Conformance: (" + left + ", " + right + ") → " + result)
+    }
   }
 
   private val psiTreeChangeListener = new PsiTreeChangeAdapter {
@@ -181,6 +193,8 @@ object Tracing {
                         modification: Boolean = false,
                         resolve: Boolean = false,
                         inference: Boolean = false,
+                        equivalence: Boolean = false,
+                        conformance: Boolean = false,
                         coalesce: Boolean = false,
                         filter: String = "")
 
@@ -198,6 +212,8 @@ object Tracing {
         modification = false,
         resolve = true,
         inference = true,
+        equivalence = true,
+        conformance = true,
         coalesce = false,
         filter = ""
       )

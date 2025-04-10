@@ -71,6 +71,39 @@ class Scala3OpaqueTypeAliasTest extends ScalaLightCodeInsightFixtureTestCase {
     )
   }
 
+  def testNestedScope(): Unit = {
+    checkTextHasNoErrors(
+      s"""
+         |class Inside:
+         |  opaque type T = Int
+         |  class Nested:
+         |    val v: Int = ??? : T
+         |""".stripMargin
+    )
+  }
+
+  def testCompanionObject(): Unit = {
+    checkHasErrorAroundCaret(
+      s"""
+         |class Inside:
+         |  opaque type T = Int
+         |object Inside:
+         |  val v: Int = ??? : ${CARET}Inside#T
+         |""".stripMargin
+    )
+  }
+
+  def testCompanionClass(): Unit = {
+    checkHasErrorAroundCaret(
+      s"""
+         |class Inside:
+         |  val v: Int = ??? : ${CARET}Inside.T
+         |object Inside:
+         |  opaque type T = Int
+         |""".stripMargin
+    )
+  }
+
   def testTransitive1(): Unit = {
     checkTextHasNoErrors(
       s"""
@@ -83,17 +116,17 @@ class Scala3OpaqueTypeAliasTest extends ScalaLightCodeInsightFixtureTestCase {
     )
   }
 
-//  def testTransitive2(): Unit = {
-//    checkHasErrorAroundCaret(
-//      s"""
-//         |object Inside:
-//         |  opaque type T = Int
-//         |object Outside:
-//         |  type T = Inside.T
-//         |  val v: Int = ??? : ${CARET}T
-//      """.stripMargin
-//    )
-//  }
+  def testTransitive2(): Unit = {
+    checkHasErrorAroundCaret(
+      s"""
+         |object Inside:
+         |  opaque type T = Int
+         |object Outside:
+         |  type T = Inside.T
+         |  val v: Int = ??? : ${CARET}T
+      """.stripMargin
+    )
+  }
 
   def testComponent1(): Unit = {
     checkTextHasNoErrors(
@@ -160,18 +193,30 @@ class Scala3OpaqueTypeAliasTest extends ScalaLightCodeInsightFixtureTestCase {
     )
   }
 
-//  def testSuperType(): Unit = {
-//    checkHasErrorAroundCaret(
-//      s"""
-//         |class TC[A]
-//         |object Inside:
-//         |  opaque type T = Int
-//         |  class Foo extends TC[T]
-//         |object Outside:
-//         |  val v: TC[Int] = ??? : ${CARET}Inside.Foo
-//      """.stripMargin
-//    )
-//  }
+  def testSuperType1(): Unit = {
+    checkTextHasNoErrors(
+      s"""
+         |class TC[A]
+         |object Inside:
+         |  opaque type T = Int
+         |  class Foo extends TC[T]
+         |  val v: TC[Int] = ??? : Foo
+      """.stripMargin
+    )
+  }
+
+  def testSuperType2(): Unit = {
+    checkHasErrorAroundCaret(
+      s"""
+         |class TC[A]
+         |object Inside:
+         |  opaque type T = Int
+         |  class Foo extends TC[T]
+         |object Outside:
+         |  val v: TC[Int] = ??? : ${CARET}Inside.Foo
+      """.stripMargin
+    )
+  }
 
   def testExpression(): Unit = {
     checkHasErrorAroundCaret(
@@ -180,6 +225,18 @@ class Scala3OpaqueTypeAliasTest extends ScalaLightCodeInsightFixtureTestCase {
          |  opaque type T = Int
          |object Outside:
          |  val v: Inside.T = ${CARET}123
+      """.stripMargin
+    )
+  }
+
+  def testPattern(): Unit = {
+    checkHasErrorAroundCaret(
+      s"""
+         |object Inside:
+         |  opaque type T = Int
+         |object Outside:
+         |  val Some(x) = ??? : Some[Inside.T]
+         |  val y: Int = ${CARET}x
       """.stripMargin
     )
   }
@@ -480,6 +537,70 @@ class Scala3OpaqueTypeAliasTest extends ScalaLightCodeInsightFixtureTestCase {
          |  def method(x: T[Int] ?=> Unit): Unit = ???
          |object Outside:
          |  Inside.method { implicitly[Inside.T[Int]] }
+         |""".stripMargin
+    )
+  }
+
+  def testCachingEquivalence1(): Unit = {
+    checkHasErrorAroundCaret(
+      s"""
+         |class Foo
+         |object Inside:
+         |  opaque type T = Foo
+         |  val x: Foo = ??? : Inside.T
+         |object Outside:
+         |  val y: Foo = ??? : ${CARET}Inside.T
+         |""".stripMargin
+    )
+  }
+
+  def testCachingEquivalence2(): Unit = {
+    checkHasErrorAroundCaret(
+      s"""
+         |class Foo
+         |object Outside:
+         |  val y: Foo = ??? : ${CARET}Inside.T
+         |object Inside:
+         |  opaque type T = Foo
+         |  val x: Foo = ??? : Inside.T
+         |""".stripMargin
+    )
+  }
+
+  def testCachingConformance1(): Unit = {
+    checkHasErrorAroundCaret(
+      s"""
+         |class Foo; class Bar extends Foo
+         |object Inside:
+         |  opaque type T = Bar
+         |  val x: Foo = ??? : Inside.T
+         |object Outside:
+         |  val y: Foo = ??? : ${CARET}Inside.T
+         |""".stripMargin
+    )
+  }
+
+  def testCachingConformance2(): Unit = {
+    checkHasErrorAroundCaret(
+      s"""
+         |class Foo; class Bar extends Foo
+         |object Outside:
+         |  val y: Foo = ??? : ${CARET}Inside.T
+         |object Inside:
+         |  opaque type T = Bar
+         |  val x: Foo = ??? : Inside.T
+         |""".stripMargin
+    )
+  }
+
+  def testCachingImplicits(): Unit = {
+    checkHasErrorAroundCaret(
+      s"""
+         |object Inside:
+         |  opaque type T = Int
+         |object Outside:
+         |  val x: Int = implicitly[Inside.T]
+         |  val y: Int = ??? : ${CARET}Inside.T
          |""".stripMargin
     )
   }

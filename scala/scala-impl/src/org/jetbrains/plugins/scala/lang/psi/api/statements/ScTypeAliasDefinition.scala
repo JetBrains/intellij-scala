@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements
 
-import com.intellij.psi.{PsiClass, PsiElement}
+import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -14,8 +14,6 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
   override def isDefinition: Boolean = true
 
   def isOpaque: Boolean = hasModifierProperty("opaque")
-
-  def isOpaqueIn(place: PsiElement): Boolean
 
   def aliasedTypeElement: Option[ScTypeElement]
 
@@ -73,6 +71,4 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
       typeParameters.isEmpty && aliasedType.getOrElse(return false).equiv(clsType)
     }
   }
-
-  def toDeclaration: ScTypeAliasDeclaration
 }

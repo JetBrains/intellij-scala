@@ -2,11 +2,12 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.PsiClass
+import org.jetbrains.plugins.scala.Tracing
 import org.jetbrains.plugins.scala.caches.RecursionManager
 import org.jetbrains.plugins.scala.caches.stats.{CacheCapabilities, CacheTracker, Tracer}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.types.api.Conformance._
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, Context, ContextDependent, ScType}
 
 import java.util.concurrent.ConcurrentHashMap
 import java.util.function.Supplier
@@ -20,9 +21,8 @@ trait Conformance {
   private val guard = RecursionManager.RecursionGuard[Key, ConstraintsResult](s"${typeSystem.name}.conformance.guard")
 
   private val cache =
-    CacheTracker.alwaysTrack(conformsInnerCache, conformsInnerCache) {
-      new ConcurrentHashMap[Key, ConstraintsResult]()
-    }
+    CacheTracker.alwaysTrack(conformsInnerCache, conformsInnerCache)(
+      new ConcurrentHashMap[Key, ContextDependent[ConstraintsResult]]())
 
   /**
     * Checks, whether the following assignment is correct:
@@ -31,7 +31,7 @@ trait Conformance {
   final def conformsInner(left: ScType, right: ScType,
                           visited: Set[PsiClass] = Set.empty,
                           constraints: ConstraintSystem = ConstraintSystem.empty,
-                          checkWeak: Boolean = false): ConstraintsResult = {
+                          checkWeak: Boolean = false)(implicit context: Context): ConstraintsResult = {
     ProgressManager.checkCanceled()
 
     if (left.isAny || left.isAnyKind || left.is[WildcardType] || right.isNothing || left == right)
@@ -47,36 +47,40 @@ trait Conformance {
 
   def clearCache(): Unit = cache.clear()
 
-  protected def conformsComputable(key: Key, visited: Set[PsiClass]): Supplier[ConstraintsResult]
+  protected def conformsComputable(key: Key, visited: Set[PsiClass])(implicit context: Context): Supplier[ConstraintsResult]
 
-  def conformsInner(key: Key, visited: Set[PsiClass]): ConstraintsResult = {
+  def conformsInner(key: Key, visited: Set[PsiClass])(implicit context: Context): ConstraintsResult = {
     val tracer = Tracer(conformsInnerCache, conformsInnerCache)
     tracer.invocation()
 
-    NullSafe(cache.get(key)).orElse(
+    val resultInContext = Option(cache.get(key)).getOrElse(new ContextDependent())
+
+    val result = resultInContext.get.orElse {
       guard.doPreventingRecursion(key) {
         val stackStamp = RecursionManager.markStack()
         tracer.calculationStart()
         try {
-          val result = NullSafe(conformsComputable(key, visited).get())
-          result.foreach(result =>
-              if (stackStamp.mayCacheNow())
-                cache.put(key, result)
-          )
-          result
-        }
-        finally {
+          val (value, valueInContext) = resultInContext.updatedUsing(ctx => conformsComputable(key, visited)(ctx).get())
+          Tracing.conformance(key.left, key.right, value)
+          if (stackStamp.mayCacheNow()) {
+            cache.put(key, valueInContext)
+          }
+          value
+        } finally {
           tracer.calculationEnd()
         }
-      }.getOrElse(NullSafe.empty)
-    ).getOrElse(Left)
+      }
+    }
+
+    result.getOrElse(Left)
   }
 }
 
-object Conformance {
-  val conformsInnerCache: String = "Conformance.conformsInner"
-  implicit def ConformanceCacheCapabilities[T]: CacheCapabilities[ConcurrentHashMap[T, ConstraintsResult]] =
-    new CacheCapabilities[ConcurrentHashMap[T, ConstraintsResult]] {
+private object Conformance {
+  private val conformsInnerCache: String = "Conformance.conformsInner"
+
+  private implicit def ConformanceCacheCapabilities[T]: CacheCapabilities[ConcurrentHashMap[T, ContextDependent[ConstraintsResult]]] =
+    new CacheCapabilities[ConcurrentHashMap[T, ContextDependent[ConstraintsResult]]] {
       override def cachedEntitiesCount(cache: CacheType): Int = cache.size()
       override def clear(cache: CacheType): Unit = cache.clear()
     }

@@ -17,7 +17,7 @@ final case class ScAndType private(lhs: ScType, rhs: ScType) extends ScalaType w
     r:           ScType,
     constraints: ConstraintSystem,
     falseUndef:  Boolean
-  ): ConstraintsResult = r match {
+  )(implicit context: Context): ConstraintsResult = r match {
     case ScAndType(rLhs, rRhs) =>
       if (r eq this) constraints
       else {

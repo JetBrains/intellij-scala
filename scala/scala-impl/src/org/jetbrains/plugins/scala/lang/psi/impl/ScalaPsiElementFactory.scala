@@ -1596,9 +1596,6 @@ object ScalaPsiElementFactory {
   def createDeclarationFromText(@NonNls text: String, context: PsiElement, child: PsiElement): ScDeclaration =
     createElementWithContext[ScDeclaration](text, context, child)(parsingStat.Dcl.parse(_))
 
-  def createTypeAliasDeclarationFromText(@NonNls text: String, context: PsiElement, child: PsiElement): ScTypeAliasDeclaration =
-    createElementWithContext[ScTypeAliasDeclaration](text, context, child)(parsingStat.Def.parse(_))
-
   def createTypeAliasDefinitionFromText(@NonNls text: String, context: PsiElement, child: PsiElement): ScTypeAliasDefinition =
     createElementWithContext[ScTypeAliasDefinition](text, context, child)(parsingStat.Def.parse(_))
 
