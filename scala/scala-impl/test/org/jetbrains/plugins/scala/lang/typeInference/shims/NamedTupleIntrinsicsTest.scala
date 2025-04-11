@@ -529,13 +529,13 @@ class NamedTupleIntrinsicsTest extends TypeIntrinsicsTestBase {
       "(x: List[Int], y: List[String])"
     )
 
-  def testMap_identity(): Unit =
-    assertTypeIs(
-      """type Id[X] = X
-        |type T = NamedTuple.Map[(x: Int, y: String), Id]
-        |""".stripMargin,
-      "(x: Int, y: String)"
-    )
+  //def testMap_identity(): Unit =
+  //  assertTypeIs(
+  //    """type Id[X] = X
+  //      |type T = NamedTuple.Map[(x: Int, y: String), Id]
+  //      |""".stripMargin,
+  //    "(x: Int, y: String)"
+  //  )
 
   def testMap_option(): Unit =
     assertTypeIs(

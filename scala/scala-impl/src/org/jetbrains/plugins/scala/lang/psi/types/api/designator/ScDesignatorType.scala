@@ -2,13 +2,13 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 package designator
 
 import com.intellij.psi.{PsiClass, PsiNamedElement}
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt}
+import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ConstraintSystem, ConstraintsResult, LeafType, ScExistentialArgument, ScExistentialType, ScType, ScalaTypeVisitor}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ConstraintSystem, ConstraintsResult, LeafType, ScExistentialArgument, ScExistentialType, ScType, ScalaTypeVisitor}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.smartEquivalence
 
@@ -29,7 +29,6 @@ final case class ScDesignatorType(override val element: PsiNamedElement) extends
       case ta: ScTypeAlias if ta.typeParameters.isEmpty =>
         Some(AliasType(ta, ta.lowerBound, ta.upperBound))
       case ta: ScTypeAlias => //higher kind case
-        val typeParameters = ta.typeParameters
         ta match {
           case ta: ScTypeAliasDefinition => //hack for simple cases, it doesn't cover more complicated examples
             ta.aliasedType match {
@@ -38,24 +37,22 @@ final case class ScDesignatorType(override val element: PsiNamedElement) extends
               case Right(tp) =>
                 tp match {
                   case ParameterizedType(des, typeArgs) =>
-                    if (typeParameters.length == typeArgs.length && typeParameters.zip(typeArgs).forall {
+                    val taArgs = ta.typeParameters
+                    if (taArgs.length == typeArgs.length && taArgs.zip(typeArgs).forall {
                       case (tParam: ScTypeParam, TypeParameterType.ofPsi(param)) if tParam == param => true
                       case _ => false
                     }) return Some(AliasType(ta, Right(des), Right(des)))
-                  case _ if ta.scalaLanguageLevelOrDefault.isScala3 =>
-                    val lambda = ScTypePolymorphicType(tp, typeParameters.map(TypeParameter(_)))
-                    return Some(AliasType(ta, Right(lambda), Right(lambda)))
                   case _ =>
                 }
               case _ =>
             }
           case _ =>
         }
-        val existentialArgs = typeParameters
+        val existentialArgs = ta.typeParameters
           .map(tp => ScExistentialArgument(tp.name + "$$", Nil, Nothing, Any))
           .toList
 
-        val genericSubst = ScSubstitutor.bind(typeParameters, existentialArgs)
+        val genericSubst = ScSubstitutor.bind(ta.typeParameters, existentialArgs)
         Some(AliasType(ta,
           ta.lowerBound.map(scType => ScExistentialType(genericSubst(scType))),
           ta.upperBound.map(scType => ScExistentialType(genericSubst(scType))))
@@ -65,7 +62,7 @@ final case class ScDesignatorType(override val element: PsiNamedElement) extends
   }
 
   def getValType: Option[StdType] = element match {
-    case clazz: PsiClass if !clazz.is[ScObject] =>
+    case clazz: PsiClass if !clazz.isInstanceOf[ScObject] =>
       projectContext.stdTypes.QualNameToType.get(clazz.qualifiedName)
     case _ => None
   }
@@ -82,7 +79,7 @@ final case class ScDesignatorType(override val element: PsiNamedElement) extends
     (`type` match {
       case rhs: ScTypePolymorphicType =>
         ScEquivalenceUtil.isDesignatorEqiuivalentToPolyType(this, rhs, constraints, falseUndef)
-      case _ if element.is[ScTypeAliasDefinition] =>
+      case _ if element.isInstanceOf[ScTypeAliasDefinition] =>
         element.asInstanceOf[ScTypeAliasDefinition].aliasedType.toOption.map(
           _.equiv(`type`, constraints, falseUndef)
         )
