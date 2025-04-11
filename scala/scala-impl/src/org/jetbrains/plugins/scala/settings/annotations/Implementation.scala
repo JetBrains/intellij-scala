@@ -124,7 +124,7 @@ object Definition {
 
 case class Expression(expression: ScExpression) extends Implementation {
 
-  override protected def returnCandidates: Iterator[PsiElement] = expression.depthFirst()
+  override protected def returnCandidates: Iterator[PsiElement] = expression.depthFirst(!_.is[ScFunction])
 
   override protected def bodyCandidate: Option[ScExpression] = Some(expression)
 }

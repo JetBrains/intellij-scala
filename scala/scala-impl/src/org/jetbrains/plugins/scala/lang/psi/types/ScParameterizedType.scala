@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorTy
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.lang.psi.types.intrinsics.TypeIntrinsics
 import org.jetbrains.plugins.scala.util.HashBuilder._
 
 import scala.annotation.tailrec
@@ -185,7 +186,7 @@ object ScParameterizedType {
   private val andOrOrTypeDesignator = Set("&", "|")
 
   def apply(designator: ScType, typeArgs: Seq[ScType]): ScType =
-    CompileTimeOps(designator, typeArgs).getOrElse {
+    TypeIntrinsics(designator, typeArgs).getOrElse {
       def simple = new ScParameterizedType(designator, typeArgs)
 
       designator match {

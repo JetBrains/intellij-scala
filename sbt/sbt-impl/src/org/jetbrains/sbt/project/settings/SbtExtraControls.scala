@@ -1,14 +1,13 @@
 package org.jetbrains.sbt.project.settings
 
 import com.intellij.icons.AllIcons
-import com.intellij.ide.browsers.BrowserLauncher
 import com.intellij.openapi.ui.panel.ComponentPanelBuilder
 import com.intellij.ui.components.{ActionLink, JBLabel}
 import com.intellij.ui.{JBColor, TitledSeparator}
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
 import com.intellij.util.ui.{JBUI, UI, UIUtil}
 import org.jetbrains.annotations.{Nls, Nullable}
-import org.jetbrains.sbt.SbtBundle
+import org.jetbrains.sbt.{SbtBundle, SbtUtil}
 import org.jetbrains.sbt.project.settings.SbtExtraControls.JCheckBoxPanel
 
 import java.awt._
@@ -30,7 +29,7 @@ final class SbtExtraControls {
   val scalaVersionPreferenceCheckBox: JCheckBoxPanel = ct(boxLabel = SbtBundle.message("sbt.settings.scalaVersionPreference"), tooltip = SbtBundle.message("sbt.settings.scalaVersionPreference.tooltip"))
   private val readMoreLink = new ActionLink(
     SbtBundle.message("separate.prod.test.modules.link.text"),
-    (_ => BrowserLauncher.getInstance().open("https://blog.jetbrains.com/scala/2024/11/19/new-module-layout-for-sbt/")): ActionListener
+    (_ => SbtUtil.openSeparateMainTestModulesBlogPost()): ActionListener
   )
   val separateProdTestModules: JCheckBoxPanel = ct(
     boxLabel = SbtBundle.message("separate.prod.test.modules"),

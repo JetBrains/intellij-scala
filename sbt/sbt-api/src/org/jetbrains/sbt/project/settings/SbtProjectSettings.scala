@@ -162,6 +162,11 @@ object SbtProjectSettings {
       .flatMap(path => Option(settings.getLinkedProjectSettings(path)))
   }
 
+  def `for`(project: Project, externalRootPath: String): Option[SbtProjectSettings] = {
+    val settings = SbtSettings.getInstance(project)
+    Option(settings.getLinkedProjectSettings(externalRootPath))
+  }
+
   def allForProject(project: Project): Seq[SbtProjectSettings] = {
     val settings = SbtSettings.getInstance(project)
     settings.getLinkedProjectsSettings.asScala.toSeq

@@ -317,6 +317,54 @@ class SuperTypeAnnotationInspectionTest extends TypeAnnotationInspectionTest {
       |""".stripMargin
   )
 
+
+  // SCL-23649
+  def testIgnoreReturnInInnerFunction(): Unit = checkTextHasNoErrors(
+    """
+      |trait Blub {
+      |  def call: Int
+      |}
+      |
+      |class Test {
+      |  private def foo1 = {
+      |    def inner(): Int = {
+      |      return 3
+      |    }
+      |
+      |    inner()
+      |  }
+      |
+      |  private def foo2() = new Blub {
+      |    override def call: Int = {
+      |      return 9
+      |    }
+      |  }
+      |}
+      |""".stripMargin
+  )
+
+  def testDoNotIgnoreReturnInLambda(): Unit = testQuickFix(
+    s"""
+       |class Test {
+       |  private def ${START}foo2$END() = {
+       |    val f = () => return 3
+       |    f()
+       |    5
+       |  }
+       |}
+       |""".stripMargin,
+    """
+      |class Test {
+      |  private def foo2(): Int = {
+      |    val f = () => return 3
+      |    f()
+      |    5
+      |  }
+      |}
+      |""".stripMargin
+  )
+
+
   override protected def createTestText(text: String): String = text
 }
 

@@ -1111,7 +1111,7 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_i10769b(): Unit = doTest("i10769b", true)
   def test_i10848b(): Unit = doTest("i10848b", false)
   def test_i10871(): Unit = doTest("i10871", true)
-  def test_i10897(): Unit = doTest("i10897", false) // #intersectionType
+  def test_i10897(): Unit = doTest("i10897", true) // #intersectionType
   def test_i10900(): Unit = doTest("i10900", true)
   def test_i10927(): Unit = doTest("i10927", true)
   def test_i10945(): Unit = doTest("i10945", true)
