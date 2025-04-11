@@ -102,6 +102,7 @@ final class SbtSettings(project: Project)
   def getLinkedProjectSettings(module: Module): Option[SbtProjectSettings] =
     Option(ExternalSystemApiUtil.getExternalRootProjectPath(module)).safeMap(getLinkedProjectSettings)
 
+  @Nullable
   override def getLinkedProjectSettings(linkedProjectPath: String): SbtProjectSettings =
     super.getLinkedProjectSettings(linkedProjectPath) match {
       case null => super.getLinkedProjectSettings(ExternalSystemApiUtil.normalizePath(linkedProjectPath))
