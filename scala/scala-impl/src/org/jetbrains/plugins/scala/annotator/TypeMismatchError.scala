@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.codeInsight.intention.IntentionAction
-import com.intellij.lang.annotation.HighlightSeverity
+import com.intellij.lang.annotation.{HighlightSeverity, ProblemGroup}
 import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColorsScheme}
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
@@ -62,6 +62,7 @@ private object TypeMismatchError {
       .tooltip(tooltip)
       .withFix(ReportHighlightingErrorQuickFix)
       .withFix(EnableTypeMismatchHints)
+      .problemGroup(TypeMismatchErrorProblemGroup)
 
     for ((fix, range) <- fixes) {
       builder.newFix(fix).range(range).registerFix
@@ -102,5 +103,9 @@ private object TypeMismatchError {
     val text = element.getText
     val lastLineOffset = range.getStartOffset + Option(text.lastIndexOf("\n")).filterNot(_ == -1).map(_ + 1).getOrElse(0)
     TextRange.create(lastLineOffset, range.getEndOffset)
+  }
+
+  object TypeMismatchErrorProblemGroup extends ProblemGroup {
+    override def getProblemName: String = "ScalaTypeMismatch"
   }
 }

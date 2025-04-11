@@ -6,6 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.TypeMismatchHints
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
@@ -18,7 +19,7 @@ private[annotator] object EnableTypeMismatchHints extends IntentionAction {
   override def startInWriteAction = false
 
   override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean =
-    !file.isInstanceOf[ScalaCodeFragment] && !ScalaProjectSettings.in(project).isTypeMismatchHints
+    !file.is[ScalaCodeFragment] && !ScalaProjectSettings.in(project).isTypeMismatchHints
 
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     ScalaProjectSettings.in(project).setTypeMismatchHints(true)
