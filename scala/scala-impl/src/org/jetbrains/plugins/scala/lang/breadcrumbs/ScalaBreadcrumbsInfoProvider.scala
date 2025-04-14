@@ -35,6 +35,9 @@ class ScalaBreadcrumbsInfoProvider extends BreadcrumbsProvider {
       case newDef: ScNewTemplateDefinition => describeNewTemplate(newDef)
       case clazz: ScTemplateDefinition => clazz.name
       case funExpr: ScFunctionExpr => describeFunction(funExpr)
+      case fun: ScFunction if fun.isExtensionMethod => 
+        val targetType = fun.extensionMethodOwner.flatMap(_.targetTypeElement.map(_.getText)).getOrElse("?")
+        s"extension($targetType) ${describeFunction(fun)}"
       case fun: ScFunction => describeFunction(fun)
       case member: ScMember => describeMember(member)
       case caseClause: ScCaseClause => describeCaseClause(caseClause)
