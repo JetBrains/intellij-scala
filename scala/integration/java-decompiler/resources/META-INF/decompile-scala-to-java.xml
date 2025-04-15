@@ -13,6 +13,8 @@
             <add-to-group group-id="idea.java.decompiler.action.group" anchor="after" relative-to-action="ByteCodeDecompiler"/>
             <!--Leaving the action in RunContextPopupGroup as well for easy access from Project Tree view -->
             <add-to-group group-id="RunContextPopupGroup" anchor="last"/>
+            <!--Adding the action to ProjectViewPopupMenu for direct access from Project View -->
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
         </action>
         <action id="Scala.DecompileTasty"
                 class="org.jetbrains.plugins.scala.decompileToJava.ShowDecompiledTastyAction">
