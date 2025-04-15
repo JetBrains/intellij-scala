@@ -197,6 +197,12 @@ object CompileServerLauncher {
             buffer.result() ++ compileServerJvmAddOpensExtraParams
           } else Seq.empty
 
+        // SCL-23766 Unsafe memory access in JDK 24+
+        val unsafeMemoryAccessOptions =
+          if (jdk.version.exists(_.isAtLeast(JavaSdkVersion.JDK_24)))
+            Seq("--enable-native-access=ALL-UNNAMED", "--sun-misc-unsafe-memory-access=allow")
+          else Seq.empty
+
         val userJvmParameters = jvmParameters
         val java9rtJarParams = prepareJava9rtJar(jdk)
         val commands =
@@ -208,6 +214,7 @@ object CompileServerLauncher {
             shutdownDelayArg ++:
             isScalaCompileServer +:
             addOpensOptions ++:
+            unsafeMemoryAccessOptions ++:
             vmOptions ++:
             NailgunRunnerFQN +:
             freePort.toString +:
