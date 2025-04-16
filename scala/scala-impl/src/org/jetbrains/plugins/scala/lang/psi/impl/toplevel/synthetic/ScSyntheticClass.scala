@@ -42,6 +42,8 @@ abstract sealed class SyntheticNamedElement(name: String)
                                            (implicit projectContext: ProjectContext)
   extends LightElement(projectContext, ScalaLanguage.INSTANCE) with PsiNameIdentifierOwner {
 
+  override def isValid: Boolean = true
+
   override def getName: String = name
   override def getText = ""
   override def setName(newName: String) : PsiElement = throw new IncorrectOperationException("nonphysical element")
