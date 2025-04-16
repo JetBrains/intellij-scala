@@ -6,7 +6,7 @@ import LocalRepoPackager.{localRepoDependencies, localRepoUpdate, relativeJarPat
 import org.jetbrains.sbtidea.Keys.*
 import org.jetbrains.sbtidea.PluginJars
 
-import java.nio.file.Path
+import java.nio.file.{Files, Path}
 
 // Global build settings
 
@@ -1146,3 +1146,48 @@ addCommandAlias("runCompilerPluginTests-2_12", "compiler-plugin-2_12/testOnly --
 addCommandAlias("runCompilerPluginTests-2_13", "compiler-plugin-2_13/testOnly -- -v -s -a +c +q")
 addCommandAlias("runCompilerPluginTests-3_3", "compiler-plugin-3_3/testOnly -- -v -s -a +c +q")
 addCommandAlias("runCompilerPluginTests", "runCompilerPluginTests-2_12; runCompilerPluginTests-2_13; runCompilerPluginTests-3_3")
+
+// This command runs tests without tests specified in a file that is created by teamcity
+// This enables us to run tests in teamcity's batchmode.
+// See https://www.jetbrains.com/help/teamcity/parallel-tests.html
+lazy val runBatchedTests = Command.args("runBatchedTests", "") { (state, args) =>
+  lazy val excludedTests: Set[String] = {
+    args match {
+      case Seq(excludeFilePathStr) =>
+        val excludeFilePath = Path.of(excludeFilePathStr)
+        if (Files.exists(excludeFilePath)) {
+          val excludeFileStr = Files.readString(excludeFilePath)
+          TeamCityTestExcludesFileContent.parse(excludeFileStr)  match {
+            case Left(error) => throw new IllegalArgumentException(s"Cannot parse excludeFile content ($excludeFilePath): $error")
+            case Right(content) =>
+              println(s"Parsed excludedFile (excluded ${content.excludedTests.size} tests, batch ${content.current_batch} of ${content.total_batches}, algorithm: ${content.algorithm.getOrElse("None")}))")
+              content.excludedTests
+          }
+        } else if (excludeFilePathStr.contains("%")) {
+          println("excludeFile path seems to be an unfilled TeamCity variable, probably it's the first run, so run all tests")
+          Set.empty
+        } else {
+          throw new IllegalArgumentException(s"No excludeFile found at $excludeFilePath, running all tests")
+          Set.empty
+        }
+      case _ =>
+        println("No excludeFile specified, running all tests")
+        Set.empty
+    }
+  }
+
+
+
+  val newState = state.appendWithSession(Seq(
+    Test / testFrameworks := Seq(TestFrameworks.JUnit),
+    Test / testOptions := Seq(
+      Tests.Argument(TestFrameworks.JUnit, "-v", "-s", "-a", "+c", "+q"),
+      Tests.Filter { testClassName => !excludedTests.contains(testClassName) }
+    )
+  ))
+
+  val (result, _) = Project.extract(newState).runTask(Test / test, newState)
+  result
+}
+
+Global / commands ++= Seq(runBatchedTests)
