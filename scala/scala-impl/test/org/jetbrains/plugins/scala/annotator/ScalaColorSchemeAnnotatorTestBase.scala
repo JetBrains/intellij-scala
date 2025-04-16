@@ -5,7 +5,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.TypecheckerTests
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, StringExt}
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, StringExt, ToNullSafe}
 import org.jetbrains.plugins.scala.highlighter.{ScalaColorSchemeAnnotator, ScalaSyntaxHighlightingVisitor}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
@@ -55,7 +55,14 @@ abstract class ScalaColorSchemeAnnotatorTestBase[T] extends ScalaLightCodeInsigh
     })
 
     val infoHolderAnnotations = (0 until infoHolder.size).map(infoHolder.get).map(it =>
-      Message2.Info(TextRange.create(it.getStartOffset, it.getEndOffset), text.substring(it.getStartOffset, it.getEndOffset), "", it.forcedTextAttributesKey, Seq.empty))
+      Message2.Info(
+        TextRange.create(it.getStartOffset, it.getEndOffset),
+        text.substring(it.getStartOffset, it.getEndOffset),
+        "",
+        it.forcedTextAttributesKey.nullSafe.getOrElse(it.`type`.getAttributesKey),
+        Seq.empty
+      )
+    )
 
     (infoHolderAnnotations ++ annotationHolder.annotations).sortBy(_.range.getStartOffset)
   }
