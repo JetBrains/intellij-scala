@@ -3,8 +3,11 @@ package codeInsight
 package daemon
 
 import com.intellij.openapi.util.text.StringUtil
+import org.jetbrains.plugins.scala.LatestScalaVersions.Scala_3
 
 class ScalaRainbowVisitorTest extends base.ScalaLightCodeInsightFixtureTestCase {
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= Scala_3
 
   import ScalaRainbowVisitorTest.{END_TAG => E, START_TAG => S, START_TAG_1 => S_1, START_TAG_2 => S_2, START_TAG_3 => S_3, START_TAG_4 => S_4}
 
@@ -107,6 +110,14 @@ class ScalaRainbowVisitorTest extends base.ScalaLightCodeInsightFixtureTestCase 
        |  ${S_2}p2$E = 42
        |} yield (${S_1}p1$E, ${S_2}p2$E)
      """.stripMargin
+  )
+
+  def testElementWithoutNameId(): Unit = doTest(
+    s"""
+       |given Int = 42
+       |
+       |def test(using Int): Unit = {}
+       |""".stripMargin
   )
 
   private def doTest(text: String,

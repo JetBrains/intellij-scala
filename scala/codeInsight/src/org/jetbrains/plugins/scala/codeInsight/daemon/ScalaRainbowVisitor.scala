@@ -41,7 +41,7 @@ final class ScalaRainbowVisitor extends RainbowVisitor {
       case named@NameContext(context) => (context, named.nameId)
       case reference@ScReferenceExpression(NameContext(context)) => (context, reference.nameId)
     }.collect {
-      case (ColorKey(PsiContext(context), colorKey), rainbowElement) =>
+      case (ColorKey(PsiContext(context), colorKey), rainbowElement) if rainbowElement != null =>
         getInfo(context, rainbowElement, rainbowElement.getText, colorKey)
     }.foreach {
       addInfo
