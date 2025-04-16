@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.highlighter
 
+import com.intellij.codeInsight.daemon.impl.HighlightInfoType
 import com.intellij.openapi.editor.DefaultLanguageHighlighterColors
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.{PsiClass, PsiElement, PsiField, PsiMethod, PsiModifierListOwner}
@@ -14,102 +15,111 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenDefiniti
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScGiven, ScMember, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
-import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, StdType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.StdType
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocResolvableCodeReference, ScDocTagValue}
 
 object ScalaColorsSchemeUtils {
   def findAttributesKeyByParent(element: PsiElement): Option[TextAttributesKey] =
+    findHighlightInfoTypeByParent(element).map(_.getAttributesKey)
+
+  def findHighlightInfoTypeByParent(element: PsiElement): Option[HighlightInfoType] =
     getParentByStub(element) match {
-      case _: ScGiven | DesugaredTypeDefinition(_)    => Some(DefaultHighlighter.GIVEN)
-      case _: ScEnum                                  => Some(DefaultHighlighter.ENUM)
-      case _: ScEnumClassCase                         => Some(DefaultHighlighter.ENUM_CLASS_CASE)
-      case _: ScEnumSingletonCase                     => Some(DefaultHighlighter.ENUM_SINGLETON_CASE)
-      case _: ScNameValuePair                         => Some(DefaultHighlighter.ANNOTATION_ATTRIBUTE)
-      case _: ScTypeParam                             => Some(DefaultHighlighter.TYPEPARAM)
-      case c: ScClass if c.getModifierList.isAbstract => Some(DefaultHighlighter.ABSTRACT_CLASS)
-      case c: ScClass                                 => Some(DefaultHighlighter.CLASS)
-      case _: ScObject                                => Some(DefaultHighlighter.OBJECT)
-      case _: ScTrait                                 => Some(DefaultHighlighter.TRAIT)
+      case _: ScGiven | DesugaredTypeDefinition(_)    => Some(ScalaHighlightInfoTypes.GIVEN)
+      case _: ScEnum                                  => Some(ScalaHighlightInfoTypes.ENUM)
+      case _: ScEnumClassCase                         => Some(ScalaHighlightInfoTypes.ENUM_CLASS_CASE)
+      case _: ScEnumSingletonCase                     => Some(ScalaHighlightInfoTypes.ENUM_SINGLETON_CASE)
+      case _: ScNameValuePair                         => Some(ScalaHighlightInfoTypes.ANNOTATION_ATTRIBUTE)
+      case _: ScTypeParam                             => Some(ScalaHighlightInfoTypes.TYPEPARAM)
+      case c: ScClass if c.getModifierList.isAbstract => Some(ScalaHighlightInfoTypes.ABSTRACT_CLASS)
+      case _: ScClass                                 => Some(ScalaHighlightInfoTypes.CLASS)
+      case _: ScObject                                => Some(ScalaHighlightInfoTypes.OBJECT)
+      case _: ScTrait                                 => Some(ScalaHighlightInfoTypes.TRAIT)
       case x @ (_: ScReferencePattern | _: ScFieldId) =>
         x.asInstanceOf[ScNamedElement].nameContext match {
           case r@(_: ScValue | _: ScVariable) =>
             getParentByStub(r) match {
               case _: ScTemplateBody | _: ScEarlyDefinitions =>
                 val attributes = r match {
-                  case mod: ScModifierListOwner if hasModifier(mod, "lazy") => DefaultHighlighter.LAZY
-                  case _: ScValue                                                    => DefaultHighlighter.VALUES
-                  case _: ScVariable                                                 => DefaultHighlighter.VARIABLES
-                  case _                                                             => DefaultLanguageHighlighterColors.IDENTIFIER
+                  case mod: ScModifierListOwner if hasLazyModifier(mod) => ScalaHighlightInfoTypes.LAZY
+                  case _: ScValue                                       => ScalaHighlightInfoTypes.VALUES
+                  case _: ScVariable                                    => ScalaHighlightInfoTypes.VARIABLES
+                  case _                                                => ScalaHighlightInfoTypes.IDENTIFIER
                 }
                 Some(attributes)
               case _ =>
                 val attributes = r match {
-                  case mod: ScModifierListOwner if hasModifier(mod, "lazy") => DefaultHighlighter.LOCAL_LAZY
-                  case _: ScValue                                                    => DefaultHighlighter.LOCAL_VALUES
-                  case _: ScVariable                                                 => DefaultHighlighter.LOCAL_VARIABLES
-                  case _                                                             => DefaultLanguageHighlighterColors.IDENTIFIER
+                  case mod: ScModifierListOwner if hasLazyModifier(mod) => ScalaHighlightInfoTypes.LOCAL_LAZY
+                  case _: ScValue                                       => ScalaHighlightInfoTypes.LOCAL_VALUES
+                  case _: ScVariable                                    => ScalaHighlightInfoTypes.LOCAL_VARIABLES
+                  case _                                                => ScalaHighlightInfoTypes.IDENTIFIER
                 }
                 Some(attributes)
             }
-          case _: ScCaseClause                  => Some(DefaultHighlighter.PATTERN)
-          case _: ScGenerator | _: ScForBinding => Some(DefaultHighlighter.GENERATOR)
+          case _: ScCaseClause                  => Some(ScalaHighlightInfoTypes.PATTERN)
+          case _: ScGenerator | _: ScForBinding => Some(ScalaHighlightInfoTypes.GENERATOR)
           case _ => None
         }
-      case _: ScFunctionDefinition | _: ScFunctionDeclaration => Some(DefaultHighlighter.METHOD_DECLARATION)
+      case _: ScFunctionDefinition | _: ScFunctionDeclaration => Some(ScalaHighlightInfoTypes.METHOD_DECLARATION)
       case _ => None
     }
+
 
   def textAttributesKey(resolvedElement: PsiElement,
                         refElement: Option[ScReference] = None,
                         qualNameToType: Map[String, StdType] = Map.empty): TextAttributesKey =
+    textHighlightInfoType(resolvedElement, refElement, qualNameToType).getAttributesKey
+
+  def textHighlightInfoType(resolvedElement: PsiElement,
+                            refElement: Option[ScReference] = None,
+                            qualNameToType: Map[String, StdType] = Map.empty): HighlightInfoType =
     resolvedElement match {
-      case _: ScGiven | DesugaredTypeDefinition(_)                                       => DefaultHighlighter.GIVEN
-      case _: ScEnum | ScObject.Companion(_: ScEnum)                                     => DefaultHighlighter.ENUM
-      case _: ScEnumClassCase | ScObject.Companion(_: ScEnumClassCase)                   => DefaultHighlighter.ENUM_CLASS_CASE
-      case _: ScEnumSingletonCase                                                        => DefaultHighlighter.ENUM_SINGLETON_CASE
-      case c: PsiClass if qualNameToType.contains(c.qualifiedName)                       => DefaultHighlighter.PREDEF //this is td, it's important!
-      case c: ScClass if c.getModifierList.isAbstract                                    => DefaultHighlighter.ABSTRACT_CLASS
-      case _: ScTypeParam                                                                => DefaultHighlighter.TYPEPARAM
-      case _: ScTypeAlias                                                                => DefaultHighlighter.TYPE_ALIAS
-      case _: ScClass if refElement.exists(referenceIsToCompanionObjectOfClass)          => DefaultHighlighter.OBJECT
-      case _: ScClass                                                                    => DefaultHighlighter.CLASS
-      case _: ScObject                                                                   => DefaultHighlighter.OBJECT
-      case _: ScTrait                                                                    => DefaultHighlighter.TRAIT
-      case c: PsiClass if c.isInterface                                                  => DefaultHighlighter.TRAIT
-      case c: PsiClass if hasModifier(c, "abstract")                            => DefaultHighlighter.ABSTRACT_CLASS
-      case _: PsiClass if refElement.exists(_.is[ScReferenceExpression])                 => DefaultHighlighter.OBJECT
-      case _: PsiClass if refElement.isEmpty || refElement.exists(_.is[ScStableCodeReference]) => DefaultHighlighter.CLASS
-      case p: ScBindingPattern                                                           => attributesKey(p)
-      case f: PsiField if !hasModifier(f, "final")                              => DefaultHighlighter.VARIABLES
-      case _: PsiField                                                                   => DefaultHighlighter.VALUES
+      case _: ScGiven | DesugaredTypeDefinition(_)                                             => ScalaHighlightInfoTypes.GIVEN
+      case _: ScEnum | ScObject.Companion(_: ScEnum)                                           => ScalaHighlightInfoTypes.ENUM
+      case _: ScEnumClassCase | ScObject.Companion(_: ScEnumClassCase)                         => ScalaHighlightInfoTypes.ENUM_CLASS_CASE
+      case _: ScEnumSingletonCase                                                              => ScalaHighlightInfoTypes.ENUM_SINGLETON_CASE
+      case c: PsiClass if qualNameToType.contains(c.qualifiedName)                             => ScalaHighlightInfoTypes.PREDEF //this is td, it's important!
+      case c: ScClass if c.getModifierList.isAbstract                                          => ScalaHighlightInfoTypes.ABSTRACT_CLASS
+      case _: ScTypeParam                                                                      => ScalaHighlightInfoTypes.TYPEPARAM
+      case _: ScTypeAlias                                                                      => ScalaHighlightInfoTypes.TYPE_ALIAS
+      case _: ScClass if refElement.exists(referenceIsToCompanionObjectOfClass)                => ScalaHighlightInfoTypes.OBJECT
+      case _: ScClass                                                                          => ScalaHighlightInfoTypes.CLASS
+      case _: ScObject                                                                         => ScalaHighlightInfoTypes.OBJECT
+      case _: ScTrait                                                                          => ScalaHighlightInfoTypes.TRAIT
+      case c: PsiClass if c.isInterface                                                        => ScalaHighlightInfoTypes.TRAIT
+      case c: PsiClass if hasModifier(c, "abstract")                                           => ScalaHighlightInfoTypes.ABSTRACT_CLASS
+      case _: PsiClass if refElement.exists(_.is[ScReferenceExpression])                       => ScalaHighlightInfoTypes.OBJECT
+      case _: PsiClass if refElement.isEmpty || refElement.exists(_.is[ScStableCodeReference]) => ScalaHighlightInfoTypes.CLASS
+      case p: ScBindingPattern                                                                 => highlightInfoType(p)
+      case f: PsiField if !hasModifier(f, "final")                                             => ScalaHighlightInfoTypes.VARIABLES
+      case _: PsiField                                                                         => ScalaHighlightInfoTypes.VALUES
       case p: ScParameter =>
         refElement match {
           case Some(_: ScDocTagValue | _: ScDocResolvableCodeReference) =>
             //when parameter/field is references from scaladoc, we always highlight it as a parameter, not as a field
-            DefaultHighlighter.PARAMETER
+            ScalaHighlightInfoTypes.PARAMETER
           case _ =>
-            parameterAttributes(p)
+            parameterHighlightInfoType(p)
         }
-      case f@(_: ScFunctionDefinition | _: ScFunctionDeclaration | _: ScMacroDefinition) => attributesKey(f.asInstanceOf[ScFunction])
-      case m: PsiMethod                                                                  => attributesKey(m)
-      case _                                                                             => DefaultLanguageHighlighterColors.IDENTIFIER
+      case f@(_: ScFunctionDefinition | _: ScFunctionDeclaration | _: ScMacroDefinition) => highlightInfoType(f.asInstanceOf[ScFunction])
+      case m: PsiMethod                                                                  => highlightInfoType(m)
+      case _                                                                             => ScalaHighlightInfoTypes.IDENTIFIER
     }
 
   //SCL-7499
-  def parameterAttributes(p: ScParameter): TextAttributesKey = p match {
+  def parameterHighlightInfoType(p: ScParameter): HighlightInfoType = p match {
     case cp: ScClassParameter =>
-      classParameterAttributes(cp)
+      classParamHighlightInfoType(cp)
     case _ if isParameterOfAnonymousFunction(p) =>
-      DefaultHighlighter.PARAMETER_OF_ANONIMOUS_FUNCTION
+      ScalaHighlightInfoTypes.PARAMETER_OF_ANONIMOUS_FUNCTION
     case _ =>
-      DefaultHighlighter.PARAMETER
+      ScalaHighlightInfoTypes.PARAMETER
   }
 
-  def classParameterAttributes(classParameter: ScClassParameter): TextAttributesKey =
+  def classParamHighlightInfoType(classParameter: ScClassParameter): HighlightInfoType =
     if (classParameter.isClassMember)
-      DefaultHighlighter.VALUES
+      ScalaHighlightInfoTypes.VALUES
     else
-      DefaultHighlighter.PARAMETER
+      ScalaHighlightInfoTypes.PARAMETER
 
   private def isParameterOfAnonymousFunction(p: ScParameter): Boolean = p.getContext match {
     case clause: ScParameterClause => clause.getContext.getContext match {
@@ -119,61 +129,61 @@ object ScalaColorsSchemeUtils {
     case _ => false
   }
 
-  private def attributesKey(pattern: ScBindingPattern): TextAttributesKey = {
+  private def highlightInfoType(pattern: ScBindingPattern): HighlightInfoType = {
     val parent = pattern.nameContext
     parent match {
       case r@(_: ScValue | _: ScVariable) =>
         getParentByStub(parent) match {
           case _: ScTemplateBody | _: ScEarlyDefinitions =>
             r match {
-              case mod: ScModifierListOwner if hasModifier(mod, "lazy") => DefaultHighlighter.LAZY
-              case v: ScValue if isHighlightableScalaTestKeyword(v)     => DefaultHighlighter.SCALATEST_KEYWORD
-              case _: ScValue                                           => DefaultHighlighter.VALUES
-              case _: ScVariable                                        => DefaultHighlighter.VARIABLES
-              case _                                                    => DefaultLanguageHighlighterColors.IDENTIFIER
+              case mod: ScModifierListOwner if hasLazyModifier(mod) => ScalaHighlightInfoTypes.LAZY
+              case v: ScValue if isHighlightableScalaTestKeyword(v) => ScalaHighlightInfoTypes.SCALATEST_KEYWORD
+              case _: ScValue                                       => ScalaHighlightInfoTypes.VALUES
+              case _: ScVariable                                    => ScalaHighlightInfoTypes.VARIABLES
+              case _                                                => ScalaHighlightInfoTypes.IDENTIFIER
             }
           case _ =>
             r match {
-              case mod: ScModifierListOwner if hasModifier(mod, "lazy") => DefaultHighlighter.LOCAL_LAZY
-              case _: ScValue                                           => DefaultHighlighter.LOCAL_VALUES
-              case _: ScVariable                                        => DefaultHighlighter.LOCAL_VARIABLES
-              case _                                                    => DefaultLanguageHighlighterColors.IDENTIFIER
+              case mod: ScModifierListOwner if hasLazyModifier(mod) => ScalaHighlightInfoTypes.LOCAL_LAZY
+              case _: ScValue                                       => ScalaHighlightInfoTypes.LOCAL_VALUES
+              case _: ScVariable                                    => ScalaHighlightInfoTypes.LOCAL_VARIABLES
+              case _                                                => ScalaHighlightInfoTypes.IDENTIFIER
             }
         }
-      case _: ScCaseClause                                              => DefaultHighlighter.PATTERN
-      case _: ScGenerator | _: ScForBinding                             => DefaultHighlighter.GENERATOR
-      case _                                                            => DefaultLanguageHighlighterColors.IDENTIFIER
+      case _: ScCaseClause                                          => ScalaHighlightInfoTypes.PATTERN
+      case _: ScGenerator | _: ScForBinding                         => ScalaHighlightInfoTypes.GENERATOR
+      case _                                                        => ScalaHighlightInfoTypes.IDENTIFIER
     }
   }
 
-  private def attributesKey(function: ScFunction): TextAttributesKey =
+  private def highlightInfoType(function: ScFunction): HighlightInfoType =
     if (isHighlightableScalaTestKeyword(function))
-      DefaultHighlighter.SCALATEST_KEYWORD
+      ScalaHighlightInfoTypes.SCALATEST_KEYWORD
     else
       function.containingClass match {
         case o: ScObject if o.syntheticMethods.contains(function) =>
-          DefaultHighlighter.OBJECT_METHOD_CALL
+          ScalaHighlightInfoTypes.OBJECT_METHOD_CALL
         case _ =>
           getParentByStub(function) match {
             case _: ScTemplateBody | _: ScEarlyDefinitions =>
               getParentByStub(getParentByStub(getParentByStub(function))) match {
-                case _: ScClass | _: ScTrait => DefaultHighlighter.METHOD_CALL
-                case _: ScObject             => DefaultHighlighter.OBJECT_METHOD_CALL
-                case _                       => DefaultLanguageHighlighterColors.IDENTIFIER
+                case _: ScClass | _: ScTrait => ScalaHighlightInfoTypes.METHOD_CALL
+                case _: ScObject             => ScalaHighlightInfoTypes.OBJECT_METHOD_CALL
+                case _                       => ScalaHighlightInfoTypes.IDENTIFIER
               }
             case _ =>
-              DefaultHighlighter.LOCAL_METHOD_CALL
+              ScalaHighlightInfoTypes.LOCAL_METHOD_CALL
           }
       }
 
-  private def hasModifier(owner: ScModifierListOwner, property: String): Boolean =
-    owner.hasModifierPropertyScala(property)
+  private def hasLazyModifier(owner: ScModifierListOwner): Boolean =
+    owner.hasModifierPropertyScala("lazy")
 
   private def hasModifier(owner: PsiModifierListOwner, property: String): Boolean =
     Option(owner.getModifierList).exists(_.hasModifierProperty(property))
 
-  private def attributesKey(method: PsiMethod): TextAttributesKey =
-    if (hasModifier(method, "static")) DefaultHighlighter.OBJECT_METHOD_CALL else DefaultHighlighter.METHOD_CALL
+  private def highlightInfoType(method: PsiMethod): HighlightInfoType =
+    if (hasModifier(method, "static")) ScalaHighlightInfoTypes.OBJECT_METHOD_CALL else ScalaHighlightInfoTypes.METHOD_CALL
 
   private def getParentByStub(x: PsiElement): PsiElement = x match {
     case el: ScalaStubBasedElementImpl[_, _] => el.getContext

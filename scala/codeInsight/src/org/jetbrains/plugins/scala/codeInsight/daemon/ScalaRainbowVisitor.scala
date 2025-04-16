@@ -79,7 +79,7 @@ private object ScalaRainbowVisitor {
     def unapply(element: PsiElement): Option[(PsiElement, TextAttributesKey)] = element match {
       case tagValue: ScDocTagValue => Some(tagValue, SCALA_DOC_TAG_PARAM_VALUE)
       case _: ScClassParameter => None
-      case parameter: ScParameter => Some(parameter, ScalaColorsSchemeUtils.parameterAttributes(parameter))
+      case parameter: ScParameter => Some(parameter, ScalaColorsSchemeUtils.parameterHighlightInfoType(parameter).getAttributesKey)
       case value: ScValue if value.isLocal => Some(value, LOCAL_VALUES)
       case variable: ScVariable if variable.isLocal => Some(variable, LOCAL_VARIABLES)
       case clause: ScCaseClause => Some(clause, PATTERN)
