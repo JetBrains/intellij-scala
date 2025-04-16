@@ -44,7 +44,7 @@ trait ScalafmtDynamicService {
 
 object ScalafmtDynamicService {
 
-  val DefaultVersion = ScalafmtVersion(1, 5, 1)
+  val DefaultVersion = ScalafmtVersion(3, 8, 3)
 
   def instance: ScalafmtDynamicService = ApplicationManager.getApplication.getService(classOf[ScalafmtDynamicService])
 
