@@ -1,12 +1,13 @@
 package org.jetbrains.plugins.scala.highlighter
 
+import com.intellij.codeInsight.daemon.impl.HighlightInfoType.HighlightInfoTypeImpl
 import com.intellij.codeInsight.daemon.impl.analysis.HighlightInfoHolder
 import com.intellij.codeInsight.daemon.impl.{HighlightInfo, HighlightInfoType, HighlightVisitor}
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter.{ANNOTATION, KEYWORD, TYPE_ALIAS}
 import org.jetbrains.plugins.scala.highlighter.ScalaColorsSchemeUtils.NamedArgument
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -21,7 +22,7 @@ class ScalaSyntaxHighlightingVisitor extends HighlightVisitor with DumbAware {
   private var holder: HighlightInfoHolder = _
 
   override def suitableForFile(file: PsiFile): Boolean =
-    file.isInstanceOf[ScFile]
+    file.is[ScFile]
 
   override def analyze(file: PsiFile, updateWholeFile: Boolean, holder: HighlightInfoHolder, action: Runnable): Boolean = {
     this.holder = holder
@@ -69,10 +70,12 @@ class ScalaSyntaxHighlightingVisitor extends HighlightVisitor with DumbAware {
   private def info(e: PsiElement, attributes: TextAttributesKey): HighlightInfo =
     info(e.getTextRange, attributes)
 
-  private def info(range: TextRange, attributes: TextAttributesKey): HighlightInfo =
-    HighlightInfo.newHighlightInfo(HighlightInfoType.TEXT_ATTRIBUTES)
+  private def info(range: TextRange, attributes: TextAttributesKey): HighlightInfo = {
+    val highlightingTyp = new HighlightInfoTypeImpl(HighlightInfoType.SYMBOL_TYPE_SEVERITY, attributes)
+    HighlightInfo.newHighlightInfo(highlightingTyp)
       .range(range)
-      .textAttributes(attributes).create()
+      .create()
+  }
 
   private def isSoftKeyword(element: PsiElement): Boolean =
     SOFT_KEYWORDS.contains(element.getNode.getElementType)
