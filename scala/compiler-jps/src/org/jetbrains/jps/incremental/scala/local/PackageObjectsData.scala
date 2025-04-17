@@ -3,6 +3,7 @@ package local
 
 import org.jetbrains.jps.incremental.CompileContext
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage}
+import org.jetbrains.jps.incremental.scala.remote.SerializablePath
 
 import java.io.{BufferedInputStream, BufferedOutputStream, ObjectInputStream, ObjectOutputStream}
 import java.nio.file.{Files, Path}
@@ -11,16 +12,18 @@ import scala.util.Using
 
 class PackageObjectsData extends Serializable {
 
-  private val baseSourceToPackageObjects = mutable.HashMap.empty[Path, Set[Path]]
-  private val packageObjectToBaseSources = mutable.HashMap.empty[Path, Set[Path]]
+  private val baseSourceToPackageObjects = mutable.HashMap.empty[SerializablePath, Set[SerializablePath]]
+  private val packageObjectToBaseSources = mutable.HashMap.empty[SerializablePath, Set[SerializablePath]]
 
   def add(baseSource: Path, packageObject: Path): Unit = synchronized {
-    baseSourceToPackageObjects.update(baseSource, baseSourceToPackageObjects.getOrElse(baseSource, Set.empty) + packageObject)
-    packageObjectToBaseSources.update(packageObject, packageObjectToBaseSources.getOrElse(packageObject, Set.empty) + baseSource)
+    val baseSourceSerializable = SerializablePath(baseSource)
+    val packageObjectSerializable = SerializablePath(packageObject)
+    baseSourceToPackageObjects.update(baseSourceSerializable, baseSourceToPackageObjects.getOrElse(baseSourceSerializable, Set.empty) + packageObjectSerializable)
+    packageObjectToBaseSources.update(packageObjectSerializable, packageObjectToBaseSources.getOrElse(packageObjectSerializable, Set.empty) + baseSourceSerializable)
   }
 
   def invalidatedPackageObjects(sources: Seq[Path]): Set[Path] = synchronized {
-    sources.toSet[Path].flatMap(f => baseSourceToPackageObjects.getOrElse(f, Set.empty)) -- sources
+    sources.toSet[Path].flatMap(f => baseSourceToPackageObjects.getOrElse(SerializablePath(f), Set.empty)).map(_.toPath) -- sources
   }
 
   def clear(): Unit = synchronized {
