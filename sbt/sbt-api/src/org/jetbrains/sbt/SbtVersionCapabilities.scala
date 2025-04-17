@@ -25,7 +25,7 @@ object SbtVersionCapabilities {
 
   def collectionsSeqClassFqn(sbtVersion: SbtVersion): String =
     if (sbtVersion.isSbt2)
-      "scala.collection.immutable.Seq"
+      "_root_.scala.collection.immutable.Seq"
     else
-      "scala.collection.Seq"
+      "_root_.scala.collection.Seq"
 }
