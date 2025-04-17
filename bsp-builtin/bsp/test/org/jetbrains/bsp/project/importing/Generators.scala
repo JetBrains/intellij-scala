@@ -142,7 +142,8 @@ object Generators {
       classpathSources = classPathSources,
       testClasspath = testClassPath,
       testClasspathSources = testClassPathSources,
-      languageLevel = None
+      javaLanguageLevel = None,
+      scalaVersion = None,
     )
     ModuleDescription(data, moduleKind)
   }

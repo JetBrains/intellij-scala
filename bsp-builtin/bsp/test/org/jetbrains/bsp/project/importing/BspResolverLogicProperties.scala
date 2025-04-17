@@ -100,7 +100,7 @@ class BspResolverLogicProperties extends Checkers {
     forAll { (description1: ModuleDescription, description2: ModuleDescription) =>
       val data1 = description1.data
       val data2 = description2.data
-      val merged = mergeModules(List(description1, description2))
+      val merged = mergeModules(List(description1, description2), forSharedSourcesModule = false)
       val data = merged.data
 
       // TODO more thorough properties

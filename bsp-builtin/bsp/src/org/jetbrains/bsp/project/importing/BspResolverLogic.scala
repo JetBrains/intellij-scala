@@ -171,7 +171,7 @@ private[importing] object BspResolverLogic {
           )
       }._2
 
-    val syntheticSourceModules = sharedSources.toSeq
+    val syntheticSourceModules: Seq[ModuleDescription] = sharedSources.toSeq
       .groupBy(_._2.sortBy(_.getUri))
       .view
       .mapValues(_.map(_._1))
@@ -181,12 +181,12 @@ private[importing] object BspResolverLogic {
         val sharingModules = targetIds.map(idToModule)
         val resources = targetIdsResources.find(_._1.diff(targetIds).isEmpty).toSeq.flatMap(_._2)
         val genSources = idsGeneratedSources.get(targetIds).toSeq.flatten
-        createSyntheticModuleDescription(targets, resources, sources, genSources, sharingModules)
+        createSyntheticSharedSourcesModuleDescription(targets, resources, sources, genSources, sharingModules)
       }
 
     // merge modules with the same module base
     val (noBase, withBase) = moduleDescriptions.partition(_.data.basePath.isEmpty)
-    val mergedBase = withBase.groupBy(_.data.basePath).values.map(mergeModules)
+    val mergedBase = withBase.groupBy(_.data.basePath).values.map(mergeModules(_, forSharedSourcesModule = false))
     val modules: Seq[ModuleDescription] = noBase ++ mergedBase
 
     val (sbtBuildModules, ordinaryModules) =
@@ -330,28 +330,27 @@ private[importing] object BspResolverLogic {
     val tags = buildTarget.getTags.asScala
 
     val targetData = Option(buildTarget.getData).map(_.asInstanceOf[JsonElement])
-    val langLevel = javacOptions
+    val javaLanguageLevel = javacOptions
       .flatMap(_.getOptions.asScala.dropWhile(_ != "-source").drop(1).headOption)
       .map(LanguageLevel.parse)
       .flatMap(Option(_))
     val moduleKind: Option[ModuleKind] = targetData.flatMap { _ =>
-      import ModuleKind._
       buildTarget.getDataKind match {
         case BuildTargetDataKind.JVM =>
           targetData.flatMap(extractJdkData)
             .map(target => getJdkData(target))
-            .map(JvmModule.apply)
+            .map(ModuleKind.JvmModule.apply)
         case BuildTargetDataKind.SCALA =>
           targetData.flatMap(extractScalaSdkData)
             .map(target => getScalaSdkData(target, scalacOptions))
-            .map((ScalaModule.apply _).tupled)
+            .map((ModuleKind.ScalaModule.apply _).tupled)
         case BuildTargetDataKind.SBT =>
           val buildTargetId = new URI(buildTarget.getId.getUri)
           targetData.flatMap(extractSbtData)
             .map(target => getSbtBuildModuleData(buildTargetId, target, scalacOptions))
-            .map((SbtModule.apply _).tupled)
+            .map((ModuleKind.SbtModule.apply _).tupled)
         case _ =>
-          Some(UnspecifiedModule())
+          Some(ModuleKind.UnspecifiedModule())
       }
     }
 
@@ -397,7 +396,7 @@ private[importing] object BspResolverLogic {
       classPath = classPathWithoutDependencyOutputs,
       dependencySources = dependencySourceDirs,
       outputPaths = outputPaths,
-      languageLevel = langLevel
+      javaLanguageLevel = javaLanguageLevel
     )
 
     if (tags.contains(BuildTargetTag.NO_IDE)) None
@@ -414,13 +413,15 @@ private[importing] object BspResolverLogic {
     outputPaths: Seq[Path],
     classPath: Seq[Path],
     dependencySources: Seq[Path],
-    languageLevel: Option[LanguageLevel]
-  ): ModuleDescriptionData = {
+    javaLanguageLevel: Option[com.intellij.pom.java.LanguageLevel]
+  )(implicit gson: Gson): ModuleDescriptionData = {
     import BuildTargetTag._
 
     val moduleId = target.getId.getUri
     val moduleName = target.getDisplayName
 
+    val tagetData = Option(target.getData).map(_.asInstanceOf[JsonElement])
+    val scalaTargetData = tagetData.flatMap(extractScalaSdkData)
     val dataBasic = ModuleDescriptionData(
       idUri = moduleId,
       name = moduleName,
@@ -439,7 +440,8 @@ private[importing] object BspResolverLogic {
       classpathSources = Seq.empty,
       testClasspath = Seq.empty,
       testClasspathSources = Seq.empty,
-      languageLevel = languageLevel
+      javaLanguageLevel = javaLanguageLevel,
+      scalaVersion = scalaTargetData.map(_.getScalaVersion)
     )
 
     val targetDeps = target.getDependencies.asScala.toSeq
@@ -548,14 +550,21 @@ private[importing] object BspResolverLogic {
    * This is a heuristic to for sharing source directories between modules. If those modules have conflicting dependencies,
    * this mapping may break in unspecified ways.
    */
-  private[importing] def createSyntheticModuleDescription(targets: Seq[BuildTarget],
-                                                          resources: Seq[SourceEntry],
-                                                          sourceRoots: Seq[SourceEntry],
-                                                          generatedSourceRoots: Seq[SourceEntry],
-                                                          ancestors: Seq[ModuleDescription]): ModuleDescription = {
+  private[importing] def createSyntheticSharedSourcesModuleDescription(targets: Seq[BuildTarget],
+                                                                       resources: Seq[SourceEntry],
+                                                                       sourceRoots: Seq[SourceEntry],
+                                                                       generatedSourceRoots: Seq[SourceEntry],
+                                                                       ancestors: Seq[ModuleDescription]): ModuleDescription = {
+    //ancestors.maxBy(md => md.moduleKindData) //TODO version here
+    //TODO: check how it is unified with calculating the scala version
     // the synthetic module "inherits" most of the "ancestors" data
-    val merged = mergeModules(ancestors)
+    val merged = if (1 == "2".toInt) //TODO: delete if
+      ancestors.maxBy(md => md.data.scalaVersion.map(Version(_)))
+    else
+      mergeModules(ancestors, forSharedSourcesModule = true)
+
     val TargetIdAndName(idUri, name) = sharedModuleTargetIdAndName(targets)
+
     val sources = sourceRoots ++ generatedSourceRoots
     val isTest = targets.exists(_.getTags.asScala.contains(BuildTargetTag.TEST))
 
@@ -573,27 +582,46 @@ private[importing] object BspResolverLogic {
 
 
   /** Merge modules assuming they have the same base path. */
-  private[importing] def mergeModules(descriptions: Seq[ModuleDescription]): ModuleDescription = {
+  private[importing] def mergeModules(
+    descriptions: Seq[ModuleDescription],
+    forSharedSourcesModule: Boolean
+  ): ModuleDescription = {
     descriptions
       .sortBy(_.data.idUri)
       .reduce { (combined, next) =>
         val dataCombined = combined.data
         val dataNext = next.data
+
         val targets = (dataCombined.targets ++ dataNext.targets).sortBy(_.getId.getUri).distinct
         val targetDependencies = mergeBTIs(dataCombined.targetDependencies, dataNext.targetDependencies)
         val targetTestDependencies = mergeBTIs(dataCombined.targetTestDependencies, dataNext.targetTestDependencies)
+
         val output = dataCombined.output.orElse(dataNext.output)
         val testOutput = dataCombined.testOutput.orElse(dataNext.testOutput)
+
+        val outputPaths = mergeFiles(dataCombined.outputPaths.map(_.toPath), dataNext.outputPaths.map(_.toPath))
+
+        // NOTE: sources will be overridden for shared sources modules
         val sources = mergeSourceEntries(dataCombined.sourceRoots, dataNext.sourceRoots)
         val resources = mergeSourceEntries(dataCombined.resourceRoots, dataNext.resourceRoots)
         val testResources = mergeSourceEntries(dataCombined.testResourceRoots, dataNext.testResourceRoots)
         val testSources  = mergeSourceEntries(dataCombined.testSourceRoots, dataNext.testSourceRoots)
-        val outputPaths = mergeFiles(dataCombined.outputPaths.map(_.toPath), dataNext.outputPaths.map(_.toPath))
+
         val classPath = mergeFiles(dataCombined.classpath.map(_.toPath), dataNext.classpath.map(_.toPath))
         val classPathSources = mergeFiles(dataCombined.classpathSources.map(_.toPath), dataNext.classpathSources.map(_.toPath))
         val testClassPath = mergeFiles(dataCombined.testClasspath.map(_.toPath), dataNext.testClasspath.map(_.toPath))
         val testClassPathSources = mergeFiles(dataCombined.testClasspathSources.map(_.toPath), dataNext.testClasspathSources.map(_.toPath))
-        val languageLevel = (dataCombined.languageLevel ++ dataNext.languageLevel).maxOption
+
+        //NOTE: using "max" looks strange as everywhere else we prioritize the order and not the "max"
+        val javaLanguageLevel = (dataCombined.javaLanguageLevel ++ dataNext.javaLanguageLevel).maxOption
+
+        //TODO: this scala versioning pick logic feels strange...
+        // I don't think the whole approach of merging modules data is correct in the first place
+        //
+        //TODO:
+        // practically the same is done in org.jetbrains.bsp.project.importing.BspResolverLogic.mergeModuleKind
+        // do we even need extra scalaVersion field then?
+        val scalaVersion = dataCombined.scalaVersion.orElse(dataNext.scalaVersion)
 
         val newData = ModuleDescriptionData(
           idUri = dataCombined.idUri,
@@ -613,7 +641,8 @@ private[importing] object BspResolverLogic {
           classpathSources = classPathSources.map(SerializablePath(_)),
           testClasspath = testClassPath.map(SerializablePath(_)),
           testClasspathSources = testClassPathSources.map(SerializablePath(_)),
-          languageLevel = languageLevel
+          javaLanguageLevel = javaLanguageLevel,
+          scalaVersion = scalaVersion
         )
 
         val newModuleKindData = mergeModuleKind(combined.moduleKindData, next.moduleKindData)
@@ -761,9 +790,8 @@ private[importing] object BspResolverLogic {
     val idToModuleMap: Map[DependencyId, DataNode[ModuleData]] =
       (idToRootModule ++ idToTargetModule ++ idToSyntheticModule).toMap
 
-
     val moduleDeps = calculateModuleDependencies(projectModules)
-    val synthDeps = calculateSyntheticDependencies(moduleDeps, projectModules)
+    val synthDeps = calculateSyntheticSharedModuleDependencies(moduleDeps, projectModules)
     val modules = idToModuleMap.values.toSet
 
     val bspProjectData = {
@@ -977,7 +1005,7 @@ private[importing] object BspResolverLogic {
       case _ => None
     }
     jdkData.fold(BspMetadata(targetIds.asJava, null, null, null)) { data =>
-      BspMetadata(targetIds.asJava, data.javaHome, data.javaVersion, moduleDescription.data.languageLevel.orNull)
+      BspMetadata(targetIds.asJava, data.javaHome, data.javaVersion, moduleDescription.data.javaLanguageLevel.orNull)
     }
   }
 
@@ -1013,15 +1041,19 @@ private[importing] object BspResolverLogic {
     }
   } yield d
 
-  private[importing] def calculateSyntheticDependencies(moduleDependencies: Seq[ModuleDep], projectModules: ProjectModules) = {
+  private[importing] def calculateSyntheticSharedModuleDependencies(
+    moduleDependencies: Seq[ModuleDep],
+    projectModules: ProjectModules
+  ): Seq[ModuleDep] = {
     // 1. synthetic module is depended on by all its parent targets
     // 2. synthetic module depends on all parent target's dependencies
+    // TODO: this second part is SHIT SCL-23703
     val dependencyByParent = moduleDependencies.groupBy(_.parent)
 
     for {
       moduleDescription <- projectModules.synthetic
       synthParent <- moduleDescription.data.targets
-      dep <- {
+      dep <- { //TODO: extract something
         val synthId = SynthId(moduleDescription.data.idUri)
         val parentId = TargetId(synthParent.getId.getUri)
 

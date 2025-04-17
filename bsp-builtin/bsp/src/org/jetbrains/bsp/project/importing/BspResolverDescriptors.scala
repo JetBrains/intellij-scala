@@ -15,6 +15,11 @@ object BspResolverDescriptors {
   case class ModuleDescription(data: ModuleDescriptionData,
                                moduleKindData: ModuleKind) extends Serializable
 
+  /**
+   * @param scalaVersion version of scala compiler used in the target<br>
+   *                     Equals to [[org.jetbrains.bsp.data.ScalaSdkData.scalaVersion]] or
+   *                     [[ch.epfl.scala.bsp4j.ScalaBuildTarget#getScalaVersion]]
+   */
   case class ModuleDescriptionData(idUri: String,
                                    name: String,
                                    targets: Seq[BuildTarget],
@@ -32,7 +37,9 @@ object BspResolverDescriptors {
                                    classpathSources: Seq[SerializablePath],
                                    testClasspath: Seq[SerializablePath],
                                    testClasspathSources: Seq[SerializablePath],
-                                   languageLevel: Option[LanguageLevel]) extends Serializable
+                                   javaLanguageLevel: Option[LanguageLevel],
+                                   scalaVersion: Option[String],
+                                  ) extends Serializable
 
   case class ProjectModules(modules: Seq[ModuleDescription], synthetic: Seq[ModuleDescription]) extends Serializable
 
