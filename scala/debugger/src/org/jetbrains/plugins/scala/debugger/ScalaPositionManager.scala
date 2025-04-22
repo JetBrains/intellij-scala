@@ -750,13 +750,15 @@ object ScalaPositionManager {
 
   def instance(mirror: Mirror): Option[ScalaPositionManager] = instance(mirror.virtualMachine())
 
-  private def getVM(debugProcess: DebugProcess) = {
+  private def getVM(debugProcess: DebugProcess): Option[VirtualMachine] = {
     if (!DebuggerManagerThreadImpl.isManagerThread) None
     else {
-      debugProcess.getVirtualMachineProxy match {
-        case impl: VirtualMachineProxyImpl => Option(impl.getVirtualMachine)
-        case _ => None
-      }
+      Try {
+        debugProcess.getVirtualMachineProxy match {
+          case impl: VirtualMachineProxyImpl => Some(impl.getVirtualMachine)
+          case _ => None
+        }
+      }.toOption.flatten
     }
   }
 
