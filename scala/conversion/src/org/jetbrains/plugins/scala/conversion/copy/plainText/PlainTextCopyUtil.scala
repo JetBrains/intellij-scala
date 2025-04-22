@@ -7,7 +7,9 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDefinitionWithAssignment
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
@@ -19,60 +21,102 @@ import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
   */
 object PlainTextCopyUtil {
 
-  private val javaAllowedErrors = Set(
+  private val JavaAllowedErrors = Set(
     JavaErrorBundle.message("expected.semicolon"),
     JavaErrorBundle.message("expected.rbrace")
   )
 
-  private val scalaAllowedErrors = Set(
+  private val ScalaAllowedErrors = Set(
     ScalaBundle.message("rbrace.expected"),
     ScalaBundle.message("semi.expected")
   )
+  
+  private val ErrorsAfterIncompleteDefinitionWithAssignment = Set(
+    // Note, for some reason the error is different in some cases, see SCL-23798
+    ScalaBundle.message("expression.expected"), //example: def foo = //implement me
+    ScalaBundle.message("wrong.expression"), //example: def foo: String = //implement me
+    ScalaBundle.message("wrong.type"), //example: type X =
+  )
 
   /**
-    * Treat scala file as valid if it doesn't contain ";\n" or one word text or parsed correctly as scala and not parsed correctly as java
+    * Treat the text as scala file if:
+   *   1. it doesn't contain ";\n"
+   *   1. or it is not parsed correctly as java code (using "public" modifier as a indicator)
+   *   1. or the text is just one word identifier
+   *   1. or the text is parsed as scala (allowing some parser errors, see [[createScalaCodeFragment]])
     */
-  def isValidScalaFile(text: String, module: Module): Boolean = {
+  def looksLikeScalaFile(text: String, module: Module): Boolean = {
     def withLastSemicolon(text: String): Boolean = (!text.contains("\n") && text.contains(";")) || text.contains(";\n")
 
     def isOneWord(text: String): Boolean = !text.trim.contains(" ")
 
-    if (withLastSemicolon(text) || isJavaClassWithPublic(text)(module.getProject)) false
-    else if (isOneWord(text)) true
+    if (withLastSemicolon(text) || isJavaClassWithPublic(text)(module.getProject))
+      false
+    else if (isOneWord(text))
+      true
     else {
-      val scalaFile = createDummyScalaFile(text, module)
+      val scalaFile = createScalaCodeFragment(text, module)
       scalaFile.isDefined
     }
   }
 
-  def createDummyScalaFile(text: String, module: Module): Option[ScalaFile] = {
+  /**
+   * Creates a scala code fragment if it's parsed correctly (except for some potentially incomplete code).<br>
+   * For example, this text is detected as a valid scala code fragment: {{{
+   *   class Example {
+   *     def foo(x: Int): String = //missing implementation (parser error)
+   *   }
+   * }}}
+   */
+  def createScalaCodeFragment(text: String, module: Module): Option[ScalaCodeFragment] = {
     val language = module.languageLevel.map(_.getLanguage).getOrElse(ScalaLanguage.INSTANCE)
-    val file = ScalaCodeFragment.create(text, language)(module.getProject)
-    Some(file).filter(isParsedCorrectly)
+    val scalaCode = ScalaCodeFragment.create(text, language)(module.getProject)
+    // allow multiple parser error in code that is supposed to be a scala code candidate
+    Some(scalaCode).filter(isParsedCorrectly(_, maxAllowedParserErrors = Int.MaxValue))
   }
 
-  def isJavaClassWithPublic(text: String)
-                           (implicit project: Project): Boolean =
-    createJavaFile(text).exists(_.getClasses.exists(_.hasModifierProperty("public")))
+  private def isJavaClassWithPublic(text: String)
+                                   (implicit project: Project): Boolean = {
+    val javaFile = createJavaFile(text)
+    javaFile.exists(_.getClasses.exists(_.hasModifierProperty("public")))
+  }
 
   def isValidJavaFile(text: String)
-                     (implicit project: Project): Boolean = createJavaFile(text).exists(isParsedCorrectly)
+                     (implicit project: Project): Boolean = {
+    val javaFile = createJavaFile(text)
+    // allow maximum 1 parser error in code that is supposed to be a java code candidate
+    javaFile.exists(isParsedCorrectly(_, maxAllowedParserErrors = 1))
+  }
 
-  def isParsedCorrectly(file: PsiFile): Boolean = {
+  private def isParsedCorrectly(file: PsiFile, maxAllowedParserErrors: Int): Boolean = {
     val errorElements = file.depthFirst().filterByType[PsiErrorElement].toList
 
     if (errorElements.isEmpty) true
     else {
-      val allowedMessages = file match {
-        case _: ScalaFile => scalaAllowedErrors
-        case _            => javaAllowedErrors
-      }
-      val (allowed, notAllowed) =
-        errorElements.partition(err => allowedMessages.contains(err.getErrorDescription))
-
-      notAllowed.isEmpty && allowed.size <= 1
+      val (allowedErrors, notAllowedErrors) = errorElements.partition(canIgnoreParserError(_, file))
+      notAllowedErrors.isEmpty && allowedErrors.size <= maxAllowedParserErrors
     }
   }
+
+  private def canIgnoreParserError(error: PsiErrorElement, file: PsiFile): Boolean = {
+    val errorDescription = error.getErrorDescription
+    file match {
+      case _: ScalaFile =>
+        ScalaAllowedErrors.contains(errorDescription) || isWrongExpressionByAssignment(error)
+      case _ =>
+        JavaAllowedErrors.contains(errorDescription)
+    }
+  }
+
+  /**
+   * @return true when there is no expression after assignment in a member definition {{{
+   *    def foo(x: Int): String = //code goes here
+   * }}}
+   */
+  private def isWrongExpressionByAssignment(error: PsiErrorElement): Boolean =
+    ErrorsAfterIncompleteDefinitionWithAssignment.contains(error.getErrorDescription) &&
+      error.getParent.is[ScDefinitionWithAssignment] &&
+      error.prevSiblingNotWhitespaceComment.exists(_.elementType == ScalaTokenTypes.tASSIGN)
 
   def createJavaFile(text: String)
                     (implicit project: Project): Option[PsiJavaFile] =
