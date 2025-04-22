@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQui
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScLiteralType, ScType, TypePresentationContext}
 
 object ScTypedExpressionAnnotator extends ElementAnnotator[ScTypedExpression] {
 
@@ -37,7 +37,7 @@ object ScTypedExpressionAnnotator extends ElementAnnotator[ScTypedExpression] {
     expression.getTypeAfterImplicitConversion().tr.foreach { actual =>
       val expected = typeElement.calcType
 
-      if (!actual.conformsIn(expression, expected)) {
+      if (!actual.conforms(expected)(Context(expression))) {
         val ranges = mismatchRangesIn(typeElement, actual)
         // TODO add messange to the whole element, but higlight separate parts?
         // TODO fine-grained tooltip

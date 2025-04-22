@@ -242,12 +242,6 @@ package object types {
       innerUpdate(scType, Set.empty)
     }
 
-    def conformsIn(place: PsiElement, that: ScType): Boolean =
-      this.conforms(that)(Context(place))
-
-    def conformsIn(place: PsiElement, that: ScType, constraints: ConstraintSystem, checkWeak: Boolean = false): ConstraintsResult =
-      this.conforms(that, constraints, checkWeak)(Context(place))
-
     /**
      * @example {{{
      * Int           -> Int
