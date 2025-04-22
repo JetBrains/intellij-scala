@@ -302,13 +302,11 @@ package object types {
   }
 
   implicit class ScTypesExt(private val types: IterableOnce[ScType]) extends AnyVal {
-    def glb(checkWeak: Boolean = false)(implicit project: ProjectContext): ScType = {
-      project.typeSystem.glb(types, checkWeak)
-    }
+    def glb(checkWeak: Boolean = false)(implicit project: ProjectContext, context: Context): ScType =
+      types.iterator.reduce(project.typeSystem.glb(_, _, checkWeak))
 
-    def lub(checkWeak: Boolean = true)(implicit project: ProjectContext): ScType = {
-      project.typeSystem.lub(types, checkWeak)
-    }
+    def lub(checkWeak: Boolean = true)(implicit project: ProjectContext, context: Context): ScType =
+      types.iterator.reduce(project.typeSystem.lub(_, _, checkWeak))
   }
 
   private trait Extractor[T <: PsiNamedElement] {

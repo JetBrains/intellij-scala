@@ -47,9 +47,6 @@ trait ScalaBounds extends api.Bounds {
     }
   }
 
-  override def glb(typez: IterableOnce[ScType], checkWeak: Boolean): ScType =
-    typez.iterator.reduce(glb(_, _, checkWeak))
-
   private def typeParametersBound(
     lhsParams: Seq[TypeParameter],
     rhsParams: Seq[TypeParameter],
@@ -96,10 +93,6 @@ trait ScalaBounds extends api.Bounds {
 
   override def lub(t1: ScType, t2: ScType, checkWeak: Boolean): ScType = {
     lubInner(t1, t2, lubDepth(Seq(t1, t2)), checkWeak)(stopAddingUpperBound = false)
-  }
-
-  override def lub(seq: IterableOnce[ScType], checkWeak: Boolean): ScType = {
-    seq.iterator.reduce((l: ScType, r: ScType) => lub(l, r, checkWeak))
   }
 
   //similar to Scala code, this code is duplicated and optimized to avoid closures.
