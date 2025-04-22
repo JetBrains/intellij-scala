@@ -169,7 +169,7 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
 
   def testCompilerOptionsSetup(): Unit = {
     val additionalOptions = Seq(
-      "-Xplugin:test-plugin1.jar;test-plugin2.jar",
+      "-Xplugin:test-plugin1.jar,test-plugin2.jar",
       "-Xexperimental",
       "-P:continuations:enable",
       "-language:dynamics",
