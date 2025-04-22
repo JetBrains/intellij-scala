@@ -516,13 +516,15 @@ lazy val compileServer =
 
 lazy val scalaCompilerPlugin_2_12: sbt.Project =
   newPlainScalaProject("compiler-plugin-2_12", file("scala/compiler-plugin/scala-2.12")).settings(
-    scalaVersion := "2.12.20", libraryDependencies += "org.scala-lang" % "scala-compiler" % "2.12.20", Compile / scalacOptions := Seq("--release", "8"),
+    scalaVersion := "2.12.20", libraryDependencies += "org.scala-lang" % "scala-compiler" % "2.12.20",
+    Compile / scalacOptions := Seq("-deprecation", "--release", "8"),
     packageMethod := PackagingMethod.Standalone("lib/jps/compiler-plugin-2.12.jar"),
   )
 
 lazy val scalaCompilerPlugin_2_13: sbt.Project =
   newPlainScalaProject("compiler-plugin-2_13", file("scala/compiler-plugin/scala-2.13")).settings(
-    scalaVersion := "2.13.15", libraryDependencies += "org.scala-lang" % "scala-compiler" % "2.13.15", Compile / scalacOptions := Seq("--release", "8"),
+    scalaVersion := "2.13.15", libraryDependencies += "org.scala-lang" % "scala-compiler" % "2.13.15",
+    Compile / scalacOptions := Seq("-deprecation", "--release", "8"),
     packageMethod := PackagingMethod.Standalone("lib/jps/compiler-plugin-2.13.jar"),
   )
 
