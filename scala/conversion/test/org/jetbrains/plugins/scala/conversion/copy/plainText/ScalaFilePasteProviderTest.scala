@@ -1,8 +1,15 @@
 package org.jetbrains.plugins.scala.conversion.copy.plainText
 
+import com.intellij.ide.{IdeView, PasteProvider}
+import com.intellij.openapi.actionSystem.impl.SimpleDataContext
+import com.intellij.openapi.actionSystem.{DataContext, LangDataKeys, PlatformCoreDataKeys}
+import com.intellij.openapi.ide.CopyPasteManager
+import com.intellij.psi.PsiDirectory
+import com.intellij.util.ui.TextTransferable
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
-import org.junit.Assert.{assertEquals, fail}
+import org.jetbrains.plugins.scala.conversion.copy.plainText.ScalaFilePasteProviderTest.DummyIdeView
+import org.junit.Assert.{assertEquals, assertFalse, assertTrue, fail}
 
 class ScalaFilePasteProviderTest extends ScalaLightCodeInsightFixtureTestCase {
 
@@ -91,5 +98,189 @@ class ScalaFilePasteProviderTest extends ScalaLightCodeInsightFixtureTestCase {
 
   def testSuggestedFileNameForExpression(): Unit = {
     assertSuggestedFileName("println(42)", "worksheet.sc")
+  }
+
+  private def assertScalaCodePasteEnabled(text: String): Unit = {
+    val dataContext: DataContext = prepareDataContextAndGlobalCopyBuffer(text)
+    val provider: PasteProvider = new ScalaFilePasteProvider()
+    assertTrue(s"Scala paste provider should be enabled for text: $text", provider.isPasteEnabled(dataContext))
+  }
+
+  private def assertScalaCodePasteNotEnabled(text: String): Unit = {
+    val dataContext: DataContext = prepareDataContextAndGlobalCopyBuffer(text)
+    val provider: PasteProvider = new ScalaFilePasteProvider()
+    assertFalse(s"Scala paste provider should not be enabled for text: $text", provider.isPasteEnabled(dataContext))
+  }
+
+  private def prepareDataContextAndGlobalCopyBuffer(text: String): DataContext = {
+    val dataContext = SimpleDataContext.builder()
+      .add(PlatformCoreDataKeys.MODULE, getModule)
+      .add(LangDataKeys.IDE_VIEW, new DummyIdeView)
+      .build()
+
+    // modify global paste buffer
+    CopyPasteManager.getInstance.setContents(new TextTransferable(text))
+
+    dataContext
+  }
+
+  def testAllowPastingScalaCodeWithIncompleteDefinitionsWithAssignments(): Unit = {
+    assertScalaCodePasteEnabled(
+      """class Wrapper {
+        |  def this(i: Int) = this()
+        |  def foo = //todo: implement
+        |  def foo: String = //todo: implement (also see SCL-23798)
+        |  var mVar = //todo: implement
+        |  val mVal = //todo: implement
+        |  lazy val mLazyVal = //todo: implement
+        |  type X = //todo: implement
+        |
+        |  // Scala 3
+        |  given stringParser: StringParser[String] = //todo: implement
+        |}
+        |""".stripMargin
+    )
+  }
+
+  //SCL-11177
+  def testDoNotTreatJavaCodeAsScala_NoTopLevelJavaClass(): Unit = {
+    assertScalaCodePasteNotEnabled(
+      """Person mr = new Person("Bob", "Dope");""".stripMargin
+    )
+  }
+
+  def testDoNotTreatJavaCodeAsScala_NoParserErrors_1(): Unit = {
+    assertScalaCodePasteNotEnabled(
+      """public class HelloWorld {
+        |    public static void main(String[] args) {
+        |        System.out.println("Hello, world!");
+        |    }
+        |}""".stripMargin
+    )
+  }
+
+  def testDoNotTreatJavaCodeAsScala_NoParserErrors_2(): Unit = {
+    assertScalaCodePasteNotEnabled(
+      """public class Factorial {
+        |    public static int factorial(int n) {
+        |        if (n <= 1) return 1;
+        |        return n * factorial(n - 1);
+        |    }
+        |
+        |    public static void main(String[] args) {
+        |        System.out.println(factorial(5));
+        |    }
+        |}""".stripMargin
+    )
+  }
+
+  def testDoNotTreatJavaCodeAsScala_NoParserErrors_3(): Unit = {
+    assertScalaCodePasteNotEnabled(
+      """public class Person {
+        |    String name;
+        |
+        |    public Person(String name) {
+        |        this.name = name;
+        |    }
+        |
+        |    public void sayHello() {
+        |        System.out.println("Hello, " + name);
+        |    }
+        |}""".stripMargin
+    )
+  }
+
+  def testDoNotTreatJavaCodeAsScala_WithParserErrors_1(): Unit = {
+    assertScalaCodePasteNotEnabled(
+      """public class Sample {
+        |    public static void main(String[] args) {
+        |        System.out.println("Missing semicolon")
+        |    }
+        |}""".stripMargin
+    )
+  }
+
+  def testDoNotTreatJavaCodeAsScala_WithParserErrors_2(): Unit = {
+    assertScalaCodePasteNotEnabled(
+      """public class Broken {
+        |    public static void main(String[] args {
+        |        System.out.println("Unmatched paren"
+        |    }
+        |}""".stripMargin
+    )
+  }
+
+  def testDoNotTreatJavaCodeAsScala_WithParserErrors_3(): Unit = {
+    assertScalaCodePasteNotEnabled(
+      """public class Example {
+        |    public void greet(String name) {
+        |        System.out.println("Hello, " + name)
+        |    }
+        |
+        |    public static void main(String[] args)
+        |        greet("world");
+        |}""".stripMargin
+    )
+  }
+
+  def testDoNotTreatJavaCodeAsScala_WithParserErrors_4(): Unit = {
+    assertScalaCodePasteNotEnabled(
+      """public class Logic {
+        |    public static void main(String[] args)
+        |        int x = 10
+        |        if (x > 5 {
+        |            System.out.println("Big");
+        |        else
+        |            System.out.println("Small");
+        |    }
+        |}""".stripMargin
+    )
+  }
+
+  def testDoNotTreatJavaCodeAsScala_WithParserErrors_5(): Unit = {
+    assertScalaCodePasteNotEnabled(
+      """public class Calc {
+        |    public static void main(String args) {
+        |        int a = 5;
+        |        int b = ;
+        |        int c = a + b
+        |        System.out.println(c
+        |    }""".stripMargin
+    )
+  }
+
+  def testDoNotTreatJavaCodeAsScala_WithParserErrors_6(): Unit = {
+    assertScalaCodePasteNotEnabled(
+      """public class ErrorBox {
+        |    public static void main(String[] args {
+        |        String name = "Sam"
+        |        int age = "twenty";
+        |        System.out.println("Name: " + name);
+        |        System.out.println("Age: " + age)
+        |    }""".stripMargin
+    )
+  }
+
+  def testDoNotTreatJavaCodeAsScala_WithParserErrors_7(): Unit = {
+    assertScalaCodePasteNotEnabled(
+      """public class Fail {
+        |    public static void main(String[] args)
+        |        int x = 5
+        |        int y = 10
+        |        int sum = x + y
+        |        System.out.println("Sum is: " + sum)
+        |
+        |    private void helper() {
+        |        System.out.println("This is helper"
+        |}""".stripMargin
+    )
+  }
+}
+
+object ScalaFilePasteProviderTest {
+  private class DummyIdeView extends IdeView {
+    override def getDirectories: Array[PsiDirectory] = null
+
+    override def getOrChooseDirectory(): PsiDirectory = null
   }
 }

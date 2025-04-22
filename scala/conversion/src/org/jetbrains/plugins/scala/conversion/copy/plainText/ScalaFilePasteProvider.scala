@@ -36,7 +36,8 @@ import scala.util.control.NonFatal
  *  - worksheet file (*.sc), created when the code contains top-level expressions
  *  - plugins.sbt file when the content contains addSbtPlugin and is pasted to the build module root
  *
- * For a similar Java implementation see [[com.intellij.ide.JavaFilePasteProvider]]
+ * @note for a similar Java implementation see [[com.intellij.ide.JavaFilePasteProvider]]
+ * @note the provider is used from [[com.intellij.ide.CopyPasteDelegator]]
  */
 final class ScalaFilePasteProvider extends PasteProvider {
 
@@ -54,7 +55,7 @@ final class ScalaFilePasteProvider extends PasteProvider {
       copiedText <- CopyPasteManager.getInstance.copiedText
       module <- context.maybeModuleWithScala
     } yield {
-      PlainTextCopyUtil.isValidScalaFile(copiedText, module)
+      PlainTextCopyUtil.looksLikeScalaFile(copiedText, module)
     }
     isValidScalaFile.contains(true)
   }
@@ -77,7 +78,7 @@ final class ScalaFilePasteProvider extends PasteProvider {
     directory: Option[PsiDirectory] = None
   ): Option[FileNameWithExtension] = {
     for {
-      scalaFile <- PlainTextCopyUtil.createDummyScalaFile(copiedText, module)
+      scalaFile <- PlainTextCopyUtil.createScalaCodeFragment(copiedText, module)
     } yield {
       if (directory.exists(shouldCreatePluginsSbtFile(scalaFile, module, _))) {
         FileNameWithExtension("plugins", "sbt")

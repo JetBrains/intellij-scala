@@ -68,7 +68,7 @@ final class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcesso
       case None =>
         return
     }
-    if (PlainTextCopyUtil.isValidScalaFile(text, module))
+    if (PlainTextCopyUtil.looksLikeScalaFile(text, module))
       return
 
     // TODO: Collect available imports in current scope. Use them while converting
