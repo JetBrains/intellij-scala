@@ -85,7 +85,7 @@ class ScalaCompilerSettingsTest extends LightPlatformTestCase {
   def testScalaCompilerSettingsStateBuilder_StateFromOptions_SplitMultipleOptionValues(): Unit = {
     val options = Seq(
       "-language:dynamics,postfixOps,reflectiveCalls,implicitConversions,higherKinds,existentials,experimental.macros,someUnknownFeature",
-      "-Xplugin:plugin path 1;plugin path 2;plugin path 3"
+      "-Xplugin:plugin path 1,plugin path 2,plugin path 3"
     )
     val state = ScalaCompilerSettingsStateBuilder.stateFromOptions(options, CompileOrder.Mixed)
     assertEquals(

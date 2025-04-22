@@ -101,19 +101,17 @@ object ScalaCompilerSettingsStateBuilder {
   }
 
   private def splitComaSeparatedOptionsValuesToSeparateOptions(options: Seq[String]): Seq[String] = {
-    val LanguagePrefix = "-language:"
-    val PluginPrefix = "-Xplugin:"
+    val languagePrefix = "-language:"
+    val pluginPrefix = "-Xplugin:"
+    val prefixes = Seq(languagePrefix, pluginPrefix)
+
     options.iterator.flatMap { option =>
-      if (option.startsWith(LanguagePrefix)) {
-        val values = option.substring(LanguagePrefix.length)
-        values.split(",").map(LanguagePrefix + _)
+      prefixes.find(option.startsWith) match {
+        case Some(prefix) =>
+          val values = option.substring(prefix.length)
+          values.split(",").map(prefix + _)
+        case None => Seq(option)
       }
-      else if (option.startsWith(PluginPrefix)) {
-        val values = option.substring(PluginPrefix.length)
-        values.split(";").map(PluginPrefix + _)
-      }
-      else
-        Seq(option)
     }.toSeq
   }
 }
