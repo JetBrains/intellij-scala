@@ -14,7 +14,7 @@ import com.intellij.ui.dsl.builder.{ButtonKt, Panel, Row, TopGap}
 import com.intellij.util.SystemProperties
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.project.Versions
-import org.jetbrains.plugins.scala.project.template.{PackagePrefixStepLike, ScalaSDKStepLike}
+import org.jetbrains.plugins.scala.project.template.ScalaSDKStepLike
 import org.jetbrains.plugins.scala.util.ui.extensions.JComboBoxOps
 import org.jetbrains.sbt.project.template.ScalaModuleBuilderSelections
 import org.jetbrains.sbt.project.template.wizard.buildSystem.{ScalaNewProjectWizardData, ScalaSampleCodeNewProjectWizardData, addScalaSampleCode}
@@ -31,8 +31,7 @@ final class ScalaCliNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
     with ScalaNewProjectWizardData
     with ScalaSampleCodeNewProjectWizardData
     with ScalaVersionStepLike
-    with ScalaSDKStepLike
-    with PackagePrefixStepLike {
+    with ScalaSDKStepLike {
 
   override protected val defaultAvailableScalaVersions: Seq[String] = Versions.Scala.allHardcodedVersions.map(_.presentation)
 
