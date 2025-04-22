@@ -592,49 +592,58 @@ object Compatibility {
   }
 
   def toParameter(p: ScParameter, substitutor: ScSubstitutor): Parameter = {
-    val t = substitutor(p.`type`().getOrNothing)
+    val tpe     = substitutor(p.`type`().getOrNothing)
     val default = p.getDefaultExpression.flatMap(_.`type`().toOption.map(substitutor))
-    Parameter(p.name, p.deprecatedName, t, t, p.isDefaultParam, p.isRepeatedParameter, p.isCallByNameParameter,
-      p.index, Some(p), default)
+
+    Parameter(
+      p.name,
+      p.deprecatedName,
+      tpe,
+      tpe,
+      p.isDefaultParam,
+      p.isRepeatedParameter,
+      p.isCallByNameParameter,
+      p.index,
+      Option(p),
+      default
+    )
   }
 
   def compatible(
     srr:           ScalaResolveResult,
     substitutor:   ScSubstitutor,
-    argClauses:    List[Seq[Expression]],
+    args:    Seq[Expression],
     withImplicits: Boolean,
     shapesOnly:    Boolean,
-    ref:           PsiElement = null
+    ref:           PsiElement,
+    argClauseIdx:  Int = 0
   ): ApplicabilityCheckResult = {
     val named = srr.element
 
-    def checkParameterListConformance(
-      parameters: Seq[Parameter],
-      arguments:  Seq[Expression]
-    ): ApplicabilityCheckResult =
-      checkMethodApplicability(parameters, arguments, withImplicits, shapesOnly)
-
-    val firstArgumentListArgs: Seq[Expression] = argClauses.headOption.getOrElse(Seq.empty)
+    def checkParameterListConformance(parameters: Seq[Parameter]): ApplicabilityCheckResult =
+      checkMethodApplicability(parameters, args, withImplicits, shapesOnly)
 
     named match {
       case synthetic: ScSyntheticFunction =>
-        if (synthetic.paramClauses.isEmpty)
+        val paramClauses = synthetic.paramClauses
+
+        if (paramClauses.isEmpty || argClauseIdx >= paramClauses.size)
           return ApplicabilityCheckResult(DoesNotTakeParameters)
 
-        val parameters = synthetic.paramClauses.head.map(p =>
+        val parameters = synthetic.paramClauses(argClauseIdx).map(p =>
           p.copy(paramType = substitutor(p.paramType))
         )
 
-        checkParameterListConformance(parameters, firstArgumentListArgs)
+        checkParameterListConformance(parameters)
       case fun: ScFunction =>
         val isDefinedOrExportedInExtension = fun.isExtensionMethod || srr.exportedInExtension.isDefined
 
-        if ((!fun.hasParameterClause && !isDefinedOrExportedInExtension) && argClauses.nonEmpty)
+        if ((!fun.hasParameterClause && !isDefinedOrExportedInExtension) && args.nonEmpty)
           return ApplicabilityCheckResult(DoesNotTakeParameters)
 
         if (QuasiquoteInferUtil.isMetaQQ(fun) && ref.is[ScReferenceExpression]) {
           val params = QuasiquoteInferUtil.getMetaQQExpectedTypes(srr, ref.asInstanceOf[ScReferenceExpression])
-          return checkParameterListConformance(params, firstArgumentListArgs)
+          return checkParameterListConformance(params)
         }
 
         val isQualifiedExtensionCall = srr.isExtensionCall
@@ -664,19 +673,22 @@ object Compatibility {
             fun.parameterClausesWithExtension(extensionOwner)
           }
 
-        val firstClause = clauses.headOption
+        if (argClauseIdx >= clauses.size)
+          return ApplicabilityCheckResult(DoesNotTakeParameters)
+
+        val currentClause = clauses(argClauseIdx)
 
         val parameters =
-          firstClause
-            .toSeq
-            .flatMap(_.effectiveParameters)
-            .map(toParameter(_, substitutor))
+          currentClause.effectiveParameters.map(toParameter(_, substitutor))
 
-        checkParameterListConformance(parameters, firstArgumentListArgs)
+        checkParameterListConformance(parameters)
       case constructor: ScPrimaryConstructor =>
         val parameters = constructor.effectiveFirstParameterSection.map(toParameter(_, substitutor))
-        checkParameterListConformance(parameters, firstArgumentListArgs)
+        checkParameterListConformance(parameters)
       case method: PsiMethod =>
+        if (argClauseIdx > 0)
+          return ApplicabilityCheckResult(DoesNotTakeParameters)
+
         val parameters = method.parameters.map(
           param =>
             Parameter(
@@ -687,7 +699,7 @@ object Compatibility {
             )
         )
 
-        checkParameterListConformance(parameters, firstArgumentListArgs)
+        checkParameterListConformance(parameters)
       case unknown =>
         val problem = InternalApplicabilityProblem(ScalaBundle.message("cannot.handle.compatibility.for", unknown))
         LOG.error(problem.toString)

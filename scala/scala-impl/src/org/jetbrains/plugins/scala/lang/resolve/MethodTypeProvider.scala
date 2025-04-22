@@ -4,7 +4,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiMethodExt, PsiParameterExt, PsiTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, ScParameters}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFun, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
@@ -22,7 +22,10 @@ sealed trait MethodTypeProvider[+T <: PsiElement] {
 
   protected implicit def scope: ElementScope = ElementScope(element)
 
-  def methodType(returnType: Option[ScType] = None): ScType
+  def methodType(
+    returnType:           Option[ScType] = None,
+    skipParameterClauses: Int            = 0
+  ): ScType
 
   def typeParameters: Seq[PsiTypeParameter]
 
@@ -33,10 +36,14 @@ sealed trait MethodTypeProvider[+T <: PsiElement] {
     s:                    ScSubstitutor       = ScSubstitutor.empty,
     returnType:           Option[ScType]      = None,
     dropExtensionClauses: Boolean             = false,
-    extensionOwner:       Option[ScExtension] = None
+    extensionOwner:       Option[ScExtension] = None,
+    skipParameterClauses: Int                 = 0
   ): ScType = {
-    val typeParams = typeParameters
-    val mTpe = methodType(returnType)
+    val mTpe = methodType(returnType, skipParameterClauses)
+
+    val typeParams =
+      if (skipParameterClauses > 0) typeParameters.filterNot(s.isApplicableToTypeParam)
+      else                          typeParameters
 
     val tpe =
       if (typeParams.isEmpty) mTpe
@@ -70,7 +77,7 @@ trait ScalaMethodTypeProvider[+T <: ScalaPsiElement] extends MethodTypeProvider[
     if (n == 0) Some(`type`)
     else `type` match {
       case methodType: ScMethodType => nested(methodType.result, n - 1)
-      case _ => None
+      case _                        => None
     }
 
   protected final def constructMethodType(rtpe: ScType, clauses: Seq[ScParameterClause]): ScType =
@@ -103,7 +110,10 @@ object MethodTypeProvider {
 
     override def typeParameters: Seq[PsiTypeParameter] = element.typeParameters
 
-    override def methodType(returnType: Option[ScType]): ScType = {
+    override def methodType(
+      returnType:           Option[ScType],
+      skipParameterClauses: Int
+    ): ScType = {
       val retType = returnType.getOrElse(element.retType)
       element.paramClauses.foldRight(retType) {
         case (params, tp) => ScMethodType(tp, params, isImplicit = false)
@@ -120,7 +130,10 @@ object MethodTypeProvider {
         case _                                             => element.typeParameters
       }
 
-    override def methodType(returnType: Option[ScType]): ScType = {
+    override def methodType(
+      returnType:           Option[ScType],
+      skipParameterClauses: Int
+    ): ScType = {
       val retType =
         returnType.getOrElse {
           element match {
@@ -139,18 +152,31 @@ object MethodTypeProvider {
         return retType
 
       val clauses = element.effectiveParameterClauses
-      constructMethodType(retType, clauses)
+      constructMethodType(retType, clauses.drop(skipParameterClauses))
     }
 
     override def polymorphicType(
       s:                    ScSubstitutor,
       returnType:           Option[ScType],
       dropExtensionClauses: Boolean,
-      extensionOwner:       Option[ScExtension]
+      extensionOwner:       Option[ScExtension],
+      skipParameterClauses: Int
     ): ScType = {
-      val regularMethodResult = super.polymorphicType(s, returnType)
+      val (extensionClauses, extensionTypeParams) =
+        extensionOwner
+          .orElse(element.extensionMethodOwner)
+          .map(ext =>
+            ext.effectiveParameterClauses -> ext.typeParameters
+          ).getOrElse(Seq.empty, Seq.empty)
 
-      if (dropExtensionClauses) regularMethodResult
+      val regularMethodResult =
+        super.polymorphicType(
+          s,
+          returnType,
+          skipParameterClauses = skipParameterClauses - extensionClauses.size
+        )
+
+      if (dropExtensionClauses || extensionClauses.isEmpty) regularMethodResult
       else {
         /**
          * If this is an extension method, its type would be
@@ -158,17 +184,17 @@ object MethodTypeProvider {
          * where extension type and value parameter sections are prepended to the
          * actual method type.
          */
-        extensionOwner
-          .orElse(element.extensionMethodOwner)
-          .fold(regularMethodResult) { ext =>
-            val extTypeParams = ext.typeParameters
-            val extParams     = ext.effectiveParameterClauses
+        val prunedExtTypeParams =
+          if (skipParameterClauses > 0) extensionTypeParams.filterNot(s.isApplicableToTypeParam)
+          else                          extensionTypeParams
 
-            val newMethodType = s(constructMethodType(regularMethodResult, extParams))
+        val prunedExtParams = extensionClauses.drop(skipParameterClauses)
+        val newMethodType   = s(constructMethodType(regularMethodResult, prunedExtParams))
 
-            if (extTypeParams.nonEmpty) ScTypePolymorphicType(newMethodType, extTypeParams.map(TypeParameter(_)))
-            else                        newMethodType
-          }
+        if (prunedExtTypeParams.nonEmpty)
+          ScTypePolymorphicType(newMethodType, prunedExtTypeParams.map(TypeParameter(_)))
+        else
+          newMethodType
       }
     }
   }
@@ -178,16 +204,15 @@ object MethodTypeProvider {
 
     override def typeParameters: Seq[PsiTypeParameter] = element.containingClass.typeParameters
 
-    override def methodType(returnType: Option[ScType]): ScType = {
-      val parameters: ScParameters = element.parameterList
-      val retType: ScType = returnType.getOrElse(containingClassType)
+    override def methodType(
+      returnType:           Option[ScType],
+      skipParameterClauses: Int
+    ): ScType = {
+      val parameters = element.parameterList
+      val retType    = returnType.getOrElse(containingClassType)
 
       val clauses = parameters.clauses
-      if (clauses.isEmpty) return ScMethodType(retType, Seq.empty, isImplicit = false)
-
-      clauses.foldRight[ScType](retType) { (clause: ScParameterClause, tp: ScType) =>
-        ScMethodType(tp, clause.getSmartParameters, clause.isImplicit)
-      }
+      constructMethodType(retType, clauses.drop(skipParameterClauses))
     }
 
     private def containingClassType: ScType = element.containingClass.`type`().getOrAny
@@ -210,7 +235,10 @@ object MethodTypeProvider {
       (element.getTypeParameters ++ clsTypeParameters).toSeq
     }
 
-    override def methodType(returnType: Option[ScType] = None): ScType = {
+    override def methodType(
+      returnType:           Option[ScType] = None,
+      skipParameterClauses: Int = 0
+    ): ScType = {
       val retType = returnType.getOrElse(computeReturnType)
       ScMethodType(retType, parameters, isImplicit = false)
     }

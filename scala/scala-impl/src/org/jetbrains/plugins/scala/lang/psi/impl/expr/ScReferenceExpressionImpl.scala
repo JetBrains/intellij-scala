@@ -413,26 +413,19 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         }
       case result @ ScalaResolveResult(fun: ScFunction, s) if fun.isProbablyRecursive =>
         val maybeResult = result.intersectedReturnType.orElse(fun.definedReturnType.toOption)
-        val dropExtensionClauses =
-          result.isExtensionCall ||
-            (result.extensionContext.nonEmpty && result.extensionContext == fun.extensionMethodOwner)
 
         fun.polymorphicType(
           s,
           maybeResult,
-          dropExtensionClauses = dropExtensionClauses,
+          dropExtensionClauses = result.shouldDropExtensionClauses,
           extensionOwner       = extensionOwner
         )
       case result @ ScalaResolveResult(fun: ScFunction, s) =>
-        val dropExtensionClauses =
-          result.isExtensionCall ||
-            (result.extensionContext.nonEmpty && result.extensionContext == fun.extensionMethodOwner)
-
         fun
           .polymorphicType(
             s,
             result.intersectedReturnType,
-            dropExtensionClauses = dropExtensionClauses,
+            dropExtensionClauses = result.shouldDropExtensionClauses,
             extensionOwner       = extensionOwner
           )
           .updateTypeOfDynamicCall(result.isDynamic)
