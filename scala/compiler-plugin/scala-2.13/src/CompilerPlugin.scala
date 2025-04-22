@@ -1,5 +1,6 @@
 import CompilerPlugin._
 
+import scala.annotation.nowarn
 import scala.reflect.internal.util.RangePosition
 import scala.tools.nsc.plugins.{Plugin, PluginComponent}
 import scala.tools.nsc.reporters.ForwardingReporter
@@ -45,7 +46,7 @@ class CompilerPlugin(val global: Global) extends Plugin {
               val tpe = if (tree.tpe.isError) typer.typed(expandee).tpe else tree.tpe
               val s = LiteralTypePattern.replaceAllIn(tpe.toString, _.group(1))
               // echo is not binary compatible between 2.13.11 and 2.13.12 (overloading vs default argument)
-              reporter.info(expandee.pos, TypePrefix + s + TypeSuffix, force = true)
+              reporter.info(expandee.pos, TypePrefix + s + TypeSuffix, force = true): @nowarn("cat=deprecation")
             case _ =>
           }
           super.transform(tree)
