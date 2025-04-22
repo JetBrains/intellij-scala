@@ -751,6 +751,17 @@ class ScopeAnnotatorTest_3 extends ScopeAnnotatorTest_213 {
     )
   }
 
+  def testExtensionsSameSig(): Unit = {
+    assertFine(
+      """extension (n: Int)
+        |  def foo(n: Int): String = ???
+        |
+        |extension (d: Double)
+        |  def foo(n: Int): String = ???
+        |""".stripMargin
+    )
+  }
+
   def testEnumFine(): Unit = {
     assertFine("enum MyEnum { case MyCase1 }")
     assertFine("enum MyEnum(name: Int) { case MyCase1 extends MyEnum(23) }")
