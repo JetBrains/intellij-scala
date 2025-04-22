@@ -16,6 +16,8 @@ trait ScType extends ProjectContextOwner {
 
   private var cachedAliasType = new ContextDependent[Option[AliasType]]()
 
+  @deprecated def aliasType_FORWARDER: Option[AliasType] = aliasType
+
   final def aliasType(implicit context: Context): Option[AliasType] = cachedAliasType.get match {
     case Some(value) => value
     case None =>
@@ -24,6 +26,8 @@ trait ScType extends ProjectContextOwner {
       cachedAliasType = valueInContext
       value
   }
+
+  @deprecated def isAliasType_FORWARDER: Boolean = isAliasType
 
   final def isAliasType(implicit context: Context): Boolean = aliasType.isDefined
 
