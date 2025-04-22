@@ -766,7 +766,7 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_i6054(): Unit = doTest("i6054", true)
   def test_i6083(): Unit = doTest("i6083", true) // #anykind
   def test_i6089(): Unit = doTest("i6089", true)
-  def test_i6116(): Unit = doTest("i6116", false)
+  def test_i6116(): Unit = doTest("i6116", true)
   def test_i6126(): Unit = doTest("i6126", true)
   def test_i6127(): Unit = doTest("i6127", true)
   def test_i6146(): Unit = doTest("i6146", true)
@@ -1542,7 +1542,7 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_i16464(): Unit = doTest("i16464", true)
   def test_i16469(): Unit = doTest("i16469", false) // #export
   def test_i16474(): Unit = doTest("i16474", true)
-  def test_i16484(): Unit = doTest("i16484", false)
+  def test_i16484(): Unit = doTest("i16484", true)
   def test_i16486(): Unit = doTest("i16486", true) // #intersectionType
   def test_i16488(): Unit = doTest("i16488", true)
   def test_i16500(): Unit = doTest("i16500", true)

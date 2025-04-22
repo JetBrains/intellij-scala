@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScTypeAlias, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportUsed, ImportWildcardSelectorUsed}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
@@ -107,6 +107,17 @@ class ScalaResolveResult(
    * now (with the introduction of exports in extensions) not as simple as just calling .extensionMethodOwner.
    */
   def exportedInExtension: Option[ScExtension] = exportedInfo.flatMap(_.exportedIn.getContext.asOptionOf[ScExtension])
+
+  /**
+   * Useful when typing a reference to [[ScFunction]].
+   * See: [[MethodTypeProvider.polymorphicType()]] `dropExtensionClauses` parameter.
+   */
+  def shouldDropExtensionClauses: Boolean = element match {
+    case fun: ScFunction =>
+      isExtensionCall ||
+        (extensionContext.nonEmpty && fun.extensionMethodOwner == extensionContext)
+    case _ => false
+  }
 
   override def isValidResult: Boolean = isAccessible && isApplicable()
 

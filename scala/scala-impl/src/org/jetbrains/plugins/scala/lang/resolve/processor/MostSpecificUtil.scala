@@ -23,9 +23,10 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.mutable
 
-case class MostSpecificUtil(place: PsiElement, length: Int) {
-  private implicit def projectContext: ProjectContext = place
+class MostSpecificUtil(place: PsiElement, argsLength: Int, clauseIdx: Int) {
+  private implicit def ctx: ProjectContext = place
   private implicit def context: Context = Context(place)
+
 
   def mostSpecificForResolveResult(applicable: Set[ScalaResolveResult]): Option[ScalaResolveResult] =
     mostSpecificGeneric(applicable.map(r =>
@@ -86,55 +87,60 @@ case class MostSpecificUtil(place: PsiElement, length: Int) {
     def substitutor: ScSubstitutor = existentialArgumentSubst
   }
 
-  //todo: make implementation closer to scala.tools.nsc.typechecker.Infer.Inferencer.isAsSpecific
-  private def isAsSpecificAs[T](r1: InnerScalaResolveResult[T], r2: InnerScalaResolveResult[T],
-                                checkImplicits: Boolean): Boolean = {
+  private def calcParams(tp: ScType, undefine: Boolean): Either[Seq[Parameter], ScType] = {
+    tp match {
+      case ScMethodType(_, params, _) => Left(params)
+      case ScTypePolymorphicType(ScMethodType(_, params, _), typeParams) =>
+        if (!undefine) Left(params)
+        else {
+          val s = ScSubstitutor.bind(typeParams)(UndefinedType(_))
+          Left(params.map(p => p.copy(paramType = s(p.paramType))))
+        }
+      case ScTypePolymorphicType(internal, typeParams) =>
+        val existentialSubst = new ExistentialAbstractionBuilder(typeParams).substitutor
+        val usedNames        = mutable.Set.empty[String]
+        val argumentsBuilder = List.newBuilder[ScExistentialArgument]
 
-    def lastRepeated(params: Iterable[Parameter]): Boolean = params.lastOption.exists(_.isRepeated)
+        val substedInternal = existentialSubst(internal).visitRecursively {
+          case arg: ScExistentialArgument =>
+            arg.initialize()
+            val name = arg.name
+
+            if (!usedNames.contains(name) && typeParams.exists(_.name == name)) {
+              usedNames.add(name)
+              argumentsBuilder += arg
+            }
+          case _ => ()
+        }
+
+        Right(ScExistentialType(substedInternal, Option(argumentsBuilder.result()), doNotSimplify = true))
+      case _ => Right(tp)
+    }
+  }
+
+  //todo: make implementation closer to scala.tools.nsc.typechecker.Infer.Inferencer.isAsSpecific
+  private def isAsSpecificAs[T](
+    r1:             InnerScalaResolveResult[T],
+    r2:             InnerScalaResolveResult[T],
+    checkImplicits: Boolean
+  ): Boolean = {
+    def isLastParameterRepeated(params: Iterable[Parameter]): Boolean = params.lastOption.exists(_.isRepeated)
 
     (r1.element, r2.element) match {
       case (m1 @ (_: PsiMethod | _: ScFun), m2 @ (_: PsiMethod | _: ScFun)) =>
         val (t1, t2) = (r1.substitutor(getType(m1, r1.implicitCase)), r2.substitutor(getType(m2, r2.implicitCase)))
 
-        def calcParams(tp: ScType, undefine: Boolean): Either[Seq[Parameter], ScType] = {
-          tp match {
-            case ScMethodType(_, params, _) => Left(params)
-            case ScTypePolymorphicType(ScMethodType(_, params, _), typeParams) =>
-              if (!undefine) Left(params)
-              else {
-                val s = ScSubstitutor.bind(typeParams)(UndefinedType(_))
-                Left(params.map(p => p.copy(paramType = s(p.paramType))))
-              }
-            case ScTypePolymorphicType(internal, typeParams) =>
-              val existentialSubst = new ExistentialAbstractionBuilder(typeParams).substitutor
-              val usedNames        = mutable.Set.empty[String]
-              val argumentsBuilder = List.newBuilder[ScExistentialArgument]
-
-              val substedInternal = existentialSubst(internal).visitRecursively {
-                case arg: ScExistentialArgument =>
-                  arg.initialize()
-                  val name = arg.name
-
-                  if (!usedNames.contains(name) && typeParams.exists(_.name == name)) {
-                    usedNames.add(name)
-                    argumentsBuilder += arg
-                  }
-                case _ => ()
-              }
-
-              Right(ScExistentialType(substedInternal, Option(argumentsBuilder.result()), doNotSimplify = true))
-            case _ => Right(tp)
-          }
-        }
-
-        val conformance = (calcParams(t1, undefine = false), calcParams(t2, undefine = true)) match {
+        val paramsConformance = (calcParams(t1, undefine = false), calcParams(t2, undefine = true)) match {
           case (Left(p1), Left(p2)) =>
             var (params1, params2) = (p1, p2)
-            if ((t1.isInstanceOf[ScTypePolymorphicType] && t2.isInstanceOf[ScTypePolymorphicType] ||
-              (!(m1.isInstanceOf[ScFunction] || m1.isInstanceOf[ScFun] || m1.isInstanceOf[ScPrimaryConstructor]) ||
-                !(m2.isInstanceOf[ScFunction] || m2.isInstanceOf[ScFun] || m2.isInstanceOf[ScPrimaryConstructor]))) &&
-              (lastRepeated(params1) ^ lastRepeated(params2))) return lastRepeated(params2) //todo: this is hack!!! see SCL-3846, SCL-4048
-            if (lastRepeated(params1) && !lastRepeated(params2)) params1 = params1.map {
+
+            if ((t1.is[ScTypePolymorphicType] && t2.is[ScTypePolymorphicType] ||
+              (!(m1.is[ScFunction] || m1.isInstanceOf[ScFun] || m1.is[ScPrimaryConstructor]) ||
+                !(m2.is[ScFunction] || m2.isInstanceOf[ScFun] || m2.is[ScPrimaryConstructor]))) &&
+              (isLastParameterRepeated(params1) ^ isLastParameterRepeated(params2)))
+              return isLastParameterRepeated(params2) //todo: this is hack!!! see SCL-3846, SCL-4048
+
+            if (isLastParameterRepeated(params1) && !isLastParameterRepeated(params2)) params1 = params1.map {
               case p: Parameter if p.isRepeated =>
                 implicit val scope: ElementScope = r1.element.elementScope
 
@@ -153,28 +159,30 @@ case class MostSpecificUtil(place: PsiElement, length: Int) {
                 )
               case p => p
             }
-            val i: Int = if (params1.nonEmpty) 0.max(length - params1.length) else 0
-            val default: Expression =
+
+            val numberOfRepeatedArgsPassed = if (params1.nonEmpty) 0.max(argsLength - params1.length) else 0
+
+            val repeatedParamExpr =
               Expression(if (params1.nonEmpty) params1.last.paramType else Nothing, place)
-            val exprs =
-              params1.map(p => Expression(p.paramType, place)) ++ Seq.fill(i)(default)
-            Compatibility.checkConformance(params2, exprs, checkImplicits)
+
+            val argExprs =
+              params1.map(p => Expression(p.paramType, place)) ++ Seq.fill(numberOfRepeatedArgsPassed)(repeatedParamExpr)
+
+            Compatibility.checkConformance(params2, argExprs, checkImplicits)
           case (Right(type1), Right(type2)) =>
             type1.conforms(type2, ConstraintSystem.empty) //todo: with implcits?
           //todo this is possible, when one variant is empty with implicit parameters, and second without parameters.
           //in this case it's logical that method without parameters must win...
           case (Left(_), Right(_)) if !r1.implicitCase => return false
-          case _ => return true
+          case _                                       => return true
         }
 
-        conformance match {
-          case undefined@ConstraintSystem(uSubst) =>
-            var u = undefined
+        paramsConformance match {
+          case cs @ ConstraintSystem(uSubst) =>
+            var u = cs
             t2 match {
               case ScTypePolymorphicType(_, typeParams) =>
-                val typeParamIds = typeParams.map {
-                  _.typeParamId
-                }.toSet
+                val typeParamIds = typeParams.map(_.typeParamId).toSet
 
                 typeParams.foreach { tp =>
                   val typeParamId = tp.typeParamId
@@ -182,15 +190,17 @@ case class MostSpecificUtil(place: PsiElement, length: Int) {
                   tp.lowerType match {
                     case lower if lower.isNothing || lower.hasRecursiveTypeParameters(typeParamIds) =>
                     case lower =>
-                      u = u.withLower(typeParamId, uSubst(lower))
-                        .withTypeParamId(typeParamId)
+                      u =
+                        u.withLower(typeParamId, uSubst(lower))
+                          .withTypeParamId(typeParamId)
                   }
 
                   tp.upperType match {
                     case upper if upper.isAny || upper.hasRecursiveTypeParameters(typeParamIds) =>
                     case upper =>
-                      u = u.withUpper(typeParamId, uSubst(upper))
-                        .withTypeParamId(typeParamId)
+                      u =
+                        u.withUpper(typeParamId, uSubst(upper))
+                          .withTypeParamId(typeParamId)
                   }
                 }
               case _ =>
@@ -351,12 +361,14 @@ case class MostSpecificUtil(place: PsiElement, length: Int) {
       Option(foundMax)
     }
 
-  //todo: implement existential dual
   def getType(e: PsiNamedElement, implicitCase: Boolean): ScType = {
     val res = e match {
       case m: PsiMethod =>
         val scope = place.elementScope
-        m.methodTypeProvider(scope).polymorphicType(dropExtensionClauses = true)
+        m.methodTypeProvider(scope).polymorphicType(
+          dropExtensionClauses = true, //@TODO: should probably be srr.isExtensionCall
+          skipParameterClauses = clauseIdx
+        )
       case fun: ScFun => fun.polymorphicType()
       case refPatt: ScReferencePattern => refPatt.getParent /*id list*/ .getParent match {
         case pd: ScPatternDefinition if PsiTreeUtil.isContextAncestor(pd, place, true) =>
@@ -366,8 +378,8 @@ case class MostSpecificUtil(place: PsiElement, length: Int) {
         case _ => refPatt.`type`().getOrAny
       }
       case typed: ScTypedDefinition => typed.`type`().getOrAny
-      case f: PsiField => f.getType.toScType()
-      case _ => Nothing
+      case f: PsiField              => f.getType.toScType()
+      case _                        => Nothing
     }
 
     res match {
@@ -384,4 +396,13 @@ case class MostSpecificUtil(place: PsiElement, length: Int) {
       member     <- conversion.element.nameContext.asOptionOf[ScMember]
       psiClass   <- Option(member.containingClass)
     } yield psiClass
+}
+
+object MostSpecificUtil {
+  def apply(
+    place:      PsiElement,
+    argsLength: Int,
+    clauseIdx:  Int = 0
+  ): MostSpecificUtil =
+    new MostSpecificUtil(place, argsLength, clauseIdx)
 }

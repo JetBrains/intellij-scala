@@ -41,7 +41,7 @@ import scala.language.implicitConversions
 class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
 
   private case class ContextInfo(
-    arguments:    Option[Seq[Expression]],
+    arguments:    Seq[Seq[Expression]],
     typeArgs:     Seq[ScTypeElement],
     expectedType: () => Option[ScType],
     isUnderscore: Boolean,
@@ -60,6 +60,15 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
     }
   }
 
+  private def collectPossibleMethodCallArgs(call: ScMethodCall): Seq[Seq[Expression]] = {
+    val immediateArgs = call.argumentExpressions
+    call.getContext match {
+      case parentCall: ScMethodCall if parentCall.getInvokedExpr == call =>
+        immediateArgs +: collectPossibleMethodCallArgs(parentCall)
+      case _ => Seq(immediateArgs)
+    }
+  }
+
   @tailrec
   private def getContextInfo(
     ref:                    ScReferenceExpression,
@@ -70,8 +79,9 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       case generic: ScGenericCall if typeArgs.isEmpty && generic.referencedExpr == ref =>
         getContextInfo(ref, generic, typeArgs = generic.arguments)
       case call: ScMethodCall if !call.isUpdateCall && call.getInvokedExpr == e =>
+
         ContextInfo(
-          Option(call.argumentExpressions),
+          collectPossibleMethodCallArgs(call),
           typeArgs,
           () => call.expectedType(),
           isUnderscore = false,
@@ -82,7 +92,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
           call.getContext.asInstanceOf[ScAssignment].rightExpression.toList
 
         ContextInfo(
-          Option(args),
+          Seq(args),
           typeArgs,
           () => None,
           isUnderscore = false,
@@ -90,7 +100,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         )
       case section: ScUnderscoreSection =>
         ContextInfo(
-          None,
+          Seq.empty,
           typeArgs,
           () => section.expectedType(),
           isUnderscore = true,
@@ -99,14 +109,14 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       case infix @ ScInfixExpr.withAssoc(baseExpr, `ref`, argument) =>
         val args =
           argument match {
-            case tuple: ScTuple         => Some(tuple.exprs) // See SCL-2001
-            case _: ScUnitExpr          => Some(Nil) // See SCL-3485
+            case tuple: ScTuple         => Seq(tuple.exprs) // See SCL-2001
+            case _: ScUnitExpr          => Seq.empty // See SCL-3485
             case e: ScParenthesisedExpr =>
               e.innerElement match {
-                case Some(expr)           => Some(Seq(expr))
-                case _                    => Some(Nil)
+                case Some(expr)           => Seq(Seq(expr))
+                case _                    => Seq.empty
               }
-            case rOp => Some(Seq(rOp))
+            case rOp => Seq(Seq(rOp))
           }
 
         val postFixRef =
@@ -123,7 +133,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       case postf: ScPostfixExpr if ref == postf.operation => getContextInfo(ref, postf, typeArgs)
       case pref: ScPrefixExpr if ref == pref.operation    => getContextInfo(ref, pref, typeArgs)
       case _ => ContextInfo(
-        None,
+        Seq.empty,
         typeArgs,
         () => e.expectedType(),
         isUnderscore = false,
