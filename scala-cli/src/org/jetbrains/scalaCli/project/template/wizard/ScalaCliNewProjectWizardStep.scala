@@ -8,13 +8,11 @@ import com.intellij.openapi.externalSystem.service.project.manage.ExternalProjec
 import com.intellij.openapi.observable.properties.{GraphProperty, ObservableProperty, PropertyGraph}
 import com.intellij.openapi.observable.util.BindUtil
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.ui.configuration.projectRoot.{LibrariesContainer, LibrariesContainerFactory}
 import com.intellij.ui.UIBundle
 import com.intellij.ui.dsl.builder.{ButtonKt, Panel, Row, TopGap}
 import com.intellij.util.SystemProperties
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.project.Versions
-import org.jetbrains.plugins.scala.project.template.ScalaSDKStepLike
 import org.jetbrains.plugins.scala.util.ui.extensions.JComboBoxOps
 import org.jetbrains.sbt.project.template.ScalaModuleBuilderSelections
 import org.jetbrains.sbt.project.template.wizard.buildSystem.{ScalaNewProjectWizardData, ScalaSampleCodeNewProjectWizardData, addScalaSampleCode}
@@ -30,13 +28,9 @@ final class ScalaCliNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
   extends AbstractNewProjectWizardStep(parent)
     with ScalaNewProjectWizardData
     with ScalaSampleCodeNewProjectWizardData
-    with ScalaVersionStepLike
-    with ScalaSDKStepLike {
+    with ScalaVersionStepLike {
 
   override protected val defaultAvailableScalaVersions: Seq[String] = Versions.Scala.allHardcodedVersions.map(_.presentation)
-
-  override protected val librariesContainer: LibrariesContainer =
-    LibrariesContainerFactory.createContainer(parent.getContext.getProject)
 
   @inline private def propertyGraph: PropertyGraph = getPropertyGraph
 

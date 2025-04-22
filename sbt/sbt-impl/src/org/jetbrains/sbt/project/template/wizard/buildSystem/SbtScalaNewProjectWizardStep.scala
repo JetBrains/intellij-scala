@@ -11,7 +11,6 @@ import com.intellij.openapi.observable.util.BindUtil
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ui.configuration.ProjectStructureConfigurable
-import com.intellij.openapi.roots.ui.configuration.projectRoot.{LibrariesContainer, LibrariesContainerFactory}
 import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.ui.components.JBTextField
 import com.intellij.ui.dsl.builder._
@@ -22,7 +21,7 @@ import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, ToNullSafe}
 import org.jetbrains.plugins.scala.isUnitTestMode
 import org.jetbrains.plugins.scala.project.Versions
-import org.jetbrains.plugins.scala.project.template.{PackagePrefixStepLike, ScalaSDKStepLike}
+import org.jetbrains.plugins.scala.project.template.PackagePrefixStepLike
 import org.jetbrains.plugins.scala.util.ui.extensions.JComboBoxOps
 import org.jetbrains.sbt.SbtVersion
 import org.jetbrains.sbt.project.template.wizard.{SbtNewProjectWizardStep, ScalaNewProjectWizardMultiStep, ScalaVersionStepLike}
@@ -39,15 +38,11 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
   extends SbtNewProjectWizardStep(parent)
     with SbtScalaNewProjectWizardData
     with ScalaSampleCodeNewProjectWizardData
-    with ScalaSDKStepLike
     with PackagePrefixStepLike
     with ScalaVersionStepLike {
 
   private val availableSbtVersions: AtomicReference[Option[Seq[SbtVersion]]] = new AtomicReference(None)
   private val availableSbtVersionsForScala3: AtomicReference[Option[Seq[SbtVersion]]] = new AtomicReference(None)
-
-  override protected val librariesContainer: LibrariesContainer =
-    LibrariesContainerFactory.createContainer(parent.getContext.getProject)
 
   override protected lazy val defaultAvailableScalaVersions: Seq[String] = Versions.Scala.allHardcodedVersions.map(_.presentation)
 
