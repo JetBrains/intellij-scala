@@ -110,10 +110,13 @@ package object extensions {
     def parameters: Seq[PsiParameter] =
       repr.getParameterList.getParameters.toSeq
 
-    def parametersTypes: Seq[ScType] = repr match {
-      case scalaFunction: ScFunction =>
-        scalaFunction.parameters
-          .map(_.`type`().getOrNothing)
+    def parametersTypes(withExtension: Boolean = false): Seq[ScType] = repr match {
+      case fun: ScFunction =>
+        val parameters =
+          if (withExtension) fun.parameterClausesWithExtension().flatMap(_.parameters)
+          else               fun.parameters
+
+        parameters.map(_.`type`().getOrNothing)
       case _ =>
         parameters.map(_.getType)
           .map(_.toScType())

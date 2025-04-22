@@ -123,9 +123,9 @@ trait ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
   private def clashesOf(elements: Seq[ScNamedElement]): Seq[ScNamedElement] = {
     val nameToClashes = elements.groupBy(nameOf(_, withReturnType = false, forPresentableText = false))
     nameToClashes.iterator.flatMap {
-      case ("_", _) => Nil
+      case ("_", _)                         => Nil
       case (_, clashed) if clashed.size > 1 => clashesOf2(clashed)
-      case _ => Nil
+      case _                                => Nil
     }.toSeq
   }
 
@@ -151,7 +151,10 @@ trait ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
       (a, ai) <- elements.iterator.zipWithIndex
       element = a
       b <- elements.iterator.drop(ai + 1)
-      if a.parametersTypes.zip(b.parametersTypes).forall { case (a, b) => a.equiv(b)(Context(element)) }
+      if a
+        .parametersTypes(withExtension = true)
+        .zip(b.parametersTypes(withExtension = true))
+        .forall { case (a, b) => a.equiv(b)(Context(element)) }
     } result ++= Seq(a, b)
 
     result.result().iterator

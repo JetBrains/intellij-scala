@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
 import com.intellij.psi.{PsiClass, PsiNamedElement, PsiTypeParameter}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
