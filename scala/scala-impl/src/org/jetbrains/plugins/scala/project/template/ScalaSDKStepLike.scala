@@ -6,7 +6,7 @@ import com.intellij.openapi.roots.ui.configuration.projectRoot.LibrariesContaine
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.project.ScalaLibraryType
 
-trait ScalaSDKStepLike extends PackagePrefixStepLike {
+trait ScalaSDKStepLike {
 
   protected def librariesContainer: LibrariesContainer
 

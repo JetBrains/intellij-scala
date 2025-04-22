@@ -11,12 +11,10 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ui.configuration.projectRoot.{LibrariesContainer, LibrariesContainerFactory}
 import com.intellij.ui.UIBundle
 import com.intellij.ui.dsl.builder.{ButtonKt, Panel, Row, TopGap}
-
-import kotlin.Unit.{INSTANCE => KUnit}
 import com.intellij.util.SystemProperties
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.project.Versions
-import org.jetbrains.plugins.scala.project.template.ScalaSDKStepLike
+import org.jetbrains.plugins.scala.project.template.{PackagePrefixStepLike, ScalaSDKStepLike}
 import org.jetbrains.plugins.scala.util.ui.extensions.JComboBoxOps
 import org.jetbrains.sbt.project.template.ScalaModuleBuilderSelections
 import org.jetbrains.sbt.project.template.wizard.buildSystem.{ScalaNewProjectWizardData, ScalaSampleCodeNewProjectWizardData, addScalaSampleCode}
@@ -25,6 +23,7 @@ import org.jetbrains.scalaCli.{ScalaCliBundle, ScalaCliUtils}
 
 import java.nio.file.Path
 import javax.swing.JLabel
+import kotlin.Unit.{INSTANCE => KUnit}
 
 /** inspired by [[com.intellij.ide.projectWizard.generators.IntelliJJavaNewProjectWizard]] */
 final class ScalaCliNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
@@ -32,7 +31,8 @@ final class ScalaCliNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
     with ScalaNewProjectWizardData
     with ScalaSampleCodeNewProjectWizardData
     with ScalaVersionStepLike
-    with ScalaSDKStepLike {
+    with ScalaSDKStepLike
+    with PackagePrefixStepLike {
 
   override protected val defaultAvailableScalaVersions: Seq[String] = Versions.Scala.allHardcodedVersions.map(_.presentation)
 

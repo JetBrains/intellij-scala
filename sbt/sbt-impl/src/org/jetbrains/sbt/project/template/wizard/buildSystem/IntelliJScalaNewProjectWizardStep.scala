@@ -1,9 +1,7 @@
 package org.jetbrains.sbt.project.template.wizard.buildSystem
 
 import com.intellij.ide.highlighter.ModuleFileType
-import com.intellij.ide.projectView.ProjectView
 import com.intellij.ide.projectWizard.generators.IntelliJNewProjectWizardStep
-import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.libraries.Library
@@ -12,22 +10,22 @@ import com.intellij.openapi.roots.ui.configuration.projectRoot.{LibrariesContain
 import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.openapi.ui.validation.DialogValidation
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.dsl.builder.{Panel, Row}
-import kotlin.Unit.{INSTANCE => KUnit}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.project.ScalaLibraryProperties
-import org.jetbrains.plugins.scala.project.template.{ScalaModuleBuilder, ScalaSDKStepLike}
+import org.jetbrains.plugins.scala.project.template.{PackagePrefixStepLike, ScalaModuleBuilder, ScalaSDKStepLike}
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.project.template.wizard.ScalaNewProjectWizardMultiStep
 
 import java.nio.file.Paths
 import javax.swing.{JComboBox, JComponent}
+import kotlin.Unit.{INSTANCE => KUnit}
 
 /** inspired by [[com.intellij.ide.projectWizard.generators.IntelliJJavaNewProjectWizard]] */
 final class IntelliJScalaNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
   extends IntelliJNewProjectWizardStep[ScalaNewProjectWizardMultiStep](parent)
-    with ScalaSDKStepLike {
+    with ScalaSDKStepLike
+    with PackagePrefixStepLike {
 
   override protected val librariesContainer: LibrariesContainer =
     LibrariesContainerFactory.createContainer(parent.getContext.getProject)
