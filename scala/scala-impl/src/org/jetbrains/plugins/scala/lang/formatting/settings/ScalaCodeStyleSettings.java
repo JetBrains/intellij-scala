@@ -499,16 +499,6 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
           "scala"
   };
 
-  public static String[] LEGACY_IMPORT_LAYOUT = new String[]{
-          "java",
-          BLANK_LINE,
-          BASE_PACKAGE_IMPORTS,
-          BLANK_LINE,
-          ALL_OTHER_IMPORTS,
-          BLANK_LINE,
-          "scala"
-  };
-
   public static ScalaCodeStyleSettings getInstance(Project project) {
     return CodeStyle.getSettings(project).getCustomSettings(ScalaCodeStyleSettings.class);
   }
