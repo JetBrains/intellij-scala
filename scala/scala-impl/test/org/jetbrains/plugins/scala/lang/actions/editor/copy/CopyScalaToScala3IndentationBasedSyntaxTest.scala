@@ -1262,6 +1262,128 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
     )
   }
 
+  def testPasteToEmptyPendingMethodBody_InsideClass_WithEndMarker(): Unit = {
+    doTestWithAllSelections(
+      s"""object Source:
+         |  ${Start}1
+         |  2
+         |  3$End""".stripMargin,
+      s"""class Wrapper:
+         |  def foo =
+         |    $Caret
+         |end Wrapper
+         |""".stripMargin,
+      s"""class Wrapper:
+         |  def foo =
+         |    1
+         |    2
+         |    3
+         |end Wrapper
+         |""".stripMargin,
+    )
+  }
+
+  def testPasteToEmptyPendingMethodBody_InsideClass_WithoutEndMarker(): Unit = {
+    doTestWithAllSelections(
+      s"""object Source:
+         |  ${Start}1
+         |  2
+         |  3$End""".stripMargin,
+      s"""class Wrapper:
+         |  def foo =
+         |    $Caret
+         |""".stripMargin,
+      s"""class Wrapper:
+         |  def foo =
+         |    1
+         |    2
+         |    3
+         |""".stripMargin,
+    )
+  }
+
+  def testPasteToEmptyPendingMethodBody_InsideClass_WithBraces(): Unit = {
+    doTestWithAllSelections(
+      s"""object Source:
+         |  ${Start}1
+         |  2
+         |  3$End""".stripMargin,
+      s"""class Wrapper {
+         |  def foo =
+         |    $Caret
+         |}
+         |""".stripMargin,
+      s"""class Wrapper {
+         |  def foo =
+         |    1
+         |    2
+         |    3
+         |}
+         |""".stripMargin,
+    )
+  }
+
+  def testPasteToEmptyPendingMethodBodyWithTypeAnnotation_InsideClass_WithEndMarker(): Unit = {
+    doTestWithAllSelections(
+      s"""object Source:
+         |  ${Start}1
+         |  2
+         |  3$End""".stripMargin,
+      s"""class Wrapper:
+         |  def foo(): Int =
+         |    $Caret
+         |end Wrapper
+         |""".stripMargin,
+      s"""class Wrapper:
+         |  def foo(): Int =
+         |    1
+         |    2
+         |    3
+         |end Wrapper
+         |""".stripMargin,
+    )
+  }
+
+  def testPasteToEmptyPendingMethodBodyWithTypeAnnotation_InsideClass_WithoutEndMarker(): Unit = {
+    doTestWithAllSelections(
+      s"""object Source:
+         |  ${Start}1
+         |  2
+         |  3$End""".stripMargin,
+      s"""class Wrapper:
+         |  def foo(): Int =
+         |    $Caret
+         |""".stripMargin,
+      s"""class Wrapper:
+         |  def foo(): Int =
+         |    1
+         |    2
+         |    3
+         |""".stripMargin,
+    )
+  }
+
+  def testPasteToEmptyPendingMethodBodyWithTypeAnnotation_InsideClass_WithBraces(): Unit = {
+    doTestWithAllSelections(
+      s"""object Source:
+         |  ${Start}1
+         |  2
+         |  3$End""".stripMargin,
+      s"""class Wrapper {
+         |  def foo(): Int =
+         |    $Caret
+         |}
+         |""".stripMargin,
+      s"""class Wrapper {
+         |  def foo(): Int =
+         |    1
+         |    2
+         |    3
+         |}
+         |""".stripMargin,
+    )
+  }
+
   def testCutAndPasteInMethodCalChainHint_1(): Unit = {
     doTestCutAndPasteDoesNotBreakTheCode(
       s"""

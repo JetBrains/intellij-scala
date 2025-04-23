@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.TokenSets
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScOptionalBracesOwner
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDefinitionWithAssignment
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
@@ -199,15 +200,19 @@ object Scala3IndentationBasedSyntaxCopyPastePreProcessor {
   /**
    * @return true for any of these {{{
    *    def foo = CARET //for def/val/var
-   *`   extension (x: String) CARET
-   *`   class A: CARET`
+   *    extension (x: String) CARET
+   *    class A: CARET`
    * }}}
    */
   private def isIncompleteDefinitionError(e: PsiErrorElement): Boolean = {
     val description = e.getErrorDescription
     val isIncompleteTemplateDefinition = description == ScalaBundle.message("indented.definitions.expected")
     val isIncompleteExtension = description == ScalaBundle.message("expected.at.least.one.extension.method")
-    val isIncompleteDefinitionWithAssign = description == ScalaBundle.message("expression.expected") && e.getParent.is[ScMember]
+    val isIncompleteDefinitionWithAssign = e.getParent.is[ScDefinitionWithAssignment] && (
+      // Note, for some reason the error is different in some cases, see SCL-23798
+      description == ScalaBundle.message("expression.expected") || //example: def foo = //implement me
+        description == ScalaBundle.message("wrong.expression") //example: def foo: String = //implement me
+      )
     Option(e.getPrevSibling).exists(_.elementType == ScalaTokenTypes.tASSIGN)
     isIncompleteTemplateDefinition ||
       isIncompleteExtension ||

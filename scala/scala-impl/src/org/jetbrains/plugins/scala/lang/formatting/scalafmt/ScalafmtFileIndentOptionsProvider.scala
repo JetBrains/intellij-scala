@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.formatting.scalafmt
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.PsiFile
-import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings, FileIndentOptionsProvider}
+import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings, PsiBasedFileIndentOptionsProvider}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtFileIndentOptionsProvider.Log
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity.Silent
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtIndents
@@ -15,9 +15,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
  *
  * @see [[com.intellij.psi.codeStyle.CodeStyleSettings.getIndentOptionsByFile]]
  */
-final class ScalafmtFileIndentOptionsProvider extends FileIndentOptionsProvider {
+final class ScalafmtFileIndentOptionsProvider extends PsiBasedFileIndentOptionsProvider {
 
-  override def getIndentOptions(settings: CodeStyleSettings, file: PsiFile): CommonCodeStyleSettings.IndentOptions = {
+  override def getIndentOptionsByPsiFile(settings: CodeStyleSettings, file: PsiFile): CommonCodeStyleSettings.IndentOptions = {
     if (!file.isInstanceOf[ScalaFile])
       return null
 
