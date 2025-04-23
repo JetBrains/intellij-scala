@@ -75,7 +75,7 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
     lazy val patternTypeAsTuple =
       ScPattern.ByNameExtractor(pattern).unapply(patType).map {
         productElements =>
-          TupleType(productElements)(pattern.elementScope)
+          TupleType(productElements, context = pattern)
       }
 
     lazy val neverMatches =
@@ -334,7 +334,7 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
         val subPat = tuple.subpatterns
         val subTypes = subPat.flatMap(patternType)
         if (subTypes.size == subPat.size) {
-          Some(TupleType(subTypes)(pattern.elementScope))
+          Some(TupleType(subTypes, context = pattern))
         }
         else None
       case typed: ScTypedPatternLike =>

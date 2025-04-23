@@ -205,7 +205,7 @@ object ScalaPsiUtil {
             .getOrAny
             .widenIfLiteral
 
-        TupleType(s.map(getType)) match {
+        TupleType(s.map(getType), context) match {
           case t if t.isNothing => None
           case t => Some(t)
         }

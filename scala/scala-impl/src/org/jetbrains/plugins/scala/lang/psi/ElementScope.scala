@@ -47,7 +47,7 @@ case class ElementScope(project: Project, scope: GlobalSearchScope) {
   def scalaNamedTupleType: Option[ScTypeAlias] =
     manager.scalaNamedTupleAlias(scope)
 
-  private def manager =
+  private lazy val manager =
     ScalaPsiManager.instance(project)
 }
 

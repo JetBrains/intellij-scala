@@ -10,4 +10,9 @@ class ScTupleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitTupleTypeElement(this)
   }
+
+  override def desugarizedText: String = {
+    val componentsTexts = components.map(_.getText)
+    s"_root_.scala.Tuple${componentsTexts.length}${componentsTexts.mkString("[", ",", "]")}"
+  }
 }

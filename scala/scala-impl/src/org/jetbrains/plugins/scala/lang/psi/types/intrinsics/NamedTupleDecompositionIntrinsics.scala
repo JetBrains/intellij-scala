@@ -14,12 +14,12 @@ object NamedTupleDecompositionIntrinsics {
     (opName: @switch) match {
       case "Names" =>
         operands match {
-          case Seq(NamedTupleType(comps)) => Some(TupleType(comps.map(_._1)))
+          case Seq(NamedTupleType(comps)) => Some(TupleType(comps.map(_._1), scala3 = true))
           case _ => None
         }
       case "DropNames" =>
         operands match {
-          case Seq(NamedTupleType(comps)) => Some(TupleType(comps.map(_._2)))
+          case Seq(NamedTupleType(comps)) => Some(TupleType(comps.map(_._2), scala3 = true))
           case _ => None
         }
       case _ =>

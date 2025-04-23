@@ -11,15 +11,13 @@ object TupleIntrinsics {
   def tupleOp(opName: String, operands: Seq[ScType])(implicit project: Project): Option[ScType] = {
     implicit val elementScope: ElementScope = ElementScope(project)
 
+    @inline def mkTuple(comps: Seq[ScType]): ScType =
+      TupleType(comps, scala3 = true)
+
     (opName: @switch) match {
-      case "*:" =>
-        operands match {
-          case Seq(elem, TupleType(comps)) => Some(TupleType(elem +: comps))
-          case _ => None
-        }
       case "Append" =>
         operands match {
-          case Seq(TupleType(comps), elem) => Some(TupleType(comps :+ elem))
+          case Seq(TupleType(comps), elem) => Some(mkTuple(comps :+ elem))
           case _ => None
         }
       case "Head" =>
@@ -29,12 +27,12 @@ object TupleIntrinsics {
         }
       case "Init" =>
         operands match {
-          case Seq(TupleType(comps)) => Some(TupleType(comps.init))
+          case Seq(TupleType(comps)) => Some(mkTuple(comps.init))
           case _ => None
         }
       case "Tail" =>
         operands match {
-          case Seq(TupleType(comps)) => Some(TupleType(comps.tail))
+          case Seq(TupleType(comps)) => Some(mkTuple(comps.tail))
           case _ => None
         }
       case "Last" =>
@@ -42,9 +40,9 @@ object TupleIntrinsics {
           case Seq(TupleType(comps)) => comps.lastOption
           case _ => None
         }
-      case "Concat" =>
+      case "Concat" | "++" =>
         operands match {
-          case Seq(TupleType(fst), TupleType(snd)) => Some(TupleType(fst ++ snd))
+          case Seq(TupleType(fst), TupleType(snd)) => Some(mkTuple(fst ++ snd))
           case _ => None
         }
       case "Elem" =>
@@ -69,13 +67,13 @@ object TupleIntrinsics {
       case "Map" =>
         operands match {
           case Seq(TupleType(comps), f) =>
-            Some(TupleType(comps.map(elem => ScParameterizedType(f, Seq(elem)))))
+            Some(mkTuple(comps.map(elem => ScParameterizedType(f, Seq(elem)))))
           case _ => None
         }
       case "FlatMap" =>
         operands match {
           case Seq(TupleType(comps), f) =>
-            Some(TupleType(comps.flatMap { elem =>
+            Some(mkTuple(comps.flatMap { elem =>
               ScParameterizedType(f, Seq(elem)).removeAliasDefinitions() match {
                 case TupleType(comps) => comps
                 case ty => Seq(ty)
@@ -86,7 +84,7 @@ object TupleIntrinsics {
       case "Filter" =>
         operands match {
           case Seq(TupleType(comps), f) =>
-            Some(TupleType(comps.filter { elem =>
+            Some(mkTuple(comps.filter { elem =>
               ScParameterizedType(f, Seq(elem)).removeAliasDefinitions() match {
                 case BooleanValue(false) => false
                 case _ => true
@@ -96,7 +94,7 @@ object TupleIntrinsics {
         }
       case "Zip" =>
         operands match {
-          case Seq(TupleType(fst), TupleType(snd)) => Some(TupleType(fst.zip(snd).map { case (a, b) => TupleType(Seq(a, b)) }))
+          case Seq(TupleType(fst), TupleType(snd)) => Some(mkTuple(fst.zip(snd).map { case (a, b) => mkTuple(Seq(a, b)) }))
           case _ => None
         }
       case "InverseMap" =>
@@ -123,24 +121,24 @@ object TupleIntrinsics {
         None
       case "Reverse" =>
         operands match {
-          case Seq(TupleType(comps)) => Some(TupleType(comps.reverse))
+          case Seq(TupleType(comps)) => Some(mkTuple(comps.reverse))
           case _ => None
         }
       case "Take" =>
         operands match {
-          case Seq(TupleType(comps), IntValue(i)) => Some(TupleType(comps.take(i)))
+          case Seq(TupleType(comps), IntValue(i)) => Some(mkTuple(comps.take(i)))
           case _ => None
         }
       case "Drop" =>
         operands match {
-          case Seq(TupleType(comps), IntValue(i)) => Some(TupleType(comps.drop(i)))
+          case Seq(TupleType(comps), IntValue(i)) => Some(mkTuple(comps.drop(i)))
           case _ => None
         }
       case "Split" =>
         operands match {
           case Seq(TupleType(comps), IntValue(i)) =>
             val (fst, snd) = comps.splitAt(i)
-            Some(TupleType(Seq(TupleType(fst), TupleType(snd))))
+            Some(mkTuple(Seq(mkTuple(fst), mkTuple(snd))))
           case _ => None
         }
       case "Union" =>

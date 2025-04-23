@@ -92,21 +92,9 @@ object TypeDiff {
               (if (upper.isAny) Seq.empty else Seq(aMatch(" <: "), diff(upper, upper)))): _*)
         }
         Node(diff(q2.designator, q2.designator), aMatch("["), Node(wildcards.intersperse(aMatch(", ")): _*), aMatch("]"))
-
-      case (InfixType(l1, d1, r1), InfixType(l2, d2, r2)) =>
-        val (v1, v2) = d1.extractDesignated(expandAliases = false) match {
-          case Some(aClass: ScClass) => aClass.typeParameters match {
-            case Seq(p1, p2) => (p1.variance, p2.variance)
-            case _ => (Variance.Invariant, Variance.Invariant)
-          }
-          case _ => (Variance.Invariant, Variance.Invariant)
-        }
-        Node(diff(l1, l2)(conformanceFor(v1), context), aMatch(" "), diff(d1, d2), aMatch(" "), diff(r1, r2)(conformanceFor(v2), context))
-
       case (TupleType(ts1), TupleType(ts2)) =>
         if (ts1.length == ts2.length) Node(aMatch("("), Node((ts1 lazyZip ts2).map(diff).intersperse(aMatch(", ")): _*), aMatch(")"))
         else Node(aMismatch(tpe2.presentableText))
-
       case (NamedTupleType(comps1), NamedTupleType(comps2)) =>
         val diffComponent: ((ScType, ScType), (ScType, ScType)) => Tree[TypeDiff] = {
           case ((name1, tpe1), (name2, tpe2)) =>
@@ -116,6 +104,15 @@ object TypeDiff {
 
         if (comps1.length == comps2.length) Node(aMatch("("), Node((comps1 lazyZip comps2).map(diffComponent).intersperse(aMatch(", ")): _*), aMatch(")"))
         else Node(aMismatch(tpe2.presentableText))
+      case (InfixType(l1, d1, r1), InfixType(l2, d2, r2)) =>
+        val (v1, v2) = d1.extractDesignated(expandAliases = false) match {
+          case Some(aClass: ScClass) => aClass.typeParameters match {
+            case Seq(p1, p2) => (p1.variance, p2.variance)
+            case _ => (Variance.Invariant, Variance.Invariant)
+          }
+          case _ => (Variance.Invariant, Variance.Invariant)
+        }
+        Node(diff(l1, l2)(conformanceFor(v1), context), aMatch(" "), diff(d1, d2), aMatch(" "), diff(r1, r2)(conformanceFor(v2), context))
       case (FunctionType(r1, p1), FunctionType(r2, p2)) =>
         val needsParens = (t: ScType) => FunctionType.isFunctionType(t) || TupleType.isTupleType(t)
         val left = {

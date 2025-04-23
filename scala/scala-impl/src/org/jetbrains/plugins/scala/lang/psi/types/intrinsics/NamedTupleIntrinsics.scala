@@ -58,7 +58,7 @@ object NamedTupleIntrinsics {
         operands match {
           case Seq(NamedTupleType(comps), IntValue(i)) =>
             val (fst, snd) = comps.splitAt(i)
-            Some(TupleType(Seq(NamedTupleType(fst), NamedTupleType(snd))))
+            Some(TupleType(Seq(NamedTupleType(fst), NamedTupleType(snd)), scala3 = true))
           case _ => None
         }
       case "Concat" =>
@@ -91,7 +91,7 @@ object NamedTupleIntrinsics {
 
             namesEqual.option {
               val zipped = fst.zip(snd).map {
-                case ((name, t1), (_, t2)) => (name, TupleType(Seq(t1, t2)))
+                case ((name, t1), (_, t2)) => (name, TupleType(Seq(t1, t2), scala3 = true))
               }
               NamedTupleType(zipped)
             }

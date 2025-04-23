@@ -194,7 +194,7 @@ object Compatibility {
       val afterNTtoTConversion =
         (tpe, expectedType) match {
           case (NamedTupleType(comps), TupleType(_)) =>
-            TupleType(comps.map(_._2))
+            TupleType(comps.map(_._2), scala3 = true)
           case _ =>
             tpe
         }

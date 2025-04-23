@@ -523,7 +523,7 @@ object ScExpression {
               expr.scalaLanguageLevelOrDefault >= Scala_2_13 =>
           val partialFunctionParamType =
             if (paramTpes.size == 1) paramTpes.head
-            else TupleType(paramTpes)
+            else TupleType(paramTpes, context = expr)
 
           PartialFunctionType((resTpe, partialFunctionParamType))
         case _ => scType

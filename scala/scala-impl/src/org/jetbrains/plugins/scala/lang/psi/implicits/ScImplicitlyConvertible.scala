@@ -42,7 +42,7 @@ object ScImplicitlyConvertible {
         ) {
           val expandedType = argumentTypes match {
             case Seq() => placeType
-            case seq => TupleType(Seq(placeType) ++ seq)(place.elementScope)
+            case seq => TupleType(Seq(placeType) ++ seq, context = place)
           }
 
           new ImplicitConversionProcessor(place, true)

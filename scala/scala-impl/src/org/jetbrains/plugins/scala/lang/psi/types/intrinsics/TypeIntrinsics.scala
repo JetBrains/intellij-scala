@@ -1,11 +1,16 @@
 package org.jetbrains.plugins.scala.lang.psi.types.intrinsics
 
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
-import scala.annotation.switch
+import scala.annotation.{switch, tailrec}
 
 object TypeIntrinsics {
   def apply(designator: ScType, arguments: Seq[ScType]): Option[ScType] = designator match {
@@ -19,7 +24,12 @@ object TypeIntrinsics {
       // For now (in Scala 3.2.1-RC4) it's done for scala.compiletime.ops
       // But ideally it should be done more uniformly.
       // See also: https://github.com/lampepfl/dotty/pull/14586
-      lazy val argumentsDealiased = arguments.map(_.removeAliasDefinitions())
+      @tailrec
+      def dealias(ty: ScType): ScType = ty.removeAliasDefinitions() match {
+        case ScDesignatorType(ty: Typeable) if ty.is[ScBindingPattern, ScParameter, ScFieldId] => dealias(ty.`type`().getOrNothing)
+        case ty => ty
+      }
+      lazy val argumentsDealiased = arguments.map(dealias)
       (containingClassName: @switch) match {
         // compiletime.ops
         case "scala.compiletime.ops.any" => CompileTimeOpsIntrinsics.anyOp(alias.name, argumentsDealiased)

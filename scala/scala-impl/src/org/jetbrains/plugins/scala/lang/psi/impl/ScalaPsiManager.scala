@@ -281,7 +281,7 @@ class ScalaPsiManager(implicit val project: Project) extends Disposable {
           inJavaPsiFacade.value = true
           try {
             val clazz = JavaPsiFacade.getInstance(project).findClass(fqn, scope)
-            if (clazz == null || clazz.is[ScTemplateDefinition] || clazz.is[PsiClassWrapper]) None
+            if (clazz == null || clazz.is[ScTemplateDefinition, PsiClassWrapper]) None
             else Option(clazz)
           } finally inJavaPsiFacade.value = false
         }
@@ -435,8 +435,7 @@ class ScalaPsiManager(implicit val project: Project) extends Disposable {
                 override def compare(file1: VirtualFile, file2: VirtualFile): Int = 0
               }
             )
-            .filterNot(p => p.is[ScTemplateDefinition] || p.is[PsiClassWrapper])
-
+            .filterNot(_.is[ScTemplateDefinition, PsiClassWrapper])
           classes ++ SyntheticClassProducer.getAllClasses(fqn, scope)
         } finally inJavaPsiFacade.value = false
       }

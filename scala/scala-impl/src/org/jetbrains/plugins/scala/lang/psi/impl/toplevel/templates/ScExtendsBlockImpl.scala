@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiClass
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.{ScDerivesClauseFactory, ScTemplateParentsFactory}
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker, cached, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
@@ -9,15 +10,18 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumCases, ScExtension, ScFunction, ScTypeAlias, ScTypeAliasDefinition, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScExtendsBlockImpl.isTupleNQualifiedName
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager, ScalaStubBasedElementImpl}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScExtendsBlockStub
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Scala2TupleType, Scala3TupleType, TypeParameter, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaLanguageLevel}
@@ -99,6 +103,17 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
     if (isUnderCaseClass && !isInEnumCase) {
       buffer ++= scalaProduct
       buffer ++= scalaSerializableBaseTypeForCaseClasses
+
+      // In Scala 3 TupleN will inherit from the equivalent *:[...] type
+      // So Tuple2[T1, T2] will have T1 *: T2 *: EmptyTuple as super type
+      tupleNTypeParams match {
+        case Some(typeParams) =>
+          val scala3TupleTypeType = Scala3TupleType(typeParams.map(tp => TypeParameterType(TypeParameter(tp))))
+          if (!scala3TupleTypeType.isNothing) {
+            buffer += scala3TupleTypeType
+          }
+        case _ =>
+      }
     }
 
     if (isEnumDefinition) {
@@ -138,6 +153,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
     ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, name)
 
   private def scalaProductClass: Option[PsiClass] = cachedClass(CommonQualifiedNames.ProductFqn)
+  private def scala3TupleConsClass: Option[PsiClass] = cachedClass(Scala3TupleType.TupleConsTypeName)
 
   private def scalaSerializableBaseClassForCaseClasses: Option[PsiClass] =
     if (this.scalaLanguageLevelOrDefault >= ScalaLanguageLevel.Scala_2_13)
@@ -181,6 +197,10 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
     if (isUnderCaseClass) {
       buffer ++= scalaProductClass
       buffer ++= scalaSerializableBaseClassForCaseClasses
+
+      if (isTupleN) {
+        buffer ++= scala3TupleConsClass
+      }
     }
 
     if (isEnumDefinition) buffer ++= scalaReflectEnumClass
@@ -262,12 +282,22 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
     case _           => false
   }
 
+  private def isTupleN: Boolean =  getParentByStub match {
+    case c: ScClass => isTupleNQualifiedName(c.qualifiedName)
+    case _          => false
+  }
+
+  private def tupleNTypeParams: Option[Seq[ScTypeParam]] = getParentByStub match {
+    case c: ScClass if isTupleNQualifiedName(c.qualifiedName) => Some(c.typeParameters)
+    case _                                                    => None
+  }
+
   private def templateBodies = templateBody.toSeq
 
   private def createEmptyTemplateBody: ScTemplateBody =
     add(ScalaPsiElementFactory.createTemplateBody(getParentByStub.is[ScGivenDefinition], this))
       .asInstanceOf[ScTemplateBody]
-  }
+}
 
 object ScExtendsBlockImpl {
 
@@ -288,4 +318,7 @@ object ScExtendsBlockImpl {
 
   private[this] def tail(typeResult: result.TypeResult) =
     typeResult.toOption.flatMap(_.extractClass)
+
+  private val qualifiedTupleRegex = raw"${Scala2TupleType.TypeName}(1[0-9]|2[0-2]|[1-9])$$".r
+  def isTupleNQualifiedName(@Nullable s: String): Boolean = s != null && qualifiedTupleRegex.matches(s)
 }

@@ -3,10 +3,11 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStringLiteralImpl
-import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ScLiteralType, ScParameterizedType, ScType, ScalaType, api}
+import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ScLiteralType, ScParameterizedType, ScType, ScalaType, api, extractTypeParameters}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionTypeFactory.{extractMember, extractParameterizedType, extractQualifiedName}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
@@ -21,9 +22,13 @@ sealed trait FunctionTypeFactory[D <: ScTypeDefinition, T] {
   def apply(t: T)(implicit scope: ElementScope): ValueType
 
   def unapply(`type`: ScType): Option[T] =
-    extractForPrefix(`type`, TypeName) match {
-      case seq if seq.nonEmpty && unapplyCollector.isDefinedAt(seq) => Some(unapplyCollector(seq))
-      case _ => None
+    extractParameterizedType(`type`).flatMap {
+      case pTy if extractQualifiedName(pTy.designator).exists(_.startsWith(TypeName)) =>
+        val args = pTy.typeArguments
+        if (args.isEmpty) None
+        else unapplyCollector.unapply(args)
+      case _ =>
+        None
     }
 
   protected final def apply(parameters: Seq[ScType], suffix: String)
@@ -36,19 +41,21 @@ sealed trait FunctionTypeFactory[D <: ScTypeDefinition, T] {
 }
 
 object FunctionTypeFactory {
-
   @tailrec
-  private def extractForPrefix(`type`: ScType, prefix: String, depth: Int = 100): Seq[ScType] = `type` match {
-    case _ if depth == 0 => Seq.empty //hack for https://youtrack.jetbrains.com/issue/SCL-6880 to avoid infinite loop.
-    case AliasLowerBound(lower) => extractForPrefix(lower, prefix, depth - 1)
-    case ParameterizedType(designator, arguments) if extractQualifiedName(designator).exists(_.startsWith(prefix)) => arguments
-    case _ => Seq.empty
+  private[api] def extractParameterizedType(`type`: ScType, depth: Int = 100): Option[ParameterizedType] = `type` match {
+    case _ if depth == 0 => None //hack for https://youtrack.jetbrains.com/issue/SCL-6880 to avoid infinite loop.
+    case AliasLowerBound(lower) => extractParameterizedType(lower, depth - 1)
+    case paramType: ParameterizedType => Some(paramType)
+    case _ => None
   }
 
-  private[this] def extractQualifiedName(`type`: ScType): Option[String] =
+  private[api] def extractMember(`type`: ScType): Option[ScMember] =
     `type`
       .extractDesignated(expandAliases = true)
       .collect { case member: ScMember => member }
+
+  private[api] def extractQualifiedName(`type`: ScType): Option[String] =
+    extractMember(`type`)
       .flatMap(member => member.qualifiedNameOpt)
 
   private[this] object AliasLowerBound {
@@ -98,7 +105,65 @@ object PartialFunctionType extends FunctionTypeFactory[ScTrait, (ScType, ScType)
   }
 }
 
-object TupleType extends FunctionTypeFactory[ScClass, Seq[ScType]] {
+object TupleType {
+  private val Scala2TupleTypeName = Scala2TupleType.TypeName
+  private val Scala3EmptyTupleTypeName = "scala.EmptyTuple"
+  private val Scala3TupleAppendTypeName = "scala.*:"
+
+  def apply(types: Seq[ScType], context: PsiElement): ScType =
+    apply(types, scala3 = context.isInScala3File)(context.elementScope)
+
+  def apply(types: Seq[ScType], scala3: Boolean)(implicit scope: ElementScope): ScType = {
+    if (scala3 && types.sizeIs > 22) Scala3TupleType(types)
+    else Scala2TupleType(types)
+  }
+
+  def unapply(`type`: ScType): Option[Seq[ScType]] = unapply(`type`, onlyScala3 = false)
+
+  private[api] def unapply(`type`: ScType, onlyScala3: Boolean): Option[Seq[ScType]] = {
+    extractParameterizedType(`type`) match {
+      case Some(pTy) =>
+        extractMember(pTy.designator).flatMap { tupleClass =>
+          tupleClass.qualifiedNameOpt.flatMap {
+            case name if !onlyScala3 && name.startsWith(Scala2TupleTypeName) => Some(pTy.typeArguments)
+            case name if name.startsWith(Scala3TupleAppendTypeName) =>
+              val result = Seq.newBuilder[ScType]
+              @tailrec
+              def addToResult(argsOfTuple: Seq[ScType]): Boolean = argsOfTuple match {
+                case Seq(comp, next) =>
+                  result += comp
+                  extractParameterizedType(next) match {
+                    case Some(pTy) if extractMember(pTy.designator).contains(tupleClass) =>
+                      addToResult(pTy.typeArguments)
+                    case _ =>
+                      isScala3EmptyTupleType(next)
+                  }
+                case _ =>
+                  false
+              }
+
+              if (addToResult(pTy.typeArguments)) Some(result.result())
+              else None
+
+            case _ => None
+          }
+        }
+      case None  =>
+        if (isScala3EmptyTupleType(`type`)) Some(Seq.empty)
+        else None
+    }
+  }
+
+  def isTupleType(`type`: ScType): Boolean = unapply(`type`).isDefined
+
+  def isScala3EmptyTupleType(`type`: ScType): Boolean =
+    `type`.extractDesignated(expandAliases = true).exists {
+      case obj: ScObject => obj.qualifiedNameOpt.contains(Scala3EmptyTupleTypeName)
+      case _ => false
+    }
+}
+
+object Scala2TupleType extends FunctionTypeFactory[ScClass, Seq[ScType]] {
 
   override val TypeName = "scala.Tuple"
 
@@ -111,6 +176,35 @@ object TupleType extends FunctionTypeFactory[ScClass, Seq[ScType]] {
   override protected def unapplyCollector: PartialFunction[Seq[ScType], Seq[ScType]] = {
     case types => types
   }
+}
+
+object Scala3TupleType {
+  val EmptyTupleTypeName = "scala.EmptyTuple"
+  val TupleConsTypeName = "scala.*:"
+
+  def apply(types: Seq[ScType])(implicit scope: ElementScope): ScType = {
+    (
+      scope.getCachedObject(EmptyTupleTypeName),
+      scope.getCachedClass(TupleConsTypeName)
+    ) match {
+      case (Some(emptyTupleObj), Some(tupleAppendClass: ScClass)) =>
+        val emptyTupleType = ScalaType.designator(emptyTupleObj)
+        val tupleAppendType = ScalaType.designator(tupleAppendClass)
+        types.foldRight(emptyTupleType) {
+          (comp, tup) => ScParameterizedType(tupleAppendType, Seq(comp, tup))
+        }
+      case _ =>
+        api.Nothing
+    }
+  }
+
+  def unapply(`type`: ScType): Option[Seq[ScType]] = TupleType.unapply(`type`, onlyScala3 = true)
+
+  def isEmptyTupleType(`type`: ScType): Boolean =
+    `type`.extractDesignated(expandAliases = true).exists {
+      case obj: ScObject => obj.qualifiedNameOpt.contains(EmptyTupleTypeName)
+      case _ => false
+    }
 }
 
 object NamedTupleType extends FunctionTypeFactory[ScClass, Seq[(ScType, ScType)]] {
@@ -130,8 +224,16 @@ object NamedTupleType extends FunctionTypeFactory[ScClass, Seq[(ScType, ScType)]
                     (implicit scope: ElementScope): ValueType = {
     val (names, types) = elements.unzip
     scope.scalaNamedTupleType match {
-      case Some(x) => ScParameterizedType(ScalaType.designator(x), Seq(TupleType(names), TupleType(types))).asInstanceOf[ValueType]
-      case None => api.Nothing
+      case Some(x) =>
+        ScParameterizedType(
+          ScalaType.designator(x),
+          Seq(
+            TupleType(names, scala3 = true),
+            TupleType(types, scala3 = true)
+          )
+        ).asInstanceOf[ValueType]
+      case None =>
+        api.Nothing
     }
 
   }

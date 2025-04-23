@@ -367,7 +367,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
               val subst = c.pattern.fold(ScSubstitutor.empty) { pattern =>
                 val scrutineeType =
                   if (paramTypes.size == 1) paramTypes.head
-                  else                      TupleType(paramTypes)(pattern.elementScope)
+                  else                      TupleType(paramTypes, context = pattern)
 
                 PatternTypeInference.doTypeInference(pattern, scrutineeType)
               }

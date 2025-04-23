@@ -28,7 +28,7 @@ class ScTupleImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScTuple
           case (other, _) => other
         }
 
-        TupleType(widenedComponents)
+        TupleType(widenedComponents, context = this)
     })
 
   override def deleteChildInternal(child: ASTNode): Unit = {

@@ -170,7 +170,7 @@ object ScPattern {
                 et.removeAbstracts match {
                   case functionLikeType(_, _, Seq())   => Some(api.Unit)
                   case functionLikeType(_, _, Seq(p0)) => Some(p0)
-                  case functionLikeType(_, _, params)  => Some(TupleType(params))
+                  case functionLikeType(_, _, params)  => Some(TupleType(params, context = b))
                   case _                               => None
                 }
               case None => None

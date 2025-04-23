@@ -9,7 +9,7 @@ trait ScTuplePattern extends ScPattern {
 
   override def `type`(): TypeResult = this.flatMap(patternList) { list =>
     val types = list.patterns.map(_.`type`().getOrAny)
-    Right(TupleType(types))
+    Right(TupleType(types, context = this))
   }
 }
 
