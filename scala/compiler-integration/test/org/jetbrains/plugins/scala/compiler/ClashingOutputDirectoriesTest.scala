@@ -60,7 +60,8 @@ class ClashingOutputDirectoriesTest extends SbtProjectCompilationTestBase(separa
 
       val jpsUrl = JpsPathUtil.urlToNioPath(dir.toUri.toURL.toString)
       val expected =
-        s"""scala: Output path $jpsUrl is shared between: ${Seq(module1, module2).map(m => s"Module '${m.getName}' production").mkString(", ")}Please configure separate output paths to proceed with the compilation.
+        s"""scala: Output path $jpsUrl is shared between: ${Seq(module1, module2).map(m => s"Module '${m.getName}' production").mkString(", ")}
+           |Please configure separate output paths to proceed with the compilation.
            |TIP: you can use Project Artifacts to combine compiled classes if needed.""".stripMargin
       assertEquals(expected, errorMessage.getMessage)
     }
