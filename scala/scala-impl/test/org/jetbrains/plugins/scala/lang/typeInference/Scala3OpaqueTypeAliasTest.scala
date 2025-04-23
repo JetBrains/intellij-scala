@@ -241,6 +241,19 @@ class Scala3OpaqueTypeAliasTest extends ScalaLightCodeInsightFixtureTestCase {
     )
   }
 
+  // TODO Union type, SCL-23806
+  def testLeastUpperBoundIf(): Unit = {
+    checkHasErrorAroundCaret(
+      s"""
+         |object Inside:
+         |  opaque type T = Int
+         |object Outside:
+         |  val x = if (???) 123 else ??? : Inside.T
+         |  val y: Inside.T = ${CARET}x
+         |""".stripMargin
+    )
+  }
+
   def testImplicitArgumentLhsLhsInside(): Unit = {
     checkTextHasNoErrors(
       s"""

@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeConstructorOps
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, Context, ScType, ScTypeExt}
 
 object ScEquivalenceUtil {
   def areClassesEquivalent(clazz1: PsiClass, clazz2: PsiClass): Boolean = {
@@ -45,7 +45,7 @@ object ScEquivalenceUtil {
       p1.getQualifiedName == p2.getQualifiedName
   }
 
-  private def areTypeAliasesEquivalent(ta1: ScTypeAlias, ta2: ScTypeAlias): Boolean = {
+  private def areTypeAliasesEquivalent(ta1: ScTypeAlias, ta2: ScTypeAlias)(implicit context: Context): Boolean = {
     def equiv(tr1: TypeResult, tr2: TypeResult): Boolean =
       (tr1, tr2) match {
         case (Right(left), Right(right)) => left.equiv(right)
@@ -58,7 +58,7 @@ object ScEquivalenceUtil {
     else ta1 == ta2
   }
 
-  def smartEquivalence(elem1: PsiElement, elem2: PsiElement): Boolean =
+  def smartEquivalence(elem1: PsiElement, elem2: PsiElement)(implicit context: Context): Boolean =
     (elem1, elem2) match {
       case (clazz1: PsiClass, clazz2: PsiClass) => areClassesEquivalent(clazz1, clazz2)
       case (p1: PsiPackage, p2: PsiPackage)     => arePackagesEquivalent(p1, p2)

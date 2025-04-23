@@ -23,7 +23,7 @@ trait ScalaBounds extends api.Bounds {
 
   import ScalaBounds._
 
-  override def glb(t1: ScType, t2: ScType, checkWeak: Boolean = false): ScType = {
+  override def glb(t1: ScType, t2: ScType, checkWeak: Boolean = false)(implicit context: Context): ScType = {
     if (conforms(t1, t2, checkWeak)) t1
     else if (conforms(t2, t1, checkWeak)) t2
     else {
@@ -39,7 +39,7 @@ trait ScalaBounds extends api.Bounds {
         case (TypeConstructor(poly), _) => glb(poly, t2, checkWeak)
         case (_, TypeConstructor(poly)) => glb(t1, poly, checkWeak)
         case (lhs: ScTypePolymorphicType, rhs: ScTypePolymorphicType) =>
-          polymorphicTypesBound(lhs, rhs, BoundKind.Glb, checkWeak, 0)(stopAddingUpperBound = false)
+          polymorphicTypesBound(lhs, rhs, BoundKind.Glb, checkWeak, 0)(stopAddingUpperBound = false, context = context)
         case (lhs, _: WildcardType) => lhs
         case (_: WildcardType, rhs) => rhs
         case _ => ScCompoundType(Seq(t1, t2), Map.empty, Map.empty)
@@ -54,7 +54,8 @@ trait ScalaBounds extends api.Bounds {
     checkWeak: Boolean,
     depth:     Int
   )(implicit
-    stopAddingUpperBound: Boolean
+    stopAddingUpperBound: Boolean,
+    context: Context
   ): Seq[TypeParameter] =
     lhsParams.zip(rhsParams).map {
       case (p1, p2) =>
@@ -74,7 +75,8 @@ trait ScalaBounds extends api.Bounds {
     checkWeak: Boolean,
     depth:     Int
   )(implicit
-    stopAddingUpperBound: Boolean
+    stopAddingUpperBound: Boolean,
+    context: Context
   ): ScTypePolymorphicType = {
     val ScTypePolymorphicType(lhsInt, lhsParams) = lhs
     val ScTypePolymorphicType(rhsInt, rhsParams) = rhs
@@ -91,8 +93,8 @@ trait ScalaBounds extends api.Bounds {
     ScTypePolymorphicType(intTpe, newParams)
   }
 
-  override def lub(t1: ScType, t2: ScType, checkWeak: Boolean): ScType = {
-    lubInner(t1, t2, lubDepth(Seq(t1, t2)), checkWeak)(stopAddingUpperBound = false)
+  override def lub(t1: ScType, t2: ScType, checkWeak: Boolean)(implicit context: Context): ScType = {
+    lubInner(t1, t2, lubDepth(Seq(t1, t2)), checkWeak)(stopAddingUpperBound = false, context = context)
   }
 
   //similar to Scala code, this code is duplicated and optimized to avoid closures.
@@ -119,7 +121,7 @@ trait ScalaBounds extends api.Bounds {
     lubDepthAdjust(td, td max bd)
   }
 
-  private def conforms(t1: ScType, t2: ScType, checkWeak: Boolean) = t1.conforms(t2, ConstraintSystem.empty, checkWeak).isRight
+  private def conforms(t1: ScType, t2: ScType, checkWeak: Boolean)(implicit context: Context) = t1.conforms(t2, ConstraintSystem.empty, checkWeak).isRight
 
   //This weird method is copy from Scala compiler. See scala.reflect.internal.Types#lubDepthAdjust
   private def lubDepthAdjust(td: Int, bd: Int): Int = {
@@ -129,7 +131,7 @@ trait ScalaBounds extends api.Bounds {
     else (td - 1) max (bd - 3)
   }
 
-  private class ClassLike(_tp: ScType) {
+  private class ClassLike(_tp: ScType)(implicit context: Context) {
     val tp: ScType = _tp match {
       case ex: ScExistentialType => ex.quantified
       case other => other
@@ -154,7 +156,7 @@ trait ScalaBounds extends api.Bounds {
         case proj @ ScProjectionType(p, _) =>
           proj.actualElement match {
             case _: PsiClass => Some(p)
-            case t: ScTypeAliasDefinition =>
+            case t: ScTypeAliasDefinition if !t.isOpaque || context.isInScopeOf(t) =>
               t.aliasedType.toOption match {
                 case None          => None
                 case Some(aliased) => projectionOptionImpl(proj.actualSubst(aliased), visited + tp)
@@ -162,7 +164,7 @@ trait ScalaBounds extends api.Bounds {
             case _: ScTypeAliasDeclaration => Some(p)
             case _                         => None
           }
-        case ScDesignatorType(t: ScTypeAliasDefinition) =>
+        case ScDesignatorType(t: ScTypeAliasDefinition) if !t.isOpaque || context.isInScopeOf(t) =>
           t.aliasedType.toOption match {
             case None          => None
             case Some(aliased) => projectionOptionImpl(aliased, visited + tp)
@@ -295,11 +297,11 @@ trait ScalaBounds extends api.Bounds {
     }
   }
 
-  private def lubInner(l: ScType, r: ScType, checkWeak: Boolean, stopAddingUpperBound: Boolean): ScType = {
-    lubInner(l, r, lubDepth(Seq(l, r)), checkWeak)(stopAddingUpperBound)
+  private def lubInner(l: ScType, r: ScType, checkWeak: Boolean, stopAddingUpperBound: Boolean)(implicit context: Context): ScType = {
+    lubInner(l, r, lubDepth(Seq(l, r)), checkWeak)(stopAddingUpperBound, context)
   }
 
-  private def lubInner(t1: ScType, t2: ScType, depth : Int, checkWeak: Boolean)(implicit stopAddingUpperBound: Boolean): ScType = {
+  private def lubInner(t1: ScType, t2: ScType, depth : Int, checkWeak: Boolean)(implicit stopAddingUpperBound: Boolean, context: Context): ScType = {
     if (conforms(t1, t2, checkWeak)) t2
     else if (conforms(t2, t1, checkWeak)) t1
     else {
@@ -398,7 +400,7 @@ trait ScalaBounds extends api.Bounds {
   }
 
   private def calcForTypeParamWithoutVariance(substed1: ScType, substed2: ScType, checkWeak: Boolean, count: Int = 1)
-                                             (implicit stopAddingUpperBound: Boolean): (ScType, Option[ScExistentialArgument]) = {
+                                             (implicit stopAddingUpperBound: Boolean, context: Context): (ScType, Option[ScExistentialArgument]) = {
     if (substed1 equiv substed2) (substed1, None) else {
       if (substed1 conforms substed2) {
         val ex = ScExistentialArgument("_$" + count, List.empty, substed1, substed2)
@@ -434,7 +436,7 @@ trait ScalaBounds extends api.Bounds {
   }
 
   private def getTypeForAppending(clazz1: ClassLike, clazz2: ClassLike, baseClass: ClassLike, depth: Int, checkWeak: Boolean)
-                                 (implicit stopAddingUpperBound: Boolean): ScType = {
+                                 (implicit stopAddingUpperBound: Boolean, context: Context): ScType = {
     val baseClassDesignator = baseClass.baseDesignator
     if (baseClass.getTypeParameters.length == 0) return baseClassDesignator
     (baseClass.superSubstitutor(clazz1), baseClass.superSubstitutor(clazz2)) match {

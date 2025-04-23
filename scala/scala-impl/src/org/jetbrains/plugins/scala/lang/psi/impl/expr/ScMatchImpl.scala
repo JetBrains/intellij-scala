@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScBegin
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt}
 
 class ScMatchImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScMatch with ScBegin {
 
@@ -15,7 +15,7 @@ class ScMatchImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScMatch
     expressions.flatMap(_.`type`().toOption) match {
       case Seq() => Failure("")
       case branchesTypes =>
-        val branchesLub = branchesTypes.foldLeft(Nothing: ScType)(_.lub(_))
+        val branchesLub = branchesTypes.foldLeft(Nothing: ScType)(_.lub(_)(Context(this))) // TODO Union type in Scala 3, SCL-23806
         Right(branchesLub)
     }
   }

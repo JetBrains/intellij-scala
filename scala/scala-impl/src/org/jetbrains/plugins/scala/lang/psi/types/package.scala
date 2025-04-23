@@ -84,11 +84,15 @@ package object types {
       typeSystem.conformsInner(`type`, scType, constraints = constraints, checkWeak = checkWeak)
     }
 
-    def glb(`type`: ScType, checkWeak: Boolean = false): ScType = {
+    @deprecated def glb_FORWARDER(`type`: ScType, checkWeak: Boolean): ScType = glb(`type`, checkWeak)
+
+    def glb(`type`: ScType, checkWeak: Boolean = false)(implicit context: Context): ScType = {
       typeSystem.glb(scType, `type`, checkWeak)
     }
 
-    def lub(`type`: ScType, checkWeak: Boolean = true): ScType = {
+    @deprecated def lub_FORWARDER(`type`: ScType, checkWeak: Boolean): ScType = lub(`type`, checkWeak)
+
+    def lub(`type`: ScType, checkWeak: Boolean = true)(implicit context: Context): ScType = {
       typeSystem.lub(scType, `type`, checkWeak)
     }
 
