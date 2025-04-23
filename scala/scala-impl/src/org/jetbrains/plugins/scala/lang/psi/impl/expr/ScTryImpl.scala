@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{Compatibility, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{Compatibility, Context, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -41,7 +41,7 @@ class ScTryImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScTry wit
         case Seq(ScalaResolveResult(function: ScFunction, substitutor)) =>
           function.returnType
             .map(substitutor)
-            .map(tryBlockType.lub(_))
+            .map(tryBlockType.lub(_)(Context(this))) // TODO Union type in Scala 3, SCL-23806
         case _ => Right(tryBlockType)
       }
     }).getOrElse(Failure(ScalaBundle.message("nothing.to.type")))

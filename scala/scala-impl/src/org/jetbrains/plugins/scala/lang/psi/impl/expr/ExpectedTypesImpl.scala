@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses, ScReferencePattern, ScTuplePattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses, ScReferencePattern, ScTuplePattern, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSequenceArg, ScTupleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -473,8 +473,10 @@ class ExpectedTypesImpl extends ExpectedTypes {
         }
         expectedTypesForArg(infix)
       //SLS[4.1]
-      case v @ ScPatternDefinition.expr(`sameInContext`)  if v.isSimple => declaredOrInheritedType(v)
-      case v @ ScVariableDefinition.expr(`sameInContext`) if v.isSimple => declaredOrInheritedType(v)
+      case v @ ScPatternDefinition.expr(`sameInContext`)  if v.isSimple || (v.pList.patterns match { case Seq(_: ScWildcardPattern) => true; case _ => false }) =>
+        declaredOrInheritedType(v)
+      case v @ ScVariableDefinition.expr(`sameInContext`) if v.isSimple || (v.pList.patterns match { case Seq(_: ScWildcardPattern) => true; case _ => false }) =>
+        declaredOrInheritedType(v)
       //SLS[4.6]
       case v: ScFunctionDefinition if v.body.contains(sameInContext) => declaredOrInheritedType(v)
       //default parameters

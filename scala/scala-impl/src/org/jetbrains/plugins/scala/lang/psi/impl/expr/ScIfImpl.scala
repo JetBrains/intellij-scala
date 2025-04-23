@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.ScBegin
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
@@ -77,9 +77,9 @@ class ScIfImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScIf with 
     (thenExpression, elseExpression) match {
       case (Some(t), Some(e)) => for (tt <- t.`type`();
                                       et <- e.`type`()) yield {
-        tt.lub(et)
+        tt.lub(et)(Context(this)) // TODO Union type in Scala 3, SCL-23806
       }
-      case (Some(t), None) => t.`type`().map(_.lub(Unit))
+      case (Some(t), None) => t.`type`().map(_.lub(Unit)(Context(this)))
       case _ => Failure(ScalaBundle.message("nothing.to.type"))
     }
   }

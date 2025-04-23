@@ -495,7 +495,7 @@ class ImplicitCollector(
         val subst = c.substitutor
         typeable.`type`() match {
           case Right(t) =>
-            val conformance = subst(t).conformsIn(place, tp, ConstraintSystem.empty)
+            val conformance = subst(t).conforms(tp, ConstraintSystem.empty)(Context(place))
             conformance match {
               case ConstraintSystem(subst) =>
                 //Update synthetic parameters, coming from expected context-function type
@@ -820,7 +820,7 @@ class ImplicitCollector(
               checkExtensionConformance(place, undefined, pt)
             else
               checkWeakConformance(place, undefined, pt)
-          } else undefined.conformsIn(place, tp, ConstraintSystem.empty)
+          } else undefined.conforms(tp, ConstraintSystem.empty)(Context(place))
 
         if (undefinedConforms.isRight) {
           if (checkFast) Option(c)
@@ -850,7 +850,7 @@ class ImplicitCollector(
         (extensionArg, _) <- extractFunction1TypeArgs(tpe, strict = false)
         (ptArg, _)        <- extractFunction1TypeArgs(pt)
       } yield {
-        val conforms = ptArg.conformsIn(place, extensionArg, ConstraintSystem.empty)
+        val conforms = ptArg.conforms(extensionArg, ConstraintSystem.empty)(Context(place))
 
         if (conforms.isRight) conforms
         else {
@@ -969,8 +969,8 @@ class ImplicitCollector(
       case Some((tpeArg, tpeRes)) =>
         extractFunction1TypeArgs(pt) match {
           case Some((ptArg, ptRes)) =>
-            ptArg.conformsIn(place, tpeArg, ConstraintSystem.empty, checkWeak = true) match {
-              case cs: ConstraintSystem => tpeRes.conformsIn(place, ptRes, cs)
+            ptArg.conforms(tpeArg, ConstraintSystem.empty, checkWeak = true)(Context(place)) match {
+              case cs: ConstraintSystem => tpeRes.conforms(ptRes, cs)(Context(place))
               case left                 => left
             }
           case _ => ConstraintsResult.Left

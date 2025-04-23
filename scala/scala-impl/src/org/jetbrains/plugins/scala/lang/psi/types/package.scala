@@ -84,11 +84,15 @@ package object types {
       typeSystem.conformsInner(`type`, scType, constraints = constraints, checkWeak = checkWeak)
     }
 
-    def glb(`type`: ScType, checkWeak: Boolean = false): ScType = {
+    @deprecated def glb_FORWARDER(`type`: ScType, checkWeak: Boolean): ScType = glb(`type`, checkWeak)
+
+    def glb(`type`: ScType, checkWeak: Boolean = false)(implicit context: Context): ScType = {
       typeSystem.glb(scType, `type`, checkWeak)
     }
 
-    def lub(`type`: ScType, checkWeak: Boolean = true): ScType = {
+    @deprecated def lub_FORWARDER(`type`: ScType, checkWeak: Boolean): ScType = lub(`type`, checkWeak)
+
+    def lub(`type`: ScType, checkWeak: Boolean = true)(implicit context: Context): ScType = {
       typeSystem.lub(scType, `type`, checkWeak)
     }
 
@@ -242,12 +246,6 @@ package object types {
       innerUpdate(scType, Set.empty)
     }
 
-    def conformsIn(place: PsiElement, that: ScType): Boolean =
-      this.conforms(that)(Context(place))
-
-    def conformsIn(place: PsiElement, that: ScType, constraints: ConstraintSystem, checkWeak: Boolean = false): ConstraintsResult =
-      this.conforms(that, constraints, checkWeak)(Context(place))
-
     /**
      * @example {{{
      * Int           -> Int
@@ -308,13 +306,11 @@ package object types {
   }
 
   implicit class ScTypesExt(private val types: IterableOnce[ScType]) extends AnyVal {
-    def glb(checkWeak: Boolean = false)(implicit project: ProjectContext): ScType = {
-      project.typeSystem.glb(types, checkWeak)
-    }
+    def glb(checkWeak: Boolean = false)(implicit project: ProjectContext, context: Context): ScType =
+      types.iterator.reduce(project.typeSystem.glb(_, _, checkWeak))
 
-    def lub(checkWeak: Boolean = true)(implicit project: ProjectContext): ScType = {
-      project.typeSystem.lub(types, checkWeak)
-    }
+    def lub(checkWeak: Boolean = true)(implicit project: ProjectContext, context: Context): ScType =
+      types.iterator.reduce(project.typeSystem.lub(_, _, checkWeak))
   }
 
   private trait Extractor[T <: PsiNamedElement] {
