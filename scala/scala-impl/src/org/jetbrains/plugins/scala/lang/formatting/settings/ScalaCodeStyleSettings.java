@@ -135,13 +135,6 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public static final int[] TYPE_ANNOTATION_ALIGN_VALUES = new int[]{DO_NOT_ALIGN, ALIGN_ON_COLON, ALIGN_ON_TYPE};
   public static final String[] TYPE_ANNOTATION_ALIGN_STRING = new String[]{"Do not align", "On colon", "On type",};
 
-  /**
-   * @deprecated This field is left for migration only. Use {@link #ALIGN_PARAMETER_TYPES_IN_MULTILINE_DECLARATIONS}
-   * @see org.jetbrains.plugins.scala.lang.formatting.settings.migration.CodeStyleSettingsMigrationServiceBase
-   */
-  @SuppressWarnings("DeprecatedIsStillUsed")
-  @Deprecated
-  public boolean ALIGN_TYPES_IN_MULTILINE_DECLARATIONS = false;
   public int ALIGN_PARAMETER_TYPES_IN_MULTILINE_DECLARATIONS = DO_NOT_ALIGN;
 
   public boolean KEEP_COMMENTS_ON_SAME_LINE = true;
@@ -183,14 +176,6 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean MULTILINE_STRING_CLOSING_QUOTES_ON_NEW_LINE = false;
 
   public boolean USE_SCALA3_INDENTATION_BASED_SYNTAX = false;
-  
-  /**
-   * @deprecated This field is left for migration only. Use {@link #MULTILINE_STRING_CLOSING_QUOTES_ON_NEW_LINE} and {@link #MULTILINE_STRING_INSERT_MARGIN_ON_ENTER}
-   * @see org.jetbrains.plugins.scala.lang.formatting.settings.migration.CodeStyleSettingsMigrationServiceBase
-   */
-  @SuppressWarnings("DeprecatedIsStillUsed")
-  @Deprecated
-  public int MULTILINE_STRING_SUPORT = MULTILINE_STRING_ALL; // !! do not fix this typo in supPort, let legacy settings t be migrated properly
 
   @OptionTag("MARGIN_CHAR")
   public String MULTILINE_STRING_MARGIN_CHAR = "|";
@@ -204,18 +189,6 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean supportMultilineString() {
     return MULTILINE_STRING_CLOSING_QUOTES_ON_NEW_LINE | MULTILINE_STRING_INSERT_MARGIN_ON_ENTER | MULTILINE_STRING_PROCESS_MARGIN_ON_COPY_PASTE;
   }
-
-  @Deprecated
-  public static final int MULTILINE_STRING_NONE = 0;
-  @SuppressWarnings("DeprecatedIsStillUsed")
-  @Deprecated
-  public static final int MULTILINE_STRING_QUOTES_AND_INDENT = 1;
-  @SuppressWarnings("DeprecatedIsStillUsed")
-  @Deprecated
-  public static final int MULTILINE_STRING_INSERT_MARGIN_CHAR = 2;
-  @Deprecated
-  private static final int MULTILINE_STRING_ALL = 2;
-
   @Override
   protected void afterLoaded() {
     super.afterLoaded();

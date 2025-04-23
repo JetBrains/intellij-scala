@@ -6,7 +6,6 @@ import com.intellij.openapi.diagnostic.Logger
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.formatting.settings.migration.CodeStyleSettingsMigrationServiceBase._
 
-import scala.annotation.nowarn
 import scala.beans.BeanProperty
 
 /**
@@ -43,7 +42,7 @@ abstract class CodeStyleSettingsMigrationServiceBase extends PersistentStateComp
 
 object CodeStyleSettingsMigrationServiceBase {
   class MyState(@BeanProperty var version: Int) {
-    def this() = this(0) // default constructor is needed by IntelliJ platform
+    def this() = this(0) // IntelliJ platform requires the default constructor
   }
 
   private[migration]
@@ -52,22 +51,10 @@ object CodeStyleSettingsMigrationServiceBase {
   //noinspection ScalaDeprecation
   private[migration]
   object Migrations {
-    @nowarn("cat=deprecation")
-    val DecomposeMultilineStringSupportSettings: MigrationItem = MigrationItem(1, scalaSettings => {
-      import ScalaCodeStyleSettings._
-      import scalaSettings._
-      MULTILINE_STRING_CLOSING_QUOTES_ON_NEW_LINE = MULTILINE_STRING_SUPORT >= MULTILINE_STRING_QUOTES_AND_INDENT
-      MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = MULTILINE_STRING_SUPORT >= MULTILINE_STRING_INSERT_MARGIN_CHAR
-    })
-
-
-    @nowarn("cat=deprecation")
-    val AlignTypesInMultilineDeclarations_FromBooleanTo3Values: MigrationItem = MigrationItem(2, scalaSettings => {
-      if (scalaSettings.ALIGN_TYPES_IN_MULTILINE_DECLARATIONS) {
-        scalaSettings.ALIGN_PARAMETER_TYPES_IN_MULTILINE_DECLARATIONS = ScalaCodeStyleSettings.ALIGN_ON_COLON
-        scalaSettings.ALIGN_TYPES_IN_MULTILINE_DECLARATIONS = false // to remove it from persisted settings
-      }
-    })
+    // NOTE: these migrations are effectively unused after SCL-23809, but we still keep them just for the history.
+    // For the future newly added migrations you should use the version larger than the latest versions in the list below
+    private val DecomposeMultilineStringSupportSettings: MigrationItem = MigrationItem(1, _ => {})
+    private val AlignTypesInMultilineDeclarations_FromBooleanTo3Values: MigrationItem = MigrationItem(2, _ => {})
 
     val all: Seq[MigrationItem] = Seq(
       DecomposeMultilineStringSupportSettings,
