@@ -172,7 +172,7 @@ object CompilationDataFactory
       sourceRoot <- module.getSourceRoots.asScala if sourceRoot.getRootType.isForTests == target.isTests
       sourceRootFile = sourceRoot.getPath.toAbsolutePath.normalize() if Files.exists(sourceRootFile)
     } yield (sourceRootFile, output)
-  
+
   private def targetsIn(context: CompileContext): Seq[ModuleBuildTarget] = {
     def isExcluded(target: ModuleBuildTarget): Boolean =
       ChunkExclusionService.isExcluded(chunk(target))
@@ -203,7 +203,7 @@ object CompilationDataFactory
     }
 
     if (errors.isEmpty) None else Some(
-      errors.mkString("\n") +
-      JpsBundle.message("configure.separate.output.paths"))
+      (errors.toSeq :+ JpsBundle.message("configure.separate.output.paths")).mkString("\n")
+    )
   }
 }
