@@ -1,15 +1,15 @@
 package org.jetbrains.sbt.project.template.wizard
 
+import com.intellij.ide.wizard.NewProjectWizardStep
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.dsl.builder.{Panel, Row, RowLayout}
-import kotlin.Unit.{INSTANCE => KUnit}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions.applyTo
 import org.jetbrains.plugins.scala.isUnitTestMode
+import org.jetbrains.plugins.scala.project.template.{IndentationSyntaxStepLike, ScalaVersionDownloadingDialog}
 import org.jetbrains.plugins.scala.project.{Version, Versions}
-import org.jetbrains.plugins.scala.project.template.ScalaVersionDownloadingDialog
 import org.jetbrains.plugins.scala.util.AsynchronousVersionsDownloading
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.project.template.{SComboBox, ScalaModuleBuilderSelections}
@@ -17,7 +17,7 @@ import org.jetbrains.sbt.project.template.{SComboBox, ScalaModuleBuilderSelectio
 import java.util.concurrent.atomic.AtomicBoolean
 import scala.collection.immutable.ListSet
 
-trait ScalaVersionStepLike extends AsynchronousVersionsDownloading {
+trait ScalaVersionStepLike extends IndentationSyntaxStepLike with AsynchronousVersionsDownloading { self: NewProjectWizardStep =>
 
   protected def selections: ScalaModuleBuilderSelections
 
@@ -45,15 +45,25 @@ trait ScalaVersionStepLike extends AsynchronousVersionsDownloading {
     _.setToolTipText(SbtBundle.message("sbt.download.scala.standard.library.sources"))
   )
 
-  protected def setUpScalaUI(panel: Panel, downloadSourcesCheckbox: Boolean): Unit =
+  protected def setUpScalaUI(panel: Panel, downloadSourcesCheckbox: Boolean): Unit = {
+    scalaVersionComboBox.addItemListener { e =>
+      if (e.getStateChange == java.awt.event.ItemEvent.SELECTED) {
+        val selectedScalaVersion = scalaVersionComboBox.getSelectedItemTyped
+        val show = selectedScalaVersion.exists(isScala3VersionString)
+        setShowIndentationSyntaxCheckBox(show)
+      }
+    }
+
     panel.row(scalaLabelText, (row: Row) => {
       row.layout(RowLayout.PARENT_GRID)
       row.cell(scalaVersionComboBox)
       if (downloadSourcesCheckbox) {
         row.cell(downloadScalaSourcesCheckbox)
       }
-      KUnit
+      kotlin.Unit.INSTANCE
     })
+    setupIndentationSyntaxUI(panel)
+  }
 
 
   /**
@@ -115,9 +125,18 @@ trait ScalaVersionStepLike extends AsynchronousVersionsDownloading {
         if (selections.scrollScalaVersionDropdownToTheTop) {
           ScalaVersionDownloadingDialog.UiUtils.scrollToTheTop(scalaVersionComboBox)
         }
+
+        val show = isScala3VersionString(version)
+        setShowIndentationSyntaxCheckBox(show)
       case _ if scalaVersionComboBox.getItemCount > 0 =>
         scalaVersionComboBox.setSelectedIndex(0)
+
+        val show = scalaVersionComboBox.getSelectedItemTyped.exists(isScala3VersionString)
+        setShowIndentationSyntaxCheckBox(show)
       case _ =>
     }
   }
+
+  private def isScala3VersionString(str: String): Boolean =
+    Version(str) >= Version("3.0.0")
 }

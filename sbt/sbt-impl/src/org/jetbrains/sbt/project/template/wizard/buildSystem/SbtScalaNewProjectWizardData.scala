@@ -7,6 +7,9 @@ import org.jetbrains.annotations.{Nullable, TestOnly}
 trait ScalaNewProjectWizardData {
   @TestOnly
   def setScalaVersion(version: String): Unit
+
+  @TestOnly
+  def setUseIndentationBasedSyntax(use: Boolean): Unit
 }
 
 object ScalaNewProjectWizardData {

@@ -10,6 +10,7 @@ import com.intellij.testFramework.JUnit38AssumeSupportRunner
 import org.jetbrains.bsp.BSP
 import org.jetbrains.bsp.protocol.BspCommunicationService
 import org.jetbrains.plugins.scala.extensions.inWriteAction
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.sbt.project.ProjectStructureDsl._
 import org.jetbrains.sbt.project.template.wizard.buildSystem.BuildSystemScalaNewProjectWizardData.scalaBuildSystemData
 import org.jetbrains.sbt.project.template.wizard.buildSystem.ScalaNewProjectWizardData.scalaData
@@ -91,9 +92,16 @@ class NewScalaCliProjectWizardTest extends NewScalaProjectWizardTestBase with Ex
     runSimpleCreateSbtProjectTest(scalaVersion, scalaLibraries)
   }
 
+  def testCreateSimpleProjectScala3AndUseIndentationBasedSyntax(): Unit = {
+    val scalaVersion = "3.3.3"
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk(useEnv = false)(scalaVersion, BSP.ProjectSystemId)
+    runSimpleCreateSbtProjectTest(scalaVersion, scalaLibraries, useIndentationBasedSyntax = true)
+  }
+
   private def runSimpleCreateSbtProjectTest(
     scalaVersion: String,
-    scalaLibraries: Seq[library]
+    scalaLibraries: Seq[library],
+    useIndentationBasedSyntax: Boolean = false
   ): Unit = {
     //noinspection TypeAnnotation
     val expectedProject = new project(projectName) {
@@ -117,17 +125,26 @@ class NewScalaCliProjectWizardTest extends NewScalaProjectWizardTestBase with Ex
       )
     }
 
-    runCreateScalaCliProjectTest(scalaVersion, expectedProject)
+    runCreateScalaCliProjectTest(scalaVersion, expectedProject, useIndentationBasedSyntax)
   }
 
-  private def runCreateScalaCliProjectTest(scalaVersion: String, expectedProject: project): Unit = {
+  private def runCreateScalaCliProjectTest(scalaVersion: String, expectedProject: project, useIndentationBasedSyntax: Boolean): Unit = {
     val project = createScalaProject(NewProjectWizardConstants.Language.SCALA, projectName, checkJDK = false) { step =>
       scalaBuildSystemData(step).setBuildSystem("Scala CLI")
-      scalaData(step).setScalaVersion(scalaVersion)
+      val data = scalaData(step)
+      data.setScalaVersion(scalaVersion)
+      data.setUseIndentationBasedSyntax(useIndentationBasedSyntax)
     }
 
     val compareContextNew = compareContext.withOptions(ProjectComparisonOptions(projectName))
-    useProject(project, false, assertProjectsEqual(expectedProject, _: Project)(compareContextNew))
+    useProject(project, false, (project: Project) => {
+      assertProjectsEqual(expectedProject, project)(compareContextNew)
+      junit.framework.TestCase.assertEquals(
+        "The 'Use indentation-based syntax' setting was not configured correctly",
+        useIndentationBasedSyntax,
+        ScalaCodeStyleSettings.getInstance(project).USE_SCALA3_INDENTATION_BASED_SYNTAX
+      )
+    })
   }
 
   private def installScalaCli(): Unit = {
