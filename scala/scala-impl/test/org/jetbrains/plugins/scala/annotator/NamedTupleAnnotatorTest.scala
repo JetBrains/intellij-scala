@@ -34,4 +34,18 @@ class NamedTupleAnnotatorTest extends ScalaHighlightingTestBase {
        |val tup: (Int, Int) = (a = true, b = 1)
        |""".stripMargin
   )
+
+  // SCL-23811
+  def test_name_duplication_error(): Unit = assertErrorsText(
+    """val _ = (a = 1, a = 2)
+      |val (b = _, b = _) = (b = 1)
+      |type X = (c: Int, c: Int)
+      |
+      |""".stripMargin,
+    """
+      |Error(a,Duplicate name in named tuple: a)
+      |Error(b,Duplicated name extractor: b)
+      |Error(c,Duplicate name in named tuple: c)
+      |""".stripMargin
+  )
 }
