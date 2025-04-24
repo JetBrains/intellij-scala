@@ -3,6 +3,7 @@ package org.jetbrains.sbt.project
 import com.intellij.ide.projectWizard.NewProjectWizardConstants
 import com.intellij.openapi.project.Project
 import com.intellij.testFramework.FixtureRuleKt.useProject
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.project.Versions
 import org.jetbrains.sbt.project.ProjectStructureDsl._
 import org.jetbrains.sbt.project.template.wizard.buildSystem.BuildSystemScalaNewProjectWizardData.scalaBuildSystemData
@@ -16,17 +17,20 @@ import org.jetbrains.sbt.project.template.wizard.buildSystem.ScalaSampleCodeNewP
 class NewSbtProjectWizardTest extends NewScalaProjectWizardTestBase with ExactMatch {
 
   def testCreateProjectWithLowerCaseName(): Unit =
-    runSimpleCreateSbtProjectTest("lowe_case_project_name")
+    runSimpleCreateSbtProjectTest(projectName = "lower_case_project_name", scalaVersion = "2.13.14")
 
   def testCreateProjectWithUpperCaseName(): Unit =
-    runSimpleCreateSbtProjectTest("UpperCaseProjectName", packagePrefixOpt = Some("org.example.prefix"))
+    runSimpleCreateSbtProjectTest(projectName = "UpperCaseProjectName", scalaVersion = "2.13.14", packagePrefixOpt = Some("org.example.prefix"))
 
   //SCL-12528, SCL-12528
   def testCreateProjectWithDotsSpacesAndDashesInNameName(): Unit =
-    runSimpleCreateSbtProjectTest("project_name_with_dots spaces and-dashes and UPPERCASE")
+    runSimpleCreateSbtProjectTest(projectName = "project_name_with_dots spaces and-dashes and UPPERCASE", scalaVersion = "2.13.14")
 
-  private def runSimpleCreateSbtProjectTest(projectName: String, packagePrefixOpt: Option[String] = None): Unit = {
-    val scalaVersion = "2.13.14"
+  def testCreateScala3ProjectAndUseIndentationBasedSyntax(): Unit = {
+    runSimpleCreateSbtProjectTest(projectName = "scala3-indentation-based-syntax", scalaVersion = "3.3.3", useIndentationBasedSyntax = true)
+  }
+
+  private def runSimpleCreateSbtProjectTest(projectName: String, scalaVersion: String, packagePrefixOpt: Option[String] = None, useIndentationBasedSyntax: Boolean = false): Unit = {
     val sbtVersion = Versions.SBT.LatestSbtVersion
 
     //noinspection TypeAnnotation
@@ -73,7 +77,8 @@ class NewSbtProjectWizardTest extends NewScalaProjectWizardTestBase with ExactMa
       projectName,
       scalaVersion,
       sbtVersion,
-      packagePrefixOpt
+      packagePrefixOpt,
+      useIndentationBasedSyntax
     )(expectedProject)
   }
 
@@ -81,7 +86,8 @@ class NewSbtProjectWizardTest extends NewScalaProjectWizardTestBase with ExactMa
     projectName: String,
     scalaVersion: String,
     sbtVersion: String,
-    packagePrefix: Option[String] = None
+    packagePrefix: Option[String],
+    useIndentationBasedSyntax: Boolean
   )(
     expectedProject: project
   ): Unit = {
@@ -92,11 +98,19 @@ class NewSbtProjectWizardTest extends NewScalaProjectWizardTestBase with ExactMa
       sbtData.setScalaVersion(scalaVersion)
       sbtData.setSbtVersion(sbtVersion)
       sbtData.setPackagePrefix(packagePrefix.getOrElse(""))
+      sbtData.setUseIndentationBasedSyntax(useIndentationBasedSyntax)
 
       // TODO: test different values
       scalaSampleCodeData(step).setAddSampleCode(false)
     }
 
-    useProject(project, false, assertProjectsEqual(expectedProject, _: Project, singleContentRootModules = false))
+    useProject(project, false, (project: Project) => {
+      assertProjectsEqual(expectedProject, project, singleContentRootModules = false)
+      junit.framework.TestCase.assertEquals(
+        "The 'Use indentation-based syntax' setting was not configured correctly",
+        useIndentationBasedSyntax,
+        ScalaCodeStyleSettings.getInstance(project).USE_SCALA3_INDENTATION_BASED_SYNTAX
+      )
+    })
   }
 }

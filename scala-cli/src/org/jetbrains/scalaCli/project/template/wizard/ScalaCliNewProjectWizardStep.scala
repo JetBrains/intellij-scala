@@ -42,6 +42,7 @@ final class ScalaCliNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
   private def needToAddSampleCode: Boolean = addSampleCodeProperty.get()
 
   @TestOnly override def setScalaVersion(version: String): Unit = scalaVersionComboBox.setSelectedItemEnsuring(version)
+  @TestOnly override def setUseIndentationBasedSyntax(use: Boolean): Unit = setUseIndentationBasedSyntaxProperty(use)
   @TestOnly override def setAddSampleCode(value: java.lang.Boolean): Unit = addSampleCodeProperty.set(value)
 
   override protected val selections: ScalaModuleBuilderSelections = ScalaModuleBuilderSelections.default
@@ -65,6 +66,8 @@ final class ScalaCliNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
      * Similar thing is done in AbstractGradleModuleBuilder#setupModule */
     project.putUserData(ExternalSystemDataKeys.NEWLY_CREATED_PROJECT, java.lang.Boolean.TRUE)
     project.putUserData(ExternalSystemDataKeys.NEWLY_IMPORTED_PROJECT, java.lang.Boolean.TRUE)
+
+    setupUseIndentationBasedSyntaxInProject(project)
 
     if (needToAddSampleCode) {
       val files = addScalaSampleCode(
