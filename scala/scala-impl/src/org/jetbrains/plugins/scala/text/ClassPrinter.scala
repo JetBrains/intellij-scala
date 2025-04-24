@@ -227,7 +227,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     val annotations = p.annotations.map(textOf).mkString(" ")
     val modifiers = {
       val s = textOf(p.getModifierList)
-      if (withPrivate) s else s.replace("private ", "")
+      if (withPrivate) s else s.replace("private[this] ", "").replace("private ", "")
     }
     val keyword =
       if (withPrivate || !isPrivate(p)) if (p.isVal) (if (!normalize || !(inCaseClass && modifiers.isEmpty)) "val " else "") else if (p.isVar) "var " else ""
