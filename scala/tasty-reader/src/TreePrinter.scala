@@ -273,8 +273,12 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
     val isInEnum = definition.exists(_.contains(ENUM))
     val isInCaseClass = !isInEnum && definition.exists(_.contains(CASE))
     def textOf(tpe: Node): String = textOfType(tpe, parens = 1)
+    val blockChildren = children match {
+      case Seq(Node3(BLOCK, _, children), _: _*) => children
+      case _ => children
+    }
     // TODO recursive textOf method, common syntactic sugar for FunctionN and TupleN
-    val parents = children.collect { // TODO rely on name kind
+    val parents = blockChildren.collect { // TODO rely on name kind
       case node if node.isTypeTree => textOf(node)
       case Node3(APPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)) => textOf(tpe)
       case Node3(APPLY, _, Seq(Node3(APPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)), _: _*)) => textOf(tpe)
