@@ -234,4 +234,20 @@ class Scala3NamedTuplesTest extends TypeInferenceTestBase {
        |//String
        |""".stripMargin
   )
+
+  def testTypeInferenceAfterNTtoTConversion(): Unit = doTest(
+    s"""def takeTup[A, B](t: (A, B)): (A, B) = t
+       |val tup = takeTup((a = true, b = 2))
+       |${START}tup$END
+       |//(Boolean, Int)
+       |""".stripMargin
+  )
+
+  def testTtoNTConformance(): Unit = doTest(
+    s"""def takeTup[A, B](t: (a: A, b: B)): (a: A, b: B) = t
+       |val tup = takeTup((true, 2))
+       |${START}tup$END
+       |//(a: Boolean, b: Int)
+       |""".stripMargin
+  )
 }
