@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.injection
 
 import com.intellij.lang.Language
-import com.intellij.lang.injection.{InjectedLanguageManager, MultiHostInjector, MultiHostRegistrar}
+import com.intellij.lang.injection.{MultiHostInjector, MultiHostRegistrar}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
@@ -393,14 +393,10 @@ private object ScalaLanguageInjector {
   )(implicit support: ScalaLanguageInjectionSupport, registrar: MultiHostRegistrar): Unit = {
     val InjectionSplitResult(isUnparseable, injectionInfos) = ScalaInjectionInfosCollector.collectInjectionInfos(literals, language, prefix, suffix)
 
-    InjectorUtils.registerInjection(language, host.getContainingFile, injectionInfos.asJava, registrar)
-    InjectorUtils.registerSupport(support, true, host, language)
-    InjectorUtils.putInjectedFileUserData(
-      host,
-      language,
-      InjectedLanguageManager.FRANKENSTEIN_INJECTION,
-      if (isUnparseable) _root_.java.lang.Boolean.TRUE else null
-    )
+    InjectorUtils.registerInjection(language, host.getContainingFile, injectionInfos.asJava, registrar, (registrar: MultiHostRegistrar) => {
+      registrar.frankensteinInjection(isUnparseable)
+      InjectorUtils.registerSupport(registrar, support, true)
+    })
   }
 
   private def annotationOwnerForScStringLiteral(stringLiteral: ScStringLiteral): Option[AnnotationOwner] = {
