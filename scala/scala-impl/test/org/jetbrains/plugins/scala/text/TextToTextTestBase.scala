@@ -103,7 +103,7 @@ abstract class TextToTextTestBase(dependencies: Seq[DependencyDescription],
     println(s"Testing $total classes:")
 
     classes.zipWithIndex.foreach { case (cls, i) =>
-      println(f"$i%04d/$total%s: ${cls.qualifiedName}")
+      println(f"${i + 1}%04d/$total%s: ${cls.qualifiedName}")
 
       Assert.assertTrue("Must be in a compiled file: ${cls.qualifiedName}", cls.isInCompiledFile)
 
