@@ -54,6 +54,7 @@ class TastyReaderTest extends TestCase {
   def testAnnotationMultiple(): Unit = doTest("annotation/Multiple")
   def testAnnotationParameters(): Unit = doTest("annotation/Parameters")
   def testAnnotationText(): Unit = doTest("annotation/Text")
+  def testMember(): Unit = doTest("member/package")
   def testMemberBeanProperty(): Unit = doTest("member/BeanProperty")
   def testMemberBounds(): Unit = doTest("member/Bounds")
   def testMemberDef(): Unit = doTest("member/Def")
@@ -101,6 +102,7 @@ class TastyReaderTest extends TestCase {
   def testParameterTrait(): Unit = doTest("parameter/Trait")
   def testParameterType(): Unit = doTest("parameter/Type")
   def testParameterVariance(): Unit = doTest("parameter/Variance") // TODO TypeMember
+  def testTypeDefinition(): Unit = doTest("typeDefinition/package")
   def testTypeDefinitionClass(): Unit = doTest("typeDefinition/Class")
   def testTypeDefinitionCompanions(): Unit = doTest("typeDefinition/Companions")
   def testTypeDefinitionDerivation(): Unit = doTest("typeDefinition/Derivation")

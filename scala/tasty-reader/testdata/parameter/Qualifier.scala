@@ -28,4 +28,6 @@ trait Qualifier {
   object Object {
     class Class(private[Object] val x: Int)
   }
+
+  class PrivateThis(/**/private[this] val /**/x: Int)
 }
