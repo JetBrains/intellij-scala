@@ -28,6 +28,7 @@ import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor.ScTypeForDynamicProcessorEx
 import org.jetbrains.plugins.scala.lang.resolve.processor._
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.{ScalaBundle, Tracing}
 
 import scala.collection.mutable
@@ -195,9 +196,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       case inf: ScInfixExpr if this == inf.operation || this == inf.getBaseExpr =>
         StdKinds.refExprQualRef
       case _ =>
-        // Mill files allow direct references to package
-        // objects, even though normal .scala files do not
-        if (this.containingScalaFile.exists(_.isMillFile)) StdKinds.refExprQualRef
+        // Mill files (and normal Scala files since 3.7, see SIP-68) allow direct references to package objects,
+        // even though normal .scala files (before 3.7) do not
+        if (this.containingScalaFile.exists(_.isMillFile) || this.scalaLanguageLevelOrDefault >= ScalaLanguageLevel.Scala_3_7) StdKinds.refExprQualRef
         else StdKinds.refExprLastRef
     }
   }
