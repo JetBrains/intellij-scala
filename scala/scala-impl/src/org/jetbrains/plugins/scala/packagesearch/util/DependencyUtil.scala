@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.packagesearch.util
 
-import com.intellij.openapi.diagnostic.ControlFlowException
+import com.intellij.openapi.diagnostic.{ControlFlowException, Logger}
 import com.intellij.openapi.progress.util.ProgressIndicatorUtils
 import com.intellij.psi.PsiElement
 import com.intellij.util.concurrency.AppExecutorUtil
@@ -44,13 +44,29 @@ object DependencyUtil {
     private object CoursierVersionCompletion extends VersionCompletion {
       import coursierapi.Complete
 
-      private[this] val completeApiFuture: CompletableFuture[Complete] =
-        CompletableFuture.supplyAsync(() => Complete.create(), AppExecutorUtil.getAppExecutorService)
+      private val Log: Logger = Logger.getInstance(classOf[CoursierVersionCompletion.type])
+
+      private[this] val completeApiFuture: CompletableFuture[Complete] = {
+        Log.info("Asynchronously instantiating the coursier completion API in a background thread")
+        CompletableFuture.supplyAsync(
+          () => {
+            val api = Complete.create()
+            Log.info("Finished initialising the coursier completion API")
+            api
+          },
+          AppExecutorUtil.getAppExecutorService
+        )
+      }
 
       override def getVersions(groupId: String, artifactId: String): Seq[String] = try {
         // Make the blocking call a bit more cancellable
         val resultFuture = completeApiFuture.thenApplyAsync(
-          (c: Complete) => c.withInput(s"$groupId:$artifactId:").complete(),
+          (c: Complete) => {
+            val input = s"$groupId:$artifactId:"
+            val result = c.withInput(input).complete()
+            Log.debug(s"Coursier completion result for '$input': $result")
+            result
+          },
           AppExecutorUtil.getAppExecutorService
         )
         val result = ProgressIndicatorUtils.awaitWithCheckCanceled(resultFuture)
