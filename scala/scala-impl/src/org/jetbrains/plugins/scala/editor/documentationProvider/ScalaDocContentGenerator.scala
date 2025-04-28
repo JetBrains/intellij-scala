@@ -268,19 +268,20 @@ private class ScalaDocContentGenerator(
   private def visitSyntaxNode(buffer: StringBuilder, syntax: ScDocSyntaxElement): Unit = {
     val markupTagElement = syntax.firstChild.filter(_.elementType.isInstanceOf[ScalaDocSyntaxElementType])
     val markupTag = markupTagElement.map(_.getText)
-    if (markupTag.contains("[["))
-      buffer.append(generateLink(syntax))
-    else
-      markupTag.flatMap(markupTagToHtmlTag) match {
-        case Some(htmlTag) =>
-          buffer.append(s"<$htmlTag>")
-          wikiSyntaxNestingLevel += 1
-          visitNodes(buffer, syntax.children.filter(isMarkupInner))
-          wikiSyntaxNestingLevel -= 1
-          buffer.append(s"</$htmlTag>")
-        case None          =>
-          visitNodes(buffer, syntax.children)
-      }
+    markupTag.flatMap(markupTagToHtmlTag) match {
+      case Some(htmlTag) =>
+        buffer.append(s"<$htmlTag>")
+        wikiSyntaxNestingLevel += 1
+        visitNodes(buffer, syntax.children.filter(isMarkupInner))
+        wikiSyntaxNestingLevel -= 1
+        buffer.append(s"</$htmlTag>")
+      case None if markupTag.exists(_.contains("[[")) =>
+        // Process the link in-place, preserving its position within the text
+        val linkHtml = generateLink(syntax)
+        buffer.append(linkHtml)
+      case None          =>
+        visitNodes(buffer, syntax.children)
+    }
   }
 
   // wrong markup can contain no closing tag e.g. `__text` (it's wrong but we handle anyway and show inspection)
@@ -510,4 +511,3 @@ object ScalaDocContentGenerator {
       elements.dropWhile(_.elementType == ScalaDocTokenType.DOC_WHITESPACE)
   }
 }
-
