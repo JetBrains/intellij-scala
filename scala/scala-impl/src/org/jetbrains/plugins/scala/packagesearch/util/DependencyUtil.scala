@@ -42,12 +42,17 @@ object DependencyUtil {
     }
 
     private object CoursierVersionCompletion extends VersionCompletion {
-      private[this] val complete = coursierapi.Complete.create()
+      import coursierapi.Complete
+
+      private[this] val completeApiFuture: CompletableFuture[Complete] =
+        CompletableFuture.supplyAsync(() => Complete.create(), AppExecutorUtil.getAppExecutorService)
 
       override def getVersions(groupId: String, artifactId: String): Seq[String] = try {
         // Make the blocking call a bit more cancellable
-        val resultFuture = CompletableFuture
-          .supplyAsync(() => complete.withInput(s"$groupId:$artifactId:").complete(), AppExecutorUtil.getAppExecutorService)
+        val resultFuture = completeApiFuture.thenApplyAsync(
+          (c: Complete) => c.withInput(s"$groupId:$artifactId:").complete(),
+          AppExecutorUtil.getAppExecutorService
+        )
         val result = ProgressIndicatorUtils.awaitWithCheckCanceled(resultFuture)
         result.getCompletions.asScala.toSeq
       } catch {
