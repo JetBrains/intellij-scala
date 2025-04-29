@@ -50,7 +50,7 @@ class SbtModuleExtDataServiceTest extends SbtModuleDataServiceTestCase {
     val compilerConfiguration = ScalaCompilerConfiguration.instanceIn(getProject).getSettingsForModule(module)
 
     assertEquals(compilerConfiguration.debuggingInfoLevel, DebuggingInfoLevel.Source)
-    assertTrue(compilerConfiguration.plugins.exists(_.endsWith("test-plugin.jar")))
+    assertTrue(compilerConfiguration.plugins.exists(_.classpath.endsWith("test-plugin.jar")))
     UsefulTestCase.assertContainsElements(compilerConfiguration.additionalCompilerOptions.asJava, "-XmyCoolAdditionalOption")
     assertTrue(compilerConfiguration.continuations)
     assertTrue(compilerConfiguration.experimental)

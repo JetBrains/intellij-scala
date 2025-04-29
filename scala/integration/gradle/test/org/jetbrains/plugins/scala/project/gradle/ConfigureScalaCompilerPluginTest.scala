@@ -109,7 +109,7 @@ class ConfigureScalaCompilerPluginTest extends ExternalSystemImportingTestCase {
 
     assertEquals(1, compilerConfiguration.plugins.size)
     val plugin = compilerConfiguration.plugins.head
-    assertTrue(plugin.endsWith("better-monadic-for_2.13-0.3.1.jar"))
+    assertTrue(plugin.pluginJar.exists(_.endsWith("better-monadic-for_2.13-0.3.1.jar")))
 
     assertTrue(mainModule.betterMonadicForPluginEnabled)
 

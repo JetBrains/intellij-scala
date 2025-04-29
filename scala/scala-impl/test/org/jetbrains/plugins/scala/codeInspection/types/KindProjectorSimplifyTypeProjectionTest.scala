@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaI
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.inspections.KindProjectorSimplifyTypeProjectionInspection
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings.ScalacPlugin
 
 class KindProjectorSimplifyTypeProjectionTest extends ScalaInspectionTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean =
@@ -25,7 +26,7 @@ class KindProjectorSimplifyTypeProjectionTest extends ScalaInspectionTestBase {
 
     val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
     val newSettings = defaultProfile.getSettings.copy(
-      plugins = defaultProfile.getSettings.plugins :+ "kind-projector"
+      plugins = defaultProfile.getSettings.plugins :+ ScalacPlugin("kind-projector")
     )
     defaultProfile.setSettings(newSettings)
   }
