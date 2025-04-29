@@ -2569,4 +2569,232 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  def test_missing_expr(): Unit = checkTree(
+    """
+      |class A {
+      |  def foo1 =
+      |  def foo2: String =
+      |
+      |  val value1 =
+      |  val value2: String =
+      |
+      |  var variable1 =
+      |  var variable2: String =
+      |
+      |  def test(param: Int = ) = ()
+      |
+      |  for { x <- } ()
+      |  for { y <- } ()
+      |}
+      |
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScClass: A
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(class)('class')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('A')
+      |    PrimaryConstructor
+      |      AnnotationsList
+      |        <empty list>
+      |      Modifiers
+      |        <empty list>
+      |      Parameters
+      |        <empty list>
+      |    PsiWhiteSpace(' ')
+      |    ExtendsBlock
+      |      ScTemplateBody
+      |        PsiElement({)('{')
+      |        PsiWhiteSpace('\n  ')
+      |        ScFunctionDefinition: foo1
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(def)('def')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(identifier)('foo1')
+      |          Parameters
+      |            <empty list>
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(=)('=')
+      |          PsiErrorElement:Expression expected
+      |            <empty list>
+      |        PsiWhiteSpace('\n  ')
+      |        ScFunctionDefinition: foo2
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(def)('def')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(identifier)('foo2')
+      |          Parameters
+      |            <empty list>
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace(' ')
+      |          SimpleType: String
+      |            CodeReferenceElement: String
+      |              PsiElement(identifier)('String')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(=)('=')
+      |          PsiErrorElement:Wrong expression
+      |            <empty list>
+      |        PsiWhiteSpace('\n\n  ')
+      |        ScPatternDefinition: value1
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(val)('val')
+      |          PsiWhiteSpace(' ')
+      |          ListOfPatterns
+      |            ReferencePattern: value1
+      |              PsiElement(identifier)('value1')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(=)('=')
+      |          PsiErrorElement:Expression expected
+      |            <empty list>
+      |        PsiWhiteSpace('\n  ')
+      |        ScPatternDefinition: value2
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(val)('val')
+      |          PsiWhiteSpace(' ')
+      |          ListOfPatterns
+      |            ReferencePattern: value2
+      |              PsiElement(identifier)('value2')
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace(' ')
+      |          SimpleType: String
+      |            CodeReferenceElement: String
+      |              PsiElement(identifier)('String')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(=)('=')
+      |          PsiErrorElement:Expression expected
+      |            <empty list>
+      |        PsiWhiteSpace('\n\n  ')
+      |        ScVariableDefinition: variable1
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(var)('var')
+      |          PsiWhiteSpace(' ')
+      |          ListOfPatterns
+      |            ReferencePattern: variable1
+      |              PsiElement(identifier)('variable1')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(=)('=')
+      |          PsiErrorElement:Expression expected
+      |            <empty list>
+      |        PsiWhiteSpace('\n  ')
+      |        ScVariableDefinition: variable2
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(var)('var')
+      |          PsiWhiteSpace(' ')
+      |          ListOfPatterns
+      |            ReferencePattern: variable2
+      |              PsiElement(identifier)('variable2')
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace(' ')
+      |          SimpleType: String
+      |            CodeReferenceElement: String
+      |              PsiElement(identifier)('String')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(=)('=')
+      |          PsiErrorElement:Expression expected
+      |            <empty list>
+      |        PsiWhiteSpace('\n\n  ')
+      |        ScFunctionDefinition: test
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(def)('def')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(identifier)('test')
+      |          Parameters
+      |            ParametersClause
+      |              PsiElement(()('(')
+      |              Parameter: param
+      |                AnnotationsList
+      |                  <empty list>
+      |                Modifiers
+      |                  <empty list>
+      |                PsiElement(identifier)('param')
+      |                PsiElement(:)(':')
+      |                PsiWhiteSpace(' ')
+      |                ParameterType
+      |                  SimpleType: Int
+      |                    CodeReferenceElement: Int
+      |                      PsiElement(identifier)('Int')
+      |                PsiWhiteSpace(' ')
+      |                PsiElement(=)('=')
+      |                PsiErrorElement:Expression expected
+      |                  <empty list>
+      |              PsiWhiteSpace(' ')
+      |              PsiElement())(')')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(=)('=')
+      |          PsiWhiteSpace(' ')
+      |          UnitExpression
+      |            PsiElement(()('(')
+      |            PsiElement())(')')
+      |        PsiWhiteSpace('\n\n  ')
+      |        ForStatement
+      |          PsiElement(for)('for')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement({)('{')
+      |          PsiWhiteSpace(' ')
+      |          Enumerators
+      |            Generator
+      |              ReferencePattern: x
+      |                PsiElement(identifier)('x')
+      |              PsiWhiteSpace(' ')
+      |              PsiElement(<-)('<-')
+      |              PsiErrorElement:Wrong expression
+      |                <empty list>
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(})('}')
+      |          PsiWhiteSpace(' ')
+      |          UnitExpression
+      |            PsiElement(()('(')
+      |            PsiElement())(')')
+      |        PsiWhiteSpace('\n  ')
+      |        ForStatement
+      |          PsiElement(for)('for')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement({)('{')
+      |          PsiWhiteSpace(' ')
+      |          Enumerators
+      |            Generator
+      |              ReferencePattern: y
+      |                PsiElement(identifier)('y')
+      |              PsiWhiteSpace(' ')
+      |              PsiElement(<-)('<-')
+      |              PsiErrorElement:Wrong expression
+      |                <empty list>
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(})('}')
+      |          PsiWhiteSpace(' ')
+      |          UnitExpression
+      |            PsiElement(()('(')
+      |            PsiElement())(')')
+      |        PsiWhiteSpace('\n')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n\n')
+      |""".stripMargin
+  )
 }
