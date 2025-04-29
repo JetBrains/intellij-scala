@@ -1,15 +1,14 @@
 package org.jetbrains.plugins.scala.compiler
 
-import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.{assertCompilingScalaSources, assertNoErrorsOrWarnings}
+import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.assertNoErrorsOrWarnings
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
-import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.{ScalaVersion, SlowTests}
 import org.junit.Test
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
+
 import org.junit.runners.JUnit4
 
-import java.nio.file.Path
 import scala.jdk.CollectionConverters._
 
 @Category(Array(classOf[SlowTests]))
@@ -22,12 +21,12 @@ class PackageObjectDataSerializationTest extends ScalaCompilerTestBase {
 
   @Test
   def serializationSucceeds(): Unit = {
-    addFileToProjectSources(Path.of("org", "example", "MyTrait.scala").toCanonicalPath.toString,
+    addFileToProjectSources("org/example/MyTrait.scala",
       """package org.example
         |
         |trait MyTrait
         |""".stripMargin)
-    addFileToProjectSources(Path.of("org", "example", "package.scala").toCanonicalPath.toString,
+    addFileToProjectSources("org/example/package.scala",
       """package org
         |
         |package object example extends MyTrait {
