@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.compiler
 
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.roots.CompilerModuleExtension
+import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.testFramework.CompilerTester
 import org.jetbrains.jps.util.JpsPathUtil
 import org.jetbrains.plugins.scala.SlowTests
@@ -35,11 +36,9 @@ class ClashingOutputDirectoriesTest extends SbtProjectCompilationTestBase(separa
     createProjectSubFile("module2/src/main/scala/Two.scala", "class Two")
     importProject(false)
 
-    val allModules = ModuleManager.getInstance(getProject).getModules
+    val allModules = ModuleManager.getInstance(getProject).getModules.toList
     val module1 = allModules.find(_.getName == "root.module1.main").orNull
     val module2 = allModules.find(_.getName == "root.module2.main").orNull
-
-    compiler = new CompilerTester(getProject, ModuleManager.getInstance(getProject).getModules.toList.asJava, null, false)
 
     implicit val pathReleasable: Using.Releasable[Path] = { dir =>
       def deleteRecursively(path: Path): Unit = {
@@ -52,13 +51,14 @@ class ClashingOutputDirectoriesTest extends SbtProjectCompilationTestBase(separa
     }
 
     Using.resource(Files.createTempDirectory("clashing-output-directories-test-")) { dir =>
-      setOutputPath(module1, dir)
-      setOutputPath(module2, dir)
-      compiler.make()
+      val pathUrl = VfsUtilCore.pathToUrl(dir.toString)
+      setOutputPath(module1, pathUrl)
+      setOutputPath(module2, pathUrl)
 
-      val Seq(errorMessage) = compiler.rebuild().asScala.toSeq
+      compiler = new CompilerTester(getProject, allModules.asJava, null, false)
+      val Seq(errorMessage) = compiler.make().asScala.toSeq
 
-      val jpsUrl = JpsPathUtil.urlToNioPath(dir.toUri.toURL.toString)
+      val jpsUrl = JpsPathUtil.urlToNioPath(pathUrl)
       val expected =
         s"""scala: Output path $jpsUrl is shared between: ${Seq(module1, module2).map(m => s"Module '${m.getName}' production").mkString(", ")}
            |Please configure separate output paths to proceed with the compilation.
@@ -67,10 +67,10 @@ class ClashingOutputDirectoriesTest extends SbtProjectCompilationTestBase(separa
     }
   }
 
-  private def setOutputPath(module: Module, path: Path): Unit = inWriteAction {
+  private def setOutputPath(module: Module, pathUrl: String): Unit = inWriteAction {
     val model = module.modifiableModel
     val extension = model.getModuleExtension(classOf[CompilerModuleExtension])
-    extension.setCompilerOutputPath(path.toUri.toURL.toString)
+    extension.setCompilerOutputPath(pathUrl)
     model.commit()
   }
 }
