@@ -80,6 +80,8 @@ object ElementAnnotator extends ElementAnnotator[ScalaPsiElement] {
       ScGivenAliasDefinitionAnnotator ::
       ScMemberAnnotator ::
       ScExportStmtAnnotator ::
+      ScNamedTupleAnnotator ::
+      ScNamedTupleTypeElementAnnotator ::
       Nil
 
   private val cachedAnnotators: AtomicReference[Map[Class[_], Seq[ElementAnnotator[_]]]] =
