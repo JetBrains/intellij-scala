@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.resolveSemanticDb.configurations._
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
+import scala.annotation.tailrec
 import scala.collection.mutable
 
 object ReferenceComparisonTestsGenerator_Scala3  {
@@ -82,13 +83,22 @@ object ReferenceComparisonTestsGenerator_Scala3  {
               successes += 1
             result += res
 
-            val normalizedTestName = testName.replace('-', '_')
-            val finalTestName =
-              if (usedTestNames.contains(normalizedTestName) || originalTestNames.contains(normalizedTestName))
-                testName
-              else normalizedTestName
+            val normalizedTestName = testName.replace('-', '_').replace('.', '_')
+            if(!normalizedTestName.forall(Character.isJavaIdentifierPart)) {
+              throw new IllegalArgumentException(s"Invalid test name: $normalizedTestName")
+            }
+
+            @tailrec
+            def createUniqueNameId(name: String, n: Int = 1): String = {
+              if (usedTestNames.contains(name)) {
+                createUniqueNameId(s"${name}_$n", n)
+              } else name
+            }
+
+            val finalTestName = createUniqueNameId(normalizedTestName)
             usedTestNames += finalTestName
-            val testId = s"test_$finalTestName".escapeNonIdentifiers
+
+            val testId = s"test_$finalTestName"
             val tags =
               if (res.tags.isEmpty) ""
               else res.tags.mkString(" // #", ", #", "")
