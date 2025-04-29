@@ -621,4 +621,108 @@ class FunDefTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  // SCL-23297
+  def test_indentation_region_in_default_param(): Unit = checkTree(
+    """
+      |def foo0(p: Int =
+      |  var x = 1
+      |  var y = 2
+      |  x + y
+      |) = {
+      |  println(p)
+      |}
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScFunctionDefinition: foo0
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('foo0')
+      |    Parameters
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        Parameter: p
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(identifier)('p')
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace(' ')
+      |          ParameterType
+      |            SimpleType: Int
+      |              CodeReferenceElement: Int
+      |                PsiElement(identifier)('Int')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(=)('=')
+      |          BlockExpression
+      |            PsiWhiteSpace('\n  ')
+      |            ScVariableDefinition: x
+      |              AnnotationsList
+      |                <empty list>
+      |              Modifiers
+      |                <empty list>
+      |              PsiElement(var)('var')
+      |              PsiWhiteSpace(' ')
+      |              ListOfPatterns
+      |                ReferencePattern: x
+      |                  PsiElement(identifier)('x')
+      |              PsiWhiteSpace(' ')
+      |              PsiElement(=)('=')
+      |              PsiWhiteSpace(' ')
+      |              IntegerLiteral
+      |                PsiElement(integer)('1')
+      |            PsiWhiteSpace('\n  ')
+      |            ScVariableDefinition: y
+      |              AnnotationsList
+      |                <empty list>
+      |              Modifiers
+      |                <empty list>
+      |              PsiElement(var)('var')
+      |              PsiWhiteSpace(' ')
+      |              ListOfPatterns
+      |                ReferencePattern: y
+      |                  PsiElement(identifier)('y')
+      |              PsiWhiteSpace(' ')
+      |              PsiElement(=)('=')
+      |              PsiWhiteSpace(' ')
+      |              IntegerLiteral
+      |                PsiElement(integer)('2')
+      |            PsiWhiteSpace('\n  ')
+      |            InfixExpression
+      |              ReferenceExpression: x
+      |                PsiElement(identifier)('x')
+      |              PsiWhiteSpace(' ')
+      |              ReferenceExpression: +
+      |                PsiElement(identifier)('+')
+      |              PsiWhiteSpace(' ')
+      |              ReferenceExpression: y
+      |                PsiElement(identifier)('y')
+      |        PsiWhiteSpace('\n')
+      |        PsiElement())(')')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    BlockExpression
+      |      PsiElement({)('{')
+      |      PsiWhiteSpace('\n  ')
+      |      MethodCall
+      |        ReferenceExpression: println
+      |          PsiElement(identifier)('println')
+      |        ArgumentList
+      |          PsiElement(()('(')
+      |          ReferenceExpression: p
+      |            PsiElement(identifier)('p')
+      |          PsiElement())(')')
+      |      PsiWhiteSpace('\n')
+      |      PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }
