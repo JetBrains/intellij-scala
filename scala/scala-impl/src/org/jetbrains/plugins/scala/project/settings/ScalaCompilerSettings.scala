@@ -1,7 +1,14 @@
 package org.jetbrains.plugins.scala.project.settings
 
+import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.util.io.JarUtil
+import com.intellij.util.system.OS
 import org.jetbrains.plugins.scala.compiler.data.{CompileOrder, DebuggingInfoLevel, ScalaCompilerSettingsState, ScalaCompilerSettingsStateBuilder}
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings.ScalacPlugin
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
+
+import java.nio.file.Paths
+import scala.util.Try
 
 /**
  * This class represents scala compiler settings which are supposed to be used
@@ -41,7 +48,7 @@ case class ScalaCompilerSettings(compileOrder: CompileOrder,
                                  // single field for dotty & scala3 artifacts,
                                  // assuming only one can be used in a module at a time
                                  additionalCompilerOptions: Seq[String],
-                                 plugins: Seq[String]) {
+                                 plugins: Seq[ScalacPlugin]) {
 
   //Fields defined here exist only as performance optimisation.
   //They are supposed to be frequently used during the code analyses.
@@ -81,12 +88,56 @@ case class ScalaCompilerSettings(compileOrder: CompileOrder,
     state.continuations = continuations
     state.debuggingInfoLevel = debuggingInfoLevel
     state.additionalCompilerOptions = additionalCompilerOptions.toArray
-    state.plugins = plugins.toArray
+    state.pluginsClasspath = plugins.map(_.classpath).toArray
     state
   }
 }
 
 object ScalaCompilerSettings {
+
+  private val logger = Logger.getInstance(classOf[ScalaCompilerSettings])
+
+  /**
+   * Represents a single Scala compiler plugin classpath.
+   *
+   * When multiple plugin's classpath are provided to the <code>-Xplugin</code> compiler option
+   * separated by commas, each one is represented by an instance of this class.
+   *
+   * @param pluginJar path to the first jar in the classpath that contains
+   *                  <code>scalac-plugin.xml</code>. Note: If multiple jars in the same classpath
+   *                  contain <code>scalac-plugin.xml</code>, only the first one will be loaded
+   *                  by the compiler.
+   * @param classpath complete classpath for plugin, as extracted from
+   *                  the <code>-Xplugin</code> option after splitting by comma or from the UI settings.
+   *                  When extracted from <code>-Xplugin</code> option it may contain multiple jars separated by the system-specific path separator.
+   */
+  case class ScalacPlugin(pluginJar: Option[String], classpath: String) {
+    def hasPluginJarWithName(name: String): Boolean =
+      pluginJar.exists(_.contains(name))
+  }
+
+  object ScalacPlugin {
+    def apply(scalacPluginJar: String): ScalacPlugin =
+      ScalacPlugin(Some(scalacPluginJar), scalacPluginJar)
+
+    def fromClasspath(classpath: String): ScalacPlugin = {
+      val jars = classpath.split(OS.CURRENT.getPlatform.pathSeparator)
+      val scalacPluginJar = jars.find(containScalacPluginXml)
+      ScalacPlugin(scalacPluginJar, classpath)
+    }
+
+    private def containScalacPluginXml(pathname: String): Boolean = {
+      val file = Try(Paths.get(pathname).toFile)
+      file.fold(
+        exc => {
+          logger.warn(s"Cannot create a file from $pathname", exc)
+          false
+        },
+        file => JarUtil.containsEntry(file, "scalac-plugin.xml")
+      )
+    }
+  }
+
   def scalaVersionSinceWhichHigherKindsAreAlwaysEnabled: ScalaVersion =
     LatestScalaVersions.Scala_2_13.withMinor(1)
 
@@ -117,7 +168,7 @@ object ScalaCompilerSettings {
       continuations = state.continuations,
       debuggingInfoLevel = state.debuggingInfoLevel,
       additionalCompilerOptions = state.additionalCompilerOptions.toSeq,
-      plugins = state.plugins.toSeq
+      plugins = state.pluginsClasspath.map(ScalacPlugin.fromClasspath).toSeq
     )
 
   def fromOptions(options: Seq[String], compileOrder: CompileOrder): ScalaCompilerSettings = {
