@@ -2644,7 +2644,7 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
       |              PsiElement(identifier)('String')
       |          PsiWhiteSpace(' ')
       |          PsiElement(=)('=')
-      |          PsiErrorElement:Wrong expression
+      |          PsiErrorElement:Expression expected
       |            <empty list>
       |        PsiWhiteSpace('\n\n  ')
       |        ScPatternDefinition: value1
@@ -2764,7 +2764,7 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
       |                PsiElement(identifier)('x')
       |              PsiWhiteSpace(' ')
       |              PsiElement(<-)('<-')
-      |              PsiErrorElement:Wrong expression
+      |              PsiErrorElement:Expression expected
       |                <empty list>
       |          PsiWhiteSpace(' ')
       |          PsiElement(})('}')
@@ -2784,7 +2784,7 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
       |                PsiElement(identifier)('y')
       |              PsiWhiteSpace(' ')
       |              PsiElement(<-)('<-')
-      |              PsiErrorElement:Wrong expression
+      |              PsiErrorElement:Expression expected
       |                <empty list>
       |          PsiWhiteSpace(' ')
       |          PsiElement(})('}')

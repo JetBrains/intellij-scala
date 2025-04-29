@@ -53,7 +53,7 @@ object PatDef extends ParsingRule {
         builder.checkedAdvanceLexer()
 
         if (!ExprInIndentationRegion()) {
-          builder.error(ErrMsg("expression.expected"))
+          builder.expressionExpectedError()
         }
 
         patDefMarker.drop()
