@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.annotator.hints
 
 import com.intellij.openapi.editor.Editor
+import org.jetbrains.plugins.scala.extensions.inReadAction
 
 import java.awt.Point
 
@@ -28,7 +29,7 @@ object TooltipUI {
       case ErrorTooltip.JustText(message) =>
         HintUI(message)
       case ErrorTooltip.WithAction(message, action, element) =>
-        if (element.isValid && action.isAvailable(element.getProject, editor, element.getContainingFile))
+        if (inReadAction(element.isValid && action.isAvailable(element.getProject, editor, element.getContainingFile)))
           PopupUI(message, action, element, editor)
         else
           HintUI(message)
