@@ -18,10 +18,14 @@ private sealed abstract class CompilationRequest(final val originFiles: Map[Virt
 
   val debugReason: String
 
+  /**
+   * @return how many milliseconds there are left until this request can become eligible for execution
+   */
   final def remaining: Long = {
-    val delay = TimeUnit.MILLISECONDS.toNanos(ScalaHighlightingMode.compilationDelayMillis)
-    val now = System.nanoTime()
-    timestamp + delay - now
+    val nowNanos = System.nanoTime()
+    val delayNanos = TimeUnit.MILLISECONDS.toNanos(ScalaHighlightingMode.compilationDelayMillis)
+    val remainingNanos = timestamp + delayNanos - nowNanos
+    TimeUnit.NANOSECONDS.toMillis(remainingNanos)
   }
 
   def delayed(timestamp: Long): CompilationRequest
