@@ -459,7 +459,8 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
   }
 
   private def scheduleCompilationTask(delayMillis: Long): Unit = {
-    val future = executor.schedule(new CompilationTask(), delayMillis, TimeUnit.MILLISECONDS)
+    val actualDelay = math.max(delayMillis, 1L)
+    val future = executor.schedule(new CompilationTask(), actualDelay, TimeUnit.MILLISECONDS)
     val previous = compilationTask.getAndSet(future)
     if (previous ne null) {
       previous.cancel(false)
