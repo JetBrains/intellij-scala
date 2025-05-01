@@ -1,6 +1,6 @@
 package org.jetbrains.sbt.project
 
-import com.intellij.ide.impl.TrustedProjects
+import com.intellij.ide.trustedProjects.TrustedProjects
 import com.intellij.ide.util.RunOnceUtil
 import com.intellij.notification.{Notification, NotificationAction, NotificationGroupManager, NotificationType, Notifications}
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -48,7 +48,7 @@ object SeparateMainTestModulesNotificationListener {
     }
 
   private def shouldShow(sbtProjectSettings: SbtProjectSettings, project: Project): Boolean = {
-    val isTrusted = TrustedProjects.isTrusted(project)
+    val isTrusted = TrustedProjects.isProjectTrusted(project)
     isTrusted && {
       val isPreview = SbtUtil.isPreview(project, sbtProjectSettings.getExternalProjectPath)
       !isPreview && sbtProjectSettings.separateProdAndTestSources && !sbtProjectSettings.separateProdAndTestSourcesIsExplicit

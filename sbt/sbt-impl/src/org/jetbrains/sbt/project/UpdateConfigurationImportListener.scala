@@ -1,6 +1,6 @@
 package org.jetbrains.sbt.project
 
-import com.intellij.ide.impl.TrustedProjects
+import com.intellij.ide.trustedProjects.TrustedProjects
 import com.intellij.openapi.externalSystem.model.ExternalSystemDataKeys
 import com.intellij.openapi.externalSystem.service.project.manage.ProjectDataImportListener
 import com.intellij.openapi.project.Project
@@ -57,7 +57,7 @@ class UpdateConfigurationImportListener(project: Project) extends ProjectDataImp
   }
 
   private def isListenerAllowed(projectPath: String): Boolean = {
-    val isTrustedProject = TrustedProjects.isTrusted(project)
+    val isTrustedProject = TrustedProjects.isProjectTrusted(project)
     val isPreview = SbtUtil.isPreview(project, projectPath)
     SbtUtil.isSbtProject(project) && isTrustedProject && !isPreview
   }

@@ -97,7 +97,7 @@ class GeneralInspectionSanityTest extends ScalaLightCodeInsightFixtureTestCase {
         val holder = new ProblemsHolder(inspectionManager, getFile, true)
         val fileRange = getFile.getTextRange
 
-        InspectionEngine.withSession(getFile, fileRange, fileRange, null, true, session => {
+        InspectionEngine.withSession(getFile, fileRange, fileRange, null, true, null, session => {
           val visitor = inspectionTool.asInstanceOf[LocalInspectionTool].buildVisitor(holder, true, session)
           assertNoThrowable(() => {
             visitor.visitFile(getFile)
