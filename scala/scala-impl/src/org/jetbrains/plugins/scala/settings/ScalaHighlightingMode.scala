@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.settings
 import com.intellij.codeInsight.daemon.impl.analysis.{FileHighlightingSetting, HighlightingSettingsPerFile}
 import com.intellij.openapi.application.ApplicationManager
 //noinspection ApiStatus
-import com.intellij.ide.impl.TrustedProjects
+import com.intellij.ide.trustedProjects.TrustedProjects
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.psi.{PsiFile, PsiJavaFile}
@@ -38,7 +38,7 @@ object ScalaHighlightingMode {
    */
   //noinspection ApiStatus,UnstableApiUsage
   def isShowErrorsFromCompilerEnabled(project: Project): Boolean =
-    TrustedProjects.isTrusted(project) &&
+    TrustedProjects.isProjectTrusted(project) &&
       (showCompilerErrorsScala3(project) && project.hasScala3 ||
         showCompilerErrorsScala2(project) && project.hasScala)
 
