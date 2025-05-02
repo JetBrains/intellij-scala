@@ -135,4 +135,20 @@ class IntersectionAndUnionsResolveTest extends SimpleResolveTestBase {
       |}
       |""".stripMargin
   )
+  def testStructuralTypeInIntersection(): Unit = checkTextHasNoErrors(
+    """
+      |import reflect.Selectable.reflectiveSelectable
+      |class Foo {
+      |  def foo: String = ???
+      |}
+      |object Foo {
+      |  private val someClass0: {val struct0: Unit} = ???
+      |  private val someClass1: Foo & {val struct1: Unit} = ???
+      |  private val someClass2: Foo {val struct2: Unit} = ???
+      |  someClass0.struct0
+      |  someClass1.struct1
+      |  someClass2.struct2
+      |}
+      |""".stripMargin
+  )
 }
