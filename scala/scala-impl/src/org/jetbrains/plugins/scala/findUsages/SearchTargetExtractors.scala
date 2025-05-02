@@ -4,6 +4,7 @@ import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScContextBound
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
@@ -28,6 +29,7 @@ object SearchTargetExtractors {
             val isLocal = idef match {
               case member: ScMember => member.isLocal
               case _: ScParameter => true // ScClassParameters are already processed with ScMember
+              case _: ScContextBound => true
               case inNameContext(member: ScMember) => member.isLocal
               case _              => false
             }
