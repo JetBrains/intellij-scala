@@ -254,7 +254,7 @@ object ScalaGoToDeclarationHandler {
       case parameter: ScParameter                                 =>
         val contextBound = findSyntheticContextBoundInfo(parameter).flatMap {
           case ContextBoundInfo(typeParam, _, idx, _) =>
-            typeParam.contextBounds(idx).nameId
+            typeParam.contextBounds(idx).nameIdOpt
         }
 
         parameterForSyntheticParameter(parameter).toSeq ++ contextBound

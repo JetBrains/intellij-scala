@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.findUsages.factory.ScalaFindUsagesConfigurati
 import org.jetbrains.plugins.scala.findUsages.factory.dialog.{ScalaOverridableMemberFindUsagesDialog, ScalaTypeDefinitionUsagesDialog}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScContextBound
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScForBinding, ScGenerator}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
@@ -42,7 +43,7 @@ final class ScalaFindUsagesConfiguration(project: Project) {
         FindUsagesOptionsResolver.ForTypeDefinitions(typeDef, typeDefinitionOptions)
       case inNameContext(m: ScMember) if !m.isLocal =>
         FindUsagesOptionsResolver.ForMembers(m, memberOptions)
-      case _: ScParameter | _: ScTypeParam =>
+      case _: ScParameter | _: ScTypeParam | _: ScContextBound =>
         FindUsagesOptionsResolver.ForLocals(localOptions)
       case inNameContext(_: ScMember | _: ScCaseClause | _: ScGenerator | _: ScForBinding) =>
         FindUsagesOptionsResolver.ForLocals(localOptions)

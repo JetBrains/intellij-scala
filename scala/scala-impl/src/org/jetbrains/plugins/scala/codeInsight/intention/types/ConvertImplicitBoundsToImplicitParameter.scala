@@ -77,7 +77,7 @@ object ConvertImplicitBoundsToImplicitParameter {
       cb       <- tp.contextBounds
       cbTe     = cb.typeElement
       teText   = cbTe.getText
-      cbName   = cb.name.getOrElse(teText.lowercased)
+      cbName   = cb.nameOpt.getOrElse(teText.lowercased)
       typeText = teText.parenthesize(!ScalaNamesValidator.isIdentifier(teText))
     } yield (
       cbName.escapeNonIdentifiers,
