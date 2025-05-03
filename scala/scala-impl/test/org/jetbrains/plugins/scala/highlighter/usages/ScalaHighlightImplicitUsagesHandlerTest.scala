@@ -121,7 +121,7 @@ abstract class ScalaHighlightImplicitUsagesHandlerTestBase extends ScalaHighligh
          |
          |def double[T $CARET: Semigroup](t: T) = implicitly[Semigroup[T]].op(t, t)
       """.stripMargin
-    doTest(code, Seq("implicitly[Semigroup[T]]"))
+    doTest(code, Seq("Semigroup", "implicitly[Semigroup[T]]"))
   }
 
   def testContextBoundsColon2(): Unit = {
@@ -135,7 +135,7 @@ abstract class ScalaHighlightImplicitUsagesHandlerTestBase extends ScalaHighligh
          |
          |def double[T:$CARET Semigroup](t: T) = implicitly[Semigroup[T]].op(t, t)
       """.stripMargin
-    doTest(code, Seq("implicitly[Semigroup[T]]"))
+    doTest(code, Seq("Semigroup", "implicitly[Semigroup[T]]"))
   }
 
   def testImplicitClass(): Unit = {
