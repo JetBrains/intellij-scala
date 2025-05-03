@@ -17,4 +17,6 @@ class ScContextBoundImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
 
   override def nameIdOpt: Option[PsiElement] =
     findLastChildByTypeScala(ScalaTokenTypes.tIDENTIFIER)
+
+  override def nameId: PsiElement = nameIdOpt.getOrElse(findChild[ScTypeElement].orNull)
 }
