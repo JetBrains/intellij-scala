@@ -16,8 +16,6 @@ trait ScContextBound extends ScalaPsiElement with ScNamedElement {
   def nameIdOpt: Option[PsiElement]
 
   def nameOpt: Option[String] = nameIdOpt.map(_.getText)
-
-  override def nameId: PsiElement = nameIdOpt.orNull
 }
 
 object ScContextBound {
