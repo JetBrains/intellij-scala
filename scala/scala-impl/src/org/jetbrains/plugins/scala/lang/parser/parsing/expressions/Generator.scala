@@ -27,7 +27,7 @@ object Generator extends ParsingRule {
         builder.advanceLexer()
 
         if (!ExprInIndentationRegion()) {
-          builder.wrongExpressionError()
+          builder.expressionExpectedError()
         }
         genMarker.done(ScalaElementType.GENERATOR)
         builder.getTokenType match {

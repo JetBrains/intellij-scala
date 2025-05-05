@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Annotations, Expr}
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Annotations, Expr, ExprInIndentationRegion}
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.ParamType
 
 /**
@@ -49,7 +49,7 @@ object Param extends ParsingRule {
     builder.getTokenType match {
       case ScalaTokenTypes.tASSIGN =>
         builder.advanceLexer() //Ate =
-        if (!Expr()) builder error ErrMsg("expression.expected")
+        if (!ExprInIndentationRegion()) builder error ErrMsg("expression.expected")
       case _ =>
     }
     paramMarker.done(ScalaElementType.PARAM)

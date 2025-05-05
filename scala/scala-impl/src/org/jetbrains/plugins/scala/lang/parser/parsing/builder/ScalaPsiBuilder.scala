@@ -63,4 +63,8 @@ trait ScalaPsiBuilder extends PsiBuilder {
   final def wrongExpressionError(): Unit = {
     error(ErrMsg("wrong.expression"))
   }
+
+  final def expressionExpectedError(): Unit = {
+    error(ErrMsg("expression.expected"))
+  }
 }
