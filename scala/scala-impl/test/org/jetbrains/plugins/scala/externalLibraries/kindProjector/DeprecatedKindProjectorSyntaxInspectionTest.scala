@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.inspections.DeprecatedKindProjectorSyntaxInspection
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings.ScalacPlugin
 
 class DeprecatedKindProjectorSyntaxInspectionTest extends ScalaInspectionTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean =
@@ -18,7 +19,7 @@ class DeprecatedKindProjectorSyntaxInspectionTest extends ScalaInspectionTestBas
     super.setUp()
     val defaultProfile = ScalaCompilerConfiguration.instanceIn(myFixture.getProject).defaultProfile
     val newSettings = defaultProfile.getSettings.copy(
-      plugins = defaultProfile.getSettings.plugins :+ "kind-projector-0.10.1.jar"
+      plugins = defaultProfile.getSettings.plugins :+ ScalacPlugin("kind-projector-0.10.1.jar")
     )
     defaultProfile.setSettings(newSettings)
   }
@@ -85,7 +86,7 @@ class DeprecatedKindProjectorSyntaxInspectionOutdatedKindProjectorTest extends S
     super.setUp()
     val defaultProfile = ScalaCompilerConfiguration.instanceIn(myFixture.getProject).defaultProfile
     val newSettings = defaultProfile.getSettings.copy(
-      plugins = defaultProfile.getSettings.plugins :+ "kind-projector-0.9.3.jar"
+      plugins = defaultProfile.getSettings.plugins :+ ScalacPlugin("kind-projector-0.9.3.jar")
     )
     defaultProfile.setSettings(newSettings)
   }

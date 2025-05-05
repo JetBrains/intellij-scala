@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.externalLibraries.contextApplied
 
 import org.jetbrains.plugins.scala.lang.resolve.SimpleResolveTestBase
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings.ScalacPlugin
 
 class ContextAppliedTest extends SimpleResolveTestBase {
   import SimpleResolveTestBase._
@@ -11,7 +12,7 @@ class ContextAppliedTest extends SimpleResolveTestBase {
 
     val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
     val newSettings = defaultProfile.getSettings.copy(
-      plugins = defaultProfile.getSettings.plugins :+ "context-applied"
+      plugins = defaultProfile.getSettings.plugins :+ ScalacPlugin("context-applied")
     )
     defaultProfile.setSettings(newSettings)
   }

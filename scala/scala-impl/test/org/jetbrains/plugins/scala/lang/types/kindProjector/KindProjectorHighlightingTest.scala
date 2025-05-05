@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.types.kindProjector
 
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings.ScalacPlugin
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 
@@ -13,7 +14,7 @@ abstract class KindProjectorHighlightingTestBase extends ScalaLightCodeInsightFi
     val settings       = defaultProfile.getSettings
 
     val newSettings = settings.copy(
-      plugins = settings.plugins :+ "kind-projector"
+      plugins = settings.plugins :+ ScalacPlugin("kind-projector")
     )
 
     defaultProfile.setSettings(newSettings)
@@ -91,7 +92,7 @@ class KindProjectorHighlightingTest extends KindProjectorHighlightingTestBase {
     val settings       = defaultProfile.getSettings
 
     val newSettings = settings.copy(
-      plugins = settings.plugins :+ "kind-projector",
+      plugins = settings.plugins :+ ScalacPlugin("kind-projector"),
     )
 
     defaultProfile.setSettings(newSettings)

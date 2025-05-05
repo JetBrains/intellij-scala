@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.completion3
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings.ScalacPlugin
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.runner.RunWith
 
@@ -220,7 +221,7 @@ class ScalaTypeAnnotationsCompletionTest_with_kind_projector extends ScalaTypeAn
     super.setUp()
     val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
     val newSettings = defaultProfile.getSettings.copy(
-      plugins = defaultProfile.getSettings.plugins :+ "kind-projector"
+      plugins = defaultProfile.getSettings.plugins :+ ScalacPlugin("kind-projector")
     )
     defaultProfile.setSettings(newSettings)
   }

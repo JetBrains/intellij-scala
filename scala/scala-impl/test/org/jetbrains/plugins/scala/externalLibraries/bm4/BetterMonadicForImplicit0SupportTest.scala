@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.externalLibraries.bm4
 
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings.ScalacPlugin
 
 class BetterMonadicForImplicit0SupportTest extends ScalaLightCodeInsightFixtureTestCase {
   override protected def setUp(): Unit = {
@@ -9,7 +10,7 @@ class BetterMonadicForImplicit0SupportTest extends ScalaLightCodeInsightFixtureT
 
     val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
     val newSettings = defaultProfile.getSettings.copy(
-      plugins = defaultProfile.getSettings.plugins :+ "better-monadic-for"
+      plugins = defaultProfile.getSettings.plugins :+ ScalacPlugin("better-monadic-for")
     )
     defaultProfile.setSettings(newSettings)
   }

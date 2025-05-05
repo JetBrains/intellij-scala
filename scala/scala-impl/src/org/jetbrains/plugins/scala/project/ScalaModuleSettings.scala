@@ -6,7 +6,7 @@ import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.roots.{OrderEnumerator, OrderRootType, libraries}
 import com.intellij.openapi.util.ModificationTracker
-import com.intellij.openapi.util.io.JarUtil.{containsEntry, getJarAttribute}
+import com.intellij.openapi.util.io.JarUtil.getJarAttribute
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.CommonProcessors.FindProcessor
 import org.jetbrains.plugins.scala.ScalaVersion
@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.caches.cached
 import org.jetbrains.plugins.scala.project.ScalaFeatures.SerializableScalaFeatures
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel._
 import org.jetbrains.plugins.scala.project.ScalaModuleSettings._
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings.ScalacPlugin
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings}
 import org.jetbrains.sbt.project.SbtVersionProvider
 
@@ -45,7 +46,7 @@ private class ScalaModuleSettings private(
   val settingsForHighlighting: Seq[ScalaCompilerSettings] =
     ScalaCompilerConfiguration.instanceIn(module.getProject).settingsForHighlighting(module)
 
-  val compilerPlugins: Set[String] = settingsForHighlighting.flatMap(_.plugins).toSet
+  val compilerPlugins: Set[ScalacPlugin] = settingsForHighlighting.flatMap(_.plugins).toSet
 
   val additionalCompilerOptions: Set[String] =
     settingsForHighlighting.flatMap(_.additionalCompilerOptions).toSet ++
@@ -62,7 +63,7 @@ private class ScalaModuleSettings private(
   }
 
   val isMetaEnabled: Boolean =
-    compilerPlugins.exists(isMetaParadiseJar)
+    compilerPlugins.exists(plugin => isMetaParadiseJar(plugin.pluginJar))
 
   val hasScala3: Boolean = scalaLanguageLevel.isScala3
 
@@ -72,14 +73,14 @@ private class ScalaModuleSettings private(
 
   //plugin example:
   // ~/Coursier/cache/v1/https/repo1.maven.org/maven2/org/scala-js/scalajs-compiler_2.13.6/1.7.1/scalajs-compiler_2.13.6-1.7.1.jar
-  val isScalaJs: Boolean = compilerPlugins.exists(p => p.contains("scalajs") || p.contains("scala-js")) ||
+  val isScalaJs: Boolean = compilerPlugins.exists(p => p.hasPluginJarWithName("scalajs") || p.hasPluginJarWithName("scala-js")) ||
     //Scala 3 relies on the compiler flag
     additionalCompilerOptions.contains("-scalajs")
 
   //plugin example:
   //~/Coursier/cache/v1/https/repo1.maven.org/maven2/org/scala-native/nscplugin_3.2.1/0.4./nscplugin_3.2.1-0.4.7.jar
   val isScalaNative: Boolean =
-    compilerPlugins.exists(p => p.contains("scala-native") || p.contains("nscplugin"))
+    compilerPlugins.exists(p => p.hasPluginJarWithName("scala-native") || p.hasPluginJarWithName("nscplugin"))
 
   val isTrailingCommasEnabled: Boolean = {
     val version = compilerVersion.map(Version.apply)
@@ -91,7 +92,7 @@ private class ScalaModuleSettings private(
     additionalCompilerOptions.contains("-Yliteral-types")
 
   val kindProjectorPlugin: Option[String] =
-    compilerPlugins.find(_.contains("kind-projector"))
+    compilerPlugins.find(_.hasPluginJarWithName("kind-projector")).flatMap(_.pluginJar)
 
   def kindProjectorUnderscorePlaceholdersEnabled: Boolean =
     additionalCompilerOptions.contains("-P:kind-projector:underscore-placeholders")
@@ -103,10 +104,10 @@ private class ScalaModuleSettings private(
     additionalCompilerOptions.contains("-Ykind-projector:underscores")
 
   val betterMonadicForPluginEnabled: Boolean =
-    compilerPlugins.exists(_.contains("better-monadic-for"))
+    compilerPlugins.exists(_.hasPluginJarWithName("better-monadic-for"))
 
   val contextAppliedPluginEnabled: Boolean =
-    compilerPlugins.exists(_.contains("context-applied"))
+    compilerPlugins.exists(_.hasPluginJarWithName("context-applied"))
 
   /**
    * Should we check if it's a Single Abstract Method?
@@ -285,17 +286,14 @@ private object ScalaModuleSettings {
     }
   }
 
-  private val isMetaParadiseJar = cached("isMetaParadiseJar", ModificationTracker.NEVER_CHANGED, (pathname: String) => {
-    Path.of(pathname).toFile match {
-      case file if containsEntry(file, "scalac-plugin.xml") =>
-        def hasAttribute(nameSuffix: String, value: String) = getJarAttribute(
-          file,
-          new Attributes.Name(s"Specification-$nameSuffix")
-        ) == value
+  private val isMetaParadiseJar = cached("isMetaParadiseJar", ModificationTracker.NEVER_CHANGED, (pathname: Option[String]) => {
+    pathname.exists { name =>
+      val file = Path.of(name).toFile
 
-        hasAttribute("Vendor", "org.scalameta") &&
-          hasAttribute("Title", "paradise")
-      case _ => false
+      def hasAttribute(nameSuffix: String, value: String) =
+        getJarAttribute(file, new Attributes.Name(s"Specification-$nameSuffix")) == value
+
+      hasAttribute("Vendor", "org.scalameta") && hasAttribute("Title", "paradise")
     }
   })
 

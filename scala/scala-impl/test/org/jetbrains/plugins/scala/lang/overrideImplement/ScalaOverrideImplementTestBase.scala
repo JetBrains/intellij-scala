@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil.invokeOverrideImplement
 import org.jetbrains.plugins.scala.overrideImplement.{ClassMember, ScalaOIUtil}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings.ScalacPlugin
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 import org.junit.Assert.assertEquals
@@ -72,7 +73,7 @@ abstract class ScalaOverrideImplementTestBase extends ScalaLightCodeInsightFixtu
     val oldSettings = prepareSettings(settings)
     val defaultProfile = ScalaCompilerConfiguration.instanceIn(project).defaultProfile
     val newSettings = defaultProfile.getSettings.copy(
-      plugins = defaultProfile.getSettings.plugins :+ "kind-projector"
+      plugins = defaultProfile.getSettings.plugins :+ ScalacPlugin("kind-projector")
     )
     defaultProfile.setSettings(newSettings)
 

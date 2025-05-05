@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.codeInsight.intention.types
 
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings.ScalacPlugin
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 final class ToggleTypeAnnotationIntentionTest_WithKindProjector extends ScalaIntentionTestBase {
@@ -13,7 +14,7 @@ final class ToggleTypeAnnotationIntentionTest_WithKindProjector extends ScalaInt
     super.setUp()
     val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
     val newSettings = defaultProfile.getSettings.copy(
-      plugins = defaultProfile.getSettings.plugins :+ "kind-projector"
+      plugins = defaultProfile.getSettings.plugins :+ ScalacPlugin("kind-projector")
     )
     defaultProfile.setSettings(newSettings)
   }

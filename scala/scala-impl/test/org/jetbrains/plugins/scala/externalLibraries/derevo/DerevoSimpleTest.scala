@@ -4,6 +4,7 @@ import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings.ScalacPlugin
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 class DerevoSimpleTest extends ScalaLightCodeInsightFixtureTestCase {
@@ -16,7 +17,7 @@ class DerevoSimpleTest extends ScalaLightCodeInsightFixtureTestCase {
     val settings       = defaultProfile.getSettings
 
     val newSettings = settings.copy(
-      plugins = settings.plugins :+ "kind-projector"
+      plugins = settings.plugins :+ ScalacPlugin("kind-projector")
     )
 
     defaultProfile.setSettings(newSettings)

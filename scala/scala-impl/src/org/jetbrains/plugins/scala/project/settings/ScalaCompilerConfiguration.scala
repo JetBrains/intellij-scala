@@ -11,6 +11,7 @@ import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.compiler.data.ScalaCompilerConfigurationAttributes.{IncrementalityTypeAttr, ModulesAttr, NameAttr, OptionAttr, ProfileAttr, SeparateProdTestSourcesAttr, ValueAttr}
 import org.jetbrains.plugins.scala.compiler.data.{IncrementalityType, ScalaCompilerSettingsState}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration.DefaultProfileName
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings.ScalacPlugin
 
 import scala.annotation.{nowarn, tailrec}
 import scala.jdk.CollectionConverters._
@@ -58,7 +59,7 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
   def getSettingsForModule(module: Module): ScalaCompilerSettings =
     getProfileForModule(module).getSettings
 
-  def allCompilerPlugins: Seq[String] = allProfiles.map(_.getSettings).flatMap(_.plugins)
+  def allCompilerPlugins: Seq[ScalacPlugin] = allProfiles.map(_.getSettings).flatMap(_.plugins)
 
   def allProfiles: Seq[ScalaCompilerSettingsProfile] = defaultProfile +: customProfiles
 
