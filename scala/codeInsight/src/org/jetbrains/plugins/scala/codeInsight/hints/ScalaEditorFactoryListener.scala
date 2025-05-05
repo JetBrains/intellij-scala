@@ -126,6 +126,9 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
 
     override def keyReleased(e: KeyEvent): Unit = {
       xRayMode = false
+      if (e.getKeyCode != ModifierKey) {
+        firstKeyPressTime = 0
+      }
       keyPressEvent = null
       longDelay.stop()
       shortDelay.stop()
