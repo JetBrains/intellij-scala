@@ -18,7 +18,7 @@ class CompilerTypeRequestListener(project: Project) extends CompilerType.Listene
     val virtualFile = psiFile.getVirtualFile
     val scope = if (ProjectFileIndex.getInstance(project).isInSource(virtualFile)) SourceScope.Production else SourceScope.Test
 
-    val request = DocumentRequest(FileCompilationScope(virtualFile, module, scope, document, psiFile), "compiler type request", System.nanoTime())
+    val request = DocumentRequest(FileCompilationScope(virtualFile, module, scope, document, psiFile), "compiler type request", CompilationRequest.compilationDeadline)
     CompilerHighlightingService.get(project).executeDocumentCompilationRequest(request)
   }
 }

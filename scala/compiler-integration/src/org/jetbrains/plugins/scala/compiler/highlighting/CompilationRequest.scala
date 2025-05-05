@@ -1,16 +1,14 @@
 package org.jetbrains.plugins.scala.compiler.highlighting
 
 import com.intellij.openapi.editor.Document
-import com.intellij.openapi.module.Module
 import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.jps.incremental.scala.remote.SourceScope
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.util.DocumentVersion
 
-import java.util.concurrent.TimeUnit
+import scala.concurrent.duration.Deadline
 
-private sealed abstract class CompilationRequest(final val originFiles: Map[VirtualFile, Document], val timestamp: Long) {
+private sealed abstract class CompilationRequest(final val originFiles: Map[VirtualFile, Document], val deadline: Deadline) {
   protected val priority: Int
 
   final val documentVersions: Map[VirtualFile, DocumentVersion] =
@@ -18,17 +16,7 @@ private sealed abstract class CompilationRequest(final val originFiles: Map[Virt
 
   val debugReason: String
 
-  /**
-   * @return how many milliseconds there are left until this request can become eligible for execution
-   */
-  final def remaining: Long = {
-    val nowNanos = System.nanoTime()
-    val delayNanos = TimeUnit.MILLISECONDS.toNanos(ScalaHighlightingMode.compilationDelayMillis)
-    val remainingNanos = timestamp + delayNanos - nowNanos
-    TimeUnit.NANOSECONDS.toMillis(remainingNanos)
-  }
-
-  def delayed(timestamp: Long): CompilationRequest
+  def delayed(deadline: Deadline): CompilationRequest
 }
 
 private object CompilationRequest {
@@ -41,34 +29,34 @@ private object CompilationRequest {
     document: Document,
     isFirstTimeHighlighting: Boolean,
     debugReason: String,
-    override val timestamp: Long
-  ) extends CompilationRequest(Map(virtualFile -> document), timestamp) {
+    override val deadline: Deadline
+  ) extends CompilationRequest(Map(virtualFile -> document), deadline) {
     override protected val priority: Int = 1
 
-    override def delayed(timestamp: Long): CompilationRequest = copy(timestamp = timestamp)
+    override def delayed(deadline: Deadline): WorksheetRequest = copy(deadline = deadline)
   }
 
   final case class IncrementalRequest(
     fileCompilationScopes: Map[VirtualFile, FileCompilationScope],
     debugReason: String,
-    override val timestamp: Long
+    override val deadline: Deadline
   ) extends CompilationRequest(
     fileCompilationScopes.map { case (vf, FileCompilationScope(_, _, _, document, _)) => vf -> document },
-    timestamp
+    deadline
   ) {
     override protected val priority: Int = 1
 
-    override def delayed(timestamp: Long): CompilationRequest = copy(timestamp = timestamp)
+    override def delayed(deadline: Deadline): IncrementalRequest = copy(deadline = deadline)
   }
 
   final case class DocumentRequest(
     scope: FileCompilationScope,
     debugReason: String,
-    override val timestamp: Long
-  ) extends CompilationRequest(Map(scope.virtualFile -> scope.document), timestamp) {
+    override val deadline: Deadline
+  ) extends CompilationRequest(Map(scope.virtualFile -> scope.document), deadline) {
     override protected val priority: Int = 2
 
-    override def delayed(timestamp: Long): CompilationRequest = copy(timestamp = timestamp)
+    override def delayed(deadline: Deadline): DocumentRequest = copy(deadline = deadline)
   }
 
   /**
@@ -86,9 +74,10 @@ private object CompilationRequest {
    *       then ordered by their deadlines.
    */
   implicit val compilationRequestOrdering: Ordering[CompilationRequest] = { (x, y) =>
-    if (x.priority != y.priority)
-      java.lang.Integer.compare(x.priority, y.priority)
-    else
-      java.lang.Long.compare(x.timestamp, y.timestamp)
+    val byPriority = x.priority compare y.priority
+    if (byPriority != 0) byPriority
+    else x.deadline compare y.deadline
   }
+
+  def compilationDeadline: Deadline = Deadline.now + ScalaHighlightingMode.compilationDelay
 }
