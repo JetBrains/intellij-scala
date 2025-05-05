@@ -79,6 +79,8 @@ class GeneratedClassTest_Scala2_3_5 extends GeneratedClassTest_Scala2_Base(Scala
 
 class GeneratedClassTest_Scala2_3_6 extends GeneratedClassTest_Scala2_Base(ScalaVersion.Latest.Scala_3_6)
 
+class GeneratedClassTest_Scala2_3_7 extends GeneratedClassTest_Scala2_Base(ScalaVersion.Latest.Scala_3_7)
+
 class GeneratedClassTest_Scala2_3_LTS_RC extends GeneratedClassTest_Scala2_Base(ScalaVersion.Latest.Scala_3_LTS_RC)
 
 class GeneratedClassTest_Scala2_3_Next_RC extends GeneratedClassTest_Scala2_Base(ScalaVersion.Latest.Scala_3_Next_RC)
@@ -105,6 +107,8 @@ class GeneratedClassTest_Scala3_3_4 extends GeneratedClassTest_Scala3_Base(Scala
 class GeneratedClassTest_Scala3_3_5 extends GeneratedClassTest_Scala3_Base(ScalaVersion.Latest.Scala_3_5)
 
 class GeneratedClassTest_Scala3_3_6 extends GeneratedClassTest_Scala3_Base(ScalaVersion.Latest.Scala_3_6)
+
+class GeneratedClassTest_Scala3_3_7 extends GeneratedClassTest_Scala3_Base(ScalaVersion.Latest.Scala_3_7)
 
 class GeneratedClassTest_Scala3_3_LTS_RC extends GeneratedClassTest_Scala3_Base(ScalaVersion.Latest.Scala_3_LTS_RC)
 

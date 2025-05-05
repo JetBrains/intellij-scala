@@ -56,6 +56,10 @@ class TryCatchInLazyValTest_3_6 extends TryCatchInLazyValTest_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_6
 }
 
+class TryCatchInLazyValTest_3_7 extends TryCatchInLazyValTest_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_7
+}
+
 class TryCatchInLazyValTest_3_LTS_RC extends TryCatchInLazyValTest_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_LTS_RC
 }

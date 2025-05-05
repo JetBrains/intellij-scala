@@ -260,6 +260,10 @@ class ScalaCompilerHighlightingTest_3_6 extends ScalaCompilerHighlightingTest_3_
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_6
 }
 
+class ScalaCompilerHighlightingTest_3_7 extends ScalaCompilerHighlightingTest_3_6 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_7
+}
+
 class ScalaCompilerHighlightingTest_3_RC extends ScalaCompilerHighlightingTest_3_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_LTS_RC
 }
