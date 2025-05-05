@@ -177,7 +177,7 @@ class ScalaCompilerConfigurationTest extends ScalaLightCodeInsightFixtureTestCas
     state.debuggingInfoLevel = DebuggingInfoLevel.Notailcalls
 
     state.additionalCompilerOptions = Array("compilerOption1", "compilerOption2")
-    state.plugins = Array("compilerPlugin1", "compilerPlugin2")
+    state.pluginsClasspath = Array("compilerPlugin1", "compilerPlugin2")
 
     state
   }

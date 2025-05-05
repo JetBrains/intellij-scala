@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings.ScalacPlugin
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
@@ -26,7 +27,7 @@ class PartialUnificationCatsHighlightingTest_2_12 extends ScalaLightCodeInsightF
 
     val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
     val newSettings = defaultProfile.getSettings.copy(
-      plugins = defaultProfile.getSettings.plugins :+ "kind-projector"
+      plugins = defaultProfile.getSettings.plugins :+ ScalacPlugin("kind-projector")
     )
     defaultProfile.setSettings(newSettings)
   }

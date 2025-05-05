@@ -4,6 +4,7 @@ import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings.ScalacPlugin
 
 abstract class ExpandForComprehensionTestBase extends TransformerTest(new ExpandForComprehension())
 
@@ -251,7 +252,7 @@ class ExpandForComprehensionTest_WithBetterMonadicFor extends ExpandForComprehen
 
     val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
     val newSettings = defaultProfile.getSettings.copy(
-      plugins = defaultProfile.getSettings.plugins :+ "better-monadic-for"
+      plugins = defaultProfile.getSettings.plugins :+ ScalacPlugin("better-monadic-for")
     )
     defaultProfile.setSettings(newSettings)
   }

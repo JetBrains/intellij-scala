@@ -101,7 +101,7 @@ public class ScalaCompilerSettingsPanel {
         state.debuggingInfoLevel = (DebuggingInfoLevel) myDebuggingInfoLevel.getSelectedItem();
         String options = myAdditionalCompilerOptions.getText().trim();
         state.additionalCompilerOptions = options.isEmpty() ? new String[0] : lineSplitter.apply(options).toArray(String[]::new);
-        state.plugins = urlsToPaths(myPluginsEditor.getPaths());
+        state.pluginsClasspath = urlsToPaths(myPluginsEditor.getPaths());
 
         state.nameHashing = myNameHashing;
         state.recompileOnMacroDef = myRecompileOnMacroDef;
@@ -142,7 +142,7 @@ public class ScalaCompilerSettingsPanel {
         myContinuations.setSelected(state.continuations);
         myDebuggingInfoLevel.setSelectedItem(state.debuggingInfoLevel);
         myAdditionalCompilerOptions.setText(lineJoiner.apply(Arrays.asList(state.additionalCompilerOptions)));
-        myPluginsEditor.setPaths(pathsToUrls(state.plugins));
+        myPluginsEditor.setPaths(pathsToUrls(state.pluginsClasspath));
 
         myNameHashing = state.nameHashing;
         myRecompileOnMacroDef = state.recompileOnMacroDef;

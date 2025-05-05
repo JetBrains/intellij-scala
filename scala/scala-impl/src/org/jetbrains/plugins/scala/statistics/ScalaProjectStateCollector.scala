@@ -44,6 +44,7 @@ class ScalaProjectStateCollector extends ProjectUsagesCollector {
     val compilerPluginEvents = modulesWithScala
       .map(compilerConfiguration.getSettingsForModule)
       .flatMap(_.plugins)
+      .flatMap(_.pluginJar)
       .toSet[String]
       .map(Path.of(_))
       .filterNot(Files.isDirectory(_))

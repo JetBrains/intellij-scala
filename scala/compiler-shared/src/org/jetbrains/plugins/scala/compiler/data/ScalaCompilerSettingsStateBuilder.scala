@@ -59,7 +59,7 @@ object ScalaCompilerSettingsStateBuilder {
       if (!forScala3Compiler) DebuggingInfoLevelToScalacOption.get(state.debuggingInfoLevel)
       else None
 
-    val pluginOptions: Array[String] = state.plugins.map(path => "-Xplugin:" + (if (canonisePath) FileUtil.toCanonicalPath(path) else path))
+    val pluginOptions: Array[String] = state.pluginsClasspath.map(path => "-Xplugin:" + (if (canonisePath) FileUtil.toCanonicalPath(path) else path))
 
     toggledOptions ++ debuggingLevelOption ++ pluginOptions ++ state.additionalCompilerOptions
   }
@@ -87,8 +87,8 @@ object ScalaCompilerSettingsStateBuilder {
       .map(_._2)
       .getOrElse(DebuggingInfoLevel.Vars)
 
-    state.plugins = normalizedOptions.collect {
-      case PluginOptionPattern(path) => path
+    state.pluginsClasspath = normalizedOptions.collect {
+      case PluginOptionPattern(classpath) => classpath
     }.toArray
 
     state.additionalCompilerOptions = normalizedOptions.filterNot { option =>

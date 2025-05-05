@@ -4,6 +4,7 @@ import com.intellij.codeInspection.LocalInspectionTool
 import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.inspections.AppliedTypeLambdaCanBeSimplifiedInspection
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings.ScalacPlugin
 
 abstract class AppliedTypeLambdaCanBeSimplifiedTestBase extends ScalaInspectionTestBase {
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[AppliedTypeLambdaCanBeSimplifiedInspection]
@@ -30,7 +31,7 @@ class AppliedTypeLambdaCanBeSimplifiedTest extends AppliedTypeLambdaCanBeSimplif
 
     val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
     val newSettings = defaultProfile.getSettings.copy(
-      plugins = defaultProfile.getSettings.plugins :+ "kind-projector"
+      plugins = defaultProfile.getSettings.plugins :+ ScalacPlugin("kind-projector")
     )
     defaultProfile.setSettings(newSettings)
   }

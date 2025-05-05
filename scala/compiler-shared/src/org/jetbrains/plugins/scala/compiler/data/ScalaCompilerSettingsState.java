@@ -40,9 +40,18 @@ public final class ScalaCompilerSettingsState {
     @XCollection(elementName = "parameter")
     public String[] additionalCompilerOptions = new String[]{};
 
+    /**
+     * IMPORTANT !! <br>
+     * An array of compiler plugin classpaths, where each element represents the classpath of a single compiler plugin.
+     * It is either extracted from the <code>-Xplugin</code> compiler option by splitting on commas or added manually by the user through the UI settings. <br> <br>
+     * Each classpath string may contain multiple jars separated by the system-specific path separator (`:` on Unix/macOS, `;` on Windows).
+     * Take care when parsing these classpaths to handle the separators correctly. <br>
+     *
+     * @see org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings.ScalacPlugin
+     */
     @Tag("plugins")
     @XCollection(elementName = "plugin", valueAttributeName = "path")
-    public String[] plugins = new String[]{};
+    public String[] pluginsClasspath = new String[]{};
 
     @Override
     public boolean equals(Object o) {
@@ -72,7 +81,7 @@ public final class ScalaCompilerSettingsState {
                 compileOrder.equals(that.compileOrder) &&
                 debuggingInfoLevel.equals(that.debuggingInfoLevel) &&
                 Arrays.equals(additionalCompilerOptions, that.additionalCompilerOptions) &&
-                Arrays.equals(plugins, that.plugins);
+                Arrays.equals(pluginsClasspath, that.pluginsClasspath);
     }
 
     @Override
@@ -102,7 +111,7 @@ public final class ScalaCompilerSettingsState {
                 debuggingInfoLevel
         );
         result = 31 * result + Arrays.hashCode(additionalCompilerOptions);
-        result = 31 * result + Arrays.hashCode(plugins);
+        result = 31 * result + Arrays.hashCode(pluginsClasspath);
         return result;
     }
 }
