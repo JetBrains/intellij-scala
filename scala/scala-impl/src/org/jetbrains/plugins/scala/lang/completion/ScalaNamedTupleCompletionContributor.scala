@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.completion
 
-import com.intellij.codeInsight.completion.{CompletionContributor, CompletionParameters, CompletionType, InsertHandler, InsertionContext}
+import com.intellij.codeInsight.completion.{CompletionContributor, CompletionParameters, CompletionType, CompletionUtilCore, InsertHandler, InsertionContext}
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
 import com.intellij.codeInsight.template.TemplateBuilderImpl
 import com.intellij.openapi.util.TextRange
@@ -11,14 +11,16 @@ import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ToNullSafe}
 import org.jetbrains.plugins.scala.lang.completion.ScalaNamedTupleCompletionContributor.ScalaNamedTupleCompletionProvider
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNamedTuple, ScNamedTupleExprComponent, ScParenthesisedExpr, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.NamedTupleType
 
 import scala.annotation.tailrec
+import scala.collection.mutable
 
 class ScalaNamedTupleCompletionContributor extends CompletionContributor {
   extend(
     CompletionType.BASIC,
-    identifierWithParentsPattern(classOf[ScReferenceExpression], classOf[ScNamedTupleExprComponent], classOf[ScNamedTuple]),
+    identifierWithParentsPattern(classOf[ScNamedTupleExprComponent], classOf[ScNamedTuple]),
     ScalaNamedTupleCompletionProvider,
   )
 
@@ -33,21 +35,18 @@ object ScalaNamedTupleCompletionContributor {
   object ScalaNamedTupleCompletionProvider extends ScalaCompletionProvider {
     override protected def completionsFor(position: PsiElement)
                                          (implicit parameters: CompletionParameters, context: ProcessingContext): Iterable[LookupElement] = {
-      val refParent = getContextOfType(position, classOf[ScReferenceExpression])
-        .nullSafe
-        .map(_.getParent)
-        .orNull
-      refParent match {
-        case expr: ScParenthesisedExpr => createCompletionFor(expr, Map.empty)
-        case comp: ScNamedTupleExprComponent =>
+      val identifierParent = getContextOfType(position, classOf[ScParenthesisedExpr], classOf[ScNamedTupleExprComponent])
+      identifierParent match {
+        case expr: ScParenthesisedExpr => createCompletionFor(expr, Seq.empty)
+        case comp: ScNamedTupleExprComponent if position == comp.nameId =>
           val namedTuple = comp.namedTuple
           val existingComponents =
             namedTuple
               .components
               .flatMap { comp =>
                 comp.nameElement.zip(comp.expr)
-                  .map { case (name, expr) => name.getText -> expr.getText }
-              }.toMap
+                  .map { case (name, expr) => name.getText.replace(CompletionUtilCore.DUMMY_IDENTIFIER_TRIMMED, "") -> expr.getText }
+              }
 
           createCompletionFor(namedTuple, existingComponents)
         case _ =>
@@ -55,9 +54,16 @@ object ScalaNamedTupleCompletionContributor {
       }
     }
 
-    private def createCompletionFor(expr: ScExpression, existingComponents: Map[String, String]): Seq[LookupElement] = {
+    private def createCompletionFor(expr: ScExpression, existingComponents: Seq[(String, String)]): Seq[LookupElement] = {
+      val existingComponentsMap = existingComponents.toMap
+      def hasNewComponent(components: Seq[(ScType, _)]): Boolean =
+        components.size > existingComponents.size || components.exists {
+          case (NamedTupleType.NameType(name), _) => !existingComponentsMap.contains(name)
+          case _ => false
+        }
+
       expr.expectedType() match {
-        case Some(NamedTupleType(components)) =>
+        case Some(NamedTupleType(components)) if hasNewComponent(components) =>
           val elements =
             components.map {
               case (NamedTupleType.NameType(name), _) => name //s"$name = " + existingComponents.getOrElse(name, s"???")
@@ -65,10 +71,19 @@ object ScalaNamedTupleCompletionContributor {
             }
 
           val presentation = elements
-            .filterNot(existingComponents.contains)
+            .filterNot(existingComponentsMap.contains)
             .mkString("", ", ", " =")
+
+          // the identifier that we currently try to complete is of course not in components
+          // so just put down unmatched components in order
+          val unmatchedExpressions = existingComponents
+            .iterator
+            .collect { case (name, expr) if !elements.contains(name) => expr }
+            .to(mutable.Queue)
+          def nextUnmatchedExpression =
+            if (unmatchedExpressions.isEmpty) "???" else unmatchedExpressions.dequeue()
           val text = elements
-            .map(name => s"$name = ${existingComponents.getOrElse(name, "???")}")
+            .map(name => s"$name = ${existingComponentsMap.getOrElse(name, nextUnmatchedExpression)}")
             .mkString(", ")
           Seq(
             LookupElementBuilder

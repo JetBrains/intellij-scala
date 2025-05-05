@@ -693,6 +693,8 @@ class TupleParserTest extends SimpleScala3ParserTestBase {
       |      PsiElement(identifier)('name')
       |      PsiWhiteSpace(' ')
       |      PsiElement(=)('=')
+      |      PsiErrorElement:Expression expected
+      |        <empty list>
       |    PsiElement(,)(',')
       |    PsiWhiteSpace(' ')
       |    ScNamedTupleExprComponentImpl(named tuple component)
@@ -703,11 +705,12 @@ class TupleParserTest extends SimpleScala3ParserTestBase {
       |      IntegerLiteral
       |        PsiElement(integer)('1')
       |    PsiElement(,)(',')
+      |    PsiErrorElement:Identifier expected
+      |      <empty list>
       |    PsiWhiteSpace(' ')
-      |    ScNamedTupleExprComponentImpl(named tuple component)
-      |      PsiErrorElement:Identifier expected
-      |        <empty list>
-      |      PsiElement(=)('=')
+      |    PsiElement(=)('=')
+      |    PsiErrorElement:Expression expected
+      |      <empty list>
       |    PsiElement(,)(',')
       |    PsiWhiteSpace(' ')
       |    ScNamedTupleExprComponentImpl(named tuple component)

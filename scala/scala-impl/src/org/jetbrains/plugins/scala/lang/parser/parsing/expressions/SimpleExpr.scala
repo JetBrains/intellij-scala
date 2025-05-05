@@ -112,20 +112,29 @@ object SimpleExpr extends ParsingRule {
               val namedTupleComponentMarker = builder.mark()
               var hasNamedTupleContent = false
               if (isNamedTuple) {
-                if (builder.lookAhead(tIDENTIFIER, tASSIGN)) {
-                  hasNamedTupleContent = true
-                  builder.advanceLexer()
-                  builder.advanceLexer()
-                } else if (builder.getTokenType == tASSIGN) {
-                  hasNamedTupleContent = true
-                  builder.error(ErrMsg("identifier.expected"))
-                  builder.advanceLexer()
-                } else {
-                  builder.error(ErrMsg("identifier.expected"))
+                builder.getTokenType match {
+                  case `tIDENTIFIER` =>
+                    hasNamedTupleContent = true
+                    builder.advanceLexer()
+
+                    if (builder.getTokenType == tASSIGN) {
+                      builder.advanceLexer()
+                    } else {
+                      builder.error(ScalaBundle.message("assignment.expected"))
+                    }
+                  case token =>
+                    builder.error(ErrMsg("identifier.expected"))
+
+                    if (token == `tASSIGN`) {
+                      builder.advanceLexer()
+                    }
                 }
               }
 
               val parsedExpr = Expr()
+              if (!parsedExpr) {
+                builder.expressionExpectedError()
+              }
 
               if (isNamedTuple && (hasNamedTupleContent || parsedExpr)) {
                 namedTupleComponentMarker.done(ScalaElementType.NAMED_TUPLE_COMPONENT)
