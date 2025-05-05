@@ -41,6 +41,7 @@ import scala.collection.immutable
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future, Promise}
 import scala.jdk.CollectionConverters.IteratorHasAsScala
+import scala.math.Ordering.Implicits.infixOrderingOps
 import scala.util.control.NonFatal
 
 @Service(Array(Service.Level.PROJECT))
@@ -117,7 +118,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     } else {
       val sourceScope = calculateSourceScope(virtualFile)
       val scope = FileCompilationScope(virtualFile, module, sourceScope, document, psiFile)
-      schedule(CompilationRequest.IncrementalRequest(Map(virtualFile -> scope), debugReason, timestamp = System.nanoTime()))
+      schedule(CompilationRequest.IncrementalRequest(Map(virtualFile -> scope), debugReason, CompilationRequest.compilationDeadline))
     }
   }
 
@@ -130,7 +131,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
   ): Unit = {
     val sourceScope = calculateSourceScope(virtualFile)
     val scope = FileCompilationScope(virtualFile, module, sourceScope, document, psiFile)
-    schedule(CompilationRequest.DocumentRequest(scope, debugReason, timestamp = System.nanoTime()))
+    schedule(CompilationRequest.DocumentRequest(scope, debugReason, CompilationRequest.compilationDeadline))
   }
 
   def triggerWorksheetCompilation(
@@ -140,7 +141,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     isFirstTimeHighlighting: Boolean,
     debugReason: String
   ): Unit =
-    schedule(CompilationRequest.WorksheetRequest(psiFile, virtualFile, document, isFirstTimeHighlighting, debugReason, timestamp = System.nanoTime()))
+    schedule(CompilationRequest.WorksheetRequest(psiFile, virtualFile, document, isFirstTimeHighlighting, debugReason, CompilationRequest.compilationDeadline))
 
   private[highlighting] def saveProjectOnNextCompilation(): Unit = {
     projectSaveTracker.set(true)
@@ -152,8 +153,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
 
   private def schedule(request: CompilationRequest): Unit = {
     priorityQueue.add(request)
-    val compilationDelay = ScalaHighlightingMode.compilationDelayMillis
-    scheduleCompilationTask(compilationDelay)
+    scheduleCompilationTask(request.deadline)
   }
 
   private def execute(request: CompilationRequest): Unit = request match {
@@ -191,7 +191,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
 
       val sourceScope = calculateSourceScope(virtualFile)
       val scope = FileCompilationScope(virtualFile, realModule, sourceScope, document, file)
-      val incrementalRequest = CompilationRequest.IncrementalRequest(Map(virtualFile -> scope), debugReason, timestamp = System.nanoTime())
+      val incrementalRequest = CompilationRequest.IncrementalRequest(Map(virtualFile -> scope), debugReason, CompilationRequest.compilationDeadline)
       executeIncrementalCompilationRequest(incrementalRequest, runDocumentCompiler = false)
     }
 
@@ -430,7 +430,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
   private def isReadyForExecution(request: CompilationRequest): RequestState = {
     if (isExpired(request)) {
       RequestState.Expired
-    } else if (request.remaining <= 0L) {
+    } else if (request.deadline.isOverdue()) {
       if (DumbService.isDumb(project)) return RequestState.NotReady
       request match {
         case CompilationRequest.WorksheetRequest(_, _, document, _, _, _) => canDocumentBeCompiled(document)
@@ -458,9 +458,9 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     }
   }
 
-  private def scheduleCompilationTask(delayMillis: Long): Unit = {
-    val actualDelay = math.max(delayMillis, 1L)
-    val future = executor.schedule(new CompilationTask(), actualDelay, TimeUnit.MILLISECONDS)
+  private def scheduleCompilationTask(deadline: Deadline): Unit = {
+    val Duration(length, unit) = deadline.timeLeft max 1.millisecond
+    val future = executor.schedule(new CompilationTask(), length, unit)
     val previous = compilationTask.getAndSet(future)
     if (previous ne null) {
       previous.cancel(false)
@@ -483,7 +483,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
           case RequestState.Ready =>
             try {
               request match {
-                case CompilationRequest.WorksheetRequest(file, virtualFile, document, isFirstTimeHighlighting, debugReason, timestamp) =>
+                case CompilationRequest.WorksheetRequest(file, virtualFile, document, isFirstTimeHighlighting, debugReason, deadline) =>
                   // Worksheet requests for the same file are debounced and deduplicated from the queue.
                   val otherWorksheetRequests = priorityQueue.tailSet(request).iterator().asScala.collect {
                     case wr: CompilationRequest.WorksheetRequest if wr.virtualFile == virtualFile => wr
@@ -491,39 +491,39 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
                   // If any of the requests have `isFirstTimeHighlighting = true`, the debounced request will also have the same value.
                   val firstTime = if (isFirstTimeHighlighting) true else otherWorksheetRequests.exists(_.isFirstTimeHighlighting)
                   // Look for the request scheduled furthest in the future.
-                  val lastOne = otherWorksheetRequests.maxByOption(_.timestamp).getOrElse(request)
-                  // Its timestamp becomes the new timestamp of the debounced request.
-                  val newTimestamp = timestamp max lastOne.timestamp
+                  val lastOne = otherWorksheetRequests.maxByOption(_.deadline).getOrElse(request)
+                  // Its deadline becomes the new deadline of the debounced request.
+                  val newDeadline = deadline max lastOne.deadline
                   // All worksheet requests for the same file are removed from the queue.
                   otherWorksheetRequests.foreach(priorityQueue.remove)
                   // Instantiate the new worksheet request.
-                  val newRequest = CompilationRequest.WorksheetRequest(file, virtualFile, document, firstTime, debugReason, timestamp = newTimestamp)
+                  val newRequest = CompilationRequest.WorksheetRequest(file, virtualFile, document, firstTime, debugReason, newDeadline)
                   // Execute it if ready, schedule it if not.
                   if (isReadyForExecution(newRequest) == RequestState.Ready) {
                     execute(newRequest)
                   } else {
                     priorityQueue.add(newRequest)
                   }
-                case CompilationRequest.DocumentRequest(FileCompilationScope(virtualFile, module, sourceScope, document, psiFile), debugReason, timestamp) =>
+                case CompilationRequest.DocumentRequest(FileCompilationScope(virtualFile, module, sourceScope, document, psiFile), debugReason, deadline) =>
                   // Document requests for the same file are debounced and deduplicated from the queue.
                   val otherDocumentRequests = priorityQueue.tailSet(request).iterator().asScala.collect {
                     case dr: CompilationRequest.DocumentRequest if dr.scope.virtualFile == virtualFile => dr
                   }.toSeq
                   // Look for the request scheduled furthest in the future.
-                  val lastOne = otherDocumentRequests.maxByOption(_.timestamp).getOrElse(request)
-                  // Its timestamp becomes the new timestamp of the debounced request.
-                  val newTimestamp = timestamp max lastOne.timestamp
+                  val lastOne = otherDocumentRequests.maxByOption(_.deadline).getOrElse(request)
+                  // Its deadline becomes the new deadline of the debounced request.
+                  val newDeadline = deadline max lastOne.deadline
                   // All document requests for the same file are removed from the queue.
                   otherDocumentRequests.foreach(priorityQueue.remove)
                   // Instantiate the new document request.
-                  val newRequest = CompilationRequest.DocumentRequest(FileCompilationScope(virtualFile, module, sourceScope, document, psiFile), debugReason, timestamp = newTimestamp)
+                  val newRequest = CompilationRequest.DocumentRequest(FileCompilationScope(virtualFile, module, sourceScope, document, psiFile), debugReason, newDeadline)
                   // Execute it if ready, schedule it if not.
                   if (isReadyForExecution(newRequest) == RequestState.Ready) {
                     execute(newRequest)
                   } else {
                     priorityQueue.add(newRequest)
                   }
-                case CompilationRequest.IncrementalRequest(fileCompilationScopes, debugReason, timestamp) =>
+                case CompilationRequest.IncrementalRequest(fileCompilationScopes, debugReason, deadline) =>
                   // Gather all other document and incremental compilation requests.
                   val otherRequests = priorityQueue.tailSet(request).iterator().asScala.collect {
                     case dr: CompilationRequest.DocumentRequest => dr
@@ -562,11 +562,11 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
                   // is opened. If the merged scope is empty (no modules to compile), we simply drop the request.
                   if (mergedScopes.nonEmpty) {
                     // Look for the request scheduled furthest in the future.
-                    val lastOne = toMerge.maxByOption(_.timestamp).getOrElse(request)
-                    // Its timestamp becomes the new timestamp of the debounced request.
-                    val newTimestamp = timestamp max lastOne.timestamp
+                    val lastOne = toMerge.maxByOption(_.deadline).getOrElse(request)
+                    // Its deadline becomes the new deadline of the debounced request.
+                    val newDeadline = deadline max lastOne.deadline
                     // Instantiate the new incremental compilation request.
-                    val newRequest = CompilationRequest.IncrementalRequest(mergedScopes, debugReason, timestamp = newTimestamp)
+                    val newRequest = CompilationRequest.IncrementalRequest(mergedScopes, debugReason, newDeadline)
                     // Execute it if ready, schedule it if not.
                     if (isReadyForExecution(newRequest) == RequestState.Ready) {
                       execute(newRequest)
@@ -583,7 +583,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
             }
 
           case RequestState.NotReady =>
-            val delayed = request.delayed(timestamp = System.nanoTime())
+            val delayed = request.delayed(CompilationRequest.compilationDeadline)
             priorityQueue.add(delayed)
 
           case RequestState.Expired =>
@@ -600,7 +600,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
         catch { case _: NoSuchElementException => null }
 
       if (first ne null) {
-        scheduleCompilationTask(first.remaining)
+        scheduleCompilationTask(first.deadline)
       }
     }
   }

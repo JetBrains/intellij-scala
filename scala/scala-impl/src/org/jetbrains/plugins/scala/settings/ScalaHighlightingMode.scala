@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.settings
 
 import com.intellij.codeInsight.daemon.impl.analysis.{FileHighlightingSetting, HighlightingSettingsPerFile}
 import com.intellij.openapi.application.ApplicationManager
+import org.jetbrains.annotations.ApiStatus
 //noinspection ApiStatus
 import com.intellij.ide.trustedProjects.TrustedProjects
 import com.intellij.openapi.project.Project
@@ -84,8 +85,14 @@ object ScalaHighlightingMode {
   private def nonNegativeDuration(key: String): FiniteDuration =
     math.max(Registry.intValue(key), 0).millis
 
+  @deprecated(message = "Use compilationDelay", since = "2025.1")
+  @Deprecated(since = "2025.1", forRemoval = true)
+  @ApiStatus.ScheduledForRemoval(inVersion = "2025.2")
   def compilationDelayMillis: Long =
     Math.max(Registry.intValue("scala.highlighting.compilation.delay.millis"), 0).toLong
+
+  def compilationDelay: FiniteDuration =
+    nonNegativeDuration("scala.highlighting.compilation.delay.millis")
 
   def compilationTimeoutToShowProgress: FiniteDuration =
     nonNegativeDuration("scala.highlighting.compilation.timeout.to.show.progress.millis")
