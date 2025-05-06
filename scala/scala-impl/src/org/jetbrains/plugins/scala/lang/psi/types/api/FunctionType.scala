@@ -1,18 +1,19 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api
 
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiClass, PsiElement}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStringLiteralImpl
-import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ScLiteralType, ScParameterizedType, ScType, ScalaType, api, extractTypeParameters}
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionTypeFactory.{extractMember, extractParameterizedType, extractQualifiedName}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ScLiteralType, ScParameterizedType, ScType, ScalaType, api}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
 import scala.reflect.ClassTag
+import scala.util.matching.Regex
 
 sealed trait FunctionTypeFactory[D <: ScTypeDefinition, T] {
 
@@ -106,145 +107,170 @@ object PartialFunctionType extends FunctionTypeFactory[ScTrait, (ScType, ScType)
   }
 }
 
+//noinspection ScalaWeakerAccess
+//noinspection ScalaUnusedSymbol
 object TupleType {
-  private val Scala2TupleTypeName = Scala2TupleType.TypeName
-  private val Scala3EmptyTupleTypeName = "scala.EmptyTuple"
-  private val Scala3TupleAppendTypeName = "scala.*:"
-
   def apply(types: Seq[ScType], context: PsiElement): ScType =
     apply(types, scala3 = context.isInScala3File)(context.elementScope)
 
   def apply(types: Seq[ScType], scala3: Boolean)(implicit scope: ElementScope): ScType = {
-    if (scala3 && types.sizeIs > 22) Scala3TupleType(types)
-    else Scala2TupleType(types)
+    if (scala3 && types.sizeIs > TupleN.maxTupleN) TupleHList(types)
+    else TupleN(types)
   }
 
-  def withRest(types: Seq[ScType], rest: ScType)(implicit scope: ElementScope): ScType =
-    withRest(types, Some(rest))
-
-  /**
-   * If rest is None, this is a normal tuple constructor
-   * If rest is Some, this returns a Scala3 tuple which ends in rest (alá types(0) *: ... *: types(n-1) *: rest)
-   */
-  def withRest(types: Seq[ScType], rest: Option[ScType])(implicit scope: ElementScope): ScType =
-    if (rest.isDefined) Scala3TupleType(types, rest)
-    else apply(types, scala3 = true)
-
   def unapply(`type`: ScType): Option[Seq[ScType]] = {
-    extractTupleTypes(`type`, expectRest = None).collect {
+    extractTupleTypes(`type`, scopeIfTailIsExpected = None).collect {
       case (types, None) => types
     }
   }
 
   /**
-   * Returns all initial types of a tuple and a rest if `type` is a Scala 3 tuple
+   * Returns all initial types of a tuple and a tail if `type` is a Scala 3 tuple
    *
    * @param `type` the tuple type
-   * @param expectRest An optimization. If no rest is expected, we do not check whether remaining types are <: Tuple
+   * @param scopeIfTailIsExpected An optimization. If no tail is expected, we do not check whether the remaining types are <: Tuple
    */
-  private[api] def extractTupleTypes(`type`: ScType, expectRest: Option[ElementScope]): Option[(Seq[ScType], Option[ScType])] = {
+  private[api] def extractTupleTypes(`type`: ScType, scopeIfTailIsExpected: Option[ElementScope]): Option[(Seq[ScType], Option[ScType])] = {
     extractParameterizedType(`type`) match {
       case Some(pTy) =>
         extractMember(pTy.designator).flatMap { tupleClass =>
           tupleClass.qualifiedNameOpt.flatMap {
-            case name if name.startsWith(Scala2TupleTypeName) => Some(pTy.typeArguments -> None)
-            case name if name.startsWith(Scala3TupleAppendTypeName) =>
+            case fqn if TupleN.isTupleNFqn(fqn) => Some(pTy.typeArguments -> None)
+            case fqn if fqn == TupleHList.ConsClassFqn =>
               val result = Seq.newBuilder[ScType]
               @tailrec
-              def addToResult(rest: ParameterizedType): Option[ScType] = rest.typeArguments match {
+              def addToResult(tail: ParameterizedType): Option[ScType] = tail.typeArguments match {
                 case Seq(comp, next) =>
                   result += comp
                   extractParameterizedType(next) match {
                     case Some(pTy) if extractMember(pTy.designator).contains(tupleClass) =>
                       addToResult(pTy)
                     case _ =>
-                      if (isScala3EmptyTupleType(next)) None
+                      if (TupleHList.isEmptyTupleHList(next)) None
                       else Some(next)
                   }
                 case _ =>
-                  Some(rest)
+                  Some(tail)
               }
 
-              val rest = addToResult(pTy)
+              val tail = addToResult(pTy)
               val types = result.result()
-              Some(types -> rest)
+              Some(types -> tail)
 
             case _ => None
           }
         }
       case None  =>
-        if (isScala3EmptyTupleType(`type`)) Some(Seq.empty -> None)
-        else if (expectRest.exists(Scala3TupleType.isTuple(`type`)(_))) Some(Seq.empty -> Some(`type`))
+        if (TupleHList.isEmptyTupleHList(`type`)) Some(Seq.empty -> None)
+        else if (scopeIfTailIsExpected.exists(TupleHList.isTupleHList(`type`)(_))) Some(Seq.empty -> Some(`type`))
         else None
     }
   }
 
-  def isTupleType(`type`: ScType): Boolean = unapply(`type`).isDefined
-
-  def isScala3EmptyTupleType(`type`: ScType): Boolean =
-    `type`.extractDesignated(expandAliases = true).exists {
-      case obj: ScObject => obj.qualifiedNameOpt.contains(Scala3EmptyTupleTypeName)
-      case _ => false
-    }
-}
-
-object Scala2TupleType extends FunctionTypeFactory[ScClass, Seq[ScType]] {
-  override val TypeName = "scala.Tuple"
-
-  override def apply(types: Seq[ScType])
-                    (implicit scope: ElementScope): ValueType =
-    apply(types, types.length.toString)
-
-  def isTupleType(`type`: ScType): Boolean = unapply(`type`).isDefined
-
-  override protected def unapplyCollector: PartialFunction[Seq[ScType], Seq[ScType]] = {
-    case types => types
-  }
-}
-
-object Scala3TupleType {
-  val EmptyTupleTypeName = "scala.EmptyTuple"
-  val TupleConsTypeName = "scala.*:"
-  val TupleBaseTypeName = "scala.Tuple"
-
-  def apply(types: Seq[ScType])(implicit scope: ElementScope): ScType = apply(types, None)
-  def apply(types: Seq[ScType], rest: ScType)(implicit scope: ElementScope): ScType = apply(types, Some(rest))
-
   /**
-   * Returns a Scala3 tuple which ends in rest or EmptyTuple.
-   *
-   * NOTE: This is normally not the correct tuple constructor. Use [[TupleType.withRest]] instead.
-   *
-   * aka: types(0) *: types(1) *: ... *: types(N-1) *: rest.getOrElse(EmptyTuple)
+   * Create/Unapply Tuples with potential tail
    */
-  def apply(types: Seq[ScType], rest: Option[ScType])(implicit scope: ElementScope): ScType = {
-    (
-      rest.orElse(scope.getCachedObject(EmptyTupleTypeName).map(ScalaType.designator)),
-      scope.getCachedClass(TupleConsTypeName)
-    ) match {
-      case (Some(restType), Some(tupleAppendClass: ScClass)) =>
-        val tupleAppendType = ScalaType.designator(tupleAppendClass)
-        types.foldRight(restType) {
-          (comp, tup) => ScParameterizedType(tupleAppendType, Seq(comp, tup))
-        }
-      case _ =>
-        api.Nothing
+  object withTail {
+    @inline
+    def apply(types: Seq[ScType], tail: ScType)(implicit scope: ElementScope): ScType =
+      apply(types, Some(tail))
+
+    /**
+     * If tail is None, this is a normal tuple constructor
+     * If tail is Some, this returns a Scala3 tuple which ends in tail (alá types(0) *: ... *: types(n-1) *: tail)
+     */
+    def apply(types: Seq[ScType], tail: Option[ScType])(implicit scope: ElementScope): ScType =
+      tail match {
+        case None => TupleType(types, scala3 = true)
+        case Some(tail) => TupleHList(types, tail)
+      }
+
+    def unapply(`type`: ScType)(implicit scope: ElementScope): Option[(Seq[ScType], Option[ScType])] =
+      extractTupleTypes(`type`, scopeIfTailIsExpected = Some(scope))
+  }
+
+  object TupleN extends FunctionTypeFactory[ScClass, Seq[ScType]] {
+    val maxTupleN: 22 = 22
+    override val TypeName = "scala.Tuple"
+
+    private val fqnTupleNRegex: Regex = raw"$TypeName(1[0-9]|2[0-2]|[1-9])$$".r
+
+    def isTupleNFqn(fqn: String): Boolean = fqnTupleNRegex.matches(fqn)
+    def tupleNArity(fqn: String): Option[Int] = fqn match {
+      case fqnTupleNRegex(n) => n.toIntOption
+      case _ => None
+    }
+
+    def isTupleN(`type`: ScType): Boolean =
+      `type`.extractDesignated(expandAliases = true).exists {
+        case obj: ScTypeDefinition => obj.qualifiedNameOpt.exists(isTupleNFqn)
+        case _ => false
+      }
+    def tupleNArity(`type`: ScType): Option[Int] =
+      `type`.extractDesignated(expandAliases = true).flatMap {
+        case obj: ScTypeDefinition => obj.qualifiedNameOpt.flatMap(tupleNArity)
+        case _ => None
+      }
+
+    override def apply(types: Seq[ScType])
+                      (implicit scope: ElementScope): ValueType =
+      apply(types, types.length.toString)
+
+    override protected def unapplyCollector: PartialFunction[Seq[ScType], Seq[ScType]] = {
+      case types => types
     }
   }
 
-  def unapply(`type`: ScType)(implicit scope: ElementScope): Option[(Seq[ScType], Option[ScType])] = TupleType.extractTupleTypes(`type`, expectRest = Some(scope))
+  object TupleHList {
+    val TupleBaseClassFqn = "scala.Tuple"
+    val EmptyTupleClassFqn = "scala.EmptyTuple"
+    val NonEmptyTupleClassFqn = "scala.NonEmptyTuple"
+    val ConsClassFqn = "scala.*:"
 
-  def isEmptyTupleType(`type`: ScType): Boolean =
-    `type`.extractDesignated(expandAliases = true).exists {
-      case obj: ScObject => obj.qualifiedNameOpt.contains(EmptyTupleTypeName)
-      case _ => false
+    def tupleBaseClass(implicit scope: ElementScope): Option[PsiClass] = scope.getCachedClass(TupleBaseClassFqn)
+    def emptyTupleObject(implicit scope: ElementScope): Option[ScObject] = scope.getCachedObject(EmptyTupleClassFqn)
+    def consClass(implicit scope: ElementScope): Option[PsiClass] = scope.getCachedClass(ConsClassFqn)
+
+    @inline
+    def apply(types: Seq[ScType])(implicit scope: ElementScope): ScType = apply(types, None)
+    @inline
+    def apply(types: Seq[ScType], tail: ScType)(implicit scope: ElementScope): ScType = apply(types, Some(tail))
+
+    /**
+     * Returns a Scala3 tuple which ends in tail or EmptyTuple.
+     *
+     * NOTE: This is normally not the correct tuple constructor. Use [[TupleType.withTail]] instead.
+     *
+     * aka: types(0) *: types(1) *: ... *: types(N-1) *: tail.getOrElse(EmptyTuple)
+     */
+    def apply(types: Seq[ScType], tail: Option[ScType])(implicit scope: ElementScope): ScType = {
+      (
+        tail.orElse(emptyTupleObject.map(ScalaType.designator)),
+        consClass
+      ) match {
+        case (Some(tailType), Some(tupleAppendClass: ScClass)) =>
+          val tupleAppendType = ScalaType.designator(tupleAppendClass)
+          types.foldRight(tailType) {
+            (comp, tup) => ScParameterizedType(tupleAppendType, Seq(comp, tup))
+          }
+        case _ =>
+          api.Nothing
+      }
     }
 
-  /// Whecks whether `type` is a subtype of scala.Tuple
-  def isTuple(`type`: ScType)(implicit scope: ElementScope): Boolean =
-    scope.getCachedClass(TupleBaseTypeName).exists { tupleClass =>
-      `type`.conforms(ScDesignatorType(tupleClass))
-    }
+    def unapply(`type`: ScType)(implicit scope: ElementScope): Option[(Seq[ScType], Option[ScType])] = withTail.unapply(`type`)
+
+    def isEmptyTupleHList(`type`: ScType): Boolean =
+      `type`.extractDesignated(expandAliases = true).exists {
+        case obj: ScObject => obj.qualifiedNameOpt.contains(EmptyTupleClassFqn)
+        case _ => false
+      }
+
+    def isTupleHList(`type`: ScType)(implicit scope: ElementScope): Boolean =
+      tupleBaseClass.exists { tupleClass =>
+        `type`.conforms(ScDesignatorType(tupleClass))
+      }
+  }
 }
 
 object NamedTupleType extends FunctionTypeFactory[ScClass, Seq[(ScType, ScType)]] {

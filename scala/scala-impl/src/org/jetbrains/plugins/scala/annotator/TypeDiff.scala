@@ -114,7 +114,7 @@ object TypeDiff {
         }
         Node(diff(l1, l2)(conformanceFor(v1), context), aMatch(" "), diff(d1, d2), aMatch(" "), diff(r1, r2)(conformanceFor(v2), context))
       case (FunctionType(r1, p1), FunctionType(r2, p2)) =>
-        val needsParens = (t: ScType) => FunctionType.isFunctionType(t) || TupleType.isTupleType(t)
+        val needsParens = (t: ScType) => FunctionType.isFunctionType(t) || TupleType.TupleN.tupleNArity(t).exists(_ >= 2)
         val left = {
           if (p1.length == p2.length) {
             val parameters = (p1 lazyZip p2).map(diff(_, _)(reversed, context)).intersperse(aMatch(", "))

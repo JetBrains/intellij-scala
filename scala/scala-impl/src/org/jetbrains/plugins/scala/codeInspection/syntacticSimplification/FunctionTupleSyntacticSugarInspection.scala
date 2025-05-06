@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScFunctionalTypeElement, ScInfixTypeElement, ScParameterizedTypeElement, ScSimpleTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile, ScalaPsiElement}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, Scala2TupleType, TupleType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TupleType}
 
 import scala.util.matching.Regex
 
@@ -69,7 +69,7 @@ class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
 
 object FunctionTupleSyntacticSugarInspection {
   val FunctionN: Regex = raw"${FunctionType.TypeName}(\d)".r
-  val TupleN: Regex = raw"${Scala2TupleType.TypeName}(\d)".r
+  val TupleN: Regex = raw"${TupleType.TupleN.TypeName}(\d)".r
 
   import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 

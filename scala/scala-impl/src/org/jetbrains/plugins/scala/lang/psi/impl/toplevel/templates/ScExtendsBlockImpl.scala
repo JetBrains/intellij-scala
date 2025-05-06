@@ -12,17 +12,17 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumCases, ScExtension, ScFunction, ScTypeAlias, ScTypeAliasDefinition, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScExtendsBlockImpl.isTupleNQualifiedName
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager, ScalaStubBasedElementImpl}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScExtendsBlockStub
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Scala2TupleType, Scala3TupleType, TypeParameter, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TupleType, TypeParameter, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames
@@ -108,7 +108,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
       // So Tuple2[T1, T2] will have T1 *: T2 *: EmptyTuple as super type
       tupleNTypeParams match {
         case Some(typeParams) =>
-          val scala3TupleTypeType = Scala3TupleType(typeParams.map(tp => TypeParameterType(TypeParameter(tp))))
+          val scala3TupleTypeType = TupleType.TupleHList(typeParams.map(tp => TypeParameterType(TypeParameter(tp))))
           if (!scala3TupleTypeType.isNothing) {
             buffer += scala3TupleTypeType
           }
@@ -153,7 +153,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
     ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, name)
 
   private def scalaProductClass: Option[PsiClass] = cachedClass(CommonQualifiedNames.ProductFqn)
-  private def scala3TupleConsClass: Option[PsiClass] = cachedClass(Scala3TupleType.TupleConsTypeName)
+  private def scala3TupleConsClass: Option[PsiClass] = cachedClass(TupleType.TupleHList.ConsClassFqn)
 
   private def scalaSerializableBaseClassForCaseClasses: Option[PsiClass] =
     if (this.scalaLanguageLevelOrDefault >= ScalaLanguageLevel.Scala_2_13)
@@ -319,6 +319,5 @@ object ScExtendsBlockImpl {
   private[this] def tail(typeResult: result.TypeResult) =
     typeResult.toOption.flatMap(_.extractClass)
 
-  private val qualifiedTupleRegex = raw"${Scala2TupleType.TypeName}(1[0-9]|2[0-2]|[1-9])$$".r
-  def isTupleNQualifiedName(@Nullable s: String): Boolean = s != null && qualifiedTupleRegex.matches(s)
+  def isTupleNQualifiedName(@Nullable s: String): Boolean = s != null && TupleType.TupleN.isTupleNFqn(s)
 }
