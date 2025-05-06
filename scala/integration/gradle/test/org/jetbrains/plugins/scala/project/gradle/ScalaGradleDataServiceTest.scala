@@ -4,7 +4,6 @@ import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.model.{DataNode, Key}
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
-import com.intellij.util.system.OS
 import org.jetbrains.plugins.gradle.model.data.{ScalaCompileOptionsData, ScalaModelData}
 import org.jetbrains.plugins.gradle.util.GradleConstants
 import org.jetbrains.plugins.scala.compiler.data.DebuggingInfoLevel
@@ -260,7 +259,7 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
       ScalaCompilerConfiguration.instanceIn(getProject).getSettingsForModule(module)
     }
 
-//    assertCollectionEquals(Seq(scalacPluginPath.toString), compilerConfiguration.plugins)
+    assertCollectionEquals(Seq(ScalacPlugin.fromClasspath(scalacPluginPath.toString)), compilerConfiguration.plugins)
   }
 
   def testModuleIsNull(): Unit = {
