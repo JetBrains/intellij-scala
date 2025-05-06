@@ -119,10 +119,6 @@ package object types {
 
     def isNull: Boolean = isStdType(Name.Null)
 
-    def isTupleBaseType: Boolean = scType.extractClass.exists(_.qualifiedName == "scala.Tuple")
-
-    def isTupleN: Boolean = scType.extractClass.exists(_.qualifiedName.matches(raw"scala.Tuple\d+"))
-
     def isPrimitive: Boolean = scType match {
       case _: ValType => !isUnit
       case _          => false

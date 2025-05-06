@@ -39,9 +39,6 @@ trait Conformance {
     else if (right.canBeSameOrInheritor(left)) {
       val result = conformsInner(Key(left, right, checkWeak), visited)
       combine(result)(constraints)
-    } else if (left.isTupleBaseType) {
-      if (right.isTupleN) constraints
-      else                Left
     } else Left
   }
 
