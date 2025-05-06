@@ -1,5 +1,7 @@
 import CompilationCache.compilationCacheSettings
 import com.github.sbt.junit.jupiter.sbt.Import.JupiterKeys.junitJupiterVersion
+import org.jetbrains.sbtidea.IntellijPlugin
+
 import kotlin.Keys.{kotlinRuntimeProvided, kotlinVersion, kotlincJvmTarget}
 import kotlin.KotlinPlugin
 import org.jetbrains.sbtidea.Keys.*
@@ -120,7 +122,10 @@ object Common {
       Dependencies.scalaReflect   -> Some("lib/scala-reflect.jar"),
       Dependencies.scalaXml       -> Some("lib/scala-xml.jar"),
     ),
-    intellijPlugins := intellijPlugins.all(intellijPluginsScopeFilter).value.flatten.distinct,
+    intellijPlugins := intellijPlugins.all(intellijPluginsScopeFilter).value.flatten.distinct.filter {
+      case plugin: IntellijPlugin.WithKnownId => plugin.id != "org.jetbrains.junie"
+      case _ => true
+    },
     intellijExtraRuntimePluginsInTests := Seq(
       //Below are some other useful plugins which you might be interested to inspect
       //We don't have any dependencies on those plugins, however sometimes it might be useful to see how some features are implemented in them plugin.
