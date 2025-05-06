@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.types.intrinsics
 
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
-import org.jetbrains.plugins.scala.lang.psi.types.api.{NamedTupleType, StdTypes, TupleType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Scala3TupleType, StdTypes, TupleType}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScOrType, ScParameterizedType, ScType}
 
 import scala.annotation.switch
@@ -22,7 +22,7 @@ object TupleIntrinsics {
         }
       case "Head" =>
         operands match {
-          case Seq(TupleType(comps)) => comps.headOption
+          case Seq(Scala3TupleType(comps, _)) => comps.headOption
           case _ => None
         }
       case "Init" =>
@@ -32,7 +32,7 @@ object TupleIntrinsics {
         }
       case "Tail" =>
         operands match {
-          case Seq(TupleType(comps)) => Some(mkTuple(comps.tail))
+          case Seq(Scala3TupleType(comps, rest)) => Some(TupleType.withRest(comps.tail, rest))
           case _ => None
         }
       case "Last" =>
@@ -42,12 +42,12 @@ object TupleIntrinsics {
         }
       case "Concat" | "++" =>
         operands match {
-          case Seq(TupleType(fst), TupleType(snd)) => Some(mkTuple(fst ++ snd))
+          case Seq(TupleType(fst), Scala3TupleType(snd, rest)) => Some(TupleType.withRest(fst ++ snd, rest))
           case _ => None
         }
       case "Elem" =>
         operands match {
-          case Seq(TupleType(comps), IntValue(i)) => comps.lift(i)
+          case Seq(Scala3TupleType(comps, _), IntValue(i)) => comps.lift(i)
           case _ => None
         }
       case "Size" =>
@@ -126,19 +126,19 @@ object TupleIntrinsics {
         }
       case "Take" =>
         operands match {
-          case Seq(TupleType(comps), IntValue(i)) => Some(mkTuple(comps.take(i)))
+          case Seq(Scala3TupleType(comps, rest), IntValue(i)) if rest.isEmpty || i <= comps.size => Some(mkTuple(comps.take(i)))
           case _ => None
         }
       case "Drop" =>
         operands match {
-          case Seq(TupleType(comps), IntValue(i)) => Some(mkTuple(comps.drop(i)))
+          case Seq(Scala3TupleType(comps, rest), IntValue(i)) if rest.isEmpty || i <= comps.size => Some(TupleType.withRest(comps.drop(i), rest))
           case _ => None
         }
       case "Split" =>
         operands match {
-          case Seq(TupleType(comps), IntValue(i)) =>
+          case Seq(Scala3TupleType(comps, rest), IntValue(i)) if rest.isEmpty || i <= comps.size =>
             val (fst, snd) = comps.splitAt(i)
-            Some(mkTuple(Seq(mkTuple(fst), mkTuple(snd))))
+            Some(mkTuple(Seq(mkTuple(fst), TupleType.withRest(snd, rest))))
           case _ => None
         }
       case "Union" =>
@@ -153,8 +153,10 @@ object TupleIntrinsics {
         }
       case "Contains" =>
         operands match {
-          case Seq(TupleType(comps), searched) =>
-            Some(BooleanValue(comps.exists(_.conforms(searched))))
+          case Seq(Scala3TupleType(comps, rest), searched) =>
+            val found = comps.exists(_.conforms(searched))
+            if (found || rest.isEmpty) Some(BooleanValue(found))
+            else None // we neither found the value nor could we search the whole tuple
           case _ =>
             None
         }

@@ -6,14 +6,16 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api.UndefinedType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialType, ScType}
 
 import scala.annotation.{switch, tailrec}
 
 object TypeIntrinsics {
-  def apply(designator: ScType, arguments: Seq[ScType]): Option[ScType] = designator match {
+  def apply(designator: ScType, arguments: Seq[ScType], substitutor: ScSubstitutor): Option[ScType] = designator match {
     case ScProjectionType.withActual(alias: ScTypeAlias, _) =>
       implicit def project: Project = designator.projectContext.project
 
@@ -25,8 +27,10 @@ object TypeIntrinsics {
       // But ideally it should be done more uniformly.
       // See also: https://github.com/lampepfl/dotty/pull/14586
       @tailrec
-      def dealias(ty: ScType): ScType = ty.removeAliasDefinitions() match {
+      def dealias(ty: ScType): ScType = substitutor(ty.removeAliasDefinitions()) match {
         case ScDesignatorType(ty: Typeable) if ty.is[ScBindingPattern, ScParameter, ScFieldId] => dealias(ty.`type`().getOrNothing)
+        case undef: UndefinedType => dealias(undef.typeParameter.lowerType)
+        case ScExistentialType(ty, _) => dealias(ty)
         case ty => ty
       }
       lazy val argumentsDealiased = arguments.map(dealias)

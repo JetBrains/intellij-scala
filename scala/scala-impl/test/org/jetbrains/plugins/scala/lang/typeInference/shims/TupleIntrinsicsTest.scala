@@ -11,6 +11,12 @@ import org.junit.experimental.categories.Category
 class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
   override def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3_7
 
+  override def transformCode(code: String): String =
+    s"""import scala.Tuple.++
+       |
+       |$code
+       |""".stripMargin
+
   //
   //
   // Tuple.Append[_]
@@ -87,6 +93,18 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     assertTypeIs(
       "type T = Tuple.Head[(Map[String, List[Int]], Boolean)]",
       "Map[String, List[Int]]"
+    )
+
+  def testHead_with_rest(): Unit =
+    assertTypeIs(
+      "type T = Tuple.Head[Int *: NonEmptyTuple]",
+      "Int"
+    )
+
+  def testHead_only_rest(): Unit =
+    assertTypeIs(
+      "type T = Tuple.Head[NonEmptyTuple]",
+      "Tuple.Head[NonEmptyTuple]"
     )
 
   //
@@ -211,6 +229,12 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
       "Tuple1[Boolean]"
     )
 
+  def testTail_rest(): Unit =
+    assertTypeIs(
+      "type T = Tuple.Tail[(Int, String) ++ NonEmptyTuple]",
+      "String *: NonEmptyTuple"
+    )
+
   //
   //
   // Tuple.Last[_]
@@ -309,6 +333,23 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
       "(Int, String, Boolean, Double)"
     )
 
+  def testConcat_with_rest(): Unit =
+    assertTypeIs(
+      "type T = Tuple.Concat[(Int, String), NonEmptyTuple]",
+      "Int *: String *: NonEmptyTuple"
+    )
+
+  def testConcat_with_rest2(): Unit =
+    assertTypeIs(
+      "type T = (Int, String) ++ Tuple",
+      "Int *: String *: Tuple"
+    )
+
+  def testConcat_with_rest_in_left(): Unit =
+    assertTypeIs(
+      "type T = (Int *: Tuple) ++ (1, 2)",
+      "(Int *: Tuple) ++ (1, 2)"
+    )
   //
   //
   // Tuple.Elem[_, _]
@@ -359,6 +400,18 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     assertTypeIs(
       "type T = Tuple.Elem[(List[Int], Option[String]), 1]",
       "Option[String]"
+    )
+
+  def testElem_elem_is_before_rest(): Unit =
+    assertTypeIs(
+      "type T = Tuple.Elem[(Int, Boolean) ++ NonEmptyTuple, 1]",
+      "Boolean"
+    )
+
+  def testElem_elem_is_in_rest(): Unit =
+    assertTypeIs(
+      "type T = Tuple.Elem[(Int, Boolean) ++ NonEmptyTuple, 2]",
+      "Tuple.Elem[Int *: Boolean *: NonEmptyTuple, 2]"
     )
 
   //
@@ -663,6 +716,18 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
       "(Int, String)"
     )
 
+  def testTake_before_rest(): Unit =
+    assertTypeIs(
+      "type T = Tuple.Take[(Int, Boolean) ++ (Float *: Tuple), 3]",
+      "(Int, Boolean, Float)"
+    )
+
+  def testTake_into_rest(): Unit =
+    assertTypeIs(
+      "type T = Tuple.Take[(Int, Boolean) ++ (Float *: Tuple), 4]",
+      "Tuple.Take[Int *: Boolean *: Float *: Tuple, 4]"
+    )
+
   //
   //
   // Tuple.Drop[_, _]
@@ -707,6 +772,18 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
       "(Map[String, Int], Option[Double])"
     )
 
+  def testDrop_before_rest(): Unit =
+    assertTypeIs(
+      "type T = Tuple.Drop[(Int, Boolean) ++ (Float *: Tuple), 3]",
+      "Tuple"
+    )
+
+  def testDrop_into_rest(): Unit =
+    assertTypeIs(
+      "type T = Tuple.Drop[(Int, Boolean) ++ (Float *: Tuple), 4]",
+      "Tuple.Drop[Int *: Boolean *: Float *: Tuple, 4]"
+    )
+
   //
   //
   // Tuple.Split[_, _]
@@ -749,6 +826,18 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     assertTypeIs(
       "type T = Tuple.Split[(List[Int], Map[String, Int], Option[Double]), 2]",
       "((List[Int], Map[String, Int]), Tuple1[Option[Double]])"
+    )
+
+  def testSplit_before_rest(): Unit =
+    assertTypeIs(
+      "type T = Tuple.Split[(Int, Boolean) ++ (Float *: Tuple), 3]",
+      "((Int, Boolean, Float), Tuple)"
+    )
+
+  def testSplit_into_rest(): Unit =
+    assertTypeIs(
+      "type T = Tuple.Drop[(Int, Boolean) ++ (Float *: Tuple), 4]",
+      "Tuple.Drop[Int *: Boolean *: Float *: Tuple, 4]"
     )
 
   //
@@ -828,6 +917,18 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     assertTypeIs(
       "type T[X] = Tuple.Contains[X, Boolean]",
       "Tuple.Contains[X, Boolean]"
+    )
+
+  def testContains_before_rest(): Unit =
+    assertTypeIs(
+      "type T = Tuple.Contains[(Int, Boolean) ++ Tuple, Boolean]",
+      "true"
+    )
+
+  def testContains_not_before_rest(): Unit =
+    assertTypeIs(
+      "type T = Tuple.Contains[(Int, Boolean) ++ Tuple, Float]",
+      "Tuple.Contains[Int *: Boolean *: Tuple, Float]"
     )
 
   //

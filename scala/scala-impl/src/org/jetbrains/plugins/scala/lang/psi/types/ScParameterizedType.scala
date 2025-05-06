@@ -185,8 +185,8 @@ final class ScParameterizedType private (override val designator: ScType, overri
 object ScParameterizedType {
   private val andOrOrTypeDesignator = Set("&", "|")
 
-  def apply(designator: ScType, typeArgs: Seq[ScType]): ScType =
-    TypeIntrinsics(designator, typeArgs).getOrElse {
+  def apply(designator: ScType, typeArgs: Seq[ScType], substitutor: ScSubstitutor = ScSubstitutor.empty): ScType =
+    TypeIntrinsics(designator, typeArgs, substitutor).getOrElse {
       def simple = new ScParameterizedType(designator, typeArgs)
 
       designator match {

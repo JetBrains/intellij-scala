@@ -12,11 +12,13 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[TypecheckerTests]))
 abstract class TypeIntrinsicsTestBase extends ScalaLightCodeInsightFixtureTestCase {
   def assertTypeIs(code: String, tpe: String): Unit = {
-    val file = ScalaPsiElementFactory.createScalaFileFromText(code, ScalaFeatures.onlyByVersion(version))(getProject)
+    val file = ScalaPsiElementFactory.createScalaFileFromText(transformCode(code), ScalaFeatures.onlyByVersion(version))(getProject)
     val typeElement = file.getLastChild.getLastChild.asInstanceOf[ScTypeElement]
     val actual = typeElement.`type`().toOption.fold("<error>")(_.presentableText(TypePresentationContext(typeElement)))
     assertEquals(tpe, actual)
   }
+
+  protected def transformCode(code: String): String = code
 
   def assertConforms(code: String, tpe: String): Unit = {
     val expected = {
