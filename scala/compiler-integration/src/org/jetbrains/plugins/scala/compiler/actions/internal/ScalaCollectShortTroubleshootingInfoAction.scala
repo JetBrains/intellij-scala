@@ -67,9 +67,7 @@ class ScalaCollectShortTroubleshootingInfoAction extends AnAction(
 
     val compileServerJdkVersion = Option(e.getProject).flatMap { project =>
       val settings = ScalaCompileServerSettings.getInstance
-      if (!settings.COMPILE_SERVER_ENABLED)
-        Some("<server disabled>")
-      else if (settings.USE_DEFAULT_SDK)
+      if (settings.USE_DEFAULT_SDK)
         Option(CompileServerLauncher.defaultSdk(project).getVersionString)
       else
         for {

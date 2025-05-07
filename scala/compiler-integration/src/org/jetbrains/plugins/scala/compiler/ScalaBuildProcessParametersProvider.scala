@@ -15,7 +15,7 @@ import scala.jdk.CollectionConverters._
 
 class ScalaBuildProcessParametersProvider(project: Project)
   extends BuildProcessParametersProvider {
-  
+
   override def getVMArguments: java.util.List[String] =
     if (project.hasScala) {
       (
@@ -35,18 +35,15 @@ class ScalaBuildProcessParametersProvider(project: Project)
     val custom = Option(System.getProperty(key))
     custom.map(path => s"-D$key=$path")
   }
-  
+
   private def parallelCompilationOptions(): Seq[String] = {
     val settings = ScalaCompileServerSettings.getInstance
-    if (settings.COMPILE_SERVER_ENABLED)
-      Seq(
-        GlobalOptions.COMPILE_PARALLEL_MAX_THREADS_OPTION -> settings.COMPILE_SERVER_PARALLELISM,
-        GlobalOptions.COMPILE_PARALLEL_OPTION -> settings.COMPILE_SERVER_PARALLEL_COMPILATION,
-      ).map { case (key, value) =>
-        s"-D$key=$value"
-      }
-    else
-      Seq.empty
+    Seq(
+      GlobalOptions.COMPILE_PARALLEL_MAX_THREADS_OPTION -> settings.COMPILE_SERVER_PARALLELISM,
+      GlobalOptions.COMPILE_PARALLEL_OPTION -> settings.COMPILE_SERVER_PARALLEL_COMPILATION,
+    ).map { case (key, value) =>
+      s"-D$key=$value"
+    }
   }
 
   private def useDisplayModuleNames(): String = {
@@ -79,12 +76,8 @@ class ScalaBuildProcessParametersProvider(project: Project)
     s"-Dscala.compile.server.system.dir=${CompileServerLauncher.scalaCompileServerSystemDir}"
 
   private def java9rtParams(): Seq[String] = {
-    val settings = ScalaCompileServerSettings.getInstance()
-    if (settings.COMPILE_SERVER_ENABLED) Seq.empty
-    else {
-      val sdk = CompileServerJdkManager.getBuildProcessRuntimeJdk(project)._1
-      JDK.fromSdk(sdk).map(CompileServerLauncher.prepareJava9rtJar).getOrElse(Seq.empty)
-    }
+    // Compile server is always enabled, so we don't need to prepare Java 9 rt.jar
+    Seq.empty
   }
 
   override def isProcessPreloadingEnabled: Boolean =

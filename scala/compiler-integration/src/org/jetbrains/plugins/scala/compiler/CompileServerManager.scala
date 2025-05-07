@@ -64,9 +64,7 @@ final class CompileServerManager(project: Project) extends Disposable with Compi
     removeWidget()
   }
 
-  private def applicable: Boolean = running ||
-    ScalaCompileServerSettings.getInstance.COMPILE_SERVER_ENABLED &&
-      project.hasScala
+  private def applicable: Boolean = running || project.hasScala
 
   private def running: Boolean = launcher.running
 
@@ -235,9 +233,9 @@ object CompileServerManager {
   def showCompileServerSettingsDialog(project: Project, filter: String = ""): Unit =
     ShowSettingsUtilImplExt.showSettingsDialog(project, classOf[ScalaCompileServerForm], filter)
 
+  // Compile server is always enabled
   def enableCompileServer(): Unit = {
-    val settings = ScalaCompileServerSettings.getInstance()
-    settings.COMPILE_SERVER_ENABLED = true
+    // No-op, compile server is always enabled
   }
 
   /**

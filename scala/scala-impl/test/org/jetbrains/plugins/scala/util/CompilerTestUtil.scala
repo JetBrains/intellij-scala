@@ -32,8 +32,13 @@ object CompilerTestUtil {
     }
   }
 
+  // Compile server is always enabled
   def withEnabledCompileServer(enable: Boolean): RevertableChange = withModifiedCompileServerSettings { settings =>
-    settings.COMPILE_SERVER_ENABLED = enable
+    // COMPILE_SERVER_ENABLED is now a final field that's always true
+    if (!enable) {
+      // Log a warning if someone tries to disable the compile server
+      System.err.println("WARNING: Attempting to disable the compile server, but it's now always enabled.")
+    }
     settings.COMPILE_SERVER_SHUTDOWN_IDLE = true
     settings.COMPILE_SERVER_SHUTDOWN_DELAY = 30
   }

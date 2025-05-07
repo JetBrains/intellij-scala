@@ -17,7 +17,8 @@ import java.util.UUID;
 public class ScalaCompileServerSettings implements PersistentStateComponent<ScalaCompileServerSettings> {
   //ATTENTION: these field names should be the same as in
   //org.jetbrains.jps.incremental.scala.model.impl.GlobalSettingsImpl.State (see it's JavaDoc)
-  public boolean COMPILE_SERVER_ENABLED = true;
+  // Always enabled, no longer configurable
+  public final boolean COMPILE_SERVER_ENABLED = true;
   public int COMPILE_SERVER_PORT = 3200;
   public String COMPILE_SERVER_SDK;
 

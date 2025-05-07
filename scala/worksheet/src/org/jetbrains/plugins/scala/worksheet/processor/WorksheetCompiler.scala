@@ -417,14 +417,10 @@ object WorksheetCompiler {
   }
 
   private def getMakeType(project: Project, runType: WorksheetExternalRunType): WorksheetMakeType =
-    if (ScalaCompileServerSettings.getInstance.COMPILE_SERVER_ENABLED) {
-      if (ScalaProjectSettings.getInstance(project).isInProcessMode || runType == WorksheetExternalRunType.ReplRunType) {
-        InProcessServer
-      } else {
-        OutOfProcessServer
-      }
+    if (ScalaProjectSettings.getInstance(project).isInProcessMode || runType == WorksheetExternalRunType.ReplRunType) {
+      InProcessServer
     } else {
-      NonServer
+      OutOfProcessServer
     }
 
   private object WorksheetWrapper {
@@ -540,4 +536,3 @@ object WorksheetCompiler {
     }
   }
 }
-

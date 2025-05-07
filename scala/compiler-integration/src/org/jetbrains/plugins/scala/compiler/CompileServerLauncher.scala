@@ -62,14 +62,11 @@ object CompileServerLauncher {
     override def buildStarted(project: Project, sessionId: UUID, isAutomake: Boolean): Unit = {
       if (!project.isDisposed)
         ensureCompileServerRunning(project)
-      if (ScalaCompileServerSettings.getInstance.COMPILE_SERVER_ENABLED)
-        CompileServerNotificationsService.get(project).warnIfCompileServerJdkMayLeadToCompilationProblems()
+      CompileServerNotificationsService.get(project).warnIfCompileServerJdkMayLeadToCompilationProblems()
     }
 
     private def ensureCompileServerRunning(project: Project): Unit = {
-      val settings = ScalaCompileServerSettings.getInstance
-
-      val compileServerRequired = settings.COMPILE_SERVER_ENABLED && project.hasScala
+      val compileServerRequired = project.hasScala
       LOG.traceWithDebugInDev(s"Listener.compileServerRequired: $compileServerRequired")
       if (compileServerRequired) {
         CompileServerLauncher.ensureServerRunning(project)

@@ -36,7 +36,6 @@ public class ScalaCompileServerForm implements Configurable {
     private JPanel myJvmSettingsPanel;
     private RawCommandLineEditor myCompilationServerJvmParameters;
     private IntegerField myCompilationServerMaximumHeapSize;
-    private JCheckBox myEnableCompileServer;
     private JPanel myContentPanel;
     private final JdkComboBox myCompilationServerSdk;
     private JPanel mySdkPanel;
@@ -74,7 +73,6 @@ public class ScalaCompileServerForm implements Configurable {
         myProjectHomeChb = new JCheckBox(CompilerIntegrationBundle.message("compile.server.use.project.home"));
         myUseProjectHomePanel.add(UI.PanelFactory.panel(myProjectHomeChb).withTooltip(CompilerIntegrationBundle.message("compile.server.new.project.restart")).createPanel());
 
-        myEnableCompileServer.addChangeListener(e -> updateJvmSettingsPanel());
         myParallelCompilation.addChangeListener(e -> updateParallelCompilationSettingsPanel());
         myShutdownServerCheckBox.addChangeListener(e -> updateShutdownSettingsPanel());
 
@@ -110,16 +108,8 @@ public class ScalaCompileServerForm implements Configurable {
 
         myShutdownDelay.setModel(new SpinnerNumberModel(mySettings.COMPILE_SERVER_SHUTDOWN_DELAY, 0, 24 * 60, 1));
         myParallelism.setModel(new SpinnerNumberModel(mySettings.COMPILE_SERVER_PARALLELISM, 1, 9999, 1));
-
-        updateJvmSettingsPanel();
     }
 
-    private void updateJvmSettingsPanel() {
-        boolean compileServerEnabled = myEnableCompileServer.isSelected();
-        setDescendantsEnabledIn(myJvmSettingsPanel, compileServerEnabled);
-        setDescendantsEnabledIn(myAdvancedSettingsPanel, compileServerEnabled);
-        myJvmTitle.setEnabled(compileServerEnabled);
-    }
 
     private void updateParallelCompilationSettingsPanel() {
         setDescendantsEnabledIn(myParallelCompilationSettingsPanel, myParallelCompilation.isSelected());
@@ -175,8 +165,7 @@ public class ScalaCompileServerForm implements Configurable {
         Sdk sdk = myCompilationServerSdk.getSelectedJdk();
         String sdkName = sdk == null ? null : sdk.getName();
 
-        return !(myEnableCompileServer.isSelected() == mySettings.COMPILE_SERVER_ENABLED &&
-                sdkModel.isDefault(sdk) == mySettings.USE_DEFAULT_SDK &&
+        return !(sdkModel.isDefault(sdk) == mySettings.USE_DEFAULT_SDK &&
                 ComparatorUtil.equalsNullable(sdkName, mySettings.COMPILE_SERVER_SDK) &&
                 heapSizeAsString().equals(mySettings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE) &&
                 myCompilationServerJvmParameters.getText().equals(mySettings.COMPILE_SERVER_JVM_PARAMETERS) &&
@@ -190,13 +179,6 @@ public class ScalaCompileServerForm implements Configurable {
 
     @Override
     public void apply() {
-        mySettings.COMPILE_SERVER_ENABLED = myEnableCompileServer.isSelected();
-        if (!mySettings.COMPILE_SERVER_ENABLED) {
-            ApplicationManager.getApplication().executeOnPooledThread(() ->
-                    CompileServerLauncher.stopServerAndWaitFor(Duration.Zero(), Some.apply("compile server disabled from settings"))
-            );
-        }
-
         Sdk sdk = myCompilationServerSdk.getSelectedJdk();
         mySettings.USE_DEFAULT_SDK = sdkModel.isDefault(sdk);
         mySettings.COMPILE_SERVER_SDK = sdk == null ? null : sdk.getName();
@@ -221,8 +203,6 @@ public class ScalaCompileServerForm implements Configurable {
 
     @Override
     public void reset() {
-        myEnableCompileServer.setSelected(mySettings.COMPILE_SERVER_ENABLED);
-
         Sdk sdk = sdkModel.sdkFrom(mySettings);
         myCompilationServerSdk.setSelectedJdk(sdk);
 
@@ -329,9 +309,6 @@ public class ScalaCompileServerForm implements Configurable {
         myJdkWarningLabel.setText("");
         myJdkWarningLabel.setVisible(false);
         myJvmSettingsPanel.add(myJdkWarningLabel, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, new Dimension(500, -1), 1, false));
-        myEnableCompileServer = new JCheckBox();
-        this.$$$loadButtonText$$$(myEnableCompileServer, this.$$$getMessageFromBundle$$$("messages/CompilerIntegrationBundle", "compile.server.use.for.scala"));
-        myContentPanel.add(myEnableCompileServer, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myJvmTitle = new TitledSeparator();
         myJvmTitle.setText("JVM");
         myContentPanel.add(myJvmTitle, new GridConstraints(8, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
