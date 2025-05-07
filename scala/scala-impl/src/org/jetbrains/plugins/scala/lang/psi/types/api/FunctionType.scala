@@ -1,12 +1,13 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api
 
 import com.intellij.psi.{PsiClass, PsiElement}
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStringLiteralImpl
-import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionTypeFactory.{extractMember, extractParameterizedType, extractQualifiedName}
+import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionTypeFactory.{extractMember, extractParameterizedType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ScLiteralType, ScParameterizedType, ScType, ScalaType, api}
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -195,7 +196,7 @@ object TupleType {
 
     private val fqnTupleNRegex: Regex = raw"$TypeName(1[0-9]|2[0-2]|[1-9])$$".r
 
-    def isTupleNFqn(fqn: String): Boolean = fqnTupleNRegex.matches(fqn)
+    def isTupleNFqn(@Nullable fqn: String): Boolean = fqn != null && fqnTupleNRegex.matches(fqn)
     def tupleNArity(fqn: String): Option[Int] = fqn match {
       case fqnTupleNRegex(n) => n.toIntOption
       case _ => None
@@ -263,6 +264,12 @@ object TupleType {
     def isEmptyTupleHList(`type`: ScType): Boolean =
       `type`.extractDesignated(expandAliases = true).exists {
         case obj: ScObject => obj.qualifiedNameOpt.contains(EmptyTupleClassFqn)
+        case _ => false
+      }
+
+    def isCons(`type`: ScType): Boolean =
+      `type`.extractDesignated(expandAliases = true).exists {
+        case obj: ScObject => obj.qualifiedNameOpt.contains(ConsClassFqn)
         case _ => false
       }
 

@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiClass
-import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.{ScDerivesClauseFactory, ScTemplateParentsFactory}
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker, cached, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
@@ -16,7 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScExtendsBlockImpl.isTupleNQualifiedName
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager, ScalaStubBasedElementImpl}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScExtendsBlockStub
@@ -283,13 +281,13 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
   }
 
   private def isTupleN: Boolean =  getParentByStub match {
-    case c: ScClass => isTupleNQualifiedName(c.qualifiedName)
+    case c: ScClass => TupleType.TupleN.isTupleNFqn(c.qualifiedName)
     case _          => false
   }
 
   private def tupleNTypeParams: Option[Seq[ScTypeParam]] = getParentByStub match {
-    case c: ScClass if isTupleNQualifiedName(c.qualifiedName) => Some(c.typeParameters)
-    case _                                                    => None
+    case c: ScClass if TupleType.TupleN.isTupleNFqn(c.qualifiedName) => Some(c.typeParameters)
+    case _                                                           => None
   }
 
   private def templateBodies = templateBody.toSeq
@@ -318,6 +316,4 @@ object ScExtendsBlockImpl {
 
   private[this] def tail(typeResult: result.TypeResult) =
     typeResult.toOption.flatMap(_.extractClass)
-
-  def isTupleNQualifiedName(@Nullable s: String): Boolean = s != null && TupleType.TupleN.isTupleNFqn(s)
 }
