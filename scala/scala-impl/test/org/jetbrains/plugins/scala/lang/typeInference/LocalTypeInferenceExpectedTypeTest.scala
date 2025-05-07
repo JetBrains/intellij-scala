@@ -176,4 +176,10 @@ class LocalTypeInferenceExpectedTypeTest extends ScalaLightCodeInsightFixtureTes
         |}
         """.stripMargin
   )
+
+  def testSCL23800(): Unit = checkHasErrorAroundCaret(
+      s"""object A {
+         |  val _: Int = $CARET"1"
+         |}""".stripMargin
+  )
 }
