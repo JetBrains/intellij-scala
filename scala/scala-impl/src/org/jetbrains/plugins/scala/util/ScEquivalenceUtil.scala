@@ -5,7 +5,7 @@ import com.intellij.psi.{PsiClass, PsiElement, PsiPackage}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeConstructorOps
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TupleType, TypeConstructorOps}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, Context, ScType, ScTypeExt}
@@ -76,4 +76,7 @@ object ScEquivalenceUtil {
     constraints: ConstraintSystem,
     falseUndef:  Boolean
   ): Option[ConstraintsResult] = tc.typeConstructor.map(_.equiv(poly, constraints, falseUndef))
+
+  def couldBeTupleNTupleHListCompatibility(clazz: PsiClass, base: PsiClass): Boolean =
+    clazz.qualifiedName == TupleType.TupleHList.ConsClassFqn && TupleType.TupleN.isTupleNFqn(base.qualifiedName)
 }

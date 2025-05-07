@@ -55,7 +55,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TermSignat
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
-import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.{areClassesEquivalent, couldBeTupleNTupleHListCompatibility}
 import org.jetbrains.plugins.scala.util.ScalaPluginUtils
 
 import java.io.File
@@ -1226,7 +1226,10 @@ package object extensions {
       }
     }
 
-    def sameOrInheritor(other: PsiClass): Boolean = areClassesEquivalent(clazz, other) || isInheritorDeep(clazz, other)
+    def sameOrInheritor(other: PsiClass): Boolean =
+      areClassesEquivalent(clazz, other) ||
+        isInheritorDeep(clazz, other) ||
+        couldBeTupleNTupleHListCompatibility(clazz, other)
 
     def superTypes: Seq[ScType] = clazz match {
       case tdef: ScTemplateDefinition => tdef.superTypes

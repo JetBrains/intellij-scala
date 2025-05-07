@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.types
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -46,6 +47,17 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
                 } else if (lClass.qualifiedName == "java.lang.Object") {
                   return conformsInner(AnyRef, right, visited, checkWeak = checkWeak)
                 }
+
+                // Special case where new scala 3 tuples are conformant to old TupleN
+                if (rClass.qualifiedName == TupleType.TupleHList.ConsClassFqn) {
+                  left match {
+                    case TupleType.TupleN(leftTypes) =>
+                      implicit val elementScope: ElementScope = ElementScope(typeSystem.projectContext)
+                      return conformsInner(TupleType.TupleHList(leftTypes), right)
+                    case _ =>
+                  }
+                }
+
                 val inh = SmartSuperTypeUtil.smartIsInheritor(rClass, subst, lClass)
                 if (inh.isEmpty) return ConstraintsResult.Left
                 //Special case for higher kind types passed to generics.
