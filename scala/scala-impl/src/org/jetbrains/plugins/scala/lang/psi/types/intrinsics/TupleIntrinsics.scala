@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScOrType, ScParameterizedType
 import scala.annotation.switch
 
 object TupleIntrinsics {
-  def tupleOp(opName: String, operands: Seq[ScType])(implicit project: Project): Option[ScType] = {
+  def tupleOp(opName: String, operands: Seq[ScType], originalOperands: Seq[ScType])(implicit project: Project): Option[ScType] = {
     implicit val elementScope: ElementScope = ElementScope(project)
 
     @inline def mkTuple(comps: Seq[ScType]): ScType =
@@ -41,8 +41,9 @@ object TupleIntrinsics {
           case _ => None
         }
       case "Concat" | "++" =>
-        operands match {
-          case Seq(TupleType(fst), TupleType.withTail(snd, tail)) => Some(TupleType.withTail(fst ++ snd, tail))
+        (operands.headOption, originalOperands.lift(1)) match {
+          case (Some(TupleType(fst)), Some(tail)) =>
+            Some(TupleType.withTail(fst, tail))
           case _ => None
         }
       case "Elem" =>

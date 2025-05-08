@@ -54,6 +54,18 @@ class Scala3NewTuplesTest extends TypeInferenceTestBase {
       |""".stripMargin
   )
 
+  def testOpOnAbstract(): Unit = checkTextHasNoErrors(
+    """
+      |import Tuple.++
+      |
+      |def testHead[T](that: T *: ?): T = that.head // Head[that.type] -> Head[T *: ?] -> T
+      |def testSize[T](that: T *: EmptyTuple): 1 = that.size
+      |def testTail[T, Tail](that: T *: Tail): Tail = that.tail
+      |def testConcat[X, Y, Tail](x: Tuple1[X], y: Y *: Tail): (X, Y) ++ Tail = x ++ y
+      |
+      |""".stripMargin
+  )
+
   def testInferredTuple1Type(): Unit = doTest(
     s"""
        |val t = Tuple1(1)
