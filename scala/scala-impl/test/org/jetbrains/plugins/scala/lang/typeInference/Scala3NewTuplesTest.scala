@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.lang.typeInference
 
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 
-class Scala3NewTuplesTest extends ScalaLightCodeInsightFixtureTestCase {
+class Scala3NewTuplesTest extends TypeInferenceTestBase {
   override def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3_7
 
   // SCL-21578
@@ -53,5 +52,21 @@ class Scala3NewTuplesTest extends ScalaLightCodeInsightFixtureTestCase {
       |val myTuple: T = (1, 2, 3)
       |val myNonEmptyTuple: NonEmptyTuple = myTuple
       |""".stripMargin
+  )
+
+  def testInferredTuple1Type(): Unit = doTest(
+    s"""
+       |val t = Tuple1(1)
+       |${START}t$END
+       |//Tuple1[Int]
+       |""".stripMargin
+  )
+
+  def testInferredTuple1HListType(): Unit = doTest(
+    s"""
+       |val t = 1 *: EmptyTuple
+       |${START}t$END
+       |//Int *: EmptyTuple
+       |""".stripMargin
   )
 }

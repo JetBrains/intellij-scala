@@ -268,10 +268,7 @@ object TupleType {
       }
 
     def isCons(`type`: ScType): Boolean =
-      `type`.extractDesignated(expandAliases = true).exists {
-        case obj: ScObject => obj.qualifiedNameOpt.contains(ConsClassFqn)
-        case _ => false
-      }
+      `type`.extractClass.exists(_.qualifiedName == ConsClassFqn)
 
     def isTupleHList(`type`: ScType)(implicit scope: ElementScope): Boolean =
       tupleBaseClass.exists { tupleClass =>

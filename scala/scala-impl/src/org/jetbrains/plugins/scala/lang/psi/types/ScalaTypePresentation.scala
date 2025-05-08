@@ -318,8 +318,21 @@ trait ScalaTypePresentation extends TypePresentation {
 
         prefix + "this" + typeTail(needDotType)
       case TupleType(comps) if !ScalaApplicationSettings.PRECISE_TEXT || !t.isAliasType => // SCL-21175
+        val precise = ScalaApplicationSettings.PRECISE_TEXT && options.canonicalForm
         comps match {
-          case Seq(head) => (if (ScalaApplicationSettings.PRECISE_TEXT && options.canonicalForm) "_root_.scala." else "") + s"Tuple1[${innerTypeText(head)}]" // SCL-21183
+          case Seq() =>
+            if (precise) "_root_.scala.EmptyTuple.type"
+            else "EmptyTuple"
+          case Seq(head) =>
+            val precise = ScalaApplicationSettings.PRECISE_TEXT && options.canonicalForm
+            val headText = innerTypeText(head)
+            val scalaPrefix = if (precise) "_root_.scala." else "" // SCL-21183
+            if (TupleType.TupleHList.isCons(t)) {
+              if (precise) s"$scalaPrefix*:[$headText, $scalaPrefix.EmptyTuple.type]"
+              else s"$headText *: EmptyTuple"
+            } else {
+              s"${scalaPrefix}Tuple1[$headText]"
+            }
           case _ => typesText(comps)
         }
       case nt@NamedTupleType(comps) if !ScalaApplicationSettings.PRECISE_TEXT && NamedTupleType.isUnaliasedNamedTupleType(nt) =>
