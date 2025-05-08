@@ -32,10 +32,24 @@ object CompilerTestUtil {
     }
   }
 
-  def withEnabledCompileServer(enable: Boolean): RevertableChange = withModifiedCompileServerSettings { settings =>
-    settings.COMPILE_SERVER_ENABLED = enable
-    settings.COMPILE_SERVER_SHUTDOWN_IDLE = true
-    settings.COMPILE_SERVER_SHUTDOWN_DELAY = 30
+  def withEnabledCompileServer(enable: Boolean): RevertableChange = {
+    val settings = compileServerSettings
+    val r1 = RevertableChange.withModifiedSetting[Boolean](
+      settings.COMPILE_SERVER_ENABLED,
+      settings.COMPILE_SERVER_ENABLED = _,
+      enable
+    )
+    val r2 = RevertableChange.withModifiedSetting[Boolean](
+      settings.COMPILE_SERVER_SHUTDOWN_IDLE,
+      settings.COMPILE_SERVER_SHUTDOWN_IDLE = _,
+      true
+    )
+    val r3 = RevertableChange.withModifiedSetting[Int](
+      settings.COMPILE_SERVER_SHUTDOWN_DELAY,
+      settings.COMPILE_SERVER_SHUTDOWN_DELAY = _,
+      30
+    )
+    r1 |+| r2 |+| r3
   }
 
   def withForcedJdkForBuildProcess(jdk: Sdk): RevertableChange = new RevertableChange {
@@ -60,11 +74,20 @@ object CompilerTestUtil {
       }
   }
 
-  def withCompileServerJdk(sdk: Sdk): RevertableChange =
-    withModifiedCompileServerSettings { settings =>
-      settings.USE_DEFAULT_SDK = false
-      settings.COMPILE_SERVER_SDK = sdk.getName
-    }
+  def withCompileServerJdk(sdk: Sdk): RevertableChange = {
+    val settings = compileServerSettings
+    val r1 = RevertableChange.withModifiedSetting[Boolean](
+      settings.USE_DEFAULT_SDK,
+      settings.USE_DEFAULT_SDK = _,
+      false
+    )
+    val r2 = RevertableChange.withModifiedSetting[String](
+      settings.COMPILE_SERVER_SDK,
+      settings.COMPILE_SERVER_SDK = _,
+      sdk.getName
+    )
+    r1 |+| r2
+  }
 
   private def withErrorsFromCompiler(project: Project, enabled: Boolean): RevertableChange = {
     val revertible1 = RevertableChange.withModifiedSetting(
