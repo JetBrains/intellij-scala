@@ -32,7 +32,7 @@ object TupleIntrinsics {
         }
       case "Tail" =>
         operands match {
-          case Seq(TupleType.withTail(comps, tail)) => Some(TupleType.withTail(comps.tail, tail))
+          case Seq(TupleType.withTail(_ +: compsTail, tail)) => Some(TupleType.withTail(compsTail, tail))
           case _ => None
         }
       case "Last" =>

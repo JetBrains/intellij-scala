@@ -324,7 +324,6 @@ trait ScalaTypePresentation extends TypePresentation {
             if (precise) "_root_.scala.EmptyTuple.type"
             else "EmptyTuple"
           case Seq(head) =>
-            val precise = ScalaApplicationSettings.PRECISE_TEXT && options.canonicalForm
             val headText = innerTypeText(head)
             val scalaPrefix = if (precise) "_root_.scala." else "" // SCL-21183
             if (TupleType.TupleHList.isCons(t)) {

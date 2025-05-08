@@ -235,6 +235,12 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
       "String *: NonEmptyTuple"
     )
 
+  def testTailOnEmpty(): Unit =
+    assertTypeIs(
+      "type T = Tuple.Tail[EmptyTuple]",
+      "Tuple.Tail[EmptyTuple]"
+    )
+
   //
   //
   // Tuple.Last[_]
