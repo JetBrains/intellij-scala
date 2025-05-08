@@ -32,9 +32,7 @@ object PlainTextCopyUtil {
   )
   
   private val ErrorsAfterIncompleteDefinitionWithAssignment = Set(
-    // Note, for some reason the error is different in some cases, see SCL-23798
-    ScalaBundle.message("expression.expected"), //example: def foo = //implement me
-    ScalaBundle.message("wrong.expression"), //example: def foo: String = //implement me
+    ScalaBundle.message("expression.expected"), //example: def foo: String = //implement me
     ScalaBundle.message("wrong.type"), //example: type X =
   )
 

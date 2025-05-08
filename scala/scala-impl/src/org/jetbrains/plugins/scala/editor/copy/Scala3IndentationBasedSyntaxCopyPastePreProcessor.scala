@@ -208,11 +208,7 @@ object Scala3IndentationBasedSyntaxCopyPastePreProcessor {
     val description = e.getErrorDescription
     val isIncompleteTemplateDefinition = description == ScalaBundle.message("indented.definitions.expected")
     val isIncompleteExtension = description == ScalaBundle.message("expected.at.least.one.extension.method")
-    val isIncompleteDefinitionWithAssign = e.getParent.is[ScDefinitionWithAssignment] && (
-      // Note, for some reason the error is different in some cases, see SCL-23798
-      description == ScalaBundle.message("expression.expected") || //example: def foo = //implement me
-        description == ScalaBundle.message("wrong.expression") //example: def foo: String = //implement me
-      )
+    val isIncompleteDefinitionWithAssign = e.getParent.is[ScDefinitionWithAssignment] && description == ScalaBundle.message("expression.expected")
     Option(e.getPrevSibling).exists(_.elementType == ScalaTokenTypes.tASSIGN)
     isIncompleteTemplateDefinition ||
       isIncompleteExtension ||

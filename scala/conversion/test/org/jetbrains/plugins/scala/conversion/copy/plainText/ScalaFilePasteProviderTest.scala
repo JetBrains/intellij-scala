@@ -128,8 +128,8 @@ class ScalaFilePasteProviderTest extends ScalaLightCodeInsightFixtureTestCase {
     assertScalaCodePasteEnabled(
       """class Wrapper {
         |  def this(i: Int) = this()
-        |  def foo = //todo: implement
-        |  def foo: String = //todo: implement (also see SCL-23798)
+        |  def foo = //todo: implement (without type annotation)
+        |  def foo: String = //todo: implement (with type annotation, left here for detecting regressions, see SCL-23798)
         |  var mVar = //todo: implement
         |  val mVal = //todo: implement
         |  lazy val mLazyVal = //todo: implement
