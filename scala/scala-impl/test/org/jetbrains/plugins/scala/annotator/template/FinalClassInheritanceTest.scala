@@ -55,6 +55,16 @@ class FinalClassInheritanceTest extends AnnotatorTestBase[ScTemplateDefinition] 
     assertMatches(messages("class C(val x: Int) extends AnyVal; class X extends C(2)"))(expectation)
   }
 
+  def testCaseToCase(): Unit = {
+    val message = ScalaBundle.message("illegal.inheritance.from.case.class", "B", "A")
+
+    val expectation: PartialFunction[List[Message], Unit] = {
+      case Error("A", `message`) :: Nil =>
+    }
+
+    assertMatches(messages("case class A(); case class B() extends A(); B()"))(expectation)
+  }
+
   override protected def annotate(element: ScTemplateDefinition)
                                  (implicit holder: ScalaAnnotationHolder): Unit =
     ScTemplateDefinitionAnnotator.annotateFinalClassInheritance(element)
