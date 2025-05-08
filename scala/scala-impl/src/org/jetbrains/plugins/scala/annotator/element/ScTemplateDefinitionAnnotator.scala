@@ -235,6 +235,8 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
     superRefs(element).collect {
       case (range, clazz) if clazz.hasFinalModifier =>
         (range, NlsString(ScalaBundle.message("illegal.inheritance.from.final.kind", kindOf(clazz, toLowerCase = true), clazz.name)))
+      case (range, clazz: ScClass) if clazz.isCase && element.asOptionOf[ScClass].exists(_.isCase) =>
+        (range, NlsString(ScalaBundle.message("illegal.inheritance.from.case.class", element.name, clazz.name)))
       case (range, clazz) if ValueClassType.extendsAnyVal(clazz) =>
         (range, NlsString(ScalaBundle.message("illegal.inheritance.from.value.class", clazz.name)))
     }.foreach {
