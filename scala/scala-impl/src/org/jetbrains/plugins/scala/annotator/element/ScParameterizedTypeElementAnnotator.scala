@@ -139,11 +139,10 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
       (arg, param) <- args.zip(params)
       argTy        <- getType(arg).toOption
       range        = if (isForContextBound) annotationRange else arg.getTextRange
-      if !argTy.is[ScExistentialArgument, ScExistentialType] &&
-        !argIsDesignatedToTypeVariable(arg) &&
+      if !argIsDesignatedToTypeVariable(arg) &&
         !KindProjectorUtil.syntaxIdsFor(arg).contains(arg.getText)
     } {
-      checkBounds(range, argTy, param, substitute)
+      if(!argTy.is[ScExistentialArgument, ScExistentialType]) checkBounds(range, argTy, param, substitute)
       checkHigherKindedType(range, argTy, param, substitute)
     }
   }

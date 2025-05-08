@@ -60,6 +60,10 @@ class ScGenericCallAnnotatorTest extends SimpleTestCase {
     assertMessages(messages("testHk[HkArg]"))(
       Error("HkArg", "Type constructor HkArg does not conform to CC[X >: B <: B, _]")
     )
+
+    assertMessages(messages("class Test[X, Y]; testHk[Test[_, _]]"))(
+      Error("Test[_, _]", "Expected type constructor CC[X >: B <: B, _]")
+    )
   }
 
   def testTypeConstructorParameter(): Unit = {

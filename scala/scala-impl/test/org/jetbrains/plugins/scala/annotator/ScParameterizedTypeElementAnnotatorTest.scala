@@ -227,6 +227,19 @@ class ScParameterizedTypeElementAnnotatorTest_scala_2 extends ScParameterizedTyp
     ))
   }
 
+  def testExistentialTypeKindMismatch(): Unit = {
+    assertMessages(messages(
+      """
+        |class Option[A]
+        |class TestClass[F[_]]
+        |
+        |def test: TestClass[Option[_]] = ???
+        |""".stripMargin
+    ))(
+      Error("Option[_]", "Expected type constructor F[_]")
+    )
+  }
+
   def testUnresolved(): Unit = {
     assertNothing(messages(
       """
