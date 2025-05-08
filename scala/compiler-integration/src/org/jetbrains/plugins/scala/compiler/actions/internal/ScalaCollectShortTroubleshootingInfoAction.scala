@@ -19,7 +19,8 @@ import java.awt.datatransfer.StringSelection
 import java.text.SimpleDateFormat
 
 /**
- * See also [[org.jetbrains.plugins.scala.internal.ScalaGeneralTroubleInfoCollector]]
+ * @see [[org.jetbrains.plugins.scala.internal.ScalaGeneralTroubleInfoCollector]]
+ * @see [[org.jetbrains.plugins.scala.internal.ScalaPluginAboutPopupDescriptionProvider]]
  */
 class ScalaCollectShortTroubleshootingInfoAction extends AnAction(
   CompilerIntegrationBundle.message("scala.collect.troubleshooting.information.short.action.text"),

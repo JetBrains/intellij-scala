@@ -18,7 +18,8 @@ import scala.util.control.NonFatal
  *   SBT version: 1.9.3
  * }}}
  *
- * See also [[org.jetbrains.plugins.scala.compiler.actions.internal.ScalaCollectShortTroubleshootingInfoAction]]
+ * @see [[org.jetbrains.plugins.scala.compiler.actions.internal.ScalaCollectShortTroubleshootingInfoAction]]
+ * @see [[org.jetbrains.plugins.scala.internal.ScalaPluginAboutPopupDescriptionProvider]]
  */
 final class ScalaGeneralTroubleInfoCollector extends GeneralTroubleInfoCollector {
 
