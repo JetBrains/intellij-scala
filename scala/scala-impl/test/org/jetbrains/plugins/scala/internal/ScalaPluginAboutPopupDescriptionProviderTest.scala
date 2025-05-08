@@ -1,12 +1,14 @@
 package org.jetbrains.plugins.scala.internal
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
+import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.{ScalaCompileServerSettings, ScalaProjectSettings}
+import org.jetbrains.plugins.scala.util.{CompilerTestUtil, RevertableChange}
 import org.junit.jupiter.api.Assertions._
 
 class ScalaPluginAboutPopupDescriptionProviderTest extends ScalaLightCodeInsightFixtureTestCase {
+
 
   // NOTE: the test primarily checks how the settings are being displayed,
   // it doesn't try to test all the settings exhaustively
@@ -14,12 +16,16 @@ class ScalaPluginAboutPopupDescriptionProviderTest extends ScalaLightCodeInsight
     // Setup: Change settings from default values
 
     // 1. Application-level settings
-    val compileServerSettings = ScalaCompileServerSettings.getInstance()
-    compileServerSettings.COMPILE_SERVER_ENABLED = false
-    compileServerSettings.USE_PROJECT_HOME_AS_WORKING_DIR = true
+    // Use CompilerTestUtil.withModifiedCompileServerSettings to modify and automatically revert settings
+    val revertApplicationSettings = CompilerTestUtil.withModifiedCompileServerSettings { settings =>
+      settings.COMPILE_SERVER_ENABLED = false
+      settings.USE_PROJECT_HOME_AS_WORKING_DIR = true
+    }
+    revertApplicationSettings.applyChange(this)
 
-    // 2. Project-level settings
+    // 2. Project-level settings (no need to revert them as the project won't be reused in other test classes)
     val project = getProject()
+    println(getProject)
 
     // SBT settings (skipped as it requires SBT project setup, and I want to make the test fast)
     //val sbtSettings = SbtProjectSettings.forProject(project).get
@@ -48,7 +54,7 @@ class ScalaPluginAboutPopupDescriptionProviderTest extends ScalaLightCodeInsight
         |  === compile server settings ===
         |    compile.server.enabled=false
         |    use.project.home.as.working.dir=true
-        |  === scala setting for active project ===
+        |  === scala settings for active project ===
         |    compiler.highlighting.scala2.enabled=true
         |    compiler.highlighting.scala3.enabled=false
         |    compiler.highlighting.use.compiler.ranges=false
