@@ -69,4 +69,12 @@ class Scala3NewTuplesTest extends TypeInferenceTestBase {
        |//Int *: EmptyTuple
        |""".stripMargin
   )
+
+  def testMixedTupleNAndHList(): Unit = doTest(
+    s"""
+       |val t = 1 *: (true, "")
+       |${START}t$END
+       |// (Int, Boolean, String)
+       |""".stripMargin
+  )
 }

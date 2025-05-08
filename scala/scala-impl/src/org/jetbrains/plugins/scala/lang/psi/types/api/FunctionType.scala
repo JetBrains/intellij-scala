@@ -144,8 +144,15 @@ object TupleType {
                 case Seq(comp, next) =>
                   result += comp
                   extractParameterizedType(next) match {
-                    case Some(pTy) if extractMember(pTy.designator).contains(tupleClass) =>
-                      addToResult(pTy)
+                    case Some(pTy) =>
+                      pTy.extractClass match {
+                        case Some(`tupleClass`) => addToResult(pTy)
+                        case Some(clazz) if TupleN.isTupleNFqn(clazz.qualifiedName) =>
+                          result ++= pTy.typeArguments
+                          None
+                        case _ =>
+                          Some(next)
+                      }
                     case _ =>
                       if (TupleHList.isEmptyTupleHList(next)) None
                       else Some(next)
