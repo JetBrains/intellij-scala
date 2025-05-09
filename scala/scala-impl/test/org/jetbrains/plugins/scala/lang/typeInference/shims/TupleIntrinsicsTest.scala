@@ -320,7 +320,7 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
   def testConcat_abstract_second(): Unit =
     assertTypeIs(
       "type T[X] = Tuple.Concat[(Int, String), X]",
-      "Tuple.Concat[(Int, String), X]"
+      "Int *: String *: X"
     )
 
   def testConcat_complex_types(): Unit =
