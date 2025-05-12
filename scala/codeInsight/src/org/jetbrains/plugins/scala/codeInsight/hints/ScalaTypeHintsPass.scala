@@ -16,18 +16,25 @@ import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsPass._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScPatternList
+import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScMethodLike, ScPatternList, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScReferencePattern, ScTypedPatternLike, ScWildcardPattern}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScReferenceExpression, ScTypedExpression, ScUnderscoreSection}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScMethodCall, ScReferenceExpression, ScTypedExpression, ScUnderscoreSection}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScPatternDefinition, ScValueOrVariable, ScVariableDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ScAbstractType, ScType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.settings.annotations.Definition
 import org.jetbrains.plugins.scala.settings.annotations.Definition.{FunctionDefinition, ValueDefinition, VariableDefinition}
+
+import scala.annotation.tailrec
 
 private[codeInsight] trait ScalaTypeHintsPass {
   protected implicit def settings: ScalaHintsSettings
@@ -54,8 +61,49 @@ private[codeInsight] trait ScalaTypeHintsPass {
   }
 
   private def collectXRayHints(editor: Editor, root: PsiElement) = root.elements(_.isVisible).flatMap {
+    case ci@ScConstructorInvocation.reference(Resolved(r@ScalaResolveResult(fun: ScMethodLike, _)))
+      if getTypeParameters(fun).nonEmpty && ScalaApplicationSettings.XRAY_SHOW_TYPE_PARAMETERS_HINTS =>
+      r.resultUndef.flatMap { cs =>
+        xRayTypeParametersHints(ci.typeElement, cs, fun, editor)
+      }.getOrElse(Seq.empty)
+    case outermostMethodCall@ScMethodCall.withDeepestInvoked((invoked: ScReferenceExpression) & Resolved(ScalaResolveResult(methodLike: ScMethodLike, _)))
+      if ScalaApplicationSettings.XRAY_SHOW_TYPE_PARAMETERS_HINTS && !outermostMethodCall.getParent.is[ScMethodCall] && getTypeParameters(methodLike).nonEmpty =>
+      val cs = collectMethodCalls(outermostMethodCall)
+        .map { mc =>
+          for {
+            typePoly <- mc.getNonValueType(fromUnderscore = true).toOption.flatMap(_.asOptionOf[ScTypePolymorphicType])
+            inferRes = InferUtil.localTypeInferenceWithApplicabilityExt(
+              typePoly.internalType,
+              mc.matchedParameters.map(_._2),
+              mc.matchedParameters.map(_._1),
+              typePoly.typeParameters
+            )
+          } yield inferRes._2.constraints
+        }
+        .collect { case Some(x) => x }
+        .foldLeft(ConstraintSystem.empty)(_ + _)
+      val hints = xRayTypeParametersHints(invoked, cs, methodLike, editor)
+      hints.getOrElse(Seq.empty)
     case e @ Typeable(t) => xRayHintsFor(e, t)(editor.getColorsScheme, TypePresentationContext(e), Context(e), settings)
     case _ => Seq.empty
+  }
+
+  private def xRayTypeParametersHints(invoked: PsiElement, cs: ConstraintSystem, fun: ScMethodLike, editor: Editor) = {
+    cs.substitutionBounds(canThrowSCE = false)(editor.getProject).map { bounds =>
+      def typeParamSubst(tp: ScTypeParam) = {
+        bounds.substitutor(ScAbstractType(TypeParameter(tp), tp.lowerBound.getOrNothing, tp.upperBound.getOrAny))
+      }
+
+      getTypeParameters(fun).map { tp =>
+        val ty = typeParamSubst(tp)
+        textPartsOf(ty, settings.presentationLength, invoked)(editor.getColorsScheme, TypePresentationContext(invoked))
+      }
+    }.map(texts =>
+      Seq(
+        Hint(Seq(Text("[")), invoked, suffix = true, corners = Corners.Left),
+        Hint(texts.intersperse(Seq(Text(", "))).flatten :+ Text("]"), invoked, suffix = true, relatesToPrecedingElement = true, corners = Corners.Right)
+      )
+    )
   }
 
   private def xRayHintsFor(e: PsiElement, t: ScType)(implicit scheme: EditorColorsScheme, tpc: TypePresentationContext, context: Context, settings: ScalaHintsSettings): Seq[Hint] = e match {
@@ -82,6 +130,27 @@ private[codeInsight] trait ScalaTypeHintsPass {
       )
     else
       Seq(Hint(Text(": ") +: textPartsOf(t, settings.presentationLength, e), e, position = HintPosition.AfterElement, relatesToPrecedingElement = true))
+  }
+
+  private def getTypeParameters(function: ScMethodLike) = function match {
+    case fun: ScFunction if !fun.isConstructor => fun.typeParameters
+    case _: ScFunction | _: ScPrimaryConstructor =>
+      function.containingClass match {
+        case td: ScTypeDefinition => td.typeParameters
+        case _ => Seq.empty
+      }
+    case _ => Seq.empty
+  }
+
+  private def collectMethodCalls(expr: ScExpression): List[ScMethodCall] = {
+    @tailrec
+    def loop(current: ScExpression, acc: List[ScMethodCall]): List[ScMethodCall] = current match {
+      case call: ScMethodCall =>
+        loop(call.getEffectiveInvokedExpr, call :: acc)
+      case _ => acc
+    }
+
+    loop(expr, Nil)
   }
 }
 
