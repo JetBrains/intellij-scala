@@ -78,7 +78,7 @@ final class ScalaFilePasteProvider extends PasteProvider {
     directory: Option[PsiDirectory] = None
   ): Option[FileNameWithExtension] = {
     for {
-      scalaFile <- PlainTextCopyUtil.createScalaCodeFragment(copiedText, module)
+      scalaFile <- PlainTextCopyUtil.createScalaCodeFragmentIfParsedTolerably(copiedText, module)
     } yield {
       if (directory.exists(shouldCreatePluginsSbtFile(scalaFile, module, _))) {
         FileNameWithExtension("plugins", "sbt")
