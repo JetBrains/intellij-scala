@@ -24,6 +24,7 @@ abstract class AnnotatorTestBase[T <: ScalaPsiElement : reflect.ClassTag] extend
 
   protected final def messages3(@Language(value = "Scala 3", prefix = Prefix, suffix = Suffix) code: String): Option[List[Message]] =
     messages(code)
+
   protected def messages(@Language(value = "Scala", prefix = Prefix, suffix = Suffix) code: String): Option[List[Message]] = {
     val s: String = Prefix + code + Suffix
     val file: ScalaFile = s.parse(scalaVersion)
@@ -42,6 +43,12 @@ abstract class AnnotatorTestBase[T <: ScalaPsiElement : reflect.ClassTag] extend
     file.elements.filterByType[T].foreach(annotate(_))
 
     Some(mock.annotations)
+  }
+
+  protected def assertMessagesText(@Language("Scala") code: String, expectedMessagesConcatenated: String): Unit = {
+    val actualMessages = messages(code)
+    val actualMessagesConcatenated = actualMessages.toSeq.flatten.mkString("\n").trim
+    assertEqualsFailable(expectedMessagesConcatenated.trim, actualMessagesConcatenated)
   }
 
   protected def annotate(element: T)
