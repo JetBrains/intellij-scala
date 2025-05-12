@@ -9,6 +9,7 @@ import org.jetbrains.jps.incremental.scala.Server.ServerError
 import org.jetbrains.jps.incremental.scala.local.LocalServer
 import org.jetbrains.jps.incremental.scala.model.JpsScalaProjectMetadataExtensionService.moduleHasScala
 import org.jetbrains.jps.incremental.{CompileContext, Utils}
+import org.jetbrains.jps.model.JpsProject
 import org.jetbrains.jps.model.module.JpsModule
 import org.jetbrains.plugins.scala.compiler.data.{CompilationData, SbtData}
 import org.jetbrains.plugins.scala.server.CompileServerProperties
@@ -124,7 +125,10 @@ object ScalaBuilder {
   }
 
   def projectSettings(context: CompileContext): model.ProjectSettings =
-    SettingsManager.getProjectSettings(context.getProjectDescriptor.getProject)
+    projectSettings(context.getProjectDescriptor.getProject)
+
+  def projectSettings(project: JpsProject): model.ProjectSettings =
+    SettingsManager.getProjectSettings(project)
 
   val Log: JpsLogger = JpsLogger.getInstance(ScalaBuilder.getClass.getName)
 

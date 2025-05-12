@@ -49,7 +49,8 @@ class InitialScalaBuilder extends ModuleLevelBuilder(BuilderCategory.INITIAL) { 
         configuration.setJavaCompilerId(ZincCompilerId)
         // Register special resource handling when the Zinc incremental compiler is enabled.
         // The regular JPS ResourcesBuilder will handle non-Scala modules.
-        ResourcesBuilder.registerEnabler(module => !ZincResourceBuilder.isEnabled(context, module))
+        val builderEnabler = ZincResourceBuilder.createBuilderEnabler(context)
+        ResourcesBuilder.registerEnabler(builderEnabler)
       }
 
       previousIncrementalityType match {
