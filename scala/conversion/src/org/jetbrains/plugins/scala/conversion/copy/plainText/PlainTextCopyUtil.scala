@@ -6,8 +6,10 @@ import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
+import com.intellij.psi.impl.source.tree.LeafPsiElement
+import com.intellij.psi.tree.TokenSet
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDefinitionWithAssignment
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
@@ -30,11 +32,44 @@ object PlainTextCopyUtil {
     ScalaBundle.message("rbrace.expected"),
     ScalaBundle.message("semi.expected")
   )
-  
+
   private val ErrorsAfterIncompleteDefinitionWithAssignment = Set(
     ScalaBundle.message("expression.expected"), //example: def foo: String = //implement me
     ScalaBundle.message("wrong.type"), //example: type X =
   )
+
+  /**
+   * Keywords that not present in other languages (primarily Java and Kotlin).
+   * This list doesn't have to be exhaustive. It should contain some popular keywords
+   * that might be a good indicator of a scala code
+   */
+  private val ScalaSpecificKeywords = TokenSet.create(
+    ScalaTokenTypes.kDEF,
+    //ScalaTokenTypes.kCASE, // exists in java switch
+    ScalaTokenTypes.kMATCH,
+    ScalaTokenTypes.kTYPE,
+    ScalaTokenTypes.kIMPLICIT,
+    ScalaTokenTypes.kSEALED,
+    ScalaTokenTypes.kYIELD,
+    ScalaTokenTypes.kWITH,
+    ScalaTokenType.TraitKeyword,
+    ScalaTokenType.ExportKeyword,
+    ScalaTokenType.GivenKeyword,
+    ScalaTokenType.UsingKeyword,
+    ScalaTokenType.ExtensionKeyword,
+    ScalaTokenType.OpaqueKeyword,
+    ScalaTokenType.InlineKeyword,
+    //ScalaTokenType.ObjectKeyword, // exists in kotlin
+    //ScalaTokenTypes.kVAR, // exists in java and kotlin
+    //ScalaTokenTypes.kVAL, // exists in kotlin
+  )
+
+  private def hasScalaSpecificKeyword(file: ScalaFile): Boolean = file
+    .elements
+    .exists {
+      case leaf: LeafPsiElement => ScalaSpecificKeywords.contains(leaf.getElementType)
+      case _ => false
+    }
 
   /**
     * Treat the text as scala file if:
@@ -46,15 +81,19 @@ object PlainTextCopyUtil {
   def looksLikeScalaFile(text: String, module: Module): Boolean = {
     def withLastSemicolon(text: String): Boolean = (!text.contains("\n") && text.contains(";")) || text.contains(";\n")
 
+
     def isOneWord(text: String): Boolean = !text.trim.contains(" ")
 
-    if (withLastSemicolon(text) || isJavaClassWithPublic(text)(module.getProject))
+    if (isJavaClassWithPublic(text)(module.getProject))
       false
     else if (isOneWord(text))
       true
     else {
-      val scalaFile = createScalaCodeFragment(text, module)
-      scalaFile.isDefined
+      createScalaCodeFragment(text, module) match {
+        case Some(scalaFile) =>
+          !withLastSemicolon(text) || hasScalaSpecificKeyword(scalaFile)
+        case None => false
+      }
     }
   }
 

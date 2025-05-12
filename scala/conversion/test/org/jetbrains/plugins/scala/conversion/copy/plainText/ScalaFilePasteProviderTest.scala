@@ -15,52 +15,66 @@ class ScalaFilePasteProviderTest extends ScalaLightCodeInsightFixtureTestCase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
 
-  private def assertSuggestedFileName(pastedCode: String, expectedFileName: String): Unit = {
+  private def assertSuggestedScalaFileName(pastedText: String, expectedFileName: String): Unit = {
+    assertScalaCodePasteEnabled(pastedText: String)
+
     val provider = new ScalaFilePasteProvider()
-    val nameWithExtension = provider.suggestedScalaFileNameForText(pastedCode, getModule).getOrElse {
+    val nameWithExtension = provider.suggestedScalaFileNameForText(pastedText, getModule).getOrElse {
       fail("Can't create scala file for pasted code").asInstanceOf[Nothing]
     }
     assertEquals("Suggested file name", expectedFileName, nameWithExtension.fullName)
   }
 
+  private def assertScalaCodePasteEnabled(pastedText: String): Unit = {
+    val dataContext: DataContext = prepareDataContextAndGlobalCopyBuffer(pastedText)
+    val provider: PasteProvider = new ScalaFilePasteProvider()
+    assertTrue(s"Scala paste provider should be enabled for text: $pastedText", provider.isPasteEnabled(dataContext))
+  }
+
+  private def assertScalaCodePasteNotEnabled(pastedText: String): Unit = {
+    val dataContext: DataContext = prepareDataContextAndGlobalCopyBuffer(pastedText)
+    val provider: PasteProvider = new ScalaFilePasteProvider()
+    assertFalse(s"Scala paste provider should not be enabled for text: $pastedText", provider.isPasteEnabled(dataContext))
+  }
+
   def testSuggestedFileNameForClass(): Unit = {
-    assertSuggestedFileName("class MyClass", "MyClass.scala")
+    assertSuggestedScalaFileName("class MyClass", "MyClass.scala")
   }
 
   def testSuggestedFileNameForTrait(): Unit = {
-    assertSuggestedFileName("trait MyTrait", "MyTrait.scala")
+    assertSuggestedScalaFileName("trait MyTrait", "MyTrait.scala")
   }
 
   def testSuggestedFileNameForObject(): Unit = {
-    assertSuggestedFileName("object MyObject", "MyObject.scala")
+    assertSuggestedScalaFileName("object MyObject", "MyObject.scala")
   }
 
   def testSuggestedFileNameForType(): Unit = {
-    assertSuggestedFileName("type MyTypeAlias = AliasedClass", "MyTypeAlias.scala")
+    assertSuggestedScalaFileName("type MyTypeAlias = AliasedClass", "MyTypeAlias.scala")
   }
 
   def testSuggestedFileNameForDef(): Unit = {
-    assertSuggestedFileName("def myFunction: Int = ???", "myFunction.scala")
+    assertSuggestedScalaFileName("def myFunction: Int = ???", "myFunction.scala")
   }
 
   def testSuggestedFileNameForVal(): Unit = {
-    assertSuggestedFileName("val myValue: Int = ???", "myValue.scala")
+    assertSuggestedScalaFileName("val myValue: Int = ???", "myValue.scala")
   }
 
   def testSuggestedFileNameForVar(): Unit = {
-    assertSuggestedFileName("var myVariable: Int = ???", "myVariable.scala")
+    assertSuggestedScalaFileName("var myVariable: Int = ???", "myVariable.scala")
   }
 
   def testSuggestedFileNameForValMultipleBindings(): Unit = {
-    assertSuggestedFileName("val (myValueFromPattern1, myValueFromPattern2) = (???, ???)", "myValueFromPattern1.scala")
+    assertSuggestedScalaFileName("val (myValueFromPattern1, myValueFromPattern2) = (???, ???)", "myValueFromPattern1.scala")
   }
 
   def testSuggestedFileNameForVarMultipleBindings(): Unit = {
-    assertSuggestedFileName("var (myVariableFromPattern1, myVariableFromPattern2) = (???, ???)", "myVariableFromPattern1.scala")
+    assertSuggestedScalaFileName("var (myVariableFromPattern1, myVariableFromPattern2) = (???, ???)", "myVariableFromPattern1.scala")
   }
 
   def testSuggestedFileNameForEnum(): Unit = {
-    assertSuggestedFileName(
+    assertSuggestedScalaFileName(
       """enum MyEnum:
         |  case MyCase1, MyCase2""".stripMargin,
       "MyEnum.scala"
@@ -68,11 +82,11 @@ class ScalaFilePasteProviderTest extends ScalaLightCodeInsightFixtureTestCase {
   }
 
   def testSuggestedFileNameForGiven(): Unit = {
-    assertSuggestedFileName("given myGiven: String = ???", "myGiven.scala")
+    assertSuggestedScalaFileName("given myGiven: String = ???", "myGiven.scala")
   }
 
   def testSuggestedFileNameFileWithoutMembersButWithPackage_WithImports(): Unit = {
-    assertSuggestedFileName(
+    assertSuggestedScalaFileName(
       """package org.example
         |
         |import org.example.O.*
@@ -80,7 +94,7 @@ class ScalaFilePasteProviderTest extends ScalaLightCodeInsightFixtureTestCase {
   }
 
   def testSuggestedFileNameFileWithoutMembersButWithPackage_WithExports(): Unit = {
-    assertSuggestedFileName(
+    assertSuggestedScalaFileName(
       """package org.example
         |
         |export org.example.O.*
@@ -88,7 +102,7 @@ class ScalaFilePasteProviderTest extends ScalaLightCodeInsightFixtureTestCase {
   }
 
   def testSuggestedFileNameForExtensions(): Unit = {
-    assertSuggestedFileName(
+    assertSuggestedScalaFileName(
       """extension (s: String)
         |  def myExtension1: String = ???
         |  def myExtension2: String = ???""".stripMargin,
@@ -97,19 +111,7 @@ class ScalaFilePasteProviderTest extends ScalaLightCodeInsightFixtureTestCase {
   }
 
   def testSuggestedFileNameForExpression(): Unit = {
-    assertSuggestedFileName("println(42)", "worksheet.sc")
-  }
-
-  private def assertScalaCodePasteEnabled(text: String): Unit = {
-    val dataContext: DataContext = prepareDataContextAndGlobalCopyBuffer(text)
-    val provider: PasteProvider = new ScalaFilePasteProvider()
-    assertTrue(s"Scala paste provider should be enabled for text: $text", provider.isPasteEnabled(dataContext))
-  }
-
-  private def assertScalaCodePasteNotEnabled(text: String): Unit = {
-    val dataContext: DataContext = prepareDataContextAndGlobalCopyBuffer(text)
-    val provider: PasteProvider = new ScalaFilePasteProvider()
-    assertFalse(s"Scala paste provider should not be enabled for text: $text", provider.isPasteEnabled(dataContext))
+    assertSuggestedScalaFileName("println(42)", "worksheet.sc")
   }
 
   private def prepareDataContextAndGlobalCopyBuffer(text: String): DataContext = {
@@ -274,6 +276,18 @@ class ScalaFilePasteProviderTest extends ScalaLightCodeInsightFixtureTestCase {
         |        System.out.println("This is helper"
         |}""".stripMargin
     )
+  }
+
+  def testCodeWithSemicolonWithScalaSpecificKeywordsDef(): Unit = {
+    assertSuggestedScalaFileName("class MyClass { def myPrint(): Unit = { println(1); println(2) } }", "MyClass.scala")
+  }
+
+  def testCodeWithSemicolonWithScalaSpecificKeywordsTrait(): Unit = {
+    assertSuggestedScalaFileName("trait MyTrait { println(1); println(2) }", "MyTrait.scala")
+  }
+
+  def testCodeWithSemicolonWithoutScalaSpecificKeywords(): Unit = {
+    assertScalaCodePasteNotEnabled("class MyClass { println(1) ; println(2) }")
   }
 }
 
