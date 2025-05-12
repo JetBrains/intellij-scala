@@ -112,7 +112,7 @@ class NewScalaCliProjectWizardTest extends NewScalaProjectWizardTestBase with Ex
           testSources := Seq()
           resources := Seq()
           testResources := Seq()
-          excluded := Seq(".bsp", ".bloop")
+          excluded := Seq(".bsp", ".bloop", ".scala-build")
         }
       )
     }
