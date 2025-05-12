@@ -7,7 +7,7 @@ import org.jetbrains.jps.builders.java.JavaModuleBuildTargetType
 import org.jetbrains.jps.cmdline.{BuildRunner, JpsModelLoaderImpl, ProjectDescriptor}
 import org.jetbrains.jps.incremental.fs.BuildFSState
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CustomBuilderMessage, ProgressMessage}
-import org.jetbrains.jps.incremental.scala.{BuildParameters, Client}
+import org.jetbrains.jps.incremental.scala.{BuildParameters, Client, ScalaResourceBuilderEnabler}
 import org.jetbrains.jps.incremental.{MessageHandler, Utils}
 import org.jetbrains.plugins.scala.compiler.CompilerEvent.BuilderId
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventType}
@@ -15,10 +15,10 @@ import org.jetbrains.plugins.scala.util.ObjectSerialization
 
 import java.io.{DataOutputStream, FileNotFoundException, FileOutputStream, IOException}
 import java.nio.file.{Files, Path, Paths}
-import java.util.Collections
 import java.util.concurrent.ConcurrentMap
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.locks.{Lock, ReentrantLock}
+import java.util.{Collections, UUID}
 import scala.jdk.CollectionConverters._
 import scala.util.{Try, Using}
 
@@ -39,7 +39,13 @@ private object Jps {
       val dataStorageRoot = Paths.get(dataStorageRootPath)
       val loader = new JpsModelLoaderImpl(projectPath, globalOptionsPath, false, null)
       val buildRunner = new BuildRunner(loader)
-      buildRunner.setBuilderParams(Map(BuildParameters.BuildTriggeredByCBH -> true.toString).asJava)
+      val customBuildId = UUID.randomUUID()
+      buildRunner.setBuilderParams(
+        Map(
+          BuildParameters.BuildTriggeredByCBH -> true.toString,
+          BuildParameters.CustomBuildIdForCBH -> customBuildId.toString
+        ).asJava
+      )
       var compiledFiles = Set.empty[Path]
       val messageHandler = new MessageHandler {
         override def processMessage(msg: BuildMessage): Unit = msg match {
@@ -88,6 +94,7 @@ private object Jps {
         // Save the FS state data to disk, so that we do not corrupt the IDEA JPS process expected data.
         saveData(fsState, descriptor, descriptor.dataManager.getDataPaths.getDataStorageDir)
         client.compilationEnd(compiledFiles)
+        removeScalaResourceBuilderEnablersForBuild(customBuildId)
       }
     } finally {
       lock.unlock()
@@ -202,5 +209,24 @@ private object Jps {
       .filter(_.getBuilderId == BuilderId)
       .flatMap(msg => Try(CompilerEventType.withName(msg.getMessageType)).toOption)
       .map(_ => ObjectSerialization.fromBase64[CompilerEvent](text))
+  }
+
+  /**
+   * Remove the registered Scala resource builder enablers to avoid memory leaks,
+   * but only the ones from the current build.
+   */
+  private def removeScalaResourceBuilderEnablersForBuild(customBuildId: UUID): Unit = Try {
+    import org.jetbrains.jps.incremental.resources.{ResourcesBuilder, StandardResourceBuilderEnabler}
+    val resourcesBuilderClass = classOf[ResourcesBuilder]
+    val ourEnablersField = resourcesBuilderClass.getDeclaredField("ourEnablers")
+    ourEnablersField.setAccessible(true)
+    val ourEnablers = ourEnablersField.get(null).asInstanceOf[java.util.List[StandardResourceBuilderEnabler]]
+    ourEnablers.synchronized {
+      val scalaEnablers = ourEnablers.asScala.filter {
+        case e: ScalaResourceBuilderEnabler if e.customBuildId.contains(customBuildId) => true
+        case _ => false
+      }
+      scalaEnablers.foreach(ourEnablers.remove)
+    }
   }
 }

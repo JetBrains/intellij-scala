@@ -5,14 +5,16 @@ import org.jetbrains.jps.builders.java.{ResourceRootDescriptor, ResourcesTargetT
 import org.jetbrains.jps.builders.storage.BuildDataCorruptedException
 import org.jetbrains.jps.builders.{BuildOutputConsumer, DirtyFilesHolder}
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage, ProgressMessage}
+import org.jetbrains.jps.incremental.resources.StandardResourceBuilderEnabler
 import org.jetbrains.jps.incremental.scala.ZincResourceBuilder.{isEnabled, shouldSkip}
-import org.jetbrains.jps.incremental.scala.model.JpsScalaProjectMetadataExtensionService.moduleHasScala
+import org.jetbrains.jps.incremental.scala.model.JpsScalaProjectMetadataExtensionService.{customBuildId, moduleHasScala, modulesWithScala}
 import org.jetbrains.jps.incremental.scala.sources.{SbtModuleType, SharedSourcesModuleType}
 import org.jetbrains.jps.incremental.{CompileContext, ProjectBuildException, ResourcesTarget, TargetBuilder}
 import org.jetbrains.jps.model.module.JpsModule
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 
 import java.nio.file.{Files, Path, Paths, StandardCopyOption}
+import java.util.UUID
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
@@ -154,5 +156,24 @@ private object ZincResourceBuilder {
   def shouldSkip(module: JpsModule): Boolean = {
     val moduleType = module.getModuleType
     moduleType == SbtModuleType.INSTANCE || moduleType == SharedSourcesModuleType.INSTANCE
+  }
+  
+  def createBuilderEnabler(context: CompileContext): StandardResourceBuilderEnabler with ScalaResourceBuilderEnabler = {
+    val config = modulesWithScala(context)
+    val buildId = customBuildId(context)
+    new ZincResourceBuilderEnabler(config, buildId)
+  }
+
+  private final class ZincResourceBuilderEnabler(config: Set[String], buildId: Option[UUID])
+    extends StandardResourceBuilderEnabler
+      with ScalaResourceBuilderEnabler {
+    
+    override def isResourceProcessingEnabled(module: JpsModule): Boolean = {
+      val hasScala = config.contains(module.getName)
+      val incrementalityType = ScalaBuilder.projectSettings(module.getProject).getIncrementalityType
+      !hasScala || incrementalityType != IncrementalityType.SBT
+    }
+
+    override val customBuildId: Option[UUID] = buildId
   }
 }

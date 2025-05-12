@@ -5,7 +5,6 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.{JDOMUtil, Key}
 import org.jetbrains.jps.incremental.CompileContext
 import org.jetbrains.jps.incremental.scala.{ScalaJpsProjectMetadataConstants, SettingsManager}
-import org.jetbrains.jps.model.module.JpsModule
 
 import java.nio.file.Path
 import scala.jdk.CollectionConverters._
@@ -15,13 +14,7 @@ private final class JpsScalaProjectMetadataExtensionServiceImpl extends JpsScala
 
   import JpsScalaProjectMetadataExtensionServiceImpl.{Log, ModulesWithScalaSdkKey}
 
-  override def projectHasScala(context: CompileContext): Boolean =
-    loadConfig(context).nonEmpty
-
-  override def moduleHasScala(context: CompileContext)(module: JpsModule): Boolean = {
-    val name = module.getName
-    loadConfig(context).contains(name)
-  }
+  override def modulesWithScala(context: CompileContext): Set[String] = loadConfig(context)
 
   private def loadConfig(context: CompileContext): Set[String] = {
     val alreadyComputedModules = context.getUserData(ModulesWithScalaSdkKey)
