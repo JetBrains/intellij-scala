@@ -2,8 +2,12 @@ package org.jetbrains.plugins.scala.editor
 
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiElement, PsiFile, PsiWhiteSpace}
+import com.intellij.psi.{PsiElement, PsiErrorElement, PsiFile, PsiWhiteSpace}
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDefinitionWithAssignment
 
 object ScalaEditorUtils {
 
@@ -67,5 +71,28 @@ object ScalaEditorUtils {
       caretOffset - 1 //if caret is in the end of
     else
       caretOffset
+  }
+
+  /**
+   * @return true for any of these {{{
+   *    def foo = CARET //for def/val/var
+   *    extension (x: String) CARET
+   *    class A: CARET`
+   * }}}
+   */
+  def isIncompleteDefinitionError(e: PsiErrorElement): Boolean = {
+    val description = e.getErrorDescription
+    val isIncompleteTemplateDefinition = description == ScalaBundle.message("indented.definitions.expected")
+    val isIncompleteExtension = description == ScalaBundle.message("expected.at.least.one.extension.method")
+    val isIncompleteDefinitionWithAssign = e.getParent.is[ScDefinitionWithAssignment] && (
+      // Note, for some reason the error is different in some cases, see SCL-23798
+      description == ScalaBundle.message("expression.expected") || //example: def foo = //implement me
+        description == ScalaBundle.message("wrong.expression") || //example: def foo: String = //implement me
+        description == ScalaBundle.message("wrong.type") //example: type X = //implement me
+      )
+    Option(e.getPrevSibling).exists(_.elementType == ScalaTokenTypes.tASSIGN)
+    isIncompleteTemplateDefinition ||
+      isIncompleteExtension ||
+      isIncompleteDefinitionWithAssign
   }
 }

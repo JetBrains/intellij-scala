@@ -10,6 +10,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiErrorElement, PsiFile}
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.plugins.scala.editor.Scala3IndentationBasedSyntaxUtils.calcIndentationString
+import org.jetbrains.plugins.scala.editor.ScalaEditorUtils
 import org.jetbrains.plugins.scala.editor.ScalaEditorUtils.findElementAtCaret_WithFixedEOF
 import org.jetbrains.plugins.scala.editor.copy.Scala3IndentationBasedSyntaxCopyPastePreProcessor._
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
@@ -17,12 +18,10 @@ import org.jetbrains.plugins.scala.lang.TokenSets
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScOptionalBracesOwner
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDefinitionWithAssignment
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.IndentUtil
-import org.jetbrains.plugins.scala.{Scala3Language, ScalaBundle, ScalaFileType}
+import org.jetbrains.plugins.scala.{Scala3Language, ScalaFileType}
 
 class Scala3IndentationBasedSyntaxCopyPastePreProcessor extends CopyPastePreProcessor {
   override def requiresAllDocumentsToBeCommitted(editor: Editor, project: Project): Boolean = false
@@ -136,7 +135,7 @@ object Scala3IndentationBasedSyntaxCopyPastePreProcessor {
     //def foo =\n<caret>
     val prevElement = elementAtCaretOrCommonParent.prevLeafNotWhitespaceComment
     prevElement match {
-      case Some(e: PsiErrorElement) if isIncompleteDefinitionError(e) =>
+      case Some(e: PsiErrorElement) if ScalaEditorUtils.isIncompleteDefinitionError(e) =>
         return CaretPosition.AfterIncompleteDefinitionBody(e)
       case _ =>
     }
@@ -195,24 +194,6 @@ object Scala3IndentationBasedSyntaxCopyPastePreProcessor {
     val preFirstElement = braceOrColon.getOrElse(block.getFirstChild)
     val firstElement = Option(preFirstElement.getNextSiblingNotWhitespaceComment)
     firstElement.filterNot(el => TokenSets.RBRACE_OR_END_STMT.contains(el.elementType))
-  }
-
-  /**
-   * @return true for any of these {{{
-   *    def foo = CARET //for def/val/var
-   *    extension (x: String) CARET
-   *    class A: CARET`
-   * }}}
-   */
-  private def isIncompleteDefinitionError(e: PsiErrorElement): Boolean = {
-    val description = e.getErrorDescription
-    val isIncompleteTemplateDefinition = description == ScalaBundle.message("indented.definitions.expected")
-    val isIncompleteExtension = description == ScalaBundle.message("expected.at.least.one.extension.method")
-    val isIncompleteDefinitionWithAssign = e.getParent.is[ScDefinitionWithAssignment] && description == ScalaBundle.message("expression.expected")
-    Option(e.getPrevSibling).exists(_.elementType == ScalaTokenTypes.tASSIGN)
-    isIncompleteTemplateDefinition ||
-      isIncompleteExtension ||
-      isIncompleteDefinitionWithAssign
   }
 
   private def isInsideStringLiteralOrComment(caret: Caret, elementAtCaret: PsiElement): Boolean = {
