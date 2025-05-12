@@ -120,7 +120,7 @@ class NewScalaCliProjectWizardTest extends NewScalaProjectWizardTestBase with Ex
           testSources := Seq()
           resources := Seq()
           testResources := Seq()
-          excluded := Seq(".bsp", ".bloop")
+          excluded := Seq(".bsp", ".bloop", ".scala-build")
         }
       )
     }
@@ -155,7 +155,7 @@ class NewScalaCliProjectWizardTest extends NewScalaProjectWizardTestBase with Ex
 
     //note: only Linux and macOS systems are allowed
     val cpuArch = if (SystemInfo.isAarch64) "aarch64" else "x86_64"
-    val os = if (SystemInfo.isLinux) "pc-linux" else "apple-darwin"
+    val os = if (SystemInfo.isLinux) "pc-linux-static" else "apple-darwin"
     val archiveName = s"scala-cli-$cpuArch-$os.gz"
 
     val curlCommand = s"curl --fail --location https://github.com/Virtuslab/scala-cli/releases/latest/download/$archiveName"
