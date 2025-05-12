@@ -20,7 +20,7 @@ import scala.reflect.ClassTag
  * This trait contains utility methods responsible for handling for shared sources directories.
  * Such shared sources are typically "external" relative to the project base directory, hence the name "External"
  */
-trait ExternalSourceRootResolution { self: SbtProjectResolver =>
+trait ExternalSourceRootResolution { self: SbtProjectResolver with ContentRootsResolution =>
 
   type ModuleDataNodeType = Node[_ <: ModuleData]
 
@@ -520,52 +520,6 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
     addModuleDependencies(moduleDependencies, allSourceModules, moduleNode)
 
     Some(moduleNode)
-  }
-
-  /**
-   * The method creates content root nodes based on the given source/resource base directories and roots.
-   * It works in 2 stages:
-   *  1. First, it creates a content root for each source root base directory (`sourceRootBaseDirs`)
-   *  1. Then, it creates dedicated content roots for those source/resource roots that are not located inside
-   *     any base directory. This is primarily used by generated sources in external directories,
-   *     like  `.../target/.../src_managed/main`
-   *
-   * @param sourceRootBaseDirs Contains directories which can contain source/resource roots.<br>
-   *                           Examples:
-   *                             - `.../src/main` (can contain scala, scala-3, resources)
-   *                             - `.../src/test`
-   * @param sourceRoots        Contains concrete directories that serve as source/resource roots.<br>
-   *                           Examples:
-   *                             - `.../src/main/scala`
-   *                             - `.../src/main/scala-3`
-   *                             - `.../src/main/resources`
-   *                             - `.../target/.../src_managed/main`
-   */
-  protected def createContentRootNodes(
-    sourceRootBaseDirs: Seq[String],
-    sourceRoots: Seq[(String, ExternalSystemSourceType)],
-  ): Seq[ContentRootNode] = {
-    val contentRootsForSourceBaseDirs = sourceRootBaseDirs.distinct.map(new ContentRootNode(_))
-    sourceRoots.foldLeft(contentRootsForSourceBaseDirs) { case (contentRootNodes, (sourceRootPath, sourceType)) =>
-      val suitableContentRootNode = findContentRootContainingPath(contentRootNodes, sourceRootPath)
-      suitableContentRootNode match {
-        case Some(contentRootNode) =>
-          contentRootNode.storePath(sourceType, sourceRootPath)
-          contentRootNodes
-        case None =>
-          val node = new ContentRootNode(sourceRootPath)
-          node.storePath(sourceType, sourceRootPath)
-          contentRootNodes :+ node
-      }
-    }
-  }
-
-  private def findContentRootContainingPath(contentRoots: Seq[ContentRootNode], path: String): Option[ContentRootNode] = {
-    val dir = new File(path)
-    contentRoots.find { contentRoot =>
-      val contentRootDir = new File(contentRoot.data.getRootPath)
-      dir.isUnder(contentRootDir, strict = false)
-    }
   }
 
   /**

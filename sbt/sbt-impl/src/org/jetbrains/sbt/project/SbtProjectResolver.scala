@@ -48,7 +48,7 @@ import scala.xml.{Elem, XML}
  * @see [[com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver]]
  * @see [[com.intellij.openapi.externalSystem.service.remote.wrapper.ExternalSystemProjectResolverWrapper]]
  */
-class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSettings] with ExternalSourceRootResolution {
+class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSettings] with ExternalSourceRootResolution with ContentRootsResolution {
 
   private val log = Logger.getInstance(getClass)
 
@@ -550,17 +550,16 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   )(implicit context: ImportContext): Map[ProjectData, ModuleSourceSet] = {
     val librariesData = projectLibraryNodes.map(_.data)
 
-    val sharedSourceRoots: Map[SourceRoot.Scope, Map[SourceRoot.Kind, Set[String]]] = sharedRoots.map(_.sourceRoot)
-      .groupBy(_.scope)
-      .view.mapValues(_.groupBy(_.kind).view.mapValues(_.map(sr => FileUtil.toSystemIndependentName(sr.directory.getPath)).toSet).toMap)
-      .toMap
+    val projectsSourcesDetails =
+      if (context.useSeparateProdTestSources) resolveProjectsSourcesDetails(projectsGrouped, sharedRoots)
+      else Map.empty[ProjectData, ProjectSourcesDetails]
 
     val projectToModule: Iterable[(ProjectData, ModuleSourceSet)] = projectsGrouped.flatMap { buildProjectsGroup =>
       createModulesInsideBuildProjectGroup(
         buildProjectsGroup,
-        sharedSourceRoots,
         projectRoot,
         librariesData,
+        projectsSourcesDetails
       )
     }
 
@@ -577,9 +576,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
    */
   private def createModulesInsideBuildProjectGroup(
     buildProjectsGroup: BuildProjectsGroup,
-    sharedSourceRoots: Map[SourceRoot.Scope, Map[SourceRoot.Kind, Set[String]]],
     projectRoot: File,
     librariesData: Seq[LibraryData],
+    projectsSourcesDetails: Map[ProjectData, ProjectSourcesDetails]
   )(implicit context: ImportContext): Seq[(ProjectData, ModuleSourceSet)] = {
     val BuildProjectsGroup(_, rootProject, projects, rootProjectModuleNameUnique) = buildProjectsGroup
 
@@ -590,12 +589,16 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       moduleGroup: Option[String],
       shouldCreateNestedModule: Boolean,
     ): ModuleSourceSet =
-      if (context.useSeparateProdTestSources) createModuleWithAllRequiredDataForSeparateProdAndTestSources(
-        project, projectRoot, moduleName, moduleGroup, librariesData, shouldCreateNestedModule, sharedSourceRoots
-      )
-      else createModuleWithAllRequiredDataLegacy(
-        project, projectRoot, moduleName, moduleGroup, librariesData, shouldCreateNestedModule
-      )
+      if (context.useSeparateProdTestSources) {
+        val projectSourcesDetails = projectsSourcesDetails.getOrElse(project, ProjectSourcesDetails.default)
+        createModuleWithAllRequiredDataForSeparateProdAndTestSources(
+          project, projectRoot, moduleName, moduleGroup, librariesData, shouldCreateNestedModule, projectSourcesDetails
+        )
+      } else {
+        createModuleWithAllRequiredDataLegacy(
+          project, projectRoot, moduleName, moduleGroup, librariesData, shouldCreateNestedModule
+        )
+      }
 
     val rootModuleSourceSet = createModule(
       project = rootProject,
@@ -792,6 +795,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     )
     result.setInheritProjectCompileOutputPath(false)
 
+    result.add(createLegacyContentRoot(project))
+
     prefixModuleNameWithGroup(result, moduleGroup)
 
     val projectDependencies = project.dependencies
@@ -799,10 +804,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       librariesData,
       projectDependencies.modules.forProduction,
       projectDependencies.jars.forProduction,
-      // NOTE: might also propagate this information to in the legacy mode (without separate prod/test modules)
-      // but ATM it's not required as it when `context.useSeparateCompilerOutputPaths` is enabled, we don't allow
-      // source directories outside a project base path (see usages of `useSeparateCompilerOutputPaths` in this file)
-      sharedSourceRoots = Map.empty,
       project,
       result,
       LegacyModuleType,
@@ -844,7 +845,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     moduleGroup: Option[String],
     librariesData: Seq[LibraryData],
     shouldCreateNestedModule: Boolean,
-    sharedSourceRoots: Map[SourceRoot.Scope, Map[SourceRoot.Kind, Set[String]]],
+    sourcesDetails: ProjectSourcesDetails
   )(implicit context: ImportContext): CompleteModuleSourceSet = {
     // TODO use both ID and Name when related flaws in the External System will be fixed
     // TODO explicit canonical path is needed until IDEA-126011 is fixed
@@ -872,11 +873,28 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val dependencies = project.dependencies
 
+    val mainContentRoots = createContentRootNodes(sourcesDetails.mainSourceBaseDirectories, sourcesDetails.mainSourceRoots)
+    val testContentRoots = createContentRootNodes(sourcesDetails.testSourceBaseDirectories, sourcesDetails.testSourceRoots)
+
+    /*
+    It’s possible that a content root pointing to the project base is placed inside the main or test module,
+    for example, in cases where the configuration is as follows:
+        Compile / sourceDirectory := baseDirectory.value
+    In such cases, excluded directories should be added to this content root, and there should be no content root in the parent module.
+    */
+    val contentRootWithProjectBase = (testContentRoots ++ mainContentRoots).find(_.data.getRootPath == project.base.path)
+    contentRootWithProjectBase match {
+      case Some(contentRoot) => storeExcludedPathsInContentRoot(contentRoot, project)
+      case None => parentModule.add(createParentContentRoot(project))
+    }
+
+    prodModule.addAll(mainContentRoots)
+    testModule.addAll(testContentRoots)
+
     addAllRequiredDataToModuleNode(
       librariesData,
       dependencies.modules.forProduction,
       dependencies.jars.forProduction,
-      sharedSourceRoots,
       project,
       prodModule,
       ProdModuleType,
@@ -893,7 +911,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       librariesData,
       dependencies.modules.forTest,
       dependencies.jars.forTest,
-      sharedSourceRoots,
       project,
       testModule,
       TestModuleType,
@@ -975,19 +992,11 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     librariesData: Seq[LibraryData],
     moduleDependencies: Seq[ModuleDependencyData],
     jarDependencies: Seq[JarDependencyData],
-    sharedSourceRoots: Map[SourceRoot.Scope, Map[SourceRoot.Kind, Set[String]]],
     projectData: ProjectData,
     moduleNode: ModuleDataNodeType,
     moduleType: ModuleType,
     displayName: String,
   )(implicit context: ImportContext): Unit = {
-    val contentRootNodes = moduleType match {
-      case ProdModuleType => createProductionContentRoots(projectData, sharedSourceRoots)
-      case TestModuleType => createTestContentRoots(projectData, sharedSourceRoots)
-      case LegacyModuleType => Seq(createLegacyContentRoot(projectData))
-    }
-    moduleNode.addAll(contentRootNodes)
-
     moduleNode.add(new SbtDisplayModuleNameNode(displayName))
 
     // in sbt source set modules task/settings/command are not inserted
@@ -1021,7 +1030,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     projectData: ProjectData,
     moduleNode: ModuleDataNodeType,
   )(implicit context: ImportContext): Unit = {
-    moduleNode.add(createContentRootWithExcludedDirectories(projectData))
     moduleNode.add(new SbtDisplayModuleNameNode(moduleNode.getModuleName))
     moduleNode.add(new SbtModuleNode(SbtModuleData(projectData.id, projectData.buildURI, projectData.base)))
     addSbtRelatedData(projectData, moduleNode)
@@ -1038,152 +1046,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     moduleNode.addAll(createSettingData(projectData))
     moduleNode.addAll(createCommandData(projectData))
   }
-
-  private def createLegacyContentRoot(
-    project: sbtStructure.ProjectData,
-  )(implicit context: ImportContext): ContentRootNode = {
-    val contentRootNode = createContentRootWithExcludedDirectories(project)
-
-    val productionSources = getProductionSources(project)
-    val productionResources = getProductionResources(project)
-    val testSources = getTestSources(project)
-    val testResources = getTestResources(project)
-
-    contentRootNode.storePaths(ExternalSystemSourceType.SOURCE, unmanagedDirectories(productionSources))
-    contentRootNode.storePaths(ExternalSystemSourceType.SOURCE_GENERATED, managedDirectories(productionSources))
-    contentRootNode.storePaths(ExternalSystemSourceType.RESOURCE, unmanagedDirectories(productionResources))
-    contentRootNode.storePaths(ExternalSystemSourceType.RESOURCE_GENERATED, managedDirectories(productionResources))
-
-    contentRootNode.storePaths(ExternalSystemSourceType.TEST, unmanagedDirectories(testSources))
-    contentRootNode.storePaths(ExternalSystemSourceType.TEST_GENERATED, managedDirectories(testSources))
-    contentRootNode.storePaths(ExternalSystemSourceType.TEST_RESOURCE, unmanagedDirectories(testResources))
-    contentRootNode.storePaths(ExternalSystemSourceType.TEST_RESOURCE_GENERATED, managedDirectories(testResources))
-
-    contentRootNode
-  }
-
-  private def createContentRootWithExcludedDirectories(
-    project: sbtStructure.ProjectData,
-  )(implicit context: ImportContext): ContentRootNode = {
-    val result = new ContentRootNode(project.base.path)
-    storeExcludedPathsInContentRoot(result, project)
-    result
-  }
-
-  private def storeExcludedPathsInContentRoot(
-    contentRoot: ContentRootNode,
-    project: sbtStructure.ProjectData,
-  )(implicit context: ImportContext): Unit = {
-    val extractedExcludes = project.configurations.flatMap(_.excludes)
-
-    val excludedDirs = if (extractedExcludes.nonEmpty)
-      extractedExcludes.distinct
-    else if (context.sbtVersion.isSbt2) {
-      // NOTE Since sbt 2.0 there is only one target dir in the build root and it's hardcoded as "target"
-      // We also hardcode it, but we add the directory to every sbt sub-project to make the migration from 1.x to 2.x easier.
-      // (It would be nice if IntelliJ excluded existing target directories with cache files from sbt 1.x)
-      // - https://github.com/sbt/sbt/issues/3681 (it's WIP currently, 10 Feb 2025)
-      // - https://github.com/sbt/sbt/issues/8037
-      //
-      // We could extract this hardcoding logic to sbt-structure plugin, but for now it seems not necessary
-      Seq(new File(contentRoot.data.getRootPath, Sbt.TargetDirectory))
-    } else
-      Seq(project.target)
-
-    excludedDirs.foreach { path =>
-      contentRoot.storePath(ExternalSystemSourceType.EXCLUDED, path.path)
-    }
-  }
-
-
-  private def createProductionContentRoots(
-    project: sbtStructure.ProjectData,
-    sharedSourceRoots: Map[SourceRoot.Scope, Map[SourceRoot.Kind, Set[String]]]
-  )(implicit context: ImportContext): Seq[ContentRootNode] =
-    convertDirectoriesDataToContentRootNodes(
-      sources = getProductionSources(project),
-      resources = getProductionResources(project),
-      projectBase = project.base,
-      sourceRootDirs = project.mainSourceDirectories,
-      isMainScope = true,
-      sharedSourceRoots = sharedSourceRoots.getOrElse(SourceRoot.Scope.Compile, Map.empty)
-    )
-
-  private def getProductionSources(project: ProjectData)(implicit context: ImportContext): Seq[DirectoryData] =
-    validSourceRootPathsIn(project, CompileScope)(_.sources)
-
-  private def getProductionResources(project: ProjectData)(implicit context: ImportContext): Seq[DirectoryData] =
-    validSourceRootPathsIn(project, CompileScope)(_.resources)
-
-  private def getTestSources(project: ProjectData)(implicit context: ImportContext): Seq[DirectoryData] =
-    validSourceRootPathsIn(project, TestScope)(_.sources) ++
-      validSourceRootPathsIn(project, IntegrationTestScope)(_.sources)
-
-  private def getTestResources(project: ProjectData)(implicit context: ImportContext): Seq[DirectoryData] =
-    validSourceRootPathsIn(project, TestScope)(_.resources) ++
-      validSourceRootPathsIn(project, IntegrationTestScope)(_.resources)
-
-  private def createTestContentRoots(
-    project: sbtStructure.ProjectData,
-    sharedSourceRoots: Map[SourceRoot.Scope, Map[SourceRoot.Kind, Set[String]]]
-  )(implicit context: ImportContext): Seq[ContentRootNode] =
-    convertDirectoriesDataToContentRootNodes(
-      sources = getTestSources(project),
-      resources = getTestResources(project),
-      projectBase = project.base,
-      sourceRootDirs = project.testSourceDirectories,
-      isMainScope = false,
-      sharedSourceRoots = sharedSourceRoots.getOrElse(SourceRoot.Scope.Test, Map.empty)
-    )
-
-  /**
-   * @param sourceRootDirs for example `src/main` (that can contain `scala`, `scala2`, etc...)
-   */
-  private def convertDirectoriesDataToContentRootNodes(
-    sources: Seq[DirectoryData],
-    resources: Seq[DirectoryData],
-    projectBase: File,
-    sourceRootDirs: Seq[File],
-    isMainScope: Boolean,
-    sharedSourceRoots: Map[SourceRoot.Kind, Set[String]]
-  ): Seq[ContentRootNode] = {
-    val (sourceType, sourceGeneratedType, resourceType, resourceGeneratedType) =
-      if (isMainScope) (
-        ExternalSystemSourceType.SOURCE,
-        ExternalSystemSourceType.SOURCE_GENERATED,
-        ExternalSystemSourceType.RESOURCE,
-        ExternalSystemSourceType.RESOURCE_GENERATED
-      )
-      else (
-        ExternalSystemSourceType.TEST,
-        ExternalSystemSourceType.TEST_GENERATED,
-        ExternalSystemSourceType.TEST_RESOURCE,
-        ExternalSystemSourceType.TEST_RESOURCE_GENERATED
-      )
-
-    val sharedSources: Set[String] = sharedSourceRoots.getOrElse(SourceRoot.Kind.Sources, Set.empty)
-    val sharedResources: Set[String] = sharedSourceRoots.getOrElse(SourceRoot.Kind.Resources, Set.empty)
-
-    val unmanagedDirs = unmanagedDirectories(sources).filterNot(sharedSources.contains).map((_, sourceType))
-    val unmanagedResourceDirs = unmanagedDirectories(resources).filterNot(sharedResources.contains).map((_, resourceType))
-
-    val managedDirs = managedDirectories(sources).map((_, sourceGeneratedType))
-    val managedResourceDirs = managedDirectories(resources).map((_, resourceGeneratedType))
-
-    val allSourceRoots = unmanagedDirs ++ managedDirs ++ unmanagedResourceDirs ++ managedResourceDirs
-    val sourceRootDirPathsInProjectBase = sourceRootDirs.filterNot(_.isOutsideOf(projectBase)).map(_.path)
-    val contentRoots = createContentRootNodes(
-      sourceRootBaseDirs = sourceRootDirPathsInProjectBase,
-      sourceRoots = allSourceRoots,
-    )
-    contentRoots
-  }
-
-  private def managedDirectories(dirs: Seq[sbtStructure.DirectoryData]) =
-    dirs.filter(_.managed).map(_.file.canonicalPath)
-
-  private def unmanagedDirectories(dirs: Seq[sbtStructure.DirectoryData]) =
-    dirs.filterNot(_.managed).map(_.file.canonicalPath)
 
   private case class BuildModuleNodeWithBuildBaseDir(
     moduleNode: ModuleDataNodeType,
@@ -1295,32 +1157,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     new SbtIvyResolver("Local cache", localCachePathFinal, isLocal = true, SbtBundle.message("sbt.local.cache"))
   }
 
-  private def validSourceRootPathsIn(
-    project: sbtStructure.ProjectData,
-    scope: String,
-  )(
-    selector: sbtStructure.ConfigurationData => Seq[sbtStructure.DirectoryData]
-  )(implicit context: ImportContext): Seq[sbtStructure.DirectoryData] = {
-    val configurationData = project.configurations.find(_.id == scope)
-    val directoryData: Seq[DirectoryData] = configurationData.map(selector).getOrElse(Seq.empty)
-
-    // NOTE: At least since 2015 we filtered out source roots that are outside project roots (~IntelliJ module).
-    //
-    // The reason was because back then IntelliJ module content root had 1-1 correspondence with the project root.
-    // But IntelliJ doesn't allow registering source roots outside content roots,
-    // so we had to filter out directories from outside.
-    //
-    // But since we introduced separate modules for main/test sources, it's no an issue anymore:
-    // Separate content roots are registered for all source/resource root dirs
-    // (e.g., src/main or target/.../src_managed/main)
-    // Source directories will be added to proper content roots and won't be outside them
-    // (see logic in `createContentRootNodes`)
-    if (context.useSeparateProdTestSources)
-      directoryData
-    else
-      directoryData.filterNot(_.file.isOutsideOf(project.base))
-  }
-
   protected def createLibraryDependencies(dependencies: Seq[sbtStructure.ModuleDependencyData])
                                          (moduleData: ModuleData, libraries: Seq[LibraryData], offset: Int, useSeparateProdTestSources: Boolean): Seq[LibraryDependencyNode] = {
     val resolvedDependencies =
@@ -1404,9 +1240,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
 object SbtProjectResolver {
 
-  private val CompileScope = "compile"
-  private val TestScope = "test"
-  private val IntegrationTestScope = "it"
+  val CompileScope = "compile"
+  val TestScope = "test"
+  val IntegrationTestScope = "it"
 
   private val IJ_SDK_CLASSIFIERS: Set[String] = Set("IJ-SDK", "IJ-PLUGIN")
 
