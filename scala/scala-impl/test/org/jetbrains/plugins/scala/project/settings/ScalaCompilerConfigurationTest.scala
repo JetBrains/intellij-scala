@@ -73,7 +73,7 @@ class ScalaCompilerConfigurationTest extends ScalaLightCodeInsightFixtureTestCas
 
     val scalaCompilerConfigXmlFile = getScalaCompilerConfigXmlPath.toFile
     assertTrue(s"File does not exist: $scalaCompilerConfigXmlFile", scalaCompilerConfigXmlFile.exists())
-    val scalaCompilerConfigXmlContent = FileUtil.loadFileOrNull(scalaCompilerConfigXmlFile)
+    val scalaCompilerConfigXmlContent = FileUtil.loadFile(scalaCompilerConfigXmlFile, true)
     assertEquals(
       "Serialized scala compiler configuration",
       ExpectedScalaCompilerConfigXmlContent.trim,
