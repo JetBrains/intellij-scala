@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import org.intellij.lang.annotations.Language
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
@@ -16,13 +17,17 @@ class InterpolatedStringsAnnotatorTest extends base.ScalaLightCodeInsightFixture
 
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
 
-    new ScalaAnnotator().annotate(file.getLastChild)
+    val annotator = new ScalaAnnotator()
+    file.getLastChild.depthFirst().foreach(annotator.annotate)
     mock.annotations
   }
 
   private def emptyMessages(text: String): Unit = {
     val messages = collectAnnotatorMessages(text)
-    assertTrue(messages.isEmpty)
+    assertTrue(
+      s"Expected no messages, but got: ${messages.mkString(", ")}",
+      messages.isEmpty
+    )
   }
 
   private def messageExists(text: String, message: String): Unit = {
@@ -45,6 +50,10 @@ class InterpolatedStringsAnnotatorTest extends base.ScalaLightCodeInsightFixture
     emptyMessages("c\"blah blah $s1 ${s2}\"")
   }
 
+  def testCorrectArgumentInt(): Unit = {
+    emptyMessages("e\"\"(i1)")
+  }
+
   def testMultiResolve(): Unit = {
     messageExists("_\"blah $s1 blah $s2 blah\"", "Error(_,Value '_' is not a member of StringContext)")
   }
@@ -55,6 +64,18 @@ class InterpolatedStringsAnnotatorTest extends base.ScalaLightCodeInsightFixture
 
   def testMultipleResolve2(): Unit = {
     messageExists("c\"blah $i1 blah $s1 $i2\"", "Error(i2,Too many arguments for method c(String, String))")
+  }
+
+  def testInvalidArgumentString(): Unit = {
+    messageExists("e\"\"(s1)", "Error(s1,Type mismatch, expected: Int, actual: String)")
+  }
+
+  def testTooManyArguments(): Unit = {
+    messageExists("e\"\"(i1, i2)", "Error(, i,Too many arguments)")
+  }
+
+  def testMissingArgumentsAreOk(): Unit = {
+    emptyMessages("e\"\"")
   }
 }
 
@@ -68,6 +89,7 @@ object InterpolatedStringsAnnotatorTest {
        |  def c(s1: String, s2: String) = s1 + s2
        |  def d(i1: Int, s1: String) = i1 + s1.length
        |  def d(i1: Int, i2: Int) = i1 + i2
+       |  def e(args: Any*)(i: Int) = i
        |}
        |
        |implicit def extendStrContext(ctx: StringContext) = new ExtendedContext
