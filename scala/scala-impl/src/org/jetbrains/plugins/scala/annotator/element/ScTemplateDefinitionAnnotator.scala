@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.overrideImplement.{ScMethodMember, ScalaOIUtil, ScalaTypedMember}
 import org.jetbrains.plugins.scala.{NlsString, ScalaBundle, overrideImplement}
 
+import scala.annotation.tailrec
 import scala.util.chaining._
 
 object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefinition] {
@@ -37,6 +38,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
     annotateEnumClassInheritance(element)
     annotateTraitPassingConstructorParameters(element)
     annotateParentTraitConstructorParameters(element)
+    annotateCaseToCaseInheritance(element)
 
     if (typeAware) {
       annotateNeedsToBeMixin(element)
@@ -241,6 +243,41 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
       case (range, message) =>
         holder.createErrorAnnotation(range, message.nls)
     }
+  }
+
+  def annotateCaseToCaseInheritance(element: ScTemplateDefinition)
+                                   (implicit holder: ScalaAnnotationHolder): Unit = {
+    @tailrec
+    def findCaseAncestor(queue: List[ScClass]): Option[ScClass] = queue match {
+      case Nil => None
+      case head :: tail =>
+        if (head.isCase) Some(head)
+        else {
+          val nextLevel = superRefs(head)
+            .map(_._2)
+            .collect { case c: ScClass => c }
+          findCaseAncestor(tail ++ nextLevel)
+        }
+    }
+
+    element.asOptionOf[ScClass]
+      .filter(_.isCase)
+      .flatMap { clazz =>
+        for {
+          (range, firstAncestor) <- superRefs(clazz).collectFirst {
+            case (rng, sc: ScClass) => (rng, sc)
+          }
+          ancestorCaseClass <- findCaseAncestor(List(firstAncestor))
+        } yield (range, ancestorCaseClass)
+      }
+      .foreach { case (range, ancestor) =>
+        val msg = ScalaBundle.message(
+          "illegal.inheritance.from.case.class",
+          element.name,
+          ancestor.name
+        )
+        holder.createErrorAnnotation(range, msg)
+      }
   }
 
   def annotateIllegalInheritance(element: ScTemplateDefinition)
