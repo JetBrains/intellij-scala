@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import org.intellij.lang.annotations.Language
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
@@ -16,13 +17,17 @@ class InterpolatedStringsAnnotatorTest extends base.ScalaLightCodeInsightFixture
 
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
 
-    new ScalaAnnotator().annotate(file.getLastChild)
+    val annotator = new ScalaAnnotator()
+    file.getLastChild.depthFirst().foreach(annotator.annotate)
     mock.annotations
   }
 
   private def emptyMessages(text: String): Unit = {
     val messages = collectAnnotatorMessages(text)
-    assertTrue(messages.isEmpty)
+    assertTrue(
+      s"Expected no messages, but got: ${messages.mkString(", ")}",
+      messages.isEmpty
+    )
   }
 
   private def messageExists(text: String, message: String): Unit = {
