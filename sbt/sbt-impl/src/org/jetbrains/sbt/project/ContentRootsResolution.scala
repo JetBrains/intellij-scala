@@ -69,11 +69,11 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
 
   def resolveProjectsSourcesDetails(
     projectsGrouped: Seq[BuildProjectsGroup],
-    sharedRoots: Seq[SharedSourceRoot]
+    groupedSharedRoots: Seq[SharedSourcesGroup]
   )(implicit context: ImportContext): Map[sbtStructure.ProjectData, ProjectSourcesDetails] = {
     val projects = projectsGrouped.flatMap(group => group.projects :+ group.rootProject)
 
-    val sharedSourceRoots = getSharedSourceRoots(sharedRoots)
+    val sharedSourceRoots = getSharedSourceRoots(groupedSharedRoots)
     val allExternalSystemSources = projects.flatMap { project =>
       val mainSources = resolveExternalSystemSources(isMainScope = true, project, sharedSourceRoots)
       val testSources = resolveExternalSystemSources(isMainScope = false, project, sharedSourceRoots)
@@ -100,6 +100,16 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
     val uniqueSourcesPaths = uniqueSources.map(_.path)
     val projectToSources = uniqueSources.groupBy(_.projectData)
 
+    // In shared source modules, content roots will be created for the group base and the group base with `src/main` and `src/test` suffixes
+    // (see ExternalSourceRootResolution.createSharedSourceSetModule and ExternalSourceRootResolution.createParentSharedSourcesModule).
+    // It is important to gather the content root paths here to prevent creating duplicate content roots.
+    // * Additionally, content roots may be created for individual source directories (see ContentRootsResolution.createContentRootNodes).
+    // However, any overlap with individual source directories for shared sources is handled in #resolveExternalSystemSources.
+    val sharedSourcesBaseDirs = groupedSharedRoots.flatMap { group =>
+      val base = group.base.path
+      Seq(base, s"$base/src/main", s"$base/src/test")
+    }
+
     // The mainSourceDirectories/testSourceDirectories values are derived from the sourceDirectory sbt key.
     // In the ideal/default case, for example, the mainSourceDirectories value is src/main, and it contains source paths like scala, java, etc.
     // However, users might modify the sourceDirectory key, making it the same as another project's source directory or within the same project but in a different scope.
@@ -118,6 +128,7 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
         sourceBaseDirs.map(_.path)
           .filterNot(uniqueSourcesPaths.contains)
           .filterNot(alreadyUsedSourceBaseDirs.contains)
+          .filterNot(sharedSourcesBaseDirs.contains)
 
       val mainSourceBaseDirs = getValidSourceBaseDirs(project.mainSourceDirectories)
       val testSourceBaseDirs = getValidSourceBaseDirs(project.testSourceDirectories)
@@ -127,8 +138,8 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
     }.toMap
   }
 
-  private def getSharedSourceRoots(sharedRoots: Seq[SharedSourceRoot]): Map[SourceRoot.Scope, Map[SourceRoot.Kind, Set[String]]] =
-    sharedRoots.map(_.sourceRoot)
+  private def getSharedSourceRoots(sharedRoots: Seq[SharedSourcesGroup]): Map[SourceRoot.Scope, Map[SourceRoot.Kind, Set[String]]] =
+    sharedRoots.flatMap(_.sourceRoots)
       .groupBy(_.scope)
       .view.mapValues(_.groupBy(_.kind).view.mapValues(_.map(sr => FileUtil.toSystemIndependentName(sr.directory.getPath)).toSet).toMap)
       .toMap

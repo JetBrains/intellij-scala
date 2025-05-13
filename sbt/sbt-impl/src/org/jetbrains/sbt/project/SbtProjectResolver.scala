@@ -338,7 +338,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val buildProjectsGroup = Seq(BuildProjectsGroup(projectUri, dummyRootProject, Nil, projectTmpName))
     val projectToModule = createIntelliJModuleNodes(
       buildProjectsGroup,
-      sharedRoots = Nil,
+      groupedSharedRoots = Nil,
       libraryNodes,
       projectRoot,
     )
@@ -410,13 +410,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val projectLibraryNodes = createLibraries(data, projects)
     projectNode.addAll(projectLibraryNodes)
 
-    val sharedRoots: Seq[SharedSourceRoot] =
-      sharedAndExternalRootsIn(projects)
+    val groupedSharedRoots = groupSharedRoots(projects)
 
     val buildProjectsGroups: Seq[BuildProjectsGroup] = createBuildProjectGroups(projects)
     val projectToModule: Map[ProjectData, ModuleSourceSet] = createIntelliJModuleNodes(
       buildProjectsGroups,
-      sharedRoots,
+      groupedSharedRoots,
       projectLibraryNodes,
       projectRootFile,
     )
@@ -430,7 +429,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val defaultModuleFilesDirectory = getDefaultModuleFilesDirectory(projectRootFile)
     addSharedSourceModules(
-      sharedRoots,
+      groupedSharedRoots,
       projectToModule,
       projectLibraryNodes,
       defaultModuleFilesDirectory,
@@ -544,14 +543,14 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   private def createIntelliJModuleNodes(
     projectsGrouped: Seq[BuildProjectsGroup],
-    sharedRoots: Seq[SharedSourceRoot],
+    groupedSharedRoots: Seq[SharedSourcesGroup],
     projectLibraryNodes: Seq[LibraryNode],
     projectRoot: File,
   )(implicit context: ImportContext): Map[ProjectData, ModuleSourceSet] = {
     val librariesData = projectLibraryNodes.map(_.data)
 
     val projectsSourcesDetails =
-      if (context.useSeparateProdTestSources) resolveProjectsSourcesDetails(projectsGrouped, sharedRoots)
+      if (context.useSeparateProdTestSources) resolveProjectsSourcesDetails(projectsGrouped, groupedSharedRoots)
       else Map.empty[ProjectData, ProjectSourcesDetails]
 
     val projectToModule: Iterable[(ProjectData, ModuleSourceSet)] = projectsGrouped.flatMap { buildProjectsGroup =>

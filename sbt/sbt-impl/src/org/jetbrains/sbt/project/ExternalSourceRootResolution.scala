@@ -29,16 +29,13 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver with ContentRootsR
   protected case class CompleteModuleSourceSet(override val parent: ModuleDataNodeType, main: SbtSourceSetModuleNode, test: SbtSourceSetModuleNode) extends ModuleSourceSet(parent)
 
   protected def addSharedSourceModules(
-    sharedRoots: Seq[SharedSourceRoot],
+    groupedSharedRoots: Seq[SharedSourcesGroup],
     projectToSourceSet: Map[sbtStructure.ProjectData, ModuleSourceSet],
     libraryNodes: Seq[LibraryNode],
     defaultModuleFilesDirectory: String,
     separateProdTestSources: Boolean,
     buildProjectsGroups: Seq[BuildProjectsGroup]
   ): Unit = {
-    val grouped: Seq[SharedSourcesGroup] =
-      groupSharedRoots(sharedRoots)
-
     val createSourceModule: (SharedSourcesGroup, Seq[LibraryNode], String, Seq[BuildProjectsGroup]) => ModuleDataNodeType =
       // note: we know that if separateProdTestSources are enabled, projectToSourceSet values will be of type CompleteModuleSourceSet
       // and if not, values will be of type PrentModuleSourceSet
@@ -47,7 +44,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver with ContentRootsR
       else
         createSharedSourcesModuleNodeLegacy(_, castMapValues[PrentModuleSourceSet](projectToSourceSet), _, _, _)
 
-    grouped.map(createSourceModule(_, libraryNodes, defaultModuleFilesDirectory, buildProjectsGroups))
+    groupedSharedRoots.map(createSourceModule(_, libraryNodes, defaultModuleFilesDirectory, buildProjectsGroups))
   }
 
   protected def addModuleDependencies(
@@ -617,7 +614,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver with ContentRootsR
    * @note It's somehow similar to `org.jetbrains.bsp.project.importing.BspResolverLogic.sharedSourceEntries`
    *       (analog for the BSP external system)
    */
-  protected def sharedAndExternalRootsIn(projects: Seq[sbtStructure.ProjectData])
+  private def sharedAndExternalRootsIn(projects: Seq[sbtStructure.ProjectData])
                                         (implicit context: ImportContext): Seq[SharedSourceRoot] = {
     val projectRootsExternal: Seq[ProjectSourceRoot] =
       getProjectSourceRootsExternalToAllProjects(projects)
@@ -689,7 +686,8 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver with ContentRootsR
     }
   }
 
-  private def groupSharedRoots(sharedSourceRoots: Seq[SharedSourceRoot]): Seq[SharedSourcesGroup] = {
+  protected def groupSharedRoots(projects: Seq[ProjectData])(implicit context: ImportContext): Seq[SharedSourcesGroup] = {
+    val sharedSourceRoots = sharedAndExternalRootsIn(projects)
     val nameProvider = new SharedSourceRootNameProvider()
 
     // TODO consider base/projects correspondence
@@ -744,7 +742,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver with ContentRootsR
    * @param sourceRoots list of source roots which will be added to the shared sources module
    * @param projects    list of projects that should depend on the shared sources module
    */
-  private case class SharedSourcesGroup(
+  protected case class SharedSourcesGroup(
     name: String,
     sourceRoots: Seq[SourceRoot],
     projects: Seq[sbtStructure.ProjectData]
