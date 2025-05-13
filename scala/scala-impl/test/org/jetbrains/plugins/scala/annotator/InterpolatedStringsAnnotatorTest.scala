@@ -67,11 +67,15 @@ class InterpolatedStringsAnnotatorTest extends base.ScalaLightCodeInsightFixture
   }
 
   def testInvalidArgumentString(): Unit = {
-    messageExists("e\"\"(s1)", "Error(e,Type mismatch, expected: Int, actual: String)")
+    messageExists("e\"\"(s1)", "Error(s1,Type mismatch, expected: Int, actual: String)")
   }
 
   def testTooManyArguments(): Unit = {
-    messageExists("e\"\"(i1, i2)", "Error(e,Too many arguments)")
+    messageExists("e\"\"(i1, i2)", "Error(, i,Too many arguments)")
+  }
+
+  def testMissingArgumentsAreOk(): Unit = {
+    emptyMessages("e\"\"")
   }
 }
 

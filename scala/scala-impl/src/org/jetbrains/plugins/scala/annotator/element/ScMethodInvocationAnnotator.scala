@@ -9,7 +9,8 @@ import org.jetbrains.plugins.scala.annotator.createFromUsage.{CreateApplyQuickFi
 import org.jetbrains.plugins.scala.annotator.element.ScReferenceAnnotator.{createFixesByUsages, nameWithSignature}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
@@ -167,12 +168,14 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
   }
 
   @tailrec
-  private def isOuterMostCall(e: PsiElement): Boolean =
-    e.getParent match {
-      case MethodInvocation(`e`, _) => false
+  private def isOuterMostCall(e: ScalaPsiElement): Boolean = {
+    val org = e.getDeepSameElementInContext
+    e.getContext match {
+      case MethodInvocation(`org`, _) => false
       case p: ScParenthesisedExpr => isOuterMostCall(p)
       case _ => true
     }
+  }
 
   private def countArgumentClauses(call: MethodInvocation): Int = {
     @tailrec
@@ -188,8 +191,11 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
   private def checkMissingArgumentClauses(call: MethodInvocation)(implicit holder: ScalaAnnotationHolder): Unit = {
     def functionTypeExpected = call.expectedType().exists(FunctionType.isFunctionType)
     def isScala3dotcErrorsMode: Boolean = ScalaHighlightingMode.showCompilerErrorsScala3(call.getProject) && call.isInScala3Module
+    def isInterpolatedStringExpr: Boolean =
+      call.child.is[ScInterpolatedStringLiteral]
+    def isInUnderscoreSection = call.parent.exists(_.is[ScUnderscoreSection])
 
-    if (!isScala3dotcErrorsMode && isOuterMostCall(call) && !functionTypeExpected && !call.parent.exists(_.is[ScUnderscoreSection])) {
+    if (!isScala3dotcErrorsMode && isOuterMostCall(call) && !functionTypeExpected && !isInterpolatedStringExpr && !isInUnderscoreSection) {
       for {
         ref           <- call.getEffectiveInvokedExpr.asOptionOfUnsafe[ScReference]
         resolveResult <- call.applyOrUpdateElement.orElse(ref.bind())
