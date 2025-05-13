@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.lang.navigation
 
-import com.intellij.ide.actions.searcheverywhere.PSIPresentationBgRendererWrapper.PsiItemWithPresentation
+import com.intellij.ide.actions.searcheverywhere.PSIPresentationBgRendererWrapper.ItemWithPresentation
 import com.intellij.ide.actions.searcheverywhere.{SearchEverywhereManager, SearchEverywhereManagerImpl, SearchEverywhereUI, SymbolSearchEverywhereContributor}
 import com.intellij.openapi.actionSystem.impl.SimpleDataContext
 import com.intellij.openapi.actionSystem.{ActionUiKind, AnActionEvent, Presentation}
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
+import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertC
 import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 
 import java.util
-import java.util.concurrent.{Future, TimeUnit}
+import java.util.concurrent.Future
 import scala.concurrent.duration.{Duration, DurationInt}
 import scala.jdk.CollectionConverters._
 
@@ -37,12 +37,11 @@ abstract class GoToSymbolTestBase extends ScalaLightCodeInsightFixtureTestCase {
    *
    * Ideally, it would be nice to have some API in the platform, see IJPL-174061
    */
+  @RequiresBackgroundThread
   protected def getGotoSymbolE2EResults(
     searchText: String,
     waitTimeout: Duration = 10.seconds
   ): Seq[GoToElementData] = {
-    assert(!ApplicationManager.getApplication.isDispatchThread, "This method must not be called on EDT as it waits for UI elements to appear")
-
     //NOTE: we need to create `SearchEverywhereUI` on the UI thread, otherwise there will be some exceptions
     val ui: SearchEverywhereUI = invokeAndWait {
       val searchManager = SearchEverywhereManager.getInstance(getProject).asInstanceOf[SearchEverywhereManagerImpl]
@@ -60,8 +59,9 @@ abstract class GoToSymbolTestBase extends ScalaLightCodeInsightFixtureTestCase {
       ui.findElementsForPattern(searchText)
     }
 
-    val items: Seq[PsiItemWithPresentation] =
-      elementsFuture.get(waitTimeout.toSeconds, TimeUnit.SECONDS).asScala.map(_.asInstanceOf[PsiItemWithPresentation]).toSeq
+    val Duration(len, unit) = waitTimeout
+    //noinspection ApiStatus,UnstableApiUsage
+    val items = elementsFuture.get(len, unit).asScala.collect { case item: ItemWithPresentation[_] => item }.toSeq
 
     // Free the popup to avoid memory leaks
     invokeAndWait {
