@@ -1458,4 +1458,44 @@ class TupleParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  // SCL-23677
+  def test_named_tuple_patterns_in_normal_tuple_pattern(): Unit = checkTree(
+    """
+      |val (name, age = a) = ???
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScPatternDefinition: name, a
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(val)('val')
+      |    PsiWhiteSpace(' ')
+      |    ListOfPatterns
+      |      TuplePattern
+      |        PsiElement(()('(')
+      |        ArgumentPatterns
+      |          ReferencePattern: name
+      |            PsiElement(identifier)('name')
+      |          PsiElement(,)(',')
+      |          PsiWhiteSpace(' ')
+      |          PsiErrorElement:All components of a named tuple pattern must be named.
+      |            PsiElement(identifier)('age')
+      |            PsiWhiteSpace(' ')
+      |            PsiElement(=)('=')
+      |          PsiWhiteSpace(' ')
+      |          ReferencePattern: a
+      |            PsiElement(identifier)('a')
+      |        PsiElement())(')')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    ReferenceExpression: ???
+      |      PsiElement(identifier)('???')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }

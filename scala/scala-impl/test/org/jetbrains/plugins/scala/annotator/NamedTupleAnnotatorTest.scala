@@ -73,4 +73,18 @@ class NamedTupleAnnotatorTest extends ScalaHighlightingTestBase {
       |Error((name = n, age = a),Type (String, Int) cannot be matched by a named tuple pattern, because it's not a named tuple)
       |""".stripMargin
   )
+
+  def test_wrong_component_number(): Unit = assertErrorsText(
+    """
+      |val person1 = (name = "Bob", age = 33, married = true)
+      |  person1 match
+      |    case (name, age) => ()           // error
+      |    case (name, age, married) => ()  // ok
+      |    case (n, a, m, x) => ()          // error
+      |""".stripMargin,
+    """
+      |Error((name, age),Pattern type is incompatible with expected type, found: (Any, Any), required: (name: String, age: Int, married: Boolean))
+      |Error((n, a, m, x),Pattern type is incompatible with expected type, found: (Any, Any, Any, Any), required: (name: String, age: Int, married: Boolean))
+      |""".stripMargin
+  )
 }
