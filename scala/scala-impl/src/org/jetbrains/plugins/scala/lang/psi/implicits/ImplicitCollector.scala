@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.MostSpecificUtil
@@ -917,7 +918,7 @@ class ImplicitCollector(
         val applicabilityCheck =
           if (cand.isExtensionCall) {
             val candName = cand.renamed.getOrElse(cand.name)
-            Option.when(data.refName == candName)(cand)
+            Option.when(ScalaNamesUtil.equivalent(data.refName, candName))(cand)
           } else extensionConversionCheck(data, cand)
 
         applicabilityCheck.orElse(

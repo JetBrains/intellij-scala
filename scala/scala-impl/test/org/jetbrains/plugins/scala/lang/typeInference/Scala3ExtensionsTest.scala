@@ -700,4 +700,29 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
       |}
       |""".stripMargin
   )
+
+  // SCL-23876
+  def testExtensionMethodsWithBackticks(): Unit = checkTextHasNoErrors(
+    """
+      |implicit class Blub(s: String) {
+      |  def test1 = 3
+      |  def `test2` = 3
+      |}
+      |
+      |extension (str: String) def test3: Unit = ()
+      |extension (str: String) def `test4`: Unit = ()
+      |
+      |"".test1    // ok
+      |"".`test1`  // ok
+      |
+      |"".test2    // ok
+      |"".`test2`  // ok
+      |
+      |"".test3    // ok
+      |"".`test3`  // doesn't resolve
+      |
+      |"".test4    // doesn't resolve
+      |"".`test4`  // ok
+      |""".stripMargin
+  )
 }
