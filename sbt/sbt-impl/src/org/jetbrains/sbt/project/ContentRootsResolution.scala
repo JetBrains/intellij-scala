@@ -53,7 +53,7 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
   /**
    * Represents resolved source roots and base directories for both main and test scope in a project.
    *  - `source roots` are directories containing source files (e.g., `src/main/scala`, `src/test/scala`).
-   *  - `source base directories` are base paths derived from the `sourceDirectory` key in the sbt structure plugin.
+   *  - `source base directories` are base paths derived from the `sourceDirectory` key (e.g., `src/main`, `src/test`).
    *     For more details, check `org.jetbrains.sbt.structure.ProjectData#mainSourceDirectories()`.
    */
   protected case class ProjectSourcesDetails(
@@ -112,9 +112,13 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
 
     // The mainSourceDirectories/testSourceDirectories values are derived from the sourceDirectory sbt key.
     // In the ideal/default case, for example, the mainSourceDirectories value is src/main, and it contains source paths like scala, java, etc.
-    // However, users might modify the sourceDirectory key, making it the same as another project's source directory or within the same project but in a different scope.
-    // This is why it's necessary to collect already reserved base source directories to prevent duplicates.
-    val alreadyUsedSourceBaseDirs = mutable.Buffer.empty[String]
+    // However, users might modify the sourceDirectory key, making it the same as another project's source directory (as is present in https://github.com/scala/scala3)
+    // or within the same project but in a different scope. This is why it's necessary to collect already reserved base source directories to prevent duplicates.
+    //
+    // It might be worth considering creating a shared sources module when source base directories are duplicated across multiple projects,
+    // and these directories are located within each project's root. Currently, shared sources modules are created only for roots located outside of the project root.
+    // See https://youtrack.jetbrains.com/issue/SCL-23867/The-project-doesnt-compile-when-there-is-a-shared-directory-between-2-modules
+    val alreadyUsedSourceBaseDirs = mutable.HashSet.empty[String]
     projects.map { project =>
       val sources = projectToSources.getOrElse(project, Seq.empty)
 
@@ -131,8 +135,9 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
           .filterNot(sharedSourcesBaseDirs.contains)
 
       val mainSourceBaseDirs = getValidSourceBaseDirs(project.mainSourceDirectories)
+      alreadyUsedSourceBaseDirs ++= mainSourceBaseDirs
       val testSourceBaseDirs = getValidSourceBaseDirs(project.testSourceDirectories)
-      alreadyUsedSourceBaseDirs ++= (mainSourceBaseDirs ++ testSourceBaseDirs)
+      alreadyUsedSourceBaseDirs ++= testSourceBaseDirs
 
       project -> ProjectSourcesDetails(mainSources, testSources, mainSourceBaseDirs, testSourceBaseDirs)
     }.toMap

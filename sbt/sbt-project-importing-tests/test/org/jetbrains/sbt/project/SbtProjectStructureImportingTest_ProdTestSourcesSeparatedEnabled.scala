@@ -3133,6 +3133,117 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
       }
     )
 
+  def testTheSameSourceBaseDirsInProject(): Unit =
+    runTest(
+      new project("root") {
+        lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+        libraries := scalaLibraries
+
+        lazy val root: module = new module("root") {
+          contentRoots := Seq("%PROJECT_ROOT%")
+          excluded := Seq("%PROJECT_ROOT%/target")
+          libraryDependencies := Nil
+          moduleDependencies ++= Seq(
+            new dependency(rootMain) { isExported := false },
+            new dependency(rootTest) { isExported := false }
+          )
+        }
+        lazy val rootMain: module = new module("root.main") {
+          libraryDependencies := scalaLibraries
+          moduleDependencies := Nil
+          contentRoots := Seq(
+            "%PROJECT_ROOT%/dummy",
+            "%PROJECT_ROOT%/target/scala-2.13/src_managed/main",
+            "%PROJECT_ROOT%/target/scala-2.13/resource_managed/main",
+          )
+          emptySourceResourceDirs(this)
+        }
+        lazy val rootTest: module = new module("root.test") {
+          libraryDependencies := scalaLibraries
+          moduleDependencies += new dependency(rootMain) { isExported := false }
+          contentRoots := Seq(
+            "%PROJECT_ROOT%/target/scala-2.13/src_managed/test",
+            "%PROJECT_ROOT%/target/scala-2.13/resource_managed/test"
+          )
+          emptySourceResourceDirs(this)
+        }
+
+        modules := Seq(root, rootMain, rootTest)
+      }
+    )
+
+  // A similar case is present in https://github.com/scala/scala3
+  def testTheSameSourceBaseDirsInDifferentProjects(): Unit =
+    runTest(
+      new project("root") {
+        lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+        libraries := scalaLibraries
+
+        lazy val root: module = new module("root") {
+          contentRoots := Seq("%PROJECT_ROOT%")
+          excluded := Seq("%PROJECT_ROOT%/target")
+          libraryDependencies := Nil
+          moduleDependencies ++= Seq(
+            new dependency(rootMain) { isExported := false },
+            new dependency(rootTest) { isExported := false }
+          )
+          emptySourceResourceDirs(this)
+        }
+        lazy val rootMain: module = new module("root.main") {
+          libraryDependencies := scalaLibraries
+          moduleDependencies := Nil
+          contentRoots := Seq(
+            "%PROJECT_ROOT%/target/scala-2.13/src_managed/main",
+            "%PROJECT_ROOT%/target/scala-2.13/resource_managed/main",
+          )
+          emptySourceResourceDirs(this)
+        }
+        lazy val rootTest: module = new module("root.test") {
+          libraryDependencies := scalaLibraries
+          moduleDependencies += new dependency(rootMain) { isExported := false }
+          contentRoots := Seq(
+            "%PROJECT_ROOT%/src/test",
+            "%PROJECT_ROOT%/target/scala-2.13/src_managed/test",
+            "%PROJECT_ROOT%/target/scala-2.13/resource_managed/test"
+          )
+          emptySourceResourceDirs(this)
+        }
+
+        lazy val foo: module = new module("root.foo") {
+          contentRoots := Seq("%PROJECT_ROOT%/foo")
+          excluded := Seq("%PROJECT_ROOT%/foo/target")
+          libraryDependencies := Nil
+          moduleDependencies ++= Seq(
+            new dependency(fooMain) { isExported := false },
+            new dependency(fooTest) { isExported := false }
+          )
+          emptySourceResourceDirs(this)
+        }
+        lazy val fooMain: module = new module("root.foo.main") {
+          libraryDependencies := scalaLibraries
+          moduleDependencies := Nil
+          contentRoots := Seq(
+            "%PROJECT_ROOT%/foo/src/main",
+            "%PROJECT_ROOT%/foo/target/scala-2.13/src_managed/main",
+            "%PROJECT_ROOT%/foo/target/scala-2.13/resource_managed/main",
+          )
+          emptySourceResourceDirs(this)
+        }
+        lazy val fooTest: module = new module("root.foo.test") {
+          libraryDependencies := scalaLibraries
+          moduleDependencies += new dependency(fooMain) { isExported := false }
+          contentRoots := Seq(
+            "%PROJECT_ROOT%/foo/src/test",
+            "%PROJECT_ROOT%/foo/target/scala-2.13/src_managed/test",
+            "%PROJECT_ROOT%/foo/target/scala-2.13/resource_managed/test"
+          )
+          emptySourceResourceDirs(this)
+        }
+
+        modules := Seq(root, rootMain, rootTest, foo, fooMain, fooTest)
+      }
+    )
+
   private def createModuleWithSourceSet(moduleName: String, group: Array[String] = null): Seq[module] =
     Seq(moduleName, s"$moduleName.main", s"$moduleName.test").map { name =>
       new module(name, group)
