@@ -157,24 +157,6 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
     val jdk: Sdk = PathUtilEx.getAnyJdk(project)
     assert(jdk != null, "JDK IS NULL")
 
-    // NOTE: do not accidentally add all-project classes scope (e.g. using JDK_AND_CLASSES):
-    // it adds jars from sbt-build module which contains scala library with version different from users scala version
-    // which can leads to runtime exceptions
-    jp.configureByProject(project, JavaParameters.JDK_ONLY, jdk)
-    jp.setWorkingDirectory(project.baseDir.getPath)
-    jp.setCharset(null)
-    jp.setMainClass(MainClassScala2)
-
-    val vmParamList = jp.getVMParametersList
-    if (maxHeapSize.nonEmpty) {
-      vmParamList.add(s"-Xmx${maxHeapSize}m")
-      vmParamList.add(s"-Xmx${maxHeapSize}m")
-    }
-
-    val paramList = jp.getProgramParametersList
-
-    val paramListSimple = mutable.ListBuffer.empty[String]
-
     val modules = ModuleManager.getInstance(project).getModules
 
     val sourcePath = OrderEnumerator
@@ -194,9 +176,9 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
     }
 
     def collectCPSources(
-        target: OrderEnumerator,
-        classesCollector: collection.mutable.HashSet[String],
-        sourcesCollector: collection.mutable.HashSet[String]
+      target: OrderEnumerator,
+      classesCollector: collection.mutable.HashSet[String],
+      sourcesCollector: collection.mutable.HashSet[String]
     ): Unit = {
       Set(
         classesCollector -> target.classes,
@@ -283,6 +265,24 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
         s"""Scaladoc generation is not supported for Scala 3, use sbt command instead"""
       )
     }
+
+    // NOTE: do not accidentally add all-project classes scope (e.g. using JDK_AND_CLASSES):
+    // it adds jars from sbt-build module which contains scala library with version different from users scala version
+    // which can leads to runtime exceptions
+    jp.configureByProject(project, JavaParameters.JDK_ONLY, jdk)
+    jp.setWorkingDirectory(project.baseDir.getPath)
+    jp.setCharset(null)
+    jp.setMainClass(MainClassScala2)
+
+    val vmParamList = jp.getVMParametersList
+    if (maxHeapSize.nonEmpty) {
+      vmParamList.add(s"-Xmx${maxHeapSize}m")
+      vmParamList.add(s"-Xmx${maxHeapSize}m")
+    }
+
+    val paramList = jp.getProgramParametersList
+
+    val paramListSimple = mutable.ListBuffer.empty[String]
 
     paramListSimple += "-d"
     paramListSimple += outputDir
