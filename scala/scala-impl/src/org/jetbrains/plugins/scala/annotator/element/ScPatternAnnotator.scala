@@ -140,6 +140,8 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
                 holder.createErrorAnnotation(pat, ScalaBundle.message("cannot.use.positional.pattern.when.named.patterns.are.used"))
             }
           case _ =>
+            val message = ScalaBundle.message("type.cannot.be.matched.by.a.named.tuple.pattern", exprType.presentableText)
+            holder.createErrorAnnotation(nt, message)
         }
       case _  if patType.isFinalType && neverMatches =>
         val (exprTypeText, patTypeText) = TypePresentation.different(exprType, patType)

@@ -63,4 +63,14 @@ class NamedTupleAnnotatorTest extends ScalaHighlightingTestBase {
       |Error(_80,_80 cannot be used as the name of a tuple element because it is a regular tuple selector)
       |""".stripMargin
   )
+
+  def test_tuple_unapply_with_names(): Unit = assertErrorsText(
+    """
+      |("Foo", 2) match
+      |  case (name = n, age = a) => ()  // error
+      |""".stripMargin,
+    """
+      |Error((name = n, age = a),Type (String, Int) cannot be matched by a named tuple pattern, because it's not a named tuple)
+      |""".stripMargin
+  )
 }
