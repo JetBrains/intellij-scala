@@ -12,15 +12,25 @@ object ScNamedTupleAnnotator extends ElementAnnotator[ScNamedTuple] {
     annotateComponents(element.components)
   }
 
+  private val invalidNumberedComponentNameRegex = raw"_\d+".r
+
   def annotateComponents(comps: Seq[ScNamedTupleComponent])(implicit holder: ScalaAnnotationHolder): Unit = {
     val seen = mutable.Set.empty[String]
 
     for (comp <- comps) {
+      lazy val nameElement = comp.nameElement.getOrElse(comp)
       val name = comp.name
       if (!seen.add(name)) {
         holder.createErrorAnnotation(
-          comp.nameElement.getOrElse(comp),
+          nameElement,
           ScalaBundle.message("duplicate.name.in.named.tuple.name", name)
+        )
+      }
+
+      if (invalidNumberedComponentNameRegex.matches(name)) {
+        holder.createErrorAnnotation(
+          nameElement,
+          ScalaBundle.message("name.cannot.be.used.as.the.name.of.a.tuple.element", name)
         )
       }
     }

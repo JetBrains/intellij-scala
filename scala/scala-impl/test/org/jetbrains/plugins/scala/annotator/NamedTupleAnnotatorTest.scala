@@ -48,4 +48,19 @@ class NamedTupleAnnotatorTest extends ScalaHighlightingTestBase {
       |Error(c,Duplicate name in named tuple: c)
       |""".stripMargin
   )
+
+  def test_invalid_named_tuple_names(): Unit = assertErrorsText(
+    """
+      |val illformed1 = (_2 = 1)
+      |val illformed2 = (_80 = 1)
+      |type Illformed1 = (_1: Int)
+      |type Illformed2 = (_80: Int)
+      |""".stripMargin,
+    """
+      |Error(_2,_2 cannot be used as the name of a tuple element because it is a regular tuple selector)
+      |Error(_80,_80 cannot be used as the name of a tuple element because it is a regular tuple selector)
+      |Error(_1,_1 cannot be used as the name of a tuple element because it is a regular tuple selector)
+      |Error(_80,_80 cannot be used as the name of a tuple element because it is a regular tuple selector)
+      |""".stripMargin
+  )
 }
