@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.text.TextToTextTestBase
 
 class ScalaCompilerTest extends TextToTextTestBase(
   Seq.empty,
-  Seq("dotty", "org.scalajs.ir", "scala.quoted.runtime.impl"), Set.empty, 919,
+  Seq("dotty", "scala.quoted.runtime.impl"), Set.empty, 919,
   Set(
     "dotty.tools.backend.jvm.BTypesFromSymbols", // New error since Scala 3.3.1
     "dotty.tools.backend.jvm.CodeGen", // New error since Scala 3.3.1
