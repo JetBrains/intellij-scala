@@ -1,14 +1,15 @@
 package org.jetbrains.bsp
 
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.projectRoots.impl.{JavaHomeFinder, SdkConfigurationUtil}
+import com.intellij.openapi.projectRoots.impl.SdkConfigurationUtil
 import com.intellij.openapi.projectRoots.{JavaSdk, Sdk}
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.util.lang.JavaVersion
 import org.jetbrains.plugins.scala.project.external.SdkUtils
+import org.jetbrains.sbt.project.SbtProcessJdkGuesser
 
-import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 object BspJdkUtil {
 
@@ -24,10 +25,12 @@ object BspJdkUtil {
   private def createSdkWithMostRecentFoundJDK: Option[Sdk] = {
     val jdkType = JavaSdk.getInstance
 
-    val detectedJavaHomes: Seq[(String, JavaVersion)] = JavaHomeFinder.suggestHomePaths(false).asScala.toSeq
-      .filter(jdkType.isValidSdkHome)
-      .map(p => (p, JavaVersion.tryParse(p)))
-      .filter(t => t._2 != null)
+    val detectedJavaHomes: Seq[(String, JavaVersion)] = ProgressManager.getInstance.runProcessWithProgressSynchronously(
+      () => SbtProcessJdkGuesser.findAllExistingJavaPaths(jdkType),
+      BspBundle.message("bsp.import.detecting.jdk"),
+      true,
+      null
+    )
 
     val latestJavaHome: Option[String] = detectedJavaHomes
       .maxByOption(_._2)

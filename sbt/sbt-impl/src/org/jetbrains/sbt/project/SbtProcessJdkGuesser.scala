@@ -5,7 +5,7 @@ import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.projectRoots.impl.{JavaHomeFinder, SdkConfigurationUtil}
 import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkVersion, ProjectJdkTable, Sdk}
 import com.intellij.openapi.util.ThrowableComputable
-import com.intellij.util.concurrency.annotations.RequiresEdt
+import com.intellij.util.concurrency.annotations.{RequiresBackgroundThread, RequiresEdt}
 import com.intellij.util.lang.JavaVersion
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions.inWriteAction
@@ -87,6 +87,19 @@ object SbtProcessJdkGuesser {
     SdkCandidate(sdksMatchingVersion.headOption, sdksAllSorted)
   }
 
+  /**
+   * Tries to find all existing sdk home paths on the local machine
+   *
+   * @return suggested sdk home paths and corresponding versions
+   */
+  @RequiresBackgroundThread
+  def findAllExistingJavaPaths(jdkType: JavaSdk): Seq[(String, JavaVersion)] = {
+    val javaPaths = JavaHomeFinder.suggestHomePaths(false).asScala.toSeq
+    javaPaths
+      .filter(jdkType.isValidSdkHome)
+      .flatMap { path => Option(JavaVersion.tryParse(path)).map(path -> _) }
+  }
+
   private def isSbtJdkCompatible(@Nullable sdk: JavaSdkVersion, sbtVersion: SbtVersion): Boolean = {
     sdk != null && JdkSbtCompatibilityChecker.isSbtAndJdkVersionCompatible(sdk.getMaxLanguageLevel.toJavaVersion, sbtVersion, strict = true)
   }
@@ -96,18 +109,13 @@ object SbtProcessJdkGuesser {
 
 
   /** Alternative for [[com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl#guessJdk()]] */
+  @RequiresBackgroundThread
   private def createJdkWithSuitableVersion(sbtVersion: SbtVersion): Option[Sdk] = {
-    val javaPaths0 = JavaHomeFinder.suggestHomePaths(false).asScala.toSeq
+    val javaPaths0 = findAllExistingJavaPaths(jdkType)
 
-    val javaPaths =
-      javaPaths0
-        .filter(jdkType.isValidSdkHome)
-        .flatMap { path =>
-          for {
-            javaVersion <- Option(JavaVersion.tryParse(path))
-            sdkVersion <- Option(JavaSdkVersion.fromJavaVersion(javaVersion))
-          } yield JavaPathWithVersion(path, javaVersion, sdkVersion)
-        }
+    val javaPaths = javaPaths0.flatMap { case (path, version) =>
+      Option(JavaSdkVersion.fromJavaVersion(version)).map(JavaPathWithVersion(path, version, _))
+    }
 
     val filteredBySbt = javaPaths.filter(javaPath => isSbtJdkCompatible(javaPath.sdkVersion, sbtVersion))
 
