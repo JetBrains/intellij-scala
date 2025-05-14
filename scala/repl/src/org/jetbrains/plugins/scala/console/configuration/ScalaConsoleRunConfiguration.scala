@@ -184,10 +184,10 @@ class ScalaConsoleRunConfiguration(
     }
 
     new JavaParameters().tap { params =>
+      params.getClassPath.addScalaCompilerClassPath(module)
       params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS)
 
       params.getVMParametersList.addParametersString(javaOptions)
-      params.getClassPath.addScalaCompilerClassPath(module)
       params.setShortenCommandLine(getShortenCommandLineMethod(Option(params.getJdk)), project)
       params.getClassPath.addRunners()
       params.setWorkingDirectory(workingDirectory)
