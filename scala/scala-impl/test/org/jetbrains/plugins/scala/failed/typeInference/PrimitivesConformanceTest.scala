@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.failed.typeInference
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
 
-class PrimitivesConformanceTestBase extends TypeInferenceTestBase {
+abstract class PrimitivesConformanceTestBase extends TypeInferenceTestBase {
 
   //SCL-5358
   def testSCL5358(): Unit = assertErrorsText(
@@ -165,59 +165,88 @@ class PrimitivesConformanceTestBase extends TypeInferenceTestBase {
       |""".stripMargin
   )
 
-  def testDoubleCoercion(): Unit = assertNoErrors(
+  def testDoubleCoercion(): Unit = assertErrorsText(
     """val double1: Double = 1.0f
       |val double2: Double = 1.0d
       |val double3: Double = 1
       |val double4: Double = 1.5
+      |
+      |val small_pos: Double     =  1e-323
+      |val small_neg: Double     = -1e-323
+      |val too_small_pos: Double =  1e-324
+      |val too_small_neg: Double = -1e-324
+      |
+      |val large_pos: Double =      1.7976931348623157e308
+      |val large_neg: Double =     -1.7976931348623157e308
+      |val too_large_pos: Double =  1.7976931348623157e309
+      |val too_large_neg: Double = -1.7976931348623157e309
       |
       |val double_from_byte: Double = 1 : Byte
       |val double_from_char: Double = 1 : Char
       |val double_from_short: Double = 1 : Short
       |val double_from_int: Double = 1 : Int
       |val double_from_long: Double = 1L
+      |""".stripMargin,
+    """
+      |Error(1e-324,Number is too small for a Double)
+      |Error(-1e-324,Number is too small for a Double)
+      |Error(1.7976931348623157e309,Number is too large for a Double)
+      |Error(-1.7976931348623157e309,Number is too large for a Double)
       |""".stripMargin
   )
+
+  val floatCoercionText =
+    """val double1: Float = 1.0f
+      |val double2: Float = 1.0d
+      |val double3: Float = 1
+      |val double4: Float = 1.5
+      |
+      |val small_pos: Float =      1.4e-45f
+      |val small_neg: Float =     -1.4e-45f
+      |val too_small_pos: Float =  1.4e-46f
+      |val too_small_neg: Float = -1.4e-46f
+      |
+      |val large_pos: Float =      3.4028235e38f
+      |val large_neg: Float =     -3.4028235e38f
+      |val too_large_pos: Float =  3.4028235e39f
+      |val too_large_neg: Float = -3.4028235e39f
+      |
+      |val double_from_byte: Float = 1 : Byte
+      |val double_from_char: Float = 1 : Char
+      |val double_from_short: Float = 1 : Short
+      |val double_from_int: Float = 1 : Int
+      |val double_from_long: Float = 1L
+      |""".stripMargin
 }
 
-class PrimitivesConformanceTest_Scala2 extends TypeInferenceTestBase {
+class PrimitivesConformanceTest_Scala2 extends PrimitivesConformanceTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version.isScala2
 
   def testFloatCoercion(): Unit = assertErrorsText(
-    """val double1: Float = 1.0f
-      |val double2: Float = 1.0d
-      |val double3: Float = 1
-      |val double4: Double = 1.5
-      |
-      |val double_from_byte: Float = 1 : Byte
-      |val double_from_char: Float = 1 : Char
-      |val double_from_short: Float = 1 : Short
-      |val double_from_int: Float = 1 : Int
-      |val double_from_long: Float = 1L
-      |""".stripMargin,
+    floatCoercionText,
     """
       |Error(1.0d,Expression of type Double doesn't conform to expected type Float)
+      |Error(1.5,Expression of type Double doesn't conform to expected type Float)
+      |Error(1.4e-46f,Number is too small for a Float)
+      |Error(-1.4e-46f,Number is too small for a Float)
+      |Error(3.4028235e39f,Number is too large for a Float)
+      |Error(-3.4028235e39f,Number is too large for a Float)
       |""".stripMargin
   )
 }
 
-class PrimitivesConformanceTest_Scala3 extends TypeInferenceTestBase {
+class PrimitivesConformanceTest_Scala3 extends PrimitivesConformanceTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version.isScala3
 
   def testFloatCoercion(): Unit = assertErrorsText(
-    """val double1: Float = 1.0f
-      |val double2: Float = 1.0d
-      |val double3: Float = 1
-      |val double4: Double = 1.5
-      |
-      |val double_from_byte: Float = 1 : Byte
-      |val double_from_char: Float = 1 : Char
-      |val double_from_short: Float = 1 : Short
-      |val double_from_int: Float = 1 : Int
-      |val double_from_long: Float = 1L
-      |""".stripMargin,
+    floatCoercionText,
     """
       |Error(1.0d,Expression of type Double doesn't conform to expected type Float)
+      |Error(1.5,Expression of type Double doesn't conform to expected type Float)
+      |Error(1.4e-46f,Number is too small for a Float)
+      |Error(-1.4e-46f,Number is too small for a Float)
+      |Error(3.4028235e39f,Number is too large for a Float)
+      |Error(-3.4028235e39f,Number is too large for a Float)
       |""".stripMargin
   )
 }

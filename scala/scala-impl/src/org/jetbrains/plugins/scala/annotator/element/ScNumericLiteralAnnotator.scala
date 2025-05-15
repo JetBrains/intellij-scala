@@ -9,10 +9,11 @@ import org.jetbrains.plugins.scala.annotator.{Bin, IntegerKind, Oct, ScalaAnnota
 import org.jetbrains.plugins.scala.extensions.ElementText
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral.Numeric
-import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScIntegerLiteral, ScLongLiteral}
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScFloatingPointLiteral.FloatingPointParseResult
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScDoubleLiteral, ScFloatLiteral, ScFloatingPointLiteral, ScIntegerLiteral, ScLongLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScPrefixExpr}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
-import org.jetbrains.plugins.scala.{ScalaBundle, project}
+import org.jetbrains.plugins.scala.{NlsString, ScalaBundle, project}
 
 sealed abstract class ScNumericLiteralAnnotator[L <: Numeric : reflect.ClassTag](isLong: Boolean)
   extends ElementAnnotator[L]
@@ -191,4 +192,25 @@ object ScLongLiteralAnnotator extends ScNumericLiteralAnnotator[ScLongLiteral](i
 object ScIntegerLiteralAnnotator extends ScNumericLiteralAnnotator[ScIntegerLiteral](isLong = false) {
   protected override def actualAnnotate(literal: ScIntegerLiteral)(implicit holder: ScalaAnnotationHolder): Unit =
     ScNumericLiteralAnnotator.annotateInt(literal, literal)
+}
+
+object ScFloatingPointLiteralAnnotator extends ElementAnnotator[ScFloatingPointLiteral]
+  with DumbAware {
+
+  override def annotate(literal: ScFloatingPointLiteral, typeAware: Boolean)(implicit holder: ScalaAnnotationHolder): Unit = {
+    def ty = literal match {
+      case _: ScDoubleLiteral => "Double"
+      case _: ScFloatLiteral => "Float"
+    }
+    val message = literal.floatingPointParseResult match {
+      case FloatingPointParseResult.Ok => None
+      case FloatingPointParseResult.TooLarge => Some(ScalaBundle.message("floating.point.number.is.too.large", ty))
+      case FloatingPointParseResult.TooSmall => Some(ScalaBundle.message("floating.point.number.is.too.small", ty))
+      case FloatingPointParseResult.Malformed => Some(ScalaBundle.message("floating.point.number.is.malformed"))
+    }
+
+    message.foreach { message =>
+      holder.createErrorAnnotation(literal, NlsString.force(message))
+    }
+  }
 }
