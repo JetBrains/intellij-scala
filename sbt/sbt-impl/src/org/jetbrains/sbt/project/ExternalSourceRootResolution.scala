@@ -20,7 +20,7 @@ import scala.reflect.ClassTag
  * This trait contains utility methods responsible for handling for shared sources directories.
  * Such shared sources are typically "external" relative to the project base directory, hence the name "External"
  */
-trait ExternalSourceRootResolution { self: SbtProjectResolver =>
+trait ExternalSourceRootResolution { self: SbtProjectResolver with ContentRootsResolution =>
 
   type ModuleDataNodeType = Node[_ <: ModuleData]
 
@@ -29,16 +29,13 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
   protected case class CompleteModuleSourceSet(override val parent: ModuleDataNodeType, main: SbtSourceSetModuleNode, test: SbtSourceSetModuleNode) extends ModuleSourceSet(parent)
 
   protected def addSharedSourceModules(
-    sharedRoots: Seq[SharedSourceRoot],
+    groupedSharedRoots: Seq[SharedSourcesGroup],
     projectToSourceSet: Map[sbtStructure.ProjectData, ModuleSourceSet],
     libraryNodes: Seq[LibraryNode],
     defaultModuleFilesDirectory: String,
     separateProdTestSources: Boolean,
     buildProjectsGroups: Seq[BuildProjectsGroup]
   ): Unit = {
-    val grouped: Seq[SharedSourcesGroup] =
-      groupSharedRoots(sharedRoots)
-
     val createSourceModule: (SharedSourcesGroup, Seq[LibraryNode], String, Seq[BuildProjectsGroup]) => ModuleDataNodeType =
       // note: we know that if separateProdTestSources are enabled, projectToSourceSet values will be of type CompleteModuleSourceSet
       // and if not, values will be of type PrentModuleSourceSet
@@ -47,7 +44,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
       else
         createSharedSourcesModuleNodeLegacy(_, castMapValues[PrentModuleSourceSet](projectToSourceSet), _, _, _)
 
-    grouped.map(createSourceModule(_, libraryNodes, defaultModuleFilesDirectory, buildProjectsGroups))
+    groupedSharedRoots.map(createSourceModule(_, libraryNodes, defaultModuleFilesDirectory, buildProjectsGroups))
   }
 
   protected def addModuleDependencies(
@@ -523,52 +520,6 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
   }
 
   /**
-   * The method creates content root nodes based on the given source/resource base directories and roots.
-   * It works in 2 stages:
-   *  1. First, it creates a content root for each source root base directory (`sourceRootBaseDirs`)
-   *  1. Then, it creates dedicated content roots for those source/resource roots that are not located inside
-   *     any base directory. This is primarily used by generated sources in external directories,
-   *     like  `.../target/.../src_managed/main`
-   *
-   * @param sourceRootBaseDirs Contains directories which can contain source/resource roots.<br>
-   *                           Examples:
-   *                             - `.../src/main` (can contain scala, scala-3, resources)
-   *                             - `.../src/test`
-   * @param sourceRoots        Contains concrete directories that serve as source/resource roots.<br>
-   *                           Examples:
-   *                             - `.../src/main/scala`
-   *                             - `.../src/main/scala-3`
-   *                             - `.../src/main/resources`
-   *                             - `.../target/.../src_managed/main`
-   */
-  protected def createContentRootNodes(
-    sourceRootBaseDirs: Seq[String],
-    sourceRoots: Seq[(String, ExternalSystemSourceType)],
-  ): Seq[ContentRootNode] = {
-    val contentRootsForSourceBaseDirs = sourceRootBaseDirs.distinct.map(new ContentRootNode(_))
-    sourceRoots.foldLeft(contentRootsForSourceBaseDirs) { case (contentRootNodes, (sourceRootPath, sourceType)) =>
-      val suitableContentRootNode = findContentRootContainingPath(contentRootNodes, sourceRootPath)
-      suitableContentRootNode match {
-        case Some(contentRootNode) =>
-          contentRootNode.storePath(sourceType, sourceRootPath)
-          contentRootNodes
-        case None =>
-          val node = new ContentRootNode(sourceRootPath)
-          node.storePath(sourceType, sourceRootPath)
-          contentRootNodes :+ node
-      }
-    }
-  }
-
-  private def findContentRootContainingPath(contentRoots: Seq[ContentRootNode], path: String): Option[ContentRootNode] = {
-    val dir = new File(path)
-    contentRoots.find { contentRoot =>
-      val contentRootDir = new File(contentRoot.data.getRootPath)
-      dir.isUnder(contentRootDir, strict = false)
-    }
-  }
-
-  /**
    * NOTE 1: This is a workaround method<br>
    * NOTE 2: This workaround is not actual when separate main/test source modules are used
    *
@@ -663,7 +614,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
    * @note It's somehow similar to `org.jetbrains.bsp.project.importing.BspResolverLogic.sharedSourceEntries`
    *       (analog for the BSP external system)
    */
-  protected def sharedAndExternalRootsIn(projects: Seq[sbtStructure.ProjectData])
+  private def sharedAndExternalRootsIn(projects: Seq[sbtStructure.ProjectData])
                                         (implicit context: ImportContext): Seq[SharedSourceRoot] = {
     val projectRootsExternal: Seq[ProjectSourceRoot] =
       getProjectSourceRootsExternalToAllProjects(projects)
@@ -735,7 +686,8 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
     }
   }
 
-  private def groupSharedRoots(sharedSourceRoots: Seq[SharedSourceRoot]): Seq[SharedSourcesGroup] = {
+  protected def groupSharedRoots(projects: Seq[ProjectData])(implicit context: ImportContext): Seq[SharedSourcesGroup] = {
+    val sharedSourceRoots = sharedAndExternalRootsIn(projects)
     val nameProvider = new SharedSourceRootNameProvider()
 
     // TODO consider base/projects correspondence
@@ -790,7 +742,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
    * @param sourceRoots list of source roots which will be added to the shared sources module
    * @param projects    list of projects that should depend on the shared sources module
    */
-  private case class SharedSourcesGroup(
+  protected case class SharedSourcesGroup(
     name: String,
     sourceRoots: Seq[SourceRoot],
     projects: Seq[sbtStructure.ProjectData]

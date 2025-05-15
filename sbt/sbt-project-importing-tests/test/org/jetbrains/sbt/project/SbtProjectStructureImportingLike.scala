@@ -239,10 +239,19 @@ abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImporti
   }
 
   protected def emptySourceResourceDirs(module: module): Unit = {
+    emptySourceResourceDirsMain(module)
+    emptySourceResourceDirsTest(module)
+  }
+
+  protected def emptySourceResourceDirsMain(module: module): Unit = {
     import module._
     ProjectStructureDsl.sources := Nil
-    ProjectStructureDsl.testSources := Nil
     ProjectStructureDsl.resources := Nil
+  }
+
+  protected def emptySourceResourceDirsTest(module: module): Unit = {
+    import module._
+    ProjectStructureDsl.testSources := Nil
     ProjectStructureDsl.testResources := Nil
   }
 
