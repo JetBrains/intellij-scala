@@ -13,24 +13,8 @@ package object expr {
   )(implicit
     project: ProjectContext
   ): Boolean = {
-    val (l, r) =
-      (getStdType(valueType), getStdType(expected)) match {
-        case (Some(left), Some(right)) => (left, right)
-        case _                         => return false
-      }
-
-    val stdTypes = project.stdTypes
-    import stdTypes._
-
-    (l, r) match {
-      case (Byte, Short | Int | Long | Float | Double)        => true
-      case (Short, Int | Long | Float | Double)               => true
-      case (Char, Byte | Short | Int | Long | Float | Double) => true
-      case (Int, Long | Float | Double)                       => true
-      case (Long, Float | Double)                             => true
-      case (Float, Double)                                    => true
-      case _                                                  => false
-    }
+    (getStdType(valueType) zip getStdType(expected))
+      .exists { case (from, to) => project.stdTypes.canWiden(from, to) }
   }
 
   def numericWideningOrNarrowing(
