@@ -5,7 +5,8 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiLiteralUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScDoubleLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScFloatingPointLiteral.FloatingPointParseResult
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScDoubleLiteral, ScFloatingPointLiteral}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 
 import java.lang
@@ -26,6 +27,9 @@ final class ScDoubleLiteralImpl(node: ASTNode,
 
   override private[psi] def unwrappedValue(value: JDouble) =
     value.doubleValue
+
+  override def floatingPointParseResult: ScFloatingPointLiteral.FloatingPointParseResult =
+    FloatingPointParseResult.parseDouble(getText)
 }
 
 object ScDoubleLiteralImpl {

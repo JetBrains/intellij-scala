@@ -1,21 +1,12 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base.literals
 
+import com.intellij.psi.util.PsiLiteralUtil
+import com.intellij.util.text.LiteralFormatUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScFloatingPointLiteral.{FloatingPointParseResult, zeroFloatingPointRegex}
-
-import java.lang.{Double => JDouble, Float => JFloat}
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScFloatingPointLiteral.FloatingPointParseResult
 
 trait ScFloatingPointLiteral extends ScLiteral.Numeric {
-
-  final def floatingPointParseResult: FloatingPointParseResult = {
-    getValue match {
-      case null => FloatingPointParseResult.Malformed
-      case double: JDouble if double.isInfinite => FloatingPointParseResult.TooLarge
-      case float: JFloat if float.isInfinite => FloatingPointParseResult.TooLarge
-      case 0.0 if !zeroFloatingPointRegex.matches(getText) => FloatingPointParseResult.TooSmall
-      case _ => FloatingPointParseResult.Ok
-    }
-  }
+  def floatingPointParseResult: FloatingPointParseResult
 }
 
 object ScFloatingPointLiteral {
@@ -28,6 +19,22 @@ object ScFloatingPointLiteral {
     case object Malformed extends FloatingPointParseResult
     case object TooLarge extends FloatingPointParseResult
     case object TooSmall extends FloatingPointParseResult
+
+    def parseFloat(text: String): FloatingPointParseResult =
+      PsiLiteralUtil.parseFloat(LiteralFormatUtil.removeUnderscores(text)) match {
+        case null => FloatingPointParseResult.Malformed
+        case float if float == 0.0f && !zeroFloatingPointRegex.matches(text) => FloatingPointParseResult.TooSmall
+        case float if float.isInfinite => FloatingPointParseResult.TooLarge
+        case _ => FloatingPointParseResult.Ok
+      }
+
+    def parseDouble(text: String): FloatingPointParseResult =
+      PsiLiteralUtil.parseDouble(LiteralFormatUtil.removeUnderscores(text)) match {
+        case null => FloatingPointParseResult.Malformed
+        case double if double == 0.0 && !zeroFloatingPointRegex.matches(text) => FloatingPointParseResult.TooSmall
+        case double if double.isInfinite => FloatingPointParseResult.TooLarge
+        case _ => FloatingPointParseResult.Ok
+      }
   }
 
   trait Companion[T <: ScFloatingPointLiteral] extends ScLiteral.NumericCompanion[T]

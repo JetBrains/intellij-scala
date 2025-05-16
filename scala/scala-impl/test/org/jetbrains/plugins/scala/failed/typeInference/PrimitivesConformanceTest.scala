@@ -211,6 +211,16 @@ abstract class PrimitivesConformanceTestBase extends TypeInferenceTestBase {
       |val too_large_pos: Float =  3.4028235e39f
       |val too_large_neg: Float = -3.4028235e39f
       |
+      |val small_double_pos: Float =  1.4e-45
+      |val small_double_neg: Float = -1.4e-45
+      |val too_small_double_pos: Float =  1.4e-46
+      |val too_small_double_neg: Float = -1.4e-46
+      |
+      |val large_double_pos: Float =  3.4028235e38
+      |val large_double_neg: Float = -3.4028235e38
+      |val too_large_double_pos: Float =  3.4028235e39
+      |val too_large_double_neg: Float = -3.4028235e39
+      |
       |val double_from_byte: Float = 1 : Byte
       |val double_from_char: Float = 1 : Char
       |val double_from_short: Float = 1 : Short
@@ -231,6 +241,14 @@ class PrimitivesConformanceTest_Scala2 extends PrimitivesConformanceTestBase {
       |Error(-1.4e-46f,Number is too small for a Float)
       |Error(3.4028235e39f,Number is too large for a Float)
       |Error(-3.4028235e39f,Number is too large for a Float)
+      |Error(1.4e-45,Expression of type Double doesn't conform to expected type Float)
+      |Error(-1.4e-45,Expression of type Double doesn't conform to expected type Float)
+      |Error(1.4e-46,Expression of type Double doesn't conform to expected type Float)
+      |Error(-1.4e-46,Expression of type Double doesn't conform to expected type Float)
+      |Error(3.4028235e38,Expression of type Double doesn't conform to expected type Float)
+      |Error(-3.4028235e38,Expression of type Double doesn't conform to expected type Float)
+      |Error(3.4028235e39,Expression of type Double doesn't conform to expected type Float)
+      |Error(-3.4028235e39,Expression of type Double doesn't conform to expected type Float)
       |""".stripMargin
   )
 }
@@ -241,12 +259,14 @@ class PrimitivesConformanceTest_Scala3 extends PrimitivesConformanceTestBase {
   def testFloatCoercion(): Unit = assertErrorsText(
     floatCoercionText,
     """
-      |Error(1.0d,Expression of type Double doesn't conform to expected type Float)
-      |Error(1.5,Expression of type Double doesn't conform to expected type Float)
       |Error(1.4e-46f,Number is too small for a Float)
       |Error(-1.4e-46f,Number is too small for a Float)
       |Error(3.4028235e39f,Number is too large for a Float)
       |Error(-3.4028235e39f,Number is too large for a Float)
+      |Error(1.4e-46,Expression of type Double doesn't conform to expected type Float)
+      |Error(-1.4e-46,Expression of type Double doesn't conform to expected type Float)
+      |Error(3.4028235e39,Expression of type Double doesn't conform to expected type Float)
+      |Error(-3.4028235e39,Expression of type Double doesn't conform to expected type Float)
       |""".stripMargin
   )
 }
