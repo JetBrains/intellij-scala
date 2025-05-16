@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSequenceArg, ScTup
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -255,6 +255,22 @@ class ExpectedTypesImpl extends ExpectedTypes {
       }
     }
 
+    def fromPolyFunction(tyParams: Seq[ScTypeParam])(tp: ParameterType): Array[ParameterType] = {
+      tp._1 match {
+        case ScTypePolymorphicType(bodyType, pParams) =>
+          // match
+          //   [pParams..] => bodyType
+          //   [tyParams..] => ...
+          // so
+          // substitute bodyType[pParams.. -> tyParams..]
+          val substitutor = ScSubstitutor.bind(pParams, tyParams)(p => TypeParameterType(TypeParameter(p)))
+          val result = substitutor(bodyType)
+          Array((result, None))
+        case _ =>
+          Array.empty
+      }
+    }
+
     def expectedTypesUnwrapContextFunction(e: ScExpression, fromUnderscore: Boolean): Array[ParameterType] =
       e.expectedTypesEx(fromUnderscore).map(pt => unwrapContextFunctionType(pt._1) -> None)
 
@@ -378,6 +394,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
       }
       //see SLS[6.23]
       case f: ScFunctionExpr => f.expectedTypesEx(fromUnderscore = true).flatMap(fromFunction(_, f.isContext))
+      case f: ScPolyFunctionExpr => f.expectedTypesEx(fromUnderscore = true).flatMap(fromPolyFunction(f.typeParameters))
       case t: ScTypedExpression if t.getLastChild.is[ScSequenceArg] =>
         t.expectedTypesEx(fromUnderscore = true)
       //SLS[6.13]
