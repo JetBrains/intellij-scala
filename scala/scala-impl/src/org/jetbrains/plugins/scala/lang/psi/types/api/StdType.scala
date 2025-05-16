@@ -147,6 +147,22 @@ class StdTypes(implicit private val projectContext: ProjectContext) extends Disp
     Double,
   )
 
+  lazy val allIntegerTypes: Set[ValType] = Set(
+    Byte,
+    Char,
+    Short,
+    Int,
+    Long,
+  )
+
+  lazy val allFloatingPointTypes: Set[ValType] = Set(
+    Float,
+    Double,
+  )
+
+  lazy val allNumericTypes: Set[ValType] =
+    allIntegerTypes ++ allFloatingPointTypes
+
   lazy val QualNameToType: Map[String, StdType] =
     all.groupBy(_.fullName).view.mapValues(_.head).toMap
 

@@ -124,6 +124,11 @@ package object types {
       case _          => false
     }
 
+    def isNumericType: Boolean = scType match {
+      case valType: ValType => stdTypes.allNumericTypes.contains(valType)
+      case _                => false
+    }
+
     def removeUndefines(): ScType = scType.updateLeaves {
       case _: UndefinedType => stdTypes.Any
     }
