@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, S
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -27,10 +27,15 @@ import scala.annotation.tailrec
 
 object ImplicitUtil {
   implicit class ImplicitTargetExt(private val targetImplicit: PsiElement) extends AnyVal {
+    private def isContextBound(target: PsiElement, element: PsiElement) = {
+      target.is[ScContextBound] && target == element.getNavigationElement.getContext
+    }
+
     private def isTarget(srr: ScalaResolveResult): Boolean = srr.element match {
       case `targetImplicit`                                              => true
       case f: ScMember if targetImplicit == f.syntheticNavigationElement => true
       case f: ScFunction if f.name == CommonNames.Apply                  => srr.innerResolveResult.exists(isTarget)
+      case p: ScParameter if isContextBound(targetImplicit, p)           => true
       case _                                                             => false
     }
 
@@ -51,6 +56,7 @@ object ImplicitUtil {
       case ref: ScReference if ref.bind().exists(isTarget)        => Option(ref)
       case e: ScExpression if isImplicitConversionOrParameter(e)  => Option(ImplicitReference(e, targetImplicit))
       case c: ScConstructorInvocation if isImplicitParameterOf(c) => Option(ImplicitReference(c, targetImplicit))
+      case c: ScContextBound if isContextBound(c, targetImplicit) => Option(ImplicitReference(c, targetImplicit))
       case _                                                      => None
     }
   }

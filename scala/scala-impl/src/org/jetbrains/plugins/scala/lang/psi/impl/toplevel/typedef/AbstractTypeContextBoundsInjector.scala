@@ -29,7 +29,7 @@ class AbstractTypeContextBoundsInjector extends SyntheticMembersInjector {
     typesWithContextBounds.flatMap { typeDecl =>
       val bounds = typeDecl.contextBounds
       bounds.map { cb =>
-        val optionalName = cb.name.fold("")(_ + ": ")
+        val optionalName = cb.nameOpt.fold("")(_ + ": ")
         val tpe          = s"(${cb.typeElement.getText})[${typeDecl.name}]"
         s"given $optionalName$tpe = scala.compiletime.deferred"
       }

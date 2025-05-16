@@ -308,7 +308,7 @@ class Scala2UsedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationIns
   )
 
   def test_context_bounded_class_type_parameter2(): Unit = checkTextHasNoErrors(
-    "@scala.annotation.unused class Test[A : Ordering] {}"
+    "@scala.annotation.unused class Test[@scala.annotation.unused A : Ordering] {}"
   )
 
   def test_view_bounded_class_type_parameter(): Unit = checkTextHasNoErrors(
@@ -323,8 +323,9 @@ class Scala2UsedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationIns
   )
 
   def test_context_bounded_function_type_parameter2(): Unit = checkTextHasNoErrors(
-    """@scala.annotation.unused class Test {
-      |  @scala.annotation.unused def foo[A : Ordering] = { }
+    """import scala.annotation.unused
+      |@unused class Test {
+      |  @unused def foo[@unused A : Ordering] = { }
       |}
       |""".stripMargin
   )

@@ -7,6 +7,7 @@ import com.intellij.psi.{PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.findUsages.SearchTargetExtractors.ShouldBeSearchedInBytecode
 import org.jetbrains.plugins.scala.findUsages.{ExternalSearchScopeChecker, UsageType}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScContextBound
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScEnd, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
@@ -30,6 +31,7 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
       case _: ScTypeAlias            => true
       case _: ScPrimaryConstructor   => true
       case _: ScTypeParam            => true
+      case _: ScContextBound         => true
       case _: PsiClassWrapper        => true
       case _: PsiMethodWrapper[_]    => true
       case contextBoundElement(_, _) => true
