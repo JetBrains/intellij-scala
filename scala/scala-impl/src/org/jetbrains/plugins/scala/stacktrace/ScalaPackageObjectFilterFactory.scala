@@ -24,6 +24,9 @@ class ScalaPackageObjectConsoleFilterProvider extends ConsoleFilterProvider {
 
 object ScalaPackageObjectFilter {
   //from kotlin exception filter
+  //(org.jetbrains.kotlin.idea.debugger.core.KotlinExceptionFilter)
+  // Matches strings like "\tat test.TestPackage$foo$f$1.invoke(a.kt:3)\n"
+  //                   or "\tBreakpoint reached at test.TestPackage$foo$f$1.invoke(a.kt:3)\n"
   private val STACK_TRACE_ELEMENT_PATTERN =
     Pattern.compile("^[\\w|\\s]*at\\s+(.+)\\.(.+)\\((.+):(\\d+)\\)\\s*$")
 
