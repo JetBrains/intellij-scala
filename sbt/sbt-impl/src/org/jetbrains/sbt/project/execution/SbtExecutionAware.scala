@@ -11,20 +11,16 @@ import com.intellij.openapi.externalSystem.service.notification.callback.OpenPro
 import com.intellij.openapi.progress.util.ProgressIndicatorBase
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.ProjectRootManager
-import com.intellij.openapi.roots.ui.configuration.SdkLookupProvider
 import com.intellij.openapi.roots.ui.configuration.SdkLookupProvider.SdkInfo
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.sbt.SbtBundle
+import org.jetbrains.sbt.project.SdkResolutionUtil
 import org.jetbrains.sbt.settings.SbtSettings
 
-import scala.annotation.nowarn
 
 class SbtExecutionAware extends ExternalSystemExecutionAware {
 
   private val log = Logger.getInstance(getClass)
-
-  private object DefaultSdkLookupId extends SdkLookupProvider.Id
 
   override def prepareExecution(
     externalSystemTask: ExternalSystemTask,
@@ -57,16 +53,15 @@ class SbtExecutionAware extends ExternalSystemExecutionAware {
     task: ExternalSystemTask,
     taskNotificationListener: ExternalSystemTaskNotificationListener,
   ): Unit = {
-    val provider = SdkLookupProvider.getInstance(project, DefaultSdkLookupId)
-    val sdkInfo = nonblockingResolveJdk(provider, project)
+    val sdkInfo = SdkResolutionUtil.resolveJdkInfo(project, ExternalSystemJdkUtil.USE_PROJECT_JDK)
     val isResolving = sdkInfo.is[SdkInfo.Resolving]
     if (isResolving) {
-      waitForJvmResolving(provider, task, taskNotificationListener)
+      waitForJvmResolving(project, task, taskNotificationListener)
     }
   }
 
   private def waitForJvmResolving(
-    lookupProvider: SdkLookupProvider,
+    project: Project,
     task: ExternalSystemTask,
     taskNotificationListener: ExternalSystemTaskNotificationListener
   ): Unit = {
@@ -76,6 +71,7 @@ class SbtExecutionAware extends ExternalSystemExecutionAware {
       throw new ExternalSystemJdkException(exceptionMessage, null, OpenProjectJdkSettingsCallback.ID)
     }
 
+    val lookupProvider = SdkResolutionUtil.getSdkLookupProvider(project)
     val progressIndicator = Option(lookupProvider.getProgressIndicator).getOrElse(new ProgressIndicatorBase())
 
     submitProgressStarted(task, taskNotificationListener, progressIndicator, progressIndicator)
@@ -123,13 +119,5 @@ class SbtExecutionAware extends ExternalSystemExecutionAware {
     val buildEvent = new FinishEventImpl(eventId, task.getId, System.currentTimeMillis(), message, result)
     val notificationEvent = new ExternalSystemBuildEvent(task.getId, buildEvent)
     taskNotificationListener.onStatusChange(notificationEvent)
-  }
-
-  private def nonblockingResolveJdk(
-    provider: SdkLookupProvider,
-    project: Project
-  ): SdkInfo = {
-    val projectSdk = ProjectRootManager.getInstance(project).getProjectSdk
-    ExternalSystemJdkUtilKt.nonblockingResolveJdkInfo(provider, projectSdk, ExternalSystemJdkUtil.USE_PROJECT_JDK): @nowarn("cat=deprecation")
   }
 }
