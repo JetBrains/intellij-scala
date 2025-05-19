@@ -96,11 +96,11 @@ class ReferenceExpressionsControlFlowTest extends ScalaDfaControlFlowBuilderTest
       |16: POP
       |17: PUSH `another strange name!`
       |18: IF_EQ false 23
-      |19: FINISH
+      |19: FINISH ; flushing [`another strange name!`]
       |20: PUSH `some strange name`
       |21: POP
       |22: GOTO 26
-      |23: FINISH
+      |23: FINISH ; flushing [`another strange name!`, `some strange name`]
       |24: PUSH_VAL 3
       |25: POP
       |26: FINISH IfStatement; flushing [`some strange name`]

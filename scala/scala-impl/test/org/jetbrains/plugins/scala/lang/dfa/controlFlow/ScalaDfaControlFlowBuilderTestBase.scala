@@ -30,11 +30,26 @@ abstract class ScalaDfaControlFlowBuilderTestBase extends ScalaLightCodeInsightF
           controlFlowBuilder.transformExpression(body, ResultReq.None)
           val flow = controlFlowBuilder.build()
 
-          flow.toString.trim.linesIterator.map(_.trim).mkString("\n") shouldBe expectedResult.trim.withNormalizedSeparator
+          val actual = flow.toString.trim.linesIterator.map(_.trim).map(fixFlushingLines).mkString("\n")
+          val expected = expectedResult.trim.withNormalizedSeparator
+          actual shouldBe expected
         }
       }
     })
 
     assertTrue("No function definition has been visited", functionVisited)
+  }
+
+  private val flushingRegex = raw"""([^;]*); flushing \[(.*)]""".r
+
+  def fixFlushingLines(str: String): String = {
+    str match {
+      case flushingRegex(cmd, flushed) =>
+        val flushedVars = flushed.split(", ")
+        flushedVars.sortInPlace()
+        s"$cmd; flushing [${flushedVars.mkString(", ")}]"
+      case _ =>
+        str
+    }
   }
 }
