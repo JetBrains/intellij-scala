@@ -1,5 +1,6 @@
 package org.jetbrains.bsp.project.importing
 
+import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.util.SystemInfo
 import org.jetbrains.bsp.BspUtil
 import org.jetbrains.bsp.project.BspProjectInstallProvider
@@ -29,7 +30,7 @@ class MillProjectInstaller extends BspProjectInstallProvider {
 
   override def serverName: String = "Mill"
 
-  override def installCommand(workspace: Path): Try[Seq[String]] = {
+  override def installCommand(workspace: Path, customJdk: Option[Sdk]): Try[Seq[String]] = {
     // note: The legacy part is only executed for mill bootstrap script so it is not applicable for Windows.
     // Maybe it could be, but we decided to support mill.bat file only for the newer bsp approach
     val isLegacyMill = !SystemInfo.isWindows && isLegacyBspCompatible(workspace)

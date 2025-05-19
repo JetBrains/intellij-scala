@@ -12,10 +12,10 @@ import org.eclipse.lsp4j.jsonrpc.ResponseErrorException
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseErrorCode
 import org.jetbrains.annotations.Nls
 import org.jetbrains.bsp.project.BspExternalSystemUtil
-import org.jetbrains.bsp.settings.BspSettings
+import org.jetbrains.bsp.settings.{BspProjectSettings, BspSettings}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.BuildReporter
-import org.jetbrains.plugins.scala.extensions.PathExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PathExt}
 
 import java.net.URI
 import java.nio.file.{Path, Paths}
@@ -65,6 +65,11 @@ object BspUtil {
     ExternalSystemApiUtil
       .getSettings(project, BSP.ProjectSystemId)
       .asInstanceOf[BspSettings]
+
+  def getBspProjectSettings(externalRootPath: String, project: Project): Option[BspProjectSettings] = {
+    val settings = bspSettings(project)
+    settings.getLinkedProjectSettings(externalRootPath).toOption
+  }
 
   def compilerOutputDirFromConfig(base: Path): Option[Path] = {
     val vfm = VirtualFileManager.getInstance()

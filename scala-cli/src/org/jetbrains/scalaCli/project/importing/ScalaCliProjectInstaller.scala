@@ -1,5 +1,7 @@
 package org.jetbrains.scalaCli.project.importing
 
+import com.intellij.openapi.projectRoots.Sdk
+import com.intellij.util.lang.JavaVersion
 import org.jetbrains.bsp.BspUtil
 import org.jetbrains.bsp.project.BspProjectInstallProvider
 import org.jetbrains.bsp.project.importing.bspConfigSteps
@@ -19,10 +21,11 @@ class ScalaCliProjectInstaller extends BspProjectInstallProvider {
 
   override def serverName: String = "Scala CLI"
 
-  override def installCommand(workspace: Path): Try[Seq[String]] = {
+  override def installCommand(workspace: Path, customJdk: Option[Sdk]): Try[Seq[String]] = {
     val isScalaCliInstalled = ScalaCliUtils.isScalaCliInstalled(workspace)
     if (isScalaCliInstalled) {
-      Success(Seq(getScalaCliCommand, "setup-ide", "."))
+      val jdkOptions = customJdk.map(jdk => Seq("--jvm", JavaVersion.tryParse(jdk.getVersionString).feature.toString)).getOrElse(Seq.empty)
+      Success(Seq(getScalaCliCommand, "setup-ide", ".") ++ jdkOptions)
     } else {
       Failure(new IllegalStateException("Unable to install BSP, because Scala CLI is not installed"))
     }

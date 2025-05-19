@@ -3,6 +3,7 @@ package org.jetbrains.bsp.project
 import com.intellij.build.events.EventResult
 import com.intellij.build.events.impl.{FailureResultImpl, SuccessResultImpl}
 import com.intellij.openapi.extensions.ExtensionPointName
+import com.intellij.openapi.projectRoots.Sdk
 import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.bsp.project.importing.bspConfigSteps.ConfigSetup
 import org.jetbrains.bsp.{BspBundle, BspUtil}
@@ -20,14 +21,14 @@ trait BspProjectInstallProvider {
 
   def canImport(workspace: Path): Boolean
   def serverName: String
-  def installCommand(workspace: Path): Try[Seq[String]]
+  def installCommand(workspace: Path, customJdk: Option[Sdk]): Try[Seq[String]]
   def getConfigSetup: ConfigSetup
 
-  def bspInstall(workspace: Path)(implicit reporter: BuildReporter): Try[BuildMessages] = {
+  def bspInstall(workspace: Path, customJdk: Option[Sdk])(implicit reporter: BuildReporter): Try[BuildMessages] = {
     val dumpTaskId = EventId(s"dump:${UUID.randomUUID()}")
     reporter.startTask(dumpTaskId, None, BspBundle.message("bsp.resolver.installing.configuration", serverName))
 
-    val command = installCommand(workspace)
+    val command = installCommand(workspace, customJdk)
     val work = command.toEither.flatMap { cmd =>
       reporter.log(BspBundle.message("bsp.resolver.installing.configuration.command", cmd.mkString(" ")))
       BspUtil.runCommand(workspace, cmd:_*)

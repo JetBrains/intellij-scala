@@ -55,7 +55,7 @@ class BspProjectImportBuilder
   private[importing] def autoConfigure(workspace: Path): Unit = {
     val configSetups = bspConfigSteps.configSetupChoices(workspace)
     if (configSetups.size == 1)
-      BspJdkUtil.findOrCreateBestJdkForProject(None).foreach(bspConfigSteps.configureBuilder(_, this, workspace, configSetups.head))
+      BspJdkUtil.findDefaultJdkForProject(None).foreach(bspConfigSteps.configureBuilder(_, this, workspace, configSetups.head))
   }
 
   private def applyBspSetupSettings(project: Project): Unit = {

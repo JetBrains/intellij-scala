@@ -7,7 +7,7 @@ import com.intellij.openapi.externalSystem.model.project._
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener}
 import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException}
 import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
-import com.intellij.openapi.project.{Project, ProjectManager}
+import com.intellij.openapi.projectRoots.Sdk
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.project.BspExternalSystemManager.ScalaCliAffectedProjectFiles
 import org.jetbrains.bsp.project.{BspProjectInstallProvider, BspTargetCanCompile}
@@ -193,7 +193,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     if (executionSettings.runPreImportTask) {
       val preImportTask = executionSettings.preImportTask
       val config = executionSettings.config
-      installBSP(workspace, preImportTask, config)
+      installBSP(workspace, preImportTask, config, executionSettings.customJdkPath)
     }
     else EmptyBuildMessagesSuccess
   }
@@ -203,14 +203,15 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
   private def installBSP(
     workspace: Path,
     preImportTask: BspProjectSettings.PreImportConfig,
-    bspServerConfig: BspProjectSettings.BspServerConfig
+    bspServerConfig: BspProjectSettings.BspServerConfig,
+    customJdk: Option[Sdk]
   )(implicit reporter: BuildReporter): Try[BuildMessages] = {
     def isSbtProject(workspace: Path) = workspace.resolve("build.sbt").exists
 
     val bspProjectInstallers = BspProjectInstallProvider.getImplementations
 
     def installBspFrom(bspProjectInstaller: Option[BspProjectInstallProvider]): Try[BuildMessages] =
-      bspProjectInstaller.map(_.bspInstall(workspace)).getOrElse(EmptyBuildMessagesSuccess)
+      bspProjectInstaller.map(_.bspInstall(workspace, customJdk)).getOrElse(EmptyBuildMessagesSuccess)
 
     def installWithAnyBspProjectInstaller: Try[BuildMessages] = {
       val installer = bspProjectInstallers.find(_.canImport(workspace))
@@ -230,12 +231,12 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
         EmptyBuildMessagesSuccess
       case BspProjectSettings.AutoPreImport =>
         if (bspServerConfig == BspProjectSettings.AutoConfig && bloopConfigDir(workspace).isDefined && isSbtProject(workspace)) {
-          runBloopInstall(workspace)
+          runBloopInstall(workspace, customJdk)
         } else {
           installWithAnyBspProjectInstaller
         }
       case BspProjectSettings.BloopSbtPreImport =>
-        runBloopInstall(workspace)
+        runBloopInstall(workspace, customJdk)
       case BspProjectSettings.MillBspPreImport =>
         installForConfigSetup(MillSetup)
       case BspProjectSettings.ScalaCliBspPreImport =>
@@ -290,14 +291,16 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     }
   }
 
-  private def runBloopInstall(baseDir: Path)(implicit reporter: BuildReporter) =
-    BspJdkUtil.findOrCreateBestJdkForProject(None) match {
+  private def runBloopInstall(baseDir: Path, customJdkPath: Option[Sdk])(implicit reporter: BuildReporter) = {
+    val sdkOpt = customJdkPath.orElse(BspJdkUtil.findDefaultJdkForProject(None))
+    sdkOpt match {
       case Some(sdk) =>
         val preImporter = BloopPreImporter(baseDir, sdk)
         importState = PreImportTask(preImporter)
         preImporter.run()
       case None => Failure(BspNoJdkConfiguredError)
     }
+  }
 
 }
 

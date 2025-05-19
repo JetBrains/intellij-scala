@@ -10,14 +10,24 @@ import com.intellij.util.lang.JavaVersion
 import org.jetbrains.plugins.scala.project.external.SdkUtils
 import org.jetbrains.sbt.project.SbtProcessJdkGuesser
 
-
 object BspJdkUtil {
+
+  def findBestJdkForExternalProject(project: Option[Project], externalProjectRoot: Option[String]): Option[Sdk] = {
+    val customSdk = for {
+      _project <- project
+      _externalProjectRoot <- externalProjectRoot
+      bspProjectSettings <- BspUtil.getBspProjectSettings(_externalProjectRoot, _project)
+      sdk <- bspProjectSettings.getSdk(_project)
+    } yield sdk
+
+    customSdk.orElse(findDefaultJdkForProject(project))
+  }
 
   /**
     Returns JDK assigned to a project or most recent registered JDK in IDEA. If the first two ways return nothing
    then try to create and return SDK based on most recent JDK found on the machine.
    */
-  def findOrCreateBestJdkForProject(project: Option[Project]): Option[Sdk] =
+  def findDefaultJdkForProject(project: Option[Project]): Option[Sdk] =
     project.flatMap { proj => Option(ProjectRootManager.getInstance(proj).getProjectSdk) }
       .orElse(SdkUtils.mostRecentRegisteredJdk)
       .orElse(createSdkWithMostRecentFoundJDK)

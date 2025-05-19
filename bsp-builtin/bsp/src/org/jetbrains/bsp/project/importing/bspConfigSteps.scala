@@ -184,7 +184,7 @@ class BspSetupConfigStep(wizardContext: WizardContext, builder: BspProjectImport
 
   private val workspaceBspConfigs = BspConnectionConfig.workspaceBspConfigs(setupTaskWorkspace)
   private lazy val workspaceSetupConfigs: List[ConfigSetup] = workspaceSetupChoices(setupTaskWorkspace)
-  private val existingJdk = BspJdkUtil.findOrCreateBestJdkForProject(Option(wizardContext.getProject))
+  private val existingJdk = BspJdkUtil.findDefaultJdkForProject(Option(wizardContext.getProject))
 
   private val configSetupChoices: List[ConfigSetup] = {
     if (workspaceBspConfigs.size == 1) List(NoSetup)

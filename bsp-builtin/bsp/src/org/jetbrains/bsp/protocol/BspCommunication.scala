@@ -142,14 +142,11 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
       project <- Option(ProjectUtil.guessProjectForFile(vfsPath))
     } yield project
 
-  private def bspSettings(project: Project): Option[BspProjectSettings] =
-    Option(BspSettings.getInstance(project).getLinkedProjectSettings(base.toCanonicalPath.toString))
-
   private val projectCallback: NotificationCallback = {
     case BspNotifications.DidChangeBuildTarget(didChange) =>
       for {
         project <- findProject
-        settings <- bspSettings(project)
+        settings <- BspUtil.getBspProjectSettings(base.toCanonicalPath.toString, project)
       } {
         FileDocumentManager.getInstance.saveAllDocuments()
         ExternalSystemUtil.refreshProjects(new ImportSpecBuilder(project, BSP.ProjectSystemId))
@@ -236,7 +233,7 @@ object BspCommunication {
     val bloopEnabled = BspUtil.bloopConfigDir(base).isDefined
 
     def configureBloopLauncherIfJdkExists() =
-      BspJdkUtil.findOrCreateBestJdkForProject(project) match {
+      BspJdkUtil.findBestJdkForExternalProject(project, Option(base.toAbsolutePath.toString)) match {
         case Some(jdk) => Right(new BloopLauncherConnector(base, compilerOutputDir, capabilities, jdk))
         case None => Left(BspNoJdkConfiguredError)
       }

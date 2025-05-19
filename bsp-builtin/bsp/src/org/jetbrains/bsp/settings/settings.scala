@@ -3,18 +3,23 @@ package org.jetbrains.bsp.settings
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components._
+import com.intellij.openapi.externalSystem.service.execution.{ExternalSystemJdkUtil, ExternalSystemJdkUtilKt}
 import com.intellij.openapi.externalSystem.settings._
 import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil, ExternalSystemSettingsControl, ExternalSystemUiUtil, PaintAwarePanel}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.projectRoots.Sdk
+import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.util.messages.Topic
 import com.intellij.util.xmlb.Converter
 import com.intellij.util.xmlb.annotations.{OptionTag, XCollection}
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.bsp._
 import org.jetbrains.bsp.settings.BspProjectSettings._
 
 import java.nio.file.{Path, Paths}
 import java.util
 import scala.beans.BeanProperty
+import scala.util.Try
 
 class BspProjectSettings extends ExternalProjectSettings {
 
@@ -32,6 +37,10 @@ class BspProjectSettings extends ExternalProjectSettings {
   @OptionTag(converter = classOf[PreImportConfigConverter])
   var preImportConfig: PreImportConfig = AutoPreImport
 
+  @Nullable
+  @BeanProperty
+  var jdkReference: String = ExternalSystemJdkUtil.USE_PROJECT_JDK
+
   override def setExternalProjectPath(externalProjectPath: String): Unit = {
     super.setExternalProjectPath(ExternalSystemApiUtil.toCanonicalPath(externalProjectPath))
   }
@@ -43,7 +52,13 @@ class BspProjectSettings extends ExternalProjectSettings {
     result.runPreImportTask = runPreImportTask
     result.serverConfig = serverConfig
     result.preImportConfig = preImportConfig
+    result.jdkReference = jdkReference
     result
+  }
+
+  def getSdk(project: Project): Option[Sdk] = {
+    val projectSdk = ProjectRootManager.getInstance(project).getProjectSdk
+    Try(ExternalSystemJdkUtil.resolveJdkName(projectSdk, jdkReference)).toOption
   }
 }
 

@@ -2,6 +2,7 @@ package org.jetbrains.bsp.settings
 
 import com.intellij.openapi.externalSystem.model.settings.ExternalSystemExecutionSettings
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.projectRoots.Sdk
 import org.jetbrains.bsp.settings.BspProjectSettings.{AutoConfig, AutoPreImport, BspServerConfig, PreImportConfig}
 import org.jetbrains.plugins.scala.extensions.PathExt
 
@@ -11,7 +12,8 @@ class BspExecutionSettings(val basePath: Path,
                            val traceBsp: Boolean,
                            val runPreImportTask: Boolean,
                            val preImportTask: PreImportConfig,
-                           val config: BspServerConfig
+                           val config: BspServerConfig,
+                           val customJdkPath: Option[Sdk]
                           ) extends ExternalSystemExecutionSettings
 
 object BspExecutionSettings {
@@ -24,14 +26,15 @@ object BspExecutionSettings {
     val runPreImportTask = linkedSettings.forall(_.runPreImportTask)
     val preImportConfig = linkedSettings.map(_.preImportConfig).getOrElse(AutoPreImport)
     val serverConfig = linkedSettings.map(_.serverConfig).getOrElse(AutoConfig)
+    val sdk = linkedSettings.flatMap(_.getSdk(project))
 
-    new BspExecutionSettings(basePath, bspTraceLog, runPreImportTask, preImportConfig, serverConfig)
+    new BspExecutionSettings(basePath, bspTraceLog, runPreImportTask, preImportConfig, serverConfig, sdk)
   }
 
   def executionSettingsFor(basePath: Path): BspExecutionSettings = {
     val systemSettings = BspSystemSettings.getInstance
     val defaultProjectSettings = new BspProjectSettings
     new BspExecutionSettings(
-      basePath, systemSettings.getState.traceBsp, defaultProjectSettings.runPreImportTask, AutoPreImport, AutoConfig)
+      basePath, systemSettings.getState.traceBsp, defaultProjectSettings.runPreImportTask, AutoPreImport, AutoConfig, None)
   }
 }

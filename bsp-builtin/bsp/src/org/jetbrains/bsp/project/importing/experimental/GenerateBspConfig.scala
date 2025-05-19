@@ -11,7 +11,7 @@ import org.jetbrains.bsp.project.importing.preimport.BloopPreImporter
 import org.jetbrains.bsp.project.importing.setup.NoConfigSetup
 import org.jetbrains.bsp.project.importing.{BspSetupConfigStep, BspSetupConfigStepUi, bspConfigSteps}
 import org.jetbrains.bsp.settings.BspProjectSettings
-import org.jetbrains.bsp.{BspBundle, BspJdkUtil}
+import org.jetbrains.bsp.{BspBundle, BspJdkUtil, BspUtil}
 import org.jetbrains.plugins.scala.build.IndicatorReporter
 import org.jetbrains.plugins.scala.project.external.SdkUtils
 
@@ -37,7 +37,9 @@ final class GenerateBspConfig(project: Project, workspace: Path) {
     if (configSetups.isEmpty)
       return //TODO handle?
 
-    val projectJdk = BspJdkUtil.findOrCreateBestJdkForProject(Some(project))
+    val bspProjectSettings = BspUtil.getBspProjectSettings(workspace.toFile.getPath, project)
+    val projectJdk = bspProjectSettings.flatMap(_.getSdk(project)).orElse(BspJdkUtil.findDefaultJdkForProject(Some(project)))
+
     val (configSetupOpt, sdkOpt): (Option[ConfigSetup], Option[Sdk]) = if (configSetups.size > 1 || projectJdk.isEmpty) {
       val generateBspConfigDialog = new GenerateBspConfigDialog(configSetups, project, projectJdk.isEmpty)
       val ok = generateBspConfigDialog.showAndGet()
