@@ -216,6 +216,8 @@ object Versions {
   def loadSbtVersions(canBeCanceled: Boolean, indicator: ProgressIndicator): Seq[SbtVersion] = loadVersionsSorted(Seq(SbtEntity), canBeCanceled, indicator, propagateDownloadExceptions = true).map(SbtVersion(_))
   lazy val sbtHardcodedVersions: Seq[String] = SbtEntity.hardcodedVersions
 
+  lazy val scala3HardcodedVersions: List[String] = Scala3Entity.hardcodedVersions
+
   private sealed trait Entity {
     def minVersion: String
     def hardcodedVersions: List[String]
