@@ -44,6 +44,7 @@ object ElementAnnotator extends ElementAnnotator[ScalaPsiElement] {
       ScStringLiteralAnnotator ::
       ScLongLiteralAnnotator ::
       ScIntegerLiteralAnnotator ::
+      ScFloatingPointLiteralAnnotator ::
       ScLiteralTypeElementAnnotator ::
       ScMethodInvocationAnnotator ::
       ScNewTemplateDefinitionAnnotator ::

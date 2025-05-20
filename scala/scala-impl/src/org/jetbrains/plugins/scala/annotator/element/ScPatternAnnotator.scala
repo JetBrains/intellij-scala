@@ -81,7 +81,8 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
     lazy val neverMatches =
       !matchesPattern(exTp, patternTypeAsTuple.getOrElse(patType)) &&
         isNeverSubType(abstraction(patType), exTp) &&
-        hasNoFreeTypeVariables(pattern)
+        hasNoFreeTypeVariables(pattern) &&
+        !(patType.isNumericType && exTp.isNumericType)
 
     lazy val isIrrefutable = pattern.isIrrefutableFor(Some(exprType))
 

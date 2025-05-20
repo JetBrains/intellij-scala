@@ -78,7 +78,7 @@ class UnaryPrefixExpressionsControlFlowTest extends ScalaDfaControlFlowBuilderTe
       |29: PUSH p1
       |30: NOT
       |31: POP
-      |32: FINISH BlockExpression
+      |32: FINISH BlockExpression; flushing [p1]
       |33: RETURN
       |""".stripMargin
   }

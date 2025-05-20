@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base
 package literals
 
-trait ScDoubleLiteral extends ScLiteral.Numeric {
+trait ScDoubleLiteral extends ScFloatingPointLiteral {
   override protected type V = java.lang.Double
 
   override private[psi] type T = Double
 }
 
-object ScDoubleLiteral extends ScLiteral.NumericCompanion[ScDoubleLiteral]
+object ScDoubleLiteral extends ScFloatingPointLiteral.Companion[ScDoubleLiteral]

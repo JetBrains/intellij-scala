@@ -772,6 +772,92 @@ class PatternAnnotatorTest extends PatternAnnotatorTestBase {
       |val _: Int <> Byte = "test"
       |""".stripMargin
   )
+
+  def testPrimitivePatternMatching(): Unit = assertNoWarnings(
+    """
+      |val b: Byte = 1
+      |val c: Char = 'a'
+      |val s: Short = 1
+      |val i: Int = 1
+      |val l: Long = 1
+      |val f: Float = 1.0
+      |val d: Double = 1.0
+      |
+      |(0: Byte) match {
+      |  case `b` =>
+      |  case `c` =>
+      |  case `s` =>
+      |  case `i` =>
+      |  case `l` =>
+      |  case `f` =>
+      |  case `d` =>
+      |}
+      |
+      |(0: Char) match {
+      |  case `b` =>
+      |  case `c` =>
+      |  case `s` =>
+      |  case `i` =>
+      |  case `l` =>
+      |  case `f` =>
+      |  case `d` =>
+      |}
+      |
+      |(0: Short) match {
+      |  case `b` =>
+      |  case `c` =>
+      |  case `s` =>
+      |  case `i` =>
+      |  case `l` =>
+      |  case `f` =>
+      |  case `d` =>
+      |}
+      |
+      |(0: Int) match {
+      |  case `b` =>
+      |  case `c` =>
+      |  case `s` =>
+      |  case `i` =>
+      |  case `l` =>
+      |  case `f` =>
+      |  case `d` =>
+      |}
+      |
+      |(0: Long) match {
+      |  case `b` =>
+      |  case `c` =>
+      |  case `s` =>
+      |  case `i` =>
+      |  case `l` =>
+      |  case `f` =>
+      |  case `d` =>
+      |}
+      |
+      |
+      |(0: Float) match {
+      |  case `b` =>
+      |  case `c` =>
+      |  case `s` =>
+      |  case `i` =>
+      |  case `l` =>
+      |  case `f` =>
+      |  case `d` =>
+      |}
+      |
+      |
+      |(0: Double) match {
+      |  case `b` =>
+      |  case `c` =>
+      |  case `s` =>
+      |  case `i` =>
+      |  case `l` =>
+      |  case `f` =>
+      |  case `d` =>
+      |}
+      |
+      |
+      |""".stripMargin
+  )
 }
 
 
