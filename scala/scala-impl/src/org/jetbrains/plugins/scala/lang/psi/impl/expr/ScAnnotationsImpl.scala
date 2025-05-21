@@ -7,6 +7,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScAnnotationsStub
 
+import scala.annotation.nowarn
+
 class ScAnnotationsImpl private (stub: ScAnnotationsStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, ScalaElementType.ANNOTATIONS, node) with ScAnnotations {
 
@@ -16,6 +18,7 @@ class ScAnnotationsImpl private (stub: ScAnnotationsStub, node: ASTNode)
 
   override def toString: String = "AnnotationsList"
 
+  @nowarn("cat=deprecation") // TODO: SCL-23400
   override def getAnnotations: Array[ScAnnotation] =
     getStubOrPsiChildren(ScalaElementType.ANNOTATION, JavaArrayFactoryUtil.ScAnnotationFactory)
 }

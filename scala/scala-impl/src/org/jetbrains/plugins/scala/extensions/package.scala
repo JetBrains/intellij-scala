@@ -1661,7 +1661,7 @@ package object extensions {
       }
 
       element match {
-        case st: StubBasedPsiElementBase[_] => st.getStubOrPsiChildren(elementType, f)
+        case st: StubBasedPsiElementBase[_] => st.getStubOrPsiChildren(elementType, f): @nowarn("cat=deprecation") // TODO: SCL-23400
         case file: PsiFileImpl =>
           file.withGreenStubOrAst(
             (stub: StubElement[_]) => stub.getChildrenByType(elementType, f),

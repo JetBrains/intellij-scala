@@ -26,6 +26,8 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScPackagingStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScExportsHolder, ScImportsHolder, ScalaPsiUtil}
 
+import scala.annotation.nowarn
+
 final class ScPackagingImpl private[psi](stub: ScPackagingStub,
                                          nodeType: ScStubElementType[ScPackagingStub, ScPackaging],
                                          node: ASTNode)
@@ -49,6 +51,7 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
       findChild[ScStableCodeReference]
     }
 
+  @nowarn("cat=deprecation") // TODO: SCL-23400
   override def packagings: Seq[ScPackaging] =
     getStubOrPsiChildren(ScalaElementType.PACKAGING, JavaArrayFactoryUtil.ScPackagingFactory).toSeq
 
@@ -161,6 +164,7 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
   override def immediateMembers: Seq[ScMember] =
     getStubOrPsiChildren(MEMBERS, JavaArrayFactoryUtil.ScMemberFactory).toSeq
 
+  @nowarn("cat=deprecation") // TODO: SCL-23400
   override def immediateExtensions: Seq[ScExtension] =
     getStubOrPsiChildren(EXTENSION, JavaArrayFactoryUtil.ScExtensionFactory).toSeq
 

@@ -14,6 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeParamClauseStub
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 
+import scala.annotation.nowarn
+
 class ScTypeParamClauseImpl private (stub: ScTypeParamClauseStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, TYPE_PARAM_CLAUSE, node) with ScTypeParamClause {
 
@@ -25,8 +27,10 @@ class ScTypeParamClauseImpl private (stub: ScTypeParamClauseStub, node: ASTNode)
 
   override def getTextByStub: String = byStubOrPsi(_.typeParameterClauseText)(getText)
 
+  @nowarn("cat=deprecation") // TODO: SCL-23400
   override def typeParameters: Seq[ScTypeParam] = getStubOrPsiChildren(TYPE_PARAM, ScTypeParamFactory).toSeq
 
+  @nowarn("cat=deprecation") // TODO: SCL-23400
   override def getTypeParameters: Array[PsiTypeParameter] = getStubOrPsiChildren(TYPE_PARAM, PsiTypeParameter.ARRAY_FACTORY)
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement, place: PsiElement): Boolean = {
