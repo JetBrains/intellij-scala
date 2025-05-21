@@ -36,6 +36,7 @@ class ScTemplateBodyImpl private(stub: ScTemplateBodyStub, node: ASTNode)
   override def aliases: Seq[ScTypeAlias] =
     getStubOrPsiChildren(ALIASES_SET, ScTypeAliasFactory).toSeq
 
+  @nowarn("cat=deprecation") // TODO: SCL-23400
   override def cases: Seq[ScEnumCases] =
     getStubOrPsiChildren(EnumCases, ScEnumCasesFactory).toSeq
 
@@ -60,6 +61,7 @@ class ScTemplateBodyImpl private(stub: ScTemplateBodyStub, node: ASTNode)
       case _ => false
     }
 
+  @nowarn("cat=deprecation") // TODO: SCL-23400
   override def extensions: Seq[ScExtension] =
     getStubOrPsiChildren(EXTENSION, ScExtensionFactory).toSeq.filterNot(_.isLocal)
 

@@ -13,6 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createCl
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScParamClausesStub
 
+import scala.annotation.nowarn
+
 class ScParametersImpl private (stub: ScParamClausesStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, ScalaElementType.PARAM_CLAUSES, node) with ScParameters {
 
@@ -23,6 +25,7 @@ class ScParametersImpl private (stub: ScParamClausesStub, node: ASTNode)
 
   override def clauses: Seq[ScParameterClause] = _clauses()
 
+  @nowarn("cat=deprecation") // TODO: SCL-23400
   private val _clauses = cached("clauses", ModTracker.anyScalaPsiChange, () => {
     getStubOrPsiChildren(ScalaElementType.PARAM_CLAUSE, JavaArrayFactoryUtil.ScParameterClauseFactory).toSeq
   })

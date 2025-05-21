@@ -218,9 +218,11 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
   override def selfTypeElement: Option[ScSelfTypeElement] = templateBody.flatMap(_.selfTypeElement)
   override def extensions: Seq[ScExtension]               = templateBodies.flatMap(_.extensions)
 
+  @nowarn("cat=deprecation") // TODO: SCL-23400
   override def templateParents: Option[ScTemplateParents] =
     getStubOrPsiChildren(TEMPLATE_PARENTS, ScTemplateParentsFactory).headOption
 
+  @nowarn("cat=deprecation") // TODO: SCL-23400
   override def derivesClause: Option[ScDerivesClause] =
     getStubOrPsiChildren(DERIVES_CLAUSE, ScDerivesClauseFactory).headOption
 

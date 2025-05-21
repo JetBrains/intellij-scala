@@ -7,6 +7,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScIdList}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScIdListStub
 
+import scala.annotation.nowarn
+
 class ScIdListImpl private (stub: ScIdListStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, IDENTIFIER_LIST, node) with ScIdList {
 
@@ -14,6 +16,7 @@ class ScIdListImpl private (stub: ScIdListStub, node: ASTNode)
 
   def this(stub: ScIdListStub) = this(stub, null)
 
+  @nowarn("cat=deprecation") // TODO: SCL-23400
   override def fieldIds: Seq[ScFieldId] = getStubOrPsiChildren(FIELD_ID, ScFieldIdFactory).toSeq
 
   override def toString: String = "ListOfIdentifiers"
