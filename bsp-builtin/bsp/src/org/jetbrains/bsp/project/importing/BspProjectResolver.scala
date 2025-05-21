@@ -271,10 +271,8 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
   override def cancelTask(taskId: ExternalSystemTaskId,
                           listener: ExternalSystemTaskNotificationListener): Boolean = {
     def doCancel(f: =>Unit) = {
-      listener.beforeCancel(taskId)
       f
       importState = Inactive
-      listener.onCancel(taskId): @nowarn("cat=deprecation") // TODO: SCL-23147
       true
     }
 
