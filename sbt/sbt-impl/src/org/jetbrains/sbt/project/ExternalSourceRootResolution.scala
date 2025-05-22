@@ -36,11 +36,14 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver with ContentRootsR
     separateProdTestSources: Boolean,
     buildProjectsGroups: Seq[BuildProjectsGroup]
   ): Unit = {
+    // The parent "standard" modules are created with the content root node set to the project base.
+    // We need to collect all parent bases to avoid creating a shared sources parent module in the same directory.
+    val parentModulesBases = projectToSourceSet.map(_._1.base.path).toSeq
     val createSourceModule: (SharedSourcesGroup, Seq[LibraryNode], String, Seq[BuildProjectsGroup]) => ModuleDataNodeType =
       // note: we know that if separateProdTestSources are enabled, projectToSourceSet values will be of type CompleteModuleSourceSet
       // and if not, values will be of type PrentModuleSourceSet
       if (separateProdTestSources)
-        createSharedSourcesModuleNode(_, castMapValues[CompleteModuleSourceSet](projectToSourceSet), _, _, _)
+        createSharedSourcesModuleNode(_, castMapValues[CompleteModuleSourceSet](projectToSourceSet), _, _, _, parentModulesBases)
       else
         createSharedSourcesModuleNodeLegacy(_, castMapValues[PrentModuleSourceSet](projectToSourceSet), _, _, _)
 
@@ -166,7 +169,8 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver with ContentRootsR
     projectToSourceSet: Map[sbtStructure.ProjectData, CompleteModuleSourceSet],
     libraryNodes: Seq[LibraryNode],
     defaultModuleFilesDirectory: String,
-    buildProjectsGroups: Seq[BuildProjectsGroup]
+    buildProjectsGroups: Seq[BuildProjectsGroup],
+    parentModulesBases: Seq[String]
   ): ModuleDataNodeType = {
     val projects = rootGroup.projects
     val (parentModule, sharedSourcesMainModule, sharedSourcesTestModule) = {
@@ -200,7 +204,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver with ContentRootsR
         sourceRootsWithType,
         allSourceModules
       )
-      val parentModule = createParentSharedSourcesModule(rootGroup, moduleFilesDirectory)
+      val parentModule = createParentSharedSourcesModule(rootGroup, moduleFilesDirectory, parentModulesBases)
 
       representativeProjectModule.foreach { case CompleteModuleSourceSet(reprProjectModule, _, _) =>
         // put source module to the same module group
@@ -420,7 +424,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver with ContentRootsR
     (moduleNode, contentRootNode)
   }
 
-  private def createParentSharedSourcesModule(group: SharedSourcesGroup, moduleFilesDirectory: String): ModuleDataNodeType = {
+  private def createParentSharedSourcesModule(group: SharedSourcesGroup, moduleFilesDirectory: String, parentModulesBases: Seq[String]): ModuleDataNodeType = {
     val moduleNode = new NestedModuleNode(
       SharedSourcesModuleType.instance.getId,
       group.name,
@@ -428,10 +432,14 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver with ContentRootsR
       moduleFilesDirectory,
       group.base.canonicalPath
     )
-    val contentRootNode = new ContentRootNode(group.base.path)
+    val shouldCreateContentRoot = !parentModulesBases.contains(group.base.path)
+    if (shouldCreateContentRoot) {
+      val contentRootNode = new ContentRootNode(group.base.path)
+      contentRootNode.storePath(ExternalSystemSourceType.EXCLUDED, new File(group.base.path, "target").getAbsolutePath)
+      moduleNode.add(contentRootNode)
+    }
+
     moduleNode.add(new SbtDisplayModuleNameNode(group.name))
-    contentRootNode.storePath(ExternalSystemSourceType.EXCLUDED, new File(group.base.path, "target").getAbsolutePath)
-    moduleNode.add(contentRootNode)
 
     moduleNode.add(ModuleSdkNode.inheritFromProject)
 
@@ -670,7 +678,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver with ContentRootsR
       .toSeq
   }
 
-  private def getProjectSourceRootsExternalToAllProjects(projects: Seq[sbtStructure.ProjectData]): Seq[ProjectSourceRoot] = {
+  private def getProjectSourceRootsExternalToAllProjects(projects: Seq[sbtStructure.ProjectData])(implicit context: ImportContext): Seq[ProjectSourceRoot] = {
     val projectSourceRoots: Seq[ProjectSourceRoot] =
       projects.flatMap(project => sourceRootsIn(project).map(ProjectSourceRoot(project,_)))
 
@@ -804,8 +812,12 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver with ContentRootsR
     /**
      * @return true if the source root is located inside the current project base directory<br>
      *         false otherwise (the source root can be in some external shared sources root)
+     * @note   in main/test module mode, if the source root is equal to the project base directory, false is returned (whereas true is returned without main/test modules).
+     *         This is because a source directory equal to the project base might still be shared across multiple projects.
+     *         See https://youtrack.jetbrains.com/issue/SCL-23789
      */
-    def isInternal: Boolean = !sourceRoot.directory.isOutsideOf(project.base)
+    def isInternal(implicit context: ImportContext): Boolean =
+      sourceRoot.directory.isUnder(project.base, strict = context.useSeparateProdTestSources)
   }
 
   protected case class SourceRoot(
