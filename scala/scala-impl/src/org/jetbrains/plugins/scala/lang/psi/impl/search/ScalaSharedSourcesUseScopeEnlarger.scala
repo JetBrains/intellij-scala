@@ -8,7 +8,7 @@ import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.caches.cachedInUserData
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.project.ModuleExt
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.settings.BackReferencesFromSharedSources
 
 @ApiStatus.Internal
 class ScalaSharedSourcesUseScopeEnlarger extends UseScopeEnlarger {
@@ -23,7 +23,7 @@ class ScalaSharedSourcesUseScopeEnlarger extends UseScopeEnlarger {
     if (psiFile == null)
       return null
 
-    if (!ScalaProjectSettings.getInstance(psiFile.getProject).isEnableBackReferencesFromSharedSources)
+    if (!BackReferencesFromSharedSources.isEnabled)
       return null
 
     val sharedModules: Array[module.Module] = cachedInUserData("getAdditionalUseScope.sharedModules", psiFile, ScalaPsiManager.instance(psiFile.getProject).TopLevelModificationTracker, Tuple1(psiFile)) {

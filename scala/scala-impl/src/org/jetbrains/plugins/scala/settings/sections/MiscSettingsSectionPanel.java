@@ -27,7 +27,6 @@ public class MiscSettingsSectionPanel extends SettingsSectionPanel {
     private JPanel injectionJPanel;
     private JTextField scalaTestDefaultSuperClass;
     private JComboBox<ScalaProjectSettings.TrailingCommasMode> trailingCommasComboBox;
-    private JCheckBox supportBackReferencesInCheckBox;
     private JPanel rootPanel;
 
     private final List<DependencyAwareInjectionSettings.ComponentWithSettings> extraSettings = new ArrayList<>();
@@ -64,9 +63,7 @@ public class MiscSettingsSectionPanel extends SettingsSectionPanel {
         }
 
         return !scalaProjectSettings.getScalaTestDefaultSuperClass().equals(scalaTestDefaultSuperClass.getText()) ||
-                scalaProjectSettings.getTrailingCommasMode() != trailingCommasComboBox.getSelectedItem() ||
-                scalaProjectSettings.isEnableBackReferencesFromSharedSources() != supportBackReferencesInCheckBox.isSelected()
-                ;
+                scalaProjectSettings.getTrailingCommasMode() != trailingCommasComboBox.getSelectedItem();
     }
 
     @Override
@@ -79,8 +76,6 @@ public class MiscSettingsSectionPanel extends SettingsSectionPanel {
         if (trailingComa != null)
             scalaProjectSettings.setTrailingCommasMode(ScalaProjectSettings.TrailingCommasMode.valueOf(trailingComa.toString()));
 
-        scalaProjectSettings.setEnableBackReferencesFromSharedSources(supportBackReferencesInCheckBox.isSelected());
-
         extraSettings.forEach(s -> s.saveSettings(scalaProjectSettings));
     }
 
@@ -90,7 +85,6 @@ public class MiscSettingsSectionPanel extends SettingsSectionPanel {
 
         scalaTestDefaultSuperClass.setText(scalaProjectSettings.getScalaTestDefaultSuperClass());
         trailingCommasComboBox.setSelectedItem(scalaProjectSettings.getTrailingCommasMode());
-        supportBackReferencesInCheckBox.setSelected(scalaProjectSettings.isEnableBackReferencesFromSharedSources());
 
         for (DependencyAwareInjectionSettings.ComponentWithSettings setting : extraSettings) {
             setting.loadSettings(scalaProjectSettings);
@@ -112,8 +106,8 @@ public class MiscSettingsSectionPanel extends SettingsSectionPanel {
     private void $$$setupUI$$$() {
         createUIComponents();
         rootPanel = new JPanel();
-        rootPanel.setLayout(new GridLayoutManager(4, 2, new Insets(9, 9, 9, 9), -1, -1));
-        rootPanel.add(injectionJPanel, new GridConstraints(3, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        rootPanel.setLayout(new GridLayoutManager(3, 2, new Insets(9, 9, 9, 9), -1, -1));
+        rootPanel.add(injectionJPanel, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final JLabel label1 = new JLabel();
         this.$$$loadLabelText$$$(label1, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.scalatest.default.super.class"));
         rootPanel.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -125,10 +119,6 @@ public class MiscSettingsSectionPanel extends SettingsSectionPanel {
         rootPanel.add(label2, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         trailingCommasComboBox = new JComboBox();
         rootPanel.add(trailingCommasComboBox, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(200, -1), null, 1, false));
-        supportBackReferencesInCheckBox = new JCheckBox();
-        this.$$$loadButtonText$$$(supportBackReferencesInCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "support.back.references.in.shared.sources"));
-        supportBackReferencesInCheckBox.setToolTipText(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "support.back.references.in.shared.sources.tooltip"));
-        rootPanel.add(supportBackReferencesInCheckBox, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     private static Method $$$cachedGetBundleMethod$$$ = null;
@@ -171,33 +161,6 @@ public class MiscSettingsSectionPanel extends SettingsSectionPanel {
         component.setText(result.toString());
         if (haveMnemonic) {
             component.setDisplayedMnemonic(mnemonic);
-            component.setDisplayedMnemonicIndex(mnemonicIndex);
-        }
-    }
-
-    /**
-     * @noinspection ALL
-     */
-    private void $$$loadButtonText$$$(AbstractButton component, String text) {
-        StringBuffer result = new StringBuffer();
-        boolean haveMnemonic = false;
-        char mnemonic = '\0';
-        int mnemonicIndex = -1;
-        for (int i = 0; i < text.length(); i++) {
-            if (text.charAt(i) == '&') {
-                i++;
-                if (i == text.length()) break;
-                if (!haveMnemonic && text.charAt(i) != '&') {
-                    haveMnemonic = true;
-                    mnemonic = text.charAt(i);
-                    mnemonicIndex = result.length();
-                }
-            }
-            result.append(text.charAt(i));
-        }
-        component.setText(result.toString());
-        if (haveMnemonic) {
-            component.setMnemonic(mnemonic);
             component.setDisplayedMnemonicIndex(mnemonicIndex);
         }
     }
