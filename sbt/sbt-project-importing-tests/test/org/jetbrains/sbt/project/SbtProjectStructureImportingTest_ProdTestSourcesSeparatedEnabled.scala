@@ -307,6 +307,152 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
     }
   )
 
+  def testLibraryDependenciesOrder(): Unit = {
+    val expectedProject: project = new project("libraryDependenciesOrder") {
+      val scalaLibraries: Seq[dependency[library]] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14").map { library =>
+        new dependency(library) { scope := DependencyScope.COMPILE }
+      }
+
+      lazy val coreMain: module = new module("libraryDependenciesOrder.core.main") {
+        moduleDependencies ++= Seq()
+        libraryDependencies := scalaLibraries ++ Seq(
+          new dependency(new library(s"sbt: org.typelevel:cats-core_2.13:2.10.0:jar")) { scope := DependencyScope.COMPILE },
+          new dependency(new library(s"sbt: org.typelevel:cats-kernel_2.13:2.10.0:jar")) { scope := DependencyScope.COMPILE },
+          new dependency(new library(s"sbt: javax.servlet:javax.servlet-api:4.0.1:jar")) { scope := DependencyScope.RUNTIME },
+        )
+      }
+      lazy val coreTest: module = new module("libraryDependenciesOrder.core.test") {
+        moduleDependencies ++= Seq(
+          new dependency(coreMain) { isExported := false },
+        )
+        libraryDependencies := scalaLibraries ++ Seq(
+          new dependency(new library(s"sbt: org.typelevel:cats-core_2.13:2.10.0:jar")) { scope := DependencyScope.COMPILE },
+          new dependency(new library(s"sbt: javax.servlet:javax.servlet-api:4.0.1:jar")) { scope := DependencyScope.COMPILE },
+          new dependency(new library(s"sbt: org.scalameta:munit_2.13:1.0.0-M9:jar")) { scope := DependencyScope.COMPILE },
+          new dependency(new library(s"sbt: org.typelevel:cats-kernel_2.13:2.10.0:jar")) { scope := DependencyScope.COMPILE },
+          new dependency(new library(s"sbt: org.scalameta:junit-interface:1.0.0-M9:jar")) { scope := DependencyScope.COMPILE },
+          new dependency(new library(s"sbt: junit:junit:4.13.2:jar")) { scope := DependencyScope.COMPILE },
+          new dependency(new library(s"sbt: org.scala-sbt:test-interface:1.0:jar")) { scope := DependencyScope.COMPILE },
+          new dependency(new library(s"sbt: org.hamcrest:hamcrest-core:1.3:jar")) { scope := DependencyScope.COMPILE },
+        )
+      }
+      lazy val core: module = new module("libraryDependenciesOrder.core") {
+        moduleDependencies ++= Seq(
+          new dependency(coreMain) { isExported := false },
+          new dependency(coreTest) { isExported := false }
+        )
+        libraryDependencies := Seq()
+      }
+
+      lazy val apiMain: module = new module("libraryDependenciesOrder.api.main") {
+        moduleDependencies ++= Seq(
+          new dependency(coreMain) {
+            isExported := false
+            scope := DependencyScope.RUNTIME
+          },
+        )
+        libraryDependencies := scalaLibraries ++ Seq(
+          new dependency(new library(s"sbt: com.typesafe.akka:akka-http_2.13:10.4.0:jar")) { scope := DependencyScope.PROVIDED },
+          new dependency(new library(s"sbt: com.typesafe.akka:akka-http-core_2.13:10.4.0:jar")) { scope := DependencyScope.PROVIDED },
+          new dependency(new library(s"sbt: com.typesafe.akka:akka-parsing_2.13:10.4.0:jar")) { scope := DependencyScope.PROVIDED },
+          new dependency(new library(s"sbt: org.typelevel:cats-core_2.13:2.10.0:jar")) { scope := DependencyScope.RUNTIME },
+          new dependency(new library(s"sbt: javax.servlet:javax.servlet-api:4.0.1:jar")) { scope := DependencyScope.RUNTIME },
+          new dependency(new library(s"sbt: org.typelevel:cats-kernel_2.13:2.10.0:jar")) { scope := DependencyScope.RUNTIME },
+        )
+      }
+      lazy val apiTest: module = new module("libraryDependenciesOrder.api.test") {
+        moduleDependencies ++= Seq(
+          new dependency(apiMain) { isExported := false },
+          new dependency(coreMain) {
+            isExported := false
+            scope := DependencyScope.COMPILE
+          },
+        )
+        libraryDependencies := scalaLibraries ++ Seq(
+          new dependency(new library(s"sbt: com.typesafe.akka:akka-http_2.13:10.4.0:jar")) { scope := DependencyScope.COMPILE },
+          new dependency(new library(s"sbt: org.typelevel:cats-core_2.13:2.10.0:jar")) { scope := DependencyScope.COMPILE },
+          new dependency(new library(s"sbt: javax.servlet:javax.servlet-api:4.0.1:jar")) { scope := DependencyScope.COMPILE },
+          new dependency(new library(s"sbt: com.typesafe.akka:akka-http-core_2.13:10.4.0:jar")) { scope := DependencyScope.COMPILE },
+          new dependency(new library(s"sbt: org.typelevel:cats-kernel_2.13:2.10.0:jar")) { scope := DependencyScope.COMPILE },
+          new dependency(new library(s"sbt: com.typesafe.akka:akka-parsing_2.13:10.4.0:jar")) { scope := DependencyScope.COMPILE },
+        )
+      }
+      lazy val api: module = new module("libraryDependenciesOrder.api") {
+        moduleDependencies ++= Seq(
+          new dependency(apiMain) { isExported := false },
+          new dependency(apiTest) { isExported := false }
+        )
+        libraryDependencies := Seq()
+      }
+
+      lazy val serviceMain: module = new module("libraryDependenciesOrder.service.main") {
+        moduleDependencies ++= Seq()
+        libraryDependencies := scalaLibraries
+      }
+      lazy val serviceTest: module = new module("libraryDependenciesOrder.service.test") {
+        moduleDependencies ++= Seq(
+          new dependency(serviceMain) {
+            isExported := false
+            scope := DependencyScope.COMPILE
+          },
+          new dependency(apiMain) {
+            isExported := false
+            scope := DependencyScope.COMPILE
+          },
+          new dependency(apiTest) {
+            isExported := false
+            scope := DependencyScope.COMPILE
+          },
+          new dependency(coreMain) {
+            isExported := false
+            scope := DependencyScope.COMPILE
+          }
+        )
+        libraryDependencies := scalaLibraries ++ Seq(
+          new dependency(new library(s"sbt: ch.qos.logback:logback-classic:1.4.9:jar")) { scope := DependencyScope.COMPILE },
+          new dependency(new library(s"sbt: ch.qos.logback:logback-core:1.4.9:jar")) { scope := DependencyScope.COMPILE },
+          new dependency(new library(s"sbt: org.slf4j:slf4j-api:2.0.7:jar")) { scope := DependencyScope.COMPILE },
+          new dependency(new library(s"sbt: org.typelevel:cats-core_2.13:2.10.0:jar")) { scope := DependencyScope.COMPILE },
+          new dependency(new library(s"sbt: javax.servlet:javax.servlet-api:4.0.1:jar")) { scope := DependencyScope.COMPILE },
+          new dependency(new library(s"sbt: org.typelevel:cats-kernel_2.13:2.10.0:jar")) { scope := DependencyScope.COMPILE },
+        )
+      }
+      lazy val service: module = new module("libraryDependenciesOrder.service") {
+        moduleDependencies ++= Seq(
+          new dependency(serviceMain) { isExported := false },
+          new dependency(serviceTest) { isExported := false }
+        )
+        libraryDependencies := Seq()
+      }
+
+      lazy val rootMain: module = new module("libraryDependenciesOrder.main") {
+        moduleDependencies ++= Seq()
+        libraryDependencies := scalaLibraries
+      }
+      lazy val rootTest: module = new module("libraryDependenciesOrder.test") {
+        moduleDependencies ++= Seq(
+          new dependency(rootMain) { isExported := false }
+        )
+        libraryDependencies := scalaLibraries
+      }
+      lazy val root: module = new module("libraryDependenciesOrder") {
+        moduleDependencies ++= Seq(
+          new dependency(rootMain) { isExported := false },
+          new dependency(rootTest) { isExported := false }
+        )
+        libraryDependencies := Seq()
+      }
+
+      modules := Seq(
+        root, rootMain, rootTest,
+        core, coreMain, coreTest,
+        api, apiMain, apiTest,
+        service, serviceMain, serviceTest
+      )
+    }
+    runTest(expectedProject, _.copy(checkLibraryDependenciesOrder = true))
+  }
+
   def testUnmanagedDependency(): Unit = runTest(
     new project("unmanagedDependency") {
       val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")

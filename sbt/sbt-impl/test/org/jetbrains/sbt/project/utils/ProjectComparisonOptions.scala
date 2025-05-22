@@ -7,16 +7,25 @@ package org.jetbrains.sbt.project.utils
  */
 case class ProjectComparisonOptions(
   strictCheckForBuildModules: Boolean,
-  scalaCliStructureHelper: Option[ScalaCliStructureHelper]
+  scalaCliStructureHelper: Option[ScalaCliStructureHelper],
+  checkLibraryDependenciesOrder: Boolean
 )
 
 object ProjectComparisonOptions {
   val Default: ProjectComparisonOptions =
-    ProjectComparisonOptions(strictCheckForBuildModules = false, scalaCliStructureHelper = None)
+    ProjectComparisonOptions(
+      strictCheckForBuildModules = false,
+      scalaCliStructureHelper = None,
+      checkLibraryDependenciesOrder = false
+    )
 
   def apply(strictCheckForBuildModules: Boolean): ProjectComparisonOptions =
-    ProjectComparisonOptions(strictCheckForBuildModules, scalaCliStructureHelper = None)
+    ProjectComparisonOptions(strictCheckForBuildModules, scalaCliStructureHelper = None, checkLibraryDependenciesOrder = false)
 
   def apply(scalaCliProjectName: String): ProjectComparisonOptions =
-    ProjectComparisonOptions(strictCheckForBuildModules = false, scalaCliStructureHelper = Some(ScalaCliStructureHelper(scalaCliProjectName)))
+    ProjectComparisonOptions(
+      strictCheckForBuildModules = false,
+      scalaCliStructureHelper = Some(ScalaCliStructureHelper(scalaCliProjectName)),
+      checkLibraryDependenciesOrder = false
+    )
 }

@@ -396,7 +396,12 @@ trait ProjectStructureMatcher {
   private def assertLibraryDependenciesEqual(module: Module)(expected: Seq[dependency[library]])(mt: Option[MatchType])
                                             (implicit compareContext: ProjectStructureComparisonContext): Unit = {
     val actualLibraryEntries = roots.OrderEnumerator.orderEntries(module).libraryEntries
-    assertNamesEqualIgnoreOrder(s"Library dependency of module `${module.getName}`", expected.map(_.reference), actualLibraryEntries.map(_.getLibrary))(mt)
+    val assertNamesMethod : (String, Seq[Named], Seq[Library]) => Option[MatchType] => Unit =
+      if (compareContext.options.checkLibraryDependenciesOrder) assertNamesEqual
+      else assertNamesEqualIgnoreOrder
+
+    assertNamesMethod(s"Library dependency of module `${module.getName}`", expected.map(_.reference), actualLibraryEntries.map(_.getLibrary))(mt)
+
     assertUnmanagedLibraryIsAboveOtherLibrariesIfExists(actualLibraryEntries)
     pairByName(expected, actualLibraryEntries).foreach((assertDependencyScopeAndExportedFlagEqual _).tupled)
   }
@@ -492,6 +497,13 @@ trait ProjectStructureMatcher {
                                             (implicit nameOf: HasName[T], compareContext: ProjectStructureComparisonContext): Unit = {
     val actualNames = actual.map(s => convertIfScalaCli(nameOf(s)))
     assertMatchWithIgnoredOrder(what, expected.map(_.name), actualNames)(mt)
+  }
+
+  private def assertNamesEqual[T](what: String, expected: Seq[Named], actual: Seq[T])
+                                 (mt: Option[MatchType])
+                                 (implicit nameOf: HasName[T], compareContext: ProjectStructureComparisonContext): Unit = {
+    val actualNames = actual.map(s => convertIfScalaCli(nameOf(s)))
+    assertMatch(what, expected.map(_.name), actualNames)(mt)
   }
 
   /**
