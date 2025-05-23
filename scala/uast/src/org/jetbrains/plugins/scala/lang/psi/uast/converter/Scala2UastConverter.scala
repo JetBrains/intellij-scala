@@ -282,7 +282,7 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
             funRef.resolve().is[PsiMethod, ScSyntheticFunction] =>
           functionReferenceCall(funRef, _)
 
-        case ScUReferenceExpression(parent2ScURef) =>
+        case ref @ ScUReferenceExpression(parent2ScURef) if !ref.isInstanceOf[ScTypeElement] =>
           parent2ScURef(_)
 
         case e: ScTypeElement if e.getFirstChild.is[ScReference] =>
