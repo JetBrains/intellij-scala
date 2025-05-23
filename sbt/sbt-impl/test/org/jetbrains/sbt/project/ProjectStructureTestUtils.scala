@@ -78,7 +78,7 @@ object ProjectStructureTestUtils {
     }
     val scalaSdkLibrary = expectedScalaSdkLibraryFromCoursier(useEnv: Boolean)(scalaVersion, projectSystemId)
 
-    scalaLibrary +: scalaLibraryTransitive :+ scalaSdkLibrary
+    scalaSdkLibrary +: scalaLibraryTransitive :+ scalaLibrary
   }
 
   private def expectedScalaLibraryFromCoursier(useEnv: Boolean)(scalaVersion: ScalaVersion, libraryName: String): library = {

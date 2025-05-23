@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertC
 import org.jetbrains.sbt.actions.SbtDirectoryCompletionContributor
 import org.jetbrains.sbt.project.SbtProjectStructureImportingLike.CollectingNotificationsListener
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
-import org.jetbrains.sbt.project.utils.ProjectStructureComparisonContext
+import org.jetbrains.sbt.project.utils.{ProjectComparisonOptions, ProjectStructureComparisonContext}
 import org.jetbrains.sbt.settings.SbtSettings
 import org.junit.Assert
 import org.junit.Assert.fail
@@ -54,7 +54,10 @@ abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImporti
   protected implicit lazy val defaultCompareContext: ProjectStructureComparisonContext =
     ProjectStructureComparisonContext.Implicit.default(getProject)
 
-  protected def runTest(expected: project): Unit = {
+  protected def runTest(expected: project): Unit =
+    runTest(expected, identity)
+
+  protected def runTest(expected: project, optionsModifier: ProjectComparisonOptions => ProjectComparisonOptions): Unit = {
     val notificationsCollector = new CollectingNotificationsListener(Set(NotificationType.WARNING, NotificationType.ERROR))
     getProject.getMessageBus.connect().subscribe(Notifications.TOPIC, notificationsCollector)
 
@@ -72,7 +75,7 @@ abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImporti
     }
 
 
-    assertProjectsEqual(expected, myProject, !enableSeparateModulesForProdTest)(defaultCompareContext)
+    assertProjectsEqual(expected, myProject, !enableSeparateModulesForProdTest)(defaultCompareContext.withOptions(optionsModifier))
     assertNoNotificationsShown(myProject, notificationsCollector.getNotifications)
   }
 
