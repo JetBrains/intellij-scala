@@ -285,6 +285,11 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
         case ref @ ScUReferenceExpression(parent2ScURef) if !ref.isInstanceOf[ScTypeElement] =>
           parent2ScURef(_)
 
+        case e: ScExistentialTypeElement =>
+          // Unsupported element type.
+          // Needs to be ordered before ScTypeElement because ScExistentialTypeElement <: ScTypeElement.
+          new UnknownScalaElement(e, _)
+
         case e: ScTypeElement if e.getFirstChild.is[ScReference] =>
           new ScUTypeReferenceExpression(
             e.getFirstChild.asInstanceOf[ScReference],
@@ -313,7 +318,6 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
         // ========================= UNSUPPORTED ================================
 
         case e: ScFor                    => new ScUEmptyExpressionWithGivenType(e, _)
-        case e: ScExistentialTypeElement => new UnknownScalaElement(e, _)
         case _                           => null
       }): LazyUElement => UElement)
         .map(Free.fromLazyConstructor[UElement](_))
