@@ -1,5 +1,6 @@
 package org.jetbrains.sbt.project
 
+import com.intellij.openapi.client.ClientSystemInfo
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.module.{JavaModuleType, ModuleType}
 import com.intellij.openapi.project.Project
@@ -21,7 +22,19 @@ object ProjectStructureTestUtils {
 
   private def coursierCacheRoot(useEnv: Boolean): String =
     sys.env.get("TC_SBT_COURSIER_HOME").map(p => s"$p/cache").filter(_ => useEnv)
-      .getOrElse(withoutPathSuffix(CoursierPaths.cacheDirectory.toAbsolutePath.toString))
+      .getOrElse(coursierCachePathFallback)
+
+  private def coursierCachePathFallback: String = {
+    val cacheDir = withoutPathSuffix(CoursierPaths.cacheDirectory.toAbsolutePath.toString)
+    //noinspection ApiStatus,UnstableApiUsage
+    if (ClientSystemInfo.isWindows) {
+      if (cacheDir.contains("community") && cacheDir.contains("null")) {
+        // A glitch that happens on TC on Windows agents. I have not been able to reproduce it locally.
+        return s"${System.getProperty("user.home")}/AppData/Local/Coursier/cache/v1"
+      }
+    }
+    cacheDir
+  }
 
   private def withoutPathSuffix(path: String) =
     path.stripSuffix("/").stripSuffix("\\")
