@@ -1,0 +1,5 @@
+package org.jetbrains.plugins.scala.bazel
+
+import org.jetbrains.bazel.java.ui.gutters.BazelJavaRunLineMarkerContributor
+
+class BazelScalaRunLineMarkerContributor extends BazelJavaRunLineMarkerContributor

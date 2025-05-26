@@ -436,7 +436,7 @@
         <typeDeclarationProvider implementation="org.jetbrains.plugins.scala.annotator.gutter.ScalaGotoTypeDeclarationProvider"/>
         <commentCompleteHandler implementation="org.jetbrains.plugins.scala.lang.scaladoc.ScalaIsCommentComplete"/>
         <elementDescriptionProvider implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScalaClassElementDescriptionProvider"/>
-        <runLineMarkerContributor implementationClass="org.jetbrains.plugins.scala.runner.ScalaRunLineMarkerContributor" language="Scala"/>
+        <runLineMarkerContributor id="ScalaRunLineMarkerContributor" implementationClass="org.jetbrains.plugins.scala.runner.ScalaRunLineMarkerContributor" language="Scala"/>
 
         <projectSdkSetupValidator implementation="org.jetbrains.plugins.scala.project.notification.ScalaProjectSdkSetupValidator"/>
 
