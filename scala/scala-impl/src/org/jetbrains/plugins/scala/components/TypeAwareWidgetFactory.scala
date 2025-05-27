@@ -45,8 +45,7 @@ private object TypeAwareWidgetFactory {
      * project, based on whether it is a Scala project.
      */
     override def exitDumbMode(): Unit = {
-      val service = project.getService(classOf[StatusBarWidgetsManager])
-      service.updateWidget(classOf[TypeAwareWidgetFactory])
+      TypeAwareWidgetUpdater.updateWidget(project)
     }
   }
 }
