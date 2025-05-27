@@ -1,0 +1,179 @@
+enum Parser[+Value]:
+  case Success(value: Value, issues: Seq[Failure] = Seq.empty) extends Parser[Value]
+  case Failure(exception: Throwable)                           extends Parser[Nothing]
+
+val v = Parser.Success(1)
+-----
+ScalaFile
+  ScEnum: Parser
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(enum)('enum')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Parser')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Value
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('Value')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: Success
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumClassCase: Success
+            PsiElement(identifier)('Success')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  ClassParameter: value
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('value')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: Value
+                        CodeReferenceElement: Value
+                          PsiElement(identifier)('Value')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ClassParameter: issues
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('issues')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      ParametrizedType: Seq[Failure]
+                        SimpleType: Seq
+                          CodeReferenceElement: Seq
+                            PsiElement(identifier)('Seq')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: Failure
+                            CodeReferenceElement: Failure
+                              PsiElement(identifier)('Failure')
+                          PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: Seq.empty
+                      ReferenceExpression: Seq
+                        PsiElement(identifier)('Seq')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('empty')
+                  PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  ParametrizedType: Parser[Value]
+                    SimpleType: Parser
+                      CodeReferenceElement: Parser
+                        PsiElement(identifier)('Parser')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: Value
+                        CodeReferenceElement: Value
+                          PsiElement(identifier)('Value')
+                      PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: Failure
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumClassCase: Failure
+            PsiElement(identifier)('Failure')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  ClassParameter: exception
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('exception')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: Throwable
+                        CodeReferenceElement: Throwable
+                          PsiElement(identifier)('Throwable')
+                  PsiElement())(')')
+            PsiWhiteSpace('                           ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  ParametrizedType: Parser[Nothing]
+                    SimpleType: Parser
+                      CodeReferenceElement: Parser
+                        PsiElement(identifier)('Parser')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: Nothing
+                        CodeReferenceElement: Nothing
+                          PsiElement(identifier)('Nothing')
+                      PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: v
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: v
+        PsiElement(identifier)('v')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: Parser.Success
+        ReferenceExpression: Parser
+          PsiElement(identifier)('Parser')
+        PsiElement(.)('.')
+        PsiElement(identifier)('Success')
+      ArgumentList
+        PsiElement(()('(')
+        IntegerLiteral
+          PsiElement(integer)('1')
+        PsiElement())(')')

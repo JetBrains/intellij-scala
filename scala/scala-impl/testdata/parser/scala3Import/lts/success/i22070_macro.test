@@ -1,0 +1,397 @@
+trait Featureful[T]:
+  def toFeatures(value: T): IArray[Float]
+
+object Featureful:
+  inline def derived[T](using scala.deriving.Mirror.Of[T]) = ${ derivedImpl[T] }
+
+  import scala.quoted.*
+  private def derivedImpl[T: Type](using Quotes): Expr[Featureful[T]] =
+    import quotes.reflect.*
+    '{
+      new Featureful[T]:
+        def toFeatures(value: T) =
+          val feats   = IArray.empty[Featureful[?]]
+          val product = value.asInstanceOf[Product]
+          product.productIterator.zipWithIndex.foreach: (any, idx) =>
+            feats(idx).toFeatures(any.asInstanceOf)
+          IArray.empty
+    }
+-----
+ScalaFile
+  ScTrait: Featureful
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Featureful')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: toFeatures
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('toFeatures')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: value
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('value')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: IArray[Float]
+            SimpleType: IArray
+              CodeReferenceElement: IArray
+                PsiElement(identifier)('IArray')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Float
+                CodeReferenceElement: Float
+                  PsiElement(identifier)('Float')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScObject: Featureful
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Featureful')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: derived
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('derived')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(using)('using')
+              PsiWhiteSpace(' ')
+              Parameter: <anonymous>
+                ParameterType
+                  ParametrizedType: scala.deriving.Mirror.Of[T]
+                    SimpleType: scala.deriving.Mirror.Of
+                      CodeReferenceElement: scala.deriving.Mirror.Of
+                        CodeReferenceElement: scala.deriving.Mirror
+                          CodeReferenceElement: scala.deriving
+                            CodeReferenceElement: scala
+                              PsiElement(identifier)('scala')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('deriving')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Mirror')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Of')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SplicedBlock
+            PsiElement($)('$')
+            PsiElement({)('{')
+            PsiWhiteSpace(' ')
+            GenericCall
+              ReferenceExpression: derivedImpl
+                PsiElement(identifier)('derivedImpl')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: scala.quoted
+              CodeReferenceElement: scala
+                PsiElement(identifier)('scala')
+              PsiElement(.)('.')
+              PsiElement(identifier)('quoted')
+            PsiElement(.)('.')
+            PsiElement(*)('*')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: derivedImpl
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('derivedImpl')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ScContextBoundImpl(context bound)
+                SimpleType: Type
+                  CodeReferenceElement: Type
+                    PsiElement(identifier)('Type')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(using)('using')
+              PsiWhiteSpace(' ')
+              Parameter: <anonymous>
+                ParameterType
+                  SimpleType: Quotes
+                    CodeReferenceElement: Quotes
+                      PsiElement(identifier)('Quotes')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Expr[Featureful[T]]
+            SimpleType: Expr
+              CodeReferenceElement: Expr
+                PsiElement(identifier)('Expr')
+            TypeArgumentsList
+              PsiElement([)('[')
+              ParametrizedType: Featureful[T]
+                SimpleType: Featureful
+                  CodeReferenceElement: Featureful
+                    PsiElement(identifier)('Featureful')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+                  PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScImportStatement
+              PsiElement(import)('import')
+              PsiWhiteSpace(' ')
+              ImportExpression
+                CodeReferenceElement: quotes.reflect
+                  CodeReferenceElement: quotes
+                    PsiElement(identifier)('quotes')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('reflect')
+                PsiElement(.)('.')
+                PsiElement(*)('*')
+            PsiWhiteSpace('\n    ')
+            QuotedBlock
+              PsiElement(')(''')
+              PsiElement({)('{')
+              PsiWhiteSpace('\n      ')
+              ScNewTemplateDefinition: <anonymous>
+                PsiElement(new)('new')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      ParametrizedType: Featureful[T]
+                        SimpleType: Featureful
+                          CodeReferenceElement: Featureful
+                            PsiElement(identifier)('Featureful')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleType: T
+                            CodeReferenceElement: T
+                              PsiElement(identifier)('T')
+                          PsiElement(])(']')
+                  ScTemplateBody
+                    PsiElement(:)(':')
+                    PsiWhiteSpace('\n        ')
+                    ScFunctionDefinition: toFeatures
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(def)('def')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('toFeatures')
+                      Parameters
+                        ParametersClause
+                          PsiElement(()('(')
+                          Parameter: value
+                            AnnotationsList
+                              <empty list>
+                            Modifiers
+                              <empty list>
+                            PsiElement(identifier)('value')
+                            PsiElement(:)(':')
+                            PsiWhiteSpace(' ')
+                            ParameterType
+                              SimpleType: T
+                                CodeReferenceElement: T
+                                  PsiElement(identifier)('T')
+                          PsiElement())(')')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      BlockExpression
+                        PsiWhiteSpace('\n          ')
+                        ScPatternDefinition: feats
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(val)('val')
+                          PsiWhiteSpace(' ')
+                          ListOfPatterns
+                            ReferencePattern: feats
+                              PsiElement(identifier)('feats')
+                          PsiWhiteSpace('   ')
+                          PsiElement(=)('=')
+                          PsiWhiteSpace(' ')
+                          GenericCall
+                            ReferenceExpression: IArray.empty
+                              ReferenceExpression: IArray
+                                PsiElement(identifier)('IArray')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('empty')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              ParametrizedType: Featureful[?]
+                                SimpleType: Featureful
+                                  CodeReferenceElement: Featureful
+                                    PsiElement(identifier)('Featureful')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  WildcardType: ?
+                                    PsiElement(?)('?')
+                                  PsiElement(])(']')
+                              PsiElement(])(']')
+                        PsiWhiteSpace('\n          ')
+                        ScPatternDefinition: product
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(val)('val')
+                          PsiWhiteSpace(' ')
+                          ListOfPatterns
+                            ReferencePattern: product
+                              PsiElement(identifier)('product')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=)('=')
+                          PsiWhiteSpace(' ')
+                          GenericCall
+                            ReferenceExpression: value.asInstanceOf
+                              ReferenceExpression: value
+                                PsiElement(identifier)('value')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('asInstanceOf')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              SimpleType: Product
+                                CodeReferenceElement: Product
+                                  PsiElement(identifier)('Product')
+                              PsiElement(])(']')
+                        PsiWhiteSpace('\n          ')
+                        MethodCall
+                          ReferenceExpression: product.productIterator.zipWithIndex.foreach
+                            ReferenceExpression: product.productIterator.zipWithIndex
+                              ReferenceExpression: product.productIterator
+                                ReferenceExpression: product
+                                  PsiElement(identifier)('product')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('productIterator')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('zipWithIndex')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('foreach')
+                          ArgumentList
+                            BlockExpression
+                              PsiElement(:)(':')
+                              PsiWhiteSpace(' ')
+                              FunctionExpression
+                                Parameters
+                                  ParametersClause
+                                    PsiElement(()('(')
+                                    Parameter: any
+                                      AnnotationsList
+                                        <empty list>
+                                      PsiElement(identifier)('any')
+                                    PsiElement(,)(',')
+                                    PsiWhiteSpace(' ')
+                                    Parameter: idx
+                                      AnnotationsList
+                                        <empty list>
+                                      PsiElement(identifier)('idx')
+                                    PsiElement())(')')
+                                PsiWhiteSpace(' ')
+                                PsiElement(=>)('=>')
+                                PsiWhiteSpace('\n            ')
+                                BlockOfExpressions
+                                  MethodCall
+                                    ReferenceExpression: feats(idx).toFeatures
+                                      MethodCall
+                                        ReferenceExpression: feats
+                                          PsiElement(identifier)('feats')
+                                        ArgumentList
+                                          PsiElement(()('(')
+                                          ReferenceExpression: idx
+                                            PsiElement(identifier)('idx')
+                                          PsiElement())(')')
+                                      PsiElement(.)('.')
+                                      PsiElement(identifier)('toFeatures')
+                                    ArgumentList
+                                      PsiElement(()('(')
+                                      ReferenceExpression: any.asInstanceOf
+                                        ReferenceExpression: any
+                                          PsiElement(identifier)('any')
+                                        PsiElement(.)('.')
+                                        PsiElement(identifier)('asInstanceOf')
+                                      PsiElement())(')')
+                        PsiWhiteSpace('\n          ')
+                        ReferenceExpression: IArray.empty
+                          ReferenceExpression: IArray
+                            PsiElement(identifier)('IArray')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('empty')
+              PsiWhiteSpace('\n    ')
+              PsiElement(})('}')

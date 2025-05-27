@@ -1,0 +1,191 @@
+
+infix trait as[From, To]
+
+val conv: (String as Int) = ???
+given instance: (String as Int) = ???
+def test(ev: (String as Int)) = ???
+
+class F
+
+class K extends (F as K)
+-----
+ScalaFile
+  ScTrait: as
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(infix)('infix')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('as')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: From
+        PsiElement(identifier)('From')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: To
+        PsiElement(identifier)('To')
+      PsiElement(])(']')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: conv
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: conv
+        PsiElement(identifier)('conv')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    TypeInParenthesis: (String as Int)
+      PsiElement(()('(')
+      InfixType: String as Int
+        SimpleType: String
+          CodeReferenceElement: String
+            PsiElement(identifier)('String')
+        PsiWhiteSpace(' ')
+        CodeReferenceElement: as
+          PsiElement(identifier)('as')
+        PsiWhiteSpace(' ')
+        SimpleType: Int
+          CodeReferenceElement: Int
+            PsiElement(identifier)('Int')
+      PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n')
+  ScGivenAliasDefinition: instance
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(given)('given')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('instance')
+    PsiElement(:)(':')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    TypeInParenthesis: (String as Int)
+      PsiElement(()('(')
+      InfixType: String as Int
+        SimpleType: String
+          CodeReferenceElement: String
+            PsiElement(identifier)('String')
+        PsiWhiteSpace(' ')
+        CodeReferenceElement: as
+          PsiElement(identifier)('as')
+        PsiWhiteSpace(' ')
+        SimpleType: Int
+          CodeReferenceElement: Int
+            PsiElement(identifier)('Int')
+      PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: ev
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('ev')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            TypeInParenthesis: (String as Int)
+              PsiElement(()('(')
+              InfixType: String as Int
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: as
+                  PsiElement(identifier)('as')
+                PsiWhiteSpace(' ')
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+              PsiElement())(')')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScClass: F
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('F')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScClass: K
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('K')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          TypeInParenthesis: (F as K)
+            PsiElement(()('(')
+            InfixType: F as K
+              SimpleType: F
+                CodeReferenceElement: F
+                  PsiElement(identifier)('F')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: as
+                PsiElement(identifier)('as')
+              PsiWhiteSpace(' ')
+              SimpleType: K
+                CodeReferenceElement: K
+                  PsiElement(identifier)('K')
+            PsiElement())(')')
