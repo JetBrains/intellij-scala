@@ -10,7 +10,7 @@ import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFileManager
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.build.BuildReporter
-import org.jetbrains.plugins.scala.extensions.{OptionExt, RichFile}
+import org.jetbrains.plugins.scala.extensions.{OptionExt, RichFile, executeOnPooledThread}
 import org.jetbrains.plugins.scala.startup.ProjectActivity
 import org.jetbrains.sbt.{Sbt, SbtBundle, SbtUtil, SbtVersion, SbtVersionDetector}
 
@@ -40,11 +40,20 @@ private object LegacySbtVersionNotifications {
   // For external system projects
   class MyDumbModeListener extends DumbModeListener {
     override def exitDumbMode(): Unit = {
-      ProjectManager.getInstance().getOpenProjects.foreach(onProjectLoaded)
+      executeOnPooledThread {
+        checkAllOpenProjects()
+      }
     }
   }
 
+  private def checkAllOpenProjects(): Unit = {
+    ProjectManager.getInstance().getOpenProjects.foreach(onProjectLoaded)
+  }
+
   private def onProjectLoaded(project: Project): Unit = {
+    if (project.isDisposed)
+      return
+
     if (!isShownInCurrentSession(project)) {
       for {
         projectRoot <- SbtUtil.getWorkingDirPathOpt(project)
