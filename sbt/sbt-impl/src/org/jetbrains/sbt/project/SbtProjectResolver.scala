@@ -881,7 +881,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
         Compile / sourceDirectory := baseDirectory.value
     In such cases, excluded directories should be added to this content root, and there should be no content root in the parent module.
     */
-    val contentRootWithProjectBase = (testContentRoots ++ mainContentRoots).find(_.data.getRootPath == project.base.path)
+    val contentRootWithProjectBase = (testContentRoots ++ mainContentRoots).find(_.data.getRootPath == SbtUtil.normalizePath(project.base))
     contentRootWithProjectBase match {
       case Some(contentRoot) => storeExcludedPathsInContentRoot(contentRoot, project)
       case None => parentModule.add(createParentContentRoot(project))
