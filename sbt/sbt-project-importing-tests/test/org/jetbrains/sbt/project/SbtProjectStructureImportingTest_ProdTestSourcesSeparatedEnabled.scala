@@ -3523,6 +3523,7 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
         )
       }
     )
+    buildProjectAndAssertNoWarningsOrErrors()
   }
 
   private def standardRoots(relativePath: String, scope: String): Seq[String] = {

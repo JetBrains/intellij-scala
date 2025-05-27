@@ -272,6 +272,12 @@ abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImporti
       IncrementalityType.SBT,
       incrementalityType
     )
+    buildProjectAndAssertNoWarningsOrErrors()
+  }
+
+  protected def buildProjectAndAssertNoWarningsOrErrors(): Unit = {
+    val compilerConfiguration = ScalaCompilerConfiguration.instanceIn(getProject)
+    val incrementalityType = compilerConfiguration.incrementalityType
 
     val modules = ModuleManager.getInstance(getProject).getModules
     val compiler = new CompilerTester(getProject, java.util.Arrays.asList(modules: _*), null, false)
@@ -285,7 +291,7 @@ abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImporti
       val messages = compiler.rebuild().asScala.toSeq
       val warningsOrErrors: Seq[CompilerMessage] = messages.filter(m => Set(CompilerMessageCategory.ERROR, CompilerMessageCategory.WARNING).contains(m.getCategory))
       Assert.assertEquals(
-        s"Expecting no compilation warnings or errors (with ${incrementalityType} incremental compiler)",
+        s"Expecting no compilation warnings or errors (with $incrementalityType incremental compiler)",
         "",
         warningsOrErrors.map(buildMessageText).mkString("\n")
       )
