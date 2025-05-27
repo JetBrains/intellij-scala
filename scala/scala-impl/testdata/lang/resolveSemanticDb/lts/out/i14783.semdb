@@ -42,8 +42,8 @@ Document tests/pos/i14783.scala
 (21:24..21:27) _empty_/Tasty#ast(). -> 43:7
 (22:7..22:16) local3 -> 19:9
 (22:17..22:29) _empty_/Quotes#reflect.TreeTraverser#traverseTree(). -> 51:11
-(22:30..22:34) local7 -> 21:11
-(22:36..22:40) local7 -> 21:11
+(22:30..22:34) local6 -> 21:11
+(22:36..22:40) local6 -> 21:11
 (22:41..22:47) _empty_/Quotes#reflect.symbol(). -> 48:32
 (27:17..27:23) _empty_/Quotes# -> 45:7
 (27:27..27:39) _empty_/WartUniverse# -> 31:16

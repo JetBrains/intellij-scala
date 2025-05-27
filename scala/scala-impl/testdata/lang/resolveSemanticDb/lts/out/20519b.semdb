@@ -1,0 +1,33 @@
+Document tests/pos/20519b.scala
+(3:21..3:22) _empty_/`20519b$package`.boo().[F] -> 3:9
+(3:23..3:29) scala/Option#
+(3:30..3:31) _empty_/`20519b$package`.boo().[A] -> 3:15
+(3:39..3:42) _empty_/TCl# -> 1:7
+(3:43..3:44) _empty_/`20519b$package`.boo().[F] -> 3:9
+(3:48..3:52) scala/Unit#
+(5:24..5:25) _empty_/`20519b$package`.Result#[F] -> 5:13
+(5:26..5:32) scala/Option#
+(5:33..5:34) _empty_/`20519b$package`.Result#[A] -> 5:19
+(7:2..7:6) scala/main#
+(8:3..8:9) scala/Predef.summon().
+(8:10..8:16) _empty_/`20519b$package`.Result# -> 5:6
+(8:25..8:28) scala/Int#
+(8:30..8:33) scala/`=:=`#
+(8:34..8:40) scala/Option#
+(8:41..8:47) scala/Option#
+(8:48..8:51) scala/Int#
+(10:16..10:19) _empty_/TCl# -> 1:7
+(12:10..12:16) _empty_/`20519b$package`.Result# -> 5:6
+(12:25..12:28) scala/Int#
+(12:32..12:36) scala/None.
+(13:3..13:6) _empty_/`20519b$package`.boo(). -> 3:5
+(13:7..13:8) local3 -> 12:7
+(13:10..13:12) local2 -> 10:7
+(15:11..15:17) scala/Option#
+(15:18..15:24) scala/Option#
+(15:25..15:28) scala/Int#
+(15:33..15:37) scala/None.
+(16:3..16:6) _empty_/`20519b$package`.boo(). -> 3:5
+(16:7..16:9) local4 -> 15:7
+(16:11..16:13) local2 -> 10:7
+

@@ -68,11 +68,11 @@ Document tests/pos/i13460.scala
 (39:44..39:55) _empty_/MyTypeClass# -> 11:7
 (39:56..39:59) scala/Any#
 (39:63..39:68) _empty_/Lazy#value. -> 5:12
-(40:13..40:15) local7 -> 39:17
+(40:13..40:15) local6 -> 39:17
 (40:16..40:26) _empty_/MyTypeClass#makeString(). -> 12:7
 (40:27..40:34) local3 -> 34:13
 (40:35..40:49) scala/Product#productElement().
-(40:50..40:51) local6
+(40:50..40:51) local7
 (42:12..42:20) scala/collection/IterableOnceOps#mkString().
 (48:23..48:26) scala/Int#
 (48:31..48:34) scala/Int#

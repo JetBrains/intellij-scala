@@ -18,6 +18,8 @@ Document tests/pos/t1318.scala
 (22:18..22:23) _empty_/M#fType# -> 9:10
 (22:27..22:30) scala/package.Nil.
 (25:18..25:20) _empty_/B0# -> 20:16
+(28:14..28:18) scala/package.List.
+(28:19..28:20) _empty_/A. -> 18:8
 (28:26..28:30) scala/package.List.
 (28:31..28:32) _empty_/B. -> 25:8
 

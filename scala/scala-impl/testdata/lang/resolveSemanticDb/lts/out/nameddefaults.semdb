@@ -35,6 +35,7 @@ Document tests/pos/nameddefaults.scala
 (30:18..30:23) _empty_/nameddefaults.foo().(third) -> 3:40
 (30:26..30:27) _empty_/nameddefaults.y(). -> 6:7
 (32:3..32:6) _empty_/nameddefaults.foo(). -> 3:7
+(32:7..32:8) _empty_/nameddefaults.x(). -> 5:7
 (32:10..32:15) _empty_/nameddefaults.foo().(third) -> 3:40
 (32:18..32:19) _empty_/nameddefaults.y(). -> 6:7
 (36:18..36:21) scala/Int#

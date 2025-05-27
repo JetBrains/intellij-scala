@@ -1,0 +1,16 @@
+Document tests/pos/i17394/_1.scala
+(2:11..2:14) scala/Int#
+(2:17..2:20) scala/Predef.`???`().
+(6:14..6:20) scala/Predef.String#
+(6:23..6:26) scala/Predef.`???`().
+(8:32..8:35) bar/ -> 4:9
+(8:36..8:37) bar/A# -> 5:9
+(9:14..9:20) scala/Predef.String#
+(9:23..9:29) scala/Predef.String#
+(9:32..9:35) scala/Predef.`???`().
+
+Document tests/pos/i17394/_2.scala
+(1:8..1:15) example/ -> 1:9
+(3:2..3:6) scala/main#
+(4:11..4:14) bar/A#foo(). -> 6:9
+

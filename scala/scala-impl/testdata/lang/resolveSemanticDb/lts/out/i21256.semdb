@@ -1,0 +1,5 @@
+Document tests/pos/i21256.scala
+(2:24..2:25) _empty_/Test.MTWithBind#[X] -> 2:19
+(3:10..3:14) scala/package.List#
+(3:21..3:22) local0 -> 3:15
+

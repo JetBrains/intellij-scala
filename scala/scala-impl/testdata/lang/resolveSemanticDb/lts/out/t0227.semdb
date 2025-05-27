@@ -14,6 +14,8 @@ Document tests/pos/t0227.scala
 (14:44..14:47) scala/package.Nil.
 (17:24..17:32) _empty_/Settings# -> 1:13
 (17:42..17:46) _empty_/Base# -> 11:16
+(18:29..18:33) scala/package.List.
+(19:13..19:15) _empty_/SD. -> 29:8
 (20:16..20:24) _empty_/SA#settings. -> 17:14
 (20:25..20:26) _empty_/Settings#f(). -> 2:9
 (21:13..21:15) _empty_/SC. -> 25:8

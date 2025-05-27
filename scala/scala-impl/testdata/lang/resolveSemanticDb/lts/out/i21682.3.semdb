@@ -1,0 +1,18 @@
+Document tests/pos/i21682.3.scala
+(2:18..2:25) scala/Nothing#
+(2:27..2:34) scala/Boolean#
+(2:36..2:43) scala/Nothing#
+(2:49..2:52) scala/Any#
+(2:54..2:61) scala/Boolean#
+(2:63..2:66) scala/Any#
+(2:75..2:77) _empty_/Test#foo().[A1] -> 2:11
+(2:81..2:82) _empty_/Test#foo().[B] -> 2:69
+(2:85..2:89) scala/Unit#
+(2:92..2:95) scala/Predef.`???`().
+(3:15..3:19) scala/Unit#
+(4:21..4:24) _empty_/Test#foo(). -> 2:7
+(4:30..4:37) scala/Boolean#
+(4:43..4:50) scala/Boolean#
+(4:56..4:63) scala/Boolean#
+(4:68..4:71) scala/Predef.`???`().
+

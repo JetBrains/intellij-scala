@@ -1,0 +1,19 @@
+Document tests/pos/annot-17939.scala
+(1:8..1:13) scala/
+(1:14..1:24) scala/annotation/
+(1:25..1:35) scala/annotation/Annotation.
+(2:23..2:24) _empty_/myRefined#[T] -> 2:17
+(2:28..2:35) scala/Boolean#
+(2:45..2:55) scala/annotation/Annotation#
+(4:21..4:22) _empty_/Box#[T] -> 4:11
+(5:19..5:22) scala/Int#
+(7:12..7:18) scala/Predef.String#
+(7:34..7:37) scala/Int#
+(7:49..7:50) _empty_/Box#x. -> 4:18
+(7:51..7:53) scala/Int#`==`(+3).
+(8:14..8:20) scala/Predef.String#
+(8:36..8:39) scala/Int#
+(8:44..8:48) _empty_/Box2# -> 5:7
+(8:52..8:53) _empty_/Box2#x. -> 5:16
+(8:54..8:56) scala/Int#`==`(+3).
+

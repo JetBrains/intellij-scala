@@ -14,11 +14,11 @@ Document tests/pos/i15652.scala
 (7:18..7:20) _empty_/i15652$package.optionalOneOf().(in) -> 6:22
 (7:21..7:28) scala/collection/MapOps#flatMap().
 (8:5..8:10) _empty_/i15652$package.child(). -> 4:5
-(8:11..8:14) local1
+(8:11..8:14) local2
 (8:16..8:19) scala/Option#map().
-(9:7..9:10) local1
+(9:7..9:10) local2
 (9:11..9:13) scala/Predef.ArrowAssoc#`->`().
-(9:21..9:27) local2
+(9:21..9:27) local1
 (9:28..9:32) local3 -> 8:22
 (12:3..12:11) local4 -> 7:7
 (12:12..12:22) scala/collection/IterableOps#headOption().

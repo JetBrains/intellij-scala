@@ -35,5 +35,11 @@ Document tests/pos/i15365.scala
 (15:123..15:129) scala/Option#
 (15:130..15:132) _empty_/i15365$package.argument().[Ta] -> 15:14
 (15:137..15:140) scala/Predef.`???`().
+(17:12..17:20) _empty_/i15365$package.argument(). -> 15:5
+(17:37..17:40) scala/Predef.`???`().
+(17:43..17:52) _empty_/InputType# -> 11:7
+(17:53..17:60) _empty_/i15365$package.WithTag# -> 2:6
+(17:61..17:68) scala/Boolean#
+(17:70..17:73) scala/Int#
 (17:81..17:84) scala/package.Nil.
 

@@ -162,4 +162,7 @@ Document tests/pos/indent-colons.scala
 (170:7..170:8) scala/Int#`>`(+3).
 (170:9..170:10) _empty_/`indent-colons$package`.test24().(y) -> 168:20
 (171:3..171:7) _empty_/`indent-colons$package`.or(). -> 166:13
+(172:5..172:6) _empty_/`indent-colons$package`.test24().(x) -> 168:12
+(172:7..172:9) scala/Int#`==`(+3).
+(172:10..172:11) _empty_/`indent-colons$package`.test24().(y) -> 168:20
 

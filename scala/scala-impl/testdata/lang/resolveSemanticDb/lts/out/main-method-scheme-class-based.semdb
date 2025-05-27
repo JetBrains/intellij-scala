@@ -137,11 +137,15 @@ Document tests/pos/main-method-scheme-class-based.scala
 (96:45..96:46) local25 -> 94:20
 (96:50..96:67) local8 -> 73:17
 (97:14..97:18) scala/Some.
-(97:55..97:74) local30 -> 96:11
+(97:27..97:34) local14 -> 79:17
+(97:35..97:38) local28 -> 97:19
+(97:40..97:47) local26 -> 94:23
+(97:49..97:50) local27 -> 94:40
+(97:55..97:74) local29 -> 96:11
 (98:14..98:18) scala/None.
 (98:22..98:25) scala/package.Nil.
-(99:21..99:40) local30 -> 96:11
-(100:13..100:20) local31 -> 99:11
+(99:21..99:40) local29 -> 96:11
+(100:13..100:20) local30 -> 99:11
 (100:21..100:24) scala/collection/immutable/List#map().
 (102:19..102:33) _empty_/main#MainResultType# -> 48:8
 (102:45..102:51) scala/Predef.String#
@@ -150,61 +154,61 @@ Document tests/pos/main-method-scheme-class-based.scala
 (103:20..103:24) scala/Unit#
 (104:9..104:16) scala/Predef.println(+1).
 (104:17..104:18) scala/StringContext#s().
-(104:27..104:35) local34 -> 102:35
+(104:27..104:35) local33 -> 102:35
 (104:38..104:46) local0 -> 57:17
 (104:47..104:50) scala/collection/StrictOptimizedIterableOps#map().
 (104:53..104:54) java/lang/String#`+`().
 (104:58..104:66) scala/collection/IterableOnceOps#mkString(+1).
 (106:22..106:26) scala/Unit#
-(107:12..107:22) local35 -> 102:53
+(107:12..107:22) local34 -> 102:53
 (107:23..107:31) scala/collection/StringOps#nonEmpty().
 (107:37..107:44) scala/Predef.println(+1).
-(107:45..107:55) local35 -> 102:53
+(107:45..107:55) local34 -> 102:53
 (109:25..109:29) scala/Unit#
 (109:32..109:49) local8 -> 73:17
 (110:14..110:18) scala/Some.
 (111:11..111:16) local3 -> 63:17
 (111:17..111:18) scala/StringContext#s().
-(111:37..111:40) local39 -> 110:19
-(112:11..112:21) local40 -> 109:11
+(111:37..111:40) local38 -> 110:19
+(112:11..112:21) local39 -> 109:11
 (113:14..113:18) scala/None.
 (115:20..115:24) _empty_/main#command().(args) -> 50:15
-(116:16..116:19) local41 -> 115:13
+(116:16..116:19) local40 -> 115:13
 (116:20..116:30) java/lang/String#startsWith(+1).
 (116:37..116:39) scala/Boolean#`&&`().
 (116:41..116:49) local0 -> 57:17
 (116:50..116:53) scala/collection/StrictOptimizedIterableOps#map().
 (116:56..116:58) scala/Tuple2#_1.
 (116:60..116:68) scala/collection/SeqOps#contains().
-(116:69..116:72) local41 -> 115:13
+(116:69..116:72) local40 -> 115:13
 (116:73..116:77) scala/collection/StringOps#drop().
 (118:13..118:18) local3 -> 63:17
 (118:19..118:20) scala/StringContext#s().
-(118:45..118:48) local41 -> 115:13
-(119:11..119:21) local40 -> 109:11
+(118:45..118:48) local40 -> 115:13
+(119:11..119:21) local39 -> 109:11
 (121:10..121:14) _empty_/main#command().(args) -> 50:15
 (121:15..121:22) scala/collection/ArrayOps#isEmpty().
 (121:23..121:25) scala/Boolean#`||`().
 (121:26..121:30) _empty_/main#command().(args) -> 50:15
 (121:31..121:39) scala/collection/ArrayOps#contains().
-(122:9..122:14) local37 -> 103:11
-(123:9..123:16) local38 -> 106:11
-(125:9..125:19) local40 -> 109:11
+(122:9..122:14) local36 -> 103:11
+(123:9..123:16) local37 -> 106:11
+(125:9..125:19) local39 -> 109:11
 (126:12..126:18) local1 -> 60:17
 (126:19..126:27) scala/collection/IterableOnceOps#nonEmpty().
 (127:22..127:28) local1 -> 60:17
 (127:32..127:39) scala/Predef.println(+1).
 (127:40..127:41) scala/StringContext#s().
-(127:50..127:53) local42 -> 127:15
-(128:11..128:16) local37 -> 103:11
-(129:14..129:15) local33 -> 102:13
+(127:50..127:53) local41 -> 127:15
+(128:11..128:16) local36 -> 103:11
+(129:14..129:15) local32 -> 102:13
 (130:19..130:22) scala/Int#
-(130:26..130:27) local43 -> 130:16
+(130:26..130:27) local42 -> 130:16
 (130:28..130:29) scala/Int#`<`(+3).
 (130:35..130:41) java/lang/System#
 (130:42..130:46) java/lang/System#exit().
-(130:48..130:49) local43 -> 130:16
-(132:9..132:12) local44 -> 102:9
+(130:48..130:49) local42 -> 130:16
+(132:9..132:12) local43 -> 102:9
 (133:7..133:14) _empty_/main#command(). -> 50:7
 (134:5..134:9) _empty_/main# -> 45:7
 (141:4..141:8) _empty_/main# -> 45:7
@@ -224,24 +228,24 @@ Document tests/pos/main-method-scheme-class-based.scala
 (149:24..149:30) scala/Predef.String#
 (150:15..150:22) _empty_/main#command(). -> 50:7
 (150:23..150:27) _empty_/add.main().(args) -> 149:12
-(151:16..151:19) local47 -> 150:9
+(151:16..151:19) local46 -> 150:9
 (151:20..151:29) _empty_/MainAnnotation#Command#argGetter(). -> 31:9
 (151:30..151:33) scala/Int#
 (151:42..151:48) scala/Predef.summon().
 (151:49..151:63) _empty_/main#ArgumentParser# -> 47:8
 (151:64..151:67) scala/Int#
-(152:16..152:19) local47 -> 150:9
+(152:16..152:19) local46 -> 150:9
 (152:20..152:29) _empty_/MainAnnotation#Command#argGetter(). -> 31:9
 (152:30..152:33) scala/Int#
 (152:42..152:48) scala/Predef.summon().
 (152:49..152:63) _empty_/main#ArgumentParser# -> 47:8
 (152:64..152:67) scala/Int#
 (152:71..152:75) scala/Some.
-(153:5..153:8) local47 -> 150:9
+(153:5..153:8) local46 -> 150:9
 (153:9..153:12) _empty_/MainAnnotation#Command#run(). -> 39:9
 (153:13..153:22) _empty_/myProgram. -> 138:8
 (153:23..153:26) _empty_/myProgram.add(). -> 141:13
-(153:27..153:31) local48 -> 151:9
-(153:35..153:39) local49 -> 152:9
+(153:27..153:31) local47 -> 151:9
+(153:35..153:39) local48 -> 152:9
 (154:5..154:8) _empty_/add. -> 148:8
 

@@ -1,0 +1,16 @@
+Document tests/pos/i21768.scala
+(3:14..3:15) _empty_/Foo#[T] -> 2:11
+(3:18..3:22) scala/Unit#
+(6:3..6:6) _empty_/Foo# -> 2:7
+(6:7..6:10) scala/Int#
+(7:14..7:17) scala/Int#
+(7:20..7:24) scala/Unit#
+(7:27..7:30) scala/Predef.`???`().
+(10:3..10:6) _empty_/Foo# -> 2:7
+(10:7..10:11) scala/Long#
+(10:19..10:22) _empty_/Foo# -> 2:7
+(10:23..10:27) scala/Long#
+(11:16..11:20) scala/Long#
+(11:23..11:27) scala/Unit#
+(11:30..11:33) scala/Predef.`???`().
+

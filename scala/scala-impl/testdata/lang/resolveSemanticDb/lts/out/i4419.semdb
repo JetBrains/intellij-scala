@@ -10,4 +10,5 @@ Document tests/pos/i4419.scala
 (9:41..9:44) _empty_/Foo#Bar.
 (9:51..9:54) scala/Predef.`???`().
 (11:3..11:7) _empty_/Test.test(). -> 9:7
+(11:12..11:15) _empty_/Foo# -> 1:7
 

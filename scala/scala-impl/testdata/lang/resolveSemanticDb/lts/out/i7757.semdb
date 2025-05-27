@@ -23,6 +23,8 @@ Document tests/pos/i7757.scala
 (9:16..9:19) scala/Predef.`???`().
 (10:3..10:4) local3 -> 9:7
 (10:5..10:6) _empty_/Foo#g(+1). -> 6:7
+(10:11..10:14) scala/Int#
+(10:19..10:22) scala/Int#
 (10:28..10:29) local5
 (10:31..10:32) local5
 

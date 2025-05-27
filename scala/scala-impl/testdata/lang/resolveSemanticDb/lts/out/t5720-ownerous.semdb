@@ -22,11 +22,11 @@ Document tests/pos/t5720-ownerous.scala
 (43:34..43:38) scala/Unit#
 (44:17..44:18) _empty_/C# -> 23:7
 (45:5..45:12) scala/Predef.println(+1).
-(45:13..45:14) local1 -> 44:9
+(45:13..45:14) local0 -> 44:9
 (45:15..45:20) _empty_/C#model(). -> 31:7
 (45:21..45:32) _empty_/C#M#currentUser. -> 24:16
 (46:5..46:12) scala/Predef.println(+1).
-(46:13..46:14) local1 -> 44:9
+(46:13..46:14) local0 -> 44:9
 (46:15..46:20) _empty_/C#model(). -> 31:7
 (46:21..46:28) _empty_/C#M#message. -> 24:50
 

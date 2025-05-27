@@ -50,6 +50,9 @@ Document tests/pos/not-looping-implicit.scala
 (18:51..18:63) scala/Any#asInstanceOf().
 (18:64..18:70) _empty_/Schema# -> 6:7
 (18:71..18:74) scala/Any#
+(19:10..19:15) local10 -> 17:13
+(19:17..19:24) local11 -> 18:13
+(19:26..19:31) _empty_/Schema.recurse().(index) -> 14:41
 (19:36..19:43) _empty_/Schema.recurse(). -> 14:14
 (19:44..19:49) local7 -> 16:25
 (19:51..19:53) local9 -> 16:42
@@ -67,17 +70,17 @@ Document tests/pos/not-looping-implicit.scala
 (25:22..25:27) scala/deriving/Mirror.SumOf#
 (25:28..25:29) _empty_/Schema.derived().[A] -> 23:22
 (26:32..26:39) _empty_/Schema.recurse(). -> 14:14
-(26:40..26:41) local13 -> 25:12
+(26:40..26:41) local12 -> 25:12
 (26:42..26:60) scala/deriving/Mirror#MirroredElemLabels#
-(26:62..26:63) local13 -> 25:12
+(26:62..26:63) local12 -> 25:12
 (27:9..27:12) scala/Predef.`???`().
 (28:15..28:21) scala/deriving/Mirror.
 (28:22..28:31) scala/deriving/Mirror.ProductOf#
 (28:32..28:33) _empty_/Schema.derived().[A] -> 23:22
 (29:37..29:44) _empty_/Schema.recurse(). -> 14:14
-(29:45..29:46) local15 -> 28:12
+(29:45..29:46) local14 -> 28:12
 (29:47..29:65) scala/deriving/Mirror#MirroredElemLabels#
-(29:67..29:68) local15 -> 28:12
+(29:67..29:68) local14 -> 28:12
 (30:9..30:12) scala/Predef.`???`().
 (33:24..33:30) _empty_/Schema# -> 6:7
 (33:31..33:32) _empty_/Schema.gen().[A] -> 33:20
