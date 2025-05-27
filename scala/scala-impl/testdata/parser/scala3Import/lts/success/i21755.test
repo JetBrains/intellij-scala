@@ -1,0 +1,156 @@
+trait GraphTraversal  {
+  type NodeT
+
+  protected trait Properties {
+    def root: NodeT
+  }
+
+  abstract protected class TraverserMethods[A, +CC <: TraverserMethods[A, CC]]  { this: CC with Properties =>
+    def root: NodeT
+  }
+}
+-----
+ScalaFile
+  ScTrait: GraphTraversal
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('GraphTraversal')
+    PsiWhiteSpace('  ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: NodeT
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('NodeT')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: Properties
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(protected)('protected')
+          PsiWhiteSpace(' ')
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Properties')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDeclaration: root
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('root')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: NodeT
+                  CodeReferenceElement: NodeT
+                    PsiElement(identifier)('NodeT')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScClass: TraverserMethods
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(abstract)('abstract')
+            PsiWhiteSpace(' ')
+            AccessModifier
+              PsiElement(protected)('protected')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('TraverserMethods')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: CC
+              PsiElement(identifier)('+')
+              PsiElement(identifier)('CC')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              ParametrizedType: TraverserMethods[A, CC]
+                SimpleType: TraverserMethods
+                  CodeReferenceElement: TraverserMethods
+                    PsiElement(identifier)('TraverserMethods')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: CC
+                    CodeReferenceElement: CC
+                      PsiElement(identifier)('CC')
+                  PsiElement(])(']')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace('  ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              SelfType: this
+                PsiElement(this)('this')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                CompoundType: CC with Properties
+                  SimpleType: CC
+                    CodeReferenceElement: CC
+                      PsiElement(identifier)('CC')
+                  PsiWhiteSpace(' ')
+                  PsiElement(with)('with')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Properties
+                    CodeReferenceElement: Properties
+                      PsiElement(identifier)('Properties')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDeclaration: root
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('root')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: NodeT
+                  CodeReferenceElement: NodeT
+                    PsiElement(identifier)('NodeT')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
