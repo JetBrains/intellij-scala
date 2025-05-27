@@ -11,4 +11,5 @@ Document tests/pos/t3960.scala
 (5:13..5:14) _empty_/A#C# -> 2:9
 (5:20..5:21) _empty_/A#c(). -> 4:7
 (6:3..6:5) _empty_/A#cs. -> 3:7
+(6:6..6:7) _empty_/A#c(). -> 4:7
 

@@ -1,0 +1,28 @@
+Document tests/pos/i18529/SCode1.scala
+(1:9..1:12) bug/
+(3:8..3:11) bug/
+(3:12..3:16) bug/util/
+(3:17..3:21) bug/util/List#
+(4:8..4:11) bug/
+(4:12..4:16) bug/util/
+(5:8..5:12) java/
+(5:13..5:17) java/util/
+(8:16..8:20) bug/util/List#
+(8:21..8:24) scala/Int#
+(8:28..8:32) scala/Unit#
+
+Document tests/pos/i18529/SCode2.scala
+(1:9..1:12) bug/
+(3:8..3:11) bug/
+(3:12..3:16) bug/util/
+(4:8..4:11) bug/
+(4:12..4:16) bug/util/
+(4:17..4:21) bug/util/List#
+(5:8..5:12) java/
+(5:13..5:17) java/util/
+(8:16..8:20) bug/util/List#
+(8:21..8:24) scala/Int#
+(8:28..8:32) scala/Unit#
+
+Document tests/pos/i18529/Test.scala
+

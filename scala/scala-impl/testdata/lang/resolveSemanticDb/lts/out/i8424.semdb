@@ -7,4 +7,5 @@ Document tests/pos/i8424.scala
 (5:75..5:78) scala/Any#
 (5:81..5:84) scala/Predef.`???`().
 (8:21..8:25) _empty_/Test# -> 5:7
+(8:26..8:29) scala/Predef.`???`().
 

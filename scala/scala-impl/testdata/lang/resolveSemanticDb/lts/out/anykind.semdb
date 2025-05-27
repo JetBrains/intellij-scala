@@ -224,6 +224,11 @@ Document tests/pos/anykind.scala
 (118:48..118:57) _empty_/Test.New.KPListOps# -> 113:22
 (118:58..118:59) _empty_/Test.New.kplistOps().[L] -> 118:28
 (118:77..118:78) _empty_/Test.New.kplistOps().(l) -> 118:41
+(120:14..120:17) _empty_/Test.Bar.
+(120:36..120:40) scala/package.List.
+(120:54..120:57) scala/Predef.Map.
+(120:65..120:67) scala/Predef.ArrowAssoc#`->`().
+(120:79..120:81) scala/Predef.ArrowAssoc#`->`().
 (120:90..120:95) _empty_/Test.New.KPNil. -> 103:17
 (122:12..122:15) _empty_/Test.Bar# -> 3:14
 (122:16..122:19) scala/Int#
@@ -390,7 +395,7 @@ Document tests/pos/anykind.scala
 (182:154..182:155) _empty_/Test.Old.KPCons.KPConsBuilder#apply().[T] -> 182:37
 (183:21..183:24) _empty_/Test.Old.KPCons.KPConsBuilder#apply().[HL0] -> 182:23
 (184:20..184:22) _empty_/Test.Old.KPCons.KPConsBuilder#apply().[H0] -> 182:19
-(185:21..185:22) local74 -> 184:16
+(185:21..185:22) local71 -> 184:16
 (185:25..185:30) _empty_/Test.Old.KPCons.KPConsBuilder#apply().(head0) -> 182:50
 (186:21..186:22) _empty_/Test.Old.KPCons.KPConsBuilder#apply().[T] -> 182:37
 (186:25..186:30) _empty_/Test.Old.KPCons.KPConsBuilder#apply().(tail0) -> 182:61

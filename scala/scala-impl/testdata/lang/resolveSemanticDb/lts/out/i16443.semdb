@@ -12,6 +12,7 @@ Document tests/pos/i16443/TypeHints_1.scala
 (6:17..6:26) _empty_/TypeHints# -> 2:7
 (6:29..6:38) _empty_/TypeHints# -> 2:7
 (6:41..6:59) _empty_/TypeHints#CompositeTypeHints.
+(6:60..6:70) _empty_/TypeHints#components(). -> 4:7
 (6:75..6:80) _empty_/TypeHints#`+`().(hints) -> 6:10
 (6:81..6:91) _empty_/TypeHints#components(). -> 4:7
 (8:66..8:70) scala/package.List#

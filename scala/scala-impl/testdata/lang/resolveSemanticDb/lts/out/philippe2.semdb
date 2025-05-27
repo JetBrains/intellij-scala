@@ -6,4 +6,5 @@ Document tests/pos/philippe2.scala
 (5:12..5:15) scala/Int#
 (5:19..5:23) scala/Unit#
 (5:26..5:29) _empty_/m1#foo(). -> 4:7
+(5:30..5:31) _empty_/m1#n(). -> 3:7
 

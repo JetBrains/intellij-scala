@@ -14,4 +14,8 @@ Document tests/pos/i15595.scala
 (5:38..5:39) local6 -> 5:16
 (5:43..5:46) scala/Predef.`???`().
 (7:3..7:10) local4 -> 4:7
+(8:14..8:20) scala/Predef.String#
+(9:5..9:13) local8 -> 5:7
+(9:14..9:15) local9 -> 8:10
+(9:17..9:20) scala/Predef.`???`().
 

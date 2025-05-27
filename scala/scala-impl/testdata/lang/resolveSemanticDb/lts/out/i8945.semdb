@@ -9,6 +9,7 @@ Document tests/pos/i8945.scala
 (16:23..16:35) scala/language.experimental.
 (16:36..16:42) scala/language.experimental.macros.
 (21:15..21:19) scala/Unit#
+(21:28..21:37) _empty_/MacroImpl# -> 10:7
 (21:38..21:42) _empty_/MacroImpl#mono(). -> 12:7
 (22:22..22:26) scala/Unit#
 (22:32..22:39) _empty_/Macros.Macros3. -> 25:10
