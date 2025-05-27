@@ -4,6 +4,7 @@ package actions
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.actionSystem.{ActionToolbar, AnAction}
+import com.intellij.openapi.application.{ModalityState, ReadAction}
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.fileEditor._
@@ -12,10 +13,10 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiManager}
 import com.intellij.ui.ClientProperty
-import com.intellij.util.SlowOperations
-import com.intellij.util.concurrency.annotations.RequiresEdt
+import com.intellij.util.concurrency.AppExecutorUtil
+import com.intellij.util.concurrency.annotations.{RequiresBackgroundThread, RequiresEdt}
 import com.intellij.util.containers.ContainerUtil
-import org.jetbrains.annotations.ApiStatus
+import org.jetbrains.annotations.{ApiStatus, Nullable}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -29,7 +30,6 @@ import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterF
 import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetControlPanel, WorksheetDiffSplitters, WorksheetFoldGroup}
 
 import java.{util => ju}
-import scala.util.Using
 import scala.util.control.NonFatal
 
 object WorksheetFileHook {
@@ -208,18 +208,42 @@ object WorksheetFileHook {
   final class WorksheetDumbModeListener(project: Project) extends DumbModeListener {
     override def enteredDumbMode(): Unit = {}
     override def exitDumbMode(): Unit = {
-      // exitDumbMode event arrives on the EDT, initializeButtons uses file index to get a file
-      Using.resource(SlowOperations.knownIssue("SCL-21147"))(_ => initializeButtons())
+      // This is a three part operation.
+      //   1. The platform calls the 'exitDumbMode' method on the UI thread.
+      //      We immediately use this opportunity to query the currently open text editor and get its document
+      //      if any editor is currently open.
+      //   2. We use the ReadAction.nonBlocking machinery to schedule a known slow operation on a background thread.
+      //      Here we fetch the corresponding VirtualFile instance for the obtained document.
+      //   3. Finally, the ReadAction.nonBlocking machinery automatically shifts the computation back to the UI thread
+      //      where we do the UI modification work (which must be done on the UI thread anyways).
+
+      val editor = FileEditorManager.getInstance(project).getSelectedTextEditor
+      if (editor eq null) {
+        // There are no active editors. Do nothing.
+        return
+      }
+
+      val document = editor.getDocument
+      ReadAction
+        .nonBlocking[VirtualFile](() => virtualFileForDocument(document))
+        .finishOnUiThread(ModalityState.nonModal(), initializeButtons)
+        .inSmartMode(project)
+        .submit(AppExecutorUtil.getAppExecutorService)
     }
 
-    private def initializeButtons(): Unit =
-      for {
-        editor <- Option(FileEditorManager.getInstance(project).getSelectedTextEditor)
-        file   <- Option(PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument))
-        vFile  <- Option(file.getVirtualFile)
-        panel  <- WorksheetFileHook.getPanel(vFile)
-      } notifyButtons(panel)
+    @RequiresBackgroundThread
+    @Nullable
+    private def virtualFileForDocument(document: Document): VirtualFile =
+      FileDocumentManager.getInstance().getFile(document)
 
+    @RequiresEdt
+    private def initializeButtons(@Nullable virtualFile: VirtualFile): Unit = {
+      if (virtualFile eq null) return
+      val panel = WorksheetFileHook.getPanel(virtualFile)
+      panel.foreach(notifyButtons)
+    }
+
+    @RequiresEdt
     private def notifyButtons(panel: WorksheetControlPanel): Unit =
       panel.getComponents.foreach {
         case toolbar: ActionToolbar =>
