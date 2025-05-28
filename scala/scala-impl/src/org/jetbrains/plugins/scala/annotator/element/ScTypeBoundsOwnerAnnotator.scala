@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Failure
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, TypePresentationContext, extractTypeParameters}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScMatchType, TypePresentationContext, extractTypeParameters}
 
 object ScTypeBoundsOwnerAnnotator extends ElementAnnotator[ScTypeBoundsOwner] {
 
@@ -30,6 +30,11 @@ object ScTypeBoundsOwnerAnnotator extends ElementAnnotator[ScTypeBoundsOwner] {
       for {
         lower <- element.lowerBound.toOption
         upper <- element.upperBound.toOption
+        // TODO: This is a dirty workaround fix for SCL-21814.
+        //  We ignore match types at right hand side of type alias to avoid unuseful errors when CBH is disabled in Scala 3
+        //  We still need to truly support match types (SCL-15104)
+        //  Once the ticket is closed, remove this workaround filtering
+        if !(element.is[ScTypeAliasDefinition] && lower.is[ScMatchType])
         if !lower.conforms(upper)
       } {
         holder.createErrorAnnotation(
