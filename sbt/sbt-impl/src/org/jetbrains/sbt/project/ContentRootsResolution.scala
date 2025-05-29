@@ -5,11 +5,12 @@ import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.plugins.scala.extensions.RichFile
 import org.jetbrains.sbt.project.SbtProjectResolver.{CompileScope, ImportContext, IntegrationTestScope, TestScope}
 import org.jetbrains.sbt.project.data.ContentRootNode
-import org.jetbrains.sbt.structure.DirectoryData
+import org.jetbrains.sbt.structure.{DirectoryData, ProjectData}
 import org.jetbrains.sbt.{Sbt, structure => sbtStructure}
 
 import java.io.File
 import scala.collection.mutable
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 /**
  * This trait provides utility methods for creating content root nodes, applicable to both "legacy" and main/test module modes.
@@ -42,9 +43,9 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
 
   // ! For main/test modules mode
 
-  protected def createParentContentRoot(projectData: sbtStructure.ProjectData)(implicit context: ImportContext): ContentRootNode = {
+  protected def createParentContentRoot(projectData: sbtStructure.ProjectData, excludedDirs: Seq[File]): ContentRootNode = {
     val contentRootNode = new ContentRootNode(projectData.base.path)
-    storeExcludedPathsInContentRoot(contentRootNode, projectData)
+    storeExcludedPathsInContentRoot(contentRootNode, excludedDirs)
     contentRootNode
   }
 
@@ -60,11 +61,12 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
     mainSourceRoots: Seq[(String, ExternalSystemSourceType)],
     testSourceRoots: Seq[(String, ExternalSystemSourceType)],
     mainSourceBaseDirectories: Seq[String],
-    testSourceBaseDirectories: Seq[String]
+    testSourceBaseDirectories: Seq[String],
+    excludedDirectories: Seq[File]
   )
 
   object ProjectSourcesDetails {
-    def default: ProjectSourcesDetails = ProjectSourcesDetails(Seq.empty, Seq.empty, Seq.empty, Seq.empty)
+    def default: ProjectSourcesDetails = ProjectSourcesDetails(Seq.empty, Seq.empty, Seq.empty, Seq.empty, Seq.empty)
   }
 
   def resolveProjectsSourcesDetails(
@@ -79,6 +81,8 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
       val testSources = resolveExternalSystemSources(isMainScope = false, project, sharedSourceRoots)
       mainSources ++ testSources
     }
+
+    val projectToExcluded = projects.map(project => project -> excludedPathsInProject(project)).toMap
 
     /*
     In ContentRootDataService#importData, within each content root, source paths are processed in the order defined by the enums in ExternalSystemSourceType.
@@ -98,7 +102,7 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
     val uniqueSources = sortedSources.distinctBy(_.path)
 
     val uniqueSourcesPaths = uniqueSources.map(_.path)
-    val projectToSources = uniqueSources.groupBy(_.projectData)
+    val projectToSources = heuristic(uniqueSources, projectToExcluded)
 
     // In shared source modules, content roots will be created for the group base and the group base with `src/main` and `src/test` suffixes
     // (see ExternalSourceRootResolution.createSharedSourceSetModule and ExternalSourceRootResolution.createParentSharedSourcesModule).
@@ -139,7 +143,9 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
       val testSourceBaseDirs = getValidSourceBaseDirs(project.testSourceDirectories)
       alreadyUsedSourceBaseDirs ++= testSourceBaseDirs
 
-      project -> ProjectSourcesDetails(mainSources, testSources, mainSourceBaseDirs, testSourceBaseDirs)
+      val excluded = projectToExcluded.getOrElse(project, Seq.empty)
+
+      project -> ProjectSourcesDetails(mainSources, testSources, mainSourceBaseDirs, testSourceBaseDirs, excluded)
     }.toMap
   }
 
@@ -215,20 +221,53 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
     sourceRootBaseDirs: Seq[String],
     sourceRoots: Seq[(String, ExternalSystemSourceType)],
   ): Seq[ContentRootNode] = {
-    val contentRootsForSourceBaseDirs = sourceRootBaseDirs.distinct.map(new ContentRootNode(_))
-    sourceRoots.foldLeft(contentRootsForSourceBaseDirs) { case (contentRootNodes, (sourceRootPath, sourceType)) =>
+    val _sourceRootBaseDirs = sourceRootBaseDirs.map((_, None))
+    val _sourceRoots = sourceRoots.map(sourceRoot => (sourceRoot._1, Some(sourceRoot._2)))
+    val allRoots = (_sourceRootBaseDirs ++ _sourceRoots).sortBy(_._1)
+
+    val contentRootNodes = allRoots.foldLeft(Seq.empty[ContentRootNode]) { case (contentRootNodes, (sourceRootPath, sourceType)) =>
       val suitableContentRootNode = findContentRootContainingPath(contentRootNodes, sourceRootPath)
       suitableContentRootNode match {
-        case Some(contentRootNode) =>
-          contentRootNode.storePath(sourceType, sourceRootPath)
+        case Some(contentRootNode) if sourceType.nonEmpty =>
+          contentRootNode.storePath(sourceType.get, sourceRootPath)
           contentRootNodes
         case None =>
           val node = new ContentRootNode(sourceRootPath)
-          node.storePath(sourceType, sourceRootPath)
+          sourceType.foreach(node.storePath(_, sourceRootPath))
           contentRootNodes :+ node
         case _ => contentRootNodes
       }
     }
+
+    contentRootNodes.filterNot(isContentRootMissingPaths)
+  }
+
+  private def isContentRootMissingPaths(contentRootNode: ContentRootNode): Boolean = {
+    val allSourceTypes = ExternalSystemSourceType.values().toSeq
+    !allSourceTypes.exists(sourceType => contentRootNode.data.getPaths(sourceType).asScala.nonEmpty)
+  }
+
+  private def heuristic(sources: Seq[ExternalSystemSourceData], projectToExcluded: Map[ProjectData, Seq[File]]): Map[ProjectData, Seq[ExternalSystemSourceData]] = {
+    val sortedPaths = sources.sortBy(_.path)
+
+    val roots = sortedPaths.foldLeft(Seq.empty[ExternalSystemSourceData]) { case (roots, sourceData) =>
+      val path = sourceData.path
+      val project = sourceData.projectData
+      val excluded = projectToExcluded.getOrElse(project, Seq.empty)
+
+      val found = roots.find(root => FileUtil.isAncestor(root.path, path, true))
+      found match {
+        case None =>
+          roots :+ sourceData
+        case Some(_) =>
+          val isUnderExcluded = excluded.exists(exc => FileUtil.isAncestor(exc.getAbsolutePath, path, true))
+          if (isUnderExcluded) roots :+ sourceData
+          else roots
+        case _ => roots
+      }
+    }
+
+    roots.groupBy(_.projectData)
   }
 
   private def findContentRootContainingPath(contentRoots: Seq[ContentRootNode], path: String): Option[ContentRootNode] = {
@@ -286,6 +325,28 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
   }
 
 
+  private def excludedPathsInProject(
+    project: sbtStructure.ProjectData,
+  )(implicit context: ImportContext): Seq[File] = {
+    val extractedExcludes = project.configurations.flatMap(_.excludes)
+
+    val excludedDirs = if (extractedExcludes.nonEmpty)
+      extractedExcludes.distinct
+    else if (context.sbtVersion.isSbt2) {
+      // NOTE Since sbt 2.0 there is only one target dir in the build root and it's hardcoded as "target"
+      // We also hardcode it, but we add the directory to every sbt sub-project to make the migration from 1.x to 2.x easier.
+      // (It would be nice if IntelliJ excluded existing target directories with cache files from sbt 1.x)
+      // - https://github.com/sbt/sbt/issues/3681 (it's WIP currently, 10 Feb 2025)
+      // - https://github.com/sbt/sbt/issues/8037
+      //
+      // We could extract this hardcoding logic to sbt-structure plugin, but for now it seems not necessary
+      Seq(new File(project.base, Sbt.TargetDirectory))
+    } else
+      Seq(project.target)
+
+    excludedDirs
+  }
+
   protected def storeExcludedPathsInContentRoot(
     contentRoot: ContentRootNode,
     project: sbtStructure.ProjectData,
@@ -310,4 +371,9 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
       contentRoot.storePath(ExternalSystemSourceType.EXCLUDED, path.path)
     }
   }
+
+  protected def storeExcludedPathsInContentRoot(contentRoot: ContentRootNode, excludedDirs: Seq[File]): Unit =
+    excludedDirs.foreach { path =>
+      contentRoot.storePath(ExternalSystemSourceType.EXCLUDED, path.path)
+    }
 }

@@ -883,8 +883,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     */
     val contentRootWithProjectBase = (testContentRoots ++ mainContentRoots).find(_.data.getRootPath == project.base.path)
     contentRootWithProjectBase match {
-      case Some(contentRoot) => storeExcludedPathsInContentRoot(contentRoot, project)
-      case None => parentModule.add(createParentContentRoot(project))
+      case Some(contentRoot) => storeExcludedPathsInContentRoot(contentRoot, sourcesDetails.excludedDirectories)
+      case None => parentModule.add(createParentContentRoot(project, sourcesDetails.excludedDirectories))
     }
 
     prodModule.addAll(mainContentRoots)
