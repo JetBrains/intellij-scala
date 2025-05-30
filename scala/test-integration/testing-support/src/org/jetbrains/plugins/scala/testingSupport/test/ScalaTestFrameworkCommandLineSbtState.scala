@@ -25,8 +25,8 @@ class ScalaTestFrameworkCommandLineSbtState(
     //use a process running sbt
     val sbtProcessManager = SbtProcessManager.forProject(project)
     //make sure the process is initialized
-    val shellRunner = sbtProcessManager.acquireShellRunner()
-    SbtProcessHandlerWrapper(shellRunner.createProcessHandler)
+    val handler = sbtProcessManager.acquireShellProcessHandler()
+    SbtProcessHandlerWrapper(handler)
   }
 
   override def execute(executor: Executor, runner: ProgramRunner[_]): ExecutionResult = {

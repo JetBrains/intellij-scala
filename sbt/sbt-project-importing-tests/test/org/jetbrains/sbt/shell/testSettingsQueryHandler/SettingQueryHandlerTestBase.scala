@@ -1,5 +1,6 @@
 package org.jetbrains.sbt.shell.testSettingsQueryHandler
 
+import com.intellij.openapi.util.registry.Registry
 import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory
 import org.jetbrains.plugins.scala.SlowTests2
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -7,7 +8,8 @@ import org.jetbrains.sbt.SbtUtil.SbtProjectUriAndId
 import org.jetbrains.sbt.project.SbtProjectStructureImportingLike
 import org.jetbrains.sbt.shell.testSettingsQueryHandler.SbtProjectPlatformTestCase.ProcessLogger
 import org.jetbrains.sbt.shell.testSettingsQueryHandler.SettingQueryHandlerTestBase.{SbtSetCommand, SbtSetCommandSettingPath}
-import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SbtShellRunner, SettingQueryHandler}
+import com.intellij.execution.process.OSProcessHandler
+import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SettingQueryHandler}
 import org.jetbrains.sbt.{SbtVersion, SbtVersionCapabilities}
 import org.junit.Assert.assertNotNull
 import org.junit.experimental.categories.Category
@@ -29,10 +31,10 @@ abstract class SettingQueryHandlerTestBase extends SbtProjectStructureImportingL
     Path.of(TestUtils.getTestDataPath, getRelativeTestProjectPath).toString
 
   protected def comm: SbtShellCommunication = myComm
-  protected def runner: SbtShellRunner = myRunner
+  protected def shellProcessHandler: OSProcessHandler = myShellProcessHandler
 
   protected var myComm: SbtShellCommunication = _
-  protected var myRunner: SbtShellRunner = _
+  protected var myShellProcessHandler: OSProcessHandler = _
   protected var logger: ProcessLogger = _
 
   protected val DefaultCommandWaitTimeout: FiniteDuration = 60.seconds
@@ -62,16 +64,16 @@ abstract class SettingQueryHandlerTestBase extends SbtProjectStructureImportingL
     myComm = SbtShellCommunication.forProject(project)
     assertNotNull(myComm)
 
-    myRunner = SbtProcessManager.forProject(project).acquireShellRunner()
-    assertNotNull(myRunner)
+    myShellProcessHandler = SbtProcessManager.forProject(project).acquireShellProcessHandler()
+    assertNotNull(myShellProcessHandler)
 
     logger = new ProcessLogger
-    myRunner.getProcessHandler.addProcessListener(logger)
+    myShellProcessHandler.addProcessListener(logger)
   }
 
   def testFailedCommand(): Unit = {
     Await.result(comm.command("set npSuchSetting:=42"), DefaultCommandWaitTimeout)
-    runner.getConsoleView.flushDeferredText()
+    flush()
     assert(logger.getLog.contains(SbtProjectPlatformTestCase.errorPrefix))
   }
 
@@ -110,7 +112,7 @@ abstract class SettingQueryHandlerTestBase extends SbtProjectStructureImportingL
       comm.command(sbtCommand).flatMap { _ => handler.getSettingValue },
       timeout
     )
-    runner.getConsoleView.flushDeferredText()
+    flush()
 
     val log = logger.getLog
 
@@ -130,7 +132,7 @@ abstract class SettingQueryHandlerTestBase extends SbtProjectStructureImportingL
       setHandler.setSettingValue(expectedValue).flatMap { _ => handler.getSettingValue },
       timeout
     )
-    runner.getConsoleView.flushDeferredText()
+    flush()
     val log = logger.getLog
     assert(res == expectedValue, s"Invalid value read by SettingQueryHandler: '$expectedValue' expected, but '$res' found. Full log:\n$log")
     assert(!logger.getLog.contains(SbtProjectPlatformTestCase.errorPrefix), s"log contained errors. Full log:\n $log")
@@ -155,11 +157,15 @@ abstract class SettingQueryHandlerTestBase extends SbtProjectStructureImportingL
       } yield v,
       timeout
     ).trim
-    runner.getConsoleView.flushDeferredText()
+    flush()
     val log = logger.getLog
     assert(res == expectedValue, s"Invalid value read by SettingQueryHandler: '$expectedValue' expected, but '$res' found. Full log:\n$log")
     assert(!logger.getLog.contains(SbtProjectPlatformTestCase.errorPrefix), s"log contained errors. Full log:\n $log")
   }
+
+  private def flush(): Unit =
+    SbtProcessManager.forProject(getMyProject).flushConsoleOutputForTests()
+
 }
 
 object SettingQueryHandlerTestBase {

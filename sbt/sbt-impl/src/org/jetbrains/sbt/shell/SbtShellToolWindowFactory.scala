@@ -1,7 +1,7 @@
 package org.jetbrains.sbt.shell
 
 import com.intellij.ide.actions.ActivateToolWindowAction
-import com.intellij.openapi.actionSystem.KeyboardShortcut
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, KeyboardShortcut}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.keymap.KeymapManager
@@ -10,16 +10,17 @@ import com.intellij.openapi.wm._
 import com.intellij.openapi.wm.impl.ToolWindowImpl
 import com.intellij.toolWindow.ToolWindowHeadlessManagerImpl.MockToolWindow
 import com.intellij.ui.BadgeIconSupplier
-import org.jetbrains.annotations.Nls
+import com.intellij.ui.content.{Content, ContentFactory}
+import org.jetbrains.annotations.{Nls, NotNull}
 import org.jetbrains.plugins.scala.extensions.{invokeLater, schedulePeriodicTask}
 import org.jetbrains.sbt.icons.Icons
 import org.jetbrains.sbt.shell.SbtShellToolWindowFactory.Log
 import org.jetbrains.sbt.{SbtBundle, SbtUtil, shell}
 
 import java.awt.event.{InputEvent, KeyEvent}
-import java.awt.{Component, Container, FocusTraversalPolicy}
+import java.awt.{BorderLayout, Component, Container, FocusTraversalPolicy}
 import java.util.concurrent.TimeUnit
-import javax.swing.KeyStroke
+import javax.swing.{JComponent, JPanel, KeyStroke}
 
 /**
   * Creates the sbt shell toolwindow, which is docked at the bottom of sbt projects.
@@ -139,13 +140,70 @@ object SbtShellToolWindowFactory {
     override def getDefaultComponent(aContainer: Container): Component = {
       // default implementation focuses the toolwindow frame, but we want the editor to be directly focused to edit it directly
       val sbtManager = SbtProcessManager.forProject(project)
-      val shellComponent = for {
-        shellRunner <- sbtManager.shellRunner
-        if sbtManager.isAlive
-        view <- Option(shellRunner.getConsoleView)
-        editor <- Option(view.getConsoleEditor)
-      } yield editor.getContentComponent
+
+      def getShellComponent: Option[JComponent] =
+        if (SbtProcessManager.isNewShell) {
+          sbtManager.terminalConsole.map(_.getComponent)
+        } else {
+          for {
+            shellRunner <- sbtManager.shellRunner
+            view <- Option(shellRunner.getConsoleView)
+            editor <- Option(view.getConsoleEditor)
+          } yield editor.getContentComponent
+        }
+
+      val shellComponent =
+        if (!sbtManager.isAlive) None
+        else getShellComponent
+
       shellComponent.getOrElse(defaultPolicy.getDefaultComponent(aContainer))
     }
+  }
+
+  private[shell] def initUi(
+    project: Project,
+    actionGroup: ActionGroup,
+    component: => JComponent,
+  ): Unit =
+    SbtShellToolWindowFactory.instance(using project).foreach { toolWindow =>
+      invokeLater {
+        val content = createToolWindowContent(actionGroup, component, project.getName)
+        setContent(toolWindow, content)
+      }
+    }
+
+  private[shell] def setContent(toolWindow: ToolWindow, @NotNull content: Content): Unit = {
+    Log.trace("setContent")
+    val twContentManager = toolWindow.getContentManager
+    twContentManager.removeAllContents(true)
+    twContentManager.addContent(content)
+  }
+
+  private def createToolWindowContent(
+    actionGroup: ActionGroup,
+    component: JComponent,
+    @Nls projectName: String
+  ): Content = {
+    Log.debug("createToolWindowContent")
+
+    val actionToolBar = ActionManager.getInstance().createActionToolbar("sbt-shell-toolbar", actionGroup, false)
+
+    val toolbarPanel = new JPanel()
+    toolbarPanel.setLayout(new BorderLayout)
+    toolbarPanel.add(actionToolBar.getComponent)
+
+    val mainPanel = new JPanel()
+    mainPanel.setLayout(new BorderLayout)
+    mainPanel.add(toolbarPanel, BorderLayout.WEST)
+    mainPanel.add(component, BorderLayout.CENTER)
+    actionToolBar.setTargetComponent(mainPanel)
+
+    //noinspection ScalaExtractStringToBundle
+    val content = ContentFactory.getInstance.createContent(mainPanel, "sbt-shell-toolwindow-content", true)
+    content.setTabName(projectName)
+    content.setDisplayName(projectName)
+    content.setToolwindowTitle(projectName)
+
+    content
   }
 }

@@ -17,12 +17,13 @@ import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.plugins.scala.isInternalMode
 import org.jetbrains.sbt.shell.LineListener.{LineSeparatorRegex, escapeNewLines}
-import org.jetbrains.sbt.shell.SbtProcessUtil._
-import org.jetbrains.sbt.shell.SbtShellCommunication._
+import org.jetbrains.sbt.shell.SbtProcessManager.isNewShell
+import org.jetbrains.sbt.shell.SbtProcessUtil.*
+import org.jetbrains.sbt.shell.SbtShellCommunication.*
 import org.jetbrains.sbt.shell.SbtShellLifecycle.{ShellState, ShellStateEvent}
 import org.jetbrains.sbt.{SbtBundle, SbtUtil, SbtVersion}
 
-import java.util.concurrent._
+import java.util.concurrent.*
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicReference
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -100,7 +101,7 @@ final class SbtShellCommunication(project: Project) {
       // during #initCommunication, when the shell becomes ready, and here.
       // Introducing an explicit "Start" state would likely be a solution.
       commands.put(qc)
-      process.acquireShellRunner()
+      process.acquireShellProcessHandler()
       emitShellStateEvent(ShellStateEvent.EnqueueCommand)
     }
 
@@ -192,7 +193,7 @@ final class SbtShellCommunication(project: Project) {
         commands.clear()
 
         if (!afterRestartCommands.isEmpty) {
-          process.acquireShellRunner()
+          process.acquireShellProcessHandler()
           moveAccumulatedCommandsToStandardQueue()
         }
         communicationActive.release()
@@ -404,7 +405,13 @@ final class SbtShellCommunication(project: Project) {
       messages.addError(msg)
 
     case Output(raw) =>
-      val text = raw.trim
+      // Stripping ansi codes in "old shell" mode is likely safe, but let's preserve the original behavior for safety
+      val text =
+        if (isNewShell)
+          BuildMessages.stripAnsiCodes(raw).trim
+        else
+          raw.trim
+
       processOutputBuilder.foreach(_.append(text))
 
       val isError = text `startsWith` ERROR_PREFIX
@@ -616,8 +623,10 @@ private[shell] object SbtProcessUtil {
   private val IDEA_PROMPT_MARKER = "[IJ]"
 
   // the prompt marker is inserted by the sbt-idea-shell plugin
-  def promptReady(line: String): Boolean =
-    line.trim.startsWith(IDEA_PROMPT_MARKER)
+  def promptReady(line: String): Boolean = {
+    val lineWithNoAnsi = BuildMessages.stripAnsiCodes(line)
+    lineWithNoAnsi.trim.startsWith(IDEA_PROMPT_MARKER)
+  }
 
   def promptError(line: String): Boolean =
     line.trim.endsWith("(r)etry, (q)uit, (l)ast, or (i)gnore?")

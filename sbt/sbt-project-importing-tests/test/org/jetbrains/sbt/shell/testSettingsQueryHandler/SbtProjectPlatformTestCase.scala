@@ -19,7 +19,8 @@ import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.shell.testSettingsQueryHandler.SbtProjectPlatformTestCase.ProcessLogger
-import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SbtShellRunner}
+import com.intellij.execution.process.OSProcessHandler
+import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication}
 import org.junit.experimental.categories.Category
 
 import java.nio.file.Path
@@ -62,8 +63,8 @@ abstract class SbtProjectPlatformTestCase extends HeavyPlatformTestCase {
     //TODO this is hacky, but sometimes 'main' gets leaked
     ThreadLeakTracker.longRunningThreadCreated(ApplicationManager.getApplication, "ForkJoinPool")
     myComm = SbtShellCommunication.forProject(getProject)
-    myRunner = SbtProcessManager.forProject(getProject).acquireShellRunner()
-    myRunner.getProcessHandler.addProcessListener(logger)
+    myShellProcessHandler = SbtProcessManager.forProject(getProject).acquireShellProcessHandler()
+    myShellProcessHandler.addProcessListener(logger)
   }
 
   override def tearDown(): Unit = try {
@@ -75,7 +76,7 @@ abstract class SbtProjectPlatformTestCase extends HeavyPlatformTestCase {
     SbtProcessManager.forProject(getProject).destroyProcess()
 
     UIUtil.dispatchAllInvocationEvents()
-    val handler = myRunner.getProcessHandler
+    val handler = myShellProcessHandler
     //give the handler some time to terminate the process
     while (!handler.isProcessTerminated || handler.isProcessTerminating) {
       Thread.sleep(100)
@@ -86,14 +87,14 @@ abstract class SbtProjectPlatformTestCase extends HeavyPlatformTestCase {
     //remove links so that we don't leak the project
     myProject = null
     myComm = null
-    myRunner = null
+    myShellProcessHandler = null
   }
 
 
   protected def comm = myComm
-  protected def runner = myRunner
+  protected def shellProcessHandler: OSProcessHandler = myShellProcessHandler
   protected var myComm: SbtShellCommunication = _
-  protected var myRunner: SbtShellRunner = _
+  protected var myShellProcessHandler: OSProcessHandler = _
   protected val logger: ProcessLogger = new ProcessLogger
 }
 
