@@ -7,6 +7,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.project.{DumbAware, Project}
+import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.wm._
 import com.intellij.openapi.wm.impl.ToolWindowImpl
 import com.intellij.toolWindow.ToolWindowHeadlessManagerImpl.MockToolWindow
@@ -140,11 +141,20 @@ object SbtShellToolWindowFactory {
     override def getDefaultComponent(aContainer: Container): Component = {
       // default implementation focuses the toolwindow frame, but we want the editor to be directly focused to edit it directly
       val sbtManager = SbtProcessManager.forProject(project)
-      val shellComponent = for {
-        view <- sbtManager.consoleView
-        if sbtManager.isAlive // TODOREGISTRY
-        component <- Option(view.getComponent)
-      } yield component
+      val shellComponent = if (Registry.is("sbt.new.shell")) {
+        for {
+          view <- sbtManager.consoleView
+          if sbtManager.isAlive // TODOREGISTRY
+          component <- Option(view.getComponent)
+        } yield component
+      } else {
+      for {
+        shellRunner <- sbtManager.shellRunner
+        if sbtManager.isAlive
+        view <- Option(shellRunner.getConsoleView)
+        editor <- Option(view.getConsoleEditor)
+      } yield editor.getContentComponent
+    }
 
       shellComponent.getOrElse(defaultPolicy.getDefaultComponent(aContainer))
     }

@@ -1,18 +1,16 @@
 package org.jetbrains.sbt.shell
 
 import com.intellij.debugger.engine.DebuggerUtils
-import com.intellij.execution.actions.ClearConsoleAction
 import com.intellij.execution.configurations.GeneralCommandLine.ParentEnvironmentType
 import com.intellij.execution.configurations._
-import com.intellij.execution.process.{KillableProcessHandler, OSProcessUtil}
-import com.intellij.execution.ui.{ConsoleView, ConsoleViewContentType}
+import com.intellij.execution.process.{ColoredProcessHandler, KillableProcessHandler, OSProcessHandler, OSProcessUtil}
+import com.intellij.execution.ui.ConsoleView
 import com.intellij.notification.{Notification, NotificationAction, NotificationType}
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, AnAction, AnActionEvent, DefaultActionGroup}
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, AnActionEvent, DefaultActionGroup}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.editor.actions.ToggleUseSoftWrapsToolbarAction
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.options.ex.SingleConfigurableEditor
 import com.intellij.openapi.options.newEditor.SettingsDialog
@@ -24,6 +22,7 @@ import com.intellij.openapi.roots.ui.configuration.ProjectStructureConfigurable
 import com.intellij.openapi.ui.DialogWrapper.DialogStyle
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.util.registry.Registry
 import com.intellij.terminal.TerminalExecutionConsole
 import com.intellij.ui.content.ContentFactory
 import com.intellij.util.messages.MessageBusConnection
@@ -40,7 +39,7 @@ import org.jetbrains.sbt.project.SbtExternalSystemManager
 import org.jetbrains.sbt.project.settings.SbtExecutionSettings
 import org.jetbrains.sbt.project.structure.SbtOption._
 import org.jetbrains.sbt.shell.SbtProcessManager._
-import org.jetbrains.sbt.shell.action.{CopyFromHistoryViewerAction, DebugShellAction, EOFAction, EscapeAction, FindAction, SbtShellScrollToTheEndToolbarAction, StartAction, StopAction}
+import org.jetbrains.sbt.shell.action.{EOFAction, StartAction, StopAction}
 import org.jetbrains.sbt.{JvmMemorySize, Sbt, SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities}
 
 import java.awt.BorderLayout
@@ -117,9 +116,8 @@ final class SbtProcessManager(project: Project) extends Disposable {
     SbtUtil.detectSbtVersion(workingDir.toPath, launcher)
   }
 
-  var debugOption: Option[RemoteConnection] = None // TODOREGISTRY
 
-  private def createShellProcessHandler(): (KillableProcessHandler, Option[RemoteConnection], SbtVersion) = {
+  private def createShellProcessHandler(): (OSProcessHandler, Option[RemoteConnection], SbtVersion) = {
     log.debug("createShellProcessHandler")
     val workingDirPath = getWorkingDirPath(project)
     val workingDir = new File(workingDirPath)
@@ -194,14 +192,16 @@ final class SbtProcessManager(project: Project) extends Disposable {
       commandLine.addParameter(s"early(addPluginSbtFile=\"\"\"$settingsPath\"\"\")")
     }
 
-    val commands = "shell" // TODOREGISTRY
+    val commands = if (Registry.is("sbt.new.shell")) "shell" else "idea-shell"
+    // DONE
 
     commandLine.addParameter(commands)
     val sbtLauncherArgs = sbtOpts.collect { case a: SbtLauncherOption => a.value }
     commandLine.addParameters(sbtLauncherArgs.asJava)
 
     val pty = createPtyCommandLine(commandLine, sbtSettings.passParentEnvironment, sbtSettings.userSetEnvironment)
-    val cpty = new KillableProcessHandler(pty) // TODOREGISTRY
+    val cpty = if (Registry.is("sbt.new.shell")) new KillableProcessHandler(pty) else new ColoredProcessHandler(pty)
+    // DONE
     cpty.setShouldKillProcessSoftly(true)
     patchWindowSize(cpty.getProcess)
 
@@ -344,69 +344,12 @@ final class SbtProcessManager(project: Project) extends Disposable {
   def initAndRunAsync(): Unit = {
     log.debug("initAndRunAsync")
     executeOnPooledThread {
-      acquireShellProcessHandler() //TODOREGISTRY
-      initTerminalConsole()
-    }
-  }
-
-  def createActionGroup(): ActionGroup = {
-    val group = new DefaultActionGroup()
-
-    val defaultActions = acquireConsoleView().createConsoleActions()
-
-    val startAction = new StartAction(project)
-    val stopAction = new StopAction(project)
-    val debugShellAction = new DebugShellAction(project, debugOption)
-    val eofAction = new EOFAction(project)
-
-    group.addAll(startAction, stopAction, debugShellAction, eofAction)
-    group
-  }
-
-  def initTerminalConsole(): Unit = {
-    executeOnPooledThread {
-      // Create an action group for the toolbar
-      val actionGroup = createActionGroup()
-
-      // Create an action toolbar
-      val actionToolBar = ActionManager.getInstance().createActionToolbar("sbt-shell-toolbar", actionGroup, false)
-
-      // Create panels and add components
-      val toolbarPanel = new JPanel()
-      toolbarPanel.setLayout(new BorderLayout)
-      toolbarPanel.add(actionToolBar.getComponent)
-
-      val processHandler = processData.get.processHandler
-      val console = processData.get.console
-
-      // Start the process handler if it's not started yet
-      if (!processHandler.isStartNotified) {
-        processHandler.startNotify()
-      }
-
-      SbtShellCommunication.forProject(project).initCommunication(processHandler)
-
-      val mainPanel = new JPanel()
-      mainPanel.setLayout(new BorderLayout)
-      mainPanel.add(toolbarPanel, BorderLayout.WEST)
-      mainPanel.add(console.getComponent, BorderLayout.CENTER)
-      actionToolBar.setTargetComponent(mainPanel)
-
-      // Create content for the tool window
-      SbtShellToolWindowFactory.instance(project).foreach { toolWindow =>
-        invokeLater {
-          val content = ContentFactory.getInstance.createContent(mainPanel, "sbt-shell-toolwindow-content", true)
-          val toolWindowTitle = project.getName
-          content.setTabName(toolWindowTitle)
-          content.setDisplayName(toolWindowTitle)
-          content.setToolwindowTitle(toolWindowTitle)
-
-          val twContentManager = toolWindow.getContentManager
-          twContentManager.removeAllContents(true)
-          twContentManager.addContent(content)
-          console.print("SBT Shell initialized. Ready for input.\n", ConsoleViewContentType.SYSTEM_OUTPUT)
-          toolWindow.activate(null, true)
-        }
+      if (Registry.is("sbt.new.shell")) {
+        acquireShellProcessHandler()
+        initTerminalConsole()
+      } else {
+        val runner = acquireShellRunner()
+        runner.openShell(true)
       }
     }
   }
@@ -416,23 +359,33 @@ final class SbtProcessManager(project: Project) extends Disposable {
     val pd = createProcessData()
     processDataMutex.synchronized {
       processData = Some(pd)
-      initTerminalConsole()
-//      pd.runner.initAndRun()
+      if (Registry.is("sbt.new.shell")) {
+        initTerminalConsole()
+      } else {
+        pd.runner.get.initAndRun()
+      }
     }
     pd
   }
 
   private def createProcessData(): ProcessData = {
     val (handler, debugConnection, sbtVersion) = createShellProcessHandler()
-    debugOption = debugConnection // TODOREGISTRY
     if (!handler.isStartNotified) {
       handler.startNotify()
     }
 
-//    val runner = new SbtShellRunner(project, title, debugConnection)
-    val console = new TerminalExecutionConsole(project, handler)
-    console.attachToProcess(handler)
-    ProcessData(handler, console, sbtVersion)
+    val runner: Option[SbtShellRunner] =
+      if (Registry.is("sbt.new.shell")) {
+        None
+      } else {
+        val title = project.getName
+        Some(new SbtShellRunner(project, title, debugConnection))
+      }
+    val console: Option[TerminalExecutionConsole] =
+      if (Registry.is("sbt.new.shell")) Some(new TerminalExecutionConsole(project, handler)) else None
+    console.map(_.attachToProcess(handler))
+
+    ProcessData(handler, runner, sbtVersion, console, debugConnection)
   }
 
   /** Supply a PrintWriter that writes to the current process. */
@@ -446,23 +399,24 @@ final class SbtProcessManager(project: Project) extends Disposable {
    * The process handler should only be used to access the running process!
    * SbtProcessManager is solely responsible for handling the running state.
    */
-  private[shell] def acquireShellProcessHandler(): KillableProcessHandler = processDataMutex.synchronized {
+  private[shell] def acquireShellProcessHandler(): OSProcessHandler = processDataMutex.synchronized {
     log.trace("acquireShellProcessHandler")
     processData match {
-      case Some(data@ProcessData(handler, _, _)) if isAlive(data) =>
+      case Some(data@ProcessData(handler, _, _, _, _)) if isAlive(data) =>
         handler
       case _ =>
         updateProcessData().processHandler
     }
   }
 
-  private[shell] def acquireConsoleView(): ConsoleView = processDataMutex.synchronized {
-    log.trace("acquireConsoleView")
+  /** Creates the SbtShellRunner view if necessary. */
+  def acquireShellRunner(): SbtShellRunner = processDataMutex.synchronized {
+    log.trace("processData")
     processData match {
-      case Some(data@ProcessData(_, console, _)) if isAlive(data) =>
-        console
+      case Some(data@ProcessData(_, runner, _, _, _)) if isAlive(data) =>
+        runner.get // method is called only when runner is defined
       case _ =>
-        updateProcessData().console
+        updateProcessData().runner.get
     }
   }
 
@@ -478,28 +432,31 @@ final class SbtProcessManager(project: Project) extends Disposable {
     }
   }
 
-  /** Creates the SbtShellRunner view if necessary. */
-//  def shellRunner: Option[SbtShellRunner] = processData.map(_.runner)
-//  /** Creates the SbtShellRunner view if necessary. */
-//  def acquireShellRunner(): SbtShellRunner = processDataMutex.synchronized {
-//    log.trace("processData")
-//    processData match {
-//      case Some(data@ProcessData(_, runner, _)) if isAlive(data) =>
-//        runner
-//      case _ =>
-//        updateProcessData().runner
-//    }
-//  }
+  def shellRunner: Option[SbtShellRunner] = processData.map(_.runner.get) // method is called only when runner is defined
 
-//  def shellRunner: Option[SbtShellRunner] = processData.map(_.runner)
+  def consoleView: Option[ConsoleView] = processData.map(_.console.get)
 
-  def consoleView: Option[ConsoleView] = None
+  def debugConnection: Option[Option[RemoteConnection]] = processData.map(_.debugConnection)
 
   def restartProcess(): Unit = processDataMutex.synchronized {
     log.debug("restartProcess")
     destroyProcess()
     updateProcessData()
   }
+
+  /** Creates the SbtShellRunner view if necessary. */
+  //  def shellRunner: Option[SbtShellRunner] = processData.map(_.runner)
+  //  /** Creates the SbtShellRunner view if necessary. */
+  //  def acquireShellRunner(): SbtShellRunner = processDataMutex.synchronized {
+  //    log.trace("processData")
+  //    processData match {
+  //      case Some(data@ProcessData(_, runner, _)) if isAlive(data) =>
+  //        runner
+  //      case _ =>
+  //        updateProcessData().runner
+  //    }
+  //  }
+
 
   private def terminateProcessGracefully(process: Process): Unit = {
     def attemptTermination(): Unit = {
@@ -554,7 +511,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
   private def destroyProcess(isSoft: Boolean): Unit = processDataMutex.synchronized {
     log.debug("destroyProcess")
     processData match {
-      case Some(ProcessData(handler, _, _)) =>
+      case Some(ProcessData(handler, _, _, _, _)) =>
         val shell = SbtShellCommunication.forProject(project)
         shell.startDestroying()
         if (!isSoft) {
@@ -585,6 +542,68 @@ final class SbtProcessManager(project: Project) extends Disposable {
 
   def sbtVersionUsedDuringProcessStart: Option[SbtVersion] =
     processData.map(_.sbtVersion)
+
+  private def createActionGroup(): ActionGroup = {
+    val group = new DefaultActionGroup()
+
+    val defaultActions = consoleView.get.createConsoleActions()
+    val debug = debugConnection
+
+    val startAction = new StartAction(project)
+    val stopAction = new StopAction(project)
+//    val debugShellAction = new DebugShellAction(project, debug)
+    val eofAction = new EOFAction(project)
+
+    group.addAll(startAction, stopAction, eofAction)
+    group
+  }
+
+  private def initTerminalConsole(): Unit = {
+    executeOnPooledThread {
+      // Create an action group for the toolbar
+      val actionGroup = createActionGroup()
+
+      // Create an action toolbar
+      val actionToolBar = ActionManager.getInstance().createActionToolbar("sbt-shell-toolbar", actionGroup, false)
+
+      // Create panels and add components
+      val toolbarPanel = new JPanel()
+      toolbarPanel.setLayout(new BorderLayout)
+      toolbarPanel.add(actionToolBar.getComponent)
+
+      val processHandler = processData.get.processHandler
+      val console = processData.get.console
+
+      // Start the process handler if it's not started yet
+      if (!processHandler.isStartNotified) {
+        processHandler.startNotify()
+      }
+
+      SbtShellCommunication.forProject(project).initCommunication(processHandler)
+
+      val mainPanel = new JPanel()
+      mainPanel.setLayout(new BorderLayout)
+      mainPanel.add(toolbarPanel, BorderLayout.WEST)
+      mainPanel.add(console.get.getComponent, BorderLayout.CENTER)
+      actionToolBar.setTargetComponent(mainPanel)
+
+      // Create content for the tool window
+      SbtShellToolWindowFactory.instance(project).foreach { toolWindow =>
+        invokeLater {
+          val content = ContentFactory.getInstance.createContent(mainPanel, "sbt-shell-toolwindow-content", true)
+          val toolWindowTitle = project.getName
+          content.setTabName(toolWindowTitle)
+          content.setDisplayName(toolWindowTitle)
+          content.setToolwindowTitle(toolWindowTitle)
+
+          val twContentManager = toolWindow.getContentManager
+          twContentManager.removeAllContents(true)
+          twContentManager.addContent(content)
+          toolWindow.activate(null, true)
+        }
+      }
+    }
+  }
 }
 
 object SbtProcessManager {
@@ -603,9 +622,11 @@ object SbtProcessManager {
    * @param sbtVersion version of sbt detected when launching the sbt process
    */
   private case class ProcessData(
-    processHandler: KillableProcessHandler,
-    console: TerminalExecutionConsole, // TODOREGISTRY
-    sbtVersion: SbtVersion
+    processHandler: OSProcessHandler,
+    runner: Option[SbtShellRunner],
+    sbtVersion: SbtVersion,
+    console: Option[TerminalExecutionConsole],
+    debugConnection: Option[RemoteConnection]
   )
 
   private[shell]

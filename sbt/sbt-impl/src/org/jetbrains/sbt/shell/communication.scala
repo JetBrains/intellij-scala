@@ -6,6 +6,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
+import com.intellij.openapi.util.registry.Registry
 import org.jetbrains.annotations.ApiStatus.Internal
 import org.jetbrains.annotations.{ApiStatus, NonNls, TestOnly}
 import org.jetbrains.ide.PooledThreadExecutor
@@ -83,7 +84,9 @@ final class SbtShellCommunication(project: Project) {
     if (isDestroyingOrEmptyingQueueInProgress) {
       afterRestartCommands.put((cmd, listener))
     } else {
-      //    process.acquireShellRunner() TODOREGISTRY
+      if (!Registry.is("sbt.new.shell")) {
+        process.acquireShellRunner()
+      }
       commands.put((cmd, listener))
     }
 
@@ -401,9 +404,10 @@ private[shell] object SbtProcessUtil {
   private val IDEA_PROMPT_MARKER = "[IJ]"
 
   // the prompt marker is inserted by the sbt-idea-shell plugin
-  def promptReady(line: String): Boolean =
-    line.trim.contains("sbt:") || line.contains("....")
-//    line.trim.startsWith(IDEA_PROMPT_MARKER) TODOREGISTRY
+  def promptReady(line: String): Boolean = {
+    if (Registry.is("sbt.new.shell")) line.trim.contains("sbt:") || line.contains("....")
+    else line.trim.startsWith(IDEA_PROMPT_MARKER)
+  }
 
   def promptError(line: String): Boolean =
     line.trim.endsWith("(r)etry, (q)uit, (l)ast, or (i)gnore?")

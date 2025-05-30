@@ -1,6 +1,6 @@
 package org.jetbrains.sbt.shell.testSettingsQueryHandler
 
-import com.intellij.execution.process.{OSProcessHandler, ProcessEvent, ProcessListener}
+import com.intellij.execution.process.{ProcessEvent, ProcessListener}
 import com.intellij.ide.impl.ProjectUtil
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
@@ -62,9 +62,8 @@ abstract class SbtProjectPlatformTestCase extends HeavyPlatformTestCase {
     //TODO this is hacky, but sometimes 'main' gets leaked
     ThreadLeakTracker.longRunningThreadCreated(ApplicationManager.getApplication, "ForkJoinPool")
     myComm = SbtShellCommunication.forProject(getProject)
-//    myRunner = SbtProcessManager.forProject(getProject).acquireShellRunner()
-    myHandler = SbtProcessManager.forProject(getProject).acquireShellProcessHandler()
-    myHandler.addProcessListener(logger)
+    myRunner = SbtProcessManager.forProject(getProject).acquireShellRunner()
+    myRunner.getProcessHandler.addProcessListener(logger)
   }
 
   override def tearDown(): Unit = try {
@@ -76,7 +75,7 @@ abstract class SbtProjectPlatformTestCase extends HeavyPlatformTestCase {
     SbtProcessManager.forProject(getProject).destroyProcess()
 
     UIUtil.dispatchAllInvocationEvents()
-    val handler = myHandler
+    val handler = myRunner.getProcessHandler
     //give the handler some time to terminate the process
     while (!handler.isProcessTerminated || handler.isProcessTerminating) {
       Thread.sleep(100)
@@ -87,14 +86,14 @@ abstract class SbtProjectPlatformTestCase extends HeavyPlatformTestCase {
     //remove links so that we don't leak the project
     myProject = null
     myComm = null
-    myHandler = null
+    myRunner = null
   }
 
 
   protected def comm = myComm
-//  protected def runner = myRunner
+  protected def runner = myRunner
   protected var myComm: SbtShellCommunication = _
-  protected var myHandler: OSProcessHandler = _
+  protected var myRunner: SbtShellRunner = _
   protected val logger: ProcessLogger = new ProcessLogger
 }
 
