@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.extensions.RichFile
 import org.jetbrains.sbt.project.SbtProjectResolver.{CompileScope, ImportContext, IntegrationTestScope, TestScope}
 import org.jetbrains.sbt.project.data.ContentRootNode
 import org.jetbrains.sbt.structure.DirectoryData
-import org.jetbrains.sbt.{Sbt, structure => sbtStructure}
+import org.jetbrains.sbt.{Sbt, SbtUtil, structure => sbtStructure}
 
 import java.io.File
 import scala.collection.mutable
@@ -106,9 +106,8 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
     // * Additionally, content roots may be created for individual source directories (see ContentRootsResolution.createContentRootNodes).
     // However, any overlap with individual source directories for shared sources is handled in #resolveExternalSystemSources.
     val sharedSourcesBaseDirs = groupedSharedRoots.flatMap { group =>
-      val base = group.base.path
-      Seq(base, s"$base/src/main", s"$base/src/test")
-    }
+      Seq(group.base, group.base / "src" / "main", group.base / "src" / "test")
+    }.map(SbtUtil.normalizePath)
 
     // The mainSourceDirectories/testSourceDirectories values are derived from the sourceDirectory sbt key.
     // In the ideal/default case, for example, the mainSourceDirectories value is src/main, and it contains source paths like scala, java, etc.
@@ -129,7 +128,7 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
       val testSources = getSourceRoots(_.isTest)
 
       def getValidSourceBaseDirs(sourceBaseDirs: Seq[File]): Seq[String] =
-        sourceBaseDirs.map(_.path)
+        sourceBaseDirs.map(SbtUtil.normalizePath)
           .filterNot(uniqueSourcesPaths.contains)
           .filterNot(alreadyUsedSourceBaseDirs.contains)
           .filterNot(sharedSourcesBaseDirs.contains)
