@@ -24,6 +24,11 @@ class SbtUtilTest {
   private val globalBase20 = defaultGlobalBase.toPath / "2"
 
   @Test
+  def dummyTest(): Unit = {
+    assertEquals(true, false)
+  }
+
+  @Test
   def testDefaultGlobalBase(): Unit = {
     import SbtUtil.globalBase
     assertEquals(globalBase012, globalBase(v0120).toPath)
