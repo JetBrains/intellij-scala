@@ -160,10 +160,10 @@ private class CommandTask(project: Project, command: String, promise: AsyncPromi
 
   import CommandTask._
 
-  private val shellRunner: SbtShellRunner = SbtProcessManager.forProject(project).acquireShellRunner()
+//  private val shellRunner: SbtShellRunner = SbtProcessManager.forProject(project).acquireShellRunner() TODOREGISTRY
 
-  private def showShell(): Unit =
-    shellRunner.openShell(false)
+//  private def showShell(): Unit =
+//    shellRunner.openShell(false) TODOREGISTRY
 
   override def run(indicator: ProgressIndicator): Unit = {
     import org.jetbrains.plugins.scala.lang.macros.expansion.ReflectExpansionsCollector
@@ -186,7 +186,7 @@ private class CommandTask(project: Project, command: String, promise: AsyncPromi
           messages
         case ErrorWaitForInput =>
           // can only actually happen during reload, but handle it here to be sure
-          showShell()
+//          showShell() TODOREGISTRY
           report.error(SbtBundle.message("sbt.shell.build.interrupted"), None)
           messages.addError(SbtBundle.message("sbt.shell.error.build.interrupted"))
           messages
@@ -197,7 +197,7 @@ private class CommandTask(project: Project, command: String, promise: AsyncPromi
             val msg = text.stripPrefix(ERROR_PREFIX)
             // only report first error until we can get a good mapping message -> error
             if (messages.errors.isEmpty) {
-              showShell()
+//              showShell() TODOREGISTRY
               report.error(SbtBundle.message("sbt.shell.errors.in.build"), None)
             }
             messages.addError(msg)

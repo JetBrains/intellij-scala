@@ -8,24 +8,40 @@ import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.execution.{ExecutionResult, Executor}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.registry.Registry
 import org.jetbrains.sbt.shell.SbtProcessManager
 
 class SbtDebugProgramRunner extends GenericDebuggerRunner with SbtProgramRunnerBase {
   override def createContentDescriptor(state: RunProfileState, environment: ExecutionEnvironment): RunContentDescriptor = {
     state match {
       case sbtState: SbtCommandLineState =>
-        if (sbtState.configuration.useSbtShell) SbtProcessManager.forProject(environment.getProject).acquireShellRunner().getDebugConnection.foreach {
-          connection =>
-            import scala.concurrent.ExecutionContext.Implicits.global
-            
-            val state = new MyTrojanRemoteState(environment.getProject, connection)
-            val attach = attachVirtualMachine(state, environment, connection, true)
-            submitCommands(environment, sbtState).onComplete {
-              _ => 
-                state.detach()
-            }
-            return attach
-        } else super.createContentDescriptor(state, environment)
+//        if (Registry.is("sbt.new.shell")) {
+          if (sbtState.configuration.useSbtShell) SbtProcessManager.forProject(environment.getProject).debugOption.foreach {
+            connection =>
+              import scala.concurrent.ExecutionContext.Implicits.global
+
+              val state = new MyTrojanRemoteState(environment.getProject, connection)
+              val attach = attachVirtualMachine(state, environment, connection, true)
+              submitCommands(environment, sbtState).onComplete {
+                _ =>
+                  state.detach()
+              }
+              return attach
+          } else super.createContentDescriptor(state, environment)
+//        } else {
+//          if (sbtState.configuration.useSbtShell) SbtProcessManager.forProject(environment.getProject).acquireShellRunner().getDebugConnection.foreach {
+//            connection =>
+//              import scala.concurrent.ExecutionContext.Implicits.global
+//
+//              val state = new MyTrojanRemoteState(environment.getProject, connection)
+//              val attach = attachVirtualMachine(state, environment, connection, true)
+//              submitCommands(environment, sbtState).onComplete {
+//                _ =>
+//                  state.detach()
+//              }
+//              return attach
+//          } else super.createContentDescriptor(state, environment)
+//        }
       case _ => 
     }
     

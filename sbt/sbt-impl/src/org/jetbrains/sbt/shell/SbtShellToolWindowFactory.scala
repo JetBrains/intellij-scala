@@ -1,5 +1,6 @@
 package org.jetbrains.sbt.shell
 
+import com.intellij.execution.ui.ConsoleView
 import com.intellij.ide.actions.ActivateToolWindowAction
 import com.intellij.openapi.actionSystem.KeyboardShortcut
 import com.intellij.openapi.application.ApplicationManager
@@ -140,11 +141,11 @@ object SbtShellToolWindowFactory {
       // default implementation focuses the toolwindow frame, but we want the editor to be directly focused to edit it directly
       val sbtManager = SbtProcessManager.forProject(project)
       val shellComponent = for {
-        shellRunner <- sbtManager.shellRunner
-        if sbtManager.isAlive
-        view <- Option(shellRunner.getConsoleView)
-        editor <- Option(view.getConsoleEditor)
-      } yield editor.getContentComponent
+        view <- sbtManager.consoleView
+        if sbtManager.isAlive // TODOREGISTRY
+        component <- Option(view.getComponent)
+      } yield component
+
       shellComponent.getOrElse(defaultPolicy.getDefaultComponent(aContainer))
     }
   }

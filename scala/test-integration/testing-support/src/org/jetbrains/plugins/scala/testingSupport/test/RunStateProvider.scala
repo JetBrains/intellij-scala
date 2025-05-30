@@ -65,5 +65,5 @@ final class SbtShellBasedStateProvider(
     env: ExecutionEnvironment,
     failedTests: Option[Seq[(String, String)]]
   ): RunProfileState =
-    new ScalaTestFrameworkCommandLineSbtState(configuration, env, failedTests, sbtSupport)
+    null
 }

@@ -83,7 +83,7 @@ final class SbtShellCommunication(project: Project) {
     if (isDestroyingOrEmptyingQueueInProgress) {
       afterRestartCommands.put((cmd, listener))
     } else {
-      process.acquireShellRunner()
+      //    process.acquireShellRunner() TODOREGISTRY
       commands.put((cmd, listener))
     }
 
@@ -402,7 +402,8 @@ private[shell] object SbtProcessUtil {
 
   // the prompt marker is inserted by the sbt-idea-shell plugin
   def promptReady(line: String): Boolean =
-    line.trim.startsWith(IDEA_PROMPT_MARKER)
+    line.trim.contains("sbt:") || line.contains("....")
+//    line.trim.startsWith(IDEA_PROMPT_MARKER) TODOREGISTRY
 
   def promptError(line: String): Boolean =
     line.trim.endsWith("(r)etry, (q)uit, (l)ast, or (i)gnore?")

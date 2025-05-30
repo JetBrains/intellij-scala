@@ -39,7 +39,7 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
   // SbtProcessManager is solely responsible for destroying/respawning
   // TODO: why is this lazy val? acquireShellProcessHandler can create a new process handler process data with
   //  new process handler, new data and new runner!!
-  private lazy val myProcessHandler: ColoredProcessHandler =
+  private lazy val myProcessHandler: OSProcessHandler =
     SbtProcessManager.forProject(project)
       .acquireShellProcessHandler()
 
