@@ -1,7 +1,7 @@
 package org.jetbrains.sbt.project
 
 import com.intellij.openapi.module.{Module, ModuleUtilCore}
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{Project, ProjectUtil}
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.PsiFile
@@ -33,15 +33,17 @@ object SbtProjectUtil {
   private def isHandledByOtherBuildTool(module: Module): Boolean =
     BuildToolModuleHandler.isHandledByBuildTool(module)
 
-  private def couldBeImportedAsSbtProject(project: Project): Boolean = {
-    val projectDir =
-      try Path.of(SbtUtil.getWorkingDirPath(project))
-      catch {
-        case _: IllegalStateException => return false
-      }
-    val projectDirVirtualFile = VirtualFileManager.getInstance().findFileByNioPath(projectDir)
-    SbtProjectImportProvider.canImport(projectDirVirtualFile)
-  }
+  /**
+   * We're only interested if the root project directory can be imported as an sbt project, i.e.
+   * it contains a `project` directory with a `build.properties` file
+   * or a `build.sbt` file in the root project directory.
+   */
+  private def couldBeImportedAsSbtProject(project: Project): Boolean =
+    Option(ProjectUtil.guessProjectDir(project))
+      .flatMap(vf => Option(vf.getCanonicalPath))
+      .map(Path.of(_))
+      .flatMap(p => Option(VirtualFileManager.getInstance().findFileByNioPath(p)))
+      .exists(SbtProjectImportProvider.canImport)
 
   def cachedModuleForPsiFile(file: PsiFile): Option[Module] =
     file.module.orElse {
