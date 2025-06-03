@@ -10,6 +10,7 @@ import org.jetbrains.sbt.{Sbt, SbtUtil, structure => sbtStructure}
 
 import java.io.File
 import scala.collection.mutable
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 /**
  * This trait provides utility methods for creating content root nodes, applicable to both "legacy" and main/test module modes.
@@ -214,20 +215,30 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
     sourceRootBaseDirs: Seq[String],
     sourceRoots: Seq[(String, ExternalSystemSourceType)],
   ): Seq[ContentRootNode] = {
-    val contentRootsForSourceBaseDirs = sourceRootBaseDirs.distinct.map(new ContentRootNode(_))
-    sourceRoots.foldLeft(contentRootsForSourceBaseDirs) { case (contentRootNodes, (sourceRootPath, sourceType)) =>
+    val _sourceRootBaseDirs = sourceRootBaseDirs.map((_, None))
+    val _sourceRoots = sourceRoots.map { case (path, sourceType) => (path, Some(sourceType)) }
+    val sortedSources = (_sourceRootBaseDirs ++ _sourceRoots).sortBy(_._1)
+
+    val contentRootNodes = sortedSources.foldLeft(Seq.empty[ContentRootNode]) { case (contentRootNodes, (sourceRootPath, sourceType)) =>
       val suitableContentRootNode = findContentRootContainingPath(contentRootNodes, sourceRootPath)
       suitableContentRootNode match {
-        case Some(contentRootNode) =>
-          contentRootNode.storePath(sourceType, sourceRootPath)
+        case Some(contentRootNode) if sourceType.nonEmpty =>
+          contentRootNode.storePath(sourceType.get, sourceRootPath)
           contentRootNodes
         case None =>
           val node = new ContentRootNode(sourceRootPath)
-          node.storePath(sourceType, sourceRootPath)
+          sourceType.foreach(node.storePath(_, sourceRootPath))
           contentRootNodes :+ node
         case _ => contentRootNodes
       }
     }
+
+    contentRootNodes.filterNot(isContentRootMissingPaths)
+  }
+
+  private def isContentRootMissingPaths(contentRootNode: ContentRootNode): Boolean = {
+    val allSourceTypes = ExternalSystemSourceType.values().toSeq
+    !allSourceTypes.exists(sourceType => contentRootNode.data.getPaths(sourceType).asScala.nonEmpty)
   }
 
   private def findContentRootContainingPath(contentRoots: Seq[ContentRootNode], path: String): Option[ContentRootNode] = {
