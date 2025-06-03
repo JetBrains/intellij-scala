@@ -235,7 +235,7 @@ trait ProjectStructureMatcher {
                                            (implicit compareContext: ProjectStructureComparisonContext): Unit = {
     val expectedRoots = expected
     val actualRoots = roots.ModuleRootManager.getInstance(module).getContentEntries.map(_.getUrl.stripPrefix("file://")).toSeq
-    assertMatch(s"Content root of module `${module.getName}`", expectedRoots, actualRoots)(mt)
+    assertMatchWithIgnoredOrder(s"Content root of module `${module.getName}`", expectedRoots, actualRoots)(mt)
   }
 
   /**

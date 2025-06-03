@@ -3526,6 +3526,65 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
     buildProjectAndAssertNoWarningsOrErrors()
   }
 
+  def testContentRootWithEmptyPaths(): Unit = {
+    runTest(
+      new project("root") {
+        val rootMain: module = new module("root.main") {
+          moduleDependencies := Nil
+          contentRoots := Seq(
+            "%PROJECT_ROOT%/target/scala-2.13/src_managed/main",
+            "%PROJECT_ROOT%/target/scala-2.13/resource_managed/main"
+          )
+          emptySourceResourceDirs(this)
+        }
+        val rootTest: module = new module("root.test") {
+          moduleDependencies += new dependency(rootMain) { isExported := false }
+          emptySourceResourceDirs(this)
+          contentRoots := standardRoots("", "test")
+        }
+        val root: module = new module("root") {
+          moduleDependencies := Seq(
+            new dependency(rootMain) { isExported := false },
+            new dependency(rootTest) { isExported := false },
+          )
+          contentRoots += "%PROJECT_ROOT%"
+          excluded += "target"
+        }
+        modules := Seq(root, rootMain, rootTest)
+      }
+    )
+  }
+
+  def testOuterSourceDirectory(): Unit = {
+    runTest(
+      new project("root") {
+        val rootMain: module = new module("root.main") {
+          moduleDependencies := Nil
+          contentRoots := Seq(
+            "%PROJECT_ROOT%/foo/src",
+            "%PROJECT_ROOT%/target/scala-2.13/src_managed/main",
+            "%PROJECT_ROOT%/target/scala-2.13/resource_managed/main"
+          )
+          sources := Seq("%PROJECT_ROOT%/foo/src", "%PROJECT_ROOT%/foo/src/main/scala")
+        }
+        val rootTest: module = new module("root.test") {
+          moduleDependencies += new dependency(rootMain) { isExported := false }
+          emptySourceResourceDirs(this)
+          contentRoots := standardRoots("", "test")
+        }
+        val root: module = new module("root") {
+          moduleDependencies := Seq(
+            new dependency(rootMain) { isExported := false },
+            new dependency(rootTest) { isExported := false },
+          )
+          contentRoots += "%PROJECT_ROOT%"
+          excluded += "target"
+        }
+        modules := Seq(root, rootMain, rootTest)
+      }
+    )
+  }
+
   private def standardRoots(relativePath: String, scope: String): Seq[String] = {
     val normalized = if (relativePath.isEmpty) "" else s"$relativePath/"
     Seq(
