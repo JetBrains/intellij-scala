@@ -11,4 +11,7 @@
     <extensions defaultExtensionNs="org.intellij.scala">
         <newScalaFileActionExtension implementation="org.jetbrains.plugins.scala.bazel.BazelNewScalaFileActionExtension"/>
     </extensions>
+    <extensions defaultExtensionNs="com.intellij">
+        <runLineMarkerContributor implementationClass="org.jetbrains.plugins.scala.bazel.BazelScalaRunLineMarkerContributor" language="Scala" order="before ScalaRunLineMarkerContributor"/>
+    </extensions>
 </idea-plugin>
