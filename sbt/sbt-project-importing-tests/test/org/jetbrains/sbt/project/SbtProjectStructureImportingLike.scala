@@ -301,6 +301,20 @@ abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImporti
       CompileServerLauncher.stopServerAndWait()
     }
   }
+
+  protected def createModuleWithSourceSet(moduleName: String, group: Array[String] = null): Seq[module] =
+    Seq(moduleName, s"$moduleName.main", s"$moduleName.test").map { name =>
+      new module(name, group)
+    }
+
+  protected def standardRoots(relativePath: String, scope: String): Seq[String] = {
+    val normalized = if (relativePath.isEmpty) "" else s"$relativePath/"
+    Seq(
+      s"%PROJECT_ROOT%/${normalized}src/$scope",
+      s"%PROJECT_ROOT%/${normalized}target/scala-2.13/src_managed/$scope",
+      s"%PROJECT_ROOT%/${normalized}target/scala-2.13/resource_managed/$scope"
+    )
+  }
 }
 
 object SbtProjectStructureImportingLike {
