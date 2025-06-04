@@ -3256,7 +3256,7 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
         lazy val rootMain: module = new module("root.main") {
           libraryDependencies := scalaLibraries
           moduleDependencies := Nil
-          contentRoots := Seq("%PROJECT_ROOT%/src/main", "%PROJECT_ROOT%")
+          contentRoots := Seq("%PROJECT_ROOT%")
           sources := Seq("%PROJECT_ROOT%/src/main/scala", "%PROJECT_ROOT%")
           resources := Seq("%PROJECT_ROOT%/src/main/resources")
           excluded := Seq("%PROJECT_ROOT%/target")
