@@ -7,6 +7,7 @@ import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.{Project, ProjectManager}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.extensions.executeOnPooledThread
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.settings.sections.UpdateSettingsSectionConfigurable
@@ -20,11 +21,20 @@ object Scala3Disclaimer {
   }
   class DumbModeListener extends com.intellij.openapi.project.DumbService.DumbModeListener {
     override def exitDumbMode(): Unit = {
-      ProjectManager.getInstance().getOpenProjects.foreach(onProjectLoaded) // for external system projects
+      executeOnPooledThread {
+        checkAllOpenProjects()
+      }
     }
   }
 
+  private def checkAllOpenProjects(): Unit = {
+    ProjectManager.getInstance().getOpenProjects.foreach(onProjectLoaded)
+  }
+
   private def onProjectLoaded(project: Project): Unit = {
+    if (project.isDisposed)
+      return
+
     if (ApplicationManager.getApplication.isUnitTestMode)
       return // otherwise, it can lead to project leaks in tests
 
