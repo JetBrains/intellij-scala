@@ -202,4 +202,39 @@ class Scala3ResolveTest extends SimpleResolveTestBase {
        |  MyDef.val${REFSRC}ue[String](setting)
        |""".stripMargin
   )
+
+  def testSCL20165(): Unit = doResolveTest(
+    s"""
+       |
+       |import scala.quoted.{Quotes, *}
+       |
+       |object A {
+       |  def f2(x: Expr[Int])(using Quotes): Expr[Int] = {
+       |    quotes
+       |    import quotes.reflect.*
+       |
+       |    val tree: Term = x.asTer${REFSRC}m
+       |    ???
+       |  }
+       |}
+       |""".stripMargin
+  )
+
+  def testSCL20165_2(): Unit = doResolveTest(
+    s"""
+       |package foo
+       |
+       |case class MyQuotes(foo: String)
+       |transparent inline def quotes1(using q: MyQuotes): q.type = q
+       |
+       |object ImportInlineTests {
+       |  given MyQuotes = ???
+       |
+       |  {
+       |    import quotes1.*
+       |    val xx = fo${REFSRC}o
+       |  }
+       |}
+       |""".stripMargin
+  )
 }

@@ -400,6 +400,9 @@ object ScSimpleTypeElementImpl {
         val macroEvaluator = ScalaMacroEvaluator.getInstance(f.getProject)
         val typeFromMacro = macroEvaluator.checkMacro(f, MacroContext(ref, None))
         return typeFromMacro.map(Right(_)).getOrElse(Failure(ScalaBundle.message("unknown.macro.in.type.position")))
+      case Some(ScalaResolveResult(TransparentInlineMethod(m), subst)) if m.isStable =>
+        val substed = subst(m.returnType.getOrAny)
+        return Right(substed)
       case Some(srr @ ScalaResolveResult(named: PsiNamedElement, _)) =>
         srr.exportedInfo match {
           case Some(ExportedSigInfo(_, fromType)) =>

@@ -78,11 +78,11 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         //but also inside certain classes, so qualifier of a macro impl reference may resolve to a class
         //see https://docs.scala-lang.org/overviews/macros/bundles.html
         if (isMacroImplReference(contextRef)) stableQualOrClass
-        else stableQualRef
+        else stableQualRefCandidates
 
       case e: ScImportExpr => if (e.selectorSet.isDefined
         //import Class._ is not allowed
-        || qualifier.isEmpty || e.hasWildcardSelector) stableQualRef
+        || qualifier.isEmpty || e.hasWildcardSelector) stableQualRefCandidates
       else stableImportSelector
 
       case ste: ScSimpleTypeElement =>
@@ -485,6 +485,9 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       case ScalaResolveResult(fn: ScFunction, subst) if isExportInExtension =>
         val exportedType = subst(fn.returnType.getOrNothing)
         processor.processType(exportedType, this, ScalaResolveState.withSubstitutor(subst))
+      case ScalaResolveResult(TransparentInlineMethod(m), subst) if m.isStable =>
+        val retTpe = subst(m.returnType.getOrNothing)
+        processor.processType(retTpe, this, ScalaResolveState.withSubstitutor(subst))
       case ScalaResolveResult(fun: ScFunction, _) =>
         val macroEvaluator = ScalaMacroEvaluator.getInstance(fun.getProject)
         val typeFromMacro = macroEvaluator.checkMacro(fun, MacroContext(qualifier, None))
@@ -622,8 +625,8 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     }
 
     val isExportInExtension = isExport && enclosingImportOrExport.getContext.is[ScExtensionBody]
-    val candidates = processQualifier(processor, isExportInExtension)
-    val filtered = candidates.filter(candidatesFilter)
+    val candidates          = processQualifier(processor, isExportInExtension)
+    val filtered            = candidates.filter(candidatesFilter)
 
     val result = if (accessibilityCheck && filtered.isEmpty)
       doResolve(processor, accessibilityCheck = false)
