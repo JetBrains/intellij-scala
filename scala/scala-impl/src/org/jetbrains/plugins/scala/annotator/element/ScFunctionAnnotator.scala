@@ -12,7 +12,6 @@ object ScFunctionAnnotator extends ElementAnnotator[ScFunction] {
     function.getContainingFile match {
       case scFile: ScalaFile if scFile.isScala3File =>
         checkTransparentModifier(function)
-        checkInlineArguments(function)
       case _ =>
     }
 
@@ -21,16 +20,6 @@ object ScFunctionAnnotator extends ElementAnnotator[ScFunction] {
     val transparentModifier = modifierList.findFirstChildByType(ScalaTokenType.TransparentKeyword).orNull
     if (transparentModifier != null && !modifierList.isInline) {
       holder.createErrorAnnotation(transparentModifier, ScalaBundle.message("transparent.method.must.be.inline"))
-    }
-  }
-
-  private def checkInlineArguments(function: ScFunction)(implicit holder: ScalaAnnotationHolder): Unit = {
-    val modifierList = function.getModifierList
-    if (!modifierList.isInline) {
-      val inlineModifiersInParameters = function.parameters.map(_.getModifierList).filter(_.isInline)
-      inlineModifiersInParameters.foreach { inlineToken =>
-        holder.createErrorAnnotation(inlineToken, ScalaBundle.message("only.inline.methods.may.have.inline.args"))
-      }
     }
   }
 }

@@ -4,6 +4,7 @@ package annotator
 import com.intellij.psi.PsiElement
 import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import org.intellij.lang.annotations.Language
+import org.jetbrains.plugins.scala.annotator.Message.Error
 import org.jetbrains.plugins.scala.annotator.element.{ScParameterAnnotator, ScParametersAnnotator}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
 import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
@@ -121,4 +122,32 @@ class ParametersAnnotatorTest_with_callByName_implicit_parameter extends Paramet
   def testByName_ImplicitParam(): Unit = {
     assertNothing(messages("def f(a: A)(implicit b: => B) {}"))
   }
+}
+
+class InlineParametersAnnotatorTest extends ParametersAnnotatorTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= LatestScalaVersions.Scala_3_LTS
+
+  private val errorMsg = ScalaBundle.message("inline.modifier.illegal.owner")
+
+  def doTestInline(code: String, errorAnchor: String): Unit = {
+    assertMatches(messages(code)) {
+      case Error(`errorAnchor`, `errorMsg`) :: Nil =>
+    }
+  }
+
+  def testInlineInClass(): Unit =
+    doTestInline("class Foo(inline x: Int)", "inline x: Int")
+
+  def testNonInlineMethod(): Unit =
+    doTestInline("def foo(inline y: String): Unit = ???", "inline y: String")
+
+  def testPos(): Unit =
+    assertNothing(
+      messages(
+        """
+          |inline def bar(inline x: Bar): Bar = x
+          |""".stripMargin
+      )
+    )
 }

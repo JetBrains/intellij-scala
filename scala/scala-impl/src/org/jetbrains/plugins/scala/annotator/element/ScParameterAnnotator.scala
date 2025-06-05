@@ -2,13 +2,14 @@ package org.jetbrains.plugins.scala.annotator.element
 
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.openapi.project.DumbAware
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationHolder, isDumbMode}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScExtension
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenDefinition
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
@@ -31,7 +32,11 @@ object ScParameterAnnotator extends ElementAnnotator[ScParameter] with DumbAware
       }
     }
 
-    element.owner match {
+    val owner = element.owner
+
+    annotateInlineParameter(element, owner)
+
+    owner match {
       case null =>
         val message = ScalaBundle.message("annotator.error.parameter.without.an.owner.name", element.name)
         holder.createErrorAnnotation(element, message)
@@ -56,8 +61,26 @@ object ScParameterAnnotator extends ElementAnnotator[ScParameter] with DumbAware
     }
   }
 
+  private def annotateInlineParameter(
+    param: ScParameter,
+    owner: PsiElement
+  )(implicit holder: ScalaAnnotationHolder): Unit =
+    if (param.getModifierList.isInline)
+      owner match {
+        case fn: ScFunction if fn.getModifierList.isInline => ()
+        case _ =>
+          val inlineMod = param.getModifierList.findChildrenByType(ScalaTokenType.InlineKeyword)
+
+          inlineMod.foreach(
+            holder.createErrorAnnotation(
+              _,
+              ScalaBundle.message("inline.modifier.illegal.owner")
+            )
+          )
+      }
+
   private def annotateCallByNameParameter(element: ScParameter)
-                                         (implicit holder: ScalaAnnotationHolder): Any = {
+                                         (implicit holder: ScalaAnnotationHolder): Unit = {
     def errorWithMessageAbout(topic: String): Unit =
       holder.createErrorAnnotation(element, ScalaBundle.message("topic.parameters.may.not.be.call.by.name", topic))
     // TODO move to ScClassParameter
