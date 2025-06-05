@@ -2,7 +2,7 @@ import sbt.file
 
 ThisBuild / scalaVersion := "2.13.16"
 
-val sharedDirectory = file("src/main/shared")
+val sharedDirectory = file("src/main/buzz")
 lazy val shared = project.in (sharedDirectory)
   .settings (
     Compile / scalaSource := sharedDirectory

@@ -307,12 +307,12 @@ abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImporti
       new module(name, group)
     }
 
-  protected def standardRoots(relativePath: String, scope: String): Seq[String] = {
+  protected def standardRoots(relativePath: String, scope: String, scalaVersion: String = "2.13"): Seq[String] = {
     val normalized = if (relativePath.isEmpty) "" else s"$relativePath/"
     Seq(
       s"%PROJECT_ROOT%/${normalized}src/$scope",
-      s"%PROJECT_ROOT%/${normalized}target/scala-2.13/src_managed/$scope",
-      s"%PROJECT_ROOT%/${normalized}target/scala-2.13/resource_managed/$scope"
+      s"%PROJECT_ROOT%/${normalized}target/scala-$scalaVersion/src_managed/$scope",
+      s"%PROJECT_ROOT%/${normalized}target/scala-$scalaVersion/resource_managed/$scope"
     )
   }
 }

@@ -755,6 +755,111 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
     assertNoTargetDirGeneratedInSharedDirectory("%PROJECT_ROOT%/p1")
   }
 
+  def testCrossPlatformPureInRoot(): Unit = {
+    def javaContentRoots(sourceSet: String): Seq[String] =
+      Seq(
+        s"%PROJECT_ROOT%/src/$sourceSet/java",
+        s"%PROJECT_ROOT%/target/scala-2.11/resource_managed/$sourceSet",
+        s"%PROJECT_ROOT%/target/scala-2.11/src_managed/$sourceSet"
+      )
+
+    def platformContentRoots(platform: String, sourceSet: String): Seq[String] =
+      Seq(
+       s"%PROJECT_ROOT%/.$platform/src/$sourceSet",
+       s"%PROJECT_ROOT%/.$platform/target/scala-2.11/resource_managed/$sourceSet",
+       s"%PROJECT_ROOT%/.$platform/target/scala-2.11/src_managed/$sourceSet"
+      )
+
+    runTest(
+      new project("crossplatformpureinroot") {
+        val sharedModule: module = new module("crossplatformpureinroot.crossPlatformPureInRoot-sources") {
+          sources := Nil
+          testSources := Nil
+          contentRoots := Nil
+          emptySourceResourceDirs(this)
+        }
+        val sharedModuleMain: module = new module("crossplatformpureinroot.crossPlatformPureInRoot-sources.main") {
+          contentRoots := Seq(s"%PROJECT_ROOT%/src/main")
+          sources := Seq(s"%PROJECT_ROOT%/src/main/scala")
+          emptySourceResourceDirsTest(this)
+        }
+        val sharedModuleTest: module = new module("crossplatformpureinroot.crossPlatformPureInRoot-sources.test") {
+          testSources := Seq("%PROJECT_ROOT%/src/test/scala")
+          contentRoots += "%PROJECT_ROOT%/src/test"
+          emptySourceResourceDirsMain(this)
+        }
+
+        val jvmModule: module = new module("crossplatformpureinroot.root.rootJVM") {
+          contentRoots += "%PROJECT_ROOT%/.jvm"
+          excluded := Seq("%PROJECT_ROOT%/.jvm/target")
+          emptySourceResourceDirs(this)
+        }
+        val jvmModuleMain: module = new module("crossplatformpureinroot.root.rootJVM.main") {
+          moduleDependencies += new dependency(sharedModuleMain) { isExported := true }
+          contentRoots := platformContentRoots("jvm", "main")
+          sources := Seq("%PROJECT_ROOT%/.jvm/src/main/scala")
+          emptySourceResourceDirsTest(this)
+        }
+        val jvmModuleTest: module = new module("crossplatformpureinroot.root.rootJVM.test") {
+          moduleDependencies := Seq(
+            new dependency(sharedModuleMain) { isExported := true },
+            new dependency(sharedModuleTest) { isExported := true },
+            new dependency(jvmModuleMain) { isExported := false }
+          )
+          contentRoots := platformContentRoots("jvm", "test")
+          testSources := Seq("%PROJECT_ROOT%/.jvm/src/test/scala")
+          emptySourceResourceDirsMain(this)
+        }
+
+        val jsModule: module = new module("crossplatformpureinroot.root.rootJS") {
+          contentRoots += "%PROJECT_ROOT%/.js"
+          excluded := Seq("%PROJECT_ROOT%/.js/target")
+          emptySourceResourceDirs(this)
+        }
+        val jsModuleMain: module = new module("crossplatformpureinroot.root.rootJS.main") {
+          moduleDependencies += new dependency(sharedModuleMain) { isExported := true }
+          contentRoots := platformContentRoots("js", "main")
+          sources := Seq("%PROJECT_ROOT%/.js/src/main/scala")
+          emptySourceResourceDirsTest(this)
+        }
+        val jsModuleTest: module = new module("crossplatformpureinroot.root.rootJS.test") {
+          moduleDependencies := Seq(
+            new dependency(sharedModuleMain) { isExported := true },
+            new dependency(sharedModuleTest) { isExported := true },
+            new dependency(jsModuleMain) { isExported := false }
+          )
+          contentRoots := platformContentRoots("js", "test")
+          testSources := Seq("%PROJECT_ROOT%/.js/src/test/scala")
+          emptySourceResourceDirsMain(this)
+        }
+
+        val root: module = new module("crossplatformpureinroot") {
+          contentRoots += "%PROJECT_ROOT%"
+          excluded := Seq("%PROJECT_ROOT%/target")
+          emptySourceResourceDirs(this)
+        }
+        val rootMain: module = new module("crossplatformpureinroot.main") {
+          contentRoots := javaContentRoots("main")
+          sources := Seq("%PROJECT_ROOT%/src/main/java")
+          emptySourceResourceDirsTest(this)
+        }
+        val rootTest: module = new module("crossplatformpureinroot.test") {
+          contentRoots := javaContentRoots("test")
+          emptySourceResourceDirs(this)
+        }
+
+        modules := Seq(
+          sharedModule, sharedModuleMain, sharedModuleTest,
+          root, rootMain, rootTest,
+          jvmModule, jvmModuleMain, jvmModuleTest,
+          jsModule, jsModuleMain, jsModuleTest
+        )
+      }
+    )
+
+    buildCrossProjectAndAssertNoWarningsOrErrors()
+  }
+
   private def assertNoTargetDirGeneratedInSharedDirectory(sharedSourcesRoot: String): Unit = {
     ApplicationManager.getApplication.invokeAndWait(() => {
       inWriteAction {
@@ -1265,7 +1370,7 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
         }
         lazy val rootMain: module = new module("root.main") {
           libraryDependencies := scalaLibraries
-          moduleDependencies := Nil
+          moduleDependencies := Seq(new dependency(fooSourcesMain) { isExported := true })
           contentRoots := Seq(
             "%PROJECT_ROOT%/target/scala-2.13/src_managed/main",
             "%PROJECT_ROOT%/target/scala-2.13/resource_managed/main",
@@ -1274,7 +1379,10 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
         }
         lazy val rootTest: module = new module("root.test") {
           libraryDependencies := scalaLibraries
-          moduleDependencies += new dependency(rootMain) { isExported := false }
+          moduleDependencies ++= Seq(
+            new dependency(rootMain) { isExported := false },
+            new dependency(fooSourcesMain) { isExported := true }
+          )
           contentRoots := Seq(
             "%PROJECT_ROOT%/src/test",
             "%PROJECT_ROOT%/target/scala-2.13/src_managed/test",
@@ -1295,9 +1403,8 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
         }
         lazy val fooMain: module = new module("root.foo.main") {
           libraryDependencies := scalaLibraries
-          moduleDependencies := Nil
+          moduleDependencies := Seq(new dependency(fooSourcesMain) { isExported := true })
           contentRoots := Seq(
-            "%PROJECT_ROOT%/foo/src/main",
             "%PROJECT_ROOT%/foo/target/scala-2.13/src_managed/main",
             "%PROJECT_ROOT%/foo/target/scala-2.13/resource_managed/main",
           )
@@ -1305,7 +1412,10 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
         }
         lazy val fooTest: module = new module("root.foo.test") {
           libraryDependencies := scalaLibraries
-          moduleDependencies += new dependency(fooMain) { isExported := false }
+          moduleDependencies ++= Seq(
+            new dependency(fooMain) { isExported := false },
+            new dependency(fooSourcesMain) { isExported := true }
+          )
           contentRoots := Seq(
             "%PROJECT_ROOT%/foo/src/test",
             "%PROJECT_ROOT%/foo/target/scala-2.13/src_managed/test",
@@ -1314,7 +1424,23 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
           emptySourceResourceDirs(this)
         }
 
-        modules := Seq(root, rootMain, rootTest, foo, fooMain, fooTest)
+        lazy val fooSources: module = new module("root.foo-sources") {
+          contentRoots := Seq()
+          excluded := Seq()
+          libraryDependencies := Nil
+          moduleDependencies ++= Seq(
+            new dependency(fooSourcesMain) { isExported := false },
+          )
+          emptySourceResourceDirs(this)
+        }
+        lazy val fooSourcesMain: module = new module("root.foo-sources.main") {
+          libraryDependencies := scalaLibraries
+          moduleDependencies := Nil
+          contentRoots := Seq("%PROJECT_ROOT%/foo/src/main")
+          emptySourceResourceDirs(this)
+        }
+
+        modules := Seq(root, rootMain, rootTest, foo, fooMain, fooTest, fooSources, fooSourcesMain)
       }
     )
 
@@ -1324,7 +1450,7 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
       new project("root") {
         val sharedModuleMain: module = new module("root.sharedSourcesInProjectBase-sources.main") {
           contentRoots += "%PROJECT_ROOT%/src/main"
-          sources := Seq("shared", "shared-2", "shared-2.13")
+          sources := Seq("buzz", "buzz-2", "buzz-2.13")
         }
         val sharedModule: module = new module("root.sharedSourcesInProjectBase-sources") {
           moduleDependencies += new dependency(sharedModuleMain) { isExported := false }
@@ -1333,7 +1459,7 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
 
         val sharedMain: module = new module("root.shared.main") {
           moduleDependencies += new dependency(sharedModuleMain) { isExported := true }
-          contentRoots := standardRoots("src/main/shared", "main")
+          contentRoots := standardRoots("src/main/buzz", "main")
           emptySourceResourceDirs(this)
         }
         val sharedTest: module = new module("root.shared.test") {
@@ -1341,7 +1467,7 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
             new dependency(sharedModuleMain) { isExported := true },
             new dependency(sharedMain) { isExported := false }
           )
-          contentRoots := standardRoots("src/main/shared", "test")
+          contentRoots := standardRoots("src/main/buzz", "test")
           emptySourceResourceDirs(this)
         }
         val shared: module = new module("root.shared") {
@@ -1349,13 +1475,13 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
             new dependency(sharedMain) { isExported := false },
             new dependency(sharedTest) { isExported := false },
           )
-          contentRoots += "%PROJECT_ROOT%/src/main/shared"
+          contentRoots += "%PROJECT_ROOT%/src/main/buzz"
           excluded += "target"
         }
 
         val fooMain: module = new module("root.foo.main") {
           moduleDependencies += new dependency(sharedModuleMain) { isExported := true }
-          contentRoots := standardRoots("src/main/shared/foo", "main")
+          contentRoots := standardRoots("src/main/buzz/foo", "main")
           emptySourceResourceDirs(this)
         }
         val fooTest: module = new module("root.foo.test") {
@@ -1363,7 +1489,7 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
             new dependency(sharedModuleMain) { isExported := true },
             new dependency(fooMain) { isExported := false }
           )
-          contentRoots := standardRoots("src/main/shared/foo", "test")
+          contentRoots := standardRoots("src/main/buzz/foo", "test")
           emptySourceResourceDirs(this)
         }
         val foo: module = new module("root.foo") {
@@ -1371,7 +1497,7 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
             new dependency(fooMain) { isExported := false },
             new dependency(fooTest) { isExported := false },
           )
-          contentRoots += "%PROJECT_ROOT%/src/main/shared/foo"
+          contentRoots += "%PROJECT_ROOT%/src/main/buzz/foo"
           excluded += "target"
         }
 
@@ -1398,11 +1524,7 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
             new dependency(rootMain) { isExported := false }
           )
           contentRoots := Seq(
-            "%PROJECT_ROOT%/src/test/java",
-            "%PROJECT_ROOT%/src/test/scala",
-            "%PROJECT_ROOT%/src/test/scala-2",
-            "%PROJECT_ROOT%/src/test/scala-2.13",
-            "%PROJECT_ROOT%/src/test/resources",
+            "%PROJECT_ROOT%/src/test",
             "%PROJECT_ROOT%/target/scala-2.13/src_managed/test",
             "%PROJECT_ROOT%/target/scala-2.13/resource_managed/test"
           )
@@ -1451,5 +1573,213 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
         )
       }
     )
+  }
+
+  // test a case in which a shared directory is not under standard src/main or src/test
+  def testSharedSourcesInNonStandardDirectory(): Unit = {
+    runTest(
+      new project("root") {
+        val sharedModuleTest: module = new module("root.dummy-sources.test") {
+          contentRoots := Seq("%PROJECT_ROOT%/dummy/src")
+          testSources := Seq("%PROJECT_ROOT%/dummy/src")
+          emptySourceResourceDirsMain(this)
+        }
+        val sharedModule: module = new module("root.dummy-sources") {
+          moduleDependencies += new dependency(sharedModuleTest) { isExported := false }
+          contentRoots := Nil
+        }
+
+        val buzzMain: module = new module("root.buzz.main") {
+          moduleDependencies := Nil
+          contentRoots := standardRoots("buzz", "main", "3.0.2")
+          emptySourceResourceDirs(this)
+        }
+        val buzzTest: module = new module("root.buzz.test") {
+          moduleDependencies := Seq(
+            new dependency(sharedModuleTest) { isExported := true },
+            new dependency(buzzMain) { isExported := false }
+          )
+          contentRoots := standardRoots("buzz", "test", "3.0.2")
+          testSources := Seq("%PROJECT_ROOT%/buzz/src/test/scala")
+          emptySourceResourceDirsMain(this)
+        }
+        val buzz: module = new module("root.buzz") {
+          moduleDependencies := Seq(
+            new dependency(buzzMain) { isExported := false },
+            new dependency(buzzTest) { isExported := false },
+          )
+          contentRoots += "%PROJECT_ROOT%/buzz"
+          excluded += "target"
+        }
+
+        val fooMain: module = new module("root.foo.main") {
+          moduleDependencies := Nil
+          contentRoots := standardRoots("foo", "main", "3.0.2")
+          emptySourceResourceDirs(this)
+        }
+        val fooTest: module = new module("root.foo.test") {
+          moduleDependencies := Seq(
+            new dependency(sharedModuleTest) { isExported := true },
+            new dependency(fooMain) { isExported := false }
+          )
+          contentRoots := standardRoots("foo", "test", "3.0.2")
+          testSources := Seq("%PROJECT_ROOT%/foo/src/test/scala")
+          emptySourceResourceDirsMain(this)
+        }
+        val foo: module = new module("root.foo") {
+          moduleDependencies := Seq(
+            new dependency(fooMain) { isExported := false },
+            new dependency(fooTest) { isExported := false },
+          )
+          contentRoots += "%PROJECT_ROOT%/foo"
+          excluded += "target"
+        }
+
+        val rootMain: module = new module("root.main") {
+          moduleDependencies := Nil
+          contentRoots := standardRoots("", "main", "3.0.2")
+          emptySourceResourceDirs(this)
+        }
+        val rootTest: module = new module("root.test") {
+          moduleDependencies := Seq(
+            new dependency(rootMain) { isExported := false },
+            new dependency(buzzMain) { isExported := false },
+            new dependency(buzzTest) { isExported := false },
+            new dependency(sharedModuleTest) { isExported := true },
+          )
+          contentRoots := standardRoots("", "test", "3.0.2")
+          testSources += "%PROJECT_ROOT%/src/test/scala"
+          emptySourceResourceDirsMain(this)
+        }
+        val root: module = new module("root") {
+          moduleDependencies := Seq(
+            new dependency(rootMain) { isExported := false },
+            new dependency(rootTest) { isExported := false },
+          )
+          contentRoots += "%PROJECT_ROOT%"
+          excluded += "target"
+        }
+
+        modules := Seq(
+          root, rootMain, rootTest,
+          foo, fooMain, fooTest,
+          buzz, buzzMain, buzzTest,
+          sharedModule, sharedModuleTest,
+        )
+      }
+    )
+    buildCrossProjectAndAssertNoWarningsOrErrors()
+    assertNoTargetDirGeneratedInSharedDirectory("%PROJECT_ROOT%/dummy")
+  }
+
+  // Test case where shared directories are not located under the standard src/main or src/test paths,
+  // and are in completely different directories (while still grouped within the same shared directory module).
+  def testSharedSourcesInNotRelatedDirs(): Unit = {
+    runTest(
+      new project("root") {
+        val sharedModuleTest: module = new module("root.shared-sources.test") {
+          contentRoots := Seq("%PROJECT_ROOT%/dummy/src")
+          testSources := Seq("%PROJECT_ROOT%/dummy/src")
+          emptySourceResourceDirsMain(this)
+        }
+        val sharedModuleMain: module = new module("root.shared-sources.main") {
+          contentRoots := Seq("%PROJECT_ROOT%/nothing/dummy")
+          sources := Seq("%PROJECT_ROOT%/nothing/dummy")
+          emptySourceResourceDirsTest(this)
+        }
+        val sharedModule: module = new module("root.shared-sources") {
+          moduleDependencies ++= Seq(
+            new dependency(sharedModuleTest) { isExported := false },
+            new dependency(sharedModuleMain) { isExported := false },
+          )
+          contentRoots := Nil
+        }
+
+        val buzzMain: module = new module("root.buzz.main") {
+          moduleDependencies += new dependency(sharedModuleMain) { isExported := true }
+          contentRoots := standardRoots("buzz", "main", "3.0.2")
+          sources := Seq("%PROJECT_ROOT%/buzz/src/main/scala")
+          emptySourceResourceDirsTest(this)
+        }
+        val buzzTest: module = new module("root.buzz.test") {
+          moduleDependencies := Seq(
+            new dependency(sharedModuleTest) { isExported := true },
+            new dependency(sharedModuleMain) { isExported := true },
+            new dependency(buzzMain) { isExported := false }
+          )
+          contentRoots := standardRoots("buzz", "test", "3.0.2")
+          testSources := Seq("%PROJECT_ROOT%/buzz/src/test/scala")
+          emptySourceResourceDirsMain(this)
+        }
+        val buzz: module = new module("root.buzz") {
+          moduleDependencies := Seq(
+            new dependency(buzzMain) { isExported := false },
+            new dependency(buzzTest) { isExported := false },
+          )
+          contentRoots += "%PROJECT_ROOT%/buzz"
+          excluded += "target"
+        }
+
+        val fooMain: module = new module("root.foo.main") {
+          moduleDependencies += new dependency(sharedModuleMain) { isExported := true }
+          contentRoots := standardRoots("foo", "main", "3.0.2")
+          sources := Seq("%PROJECT_ROOT%/foo/src/main/scala")
+          emptySourceResourceDirsTest(this)
+        }
+        val fooTest: module = new module("root.foo.test") {
+          moduleDependencies := Seq(
+            new dependency(sharedModuleTest) { isExported := true },
+            new dependency(sharedModuleMain) { isExported := true },
+            new dependency(fooMain) { isExported := false }
+          )
+          contentRoots := standardRoots("foo", "test", "3.0.2")
+          testSources := Seq("%PROJECT_ROOT%/foo/src/test/scala")
+          emptySourceResourceDirsMain(this)
+        }
+        val foo: module = new module("root.foo") {
+          moduleDependencies := Seq(
+            new dependency(fooMain) { isExported := false },
+            new dependency(fooTest) { isExported := false },
+          )
+          contentRoots += "%PROJECT_ROOT%/foo"
+          excluded += "target"
+        }
+
+        val rootMain: module = new module("root.main") {
+          moduleDependencies := Nil
+          contentRoots := standardRoots("", "main", "3.0.2")
+          emptySourceResourceDirs(this)
+        }
+        val rootTest: module = new module("root.test") {
+          moduleDependencies := Seq(
+            new dependency(rootMain) { isExported := false },
+            new dependency(buzzMain) { isExported := false },
+            new dependency(buzzTest) { isExported := false },
+            new dependency(sharedModuleTest) { isExported := true },
+            new dependency(sharedModuleMain) { isExported := true },
+          )
+          contentRoots := standardRoots("", "test", "3.0.2")
+          testSources += "%PROJECT_ROOT%/src/test/scala"
+          emptySourceResourceDirsMain(this)
+        }
+        val root: module = new module("root") {
+          moduleDependencies := Seq(
+            new dependency(rootMain) { isExported := false },
+            new dependency(rootTest) { isExported := false },
+          )
+          contentRoots += "%PROJECT_ROOT%"
+          excluded += "target"
+        }
+
+        modules := Seq(
+          root, rootMain, rootTest,
+          foo, fooMain, fooTest,
+          buzz, buzzMain, buzzTest,
+          sharedModule, sharedModuleTest, sharedModuleMain
+        )
+      }
+    )
+    buildCrossProjectAndAssertNoWarningsOrErrors()
+    assertNoTargetDirGeneratedInSharedDirectory("%PROJECT_ROOT%/dummy")
   }
 }

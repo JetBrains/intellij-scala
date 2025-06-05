@@ -410,7 +410,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val projectLibraryNodes = createLibraries(data, projects)
     projectNode.addAll(projectLibraryNodes)
 
-    val groupedSharedRoots = groupSharedRoots(projects)
+    val groupedSharedRoots = groupSharedRoots(projects, projectRootFile)
 
     val buildProjectsGroups: Seq[BuildProjectsGroup] = createBuildProjectGroups(projects)
     val projectToModule: Map[ProjectData, ModuleSourceSet] = createIntelliJModuleNodes(
@@ -884,7 +884,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val contentRootWithProjectBase = (testContentRoots ++ mainContentRoots).find(_.data.getRootPath == SbtUtil.normalizePath(project.base))
     contentRootWithProjectBase match {
       case Some(contentRoot) => storeExcludedPathsInContentRoot(contentRoot, project)
-      case None => parentModule.add(createParentContentRoot(project))
+      case None if sourcesDetails.canCreateParentContentRoot => parentModule.add(createParentContentRoot(project))
+      case _ =>
     }
 
     prodModule.addAll(mainContentRoots)

@@ -56,16 +56,21 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
    *  - `source roots` are directories containing source files (e.g., `src/main/scala`, `src/test/scala`).
    *  - `source base directories` are base paths derived from the `sourceDirectory` key (e.g., `src/main`, `src/test`).
    *     For more details, check `org.jetbrains.sbt.structure.ProjectData#mainSourceDirectories()`.
+   *
+   * @param canCreateParentContentRoot indicates whether the project root directory is unique and content roots can be created for the parent module.
+   *                                   This needs to be kept because multiple sbt projects can share the same base directory (e.g., in the scala3 repository).
+   *
    */
   protected case class ProjectSourcesDetails(
     mainSourceRoots: Seq[(String, ExternalSystemSourceType)],
     testSourceRoots: Seq[(String, ExternalSystemSourceType)],
     mainSourceBaseDirectories: Seq[String],
-    testSourceBaseDirectories: Seq[String]
+    testSourceBaseDirectories: Seq[String],
+    canCreateParentContentRoot: Boolean
   )
 
   object ProjectSourcesDetails {
-    def default: ProjectSourcesDetails = ProjectSourcesDetails(Seq.empty, Seq.empty, Seq.empty, Seq.empty)
+    def default: ProjectSourcesDetails = ProjectSourcesDetails(Seq.empty, Seq.empty, Seq.empty, Seq.empty, canCreateParentContentRoot = true)
   }
 
   def resolveProjectsSourcesDetails(
@@ -74,51 +79,39 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
   )(implicit context: ImportContext): Map[sbtStructure.ProjectData, ProjectSourcesDetails] = {
     val projects = projectsGrouped.flatMap(group => group.projects :+ group.rootProject)
 
-    val sharedSourceRoots = getSharedSourceRoots(groupedSharedRoots)
+    val sharedSourcesPaths = getSharedSourcesPath(groupedSharedRoots)
     val allExternalSystemSources = projects.flatMap { project =>
-      val mainSources = resolveExternalSystemSources(isMainScope = true, project, sharedSourceRoots)
-      val testSources = resolveExternalSystemSources(isMainScope = false, project, sharedSourceRoots)
+      val mainSources = resolveExternalSystemSources(isMainScope = true, project, sharedSourcesPaths)
+      val testSources = resolveExternalSystemSources(isMainScope = false, project, sharedSourcesPaths)
       mainSources ++ testSources
     }
 
-    /*
-    In ContentRootDataService#importData, within each content root, source paths are processed in the order defined by the enums in ExternalSystemSourceType.
-    SOURCE and TEST types have special handling:
-     - If the same path exists with a different type (e.g., RESOURCE), its type won’t override SOURCE or TEST.
-     - If the same path exists as SOURCE_GENERATED or TEST_GENERATED, the type is updated to the generated one.
-
-    All other paths are processed in the enum-defined order, with types overriding each other.
-    For example, if a path X has both RESOURCE and TEST_RESOURCE types, it will be added as TEST_RESOURCE, as it is processed after RESOURCE.
-
-    Anyway, I think it's a bit of an odd case if the same path is added twice with different types, and it's not entirely clear which type it should have.
-    So I implemented it in a way that SOURCE and TEST types always take precedence by being at the top of the order.The remaining source types are handled in a random order.
-    (I don’t exclude the possibility of changes to this sorting if a real use case arises; for now it's only theoretical speculation)
-    */
-    val sourceTypePriorityMap = Seq(ExternalSystemSourceType.SOURCE, ExternalSystemSourceType.TEST).zipWithIndex.toMap
-    val sortedSources = allExternalSystemSources.sortBy(source => sourceTypePriorityMap.getOrElse(source.sourceType, Int.MaxValue))
+    val sortedSources = sortSourcesByType(allExternalSystemSources)
     val uniqueSources = sortedSources.distinctBy(_.path)
 
     val uniqueSourcesPaths = uniqueSources.map(_.path)
     val projectToSources = uniqueSources.groupBy(_.projectData)
 
-    // In shared source modules, content roots will be created for the group base and the group base with `src/main` and `src/test` suffixes
+    // If the shared sources group is derived from the standard bases, content roots will be created
+    // for the group base and the group base with `src/main` and `src/test` suffixes
     // (see ExternalSourceRootResolution.createSharedSourceSetModule and ExternalSourceRootResolution.createParentSharedSourcesModule).
     // It is important to gather the content root paths here to prevent creating duplicate content roots.
     // * Additionally, content roots may be created for individual source directories (see ContentRootsResolution.createContentRootNodes).
     // However, any overlap with individual source directories for shared sources is handled in #resolveExternalSystemSources.
-    val sharedSourcesBaseDirs = groupedSharedRoots.flatMap { group =>
-      Seq(group.base, group.base / "src" / "main", group.base / "src" / "test")
+    val sharedSourcesBaseDirs = groupedSharedRoots.filter(_.hasStandardBasePath).flatMap { group =>
+      val mainBase = group.base / "src" / "main"
+      val testBase = group.base / "src" / "test"
+      val actualBases = Seq(mainBase, testBase).filter(base => group.sourceRoots.exists(_.directory.isUnder(base)))
+      group.base +: actualBases
     }.map(SbtUtil.normalizePath)
 
     // The mainSourceDirectories/testSourceDirectories values are derived from the sourceDirectory sbt key.
     // In the ideal/default case, for example, the mainSourceDirectories value is src/main, and it contains source paths like scala, java, etc.
     // However, users might modify the sourceDirectory key, making it the same as another project's source directory (as is present in https://github.com/scala/scala3)
     // or within the same project but in a different scope. This is why it's necessary to collect already reserved base source directories to prevent duplicates.
-    //
-    // It might be worth considering creating a shared sources module when source base directories are duplicated across multiple projects,
-    // and these directories are located within each project's root. Currently, shared sources modules are created only for roots located outside of the project root.
-    // See https://youtrack.jetbrains.com/issue/SCL-23867/The-project-doesnt-compile-when-there-is-a-shared-directory-between-2-modules
     val alreadyUsedSourceBaseDirs = mutable.HashSet.empty[String]
+    // See org.jetbrains.sbt.project.ContentRootsResolution.ProjectSourcesDetails.canCreateParentContentRoot
+    val alreadyUsedProjectBaseDirs = mutable.HashSet.empty[File]
     projects.map { project =>
       val sources = projectToSources.getOrElse(project, Seq.empty)
 
@@ -139,20 +132,46 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
       val testSourceBaseDirs = getValidSourceBaseDirs(project.testSourceDirectories)
       alreadyUsedSourceBaseDirs ++= testSourceBaseDirs
 
-      project -> ProjectSourcesDetails(mainSources, testSources, mainSourceBaseDirs, testSourceBaseDirs)
+      val isProjectDirReserved = alreadyUsedProjectBaseDirs.contains(project.base)
+      alreadyUsedProjectBaseDirs += project.base
+
+      project -> ProjectSourcesDetails(mainSources, testSources, mainSourceBaseDirs, testSourceBaseDirs, !isProjectDirReserved)
     }.toMap
   }
 
-  private def getSharedSourceRoots(sharedRoots: Seq[SharedSourcesGroup]): Map[SourceRoot.Scope, Map[SourceRoot.Kind, Set[String]]] =
+  /**
+   * Sorts sources based on [[ExternalSystemSourceType]] in a defined and predictable order.
+   * This is necessary when the same directory within a single project is defined with multiple types,
+   * such as being both a SOURCE and a RESOURCE type.
+   *
+   * Ensuring a consistent order prevents scenarios where, during one reload, the directory is assigned one type,
+   * and during a subsequent reload, it's assigned another type.
+   *
+   * Anyway, I think it's a bit of an odd case if the same path is added twice with different types, and it's not entirely clear which type it should have
+   * (I don’t exclude the possibility of changes to this sorting if a real use case arises; for now it's only theoretical speculation).
+   *
+   * @note In [[com.intellij.openapi.externalSystem.service.project.manage.ContentRootDataService#importData]],
+   *       within each content root, source paths are processed in the order defined by the enums in [[ExternalSystemSourceType]].
+   *       SOURCE and TEST types have special handling:
+   *           - If the same path exists with a different type (e.g., RESOURCE), its type won’t override SOURCE or TEST.
+   *           - If the same path exists as SOURCE_GENERATED or TEST_GENERATED, the type is updated to the generated one.
+   *
+   *       All other paths are processed in the enum-defined order, with types overriding each other.
+   *       For example, if a path X has both RESOURCE and TEST_RESOURCE types, it will be added as TEST_RESOURCE, as it is processed after RESOURCE.
+   */
+  private def sortSourcesByType(sources: Seq[ExternalSystemSourceData]): Seq[ExternalSystemSourceData] = {
+    val sourceTypePriorityMap = ExternalSystemSourceType.values().toSeq.zipWithIndex.toMap
+    sources.sortBy(source => sourceTypePriorityMap.getOrElse(source.sourceType, Int.MaxValue))
+  }
+
+  private def getSharedSourcesPath(sharedRoots: Seq[SharedSourcesGroup]): Set[String] =
     sharedRoots.flatMap(_.sourceRoots)
-      .groupBy(_.scope)
-      .view.mapValues(_.groupBy(_.kind).view.mapValues(_.map(sr => FileUtil.toSystemIndependentName(sr.directory.getPath)).toSet).toMap)
-      .toMap
+      .map(sr => FileUtil.toSystemIndependentName(sr.directory.getPath)).toSet
 
   private def resolveExternalSystemSources(
     isMainScope: Boolean,
     project: sbtStructure.ProjectData,
-    sharedSourceRoots:  Map[SourceRoot.Scope, Map[SourceRoot.Kind, Set[String]]],
+    sharedSourcesPaths: Set[String],
   )(implicit context: ImportContext): Seq[ExternalSystemSourceData] = {
     val sources =
       if (isMainScope) getProductionSources(project)
@@ -175,15 +194,8 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
         ExternalSystemSourceType.TEST_RESOURCE_GENERATED
       )
 
-    val sharedSourceRootsInScope =
-      if (isMainScope) sharedSourceRoots.getOrElse(SourceRoot.Scope.Compile, Map.empty)
-      else sharedSourceRoots.getOrElse(SourceRoot.Scope.Test, Map.empty)
-
-    val sharedSources = sharedSourceRootsInScope.getOrElse(SourceRoot.Kind.Sources, Set.empty)
-    val sharedResources = sharedSourceRootsInScope.getOrElse(SourceRoot.Kind.Resources, Set.empty)
-
-    val unmanagedDirs = unmanagedDirectories(sources).filterNot(sharedSources.contains).map((_, sourceType))
-    val unmanagedResourceDirs = unmanagedDirectories(resources).filterNot(sharedResources.contains).map((_, resourceType))
+    val unmanagedDirs = unmanagedDirectories(sources).filterNot(sharedSourcesPaths.contains).map((_, sourceType))
+    val unmanagedResourceDirs = unmanagedDirectories(resources).filterNot(sharedSourcesPaths.contains).map((_, resourceType))
 
     val managedDirs = managedDirectories(sources).map((_, sourceGeneratedType))
     val managedResourceDirs = managedDirectories(resources).map((_, resourceGeneratedType))
