@@ -18,6 +18,9 @@ class ScGivenAliasDefinitionImpl(
     with ScGivenAliasDeclarationOrDefinitionImpl
     with ScGivenAliasDefinition {
 
+  override def isStable: Boolean =
+    super.isStable || this.effectiveParameterClauses.isEmpty
+
   override def toString: String = "ScGivenAliasDefinition: " + ifReadAllowed(name)("")
 
   override protected def keywordTokenType: IElementType = ScalaTokenType.GivenKeyword

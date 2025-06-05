@@ -52,6 +52,8 @@ class ScParameterImpl protected(
       ScNamedElement.AnonymousPlaceholder
   }("")
 
+  override def isStable: Boolean = !getModifierList.isInline
+
   override def isCallByNameParameter: Boolean = byStubOrPsi(_.isCallByNameParameter)(paramType.exists(_.isCallByNameParameter))
 
   override def deprecatedName: Option[String] = byStubOrPsi(_.deprecatedName) {

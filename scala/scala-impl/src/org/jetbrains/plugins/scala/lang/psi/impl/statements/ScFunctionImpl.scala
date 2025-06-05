@@ -55,7 +55,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     with ScTypeParametersOwner
     with ContextApplied.SyntheticElementsOwner {
 
-  override final def isStable: Boolean = {
+  override def isStable: Boolean = {
     val clauses = effectiveParameterClauses
     if (clauses.exists(c => !c.isImplicit))
       false

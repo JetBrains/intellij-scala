@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel
 package typedef
 
 import com.intellij.lang.ASTNode
-import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
+import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiElement, PsiNamedElement, ResolveState}
@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGivenDefinition, ScMember}
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, canNotBeOverridden}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.ScalaPsiElementCreationException
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScNamedBeginImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
@@ -157,7 +157,6 @@ class ScGivenDefinitionImpl(
   override def namedTag: Option[ScNamedElement] = if (nameElement.isDefined) Some(this) else None
 
   override protected def endParent: Option[PsiElement] = extendsBlock.templateBody
-
 
   override def isEffectivelyFinal: Boolean = true
 }
