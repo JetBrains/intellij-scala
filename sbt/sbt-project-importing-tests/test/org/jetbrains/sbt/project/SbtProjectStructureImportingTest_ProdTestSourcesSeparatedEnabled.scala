@@ -2145,4 +2145,72 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
       }
     )
   }
+
+  def testTwoProjectsWithTheSameBases(): Unit = {
+    runTest(
+      new project("root") {
+        val rootMain: module = new module("root.main") {
+          moduleDependencies := Nil
+          contentRoots := standardRoots("", "main", "3.0.2")
+          emptySourceResourceDirs(this)
+        }
+        val rootTest: module = new module("root.test") {
+          moduleDependencies += new dependency(rootMain) { isExported := false }
+          emptySourceResourceDirs(this)
+          contentRoots := standardRoots("", "test", "3.0.2")
+        }
+        val root: module = new module("root") {
+          moduleDependencies := Seq(
+            new dependency(rootMain) { isExported := false },
+            new dependency(rootTest) { isExported := false },
+          )
+          contentRoots += "%PROJECT_ROOT%"
+          excluded += "target"
+        }
+
+        val dummyMain: module = new module("root.dummy.main") {
+          moduleDependencies := Nil
+          contentRoots := standardRoots("dummy", "main", "3.0.2")
+          emptySourceResourceDirs(this)
+        }
+        val dummyTest: module = new module("root.dummy.test") {
+          moduleDependencies += new dependency(dummyMain) { isExported := false }
+          emptySourceResourceDirs(this)
+          contentRoots := standardRoots("dummy", "test", "3.0.2")
+        }
+        val dummy: module = new module("root.dummy") {
+          moduleDependencies := Seq(
+            new dependency(dummyMain) { isExported := false },
+            new dependency(dummyTest) { isExported := false },
+          )
+          contentRoots := Nil
+        }
+
+        val fooMain: module = new module("root.foo.main") {
+          moduleDependencies := Nil
+          contentRoots := standardRoots("foo", "main", "3.0.2")
+          emptySourceResourceDirs(this)
+        }
+        val fooTest: module = new module("root.foo.test") {
+          moduleDependencies += new dependency(fooMain) { isExported := false }
+          emptySourceResourceDirs(this)
+          contentRoots := standardRoots("foo", "test", "3.0.2")
+        }
+        val foo: module = new module("root.foo") {
+          moduleDependencies := Seq(
+            new dependency(fooMain) { isExported := false },
+            new dependency(fooTest) { isExported := false },
+          )
+          contentRoots += "%PROJECT_ROOT%/foo"
+          excluded += "target"
+        }
+
+        modules := Seq(
+          root, rootMain, rootTest,
+          foo, fooMain, fooTest,
+          dummy, dummyMain, dummyTest
+        )
+      }
+    )
+  }
 }
