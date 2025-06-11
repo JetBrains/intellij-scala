@@ -161,7 +161,7 @@ class ScalaFindUsagesHandler(
 
     inReadAction {
       def findScope(element: PsiElement): Option[PsiElement] =
-        element.parentsInFile.find(_.is[ScFunction, ScBlock])
+        element.parentsInFile.find(_.is[ScFunction, ScBlock, ScClass])
 
       element
         .asOptionOf[PsiNamedElement]

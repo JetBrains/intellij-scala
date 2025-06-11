@@ -96,4 +96,6 @@ final class ScClassParameterImpl private(stub: ScParameterStub, node: ASTNode)
 
 
   override def isEffectivelyFinal: Boolean = canNotBeOverridden(this)
+
+  override def getNavigationElement: PsiElement = super[ScParameterImpl].getNavigationElement
 }
