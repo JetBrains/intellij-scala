@@ -381,4 +381,32 @@ class ScalaHighlightImplicitUsagesHandlerTest_Scala3 extends ScalaHighlightImpli
       """.stripMargin
     doTest(code, Seq("Semigroup as x", "x"))
   }
+
+  def testClassNamedContextBounds(): Unit = {
+    val code =
+      s"""
+         |trait Semigroup[T] {
+         |  def op(a: T, b: T): T
+         |}
+         |
+         |class Test[T: Semigroup as x$CARET] {
+         |  def double(t: T) = implicitly[Semigroup[T]].op(t, t)
+         |}
+      """.stripMargin
+    doTest(code, Seq("x", "implicitly[Semigroup[T]]"))
+  }
+
+  def testClassNamedContextBoundsUsage(): Unit = {
+    val code =
+      s"""
+         |trait Semigroup[T] {
+         |  def op(a: T, b: T): T
+         |}
+         |
+         |class Test[T: Semigroup as x] {
+         | val summonSemigroup = x$CARET
+         |}
+      """.stripMargin
+    doTest(code, Seq("Semigroup as x", "x"))
+  }
 }
