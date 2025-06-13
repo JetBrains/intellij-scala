@@ -67,7 +67,7 @@ private object CompilerHighlightingEditorFocusListenerRegisterer {
       return true
 
     //Only handle known extensions that can "matter" for the compiler-based highlighting
-    SupportedExtensions.contains(virtualFile.getExtension)
+    !SupportedExtensions.contains(virtualFile.getExtension)
   }
 
   private final class MyDisposable(editor: Editor, listener: CompilerHighlightingEditorFocusListener) extends Disposable {
