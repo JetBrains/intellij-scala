@@ -1779,7 +1779,76 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
         )
       }
     )
-    buildCrossProjectAndAssertNoWarningsOrErrors()
+    buildProjectAndAssertNoWarningsOrErrors()
     assertNoTargetDirGeneratedInSharedDirectory("%PROJECT_ROOT%/dummy")
+  }
+
+  // It's a minimized example from the Scala repository that demonstrates an issue where the same directory
+  // is shared in one scope and non-shared in other
+  def testSharedDirectoryInBothScopes(): Unit = {
+    runTest(
+      new project("root") {
+        val sharedModuleTest: module = new module("root.shared-sources.test") {
+          contentRoots := Seq("%PROJECT_ROOT%/test/common")
+          testSources := Seq("%PROJECT_ROOT%/test/common")
+          emptySourceResourceDirsMain(this)
+        }
+        val sharedModule: module = new module("root.shared-sources") {
+          moduleDependencies ++= Seq(
+            new dependency(sharedModuleTest) { isExported := false },
+          )
+          contentRoots := Nil
+        }
+
+        val fooMain: module = new module("root.foo.main") {
+          contentRoots := standardRoots("foo", "main")
+          emptySourceResourceDirs(this)
+        }
+        val fooTest: module = new module("root.foo.test") {
+          moduleDependencies := Seq(
+            new dependency(sharedModuleTest) { isExported := true },
+            new dependency(fooMain) { isExported := false }
+          )
+          contentRoots := standardRoots("foo", "test")
+          emptySourceResourceDirs(this)
+        }
+        val foo: module = new module("root.foo") {
+          moduleDependencies := Seq(
+            new dependency(fooMain) { isExported := false },
+            new dependency(fooTest) { isExported := false },
+          )
+          contentRoots += "%PROJECT_ROOT%/foo"
+          excluded += "target"
+        }
+
+        val rootMain: module = new module("root.main") {
+          moduleDependencies := Nil
+          contentRoots := standardRoots("", "main")
+          emptySourceResourceDirs(this)
+        }
+        val rootTest: module = new module("root.test") {
+          moduleDependencies := Seq(
+            new dependency(rootMain) { isExported := false },
+            new dependency(sharedModuleTest) { isExported := true },
+          )
+          contentRoots := standardRoots("", "test")
+          emptySourceResourceDirs(this)
+        }
+        val root: module = new module("root") {
+          moduleDependencies := Seq(
+            new dependency(rootMain) { isExported := false },
+            new dependency(rootTest) { isExported := false },
+          )
+          contentRoots += "%PROJECT_ROOT%"
+          excluded += "target"
+        }
+
+        modules := Seq(
+          root, rootMain, rootTest,
+          foo, fooMain, fooTest,
+          sharedModule, sharedModuleTest
+        )
+      }
+    )
   }
 }
