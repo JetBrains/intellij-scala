@@ -711,9 +711,10 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver with ContentRootsR
      * Using a simple heuristic, it attempts to locate non-standard directories up to three levels above.
      */
     def findNonStandardParentDirectories(sharedSourcesRoot: SharedSourceRoot): Seq[File] =
-      (1 to 3).flatMap { i =>
-        val parent = sharedSourcesRoot.sourceRoot.directory << i
-        val isNonStandardDir = !Seq("src", "main", "test", "scala", "java", "resources").exists(parent.getName.contains)
+      (1 to 3).flatMap { parentLevel =>
+        val parent = sharedSourcesRoot.sourceRoot.directory << parentLevel
+        val standardDirNames = Seq("src", "main", "test", "scala", "java", "resources")
+        val isNonStandardDir = !standardDirNames.exists(parent.getName.contains)
         if (parent.isUnder(projectRootFile) && isNonStandardDir) Some(parent)
         else None
       }
