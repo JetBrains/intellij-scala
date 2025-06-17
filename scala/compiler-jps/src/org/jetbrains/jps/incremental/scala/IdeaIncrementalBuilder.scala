@@ -47,8 +47,7 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
     if (ScalaBuilder.hasBuildModules(chunk)) return JpsExitCode.NOTHING_DONE // *.scala files in sbt "build" modules are rightly excluded from compilation
 
     if (!chunkHasScala(context)(chunk)) {
-      val message = "skipping Scala files without a Scala SDK in module(s) " + chunk.getPresentableShortName
-      context.processMessage(new CompilerMessage("scala", BuildMessage.Kind.WARNING, message))
+      ScalaBuilder.warnChunkHasNoScalaSdk(context, chunk)
       return JpsExitCode.NOTHING_DONE
     }
 
