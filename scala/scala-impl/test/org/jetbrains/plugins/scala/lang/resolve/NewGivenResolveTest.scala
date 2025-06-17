@@ -57,4 +57,17 @@ class NewGivenResolveTest extends SimpleResolveTestBase {
       |}
       |""".stripMargin
   )
+
+  def testContextBoundsWithGivenConditional(): Unit = checkTextHasNoErrors(
+    """
+      |trait TC[T]
+      |
+      |given a: [X: TC] => Any:
+      |  summon[TC[X]]
+      |given b: [X: TC] => String => Any:
+      |  summon[TC[X]] // can't find the context bound
+      |given c: [X: TC] => String => Any =
+      |  summon[TC[X]]
+      |""".stripMargin
+  )
 }
