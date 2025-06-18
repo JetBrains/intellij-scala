@@ -6,12 +6,12 @@ import org.jetbrains.jps.builders.java._
 import org.jetbrains.jps.builders.{BuildRootDescriptor, BuildTarget}
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.{ExitCode => JpsExitCode}
 import org.jetbrains.jps.incremental._
-import org.jetbrains.jps.incremental.messages.ProgressMessage
+import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage, ProgressMessage}
 import org.jetbrains.jps.incremental.scala.SbtBuilder._
 import org.jetbrains.jps.incremental.scala.ScalaBuilder._
 import org.jetbrains.jps.incremental.scala.data.CompilationDataFactory
 import org.jetbrains.jps.incremental.scala.local.IdeClientSbt
-import org.jetbrains.jps.incremental.scala.model.JpsScalaProjectMetadataExtensionService.projectHasScala
+import org.jetbrains.jps.incremental.scala.model.JpsScalaProjectMetadataExtensionService.{chunkHasScala, projectHasScala}
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 
 import _root_.java.nio.file.Path
@@ -43,6 +43,13 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
       return JpsExitCode.NOTHING_DONE
 
     val allSources = sourceToBuildTarget.keySet.toSeq
+
+    val hasScalaSources = allSources.exists(_.getFileName.toString.endsWith(".scala"))
+
+    if (hasScalaSources && !chunkHasScala(context)(chunk)) {
+      ScalaBuilder.warnChunkHasNoScalaSdk(context, chunk)
+      return JpsExitCode.NOTHING_DONE
+    }
 
     val client = new IdeClientSbt("scala", context, chunk, outputConsumer, sourceToBuildTarget.get)
 

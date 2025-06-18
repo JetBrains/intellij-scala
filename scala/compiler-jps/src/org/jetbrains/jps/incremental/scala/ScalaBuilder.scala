@@ -4,7 +4,7 @@ import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.diagnostic.{Logger => JpsLogger}
 import com.intellij.openapi.util.Key
 import org.jetbrains.jps.ModuleChunk
-import org.jetbrains.jps.incremental.messages.ProgressMessage
+import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage, ProgressMessage}
 import org.jetbrains.jps.incremental.scala.Server.ServerError
 import org.jetbrains.jps.incremental.scala.local.LocalServer
 import org.jetbrains.jps.incremental.scala.model.JpsScalaProjectMetadataExtensionService.moduleHasScala
@@ -200,5 +200,10 @@ object ScalaBuilder {
     case ExitCode.Abort => JpsExitCode.ABORT
     case ExitCode.AdditionalPassRequired => JpsExitCode.ADDITIONAL_PASS_REQUIRED
     case ExitCode.ChunkRebuildRequired => JpsExitCode.CHUNK_REBUILD_REQUIRED
+  }
+
+  private[scala] def warnChunkHasNoScalaSdk(context: CompileContext, chunk: ModuleChunk): Unit = {
+    val message = JpsBundle.message("skipping.module.with.no.scala.sdk", chunk.getPresentableShortName)
+    context.processMessage(new CompilerMessage("scala", BuildMessage.Kind.WARNING, message))
   }
 }
