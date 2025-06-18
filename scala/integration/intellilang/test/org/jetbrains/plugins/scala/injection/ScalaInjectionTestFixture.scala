@@ -16,6 +16,7 @@ import org.junit.Assert
 import org.junit.Assert.{assertEquals, assertNotNull, assertNull, assertTrue, fail}
 
 import java.util
+import scala.annotation.nowarn
 import scala.collection.mutable.ArrayBuffer
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
@@ -148,7 +149,7 @@ class ScalaInjectionTestFixture(
         assertEquals(
           "parseable marker",
           value,
-          actualInjectedFile.getUserData(InjectedLanguageManager.FRANKENSTEIN_INJECTION)
+          actualInjectedFile.getUserData(InjectedLanguageManager.FRANKENSTEIN_INJECTION: @nowarn("cat=deprecation"))
         )
       case _ =>
     }
@@ -177,7 +178,7 @@ object ScalaInjectionTestFixture {
    * @param shreds        None if we are not interested in testing injected string parts
    * @param isUnparseable Some(value) - if we want to check that parser errors will be checked for the injected fragment.
    *                      None - if we are not interested in testing this<br>
-   *                      (see JavaDoc for [[com.intellij.lang.injection.InjectedLanguageManager.FRANKENSTEIN_INJECTION]]
+   *                      (see JavaDoc for [[com.intellij.lang.injection.InjectedLanguageManager#isFrankensteinInjection(com.intellij.psi.PsiElement)]]
    */
   case class ExpectedInjection(
     injectedFileText: String,
