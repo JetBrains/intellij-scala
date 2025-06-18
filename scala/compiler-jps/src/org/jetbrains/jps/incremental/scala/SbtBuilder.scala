@@ -42,12 +42,14 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
     if (sourceToBuildTarget.isEmpty)
       return JpsExitCode.NOTHING_DONE
 
-    if (!chunkHasScala(context)(chunk)) {
+    val allSources = sourceToBuildTarget.keySet.toSeq
+
+    val hasScalaSources = allSources.exists(_.getFileName.toString.endsWith(".scala"))
+
+    if (hasScalaSources && !chunkHasScala(context)(chunk)) {
       ScalaBuilder.warnChunkHasNoScalaSdk(context, chunk)
       return JpsExitCode.NOTHING_DONE
     }
-
-    val allSources = sourceToBuildTarget.keySet.toSeq
 
     val client = new IdeClientSbt("scala", context, chunk, outputConsumer, sourceToBuildTarget.get)
 
