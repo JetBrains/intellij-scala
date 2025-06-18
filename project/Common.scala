@@ -132,6 +132,7 @@ object Common {
 
       "org.jetbrains.kotlin".toPlugin
     ),
+    intellijVMOptions ~= { _.withOption("--add-opens=java.desktop/javax.swing.text.html.parser=ALL-UNNAMED") }
   )
 
   def newPlainScalaProject(projectName: String, base: File): Project =
