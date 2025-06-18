@@ -817,8 +817,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
    * @return a module name prefixed with a group name.
    */
   private def prefixModuleNameWithGroup(module: ModuleDataNodeType, moduleGroup: Option[String]): String = {
-    val currentModuleName = module.getInternalName
-    val moduleNameWithGroup = prependModuleNameWithGroupName(currentModuleName, moduleGroup)
+    val moduleNameWithGroup = getInternalModuleNameWithGroup(module, moduleGroup)
     //Using `setInternalName` because there is no way to pass the internal name different from the external name and module name in constructor
     module.setInternalName(moduleNameWithGroup)
     moduleNameWithGroup
@@ -1113,8 +1112,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     // note: put build module in a proper project group
     rootNode.foreach(_.add(result))
     val ideModuleGroupNameForBuild = rootNode.map(_.getInternalName)
-    val buildModuleInternalName = result.getInternalName
-    val moduleInternalNameWithGroup = prependModuleNameWithGroupName(buildModuleInternalName, ideModuleGroupNameForBuild)
+    val moduleInternalNameWithGroup = getInternalModuleNameWithGroup(result, ideModuleGroupNameForBuild)
     result.setInternalName(moduleInternalNameWithGroup)
 
     BuildModuleNodeWithBuildBaseDir(result, buildBaseDir)

@@ -1357,4 +1357,17 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureImportin
       DefaultSbtContentRootsScala3
     )
   }
+
+  def testTheSameGroupNameWithSlashes(): Unit =
+    runTest(
+      new project("root") {
+
+        lazy val project1: module = new module("root.dir_mo_d.project1")
+        lazy val project2: module = new module("root.dir_mo_d.project2")
+
+        lazy val root: module = new module("root")
+
+        modules := Seq(root, project1, project2)
+      }
+    )
 }

@@ -2213,4 +2213,28 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
       }
     )
   }
+
+  def testTheSameGroupNameWithSlashes(): Unit =
+    runTest(
+      new project("root") {
+
+        lazy val project1: module = new module("root.dir_mo_d.project1")
+        lazy val project1Main: module = new module("root.dir_mo_d.project1.main")
+        lazy val project1Test: module = new module("root.dir_mo_d.project1.test")
+
+        lazy val project2: module = new module("root.dir_mo_d.project2")
+        lazy val project2Main: module = new module("root.dir_mo_d.project2.main")
+        lazy val project2Test: module = new module("root.dir_mo_d.project2.test")
+
+        lazy val root: module = new module("root")
+        lazy val rootMain: module = new module("root.main")
+        lazy val rootTest: module = new module("root.test")
+
+        modules := Seq(
+          root, rootMain, rootTest,
+          project1, project1Main, project1Test,
+          project2, project2Main, project2Test
+        )
+      }
+    )
 }

@@ -52,6 +52,7 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
       case clauses: ScParameters =>
         val maybeOwner = clauses.getParent match {
           case f: ScFunction => Some((f, false))
+          case g: ScGivenDefinition => Some((g, false))
           case p: ScPrimaryConstructor =>
             p.containingClass match {
               case c: ScClass => Some((c, true))

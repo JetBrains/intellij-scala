@@ -280,7 +280,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver with ContentRootsR
       if (reprProjectModulePrefix.isBlank) reprProjectModule.getInternalName
       else reprProjectModulePrefix
     moduleNodes.collect { case Some(moduleNode) =>
-      val moduleNameWithGroupName = prependModuleNameWithGroupName(moduleNode.getInternalName, Option(group))
+      val moduleNameWithGroupName = getInternalModuleNameWithGroup(moduleNode, Option(group))
       moduleNode.setInternalName(moduleNameWithGroupName)
     }
   }
@@ -940,12 +940,13 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver with ContentRootsR
     def nameFor(base: Option[File]): String = {
       val namedDirectory = if (base.exists(_.getName == "shared")) base.flatMap(_.parent) else base
       val prefix = namedDirectory.map(_.getName + "-sources").getOrElse("shared-sources")
+      val withoutSlashes = replaceSlashesWithUnderscores(prefix)
 
-      val result = if (usedNames.contains(prefix)) {
+      val result = if (usedNames.contains(withoutSlashes)) {
         counter += 1
-        s"$prefix-$counter"
+        s"$withoutSlashes-$counter"
       } else {
-        prefix
+        withoutSlashes
       }
 
       usedNames += result
@@ -953,15 +954,26 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver with ContentRootsR
     }
   }
 
-  protected def prependModuleNameWithGroupName(moduleName: String, group: Option[String]): String = {
+  /**
+   * Replaces all forward and backward slashes in the given string with underscores.
+   *
+   * This operation is necessary when the name is later used to update the module internal name via
+   * [[com.intellij.openapi.externalSystem.model.project.AbstractNamedData#setInternalName]],
+   * since this method does not handle such transformation. It's done only in
+   * the public constructor of [[com.intellij.openapi.externalSystem.model.project.ModuleData]].
+   */
+  private def replaceSlashesWithUnderscores(name: String): String =
+    name.replaceAll("(/|\\\\)", "_")
+
+  protected def getInternalModuleNameWithGroup(module: ModuleDataNodeType, group: Option[String]): String = {
+    val currentInternalModuleName = module.getInternalName
     val moduleNameWithGroupPrefix = group
       .filterNot(_.isBlank)
-      // the group name might ended with a dot, when it is from org/jetbrains/sbt/project/ExternalSourceRootResolution.scala:111
-      // and can be without a dot, when it is from org.jetbrains.sbt.project.SbtProjectResolver#createModuleWithAllRequiredData
+      .map(replaceSlashesWithUnderscores)
       .map(groupName => if (groupName.endsWith(".")) groupName else s"$groupName.")
-      .map(_ + moduleName)
+      .map(_ + currentInternalModuleName)
 
-    moduleNameWithGroupPrefix.getOrElse(moduleName)
+    moduleNameWithGroupPrefix.getOrElse(currentInternalModuleName)
   }
 
   protected def createModuleNode(
