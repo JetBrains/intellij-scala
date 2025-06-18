@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.configurations.ReferenceComparisonTestConfig
-import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
@@ -17,20 +17,22 @@ abstract class ComparisonTestBase(config: ReferenceComparisonTestConfig) extends
   def doTest(testName: String, succeeds: Boolean): Unit
 
   protected def setupFiles(testName: String): Seq[PsiFile] = {
-    val testDirPath = config.sourcePath.resolve(testName)
-    val testFilePath = config.sourcePath.resolve(testName + ".scala")
-    val (source, sourceBasePath) =
-      if (testDirPath.isDirectory) {
-        (testDirPath, testDirPath)
-      } else {
-        assertTrue(s"Test file does not exist: $testFilePath", testFilePath.exists)
-        assertTrue(s"Test file is not a regular file: $testFilePath", testFilePath.isRegularFile)
-        (testFilePath, config.sourcePath)
-      }
+    def getCaseSensitivePath(name: String): Option[Path] = {
+      val path = config.sourcePath.resolve(name)
+      if (path.getFileWithRealOsPath.getName == name) Some(path)
+      else None
+    }
 
-    for (filePath <- allPathsIn(source).toSeq) yield {
+    // tests now can contain the file and the directory, and both are considered
+    val sources = getCaseSensitivePath(testName).toSeq ++ getCaseSensitivePath(testName + ".scala")
+
+    if (sources.isEmpty) {
+      fail(s"Couldn't find any tests for testName '$testName'")
+    }
+
+    for (source <- sources; filePath <- allPathsIn(source)) yield {
       myFixture.addFileToProject(
-        sourceBasePath.relativize(filePath).toString,
+        config.sourcePath.relativize(filePath).toString,
         FileUtil.loadFile(filePath.toFile, StandardCharsets.UTF_8)
       )
     }

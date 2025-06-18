@@ -61,7 +61,12 @@ abstract class ReferenceComparisonTestBase(config: ReferenceComparisonTestConfig
     var partialCorrect = 0
 
     for (file <- files.filterByType[ScalaFile]) {
-      val semanticDbFile = store.files.find(_.path.contains(file.name)).get
+      val semanticDbFile = store.files.find(_.path.contains(file.name)).getOrElse {
+        throw new RuntimeException(
+          s"""Can't find semanticdb file for ${file.name} among files:
+             |${store.files.map(_.path).mkString("\n")}""".stripMargin
+        )
+      }
       val references = file
         .depthFirst(!_.is[ScImportStmt]) // don't look into ScImportStmt, some weird stuff is going on in semanticdb
         .filterByType[ScReference]

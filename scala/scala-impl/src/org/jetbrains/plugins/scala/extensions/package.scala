@@ -1841,6 +1841,15 @@ package object extensions {
     def isDirectory: Boolean = Files.isDirectory(path)
     def isRegularFile: Boolean = Files.isRegularFile(path)
 
+    /**
+     * @return the real file name on the file system with actual case.
+     *         This can matter on OSes with case insensitive file names.
+     *         Suppose there is a directory with name "annotation"
+     *         On Windows & macOS new File("Annotation").exists will return true even though the names have a different case.
+     */
+    def getFileWithRealOsPath: File =
+      path.toFile.getCanonicalFile
+
     def nameContains(str: String): Boolean = path.getFileName.toString.contains(str)
     def nameMatches(regex: String): Boolean = path.getFileName.toString.matches(regex)
 
