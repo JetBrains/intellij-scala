@@ -16,6 +16,8 @@ import java.nio.file.Path
 
 (ThisBuild / intellijPlatform) := (Global / intellijPlatform).??(IntelliJPlatform.IdeaCommunity).value
 
+(ThisBuild / autoRemoveOldCachedIntelliJSDK) := true
+
 ThisBuild / resolvers := {
 //  not exactly sure why "releases" and "staging" would ever need to be enabled
 //  Resolver.sonatypeOssRepos("releases") ++
