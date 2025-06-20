@@ -85,7 +85,6 @@ lazy val scalaCommunity: sbt.Project =
       scalaCli % "test->test;compile->compile",
       javaDecompilerIntegration % "test->test", //add only test dependency to run tests from this module
       scalastyleIntegration,
-      scalac2Patches % Provided,
     )
     .settings(MainProjectSettings)
     .settings(
@@ -382,7 +381,8 @@ lazy val scalaImpl: sbt.Project =
       scalatestFinders,
       runners,
       testRunners,
-      packageSearchClient % "test->test;compile->compile"
+      packageSearchClient % "test->test;compile->compile",
+      scalac2Patches % Provided
     )
     .settings(
       ideExcludedDirectories := Seq(
