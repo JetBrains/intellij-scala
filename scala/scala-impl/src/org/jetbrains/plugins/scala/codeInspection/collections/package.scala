@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFuncti
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, JavaArrayType, PartialFunctionType, PsiTypeConstants}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, JavaArrayType, PsiTypeConstants}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, _}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -336,17 +336,20 @@ package object collections {
   }
 
   def implicitParameterExistsFor(methodName: String, baseExpr: ScExpression): Boolean = {
-    val expression = ScalaPsiElementFactory.createExpressionWithContextFromText(s"${baseExpr.getText}.$methodName", baseExpr.getContext, baseExpr)
+    val expression =
+      ScalaPsiElementFactory.createExpressionWithContextFromText(
+        s"${baseExpr.getText}.$methodName",
+        baseExpr.getContext,
+        baseExpr
+      )
+
     implicitParameterExistsFor(expression)
   }
 
   def implicitParameterExistsFor(expr: ScExpression): Boolean = {
     if (expr == null) false
-    else expr.findImplicitArguments match {
-      case Some(Seq(srr)) if srr.isImplicitParameterProblem => false
-      case Some(Seq(_, _*)) => true
-      case _ => false
-    }
+    else
+      expr.findImplicitArguments.flatMap(_.args).exists(!_.isImplicitParameterProblem)
   }
 
   @tailrec

@@ -105,18 +105,19 @@ class ShowImplicitArgumentsAction extends AnAction(
   private def allTargets(element: PsiElement): Iterable[ImplicitArgumentsTarget] =
     implicitArgsNoConversion(element) ++ implicitArgsConversion(element)
 
-  private def implicitArgsNoConversion(element: PsiElement): Option[ImplicitArgumentsTarget] =
+  private def implicitArgsNoConversion(element: PsiElement): Iterable[ImplicitArgumentsTarget] =
     element.asOptionOf[ImplicitArgumentsOwner]
+      .toSeq
       .flatMap(_.findImplicitArguments)
-      .filter(_.nonEmpty)
+      .map(_.args)
       .map(ImplicitArgumentsTarget(element, _))
 
   private def implicitArgsConversion(element: PsiElement): Option[ImplicitArgumentsTarget] =
     element.asOptionOf[ScExpression]
       .flatMap(_.implicitConversion())
-      .filter(_.implicitParameters.nonEmpty)
+      .filter(_.implicitArguments.nonEmpty)
       .map { srr =>
-        ImplicitArgumentsTarget(element, srr.implicitParameters, Some(srr))
+        ImplicitArgumentsTarget(element, srr.implicitArguments.flatMap(_.args), Some(srr))
       }
 }
 

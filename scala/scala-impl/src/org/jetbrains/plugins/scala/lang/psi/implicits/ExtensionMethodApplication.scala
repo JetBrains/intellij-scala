@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.implicits
 
+import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.ImplicitArgumentsClause
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-final case class ExtensionMethodApplication(resultType: ScType,
-                                            implicitParameters: Seq[ScalaResolveResult] = Seq.empty)
+final case class ExtensionMethodApplication(
+  resultType:           ScType,
+  implicitArgsByClause: Seq[ImplicitArgumentsClause] = Seq.empty
+)

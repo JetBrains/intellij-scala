@@ -2,14 +2,11 @@ package org.jetbrains.plugins.scala.lang.psi.implicits
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.{PsiElement, PsiNamedElement, ResolveState}
-import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenAliasDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, Nothing, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, MethodResolveProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState}
@@ -120,7 +117,7 @@ object ImplicitConversionResolveResult {
     for {
       conversion     <- ImplicitConversionData(candidate.element, substitutor)
       application    <- conversion.isApplicable(`type`, place)
-      if !application.implicitParameters.exists(_.isNotFoundImplicitParameter)
+      if !application.implicitArgsByClause.exists(_.args.exists(_.isNotFoundImplicitParameter))
     } yield
       ImplicitConversionResolveResult(
         candidate,

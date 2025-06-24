@@ -466,15 +466,19 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     } else seqEvaluator
   }
 
-  def implicitArgEvaluator(fun: ScMethodLike, param: ScParameter, owner: ImplicitArgumentsOwner): Evaluator = {
+  private def implicitArgEvaluator(fun: ScMethodLike, param: ScParameter, owner: ImplicitArgumentsOwner): Evaluator = {
     assert(param.owner == fun)
+
     val implicitParameters = fun.effectiveParameterClauses.lastOption match {
       case Some(clause) if clause.isImplicit => clause.effectiveParameters
-      case _ => Seq.empty
+      case _                                 => Seq.empty
     }
-    val i = implicitParameters.indexOf(param)
+
+    val i                 = implicitParameters.indexOf(param)
     val cannotFindMessage = DebuggerBundle.message("cannot.find.implicit.parameters")
-    owner.findImplicitArguments match {
+
+    //@TODO: multiple using clauses
+    owner.findImplicitArguments.lastOption.map(_.args) match {
       case Some(resolveResults) if resolveResults.length == implicitParameters.length =>
         if (resolveResults(i) == null) throw EvaluationException(cannotFindMessage)
 

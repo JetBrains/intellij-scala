@@ -3,27 +3,36 @@ package org.jetbrains.plugins.scala.lang.autoImport
 import org.jetbrains.plugins.scala.autoImport.quickFix.ImportImplicitInstanceFix
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.ImplicitArgumentsClause
 
 import scala.annotation.tailrec
 
 abstract class ImportImplicitInstanceFixTestBase extends ImportElementFixTestBase[ImplicitArgumentsOwner] {
   @tailrec
-  private def findImplicitArgs(owner: ImplicitArgumentsOwner): Option[Seq[ScalaResolveResult]] =
-    owner.findImplicitArguments match {
-      case None =>
-        owner.parentOfType[ImplicitArgumentsOwner] match {
-          case Some(parent) => findImplicitArgs(parent)
-          case _ => None
-        }
-      case args => args
-    }
+  private def findImplicitArgs(owner: ImplicitArgumentsOwner): Seq[ImplicitArgumentsClause] = {
+    val implicitArgsClauses = owner.findImplicitArguments
 
-  override def createFix(element: ImplicitArgumentsOwner) =
-    for {
-      args <- findImplicitArgs(element)
-      notFound = args.filter(_.isNotFoundImplicitParameter)
-    } yield ImportImplicitInstanceFix(() => notFound, element)
+    if (implicitArgsClauses.isEmpty) {
+      owner.parentOfType[ImplicitArgumentsOwner] match {
+        case Some(parent) => findImplicitArgs(parent)
+        case _            => Seq.empty
+      }
+    } else implicitArgsClauses
+  }
+
+  override def createFix(element: ImplicitArgumentsOwner) = {
+    val notFound =
+      for {
+        argClause <- findImplicitArgs(element)
+        arg       <- argClause.args
+        if arg.isNotFoundImplicitParameter
+      } yield arg
+
+    Option.when(notFound.nonEmpty)(
+      ImportImplicitInstanceFix(() => notFound, element)
+    )
+  }
+
 }
 
 final class ImportImplicitInstanceFixTest extends ImportImplicitInstanceFixTestBase {
