@@ -194,15 +194,9 @@ object MethodResolveProcessor {
     shapesOnly:             Boolean,
     argClauseIdx:           Int
   ): ApplicabilityCheckResult = {
-    def paramClauses(fun: ScFunction): Seq[ScParameterClause] =
-      if (c.shouldDropExtensionClauses) fun.paramClauses.clauses
-      else                              fun.parameterClausesWithExtension(c.exportedInExtension)
-
-    //If current candidate is a *Dynamic method, first argument clause is always the invoked name.
-    val actualArgClauseIdx = argClauseIdx - (if (c.nameArgForDynamic.isDefined) 1 else 0)
 
     implicit val projectContext: ProjectContext = c.element
-    implicit val context: Context = Context(place)
+    implicit val context: Context               = Context(place)
 
     val problems             = Seq.newBuilder[ApplicabilityProblem]
     val element              = c.element
@@ -238,7 +232,7 @@ object MethodResolveProcessor {
       tempSubstitutor.followed(ScSubstitutor.bind(prevTypeInfo ++ unresolvedTps)(UndefinedType(_)))
 
     val typeParameters: Seq[TypeParameter] = prevTypeInfo ++ (element match {
-      case ScalaConstructor(cons) => cons.getConstructorTypeParameters.map(TypeParameter(_))
+//      case ScalaConstructor(cons) => cons.getConstructorTypeParameters.map(TypeParameter(_))
       case cons @ Constructor.ofClass(cls) =>
         (cls.getTypeParameters ++ cons.getTypeParameters).toSeq.map(TypeParameter(_))
       case fun: ScFunction => fun.typeParameters.map(TypeParameter(_))
@@ -256,11 +250,12 @@ object MethodResolveProcessor {
 
       val retType: ScType = element match {
         case cons @ ScalaConstructor.in(td: ScTypeDefinition) =>
-          val bindTypeParamsSubst = ScSubstitutor.bind(td.typeParameters, cons.getConstructorTypeParameters)(TypeParameterType(_))
-          substitutor(bindTypeParamsSubst(td.`type`().getOrNothing))
+//          val bindTypeParamsSubst = ScSubstitutor.bind(td.typeParameters, cons.getConstructorTypeParameters)(TypeParameterType(_))
+//          substitutor(bindTypeParamsSubst(td.`type`().getOrNothing))
+          substitutor(td.`type`().getOrNothing)
         case Constructor.ofClass(cls) =>
           substitutor(ScalaPsiUtil.constructTypeForPsiClass(cls)((tp, _) => TypeParameterType(tp)))
-        case f: ScFunction if paramClauses(f).count(!_.isImplicit) > 1 =>
+        case _: ScFunction if c.functionParamClauses.count(!_.isImplicit) > 1 =>
           problems += ExpectedTypeMismatch //do not check expected types for more than one param clauses
           Nothing
         case f: ScFunction => substitutor(f.returnType.getOrNothing)
@@ -283,8 +278,8 @@ object MethodResolveProcessor {
     def checkFunctionReference(fun: PsiNamedElement, isPolymorphic: Boolean): ApplicabilityCheckResult = {
       def default(): ApplicabilityCheckResult = {
         fun match {
-          case fun: ScFunction if paramClauses(fun).isEmpty ||
-            paramClauses(fun).head.parameters.isEmpty ||
+          case _: ScFunction if c.functionParamClauses.isEmpty ||
+            c.functionParamClauses.head.parameters.isEmpty ||
             isUnderscore => ApplicabilityCheckResult(problems.result())
           case fun: ScFun if fun.paramClauses == Seq() || fun.paramClauses == Seq(Seq()) || isUnderscore =>
             addExpectedTypeProblems()
@@ -300,7 +295,7 @@ object MethodResolveProcessor {
       def methodTypeWithoutImplicits(tpe: ScType): ScType = tpe match {
         case ScMethodType(inner, _, true) => inner
         case t @ ScMethodType(inner, ps, false) =>
-          ScMethodType(methodTypeWithoutImplicits(inner), ps, isImplicit = false)(t.elementScope)
+          ScMethodType(methodTypeWithoutImplicits(inner), ps)(t.elementScope)
         case ScTypePolymorphicType(internalType, tparams) =>
           ScTypePolymorphicType(methodTypeWithoutImplicits(internalType), tparams)
         case t => t
@@ -346,7 +341,7 @@ object MethodResolveProcessor {
       }
 
       fun match {
-        case fun: ScFunction if paramClauses(fun).isEmpty =>
+        case _: ScFunction if c.functionParamClauses.isEmpty =>
           return addExpectedTypeProblems()
         case fun: ScFun if fun.paramClauses.isEmpty =>
           return addExpectedTypeProblems()
@@ -398,11 +393,6 @@ object MethodResolveProcessor {
 
         addExpectedTypeProblems()
       } else {
-        val currentArgClause =
-          if (c.nameArgForDynamic.nonEmpty && argClauseIdx == 0)
-            Seq(createExpressionFromText("\"\"", ref))
-          else argumentClauses.lift(actualArgClauseIdx).getOrElse(Seq.empty)
-
         val expectedTypeProblems = addExpectedTypeProblems()
 
         val expectedTypeSubst =
@@ -415,7 +405,7 @@ object MethodResolveProcessor {
           Compatibility.compatible(
             c,
             substitutorWithExpected,
-            currentArgClause,
+            argumentClauses,
             checkWithImplicits,
             shapesOnly,
             ref,
@@ -426,6 +416,10 @@ object MethodResolveProcessor {
         argsApplicability.copy(problems = problems.result())
       }
     }
+
+    def correctTypeArgsSupplied(tparamsLength: Int): Boolean =
+      typeArgElements.isEmpty ||
+        typeArgElements.length == tparamsLength
 
     val result = element match {
       //objects
@@ -446,23 +440,21 @@ object MethodResolveProcessor {
         ApplicabilityCheckResult(problems.result())
       case _: PsiClass    => ApplicabilityCheckResult(problems.result())
       case _: ScTypeAlias => ApplicabilityCheckResult(problems.result())
-      //Implicit Application
       case f: ScMethodLike if hasMalformedSignature(f) =>
         problems += MalformedDefinition(f.name)
         ApplicabilityCheckResult(problems.result())
-      case fun: ScFunction if (typeArgElements.isEmpty ||
-        typeArgElements.length == fun.typeParameters.length) && paramClauses(fun).length == 1 &&
-        paramClauses(fun).head.isImplicit && //@TODO: multiple using clauses ???
-        argumentClauses.isEmpty =>
+      //application to implicit arguments only
+      case fun: ScFunction if
+        correctTypeArgsSupplied(fun.typeParameters.size) &&
+          c.functionParamClauses.forall(_.isImplicit) &&
+          argumentClauses.isEmpty =>
         addExpectedTypeProblems()
-      //eta expansion
+      //eta-expansion
       case (fun: ScTypeParametersOwner) & (_: PsiNamedElement)
-        if (typeArgElements.isEmpty ||
-          typeArgElements.length == fun.typeParameters.length) && argumentClauses.isEmpty =>
+        if correctTypeArgsSupplied(fun.typeParameters.size) && argumentClauses.isEmpty =>
         checkFunctionReference(fun, fun.typeParameters.nonEmpty)
       case (fun: PsiTypeParameterListOwner) & (_: PsiNamedElement)
-        if (typeArgElements.isEmpty ||
-          typeArgElements.length == fun.getTypeParameters.length) && argumentClauses.isEmpty =>
+        if correctTypeArgsSupplied(fun.getTypeParameters.length) && argumentClauses.isEmpty =>
         checkFunctionReference(fun, fun.getTypeParameters.nonEmpty)
       //simple application including empty application
       case tpOwner: ScTypeParametersOwner with PsiNamedElement     => checkSimpleApplication(tpOwner.typeParameters)
@@ -525,7 +517,7 @@ object MethodResolveProcessor {
     if (selfConstructorResolve) return ScSubstitutor.empty
 
     val maybeTypeParameters: Option[Seq[PsiTypeParameter]] = element match {
-      case ScalaConstructor(cons)          => Option(cons.getConstructorTypeParameters)
+//      case ScalaConstructor(cons)          => Option(cons.getConstructorTypeParameters)
       case cons @ Constructor.ofClass(cls) => Option((cls.getTypeParameters ++ cons.getTypeParameters).toSeq)
       case fun: ScFunction if !isExtension => Option(fun.typeParametersWithExtension(exportedInExtension))
       case t: ScTypeParametersOwner        => Option(t.typeParameters)
