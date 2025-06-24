@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.transformation.implicits
 
 import com.intellij.psi.{PsiClass, PsiElement}
-import org.jetbrains.plugins.scala.extensions.{&, BooleanExt, ObjectExt, PsiClassExt}
+import org.jetbrains.plugins.scala.extensions.{&, ObjectExt, PsiClassExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -13,9 +13,9 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 class InscribeImplicitParameters extends AbstractTransformer {
   override protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
     case (_: ScReferenceExpression | _: ScMethodCall | _: ScInfixExpr | _: ScPostfixExpr) &
-      (e @ ImplicitArgumentsOwner(ps)) if ps.exists(isApplicable) =>
+      (e @ ImplicitArgumentsOwner(ps)) if ps.flatMap(_.args).exists(isApplicable) =>
 
-      val targets = ps.filter(isApplicable).map(targetFor)
+      val targets = ps.view.flatMap(_.args).filter(isApplicable).map(targetFor)
 
       val result = {
         val enclose = e.is[ScInfixExpr, ScPostfixExpr]

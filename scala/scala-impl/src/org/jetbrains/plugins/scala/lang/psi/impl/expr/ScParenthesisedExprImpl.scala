@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.ImplicitArgumentsClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 class ScParenthesisedExprImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScParenthesisedExpr {
 
@@ -18,7 +18,7 @@ class ScParenthesisedExprImpl(node: ASTNode) extends ScExpressionImplBase(node) 
   }
 
   // implicit arguments are owned by inner element
-  override def findImplicitArguments: Option[Seq[ScalaResolveResult]] = None
+  override def findImplicitArguments: Seq[ImplicitArgumentsClause] = Seq.empty
 
   override def toString: String = "ExpressionInParenthesis"
 }

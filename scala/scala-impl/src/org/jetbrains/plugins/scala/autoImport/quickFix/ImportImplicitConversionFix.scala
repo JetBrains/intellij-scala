@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportElementFix.isE
 import org.jetbrains.plugins.scala.autoImport.{GlobalExtensionMethod, GlobalImplicitConversion, GlobalMember, GlobalMemberOwner}
 import org.jetbrains.plugins.scala.extensions.{ChildOf, ObjectExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
+import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.ImplicitArgumentsClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression, ScSugarCallExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -66,11 +67,15 @@ private class ConversionToImportComputation(ref: ScReferenceExpression) {
     val extensionMethodsToImport = ArrayBuffer.empty[GlobalExtensionMethod]
     val notFoundImplicits = ArrayBuffer.empty[ScalaResolveResult]
 
-    def addIfNeeded[GM <: GlobalMember[ScFunction]](globalMember: GM,
-                                                    membersToImport: ArrayBuffer[GM],
-                                                    implicitParams: Seq[ScalaResolveResult])
-                                                   (implicit implicitArgsOwner: ImplicitArgumentsOwner): Unit = {
-      val notFoundImplicitParameters = implicitParams.filter(_.isNotFoundImplicitParameter)
+    def addIfNeeded[GM <: GlobalMember[ScFunction]](
+      globalMember:         GM,
+      membersToImport:      ArrayBuffer[GM],
+      implicitArgsByClause: Seq[ImplicitArgumentsClause]
+    )(implicit
+      implicitArgsOwner: ImplicitArgumentsOwner
+    ): Unit = {
+      val notFoundImplicitParameters =
+        implicitArgsByClause.flatMap(_.args).filter(_.isNotFoundImplicitParameter)
 
       if (visible.contains(globalMember.member))
         notFoundImplicits ++= notFoundImplicitParameters
@@ -83,13 +88,13 @@ private class ConversionToImportComputation(ref: ScReferenceExpression) {
         (conversion, application) <- ImplicitConversionData.getPossibleConversions(qualifier)
         if !isExcluded(conversion.qualifiedName, ref.getProject) &&
           CompletionProcessor.variantsWithName(application.resultType, qualifier, ref.refName).nonEmpty
-      } addIfNeeded(conversion, conversionsToImport, application.implicitParameters)
+      } addIfNeeded(conversion, conversionsToImport, application.implicitArgsByClause)
 
       for {
         (extensionMethod, application) <- ExtensionMethodData.getPossibleExtensionMethods(qualifier)
         if !isExcluded(extensionMethod.qualifiedName, ref.getProject) &&
           ref.refName == extensionMethod.function.name
-      } addIfNeeded(extensionMethod, extensionMethodsToImport, application.implicitParameters)
+      } addIfNeeded(extensionMethod, extensionMethodsToImport, application.implicitArgsByClause)
     }
 
     val sortedConversions = sortAndMapMembers(conversionsToImport, MemberToImport(_, _, _))

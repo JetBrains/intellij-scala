@@ -122,8 +122,8 @@ final class ScalaRefCountVisitor(project: Project) extends HighlightVisitor {
 
     element.asOptionOf[ImplicitArgumentsOwner]
       .foreach { owner =>
-        owner.findImplicitArguments.foreach { params =>
-          registerUsedElementsAndImports(element, params, checkWrite = false)
+        owner.findImplicitArguments.foreach { implicitArgsClause =>
+          registerUsedElementsAndImports(element, implicitArgsClause.args, checkWrite = false)
         }
       }
   }

@@ -1380,7 +1380,7 @@ object ScalaImportOptimizer {
     def withImplicits(srr: ScalaResolveResult): Seq[ScalaResolveResult] = {
       srr +:
         srr.implicitConversion.toSeq.flatMap(withImplicits) ++:
-        srr.implicitParameters.flatMap(withImplicits)
+        srr.implicitArguments.flatMap(_.args).flatMap(withImplicits)
     }
 
     def addFromExpression(expr: ScExpression): Unit = {
@@ -1390,7 +1390,7 @@ object ScalaImportOptimizer {
         case _ =>
       }
 
-      val implicits = expr.implicitConversion() ++: expr.findImplicitArguments.getOrElse(Seq.empty)
+      val implicits = expr.implicitConversion() ++: expr.findImplicitArguments.flatMap(_.args)
 
       implicits.foreach(addWithImplicits(_, expr))
     }
@@ -1415,11 +1415,10 @@ object ScalaImportOptimizer {
           derivedMethods.foreach(addWithImplicits(_, derives))
         }
       case c: ScConstructorInvocation =>
-        c.findImplicitArguments match {
-          case Some(parameters) =>
-            parameters.foreach(addWithImplicits(_, c))
-          case _ =>
-        }
+        for {
+          implicitArgClause <- c.findImplicitArguments
+          arg               <- implicitArgClause.args
+        } addWithImplicits(arg, c)
       case _ =>
     }
     //separate match to have reference expressions processed

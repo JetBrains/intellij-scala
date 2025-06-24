@@ -60,7 +60,10 @@ object ImportImplicitInstanceFix {
             popupPosition: PopupPosition = PopupPosition.best): ImportImplicitInstanceFix =
     new ImportImplicitInstanceFix(notFoundImplicitParams, owner, popupPosition)
 
-  private[quickFix] def implicitsToImport(notFoundImplicitParams: Seq[ScalaResolveResult], owner: ImplicitArgumentsOwner): Seq[ImplicitToImport] = {
+  private[quickFix] def implicitsToImport(
+    notFoundImplicitParams: Seq[ScalaResolveResult],
+    owner:                  ImplicitArgumentsOwner
+  ): Seq[ImplicitToImport] = {
     val typesToSearch = notFoundImplicitParams.flatMap(withProbableArguments(Nil, _))
     val allInstances = typesToSearch.flatMap {
       case TypeToSearch(path, scType) => findCompatibleInstances(scType, owner).map(FoundImplicit(_, path, scType))
@@ -78,18 +81,25 @@ object ImportImplicitInstanceFix {
       .map(ImplicitToImport)
   }
 
-  private def withProbableArguments(prefix: Seq[ScalaResolveResult],
-                                    parameter: ScalaResolveResult,
-                                    visited: Set[PsiNamedElement] = Set.empty): Seq[TypeToSearch] = {
+  private def withProbableArguments(
+    prefix:    Seq[ScalaResolveResult],
+    parameter: ScalaResolveResult,
+    visited:   Set[PsiNamedElement] = Set.empty
+  ): Seq[TypeToSearch] = {
     if (visited(parameter.element) || visited.size > 2)
       return Seq.empty
 
     val forParameter = implicitTypeToSearch(parameter).map(TypeToSearch(prefix :+ parameter, _))
 
     import ImplicitCollector._
+
     val forProbableArgs = probableArgumentsFor(parameter).flatMap {
       case (arg, ImplicitParameterNotFoundResult) =>
-        arg.implicitParameters.flatMap(withProbableArguments(prefix :+ arg, _, visited + parameter.element))
+        for {
+          implicitClause <- arg.implicitArguments
+          arg            <- implicitClause.args
+          probableArg    <- withProbableArguments(prefix :+ arg, arg, visited + parameter.element)
+        } yield probableArg
       case _ => Seq.empty
     }
 

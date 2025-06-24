@@ -113,7 +113,9 @@ private abstract class ImplicitParametersNodeBase(value: ScalaResolveResult)
   override def extractPsiFromValue(): PsiNamedElement = value.getElement
 
   override def getChildrenImpl: util.Collection[AbstractTreeNode[_]] =
-    value.implicitParameters
+    value
+      .implicitArguments
+      .flatMap(_.args)
       .map(resolveResultNode)
       .asJavaCollection
 

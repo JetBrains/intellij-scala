@@ -41,21 +41,21 @@ object ImplicitUtil {
 
     private def matches(srr: ScalaResolveResult): Boolean =
       isTarget(srr) ||
-        srr.implicitParameters.exists(matches) ||
+        srr.implicitArguments.flatMap(_.args).exists(matches) ||
         srr.implicitConversion.exists(matches)
 
     private def isImplicitConversionOrParameter(e: ScExpression): Boolean =
-      e.implicitConversion().exists(matches) || isImplicitParameterOf(e)
+      e.implicitConversion().exists(matches) || implicitArgumentOf(e)
 
-    private def isImplicitParameterOf(e: ImplicitArgumentsOwner): Boolean =
+    private def implicitArgumentOf(e: ImplicitArgumentsOwner): Boolean =
       e.findImplicitArguments
-        .getOrElse(Seq.empty)
+        .flatMap(_.args)
         .exists(matches)
 
     def refOrImplicitRefIn(usage: PsiElement): Option[PsiReference] = usage match {
       case ref: ScReference if ref.bind().exists(isTarget)        => Option(ref)
       case e: ScExpression if isImplicitConversionOrParameter(e)  => Option(ImplicitReference(e, targetImplicit))
-      case c: ScConstructorInvocation if isImplicitParameterOf(c) => Option(ImplicitReference(c, targetImplicit))
+      case c: ScConstructorInvocation if implicitArgumentOf(c) => Option(ImplicitReference(c, targetImplicit))
       case c: ScContextBound if isContextBound(c, targetImplicit) => Option(ImplicitReference(c, targetImplicit))
       case _                                                      => None
     }
