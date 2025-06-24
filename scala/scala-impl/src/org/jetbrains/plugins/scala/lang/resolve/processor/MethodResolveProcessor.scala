@@ -593,7 +593,17 @@ object MethodResolveProcessor {
     import proc.{candidates => _, _}
 
     val withoutShadowed = filterShadowedDefinitions(input)
-    val maxArgClauseIdx = argumentClauses.size - 1
+
+    val argClausesWithDynamic = {
+      //If current candidate is a *Dynamic method, first argument clause is always the invoked name.
+      val firstCand = withoutShadowed.headOption
+
+      firstCand.flatMap(_.nameArgForDynamic).map(_ =>
+        Seq(createExpressionFromText("\"\"", ref)(ref.projectContext))
+      ).toSeq ++ argumentClauses
+    }
+
+    val maxArgClauseIdx = argClausesWithDynamic.size - 1
 
     @tailrec
     def candidatesForArgClause(
@@ -611,7 +621,7 @@ object MethodResolveProcessor {
           expandedInput,
           checkWithImplicits = false,
           useExpectedType    = true,
-          args               = proc.argumentClauses,
+          args               = argClausesWithDynamic,
           argClauseIdx       = clauseIdx,
           shapesOnly         = true
         )
@@ -636,14 +646,17 @@ object MethodResolveProcessor {
             else                           applicableToShape
           }
 
-          candidates(proc, preselected, clauseIdx)
+          candidates(proc, preselected, argClausesWithDynamic, clauseIdx)
         }
 
       val applicableForCurrentClause = resultsForCurrentClause.filter(_.isApplicable())
 
       if (applicableForCurrentClause.isEmpty)
         resultsForCurrentClause
-      else if (useScala3OverloadingRules && applicableForCurrentClause.size > 1 && clauseIdx < maxArgClauseIdx)
+      else if (useScala3OverloadingRules
+        && applicableForCurrentClause.size > 1
+        && clauseIdx < maxArgClauseIdx
+      )
         candidatesForArgClause(applicableForCurrentClause, clauseIdx + 1)
       else
         applicableForCurrentClause
@@ -655,10 +668,11 @@ object MethodResolveProcessor {
   private def candidates(
     proc:            MethodResolveProcessor,
     preselected:     Set[(ScalaResolveResult, Boolean)],
+    argumentClauses: Seq[Seq[Expression]],
     argClauseIdx:    Int,
     useExpectedType: Boolean = true
   ): Set[ScalaResolveResult] = {
-    import proc.{candidates => _, _}
+    import proc.{candidates => _, argumentClauses =>_, _}
 
     def applicableResults(cands: Set[(ScalaResolveResult, Boolean)]): Set[ScalaResolveResult] =
       cands.collect { case (srr, _) if srr.isApplicable(withExpectedType = useExpectedType) => srr }
@@ -724,17 +738,23 @@ object MethodResolveProcessor {
       }
     }
 
-    if (filtered.isEmpty) {
+  if (filtered.isEmpty) {
       //@TODO: does it make sense to retry every clause w/o expected type?
       if (useExpectedType && argClauseIdx == 0) {
-        val withoutExpectedType = candidates(proc, preselected, argClauseIdx, useExpectedType = false)
+        val withoutExpectedType = candidates(
+          proc,
+          preselected,
+          argumentClauses,
+          argClauseIdx,
+          useExpectedType = false
+        )
 
         /**
          * If we can't get an applicable resolve result even w/o an expected type,
          * return mapped (with expected type), because it's more intuitive, when displaying errors to user.
          */
         if (withoutExpectedType.exists(_.isApplicable())) withoutExpectedType
-        else                                                mapped.map(_._1)
+        else                                              mapped.map(_._1)
       } else mapped.map(_._1)
     } else {
       val len =
@@ -742,11 +762,28 @@ object MethodResolveProcessor {
         else                         argumentClauses(argClauseIdx).length
 
       if (filtered.size == 1) filtered
-      else
-        MostSpecificUtil(ref, len, argClauseIdx).mostSpecificForResolveResult(filtered) match {
+      else {
+        val candidatesWithRespectiveParamClause =
+          filtered.map {
+            case cand @ ScalaResolveResult(_: ScFunction, _) =>
+              val paramClause =
+                Compatibility.correspondingParamClause(
+                  cand.functionParamClauses,
+                  argumentClauses,
+                  argClauseIdx
+                )
+
+              (cand, paramClause)
+            case other => (other, None)
+          }
+
+        MostSpecificUtil(ref, len)
+          .mostSpecificForParameterClause(candidatesWithRespectiveParamClause)
+        match {
           case Some(r) => Set(r)
           case None    => filtered
         }
+      }
     }
   }
 
