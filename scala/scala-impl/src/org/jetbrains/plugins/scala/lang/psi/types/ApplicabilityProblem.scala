@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
@@ -25,6 +26,7 @@ case object DoesNotTakeParameters                            extends Applicabili
 case class ExcessArgument(argument: ScExpression)            extends ApplicabilityProblem
 case class MissedParametersClause(clause: ScParameterClause) extends ApplicabilityProblem
 case class MissedValueParameter(parameter: Parameter)        extends ApplicabilityProblem
+case class UnexpectedUsingArgClause(usingKw: PsiElement)     extends ApplicabilityProblem
 //TODO expectedType -> parameter
 case class TypeMismatch(expression: ScExpression, expectedType: ScType)           extends ApplicabilityProblem
 case class DefaultTypeParameterMismatch(expectedType: ScType, actualType: ScType) extends ApplicabilityProblem

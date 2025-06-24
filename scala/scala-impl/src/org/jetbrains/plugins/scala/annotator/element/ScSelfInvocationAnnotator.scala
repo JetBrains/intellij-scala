@@ -45,12 +45,10 @@ object ScSelfInvocationAnnotator extends ElementAnnotator[ScSelfInvocation] {
       case Seq(r@ScConstructorResolveResult(constr)) if constr.effectiveParameterClauses.length > 1 && !isConstructorMalformed(r) =>
         // if there is only one well-formed, resolved, scala constructor with multiple parameter clauses,
         // check all of these clauses
-
-        val res = Compatibility.checkConstructorApplicability(
+        val (_, res, _) = Compatibility.checkConstructorApplicability(
           element,
-          r.substitutor,
-          element.arguments,
-          constr.effectiveParameterClauses
+          constr,
+          r.substitutor
         )
 
         annotateProblems(res.problems, r, element)

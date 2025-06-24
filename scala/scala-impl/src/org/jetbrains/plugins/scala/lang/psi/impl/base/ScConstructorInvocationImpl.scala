@@ -52,19 +52,19 @@ class ScConstructorInvocationImpl(node: ASTNode)
 
   override def expectedType: Option[ScType] = getContext match {
     case parents: ScTemplateParents =>
-        if (parents.allTypeElements.length != 1) None
-        else {
-          parents.getContext match {
-            case e: ScExtendsBlock =>
-              e.getContext match {
-                case n: ScNewTemplateDefinition =>
-                  n.expectedType()
-                case _ => None
-              }
-            case _ => None
-          }
+      if (parents.allTypeElements.length != 1) None
+      else {
+        parents.getContext match {
+          case e: ScExtendsBlock =>
+            e.getContext match {
+              case n: ScNewTemplateDefinition =>
+                n.expectedType()
+              case _ => None
+            }
+          case _ => None
         }
-      case _ => None
+      }
+    case _ => None
   }
 
   override def templateDefinitionContext: Option[ScTemplateDefinition] = getContext match {
@@ -201,8 +201,8 @@ class ScConstructorInvocationImpl(node: ASTNode)
     def processSimple(s: ScSimpleTypeElement): Array[TypeResult] = {
       s.reference match {
         case Some(ref) =>
-          val builder      = mutable.ArrayBuilder.make[TypeResult]
-          val resolve      = if (isShape) ref.shapeResolveConstr else ref.resolveAllConstructors
+          val builder = mutable.ArrayBuilder.make[TypeResult]
+          val resolve = if (isShape) ref.shapeResolveConstr else ref.resolveAllConstructors
 
           resolve.foreach {
             case r @ ScalaResolveResult(constr: PsiMethod, subst) =>
@@ -223,7 +223,7 @@ class ScConstructorInvocationImpl(node: ASTNode)
                   )
                 case _ => Seq.empty
               }
-              builder += Right(ScMethodType(ScDesignatorType(clazz), params.toSeq, isImplicit = false))
+              builder += Right(ScMethodType(ScDesignatorType(clazz), params.toSeq))
             case _ =>
           }
           builder.result()

@@ -92,14 +92,12 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
         val typeArgs = constrInvocation.typeArgList.map(_.typeArgs).getOrElse(Seq.empty)
 
         val typeArgsSubst  = ScSubstitutor.bind(params, typeArgs)(_.calcType)
-        val undefinedSubst = ScSubstitutor.bind(params)(UndefinedType(_))
-        val substitutor    = typeArgsSubst.followed(undefinedSubst).followed(r.substitutor)
+        val substitutor    = r.substitutor.followed(typeArgsSubst)
 
-        val res = Compatibility.checkConstructorApplicability(
+        val (_, res, _) = Compatibility.checkConstructorApplicability(
           constrInvocation,
-          substitutor,
-          constrInvocation.arguments,
-          constr.effectiveParameterClauses
+          constr,
+          substitutor
         )
 
         annotateProblems(res.problems, r, constrInvocation)

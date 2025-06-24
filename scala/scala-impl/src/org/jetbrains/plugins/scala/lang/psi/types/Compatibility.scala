@@ -7,19 +7,21 @@ import com.intellij.psi._
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt => Ext, _}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValueExtractor
-import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.extractImplicitParameterType
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ConstructorInvocationLike, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
+import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.{ImplicitArgumentsClause, SafeCheckException, extractImplicitParameterType}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ConstructorInvocationLike, ScConstructorInvocation, ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, NamedTupleType, TupleType, UndefinedType, Unit}
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
@@ -28,6 +30,10 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.scalaMeta.QuasiquoteInferUtil
 import org.jetbrains.plugins.scala.util.SAMUtil
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.{Ext => ScExpressionExt}
+import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider.PsiMethodTypeProviderExt
+
+import scala.annotation.tailrec
 
 object Compatibility {
   private lazy val LOG =
@@ -119,7 +125,7 @@ object Compatibility {
   implicit class ExpressionExt(private val expr: Expression) extends AnyVal {
     def scExpressionOrNull: ScExpression = expr match {
       case e: ScExpression => e
-      case _ => null
+      case _               => null
     }
   }
 
@@ -257,8 +263,8 @@ object Compatibility {
     ).orElse(expr.elementScope.scalaSeqType)
 
   def checkConformance(
-    parameters:          Seq[Parameter],
-    args:                Seq[Expression],
+    parameters:         Seq[Parameter],
+    args:               Seq[Expression],
     checkWithImplicits: Boolean
   ): ConstraintsResult = {
     val r = checkMethodApplicability(
@@ -285,7 +291,7 @@ object Compatibility {
   case class ApplicabilityCheckResult(
     problems:             Seq[ApplicabilityProblem],
     constraints:          ConstraintSystem,
-    defaultParameterUsed: Boolean = false,
+    defaultParameterUsed: Boolean                                = false,
     matched:              Seq[(Parameter, ScExpression, ScType)] = Seq.empty
   )
 
@@ -310,7 +316,7 @@ object Compatibility {
             case a: ScAssignment if a.referenceName.nonEmpty =>
               parameters.find(_.name == a.referenceName.get) match {
                 case Some(parameter) => parameters.filter(_ ne parameter)
-                case None => parameters.tail
+                case None            => parameters.tail
               }
             case _ => parameters.tail
           }
@@ -324,15 +330,65 @@ object Compatibility {
     problems.result()
   }
 
+  private def usingKw(arg: Expression): Option[PsiElement] =
+    for {
+      argPsi   <- arg.scExpressionOrNull.toOption
+      usingKW  <- argPsi.prevSiblingNotWhitespaceComment
+      if usingKW.getNode.getElementType == ScalaTokenType.UsingKeyword
+    } yield usingKW
+
+  def isExplicitUsingArgClause(args: Seq[Expression]): Boolean =
+    args.headOption.flatMap(usingKw).isDefined
+
   /**
-   * @param withImplicits When true, try implicit conversions in case `arg.type <!:< param.type`
-   * @param shapesOnly    When true, only calculate shapeTypes of argument expressions
+   * Calculates which parameter clause corresponds to an argument clause
+   * at position `argClauseIdx` (useful in presence of multiple/interleaved using clauses)
+   * e.g.:
+   * {{{
+   *   def foo[A](using Seq[A](x: A)(using B)(using C)(d: D): Int = ???
+   *   foo("123")(using newB)(d)
+   * }}}
+   * Which parameter clause does argument expression `d` correspond to.
+   */
+  def correspondingParamClause(
+    paramClauses: Seq[ScParameterClause],
+    argClauses:   Seq[Seq[Expression]],
+    argClauseIdx: Int
+  ): Option[ScParameterClause] = {
+    @tailrec
+    def aux(idx: Int, paramClauseIndex: Int): Int =
+      if (paramClauseIndex >= paramClauses.size) -1
+      else if (idx >= argClauses.size)           -1
+      else {
+        val argsAtIdx       = argClauses(idx)
+        val isExplicitUsing = isExplicitUsingArgClause(argsAtIdx)
+
+        val isCurrentParamClauseUsing =
+          paramClauseIndex < paramClauses.size &&
+            paramClauses(paramClauseIndex).hasUsingKeyword
+
+        if (!isExplicitUsing && isCurrentParamClauseUsing)
+          aux(idx, paramClauseIndex + 1)
+        else if (idx >= argClauseIdx)
+          paramClauseIndex
+        else aux(idx + 1, paramClauseIndex + 1)
+      }
+
+    val paramClauseIdx = aux(0, 0)
+    paramClauses.lift(paramClauseIdx)
+  }
+
+  /**
+   * @param withImplicits            When true, try implicit conversions in case `arg.type <!:< param.type`
+   * @param shapesOnly               When true, only calculate shapeTypes of argument expressions
+   * @param approximateDependentsFor See [[approximateDependent()]]
    */
   def checkMethodApplicability(
-    parameters:    Seq[Parameter],
-    args:          Seq[Expression],
-    withImplicits: Boolean,
-    shapesOnly:    Boolean,
+    parameters:               Seq[Parameter],
+    args:                     Seq[Expression],
+    withImplicits:            Boolean,
+    shapesOnly:               Boolean,
+    approximateDependentsFor: Set[ScParameter] = Set.empty
   )(implicit context: Context): ApplicabilityCheckResult = {
 
     ProgressManager.checkCanceled()
@@ -386,7 +442,8 @@ object Compatibility {
       typeResult.toOption match {
         case None => Nil
         case Some(exprType) =>
-          val conforms = exprType.conforms(pt, ConstraintSystem.empty, checkWeak = true)
+          val approximatedPt = approximateDependent(pt, approximateDependentsFor).getOrElse(pt)
+          val conforms = exprType.conforms(approximatedPt, ConstraintSystem.empty, checkWeak = true)
           matched.addOne(param, arg.scExpressionOrNull, exprType)
 
           conforms match {
@@ -413,6 +470,21 @@ object Compatibility {
         processParamConformance(param, expectedType, arg)
       }
     }
+
+    val explicitUsingKw     = args.headOption.flatMap(usingKw)
+    val isExplicitUsingArgs = explicitUsingKw.nonEmpty
+
+    val isUsingParamClause = {
+      val isInUsingClause = for {
+        param    <- parameters.headOption
+        psiParam <- param.paramInCode
+      } yield psiParam.isInClauseWithUsing
+
+      isInUsingClause.getOrElse(false)
+    }
+
+    if (isExplicitUsingArgs && !isUsingParamClause)
+      problems ::= UnexpectedUsingArgClause(explicitUsingKw.get)
 
     while (parameterIndex < parameters.length.min(args.length)) {
       val expressionWithSameIndex = args(parameterIndex)
@@ -612,25 +684,35 @@ object Compatibility {
   def compatible(
     srr:           ScalaResolveResult,
     substitutor:   ScSubstitutor,
-    args:    Seq[Expression],
+    argClauses:    Seq[Seq[Expression]],
     withImplicits: Boolean,
     shapesOnly:    Boolean,
     ref:           PsiElement,
     argClauseIdx:  Int = 0
   ): ApplicabilityCheckResult = {
     val named = srr.element
+    val args  = argClauses.lift(argClauseIdx).getOrElse(Seq.empty)
 
-    def checkParameterListConformance(parameters: Seq[Parameter]): ApplicabilityCheckResult =
-      checkMethodApplicability(parameters, args, withImplicits, shapesOnly)
+    def checkParameterListConformance(
+      parametersForCurrentClause: Seq[Parameter],
+      allImplicitParameters:      Set[ScParameter] = Set.empty,
+    ): ApplicabilityCheckResult =
+      checkMethodApplicability(
+        parametersForCurrentClause,
+        args,
+        withImplicits,
+        shapesOnly,
+        allImplicitParameters
+      )
 
     named match {
       case synthetic: ScSyntheticFunction =>
         val paramClauses = synthetic.paramClauses
 
-        if (paramClauses.isEmpty || argClauseIdx >= paramClauses.size)
+        if (paramClauses.isEmpty || argClauseIdx > 0)
           return ApplicabilityCheckResult(DoesNotTakeParameters)
 
-        val parameters = synthetic.paramClauses(argClauseIdx).map(p =>
+        val parameters = paramClauses(argClauseIdx).map(p =>
           p.copy(paramType = substitutor(p.paramType))
         )
 
@@ -673,15 +755,22 @@ object Compatibility {
             fun.parameterClausesWithExtension(extensionOwner)
           }
 
-        if (argClauseIdx >= clauses.size)
-          return ApplicabilityCheckResult(DoesNotTakeParameters)
-
-        val currentClause = clauses(argClauseIdx)
+        val currentClause = correspondingParamClause(clauses, argClauses, argClauseIdx)
 
         val parameters =
-          currentClause.effectiveParameters.map(toParameter(_, substitutor))
+          currentClause
+            .toSeq
+            .flatMap(_.effectiveParameters)
+            .map(toParameter(_, substitutor))
 
-        checkParameterListConformance(parameters)
+        val allImplicitParameters =
+          clauses
+            .view
+            .flatMap(_.effectiveParameters)
+            .filter(_.isImplicit)
+            .to(Set)
+
+        checkParameterListConformance(parameters, allImplicitParameters)
       case constructor: ScPrimaryConstructor =>
         val parameters = constructor.effectiveFirstParameterSection.map(toParameter(_, substitutor))
         checkParameterListConformance(parameters)
@@ -709,93 +798,362 @@ object Compatibility {
 
   def checkConstructorApplicability(
     constrInvocation: ConstructorInvocationLike,
-    substitutor:      ScSubstitutor,
-    argClauses:       Seq[ScArgumentExprList],
-    paramClauses:     Seq[ScParameterClause]
+    cons:             PsiMethod,
+    subst:            ScSubstitutor,
+    inferValueType:   Boolean = false
   )(implicit
     ctx: ProjectContext
-  ): ApplicabilityCheckResult = {
-    implicit val context: Context = Context(constrInvocation)
+  ): (ScType, ApplicabilityCheckResult, Seq[ImplicitArgumentsClause]) = {
+    val args = constrInvocation.arguments
 
-    val nonEmptyArgClause =
-      if (argClauses.isEmpty) Seq(Seq.empty)
-      else                    argClauses.map(_.exprs)
+    val nonEmptyArgs =
+      if (args.isEmpty) Seq(Seq.empty[Expression])
+      else              args.map(_.exprs)
 
-    val (result, _) =
-      nonEmptyArgClause
-        .zip(paramClauses)
-        .foldLeft(ApplicabilityCheckResult(Seq.empty) -> substitutor) {
-          case ((prevRes, prevSubstitutor), (args, paramClause)) =>
+    def updateWithClause(
+      prevResult:  ApplicabilityCheckResult,
+      tpe:         ScType,
+      args:        Seq[Expression],
+      canThrowSCE: Boolean
+    ): (ScType, ApplicabilityCheckResult) = tpe match {
+      case ScTypePolymorphicType(ScMethodType(retType, params, _), typeParams) =>
+        //@TODO: auto-tupling
+        InferUtil.localTypeInferenceWithApplicabilityExt(
+          retType,
+          params,
+          args,
+          typeParams,
+          canThrowSCE = canThrowSCE,
+        )
+      case ScMethodType(resTpe, params, _) =>
+        val eligibleForAutoTupling = args.length != 1 && params.length == 1 && !params.head.isDefault
 
-            val params = paramClause.effectiveParameters.map(toParameter(_, prevSubstitutor))
-
-            val eligibleForAutoTupling = args.length != 1 && params.length == 1 && !params.head.isDefault
-
-            val curRes =
-              checkMethodApplicability(
-                params,
-                args,
-                withImplicits = true,
-                shapesOnly    = false,
-              ) match {
-                case res if eligibleForAutoTupling && res.problems.nonEmpty =>
-                  // try autotupling. If the conformance check succeeds without problems we use that result
-                  ScalaPsiUtil
-                    .tupled(args, constrInvocation)
-                    .map(
-                      checkMethodApplicability(
-                        params,
-                        _,
-                        withImplicits = true,
-                        shapesOnly    = false,
-                      )
-                    )
-                    .filter(_.problems.isEmpty)
-                    .getOrElse(res)
-                case res => res
-              }
-
-            val res = prevRes.copy(
-              problems             = prevRes.problems ++ curRes.problems,
-              defaultParameterUsed = prevRes.defaultParameterUsed || curRes.defaultParameterUsed,
-              matched              = prevRes.matched ++ curRes.matched
-            )
-
-            val newSubstitutor = curRes.constraints match {
-              case ConstraintSystem(csSubstitutor) => prevSubstitutor.followed(csSubstitutor)
-              case _                               => prevSubstitutor
-            }
-
-            res -> newSubstitutor
+        val res = checkMethodApplicability(
+          params,
+          args,
+          withImplicits = true,
+          shapesOnly    = false,
+        ) match {
+          case res if eligibleForAutoTupling && res.problems.nonEmpty =>
+            // try autotupling. If the conformance check succeeds without problems we use that result
+            ScalaPsiUtil
+              .tupled(args, constrInvocation)
+              .map(
+                checkMethodApplicability(
+                  params,
+                  _,
+                  withImplicits = true,
+                  shapesOnly    = false,
+                )
+              )
+              .filter(_.problems.isEmpty)
+              .getOrElse(res)
+          case res => res
         }
 
-    // in a constructor call all parameter clauses have to be supplied
-    // Providing more clauses than required is ok, as those might be calls to apply
-    // see: class A(i: Int) { def apply(j: Int) = ??? }
-    // new A(2)(3) is ok
-    val missedParameterClauseProblems =
-      missedParameterClauseProblemsFor(
-        paramClauses,
-        nonEmptyArgClause.length,
-        isConstructorInvocation = true
-      )
+        (resTpe, res)
+      case other => (other, prevResult)
+    }
 
-    if (missedParameterClauseProblems.isEmpty) result
-    else
-      result.copy(problems = result.problems ++ missedParameterClauseProblems)
+    def updateScalaConstructorType(
+      scalaCons:            ScMethodLike,
+      previousRes:          ApplicabilityCheckResult,
+      tpe:                  ScType,
+      stopBeforeLastClause: Boolean,
+      clauseIdx:            Int,
+      withExpected:         Boolean = false
+    ): (ScType, ApplicabilityCheckResult, Seq[ImplicitArgumentsClause]) = {
+      var i                   = clauseIdx
+      var resTpe              = tpe
+      var applicabilityRes    = previousRes
+      val implicitArgsBuilder = Seq.newBuilder[ImplicitArgumentsClause]
+
+      val paramClauses = scalaCons.effectiveParameterClauses
+      val clauseBound  = nonEmptyArgs.length - (if (stopBeforeLastClause) 1 else 0)
+
+      while (i < clauseBound) {
+        val (updatedRes, clauseApplicability) = updateWithClause(
+          previousRes,
+          resTpe,
+          nonEmptyArgs(i),
+          canThrowSCE = withExpected
+        )
+
+        resTpe = updatedRes
+
+        applicabilityRes = applicabilityRes.copy(
+          problems             = applicabilityRes.problems ++ clauseApplicability.problems,
+          defaultParameterUsed = applicabilityRes.defaultParameterUsed || clauseApplicability.defaultParameterUsed,
+          matched              = applicabilityRes.matched ++ clauseApplicability.matched
+        )
+
+        val shouldNotUpdateTrailingImplicits = {
+          args.nonEmpty &&
+            (args.lift(i + 1) match {
+            case Some(argList) =>
+              argList.isUsing || {
+                val nextParamClause =
+                  Compatibility.correspondingParamClause(
+                    paramClauses,
+                    args.map(_.exprs),
+                    i + 1
+                  )
+
+                nextParamClause.exists(_.hasImplicitKeyword)
+              }
+            case _ => false
+          })
+        }
+
+        if (!shouldNotUpdateTrailingImplicits) {
+          val (updatedWithImplicits, implicitArgs) = updateTypeWithImplicitArguments(
+            resTpe,
+            withExpected      = withExpected,
+            hasImplicitClause = true,
+            isLeadingClause   = false
+          )
+
+          implicitArgsBuilder ++= implicitArgs
+          resTpe                = updatedWithImplicits
+        }
+
+        i += 1
+      }
+
+      (resTpe, applicabilityRes, implicitArgsBuilder.result())
+    }
+
+    def updateWithExpected(tpe: ScType, expected: ScType): ScType = tpe match {
+      case ScTypePolymorphicType(inner, typeParams) =>
+        val undefinedSubst = ScSubstitutor.bind(typeParams)(UndefinedType(_))
+        val expr           = Expression(undefinedSubst(inner.inferValueType))
+
+        InferUtil.localTypeInference(
+          inner,
+          Seq(Parameter(expected, isRepeated = false, index = 0)),
+          Seq(expr),
+          typeParams,
+          shouldUndefineParameters = false,
+          filterTypeParams         = false
+        )
+      case _ => tpe
+    }
+
+    def updateTypeWithImplicitArguments(
+      tp:                ScType,
+      withExpected:      Boolean,
+      hasImplicitClause: Boolean,
+      isLeadingClause:   Boolean,
+    ): (ScType, Seq[ImplicitArgumentsClause]) = {
+      val (innerRes, implicitArgs) =
+        if (hasImplicitClause) {
+          val (updatedTp, implicitsByClause) =
+            InferUtil.updateTypeWithImplicitParameters(
+              tp,
+              constrInvocation,
+              None,
+              withExpected,
+              fullInfo        = false,
+              updateDeep      = !isLeadingClause,
+              isLeadingClause = isLeadingClause
+            )
+
+          (updatedTp, implicitsByClause)
+        } else (tp, Seq.empty)
+
+      (innerRes, implicitArgs)
+    }
+
+    def lastClauseAndImplicits(
+      previousTpe:  ScType,
+      previousRes:  ApplicabilityCheckResult,
+      withExpected: Boolean
+    ): (ScType, ApplicabilityCheckResult, Seq[ImplicitArgumentsClause]) = {
+      val expectedType = constrInvocation match {
+        case consInv: ScConstructorInvocation => consInv.expectedType
+        case _: ScSelfInvocation              => None
+        case other                            =>
+          throw new IllegalArgumentException(ScalaBundle.message("unknown.constructor.invocation", other.getClass))
+      }
+
+      val typeWithExpected = expectedType match {
+        case Some(expected) if withExpected =>
+          val fromUnderscore = {
+            val underscores = for {
+              consInv  <- constrInvocation.asOptionOf[ScConstructorInvocation]
+              template <- consInv.newTemplate
+            } yield ScUnderScoreSectionUtil.underscores(template).nonEmpty
+
+            underscores.getOrElse(false)
+          }
+
+          if (!fromUnderscore) updateWithExpected(previousTpe, expected)
+          else expected match {
+            case FunctionType(retType, _) => updateWithExpected(previousTpe, retType)
+            case _                        => previousTpe //do not update res, we haven't expected type
+          }
+        case _ => previousTpe
+      }
+
+      cons match {
+        case scalaCons: ScMethodLike =>
+          val idx = Math.max(0, constrInvocation.arguments.size - 1)
+
+          updateScalaConstructorType(
+            scalaCons,
+            previousRes,
+            typeWithExpected,
+            stopBeforeLastClause = false,
+            clauseIdx            = idx,
+            withExpected         = withExpected
+          )
+        case _ =>
+          val args = constrInvocation.arguments.map(_.exprs).headOption.getOrElse(Seq.empty)
+
+          val (resTpe, applicabilityRes) = updateWithClause(
+            previousRes,
+            typeWithExpected,
+            args,
+            canThrowSCE = withExpected
+          )
+
+          (resTpe, applicabilityRes, Seq.empty)
+      }
+    }
+
+    val hasImplicitClause = cons match {
+      case fn: ScMethodLike => fn.effectiveParameterClauses.exists(_.isImplicit)
+      case _                => false
+    }
+
+    val initialType             = cons.methodTypeProvider(constrInvocation.elementScope).polymorphicType(subst)
+    val initialApplicabilityRes = ApplicabilityCheckResult(Seq.empty)
+
+    val (typeWithoutLeadingImplicits, leadingImplicitArgs) = updateTypeWithImplicitArguments(
+      initialType,
+      withExpected      = false,
+      hasImplicitClause = hasImplicitClause,
+      isLeadingClause   = true
+    )
+
+    val (tpeWithoutLast, applicabilityResWithoutLastClause, implicitArgs) = cons match {
+      case scalaCons: ScMethodLike =>
+        updateScalaConstructorType(
+          scalaCons,
+          initialApplicabilityRes,
+          typeWithoutLeadingImplicits,
+          stopBeforeLastClause = true,
+          clauseIdx            = 0
+        )
+      case _ =>
+        //in case of javaConstructor there can only be 1 parameter clause, so no need to do anything here
+        (typeWithoutLeadingImplicits, ApplicabilityCheckResult(Seq.empty), Seq.empty)
+    }
+
+    val (resTpe, applicabilityRes, trailingImplicitArgs)  =
+      try lastClauseAndImplicits(tpeWithoutLast, applicabilityResWithoutLastClause, withExpected = true)
+      catch {
+        case _: SafeCheckException =>
+          lastClauseAndImplicits(tpeWithoutLast, applicabilityResWithoutLastClause, withExpected = false)
+      }
+
+    val tpe =
+      if (inferValueType) resTpe.inferValueType
+      else                resTpe
+
+    val withMissedParameterClauseProblems = cons match {
+      case scalaCons: ScMethodLike =>
+        val missedParameterClauseProblems =
+          missedParameterClauseProblemsFor(
+            scalaCons.effectiveParameterClauses,
+            nonEmptyArgs.length,
+            isConstructorInvocation = true
+          )
+
+        if (missedParameterClauseProblems.isEmpty) applicabilityRes
+        else
+          applicabilityRes.copy(problems = applicabilityRes.problems ++ missedParameterClauseProblems)
+      case _ => applicabilityRes
+    }
+
+    (tpe, withMissedParameterClauseProblems, leadingImplicitArgs ++ implicitArgs ++ trailingImplicitArgs)
   }
+
+//  def checkConstructorApplicability(
+//    constrInvocation: ConstructorInvocationLike,
+//    substitutor:      ScSubstitutor,
+//    argClauses:       Seq[ScArgumentExprList],
+//    paramClauses:     Seq[ScParameterClause]
+//  )(implicit
+//    ctx: ProjectContext
+//  ): ApplicabilityCheckResult = {
+//    implicit val context: Context = Context(constrInvocation)
+//    val (result, _) =
+//      nonEmptyArgClause
+//        .zipWithIndex
+//        .foldLeft(ApplicabilityCheckResult(Seq.empty) -> substitutor) {
+//          case ((prevRes, prevSubstitutor), (args, idx)) =>
+//
+//            val maybeParamClause = correspondingParamClause(paramClauses, nonEmptyArgClause, idx)
+//
+//            val curRes = maybeParamClause match {
+//              case None              => ApplicabilityCheckResult(DoesNotTakeParameters)
+//              case Some(paramClause) =>
+//                val params                 = paramClause.effectiveParameters.map(toParameter(_, prevSubstitutor))
+//                val eligibleForAutoTupling = args.length != 1 && params.length == 1 && !params.head.isDefault
+//
+//                checkMethodApplicability(
+//                  params,
+//                  args,
+//                  withImplicits = true,
+//                  shapesOnly    = false,
+//                ) match {
+//                  case res if eligibleForAutoTupling && res.problems.nonEmpty =>
+//                    // try autotupling. If the conformance check succeeds without problems we use that result
+//                    ScalaPsiUtil
+//                      .tupled(args, constrInvocation)
+//                      .map(
+//                        checkMethodApplicability(
+//                          params,
+//                          _,
+//                          withImplicits = true,
+//                          shapesOnly    = false,
+//                        )
+//                      )
+//                      .filter(_.problems.isEmpty)
+//                      .getOrElse(res)
+//                  case res => res
+//                }
+//            }
+//
+//            val res = prevRes.copy(
+//              problems             = prevRes.problems ++ curRes.problems,
+//              defaultParameterUsed = prevRes.defaultParameterUsed || curRes.defaultParameterUsed,
+//              matched              = prevRes.matched ++ curRes.matched
+//            )
+//
+//            val newSubstitutor = curRes.constraints match {
+//              case ConstraintSystem(csSubstitutor) => prevSubstitutor.followed(csSubstitutor)
+//              case _                               => prevSubstitutor
+//            }
+//
+//            res -> newSubstitutor
+//        }
+//
+//    // in a constructor call all parameter clauses have to be supplied
+//    // Providing more clauses than required is ok, as those might be calls to apply
+//    // see: class A(i: Int) { def apply(j: Int) = ??? }
+//    // new A(2)(3) is ok
+//
+//  }
 
   def missedParameterClauseProblemsFor(
     paramClauses:            Seq[ScParameterClause],
     argClauseCount:          Int,
     isConstructorInvocation: Boolean
   ): Seq[MissedParametersClause] = {
-    var minParamClauses = paramClauses.length
-
-    val hasImplicitClause = paramClauses.lastOption.exists(_.isImplicit)
-    //@TODO: multiple using clauses
-    if (hasImplicitClause)
-      minParamClauses -= 1
+    val implicitClauses = paramClauses.filter(_.isImplicit)
+    val minParamClauses = paramClauses.length - implicitClauses.length
 
     val missedArgumentClauses = minParamClauses - argClauseCount
     if (missedArgumentClauses > 0) {
@@ -814,5 +1172,39 @@ object Compatibility {
         missingClauses.map(MissedParametersClause.apply)
       } else Seq.empty
     } else Seq.empty
+  }
+
+  /** Dependency on an implicit argument is like a dependency on type parameter, thus
+   * before checking implicit return type conformance we have to substitute parameter-dependent
+   * types with `UndefinedType`, otherwise compatibility check is bound to fail.
+   * We also have to verify (after we successfully found some implicit to be compatible)
+   * that result type with argument-dependent types restored does indeed conform to `tp`.
+   *
+   * Upd. 19.05.2025 Same logic applies to overloading resolution with leading using clauses.
+   * e.g.
+   * {{{
+   *   trait Foo[A] { type X }
+   *   def f[A](using f: Foo[A])(using f.X)(a: f.X): f.X = ???
+   *   def f(a: String): String = ???
+   *   val s = f(1)
+   * }}}
+   * This is NOT an ambiguous overload as one might suspect,
+   * first alternative is deemed applicable by the compiler.
+   *
+   * @param tpe Return type of an implicit currently undergoing a compatibility check
+   * @return `tpe` with parameter-dependent types replaced with `UndefinedType`s,
+   *         and a mean of reverting this process (useful once type parameters have been inferred
+   *         and dependents need to actually be updated according to argument types)
+   */
+  def approximateDependent(tpe: ScType, params: Set[ScParameter]): Option[ScType] = {
+    var hasDependents = false
+
+    val updated = tpe.updateRecursively {
+      case original @ ScProjectionType(ScDesignatorType(p: ScParameter), _) if params.contains(p) =>
+        hasDependents = true
+        UndefinedType(p, original)
+    }
+
+    Option.when(hasDependents)(updated)
   }
 }
