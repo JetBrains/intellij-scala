@@ -144,4 +144,66 @@ class ImplicitConversionHintsTest extends ImplicitHintsTestBase {
        |} yield x$S)$E
     """.stripMargin
   )
+
+  def testMultipleUsingClausesTrailing(): Unit = {
+    doTest(
+      s"""
+         |object A {
+         |  trait A; trait B; trait C
+         |  given A = ???
+         |  given B = ???
+         |  given C = ???
+         |  implicit def foo(x: Int)(using a: A)(using b: B)(using C): String = ???
+         |  val x: String = {$S}foo(${E}1$S)(given_A)(given_B)(given_C)$E
+         |}
+         |""".stripMargin
+    )
+  }
+
+  def testMultipleUsingClausesLeading(): Unit = {
+    doTest(
+      s"""
+         |object A {
+         |  trait A; trait B; trait C
+         |  given A = ???
+         |  given B = ???
+         |  given C = ???
+         |  implicit def foo(using a: A)(using b: B)(using C)(x: Int): String = ???
+         |  val s: String = ${S}foo(given_A)(given_B)(given_C)(${E}1$S)$E
+         |}
+         |""".stripMargin
+    )
+  }
+
+  def testMultipleUsingClausesInterleaving(): Unit = {
+    doTest(
+      s"""
+         |object A {
+         |  trait A; trait B; trait C; trait D;
+         |  given A = ???
+         |  given B = ???
+         |  given C = ???
+         |  given D = ???
+         |  def foo(using a: A)(s: String)(using b: B)(using C)(using D): String = ???
+         |  val s: String = foo$S(given_A)(${E}1$S)(given_B)(given_C)(given_D)$E
+         |}
+         |""".stripMargin
+    )
+  }
+
+  def testMultipleUsingClausesNested(): Unit = {
+    doTest(
+      s"""
+         |object A {
+         |  trait A; trait B; trait C; trait D
+         |  given A = ???
+         |  given A => B = ???
+         |  given B => C = ???
+         |  given B => D = ???
+         |  def foo(using B)(i: Int)(using C, D): String = ???
+         |  val s: String = ${S}foo(given_B(given_A)(${E}1${S})(given_C(given_B(given_A)), given_D(given_B(given_A)))${E}
+         |}
+         |""".stripMargin
+    )
+  }
 }
