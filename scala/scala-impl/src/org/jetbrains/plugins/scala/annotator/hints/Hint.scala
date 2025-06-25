@@ -5,14 +5,16 @@ import com.intellij.openapi.editor.colors.{EditorColorsScheme, EditorFontType}
 import com.intellij.openapi.editor.{Editor, EditorFactory}
 import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.annotator.hints.Hint.MenuProvider
+import org.jetbrains.plugins.scala.annotator.hints.Hint.{HintPosition, MenuProvider}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
+import org.jetbrains.plugins.scala.lang.psi.api.expr.MethodInvocation
 
 import java.awt.Insets
 
 case class Hint(parts: Seq[Text],
                 element: PsiElement,
-                suffix: Boolean, // if true, the hint will be shown after the element, otherwise - before
+                position: HintPosition,
                 menu: MenuProvider = MenuProvider.NoMenu,
                 margin: Option[Insets] = None,
                 relatesToPrecedingElement: Boolean = false,
@@ -24,6 +26,32 @@ case class Hint(parts: Seq[Text],
 }
 
 object Hint {
+  /**
+   * Determines the position of the hint relative to the owner element.
+   */
+  sealed trait HintPosition {
+    def getOffset(owner: PsiElement): Int
+  }
+
+  object HintPosition {
+    case object BeforeElement extends HintPosition {
+      override def getOffset(owner: PsiElement): Int = owner.getTextRange.getStartOffset
+    }
+
+    case object AfterElement extends HintPosition {
+      override def getOffset(owner: PsiElement): Int = owner.getTextRange.getEndOffset
+    }
+
+    case object BeforeArgClause extends HintPosition {
+      override def getOffset(owner: PsiElement): Int = owner match {
+        case inv: MethodInvocation        => inv.argsElement.getTextRange.getStartOffset
+        case inv: ScConstructorInvocation =>
+          inv.args.map(_.getTextRange.getStartOffset).getOrElse(inv.getTextRange.getEndOffset)
+        case _ => owner.getTextRange.getEndOffset
+      }
+    }
+  }
+
   def leftInsetLikeChar(char: Char, editor: Option[Editor] = None)(implicit scheme: EditorColorsScheme): Option[Insets] =
     widthOf(char, editor).map(new Insets(0, _, 0, 0))
 

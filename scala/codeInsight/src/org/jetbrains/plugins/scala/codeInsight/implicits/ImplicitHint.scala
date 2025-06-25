@@ -7,6 +7,7 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiElement
 import com.intellij.util.ui.JBUI
 import org.jetbrains.plugins.scala.annotator.hints.Hint
+import org.jetbrains.plugins.scala.annotator.hints.Hint.HintPosition
 
 import java.awt.Insets
 import java.lang.reflect.{Field, Modifier}
@@ -24,7 +25,7 @@ object ImplicitHint {
   def addTo(hint: Hint, model: InlayModel): Inlay = {
     import hint._
 
-    val offset = if (suffix) element.getTextRange.getEndOffset else element.getTextRange.getStartOffset
+    val offset = position.getOffset(hint.element)
 
     val existingInlays = model.getInlineElementsInRange(offset, offset).asScala.filter(isImplicitHint)
 
@@ -43,7 +44,13 @@ object ImplicitHint {
       // TODO Support user-defined order of inlays with the same offset in IDEA API
       myOriginalOffsetField.foreach { field =>
         val offsets = existingInlays.map(field.getInt)
-        field.setInt(inlay, if (suffix) offsets.max + 1 else offsets.min - 1)
+
+        val offset = position match {
+          case HintPosition.BeforeElement                               => offsets.min - 1
+          case HintPosition.AfterElement | HintPosition.BeforeArgClause => offsets.max + 1
+        }
+
+        field.setInt(inlay, offset)
       }
     }
 

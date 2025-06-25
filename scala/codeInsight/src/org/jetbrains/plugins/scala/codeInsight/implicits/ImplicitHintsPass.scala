@@ -13,6 +13,7 @@ import com.intellij.util.DocumentUtil
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.annotator.HighlightingAdvisor
+import org.jetbrains.plugins.scala.annotator.hints.Hint.HintPosition
 import org.jetbrains.plugins.scala.annotator.hints._
 import org.jetbrains.plugins.scala.autoImport.quickFix.{ImportImplicitInstanceFix, PopupPosition}
 import org.jetbrains.plugins.scala.caches.{ModTracker, cachedInUserData}
@@ -35,6 +36,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.{ScalaHighlightingMode, ScalaProjectSettings}
 import org.jetbrains.plugins.scala.extensions.&
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.{ImplicitClausePosition, ImplicitArgumentsClause}
 
 import scala.collection.mutable
 
@@ -107,9 +109,9 @@ class ImplicitHintsPass(
       val enabledForElement = showImplicitErrors(owner)
 
       if (shouldSearchForImplicits(enabledForElement)) {
-        owner.findImplicitArguments.toSeq.flatMap {
-          case args if shouldShowImplicitArgumentsOrErrors(enabledForElement, args) =>
-            implicitArgumentsHint(owner, args)(editor.getColorsScheme, owner)
+        owner.findImplicitArguments.flatMap {
+          case implicitArgsClause if shouldShowImplicitArgumentsOrErrors(enabledForElement, implicitArgsClause.args) =>
+            implicitArgumentsHint(owner, implicitArgsClause)(editor.getColorsScheme, owner)
           case _ => Seq.empty
         }
       }
@@ -151,7 +153,7 @@ class ImplicitHintsPass(
             val consNames = injectedConstructors.toSeq.flatMap { case (cons, subst) =>
               val name = cons.name
 
-              val (_, args, _) = InferUtil.updateTypeWithImplicitParameters(
+              val (_, implicitArgsClauses) = InferUtil.updateTypeWithImplicitParameters(
                 cons.polymorphicType(subst),
                 anchor,
                 None,
@@ -159,14 +161,17 @@ class ImplicitHintsPass(
                 fullInfo    = false
               )
 
-              val implicitArgs = args.getOrElse(Seq.empty)
+              val implicitArgsFlat = implicitArgsClauses.flatMap(_.args)
 
-              if (shouldShowImplicitArgumentsOrErrors(enabledForElement, implicitArgs)) {
-                Text(s" with $name") +: presentationOf(implicitArgs, None)(editor.getColorsScheme)
+              if (shouldShowImplicitArgumentsOrErrors(enabledForElement, implicitArgsFlat)) {
+                Text(s" with $name") +:
+                  implicitArgsClauses.flatMap(clause =>
+                    presentationOf(clause.args, None)(editor.getColorsScheme)
+                  )
               } else Seq.empty
             }
 
-            val hint = Hint(consNames, anchor, suffix = true)
+            val hint = Hint(consNames, anchor, position = HintPosition.AfterElement)
             Seq(hint)
           }
       }
@@ -243,22 +248,60 @@ private object ImplicitHintsPass {
     owner:  ImplicitArgumentsOwner
   ): Seq[Hint] = {
     val hintPrefix =
-      Hint(namedBasicPresentation(conversion) :+ Text("("), e, suffix = false, menu = menu.ImplicitConversion, corners = Corners.Left)
+      Hint(
+        namedBasicPresentation(conversion),
+        e,
+        position = HintPosition.BeforeElement,
+        menu     = menu.ImplicitConversion,
+        corners  = Corners.Left
+      )
 
-    val hintSuffix = Hint(
-      Text(")") +: collapsedPresentationOf(conversion.implicitParameters, Option(owner)),
-      e,
-      suffix = true,
-      menu = menu.ImplicitArguments,
-      corners = Corners.Right
-    )
+    val (leadingArgClauses, trailingArgClauses) =
+      conversion.implicitArguments.span(_.isLeading)
 
-    Seq(hintPrefix, hintSuffix)
+    val leadingHints =
+      leadingArgClauses.map(clause =>
+        Hint(
+          collapsedPresentationOf(clause.args, Option(owner)),
+          e,
+          position = HintPosition.BeforeElement,
+          menu     = menu.ImplicitArguments,
+          corners  = Corners.Right
+        )
+      ) :+
+        Hint(Seq(Text("(")), e, HintPosition.BeforeElement)
+
+
+    val trailingHints =
+      Hint(Seq(Text(")")), e, HintPosition.AfterElement) +:
+        trailingArgClauses.map(clause =>
+          Hint(
+            collapsedPresentationOf(clause.args, Option(owner)),
+            e,
+            position = HintPosition.AfterElement,
+            menu     = menu.ImplicitArguments,
+            corners  = Corners.Right
+          )
+        )
+
+    hintPrefix +: (leadingHints ++ trailingHints)
   }
 
-  private def implicitArgumentsHint(e: ImplicitArgumentsOwner, arguments: Seq[ScalaResolveResult])
+  private def implicitArgumentsHint(e: ImplicitArgumentsOwner, argClause: ImplicitArgumentsClause)
                                    (implicit scheme: EditorColorsScheme, owner: ImplicitArgumentsOwner): Seq[Hint] = {
-    val hint = Hint(presentationOf(arguments, Option(owner)), e, suffix = true, menu = menu.ImplicitArguments)
+    val arguments = argClause.args
+    val position = argClause.position match {
+      case ImplicitClausePosition.Leading  => HintPosition.BeforeArgClause
+      case ImplicitClausePosition.Trailing => HintPosition.AfterElement
+    }
+
+    val hint = Hint(
+      presentationOf(arguments, Option(owner)),
+      e,
+      position = position,
+      menu     = menu.ImplicitArguments
+    )
+
     Seq(hint)
   }
 
@@ -270,6 +313,7 @@ private object ImplicitHintsPass {
 
     implicit val scheme: EditorColorsScheme = EditorColorsManager.getInstance().getGlobalScheme
     val firstChild = args.firstChild
+
     val argListOpener = firstChild
       .filter(e => e.elementType == ScalaTokenTypes.tLPARENTHESIS)
       .orElse(
@@ -277,19 +321,29 @@ private object ImplicitHintsPass {
           .flatMap(_.firstChild)
           .filter(e => e.elementType == ScalaTokenTypes.tLBRACE || e.elementType == ScalaTokenTypes.tCOLON)
       )
+
     val isFollowedByWS = argListOpener.exists(_.nextLeaf.exists(_.isWhitespace))
+
+    val position =
+      if (argListOpener.isEmpty) HintPosition.BeforeElement
+      else                       HintPosition.AfterElement
+
     val hint = Hint(
       Seq(Text("using")),
       argListOpener.getOrElse(args),
-      suffix = argListOpener.nonEmpty,
-      menu = menu.ExplicitArguments,
-      margin = if (isFollowedByWS) None else Hint.rightInsetLikeChar(' ')
+      position = position,
+      menu     = menu.ExplicitArguments,
+      margin   = if (isFollowedByWS) None else Hint.rightInsetLikeChar(' ')
     )
     Seq(hint)
   }
 
-  private def presentationOf(arguments: Seq[ScalaResolveResult], owner: Option[ImplicitArgumentsOwner])
-                            (implicit scheme: EditorColorsScheme): Seq[Text] = {
+  private def presentationOf(
+    arguments: Seq[ScalaResolveResult],
+    owner:     Option[ImplicitArgumentsOwner]
+  )(implicit
+    scheme: EditorColorsScheme
+  ): Seq[Text] = {
 
     if (!ImplicitHints.enabled)
       collapsedPresentationOf(arguments, owner)
@@ -329,7 +383,10 @@ private object ImplicitHintsPass {
                             (implicit scheme: EditorColorsScheme): Seq[Text] = {
     val result = argument.isImplicitParameterProblem
       .option(problemPresentation(parameter = argument, owner))
-      .getOrElse(namedBasicPresentation(argument) ++ collapsedPresentationOf(argument.implicitParameters, owner))
+      .getOrElse(
+        namedBasicPresentation(argument) ++
+          argument.implicitArguments.flatMap(clause => collapsedPresentationOf(clause.args, owner))
+      )
     result
   }
 
@@ -349,7 +406,7 @@ private object ImplicitHintsPass {
                                  (implicit scheme: EditorColorsScheme): Seq[Text] = {
     probableArgumentsFor(parameter) match {
       case Seq()                                                => noApplicableExpandedPresentation(parameter, owner)
-      case Seq((arg, result)) if arg.implicitParameters.isEmpty => presentationOfProbable(arg, result, owner)
+      case Seq((arg, result)) if arg.implicitArguments.isEmpty => presentationOfProbable(arg, result, owner)
       case args                                                 => collapsedProblemPresentation(parameter, args, owner)
     }
   }
@@ -426,13 +483,12 @@ private object ImplicitHintsPass {
         namedBasicPresentation(argument)
 
       case ImplicitParameterNotFoundResult =>
-        val presentationOfParameters = argument.implicitParameters
-          .join(
-            Text("("),
-            Text(", "),
-            Text(")")
-          )(presentationOf(_, owner))
-        namedBasicPresentation(argument) ++ presentationOfParameters
+        val presentationOfArguments =
+          argument
+            .implicitArguments
+            .flatMap(clause => collapsedPresentationOf(clause.args, owner))
+
+        namedBasicPresentation(argument) ++ presentationOfArguments
 
       case DivergedImplicitResult =>
         namedBasicPresentation(argument)

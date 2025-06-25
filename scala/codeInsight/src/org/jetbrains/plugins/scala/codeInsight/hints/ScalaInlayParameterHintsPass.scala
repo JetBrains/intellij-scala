@@ -11,7 +11,7 @@ import com.intellij.psi.{PsiElement, PsiMethod}
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.ScalaLanguage.{INSTANCE => ScalaLanguage}
-import org.jetbrains.plugins.scala.annotator.hints.Hint.MenuProvider
+import org.jetbrains.plugins.scala.annotator.hints.Hint.{HintPosition, MenuProvider}
 import org.jetbrains.plugins.scala.annotator.hints.{Hint, Text}
 import org.jetbrains.plugins.scala.codeInsight.hints.ScalaInlayParameterHintsPass._
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
@@ -101,14 +101,14 @@ object ScalaInlayParameterHintsPass {
   private def argumentHints(matchedParameters: Seq[(ScExpression, Parameter)]) = matchedParameters.collect {
     case (argument, parameter) if parameter.isByName =>
       if (argument.is[ScBlockExpr])
-        Hint(Seq(Text(" () =>")), argument.getFirstChild, suffix = true)
+        Hint(Seq(Text(" () =>")), argument.getFirstChild, position = HintPosition.AfterElement)
       else
-        Hint(Seq(Text("() => ")), argument, suffix = false)
+        Hint(Seq(Text("() => ")), argument, position = HintPosition.BeforeElement)
   }
 
   private def referenceHints(e: PsiElement) = e match {
     case ResolvesTo(parameter: ScParameter) if parameter.isCallByNameParameter =>
-      Seq(Hint(Seq(Text("()")), e, suffix = true))
+      Seq(Hint(Seq(Text("()")), e, position = HintPosition.AfterElement))
     case _ =>
       Seq.empty
   }
@@ -126,8 +126,14 @@ object ScalaInlayParameterHintsPass {
       case _ => true
     }.map {
       case (argument, parameter) =>
+
         val tooltip = () => parameter.psiParam.flatMap(ScalaDocQuickInfoGenerator.getQuickNavigateInfo(_, argument))
-        Hint(Seq(Text(parameter.name, tooltip = tooltip, navigatable = parameter.psiParam), Text(s" ${ScalaTokenTypes.tASSIGN} ")), argument, suffix = false, menu = menu)
+        Hint(
+          Seq(Text(parameter.name, tooltip = tooltip, navigatable = parameter.psiParam), Text(s" ${ScalaTokenTypes.tASSIGN} ")),
+          argument,
+          position = HintPosition.BeforeElement,
+          menu     = menu
+        )
     }
   }
 
