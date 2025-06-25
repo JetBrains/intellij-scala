@@ -2,18 +2,21 @@ package org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
-import org.jetbrains.plugins.scala.lang.psi.types.{LeafType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
 
 import scala.language.implicitConversions
 
-private abstract class DepMethodParamSubstitution extends LeafSubstitution {
+private abstract class DepMethodParamSubstitution extends SimpleUpdate {
 
   def substitutedType(parameter: ScParameter): Option[ScType]
 
-  override protected val subst: PartialFunction[LeafType, ScType] = {
-    case d @ ScDesignatorType(p: ScParameter) => substitutedType(p).getOrElse(d)
+  override def apply(tpe: ScType): AfterUpdate = tpe match {
+    case proj @ ScProjectionType(_, p: ScParameter) => ReplaceWith(substitutedType(p).getOrElse(proj))
+    case d @ ScDesignatorType(p: ScParameter)       => ReplaceWith(substitutedType(p).getOrElse(d))
+    case _                                          => ProcessSubtypes
   }
 }
 
