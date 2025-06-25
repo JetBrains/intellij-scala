@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.lang.psi.impl.expr
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiNamedElementExt, PsiTypeExt}
-import org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil.{Lambda, LambdaSymbolic}
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
@@ -615,7 +614,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
   ): Option[ParameterType] = {
     implicit val context: Context = Context(expr)
 
-    def fromMethodTypeParams(
+    def fromMethodParams(
       params: Seq[Parameter],
       subst:  ScSubstitutor = ScSubstitutor.empty
     ): Option[ParameterType] = {
@@ -649,7 +648,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
         c.resolveApplyOrUpdateMethod(
           c,
           internalType,
-          shapesOnly = true,
+          shapesOnly    = true,
           stripTypeArgs = stripTypeArgs,
           withImplicits = true
         )
@@ -669,15 +668,29 @@ class ExpectedTypesImpl extends ExpectedTypes {
       }
     }
 
+    val isExplicitUsingArgs = Compatibility.isExplicitUsingArgClause(argExprs)
+
+    @tailrec
+    def extractParamsFromMethodType(tpe: ScType): Seq[Parameter] = tpe match {
+      case ScMethodType(retType, params, isImplicit) =>
+        if (isImplicit && !isExplicitUsingArgs) extractParamsFromMethodType(retType)
+        else                                    params
+      case _ => Seq.empty
+    }
+
     invokedExprType match {
-      case Right(ScMethodType(_, params, _)) => fromMethodTypeParams(params)
-      case Right(t @ ScTypePolymorphicType(ScMethodType(_, params, _), _)) =>
+      case Right(mt: ScMethodType) => fromMethodParams(extractParamsFromMethodType(mt))
+      case Right(t @ ScTypePolymorphicType(mt: ScMethodType, _)) =>
         val callPt = call.flatMap(_.expectedType()).getOrElse(Any(expr))
+
         val unwrappedPt = callPt match {
           case ContextFunctionType(ret, _) => ret
           case _                           => callPt
         }
-        fromMethodTypeParams(params, t.argsProtoTypeSubst(unwrappedPt))
+
+        val params = extractParamsFromMethodType(mt)
+
+        fromMethodParams(params, t.argsProtoTypeSubst(unwrappedPt))
       case Right(anotherType) if !forApply =>
         tryApplyMethod(anotherType) match {
           case Some((applyInvokedType, isApplyDynamicNamed)) =>
@@ -695,7 +708,12 @@ class ExpectedTypesImpl extends ExpectedTypes {
     }
   }
 
-  private def paramTypeFromExpr(expr: ScExpression, params: Seq[Parameter], idx: Int, isDynamicNamed: Boolean): Option[ParameterType] = {
+  private def paramTypeFromExpr(
+    expr:           ScExpression,
+    params:         Seq[Parameter],
+    idx:            Int,
+    isDynamicNamed: Boolean
+  ): Option[ParameterType] = {
     import expr.elementScope
 
     def findByIdx(params: Seq[Parameter]): ParameterType = {

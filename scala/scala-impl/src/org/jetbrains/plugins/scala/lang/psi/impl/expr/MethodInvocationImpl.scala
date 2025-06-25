@@ -46,9 +46,9 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
   }
 
   override protected def matchedParametersInner: Seq[(Parameter, ScExpression, ScType)] = innerTypeExt match {
-    case RegularCase(_, _, _, matched) => matched
+    case RegularCase(_, _, _, matched)                      => matched
     case SyntheticCase(RegularCase(_, _, _, matched), _, _) => matched
-    case _ => Seq.empty
+    case _                                                  => Seq.empty
   }
 
   override final def getImplicitFunction: Option[ScalaResolveResult] =
@@ -88,12 +88,63 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
 
   //this method works for ScInfixExpression and ScMethodCall
   private def tryToGetInnerTypeExt(implicit useExpectedType: Boolean): InvocationData = {
-    def updateImplicitArguments(regularCase: RegularCase, srr: Option[ScalaResolveResult]) = {
-      val RegularCase(inferredType, target, problems, matched) = regularCase
-      val (newType, arguments) = this.updatedWithImplicitArguments(inferredType, useExpectedType)
-      setImplicitArguments(arguments)
-      val actualType = srr.fold(newType)(widenEnumCaseCopyOrApplyMethod(newType, _))
-      RegularCase(actualType, target, problems, matched)
+    lazy val isFirstClauseApplication: Boolean = !getEffectiveInvokedExpr.is[MethodInvocation]
+
+    /**
+     * Implicit in a narrow sense, using does not cut it.
+     */
+    @tailrec
+    def implicitArgumentExpected(tpe: ScType): Boolean = tpe match {
+      case tpt: ScTypePolymorphicType => implicitArgumentExpected(tpt.internalType)
+      case mt: ScMethodType           => mt.hasImplicitKW
+      case _                          => false
+    }
+
+    def updateTypeWithImplicitArgs(
+      tpe:     ScType,
+      srr:     Option[ScalaResolveResult],
+      argKind: ImplicitClausePosition
+    ): (ScType, Seq[ImplicitArgumentsClause]) = {
+
+      val shouldUpdate = argKind match {
+        case ImplicitClausePosition.Leading =>
+          val isExplicit =
+            Compatibility.isExplicitUsingArgClause(argumentExpressions) ||
+              // arguments to old style `implicit` clauses don't have to be prefixed with `using` keyword
+              srr.exists(_.functionParamClauses.headOption.exists(_.hasImplicitKeyword))
+
+          isFirstClauseApplication && !isExplicit
+        case ImplicitClausePosition.Trailing =>
+          val methodInvocationContext = getContext.asOptionOf[MethodInvocation]
+
+          val isExplicit = methodInvocationContext match {
+            case Some(context) =>
+              val args = context.argumentExpressions
+              //2 cases:
+              //next parameter clause is marked `using` + explicit `using` arg. clause
+              //next parameter clause is marked `implicit` + any arg. clause
+              Compatibility.isExplicitUsingArgClause(args) ||
+                implicitArgumentExpected(tpe)
+            case _ => false
+          }
+
+          !isExplicit
+      }
+
+      if (shouldUpdate) {
+        val isLeadingClause = argKind == ImplicitClausePosition.Leading
+
+        val (newType, arguments) =
+          this.updatedWithImplicitArguments(
+            tpe,
+            useExpectedType,
+            updateDeep      = false,
+            isLeadingClause = isLeadingClause
+          )
+
+        val actualType = srr.fold(newType)(widenEnumCaseCopyOrApplyMethod(newType, _))
+        (actualType, arguments)
+      } else (tpe, Seq.empty)
     }
 
     def updateType(`type`: ScType, canThrowSCE: Boolean = false): ScType =
@@ -110,8 +161,23 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
           case _                          => None
         }
 
-        checkApplication(nonValueType, invokedResolveResult) match {
-          case Some(regularCase) => updateImplicitArguments(regularCase, invokedResolveResult)
+        val (withoutLeadingImplicitClauses, leadingImplicits) =
+          updateTypeWithImplicitArgs(
+            nonValueType,
+            invokedResolveResult,
+            ImplicitClausePosition.Leading
+          )
+
+        checkApplication(withoutLeadingImplicitClauses, invokedResolveResult) match {
+          case Some(regularCase) =>
+            val (updatedType, trailingImplicits) = updateTypeWithImplicitArgs(
+              regularCase.inferredType,
+              invokedResolveResult,
+              ImplicitClausePosition.Trailing
+            )
+
+            this.setImplicitArguments(leadingImplicits ++ trailingImplicits)
+            regularCase.copy(inferredType = updatedType)
           case _ =>
             val stripTypeArgs =
               getEffectiveInvokedExpr match {
@@ -126,7 +192,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
 
             val applyOrUpdateCands = this.resolveApplyOrUpdateMethod(
               this,
-              nonValueType,
+              withoutLeadingImplicitClauses,
               shapesOnly    = false,
               stripTypeArgs = stripTypeArgs,
               withImplicits = true
@@ -135,15 +201,31 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
             applyOrUpdateCands match {
               case Array(srr) =>
                 val processedType = this.updateGenericType(nonValueType, srr).updateTypeOfDynamicCall(srr.isDynamic)
-                val updatedProcessedType = updateType(processedType)
 
-                val maybeRegularCase = checkApplication(updatedProcessedType, srr.toOption)
+                val (withoutLeadingImplicitClauses, leadingImplicitsApply) =
+                  updateTypeWithImplicitArgs(processedType, srr.toOption, ImplicitClausePosition.Leading)
+
+                val updatedProcessedType  = updateType(withoutLeadingImplicitClauses)
+                val maybeRegularCase      = checkApplication(updatedProcessedType, srr.toOption)
+
                 val regularCase = maybeRegularCase.getOrElse {
                   RegularCase(updatedProcessedType, srr.toOption, Seq(DoesNotTakeParameters))
                 }
 
+                val withUpdatedType = {
+                  val (updatedWithImplicits, trailingImplicitsApply) =
+                    updateTypeWithImplicitArgs(
+                      regularCase.inferredType,
+                      srr.toOption,
+                      ImplicitClausePosition.Trailing
+                    )
+
+                  this.setImplicitArguments(leadingImplicits ++ leadingImplicitsApply ++ trailingImplicitsApply)
+                  regularCase.copy(inferredType = updatedWithImplicits)
+                }
+
                 SyntheticCase(
-                  updateImplicitArguments(regularCase, invokedResolveResult),
+                  withUpdatedType,
                   srr,
                   maybeRegularCase.isDefined
                 )
@@ -228,9 +310,12 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
       case _ => tpe
     }
 
-  private def checkApplication(invokedNonValueType: ScType,
-                               maybeResolveResult: Option[ScalaResolveResult])
-                              (implicit useExpectedType: Boolean): Option[RegularCase] = {
+  private def checkApplication(
+    invokedNonValueType: ScType,
+    maybeResolveResult:  Option[ScalaResolveResult]
+  )(implicit
+    useExpectedType: Boolean
+  ): Option[RegularCase] = {
     val fromMacroExpansion =
       maybeResolveResult
         .flatMap(res => this.checkMacro(res).orElse(this.checkMacroExpansion(res)))
@@ -242,8 +327,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
       rr =>
         val e = rr.element
 
-        def isFun = e.isInstanceOf[ScFun] || e.is[ScFunction]
-
+        def isFun             = e.isInstanceOf[ScFun] || e.is[ScFunction]
         def isPostfixOrPrefix = isInstanceOf[ScPrefixExpr] || isInstanceOf[ScPostfixExpr]
 
         isFun && isPostfixOrPrefix
