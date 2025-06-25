@@ -1589,7 +1589,7 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_i17227(): Unit = doTest("i17227", true)
   def test_i17230_min1(): Unit = doTest("i17230.min1", true)
   def test_i17230_orig(): Unit = doTest("i17230.orig", true)
-  def test_i17245(): Unit = doTest("i17245", false)
+  def test_i17245(): Unit = doTest("i17245", true)
   def test_i17255(): Unit = doTest("i17255", true)
   def test_i17314(): Unit = doTest("i17314", true) // #givenImport, #derives
   def test_i17314a(): Unit = doTest("i17314a", true) // #givenImport
