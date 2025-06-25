@@ -130,4 +130,56 @@ class ImplicitConversionsScala3ResolveTest extends ScalaLightCodeInsightFixtureT
       |    vec.foo4
       |""".stripMargin
   )
+
+  def testSimpleLeadingUsingClause(): Unit = checkTextHasNoErrors(
+    """
+      |object A {
+      |  trait X
+      |  given X = ???
+      |  given X => Conversion[Int, String] = ???
+      |  val s: String = 123
+      |
+      |  trait Foo
+      |  implicit def int2Foo(using X)(i: Int): Foo = ???
+      |  val f: Foo = 123
+      |}
+      |""".stripMargin
+  )
+
+  def testLeadingUsingDependentSubst(): Unit = checkTextHasNoErrors(
+    """
+      |object A {
+      |  trait Foo { type X }
+      |  given Foo { type X = Int }
+      |  given Int = 123
+      |  implicit def int22s(using f: Foo)(i: f.X)(using f.X): String = ???
+      |  val x: String = 123
+      |}
+      |""".stripMargin
+  )
+
+  def testLeadingUsingTypeParamSubst(): Unit = checkTextHasNoErrors(
+    """
+      |object A {
+      |trait Bar[A]
+      |  given bb: Bar[Int] = ???
+      |  given Int = 123
+      |  implicit def int2s[A](using Bar[A])(i: A)(using A): String = ???
+      |  val s: String = 123
+      |}
+      |""".stripMargin
+  )
+
+  def testInterleavedUsingClause(): Unit = checkTextHasNoErrors(
+    """
+      |object A {
+      |  trait F2
+      |  trait B2[A]
+      |  given F2 = new F2 {}
+      |  given B2[String] = ???
+      |  implicit def int2s[A](using F2)(i: Int)(using B2[A]): A = ???
+      |  val s: String = 1
+      |}
+      |""".stripMargin
+  )
 }

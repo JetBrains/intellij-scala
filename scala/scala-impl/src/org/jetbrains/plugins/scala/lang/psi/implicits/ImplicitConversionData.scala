@@ -80,15 +80,17 @@ abstract class ImplicitConversionData {
 
     val resolveResult = new ScalaResolveResult(function, ScSubstitutor.empty)
     val collector     = new ImplicitCollector(implicitState)
-    val compatible    = collector.checkFunctionByType(resolveResult, withLocalTypeInference = true, checkFast = false)
+    val compatible    = collector.checkFunctionTypeConformance(resolveResult, withLocalTypeInference = true, checkFast = false)
 
     for {
       srr            <- compatible
-      conversionType <- srr.implicitParameterType
+      conversionType <- srr.implicitResultType
       resultType     <- resultType(conversionType)
-    } yield {
-      ImplicitConversionApplication(resultType, srr.implicitParameters)
-    }
+    } yield
+      ImplicitConversionApplication(
+        resultType,
+        srr.implicitArguments
+      )
   }
 
   @tailrec
