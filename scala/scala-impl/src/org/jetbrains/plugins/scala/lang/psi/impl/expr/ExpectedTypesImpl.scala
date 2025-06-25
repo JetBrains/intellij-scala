@@ -672,9 +672,9 @@ class ExpectedTypesImpl extends ExpectedTypes {
 
     @tailrec
     def extractParamsFromMethodType(tpe: ScType): Seq[Parameter] = tpe match {
-      case ScMethodType(retType, params, isImplicit) =>
-        if (isImplicit && !isExplicitUsingArgs) extractParamsFromMethodType(retType)
-        else                                    params
+      case mt @ ScMethodType(retType, params, _) =>
+        if (mt.hasUsingKW && !isExplicitUsingArgs) extractParamsFromMethodType(retType)
+        else                                       params
       case _ => Seq.empty
     }
 

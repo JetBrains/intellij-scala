@@ -6,7 +6,7 @@ import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{MethodValue, isAnonymousExpression}
-import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
+import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.{ImplicitArgumentsClause, SafeCheckException}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes.ParameterType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
@@ -167,7 +167,6 @@ trait ScExpression extends ScBlockStatement
         else
           this.getTypeWithoutImplicits(ignoreBaseTypes, fromUnderscore)
 
-
       val result = {
         val expected = expectedOption.orElse(this.expectedType(fromUnderscore = fromUnderscore))
 
@@ -176,7 +175,6 @@ trait ScExpression extends ScBlockStatement
             if !tp.conforms(expType) =>
             //do not try implicit conversions for shape check or already correct type
 
-            // isSAMEnabled is checked in tryAdaptTypeToSAM, but we can cut it right here
             val adapted =
               if (this.isSAMEnabled) this.tryAdaptTypeToSAM(tp, expType, fromUnderscore, checkImplicits = checkImplicits)
               else                   None
@@ -199,7 +197,7 @@ trait ScExpression extends ScBlockStatement
 object ScExpression {
   final case class ExpressionTypeResult(
     tr:                 TypeResult,
-    importsUsed:        Set[ImportUsed] = Set.empty,
+    importsUsed:        Set[ImportUsed]            = Set.empty,
     implicitConversion: Option[ScalaResolveResult] = None
   ) {
     def implicitFunction: Option[PsiNamedElement] = implicitConversion.map(_.element)
@@ -213,11 +211,11 @@ object ScExpression {
     private implicit def elementScope: ElementScope = expr.elementScope
     private implicit def context: Context = Context(expr)
 
-    def contextFunctionParameters: Seq[Seq[LightContextFunctionParameter]] =
+    def contextFunctionParameters(pt: Option[ScType] = None): Seq[Seq[LightContextFunctionParameter]] =
       expr match {
         case fun: ScFunctionExpr if fun.isContext => Seq.empty
         case _ =>
-          expectedType(fromUnderscore = false).toSeq.flatMap {
+          pt.orElse(expectedType(fromUnderscore = false)).toSeq.flatMap {
             case p: ParameterizedType => p.contextParameters
             case _                    => Seq.empty
           }
@@ -290,8 +288,7 @@ object ScExpression {
                   )
                   .tr
                   .getOrAny,
-                params,
-                isImplicit = false
+                params
               )
 
             Right(methType)
@@ -366,15 +363,18 @@ object ScExpression {
               else if (expr.getContext.is[ScArgumentExprList]) inferValueTypeRetractingNothing(tpe)
               else                                             tpe.inferValueType
 
+
+            val withExpected =
+              widened
+                .dropMethodTypeEmptyParams(expr, expectedType)
+                .updateWithExpected(expr, maybeSAMpt.orElse(expectedType), fromUnderscore)
+
             val valueType =
-              inferValueType(
-                widened
-                  .dropMethodTypeEmptyParams(expr, expectedType)
-                  .updateWithExpected(expr, maybeSAMpt.orElse(expectedType), fromUnderscore)
-              ).synthesizeContextFunctionType(expectedType, expr)
-               .unpackedType
-               .synthesizePartialFunctionType(expr, expectedType)
-               .untupleFunction(expr, expectedType)
+              inferValueType(withExpected)
+                .synthesizeContextFunctionType(expectedType, expr)
+                .unpackedType
+                .synthesizePartialFunctionType(expr, expectedType)
+                .untupleFunction(expr, expectedType)
 
             if (ignoreBaseType) Right(valueType)
             else
@@ -388,23 +388,43 @@ object ScExpression {
     }
 
     //has side effect!
-    private[ScExpression] def updateWithImplicitParameters(tpe: ScType, checkExpectedType: Boolean, fromUnderscore: Boolean): ScType = {
-      val (newType, params) = updatedWithImplicitArguments(tpe, checkExpectedType)
+    private[ScExpression] def updateWithImplicitParameters(
+      tpe:               ScType,
+      checkExpectedType: Boolean,
+      fromUnderscore:    Boolean,
+      pt:                Option[ScType]
+    ): ScType = {
+      val updateDeep                 = pt.exists(FunctionType.isFunctionType) || expr.is[ScUnderscoreSection]
+      val (newType, implicitClauses) = updatedWithImplicitArguments(tpe, checkExpectedType, updateDeep = updateDeep)
 
       if (ScUnderScoreSectionUtil.isUnderscoreFunction(expr) == fromUnderscore) {
-        expr.setImplicitArguments(params)
+        expr.setImplicitArguments(implicitClauses)
       }
 
       newType
     }
 
-    def updatedWithImplicitArguments(tpe: ScType, checkExpectedType: Boolean): (ScType, Option[Seq[ScalaResolveResult]]) = {
-      val checkImplicitParameters = ScalaPsiUtil.withEtaExpansion(expr)
-      if (checkImplicitParameters) {
-        val (updatedType, implicits, _) =
-          InferUtil.updateTypeWithImplicitParameters(tpe, expr, None, checkExpectedType, fullInfo = false)
+    def updatedWithImplicitArguments(
+      tpe:               ScType,
+      checkExpectedType: Boolean,
+      updateDeep:        Boolean,
+      isLeadingClause:   Boolean = false
+    ): (ScType, Seq[ImplicitArgumentsClause]) =  {
+      val shouldUpdate = expr.is[MethodInvocation] || ScalaPsiUtil.isEtaExpandedExpression(expr)
+
+      if (shouldUpdate) {
+        val (updatedType, implicits) =
+          InferUtil.updateTypeWithImplicitParameters(
+            tpe,
+            expr,
+            None,
+            canThrowSCE     = checkExpectedType,
+            fullInfo        = false,
+            updateDeep      = updateDeep,
+            isLeadingClause = isLeadingClause
+          )
         (updatedType, implicits)
-      } else (tpe, None)
+      } else (tpe, Seq.empty)
     }
 
     def implicitConversions(fromUnderscore: Boolean = false): Seq[PsiNamedElement] = {
@@ -429,6 +449,7 @@ object ScExpression {
   private def shouldUpdateImplicitParams(expr: ScExpression): Boolean = {
     //true if it wasn't updated in MethodInvocation method
     expr match {
+      case _: ScLiteral                       => false
       case _: ScPrefixExpr                    => true
       case _: ScPostfixExpr                   => true
       case _: ScPolyFunctionExpr              => false
@@ -478,10 +499,15 @@ object ScExpression {
                 }
               })
 
-              val actualParamTypes = expr.contextFunctionParameters.map(_.map(_.contextFunctionParameterType.getOrAny))
-              actualParamTypes.foldRight(scType) {
+              val actualParamTypes =
+                expr
+                  .contextFunctionParameters(pt)
+                  .map(_.map(_.contextFunctionParameterType.getOrAny))
+
+              val res = actualParamTypes.foldRight(scType) {
                 case (params, acc) => ContextFunctionType(acc, params)
               }
+              res
             case _ => scType
           }
     }
@@ -613,11 +639,17 @@ object ScExpression {
           expr.updateWithImplicitParameters(
             updatedWithExpected,
             checkExpectedType = true,
-            fromUnderscore
+            fromUnderscore    = fromUnderscore,
+            pt                = expectedType
           )
         } catch {
           case _: SafeCheckException =>
-            expr.updateWithImplicitParameters(scType, checkExpectedType = false, fromUnderscore)
+            expr.updateWithImplicitParameters(
+              scType,
+              checkExpectedType = false,
+              fromUnderscore    = fromUnderscore,
+              pt                = expectedType
+            )
         }
       } else scType
     }

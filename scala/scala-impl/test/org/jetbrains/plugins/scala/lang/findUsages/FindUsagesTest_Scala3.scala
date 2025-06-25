@@ -163,7 +163,7 @@ class FindUsagesTest_Scala3 extends FindUsagesTest_Scala2 {
          |object Test {
          |  def foo()(using ${CARET}x: Int) = {
          |    ${start}foo()$end
-         |    foo()(${start}x$end)
+         |    foo()(using ${start}x$end)
          |  }
          |}
          |""".stripMargin

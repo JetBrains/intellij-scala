@@ -186,9 +186,8 @@ object MethodTypeProvider {
     override def typeParameters: Seq[PsiTypeParameter] = element.containingClass.typeParameters
 
     override def methodType(returnType: Option[ScType]): ScType = {
-      val parameters = element.parameterList
-      val retType    = returnType.getOrElse(containingClassType)
-      val clauses    = parameters.clauses
+      val retType = returnType.getOrElse(containingClassType)
+      val clauses = element.effectiveParameterClauses
       constructMethodType(retType, clauses)
     }
 

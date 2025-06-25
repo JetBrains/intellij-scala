@@ -105,19 +105,25 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
       srr:     Option[ScalaResolveResult],
       argKind: ImplicitClausePosition
     ): (ScType, Seq[ImplicitArgumentsClause]) = {
+      @tailrec
+      def methodInvocationContext(e: PsiElement): Option[ScMethodCall] = e.getContext match {
+        case inv: ScMethodCall           => Option(inv)
+        case parens: ScParenthesisedExpr => methodInvocationContext(parens)
+        case _                           => None
+      }
+
+      val context = methodInvocationContext(this)
 
       val shouldUpdate = argKind match {
         case ImplicitClausePosition.Leading =>
           val isExplicit =
             Compatibility.isExplicitUsingArgClause(argumentExpressions) ||
+              implicitArgumentExpected(tpe)
               // arguments to old style `implicit` clauses don't have to be prefixed with `using` keyword
-              srr.exists(_.functionParamClauses.headOption.exists(_.hasImplicitKeyword))
 
           isFirstClauseApplication && !isExplicit
         case ImplicitClausePosition.Trailing =>
-          val methodInvocationContext = getContext.asOptionOf[MethodInvocation]
-
-          val isExplicit = methodInvocationContext match {
+          val isExplicit = context match {
             case Some(context) =>
               val args = context.argumentExpressions
               //2 cases:
@@ -134,15 +140,23 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
       if (shouldUpdate) {
         val isLeadingClause = argKind == ImplicitClausePosition.Leading
 
+        val updateDeep =
+          context.isEmpty &&
+            !isLeadingClause &&
+            this.expectedType().exists(FunctionType.isFunctionType)
+
         val (newType, arguments) =
           this.updatedWithImplicitArguments(
             tpe,
             useExpectedType,
-            updateDeep      = false,
+            updateDeep      = updateDeep,
             isLeadingClause = isLeadingClause
           )
 
-        val actualType = srr.fold(newType)(widenEnumCaseCopyOrApplyMethod(newType, _))
+        val actualType =
+          if (!isLeadingClause) srr.fold(newType)(widenEnumCaseCopyOrApplyMethod(newType, _))
+          else                  newType
+
         (actualType, arguments)
       } else (tpe, Seq.empty)
     }

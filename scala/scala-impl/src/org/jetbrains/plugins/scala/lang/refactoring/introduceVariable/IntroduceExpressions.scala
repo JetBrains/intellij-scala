@@ -136,7 +136,7 @@ trait IntroduceExpressions {
         val pointer: SmartPsiElementPointer[PsiElement] =
           runRefactoringInside(occurrences, expression, options, fromDialogMode = false)
 
-        //if a name is enforced in tests, place it it the beginning of the list and it will be selected automatically
+        //if a name is enforced in tests, place it the beginning of the list and it will be selected automatically
         val nameEnforcedInTests = testReplaceOptions.flatMap(_.definitionName)
         val namesUpdated = nameEnforcedInTests.toSeq ++ names
         performInplaceRefactoring(pointer.getElement, types.headOption, replaceAll, forceInferType(expression), namesUpdated)

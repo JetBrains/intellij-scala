@@ -11,26 +11,24 @@ import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithR
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.MacroDef
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
-import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
-import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScSuperReference, ScThisReference, ScUnderScoreSectionUtil}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScSuperReference, ScThisReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, ScalaElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSimpleTypeElementImpl._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
-import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types.Signature.ExportedSigInfo
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, Nothing, TypeParameter, TypeParameterType, UndefinedType}
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, TypeParameter, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 
 class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScSimpleTypeElement {
@@ -51,273 +49,64 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
     }
 
   private def innerNonValueType(
-    inferValueType: Boolean,
-    noConstructor: Boolean = false,
+    inferValueType:                 Boolean,
+    noConstructor:                  Boolean = false,
     withUnnecessaryImplicitsUpdate: Boolean = false
   ): TypeResult = {
     ProgressManager.checkCanceled()
 
-    def parametrise(tp: ScType, clazz: PsiTypeParameterListOwner): ScType =
-      if (clazz.getTypeParameters.isEmpty) tp
-      else
-        ScParameterizedType(tp, clazz.getTypeParameters.map(TypeParameterType(_)).toSeq)
+    def resolveConstructorWithLocalTypeInference(constrRef: ScStableCodeReference): TypeResult = {
+      val bindResult = constrRef.bind()
 
-    // SCL-21176
-    def parametrise1(tp: ScType, ta: ScTypeAliasDefinition): ScType =
-      if (ta.typeParameters.isEmpty) tp
-      else
-        ScParameterizedType(tp, ta.typeParameters.map(TypeParameterType(_)))
-
-    def getConstructorParams(constr: PsiMethod, subst: ScSubstitutor): (Seq[Seq[Parameter]], Boolean) =
-      constr match {
-        case ScalaConstructor(c) =>
-          val clauses = c.effectiveParameterClauses
-          (clauses.map(_.effectiveParameters.map { p =>
-            val paramType   = subst(p.`type`().getOrAny)
-            val defaultType = p.getDefaultExpression.flatMap(_.`type`().toOption).map(subst)
-
-            new Parameter(
-              p.name,
-              p.deprecatedName,
-              paramType,
-              paramType,
-              p.isDefaultParam,
-              p.isRepeatedParameter,
-              p.isCallByNameParameter,
-              p.index,
-              Option(p),
-              defaultType
-            )
-          }), clauses.lastOption.exists(_.isImplicit))
-        case JavaConstructor(c) =>
-          (Seq(c.parameters.map { p =>
-            Parameter(p.paramType(), isRepeated = p.isVarArgs, index = p.index)
-          }), false)
-      }
-
-    def updateImplicits(tp: ScType, withExpected: Boolean, params: Seq[Seq[Parameter]], lastImplicit: Boolean): ScType = {
-      val (innerRes, implicitParams) =
-        if (lastImplicit) {
-          //Let's add implicit parameters
-          val newTp = tp match {
-            case ScTypePolymorphicType(i, p) =>
-              ScTypePolymorphicType(ScMethodType(i, params.last, isImplicit = true), p)
-            case _ => ScMethodType(tp, params.last, isImplicit = true)
+      val result = bindResult match {
+        case Some(r @ ScalaResolveResult(method: PsiMethod, _: ScSubstitutor)) if !noConstructor =>
+          typeForConstructor(method, r)
+        case Some(ScalaResolveResult(ta: ScTypeAlias, _: ScSubstitutor)) if ta.isExistentialTypeAlias =>
+          Right(ScExistentialArgument(ta))
+        case Some(srr) =>
+          getContext match {
+            case parameterized: ScParameterizedTypeElement if constrRef.isConstructorReference && !noConstructor =>
+              if (!srr.element.isInstanceOf[ScTypeAliasDeclaration]) {
+                Right(updateForParameterized(constrRef, srr.substitutor, srr.element, parameterized))
+              } else calculateReferenceType(constrRef)
+            case _ => calculateReferenceType(constrRef)
           }
-          val (updatedTp, implicits, _) =
-            InferUtil.updateTypeWithImplicitParameters(newTp, this, None, withExpected, fullInfo = false)
-
-          (updatedTp, implicits)
-        } else {
-          (tp, None)
-        }
-      findConstructorInvocation foreach {
-        invoc =>
-          invoc.setImplicitArguments(if (invoc.arguments.length < params.length) implicitParams else None)
+        case _ => calculateReferenceType(constrRef)
       }
-      innerRes
+
+      result
     }
 
     def typeForConstructor(
-      ref:           ScStableCodeReference,
       constr:        PsiMethod,
-      _subst:         ScSubstitutor,
-      parentElement: PsiNamedElement
-    ): ScType = {
-      val clazz = constr.containingClass
-
-      val (constrTypeParameters, constrSubst) = parentElement match {
-        case _: ScTypeAliasDefinition if !ScalaApplicationSettings.PRECISE_TEXT => (Seq.empty, ScSubstitutor.empty)
-        case owner: ScTypeParametersOwner if owner.typeParameters.nonEmpty =>
-          constr match {
-            case ScalaConstructor(c) =>
-              val params = c.getConstructorTypeParameters
-              val subst  = ScSubstitutor.bind(owner.typeParameters, params)(TypeParameterType(_))
-              (params, subst)
-            case JavaConstructor(cons) => (cons.getTypeParameters.toSeq, ScSubstitutor.empty)
-            case _                     => (Seq.empty, ScSubstitutor.empty)
-          }
-        case _ => (Seq.empty, ScSubstitutor.empty)
-      }
-
-      val subst = _subst followed constrSubst
-
-      val tp = parentElement match {
-        case ta: ScTypeAliasDefinition if !ta.isEffectivelyOpaque =>
-          if (ScalaApplicationSettings.PRECISE_TEXT) parametrise1(calculateReferenceType(ref).getOrElse(return Nothing), ta)
-          else ta.aliasedType.getOrElse(return Nothing)
-        case _ => parametrise(calculateReferenceType(ref).getOrElse(return Nothing), clazz)
-      }
-
-      val res                    = subst(tp)
-      val (params, lastImplicit) = getConstructorParams(constr, subst)
-
-      val typeParameters: Seq[TypeParameter] = parentElement match {
-        case _: ScTypeParametersOwner if constrTypeParameters.nonEmpty =>
-          constrTypeParameters.map(TypeParameter(_))
-        case tp: ScTypeParametersOwner if tp.typeParameters.nonEmpty =>
-          tp.typeParameters.map(TypeParameter(_))
-        case ptp: PsiTypeParameterListOwner if ptp.getTypeParameters.nonEmpty =>
-          (ptp.getTypeParameters.toSeq ++ constrTypeParameters).map(TypeParameter(_))
-        case _ =>
-          updateImplicits(tp, withExpected = false, params = params, lastImplicit = lastImplicit)
-          return res
-      }
-
-      getContext match {
-        case p: ScParameterizedTypeElement =>
-          val appSubst = ScSubstitutor.bind(typeParameters, p.typeArgList.typeArgs)(_.calcType)
-          val newRes = appSubst(res)
-          updateImplicits(newRes, withExpected = false, params = params, lastImplicit = lastImplicit)
-          return newRes
-        case _ =>
-      }
-
+      srr:           ScalaResolveResult
+    ): TypeResult = {
       findConstructorInvocation match {
         case Some(constrInvocation) =>
-          def updateWithClause(nonValueType: ScTypePolymorphicType, clauseIdx: Int, canThrowSCE: Boolean) = {
-            InferUtil.localTypeInference(
-              nonValueType.internalType,
-              params(clauseIdx),
-              constrInvocation.arguments(clauseIdx).exprs,
-              nonValueType.typeParameters,
-              canThrowSCE = canThrowSCE,
-              filterTypeParams = false)
-          }
+          val (tpe, _, implicitArgs) =
+            Compatibility.checkConstructorApplicability(
+              constrInvocation,
+              constr,
+              srr,
+              inferValueType
+            )
 
-          def withoutLastClause(): ScTypePolymorphicType = {
-            var i = 0
-            var result = ScTypePolymorphicType(res, typeParameters)
-            while (i < params.length - 1 && i < constrInvocation.arguments.length - 1) {
-              result = updateWithClause(result, i, canThrowSCE = false)
-              i += 1
-            }
-            result
-          }
-
-          def lastClauseAndImplicits(previous: ScTypePolymorphicType, withExpected: Boolean): ScTypePolymorphicType = {
-            val fromExpected = constrInvocation.expectedType match {
-              case Some(expected) if withExpected =>
-                def updateRes(expected: ScType): ScTypePolymorphicType = {
-                  InferUtil.localTypeInference(previous.internalType,
-                    Seq(Parameter(expected, isRepeated = false, index = 0)),
-                    Seq(Expression(ScSubstitutor.bind(previous.typeParameters)(UndefinedType(_)).apply(res.inferValueType))),
-                    previous.typeParameters, shouldUndefineParameters = false, filterTypeParams = false) //here should work in different way:
-                }
-                val fromUnderscore = constrInvocation.newTemplate match {
-                  case Some(n) => ScUnderScoreSectionUtil.underscores(n).nonEmpty
-                  case None => false
-                }
-                if (!fromUnderscore) {
-                  updateRes(expected)
-                } else {
-                  expected match {
-                    case FunctionType(retType, _) => updateRes(retType)
-                    case _ => previous //do not update res, we haven't expected type
-                  }
-                }
-              case _ => previous
-            }
-
-            //last clause after expected types
-            val lastClauseIdx = constrInvocation.arguments.length - 1
-            val withLastClause =
-              if (lastClauseIdx >= 0 && lastClauseIdx < params.length) {
-                updateWithClause(fromExpected, lastClauseIdx, canThrowSCE = withExpected)
-              }
-              else fromExpected
-
-            if (lastImplicit && constrInvocation.arguments.length < params.length) {
-              //Let's add implicit parameters
-              updateImplicits(withLastClause, withExpected, params, lastImplicit) match {
-                case t: ScTypePolymorphicType => t
-                case _ => withLastClause
-              }
-            }
-            else withLastClause
-          }
-
-
-          //We need to update type info for generics in the following order:
-          //1. All clauses without last params clause or last arguments clause
-          //2. According to expected type
-          //3. Last argument clause
-          //4. Implicit clauses if applicable
-          //5. In case of SafeCheckException return to 3 to complete update without expected type
-
-          val withoutLast = withoutLastClause()
-
-          val nonValueType =
-            try lastClauseAndImplicits(withoutLast, withExpected = true)
-            catch {
-              case _: SafeCheckException =>
-                lastClauseAndImplicits(withoutLast, withExpected = false)
-            }
-
-          if (inferValueType) nonValueType.inferValueType
-          else                nonValueType
-        case None => res
+          constrInvocation.setImplicitArguments(implicitArgs)
+          Right(tpe)
+        case None => Failure(ScalaBundle.message("no.constructor.invocation.found"))
       }
     }
 
     reference match {
       case Some(ref) =>
-        def updateForParameterized(subst: ScSubstitutor, elem: PsiNamedElement,
-                                   p: ScParameterizedTypeElement): (ScType, ScSubstitutor) = {
-          val tp = elem match {
-            case ta: ScTypeAliasDefinition =>
-              if (ScalaApplicationSettings.PRECISE_TEXT) parametrise1(calculateReferenceType(ref).getOrElse(return (Nothing, ScSubstitutor.empty)), ta)
-              else ta.aliasedType.getOrElse(return (Nothing, ScSubstitutor.empty))
-            case clazz: PsiClass =>
-              parametrise(calculateReferenceType(ref).
-                getOrElse(return (Nothing, ScSubstitutor.empty)), clazz)
-          }
-          val res = subst(tp)
-          val typeParameters: Seq[TypeParameter] = elem match {
-            case tp: ScTypeParametersOwner if tp.typeParameters.nonEmpty =>
-              tp.typeParameters.map(TypeParameter(_))
-            case ptp: PsiTypeParameterListOwner if ptp.getTypeParameters.nonEmpty =>
-              ptp.getTypeParameters.toSeq.map(TypeParameter(_))
-            case _ => return (res, ScSubstitutor.empty)
-          }
-
-          val appSubst = ScSubstitutor.bind(typeParameters, p.typeArgList.typeArgs)(_.calcType)
-          (appSubst(res), appSubst)
-        }
-        val constrRef = ref.isConstructorReference && !noConstructor
-
-        def updateImplicitsWithoutLocalTypeInference(r: TypeResult, ss: ScSubstitutor): TypeResult = {
-          if (withUnnecessaryImplicitsUpdate) {
-            r.map {
-              tp =>
-                ref.bind() match {
-                  case Some(ScalaResolveResult(method: PsiMethod, subst: ScSubstitutor)) =>
-                    val (params, lastImplicit) = getConstructorParams(method, subst.followed(ss))
-                    updateImplicits(tp, withExpected = false, params = params, lastImplicit = lastImplicit)
-                    tp
-                  case _ => tp
-                }
-            }
-          } else r
-        }
-
-        def resolveConstructorWithLocalTypeInference(): TypeResult = {
-          val bindResult = ref.bind()
-          val result = bindResult match {
-            case Some(r @ ScalaResolveResult(method: PsiMethod, subst: ScSubstitutor)) if !noConstructor =>
-              Right(typeForConstructor(ref, method, subst, r.getActualElement))
-            case Some(ScalaResolveResult(ta: ScTypeAlias, _: ScSubstitutor)) if ta.isExistentialTypeAlias =>
-              Right(ScExistentialArgument(ta))
-            case _ =>
-              calculateReferenceType(ref, shapesOnly = false)
-          }
-          result
-        }
-
+        val isConstructorRef      = ref.isConstructorReference && !noConstructor
         val resolvedNoConstructor = ref.resolveNoConstructor
+
         if (resolvedNoConstructor.length == 1) {
           val resolvedNoConstructorHead = resolvedNoConstructor.head
           val subst                     = resolvedNoConstructorHead.matchClauseSubstitutor
+          val isScala3                  = this.isInScala3File
+          val hasNoArgs                 = findConstructorInvocation.forall(_.args.isEmpty)
 
           val typeResult =
             resolvedNoConstructorHead match {
@@ -328,39 +117,42 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
               case ScalaResolveResult(synth: ScSyntheticClass, _) =>
                 Right(synth.stdType)
               case ScalaResolveResult(to: ScTypeParametersOwner, subst: ScSubstitutor)
-                if constrRef && to.isInstanceOf[PsiNamedElement] &&
-                  (to.typeParameters.isEmpty || getContext.isInstanceOf[ScParameterizedTypeElement]) =>
-                val (tp, ss) = getContext match {
-                  case p: ScParameterizedTypeElement if !to.isInstanceOf[ScTypeAliasDeclaration] =>
-                    val (parameterized, ss) = updateForParameterized(subst, to.asInstanceOf[PsiNamedElement], p)
-                    (Right(parameterized), ss)
-                  case _ =>
-                    (calculateReferenceType(ref), ScSubstitutor.empty)
+                if isConstructorRef &&
+                  (to.typeParameters.isEmpty || getContext.isInstanceOf[ScParameterizedTypeElement]) &&
+                  (!isScala3 || hasNoArgs) && !withUnnecessaryImplicitsUpdate =>
+
+                val tp = getContext match {
+                  case p: ScParameterizedTypeElement =>
+                    val parameterized = updateForParameterized(ref, subst, to, p)
+                    Right(parameterized)
+                  case _ => calculateReferenceType(ref)
                 }
-                updateImplicitsWithoutLocalTypeInference(tp, ss)
+
+                tp
               case ScalaResolveResult(to: PsiTypeParameterListOwner, subst: ScSubstitutor)
-                if constrRef && to.isInstanceOf[PsiNamedElement] &&
-                  (to.getTypeParameters.isEmpty || getContext.isInstanceOf[ScParameterizedTypeElement]) =>
-                val (result, ss) = getContext match {
-                  case p: ScParameterizedTypeElement if !to.isInstanceOf[ScTypeAliasDeclaration] =>
-                    val (parameterized, ss) = updateForParameterized(subst, to.asInstanceOf[PsiNamedElement], p)
-                    (Right(parameterized), ss)
-                  case _ =>
-                    (calculateReferenceType(ref), ScSubstitutor.empty)
+                if isConstructorRef &&
+                  (to.getTypeParameters.isEmpty || getContext.isInstanceOf[ScParameterizedTypeElement]) &&
+                  (!isScala3 || hasNoArgs) && !withUnnecessaryImplicitsUpdate =>
+
+                val tp = getContext match {
+                  case p: ScParameterizedTypeElement =>
+                    val parameterized = updateForParameterized(ref, subst, to, p)
+                    Right(parameterized)
+                  case _ => calculateReferenceType(ref)
                 }
-                updateImplicitsWithoutLocalTypeInference(result, ss)
+
+                tp
               case ScalaResolveResult(fun: ScFunction, _)  => //SCL-19477
                 Right(fun.returnType.getOrAny)
-              case _ =>
-                resolveConstructorWithLocalTypeInference()
+              case _ => resolveConstructorWithLocalTypeInference(ref)
             }
 
           typeResult.map(subst)
-        } else resolveConstructorWithLocalTypeInference()
+        } else resolveConstructorWithLocalTypeInference(ref)
 
       case None => pathElement match {
         case ref: ScStableCodeReference => calculateReferenceType(ref)
-        case thisRef: ScThisReference => fromThisReference(thisRef, ScThisType)()
+        case thisRef: ScThisReference   => fromThisReference(thisRef, ScThisType)()
         case superRef: ScSuperReference => fromSuperReference(superRef, ScThisType)()
       }
     }
@@ -372,6 +164,51 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 }
 
 object ScSimpleTypeElementImpl {
+  private def parameterizeClassType(tp: ScType, clazz: PsiTypeParameterListOwner): ScType =
+    if (clazz.getTypeParameters.isEmpty) tp
+    else
+      ScParameterizedType(tp, clazz.getTypeParameters.map(TypeParameterType(_)).toSeq)
+
+  // SCL-21176
+  def parameterizeTypeAlias(tp: ScType, ta: ScTypeAliasDefinition): ScType =
+    if (ta.typeParameters.isEmpty) tp
+    else
+      ScParameterizedType(tp, ta.typeParameters.map(TypeParameterType(_)))
+
+  private def updateForParameterized(
+    ref:   ScStableCodeReference,
+    subst: ScSubstitutor,
+    elem:  PsiNamedElement,
+    p:     ScParameterizedTypeElement
+  )(implicit
+    ctx: ProjectContext
+  ): ScType = {
+    val tp = elem match {
+      case ta: ScTypeAliasDefinition =>
+        if (ScalaApplicationSettings.PRECISE_TEXT)
+          parameterizeTypeAlias(calculateReferenceType(ref).getOrElse(return Nothing), ta)
+        else
+          ta.aliasedType.getOrElse(return Nothing)
+      case clazz: PsiClass =>
+        parameterizeClassType(
+          calculateReferenceType(ref).getOrElse(return Nothing),
+          clazz
+        )
+    }
+
+    val res = subst(tp)
+
+    val typeParameters = elem match {
+      case tp: ScTypeParametersOwner if tp.typeParameters.nonEmpty =>
+        tp.typeParameters.map(TypeParameter(_))
+      case ptp: PsiTypeParameterListOwner if ptp.getTypeParameters.nonEmpty =>
+        ptp.getTypeParameters.toSeq.map(TypeParameter(_))
+      case _ => return res
+    }
+
+    val appSubst = ScSubstitutor.bind(typeParameters, p.typeArgList.typeArgs)(_.calcType)
+    appSubst(res)
+  }
 
   def calculateReferenceType(ref: ScStableCodeReference, shapesOnly: Boolean = false): TypeResult = {
     import ref.projectContext

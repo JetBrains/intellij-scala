@@ -74,7 +74,7 @@ class ImplicitParametersScala3Test extends ImplicitParametersTestBase {
     s"""
        |object A {
        |  case class A(x: Int, y: String)
-       |  summon[deriving.Mirror.ProductOf[A]].fromProduct(1 -> "a")
+       |  implicitly[deriving.Mirror.ProductOf[A]].fromProduct(1 -> "a")
        |}
        |""".stripMargin
   )

@@ -16,6 +16,18 @@ class VariousResolveIssuesTest extends TypeInferenceTestBase {
     """.stripMargin.trim
   }
 
+  def testSCL6482(): Unit = doTest(
+    """object SCL6482 {
+      |  class Foo[T, U <: T](u: U)
+      |  def foo[T](t: T) = new Foo(t)
+      |
+      |  private val value: Foo[Int, Int] = /*start*/foo(1)/*end*/
+      |}
+      |//SCL6482.Foo[Int, Int]
+      |""".stripMargin.trim
+  )
+
+
   def testSCL9525(): Unit = doTest(
     """
       |object SCL9525 {

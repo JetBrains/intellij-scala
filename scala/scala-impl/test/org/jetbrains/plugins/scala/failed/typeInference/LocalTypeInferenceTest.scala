@@ -11,32 +11,6 @@ class LocalTypeInferenceTest extends TypeInferenceTestBase {
 
   override def folderPath: Path = super.folderPath / "bugs5"
 
-  //SCL-6482
-  def testSCL6482(): Unit = doTest(
-    """object SCL6482 {
-      |  class Foo[T, U <: T](u: U)
-      |  def foo[T](t: T) = new Foo(t)
-      |
-      |  private val value: Foo[Int, Int] = /*start*/foo(1)/*end*/
-      |}
-      |//Foo[Int, Int]
-      |""".stripMargin.trim
-  )
-
-  def testSCL6233(): Unit = doTest {
-    """
-      |  class EnumSetTest {
-      |
-      |    object Enum extends Enumeration {
-      |      val e1, e2, e3, e4 = Value
-      |    }
-      |
-      |    def mapOfSets: Map[Enum.Value, Set[Long]] = /*start*/(Enum.values map (e ⇒ e → Set(1, 2, 4))).toMap/*end*/
-      |
-      |  }
-      |//Map[EnumSetTest.this.Enum.Value, Set[Long]]""".stripMargin
-  }
-
   def testSCL7970(): Unit = doTest(
     """
       |trait Set[-A]{

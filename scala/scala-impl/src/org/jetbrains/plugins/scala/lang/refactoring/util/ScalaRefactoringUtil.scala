@@ -39,7 +39,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, Sc
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.ScTypePresentationExt
@@ -280,24 +280,26 @@ object ScalaRefactoringUtil {
     }
   }
 
-  private def typeWithoutExpected(expression: ScExpression): ScType = {
-    def dummyFunctionText(needsParens: Boolean) =
-      s"def __dummyFunction__ = {\n ${expression.getText.parenthesize(needsParens)} \n}"
+  private def typeWithoutExpected(expression: ScExpression): ScType = expression.`type`() match {
+    case Right(tpe) if FunctionType.isFunctionType(tpe) => tpe
+    case _ =>
+      def dummyFunctionText(needsParens: Boolean) =
+        s"def __dummyFunction__ = {\n ${expression.getText.parenthesize(needsParens)} \n}"
 
-    def createFunction(needsParens: Boolean) =
-      createMethodWithContext(dummyFunctionText(needsParens), expression.getContext, expression)
-        .asInstanceOf[ScFunctionDefinition]
+      def createFunction(needsParens: Boolean) =
+        createMethodWithContext(dummyFunctionText(needsParens), expression.getContext, expression)
+          .asInstanceOf[ScFunctionDefinition]
 
-    val definitionWithoutType =
-      Option(createFunction(false))
-        // if body is not parsed correctly, try wrapping in parentheses
-        .filter(fn => fn.body.filterByType[ScBlockExpr]
-          .exists(block => !PsiTreeUtil.hasErrorElements(block) && block.statements.lengthIs == 1))
-        .getOrElse(createFunction(true))
+      val definitionWithoutType =
+        Option(createFunction(false))
+          // if body is not parsed correctly, try wrapping in parentheses
+          .filter(fn => fn.body.filterByType[ScBlockExpr]
+            .exists(block => !PsiTreeUtil.hasErrorElements(block) && block.statements.lengthIs == 1))
+          .getOrElse(createFunction(true))
 
-    Using.resource(SlowOperations.knownIssue("SCL-23056")) { _ =>
-      definitionWithoutType.`type`().getOrAny
-    }
+      Using.resource(SlowOperations.knownIssue("SCL-23056")) { _ =>
+        definitionWithoutType.`type`().getOrAny
+      }
   }
 
   private def ensureFileWritable(file: PsiFile)

@@ -17,6 +17,9 @@ trait ScMethodLike
     with PsiTypeParametersOwnerAdapter
     with ScParameterOwner.WithContextBounds {
 
+  /**
+   * See https://youtrack.jetbrains.com/issue/SCL-3095 as for why this is needed.
+   */
   private def getConstructorTypeParameterClause: Option[ScTypeParamClause] =
     cachedInUserData("getConstructorTypeParameterClause", this, BlockModificationTracker(this)) {
       ScMethodLike.this match {
