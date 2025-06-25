@@ -332,25 +332,22 @@ object ReferenceComparisonTestBase {
     }
 
     def forImplicitArguments(iao: ImplicitArgumentsOwner): Seq[RefInfo] = {
-      iao.findImplicitArguments match {
-        case Some(iargs) =>
-          iargs.zipWithIndex.flatMap { case (rr, i) =>
-            val file = iao.getContainingFile
-            val problems = rr.problems match {
-              case Seq() => None
-              case problems => Some(problems.mkString(", "))
-            }
-            Some(RefInfo(
-              s"implicit-param:$i",
-              TextPos.at(iao.endOffset, file),
-              Seq(rr),
-              file.name,
-              problems,
-              isImplicit = true
-            )(Context(iao)))
+      val file = iao.getContainingFile
+      iao.findImplicitArguments.zipWithIndex.flatMap { case (implicitArgClause, clauseIdx) =>
+        implicitArgClause.args.zipWithIndex.flatMap { case (rr, i) =>
+          val problems = rr.problems match {
+            case Seq() => None
+            case problems => Some(problems.mkString(", "))
           }
-        case None =>
-          Seq.empty
+          Some(RefInfo(
+            s"implicit-param:$clauseIdx:$i",
+            TextPos.at(iao.endOffset, file),
+            Seq(rr),
+            file.name,
+            problems,
+            isImplicit = true
+          )(Context(iao)))
+        }
       }
     }
 
