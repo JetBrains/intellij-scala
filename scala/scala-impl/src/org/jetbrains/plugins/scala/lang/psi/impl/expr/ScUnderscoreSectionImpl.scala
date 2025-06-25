@@ -23,10 +23,10 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScExpressionImplBase(node) 
           ref.getNonValueType().map {
             case ScTypePolymorphicType(internalType, typeParameters) =>
               ScTypePolymorphicType(
-                ScMethodType(internalType, Nil, isImplicit = false),
+                ScMethodType(internalType, Nil),
                 typeParameters
               )
-            case tp: ScType => ScMethodType(tp, Nil, isImplicit = false)
+            case tp: ScType => ScMethodType(tp, Nil)
           }
 
         ref.bind() match {

@@ -1,16 +1,15 @@
 package org.jetbrains.plugins.scala.lang.psi.implicits
 
 import org.jetbrains.plugins.scala.caches.measure
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.functionTypeNoImplicits
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.implicits.NonValueFunctionTypes._
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, UndefinedType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.{Compatibility, ScType}
+import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider.fromScMethodLike
 
 private case class NonValueFunctionTypes(
   fun:                 ScFunction,
@@ -34,9 +33,7 @@ private case class NonValueFunctionTypes(
 
   private def lazyMethodTypeData: Option[MethodTypeData] = {
     if (_methodTypeData == null) {
-      _methodTypeData = lazyUndefinedData.flatMap(
-        computeMethodType(fun, substitutor, exportedInExtension, _)
-      )
+      _methodTypeData = computeMethodType(fun, substitutor, exportedInExtension)
     }
     _methodTypeData
   }
@@ -47,49 +44,58 @@ private case class NonValueFunctionTypes(
 
   def methodType: Option[ScType] = lazyMethodTypeData.map(_.methodType)
 
-  def hasImplicitClause: Boolean = lazyMethodTypeData.exists(_.hasImplicitClause)
+  def hasImplicitClause: Boolean         = hasLeadingImplicitClause || hasTrailingImplicitClause
+  def hasLeadingImplicitClause: Boolean  = lazyMethodTypeData.exists(_.hasLeadingImplicitClause)
+  def hasTrailingImplicitClause: Boolean = lazyMethodTypeData.exists(_.hasTrailingImplicitClause)
 }
 
 private object NonValueFunctionTypes {
 
   private case class UndefinedReturnTypeData(undefinedType: ScType, hadDependent: Boolean)
 
-  private case class MethodTypeData(methodType: ScType, hasImplicitClause: Boolean)
+  private case class MethodTypeData(
+    methodType:                ScType,
+    hasLeadingImplicitClause:  Boolean,
+    hasTrailingImplicitClause: Boolean
+  )
 
   private def computeMethodType(
     fun:                 ScFunction,
     substitutor:         ScSubstitutor,
-    exportedInExtension: Option[ScExtension],
-    undefinedTypeData:   UndefinedReturnTypeData
+    exportedInExtension: Option[ScExtension]
   ): Option[MethodTypeData] = measure("NonValueFunctionTypes.computeMethodType") {
-    val typeParameters = fun.typeParametersWithExtension(exportedInExtension)
-    //@TODO: multiple/leading using clauses
-    val clauses =
-      exportedInExtension
-        .orElse(fun.extensionMethodOwner)
-        .fold(fun.effectiveParameterClauses)(_.effectiveParameterClauses)
-
-    val implicitClause = clauses.find(_.isImplicit)
-
-    if (typeParameters.isEmpty && implicitClause.isEmpty) {
-      None
-    } else {
-      val undefinedReturnType = undefinedTypeData.undefinedType
-
-      val methodOrReturnType = implicitClause match {
-        case None => undefinedReturnType
-        case Some(clause) =>
-          ScMethodType(undefinedReturnType, clause.getSmartParameters, isImplicit = true)(fun.elementScope)
-      }
-
-      val scType =
-        if (typeParameters.isEmpty)
-          methodOrReturnType
-        else
-          ScTypePolymorphicType(methodOrReturnType, typeParameters.map(TypeParameter(_)))
-
-      Option(MethodTypeData(substitutor(scType), implicitClause.nonEmpty))
+    def hasImplicitClause(
+      tpe:       ScType,
+      isLeading: Boolean
+    ): (Boolean, Boolean) = tpe match {
+      case ScTypePolymorphicType(inner, _)    => hasImplicitClause(inner, isLeading)
+      case ScMethodType(inner, _, isImplicit) =>
+        if (isImplicit) {
+          if (isLeading) (isLeading, hasImplicitClause(inner, isLeading)._2)
+          else           (false, true)
+        } else hasImplicitClause(inner, isLeading = false)
+      case _ => (false, false)
     }
+
+    val polyOrMethodType = fun.polymorphicType(
+      s              = substitutor,
+      extensionOwner = exportedInExtension
+    )
+
+    val hasTypeParams = polyOrMethodType.is[ScTypePolymorphicType]
+
+    val (hasLeadingImplicits, hasTrailingImplicits) =
+      hasImplicitClause(polyOrMethodType, isLeading = true)
+
+    val hasImplicits = hasLeadingImplicits || hasTrailingImplicits
+
+    Option.when(hasTypeParams || hasImplicits)(
+      MethodTypeData(
+        polyOrMethodType,
+        hasLeadingImplicitClause  = hasLeadingImplicits,
+        hasTrailingImplicitClause = hasTrailingImplicits
+      )
+    )
   }
 
   private def computeUndefinedType(
@@ -105,7 +111,7 @@ private object NonValueFunctionTypes {
         val funType            = typeFromMacro.getOrElse(_funType)
         val undefineTypeParams = ScalaPsiUtil.undefineMethodTypeParams(fun, exportedInExtension)
         val substedFunTp       = substitutor.followed(undefineTypeParams)(funType)
-        val withoutDependents  = approximateDependent(substedFunTp, fun.parameters.toSet)
+        val withoutDependents  = Compatibility.approximateDependent(substedFunTp, fun.parameters.toSet)
         val undefinedType      = withoutDependents.getOrElse(substedFunTp)
 
         Option(UndefinedReturnTypeData(undefinedType, withoutDependents.nonEmpty))
@@ -114,27 +120,5 @@ private object NonValueFunctionTypes {
     }
   }
 
-  /** Dependency on an implicit argument is like a dependency on type parameter, thus
-   * before checking implicit return type conformance we have to substitute parameter-dependent
-   * types with `UndefinedType`, otherwise compatibility check is bound to fail.
-   * We also have to verify (after we successfully found some implicit to be compatible)
-   * that result type with argument-dependent types restored does indeed conform to `tp`.
-   *
-   * @param tpe Return type of an implicit currently undergoing a compatibility check
-   * @return `tpe` with parameter-dependent types replaced with `UndefinedType`s,
-   *         and a mean of reverting this process (useful once type parameters have been inferred
-   *         and dependents need to actually be updated according to argument types)
-   */
-  private def approximateDependent(tpe: ScType, params: Set[ScParameter]): Option[ScType] = {
 
-    var hasDependents = false
-
-    val updated = tpe.updateRecursively {
-      case original@ScProjectionType(ScDesignatorType(p: ScParameter), _) if params.contains(p) =>
-        hasDependents = true
-        UndefinedType(p, original)
-    }
-
-    if (hasDependents) Some(updated) else None
-  }
 }

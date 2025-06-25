@@ -6,6 +6,7 @@ import com.intellij.util.ArrayFactory
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.ImplicitArgumentsClause
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
@@ -31,50 +32,51 @@ import scala.annotation.tailrec
 /**
  * @param parentElement          Class for constructor or object/val of `apply/unapply` methods
  * @param nameArgForDynamic      `name` argument to scala.Dynamic method invocation
+ * @param implicitArguments      If this result was resolved implicitly (i.e. this is a conversion/implicit arg.), its implicit arguments
  * @param isExtensionCall        True, iff resolved reference was an infix invocation of an extension method
  * @param extensionContext       Enclosing (relative to the place, where resolve was invoked) extension, if any
  * @param intersectedReturnType  If this result was created from an intersected signature, its return type
  * @param matchClauseSubstitutor Substitutor accumulated during upwards context traversal
  *                               of [[org.jetbrains.plugins.scala.lang.psi.api.expr.ScMatch]] expressions,
  *                               see [[https://www.scala-lang.org/files/archive/spec/2.13/08-pattern-matching.html#type-parameter-inference-in-patterns Type Inference in Patterns]]
- * @param exportedInfo           if this [[element]] was resolved through export statement,
+ * @param exportedInfo           If this [[element]] was resolved through export statement,
  *                               the owner of this statement (extension or template body) and
  *                               the type of the export statement qualifier
  * @param isExtensionFromGiven   True iff element is an extension method, which was resolved from a given instance during implicit search
  */
 class ScalaResolveResult(
   val element:                  PsiNamedElement,
-  val substitutor:              ScSubstitutor              = ScSubstitutor.empty,
-  val importsUsed:              Set[ImportUsed]            = Set.empty,
-  val renamed:                  Option[String]             = None,
-  val problems:                 Seq[ApplicabilityProblem]  = Seq.empty,
-  val implicitConversion:       Option[ScalaResolveResult] = None,
-  val implicitType:             Option[ScType]             = None,
-  val defaultParameterUsed:     Boolean                    = false,
-  val innerResolveResult:       Option[ScalaResolveResult] = None,
-  val parentElement:            Option[PsiNamedElement]    = None,
-  val isNamedParameter:         Boolean                    = false,
-  val fromType:                 Option[ScType]             = None,
-  val tuplingUsed:              Boolean                    = false,
-  val isAssignment:             Boolean                    = false,
-  val notCheckedResolveResult:  Boolean                    = false, //TODO: does not seem to be used anywhere
-  val isAccessible:             Boolean                    = true,
-  val resultUndef:              Option[ConstraintSystem]   = None,
-  val prefixCompletion:         Boolean                    = false,
-  val nameArgForDynamic:        Option[String]             = None,
-  val isForwardReference:       Boolean                    = false,
-  val implicitParameterType:    Option[ScType]             = None,
-  val implicitParameters:       Seq[ScalaResolveResult]    = Seq.empty, // TODO Arguments and parameters should not be used interchangeably
-  val implicitReason:           ImplicitResult             = NoResult,
-  val implicitSearchState:      Option[ImplicitState]      = None,
-  val unresolvedTypeParameters: Option[Seq[TypeParameter]] = None,
-  val implicitScopeObject:      Option[ScType]             = None,
-  val isExtensionCall:          Boolean                    = false,
-  val extensionContext:         Option[ScExtension]        = None,
-  val intersectedReturnType:    Option[ScType]             = None,
-  val matchClauseSubstitutor:   ScSubstitutor              = ScSubstitutor.empty,
-  val exportedInfo:             Option[ExportedSigInfo]    = None,
-  val isExtensionFromGiven:     Boolean                    = false
+  val substitutor:              ScSubstitutor                = ScSubstitutor.empty,
+  val importsUsed:              Set[ImportUsed]              = Set.empty,
+  val renamed:                  Option[String]               = None,
+  val problems:                 Seq[ApplicabilityProblem]    = Seq.empty,
+  val implicitConversion:       Option[ScalaResolveResult]   = None,
+  val implicitType:             Option[ScType]               = None,
+  val defaultParameterUsed:     Boolean                      = false,
+  val innerResolveResult:       Option[ScalaResolveResult]   = None,
+  val parentElement:            Option[PsiNamedElement]      = None,
+  val isNamedParameter:         Boolean                      = false,
+  val fromType:                 Option[ScType]               = None,
+  val tuplingUsed:              Boolean                      = false,
+  val isAssignment:             Boolean                      = false,
+  val notCheckedResolveResult:  Boolean                      = false, //TODO: does not seem to be used anywhere
+  val isAccessible:             Boolean                      = true,
+  val resultUndef:              Option[ConstraintSystem]     = None,
+  val prefixCompletion:         Boolean                      = false,
+  val nameArgForDynamic:        Option[String]               = None,
+  val isForwardReference:       Boolean                      = false,
+  val implicitResultType:       Option[ScType]               = None,
+  val implicitArguments:        Seq[ImplicitArgumentsClause] = Seq.empty,
+  val implicitReason:           ImplicitResult               = NoResult,
+  val implicitSearchState:      Option[ImplicitState]        = None,
+  val unresolvedTypeParameters: Option[Seq[TypeParameter]]   = None,
+  val implicitScopeObject:      Option[ScType]               = None,
+  val isExtensionCall:          Boolean                      = false,
+  val extensionContext:         Option[ScExtension]          = None,
+  val intersectedReturnType:    Option[ScType]               = None,
+  val matchClauseSubstitutor:   ScSubstitutor                = ScSubstitutor.empty,
+  val exportedInfo:             Option[ExportedSigInfo]      = None,
+  val isExtensionFromGiven:     Boolean                      = false
 ) extends ResolveResult
     with ProjectContextOwner {
   if (element == null) throw new NullPointerException("element is null")
@@ -134,31 +136,31 @@ class ScalaResolveResult(
   def isImplicitParameterProblem: Boolean = isNotFoundImplicitParameter || isAmbiguousImplicitParameter
 
   def copy(
-    subst:                    ScSubstitutor              = substitutor,
-    problems:                 Seq[ApplicabilityProblem]  = problems,
-    defaultParameterUsed:     Boolean                    = defaultParameterUsed,
-    innerResolveResult:       Option[ScalaResolveResult] = innerResolveResult,
-    tuplingUsed:              Boolean                    = tuplingUsed,
-    isAssignment:             Boolean                    = isAssignment,
-    notCheckedResolveResult:  Boolean                    = notCheckedResolveResult,
-    isAccessible:             Boolean                    = isAccessible,
-    resultUndef:              Option[ConstraintSystem]   = None,
-    nameArgForDynamic:        Option[String]             = nameArgForDynamic,
-    isForwardReference:       Boolean                    = isForwardReference,
-    implicitParameterType:    Option[ScType]             = implicitParameterType,
-    importsUsed:              Set[ImportUsed]            = importsUsed,
-    implicitParameters:       Seq[ScalaResolveResult]    = implicitParameters,
-    implicitReason:           ImplicitResult             = implicitReason,
-    implicitSearchState:      Option[ImplicitState]      = implicitSearchState,
-    unresolvedTypeParameters: Option[Seq[TypeParameter]] = unresolvedTypeParameters,
-    implicitScopeObject:      Option[ScType]             = implicitScopeObject,
-    isExtensionCall:          Boolean                    = isExtensionCall,
-    extensionContext:         Option[ScExtension]        = extensionContext,
-    matchClauseSubstitutor:   ScSubstitutor              = matchClauseSubstitutor,
-    intersectedReturnType:    Option[ScType]             = intersectedReturnType,
-    exportedInfo:             Option[ExportedSigInfo]    = exportedInfo,
-    parentElement:            Option[PsiNamedElement]    = parentElement,
-    isExtensionFromGiven:     Boolean                    = isExtensionFromGiven
+    subst:                    ScSubstitutor                = substitutor,
+    problems:                 Seq[ApplicabilityProblem]    = problems,
+    defaultParameterUsed:     Boolean                      = defaultParameterUsed,
+    innerResolveResult:       Option[ScalaResolveResult]   = innerResolveResult,
+    tuplingUsed:              Boolean                      = tuplingUsed,
+    isAssignment:             Boolean                      = isAssignment,
+    notCheckedResolveResult:  Boolean                      = notCheckedResolveResult,
+    isAccessible:             Boolean                      = isAccessible,
+    resultUndef:              Option[ConstraintSystem]     = None, //@TODO: why not just add constraints to subst?
+    nameArgForDynamic:        Option[String]               = nameArgForDynamic,
+    isForwardReference:       Boolean                      = isForwardReference,
+    implicitResultType:       Option[ScType]               = implicitResultType,
+    importsUsed:              Set[ImportUsed]              = importsUsed,
+    implicitArguments:        Seq[ImplicitArgumentsClause] = implicitArguments,
+    implicitReason:           ImplicitResult               = implicitReason,
+    implicitSearchState:      Option[ImplicitState]        = implicitSearchState,
+    unresolvedTypeParameters: Option[Seq[TypeParameter]]   = unresolvedTypeParameters,
+    implicitScopeObject:      Option[ScType]               = implicitScopeObject,
+    isExtensionCall:          Boolean                      = isExtensionCall,
+    extensionContext:         Option[ScExtension]          = extensionContext,
+    matchClauseSubstitutor:   ScSubstitutor                = matchClauseSubstitutor,
+    intersectedReturnType:    Option[ScType]               = intersectedReturnType,
+    exportedInfo:             Option[ExportedSigInfo]      = exportedInfo,
+    parentElement:            Option[PsiNamedElement]      = parentElement,
+    isExtensionFromGiven:     Boolean                      = isExtensionFromGiven
   ): ScalaResolveResult =
     new ScalaResolveResult(
       element,
@@ -180,8 +182,8 @@ class ScalaResolveResult(
       resultUndef,
       nameArgForDynamic        = nameArgForDynamic,
       isForwardReference       = isForwardReference,
-      implicitParameterType    = implicitParameterType,
-      implicitParameters       = implicitParameters,
+      implicitResultType       = implicitResultType,
+      implicitArguments        = implicitArguments,
       implicitReason           = implicitReason,
       implicitSearchState      = implicitSearchState,
       unresolvedTypeParameters = unresolvedTypeParameters,

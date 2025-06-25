@@ -133,7 +133,9 @@ private abstract class SubtypeUpdater(needVariance: Boolean, needUpdate: Boolean
     ScMethodType(
       substitutor.recursiveUpdateImpl(mt.result, variance),
       mt.params.map(updateParameter),
-      mt.isImplicit)(mt.elementScope)
+      hasImplicitKW = mt.hasImplicitKW,
+      hasUsingKW    = mt.hasUsingKW,
+    )(mt.elementScope)
   }
 
   private def updateTypePolymorphicType(tpt: ScTypePolymorphicType,

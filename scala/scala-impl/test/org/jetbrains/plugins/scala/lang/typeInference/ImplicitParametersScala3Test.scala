@@ -145,4 +145,16 @@ class ImplicitParametersScala3Test extends ImplicitParametersTestBase {
        |}
        |""".stripMargin
   )
+
+
+  def testSCL24031(): Unit =
+    checkHasImplicitArgumentProblems(
+      s"""
+         |object A {
+         |  trait A; trait B
+         |  given A => B = ???
+         |  ${START}implicitly[B]$END
+         |}
+         |""".stripMargin
+      )
 }

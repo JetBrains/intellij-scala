@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
-import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
+import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.{ImplicitArgumentsClause, SafeCheckException}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, TypeParamIdOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
@@ -373,7 +373,7 @@ class ImplicitCollector(
           }
         }
 
-        checkFunctionByType(c, withLocalTypeInference, checkFast)
+        checkFunctionTypeConformance(c, withLocalTypeInference, checkFast)
       case _ =>
         if (withLocalTypeInference) {
           if (withExtensions) Option(c.copy(implicitReason = TypeDoesntConformResult))
@@ -522,22 +522,28 @@ class ImplicitCollector(
     }
   }
 
-  private def inferValueType(tp: ScType): (ScType, Seq[TypeParameter]) = {
-    if (isExtensionConversion) {
-      tp match {
-        case ScTypePolymorphicType(internalType, typeParams) =>
-          val filteredTypeParams =
-            typeParams.filter(tp => !tp.lowerType.equiv(Nothing) || !tp.upperType.equiv(Any))
-          val newPolymorphicType = ScTypePolymorphicType(internalType, filteredTypeParams)
-          val updated = newPolymorphicType.inferValueType.updateLeaves {
-            case u: UndefinedType => u.inferValueType
-          }
-          (updated, typeParams)
+  private def filterTypeParamsAndInferValueType(
+    tp:             ScType,
+    inferValueType: Boolean = true
+  ): (ScType, Seq[TypeParameter]) = {
+    if (!inferValueType) (tp, Seq.empty)
+    else  {
+      if (isExtensionConversion) {
+        tp match {
+          case ScTypePolymorphicType(internalType, typeParams) =>
+            val filteredTypeParams =
+              typeParams.filter(tp => !tp.lowerType.equiv(Nothing) || !tp.upperType.equiv(Any))
+            val newPolymorphicType = ScTypePolymorphicType(internalType, filteredTypeParams)
+            val updated = newPolymorphicType.inferValueType.updateLeaves {
+              case u: UndefinedType => u.inferValueType
+            }
+            (updated, typeParams)
+          case _ => (tp.inferValueType, Seq.empty)
+        }
+      } else tp match {
+        case ScTypePolymorphicType(_, typeParams) => (tp.inferValueType, typeParams)
         case _ => (tp.inferValueType, Seq.empty)
       }
-    } else tp match {
-      case ScTypePolymorphicType(_, typeParams) => (tp.inferValueType, typeParams)
-      case _ => (tp.inferValueType, Seq.empty)
     }
   }
 
@@ -551,56 +557,66 @@ class ImplicitCollector(
     )
   }
 
-  private def updateImplicitParameters(
-    c:                       ScalaResolveResult,
-    nonValueType0:           ScType,
-    hasImplicitClause:       Boolean,
-    hadDependents:           Boolean,
-    expectedTypeConstraints: ConstraintSystem
+  private def adaptAndApplyToImplicitArgs(
+    c:                      ScalaResolveResult,
+    nonValueType0:          ScType,
+    hasImplicitClause:      Boolean,
+    hadDependents:          Boolean,
+    conformanceConstraints: ConstraintSystem,
+    isLeadingImplicitsCase: Boolean
   ): Option[ScalaResolveResult] = {
     val fun            = c.element.asInstanceOf[ScFunction]
     val canContainExts = canContainTargetMethod(c)
 
     def wrongTypeParam(nonValueType: ScType, result: ImplicitResult): Option[ScalaResolveResult] = {
-      val (valueType, typeParams) = inferValueType(nonValueType)
+      val (valueType, typeParams) = filterTypeParamsAndInferValueType(nonValueType)
+
       Option(c.copy(
         problems                 = Seq(WrongTypeParameterInferred),
-        implicitParameterType    = Option(valueType),
+        implicitResultType       = Option(valueType),
         implicitReason           = result,
         unresolvedTypeParameters = Option(typeParams)
       ))
     }
 
-    def reportParamNotFoundResult(resType: ScType, implicitArgs: Seq[ScalaResolveResult]): Option[ScalaResolveResult] = {
-      val (valueType, typeParams) = inferValueType(resType)
+    def reportParamNotFoundResult(
+      resType:            ScType,
+      implicitArgClauses: Seq[ImplicitArgumentsClause]
+    ): Option[ScalaResolveResult] = {
+      val (valueType, typeParams) = filterTypeParamsAndInferValueType(resType)
 
-      val isOnlyProblemAmbiguity = implicitArgs.forall {
-        _.problems.forall(_.is[AmbiguousImplicitParameters])
-      }
+      val problems =
+        for {
+          clause  <- implicitArgClauses
+          arg     <- clause.args
+          problem <- arg.problems
+        } yield problem
+
+      val isOnlyProblemAmbiguity = problems.forall(_.is[AmbiguousImplicitParameters])
 
       reportWrong(
         c.copy(
-          implicitParameters       = implicitArgs,
-          implicitParameterType    = Option(valueType),
+          implicitArguments        = implicitArgClauses,
+          implicitResultType       = Option(valueType),
           unresolvedTypeParameters = Option(typeParams)
         ),
         ImplicitParameterNotFoundResult,
-        problems          = implicitArgs.flatMap(_.problems),
+        problems          = problems,
         propagateFailures = isOnlyProblemAmbiguity
       )
     }
 
     def noImplicitParametersResult(nonValueType: ScType): Option[ScalaResolveResult] = {
-      val (valueType, typeParams) = inferValueType(nonValueType)
+      val (valueType, typeParams) = filterTypeParamsAndInferValueType(nonValueType, !isLeadingImplicitsCase)
 
-      val subst = expectedTypeConstraints match {
+      val subst = conformanceConstraints match {
         case ConstraintSystem(subst) => subst
         case _                       => ScSubstitutor.empty
       }
 
       val result = c.copy(
         subst                    = c.substitutor.followed(subst),
-        implicitParameterType    = Option(valueType),
+        implicitResultType    = Option(valueType),
         implicitReason           = OkResult,
         unresolvedTypeParameters = Option(typeParams)
       )
@@ -608,13 +624,13 @@ class ImplicitCollector(
     }
 
     def fullResult(
-      resType:          ScType,
-      implicitParams:   Seq[ScalaResolveResult],
-      constraints:      ConstraintSystem,
-      checkConformance: Boolean = false
+      resType:            ScType,
+      implicitArgClauses: Seq[ImplicitArgumentsClause],
+      constraints:        ConstraintSystem,
+      checkConformance:   Boolean = false
     ): Option[ScalaResolveResult] = {
-      val (valueType, typeParams) = inferValueType(resType)
-      val allConstraints = constraints + expectedTypeConstraints
+      val (valueType, typeParams) = filterTypeParamsAndInferValueType(resType, inferValueType = !isLeadingImplicitsCase)
+      val allConstraints          = constraints + conformanceConstraints
 
       val constraintSubst = allConstraints match {
         case ConstraintSystem(subst) => Option(subst)
@@ -622,12 +638,16 @@ class ImplicitCollector(
       }
 
       constraintSubst.fold(reportWrong(c, CantInferTypeParameterResult)) { subst =>
-        val allImportsUsed = implicitParams.map(_.importsUsed).foldLeft(c.importsUsed)(_ ++ _)
+        val allImportsUsed =
+          implicitArgClauses
+            .flatMap(_.args)
+            .map(_.importsUsed)
+            .foldLeft(c.importsUsed)(_ ++ _)
 
         val result = c.copy(
           subst                    = c.substitutor.followed(subst),
-          implicitParameterType    = Option(valueType),
-          implicitParameters       = implicitParams,
+          implicitResultType       = Option(valueType),
+          implicitArguments        = c.implicitArguments ++ implicitArgClauses,
           implicitReason           = OkResult,
           unresolvedTypeParameters = Option(typeParams),
           importsUsed              = allImportsUsed
@@ -642,9 +662,9 @@ class ImplicitCollector(
     def wrongExtensionConversion(nonValueType: ScType): Option[ScalaResolveResult] = {
       if (extensionData.isEmpty) None
       else
-        inferValueType(nonValueType) match {
+        filterTypeParamsAndInferValueType(nonValueType) match {
           case (FunctionType(rt, _), _) =>
-            val newCandidate = c.copy(implicitParameterType = Some(rt))
+            val newCandidate = c.copy(implicitResultType = Some(rt))
             if (applyExtensionPredicate(newCandidate).isEmpty)
               wrongTypeParam(nonValueType, CantFindExtensionMethodResult)
             else None
@@ -653,16 +673,18 @@ class ImplicitCollector(
         }
     }
 
-    val (nonValueType, failedPtAdapt) =
+    val (nonValueType, failedPtAdapt) = {
       try {
-        val updated = updateNonValueType(nonValueType0)
+        val updated =
+          if (isLeadingImplicitsCase) nonValueType0
+          else                        updateNonValueType(nonValueType0)
 
         val noDependents =
           if (hadDependents) UndefinedType.revertDependentTypes(updated)
           else               updated
 
-        val propagatedError = Option.when(c.implicitReason != NoResult){
-          val (_, unresolvedTps) = inferValueType(nonValueType0)
+        val propagatedError = Option.when(c.implicitReason != NoResult && c.implicitReason != OkResult){
+          val (_, unresolvedTps) = filterTypeParamsAndInferValueType(nonValueType0)
 
           if (unresolvedTps.isEmpty) c
           else                       c.copy(unresolvedTypeParameters = Option(unresolvedTps))
@@ -677,12 +699,12 @@ class ImplicitCollector(
           if (canContainExts) (nonValueType0, result)
           else                return result
       }
+    }
 
     val depth            = ScalaProjectSettings.getInstance(project).getImplicitParametersSearchDepth
     val notTooDeepSearch = depth < 0 || recursionDepth < depth
 
     if (hasImplicitClause && notTooDeepSearch) {
-
       val conversionDataCheckedResult =
         if (!hadDependents) {
           val noMethod = wrongExtensionConversion(nonValueType)
@@ -694,7 +716,7 @@ class ImplicitCollector(
       }
 
       try {
-        val (resType, implicitArgs0, constraints) =
+        val (resType, implicitArgsByClause) =
           InferUtil.updateTypeWithImplicitParameters(
             nonValueType,
             place,
@@ -702,20 +724,29 @@ class ImplicitCollector(
             canThrowSCE            = !fullInfo,
             throwOnAmbiguous       = !place.isInScala3File,
             implicitRecursionDepth = recursionDepth + 1,
-            fullInfo               = fullInfo
+            fullInfo               = fullInfo,
+            updateDeep             = !isLeadingImplicitsCase,
+            isLeadingClause        = isLeadingImplicitsCase
           )
 
-        val implicitArgs = implicitArgs0.getOrElse(Seq.empty)
+        val implicitArgs = implicitArgsByClause.flatMap(_.args)
+        val constraints  = implicitArgsByClause.map(_.constraints).foldLeft(ConstraintSystem.empty)(_ + _)
 
         if (implicitArgs.exists(_.isImplicitParameterProblem))
-          reportParamNotFoundResult(resType, implicitArgs)
+          reportParamNotFoundResult(resType, implicitArgsByClause)
         else
           conversionDataCheckedResult match {
             case Some(earlierError) =>
               constraints.toSubst.fold(earlierError)(constraintSubst =>
                 earlierError.copy(subst = earlierError.substitutor.followed(constraintSubst))
               ).toOption
-            case _ => fullResult(resType, implicitArgs, constraints, hadDependents)
+            case _ =>
+              fullResult(
+                resType,
+                implicitArgsByClause,
+                constraints,
+                checkConformance = hadDependents && !isLeadingImplicitsCase
+              )
           }
       } catch {
         case _: SafeCheckException => wrongTypeParam(nonValueType, CantInferTypeParameterResult)
@@ -727,30 +758,39 @@ class ImplicitCollector(
     }
   }
 
-  private def checkFunctionType(
-    c:                ScalaResolveResult,
-    nonValueFunTypes: NonValueFunctionTypes,
-    constraints:      ConstraintSystem
-  ): Option[ScalaResolveResult] = measure("ImplicitCollector.checkFunctionType") {
+  private def adaptAndApplyToImplicitArgsWithDivergenceChecker(
+    c:                      ScalaResolveResult,
+    methodType:             Option[ScType],
+    hasImplicitClause:      Boolean,
+    hadDependents:          Boolean,
+    constraints:            ConstraintSystem,
+    isLeadingImplicitsCase: Boolean
+  ): Option[ScalaResolveResult] = measure("ImplicitCollector.adaptAndApplyToImplicitArgsWithDivergenceChecker") {
     def compute(): Option[ScalaResolveResult] = {
-      nonValueFunTypes.methodType match {
+      methodType match {
         case None =>
           if (c.implicitReason != NoResult) Option(c)
           else                              Option(c.copy(implicitReason = OkResult))
 
-        case Some(nonValueType0) =>
+        case Some(mt) =>
           try {
-            updateImplicitParameters(
+            adaptAndApplyToImplicitArgs(
               c,
-              c.substitutor(nonValueType0),
-              nonValueFunTypes.hasImplicitClause,
-              nonValueFunTypes.hadDependents,
-              constraints
+              c.substitutor(mt),
+              hasImplicitClause,
+              hadDependents,
+              constraints,
+              isLeadingImplicitsCase = isLeadingImplicitsCase
             )
           }
           catch {
             case _: SafeCheckException =>
-              Option(c.copy(problems = Seq(WrongTypeParameterInferred), implicitReason = UnhandledResult))
+              Option(
+                c.copy(
+                  problems       = Seq(WrongTypeParameterInferred),
+                  implicitReason = UnhandledResult
+                )
+              )
           }
       }
     }
@@ -782,7 +822,7 @@ class ImplicitCollector(
     (name == "conforms" || name == "$conforms") && clazz != null && clazz.qualifiedName == "scala.Predef"
   }
 
-  def checkFunctionByType(
+  def checkFunctionTypeConformance(
     c:                      ScalaResolveResult,
     withLocalTypeInference: Boolean,
     checkFast:              Boolean,
@@ -813,43 +853,94 @@ class ImplicitCollector(
         typeFromMacro
       )
 
-    nonValueFunctionTypes.undefinedType match {
-      case Some(undefined0: ScType) =>
+    val shouldApplyToLeadingImplicits =
+       !checkFast &&
+         isImplicitConversion &&
+         nonValueFunctionTypes.hasLeadingImplicitClause
 
-        val undefined = undefined0 match {
-          case Scala3Conversion(argType, resType) if isImplicitConversion => FunctionType(resType, Seq(argType))
-          case _                                                          => undefined0
+    val appliedToLeadingImplicits =
+      if (shouldApplyToLeadingImplicits) {
+        adaptAndApplyToImplicitArgsWithDivergenceChecker(
+          c,
+          nonValueFunctionTypes.methodType,
+          nonValueFunctionTypes.hasImplicitClause,
+          nonValueFunctionTypes.hadDependents,
+          ConstraintSystem.empty,
+          isLeadingImplicitsCase = true
+        )
+    } else Option(c)
+
+    appliedToLeadingImplicits match {
+      case Some(res) if res.implicitReason != NoResult && res.implicitReason != OkResult =>
+        //failed to apply to leading implicits => fail
+        return Option(res)
+      case Some(cand) =>
+        nonValueFunctionTypes.undefinedType match {
+          case Some(undefined0: ScType) =>
+            val substWithLeadingImplicits = cand.substitutor
+
+            val undefined = substWithLeadingImplicits(
+              undefined0 match {
+                case Scala3Conversion(argType, resType) if isImplicitConversion => FunctionType(resType, Seq(argType))
+                case _                                                          => undefined0
+              }
+            )
+
+            val undefinedConforms =
+              if (isImplicitConversion) {
+                val pt = maskTypeParametersInExtensions(tp, cand)
+
+                if (cand.isExtensionCall)
+                  checkExtensionConformance(place, undefined, pt)
+                else
+                  checkWeakConformance(place, undefined, pt)
+              } else undefined.conforms(tp, ConstraintSystem.empty)
+
+            val methodType =
+              if (shouldApplyToLeadingImplicits) {
+                //If we applied the original candidate to its leading implicit arguments,
+                //nonValueFunctionTypes.method type is no longer valid => use implicitResultType instead
+                cand.implicitResultType
+              } else nonValueFunctionTypes.methodType
+
+            //are there any implicit param clauses left, after we have applied the candidate to the leading ones.
+            val hasTrailingImplicits =
+              (nonValueFunctionTypes.hasImplicitClause && !shouldApplyToLeadingImplicits) ||
+                nonValueFunctionTypes.hasTrailingImplicitClause
+
+            if (undefinedConforms.isRight) {
+              if (checkFast)
+                appliedToLeadingImplicits
+              else
+                adaptAndApplyToImplicitArgsWithDivergenceChecker(
+                  cand,
+                  methodType,
+                  hasTrailingImplicits,
+                  nonValueFunctionTypes.hadDependents,
+                  undefinedConforms.constraints,
+                  isLeadingImplicitsCase = false
+                )
+            } else if (canContainTargetMethod(cand)) {
+              //With the addition of extensions in Scala 3,
+              //we now cannot discard implicits based by their type right away,
+              //because they might contain extensions, defined on their "return type".
+              //So here and further down the function call tree we will not abort on
+              //non-fatal failures (everything except for not-found-implicit-parameters problems)
+              //and instead propagate them to the very end.
+              adaptAndApplyToImplicitArgsWithDivergenceChecker(
+                cand.copy(implicitReason = TypeDoesntConformResult),
+                methodType,
+                hasTrailingImplicits,
+                nonValueFunctionTypes.hadDependents,
+                undefinedConforms.constraints,
+                isLeadingImplicitsCase = false
+              )
+            } else reportWrong(cand, TypeDoesntConformResult)
+          case _ =>
+            if (!withLocalTypeInference) reportWrong(cand, BadTypeResult)
+            else                         None
         }
-
-        val undefinedConforms =
-          if (isImplicitConversion) {
-            val pt = maskTypeParametersInExtensions(tp, c)
-
-            if (c.isExtensionCall)
-              checkExtensionConformance(place, undefined, pt)
-            else
-              checkWeakConformance(place, undefined, pt)
-          } else undefined.conforms(tp, ConstraintSystem.empty)
-
-        if (undefinedConforms.isRight) {
-          if (checkFast) Option(c)
-          else           checkFunctionType(c, nonValueFunctionTypes, undefinedConforms.constraints)
-        } else if (canContainTargetMethod(c)) {
-          //With the addition of extensions in Scala 3,
-          //we now cannot discard implicits based by their type right away,
-          //because they might contain extensions, defined on their "return type".
-          //So here and further down the function call tree we will not abort on
-          //non-fatal failures (everything except for not-found-implicit-parameters problems)
-          //and instead propagate them to the very end.
-          checkFunctionType(
-            c.copy(implicitReason = TypeDoesntConformResult),
-            nonValueFunctionTypes,
-            undefinedConforms.constraints
-          )
-        } else reportWrong(c, TypeDoesntConformResult)
-      case _ =>
-        if (!withLocalTypeInference) reportWrong(c, BadTypeResult)
-        else                         None
+      case None => None
     }
   }
 

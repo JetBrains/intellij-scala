@@ -2,26 +2,39 @@ package org.jetbrains.plugins.scala.lang.typeInference
 
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.junit.Assert
 
 trait ImplicitParametersTestBase extends TypeInferenceTestBase {
-
-  def checkNoImplicitParameterProblems(fileText: String): Unit = {
+  protected final def getImplicitArguments(fileText: String): Seq[ScalaResolveResult] = {
     val scalaFile: ScalaFile = configureFromFileText(
       "dummy.scala",
       Some(fileText.withNormalizedSeparator.trim)
     )
 
-    val expr: ScExpression = findSelectedExpression(scalaFile)
+    val expr      = findSelectedExpression(scalaFile)
+    val implicits = expr.findImplicitArguments
 
-    expr.findImplicitArguments match {
-      case None =>
-        Assert.fail("Expression with implicit parameters expected")
-      case Some(seq) =>
-        val hasProblems = seq.exists(_.isImplicitParameterProblem)
-        if (shouldPass == hasProblems)
-          Assert.fail("Problems in implicit parameters search: " + seq.mkString("\n"))
-    }
+    Assert.assertTrue("Expression with implicit parameters expected", implicits.nonEmpty)
+
+    val implicitArgsFlat = implicits.flatMap(_.args)
+    implicitArgsFlat
+  }
+
+  def implicitArgumentsProblems(fileText: String): Seq[ScalaResolveResult] =
+    getImplicitArguments(fileText).filter(_.isImplicitParameterProblem)
+
+  def checkHasImplicitArgumentProblems(fileText: String): Unit =
+    doTestImplicitArgs(fileText, expectedSomeProblems = true)
+
+  def checkNoImplicitParameterProblems(fileText: String): Unit =
+    doTestImplicitArgs(fileText, expectedSomeProblems = false)
+
+  def doTestImplicitArgs(fileText: String, expectedSomeProblems: Boolean): Unit = {
+    val implicits   = getImplicitArguments(fileText)
+    val hasProblems = implicits.exists(_.isImplicitParameterProblem)
+
+    if (expectedSomeProblems ^ shouldPass == hasProblems)
+      Assert.fail("Problems in implicit parameters search: " + implicits.mkString("\n"))
   }
 }
