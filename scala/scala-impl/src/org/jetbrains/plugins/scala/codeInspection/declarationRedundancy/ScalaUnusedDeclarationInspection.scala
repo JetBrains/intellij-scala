@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
+import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.util.SAMUtil.PsiClassToSAMExt
 
 import scala.beans.{BeanProperty, BooleanBeanProperty}
@@ -40,9 +41,13 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
   @BooleanBeanProperty
   var enableInScala3: Boolean = true //TODO
 
+  @BooleanBeanProperty
+  var disableIfCBHIsUsed: Boolean = true
+
   override def getOptionsPane: OptPane = pane(
     checkbox(reportPublicDeclarationsPropertyName, ScalaInspectionBundle.message("name.unused.declaration.report.public.declarations")),
     checkbox(enableInScala3PropertyName, ScalaInspectionBundle.message("enable.in.scala.3")), //TODO
+    checkbox(disableIfCBHIsUsedPropertyName, ScalaInspectionBundle.message("disable.when.compiler.based.highlighting.is.used")),
     dropdown(
       reportLocalDeclarationsPropertyName,
       ScalaInspectionBundle.message("name.unused.declaration.report.local.declarations"),
@@ -119,7 +124,10 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
       isWorksheetFile && isTopLevelMember
     }
 
-    (enableInScala3 || !element.isInScala3File) && Search.Util.shouldProcessElement(element) && {
+    val enabledIfScala3 = enableInScala3 || !element.isInScala3File
+    val enabledIfCBH = !disableIfCBHIsUsed || !ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(element.getContainingFile)
+
+    enabledIfScala3 && enabledIfCBH && Search.Util.shouldProcessElement(element) && {
       element match {
         case _: ScNamedTupleComponent | _: ScNamedConstructorArgPattern => false
         case m: ScMember if isTopLevelDefinitionInWorksheetFile(m) => false
@@ -158,6 +166,9 @@ object ScalaUnusedDeclarationInspection {
 
   @NonNls
   private val enableInScala3PropertyName: String = "enableInScala3"
+
+  @NonNls
+  private val disableIfCBHIsUsedPropertyName: String = "disableIfCBHIsUsed"
 
   @NonNls
   private val reportLocalDeclarationsPropertyName: String = "reportLocalDeclarations"
