@@ -110,7 +110,8 @@ object InferUtil {
             place,
             coreElement,
             canThrowSCE,
-            fullInfo = fullInfo
+            fullInfo = fullInfo,
+            updateDeep = updateDeep
           )
 
         updatedType = updatedReturnType match {
@@ -203,7 +204,8 @@ object InferUtil {
             place,
             coreElement,
             canThrowSCE,
-            fullInfo = fullInfo
+            fullInfo = fullInfo,
+            updateDeep = updateDeep
           )
 
         return (mt.copy(result = updatedReturnType), appliedClauses)
@@ -235,7 +237,8 @@ object InferUtil {
           throwOnAmbiguous,
           fullInfo,
           implicitRecursionDepth,
-          isLeadingClause = isLeadingClause
+          isLeadingClause = isLeadingClause,
+          updateDeep      = updateDeep
         )
 
         val clauseKind =
@@ -413,11 +416,12 @@ object InferUtil {
    * Updates polymorphic type according to `expectedType`
    */
   def updateAccordingToExpectedType(
-    _nonValueType:    ScType,
-    filterTypeParams: Boolean,
-    expectedType:     Option[ScType],
-    expr:             PsiElement,
-    canThrowSCE:      Boolean
+    _nonValueType:            ScType,
+    filterTypeParams:         Boolean,
+    expectedType:             Option[ScType],
+    expr:                     PsiElement,
+    canThrowSCE:              Boolean,
+    shouldTruncateMethodType: Boolean = true
   ): ScType = {
     implicit val projectContext: ProjectContext = expr
     implicit val context: Context = Context(expr)
@@ -449,14 +453,15 @@ object InferUtil {
 
     def implicitSearchFails(tp: ScType): Boolean = expr match {
       case e: ScExpression =>
-        val appliedClauses = e.updatedWithImplicitArguments(tp, checkExpectedType = false, updateDeep = false)._2
-        appliedClauses.exists { _.args.exists {
-          case srr if srr.isNotFoundImplicitParameter  => true
-          case srr if srr.isAmbiguousImplicitParameter =>
-            // we found several implicits, but not all type parameters are fully inferred yet, it may be fine
-            tp.asOptionOf[ScTypePolymorphicType].exists(_.typeParameters.isEmpty)
-          case _                                       => false
-        }
+        val appliedClauses = e.updatedWithImplicitArguments(tp, checkExpectedType = false, updateDeep = true)._2
+        appliedClauses.exists {
+          _.args.exists {
+            case srr if srr.isNotFoundImplicitParameter  => true
+            case srr if srr.isAmbiguousImplicitParameter =>
+              // we found several implicits, but not all type parameters are fully inferred yet, it may be fine
+              tp.asOptionOf[ScTypePolymorphicType].exists(_.typeParameters.isEmpty)
+            case _                                       => false
+          }
         }
       case _ => false
     }
@@ -468,8 +473,14 @@ object InferUtil {
       val ScTypePolymorphicType(internal, typeParams) = tpt
 
       val sameDepth = internal match {
-        case m: ScMethodType => truncateMethodType(m, expr, shouldTruncateImplicitParameters)
-        case _               => internal
+        case m: ScMethodType =>
+          truncateMethodType(
+            m,
+            expr,
+            shouldTruncateImplicitParameters,
+            shouldTruncateMethodType
+          )
+        case _ => internal
       }
 
       val valueType          = sameDepth.inferValueType
@@ -576,8 +587,8 @@ object InferUtil {
         val canConform = if (!filterTypeParams) {
           val subst         = tpt.abstractTypeSubstitutor
           val withAbstracts = subst(mt).asInstanceOf[ScMethodType]
-          truncateMethodType(withAbstracts, expr, shouldTruncateImplicitParameters)
-        } else truncateMethodType(mt, expr, shouldTruncateImplicitParameters)
+          truncateMethodType(withAbstracts, expr, shouldTruncateImplicitParameters, shouldTruncateMethodType)
+        } else truncateMethodType(mt, expr, shouldTruncateImplicitParameters, shouldTruncateMethodType)
 
         if (ptUnwrapped.forall(canConform.conforms)) tpt
         else tpt.copy(internalType = applyImplicitViewToResult(mt, ptUnwrapped))
@@ -591,11 +602,12 @@ object InferUtil {
   private[this] def truncateMethodType(
     tpe:                              ScType,
     expr:                             PsiElement,
-    shouldTruncateImplicitParameters: Boolean
+    shouldTruncateImplicitParameters: Boolean,
+    shouldTruncateMethodType:         Boolean
   ): ScType = {
     def withoutImplicitClause(internal: ScType): ScType = if (shouldTruncateImplicitParameters) {
       internal match {
-        case ScMethodType(retType, _, true) => retType
+        case ScMethodType(retType, _, true) => withoutImplicitClause(retType)
         case m @ ScMethodType(retType, params, false) =>
           ScMethodType(withoutImplicitClause(retType), params)(m.elementScope)
         case other => other
@@ -616,13 +628,18 @@ object InferUtil {
     }
 
     val withoutImplicits = withoutImplicitClause(tpe)
-    expr match {
-      case _: ScPostfixExpr =>
-        withoutImplicits //SCL-17198
-      case inv: MethodInvocation =>
-        removeNComponents(withoutImplicits, countParameterLists(inv))
-      case _ =>
-        withoutImplicits
+
+    if (!shouldTruncateMethodType) withoutImplicits
+    else
+      expr match {
+        case _: ScPostfixExpr =>
+          withoutImplicits //SCL-17198
+        case _: ConstructorInvocationLike =>
+          removeNComponents(withoutImplicits, 1)
+        case inv: MethodInvocation =>
+          removeNComponents(withoutImplicits, countParameterLists(inv))
+        case _ =>
+          withoutImplicits
     }
   }
 
@@ -724,7 +741,7 @@ object InferUtil {
               boundsMap.get(tp.typeParamId) match {
                 case Some(fromMap) =>
                   val mayCombine = !substedBound.equiv(fromMap) &&
-                    !substedBound.hasRecursiveTypeParameters(Set(tp.typeParamId))
+                    !substedBound.hasRecursiveTypeParameters(typeParamIds)
 
                   if (mayCombine) combine(substedBound, fromMap)
                   else            fromMap

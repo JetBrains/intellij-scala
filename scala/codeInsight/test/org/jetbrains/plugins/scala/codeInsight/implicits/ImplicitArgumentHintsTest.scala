@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits
 
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
+
 class ImplicitArgumentHintsTest extends ImplicitHintsTestBase {
   import Hint.{End => E, Start => S}
 
@@ -101,6 +103,14 @@ class ImplicitArgumentHintsTest extends ImplicitHintsTestBase {
       expand = true
     )
 
+}
+
+class ImplicitArgumentHintsTestScala3 extends ImplicitArgumentHintsTest {
+  import Hint.{End => E, Start => S}
+
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= LatestScalaVersions.Scala_3_7
+
   def testMultipleUsingClausesTrailing(): Unit = {
     doTest(
       s"""
@@ -110,7 +120,7 @@ class ImplicitArgumentHintsTest extends ImplicitHintsTestBase {
          |  given B = ???
          |  given C = ???
          |  def foo(x: Int)(using a: A)(using b: B)(using C): Int = 123
-         |  foo(1)$S(given_A)(given_B)(given_C)$E
+         |  foo(1)$S(given_A)$E$S(given_B)$E$S(given_C)$E
          |}
          |""".stripMargin
     )
@@ -125,7 +135,7 @@ class ImplicitArgumentHintsTest extends ImplicitHintsTestBase {
          |  given B = ???
          |  given C = ???
          |  def foo(using a: A)(using b: B)(using C)(x: Int): Int = 123
-         |  foo$S(given_A)(given_B)(given_C)$E(1)
+         |  foo$S(given_A)$E$S(given_B)$E$S(given_C)$E(1)
          |}
          |""".stripMargin
     )
@@ -141,7 +151,7 @@ class ImplicitArgumentHintsTest extends ImplicitHintsTestBase {
          |  given C = ???
          |  given D = ???
          |  def foo(using a: A)(s: String)(using b: B)(using C)(x: Int)(using D): Int = 123
-         |  foo$S(given_A)$E("foo")$S(given_B)(given_C)$E(1)$S(given_D)$E
+         |  foo$S(given_A)$E("foo")$S(given_B)$E$S(given_C)$E(1)$S(given_D)$E
          |}
          |""".stripMargin
     )
@@ -156,7 +166,7 @@ class ImplicitArgumentHintsTest extends ImplicitHintsTestBase {
          |  given A = ???
          |  given D = ???
          |  def foo(using a: A)(s: String)(using b: B)(using C)(x: Int)(using D): Int = 123
-         |  foo$S(given_A)$E("foo")$S(?: B)(?: C)$E(1)$S(given_D)$E
+         |  foo$S(given_A)$E("foo")$S(?: B)$E$S(?: C)$E(1)$S(given_D)$E
          |}
          |""".stripMargin
     )

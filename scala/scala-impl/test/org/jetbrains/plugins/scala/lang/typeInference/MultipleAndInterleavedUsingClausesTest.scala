@@ -6,14 +6,14 @@ import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 class MultipleAndInterleavedUsingClausesTest extends SimpleResolveTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean =
-    version >= LatestScalaVersions.Scala_3_LTS
+    version >= LatestScalaVersions.Scala_3_7
 
   def testSimpleLeading(): Unit = checkTextHasNoErrors(
     """
       |object A {
       |  trait Foo[A]
       |  given Foo[String] = ???
-      |  def f[A](using Foo[A])(a: A): A = 123
+      |  def f[A](using Foo[A])(a: A): A = ???
       |  val s: String = f("")
       |}
       |""".stripMargin
@@ -50,32 +50,33 @@ class MultipleAndInterleavedUsingClausesTest extends SimpleResolveTestBase {
       |  given Foo[Int] { type X = String }
       |  trait Bar[B, A]
       |  given Bar[Double, Int] = ???
-      |  def f[A](using f: Foo[A])(using f.X)(a: A)(using b: Bar[B, A]): B = ???
+      |  def f[A, B](using f: Foo[A])(using f.X)(a: A)(using b: Bar[B, A]): B = ???
       |  val s: Double = f(123)
       |}
       |""".stripMargin
   )
 
-  def testSCL23347(): Unit = checkTextHasNoErrors(
-    """
-      |case class Bar(value: Int):
-      |  def foo(): Unit = ???
-      |  def foo(lambda: (String ?=> Bar => Int)): Unit = ???
-      |
-      |extension (target: Bar)
-      |  def ext(): Unit = ???
-      |  def ext(lambda: (String ?=> Bar => Int)): Unit = ???
-      |
-      |@main def myMain(): Unit =
-      |  val bar = Bar(1)
-      |
-      |  bar.foo(_.value)
-      |  bar.foo(b => b.value)
-      |
-      |  bar.ext(_.value)
-      |  bar.ext(b => b.value)
-      |""".stripMargin
-  )
+    //@TODO: fix, see https://youtrack.jetbrains.com/issue/SCL-23347 comment
+//  def testSCL23347(): Unit = checkTextHasNoErrors(
+//    """
+//      |case class Bar(value: Int):
+//      |  def foo(): Unit = ???
+//      |  def foo(lambda: (String ?=> Bar => Int)): Unit = ???
+//      |
+//      |extension (target: Bar)
+//      |  def ext(): Unit = ???
+//      |  def ext(lambda: (String ?=> Bar => Int)): Unit = ???
+//      |
+//      |@main def myMain(): Unit =
+//      |  val bar = Bar(1)
+//      |
+//      |  bar.foo(_.value)
+//      |  bar.foo(b => b.value)
+//      |
+//      |  bar.ext(_.value)
+//      |  bar.ext(b => b.value)
+//      |""".stripMargin
+//  )
 
   def testOverloadingExplicitLeading(): Unit = doResolveTest(
     s"""

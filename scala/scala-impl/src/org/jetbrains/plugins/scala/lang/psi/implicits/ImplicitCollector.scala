@@ -550,10 +550,11 @@ class ImplicitCollector(
   private def updateNonValueType(nonValueType0: ScType): ScType = {
     InferUtil.updateAccordingToExpectedType(
       nonValueType0,
-      filterTypeParams = isImplicitConversion,
-      expectedType     = Some(tp),
-      place,
-      canThrowSCE = true
+      filterTypeParams         = isImplicitConversion,
+      expectedType             = Some(tp),
+      expr                     = place,
+      canThrowSCE              = true,
+      shouldTruncateMethodType = false
     )
   }
 
@@ -616,7 +617,7 @@ class ImplicitCollector(
 
       val result = c.copy(
         subst                    = c.substitutor.followed(subst),
-        implicitResultType    = Option(valueType),
+        implicitResultType       = Option(valueType),
         implicitReason           = OkResult,
         unresolvedTypeParameters = Option(typeParams)
       )
@@ -856,7 +857,9 @@ class ImplicitCollector(
     val shouldApplyToLeadingImplicits =
        !checkFast &&
          isImplicitConversion &&
-         nonValueFunctionTypes.hasLeadingImplicitClause
+         place.isInScala3File &&
+         nonValueFunctionTypes.hasLeadingImplicitClause &&
+         hasExplicitClause(c)
 
     val appliedToLeadingImplicits =
       if (shouldApplyToLeadingImplicits) {

@@ -53,7 +53,7 @@ class DeferredGivenAnnotatorTest extends ScalaLightCodeInsightFixtureTestCase {
        |class Bar(using Ord[Int]) extends Foo {
        |  type Self = Int
        |}
-       |class Baz extends Bar()(???)
+       |class Baz extends Bar(using ???)
        |""".stripMargin
   )
 }

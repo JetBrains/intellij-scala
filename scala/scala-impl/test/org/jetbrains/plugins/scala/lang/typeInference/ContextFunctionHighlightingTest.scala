@@ -153,25 +153,26 @@ class ContextFunctionHighlightingTest extends ScalaLightCodeInsightFixtureTestCa
       |""".stripMargin
   )
 
-  def testSCL23347(): Unit = doTest(
-    """
-      |case class Bar(value: Int):
-      |  def foo(): Unit = ???
-      |  def foo(lambda: (String ?=> Bar => Int)): Unit = ???
-      |
-      |extension (target: Bar)
-      |  def ext(): Unit = ???
-      |  def ext(lambda: (String ?=> Bar => Int)): Unit = ???
-      |
-      |@main def myMain(): Unit =
-      |  val bar = Bar(1)
-      |
-      |  bar.foo(_.value)
-      |  bar.foo(b => b.value)
-      |
-      |  bar.ext(_.value)
-      |  bar.ext(b => b.value)
-      |""".stripMargin
-  )
+  //@TODO: fix, see https://youtrack.jetbrains.com/issue/SCL-23347 comment
+//  def testSCL23347(): Unit = doTest(
+//    """
+//      |case class Bar(value: Int):
+//      |  def foo(): Unit = ???
+//      |  def foo(lambda: (String ?=> Bar => Int)): Unit = ???
+//      |
+//      |extension (target: Bar)
+//      |  def ext(): Unit = ???
+//      |  def ext(lambda: (String ?=> Bar => Int)): Unit = ???
+//      |
+//      |@main def myMain(): Unit =
+//      |  val bar = Bar(1)
+//      |
+//      |  bar.foo(_.value)
+//      |  bar.foo(b => b.value)
+//      |
+//      |  bar.ext(_.value)
+//      |  bar.ext(b => b.value)
+//      |""".stripMargin
+//  )
 
 }

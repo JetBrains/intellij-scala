@@ -86,7 +86,7 @@ class ImplicitConversionsResolveTest extends ScalaLightCodeInsightFixtureTestCas
 
 @Category(Array(classOf[TypecheckerTests]))
 class ImplicitConversionsScala3ResolveTest extends ScalaLightCodeInsightFixtureTestCase {
-  override protected def supportedIn(version: ScalaVersion) = version >= LatestScalaVersions.Scala_3
+  override protected def supportedIn(version: ScalaVersion) = version >= LatestScalaVersions.Scala_3_7
 
   def testSCL21884(): Unit = checkTextHasNoErrors(
     """

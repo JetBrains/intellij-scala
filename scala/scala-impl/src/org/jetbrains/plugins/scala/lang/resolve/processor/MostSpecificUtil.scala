@@ -89,7 +89,7 @@ class MostSpecificUtil(
       undefine: Boolean
     ): Either[Seq[Parameter], ScType] = {
       def parameters(paramsFromType: Seq[Parameter]): Seq[Parameter] =
-        parameterClause.fold(paramsFromType)(_.parameters.map(Parameter(_)))
+        parameterClause.fold(paramsFromType)(_.parameters.map(Compatibility.toParameter(_, substitutor)))
 
       tp match {
         case ScMethodType(_, params, _) =>

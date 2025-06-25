@@ -153,12 +153,14 @@ class ImplicitHintsPass(
             val consNames = injectedConstructors.toSeq.flatMap { case (cons, subst) =>
               val name = cons.name
 
+              //@TODO: this is insufficient now, that we can have interleaved using clauses
               val (_, implicitArgsClauses) = InferUtil.updateTypeWithImplicitParameters(
                 cons.polymorphicType(subst),
                 anchor,
                 None,
                 canThrowSCE = false,
-                fullInfo    = false
+                fullInfo    = false,
+                updateDeep  = true
               )
 
               val implicitArgsFlat = implicitArgsClauses.flatMap(_.args)

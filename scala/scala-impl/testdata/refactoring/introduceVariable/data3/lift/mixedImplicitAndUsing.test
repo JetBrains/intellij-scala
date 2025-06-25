@@ -2,7 +2,6 @@ object A {
   implicit val int: Int = 0
   def test(using Int)(a: Int)(using Int)(implicit b: Int): Boolean = ???
 
-  // TODO: this is wrong! The type should be Int => Boolean. Change if the type inference regarding using clauses is fixed
   Seq(1).forall(<selection>test</selection>)
 }
 -------
@@ -10,7 +9,6 @@ object A {
   implicit val int: Int = 0
   def test(using Int)(a: Int)(using Int)(implicit b: Int): Boolean = ???
 
-  // TODO: this is wrong! The type should be Int => Boolean. Change if the type inference regarding using clauses is fixed
-  private val value: Int => Int => Int => Boolean = test _
+  private val value: Int => Boolean = test _
   Seq(1).forall(value)
 }

@@ -110,7 +110,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         val args =
           argument match {
             case tuple: ScTuple         => Seq(tuple.exprs) // See SCL-2001
-            case _: ScUnitExpr          => Seq.empty // See SCL-3485
+            case _: ScUnitExpr          => Seq(Seq.empty) // See SCL-3485
             case e: ScParenthesisedExpr =>
               e.innerElement match {
                 case Some(expr)           => Seq(Seq(expr))

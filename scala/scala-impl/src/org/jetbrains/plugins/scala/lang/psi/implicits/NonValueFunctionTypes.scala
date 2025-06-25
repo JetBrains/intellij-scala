@@ -87,11 +87,12 @@ private object NonValueFunctionTypes {
     val (hasLeadingImplicits, hasTrailingImplicits) =
       hasImplicitClause(polyOrMethodType, isLeading = true)
 
-    val hasImplicits = hasLeadingImplicits || hasTrailingImplicits
+    val hasImplicits      = hasLeadingImplicits || hasTrailingImplicits
+    val withoutDependents = Compatibility.approximateDependent(polyOrMethodType, fun.parameters.toSet)
 
     Option.when(hasTypeParams || hasImplicits)(
       MethodTypeData(
-        polyOrMethodType,
+        withoutDependents.getOrElse(polyOrMethodType),
         hasLeadingImplicitClause  = hasLeadingImplicits,
         hasTrailingImplicitClause = hasTrailingImplicits
       )

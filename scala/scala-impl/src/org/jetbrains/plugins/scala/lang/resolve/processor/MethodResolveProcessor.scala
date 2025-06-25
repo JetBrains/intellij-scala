@@ -232,7 +232,7 @@ object MethodResolveProcessor {
       tempSubstitutor.followed(ScSubstitutor.bind(prevTypeInfo ++ unresolvedTps)(UndefinedType(_)))
 
     val typeParameters: Seq[TypeParameter] = prevTypeInfo ++ (element match {
-//      case ScalaConstructor(cons) => cons.getConstructorTypeParameters.map(TypeParameter(_))
+      case ScalaConstructor(cons) => cons.getConstructorTypeParameters.map(TypeParameter(_))
       case cons @ Constructor.ofClass(cls) =>
         (cls.getTypeParameters ++ cons.getTypeParameters).toSeq.map(TypeParameter(_))
       case fun: ScFunction => fun.typeParameters.map(TypeParameter(_))
@@ -250,9 +250,8 @@ object MethodResolveProcessor {
 
       val retType: ScType = element match {
         case cons @ ScalaConstructor.in(td: ScTypeDefinition) =>
-//          val bindTypeParamsSubst = ScSubstitutor.bind(td.typeParameters, cons.getConstructorTypeParameters)(TypeParameterType(_))
-//          substitutor(bindTypeParamsSubst(td.`type`().getOrNothing))
-          substitutor(td.`type`().getOrNothing)
+          val bindTypeParamsSubst = ScSubstitutor.bind(td.typeParameters, cons.getConstructorTypeParameters)(TypeParameterType(_))
+          substitutor(bindTypeParamsSubst(td.`type`().getOrNothing))
         case Constructor.ofClass(cls) =>
           substitutor(ScalaPsiUtil.constructTypeForPsiClass(cls)((tp, _) => TypeParameterType(tp)))
         case _: ScFunction if c.functionParamClauses.count(!_.isImplicit) > 1 =>
@@ -401,15 +400,46 @@ object MethodResolveProcessor {
         val substitutorWithExpected =
           expectedTypeSubst.fold(substitutor)(bounds => substitutor.followed(bounds.substitutor))
 
+        val (argsWithDynamic, argClauseIdxAdjusted) =
+          if (c.nameArgForDynamic.contains(CommonNames.Apply)) {
+            //this is a weird case, where at first apply method expansion has to happen
+            //and then applyDynamic method is resolved with `apply` as it's first argument.
+            //See LaminarProjectHighlightingTest ShadowDomSpec.scala
+            val args =
+              Seq.empty[Expression] +: (c.name match {
+                case DynamicResolveProcessor.APPLY_DYNAMIC_NAMED =>
+                  if (argumentClauses.isEmpty) Seq.empty
+                  else {
+                    val head = argumentClauses.head
+
+                    val tuples = head.map {
+                      case ScAssignment(_, right) =>
+                        Expression.OfType(
+                          TupleType(Seq(Nothing, Any), place),
+                          right
+                        )
+                      case e => e
+                    }
+
+                    tuples +: argumentClauses.tail
+                  }
+                case _ =>
+                  argumentClauses
+              })
+
+            (args, argClauseIdx + 1)
+          } else
+      (argumentClauses, argClauseIdx)
+
         val argsApplicability =
           Compatibility.compatible(
             c,
             substitutorWithExpected,
-            argumentClauses,
+            argsWithDynamic,
             checkWithImplicits,
             shapesOnly,
             ref,
-            argClauseIdx
+            argClauseIdxAdjusted
           )
 
         problems ++= argsApplicability.problems
@@ -517,7 +547,7 @@ object MethodResolveProcessor {
     if (selfConstructorResolve) return ScSubstitutor.empty
 
     val maybeTypeParameters: Option[Seq[PsiTypeParameter]] = element match {
-//      case ScalaConstructor(cons)          => Option(cons.getConstructorTypeParameters)
+      case ScalaConstructor(cons)          => Option(cons.getConstructorTypeParameters)
       case cons @ Constructor.ofClass(cls) => Option((cls.getTypeParameters ++ cons.getTypeParameters).toSeq)
       case fun: ScFunction if !isExtension => Option(fun.typeParametersWithExtension(exportedInExtension))
       case t: ScTypeParametersOwner        => Option(t.typeParameters)
@@ -585,17 +615,7 @@ object MethodResolveProcessor {
     import proc.{candidates => _, _}
 
     val withoutShadowed = filterShadowedDefinitions(input)
-
-    val argClausesWithDynamic = {
-      //If current candidate is a *Dynamic method, first argument clause is always the invoked name.
-      val firstCand = withoutShadowed.headOption
-
-      firstCand.flatMap(_.nameArgForDynamic).map(_ =>
-        Seq(createExpressionFromText("\"\"", ref)(ref.projectContext))
-      ).toSeq ++ argumentClauses
-    }
-
-    val maxArgClauseIdx = argClausesWithDynamic.size - 1
+    val maxArgClauseIdx = argumentClauses.size - 1
 
     @tailrec
     def candidatesForArgClause(
@@ -613,7 +633,7 @@ object MethodResolveProcessor {
           expandedInput,
           checkWithImplicits = false,
           useExpectedType    = true,
-          args               = argClausesWithDynamic,
+          args               = argumentClauses,
           argClauseIdx       = clauseIdx,
           shapesOnly         = true
         )
@@ -638,7 +658,7 @@ object MethodResolveProcessor {
             else                           applicableToShape
           }
 
-          candidates(proc, preselected, argClausesWithDynamic, clauseIdx)
+          candidates(proc, preselected, argumentClauses, clauseIdx)
         }
 
       val applicableForCurrentClause = resultsForCurrentClause.filter(_.isApplicable())
@@ -674,7 +694,7 @@ object MethodResolveProcessor {
       preselected,
       checkWithImplicits = false,
       useExpectedType    = useExpectedType,
-      args               = proc.argumentClauses,
+      args               = argumentClauses,
       argClauseIdx       = argClauseIdx
     )
 
@@ -689,7 +709,7 @@ object MethodResolveProcessor {
         preselected,
         checkWithImplicits = true,
         useExpectedType    = useExpectedType,
-        args               = proc.argumentClauses,
+        args               = argumentClauses,
         argClauseIdx       = argClauseIdx
       )
 
@@ -769,9 +789,11 @@ object MethodResolveProcessor {
             case other => (other, None)
           }
 
-        MostSpecificUtil(ref, len)
-          .mostSpecificForParameterClause(candidatesWithRespectiveParamClause)
-        match {
+        val mostSpecific =
+          MostSpecificUtil(ref, len)
+            .mostSpecificForParameterClause(candidatesWithRespectiveParamClause)
+
+        mostSpecific match {
           case Some(r) => Set(r)
           case None    => filtered
         }

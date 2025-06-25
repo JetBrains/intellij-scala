@@ -1091,7 +1091,9 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       p match {
         case AliasType(_, lower, _, _) =>
           lower match {
-            case Right(value) if !value.isNothing => result = conformsInner(value, r, visited, constraints)
+            case Right(value) if !value.isNothing =>
+              result = conformsInner(value, r, visited, constraints)
+              if (result != null) return
             case _                                => ()
           }
         case _ =>
