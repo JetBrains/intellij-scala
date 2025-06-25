@@ -44,9 +44,9 @@ object InferUtil {
   )
 
   val ValueOf         = "scala.ValueOf"
-  val Mirror          = "scala.deriving.Mirror"
   val ConformsWitness = "scala.Predef.<:<"
   val EquivWitness    = "scala.Predef.=:="
+  val Mirrors         = Seq("scala.deriving.Mirror", "scala.deriving.Mirror.Product", "scala.deriving.Mirror.Sum")
 
   private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.api.InferUtil$")
 
@@ -362,12 +362,12 @@ object InferUtil {
 
   private def areEligible(params: Seq[ScType], typeFqn: String)(implicit context: Context): Boolean =
     (typeFqn, params) match {
-      case (ValueOf, Seq(t))              => eligibleForValueOf(t)
-      case (ConformsWitness, Seq(t1, t2)) => t1.conforms(t2)
-      case (EquivWitness, Seq(t1, t2))    => t1.equiv(t2)
-      case (Mirror, Seq(t))               => eligibleForMirror(t)
-      case _ if params.size == 1          => tagsAndManifists.contains(typeFqn)
-      case _                              => false
+      case (ValueOf, Seq(t))                            => eligibleForValueOf(t)
+      case (ConformsWitness, Seq(t1, t2))               => t1.conforms(t2)
+      case (EquivWitness, Seq(t1, t2))                  => t1.equiv(t2)
+      case (mirror, Seq(t)) if Mirrors.contains(mirror) => eligibleForMirror(t)
+      case _ if params.size == 1                        => tagsAndManifists.contains(typeFqn)
+      case _                                            => false
     }
 
   private def eligibleForMirror(tpe: ScType)(implicit context: Context): Boolean = {
