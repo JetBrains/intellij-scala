@@ -18,10 +18,12 @@ import com.intellij.ui.SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES
 import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.util.SbtModuleType
 import org.jetbrains.sbt.project.SbtProjectSystem
 
 import java.util
 import java.util.regex.Pattern
+import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
 import scala.jdk.CollectionConverters._
 import scala.util.control.Breaks._
@@ -164,9 +166,11 @@ private object ScalaTreeStructureProvider {
         isNotAncestorOfModulePath && !isContentRootUnderDisplayedPaths
       }
 
-  private def isAncestor(ancestor: String, file: String): Boolean =
-    //note: true parameter in #isAncestor means that the file cannot be an ancestor of itself
-    FileUtil.isAncestor(ancestor, file, true)
+  /**
+   * @param strict if `true`, it means that the file cannot be an ancestor of itself
+   */
+  private def isAncestor(ancestor: String, file: String, strict: Boolean = true): Boolean =
+    FileUtil.isAncestor(ancestor, file, strict)
 
   private def getScalaModuleDirectoryNode(node: PsiDirectoryNode)(implicit project: Project, settings: ViewSettings): Option[ScalaModuleDirectoryNode] =
     getScalaModuleDirectoryNode(node.getValue, node.getFilter)
@@ -232,16 +236,69 @@ private object ScalaTreeStructureProvider {
     if (isRootModuleInMultiBuildProject(module, project, virtualFile)) return None
 
     val fullModuleName = module.getName
-    val moduleGrouper = ModuleGrouper.instanceFor(project)
-    val shortModuleName = moduleGrouper.getShortenedNameByFullModuleName(fullModuleName)
+    val isModuleUnderItsParent = isModuleUnderItsRealParent(module, project, virtualFile)
+
+    val shortModuleName =
+      if (!isModuleUnderItsParent) {
+        // If the source set module is not placed under its parent, we take the last two elements from the full internal module name.
+        // In practice, this represents the parent module name (excluding any group, if present) and the source set name, such as main or test
+        fullModuleName.split('.').takeRight(2).mkString(".")
+      } else {
+        val moduleGrouper = ModuleGrouper.instanceFor(project)
+        // #getShortenedNameByFullModuleName splits the module name by dots and returns the last element
+        moduleGrouper.getShortenedNameByFullModuleName(fullModuleName)
+      }
 
     // Because ExplicitModuleGrouper#getShortenedNameByFullModuleName always returns the original module name and
-    // QualifiedNameGrouper#getShortenedNameByFullModuleName also returns the original module name when when grouping is not used at all in the project, we can assume that
+    // QualifiedNameGrouper#getShortenedNameByFullModuleName also returns the original module name when grouping is not used at all in the project, we can assume that
     // when (shortModuleName == moduleName) it is not needed to create custom ScalaModuleDirectoryNode (so None is returned from this method).
     // For such a case com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode.updateImpl will work correctly, because the group name is not present in module name
     if (fullModuleName == shortModuleName || shortModuleName.isBlank) None else Some(shortModuleName)
   }
 
+  /**
+   * Checks whether a module is a source set module (main/test) and, if so, verifies
+   * whether it is correctly placed under its parent module.
+   *
+   * @return `true` if the module is not a source set module, or if it is a source set
+   *         module and is correctly placed under its parent module
+   */
+  private def isModuleUnderItsRealParent(module: Module, project: Project, virtualFile: VirtualFile): Boolean = {
+    if (!isSourceSetModule(module)) return true
+
+    val projectRoot = ExternalSystemApiUtil.getExternalRootProjectPath(module)
+    def isInsideProjectRoot(parent: VirtualFile): Boolean =
+      isAncestor(projectRoot, parent.getPath, strict = false)
+
+    val moduleName = module.getName
+    // The source set suffix may include an appended number (e.g., main~1),
+    // so it is necessary to extract the exact source set suffix instead of using hardcoded main/test values
+    val sourceSetSuffix = moduleName.split('.').lastOption match {
+      case Some(suffix) => suffix
+      case None => return true
+    }
+    @tailrec
+    def isFileTheCorrectParent(parentFile: VirtualFile): Boolean = {
+      if (parentFile == null || !isInsideProjectRoot(parentFile)) return true
+
+      val parentFileModule = getModuleFromVirtualFile(parentFile)(project)
+      val canProcessParentFileModule = parentFileModule != null && !isSourceSetModule(parentFileModule)
+      if (canProcessParentFileModule) {
+        // If adding a source set suffix to the parent module's name results in the module's name,
+        // it indicates that the parent module is the correct parent for the module being verified
+        s"${parentFileModule.getName}.$sourceSetSuffix" == moduleName
+      } else {
+        isFileTheCorrectParent(parentFile.getParent)
+      }
+    }
+
+    isFileTheCorrectParent(virtualFile.getParent)
+  }
+
+  private def isSourceSetModule(module: Module): Boolean = {
+    val externalModuleType = ExternalSystemApiUtil.getExternalModuleType(module)
+    externalModuleType == SbtModuleType.sbtSourceSetModuleType
+  }
 
   private def isRootModuleInMultiBuildProject(module: Module, project: Project, virtualFile: VirtualFile): Boolean = {
     val regexPattern = (path: String) => {
@@ -264,12 +321,10 @@ private object ScalaTreeStructureProvider {
 
     moduleIdOpt(module).exists { id =>
       val isRootProject = moduleRegexPattern.matches(id)
-      if (isRootProject) {
+      isRootProject && {
         // note: checking if there are more root projects and if they belong to another build
         val modules = ModuleManager.getInstance(project).getModules
         modules.exists(isRootAndBelongsToDifferentBuild)
-      } else {
-        false
       }
     }
   }
