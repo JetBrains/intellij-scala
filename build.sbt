@@ -491,15 +491,9 @@ lazy val compilerIntegration =
       sbtImpl % "test->test;compile->compile",
       scalaMetaImpl % "test->test;compile->compile",
       jps,
-      bsp,
-      gradleIntegration % "test->test"
+      bsp
     )
     .settings(
-      intellijPlugins ++= Seq(
-        "com.intellij.gradle",
-        "org.jetbrains.idea.maven"
-      ).map(_.toPlugin), // Used only in tests
-      libraryDependencies += Dependencies.intellijMavenTestFramework % Test,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.compiler-integration")
     )
 
@@ -807,13 +801,15 @@ lazy val gradleIntegration =
   newProject("gradle", file("scala/integration/gradle"))
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
-      sbtImpl % "test->test;compile->compile"
+      sbtImpl % "test->test;compile->compile",
+      compilerIntegration % "test->test"
     )
     .settings(
       intellijPlugins ++= Seq(
         "com.intellij.gradle",     // required by Android
         "org.intellij.groovy",     // required by Gradle
-        "com.intellij.properties").map(_.toPlugin) // required by Gradle
+        "com.intellij.properties"  // required by Gradle
+      ).map(_.toPlugin)
     )
 
 lazy val intellijBazelIntegration =
@@ -850,7 +846,8 @@ lazy val mavenIntegration =
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
       testingSupport,
-      sbtImpl % "test->test;compile->compile"
+      sbtImpl % "test->test",
+      compilerIntegration % "test->test;compile->compile"
     )
     .settings(
       intellijPlugins += "org.jetbrains.idea.maven".toPlugin,
