@@ -25,7 +25,11 @@ object SbtSourceSetUtil {
       val externalModuleType = ExternalSystemApiUtil.getExternalModuleType(module)
       val isSbtSourceSetModule = externalModuleType == SbtModuleType.sbtSourceSetModuleType
       isSbtSourceSetModule && {
-        module.getName.endsWith(s".$sourceSetType")
+        // NOTE!!
+        // In some edge cases, the source set module name may also end with a number e.g., .main~<number>,
+        // so we should handle this scenario as well
+        val pattern = s"^.*\\.$sourceSetType(~\\d+)?$$".r
+        pattern.matches(module.getName)
       }
     }
   }
