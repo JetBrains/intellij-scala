@@ -26,6 +26,7 @@
   </extensions>
   <extensions defaultExtensionNs="org.intellij.scala">
     <testWorkingDirectoryProvider implementation="org.jetbrains.plugins.scala.project.maven.MavenTestWorkingDirectoryProvider"/>
+    <buildToolProjectSyncHelper implementation="org.jetbrains.plugins.scala.project.maven.MavenProjectSyncHelper"/>
   </extensions>
   <extensions defaultExtensionNs="org.jetbrains.idea.maven">
     <repositoryProvider implementation="org.jetbrains.sbt.resolvers.SbtMavenRepositoryProvider"/>
