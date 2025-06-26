@@ -15,6 +15,7 @@ import java.nio.charset.Charset
 import java.nio.file.{Files, Path, Paths}
 import java.util.stream.{Stream => JStream}
 import scala.jdk.CollectionConverters.IteratorHasAsScala
+import scala.language.implicitConversions
 import scala.util.Using
 
 private[project] object SystemDetector extends ScalaSdkDetectorBase {
@@ -34,7 +35,7 @@ private[project] object SystemDetector extends ScalaSdkDetectorBase {
   // From https://github.com/scala/scala3/issues/20413:
   // "there is also a scala3-tasty-inspector_3 jar to go alongside scala3-staging_3
   //   these are not normally on the classpath for scala/scalac,
-  //   but are added to the classpath if the user passes the -with-compiler argument to the launcher.
+  //   but are added to the classpath if the user passes the `-with-compiler` argument to the launcher.
   //   (Typically the user would need to add explicit libraryDependencies to use them in sbt/mill)"
   private val ScalaCompilerClasspathJarName = "scala.jar"
   private val ScaladocClasspathJarName = "scaladoc.jar"
@@ -107,7 +108,7 @@ private[project] object SystemDetector extends ScalaSdkDetectorBase {
   private def rootsFromPath: Seq[Path] = env("PATH").flatMap { path =>
     path.split(java.io.File.pathSeparator)
       .find(_.toLowerCase.contains("scala"))
-      .map(s => Paths.get(s).getParent.toOption.map(_.getParent)) // we should return *parent* dir for "scala" folder, not the "bin" one
+      .map(s => Paths.get(s).getParent.toOption.map(_.getParent)) // we should return *parent* dir for the "scala" folder, not the "bin" one
   }.toSeq.flatten
 
   private def env(name: String): Option[String] = Option(System.getenv(name))
@@ -141,7 +142,7 @@ private[project] object SystemDetector extends ScalaSdkDetectorBase {
     }
     val versionsCount = sdkDescriptors.groupBy(_._1.version).view.mapValues(_.size).toMap
     sdkDescriptors.map { case (sdk, sdkRootPath) =>
-      // show sdkRoot folder name as label only if there are several system SDKs with same version
+      // show sdkRoot folder name as a label only if there are several system SDKs with the same version
       val label = if (versionsCount(sdk.version) > 1) Some(sdkRootPath.getFileName.toString) else None
       sdk.withLabel(label)
     }
@@ -281,7 +282,46 @@ private[project] object SystemDetector extends ScalaSdkDetectorBase {
     }
   }
 
-  private def resolve(expectedArtifactName: String, jarArtifacts: Seq[JarArtifact]): Either[CompilerClasspathResolveFailure, JarArtifact] = {
+  /**
+   * We use [[ExpectedArtifactName]] instead of simply using a String to support the cases
+   * when some mandatory files have different names in different versions,
+   * For example, since scala 3.3.6, it uses jline-terminal-jni instead of jline-terminal-jna.
+   *
+   * The main thing is [[ExpectedArtifactName.Or]].
+   */
+  private sealed trait ExpectedArtifactName
+  private object ExpectedArtifactName {
+    case class Name(value: String) extends ExpectedArtifactName
+    case class Or(names: Seq[ExpectedArtifactName]) extends ExpectedArtifactName
+    object Or {
+      def apply(name1: String, name2: String): Or = new Or(Seq(Name(name1), Name(name2)))
+    }
+    implicit def strToName(value: String): Name = Name(value)
+  }
+
+  private implicit class StringOps(private val name1: String) extends AnyVal {
+    def or(name2: String): ExpectedArtifactName.Or = ExpectedArtifactName.Or(name1, name2)
+  }
+
+  private def resolve(
+    expectedArtifactName: ExpectedArtifactName,
+    jarArtifacts: Seq[JarArtifact]
+  ): Either[CompilerClasspathResolveFailure, JarArtifact] = {
+    expectedArtifactName match {
+      case ExpectedArtifactName.Name(value) =>
+        resolve(value, jarArtifacts)
+      case ExpectedArtifactName.Or(names) =>
+        val lazyResolve = names.to(LazyList).map(resolve(_, jarArtifacts))
+        lazyResolve.find(_.isRight).getOrElse {
+          lazyResolve.head
+        }
+    }
+  }
+
+  private def resolve(
+    expectedArtifactName: String,
+    jarArtifacts: Seq[JarArtifact]
+  ): Either[CompilerClasspathResolveFailure, JarArtifact] = {
     val matchingJars = jarArtifacts.filter(_.shortName == expectedArtifactName)
     matchingJars match {
       case Seq(jar)     => Right(jar).filterOrElse(_.file.exists, UnresolvedArtifact(expectedArtifactName))
@@ -297,7 +337,7 @@ private[project] object SystemDetector extends ScalaSdkDetectorBase {
     def from(file: Path): Option[JarArtifact] = {
       val fileName = file.getFileName.toString
       if (fileName.endsWith(".jar")) {
-        // extra strip ".jar" just in case if some library doesn't have version (it's not the case for 3.0.0 though)
+        // extra strip ".jar" just in case if some library doesn't have a version (it's not the case for 3.0.0 though)
         val shortName = JarExtensionWithVersionRegex.replaceFirstIn(fileName, "").stripSuffix(".jar")
         Some(JarArtifact(file, fileName, shortName))
       }
@@ -308,7 +348,7 @@ private[project] object SystemDetector extends ScalaSdkDetectorBase {
   private val Scala2LibraryArtifactName = "scala-library"
 
   // This is the compiler classpath for Scala 3.0.0:
-  // mvn dependency:tree (for scala3-compiler_3-3.0.0) (add -Dverbose to see duplicates)
+  // mvn dependency:tree (for scala3-compiler_3-3.0.0) (add `-Dverbose` to see duplicates)
   // \- org.scala-lang:scala3-compiler_3:jar:3.0.0:compile
   //    +- org.scala-lang:scala3-interfaces:jar:3.0.0:compile
   //    +- org.scala-lang:scala3-library_3:jar:3.0.0:compile
@@ -329,22 +369,25 @@ private[project] object SystemDetector extends ScalaSdkDetectorBase {
   //
   // NOTE:
   // We can't just include all jars from `lib` folder. We need an explicit list of compiler classpath dependencies
-  // because `lib` folder contains a lot of other jar files, not required for the compiler.
-  // For example:
+  // because the ` lib ` folder contains a lot of other jar files, not required for the compiler.<br>
+  // Example:
   //  - scala3-tasty-inspector_3-3.0.0
-  //  - scaladoc_3-3.0.0.jar with all it's transitive dependencies (flexmark-*.jar, jackson-*.jar, etc...)
-  private val Scala3ExtraCompilerClasspathArtifacts = Seq(
+  //  - scaladoc_3-3.0.0.jar with all its transitive dependencies (flexmark-*.jar, jackson-*.jar, etc...)
+  private val Scala3ExtraCompilerClasspathArtifacts: Seq[ExpectedArtifactName] = Seq(
     Scala2LibraryArtifactName,
     "scala-asm",
     "compiler-interface",
     "util-interface",
     "jline-reader",
     "jline-terminal",
-    "jline-terminal-jna",
-    "jna",
+    //At least from 3.3.6 it uses JNI not JNA
+    // https://github.com/scala/scala3/releases/tag/3.3.6
+    // https://github.com/scala/scala3/pull/22205
+    "jline-terminal-jna".or("jline-terminal-jni"),
+    "jna".or("jline-native"), // before 3.3.6 it was just "jna" but after the alternative became jline-native
   )
   //This jar is not required in scala 3.3.x or 3.4.x
-  private val Scala3ExtraCompilerClasspathOptionalArtifacts = Seq(
+  private val Scala3ExtraCompilerClasspathOptionalArtifacts: Seq[ExpectedArtifactName] = Seq(
     "protobuf-java",
   )
 }
