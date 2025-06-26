@@ -789,14 +789,15 @@ lazy val gradleIntegration =
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
       sbtImpl % "test->test;compile->compile",
-      compilerIntegration % "test->test"
+      compilerIntegration % "test->test;compile->compile"
     )
     .settings(
       intellijPlugins ++= Seq(
         "com.intellij.gradle",     // required by Android
         "org.intellij.groovy",     // required by Gradle
         "com.intellij.properties"  // required by Gradle
-      ).map(_.toPlugin)
+      ).map(_.toPlugin),
+      packageMethod := PackagingMethod.PluginModule("scalaCommunity.gradle")
     )
 
 lazy val intellijBazelIntegration =
