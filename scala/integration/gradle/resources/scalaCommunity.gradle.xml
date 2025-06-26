@@ -29,4 +29,7 @@
     <extensions defaultExtensionNs="org.jetbrains.sbt">
         <buildToolModuleHandler implementation="org.jetbrains.plugins.scala.project.gradle.GradleModuleHandler"/>
     </extensions>
+    <extensions defaultExtensionNs="org.intellij.scala">
+        <buildToolProjectSyncHelper implementation="org.jetbrains.plugins.scala.project.gradle.GradleProjectSyncHelper"/>
+    </extensions>
 </idea-plugin>

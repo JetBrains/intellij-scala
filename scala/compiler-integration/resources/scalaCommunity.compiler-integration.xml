@@ -8,10 +8,13 @@
         <extensionPoint qualifiedName="org.intellij.scala.worksheetHighlightingCompiler" interface="org.jetbrains.plugins.scala.compiler.highlighting.WorksheetHighlightingCompiler" dynamic="true"/>
         <extensionPoint qualifiedName="org.intellij.scala.compileServerClasspathProvider" beanClass="org.jetbrains.plugins.scala.compiler.CompileServerClasspathProvider" dynamic="true"/>
         <extensionPoint qualifiedName="org.intellij.scala.compileServerVmOptionsProvider" interface="org.jetbrains.plugins.scala.compiler.CompileServerVmOptionsProvider" dynamic="true"/>
+        <extensionPoint qualifiedName="org.intellij.scala.buildToolProjectSyncHelper" interface="org.jetbrains.plugins.scala.compiler.sync.BuildToolProjectSyncHelper" dynamic="true"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="com.intellij">
         <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.compiler.charts.CompilationChartsBuildManagerListener"/>
+
+        <compiler.buildIssueContributor implementation="org.jetbrains.plugins.scala.compiler.sync.MissingScalaSdkBuildIssueContributor"/>
 
         <trafficLightRendererContributor implementation="org.jetbrains.plugins.scala.compiler.highlighting.CustomTrafficLightRendererContributor"/>
         <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.compiler.highlighting.EraseCompilerProcessJdkOnce"/>
@@ -64,6 +67,8 @@
         <findUsages.externalReferenceSearcher implementation="org.jetbrains.plugins.scala.compiler.references.search.CompilerIndicesReferencesSearch$"/>
         <findUsages.externalInheritorsSearcher implementation="org.jetbrains.plugins.scala.compiler.references.search.CompilerIndicesInheritorsSearch$"/>
         <findUsages.externalSearchScopeChecker implementation="org.jetbrains.plugins.scala.compiler.references.search.CompilerIndicesReferencesSearcher$"/>
+
+        <buildToolProjectSyncHelper implementation="org.jetbrains.plugins.scala.compiler.sync.SbtProjectSyncHelper"/>
     </extensions>
 
     <applicationListeners>

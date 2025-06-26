@@ -86,8 +86,7 @@ abstract class MissingScalaSdkCompilationTestBase(incrementalityType: Incrementa
   }
 
   private def missingScalaSdkWarningMessage(module: Module): String =
-    s"""scala: Skipping Scala sources without a Scala SDK in module [${module.getName}]
-       |If these sources do need to be compiled, this message might indicate that the project is misconfigured. Please Sync the project again.""".stripMargin
+    s"${MissingScalaSdk.MessagePrefix}: ${MissingScalaSdk.skippedModuleMessage(module.getName)}"
 }
 
 @Category(Array(classOf[CompilationTests_Zinc]))
