@@ -17,6 +17,7 @@
 <idea-plugin package="org.jetbrains.plugins.scala.project.maven">
   <dependencies>
     <plugin id="org.jetbrains.idea.maven"/>
+    <module name="scalaCommunity.compiler-integration"/>
   </dependencies>
 
   <extensions defaultExtensionNs="org.jetbrains.idea.maven">
@@ -25,6 +26,7 @@
   </extensions>
   <extensions defaultExtensionNs="org.intellij.scala">
     <testWorkingDirectoryProvider implementation="org.jetbrains.plugins.scala.project.maven.MavenTestWorkingDirectoryProvider"/>
+    <buildToolProjectSyncHelper implementation="org.jetbrains.plugins.scala.project.maven.MavenProjectSyncHelper"/>
   </extensions>
   <extensions defaultExtensionNs="org.jetbrains.idea.maven">
     <repositoryProvider implementation="org.jetbrains.sbt.resolvers.SbtMavenRepositoryProvider"/>

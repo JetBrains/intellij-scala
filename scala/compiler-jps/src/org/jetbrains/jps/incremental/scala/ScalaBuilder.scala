@@ -11,6 +11,7 @@ import org.jetbrains.jps.incremental.scala.model.JpsScalaProjectMetadataExtensio
 import org.jetbrains.jps.incremental.{CompileContext, Utils}
 import org.jetbrains.jps.model.JpsProject
 import org.jetbrains.jps.model.module.JpsModule
+import org.jetbrains.plugins.scala.compiler.MissingScalaSdk
 import org.jetbrains.plugins.scala.compiler.data.{CompilationData, SbtData}
 import org.jetbrains.plugins.scala.server.CompileServerProperties
 
@@ -203,7 +204,10 @@ object ScalaBuilder {
   }
 
   private[scala] def warnChunkHasNoScalaSdk(context: CompileContext, chunk: ModuleChunk): Unit = {
-    val message = JpsBundle.message("skipping.module.with.no.scala.sdk", chunk.getPresentableShortName)
-    context.processMessage(new CompilerMessage("scala", BuildMessage.Kind.WARNING, message))
+    // This message doesn't need to be localised because it is not presented to the user.
+    // It is instead handled by MissingScalaSdkBuildIssueContributor.
+    val message = MissingScalaSdk.skippedModuleMessage(chunk.getPresentableShortName)
+    //noinspection ReferencePassedToNls
+    context.processMessage(new CompilerMessage(MissingScalaSdk.MessagePrefix, BuildMessage.Kind.WARNING, message))
   }
 }
