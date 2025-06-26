@@ -91,6 +91,7 @@ object LatestScalaVersions {
   //
   // Exact versions
   //
+  //TODO: drop 2.9, why would we even need it?
   val Scala_2_9  = new ScalaVersion(ScalaLanguageLevel.Scala_2_9, "3")
   val Scala_2_10 = new ScalaVersion(ScalaLanguageLevel.Scala_2_10, "7")
   val Scala_2_11 = new ScalaVersion(ScalaLanguageLevel.Scala_2_11, "12")
