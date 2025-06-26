@@ -6,6 +6,12 @@ import org.jetbrains.plugins.scala.project.template.ScalaVersionDownloadingDialo
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 import org.jetbrains.plugins.scala.{DependencyManager, ScalaVersion}
 
+/**
+ * This test tests downloading of Scala SDK by scala version.
+ * It corresponds to logic executed when the "Download" button is pressed in the new Scala SDK dialog.
+ *
+ * Also see [[org.jetbrains.plugins.scala.project.sdkdetect.repository.SystemDetectorIntegrationTest]]
+ */
 class ScalaVersionDownloadingDialogTest extends TestCase {
 
   def testScala2VersionResolveResultJars(): Unit = {
