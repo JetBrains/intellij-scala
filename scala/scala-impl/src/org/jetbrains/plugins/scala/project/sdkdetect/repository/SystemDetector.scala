@@ -184,7 +184,8 @@ private[project] object SystemDetector extends ScalaSdkDetectorBase {
       case _ => None
     }
 
-    val allFiles = files.filter(_.isRegularFile) ++ files.flatMap(_.allFiles())
+    val (regularFiles, directories) = files.partition(_.isRegularFile)
+    val allFiles = regularFiles ++ directories.flatMap(_.allFiles())
     val components = ScalaSdkComponent.fromFiles(allFiles)
     buildFromComponents(components, None, systemRoot = systemRoot)
   }

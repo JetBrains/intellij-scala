@@ -1831,7 +1831,7 @@ package object extensions {
      * OS resources.
      */
     def allFiles(): Seq[Path] = {
-      val (files, directories) = children().span(_.isRegularFile)
+      val (files, directories) = children().partition(_.isRegularFile)
       files ++ directories.flatMap(_.allFiles())
     }
 
