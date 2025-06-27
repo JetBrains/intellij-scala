@@ -120,7 +120,7 @@ class ScalaClassRenameDialog(
   private lazy val chbRenameCompanion: JCheckBox = new JCheckBox("", true)
 
   override def createCenterPanel(): JComponent = {
-    val companion = psiElement.asOptionOf[ScTypeDefinition].flatMap(_.baseCompanion) match {
+    val companion = psiElement.asOptionOf[ScTypeDefinition].flatMap(_.baseCompanionTypeDefinition) match {
       case Some(c) => c
       case None =>
         return null

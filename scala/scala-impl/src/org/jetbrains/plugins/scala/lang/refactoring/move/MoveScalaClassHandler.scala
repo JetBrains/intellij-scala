@@ -43,7 +43,7 @@ final class MoveScalaClassHandler extends MoveClassHandler {
 
   override def doMoveClass(clazz: PsiClass, directory: PsiDirectory): PsiClass = (clazz, clazz.getContainingFile) match {
     case (definition: ScTypeDefinition, file: ScalaFile) =>
-      val maybeCompanion = if (moveCompanion) definition.baseCompanion
+      val maybeCompanion = if (moveCompanion) definition.baseCompanionTypeDefinition
       else None
 
       val createNewClass = directory.findFile(file.getName) match {

@@ -88,7 +88,7 @@ final class ScalaRefCountVisitor(project: Project) extends HighlightVisitor {
         for {
           tcRef         <- derives.derivedReferences
           tc            <- DerivesUtil.resolveTypeClassReference(tcRef).toSeq
-          companion     <- tc.baseCompanion.toSeq
+          companion     <- tc.baseCompanionTypeDefinition.toSeq
         } {
           val derivedMethods = DerivesUtil.findDerivedMethods(companion, derives.owner)
           registerUsedElementsAndImports(derives, derivedMethods, checkWrite = false)
