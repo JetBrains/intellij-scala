@@ -38,7 +38,10 @@ class ScalaCompilerReferenceIndexBuilder extends ModuleLevelBuilder(BuilderCateg
 
     if (shouldBeNonIncremental) {
       val pd                      = context.getProjectDescriptor
-      val (allClasses, timestamp) = getAllClassesInfo(context)
+      val (allClasses, timestamp) = getAllClassesInfo(context) match {
+        case Some(tuple) => tuple
+        case None => return
+      }
       val allModules = pd.getProject.getModules.asScala.filter(moduleHasScala(context))
         .flatMap { m =>
           val name = m.getName
@@ -57,13 +60,13 @@ class ScalaCompilerReferenceIndexBuilder extends ModuleLevelBuilder(BuilderCateg
     context.processMessage(CompilationFinished)
   }
 
-  private[this] def getTargetTimestamps(targets: Iterable[BuildTarget[_]], context: CompileContext): Long =
+  private[this] def getTargetTimestamps(targets: Iterable[BuildTarget[_]], context: CompileContext): Option[Long] =
     targets.collect { case target: ModuleBuildTarget =>
       val stamp = context.getCompilationStartStamp(target)
 
       if (stamp == 0) Long.MaxValue
       else            stamp
-    }.min
+    }.minOption
 
   private[this] val shouldBeNonIncremental: Boolean =
     sys.props.get(rebuildPropertyKey).exists(java.lang.Boolean.valueOf(_))
@@ -78,7 +81,9 @@ class ScalaCompilerReferenceIndexBuilder extends ModuleLevelBuilder(BuilderCateg
       return ExitCode.OK
 
     if (!shouldBeNonIncremental) {
-      val affectedModules = chunk.getTargets.asScala.map { target =>
+      val targets = chunk.getTargets.asScala.toSeq
+
+      val affectedModules = targets.map { target =>
         val scope = if (target.isTests) ModuleScope.Test else ModuleScope.Production
         val name = target.getModule.getName
         scope.appendScopeSuffix(name)
@@ -96,10 +101,14 @@ class ScalaCompilerReferenceIndexBuilder extends ModuleLevelBuilder(BuilderCateg
           }
           .toSet
 
-      val timestamp = getTargetTimestamps(chunk.getTargets.asScala, context)
+      val optTimestamp = getTargetTimestamps(targets, context)
+      val timestamp = optTimestamp match {
+        case Some(t) => t
+        case None => return ExitCode.OK
+      }
 
       val removedSources = for {
-        target      <- chunk.getTargets.asScala.toSet if target != null
+        target      <- targets.toSet if target != null
         removedFile <- dirtyFilesHolder.getRemoved(target).asScala
       } yield removedFile
 
@@ -115,14 +124,19 @@ class ScalaCompilerReferenceIndexBuilder extends ModuleLevelBuilder(BuilderCateg
     } else ExitCode.OK
   }
 
-  private[this] def getAllClassesInfo(context: CompileContext): (Set[CompiledClass], Long) = {
+  private[this] def getAllClassesInfo(context: CompileContext): Option[(Set[CompiledClass], Long)] = {
     val pd               = context.getProjectDescriptor
     val buildTargetIndex = pd.getBuildTargetIndex
     val dataManager      = pd.dataManager
     val targets          = allJavaTargetTypes.flatMap(buildTargetIndex.getAllTargets(_).asScala)
     val mappings         = targets.map(dataManager.getSourceToOutputMap).iterator
 
-    val timestamp = getTargetTimestamps(targets, context)
+    val optTimestamp = getTargetTimestamps(targets, context)
+    val timestamp = optTimestamp match {
+      case Some(t) => t
+      case None => return None
+    }
+
     val classes = Set.newBuilder[CompiledClass]
 
     while (mappings.hasNext) {
@@ -136,7 +150,7 @@ class ScalaCompilerReferenceIndexBuilder extends ModuleLevelBuilder(BuilderCateg
       }
     }
 
-    (classes.result(), timestamp)
+    Some((classes.result(), timestamp))
   }
 
   private val allJavaTargetTypes = JavaModuleBuildTargetType.ALL_TYPES.asScala
