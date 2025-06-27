@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.implicits
 
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, childOf}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, childOf}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -65,7 +65,7 @@ object ImplicitSearchScope {
     val isScala3 = e.isInScala3File
 
     val elements = e.withContexts
-      .takeWhile(e => e != null && !e.isInstanceOf[PsiFile])
+      .takeWhile(e => e != null && !e.is[PsiFile])
       .flatMap(_.withPrevSiblings)
 
     var nonBorder: Option[PsiElement] = None
@@ -81,7 +81,7 @@ object ImplicitSearchScope {
   }
 
   private def maySearchImplicitsFor(element: PsiElement): Boolean =
-    element.isInstanceOf[ImplicitArgumentsOwner]
+    element.is[ImplicitArgumentsOwner]
 
   private def isImplicitSearchBorder(elem: PsiElement, isScala3: Boolean): Boolean = elem match {
     //special treatment for case clauses and for comprehensions to
