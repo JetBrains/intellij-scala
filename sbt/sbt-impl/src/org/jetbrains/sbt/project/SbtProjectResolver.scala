@@ -883,6 +883,13 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       parentModuleNameWithGroup,
     )
 
+    // Set correspondence between Test and Prod modules.
+    // IntelliJ can use this information in some actions.
+    // For example, it's used when invoking "Create New Test" to understand which test target location to use
+    // (see com.intellij.testIntegration.createTest.CreateTestAction.suggestModuleForTests)
+    // Note that module internal name is considered a module id
+    testModule.setProductionModuleId(prodModule.getInternalName)
+
     def createDisplayName(module: ModuleDataNodeType): String =
       s"$moduleName.${module.getExternalName}"
 
