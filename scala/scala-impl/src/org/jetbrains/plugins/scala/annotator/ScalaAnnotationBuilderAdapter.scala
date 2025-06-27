@@ -10,6 +10,8 @@ import com.intellij.openapi.editor.markup.{GutterIconRenderer, TextAttributes}
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 
+import scala.annotation.nowarn
+
 
 class ScalaAnnotationBuilderAdapter(annotationBuilder: AnnotationBuilder)
   extends ScalaAnnotationBuilder {
@@ -77,12 +79,12 @@ class ScalaAnnotationBuilderAdapter(annotationBuilder: AnnotationBuilder)
   }
 
   override def needsUpdateOnTyping: this.type = {
-    annotationBuilder.needsUpdateOnTyping()
+    annotationBuilder.needsUpdateOnTyping(): @nowarn("cat=deprecation")
     this
   }
 
   override def needsUpdateOnTyping(value: Boolean): this.type = {
-    annotationBuilder.needsUpdateOnTyping(value)
+    annotationBuilder.needsUpdateOnTyping(value): @nowarn("cat=deprecation")
     this
   }
 
