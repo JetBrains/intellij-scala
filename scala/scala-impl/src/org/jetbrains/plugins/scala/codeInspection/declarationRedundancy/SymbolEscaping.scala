@@ -27,7 +27,7 @@ private[declarationRedundancy] object SymbolEscaping {
 
     def getEscapeInfosOfContainingClassAndCompanion(containingClass: Option[ScTemplateDefinition]) = {
       val containingTypeDef = containingClass.filterByType[ScTypeDefinition]
-      val containingTypeDefCompanion = containingTypeDef.flatMap(_.baseCompanion)
+      val containingTypeDefCompanion = containingTypeDef.flatMap(_.baseCompanionTypeDefinition)
       (containingTypeDef ++ containingTypeDefCompanion).flatMap(getEscapeInfos)
     }
 
@@ -165,7 +165,7 @@ private[declarationRedundancy] object SymbolEscaping {
           .toSeq.flatMap(_.typeElements).flatMap(_.`type`().toSeq)
 
         val types = templateParentTypes ++ getTypeParameterTypes(typeDef)
-        val childTypes = (typeDef +: typeDef.baseCompanion.toSeq).flatMap(getEscapeInfos)
+        val childTypes = (typeDef +: typeDef.baseCompanionTypeDefinition.toSeq).flatMap(getEscapeInfos)
 
         EscapeInfo(typeDef, destructureAndFilter(types)) +: childTypes
 

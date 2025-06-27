@@ -415,7 +415,7 @@ private object GutterUtil {
     }
   }
 
-  private[this] def nameOf(definition: ScTypeDefinition) = definition match {
+  private[this] def nameOf(definition: ScCompanionOwner) = definition match {
     case _: ScEnum => ScalaBundle.message("companion.enum")
     case _: ScClass => ScalaBundle.message("companion.class")
     case _: ScTrait => ScalaBundle.message("companion.trait")

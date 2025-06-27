@@ -1409,7 +1409,7 @@ object ScalaImportOptimizer {
         for {
           tcRef         <- derives.derivedReferences
           tc            <- DerivesUtil.resolveTypeClassReference(tcRef).toSeq
-          companion     <- tc.baseCompanion.toSeq
+          companion     <- tc.baseCompanionTypeDefinition.toSeq
         } {
           val derivedMethods = DerivesUtil.findDerivedMethods(companion, derives.owner)
           derivedMethods.foreach(addWithImplicits(_, derives))

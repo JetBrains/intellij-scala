@@ -98,7 +98,7 @@ class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx2 with TargetE
   private object isSyntheticObject {
     def unapply(ref: ScReference): Option[PsiClass] = {
       ref.resolve() match {
-        case obj: ScObject if obj.isSyntheticObject => obj.baseCompanion
+        case obj: ScObject if obj.isSyntheticObject => obj.baseCompanionTypeDefinition
         case _ => None
       }
     }
