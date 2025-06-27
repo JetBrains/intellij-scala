@@ -512,6 +512,23 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
        |}
        |""".stripMargin
   )
+
+  def test_unused_infix(): Unit = checkTextHasNoErrors(
+    s"""
+       |extension (s: String)
+       |  infix def xShouldBe(x: String): Unit = ()
+       |
+       |implicit class StringOps(s: String) {
+       |  infix def shouldBe(x: String): Unit = ()
+       |}
+       |
+       |@main
+       |def main() = {
+       |  "test" xShouldBe "number"
+       |  "test" shouldBe "number"
+       |}
+       |""".stripMargin
+  )
 }
 
 class UnusedExpressionThrowsInspectionTest extends UnusedExpressionInspectionTestBase {

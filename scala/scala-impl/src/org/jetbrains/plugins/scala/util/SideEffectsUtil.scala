@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.util
 
 import com.intellij.psi.PsiMethod
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions.{&, ObjectExt, PsiClassExt, PsiMemberExt, PsiNamedElementExt, Resolved, ResolvesTo}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -184,7 +185,7 @@ object SideEffectsUtil {
   private def hasImplicitConversion(refExpr: ScExpression) = {
     refExpr match {
       case ref: ScReferenceExpression =>
-        ref.bind().exists(rr => rr.implicitFunction.isDefined)
+        ref.bind().exists(rr => rr.implicitFunction.isDefined || rr.isExtensionCall)
       case _ => false
     }
   }
@@ -227,7 +228,7 @@ object SideEffectsUtil {
     }
   }
 
-  private def methodNameIndicatesNoSideEffects(name: String): Boolean =
+  private def methodNameIndicatesNoSideEffects(@Nullable name: String): Boolean =
     knownMethodsWithoutSideEffects.contains(name)
       // || methodPrefixesIndicatingNoSideEffect.exists(prefix => name.startsWith(prefix) && name.lift(prefix.length).forall(_.isUpper))
 }
