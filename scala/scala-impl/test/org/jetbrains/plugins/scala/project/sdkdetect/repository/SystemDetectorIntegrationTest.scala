@@ -4,6 +4,7 @@ import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.util.ThrowableRunnable
 import junit.framework.{TestCase, TestSuite}
+import org.apache.commons.io.FileUtils
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.junit.Assert._
@@ -54,12 +55,8 @@ protected class SystemDetectorIntegrationTest(scalaVersion: ScalaVersion) extend
   override protected def setUp(): Unit = {
     super.setUp()
 
-    //TODO
-    baseTempDir = Path.of("sdk_root_temp").toAbsolutePath
-    Files.createDirectories(baseTempDir)
-
-    //baseTempDir = Files.createTempDirectory("system-detector-test-sdk-root")
-    //baseTempDir.toFile.deleteOnExit() //TODO
+    baseTempDir = Files.createTempDirectory("system-detector-test-sdk-root")
+    baseTempDir.toFile.deleteOnExit()
   }
 
   override def runTestRunnable(testRunnable: ThrowableRunnable[Throwable]): Unit = {
@@ -96,10 +93,8 @@ protected class SystemDetectorIntegrationTest(scalaVersion: ScalaVersion) extend
           )
       }
     } finally {
-      // Clean up
-      //TODO?
-      //FileUtils.deleteDirectory(unzippedDir.toFile)
-      //Files.deleteIfExists(zipFile.toPath)
+      FileUtils.deleteDirectory(unzippedDir.toFile)
+      Files.deleteIfExists(zipFile)
     }
   }
 
