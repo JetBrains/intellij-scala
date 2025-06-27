@@ -247,7 +247,8 @@ object Compatibility {
                 paramType.conforms(functionType, ConstraintSystem.empty) match {
                   case ConstraintSystem(substitutor) =>
                     Some(substitutor(functionType.typeArguments(1)))
-                  case _ => None
+                  case _ =>
+                    None
                 }
               }.filterNot(_.is[UndefinedType])
           }.map(_ -> res)
@@ -257,7 +258,8 @@ object Compatibility {
       fromImplicit match {
         case Some((mr, result)) =>
           ExpressionTypeResult(Right(mr), result.importsUsed, Some(result))
-        case _ => ExpressionTypeResult(Right(afterNTtoTConversion))
+        case _ =>
+          ExpressionTypeResult(Right(afterNTtoTConversion))
       }
     }
   }
