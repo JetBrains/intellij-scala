@@ -1,0 +1,3 @@
+This dummy file is added only to make sure the test/scala directory exists in git.
+Test creation is in the same module.
+It is only possible when test source rules exist in the module.
