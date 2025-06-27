@@ -39,6 +39,7 @@ import java.awt._
 import java.awt.event.ActionEvent
 import javax.swing._
 import javax.swing.event.HyperlinkEvent
+import scala.annotation.nowarn
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
@@ -158,8 +159,8 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
       }
 
     myCheckIdentifierListener = Some(checkIdentifierListener())
-    myCheckIdentifierListener.foreach {
-      myEditor.getDocument.addDocumentListener
+    myCheckIdentifierListener.foreach { listener =>
+      myEditor.getDocument.addDocumentListener(listener): @nowarn("cat=deprecation")
     }
 
     setBalloonPanel(nameIsValid = true)

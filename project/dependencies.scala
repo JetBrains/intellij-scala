@@ -20,12 +20,12 @@ object Versions {
    * ATTENTION: check the comment in [[Common.newProjectWithKotlin]] when updating this version.
    *            update `since-build` in plugin.xml if there are binary incompatible changes after update
    */
-  val intellijVersion = "252.23591.19"
+  val intellijVersion = "253.1110"
 
   def isNightlyIntellijVersion: Boolean = intellijVersion.count(_ == '.') == 1
 
   def pluginDependencySuffix: String = if (isNightlyIntellijVersion)
-    s":$intellijVersion:nightly"
+    s":$intellijVersion.0:nightly"
   else
     "" // intellijVersion will be automatically used by sbt-idea-plugin
 

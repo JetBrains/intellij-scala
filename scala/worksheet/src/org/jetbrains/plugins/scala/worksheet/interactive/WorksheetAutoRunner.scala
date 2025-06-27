@@ -20,6 +20,8 @@ import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 import org.jetbrains.plugins.scala.worksheet.{WorksheetFile, WorksheetUtils}
 
+import scala.annotation.nowarn
+
 object WorksheetAutoRunner {
 
   def getInstance(project: Project): WorksheetAutoRunner = project.getService(classOf[WorksheetAutoRunner])
@@ -36,7 +38,7 @@ class WorksheetAutoRunner(project: Project) {
     if (listeners.get(document) == null) {
       val listener = new MyDocumentAdapter(document)
 
-      document.addDocumentListener(listener)
+      document.addDocumentListener(listener): @nowarn("cat=deprecation")
       listeners.put(document, listener)
     }
 
