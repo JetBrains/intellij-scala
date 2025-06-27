@@ -16,10 +16,11 @@ import java.util
 import javax.swing.Icon
 import scala.jdk.CollectionConverters._
 
+//TODO: consider extending com.intellij.ide.actions.runAnything.activity.RunAnythingCommandLineProvider
+// like in Maven and Gradle? Is it applicable to us?
 class SbtRunAnythingProvider extends RunAnythingProviderBase[SbtRunItem] {
 
   override def getValues(dataContext: DataContext, pattern: String): util.Collection[SbtRunItem] = {
-
     val values = if (canRunSbt(dataContext, pattern)) {
       val project = fetchProject(dataContext)
       val queryString = Option(StringUtil.substringAfter(pattern, " ")).getOrElse("")
@@ -78,22 +79,31 @@ class SbtRunAnythingProvider extends RunAnythingProviderBase[SbtRunItem] {
   override def findMatchingValue(dataContext: DataContext, pattern: String): SbtRunItem = {
     if (canRunSbt(dataContext, pattern)) {
       val commandString = StringUtil.substringAfter(pattern, " ")
-      SbtShellCommandString(commandString)
-    } else null
+      if (commandString == null)
+        null
+      else {
+        //In a terminal, you pass the command using quotes as a single argument.
+        //In an sbt shell, or when you already have a running sbt session in terminal, the quotes are redundant.
+        //Example:
+        //Input: `sbt "compile ; test"`
+        //Output: `compile ; test`
+        SbtShellCommandString(StringUtil.unquoteString(commandString))
+      }
+    }
+    else null
   }
 
   override def getIcon(value: SbtRunItem): Icon = Icons.SBT_SHELL
 
   override def getCompletionGroupTitle: String = "sbt"
 
-  private def canRunSbt(dataContext: DataContext, pattern: String) = {
+  private def canRunSbt(dataContext: DataContext, pattern: String): Boolean = {
     if (pattern.startsWith("sbt")) {
       val project = fetchProject(dataContext)
       val sbtSettings = SbtSettings.getInstance(project).getLinkedProjectsSettings
       !sbtSettings.isEmpty
     } else false
   }
-
 }
 
 object SbtRunAnythingProvider {
