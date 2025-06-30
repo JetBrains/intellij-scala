@@ -249,12 +249,17 @@ private final class MouseHandler extends ProjectActivity {
   }
 
   private def textAt(editor: Editor, point: Point): Option[(Inlay, Text)] = {
+    // The editor can become disposed when you hold Cmd (for X-Ray mode),
+    // move the mouse over code that might contain hints, and in the middle of it press "W" (Close the tab on macOS).
+    // At the moment we handle the event here, the editor is already closed and disposed of.
     if (editor.isDisposed)
       return None
 
     Option(editor.getInlayModel.getElementAt(point)).flatMap { inlay =>
       inlay.getRenderer.asOptionOfUnsafe[TextPartsHintRenderer].flatMap { renderer =>
-        val inlayPoint = editor.visualPositionToXY(inlay.getVisualPosition)
+        val inlayPoint = inReadAction { // (related: SCL-23935, IJPL-184084)
+          editor.visualPositionToXY(inlay.getVisualPosition)
+        }
         renderer.textAt(editor, point.x - inlayPoint.x).map((inlay, _))
       }
     }
