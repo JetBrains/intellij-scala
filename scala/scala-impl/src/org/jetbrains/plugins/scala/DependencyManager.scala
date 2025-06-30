@@ -134,7 +134,8 @@ abstract class DependencyManagerBase {
       }
       ivyResolversFiltered.foreach { resolver =>
         mainChainResolver.add(resolver)
-        resolver.setSettings(ivySettings)
+        //to avoid errors like "unknown resolver: central"
+        ivySettings.addResolver(resolver)
       }
       ivySettings.configureDefaultVersionMatcher()
       customizeIvySettings(ivySettings)
