@@ -1,16 +1,17 @@
 package org.jetbrains.sbt.project
 
 import com.intellij.ide.trustedProjects.TrustedProjects
-import com.intellij.ide.util.RunOnceUtil
-import com.intellij.notification.{Notification, NotificationAction, NotificationGroupManager, NotificationType, Notifications}
-import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.ide.util.PropertiesComponent
+import com.intellij.openapi.actionSystem.impl.{ActionButton, ActionButtonUtil}
 import com.intellij.openapi.externalSystem.ExternalSystemConfigurableAware
 import com.intellij.openapi.externalSystem.service.project.manage.ProjectDataImportListener
 import com.intellij.openapi.externalSystem.service.settings.AbstractExternalSystemConfigurable
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.options.ShowSettingsUtil
+import com.intellij.openapi.wm.impl.{SquareStripeButton, ToolWindowManagerImpl}
 import com.intellij.openapi.project.Project
-import org.jetbrains.annotations.Nls
+import com.intellij.ui.GotItTooltip
+import com.intellij.openapi.wm.{ToolWindowManager, WindowManager}
 import org.jetbrains.sbt.project.SeparateMainTestModulesNotificationListener._
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.{SbtBundle, SbtUtil}
@@ -42,10 +43,21 @@ object SeparateMainTestModulesNotificationListener {
    *  - The separate sources setting is enabled but not explicitly set by user
    *  - The notification hasn't been shown before
    */
-  def showNotificationIfNecessary(sbtProjectSettings: SbtProjectSettings, project: Project): Unit =
-    if (shouldShow(sbtProjectSettings, project)) {
-      RunOnceUtil.runOnceForApp(Key, () => show(sbtProjectSettings.getExternalProjectPath, project))
+  def showNotificationIfNecessary(sbtProjectSettings: SbtProjectSettings, project: Project): Unit = {
+    if (!wasOldNotificationShown && shouldShow(sbtProjectSettings, project)) {
+      show(sbtProjectSettings.getExternalProjectPath, project)
     }
+  }
+
+  /**
+   * Checks whether the old main/test modules notification has already been shown to the user.
+   * If it has, the new "got it" tooltip won't be displayed.
+   */
+  private def wasOldNotificationShown: Boolean = {
+    // The key construction is taken from com.intellij.ide.util.RunOnceUtilKt.createKey
+    val key = s"RunOnceActivity.$Key"
+    PropertiesComponent.getInstance().isValueSet(key)
+  }
 
   private def shouldShow(sbtProjectSettings: SbtProjectSettings, project: Project): Boolean = {
     val isTrusted = TrustedProjects.isProjectTrusted(project)
@@ -56,30 +68,37 @@ object SeparateMainTestModulesNotificationListener {
   }
 
   private def show(projectPath: String, project: Project): Unit = {
-    val notificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("sbt.main.test.modules.enabled")
-    val notification = notificationGroup
-      .createNotification(
-        SbtBundle.message("separate.modules.main.test.notification.title"),
+    val sbtButton = findSbtToolWindowButton(project)
+    sbtButton.foreach { button =>
+      val toolWindowManagerImpl = Option(ToolWindowManager.getInstance(project))
+        .collect { case x: ToolWindowManagerImpl => x }
+        .orNull
+
+      val gtip = new GotItTooltip(
+        "sbt.main.test.modules.enabled",
         SbtBundle.message("separate.modules.main.test.notification"),
-        NotificationType.INFORMATION
+        toolWindowManagerImpl
       )
+        .withLink(SbtBundle.message("open.sbt.project.settings"), () => openSbtProjectSettings(project, projectPath))
+        .withSecondaryButton(SbtBundle.message("separate.modules.main.test.notification.learn"), () => {
+          SbtUtil.openSeparateMainTestModulesBlogPost()
+          kotlin.Unit.INSTANCE
+        })
 
-    val readMoreAction = createNotificationAction(
-      action = SbtUtil.openSeparateMainTestModulesBlogPost(),
-      text = SbtBundle.message("separate.prod.test.modules.link.text")
-    )
-    val openSbtSettingsAction = createNotificationAction(
-      action = openSbtProjectSettings(project, projectPath),
-      text = SbtBundle.message("open.sbt.project.settngs")
-    )
-
-    Seq(readMoreAction, openSbtSettingsAction).foreach(notification.addAction)
-
-    Notifications.Bus.notify(notification)
+      gtip.show(button, GotItTooltip.LEFT_MIDDLE)
+    }
   }
 
-  private def createNotificationAction(action: => Unit, @Nls text: String): NotificationAction = new NotificationAction(text) {
-    override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = action
+  private def findSbtToolWindowButton(project: Project): Option[ActionButton] = {
+    val frame = WindowManager.getInstance().getIdeFrame(project)
+    if (frame == null) return None
+    val component = frame.getComponent
+    val maybeActionButton = ActionButtonUtil.findActionButton(component, {
+      case button: SquareStripeButton => button.getToolWindow.getStripeTitle == "sbt"
+      case _ => false
+    })
+
+    Option(maybeActionButton)
   }
 
   private def openSbtProjectSettings(project: Project, externalProjectPath: String): Unit = {
