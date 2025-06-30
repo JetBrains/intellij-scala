@@ -248,13 +248,17 @@ private final class MouseHandler extends ProjectActivity {
     case (_, text) => text.navigatable.isDefined
   }
 
-  private def textAt(editor: Editor, point: Point): Option[(Inlay, Text)] =
+  private def textAt(editor: Editor, point: Point): Option[(Inlay, Text)] = {
+    if (editor.isDisposed)
+      return None
+
     Option(editor.getInlayModel.getElementAt(point)).flatMap { inlay =>
       inlay.getRenderer.asOptionOfUnsafe[TextPartsHintRenderer].flatMap { renderer =>
         val inlayPoint = editor.visualPositionToXY(inlay.getVisualPosition)
         renderer.textAt(editor, point.x - inlayPoint.x).map((inlay, _))
       }
     }
+  }
 
   private def addEscKeyListenerTo(editor: Editor): Unit = {
     if (editor.getUserData(EscKeyListenerKey) == null) {
