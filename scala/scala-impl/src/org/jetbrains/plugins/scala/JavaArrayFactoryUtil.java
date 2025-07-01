@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScDerivesClau
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScCompanionOwner;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
@@ -88,6 +89,8 @@ public class JavaArrayFactoryUtil {
   public static ArrayFactory<ScPackaging> ScPackagingFactory = ScPackaging[]::new;
 
   public static ArrayFactory<ScTypeDefinition> ScTypeDefinitionFactory = ScTypeDefinition[]::new;
+
+  public static ArrayFactory<ScCompanionOwner> ScCompanionOwnerFactory = ScCompanionOwner[]::new;
 
   public static ArrayFactory<ScTemplateDefinition> ScTemplateDefinitionArrayFactory = ScTemplateDefinition[]::new;
 
