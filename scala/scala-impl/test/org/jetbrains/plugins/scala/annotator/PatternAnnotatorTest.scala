@@ -874,6 +874,40 @@ class PatternAnnotatorTest extends PatternAnnotatorTestBase {
       |
       |""".stripMargin
   )
+
+  // SCL-24076
+  def test_seq_wildcard_in_unapply(): Unit = assertNoErrors(
+    """
+      |object Test {
+      |  def unapply(int: Test): Some[Seq[Int]] = ???
+      |}
+      |
+      |@main
+      |def xxx = {
+      |  Test() match {
+      |    case Test(x: _*) => println(x)
+      |  }
+      |}
+      |""".stripMargin
+  )
+
+  def test_seq_wildcard_on_non_seq(): Unit = assertMessages(
+    """
+      |object Test {
+      |  def unapply(int: Test): Some[Int] = ???
+      |}
+      |
+      |@main
+      |def xxx = {
+      |  Test() match {
+      |    case Test(x: _*) => println(x)
+      |  }
+      |}
+      |""".stripMargin,
+    List(
+      Error("x: _*", "Cannot match type Int with sequence pattern")
+    )
+  )
 }
 
 

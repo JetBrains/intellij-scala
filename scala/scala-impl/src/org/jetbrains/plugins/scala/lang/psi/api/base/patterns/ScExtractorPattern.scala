@@ -56,16 +56,15 @@ trait ScExtractorPattern extends ScPattern {
 }
 
 object ScExtractorPattern {
-  case class ArgPatternShape(nonSeqArgCount: Int, seqAtEnd: Boolean, hasNamedArgs: Boolean)
+  case class ArgPatternShape(totalArgCount: Int, seqAtEnd: Boolean, hasNamedArgs: Boolean) {
+    def nonSeqArgCount: Int = totalArgCount - (if (seqAtEnd) 1 else 0)
+  }
   object ArgPatternShape {
     def from(subpatterns: Seq[ScPattern]): ArgPatternShape = {
       val len = subpatterns.length
       val seqAtEnd = subpatterns.lastOption.exists(isSeqExpectingPattern)
-      val nonSeqArgCount =
-        if (seqAtEnd) len - 1
-        else len
       val hasNamedArgs = subpatterns.exists(_.is[ScNamedConstructorArgPattern])
-      ArgPatternShape(nonSeqArgCount, seqAtEnd, hasNamedArgs)
+      ArgPatternShape(len, seqAtEnd, hasNamedArgs)
     }
   }
 
@@ -101,7 +100,7 @@ object ScExtractorPattern {
        */
       def extractorMatch: Option[ExtractorMatch] = extractorMatches.flatMap { matches =>
         val shape = pattern.argPatternShape
-        matches.find(_.isApplicable(shape))
+        matches.findApplicable(shape)
       }
 
       /**
@@ -155,7 +154,7 @@ object ScExtractorPattern {
           if (types.nonEmpty && params.last.isVarArgs) {
             ExtractorMatch.UnapplySeq(types.dropRight(1), types.last.tryWrapIntoSeqType, selectorType, irrefutable = true)
           } else {
-            ExtractorMatch.Unapply.productWithSelector(types, selectorType, irrefutable = true)
+            ExtractorMatch.Unapply.productWithSelector(types, selectorType, irrefutable = true, p)
           }
         )
       }

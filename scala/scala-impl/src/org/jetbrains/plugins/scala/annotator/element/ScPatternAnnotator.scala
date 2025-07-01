@@ -207,10 +207,16 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
                       holder.createErrorAnnotation(pattern, message)
                     }
                 }
-              } else if (!matches.exists(_.isApplicable(argPatternsShape))) {
-                val expected = matches.map(_.productTypes.length).max
-                val message = ScalaBundle.message("wrong.number.arguments.extractor", numPatterns.toString, expected)
-                holder.createErrorAnnotation(pattern, message)
+              }else if (!matches.hasApplicable(argPatternsShape)) {
+                matches.findApplicable(argPatternsShape.copy(seqAtEnd = false)) match {
+                  case Some(m) =>
+                    val matchedType = m.productTypes.last.presentableText
+                    holder.createErrorAnnotation(argPatterns.last, ScalaBundle.message("cannot.match.type.with.sequence.pattern", matchedType))
+                  case None =>
+                    val expected = matches.map(_.productTypes.length).max
+                    val message = ScalaBundle.message("wrong.number.arguments.extractor", numPatterns.toString, expected)
+                    holder.createErrorAnnotation(pattern, message)
+                }
               }
           case Some(target@ExtractorTarget.UnapplySeqMatches(matches)) if !target.isMacroExtractor =>
             if (matches.isEmpty) {
@@ -221,7 +227,7 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
                   // this is either ExtractorTarget.TooBigCaseClass and shouldn't happen at all because there should always be a match for TooBigCaseClass
                   // Or the return type of the function can not be resolved... in that case also don't give an error
               }
-            } else if (!matches.exists(_.isApplicable(argPatternsShape))) {
+            } else if (!matches.hasApplicable(argPatternsShape)) {
               val expected = matches.map(_.productTypes.length).max
               val message = ScalaBundle.message("wrong.number.arguments.extractor.unapplySeq", numPatterns.toString, expected)
               holder.createErrorAnnotation(pattern, message)

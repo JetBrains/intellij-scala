@@ -63,28 +63,39 @@ object ExtractorMatch {
   sealed trait Unapply extends ExtractorMatch {
     def productTypes: Seq[ScType]
 
+    def place: PsiElement
+
+    final lazy val lastTypeIsSeq: Boolean =
+      productTypes.lastOption.exists { p =>
+        val isSeqLike = SeqLikeType(place)
+        isSeqLike.unapply(p).isDefined
+      }
+
     override final def isApplicable(shape: ScExtractorPattern.ArgPatternShape): Boolean =
       if (shape.hasNamedArgs) supportsNamedPatterns
-      else if (shape.seqAtEnd) false
-      else shape.nonSeqArgCount == productTypes.length
+      else if (shape.totalArgCount != productTypes.length) false
+      else if (shape.seqAtEnd) lastTypeIsSeq
+      else true
 
     override final def sequenceTypeOption: None.type = None
     override final def isEmpty: Boolean = productTypes.isEmpty
   }
 
   object Unapply {
-    def boolean(tpe: ScType): Unapply = product(Seq.empty, tpe, tpe.equivalentToLiteral(true))
+    def boolean(tpe: ScType): Unapply = product(Seq.empty, tpe, tpe.equivalentToLiteral(true), null)
 
-    def tuple(tuple: ScType, comps: Seq[ScType], irrefutable: Boolean): Unapply = new Unapply {
+    def tuple(tuple: ScType, comps: Seq[ScType], irrefutable: Boolean, p: PsiElement): Unapply = new Unapply {
       override def productTypes: Seq[ScType] = comps
+      override def place: PsiElement = p
       override def supportsNamedPatterns: Boolean = false
       override def namedPatternTypes(place: PsiElement): MapView[String, Option[ScType]] = MapView.empty
       override def selectorType: ScType = tuple
       override def isIrrefutable(shape: ScExtractorPattern.ArgPatternShape): Boolean = irrefutable
     }
 
-    def namedTuple(nt: ScType, comps: Seq[(ScType, ScType)], irrefutable: Boolean): Unapply = new Unapply {
+    def namedTuple(nt: ScType, comps: Seq[(ScType, ScType)], irrefutable: Boolean, p: PsiElement): Unapply = new Unapply {
       override lazy val productTypes: Seq[ScType] = comps.map(_._1)
+      override def place: PsiElement = p
       override def supportsNamedPatterns: Boolean = true
       override def namedPatternTypes(place: PsiElement): MapView[String, Option[ScType]] =
         NamedTupleType.makeComponentMap(comps).view.mapValues(Some.apply)
@@ -92,16 +103,18 @@ object ExtractorMatch {
       override def isIrrefutable(shape: ScExtractorPattern.ArgPatternShape): Boolean = irrefutable
     }
 
-    def product(pTypes: Seq[ScType], selType: ScType, irrefutable: Boolean): Unapply = new Unapply {
+    def product(pTypes: Seq[ScType], selType: ScType, irrefutable: Boolean, p: PsiElement): Unapply = new Unapply {
       override val productTypes: Seq[ScType] = pTypes
+      override def place: PsiElement = p
       override def supportsNamedPatterns: Boolean = false
       override def namedPatternTypes(place: PsiElement): MapView[String, Option[ScType]] = MapView.empty
       override def selectorType: ScType = selType
       override def isIrrefutable(shape: ScExtractorPattern.ArgPatternShape): Boolean = irrefutable
     }
 
-    def productWithSelector(pTypes: Seq[ScType], selType: ScType, irrefutable: Boolean)(implicit context: Context): Unapply = new Unapply {
+    def productWithSelector(pTypes: Seq[ScType], selType: ScType, irrefutable: Boolean, p: PsiElement): Unapply = new Unapply {
       override val productTypes: Seq[ScType] = pTypes
+      override def place: PsiElement = p
       override def supportsNamedPatterns: Boolean = namedPatternTypesCalculator.isDefined
       override def namedPatternTypes(place: PsiElement): MapView[String, Option[ScType]] =
         namedPatternTypesCalculator match {
@@ -164,13 +177,15 @@ object ExtractorMatch {
     def matchWithMostPatterns = matches
       .maxByOption(_.productTypes.length)
 
-    matches.find(_.isApplicable(shape))
+    matches.findApplicable(shape)
       .orElse(matchWithLeastMissingPatterns)
       .orElse(matchWithMostPatterns)
   }
 
   implicit class LazyListExt[T <: ExtractorMatch](private val list: LazyList[T]) extends AnyVal {
     def bestMatch(shape: ScExtractorPattern.ArgPatternShape): Option[T] = ExtractorMatch.bestMatch(list, shape)
+    def hasApplicable(shape: ScExtractorPattern.ArgPatternShape): Boolean = list.exists(_.isApplicable(shape))
+    def findApplicable(shape: ScExtractorPattern.ArgPatternShape): Option[T] = list.find(_.isApplicable(shape))
   }
 
   private def findMember(name: String, tp: ScType, place: PsiElement, parameterless: Boolean = true): Option[ScType] = {
@@ -306,14 +321,14 @@ object ExtractorMatch {
 
     def withAutoTupling(unapply: Unapply): Seq[Unapply] =
       unapply.productTypes match {
-        case Seq(t@TupleType(comps)) => Seq(Unapply.tuple(t, comps, irrefutable = true))
+        case Seq(t@TupleType(comps)) => Seq(Unapply.tuple(t, comps, irrefutable = true, place))
         case _                     => Seq.empty
       }
 
     def unapplyFromProductParts(tpe: ScType, irrefutable: Boolean): LazyList[Unapply] = {
       val productParts = extractPossibleProductParts(tpe, place)
       if (productParts.isEmpty) LazyList.empty
-      else LazyList(Unapply.productWithSelector(productParts, tpe, irrefutable))
+      else LazyList(Unapply.productWithSelector(productParts, tpe, irrefutable, place))
     }
 
     /*
@@ -330,8 +345,8 @@ object ExtractorMatch {
      * and have _1..._N methods
      */
     lazy val productMatch = tpe match {
-      case TupleType(comps)      => LazyList(Unapply.tuple(tpe, comps, irrefutable = true))
-      case NamedTupleType(comps) => LazyList(Unapply.namedTuple(tpe, comps, irrefutable = true))
+      case TupleType(comps)      => LazyList(Unapply.tuple(tpe, comps, irrefutable = true, place))
+      case NamedTupleType(comps) => LazyList(Unapply.namedTuple(tpe, comps, irrefutable = true, place))
       case _ if isProduct(tpe)   => unapplyFromProductParts(tpe, irrefutable = true)
       case _                     => LazyList.empty
     }
@@ -354,8 +369,8 @@ object ExtractorMatch {
     def nameBasedMatch: LazyList[Unapply] = singleMatch
       .flatMap { case (ty, irrefutable) =>
         ty match {
-          case t@TupleType(comps) => if (comps.length >= 2) Seq(Unapply.tuple(t, comps, irrefutable)) else Seq.empty
-          case nt@NamedTupleType(comps) => Seq(Unapply.namedTuple(nt, comps, irrefutable))
+          case t@TupleType(comps) => if (comps.length >= 2) Seq(Unapply.tuple(t, comps, irrefutable, place)) else Seq.empty
+          case nt@NamedTupleType(comps) => Seq(Unapply.namedTuple(nt, comps, irrefutable, place))
           case tpe => unapplyFromProductParts(tpe, irrefutable)
         }
       }
@@ -363,7 +378,7 @@ object ExtractorMatch {
 
     productMatch #:::
       productMatch.flatMap(withAutoTupling) #:::
-      singleMatch.map { case (single, irrefutable) => Unapply.product(Seq(single), single, irrefutable) } #:::
+      singleMatch.map { case (single, irrefutable) => Unapply.product(Seq(single), single, irrefutable, place) } #:::
       nameBasedMatch
   }
 
@@ -402,7 +417,7 @@ object ExtractorMatch {
             // Hmm... something went wrong...
             Seq.empty
         }
-        return LazyList(Unapply.product(comps, extractorType.getOrElse(tpe), irrefutable = true))
+        return LazyList(Unapply.product(comps, extractorType.getOrElse(tpe), irrefutable = true, place))
       case _ => ()
     }
 
@@ -412,7 +427,7 @@ object ExtractorMatch {
         /*
          * First the extractedType can be a matched itself
          */
-        val extractorMatch = Unapply.product(Seq(extractorType), extractorType, irrefutable)
+        val extractorMatch = Unapply.product(Seq(extractorType), extractorType, irrefutable, place)
 
         /*
          * Next check if it has _1, _2, ... _N methods (N >= 2)
@@ -420,8 +435,8 @@ object ExtractorMatch {
         def nameBased = {
           val byNameExtractor = ByNameExtractor(place)
           extractorType match {
-            case TupleType(comps)       => LazyList(Unapply.product(comps, extractorType, irrefutable))
-            case byNameExtractor(comps) => LazyList(Unapply.product(comps, extractorType, irrefutable))
+            case TupleType(comps)       => LazyList(Unapply.product(comps, extractorType, irrefutable, place))
+            case byNameExtractor(comps) => LazyList(Unapply.product(comps, extractorType, irrefutable, place))
             case _                      => LazyList.empty
           }
         }
