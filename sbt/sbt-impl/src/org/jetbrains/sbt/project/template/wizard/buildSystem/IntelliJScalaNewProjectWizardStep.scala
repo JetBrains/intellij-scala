@@ -40,7 +40,7 @@ final class IntelliJScalaNewProjectWizardStep(parent: ScalaNewProjectWizardMulti
     builder.setContentEntryPath(FileUtil.toSystemDependentName(getContentRoot))
     builder.setModuleFilePath(FileUtil.toSystemDependentName(moduleFile.toString))
 
-    setProjectOrModuleSdk(project, parent, builder, Option(getSdk))
+    setProjectOrModuleSdk(project, parent, builder, getSdkFromJdkIntent(Option(getJdkIntent)))
 
     val librarySettings = libraryPanel.apply()
     builder.libraryCompositionSettings = librarySettings

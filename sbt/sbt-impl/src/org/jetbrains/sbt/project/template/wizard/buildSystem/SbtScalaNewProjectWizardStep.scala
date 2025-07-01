@@ -81,7 +81,7 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
     val projectRoot = getContext.getProjectDirectory.toAbsolutePath
     builder.setContentEntryPath(projectRoot.toString)
 
-    setProjectOrModuleSdk(project, parent, builder, sdk)
+    setProjectOrModuleSdk(project, parent, builder, getSdkFromJdkIntent(jdkIntent))
 
     ExternalProjectsManagerImpl.setupCreatedProject(project)
     /** NEWLY_CREATED_PROJECT must be set up to prevent the call of markDirtyAllExternalProjects in ExternalProjectsDataStorage#load.

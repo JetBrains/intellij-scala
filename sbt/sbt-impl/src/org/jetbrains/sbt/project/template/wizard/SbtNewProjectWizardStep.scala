@@ -1,10 +1,8 @@
 package org.jetbrains.sbt.project.template.wizard
 
 import com.intellij.ide.JavaUiBundle
-import com.intellij.ide.projectWizard.ProjectWizardJdkIntent.DetectedJdk
 import com.intellij.ide.projectWizard.generators.JdkDownloadService
-import com.intellij.ide.projectWizard.{ProjectWizardJdkComboBox, ProjectWizardJdkComboBoxKt}
-import com.intellij.ide.wizard.NewProjectWizardBaseData.getBaseData
+import com.intellij.ide.projectWizard.{ProjectWizardJdkComboBox, ProjectWizardJdkComboBoxKt, ProjectWizardJdkIntent}
 import com.intellij.ide.wizard.{AbstractNewProjectWizardStep, NewProjectWizardStep}
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.observable.properties.{GraphProperty, PropertyGraph}
@@ -12,7 +10,6 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.impl.jdkDownloader.JdkDownloadTask
 import com.intellij.openapi.projectRoots.{JavaSdkVersion, Sdk}
-import com.intellij.openapi.roots.ui.configuration.projectRoot.SdkDownloadTask
 import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.openapi.ui.validation.{DialogValidationRequestor, RequestorsKt}
 import com.intellij.ui.components.JBCheckBox
@@ -43,14 +40,12 @@ abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep) extends Abs
 
   @inline private def propertyGraph: PropertyGraph = getPropertyGraph
 
-  protected val sdkProperty: GraphProperty[Sdk] = propertyGraph.property(null)
-  private val sdkDownloadTaskProperty: GraphProperty[SdkDownloadTask] = propertyGraph.property[SdkDownloadTask](null)
+  protected val jdkIntentProperty: GraphProperty[ProjectWizardJdkIntent] = propertyGraph.property(null)
 
   protected lazy val sbtVersionProperty: GraphProperty[SbtVersion] = propertyGraph.property(defaultAvailableSbtVersions.head)
   protected val downloadSbtSourcesProperty: GraphProperty[lang.Boolean] = propertyGraph.property(java.lang.Boolean.FALSE)
 
-  private def sdkDownloadTask: Option[SdkDownloadTask] = Option(sdkDownloadTaskProperty.get())
-  protected def sdk: Option[Sdk] = Option(sdkProperty.get())
+  protected def jdkIntent: Option[ProjectWizardJdkIntent] = Option(jdkIntentProperty.get())
 
   protected final val isSbtVersionManuallySelected: AtomicBoolean = new AtomicBoolean(false)
   private val isSbtLoading = new AtomicBoolean(false)
@@ -78,8 +73,7 @@ abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep) extends Abs
             validate.invoke()
         })
         .validationRequestor(RequestorsKt.getWHEN_PROPERTY_CHANGED.invoke(sbtVersionProperty))
-        .validationRequestor(RequestorsKt.getWHEN_PROPERTY_CHANGED.invoke(sdkProperty))
-        .validationRequestor(RequestorsKt.getWHEN_PROPERTY_CHANGED.invoke(sdkDownloadTaskProperty))
+        .validationRequestor(RequestorsKt.getWHEN_PROPERTY_CHANGED.invoke(jdkIntentProperty))
         .validationOnInput(() => sbtWithJdkValidation())
       val downloadSbtSourcesCheckboxCell = row.cell(downloadSbtSourcesCheckbox)
 
@@ -89,29 +83,21 @@ abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep) extends Abs
       KUnit
     })
 
-  protected def startJdkDownloadIfNeeded(project: Project): Unit =
+  protected def startJdkDownloadIfNeeded(project: Project): Unit = {
+    val sdkDownloadTask = jdkIntent.flatMap(intent => Option(intent.getDownloadTask))
     sdkDownloadTask.collect { case task: JdkDownloadTask =>
       val service = project.getService(classOf[JdkDownloadService])
       service.scheduleDownloadJdkForNewProject(task)
     }
+  }
 
   protected def setupJavaSdkUI(builder: Panel): Unit = {
     builder.row(JavaUiBundle.message("label.project.wizard.new.project.jdk"), (row: Row) => {
-      // TODO If a ProjectWizardJdkPredicate parameter is added to the Kotlin extension function `#projectWizardJdkComboBox`,
-      //  make use of it, as it handles many parameters that are currently duplicated here.
       val jdkComboBoxCell = ProjectWizardJdkComboBoxKt.projectWizardJdkComboBox(
+        this,
         row,
-        sdkProperty,
-        sdkDownloadTaskProperty,
-        getBaseData(this).getPathProperty,
-        null,
-        { s: Sdk =>
-          getContext.setProjectJdk(s)
-          KUnit
-        },
-        getContext.getDisposable,
-        getContext.getProjectJdk,
-        { _: Sdk => { lang.Boolean.TRUE }},
+        jdkIntentProperty,
+        { _: Sdk => lang.Boolean.TRUE },
         (javaVersion: JavaVersion, _: String) => jdkWithSbtValidation(javaVersion)
       )
       jdkComboBoxCell
@@ -121,8 +107,7 @@ abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep) extends Abs
             validate.invoke()
         })
         .validationRequestor(RequestorsKt.getWHEN_PROPERTY_CHANGED.invoke(sbtVersionProperty))
-        .validationRequestor(RequestorsKt.getWHEN_PROPERTY_CHANGED.invoke(sdkProperty))
-        .validationRequestor(RequestorsKt.getWHEN_PROPERTY_CHANGED.invoke(sdkDownloadTaskProperty))
+        .validationRequestor(RequestorsKt.getWHEN_PROPERTY_CHANGED.invoke(jdkIntentProperty))
 
       jdkComboBox = jdkComboBoxCell.getComponent
 
@@ -152,23 +137,12 @@ abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep) extends Abs
     }.orNull
   }
 
-  protected def getExpectedJavaSdkVersion: Option[JavaSdkVersion] = {
-    val versionString = sdk.map(_.getVersionString)
-    val plannedVersion = sdkDownloadTask.map(_.getPlannedVersion)
-    val expectedJdkVersion = versionString
-      .orElse(getDetectedJdkIfAny)
-      .orElse(plannedVersion)
-    expectedJdkVersion.map(JavaSdkVersion.fromVersionString)
-  }
-
-  /**
-   * It's a workaround for <a href="https://youtrack.jetbrains.com/issue/IDEA-368023/The-sdkProperty-is-null-when-JDK-from-the-detected-JDKs-is-chosen-rather-than-from-the-registered-ones">IDEA-368023</a>.
-   * Remove when it's fixed
-   */
-  private def getDetectedJdkIfAny: Option[String] = {
-    val selectedJdk = Option(jdkComboBox).flatMap(cb => Option(cb.getSelectedItem))
-    selectedJdk.collect { case x: DetectedJdk => x.getVersion }
-  }
+  protected def getExpectedJavaSdkVersion: Option[JavaSdkVersion] =
+    for {
+      intent <- jdkIntent
+      versionString <- Option(intent.getVersionString)
+      javaSdkVersion <- Option(JavaSdkVersion.fromVersionString(versionString))
+    } yield javaSdkVersion
 
   protected final def downloadSbtVersions(disposable: Disposable): Unit = {
     val sbtDownloadVersions: ProgressIndicator => Seq[SbtVersion] = indicator => loadSbtVersions(indicator)
