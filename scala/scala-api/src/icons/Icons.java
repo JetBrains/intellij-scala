@@ -46,6 +46,8 @@ public interface Icons {
     Icon CLASS_COMPANION_SWAPPED = getIcon("/org/jetbrains/plugins/scala/images/classCompanionSwapped.svg", Icons.class);
     Icon TRAIT_COMPANION = getIcon("/org/jetbrains/plugins/scala/images/traitCompanion.svg", Icons.class);
     Icon TRAIT_COMPANION_SWAPPED = getIcon("/org/jetbrains/plugins/scala/images/traitCompanionSwapped.svg", Icons.class);
+    Icon TYPE_COMPANION = getIcon("/org/jetbrains/plugins/scala/images/typeCompanion.svg", Icons.class);
+    Icon TYPE_COMPANION_SWAPPED = getIcon("/org/jetbrains/plugins/scala/images/typeCompanionSwapped.svg", Icons.class);
     Icon OBJECT_COMPANION = getIcon("/org/jetbrains/plugins/scala/images/objectCompanion.svg", Icons.class);
     Icon OBJECT_COMPANION_SWAPPED = getIcon("/org/jetbrains/plugins/scala/images/objectCompanionSwapped.svg", Icons.class);
 

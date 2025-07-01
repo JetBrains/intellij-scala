@@ -40,6 +40,8 @@
               "traitObjectScala.svg": "org/jetbrains/plugins/scala/images/traitObjectScala.svg",
               "traitScala.svg": "org/jetbrains/plugins/scala/images/traitScala.svg",
               "typeAlias.svg": "org/jetbrains/plugins/scala/images/typeAlias.svg",
+              "typeCompanion.svg": "org/jetbrains/plugins/scala/images/typeCompanion.svg",
+              "typeCompanionSwapped.svg": "org/jetbrains/plugins/scala/images/typeCompanionSwapped.svg",
               "typed.svg": "org/jetbrains/plugins/scala/images/typed.svg",
               "untyped.svg": "org/jetbrains/plugins/scala/images/untyped.svg",
               "value.svg": "org/jetbrains/plugins/scala/images/value.svg",
