@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.statements
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScExistentialClause
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScMember, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScCompanionOwner, ScDocCommentOwner, ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScPolymorphicElement}
 import org.jetbrains.plugins.scala.lang.psi.types.Context
 
@@ -17,7 +17,8 @@ trait ScTypeAlias extends ScNamedElement
   with ScMember
   with ScMember.WithBaseIconProvider
   with ScDocCommentOwner
-  with ScCommentOwner {
+  with ScCommentOwner
+  with ScCompanionOwner {
 
   def isEffectivelyOpaque(implicit context: Context): Boolean
 
