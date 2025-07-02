@@ -29,8 +29,6 @@ trait ScTypeDefinition extends ScTemplateDefinition
    */
   def isCase: Boolean = false
 
-  def isObject: Boolean = false
-
   def getPath: String = {
     val qualName = qualifiedName
     val index = qualName.lastIndexOf('.')
