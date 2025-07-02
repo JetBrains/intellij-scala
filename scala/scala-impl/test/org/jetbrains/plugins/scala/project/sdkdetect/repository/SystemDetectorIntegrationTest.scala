@@ -76,12 +76,15 @@ protected class SystemDetectorIntegrationTest(scalaVersion: ScalaVersion) extend
 
     val scalaSdkInnerDirNamePrefix = if (scalaVersion.isScala3) s"scala3-$scalaVersionStr" else s"scala-$scalaVersionStr"
 
+    val filesInDir = unzippedDir.toFile.listFiles()
     // Examples:
     // scala-2.13.16
     // scala3-3.3.6
     // scala3-3.7.1-RC2-aarch64-apple-darwin
-    val scalaSdkRoot = unzippedDir.toFile.listFiles().find(f => f.isDirectory && f.getName.startsWith(scalaSdkInnerDirNamePrefix)).getOrElse {
-      fail(s"Scala SDK dir not found for version ${scalaVersionStr} in $unzippedDir").asInstanceOf[Nothing]
+    val scalaSdkRoot = filesInDir.find(f => f.isDirectory && f.getName.startsWith(scalaSdkInnerDirNamePrefix)).getOrElse {
+      fail(
+        s"""Scala SDK dir not found for version $scalaVersionStr in $unzippedDir. Existing files:
+           |${filesInDir.mkString("\n")}""".stripMargin).asInstanceOf[Nothing]
     }
 
     try {
