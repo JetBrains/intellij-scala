@@ -1,3 +1,4 @@
+import AttributedClasspathUtils.buildIntellijSdkSubsetAttributedClasspath
 import CompilationCache.compilationCacheSettings
 import org.jetbrains.sbtidea.Keys.*
 import org.jetbrains.sbtidea.packaging.PackagingKeys.*
@@ -39,16 +40,16 @@ object Common {
   // NOTE: we rely on the fact that javac & scalac use the same compiler option name,
   // though strictly speaking they have different types (they represent settings for different compilers)
   private val globalIdeaProcessReleaseOptions: Seq[String] = Seq("--release", "17")
-  val globalJavacOptions             : Seq[String] = globalJavacOptionsCommon ++ globalIdeaProcessReleaseOptions
-  val globalScalacOptions            : Seq[String] = globalScalacOptionsCommon ++ globalIdeaProcessReleaseOptions
-  val globalScala3ScalacOptions      : Seq[String] = globalScala3ScalacOptionsCommon ++ globalIdeaProcessReleaseOptions
+  val globalJavacOptions: Seq[String] = globalJavacOptionsCommon ++ globalIdeaProcessReleaseOptions
+  val globalScalacOptions: Seq[String] = globalScalacOptionsCommon ++ globalIdeaProcessReleaseOptions
+  val globalScala3ScalacOptions: Seq[String] = globalScala3ScalacOptionsCommon ++ globalIdeaProcessReleaseOptions
 
   // options for modules which classes can be used outside IDEA process with arbitrary JVM version, e.g.:
   //  - in JPS process (JDK is calculated based on project & module JDK)
   //  - in Compile server (by default used project JDK version, can be explicitly changed by user)
   private val globalExternalProcessReleaseOptions: Seq[String] = Seq("--release", "8")
-  val outOfIDEAProcessJavacOptions       : Seq[String] = globalJavacOptionsCommon ++ globalExternalProcessReleaseOptions
-  val outOfIDEAProcessScalacOptions      : Seq[String] = globalScalacOptionsCommon ++ globalExternalProcessReleaseOptions
+  val outOfIDEAProcessJavacOptions: Seq[String] = globalJavacOptionsCommon ++ globalExternalProcessReleaseOptions
+  val outOfIDEAProcessScalacOptions: Seq[String] = globalScalacOptionsCommon ++ globalExternalProcessReleaseOptions
 
   val projectDirectoriesSettings: Seq[Setting[?]] = Seq(
     // production sources
@@ -176,70 +177,40 @@ object Common {
         resolvers += DependencyResolvers.IntelliJDependencies,
       )
 
-  /**
-   * Manually build classpath for the JPS module.
-   * Code from JPS modules is executed in JPS process which has a separate classpath.
-   *
-   * The classpath construction logic can be found here:
-   *  - com.intellij.compiler.server.impl.BuildProcessClasspathManager.getBuildProcessClasspath
-   *  - org.jetbrains.jps.cmdline.ClasspathBootstrap.getBuildProcessApplicationClasspath
-   *  - com.intellij.compiler.server.impl.BuildProcessClasspathManager.getBuildProcessPluginsClasspath
-   *
-   * An easy practical way too see which classpath is actually used is to place a breakpoint inside
-   * BuildProcessClasspathManager.getBuildProcessClasspath
-   *
-   * Note that JPS process will contain classpath from other plugins as well.
-   * Currently only base classes from Java & Platform are required for Scala Plugin
-   *
-   * TODO: can we take the base classpath from the product.info?
-   * @todo we might also use this classpath for community/scala/compiler-jps module. But before that it should be refactored.
-   *       Currently, the module contains code which might be executed in Scala Compile Server, not only in JPS.
-   *       We should split it into separate modules with oun classpathes
-   */
-  def jpsClasspath: Def.Initialize[Task[Classpath]] = Def.task {
-    val intellijLibDir = intellijBaseDirectory.value / "lib"
-    val intellijPluginsDir = intellijBaseDirectory.value / "plugins"
-
-    /** see also org.jetbrains.plugins.scala.compiler.CompileServerLauncher.compileServerJars */
-    val platformJarNames = Seq(
-      "util.jar",
-      "util-8.jar",
-      "util_rt.jar",
-      "protobuf.jar",
-      "jps-model.jar",
-      "forms_rt.jar",
-      "idea_rt.jar",
-    )
-    //If you need any extra plugin dependencies, add the jars here
-    val pluginsJarPaths = Seq(
-      "java/lib/jps-builders.jar",
-      "java/lib/jps-builders-6.jar",
-      "java/lib/jps-javac-extension.jar",
-      "java/lib/javac2.jar",
-      "java/lib/aether-dependency-resolver.jar",
-    )
-
-    val platformJarsFiles: Seq[File] = platformJarNames.map(intellijLibDir / _)
-    val pluginJarsFiles: Seq[File] = pluginsJarPaths.map(intellijPluginsDir / _)
-
-    (platformJarsFiles ++ pluginJarsFiles).classpath
-  }
-
-  def compilerSharedClasspath: Def.Initialize[Task[Classpath]] = Def.task {
-    val intellijLibDir = intellijBaseDirectory.value / "lib"
-
-    val platformJarNames = Seq(
-      "app.jar",
-      "app-client.jar",
-      "util.jar",
-      "util-8.jar",
-      "util_rt.jar",
-    )
-
-    platformJarNames.map(intellijLibDir / _).classpath
-  }
-
   implicit class ProjectOps(private val project: Project) extends AnyVal {
+
+    /**
+     * Manually build the classpath for the JPS module.
+     * Code from JPS modules is executed in the JPS process, which has a separate classpath.
+     *
+     * @note this classpath is only required to properly compile the module
+     *       (in order we do not accidentally use any classes that are not available in the JPS process)<br>
+     *       At runtime the classpath will be constructed in by Platform.
+     * @see [[IntellijSdkSubsetInfo.Jps]]
+     */
+    def withJpsClasspath: Project = withIntellijSubsetDependency(IntellijSdkSubsetInfo.Jps)
+
+    /**
+     * Similar to [[withJpsClasspath]] but defines the classes that are used in both JPS and IntelliJ processes
+     */
+    def withJpsSharedClasspath: Project = withIntellijSubsetDependency(IntellijSdkSubsetInfo.JpsShared)
+
+    private def withIntellijSubsetDependency(subsetInfo: IntellijSdkSubsetInfo): Project = {
+      project.settings(
+        // This line only registers information about special INTELLIJ-SDK-* libraries in the update report
+        update := UpdateWithIDEAInjectionTasks2.getUpdateReportWithIntellijSdkSubsetModuleTask(subsetInfo).value,
+
+        // This line adds the special INTELLIJ-SDK-* module (~library) to the classpath project classpath
+        Compile / externalDependencyClasspath ++= {
+          val buildInfo = productInfo.value.buildNumber
+          val intellijBaseDir = intellijBaseDirectory.value
+          val info = subsetInfo.toMaterialisedInfo(buildInfo, intellijBaseDir)
+
+          buildIntellijSdkSubsetAttributedClasspath(info, Compile)
+        }
+      )
+    }
+
     /**
      * @note Be careful when applying this to sbt subprojects.
      *       Any `Compile / scalacOptions := Seq(...)` specified after this method is called will completely override
@@ -283,7 +254,7 @@ object Common {
     newProject(projectName, file(projectName))
 
   def deduplicatedClasspath(classpaths: Keys.Classpath*): Keys.Classpath = {
-    val merged = classpaths.foldLeft(Seq.empty[Attributed[File]]){(merged, cp) => merged ++ cp}
+    val merged = classpaths.foldLeft(Seq.empty[Attributed[File]]) { (merged, cp) => merged ++ cp }
     merged.sortBy(_.data.getCanonicalPath).distinct
   }
 
@@ -316,7 +287,7 @@ object Common {
 
   def replaceInFile(f: File, source: String, target: String): Unit = {
     if (!(source == null) && !(target == null)) {
-      IO.writeLines(f, IO.readLines(f) map { _.replace(source, target) })
+      IO.writeLines(f, IO.readLines(f).map(_.replace(source, target)))
     }
   }
 
@@ -333,7 +304,7 @@ object Common {
     val structure = buildStructure.value
     val build = thisProjectRef.value.build
     val projects = structure.allProjectRefs(build) ++ includeBuild.toSeq.flatMap(b => structure.allProjectRefs(b.build))
-    val scopeFilter = ScopeFilter(inProjects(projects*), inAnyConfiguration)
+    val scopeFilter = ScopeFilter(inProjects(projects *), inAnyConfiguration)
     Def.task {
       clean.all(scopeFilter).value
     }

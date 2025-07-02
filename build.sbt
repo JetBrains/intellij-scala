@@ -498,18 +498,13 @@ lazy val debugger =
 lazy val compileServer =
   newPlainScalaProject("compile-server", file("scala/compile-server"))
     .dependsOn(compilerShared, repackagedZinc, worksheetReplInterface)
+    .withJpsClasspath
     .settings(
       Compile / javacOptions := outOfIDEAProcessJavacOptions,
       Compile / scalacOptions := outOfIDEAProcessScalacOptions,
       packageMethod := PackagingMethod.Standalone("lib/jps/compile-server.jar", static = true),
       libraryDependencies += Dependencies.nailgun,
-      packageLibraryMappings += Dependencies.nailgun -> Some("lib/jps/nailgun.jar"),
-      //Manually build classpath for the jps module because the code from this module
-      //will be executed in JPS process which has a separate classpath.
-      //NOTE: this classpath is only required to properly compile the module
-      //(in order we do not accidentally use any classes which are not available in JPS process)<br>
-      //At runtime the classpath will be constructed in by Platform.
-      Compile / unmanagedJars ++= Common.jpsClasspath.value
+      packageLibraryMappings += Dependencies.nailgun -> Some("lib/jps/nailgun.jar")
     )
 
 lazy val scalaCompilerPlugin_2_12: sbt.Project =
@@ -539,6 +534,7 @@ lazy val scalaCompilerPluginTests: sbt.Project =
 lazy val compilerJps =
   newPlainScalaProject("compiler-jps", file("scala/compiler-jps"))
     .dependsOn(jps, compileServer)
+    .withJpsClasspath
     .settings(
       (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
       (Compile / scalacOptions) := outOfIDEAProcessScalacOptions,
@@ -547,12 +543,6 @@ lazy val compilerJps =
       packageLibraryMappings ++= Seq(
         Dependencies.scalaParallelCollections -> Some("lib/jps/scala-parallel-collections.jar")
       ),
-      //Manually build classpath for the jps module because the code from this module
-      //will be executed in JPS process which has a separate classpath.
-      //NOTE: this classpath is only required to properly compile the module
-      //(in order we do not accidentally use any classes which are not available in JPS process)<br>
-      //At runtime the classpath will be constructed in by Platform.
-      Compile / unmanagedJars ++= Common.jpsClasspath.value
     )
 
 lazy val repackagedZinc =
@@ -576,27 +566,22 @@ lazy val repackagedZinc =
 lazy val compilerShared =
   newPlainScalaProject("compiler-shared", file("scala/compiler-shared"))
     .dependsOn(scalaLanguageUtilsRt)
+    .withJpsSharedClasspath
     .settings(
       (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
       (Compile / scalacOptions) := outOfIDEAProcessScalacOptions,
-      packageMethod := PackagingMethod.Standalone("lib/compiler-shared.jar", static = true),
-      Compile / unmanagedJars ++= Common.compilerSharedClasspath.value
+      packageMethod := PackagingMethod.Standalone("lib/compiler-shared.jar", static = true)
     )
 
 lazy val jps =
   newPlainScalaProject("jps", file("scala/jps"))
+    .withJpsClasspath
     .settings(
       Compile / javacOptions := outOfIDEAProcessJavacOptions,
       Compile / scalacOptions := outOfIDEAProcessScalacOptions,
       packageMethod := PackagingMethod.Standalone("lib/scala-jps.jar", static = true),
       libraryDependencies += Dependencies.compilerIndicesProtocol,
-      packageLibraryMappings += Dependencies.compilerIndicesProtocol -> Some(s"lib/scala-compiler-indices-protocol_2.13-${Versions.compilerIndicesVersion}.jar"),
-      //Manually build classpath for the jps module because the code from this module
-      //will be executed in JPS process which has a separate classpath.
-      //NOTE: this classpath is only required to properly compile the module
-      //(in order we do not accidentally use any classes which are not available in JPS process)<br>
-      //At runtime the classpath will be constructed in by Platform.
-      Compile / unmanagedJars ++= Common.jpsClasspath.value
+      packageLibraryMappings += Dependencies.compilerIndicesProtocol -> Some(s"lib/scala-compiler-indices-protocol_2.13-${Versions.compilerIndicesVersion}.jar")
     )
 
 lazy val runners: Project =
