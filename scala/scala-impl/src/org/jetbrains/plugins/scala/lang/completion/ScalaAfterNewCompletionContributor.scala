@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.completion.lookups.{PresentationExt, Sca
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNewTemplateDefinition, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
@@ -252,7 +252,7 @@ object ScalaAfterNewCompletionContributor {
     // filter base types (it's important for scala 2.9)
     // todo: filter inner classes smarter (how? don't forget deep inner classes)
     def isInvalid(clazz: PsiClass) =
-      clazz.is[ScObject] || names.contains(clazz.qualifiedName) || (clazz.containingClass match {
+      clazz.is[ScObject, ScEnum] || names.contains(clazz.qualifiedName) || (clazz.containingClass match {
         case null => false
         case _: ScObject => clazz.hasModifierPropertyScala("static")
         case _ => true
