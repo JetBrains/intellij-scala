@@ -3,18 +3,18 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.stubs.StubElement
-import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScCompanionOwnerFactory
+import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScTypeDefinitionLikeFactory
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
-import org.jetbrains.plugins.scala.lang.TokenSets.COMPANION_OWNERS
+import org.jetbrains.plugins.scala.lang.TokenSets.TYPE_DEFINITION_LIKES
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScCompanionOwner, ScEnum, ScObject, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinitionLike, ScEnum, ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 
-trait ScCompanionOwnerImpl extends ScCompanionOwner {
+trait ScCompanionOwnerImpl extends ScTypeDefinitionLike {
   //Performance critical method
   //And it is REALLY SO!
-  final override def baseCompanion: Option[ScCompanionOwner] = {
+  final override def baseCompanion: Option[ScTypeDefinitionLike] = {
     val isObject = this match {
       // Enum cases always have injected companion objects
       case _: ScEnumCase                       => return None
@@ -32,7 +32,7 @@ trait ScCompanionOwnerImpl extends ScCompanionOwner {
       case _ =>
     }
 
-    def isCompanion(td: ScCompanionOwner): Boolean = td match {
+    def isCompanion(td: ScTypeDefinitionLike): Boolean = td match {
       case ta @ (_: ScTypeAliasDeclaration) => isObject && td.name == thisName && ta.isInScala3Module
       case ta @ (_: ScTypeAliasDefinition) => isObject && td.name == thisName && ta.isOpaque
       case td @ (_: ScClass | _: ScTrait | _: ScEnum) if isObject && td.name == thisName => true
@@ -40,8 +40,8 @@ trait ScCompanionOwnerImpl extends ScCompanionOwner {
       case _                                                                             => false
     }
 
-    def findByStub(contextStub: StubElement[_]): Option[ScCompanionOwner] = {
-      val siblings  = contextStub.getChildrenByType(COMPANION_OWNERS, ScCompanionOwnerFactory)
+    def findByStub(contextStub: StubElement[_]): Option[ScTypeDefinitionLike] = {
+      val siblings  = contextStub.getChildrenByType(TYPE_DEFINITION_LIKES, ScTypeDefinitionLikeFactory)
       siblings.find(isCompanion)
     }
 
@@ -49,7 +49,7 @@ trait ScCompanionOwnerImpl extends ScCompanionOwner {
     // Finds the companion via a search of neighboring elements
     // Because this search is done for all type definitions within a context,
     // this search is quadratic in the number of type definitions.
-    def findByAstViaDirectSearch: Option[ScCompanionOwner] = {
+    def findByAstViaDirectSearch: Option[ScTypeDefinitionLike] = {
       var sibling: PsiElement = sameElementInContext
 
       while (sibling != null) {
@@ -57,7 +57,7 @@ trait ScCompanionOwnerImpl extends ScCompanionOwner {
         sibling = sibling.getNextSibling
 
         sibling match {
-          case td: ScCompanionOwner if isCompanion(td) => return Some(td)
+          case td: ScTypeDefinitionLike if isCompanion(td) => return Some(td)
           case _ =>
         }
       }
@@ -68,7 +68,7 @@ trait ScCompanionOwnerImpl extends ScCompanionOwner {
         sibling = sibling.getPrevSibling
 
         sibling match {
-          case td: ScCompanionOwner if isCompanion(td) => return Some(td)
+          case td: ScTypeDefinitionLike if isCompanion(td) => return Some(td)
           case _ =>
         }
       }
@@ -77,20 +77,20 @@ trait ScCompanionOwnerImpl extends ScCompanionOwner {
     }
 
     // find the companion via a cached map of all TypeDefinitions under the context
-    def findByAst: Option[ScCompanionOwner] = {
+    def findByAst: Option[ScTypeDefinitionLike] = {
       val ctx = this.getContext
       if (ctx == null)
         return findByAstViaDirectSearch
 
       val (types, objects) = cachedInUserData("ScTypeDefinitionImpl.baseCompanion.findByAst", ctx, BlockModificationTracker(ctx)) {
-        val types = Map.newBuilder[String, ScCompanionOwner]
+        val types = Map.newBuilder[String, ScTypeDefinitionLike]
         val objects = Map.newBuilder[String, ScObject]
 
         var current = ctx.getFirstChild
         while (current != null) {
 
           current match {
-            case td: ScCompanionOwner if td.is[ScClass, ScTrait, ScEnum, ScTypeAlias] => types += td.name -> td
+            case td: ScTypeDefinitionLike if td.is[ScClass, ScTrait, ScEnum, ScTypeAlias] => types += td.name -> td
             case o: ScObject => objects += o.name -> o
             case _ =>
           }

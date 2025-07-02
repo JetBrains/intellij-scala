@@ -51,10 +51,10 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
         getGotoDeclarationTargetsForGivenImport(maybeParent)
 
       case IsTemplateDefinition() | ScalaTokenTypes.kTYPE =>
-        PsiTreeUtil.getParentOfType(element, classOf[ScCompanionOwner]) match {
+        PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinitionLike]) match {
           case null => null
-          case companionOwner =>
-            companionOwner.baseCompanion.map(_.nameId.getPrevSiblingNotWhitespace).toArray
+          case typeDefinition =>
+            typeDefinition.baseCompanion.map(_.nameId.getPrevSiblingNotWhitespace).toArray
         }
 
       case ScalaTokenTypes.tASSIGN =>

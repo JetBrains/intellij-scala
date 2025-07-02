@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.clean
 
 sealed trait FileKind {
-  protected val delegate: ScCompanionOwner
+  protected val delegate: ScTypeDefinitionLike
 
   final type MyIconableNode = Node with IconableNode
 
@@ -30,15 +30,12 @@ object FileKind {
       first.name == second.name && clean(first.name) == fileName
 
     val members = file.members
-    val definitions = members.collect {
-      case td: ScTypeDefinition => td
-      case ta: ScTypeAlias => ta
-    }
-    val hasOtherTopLevelMembers = definitions.size != members.size
-    if (hasOtherTopLevelMembers)
+    val typeDefinitions = members.filterByType[ScTypeDefinitionLike]
+    val hasTopLevelNonTypeDefinitions = typeDefinitions.size != members.size
+    if (hasTopLevelNonTypeDefinitions)
       None
     else
-      definitions.toList match {
+      typeDefinitions.toList match {
         case (definition: ScObject) :: Nil if definition.isPackageObject =>
           Some(PackageObject(definition))
         case (definition: ScTypeDefinition) :: Nil if matchesFileName(definition) =>
@@ -68,7 +65,7 @@ object FileKind {
   }
 
   private final case class CompanionsFileKind(
-    override protected val delegate: ScCompanionOwner,
+    override protected val delegate: ScTypeDefinitionLike,
     protected val companionObject: ScObject
   ) extends FileKind {
 

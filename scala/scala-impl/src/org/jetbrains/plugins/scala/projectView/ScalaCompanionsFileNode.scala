@@ -15,7 +15,7 @@ import javax.swing.Icon
 
 final class ScalaCompanionsFileNode(
   project: Project,
-  delegate: ScCompanionOwner,
+  delegate: ScTypeDefinitionLike,
   settings: ViewSettings,
 ) extends PsiFileNode(
   project,
