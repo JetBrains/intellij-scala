@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInsight.intention.CreateCompanionObjectIntention.createCompanionObject
 import org.jetbrains.plugins.scala.extensions.Parent
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScCompanionOwner, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
@@ -21,7 +21,7 @@ class CreateCompanionObjectIntention extends PsiElementBaseIntentionAction with 
   override def getText: String = ScalaBundle.message("create.companion.object.for.class")
 
   override def invoke(project: Project, editor: Editor, psiElement: PsiElement): Unit = {
-    getClassIfAvailable(psiElement).foreach { clazz =>
+    getTypeIfAvailable(psiElement).foreach { clazz =>
       val companion = createCompanionObject(clazz)
       val parent = clazz.getParent
       val obj = parent.addAfter(companion, psiElement.getParent)
@@ -34,7 +34,7 @@ class CreateCompanionObjectIntention extends PsiElementBaseIntentionAction with 
   }
 
   override def isAvailable(project: Project, editor: Editor, psiElement: PsiElement): Boolean =
-    getClassIfAvailable(psiElement).exists(_.baseCompanion.isEmpty)
+    getTypeIfAvailable(psiElement).exists(_.baseCompanion.isEmpty)
 
   private def moveCaret(project: Project, editor: Editor, obj: PsiElement): Unit = {
     val document = editor.getDocument
@@ -45,9 +45,9 @@ class CreateCompanionObjectIntention extends PsiElementBaseIntentionAction with 
     editor.getCaretModel.moveToOffset(document.getLineEndOffset(nextLine))
   }
 
-  private def getClassIfAvailable(psiElement: PsiElement): Option[ScTypeDefinition] = {
+  private def getTypeIfAvailable(psiElement: PsiElement): Option[ScCompanionOwner] = {
     psiElement match {
-      case Parent(td: ScTypeDefinition) if psiElement == td.nameId && !td.isObject => Some(td)
+      case Parent(td: ScCompanionOwner) if psiElement == td.nameId && !td.isObject => Some(td)
       case _ => None
     }
   }
@@ -58,7 +58,7 @@ class CreateCompanionObjectIntention extends PsiElementBaseIntentionAction with 
 object CreateCompanionObjectIntention {
   import ScalaPsiElementFactory.TemplateDefKind
 
-  private[codeInsight] def createCompanionObject(clazz: ScTypeDefinition): ScObject =
+  private[codeInsight] def createCompanionObject(clazz: ScCompanionOwner): ScObject =
     ScalaPsiElementFactory.TemplateDefinitionBuilder(
       kind = TemplateDefKind.Object,
       name = clazz.name,
