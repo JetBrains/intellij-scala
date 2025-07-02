@@ -6,6 +6,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil.getChildrenOfTypeAsList
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 
@@ -13,7 +14,7 @@ final class ScalaMemberNameCompletionContributor extends ScalaCompletionContribu
   //suggest class name
   extend(
     CompletionType.BASIC,
-    identifierWithParentPattern(classOf[ScTypeDefinition]),
+    identifierWithParentPattern(classOf[ScCompanionOwner]),
     new ScalaCompletionProvider {
 
       override protected def completionsFor(position: PsiElement)
@@ -23,8 +24,8 @@ final class ScalaMemberNameCompletionContributor extends ScalaCompletionContribu
         typeDefinition.getContext match {
           case null => Iterable.empty
           case parent =>
-            val (objects, classes) = objectsAndClassesIn(parent)
-            val (targetNames, companionNames) = toNames(typeDefinition, classes, objects)
+            val (objects, types) = objectsAndTypesIn(parent)
+            val (targetNames, companionNames) = toNames(typeDefinition, types, objects)
 
             (findFileName(parent) ++ targetNames)
               .filterNot(companionNames)
@@ -32,28 +33,29 @@ final class ScalaMemberNameCompletionContributor extends ScalaCompletionContribu
         }
       }
 
-      private def objectsAndClassesIn(parent: PsiElement) = {
+      private def objectsAndTypesIn(parent: PsiElement) = {
         import scala.jdk.CollectionConverters._
-        getChildrenOfTypeAsList(parent, classOf[ScTypeDefinition])
+        getChildrenOfTypeAsList(parent, classOf[ScCompanionOwner])
           .asScala
           .toSet
           .partition(_.isObject)
       }
 
       private def toNames(typeDefinition: PsiElement,
-                          classes: Set[ScTypeDefinition],
-                          objects: Set[ScTypeDefinition]): (Set[String], Set[String]) = {
-        val classNames = classes.map(_.name)
+                          types: Set[ScCompanionOwner],
+                          objects: Set[ScCompanionOwner]): (Set[String], Set[String]) = {
+        val typeNames = types.map(_.name)
         val objectNames = objects.map(_.name)
 
         typeDefinition match {
           case _: ScClass |
-               _: ScTrait =>
-            (objectNames, classNames)
+               _: ScTrait |
+               _: ScTypeAlias =>
+            (objectNames, typeNames)
           case _: ScObject =>
-            (classNames, objectNames)
+            (typeNames, objectNames)
           case _ /*: ScEnum */ =>
-            (Set.empty[String], classNames union objectNames)
+            (Set.empty[String], typeNames union objectNames)
         }
       }
 
