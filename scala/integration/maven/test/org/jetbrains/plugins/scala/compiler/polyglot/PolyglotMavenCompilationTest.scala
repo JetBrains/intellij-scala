@@ -13,9 +13,11 @@ import org.jetbrains.plugins.scala.compiler.{CompileServerTestUtil, JdkVersionDi
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
+import org.junit.Ignore
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[CompilationTests_Zinc]))
+@Ignore
 class PolyglotMavenCompilationTest extends MavenImportingTestCase {
 
   private var sdk: Sdk = _

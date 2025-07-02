@@ -1,6 +1,7 @@
 package org.jetbrains.sbt.project.template.wizard
 
 import com.intellij.ide.fileTemplates.FileTemplateManager
+import com.intellij.ide.projectWizard.ProjectWizardJdkIntent
 import com.intellij.ide.util.projectWizard.ModuleBuilder
 import com.intellij.ide.wizard.{AbstractNewProjectWizardStep, NewProjectOnboardingTips, OnboardingTipsInstallationInfo}
 import com.intellij.openapi.actionSystem.IdeActions
@@ -41,6 +42,12 @@ package object buildSystem {
       builder.setModuleJdk(if (isSameSDK) null else sdk.orNull)
     }
   }
+
+  def getSdkFromJdkIntent(jdkIntent: Option[ProjectWizardJdkIntent]): Option[Sdk] =
+    for {
+      intent <- jdkIntent
+      sdk <- Option(intent.prepareJdk())
+    } yield sdk
 
   def addScalaSampleCode(project: Project, path: String, isScala3: Boolean, packagePrefix: Option[String], withOnboardingTips: Boolean): Seq[VirtualFile] = {
     val shouldRenderOnboardingTips: Boolean = Registry.is("doc.onboarding.tips.render")
