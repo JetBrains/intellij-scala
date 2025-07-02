@@ -40,6 +40,7 @@ public interface Icons {
     Icon ABSTRACT_CLASS_AND_OBJECT = getIcon("/org/jetbrains/plugins/scala/images/abstractClassObjectScala.svg", Icons.class);
     Icon TRAIT_AND_OBJECT = getIcon("/org/jetbrains/plugins/scala/images/traitObjectScala.svg", Icons.class);
     Icon ENUM_AND_OBJECT = getIcon("/org/jetbrains/plugins/scala/images/enumObjectScala.svg", Icons.class);
+    Icon TYPE_AND_OBJECT = getIcon("/org/jetbrains/plugins/scala/images/typeObjectScala.svg", Icons.class);
 
     //Companion gutter icons
     Icon CLASS_COMPANION = getIcon("/org/jetbrains/plugins/scala/images/classCompanion.svg", Icons.class);
