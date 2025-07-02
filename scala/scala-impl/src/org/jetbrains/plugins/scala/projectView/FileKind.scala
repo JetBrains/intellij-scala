@@ -4,11 +4,13 @@ import com.intellij.ide.projectView.ViewSettings
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtilRt.getNameWithoutExtension
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.clean
 
 sealed trait FileKind {
-  protected val delegate: ScTypeDefinition
+  protected val delegate: ScCompanionOwner
 
   final type MyIconableNode = Node with IconableNode
 
@@ -21,26 +23,29 @@ object FileKind {
   def getForFile(file: ScalaFile): Option[FileKind] = {
     val fileName = clean(getNameWithoutExtension(file.name))
 
-    def matchesFileName(definition: ScTypeDefinition): Boolean =
+    def matchesFileName(definition: ScNamedElement): Boolean =
       clean(definition.name) == fileName
 
-    def bothMatchFileName(first: ScTypeDefinition, second: ScTypeDefinition): Boolean =
+    def bothMatchFileName(first: ScNamedElement, second: ScNamedElement): Boolean =
       first.name == second.name && clean(first.name) == fileName
 
     val members = file.members
-    val typeDefinitions = members.filterByType[ScTypeDefinition]
-    val hasTopLevelNonTypeDefinitions = typeDefinitions.size != members.size
-    if (hasTopLevelNonTypeDefinitions)
+    val definitions = members.collect {
+      case td: ScTypeDefinition => td
+      case ta: ScTypeAlias => ta
+    }
+    val hasOtherTopLevelMembers = definitions.size != members.size
+    if (hasOtherTopLevelMembers)
       None
     else
-      typeDefinitions.toList match {
+      definitions.toList match {
         case (definition: ScObject) :: Nil if definition.isPackageObject =>
           Some(PackageObject(definition))
-        case definition :: Nil if matchesFileName(definition) =>
+        case (definition: ScTypeDefinition) :: Nil if matchesFileName(definition) =>
           Some(TypeDefinition(definition))
-        case (first@(_: ScClass | _: ScTrait | _: ScEnum)) :: (second: ScObject) :: Nil if bothMatchFileName(first, second) =>
+        case (first@(_: ScClass | _: ScTrait | _: ScEnum | _: ScTypeAlias)) :: (second: ScObject) :: Nil if bothMatchFileName(first, second) =>
           Some(CompanionsFileKind(first, second))
-        case (first: ScObject) :: (second@(_: ScClass | _: ScTrait | _: ScEnum)) :: Nil if bothMatchFileName(first, second) =>
+        case (first: ScObject) :: (second@(_: ScClass | _: ScTrait | _: ScEnum | _: ScTypeAlias)) :: Nil if bothMatchFileName(first, second) =>
           Some(CompanionsFileKind(second, first))
         case _ => None
       }
@@ -63,7 +68,7 @@ object FileKind {
   }
 
   private final case class CompanionsFileKind(
-    override protected val delegate: ScTypeDefinition,
+    override protected val delegate: ScCompanionOwner,
     protected val companionObject: ScObject
   ) extends FileKind {
 

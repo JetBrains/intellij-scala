@@ -6,6 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Queryable
 import org.jetbrains.plugins.scala.extensions.PsiModifierListOwnerExt
 import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.util.ScalaElementPresentationUtil
 
@@ -14,7 +15,7 @@ import javax.swing.Icon
 
 final class ScalaCompanionsFileNode(
   project: Project,
-  delegate: ScTypeDefinition,
+  delegate: ScCompanionOwner,
   settings: ViewSettings,
 ) extends PsiFileNode(
   project,
@@ -32,6 +33,7 @@ final class ScalaCompanionsFileNode(
       case _: ScEnum => "enum"
       case _: ScClass => "class"
       case _: ScTrait => "trait"
+      case _: ScTypeAlias => "type"
       case _: ScObject => "object"
     }
     s"ScalaCompanionsFileNode: $kind ${delegate.name}"
@@ -46,6 +48,7 @@ final class ScalaCompanionsFileNode(
   private def baseCompanionIcon: Icon = delegate match {
     case _: ScTrait                          => Icons.TRAIT_AND_OBJECT
     case _: ScEnum                           => Icons.ENUM_AND_OBJECT
+    case _: ScTypeAlias                      => Icons.TYPE_AND_OBJECT
     case c: ScClass if c.hasAbstractModifier => Icons.ABSTRACT_CLASS_AND_OBJECT
     case _                                   => Icons.CLASS_AND_OBJECT
   }
