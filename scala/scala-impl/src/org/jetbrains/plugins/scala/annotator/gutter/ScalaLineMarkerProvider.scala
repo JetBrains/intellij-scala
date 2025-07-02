@@ -390,13 +390,13 @@ private object GutterUtil {
     // TODO Enable in tests when GutterMarkersTest will be able to separate different maker providers
     if (ApplicationManager.getApplication.isUnitTestMode) None
     else element match {
-      case identifier @ ElementType(ScalaTokenTypes.tIDENTIFIER) & Parent(companionOwner: ScCompanionOwner) =>
-        companionOwner.baseCompanion.map { companion =>
-          val swapped = companionOwner.startOffset > companion.startOffset ^ companionOwner.is[ScObject]
+      case identifier @ ElementType(ScalaTokenTypes.tIDENTIFIER) & Parent(typeDefinition: ScTypeDefinitionLike) =>
+        typeDefinition.baseCompanion.map { companion =>
+          val swapped = typeDefinition.startOffset > companion.startOffset ^ typeDefinition.is[ScObject]
 
           val info = new LineMarkerInfo(identifier,
             identifier.getTextRange,
-            iconFor(companionOwner, swapped),
+            iconFor(typeDefinition, swapped),
             (_: PsiElement) =>
               GutterTooltipHelper.getTooltipText(singletonList(companion.nameId.getPrevSiblingNotWhitespace), ScalaBundle.message("has.companion", nameOf(companion)), false, IdeActions.ACTION_GOTO_DECLARATION)
                 .replace("to navigate", "on the keyword to navigate"), // Not internationalizable (which is somewhat OK).
@@ -413,7 +413,7 @@ private object GutterUtil {
     }
   }
 
-  private[this] def nameOf(definition: ScCompanionOwner) = definition match {
+  private[this] def nameOf(definition: ScTypeDefinitionLike) = definition match {
     case _: ScEnum => ScalaBundle.message("companion.enum")
     case _: ScClass => ScalaBundle.message("companion.class")
     case _: ScTrait => ScalaBundle.message("companion.trait")
@@ -422,7 +422,7 @@ private object GutterUtil {
     case _ => "" // Just "Has a companion" is OK.
   }
 
-  private[this] def iconFor(definition: ScCompanionOwner, swapped: Boolean): Icon = definition match {
+  private[this] def iconFor(definition: ScTypeDefinitionLike, swapped: Boolean): Icon = definition match {
     case _: ScEnum => if (swapped) Icons.CLASS_COMPANION_SWAPPED else Icons.CLASS_COMPANION
     case _: ScClass => if (swapped) Icons.CLASS_COMPANION_SWAPPED else Icons.CLASS_COMPANION
     case _: ScTrait => if (swapped) Icons.TRAIT_COMPANION_SWAPPED else Icons.TRAIT_COMPANION

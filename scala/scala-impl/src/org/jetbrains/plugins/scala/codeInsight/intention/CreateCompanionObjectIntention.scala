@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInsight.intention.CreateCompanionObjectIntention.createCompanionObject
 import org.jetbrains.plugins.scala.extensions.Parent
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScCompanionOwner, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinitionLike, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
@@ -45,9 +45,9 @@ class CreateCompanionObjectIntention extends PsiElementBaseIntentionAction with 
     editor.getCaretModel.moveToOffset(document.getLineEndOffset(nextLine))
   }
 
-  private def getTypeIfAvailable(psiElement: PsiElement): Option[ScCompanionOwner] = {
+  private def getTypeIfAvailable(psiElement: PsiElement): Option[ScTypeDefinitionLike] = {
     psiElement match {
-      case Parent(td: ScCompanionOwner) if psiElement == td.nameId && !td.isObject => Some(td)
+      case Parent(td: ScTypeDefinitionLike) if psiElement == td.nameId && !td.isObject => Some(td)
       case _ => None
     }
   }
@@ -58,7 +58,7 @@ class CreateCompanionObjectIntention extends PsiElementBaseIntentionAction with 
 object CreateCompanionObjectIntention {
   import ScalaPsiElementFactory.TemplateDefKind
 
-  private[codeInsight] def createCompanionObject(clazz: ScCompanionOwner): ScObject =
+  private[codeInsight] def createCompanionObject(clazz: ScTypeDefinitionLike): ScObject =
     ScalaPsiElementFactory.TemplateDefinitionBuilder(
       kind = TemplateDefKind.Object,
       name = clazz.name,

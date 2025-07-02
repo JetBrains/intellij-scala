@@ -14,7 +14,7 @@ final class ScalaMemberNameCompletionContributor extends ScalaCompletionContribu
   //suggest class name
   extend(
     CompletionType.BASIC,
-    identifierWithParentPattern(classOf[ScCompanionOwner]),
+    identifierWithParentPattern(classOf[ScTypeDefinitionLike]),
     new ScalaCompletionProvider {
 
       override protected def completionsFor(position: PsiElement)
@@ -35,15 +35,15 @@ final class ScalaMemberNameCompletionContributor extends ScalaCompletionContribu
 
       private def objectsAndTypesIn(parent: PsiElement) = {
         import scala.jdk.CollectionConverters._
-        getChildrenOfTypeAsList(parent, classOf[ScCompanionOwner])
+        getChildrenOfTypeAsList(parent, classOf[ScTypeDefinitionLike])
           .asScala
           .toSet
           .partition(_.isObject)
       }
 
       private def toNames(typeDefinition: PsiElement,
-                          types: Set[ScCompanionOwner],
-                          objects: Set[ScCompanionOwner]): (Set[String], Set[String]) = {
+                          types: Set[ScTypeDefinitionLike],
+                          objects: Set[ScTypeDefinitionLike]): (Set[String], Set[String]) = {
         val typeNames = types.map(_.name)
         val objectNames = objects.map(_.name)
 
