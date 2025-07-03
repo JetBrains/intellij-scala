@@ -4,10 +4,11 @@ import com.intellij.openapi.project.Project
 import com.intellij.platform.feedback.dialog.uiBlocks.{DescriptionBlock, FeedbackBlock, RatingBlock, TextAreaBlock, TopLabelBlock}
 import com.intellij.platform.feedback.dialog.{BaseFeedbackSystemInfoDialogKt, BlockBasedFeedbackDialogWithEmail, CommonFeedbackSystemData}
 import com.intellij.platform.feedback.impl.notification.ThanksForFeedbackNotification
+import com.intellij.util.JavaCoroutines
 import org.jetbrains.sbt.SbtBundle
 
 import java.util.{List => JList}
-import kotlin.jvm.functions
+import kotlin.coroutines.Continuation
 import kotlinx.serialization.json.JsonObject
 
 class SeparateMainTestModulesDisabledFeedbackDialog(project: Project, forTest: Boolean)
@@ -19,12 +20,16 @@ class SeparateMainTestModulesDisabledFeedbackDialog(project: Project, forTest: B
   override def getZendeskTicketTitle: String = "Feedback: Separate Main/Test Modules"
   override def getZendeskFeedbackType: String = "Feedback: Separate Main/Test Modules"
 
-  override lazy val getMySystemInfoData: CommonFeedbackSystemData =
+  private lazy val mySystemInfoData: CommonFeedbackSystemData =
     FeedbackAPICompanionProxy.currentData
 
-  override def getMyShowFeedbackSystemInfoDialog: functions.Function0[kotlin.Unit] = () => {
-    BaseFeedbackSystemInfoDialogKt.showFeedbackSystemInfoDialog(project, getMySystemInfoData, _ => kotlin.Unit.INSTANCE)
-    kotlin.Unit.INSTANCE
+  override protected def computeSystemInfoData(cont: Continuation[_ >: CommonFeedbackSystemData]): AnyRef =
+    JavaCoroutines.suspendJava[CommonFeedbackSystemData](continuation => {
+      continuation.resume(mySystemInfoData)
+    }, cont)
+
+  override protected def showFeedbackSystemInfoDialog(data: CommonFeedbackSystemData): Unit = {
+    BaseFeedbackSystemInfoDialogKt.showFeedbackSystemInfoDialog(project, data, _ => kotlin.Unit.INSTANCE)
   }
 
   override val getMyBlocks: JList[FeedbackBlock] = JList.of(
