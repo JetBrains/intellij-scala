@@ -7,6 +7,7 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil._
 import org.jetbrains.plugins.scala.autoImport.quickFix._
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.completion.{InsertionContextExt, ScalaKeyword}
 import org.jetbrains.plugins.scala.lang.completion.handlers.{ScalaImportingInsertHandler, ScalaInsertHandler}
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
@@ -15,10 +16,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction, ScTypeAlias, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFun, ScFunction, ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportSelectors, ScImportStmt}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -110,7 +111,18 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
   override def getExpensiveRenderer: LookupElementRenderer[_ <: LookupElement] = (element: LookupElement, presentation) => {
     element.renderElement(presentation)
 
-    presentation.setIcon(getPsiElement)
+    val nonObjComp = getPsiElement.asOptionOf[ScTypeDefinition]
+      .flatMap(_.baseCompanion)
+      .map {
+        case _: ScObject => getPsiElement
+        case comp => comp
+      }
+
+    nonObjComp match {
+      case Some(_: ScEnum | _: ScEnumCase) => presentation.setIcon(Icons.ENUM_AND_OBJECT)
+      case Some(_: ScClass) => presentation.setIcon(Icons.CLASS_AND_OBJECT)
+      case _ => presentation.setIcon(getPsiElement)
+    }
 
     val grayed = getPsiElement match {
       case _: PsiPackage | _: PsiClass => true
