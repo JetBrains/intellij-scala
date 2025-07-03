@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.TokenSets
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScOptionalBracesOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.IndentUtil
@@ -145,13 +146,13 @@ object Scala3IndentationBasedSyntaxCopyPastePreProcessor {
     else
       elementAtCaretOrCommonParent //if it's not a leaf element we already know that it's a common parent of selection
     parent match {
+      case _: ScalaFile | _: ScPackaging =>
+        CaretPosition.TopLevelScalaFile
       case b: ScOptionalBracesOwner  =>
         if (b.isEnclosedByBraces)
           CaretPosition.InTheMiddleBodyWithBraces(b)
         else
           CaretPosition.InTheMiddleBodyIndentationBased(b)
-      case _: ScalaFile =>
-        CaretPosition.TopLevelScalaFile
       case _ =>
         CaretPosition.NotInTheBeginningOfNewLine
     }
