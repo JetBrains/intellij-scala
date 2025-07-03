@@ -438,7 +438,7 @@ object ScalaResolveResult {
       val Setter = """(.*)_=""".r
       val isRenamed = resolveResult.isRenamed.filter(element.name != _)
       val (name, isAssignment) = isRenamed.getOrElse(element.name) match {
-        case Setter(string) if !element.isInstanceOf[FakePsiMethod] => // if the element is a fake psi method, then the setter's already been generated from var
+        case Setter(string) if !element.is[FakePsiMethod] => // if the element is a fake psi method, then the setter's already been generated from var
           (string, true)
         case string =>
           (string, false)
