@@ -1,10 +1,12 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.completion.CompletionType.BASIC
-import com.intellij.openapi.util.registry.Registry
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
+import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase.createPresentation
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.runner.RunWith
+
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 abstract class ScalaTypeMatchingEnumBasicCompletionTest extends ScalaCompletionTestBase {
 
@@ -1584,6 +1586,31 @@ final class ScalaTypeMatchingEnumBasicCompletionTest_3_Latest extends ScalaTypeM
       item = "Friday",
       completionType = BASIC
     )
+  }
+
+  def test_doNotCompleteEnumBase(): Unit = {
+    checkNoCompletion(
+      s"""
+        |package example
+        |
+        |//import example.Other.Direction
+        |
+        |object Other {
+        |  enum Direction {
+        |    case Up, Down
+        |  }
+        |}
+        |
+        |object Example {
+        |  // start typing here
+        |  Dir$CARET
+        |}
+        |
+        |""".stripMargin
+    ) { item =>
+      item.getLookupString == "Direction" &&
+      createPresentation(item).getTailFragments.asScala.exists(_.text.contains("{...}"))
+    }
   }
 
   /// ---------- SCALA 3 ENUM ------------

@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.withCompanionModule
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScConstructorPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumClassCase, ScTypeAlias}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
@@ -115,6 +115,7 @@ object ScalaClassNameCompletionContributor {
         isAccessible(member, invocationCount)(place)
 
     private[this] def isApplicable(clazz: PsiClass): Boolean = clazz match {
+      case _: ScEnum => isInImport
       case c: ScEnumCase => isInImport || (classesOnly && c.is[ScEnumClassCase])
       case _: ScClass => isInImport || classesOnly || place.isInScala3File
       case _: ScTrait => isInImport || classesOnly
