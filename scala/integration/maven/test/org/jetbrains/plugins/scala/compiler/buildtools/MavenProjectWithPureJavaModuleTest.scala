@@ -5,7 +5,7 @@ import com.intellij.openapi.compiler.CompilerMessageCategory
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.ModuleRootModificationUtil
-import com.intellij.testFramework.CompilerTester
+import com.intellij.testFramework.{CompilerTester, EdtTestUtil}
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.compiler.{CompileServerTestUtil, JdkVersionDiscovery}
@@ -14,27 +14,30 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.{CompilationTests_IDEA, CompilationTests_Zinc}
 import org.junit.Assert.{assertNotNull, assertTrue}
-import org.junit.Ignore
+import org.junit.Test
 import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 import scala.jdk.CollectionConverters._
 
+@RunWith(classOf[JUnit4])
 abstract class MavenProjectWithPureJavaModuleTestBase(incrementality: IncrementalityType) extends MavenImportingTestCase {
 
   private var sdk: Sdk = _
 
-  private var compiler: CompilerTester = _
+  override protected def runInDispatchThread(): Boolean = false
 
   override def setUp(): Unit = {
     super.setUp()
 
-    sdk = {
+    EdtTestUtil.runInEdtAndWait { () =>
       val jdkVersion = JdkVersionDiscovery.discoveredJdk
       val res = SmartJDKLoader.getOrCreateJDK(jdkVersion)
       val settings = ScalaCompileServerSettings.getInstance()
       settings.COMPILE_SERVER_SDK = res.getName
       settings.USE_DEFAULT_SDK = false
-      res
+      sdk = res
     }
 
     CompileServerTestUtil.registerLongRunningThreads()
@@ -141,56 +144,64 @@ abstract class MavenProjectWithPureJavaModuleTestBase(incrementality: Incrementa
   }
 
   override def tearDown(): Unit = try {
-    compiler.tearDown()
-    val settings = ScalaCompileServerSettings.getInstance()
-    settings.USE_DEFAULT_SDK = true
-    settings.COMPILE_SERVER_SDK = null
-    inWriteAction(ProjectJdkTable.getInstance().removeJdk(sdk))
+    EdtTestUtil.runInEdtAndWait { () =>
+      val settings = ScalaCompileServerSettings.getInstance()
+      settings.USE_DEFAULT_SDK = true
+      settings.COMPILE_SERVER_SDK = null
+      inWriteAction(ProjectJdkTable.getInstance().removeJdk(sdk))
+    }
   } finally {
     super.tearDown()
   }
 
-  def testImportAndCompile(): Unit = {
-    runWithoutStaticSync()
+  @Test
+  def importAndCompile(): Unit = {
     importProject()
 
     ScalaCompilerConfiguration.instanceIn(getProject).incrementalityType = incrementality
 
     val modules = ModuleManager.getInstance(getProject).getModules
     modules.foreach(ModuleRootModificationUtil.setModuleSdk(_, sdk))
-    compiler = new CompilerTester(getProject, java.util.Arrays.asList(modules: _*), null, false)
 
-    val messages = compiler.make()
-    val errorsAndWarnings = messages.asScala.filter { message =>
-      val category = message.getCategory
-      category == CompilerMessageCategory.ERROR || category == CompilerMessageCategory.WARNING
+    withCompiler { compiler =>
+      val messages = compiler.make()
+      val errorsAndWarnings = messages.asScala.filter { message =>
+        val category = message.getCategory
+        category == CompilerMessageCategory.ERROR || category == CompilerMessageCategory.WARNING
+      }
+
+      assertTrue(
+        s"Expected no compilation errors or warnings, got: ${errorsAndWarnings.mkString(System.lineSeparator())}",
+        errorsAndWarnings.isEmpty
+      )
+
+      val module1 = modules.find(_.getName == "module1").orNull
+      assertNotNull("Could not find module with name 'module1'", module1)
+      val module2 = modules.find(_.getName == "module2").orNull
+      assertNotNull("Could not find module with name 'module2'", module2)
+
+      val greeter = compiler.findClassFile("Greeter", module1)
+      assertNotNull("Could not find compiled class file Greeter", greeter)
+
+      val helloWorldGreeter = compiler.findClassFile("HelloWorldGreeter", module2)
+      assertNotNull("Could not find compiled class file HelloWorldGreeter", helloWorldGreeter)
+
+      val helloWorldGreeterModule = compiler.findClassFile("HelloWorldGreeter$", module2)
+      assertNotNull("Could not find compiled class file HelloWorldGreeter$", helloWorldGreeterModule)
     }
+  }
 
-    assertTrue(
-      s"Expected no compilation errors or warnings, got: ${errorsAndWarnings.mkString(System.lineSeparator())}",
-      errorsAndWarnings.isEmpty
-    )
-
-    val module1 = modules.find(_.getName == "module1").orNull
-    assertNotNull("Could not find module with name 'module1'", module1)
-    val module2 = modules.find(_.getName == "module2").orNull
-    assertNotNull("Could not find module with name 'module2'", module2)
-
-    val greeter = compiler.findClassFile("Greeter", module1)
-    assertNotNull("Could not find compiled class file Greeter", greeter)
-
-    val helloWorldGreeter = compiler.findClassFile("HelloWorldGreeter", module2)
-    assertNotNull("Could not find compiled class file HelloWorldGreeter", helloWorldGreeter)
-
-    val helloWorldGreeterModule = compiler.findClassFile("HelloWorldGreeter$", module2)
-    assertNotNull("Could not find compiled class file HelloWorldGreeter$", helloWorldGreeterModule)
+  private def withCompiler(action: CompilerTester => Unit): Unit = {
+    val project = getProject
+    val modules = ModuleManager.getInstance(project).getModules
+    val compiler = new CompilerTester(project, java.util.Arrays.asList(modules: _*), null, false)
+    try action(compiler)
+    finally compiler.tearDown()
   }
 }
 
 @Category(Array(classOf[CompilationTests_IDEA]))
-@Ignore
 class MavenProjectWithPureJavaModuleTest_IDEA extends MavenProjectWithPureJavaModuleTestBase(IncrementalityType.IDEA)
 
 @Category(Array(classOf[CompilationTests_Zinc]))
-@Ignore
 class MavenProjectWithPureJavaModuleTest_Zinc extends MavenProjectWithPureJavaModuleTestBase(IncrementalityType.SBT)

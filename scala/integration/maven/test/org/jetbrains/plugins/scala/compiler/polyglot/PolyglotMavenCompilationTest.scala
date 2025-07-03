@@ -4,8 +4,7 @@ import com.intellij.maven.testFramework.MavenImportingTestCase
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.ModuleRootModificationUtil
-import com.intellij.testFramework.{CompilerTester, IndexingTestUtil}
-import junit.framework.TestCase.{assertEquals, assertNotNull}
+import com.intellij.testFramework.{CompilerTester, EdtTestUtil, IndexingTestUtil}
 import org.jetbrains.plugins.scala.CompilationTests_Zinc
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
@@ -13,31 +12,30 @@ import org.jetbrains.plugins.scala.compiler.{CompileServerTestUtil, JdkVersionDi
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
-import org.junit.Ignore
+import org.junit.Assert.{assertEquals, assertNotNull}
+import org.junit.Test
 import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 @Category(Array(classOf[CompilationTests_Zinc]))
-@Ignore
+@RunWith(classOf[JUnit4])
 class PolyglotMavenCompilationTest extends MavenImportingTestCase {
 
   private var sdk: Sdk = _
 
-  private var compiler: CompilerTester = _
-
-  private var module1: Module = _
-
-  private var module2: Module = _
+  override protected def runInDispatchThread(): Boolean = false
 
   override def setUp(): Unit = {
     super.setUp()
 
-    sdk = {
+    EdtTestUtil.runInEdtAndWait { () =>
       val jdkVersion = JdkVersionDiscovery.discoveredJdk
       val res = SmartJDKLoader.getOrCreateJDK(jdkVersion)
       val settings = ScalaCompileServerSettings.getInstance()
       settings.COMPILE_SERVER_SDK = res.getName
       settings.USE_DEFAULT_SDK = false
-      res
+      sdk = res
     }
 
     CompileServerTestUtil.registerLongRunningThreads()
@@ -205,7 +203,6 @@ class PolyglotMavenCompilationTest extends MavenImportingTestCase {
       """object HelloWorldGreeter extends AbstractGreeter("Hello, world!")
         |""".stripMargin)
 
-    runWithoutStaticSync()
     importProject()
 
     KotlinDaemonUtil.disableKotlinDaemon(getProject)
@@ -214,39 +211,55 @@ class PolyglotMavenCompilationTest extends MavenImportingTestCase {
     modules.foreach(ModuleRootModificationUtil.setModuleSdk(_, sdk))
 
     IndexingTestUtil.waitUntilIndexesAreReady(getProject)
-
-    module1 = modules.find(_.getName == "module1").orNull
-    assertNotNull("Could not find module with name 'module1'", module1)
-    module2 = modules.find(_.getName == "module2").orNull
-    assertNotNull("Could not find module with name 'module2'", module2)
-    compiler = new CompilerTester(getProject, java.util.Arrays.asList(modules: _*), null, false)
   }
 
   override def tearDown(): Unit = try {
-    compiler.tearDown()
-    val settings = ScalaCompileServerSettings.getInstance()
-    settings.USE_DEFAULT_SDK = true
-    settings.COMPILE_SERVER_SDK = null
-    inWriteAction {
-      val jdkTable = ProjectJdkTable.getInstance()
-      jdkTable.removeJdk(sdk)
-      val kotlinSdk = jdkTable.getAllJdks.find(_.getName.contains("Kotlin SDK"))
-      kotlinSdk.foreach(jdkTable.removeJdk)
+    EdtTestUtil.runInEdtAndWait { () =>
+      val settings = ScalaCompileServerSettings.getInstance()
+      settings.USE_DEFAULT_SDK = true
+      settings.COMPILE_SERVER_SDK = null
+      inWriteAction {
+        val jdkTable = ProjectJdkTable.getInstance()
+        jdkTable.removeJdk(sdk)
+        val kotlinSdk = jdkTable.getAllJdks.find(_.getName.contains("Kotlin SDK"))
+        kotlinSdk.foreach(jdkTable.removeJdk)
+      }
     }
   } finally {
     super.tearDown()
   }
 
-  def testPolyglotCompilation(): Unit = {
+  @Test
+  def polyglotCompilation(): Unit = {
     assertEquals(IncrementalityType.SBT, ScalaCompilerConfiguration.instanceIn(getProject).incrementalityType)
-    compiler.make()
-    assertClassExists("Greeter", module1)
-    assertClassExists("AbstractGreeter", module1)
-    assertClassExists("HelloWorldGreeter", module2)
+    val module1 = findModule("module1")
+    val module2 = findModule("module2")
+
+    withCompiler { compiler =>
+      compiler.make()
+      assertClassExists(compiler, "Greeter", module1)
+      assertClassExists(compiler, "AbstractGreeter", module1)
+      assertClassExists(compiler, "HelloWorldGreeter", module2)
+    }
   }
 
-  private def assertClassExists(name: String, module: Module): Unit = {
+  private def assertClassExists(compiler: CompilerTester, name: String, module: Module): Unit = {
     val file = compiler.findClassFile(name, module)
     assertNotNull(s"Could not find class file for $name", file)
+  }
+
+  private def findModule(name: String): Module = {
+    val modules = ModuleManager.getInstance(getProject).getModules
+    val m = modules.find(_.getName == name).orNull
+    assertNotNull(s"Could not find module with name '$name'", m)
+    m
+  }
+
+  private def withCompiler(action: CompilerTester => Unit): Unit = {
+    val project = getProject
+    val modules = ModuleManager.getInstance(project).getModules
+    val compiler = new CompilerTester(project, java.util.Arrays.asList(modules: _*), null, false)
+    try action(compiler)
+    finally compiler.tearDown()
   }
 }
