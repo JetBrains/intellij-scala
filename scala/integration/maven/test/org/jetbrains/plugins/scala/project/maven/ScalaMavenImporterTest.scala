@@ -8,6 +8,7 @@ import com.intellij.openapi.roots.{DependencyScope, ProjectRootManager}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
 import com.intellij.pom.java.LanguageLevel
+import com.intellij.testFramework.EdtTestUtil
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
@@ -18,18 +19,23 @@ import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.project.ProjectStructureDsl._
 import org.jetbrains.sbt.project.utils.ProjectStructureComparisonContext
 import org.jetbrains.sbt.project.{ExactMatch, ProjectStructureMatcher}
-import org.junit.Assert
 import org.junit.Assert.assertNotNull
 import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
+import org.junit.{Assert, Test}
 
 import java.nio.file.{Files, Path}
 
 //noinspection ApiStatus
 @Category(Array(classOf[SlowTests]))
+@RunWith(classOf[JUnit4])
 abstract class ScalaMavenImporterTest
   extends MavenImportingTestCase
     with ProjectStructureMatcher
     with ExactMatch {
+
+  override protected def runInDispatchThread(): Boolean = false
 
   /** None means use whatever default JDK is chosen by IDEA (most probably internal IDEA JDK) */
   protected def projectJdkVersion: Option[LanguageLevel]
@@ -39,18 +45,22 @@ abstract class ScalaMavenImporterTest
   override protected def setUp(): Unit = {
     super.setUp()
 
-    projectJdkVersion.foreach { jdkVersion =>
-      inWriteAction {
-        jdk = SmartJDKLoader.getOrCreateJDK(jdkVersion)
-        ProjectRootManager.getInstance(getProject).setProjectSdk(jdk)
+    EdtTestUtil.runInEdtAndWait { () =>
+      projectJdkVersion.foreach { jdkVersion =>
+        inWriteAction {
+          jdk = SmartJDKLoader.getOrCreateJDK(jdkVersion)
+          ProjectRootManager.getInstance(getProject).setProjectSdk(jdk)
+        }
       }
     }
   }
 
   override protected def tearDown(): Unit = {
-    if (jdk != null) {
-      val jdkTable = JavaAwareProjectJdkTableImpl.getInstanceEx
-      inWriteAction(jdkTable.removeJdk(jdk))
+    EdtTestUtil.runInEdtAndWait { () =>
+      if (jdk != null) {
+        val jdkTable = JavaAwareProjectJdkTableImpl.getInstanceEx
+        inWriteAction(jdkTable.removeJdk(jdk))
+      }
     }
 
     super.tearDown()
@@ -74,7 +84,6 @@ abstract class ScalaMavenImporterTest
     val pomVFile = VirtualFileManager.getInstance().findFileByNioPath(pomFile)
     Assert.assertNotNull("can't find 'pom.xml' file", pomVFile)
 
-    runWithoutStaticSync()
     importProjects(pomVFile)
 
     val compareContext = ProjectStructureComparisonContext.Implicit.default(getProject)
@@ -102,6 +111,7 @@ abstract class ScalaMavenImporterTest
       })
     })
 
+  @Test
   def testWithScala2(): Unit =
     runImportingTest_Common(
       "testWithScala2",
@@ -111,6 +121,7 @@ abstract class ScalaMavenImporterTest
       Seq(MavenScalaLibrary(Scala_2_13_6), MavenScalaSdk(Scala_2_13_6))
     )
 
+  @Test
   def testWithTwoModulesWithScala2And3(): Unit = {
     runImportingTest(new project("testWithTwoModulesWithScala2And3") {
       val mavenSdkScala2_13: library = MavenScalaSdk(Scala_2_13_6)
@@ -144,6 +155,7 @@ abstract class ScalaMavenImporterTest
     })
   }
 
+  @Test
   def testWithScala2_WithExplicitSourceDirectoriesSet(): Unit =
     runImportingTest_Common(
       "testWithScala2_WithExplicitSourceDirectoriesSet",
@@ -155,6 +167,7 @@ abstract class ScalaMavenImporterTest
       Seq(MavenScalaLibrary(Scala_2_13_6), MavenScalaSdk(Scala_2_13_6))
     )
 
+  @Test
   def testWithScala2_WithoutScalaMavenPlugin(): Unit =
     runImportingTest_Common(
       "testWithScala2_WithoutScalaMavenPlugin",
@@ -164,6 +177,7 @@ abstract class ScalaMavenImporterTest
       Seq(MavenScalaLibrary(Scala_2_13_6))
     )
 
+  @Test
   def testWithScala3_0(): Unit = {
     runImportingTest_Common(
       "testWithScala3_0",
@@ -179,6 +193,7 @@ abstract class ScalaMavenImporterTest
     )
   }
 
+  @Test
   def testWithScala3_1(): Unit = {
     runImportingTest_Common(
       "testWithScala3_1",
@@ -206,6 +221,7 @@ abstract class ScalaMavenImporterTest
     new library("Maven: org.scalatest:scalatest-core_2.13:3.2.11"),
   )
 
+  @Test
   def testWithImplicitScalaLibraryDependency_compilerVersionLargest(): Unit = {
     val expectedLibraries = Seq(
       MavenScalaLibrary(Scala_2_13_6),
@@ -220,6 +236,7 @@ abstract class ScalaMavenImporterTest
     })
   }
 
+  @Test
   def testWithImplicitScalaLibraryDependency_compilerVersionInTheMiddle(): Unit = {
     val expectedLibraries = Seq(
       MavenScalaLibrary(Scala_2_13_6),
@@ -234,6 +251,7 @@ abstract class ScalaMavenImporterTest
     })
   }
 
+  @Test
   def testWithImplicitScalaLibraryDependency_compilerVersionSmallest(): Unit = {
     val expectedLibraries = Seq(
       MavenScalaLibrary(Scala_2_13_6),
@@ -248,6 +266,7 @@ abstract class ScalaMavenImporterTest
     })
   }
 
+  @Test
   def testWithImplicitScalaLibraryDependency_compilerVersionSmallest_LibraryDependenciesHaveTestScope(): Unit = {
     val expectedCompileLibraries = Seq(
       MavenScalaLibrary(Scala_2_13_0),
@@ -267,6 +286,7 @@ abstract class ScalaMavenImporterTest
     })
   }
 
+  @Test
   def testWithoutExplicitScalaVersion_LibraryDependenciesHaveTestScope(): Unit = {
     val expectedTestLibraries = CommonLibrariesForImplicitScalaLibraryDependencyTests
     val scalaLibraries = Seq(MavenScalaLibrary(Scala_2_13_6), MavenScalaSdk(Scala_2_13_6))
@@ -280,6 +300,7 @@ abstract class ScalaMavenImporterTest
     })
   }
 
+  @Test
   def testWithCompileOrder(): Unit = {
     runImportingTest(new project("testWithCompileOrder") {
       modules := Seq(new module("dummy-artifact-id") {
@@ -288,6 +309,7 @@ abstract class ScalaMavenImporterTest
     })
   }
 
+  @Test
   def testResolveCompilerBridge_Scala3(): Unit = {
     runImportingTest(new project("testResolveCompilerBridge_Scala3"))
 
@@ -307,6 +329,7 @@ abstract class ScalaMavenImporterTest
     org.junit.Assert.assertEquals(s"scala3-sbt-bridge-$scalaVersion.jar", compilerBridge.getFileName.toString)
   }
 
+  @Test
   def testResolveCompilerBridge_Scala2(): Unit = {
     runImportingTest(new project("testResolveCompilerBridge_Scala2"))
 
