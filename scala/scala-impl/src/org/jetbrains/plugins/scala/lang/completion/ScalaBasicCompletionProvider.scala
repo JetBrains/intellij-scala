@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScInterpolated,
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScPatterned, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScValueOrVariable}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScMember, ScObject, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.{ScReferenceExpressionImpl, ScReferenceImpl}
