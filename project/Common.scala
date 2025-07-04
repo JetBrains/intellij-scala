@@ -79,6 +79,45 @@ object Common {
     inConfig(Compile)(settings) ++ inConfig(Test)(settings)
   }
 
+  // Adds dependency on Kotlin plugin
+  // NOTE: this val might not be used but is handy to keep here in case one needs to debug Kotlin code
+  private lazy val AddKotlinPluginDependenciesSettings: Seq[Setting[?]] = Seq(
+    intellijPlugins += "org.jetbrains.kotlin".toPlugin,
+    // Kotlin plugin jars bundle some Kotlin Analysis Api classes, however, no sources are bundled in the IJ sources archive
+    libraryDependencies ++= KotlinAnalysisApiIdeSourcesDependencies,
+  )
+
+  private lazy val KotlinAnalysisApiIdeSourcesDependencies: Seq[ModuleID] = {
+    // Unfortunately, we can't automatically detect this version. It's not published in any artifacts
+    // NOTE: take the latest version from (Use proper branch)
+    // https://github.com/JetBrains/intellij-community/blob/master/.idea/libraries/kotlinc_analysis_api.xml
+    val KotlinAnalysisApiVersion = "2.2.20-dev-5812"
+
+    // Not sure why these are trying to be resolved transitively, but they are not available in the repo
+    // We have to exclude them manually
+    val KotlinAnalysisApiExcludes = Seq(
+      ExclusionRule("org.jetbrains.kotlin", "analysis-api"),
+      ExclusionRule("org.jetbrains.kotlin", "analysis-api-fe10"),
+      ExclusionRule("org.jetbrains.kotlin", "analysis-api-fir"),
+      ExclusionRule("org.jetbrains.kotlin", "analysis-api-fir-standalone-base"),
+      ExclusionRule("org.jetbrains.kotlin", "analysis-api-impl-base"),
+      ExclusionRule("org.jetbrains.kotlin", "analysis-api-k2"),
+      ExclusionRule("org.jetbrains.kotlin", "analysis-api-platform-interface"),
+      ExclusionRule("org.jetbrains.kotlin", "analysis-api-standalone"),
+      ExclusionRule("org.jetbrains.kotlin", "analysis-api-standalone-base"),
+      ExclusionRule("org.jetbrains.kotlin", "analysis-internal-utils"),
+    )
+
+    Seq(
+      ("org.jetbrains.kotlin" % "analysis-api-fe10-for-ide" % KotlinAnalysisApiVersion).sources(),
+      ("org.jetbrains.kotlin" % "analysis-api-for-ide" % KotlinAnalysisApiVersion).sources(),
+      ("org.jetbrains.kotlin" % "analysis-api-impl-base-for-ide" % KotlinAnalysisApiVersion).sources(),
+      ("org.jetbrains.kotlin" % "analysis-api-k2-for-ide" % KotlinAnalysisApiVersion).sources(),
+      ("org.jetbrains.kotlin" % "analysis-api-platform-interface-for-ide" % KotlinAnalysisApiVersion).sources(),
+      ("org.jetbrains.kotlin" % "analysis-api-standalone-for-ide" % KotlinAnalysisApiVersion).sources(),
+    ).map(_.excludeAll(KotlinAnalysisApiExcludes *))
+  }
+
   private val NewProjectBaseSettings: Seq[Setting[?]] = Seq(
     organization := "JetBrains",
     scalaVersion := Versions.scalaVersion,
