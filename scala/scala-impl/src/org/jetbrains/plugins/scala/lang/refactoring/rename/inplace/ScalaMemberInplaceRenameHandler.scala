@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.refactoring.rename.inplace.{InplaceRefactoring, MemberInplaceRenameHandler, MemberInplaceRenamer}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitionLike
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, ScPrimaryConstructorWrapper}
 import org.jetbrains.plugins.scala.statistics.ScalaRefactoringUsagesCollector
 
@@ -34,7 +34,7 @@ class ScalaMemberInplaceRenameHandler extends MemberInplaceRenameHandler with Sc
       case wrapper: ScPrimaryConstructorWrapper =>
         val definition = wrapper.delegate.containingClass
         (Some(definition), definition.baseCompanion)
-      case definition: ScTypeDefinition =>
+      case definition: ScTypeDefinitionLike =>
         (Some(definition), definition.baseCompanion)
       case clazz: PsiClass =>
         (Some(clazz), None)

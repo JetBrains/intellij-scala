@@ -43,12 +43,12 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor with ScalaRenam
 
   override def prepareRenaming(element: PsiElement, newName: String, allRenames: util.Map[PsiElement, String]): Unit = {
     element match {
-      case typeDef: ScTypeDefinition =>
+      case typeDef: ScTypeDefinitionLike =>
         collectRenamesForTypeDefinition(typeDef, newName, allRenames)
       case _ =>
     }
 
-    val allRenamedTypeDefs = allRenames.keySet.asScala.clone.filterByType[ScTypeDefinition]
+    val allRenamedTypeDefs = allRenames.keySet.asScala.clone.filterByType[ScTypeDefinitionLike]
     for {
       renamedTypeDef <- allRenamedTypeDefs
     } {
@@ -60,7 +60,7 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor with ScalaRenam
     ScalaElementToRenameContributor.addAllElements(element, newName, allRenames)
   }
 
-  private def fakeCompanionClassRename(typeDef: ScTypeDefinition, newName: String): Option[(PsiClass, String)] =
+  private def fakeCompanionClassRename(typeDef: ScTypeDefinitionLike, newName: String): Option[(PsiClass, String)] =
     typeDef match {
       case o: ScObject => o.fakeCompanionClass.map(_ -> newName)
       //Q: shouldn't we handle trait differently since scala 2.12? Does it matter in this code?
@@ -69,11 +69,11 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor with ScalaRenam
     }
 
   private def collectRenamesForTypeDefinition(
-    typeDefinition: ScTypeDefinition,
+    typeDefinition: ScTypeDefinitionLike,
     newName: String,
     allRenames: util.Map[PsiElement, String]
   ): Unit = {
-    val companion = ScalaPsiUtil.getCompanionModule(typeDefinition)
+    val companion = typeDefinition.baseCompanion
     companion match {
       case Some(companion) if ScalaApplicationSettings.getInstance.RENAME_COMPANION_MODULE =>
         allRenames.put(companion, newName)
