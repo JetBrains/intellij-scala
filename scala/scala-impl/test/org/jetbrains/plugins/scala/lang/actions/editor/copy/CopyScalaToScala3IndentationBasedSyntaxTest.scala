@@ -1726,4 +1726,160 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |  """.stripMargin,
     )
   }
+
+  def testPasteTopLevelMethodBetweenOtherTopLevelMethods_AfterSingleLineBody(): Unit = {
+    doPasteTest(
+      """def topLevel2: String =
+        |  "42"""".stripMargin,
+      s"""def topLevel1: String = "42"
+         |
+         |$Caret
+         |
+         |def topLevel3: String =
+         |  "42"
+         |""".stripMargin,
+      s"""def topLevel1: String = "42"
+         |
+         |def topLevel2: String =
+         |  "42"$Caret
+         |
+         |def topLevel3: String =
+         |  "42"
+         |""".stripMargin,
+    )
+  }
+
+  def testPasteTopLevelMethodBetweenOtherTopLevelMethods_AfterSingleLineBodyOnNewLine(): Unit = {
+    doPasteTest(
+      """def topLevel2: String =
+        |  "42"""".stripMargin,
+      s"""def topLevel1: String =
+         |  "42"
+         |
+         |$Caret
+         |
+         |def topLevel3: String =
+         |  "42"
+         |""".stripMargin,
+      s"""def topLevel1: String =
+         |  "42"
+         |
+         |def topLevel2: String =
+         |  "42"$Caret
+         |
+         |def topLevel3: String =
+         |  "42"
+         |""".stripMargin,
+    )
+  }
+
+  def testPasteTopLevelMethodBetweenOtherTopLevelMethods_AfterMultilineBody(): Unit = {
+    doPasteTest(
+      """def topLevel2: String =
+        |  "42"""".stripMargin,
+      s"""def topLevel1: String =
+         |  "42"
+         |  "23"
+         |
+         |$Caret
+         |
+         |def topLevel3: String =
+         |  "42"
+         |""".stripMargin,
+      s"""def topLevel1: String =
+         |  "42"
+         |  "23"
+         |
+         |def topLevel2: String =
+         |  "42"$Caret
+         |
+         |def topLevel3: String =
+         |  "42"
+         |""".stripMargin,
+    )
+  }
+
+  def testPasteTopLevelMethodBetweenOtherTopLevelMethods_WithPackageStatement_AfterSingleLineBody(): Unit = {
+    doPasteTest(
+      """def topLevel2: String =
+        |  "42"""".stripMargin,
+      s"""package example
+         |
+         |def topLevel1: String = "42"
+         |
+         |$Caret
+         |
+         |def topLevel3: String =
+         |  "42"
+         |""".stripMargin,
+      s"""package example
+         |
+         |def topLevel1: String = "42"
+         |
+         |def topLevel2: String =
+         |  "42"$Caret
+         |
+         |def topLevel3: String =
+         |  "42"
+         |""".stripMargin,
+    )
+  }
+
+  def testPasteTopLevelMethodBetweenOtherTopLevelMethods_WithPackageStatement_AfterSingleLineBodyOnNewLine(): Unit = {
+    doPasteTest(
+      """def topLevel2: String =
+        |  "42"""".stripMargin,
+      s"""package example
+         |
+         |def topLevel1: String =
+         |  "42"
+         |
+         |$Caret
+         |
+         |def topLevel3: String =
+         |  "42"
+         |""".stripMargin,
+      s"""package example
+         |
+         |def topLevel1: String =
+         |  "42"
+         |
+         |def topLevel2: String =
+         |  "42"$Caret
+         |
+         |def topLevel3: String =
+         |  "42"
+         |""".stripMargin,
+    )
+  }
+
+  def testPasteTopLevelMethodBetweenOtherTopLevelMethods_WithPackageStatement_AfterMultilineBody(): Unit = {
+    doPasteTest(
+      """def topLevel2: String =
+        |  "42"""".stripMargin,
+      s"""package example
+         |
+         |def topLevel1: String =
+         |  "42"
+         |  "23"
+         |
+         |$Caret
+         |
+         |def topLevel3: String =
+         |  "42"
+         |""".stripMargin,
+      s"""package example
+         |
+         |def topLevel1: String =
+         |  "42"
+         |  "23"
+         |
+         |def topLevel2: String =
+         |  "42"$Caret
+         |
+         |def topLevel3: String =
+         |  "42"
+         |""".stripMargin,
+    )
+  }
 }
