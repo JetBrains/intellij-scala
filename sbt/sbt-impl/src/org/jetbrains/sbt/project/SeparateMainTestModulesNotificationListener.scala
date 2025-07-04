@@ -2,16 +2,9 @@ package org.jetbrains.sbt.project
 
 import com.intellij.ide.trustedProjects.TrustedProjects
 import com.intellij.ide.util.PropertiesComponent
-import com.intellij.openapi.actionSystem.impl.{ActionButton, ActionButtonUtil}
-import com.intellij.openapi.externalSystem.ExternalSystemConfigurableAware
 import com.intellij.openapi.externalSystem.service.project.manage.ProjectDataImportListener
-import com.intellij.openapi.externalSystem.service.settings.AbstractExternalSystemConfigurable
-import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
-import com.intellij.openapi.options.ShowSettingsUtil
-import com.intellij.openapi.wm.impl.{SquareStripeButton, ToolWindowManagerImpl}
 import com.intellij.openapi.project.Project
 import com.intellij.ui.GotItTooltip
-import com.intellij.openapi.wm.{ToolWindowManager, WindowManager}
 import org.jetbrains.sbt.project.SeparateMainTestModulesNotificationListener._
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.{SbtBundle, SbtUtil}
@@ -68,46 +61,22 @@ object SeparateMainTestModulesNotificationListener {
   }
 
   private def show(projectPath: String, project: Project): Unit = {
-    val sbtButton = findSbtToolWindowButton(project)
+    val sbtButton = SbtTooltip.findSbtToolWindowButton(project)
     sbtButton.foreach { button =>
-      val toolWindowManagerImpl = Option(ToolWindowManager.getInstance(project))
-        .collect { case x: ToolWindowManagerImpl => x }
-        .orNull
+      val toolWindowManagerImpl = SbtTooltip.findToolWindowManagerDisposable(project)
 
       val gtip = new GotItTooltip(
         "sbt.main.test.modules.enabled",
         SbtBundle.message("separate.modules.main.test.notification"),
-        toolWindowManagerImpl
+        toolWindowManagerImpl.orNull
       )
-        .withLink(SbtBundle.message("open.sbt.project.settings"), () => openSbtProjectSettings(project, projectPath))
+        .withLink(SbtBundle.message("open.sbt.project.settings"), () => SbtTooltip.openSbtProjectSettings(project, projectPath))
         .withSecondaryButton(SbtBundle.message("separate.modules.main.test.notification.learn"), () => {
           SbtUtil.openSeparateMainTestModulesBlogPost()
           kotlin.Unit.INSTANCE
         })
 
       gtip.show(button, GotItTooltip.LEFT_MIDDLE)
-    }
-  }
-
-  private def findSbtToolWindowButton(project: Project): Option[ActionButton] = {
-    val frame = WindowManager.getInstance().getIdeFrame(project)
-    if (frame == null) return None
-    val component = frame.getComponent
-    val maybeActionButton = ActionButtonUtil.findActionButton(component, {
-      case button: SquareStripeButton => button.getToolWindow.getStripeTitle == "sbt"
-      case _ => false
-    })
-
-    Option(maybeActionButton)
-  }
-
-  private def openSbtProjectSettings(project: Project, externalProjectPath: String): Unit = {
-    val manager = ExternalSystemApiUtil.getManager(SbtProjectSystem.Id)
-    val configurable = manager.asInstanceOf[ExternalSystemConfigurableAware].getConfigurable(project)
-    configurable match {
-      case x: AbstractExternalSystemConfigurable[_, _, _] =>
-        ShowSettingsUtil.getInstance().editConfigurable(project, x, () => x.selectProject(externalProjectPath))
-      case _ =>
     }
   }
 }

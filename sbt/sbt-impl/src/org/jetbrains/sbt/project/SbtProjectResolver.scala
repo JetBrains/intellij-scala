@@ -92,8 +92,10 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       new CompositeReporter(esReporter, logReporter)
     } else esReporter
 
+    @Nullable val ideaProject: Project = taskId.findProject()
+
     val startTime = System.currentTimeMillis()
-    val structureDump = dumpStructure(projectRoot, sbtLauncher, context.sbtVersion, settings, taskId.findProject())
+    val structureDump = dumpStructure(projectRoot, sbtLauncher, context.sbtVersion, settings, ideaProject)
 
     // side-effecty status reporting
     structureDump.foreach { _ =>
@@ -105,7 +107,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val conversionResult: Try[DataNode[ESProjectData]] = structureDump
       .map { case (elem, _) =>
         val data = elem.deserialize[sbtStructure.StructureData].getOrElse(throw new IllegalStateException("Could not deserialize sbt structure data"))
-        convert(normalizePath(projectRoot), data, settings.jdk, settings).toDataNode
+        convert(normalizePath(projectRoot), data, settings.jdk, settings, Option(ideaProject)).toDataNode
       }
       .recoverWith {
         case ImportCancelledException(cause) =>
@@ -379,11 +381,21 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     s.toLowerCase(Locale.ENGLISH)
       .replaceAll("""\W+""", "-")
 
+  private def notifyGeneratedManagedSources(projectPath: String, data: sbtStructure.StructureData, optIdeaProject: Option[Project]): Unit = {
+    optIdeaProject.foreach { ideaProject =>
+      val generatedManagedSources = data.projects.exists(_.generatedManagedSources)
+      if (!ideaProject.isDisposed) {
+        GeneratedManagedSourcesService.instance(ideaProject).setGeneratedForPath(projectPath, generatedManagedSources)
+      }
+    }
+  }
+
   private def convert(
     root: String,
     data: sbtStructure.StructureData,
     settingsJdk: Option[String],
     settings: SbtExecutionSettings,
+    optIdeaProject: Option[Project]
   )(implicit context: ImportContext): Node[ESProjectData] = {
     val projects: Seq[sbtStructure.ProjectData] = data.projects
     val projectRootFile = new File(root)
@@ -451,6 +463,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val buildModules = data.builds.map(buildModuleForProject)
 
     configureBuildModuleDependencies(buildModules)
+
+    notifyGeneratedManagedSources(root, data, optIdeaProject)
 
     projectNode
   }

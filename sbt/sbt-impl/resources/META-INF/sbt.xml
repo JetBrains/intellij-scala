@@ -19,7 +19,8 @@
                   topic="com.intellij.openapi.externalSystem.service.project.manage.ProjectDataImportListener"/>
         <listener class="org.jetbrains.sbt.project.SeparateMainTestModulesNotificationListener"
                   topic="com.intellij.openapi.externalSystem.service.project.manage.ProjectDataImportListener"/>
-
+        <listener class="org.jetbrains.sbt.project.GeneratedManagedSourcesImportListener"
+                  topic="com.intellij.openapi.externalSystem.service.project.manage.ProjectDataImportListener"/>
 
         <listener topic="com.intellij.openapi.roots.ModuleRootListener"
                   class="org.jetbrains.sbt.project.SbtProjectImportStateModuleRootListener"/>
