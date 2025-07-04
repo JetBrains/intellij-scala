@@ -1,7 +1,13 @@
 package org.jetbrains.plugins.scala.annotator.element
 
+import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
+import com.intellij.modcommand.{ActionContext, ModCommand, PsiBasedModCommandAction}
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
+import com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.{registerTypeMismatchError, withoutNonHighlightables}
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
@@ -14,10 +20,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLitera
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createNewLine
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
-import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 
@@ -107,6 +114,9 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
         }
         holder.createErrorAnnotation(call.argsElement, message, fix)
       case ExcessArgument(_) => // simultaneously handled above
+      case UnexpectedUsingArgClause(usingKw) =>
+        val message = ScalaBundle.message("unexpected.explicit.using.arg.clause")
+        holder.createErrorAnnotation(usingKw, message)
       case TypeMismatch(expression, expectedType) =>
         if (countMatches && !typeMismatchShown) {
           expression.`type`().foreach {
@@ -141,16 +151,26 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
   }
 
   private def funAndProblemsFor(call: MethodInvocation): (Option[PsiNamedElement], Seq[ApplicabilityProblem]) = {
-    call.applyOrUpdateElement.map(rr => (Some(rr.element), rr.problems))
+    call.applyOrUpdateElement.map(rr => (Option(rr.element), rr.problems))
       .getOrElse {
-        call.getEffectiveInvokedExpr match {
-          case ref: ScReferenceExpression =>
-            ref.bind() match {
-              case Some(rr @ ScalaResolveResult(f @ (_: ScFunction | _: PsiMethod | _: ScSyntheticFunction), _)) =>
-                (Some(f), rr.problems)
-              case _ => (None, call.applicationProblems)
-            }
-          case _ => (None, call.applicationProblems)
+
+        //Ideally, only scala 3 branch should be left, but
+        //call.applicationProblems is full of subtle bugs and small differences
+        //that force me to rewrite a lot of tests, so let's just leave it like this for now.
+        if (call.isInScala3File) {
+          val fun      = call.target.map(_.element)
+          val problems = call.applicationProblems
+          (fun, problems)
+        } else {
+          call.getEffectiveInvokedExpr match {
+            case ref: ScReferenceExpression =>
+              ref.bind() match {
+                case Some(rr @ ScalaResolveResult(f @ (_: ScFunction | _: PsiMethod | _: ScSyntheticFunction), _)) =>
+                  (Some(f), rr.problems)
+                case _ => (None, call.applicationProblems)
+              }
+            case _ => (None, call.applicationProblems)
+          }
         }
       }
   }
@@ -200,8 +220,8 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
         ref           <- call.getEffectiveInvokedExpr.asOptionOfUnsafe[ScReference]
         resolveResult <- call.applyOrUpdateElement.orElse(ref.bind())
         if !resolveResult.isDynamic
-        fun                                  <- resolveResult.element.asOptionOf[ScFunction]
-        numArgumentClauses                   = countArgumentClauses(call)
+        fun                <- resolveResult.element.asOptionOf[ScFunction]
+        numArgumentClauses = countArgumentClauses(call)
 
         clauses =
           if (!resolveResult.isExtensionCall) fun.effectiveParameterClauses

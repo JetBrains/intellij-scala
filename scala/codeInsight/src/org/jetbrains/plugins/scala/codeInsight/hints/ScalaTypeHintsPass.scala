@@ -10,7 +10,7 @@ import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.annotator.TypeMismatchHints
-import org.jetbrains.plugins.scala.annotator.hints.Hint.MenuProvider
+import org.jetbrains.plugins.scala.annotator.hints.Hint.{HintPosition, MenuProvider}
 import org.jetbrains.plugins.scala.annotator.hints.{Corners, Hint, Text}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsPass._
@@ -70,9 +70,18 @@ private[codeInsight] trait ScalaTypeHintsPass {
 
   private def hints(e: PsiElement, t: ScType, inParentheses: Boolean)(implicit scheme: EditorColorsScheme, context: TypePresentationContext, settings: ScalaHintsSettings) = {
     if (inParentheses)
-      Seq(Hint(Seq(Text("(")), e, suffix = false, corners = Corners.Left), Hint(Text(": ") +: textPartsOf(t, settings.presentationLength, e) :+ Text(")"), e, suffix = true, relatesToPrecedingElement = true, corners = Corners.Right))
+      Seq(
+        Hint(Seq(Text("(")), e, position = HintPosition.BeforeElement, corners = Corners.Left),
+        Hint(
+          Text(": ") +: textPartsOf(t, settings.presentationLength, e) :+ Text(")"),
+          e,
+          position                  = HintPosition.AfterElement,
+          relatesToPrecedingElement = true,
+          corners                   = Corners.Right
+        )
+      )
     else
-      Seq(Hint(Text(": ") +: textPartsOf(t, settings.presentationLength, e), e, suffix = true, relatesToPrecedingElement = true))
+      Seq(Hint(Text(": ") +: textPartsOf(t, settings.presentationLength, e), e, position = HintPosition.AfterElement, relatesToPrecedingElement = true))
   }
 }
 
@@ -149,5 +158,5 @@ private object ScalaTypeHintsPass {
         case _ => Seq.empty
       }
       text = Text(": ") +: (textPartsOf(returnType, settings.presentationLength, anchor) ++ suffix)
-    } yield Hint(text, anchor, suffix = true, menu, relatesToPrecedingElement = true)
+    } yield Hint(text, anchor, position = HintPosition.AfterElement, menu, relatesToPrecedingElement = true)
 }

@@ -99,7 +99,7 @@ object ImplicitSearchScope {
     case m: ScMember                                                    => m.hasModifierProperty("implicit")
     case _: ScTemplateParents                                           => true
     case expr: ScExpression
-      if isScala3 && expr.contextFunctionParameters.nonEmpty => true
+      if isScala3 && expr.contextFunctionParameters().nonEmpty => true
     case _ => false
   }
 

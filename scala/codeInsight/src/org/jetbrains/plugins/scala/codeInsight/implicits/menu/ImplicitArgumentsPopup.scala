@@ -20,8 +20,9 @@ class ImplicitArgumentsPopup extends AnAction(
     if (inlay == null) return
 
     ImplicitHint.elementOf(inlay) match {
-      case ImplicitArgumentsOwner(args) =>
-        ShowImplicitArgumentsAction.showPopup(editor, args, isConversion = false)
+      case ImplicitArgumentsOwner(argsByClause) =>
+        //@TODO: adapt to multiple/interleaved implicit clauses
+        ShowImplicitArgumentsAction.showPopup(editor, argsByClause.flatMap(_.args), isConversion = false)
       case _ =>
     }
   }

@@ -309,7 +309,7 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
         case Some(srr) =>
           srr.getElement match {
             case fun: ScFunction if fun.parameters.count(!_.isImplicit) == 1 =>
-              fun.parametersTypes.headOption
+              fun.parametersTypes().headOption
                 .map(srr.substitutor)
             case _ => None
           }

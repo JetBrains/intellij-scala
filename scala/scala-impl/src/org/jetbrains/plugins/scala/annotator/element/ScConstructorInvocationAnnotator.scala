@@ -88,18 +88,10 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
         // check all of these clauses
         implicit val ctx: ProjectContext = constr
 
-        val params   = constr.getClassTypeParameters.map(_.typeParameters).getOrElse(Seq.empty)
-        val typeArgs = constrInvocation.typeArgList.map(_.typeArgs).getOrElse(Seq.empty)
-
-        val typeArgsSubst  = ScSubstitutor.bind(params, typeArgs)(_.calcType)
-        val undefinedSubst = ScSubstitutor.bind(params)(UndefinedType(_))
-        val substitutor    = typeArgsSubst.followed(undefinedSubst).followed(r.substitutor)
-
-        val res = Compatibility.checkConstructorApplicability(
+        val (_, res, _) = Compatibility.checkConstructorApplicability(
           constrInvocation,
-          substitutor,
-          constrInvocation.arguments,
-          constr.effectiveParameterClauses
+          constr,
+          r
         )
 
         annotateProblems(res.problems, r, constrInvocation)

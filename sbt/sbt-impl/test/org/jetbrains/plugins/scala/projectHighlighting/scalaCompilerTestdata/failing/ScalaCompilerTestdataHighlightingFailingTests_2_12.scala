@@ -4,15 +4,13 @@ class ScalaCompilerTestdataHighlightingFailingTests_2_12 extends ScalaCompilerTe
 
   override def getTestDirName = "failed"
 
-  //Delete test method and move corresponding .scala file or directory to testdata/scalacTests/pos/ after test passes
+  //Delete test method and move the corresponding .scala file or directory to testdata/scalacTests/pos/ after test passes
 
   def test_t6169(): Unit = doTest()
 
   def test_t7232c(): Unit = doTest()
 
   def test_t7364b(): Unit = doTest()
-
-  def test_t7688(): Unit = doTest()
 
   def test_t8497(): Unit = doTest()
 

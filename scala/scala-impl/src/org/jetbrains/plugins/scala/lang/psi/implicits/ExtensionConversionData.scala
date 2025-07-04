@@ -72,12 +72,12 @@ object ExtensionConversionHelper {
 
     foundInType.resultUndef match {
       case Some(ConstraintSystem(substitutor)) =>
-        val parameterType = candidate.implicitParameterType
+        val parameterType = candidate.implicitResultType
 
         val combinedSubstitutor = candidate.substitutor.followed(foundInType.substitutor).followed(substitutor)
         candidate.copy(
           subst = combinedSubstitutor,
-          implicitParameterType = parameterType.map(combinedSubstitutor)
+          implicitResultType = parameterType.map(combinedSubstitutor)
         )
       case _ => candidate
     }

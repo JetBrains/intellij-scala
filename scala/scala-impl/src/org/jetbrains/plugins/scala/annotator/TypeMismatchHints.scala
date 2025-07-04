@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.Format.{InnerParentheses, OuterParentheses, Plain}
 import org.jetbrains.plugins.scala.annotator.Tree.{Leaf, Node}
 import org.jetbrains.plugins.scala.annotator.TypeDiff.{Match, Mismatch}
-import org.jetbrains.plugins.scala.annotator.hints.Hint.MenuProvider
+import org.jetbrains.plugins.scala.annotator.hints.Hint.{HintPosition, MenuProvider}
 import org.jetbrains.plugins.scala.annotator.hints.{Text, _}
 import org.jetbrains.plugins.scala.caches.CachesUtil.fileModCount
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings
@@ -36,7 +36,7 @@ object TypeMismatchHints {
     }
 
     val prefix = format match {
-      case InnerParentheses | OuterParentheses => Seq(Hint(Seq(Text("(")), element, suffix = false, corners = Corners.Left))
+      case InnerParentheses | OuterParentheses => Seq(Hint(Seq(Text("(")), element, position = HintPosition.BeforeElement, corners = Corners.Left))
       case _ => Seq.empty
     }
 
@@ -69,7 +69,17 @@ object TypeMismatchHints {
       case _ => Corners.All
     }
 
-    val hints = prefix :+ Hint(parts, element, margin = margin, suffix = true, relatesToPrecedingElement = true, offsetDelta = offsetDelta, menu = typeMismatchHintContextMenu, corners = corners)
+    val hints = prefix :+
+      Hint(
+        parts,
+        element,
+        margin                    = margin,
+        position                  = HintPosition.AfterElement,
+        relatesToPrecedingElement = true,
+        offsetDelta               = offsetDelta,
+        menu                      = typeMismatchHintContextMenu,
+        corners                   = corners
+      )
 
     AnnotatorHints(hints, fileModCount(element.getContainingFile))
   }

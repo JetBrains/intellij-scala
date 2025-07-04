@@ -145,14 +145,13 @@ object ScalaPsiUtil {
   }
 
   @tailrec
-  def withEtaExpansion(expr: ScExpression): Boolean = {
+  def isEtaExpandedExpression(expr: ScExpression): Boolean =
     expr.getContext match {
-      case _: ScMethodCall => false
-      case g: ScGenericCall => withEtaExpansion(g)
-      case p: ScParenthesisedExpr => withEtaExpansion(p)
-      case _ => true
+      case _: ScMethodCall        => false
+      case g: ScGenericCall       => isEtaExpandedExpression(g)
+      case p: ScParenthesisedExpr => isEtaExpandedExpression(p)
+      case _                      => true
     }
-  }
 
   def isInheritorDeep(clazz: PsiClass, base: PsiClass): Boolean = clazz.isInheritor(base, true)
 
@@ -376,11 +375,11 @@ object ScalaPsiUtil {
     var res: Set[ImportUsed] = Set.empty
     val visitor = new ScalaRecursiveElementVisitor {
       override def visitExpression(expr: ScExpression): Unit = {
-        //Implicit parameters
-        expr.findImplicitArguments match {
-          case Some(results) => for (r <- results if r != null) res = res ++ r.importsUsed
-          case _ =>
-        }
+        //Implicit arguments
+        for {
+          argClause <- expr.findImplicitArguments
+          arg       <- argClause.args
+        } res ++= arg.importsUsed
 
         //implicit conversions
         def addConversions(fromUnderscore: Boolean): Unit = {

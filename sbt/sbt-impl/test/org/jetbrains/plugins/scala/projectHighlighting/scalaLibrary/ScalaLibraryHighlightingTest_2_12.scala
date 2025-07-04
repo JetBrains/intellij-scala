@@ -76,7 +76,3 @@ class ScalaLibraryHighlightingTest_2_12 extends ScalaLibraryHighlightingTest {
     )
   )
 }
-
-
-
-

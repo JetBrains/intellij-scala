@@ -380,4 +380,24 @@ class ApplicationAnnotatorTest_3 extends ApplicationAnnotatorTest_Common {
       case Error("()", "'3' does not take parameters") :: Nil =>
     }
   }
+
+  //See comment at org.jetbrains.plugins.scala.annotator.element.ScMethodInvocationAnnotator.funAndProblemsFor
+  //for why there is a difference between 2 and 3.
+  override def testDoesNotTakeParameters_1(): Unit = {
+    assertMatches(messages("def f {}; f(Unit, null)")) {
+      case Error("(Unit, null)", "'Unit' does not take parameters") :: Nil =>
+    }
+  }
+
+  override def testDoesNotTakeParameters_2(): Unit = {
+    assertMatches(messages("def foo0: Int = 42 ; foo0()")) {
+      case Error("()", "'Int' does not take parameters") :: Nil =>
+    }
+  }
+
+  override def testMalformedSignature(): Unit = {
+    assertMessagesSorted(messages("def f(a: A*, b: B) {}; f(A, B)"))(
+      Error("a: A*", "*-parameter must come last")
+    )
+  }
 }

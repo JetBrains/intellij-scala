@@ -10,12 +10,18 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
 
-final case class ScMethodType(result: ScType,
-                              // TODO: we should also be able to express the absence of parameter clauses in method
-                              //  to distinguish between def foo: String = ??? and def foo(): String
-                              params: Seq[Parameter],
-                              isImplicit: Boolean)
-                             (implicit val elementScope: ElementScope) extends NonValueType {
+final case class ScMethodType(
+  result:        ScType,
+  // TODO: we should also be able to express the absence of parameter clauses in method
+  //  to distinguish between def foo: String = ??? and def foo(): String
+  params:        Seq[Parameter],
+  hasImplicitKW: Boolean = false,
+  hasUsingKW:    Boolean = false
+)(implicit
+  val elementScope: ElementScope
+) extends NonValueType {
+
+  def isImplicit: Boolean = hasImplicitKW || hasUsingKW
 
   override implicit def projectContext: ProjectContext = elementScope.projectContext
 
@@ -23,6 +29,7 @@ final case class ScMethodType(result: ScType,
 
   override def typeDepth: Int = result.typeDepth
 
+  //@TODO: infer ContextFunction when isImplicit and isInScala3File are true?
   override def inferValueType: ValueType =
     FunctionType(result.inferValueType, params.map(p => {
       val inferredParamType = p.paramType.inferValueType
@@ -71,4 +78,7 @@ object ScMethodType {
     case c: ScGenericCall => hasMethodType(c.referencedExpr)
     case _ => false
   }
+
+  def unapply(mt: ScMethodType): Option[(ScType, Seq[Parameter], Boolean)] =
+    Option((mt.result, mt.params, mt.isImplicit))
 }

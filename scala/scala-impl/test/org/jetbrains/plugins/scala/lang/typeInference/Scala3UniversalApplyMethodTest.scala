@@ -116,7 +116,7 @@ class Scala3UniversalApplyMethodTest extends ScalaLightCodeInsightFixtureTestCas
        |
        |object Test {
        |  val foo = Foo[String, Int](${withTypeMismatchError("1213", expected = "String", actual = "Int")}, 'c')
-       |  val foo2: Foo[Boolean, Float] = Foo(false, List.empty[String])
+       |  val foo2: Foo[Boolean, Float] = Foo(false, ${withTypeMismatchError("List.empty[String]", expected = "Float", actual = "List[String]")})
        |}
        |""".stripMargin
   )

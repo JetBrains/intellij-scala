@@ -48,7 +48,7 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
 
   override protected def updateImplicitArguments(): Unit = {
     // for regular case implicits are owned by ScConstructor
-    setImplicitArguments(desugaredApply.flatMap(_.findImplicitArguments))
+    setImplicitArguments(desugaredApply.toSeq.flatMap(_.findImplicitArguments))
   }
 
   protected override def innerType: TypeResult = {

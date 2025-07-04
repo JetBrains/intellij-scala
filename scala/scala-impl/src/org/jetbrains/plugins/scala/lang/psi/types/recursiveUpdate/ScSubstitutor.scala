@@ -3,11 +3,10 @@ package org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions.ArrayExt
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, TypeParamId}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, TypeParamId, TypeParamIdOwner}
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Covariant, TypeParameter, TypeParameterType, UndefinedType, Variance}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Covariant, TypeParameter, TypeParameterType, Variance}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Covariant, TypeParameter, TypeParameterType, UndefinedType, Variance}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
 
@@ -157,12 +156,18 @@ final class ScSubstitutor private(_substitutions: Array[Update],   //Array is us
 
   def isEmpty: Boolean = substitutions.isEmpty
 
-  private def allTypeParamsMap: LongMap[ScType] = substitutions.foldLeft(LongMap.empty[ScType]) { (map, substitution) =>
-    substitution match {
-      case TypeParamSubstitution(tvMap) => map ++ tvMap
-      case _ => map
-    }
+  def isApplicableToTypeParam[T: TypeParamId](tparam: T): Boolean = {
+    val id = tparam.typeParamId
+    allTypeParamsMap.contains(id)
   }
+
+  private lazy val allTypeParamsMap: LongMap[ScType] =
+    substitutions.foldLeft(LongMap.empty[ScType]) { (map, substitution) =>
+      substitution match {
+        case TypeParamSubstitution(tvMap) => map ++ tvMap
+        case _                            => map
+      }
+    }
 }
 
 object ScSubstitutor {
@@ -225,5 +230,5 @@ object ScSubstitutor {
     subst.substitutions.collectFirstByType[ThisTypeSubstitution, ScType](_.target)
   }
 
-  def undefineTypeParams[T](tps: Seq[TypeParameter]): ScSubstitutor = bind(tps)(UndefinedType(_))
+  def undefineTypeParams(tps: Seq[TypeParameter]): ScSubstitutor = bind(tps)(UndefinedType(_))
 }

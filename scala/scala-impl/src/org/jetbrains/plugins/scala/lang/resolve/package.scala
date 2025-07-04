@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang
 
 import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 
 package object resolve {
@@ -20,6 +21,14 @@ package object resolve {
         case fn: ScFunction if !srr.isExtensionCall => fn.typeParametersWithExtension().nonEmpty
         case m: PsiMethod                           => m.hasTypeParameters
         case _                                      => false
+      }
+
+    def functionParamClauses: Seq[ScParameterClause] =
+      srr.element match {
+        case fun: ScFunction =>
+          if (srr.shouldDropExtensionClauses) fun.paramClauses.clauses
+          else                                fun.parameterClausesWithExtension(srr.exportedInExtension)
+        case _ => Seq.empty
       }
   }
 }

@@ -44,9 +44,9 @@ object InferUtil {
   )
 
   val ValueOf         = "scala.ValueOf"
-  val Mirror          = "scala.deriving.Mirror"
   val ConformsWitness = "scala.Predef.<:<"
   val EquivWitness    = "scala.Predef.=:="
+  val Mirrors         = Seq("scala.deriving.Mirror", "scala.deriving.Mirror.Product", "scala.deriving.Mirror.Sum")
 
   private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.api.InferUtil$")
 
@@ -61,67 +61,88 @@ object InferUtil {
     }
   }
 
+  case class ImplicitArgumentsClause(
+    args:        Seq[ScalaResolveResult],
+    constraints: ConstraintSystem,
+    position:    ImplicitClausePosition
+  ) {
+    def isLeading: Boolean = position == ImplicitClausePosition.Leading
+  }
+
+  sealed trait ImplicitClausePosition
+  object ImplicitClausePosition {
+    case object Leading  extends ImplicitClausePosition
+    case object Trailing extends ImplicitClausePosition
+  }
+
   /**
-   * This method can find implicit parameters for given MethodType
+   * Update given method type/context function type by applying it to implicit arguments.
+   * Note: it will eagerly apply all encountered using/implicit clauses to arguments.
    *
-   * @param tpe      MethodType or PolymorphicType(MethodType) to be updated
-   * @return updated type and sequence of implicit parameters
+   * @param tpe MethodType or PolymorphicType(MethodType) to be updated
+   * @return    updated type and sequence of implicit parameters
    */
   def updateTypeWithImplicitParameters(
-    tpe:                        ScType,
-    place:                      PsiElement,
-    coreElement:                Option[ScNamedElement],
-    canThrowSCE:                Boolean,
-    fullInfo:                   Boolean,
-    throwOnAmbiguous:           Boolean = true,
-    implicitRecursionDepth:     Int     = 0,
-  ): (ScType, Option[Seq[ScalaResolveResult]], ConstraintSystem) = {
+    tpe:                    ScType,
+    place:                  PsiElement,
+    coreElement:            Option[ScNamedElement],
+    canThrowSCE:            Boolean,
+    fullInfo:               Boolean,
+    throwOnAmbiguous:       Boolean = true,
+    implicitRecursionDepth: Int     = 0,
+    updateDeep:             Boolean = false,
+    isLeadingClause:        Boolean = false
+  ): (ScType, Seq[ImplicitArgumentsClause]) = {
     implicit val elementScope: ElementScope = place.elementScope
     implicit val context: Context = Context(place)
 
-    var implicitParameters: Option[Seq[ScalaResolveResult]] = None
-    var updatedType                                         = tpe
-    var constraints                                         = ConstraintSystem.empty
+    var implicitParameters = Option.empty[Seq[ScalaResolveResult]]
+    var updatedType        = tpe
+    var constraints        = ConstraintSystem.empty
 
     tpe.widen match {
-      case t @ ScTypePolymorphicType(mt @ ScMethodType(retType, _, isImplicit), _) if !isImplicit =>
+      case t @ ScTypePolymorphicType(mt @ ScMethodType(retType, _, isImplicit), _)
+        if !isImplicit && updateDeep =>
         // See SCL-3516
-        val (updatedReturnType, ps, constraintsRec) =
+        val (updatedReturnType, appliedInner) =
           updateTypeWithImplicitParameters(
             t.copy(internalType = retType),
             place,
             coreElement,
             canThrowSCE,
-            fullInfo = fullInfo
+            fullInfo = fullInfo,
+            updateDeep = updateDeep
           )
 
-        implicitParameters = ps
-        constraints        = constraintsRec
-
-        updatedReturnType match {
+        updatedType = updatedReturnType match {
           case tpt: ScTypePolymorphicType =>
-            //don't lose information from type parameters of res, updated type may some of type parameters removed
             val abstractSubst      = t.abstractOrLowerTypeSubstitutor
             val mtWithoutImplicits = mt.copy(result = tpt.internalType)
 
-            updatedType = t.copy(
+            t.copy(
               internalType   = abstractSubst(mtWithoutImplicits),
               typeParameters = tpt.typeParameters
             )
           case _ => //shouldn't be there
-            updatedType = t.copy(
+            t.copy(
               internalType =
                 mt.copy(result = updatedReturnType)
             )
         }
-      //@TODO: multiple using clauses and nested context function types
+        return (updatedType, appliedInner)
       case ScTypePolymorphicType(internal @ ImplicitMethodOrFunctionType(retType, params), typeParams) =>
         val splitMethodType = internal match {
           case cft @ ContextFunctionType(_, _) => cft
           case mt: ScMethodType =>
             params.reverse.foldLeft(retType) {
               case (tp: ScType, param: Parameter) =>
-                ScMethodType(tp, Seq(param), isImplicit = true)(mt.elementScope)
+                ScMethodType(
+                  tp,
+                  Seq(param),
+                  hasImplicitKW = mt.hasImplicitKW,
+                  hasUsingKW = mt.hasUsingKW
+                )(mt.elementScope)
+
             }
           case other =>
             throw new IllegalStateException(
@@ -174,20 +195,20 @@ object InferUtil {
         implicitParameters = Option(resolveResultsBuffer.result())
         val dependentSubst = ScSubstitutor.paramToExprType(inferredParamsBuffer.result(), exprsBuffer.result())
         updatedType        = dependentSubst(updatedType)
-      case mt @ ScMethodType(retType, _, isImplicit) if !isImplicit =>
+      case mt @ ScMethodType(retType, _, isImplicit)
+        if !isImplicit && updateDeep =>
         // See SCL-3516
-        val (updatedReturnType, ps, _) =
+        val (updatedReturnType, appliedClauses) =
           updateTypeWithImplicitParameters(
             retType,
             place,
             coreElement,
             canThrowSCE,
-            fullInfo = fullInfo
+            fullInfo = fullInfo,
+            updateDeep = updateDeep
           )
 
-        implicitParameters = ps
-        updatedType        = mt.copy(result = updatedReturnType)
-      //@TODO: multiple using clauses and nested context function types
+        return (mt.copy(result = updatedReturnType), appliedClauses)
       case ImplicitMethodOrFunctionType(retType, params) =>
         val (inferredParams, exprs, resolveResults) =
           findImplicits(
@@ -196,7 +217,7 @@ object InferUtil {
             place,
             canThrowSCE,
             throwOnAmbiguous,
-            implicitRecursionDepth,
+            implicitRecursionDepth
           )
 
         implicitParameters = Option(resolveResults)
@@ -206,17 +227,39 @@ object InferUtil {
       case _ =>
     }
 
-    (updatedType, implicitParameters, constraints)
+    implicitParameters match {
+      case Some(srrs) =>
+        val (resultType, appliedClauses) = updateTypeWithImplicitParameters(
+          updatedType,
+          place,
+          coreElement,
+          canThrowSCE,
+          throwOnAmbiguous,
+          fullInfo,
+          implicitRecursionDepth,
+          isLeadingClause = isLeadingClause,
+          updateDeep      = updateDeep
+        )
+
+        val clauseKind =
+          if (isLeadingClause) ImplicitClausePosition.Leading
+          else                 ImplicitClausePosition.Trailing
+
+        val clause = ImplicitArgumentsClause(srrs, constraints, clauseKind)
+        (resultType, clause +: appliedClauses)
+      case None =>
+        (updatedType, Seq.empty)
+    }
   }
 
   private def findImplicits(
-    params:                     Seq[Parameter],
-    coreElement:                Option[ScNamedElement],
-    place:                      PsiElement,
-    canThrowSCE:                Boolean,
-    throwOnAmbiguous:           Boolean,
-    implicitRecursionDepth:     Int           = 0,
-    abstractSubstitutor:        ScSubstitutor = ScSubstitutor.empty
+    params:                 Seq[Parameter],
+    coreElement:            Option[ScNamedElement],
+    place:                  PsiElement,
+    canThrowSCE:            Boolean,
+    throwOnAmbiguous:       Boolean,
+    implicitRecursionDepth: Int           = 0,
+    abstractSubstitutor:    ScSubstitutor = ScSubstitutor.empty
   ): (Seq[Parameter], Seq[Compatibility.Expression], Seq[ScalaResolveResult]) = {
 
     implicit val projectContext: ProjectContext = place.getProject
@@ -237,11 +280,11 @@ object InferUtil {
           paramType,
           paramType,
           coreElement,
-          isImplicitConversion       = false,
-          recursionDepth             = implicitRecursionDepth,
-          extensionData              = None,
-          fullInfo                   = false,
-          previousDivergenceStack    = Option(DivergenceChecker.currentStack)
+          isImplicitConversion    = false,
+          recursionDepth          = implicitRecursionDepth,
+          extensionData           = None,
+          fullInfo                = false,
+          previousDivergenceStack = Option(DivergenceChecker.currentStack)
         )
 
       val collector = new ImplicitCollector(implicitState)
@@ -308,7 +351,7 @@ object InferUtil {
           case clazz if areEligible(params, clazz.qualifiedName) =>
             new ScalaResolveResult(clazz, p.substitutor)
         }
-      case ScCompoundType(Seq(ExtractClass(cls)), _, typesMap) if cls.qualifiedName == Mirror =>
+      case ScCompoundType(Seq(ExtractClass(cls)), _, typesMap) if Mirrors.contains(cls.qualifiedName) =>
         typesMap
           .get("MirroredMonoType")
           .map(sig => sig.typeAlias -> sig.substitutor)
@@ -322,12 +365,12 @@ object InferUtil {
 
   private def areEligible(params: Seq[ScType], typeFqn: String)(implicit context: Context): Boolean =
     (typeFqn, params) match {
-      case (ValueOf, Seq(t))              => eligibleForValueOf(t)
-      case (ConformsWitness, Seq(t1, t2)) => t1.conforms(t2)
-      case (EquivWitness, Seq(t1, t2))    => t1.equiv(t2)
-      case (Mirror, Seq(t))               => eligibleForMirror(t)
-      case _ if params.size == 1          => tagsAndManifists.contains(typeFqn)
-      case _                              => false
+      case (ValueOf, Seq(t))                            => eligibleForValueOf(t)
+      case (ConformsWitness, Seq(t1, t2))               => t1.conforms(t2)
+      case (EquivWitness, Seq(t1, t2))                  => t1.equiv(t2)
+      case (mirror, Seq(t)) if Mirrors.contains(mirror) => eligibleForMirror(t)
+      case _ if params.size == 1                        => tagsAndManifists.contains(typeFqn)
+      case _                                            => false
     }
 
   private def eligibleForMirror(tpe: ScType)(implicit context: Context): Boolean = {
@@ -370,19 +413,16 @@ object InferUtil {
   }
 
   /**
-   * Util method to update type according to expected type
-   *
-   * @param _nonValueType          type, to update it should be PolymorphicType
-   * @param expectedType           appropriate expected type
-   * @param expr                   place
-   * @param canThrowSCE            we fail to get right type then if canThrowSCE throw SafeCheckException
-   * @return updated type
+   * Updates polymorphic type according to `expectedType`
    */
-  def updateAccordingToExpectedType(_nonValueType: ScType,
-                                    filterTypeParams: Boolean,
-                                    expectedType: Option[ScType],
-                                    expr: PsiElement,
-                                    canThrowSCE: Boolean): ScType = {
+  def updateAccordingToExpectedType(
+    _nonValueType:            ScType,
+    filterTypeParams:         Boolean,
+    expectedType:             Option[ScType],
+    expr:                     PsiElement,
+    canThrowSCE:              Boolean,
+    shouldTruncateMethodType: Boolean = true
+  ): ScType = {
     implicit val projectContext: ProjectContext = expr
     implicit val context: Context = Context(expr)
 
@@ -413,13 +453,15 @@ object InferUtil {
 
     def implicitSearchFails(tp: ScType): Boolean = expr match {
       case e: ScExpression =>
-        val implicitArgs = e.updatedWithImplicitArguments(tp, checkExpectedType = false)._2.toSeq.flatten
-        implicitArgs.exists {
-          case srr if srr.isNotFoundImplicitParameter  => true
-          case srr if srr.isAmbiguousImplicitParameter =>
-            // we found several implicits, but not all type parameters are fully inferred yet, it may be fine
-            tp.asOptionOf[ScTypePolymorphicType].exists(_.typeParameters.isEmpty)
-          case _                                       => false
+        val appliedClauses = e.updatedWithImplicitArguments(tp, checkExpectedType = false, updateDeep = true)._2
+        appliedClauses.exists {
+          _.args.exists {
+            case srr if srr.isNotFoundImplicitParameter  => true
+            case srr if srr.isAmbiguousImplicitParameter =>
+              // we found several implicits, but not all type parameters are fully inferred yet, it may be fine
+              tp.asOptionOf[ScTypePolymorphicType].exists(_.typeParameters.isEmpty)
+            case _                                       => false
+          }
         }
       case _ => false
     }
@@ -431,13 +473,18 @@ object InferUtil {
       val ScTypePolymorphicType(internal, typeParams) = tpt
 
       val sameDepth = internal match {
-        case m: ScMethodType => truncateMethodType(m, expr, shouldTruncateImplicitParameters)
-        case _               => internal
+        case m: ScMethodType =>
+          truncateMethodType(
+            m,
+            expr,
+            shouldTruncateImplicitParameters,
+            shouldTruncateMethodType
+          )
+        case _ => internal
       }
 
-      val valueType = sameDepth.inferValueType
-
-      val expectedParam = Parameter("", None, expected, expected)
+      val valueType          = sameDepth.inferValueType
+      val expectedParam      = Parameter("", None, expected, expected)
       val expressionToUpdate = Expression(ScSubstitutor.bind(typeParams)(UndefinedType(_)).apply(valueType))
 
       val (inferredWithExpected, conformanceResult) =
@@ -540,8 +587,8 @@ object InferUtil {
         val canConform = if (!filterTypeParams) {
           val subst         = tpt.abstractTypeSubstitutor
           val withAbstracts = subst(mt).asInstanceOf[ScMethodType]
-          truncateMethodType(withAbstracts, expr, shouldTruncateImplicitParameters)
-        } else truncateMethodType(mt, expr, shouldTruncateImplicitParameters)
+          truncateMethodType(withAbstracts, expr, shouldTruncateImplicitParameters, shouldTruncateMethodType)
+        } else truncateMethodType(mt, expr, shouldTruncateImplicitParameters, shouldTruncateMethodType)
 
         if (ptUnwrapped.forall(canConform.conforms)) tpt
         else tpt.copy(internalType = applyImplicitViewToResult(mt, ptUnwrapped))
@@ -555,13 +602,14 @@ object InferUtil {
   private[this] def truncateMethodType(
     tpe:                              ScType,
     expr:                             PsiElement,
-    shouldTruncateImplicitParameters: Boolean
+    shouldTruncateImplicitParameters: Boolean,
+    shouldTruncateMethodType:         Boolean
   ): ScType = {
     def withoutImplicitClause(internal: ScType): ScType = if (shouldTruncateImplicitParameters) {
       internal match {
-        case ScMethodType(retType, _, true) => retType
+        case ScMethodType(retType, _, true) => withoutImplicitClause(retType)
         case m @ ScMethodType(retType, params, false) =>
-          ScMethodType(withoutImplicitClause(retType), params, isImplicit = false)(m.elementScope)
+          ScMethodType(withoutImplicitClause(retType), params)(m.elementScope)
         case other => other
       }
     } else internal
@@ -580,18 +628,23 @@ object InferUtil {
     }
 
     val withoutImplicits = withoutImplicitClause(tpe)
-    expr match {
-      case _: ScPostfixExpr =>
-        withoutImplicits //SCL-17198
-      case inv: MethodInvocation =>
-        removeNComponents(withoutImplicits, countParameterLists(inv))
-      case _ =>
-        withoutImplicits
+
+    if (!shouldTruncateMethodType) withoutImplicits
+    else
+      expr match {
+        case _: ScPostfixExpr =>
+          withoutImplicits //SCL-17198
+        case _: ConstructorInvocationLike =>
+          removeNComponents(withoutImplicits, 1)
+        case inv: MethodInvocation =>
+          removeNComponents(withoutImplicits, countParameterLists(inv))
+        case _ =>
+          withoutImplicits
     }
   }
 
   def extractImplicitParameterType(result: ScalaResolveResult): Option[ScType] =
-    result.implicitParameterType.orElse {
+    result.implicitResultType.orElse {
       val ScalaResolveResult(element, substitutor) = result
 
       val maybeType = element match {
@@ -635,9 +688,9 @@ object InferUtil {
     params:                   Seq[Parameter],
     exprs:                    Seq[Expression],
     typeParams:               Seq[TypeParameter],
-    shouldUndefineParameters: Boolean = true,
-    canThrowSCE:              Boolean = false,
-    filterTypeParams:         Boolean = true,
+    shouldUndefineParameters: Boolean               = true,
+    canThrowSCE:              Boolean               = false,
+    filterTypeParams:         Boolean               = true,
     paramSubst:               Option[ScSubstitutor] = None
   )(implicit context: Context): (ScTypePolymorphicType, ApplicabilityCheckResult) = {
     implicit val projectContext: ProjectContext = retType.projectContext
@@ -674,19 +727,21 @@ object InferUtil {
 
     val tpe = if (problems.isEmpty) {
       constraints.substitutionBounds(canThrowSCE) match {
-        case Some(bounds@SubstitutionBounds(_, lowerMap, upperMap)) =>
+        case Some(bounds @ SubstitutionBounds(_, lowerMap, upperMap)) =>
           val unSubst = bounds.substitutor
           if (!filterTypeParams) {
 
             def combineBounds(tp: TypeParameter, isLower: Boolean): ScType = {
-              val bound = if (isLower) tp.lowerType else tp.upperType
+              val bound        = if (isLower) tp.lowerType else tp.upperType
               val substedBound = unSubst(bound)
-              val boundsMap = if (isLower) lowerMap else upperMap
+              val boundsMap    = if (isLower) lowerMap else upperMap
+
               val combine: (ScType, ScType) => ScType = if (isLower) _ lub _ else _ glb _
 
               boundsMap.get(tp.typeParamId) match {
                 case Some(fromMap) =>
-                  val mayCombine = !substedBound.equiv(fromMap) && !hasRecursiveTypeParams(substedBound)
+                  val mayCombine = !substedBound.equiv(fromMap) &&
+                    !substedBound.hasRecursiveTypeParameters(typeParamIds)
 
                   if (mayCombine) combine(substedBound, fromMap)
                   else            fromMap

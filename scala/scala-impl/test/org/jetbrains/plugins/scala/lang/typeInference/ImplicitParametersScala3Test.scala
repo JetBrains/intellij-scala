@@ -70,6 +70,15 @@ class ImplicitParametersScala3Test extends ImplicitParametersTestBase {
        |""".stripMargin
   )
 
+  def testSCL23914(): Unit = checkTextHasNoErrors(
+    s"""
+       |object A {
+       |  case class A(x: Int, y: String)
+       |  implicitly[deriving.Mirror.ProductOf[A]].fromProduct(1 -> "a")
+       |}
+       |""".stripMargin
+  )
+
   def testMirrorOfSealed(): Unit = checkNoImplicitParameterProblems(
     s"""
        |sealed trait Foo
@@ -145,4 +154,16 @@ class ImplicitParametersScala3Test extends ImplicitParametersTestBase {
        |}
        |""".stripMargin
   )
+
+
+  def testSCL24031(): Unit =
+    checkHasImplicitArgumentProblems(
+      s"""
+         |object A {
+         |  trait A; trait B
+         |  given A => B = ???
+         |  ${START}implicitly[B]$END
+         |}
+         |""".stripMargin
+      )
 }

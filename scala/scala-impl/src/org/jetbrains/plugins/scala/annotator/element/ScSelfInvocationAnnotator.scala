@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScSelfInvocation
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.lang.psi.types.api.PsiTypeParametersExt
 
 object ScSelfInvocationAnnotator extends ElementAnnotator[ScSelfInvocation] {
   // TODO unify using ConstructorInvocationLike
@@ -45,12 +46,10 @@ object ScSelfInvocationAnnotator extends ElementAnnotator[ScSelfInvocation] {
       case Seq(r@ScConstructorResolveResult(constr)) if constr.effectiveParameterClauses.length > 1 && !isConstructorMalformed(r) =>
         // if there is only one well-formed, resolved, scala constructor with multiple parameter clauses,
         // check all of these clauses
-
-        val res = Compatibility.checkConstructorApplicability(
+        val (_, res, _) = Compatibility.checkConstructorApplicability(
           element,
-          r.substitutor,
-          element.arguments,
-          constr.effectiveParameterClauses
+          constr,
+          r
         )
 
         annotateProblems(res.problems, r, element)

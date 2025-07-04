@@ -13,8 +13,8 @@ class ContextFunctionTypeInferenceTest extends TypeInferenceTestBase {
     val file = configureFromFileText(fileText)
 
     val problems = file.depthFirst().filterByType[ScExpression].flatMap { e =>
-      e.findImplicitArguments.toSeq.flatMap { seq =>
-        seq.filter(_.isImplicitParameterProblem)
+      e.findImplicitArguments.flatMap(_.args).filter {
+        _.isImplicitParameterProblem
       }
     }.toSeq
 

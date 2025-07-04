@@ -17,27 +17,27 @@ object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitArgumentsOwner]
 
   override def annotate(element: ImplicitArgumentsOwner, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
-    element.findImplicitArguments.foreach { params =>
+    element.findImplicitArguments.foreach { argsByClause =>
       val showImplictErrors = {
         val settings = ScalaProjectSettings.getInstance(element.getProject)
         settings.isShowNotFoundImplicitArguments || settings.isShowAmbiguousImplicitArguments
       }
 
       if (typeAware && showImplictErrors)
-        highlightNotFound(element, params)
+        highlightNotFound(element, argsByClause.args)
     }
   }
 
-  private def highlightNotFound(element: ImplicitArgumentsOwner, parameters: Seq[ScalaResolveResult])
+  private def highlightNotFound(element: ImplicitArgumentsOwner, args: Seq[ScalaResolveResult])
                                (implicit holder: ScalaAnnotationHolder): Unit = {
     val settings = ScalaProjectSettings.getInstance(element.getProject)
 
-    parameters.filter(hasProblemToHighlight(_, settings)) match {
+    args.filter(hasProblemToHighlight(_, settings)) match {
       case Seq() =>
       case params =>
         val presentableTypes = params
           .map(_.implicitSearchState.map(_.presentableTypeText).getOrElse(ScalaBundle.message("unknown.type")))
-        val notFound = parameters.filter(_.isNotFoundImplicitParameter)
+        val notFound = args.filter(_.isNotFoundImplicitParameter)
 
         // TODO Can we detect a "current" color scheme in a "current" editor somehow?
         implicit val scheme: EditorColorsScheme = EditorColorsManager.getInstance().getGlobalScheme

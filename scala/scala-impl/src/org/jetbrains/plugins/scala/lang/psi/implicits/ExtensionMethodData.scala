@@ -68,12 +68,12 @@ class ExtensionMethodData(val function: ScFunction,
 
           val resolveResult = new ScalaResolveResult(function, ScSubstitutor.empty)
           val collector     = new ImplicitCollector(implicitState)
-          val compatible    = collector.checkFunctionByType(resolveResult, withLocalTypeInference = true, checkFast = false)
+          val compatible    = collector.checkFunctionTypeConformance(resolveResult, withLocalTypeInference = true, checkFast = false)
 
           for {
             srr        <- compatible
             resultType <- ExtensionConversionHelper.specialExtractParameterType(srr)
-          } yield ExtensionMethodApplication(resultType, srr.implicitParameters)
+          } yield ExtensionMethodApplication(resultType, srr.implicitArguments)
 
         } else Option(ExtensionMethodApplication(returnType))
     }

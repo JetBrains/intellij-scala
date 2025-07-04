@@ -119,7 +119,7 @@ trait TypeAdapter {
         case _: ScFunctionDefinition => ???
 //          m.Type.Method(Seq(t.parameterList.clauses.map(convertParamClause):_*), toType(t.getTypeWithCachedSubst)).setTypechecked
         case t: ScFunction =>
-          m.Type.Function(t.parametersTypes.map(toType(_)).toList, toType(t.returnType)) //.setTypechecked
+          m.Type.Function(t.parametersTypes().map(toType).toList, toType(t.returnType)) //.setTypechecked
         case t: ScParameter if dumbMode =>
           m.Type.Name(t.getText)
         case t: ScParameter =>

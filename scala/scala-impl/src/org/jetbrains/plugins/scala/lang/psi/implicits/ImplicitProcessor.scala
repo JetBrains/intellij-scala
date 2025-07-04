@@ -97,7 +97,7 @@ abstract class ImplicitProcessor(
           element match {
             case expr: ScExpression =>
               isScala3 &&
-                !expr.contextFunctionParameters.forall(
+                !expr.contextFunctionParameters().forall(
                   _.forall(
                     this.execute(_, ScalaResolveState.empty)
                   )

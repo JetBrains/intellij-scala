@@ -35,6 +35,5 @@ class ZioTest extends TextToTextTestBase(
     "zio.stm.ZSTM", // protected vs private[this]
     "zio.stream.Take", // no final for case class
     "zio.stream.ZChannel", // zio.EnvironmentTag vs VersionSpecific.this.EnvironmentTag
-    "zio.stream.ZStream", // R is Nothing
   )
 )

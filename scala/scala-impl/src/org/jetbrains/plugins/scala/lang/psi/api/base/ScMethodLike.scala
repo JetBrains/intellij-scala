@@ -17,16 +17,20 @@ trait ScMethodLike
     with PsiTypeParametersOwnerAdapter
     with ScParameterOwner.WithContextBounds {
 
-  def getConstructorTypeParameterClause: Option[ScTypeParamClause] = cachedInUserData("getConstructorTypeParameterClause", this, BlockModificationTracker(this)) {
-    ScMethodLike.this match {
-      case constructor @ ScalaConstructor.in(c: ScTypeDefinition) =>
-        c.typeParametersClause.map { clause =>
-          val paramClauseText = clause.getTextByStub
-          createTypeParameterClauseFromTextWithContext(paramClauseText, constructor, constructor.parameterList)
-        }
-      case _ => None
+  /**
+   * See https://youtrack.jetbrains.com/issue/SCL-3095 as for why this is needed.
+   */
+  private def getConstructorTypeParameterClause: Option[ScTypeParamClause] =
+    cachedInUserData("getConstructorTypeParameterClause", this, BlockModificationTracker(this)) {
+      ScMethodLike.this match {
+        case constructor @ ScalaConstructor.in(c: ScTypeDefinition) =>
+          c.typeParametersClause.map { clause =>
+            val paramClauseText = clause.getTextByStub
+            createTypeParameterClauseFromTextWithContext(paramClauseText, constructor, constructor.parameterList)
+          }
+        case _ => None
+      }
     }
-  }
 
   def getConstructorTypeParameters: Seq[ScTypeParam] =
     getConstructorTypeParameterClause.fold(Seq.empty[ScTypeParam])(_.typeParameters)

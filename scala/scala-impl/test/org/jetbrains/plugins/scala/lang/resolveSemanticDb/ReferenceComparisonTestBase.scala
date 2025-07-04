@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScTrai
 import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.types.Context
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ReferenceComparisonTestBase.RefInfo.{assignmentTarget, opaqueTarget, physicalRefTarget}
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ReferenceComparisonTestBase._
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.configurations.ReferenceComparisonTestConfig
@@ -91,13 +92,15 @@ abstract class ReferenceComparisonTestBase(config: ReferenceComparisonTestConfig
           var allSuccess = true
           var newProblems = List.empty[String]
 
-          if (!ref.targets.exists(target => isInRefinement(target.element))) {
+          if (!ref.targets.exists(
+            target => isInRefinement(target.element) || target.isDynamic)
+          ) {
             def ignoreSemanticDbRef(ref: SDbRef): Boolean = {
               // ignore locals and implicits involving ClassTag
               ref.pointsToLocal || ref.symbol.contains("ClassTag")
             }
 
-            for(semanticDbRef <- semanticDbReferences if !ignoreSemanticDbRef(semanticDbRef)) {
+            for (semanticDbRef <- semanticDbReferences if !ignoreSemanticDbRef(semanticDbRef)) {
               didTest = true
               val semanticDbTargetPos = semanticDbRef.targetPosition
               val semanticDbTargetSymbol = ComparisonSymbol.fromSemanticDb(semanticDbRef.symbol)
@@ -105,7 +108,7 @@ abstract class ReferenceComparisonTestBase(config: ReferenceComparisonTestConfig
                 val prefix = semanticDbTargetSymbol.stripSuffix("#").stripSuffix(".")
                 StandardLibraryAliases.get(prefix).fold(semanticDbTargetSymbol)(semanticDbTargetSymbol.replaceFirst(prefix, _))
               }
-              val textFits = ref.targets.exists(_.symbol == semanticDbTargetSymbol2)
+              val textFits     = ref.targets.exists(_.symbol == semanticDbTargetSymbol2)
               val positionFits = semanticDbTargetPos.exists(ref.targets.map(_.adjustedPosition).contains)
 
               if (!textFits && !positionFits) {
@@ -279,6 +282,12 @@ object ReferenceComparisonTestBase {
     lazy val symbol: String = ComparisonSymbol.fromPsi(element)
     def adjustedPosition: TextPos = posOfNavigationElementWithAdjustedEscapeId(element)
     def position: TextPos = TextPos.of(element.getNavigationElement)
+
+    def isDynamic: Boolean = element match {
+      case fn: ScFunction =>
+        DynamicResolveProcessor.APPLY_DYNAMIC == fn.name || DynamicResolveProcessor.APPLY_DYNAMIC_NAMED == fn.name
+      case _ => false
+    }
   }
 
   case class PhysicalRefTarget(element: PsiNamedElement) extends RefTarget
@@ -332,25 +341,22 @@ object ReferenceComparisonTestBase {
     }
 
     def forImplicitArguments(iao: ImplicitArgumentsOwner): Seq[RefInfo] = {
-      iao.findImplicitArguments match {
-        case Some(iargs) =>
-          iargs.zipWithIndex.flatMap { case (rr, i) =>
-            val file = iao.getContainingFile
-            val problems = rr.problems match {
-              case Seq() => None
-              case problems => Some(problems.mkString(", "))
-            }
-            Some(RefInfo(
-              s"implicit-param:$i",
-              TextPos.at(iao.endOffset, file),
-              Seq(rr),
-              file.name,
-              problems,
-              isImplicit = true
-            )(Context(iao)))
+      val file = iao.getContainingFile
+      iao.findImplicitArguments.zipWithIndex.flatMap { case (implicitArgClause, clauseIdx) =>
+        implicitArgClause.args.zipWithIndex.flatMap { case (rr, i) =>
+          val problems = rr.problems match {
+            case Seq() => None
+            case problems => Some(problems.mkString(", "))
           }
-        case None =>
-          Seq.empty
+          Some(RefInfo(
+            s"implicit-param:$clauseIdx:$i",
+            TextPos.at(iao.endOffset, file),
+            Seq(rr),
+            file.name,
+            problems,
+            isImplicit = true
+          )(Context(iao)))
+        }
       }
     }
 
