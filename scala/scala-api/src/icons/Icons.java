@@ -40,12 +40,15 @@ public interface Icons {
     Icon ABSTRACT_CLASS_AND_OBJECT = getIcon("/org/jetbrains/plugins/scala/images/abstractClassObjectScala.svg", Icons.class);
     Icon TRAIT_AND_OBJECT = getIcon("/org/jetbrains/plugins/scala/images/traitObjectScala.svg", Icons.class);
     Icon ENUM_AND_OBJECT = getIcon("/org/jetbrains/plugins/scala/images/enumObjectScala.svg", Icons.class);
+    Icon TYPE_AND_OBJECT = getIcon("/org/jetbrains/plugins/scala/images/typeObjectScala.svg", Icons.class);
 
     //Companion gutter icons
     Icon CLASS_COMPANION = getIcon("/org/jetbrains/plugins/scala/images/classCompanion.svg", Icons.class);
     Icon CLASS_COMPANION_SWAPPED = getIcon("/org/jetbrains/plugins/scala/images/classCompanionSwapped.svg", Icons.class);
     Icon TRAIT_COMPANION = getIcon("/org/jetbrains/plugins/scala/images/traitCompanion.svg", Icons.class);
     Icon TRAIT_COMPANION_SWAPPED = getIcon("/org/jetbrains/plugins/scala/images/traitCompanionSwapped.svg", Icons.class);
+    Icon TYPE_COMPANION = getIcon("/org/jetbrains/plugins/scala/images/typeCompanion.svg", Icons.class);
+    Icon TYPE_COMPANION_SWAPPED = getIcon("/org/jetbrains/plugins/scala/images/typeCompanionSwapped.svg", Icons.class);
     Icon OBJECT_COMPANION = getIcon("/org/jetbrains/plugins/scala/images/objectCompanion.svg", Icons.class);
     Icon OBJECT_COMPANION_SWAPPED = getIcon("/org/jetbrains/plugins/scala/images/objectCompanionSwapped.svg", Icons.class);
 

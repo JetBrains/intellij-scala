@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinitionLike, ScObject}
 import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
 
 final class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFactory {
@@ -115,8 +115,8 @@ final class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFac
             return new ScalaHighlightExprResultHandler(resultExpr, editor, file, element)
           case _ =>
         }
-      case IsTemplateDefinition() =>
-        val typeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition])
+      case IsTemplateDefinition() | ScalaTokenTypes.kTYPE =>
+        val typeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinitionLike])
         if (typeDefinition != null) {
           return new CompanionHighlightHandler(element, typeDefinition, editor, file)
         }

@@ -37,6 +37,8 @@ object TokenSets {
 
   val ALIASES_SET: TokenSet = TokenSet.create(TYPE_DECLARATION, TYPE_DEFINITION)
 
+  val TYPE_DEFINITION_LIKES: TokenSet = TYPE_DEFINITIONS ++ ALIASES_SET
+
   val FUNCTIONS: TokenSet = TokenSet.create(
     FUNCTION_DECLARATION,
     FUNCTION_DEFINITION,

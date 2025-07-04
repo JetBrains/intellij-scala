@@ -7,12 +7,12 @@ import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.Consumer
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScBegin
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitionLike
 
 import java.util
 import java.util.Collections
 
-private class CompanionHighlightHandler(keyword: PsiElement, definition: ScTypeDefinition, editor: Editor, file: PsiFile)
+private class CompanionHighlightHandler(keyword: PsiElement, definition: ScTypeDefinitionLike, editor: Editor, file: PsiFile)
   extends HighlightUsagesHandlerBase[PsiElement](editor, file) {
 
   override def computeUsages(targets: util.List[_ <: PsiElement]): Unit =

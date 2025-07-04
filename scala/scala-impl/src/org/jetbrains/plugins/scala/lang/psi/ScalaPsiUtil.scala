@@ -739,9 +739,9 @@ object ScalaPsiUtil {
           scObject.syntheticNavigationElement
             .asOptionOf[ScTypeDefinition]
         else
-          scObject.baseCompanion
+          scObject.baseCompanionTypeDefinition
       case _: ScTypeDefinition =>
-        typeDefinition.baseCompanion
+        typeDefinition.baseCompanionTypeDefinition
           .orElse(typeDefinition.fakeCompanionModule)
     }
 

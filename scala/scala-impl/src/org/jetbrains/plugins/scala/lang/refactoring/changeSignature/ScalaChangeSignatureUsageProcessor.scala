@@ -39,7 +39,7 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
 
         val synthetics = method match {
           case ScPrimaryConstructor.ofClass(clazz) if clazz.isCase =>
-            val inExistingClasses = (Seq(clazz) ++ clazz.baseCompanion).flatMap {
+            val inExistingClasses = (Seq(clazz) ++ clazz.baseCompanionTypeDefinition).flatMap {
               _.syntheticMethods
             }
             val inFakeCompanion = clazz.fakeCompanionModule.toSeq.flatMap { obj =>

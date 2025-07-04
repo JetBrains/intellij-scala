@@ -2146,6 +2146,34 @@ class ScalaBasicCompletionTest_with_3_0 extends ScalaBasicCompletionTest_CommonT
     item = "aaa"
   )
 
+  def testAbstractTypeCompanion1(): Unit = doCompletionTest(
+    s"""type Foo
+       |object F$CARET""".stripMargin,
+    s"""type Foo
+       |object Foo$CARET""".stripMargin,
+    "Foo")
+
+  def testAbstractTypeCompanion2(): Unit = doCompletionTest(
+    s"""object Foo
+       |type F$CARET""".stripMargin,
+    s"""object Foo
+       |type Foo$CARET""".stripMargin,
+    "Foo")
+
+  def testOpaqueTypeCompanion1(): Unit = doCompletionTest(
+    s"""opaque type Foo = Int
+       |object F$CARET""".stripMargin,
+    s"""opaque type Foo = Int
+       |object Foo$CARET""".stripMargin,
+    "Foo")
+
+  def testOpaqueTypeCompanion2(): Unit = doCompletionTest(
+    s"""object Foo
+       |opaque type F$CARET""".stripMargin,
+    s"""object Foo
+       |opaque type Foo$CARET""".stripMargin,
+    "Foo")
+
   def testMethodFromImplicitConversion(): Unit = doCompletionTest(
     s"""def test(): Unit = 1.unti$CARET""".stripMargin,
     s"""def test(): Unit = 1.until($CARET)""".stripMargin,

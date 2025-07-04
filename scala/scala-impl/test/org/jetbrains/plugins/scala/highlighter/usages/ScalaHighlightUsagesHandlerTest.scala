@@ -241,4 +241,28 @@ class ScalaHighlightUsagesHandlerTest extends ScalaHighlightUsagesHandlerTestBas
        """.stripMargin
     doTest(code, Seq("trait", "object"))
   }
+
+  def testCompanionAbstractType1(): Unit = doTest(
+    s"""
+       |type$CARET Foo
+       |object Foo
+      """.stripMargin, Seq("type", "object"))
+
+  def testCompanionAbstractType2(): Unit = doTest(
+    s"""
+       |type Foo
+       |object$CARET Foo
+      """.stripMargin, Seq("object", "type"))
+
+  def testCompanionOpaqueType1(): Unit = doTest(
+    s"""
+       |opaque type$CARET Foo = Int
+       |object Foo
+      """.stripMargin, Seq("type", "object"))
+
+  def testCompanionOpaqueType2(): Unit = doTest(
+    s"""
+       |opaque type Foo = Int
+       |object$CARET Foo
+      """.stripMargin, Seq("object", "type"))
 }

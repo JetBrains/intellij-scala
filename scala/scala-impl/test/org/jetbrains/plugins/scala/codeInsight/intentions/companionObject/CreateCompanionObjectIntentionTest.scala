@@ -207,4 +207,36 @@ class CreateCompanionObjectIntentionTest_3_Latest extends ScalaIntentionTestBase
 
     doTest(text, expected, useIndentationBasedSyntax = true)
   }
+
+  def testAbstractType(): Unit = {
+    val text =
+      s"""type F${CARET}oo
+       """.stripMargin
+
+    val expected =
+      s"""type Foo
+         |
+         |object Foo:
+         |$CARET
+         |end Foo
+       """.stripMargin
+
+    doTest(text, expected, useIndentationBasedSyntax = true)
+  }
+
+  def testOpaqueType(): Unit = {
+    val text =
+      s"""opaque type F${CARET}oo = Int
+       """.stripMargin
+
+    val expected =
+      s"""opaque type Foo = Int
+         |
+         |object Foo:
+         |$CARET
+         |end Foo
+       """.stripMargin
+
+    doTest(text, expected, useIndentationBasedSyntax = true)
+  }
 }

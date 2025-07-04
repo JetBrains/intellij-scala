@@ -171,7 +171,7 @@ abstract class TextToTextTestBase(dependencies: Seq[DependencyDescription],
     val printer = new ClassPrinter(scalaVersion.isScala3, withPrivate = withPrivate, normalize = normalize)
     companionTypeAlias.foreach(printer.printTo(sb, _))
     printer.printTo(sb, cls)
-    cls.baseCompanion.foreach(printer.printTo(sb, _))
+    cls.baseCompanionTypeDefinition.foreach(printer.printTo(sb, _))
 
     sb.setLength(sb.length - 1)
 
