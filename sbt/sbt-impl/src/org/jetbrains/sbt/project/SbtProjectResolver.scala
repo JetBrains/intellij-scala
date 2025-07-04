@@ -535,11 +535,11 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
         Seq((main, projectDependencies.forProduction), (test, projectDependencies.forTest))
     }
 
-  private def addAllModuleDependencies(projectToModule: Map[ProjectData, ModuleSourceSet]): Unit = {
+  private def addAllModuleDependencies(projectToModule: Map[ProjectData, ModuleSourceSet], useSeparateMainTestModules: Boolean): Unit = {
     val moduleToDependencies = mapToModuleNodeToDependencies(projectToModule)
     val allSourceSetModules = collectSourceModules(projectToModule)
     moduleToDependencies.foreach { case (module, deps) =>
-      addModuleDependencies(deps, allSourceSetModules, module)
+      addModuleDependencies(deps, allSourceSetModules, module, useSeparateMainTestModules)
     }
   }
 
@@ -565,7 +565,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     }
 
     val projectToModuleMap = projectToModule.toMap
-    addAllModuleDependencies(projectToModuleMap)
+    addAllModuleDependencies(projectToModuleMap, context.useSeparateProdTestSources)
 
     projectToModuleMap
   }
@@ -809,6 +809,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       result,
       LegacyModuleType,
       moduleName,
+      projectDependencies = Seq.empty
     )
     setCompileOutputPathsForLegacyModule(result, project.configurations)
 
@@ -900,6 +901,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       prodModule,
       ProdModuleType,
       createDisplayName(prodModule),
+      dependencies.projects.forProduction
     )
     setCompileOutputPaths(
       prodModule,
@@ -916,6 +918,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       testModule,
       TestModuleType,
       createDisplayName(testModule),
+      dependencies.projects.forTest
     )
     setCompileOutputPaths(
       testModule,
@@ -989,6 +992,10 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     }
   }
 
+  /**
+   * @param projectDependencies required to calculate the offset for the library and jar dependencies.
+   *                            Currently only useful for the main/test modules mode.
+   */
   private def addAllRequiredDataToModuleNode(
     librariesData: Seq[LibraryData],
     moduleDependencies: Seq[ModuleDependencyData],
@@ -997,6 +1004,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     moduleNode: ModuleDataNodeType,
     moduleType: ModuleType,
     displayName: String,
+    projectDependencies: Seq[_]
   )(implicit context: ImportContext): Unit = {
     moduleNode.add(new SbtDisplayModuleNameNode(displayName))
 
@@ -1006,12 +1014,17 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     // create unmanaged dependencies, we need to know how many of them there are, they need to be ordered before
     // the managed dependencies SCL-21852
-    val unmanagedDependencies = createUnmanagedDependencies(jarDependencies)(moduleNode)
+    val unmanagedDependencies = createUnmanagedDependencies(jarDependencies)(moduleNode, offset = projectDependencies.size)
+    val unmanagedSourcesAndDocsLibrary = librariesData.find(_.getExternalName == Sbt.UnmanagedSourcesAndDocsName)
 
     val libraryDependenciesNodes = createLibraryDependencies(moduleDependencies)(
       moduleNode,
       librariesData,
-      offset = unmanagedDependencies.size + 1,
+      offset = calculateLibraryDepsOffsetMainTestModules(
+        unmanagedDependencies,
+        unmanagedSourcesAndDocsLibrary,
+        projectDependencies
+      ),
       useSeparateProdTestSources = context.useSeparateProdTestSources
     )
     moduleNode.addAll(libraryDependenciesNodes)
@@ -1019,9 +1032,10 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     moduleNode.add(createScalaSdkData(projectData.scala))
     moduleNode.add(new SbtModuleNode(SbtModuleData(projectData.id, projectData.buildURI, projectData.base)))
     moduleNode.addAll(unmanagedDependencies)
-    val unmanagedSourcesAndDocsLibrary = librariesData.find(_.getExternalName == Sbt.UnmanagedSourcesAndDocsName)
     unmanagedSourcesAndDocsLibrary.foreach { lib =>
       val dependency = new LibraryDependencyNode(moduleNode, lib, LibraryLevel.MODULE)
+      // Place the unmanagedSourcesAndDocsLibrary below project dependencies and unmanaged dependencies (but before library dependencies)
+      dependency.setOrder(projectDependencies.size + unmanagedDependencies.size + 1)
       dependency.setScope(DependencyScope.COMPILE)
       moduleNode.add(dependency)
     }
@@ -1157,6 +1171,18 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     new SbtIvyResolver("Local cache", localCachePathFinal, isLocal = true, SbtBundle.message("sbt.local.cache"))
   }
 
+  /**
+   * Calculate the offset required for library dependencies.
+   * This considers unmanaged dependencies, unmanagedSourcesAndDocsLibrary, and project dependencies,
+   * as these are all components that should be placed before library dependencies.
+   */
+  protected def calculateLibraryDepsOffsetMainTestModules(
+    unmanagedDependencies: Seq[_],
+    unmanagedSourcesAndDocsLibrary: Option[_],
+    projectDependencies: Seq[_]
+  ): Int =
+    unmanagedDependencies.size + unmanagedSourcesAndDocsLibrary.size + projectDependencies.size + 1
+
   protected def createLibraryDependencies(dependencies: Seq[sbtStructure.ModuleDependencyData])
                                          (moduleData: ModuleData, libraries: Seq[LibraryData], offset: Int, useSeparateProdTestSources: Boolean): Seq[LibraryDependencyNode] = {
     val resolvedDependencies =
@@ -1174,8 +1200,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     }
   }
 
+  /**
+   * @param offset The unmanaged dependencies should be placed right after the project dependencies,
+   *               so the offset should be equal to the size of the project dependencies for a specific module
+   */
   protected def createUnmanagedDependencies(dependencies: Seq[sbtStructure.JarDependencyData])
-                                           (moduleData: ModuleData): Seq[LibraryDependencyNode] = {
+                                           (moduleData: ModuleData, offset: Int = 0): Seq[LibraryDependencyNode] = {
     val scopesAndDeps = dependencies.map(dep => (scopeFor(dep.configurations), dep))
     val groupedByScope = mutable.LinkedHashMap.empty[DependencyScope, Seq[JarDependencyData]]
     scopesAndDeps.foreach { case (scope, dep) =>
@@ -1189,7 +1219,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
         case it => s"${Sbt.UnmanagedLibraryName}-${it.getDisplayName.toLowerCase}"
       }
       val files = dependency.map(_.file.path)
-      val order = index + 1
+      val order = offset + index + 1
       createModuleLevelDependency(name, files, Seq.empty, Seq.empty, scope, order)(moduleData)
     }
   }

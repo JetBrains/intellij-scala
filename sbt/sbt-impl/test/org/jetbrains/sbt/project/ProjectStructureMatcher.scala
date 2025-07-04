@@ -11,7 +11,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.libraries.Library
-import com.intellij.openapi.roots.{CompilerModuleExtension, ContentEntry, LanguageLevelModuleExtensionImpl, LibraryOrderEntry, ModuleRootManager}
+import com.intellij.openapi.roots.{CompilerModuleExtension, ContentEntry, LanguageLevelModuleExtensionImpl, LibraryOrderEntry, ModuleOrderEntry, ModuleRootManager}
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.util.{CommonProcessors, PathUtil}
 import org.jetbrains.jps.model.java.{JavaResourceRootType, JavaSourceRootType}
@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 import org.jetbrains.plugins.scala.project.{LibraryExt, ModuleExt, ProjectExt, ScalaLibraryProperties}
 import org.jetbrains.plugins.scala.util.teamcity.TeamcityUtils
 import org.jetbrains.sbt.DslUtils.MatchType
+import org.jetbrains.sbt.SbtSourceSetUtil.SbtSourceSetModuleExt
 import org.jetbrains.sbt.project.ProjectStructureDsl._
 import org.jetbrains.sbt.project.ProjectStructureMatcher.AttributeMatchType
 import org.jetbrains.sbt.project.utils.ProjectStructureComparisonContext.AssertionFailStrategy
@@ -389,9 +390,35 @@ trait ProjectStructureMatcher {
   private def assertModuleDependenciesEqual(module: Module)(expected: Seq[dependency[module]])(mt: Option[MatchType])
                                            (implicit compareContext: ProjectStructureComparisonContext): Unit = {
     val actualModuleEntries = roots.OrderEnumerator.orderEntries(module).moduleEntries
+    if (module.isTest && !module.isSharedSourceModule) {
+      validateFirstDependencyInTestModule(module, actualModuleEntries)
+    }
     assertNamesEqualIgnoreOrder(s"Module dependency of module `${module.getName}`", expected.map(_.reference), actualModuleEntries.map(_.getModule))(mt)
     val paired = pairModules(expected, actualModuleEntries)
     paired.foreach((assertDependencyScopeAndExportedFlagEqual _).tupled)
+  }
+
+  /**
+   * Checks if the first non-shared sources module dependency in a test module dependencies is a dependency on the main module of the corresponding module.
+   * This is a temporary approach until the full order of project dependencies is implemented.
+   *
+   * @see https://youtrack.jetbrains.com/issue/SCL-24063
+   * @see https://youtrack.jetbrains.com/issue/SCL-24078/Maintain-the-actual-order-of-project-dependencies
+   */
+  private def validateFirstDependencyInTestModule(testModule: Module, orderEntries: Seq[ModuleOrderEntry]): Unit = {
+    val firstNonSharedDependency = orderEntries.find { entry =>
+      Option(entry.getModule).exists { module => !module.isSharedSourceModule}
+    }
+    val isValidDependency = firstNonSharedDependency.exists { entry =>
+      val entryModule = entry.getModule
+      if (entryModule != null && entryModule.isMain) {
+        entryModule.getName.stripSuffix("main") == testModule.getName.stripSuffix("test")
+      } else false
+    }
+    Assert.assertTrue(
+      s"In the dependencies of the test module (${testModule.getName}), the first dependency is not the main module of the corresponding module.",
+      isValidDependency
+    )
   }
 
   private def assertLibraryDependenciesEqual(module: Module)(expected: Seq[dependency[library]])(mt: Option[MatchType])
