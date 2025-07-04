@@ -13,6 +13,9 @@ class ScalaRenameTest extends ScalaRenameTestBase {
 
   def testObjectAndClassToBackticked(): Unit = doTest("`a`")
 
+  // TODO Also: from the type, from a type/object reference
+  def testObjectAndType(): Unit = doTest()
+
   def testPrivateObjectAndClass(): Unit = doTest()
 
   def testPrivateObjectAndPrivateClass(): Unit = doTest()
