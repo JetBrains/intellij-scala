@@ -53,15 +53,31 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver with ContentRootsR
   protected def addModuleDependencies(
     projectDependencies: Seq[ProjectDependencyData],
     allModules: Seq[ModuleDataNodeType],
-    moduleNode: ModuleDataNodeType
+    moduleNode: ModuleDataNodeType,
+    useSeparateProdTestSources: Boolean
   ): Unit = {
-    projectDependencies.foreach { dependencyId =>
-      val dependency = allModules
+    def findDependantModule(dependencyId: ProjectDependencyData): ModuleDataNodeType =
+      allModules
         .find(_.getId == ModuleNode.combinedId(dependencyId.project, dependencyId.buildURI))
         .getOrElse(throw new ExternalSystemException("Cannot find project dependency: " + dependencyId.project))
 
-      val scope = scopeFor(dependencyId.configurations.distinct)
-      addModuleDependencyNode(moduleNode, dependency, scope, exported = false)
+    if (useSeparateProdTestSources) {
+      // In the main/test modules mode, an order is assigned to all project dependencies.
+      // However, in practice, the real order of project dependencies is not preserved in the sbt-structure plugin,
+      // except for the corresponding main module in test dependencies, which is always placed on top.
+      // To ensure the main module remains on top, we have to assign an order to all dependencies.
+      // see (https://youtrack.jetbrains.com/issue/SCL-24078/Maintain-the-actual-order-of-project-dependencies)
+      projectDependencies.zipWithIndex.foreach { case (dependencyId, index) =>
+        val dependantModule = findDependantModule(dependencyId)
+        val scope = scopeFor(dependencyId.configurations.distinct)
+        addModuleDependencyNode(moduleNode, dependantModule, scope, exported = false, order = Some(index + 1))
+      }
+    } else {
+      projectDependencies.foreach { dependencyId =>
+        val dependantModule = findDependantModule(dependencyId)
+        val scope = scopeFor(dependencyId.configurations.distinct)
+        addModuleDependencyNode(moduleNode, dependantModule, scope, exported = false)
+      }
     }
   }
 
@@ -108,7 +124,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver with ContentRootsR
 
       //add project dependencies of the representative project
       val allSourceModules = projectToModuleNode.values.toSeq.map(_.parent)
-      addModuleDependencies(representativeProjectDependencies.projects.forProduction, allSourceModules, moduleNode)
+      addModuleDependencies(representativeProjectDependencies.projects.forProduction, allSourceModules, moduleNode, useSeparateProdTestSources = false)
 
       //add some managed sources of the representative project
       //(see description of `getManagedSourceRootsFromRepresentativeProjectToIncludeAsBaseModelSourceRoots` method for the details)
@@ -234,6 +250,23 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver with ContentRootsR
     }
 
     val allModuleDependencies = modulesToSharedModuleWithScope ++ sharedSourcesOwnersToSharedModuleWithScope
+    // Owner modules, to which shared sources project dependencies are added in the loop below, may already have other project dependencies
+    // added when the module was initially created.
+    // Here, we are adding additional dependencies without any specific order, so they are placed on top of the existing project dependencies.
+    //
+    // Regarding `sharedSourcesOwnersToSharedModuleWithScope`, this approach is correct because the shared sources modules should be
+    // at the top of the dependencies in their owner modules, as they "belong to" these modules.
+    // (This is similar to why the corresponding main module is always at the top of the test module dependencies, as it "belongs" to the test module).
+
+    // However, for modules that require shared sources transitively (`modulesToSharedModuleWithScope`), this approach might not be ideal.
+    // Theoretically, those dependencies should be placed next to their "owner modules" e.g.
+    // when module A depends on B and B has a shared module. In the module A dependencies it should look like this:
+    //        dep foo
+    //        dep b
+    //        dep b-shared (the shared module is next to the "owner")
+    //        dep c
+    // For now it will work in a way that dep b-shared will be on top instead of next to the owner.
+    // We might handle it one day, when there will be real issues caused by this inconvenience.
     allModuleDependencies.collect { case (ownerModule, Some(sharedSourcesModule), scope) =>
       addModuleDependencyNode(ownerModule, sharedSourcesModule, scope)
     }
@@ -257,7 +290,13 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver with ContentRootsR
       case CompleteModuleSourceSet(_, main, test) => Seq(main, test)
     }.toSeq
 
-  protected def addModuleDependencyNode(ownerModule: ModuleDataNodeType, module: ModuleDataNodeType, dependencyScope: DependencyScope, exported: Boolean = true): Unit = {
+  protected def addModuleDependencyNode(
+    ownerModule: ModuleDataNodeType,
+    module: ModuleDataNodeType,
+    dependencyScope: DependencyScope,
+    exported: Boolean = true,
+    order: Option[Int] = None
+  ): Unit = {
     val node = new ModuleDependencyNode(ownerModule, module)
     node.setScope(dependencyScope)
     module match {
@@ -266,6 +305,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver with ContentRootsR
       case _ =>
     }
     node.setExported(exported)
+    order.foreach(node.setOrder)
     ownerModule.add(node)
   }
 
@@ -504,22 +544,29 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver with ContentRootsR
       if (sourceSetName == SourceSetType.TEST) deps.forTest
       else deps.forProduction
 
-    // create unmanaged dependencies, we need to know how many of them there are, they need to be ordered before
+    // create unmanaged and module dependencies, because we need to know how many of them there are, they need to be ordered before
     // the managed dependencies SCL-21852
     val unmanagedLibraryDependencies = getScopedDependencies(representativeProjectDependencies.jars)
-    val unmanagedDependencies = createUnmanagedDependencies(unmanagedLibraryDependencies)(moduleNode)
+    val moduleDependencies = getScopedDependencies(representativeProjectDependencies.projects)
+
+    // The unmanaged dependencies should be placed after the module dependencies
+    val unmanagedDependencies = createUnmanagedDependencies(unmanagedLibraryDependencies)(moduleNode, offset = moduleDependencies.size)
 
     //add library dependencies of the representative project
     val librariesNodeData = libraryNodes.map(_.data)
     val libraryDependencies = getScopedDependencies(representativeProjectDependencies.modules)
-    moduleNode.addAll(createLibraryDependencies(libraryDependencies)(moduleNode, librariesNodeData, offset = unmanagedDependencies.size + 1, useSeparateProdTestSources = true))
+    val libraryDependenciesNodes = createLibraryDependencies(libraryDependencies)(
+      moduleNode, librariesNodeData,
+      offset = calculateLibraryDepsOffsetMainTestModules(unmanagedDependencies, None, moduleDependencies),
+      useSeparateProdTestSources = true
+    )
+    moduleNode.addAll(libraryDependenciesNodes)
 
     //add unmanaged jars/libraries dependencies of the representative project
     moduleNode.addAll(unmanagedDependencies)
 
     // add project dependencies of the representative project
-    val moduleDependencies = getScopedDependencies(representativeProjectDependencies.projects)
-    addModuleDependencies(moduleDependencies, allSourceModules, moduleNode)
+    addModuleDependencies(moduleDependencies, allSourceModules, moduleNode, useSeparateProdTestSources = true)
 
     Some(moduleNode)
   }
