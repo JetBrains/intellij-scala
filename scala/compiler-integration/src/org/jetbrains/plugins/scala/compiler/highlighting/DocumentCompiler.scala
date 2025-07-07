@@ -25,7 +25,7 @@ import java.nio.file.{Files, Path}
 @Service(Array(Service.Level.PROJECT))
 private final class DocumentCompiler(project: Project) {
 
-  private val workingDirectory: Path = {
+  private def workingDirectory(): Path = {
     val compilerDir =
       Option(CompilerManagerUtil.javacCompilerWorkingDir(project))
         .getOrElse {
@@ -74,11 +74,12 @@ private final class DocumentCompiler(project: Project) {
                                   module: Module,
                                   sourceScope: SourceScope,
                                   client: Client): Unit = {
-    val tempSourceFile = workingDirectory.resolve("tempSourceFile")
-    Files.writeString(tempSourceFile, content)
+    val tempSourceFile = workingDirectory().resolve("tempSourceFile")
     val connector =
-      try new PhysicalFileConnector(tempSourceFile, module, sourceScope)
-      catch {
+      try {
+        Files.writeString(tempSourceFile, content)
+        new PhysicalFileConnector(tempSourceFile, module, sourceScope)
+      } catch {
         case t: Throwable =>
           // Remove the temporary source file if creating the connector failed.
           NioFiles.deleteRecursively(tempSourceFile)
@@ -110,7 +111,7 @@ private final class DocumentCompiler(project: Project) {
   }
 
   private def cleanWorkingDirectory(): Unit = {
-    val files = workingDirectory.children()
+    val files = workingDirectory().children()
     files.foreach(NioFiles.deleteRecursively)
   }
 
@@ -158,7 +159,7 @@ private final class DocumentCompiler(project: Project) {
         compilationData = DocumentCompilationData(
           sourcePath = sourcePath,
           sourceContent = sourceContent,
-          output = workingDirectory,
+          output = workingDirectory(),
           classpath = runtimeClasspath,
           scalacOptions = scalaParameters
         )
@@ -171,7 +172,7 @@ private final class DocumentCompiler(project: Project) {
   }
 
   private abstract class AbstractRemoteServerConnector(filesToCompile: Option[Seq[Path]], module: Module, sourceScope: SourceScope)
-    extends RemoteServerConnectorBase(module, filesToCompile, workingDirectory) {
+    extends RemoteServerConnectorBase(module, filesToCompile, workingDirectory()) {
 
     var requiresCleanup: Boolean = false
 
