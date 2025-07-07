@@ -84,7 +84,9 @@ private final class MouseHandler extends ProjectActivity {
 
   private val mouseMotionTimer = {
     val timer = new Timer(20, _ => {
-      handleMouseMoved(mouseMotionEvent)
+      inReadAction {
+        handleMouseMoved(mouseMotionEvent)
+      }
       mouseMotionEvent = null
     })
     timer.setRepeats(false)
