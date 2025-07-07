@@ -34,7 +34,6 @@ final class SbtExtraControls {
   val separateProdTestModules: JCheckBoxPanel = ct(
     boxLabel = SbtBundle.message("separate.prod.test.modules"),
     comment = SbtBundle.message("separate.prod.test.modules.comment"),
-    betaBadge = true,
     extraComponents = Seq(readMoreLink)
   )
   val useSeparateCompilerOutputPaths: JCheckBoxPanel = ct(boxLabel = SbtBundle.message("use.separate.compiler.output.paths"), tooltip = SbtBundle.message("use.separate.compiler.output.paths.tooltip"))
