@@ -12,7 +12,7 @@ object Versions {
   // ATTENTION: when updating `sbtVersion` also update it in `org.jetbrains.sbt.SbtVersion.Latest`
   // NOTE: sbt-launch / bloop-launcher won't be fetched on refresh.
   // run runtimeDependencies/update manually
-  val sbtVersion: String = "1.11.2"
+  val sbtVersion: String = "1.11.3"
   val bloopVersion = "1.5.6"
   val zincVersion = "1.10.8"
 
