@@ -1030,7 +1030,7 @@ addCommandAlias("runWorksheetEvaluationTests", runTestsInTC(worksheetEvaluationT
 addCommandAlias("runHighlightingTests", runTestsInTC(highlightingTests))
 addCommandAlias("runNightlyTests", runTestsInTC(randomTypingTests))
 
-addCommandAlias("runFlakyTests", s"testOnly -v -s -a +c +q --include-categories=$flakyTests")
+addCommandAlias("runFlakyTests", s"testOnly -- -v -s -a +c +q --include-categories=$flakyTests")
 
 //it's run during "Package" step on TC
 addCommandAlias("runBundleSortingTests", runTestsInTC(bundleSortingTests))
