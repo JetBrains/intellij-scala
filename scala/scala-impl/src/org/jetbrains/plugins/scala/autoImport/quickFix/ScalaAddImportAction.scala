@@ -304,6 +304,19 @@ object ScalaAddImportAction {
     }
   }
 
+  def cbhSuggested(editor: Editor, variants: Seq[CBHSuggestionToImport], place: PsiElement): ScalaAddImportAction[PsiElement, CBHSuggestionToImport] =
+    new ImportCBHSuggestion(editor, variants, place)
+
+  private class ImportCBHSuggestion(editor: Editor,
+                                    variants: Seq[CBHSuggestionToImport],
+                                    place: PsiElement)
+    extends ScalaAddImportAction[PsiElement, CBHSuggestionToImport](editor, variants, place) {
+
+    override protected def doAddImport(toImport: CBHSuggestionToImport): Unit = {
+      ScImportsHolder(place).addImportForPath(toImport.qualifiedName)
+    }
+  }
+
   private val derivationPopupKey: Key[JBPopup] = Key.create("derivation.popup.key")
 
   private def replaceDerivationPopup(editor: Editor, newPopup: Option[JBPopup]): Unit = {

@@ -108,15 +108,13 @@ abstract class ScalaCompilerHighlightingTestBase
 
   protected def expectedResult(expected: ExpectedHighlighting*): ExpectedResult = new ScalaBaseMatcher[Seq[HighlightInfo]] {
 
-    override protected def valueMatches(actualValue: Seq[HighlightInfo]): Boolean = {
-      expected.size == actualValue.size &&
-        expected.zip(actualValue).forall { case (expected, actual) =>
-          actual.getSeverity == expected.severity &&
-            expected.range.forall(_ == actual.range) &&
-            actual.getDescription.startsWith(expected.msgPrefix) &&
-            quickFixDescriptions(actual).toSet == expected.quickFixDescriptions.toSet
-        }
-    }
+    override protected def valueMatches(actualValue: Seq[HighlightInfo]): Boolean =
+      expected.corresponds(actualValue) { case (expected, actual) =>
+        actual.getSeverity == expected.severity &&
+          expected.range.forall(_ == actual.range) &&
+          actual.getDescription.startsWith(expected.msgPrefix) &&
+          quickFixDescriptions(actual).toSet == expected.quickFixDescriptions.toSet
+      }
 
     override protected def description: String =
       descriptionFor(expected)

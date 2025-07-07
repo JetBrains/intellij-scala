@@ -108,3 +108,10 @@ final case class ImplicitToImport(found: FoundImplicit) extends ElementToImport 
   override def presentationBody: String =
     Presentation.withDeprecations(element, found.instance.owner.element, found.instance.pathToOwner)
 }
+
+final case class CBHSuggestionToImport(override val element: PsiNamedElement, suggestion: String) extends ElementToImport {
+
+  override protected type E = PsiNamedElement
+
+  override def qualifiedName: String = suggestion
+}

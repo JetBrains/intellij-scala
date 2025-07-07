@@ -42,22 +42,20 @@ trait RangeInlayHintsPass {
       }
 
   private def gatherRangeHints(editor: Editor, root: PsiFile): Seq[HintTemplate] =
-    root.elements(_.isVisible).flatMap { element =>
-      element match {
-        case ScInfixExpr(left, ref, right@InfixArgs(args)) if settings.showRangeHintsForToAndUntil =>
-          val upperOffset = args match {
-            case Seq(first, _) => first.startOffset
-            case _ => right.startOffset
-          }
-          hintsFor(editor, left.endOffset, upperOffset, ref, args)
-        case ScMethodCall(ref@ScReferenceExpression.withQualifier(qual), args)
-          if settings.showRangeHintsForToAndUntil =>
-          hintsFor(editor, qual.endOffset, args.headOption.fold(ref.endOffset)(_.startOffset), ref, args)
-        case call@ScMethodCall(ref, args) if settings.showExclusiveRangeHint && isRangeApply(ref, call.target, args) =>
-          Seq(HintTemplate(ref.endOffset, new TextPartsHintRenderer(Seq(Text(".exclusive")), rangeForExclusiveRange)))
-        case _ =>
-          Seq.empty
-      }
+    root.elements(_.isVisible).flatMap {
+      case ScInfixExpr(left, ref, right@InfixArgs(args)) if settings.showRangeHintsForToAndUntil =>
+        val upperOffset = args match {
+          case Seq(first, _) => first.startOffset
+          case _ => right.startOffset
+        }
+        hintsFor(editor, left.endOffset, upperOffset, ref, args)
+      case ScMethodCall(ref@ScReferenceExpression.withQualifier(qual), args)
+        if settings.showRangeHintsForToAndUntil =>
+        hintsFor(editor, qual.endOffset, args.headOption.fold(ref.endOffset)(_.startOffset), ref, args)
+      case call@ScMethodCall(ref, args) if settings.showExclusiveRangeHint && isRangeApply(ref, call.target, args) =>
+        Seq(HintTemplate(ref.endOffset, new TextPartsHintRenderer(Seq(Text(".exclusive")), rangeForExclusiveRange)))
+      case _ =>
+        Seq.empty
     }.toSeq
 
 
