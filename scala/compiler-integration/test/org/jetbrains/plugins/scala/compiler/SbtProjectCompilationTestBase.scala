@@ -25,6 +25,13 @@ import java.nio.file.{Files, Path}
  *   1. compile it using the JSP IDEA build system
  *   1. do assertions on the produced compiler messages and output class files.
  *
+ * IMPORTANT:<br>
+ * Avoid generating test projects programmatically in this test base class when the project requires more than 2 files.
+ * Programmatically generated projects make it difficult to:
+ * - Analyze and understand the project structure
+ * - Import the test data into Dev IntelliJ instance
+ * - Maintain and modify tests
+ *
  * @see [[com.intellij.platform.externalSystem.testFramework.ExternalSystemTestCase]] for methods used for defining
  *      a project programmatically, or look at other test classes which extend [[SbtProjectCompilationTestBase]]
  *      for examples.
@@ -104,13 +111,20 @@ abstract class SbtProjectCompilationTestBase(separateProdAndTestSources: Boolean
     }
   }
 
+  protected final def findClassFile(className: String, module:Module, isTest: Boolean): Path =
+    SbtProjectCompilationTestBase.findClassFile(className, module, isTest)
+}
+
+object SbtProjectCompilationTestBase {
+
+
   /**
    * It is written as an extension of [[com.intellij.testFramework.CompilerTester#findClassFile]].
    * In this method, if the module in which the className is searched for is a test module,
    * then #getCompilerOutputPathForTests is used instead of #getCompilerOutputPath
    */
   @Nullable
-  protected def findClassFile(className: String, module:Module, isTest: Boolean): Path = {
+  def findClassFile(className: String, module:Module, isTest: Boolean): Path = {
     val moduleExtension = ModuleRootManager.getInstance(module).getModuleExtension(classOf[CompilerModuleExtension])
     val out =
       if (isTest) moduleExtension.getCompilerOutputPathForTests
