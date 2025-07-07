@@ -161,7 +161,9 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
                   }
                 })
                 .finishOnUiThread(ModalityState.nonModal(), _ => {
-                  breakpointImpl.getHighlighter.dispose()
+                  val highlighter = breakpointImpl.getHighlighter
+                  if (highlighter != null)
+                    highlighter.dispose()
                   breakpointImpl.updateUI()
                 })
                 .coalesceBy(lineBp)
