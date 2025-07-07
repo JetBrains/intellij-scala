@@ -250,6 +250,30 @@ class ScalaCompilerHighlightingTest_3_3 extends ScalaCompilerHighlightingTest_3 
 
 class ScalaCompilerHighlightingTest_3_4 extends ScalaCompilerHighlightingTest_3_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_4
+
+  def testImportImplicits(): Unit = runTestCase(
+    fileName = "blub/ImportImplicits.scala",
+    content =
+      """package blub
+        |
+        |class Example {
+        |  summon[String]
+        |}
+        |
+        |object ImplicitsStatic1 {
+        |  implicit val s3: String = ???
+        |}
+        |object ImplicitsStatic2 {
+        |  implicit val s3: String = ???
+        |}
+        |""".stripMargin,
+    expectedResult = expectedResult(ExpectedHighlighting(
+      severity = HighlightSeverity.ERROR,
+      range = Some(TextRange.create(45, 46)),
+      quickFixDescriptions = Seq("Import 'blub.ImplicitsStatic1.s3'", "Import 'blub.ImplicitsStatic2.s3'"),
+      msgPrefix = "No given instance of type String was found for parameter x of method summon in object Predef"
+    ))
+  )
 }
 
 class ScalaCompilerHighlightingTest_3_5 extends ScalaCompilerHighlightingTest_3_4 {

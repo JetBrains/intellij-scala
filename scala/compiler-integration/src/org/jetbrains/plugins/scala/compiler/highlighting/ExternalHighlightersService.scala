@@ -22,6 +22,7 @@ import org.jetbrains.annotations.{Nls, Nullable}
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
 import org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider
 import org.jetbrains.plugins.scala.annotator.element.ScTemplateDefinitionAnnotator
+import org.jetbrains.plugins.scala.autoImport.quickFix.{CBHSuggestionToImport, ImportCBHSuggestionFix, ScalaAddImportAction, ScalaImportElementFix}
 import org.jetbrains.plugins.scala.caches.ModTracker.anyScalaPsiChange
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
@@ -36,7 +37,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUs
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed.UnusedImportReportedByCompilerKey
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportOrExportStmt, ScImportSelector}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.{CompilerType, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.impl.{CompilerType, ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.settings.{ProblemSolverUtils, ScalaHighlightingMode, ScalaProjectSettings}
 import org.jetbrains.plugins.scala.util.CompilationId
 
@@ -229,7 +230,7 @@ private final class ExternalHighlightersService(project: Project) { self =>
   private def calculateHighlightInfos(
     externalHighlights: Set[ExternalHighlighting],
     document: Document,
-    psiFile: PsiFile
+    psiFile: PsiFile,
   ): Set[HighlightInfo] =
     externalHighlights.flatMap { highlighting =>
       ProgressManager.checkCanceled()
@@ -293,10 +294,36 @@ private final class ExternalHighlightersService(project: Project) { self =>
           }
         } else standardBuilder
 
+      registerImportFixesFromMessage(highlighting.message, highlightRange, psiFile, highlightInfo)
+
       val fixes = findUnresolvedReferenceFixes(psiFile, highlightRange, highlighting.highlightType)
       fixes.foreach(highlightInfo.registerFix(_, null, null, highlightRange, null))
       highlightInfo.create()
     }
+  }
+
+  private val hasImportMessagesLineRegex = raw"(The following import|One of the following imports) might (make progress towards fixing|fix) the problem:".r
+  private val importLineRegex = raw"\s{2}import (.+)".r
+  private def registerImportFixesFromMessage(message: String, highlightingRange: TextRange, file: PsiFile, highlightInfo: HighlightInfo.Builder): Unit = {
+    val place = file.findElementAt(highlightingRange.getStartOffset)
+    if (place == null) return
+
+    message.linesIterator
+      .dropWhile(hasImportMessagesLineRegex.matches)
+      .drop(1)
+      .collect { case importLineRegex(ref) => ref }
+      .foreach { refText =>
+        val importStmt = ScalaPsiElementFactory.createImportFromText(s"import $refText", place)
+        val ref = importStmt.importExprs.head.reference.get
+        val imports = ref.multiResolveScala(false)
+          .map { result =>
+            CBHSuggestionToImport(result.element, refText)
+          }
+          .toSeq
+        //val fix = ScalaAddImportAction.cbhSuggested(editor, imports, place)
+        val fix = ImportCBHSuggestionFix(imports, place)
+        highlightInfo.registerFix(fix, null, null, highlightingRange, null)
+      }
   }
 
   private def escapeHtmlWithNewLines(unescapedTooltip: String): String = {
