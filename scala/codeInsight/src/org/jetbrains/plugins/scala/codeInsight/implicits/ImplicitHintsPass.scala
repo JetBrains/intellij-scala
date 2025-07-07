@@ -11,7 +11,6 @@ import com.intellij.pom.Navigatable
 import com.intellij.psi.PsiElement
 import com.intellij.util.DocumentUtil
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.annotator.HighlightingAdvisor
 import org.jetbrains.plugins.scala.annotator.hints._
 import org.jetbrains.plugins.scala.autoImport.quickFix.{ImportImplicitInstanceFix, PopupPosition}
@@ -22,7 +21,9 @@ import org.jetbrains.plugins.scala.codeInsight.hints.rangeHints.RangeInlayHintsP
 import org.jetbrains.plugins.scala.codeInsight.hints.{ScalaApplyMethodHintsPass, ScalaHintsSettings, ScalaInlayParameterHintsPass, ScalaTypeHintsPass}
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHintsPass._
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocQuickInfoGenerator
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.{&, _}
+import org.jetbrains.plugins.scala.incremental.Highlighting._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -33,8 +34,6 @@ import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider.fromScMethodLike
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.{ScalaHighlightingMode, ScalaProjectSettings}
-import org.jetbrains.plugins.scala.extensions.&
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
 import scala.collection.mutable
 
