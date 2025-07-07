@@ -5,8 +5,10 @@ import com.intellij.ide.util.PropertiesComponent
 import com.intellij.openapi.externalSystem.service.project.manage.ProjectDataImportListener
 import com.intellij.openapi.project.Project
 import com.intellij.ui.GotItTooltip
+import org.jetbrains.plugins.scala.settings.ShowSettingsUtilImplExt
 import org.jetbrains.sbt.project.SeparateMainTestModulesNotificationListener._
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
+import org.jetbrains.sbt.settings.SbtExternalSystemConfigurable
 import org.jetbrains.sbt.{SbtBundle, SbtUtil}
 
 /**
@@ -36,11 +38,10 @@ object SeparateMainTestModulesNotificationListener {
    *  - The separate sources setting is enabled but not explicitly set by user
    *  - The notification hasn't been shown before
    */
-  def showNotificationIfNecessary(sbtProjectSettings: SbtProjectSettings, project: Project): Unit = {
+  def showNotificationIfNecessary(sbtProjectSettings: SbtProjectSettings, project: Project): Unit =
     if (!wasOldNotificationShown && shouldShow(sbtProjectSettings, project)) {
-      show(sbtProjectSettings.getExternalProjectPath, project)
+      show(project)
     }
-  }
 
   /**
    * Checks whether the old main/test modules notification has already been shown to the user.
@@ -60,7 +61,7 @@ object SeparateMainTestModulesNotificationListener {
     }
   }
 
-  private def show(projectPath: String, project: Project): Unit = {
+  private def show(project: Project): Unit = {
     val sbtButton = SbtTooltip.findSbtToolWindowButton(project)
     sbtButton.foreach { button =>
       val toolWindowManagerImpl = SbtTooltip.findToolWindowManagerDisposable(project)
@@ -70,8 +71,10 @@ object SeparateMainTestModulesNotificationListener {
         SbtBundle.message("separate.modules.main.test.notification"),
         toolWindowManagerImpl.orNull
       )
-        .withLink(SbtBundle.message("open.sbt.project.settings"), () => SbtTooltip.openSbtProjectSettings(project, projectPath))
-        .withSecondaryButton(SbtBundle.message("separate.modules.main.test.notification.learn"), () => {
+        .withLink(SbtBundle.message("open.sbt.project.settings"), () =>
+          ShowSettingsUtilImplExt.showSettingsDialog(project, classOf[SbtExternalSystemConfigurable], SbtBundle.message("separate.prod.test.modules"))
+        )
+        .withSecondaryButton(SbtBundle.message("separate.modules.main.test.notification.read"), () => {
           SbtUtil.openSeparateMainTestModulesBlogPost()
           kotlin.Unit.INSTANCE
         })
