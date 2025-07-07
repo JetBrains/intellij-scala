@@ -9,6 +9,7 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiTreeUtil.{findElementOfClassAtOffset, getContextOfType}
 import com.intellij.util.ProcessingContext
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
@@ -340,7 +341,7 @@ object ScalaBasicCompletionProvider {
     }
   }
 
-  private def splitInterpolatedString(context: PsiElement,
+  private def splitInterpolatedString(@Nullable context: PsiElement,
                                       offset: Int): Option[String] =
     context match {
       case interpolated: ScInterpolated =>
@@ -450,7 +451,7 @@ object ScalaBasicCompletionProvider {
       val notInsideSeveralClasses = expression.contexts.filterByType[ScTemplateDefinition].size <= 1
 
       @tailrec
-      def syntheticItems(element: PsiElement, result: List[ScalaLookupItem] = Nil): List[ScalaLookupItem] = element match {
+      def syntheticItems(@Nullable element: PsiElement, result: List[ScalaLookupItem] = Nil): List[ScalaLookupItem] = element match {
         case null => result
         case td: ScTypeDefinition =>
           val superItem =
