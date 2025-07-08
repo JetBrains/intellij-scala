@@ -31,10 +31,12 @@ final class SbtExtraControls {
     SbtBundle.message("separate.prod.test.modules.link.text"),
     (_ => SbtUtil.openSeparateMainTestModulesBlogPost()): ActionListener
   )
+  private val separateProdTestModulesWarning: JBLabel = new JBLabel(AllIcons.General.Warning)
+  separateProdTestModulesWarning.setToolTipText(SbtBundle.message("separate.prod.test.modules.warning.text"))
   val separateProdTestModules: JCheckBoxPanel = ct(
     boxLabel = SbtBundle.message("separate.prod.test.modules"),
     comment = SbtBundle.message("separate.prod.test.modules.comment"),
-    extraComponents = Seq(readMoreLink)
+    extraComponents = Seq(readMoreLink, separateProdTestModulesWarning)
   )
   val useSeparateCompilerOutputPaths: JCheckBoxPanel = ct(boxLabel = SbtBundle.message("use.separate.compiler.output.paths"), tooltip = SbtBundle.message("use.separate.compiler.output.paths.tooltip"))
   private val useSeparateCompilerOutputPathsWarning: JBLabel = new JBLabel(SbtBundle.message("use.separate.compiler.output.paths.warning"))
@@ -79,11 +81,14 @@ final class SbtExtraControls {
     content.add(new Spacer, new GridConstraints(11, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, new Dimension(-1, 5), null, new Dimension(-1, 1), 0, false))
 
     resolveClassifiersCheckBox.setEnabled(true)
-    useSeparateCompilerOutputPathsWarning.setVisible(shouldWarningBeVisible)
+    useSeparateCompilerOutputPathsWarning.setVisible(shouldOutputPathsWarningBeVisible)
     useSeparateCompilerOutputPathsWarning.setForeground(JBColor.RED)
 
-    useSeparateCompilerOutputPaths.box.addActionListener(warningActionListener)
-    useSbtShellForBuildCheckBox.box.addActionListener(warningActionListener)
+    useSeparateCompilerOutputPaths.box.addActionListener(refreshOutputPathsWarningActionListener)
+    useSbtShellForBuildCheckBox.box.addActionListener(refreshOutputPathsWarningActionListener)
+
+    separateProdTestModulesWarning.setVisible(shouldMainTestModeWarningBeVisible)
+    separateProdTestModules.box.addActionListener((_: ActionEvent) => refreshMainMainTestModeWarning())
   }
 
   private def withExtensions(
@@ -142,22 +147,29 @@ final class SbtExtraControls {
     new JCheckBoxPanel(box, panel)
   }
 
-  def refreshOutputPathsWarning(): Unit = {
-    useSeparateCompilerOutputPathsWarning.setVisible(shouldWarningBeVisible)
+  private def refreshOutputPathsWarning(): Unit =
+    useSeparateCompilerOutputPathsWarning.setVisible(shouldOutputPathsWarningBeVisible)
+
+  private def refreshMainMainTestModeWarning(): Unit =
+    separateProdTestModulesWarning.setVisible(shouldMainTestModeWarningBeVisible)
+
+  def refreshCheckboxesConstraints(): Unit = {
+    refreshOutputPathsWarning()
+    refreshMainMainTestModeWarning()
   }
 
-  def refreshCheckboxesConstraints(): Unit =
-    refreshOutputPathsWarning()
-
-  private def warningActionListener(@unused e: ActionEvent): Unit = {
+  private def refreshOutputPathsWarningActionListener(@unused e: ActionEvent): Unit = {
     refreshOutputPathsWarning()
   }
 
-  private def shouldWarningBeVisible: Boolean = {
+  private def shouldOutputPathsWarningBeVisible: Boolean = {
     val checkedOutputPaths = useSeparateCompilerOutputPaths.isSelected
     val checkedUseShellForBuild = useSbtShellForBuildCheckBox.isSelected
     checkedOutputPaths && checkedUseShellForBuild
   }
+
+  private def shouldMainTestModeWarningBeVisible: Boolean =
+    !separateProdTestModules.isSelected
 }
 
 object SbtExtraControls {

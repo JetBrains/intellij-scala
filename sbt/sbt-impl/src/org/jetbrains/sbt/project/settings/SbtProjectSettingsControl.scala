@@ -107,7 +107,6 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     extraControls.separateProdTestModules.setSelected(settings.separateProdAndTestSources)
     extraControls.generateManagedSourcesDuringProjectSync.setSelected(settings.generateManagedSourcesDuringProjectSync)
     extraControls.refreshCheckboxesConstraints()
-    extraControls.refreshOutputPathsWarning()
   }
 
   override def updateInitialExtraSettings(): Unit = {
