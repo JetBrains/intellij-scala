@@ -251,6 +251,7 @@ class ScalaCompilerHighlightingTest_3_3 extends ScalaCompilerHighlightingTest_3 
 class ScalaCompilerHighlightingTest_3_4 extends ScalaCompilerHighlightingTest_3_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_4
 
+  // SCL-23325
   def testImportImplicits(): Unit = runTestCase(
     fileName = "blub/ImportImplicits.scala",
     content =
@@ -272,6 +273,48 @@ class ScalaCompilerHighlightingTest_3_4 extends ScalaCompilerHighlightingTest_3_
       range = Some(TextRange.create(45, 46)),
       quickFixDescriptions = Seq("Import 'blub.ImplicitsStatic1.s3'", "Import 'blub.ImplicitsStatic2.s3'"),
       msgPrefix = "No given instance of type String was found for parameter x of method summon in object Predef"
+    ))
+  )
+
+  def testImportExtension(): Unit = runTestCase(
+    fileName = "blub/ImportExtension.scala",
+    content =
+      """package blub
+        |
+        |class Example {
+        |  "test".test
+        |}
+        |
+        |object ExtensionHolder {
+        |  extension (i: String) def test = 3
+        |}
+        |""".stripMargin,
+    expectedResult = expectedResult(ExpectedHighlighting(
+      severity = HighlightSeverity.ERROR,
+      range = Some(TextRange.create(39,43)),
+      quickFixDescriptions = Seq("Import 'blub.ExtensionHolder.test'"),
+      msgPrefix = "value test is not a member of String, but could be made available as an extension method."
+    ))
+  )
+
+  def testImportConversion(): Unit = runTestCase(
+    fileName = "blub/ImportExtension.scala",
+    content =
+      """package blub
+        |
+        |class Example {
+        |  val i: String = 1
+        |}
+        |
+        |object ConversionHolder {
+        |  given Conversion[Int, String] = _.toString
+        |}
+        |""".stripMargin,
+    expectedResult = expectedResult(ExpectedHighlighting(
+      severity = HighlightSeverity.ERROR,
+      range = Some(TextRange.create(48,49)),
+      quickFixDescriptions = Seq("Import 'blub.ConversionHolder.given_Conversion_Int_String'"),
+      msgPrefix = "Found:    (1 : Int)\nRequired: String"
     ))
   )
 }
