@@ -37,6 +37,32 @@ class CompilingEvaluatorTest_3 extends CompilingEvaluatorTest_2_13 {
 
   // TODO: A bug that should be addressed.
   override def testInLambda(): Unit = ()
+
+  addSourceFile("SameExpressionAsIfExpression.scala",
+    s"""
+       |object SameExpressionAsIfExpression {
+       |  def main(args: Array[String]): Unit = {
+       |    println(foo(true))
+       |  }
+       |
+       |  def foo(param: Boolean): Boolean =
+       |    val startLine = 1
+       |    val currentLine = 2
+       |    if param && startLine != currentLine then true $breakpoint
+       |    else ???
+       |}
+       |""".stripMargin)
+  def sameExpressionAsIfExpression(): Unit = {
+    expressionEvaluationTest()(
+      implicit ctx => {
+        evalEquals("param && startLine != currentLine", "true")
+      }
+    )
+  }
+}
+
+class CompilingEvaluatorTest_3_7 extends CompilingEvaluatorTest_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_7
 }
 
 class CompilingEvaluatorTest_3_RC extends CompilingEvaluatorTest_3 {
