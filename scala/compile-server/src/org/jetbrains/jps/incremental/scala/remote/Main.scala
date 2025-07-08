@@ -253,7 +253,7 @@ object Main {
       runMethod.invoke(bridgeInstance, outDir, classpathString, scalacOptionsArray, source, config)
     } else {
       runMethod.invoke(bridgeInstance, outDir, expressionClassName, classpathString, scalacOptionsArray, source, line,
-        expression, localVariableNamesJavaSet, packageName, consumer, true)
+        expression, localVariableNamesJavaSet, packageName, consumer, false)
     }
   }
 
