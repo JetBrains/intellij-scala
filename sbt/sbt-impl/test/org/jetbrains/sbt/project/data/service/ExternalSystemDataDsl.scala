@@ -2,7 +2,7 @@ package org.jetbrains.sbt
 package project.data.service
 
 import com.intellij.openapi.externalSystem.model.project.{LibraryLevel, ModuleData}
-import com.intellij.openapi.module.StdModuleTypes
+import com.intellij.openapi.module.JavaModuleType
 import org.jetbrains.sbt.project.data._
 import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
 
@@ -161,7 +161,7 @@ object ExternalSystemDataDsl {
   }
 
   class javaModule extends module {
-    override val typeId: String = StdModuleTypes.JAVA.getId
+    override val typeId: String = JavaModuleType.getModuleType.getId
   }
 
   class sharedSourcesModule extends module {

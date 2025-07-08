@@ -6,7 +6,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.project._
 import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
-import com.intellij.openapi.module.StdModuleTypes
+import com.intellij.openapi.module.JavaModuleType
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.pom.java.LanguageLevel
@@ -860,7 +860,7 @@ private[importing] object BspResolverLogic {
       case ModuleKind.SbtModule(_, _, _) =>
         SbtModuleType.instance
       case _ =>
-        StdModuleTypes.JAVA
+        JavaModuleType.getModuleType
     }
     val moduleData = new ModuleData(moduleDescriptionData.idUri, BSP.ProjectSystemId, moduleType.getId, moduleName, moduleFileDirectoryPath, projectRootPath)
 

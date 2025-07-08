@@ -1,6 +1,6 @@
 package org.jetbrains.sbt.project.data.service
 
-import com.intellij.openapi.module.{ModuleManager, StdModuleTypes}
+import com.intellij.openapi.module.{JavaModuleType, ModuleManager}
 import org.jetbrains.plugins.scala.util.SbtModuleType.{sbtNestedModuleType, sbtSourceSetModuleType}
 import org.jetbrains.sbt.project.SourceSetType
 import org.jetbrains.sbt.project.data.service.ExternalSystemDataDsl._
@@ -23,14 +23,14 @@ class SbtSourceSetModuleDataServiceTest extends SbtModuleDataServiceTestCase {
 
       val c1NestedSourceSetModuleNodes: Seq[SbtSourceSetModuleNode] = Seq(
         new SbtSourceSetModuleNode(
-          StdModuleTypes.JAVA.getId,
+          JavaModuleType.getModuleType.getId,
           ModuleNode.combinedId("project1:main", Option(c1URI)),
           SourceSetType.MAIN,
           getProject.getBasePath + "/c1/project1",
           getProject.getBasePath + "/c1/project1"
         ),
         new SbtSourceSetModuleNode(
-          StdModuleTypes.JAVA.getId,
+          JavaModuleType.getModuleType.getId,
           ModuleNode.combinedId("project1:test", Option(c1URI)),
           SourceSetType.TEST,
           getProject.getBasePath + "/c1/project1",
@@ -39,7 +39,7 @@ class SbtSourceSetModuleDataServiceTest extends SbtModuleDataServiceTestCase {
       )
 
       val c1NestedModuleNode: NestedModuleNode = new NestedModuleNode(
-        StdModuleTypes.JAVA.getId,
+        JavaModuleType.getModuleType.getId,
         ModuleNode.combinedId("project1", Option(c1URI)),
         "c1.project1",
         getProject.getBasePath + "/c1/project1",
@@ -56,14 +56,14 @@ class SbtSourceSetModuleDataServiceTest extends SbtModuleDataServiceTestCase {
         externalConfigPath := getProject.getBasePath + "/c1"
         arbitraryNodes ++= Seq(
           new SbtSourceSetModuleNode(
-            StdModuleTypes.JAVA.getId,
+            JavaModuleType.getModuleType.getId,
             ModuleNode.combinedId("c1:main", Option(c1URI)),
             SourceSetType.MAIN,
             getProject.getBasePath + "/c1",
             getProject.getBasePath + "/c1"
           ),
           new SbtSourceSetModuleNode(
-            StdModuleTypes.JAVA.getId,
+            JavaModuleType.getModuleType.getId,
             ModuleNode.combinedId("c1:test", Option(c1URI)),
             SourceSetType.TEST,
             getProject.getBasePath + "/c1",
@@ -81,14 +81,14 @@ class SbtSourceSetModuleDataServiceTest extends SbtModuleDataServiceTestCase {
         externalConfigPath := getProject.getBasePath
         arbitraryNodes ++= Seq(
           new SbtSourceSetModuleNode(
-            StdModuleTypes.JAVA.getId,
+            JavaModuleType.getModuleType.getId,
             ModuleNode.combinedId("root:main", Option(buildURI)),
             SourceSetType.MAIN,
             getProject.getBasePath,
             getProject.getBasePath
           ),
           new SbtSourceSetModuleNode(
-            StdModuleTypes.JAVA.getId,
+            JavaModuleType.getModuleType.getId,
             ModuleNode.combinedId("root:test", Option(buildURI)),
             SourceSetType.TEST,
             getProject.getBasePath,

@@ -7,7 +7,7 @@ import com.intellij.openapi.externalSystem.model.task.event.{Failure => ESFailur
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener}
 import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException}
 import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
-import com.intellij.openapi.module.StdModuleTypes
+import com.intellij.openapi.module.JavaModuleType
 import com.intellij.openapi.project.{Project, ProjectManager}
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.util.io.FileUtil
@@ -801,7 +801,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val moduleFilesDirectory = createModuleFilesDirectory(projectRoot, project.base)
 
     val result = createModuleNode(
-      StdModuleTypes.JAVA.getId,
+      JavaModuleType.getModuleType.getId,
       projectId,
       moduleName,
       moduleFilesDirectory,
@@ -867,7 +867,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val projectId = ModuleNode.combinedId(project.id, Option(project.buildURI))
     val moduleFilesDirectory = createModuleFilesDirectory(projectRoot, project.base)
     val parentModule = createModuleNode(
-      StdModuleTypes.JAVA.getId,
+      JavaModuleType.getModuleType.getId,
       projectId,
       moduleName,
       moduleFilesDirectory,
@@ -960,7 +960,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     def sbtSourceSetModule(sourceSetName: SourceSetType): SbtSourceSetModuleNode = {
       val moduleId = ModuleNode.combinedId(s"${project.id}:$sourceSetName", Option(project.buildURI))
       val moduleNode = new SbtSourceSetModuleNode(
-        StdModuleTypes.JAVA.getId,
+        JavaModuleType.getModuleType.getId,
         moduleId,
         sourceSetName,
         moduleFilesDirectoryPath,

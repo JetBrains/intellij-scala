@@ -1,6 +1,6 @@
 package org.jetbrains.sbt.project.data.service
 
-import com.intellij.openapi.module.{ModuleManager, StdModuleTypes}
+import com.intellij.openapi.module.{JavaModuleType, ModuleManager}
 import org.jetbrains.plugins.scala.util.SbtModuleType.sbtNestedModuleType
 import org.jetbrains.sbt.project.data.service.ExternalSystemDataDsl._
 import org.jetbrains.sbt.project.data.{ModuleNode, NestedModuleNode}
@@ -29,7 +29,7 @@ class SbtNestedModuleDataServiceTest extends SbtModuleDataServiceTestCase {
         externalConfigPath := getProject.getBasePath + "/c1"
         arbitraryNodes ++= Seq(
           new NestedModuleNode(
-            StdModuleTypes.JAVA.getId,
+            JavaModuleType.getModuleType.getId,
             ModuleNode.combinedId("project1", Option(uri)),
             "c1.project1",
             getProject.getBasePath + "/c1/project1",
@@ -47,7 +47,7 @@ class SbtNestedModuleDataServiceTest extends SbtModuleDataServiceTestCase {
         externalConfigPath := getProject.getBasePath
         arbitraryNodes ++= Seq(
           new NestedModuleNode(
-            StdModuleTypes.JAVA.getId,
+            JavaModuleType.getModuleType.getId,
             ModuleNode.combinedId("project1", Option(buildURI)),
             "root.project1",
             getProject.getBasePath + "/project1",
