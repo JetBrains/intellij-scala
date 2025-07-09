@@ -18,11 +18,12 @@ private final class GeneratedManagedSourcesImportListener(project: Project) exte
 
         val gtip = new GotItTooltip(
           "sbt.generated.managed.sources.tooltip",
-          SbtBundle.message("sbt.generated.managed.sources.during.project.sync"),
+          SbtBundle.message("sbt.generated.managed.sources.tooltip.text"),
           toolWindowManagerDisposable.orNull
-        ).withLink(SbtBundle.message("open.sbt.project.settings"), () =>
+        ).withSecondaryButton(SbtBundle.message("sbt.generated.managed.sources.tooltip.secondary.button.label"), () => {
           ShowSettingsUtilImplExt.showSettingsDialog(project, classOf[SbtExternalSystemConfigurable], SbtBundle.message("generate.managed.sources.during.project.sync.label"))
-        )
+          kotlin.Unit.INSTANCE
+        })
 
         gtip.show(button, GotItTooltip.LEFT_MIDDLE)
       }
