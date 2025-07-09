@@ -53,11 +53,19 @@ object Tracing {
 //    trace(s"Modification $tracker: $count")
   }
 
+  def resolve(reference: ScReference): Unit = {
+    incremental.Tracing.trace(reference, "Resolve", start = true)
+  }
+
   def resolve(reference: ScReference, result: Array[ScalaResolveResult]): Unit = {
     if (parameters.resolve) {
       trace("Resolve: " + reference.asText + " → " + result.map(_.asText).mkString(", "))
     }
     incremental.Tracing.trace(reference, "Resolve")
+  }
+
+  def inference(expression: ScExpression): Unit = {
+    incremental.Tracing.trace(expression, "Inference", start = true)
   }
 
   def inference(expression: ScExpression, result: ExpressionTypeResult): Unit = {

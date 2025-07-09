@@ -157,6 +157,8 @@ trait ScExpression extends ScBlockStatement
       BlockModificationTracker(this),
       (checkImplicits, isShape, expectedOption, ignoreBaseTypes, fromUnderscore)
     ) {
+      Tracing.inference(this)
+
       def isJavaReflectPolymorphic =
         this.scalaLanguageLevelOrDefault >= Scala_2_11 &&
           ScalaPsiUtil.isJavaReflectPolymorphicSignature(this)
