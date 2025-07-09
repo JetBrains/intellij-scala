@@ -71,6 +71,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
           BlockModificationTracker(this),
           Tuple1(incomplete)
         ) {
+          Tracing.resolve(this)
           val result = new ReferenceExpressionResolver().resolve(this, shapesOnly = false, incomplete)
           Tracing.resolve(this, result)
           result
