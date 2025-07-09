@@ -56,13 +56,13 @@ class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelD
       module.configureScalaCompilerSettingsFrom("Gradle", compilerOptionsFrom(data))
       module match {
         case `mainModule` =>
-          configureScalaSdk(mainModule.getName, data.getScalaClasspath.asScala.toSeq.map(_.toPath))
+          configureScalaSdk(mainModule, data.getScalaClasspath.asScala.toSeq.map(_.toPath))
         case _ =>
       }
     }
 
   private def configureScalaSdk(
-    moduleName: String,
+    module: Module,
     compilerClasspath: Seq[Path]
   )(implicit project: Project, modelsProvider: IdeModifiableModelsProvider): Unit = {
     import LibraryExt._
@@ -70,20 +70,24 @@ class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelD
     val compilerVersion = scalaLibrariesInCompilerClasspath.flatMap(runtimeVersion).headOption
     compilerVersion match {
       case Some(version) =>
-        configureScalaSdk(moduleName, version, compilerClasspath)
+        configureScalaSdk(module, version, compilerClasspath)
       case None        =>
-        showWarning(NlsString(ScalaGradleBundle.message("gradle.dataService.scalaVersionCantBeDetected", moduleName)))
+        showWarning(NlsString(ScalaGradleBundle.message("gradle.dataService.scalaVersionCantBeDetected", module.getName)))
     }
   }
 
   private def configureScalaSdk(
-    moduleName: String,
+    module: Module,
     compilerVersion: String,
     compilerClasspath: Seq[Path]
   )(implicit project: Project, modelsProvider: IdeModifiableModelsProvider): Unit = {
-    val scalaLibrariesInProject = modelsProvider.getAllLibraries.filter(_.hasRuntimeLibrary).toSet
-    if (scalaLibrariesInProject.nonEmpty) {
-      val scalaLibraryWithSameVersion = scalaLibrariesInProject.find(_.libraryVersion.contains(compilerVersion))
+    val projectLevelLibraries = modelsProvider.getAllLibraries
+    val moduleLevelLibraries = modelsProvider.getModifiableRootModel(module).getModuleLibraryTable.getLibraries
+    val scalaLibraries = (moduleLevelLibraries ++ projectLevelLibraries).toSet.filter(_.hasRuntimeLibrary)
+    if (scalaLibraries.nonEmpty) {
+      val scalaLibraryWithSameVersion = scalaLibraries.find { library =>
+        library.libraryVersion.contains(compilerVersion) || library.jarLibraryVersion.contains(compilerVersion)
+      }
       scalaLibraryWithSameVersion match {
         case Some(library) =>
           // Only resolve the compiler bridge for Scala 3. Gradle reports a compiler classpath that doesn't work with
@@ -102,8 +106,11 @@ class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelD
             compilerBridgeBinaryJar
           )
         case None =>
-          showScalaLibraryNotFoundWarning(compilerVersion, moduleName)
+          showScalaLibraryNotFoundWarning(compilerVersion, module)
       }
+    } else {
+      // In practice, this warning shouldn’t be displayed because if the Scala library is missing, a built-in message is shown instead.
+      showScalaLibraryNotFoundWarning(compilerVersion, module)
     }
   }
 
@@ -144,9 +151,9 @@ class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelD
   private def showWarning(message: NlsString)(implicit project: Project): Unit =
     super.showWarning(Title, message, BalloonGroup, SystemId)
 
-  protected def showScalaLibraryNotFoundWarning(
+  private def showScalaLibraryNotFoundWarning(
     version: String,
-    module: String
+    module: Module
   )(implicit project: Project): Unit =
-    showScalaLibraryNotFoundWarning(Title, version, module, BalloonGroup, SystemId)
+    showScalaLibraryNotFoundWarning(Title, version, module.getName, BalloonGroup, SystemId)
 }

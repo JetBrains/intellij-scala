@@ -31,7 +31,7 @@ import org.jetbrains.plugins.scala.lang.psi.compiled.ScClsFileViewProvider.ScCls
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.PrecedenceTypes
-import org.jetbrains.plugins.scala.project.LibraryExt.guessLibraryVersionFromName
+import org.jetbrains.plugins.scala.project.LibraryExt.{guessLibraryVersionFromName, runtimeVersion}
 import org.jetbrains.plugins.scala.project.ScalaFeatures.SerializableScalaFeatures
 import org.jetbrains.plugins.scala.project.external.CompanionProxyUtils
 import org.jetbrains.plugins.scala.project.external.CompanionProxyUtils.LegacyBridgeModifiableBaseCompanion
@@ -188,6 +188,7 @@ package object project {
     def isScalaSdk: Boolean
     def name: Option[String]
     def libraryVersion: Option[String] = name.flatMap(guessLibraryVersionFromName)
+    def jarLibraryVersion: Option[String] = name.flatMap(runtimeVersion)
   }
 
   implicit class ModuleExt(private val module: Module) extends AnyVal {
