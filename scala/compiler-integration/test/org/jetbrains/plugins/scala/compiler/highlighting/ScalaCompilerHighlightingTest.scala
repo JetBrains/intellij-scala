@@ -132,17 +132,139 @@ class ScalaCompilerHighlightingTest_2_13 extends ScalaCompilerHighlightingTestBa
 
 class ScalaCompilerHighlightingTest_3_0 extends ScalaCompilerHighlightingTest_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_0
+
+  private def runTestCompilationWithParserError(): Unit = {
+    runTestCase(
+      fileName = "ParserError.scala",
+      content =
+        """object ParserError:
+          |  def parserError(): Unit =
+          |    val x = Seq(1, 2, 3
+          |    val y = Seq(2, 3, 4)
+          |""".stripMargin,
+      expectedResult = expectedResult(
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          range = Some(TextRange.create(76, 79)),
+          quickFixDescriptions = Seq.empty,
+          msgPrefix = "')' expected, but 'val' found"
+        ),
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          range = Some(TextRange.create(97, 97)),
+          quickFixDescriptions = Seq.empty,
+          msgPrefix = "unindent expected, but eof found"
+        )
+      )
+    )
+  }
+
+  def testCompilationWithParserError(): Unit = {
+    runTestCompilationWithParserError()
+  }
+
+  def testCompilationWithParserError_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
+    runTestCompilationWithParserError()
+  }
+
+  private def runTestEof(): Unit = {
+    runTestCase(
+      fileName = "Eof.scala",
+      content =
+        """object Eof:
+          |  def eof(): Unit = {
+          |    println("Hello, world!")
+          |""".stripMargin,
+      expectedResult = expectedResult(
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          range = Some(TextRange.create(63, 63)),
+          quickFixDescriptions = Seq.empty,
+          msgPrefix = "'}' expected, but eof found"
+        ),
+        ExpectedHighlighting(
+          severity = HighlightSeverity.WARNING,
+          range = Some(TextRange.create(63, 63)),
+          quickFixDescriptions = Seq.empty,
+          msgPrefix = "Line is indented too far to the left, or a `}` is missing"
+        )
+      )
+    )
+  }
+
+  def testEof(): Unit = {
+    runTestEof()
+  }
+
+  def testEof_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
+    runTestEof()
+  }
 }
 
 class ScalaCompilerHighlightingTest_3_1 extends ScalaCompilerHighlightingTest_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_1
+
+  private def runTestCompilationWithParserError(): Unit = {
+    runTestCase(
+      fileName = "ParserError.scala",
+      content =
+        """object ParserError:
+          |  def parserError(): Unit =
+          |    val x = Seq(1, 2, 3
+          |    val y = Seq(2, 3, 4)
+          |""".stripMargin,
+      expectedResult = expectedResult(
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          range = Some(TextRange.create(76, 79)),
+          quickFixDescriptions = Seq.empty,
+          msgPrefix = "')' expected, but 'val' found"
+        )
+      )
+    )
+  }
+
+  def testCompilationWithParserError(): Unit = {
+    runTestCompilationWithParserError()
+  }
+
+  def testCompilationWithParserError_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
+    runTestCompilationWithParserError()
+  }
+
+  private def runTestEof(): Unit = {
+    runTestCase(
+      fileName = "Eof.scala",
+      content =
+        """object Eof:
+          |  def eof(): Unit = {
+          |    println("Hello, world!")
+          |""".stripMargin,
+      expectedResult = expectedResult(
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          range = Some(TextRange.create(63, 63)),
+          quickFixDescriptions = Seq.empty,
+          msgPrefix = "'}' expected, but eof found"
+        )
+      )
+    )
+  }
+
+  def testEof(): Unit = {
+    runTestEof()
+  }
+
+  def testEof_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
+    runTestEof()
+  }
 }
 
-class ScalaCompilerHighlightingTest_3_2 extends ScalaCompilerHighlightingTest_3 {
+class ScalaCompilerHighlightingTest_3_2 extends ScalaCompilerHighlightingTest_3_1 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_2
 }
 
-class ScalaCompilerHighlightingTest_3_3 extends ScalaCompilerHighlightingTest_3 {
+class ScalaCompilerHighlightingTest_3_3 extends ScalaCompilerHighlightingTest_3_2 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_3
 
   private def runTestUnusedImports(): Unit = {
@@ -422,34 +544,6 @@ abstract class ScalaCompilerHighlightingTest_3 extends ScalaCompilerHighlighting
 
   def testWrongReturnType_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
     runTestWrongReturnType(29)
-  }
-
-  private def runTestCompilationWithParserError(): Unit = {
-    runTestCase(
-      fileName = "ParserError.scala",
-      content =
-        """object ParserError:
-          |  def parserError(): Unit =
-          |    val x = Seq(1, 2, 3
-          |    val y = Seq(2, 3, 4)
-          |""".stripMargin,
-      expectedResult = expectedResult(
-        ExpectedHighlighting(
-          severity = HighlightSeverity.ERROR,
-          range = Some(TextRange.create(76, 79)),
-          quickFixDescriptions = Seq.empty,
-          msgPrefix = "')' expected, but 'val' found"
-        )
-      )
-    )
-  }
-
-  def testCompilationWithParserError(): Unit = {
-    runTestCompilationWithParserError()
-  }
-
-  def testCompilationWithParserError_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
-    runTestCompilationWithParserError()
   }
 
   // SCL-19751

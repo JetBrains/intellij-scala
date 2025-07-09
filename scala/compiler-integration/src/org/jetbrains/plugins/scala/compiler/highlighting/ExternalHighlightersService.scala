@@ -48,7 +48,7 @@ import scala.jdk.CollectionConverters._
 
 @Service(Array(Service.Level.PROJECT))
 private final class ExternalHighlightersService(project: Project) { self =>
-  import ExternalHighlightersService.{HighlightingData, ScalaCompilerPassId}
+  import ExternalHighlightersService.{HighlightingData, ScalaCompilerPassId, TextRangeWithEndOfLine}
 
   private val errorTypes: Set[HighlightInfoType] = Set(HighlightInfoType.ERROR, HighlightInfoType.WRONG_REF)
 
@@ -210,6 +210,7 @@ private final class ExternalHighlightersService(project: Project) { self =>
     document: Document,
     highlightType: HighlightInfoType,
     highlightRange: TextRange,
+    endOfLine: Boolean,
     @Nls description: String,
     diagnostics: List[Action]
   ): HighlightInfo.Builder = {
@@ -218,6 +219,10 @@ private final class ExternalHighlightersService(project: Project) { self =>
       .description(description)
       .escapedToolTip(escapeHtmlWithNewLines(description))
       .group(ScalaCompilerPassId)
+
+    if (endOfLine) {
+      builder.endOfLine()
+    }
 
     diagnostics
       .map(CompilerDiagnosticIntentionAction.create(document, _))
@@ -248,12 +253,13 @@ private final class ExternalHighlightersService(project: Project) { self =>
     }
 
     for {
-      highlightRange <- calculateRangeToHighlight(range, document, psiFile)
+      textRangeWithEndOfLine <- calculateRangeToHighlight(range, document, psiFile)
     } yield {
       val description = CompilerMessages.description(highlighting.message)
+      val TextRangeWithEndOfLine(highlightRange, endOfLine) = textRangeWithEndOfLine
 
       def standardBuilder =
-        highlightInfoBuilder(document, highlighting.highlightType, highlightRange, description, highlighting.diagnostics)
+        highlightInfoBuilder(document, highlighting.highlightType, highlightRange, endOfLine, description, highlighting.diagnostics)
 
       val highlightInfo =
         if (CompilerMessages.isUnusedImport(description)) {
@@ -265,7 +271,7 @@ private final class ExternalHighlightersService(project: Project) { self =>
               if (highlighting.highlightType == HighlightInfoType.ERROR) HighlightInfoType.ERROR
               else HighlightInfoType.UNUSED_SYMBOL
 
-            highlightInfoBuilder(document, infoType, unusedImportRange, ScalaInspectionBundle.message("unused.import.statement"), Nil)
+            highlightInfoBuilder(document, infoType, unusedImportRange, endOfLine, ScalaInspectionBundle.message("unused.import.statement"), Nil)
               .registerFix(new ScalaOptimizeImportsFix, null, null, unusedImportRange, null)
           } else standardBuilder
         } else if (highlighting.diagnostics.isEmpty && CompilerMessages.isNeedsToBeAbstract(description)) {
@@ -338,7 +344,7 @@ private final class ExternalHighlightersService(project: Project) { self =>
     rangeInfo: RangeInfo,
     document: Document,
     psiFile: PsiFile
-  ): Option[TextRange] = {
+  ): Option[TextRangeWithEndOfLine] = {
     import ExternalHighlightersService.Log
     rangeInfo match {
       case range@RangeInfo.Range(PosInfo(startLine, startColumn), PosInfo(endLine, endColumn), _) =>
@@ -347,7 +353,7 @@ private final class ExternalHighlightersService(project: Project) { self =>
           endOffset <- convertToOffset(endLine, endColumn, document)
         } yield {
           if (startOffset <= endOffset) {
-            TextRange.create(startOffset, endOffset)
+            TextRangeWithEndOfLine(textRange = TextRange.create(startOffset, endOffset), endOfLine = false)
           } else {
             val message = s"Illegal highlighting range calculated, startOffset=$startOffset, endOffset=$endOffset, range=$range"
             Log.error(message)
@@ -355,7 +361,14 @@ private final class ExternalHighlightersService(project: Project) { self =>
           }
         }
       case RangeInfo.Pointer(PosInfo(line, column)) =>
-        convertToOffset(line, column, document).flatMap(guessRangeToHighlight(psiFile, _))
+        convertToOffset(line, column, document).flatMap { startOffset =>
+          guessRangeToHighlight(psiFile, startOffset).map { textRange =>
+            TextRangeWithEndOfLine(textRange = textRange, endOfLine = false)
+          }.orElse {
+            val endOfLine = startOffset == document.getLineEndOffset(line - 1)
+            Some(TextRangeWithEndOfLine(textRange = TextRange.create(startOffset, startOffset), endOfLine))
+          }
+        }
     }
   }
 
@@ -416,4 +429,6 @@ private object ExternalHighlightersService {
 
   def instance(project: Project): ExternalHighlightersService =
     project.getService(classOf[ExternalHighlightersService])
+
+  private final case class TextRangeWithEndOfLine(textRange: TextRange, endOfLine: Boolean)
 }
