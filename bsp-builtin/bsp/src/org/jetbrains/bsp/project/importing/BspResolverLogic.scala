@@ -758,13 +758,11 @@ private[importing] object BspResolverLogic {
     val idToRootModule = rootModule.toSeq.map(m => SynthId(m.getData.getId) -> m)
     val idToSyntheticModule = projectModules.synthetic.map { m => SynthId(m.data.idUri) -> toModuleNode(m) }
     val idToTargetModule = idsToTargetModule.flatMap { case (ids,m) => ids.map(_ -> m)}
-    val idToModuleMap: Map[DependencyId, DataNode[ModuleData]] =
-      (idToRootModule ++ idToTargetModule ++ idToSyntheticModule).toMap
-
+    val idToModule: Seq[(DependencyId, DataNode[ModuleData])] = idToRootModule ++ idToTargetModule ++ idToSyntheticModule
 
     val moduleDeps = calculateModuleDependencies(projectModules)
     val synthDeps = calculateSyntheticDependencies(moduleDeps, projectModules)
-    val modules = idToModuleMap.values.toSet
+    val modules = idToModule.map(_._2).distinct
 
     val bspProjectData = {
       val jdkReference = inferProjectJdk(modules)
@@ -775,7 +773,7 @@ private[importing] object BspResolverLogic {
     val bspCanCompileData = new DataNode[BspTargetCanCompileData](BspTargetCanCompileData.Key, BspTargetCanCompileData(canCompile.asJava), projectNode)
 
     // effects
-    addModuleDependencies(moduleDeps ++ synthDeps, idToModuleMap)
+    addModuleDependencies(moduleDeps ++ synthDeps, idToModule.toMap)
     addRootExclusions(modules, projectRoot, excludedPaths)
     modules.foreach(projectNode.addChild)
     projectNode.addChild(bspProjectData)
@@ -789,7 +787,7 @@ private[importing] object BspResolverLogic {
     projectNode
   }
 
-  private def addRootExclusions(modules: Set[DataNode[ModuleData]], projectRoot: Path, excludedPaths: List[Path]): Unit =
+  private def addRootExclusions(modules: Seq[DataNode[ModuleData]], projectRoot: Path, excludedPaths: List[Path]): Unit =
     for {
       m <- modules.toList
       c <- m.getChildren.asScala
@@ -800,7 +798,7 @@ private[importing] object BspResolverLogic {
       data.storePath(ExternalSystemSourceType.EXCLUDED, p.toCanonicalPath.toString)
     }
 
-  private def inferProjectJdk(modules: Set[DataNode[ModuleData]]) = {
+  private def inferProjectJdk(modules: Seq[DataNode[ModuleData]]) = {
     val groupedJdks = modules
       .flatMap(m => Option(ExternalSystemApiUtil.find(m, BspMetadata.Key)))
       .map(m => (m.getData.javaHome, m.getData.javaVersion))
