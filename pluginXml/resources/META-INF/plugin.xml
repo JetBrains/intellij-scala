@@ -36,7 +36,7 @@
     <version>VERSION</version>
     <change-notes></change-notes>
     <vendor url="https://www.jetbrains.com">JetBrains</vendor>
-    <idea-version since-build="253.3935" until-build="253.*"/>
+    <idea-version since-build="253.4341" until-build="253.*"/>
 
     <depends>com.intellij.modules.java</depends>
     <depends optional="true" config-file="copyright.xml">com.intellij.copyright</depends>
