@@ -5,7 +5,6 @@ import extensions.{&, FirstChild, PsiElementExt}
 import lang.psi.api.expr.{ScArgumentExprList, ScBlock, ScParenthesisedExpr}
 import project.ProjectExt
 import startup.ProjectActivity
-
 import com.intellij.codeHighlighting.Pass
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer.DaemonListener
@@ -16,6 +15,7 @@ import com.intellij.openapi.fileEditor.FileEditor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.openapi.util.registry.Registry
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.psi.{PsiElement, PsiManager}
 import com.intellij.ui.{Gray, JBColor}
@@ -148,20 +148,26 @@ object Tracing {
   }
 
   private def cleanElementStates(): Unit = {
-    EditorFactory.getInstance.getAllEditors.foreach { editor =>
-      val psiFile = PsiManager.getInstance(editor.getProject).findFile(editor.getVirtualFile)
+    val editors = EditorFactory.getInstance.getAllEditors
+    val editorsWithVFiles = editors.map(editor => editor -> editor.getVirtualFile).filter(_._2 != null)
+    editorsWithVFiles.foreach { case (editor, vFile) => cleanElementStateInEditor(editor, vFile) }
+  }
 
-      val dirtyRange = Option(DaemonCodeAnalyzer.getInstance(editor.getProject).asInstanceOf[DaemonCodeAnalyzerEx].getFileStatusMap
-        .getFileDirtyScope(editor.getDocument, psiFile, Pass.UPDATE_ALL)).getOrElse(TextRange.EMPTY_RANGE)
+  private def cleanElementStateInEditor(editor: Editor, vFile: VirtualFile): Unit = {
+    val psiFile = PsiManager.getInstance(editor.getProject).findFile(vFile)
+    if (psiFile == null)
+      return
 
-      psiFile.elements(_.getTextRange.intersects(dirtyRange)).foreach { e =>
-        Seq(RESOLVE_STATE_KEY, INFERENCE_STATE_KEY).foreach { key =>
-          e.getUserData(key) match {
-            case Left(h) => h.dispose()
-            case _ =>
-          }
-          e.putUserData(key, null)
+    val dirtyRange = Option(DaemonCodeAnalyzer.getInstance(editor.getProject).asInstanceOf[DaemonCodeAnalyzerEx].getFileStatusMap
+      .getFileDirtyScope(editor.getDocument, psiFile, Pass.UPDATE_ALL)).getOrElse(TextRange.EMPTY_RANGE)
+
+    psiFile.elements(_.getTextRange.intersects(dirtyRange)).foreach { e =>
+      Seq(RESOLVE_STATE_KEY, INFERENCE_STATE_KEY).foreach { key =>
+        e.getUserData(key) match {
+          case Left(h) => h.dispose()
+          case _ =>
         }
+        e.putUserData(key, null)
       }
     }
   }
