@@ -38,7 +38,6 @@
     <vendor url="https://www.jetbrains.com">JetBrains</vendor>
     <idea-version since-build="252.23892" until-build="252.*"/>
 
-    <depends>com.intellij.modules.java</depends>
     <depends optional="true" config-file="copyright.xml">com.intellij.copyright</depends>
     <depends optional="true" config-file="scala-i18n.xml">com.intellij.java-i18n</depends>
     <depends optional="true" config-file="scala-properties-integration.xml">com.intellij.properties</depends>
@@ -47,6 +46,12 @@
     <depends optional="true" config-file="scala-features-trainer-integration.xml">training</depends>
     <depends optional="true" config-file="scala-junit-integration.xml">JUnit</depends>
     <!-- <depends optional="true" config-file="packagesearch.xml">com.jetbrains.packagesearch.intellij-plugin</depends> -->
+
+    <!-- Required dependencies of the plugin. If they cannot be loaded, the Scala Plugin cannot be loaded -->
+    <dependencies>
+        <plugin id="com.intellij.java"/>
+        <plugin id="org.intellij.intelliLang"/>
+    </dependencies>
 
     <content>
         <module name="scalaCommunity.bsp" />
