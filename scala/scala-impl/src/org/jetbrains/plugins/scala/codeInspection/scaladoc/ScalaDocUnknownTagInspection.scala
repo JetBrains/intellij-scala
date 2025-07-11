@@ -21,6 +21,7 @@ final class ScalaDocUnknownTagInspection extends LocalInspectionTool with DumbAw
         if (!tag.isVisible) return
 
         val tagNameElement = tag.getNameElement
+        if (tagNameElement == null) return
         assert(tagNameElement != null)
         assert(tagNameElement.getNode.getElementType == ScalaDocTokenType.DOC_TAG_NAME)
 

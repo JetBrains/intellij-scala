@@ -62,6 +62,7 @@ object ScalaDocGenerator {
     val builder = new StringBuilder
 
     appendHeader(builder, commentOwner)
+    // TODO: If the comment is a Markdown comment, branch of to its HTML generation
     new ScalaDocContentWithSectionsGenerator(commentOwner, comment, rendered = true).generate(builder)
     appendFooter(builder)
 

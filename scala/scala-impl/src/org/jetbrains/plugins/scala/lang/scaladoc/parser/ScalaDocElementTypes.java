@@ -7,13 +7,27 @@ import com.intellij.psi.tree.ILazyParseableElementType;
 import com.intellij.psi.tree.TokenSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.Scala3Language;
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocElementType;
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType;
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocCommentImpl;
 import org.jetbrains.plugins.scalaDoc.ScalaDocLanguage;
+import org.jetbrains.plugins.scalaDoc.lang.parser.ScalaDocParserDefinition;
 
 public interface ScalaDocElementTypes {
 
+  /**
+   * # Header 1
+   *
+   *
+   * Some text lorem `inline *code` italics*
+   *
+   * @param x yay
+   *        ```
+   *          AAA
+   *        ```
+   * # Header 2
+   */
   /**
    * ScalaDoc comment
    * <p>
@@ -28,22 +42,45 @@ public interface ScalaDocElementTypes {
     public ASTNode parseContents(@NotNull ASTNode lazyNode) {
       Project project = JavaPsiFacade.getInstance(lazyNode.getTreeParent().getPsi().getProject()).getProject();
 
+      // Can't use this, it's a Java file :(
+      // lazyNode.getTreeParent().getPsi().getContainingFile().isScala3File
+
+      // This works, though!
+      boolean isMarkdown = lazyNode.getTreeParent().getPsi().getContainingFile().getLanguage().isKindOf(Scala3Language.INSTANCE);
+      // Note that we take the *file*'s language, not the place we're in. We know we're in ScalaDoc.
+
       Language language = getLanguage();
       ParserDefinition parserDefinition = LanguageParserDefinitions.INSTANCE.forLanguage(language);
 
-      PsiBuilder builder = PsiBuilderFactory.getInstance()
-              .createBuilder(
-                      project,
-                      lazyNode,
-                      parserDefinition.createLexer(project),
-                      language,
-                      lazyNode.getText()
-              );
+      if (parserDefinition instanceof ScalaDocParserDefinition) {
+        PsiBuilder builder = PsiBuilderFactory.getInstance()
+                .createBuilder(
+                        project,
+                        lazyNode,
+                        ((ScalaDocParserDefinition) parserDefinition).createLexerWithFlavour(project, isMarkdown),
+                        language,
+                        lazyNode.getText()
+                );
 
-      return parserDefinition
-              .createParser(project)
-              .parse(this, builder)
-              .getFirstChildNode();
+        return ((ScalaDocParserDefinition) parserDefinition)
+                .createParserWithFlavour(project, isMarkdown)
+                .parse(this, builder)
+                .getFirstChildNode();
+      } else {
+        PsiBuilder builder = PsiBuilderFactory.getInstance()
+                .createBuilder(
+                        project,
+                        lazyNode,
+                        parserDefinition.createLexer(project),
+                        language,
+                        lazyNode.getText()
+                );
+
+        return parserDefinition
+                .createParser(project)
+                .parse(this, builder)
+                .getFirstChildNode();
+      }
     }
 
     @Nullable
@@ -58,6 +95,7 @@ public interface ScalaDocElementTypes {
   ScalaDocElementType DOC_TAG = new ScalaDocElementType("ScalaDocTag");
   ScalaDocElementType DOC_INLINED_TAG = new ScalaDocElementType("ScalaDocInlinedTag");
   ScalaDocElementType DOC_PARAGRAPH = new ScalaDocElementType("ScalaDocParagraph");
+  ScalaDocElementType DOC_CODEBLOCK = new ScalaDocElementType("ScalaDocCodeBlock");
   ScalaDocElementType DOC_LIST = new ScalaDocElementType("ScalaDocList");
   ScalaDocElementType DOC_LIST_ITEM = new ScalaDocElementType("ScalaDocList");
 
@@ -68,7 +106,7 @@ public interface ScalaDocElementTypes {
   ScalaDocElementType DOC_METHOD_PARAMETER = new ScalaDocElementType("ScalaDocMethodParameter");
 
   TokenSet AllElementTypes = TokenSet.create(
-          DOC_TAG, DOC_INLINED_TAG, DOC_PARAGRAPH, DOC_LIST, DOC_LIST_ITEM,
+          DOC_TAG, DOC_INLINED_TAG, DOC_PARAGRAPH, DOC_CODEBLOCK, DOC_LIST, DOC_LIST_ITEM,
           DOC_PARAM_REF, DOC_METHOD_REF, DOC_FIELD_REF, DOC_METHOD_PARAMS, DOC_METHOD_PARAMETER
   );
 

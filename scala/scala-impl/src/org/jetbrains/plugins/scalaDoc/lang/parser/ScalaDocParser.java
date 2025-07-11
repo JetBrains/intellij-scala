@@ -7,17 +7,24 @@ import com.intellij.lang.PsiParser;
 import com.intellij.psi.tree.IElementType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing;
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.ScaladocMarkdownParsing;
 
 public class ScalaDocParser implements PsiParser, LightPsiParser {
   private final int tabSize;
+  private final boolean isMarkdown;
 
-  public ScalaDocParser(int tabSize) {
+  public ScalaDocParser(int tabSize, boolean isMarkdown) {
     this.tabSize = tabSize;
+    this.isMarkdown = isMarkdown;
   }
 
   @Override
   public void parseLight(@NotNull IElementType root, @NotNull PsiBuilder builder) {
-    new MyScaladocParsing(builder, tabSize).parse(root);
+    if (isMarkdown) {
+      new ScaladocMarkdownParsing(builder, tabSize).parse(root);
+    } else {
+      new MyScaladocParsing(builder, tabSize).parse(root);
+    }
   }
 
   @Override
