@@ -22,11 +22,13 @@ abstract class ProjectDataServiceTestCase extends HeavyPlatformTestCase {
   protected def importProjectData(projectData: DataNode[ProjectData]): Unit =
     ProjectDataServiceTestCase.importProjectData(projectData, getProject)
 
-  protected def assertScalaLibraryWarningNotificationShown(project: Project, systemId: ProjectSystemId): Unit = {
+  protected def assertScalaLibraryWarningNotificationShown(project: Project, systemId: ProjectSystemId, numberOfNotifications: Int): Unit = {
     val actualNotifications = Option(project.getUserData(ShownNotificationsKey)).getOrElse(Nil).map(ExpectedNotificationData.apply)
+    val expectedNotification = ExpectedNotificationData(systemId, NotificationSource.PROJECT_SYNC, NotificationCategory.WARNING)
+    val expectedNotifications = (1 to numberOfNotifications).map { _ => expectedNotification }
     assertCollectionEquals(
       "Missing scala library notification should be shown",
-      Seq(ExpectedNotificationData(systemId, NotificationSource.PROJECT_SYNC, NotificationCategory.WARNING)),
+      expectedNotifications,
       actualNotifications
     )
   }

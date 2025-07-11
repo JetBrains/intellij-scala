@@ -49,6 +49,12 @@ class SbtProjectDataService extends ScalaAbstractProjectDataService[SbtProjectDa
     dataToImport.foreach(node => doImport(project, node.getData, modelsProvider))
   }
 
+  // This was implemented because, without this method, if a user reloads a project that was previously imported
+  // in a plugin version where existing Scala libraries were converted to Scala SDKs, it would result in having multiple Scala SDKs.
+  // This is a partial duplication with org.jetbrains.plugins.scala.project.external.ScalaSdkUtils.revertScalaSdkFromLibraries.
+  // However, since that method was introduced just a few days before the release, I’m not using it here to avoid breaking anything.
+  // TODO This was introduced in 2023. By now, all users should have updated IDEA to a newer version,
+  //  so it might be possible to remove this in 2025.x or 2026.x.
   private def revertScalaSdkFromLibraries(modelsProvider: IdeModifiableModelsProvider): Unit = {
     val libraries = modelsProvider.getModifiableProjectLibrariesModel.getLibraries.filter(_.hasRuntimeLibrary)
     /* note: there is a possibility that in IDEA we will have projects with different subsystems (I think it is a very rare case
