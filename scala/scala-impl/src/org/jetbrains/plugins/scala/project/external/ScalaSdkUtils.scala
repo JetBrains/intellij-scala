@@ -90,7 +90,7 @@ object ScalaSdkUtils {
     addToModule(scalaSdkLibrary)
   }
 
-  def ensureScalaLibraryIsConvertedToScalaSdk(
+  private def ensureScalaLibraryIsConvertedToScalaSdk(
     modelsProvider: IdeModifiableModelsProvider,
     library: Library,
     compilerClasspath: Seq[Path],
@@ -108,7 +108,7 @@ object ScalaSdkUtils {
     )
   }
 
-  def ensureScalaLibraryIsConvertedToScalaSdk(
+  private def ensureScalaLibraryIsConvertedToScalaSdk(
     library: LibraryEntity,
     storage: MutableEntityStorage,
     compilerClasspath: Seq[Path],
@@ -161,6 +161,26 @@ object ScalaSdkUtils {
 
   def compilerBridgeJarName(scalaVersion: String): Option[String] =
     compilerBridgeName(scalaVersion).map(n => s"$n-$scalaVersion.jar")
+
+  /**
+   * Revert the Scala SDK kind from all existing Scala libraries that shouldn't currently be SDKs.
+   * For a detailed explanation of why this method is needed, see [[org.jetbrains.sbt.project.data.service.SbtProjectDataService#revertScalaSdkFromLibraries]].
+   */
+  def revertScalaSdkFromLibraries(modelsProvider: IdeModifiableModelsProvider, externalSystemName: String): Unit = {
+    def isFromExternalSource(library: Library): Boolean =
+      Option(library.getExternalSource).map(_.getDisplayName).contains(externalSystemName)
+
+    val projectLibraries = modelsProvider.getModifiableProjectLibrariesModel.getLibraries.toSeq
+    val moduleLibraries = modelsProvider.getModules.flatMap(modelsProvider.getModifiableRootModel(_).getModuleLibraryTable.getLibraries.toSeq)
+    val scalaRuntimeLibraries = (projectLibraries ++ moduleLibraries).filter(_.hasRuntimeLibrary)
+
+    scalaRuntimeLibraries
+      .filter { library => library.isScalaSdk && isFromExternalSource(library) && !library.getName.contains("scala-sdk") }
+      .foreach { library =>
+        val model = modelsProvider.getModifiableLibraryModel(library).asInstanceOf[LibraryEx.ModifiableModelEx]
+        model.setKind(null)
+      }
+  }
 
   private final val Scala3CompilerBridgeName = "scala3-sbt-bridge"
 

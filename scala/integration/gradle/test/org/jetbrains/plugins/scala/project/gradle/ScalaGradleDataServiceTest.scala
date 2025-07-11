@@ -2,8 +2,7 @@ package org.jetbrains.plugins.scala.project.gradle
 
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.model.{DataNode, Key}
-import com.intellij.openapi.module.ModuleManager
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.module.{ModuleManager, StdModuleTypes}
 import org.jetbrains.plugins.gradle.model.data.{ScalaCompileOptionsData, ScalaModelData}
 import org.jetbrains.plugins.gradle.util.GradleConstants
 import org.jetbrains.plugins.scala.compiler.data.DebuggingInfoLevel
@@ -24,11 +23,17 @@ import scala.jdk.CollectionConverters._
 
 class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
 
-  private def generateProject(scalaVersion: Option[String] = None,
-                              scalaCompilerClasspath: Set[Path] = Set.empty,
-                              scalaCompilerPlugins: Set[Path] = Set.empty,
-                              compilerOptions: Option[ScalaCompileOptionsData] = None,
-                              separateModules: Boolean = true): DataNode[ProjectData] =
+  // Synthetic module type to distinguish source sets modules (main/test) from regular modules
+  private val sourceSetModuleType: String = "source_set"
+
+  private def generateProject(
+    scalaVersion: Option[String] = None,
+    scalaCompilerClasspath: Set[Path] = Set.empty,
+    scalaCompilerPlugins: Set[Path] = Set.empty,
+    compilerOptions: Option[ScalaCompileOptionsData] = None,
+    separateModules: Boolean = true,
+    addScalaLibrariesModuleLevel: Boolean = false
+  ): DataNode[ProjectData] =
     new project {
       name := getProject.getName
       ideDirectoryPath := getProject.getBasePath
@@ -38,7 +43,9 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
         new library { name := "org.scala-lang:scala-library:" + version }
       }
 
-      scalaLibrary.foreach(libraries += _)
+      if (!addScalaLibrariesModuleLevel) {
+        scalaLibrary.foreach(libraries += _)
+      }
 
       val myProjectURI: URI = Path.of(getProject.getBasePath).toAbsolutePath.toUri
 
@@ -72,6 +79,7 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
 
       if (separateModules) {
         val productionModule: javaModule = new javaModule {
+          override val typeId: String = sourceSetModuleType
           val moduleName = "module_main"
           name := moduleName
           projectId := moduleName
@@ -79,12 +87,19 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
           moduleFileDirectoryPath := getProject.getBasePath + "/module"
           externalConfigPath := getProject.getBasePath + "/module"
 
-          scalaLibrary.foreach(libraryDependencies += _)
+          // Libraries declared at the module level are added as module-level dependencies,
+          // whereas libraryDependencies are added as project-level dependencies.
+          if (addScalaLibrariesModuleLevel) {
+            scalaLibrary.foreach(libraries += _)
+          } else {
+            scalaLibrary.foreach(libraryDependencies += _)
+          }
         }
 
         modules += productionModule
 
         modules += new javaModule {
+          override val typeId: String = sourceSetModuleType
           val moduleName = "module_test"
           name := moduleName
           projectId := moduleName
@@ -93,42 +108,41 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
           externalConfigPath := getProject.getBasePath + "/module"
 
           moduleDependencies += productionModule
+          // Libraries declared at the module level are added as module-level dependencies,
+          // whereas libraryDependencies are added as project-level dependencies.
+          if (addScalaLibrariesModuleLevel) {
+            scalaLibrary.foreach(libraries += _)
+          } else {
+            scalaLibrary.foreach(libraryDependencies += _)
+          }
         }
       }
     }.build.toDataNode
 
   def testEmptyScalaCompilerClasspath(): Unit = {
     importProjectData(generateProject())
-    assertScalaLibraryWarningNotificationShown(getProject)
+    assertScalaLibraryWarningNotificationShown(numberOfNotifications = 2)
   }
 
   def testScalaCompilerClasspathWithoutScala(): Unit = {
     importProjectData(
       generateProject(scalaCompilerClasspath = Set(Path.of("/", "tmp", "test", "not-a-scala-library.jar")))
     )
-    assertScalaLibraryWarningNotificationShown(getProject)
+    assertScalaLibraryWarningNotificationShown(numberOfNotifications = 2)
   }
 
+  // In a real Gradle project, if there is no scala library, a built-in exception is thrown (likely from the Scala Gradle plugin).
+  // However, in this case, we don't perform a Gradle reload process.
+  // Since the compiler classpath contains the Scala library, the Scala SDK is created in the data service.
   def testWithoutScalaLibrary(): Unit = {
     importProjectData(
       generateProject(scalaCompilerClasspath = defaultCompilerClasspath)
     )
-    // TODO: Should we show notification if there no scala library?
-    //  Need to understand how would a real Gradle project look like in such case,
-    //  when `ScalaModelData` is reported for module without scala library, is it even possible?
-    //assertScalaLibraryWarningNotificationShown(getProject)
+    assertHasScalaSdkSeparateModules()
   }
 
-  def testWithDifferentVersionOfScalaLibrary(): Unit = {
-    importProjectData(
-      generateProject(Some("2.11.5"), defaultCompilerClasspath)
-    )
-
-    assertScalaLibraryWarningNotificationShown(getProject)
-  }
-
-  private def assertScalaLibraryWarningNotificationShown(project: Project): Unit = {
-    assertScalaLibraryWarningNotificationShown(project, GradleConstants.SYSTEM_ID)
+  private def assertScalaLibraryWarningNotificationShown(numberOfNotifications: Int): Unit = {
+    assertScalaLibraryWarningNotificationShown(getProject, GradleConstants.SYSTEM_ID, numberOfNotifications)
   }
 
   def testWithTheSameVersionOfScalaLibrary(): Unit = {
@@ -136,9 +150,19 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
       generateProject(Some("2.10.4"), defaultCompilerClasspath)
     )
 
-    assertHasScalaSdk()
+    assertHasScalaSdkSeparateModules()
+  }
 
-    // TODO test Scala SDK dependency
+  def testWithTheSameVersionOfScalaLibrary_ModuleLevel(): Unit = {
+    importProjectData(
+      generateProject(
+        scalaVersion = Some("2.10.4"),
+        scalaCompilerClasspath = defaultCompilerClasspath,
+        addScalaLibrariesModuleLevel = true
+      )
+    )
+
+    assertHasScalaSdkSeparateModules()
   }
 
   def testCompondModule(): Unit = {
@@ -155,7 +179,7 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
       )
     )
 
-    assertHasScalaSdk()
+    assertHasScalaSdkCompondModules()
 
     val compilerConfiguration = {
       val module = ModuleManager.getInstance(getProject).findModuleByName("module")
@@ -278,14 +302,24 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
 
   private def defaultCompilerClasspath = Set(Path.of("/", "tmp", "test", "scala-library-2.10.4.jar"))
 
-  private def assertHasScalaSdk(): Unit = {
-    val libraries = getProject
-      .libraries
-      .filter(_.getName.contains("scala-library"))
+  private def assertHasScalaSdkSeparateModules(): Unit =
+    assertHasScalaSdk(separateModules = true, expectedScalaSdkModulesCount = 2)
 
-    assertTrue(
-      "Scala SDK must be present",
-      libraries.exists(_.isScalaSdk)
-    )
+  private def assertHasScalaSdkCompondModules(): Unit =
+    assertHasScalaSdk(separateModules = false, expectedScalaSdkModulesCount = 1)
+
+  private def assertHasScalaSdk(separateModules: Boolean, expectedScalaSdkModulesCount: Int): Unit = {
+    val allModules = ModuleManager.getInstance(getProject).getModules
+    val filterType =
+      if (separateModules) sourceSetModuleType
+      else StdModuleTypes.JAVA.getId
+
+    val modules = allModules.filter(module => Option(module.getModuleTypeName).contains(filterType))
+    assertEquals(s"There should be $expectedScalaSdkModulesCount modules", expectedScalaSdkModulesCount, modules.length)
+
+    modules.foreach { module =>
+      val scalaSdks = module.libraries.filter(_.isScalaSdk)
+      assertTrue(s"There is no single Scala SDK in ${module.getName}", scalaSdks.size == 1)
+    }
   }
 }

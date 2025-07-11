@@ -138,7 +138,6 @@ object ExternalSystemDataDsl {
       )
       attributes.get(libraries).foreach { libs =>
         libs.map(_.build).foreach { libNode =>
-          node.add(libNode)
           node.add(new LibraryDependencyNode(node, libNode, LibraryLevel.MODULE))
         }
       }
