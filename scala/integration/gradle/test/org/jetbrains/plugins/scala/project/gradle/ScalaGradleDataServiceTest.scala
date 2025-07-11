@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.project.gradle
 
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.model.{DataNode, Key}
-import com.intellij.openapi.module.{ModuleManager, StdModuleTypes}
+import com.intellij.openapi.module.{JavaModuleType, ModuleManager}
 import org.jetbrains.plugins.gradle.model.data.{ScalaCompileOptionsData, ScalaModelData}
 import org.jetbrains.plugins.gradle.util.GradleConstants
 import org.jetbrains.plugins.scala.compiler.data.DebuggingInfoLevel
@@ -312,7 +312,7 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
     val allModules = ModuleManager.getInstance(getProject).getModules
     val filterType =
       if (separateModules) sourceSetModuleType
-      else StdModuleTypes.JAVA.getId
+      else JavaModuleType.getModuleType.getId
 
     val modules = allModules.filter(module => Option(module.getModuleTypeName).contains(filterType))
     assertEquals(s"There should be $expectedScalaSdkModulesCount modules", expectedScalaSdkModulesCount, modules.length)

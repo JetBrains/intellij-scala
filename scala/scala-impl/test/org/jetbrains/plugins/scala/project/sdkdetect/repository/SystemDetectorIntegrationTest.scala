@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.project.sdkdetect.repository
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.util.ThrowableRunnable
+import com.intellij.util.system.CpuArch
 import junit.framework.{TestCase, TestSuite}
 import org.apache.commons.io.FileUtils
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
@@ -124,8 +125,8 @@ protected class SystemDetectorIntegrationTest(scalaVersion: ScalaVersion) extend
       val platformPart = if (SystemInfo.isWindows)
         "x86_64-pc-win32"
       else if (SystemInfo.isMac)
-        if (SystemInfo.isAarch64) "aarch64-apple-darwin" else "x86_64-apple-darwin"
-      else if (SystemInfo.isAarch64) "aarch64-pc-linux" else "x86_64-pc-linux"
+        if (CpuArch.isArm64) "aarch64-apple-darwin" else "x86_64-apple-darwin"
+      else if (CpuArch.isArm64) "aarch64-pc-linux" else "x86_64-pc-linux"
 
       s"https://github.com/scala/scala3/releases/download/$scalaVersion/scala3-$scalaVersion-$platformPart.zip"
     }

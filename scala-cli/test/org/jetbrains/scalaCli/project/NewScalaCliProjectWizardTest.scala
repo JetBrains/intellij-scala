@@ -7,6 +7,7 @@ import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.testFramework.FixtureRuleKt.useProject
 import com.intellij.testFramework.JUnit38AssumeSupportRunner
+import com.intellij.util.system.CpuArch
 import org.jetbrains.bsp.BSP
 import org.jetbrains.bsp.protocol.BspCommunicationService
 import org.jetbrains.plugins.scala.extensions.inWriteAction
@@ -154,7 +155,7 @@ class NewScalaCliProjectWizardTest extends NewScalaProjectWizardTestBase with Ex
     Files.createDirectories(projectDirectory)
 
     //note: only Linux and macOS systems are allowed
-    val cpuArch = if (SystemInfo.isAarch64) "aarch64" else "x86_64"
+    val cpuArch = if (CpuArch.isArm64) "aarch64" else "x86_64"
     val os = if (SystemInfo.isLinux) "pc-linux-static" else "apple-darwin"
     val archiveName = s"scala-cli-$cpuArch-$os.gz"
 
