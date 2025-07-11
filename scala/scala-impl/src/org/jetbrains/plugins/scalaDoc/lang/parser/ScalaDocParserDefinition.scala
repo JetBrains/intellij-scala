@@ -11,7 +11,7 @@ import com.intellij.psi.{FileViewProvider, PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxElementType
-import org.jetbrains.plugins.scala.lang.scaladoc.lexer.{ScalaDocLexer, ScalaDocTokenType}
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.{ScalaDocLexer, ScalaDocMarkdownLexer, ScalaDocTokenType}
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing.TagNames
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocInlinedTag, ScDocTag}
@@ -32,12 +32,16 @@ class ScalaDocParserDefinition extends ParserDefinition {
   //noinspection TypeAnnotation
   override val getStringLiteralElements = TokenSet.create()
 
-  override def createLexer(project: Project) = new ScalaDocLexer
+  def createLexerWithFlavour(project: Project, isMarkdown: Boolean) = if (isMarkdown) new ScalaDocMarkdownLexer else new ScalaDocLexer
 
-  override def createParser(project: Project) = {
+  override def createLexer(project: Project) = createLexerWithFlavour(project, isMarkdown = false /* fallback is no Markdown */)
+
+  def createParserWithFlavour(project: Project, isMarkdown: Boolean) = {
     val tabSize = CodeStyle.getSettings(project).getLanguageIndentOptions(ScalaLanguage.INSTANCE).TAB_SIZE
-    new ScalaDocParser(tabSize)
+    new ScalaDocParser(tabSize, isMarkdown)
   }
+
+  override def createParser(project: Project) = createParserWithFlavour(project, isMarkdown = false /* fallback is no Markdown */)
 
   /**
    * see also [[org.jetbrains.plugins.scala.lang.parser.ScalaASTFactory.createLeaf]]
@@ -77,6 +81,7 @@ class ScalaDocParserDefinition extends ParserDefinition {
     case DOC_LIST      => new ScDocListImpl(node)
     case DOC_LIST_ITEM => new ScDocListItemImpl(node)
     case DOC_PARAGRAPH => new ScDocParagraphImpl(node)
+//    case DOC_CODEBLOCK => new ScDocInnerCodeElementImpl(node) // This is bad! Code blocks don't actually work the same way in Scala 2 and Scala 3 :/
     case _             => new ASTWrapperPsiElement(node)
   }
 

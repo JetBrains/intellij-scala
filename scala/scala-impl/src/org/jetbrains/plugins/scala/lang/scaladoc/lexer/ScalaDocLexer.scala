@@ -1,8 +1,10 @@
 package org.jetbrains.plugins.scala.lang.scaladoc.lexer
 
-import com.intellij.lexer.{LexerBase, MergingLexerAdapter}
+import com.intellij.lexer.{Lexer, LexerBase, MergingLexerAdapter}
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.util.text.CharArrayUtil
+import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
+import org.intellij.markdown.lexer.{GeneratedLexer, MarkdownLexer, _MarkdownLexer}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType._
 
 import java.io.IOException
@@ -14,6 +16,80 @@ final class ScalaDocLexer() extends MergingLexerAdapter(
 
 object ScalaDocLexer {
   private val TokensToMerge = TokenSet.create(DOC_COMMENT_DATA, DOC_WHITESPACE, DOC_INNER_CODE)
+}
+
+// TODO: Maybe we don't need a flex lexer here, considering how basic it is (or the merging lexer, or adapter...)
+final class ScalaDocMarkdownLexer extends MergingLexerAdapter(new ScalaDocMarkdownLexerWrapper(new _ScalaDocMarkdownLexer), ScalaDocMarkdownLexer.TokensToMerge)
+
+object ScalaDocMarkdownLexer {
+  private val TokensToMerge = TokenSet.create(DOC_WHITESPACE)
+}
+
+private final class ScalaDocMarkdownLexerWrapper(val myFlex: _ScalaDocMarkdownLexer) extends LexerBase {
+
+  private var myBuffer: CharSequence = _
+  private var myBufferIndex: Int = 0
+  private var myBufferEndOffset: Int = 0
+  private var myTokenEndOffset: Int = 0
+  private var myState: Int = 0
+  private var myTokenType: IElementType = _
+
+  override def start(buffer: CharSequence, startOffset: Int, endOffset: Int, initialState: Int): Unit = {
+    myBuffer = buffer
+    myBufferIndex = startOffset
+    myBufferEndOffset = endOffset
+    myTokenType = null
+    myTokenEndOffset = startOffset
+    myFlex.reset(myBuffer, startOffset, endOffset, initialState)
+  }
+
+  override def getState: Int = myState
+
+  override def getTokenType: IElementType = {
+    locateToken()
+    myTokenType
+  }
+
+  override def getTokenStart: Int = {
+    locateToken()
+    myBufferIndex
+  }
+
+  override def getTokenEnd: Int = {
+    locateToken()
+    myTokenEndOffset
+  }
+
+  override def advance(): Unit = {
+    locateToken()
+    myTokenType = null
+  }
+
+  override def getBufferSequence: CharSequence = myBuffer
+
+  override def getBufferEnd: Int = myBufferEndOffset
+
+  private def locateToken(): Unit = {
+    if (myTokenType != null)
+      return
+
+    if (myTokenEndOffset == myBufferEndOffset) {
+      myTokenType = null
+      myBufferIndex = myBufferEndOffset
+      return
+    }
+
+    myBufferIndex = myTokenEndOffset
+
+    try {
+      myState = myFlex.yystate()
+      myFlex.goTo(myBufferIndex)
+      myTokenType = myFlex.advance()
+      myTokenEndOffset = myFlex.getTokenEnd
+    } catch {
+      case _: IOException => // Can't be
+    }
+  }
 }
 
 private final class ScalaDocAsteriskStripperLexer private[lexer](
