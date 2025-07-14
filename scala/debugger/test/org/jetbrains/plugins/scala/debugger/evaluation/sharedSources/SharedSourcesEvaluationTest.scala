@@ -6,17 +6,18 @@ import com.intellij.debugger.impl.OutputChecker
 import com.intellij.execution.configurations.JavaParameters
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.projectRoots.Sdk
-import com.intellij.openapi.util.io.{FileUtil, NioFiles}
+import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.psi.PsiManager
 import com.sun.jdi.IntegerValue
 import junit.framework.TestCase.assertEquals
 import org.jetbrains.plugins.scala.FlakyTests
+import org.jetbrains.plugins.scala.compiler.CompileServerTestUtil
 import org.jetbrains.plugins.scala.extensions.{PathExt, inReadAction}
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
+import org.jetbrains.sbt.project.{SbtCachesSetupUtil, SbtProjectSystem}
 import org.junit.experimental.categories.Category
 
 import java.nio.file.Path
@@ -48,12 +49,13 @@ class SharedSourcesEvaluationTest extends DebuggerTestCase {
   override def setUpProject(): Unit = {
     myProject = doCreateAndOpenProject()
 
-    val settings = new SbtProjectSettings()
+    SbtCachesSetupUtil.setupCoursierAndIvyCache(myProject)
+    CompileServerTestUtil.registerLongRunningThreads()
 
     ExternalSystemImportingUtil.importProject(
       getProject,
       SbtProjectSystem.Id,
-      settings,
+      new SbtProjectSettings(),
       getTestAppPath,
       false
     )
