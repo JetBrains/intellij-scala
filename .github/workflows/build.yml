@@ -1,6 +1,6 @@
 on:
   pull_request:
-    branches: [ idea243.x, idea251.x ]
+    branches: [ idea251.x, idea252.x ]
 
 jobs:
   build_and_test:
