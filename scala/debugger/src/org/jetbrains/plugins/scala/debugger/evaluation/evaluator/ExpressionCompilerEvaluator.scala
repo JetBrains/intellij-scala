@@ -34,9 +34,16 @@ private[evaluation] final class ExpressionCompilerEvaluator(codeFragment: PsiEle
   override def getModifier: Modifier = null
 
   override def evaluate(context: EvaluationContext): Value = withCompileServer(context.getProject) {
-    val module = inReadAction {
+    val moduleForPsiElement = inReadAction {
       ModuleUtilCore.findModuleForPsiElement(codeFragment)
     }
+
+    if (moduleForPsiElement eq null) {
+      val codeFragmentText = inReadAction(codeFragment.getText)
+      throw EvaluationException(DebuggerBundle.message("could.not.find.module.for.code.fragment", codeFragmentText))
+    }
+
+    val module = moduleForPsiElement.findRepresentativeModuleForSharedSourceModuleOrSelf
 
     val outDir = createOutputDirectory(CompilerManagerUtil.javacCompilerWorkingDir(context.getProject))
 
