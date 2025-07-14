@@ -52,10 +52,13 @@ class SharedSourcesEvaluationTest extends DebuggerTestCase {
     SbtCachesSetupUtil.setupCoursierAndIvyCache(myProject)
     CompileServerTestUtil.registerLongRunningThreads()
 
+    val settings = new SbtProjectSettings()
+    settings.separateProdAndTestSources = true
+
     ExternalSystemImportingUtil.importProject(
       getProject,
       SbtProjectSystem.Id,
-      new SbtProjectSettings(),
+      settings,
       getTestAppPath,
       false
     )
