@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.compiler
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.testFramework.common.ThreadLeakTracker
 
-private[compiler] object CompileServerTestUtil {
+object CompileServerTestUtil {
   def registerLongRunningThreads(): Unit = {
     //noinspection ApiStatus,UnstableApiUsage
     ThreadLeakTracker.longRunningThreadCreated(
