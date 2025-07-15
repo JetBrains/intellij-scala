@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.project
 
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.ExternalSystemModulePropertyManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
@@ -20,6 +21,7 @@ import org.jetbrains.sbt.project.SbtVersionProvider
 
 import java.nio.file.Path
 import java.util.jar.Attributes
+import scala.util.control.NonFatal
 
 private class ScalaModuleSettings private(
   module: Module,
@@ -177,6 +179,8 @@ private class ScalaModuleSettings private(
 private object ScalaModuleSettings {
   private val Scala_2_12_2_version = Version("2.12.2")
 
+  private val Log = Logger.getInstance(classOf[ScalaModuleSettings])
+
   sealed trait ScalaVersionProvider {
     def languageLevel: ScalaLanguageLevel
     def compilerVersion: Option[String]
@@ -286,15 +290,25 @@ private object ScalaModuleSettings {
     }
   }
 
-  private val isMetaParadiseJar = cached("isMetaParadiseJar", ModificationTracker.NEVER_CHANGED, (pathname: Option[String]) => {
+  private val isMetaParadiseJar: Option[String] => Boolean = cached("isMetaParadiseJar", ModificationTracker.NEVER_CHANGED, (pathname: Option[String]) => {
     pathname.exists { name =>
-      val file = Path.of(name).toFile
-
-      def hasAttribute(nameSuffix: String, value: String) =
-        getJarAttribute(file, new Attributes.Name(s"Specification-$nameSuffix")) == value
-
-      hasAttribute("Vendor", "org.scalameta") && hasAttribute("Title", "paradise")
+      try {
+        isScalaMetaParadise(name)
+      } catch {
+        // Handle any unexpected exceptions more gracefully, e.g., InvalidPathException, SCL-23825, SCL-23794
+        case NonFatal(ex) =>
+          Log.error(ex)
+          false
+      }
     }
   })
 
+  private def isScalaMetaParadise(path: String): Boolean = {
+    val file = Path.of(path).toFile
+
+    def hasAttribute(nameSuffix: String, value: String) =
+      getJarAttribute(file, new Attributes.Name(s"Specification-$nameSuffix")) == value
+
+    hasAttribute("Vendor", "org.scalameta") && hasAttribute("Title", "paradise")
+  }
 }
