@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlo
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring._
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.OccurrenceData.ReplaceOptions
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableHandler.ReplaceTestOptions
@@ -292,7 +292,7 @@ object IntroduceExpressions {
     def needsTypeAnnotation(element: PsiElement) =
       ScalaInplaceVariableIntroducer.needsTypeAnnotation(element, copy, forceType, fromDialogMode)
 
-    val maybeTypeText = Option(options.varType).map(_.canonicalCodeText(copy))
+    val maybeTypeText = Option(options.varType).map(_.canonicalCodeText(copy)(Context(copy)))
 
     runRefactoringInside(file, unparExpr(copy), occurrences, mainOccurrence, options.varName, options.isVariable, forceType) { element =>
       maybeTypeText
