@@ -11,7 +11,7 @@ import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.psi.PsiManager
 import com.sun.jdi.IntegerValue
 import junit.framework.TestCase.assertEquals
-import org.jetbrains.plugins.scala.FlakyTests
+import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.compiler.CompileServerTestUtil
 import org.jetbrains.plugins.scala.extensions.{PathExt, inReadAction}
 import org.jetbrains.plugins.scala.project.ModuleExt
@@ -30,7 +30,7 @@ import scala.jdk.CollectionConverters.SeqHasAsJava
  * I am not confident that this test will not be flaky. If you notice any errors in it, feel free to ignore the test
  * and report the failures to Vasil.
  */
-@Category(Array(classOf[FlakyTests]))
+@Category(Array(classOf[SlowTests]))
 class SharedSourcesEvaluationTest extends DebuggerTestCase {
 
   private var mainModule: Module = _
