@@ -61,7 +61,8 @@ abstract class ScalaExternalSystemImportingTestBase extends ExternalSystemImport
     if (!copyTestProjectToTemporaryDir)
       originalTestDataProjectDir
     else {
-      val tempProjectDir = FileUtil.createTempDirectory(s"temp_projects/${originalTestDataProjectDir.getName}", "", false)
+      val deleteOnExit = true
+      val tempProjectDir = FileUtil.createTempDirectory(s"temp_projects/${originalTestDataProjectDir.getName}", "", deleteOnExit)
       println(s"Test project copied to the temporary directory: $tempProjectDir")
       FileUtil.copyDir(originalTestDataProjectDir, tempProjectDir)
       tempProjectDir
