@@ -1,0 +1,17 @@
+object Inside:
+  opaque type T = (String, Int)
+object Outside:
+  import Inside.*
+  locally {
+    <selection>(??? : T)</selection>
+    ()
+  }
+-------
+object Inside:
+  opaque type T = (String, Int)
+object Outside:
+  import Inside.*
+  locally {
+    val value: T = ??? : T
+    ()
+  }
