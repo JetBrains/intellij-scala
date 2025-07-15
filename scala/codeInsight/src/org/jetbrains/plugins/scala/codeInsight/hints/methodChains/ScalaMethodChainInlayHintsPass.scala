@@ -194,7 +194,7 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
       inlay.putUserData(ScalaMethodChainKey, true)
     }
 
-  private def textFor(expr: ScExpression, ty: ScType, editor: Editor): Seq[Text] = {
+  private def textFor(expr: ScExpression, ty: ScType, editor: Editor)(implicit context: Context): Seq[Text] = {
     implicit val scheme: EditorColorsScheme = editor.getColorsScheme
     implicit val tpc: TypePresentationContext = TypePresentationContext(expr)
 
