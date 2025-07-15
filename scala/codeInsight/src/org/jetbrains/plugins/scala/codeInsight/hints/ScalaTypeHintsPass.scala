@@ -54,11 +54,11 @@ private[codeInsight] trait ScalaTypeHintsPass {
   }
 
   private def collectXRayHints(editor: Editor, root: PsiElement) = root.elements(_.isVisible).flatMap {
-    case e @ Typeable(t) => xRayHintsFor(e, t)(editor.getColorsScheme, TypePresentationContext(e), settings)
+    case e @ Typeable(t) => xRayHintsFor(e, t)(editor.getColorsScheme, TypePresentationContext(e), Context(e), settings)
     case _ => Seq.empty
   }
 
-  private def xRayHintsFor(e: PsiElement, t: ScType)(implicit scheme: EditorColorsScheme, context: TypePresentationContext, settings: ScalaHintsSettings): Seq[Hint] = e match {
+  private def xRayHintsFor(e: PsiElement, t: ScType)(implicit scheme: EditorColorsScheme, tpc: TypePresentationContext, context: Context, settings: ScalaHintsSettings): Seq[Hint] = e match {
     case e: ScParameter if e.typeElement.isEmpty && ScalaApplicationSettings.XRAY_SHOW_LAMBDA_PARAMETER_HINTS =>
       hints(e, t, inParentheses = e.getParent.is[ScParameterClause] && e.getParent.getFirstChild.elementType != ScalaTokenTypes.tLPARENTHESIS)
     case e: ScUnderscoreSection if !e.getParent.is[ScTypedExpression] && ScalaApplicationSettings.XRAY_SHOW_LAMBDA_PLACEHOLDER_HINTS =>
@@ -68,7 +68,7 @@ private[codeInsight] trait ScalaTypeHintsPass {
     case _ => Seq.empty
   }
 
-  private def hints(e: PsiElement, t: ScType, inParentheses: Boolean)(implicit scheme: EditorColorsScheme, context: TypePresentationContext, settings: ScalaHintsSettings) = {
+  private def hints(e: PsiElement, t: ScType, inParentheses: Boolean)(implicit scheme: EditorColorsScheme, tpc: TypePresentationContext, context: Context, settings: ScalaHintsSettings) = {
     if (inParentheses)
       Seq(
         Hint(Seq(Text("(")), e, position = HintPosition.BeforeElement, corners = Corners.Left),
