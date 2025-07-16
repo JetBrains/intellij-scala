@@ -145,13 +145,12 @@ final class NewScalaFileAction extends CreateTemplateInPackageAction[ScalaPsiEle
     }
   }
 
-  override def isAvailable(dataContext: DataContext): Boolean =
-    super.isAvailable(dataContext) && hasScalaInstalledInModule(dataContext) ||
-      NewScalaFileActionExtension.isAvailable(dataContext)
-
-  private def hasScalaInstalledInModule(dataContext: DataContext): Boolean = {
+  override def isAvailable(dataContext: DataContext): Boolean = {
     val module = dataContext.getData(PlatformCoreDataKeys.MODULE)
-    module != null && hasScalaInstalledInModule(module)
+    module != null && (
+      (super.isAvailable(dataContext) && hasScalaInstalledInModule(module)) ||
+        NewScalaFileActionExtension.isAvailable(dataContext)
+      )
   }
 
   private def hasScalaInstalledInModule(module: Module): Boolean = {

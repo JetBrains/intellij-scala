@@ -6,6 +6,13 @@ import org.jetbrains.annotations.ApiStatus
 
 @ApiStatus.Internal
 trait NewScalaFileActionExtension {
+  /**
+   * This method is used only if the given `dataContext` contains a non-null module and if:
+   *  - The default method [[com.intellij.ide.actions.CreateTemplateInPackageAction#isAvailable]] returns false for a given context, and/or
+   *  - The module in the `dataContext` doesn't have Scala installed
+   *
+   * @see [[org.jetbrains.plugins.scala.actions.NewScalaFileAction#isAvailable]]
+   */
   def isAvailable(dataContext: DataContext): Boolean
 }
 
