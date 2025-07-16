@@ -5,13 +5,14 @@ import coursier.maven.{MavenRepository, SbtMavenRepository}
 import coursier.util.Artifact
 import coursier.{Classifier, Fetch, Module, ModuleName, Organization, Repositories, moduleNameString, organizationString, util}
 import sbt.*
-import sbt.Keys.baseDirectory
+import sbt.Keys.{baseDirectory, target}
 import sbt.librarymanagement.CrossVersion
 
 import java.io.File
 import java.net.URI
-import java.nio.file.{Path, Paths}
+import java.nio.file.{Files, Path, Paths, StandardOpenOption}
 import scala.annotation.nowarn
+import scala.util.matching.Regex
 
 /**
  * Download artifacts from Maven and map them into a local repository, so that sbt can resolve artifacts locally without depending on online resolvers.
@@ -24,7 +25,9 @@ object LocalRepoPackager extends AutoPlugin {
   override def projectSettings: Seq[Def.Setting[?]] = Seq(
     localRepoUpdate := updateLocalRepo(
       localRepoDependencies.value,
-      (ThisBuild / baseDirectory).value.toPath / "project" / "resources")
+      (ThisBuild / baseDirectory).value.toPath / "project" / "resources",
+      target.value.toPath
+    )
   )
 
   /**
@@ -33,7 +36,7 @@ object LocalRepoPackager extends AutoPlugin {
    *
    * @return path mappings (file path -> local repo relative location)
    */
-  def updateLocalRepo(dependencies: Seq[Dependency], resourceDir: Path): Seq[(Path, Path)] = {
+  def updateLocalRepo(dependencies: Seq[Dependency], resourceDir: Path, targetDir: Path): Seq[(Path, Path)] = {
 
     @nowarn("cat=deprecation")
     val depsWithExclusions = dependencies
@@ -62,13 +65,55 @@ object LocalRepoPackager extends AutoPlugin {
       }
 
     val fetched = fetch.run().map(_.toPath)
-    val srcTrg = for {
-      src <- fetched
-      root <- repositoryRoots(fetch, src)
-    } yield {
-      val relativePath = root.relativize(src)
-      assert(!relativePath.toString.contains(".."), s"""Relative path must not contain special name ".." (parent folder): $relativePath (root: $root, file: $src)""")
-      (src, relativePath)
+    val srcTrg = fetched.flatMap { src =>
+      repositoryRoots(fetch, src).flatMap { root =>
+        val relativePath = root.relativize(src)
+        assert(!relativePath.toString.contains(".."), s"""Relative path must not contain special name ".." (parent folder): $relativePath (root: $root, file: $src)""")
+        src match {
+          case SbtPluginJar(name, version) =>
+            // SCL-24119
+            // We need to include sbt plugin jars using the modern artifact name style (which contains the Scala and sbt version in the name)
+            // and the "legacy" name style (which only has the name of the plugin).
+            // We simply include the same artifact with two different names, the jars are otherwise identical.
+            val legacyFileName = createLegacyFileName(name, version, extension = "jar")
+            val legacyFileRelativePath = relativePath.resolveSibling(legacyFileName)
+            Seq(
+              src -> legacyFileRelativePath,
+              src -> relativePath
+            )
+
+          case SbtPluginPom(name, scalaSbtVersion, version) =>
+            // SCL-24119
+            // We need to include the sbt plugin poms using the modern artifact name style and the "legacy" name style.
+            // We create a copy of the pom file, with a modified <artifactId> inside with the "legacy" artifact name.
+            val legacyFileName = createLegacyFileName(name, version, extension = "pom")
+            val legacyFileRelativePath = relativePath.resolveSibling(legacyFileName)
+
+            val localRepoTmpDir = targetDir.resolve("local-repo-tmp-dir")
+            if (!Files.exists(localRepoTmpDir)) {
+              Files.createDirectories(localRepoTmpDir)
+            }
+
+            val legacyFileCopy = localRepoTmpDir.resolve(legacyFileRelativePath)
+            if (!Files.exists(legacyFileCopy.getParent)) {
+              Files.createDirectories(legacyFileCopy.getParent)
+            }
+
+            val pomContents = Files.readString(src)
+            val originalArtifactId = s"<artifactId>$name$scalaSbtVersion</artifactId>"
+            val replacementArtifactId = s"<artifactId>$name</artifactId>"
+            val modifiedPom = pomContents.replace(originalArtifactId, replacementArtifactId)
+            Files.writeString(legacyFileCopy, modifiedPom, StandardOpenOption.TRUNCATE_EXISTING)
+
+            Seq(
+              legacyFileCopy -> legacyFileRelativePath,
+              src -> relativePath
+            )
+
+          case _ =>
+            Seq(src -> relativePath)
+        }
+      }
     }
 
     // replace javadocs with dummies because they are large and mostly useless, but some resolvers error out if they are missing
@@ -82,6 +127,39 @@ object LocalRepoPackager extends AutoPlugin {
       else List(src -> trg)
     }
     res
+  }
+
+  private def createLegacyFileName(name: String, version: String, extension: String): String =
+    s"$name-$version.$extension"
+
+  private val SbtPluginFileName: Regex = {
+    val ScalaSbtVersionStrings = Seq("_2.10_0.13", "_2.12_1.0", "_2.12_1.3")
+    val helper = s"(.*)(${ScalaSbtVersionStrings.mkString("|")})-(.*)"
+    s"$helper\\.(jar|pom)".r
+  }
+
+  private object SbtPluginJar {
+    def unapply(path: Path): Option[(String, String)] = {
+      val fileName = path.getFileName.toString
+      if (fileName.endsWith("-javadoc.jar") || fileName.endsWith("-sources.jar")) return None
+
+      fileName match {
+        case SbtPluginFileName(name, _, version, extension) if extension == "jar" =>
+          Some((name, version))
+        case _ => None
+      }
+    }
+  }
+
+  private object SbtPluginPom {
+    def unapply(path: Path): Option[(String, String, String)] = {
+      val fileName = path.getFileName.toString
+      fileName match {
+        case SbtPluginFileName(name, scalaSbtVersion, version, extension) if extension == "pom" =>
+          Some((name, scalaSbtVersion, version))
+        case _ => None
+      }
+    }
   }
 
   def relativeJarPath(dep: Dependency): Path = {
