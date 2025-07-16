@@ -434,6 +434,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
     log.debug("destroyProcess")
     processData match {
       case Some(ProcessData(handler, _, _)) =>
+        SbtShellCommunication.forProject(project).startDestroying()
         val runnable: Runnable = () => terminateProcessGracefully(handler.getProcess)
         ProgressManager.getInstance().runProcessWithProgressSynchronously(runnable, SbtBundle.message("sbt.shell.stopping.process"), false, project)
         processData = None

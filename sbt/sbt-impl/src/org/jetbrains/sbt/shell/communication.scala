@@ -14,6 +14,7 @@ import org.jetbrains.sbt.shell.SbtProcessUtil._
 import org.jetbrains.sbt.shell.SbtShellCommunication._
 
 import java.util.concurrent._
+import java.util.concurrent.atomic.AtomicBoolean
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.{Duration, DurationLong}
 import scala.concurrent.{Future, Promise}
@@ -29,6 +30,13 @@ final class SbtShellCommunication(project: Project) {
 
   private val communicationActive = new Semaphore(1)
   private val shellQueueReady = new Semaphore(1)
+  /**
+   * An indicator to check if the sbt shell process is being destroyed.
+   * It prevents new commands from being added to the queue and processing new commands in the queue while the process is being terminated.
+   *
+   * @see [[https://youtrack.jetbrains.com/issue/SCL-24121/The-sbt-shell-destroying-method-doesnt-wait-for-the-commands-processing-loop-to-exit]]
+   */
+  private val isDestroying = new AtomicBoolean(false)
   private val commands = new LinkedBlockingQueue[(String, CommandListener[_])]()
 
   /** Queue an sbt command for execution in the sbt shell, returning a Future[String] containing the entire shell output. */
@@ -37,6 +45,13 @@ final class SbtShellCommunication(project: Project) {
 
   /** Queue an sbt command for execution in the sbt shell. */
   def command[A](@NonNls cmd: String, default: A, eventHandler: EventAggregator[A]): Future[A] = {
+    // 30 seconds is the estimated time for destroying the process, based on SbtProcessManager.terminateProcessGracefully
+    // (In practice, it happens much faster)
+    val endTime = System.currentTimeMillis() + 30.seconds.toMillis
+    while (isDestroyingInProgress && System.currentTimeMillis() <= endTime) {
+      Thread.sleep(1.second.toMillis)
+    }
+
     val listener = new CommandListener(default, eventHandler)
     process.acquireShellRunner()
     commands.put((cmd, listener))
@@ -54,6 +69,12 @@ final class SbtShellCommunication(project: Project) {
       shell.print(keys)
       shell.flush()
     }
+
+  def startDestroying(): Unit = isDestroying.set(true)
+
+  private def finishDestroying(): Unit = isDestroying.set(false)
+
+  private def isDestroyingInProgress: Boolean = isDestroying.get()
 
   /** Start processing command queue if it is not yet active. */
   private def startQueueProcessing(handler: OSProcessHandler): Unit = {
@@ -73,6 +94,7 @@ final class SbtShellCommunication(project: Project) {
         }
         commands.clear()
 
+        finishDestroying()
         communicationActive.release()
       } catch {
         case ex: Throwable =>
@@ -83,16 +105,24 @@ final class SbtShellCommunication(project: Project) {
   }
 
   private def processNextQueuedCommand(timeout: Duration): Unit = {
-    // TODO exception handling
-    val acquired = shellQueueReady.tryAcquire(timeout.toMillis, TimeUnit.MILLISECONDS)
-    if (acquired) {
-      val next = commands.poll(timeout.toMillis, TimeUnit.MILLISECONDS)
-      if (next != null) {
-        //NOTE: shellQueueReady is released in `SbtShellReadyListener` created in `initCommunication`
+    def tryProcessCommand(): Boolean = {
+      if (isDestroyingInProgress) return false
+
+      commands.poll(timeout.toMillis, TimeUnit.MILLISECONDS) match {
+        case null => false
+        case next =>
+          //NOTE: shellQueueReady is released in `SbtShellReadyListener` created in `initCommunication`
         processCommand(next)
-      } else {
-        shellQueueReady.release()
+          true
       }
+    }
+
+    // TODO exception handling
+    if (!shellQueueReady.tryAcquire(timeout.toMillis, TimeUnit.MILLISECONDS)) return
+
+    val isCommandProcessed = tryProcessCommand()
+    if (!isCommandProcessed) {
+      shellQueueReady.release()
     }
   }
 
