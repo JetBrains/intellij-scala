@@ -10,7 +10,7 @@ import sbt.librarymanagement.CrossVersion
 
 import java.io.File
 import java.net.URI
-import java.nio.file.{Files, Path, Paths, StandardOpenOption}
+import java.nio.file.{Files, Path, Paths}
 import scala.annotation.nowarn
 import scala.util.matching.Regex
 
@@ -103,7 +103,12 @@ object LocalRepoPackager extends AutoPlugin {
             val originalArtifactId = s"<artifactId>$name$scalaSbtVersion</artifactId>"
             val replacementArtifactId = s"<artifactId>$name</artifactId>"
             val modifiedPom = pomContents.replace(originalArtifactId, replacementArtifactId)
-            Files.writeString(legacyFileCopy, modifiedPom, StandardOpenOption.TRUNCATE_EXISTING)
+            val options = {
+              import java.nio.file.StandardOpenOption.*
+              Array(WRITE, CREATE, TRUNCATE_EXISTING)
+            }
+
+            Files.writeString(legacyFileCopy, modifiedPom, options*)
 
             Seq(
               legacyFileCopy -> legacyFileRelativePath,
