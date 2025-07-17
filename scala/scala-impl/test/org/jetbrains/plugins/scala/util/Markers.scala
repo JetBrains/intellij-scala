@@ -65,6 +65,17 @@ trait Markers {
     (resultText, ranges.map(_._1))
   }
 
+  def extractCaretMarker(
+    inputText: String,
+    caretMarker: String
+  ): (String, Int) = {
+    val idx = inputText.indexOf(caretMarker)
+    if (idx < 0)
+      (inputText, -1)
+    else
+      (inputText.replace(caretMarker, ""), idx)
+  }
+
   /**
    * Ultimate function to extract ranges from an input sequence.
    * Multiple marker-kinds are supported and markers of different kinds

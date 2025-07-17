@@ -6,10 +6,12 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.roots.{OrderEnumerator, OrderRootType, libraries}
-import com.intellij.openapi.util.ModificationTracker
+import com.intellij.openapi.util.{Key, ModificationTracker}
 import com.intellij.openapi.util.io.JarUtil.getJarAttribute
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.CommonProcessors.FindProcessor
+import org.jetbrains.annotations.ApiStatus.Internal
+import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.caches.cached
 import org.jetbrains.plugins.scala.project.ScalaFeatures.SerializableScalaFeatures
@@ -176,7 +178,8 @@ private class ScalaModuleSettings private(
     Option(ExternalSystemModulePropertyManager.getInstance(module).getExternalSystemId)
 }
 
-private object ScalaModuleSettings {
+@Internal
+object ScalaModuleSettings {
   private val Scala_2_12_2_version = Version("2.12.2")
 
   private val Log = Logger.getInstance(classOf[ScalaModuleSettings])
@@ -198,7 +201,21 @@ private object ScalaModuleSettings {
     }
   }
 
-  def apply(module: Module): Option[ScalaModuleSettings] = {
+  @TestOnly
+  def assignDummyModuleSettingsForTests(
+    module: Module,
+    isBuildModule: Boolean,
+    scalaLanguageLevel: ScalaLanguageLevel
+  ): Unit = {
+    val versionProvider = ScalaVersionProvider.Explicit(scalaLanguageLevel, None)
+    val settings = new ScalaModuleSettings(module, isBuildModule = isBuildModule, versionProvider)
+    module.putUserData(TestModuleSettingsKey, settings)
+  }
+
+  private val TestModuleSettingsKey = new Key[ScalaModuleSettings]("ScalaModuleSettings.DummySettings")
+
+  private[project]
+  def apply(module: Module): Option[ScalaModuleSettings] = Option(module.getUserData(TestModuleSettingsKey)).orElse {
     if (module.isBuildModule) {
       // build module doesn't have Scala SDK
       forSbtBuildModule(module)
