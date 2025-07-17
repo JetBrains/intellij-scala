@@ -8,6 +8,7 @@ import com.intellij.psi.PsiDirectory
 import com.intellij.util.ui.TextTransferable
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
+import org.jetbrains.plugins.scala.conversion.copy.plainText.ScalaFilePasteProvider.PasteActionIntention
 import org.jetbrains.plugins.scala.conversion.copy.plainText.ScalaFilePasteProviderTest.DummyIdeView
 import org.junit.Assert.{assertEquals, assertFalse, assertTrue, fail}
 
@@ -19,8 +20,16 @@ class ScalaFilePasteProviderTest extends ScalaLightCodeInsightFixtureTestCase {
     assertScalaCodePasteEnabled(pastedText: String)
 
     val provider = new ScalaFilePasteProvider()
-    val nameWithExtension = provider.suggestedScalaFileNameForText(pastedText, getModule).getOrElse {
-      fail("Can't create scala file for pasted code").asInstanceOf[Nothing]
+    val nameWithExtension = provider.calculatePasteActionOutcome(pastedText, getModule, null) match {
+      case Some(value) =>
+        value match {
+          case PasteActionIntention.CreateNewFile(_, fileName, _) =>
+            fileName
+          case PasteActionIntention.UpdateExistingFile(psiFile, _, _, _) =>
+            fail(s"Expected to create new file $expectedFileName but actual intention is to update existing file ${psiFile.getName}").asInstanceOf[Nothing]
+        }
+      case None =>
+        fail("Can't create scala file for pasted code").asInstanceOf[Nothing]
     }
     assertEquals("Suggested file name", expectedFileName, nameWithExtension.fullName)
   }
