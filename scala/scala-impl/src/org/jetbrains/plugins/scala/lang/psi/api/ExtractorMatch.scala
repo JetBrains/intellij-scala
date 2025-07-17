@@ -6,8 +6,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern,
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScConstructorOwner}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, FunctionType, NamedTupleType, ParameterizedType, TupleType}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{BaseTypes, Context, ScType, ScalaSeqExt, api}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
@@ -404,13 +406,24 @@ object ExtractorMatch {
      * We still use the extractorType, because that has generic parameters resolved correctly.
      */
     fun.syntheticCaseClass match {
-      case Some(caseClass) if fun.isSynthetic =>
+      case Some(caseClass@ScConstructorOwner.constructor(constructor)) if fun.isSynthetic =>
         // Ok, we have a synthetic unapply method of a case class.
         // That means we have a Constructor Pattern.
-        val hasOnlyOneParameter = caseClass.constructor.exists(_.effectiveFirstParameterSection.length == 1)
+        def hasOnlyOneParameter = constructor.effectiveFirstParameterSection.length == 1
         val extractorType = extractorTypeAndIrrefutability.map(_._1)
 
         val comps = extractorType match {
+          case None if tpe.extractClass.contains(caseClass) =>
+            // We have a Scala 3 case class. In Scala 3 the synthetic unapply method returns the class itself
+            val params = constructor.parameters
+            val substitutor = tpe.removeAliasDefinitions() match {
+              case ParameterizedType(_, args) =>
+                val typeParams = caseClass.typeParameters
+                ScSubstitutor.bind(typeParams, args)
+              case _ =>
+                ScSubstitutor.empty
+            }
+            params.map(p => substitutor(p.`type`().getOrNothing))
           case Some(extractorType) if hasOnlyOneParameter => Seq(extractorType)
           case Some(TupleType(comps)) => comps
           case _ =>
@@ -463,7 +476,7 @@ object ExtractorMatch {
       /**
        * Scala 3 sequence match for types that conform to sequence type (see [[extractSequenceMatchType]])
        */
-      val sequenceMatch = extractSequenceMatchType(v, place).map(ExtractorMatch.UnapplySeq(Seq.empty, _, v, irrefutable))
+      def sequenceMatch = extractSequenceMatchType(v, place).map(ExtractorMatch.UnapplySeq(Seq.empty, _, v, irrefutable))
 
       /**
        * Scala 3 product sequence match for types that implement Product and have _1..._N methods,
@@ -506,7 +519,47 @@ object ExtractorMatch {
   private def scala2UnapplySeqMatches(tpe: ScType, place: PsiElement, fun: ScFunction): LazyList[ExtractorMatch.UnapplySeq] = {
     implicit val context: Context = Context(place)
 
-    extractedType(tpe, place, fun) match {
+    val extractorTypeAndIrrefutability = extractedType(tpe, place, fun)
+
+    /*
+     * Scala 2 Constructor match
+     *
+     * If fun is the synthetic unapplySeq method of a case class, then we have a Constructor Pattern.
+     * In that case only the exact parameters of the first constructor clause are matched.
+     * We still use the extractorType, because that has generic parameters resolved correctly.
+     */
+    fun.syntheticCaseClass match {
+      case Some(caseClass@ScConstructorOwner.constructor(constructor)) if fun.isSynthetic =>
+        // Ok, we have a synthetic unapplySeq method of a case class.
+        // That means we have a Constructor Pattern.
+        val extractorType = extractorTypeAndIrrefutability.map(_._1)
+
+        val comps = extractorType match {
+          case None if tpe.extractClass.contains(caseClass) =>
+            // We have a Scala 3 case class. In Scala 3 the synthetic unapply method returns the class itself
+            val params = constructor.parameters
+            val substitutor = tpe.removeAliasDefinitions() match {
+              case ParameterizedType(_, args) =>
+                val typeParams = caseClass.typeParameters
+                ScSubstitutor.bind(typeParams, args)
+              case _ =>
+                ScSubstitutor.empty
+            }
+            params.map(p => substitutor(p.`type`().getOrNothing))
+          case Some(TupleType(types)) => types
+          case _ =>
+            // Hmm... something went wrong...
+            Seq.empty
+        }
+
+        return comps.lastOption match {
+          case Some(seqTy) => LazyList(ExtractorMatch.UnapplySeq(comps.init, seqTy, extractorType.getOrElse(tpe), irrefutable = true))
+          case None        => LazyList.empty
+        }
+      case _ => ()
+    }
+
+    extractorTypeAndIrrefutability match {
       case None => LazyList.empty
       case Some((extractorType, irrefutable)) =>
         def typesToUnapplySeqMatch(types: Seq[ScType], selType: ScType): LazyList[ExtractorMatch.UnapplySeq] = {
@@ -514,7 +567,6 @@ object ExtractorMatch {
             .map(ExtractorMatch.UnapplySeq(types.init, _, selType, irrefutable))
             .to(LazyList)
         }
-
         /*
          * first check if the extracted type has _1, _2, ... _N methods (N >= 2) where _N conforms to Seq[_]
          *
