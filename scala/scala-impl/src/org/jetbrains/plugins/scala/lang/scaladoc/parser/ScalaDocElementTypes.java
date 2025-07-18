@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.Scala3Language;
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocElementType;
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType;
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.ScaladocMarkdownParsing;
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocCommentImpl;
 import org.jetbrains.plugins.scalaDoc.ScalaDocLanguage;
 import org.jetbrains.plugins.scalaDoc.lang.parser.ScalaDocParserDefinition;
@@ -62,10 +63,15 @@ public interface ScalaDocElementTypes {
                         lazyNode.getText()
                 );
 
-        return ((ScalaDocParserDefinition) parserDefinition)
+        ASTNode node = ((ScalaDocParserDefinition) parserDefinition)
                 .createParserWithFlavour(project, isMarkdown)
                 .parse(this, builder)
                 .getFirstChildNode();
+
+        // Hand Markdown text over to the first child node
+        // We can't put it on the parent because it doesn't exist yet
+        node.putUserData(ScaladocMarkdownParsing.MARKDOWN_DATA(), builder.getUserData(ScaladocMarkdownParsing.MARKDOWN_DATA()));
+        return node;
       } else {
         PsiBuilder builder = PsiBuilderFactory.getInstance()
                 .createBuilder(

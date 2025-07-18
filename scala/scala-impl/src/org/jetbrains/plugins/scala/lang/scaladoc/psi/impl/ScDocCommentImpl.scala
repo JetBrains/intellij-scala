@@ -50,6 +50,11 @@ final class ScDocCommentImpl(buffer: CharSequence,
     true
   }
 
+  // This is the same implementation as PsiDocComment. It uses an implicit fact; that wikidoc syntax does not use
+  // leading asterisks (it uses DOC_COMMENT_START instead for the first child)
+  // TODO: Do this more cleanly
+  override def isMarkdownComment: Boolean = getFirstChildNode.getElementType == ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS
+
   //todo: implement me
   override def getTags: Array[PsiDocTag] = findTagsByName(_ => true)
 
