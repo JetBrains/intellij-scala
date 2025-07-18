@@ -33,9 +33,7 @@ class SbtExternalSystemConfigurable(project: Project)
       // For the project itself intellij uses the "Default Project (Wizard Template)" but SbtSettings are only linked during importing.
       // So in the case that we are in TraverseUIMode we link a default SbtSettings to the default project.
       // In that way createProjectSettingsControl is called and the full UI created and indexed.
-      val manager = ExternalSystemApiUtil.getManager(SbtProjectSystem.Id)
-        .asInstanceOf[ExternalSystemManager[SbtProjectSettings, _, SbtSettings, _, _]]
-      val sbtSettings = manager.getSettingsProvider.fun(project)
+      val sbtSettings = getSbtSettingsForDefaultProject(project)
       if (sbtSettings.getLinkedProjectSettings("") == null) {
         val settings = SbtProjectSettings.defaultForNewProjectWizard
         settings.setExternalProjectPath("")
@@ -43,5 +41,21 @@ class SbtExternalSystemConfigurable(project: Project)
       }
     }
     super.createComponent()
+  }
+
+  override def disposeUIResources(): Unit = {
+    // Remove the external project we linked in createComponent, otherwise they will mangle
+    // the default project in our dev idea
+    if (project.isDefault && TraverseUIMode.getInstance().isActive) {
+      getSbtSettingsForDefaultProject(project).unlinkExternalProject("")
+    }
+    super.disposeUIResources()
+  }
+
+  private def getSbtSettingsForDefaultProject(project: Project): SbtSettings = {
+    assert(project.isDefault)
+    val manager = ExternalSystemApiUtil.getManager(SbtProjectSystem.Id)
+      .asInstanceOf[ExternalSystemManager[SbtProjectSettings, _, SbtSettings, _, _]]
+    manager.getSettingsProvider.fun(project)
   }
 }
