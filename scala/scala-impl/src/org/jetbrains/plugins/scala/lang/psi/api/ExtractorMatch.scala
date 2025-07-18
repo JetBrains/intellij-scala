@@ -534,7 +534,7 @@ object ExtractorMatch {
         // That means we have a Constructor Pattern.
         val extractorType = extractorTypeAndIrrefutability.map(_._1)
 
-        val comps = extractorType match {
+        val (comps, seqTy) = extractorType match {
           case None if tpe.extractClass.contains(caseClass) =>
             // We have a Scala 3 case class. In Scala 3 the synthetic unapply method returns the class itself
             val params = constructor.parameters
@@ -545,17 +545,23 @@ object ExtractorMatch {
               case _ =>
                 ScSubstitutor.empty
             }
-            params.map(p => substitutor(p.`type`().getOrNothing))
-          case Some(TupleType(types)) => types
+            params.map(p => substitutor(p.`type`().getOrNothing)) match {
+              case comps :+ seqTy => (comps, seqTy)
+              case comps => (comps, api.Nothing(place))
+            }
+          case Some(TupleType(types)) =>
+            types match {
+              case comps :+ seqTy => (comps, extractSeqElementType(seqTy, place).getOrElse(seqTy))
+              case comps => (comps, api.Any(place))
+            }
+          case Some(seqTy) =>
+            (Seq.empty, extractSeqElementType(seqTy, place).getOrElse(seqTy))
           case _ =>
             // Hmm... something went wrong...
-            Seq.empty
+            (Seq.empty, api.Any(place))
         }
 
-        return comps.lastOption match {
-          case Some(seqTy) => LazyList(ExtractorMatch.UnapplySeq(comps.init, seqTy, extractorType.getOrElse(tpe), irrefutable = true))
-          case None        => LazyList.empty
-        }
+        return LazyList(ExtractorMatch.UnapplySeq(comps, seqTy, extractorType.getOrElse(tpe), irrefutable = true))
       case _ => ()
     }
 
