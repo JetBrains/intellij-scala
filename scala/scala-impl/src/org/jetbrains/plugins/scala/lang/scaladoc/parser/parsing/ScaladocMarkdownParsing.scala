@@ -1,14 +1,14 @@
 package org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing
 
 import com.intellij.lang.PsiBuilder
+import com.intellij.openapi.util.Key
 import com.intellij.psi.tree.IElementType
 import org.intellij.markdown.ast.ASTNode
-import org.intellij.markdown.parser.{MarkdownParser, MarkerProcessor, ProductionHolder}
-import org.intellij.markdown.{MarkdownElementType, MarkdownElementTypes, MarkdownTokenTypes, flavours}
-import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
+import org.intellij.markdown.parser.MarkdownParser
+import org.intellij.markdown.{MarkdownElementTypes, MarkdownTokenTypes}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
-import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxElementType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.ScaladocMarkdownParsing.MARKDOWN_DATA
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.markdown.{ScalaDocMarkdownFlavour, ScalaDocTagMarkerBlock}
 
 class ScaladocMarkdownParsing(private val builder: PsiBuilder,
@@ -57,17 +57,23 @@ class ScaladocMarkdownParsing(private val builder: PsiBuilder,
 
     val out = new MarkdownParser(new ScalaDocMarkdownFlavour).parse(MarkdownElementTypes.MARKDOWN_FILE, content, true)
 
+    // Place data needed for HTML in the builder for fetch after parsing
+    builder.putUserData(MARKDOWN_DATA, (content, out))
+
     var currLine = 0
+    var newline = true
 
     def ensureBuilderInPosition(position: Int): Unit = {
       val target = position + map(currLine)
 
       if (builder.getCurrentOffset >= target) return
 
-      // TODO: We actually don't wanna cover up leading asterisks/whitespace
       val marker = builder.mark()
       while (builder.getCurrentOffset < target) builder.advanceLexer()
-      marker.collapse(ScalaDocTokenType.DOC_COMMENT_DATA)
+
+      marker.collapse(if (newline) ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS else ScalaDocTokenType.DOC_COMMENT_DATA)
+
+      newline = false
     }
 
     def visitNode(node: ASTNode): Unit = {
@@ -75,9 +81,8 @@ class ScaladocMarkdownParsing(private val builder: PsiBuilder,
 
       if (tpe == MarkdownTokenTypes.EOL) {
         currLine += 1
+        newline = true
       }
-
-      if (node.getChildren.isEmpty) return
 
       ensureBuilderInPosition(node.getStartOffset)
 
@@ -86,27 +91,32 @@ class ScaladocMarkdownParsing(private val builder: PsiBuilder,
 
       ensureBuilderInPosition(node.getEndOffset)
 
-      tpe match {
-        case MarkdownElementTypes.PARAGRAPH => marker.done(ScalaDocElementTypes.DOC_PARAGRAPH)
-        case MarkdownElementTypes.CODE_FENCE => marker.done(ScalaDocElementTypes.DOC_CODEBLOCK)
-        case MarkdownElementTypes.ATX_1 => marker.done(ScalaDocTokenType.VALID_DOC_HEADER)
-        case MarkdownElementTypes.ATX_2 => marker.done(ScalaDocTokenType.VALID_DOC_HEADER)
-        case MarkdownElementTypes.ATX_3 => marker.done(ScalaDocTokenType.VALID_DOC_HEADER)
-        case MarkdownElementTypes.ATX_4 => marker.done(ScalaDocTokenType.VALID_DOC_HEADER)
-        case MarkdownElementTypes.ATX_5 => marker.done(ScalaDocTokenType.VALID_DOC_HEADER)
-        case MarkdownElementTypes.ATX_6 => marker.done(ScalaDocTokenType.VALID_DOC_HEADER)
-//        case MarkdownElementTypes.AUTOLINK => marker.done()
-//        case MarkdownElementTypes.BLOCK_QUOTE => marker.done()
-        case MarkdownElementTypes.EMPH => marker.done(ScalaDocTokenType.DOC_ITALIC_TAG) // NOTE: Distinct from MarkdownTokenTypes.EMPH, which is for the * character.
-        case MarkdownElementTypes.STRONG => marker.done(ScalaDocTokenType.DOC_BOLD_TAG)
-        case MarkdownElementTypes.SETEXT_1 => marker.done(ScalaDocTokenType.VALID_DOC_HEADER)
-        case MarkdownElementTypes.SETEXT_2 => marker.done(ScalaDocTokenType.VALID_DOC_HEADER)
+      // TODO: we probably want to special-case EMPH and STRONG to make them join their borders as a single node? Unsure
+      val element = tpe match {
+        case MarkdownElementTypes.PARAGRAPH => ScalaDocElementTypes.DOC_PARAGRAPH
+        case MarkdownElementTypes.CODE_FENCE => ScalaDocElementTypes.DOC_CODEBLOCK
+        case MarkdownElementTypes.ATX_1 => ScalaDocTokenType.VALID_DOC_HEADER
+        case MarkdownElementTypes.ATX_2 => ScalaDocTokenType.VALID_DOC_HEADER
+        case MarkdownElementTypes.ATX_3 => ScalaDocTokenType.VALID_DOC_HEADER
+        case MarkdownElementTypes.ATX_4 => ScalaDocTokenType.VALID_DOC_HEADER
+        case MarkdownElementTypes.ATX_5 => ScalaDocTokenType.VALID_DOC_HEADER
+        case MarkdownElementTypes.ATX_6 => ScalaDocTokenType.VALID_DOC_HEADER
+        case MarkdownElementTypes.EMPH => ScalaDocTokenType.DOC_ITALIC_TAG // NOTE: Distinct from MarkdownTokenTypes.EMPH, which is for the * character.
+        case MarkdownElementTypes.STRONG => ScalaDocTokenType.DOC_BOLD_TAG
+        case MarkdownElementTypes.SETEXT_1 => ScalaDocTokenType.VALID_DOC_HEADER
+        case MarkdownElementTypes.SETEXT_2 => ScalaDocTokenType.VALID_DOC_HEADER
 
-//        case MarkdownTokenTypes.TEXT => marker.collapse(ScalaDocTokenType.DOC_COMMENT_DATA)
+        case ScalaDocTagMarkerBlock.TAG_BLOCK => ScalaDocElementTypes.DOC_TAG
+        case ScalaDocTagMarkerBlock.TAG_NAME => ScalaDocTokenType.DOC_TAG_NAME
+        case _ =>
+          marker.drop()
+          return
+      }
 
-        case ScalaDocTagMarkerBlock.TAG_BLOCK => marker.done(ScalaDocElementTypes.DOC_TAG)
-        case ScalaDocTagMarkerBlock.TAG_NAME => marker.done(ScalaDocTokenType.DOC_TAG_NAME)
-        case _ => marker.drop()
+      if (node.getChildren.isEmpty) {
+        marker.collapse(element)
+      } else {
+        marker.done(element)
       }
     }
 
@@ -116,4 +126,8 @@ class ScaladocMarkdownParsing(private val builder: PsiBuilder,
 
     rootMarker.done(root)
   }
+}
+
+object ScaladocMarkdownParsing {
+  val MARKDOWN_DATA: Key[(String, ASTNode)] = Key.create("scaladoc.markdown")
 }

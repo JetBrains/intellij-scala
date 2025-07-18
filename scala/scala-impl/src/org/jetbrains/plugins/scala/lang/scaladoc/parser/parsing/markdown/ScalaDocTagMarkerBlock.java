@@ -58,8 +58,7 @@ public class ScalaDocTagMarkerBlock extends MarkerBlockImpl {
 
     @Override
     public boolean isInterestingOffset(@NotNull LookaheadText.Position position) {
-        // This could potentially be checked with `getOffsetInCurrentLine`, but the library doesn't do it for code fences
-        return true;
+        return position.getOffsetInCurrentLine() != -1;
     }
 
     @Override
