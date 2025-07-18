@@ -38,10 +38,6 @@ class SbtStructureDump {
 
   private val cancellationFlag: AtomicBoolean = new AtomicBoolean(false)
 
-  // NOTE: if this is a first run of sbt with a particular version on current machine
-  // sbt import will take some time because it will have to download quite a lot of dependencies
-  private val MaxImportDurationInUnitTests: FiniteDuration = 10.minutes
-
   // in failed tests we would like to see sbt process output
   private val processOutputBuilder = new mutable.StringBuilder
   def processOutput: String = processOutputBuilder.mkString
@@ -403,6 +399,10 @@ object SbtStructureDump {
   private val Log = Logger.getInstance(classOf[SbtStructureDump])
 
   private val SBT_PROCESS_CHECK_TIMEOUT_MS = 100
+
+  // NOTE: if this is a first run of sbt with a particular version on current machine
+  // sbt import will take some time because it will have to download quite a lot of dependencies
+  private[project] val MaxImportDurationInUnitTests: FiniteDuration = 10.minutes
 
   val PrintProcessOutputOnFailurePropertyName = "sbt.import.print.process.output.on.failure"
 

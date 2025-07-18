@@ -62,15 +62,19 @@ abstract class ScalaExternalSystemImportingTestBase extends ExternalSystemImport
       originalTestDataProjectDir
     else {
       val deleteOnExit = true
-      val tempProjectDir = FileUtil.createTempDirectory(s"temp_projects/${originalTestDataProjectDir.getName}", "", deleteOnExit)
-      println(s"Test project copied to the temporary directory: $tempProjectDir")
-      FileUtil.copyDir(originalTestDataProjectDir, tempProjectDir)
-      tempProjectDir
+      FileUtil.createTempDirectory(s"temp_projects/${originalTestDataProjectDir.getName}", "", deleteOnExit)
     }
   }
 
   override protected def setUpProjectRoot(): Unit = {
+    val originalTestDataProjectDir = new File(getTestDataProjectPath)
     val testProjectPath = getTestProjectDir
+
+    if (copyTestProjectToTemporaryDir) {
+      println(s"Test project copied to the temporary directory: $testProjectPath")
+      FileUtil.copyDir(originalTestDataProjectDir, testProjectPath)
+    }
+
     myProjectRoot = LocalFileSystem.getInstance.refreshAndFindFileByIoFile(testProjectPath)
     assertNotNull(s"test project root was not found: $testProjectPath", myProjectRoot)
   }

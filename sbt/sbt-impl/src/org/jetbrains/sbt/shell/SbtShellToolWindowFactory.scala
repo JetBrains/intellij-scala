@@ -2,11 +2,13 @@ package org.jetbrains.sbt.shell
 
 import com.intellij.ide.actions.ActivateToolWindowAction
 import com.intellij.openapi.actionSystem.KeyboardShortcut
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.wm._
 import com.intellij.openapi.wm.impl.ToolWindowImpl
+import com.intellij.toolWindow.ToolWindowHeadlessManagerImpl.MockToolWindow
 import com.intellij.ui.BadgeIconSupplier
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions.{invokeLater, schedulePeriodicTask}
@@ -110,6 +112,11 @@ object SbtShellToolWindowFactory {
     } yield window
 
     if (result.isEmpty) {
+      // Similar to `com.intellij.openapi.externalSystem.service.ui.ExternalToolWindowManager#getToolWindow`.
+      if (ApplicationManager.getApplication.isUnitTestMode) {
+        return Some(new MockToolWindow(project))
+      }
+
       Log.error(s"Failed to create sbt shell toolwindow content for $project.")
     }
 
