@@ -34,7 +34,7 @@ object Scala2UnapplySeqTest {
        |  def unapplySeq(i: Int): Result = ???
        |}
        |
-       |$tester_bs
+       |${tester_bs("1")}
        |""".stripMargin,
     s"""
        |// tupleSeqWithoutExtractorType
@@ -61,7 +61,7 @@ object Scala2UnapplySeqTest {
        |  def unapplySeq(i: Int): Unapplied = new Unapplied
        |}
        |
-       |$tester_s_i_bs
+       |${tester_s_i_bs("1")}
        |""".stripMargin,
     s"""
        |// customExtractorTypeWithoutSeq
@@ -88,7 +88,7 @@ object Scala2UnapplySeqTest {
        |  def unapplySeq(i: Int): Some[(String, Int, Seq[Boolean])] = ???
        |}
        |
-       |$tester_s_i_bs
+       |${tester_s_i_bs("1")}
        |""".stripMargin,
     s"""
        |// tupleSeqExtractorTypeWithTypeParameters
@@ -137,75 +137,90 @@ object Scala2UnapplySeqTest {
       |  def unapplySeq(i: Int): Some[TupleAsSeq] = ???
       |}
       |
-      |$tester_s_i_bs
+      |${tester_s_i_bs("1")}
       |""".stripMargin,
+    s"""
+       |// CaseClass
+       |case class A(bs: Boolean*)
+       |
+       |${tester_bs("(null : A)")}
+       |""".stripMargin,
+    s"""
+       |// CaseClassWithNormalParams
+       |case class A(s: String, i: Int, bs: Boolean*)
+       |
+       |${tester_s_i_bs("(null : A)")}
+       |""".stripMargin,
   ).map(GeneratedParameterizedTestFactory.testDataFromCode)
 
-  private def tester_bs: String =
-    """
-      |
-      |val A() = 1
-      |
-      |{
-      |  val A(b) = 1
-      |  val _b: Boolean = b
-      |}
-      |
-      |{
-      |  val A(rest@_*) = 1
-      |  val _rest: Seq[Boolean] = rest
-      |}
-      |
-      |{
-      |  val A(b1, b2) = 1
-      |  val _b1: Boolean = b1
-      |  val _b2: Boolean = b2
-      |}
-      |
-      |{
-      |  val A(b1, b2, rest@_*) = 1
-      |  val _b1: Boolean = b1
-      |  val _b2: Boolean = b2
-      |  val _rest: Seq[Boolean] = rest
-      |}
-      |""".stripMargin
+  private def tester_bs(valueDef: String): String =
+    s"""
+       |val value = $valueDef
+       |
+       |val A() = value
+       |
+       |{
+       |  val A(b) = value
+       |  val _b: Boolean = b
+       |}
+       |
+       |{
+       |  val A(rest@_*) = value
+       |  val _rest: Seq[Boolean] = rest
+       |}
+       |
+       |{
+       |  val A(b1, b2) = value
+       |  val _b1: Boolean = b1
+       |  val _b2: Boolean = b2
+       |}
+       |
+       |{
+       |  val A(b1, b2, rest@_*) = value
+       |  val _b1: Boolean = b1
+       |  val _b2: Boolean = b2
+       |  val _rest: Seq[Boolean] = rest
+       |}
+       |""".stripMargin
 
-  private def tester_s_i_bs: String =
-    """
-      |{
-      |  val A(s, i) = 1
-      |  val _s: String = s
-      |  val _i: Int = i
-      |}
-      |
-      |{
-      |  val A(s, i, rest@_*) = 1
-      |  val _s: String = s
-      |  val _i: Int = i
-      |  val _rest: Seq[Boolean] = rest
-      |}
-      |
-      |{
-      |  val A(s, i, b) = 1
-      |  val _s: String = s
-      |  val _i: Int = i
-      |  val _b: Boolean = b
-      |}
-      |
-      |{
-      |  val A(s, i, b1, b2) = 1
-      |  val _s: String = s
-      |  val _i: Int = i
-      |  val _b1: Boolean = b1
-      |  val _b2: Boolean = b2
-      |}
-      |
-      |{
-      |  val A(s, i, b, rest@_*) = 1
-      |  val _s: String = s
-      |  val _i: Int = i
-      |  val _b: Boolean = b
-      |  val _rest: Seq[Boolean] = rest
-      |}
-      |""".stripMargin
+  private def tester_s_i_bs(valueDef: String): String =
+    s"""
+       |val value = $valueDef
+       |
+       |{
+       |  val A(s, i) = value
+       |  val _s: String = s
+       |  val _i: Int = i
+       |}
+       |
+       |{
+       |  val A(s, i, rest@_*) = value
+       |  val _s: String = s
+       |  val _i: Int = i
+       |  val _rest: Seq[Boolean] = rest
+       |}
+       |
+       |{
+       |  val A(s, i, b) = value
+       |  val _s: String = s
+       |  val _i: Int = i
+       |  val _b: Boolean = b
+       |}
+       |
+       |{
+       |  val A(s, i, b1, b2) = value
+       |  val _s: String = s
+       |  val _i: Int = i
+       |  val _b1: Boolean = b1
+       |  val _b2: Boolean = b2
+       |}
+       |
+       |{
+       |  val A(s, i, b, rest@_*) = value
+       |  val _s: String = s
+       |  val _i: Int = i
+       |  val _b: Boolean = b
+       |  val _rest: Seq[Boolean] = rest
+       |}
+       |""".stripMargin
 }
