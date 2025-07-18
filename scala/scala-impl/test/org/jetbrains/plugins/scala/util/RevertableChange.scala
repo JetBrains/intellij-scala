@@ -38,7 +38,7 @@ trait RevertableChange {
   final def apply(body: => Any): Unit =
     run(body)
 
-  final def run(body: => Any): Unit = {
+  final def run[T](body: => T): T = {
     this.applyChange()
     try
       body
