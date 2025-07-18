@@ -7,7 +7,7 @@ import com.intellij.execution.process.{ColoredProcessHandler, OSProcessHandler, 
 import com.intellij.execution.runners.AbstractConsoleRunnerWithHistory
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.openapi.actionSystem._
-import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.{ApplicationManager, WriteIntentReadAction}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.ex.util.EditorUtil
 import com.intellij.openapi.project.Project
@@ -20,7 +20,6 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.statistics.SbtShellCommandsUsagesCollector
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.icons.Icons
-import org.jetbrains.sbt.shell.SbtShellRunner._
 
 import java.awt.BorderLayout
 import java.util
@@ -77,9 +76,15 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
   }
 
   // is called from AbstractConsoleRunnerWithHistory.initAndRun from EDT, can be invoked asynchronously
-  override def createContentDescriptorAndActions(): Unit = if(!isUnitTestMode) {
+  override def createContentDescriptorAndActions(): Unit = {
     log.debug("createContentDescriptorAndActions")
-    super.createContentDescriptorAndActions()
+    val callSuper: Runnable = () => super.createContentDescriptorAndActions()
+    if (ApplicationManager.getApplication.isUnitTestMode) {
+      //noinspection ApiStatus,UnstableApiUsage
+      WriteIntentReadAction.run(callSuper)
+    } else {
+      callSuper.run()
+    }
 
     executeOnPooledThread {
       initSbtShell()
@@ -115,11 +120,11 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
 
     new SbtShellReadyListener(
       "prompt changer",
-      whenReady = if (!isUnitTestMode) {
+      whenReady = {
         consoleView.setPrompt(">")
         scrollToEnd()
       },
-      whenWorking = if (!isUnitTestMode) {
+      whenWorking = {
         val status = SbtBundle.message("sbt.shell.status.busy")
         consoleView.setPrompt(s"($status) >")
         scrollToEnd()
@@ -127,7 +132,7 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
     )
   }
 
-  private def initSbtShellUi(consoleView: SbtShellConsoleView): Unit = if (!isUnitTestMode) {
+  private def initSbtShellUi(consoleView: SbtShellConsoleView): Unit = {
     SbtShellToolWindowFactory.instance(project).foreach { toolWindow =>
       invokeLater {
         val content = createToolWindowContent(consoleView)
@@ -224,9 +229,4 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
     twContentManager.removeAllContents(true)
     twContentManager.addContent(content)
   }
-}
-
-object SbtShellRunner {
-
-  private val isUnitTestMode: Boolean = ApplicationManager.getApplication.isUnitTestMode
 }

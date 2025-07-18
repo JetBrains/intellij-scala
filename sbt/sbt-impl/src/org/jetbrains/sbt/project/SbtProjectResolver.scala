@@ -39,8 +39,8 @@ import java.net.URI
 import java.nio.file.Path
 import java.util.{Collections, Locale, UUID}
 import scala.collection.{MapView, mutable}
-import scala.concurrent.Await
 import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, TimeoutException}
 import scala.util.{Failure, Random, Success, Try}
 import scala.xml.{Elem, XML}
 
@@ -173,7 +173,17 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
             settings.preferScala2,
             settings.generateManagedSourcesDuringProjectSync
           )
-          Try(Await.result(messagesF, Duration.Inf)) // TODO some kind of timeout / cancel mechanism
+          Try {
+            val testTimeout =
+              if (isUnitTestMode) SbtStructureDump.MaxImportDurationInUnitTests
+              else Duration.Inf // TODO some kind of timeout / cancel mechanism
+
+            try Await.result(messagesF, testTimeout)
+            catch {
+              case _: TimeoutException if isUnitTestMode =>
+                throw new TimeoutException(s"sbt-shell import hasn't finished in ${SbtStructureDump.MaxImportDurationInUnitTests}")
+            }
+          }
         }
         else {
           val sbtStructureJar = settings

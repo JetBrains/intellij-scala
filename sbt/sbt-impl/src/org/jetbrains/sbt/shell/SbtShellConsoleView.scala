@@ -7,6 +7,7 @@ import com.intellij.execution.console.LanguageConsoleImpl
 import com.intellij.execution.filters.UrlFilter.UrlFilterProvider
 import com.intellij.execution.filters._
 import com.intellij.openapi.actionSystem.{ActionGroup, AnAction, DefaultActionGroup}
+import com.intellij.openapi.application.{ApplicationManager, WriteIntentReadAction}
 import com.intellij.openapi.editor.actions.ToggleUseSoftWrapsToolbarAction
 import com.intellij.openapi.editor.event.{EditorMouseEvent, EditorMouseListener}
 import com.intellij.openapi.editor.ex.EditorEx
@@ -14,7 +15,7 @@ import com.intellij.openapi.editor.{Editor, EditorFactory}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.IdeFocusManager
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.plugins.scala.extensions.{inReadAction, inWriteAction}
+import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.sbt.shell.action._
 
 import java.beans.{PropertyChangeEvent, PropertyChangeListener}
@@ -89,7 +90,14 @@ object SbtShellConsoleView {
     val cv = inWriteAction {
       new SbtShellConsoleView(project, debugConnection)
     }
-    cv.getConsoleEditor.setOneLineMode(true)
+
+    val setOneLineMode: Runnable = () => cv.getConsoleEditor.setOneLineMode(true)
+    if (ApplicationManager.getApplication.isUnitTestMode) {
+      //noinspection ApiStatus,UnstableApiUsage
+      WriteIntentReadAction.run(setOneLineMode)
+    } else {
+      setOneLineMode.run()
+    }
 
     // stack trace file links
     cv.addMessageFilter(new ExceptionFilter(GlobalSearchScope.allScope(project)))
