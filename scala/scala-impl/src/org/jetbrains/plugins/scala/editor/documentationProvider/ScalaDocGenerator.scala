@@ -8,12 +8,16 @@ import com.intellij.openapi.project.IndexNotReadyException
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.{PsiClass, PsiDocCommentOwner, PsiElement, PsiMethod}
+import org.intellij.markdown.ast.ASTNode
+import org.intellij.markdown.html.{HtmlGenerator, HtmlGeneratorKt}
 import org.jetbrains.plugins.scala.extensions.{&, PsiClassExt, PsiMemberExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunction, ScPatternDefinition, ScValueOrVariable, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenDefinition.DesugaredTypeDefinition
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.ScaladocMarkdownParsing
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.markdown.ScalaDocMarkdownFlavour
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
 import java.net.URL
@@ -62,8 +66,15 @@ object ScalaDocGenerator {
     val builder = new StringBuilder
 
     appendHeader(builder, commentOwner)
-    // TODO: If the comment is a Markdown comment, branch of to its HTML generation
-    new ScalaDocContentWithSectionsGenerator(commentOwner, comment, rendered = true).generate(builder)
+    if (comment.isMarkdownComment) {
+      // We fetch the data from the first child because the general node doesn't exist when this data is available
+      val (text, node) = comment.getFirstChild.getUserData(ScaladocMarkdownParsing.MARKDOWN_DATA)
+
+      val html = new HtmlGenerator(text, node, new ScalaDocMarkdownFlavour, false).generateHtml(new HtmlGenerator.DefaultTagRenderer(HtmlGeneratorKt.getDUMMY_ATTRIBUTES_CUSTOMIZER, false))
+
+      builder.append(html)
+    } else new ScalaDocContentWithSectionsGenerator(commentOwner, comment, rendered = true).generate(builder)
+
     appendFooter(builder)
 
     builder.result()
