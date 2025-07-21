@@ -172,14 +172,22 @@ class ImplicitCollector(
         case _                  => None
       }
 
+      val targetName = extensionData.map(_.refName)
+
       val hasTargetMethod =
         for {
-          data       <- extensionData
-          targetName = data.refName
-          rtpe       <- targetType
-          cls        <- rtpe.extractClass
-          tdef       <- cls.asOptionOf[ScTypeDefinition]
-        } yield tdef.methodsByName(targetName).nonEmpty
+          rtpe <- targetType
+          cls  <- rtpe.extractClass
+          tdef <- cls.asOptionOf[ScTypeDefinition]
+        } yield {
+          val methods =
+            targetName match {
+              case Some(name) => tdef.methodsByName(name)
+              case None       => tdef.allMethods
+            }
+
+          methods.exists(_.isExtensionMethod)
+        }
 
       hasTargetMethod.getOrElse(true)
     }
@@ -716,6 +724,9 @@ class ImplicitCollector(
         conversionDataCheckedResult.foreach(result => return Option(result))
       }
 
+      val throwOnAmbiguous =
+        !place.isInScala3File || conversionDataCheckedResult.nonEmpty
+
       try {
         val (resType, implicitArgsByClause) =
           InferUtil.updateTypeWithImplicitParameters(
@@ -723,7 +734,7 @@ class ImplicitCollector(
             place,
             Option(fun),
             canThrowSCE            = !fullInfo,
-            throwOnAmbiguous       = !place.isInScala3File,
+            throwOnAmbiguous       = throwOnAmbiguous,
             implicitRecursionDepth = recursionDepth + 1,
             fullInfo               = fullInfo,
             updateDeep             = !isLeadingImplicitsCase,
