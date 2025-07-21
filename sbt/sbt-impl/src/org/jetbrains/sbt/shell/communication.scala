@@ -14,7 +14,7 @@ import org.jetbrains.sbt.shell.SbtProcessUtil._
 import org.jetbrains.sbt.shell.SbtShellCommunication._
 
 import java.util.concurrent._
-import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.{AtomicBoolean, AtomicReference}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.{Duration, DurationLong}
 import scala.concurrent.{Future, Promise}
@@ -38,6 +38,21 @@ final class SbtShellCommunication(project: Project) {
    */
   private val isDestroying = new AtomicBoolean(false)
   private val commands = new LinkedBlockingQueue[(String, CommandListener[_])]()
+  /**
+   * The queue for commands accumulated when the shell is in the process of emptying standard queue commands before the "soft" restart or destroying.
+   * Currently, the concept of a "soft" restart is used only when, during a project reload, it's discovered that the sbt version has changed.
+   * In such cases, the shell is restarted in a "soft" way - only after processing all already queued commands.
+   *
+   * If, during emptying the queue, the sbt shell is manually killed by the user or via the dispose method,
+   * all commands accumulated in this queue are moved to the standard [[commands]] queue
+   * and are terminated in queue processing method ([[startQueueProcessing]]).
+   */
+  private val afterRestartCommands = new LinkedBlockingQueue[(String, CommandListener[_])]()
+
+  /**
+   * Contains an atomic reference to a `Future` responsible for emptying [[commands]] queue.
+   */
+  private val emptyingQueueFuture = new AtomicReference[CompletableFuture[Unit]](null)
 
   /** Queue an sbt command for execution in the sbt shell, returning a Future[String] containing the entire shell output. */
   def command(cmd: String): Future[String] =
@@ -45,18 +60,35 @@ final class SbtShellCommunication(project: Project) {
 
   /** Queue an sbt command for execution in the sbt shell. */
   def command[A](@NonNls cmd: String, default: A, eventHandler: EventAggregator[A]): Future[A] = {
-    // 30 seconds is the estimated time for destroying the process, based on SbtProcessManager.terminateProcessGracefully
-    // (In practice, it happens much faster)
-    val endTime = System.currentTimeMillis() + 30.seconds.toMillis
-    while (isDestroyingInProgress && System.currentTimeMillis() <= endTime) {
-      Thread.sleep(1.second.toMillis)
+    val listener = new CommandListener(default, eventHandler)
+    if (isDestroyingOrEmptying) {
+      afterRestartCommands.put((cmd, listener))
+    } else {
+      process.acquireShellRunner()
+      commands.put((cmd, listener))
     }
 
-    val listener = new CommandListener(default, eventHandler)
-    process.acquireShellRunner()
-    commands.put((cmd, listener))
     listener.future
   }
+
+  private def isEmptyingQueueRunning: Boolean =
+    Option(emptyingQueueFuture.get()).exists(!_.isDone)
+
+  /**
+   * Cancel the queue emptying process and transfers any pending commands from the [[afterRestartCommands]] queue
+   * to the standard [[commands]] queue.
+   * These transferred commands will be terminated during the standard queue processing shutdown.
+   */
+  def cancelEmptyingQueue(): Unit = {
+    Option(emptyingQueueFuture.get()).foreach(_.cancel(true))
+    moveAccumulatedCommandsToStandardQueue()
+  }
+
+  /**
+   * Move commands accumulated in [[afterRestartCommands]] queue to the standard [[commands]] queue.
+   */
+  private def moveAccumulatedCommandsToStandardQueue(): Int =
+    afterRestartCommands.drainTo(commands)
 
   def sendSigInt(): Unit = process.sendSigInt()
 
@@ -73,6 +105,8 @@ final class SbtShellCommunication(project: Project) {
   def startDestroying(): Unit = isDestroying.set(true)
 
   private def finishDestroying(): Unit = isDestroying.set(false)
+
+  private def isDestroyingOrEmptying: Boolean = isDestroying.get() || isEmptyingQueueRunning
 
   private def isDestroyingInProgress: Boolean = isDestroying.get()
 
@@ -95,6 +129,10 @@ final class SbtShellCommunication(project: Project) {
         commands.clear()
 
         finishDestroying()
+        if (!afterRestartCommands.isEmpty) {
+          process.acquireShellRunner()
+          moveAccumulatedCommandsToStandardQueue()
+        }
         communicationActive.release()
       } catch {
         case ex: Throwable =>
@@ -116,6 +154,7 @@ final class SbtShellCommunication(project: Project) {
           true
       }
     }
+    if (commands.isEmpty) return
 
     // TODO exception handling
     if (!shellQueueReady.tryAcquire(timeout.toMillis, TimeUnit.MILLISECONDS)) return
@@ -123,6 +162,46 @@ final class SbtShellCommunication(project: Project) {
     val isCommandProcessed = tryProcessCommand()
     if (!isCommandProcessed) {
       shellQueueReady.release()
+    }
+  }
+
+  /**
+   * Queue an sbt command for execution in the sbt shell to be performed after a "soft" restart of the shell.
+   * A "soft" restart means it waits until all commands currently in the queue are executed before destroying the running process.
+   * After the process is destroyed, all commands in [[afterRestartCommands]] are moved to the
+   * standard [[commands]], and a new shell instance is acquired.
+   *
+   * ATTENTION: waiting until all already queued commands are executed through a synchronous wait.
+   *
+   * @note   Currently, the soft restart is only used during project reload.
+   *         In the future, we might also implement a soft restart for tasks executed from the sbt tool window when the sbt version changes.
+   * @see    [[org.jetbrains.sbt.shell.SbtProcessManager.destroyProcess]]
+   * @return `Future[String]` containing the entire shell output
+   */
+  def commandAfterSoftRestart[A](cmd: String, default: A, eventHandler: EventAggregator[A]): Future[A] = {
+    if (isEmptyingQueueRunning) return command(cmd, default, eventHandler)
+
+    val emptyingQueue = new CompletableFuture[Unit]()
+
+    def waitForEmptyQueue(): Unit = {
+      val isQueueBusy = () => !commands.isEmpty || shellQueueReady.availablePermits() == 0
+      while (isQueueBusy() && !emptyingQueue.isDone) {
+        Thread.sleep(1000)
+      }
+    }
+
+    emptyingQueueFuture.set(emptyingQueue)
+    // The command is put on the `afterRestartCommands` queue
+    val commandResult = command(cmd, default, eventHandler)
+    try {
+      waitForEmptyQueue()
+      if (!emptyingQueue.isCompletedExceptionally) {
+        emptyingQueue.complete(())
+        SbtProcessManager.forProject(project).destroyProcess(isSoft = true)
+      }
+      commandResult
+    } finally {
+      emptyingQueueFuture.set(null)
     }
   }
 

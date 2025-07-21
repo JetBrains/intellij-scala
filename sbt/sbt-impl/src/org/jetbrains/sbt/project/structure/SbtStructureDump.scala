@@ -19,7 +19,7 @@ import org.jetbrains.sbt.actions.GenerateManagedSourcesReporter
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportCancelledException
 import org.jetbrains.sbt.project.structure.SbtOption._
 import org.jetbrains.sbt.project.structure.SbtStructureDump._
-import org.jetbrains.sbt.shell.SbtShellCommunication
+import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication}
 import org.jetbrains.sbt.shell.SbtShellCommunication._
 import org.jetbrains.sbt.{SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities}
 
@@ -77,7 +77,13 @@ class SbtStructureDump {
 
     val shell = SbtShellCommunication.forProject(project)
     val aggregator = shellMessageAggregator(EventId(s"dump:${UUID.randomUUID()}"), shell, reporter)
-    shell.command(sbtCommand, BuildMessages.empty, aggregator)
+
+    val isSbtVersionOutdated = SbtProcessManager.forProject(project).isSbtVersionOutdated
+    if (isSbtVersionOutdated) {
+      shell.commandAfterSoftRestart(sbtCommand, BuildMessages.empty, aggregator)
+    } else {
+      shell.command(sbtCommand, BuildMessages.empty, aggregator)
+    }
   }
 
   def dumpFromProcess(

@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.external.{JdkByName, SdkUtils}
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
-import org.jetbrains.sbt.SbtUtil._
+import org.jetbrains.sbt.SbtUtil.{detectSbtVersion => _, _}
 import org.jetbrains.sbt.buildinfo.BuildInfo
 import org.jetbrains.sbt.project.SbtExternalSystemManager
 import org.jetbrains.sbt.project.settings.SbtExecutionSettings
@@ -113,6 +113,18 @@ final class SbtProcessManager(project: Project) extends Disposable {
 
   private val IdeaRunIdVmOption = "idea.runid"
 
+  /**
+   * @return the version of sbt defined in `project/build.properties`, or inferred from the launcher jar
+   *         extracted from [[org.jetbrains.sbt.project.settings.SbtExecutionSettings]].
+   */
+  private def detectCurrentSbtVersion: SbtVersion = {
+    val workingDirPath = getWorkingDirPath(project)
+    val workingDir = new File(workingDirPath)
+    val sbtSettings = getSbtSettings(workingDirPath)
+    val launcher = SbtUtil.getLauncherJar(sbtSettings)
+    SbtUtil.detectSbtVersion(workingDir.toPath, launcher)
+  }
+
   private def createShellProcessHandler(): (ColoredProcessHandler, Option[RemoteConnection], SbtVersion) = {
     log.debug("createShellProcessHandler")
     val workingDirPath = getWorkingDirPath(project)
@@ -145,7 +157,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
       }
     }
 
-    val projectSbtVersion = detectSbtVersion(workingDir.toPath, launcher)
+    val projectSbtVersion = SbtUtil.detectSbtVersion(workingDir.toPath, launcher)
     val addPluginCommandSupported = SbtVersionCapabilities.isAddPluginCommandSupported(projectSbtVersion)
     log.debug(s"projectSbtVersion = $projectSbtVersion")
     log.debug(s"addPluginCommandSupported = $addPluginCommandSupported")
@@ -390,6 +402,18 @@ final class SbtProcessManager(project: Project) extends Disposable {
     }
   }
 
+  /**
+   * Checks whether the sbt version used by the sbt shell process matches the current sbt version.
+   * Returns `false` if the sbt shell is not running.
+   *
+   * @see [[detectCurrentSbtVersion]]
+   */
+  def isSbtVersionOutdated: Boolean = processDataMutex.synchronized {
+    processData.filter(isAlive).exists { data =>
+      data.sbtVersion != detectCurrentSbtVersion
+    }
+  }
+
   def shellRunner: Option[SbtShellRunner] = processData.map(_.runner)
 
   def restartProcess(): Unit = processDataMutex.synchronized {
@@ -430,11 +454,21 @@ final class SbtProcessManager(project: Project) extends Disposable {
     }
   }
 
-  def destroyProcess(): Unit = processDataMutex.synchronized {
+  /**
+   * @param isSoft when `true`, the emptying queue process is not canceled, and post-restart commands are preserved.
+   *
+   *               When `false`, the emptying queue process is canceled if it is running.
+   * @see [[org.jetbrains.sbt.shell.SbtShellCommunication.cancelEmptyingQueue]]
+   */
+  def destroyProcess(isSoft: Boolean = false): Unit = processDataMutex.synchronized {
     log.debug("destroyProcess")
     processData match {
       case Some(ProcessData(handler, _, _)) =>
-        SbtShellCommunication.forProject(project).startDestroying()
+        val shell = SbtShellCommunication.forProject(project)
+        shell.startDestroying()
+        if (!isSoft) {
+          shell.cancelEmptyingQueue()
+        }
         val runnable: Runnable = () => terminateProcessGracefully(handler.getProcess)
         ProgressManager.getInstance().runProcessWithProgressSynchronously(runnable, SbtBundle.message("sbt.shell.stopping.process"), false, project)
         processData = None
