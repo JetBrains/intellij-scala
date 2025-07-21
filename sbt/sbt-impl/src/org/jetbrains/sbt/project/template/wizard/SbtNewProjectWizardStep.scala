@@ -1,14 +1,12 @@
 package org.jetbrains.sbt.project.template.wizard
 
 import com.intellij.ide.JavaUiBundle
-import com.intellij.ide.projectWizard.generators.JdkDownloadService
 import com.intellij.ide.projectWizard.{ProjectWizardJdkComboBox, ProjectWizardJdkComboBoxKt, ProjectWizardJdkIntent}
 import com.intellij.ide.wizard.{AbstractNewProjectWizardStep, NewProjectWizardStep}
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.observable.properties.{GraphProperty, PropertyGraph}
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.projectRoots.impl.jdkDownloader.JdkDownloadTask
 import com.intellij.openapi.projectRoots.{JavaSdkVersion, Sdk}
 import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.openapi.ui.validation.{DialogValidationRequestor, RequestorsKt}
@@ -18,6 +16,7 @@ import com.intellij.ui.dsl.gridLayout.HorizontalAlign
 import com.intellij.util.lang.JavaVersion
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.sbt.project.template.wizard.buildSystem.{startJdkDownloadIfNeeded => startJdkDownload}
 import org.jetbrains.plugins.scala.project.Versions
 import org.jetbrains.plugins.scala.util.AsynchronousVersionsDownloading
 import org.jetbrains.sbt.project.template.SComboBox
@@ -85,10 +84,7 @@ abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep) extends Abs
 
   protected def startJdkDownloadIfNeeded(project: Project): Unit = {
     val sdkDownloadTask = jdkIntent.flatMap(intent => Option(intent.getDownloadTask))
-    sdkDownloadTask.collect { case task: JdkDownloadTask =>
-      val service = project.getService(classOf[JdkDownloadService])
-      service.scheduleDownloadJdkForNewProject(task)
-    }
+    startJdkDownload(sdkDownloadTask, project)
   }
 
   protected def setupJavaSdkUI(builder: Panel): Unit = {
