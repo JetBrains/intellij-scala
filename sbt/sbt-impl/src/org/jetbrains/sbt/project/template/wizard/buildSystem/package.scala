@@ -2,6 +2,7 @@ package org.jetbrains.sbt.project.template.wizard
 
 import com.intellij.ide.fileTemplates.FileTemplateManager
 import com.intellij.ide.projectWizard.ProjectWizardJdkIntent
+import com.intellij.ide.projectWizard.generators.JdkDownloadService
 import com.intellij.ide.util.projectWizard.ModuleBuilder
 import com.intellij.ide.wizard.{AbstractNewProjectWizardStep, NewProjectOnboardingTips, OnboardingTipsInstallationInfo}
 import com.intellij.openapi.actionSystem.IdeActions
@@ -10,7 +11,9 @@ import com.intellij.openapi.client.ClientSystemInfo
 import com.intellij.openapi.keymap.KeymapTextContext
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.Sdk
+import com.intellij.openapi.projectRoots.impl.jdkDownloader.JdkDownloadTask
 import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.roots.ui.configuration.projectRoot.SdkDownloadTask
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
 import org.jetbrains.annotations.ApiStatus
@@ -101,6 +104,12 @@ package object buildSystem {
       file
     }
   }
+
+  def startJdkDownloadIfNeeded(sdkDownloadTask: Option[SdkDownloadTask], project: Project): Unit =
+    sdkDownloadTask.collect { case task: JdkDownloadTask =>
+      val service = project.getService(classOf[JdkDownloadService])
+      service.scheduleDownloadJdkForNewProject(task)
+    }
 
   private def createDirectoryIfMissing(path: String): VirtualFile =
     Option(VfsUtil.createDirectoryIfMissing(path))

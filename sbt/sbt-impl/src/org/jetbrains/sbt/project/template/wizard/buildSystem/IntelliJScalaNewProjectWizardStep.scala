@@ -58,6 +58,8 @@ final class IntelliJScalaNewProjectWizardStep(parent: ScalaNewProjectWizardMulti
           packagePrefix = builder.packagePrefix,
           withOnboardingTips = true
         )
+
+    startJdkDownloadIfNeeded(sdkDownloadTask = Option(getSdkDownloadTask), project)
     builder.commit(project)
   }
 
