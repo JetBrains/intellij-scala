@@ -25,7 +25,8 @@ private final class GeneratedManagedSourcesImportListener(project: Project) exte
           kotlin.Unit.INSTANCE
         })
 
-        gtip.show(button, GotItTooltip.LEFT_MIDDLE)
+        val pointProvider = SbtTooltip.tooltipPointOfOrigin(button)
+        gtip.show(button, pointProvider)
       }
     }
   }
