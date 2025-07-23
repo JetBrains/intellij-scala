@@ -48,7 +48,7 @@ abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImporti
   protected def runTest(expected: project): Unit =
     runTest(expected, identity)
 
-  protected def runTest(expected: project, optionsModifier: ProjectComparisonOptions => ProjectComparisonOptions): Unit = {
+  protected def runTest(expected: project, optionsModifier: ProjectComparisonOptions => ProjectComparisonOptions, mutedNotificationTitles: Seq[String] = Seq.empty): Unit = {
     val notificationsCollector = CollectingNotificationsListener.subscribeOnWarningsAndErrors(getProject)
 
     importProject(false)
@@ -66,7 +66,7 @@ abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImporti
 
 
     assertProjectsEqual(expected, myProject, !enableSeparateModulesForProdTest)(defaultCompareContext.withOptions(optionsModifier))
-    assertNoNotificationsShown(myProject, notificationsCollector.getNotifications)
+    assertNoNotificationsShown(myProject, notificationsCollector.getNotifications, mutedNotificationTitles)
   }
 
   /**

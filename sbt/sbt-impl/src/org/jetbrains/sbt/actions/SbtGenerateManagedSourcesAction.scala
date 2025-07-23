@@ -70,12 +70,7 @@ private final class SbtGenerateManagedSourcesAction extends AnAction(
 
           val repoPath = SbtUtil.normalizePath(SbtUtil.getRepoDir)
           val pluginsSbt =
-            raw"""resolvers += {
-                 |  import sbt.Resolver.mavenStyleBasePattern
-                 |  val artifactPatterns = Vector(mavenStyleBasePattern)
-                 |  val patterns = Patterns.apply(artifactPatterns, artifactPatterns, true, false, false)
-                 |  Resolver.file("Scala Plugin Bundled Repository", file(raw"$repoPath"))(patterns)
-                 |}
+            raw"""resolvers += MavenCache("Scala Plugin Bundled Repository", file(raw"$repoPath"))
                  |
                  |addSbtPlugin("org.jetbrains.scala" % "sbt-structure-extractor" % "${BuildInfo.sbtStructureVersion}", "$sbtStructurePluginBinVersion")
                  |""".stripMargin
