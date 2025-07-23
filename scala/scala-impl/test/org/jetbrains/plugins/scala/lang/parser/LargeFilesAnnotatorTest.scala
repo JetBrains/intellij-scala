@@ -15,7 +15,7 @@ class LargeFilesAnnotatorTest extends ScalaLightCodeInsightFixtureTestCase {
    * @see [[org.jetbrains.plugins.scala.lang.parser.PsiFileFactoryForDecompiledScalaFileTest.testTreatTooLargeScalaFilesAsPlainTextFiles]]
    */
   def testShowEditorWarningInLargeScalaFiles(): Unit = {
-    val fileText = PsiFileFactoryTest.generateLargeScalaFileWithLargeCommentText
+    val fileText = LargeFilesMixedPsiTests.generateLargeScalaFileWithLargeCommentText
     myFixture.configureByText("Dummy.scala", fileText)
     val highlightInfos = myFixture.doHighlighting().asScala
 

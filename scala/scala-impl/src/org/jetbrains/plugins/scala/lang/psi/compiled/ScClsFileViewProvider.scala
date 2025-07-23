@@ -8,7 +8,7 @@ import com.intellij.openapi.roots.impl.LibraryScopeCache
 import com.intellij.openapi.roots.{OrderEntry, ProjectFileIndex, ProjectRootManager}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
-import com.intellij.psi.{PsiClassOwner, PsiElement, PsiManager, SingleRootFileViewProvider}
+import com.intellij.psi.{PsiClassOwner, PsiElement, PsiFile, PsiManager, SingleRootFileViewProvider}
 import com.intellij.util.CommonProcessors.FindProcessor
 import org.jetbrains.plugins.scala.caches.cachedInUserData
 import org.jetbrains.plugins.scala.extensions.{ClassQualifiedName, ObjectExt, PsiClassExt}
@@ -22,9 +22,22 @@ import java.{util => ju}
 import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
 
-final class ScClsFileViewProvider(decompilationResult: ScalaDecompilationResult)
-                                 (manager: PsiManager, file: VirtualFile, eventSystemEnabled: Boolean, language: Language)
-  extends SingleRootFileViewProvider(manager, file, eventSystemEnabled, language) {
+/**
+ * For the non-decompiled scala files see [[org.jetbrains.plugins.scala.lang.psi.ScFileViewProvider]]
+ */
+final class ScClsFileViewProvider(
+  decompilationResult: ScalaDecompilationResult
+)(
+  manager: PsiManager,
+  file: VirtualFile,
+  eventSystemEnabled: Boolean,
+  language: Language
+) extends SingleRootFileViewProvider(
+  manager,
+  file,
+  eventSystemEnabled,
+  language
+) {
 
   private def sourceName: String = decompilationResult.sourceName
 
@@ -32,9 +45,11 @@ final class ScClsFileViewProvider(decompilationResult: ScalaDecompilationResult)
 
   private def compilerOptions: CompilerOptions = decompilationResult.sourceText._2
 
-  override def createFile(project: Project,
-                          file: VirtualFile,
-                          fileType: FileType) =
+  override def createFile(
+    project: Project,
+    file: VirtualFile,
+    fileType: FileType
+  ): PsiFile =
     new ScClsFileViewProvider.ScClsFileImpl(this)
 
   override def createCopy(file: VirtualFile) =
@@ -43,6 +58,10 @@ final class ScClsFileViewProvider(decompilationResult: ScalaDecompilationResult)
 
 object ScClsFileViewProvider {
 
+  /**
+   * Java alternative is [[com.intellij.psi.impl.compiled.ClsFileImpl]],
+   * though note that there are plenty of various differences in our implementations and approaches.
+   */
   final class ScClsFileImpl(override val getViewProvider: ScClsFileViewProvider)
     extends ScalaFileImpl(getViewProvider) {
 
