@@ -15,7 +15,7 @@ object TupleIntrinsics {
       TupleType(comps, scala3 = true)
 
     (opName: @switch) match {
-      case "Append" =>
+      case "Append" | ":*" =>
         operands match {
           case Seq(TupleType(comps), elem) => Some(mkTuple(comps :+ elem))
           case _ => None

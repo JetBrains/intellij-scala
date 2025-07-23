@@ -235,14 +235,14 @@ object TupleType {
     val NonEmptyTupleClassFqn = "scala.NonEmptyTuple"
     val ConsClassFqn = "scala.*:"
 
-    def tupleBaseClass(implicit scope: ElementScope): Option[PsiClass] = scope.getCachedClass(TupleBaseClassFqn)
-    def emptyTupleObject(implicit scope: ElementScope): Option[ScObject] = scope.getCachedObject(EmptyTupleClassFqn)
-    def consClass(implicit scope: ElementScope): Option[PsiClass] = scope.getCachedClass(ConsClassFqn)
+    def tupleBaseClass(implicit projectContext: ProjectContext): Option[PsiClass] = ElementScope(projectContext).getCachedClass(TupleBaseClassFqn)
+    def emptyTupleObject(implicit projectContext: ProjectContext): Option[ScObject] = ElementScope(projectContext).getCachedObject(EmptyTupleClassFqn)
+    def consClass(implicit projectContext: ProjectContext): Option[PsiClass] = ElementScope(projectContext).getCachedClass(ConsClassFqn)
 
     @inline
-    def apply(types: Seq[ScType])(implicit scope: ElementScope): ScType = apply(types, None)
+    def apply(types: Seq[ScType])(implicit projectContext: ProjectContext): ScType = apply(types, None)
     @inline
-    def apply(types: Seq[ScType], tail: ScType)(implicit scope: ElementScope): ScType = apply(types, Some(tail))
+    def apply(types: Seq[ScType], tail: ScType)(implicit projectContext: ProjectContext): ScType = apply(types, Some(tail))
 
     /**
      * Returns a Scala3 tuple which ends in tail or EmptyTuple.
@@ -251,7 +251,7 @@ object TupleType {
      *
      * aka: types(0) *: types(1) *: ... *: types(N-1) *: tail.getOrElse(EmptyTuple)
      */
-    def apply(types: Seq[ScType], tail: Option[ScType])(implicit scope: ElementScope, context: Context): ScType = {
+    def apply(types: Seq[ScType], tail: Option[ScType])(implicit projectContext: ProjectContext, context: Context): ScType = {
       (
         tail.orElse(emptyTupleObject.map(ScalaType.designator)),
         consClass
