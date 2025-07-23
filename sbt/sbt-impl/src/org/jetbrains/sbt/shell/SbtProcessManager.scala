@@ -66,20 +66,9 @@ final class SbtProcessManager(project: Project) extends Disposable {
 
   @NonNls private def repoPath: String = normalizePath(getRepoDir)
 
-  /**
-   * NOTE: we copy `artifactPatterns` to `withIvyPatterns` to avoid this warning <br>
-   * `[warn] Unrecognized repository Scala Plugin Bundled Repository, ignoring it`<br>
-   * from `sbt-coursier` in sbt output
-   * @see https://github.com/coursier/sbt-coursier/blob/0fa908c63219837050dd22e4141985eb0298b1fd/modules/lm-coursier/src/main/scala/lmcoursier/internal/Resolvers.scala#L126
-   * @see https://stackoverflow.com/questions/72814869/unrecognized-repository-scala-plugin-bundled-repository
-   */
   @NonNls private def pluginResolverSetting: String =
-    raw"""resolvers += {
-         |  import sbt.Resolver.mavenStyleBasePattern
-         |  val artifactPatterns = Vector(mavenStyleBasePattern)
-         |  val patterns = Patterns.apply(artifactPatterns, artifactPatterns, true, false, false)
-         |  Resolver.file("Scala Plugin Bundled Repository", file(raw"$repoPath"))(patterns)
-         |}""".stripMargin
+    raw"""resolvers += MavenCache("Scala Plugin Bundled Repository", file(raw"$repoPath"))
+         |""".stripMargin
 
   /** Plugins injected into user's global sbt build. */
   // TODO add configurable plugins somewhere for users and via API; factor this stuff out
@@ -218,15 +207,17 @@ final class SbtProcessManager(project: Project) extends Disposable {
     addPluginCommandSupported: Boolean,
     commandLine: GeneralCommandLine,
     sbtBinVersion: Version
-  ): File =
+  ): File = {
+    val globalPluginsDir = globalPluginsDirectory(SbtVersion(sbtBinVersion), commandLine.getParametersList)
+    // workaround: --addPluginSbtFile fails if global plugins dir does not exist. https://youtrack.jetbrains.com/issue/SCL-14415
+    if (!globalPluginsDir.exists()) {
+      globalPluginsDir.mkdirs()
+    }
     if (addPluginCommandSupported)
       FileUtil.createTempFile("idea", Sbt.Extension, true)
-    else {
-      val globalPluginsDir = globalPluginsDirectory(SbtVersion(sbtBinVersion), commandLine.getParametersList)
-      // workaround: --addPluginSbtFile fails if global plugins dir does not exist. https://youtrack.jetbrains.com/issue/SCL-14415
-      globalPluginsDir.mkdirs()
+    else
       new File(globalPluginsDir, "idea.sbt")
-    }
+  }
 
   // on Windows the terminal defaults to 80 columns which wraps and breaks highlighting.
   // Use a wider value that should be reasonable in most cases. Has no effect on Unix.

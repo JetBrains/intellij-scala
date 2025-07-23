@@ -2,10 +2,9 @@ import coursier.cache.FileCache
 import coursier.core.Dependency
 import coursier.ivy.IvyRepository
 import coursier.maven.{MavenRepository, SbtMavenRepository}
-import coursier.util.Artifact
-import coursier.{Classifier, Fetch, Module, ModuleName, Organization, Repositories, moduleNameString, organizationString, util}
+import coursier.{Fetch, Module, ModuleName, Organization, Repositories, moduleNameString, organizationString, util}
 import sbt.*
-import sbt.Keys.{baseDirectory, target}
+import sbt.Keys.target
 import sbt.librarymanagement.CrossVersion
 
 import java.io.File
@@ -25,7 +24,6 @@ object LocalRepoPackager extends AutoPlugin {
   override def projectSettings: Seq[Def.Setting[?]] = Seq(
     localRepoUpdate := updateLocalRepo(
       localRepoDependencies.value,
-      (ThisBuild / baseDirectory).value.toPath / "project" / "resources",
       target.value.toPath
     )
   )
@@ -36,36 +34,26 @@ object LocalRepoPackager extends AutoPlugin {
    *
    * @return path mappings (file path -> local repo relative location)
    */
-  def updateLocalRepo(dependencies: Seq[Dependency], resourceDir: Path, targetDir: Path): Seq[(Path, Path)] = {
+  def updateLocalRepo(dependencies: Seq[Dependency], targetDir: Path): Seq[(Path, Path)] = {
 
     @nowarn("cat=deprecation")
     val depsWithExclusions = dependencies
       .map(_.withExclusions(Set((org"org.scala-lang", name"scala-library"))))
 
-    def artifactExtra(art: Artifact) = {
-      val sig = art.extra.get("sig").toSeq
-      val checksums = art.checksumUrls.values
-        .map(url => Artifact(url, Map.empty, Map.empty, art.changing, optional = true, art.authentication))
-      sig ++ checksums
-    }
-
     val fetch: Fetch[util.Task] = Fetch()
       .addRepositories(SbtMavenRepository(Repositories.central))
       .withDependencies(depsWithExclusions)
       .allArtifactTypes()
-      .addClassifiers(Classifier.javadoc, Classifier.sources)
       .withMainArtifacts()
       .addExtraArtifacts { dpas =>
         // hack to get poms, signatures and checksums as "artifacts"
         dpas.flatMap { case (_, _, art) =>
-          val meta = art.extra.get("metadata").toSeq
-            .flatMap(a => List(a) ++ artifactExtra(a))
-          meta ++ artifactExtra(art)
+          art.extra.get("metadata").toSeq
         }
       }
 
     val fetched = fetch.run().map(_.toPath)
-    val srcTrg = fetched.flatMap { src =>
+    fetched.flatMap { src =>
       repositoryRoots(fetch, src).flatMap { root =>
         val relativePath = root.relativize(src)
         assert(!relativePath.toString.contains(".."), s"""Relative path must not contain special name ".." (parent folder): $relativePath (root: $root, file: $src)""")
@@ -120,18 +108,6 @@ object LocalRepoPackager extends AutoPlugin {
         }
       }
     }
-
-    // replace javadocs with dummies because they are large and mostly useless, but some resolvers error out if they are missing
-    val dummyJavadocJar = resourceDir / "dummy-javadoc.jar"
-    val dummyJavadocMD5 = resourceDir / "dummy-javadoc.jar.md5"
-    val res = srcTrg.flatMap { case (src, trg) =>
-      val srcName = src.getFileName.toString
-      if (srcName.endsWith("-javadoc.jar")) List(dummyJavadocJar -> trg)
-      else if (srcName.endsWith("-javadoc.jar.md5")) List(dummyJavadocMD5 -> trg)
-      else if (srcName.contains("-javadoc.jar")) List.empty // remove any other javadoc related files
-      else List(src -> trg)
-    }
-    res
   }
 
   private def createLegacyFileName(name: String, version: String, extension: String): String =
