@@ -151,7 +151,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
     ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, name)
 
   private def scalaProductClass: Option[PsiClass] = cachedClass(CommonQualifiedNames.ProductFqn)
-  private def scala3TupleConsClass: Option[PsiClass] = cachedClass(TupleType.TupleHList.ConsClassFqn)
+  private def scala3TupleConsClass: Option[PsiClass] = TupleType.TupleHList.consClass
 
   private def scalaSerializableBaseClassForCaseClasses: Option[PsiClass] =
     if (this.scalaLanguageLevelOrDefault >= ScalaLanguageLevel.Scala_2_13)
