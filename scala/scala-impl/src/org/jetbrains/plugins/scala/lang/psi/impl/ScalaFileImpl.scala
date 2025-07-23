@@ -16,7 +16,7 @@ import com.intellij.psi.search.{GlobalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiUtilCore
 import com.intellij.psi.{FileResolveScopeProvider, FileViewProvider, PsiClass, PsiDocumentManager, PsiElement, PsiReference}
 import com.intellij.util.ThrowableRunnable
-import com.intellij.util.indexing.FileBasedIndex
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.caches.{ModTracker, cached, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.finder.{ResolveFilterScope, WorksheetResolveFilterScope}
@@ -168,16 +168,17 @@ class ScalaFileImpl(
     }
   }
 
-  override def getStub: ScFileStub = super[PsiFileBase].getStub match {
-    case null => null
-    case s: ScFileStub => s
-    case _ =>
-      val faultyContainer: VirtualFile = PsiUtilCore.getVirtualFile(this)
-      LOG.error("Scala File has wrong stub file: " + faultyContainer)
-      if (faultyContainer != null && faultyContainer.isValid) {
-        FileBasedIndex.getInstance.requestReindex(faultyContainer)
-      }
-      null
+  @Nullable
+  override final def getStub: ScFileStub = {
+    val stub = super[PsiFileBase].getStub
+    stub match {
+      case null => null
+      case s: ScFileStub => s
+      case unexpectedStub =>
+        val vFile: VirtualFile = PsiUtilCore.getVirtualFile(this)
+        LOG.error(s"Scala File has unexpected stub type ${unexpectedStub.getClass.getName} for file: $vFile")
+        null
+    }
   }
 
   override def firstPackaging: Option[ScPackaging] = packagings.headOption
@@ -206,13 +207,16 @@ class ScalaFileImpl(
     @tailrec
     def inner(packagings: Seq[ScPackaging], result: StringBuilder): String =
       packagings match {
-        case Seq() => if (result.isEmpty) "" else result.substring(1)
+        case Seq() =>
+          if (result.isEmpty) "" else result.substring(1)
         case Seq(head) =>
           inner(head.packagings, result.append(".").append(head.packageName))
-        case _ => null
+        case _ =>
+          null
       }
 
-    inner(packagings, new StringBuilder())
+    val packagingsRes = packagings
+    inner(packagingsRes, new StringBuilder())
   }
 
   //Among other use places, this method is used to determine icon for a file in Project View
@@ -330,9 +334,14 @@ class ScalaFileImpl(
     extensions ++ packagings.flatMap(_.extensions)
   }
 
-  private def foldStub[R](byPsi: => R)(byStub: ScFileStub => R): R = getStub match {
-    case null => byPsi
-    case stub => byStub(stub)
+  private def foldStub[R](byPsi: => Seq[R])(byStub: ScFileStub => Seq[R]): Seq[R] = {
+    val stub = getStub
+    if (stub != null)
+      byStub(stub)
+    else if (isCompiled) // ~ ScClsFileViewProvider.ScClsFileImpl
+      byPsi //Nil // e.g., plain text for a too large scala file
+    else
+      byPsi
   }
 
   override def topLevelWrapperObject: Option[PsiClass] = _topLevelWrapperObject()
