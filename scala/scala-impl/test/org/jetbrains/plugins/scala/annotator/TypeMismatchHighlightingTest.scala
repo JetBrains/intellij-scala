@@ -187,6 +187,11 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
     "object O { def apply(i: Int) = (); def apply(f: Float) = () }; O(false)",
     Error("O", "Cannot resolve overloaded method 'O'")) // TODO "apply", not "O"?
 
+  def  testInfixOverloading(): Unit = assertErrorsWithHints(
+    "object O { def +(i: Int) = (); def +(f: Float) = () }; 1 + false",
+    Error("+", "Cannot resolve overloaded method '+'")
+  )
+
   // Constructor invocation, SCL-15592
 
   def testConstructorInvocationOk(): Unit = assertErrorsWithHints(

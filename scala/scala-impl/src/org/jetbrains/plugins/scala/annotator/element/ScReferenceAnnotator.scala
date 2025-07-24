@@ -298,10 +298,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
 
       parent match {
         case _: ScImportSelector if resolve.length > 0 => return
-        case _: ScMethodCall if resolve.length > 1 =>
-          val error = ScalaBundle.message("cannot.resolve.overloaded", refElement.refName)
-          holder.createErrorAnnotation(refElement.nameId, error)
-        case _: ScMethodCall if resolve.length > 1 =>
+        case _: MethodInvocation if resolve.length > 1 =>
           val error = ScalaBundle.message("cannot.resolve.overloaded", refElement.refName)
           holder.createErrorAnnotation(refElement.nameId, error)
         case mc: ScMethodCall if addCreateApplyOrUnapplyFix(
