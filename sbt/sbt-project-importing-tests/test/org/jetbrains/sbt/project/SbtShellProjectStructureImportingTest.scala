@@ -1,9 +1,6 @@
 package org.jetbrains.sbt.project
 
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.roots.ProjectRootManager
-import com.intellij.openapi.util.SystemInfo
-import com.intellij.testFramework.common.ThreadLeakTracker
 import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory
 import org.jetbrains.jps.model.java.{JavaResourceRootType, JavaSourceRootType}
 import org.jetbrains.plugins.scala.SlowTests
@@ -22,11 +19,6 @@ class SbtShellProjectStructureImportingTest extends SbtProjectStructureImporting
     getCurrentExternalProjectSettings.useSbtShellForImport = true
     super.setUp()
     inWriteAction(ProjectRootManager.getInstance(getProject).setProjectSdk(getJdkConfiguredForTestCase))
-
-    if (SystemInfo.isLinux) {
-      //noinspection ApiStatus,UnstableApiUsage
-      ThreadLeakTracker.longRunningThreadCreated(ApplicationManager.getApplication, "SystemPropertyWatcher")
-    }
   }
 
   override protected def setUpFixtures(): Unit = {
@@ -38,7 +30,6 @@ class SbtShellProjectStructureImportingTest extends SbtProjectStructureImporting
 
   override protected def enableSeparateModulesForProdTest: Boolean = true
 
-  // Tests latest sbt 1.x.
   def testSimple(): Unit = {
     val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
     runSimpleTest("simple", "2.13", scalaLibraries)
@@ -59,13 +50,11 @@ class SbtShellProjectStructureImportingTest extends SbtProjectStructureImporting
 //    )
   }
 
-  // Tests sbt 1.5.5.
   def testSimple_Scala3(): Unit = {
     val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("3.0.2")
     runSimpleTest("simple-scala3", "3.0.2", scalaLibraries, DefaultSbtContentRootsScala3, DefaultMainSbtContentRootsScala3, DefaultTestSbtContentRootsScala3)
   }
 
-  // Tests sbt 1.7.2.
   def testCompileOrder(): Unit = {
     runTest(new project("compile-order-unspecified") {
       modules := Seq(
@@ -101,7 +90,6 @@ class SbtShellProjectStructureImportingTest extends SbtProjectStructureImporting
     })
   }
 
-  // Tests latest sbt 1.x.
   def testMultiModule(): Unit = runTest(
     new project("multiModule") {
       lazy val foo = new module("multiModule.foo") {
@@ -140,7 +128,6 @@ class SbtShellProjectStructureImportingTest extends SbtProjectStructureImporting
       )
     })
 
-  // Tests sbt 2.x.
   def testSimpleSbt2Latest(): Unit = {
     val expectedScala_3_3 = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("3.3.3")
     val expectedScala_3_6 = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("3.6.2")
@@ -384,27 +371,22 @@ class SbtShellProjectStructureImportingTest extends SbtProjectStructureImporting
     //    )
   }
 
-  // Tests sbt 0.13.18.
   def testSimpleSbt013(): Unit = {
     simpleSbtIvyBasedTest()
   }
 
-  // Tests sbt 1.0.4.
   def testSimpleSbt104(): Unit = {
     simpleSbtIvyBasedTest()
   }
 
-  // Tests sbt 1.1.6.
   def testSimpleSbt116(): Unit = {
     simpleSbtIvyBasedTest()
   }
 
-  // Tests sbt 1.2.8.
   def testSimpleSbt128(): Unit = {
     simpleSbtIvyBasedTest()
   }
 
-  // Tests sbt 1.3.13.
   def testSimpleSbt1313(): Unit = {
     val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
 
@@ -430,7 +412,6 @@ class SbtShellProjectStructureImportingTest extends SbtProjectStructureImporting
     //    )
   }
 
-  // Tests sbt 1.4.9.
   def testSimpleSbt149(): Unit = {
     val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
 

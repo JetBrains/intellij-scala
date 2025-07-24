@@ -1,13 +1,13 @@
 package org.jetbrains.sbt.project
 
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
-import org.jetbrains.plugins.scala.ExtremelySlowTests
+import org.jetbrains.plugins.scala.SlowTests2
 import org.jetbrains.plugins.scala.project.{LibraryExExt, LibraryExt, ProjectExt}
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert.{assertEquals, assertNotNull}
 import org.junit.experimental.categories.Category
 
-@Category(Array(classOf[ExtremelySlowTests]))
+@Category(Array(classOf[SlowTests2]))
 class ResolveCompilerBridgeTest_2_13 extends SbtExternalSystemImportingTestLike {
 
   override protected def getTestDataProjectPath: String =

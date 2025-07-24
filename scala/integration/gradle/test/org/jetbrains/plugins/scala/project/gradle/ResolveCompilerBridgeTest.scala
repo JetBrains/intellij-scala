@@ -10,11 +10,11 @@ import org.jetbrains.plugins.gradle.util.GradleConstants
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.{LibraryExExt, LibraryExt, ProjectExt}
-import org.jetbrains.plugins.scala.{ExtremelySlowTests, ScalaVersion}
+import org.jetbrains.plugins.scala.{SlowTests2, ScalaVersion}
 import org.junit.Assert.{assertEquals, assertNotNull}
 import org.junit.experimental.categories.Category
 
-@Category(Array(classOf[ExtremelySlowTests]))
+@Category(Array(classOf[SlowTests2]))
 class ResolveCompilerBridgeTest extends ExternalSystemImportingTestCase {
 
   private val scalaVersion: String = ScalaVersion.Latest.Scala_3_LTS_RC.minor

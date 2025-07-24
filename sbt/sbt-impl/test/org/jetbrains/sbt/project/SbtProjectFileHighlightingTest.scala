@@ -5,7 +5,7 @@ import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.{PsiFile, PsiManager}
 import junit.framework.TestCase.{assertFalse, assertNotNull, assertTrue}
-import org.jetbrains.plugins.scala.ExtremelySlowTests
+import org.jetbrains.plugins.scala.SlowTests2
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.experimental.categories.Category
@@ -67,8 +67,8 @@ sealed abstract class SbtProjectFileHighlightingTestBase(sbtVersion: String) ext
   }
 }
 
-@Category(Array(classOf[ExtremelySlowTests]))
+@Category(Array(classOf[SlowTests2]))
 class SbtProjectFileHighlightingTest_0_13 extends SbtProjectFileHighlightingTestBase("0_13")
 
-@Category(Array(classOf[ExtremelySlowTests]))
+@Category(Array(classOf[SlowTests2]))
 class SbtProjectFileHighlightingTest_1 extends SbtProjectFileHighlightingTestBase("1")

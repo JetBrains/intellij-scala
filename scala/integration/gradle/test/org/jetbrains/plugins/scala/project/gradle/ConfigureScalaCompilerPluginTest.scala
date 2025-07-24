@@ -10,7 +10,7 @@ import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.{CompilerTester, IndexingTestUtil}
 import org.jetbrains.plugins.gradle.settings.GradleProjectSettings
 import org.jetbrains.plugins.gradle.util.GradleConstants
-import org.jetbrains.plugins.scala.ExtremelySlowTests
+import org.jetbrains.plugins.scala.SlowTests2
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.ModuleExt
@@ -21,7 +21,7 @@ import org.junit.experimental.categories.Category
 
 import scala.jdk.CollectionConverters._
 
-@Category(Array(classOf[ExtremelySlowTests]))
+@Category(Array(classOf[SlowTests2]))
 class ConfigureScalaCompilerPluginTest extends ExternalSystemImportingTestCase {
 
   private var sdk: Sdk = _

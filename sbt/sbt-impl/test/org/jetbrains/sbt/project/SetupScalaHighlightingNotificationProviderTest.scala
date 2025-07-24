@@ -7,14 +7,14 @@ import com.intellij.psi.search.ProjectScope
 import com.intellij.psi.{JavaPsiFacade, PsiFile, PsiManager}
 import com.intellij.ui.EditorNotificationProvider
 import junit.framework.TestCase.{assertFalse, assertNotNull, assertNull, assertTrue}
-import org.jetbrains.plugins.scala.ExtremelySlowTests
+import org.jetbrains.plugins.scala.SlowTests2
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.experimental.categories.Category
 
 import java.nio.file.Path
 
-@Category(Array(classOf[ExtremelySlowTests]))
+@Category(Array(classOf[SlowTests2]))
 class SetupScalaHighlightingNotificationProviderTest extends SbtExternalSystemImportingTestLike {
   override protected def getTestDataProjectPath: String =
     s"${TestUtils.getTestDataPath}/sbt/projects/setupScalaHighlightingNotificationProvider"
