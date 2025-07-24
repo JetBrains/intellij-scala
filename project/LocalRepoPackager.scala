@@ -34,7 +34,7 @@ object LocalRepoPackager extends AutoPlugin {
    *
    * @return path mappings (file path -> local repo relative location)
    */
-  def updateLocalRepo(dependencies: Seq[Dependency], targetDir: Path): Seq[(Path, Path)] = {
+  def updateLocalRepo(dependencies: Seq[Dependency], projectTargetDir: Path): Seq[(Path, Path)] = {
 
     @nowarn("cat=deprecation")
     val depsWithExclusions = dependencies
@@ -53,61 +53,110 @@ object LocalRepoPackager extends AutoPlugin {
       }
 
     val fetched = fetch.run().map(_.toPath)
-    fetched.flatMap { src =>
-      repositoryRoots(fetch, src).flatMap { root =>
-        val relativePath = root.relativize(src)
-        assert(!relativePath.toString.contains(".."), s"""Relative path must not contain special name ".." (parent folder): $relativePath (root: $root, file: $src)""")
-        src match {
-          case SbtPluginJar(name, version) =>
-            // SCL-24119
-            // We need to include sbt plugin jars using the modern artifact name style (which contains the Scala and sbt version in the name)
-            // and the "legacy" name style (which only has the name of the plugin).
-            // We simply include the same artifact with two different names, the jars are otherwise identical.
-            val legacyFileName = createLegacyFileName(name, version, extension = "jar")
-            val legacyFileRelativePath = relativePath.resolveSibling(legacyFileName)
-            Seq(
-              src -> legacyFileRelativePath,
-              src -> relativePath
-            )
+    for {
+      src <- fetched
+      root <- repositoryRoots(fetch, src)
+      mapping <- createFileMappings(root, src, projectTargetDir)
+    } yield mapping
+  }
 
-          case SbtPluginPom(name, scalaSbtVersion, version) =>
-            // SCL-24119
-            // We need to include the sbt plugin poms using the modern artifact name style and the "legacy" name style.
-            // We create a copy of the pom file, with a modified <artifactId> inside with the "legacy" artifact name.
-            val legacyFileName = createLegacyFileName(name, version, extension = "pom")
-            val legacyFileRelativePath = relativePath.resolveSibling(legacyFileName)
+  private def createFileMappings(repositoryRoot: Path, sourceFile: Path, projectTargetDir: Path): Seq[(Path, Path)] = {
+    val relativePath = repositoryRoot.relativize(sourceFile)
+    assert(!relativePath.toString.contains(".."), s"""Relative path must not contain special name ".." (parent folder): $relativePath (root: $repositoryRoot, file: $sourceFile)""")
+    sourceFile match {
+      case NeedsLegacyStylePluginJar(name, version) =>
+        createSbtPluginJarMappings(
+          pluginName = name,
+          pluginVersion = version,
+          sourceFile = sourceFile,
+          targetPath = relativePath
+        )
 
-            val localRepoTmpDir = targetDir.resolve("local-repo-tmp-dir")
-            if (!Files.exists(localRepoTmpDir)) {
-              Files.createDirectories(localRepoTmpDir)
-            }
+      case NeedsLegacyStylePluginPom(name, scalaSbtVersion, version) =>
+        createSbtPluginPomMappings(
+          pluginName = name,
+          scalaSbtVersion = scalaSbtVersion,
+          pluginVersion = version,
+          sourceFile = sourceFile,
+          targetPath = relativePath,
+          projectTargetDir = projectTargetDir
+        )
 
-            val legacyFileCopy = localRepoTmpDir.resolve(legacyFileRelativePath)
-            if (!Files.exists(legacyFileCopy.getParent)) {
-              Files.createDirectories(legacyFileCopy.getParent)
-            }
-
-            val pomContents = Files.readString(src)
-            val originalArtifactId = s"<artifactId>$name$scalaSbtVersion</artifactId>"
-            val replacementArtifactId = s"<artifactId>$name</artifactId>"
-            val modifiedPom = pomContents.replace(originalArtifactId, replacementArtifactId)
-            val options = {
-              import java.nio.file.StandardOpenOption.*
-              Array(WRITE, CREATE, TRUNCATE_EXISTING)
-            }
-
-            Files.writeString(legacyFileCopy, modifiedPom, options*)
-
-            Seq(
-              legacyFileCopy -> legacyFileRelativePath,
-              src -> relativePath
-            )
-
-          case _ =>
-            Seq(src -> relativePath)
-        }
-      }
+      case _ =>
+        // This case matches sbt plugins for sbt 2. They do not need any special handling. We include them as is.
+        Seq(sourceFile -> relativePath)
     }
+  }
+
+  private def createSbtPluginJarMappings(
+    pluginName: String,
+    pluginVersion: String,
+    sourceFile: Path,
+    targetPath: Path
+  ): Seq[(Path, Path)] = {
+    // SCL-24119
+    // We need to include sbt plugin jars using the modern artifact name style (which contains the Scala and sbt version in the name)
+    // and the "legacy" name style (which only has the name of the plugin).
+    // We simply include the same artifact with two different names, the jars are otherwise identical.
+    val legacyFileName = createLegacyFileName(pluginName, pluginVersion, extension = "jar")
+    val legacyFileTargetPath = targetPath.resolveSibling(legacyFileName)
+    Seq(
+      sourceFile -> legacyFileTargetPath,
+      sourceFile -> targetPath
+    )
+  }
+
+  private def createSbtPluginPomMappings(
+    pluginName: String,
+    scalaSbtVersion: String,
+    pluginVersion: String,
+    sourceFile: Path,
+    targetPath: Path,
+    projectTargetDir: Path
+  ): Seq[(Path, Path)] = {
+    // SCL-24119
+    // We need to include the sbt plugin poms using the modern artifact name style and the "legacy" name style.
+    // We create a copy of the pom file, with a modified <artifactId> inside with the "legacy" artifact name.
+    val (legacyFileCopy, legacyFileTargetPath) =
+      writeLegacyStylePomFile(pluginName, scalaSbtVersion, pluginVersion, sourceFile, targetPath, projectTargetDir)
+
+    Seq(
+      legacyFileCopy -> legacyFileTargetPath,
+      sourceFile -> targetPath
+    )
+  }
+
+  private def writeLegacyStylePomFile(
+    pluginName: String,
+    scalaSbtVersion: String,
+    pluginVersion: String,
+    sourceFile: Path,
+    targetPath: Path,
+    projectTargetDir: Path
+  ): (Path, Path) = {
+    val legacyFileName = createLegacyFileName(pluginName, pluginVersion, extension = "pom")
+    val legacyFileTargetPath = targetPath.resolveSibling(legacyFileName)
+
+    val localRepoTmpDir = projectTargetDir.resolve("local-repo-tmp-dir")
+    if (!Files.exists(localRepoTmpDir)) {
+      Files.createDirectories(localRepoTmpDir)
+    }
+
+    val legacyFileCopy = localRepoTmpDir.resolve(legacyFileTargetPath)
+    if (!Files.exists(legacyFileCopy.getParent)) {
+      Files.createDirectories(legacyFileCopy.getParent)
+    }
+
+    val pomContents = Files.readString(sourceFile)
+    val originalArtifactId = s"<artifactId>$pluginName$scalaSbtVersion</artifactId>"
+    val replacementArtifactId = s"<artifactId>$pluginName</artifactId>"
+    val modifiedPom = pomContents.replace(originalArtifactId, replacementArtifactId)
+
+    import java.nio.file.StandardOpenOption.*
+    val options = Array(WRITE, CREATE, TRUNCATE_EXISTING)
+    Files.writeString(legacyFileCopy, modifiedPom, options*)
+
+    (legacyFileCopy, legacyFileTargetPath)
   }
 
   private def createLegacyFileName(name: String, version: String, extension: String): String =
@@ -119,7 +168,7 @@ object LocalRepoPackager extends AutoPlugin {
     s"$helper\\.(jar|pom)".r
   }
 
-  private object SbtPluginJar {
+  private object NeedsLegacyStylePluginJar {
     def unapply(path: Path): Option[(String, String)] = {
       val fileName = path.getFileName.toString
       if (fileName.endsWith("-javadoc.jar") || fileName.endsWith("-sources.jar")) return None
@@ -132,7 +181,7 @@ object LocalRepoPackager extends AutoPlugin {
     }
   }
 
-  private object SbtPluginPom {
+  private object NeedsLegacyStylePluginPom {
     def unapply(path: Path): Option[(String, String, String)] = {
       val fileName = path.getFileName.toString
       fileName match {
