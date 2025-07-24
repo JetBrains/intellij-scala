@@ -8,7 +8,8 @@ package org.jetbrains.sbt.project.utils
 case class ProjectComparisonOptions(
   strictCheckForBuildModules: Boolean,
   scalaCliStructureHelper: Option[ScalaCliStructureHelper],
-  checkLibraryDependenciesOrder: Boolean
+  checkLibraryDependenciesOrder: Boolean,
+  checkProjectDependenciesOrder: Boolean
 )
 
 object ProjectComparisonOptions {
@@ -16,16 +17,18 @@ object ProjectComparisonOptions {
     ProjectComparisonOptions(
       strictCheckForBuildModules = false,
       scalaCliStructureHelper = None,
-      checkLibraryDependenciesOrder = false
+      checkLibraryDependenciesOrder = false,
+      checkProjectDependenciesOrder = false
     )
 
   def apply(strictCheckForBuildModules: Boolean): ProjectComparisonOptions =
-    ProjectComparisonOptions(strictCheckForBuildModules, scalaCliStructureHelper = None, checkLibraryDependenciesOrder = false)
+    ProjectComparisonOptions(strictCheckForBuildModules, scalaCliStructureHelper = None, checkLibraryDependenciesOrder = false, checkProjectDependenciesOrder = false)
 
   def apply(scalaCliProjectName: String): ProjectComparisonOptions =
     ProjectComparisonOptions(
       strictCheckForBuildModules = false,
       scalaCliStructureHelper = Some(ScalaCliStructureHelper(scalaCliProjectName)),
-      checkLibraryDependenciesOrder = false
+      checkLibraryDependenciesOrder = false,
+      checkProjectDependenciesOrder = false
     )
 }

@@ -951,16 +951,16 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
         }
         lazy val module1JSTest: module = new module("module1JS.test", Array(projectName, "module1")) {
           moduleDependencies := Seq(
-            new dependency(module1JSMain) {
-              isExported := false
-              scope := DependencyScope.COMPILE
-            },
             new dependency(module1SourcesMain) {
               isExported := true
               scope := DependencyScope.COMPILE
             },
             new dependency(module1SourcesTest) {
               isExported := true
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(module1JSMain) {
+              isExported := false
               scope := DependencyScope.COMPILE
             }
           )
@@ -985,16 +985,16 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
         }
         lazy val module1JVMTest: module = new module("module1JVM.test", Array(projectName, "module1")) {
           moduleDependencies := Seq(
-            new dependency(module1JVMMain) {
-              isExported := false
-              scope := DependencyScope.COMPILE
-            },
             new dependency(module1SourcesMain) {
               isExported := true
               scope := DependencyScope.COMPILE
             },
             new dependency(module1SourcesTest) {
               isExported := true
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(module1JVMMain) {
+              isExported := false
               scope := DependencyScope.COMPILE
             }
           )
@@ -1020,10 +1020,6 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
         }
         lazy val module2JSTest: module = new module("module2JS.test", Array(projectName, "module2")) {
           moduleDependencies := Seq(
-            new dependency(module1JSMain) {
-              isExported := false
-              scope := DependencyScope.COMPILE
-            },
             new dependency(module1SourcesMain) {
               isExported := true
               scope := DependencyScope.COMPILE
@@ -1037,6 +1033,10 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
               scope := DependencyScope.COMPILE
             },
             new dependency(module2JSMain) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(module1JSMain) {
               isExported := false
               scope := DependencyScope.COMPILE
             }
@@ -1062,10 +1062,6 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
         }
         lazy val module2JVMTest: module = new module("module2JVM.test", Array(projectName, "module2")) {
           moduleDependencies := Seq(
-            new dependency(module1JVMMain) {
-              isExported := false
-              scope := DependencyScope.COMPILE
-            },
             new dependency(module1SourcesMain) {
               isExported := true
               scope := DependencyScope.COMPILE
@@ -1079,6 +1075,10 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
               scope := DependencyScope.COMPILE
             },
             new dependency(module2JVMMain) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(module1JVMMain) {
               isExported := false
               scope := DependencyScope.COMPILE
             }
@@ -1101,11 +1101,11 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
 
         lazy val module2SourcesTest: module = new module("module2-sources.test", Array(projectName, "module2")) {
           moduleDependencies := Seq(
-            new dependency(module1JVMMain) {
+            new dependency(module2JVMMain) {
               isExported := false
               scope := DependencyScope.COMPILE
             },
-            new dependency(module2JVMMain) {
+            new dependency(module1JVMMain) {
               isExported := false
               scope := DependencyScope.COMPILE
             }
@@ -1127,14 +1127,6 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
         }
         lazy val module3Test: module = new module(s"$projectName.module3.test") {
           moduleDependencies := Seq(
-            new dependency(module2JVMTest) {
-              isExported := false
-              scope := DependencyScope.COMPILE
-            },
-            new dependency(module1JVMMain) {
-              isExported := false
-              scope := DependencyScope.COMPILE
-            },
             new dependency(module1SourcesMain) {
               isExported := true
               scope := DependencyScope.COMPILE
@@ -1147,11 +1139,19 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
               isExported := true
               scope := DependencyScope.COMPILE
             },
+            new dependency(module3Main) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
             new dependency(module2JVMMain) {
               isExported := false
               scope := DependencyScope.COMPILE
             },
-            new dependency(module3Main) {
+            new dependency(module2JVMTest) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(module1JVMMain) {
               isExported := false
               scope := DependencyScope.COMPILE
             }
@@ -1172,12 +1172,12 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
         lazy val rootMain: module = new module(s"$projectName.main") {
           sbtProjectId := "root"
           moduleDependencies := Seq(
-            new dependency(module2JVMMain) {
-              isExported := false
-              scope := DependencyScope.COMPILE
-            },
             new dependency(module2SourcesMain) {
               isExported := true
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(module2JVMMain) {
+              isExported := false
               scope := DependencyScope.COMPILE
             }
           )
@@ -1185,16 +1185,16 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
         lazy val rootTest: module = new module(s"$projectName.test") {
           sbtProjectId := "root"
           moduleDependencies := Seq(
+            new dependency(module2SourcesMain) {
+              isExported := true
+              scope := DependencyScope.COMPILE
+            },
             new dependency(rootMain) {
               isExported := false
               scope := DependencyScope.COMPILE
             },
             new dependency(module2JVMMain) {
               isExported := false
-              scope := DependencyScope.COMPILE
-            },
-            new dependency(module2SourcesMain) {
-              isExported := true
               scope := DependencyScope.COMPILE
             }
           )
@@ -1268,8 +1268,8 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
         sbtBuildURI := buildURI
         libraryDependencies := scalaLibraries
         moduleDependencies ++= Seq(
+          new dependency(rootMain) { isExported := false },
           new dependency(c1Main) { isExported := false },
-          new dependency(rootMain) { isExported := false }
         )
       }
 
@@ -1380,8 +1380,8 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
         lazy val rootTest: module = new module("root.test") {
           libraryDependencies := scalaLibraries
           moduleDependencies ++= Seq(
-            new dependency(rootMain) { isExported := false },
-            new dependency(fooSourcesMain) { isExported := true }
+            new dependency(fooSourcesMain) { isExported := true },
+          new dependency(rootMain) { isExported := false },
           )
           contentRoots := Seq(
             "%PROJECT_ROOT%/src/test",
@@ -1413,8 +1413,8 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
         lazy val fooTest: module = new module("root.foo.test") {
           libraryDependencies := scalaLibraries
           moduleDependencies ++= Seq(
+            new dependency(fooSourcesMain) { isExported := true },
             new dependency(fooMain) { isExported := false },
-            new dependency(fooSourcesMain) { isExported := true }
           )
           contentRoots := Seq(
             "%PROJECT_ROOT%/foo/src/test",
@@ -1520,8 +1520,8 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
         val rootTest: module = new module("root.test") {
           moduleDependencies := Seq(
             new dependency(sharedModuleMain) { isExported := true },
-            new dependency(sharedMain) { isExported := false },
-            new dependency(rootMain) { isExported := false }
+            new dependency(rootMain) { isExported := false },
+            new dependency(sharedMain) { isExported := false }
           )
           contentRoots := Seq(
             "%PROJECT_ROOT%/src/test",
@@ -1642,10 +1642,10 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
         }
         val rootTest: module = new module("root.test") {
           moduleDependencies := Seq(
+            new dependency(sharedModuleTest) { isExported := true },
             new dependency(rootMain) { isExported := false },
             new dependency(buzzMain) { isExported := false },
             new dependency(buzzTest) { isExported := false },
-            new dependency(sharedModuleTest) { isExported := true },
           )
           contentRoots := standardRoots("", "test", "3.0.2")
           testSources += "%PROJECT_ROOT%/src/test/scala"
@@ -1689,8 +1689,8 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
         }
         val sharedModule: module = new module("root.shared-sources") {
           moduleDependencies ++= Seq(
-            new dependency(sharedModuleTest) { isExported := false },
             new dependency(sharedModuleMain) { isExported := false },
+            new dependency(sharedModuleTest) { isExported := false },
           )
           contentRoots := Nil
         }
@@ -1703,8 +1703,8 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
         }
         val buzzTest: module = new module("root.buzz.test") {
           moduleDependencies := Seq(
-            new dependency(sharedModuleTest) { isExported := true },
             new dependency(sharedModuleMain) { isExported := true },
+            new dependency(sharedModuleTest) { isExported := true },
             new dependency(buzzMain) { isExported := false }
           )
           contentRoots := standardRoots("buzz", "test", "3.0.2")
@@ -1728,8 +1728,8 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
         }
         val fooTest: module = new module("root.foo.test") {
           moduleDependencies := Seq(
-            new dependency(sharedModuleTest) { isExported := true },
             new dependency(sharedModuleMain) { isExported := true },
+            new dependency(sharedModuleTest) { isExported := true },
             new dependency(fooMain) { isExported := false }
           )
           contentRoots := standardRoots("foo", "test", "3.0.2")
@@ -1752,11 +1752,11 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
         }
         val rootTest: module = new module("root.test") {
           moduleDependencies := Seq(
+            new dependency(sharedModuleMain) { isExported := true },
+            new dependency(sharedModuleTest) { isExported := true },
             new dependency(rootMain) { isExported := false },
             new dependency(buzzMain) { isExported := false },
-            new dependency(buzzTest) { isExported := false },
-            new dependency(sharedModuleTest) { isExported := true },
-            new dependency(sharedModuleMain) { isExported := true },
+            new dependency(buzzTest) { isExported := false }
           )
           contentRoots := standardRoots("", "test", "3.0.2")
           testSources += "%PROJECT_ROOT%/src/test/scala"
@@ -1828,8 +1828,8 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
         }
         val rootTest: module = new module("root.test") {
           moduleDependencies := Seq(
-            new dependency(rootMain) { isExported := false },
             new dependency(sharedModuleTest) { isExported := true },
+            new dependency(rootMain) { isExported := false },
           )
           contentRoots := standardRoots("", "test")
           emptySourceResourceDirs(this)

@@ -393,7 +393,11 @@ trait ProjectStructureMatcher {
     if (module.isTest && !module.isSharedSourceModule) {
       validateFirstDependencyInTestModule(module, actualModuleEntries)
     }
-    assertNamesEqualIgnoreOrder(s"Module dependency of module `${module.getName}`", expected.map(_.reference), actualModuleEntries.map(_.getModule))(mt)
+    val assertNamesMethod : (String, Seq[Named], Seq[Module]) => Option[MatchType] => Unit =
+      if (compareContext.options.checkProjectDependenciesOrder) assertNamesEqual
+      else assertNamesEqualIgnoreOrder
+
+    assertNamesMethod(s"Module dependency of module `${module.getName}`", expected.map(_.reference), actualModuleEntries.map(_.getModule))(mt)
     val paired = pairModules(expected, actualModuleEntries)
     paired.foreach((assertDependencyScopeAndExportedFlagEqual _).tupled)
   }
