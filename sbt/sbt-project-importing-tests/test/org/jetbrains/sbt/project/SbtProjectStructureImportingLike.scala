@@ -64,8 +64,9 @@ abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImporti
         }
     }
 
-
-    assertProjectsEqual(expected, myProject, !enableSeparateModulesForProdTest)(defaultCompareContext.withOptions(optionsModifier))
+    // Always check the project dependencies order in the main/test modules mode
+    val compareContext = defaultCompareContext.withOptions(optionsModifier).withOptions(_.copy(checkProjectDependenciesOrder = enableSeparateModulesForProdTest))
+    assertProjectsEqual(expected, myProject, !enableSeparateModulesForProdTest)(compareContext)
     assertNoNotificationsShown(myProject, notificationsCollector.getNotifications)
   }
 

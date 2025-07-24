@@ -267,6 +267,9 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver with ContentRootsR
     //        dep c
     // For now it will work in a way that dep b-shared will be on top instead of next to the owner.
     // We might handle it one day, when there will be real issues caused by this inconvenience.
+    // NOTE: The incorrect order of shared sources module dependencies doesn't affect compilation,
+    // as the shared sources modules are still compiled to the target directories of their owner modules.
+    // I'm not sure if it affects anything at all, but the principle is as I described.
     allModuleDependencies.collect { case (ownerModule, Some(sharedSourcesModule), scope) =>
       addModuleDependencyNode(ownerModule, sharedSourcesModule, scope)
     }

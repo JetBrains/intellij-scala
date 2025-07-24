@@ -120,8 +120,8 @@ class SbtShellProjectStructureImportingTest extends SbtProjectStructureImporting
       }
       lazy val fooTest: module = new module("multiModule.foo.test"){
         moduleDependencies ++= Seq(
+          new dependency(fooMain) { isExported := false },
           new dependency(barMain) { isExported := false },
-          new dependency(fooMain) { isExported := false }
         )
       }
 

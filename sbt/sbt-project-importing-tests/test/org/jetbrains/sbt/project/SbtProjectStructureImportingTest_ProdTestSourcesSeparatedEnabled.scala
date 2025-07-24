@@ -13,17 +13,14 @@ import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.extensions.{PathExt, inWriteAction}
-import org.jetbrains.plugins.scala.compiler.data.CompileOrder
-import org.jetbrains.plugins.scala.extensions.{PathExt, RichFile, inWriteAction}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.external.JdkByName
 import org.jetbrains.sbt.{Sbt, SbtVersion}
 import org.junit.Assert
-import org.junit.Assert.{assertEquals, assertFalse, assertTrue}
+import org.junit.Assert.{assertEquals, assertTrue}
 import org.junit.experimental.categories.Category
 
 import java.net.URI
-import java.nio.file.{Files, Path}
 
 // TODO: ensure there is test for SCL-19673 for BSO external system as well
 /**
@@ -260,8 +257,8 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
       }
       lazy val fooTest: module = new module("multiModule.foo.test"){
         moduleDependencies ++= Seq(
+          new dependency(fooMain) { isExported := false },
           new dependency(barMain) { isExported := false },
-          new dependency(fooMain) { isExported := false }
         )
       }
 
@@ -787,11 +784,11 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
         lazy val proj1Test: module = new module(s"$projectName.proj1.test") {
           sbtProjectId := "proj1"
           moduleDependencies := Seq(
-            new dependency(proj0Main) {
+            new dependency(proj1Main) {
               isExported := false
               scope := DependencyScope.COMPILE
             },
-            new dependency(proj1Main) {
+            new dependency(proj0Main) {
               isExported := false
               scope := DependencyScope.COMPILE
             }
@@ -813,15 +810,15 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
         lazy val proj2Main: module = new module(s"$projectName.proj2.main") {
           sbtProjectId := "proj2"
           moduleDependencies := Seq(
-            new dependency(proj0Main) {
-              isExported := false
-              scope := DependencyScope.PROVIDED
-            },
             new dependency(proj1Main) {
               isExported := false
               scope := DependencyScope.PROVIDED
             },
             new dependency(proj1Test) {
+              isExported := false
+              scope := DependencyScope.PROVIDED
+            },
+            new dependency(proj0Main) {
               isExported := false
               scope := DependencyScope.PROVIDED
             }
@@ -835,15 +832,15 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
               isExported := false
               scope := DependencyScope.COMPILE
             },
-            new dependency(proj0Main) {
-              isExported := false
-              scope := DependencyScope.COMPILE
-            },
             new dependency(proj1Main) {
               isExported := false
               scope := DependencyScope.COMPILE
             },
             new dependency(proj1Test) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(proj0Main) {
               isExported := false
               scope := DependencyScope.COMPILE
             }
@@ -865,15 +862,15 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
         lazy val proj3Main: module = new module(s"$projectName.proj3.main") {
           sbtProjectId := "proj3"
           moduleDependencies := Seq(
-            new dependency(proj0Main) {
-              isExported := false
-              scope := DependencyScope.COMPILE
-            },
             new dependency(proj1Main) {
               isExported := false
               scope := DependencyScope.COMPILE
             },
             new dependency(proj1Test) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(proj0Main) {
               isExported := false
               scope := DependencyScope.COMPILE
             }
@@ -887,15 +884,15 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
               isExported := false
               scope := DependencyScope.COMPILE
             },
-            new dependency(proj0Main) {
-              isExported := false
-              scope := DependencyScope.COMPILE
-            },
             new dependency(proj1Main) {
               isExported := false
               scope := DependencyScope.COMPILE
             },
             new dependency(proj1Test) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(proj0Main) {
               isExported := false
               scope := DependencyScope.COMPILE
             }
@@ -920,11 +917,11 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
         lazy val rootTest: module = new module(s"$projectName.test") {
           sbtProjectId := "root"
           moduleDependencies := Seq(
-            new dependency(proj2Main) {
+            new dependency(rootMain) {
               isExported := false
               scope := DependencyScope.COMPILE
             },
-            new dependency(rootMain) {
+            new dependency(proj2Main) {
               isExported := false
               scope := DependencyScope.COMPILE
             }
@@ -1334,11 +1331,11 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
         lazy val fooTest: module = new module(s"$projectName.foo.test") {
           sbtProjectId := "foo"
           moduleDependencies := Seq(
-            new dependency(rootMain) {
+            new dependency(fooMain) {
               isExported := false
               scope := DependencyScope.COMPILE
             },
-            new dependency(fooMain) {
+            new dependency(rootMain) {
               isExported := false
               scope := DependencyScope.COMPILE
             }
@@ -1368,7 +1365,7 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
         lazy val utilsTest: module = new module(s"$projectName.utils.test") {
           sbtProjectId := "utils"
           moduleDependencies := Seq(
-            new dependency(fooTest) {
+            new dependency(utilsMain) {
               isExported := false
               scope := DependencyScope.COMPILE
             },
@@ -1376,7 +1373,7 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
               isExported := false
               scope := DependencyScope.COMPILE
             },
-            new dependency(utilsMain) {
+            new dependency(fooTest) {
               isExported := false
               scope := DependencyScope.COMPILE
             },
@@ -1560,8 +1557,8 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
         sbtBuildURI := buildURI
         libraryDependencies := scalaLibraries
         moduleDependencies ++= Seq(
-          new dependency(c1Main) { isExported := false },
           new dependency(rootMain) { isExported := false },
+          new dependency(c1Main) { isExported := false }
         )
       }
 
@@ -1897,9 +1894,9 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled ext
         lazy val subProjectIntegrationTestTest: module = new module("root.subProject-integration-test.test") {
           libraryDependencies := scalaLibraries
           moduleDependencies ++= Seq(
+            new dependency(subProjectIntegrationTestMain) { isExported := false },
             new dependency(subProjectMain) { isExported := false },
             new dependency(subProjectTest) { isExported := false },
-            new dependency(subProjectIntegrationTestMain) { isExported := false }
           )
           contentRoots := Seq(
             "%PROJECT_ROOT%/subProject/src/it",
