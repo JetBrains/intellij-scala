@@ -571,4 +571,16 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
   // splitBy(children)(_.tag == )
   // if (it => it.name =|)
   // {} in case, then for Scala 3
+
+  def testDontAnnotateFollowErrors(): Unit = assertErrorsWithHints(
+    "unresolved.follow1.follow2",
+    Error("unresolved", "Cannot resolve symbol unresolved"))
+
+  def testDontAnnotateFollowErrors2(): Unit = assertErrorsWithHints(
+    "unresolved().follow1().follow2()",
+    Error("unresolved", "Cannot resolve symbol unresolved"))
+
+  def testDontAnnotateFollowErrorsInfix(): Unit = assertErrorsWithHints(
+    "unresolved + 3 + 9",
+    Error("unresolved", "Cannot resolve symbol unresolved"))
 }
