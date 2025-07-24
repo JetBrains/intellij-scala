@@ -9,14 +9,14 @@ import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
 import com.intellij.psi.{PsiDirectory, PsiManager}
 import com.intellij.util.ui.TextTransferable
-import org.jetbrains.plugins.scala.ExtremelySlowTests
+import org.jetbrains.plugins.scala.SlowTests2
 import org.jetbrains.plugins.scala.extensions.{StringExt, inWriteAction}
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 import org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike
 import org.junit.Assert.{assertEquals, assertNotNull, assertTrue}
 import org.junit.experimental.categories.Category
 
-@Category(Array(classOf[ExtremelySlowTests]))
+@Category(Array(classOf[SlowTests2]))
 class ScalaFilePasteProviderInSbtProjectTest extends SbtExternalSystemImportingTestLike {
 
   override protected def getTestDataProjectPath: String =

@@ -5,7 +5,10 @@ package org.jetbrains.plugins.scala
 
 trait SlowTests
 
-trait ExtremelySlowTests
+/**
+ * Same as [[SlowTests]], the category grew too large and takes a long time to run.
+ */
+trait SlowTests2
 
 trait DebuggerTests
 

@@ -3,7 +3,7 @@ package org.jetbrains.sbt.project
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.roots.CompilerModuleExtension
 import com.intellij.openapi.vfs.VfsUtilCore
-import org.jetbrains.plugins.scala.ExtremelySlowTests
+import org.jetbrains.plugins.scala.SlowTests2
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert.assertEquals
@@ -11,7 +11,7 @@ import org.junit.experimental.categories.Category
 
 import java.nio.file.Path
 
-@Category(Array(classOf[ExtremelySlowTests]))
+@Category(Array(classOf[SlowTests2]))
 class UseSeparateCompilerOutputPathsTest extends SbtExternalSystemImportingTestLike {
 
   override protected def getTestDataProjectPath: String =

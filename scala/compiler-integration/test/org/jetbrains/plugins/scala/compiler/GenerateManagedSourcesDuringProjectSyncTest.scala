@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.compiler
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.testFramework.CompilerTester
-import org.jetbrains.plugins.scala.ExtremelySlowTests
+import org.jetbrains.plugins.scala.SlowTests2
 import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.assertNoErrorsOrWarnings
 import org.junit.Assert.assertNotNull
 import org.junit.Test
@@ -15,7 +15,7 @@ import java.nio.file.Path
 import scala.jdk.CollectionConverters._
 
 @RunWith(classOf[JUnit4])
-@Category(Array(classOf[ExtremelySlowTests]))
+@Category(Array(classOf[SlowTests2]))
 abstract class GenerateManagedSourcesDuringProjectSyncTestBase(separateProdAndTestSources: Boolean)
   extends SbtProjectCompilationTestBase(separateProdAndTestSources) {
 
