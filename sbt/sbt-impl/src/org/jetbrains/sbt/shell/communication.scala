@@ -5,6 +5,7 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
+import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.jetbrains.annotations.ApiStatus.Internal
 import org.jetbrains.annotations.{NonNls, TestOnly}
 import org.jetbrains.ide.PooledThreadExecutor
@@ -178,6 +179,7 @@ final class SbtShellCommunication(project: Project) {
    * @see    [[org.jetbrains.sbt.shell.SbtProcessManager.destroyProcess]]
    * @return `Future[String]` containing the entire shell output
    */
+  @RequiresBackgroundThread
   def commandAfterSoftRestart[A](cmd: String, default: A, eventHandler: EventAggregator[A]): Future[A] = {
     if (isEmptyingQueueRunning) return command(cmd, default, eventHandler)
 
@@ -197,7 +199,7 @@ final class SbtShellCommunication(project: Project) {
       waitForEmptyQueue()
       if (!emptyingQueue.isCompletedExceptionally) {
         emptyingQueue.complete(())
-        SbtProcessManager.forProject(project).destroyProcess(isSoft = true)
+        SbtProcessManager.forProject(project).softDestroyProcess()
       }
       commandResult
     } finally {

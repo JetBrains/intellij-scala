@@ -446,12 +446,24 @@ final class SbtProcessManager(project: Project) extends Disposable {
   }
 
   /**
+   * Perform a "hard" destroy of the sbt shell, where the emptying queue process is canceled if it is running.
+   */
+  def destroyProcess(): Unit =
+    destroyProcess(isSoft = false)
+
+  /**
+   * Perform a "soft" destroy of the sbt shell, where the emptying queue process is not canceled, and post-restart commands are preserved.
+   */
+  def softDestroyProcess(): Unit =
+    destroyProcess(isSoft = true)
+
+  /**
    * @param isSoft when `true`, the emptying queue process is not canceled, and post-restart commands are preserved.
    *
    *               When `false`, the emptying queue process is canceled if it is running.
    * @see [[org.jetbrains.sbt.shell.SbtShellCommunication.cancelEmptyingQueue]]
    */
-  def destroyProcess(isSoft: Boolean = false): Unit = processDataMutex.synchronized {
+  private def destroyProcess(isSoft: Boolean): Unit = processDataMutex.synchronized {
     log.debug("destroyProcess")
     processData match {
       case Some(ProcessData(handler, _, _)) =>
