@@ -80,6 +80,11 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
     log.debug("createContentDescriptorAndActions")
     val callSuper: Runnable = () => super.createContentDescriptorAndActions()
     if (ApplicationManager.getApplication.isUnitTestMode) {
+      // IJPL-27737
+      // `com.intellij.openapi.editor.impl.SettingsImpl.reinitDocumentIndentOptions` is not
+      // called within a read action in tests only.
+      // A write-intent read action _must_ be used here. A regular read action causes a deadlock in tests.
+      // TODO: remove this branch after a fix in the platform.
       //noinspection ApiStatus,UnstableApiUsage
       WriteIntentReadAction.run(callSuper)
     } else {
