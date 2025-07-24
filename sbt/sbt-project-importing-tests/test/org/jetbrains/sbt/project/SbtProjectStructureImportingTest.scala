@@ -10,7 +10,7 @@ import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.IdeaTestUtil
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
-import org.jetbrains.plugins.scala.ExtremelySlowTests
+import org.jetbrains.plugins.scala.SlowTests2
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.extensions.{PathExt, RichFile, inWriteAction}
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -25,7 +25,7 @@ import java.net.URI
 /**
  * @see [[SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled]]
  */
-@Category(Array(classOf[ExtremelySlowTests]))
+@Category(Array(classOf[SlowTests2]))
 final class SbtProjectStructureImportingTest extends SbtProjectStructureImportingLike {
 
   import ProjectStructureDsl._

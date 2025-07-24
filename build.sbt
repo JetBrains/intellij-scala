@@ -1020,7 +1020,8 @@ addCommandAlias("runCompilerHighlightingTests", runTestsInTC(compilerHighlightin
 addCommandAlias("runCompletionTests", runTestsInTC(completionTests))
 addCommandAlias("runEditorTests", runTestsInTC(editorTests))
 addCommandAlias("runSlowTests", runTestsInTC(slowTests))
-addCommandAlias("runExtremelySlowTests", runTestsInTC(extremelySlowTests))
+addCommandAlias("runSlowTests2", runTestsInTC(slowTests2))
+addCommandAlias("runExtremelySlowTests", runTestsInTC(slowTests2)) // To be removed soon, not to cause disruptions to the CI.
 addCommandAlias("runDebuggerTests", runTestsInTC(debuggerTests))
 addCommandAlias("runDebuggerEvaluationTests", runTestsInTC(debuggerEvaluationTests))
 addCommandAlias("runScalacTests", runTestsInTC(scalacTests))
@@ -1043,7 +1044,7 @@ lazy val categoriesToExclude = List(
   completionTests,
   editorTests,
   slowTests,
-  extremelySlowTests,
+  slowTests2,
   debuggerTests,
   debuggerEvaluationTests,
   scalacTests,
