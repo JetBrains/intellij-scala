@@ -1,9 +1,6 @@
 package org.jetbrains.sbt.project
 
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.roots.ProjectRootManager
-import com.intellij.openapi.util.SystemInfo
-import com.intellij.testFramework.common.ThreadLeakTracker
 import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory
 import org.jetbrains.jps.model.java.{JavaResourceRootType, JavaSourceRootType}
 import org.jetbrains.plugins.scala.SlowTests
@@ -22,11 +19,6 @@ class SbtShellProjectStructureImportingTest extends SbtProjectStructureImporting
     getCurrentExternalProjectSettings.useSbtShellForImport = true
     super.setUp()
     inWriteAction(ProjectRootManager.getInstance(getProject).setProjectSdk(getJdkConfiguredForTestCase))
-
-    if (SystemInfo.isLinux) {
-      //noinspection ApiStatus,UnstableApiUsage
-      ThreadLeakTracker.longRunningThreadCreated(ApplicationManager.getApplication, "SystemPropertyWatcher")
-    }
   }
 
   override protected def setUpFixtures(): Unit = {
