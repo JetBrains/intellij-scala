@@ -1021,7 +1021,6 @@ addCommandAlias("runCompletionTests", runTestsInTC(completionTests))
 addCommandAlias("runEditorTests", runTestsInTC(editorTests))
 addCommandAlias("runSlowTests", runTestsInTC(slowTests))
 addCommandAlias("runSlowTests2", runTestsInTC(slowTests2))
-addCommandAlias("runExtremelySlowTests", runTestsInTC(slowTests2)) // To be removed soon, not to cause disruptions to the CI.
 addCommandAlias("runDebuggerTests", runTestsInTC(debuggerTests))
 addCommandAlias("runDebuggerEvaluationTests", runTestsInTC(debuggerEvaluationTests))
 addCommandAlias("runScalacTests", runTestsInTC(scalacTests))
