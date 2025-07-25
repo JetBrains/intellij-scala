@@ -80,7 +80,11 @@ private class MacroFinderImpl(
 
   private def defineTagValue(comment: ScDocComment, tag: ScDocTag): String = {
     val macroFinder = MacroFinderDummy // TODO: for now we do not support recursive macros, only 1 level
-    val generator = new ScalaDocContentGenerator(comment, macroFinder)
+    // TODO: ew
+    val generator = if (comment.isMarkdownComment)
+      new ScalaDocContentGeneratorMarkdown(comment)
+    else
+      new ScalaDocContentGeneratorWikidoc(comment, macroFinder)
     generator.tagDescriptionText(tag)
   }
 
