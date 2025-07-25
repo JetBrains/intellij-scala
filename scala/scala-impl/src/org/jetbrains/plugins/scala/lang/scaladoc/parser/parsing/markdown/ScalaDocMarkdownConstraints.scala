@@ -54,6 +54,7 @@ class ScalaDocMarkdownConstraints(indents: Array[Int], types: Array[Char], isExp
   override def containsListMarkers(upToIndex: Int): Boolean = startsTag || super.containsListMarkers(upToIndex)
 
   override def applyToNextLine(pos: LookaheadText#Position): CommonMarkdownConstraints = {
+    // If there's a tag, all constraints get overridden, so we go back to base constraints for the line
     if (ScalaDocMarkdownFlavour.getTagOnLine(pos).isDefined) ScalaDocMarkdownConstraints.BASE
     else super.applyToNextLine(pos)
   }
