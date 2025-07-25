@@ -91,7 +91,7 @@ class ScaladocMarkdownParsing(private val builder: PsiBuilder,
 
       ensureBuilderInPosition(node.getEndOffset)
 
-      // TODO: we probably want to special-case EMPH and STRONG to make them join their borders as a single node? Unsure
+      // TODO: we need to special-case EMPH and STRONG to make them join their borders as a single node
       val element = tpe match {
         case MarkdownElementTypes.PARAGRAPH => ScalaDocElementTypes.DOC_PARAGRAPH
         case MarkdownElementTypes.CODE_FENCE => ScalaDocElementTypes.DOC_CODEBLOCK

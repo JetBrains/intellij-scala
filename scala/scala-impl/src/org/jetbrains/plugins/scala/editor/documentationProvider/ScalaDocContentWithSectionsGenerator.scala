@@ -37,8 +37,12 @@ private class ScalaDocContentWithSectionsGenerator(
 
   private val resolveContext: PsiElement = comment
 
-  private def newContentGenerator: ScalaDocContentGenerator =
-    new ScalaDocContentGenerator(comment, macroFinder)
+  private def newContentGenerator: ScalaDocContentGenerator = {
+    if (comment.isMarkdownComment)
+      new ScalaDocContentGeneratorMarkdown(comment)
+    else
+      new ScalaDocContentGeneratorWikidoc(comment, macroFinder)
+  }
 
   def this(
     commentOwner: ScDocCommentOwner,
@@ -99,11 +103,12 @@ private class ScalaDocContentWithSectionsGenerator(
         contentStartAdded = true
       }
 
+    // TODO-md-emi: This should be switched depending on isMarkdownComment
     val descriptionParts = comment.descriptionParts
     val hasOwnDescription = descriptionParts.nonEmpty
     if (hasOwnDescription) {
       ensureContentStartAdded()
-      newContentGenerator.appendDescriptionParts(buffer, descriptionParts)
+      newContentGenerator.appendDescriptionParts(buffer, comment)
     }
 
     tags.find(_.name == MyScaladocParsing.TagNames.Inheritdoc) match {
@@ -231,7 +236,7 @@ private class ScalaDocContentWithSectionsGenerator(
   private def throwsInfo(tag: ScDocTag): Option[ParamInfo] = {
     val exceptionRef = tag.children.findByType[ScStableCodeReference]
     exceptionRef.map { ref =>
-      val value = ScalaDocContentGenerator.generatePsiElementLink(ref, resolveContext)
+      val value = ScalaDocContentGeneratorWikidoc.generatePsiElementLink(ref, resolveContext)
       val description = newContentGenerator.tagDescriptionText(tag)
       ParamInfo(value, description)
     }
@@ -256,9 +261,9 @@ private class ScalaDocContentWithSectionsGenerator(
           case Some(superComment) =>
             if (hasOwnDescription)
               buffer.append("<p>")
-            val parts = superComment.descriptionParts
-            newContentGenerator.appendDescriptionParts(buffer, superComment.descriptionParts)
-            parts.nonEmpty
+            val oldLength = buffer.length()
+            newContentGenerator.appendDescriptionParts(buffer, superComment)
+            buffer.length() != oldLength
           case _ =>
             false
         }

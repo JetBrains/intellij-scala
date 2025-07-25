@@ -54,6 +54,7 @@ object ScalaDocGenerator {
     // for library classes, get class from sources jar
     appendHeader(builder, elementWithDoc)
 
+    // TODO-md-emi: Examine this?
     ScalaDocDefinitionGenerator.generate(builder, elementWithDoc, originalElement)
     generateDocContent(builder, elementWithDoc)
 
@@ -66,14 +67,7 @@ object ScalaDocGenerator {
     val builder = new StringBuilder
 
     appendHeader(builder, commentOwner)
-    if (comment.isMarkdownComment) {
-      // We fetch the data from the first child because the general node doesn't exist when this data is available
-      val (text, node) = comment.getFirstChild.getUserData(ScaladocMarkdownParsing.MARKDOWN_DATA)
-
-      val html = new HtmlGenerator(text, node, new ScalaDocMarkdownFlavour, false).generateHtml(new HtmlGenerator.DefaultTagRenderer(HtmlGeneratorKt.getDUMMY_ATTRIBUTES_CUSTOMIZER, false))
-
-      builder.append(html)
-    } else new ScalaDocContentWithSectionsGenerator(commentOwner, comment, rendered = true).generate(builder)
+    new ScalaDocContentWithSectionsGenerator(commentOwner, comment, rendered = true).generate(builder)
 
     appendFooter(builder)
 

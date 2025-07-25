@@ -6,7 +6,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
 import com.intellij.psi.{PsiComment, PsiManager, PsiNamedElement}
 import org.jetbrains.plugins.scala.base.libraryLoaders.ScalaSDKLoader
-import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocContentGenerator.UnresolvedMacroInfo
+import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocContentGeneratorWikidoc.UnresolvedMacroInfo
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaLibraryQuickDocGenerationHealthCheckTest.relativeFilePath
 import org.jetbrains.plugins.scala.extensions.{ArrayExt, PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -25,7 +25,7 @@ class ScalaLibraryQuickDocGenerationHealthCheckTest extends base.ScalaLightCodeI
   override protected def includeScalaLibrarySources: Boolean = true
 
   def testAllMacroAreResolved(): Unit = {
-    ScalaDocContentGenerator.unresolvedMacro.clear()
+    ScalaDocContentGeneratorWikidoc.unresolvedMacro.clear()
 
     val scalaSdkLoader = librariesLoaders.toArray.findByType[ScalaSDKLoader].get
     val scalaLibrarySourcesRoots = scalaSdkLoader.scalaLibrarySources
@@ -43,7 +43,7 @@ class ScalaLibraryQuickDocGenerationHealthCheckTest extends base.ScalaLightCodeI
       )
     }
 
-    val unresolvedMacro = ScalaDocContentGenerator.unresolvedMacro
+    val unresolvedMacro = ScalaDocContentGeneratorWikidoc.unresolvedMacro
     if (unresolvedMacro.nonEmpty) {
       val details = unresolvedMacro
         .map { case UnresolvedMacroInfo(file, commentOwnerName, macroKey) =>
