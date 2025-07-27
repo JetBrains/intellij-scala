@@ -30,8 +30,7 @@ class ScaladocMarkdownParsing(private val builder: PsiBuilder,
       val cleanedLine = if (!trimmed.startsWith("*")) {
         trimmed
       } else {
-        val charsToRemove = if (trimmed.startsWith(" ", 1)) 2 else 1
-        trimmed.substring(charsToRemove)
+        trimmed.substring(1)
       }
 
       // Don't fully delete empty lines, keep the newline.
@@ -61,7 +60,6 @@ class ScaladocMarkdownParsing(private val builder: PsiBuilder,
     builder.putUserData(MARKDOWN_DATA, (content, out))
 
     var currLine = 0
-    var newline = true
 
     def ensureBuilderInPosition(position: Int): Unit = {
       val target = position + map(currLine)
@@ -71,9 +69,20 @@ class ScaladocMarkdownParsing(private val builder: PsiBuilder,
       val marker = builder.mark()
       while (builder.getCurrentOffset < target) builder.advanceLexer()
 
-      marker.collapse(if (newline) ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS else ScalaDocTokenType.DOC_COMMENT_DATA)
+      marker.collapse(ScalaDocTokenType.DOC_COMMENT_DATA)
+    }
 
-      newline = false
+    def advanceToNextLine(): Unit = {
+      val whitespaceMarker = builder.mark()
+      while (
+        builder.getTokenType != ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS &&
+          !builder.eof()
+      ) builder.advanceLexer()
+
+      whitespaceMarker.collapse(ScalaDocTokenType.DOC_WHITESPACE)
+
+      // Skip the leading asterisk
+      builder.advanceLexer()
     }
 
     def visitNode(node: ASTNode): Unit = {
@@ -81,41 +90,57 @@ class ScaladocMarkdownParsing(private val builder: PsiBuilder,
 
       if (tpe == MarkdownTokenTypes.EOL) {
         currLine += 1
-        newline = true
+
+        ensureBuilderInPosition(node.getStartOffset)
+        advanceToNextLine()
       }
-
-      ensureBuilderInPosition(node.getStartOffset)
-
-      val marker = builder.mark()
-      node.getChildren.forEach(visitNode)
-
-      ensureBuilderInPosition(node.getEndOffset)
 
       // TODO: we need to special-case EMPH and STRONG to make them join their borders as a single node
       val element = tpe match {
+        // ScalaDoc stuff
+        case ScalaDocTagMarkerBlock.TAG_BLOCK => ScalaDocElementTypes.DOC_TAG
+        case ScalaDocTagMarkerBlock.TAG_NAME => ScalaDocTokenType.DOC_TAG_NAME
+
+        // Common blocks
         case MarkdownElementTypes.PARAGRAPH => ScalaDocElementTypes.DOC_PARAGRAPH
         case MarkdownElementTypes.CODE_FENCE => ScalaDocElementTypes.DOC_CODEBLOCK
+
+        // Common inline tags
+        case MarkdownElementTypes.EMPH => ScalaDocTokenType.DOC_ITALIC_TAG // NOTE: Distinct from MarkdownTokenTypes.EMPH, which is for the * character.
+        case MarkdownElementTypes.STRONG => ScalaDocTokenType.DOC_BOLD_TAG
+        case MarkdownElementTypes.CODE_SPAN => ScalaDocTokenType.DOC_MONOSPACE_TAG
+
+        // Tokens
+        case MarkdownTokenTypes.EMPH => ScalaDocTokenType.DOC_ITALIC_TAG
+        case MarkdownTokenTypes.BACKTICK => ScalaDocTokenType.DOC_MONOSPACE_TAG
+
+        // Remains
         case MarkdownElementTypes.ATX_1 => ScalaDocTokenType.VALID_DOC_HEADER
         case MarkdownElementTypes.ATX_2 => ScalaDocTokenType.VALID_DOC_HEADER
         case MarkdownElementTypes.ATX_3 => ScalaDocTokenType.VALID_DOC_HEADER
         case MarkdownElementTypes.ATX_4 => ScalaDocTokenType.VALID_DOC_HEADER
         case MarkdownElementTypes.ATX_5 => ScalaDocTokenType.VALID_DOC_HEADER
         case MarkdownElementTypes.ATX_6 => ScalaDocTokenType.VALID_DOC_HEADER
-        case MarkdownElementTypes.EMPH => ScalaDocTokenType.DOC_ITALIC_TAG // NOTE: Distinct from MarkdownTokenTypes.EMPH, which is for the * character.
-        case MarkdownElementTypes.STRONG => ScalaDocTokenType.DOC_BOLD_TAG
         case MarkdownElementTypes.SETEXT_1 => ScalaDocTokenType.VALID_DOC_HEADER
         case MarkdownElementTypes.SETEXT_2 => ScalaDocTokenType.VALID_DOC_HEADER
-
-        case ScalaDocTagMarkerBlock.TAG_BLOCK => ScalaDocElementTypes.DOC_TAG
-        case ScalaDocTagMarkerBlock.TAG_NAME => ScalaDocTokenType.DOC_TAG_NAME
         case _ =>
-          marker.drop()
+          node.getChildren.forEach(visitNode)
           return
       }
 
       if (node.getChildren.isEmpty) {
+        ensureBuilderInPosition(node.getStartOffset)
+
+        val marker = builder.mark()
+        ensureBuilderInPosition(node.getEndOffset)
         marker.collapse(element)
       } else {
+        ensureBuilderInPosition(node.getStartOffset)
+
+        val marker = builder.mark()
+        node.getChildren.forEach(visitNode)
+
+        ensureBuilderInPosition(node.getEndOffset)
         marker.done(element)
       }
     }
