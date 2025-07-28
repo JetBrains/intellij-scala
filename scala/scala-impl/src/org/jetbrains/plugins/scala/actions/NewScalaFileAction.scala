@@ -48,21 +48,20 @@ final class NewScalaFileAction extends CreateTemplateInPackageAction[ScalaPsiEle
     builder: CreateFileFromTemplateDialog.Builder
   ): Unit = {
 
+    val module = ScalaFileTemplateUtil.getModuleForDir(project, directory)
+    val isInScala3Module = module.exists(_.hasScala3)
+
     //noinspection ScalaExtractStringToBundle
     {
       builder.addKind("Class", Icons.CLASS, ScalaFileTemplateUtil.SCALA_CLASS)
-      builder.addKind("Case Class", Icons.CASE_CLASS, ScalaFileTemplateUtil.SCALA_CASE_CLASS)
-      builder.addKind("File", Icons.SCALA_FILE, ScalaFileTemplateUtil.SCALA_FILE)
-      builder.addKind("Object", Icons.OBJECT, ScalaFileTemplateUtil.SCALA_OBJECT)
-      builder.addKind("Case Object", Icons.CASE_OBJECT, ScalaFileTemplateUtil.SCALA_CASE_OBJECT)
       builder.addKind("Trait", Icons.TRAIT, ScalaFileTemplateUtil.SCALA_TRAIT)
-
-      val module = ScalaFileTemplateUtil.getModuleForDir(project, directory)
-      val isInScala3Module = module.exists(_.hasScala3)
-      //place enum at the very end of the list SCL-20749
+      builder.addKind("Case Class", Icons.CASE_CLASS, ScalaFileTemplateUtil.SCALA_CASE_CLASS)
       if (isInScala3Module) {
         builder.addKind("Enum", Icons.ENUM, ScalaFileTemplateUtil.SCALA_ENUM)
       }
+      builder.addKind("Object", Icons.OBJECT, ScalaFileTemplateUtil.SCALA_OBJECT)
+      builder.addKind("Case Object", Icons.CASE_OBJECT, ScalaFileTemplateUtil.SCALA_CASE_OBJECT)
+      builder.addKind("File", Icons.SCALA_FILE, ScalaFileTemplateUtil.SCALA_FILE)
     }
 
     addUserDefinedScalaFileTemplates(project, directory, builder)
