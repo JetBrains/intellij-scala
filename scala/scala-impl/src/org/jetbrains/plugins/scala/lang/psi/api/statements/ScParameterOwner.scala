@@ -46,15 +46,12 @@ object ScParameterOwner {
       processor: PsiScopeProcessor,
       state:     ResolveState
     ): Boolean = {
-      for {
-        clause <- effectiveParameterClauses
-        param  <- clause.effectiveParameters
-      } {
-        ProgressManager.checkCanceled()
-        if (!processor.execute(param, state))
-          return false
+      effectiveParameterClauses.forall { clause =>
+        clause.effectiveParameters.forall { param =>
+          ProgressManager.checkCanceled()
+          processor.execute(param, state)
+        }
       }
-      true
     }
 
     def processNamedContextBounds(
