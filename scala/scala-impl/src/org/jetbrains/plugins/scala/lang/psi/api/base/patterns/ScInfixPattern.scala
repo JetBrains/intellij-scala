@@ -12,7 +12,7 @@ trait ScInfixPattern extends ScExtractorPattern with ScInfixElement {
 }
 
 object ScInfixPattern {
-  def unapply(ifx: ScInfixPattern): Option[(ScPattern, ScStableCodeReference, Option[ScPattern])] =
+  def unapply(ifx: ScInfixPattern): Some[(ScPattern, ScStableCodeReference, Option[ScPattern])] =
     Some((ifx.left, ifx.operation, ifx.rightOption))
 
 }

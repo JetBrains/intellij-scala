@@ -380,7 +380,7 @@ object ScalaResolveResult {
   def unapply(r: ScalaResolveResult): ScalaResolveResult = r
 
   object withActual {
-    def unapply(r: ScalaResolveResult): Option[PsiNamedElement] = Some(r.getActualElement)
+    def unapply(r: ScalaResolveResult): Some[PsiNamedElement] = Some(r.getActualElement)
   }
 
   object ApplyMethodInnerResolve {

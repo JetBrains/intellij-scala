@@ -220,7 +220,7 @@ final class ScUCallableReferenceExpression(
 }
 
 object ScUReferenceExpression {
-  def unapply(ref: ScReference): Option[Parent2ScUReferenceExpression] = {
+  def unapply(ref: ScReference): Some[Parent2ScUReferenceExpression] = {
     val typeProvider: Option[Typeable] = Option(ref).collect {
       case it: ScReferenceExpression => it
     }

@@ -614,7 +614,7 @@ package object extensions {
   }
 
   object TextRangeExt {
-    def unapply(range: TextRange): Option[(Int, Int)] = Some(range.getStartOffset, range.getEndOffset)
+    def unapply(range: TextRange): Some[(Int, Int)] = Some(range.getStartOffset, range.getEndOffset)
   }
 
   implicit class RangeMarkerExt(private val marker: RangeMarker) extends AnyVal {

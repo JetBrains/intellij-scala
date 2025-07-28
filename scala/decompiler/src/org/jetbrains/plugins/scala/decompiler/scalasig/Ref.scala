@@ -45,7 +45,7 @@ class MappedRef[T <: Entry : ClassTag, S <: Entry : ClassTag](val ref: Ref[T], v
 object Ref {
   def to[T <: Entry : ClassTag](index: Int)(implicit scalaSig: ScalaSig) = new Ref[T](index)
 
-  def unapply[T <: Entry](ref: Ref[T]): Option[T] = Some(ref.get)
+  def unapply[T <: Entry](ref: Ref[T]): Some[T] = Some(ref.get)
 
   implicit def unwrap[T <: Entry](ref: Ref[T]): T = ref.get
 
