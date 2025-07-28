@@ -18,7 +18,8 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, TypePresentationContext}
-import org.jetbrains.plugins.scala.settings.{ScalaProjectSettings, ScalaProjectSettingsConfigurable, ShowSettingsUtilImplExt}
+import org.jetbrains.plugins.scala.settings.sections.EditorSettingsSectionConfigurable
+import org.jetbrains.plugins.scala.settings.{ScalaProjectSettings, ShowSettingsUtilImplExt}
 
 import scala.util.chaining._
 
@@ -114,7 +115,7 @@ object TypeMismatchHints {
           override def actionPerformed(e: AnActionEvent): Unit = {
             ShowSettingsUtilImplExt.showSettingsDialog(
               e.getProject,
-              classOf[ScalaProjectSettingsConfigurable],
+              classOf[EditorSettingsSectionConfigurable],
               ScalaBundle.message("scala.project.settings.form.show.type.mismatch.hints")
             )
           }
