@@ -42,9 +42,10 @@ ScalaFile
                 Parameter: x
                   PsiElement(identifier)('x')
                   PsiElement(:)(':')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
+                  ParameterType
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
                 PsiElement())(')')
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')

@@ -79,9 +79,10 @@ ScalaFile
                 PsiElement(identifier)('x')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
-                SimpleType: Obj
-                  CodeReferenceElement: Obj
-                    PsiElement(identifier)('Obj')
+                ParameterType
+                  SimpleType: Obj
+                    CodeReferenceElement: Obj
+                      PsiElement(identifier)('Obj')
               PsiElement())(')')
             PsiWhiteSpace(' ')
             PsiElement(=>)('=>')
@@ -403,9 +404,10 @@ ScalaFile
                 PsiElement(identifier)('x')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
-                SimpleType: Obj
-                  CodeReferenceElement: Obj
-                    PsiElement(identifier)('Obj')
+                ParameterType
+                  SimpleType: Obj
+                    CodeReferenceElement: Obj
+                      PsiElement(identifier)('Obj')
               PsiElement())(')')
             PsiWhiteSpace(' ')
             PsiElement(=>)('=>')
@@ -556,9 +558,10 @@ ScalaFile
                 PsiElement(identifier)('x')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
-                SimpleType: Obj
-                  CodeReferenceElement: Obj
-                    PsiElement(identifier)('Obj')
+                ParameterType
+                  SimpleType: Obj
+                    CodeReferenceElement: Obj
+                      PsiElement(identifier)('Obj')
               PsiElement())(')')
             PsiWhiteSpace(' ')
             PsiElement(=>)('=>')
@@ -570,9 +573,10 @@ ScalaFile
                   PsiElement(identifier)('y')
                   PsiElement(:)(':')
                   PsiWhiteSpace(' ')
-                  SimpleType: Obj
-                    CodeReferenceElement: Obj
-                      PsiElement(identifier)('Obj')
+                  ParameterType
+                    SimpleType: Obj
+                      CodeReferenceElement: Obj
+                        PsiElement(identifier)('Obj')
                 PsiElement())(')')
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')
@@ -755,9 +759,10 @@ ScalaFile
                       PsiElement(identifier)('y')
                       PsiElement(:)(':')
                       PsiWhiteSpace(' ')
-                      SimpleType: Obj
-                        CodeReferenceElement: Obj
-                          PsiElement(identifier)('Obj')
+                      ParameterType
+                        SimpleType: Obj
+                          CodeReferenceElement: Obj
+                            PsiElement(identifier)('Obj')
                     PsiElement())(')')
                   PsiWhiteSpace(' ')
                   PsiElement(=>)('=>')

@@ -51,17 +51,18 @@ ScalaFile
                 PsiElement(identifier)('x')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
-                InfixType: 1 | 0
-                  LiteralType: 1
-                    IntegerLiteral
-                      PsiElement(integer)('1')
-                  PsiWhiteSpace(' ')
-                  CodeReferenceElement: |
-                    PsiElement(identifier)('|')
-                  PsiWhiteSpace(' ')
-                  LiteralType: 0
-                    IntegerLiteral
-                      PsiElement(integer)('0')
+                ParameterType
+                  InfixType: 1 | 0
+                    LiteralType: 1
+                      IntegerLiteral
+                        PsiElement(integer)('1')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: |
+                      PsiElement(identifier)('|')
+                    PsiWhiteSpace(' ')
+                    LiteralType: 0
+                      IntegerLiteral
+                        PsiElement(integer)('0')
               PsiElement())(')')
             PsiWhiteSpace(' ')
             PsiElement(=>)('=>')

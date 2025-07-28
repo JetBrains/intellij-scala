@@ -334,15 +334,16 @@ ScalaFile
                 PsiElement(identifier)('x')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
-                InfixType: A|B
-                  SimpleType: A
-                    CodeReferenceElement: A
-                      PsiElement(identifier)('A')
-                  CodeReferenceElement: |
-                    PsiElement(identifier)('|')
-                  SimpleType: B
-                    CodeReferenceElement: B
-                      PsiElement(identifier)('B')
+                ParameterType
+                  InfixType: A|B
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                    CodeReferenceElement: |
+                      PsiElement(identifier)('|')
+                    SimpleType: B
+                      CodeReferenceElement: B
+                        PsiElement(identifier)('B')
               PsiElement())(')')
             PsiWhiteSpace(' ')
             PsiElement(=>)('=>')
@@ -719,15 +720,16 @@ ScalaFile
                     PsiElement(identifier)('y')
                     PsiElement(:)(':')
                     PsiWhiteSpace(' ')
-                    InfixType: More|Stop
-                      SimpleType: More
-                        CodeReferenceElement: More
-                          PsiElement(identifier)('More')
-                      CodeReferenceElement: |
-                        PsiElement(identifier)('|')
-                      SimpleType: Stop
-                        CodeReferenceElement: Stop
-                          PsiElement(identifier)('Stop')
+                    ParameterType
+                      InfixType: More|Stop
+                        SimpleType: More
+                          CodeReferenceElement: More
+                            PsiElement(identifier)('More')
+                        CodeReferenceElement: |
+                          PsiElement(identifier)('|')
+                        SimpleType: Stop
+                          CodeReferenceElement: Stop
+                            PsiElement(identifier)('Stop')
                   PsiElement())(')')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
