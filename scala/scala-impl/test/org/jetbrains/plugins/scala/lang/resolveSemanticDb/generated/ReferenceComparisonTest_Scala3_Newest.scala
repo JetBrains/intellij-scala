@@ -225,14 +225,14 @@ class ReferenceComparisonTest_Scala3_Newest extends ReferenceComparisonTestBase(
   def test_dep_context_bounds(): Unit = doTest("dep-context-bounds", false)
   def test_dep_match(): Unit = doTest("dep-match", true) // #matchType
   def test_dep_poly_class(): Unit = doTest("dep-poly-class", false)
-  def test_dependent_annot(): Unit = doTest("dependent-annot", false)
+  def test_dependent_annot(): Unit = doTest("dependent-annot", true)
   def test_dependent_annot_type_param(): Unit = doTest("dependent-annot-type-param", true)
   def test_dependent_annot2(): Unit = doTest("dependent-annot2", false)
-  def test_dependent_closures(): Unit = doTest("dependent-closures", false)
+  def test_dependent_closures(): Unit = doTest("dependent-closures", true)
   def test_dependent_extractors(): Unit = doTest("dependent-extractors", true)
   def test_dependent_implicits(): Unit = doTest("dependent-implicits", true)
   def test_depfun(): Unit = doTest("depfun", true) // #unionType
-  def test_depfuntype(): Unit = doTest("depfuntype", false)
+  def test_depfuntype(): Unit = doTest("depfuntype", true)
   def test_depmet_1_pos(): Unit = doTest("depmet_1_pos", true)
   def test_depmet_implicit_chaining_zw(): Unit = doTest("depmet_implicit_chaining_zw", true)
   def test_depmet_implicit_norm_ret(): Unit = doTest("depmet_implicit_norm_ret", true)
@@ -677,7 +677,7 @@ class ReferenceComparisonTest_Scala3_Newest extends ReferenceComparisonTestBase(
   def test_i4032(): Unit = doTest("i4032", true)
   def test_i4075_gadt(): Unit = doTest("i4075-gadt", true)
   def test_i4125(): Unit = doTest("i4125", false)
-  def test_i4130(): Unit = doTest("i4130", false)
+  def test_i4130(): Unit = doTest("i4130", true)
   def test_i4147(): Unit = doTest("i4147", true)
   def test_i4166(): Unit = doTest("i4166", true)
   def test_i4167(): Unit = doTest("i4167", true)
@@ -730,7 +730,7 @@ class ReferenceComparisonTest_Scala3_Newest extends ReferenceComparisonTestBase(
   def test_i4819(): Unit = doTest("i4819", true)
   def test_i4820(): Unit = doTest("i4820", true)
   def test_i4820b(): Unit = doTest("i4820b", true)
-  def test_i4837(): Unit = doTest("i4837", false)
+  def test_i4837(): Unit = doTest("i4837", false) // #traitParameters
   def test_i4854(): Unit = doTest("i4854", true)
   def test_i4863(): Unit = doTest("i4863", true)
   def test_i4867(): Unit = doTest("i4867", true) // #intersectionType
@@ -768,13 +768,13 @@ class ReferenceComparisonTest_Scala3_Newest extends ReferenceComparisonTestBase(
   def test_i5481(): Unit = doTest("i5481", true) // #opaque
   def test_i5492(): Unit = doTest("i5492", false)
   def test_i5498_postfixOps(): Unit = doTest("i5498-postfixOps", true)
-  def test_i5526a(): Unit = doTest("i5526a", false)
-  def test_i5526b(): Unit = doTest("i5526b", false)
+  def test_i5526a(): Unit = doTest("i5526a", true)
+  def test_i5526b(): Unit = doTest("i5526b", true)
   def test_i5572(): Unit = doTest("i5572", true) // #transparentInline
   def test_i5574(): Unit = doTest("i5574", true) // #transparentInline
   def test_i5588a(): Unit = doTest("i5588a", true) // #extension
   def test_i5588b(): Unit = doTest("i5588b", true) // #extension
-  def test_i5592(): Unit = doTest("i5592", false) // #typeLambda
+  def test_i5592(): Unit = doTest("i5592", true) // #typeLambda
   def test_i5625(): Unit = doTest("i5625", false) // #matchType
   def test_i5625b(): Unit = doTest("i5625b", false) // #matchType
   def test_i5650(): Unit = doTest("i5650", true) // #matchType
@@ -791,7 +791,7 @@ class ReferenceComparisonTest_Scala3_Newest extends ReferenceComparisonTestBase(
   def test_i5773a(): Unit = doTest("i5773a", false) // #extension
   def test_i5773b(): Unit = doTest("i5773b", false) // #extension
   def test_i5793(): Unit = doTest("i5793", false)
-  def test_i5794(): Unit = doTest("i5794", false)
+  def test_i5794(): Unit = doTest("i5794", true)
   def test_i5827(): Unit = doTest("i5827", true)
   def test_i5833(): Unit = doTest("i5833", false)
   def test_i5844(): Unit = doTest("i5844", true) // #unionType
@@ -864,7 +864,7 @@ class ReferenceComparisonTest_Scala3_Newest extends ReferenceComparisonTestBase(
   def test_i6705(): Unit = doTest("i6705", true) // #extension
   def test_i6716(): Unit = doTest("i6716", false) // #opaque
   def test_i6734(): Unit = doTest("i6734", true) // #extension
-  def test_i6745(): Unit = doTest("i6745", false)
+  def test_i6745(): Unit = doTest("i6745", true)
   def test_i6750(): Unit = doTest("i6750", true)
   def test_i6781(): Unit = doTest("i6781", true) // #enum
   def test_i6822(): Unit = doTest("i6822", true) // #opaque
@@ -934,7 +934,7 @@ class ReferenceComparisonTest_Scala3_Newest extends ReferenceComparisonTestBase(
   def test_i7653(): Unit = doTest("i7653", true)
   def test_i7655(): Unit = doTest("i7655", true)
   def test_i7700(): Unit = doTest("i7700", true) // #extension, #export
-  def test_i7711(): Unit = doTest("i7711", false)
+  def test_i7711(): Unit = doTest("i7711", true)
   def test_i7734(): Unit = doTest("i7734", true) // #enum
   def test_i7735(): Unit = doTest("i7735", true)
   def test_i7739(): Unit = doTest("i7739", true)
@@ -947,7 +947,7 @@ class ReferenceComparisonTest_Scala3_Newest extends ReferenceComparisonTestBase(
   def test_i7778b(): Unit = doTest("i7778b", true)
   def test_i7790(): Unit = doTest("i7790", true)
   def test_i7793(): Unit = doTest("i7793", true)
-  def test_i7807(): Unit = doTest("i7807", false) // #intersectionType, #matchType
+  def test_i7807(): Unit = doTest("i7807", true) // #intersectionType, #matchType
   def test_i7809(): Unit = doTest("i7809", true)
   def test_i7819(): Unit = doTest("i7819", true)
   def test_i7822(): Unit = doTest("i7822", true) // #unionType
@@ -955,7 +955,7 @@ class ReferenceComparisonTest_Scala3_Newest extends ReferenceComparisonTestBase(
   def test_i7840(): Unit = doTest("i7840", true)
   def test_i7863(): Unit = doTest("i7863", true) // #typeLambda
   def test_i7868(): Unit = doTest("i7868", false) // #unionType, #opaque, #intersectionType, #typeLambda
-  def test_i7872(): Unit = doTest("i7872", false) // #intersectionType, #matchType
+  def test_i7872(): Unit = doTest("i7872", true) // #intersectionType, #matchType
   def test_i7876(): Unit = doTest("i7876", true)
   def test_i7877(): Unit = doTest("i7877", true)
   def test_i7878(): Unit = doTest("i7878", false) // #transparentInline
@@ -1131,8 +1131,8 @@ class ReferenceComparisonTest_Scala3_Newest extends ReferenceComparisonTestBase(
   def test_i9977(): Unit = doTest("i9977", true)
   def test_i9992(): Unit = doTest("i9992", true)
   def test_i9994(): Unit = doTest("i9994", true)
-  def test_i9996(): Unit = doTest("i9996", false)
-  def test_i9999(): Unit = doTest("i9999", false) // #intersectionType, #matchType
+  def test_i9996(): Unit = doTest("i9996", true)
+  def test_i9999(): Unit = doTest("i9999", true) // #intersectionType, #matchType
   def test_i9999a(): Unit = doTest("i9999a", true)
   def test_i10080(): Unit = doTest("i10080", true)
   def test_i10087(): Unit = doTest("i10087", true)
@@ -1157,7 +1157,7 @@ class ReferenceComparisonTest_Scala3_Newest extends ReferenceComparisonTestBase(
   def test_i10389(): Unit = doTest("i10389", true)
   def test_i10430(): Unit = doTest("i10430", true)
   def test_i10437(): Unit = doTest("i10437", true)
-  def test_i10477(): Unit = doTest("i10477", false)
+  def test_i10477(): Unit = doTest("i10477", false) // #traitParameters
   def test_i10495(): Unit = doTest("i10495", true) // #extension
   def test_i10521(): Unit = doTest("i10521", true) // #transparentInline
   def test_i10542(): Unit = doTest("i10542", true)
@@ -1628,7 +1628,7 @@ class ReferenceComparisonTest_Scala3_Newest extends ReferenceComparisonTestBase(
   def test_i16673(): Unit = doTest("i16673", true)
   def test_i16707(): Unit = doTest("i16707", false) // #transparentInline
   def test_i16740(): Unit = doTest("i16740", true) // #opaque, #unionType
-  def test_i16756(): Unit = doTest("i16756", false)
+  def test_i16756(): Unit = doTest("i16756", true)
   def test_i16777(): Unit = doTest("i16777", false)
   def test_i16778(): Unit = doTest("i16778", true)
   def test_i16785(): Unit = doTest("i16785", true)
@@ -1677,7 +1677,7 @@ class ReferenceComparisonTest_Scala3_Newest extends ReferenceComparisonTestBase(
   def test_i17556(): Unit = doTest("i17556", true)
   def test_i17584a(): Unit = doTest("i17584a", false)
   def test_i17588(): Unit = doTest("i17588", true) // #export
-  def test_i17631(): Unit = doTest("i17631", false)
+  def test_i17631(): Unit = doTest("i17631", true)
   def test_i17735(): Unit = doTest("i17735", true)
   def test_i17735a(): Unit = doTest("i17735a", true)
   def test_i17741(): Unit = doTest("i17741", true)
@@ -1699,7 +1699,7 @@ class ReferenceComparisonTest_Scala3_Newest extends ReferenceComparisonTestBase(
   def test_i18151c(): Unit = doTest("i18151c", true) // #transparentInline, #unionType, #intersectionType, #extension
   def test_i18160(): Unit = doTest("i18160", false)
   def test_i18163(): Unit = doTest("i18163", true)
-  def test_i18163_orig(): Unit = doTest("i18163.orig", false) // #typeLambda
+  def test_i18163_orig(): Unit = doTest("i18163.orig", false) // #traitParameters, #typeLambda
   def test_i18175(): Unit = doTest("i18175", false) // #unionType, #matchType, #intersectionType
   def test_i18183_migration(): Unit = doTest("i18183.migration", false)
   def test_i18211(): Unit = doTest("i18211", false) // #matchType
@@ -1943,7 +1943,7 @@ class ReferenceComparisonTest_Scala3_Newest extends ReferenceComparisonTestBase(
   def test_ilya2(): Unit = doTest("ilya2", true)
   def test_imp2_pos(): Unit = doTest("imp2-pos", true)
   def test_implicit_conversion(): Unit = doTest("implicit-conversion", true)
-  def test_implicit_dep(): Unit = doTest("implicit-dep", false)
+  def test_implicit_dep(): Unit = doTest("implicit-dep", true)
   def test_implicit_divergent(): Unit = doTest("implicit-divergent", true)
   def test_implicit_infix_ops(): Unit = doTest("implicit-infix-ops", false)
   def test_implicit_lower_bound(): Unit = doTest("implicit-lower-bound", false)
@@ -2436,7 +2436,7 @@ class ReferenceComparisonTest_Scala3_Newest extends ReferenceComparisonTestBase(
   def test_superacc(): Unit = doTest("superacc", true)
   def test_supercalls(): Unit = doTest("supercalls", true)
   def test_surrogates(): Unit = doTest("surrogates", true)
-  def test_suspend_strawman(): Unit = doTest("suspend-strawman", false) // #enum, #extension
+  def test_suspend_strawman(): Unit = doTest("suspend-strawman", false) // #enum, #extension, #traitParameters
   def test_switch_small(): Unit = doTest("switch-small", true)
   def test_switches(): Unit = doTest("switches", true)
   def test_switchUnbox(): Unit = doTest("switchUnbox", true)
