@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{Model, ObjectExt, StringsExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScDerivesClauseOwner, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScDerivesClauseOwner, ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitConversionResolveResult
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, TypePresentationContext, TypeVariableUnification}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
@@ -163,11 +163,10 @@ object DerivesUtil {
     else if (tc.typeParameters.size > 1)
       Left(ScalaBundle.message("derives.cannot.be.unified", owner.name, tc.name))
     else {
-      tc.baseCompanionTypeDefinition match {
-        case None =>
-          Left(ScalaBundle.message("derives.type.has.no.companion.object", tc.name))
-        case Some(companion) =>
+      val companion = tc.baseCompanion.getOrElse(tc.fakeCompanionModule)
 
+      companion match {
+        case Some(companion: ScObject) =>
           if (findDerivedMethods(companion, owner).isEmpty)
             Left(ScalaBundle.message("derives.no.member.named.derived", tc.name))
           else {
@@ -175,6 +174,8 @@ object DerivesUtil {
               ScalaBundle.message("derives.cannot.be.unified", owner.name, tc.name)
             )
           }
+        case None =>
+          Left(ScalaBundle.message("derives.type.has.no.companion.object", tc.name))
       }
     }
   }
