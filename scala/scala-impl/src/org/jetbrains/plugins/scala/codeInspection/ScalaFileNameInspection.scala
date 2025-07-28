@@ -15,7 +15,9 @@ import org.jetbrains.plugins.scala.console.ScalaLanguageConsoleUtils
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScValueOrVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
@@ -46,9 +48,12 @@ final class ScalaFileNameInspection extends LocalInspectionTool {
       !ScratchUtil.isScratch(scalaFile.getVirtualFile) &&
       !FileContextUtil.getFileContext(scalaFile).is[ScStringLiteral]
 
-  private def findSuspiciousTypeDefinitions(scalaFile: ScalaFile, virtualFileName: String): Seq[ScTypeDefinition] = {
+  private def findSuspiciousTypeDefinitions(scalaFile: ScalaFile, virtualFileName: String): Seq[ScMember with ScNamedElement] = {
     val members = scalaFile.members
-    val typeDefinitions = members.filterByType[ScTypeDefinition]
+    val typeDefinitions: Seq[ScMember with ScNamedElement] = members.collect {
+      case td: ScTypeDefinition => td
+      case ta: ScTypeAlias => ta
+    }
     if (members.size != typeDefinitions.size)
       Seq.empty
     else if (typeDefinitions.size > 2)
@@ -69,9 +74,9 @@ final class ScalaFileNameInspection extends LocalInspectionTool {
     }
   }
 
-  private def createDescriptor(manager: InspectionManager, scalaFile: ScalaFile, virtualFileName: String, clazz: ScTypeDefinition, isOnTheFly: Boolean) = {
+  private def createDescriptor(manager: InspectionManager, scalaFile: ScalaFile, virtualFileName: String, clazz: ScMember with ScNamedElement, isOnTheFly: Boolean) = {
     val localQuickFixes = Array[LocalQuickFix](
-      new RenameClassQuickFix(clazz, virtualFileName),
+      new RenameTopLevelElementQuickFix(clazz, virtualFileName),
       new RenameFileQuickFix(scalaFile, clazz.name + "." + ScalaFileType.INSTANCE.getDefaultExtension)
     )
 
@@ -103,10 +108,10 @@ object ScalaFileNameInspection {
                            (implicit project: Project): Unit
   }
 
-  private final class RenameClassQuickFix(clazz: ScTypeDefinition, name: String)
+  private final class RenameTopLevelElementQuickFix(clazz: ScNamedElement, name: String)
     extends RenameQuickFixBase(clazz, name, ScalaInspectionBundle.message("fileName.rename.class")) {
 
-    override protected def onElement(clazz: ScTypeDefinition)
+    override protected def onElement(clazz: ScNamedElement)
                                     (implicit project: Project): Unit =
       RefactoringFactory.getInstance(project).createRename(clazz, name).run()
 

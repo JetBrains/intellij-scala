@@ -28,6 +28,13 @@ class Scala3FileNameInspectionTest extends ScalaInspectionTestBase {
         |""".stripMargin
     )
 
+  def test_one_toplevel_object_same_name(): Unit =
+    checkTextHasNoErrors(
+      s"""
+         |object ${START}Foo${END} {}
+         |""".stripMargin
+    )
+
   def test_one_toplevel_object_different_names(): Unit =
     checkTextHasError(
       s"""
@@ -35,10 +42,45 @@ class Scala3FileNameInspectionTest extends ScalaInspectionTestBase {
          |""".stripMargin
     )
 
+  def test_one_toplevel_trait_same_name(): Unit =
+    checkTextHasNoErrors(
+      s"""
+         |trait ${START}Foo${END} {}
+         |""".stripMargin
+    )
+
   def test_one_toplevel_trait_different_names(): Unit =
     checkTextHasError(
       s"""
          |trait ${START}Bar${END} {}
+         |""".stripMargin
+    )
+
+  def test_one_toplevel_enum_same_names(): Unit =
+    checkTextHasNoErrors(
+      s"""
+         |enum ${START}Foo${END} {}
+         |""".stripMargin
+    )
+
+  def test_one_toplevel_enum_different_names(): Unit =
+    checkTextHasError(
+      s"""
+         |enum ${START}Bar${END} {}
+         |""".stripMargin
+    )
+
+  def test_one_toplevel_typedef_same_name(): Unit =
+    checkTextHasNoErrors(
+      s"""
+         |type ${START}Foo${END} = Int
+         |""".stripMargin
+    )
+
+  def test_one_toplevel_typedef_different_names(): Unit =
+    checkTextHasError(
+      s"""
+         |type ${START}Bar${END} = Int
          |""".stripMargin
     )
 
