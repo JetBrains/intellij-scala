@@ -163,7 +163,7 @@ object DerivesUtil {
     else if (tc.typeParameters.size > 1)
       Left(ScalaBundle.message("derives.cannot.be.unified", owner.name, tc.name))
     else {
-      val companion = tc.baseCompanion.getOrElse(tc.fakeCompanionModule)
+      val companion = tc.baseCompanion.orElse(tc.fakeCompanionModule)
 
       companion match {
         case Some(companion: ScObject) =>
@@ -174,7 +174,7 @@ object DerivesUtil {
               ScalaBundle.message("derives.cannot.be.unified", owner.name, tc.name)
             )
           }
-        case None =>
+        case _ =>
           Left(ScalaBundle.message("derives.type.has.no.companion.object", tc.name))
       }
     }
