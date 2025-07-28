@@ -58,11 +58,12 @@ ScalaFile
                         PsiElement(identifier)('h')
                         PsiElement(:)(':')
                         PsiWhiteSpace(' ')
-                        SimpleType: this.type
-                          ThisReference
-                            PsiElement(this)('this')
-                          PsiElement(.)('.')
-                          PsiElement(type)('type')
+                        ParameterType
+                          SimpleType: this.type
+                            ThisReference
+                              PsiElement(this)('this')
+                            PsiElement(.)('.')
+                            PsiElement(type)('type')
                       PsiElement())(')')
                     PsiWhiteSpace(' ')
                     PsiElement(=>)('=>')

@@ -135,9 +135,10 @@ ScalaFile
                         PsiElement(identifier)('p')
                         PsiElement(:)(':')
                         PsiWhiteSpace(' ')
-                        SimpleType: AnyRef
-                          CodeReferenceElement: AnyRef
-                            PsiElement(identifier)('AnyRef')
+                        ParameterType
+                          SimpleType: AnyRef
+                            CodeReferenceElement: AnyRef
+                              PsiElement(identifier)('AnyRef')
                       PsiElement())(')')
                     PsiWhiteSpace(' ')
                     PsiElement(=>)('=>')

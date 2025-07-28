@@ -55,17 +55,18 @@ ScalaFile
                 PsiElement(identifier)('x')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
-                InfixType: 0 | 1
-                  LiteralType: 0
-                    IntegerLiteral
-                      PsiElement(integer)('0')
-                  PsiWhiteSpace(' ')
-                  CodeReferenceElement: |
-                    PsiElement(identifier)('|')
-                  PsiWhiteSpace(' ')
-                  LiteralType: 1
-                    IntegerLiteral
-                      PsiElement(integer)('1')
+                ParameterType
+                  InfixType: 0 | 1
+                    LiteralType: 0
+                      IntegerLiteral
+                        PsiElement(integer)('0')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: |
+                      PsiElement(identifier)('|')
+                    PsiWhiteSpace(' ')
+                    LiteralType: 1
+                      IntegerLiteral
+                        PsiElement(integer)('1')
               PsiElement())(')')
             PsiWhiteSpace(' ')
             PsiElement(=>)('=>')
@@ -397,17 +398,18 @@ ScalaFile
                 PsiElement(identifier)('x')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
-                InfixType: 0 | 1
-                  LiteralType: 0
-                    IntegerLiteral
-                      PsiElement(integer)('0')
-                  PsiWhiteSpace(' ')
-                  CodeReferenceElement: |
-                    PsiElement(identifier)('|')
-                  PsiWhiteSpace(' ')
-                  LiteralType: 1
-                    IntegerLiteral
-                      PsiElement(integer)('1')
+                ParameterType
+                  InfixType: 0 | 1
+                    LiteralType: 0
+                      IntegerLiteral
+                        PsiElement(integer)('0')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: |
+                      PsiElement(identifier)('|')
+                    PsiWhiteSpace(' ')
+                    LiteralType: 1
+                      IntegerLiteral
+                        PsiElement(integer)('1')
               PsiElement())(')')
             PsiWhiteSpace(' ')
             PsiElement(=>)('=>')
