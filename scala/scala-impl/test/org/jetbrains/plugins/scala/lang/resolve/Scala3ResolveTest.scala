@@ -202,4 +202,12 @@ class Scala3ResolveTest extends SimpleResolveTestBase {
        |  MyDef.val${REFSRC}ue[String](setting)
        |""".stripMargin
   )
+
+  def testDependentFunReturn(): Unit = doResolveTest(
+    s"""def test: (${REFTGT}i: Int) => ${REFSRC}i.type = null"""
+  )
+
+  def testDependentFunOtherClause(): Unit = doResolveTest(
+    s"""def test: (${REFTGT}i: Int) => (j: ${REFSRC}i.type) => Unit = null"""
+  )
 }
