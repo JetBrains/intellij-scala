@@ -17,7 +17,7 @@ trait ScParenthesisedTypeElement extends ScTypeElement with ScParenthesizedEleme
 
 object ScParenthesisedTypeElement {
   object InnermostTypeElement {
-    def unapply(e: ScalaPsiElement): Option[ScalaPsiElement] = e match {
+    def unapply(e: ScalaPsiElement): Some[ScalaPsiElement] = e match {
       case ScParenthesisedTypeElement(InnermostTypeElement(e)) => Some(e)
       case e => Some(e)
     }
