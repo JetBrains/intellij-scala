@@ -108,7 +108,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     /**
      * TODO: what is the problem with doing processParameters unconditionally?
      */
-    if (lastParent != null && shouldProcessParameters(lastParent))
+    if (shouldProcessParameters(lastParent))
       processParameters(processor, state)
     else processNamedContextBounds(typeParameters, processor, state)
   }
@@ -116,10 +116,10 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
   // to resolve parameters in return type, type parameter context bounds and body;
   // references in default parameters are processed in ScParametersImpl
   protected def shouldProcessParameters(lastParent: PsiElement): Boolean = {
-    def isFromTypeParams = lastParent.isInstanceOf[ScTypeParamClause]
+    def isFromTypeParams = lastParent.is[ScTypeParamClause]
 
     //don't compare returnTypeElement with lastParent, they may be different instances due to caches/stubs
-    def isReturnTypeElement = lastParent.isInstanceOf[ScTypeElement] && lastParent.getContext == this
+    def isReturnTypeElement = lastParent.is[ScTypeElement] && lastParent.getContext == this
 
     !lastParent.isPhysical || isFromTypeParams || isReturnTypeElement
   }

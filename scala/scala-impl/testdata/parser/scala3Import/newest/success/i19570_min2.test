@@ -285,21 +285,22 @@ ScalaFile
                           PsiElement(identifier)('o')
                           PsiElement(:)(':')
                           PsiWhiteSpace(' ')
-                          ParametrizedType: Op[A, B]
-                            SimpleType: Op
-                              CodeReferenceElement: Op
-                                PsiElement(identifier)('Op')
-                            TypeArgumentsList
-                              PsiElement([)('[')
-                              SimpleType: A
-                                CodeReferenceElement: A
-                                  PsiElement(identifier)('A')
-                              PsiElement(,)(',')
-                              PsiWhiteSpace(' ')
-                              SimpleType: B
-                                CodeReferenceElement: B
-                                  PsiElement(identifier)('B')
-                              PsiElement(])(']')
+                          ParameterType
+                            ParametrizedType: Op[A, B]
+                              SimpleType: Op
+                                CodeReferenceElement: Op
+                                  PsiElement(identifier)('Op')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                SimpleType: A
+                                  CodeReferenceElement: A
+                                    PsiElement(identifier)('A')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                SimpleType: B
+                                  CodeReferenceElement: B
+                                    PsiElement(identifier)('B')
+                                PsiElement(])(']')
                         PsiElement())(')')
                       PsiWhiteSpace(' ')
                       PsiElement(=>)('=>')

@@ -213,9 +213,10 @@ ScalaFile
             PsiElement(identifier)('arg')
             PsiElement(:)(':')
             PsiWhiteSpace(' ')
-            SimpleType: T
-              CodeReferenceElement: T
-                PsiElement(identifier)('T')
+            ParameterType
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
           PsiElement())(')')
         PsiWhiteSpace(' ')
         PsiElement(=>)('=>')
@@ -347,9 +348,10 @@ ScalaFile
           PsiElement(identifier)('kvp')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          SimpleType: KeyValuePair
-            CodeReferenceElement: KeyValuePair
-              PsiElement(identifier)('KeyValuePair')
+          ParameterType
+            SimpleType: KeyValuePair
+              CodeReferenceElement: KeyValuePair
+                PsiElement(identifier)('KeyValuePair')
         PsiElement())(')')
       PsiWhiteSpace(' ')
       PsiElement(=>)('=>')
@@ -458,9 +460,10 @@ ScalaFile
           PsiElement(identifier)('i')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          SimpleType: Int
-            CodeReferenceElement: Int
-              PsiElement(identifier)('Int')
+          ParameterType
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
         PsiElement())(')')
       PsiWhiteSpace(' ')
       PsiElement(?=>)('?=>')

@@ -79,9 +79,10 @@ ScalaFile
           PsiElement(identifier)('z')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          SimpleType: Z
-            CodeReferenceElement: Z
-              PsiElement(identifier)('Z')
+          ParameterType
+            SimpleType: Z
+              CodeReferenceElement: Z
+                PsiElement(identifier)('Z')
         PsiElement())(')')
       PsiWhiteSpace(' ')
       PsiElement(=>)('=>')
@@ -226,9 +227,10 @@ ScalaFile
                     PsiElement(identifier)('z')
                     PsiElement(:)(':')
                     PsiWhiteSpace(' ')
-                    SimpleType: Z
-                      CodeReferenceElement: Z
-                        PsiElement(identifier)('Z')
+                    ParameterType
+                      SimpleType: Z
+                        CodeReferenceElement: Z
+                          PsiElement(identifier)('Z')
                   PsiElement())(')')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
@@ -372,9 +374,10 @@ ScalaFile
                   PsiElement(identifier)('z')
                   PsiElement(:)(':')
                   PsiWhiteSpace(' ')
-                  SimpleType: Z
-                    CodeReferenceElement: Z
-                      PsiElement(identifier)('Z')
+                  ParameterType
+                    SimpleType: Z
+                      CodeReferenceElement: Z
+                        PsiElement(identifier)('Z')
                 PsiElement())(')')
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')

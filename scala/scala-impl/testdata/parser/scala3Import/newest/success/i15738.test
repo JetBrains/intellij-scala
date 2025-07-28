@@ -63,9 +63,10 @@ ScalaFile
                 PsiElement(identifier)('t')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
-                SimpleType: Transaction
-                  CodeReferenceElement: Transaction
-                    PsiElement(identifier)('Transaction')
+                ParameterType
+                  SimpleType: Transaction
+                    CodeReferenceElement: Transaction
+                      PsiElement(identifier)('Transaction')
               PsiElement())(')')
             PsiWhiteSpace(' ')
             PsiElement(?=>)('?=>')

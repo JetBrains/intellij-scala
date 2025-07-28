@@ -68,27 +68,30 @@ ScalaFile
                     PsiElement(identifier)('benchId')
                     PsiElement(:)(':')
                     PsiWhiteSpace(' ')
-                    SimpleType: Long
-                      CodeReferenceElement: Long
-                        PsiElement(identifier)('Long')
+                    ParameterType
+                      SimpleType: Long
+                        CodeReferenceElement: Long
+                          PsiElement(identifier)('Long')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
                   Parameter: params
                     PsiElement(identifier)('params')
                     PsiElement(:)(':')
                     PsiWhiteSpace(' ')
-                    SimpleType: A
-                      CodeReferenceElement: A
-                        PsiElement(identifier)('A')
+                    ParameterType
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
                   Parameter: session
                     PsiElement(identifier)('session')
                     PsiElement(:)(':')
                     PsiWhiteSpace(' ')
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
+                    ParameterType
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
                   PsiElement())(')')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')

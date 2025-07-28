@@ -104,16 +104,17 @@ ScalaFile
                       PsiElement(identifier)('x')
                       PsiElement(:)(':')
                       PsiWhiteSpace(' ')
-                      ParametrizedType: List[T]
-                        SimpleType: List
-                          CodeReferenceElement: List
-                            PsiElement(identifier)('List')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: T
-                            CodeReferenceElement: T
-                              PsiElement(identifier)('T')
-                          PsiElement(])(']')
+                      ParameterType
+                        ParametrizedType: List[T]
+                          SimpleType: List
+                            CodeReferenceElement: List
+                              PsiElement(identifier)('List')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            SimpleType: T
+                              CodeReferenceElement: T
+                                PsiElement(identifier)('T')
+                            PsiElement(])(']')
                     PsiElement())(')')
                   PsiWhiteSpace(' ')
                   PsiElement(=>)('=>')
@@ -333,16 +334,17 @@ ScalaFile
                           PsiElement(identifier)('x')
                           PsiElement(:)(':')
                           PsiWhiteSpace(' ')
-                          ParametrizedType: List[T]
-                            SimpleType: List
-                              CodeReferenceElement: List
-                                PsiElement(identifier)('List')
-                            TypeArgumentsList
-                              PsiElement([)('[')
-                              SimpleType: T
-                                CodeReferenceElement: T
-                                  PsiElement(identifier)('T')
-                              PsiElement(])(']')
+                          ParameterType
+                            ParametrizedType: List[T]
+                              SimpleType: List
+                                CodeReferenceElement: List
+                                  PsiElement(identifier)('List')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                SimpleType: T
+                                  CodeReferenceElement: T
+                                    PsiElement(identifier)('T')
+                                PsiElement(])(']')
                         PsiElement())(')')
                       PsiWhiteSpace(' ')
                       PsiElement(=>)('=>')

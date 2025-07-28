@@ -72,9 +72,10 @@ ScalaFile
                   PsiElement(identifier)('g')
                   PsiElement(:)(':')
                   PsiWhiteSpace(' ')
-                  SimpleType: HasT
-                    CodeReferenceElement: HasT
-                      PsiElement(identifier)('HasT')
+                  ParameterType
+                    SimpleType: HasT
+                      CodeReferenceElement: HasT
+                        PsiElement(identifier)('HasT')
                 PsiElement())(')')
               PsiWhiteSpace(' ')
               PsiElement(?=>)('?=>')
