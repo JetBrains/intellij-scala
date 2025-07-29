@@ -42,12 +42,11 @@ class SbtShellProjectStructureImportingTest extends SbtProjectStructureImporting
       myProject.modulesWithScala.map(_.getName),
     )
 
-    // TODO: Propagate the structure dump output for sbt-shell, currently it is empty
-//    val expectedLineInProcessOutput = "[error] Some error message which shouldn't fail the whole build, see SCL-21478 and SCL-13038"
-//    junit.framework.TestCase.assertTrue(
-//      s"Can't find this line in sbt process output during sbt structure extraction:\n$expectedLineInProcessOutput",
-//      SbtProjectResolver.processOutputOfLatestStructureDump.contains(expectedLineInProcessOutput)
-//    )
+    val expectedLineInProcessOutput = "[error] Some error message which shouldn't fail the whole build, see SCL-21478 and SCL-13038"
+    junit.framework.TestCase.assertTrue(
+      s"Can't find this line in sbt process output during sbt structure extraction:\n$expectedLineInProcessOutput",
+      SbtProjectResolver.processOutputOfLatestStructureDump.contains(expectedLineInProcessOutput)
+    )
   }
 
   def testSimple_Scala3(): Unit = {
@@ -300,12 +299,11 @@ class SbtShellProjectStructureImportingTest extends SbtProjectStructureImporting
       myProject.modulesWithScala.map(_.getName).sorted,
     )
 
-    // TODO: Propagate the structure dump output for sbt-shell, currently it is empty
-//    val expectedLineInProcessOutput = "[error] Some error message which shouldn't fail the whole build, see SCL-21478 and SCL-13038"
-//    junit.framework.TestCase.assertTrue(
-//      s"Can't find this line in sbt process output during sbt structure extraction:\n$expectedLineInProcessOutput",
-//      SbtProjectResolver.processOutputOfLatestStructureDump.contains(expectedLineInProcessOutput)
-//    )
+    val expectedLineInProcessOutput = "[error] Some error message which shouldn't fail the whole build, see SCL-21478 and SCL-13038"
+    junit.framework.TestCase.assertTrue(
+      s"Can't find this line in sbt process output during sbt structure extraction:\n$expectedLineInProcessOutput",
+      SbtProjectResolver.processOutputOfLatestStructureDump.contains(expectedLineInProcessOutput)
+    )
 
     assertDirectoryCompletionVariantsForProjectPaths(
       DefaultSbtContentRootsScala3,
@@ -363,12 +361,11 @@ class SbtShellProjectStructureImportingTest extends SbtProjectStructureImporting
       myProject.modulesWithScala.map(_.getName),
     )
 
-    // TODO: Propagate the structure dump output for sbt-shell, currently it is empty
-    //    val expectedLineInProcessOutput = "[error] Some error message which shouldn't fail the whole build, see SCL-21478 and SCL-13038"
-    //    junit.framework.TestCase.assertTrue(
-    //      s"Can't find this line in sbt process output during sbt structure extraction:\n$expectedLineInProcessOutput",
-    //      SbtProjectResolver.processOutputOfLatestStructureDump.contains(expectedLineInProcessOutput)
-    //    )
+    val expectedLineInProcessOutput = "[error] Some error message which shouldn't fail the whole build, see SCL-21478 and SCL-13038"
+    junit.framework.TestCase.assertTrue(
+      s"Can't find this line in sbt process output during sbt structure extraction:\n$expectedLineInProcessOutput",
+      SbtProjectResolver.processOutputOfLatestStructureDump.contains(expectedLineInProcessOutput)
+    )
   }
 
   def testSimpleSbt013(): Unit = {
@@ -404,12 +401,11 @@ class SbtShellProjectStructureImportingTest extends SbtProjectStructureImporting
       myProject.modulesWithScala.map(_.getName),
     )
 
-    // TODO: Propagate the structure dump output for sbt-shell, currently it is empty
-    //    val expectedLineInProcessOutput = "[error] Some error message which shouldn't fail the whole build, see SCL-21478 and SCL-13038"
-    //    junit.framework.TestCase.assertTrue(
-    //      s"Can't find this line in sbt process output during sbt structure extraction:\n$expectedLineInProcessOutput",
-    //      SbtProjectResolver.processOutputOfLatestStructureDump.contains(expectedLineInProcessOutput)
-    //    )
+    val expectedLineInProcessOutput = "[error] Some error message which shouldn't fail the whole build, see SCL-21478 and SCL-13038"
+    junit.framework.TestCase.assertTrue(
+      s"Can't find this line in sbt process output during sbt structure extraction:\n$expectedLineInProcessOutput",
+      SbtProjectResolver.processOutputOfLatestStructureDump.contains(expectedLineInProcessOutput)
+    )
   }
 
   def testSimpleSbt149(): Unit = {
@@ -429,12 +425,11 @@ class SbtShellProjectStructureImportingTest extends SbtProjectStructureImporting
       myProject.modulesWithScala.map(_.getName),
     )
 
-    // TODO: Propagate the structure dump output for sbt-shell, currently it is empty
-    //    val expectedLineInProcessOutput = "[error] Some error message which shouldn't fail the whole build, see SCL-21478 and SCL-13038"
-    //    junit.framework.TestCase.assertTrue(
-    //      s"Can't find this line in sbt process output during sbt structure extraction:\n$expectedLineInProcessOutput",
-    //      SbtProjectResolver.processOutputOfLatestStructureDump.contains(expectedLineInProcessOutput)
-    //    )
+    val expectedLineInProcessOutput = "[error] Some error message which shouldn't fail the whole build, see SCL-21478 and SCL-13038"
+    junit.framework.TestCase.assertTrue(
+      s"Can't find this line in sbt process output during sbt structure extraction:\n$expectedLineInProcessOutput",
+      SbtProjectResolver.processOutputOfLatestStructureDump.contains(expectedLineInProcessOutput)
+    )
   }
 
   private def runSimpleTest(

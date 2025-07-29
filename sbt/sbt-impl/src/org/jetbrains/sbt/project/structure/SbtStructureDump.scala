@@ -76,7 +76,8 @@ class SbtStructureDump {
     ))
 
     val shell = SbtShellCommunication.forProject(project)
-    val aggregator = shellMessageAggregator(EventId(s"dump:${UUID.randomUUID()}"), shell, reporter)
+    val optProcessOutputBuilder = setUpProcessOutputCollection()
+    val aggregator = shellMessageAggregator(EventId(s"dump:${UUID.randomUUID()}"), shell, reporter, optProcessOutputBuilder)
 
     val isSbtVersionOutdated = SbtProcessManager.forProject(project).isSbtVersionOutdated
     if (isSbtVersionOutdated) {
@@ -196,7 +197,7 @@ class SbtStructureDump {
     implicit reporter: BuildReporter
   ): Try[BuildMessages] = {
 
-    val environment = if (ApplicationManager.getApplication.isUnitTestMode && SystemInfo.isWindows) {
+    val environment = if (isUnitTestMode && SystemInfo.isWindows) {
       val extraEnvs = defaultCoursierDirectoriesAsEnvVariables()
       environment0 ++ extraEnvs
     }
@@ -330,16 +331,13 @@ class SbtStructureDump {
       }
     }
 
-    val isUnitTest = ApplicationManager.getApplication.isUnitTestMode
-    val collectProcessOutput = isUnitTest || System.getProperty(PrintProcessOutputOnFailurePropertyName, "false") == "true"
-    Log.debug(s"collectProcessOutput = $collectProcessOutput")
-    processOutputBuilder.clear()
+    val optProcessOutputBuilder = setUpProcessOutputCollection()
 
     val processListener: (OutputType, String) => Unit = (typ, line) => {
-      if (collectProcessOutput) {
-        processOutputBuilder.append(s"[${typ.name}] $line")
+      optProcessOutputBuilder.foreach { builder =>
+        builder.append(s"[${typ.name}] $line")
         if (!line.endsWith("\n")) {
-          processOutputBuilder.append('\n')
+          builder.append('\n')
         }
       }
       (typ, line) match {
@@ -374,7 +372,7 @@ class SbtStructureDump {
           cancellationFlag.set(true)
         }
 
-        val importIsTooLong = isUnitTest && System.currentTimeMillis() - start > MaxImportDurationInUnitTests.toMillis
+        val importIsTooLong = isUnitTestMode && System.currentTimeMillis() - start > MaxImportDurationInUnitTests.toMillis
         if (importIsTooLong) {
           throw new TimeoutException(s"sbt process hasn't finished in $MaxImportDurationInUnitTests")
         }
@@ -398,6 +396,17 @@ class SbtStructureDump {
     }
     result
   }
+
+  /**
+   * Sets up a [[StringBuilder]] for collecting the raw process output such that it can be examined in tests.
+   * @return [[Some]] if the process output should be collected, [[None]] otherwise.
+   */
+  private def setUpProcessOutputCollection(): Option[StringBuilder] = {
+    val collectProcessOutput = isUnitTestMode || java.lang.Boolean.getBoolean(PrintProcessOutputOnFailurePropertyName)
+    Log.debug(s"collectProcessOutput = $collectProcessOutput")
+    processOutputBuilder.clear()
+    if (collectProcessOutput) Some(processOutputBuilder) else None
+  }
 }
 
 object SbtStructureDump {
@@ -415,10 +424,12 @@ object SbtStructureDump {
   private def dontPrintErrorsAndWarningsToConsoleDuringTests: Boolean =
     System.getProperty("sbt.structure.dump.dontPrintErrorsAndWarningsToConsoleDuringTests") == "true"
 
+  private def isUnitTestMode: Boolean = ApplicationManager.getApplication.isUnitTestMode
+
   private def reportEvent(messages: BuildMessages,
                           text: String): BuildMessages = {
 
-    if (ApplicationManager.getApplication.isUnitTestMode && !dontPrintErrorsAndWarningsToConsoleDuringTests) {
+    if (isUnitTestMode && !dontPrintErrorsAndWarningsToConsoleDuringTests) {
       val isErrorOrWarning = text.startsWith("[warn]") || text.startsWith("[error]")
       if (isErrorOrWarning){
         System.err.println(text)
@@ -438,6 +449,7 @@ object SbtStructureDump {
     dumpTaskId: EventId,
     shell: SbtShellCommunication,
     reporter: BuildReporter,
+    processOutputBuilder: Option[StringBuilder]
   ): EventAggregator[BuildMessages] = (messages, event) => event match {
     case TaskStart =>
       reporter.startTask(dumpTaskId, None, SbtBundle.message("sbt.extracting.project.structure.from.sbt.shell"))
@@ -471,6 +483,7 @@ object SbtStructureDump {
 
     case Output(raw) =>
       val text = raw.trim
+      processOutputBuilder.foreach(_.append(text))
 
       val newMessages =
         if (text startsWith ERROR_PREFIX) {
