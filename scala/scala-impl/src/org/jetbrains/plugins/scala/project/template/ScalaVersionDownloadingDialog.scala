@@ -4,6 +4,7 @@ import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicato
 import com.intellij.openapi.ui.Messages
 import org.apache.ivy.util.MessageLogger
 import org.jetbrains.annotations.VisibleForTesting
+import org.jetbrains.plugins.scala.{DependencyManagerBase, ScalaBundle, ScalaVersion}
 import org.jetbrains.plugins.scala.components.libextensions.ProgressIndicatorLogger
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, withProgressSynchronouslyTry}
 import org.jetbrains.plugins.scala.project.external.ScalaSdkUtils
