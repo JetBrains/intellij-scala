@@ -1282,7 +1282,7 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureImportin
   )
 
   /**
-   * @see [[org.jetbrains.sbt.project.SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled.testSimpleSbt2Latest]]
+   * @see [[org.jetbrains.sbt.project.SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated.testSimpleSbt2Latest]]
    */
   def testSimpleSbt2Latest(): Unit = {
     val expectedScala_3_3 = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("3.3.3")
