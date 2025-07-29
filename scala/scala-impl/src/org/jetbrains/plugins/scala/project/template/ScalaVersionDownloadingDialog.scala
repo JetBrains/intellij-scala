@@ -80,6 +80,16 @@ object ScalaVersionDownloadingDialog {
 
   final case class ScalaVersionResolveResult(scalaVersion: String, compilerClassPathJars: Seq[Path], librarySourcesJars: Seq[Path], compilerBridgeJar: Option[Path])
 
+  def tryDownloadScalaWithProgress(scalaVersion: ScalaVersion): Try[ScalaVersionResolveResult] = {
+    withProgressSynchronouslyTry(ScalaBundle.message("downloading.scala.version", scalaVersion.minor), canBeCanceled = true) { manager =>
+      val indicator = manager.getProgressIndicator
+      val dependencyManager = new DependencyManagerBase {
+        override protected def progressIndicator: Option[ProgressIndicator] = Some(indicator)
+        override def createLogger: MessageLogger = new ProgressIndicatorLogger(indicator)
+      }
+      createScalaVersionResolveResult(scalaVersion, dependencyManager)
+    }
+  }
   /**
    * While Scala 3 support is WIP we do not want preselect Scala 3 version
    * @param versions assumed to be sorted

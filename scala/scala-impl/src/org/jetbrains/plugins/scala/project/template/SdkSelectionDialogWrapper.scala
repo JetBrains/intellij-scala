@@ -228,4 +228,21 @@ object SdkSelectionDialogWrapper {
     Messages.showErrorDialog(component, message, title)
   }
 
+  private val ScalaLibraryFileNames = Artifact.ScalaLibraryAndModulesArtifacts.map(_.prefix)
+
+  def convertScalaResolveResultToScalaSdkDescriptor(scalaVersionResolveResult: ScalaVersionResolveResult): ScalaSdkDescriptor = {
+    val compilerJars = scalaVersionResolveResult.compilerClassPathJars
+    val libraryJars = compilerJars.filter(f => ScalaLibraryFileNames.exists(f.getFileName.toString.startsWith(_)))
+    val scaladocExtraClasspath = Nil // TODO SCL-17219
+    ScalaSdkDescriptor(
+      version = Some(scalaVersionResolveResult.scalaVersion),
+      label = None,
+      compilerClasspath = compilerJars,
+      scaladocExtraClasspath = scaladocExtraClasspath,
+      libraryFiles = libraryJars,
+      sourceFiles = scalaVersionResolveResult.librarySourcesJars,
+      docFiles = Nil, // docs are not downloaded
+      compilerBridgeJar = scalaVersionResolveResult.compilerBridgeJar
+    )
+  }
 }
