@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportSelect
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScPackaging}
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubFileElementType
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.{ScDerivesClauseElementType, ScStubFileElementType}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.{isIdentifier, isKeyword}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
@@ -675,30 +675,37 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       return result
     }
 
-    //1. no spaces before braceless template body (with empty extends list)
+    //1. No space before braceless template body (with an empty extents list)
     //   class A:
-    //2. no spaces before braceless template body (with non-empty extends list)
+    //2. No spaces before the braceless template body (with a non-empty extents list)
     //   class A extends B:
     //   class A extends B with C:
-    //3. add space between `:` and type in given-with (given structural instance)
+    //3. Add a space before "derives" in the extends block with empty parents
+    //4. Add a space between `:` and type in given-with (given structural instance)
     //   given intOrd: Ord42[Int] with ...
     rightPsi match {
       //NOTE: ScExtendsBlock with braces is handled before
       case eb: ScExtendsBlock =>
-        val hasNonEmptyExtendsList = eb.firstChild.map(_.elementType).contains(ScalaTokenTypes.kEXTENDS)
+        val firstElementType = eb.firstChild.map(_.elementType)
+        val hasNonEmptyExtendsListOrDerivesClause = firstElementType.exists { et =>
+          et == ScalaTokenTypes.kEXTENDS ||
+            et.is[ScDerivesClauseElementType]
+        }
         val isExtendsBlockInGivenInstance = leftElementType == ScalaTokenTypes.tCOLON
-        val needsSpace = hasNonEmptyExtendsList || isExtendsBlockInGivenInstance
+        val needsSpace = hasNonEmptyExtendsListOrDerivesClause ||
+          isExtendsBlockInGivenInstance
         return if (needsSpace) WITH_SPACING else WITHOUT_SPACING
-
       case tb: ScTemplateBody =>
         val needsSpace = tb.isEnclosedByBraces
         return if (needsSpace) WITH_SPACING else WITHOUT_SPACING
+      case _: ScDerivesClause =>
+        return WITH_SPACING
       case _ =>
     }
 
     //this is a dirty hack for SCL-9264. It looks bad, but seems to be the only fast way to make this work.
     (leftElementType, leftPsi.getPrevSiblingNotWhitespace) match {
-      case (ScalaTokenTypes.tLBRACE | ScalaTokenTypes.tLPARENTHESIS, forNode: LeafPsiElement) if !left.isLeaf() &&
+      case (ScalaTokenTypes.tLBRACE | ScalaTokenTypes.tLPARENTHESIS, forNode: LeafPsiElement) if !left.isLeaf &&
         forNode.getElementType == ScalaTokenTypes.kFOR => return COMMON_SPACING
       case _ =>
     }
