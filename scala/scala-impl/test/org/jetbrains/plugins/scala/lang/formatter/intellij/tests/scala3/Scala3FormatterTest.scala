@@ -753,4 +753,74 @@ class Scala3FormatterTest extends Scala3FormatterBaseTest {
         |""".stripMargin
     )
   }
+
+  def testDerivesKeyword_WithoutClassBody_Mix(): Unit = {
+    doTextTest(
+      """case class Point(x: Double, y: Double) derives Ordering
+        |
+        |case class Point(x: Double, y: Double) derives Ordering, Codec
+        |
+        |case class Point(x: Double, y: Double) extends Object derives Ordering
+        |
+        |case class Point(x: Double, y: Double) extends Object with MyTrait derives Ordering
+        |
+        |case class Point(x: Double, y: Double) extends Object with MyTrait with MyTrait derives Ordering
+        |
+        |case class Point(x: Double, y: Double) extends Object, MyTrait derives Ordering
+        |
+        |case class Point(x: Double, y: Double) extends Object, MyTrait derives Ordering, Codec
+        |""".stripMargin,
+    )
+  }
+
+  def testDerivesKeyword__WithoutClassBody_Mix_Multiline(): Unit = {
+    doTextTest(
+      """case class Point(x: Double, y: Double)
+        |  derives Ordering
+        |
+        |case class Point(x: Double, y: Double)
+        |  derives Ordering, Codec
+        |
+        |case class Point(x: Double, y: Double)
+        |  extends Object
+        |    derives Ordering
+        |
+        |case class Point(x: Double, y: Double)
+        |  extends Object
+        |    with MyTrait
+        |    derives Ordering
+        |
+        |case class Point(x: Double, y: Double)
+        |  extends Object
+        |    with MyTrait with MyTrait
+        |    derives Ordering
+        |
+        |case class Point(x: Double, y: Double)
+        |  extends Object, MyTrait
+        |    derives Ordering
+        |
+        |case class Point(x: Double, y: Double)
+        |  extends Object, MyTrait
+        |    derives Ordering, Codec
+        |""".stripMargin,
+    )
+  }
+
+  def testDerivesKeyword_InClassDefinition(): Unit =
+    doTextTest(
+      """case class Point(x: Double, y: Double) derives Ordering {
+        |}
+        |
+        |case class Point(x: Double, y: Double) derives Ordering:
+        |end Point
+        |""".stripMargin
+    )
+
+  def testDerivesKeyword_InEnumDefinition(): Unit =
+    doTextTest(
+      """enum Tree[T] derives Eq, Ordering, Show:
+        |  case Branch(left: Tree[T], right: Tree[T])
+        |  case Leaf(elem: T)
+        |""".stripMargin
+    )
 }
