@@ -515,8 +515,8 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled
         sbtBuildURI := buildURI
         libraryDependencies := scalaLibraries
         moduleDependencies ++= Seq(
-          new dependency(c1Main) { isExported := false },
           new dependency(rootMain) { isExported := false },
+          new dependency(c1Main) { isExported := false }
         )
       }
 

@@ -183,8 +183,8 @@ abstract class SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated ext
       }
       lazy val fooTest: module = new module("multiModule.foo.test"){
         moduleDependencies ++= Seq(
-          new dependency(barMain) { isExported := false },
-          new dependency(fooMain) { isExported := false }
+          new dependency(fooMain) { isExported := false },
+          new dependency(barMain) { isExported := false }
         )
       }
 
@@ -527,11 +527,11 @@ abstract class SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated ext
         lazy val proj1Test: module = new module(s"$projectName.proj1.test") {
           sbtProjectId := "proj1"
           moduleDependencies := Seq(
-            new dependency(proj0Main) {
+            new dependency(proj1Main) {
               isExported := false
               scope := DependencyScope.COMPILE
             },
-            new dependency(proj1Main) {
+            new dependency(proj0Main) {
               isExported := false
               scope := DependencyScope.COMPILE
             }
@@ -553,10 +553,6 @@ abstract class SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated ext
         lazy val proj2Main: module = new module(s"$projectName.proj2.main") {
           sbtProjectId := "proj2"
           moduleDependencies := Seq(
-            new dependency(proj0Main) {
-              isExported := false
-              scope := DependencyScope.PROVIDED
-            },
             new dependency(proj1Main) {
               isExported := false
               scope := DependencyScope.PROVIDED
@@ -564,7 +560,11 @@ abstract class SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated ext
             new dependency(proj1Test) {
               isExported := false
               scope := DependencyScope.PROVIDED
-            }
+            },
+            new dependency(proj0Main) {
+              isExported := false
+              scope := DependencyScope.PROVIDED
+            },
           )
         }
 
@@ -575,15 +575,15 @@ abstract class SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated ext
               isExported := false
               scope := DependencyScope.COMPILE
             },
-            new dependency(proj0Main) {
-              isExported := false
-              scope := DependencyScope.COMPILE
-            },
             new dependency(proj1Main) {
               isExported := false
               scope := DependencyScope.COMPILE
             },
             new dependency(proj1Test) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(proj0Main) {
               isExported := false
               scope := DependencyScope.COMPILE
             }
@@ -605,10 +605,6 @@ abstract class SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated ext
         lazy val proj3Main: module = new module(s"$projectName.proj3.main") {
           sbtProjectId := "proj3"
           moduleDependencies := Seq(
-            new dependency(proj0Main) {
-              isExported := false
-              scope := DependencyScope.COMPILE
-            },
             new dependency(proj1Main) {
               isExported := false
               scope := DependencyScope.COMPILE
@@ -616,7 +612,11 @@ abstract class SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated ext
             new dependency(proj1Test) {
               isExported := false
               scope := DependencyScope.COMPILE
-            }
+            },
+            new dependency(proj0Main) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
           )
         }
 
@@ -627,15 +627,15 @@ abstract class SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated ext
               isExported := false
               scope := DependencyScope.COMPILE
             },
-            new dependency(proj0Main) {
-              isExported := false
-              scope := DependencyScope.COMPILE
-            },
             new dependency(proj1Main) {
               isExported := false
               scope := DependencyScope.COMPILE
             },
             new dependency(proj1Test) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(proj0Main) {
               isExported := false
               scope := DependencyScope.COMPILE
             }
@@ -660,11 +660,11 @@ abstract class SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated ext
         lazy val rootTest: module = new module(s"$projectName.test") {
           sbtProjectId := "root"
           moduleDependencies := Seq(
-            new dependency(proj2Main) {
+            new dependency(rootMain) {
               isExported := false
               scope := DependencyScope.COMPILE
             },
-            new dependency(rootMain) {
+            new dependency(proj2Main) {
               isExported := false
               scope := DependencyScope.COMPILE
             }
@@ -980,11 +980,11 @@ abstract class SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated ext
         lazy val fooTest: module = new module(s"$projectName.foo.test") {
           sbtProjectId := "foo"
           moduleDependencies := Seq(
-            new dependency(rootMain) {
+            new dependency(fooMain) {
               isExported := false
               scope := DependencyScope.COMPILE
             },
-            new dependency(fooMain) {
+            new dependency(rootMain) {
               isExported := false
               scope := DependencyScope.COMPILE
             }
@@ -1014,7 +1014,7 @@ abstract class SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated ext
         lazy val utilsTest: module = new module(s"$projectName.utils.test") {
           sbtProjectId := "utils"
           moduleDependencies := Seq(
-            new dependency(fooTest) {
+            new dependency(utilsMain) {
               isExported := false
               scope := DependencyScope.COMPILE
             },
@@ -1022,7 +1022,7 @@ abstract class SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated ext
               isExported := false
               scope := DependencyScope.COMPILE
             },
-            new dependency(utilsMain) {
+            new dependency(fooTest) {
               isExported := false
               scope := DependencyScope.COMPILE
             },
@@ -1382,9 +1382,9 @@ abstract class SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated ext
         lazy val subProjectIntegrationTestTest: module = new module("root.subProject-integration-test.test") {
           libraryDependencies := scalaLibraries
           moduleDependencies ++= Seq(
+            new dependency(subProjectIntegrationTestMain) { isExported := false },
             new dependency(subProjectMain) { isExported := false },
-            new dependency(subProjectTest) { isExported := false },
-            new dependency(subProjectIntegrationTestMain) { isExported := false }
+            new dependency(subProjectTest) { isExported := false }
           )
           contentRoots := Seq(
             "%PROJECT_ROOT%/subProject/src/it",
