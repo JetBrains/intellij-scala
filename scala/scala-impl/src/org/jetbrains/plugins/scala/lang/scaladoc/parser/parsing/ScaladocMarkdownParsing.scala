@@ -6,10 +6,15 @@ import com.intellij.psi.tree.IElementType
 import org.intellij.markdown.ast.ASTNode
 import org.intellij.markdown.parser.MarkdownParser
 import org.intellij.markdown.{MarkdownElementTypes, MarkdownTokenTypes}
+import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilderImpl
+import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.ScaladocMarkdownParsing.MARKDOWN_DATA
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.markdown.{ScalaDocMarkdownFlavour, ScalaDocTagMarkerBlock}
+
+import scala.jdk.CollectionConverters._
 
 class ScaladocMarkdownParsing(private val builder: PsiBuilder,
                         private val tabSize: Int) extends ScalaDocElementTypes {
@@ -61,21 +66,32 @@ class ScaladocMarkdownParsing(private val builder: PsiBuilder,
 
     var currLine = 0
 
-    def ensureBuilderInPosition(position: Int): Unit = {
+    def skipTo(position: Int): Unit = {
+      val target = position + map(currLine)
+
+      while (builder.getCurrentOffset < target) builder.advanceLexer()
+    }
+
+    def ensureBuilderInPosition(position: Int, iType: IElementType = ScalaDocTokenType.DOC_COMMENT_DATA): Unit = {
       val target = position + map(currLine)
 
       if (builder.getCurrentOffset >= target) return
 
       val marker = builder.mark()
-      while (builder.getCurrentOffset < target) builder.advanceLexer()
+      skipTo(position)
 
-      marker.collapse(ScalaDocTokenType.DOC_COMMENT_DATA)
+      marker.collapse(iType)
     }
 
     def advanceToNextLine(): Unit = {
+      def isTokenStructural(@Nullable iElementType: IElementType): Boolean =
+        iElementType == ScalaDocTokenType.DOC_COMMENT_END ||
+          iElementType == ScalaDocTokenType.DOC_COMMENT_START ||
+          iElementType == ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS
+
       val whitespaceMarker = builder.mark()
       while (
-        builder.getTokenType != ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS &&
+        !isTokenStructural(builder.getTokenType) &&
           !builder.eof()
       ) builder.advanceLexer()
 
@@ -100,6 +116,7 @@ class ScaladocMarkdownParsing(private val builder: PsiBuilder,
         // ScalaDoc stuff
         case ScalaDocTagMarkerBlock.TAG_BLOCK => ScalaDocElementTypes.DOC_TAG
         case ScalaDocTagMarkerBlock.TAG_NAME => ScalaDocTokenType.DOC_TAG_NAME
+        case ScalaDocTagMarkerBlock.TAG_ARGUMENT => ScalaDocTokenType.DOC_TAG_VALUE_TOKEN
 
         // Common blocks
         case MarkdownElementTypes.PARAGRAPH => ScalaDocElementTypes.DOC_PARAGRAPH
@@ -134,7 +151,68 @@ class ScaladocMarkdownParsing(private val builder: PsiBuilder,
         val marker = builder.mark()
         ensureBuilderInPosition(node.getEndOffset)
         marker.collapse(element)
-      } else {
+      } else if (node.getType == ScalaDocTagMarkerBlock.TAG_BLOCK) {
+        // TAG_BLOCK needs to be dealt with in this complicated way,
+        // due to needing whitespace inserted in a few places (which is not necessary for the rest)
+        // and some nodes being special
+        ensureBuilderInPosition(node.getStartOffset)
+
+        val children = node.getChildren.asScala
+
+        // Never -1; name always exists
+        val name = children.indexWhere(_.getType == ScalaDocTagMarkerBlock.TAG_NAME)
+
+        val marker = builder.mark()
+
+        ensureBuilderInPosition(children(name).getStartOffset, ScalaDocTokenType.DOC_WHITESPACE)
+        visitNode(children(name))
+
+        val argument = children.indexWhere(_.getType == ScalaDocTagMarkerBlock.TAG_ARGUMENT)
+
+        val skippable = if (argument != -1) {
+
+          ensureBuilderInPosition(children(argument).getStartOffset, ScalaDocTokenType.DOC_WHITESPACE)
+
+          // Disabled because `builder` is not the right thing to pass here, but I'm not sure how to do it nicely.
+          /*if (
+            content.substring(children(name).getStartOffset + 1, children(name).getEndOffset)
+              == MyScaladocParsing.TagNames.Throws) {
+            val psiBuilder = mkScalaPsiBuilder(builder, isScala3 = false)
+            // Taken from MyScaladocParsing.
+            // I don't actually know how this works, and I'll probably forget to remove this comment
+            StableId(ScalaDocTokenType.DOC_TAG_VALUE_TOKEN, forImport = true)(psiBuilder)
+            // Skip forward in the builder
+            skipTo(children(argument).getEndOffset)
+          } else { */
+            visitNode(children(argument))
+          // }
+
+          argument
+        } else { name }
+        children.drop(skippable + 1).foreach(visitNode)
+
+
+        ensureBuilderInPosition(node.getEndOffset)
+        marker.done(element)
+      } else if (node.getType == MarkdownElementTypes.STRONG) {
+        // Special casing for bold to merge boundary tokens
+        val children = node.getChildren.asScala
+
+        ensureBuilderInPosition(node.getStartOffset)
+        val marker = builder.mark()
+        // We *know* there are at least 4 children here
+        // Force the first 2 children to be a DOC_BOLD_TAG
+        ensureBuilderInPosition(children(1).getEndOffset, ScalaDocTokenType.DOC_BOLD_TAG)
+
+        children.drop(2).dropRight(2).foreach(visitNode)
+
+        ensureBuilderInPosition(children(children.length-2).getStartOffset)
+
+        // Force the last 2 children to be a DOC_BOLD_TAG
+        ensureBuilderInPosition(node.getEndOffset, ScalaDocTokenType.DOC_BOLD_TAG)
+
+        marker.done(element)
+      } else { // TODO: Process wiki links separately as well.
         ensureBuilderInPosition(node.getStartOffset)
 
         val marker = builder.mark()
@@ -151,6 +229,9 @@ class ScaladocMarkdownParsing(private val builder: PsiBuilder,
 
     rootMarker.done(root)
   }
+
+  def mkScalaPsiBuilder(delegate: PsiBuilder, isScala3: Boolean) =
+    new ScalaPsiBuilderImpl(delegate, isScala3)
 }
 
 object ScaladocMarkdownParsing {
