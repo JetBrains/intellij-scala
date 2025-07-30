@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScTypeAl
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinitionLike, ScEnum, ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 
-trait ScCompanionOwnerImpl extends ScTypeDefinitionLike {
+trait ScTypeDefinitionLikeImpl extends ScTypeDefinitionLike {
   //Performance critical method
   //And it is REALLY SO!
   final override def baseCompanion: Option[ScTypeDefinitionLike] = {

@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScContextBound, ScTy
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createIdentifier
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScCompanionOwnerImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTypeDefinitionLikeImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeAliasStub
 import org.jetbrains.plugins.scala.lang.psi.types.Context
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing}
@@ -27,7 +27,7 @@ import javax.swing.Icon
 final class ScTypeAliasDeclarationImpl private(stub: ScTypeAliasStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, TYPE_DECLARATION, node)
     with ScTypeAliasDeclaration
-    with ScCompanionOwnerImpl {
+    with ScTypeDefinitionLikeImpl {
 
   def this(node: ASTNode) = this(null, node)
 
