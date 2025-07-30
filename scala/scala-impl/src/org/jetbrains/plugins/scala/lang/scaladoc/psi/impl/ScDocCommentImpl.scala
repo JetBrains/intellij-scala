@@ -11,6 +11,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.ScaladocMarkdownParsing
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.markdown.ScalaDocMarkdownFlavour
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocDescriptionPart, ScDocTag}
 
 import java.util
@@ -53,7 +55,7 @@ final class ScDocCommentImpl(buffer: CharSequence,
   // This is the same implementation as PsiDocComment. It uses an implicit fact; that wikidoc syntax does not use
   // leading asterisks (it uses DOC_COMMENT_START instead for the first child)
   // TODO: Do this more cleanly
-  override def isMarkdownComment: Boolean = getFirstChildNode.getElementType == ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS
+  override def isMarkdownComment: Boolean = getFirstChild.getUserData(ScaladocMarkdownParsing.MARKDOWN_DATA) != null
 
   //todo: implement me
   override def getTags: Array[PsiDocTag] = findTagsByName(_ => true)

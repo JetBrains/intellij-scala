@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MarkdownCompanio
 public class ScalaDocTagMarkerBlock extends MarkerBlockImpl {
     public static final MarkdownElementType TAG_BLOCK = new MarkdownElementType("TAG_BLOCK", false);
     public static final MarkdownElementType TAG_NAME = new MarkdownElementType("TAG_NAME", true);
+    public static final MarkdownElementType TAG_ARGUMENT = new MarkdownElementType("TAG_ARGUMENT", true);
 
     public ScalaDocTagMarkerBlock(@NotNull MarkdownConstraints constraints, @NotNull ProductionHolder.Marker marker) {
         super(constraints, marker);
