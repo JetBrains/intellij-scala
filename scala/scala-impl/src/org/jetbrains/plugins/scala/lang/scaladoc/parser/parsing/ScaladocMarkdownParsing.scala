@@ -74,19 +74,13 @@ class ScaladocMarkdownParsing(private val builder: PsiBuilder,
 
     var currLine = 0
 
-    def skipTo(position: Int): Unit = {
-      val target = position + map(currLine)
-
-      while (builder.getCurrentOffset < target) builder.advanceLexer()
-    }
-
     def ensureBuilderInPosition(position: Int, iType: IElementType = ScalaDocTokenType.DOC_COMMENT_DATA): Unit = {
       val target = position + map(currLine)
 
       if (builder.getCurrentOffset >= target) return
 
       val marker = builder.mark()
-      skipTo(position)
+      while (builder.getCurrentOffset < target) builder.advanceLexer()
 
       marker.collapse(iType)
     }
@@ -106,16 +100,17 @@ class ScaladocMarkdownParsing(private val builder: PsiBuilder,
       whitespaceMarker.collapse(ScalaDocTokenType.DOC_WHITESPACE)
 
       // Skip the leading asterisk
-      builder.advanceLexer()
+      if (builder.getTokenType == ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS)
+        builder.advanceLexer()
     }
 
     def visitNode(node: ASTNode): Unit = {
       val tpe = node.getType
 
       if (tpe == MarkdownTokenTypes.EOL) {
-        currLine += 1
-
         ensureBuilderInPosition(node.getStartOffset)
+
+        currLine += 1
         advanceToNextLine()
       }
 
@@ -231,9 +226,12 @@ class ScaladocMarkdownParsing(private val builder: PsiBuilder,
       }
     }
 
+    ensureBuilderInPosition(out.getStartOffset, ScalaDocTokenType.DOC_COMMENT_START)
     visitNode(out)
 
+    val marker = builder.mark()
     while (!builder.eof()) builder.advanceLexer()
+    marker.collapse(ScalaDocTokenType.DOC_COMMENT_END)
 
     rootMarker.done(root)
   }
