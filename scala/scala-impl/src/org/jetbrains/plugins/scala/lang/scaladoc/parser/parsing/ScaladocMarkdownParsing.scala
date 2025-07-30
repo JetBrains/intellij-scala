@@ -14,11 +14,12 @@ import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.ScaladocMarkdownParsing.MARKDOWN_DATA
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.markdown.{ScalaDocMarkdownFlavour, ScalaDocTagMarkerBlock}
 
+import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters._
 
 class ScaladocMarkdownParsing(private val builder: PsiBuilder,
                         private val tabSize: Int) extends ScalaDocElementTypes {
-  private def splitContext(input: CharSequence): (String, List[Int]) = {
+  private def splitContext(input: CharSequence): (String, Seq[Int]) = {
     val text = input.toString
     val initialOffset = if (text.startsWith("/*")) 2 else 0
 
@@ -48,9 +49,16 @@ class ScaladocMarkdownParsing(private val builder: PsiBuilder,
 
     // Technically not very efficient, but meh. We need to collect both at once.
     // A `collect` would work but would be more manual.
-    val (lines, map) = result.toList.unzip
+    val lines = new StringBuilder
+    val map = ArraySeq.newBuilder[Int]
 
-    (lines.mkString, map.appended(extraRemoved))
+    result.foreach { case (line, spacing) =>
+      lines.append(line)
+      map += spacing
+    }
+    map += extraRemoved
+
+    (lines.result(), map.result())
   }
 
   def parse(root: IElementType): Unit = {
