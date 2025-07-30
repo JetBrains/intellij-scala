@@ -67,7 +67,8 @@ class ScalaDocMarkdownConstraints(indents: Array[Int], types: Array[Char], isExp
     if (pos == null) return null
 
     ScalaDocMarkdownFlavour.getTagOnLine(pos) match {
-      case Some((_, end)) => new ScalaDocMarkdownConstraints(Array(), Array(), Array(), end, true)
+      case Some(tag) =>
+        new ScalaDocMarkdownConstraints(Array(), Array(), Array(), tag.bodyStart, true)
       case None => null
     }
   }

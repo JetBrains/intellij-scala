@@ -9,10 +9,9 @@ import org.intellij.markdown.html._
 import org.intellij.markdown.lexer.MarkdownLexer
 import org.intellij.markdown.lexer._MarkdownLexer
 import org.intellij.markdown.parser.{LinkMap, LookaheadText, MarkerProcessor, MarkerProcessorFactory, ProductionHolder}
-import org.intellij.markdown.parser.sequentialparsers.EmphasisLikeParser
-import org.intellij.markdown.parser.sequentialparsers.SequentialParserManager
+import org.intellij.markdown.parser.sequentialparsers.{EmphasisLikeParser, SequentialParser, SequentialParserManager}
 import org.intellij.markdown.parser.sequentialparsers.impl._
-import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MarkdownCompanionProxy
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.{MarkdownCompanionProxy, MyScaladocParsing}
 
 import java.net.URI
 import java.util
@@ -25,6 +24,19 @@ class ScalaDocMarkdownFlavour extends CommonMarkFlavourDescriptor {
     }
   }
 
+  private val sequentialParserManager = new SequentialParserManager {
+    override def getParserSequence: util.List[SequentialParser] = util.List.of(
+      new AutolinkParser(util.List.of(MarkdownTokenTypes.AUTOLINK)),
+      new BacktickParser(),
+      new ImageParser(),
+      new WikiLinkParser(),
+      new InlineLinkParser(),
+      new ReferenceLinkParser(),
+      new EmphasisLikeParser(new EmphStrongDelimiterParser())
+    )
+  }
+  override def getSequentialParserManager: SequentialParserManager = sequentialParserManager
+
   override def createHtmlGeneratingProviders(linkMap: LinkMap, uri: URI): java.util.Map[IElementType, GeneratingProvider] = {
     // TODO: Some are unimplemented.
     val parent = super.createHtmlGeneratingProviders(linkMap, uri)
@@ -32,6 +44,7 @@ class ScalaDocMarkdownFlavour extends CommonMarkFlavourDescriptor {
       Map(
         // ScalaDoc tags
         ScalaDocTagMarkerBlock.TAG_BLOCK -> new SimpleTagProvider("div"),
+        ScalaDocTagMarkerBlock.TAG_ARGUMENT -> new SimpleTagProvider("span"),
       ).asJava
     )
 
@@ -41,12 +54,23 @@ class ScalaDocMarkdownFlavour extends CommonMarkFlavourDescriptor {
 
 object ScalaDocMarkdownFlavour {
   /**
+   * Information about a tag on a line. All positions are relative to the start of the line.
+   *
+   * @param start the start of the tag, including the @
+   * @param end the end of the tag itself
+   * @param argument if it exists, the start and end of the argument
+   */
+  case class TagInfo(val start: Int, val end: Int, val argument: Option[(Int, Int)]) {
+    def bodyStart: Int = argument.map(_._2).getOrElse(end)
+  }
+
+  /**
    * Checks for the existence of an @ tag on a line.
    *
    * @param position Where to search from. Must be at the start of a line.
-   * @return None if no tag exists, a range [start, end) otherwise, which includes the @ and is relative to the current position.
+   * @return None if no tag exists, a [[TagInfo]] otherwise
    */
-  def getTagOnLine(position: LookaheadText#Position): Option[(Int, Int)] = {
+  def getTagOnLine(position: LookaheadText#Position): Option[TagInfo] = {
     if (position == null || position.getOffsetInCurrentLine > 0) {
       return None
     }
@@ -63,8 +87,26 @@ object ScalaDocMarkdownFlavour {
         Character.isWhitespace(c)
       }.getOrElse(lineLength)
 
-      if (tagEnd == start + 1) None
-      else Some((start, tagEnd))
+      if (tagEnd == start + 1)
+        return None
+
+      // Argument processing
+      val tag = currentLine.substring(start + 1, tagEnd)
+      val argument = Option.when(MyScaladocParsing.TagNames.TagNamesWithParameters.contains(tag)) {
+        // Find the argument (simplified version without delimiters)
+        // TODO: Tag arguments can be delimited by ` and include spaces then
+        nextMatchingChar(currentLine, tagEnd, c => !Character.isWhitespace(c)).map(argStart => {
+          val argEnd = nextMatchingChar(currentLine, argStart, Character.isWhitespace).getOrElse(currentLine.length)
+          (argStart, argEnd)
+        })
+      }.flatten
+
+      Some(new TagInfo(start, tagEnd, argument))
     } else None
+  }
+
+  private def nextMatchingChar(line: CharSequence, from: Int, predicate: Char => Boolean): Option[Int] = {
+    (from until line.length)
+      .find(i => predicate(line.charAt(i)))
   }
 }
