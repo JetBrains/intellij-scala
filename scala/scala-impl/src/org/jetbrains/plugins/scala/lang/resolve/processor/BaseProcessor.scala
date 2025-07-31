@@ -80,20 +80,8 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
   protected def execute(namedElement: PsiNamedElement)
                        (implicit state: ResolveState): Boolean
 
-  final def candidates: Array[ScalaResolveResult] = {
-    val set = candidatesS
-    val size = set.size
-    val res = JavaArrayFactoryUtil.ScalaResolveResultFactory.create(size)
-    if (size == 0) return res
-    val iter = set.iterator
-    var count = 0
-    while (iter.hasNext) {
-      val next = iter.next()
-      res(count) = next
-      count += 1
-    }
-    res
-  }
+  final def candidates: Array[ScalaResolveResult] =
+    candidatesS.toArray
 
   def candidatesS: Set[ScalaResolveResult] = candidatesSet
 
