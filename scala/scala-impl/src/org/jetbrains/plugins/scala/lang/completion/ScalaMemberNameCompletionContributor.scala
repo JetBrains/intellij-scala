@@ -37,6 +37,7 @@ final class ScalaMemberNameCompletionContributor extends ScalaCompletionContribu
         import scala.jdk.CollectionConverters._
         getChildrenOfTypeAsList(parent, classOf[ScTypeDefinitionLike])
           .asScala
+          .filter(_.canHaveCompanion)
           .toSet
           .partition(_.isObject)
       }

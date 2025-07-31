@@ -30,7 +30,9 @@ object FileKind {
       first.name == second.name && clean(first.name) == fileName
 
     val members = file.members
-    val typeDefinitions = members.filterByType[ScTypeDefinitionLike]
+    val typeDefinitions = members.collect {
+      case td: ScTypeDefinitionLike if td.canHaveCompanion => td
+    }
     val hasTopLevelNonTypeDefinitions = typeDefinitions.size != members.size
     if (hasTopLevelNonTypeDefinitions)
       None

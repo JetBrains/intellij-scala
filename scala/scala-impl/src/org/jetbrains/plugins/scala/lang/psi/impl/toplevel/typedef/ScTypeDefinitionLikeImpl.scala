@@ -19,7 +19,9 @@ trait ScTypeDefinitionLikeImpl extends ScTypeDefinitionLike {
       // Enum cases always have injected companion objects
       case _: ScEnumCase                       => return None
       case _: ScObject                         => true
-      case _: ScTrait | _: ScClass | _: ScEnum | _: ScTypeAlias => false
+      case _: ScTrait | _: ScClass | _: ScEnum | _: ScTypeAlias =>
+        if (!canHaveCompanion) return None
+        false
       case _                                   => return None
     }
 
@@ -33,11 +35,9 @@ trait ScTypeDefinitionLikeImpl extends ScTypeDefinitionLike {
     }
 
     def isCompanion(td: ScTypeDefinitionLike): Boolean = td match {
-      case ta @ (_: ScTypeAliasDeclaration) => isObject && td.name == thisName && ta.isInScala3Module
-      case ta @ (_: ScTypeAliasDefinition) => isObject && td.name == thisName && ta.isOpaque
-      case td @ (_: ScClass | _: ScTrait | _: ScEnum) if isObject && td.name == thisName => true
-      case o: ScObject if !isObject && thisName == o.name                                => true
-      case _                                                                             => false
+      case td @ (_: ScClass | _: ScTrait | _: ScEnum | _: ScTypeAlias) if isObject && td.name == thisName && td.canHaveCompanion => true
+      case o: ScObject if !isObject && thisName == o.name => true
+      case _ => false
     }
 
     def findByStub(contextStub: StubElement[_]): Option[ScTypeDefinitionLike] = {
@@ -90,7 +90,7 @@ trait ScTypeDefinitionLikeImpl extends ScTypeDefinitionLike {
         while (current != null) {
 
           current match {
-            case td: ScTypeDefinitionLike if td.is[ScClass, ScTrait, ScEnum, ScTypeAlias] => types += td.name -> td
+            case td: ScTypeDefinitionLike if td.is[ScClass, ScTrait, ScEnum, ScTypeAlias] && td.canHaveCompanion => types += td.name -> td
             case o: ScObject => objects += o.name -> o
             case _ =>
           }

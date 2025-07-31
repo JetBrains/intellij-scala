@@ -70,17 +70,38 @@ class Scala3FileNameInspectionTest extends ScalaInspectionTestBase {
          |""".stripMargin
     )
 
-  def test_one_toplevel_typedef_same_name(): Unit =
+  def test_one_toplevel_abstract_type_same_name(): Unit =
     checkTextHasNoErrors(
       s"""
-         |type ${START}Foo${END} = Int
+         |type ${START}Foo${END}
          |""".stripMargin
     )
 
-  def test_one_toplevel_typedef_different_names(): Unit =
+  def test_one_toplevel_abstract_type_different_names(): Unit =
     checkTextHasError(
       s"""
-         |type ${START}Bar${END} = Int
+         |type ${START}Bar${END}
+         |""".stripMargin
+    )
+
+  def test_one_toplevel_opaque_type_same_name(): Unit =
+    checkTextHasNoErrors(
+      s"""
+         |opaque type ${START}Foo${END} = Int
+         |""".stripMargin
+    )
+
+  def test_one_toplevel_opaque_type_different_names(): Unit =
+    checkTextHasError(
+      s"""
+         |opaque type ${START}Bar${END} = Int
+         |""".stripMargin
+    )
+
+  def test_one_toplevel_type_alias_different_names(): Unit =
+    checkTextHasNoErrors(
+      s"""
+         |type ${START}Foo${END} = Int
          |""".stripMargin
     )
 

@@ -2122,6 +2122,16 @@ class ScalaBasicCompletionTest_with_2_13 extends ScalaBasicCompletionTest_Common
     s"""def test(): Unit = 1.until($CARET)""".stripMargin,
     item = "until"
   )
+
+  def testAbstractTypeCompanionInScala2_1(): Unit = checkNoBasicCompletion(
+    s"""type Foo
+       |object F$CARET""".stripMargin,
+    "Foo")
+
+  def testAbstractTypeCompanionInScala2_2(): Unit = checkNoBasicCompletion(
+    s"""object Foo
+       |type F$CARET""".stripMargin,
+    "Foo")
 }
 
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
@@ -2179,6 +2189,16 @@ class ScalaBasicCompletionTest_with_3_0 extends ScalaBasicCompletionTest_CommonT
     s"""def test(): Unit = 1.until($CARET)""".stripMargin,
     item = "until"
   )
+
+  def testTypeAliasCompanion1(): Unit = checkNoBasicCompletion(
+    s"""type Foo = Int
+       |object F$CARET""".stripMargin,
+    "Foo")
+
+  def testTypeAliasCompanion2(): Unit = checkNoBasicCompletion(
+    s"""object Foo
+       |type F$CARET = Int""".stripMargin,
+    "Foo")
 
   override def testLocalValueName(): Unit = super.testLocalValueName()
 

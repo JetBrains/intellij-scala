@@ -43,12 +43,14 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor with ScalaRenam
 
   override def prepareRenaming(element: PsiElement, newName: String, allRenames: util.Map[PsiElement, String]): Unit = {
     element match {
-      case typeDef: ScTypeDefinitionLike =>
+      case typeDef: ScTypeDefinitionLike if typeDef.canHaveCompanion =>
         collectRenamesForTypeDefinition(typeDef, newName, allRenames)
       case _ =>
     }
 
-    val allRenamedTypeDefs = allRenames.keySet.asScala.clone.filterByType[ScTypeDefinitionLike]
+    val allRenamedTypeDefs = allRenames.keySet.asScala.clone.collect {
+      case td: ScTypeDefinitionLike if td.canHaveCompanion => td
+    }
     for {
       renamedTypeDef <- allRenamedTypeDefs
     } {

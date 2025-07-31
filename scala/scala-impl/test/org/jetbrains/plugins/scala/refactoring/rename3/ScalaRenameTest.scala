@@ -13,8 +13,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
 
   def testObjectAndClassToBackticked(): Unit = doTest("`a`")
 
-  // TODO Also: from the type, from a type/object reference
-  def testObjectAndType(): Unit = doTest()
+  def testObjectAndAbstractTypeInScala2(): Unit = doTest()
 
   def testPrivateObjectAndClass(): Unit = doTest()
 
@@ -71,6 +70,12 @@ class ScalaRenameTest extends ScalaRenameTestBase {
 
 class Scala3RenameTest extends ScalaRenameTestBase {
   override def supportedIn(v: ScalaVersion): Boolean = v >= LatestScalaVersions.Scala_3_0
+
+  // TODO also from type & type reference
+  def testObjectAndAbstractType(): Unit = doTest()
+
+  // TODO also from type & type reference
+  def testObjectAndOpaqueType(): Unit = doTest()
 
   def testTopLevelMethod(): Unit = doTest()
 
