@@ -2,32 +2,37 @@ package org.jetbrains.plugins.scala.project.sdkdetect.repository
 
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.vfs.VirtualFileManager
-import com.intellij.util.ThrowableRunnable
-import junit.framework.{TestCase, TestSuite}
+import junitparams.naming.TestCaseName
+import junitparams.{JUnitParamsRunner, Parameters}
 import org.apache.commons.io.FileUtils
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.junit.Assert._
-import org.junit.Ignore
+import org.junit.Test
+import org.junit.runner.RunWith
 
 import java.net.URL
 import java.nio.file.{Files, Path}
+import scala.annotation.unused
 import scala.collection.immutable.ListSet
 
-class SystemDetectorIntegrationGeneratedTests extends TestCase
+@RunWith(classOf[JUnitParamsRunner])
+class SystemDetectorIntegrationTest extends ScalaLightCodeInsightFixtureTestCase {
 
-object SystemDetectorIntegrationGeneratedTests {
-
-  final def suite: TestSuite = {
-    val suite = new TestSuite("SystemDetectorIntegrationGeneratedTests")
-    val scalaVersions = getScalaVersionsToTest
-    val tests = scalaVersions.map { sv =>
-      val test = new SystemDetectorIntegrationTest(sv)
-      test.setName(s"test system scala sdk creation for version ${sv.minor}")
-      test
+  @unused("used reflectively by the @Parameters annotation")
+  private def scalaVersionsParameters: Array[AnyRef] =
+    getScalaVersionsToTest.toArray.map { sv =>
+      Array(sv.minor, sv)
     }
-    tests.foreach(suite.addTest)
-    suite
+
+  @Test
+  @Parameters(method = "scalaVersionsParameters")
+  @TestCaseName("test system scala sdk creation for version {0}")
+  def systemDetectorIntegrationTest(
+    @unused("used reflectively by the @TestCaseName annotation") scalaVersionString: String,
+    scalaVersion: ScalaVersion
+  ): Unit = {
+    testScalaVersion(scalaVersion)
   }
 
   private val IgnoredScalaVersions = Set(
@@ -46,30 +51,17 @@ object SystemDetectorIntegrationGeneratedTests {
 
     (all.to(ListSet) -- IgnoredScalaVersions).toSeq.distinct
   }
-}
-
-@Ignore
-protected class SystemDetectorIntegrationTest(scalaVersion: ScalaVersion) extends ScalaLightCodeInsightFixtureTestCase {
-  private var baseTempDir: Path = _
-
-  override protected def setUp(): Unit = {
-    super.setUp()
-
-    baseTempDir = Files.createTempDirectory("system-detector-test-sdk-root")
-    baseTempDir.toFile.deleteOnExit()
-  }
-
-  override def runTestRunnable(testRunnable: ThrowableRunnable[Throwable]): Unit = {
-    testScalaVersion(scalaVersion)
-  }
 
   private def testScalaVersion(scalaVersion: ScalaVersion): Unit = {
+    val baseTempDir = Files.createTempDirectory("system-detector-test-sdk-root")
+    baseTempDir.toFile.deleteOnExit()
+
     val scalaVersionStr = scalaVersion.minor
 
     val downloadUrl = getScalaSdkArchiveDownloadUrl(scalaVersion)
-    val zipFile = downloadScalaDistribution(downloadUrl)
+    val zipFile = downloadScalaDistribution(downloadUrl, baseTempDir)
 
-    val unzippedDir = unzipScalaSdkArchive(zipFile)
+    val unzippedDir = unzipScalaSdkArchive(zipFile, baseTempDir)
 
     val scalaSdkInnerDirNamePrefix = if (scalaVersion.isScala3) s"scala3-$scalaVersionStr" else s"scala-$scalaVersionStr"
 
@@ -130,7 +122,7 @@ protected class SystemDetectorIntegrationTest(scalaVersion: ScalaVersion) extend
     }
   }
 
-  private def downloadScalaDistribution(urlString: String): Path = {
+  private def downloadScalaDistribution(urlString: String, baseTempDir: Path): Path = {
     val fileName = Path.of(new URL(urlString).getPath).getFileName.toString
     val targetFilePath = baseTempDir.resolve(fileName)
 
@@ -143,7 +135,7 @@ protected class SystemDetectorIntegrationTest(scalaVersion: ScalaVersion) extend
     targetFilePath
   }
 
-  private def unzipScalaSdkArchive(zipFile: Path): Path = {
+  private def unzipScalaSdkArchive(zipFile: Path, baseTempDir: Path): Path = {
     val tempDir = baseTempDir.resolve("scala-sdk")
     Files.createDirectories(tempDir)
     println(s"Unzipping Scala distribution to ${tempDir.toAbsolutePath}")
