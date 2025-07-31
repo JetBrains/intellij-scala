@@ -178,13 +178,7 @@ object ImplicitConversionResolveResult {
       case _            => checkImplicits(withoutImplicitsForArgs = true)
     }
 
-    found match {
-      case _ if forCompletion => found
-      case Seq(_)             => found
-      case multiple           =>
-        if (multiple.forall(_.isExtensionCall)) multiple
-        else                                    Seq.empty
-    }
+    found
   }
 
   private[this] def expressionType(implicit place: ScExpression) =

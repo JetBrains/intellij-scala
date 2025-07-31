@@ -223,7 +223,7 @@ class ImplicitCollector(
         val (visibleExtensions, otherVisibleCandidates) = levelSet.partition(_.isExtensionCall)
 
         val extensionCandidates =
-          if (withExtensions && extensionsOnly) collectCompatibleCandidates(visibleExtensions)
+          if (withExtensions && extensionsOnly) collectCompatibleExtensionCandidates(visibleExtensions)
           else                                  scala.Seq.empty
 
         if (extensionCandidates.exists(_.isApplicable())) extensionCandidates
@@ -240,11 +240,14 @@ class ImplicitCollector(
     val applicableVisibleExtensions =
       collectCompatibleCandidatesFromLexicalScope(lexicalScopeCandidates.iterator, extensionsOnly = true)
 
-    if (applicableVisibleExtensions.nonEmpty) applicableVisibleExtensions
+    // If we find exactly one extension method, that extension will be chosen regardless of application errors
+    // and other implicit conversions, so we can stop searching further and just return that one extension
+    if (applicableVisibleExtensions.sizeIs == 1) applicableVisibleExtensions
     else {
       //Step 2: other candidates from lexical scope
       val applicableVisibleCandidates =
-        collectCompatibleCandidatesFromLexicalScope(lexicalScopeCandidates.iterator, extensionsOnly = false)
+        applicableVisibleExtensions ++
+          collectCompatibleCandidatesFromLexicalScope(lexicalScopeCandidates.iterator, extensionsOnly = false)
 
       if (applicableVisibleCandidates.nonEmpty) applicableVisibleCandidates
       else
@@ -316,6 +319,15 @@ class ImplicitCollector(
         case _       => compatible.toSeq
       }
   }
+
+  private def collectCompatibleExtensionCandidates(candidates: collection.Set[ScalaResolveResult]): Seq[ScalaResolveResult] = {
+    val withoutLocalTypeInference = collectCompatibleCandidates(candidates, withLocalTypeInference = false).toSeq
+
+    // If there is exactly one extension method, that one will be chosen regardless of application errors
+    if (withoutLocalTypeInference.sizeIs == 1) withoutLocalTypeInference
+    else withoutLocalTypeInference ++ collectCompatibleCandidates(candidates, withLocalTypeInference = true)
+  }
+
 
   private def collectFullInfo(candidates: Set[ScalaResolveResult]): Seq[ScalaResolveResult] = {
     val allCandidates =
