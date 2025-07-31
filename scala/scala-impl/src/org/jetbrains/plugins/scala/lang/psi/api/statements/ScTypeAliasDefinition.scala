@@ -18,6 +18,8 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
 
   def isEffectivelyOpaque(implicit context: Context): Boolean = isOpaque && !context.isInScopeOf(this)
 
+  override def canHaveCompanion: Boolean = isOpaque
+
   def aliasedTypeElement: Option[ScTypeElement]
 
   def aliasedType: TypeResult = cachedInUserData("aliasedType", this, BlockModificationTracker(this)) {

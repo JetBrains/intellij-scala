@@ -91,6 +91,11 @@ class CreateCompanionObjectIntentionTest extends ScalaIntentionTestBase {
          |
          |object F${CARET}oo { }
        """.stripMargin)
+
+  def testAbstractTypeInScala2(): Unit =
+    checkIntentionIsNotAvailable(
+      s"""type F${CARET}oo
+       """.stripMargin)
 }
 
 @WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
@@ -239,4 +244,9 @@ class CreateCompanionObjectIntentionTest_3_Latest extends ScalaIntentionTestBase
 
     doTest(text, expected, useIndentationBasedSyntax = true)
   }
+
+  def testTypeAlias(): Unit =
+    checkIntentionIsNotAvailable(
+      s"""type F${CARET}oo = Int
+        """.stripMargin)
 }
