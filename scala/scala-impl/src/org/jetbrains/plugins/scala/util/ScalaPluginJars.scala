@@ -51,8 +51,11 @@ object IntellijPlatformJars {
    * NOTE:<br>
    * There are several protobuf classes in the classpath:<br>
    *  - in `idea_system_root/lib/protobuf.jar`
-   *  - in `idea_system_root/plugins/java/lib/rt/protobuf-java6.jar` (bundled plugin)
-   *  - in `idea_system_root/plugins/android/lib/layoutlib.jar` (bundled plugin)
+   *  - in `idea_system_root/plugins/bazel-plugin/lib/protobuf4.jar`
+   *  - in `idea_system_root/plugins/android/lib/layoutlib.jar` (in older versions)
+   *  - in `idea_system_root/plugins/java/lib/rt/protobuf-java6.jar` (bundled plugin, in older versions)
+   *
+   *  (The exact list can vary depending on the exact IntelliJ SDK version)
    *
    * We need to ensure that we resolve the first, which is used by JPSs
    * to avoid runtime errors in communicating with JPS (e.g. SCL-19414).
