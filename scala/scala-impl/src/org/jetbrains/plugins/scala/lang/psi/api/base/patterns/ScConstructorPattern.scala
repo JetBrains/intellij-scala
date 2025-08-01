@@ -6,6 +6,6 @@ trait ScConstructorPattern extends ScExtractorPattern {
 }
 
 object ScConstructorPattern {
-  def unapply(pattern: ScConstructorPattern): Option[(ScStableCodeReference, ScPatternArgumentList)] =
+  def unapply(pattern: ScConstructorPattern): Some[(ScStableCodeReference, ScPatternArgumentList)] =
     Some((pattern.ref, pattern.args))
 }

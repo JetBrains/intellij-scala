@@ -67,6 +67,9 @@ trait ResolveStateOps extends Any {
   def withImplicitScopeObject(tpe: ScType): ResolveState =
     resolveState.put(IMPLICIT_SCOPE_OBJECT, tpe)
 
+  def withImplicitScopeObject(tpe: Option[ScType]): ResolveState =
+    tpe.fold(resolveState)(withImplicitScopeObject)
+
   def withMatchClauseSubstitutor(subst: ScSubstitutor): ResolveState =
     resolveState.put(MATCH_SUBSTITUTOR, subst)
 
@@ -85,6 +88,11 @@ trait ResolveStateOps extends Any {
   def withExportedInfo(info: Signature.ExportedSigInfo): ResolveState =
     resolveState.put(EXPORTED_INFO, info)
 
+  def withExportedInfo(info: Option[Signature.ExportedSigInfo]): ResolveState =
+    info.fold(resolveState)(withExportedInfo)
+
+  def withIsExtensionFromGiven(isExtensionFromGiven: Boolean): ResolveState =
+    if (isExtensionFromGiven) resolveState.put(IS_EXTENSION_FROM_GIVEN, TRUE) else resolveState
   //
   // Getters
   //
@@ -148,6 +156,9 @@ trait ResolveStateOps extends Any {
 
   def exportedInfo: Option[Signature.ExportedSigInfo] =
     option(EXPORTED_INFO)
+
+  def isExtensionFromGiven: Boolean =
+    boolean(IS_EXTENSION_FROM_GIVEN)
 }
 
 /**
@@ -195,4 +206,6 @@ private object ResolveStateOps {
   private val INTERSECTED_RETURN_TYPE: Key[ScType] = Key.create("scala.intersected.return.type")
 
   private val EXPORTED_INFO: Key[Signature.ExportedSigInfo] = Key.create("scala.exported.info")
+
+  private val IS_EXTENSION_FROM_GIVEN: Key[TRUE.type] = Key.create("scala.is.extension.from.given")
 }

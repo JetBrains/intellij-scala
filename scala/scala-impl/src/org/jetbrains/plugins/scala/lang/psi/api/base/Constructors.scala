@@ -39,5 +39,5 @@ object AuxiliaryConstructor {
 
 object JavaConstructor {
   def unapply(arg: PsiMethod): Option[PsiMethod] =
-    if (arg.isConstructor && !arg.isInstanceOf[ScMethodLike]) Some(arg) else None
+    if (arg.isConstructor && !arg.is[ScMethodLike]) Some(arg) else None
 }

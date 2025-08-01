@@ -85,6 +85,8 @@ class MethodResolveProcessor(
 
     def implFunction: Option[ScalaResolveResult]             = state.implicitConversion
     def implType: Option[ScType]                             = state.implicitType
+    def implScopeObject: Option[ScType]                      = state.implicitScopeObject
+    def isExtensionFromGiven: Boolean                        = state.isExtensionFromGiven
     def isNamedParameter: Boolean                            = state.isNamedParameter
     def fromType: Option[ScType]                             = state.fromType
     def unresolvedTypeParameters: Option[Seq[TypeParameter]] = state.unresolvedTypeParams
@@ -120,7 +122,9 @@ class MethodResolveProcessor(
           extensionContext         = extensionContext,
           matchClauseSubstitutor   = state.matchClauseSubstitutor,
           intersectedReturnType    = intersectedReturnType,
-          exportedInfo             = exportedInfo
+          exportedInfo             = exportedInfo,
+          implicitScopeObject      = implScopeObject,
+          isExtensionFromGiven     = isExtensionFromGiven,
         )
 
       namedElement match {
@@ -707,11 +711,43 @@ object MethodResolveProcessor {
         else                         argumentClauses.head.length
 
       if (filtered.size == 1) filtered
-      else
-        MostSpecificUtil(ref, len).mostSpecificForResolveResult(filtered) match {
-          case Some(r) => Set(r)
-          case None    => filtered
+      else {
+        // If there are still multiple results, try to select...
+        // - the most specific normal methods first
+        // - then the most specific extension methods
+        // - and lastly, the most specific methods from implicit conversions
+        // If none of these yields an unambiguous result, return all results
+        val normalMethods = Set.newBuilder[ScalaResolveResult]
+        val extensionMethods = Set.newBuilder[ScalaResolveResult]
+        val implicitMethods = Set.newBuilder[ScalaResolveResult]
+
+        for (rr <- filtered) {
+          // Extensions from givens have same precedence than methods from implicit conversions
+          if (rr.implicitConversion.isDefined || rr.isExtensionFromGiven) implicitMethods += rr
+          else if (rr.isExtensionCall) extensionMethods += rr
+          else normalMethods += rr
         }
+
+        val mostSpecificUtil = MostSpecificUtil(ref, len)
+
+        def selectMostSpecificOr(candidates: Set[ScalaResolveResult], orElse: => Set[ScalaResolveResult]): Set[ScalaResolveResult] =
+          if (candidates.sizeIs == 1) candidates
+          else mostSpecificUtil.mostSpecificForResolveResult(filtered) match {
+            case Some(rr) => Set(rr)
+            case None => orElse
+          }
+
+        selectMostSpecificOr(
+          normalMethods.result(),
+          selectMostSpecificOr(
+            extensionMethods.result(),
+            selectMostSpecificOr(
+              implicitMethods.result(),
+              filtered
+            )
+          )
+        )
+      }
     }
   }
 
