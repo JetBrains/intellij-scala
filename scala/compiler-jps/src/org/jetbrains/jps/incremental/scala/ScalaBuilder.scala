@@ -7,10 +7,9 @@ import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage, ProgressMessage}
 import org.jetbrains.jps.incremental.scala.Server.ServerError
 import org.jetbrains.jps.incremental.scala.local.LocalServer
-import org.jetbrains.jps.incremental.scala.model.JpsScalaProjectMetadataExtensionService.moduleHasScala
 import org.jetbrains.jps.incremental.{CompileContext, Utils}
 import org.jetbrains.jps.model.JpsProject
-import org.jetbrains.jps.model.module.JpsModule
+import org.jetbrains.jps.model.module.{JpsModule, JpsModuleDependency}
 import org.jetbrains.plugins.scala.compiler.MissingScalaSdk
 import org.jetbrains.plugins.scala.compiler.data.{CompilationData, SbtData}
 import org.jetbrains.plugins.scala.server.CompileServerProperties
@@ -48,7 +47,7 @@ object ScalaBuilder {
       compilationData <- dataFactory.getCompilationDataFactory.from(sources, allSources, context,  chunk)
     } yield {
       Log.info(s"Compiling ${compilationData.sources.size} files; module: ${chunk.getPresentableShortName}; compiler: ${compilerData.compilerJars.map(_.compilerJar).orNull}")
-      scalaLibraryWarning(context, modules, compilationData, client)
+      scalaLibraryWarning(modules, compilationData, client)
 
       // TODO: ensure Scala Compile server is stopped in order it doesn't eventually
       //  do any compilation in parallel with local compilation
@@ -158,15 +157,41 @@ object ScalaBuilder {
     SbtData.from(pluginJpsRoot, javaClassVersion, systemRootDir)
   }
 
-  private def scalaLibraryWarning(context: CompileContext, modules: Set[JpsModule], compilationData: CompilationData, client: Client): Unit = {
-    val hasScalaSdk = modules.exists(moduleHasScala(context))
-    val hasScalaLibrary = compilationData.classpath.exists(_.getFileName.toString.startsWith("scala-library"))
+  /**
+   * This is a heuristic which avoids issuing missing scala-library warnings in the Scala 2 compiler repository.
+   * In that repository, the Scala Standard Library is not missing, it is instead compiled from sources in the repository.
+   *
+   * @see [[https://github.com/scala/scala Scala 2]]
+   */
+  private def isScala2Repository(modules: Set[JpsModule]): Boolean = {
+    def isScalaLibraryModule(module: JpsModule): Boolean = {
+      val name = module.getName
+      name.endsWith("scala-library.main") || name.endsWith("scala-library")
+    }
 
-    val hasScalaSources = compilationData.sources.exists(_.getFileName.toString.endsWith(".scala"))
+    def dependsOnScalaLibraryCompiledFromSource(module: JpsModule): Boolean =
+      module.getDependenciesList.getDependencies.asScala.exists {
+        case dep: JpsModuleDependency => isScalaLibraryModule(dep.getModule)
+        case _ => false
+      }
 
-    if (hasScalaSdk && !hasScalaLibrary && hasScalaSources) {
-      val names = modules.map(_.getName).mkString(", ")
-      client.warning(JpsBundle.message("no.scala.library.jar.in.module.dependencies", names))
+    modules.exists { m =>
+      isScalaLibraryModule(m) || dependsOnScalaLibraryCompiledFromSource(m)
+    }
+  }
+
+  private def scalaLibraryWarning(modules: Set[JpsModule], compilationData: CompilationData, client: Client): Unit = {
+    // At this point, we know that the modules contain a Scala SDK. The builder would have exited before this point otherwise.
+    def classpathContainsScalaLibraryJar: Boolean =
+      compilationData.classpath.exists(_.getFileName.toString.startsWith("scala-library"))
+
+    if (!classpathContainsScalaLibraryJar) {
+      def hasScalaSources = compilationData.sources.exists(_.getFileName.toString.endsWith(".scala"))
+
+      if (hasScalaSources && !isScala2Repository(modules)) {
+        val names = modules.map(_.getName).mkString(", ")
+        client.warning(JpsBundle.message("no.scala.library.jar.in.module.dependencies", names))
+      }
     }
   }
 
