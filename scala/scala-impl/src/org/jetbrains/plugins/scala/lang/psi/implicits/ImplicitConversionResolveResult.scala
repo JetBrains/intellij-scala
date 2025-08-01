@@ -94,9 +94,11 @@ object ImplicitConversionResolveResult {
             .withRename(srr.renamed)
             .withImportsUsed(srr.importsUsed)
             .withUnresolvedTypeParams(srr.unresolvedTypeParameters.getOrElse(Seq.empty))
+            .withExportedInfo(srr.exportedInfo)
+            .withImplicitScopeObject(srr.implicitScopeObject)
+            .withIsExtensionFromGiven(srr.isExtensionFromGiven)
 
-          val exportedInState = srr.exportedInfo.fold(state)(state.withExportedInfo)
-          processor.execute(srr.element, exportedInState)
+          processor.execute(srr.element, state)
         case conversion =>
           for {
             resultType <- ExtensionConversionHelper.specialExtractParameterType(conversion)
