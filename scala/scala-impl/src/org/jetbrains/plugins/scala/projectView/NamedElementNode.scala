@@ -8,9 +8,10 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 import java.util
 import java.util.Collections
+import javax.swing.Icon
 
 private class NamedElementNode(element: ScNamedElement)(implicit project: ProjectContext, settings: ViewSettings)
-  extends AbstractPsiBasedNode[ScNamedElement](project, element, settings) {
+  extends AbstractPsiBasedNode[ScNamedElement](project, element, settings) with IconableNode {
 
   override protected def extractPsiFromValue: PsiElement = getValue
 
@@ -18,4 +19,6 @@ private class NamedElementNode(element: ScNamedElement)(implicit project: Projec
 
   override protected def updateImpl(data: PresentationData): Unit =
     Option(getValue).filter(_.isValid).foreach(it => data.setPresentableText(it.name))
+
+  override def getIcon(flags: Int): Icon = element.getIcon(flags)
 }
