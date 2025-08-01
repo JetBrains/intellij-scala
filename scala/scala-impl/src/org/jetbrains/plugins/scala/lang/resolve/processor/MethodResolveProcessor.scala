@@ -85,6 +85,8 @@ class MethodResolveProcessor(
 
     def implFunction: Option[ScalaResolveResult]             = state.implicitConversion
     def implType: Option[ScType]                             = state.implicitType
+    def implScopeObject: Option[ScType]                      = state.implicitScopeObject
+    def isExtensionFromGiven: Boolean                        = state.isExtensionFromGiven
     def isNamedParameter: Boolean                            = state.isNamedParameter
     def fromType: Option[ScType]                             = state.fromType
     def unresolvedTypeParameters: Option[Seq[TypeParameter]] = state.unresolvedTypeParams
@@ -120,7 +122,9 @@ class MethodResolveProcessor(
           extensionContext         = extensionContext,
           matchClauseSubstitutor   = state.matchClauseSubstitutor,
           intersectedReturnType    = intersectedReturnType,
-          exportedInfo             = exportedInfo
+          exportedInfo             = exportedInfo,
+          implicitScopeObject      = implScopeObject,
+          isExtensionFromGiven     = isExtensionFromGiven,
         )
 
       namedElement match {
@@ -718,8 +722,9 @@ object MethodResolveProcessor {
         val implicitMethods = Set.newBuilder[ScalaResolveResult]
 
         for (rr <- filtered) {
-          if (rr.isExtensionCall) extensionMethods += rr
-          else if (rr.implicitConversion.isDefined) implicitMethods += rr
+          // Extensions from givens have same precedence than methods from implicit conversions
+          if (rr.implicitConversion.isDefined || rr.isExtensionFromGiven) implicitMethods += rr
+          else if (rr.isExtensionCall) extensionMethods += rr
           else normalMethods += rr
         }
 
