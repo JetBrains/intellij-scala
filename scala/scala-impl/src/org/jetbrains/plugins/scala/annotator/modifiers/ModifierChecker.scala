@@ -138,7 +138,7 @@ private[annotator] object ModifierChecker {
                     } else {
                       checkIllegalCombinations(modifierPsi, Final)
                     }
-                  case e: ScMember if e.getParent.is[ScalaFile] =>
+                  case e: ScMember if e.isTopLevel =>
                     checkIllegalCombinations(modifierPsi, Final)
                   case e: ScClassParameter =>
                     if (PsiTreeUtil.getParentOfType(e, classOf[ScTypeDefinition]).hasFinalModifier) {

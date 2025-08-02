@@ -264,6 +264,17 @@ class ModifierCheckerTest_Scala_3 extends ModifierCheckerTest_Scala_2 {
         |""".stripMargin))
   }
 
+  def testFinalInTopLevelPackageDefinitionsWithAssignment(): Unit = {
+    assertNothing(messages(
+      """package outer {
+        |  final val outerValue = ???
+        |  package inner {
+        |    final val innerValue = ???
+        |  }
+        |}
+        |""".stripMargin))
+  }
+
   protected val RedundantOpen = "'open' modifier is redundant for this definition"
   protected val OnlyClassesCanBeOpen = "Only classes can be open"
   protected val IllegalOpaqueModifier = "'opaque' modifier allowed only for type aliases"
