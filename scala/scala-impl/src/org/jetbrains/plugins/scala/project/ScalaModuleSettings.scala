@@ -6,8 +6,8 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.roots.{OrderEnumerator, OrderRootType, libraries}
-import com.intellij.openapi.util.{Key, ModificationTracker}
 import com.intellij.openapi.util.io.JarUtil.getJarAttribute
+import com.intellij.openapi.util.{Key, ModificationTracker}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.CommonProcessors.FindProcessor
 import org.jetbrains.annotations.ApiStatus.Internal
@@ -67,7 +67,7 @@ private class ScalaModuleSettings private(
   }
 
   val isMetaEnabled: Boolean =
-    compilerPlugins.exists(plugin => isMetaParadiseJar(plugin.pluginJar))
+    compilerPlugins.exists(_.pluginJar.exists(isScalaMetaParadiseJar))
 
   val hasScala3: Boolean = scalaLanguageLevel.isScala3
 
@@ -307,25 +307,19 @@ object ScalaModuleSettings {
     }
   }
 
-  private val isMetaParadiseJar: Option[String] => Boolean = cached("isMetaParadiseJar", ModificationTracker.NEVER_CHANGED, (pathname: Option[String]) => {
-    pathname.exists { name =>
-      try {
-        isScalaMetaParadise(name)
-      } catch {
-        // Handle any unexpected exceptions more gracefully, e.g., InvalidPathException, SCL-23825, SCL-23794
-        case NonFatal(ex) =>
-          Log.error(ex)
-          false
-      }
-    }
+  // Caching as the same path to the same plugin can be used in different modules
+  private val isScalaMetaParadiseJar: String => Boolean = cached("isScalaMetaParadise", ModificationTracker.NEVER_CHANGED, (pathName: String) => try {
+    val file = Path.of(pathName).toFile
+
+    def hasAttribute(attributeName: String, value: String) =
+      getJarAttribute(file, new Attributes.Name(attributeName)) == value
+
+    hasAttribute("Specification-Vendor", "org.scalameta") &&
+      hasAttribute("Specification-Title", "paradise")
+  } catch {
+    // Handle any unexpected exceptions more gracefully, e.g., InvalidPathException, SCL-23825, SCL-23794
+    case NonFatal(ex) =>
+      Log.error(ex)
+      false
   })
-
-  private def isScalaMetaParadise(path: String): Boolean = {
-    val file = Path.of(path).toFile
-
-    def hasAttribute(nameSuffix: String, value: String) =
-      getJarAttribute(file, new Attributes.Name(s"Specification-$nameSuffix")) == value
-
-    hasAttribute("Vendor", "org.scalameta") && hasAttribute("Title", "paradise")
-  }
 }
