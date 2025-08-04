@@ -266,7 +266,10 @@ class ModifierCheckerTest_Scala_3 extends ModifierCheckerTest_Scala_2 {
 
   def testFinalInTopLevelPackageDefinitionsWithAssignment(): Unit = {
     assertNothing(messages(
-      """package outer {
+      """package main
+        |final val mainValue = ???
+        |
+        |package outer {
         |  final val outerValue = ???
         |  package inner {
         |    final val innerValue = ???
