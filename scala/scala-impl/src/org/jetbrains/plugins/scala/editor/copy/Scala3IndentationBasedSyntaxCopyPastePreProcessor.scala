@@ -146,7 +146,9 @@ object Scala3IndentationBasedSyntaxCopyPastePreProcessor {
     else
       elementAtCaretOrCommonParent //if it's not a leaf element we already know that it's a common parent of selection
     parent match {
-      case _: ScalaFile | _: ScPackaging =>
+      case _: ScalaFile =>
+        CaretPosition.TopLevelScalaFile
+      case p: ScPackaging if !p.isExplicit =>
         CaretPosition.TopLevelScalaFile
       case b: ScOptionalBracesOwner  =>
         if (b.isEnclosedByBraces)
