@@ -2797,4 +2797,34 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n\n')
       |""".stripMargin
   )
+
+  def test_error_after_new(): Unit = checkTree(
+    """
+      |val x = new
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScPatternDefinition: x
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(val)('val')
+      |    PsiWhiteSpace(' ')
+      |    ListOfPatterns
+      |      ReferencePattern: x
+      |        PsiElement(identifier)('x')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    ScNewTemplateDefinition: <anonymous>
+      |      PsiElement(new)('new')
+      |      ExtendsBlock
+      |        TemplateParents
+      |          PsiErrorElement:Type expected
+      |            <empty list>
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }

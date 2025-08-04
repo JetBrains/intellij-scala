@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.End
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.Def
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.ClassTemplateBlock
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.NewTemplateBlock
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.{Path, TypeArgs}
 import org.jetbrains.plugins.scala.lang.parser.parsing.xml.XmlExpr
 import org.jetbrains.plugins.scala.lang.parser.util.{InBracelessScala3, ParserUtils}
@@ -61,11 +61,7 @@ object SimpleExpr extends ParsingRule {
     builder.getTokenType match {
       case NewKeyword =>
         builder.advanceLexer() //Ate new
-        if (!ClassTemplateBlock()) {
-          builder error ErrMsg("identifier.expected")
-          simpleMarker.drop()
-          return false
-        }
+        NewTemplateBlock()
         newMarker = simpleMarker.precede
         End()
         simpleMarker.done(ScalaElementType.NewTemplate)

@@ -2654,7 +2654,7 @@ class GivenNewSyntaxParserTest extends SimpleScala3ParserTestBase {
       |            <empty list>
       |          ExtendsBlock
       |            TemplateParents
-      |              PsiErrorElement:Identifier expected
+      |              PsiErrorElement:Type expected
       |                <empty list>
       |        PsiWhiteSpace('\n  ')
       |        ScGivenDefinition: given_
@@ -2695,7 +2695,7 @@ class GivenNewSyntaxParserTest extends SimpleScala3ParserTestBase {
       |            <empty list>
       |          ExtendsBlock
       |            TemplateParents
-      |              PsiErrorElement:Identifier expected
+      |              PsiErrorElement:Type expected
       |                <empty list>
       |        PsiWhiteSpace('\n  ')
       |        ScGivenDefinition: given_
@@ -2769,7 +2769,7 @@ class GivenNewSyntaxParserTest extends SimpleScala3ParserTestBase {
       |            PsiElement(=>)('=>')
       |          ExtendsBlock
       |            TemplateParents
-      |              PsiErrorElement:Identifier expected
+      |              PsiErrorElement:Type expected
       |                <empty list>
       |        PsiWhiteSpace('\n  ')
       |        ScGivenDefinition: given_Int

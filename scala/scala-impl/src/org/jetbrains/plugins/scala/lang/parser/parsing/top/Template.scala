@@ -56,7 +56,7 @@ sealed abstract class Template extends ParsingRule {
 }
 
 /**
- * [[ClassTemplate]] ::= 'extends' [[ClassTemplateBlock]] | [ ['extends'] [[TemplateBody]] ]
+ * [[ClassTemplate]] ::= 'extends' [[NewTemplateBlock]] | [ ['extends'] [[TemplateBody]] ]
  */
 object ClassTemplate extends Template
 

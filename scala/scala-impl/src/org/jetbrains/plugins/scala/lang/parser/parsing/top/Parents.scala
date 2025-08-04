@@ -53,7 +53,7 @@ sealed abstract class Parents(
     val result = Constructor()
 
     if (!result && !allowEmptyParents) {
-      builder.error(ScalaBundle.message("identifier.expected"))
+      builder.error(ScalaBundle.message("type.expected"))
     }
 
     result
@@ -65,6 +65,6 @@ sealed abstract class Parents(
   }
 }
 
-object NewTemplateDefParents extends Parents(allowCommaSeparatedParentsInScala3 = false, allowEmptyParents = true)
+object NewTemplateDefParents extends Parents(allowCommaSeparatedParentsInScala3 = false, allowEmptyParents = false)
 object TypeDefinitionParents extends Parents
 object GivenParents extends Parents(allowRefinement = false, allowNewlineBeforeParent = false)

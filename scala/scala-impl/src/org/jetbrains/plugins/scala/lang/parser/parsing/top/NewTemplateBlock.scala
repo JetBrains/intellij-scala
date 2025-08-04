@@ -8,19 +8,17 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateBody
 import org.jetbrains.plugins.scala.lang.parser.util.InScala3
 
 /**
- * [[ClassTemplateBlock]] ::= [EarlyDefs] ClassParents [TemplateBody]
- * | TemplateBody (for 'new' statement)
+ * [[NewTemplateBlock]] ::= [EarlyDefs] ClassParents [TemplateBody]
+ * | TemplateBody
 */
-object ClassTemplateBlock extends ParsingRule{
+object NewTemplateBlock extends ParsingRule {
 
-  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): true = {
     val extendsMarker = builder.mark()
-    var nonEmpty = false
 
     builder.getTokenType match {
       //hardly case, because it's same token for ClassParents and TemplateBody
       case ScalaTokenTypes.tLBRACE =>
-        nonEmpty = true
         //try to parse early definition if we can't => it's template body
         if (EarlyDef()) {
           NewTemplateDefParents()
@@ -33,22 +31,19 @@ object ClassTemplateBlock extends ParsingRule{
             case _ =>
           }
           extendsMarker.done(ScalaElementType.EXTENDS_BLOCK)
-          nonEmpty
         }
         else {
           //parse template body
           TemplateBody()
           extendsMarker.done(ScalaElementType.EXTENDS_BLOCK)
-          nonEmpty
         }
+      case InScala3(ScalaTokenTypes.tCOLON) =>
+        TemplateBody()
+        extendsMarker.done(ScalaElementType.EXTENDS_BLOCK)
       //if we find nl => it could be TemplateBody only, but we can't find nl after extends keyword
       //In this case of course it's ClassParents
       case _ =>
-        if (NewTemplateDefParents()) nonEmpty = true
-        else if (true) {
-          extendsMarker.drop()
-          return false
-        }
+        NewTemplateDefParents()
         //parse template body
         builder.getTokenType match {
           case ScalaTokenTypes.tLBRACE if !builder.twoNewlinesBeforeCurrentToken =>
@@ -58,7 +53,7 @@ object ClassTemplateBlock extends ParsingRule{
           case _ =>
         }
         extendsMarker.done(ScalaElementType.EXTENDS_BLOCK)
-        nonEmpty
     }
+    true
   }
 }
