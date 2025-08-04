@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaration, ScExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner, ScPackaging}
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 
 import scala.collection.mutable
 
@@ -119,7 +120,16 @@ private[annotator] object ModifierChecker {
                       owner,
                     )
                   case _: ScClass => checkIllegalCombinations(modifierPsi, Final)
-                  case _: ScObject => checkIllegalCombinations(modifierPsi, Final)
+                  case _: ScObject =>
+                    if (owner.scalaLanguageLevelOrDefault >= ScalaLanguageLevel.Scala_2_13) {
+                      // since Scala 2.13 overriding objects is not possible anymore, so final makes no sense
+                      createWarningWithQuickFix(
+                        ScalaBundle.message("final.modifier.is.redundant.on.objects"),
+                        modifierPsi,
+                        owner,
+                      )
+                    }
+                    checkIllegalCombinations(modifierPsi, Final)
                   case e: ScMember if e.getParent.is[ScTemplateBody, ScEarlyDefinitions] =>
                     val redundant = (e.containingClass, e) match {
                       case (_, valMember: ScPatternDefinition) if valMember.typeElement.isEmpty &&

@@ -5,10 +5,12 @@ package modifier
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import org.jetbrains.plugins.scala.codeInspection.modifiers.RedundantFinalOnToplevelObjectInspection
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 
 @WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 class RedundantFinalOnToplevelObjectInspectionTest extends ScalaInspectionTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version.languageLevel < ScalaLanguageLevel.Scala_2_13
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[RedundantFinalOnToplevelObjectInspection]

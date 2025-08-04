@@ -98,10 +98,16 @@ abstract class ModifierCheckerTestBase extends SimpleTestCase {
 
   def testDuplicateModifierFinal(): Unit = {
     assertMessages(messages(
-      """final final object A
+      """final final class A
         |""".stripMargin)
     )(
       Error("final", ScalaBundle.message("modifier.is.duplicated", "final")),
+    )
+  }
+
+  def testInnerObject(): Unit = {
+    assertMessages(messages("object A { final object B }"))(
+      Warning("final", ScalaBundle.message("final.modifier.is.redundant.on.objects"))
     )
   }
 }
@@ -111,12 +117,6 @@ class ModifierCheckerTest_Scala_2 extends ModifierCheckerTestBase {
   import Message._
 
   override protected def scalaVersion: ScalaVersion = ScalaVersion.default
-
-  def testInnerObject(): Unit = {
-    assertMatches(messages("object A { final object B }")) {
-      case Nil => // SCL-10420
-    }
-  }
 
   def testFinalValConstant(): Unit = {
     assertMatches(messages(
