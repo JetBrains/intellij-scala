@@ -26,6 +26,9 @@ class ScalaLibraryHighlightingTest_2_13 extends ScalaLibraryHighlightingTest {
       (1013, 1021), // Method 'hashCode' needs override modifier
       (1361, 1369), // Method 'toString' needs override modifier
       (3153, 3154), // Cannot resolve symbol !
+      (3160, 3162), // Cannot resolve overloaded method 'eq'
+      (3512, 3514), // Cannot resolve overloaded method 'eq'
+      (3547, 3549), // Cannot resolve overloaded method 'eq'
       (4420, 4425), // 'final' modifier can't be used with incomplete members
       (4594, 4599), // 'final' modifier can't be used with incomplete members
       (4779, 4784), // 'final' modifier can't be used with incomplete members
