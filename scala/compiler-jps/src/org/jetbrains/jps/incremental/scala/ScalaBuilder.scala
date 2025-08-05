@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.server.CompileServerProperties
 
 import java.net.InetAddress
 import java.nio.file.Path
+import java.util.concurrent.atomic.AtomicBoolean
 import scala.concurrent.duration.DurationInt
 import scala.jdk.CollectionConverters._
 
@@ -234,5 +235,11 @@ object ScalaBuilder {
     val message = MissingScalaSdk.skippedModuleMessage(chunk.getPresentableShortName)
     //noinspection ReferencePassedToNls
     context.processMessage(new CompilerMessage(MissingScalaSdk.MessagePrefix, BuildMessage.Kind.WARNING, message))
+  }
+
+  private[scala] def logSearchingForCompilableFiles(context: CompileContext, presentableName: String, loggedMessageOnce: AtomicBoolean): Unit = {
+    if (loggedMessageOnce.compareAndSet(false, true)) {
+      context.processMessage(new ProgressMessage(JpsBundle.message("searching.for.compilable.files.0", presentableName)))
+    }
   }
 }

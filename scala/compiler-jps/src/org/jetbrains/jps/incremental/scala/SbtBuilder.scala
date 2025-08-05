@@ -6,7 +6,6 @@ import org.jetbrains.jps.builders.java._
 import org.jetbrains.jps.builders.{BuildRootDescriptor, BuildTarget}
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.{ExitCode => JpsExitCode}
 import org.jetbrains.jps.incremental._
-import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage, ProgressMessage}
 import org.jetbrains.jps.incremental.scala.SbtBuilder._
 import org.jetbrains.jps.incremental.scala.ScalaBuilder._
 import org.jetbrains.jps.incremental.scala.data.CompilationDataFactory
@@ -15,6 +14,7 @@ import org.jetbrains.jps.incremental.scala.model.JpsScalaProjectMetadataExtensio
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 
 import _root_.java.nio.file.Path
+import _root_.java.util.concurrent.atomic.AtomicBoolean
 import _root_.java.{util => jutil}
 import _root_.scala.collection.immutable.ArraySeq
 import _root_.scala.jdk.CollectionConverters._
@@ -33,8 +33,6 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
       return JpsExitCode.NOTHING_DONE
 
     updateSharedResources(context, chunk)
-
-    context.processMessage(new ProgressMessage(JpsBundle.message("searching.for.compilable.files.0", chunk.getPresentableShortName)))
 
     val dirtyFilesFromIntellij = collectDirtyFiles(dirtyFilesHolder)
 
@@ -129,7 +127,7 @@ object SbtBuilder {
     builder.result()
   }
 
-  private def compilableFiles(context: CompileContext, target: ModuleBuildTarget): Seq[Path] = {
+  private def compilableFiles(context: CompileContext, target: ModuleBuildTarget, presentableName: String, loggedMessageOnce: AtomicBoolean): Seq[Path] = {
     val builder = ArraySeq.newBuilder[Path]
 
     val rootIndex = context.getProjectDescriptor.getBuildRootIndex
@@ -146,6 +144,7 @@ object SbtBuilder {
     }
 
     for (root <- rootIndex.getTargetRoots(target, context).asScala) {
+      ScalaBuilder.logSearchingForCompilableFiles(context, presentableName, loggedMessageOnce)
       FileUtil.processFilesRecursively(root.getRootFile, file => {
         if (!excludeIndex.isExcluded(file) && !sourcePathSources.contains(file.toPath)) {
           val fileName = file.getName
@@ -161,10 +160,12 @@ object SbtBuilder {
 
   private def collectCompilableFiles(context: CompileContext,
                                      chunk: ModuleChunk): Map[Path, BuildTarget[_ <: BuildRootDescriptor]] = {
+    val presentableName = chunk.getPresentableShortName
+    val loggedMessageOnce = new AtomicBoolean(false)
     val fileToTarget =
       for {
         target <- chunk.getTargets.asScala
-        file <- compilableFiles(context, target)
+        file <- compilableFiles(context, target, presentableName, loggedMessageOnce)
       } yield {
         file -> target
       }
