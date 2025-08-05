@@ -95,9 +95,6 @@ final class SbtShellCommunication(project: Project) {
   private def moveAccumulatedCommandsToStandardQueue(): Int =
     afterRestartCommands.drainTo(commands)
 
-  //TODO: delete unused
-  def sendSigInt(): Unit = process.sendSigInt()
-
   /**
     * Send string directly to the shell without regarding the shell state.
     * This should only be used to send keypresses such as ctrl+c
