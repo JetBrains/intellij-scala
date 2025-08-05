@@ -5,13 +5,14 @@ import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.DirtyFilesHolder
 import org.jetbrains.jps.builders.java.{JavaBuilderUtil, JavaSourceRootDescriptor}
 import org.jetbrains.jps.incremental.fs.CompilationRound
-import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage, ProgressMessage}
+import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage}
 import org.jetbrains.jps.incremental.scala.data.CompilationDataFactory
 import org.jetbrains.jps.incremental.scala.model.JpsScalaProjectMetadataExtensionService.chunkHasScala
 import org.jetbrains.jps.incremental.{java => _, scala => _, _}
 import org.jetbrains.plugins.scala.compiler.data.{CompileOrder, IncrementalityType}
 
 import java.nio.file.{Files, Path}
+import java.util.concurrent.atomic.AtomicBoolean
 import java.{util => ju}
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
@@ -29,8 +30,6 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
 
     if (!isEnabled(context, chunk) || ChunkExclusionService.isExcluded(chunk))
       return JpsExitCode.NOTHING_DONE
-
-    context.processMessage(new ProgressMessage(JpsBundle.message("searching.for.compilable.files.0", chunk.getPresentableShortName)))
 
     val sourceDependencies = SourceDependenciesProviderService.getSourceDependenciesFor(chunk)
     if (sourceDependencies.nonEmpty) {
@@ -140,10 +139,12 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
 
     dirtyFilesHolder.processDirtyFiles((_, file, _) => checkAndCollectFile(file.toPath))
 
+    val loggedMessageOnce = new AtomicBoolean(false)
     for {
       target <- chunk.getTargets.asScala
       tempRoot <- project.getBuildRootIndex.getTempTargetRoots(target, context).asScala
     } {
+      ScalaBuilder.logSearchingForCompilableFiles(context, chunk.getPresentableShortName, loggedMessageOnce)
       FileUtil.processFilesRecursively(tempRoot.getRootFile, file => checkAndCollectFile(file.toPath))
     }
 
