@@ -127,35 +127,32 @@ class ImplicitConversionAndExtensionResolveTest extends SimpleResolveTestBase {
        |""".stripMargin
   )
 
-  // SCL-24171
-  //   We currently fail this, because our overload mechanism doesn't take multiple parameter args into account
-  //
-  //def testOneWrongSpecificExtensionMethodDrownsOutEverythingElse(): Unit = doResolveTest(
-  //  s"""
-  //     |// In this case the compiler first tries to resolve the ambiguity by checking
-  //     |//   should("foo")
-  //     |// Because
-  //     |//   String => Boolean => Unit
-  //     |// is more specific than
-  //     |//   [T] T => String => Unit
-  //     |// it is chosen even if the second argument does not match.
-  //     |object Blub {
-  //     |  def run = {
-  //     |    "foo" sho${REFSRC}uld "bar"
-  //     |  }
-  //     |
-  //     |  extension [T](target: T)
-  //     |    def should(p: String): Unit = ()
-  //     |
-  //     |  extension (target: String)
-  //     |    ${REFTGT}def should(p: Boolean): Unit = ()  // Resolves to here even though there is a type mismatch for the argument
-  //     |
-  //     |  implicit class StringOps(private val target: String) extends AnyVal:
-  //     |    def should(right: String): Unit = ()
-  //     |}
-  //     |
-  //     |""".stripMargin
-  //)
+  def testOneWrongSpecificExtensionMethodDrownsOutEverythingElse(): Unit = doResolveTest(
+    s"""
+       |// In this case the compiler first tries to resolve the ambiguity by checking
+       |//   should("foo")
+       |// Because
+       |//   String => Boolean => Unit
+       |// is more specific than
+       |//   [T] T => String => Unit
+       |// it is chosen even if the second argument does not match.
+       |object Blub {
+       |  def run = {
+       |    "foo" sho${REFSRC}uld "bar"
+       |  }
+       |
+       |  extension [T](target: T)
+       |    def should(p: String): Unit = ()
+       |
+       |  extension (target: String)
+       |    ${REFTGT}def should(p: Boolean): Unit = ()  // Resolves to here even though there is a type mismatch for the argument
+       |
+       |  implicit class StringOps(private val target: String) extends AnyVal:
+       |    def should(right: String): Unit = ()
+       |}
+       |
+       |""".stripMargin
+  )
 
   def testNormalMethodHasHighestPrecedence(): Unit = doResolveTest(
     s"""
