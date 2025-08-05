@@ -28,6 +28,7 @@ import scala.util.{Success, Try}
  * Service for connecting with an sbt shell associated with project.
  */
 @Service(Array(Service.Level.PROJECT))
+@ApiStatus.Internal()
 final class SbtShellCommunication(project: Project) {
 
   private lazy val process: SbtProcessManager = SbtProcessManager.forProject(project)
