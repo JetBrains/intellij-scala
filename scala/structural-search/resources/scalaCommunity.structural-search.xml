@@ -1,0 +1,7 @@
+<idea-plugin package="org.jetbrains.plugins.scala.structuralSearch">
+
+
+    <extensions defaultExtensionNs="com.intellij.structuralsearch">
+        <profile implementation="org.jetbrains.plugins.scala.structuralSearch.ScalaStructuralSearchProfile"/>
+    </extensions>
+</idea-plugin>
