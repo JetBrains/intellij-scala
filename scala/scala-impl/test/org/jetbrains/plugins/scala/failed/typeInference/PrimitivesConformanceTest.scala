@@ -2,26 +2,24 @@ package org.jetbrains.plugins.scala.failed.typeInference
 
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 
 abstract class PrimitivesConformanceTestBase extends TypeInferenceTestBase {
 
   //SCL-5358
-  def testSCL5358(): Unit = assertErrorsText(
+  def testSCL5358(): Unit = assertNoMessages(
       """final val x = 0
         |val y: Byte = x
-        |""".stripMargin,
-    """Error(x,Expression of type Int doesn't conform to expected type Byte)"""
+        |""".stripMargin
   )
 
   //SCL-19295
-  def testSCL19295(): Unit = {
-    doTest(
-      s"""val byte: Byte = 1
-        |$START~byte$END
-        |//Int
-        |""".stripMargin
-    )
-  }
+  def testSCL19295(): Unit = doTest(
+    s"""val byte: Byte = 1
+      |$START~byte$END
+      |//Int
+      |""".stripMargin
+  )
 
   def testByteCoercion(): Unit = assertErrorsText(
     """val byte0: Byte = 0
@@ -227,10 +225,40 @@ abstract class PrimitivesConformanceTestBase extends TypeInferenceTestBase {
       |val double_from_int: Float = 1 : Int
       |val double_from_long: Float = 1L
       |""".stripMargin
+
+  def testCalculatedLiteralTypeCoercion(): Unit = assertErrorsText(
+    """
+      |val simple1: Byte = 16^24 // 8
+      |val simple2: Byte = 8 + 9 - (2 + 7) // 8
+      |
+      |val small_byte: Byte = -100 - 28
+      |val large_byte: Byte = 100 + 27
+      |val too_small_byte: Byte = -100 - 29
+      |val too_large_byte: Byte = 100 + 28
+      |
+      |val small_char: Char = 0 + 0
+      |val large_char: Char = 0 + 65535
+      |val too_small_char: Char = 6 - 7
+      |val too_large_char: Char = 1 + 65535
+      |
+      |val small_short: Short = 0 - 32768
+      |val large_short: Short = 0 + 32767
+      |val too_small_short: Short = -1 - 32768
+      |val too_large_short: Short = 1 + 32767
+      |""".stripMargin,
+    """
+      |Error(-100 - 29,Expression of type Int doesn't conform to expected type Byte)
+      |Error(100 + 28,Expression of type Int doesn't conform to expected type Byte)
+      |Error(6 - 7,Expression of type Int doesn't conform to expected type Char)
+      |Error(1 + 65535,Expression of type Int doesn't conform to expected type Char)
+      |Error(-1 - 32768,Expression of type Int doesn't conform to expected type Short)
+      |Error(1 + 32767,Expression of type Int doesn't conform to expected type Short)
+      |""".stripMargin
+  )
 }
 
 class PrimitivesConformanceTest_Scala2 extends PrimitivesConformanceTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version.isScala2
+  override protected def supportedIn(version: ScalaVersion): Boolean = version.languageLevel >= ScalaLanguageLevel.Scala_2_13
 
   def testFloatCoercion(): Unit = assertErrorsText(
     floatCoercionText,
