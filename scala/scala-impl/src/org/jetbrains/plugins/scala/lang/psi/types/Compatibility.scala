@@ -605,7 +605,7 @@ object Compatibility {
     withImplicits: Boolean,
     shapesOnly:    Boolean,
     ref:           PsiElement = null
-  ): ApplicabilityCheckResult = {
+  )(implicit context: Context): ApplicabilityCheckResult = {
     val named = srr.element
 
     def checkParameterListConformance(
