@@ -209,4 +209,44 @@ class Scala3GlobalMemberCompletionTest extends ScalaCompletionTestBase {
        |}
        |""".stripMargin,
     item = "Foobar")
+
+  def testEnumTypeTest(): Unit = doCompletionTest(
+    s"""package a {
+       |  enum Foobar
+       |}
+       |package b {
+       |  type T = Foob$CARET
+       |}
+       |""".stripMargin,
+    s"""package a {
+       |  enum Foobar
+       |}
+       |package b {
+       |
+       |  import a.Foobar
+       |
+       |  type T = Foobar
+       |}
+       |""".stripMargin,
+    item = "Foobar")
+
+  def testEnumTermTest(): Unit = doCompletionTest(
+    s"""package a {
+       |  enum Foobar
+       |}
+       |package b {
+       |  Foob$CARET
+       |}
+       |""".stripMargin,
+    s"""package a {
+       |  enum Foobar
+       |}
+       |package b {
+       |
+       |  import a.Foobar
+       |
+       |  Foobar
+       |}
+       |""".stripMargin,
+    item = "Foobar")
 }
