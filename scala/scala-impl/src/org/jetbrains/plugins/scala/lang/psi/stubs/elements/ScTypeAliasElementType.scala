@@ -104,6 +104,8 @@ abstract class ScTypeAliasElementType[Func <: ScTypeAlias](debugName: String)
     sink.occurrence(ScalaIndexKeys.TYPE_ALIAS_NAME_KEY, name)
 
     if (stub.isTopLevel) {
+      sink.occurrence(ScalaIndexKeys.STABLE_ALIAS_NAME_KEY, name)
+
       stub.topLevelQualifier.foreach(
         sink.fqnOccurence(ScalaIndexKeys.TOP_LEVEL_TYPE_ALIAS_BY_PKG_KEY, _)
       )
