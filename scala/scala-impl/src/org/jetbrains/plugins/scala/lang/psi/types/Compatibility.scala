@@ -692,7 +692,7 @@ object Compatibility {
     shapesOnly:    Boolean,
     ref:           PsiElement,
     argClauseIdx:  Int = 0
-  ): ApplicabilityCheckResult = {
+  )(implicit context: Context): ApplicabilityCheckResult = {
     val named = srr.element
     val args  = argClauses.lift(argClauseIdx).getOrElse(Seq.empty)
 
