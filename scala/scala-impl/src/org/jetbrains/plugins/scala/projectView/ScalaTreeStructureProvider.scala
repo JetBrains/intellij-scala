@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.projectView
 
-import com.intellij.ide.projectView.impl.ProjectRootsUtil
+import com.intellij.ide.projectView.impl.{ModuleGroup, ProjectRootsUtil}
 import com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode.canRealModuleNameBeHidden
 import com.intellij.ide.projectView.impl.nodes.{ProjectViewModuleGroupNode, ProjectViewModuleNode, ProjectViewProjectNode, PsiDirectoryNode, PsiFileSystemItemFilter}
 import com.intellij.ide.projectView.{PresentationData, TreeStructureProvider, ViewSettings}
@@ -15,7 +15,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
 import com.intellij.psi.PsiDirectory
 import com.intellij.ui.SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES
-import org.jetbrains.annotations.{NotNull, Nullable}
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.util.SbtModuleType
@@ -39,8 +39,12 @@ final class ScalaTreeStructureProvider extends TreeStructureProvider with DumbAw
 
     val childrenSeq = children.asScala.toSeq
     val modifiedChildren = parent match {
-      case _: ProjectViewModuleGroupNode =>
-        transformProjectViewModuleGroupNodeChildren(childrenSeq)(project)
+      case moduleGroupNode: ProjectViewModuleGroupNode =>
+        val topLevelDirectories = moduleGroupNode match {
+          case node: ScalaProjectViewModuleGroupNode => node.projectViewTopLevelDirectories
+          case _ => Nil
+        }
+        transformProjectViewModuleGroupNodeChildren(childrenSeq, topLevelDirectories)(project)
       case _: ProjectViewProjectNode =>
         transformProjectViewProjectNodeChildren(childrenSeq)(project, settings)
       case _ =>
@@ -52,7 +56,10 @@ final class ScalaTreeStructureProvider extends TreeStructureProvider with DumbAw
 
 private object ScalaTreeStructureProvider {
 
-  private def transformProjectViewModuleGroupNodeChildren(children: Seq[Node])(implicit project: Project): Seq[Node] = {
+  /**
+   * @param projectViewTopLevelDirectories see [[ScalaProjectViewModuleGroupNode]]
+   */
+  private def transformProjectViewModuleGroupNodeChildren(children: Seq[Node], projectViewTopLevelDirectories: Seq[VirtualFile])(implicit project: Project): Seq[Node] = {
     val moduleChildren = children.collect {
       case projectViewModuleNode: ProjectViewModuleNode =>
         // note: in Gradle when #showUnderModuleGroup returns true for the given module, it is possible to create a special object -
@@ -74,7 +81,7 @@ private object ScalaTreeStructureProvider {
       case _ => true
     })
 
-    val moduleChildrenToDisplay = sortedModuleChildren.foldLeft((Set.empty[VirtualFile], Seq.empty[Node])) {
+    val moduleChildrenToDisplay = sortedModuleChildren.foldLeft((projectViewTopLevelDirectories.toSet, Seq.empty[Node])) {
       // Collecting displayed paths under the module group is necessary to prevent modules from being displayed twice under the group node in certain cases.
       // It doesn't prevent directories from being displayed twice under the module group in all scenarios, but it does address the issue described in SCL-22194.
       case ((displayedPaths, nodes), (node, module, psiDirectoryNodeFile)) =>
@@ -93,10 +100,13 @@ private object ScalaTreeStructureProvider {
   * [[org.jetbrains.plugins.gradle.projectView.GradleTreeStructureProvider#getProjectNodeChildren]]
   */
   private def transformProjectViewProjectNodeChildren(children: Seq[Node])(implicit project: Project, settings: ViewSettings): Seq[Node] = {
+    val projectViewPsiDirectoriesFiles = children.collect { case node: PsiDirectoryNode => node.getValue.getVirtualFile }
     children.map {
       case projectViewModuleGroupNode: ProjectViewModuleGroupNode =>
-        val directoryNode = getProjectViewModuleGroupNodeDirectoryNode(projectViewModuleGroupNode)
-        directoryNode.getOrElse(projectViewModuleGroupNode)
+        val psiDirectoryNode = convertGroupNodeToPsiDirectoryNode(projectViewModuleGroupNode)
+        psiDirectoryNode.getOrElse {
+          ScalaProjectViewModuleGroupNode(project, projectViewModuleGroupNode.getValue, settings, projectViewPsiDirectoriesFiles)
+        }
       case psiDirectoryNode: PsiDirectoryNode if psiDirectoryNode.getParent == null && psiDirectoryNode.getValue != null =>
         val scalaModuleDirectoryNode = getScalaModuleDirectoryNode(psiDirectoryNode)
         scalaModuleDirectoryNode.getOrElse(psiDirectoryNode)
@@ -106,9 +116,12 @@ private object ScalaTreeStructureProvider {
   }
 
   /**
-   * It is written based on [[org.jetbrains.plugins.gradle.projectView.GradleTreeStructureProvider#getProjectNodeChildren]]
+   * Convert the [[ProjectViewModuleGroupNode]] to [[PsiDirectoryNode]], if all children within the group are
+   * supported [[PsiDirectoryNode]] instances. A detailed explanation of this method, along with an example, is provided in SCL-22171.
+   *
+   * @note It is written based on [[org.jetbrains.plugins.gradle.projectView.GradleTreeStructureProvider.getProjectNodeChildren]]
    */
-  private def getProjectViewModuleGroupNodeDirectoryNode(
+  private def convertGroupNodeToPsiDirectoryNode(
     projectViewModuleGroupNode: ProjectViewModuleGroupNode
   )(implicit project: Project): Option[PsiDirectoryNode] = {
     val children = projectViewModuleGroupNode.getChildren.asScala.toSeq
@@ -329,8 +342,23 @@ private object ScalaTreeStructureProvider {
       }
     }
   }
-
 }
+
+/**
+ * A wrapper class over [[ProjectViewModuleGroupNode]] that keeps information about
+ * top level [[PsiDirectoryNode]] files within the [[ProjectViewProjectNode]].
+ *
+ * This information is necessary during the processing of [[ProjectViewModuleGroupNode]] children
+ * to prevent duplicate directory displays in the project view.
+ *
+ * @see [[https://youtrack.jetbrains.com/issue/SCL-24041/When-a-source-directory-is-located-outside-the-project-root-the-outside-grouping-node-displays-duplicated-directories]]
+ */
+ private case class ScalaProjectViewModuleGroupNode(
+  project: Project,
+  moduleGroup: ModuleGroup,
+  settings: ViewSettings,
+  projectViewTopLevelDirectories: Seq[VirtualFile]
+) extends ProjectViewModuleGroupNode(project, moduleGroup, settings)
 
 private case class ScalaModuleDirectoryNode(
   project: Project,
