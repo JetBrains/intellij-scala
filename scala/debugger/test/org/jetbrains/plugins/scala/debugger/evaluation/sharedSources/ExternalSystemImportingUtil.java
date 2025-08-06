@@ -50,6 +50,7 @@ class ExternalSystemImportingUtil {
         }
     }
 
+    @SuppressWarnings({"deprecation", "rawtypes", "unchecked", "Convert2MethodRef", "UnstableApiUsage"})
     private static void importProject(Project project, ProjectSystemId systemId, ExternalProjectSettings projectSettings, String projectPath) {
         AbstractExternalSystemSettings systemSettings = ExternalSystemApiUtil.getSettings(project, systemId);
         projectSettings.setExternalProjectPath(projectPath);
