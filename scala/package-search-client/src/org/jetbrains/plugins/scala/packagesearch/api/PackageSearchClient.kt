@@ -4,7 +4,7 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationInfo
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ApplicationNamesInfo
-import com.intellij.openapi.application.appSystemDir
+import com.intellij.openapi.application.PathManager.getSystemDir
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.Service.Level
 import com.intellij.openapi.components.service
@@ -53,7 +53,7 @@ class PackageSearchClient(private val cs: CoroutineScope) : Disposable {
   )
 
   private val cacheFilePath
-    get() = appSystemDir / "caches" / "packagesearch" / "${PackageSearchApiClientObject.version}.db"
+    get() = getSystemDir() / "caches" / "packagesearch" / "${PackageSearchApiClientObject.version}.db"
 
   private fun getCacheFile(): Path =
     cacheFilePath.also {

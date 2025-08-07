@@ -5,7 +5,7 @@ import com.intellij.compiler.server.impl.BuildProcessClasspathManager
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.process.{ProcessEvent, ProcessListener}
 import com.intellij.notification.{Notification, NotificationType, Notifications}
-import com.intellij.openapi.application.{ApplicationManager, PathManagerEx}
+import com.intellij.openapi.application.{ApplicationManager, PathManager}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.options.advanced.AdvancedSettings
 import com.intellij.openapi.project.{Project, ProjectManager}
@@ -619,7 +619,7 @@ object CompileServerLauncher {
   }
 
   def scalaCompileServerSystemDir: Path =
-    PathManagerEx.getAppSystemDir.resolve("scala-compile-server")
+    PathManager.getSystemDir.resolve("scala-compile-server")
 
   private def jvmRtDir: Path = scalaCompileServerSystemDir.resolve("jvm-rt")
 
