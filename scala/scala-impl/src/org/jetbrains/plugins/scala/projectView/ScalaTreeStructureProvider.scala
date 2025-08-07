@@ -32,7 +32,6 @@ final class ScalaTreeStructureProvider extends TreeStructureProvider with DumbAw
 
   import ScalaTreeStructureProvider._
 
-
   override def modify(parent: Node, children: util.Collection[Node], settings: ViewSettings): util.Collection[Node] = {
     val project = parent.getProject
     if (project == null) return children
@@ -44,9 +43,11 @@ final class ScalaTreeStructureProvider extends TreeStructureProvider with DumbAw
           case node: ScalaProjectViewModuleGroupNode => node.projectViewTopLevelDirectories
           case _ => Nil
         }
-        transformProjectViewModuleGroupNodeChildren(childrenSeq, topLevelDirectories)(project)
+        transformProjectViewModuleGroupNodeChildren(childrenSeq, topLevelDirectories, settings)(project)
       case _: ProjectViewProjectNode =>
         transformProjectViewProjectNodeChildren(childrenSeq)(project, settings)
+      case scalaProjectViewModuleNode: ScalaProjectViewModuleNode =>
+        transformScalaProjectViewModuleNodeChildren(module = scalaProjectViewModuleNode.getValue, childrenSeq)
       case _ =>
         childrenSeq.map { it => transform(it)(it.getProject, settings) }
     }
@@ -57,15 +58,36 @@ final class ScalaTreeStructureProvider extends TreeStructureProvider with DumbAw
 private object ScalaTreeStructureProvider {
 
   /**
+   * Filters out children of type [[PsiDirectoryNode]] that are located inside the external module's path,
+   * as these directories should, in principle, already be displayed in the project view.
+   *
+   * @see [[ScalaProjectViewModuleNode]]
+   * @see [[https://youtrack.jetbrains.com/issue/SCL-24041/When-a-source-directory-is-located-outside-the-project-root-the-outside-grouping-node-displays-duplicated-directories]]
+   * @note It's based on the Gradle logic implemented in the [[org.jetbrains.plugins.gradle.projectView.GradleTreeStructureProvider.modify]]
+   */
+  private def transformScalaProjectViewModuleNodeChildren(@Nullable module: Module, children: Seq[Node]): Seq[Node] = {
+    val projectPath = getExternalProjectPath(module)
+    if (projectPath == null) return children
+
+    children.filter {
+      case node: PsiDirectoryNode =>
+        val psiDirectory = node.getValue
+        psiDirectory == null ||
+          !isAncestor(projectPath, psiDirectory.getVirtualFile.getPath, strict = false)
+      case _ => true
+    }
+  }
+
+  /**
    * @param projectViewTopLevelDirectories see [[ScalaProjectViewModuleGroupNode]]
    */
-  private def transformProjectViewModuleGroupNodeChildren(children: Seq[Node], projectViewTopLevelDirectories: Seq[VirtualFile])(implicit project: Project): Seq[Node] = {
+  private def transformProjectViewModuleGroupNodeChildren(
+    children: Seq[Node],
+    projectViewTopLevelDirectories: Seq[VirtualFile],
+    settings: ViewSettings
+  )(implicit project: Project): Seq[Node] = {
     val moduleChildren = children.collect {
       case projectViewModuleNode: ProjectViewModuleNode =>
-        // note: in Gradle when #showUnderModuleGroup returns true for the given module, it is possible to create a special object -
-        // GradleProjectViewModuleNode. Later explicit handling for it is done. In sbt I couldn't find a case in which it would be needed.
-        // That's because ProjectViewModuleNode might be created when a module has empty/non-existent/many content roots. In our implementation it is only possible
-        // for SbtSourceSetData modules for which #showUnderModuleGroup always returns false
         (projectViewModuleNode, projectViewModuleNode.getValue, None)
       case psiDirectoryNode: PsiDirectoryNode if psiDirectoryNode.getValue != null =>
         val virtualFile = psiDirectoryNode.getValue.getVirtualFile
@@ -86,10 +108,17 @@ private object ScalaTreeStructureProvider {
       // It doesn't prevent directories from being displayed twice under the module group in all scenarios, but it does address the issue described in SCL-22194.
       case ((displayedPaths, nodes), (node, module, psiDirectoryNodeFile)) =>
         val shouldShow = showUnderModuleGroup(module, displayedPaths)
-        if (shouldShow)
-          (psiDirectoryNodeFile.fold(displayedPaths)(file => displayedPaths + file), nodes :+ node)
-        else
+        if (shouldShow) {
+          val transformedNode = node match {
+            case moduleNode: ProjectViewModuleNode =>
+              val shortName = getModuleShortName(module, project, psiDirectoryFile = None)
+              shortName.map(ScalaProjectViewModuleNode(project, module, settings, _)).getOrElse(moduleNode)
+            case other => other
+          }
+          (psiDirectoryNodeFile.fold(displayedPaths)(file => displayedPaths + file), nodes :+ transformedNode)
+        } else {
           (displayedPaths, nodes)
+        }
     }._2
 
     moduleChildrenToDisplay ++ otherNodes
@@ -203,10 +232,10 @@ private object ScalaTreeStructureProvider {
     // If this happens, it means that we are dealing with a module root and maybe ScalaModuleDirectoryNode will have to be created.
     if (!ProjectRootsUtil.isModuleContentRoot(virtualFile, project)) return None
     val module = getModuleFromVirtualFile(virtualFile)
-    if (module == null) return None
-    val moduleShortName = getModuleShortName(module, project, virtualFile)
-    moduleShortName
-      .map(ScalaModuleDirectoryNode(project, psiDirectory, settings, _, filter, module))
+    val moduleShortName = getModuleShortName(module, project, psiDirectoryFile = Some(virtualFile))
+    moduleShortName.collect { case name if !name.isBlank && name != module.getName =>
+      ScalaModuleDirectoryNode(project, psiDirectory, settings, name, filter, module)
+    }
   }
 
   private def transform(node: Node)
@@ -246,16 +275,22 @@ private object ScalaTreeStructureProvider {
     }
   }
 
-  private def getModuleShortName(module: Module, project: Project, virtualFile: VirtualFile): Option[String] = {
+  /**
+   * @param psiDirectoryFile The [[VirtualFile]] extracted from the [[PsiDirectoryNode]]. It is used to verify whether the module in this directory is a root module in a multi-build setup
+   *                         and to determine whether it is located under its actual parent module. This information decides whether a short module name should be generated
+   *                         and, if so, what form it should take.
+   */
+  private def getModuleShortName(@Nullable module: Module, project: Project, psiDirectoryFile: Option[VirtualFile]): Option[String] = {
     if (!isExternalSystemAwareModule(SbtProjectSystem.Id, module)) return None
 
     // note: generating module short name shouldn't be done for root modules in a multi build project (root module represents a root project in each build)
     // This is how it is implemented, because when there is a project with multi build, and projects from different builds are grouped together, it
     // is more transparent to display full module name for root modules -it may simplify searching concrete modules in Project Structure | Modules
-    if (isRootModuleInMultiBuildProject(module, project, virtualFile)) return None
+    val isRootModule = psiDirectoryFile.exists(isRootModuleInMultiBuildProject(module, project, _))
+    if (isRootModule) return None
 
     val fullModuleName = module.getName
-    val isModuleUnderItsParent = isModuleUnderItsRealParent(module, project, virtualFile)
+    val isModuleUnderItsParent = psiDirectoryFile.forall(isModuleUnderItsRealParent(module, project, _))
 
     val shortModuleName =
       if (!isModuleUnderItsParent) {
@@ -268,11 +303,7 @@ private object ScalaTreeStructureProvider {
         moduleGrouper.getShortenedNameByFullModuleName(fullModuleName)
       }
 
-    // Because ExplicitModuleGrouper#getShortenedNameByFullModuleName always returns the original module name and
-    // QualifiedNameGrouper#getShortenedNameByFullModuleName also returns the original module name when grouping is not used at all in the project, we can assume that
-    // when (shortModuleName == moduleName) it is not needed to create custom ScalaModuleDirectoryNode (so None is returned from this method).
-    // For such a case com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode.updateImpl will work correctly, because the group name is not present in module name
-    if (fullModuleName == shortModuleName || shortModuleName.isBlank) None else Some(shortModuleName)
+    Some(shortModuleName)
   }
 
   /**
@@ -328,6 +359,8 @@ private object ScalaTreeStructureProvider {
 
     def moduleIdOpt(module: Module): Option[String] = Option(ExternalSystemApiUtil.getExternalProjectId(module))
 
+    // The goal of this method is to identify whether there are any other modules that belong to a different build.
+    // If there are, it means it's a multi-build setup.
     def isRootAndBelongsToDifferentBuild(module: Module): Boolean =
       moduleIdOpt(module).exists { id =>
         val moduleRootPath = ExternalSystemApiUtil.getExternalProjectPath(module)
@@ -341,12 +374,36 @@ private object ScalaTreeStructureProvider {
     moduleIdOpt(module).exists { id =>
       val isRootProject = moduleRegexPattern.matches(id)
       isRootProject && {
-        // note: checking if there are more root projects and if they belong to another build
         val modules = ModuleManager.getInstance(project).getModules
         modules.exists(isRootAndBelongsToDifferentBuild)
       }
     }
   }
+}
+
+/**
+ * A custom wrapper class for the [[ProjectViewModuleNode]].
+ * This wrapper is used for [[ProjectViewModuleNode]] instances nested inside the [[ProjectViewModuleGroupNode]].
+ * The purpose of wrapping it in a custom class is to apply specific transformations to [[ScalaProjectViewModuleNode]] children.
+ * These transformations are essential to avoid duplications in the project view under the [[ProjectViewModuleGroupNode]].
+ *
+ * @note It's based on [[org.jetbrains.plugins.gradle.projectView.GradleTreeStructureProvider.GradleProjectViewModuleNode]]
+ * @see [[org.jetbrains.plugins.scala.projectView.ScalaTreeStructureProvider#transformScalaProjectViewModuleNode]]
+ */
+private case class ScalaProjectViewModuleNode(
+  project: Project,
+  module: Module,
+  viewSettings: ViewSettings,
+  moduleShortName: String
+) extends ProjectViewModuleNode(project, module, viewSettings) {
+
+  override def update(presentation: PresentationData): Unit = {
+    super.update(presentation)
+    presentation.setPresentableText(moduleShortName)
+    presentation.addText(moduleShortName, REGULAR_BOLD_ATTRIBUTES)
+  }
+
+  override def showModuleNameInBold(): Boolean = false
 }
 
 /**
