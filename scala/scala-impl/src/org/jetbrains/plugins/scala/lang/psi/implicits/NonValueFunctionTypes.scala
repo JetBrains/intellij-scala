@@ -2,14 +2,17 @@ package org.jetbrains.plugins.scala.lang.psi.implicits
 
 import org.jetbrains.plugins.scala.caches.measure
 import org.jetbrains.plugins.scala.extensions.ObjectExt
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.functionTypeNoImplicits
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.implicits.NonValueFunctionTypes._
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{Compatibility, ScType}
+import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider.fromScMethodLike
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 private case class NonValueFunctionTypes(
   fun:                 ScFunction,
@@ -77,12 +80,27 @@ private object NonValueFunctionTypes {
       case _ => (false, false)
     }
 
-    val polyOrMethodType = fun.polymorphicType(
-      s              = substitutor,
-      extensionOwner = exportedInExtension
-    )
+    val extensionOwner = fun.extensionMethodOwner.orElse(exportedInExtension)
 
-    val hasTypeParams = polyOrMethodType.is[ScTypePolymorphicType]
+    val polyOrMethodType = extensionOwner match {
+      case Some(owner) =>
+        implicit val pc: ProjectContext  = fun
+        implicit val scope: ElementScope = fun.elementScope
+
+        val typeParams = owner.typeParameters.map(TypeParameter(_))
+        val methodType = MethodTypeProvider.constructMethodType(Any, owner.effectiveParameterClauses)
+
+        if (typeParams.isEmpty) methodType
+        else                    ScTypePolymorphicType(methodType, typeParams)
+      case None =>
+        fun.polymorphicType(
+          s              = substitutor,
+          extensionOwner = exportedInExtension
+        )
+    }
+
+    val hasTypeParams =
+      polyOrMethodType.is[ScTypePolymorphicType]
 
     val (hasLeadingImplicits, hasTrailingImplicits) =
       hasImplicitClause(polyOrMethodType, isLeading = true)
