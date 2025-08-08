@@ -1065,7 +1065,7 @@ package object extensions {
           containerFqn <- qualifier
           //Get the first name from the names (conceptually wrong, see scaladoc notes)
           name <- names.headOption
-        } yield s"$containerFqn.$name"
+        } yield if (containerFqn.nonEmpty) s"$containerFqn.$name" else name
     }
 
     def isDeprecated: Boolean = member match {

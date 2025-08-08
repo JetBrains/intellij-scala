@@ -203,4 +203,30 @@ class ImplicitConversionAndExtensionResolveTest extends SimpleResolveTestBase {
        |
        |""".stripMargin
   )
+
+  def testExtensionInAbstractTypeCompanionInObject(): Unit = doResolveTest(
+    s"""
+       |object O:
+       |  type T
+       |  object T:
+       |    extension (x: T) ${REFTGT}def foo = ???
+       |  def bar = (??? : T).fo${REFSRC}o
+       |""".stripMargin)
+
+  def testExtensionInAbstractTypeCompanionInPackage(): Unit = doResolveTest(
+    s"""
+       |package p
+       |type T
+       |object T:
+       |  extension (x: T) ${REFTGT}def foo = ???
+       |def bar = (??? : T).fo${REFSRC}o
+       |""".stripMargin)
+
+  def testExtensionInAbstractTypeCompanionInEmptyPackage(): Unit = doResolveTest(
+    s"""
+       |type T
+       |object T:
+       |  extension (x: T) ${REFTGT}def foo = ???
+       |def bar = (??? : T).fo${REFSRC}o
+       |""".stripMargin)
 }
