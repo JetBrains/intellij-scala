@@ -1,0 +1,80 @@
+package org.jetbrains.plugins.scala.structuralSearch
+
+import com.intellij.psi.PsiElement
+import com.intellij.structuralsearch.impl.matcher.{CompiledPattern, GlobalMatchingVisitor}
+import com.intellij.structuralsearch.impl.matcher.handlers.SubstitutionHandler
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression, ScIf, ScInfixExpr, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+
+class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaElementVisitor {
+
+  private def matchOptional(patO: Option[PsiElement], psiO: Option[PsiElement]): Boolean = {
+    (patO, psiO) match {
+      case (Some(pat), Some(psi)) => globalVisitor.`match`(pat, psi)
+      case _ => false
+    }
+  }
+
+  private def matchBody(patO: Option[PsiElement], psiO: Option[PsiElement]): Boolean = {
+      (patO, psiO) match {
+        case (Some(pat: ScBlockExpr), Some(psi: ScBlockExpr)) =>
+          globalVisitor.matchSequentially(pat.getFirstChild, psi.getFirstChild)
+        case (Some(pat: ScBlockExpr), Some(psi)) =>
+          pat.statements.size == 1 && globalVisitor.`match`(pat.statements.head, psi)
+        case (Some(pat), Some(psi: ScBlockExpr)) =>
+          psi.statements.size == 1 && globalVisitor.`match`(pat, psi.statements.head)
+        case (Some(pat), Some(psi)) =>
+          globalVisitor.`match`(pat, psi)
+        case _ => false
+      }
+  }
+
+
+  override def visitIf(ifPat: ScIf): Unit = {
+    val ifPsi = globalVisitor.getElement.asInstanceOf[ScIf]
+
+    val condMatch = matchOptional(ifPat.condition, ifPsi.condition)
+    val thenMatch = matchBody(ifPat.thenExpression, ifPsi.thenExpression)
+    val elseMatch = (ifPat.elseExpression, ifPsi.elseExpression) match {
+      case (None, None) => true
+      case _ => matchBody(ifPat.elseExpression, ifPsi.elseExpression)
+    }
+    globalVisitor.setResult(condMatch && thenMatch && elseMatch)
+  }
+
+  override def visitInfixExpression(infixPat: ScInfixExpr): Unit = {
+    val infixPsi = globalVisitor.getElement.asInstanceOf[ScInfixExpr]
+
+    val leftMatch = globalVisitor.`match`(infixPat.left, infixPsi.left)
+    val operationMatch = globalVisitor.`match`(infixPat.operation, infixPsi.operation)
+    val rightMatch = globalVisitor.`match`(infixPat.right, infixPsi.right)
+    globalVisitor.setResult(leftMatch && operationMatch && rightMatch)
+  }
+
+  override def visitLiteral(lPat: ScLiteral): Unit =
+    globalVisitor.setResult(globalVisitor.matchText(lPat, globalVisitor.getElement))
+
+  override def visitExpression(expr: ScExpression): Unit = {
+    globalVisitor.setResult(false)
+  }
+
+  override def visitReferenceExpression(refPat: ScReferenceExpression): Unit = {
+    visitElement(refPat)
+  }
+
+  override def visitElement(elementPat: PsiElement): Unit = {
+    val other = globalVisitor.getElement
+
+    val handler = elementPat.getUserData(CompiledPattern.HANDLER_KEY)
+    handler match {
+      case substHandler: SubstitutionHandler =>
+        globalVisitor.setResult(substHandler.handle(other, globalVisitor.getMatchContext))
+      case null =>
+        // todo do more useful stuff
+        globalVisitor.setResult(globalVisitor.matchText(elementPat.getText, other.getText))
+      case _ =>
+        globalVisitor.setResult(handler.`match`(elementPat, other, globalVisitor.getMatchContext))
+    }
+  }
+}
