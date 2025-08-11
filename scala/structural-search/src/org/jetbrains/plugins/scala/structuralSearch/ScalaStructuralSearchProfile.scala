@@ -1,12 +1,10 @@
 package org.jetbrains.plugins.scala.structuralSearch
 
 import com.intellij.codeInsight.template.TemplateContextType
-import com.intellij.dupLocator.util.DuplocatorUtil
 import com.intellij.lang.Language
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import com.intellij.structuralsearch.impl.matcher.GlobalMatchingVisitor
 import com.intellij.structuralsearch.impl.matcher.compiler.GlobalCompilingVisitor
-import com.intellij.structuralsearch.impl.matcher.strategies.MatchingStrategy
 import com.intellij.structuralsearch.{StructuralSearchProfile, StructuralSearchProfileBase}
 import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaFileTemplateContextType
@@ -27,16 +25,6 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
     new ScalaMatchingVisitor(globalVisitor)
 
   override def compile(elements: Array[PsiElement], globalVisitor: GlobalCompilingVisitor): Unit = {
-    super.compile(elements, globalVisitor)
-
-    globalVisitor.getContext.getPattern.setStrategy(new MatchingStrategy() {
-      override def continueMatching(start: PsiElement): Boolean =
-        start.getLanguage match {
-          case ScalaLanguage.INSTANCE | Scala3Language.INSTANCE => true
-          case _ => false
-        }
-
-      override def shouldSkip(element: PsiElement, elementToMatchWith: PsiElement): Boolean = DuplocatorUtil.shouldSkip(element, elementToMatchWith)
-    })
+    new ScalaCompilingVisitor(globalVisitor).compile(elements)
   }
 }
