@@ -44,12 +44,15 @@ class ScalaDocMarkdownFlavour extends CommonMarkFlavourDescriptor {
       Map(
         // ScalaDoc tags
         ScalaDocTagMarkerBlock.TAG_BLOCK -> new SimpleTagProvider("div"),
+        ScalaDocTagMarkerBlock.TAG_NAME -> new SimpleTagProvider("span"),
         ScalaDocTagMarkerBlock.TAG_ARGUMENT -> new SimpleTagProvider("span"),
       ).asJava
     )
 
     parent
   }
+
+  override def createInlinesLexer(): MarkdownLexer = super.createInlinesLexer()
 }
 
 object ScalaDocMarkdownFlavour {
