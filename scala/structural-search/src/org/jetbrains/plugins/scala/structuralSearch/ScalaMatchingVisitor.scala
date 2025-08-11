@@ -60,9 +60,19 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
   }
 
   override def visitReferenceExpression(refPat: ScReferenceExpression): Unit = {
-    globalVisitor.getElement() match {
-      case refExpr: ScReferenceExpression => globalVisitor.setResult(globalVisitor.`match`(refPat.getFirstChild, globalVisitor.getElement.getFirstChild))
-      case _ => visitElement(refPat)
+    val context = globalVisitor.getMatchContext
+    val pattern = context.getPattern
+    val other = globalVisitor.getElement
+    val _handler = pattern.getHandlerSimple(refPat)
+    _handler match {
+      case substHand: SubstitutionHandler =>
+        if (globalVisitor.setResult(substHand.validate(other, context)))
+            substHand.addResult(other, context)
+      case _ =>
+        other match {
+          case refExpr: ScReferenceExpression => globalVisitor.setResult(globalVisitor.`match`(refPat.getFirstChild, globalVisitor.getElement.getFirstChild))
+          case _ => visitElement(refPat)
+        }
     }
   }
 

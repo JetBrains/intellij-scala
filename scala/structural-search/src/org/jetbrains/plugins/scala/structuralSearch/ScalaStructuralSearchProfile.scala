@@ -27,4 +27,7 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
   override def compile(elements: Array[PsiElement], globalVisitor: GlobalCompilingVisitor): Unit = {
     new ScalaCompilingVisitor(globalVisitor).compile(elements)
   }
+
+  // if a variable is set inside the template, normally getText is used to extract the name
+  // we can also use getTypedVarString to extract the name (e.g. special for an annotation
 }

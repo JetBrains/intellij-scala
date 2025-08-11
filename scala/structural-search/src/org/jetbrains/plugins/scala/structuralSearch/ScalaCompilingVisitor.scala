@@ -6,9 +6,9 @@ import com.intellij.structuralsearch.impl.matcher.compiler.GlobalCompilingVisito
 import com.intellij.structuralsearch.impl.matcher.handlers.TopLevelMatchingHandler
 import com.intellij.structuralsearch.impl.matcher.strategies.MatchingStrategy
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
 
-class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends ScalaElementVisitor {
+class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends ScalaRecursiveElementVisitor {
 
   def compile(topLevelElements: Array[PsiElement]): Unit = {
     globalVisitor.getContext.getPattern.setStrategy(new MatchingStrategy() {
@@ -28,9 +28,15 @@ class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends Scala
     val pattern = context.getPattern
     for (element <- topLevelElements) {
       // activate this if we want to use the visitor
-      // element.accept(this)
+      element.accept(this)
       pattern.setHandler(element, new TopLevelMatchingHandler(pattern.getHandler(element)))
     }
+  }
+
+
+  override def visitScalaElement(element: ScalaPsiElement): Unit = {
+    globalVisitor.handle(element)
+    super.visitScalaElement(element)
   }
   
   // TODO could add filter to only match this pattern node to matching nodes, e.g. comment on comment
