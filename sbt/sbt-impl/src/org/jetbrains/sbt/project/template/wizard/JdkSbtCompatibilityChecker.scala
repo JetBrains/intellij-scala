@@ -17,8 +17,8 @@ object JdkSbtCompatibilityChecker {
    *
    * Example:
    * If the user has JDK 21 and sbt 1.6.2, the warnings displayed will look like this:
-   *  - Warning on JDK combo box - sbt 1.9.0+ is recommended with JDK 21
-   *  - Warning on sbt combo box - JDK <=20 is recommended with sbt 1.6.2
+   *  - Warning on sbt combo box - sbt 1.9.0+ is recommended with JDK 21
+   *  - Warning on JDK combo box - JDK <=20 is recommended with sbt 1.6.2
    */
   private val compatibilityTable: Map[JavaVersion, SbtVersion] = Map(
     JavaVersion.compose(23) -> SbtVersion("1.9.0"),
