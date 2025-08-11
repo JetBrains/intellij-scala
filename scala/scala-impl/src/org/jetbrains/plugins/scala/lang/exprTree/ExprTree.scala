@@ -1,11 +1,12 @@
 package org.jetbrains.plugins.scala.lang.exprTree
 
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiErrorElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScUnderscoreSection
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFunctionExpr, ScUnderscoreSection}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 
 sealed abstract class ExprTreeOrigin
@@ -24,20 +25,36 @@ sealed trait TypedExprTree extends ExprTree {
   def `type`: TypeResult
 }
 
-abstract class FunctionLiteralExprTree extends ExprTree {
-  def params: Seq[FunctionLiteralExprTree.Param]
-  def body: ExprTree
+case class FunctionLiteralExprTree(params: Seq[FunctionLiteralExprTree.Param],
+                                   body: ExprTree,
+                                   override val origin: FunctionLiteralExprTree.Origin) extends ExprTree {
+  override type Origin = FunctionLiteralExprTree.Origin
 }
 
 object FunctionLiteralExprTree {
-  abstract class WithTypedParams extends FunctionLiteralExprTree {
-
+  def fromPsi(funExpr: ScFunctionExpr, body: ExprTree): FunctionLiteralExprTree = {
+    val params = funExpr.parameters.map {
+      param => Param.Untyped(ParamOrigin.Psi(param))
+    }
+    FunctionLiteralExprTree(params, body, Origin.Psi(funExpr))
   }
-  abstract class Typed extends WithTypedParams with TypedExprTree {
-    override def body: TypedExprTree
+
+  def fromUnderscores(params: Seq[UnderscoreInfo], body: ExprTree): FunctionLiteralExprTree =
+    FunctionLiteralExprTree(
+      params.map(p => Param.Untyped(p)),
+      body,
+      Origin.UnderscoreSection(params)
+    )
+
+  sealed abstract class Origin extends ExprTreeOrigin
+  object Origin {
+    final case class Psi(override val psiElement: ScFunctionExpr) extends Origin with PsiElementExprTreeOrigin {
+      type Psi = ScFunctionExpr
+    }
+    final case class UnderscoreSection(infos: Seq[UnderscoreInfo]) extends Origin
   }
 
-  sealed abstract class ParamOrigin
+  sealed trait ParamOrigin
   object ParamOrigin {
     case class Psi(param: ScParameter) extends ParamOrigin
     type Underscore = UnderscoreInfo
@@ -58,7 +75,7 @@ object FunctionLiteralExprTree {
   }
 }
 
-case class UnderscoreInfo(underscore: ScUnderscoreSection, i: Int) extends PsiElementExprTreeOrigin {
+final case class UnderscoreInfo(underscore: ScUnderscoreSection, i: Int) extends PsiElementExprTreeOrigin with FunctionLiteralExprTree.ParamOrigin {
   override type Psi = ScUnderscoreSection
   override def psiElement: ScUnderscoreSection = underscore
 }
@@ -89,8 +106,26 @@ object LiteralExprTree {
 
   sealed abstract class Origin extends ExprTreeOrigin
   object Origin {
-    case class Psi(override val psiElement: ScLiteral) extends Origin with PsiElementExprTreeOrigin {
+    final case class Psi(override val psiElement: ScLiteral) extends Origin with PsiElementExprTreeOrigin {
       type Psi = ScLiteral
+    }
+  }
+}
+
+case class ErrorExprTree(typeFailure: Failure, override val origin: ErrorExprTree.Origin) extends ExprTree with TypedExprTree {
+  override type Origin = ErrorExprTree.Origin
+
+  override def `type`: TypeResult = Left(typeFailure)
+}
+
+object ErrorExprTree {
+  sealed trait Origin extends PsiElementExprTreeOrigin
+  object Origin {
+    final case class ParentElement(override val psiElement: PsiElement) extends Origin {
+      type Psi = PsiElement
+    }
+    final case class ErrorPsi(override val psiElement: PsiErrorElement) extends Origin {
+      type Psi = PsiErrorElement
     }
   }
 }
