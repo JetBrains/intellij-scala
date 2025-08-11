@@ -15,9 +15,8 @@ import org.jetbrains.jps.model.module.JpsModuleSourceRootType
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 import org.jetbrains.sbt.actions.SbtDirectoryCompletionContributor
-import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.project.utils.{ProjectComparisonOptions, ProjectStructureComparisonContext}
-import org.jetbrains.sbt.project.utils.{CompilerUtils, ProjectStructureComparisonContext}
+import org.jetbrains.sbt.project.utils.CompilerUtils
 import org.jetbrains.sbt.settings.SbtSettings
 import org.junit.Assert
 import org.junit.Assert.fail
@@ -67,18 +66,6 @@ abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImporti
 
     assertProjectsEqual(expected, myProject, !enableSeparateModulesForProdTest)(defaultCompareContext.withOptions(optionsModifier))
     assertNoNotificationsShown(myProject, notificationsCollector.getNotifications, mutedNotificationTitles)
-  }
-
-  /**
-   * It is necessary to explicitly set all project settings that are tested/required for test, because what is set in
-   * #setUp method in each SbtProjectStructureImportingTest classes is not applied to the project settings of the linked project
-   */
-  protected def linkSbtProject(path: String, prodTestSourcesSeparated: Boolean): Unit = {
-    val settings = new SbtProjectSettings
-    settings.jdk = getJdkConfiguredForTestCase.getName
-    settings.setExternalProjectPath(path)
-    settings.setSeparateProdAndTestSources(prodTestSourcesSeparated)
-    SbtSettings.getInstance(myProject).linkProject(settings)
   }
 
   protected def generateTestProjectPath(projectName: String): String =
