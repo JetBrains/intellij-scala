@@ -17,7 +17,7 @@ final class SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled
     val linkedProjectName = "simple"
     val expectedScalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
     val linkedSbtProjectPath = generateTestProjectPath(linkedProjectName)
-    linkSbtProject(linkedSbtProjectPath, prodTestSourcesSeparated = true)
+    linkSbtProject(linkedSbtProjectPath, prodTestSourcesSeparated = true, myProject)
     val siProjectPath = FileUtil.toSystemIndependentName(getProjectPath)
     val siLinkedSbtProjectPath = FileUtil.toSystemIndependentName(linkedSbtProjectPath)
     runTest(

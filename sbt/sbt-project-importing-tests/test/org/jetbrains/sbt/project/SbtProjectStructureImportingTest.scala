@@ -122,7 +122,7 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureImportin
     val linkedProjectName = "simple"
     val expectedScalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
     val linkedSbtProjectPath = generateTestProjectPath(linkedProjectName)
-    linkSbtProject(linkedSbtProjectPath, prodTestSourcesSeparated = false)
+    linkSbtProject(linkedSbtProjectPath, prodTestSourcesSeparated = false, myProject)
     runTest(
       new project("testTwoLinkedProjects") {
         modules := Seq(
