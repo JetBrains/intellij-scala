@@ -1182,4 +1182,81 @@ class Scala3OpaqueTypeAliasTest extends ScalaLightCodeInsightFixtureTestCase {
          |""".stripMargin
     )
   }
+
+  def testOuterFile(): Unit = checkTextHasNoErrors(
+    s"""
+       |opaque type T = Int
+       |val v: T = 123""".stripMargin)
+
+  def testOuterPackage(): Unit = checkTextHasNoErrors(
+    s"""
+       |package outer
+       |
+       |opaque type T = Int
+       |val v: T = 123""".stripMargin)
+
+  def testOuterObject(): Unit = checkTextHasNoErrors(
+    s"""
+       |object Outer:
+       |  opaque type T = Int
+       |  val v: T = 123""".stripMargin)
+
+  def testOuterFileInnerObject(): Unit = checkHasErrorAroundCaret(
+    s"""
+       |opaque type T = Int
+       |object Inner:
+       |  val v: T = ${CARET}123""".stripMargin)
+
+  def testOuterPackageInnerObject(): Unit = checkHasErrorAroundCaret(
+    s"""
+       |package outer
+       |
+       |opaque type T = Int
+       |object Inner:
+       |  val v: T = ${CARET}123""".stripMargin)
+
+  def testOuterObjectInnerObject(): Unit = checkTextHasNoErrors(
+    s"""
+       |object Outer:
+       |  opaque type T = Int
+       |  object Inner:
+       |    val v: T = 123""".stripMargin)
+
+  def testOuterObjectsInnerObject(): Unit = checkTextHasNoErrors(
+    s"""
+       |object Outer1:
+       |  object Outer2:
+       |    opaque type T = Int
+       |    object Inner:
+       |      val v: T = 123""".stripMargin)
+
+  def testOuterObjectInnerObjects(): Unit = checkTextHasNoErrors(
+    s"""
+       |object Outer:
+       |  opaque type T = Int
+       |  object Inner1:
+       |    object Inner2:
+       |      val v: T = 123""".stripMargin)
+
+  def testOuterPackageAndObjectInnerObject(): Unit = checkTextHasNoErrors(
+    s"""
+       |package outer
+       |
+       |object Outer:
+       |  opaque type T = Int
+       |  object Inner:
+       |    val v: T = 123""".stripMargin)
+
+  def testOuterFileInnerCompanionObject(): Unit = checkTextHasNoErrors(
+    s"""
+       |opaque type T = Int
+       |object T:
+       |  val v: T = 123""".stripMargin)
+
+  def testOuterFileInnerCompanionObjectInnerObject(): Unit = checkTextHasNoErrors(
+    s"""
+       |opaque type T = Int
+       |object T:
+       |  object Inner:
+       |    val v: T = 123""".stripMargin)
 }
