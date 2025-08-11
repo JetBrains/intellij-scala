@@ -515,4 +515,23 @@ class Scala3OpaqueTypeAliasIntegrationTest extends ScalaLightCodeInsightFixtureT
          |""".stripMargin
     )
   }
+
+  def testScl22550(): Unit = {
+    checkTextHasNoErrors(
+      s"""
+         |object MyObject:
+         |  (??? : Scope.TypeInner).myExtension1
+         |  (??? : TypeTopLevel).myExtension2
+         |
+         |object Scope:
+         |  opaque type TypeInner = String
+         |  object TypeInner:
+         |    extension (t: TypeInner) def myExtension1: String = "42"
+         |
+         |opaque type TypeTopLevel = String
+         |object TypeTopLevel:
+         |  extension (t: TypeTopLevel) def myExtension2: String = "42"
+         |""".stripMargin
+    )
+  }
 }
