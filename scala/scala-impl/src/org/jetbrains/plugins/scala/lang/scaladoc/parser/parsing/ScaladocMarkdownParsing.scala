@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing
 
-import com.intellij.lang.PsiBuilder
+import com.intellij.lang.{PsiBuilder, WhitespacesAndCommentsBinder}
 import com.intellij.openapi.util.Key
 import com.intellij.psi.tree.IElementType
 import org.intellij.markdown.ast.ASTNode
+import org.intellij.markdown.lexer.MarkdownLexer
 import org.intellij.markdown.parser.MarkdownParser
 import org.intellij.markdown.{MarkdownElementTypes, MarkdownTokenTypes}
 import org.jetbrains.annotations.Nullable
@@ -63,6 +64,7 @@ class ScaladocMarkdownParsing(private val builder: PsiBuilder,
 
   def parse(root: IElementType): Unit = {
     val rootMarker = builder.mark()
+
     val (content, map) = splitContext(builder.getOriginalText)
 
     if (content.isEmpty) return
@@ -91,17 +93,21 @@ class ScaladocMarkdownParsing(private val builder: PsiBuilder,
           iElementType == ScalaDocTokenType.DOC_COMMENT_START ||
           iElementType == ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS
 
-      val whitespaceMarker = builder.mark()
-      while (
-        !isTokenStructural(builder.getTokenType) &&
-          !builder.eof()
-      ) builder.advanceLexer()
+      if (!isTokenStructural(builder.getTokenType) &&
+        !builder.eof()) {
+        val whitespaceMarker = builder.mark()
+        while (
+          !isTokenStructural(builder.getTokenType) &&
+            !builder.eof()
+        ) builder.advanceLexer()
 
-      whitespaceMarker.collapse(ScalaDocTokenType.DOC_WHITESPACE)
+        whitespaceMarker.collapse(ScalaDocTokenType.DOC_WHITESPACE)
+      }
 
       // Skip the leading asterisk
-      if (builder.getTokenType == ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS)
+      if (builder.getTokenType == ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS) {
         builder.advanceLexer()
+      }
     }
 
     def visitNode(node: ASTNode): Unit = {
@@ -112,27 +118,43 @@ class ScaladocMarkdownParsing(private val builder: PsiBuilder,
 
         currLine += 1
         advanceToNextLine()
+
+        return
       }
 
-      // TODO: we need to special-case EMPH and STRONG to make them join their borders as a single node
       val element = tpe match {
         // ScalaDoc stuff
         case ScalaDocTagMarkerBlock.TAG_BLOCK => ScalaDocElementTypes.DOC_TAG
         case ScalaDocTagMarkerBlock.TAG_NAME => ScalaDocTokenType.DOC_TAG_NAME
-        case ScalaDocTagMarkerBlock.TAG_ARGUMENT => ScalaDocTokenType.DOC_TAG_VALUE_TOKEN
+        case ScalaDocTagMarkerBlock.TAG_ARGUMENT =>
+          // Special handling to match `MyScaladocParsing`.
+          ensureBuilderInPosition(node.getStartOffset)
+
+          val marker = builder.mark()
+          ensureBuilderInPosition(node.getEndOffset, ScalaDocTokenType.DOC_TAG_VALUE_TOKEN)
+          marker.done(ScalaDocTokenType.DOC_TAG_VALUE_TOKEN)
+          return
 
         // Common blocks
         case MarkdownElementTypes.PARAGRAPH => ScalaDocElementTypes.DOC_PARAGRAPH
         case MarkdownElementTypes.CODE_FENCE => ScalaDocElementTypes.DOC_CODEBLOCK
+        case MarkdownElementTypes.LIST_ITEM => ScalaDocElementTypes.DOC_LIST_ITEM
+        // TODO: Unsure if it's iffy to use the same element type for both.
+        case MarkdownElementTypes.UNORDERED_LIST => ScalaDocElementTypes.DOC_LIST
+        case MarkdownElementTypes.ORDERED_LIST => ScalaDocElementTypes.DOC_LIST
 
         // Common inline tags
         case MarkdownElementTypes.EMPH => ScalaDocTokenType.DOC_ITALIC_TAG // NOTE: Distinct from MarkdownTokenTypes.EMPH, which is for the * character.
         case MarkdownElementTypes.STRONG => ScalaDocTokenType.DOC_BOLD_TAG
         case MarkdownElementTypes.CODE_SPAN => ScalaDocTokenType.DOC_MONOSPACE_TAG
+        case MarkdownElementTypes.AUTOLINK => ScalaDocTokenType.DOC_LINK_TAG
+        case MarkdownElementTypes.LINK_DEFINITION => ScalaDocTokenType.DOC_LINK_TAG
 
         // Tokens
         case MarkdownTokenTypes.EMPH => ScalaDocTokenType.DOC_ITALIC_TAG
         case MarkdownTokenTypes.BACKTICK => ScalaDocTokenType.DOC_MONOSPACE_TAG
+        case MarkdownTokenTypes.WHITE_SPACE if builder.rawLookup(-1) == ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS
+          => ScalaDocTokenType.DOC_WHITESPACE
 
         // Remains
         case MarkdownElementTypes.ATX_1 => ScalaDocTokenType.VALID_DOC_HEADER
@@ -173,7 +195,6 @@ class ScaladocMarkdownParsing(private val builder: PsiBuilder,
         val argument = children.indexWhere(_.getType == ScalaDocTagMarkerBlock.TAG_ARGUMENT)
 
         val skippable = if (argument != -1) {
-
           ensureBuilderInPosition(children(argument).getStartOffset, ScalaDocTokenType.DOC_WHITESPACE)
 
           // Disabled because `builder` is not the right thing to pass here, but I'm not sure how to do it nicely.
@@ -214,6 +235,23 @@ class ScaladocMarkdownParsing(private val builder: PsiBuilder,
         // Force the last 2 children to be a DOC_BOLD_TAG
         ensureBuilderInPosition(node.getEndOffset, ScalaDocTokenType.DOC_BOLD_TAG)
 
+        marker.done(element)
+      } else if (node.getType == MarkdownElementTypes.PARAGRAPH) {
+        ensureBuilderInPosition(node.getStartOffset)
+
+        val marker = builder.mark()
+
+        val children = node.getChildren.asScala
+        // Compat with wikidoc
+        if (node.getChildren.get(0).getType == MarkdownTokenTypes.WHITE_SPACE) {
+          ensureBuilderInPosition(node.getChildren.get(0).getEndOffset, ScalaDocTokenType.DOC_WHITESPACE)
+          children.drop(1).foreach(visitNode)
+        } else {
+          children.foreach(visitNode)
+        }
+
+        ensureBuilderInPosition(node.getEndOffset)
+        // TODO maybe: absorb whitespace/leading asterisks here too? Unsure.
         marker.done(element)
       } else { // TODO: Process wiki links separately as well.
         ensureBuilderInPosition(node.getStartOffset)

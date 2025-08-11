@@ -18,18 +18,6 @@ import org.jetbrains.plugins.scalaDoc.lang.parser.ScalaDocParserDefinition;
 public interface ScalaDocElementTypes {
 
   /**
-   * # Header 1
-   *
-   *
-   * Some text lorem `inline *code` italics*
-   *
-   * @param x yay
-   *        ```
-   *          AAA
-   *        ```
-   * # Header 2
-   */
-  /**
    * ScalaDoc comment
    * <p>
    * See similar element for Java: {@link com.intellij.psi.impl.source.tree.JavaDocElementType#DOC_COMMENT}
