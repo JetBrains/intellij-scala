@@ -111,11 +111,10 @@ public class _ScalaDocMarkdownLexer implements FlexLexer, ScalaDocTokenType, Sca
 
   private static final String ZZ_ACTION_PACKED_0 =
     "\3\0\3\1\1\2\1\3\1\4\1\2\1\5\1\6"+
-    "\1\2\1\7\1\10\1\4\1\10\1\0\1\11\1\10"+
-    "\1\12";
+    "\1\2\1\7\2\10\1\0\1\11\1\10\1\12";
 
   private static int [] zzUnpackAction() {
-    int [] result = new int[21];
+    int [] result = new int[20];
     int offset = 0;
     offset = zzUnpackAction(ZZ_ACTION_PACKED_0, offset, result);
     return result;
@@ -141,11 +140,11 @@ public class _ScalaDocMarkdownLexer implements FlexLexer, ScalaDocTokenType, Sca
 
   private static final String ZZ_ROWMAP_PACKED_0 =
     "\0\0\0\6\0\14\0\22\0\30\0\36\0\22\0\44"+
-    "\0\52\0\60\0\66\0\74\0\30\0\22\0\102\0\22"+
-    "\0\110\0\116\0\22\0\22\0\22";
+    "\0\30\0\52\0\60\0\66\0\30\0\22\0\74\0\102"+
+    "\0\110\0\22\0\22\0\22";
 
   private static int [] zzUnpackRowMap() {
-    int [] result = new int[21];
+    int [] result = new int[20];
     int offset = 0;
     offset = zzUnpackRowMap(ZZ_ROWMAP_PACKED_0, offset, result);
     return result;
@@ -170,12 +169,12 @@ public class _ScalaDocMarkdownLexer implements FlexLexer, ScalaDocTokenType, Sca
   private static final String ZZ_TRANS_PACKED_0 =
     "\4\4\1\5\1\6\1\7\2\10\1\4\1\11\1\12"+
     "\1\7\1\13\1\14\1\4\1\15\1\12\13\0\1\16"+
-    "\4\0\1\17\2\0\2\10\4\0\1\20\3\0\1\16"+
-    "\4\0\1\21\2\0\1\13\2\0\1\22\2\0\2\14"+
-    "\7\0\1\23\5\0\1\24\6\0\1\25";
+    "\4\0\1\17\2\0\2\10\7\0\1\20\2\0\1\13"+
+    "\2\0\1\21\2\0\2\14\7\0\1\22\5\0\1\23"+
+    "\6\0\1\24";
 
   private static int [] zzUnpacktrans() {
-    int [] result = new int[84];
+    int [] result = new int[78];
     int offset = 0;
     offset = zzUnpacktrans(ZZ_TRANS_PACKED_0, offset, result);
     return result;
@@ -213,11 +212,11 @@ public class _ScalaDocMarkdownLexer implements FlexLexer, ScalaDocTokenType, Sca
   private static final int [] ZZ_ATTRIBUTE = zzUnpackAttribute();
 
   private static final String ZZ_ATTRIBUTE_PACKED_0 =
-    "\3\0\1\11\2\1\1\11\6\1\1\11\1\1\1\11"+
-    "\1\1\1\0\3\11";
+    "\3\0\1\11\2\1\1\11\6\1\1\11\2\1\1\0"+
+    "\3\11";
 
   private static int [] zzUnpackAttribute() {
-    int [] result = new int[21];
+    int [] result = new int[20];
     int offset = 0;
     offset = zzUnpackAttribute(ZZ_ATTRIBUTE_PACKED_0, offset, result);
     return result;

@@ -22,6 +22,7 @@ class ScalaDocTagMarkerBlockProvider extends MarkerBlockProvider[MarkerProcessor
         argument.foreach {
           case (argStart, argEnd) =>
             productionHolder.addProduction(util.List.of(
+              new SequentialParser.Node(new IntRange(position.getOffset + tagEnd, position.getOffset + argStart), MarkdownTokenTypes.WHITE_SPACE),
               new SequentialParser.Node(new IntRange(position.getOffset + argStart, position.getOffset + argEnd), ScalaDocTagMarkerBlock.TAG_ARGUMENT)
             ))
         }
