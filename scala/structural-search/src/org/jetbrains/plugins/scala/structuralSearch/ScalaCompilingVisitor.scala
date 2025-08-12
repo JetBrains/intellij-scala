@@ -2,10 +2,15 @@ package org.jetbrains.plugins.scala.structuralSearch
 
 import com.intellij.dupLocator.util.{DuplocatorUtil, NodeFilter}
 import com.intellij.psi.PsiElement
+import com.intellij.structuralsearch.impl.matcher.MatchContext
 import com.intellij.structuralsearch.impl.matcher.compiler.GlobalCompilingVisitor
-import com.intellij.structuralsearch.impl.matcher.handlers.{SubstitutionHandler, TopLevelMatchingHandler}
+import com.intellij.structuralsearch.impl.matcher.handlers.{MatchingHandler, SubstitutionHandler, TopLevelMatchingHandler}
 import com.intellij.structuralsearch.impl.matcher.strategies.MatchingStrategy
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
 
@@ -39,14 +44,24 @@ class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends Scala
     val pattern = globalVisitor.getContext.getPattern
     if (pattern.isRealTypedVar(ref)) {
       pattern.getHandler(ref) match {
-        case substHand: SubstitutionHandler => substHand.setFilter(new ReferencExpressionFilter())
+        case substHand: SubstitutionHandler =>
+          substHand.setFilter(new ReferenceExpressionFilter())
+          substHand.setMatchHandler(new SymbolHandler(substHand))
       }
     }
   }
 
-  private class ReferencExpressionFilter extends NodeFilter {
-    // TODO use a better filter
-    override def accepts(element: PsiElement): Boolean = true
+  private class ReferenceExpressionFilter extends NodeFilter {
+    // TODO probably adapt the filter?
+    // add all elements that should be matched by a variable
+    override def accepts(element: PsiElement): Boolean =
+      element.isInstanceOf[ScTypedDefinition]
+    //      element.isInstanceOf[ScClass | ScFunction | ScParameter | ScExpression]
+  }
+  
+  private class SymbolHandler(handler: SubstitutionHandler) extends MatchingHandler {
+    override def `match`(patternNode: PsiElement, matchedNode: PsiElement, context: MatchContext): Boolean =
+      handler.handle(matchedNode, context)
   }
 
   override def visitScalaElement(element: ScalaPsiElement): Unit = {
