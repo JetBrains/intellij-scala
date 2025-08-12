@@ -63,8 +63,8 @@ class TestSourcesInWorksheetTest extends SbtProjectCompilationTestBase(separateP
            |""".stripMargin)
 
       importProject(false)
-      val modules = ModuleManager.getInstance(getProject).getModules
-      compiler = new CompilerTester(getProject, java.util.Arrays.asList(modules: _*), null, false)
+      val modules = ModuleManager.getInstance(getMyProject).getModules
+      compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
     }
   }
 
@@ -76,10 +76,10 @@ class TestSourcesInWorksheetTest extends SbtProjectCompilationTestBase(separateP
     val messages = compiler.rebuild().asScala.toSeq
     CompilerMessagesUtil.assertNoErrorsOrWarnings(messages)
 
-    val descriptor = new OpenFileDescriptor(getProject, worksheetVirtualFile)
+    val descriptor = new OpenFileDescriptor(getMyProject, worksheetVirtualFile)
     val (editor, psiFile) = EdtTestUtil.runInEdtAndGet { () =>
-      val e = FileEditorManager.getInstance(getProject).openTextEditor(descriptor, true)
-      val p = VirtualFileUtil.findPsiFile(worksheetVirtualFile, getProject).asInstanceOf[WorksheetFile]
+      val e = FileEditorManager.getInstance(getMyProject).openTextEditor(descriptor, true)
+      val p = VirtualFileUtil.findPsiFile(worksheetVirtualFile, getMyProject).asInstanceOf[WorksheetFile]
       e -> p
     }
 
@@ -95,7 +95,7 @@ class TestSourcesInWorksheetTest extends SbtProjectCompilationTestBase(separateP
     assertEquals(RunWorksheetActionResult.Done, result)
 
     val resultText = {
-      val resultEditor = WorksheetCache.getInstance(getProject).getViewer(editor)
+      val resultEditor = WorksheetCache.getInstance(getMyProject).getViewer(editor)
       resultEditor.getDocument.getText()
     }
     assertEquals(

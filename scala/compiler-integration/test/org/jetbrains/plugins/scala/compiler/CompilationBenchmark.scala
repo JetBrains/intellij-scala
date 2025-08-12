@@ -39,7 +39,7 @@ abstract class CompilationBenchmark
     super.setUp()
     revertable = CompilerTestUtil.withEnabledCompileServer(true)
     revertable.applyChange()
-    compiler = new CompilerTester(myProject, myProject.modules.asJava, null, false)
+    compiler = new CompilerTester(getMyProject, getMyProject.modules.asJava, null, false)
   }
 
   override def tearDown(): Unit = try {
@@ -93,21 +93,21 @@ abstract class CompilationBenchmark
                                      meteringInfo: CompileServerMeteringInfo)
 
   private def benchmark(params: Params): Try[BenchmarkResult] = Try {
-    CompilerConfiguration.getInstance(myProject).setParallelCompilationOption(params.parallelCompilationOption)
+    CompilerConfiguration.getInstance(getMyProject).setParallelCompilationOption(params.parallelCompilationOption)
     val settings = ScalaCompileServerSettings.getInstance
     settings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE = params.heapSize.toString
     settings.COMPILE_SERVER_JVM_PARAMETERS = params.jvmOptions
 
     ApplicationManager.getApplication.saveSettings()
     CompileServerLauncher.stopServerAndWait()
-    CompileServerLauncher.ensureServerRunning(myProject)
+    CompileServerLauncher.ensureServerRunning(getMyProject)
 
     var resultTime: Double = Double.PositiveInfinity
     implicit val printReportHandler: MeteringHandler = { (time: Double, _) =>
       resultTime = time
     }
 
-    val compileServerClient = CompileServerClient.get(myProject)
+    val compileServerClient = CompileServerClient.get(getMyProject)
 
     val resultMeteringInfo = compileServerClient.withMetering(FiniteDuration(5, TimeUnit.SECONDS)) {
       benchmarked(Repeats) {

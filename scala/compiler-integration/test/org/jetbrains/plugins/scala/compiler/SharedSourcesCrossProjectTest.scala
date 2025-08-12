@@ -48,9 +48,9 @@ class SharedSourcesCrossProjectTest extends SbtProjectCompilationTestBase {
         |""".stripMargin)
 
     importProject(false)
-    ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType = IncrementalityType.SBT
+    ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType = IncrementalityType.SBT
 
-    val modules = ModuleManager.getInstance(myProject).getModules
+    val modules = ModuleManager.getInstance(getMyProject).getModules
     middleJS = modules.find(_.getName == "root.middle.middleJS").orNull
     assertNotNull("Could not find module with name 'root.middle.middleJS'", middleJS)
     middleJVM = modules.find(_.getName == "root.middle.middleJVM").orNull
@@ -63,7 +63,7 @@ class SharedSourcesCrossProjectTest extends SbtProjectCompilationTestBase {
     assertNotNull("Could not find module with name 'root.base.baseJVM'", baseJVM)
     baseShared = modules.find(_.getName == "root.base.base-sources").orNull
     assertNotNull("Could not find module with name 'root.base.base-sources'", baseShared)
-    compiler = new CompilerTester(myProject, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
   }
 
   def testSharedSourcesOnlyCompiledToOwnerModules(): Unit = {

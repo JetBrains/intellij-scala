@@ -53,10 +53,10 @@ abstract class SbtProjectWithPureJavaModuleTestBase(incrementality: Incrementali
   def testImportAndCompile(): Unit = {
     importProject(false)
 
-    ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType = incrementality
+    ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType = incrementality
 
-    val modules = ModuleManager.getInstance(myProject).getModules
-    compiler = new CompilerTester(myProject, java.util.Arrays.asList(modules: _*), null, false)
+    val modules = ModuleManager.getInstance(getMyProject).getModules
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
 
     val messages = compiler.make()
     val errorsAndWarnings = messages.asScala.filter { message =>

@@ -46,7 +46,7 @@ class TestSourcesInScratchWorksheetTest extends SbtProjectCompilationTestBase(se
            |    val capitalized = WordUtils.capitalize(sentence)
            |    assertEquals("This Is A Sentence!", capitalized)
            |""".stripMargin)
-      worksheetVirtualFile = ScratchRootType.getInstance.createScratchFile(getProject, "scratch.sc", WorksheetLanguage.INSTANCE,
+      worksheetVirtualFile = ScratchRootType.getInstance.createScratchFile(getMyProject, "scratch.sc", WorksheetLanguage.INSTANCE,
         s"""PersonSuite().munitTests().map(_.name)
            |val sentence = "this is a sentence!"
            |import org.apache.commons.text.WordUtils
@@ -64,8 +64,8 @@ class TestSourcesInScratchWorksheetTest extends SbtProjectCompilationTestBase(se
            |""".stripMargin)
 
       importProject(false)
-      val modules = ModuleManager.getInstance(getProject).getModules
-      compiler = new CompilerTester(getProject, java.util.Arrays.asList(modules: _*), null, false)
+      val modules = ModuleManager.getInstance(getMyProject).getModules
+      compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
     }
   }
 
@@ -77,10 +77,10 @@ class TestSourcesInScratchWorksheetTest extends SbtProjectCompilationTestBase(se
     val messages = compiler.rebuild().asScala.toSeq
     CompilerMessagesUtil.assertNoErrorsOrWarnings(messages)
 
-    val descriptor = new OpenFileDescriptor(getProject, worksheetVirtualFile)
+    val descriptor = new OpenFileDescriptor(getMyProject, worksheetVirtualFile)
     val (editor, psiFile) = EdtTestUtil.runInEdtAndGet { () =>
-      val e = FileEditorManager.getInstance(getProject).openTextEditor(descriptor, true)
-      val p = VirtualFileUtil.findPsiFile(worksheetVirtualFile, getProject).asInstanceOf[WorksheetFile]
+      val e = FileEditorManager.getInstance(getMyProject).openTextEditor(descriptor, true)
+      val p = VirtualFileUtil.findPsiFile(worksheetVirtualFile, getMyProject).asInstanceOf[WorksheetFile]
       e -> p
     }
 
@@ -88,7 +88,7 @@ class TestSourcesInScratchWorksheetTest extends SbtProjectCompilationTestBase(se
     settings.setRunType(ReplRunType)
     settings.setInteractive(false)
     settings.setMakeBeforeRun(false)
-    val testModule = ModuleManager.getInstance(getProject).getModules.find(_.getName.endsWith(".test")).orNull.getName
+    val testModule = ModuleManager.getInstance(getMyProject).getModules.find(_.getName.endsWith(".test")).orNull.getName
     settings.setModuleName(testModule)
 
     val future = EdtTestUtil.runInEdtAndGet { () =>
@@ -98,7 +98,7 @@ class TestSourcesInScratchWorksheetTest extends SbtProjectCompilationTestBase(se
     assertEquals(RunWorksheetActionResult.Done, result)
 
     val resultText = {
-      val resultEditor = WorksheetCache.getInstance(getProject).getViewer(editor)
+      val resultEditor = WorksheetCache.getInstance(getMyProject).getViewer(editor)
       resultEditor.getDocument.getText()
     }
     assertEquals(

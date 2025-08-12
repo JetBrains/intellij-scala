@@ -25,7 +25,7 @@ class CompileSimpleProjectWithSemanticDbTest extends SbtExternalSystemImportingT
 
   override def setUp(): Unit = {
     super.setUp()
-    SbtCachesSetupUtil.setupCoursierAndIvyCache(getProject)
+    SbtCachesSetupUtil.setupCoursierAndIvyCache(getMyProject)
   }
 
   @throws[Exception]
@@ -39,14 +39,14 @@ class CompileSimpleProjectWithSemanticDbTest extends SbtExternalSystemImportingT
     val testProjectDir = getTestProjectDir.toPath
     val projectParentFolder = testProjectDir.getParent
     val projectName = testProjectDir.getFileName.toString
-    myTestFixture = IdeaTestFixtureFactory.getFixtureFactory.createFixtureBuilder(projectName, projectParentFolder, true).getFixture
-    myTestFixture.setUp()
+    setMyTestFixture(IdeaTestFixtureFactory.getFixtureFactory.createFixtureBuilder(projectName, projectParentFolder, true).getFixture)
+    getMyTestFixture.setUp()
   }
 
   def testWithSemanticDb_Scala3(): Unit = {
     buildProjectAndCheckThatNoSemanticDbIsGeneratedInSrcFolder()
     import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt}
-    val module = this.myTestFixture.getProject.modules.find(m => !m.isBuildModule).get
+    val module = this.getMyTestFixture.getProject.modules.find(m => !m.isBuildModule).get
     assertTrue(
       "Custom compiler bridge is expected to be non empty for Scala 3 language in SBT projects (see SCL-21741)",
       module.customScalaCompilerBridgeJar.nonEmpty
@@ -61,7 +61,7 @@ class CompileSimpleProjectWithSemanticDbTest extends SbtExternalSystemImportingT
     importProject(false)
     buildProject()
 
-    val projectRoot = myProjectRoot.toNioPath
+    val projectRoot = getMyProjectRoot.toNioPath
 
     val srcFolder = projectRoot.resolve("src")
     assertTrue("src folder not found", srcFolder.exists)
@@ -123,7 +123,7 @@ class CompileSimpleProjectWithSemanticDbTest extends SbtExternalSystemImportingT
       //BuildManager.getInstance().setBuildProcessDebuggingEnabled(true)
       //Registry.get("compiler.process.debug.port").setValue(5432)
 
-      val compiler = new CompilerTester(myProject, java.util.List.of(myTestFixture.getModule), null, false)
+      val compiler = new CompilerTester(getMyProject, java.util.List.of(getMyTestFixture.getModule), null, false)
       try {
         compiler.rebuild().assertNoProblems()
       } finally {

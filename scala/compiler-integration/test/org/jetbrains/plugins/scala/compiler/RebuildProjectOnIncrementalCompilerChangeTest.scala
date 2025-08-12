@@ -55,7 +55,7 @@ class RebuildProjectOnIncrementalCompilerChangeTest extends ExternalSystemImport
       res
     }
 
-    SbtCachesSetupUtil.setupCoursierAndIvyCache(getProject)
+    SbtCachesSetupUtil.setupCoursierAndIvyCache(getMyProject)
 
     createProjectSubDirs("project", "module1/src/main/scala", "module2/src/main/scala", "module3/src/main/scala")
     createProjectSubFile("project/build.properties",
@@ -123,10 +123,10 @@ class RebuildProjectOnIncrementalCompilerChangeTest extends ExternalSystemImport
   }
 
   private def testChangeIncrementalCompiler(first: IncrementalityType, second: IncrementalityType): Unit = {
-    ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType = first
+    ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType = first
 
-    val modules = ModuleManager.getInstance(myProject).getModules
-    compiler = new CompilerTester(myProject, java.util.Arrays.asList(modules: _*), null, false)
+    val modules = ModuleManager.getInstance(getMyProject).getModules
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
 
     val messages1 = compiler.make()
     val errorsAndWarnings1 = collectErrorsAndWarnings(messages1.asScala.toSeq)
@@ -148,15 +148,15 @@ class RebuildProjectOnIncrementalCompilerChangeTest extends ExternalSystemImport
     )
     val firstTimestamps = firstClassFiles.map(Files.getLastModifiedTime(_).toMillis)
 
-    val storagePath = BuildManager.getInstance().getProjectSystemDir(myProject).resolve("incrementalType.dat")
+    val storagePath = BuildManager.getInstance().getProjectSystemDir(getMyProject).resolve("incrementalType.dat")
     val incrementality1 = IncrementalityType.valueOf(Files.readString(storagePath, StandardCharsets.UTF_8))
     assertEquals(first, incrementality1)
 
     compiler.tearDown()
-    ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType = second
+    ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType = second
     saveSettings()
 
-    compiler = new CompilerTester(myProject, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
 
     val messages2 = compiler.make()
     val errorsAndWarnings2 = collectErrorsAndWarnings(messages2.asScala.toSeq)
@@ -207,7 +207,7 @@ class RebuildProjectOnIncrementalCompilerChangeTest extends ExternalSystemImport
     val old = app.isSaveAllowed
     try {
       app.setSaveAllowed(true)
-      myProject.save()
+      getMyProject.save()
       app.saveSettings()
     } finally {
       app.setSaveAllowed(old)

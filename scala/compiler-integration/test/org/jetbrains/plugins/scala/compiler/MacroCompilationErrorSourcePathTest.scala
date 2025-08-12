@@ -70,10 +70,10 @@ abstract class MacroCompilationErrorSourcePathTestBase(incrementalityType: Incre
         |""".stripMargin)
 
     importProject(false)
-    ScalaCompilerConfiguration.instanceIn(getProject).incrementalityType = incrementalityType
+    ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType = incrementalityType
 
-    val modules = ModuleManager.getInstance(getProject).getModules
-    compiler = new CompilerTester(getProject, java.util.Arrays.asList(modules: _*), null, false)
+    val modules = ModuleManager.getInstance(getMyProject).getModules
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
   }
 }
 

@@ -33,7 +33,7 @@ class ScalaTestCreatorInSbtProjectsTest extends SbtExternalSystemImportingTestLi
     super.setUp()
 
     // the header is used under the hood in the file templates =/
-    FileTemplateTestUtils.initFileHeaderTemplate(getProject, getTestRootDisposable)
+    FileTemplateTestUtils.initFileHeaderTemplate(getMyProject, getTestRootDisposable)
   }
 
   // SCL-24058
@@ -85,7 +85,7 @@ class ScalaTestCreatorInSbtProjectsTest extends SbtExternalSystemImportingTestLi
   ): Unit = {
     val (psiFile, editor) = findFileForClassAndOpenEditor(mainClassFqn)
 
-    val projectRoot = TestUtils.guessProjectDir(getProject)
+    val projectRoot = TestUtils.guessProjectDir(getMyProject)
 
     val allSourceFilesBefore = getAllSourceFiles(projectRoot)
 
@@ -94,7 +94,7 @@ class ScalaTestCreatorInSbtProjectsTest extends SbtExternalSystemImportingTestLi
     val allSourceFilesAfter = getAllSourceFiles(projectRoot)
 
     val createdSourceFiles = allSourceFilesAfter.diff(allSourceFilesBefore)
-    val createdSourceFilesPaths = createdSourceFiles.map(TestUtils.getPathRelativeToProject(_, getProject))
+    val createdSourceFilesPaths = createdSourceFiles.map(TestUtils.getPathRelativeToProject(_, getMyProject))
 
     assertCollectionEquals(
       s"Expected single test file to be created at '$expectedTestFileRelativePath', but got these new source files",
@@ -102,15 +102,15 @@ class ScalaTestCreatorInSbtProjectsTest extends SbtExternalSystemImportingTestLi
       createdSourceFilesPaths.toSeq
     )
 
-    val testClass = findClass(getProject, expectedTestClassFqn)
+    val testClass = findClass(getMyProject, expectedTestClassFqn)
     assertNotNull(s"Expected test class '$expectedTestClassFqn' to be created", testClass)
 
     // Cleanup just in case to avoid strange test exceptions in tearDown
-    closeAllOpenEditors(getProject)
+    closeAllOpenEditors(getMyProject)
   }
 
   private def findFileForClassAndOpenEditor(mainClassFqn: String): (PsiFile, Editor) = {
-    val project = getProject
+    val project = getMyProject
 
     val psiClass = findClass(project, mainClassFqn)
     val psiFile = psiClass.getContainingFile
@@ -135,14 +135,14 @@ class ScalaTestCreatorInSbtProjectsTest extends SbtExternalSystemImportingTestLi
       selectedTestFramework = testFramework,
       testClassName = testClassName
     )
-    getProject.putUserData(ScalaTestCreator.MockTestDialogDataKey, testDialogMockData)
+    getMyProject.putUserData(ScalaTestCreator.MockTestDialogDataKey, testDialogMockData)
 
     try {
       val testCreator = new ScalaTestCreator()
-      testCreator.createTest(getProject, editor, psiFile)
+      testCreator.createTest(getMyProject, editor, psiFile)
     } finally {
       // Cleanup mock data
-      getProject.putUserData(ScalaTestCreator.MockTestDialogDataKey, null)
+      getMyProject.putUserData(ScalaTestCreator.MockTestDialogDataKey, null)
     }
   }
 
@@ -174,7 +174,7 @@ class ScalaTestCreatorInSbtProjectsTest extends SbtExternalSystemImportingTestLi
   }
 
   private def getAllSourceFiles(projectRoot: VirtualFile): Set[VirtualFile] = {
-    val projectFileIndex = ProjectFileIndex.getInstance(getProject)
+    val projectFileIndex = ProjectFileIndex.getInstance(getMyProject)
     VfsUtil.collectChildrenRecursively(projectRoot)
       .asScala
       .filter(file => !file.isDirectory && projectFileIndex.isInSourceContent(file))

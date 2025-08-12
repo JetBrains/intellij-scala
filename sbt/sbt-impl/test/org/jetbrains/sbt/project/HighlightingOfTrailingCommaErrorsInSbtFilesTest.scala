@@ -22,7 +22,7 @@ final class HighlightingOfTrailingCommaErrorsInSbtFilesTest extends SbtExternalS
 
   override def setUp(): Unit = {
     super.setUp()
-    SbtCachesSetupUtil.setupCoursierAndIvyCache(getProject)
+    SbtCachesSetupUtil.setupCoursierAndIvyCache(getMyProject)
   }
 
   // Reminder: trailing commas are supported since 2.12.2
@@ -53,7 +53,7 @@ final class HighlightingOfTrailingCommaErrorsInSbtFilesTest extends SbtExternalS
     importProject(false)
 
     // it's enabled by default, but placing it here just to remind about the flag...
-    ScalaProjectSettings.getInstance(myProject)
+    ScalaProjectSettings.getInstance(getMyProject)
       .setTrailingCommasMode(TrailingCommasMode.Auto)
 
     val revertible = withModifiedValue[Boolean](
@@ -81,7 +81,7 @@ final class HighlightingOfTrailingCommaErrorsInSbtFilesTest extends SbtExternalS
     relativeFileName: String,
     expectedErrors: Seq[ParserError]
   ): Unit = {
-    val buildSbtFile = TestUtils.findFileInProject(myProject, relativeFileName)
+    val buildSbtFile = TestUtils.findFileInProject(getMyProject, relativeFileName)
     insertTrailingCommaAfterMarker(buildSbtFile)
     val actualErrors = collectParserErrors(buildSbtFile)
     Assert.assertEquals(s"errors in `$relativeFileName` do not match", expectedErrors, actualErrors)

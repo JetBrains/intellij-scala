@@ -32,16 +32,16 @@ abstract class CompileToTestDependencyTestBase(incrementality: IncrementalityTyp
         |""".stripMargin)
 
     importProject(false)
-    ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType = incrementality
+    ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType = incrementality
 
-    val modules = ModuleManager.getInstance(myProject).getModules
+    val modules = ModuleManager.getInstance(getMyProject).getModules
 
     Seq("root.main", "root.test").foreach { moduleName =>
       val module = modules.find(_.getName == moduleName).orNull
       assertNotNull(s"Could not find module with name $moduleName", module)
     }
 
-    compiler = new CompilerTester(myProject, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
     val messages = compiler.make().asScala.toSeq
     assertNoErrorsOrWarnings(messages)
   }
