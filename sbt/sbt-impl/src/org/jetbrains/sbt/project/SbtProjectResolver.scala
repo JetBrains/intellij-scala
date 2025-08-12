@@ -677,17 +677,24 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     buildToProjects
       .toSeq.sortBy(_._1)
       .map { case (buildUri, projects) =>
-        val rootProject = findRootProjectInBuild(projects)
+        val rootProject = findRootProjectInBuild(projects, buildUri)
         val projectsWithoutRootProject = projects.filterNot(_ == rootProject)
         BuildProjectsGroup(buildUri, rootProject, projectsWithoutRootProject, rootProject.name)
       }
   }
 
-  private def findRootProjectInBuild(projectInSameBuild: Seq[ProjectData]): ProjectData = {
-    //Assuming that all projects in same build are located in the same directory
-    //I checked with SBT 1.9.6 and if you try to define a module outside current build root it throws an error:
-    // `java.lang.AssertionError: assertion failed: directory ... is not contained in build root`
-    projectInSameBuild.minBy(_.base.getPath.length)
+  private def findRootProjectInBuild(projectInSameBuild: Seq[ProjectData], buildURI: URI): ProjectData = {
+    // In most cases, projects within a single sbt build cannot be declared outside the project root,
+    // whether by absolute or relative paths. The exception to this rule is when projects are declared using symlinks (SCL-24216).
+    // That's why the root project is first attempted to be found via the buildPath,
+    // and as a fallback, the shortest path is used.
+    val buildPath = Try(Path.of(buildURI)).toOption
+    val projectAtBuildPath = buildPath.flatMap { path =>
+      projectInSameBuild.find(_.base.toPath == path)
+    }
+    projectAtBuildPath.getOrElse {
+      projectInSameBuild.minBy(_.base.getPath.length)
+    }
   }
 
   private def createLibraries(data: sbtStructure.StructureData, projects: Seq[sbtStructure.ProjectData]): Seq[LibraryNode] = {
