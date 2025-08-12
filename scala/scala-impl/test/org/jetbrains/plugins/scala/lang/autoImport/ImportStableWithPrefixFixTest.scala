@@ -131,4 +131,49 @@ class ImportStableWithPrefixFixTest extends ImportElementFixTestBase[ScReference
         |}""".stripMargin,
     selected = "Foo.foo"
   )
+
+  def testJavaEnumConstant(): Unit = {
+    myFixture.addFileToProject(
+      "org/example/MyJavaEnum1.java",
+      """package org.example;
+        |
+        |import java.time.Duration;
+        |
+        |public enum MyJavaEnum1 {
+        |    SECONDS("Seconds", Duration.ofSeconds(1)),
+        |    MINUTES("Minutes", Duration.ofSeconds(60)),
+        |    HOURS("Hours", Duration.ofSeconds(3600)),
+        |    ETERNITY("ETERNITY", Duration.ofSeconds(Integer.MAX_VALUE)),
+        |    ;
+        |
+        |    MyJavaEnum1(String nanos, Duration duration) {
+        |    }
+        |}
+        |""".stripMargin
+    )
+
+    doTest(
+      fileText =
+        s"""import org.example.MyJavaEnum1
+           |
+           |object Example {
+           |  def foo1(value: MyJavaEnum1): Unit = ???
+           |
+           |  foo1(HOURS)
+           |  foo1(ETERNI${CARET}TY)
+           |}
+           |""".stripMargin,
+      expectedText =
+        s"""import org.example.MyJavaEnum1
+           |
+           |object Example {
+           |  def foo1(value: MyJavaEnum1): Unit = ???
+           |
+           |  foo1(HOURS)
+           |  foo1(MyJavaEnum1.ETERNITY)
+           |}
+           |""".stripMargin,
+      selected = "org.example.MyJavaEnum1.ETERNITY",
+    )
+  }
 }
