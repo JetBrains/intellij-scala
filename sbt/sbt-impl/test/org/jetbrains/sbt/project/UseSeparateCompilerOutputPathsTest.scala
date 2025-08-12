@@ -22,7 +22,7 @@ class UseSeparateCompilerOutputPathsTest extends SbtExternalSystemImportingTestL
   override def setUp(): Unit = {
     super.setUp()
     SbtProjectResolver.processOutputOfLatestStructureDump = ""
-    SbtCachesSetupUtil.setupCoursierAndIvyCache(getProject)
+    SbtCachesSetupUtil.setupCoursierAndIvyCache(getMyProject)
   }
 
   private val moduleDirectoryMapping: Map[String, String] = Map(
@@ -44,7 +44,7 @@ class UseSeparateCompilerOutputPathsTest extends SbtExternalSystemImportingTestL
   private def doTest(useSeparateCompilerOutputPaths: Boolean): Unit = {
     getCurrentExternalProjectSettings.useSeparateCompilerOutputPaths = useSeparateCompilerOutputPaths
     importProject(false)
-    ModuleManager.getInstance(myProject).getModules.filterNot(_.hasBuildModuleType).foreach { module =>
+    ModuleManager.getInstance(getMyProject).getModules.filterNot(_.hasBuildModuleType).foreach { module =>
       val extension = CompilerModuleExtension.getInstance(module)
       val compileScopePath = Path.of(VfsUtilCore.urlToPath(extension.getCompilerOutputUrl))
       assertEquals(expectedCompilerOutputPath(module.getName, "", useSeparateCompilerOutputPaths), compileScopePath)

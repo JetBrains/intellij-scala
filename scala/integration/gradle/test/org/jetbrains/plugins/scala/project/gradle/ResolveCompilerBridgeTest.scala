@@ -37,7 +37,7 @@ class ResolveCompilerBridgeTest extends ExternalSystemImportingTestCase {
   override def setUp(): Unit = {
     super.setUp()
 
-    GradleTestUtil.setupGradleHome(getProject)
+    GradleTestUtil.setupGradleHome(getMyProject)
 
     sdk = SmartJDKLoader.getOrCreateJDK(LanguageLevel.JDK_17)
 
@@ -71,7 +71,7 @@ class ResolveCompilerBridgeTest extends ExternalSystemImportingTestCase {
   }
 
   def testResolveCompilerBridge(): Unit = {
-    val project = myProject
+    val project = getMyProject
     val scalaSdk = project.libraries.find(_.isScalaSdk).orNull
     assertNotNull("Scala SDK not configured", scalaSdk)
 

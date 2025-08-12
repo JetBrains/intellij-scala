@@ -47,7 +47,7 @@ abstract class GradleProjectWithPureJavaModuleTestBase(incrementality: Increment
   override def setUp(): Unit = {
     super.setUp()
 
-    GradleTestUtil.setupGradleHome(getProject)
+    GradleTestUtil.setupGradleHome(getMyProject)
 
     gradleSdk = SmartJDKLoader.getOrCreateJDK(LanguageLevel.JDK_17)
 
@@ -125,11 +125,11 @@ abstract class GradleProjectWithPureJavaModuleTestBase(incrementality: Increment
   def testImportAndCompile(): Unit = {
     importProject(false)
 
-    ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType = incrementality
+    ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType = incrementality
 
-    val modules = ModuleManager.getInstance(myProject).getModules
+    val modules = ModuleManager.getInstance(getMyProject).getModules
     modules.foreach(ModuleRootModificationUtil.setModuleSdk(_, sdk))
-    compiler = new CompilerTester(myProject, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
 
     val messages = compiler.make()
     val errorsAndWarnings = messages.asScala.filter { message =>

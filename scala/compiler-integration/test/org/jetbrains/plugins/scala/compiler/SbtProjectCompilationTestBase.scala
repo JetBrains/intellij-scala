@@ -71,7 +71,7 @@ abstract class SbtProjectCompilationTestBase(separateProdAndTestSources: Boolean
       res
     }
 
-    SbtCachesSetupUtil.setupCoursierAndIvyCache(getProject)
+    SbtCachesSetupUtil.setupCoursierAndIvyCache(getMyProject)
 
     if (reuseCompileServerProcessBetweenTests) {
       CompileServerTestUtil.registerLongRunningThreads()

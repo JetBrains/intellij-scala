@@ -46,7 +46,7 @@ class ConfigureScalaCompilerPluginTest extends ExternalSystemImportingTestCase {
   override def setUp(): Unit = {
     super.setUp()
 
-    GradleTestUtil.setupGradleHome(getProject)
+    GradleTestUtil.setupGradleHome(getMyProject)
 
     ScalaCompileServerSettings.getInstance().COMPILE_SERVER_ENABLED = false
 
@@ -87,13 +87,13 @@ class ConfigureScalaCompilerPluginTest extends ExternalSystemImportingTestCase {
 
     importProject(false)
 
-    val modules = ModuleManager.getInstance(getProject).getModules
+    val modules = ModuleManager.getInstance(getMyProject).getModules
     modules.foreach(ModuleRootModificationUtil.setModuleSdk(_, sdk))
 
     mainModule = modules.find(_.getName == "configure-scala-compiler-plugin.main").get
-    compiler = new CompilerTester(getProject, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
 
-    IndexingTestUtil.waitUntilIndexesAreReady(getProject)
+    IndexingTestUtil.waitUntilIndexesAreReady(getMyProject)
   }
 
   override def tearDown(): Unit = try {

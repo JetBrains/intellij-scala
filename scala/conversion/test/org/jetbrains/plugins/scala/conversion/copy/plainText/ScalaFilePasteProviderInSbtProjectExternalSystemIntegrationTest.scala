@@ -17,7 +17,7 @@ class ScalaFilePasteProviderInSbtProjectExternalSystemIntegrationTest
   private var TestProjectName: String = _
 
   // To avoid java.lang.IllegalAccessError
-  override def getProject: Project = super.getProject
+  override def getProject: Project = super.getMyProject
 
   override protected def getTestDataProjectPath: String = {
     assertNotNull("Test project name is not set in `TestProjectName`", TestProjectName)
@@ -81,8 +81,8 @@ class ScalaFilePasteProviderInSbtProjectExternalSystemIntegrationTest
     pastedCode: String,
     expectedNewFileName: String
   ): Unit = {
-    val directory = myProjectRoot.findFileByRelativePath(relativeDirPath)
-    assertNotNull(s"Can't find directory $relativeDirPath in $myProjectRoot", directory)
+    val directory = getMyProjectRoot.findFileByRelativePath(relativeDirPath)
+    assertNotNull(s"Can't find directory $relativeDirPath in $getMyProjectRoot", directory)
 
     doPasteToDirectoryAndCreateNewFileTest(
       directory = directory,
@@ -145,8 +145,8 @@ class ScalaFilePasteProviderInSbtProjectExternalSystemIntegrationTest
     TestProjectName = testProjectName
     importProject(false)
 
-    val directory = myProjectRoot.findFileByRelativePath(relativeDirectoryPath)
-    assertNotNull(s"Can't find directory $relativeDirectoryPath in $myProjectRoot", directory)
+    val directory = getMyProjectRoot.findFileByRelativePath(relativeDirectoryPath)
+    assertNotNull(s"Can't find directory $relativeDirectoryPath in $getMyProjectRoot", directory)
 
     doPasteToDirectoryAndUpdateExistingFileTest(
       directory = directory,

@@ -21,17 +21,17 @@ class FindUsagesInSbtBuildModuleTest extends SbtExternalSystemImportingTestLike 
   override protected def getTestDataProjectPath: String =
     s"${TestUtils.getTestDataPath}/findUsages/sbt_projects/${getTestName(true)}"
 
-  protected def defaultOptions = new ScalaTypeDefinitionFindUsagesOptions(myTestFixture.getProject)
+  protected def defaultOptions = new ScalaTypeDefinitionFindUsagesOptions(getMyTestFixture.getProject)
 
   override def setUp(): Unit = {
     super.setUp()
-    SbtCachesSetupUtil.setupCoursierAndIvyCache(getProject)
+    SbtCachesSetupUtil.setupCoursierAndIvyCache(getMyProject)
     importProject(false)
   }
 
   //https://youtrack.jetbrains.com/issue/SCL-8698/Find-usages-doesnt-search-inside-build.sbt
   def testFindUsageOfDefinitionInBuildModuleScalaFileInBuildSbtFile(): Unit = {
-    val psiFile = TestUtils.findFileInProject(getProject, "project/BuildCommons.scala")
+    val psiFile = TestUtils.findFileInProject(getMyProject, "project/BuildCommons.scala")
     assertDefinitionFoundInFiles(psiFile, "myLibraryVersion1", Seq("build.sbt", "other.sbt", "project/BuildUtils.scala"))
     assertDefinitionFoundInFiles(psiFile, "myLibraryVersion2", Seq("build.sbt", "other.sbt", "project/BuildUtils.scala"))
   }
@@ -40,7 +40,7 @@ class FindUsagesInSbtBuildModuleTest extends SbtExternalSystemImportingTestLike 
     val namedElement = findNamedElement(psiFile, definitionName)
     val usages = findUsages(namedElement)
     val foundFiles = usages.map(_.getVirtualFile)
-    val actualFoundFileNames = foundFiles.map(relativePath(TestUtils.guessProjectDir(getProject), _)).sorted
+    val actualFoundFileNames = foundFiles.map(relativePath(TestUtils.guessProjectDir(getMyProject), _)).sorted
     assertEquals(
       "File names with found usages",
       expectedFoundFileNames.sorted,

@@ -35,12 +35,12 @@ class InterleavedCompilationTest extends SbtProjectCompilationTestBase {
         |""".stripMargin)
 
     importProject(false)
-    ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType = IncrementalityType.SBT
+    ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType = IncrementalityType.SBT
 
-    val modules = ModuleManager.getInstance(myProject).getModules
+    val modules = ModuleManager.getInstance(getMyProject).getModules
     rootModule = modules.find(_.getName == "root").orNull
     assertNotNull("Could not find module with name 'root'", rootModule)
-    compiler = new CompilerTester(myProject, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
   }
 
   def testWeirdTrick(): Unit = {

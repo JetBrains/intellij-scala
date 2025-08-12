@@ -47,7 +47,7 @@ abstract class ScalaProjectHighlightingTestBase extends ScalaExternalSystemImpor
 
     codeInsightFixture = factory.createCodeInsightFixture(projectFixture)
     codeInsightFixture.setUp()
-    myTestFixture = codeInsightFixture
+    setMyTestFixture(codeInsightFixture)
   }
 
   override protected def tearDownFixtures(): Unit = {
@@ -55,7 +55,7 @@ abstract class ScalaProjectHighlightingTestBase extends ScalaExternalSystemImpor
       persistProjectConfiguration()
     }
     codeInsightFixture.tearDown()
-    myTestFixture = null
+    resetTestFixture()
   }
 
   protected final def doHighlightingForFile(
@@ -73,13 +73,13 @@ abstract class ScalaProjectHighlightingTestBase extends ScalaExternalSystemImpor
     }
 
     //if we don't close editors there are some leaks in `tearDown`
-    FileEditorManagerEx.getInstanceEx(myProject).closeOpenedEditors()
+    FileEditorManagerEx.getInstanceEx(getMyProject).closeOpenedEditors()
   }
 
   private def persistProjectConfiguration(): Unit = {
     reporter.notify(s"Saving project configuration")
 
-    val projectFile = myProject.getProjectFile
+    val projectFile = getMyProject.getProjectFile
     if (projectFile != null) {
       val from = projectFile.toNioPath
       val to = getProjectFilePath
@@ -87,7 +87,7 @@ abstract class ScalaProjectHighlightingTestBase extends ScalaExternalSystemImpor
       Files.copy(from, to)
     }
 
-    val workspaceFile = myProject.getWorkspaceFile
+    val workspaceFile = getMyProject.getWorkspaceFile
     if (workspaceFile != null && workspaceFile.exists()) {
       val from = workspaceFile.toNioPath
       val to = getTestProjectDir.toPath.resolve(s"$projectFileName.iws")
@@ -127,7 +127,7 @@ abstract class ScalaProjectHighlightingTestBase extends ScalaExternalSystemImpor
     val old = app.isSaveAllowed
     try {
       app.setSaveAllowed(true)
-      myProject.save()
+      getMyProject.save()
     } finally {
       app.setSaveAllowed(old)
     }
@@ -142,7 +142,7 @@ abstract class ScalaProjectHighlightingTestBase extends ScalaExternalSystemImpor
     reporter.notify(s"Finished $BuildSystemId setup, starting import")
 
     //patch homes before importing projects
-    SbtCachesSetupUtil.setupCoursierAndIvyCache(getProject)
+    SbtCachesSetupUtil.setupCoursierAndIvyCache(getMyProject)
 
     Registry.get("ast.loading.filter").setValue(true, getTestRootDisposable)
 

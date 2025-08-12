@@ -424,7 +424,7 @@ class SbtOverBspProjectWithProjectMatrixAndSourceGenerators
     matcher.assertProjectsEqual(expectedProject, getProject, singleContentRootModules = false)(compareContext)
 
     matcher.assertNoNotificationsShown(
-      myProject,
+      getMyProject,
       notificationsCollector.getNotifications,
       mutedNotificationTitles = Seq("Duplicate content roots detected")
     )

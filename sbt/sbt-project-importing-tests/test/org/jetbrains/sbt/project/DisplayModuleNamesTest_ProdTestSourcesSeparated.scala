@@ -25,7 +25,7 @@ final class DisplayModuleNamesTest_ProdTestSourcesSeparated extends SbtProjectSt
       "c1.root.dummy.test" -> "dummy.test",
       "c1.root.dummy.main" -> "dummy.main",
     )
-    checkDisplayModuleNames(myProject, expectedDisplayModuleNames)
+    checkDisplayModuleNames(getMyProject, expectedDisplayModuleNames)
   }
 
   def testMultiModule(): Unit = {
@@ -41,7 +41,7 @@ final class DisplayModuleNamesTest_ProdTestSourcesSeparated extends SbtProjectSt
       "multiModule.foo.main" -> "foo.main",
       "multiModule.foo.test" -> "foo.test",
     )
-    checkDisplayModuleNames(myProject, expectedDisplayModuleNames)
+    checkDisplayModuleNames(getMyProject, expectedDisplayModuleNames)
   }
 
 }

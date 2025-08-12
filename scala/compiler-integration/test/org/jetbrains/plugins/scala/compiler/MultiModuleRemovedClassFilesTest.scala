@@ -41,14 +41,14 @@ class MultiModuleRemovedClassFilesTest extends SbtProjectCompilationTestBase {
         |""".stripMargin)
 
     importProject(false)
-    ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType = IncrementalityType.SBT
+    ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType = IncrementalityType.SBT
 
-    val modules = ModuleManager.getInstance(myProject).getModules
+    val modules = ModuleManager.getInstance(getMyProject).getModules
     module1 = modules.find(_.getName == "root.module1").orNull
     assertNotNull("Could not find module with name 'root.module1'", module1)
     module2 = modules.find(_.getName == "root.module2").orNull
     assertNotNull("Could not find module with name 'root.module2'", module2)
-    compiler = new CompilerTester(myProject, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
   }
 
   def testRemoveDependencyClassFile(): Unit = {

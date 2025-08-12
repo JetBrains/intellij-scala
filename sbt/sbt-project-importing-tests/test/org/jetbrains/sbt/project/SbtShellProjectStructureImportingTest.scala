@@ -11,8 +11,8 @@ class SbtShellProjectStructureImportingTest extends SbtProjectStructureImporting
   }
 
   override protected def setUpFixtures(): Unit = {
-    myTestFixture = IdeaTestFixtureFactory.getFixtureFactory.createFixtureBuilder(getName, getTestProjectPath, useDirectoryBasedStorageFormat()).getFixture
-    myTestFixture.setUp()
+    setMyTestFixture(IdeaTestFixtureFactory.getFixtureFactory.createFixtureBuilder(getName, getTestProjectPath, useDirectoryBasedStorageFormat()).getFixture)
+    getMyTestFixture.setUp()
   }
 
   override protected def getProjectPath: String = getTestProjectPath.toCanonicalPath.toString

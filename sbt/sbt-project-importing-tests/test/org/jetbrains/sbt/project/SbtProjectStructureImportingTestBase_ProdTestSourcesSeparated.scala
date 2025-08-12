@@ -42,7 +42,7 @@ abstract class SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated ext
     Assert.assertEquals(
       "modulesWithScala should return list of non *-build modules",
       Seq("simple.test", "simple.main"),
-      myProject.modulesWithScala.map(_.getName),
+      getMyProject.modulesWithScala.map(_.getName),
     )
 
     val expectedLineInProcessOutput = "[error] Some error message which shouldn't fail the whole build, see SCL-21478 and SCL-13038"
@@ -106,7 +106,7 @@ abstract class SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated ext
       expectedSbtCompletionVariantsForParentModule,
       expectedSbtCompletionVariantsForMainModule,
       expectedSbtCompletionVariantsForTestModule,
-      myProject.baseDir.getPath
+      getMyProject.baseDir.getPath
     )
   }
 
@@ -721,9 +721,9 @@ abstract class SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated ext
       val ManuallySetTarget = "9"
       val ManuallySetSource = LanguageLevel.JDK_1_9
 
-      setOptions(myProject, ManuallySetSource, ManuallySetTarget, Seq("-some-root-option"))
+      setOptions(getMyProject, ManuallySetSource, ManuallySetTarget, Seq("-some-root-option"))
 
-      val projectModules = myProject.modules
+      val projectModules = getMyProject.modules
       projectModules.foreach(setOptions(_, ManuallySetSource, ManuallySetTarget, Seq("-some-module-option")))
     })
 
@@ -850,7 +850,7 @@ abstract class SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated ext
       }
     )
 
-    val compilerOptions = JavacConfiguration.getOptions(myProject, classOf[JavacConfiguration])
+    val compilerOptions = JavacConfiguration.getOptions(getMyProject, classOf[JavacConfiguration])
     val defaultCompilerOptions = new JpsJavaCompilerOptions
 
     assertEquals(defaultCompilerOptions.DEBUGGING_INFO, compilerOptions.DEBUGGING_INFO)
@@ -1266,7 +1266,7 @@ abstract class SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated ext
         "root.subProject2.main",
         "root.subProject2.test",
       ).sorted,
-      myProject.modulesWithScala.map(_.getName).sorted,
+      getMyProject.modulesWithScala.map(_.getName).sorted,
     )
 
     val expectedLineInProcessOutput = "[error] Some error message which shouldn't fail the whole build, see SCL-21478 and SCL-13038"
@@ -1279,9 +1279,9 @@ abstract class SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated ext
       DefaultSbtContentRootsScala3,
       DefaultMainSbtContentRootsScala3,
       DefaultTestSbtContentRootsScala3,
-      myProject.baseDir.getPath,
-      myProject.baseDir.getPath + "/subProject1",
-      myProject.baseDir.getPath + "/subProject2"
+      getMyProject.baseDir.getPath,
+      getMyProject.baseDir.getPath + "/subProject1",
+      getMyProject.baseDir.getPath + "/subProject2"
     )
   }
 
@@ -1774,7 +1774,7 @@ abstract class SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated ext
     Assert.assertEquals(
       "modulesWithScala should return list of non *-build modules",
       Seq("simple.test", "simple.main"),
-      myProject.modulesWithScala.map(_.getName),
+      getMyProject.modulesWithScala.map(_.getName),
     )
 
     val expectedLineInProcessOutput = "[error] Some error message which shouldn't fail the whole build, see SCL-21478 and SCL-13038"
@@ -1814,7 +1814,7 @@ abstract class SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated ext
     Assert.assertEquals(
       "modulesWithScala should return list of non *-build modules",
       Seq("simple.test", "simple.main"),
-      myProject.modulesWithScala.map(_.getName),
+      getMyProject.modulesWithScala.map(_.getName),
     )
 
     val expectedLineInProcessOutput = "[error] Some error message which shouldn't fail the whole build, see SCL-21478 and SCL-13038"
@@ -1838,7 +1838,7 @@ abstract class SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated ext
     Assert.assertEquals(
       "modulesWithScala should return list of non *-build modules",
       Seq("simple.test", "simple.main"),
-      myProject.modulesWithScala.map(_.getName),
+      getMyProject.modulesWithScala.map(_.getName),
     )
 
     val expectedLineInProcessOutput = "[error] Some error message which shouldn't fail the whole build, see SCL-21478 and SCL-13038"

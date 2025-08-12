@@ -38,21 +38,21 @@ abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImporti
   override def setUp(): Unit = {
     super.setUp()
     SbtProjectResolver.processOutputOfLatestStructureDump = ""
-    SbtCachesSetupUtil.setupCoursierAndIvyCache(getProject)
+    SbtCachesSetupUtil.setupCoursierAndIvyCache(getMyProject)
   }
 
   protected implicit lazy val defaultCompareContext: ProjectStructureComparisonContext =
-    ProjectStructureComparisonContext.Implicit.default(getProject)
+    ProjectStructureComparisonContext.Implicit.default(getMyProject)
 
   protected def runTest(expected: project): Unit =
     runTest(expected, identity)
 
   protected def runTest(expected: project, optionsModifier: ProjectComparisonOptions => ProjectComparisonOptions, mutedNotificationTitles: Seq[String] = Seq.empty): Unit = {
-    val notificationsCollector = CollectingNotificationsListener.subscribeOnWarningsAndErrors(getProject)
+    val notificationsCollector = CollectingNotificationsListener.subscribeOnWarningsAndErrors(getMyProject)
 
     importProject(false)
 
-    val projectData = ProjectDataManager.getInstance.getExternalProjectsData(getProject, getExternalSystemId).asScala.toSeq
+    val projectData = ProjectDataManager.getInstance.getExternalProjectsData(getMyProject, getExternalSystemId).asScala.toSeq
     projectData match {
       case Nil =>
         fail("Couldn't import project (project data is empty). See output for the details.")
@@ -65,8 +65,8 @@ abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImporti
 
     // Always check the project dependencies order in the main/test modules mode
     val compareContext = defaultCompareContext.withOptions(optionsModifier).withOptions(_.copy(checkProjectDependenciesOrder = enableSeparateModulesForProdTest))
-    assertProjectsEqual(expected, myProject, !enableSeparateModulesForProdTest)(compareContext)
-    assertNoNotificationsShown(myProject, notificationsCollector.getNotifications, mutedNotificationTitles)
+    assertProjectsEqual(expected, getMyProject, !enableSeparateModulesForProdTest)(compareContext)
+    assertNoNotificationsShown(getMyProject, notificationsCollector.getNotifications, mutedNotificationTitles)
   }
 
   protected def generateTestProjectPath(projectName: String): String =
@@ -161,7 +161,7 @@ abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImporti
     directory: VirtualFile,
     expectedVariants: Seq[ExpectedDirectoryCompletionVariant]
   ): Unit = {
-    val psiDirectory = PsiManager.getInstance(myProject).findDirectory(directory)
+    val psiDirectory = PsiManager.getInstance(getMyProject).findDirectory(directory)
     val directoryPath = directory.getPath
 
     val variants = new SbtDirectoryCompletionContributor().getVariants(psiDirectory).asScala.toSeq
@@ -185,7 +185,7 @@ abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImporti
   }
 
   protected def setSbtSettingsCustomSdk(sdk: Sdk): Unit = {
-    val settings = SbtSettings.getInstance(myProject)
+    val settings = SbtSettings.getInstance(getMyProject)
     settings.setCustomVMPath(sdk.getHomePath.ensuring(_ != null))
   }
 
@@ -243,7 +243,7 @@ abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImporti
   }
 
   protected def buildCrossProjectAndAssertNoWarningsOrErrors(): Unit = {
-    CompilerUtils.buildCrossProjectAndAssertNoWarningsOrErrors(getProject)
+    CompilerUtils.buildCrossProjectAndAssertNoWarningsOrErrors(getMyProject)
   }
 
   protected def createModuleWithSourceSet(moduleName: String, group: Array[String] = null): Seq[module] =
@@ -261,5 +261,5 @@ abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImporti
   }
 
   protected def buildProjectAndAssertNoWarningsOrErrors(): Unit =
-    CompilerUtils.buildProjectAndAssertNoWarningsOrErrors(getProject)
+    CompilerUtils.buildProjectAndAssertNoWarningsOrErrors(getMyProject)
 }

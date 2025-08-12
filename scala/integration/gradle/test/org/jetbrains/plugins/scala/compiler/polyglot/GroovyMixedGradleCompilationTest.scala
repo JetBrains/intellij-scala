@@ -50,7 +50,7 @@ class GroovyMixedGradleCompilationTest extends ExternalSystemImportingTestCase {
   override def setUp(): Unit = {
     super.setUp()
 
-    GradleTestUtil.setupGradleHome(getProject)
+    GradleTestUtil.setupGradleHome(getMyProject)
 
     gradleSdk = SmartJDKLoader.getOrCreateJDK(LanguageLevel.JDK_17)
 
@@ -134,16 +134,16 @@ class GroovyMixedGradleCompilationTest extends ExternalSystemImportingTestCase {
 
     importProject()
 
-    KotlinDaemonUtil.disableKotlinDaemon(getProject)
+    KotlinDaemonUtil.disableKotlinDaemon(getMyProject)
 
-    val modules = ModuleManager.getInstance(getProject).getModules
+    val modules = ModuleManager.getInstance(getMyProject).getModules
     modules.foreach(ModuleRootModificationUtil.setModuleSdk(_, sdk))
 
-    IndexingTestUtil.waitUntilIndexesAreReady(getProject)
+    IndexingTestUtil.waitUntilIndexesAreReady(getMyProject)
 
     mainModule = modules.find(_.getName == "groovy-mixed.main").orNull
     assertNotNull("Could not find module with name 'groovy-mixed.main'", mainModule)
-    compiler = new CompilerTester(getProject, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
   }
 
   override def tearDown(): Unit = try {
@@ -162,7 +162,7 @@ class GroovyMixedGradleCompilationTest extends ExternalSystemImportingTestCase {
   }
 
   def testMixedGroovyCompilation(): Unit = {
-    assertEquals(IncrementalityType.SBT, ScalaCompilerConfiguration.instanceIn(getProject).incrementalityType)
+    assertEquals(IncrementalityType.SBT, ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType)
     val messages = compiler.make().asScala.toSeq
     assertNoErrorsOrWarnings(messages)
     for (cls <- Seq("Greeter", "GroovyGreeter", "JavaGreeter", "KotlinGreeter", "ScalaGreeter", "main$package", "main$package$")) {

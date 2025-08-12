@@ -10,9 +10,9 @@ abstract class DisplayModuleNameTestBase(separateProdAndTestSources: Boolean = f
 
   protected def runTest(expectedValue: Boolean): Unit = {
     importProject(false)
-    val modules = ModuleManager.getInstance(myProject).getModules
+    val modules = ModuleManager.getInstance(getMyProject).getModules
     rootModule = modules.find(_.getName == "root").orNull
-    compiler = new CompilerTester(myProject, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
     compiler.rebuild()
     val buildProcessParameters = CompileServerLauncher.buildProcessParameters
     checkUseModuleDisplayName(expectedValue, buildProcessParameters)

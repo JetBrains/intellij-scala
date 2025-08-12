@@ -76,12 +76,12 @@ class SbtGenerateManagedSourcesActionTest extends SbtProjectCompilationTestBase 
 
     importProject(false)
 
-    val modules = ModuleManager.getInstance(myProject).getModules
+    val modules = ModuleManager.getInstance(getMyProject).getModules
     rootModule = findModule("generate-managed-sources", modules)
     module1 = findModule("generate-managed-sources.module1", modules)
     module2 = findModule("generate-managed-sources.module2", modules)
     module3 = findModule("generate-managed-sources.module3", modules)
-    compiler = new CompilerTester(myProject, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
   }
 
   def testGenerateManagedSources(): Unit = {
@@ -133,7 +133,7 @@ class SbtGenerateManagedSourcesActionTest extends SbtProjectCompilationTestBase 
     Path.of(module, "target", "scala-3.6.2", "src_managed", "main", "sbt-buildinfo", "BuildInfo.scala")
 
   private def createDummyActionEvent: AnActionEvent = {
-    val context = SimpleDataContext.getProjectContext(this.getProject)
+    val context = SimpleDataContext.getProjectContext(this.getMyProject)
     AnActionEvent.createEvent(context, null, "fake-place-for-tests", ActionUiKind.NONE, null)
   }
 }

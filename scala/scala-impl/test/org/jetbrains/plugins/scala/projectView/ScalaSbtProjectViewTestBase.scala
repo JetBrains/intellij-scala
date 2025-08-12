@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.projectView
 
 import com.intellij.ide.projectView.impl.nodes.{ProjectViewModuleGroupNode, ProjectViewProjectNode}
 import com.intellij.ide.util.treeView.{AbstractTreeNode, PresentableNodeDescriptor}
+import com.intellij.platform.externalSystem.testFramework.ExternalSystemTestCase
 import com.intellij.projectView.TestProjectTreeStructure
 import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.ui.SimpleTextAttributes
@@ -27,24 +28,30 @@ abstract class ScalaSbtProjectViewTestBase extends SbtExternalSystemImportingTes
    * @param projectDirectory the name of the directory with the project
    */
   protected def runTestWithOutsideSources(projectDirectory: String, expectedStructure: String): Unit = {
-    val projectDirectoryFile = myProjectRoot.findChild(projectDirectory)
+    val projectDirectoryFile = getMyProjectRoot.findChild(projectDirectory)
     assert(projectDirectoryFile != null, "The project directory is not found")
 
-    myProjectRoot = projectDirectoryFile
+    // TODO: Rewrite without reflection.
+    val myProjectRootField = classOf[ExternalSystemTestCase].getDeclaredField("myProjectRoot")
+    myProjectRootField.setAccessible(true)
+    myProjectRootField.set(this, projectDirectoryFile)
     runTest(expectedStructure)
   }
 
   protected def runtTestWithTwoLinkedProjects(rootProjectDirectory: String, linkedProjectDirectory: String, expectedStructure: String): Unit = {
-    val rootProjectFile = myProjectRoot.findChild(rootProjectDirectory)
+    val rootProjectFile = getMyProjectRoot.findChild(rootProjectDirectory)
     assert(rootProjectFile != null, "The root project directory is not found")
 
-    val linkedProjectFile = myProjectRoot.findChild(linkedProjectDirectory)
+    val linkedProjectFile = getMyProjectRoot.findChild(linkedProjectDirectory)
     assert(linkedProjectFile != null, "The linked project directory is not found")
 
-    myProjectRoot = rootProjectFile
+    // TODO: Rewrite without reflection.
+    val myProjectRootField = classOf[ExternalSystemTestCase].getDeclaredField("myProjectRoot")
+    myProjectRootField.setAccessible(true)
+    myProjectRootField.set(this, rootProjectFile)
     importProject(false)
 
-    linkSbtProject(linkedProjectFile.getPath, prodTestSourcesSeparated = true, myProject)
+    linkSbtProject(linkedProjectFile.getPath, prodTestSourcesSeparated = true, getMyProject)
     importProject(false)
 
     assertStructureEqual(expectedStructure)
@@ -57,7 +64,7 @@ abstract class ScalaSbtProjectViewTestBase extends SbtExternalSystemImportingTes
   }
 
   private def assertStructureEqual(expectedStructure: String): Unit = {
-    val testProjectStructure = new TestProjectTreeStructure(myProject, getTestRootDisposable)
+    val testProjectStructure = new TestProjectTreeStructure(getMyProject, getTestRootDisposable)
     testProjectStructure.setShowLibraryContents(false)
     testProjectStructure.hideExcludedFiles()
 

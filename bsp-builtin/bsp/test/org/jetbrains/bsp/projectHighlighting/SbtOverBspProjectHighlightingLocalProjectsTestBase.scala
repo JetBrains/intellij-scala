@@ -7,7 +7,7 @@ abstract class SbtOverBspProjectHighlightingLocalProjectsTestBase
   extends SbtOverBspProjectHighlightingTestBase
     with AllProjectHighlightingTest {
 
-  override def getProject: Project = myProject
+  override def getProject: Project = getMyProject
 
   //Right now I reuse project used for sbt external system tests just for simplicity
   //I want to reuse single test project...

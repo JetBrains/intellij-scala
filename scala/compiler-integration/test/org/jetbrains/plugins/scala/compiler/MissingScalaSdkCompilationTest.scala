@@ -46,14 +46,14 @@ abstract class MissingScalaSdkCompilationTestBase(incrementalityType: Incrementa
         |""".stripMargin)
     importProject(false)
 
-    ScalaCompilerConfiguration.instanceIn(getProject).incrementalityType = incrementalityType
+    ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType = incrementalityType
 
-    val modules = ModuleManager.getInstance(getProject).getModules
+    val modules = ModuleManager.getInstance(getMyProject).getModules
     rootModule = findModule("missingScalaSdkTest.main", modules)
     module1 = findModule("missingScalaSdkTest.module1.main", modules)
     module2 = findModule("missingScalaSdkTest.module2.main", modules)
     module3 = findModule("missingScalaSdkTest.module3.main", modules)
-    compiler = new CompilerTester(getProject, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
 
     removeScalaSdk(module2)
     removeScalaSdk(module3)

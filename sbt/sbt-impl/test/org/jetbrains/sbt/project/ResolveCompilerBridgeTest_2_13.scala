@@ -16,7 +16,7 @@ class ResolveCompilerBridgeTest_2_13 extends SbtExternalSystemImportingTestLike 
   override def setUp(): Unit = {
     super.setUp()
     SbtProjectResolver.processOutputOfLatestStructureDump = ""
-    SbtCachesSetupUtil.setupCoursierAndIvyCache(getProject)
+    SbtCachesSetupUtil.setupCoursierAndIvyCache(getMyProject)
   }
 
   def testResolveCompilerBridge(): Unit = {
@@ -25,7 +25,7 @@ class ResolveCompilerBridgeTest_2_13 extends SbtExternalSystemImportingTestLike 
     // defined in the test project `resolveCompilerBridge_Scala2/build.sbt`
     val scalaVersion = "2.13.13"
 
-    val scalaSdk = myProject.libraries.find(_.isScalaSdk).orNull
+    val scalaSdk = getMyProject.libraries.find(_.isScalaSdk).orNull
     assertNotNull("Scala SDK not configured", scalaSdk)
 
     val properties = scalaSdk match {

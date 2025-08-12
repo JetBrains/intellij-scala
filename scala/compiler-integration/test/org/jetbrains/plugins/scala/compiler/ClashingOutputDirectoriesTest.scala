@@ -36,7 +36,7 @@ class ClashingOutputDirectoriesTest extends SbtProjectCompilationTestBase(separa
     createProjectSubFile("module2/src/main/scala/Two.scala", "class Two")
     importProject(false)
 
-    val allModules = ModuleManager.getInstance(getProject).getModules.toList
+    val allModules = ModuleManager.getInstance(getMyProject).getModules.toList
     val module1 = allModules.find(_.getName == "root.module1.main").orNull
     val module2 = allModules.find(_.getName == "root.module2.main").orNull
 
@@ -55,7 +55,7 @@ class ClashingOutputDirectoriesTest extends SbtProjectCompilationTestBase(separa
       setOutputPath(module1, pathUrl)
       setOutputPath(module2, pathUrl)
 
-      compiler = new CompilerTester(getProject, allModules.asJava, null, false)
+      compiler = new CompilerTester(getMyProject, allModules.asJava, null, false)
       val Seq(errorMessage) = compiler.make().asScala.toSeq
 
       val jpsUrl = JpsPathUtil.urlToNioPath(pathUrl)
