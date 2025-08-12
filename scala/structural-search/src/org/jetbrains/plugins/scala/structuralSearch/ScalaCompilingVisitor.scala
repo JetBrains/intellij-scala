@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.structuralSearch
 
-import com.intellij.dupLocator.util.DuplocatorUtil
+import com.intellij.dupLocator.util.{DuplocatorUtil, NodeFilter}
 import com.intellij.psi.PsiElement
 import com.intellij.structuralsearch.impl.matcher.compiler.GlobalCompilingVisitor
-import com.intellij.structuralsearch.impl.matcher.handlers.TopLevelMatchingHandler
+import com.intellij.structuralsearch.impl.matcher.handlers.{SubstitutionHandler, TopLevelMatchingHandler}
 import com.intellij.structuralsearch.impl.matcher.strategies.MatchingStrategy
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
 
@@ -33,11 +34,25 @@ class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends Scala
     }
   }
 
+  override def visitReferenceExpression(ref: ScReferenceExpression): Unit = {
+    super.visitReferenceExpression(ref)
+    val pattern = globalVisitor.getContext.getPattern
+    if (pattern.isRealTypedVar(ref)) {
+      pattern.getHandler(ref) match {
+        case substHand: SubstitutionHandler => substHand.setFilter(new ReferencExpressionFilter())
+      }
+    }
+  }
+
+  private class ReferencExpressionFilter extends NodeFilter {
+    // TODO use a better filter
+    override def accepts(element: PsiElement): Boolean = true
+  }
 
   override def visitScalaElement(element: ScalaPsiElement): Unit = {
     globalVisitor.handle(element)
     super.visitScalaElement(element)
   }
-  
+
   // TODO could add filter to only match this pattern node to matching nodes, e.g. comment on comment
 }
