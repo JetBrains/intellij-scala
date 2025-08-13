@@ -9,7 +9,5 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 
 class ReferenceExpressionFilter extends NodeFilter {
   // add all elements that should be matched by a variable
-  override def accepts(element: PsiElement): Boolean = {
-    element.is[ScTypedDefinition, ScExpression, ScLiteral]
-  }
+  override def accepts(element: PsiElement): Boolean = element.is[ScTypedDefinition, ScExpression, ScLiteral]
 }

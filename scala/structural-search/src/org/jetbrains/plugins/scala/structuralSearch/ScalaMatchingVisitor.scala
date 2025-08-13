@@ -1,17 +1,26 @@
 package org.jetbrains.plugins.scala.structuralSearch
 
 import com.intellij.psi.PsiElement
-import com.intellij.structuralsearch.impl.matcher.{CompiledPattern, GlobalMatchingVisitor}
 import com.intellij.structuralsearch.impl.matcher.handlers.SubstitutionHandler
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScBlockExpr, ScIf, ScInfixExpr, ScMethodCall, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
+import com.intellij.structuralsearch.impl.matcher.{CompiledPattern, GlobalMatchingVisitor}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScBlockExpr, ScIf, ScInfixExpr, ScMethodCall, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 
 class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaElementVisitor {
 
-  private def matchOptional(patO: Option[PsiElement], psiO: Option[PsiElement]): Boolean = {
+  private def matchOpt(patO: Option[PsiElement], psiO: Option[PsiElement]): Boolean = {
     (patO, psiO) match {
       case (Some(pat), Some(psi)) => globalVisitor.`match`(pat, psi)
+      case _ => false
+    }
+  }
+
+  private def matchOptOptional(patO: Option[PsiElement], psiO: Option[PsiElement]): Boolean = {
+    (patO, psiO) match {
+      case (Some(pat), Some(psi)) => globalVisitor.`match`(pat, psi)
+      case (None, _) => true
       case _ => false
     }
   }
@@ -30,11 +39,34 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
       }
   }
 
+  override def visitFunction(fun: ScFunction): Unit = {
+    val other = globalVisitor.getElement.asInstanceOf[ScFunction]
+
+    val modifierMatch = globalVisitor.`match`(fun.getModifierList, other.getModifierList)
+    val name = globalVisitor.`match`(fun.getNameIdentifier, other.getNameIdentifier)
+    val typeParamsMatch = globalVisitor.matchSequentially(fun.typeParameters.toArray[PsiElement], other.typeParameters.toArray[PsiElement])
+    val paramsMatch = globalVisitor.matchSequentially(fun.parameters.toArray[PsiElement], other.parameters.toArray[PsiElement])
+    val rTypeMatch = matchOptOptional(fun.returnTypeElement, other.returnTypeElement)
+    val bodyMatch = {
+      fun match {
+        case declPat: ScFunctionDefinition =>
+          other match {
+            case declOther: ScFunctionDefinition =>
+              matchBody(declPat.body, declOther.body)
+            case _ => false
+          }
+        case _ => true
+      }
+    }
+
+    globalVisitor.setResult(modifierMatch && name && typeParamsMatch && paramsMatch && rTypeMatch && bodyMatch) 
+  }
+
 
   override def visitIf(ifPat: ScIf): Unit = {
     val ifPsi = globalVisitor.getElement.asInstanceOf[ScIf]
 
-    val condMatch = matchOptional(ifPat.condition, ifPsi.condition)
+    val condMatch = matchOpt(ifPat.condition, ifPsi.condition)
     val thenMatch = matchBody(ifPat.thenExpression, ifPsi.thenExpression)
     val elseMatch = (ifPat.elseExpression, ifPsi.elseExpression) match {
       case (None, None) => true

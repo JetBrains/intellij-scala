@@ -7,8 +7,9 @@ import com.intellij.structuralsearch.impl.matcher.compiler.GlobalCompilingVisito
 import com.intellij.structuralsearch.impl.matcher.handlers.{MatchingHandler, SubstitutionHandler, TopLevelMatchingHandler}
 import com.intellij.structuralsearch.impl.matcher.strategies.MatchingStrategy
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScInfixExpr, ScMethodCall, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
-import org.jetbrains.plugins.scala.structuralSearch.filter.{MethodInvocationFilter, ReferenceExpressionFilter}
+import org.jetbrains.plugins.scala.structuralSearch.filter.{FunctionFilter, MethodInvocationFilter, ReferenceExpressionFilter}
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
 
 class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends ScalaRecursiveElementVisitor {
@@ -69,6 +70,14 @@ class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends Scala
   override def visitScalaElement(element: ScalaPsiElement): Unit = {
     globalVisitor.handle(element)
     super.visitScalaElement(element)
+  }
+
+  override def visitFunction(fun: ScFunction): Unit = {
+    super.visitFunction(fun)
+
+    globalVisitor
+      .getContext.getPattern
+      .getHandler(fun).setFilter(new FunctionFilter())
   }
 
   // TODO could add filter to only match this pattern node to matching nodes, e.g. comment on comment
