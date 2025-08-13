@@ -66,22 +66,22 @@ abstract class ScalaExternalSystemImportingTestBase extends ExternalSystemImport
     }
   }
 
-  override protected def setUpProjectRoot(): Unit = {
-    val originalTestDataProjectDir = new File(getTestDataProjectPath)
-    val testProjectPath = getTestProjectDir
-
-    if (copyTestProjectToTemporaryDir) {
-      println(s"Test project copied to the temporary directory: $testProjectPath")
-      FileUtil.copyDir(originalTestDataProjectDir, testProjectPath)
-    }
-
-    // TODO: Rewrite without reflection.
-    val myCustomProjectRoot = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(testProjectPath)
-    assertNotNull(s"test project root was not found: $testProjectPath", myCustomProjectRoot)
-    val myProjectRootField = classOf[ExternalSystemTestCase].getDeclaredField("myProjectRoot")
-    myProjectRootField.setAccessible(true)
-    myProjectRootField.set(this, myCustomProjectRoot)
-  }
+//  override protected def setUpProjectRoot(): Unit = {
+//    val originalTestDataProjectDir = new File(getTestDataProjectPath)
+//    val testProjectPath = getTestProjectDir
+//
+//    if (copyTestProjectToTemporaryDir) {
+//      println(s"Test project copied to the temporary directory: $testProjectPath")
+//      FileUtil.copyDir(originalTestDataProjectDir, testProjectPath)
+//    }
+//
+//    // TODO: Rewrite without reflection.
+//    val myCustomProjectRoot = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(testProjectPath)
+//    assertNotNull(s"test project root was not found: $testProjectPath", myCustomProjectRoot)
+//    val myProjectRootField = classOf[ExternalSystemTestCase].getDeclaredField("myProjectRoot")
+//    myProjectRootField.setAccessible(true)
+//    myProjectRootField.set(this, myCustomProjectRoot)
+//  }
 
   override def tearDown(): Unit = {
     //jdk might be null if it was some exception in super.setup()

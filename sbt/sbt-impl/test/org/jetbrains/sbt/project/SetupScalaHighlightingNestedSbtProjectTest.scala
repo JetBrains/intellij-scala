@@ -22,7 +22,7 @@ class SetupScalaHighlightingNestedSbtProjectTest extends SbtExternalSystemImport
   override protected def getTestDataProjectPath: String =
     s"${TestUtils.getTestDataPath}/sbt/projects/setupScalaHighlightingNestedSbtProject"
 
-  override def getProjectPath: String = Path.of(getTestDataProjectPath, "nestedSbtProject").toString
+//  override def getProjectPath: String = Path.of(getTestDataProjectPath, "nestedSbtProject").toString
 
   override protected def projectJdkLanguageLevel: LanguageLevel = LanguageLevel.JDK_17
 

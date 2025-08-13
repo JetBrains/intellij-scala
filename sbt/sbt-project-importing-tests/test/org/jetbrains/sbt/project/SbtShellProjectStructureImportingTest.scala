@@ -15,5 +15,5 @@ class SbtShellProjectStructureImportingTest extends SbtProjectStructureImporting
     getMyTestFixture.setUp()
   }
 
-  override protected def getProjectPath: String = getTestProjectPath.toCanonicalPath.toString
+//  override protected def getProjectPath: String = getTestProjectPath.toCanonicalPath.toString
 }
