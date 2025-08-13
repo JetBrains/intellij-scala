@@ -28,6 +28,10 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
     new ScalaCompilingVisitor(globalVisitor).compile(elements)
   }
 
+  // use this to configure which modifier should be shown
+  override def isApplicableConstraint(constraintName: String, variableNode: PsiElement, completePattern: Boolean, target: Boolean): Boolean =
+    super.isApplicableConstraint(constraintName, variableNode, completePattern, target)
+
   // if a variable is set inside the template, normally getText is used to extract the name
   // we can also use getTypedVarString to extract the name (e.g. special for an annotation
 }
