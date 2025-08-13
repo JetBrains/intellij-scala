@@ -1,18 +1,15 @@
 package org.jetbrains.plugins.scala.structuralSearch
 
-import com.intellij.dupLocator.util.{DuplocatorUtil, NodeFilter}
+import com.intellij.dupLocator.util.DuplocatorUtil
 import com.intellij.psi.PsiElement
 import com.intellij.structuralsearch.impl.matcher.MatchContext
 import com.intellij.structuralsearch.impl.matcher.compiler.GlobalCompilingVisitor
 import com.intellij.structuralsearch.impl.matcher.handlers.{MatchingHandler, SubstitutionHandler, TopLevelMatchingHandler}
 import com.intellij.structuralsearch.impl.matcher.strategies.MatchingStrategy
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
-import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScInfixExpr, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.structuralSearch.filter.{MethodInvocationFilter, ReferenceExpressionFilter}
+import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
 
 class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends ScalaRecursiveElementVisitor {
 
@@ -51,17 +48,22 @@ class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends Scala
     }
   }
 
-  private class ReferenceExpressionFilter extends NodeFilter {
-    // TODO probably adapt the filter?
-    // add all elements that should be matched by a variable
-    override def accepts(element: PsiElement): Boolean =
-      element.isInstanceOf[ScTypedDefinition]
-    //      element.isInstanceOf[ScClass | ScFunction | ScParameter | ScExpression]
-  }
-  
+
+
   private class SymbolHandler(handler: SubstitutionHandler) extends MatchingHandler {
     override def `match`(patternNode: PsiElement, matchedNode: PsiElement, context: MatchContext): Boolean =
       handler.handle(matchedNode, context)
+  }
+
+  override def visitInfixExpression(infix: ScInfixExpr): Unit = visitMethodInvocation(infix)
+  override def visitMethodCallExpression(call: ScMethodCall): Unit = visitMethodInvocation(call)
+
+  def visitMethodInvocation(call: MethodInvocation): Unit = {
+    super.visitExpression(call)
+
+    globalVisitor
+      .getContext.getPattern
+      .getHandler(call).setFilter(new MethodInvocationFilter())
   }
 
   override def visitScalaElement(element: ScalaPsiElement): Unit = {
@@ -70,4 +72,5 @@ class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends Scala
   }
 
   // TODO could add filter to only match this pattern node to matching nodes, e.g. comment on comment
+  // otherwise the default filter works by getClass comparison
 }

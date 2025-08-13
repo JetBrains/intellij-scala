@@ -3,8 +3,8 @@ package org.jetbrains.plugins.scala.structuralSearch
 import com.intellij.psi.PsiElement
 import com.intellij.structuralsearch.impl.matcher.{CompiledPattern, GlobalMatchingVisitor}
 import com.intellij.structuralsearch.impl.matcher.handlers.SubstitutionHandler
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression, ScIf, ScInfixExpr, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScBlockExpr, ScIf, ScInfixExpr, ScMethodCall, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 
 class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaElementVisitor {
@@ -44,20 +44,17 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
   }
 
   override def visitInfixExpression(infixPat: ScInfixExpr): Unit = {
-    val infixPsi = globalVisitor.getElement.asInstanceOf[ScInfixExpr]
-
-    val leftMatch = globalVisitor.`match`(infixPat.left, infixPsi.left)
-    val operationMatch = globalVisitor.`match`(infixPat.operation, infixPsi.operation)
-    val rightMatch = globalVisitor.`match`(infixPat.right, infixPsi.right)
-    globalVisitor.setResult(leftMatch && operationMatch && rightMatch)
+    visitMethodInvocation(infixPat)
+//    val infixPsi = globalVisitor.getElement.asInstanceOf[ScInfixExpr]
+//
+//    val leftMatch = globalVisitor.`match`(infixPat.left, infixPsi.left)
+//    val operationMatch = globalVisitor.`match`(infixPat.operation, infixPsi.operation)
+//    val rightMatch = globalVisitor.`match`(infixPat.right, infixPsi.right)
+//    globalVisitor.setResult(leftMatch && operationMatch && rightMatch)
   }
 
   override def visitLiteral(lPat: ScLiteral): Unit =
     globalVisitor.setResult(globalVisitor.matchText(lPat, globalVisitor.getElement))
-
-  override def visitExpression(expr: ScExpression): Unit = {
-    globalVisitor.setResult(false)
-  }
 
   override def visitReferenceExpression(refPat: ScReferenceExpression): Unit = {
     val context = globalVisitor.getMatchContext
@@ -75,6 +72,26 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
         }
     }
   }
+
+  override def visitMethodCallExpression(call: ScMethodCall): Unit = visitMethodInvocation(call)
+
+  def visitMethodInvocation(call: MethodInvocation): Unit = {
+    val thisPat = call.thisExpr
+    val invokedPat = call.getInvokedExpr.getLastChild
+    val parsPat = call.argumentExpressions
+
+    val other = globalVisitor.getElement.asInstanceOf[MethodInvocation]
+    val thisPsi = other.thisExpr
+    val invokedPsi = other.getInvokedExpr.getLastChild
+    val parsPsi = other.argumentExpressions
+
+    val thisMatch = globalVisitor.matchOptionally(thisPat.orNull, thisPsi.orNull)
+    val methodMatch = globalVisitor.`match`(invokedPat, invokedPsi)
+    val parsMatch = globalVisitor.matchSequentially(parsPat.toArray[PsiElement], parsPsi.toArray[PsiElement])
+    globalVisitor.setResult(thisMatch && methodMatch && parsMatch)
+  }
+
+  override def visitScalaElement(element: ScalaPsiElement): Unit = visitElement(element)
 
   override def visitElement(elementPat: PsiElement): Unit = {
     val other = globalVisitor.getElement
