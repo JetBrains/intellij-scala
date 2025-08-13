@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.build
 import com.intellij.build.events.impl._
 import com.intellij.build.events.{BuildEvent, EventResult, MessageEvent}
 import com.intellij.build.{BuildViewManager, DefaultBuildDescriptor, FilePosition}
+import com.intellij.execution.process.ProcessOutputType
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent}
@@ -107,7 +108,7 @@ class BuildToolWindowReporter(project: Project,
 
   private def logEvent(msg: String): BuildEvent = {
     //noinspection ReferencePassedToNls
-    new OutputBuildEventImpl(buildId, msg.trim + System.lineSeparator(), true)
+    new OutputBuildEventImpl(buildId, msg.trim + System.lineSeparator(), ProcessOutputType.STDOUT)
   }
 
   private def event(message: String, kind: MessageEvent.Kind, position: Option[FilePosition])= {

@@ -2,6 +2,7 @@ package org.jetbrains.bsp
 
 import ch.epfl.scala.bsp4j
 import ch.epfl.scala.bsp4j._
+import com.intellij.execution.process.ProcessOutputType
 import com.intellij.mock.MockApplication
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationEvent, ExternalSystemTaskNotificationListener, ExternalSystemTaskType}
@@ -44,7 +45,7 @@ object BSPCli extends App {
 
     override def onStatusChange(externalSystemTaskNotificationEvent: ExternalSystemTaskNotificationEvent): Unit = {}
 
-    override def onTaskOutput(externalSystemTaskId: ExternalSystemTaskId, s: String, b: Boolean): Unit = {}
+    override def onTaskOutput(externalSystemTaskId: ExternalSystemTaskId, s: String, outputType: ProcessOutputType): Unit = {}
 
     override def onEnd(externalSystemTaskId: ExternalSystemTaskId): Unit = {}
 
