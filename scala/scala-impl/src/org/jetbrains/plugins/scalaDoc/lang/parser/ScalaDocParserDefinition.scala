@@ -81,7 +81,7 @@ class ScalaDocParserDefinition extends ParserDefinition {
     case DOC_LIST      => new ScDocListImpl(node)
     case DOC_LIST_ITEM => new ScDocListItemImpl(node)
     case DOC_PARAGRAPH => new ScDocParagraphImpl(node)
-//    case DOC_CODEBLOCK => new ScDocInnerCodeElementImpl(node) // This is bad! Code blocks don't actually work the same way in Scala 2 and Scala 3 :/
+    case DOC_CODEBLOCK => new ScDocInnerCodeElementImpl(node)
     case _             => new ASTWrapperPsiElement(node)
   }
 

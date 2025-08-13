@@ -93,6 +93,9 @@ public interface ScalaDocElementTypes {
   ScalaDocElementType DOC_LIST = new ScalaDocElementType("ScalaDocList");
   ScalaDocElementType DOC_LIST_ITEM = new ScalaDocElementType("ScalaDocList");
 
+  // Markdown-specific elements
+  ScalaDocElementType DOC_BLOCKQUOTE = new ScalaDocElementType("ScalaDocBlockquote");
+
   ScalaDocElementType DOC_PARAM_REF = new ScalaDocElementType("ScalaDocParameterReference");
   ScalaDocElementType DOC_METHOD_REF = new ScalaDocElementType("ScalaDocMethodReference");
   ScalaDocElementType DOC_FIELD_REF = new ScalaDocElementType("ScalaDocFieldReference");

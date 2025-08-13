@@ -138,6 +138,7 @@ class ScaladocMarkdownParsing(private val builder: PsiBuilder,
         // Common blocks
         case MarkdownElementTypes.PARAGRAPH => ScalaDocElementTypes.DOC_PARAGRAPH
         case MarkdownElementTypes.CODE_FENCE => ScalaDocElementTypes.DOC_CODEBLOCK
+        case MarkdownElementTypes.BLOCK_QUOTE => ScalaDocElementTypes.DOC_BLOCKQUOTE
         case MarkdownElementTypes.LIST_ITEM => ScalaDocElementTypes.DOC_LIST_ITEM
         // TODO: Unsure if it's iffy to use the same element type for both.
         case MarkdownElementTypes.UNORDERED_LIST => ScalaDocElementTypes.DOC_LIST
@@ -157,6 +158,8 @@ class ScaladocMarkdownParsing(private val builder: PsiBuilder,
           => ScalaDocTokenType.DOC_WHITESPACE
 
         // Remains
+        // Not needed: it is parsed as regular text by the parser!
+        // case MarkdownElementTypes.HTML_BLOCK => ???
         case MarkdownElementTypes.ATX_1 => ScalaDocTokenType.VALID_DOC_HEADER
         case MarkdownElementTypes.ATX_2 => ScalaDocTokenType.VALID_DOC_HEADER
         case MarkdownElementTypes.ATX_3 => ScalaDocTokenType.VALID_DOC_HEADER
