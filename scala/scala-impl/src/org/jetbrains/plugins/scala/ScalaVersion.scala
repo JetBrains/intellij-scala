@@ -117,7 +117,7 @@ object LatestScalaVersions {
   // Release candidates
   //
   // Scala LTS RC
-  val Scala_3_LTS_RC: ScalaVersion = new ScalaVersion(ScalaLanguageLevel.Scala_3_3, "6-RC3")
+  val Scala_3_LTS_RC: ScalaVersion = Scala_3_LTS
 
   // Scala Next RC
   val Scala_3_Next_RC: ScalaVersion = new ScalaVersion(ScalaLanguageLevel.Scala_3_7, "3-RC1")
