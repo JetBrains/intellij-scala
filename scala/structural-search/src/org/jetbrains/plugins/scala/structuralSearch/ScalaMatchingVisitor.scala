@@ -3,10 +3,12 @@ package org.jetbrains.plugins.scala.structuralSearch
 import com.intellij.psi.PsiElement
 import com.intellij.structuralsearch.impl.matcher.handlers.SubstitutionHandler
 import com.intellij.structuralsearch.impl.matcher.{CompiledPattern, GlobalMatchingVisitor}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScBlockExpr, ScIf, ScInfixExpr, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
+import org.jetbrains.plugins.scala.util.EnumSet.{EnumSet, EnumSetOps}
 
 class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaElementVisitor {
 
@@ -39,10 +41,14 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
       }
   }
 
+
+  private def checkModifier(pat: EnumSet[ScalaModifier], psi: EnumSet[ScalaModifier]): Boolean =
+    pat.toArray.forall(p => psi.contains(p))
+
   override def visitFunction(fun: ScFunction): Unit = {
     val other = globalVisitor.getElement.asInstanceOf[ScFunction]
 
-    val modifierMatch = globalVisitor.`match`(fun.getModifierList, other.getModifierList)
+    val modifierMatch = checkModifier(fun.getModifierList.modifiers, other.getModifierList.modifiers)
     val name = globalVisitor.`match`(fun.getNameIdentifier, other.getNameIdentifier)
     val typeParamsMatch = globalVisitor.matchSequentially(fun.typeParameters.toArray[PsiElement], other.typeParameters.toArray[PsiElement])
     val paramsMatch = globalVisitor.matchSequentially(fun.parameters.toArray[PsiElement], other.parameters.toArray[PsiElement])
@@ -59,7 +65,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
       }
     }
 
-    globalVisitor.setResult(modifierMatch && name && typeParamsMatch && paramsMatch && rTypeMatch && bodyMatch) 
+    globalVisitor.setResult(modifierMatch && name && typeParamsMatch && paramsMatch && rTypeMatch && bodyMatch)
   }
 
 
