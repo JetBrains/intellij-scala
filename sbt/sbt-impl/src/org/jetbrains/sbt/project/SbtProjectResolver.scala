@@ -377,7 +377,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       getDefaultModuleFilesDirectory(projectRoot),
       None,
       projectToParentModule,
-      buildProjectsGroup
+      buildProjectsGroup,
+      isPreview = true
     )
 
     projectNode
@@ -469,7 +470,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
         defaultModuleFilesDirectory,
         data.localCachePath.map(_.getCanonicalPath),
         projectToParentModule,
-        buildProjectsGroups
+        buildProjectsGroups,
+        isPreview = false
       )
     val buildModules = data.builds.map(buildModuleForProject)
 
@@ -1112,7 +1114,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     defaultModuleFilesDirectory: String,
     localCachePath: Option[String],
     projectToParentModule: Map[ProjectData, ModuleDataNodeType],
-    buildProjectsGroups: Seq[BuildProjectsGroup]
+    buildProjectsGroups: Seq[BuildProjectsGroup],
+    isPreview: Boolean
   )(implicit context: ImportContext): BuildModuleNodeWithBuildBaseDir = {
     val buildBaseProject =
       projects
@@ -1151,7 +1154,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result.setInheritProjectCompileOutputPath(false)
     result.setCompileOutputPath(ExternalSystemSourceType.SOURCE, (buildProjectDirRoot / Sbt.TargetDirectory / "idea-classes").path)
     result.setCompileOutputPath(ExternalSystemSourceType.TEST, (buildProjectDirRoot / Sbt.TargetDirectory / "idea-test-classes").path)
-    result.add(createBuildContentRoot(buildProjectDirRoot))
+    result.add(createBuildContentRoot(buildProjectDirRoot, isPreview))
 
     val library = {
       val classes = build.classes.filter(_.exists).map(_.path)
@@ -1175,11 +1178,17 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   /**
    * @param buildProjectDirRoot `myProjectName/project`
+   * @param isPreview indicate whether it's a preview import or not. If it's a preview import and `buildProjectDirRoot` doesn't exist,
+   *                  it shouldn't be added as a source to the build module content root.
+   *                  It's a workaround for [[https://youtrack.jetbrains.com/issue/SCL-24181]]
    */
-  private def createBuildContentRoot(buildProjectDirRoot: File): ContentRootNode = {
+  private def createBuildContentRoot(buildProjectDirRoot: File, isPreview: Boolean): ContentRootNode = {
     val result = new ContentRootNode(buildProjectDirRoot.path)
 
-    val sourceDirs = Seq(buildProjectDirRoot) // , base << 1
+    // Remove this workaround when https://youtrack.jetbrains.com/issue/IJPL-201546/WorkspaceModel-storage-inconsistency is fixed
+    val sourceDirs =
+      if (!isPreview || buildProjectDirRoot.exists()) Seq(buildProjectDirRoot) // , base << 1
+      else Nil
 
     val excludedDirs = Seq(
       buildProjectDirRoot / Sbt.TargetDirectory,
