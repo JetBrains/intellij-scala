@@ -246,7 +246,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
             case owner: ScTypeParametersOwner => owner.typeParameters
             case _                            => Seq.empty
           }
-        } else typeParameters
+        } else this.typeParametersWithExtension()
 
       ScParameterOwner.insertSyntheticParameterClause(
         paramClauses,

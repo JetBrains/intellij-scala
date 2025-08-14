@@ -23,7 +23,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
   private final val CompiledCode = "???"
 
   // TODO use parameters
-  private val sharedTypes = mutable.Map[Addr, String]()
+  private val sharedTypes = mutable.Map[(Addr, Boolean), String]()
   private val sourceFiles = mutable.Buffer[String]()
   private var compilerOptions = CompilerOptions.Default
   private var currentExtension = Option.empty[String]
@@ -526,13 +526,12 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
   }
 
   private def textOfType(node: Node, parens: Int = 0)(using parent: Option[Node] = None): String = {
+    val addTypeSuffix = parent.nonEmpty && node.is(TERMREF)
+
     if (node.isSharedType) {
-      sharedTypes.get(node.addr) match {
-        case Some(text) =>
-          return text + (if (parent.isEmpty && node.is(TERMREF) && !text.endsWith(".type")) ".type" else "")
-        case _ =>
-      }
+      sharedTypes.get((node.addr, addTypeSuffix)).foreach(return _)
     }
+    
     // TODO extract method
     given Option[Node] = Some(node)
     val text = node match { // TODO proper settings
@@ -684,7 +683,8 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
       case _ => // TODO exhaustive match
         textOfConstant(node)
     }
-    sharedTypes.put(node.addr, text)
+    
+    sharedTypes.put((node.addr, addTypeSuffix), text)
     text
   }
 

@@ -7,7 +7,7 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[TypecheckerTests]))
 class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
   override def supportedIn(version: ScalaVersion): Boolean =
-    version >= LatestScalaVersions.Scala_3_0
+    version >= LatestScalaVersions.Scala_3_7
 
   def testSimpleExtension(): Unit = checkTextHasNoErrors(
     """
@@ -723,6 +723,62 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
       |
       |"".test4    // doesn't resolve
       |"".`test4`  // ok
+      |""".stripMargin
+  )
+
+  def testSCL24177(): Unit = checkTextHasNoErrors(
+    """
+      |
+      |trait Preferences
+      |
+      |trait PrefReader[T] {
+      |  def read(node: Preferences, name: String, default: T): T
+      |}
+      |
+      |given PrefReader[Double] {
+      |  def read(node: Preferences, name: String, default: Double): Double = ???
+      |}
+      |given PrefReader[String] {
+      |  def read(node: Preferences, name: String, default: String): String = ???
+      |}
+      |
+      |extension (node: Preferences) {
+      |  def read[T: PrefReader](name: String): Option[T] = ???
+      |}
+      |
+      |object Main {
+      |  private lazy val node: Preferences = ???
+      |
+      |  private def loadHotfix(): String = {
+      |    node.read[String]("hotfix").getOrElse("")
+      |  }
+      |
+      |  def main(args: Array[String]): Unit = {
+      |  }
+      |}
+      |""".stripMargin
+  )
+
+  def testSCL24167(): Unit = checkTextHasNoErrors(
+    """
+      |import scala.reflect.Typeable
+      |
+      |sealed trait EntityState
+      |case class LeafState() extends EntityState
+      |
+      |object Main {
+      |
+      |  extension (all: List[EntityState]) {
+      |    def collectWithFilter[T <: EntityState : Typeable](predicate: T => Boolean): List[T] = {
+      |      all.collect { case e: T if predicate(e) => e }.toList
+      |    }
+      |  }
+      |
+      |  def main(args: Array[String]): Unit = {
+      |    val l = List(LeafState(), LeafState(), LeafState())
+      |    l.collectWithFilter[LeafState](_ => true)
+      |  }
+      |}
       |""".stripMargin
   )
 }
