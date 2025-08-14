@@ -47,8 +47,8 @@ object Versions {
   val junitInterfaceVersion: String = "0.13.3"
 
   val bspVersion = "2.1.0-M3"
-  val sbtStructureVersion: String = "2025.2.6"
-  val sbtIdeaShellVersion: String = "2025.1.4"
+  val sbtStructureVersion: String = "2025.3.1"
+  val sbtIdeaShellVersion: String = "2025.2.0"
   val compilerIndicesVersion = "1.0.16"
 
   val java9rtExportVersion: String = "0.1.0"
@@ -66,15 +66,15 @@ object Versions {
   object Sbt {
     val binary_0_13 = "0.13"
     val binary_1_0 = "1.0" // 1.0 is the binary version of sbt 1.x series
-    val binary_2_0 = "2.0"
+    val binary_2 = "2" // 2 is the binary version of sbt 2
 
     //sbt-structure-extractor is cross-published in a non-standard way,
     //against multiple 1.x versions, so it uses an exact binary version 1.x.
-    //Versions 1.0-1.2 use 1.2, versions 1.3 and above use 1.3
+    //Versions 1.0-1.2 use 1.0, versions 1.3 and above use 1.3
     val structure_extractor_binary_0_13 = "0.13"
     val structure_extractor_binary_1_0 = "1.0"
     val structure_extractor_binary_1_3 = "1.3"
-    val structure_extractor_binary_2_0 = "2.0"
+    val structure_extractor_binary_2 = "2"
   }
 }
 
@@ -102,7 +102,7 @@ object Dependencies {
   val structureExtractor_0_13: Dependency = sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, Versions.Sbt.structure_extractor_binary_0_13)
   val structureExtractor_1_0: Dependency = sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, Versions.Sbt.structure_extractor_binary_1_0)
   val structureExtractor_1_3: Dependency = sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, Versions.Sbt.structure_extractor_binary_1_3)
-  val structureExtractor_2_0: Dependency = sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, Versions.Sbt.structure_extractor_binary_2_0)
+  val structureExtractor_2: Dependency = sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, Versions.Sbt.structure_extractor_binary_2)
 
   /**
    * NOTE: JUnit 4 dependency is already available via intellij main jars.
