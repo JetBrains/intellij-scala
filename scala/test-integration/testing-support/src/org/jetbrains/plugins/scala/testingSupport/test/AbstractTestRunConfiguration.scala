@@ -225,7 +225,9 @@ abstract class AbstractTestRunConfiguration(
     XmlSerializer.deserializeInto(this, element)
     //TODO: since UserDataHolderBase extends AtomicReference in 2021.1 deserialization of it's value doesn't work and plain
     // Object instance is deserialized instead of KeyFMap
-    set(KeyFMap.EMPTY_MAP)
+    // TODO: Around 253.12201, AbstractTestRunConfiguration no longer transitively extends AtomicReference.
+    //       Figure out if we need to make larger changes.
+    // set(KeyFMap.EMPTY_MAP)
     migrate(element)
     testConfigurationData = TestConfigurationData.createFromExternal(element, this)
   }

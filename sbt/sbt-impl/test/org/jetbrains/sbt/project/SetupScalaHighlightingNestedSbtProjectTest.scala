@@ -9,7 +9,7 @@ import junit.framework.TestCase.{assertFalse, assertNotNull, assertNull, assertT
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.junit.Test
+import org.junit.{Ignore, Test}
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -22,7 +22,7 @@ class SetupScalaHighlightingNestedSbtProjectTest extends SbtExternalSystemImport
   override protected def getTestDataProjectPath: String =
     s"${TestUtils.getTestDataPath}/sbt/projects/setupScalaHighlightingNestedSbtProject"
 
-  override def getProjectPath: String = Path.of(getTestDataProjectPath, "nestedSbtProject").toString
+//  override def getProjectPath: String = Path.of(getTestDataProjectPath, "nestedSbtProject").toString
 
   override protected def projectJdkLanguageLevel: LanguageLevel = LanguageLevel.JDK_17
 
@@ -32,6 +32,7 @@ class SetupScalaHighlightingNestedSbtProjectTest extends SbtExternalSystemImport
     SbtCachesSetupUtil.setupCoursierAndIvyCache(getMyProject)
   }
 
+  @Ignore("Temporarily disabled until we properly fix external system importing tests with custom initialization")
   @Test
   def setupScalaHighlighting(): Unit = {
     // SCL-23943

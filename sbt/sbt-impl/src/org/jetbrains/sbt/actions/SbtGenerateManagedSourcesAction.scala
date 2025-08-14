@@ -2,6 +2,7 @@ package org.jetbrains.sbt.actions
 
 import com.intellij.build.events.impl.{FailureResultImpl, FinishBuildEventImpl, OutputBuildEventImpl, SkippedResultImpl, StartBuildEventImpl, SuccessResultImpl}
 import com.intellij.build.{DefaultBuildDescriptor, SyncViewManager}
+import com.intellij.execution.process.ProcessOutputType
 import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent}
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskType}
 import com.intellij.openapi.fileEditor.FileDocumentManager
@@ -44,7 +45,7 @@ private final class SbtGenerateManagedSourcesAction extends AnAction(
 
         def reportFailure(@Nullable throwable: Throwable): Unit = {
           val sbtOutput = reporter.outputLines.mkString(start = "", sep = System.lineSeparator(), end = System.lineSeparator())
-          viewManager.onEvent(taskId, new OutputBuildEventImpl(taskId, null, sbtOutput, true))
+          viewManager.onEvent(taskId, new OutputBuildEventImpl(taskId, null, sbtOutput, ProcessOutputType.STDOUT))
           val failureWord = SbtBundle.message("sbt.generate.managed.sources.task.result.failure")
           val failureMessage = SbtBundle.message("sbt.generate.managed.sources.task.result.failure.message")
           val failureResult = new FailureResultImpl(failureMessage, throwable)
@@ -100,7 +101,7 @@ private final class SbtGenerateManagedSourcesAction extends AnAction(
             case Success(buildMessages) if buildMessages.status == BuildMessages.Canceled =>
               val canceledWord = SbtBundle.message("sbt.generate.managed.sources.task.result.canceled")
               val canceledMessage = SbtBundle.message("sbt.generate.managed.sources.task.result.canceled.message")
-              viewManager.onEvent(taskId, new OutputBuildEventImpl(taskId, null, canceledMessage, true))
+              viewManager.onEvent(taskId, new OutputBuildEventImpl(taskId, null, canceledMessage, ProcessOutputType.STDOUT))
               val finishEvent = new FinishBuildEventImpl(taskId, null, System.currentTimeMillis(), canceledWord, new SkippedResultImpl())
               viewManager.onEvent(taskId, finishEvent)
 
@@ -119,7 +120,7 @@ private final class SbtGenerateManagedSourcesAction extends AnAction(
                   val virtualFiles = generatedSources.flatMap(p => Option(fileManager.refreshAndFindFileByNioPath(p)))
                   VfsUtil.markDirtyAndRefresh(false, false, true, virtualFiles: _*)
                   val output = lines.mkString(start = "", sep = System.lineSeparator(), end = System.lineSeparator())
-                  viewManager.onEvent(taskId, new OutputBuildEventImpl(taskId, null, output, true))
+                  viewManager.onEvent(taskId, new OutputBuildEventImpl(taskId, null, output, ProcessOutputType.STDOUT))
                   val successWord = SbtBundle.message("sbt.generate.managed.sources.task.result.success")
                   val successResult = new SuccessResultImpl()
                   val successEvent = new FinishBuildEventImpl(taskId, null, System.currentTimeMillis(), successWord, successResult)

@@ -3,7 +3,7 @@ package org.jetbrains.sbt.project
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.LocalFileSystem
-import com.intellij.platform.externalSystem.testFramework.{ExternalSystemImportingTestCase, ExternalSystemTestCase}
+import com.intellij.platform.externalSystem.testFramework.{ExternalSystemImportingTestCase, NioExternalSystemTestCase}
 import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.extensions.inWriteAction
@@ -66,7 +66,7 @@ abstract class ScalaExternalSystemImportingTestBase extends ExternalSystemImport
     }
   }
 
-  override protected def setUpProjectRoot(): Unit = {
+  override protected def setUpInWriteAction(): Unit = {
     val originalTestDataProjectDir = new File(getTestDataProjectPath)
     val testProjectPath = getTestProjectDir
 
@@ -78,7 +78,7 @@ abstract class ScalaExternalSystemImportingTestBase extends ExternalSystemImport
     // TODO: Rewrite without reflection.
     val myCustomProjectRoot = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(testProjectPath)
     assertNotNull(s"test project root was not found: $testProjectPath", myCustomProjectRoot)
-    val myProjectRootField = classOf[ExternalSystemTestCase].getDeclaredField("myProjectRoot")
+    val myProjectRootField = classOf[NioExternalSystemTestCase].getDeclaredField("projectRoot")
     myProjectRootField.setAccessible(true)
     myProjectRootField.set(this, myCustomProjectRoot)
   }
