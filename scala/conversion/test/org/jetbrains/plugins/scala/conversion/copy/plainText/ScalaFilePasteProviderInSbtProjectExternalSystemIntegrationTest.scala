@@ -5,11 +5,15 @@ import org.jetbrains.plugins.scala.SlowTests2
 import org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike
 import org.junit.Assert.assertNotNull
 import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
+import org.junit.{Ignore, Test}
 
 /**
  * For lightweight unit-like tests for the same functionality see [[ScalaFilePasteProviderInSbtProjectTest]]
  */
 @Category(Array(classOf[SlowTests2]))
+@RunWith(classOf[JUnit4])
 class ScalaFilePasteProviderInSbtProjectExternalSystemIntegrationTest
   extends SbtExternalSystemImportingTestLike
   with ScalaFilePasteProviderInSbtProjectTestLike {
@@ -76,7 +80,7 @@ class ScalaFilePasteProviderInSbtProjectExternalSystemIntegrationTest
       |  "org.scalatest" %% "scalatest" % "3.2.16" % Test
       |)""".stripMargin
 
-  def doPasteToDirectoryTest(
+  private def doPasteToDirectoryTest(
     relativeDirPath: String,
     pastedCode: String,
     expectedNewFileName: String
@@ -91,6 +95,8 @@ class ScalaFilePasteProviderInSbtProjectExternalSystemIntegrationTest
     )
   }
 
+  @Ignore("Temporarily disabled until we properly fix external system importing tests with custom initialization")
+  @Test
   def testAutoCreatePluginSbtFile(): Unit = {
     TestProjectName = "autoCreatePluginSbtFile"
     importProject(false)
@@ -104,6 +110,8 @@ class ScalaFilePasteProviderInSbtProjectExternalSystemIntegrationTest
     doPasteToDirectoryTest("", PastedComplexCodeWithAddSbtPlugin, SomeOtherName)
   }
 
+  @Ignore("Temporarily disabled until we properly fix external system importing tests with custom initialization")
+  @Test
   def testUpdateExistingPluginsSbtFile_SimpleCode_To_EmptyFile(): Unit = {
     doPasteToDirectoryAndUpdateExistingFileTest(
       testProjectName = "autoCreatePluginSbtFileWithAlreadyExistingPluginsSbt",
@@ -117,6 +125,8 @@ class ScalaFilePasteProviderInSbtProjectExternalSystemIntegrationTest
     )
   }
 
+  @Ignore("Temporarily disabled until we properly fix external system importing tests with custom initialization")
+  @Test
   def testUpdateExistingPluginsSbtFile_SimpleCode_To_FileWithAddSbtPluginsStatements(): Unit =
     doPasteToDirectoryAndUpdateExistingFileTest(
       testProjectName = "autoCreatePluginSbtFileWithAlreadyExistingPluginsSbt",
