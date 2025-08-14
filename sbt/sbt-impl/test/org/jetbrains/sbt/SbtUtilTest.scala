@@ -21,7 +21,7 @@ class SbtUtilTest {
   private val globalBase012 = defaultGlobalBase.toPath / "0.12"
   private val globalBase013 = defaultGlobalBase.toPath / "0.13"
   private val globalBase10 = defaultGlobalBase.toPath / "1.0"
-  private val globalBase20 = defaultGlobalBase.toPath / "2.0"
+  private val globalBase20 = defaultGlobalBase.toPath / "2"
 
   @Test
   def testDefaultGlobalBase(): Unit = {
@@ -102,7 +102,7 @@ class SbtUtilTest {
     assertEquals(SbtVersion.Latest.Sbt_LatestIncludingUnreleased, upgradeSbtVersionToTheLatestCompatible(SbtVersion.Latest.Sbt_LatestIncludingUnreleased))
 
     assertEquals(SbtVersion("1.9001.1"), upgradeSbtVersionToTheLatestCompatible(SbtVersion("1.9001.1")))
-    assertEquals(SbtVersion("2.0.0-M3"), upgradeSbtVersionToTheLatestCompatible(SbtVersion("2.0.0-M3")))
+    assertEquals(SbtVersion("2.0.0-RC2"), upgradeSbtVersionToTheLatestCompatible(SbtVersion("2.0.0-M3")))
     assertEquals(SbtVersion("2.0.0"), upgradeSbtVersionToTheLatestCompatible(SbtVersion("2.0.0")))
   }
 
