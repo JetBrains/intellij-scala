@@ -88,7 +88,9 @@ private object NonValueFunctionTypes {
         implicit val scope: ElementScope = fun.elementScope
 
         val typeParams = owner.typeParameters.map(TypeParameter(_))
-        val methodType = MethodTypeProvider.constructMethodType(Any, owner.effectiveParameterClauses)
+        //NOTE: allClauses and not effectiveParameterClauses, since context bounds are translated to
+        //      context parameters on individual methods and as such are NOT required to construct an extension.
+        val methodType = MethodTypeProvider.constructMethodType(Any, owner.allClauses)
 
         if (typeParams.isEmpty) methodType
         else                    ScTypePolymorphicType(methodType, typeParams)

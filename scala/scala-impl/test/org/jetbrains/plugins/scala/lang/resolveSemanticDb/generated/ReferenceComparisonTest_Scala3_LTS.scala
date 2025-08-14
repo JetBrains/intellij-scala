@@ -1319,7 +1319,7 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_i13411(): Unit = doTest("i13411", true)
   def test_i13411b(): Unit = doTest("i13411b", true)
   def test_i13426(): Unit = doTest("i13426", true)
-  def test_i13433(): Unit = doTest("i13433", false) // #matchType, #unionType
+  def test_i13433(): Unit = doTest("i13433", true) // #matchType, #unionType
   def test_i13433b(): Unit = doTest("i13433b", true) // #matchType
   def test_i13460(): Unit = doTest("i13460", false) // #byNameImplicit, #typeLambda, #derives
   def test_i13476(): Unit = doTest("i13476", false) // #transparentInline, #export

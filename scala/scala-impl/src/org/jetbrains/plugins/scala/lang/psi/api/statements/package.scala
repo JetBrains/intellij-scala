@@ -130,7 +130,7 @@ package object statements {
   implicit class ScExpressionExt(private val expr: ScExpression) extends AnyVal {
     /**
      * The method finds all child expressions (at any level) of `expr` parameter that are located at tail position
-     * Note that resulting set can contain return statements that are at tail positions,
+     * Note that the resulting set can contain return statements that are at tail positions,
      * but can not contain the expression of the return statement
      *
      * @example body expression of method
