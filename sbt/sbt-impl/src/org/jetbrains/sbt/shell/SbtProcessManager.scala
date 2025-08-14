@@ -80,20 +80,15 @@ final class SbtProcessManager(project: Project) extends Disposable {
     val sbtIdeaShellVersion = BuildInfo.sbtIdeaShellVersion
 
     val sbtStructurePluginBinVersion = structurePluginBinaryVersion(sbtVersion)
-    // NOTE: sbt-idea-shell plugin is published with `_2.0` suffix instead of the full suffix
-    // even for the unreleased sbt version like 2.0.0-M3
-    val sbtIdeaShellBinVersion =
-      if (sbtBinaryVersion.toString.startsWith("2")) "2.0"
-      else sbtBinaryVersion
     log.debug(s"sbtBinVersion = $sbtBinaryVersion")
     log.debug(s"sbtStructurePluginBinVersion = $sbtStructurePluginBinVersion")
-    log.debug(s"sbtIdeaShellBinVersion = $sbtIdeaShellBinVersion")
+    log.debug(s"sbtIdeaShellBinVersion = $sbtBinaryVersion")
 
     sbtBinaryVersion.presentation match {
       case _ =>
         Seq(
           s"""addSbtPlugin("org.jetbrains.scala" % "sbt-structure-extractor" % "$sbtStructureVersion", "$sbtStructurePluginBinVersion")""",
-          s"""addSbtPlugin("org.jetbrains.scala" % "sbt-idea-shell" % "$sbtIdeaShellVersion", "$sbtIdeaShellBinVersion")""",
+          s"""addSbtPlugin("org.jetbrains.scala" % "sbt-idea-shell" % "$sbtIdeaShellVersion", "$sbtBinaryVersion")""",
         )
         // SCL-22858 compiler bytecode indices are disabled in sbt shell
         // ++ compilerIndicesPlugin // works for 0.13.5+, for older versions it will be ignored
