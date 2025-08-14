@@ -263,9 +263,9 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
       s"""<tr><td valign='top' class='section'><p>Deprecated</td>
          |<td valign='top'>some text</td>
          |<tr><td valign='top' class='section'><p>Params:</td>
-         |<td valign='top'>p &ndash; some text</td>
+         |<td valign='top'><code>p</code> &ndash; some text</td>
          |<tr><td valign='top' class='section'><p>Type parameters:</td>
-         |<td valign='top'>T &ndash; some text</td>
+         |<td valign='top'><code>T</code> &ndash; some text</td>
          |<tr><td valign='top' class='section'><p>Returns:</td>
          |<td valign='top'>some text</td>
          |<tr><td valign='top' class='section'><p>Throws:</td>
@@ -319,11 +319,11 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          |""".stripMargin
     val expectedDoc =
       s"""<tr><td valign='top' class='section'><p>Params:</td>
-         |<td valign='top'>i &ndash; aaa<p>j &ndash; bbb<p>k &ndash; ccc</td>
+         |<td valign='top'><code>i</code> &ndash; aaa<p><code>j</code> &ndash; bbb<p><code>k</code> &ndash; ccc</td>
          |<tr><td valign='top' class='section'><p>Type parameters:</td>
          |<td valign='top'>
-         |T &ndash; ddd<p>
-         |E &ndash; eee ggg</td>
+         |<code>T</code> &ndash; ddd<p>
+         |<code>E</code> &ndash; eee ggg</td>
          |""".stripMargin
     doGenerateDocSectionsTest(fileText, expectedDoc)
   }
@@ -393,9 +393,9 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          |""".stripMargin
     val expectedDoc  =
       s"""<tr><td valign='top' class='section'><p>Params:</td>
-         |<td valign='top'>o &ndash; <p>f &ndash; description for f</td>
+         |<td valign='top'><code>o</code> &ndash; <p><code>f</code> &ndash; description for f</td>
          |<tr><td valign='top' class='section'><p>Type parameters:</td>
-         |<td valign='top'>E &ndash; <p>K &ndash; description for K</td>
+         |<td valign='top'><code>E</code> &ndash; <p><code>K</code> &ndash; description for K</td>
          |""".stripMargin
 
     doGenerateDocSectionsTest(fileText, expectedDoc)
@@ -412,7 +412,7 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          |""".stripMargin
     val expectedDoc  =
       s"""<tr><td valign='top' class='section'><p>Type parameters:</td>
-         |<td valign='top'>A &ndash;  <p>B &ndash; description for B<p>C &ndash; </td>""".stripMargin
+         |<td valign='top'><code>A</code> &ndash;  <p><code>B</code> &ndash; description for B<p><code>C</code> &ndash; </td>""".stripMargin
     doGenerateDocSectionsTest(fileText, expectedDoc)
   }
 
@@ -467,7 +467,7 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          |""".stripMargin
     val expectedDoc =
       s"""<tr><td valign='top' class='section'><p>Params:</td>
-         |<td valign='top'>n &ndash; the number to be incremented</td>
+         |<td valign='top'><code>n</code> &ndash; the number to be incremented</td>
          |<tr><td valign='top' class='section'><p>Returns:</td><td valign='top'>the incremented number</td>
          |""".stripMargin
     doGenerateDocSectionsTest(fileText, expectedDoc)
@@ -1088,7 +1088,7 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          |$ContentEnd
          |$SectionsStart
          |<tr><td valign='top' class='section'><p>Params:</td>
-         |<td valign='top'>i &ndash; An important parameter</td>
+         |<td valign='top'><code>i</code> &ndash; An important parameter</td>
          |$SectionsEnd""".stripMargin
     doGenerateDocBodyTestWithoutContainerInfo(fileText, expectedDoc)
   }
