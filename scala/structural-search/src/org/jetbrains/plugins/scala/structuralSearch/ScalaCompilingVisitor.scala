@@ -96,6 +96,17 @@ class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends Scala
     globalVisitor
       .getContext.getPattern
       .getHandler(fun).setFilter(new FunctionFilter())
+
+    val name = fun.name
+    val pattern = globalVisitor.getContext.getPattern
+    if (pattern.isTypedVar(name)) {
+      pattern.getHandler(name) match {
+        case substHand: SubstitutionHandler =>
+          substHand.setFilter(new MatchingVariableFilter())
+          substHand.setMatchHandler(new SymbolHandler(substHand))
+        case _ =>
+      }
+    }
   }
 
   // TODO could add filter to only match this pattern node to matching nodes, e.g. comment on comment
