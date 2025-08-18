@@ -6,10 +6,12 @@ import com.intellij.structuralsearch.impl.matcher.MatchContext
 import com.intellij.structuralsearch.impl.matcher.compiler.GlobalCompilingVisitor
 import com.intellij.structuralsearch.impl.matcher.handlers.{MatchingHandler, SubstitutionHandler, TopLevelMatchingHandler}
 import com.intellij.structuralsearch.impl.matcher.strategies.MatchingStrategy
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScInfixExpr, ScMethodCall, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScInfixExpr, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
-import org.jetbrains.plugins.scala.structuralSearch.filter.{FunctionFilter, MethodInvocationFilter, ReferenceExpressionFilter}
+import org.jetbrains.plugins.scala.structuralSearch.filter.{FunctionFilter, MatchingVariableFilter, MethodInvocationFilter}
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
 
 class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends ScalaRecursiveElementVisitor {
@@ -37,19 +39,20 @@ class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends Scala
     }
   }
 
-  override def visitReferenceExpression(ref: ScReferenceExpression): Unit = {
-    super.visitReferenceExpression(ref)
+  override def visitReference(ref: ScReference): Unit = {
+    super.visitReference(ref)
+
     val pattern = globalVisitor.getContext.getPattern
     if (pattern.isRealTypedVar(ref)) {
       pattern.getHandler(ref) match {
         case substHand: SubstitutionHandler =>
-          substHand.setFilter(new ReferenceExpressionFilter())
+          substHand.setFilter(new MatchingVariableFilter())
           substHand.setMatchHandler(new SymbolHandler(substHand))
+        case _ =>
       }
     }
   }
-
-
+//  override def visitReferenceExpression(ref: ScReferenceExpression): Unit = visitReference(ref)
 
   private class SymbolHandler(handler: SubstitutionHandler) extends MatchingHandler {
     override def `match`(patternNode: PsiElement, matchedNode: PsiElement, context: MatchContext): Boolean =
@@ -70,6 +73,21 @@ class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends Scala
   override def visitScalaElement(element: ScalaPsiElement): Unit = {
     globalVisitor.handle(element)
     super.visitScalaElement(element)
+  }
+
+  override def visitParameter(parameter: ScParameter): Unit = {
+    super.visitParameter(parameter)
+
+    val name = parameter.name
+    val pattern = globalVisitor.getContext.getPattern
+    if (pattern.isTypedVar(name)) {
+      pattern.getHandler(name) match {
+        case substHand: SubstitutionHandler =>
+          substHand.setFilter(new MatchingVariableFilter())
+          substHand.setMatchHandler(new SymbolHandler(substHand))
+        case _ =>
+      }
+    }
   }
 
   override def visitFunction(fun: ScFunction): Unit = {

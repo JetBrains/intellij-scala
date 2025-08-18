@@ -3,12 +3,15 @@ package org.jetbrains.plugins.scala.structuralSearch
 import com.intellij.psi.PsiElement
 import com.intellij.structuralsearch.impl.matcher.handlers.SubstitutionHandler
 import com.intellij.structuralsearch.impl.matcher.{CompiledPattern, GlobalMatchingVisitor}
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScBlockExpr, ScIf, ScInfixExpr, ScMethodCall, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 import org.jetbrains.plugins.scala.util.EnumSet.{EnumSet, EnumSetOps}
+
 
 class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaElementVisitor {
 
@@ -34,7 +37,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
         case (Some(pat: ScBlockExpr), Some(psi)) =>
           pat.statements.size == 1 && globalVisitor.`match`(pat.statements.head, psi)
         case (Some(pat), Some(psi: ScBlockExpr)) =>
-          psi.statements.size == 1 && globalVisitor.`match`(pat, psi.statements.head)
+          globalVisitor.matchSequentially(Array(pat), psi.statements.toArray[PsiElement])
         case (Some(pat), Some(psi)) =>
           globalVisitor.`match`(pat, psi)
         case _ => false
@@ -44,6 +47,20 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
 
   private def checkModifier(pat: EnumSet[ScalaModifier], psi: EnumSet[ScalaModifier]): Boolean =
     pat.toArray.forall(p => psi.contains(p))
+
+  override def visitParameter(parameter: ScParameter): Unit = {
+    if (!globalVisitor.getElement.is[ScParameter]) {
+      globalVisitor.setResult(false)
+      return
+    }
+    val other = globalVisitor.getElement.asInstanceOf[ScParameter]
+
+    val modifierMatch = checkModifier(parameter.getModifierList.modifiers, other.getModifierList.modifiers)
+    val typeMatch = matchOptOptional(parameter.typeElement, other.typeElement)
+    val identMatch = globalVisitor.`match`(parameter.getIdentifyingElement, other.getIdentifyingElement)
+
+    globalVisitor.setResult(modifierMatch && typeMatch && identMatch)
+  }
 
   override def visitFunction(fun: ScFunction): Unit = {
     val other = globalVisitor.getElement.asInstanceOf[ScFunction]
@@ -83,12 +100,6 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
 
   override def visitInfixExpression(infixPat: ScInfixExpr): Unit = {
     visitMethodInvocation(infixPat)
-//    val infixPsi = globalVisitor.getElement.asInstanceOf[ScInfixExpr]
-//
-//    val leftMatch = globalVisitor.`match`(infixPat.left, infixPsi.left)
-//    val operationMatch = globalVisitor.`match`(infixPat.operation, infixPsi.operation)
-//    val rightMatch = globalVisitor.`match`(infixPat.right, infixPsi.right)
-//    globalVisitor.setResult(leftMatch && operationMatch && rightMatch)
   }
 
   override def visitLiteral(lPat: ScLiteral): Unit =
@@ -98,8 +109,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     val context = globalVisitor.getMatchContext
     val pattern = context.getPattern
     val other = globalVisitor.getElement
-    val _handler = pattern.getHandlerSimple(refPat)
-    _handler match {
+    pattern.getHandlerSimple(refPat) match {
       case substHand: SubstitutionHandler =>
         if (globalVisitor.setResult(substHand.validate(other, context)))
             substHand.addResult(other, context)
@@ -139,8 +149,14 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
       case substHandler: SubstitutionHandler =>
         globalVisitor.setResult(substHandler.handle(other, globalVisitor.getMatchContext))
       case null =>
-        // todo do more useful stuff
-        globalVisitor.setResult(globalVisitor.matchText(elementPat.getText, other.getText))
+        val context = globalVisitor.getMatchContext
+        val pattern = context.getPattern
+        pattern.getHandlerSimple(elementPat) match {
+          case substHandler: SubstitutionHandler =>
+            globalVisitor.setResult(substHandler.handle(other, globalVisitor.getMatchContext))
+          case _ =>
+            globalVisitor.setResult(globalVisitor.matchText(elementPat.getText, other.getText))
+        }
       case _ =>
         globalVisitor.setResult(handler.`match`(elementPat, other, globalVisitor.getMatchContext))
     }
