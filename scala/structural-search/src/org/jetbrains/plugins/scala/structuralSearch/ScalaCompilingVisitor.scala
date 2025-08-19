@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScInfixExpr, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.structuralSearch.filter.{FunctionFilter, MatchingVariableFilter, MethodInvocationFilter}
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
@@ -41,18 +42,8 @@ class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends Scala
 
   override def visitReference(ref: ScReference): Unit = {
     super.visitReference(ref)
-
-    val pattern = globalVisitor.getContext.getPattern
-    if (pattern.isRealTypedVar(ref)) {
-      pattern.getHandler(ref) match {
-        case substHand: SubstitutionHandler =>
-          substHand.setFilter(new MatchingVariableFilter())
-          substHand.setMatchHandler(new SymbolHandler(substHand))
-        case _ =>
-      }
-    }
+    placeVarHandler(ref.refName)
   }
-//  override def visitReferenceExpression(ref: ScReferenceExpression): Unit = visitReference(ref)
 
   private class SymbolHandler(handler: SubstitutionHandler) extends MatchingHandler {
     override def `match`(patternNode: PsiElement, matchedNode: PsiElement, context: MatchContext): Boolean =
@@ -78,16 +69,7 @@ class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends Scala
   override def visitParameter(parameter: ScParameter): Unit = {
     super.visitParameter(parameter)
 
-    val name = parameter.name
-    val pattern = globalVisitor.getContext.getPattern
-    if (pattern.isTypedVar(name)) {
-      pattern.getHandler(name) match {
-        case substHand: SubstitutionHandler =>
-          substHand.setFilter(new MatchingVariableFilter())
-          substHand.setMatchHandler(new SymbolHandler(substHand))
-        case _ =>
-      }
-    }
+    placeVarHandler(parameter.name)
   }
 
   override def visitFunction(fun: ScFunction): Unit = {
@@ -96,14 +78,20 @@ class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends Scala
     globalVisitor
       .getContext.getPattern
       .getHandler(fun).setFilter(new FunctionFilter())
+    placeVarHandler(fun.name)
+  }
 
-    val name = fun.name
+  override def visitTypeDefinition(typedef: ScTypeDefinition): Unit = {
+    super.visitTypeDefinition(typedef)
+    placeVarHandler(typedef.name)
+  }
+
+  private def placeVarHandler(name: String): Unit = {
     val pattern = globalVisitor.getContext.getPattern
     if (pattern.isTypedVar(name)) {
       pattern.getHandler(name) match {
         case substHand: SubstitutionHandler =>
           substHand.setFilter(new MatchingVariableFilter())
-          substHand.setMatchHandler(new SymbolHandler(substHand))
         case _ =>
       }
     }
