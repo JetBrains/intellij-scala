@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScBlockExpr, ScIf, ScInfixExpr, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScConstructorOwner, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 import org.jetbrains.plugins.scala.util.EnumSet.{EnumSet, EnumSetOps}
 
@@ -45,25 +45,17 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
       }
   }
 
-
   private def checkModifier(pat: EnumSet[ScalaModifier], psi: EnumSet[ScalaModifier]): Boolean =
     pat.toArray.forall(p => psi.contains(p))
-
-  override def visitTypeDefinition(typedef: ScTypeDefinition): Unit = {
-    val other = globalVisitor.getElement.asInstanceOf[ScTypeDefinition]
-
-    val modifierMatch = checkModifier(typedef.getModifierList.modifiers, other.getModifierList.modifiers)
-    val nameMatch = globalVisitor.`match`(typedef.getNameIdentifier, other.getNameIdentifier)
-
-    // TODO start parsing function
-    // ignore the order of nearly all elements inside
-
-    globalVisitor.setResult(modifierMatch && nameMatch)
-  }
 
   private def matchTextOrVariable(el1: PsiElement, el2: PsiElement, handler: MatchingHandler): Boolean = {
     handler match {
       case substHandler: SubstitutionHandler => substHandler.validate(el2, globalVisitor.getMatchContext)
+      case topLevel: TopLevelMatchingHandler =>
+        topLevel.getDelegate match {
+          case substHandler: SubstitutionHandler => substHandler.validate(el2, globalVisitor.getMatchContext)
+          case _ => globalVisitor.matchText(el1, el2)
+        }
       case _ => globalVisitor.matchText(el1, el2)
     }
   }
@@ -87,7 +79,31 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     }
   }
 
+  override def visitTypeDefinition(typedef: ScTypeDefinition): Unit = {
+    if (!globalVisitor.getElement.is[ScTypeDefinition]) return
+    val other = globalVisitor.getElement.asInstanceOf[ScTypeDefinition]
+
+    val handler = getHandler(typedef)
+    val keywordMatch = typedef.keywordPrefix == other.keywordPrefix
+    val modifierMatch = checkModifier(typedef.getModifierList.modifiers, other.getModifierList.modifiers)
+    val nameMatch = matchTextOrVariable(typedef.getNameIdentifier, other.getNameIdentifier, handler)
+    val functionsMatch = globalVisitor.matchInAnyOrder(typedef.functions.toArray[PsiElement], other.functions.toArray[PsiElement])
+    val constructorsMatch = (typedef, other) match {
+      case (typedef: ScConstructorOwner, other: ScConstructorOwner) =>
+        (typedef.constructor.exists(c => c.parameters.isEmpty) || matchOptOptional(typedef.constructor, other.constructor))
+        && globalVisitor.matchInAnyOrder(typedef.secondaryConstructors.toArray[PsiElement], other.secondaryConstructors.toArray[PsiElement])
+      case _ => true
+    }
+
+    // TODO start parsing function
+    // ignore the order of nearly all elements inside
+
+    globalVisitor.setResult(keywordMatch && modifierMatch && nameMatch && functionsMatch && constructorsMatch)
+    rememberVarMatchIfResult(handler, other.getNameIdentifier)
+  }
+
   override def visitFunction(fun: ScFunction): Unit = {
+    if (!globalVisitor.getElement.is[ScFunction]) return
     val other = globalVisitor.getElement.asInstanceOf[ScFunction]
 
     val handler = getHandler(fun)
