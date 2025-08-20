@@ -10,7 +10,8 @@ import com.intellij.structuralsearch.{StructuralSearchProfile, StructuralSearchP
 import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaFileTemplateContextType
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterType}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterType
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
 
 final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
@@ -64,7 +65,7 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
 
       override def getTypedVarString(element: PsiElement): String =
           element match {
-            case par: ScParameter =>
+            case par: ScNamedElement =>
               par.name
             case _ =>
               super.getTypedVarString(element)
