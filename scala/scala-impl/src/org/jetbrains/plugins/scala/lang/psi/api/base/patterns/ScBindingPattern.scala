@@ -7,11 +7,13 @@ import com.intellij.psi.javadoc.PsiDocComment
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.hasStablePath
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 
 import javax.swing.Icon
 
@@ -128,4 +130,8 @@ trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinit
       case _ => false
     }
   }
+
+  override def aliasExport: Option[PsiNamedElement] =
+    if (!hasStablePath(this)) None
+    else `type`().toOption.collect { case ScDesignatorType(o: ScObject) if o.name == name => o }
 }

@@ -171,6 +171,8 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
    * [[https://youtrack.jetbrains.net/issue/SCL-3132 SCL-3132]]
    *
    * Corresponding references are used in FindUsages, but filtered from Rename
+   *
+   * @see [[org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement.aliasExport]]
    */
   def isIndirectReferenceTo(@Nullable resolved: PsiElement, element: PsiElement): Boolean = {
     if (resolved == null)

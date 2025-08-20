@@ -8,12 +8,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports.ScImportOrExportImpl
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.PrecedenceTypes
-import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
+import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.collection.mutable
@@ -34,6 +34,49 @@ import scala.collection.mutable
  * If there are name clashes with some wildcard, the import can't be removed, because it has a lower precedence then wildcard.
  */
 object RedundantImportUtils {
+
+  // Precomputed "implicit imports" that match "alias exports" in scala and scala.Predef
+  // E.g. Seq is scala.collection.immutable.Seq rather than scala.Seq
+
+  private val AliasImports212 = """
+     |import _root_.java.lang.{Throwable, Exception, Error, RuntimeException, NullPointerException, ClassCastException, IndexOutOfBoundsException, ArrayIndexOutOfBoundsException, StringIndexOutOfBoundsException, UnsupportedOperationException, IllegalArgumentException, NumberFormatException, AbstractMethodError, InterruptedException, String, Class}
+     |import _root_.java.util.NoSuchElementException
+     |import _root_.scala.collection.{Iterable, Seq, IndexedSeq, Iterator, BufferedIterator, Iterable, +:, :+}
+     |import _root_.scala.collection.immutable.{List, Nil, ::, Stream, Vector, Range, Map, Set}
+     |import _root_.scala.collection.immutable.Stream.#::
+     |import _root_.scala.collection.mutable.StringBuilder
+     |import _root_.scala.math.{BigDecimal, BigInt, Equiv, Fractional, Integral, Numeric, Ordered, Ordering, PartialOrdering, PartiallyOrdered}
+     |import _root_.scala.util.{Either, Left, Right}
+     |import _root_.scala.reflect.{OptManifest, Manifest, NoManifest}
+   """.stripMargin.trim
+
+  private val AliasImports213 = """
+     |import _root_.java.lang.{Cloneable, Throwable, Exception, Error, RuntimeException, NullPointerException, ClassCastException, IndexOutOfBoundsException, ArrayIndexOutOfBoundsException, StringIndexOutOfBoundsException, UnsupportedOperationException, IllegalArgumentException, NumberFormatException, AbstractMethodError, InterruptedException, String, Class}
+     |import _root_.java.io.Serializable
+     |import _root_.java.util.NoSuchElementException
+     |import _root_.scala.collection.{IterableOnce, Iterable, Iterator, +:, :+}
+     |import _root_.scala.collection.immutable.{Seq, IndexedSeq, List, Nil, ::, Stream, LazyList, Vector, Range, Map, Set}
+     |import _root_.scala.collection.mutable.StringBuilder
+     |import _root_.scala.math.{BigDecimal, BigInt, Equiv, Fractional, Integral, Numeric, Ordered, Ordering, PartialOrdering, PartiallyOrdered}
+     |import _root_.scala.util.{Either, Left, Right}
+     |import _root_.scala.reflect.{OptManifest, Manifest, NoManifest}
+   """.stripMargin.trim
+
+  private def isAliasImport(fqn: String, level: ScalaLanguageLevel): Boolean =
+    (if (level < ScalaLanguageLevel.Scala_2_13) aliasImports212 else aliasImports213)(fqn)
+
+  private lazy val aliasImports212: Set[String] = AliasImports212.linesIterator.flatMap(importsIn).toSet
+
+  private lazy val aliasImports213: Set[String] = AliasImports213.linesIterator.flatMap(importsIn).toSet
+
+  private def importsIn(line: String): Seq[String] = {
+    val s = line.substring(14) // import _root_.
+    val i = s.indexOf('{')
+    if (i == -1) Seq(s) else {
+      val (prefix, suffix) = (s.substring(0, i), s.substring(i + 1, s.length - 1))
+      suffix.split(",\\s*").toIndexedSeq.map(prefix + _)
+    }
+  }
 
   def collectPotentiallyRedundantImports(file: ScalaFile): collection.Set[ImportUsed] = {
     val result: mutable.Set[ImportUsed] = mutable.HashSet.empty
@@ -58,7 +101,7 @@ object RedundantImportUtils {
       def isAliasImport =
         ScalaProjectSettings.getInstance(file.getProject).aliasExportsEnabled &&
           importExpr.reference.exists(_.multiResolveScala(false).exists(_.element match {
-            case c: PsiClass => FileDeclarationsHolder.isAliasImport(c.qualifiedName, c.scalaLanguageLevelOrDefault)
+            case c: PsiClass => RedundantImportUtils.isAliasImport(c.qualifiedName, c.scalaLanguageLevelOrDefault)
             case _ => false
           }))
 

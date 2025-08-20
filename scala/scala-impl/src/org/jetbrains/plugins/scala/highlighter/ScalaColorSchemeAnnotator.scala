@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAssignment
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedExpressionPrefix
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt, ScalaType, TypePresentationContext}
@@ -61,7 +62,7 @@ object ScalaColorSchemeAnnotator {
   private def highlightReferenceElement(refElement: ScReference)(implicit holder: ScalaAnnotationHolder): Unit = {
     val multiResolveResult = refElement.multiResolveScala(false)
     lazy val resolvedElement =
-      if (multiResolveResult.length == 1) multiResolveResult.head.getActualElement
+      if (multiResolveResult.length == 1) ScNamedElement.adjusted(multiResolveResult.head.getActualElement)
       else null
 
     annotateCollectionType(refElement, resolvedElement)

@@ -83,18 +83,20 @@ class Scala3UniversalApplyMethodTest extends ScalaLightCodeInsightFixtureTestCas
        |""".stripMargin
   )
 
+  // TODO Also test the scala.Predef.String type alias, SCL-24246
   def testJavaClass(): Unit = checkTextHasNoErrors(
     """
       |object Test {
-      |  val a = String("123")
+      |  val a = java.lang.String("123")
       |}
       |""".stripMargin
   )
 
+  // TODO Also test the scala.Predef.String type alias, SCL-24246
   def testJavaClassOverloaded(): Unit = checkTextHasNoErrors(
     s"""
        |object Test {
-       |  val a = ${withError("String", "Cannot resolve overloaded method 'String'")}("123", 4, 5)
+       |  val a = java.lang.${withError("String", "Cannot resolve overloaded method 'String'")}("123", 4, 5)
        |}
        |""".stripMargin
   )

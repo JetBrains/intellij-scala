@@ -16,8 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.AliasExportSemantics
 import org.jetbrains.plugins.scala.text.TextToTextTestBase._
 import org.junit.Assert
 
@@ -62,14 +60,10 @@ abstract class TextToTextTestBase(dependencies: Seq[DependencyDescription],
     JarFileSystem.getInstance.refreshAndFindFileByPath(file.toCanonicalPath.toString + "!/")
 
   def testTextToText(): Unit = {
-    val scalaProjectSettings = ScalaProjectSettings.getInstance(getProject)
-
-    scalaProjectSettings.setAliasSemantics(AliasExportSemantics.Definition)
     ScalaApplicationSettings.PRECISE_TEXT = true
     try {
       doTestTextToText()
     } finally {
-      scalaProjectSettings.setAliasSemantics(AliasExportSemantics.Export)
       ScalaApplicationSettings.PRECISE_TEXT = false
     }
   }

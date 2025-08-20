@@ -2267,7 +2267,7 @@ class ReferenceComparisonTest_Scala3_Newest extends ReferenceComparisonTestBase(
   def test_provably_disjoint_infinite_recursion_1(): Unit = doTest("provably-disjoint-infinite-recursion-1", true)
   def test_provably_disjoint_infinite_recursion_2(): Unit = doTest("provably-disjoint-infinite-recursion-2", true) // #matchType, #unionType, #enum
   def test_pseudo_thistype_constraints(): Unit = doTest("pseudo-thistype-constraints", true) // #enum, #unionType
-  def test_range(): Unit = doTest("range", false)
+  def test_range(): Unit = doTest("range", true)
   def test_rangepos(): Unit = doTest("rangepos", true)
   def test_rangepos_anonapply(): Unit = doTest("rangepos-anonapply", true)
   def test_rangepos_patmat(): Unit = doTest("rangepos-patmat", true)
@@ -3015,7 +3015,7 @@ class ReferenceComparisonTest_Scala3_Newest extends ReferenceComparisonTestBase(
   def test_t6600(): Unit = doTest("t6600", true)
   def test_t6664(): Unit = doTest("t6664", true)
   def test_t6664b(): Unit = doTest("t6664b", true)
-  def test_t6675(): Unit = doTest("t6675", false)
+  def test_t6675(): Unit = doTest("t6675", true)
   def test_t6712(): Unit = doTest("t6712", true)
   def test_t6722(): Unit = doTest("t6722", true)
   def test_t6745(): Unit = doTest("t6745", true)

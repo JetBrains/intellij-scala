@@ -421,7 +421,7 @@ abstract class MethodEvaluationTestBase extends ExpressionEvaluationTestBase {
       evalStartsWith("scala.collection.mutable.ArrayBuffer.empty", "ArrayBuffer()")
       evalStartsWith("\"test\".substring(0, 2)", "te")
       evalStartsWith("\"test\".substring(2)", "st")
-      evalEquals("List[Int](1, 2)", "List(1, 2)")
+      evalEquals("scala.collection.immutable.List[Int](1, 2)", "List(1, 2)") // TODO Also test the scala.List type alias, SCL-24248
       evalEquals("List(1, 2)", "List(1, 2)")
       evalEquals("Some(\"a\")", "Some(a)")
       evalEquals("Option(\"a\")", "Some(a)")

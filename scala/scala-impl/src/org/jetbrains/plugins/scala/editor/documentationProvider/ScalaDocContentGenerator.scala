@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocContentG
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxElementType
@@ -414,7 +415,7 @@ object ScalaDocContentGenerator {
       case _ => None
     }
 
-    val resolvedElement = singleResolveResult.map(_.element)
+    val resolvedElement = singleResolveResult.map(result => ScNamedElement.adjusted(result.element))
     resolvedElement match {
       case Some(function: ScFunction) =>
         val clazz: PsiClass = function.containingClass

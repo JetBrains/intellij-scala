@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeR
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScTypeAliasDefinition, ScValueOrVariable, ScVariable}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper
@@ -119,12 +119,25 @@ class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx2 with TargetE
     super.adjustReferenceOrReferencedElement(file, editor, offset, flags, refElement)
 
   override def adjustTargetElement(editor: Editor, offset: Int, flags: Int, targetElement: PsiElement): PsiElement = {
-    findReferencedTypeAliasDefinition(editor, offset, targetElement) match {
+    val element = findReferencedTypeAliasDefinition(editor, offset, targetElement) match {
       case Some(typeAlias) =>
         typeAlias
       case None =>
         super.adjustTargetElement(editor, offset, flags, targetElement)
     }
+    element match {
+      case e: PsiNamedElement => ScNamedElement.adjusted(e)
+      case e => e
+    }
+  }
+
+  override def getGotoDeclarationTarget(element: PsiElement, navElement: PsiElement): PsiElement = {
+    val adjusted = element match {
+      case e: PsiNamedElement => ScNamedElement.adjusted(e)
+      case e => e
+    }
+    if (!adjusted.eq(element)) adjusted
+    else null
   }
 
   /**

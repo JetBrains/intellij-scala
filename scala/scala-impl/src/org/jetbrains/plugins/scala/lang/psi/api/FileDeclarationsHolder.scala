@@ -17,15 +17,13 @@ import org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjector
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackageLike.processPackageObject
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl._
 import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScExportsHolder, ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.{PrecedenceTypes, SubstitutablePrecedenceHelper}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
-import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaLanguageLevel}
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 trait FileDeclarationsHolder
   extends ScDeclarationSequenceHolder
@@ -142,19 +140,6 @@ trait FileDeclarationsHolder
     }
 
     if (checkPredefinedClassesAndPackages) {
-      if (ScalaProjectSettings.in(getProject).aliasExportsEnabled) {
-        ScalaPsiUtil.fileContext(this) match {
-          case file: ScFile if file.isCompiled =>
-            // Do nothing
-          case _ =>
-            //mind SCL-20534
-            if (this.defaultImports.exists(s => s == "scala" || s == "scala.Predef") && !isInsidePackage("scala")) {
-              if (aliasImports.exists(!_.processDeclarations(processor, state, lastParent, place)))
-                return false
-            }
-        }
-      }
-
       if (!processImplicitImports(processor, state, place))
         return false
     }
@@ -168,12 +153,6 @@ trait FileDeclarationsHolder
       val packageName = file.getPackageName
       packageName == name || packageName.startsWith(name + ".")
     case _ => false
-  }
-
-  private lazy val aliasImports: Seq[ScImportStmt] = {
-    val file = ScalaPsiElementFactory.createScalaFileFromText(aliasImportsFor(this.scalaLanguageLevelOrDefault), this)
-    file.context = this
-    file.children.filterByType[ScImportStmt].toSeq.reverse
   }
 
   private def processImplicitImports(
@@ -219,55 +198,6 @@ trait FileDeclarationsHolder
 
 //noinspection TypeAnnotation
 object FileDeclarationsHolder {
-
-  // https://youtrack.jetbrains.com/issue/SCL-19928
-  // Precomputed "implicit imports" that match "alias exports" in scala and scala.Predef
-  // E.g. Seq is scala.collection.immutable.Seq rather than scala.Seq
-
-  // TODO Resolve through "alias exports" dynamically
-
-  private val AliasImports212 = """
-     |import _root_.java.lang.{Throwable, Exception, Error, RuntimeException, NullPointerException, ClassCastException, IndexOutOfBoundsException, ArrayIndexOutOfBoundsException, StringIndexOutOfBoundsException, UnsupportedOperationException, IllegalArgumentException, NumberFormatException, AbstractMethodError, InterruptedException, String, Class}
-     |import _root_.java.util.NoSuchElementException
-     |import _root_.scala.collection.{Iterable, Seq, IndexedSeq, Iterator, BufferedIterator, Iterable, +:, :+}
-     |import _root_.scala.collection.immutable.{List, Nil, ::, Stream, Vector, Range, Map, Set}
-     |import _root_.scala.collection.immutable.Stream.#::
-     |import _root_.scala.collection.mutable.StringBuilder
-     |import _root_.scala.math.{BigDecimal, BigInt, Equiv, Fractional, Integral, Numeric, Ordered, Ordering, PartialOrdering, PartiallyOrdered}
-     |import _root_.scala.util.{Either, Left, Right}
-     |import _root_.scala.reflect.{OptManifest, Manifest, NoManifest}
-   """.stripMargin.trim
-
-  private val AliasImports213 = """
-     |import _root_.java.lang.{Cloneable, Throwable, Exception, Error, RuntimeException, NullPointerException, ClassCastException, IndexOutOfBoundsException, ArrayIndexOutOfBoundsException, StringIndexOutOfBoundsException, UnsupportedOperationException, IllegalArgumentException, NumberFormatException, AbstractMethodError, InterruptedException, String, Class}
-     |import _root_.java.io.Serializable
-     |import _root_.java.util.NoSuchElementException
-     |import _root_.scala.collection.{IterableOnce, Iterable, Iterator, +:, :+}
-     |import _root_.scala.collection.immutable.{Seq, IndexedSeq, List, Nil, ::, Stream, LazyList, Vector, Range, Map, Set}
-     |import _root_.scala.collection.mutable.StringBuilder
-     |import _root_.scala.math.{BigDecimal, BigInt, Equiv, Fractional, Integral, Numeric, Ordered, Ordering, PartialOrdering, PartiallyOrdered}
-     |import _root_.scala.util.{Either, Left, Right}
-     |import _root_.scala.reflect.{OptManifest, Manifest, NoManifest}
-   """.stripMargin.trim
-
-  private def aliasImportsFor(level: ScalaLanguageLevel): String =
-    if (level < ScalaLanguageLevel.Scala_2_13) AliasImports212 else AliasImports213
-
-  def isAliasImport(fqn: String, level: ScalaLanguageLevel): Boolean =
-    (if (level < ScalaLanguageLevel.Scala_2_13) aliasImports212 else aliasImports213)(fqn)
-
-  private lazy val aliasImports212: Set[String] = AliasImports212.linesIterator.flatMap(importsIn).toSet
-
-  private lazy val aliasImports213: Set[String] = AliasImports213.linesIterator.flatMap(importsIn).toSet
-
-  private def importsIn(line: String): Seq[String] = {
-    val s = line.substring(14) // import _root_.
-    val i = s.indexOf('{')
-    if (i == -1) Seq(s) else {
-      val (prefix, suffix) = (s.substring(0, i), s.substring(i + 1, s.length - 1))
-      suffix.split(",\\s*").toIndexedSeq.map(prefix + _)
-    }
-  }
 
   //method extracted due to VerifyError in Scala compiler
   private def updateProcessor(processor: PsiScopeProcessor, priority: Int)

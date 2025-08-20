@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createIdentifier
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import javax.swing.Icon
 import scala.annotation.tailrec
@@ -164,8 +165,18 @@ trait ScNamedElement extends ScalaPsiElement
       case _: ScCaseClause => Icons.PATTERN_VAL
       case x => x.getIcon(flags)
     }
+
+  // See: ScReference.isIndirectReferenceTo
+  def aliasExport: Option[PsiNamedElement] = None
 }
 
 object ScNamedElement {
   val AnonymousPlaceholder = "<anonymous>"
+
+  def adjusted(element: PsiNamedElement): PsiNamedElement =
+    if (!ScalaProjectSettings.in(element.getProject).aliasExportsEnabled) element
+    else element match {
+      case e: ScNamedElement => e.aliasExport.getOrElse(e)
+      case e => e
+    }
 }

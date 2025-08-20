@@ -6,22 +6,22 @@ import com.intellij.navigation.ItemPresentation
 import com.intellij.psi._
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil.getNextSiblingOfType
-import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedInUserData}
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, ifReadAllowed}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiNamedElementExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.{tLOWER_BOUND, tUPPER_BOUND}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.hasStablePath
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createIdentifier
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.ScTopLevelStubBasedElement
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTypeDefinitionLikeImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaStubBasedElementImpl}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeAliasStub
-import org.jetbrains.plugins.scala.project.ScalaFeatures.forPsiOrDefault
-import org.jetbrains.plugins.scala.text.ClassPrinter
+import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 
 import javax.swing.Icon
 
@@ -91,4 +91,15 @@ final class ScTypeAliasDefinitionImpl private(stub: ScTypeAliasStub, node: ASTNo
   }
 
   override def isEffectivelyFinal: Boolean = true
+
+  override def aliasExport: Option[PsiNamedElement] = if (!hasStablePath(this)) None else {
+    val element = aliasedType.toOption.collect {
+      case ScDesignatorType(e) => e
+      case ParameterizedType(ScDesignatorType(e), _) => e
+    }
+    element.filter {
+      case cls: PsiClass if cls.name == name && isAliasFor(cls) => true
+      case _ => false
+    }
+  }
 }
