@@ -1,6 +1,6 @@
 package org.jetbrains
 
-import _root_.org.jetbrains.annotations.NonNls
+import _root_.org.jetbrains.annotations.{NonNls, NotNull}
 import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.util.{Pair => IdeaPair}
@@ -95,6 +95,8 @@ package object sbt {
     }
   }
 
-  def isIdeaPluginEnabled(@NonNls id: String): Boolean =
-    Option(PluginId.findId(id)).exists(PluginManagerCore.isLoaded)
+  def isIdeaPluginEnabled(@NonNls @NotNull id: String): Boolean = {
+    val pluginId = PluginId.getId(id)
+    PluginManagerCore.isLoaded(pluginId)
+  }
 }
