@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.performance.typing
 
+import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.util.ThrowableRunnable
@@ -35,9 +36,14 @@ abstract class TypingTestWithPerformanceTestBase extends ScalaFixtureTestCase {
       }
     }
 
-    PlatformTestUtil
-      .newBenchmark(testName, testBody)
-      .start()
+    try {
+      ApplicationManagerEx.setInStressTest(true)
+      PlatformTestUtil
+        .newBenchmark(testName, testBody)
+        .start()
+    } finally {
+      ApplicationManagerEx.setInStressTest(false)
+    }
   }
 
   def doTest(stringToType: String)(input: String, expected: String): Unit =
