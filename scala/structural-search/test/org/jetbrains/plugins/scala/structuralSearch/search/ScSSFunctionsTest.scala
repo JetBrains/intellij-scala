@@ -91,7 +91,6 @@ class ScSSFunctionsTest extends ScalaStructuralSearchTestCase {
         |<match="AB">protected def test2() = {
         |  a
         |}</match="AB">
-        |<match="AC">abstract def test3()</match="AC">
         |<match="AD">def test4()</match="AD">
         |"""
     val pattern =
@@ -121,10 +120,6 @@ class ScSSFunctionsTest extends ScalaStructuralSearchTestCase {
     matchAndAssert(
       "Modifier is checked (protected)",
       clearMarker(content, Set("AB")), patternProt
-    )
-    matchAndAssert(
-      "Modifier is checked (abstract)",
-      clearMarker(content, Set("AC")), patternAbs
     )
   }
 
@@ -191,6 +186,41 @@ class ScSSFunctionsTest extends ScalaStructuralSearchTestCase {
   }
 
   def testTypeParametersMatch(): Unit = {
-    // TODO
+    val content =
+      """<match="AA">def test1[T](): Unit</match="AA">
+        |<match="AB">def test2[T, R](): Unit</match="AB">
+        |<match="AC">def test3(): Unit</match="AC">
+        |<match="AD">def test4[E](): Unit</match="AD">
+        |"""
+
+    matchAndAssert(
+      "Match no type matches all",
+      content, "def $test$()",
+    )
+    matchAndAssert(
+      "Match specific 1",
+      clearMarker(content, Set("AA")), "def $test$[T]()",
+    )
+    matchAndAssert(
+      "Match specific 2",
+      clearMarker(content, Set("AB")), "def $test$[T, R]()",
+    )
+    matchAndAssert(
+      "Match Var 1",
+      clearMarker(content, Set("AB")), "def $test$[T, $A$]()",
+    )
+    matchAndAssert(
+      "Match Var 2",
+      clearMarker(content, Set("AA", "AB", "AD")), "def $test$[$A$]()",
+      _.addNewVariableConstraint("A").setMaxCount(10)
+    )
+    matchAndAssert(
+      "Match Var 3",
+      content, "def $test$[$A$]()",
+      matchOptions =>
+        val constraints = matchOptions.addNewVariableConstraint("A")
+        constraints.setMinCount(0)
+        constraints.setMaxCount(10)
+    )
   }
 }

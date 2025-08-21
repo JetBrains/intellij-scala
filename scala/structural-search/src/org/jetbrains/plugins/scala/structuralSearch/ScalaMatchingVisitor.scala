@@ -136,7 +136,8 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     val handler = getHandler(fun)
     val modifierMatch = checkModifier(fun.getModifierList.modifiers, other.getModifierList.modifiers)
     val nameMatch = matchTextOrVariable(fun.getNameIdentifier, other.getNameIdentifier, handler)
-    val typeParamsMatch = globalVisitor.matchSequentially(fun.typeParameters.toArray[PsiElement], other.typeParameters.toArray[PsiElement])
+    val typeParamsMatch = fun.typeParameters.isEmpty ||
+      globalVisitor.matchSequentially(fun.typeParameters.toArray[PsiElement], other.typeParameters.toArray[PsiElement])
     val paramsMatch = globalVisitor.`match`(fun.paramClauses, other.paramClauses)
     val rTypeMatch = matchOptOptional(fun.returnTypeElement, other.returnTypeElement)
     val bodyMatch = {
