@@ -135,9 +135,7 @@ class ScSSIfExprTest extends ScalaStructuralSearchTestCase {
     matchAndAssert(
       "IF Ignore brackets - Pattern with count matches Filled",
       contentFilledMatch, patternVars,
-      matchOptions =>
-        matchOptions.addNewVariableConstraint("c")
-          .setMaxCount(10)
+      _.addNewVariableConstraint("c").setMaxCount(10)
     )
   }
 
@@ -156,8 +154,85 @@ class ScSSIfExprTest extends ScalaStructuralSearchTestCase {
 
     matchAndAssert(
       "Nested ifs with vars",
-      content,
-      pattern
+      content, pattern
+    )
+  }
+
+  def testCombinationWithCorrectVariable(): Unit = {
+    val content =
+      """object B {
+        |  def test(a: Int, b: Int, abara: Int): Int = {
+        |    if (a == 5) {
+        |      a + b + abara
+        |    } else {
+        |      a.+(b) + abara
+        |    }
+        |  }
+        |
+        |  def test2(a: Int, b: Int, abara: Int): Int = {
+        |    <match="AA">if (a == 5) {
+        |      a + b
+        |    } else {
+        |      a.+(b) + abara
+        |    }</match="AA">
+        |  }
+        |}
+        |"""
+    val pattern1 =
+      """if ($a$) $b$
+        |else $b$ + abara
+        |"""
+    val pattern2 =
+      """if ($a$) $b$ + abara
+        |else $b$
+        |"""
+
+    matchAndAssert(
+      "Combination to test correct variable behaviour",
+      content, pattern1
+    )
+    matchAndAssert(
+      "Combination to test correct variable behaviour (anti)",
+      clearMarker(content), pattern2
+    )
+  }
+
+  def testCombinationWithCorrectVariable2(): Unit = {
+    val content =
+      """object B {
+        |  def test(a: Int, b: Int, abara: Int): Int = {
+        |    <match="AA">if (a == 5) {
+        |      a + b + abara
+        |    } else {
+        |      a.+(b) + abara
+        |    }</match="AA">
+        |  }
+        |
+        |  def test2(a: Int, b: Int, abara: Int): Int = {
+        |    <match="AB">if (a == 5) {
+        |      a + b + abara
+        |    } else {
+        |      a + b + abara
+        |    }</match="AB">
+        |  }
+        |}
+        |"""
+    val pattern1 =
+      """if ($a$) $b$
+        |else $b$
+        |"""
+    val pattern2 =
+      """if ($a$) $b$
+        |else $b$ + abara
+        |"""
+
+    matchAndAssert(
+      "Combination to test correct variable behaviour 2",
+      content, pattern1
+    )
+    matchAndAssert(
+      "Combination to test correct variable behaviour 2 (anti)",
+      clearMarker(content), pattern2
     )
   }
 }

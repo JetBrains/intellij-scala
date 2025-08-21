@@ -27,11 +27,11 @@ class ScalaStructuralSearchTestCase extends StructuralSearchTestCase {
     assert(results.size == marker.size, s"[StructuralSearch - $name] The number of results does not match")
 
     for (result <- results) {
-      val begin = result.getMatch.getTextOffset
-      assert(marker.contains(begin), s"[StructuralSearch - $name] Found match at position $begin where should be no match (${result.getMatchImage})")
+      val begin = result.getMatch.getTextRange.getStartOffset
+      assert(marker.contains(begin), s"[StructuralSearch - $name] Found match at position $begin where should be no match:\n${result.getMatchImage}")
       val end = marker(begin)
       val expected = plainCode.substring(begin, end)
-      assert(end - begin == result.getMatch.getTextLength, s"[StructuralSearch - $name] Match at position $begin has wrong length\n${result.getMatchImage}\n  instead of\n$expected")
+      assert(end - begin == result.getMatch.getTextRange.getLength, s"[StructuralSearch - $name] Match at position $begin has wrong length\n${result.getMatchImage}\n  instead of\n$expected")
       assert(expected == result.getMatchImage, s"[StructuralSearch - $name] Match at position $begin has wrong content\n${result.getMatchImage}\n  instead of\n$expected")
     }
   }
@@ -57,5 +57,22 @@ class ScalaStructuralSearchTestCase extends StructuralSearchTestCase {
     }
 
     extract(code, Map())
+  }
+  
+  def clearMarker(code: String, except: Set[String] = Set()): String = {
+    @tailrec
+    def clearMarker(code: String, except: Set[String] = Set(), fromIndex: Int): String = {
+      val begin = code.indexOf("<match=\"", fromIndex)
+      if (0 <= begin) {
+        val ident = code.substring(begin + 8, begin + 10)
+        if (except.contains(ident))
+          clearMarker(code, except, begin + 12)
+        else
+          clearMarker(code.replaceFirst(s"<match=\"$ident\">", "").replaceFirst(s"</match=\"$ident\">", ""), except, begin)
+      } else {
+        code
+      }
+    }
+    clearMarker(code.stripMargin.trim, except, 0)
   }
 }
