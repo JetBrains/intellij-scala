@@ -529,7 +529,10 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
     val addTypeSuffix = parent.nonEmpty && node.is(TERMREF)
 
     if (node.isSharedType) {
-      sharedTypes.get((node.addr, addTypeSuffix)).foreach(return _)
+      sharedTypes.get((node.addr, addTypeSuffix)) match {
+        case Some(tpe) => return tpe
+        case None =>
+      }
     }
     
     // TODO extract method
