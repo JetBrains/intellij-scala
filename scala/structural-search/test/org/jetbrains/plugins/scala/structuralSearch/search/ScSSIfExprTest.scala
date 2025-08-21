@@ -4,18 +4,45 @@ import org.jetbrains.plugins.scala.structuralSearch.ScalaStructuralSearchTestCas
 
 class ScSSIfExprTest extends ScalaStructuralSearchTestCase {
 
-  def testDefault(): Unit = {
-    val content =
-      """if (a) b
-        |else c
-        |"""
-    val pattern = content
+//  def testDefault(): Unit = {
+//    val content =
+//      """if (a) b
+//        |else c
+//        |"""
+//    val pattern = content
+//
+//    findAndMatch(
+//      "Dummy If 1",
+//      content,
+//      content,
+//      Seq(content)
+//    )
+//  }
 
-    findAndMatch(
-      "Dummy If 1",
+  def testNested(): Unit = {
+    val content =
+      """<match="AB">if (a) b
+        |else {
+        |  <match="AA">if (c) d
+        |  else e</match="AA">
+        |}</match="AB">
+        |"""
+    val pattern =
+      """if ($a$) $b$
+        |else $c$
+        |"""
+
+    matchAndAssert(
+      "Nested ifs with vars",
       content,
-      content,
-      Seq(content)
+      pattern
     )
+
+//    findAndMatch(
+//      "Dummy If 1",
+//      content,
+//      pattern,
+//      Seq(content)
+//    )
   }
 }

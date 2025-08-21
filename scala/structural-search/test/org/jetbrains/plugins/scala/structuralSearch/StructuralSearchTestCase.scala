@@ -27,17 +27,18 @@ abstract class StructuralSearchTestCase extends LightPlatformCodeInsightTestCase
     super.tearDown()
   }
 
-  protected def findMatchesCount(in: String, pattern: String, fileType: LanguageFileType): Int =
-    findMatches(in, pattern, fileType).size
-
-
-  protected def findMatches(in: String, pattern: String, fileType: LanguageFileType): Seq[MatchResult] =
-    findMatches(in, pattern, fileType, null, fileType, false)
-
-  protected def findMatches(in: String, pattern: String, patternFileType: LanguageFileType, patternLanguage: Language, sourceFileType: LanguageFileType, physicalSourceFile: Boolean): Seq[MatchResult] = {
+  protected def findMatches(in: String,
+                            pattern: String,
+                            patternFileType: LanguageFileType,
+                            patternLanguage: Language,
+                            sourceFileType: LanguageFileType,
+                            physicalSourceFile: Boolean,
+                            modifyOptions: MatchOptions => Unit
+                           ): Seq[MatchResult] = {
     options.fillSearchCriteria(pattern)
     options.setFileType(patternFileType)
     options.setDialect(patternLanguage)
+    modifyOptions(options)
     val compiledPattern: CompiledPattern = PatternCompiler.compilePattern(getProject, options, true, false)
     val message: String = checkApplicableConstraints(options, compiledPattern)
     assert(message == null)

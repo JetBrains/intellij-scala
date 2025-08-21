@@ -1,28 +1,61 @@
 package org.jetbrains.plugins.scala.structuralSearch
 
-import com.intellij.structuralsearch.MatchResult
+import com.intellij.structuralsearch.MatchOptions
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.{Scala3Language, ScalaFileType}
+
+import scala.annotation.tailrec
 
 class ScalaStructuralSearchTestCase extends StructuralSearchTestCase {
 
-  private def findMatches(@Language("Scala 3") in: String, pattern: String): Seq[MatchResult] = {
-    super.findMatches(in, pattern, ScalaFileType.INSTANCE)
+  protected def matchAndAssert(
+    name: String,
+    @Language("Scala 3") code: String,
+    pattern: String,
+    modifyOptions: MatchOptions => Unit = _ => ()
+  ): Unit = {
+    val (plainCode, marker) = extractMarker(code.stripMargin.trim)
+    val results = findMatches(plainCode,
+      pattern.stripMargin.trim,
+      ScalaFileType.INSTANCE,
+      Scala3Language.INSTANCE,
+      ScalaFileType.INSTANCE,
+      false,
+      modifyOptions
+    )
+
+    assert(results.size == marker.size, s"[StructuralSearch - $name] The number of results does not match")
+
+    for (result <- results) {
+      val begin = result.getMatch.getTextOffset
+      assert(marker.contains(begin), s"[StructuralSearch - $name] Found match at position $begin where should be no match (${result.getMatchImage})")
+      val end = marker(begin)
+      val expected = plainCode.substring(begin, end)
+      assert(end - begin == result.getMatch.getTextLength, s"[StructuralSearch - $name] Match at position $begin has wrong length\n${result.getMatchImage}\n  instead of\n$expected")
+      assert(expected == result.getMatchImage, s"[StructuralSearch - $name] Match at position $begin has wrong content\n${result.getMatchImage}\n  instead of\n$expected")
+    }
   }
 
-  private def findMatchesCount(@Language("Scala 3") in: String, pattern: String): Int =
-    super.findMatchesCount(in, pattern, ScalaFileType.INSTANCE)
-
-  protected def findAndMatch(
-    name: String,
-    @Language("Scala 3") in: String,
-    pattern: String,
-    expected: Seq[String]): Unit = {
-    val results = findMatches(in.stripMargin.trim, pattern.stripMargin.trim)
-    assert(results.size == expected.size, s"[StructuralSearch - $name] The number of results does not match")
-
-    for ((result, exp) <- results.zip(expected)) {
-      assert(result.getMatchImage == exp.stripMargin.trim, s"[StructuralSearch - $name] Could not find result \n$exp instead found \n${result.getMatchImage}")
+  private def extractMarker(code: String): (String, Map[Int, Int]) = {
+    @tailrec
+    def extract(code: String, map: Map[String, (Int, Int)]): (String, Map[Int, Int]) = {
+      val begin = code.indexOf("<match=\"")
+      val end = code.indexOf("</match=\"")
+      if (0 <= begin && begin < end) {
+        val ident = code.substring(begin + 8, begin + 10)
+        extract(code.replaceFirst(s"<match=\"$ident\">", ""),
+          map + (ident -> (begin, -1))
+        )
+      } else if (0 <= end) {
+        val ident = code.substring(end + 9, end + 11)
+        extract(code.replaceFirst(s"</match=\"$ident\">", ""),
+          map + (ident -> (map.getOrElse(ident, (-1, -1))._1, end))
+        )
+      } else {
+        (code, map.map((_, v) => (v._1, v._2)))
+      }
     }
+
+    extract(code, Map())
   }
 }
