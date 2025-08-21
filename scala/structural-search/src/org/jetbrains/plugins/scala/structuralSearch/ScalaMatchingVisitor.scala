@@ -6,7 +6,7 @@ import com.intellij.structuralsearch.impl.matcher.handlers.{MatchingHandler, Sub
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScFieldId, ScLiteral, ScPrimaryConstructor}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScBlockExpr, ScIf, ScInfixExpr, ScMethodCall, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScBlockExpr, ScIf, ScInfixExpr, ScMethodCall, ScParenthesisedExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScConstructorOwner, ScTypeDefinition}
@@ -228,6 +228,12 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
   }
 
   override def visitMethodCallExpression(call: ScMethodCall): Unit = visitMethodInvocation(call)
+
+  // TODO do we want to ignore them? (Java does not, Kotlin does so partially)
+  override def visitParenthesisedExpr(expr: ScParenthesisedExpr): Unit = {
+    val other = globalVisitor.getElement.asInstanceOf[ScParenthesisedExpr]
+    globalVisitor.setResult(matchOpt(expr.innerElement, other.innerElement))
+  }
 
   def visitMethodInvocation(call: MethodInvocation): Unit = {
     val thisPat = call.thisExpr
