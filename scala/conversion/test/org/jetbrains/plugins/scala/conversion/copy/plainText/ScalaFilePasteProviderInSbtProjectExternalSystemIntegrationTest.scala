@@ -4,10 +4,10 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.SlowTests2
 import org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike
 import org.junit.Assert.assertNotNull
+import org.junit.Test
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.junit.{Ignore, Test}
 
 /**
  * For lightweight unit-like tests for the same functionality see [[ScalaFilePasteProviderInSbtProjectTest]]
@@ -36,8 +36,7 @@ class ScalaFilePasteProviderInSbtProjectExternalSystemIntegrationTest
   }
 
   override def importProject(): Unit = {
-    super.setUpProjectRoot()
-
+    super.setUpInWriteAction()
     super.importProject()
   }
 
@@ -95,7 +94,6 @@ class ScalaFilePasteProviderInSbtProjectExternalSystemIntegrationTest
     )
   }
 
-  @Ignore("Temporarily disabled until we properly fix external system importing tests with custom initialization")
   @Test
   def testAutoCreatePluginSbtFile(): Unit = {
     TestProjectName = "autoCreatePluginSbtFile"
@@ -110,7 +108,6 @@ class ScalaFilePasteProviderInSbtProjectExternalSystemIntegrationTest
     doPasteToDirectoryTest("", PastedComplexCodeWithAddSbtPlugin, SomeOtherName)
   }
 
-  @Ignore("Temporarily disabled until we properly fix external system importing tests with custom initialization")
   @Test
   def testUpdateExistingPluginsSbtFile_SimpleCode_To_EmptyFile(): Unit = {
     doPasteToDirectoryAndUpdateExistingFileTest(
@@ -125,7 +122,6 @@ class ScalaFilePasteProviderInSbtProjectExternalSystemIntegrationTest
     )
   }
 
-  @Ignore("Temporarily disabled until we properly fix external system importing tests with custom initialization")
   @Test
   def testUpdateExistingPluginsSbtFile_SimpleCode_To_FileWithAddSbtPluginsStatements(): Unit =
     doPasteToDirectoryAndUpdateExistingFileTest(
