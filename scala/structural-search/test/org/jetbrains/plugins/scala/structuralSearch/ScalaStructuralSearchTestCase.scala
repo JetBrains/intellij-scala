@@ -11,7 +11,7 @@ class ScalaStructuralSearchTestCase extends StructuralSearchTestCase {
   protected def matchAndAssert(
     name: String,
     @Language("Scala 3") code: String,
-    pattern: String,
+    @Language("Scala 3") pattern: String,
     modifyOptions: MatchOptions => Unit = _ => ()
   ): Unit = {
     val (plainCode, marker) = extractMarker(code.stripMargin.trim)
