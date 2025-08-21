@@ -4,7 +4,7 @@ import sbt.Keys.*
 import sbt.internal.inc.HashUtil
 
 import java.nio.charset.StandardCharsets
-import java.nio.file.Path
+import java.nio.file.{Files, Path}
 import java.util.concurrent.ConcurrentHashMap
 
 object CompilationCache {
@@ -18,7 +18,7 @@ object CompilationCache {
     pushRemoteCacheConfiguration ~= { _.withOverwrite(true) },
     remoteCacheId := {
       val id = remoteCacheId.value
-      val classpath = externalDependencyClasspath.value.map(_.data.toPath).sorted
+      val classpath = externalDependencyClasspath.value.map(_.data.toPath).filter(Files.exists(_)).sorted
       val cache = (Global / farmHashCache).?.value.getOrElse(new ConcurrentHashMap())
       val hashString = classpath.map(farmHash(cache)).mkString
       val combined = id ++ hashString
