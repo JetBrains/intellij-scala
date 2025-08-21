@@ -92,6 +92,12 @@ class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends Scala
       pattern.getHandler(name) match {
         case substHand: SubstitutionHandler =>
           substHand.setFilter(new MatchingVariableFilter())
+          substHand.setMatchHandler(new MatchingHandler {
+            override def `match`(patternNode: PsiElement, matchedNode: PsiElement, context: MatchContext): Boolean = {
+              matchedNode.accept(ScalaCompilingVisitor.this)
+              context.getMatcher.`match`(patternNode, matchedNode)
+            }
+          })
         case _ =>
       }
     }
