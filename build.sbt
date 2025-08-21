@@ -802,7 +802,6 @@ lazy val intelliLangIntegration = newProject(
 ).settings(
 //  addCompilerPlugin(Dependencies.macroParadise),
   intellijPlugins ++= Seq(
-    "org.intellij.intelliLang",
     "com.intellij.modules.json"
   ).map(_.toPlugin),
   packageMethod := PackagingMethod.PluginModule("scalaCommunity.intelliLang"),
@@ -889,8 +888,7 @@ lazy val textAnalysis =
       scalaVersion := Versions.scala3Version,
       Compile / scalacOptions := globalScala3ScalacOptions,
       intellijPlugins ++= Seq(
-        "tanvd.grazi".toPlugin,
-        "org.intellij.intelliLang".toPlugin //required for intelliLangIntegration
+        "tanvd.grazi".toPlugin
       ),
       //Language packs needed at runtime to run tests
       resolvers += DependencyResolvers.IntelliJDependencies,
