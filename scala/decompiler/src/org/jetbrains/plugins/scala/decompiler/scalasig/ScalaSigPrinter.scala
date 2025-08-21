@@ -10,7 +10,7 @@ package org.jetbrains.plugins.scala.decompiler.scalasig
 
 import java.lang.StringBuilder
 import java.util.regex.Pattern
-import org.apache.commons.lang3.StringUtils
+import org.apache.commons.lang3.{StringUtils, Strings}
 import org.apache.commons.text.StringEscapeUtils
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames
 
@@ -947,7 +947,7 @@ object ScalaSigPrinter {
     def decode: String = NameTransformer.decode(str)
 
     //noinspection MutatorLikeMethodIsParameterless
-    def removeDotPackage: String = StringUtils.replace(str, ".`package`", "")
+    def removeDotPackage: String = Strings.CS.replace(str, ".`package`", "")
 
     def stripPrivatePrefix: String = if (placeholderPattern.matcher(str).matches) str else {
       val i = str.lastIndexOf("$$")
