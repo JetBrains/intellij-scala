@@ -68,16 +68,20 @@ abstract class ScalaExternalSystemImportingTestBase extends ExternalSystemImport
 
   override protected def setUpInWriteAction(): Unit = {
     val originalTestDataProjectDir = new File(getTestDataProjectPath)
-    val testProjectPath = getTestProjectDir
+    val testProjectPath = getTestProjectPath
 
     if (copyTestProjectToTemporaryDir) {
       println(s"Test project copied to the temporary directory: $testProjectPath")
-      FileUtil.copyDir(originalTestDataProjectDir, testProjectPath)
+      FileUtil.copyDir(originalTestDataProjectDir, testProjectPath.toFile)
     }
 
+    setProjectRootViaReflection(testProjectPath)
+  }
+
+  final protected def setProjectRootViaReflection(projectRoot: Path): Unit = {
     // TODO: Rewrite without reflection.
-    val myCustomProjectRoot = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(testProjectPath)
-    assertNotNull(s"test project root was not found: $testProjectPath", myCustomProjectRoot)
+    val myCustomProjectRoot = LocalFileSystem.getInstance().refreshAndFindFileByNioFile(projectRoot)
+    assertNotNull(s"test project root was not found: $projectRoot", myCustomProjectRoot)
     val myProjectRootField = classOf[NioExternalSystemTestCase].getDeclaredField("projectRoot")
     myProjectRootField.setAccessible(true)
     myProjectRootField.set(this, myCustomProjectRoot)
