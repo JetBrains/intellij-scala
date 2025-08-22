@@ -6,7 +6,7 @@ import com.intellij.structuralsearch.impl.matcher.handlers.{MatchingHandler, Sub
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScFieldId, ScLiteral, ScPrimaryConstructor}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScBlockExpr, ScIf, ScInfixExpr, ScMethodCall, ScParenthesisedExpr, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScBlockExpr, ScIf, ScInfixExpr, ScMethodCall, ScParenthesisedExpr, ScReferenceExpression, ScWhile}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScConstructorOwner, ScTypeDefinition}
@@ -113,7 +113,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     (constr, other) match {
       case (None, _) => true
       case (_, None) => false
-      case (Some(constr), Some(other)) => {
+      case (Some(constr), Some(other)) =>
         if (constr.parameters.isEmpty) return true
 
         val modifierMatch = checkModifier(constr.getModifierList.modifiers, other.getModifierList.modifiers)
@@ -121,7 +121,6 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
         val typeParamsMatch = globalVisitor.matchSequentially(constr.typeParameters.toArray[PsiElement], other.typeParameters.toArray[PsiElement])
 
         modifierMatch && typeParamsMatch && paramsMatch
-      }
     }
   }
 
@@ -189,8 +188,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     rememberVarMatchIfResult(handler, other.getNameIdentifier)
   }
 
-  // TODO
-  override def visitAnnotation(annotation: ScAnnotation): Unit = super.visitAnnotation(annotation)
+  // TODO annotation
 
   override def visitIf(ifPat: ScIf): Unit = {
     val ifPsi = globalVisitor.getElement.asInstanceOf[ScIf]
@@ -203,6 +201,19 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     }
     globalVisitor.setResult(condMatch && thenMatch && elseMatch)
   }
+
+  // TODO While
+  override def visitWhile(ws: ScWhile): Unit = {
+    val other = globalVisitor.getElement.asInstanceOf[ScWhile]
+
+    val condMatch = matchOptOptional(ws.condition, other.condition)
+    val bodyMatch = matchBody(ws.expression, other.expression)
+
+    globalVisitor.setResult(condMatch && bodyMatch)
+  }
+  // TODO Match
+  // TODO For
+  // TODO Do
 
   override def visitInfixExpression(infixPat: ScInfixExpr): Unit = {
     visitMethodInvocation(infixPat)

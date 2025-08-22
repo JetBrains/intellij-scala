@@ -9,10 +9,6 @@ class ScSSIfExprTest extends ScalaStructuralSearchTestCase {
       """<match="AA">if (a) b
         |else c</match="AA">
         |"""
-    val contentNoMatch =
-      """if (a) b
-        |else c
-        |"""
 
     val patternRight =
       """if (a) b
@@ -37,15 +33,15 @@ class ScSSIfExprTest extends ScalaStructuralSearchTestCase {
     )
     matchAndAssert(
       "IF Basic - Cond wrong",
-      contentNoMatch, patternCondWrong,
+      clearMarker(contentMatch), patternCondWrong,
     )
     matchAndAssert(
       "IF Basic - Then wrong",
-      contentNoMatch, patternThenWrong,
+      clearMarker(contentMatch), patternThenWrong,
     )
     matchAndAssert(
       "IF Basic - Else wrong",
-      contentNoMatch, patternElseWrong,
+      clearMarker(contentMatch), patternElseWrong,
     )
   }
 

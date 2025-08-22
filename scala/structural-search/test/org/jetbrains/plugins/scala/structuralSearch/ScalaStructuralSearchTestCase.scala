@@ -14,7 +14,7 @@ class ScalaStructuralSearchTestCase extends StructuralSearchTestCase {
     def getExtensionWithDot: String = "." + getDefaultExtension
     override def getIcon: Icon = Icons.SCALA_FILE
   }
-  
+
   protected def matchAndAssert(
     name: String,
     @Language("Scala 3") code: String,
@@ -33,7 +33,7 @@ class ScalaStructuralSearchTestCase extends StructuralSearchTestCase {
       modifyOptions
     )
 
-    assert(results.size == marker.size, s"[StructuralSearch - $name] The number of results does not match")
+    assert(results.size == marker.size, s"[StructuralSearch - $name] The number of results does not match (${results.size} instead of ${marker.size})")
 
     for (result <- results) {
       val begin = result.getMatch.getTextRange.getStartOffset
