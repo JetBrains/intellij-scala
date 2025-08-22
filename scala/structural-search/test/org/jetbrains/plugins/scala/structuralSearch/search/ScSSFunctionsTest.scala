@@ -185,6 +185,7 @@ class ScSSFunctionsTest extends ScalaStructuralSearchTestCase {
     )
   }
 
+  // TODO wait for fix of type parameters and look for a new pattern
   def testTypeParametersMatch(): Unit = {
     val content =
       """<match="AA">def test1[T](): Unit</match="AA">

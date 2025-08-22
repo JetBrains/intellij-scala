@@ -96,7 +96,6 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     val constructorsMatch = (typedef, other) match {
       case (typedef: ScConstructorOwner, other: ScConstructorOwner) =>
         matchPrimaryConstructor(typedef.constructor, other.constructor)
-        && globalVisitor.matchInAnyOrder(typedef.secondaryConstructors.toArray[PsiElement], other.secondaryConstructors.toArray[PsiElement])
       case _ => true
     }
 

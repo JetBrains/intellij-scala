@@ -2,24 +2,33 @@ package org.jetbrains.plugins.scala.structuralSearch
 
 import com.intellij.structuralsearch.MatchOptions
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.{Scala3Language, ScalaFileType}
+import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.{LanguageFileTypeBase, Scala3Language, ScalaFileType, ScalaLanguage}
 
+import javax.swing.Icon
 import scala.annotation.tailrec
 
 class ScalaStructuralSearchTestCase extends StructuralSearchTestCase {
 
+  object Scala3FileType extends LanguageFileTypeBase(Scala3Language.INSTANCE) {
+    def getExtensionWithDot: String = "." + getDefaultExtension
+    override def getIcon: Icon = Icons.SCALA_FILE
+  }
+  
   protected def matchAndAssert(
     name: String,
     @Language("Scala 3") code: String,
     @Language("Scala 3") pattern: String,
-    modifyOptions: MatchOptions => Unit = _ => ()
+    modifyOptions: MatchOptions => Unit = _ => (),
+    inScala3: Boolean = true,
+    patternScala3: Boolean = true
   ): Unit = {
     val (plainCode, marker) = extractMarker(code.stripMargin.trim)
     val results = findMatches(plainCode,
       pattern.stripMargin.trim,
-      ScalaFileType.INSTANCE,
-      Scala3Language.INSTANCE,
-      ScalaFileType.INSTANCE,
+      if inScala3 then Scala3FileType else ScalaFileType.INSTANCE,
+      if inScala3 then Scala3Language.INSTANCE else ScalaLanguage.INSTANCE,
+      if patternScala3 then Scala3FileType else ScalaFileType.INSTANCE,
       false,
       modifyOptions
     )
