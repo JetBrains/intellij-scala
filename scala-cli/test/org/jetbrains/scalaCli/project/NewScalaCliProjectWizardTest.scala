@@ -75,14 +75,6 @@ class NewScalaCliProjectWizardTest extends NewScalaProjectWizardTestBase with Ex
     ExternalSystemTaskNotificationListener.EP_NAME.getPoint.registerExtension(closeAllBspInstancesAfterReload, getTestRootDisposable)
   }
 
-  override def tearDown(): Unit = {
-    inWriteAction {
-      val projectJdkTable = ProjectJdkTable.getInstance()
-      projectJdkTable.getAllJdks.foreach(projectJdkTable.removeJdk)
-    }
-    super.tearDown()
-  }
-
   def testCreateSimpleProjectScala2(): Unit = {
     val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk(useEnv = false)("2.13.14", BSP.ProjectSystemId)
     runSimpleCreateSbtProjectTest("2.13.14", scalaLibraries)
