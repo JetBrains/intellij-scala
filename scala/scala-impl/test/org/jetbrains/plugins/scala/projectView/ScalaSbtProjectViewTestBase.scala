@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.projectView
 
 import com.intellij.ide.projectView.impl.nodes.{ProjectViewModuleGroupNode, ProjectViewProjectNode}
 import com.intellij.ide.util.treeView.{AbstractTreeNode, PresentableNodeDescriptor}
-import com.intellij.platform.externalSystem.testFramework.NioExternalSystemTestCase
 import com.intellij.projectView.TestProjectTreeStructure
 import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.ui.SimpleTextAttributes
@@ -31,10 +30,7 @@ abstract class ScalaSbtProjectViewTestBase extends SbtExternalSystemImportingTes
     val projectDirectoryFile = getMyProjectRoot.findChild(projectDirectory)
     assert(projectDirectoryFile != null, "The project directory is not found")
 
-    // TODO: Rewrite without reflection.
-    val myProjectRootField = classOf[NioExternalSystemTestCase].getDeclaredField("projectRoot")
-    myProjectRootField.setAccessible(true)
-    myProjectRootField.set(this, projectDirectoryFile)
+    setProjectRootViaReflection(projectDirectoryFile.toNioPath)
     runTest(expectedStructure)
   }
 
@@ -45,10 +41,7 @@ abstract class ScalaSbtProjectViewTestBase extends SbtExternalSystemImportingTes
     val linkedProjectFile = getMyProjectRoot.findChild(linkedProjectDirectory)
     assert(linkedProjectFile != null, "The linked project directory is not found")
 
-    // TODO: Rewrite without reflection.
-    val myProjectRootField = classOf[NioExternalSystemTestCase].getDeclaredField("projectRoot")
-    myProjectRootField.setAccessible(true)
-    myProjectRootField.set(this, rootProjectFile)
+    setProjectRootViaReflection(rootProjectFile.toNioPath)
     importProject(false)
 
     linkSbtProject(linkedProjectFile.getPath, prodTestSourcesSeparated = true, getMyProject)
