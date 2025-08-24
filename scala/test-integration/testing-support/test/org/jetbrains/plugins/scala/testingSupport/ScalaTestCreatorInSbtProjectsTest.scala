@@ -25,8 +25,6 @@ class ScalaTestCreatorInSbtProjectsTest extends SbtExternalSystemImportingTestLi
   override protected def getTestDataProjectPath: String =
     s"scala/test-integration/testing-support/testData/testCreationProjects/${getTestName(true)}"
 
-  override protected def copyTestProjectToTemporaryDir: Boolean = true
-
   override protected def enableSeparateModulesForProdTest = true
 
   override def setUp(): Unit = {

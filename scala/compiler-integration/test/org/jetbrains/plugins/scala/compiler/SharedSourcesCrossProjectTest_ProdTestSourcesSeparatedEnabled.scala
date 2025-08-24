@@ -21,8 +21,6 @@ class SharedSourcesCrossProjectTest_ProdTestSourcesSeparatedEnabled extends SbtE
 
   override protected def getTestDataProjectPath: String = s"${TestUtils.getTestDataPath}/../../compiler-integration/testData/sharedSourcesCrossProject"
 
-  override protected def copyTestProjectToTemporaryDir: Boolean = true
-
   override def setUp(): Unit = {
     super.setUp()
 

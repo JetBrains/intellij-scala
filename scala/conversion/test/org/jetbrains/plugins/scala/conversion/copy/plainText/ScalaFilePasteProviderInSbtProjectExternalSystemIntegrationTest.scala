@@ -29,8 +29,6 @@ class ScalaFilePasteProviderInSbtProjectExternalSystemIntegrationTest
     basePath + TestProjectName
   }
 
-  override protected def copyTestProjectToTemporaryDir: Boolean = true
-
   override protected def setUpInWriteAction(): Unit = {
     //NO OP, do the setup inside importProject instead
   }

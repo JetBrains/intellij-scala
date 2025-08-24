@@ -33,8 +33,6 @@ abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImporti
   override protected def getTestDataProjectPath: String =
     generateTestProjectPath(getTestName(true))
 
-  override protected def copyTestProjectToTemporaryDir: Boolean = true
-
   override def setUp(): Unit = {
     super.setUp()
     SbtProjectResolver.processOutputOfLatestStructureDump = ""

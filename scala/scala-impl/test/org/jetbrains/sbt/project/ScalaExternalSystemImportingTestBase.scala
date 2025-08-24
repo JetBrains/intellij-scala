@@ -48,7 +48,7 @@ abstract class ScalaExternalSystemImportingTestBase extends ExternalSystemImport
    *   - after test is run, the original test data directory can have modified/deleted/new files
    *     which can make the next test run invalid
    */
-  protected def copyTestProjectToTemporaryDir: Boolean = false
+  private def copyTestProjectToTemporaryDir: Boolean = true
 
   protected final lazy val getTestProjectPath: Path = getTestProjectDir.toPath
 

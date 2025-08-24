@@ -15,8 +15,6 @@ abstract class ScalaSbtProjectViewTestBase extends SbtExternalSystemImportingTes
 
   override protected def enableSeparateModulesForProdTest = true
 
-  override protected def copyTestProjectToTemporaryDir = true
-
   override protected def getTestDataProjectPath: String =
     s"${TestUtils.getTestDataPath}/projectView/${getTestName(true)}"
 
