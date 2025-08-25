@@ -25,16 +25,6 @@ class ScSSWhileExprTest extends ScalaStructuralSearchTestCase {
         | c
         |}</match="AC">
         |"""
-    val patternBrackets =
-      """while (a) {
-        | b
-        |}
-        |"""
-    val patternVars =
-      """while (a) {
-        | $b$
-        |}
-        |"""
 
     matchAndAssert(
       "IF Ignore brackets - Pure",
