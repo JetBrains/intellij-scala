@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScAnnotTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScLiteral, ScPrimaryConstructor}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScBlockExpr, ScFor, ScForBinding, ScGenerator, ScGuard, ScIf, ScInfixExpr, ScMatch, ScMethodCall, ScParenthesisedExpr, ScReferenceExpression, ScWhile}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScBlockExpr, ScDo, ScFor, ScForBinding, ScGenerator, ScGuard, ScIf, ScInfixExpr, ScMatch, ScMethodCall, ScParenthesisedExpr, ScReferenceExpression, ScWhile}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScConstructorOwner, ScTypeDefinition}
@@ -224,6 +224,15 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     globalVisitor.setResult(condMatch && bodyMatch)
   }
 
+  override def visitDo(doStmt: ScDo): Unit = {
+    val other = globalVisitor.getElement.asInstanceOf[ScDo]
+
+    val condMatch = matchOptOptional(doStmt.condition, other.condition)
+    val bodyMatch = matchBody(doStmt.body, other.body)
+
+    globalVisitor.setResult(condMatch && bodyMatch)
+  }
+
   override def visitFor(expr: ScFor): Unit = {
     val other = globalVisitor.getElement.asInstanceOf[ScFor]
 
@@ -292,8 +301,6 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     val other = globalVisitor.getElement.asInstanceOf[ScPattern]
     globalVisitor.setResult(true)
   }
-
-  // TODO Do
 
   override def visitInfixExpression(infixPat: ScInfixExpr): Unit = {
     visitMethodInvocation(infixPat)
