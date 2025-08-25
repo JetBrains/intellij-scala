@@ -34,7 +34,7 @@ class UseSeparateCompilerOutputPathsTest extends SbtExternalSystemImportingTestL
 
   private def expectedCompilerOutputPath(moduleName: String, scope: String, hasIdeaPrefix: Boolean): Path = {
     val ideaPrefix = if (hasIdeaPrefix) "idea-" else ""
-    Path.of(getTestDataProjectPath)
+    getTestProjectPath
       .resolve(moduleDirectoryMapping(moduleName))
       .resolve("target")
       .resolve("scala-3.3.1")

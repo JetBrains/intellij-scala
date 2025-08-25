@@ -15,6 +15,8 @@ abstract class SbtProjectHighlightingDownloadingFromGithubTestBase extends SbtPr
 
   protected def githubRepositoryWithRevision: GithubRepositoryWithRevision
 
+  override protected def copyTestProjectToTemporaryDir: Boolean = false
+
   override protected def setUpInWriteAction(): Unit = {
     downloadAndExtractProject()
     super.setUpInWriteAction()

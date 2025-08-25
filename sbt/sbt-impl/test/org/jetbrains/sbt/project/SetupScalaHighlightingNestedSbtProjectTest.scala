@@ -32,7 +32,7 @@ class SetupScalaHighlightingNestedSbtProjectTest extends SbtExternalSystemImport
 
   override protected def setUpInWriteAction(): Unit = {
     super.setUpInWriteAction()
-    setProjectRootViaReflection(Path.of(getTestDataProjectPath, "nestedSbtProject"))
+    setProjectRootViaReflection(getTestProjectPath / "nestedSbtProject")
   }
 
   @Test
