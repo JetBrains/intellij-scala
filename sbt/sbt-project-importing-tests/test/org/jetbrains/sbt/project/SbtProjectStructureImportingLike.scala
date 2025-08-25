@@ -2,6 +2,7 @@ package org.jetbrains.sbt.project
 
 import com.intellij.compiler.CompilerConfiguration
 import com.intellij.compiler.impl.javaCompiler.javac.JavacConfiguration
+import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.service.project.ProjectDataManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
@@ -30,6 +31,11 @@ abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImporti
 
   import ProjectStructureDsl._
 
+  /**
+   * When set to `true` during a test run, only a preview import is performed.
+   */
+  protected def isPreview: Boolean = false
+
   override protected def getTestDataProjectPath: String =
     generateTestProjectPath(getTestName(true))
 
@@ -39,6 +45,14 @@ abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImporti
     super.setUp()
     SbtProjectResolver.processOutputOfLatestStructureDump = ""
     SbtCachesSetupUtil.setupCoursierAndIvyCache(getProject)
+  }
+
+  override def createImportSpec() = {
+    val importSpecBuilder = new ImportSpecBuilder(super.createImportSpec())
+    if (isPreview) {
+      importSpecBuilder.usePreviewMode()
+    }
+    importSpecBuilder.build()
   }
 
   protected implicit lazy val defaultCompareContext: ProjectStructureComparisonContext =
